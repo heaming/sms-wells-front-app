@@ -176,38 +176,38 @@ const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'ogNm' },
     { fieldName: 'cntGb' },
-    { fieldName: 'cntTotal' },
-    { fieldName: 'cnt01' },
-    { fieldName: 'cnt02' },
-    { fieldName: 'cnt03' },
-    { fieldName: 'cnt04' },
-    { fieldName: 'cnt05' },
-    { fieldName: 'cnt06' },
-    { fieldName: 'cnt07' },
-    { fieldName: 'cnt08' },
-    { fieldName: 'cnt09' },
-    { fieldName: 'cnt10' },
-    { fieldName: 'cnt11' },
-    { fieldName: 'cnt12' },
-    { fieldName: 'cnt13' },
-    { fieldName: 'cnt14' },
-    { fieldName: 'cnt15' },
-    { fieldName: 'cnt16' },
-    { fieldName: 'cnt17' },
-    { fieldName: 'cnt18' },
-    { fieldName: 'cnt19' },
-    { fieldName: 'cnt20' },
-    { fieldName: 'cnt21' },
-    { fieldName: 'cnt22' },
-    { fieldName: 'cnt23' },
-    { fieldName: 'cnt24' },
-    { fieldName: 'cnt25' },
-    { fieldName: 'cnt26' },
-    { fieldName: 'cnt27' },
-    { fieldName: 'cnt28' },
-    { fieldName: 'cnt29' },
-    { fieldName: 'cnt30' },
-    { fieldName: 'cnt31' },
+    { fieldName: 'cntTotal', dataType: 'number' },
+    { fieldName: 'cnt01', dataType: 'number' },
+    { fieldName: 'cnt02', dataType: 'number' },
+    { fieldName: 'cnt03', dataType: 'number' },
+    { fieldName: 'cnt04', dataType: 'number' },
+    { fieldName: 'cnt05', dataType: 'number' },
+    { fieldName: 'cnt06', dataType: 'number' },
+    { fieldName: 'cnt07', dataType: 'number' },
+    { fieldName: 'cnt08', dataType: 'number' },
+    { fieldName: 'cnt09', dataType: 'number' },
+    { fieldName: 'cnt10', dataType: 'number' },
+    { fieldName: 'cnt11', dataType: 'number' },
+    { fieldName: 'cnt12', dataType: 'number' },
+    { fieldName: 'cnt13', dataType: 'number' },
+    { fieldName: 'cnt14', dataType: 'number' },
+    { fieldName: 'cnt15', dataType: 'number' },
+    { fieldName: 'cnt16', dataType: 'number' },
+    { fieldName: 'cnt17', dataType: 'number' },
+    { fieldName: 'cnt18', dataType: 'number' },
+    { fieldName: 'cnt19', dataType: 'number' },
+    { fieldName: 'cnt20', dataType: 'number' },
+    { fieldName: 'cnt21', dataType: 'number' },
+    { fieldName: 'cnt22', dataType: 'number' },
+    { fieldName: 'cnt23', dataType: 'number' },
+    { fieldName: 'cnt24', dataType: 'number' },
+    { fieldName: 'cnt25', dataType: 'number' },
+    { fieldName: 'cnt26', dataType: 'number' },
+    { fieldName: 'cnt27', dataType: 'number' },
+    { fieldName: 'cnt28', dataType: 'number' },
+    { fieldName: 'cnt29', dataType: 'number' },
+    { fieldName: 'cnt30', dataType: 'number' },
+    { fieldName: 'cnt31', dataType: 'number' },
   ];
 
   const columns = [
@@ -245,7 +245,9 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_AGG'),
       width: '80',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -261,6 +263,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -276,6 +279,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -295,7 +299,9 @@ const initGrid = defineGrid((data, view) => {
       header: '01',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -311,6 +317,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -326,6 +333,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -345,7 +353,9 @@ const initGrid = defineGrid((data, view) => {
       header: '02',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -361,6 +371,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -376,6 +387,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -395,7 +407,9 @@ const initGrid = defineGrid((data, view) => {
       header: '03',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -411,6 +425,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -426,6 +441,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -445,7 +461,9 @@ const initGrid = defineGrid((data, view) => {
       header: '04',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -461,6 +479,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -476,6 +495,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -495,7 +515,9 @@ const initGrid = defineGrid((data, view) => {
       header: '05',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -511,6 +533,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -526,6 +549,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -545,7 +569,9 @@ const initGrid = defineGrid((data, view) => {
       header: '06',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -561,6 +587,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -576,6 +603,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -595,7 +623,9 @@ const initGrid = defineGrid((data, view) => {
       header: '07',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -611,6 +641,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -626,6 +657,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -645,7 +677,9 @@ const initGrid = defineGrid((data, view) => {
       header: '08',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -661,6 +695,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -676,6 +711,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -695,7 +731,9 @@ const initGrid = defineGrid((data, view) => {
       header: '09',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -711,6 +749,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -726,6 +765,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -745,7 +785,9 @@ const initGrid = defineGrid((data, view) => {
       header: '10',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -761,6 +803,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -776,6 +819,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -795,7 +839,9 @@ const initGrid = defineGrid((data, view) => {
       header: '11',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -811,6 +857,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -826,6 +873,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -845,7 +893,9 @@ const initGrid = defineGrid((data, view) => {
       header: '12',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -861,6 +911,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -876,6 +927,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -895,7 +947,9 @@ const initGrid = defineGrid((data, view) => {
       header: '13',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -911,6 +965,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -926,6 +981,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -945,7 +1001,9 @@ const initGrid = defineGrid((data, view) => {
       header: '14',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -961,6 +1019,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -976,6 +1035,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -995,7 +1055,9 @@ const initGrid = defineGrid((data, view) => {
       header: '15',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1011,6 +1073,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1026,6 +1089,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1045,7 +1109,9 @@ const initGrid = defineGrid((data, view) => {
       header: '16',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1061,6 +1127,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1076,6 +1143,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1095,7 +1163,9 @@ const initGrid = defineGrid((data, view) => {
       header: '17',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1111,6 +1181,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1126,6 +1197,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1145,7 +1217,9 @@ const initGrid = defineGrid((data, view) => {
       header: '18',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1161,6 +1235,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1176,6 +1251,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1195,7 +1271,9 @@ const initGrid = defineGrid((data, view) => {
       header: '19',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1211,6 +1289,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1226,6 +1305,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1245,7 +1325,9 @@ const initGrid = defineGrid((data, view) => {
       header: '20',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1261,6 +1343,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1276,6 +1359,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1295,7 +1379,9 @@ const initGrid = defineGrid((data, view) => {
       header: '21',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1311,6 +1397,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1326,6 +1413,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1345,7 +1433,9 @@ const initGrid = defineGrid((data, view) => {
       header: '22',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1361,6 +1451,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1376,6 +1467,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1395,7 +1487,9 @@ const initGrid = defineGrid((data, view) => {
       header: '23',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1411,6 +1505,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1426,6 +1521,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1445,7 +1541,9 @@ const initGrid = defineGrid((data, view) => {
       header: '24',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1461,6 +1559,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1476,6 +1575,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1495,7 +1595,9 @@ const initGrid = defineGrid((data, view) => {
       header: '25',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1511,6 +1613,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1526,6 +1629,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1545,7 +1649,9 @@ const initGrid = defineGrid((data, view) => {
       header: '26',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1561,6 +1667,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1576,6 +1683,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1595,7 +1703,9 @@ const initGrid = defineGrid((data, view) => {
       header: '27',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1611,6 +1721,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1626,6 +1737,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1645,7 +1757,9 @@ const initGrid = defineGrid((data, view) => {
       header: '28',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1661,6 +1775,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1676,6 +1791,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1695,7 +1811,9 @@ const initGrid = defineGrid((data, view) => {
       header: '29',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1711,6 +1829,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1726,6 +1845,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1745,7 +1865,9 @@ const initGrid = defineGrid((data, view) => {
       header: '30',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1761,6 +1883,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1776,6 +1899,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1795,7 +1919,9 @@ const initGrid = defineGrid((data, view) => {
       header: '31',
       width: '68',
       styleName: 'text-right',
+      numberFormat: '#,##0',
       footers: [{
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1811,6 +1937,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
@@ -1826,6 +1953,7 @@ const initGrid = defineGrid((data, view) => {
           return sum;
         },
       }, {
+        numberFormat: '#,##0',
         // eslint-disable-next-line no-unused-vars
         valueCallback(grid, column, footerIndex, columnFooter, value) {
           let sum = 0;
