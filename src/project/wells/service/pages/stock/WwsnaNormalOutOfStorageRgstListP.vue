@@ -557,7 +557,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellDblClicked = async (g, { dataRow }) => {
     const {
-      itmPdCd, svpdNmKor, strOjWareNo, strOjWareNm, ostrAkQty, strWareDvCd,
+      itmPdCd, svpdNmKor, strOjWareNo, strWareNm, ostrAkQty, strWareDvCd,
     } = gridUtil.getRowValue(g, dataRow);
 
     await modal({
@@ -566,7 +566,7 @@ const initGrdMain = defineGrid((data, view) => {
         itmPdCd,
         itmPdNm: svpdNmKor,
         strOjWareNo,
-        strOjWareNm,
+        strOjWareNm: strWareNm,
         ostrQty: ostrAkQty,
         wareDvCd: strWareDvCd,
       },
