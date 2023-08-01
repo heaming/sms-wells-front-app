@@ -317,7 +317,7 @@ async function onClickDelete() {
     const { processCount } = res.data;
     if (processCount > 0) {
       notify(t('MSG_ALT_DELETED'));
-      await fetchData();
+      ok();
     }
   }
 }
