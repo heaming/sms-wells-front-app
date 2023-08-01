@@ -283,7 +283,14 @@ async function onClickDelete() {
     return;
   }
 
-  const { ostrDt, ostrOjWareNo } = checkedRows[0];
+  const { ostrDt, ostrOjWareNo, ostrWareDvCd } = checkedRows[0];
+  // 출고창고가 물류센터인 경우
+  if (ostrWareDvCd === '1') {
+    // 출고창고가 물류센터이면 처리할 수 없습니다.
+    await alert(t('MSG_ALT_CANT_PROC_OSTR_LGST'));
+    return;
+  }
+
   if (!isEmpty(ostrDt) && !isEmpty(ostrOjWareNo)) {
     // 창고마감여부 조회
     const res = await dataService.get(`${baseURI}/ware-close-yn`, { params: { ostrDt, ostrOjWareNo } });
@@ -314,7 +321,14 @@ async function onClickDelete() {
 }
 
 async function callConfirm(cnfmRows) {
-  const { ostrDt, ostrOjWareNo } = cnfmRows[0];
+  const { ostrDt, ostrOjWareNo, ostrWareDvCd } = cnfmRows[0];
+  // 출고창고가 물류센터인 경우
+  if (ostrWareDvCd === '1') {
+    // 출고창고가 물류센터이면 처리할 수 없습니다.
+    await alert(t('MSG_ALT_CANT_PROC_OSTR_LGST'));
+    return;
+  }
+
   if (!isEmpty(ostrDt) && !isEmpty(ostrOjWareNo)) {
     // 창고마감여부 조회
     const res = await dataService.get(`${baseURI}/ware-close-yn`, { params: { ostrDt, ostrOjWareNo } });
