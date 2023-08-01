@@ -252,48 +252,426 @@ const initGrid = defineGrid((data, view) => {
     }, // 휴대전화번호
     { fieldName: 'rsgnDt', header: t('MSG_TXT_RSGN_D'), width: '106', styleName: 'text-center', datetimeFormat: 'date' }, // 퇴사일
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_BLG'), width: '112', styleName: 'text-center' }, // 소속
-    { fieldName: 'bfIstCn', header: t('MSG_TXT_INSTALLATION'), width: '112', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 전월-설치
-    { fieldName: 'bfCanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 전월-취소
-    { fieldName: 'bfFnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 전월-최종
-    { fieldName: 'thmIstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 당월-설치
-    { fieldName: 'thmCanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 당월-취소
-    { fieldName: 'thmFnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 당월-최종
-    { fieldName: 'mth01IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 1월-설치
-    { fieldName: 'mth01CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 1월-취소
-    { fieldName: 'mth01FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 1월-최종
-    { fieldName: 'mth02IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 2월-설치
-    { fieldName: 'mth02CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 2월-취소
-    { fieldName: 'mth02FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 2월-최종
-    { fieldName: 'mth03IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 3월-설치
-    { fieldName: 'mth03CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 3월-취소
-    { fieldName: 'mth03FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 3월-최종
-    { fieldName: 'mth04IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 4월-설치
-    { fieldName: 'mth04CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 4월-취소
-    { fieldName: 'mth04FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 4월-최종
-    { fieldName: 'mth05IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 5월-설치
-    { fieldName: 'mth05CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 5월-취소
-    { fieldName: 'mth05FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 5월-최종
-    { fieldName: 'mth06IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 6월-설치
-    { fieldName: 'mth06CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 6월-취소
-    { fieldName: 'mth06FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 6월-최종
-    { fieldName: 'mth07IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 7월-설치
-    { fieldName: 'mth07CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 7월-취소
-    { fieldName: 'mth07FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 7월-최종
-    { fieldName: 'mth08IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 8월-설치
-    { fieldName: 'mth08CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 8월-취소
-    { fieldName: 'mth08FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 8월-최종
-    { fieldName: 'mth09IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 9월-설치
-    { fieldName: 'mth09CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 9월-취소
-    { fieldName: 'mth09FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 9월-최종
-    { fieldName: 'mth10IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, //  10월-설치
-    { fieldName: 'mth10CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 10월-취소
-    { fieldName: 'mth10FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 10월-최종
-    { fieldName: 'mth11IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 11월-설치
-    { fieldName: 'mth11CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 11월-취소
-    { fieldName: 'mth11FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 11월-최종
-    { fieldName: 'mth12IstCn', header: t('MSG_TXT_INSTALLATION'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, //  12월-설치
-    { fieldName: 'mth12CanCn', header: t('MSG_TXT_CANCEL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 12월-취소
-    { fieldName: 'mth12FnlCn', header: t('MSG_TXT_FNL'), width: '111', styleName: 'text-right rg-button-link', renderer: { type: 'button' } }, // 12월-최종
+    { fieldName: 'bfIstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { bfIstCn } = grid.getValues(dataCell.index.itemIndex);
+        return bfIstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 전월-설치
+    { fieldName: 'bfCanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { bfCanCn } = grid.getValues(dataCell.index.itemIndex);
+        return bfCanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 전월-취소
+    { fieldName: 'bfFnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { bfFnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return bfFnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 전월-최종
+    { fieldName: 'thmIstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { thmIstCn } = grid.getValues(dataCell.index.itemIndex);
+        return thmIstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 당월-설치
+    { fieldName: 'thmCanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { thmCanCn } = grid.getValues(dataCell.index.itemIndex);
+        return thmCanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 당월-취소
+    { fieldName: 'thmFnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { thmFnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return thmFnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 당월-최종
+    { fieldName: 'mth01IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth01IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth01IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 1월-설치
+    { fieldName: 'mth01CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth01CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth01CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 1월-취소
+    { fieldName: 'mth01FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth01FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth01FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 1월-최종
+    { fieldName: 'mth02IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth02IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth02IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 2월-설치
+    { fieldName: 'mth02CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth02CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth02CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 2월-취소
+    { fieldName: 'mth02FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth02FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth02FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 2월-최종
+    { fieldName: 'mth03IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth03IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth03IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 3월-설치
+    { fieldName: 'mth03CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth03CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth03CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 3월-취소
+    { fieldName: 'mth03FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth03FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth03FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 3월-최종
+    { fieldName: 'mth04IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth04IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth04IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 4월-설치
+    { fieldName: 'mth04CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth04CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth04CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 4월-취소
+    { fieldName: 'mth04FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth04FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth04FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 4월-최종
+    { fieldName: 'mth05IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth05IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth05IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 5월-설치
+    { fieldName: 'mth05CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth05CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth05CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 5월-취소
+    { fieldName: 'mth05FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth05FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth05FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 5월-최종
+    { fieldName: 'mth06IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth06IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth06IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 6월-설치
+    { fieldName: 'mth06CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth06CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth06CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 6월-취소
+    { fieldName: 'mth06FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth06FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth06FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 6월-최종
+    { fieldName: 'mth07IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth07IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth07IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 7월-설치
+    { fieldName: 'mth07CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth07CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth07CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 7월-취소
+    { fieldName: 'mth07FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth07FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth07FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 7월-최종
+    { fieldName: 'mth08IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth08IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth08IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 8월-설치
+    { fieldName: 'mth08CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth08CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth08CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 8월-취소
+    { fieldName: 'mth08FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth08FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth08FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 8월-최종
+    { fieldName: 'mth09IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth09IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth09IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 9월-설치
+    { fieldName: 'mth09CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth09CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth09CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 9월-취소
+    { fieldName: 'mth09FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth09FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth09FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 9월-최종
+    { fieldName: 'mth10IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth10IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth10IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 10월-설치
+    { fieldName: 'mth10CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth10CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth10CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 10월-취소
+    { fieldName: 'mth10FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth10FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth10FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 10월-최종
+    { fieldName: 'mth11IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth11IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth11IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 11월-설치
+    { fieldName: 'mth11CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth11CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth11CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 11월-취소
+    { fieldName: 'mth11FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth11FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth11FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 11월-최종
+    { fieldName: 'mth12IstCn',
+      header: t('MSG_TXT_INSTALLATION'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth12IstCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth12IstCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 12월-설치
+    { fieldName: 'mth12CanCn',
+      header: t('MSG_TXT_CANCEL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth12CanCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth12CanCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 12월-취소
+    { fieldName: 'mth12FnlCn',
+      header: t('MSG_TXT_FNL'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { mth12FnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return mth12FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 12월-최종
     { fieldName: 'totFnlCn', header: t('MSG_TXT_SUM'), width: '111', styleName: 'text-right' }, // 합계
   ];
 
@@ -405,7 +783,8 @@ const initGrid = defineGrid((data, view) => {
     const stYy = searchParams.value.istDt;
     let srchGbn = '';
     let colDv = '';
-    const empno = g.getValue(dataRow, 'empno');
+    // const empno = g.getValue(dataRow, 'empNo');
+    const empno = gridUtil.getCellValue(g, dataRow, 'empNo');
 
     if (column === 'bfIstCn') {
       colDv = 'pre';
@@ -523,6 +902,7 @@ const initGrid = defineGrid((data, view) => {
       colDv = 'tot';
     }
 
+    console.log(`empno${empno}`);
     await modal({
       component: 'WwctaEmployeePurchaseContractListP',
       componentProps: { stYy, colDv, empno, srchGbn },
