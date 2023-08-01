@@ -672,7 +672,16 @@ const initGrid = defineGrid((data, view) => {
         return mth12FnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
       },
     }, // 12월-최종
-    { fieldName: 'totFnlCn', header: t('MSG_TXT_SUM'), width: '111', styleName: 'text-right' }, // 합계
+    { fieldName: 'totFnlCn',
+      header: t('MSG_TXT_SUM'),
+      width: '111',
+      styleName: 'text-right rg-button-link',
+      renderer: { type: 'button' },
+      styleCallback(grid, dataCell) {
+        const { totFnlCn } = grid.getValues(dataCell.index.itemIndex);
+        return totFnlCn > 0 ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
+      },
+    }, // 합계
   ];
 
   // multi row header setting
