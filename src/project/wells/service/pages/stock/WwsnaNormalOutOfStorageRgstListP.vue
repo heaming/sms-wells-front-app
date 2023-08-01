@@ -243,6 +243,8 @@ async function fetchData() {
   const fetchURI = ref(`${detailURI}`);
   if (props.page === pageProps.remove) {
     fetchURI.value = removeURI;
+    const { itmOstrNo } = searchParams.value;
+    if (isEmpty(itmOstrNo)) return;
   }
 
   const res = await dataService.get(fetchURI.value, { params: { ...searchParams.value, ...pageInfo.value } });
@@ -355,7 +357,7 @@ async function callConfirm(cnfmRows) {
 
   if (valid2) {
     // 출고수량이 재고수량을 초과합니다.
-    await alert(t('OSTR_QTY_EXCEEDS_INVEN_QTY'));
+    await alert(t('MSG_ALT_OSTR_QTY_EXCEEDS_INVEN_QTY'));
   }
 
   if (!isEmpty(ostrDt) && !isEmpty(ostrOjWareNo)) {
@@ -576,7 +578,7 @@ const initGrdMain = defineGrid((data, view) => {
 
       if (qty < outQty) {
         // 출고수량이 재고수량을 초과합니다.
-        await alert(t('OSTR_QTY_EXCEEDS_INVEN_QTY'));
+        await alert(t('MSG_ALT_OSTR_QTY_EXCEEDS_INVEN_QTY'));
         grid.setValue(itemIndex, 'outQty', outQtyOrg);
       }
     }
