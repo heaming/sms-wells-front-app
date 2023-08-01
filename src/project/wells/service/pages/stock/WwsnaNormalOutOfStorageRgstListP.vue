@@ -325,8 +325,10 @@ async function callConfirm(cnfmRows) {
     }
   }
 
+  const checkRows = cnfmRows.map((v) => (v.ostrAkSn));
+
   // 출고 확정건수 조회
-  let res = await dataService.get(`${baseURI}/confirm-count`, { params: { list: [...cnfmRows] } });
+  let res = await dataService.get(`${baseURI}/confirm-count`, { params: { ostrAkSns: checkRows, ostrAkNo: cnfmRows[0].ostrAkNo } });
   if (res.data > 0) {
     // 이미 정상출고 처리된 품목입니다.
     await alert(t('ALDY_NOR_OSTR_CMP'));
@@ -335,7 +337,8 @@ async function callConfirm(cnfmRows) {
   res = await dataService.post(detailURI, cnfmRows);
   const { processCount } = res.data;
   if (processCount > 0) {
-    notify(t('MSG_ALT_SAVE_DATA'));
+    // 확정 되었습니다.
+    notify(t('MSG_TXT_CNFM_SCS'));
   }
 }
 
@@ -377,8 +380,7 @@ async function setSearchParams(res) {
   searchParams.value = cloneDeep(res.data);
   const { stckStdGb, ostrAkRgstDt } = res.data;
 
-  searchParams.value.stckStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
-  searchParams.value.stckNoStdGb = 'N';
+  searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
   searchParams.value.rgstDt = isEmpty(ostrAkRgstDt) ? dayjs().format('YYYYMMDD') : ostrAkRgstDt;
   searchParams.value.apyYm = dayjs().format('YYYYMM');
 }
@@ -539,7 +541,6 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.onCellDblClicked = async (g, { dataRow }) => {
-    debugger;
     const {
       itmPdCd, svpdNmKor, strOjWareNo, strOjWareNm, ostrAkQty, strWareDvCd,
     } = gridUtil.getRowValue(g, dataRow);
