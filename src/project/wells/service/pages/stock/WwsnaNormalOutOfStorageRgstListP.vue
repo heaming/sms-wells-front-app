@@ -358,6 +358,7 @@ async function callConfirm(cnfmRows) {
   if (valid2) {
     // 출고수량이 재고수량을 초과합니다.
     await alert(t('MSG_ALT_OSTR_QTY_EXCEEDS_INVEN_QTY'));
+    return;
   }
 
   if (!isEmpty(ostrDt) && !isEmpty(ostrOjWareNo)) {
