@@ -274,6 +274,20 @@ export default () => {
     return result;
   }
 
+  /**
+   * <pre>
+   * 서비스센터 조직원 조회
+   * </pre>
+   *
+   * @example
+   *     import useSnCode from '~sms-wells/service/composables/useSnCode';
+   *     const { getServiceCenterPrtnr } = useSnCode();
+   *     const serviceCenterPrtnr = await getServiceCenterPrtnr('OGO198500002384');
+   */
+  async function getServiceCenterPrtnr(ogId) {
+    return (await dataService.get('/sms/wells/common/sms-wells-codes/service-center-prtnr', { params: { ogId } })).data;
+  }
+
   return {
     getPartMaster,
     getServiceCenters,
@@ -285,5 +299,6 @@ export default () => {
     getWorkingEngineers,
     getWarehouseCloseCheck,
     getMonthWarehouse,
+    getServiceCenterPrtnr,
   };
 };
