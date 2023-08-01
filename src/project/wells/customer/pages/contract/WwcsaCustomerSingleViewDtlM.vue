@@ -50,7 +50,6 @@
         <!-- 성별 개인 -->
         <kw-search-item
           :label="$t('MSG_TXT_GENDER')"
-          required
         >
           <kw-option-group
             v-model="searchParams.sexDvCd"
