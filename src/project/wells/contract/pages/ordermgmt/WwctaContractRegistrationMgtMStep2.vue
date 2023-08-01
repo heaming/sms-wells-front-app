@@ -670,7 +670,7 @@ async function getPdAmts(pd) {
   ['fnlAmt', 'vat', 'sellFee', 'ackmtPerfRt', 'ackmtPerfAmt', 'cvtPerfAmt',
     'feeAckmtCt', 'feeAckmtBaseAmt', 'feeFxamYn',
     'pdPrcFnlDtlId', 'fxamFxrtDvCd', 'verSn', 'ctrVal', 'pdPrcId',
-    'isExistAlncPds',
+    'isExistAlncPds', 'rgstCsDscYn',
   ].forEach((col) => {
     pd[col] = prc.data ? prc.data[col] : undefined;
   });
