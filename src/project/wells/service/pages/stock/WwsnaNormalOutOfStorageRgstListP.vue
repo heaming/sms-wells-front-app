@@ -331,6 +331,33 @@ async function callConfirm(cnfmRows) {
     return;
   }
 
+  // 출고수량 체크
+  let valid1 = false;
+  let valid2 = false;
+  cnfmRows.forEach((e) => {
+    const { outQty, outQtyOrg, qty } = e;
+    if (outQty > outQtyOrg) {
+      valid1 = true;
+      return false;
+    }
+
+    if (qty < outQty) {
+      valid2 = true;
+      return false;
+    }
+  });
+
+  if (valid1) {
+    // 출고수량이 요청수량을 초과합니다.
+    await alert(t('MSG_ALT_OSTR_QTY_REQ_QTY'));
+    return;
+  }
+
+  if (valid2) {
+    // 출고수량이 재고수량을 초과합니다.
+    await alert(t('OSTR_QTY_EXCEEDS_INVEN_QTY'));
+  }
+
   if (!isEmpty(ostrDt) && !isEmpty(ostrOjWareNo)) {
     // 창고마감여부 조회
     const res = await dataService.get(`${baseURI}/ware-close-yn`, { params: { ostrDt, ostrOjWareNo } });
