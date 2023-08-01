@@ -220,8 +220,8 @@ async function fetchDefaultData() {
   codes.value.WARE_HOUSE = [];
   searchParams.value.ostrOjWareNo = '';
 
-  const { strHopDtStr } = searchParams.value;
-  if (isEmpty(strHopDtStr)) return;
+  let { strHopDtStr } = searchParams.value;
+  if (isEmpty(strHopDtStr)) strHopDtStr = dayjs().format('YYYYMMDD');
 
   const apyYm = dayjs(strHopDtStr).format('YYYYMM');
   const res = await dataService.get(wareURI, { params: { apyYm } });
