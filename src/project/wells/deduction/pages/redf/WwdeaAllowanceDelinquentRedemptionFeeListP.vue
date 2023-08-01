@@ -97,6 +97,10 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  ogTpCd: {
+    type: String,
+    default: null,
+  },
 });
 
 const dataService = useDataService();
@@ -138,8 +142,8 @@ const getVisibleRows = computed(() => {
 });
 
 onMounted(() => {
-  console.log(props);
   searchParams.value.prtnrNo = props.prtnrNo;
+  searchParams.value.ogTpCd = props.ogTpCd;
 });
 
 // -------------------------------------------------------------------------------------------------
