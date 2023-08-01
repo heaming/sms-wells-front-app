@@ -16,6 +16,8 @@
   <kw-popup
     ref="popupRef"
     size="3xl"
+    ignore-on-modified
+    no-action
   >
     <kw-form
       :cols="2"
@@ -501,7 +503,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG'), width: '100', styleName: 'text-right' }, // 출고누계
     { fieldName: 'outQty',
       header: t('MSG_TXT_OSTR_QTY'),
-      editable: true,
+      editable: props.page === pageProps.confirm,
       rules: 'required|min_value:1|max_value:999999999999',
       dataType: 'number',
       editor: {
@@ -519,8 +521,8 @@ const initGrdMain = defineGrid((data, view) => {
       rules: 'max:4000',
       editor: {
         type: 'text',
-        editable: true },
-      editable: true },
+        editable: props.page === pageProps.confirm },
+      editable: props.page === pageProps.confirm },
     { fieldName: 'mngtUnitNm', header: t('TXT_MSG_MNGT_UNIT_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'boxUnitQty', header: t('MSG_TXT_BOX_QTY'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_OSTR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
@@ -532,7 +534,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.fieldName = 'chk';
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.editOptions.columnEditableFirst = true;
+  view.editOptions.columnEditableFirst = props.page === pageProps.confirm;
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
     const { qty, outQty, outQtyOrg } = grid.getValues(itemIndex);
