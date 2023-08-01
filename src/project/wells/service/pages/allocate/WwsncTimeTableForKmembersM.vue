@@ -14,7 +14,7 @@
 ****************************************************************************************************
 -->
 <template>
-  <kw-page>
+  <kw-page :title="props.title">
     <!-- To. 개발  window popup width size: 940px  -->
     <h1>{{ $t('MSG_TIT_EGER_TIME_TABLE') /*엔지니어 Time table*/ }}</h1>
     <div class="normal-area normal-area--button-set-bottom pt30 mt15 w860">
@@ -508,6 +508,7 @@ const props = defineProps({
   cntrNo: { type: String, default: '' },
   cntrSn: { type: String, default: '' },
   seq: { type: String, default: '' },
+  title: { type: String, default: '' },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
