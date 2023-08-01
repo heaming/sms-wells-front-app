@@ -116,7 +116,7 @@ const initEmployeePurchaseGcfDsbList = defineGrid((data, view) => {
     { fieldName: 'hmnrscEmpno', header: t('MSG_TXT_SELLER_ID'), width: '124', styleName: 'text-center' }, // 판매자사번
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '154', styleName: 'text-center' }, // 계약번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '94', styleName: 'text-center' }, // 고객명
-    { fieldName: 'bryyMmdd', header: t('MSG_TXT_CST_BRYY'), width: '94', styleName: 'text-center' }, // 고객생년
+    { fieldName: 'bryyMmdd', header: t('MSG_TXT_CST_BRYY'), width: '124', styleName: 'text-center', datetimeFormat: 'date' }, // 고객생년
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '259', styleName: 'text-left' }, // 상품명
     { fieldName: 'pdTpCd', header: t('MSG_TXT_PRDT_TYPE'), width: '124', styleName: 'text-center' }, // 상품유형
     { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_RCP_D'), width: '124', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
