@@ -444,10 +444,34 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'wareNm', header: t('MSG_TXT_BLD_NM'), width: '150' },
     { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '250' },
-    { fieldName: 'eotStoc', header: t('MSG_TXT_EOT_STOC'), width: '100', styleName: 'text-right' },
-    { fieldName: 'acinspQty', header: t('MSG_TXT_ACINSP_STOC'), width: '100', styleName: 'text-right', editable: true },
-    { fieldName: 'minusQty', header: t('MSG_TXT_STOC_GAP'), width: '100', styleName: 'text-right' },
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '250', footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'eotStoc',
+      header: t('MSG_TXT_EOT_STOC'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      },
+    },
+    { fieldName: 'acinspQty',
+      header: t('MSG_TXT_ACINSP_STOC'),
+      width: '100',
+      styleName: 'text-right',
+      editable: true,
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      },
+    },
+    { fieldName: 'minusQty',
+      header: t('MSG_TXT_STOC_GAP'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
     { fieldName: 'acinspRmkCn', header: t('MSG_TXT_NOTE'), width: '150', styleName: 'text-right', editable: true },
     { fieldName: 'cnfmdt', header: t('MSG_TXT_CNFM_DT'), width: '150', styleName: 'text-right', datetimeFormat: 'date' },
     { fieldName: 'cnfmPitmEotStocQty', header: t('MSG_TXT_CNFM_EOT'), width: '150', styleName: 'text-right' },
@@ -456,8 +480,32 @@ const initGrdMain = defineGrid((data, view) => {
 
   ];
 
+  const columnLayout = [
+    {
+      column: 'statusT', footerUserSpans: [{ colspan: 1 }],
+    },
+    'col2',
+    'wareNo',
+    'wareNm',
+    'sapCd',
+    'itmPdCd',
+    'pdAbbrNm',
+    'eotStoc',
+    'acinspQty',
+    'minusQty',
+    'acinspRmkCn',
+    'cnfmdt',
+    'cnfmPitmEotStocQty',
+    'diffQty',
+    'iostRfdt',
+
+  ];
+
+  view.setColumnLayout(columnLayout);
   data.setFields(fields);
   view.setColumns(columns);
+  view.setFooters({ visible: true });
+  view.setOptions({ summaryMode: 'aggregate' });
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
