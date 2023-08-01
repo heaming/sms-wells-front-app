@@ -418,7 +418,7 @@
                   :label="$t('MSG_TXT_SDING_HIST')"
                   padding="12px"
                   class="ml8"
-                  @click="onClickSearchSidding"
+                  @click="onClickSearchSeeding"
                 />
               </kw-form-item>
               <kw-form-item :label="$t('MSG_TXT_BHSHD_QTY')">
@@ -636,7 +636,7 @@ async function onClickVisitPeriodCreate() {
     },
   });
 }
-async function onClickSearchSidding() {
+async function onClickSearchSeeding() {
   await modal({
     component: 'WwsncSeedingDeliveryListP',
     componentProps: {
@@ -1039,9 +1039,9 @@ const initGridContact = defineGrid((data, view) => {
 /* 연계코드조회 */
 const initGridFarmCode = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'gubn' },
+    { fieldName: 'gubun' },
     { fieldName: 'cntrDtl' },
-    { fieldName: 'cstKnm' },
+    { fieldName: 'cstNm' },
     { fieldName: 'pdNm' },
     { fieldName: 'sidingCntrDtl' },
     { fieldName: 'adrZip' },
@@ -1056,9 +1056,9 @@ const initGridFarmCode = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'gubn', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'gubun', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrDtl', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-center' },
     { fieldName: 'sidingCntrDtl', header: t('MSG_TXT_PTY_CST'), width: '100', styleName: 'text-center' },
     { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
