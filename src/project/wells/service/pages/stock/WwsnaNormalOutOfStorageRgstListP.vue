@@ -324,8 +324,18 @@ async function onClickDelete() {
   }
 }
 
-async function callConfirm(cnfmRows) {
-  const { ostrDt, ostrOjWareNo, ostrWareDvCd } = cnfmRows[0];
+async function callConfirm(isClose) {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkedRows)) {
+    notify(t('MSG_ALT_NOT_SELECT_NOR_OSTR'));
+    return;
+  }
+
+  if (!await confirm(t('MSG_ALT_WANT_DTRM'))) return;
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
+
+  const { ostrDt, ostrOjWareNo, ostrWareDvCd } = checkedRows[0];
   // 출고창고가 물류센터인 경우
   if (ostrWareDvCd === '1') {
     // 출고창고가 물류센터이면 처리할 수 없습니다.
@@ -336,7 +346,7 @@ async function callConfirm(cnfmRows) {
   // 출고수량 체크
   let valid1 = false;
   let valid2 = false;
-  cnfmRows.forEach((e) => {
+  checkedRows.forEach((e) => {
     const { outQty, outQtyOrg, qty } = e;
     if (outQty > outQtyOrg) {
       valid1 = true;
@@ -371,51 +381,35 @@ async function callConfirm(cnfmRows) {
     }
   }
 
-  const checkRows = cnfmRows.map((v) => (v.ostrAkSn));
+  const checkRows = checkedRows.map((v) => (v.ostrAkSn));
 
   // 출고 확정건수 조회
-  let res = await dataService.get(`${baseURI}/confirm-count`, { params: { ostrAkSns: checkRows, ostrAkNo: cnfmRows[0].ostrAkNo } });
+  let res = await dataService.get(`${baseURI}/confirm-count`, { params: { ostrAkSns: checkRows, ostrAkNo: checkedRows[0].ostrAkNo } });
   if (res.data > 0) {
     // 이미 정상출고 처리된 품목입니다.
     await alert(t('MSG_ALT_ALDY_NOR_OSTR_CMP'));
     return;
   }
-  res = await dataService.post(detailURI, cnfmRows);
+  res = await dataService.post(detailURI, checkedRows);
   const { processCount } = res.data;
   if (processCount > 0) {
     // 확정 되었습니다.
     notify(t('MSG_TXT_CNFM_SCS'));
+    if (isClose) {
+      ok();
+      return;
+    }
+
+    notify('오즈리포트 기능입니다.');
   }
 }
 
 async function onClickConfirm() {
-  const view = grdMainRef.value.getView();
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-  if (isEmpty(checkedRows)) {
-    notify(t('MSG_ALT_NOT_SELECT_NOR_OSTR'));
-    return;
-  }
-
-  if (!await confirm(t('MSG_ALT_WANT_DTRM'))) return;
-  if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
-
-  await callConfirm(checkedRows);
-  ok();
+  await callConfirm(true);
 }
 
 async function onClickConfirmAfterMove() {
-  const view = grdMainRef.value.getView();
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-  if (isEmpty(checkedRows)) {
-    notify(t('MSG_ALT_NOT_SELECT_NOR_OSTR'));
-    return;
-  }
-
-  if (!await confirm(t('MSG_ALT_WANT_DTRM'))) return;
-  if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
-
-  await callConfirm(checkedRows);
-  notify('오즈리포트 기능입니다.');
+  await callConfirm(false);
 }
 
 async function onChangeRgstDt() {
