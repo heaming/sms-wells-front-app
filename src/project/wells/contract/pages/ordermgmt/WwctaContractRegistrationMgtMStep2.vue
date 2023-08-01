@@ -943,7 +943,7 @@ async function isValidStep() {
     await alert('정기배송 대상 기기를 선택해주세요.');
     return false;
   }
-  if (dtls.find((d) => d.sellDscTpCd === '03' && !d.opo.opoYn)) {
+  if (dtls.find((d) => d.sellDscTpCd === '03' && (!d.opo || !d.opo.opoYn))) {
     await alert('1+1 대상 계약을 선택해주세요.');
     return false;
   }
