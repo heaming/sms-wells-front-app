@@ -37,6 +37,7 @@
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ACDN_PHO')">
           <zwcm-file-attacher
+            ref="acdnPhoApnFileRef"
             v-model="acdnPhoApnFile"
             attach-group-id="ATG_SNB_ACDN_ALL"
             :attach-document-id="safetyAccident.acdnPhoApnDocId"
@@ -44,6 +45,7 @@
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ACDN_PICTR')">
           <zwcm-file-attacher
+            ref="acdnPictrApnFileRef"
             v-model="acdnPictrApnFile"
             attach-group-id="ATG_SNB_ACDN_ALL"
             :attach-document-id="safetyAccident.acdnPictrApnDocId"
@@ -51,6 +53,7 @@
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CAUS_ANA')">
           <zwcm-file-attacher
+            ref="causAnaApnFileRef"
             v-model="causAnaApnFile"
             attach-group-id="ATG_SNB_ACDN_ALL"
             :attach-document-id="safetyAccident.causAnaApnDocId"
@@ -68,7 +71,6 @@
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
             disable-popup
             rules="required"
-            @selected="onClickCstSearch"
           >
             <template #append>
               <kw-icon
@@ -128,7 +130,7 @@
           required
         >
           <kw-date-picker
-            v-mode="safetyAccident.istDt"
+            v-model="safetyAccident.istDt"
             :label="$t('MSG_TXT_IST_DT')"
             rules="required"
           />
@@ -293,8 +295,9 @@
       <kw-btn
         secondary
         :label="$t('MSG_TXT_AGR_FW')"
-        :disable="sessionUserInfo.employeeIDNumber !== safetyAccident.cnrldNo"
+        :disable="sessionUserInfo.employeeIDNumber !== safetyAccident.cnrldNo || safetyAccident.agrDocFwYn === 'Y'"
         dense
+        @click="onClickAgreementFoward"
       />
     </kw-action-top>
     <kw-form
@@ -439,8 +442,6 @@ const codes = await codeUtil.getMultiCodes(
 );
 const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
 const sessionUserInfo = getUserInfo();
-console.log(sessionUserInfo);
-debugger;
 const acdnPhoApnFile = ref([]); // 사고사진
 const acdnPictrApnFile = ref([]); // 사고영상
 const causAnaApnFile = ref([]); // 원인분석
@@ -501,10 +502,6 @@ const frmMainRef2 = ref();
 const frmMainRef3 = ref();
 const frmMainRef4 = ref();
 const frmMainRef5 = ref();
-function onClickCstSearch() {
-  debugger;
-  console.log(safetyAccident.value);
-}
 
 function onChangePdNm() {
   safetyAccident.value.acdnRcpNm = safetyAccident.value.pdNm;
@@ -548,7 +545,37 @@ async function onClickSearchContract() {
     safetyAccident.value.cntrSn = payload.cntrSn ?? '';
     safetyAccident.value.cntrDtlNo = `${payload.cntrNo ?? ''}-${payload.cntrSn ?? ''}`;
 
-    console.log(result);
+    // 안전사고관리 데이터 조회
+    const res = (await dataService.get('/sms/wells/service/safety-accidents/init', { params: safetyAccident.value })).data;
+    debugger;
+    Object.assign(safetyAccident.value, res);
+    if (res.pdNm.length !== 0) {
+      onChangePdNm();
+    }
+  }
+}
+
+// 안전사고 합의서 알림톡 발송
+async function onClickAgreementFoward() {
+  if (!await frmMainRef1.value.confirmIfIsModified()) { return; }
+  if (!await frmMainRef1.value.confirmIfIsModified()) { return; }
+  if (!await frmMainRef1.value.confirmIfIsModified()) { return; }
+  if (!await frmMainRef1.value.confirmIfIsModified()) { return; }
+  if (props.acdnRcpId !== '' && sessionUserInfo.employeeIDNumber === safetyAccident.cnrldNo) {
+    if (!await frmMainRef5.value.confirmIfIsModified()) { return; }
+  }
+  const { result } = await modal({
+    component: 'WwsnbSafetyAccidentAgreeBiztalkP',
+    componentProps: {
+      acdnRcpId: props.acdnRcpId,
+      cntrNo: safetyAccident.value.cntrNo,
+      cntrsn: safetyAccident.value.cntrSn,
+      pdNm: safetyAccident.value.pdNm,
+      cstNm: safetyAccident.value.cstNm,
+    },
+  });
+
+  if (result) {
     // 안전사고관리 데이터 조회
     const res = (await dataService.get('/sms/wells/service/safety-accidents/init', { params: safetyAccident.value })).data;
     Object.assign(safetyAccident.value, res);
@@ -568,11 +595,14 @@ async function onClickSave() {
   }
 
   // 저장할 값 세팅.
-  const svCnrNm = svcCode.filter((v) => v.ogId === safetyAccident.value.svCnrOgId).ogNm;
+  const svCnrNm = (svcCode.filter((v) => v.ogId === safetyAccident.value.svCnrOgId))[0].ogNm;
   safetyAccident.value.krnTotCpsAmtMrkNm = convertToKoreanNumber(safetyAccident.value.totCpsAmt);
   safetyAccident.value.cpsPrgsCd = (safetyAccident.value.cpsPrgsNm === '보험사' ? '2' : '1');
   safetyAccident.value.svCnrNm = svCnrNm;
-
+  safetyAccident.value.acdnPhoApnFile = acdnPhoApnFile.value;
+  safetyAccident.value.acdnPictrApnFile = acdnPictrApnFile.value;
+  safetyAccident.value.causAnaApnFile = causAnaApnFile.value;
+  safetyAccident.value.acdnDtm = `${safetyAccident.value.acdnDt}${safetyAccident.value.acdnTm}`;
   await dataService.post('/sms/wells/service/safety-accidents', safetyAccident.value);
   ok();
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -592,7 +622,6 @@ function onChangeInsrcoCpsAmt() {
 }
 
 onMounted(async () => {
-  debugger;
   if (props.acdnRcpId !== '') {
     const res = await dataService.get(`/sms/wells/service/safety-accidents/${props.acdnRcpId}`);
     Object.assign(safetyAccident.value, res.data);

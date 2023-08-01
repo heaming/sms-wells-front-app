@@ -255,6 +255,7 @@ const { modal, alert, notify } = useGlobal();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { t } = useI18n();
 const { currentRoute } = useRouter();
+const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -611,11 +612,19 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.exclusive = true; // 한 행만 체크 가능.
   view.rowIndicator.visible = true; // create number indicator column
 
-  /* TODO : 연결페이지 개발전. 개발완료 시 변경. */
-  view.onCellItemClicked = async (/* grid, index */) => {
-    await modal({
-      component: 'WwsnbIndividualServiceListM',
-    });
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
+    if (column === 'cntrNo') {
+      const cntrNo = grid.getValue(itemIndex, 'cntrNo');
+      const cntrSn = grid.getValue(itemIndex, 'cntrSn');
+
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
+    }
   };
 });
 </script>
