@@ -103,7 +103,7 @@
                 ? `${individualParams.locaraTno}
                 -${individualParams.exnoEncr}
                 -${individualParams.idvTno}`
-                : '-' }}
+                : '' }}
             </p>
           </kw-form-item>
           <kw-form-item
@@ -116,7 +116,7 @@
                 ? `${individualParams.cralLocaraTno}
                 -${individualParams.mexnoEncr}
                 -${individualParams.cralIdvTno}`
-                : '-' }}
+                : '' }}
             </p>
           </kw-form-item>
           <!-- 주소 -->
@@ -194,7 +194,7 @@
           <kw-form-item
             :label="$t('MSG_TXT_PRD_CHNG')"
           >
-            <p>{{ isEmpty(stringUtil.getDatetimeFormat(individualParams.chnDt))?'-':'abebebebeb' }}</p>
+            <p>{{ stringUtil.getDatetimeFormat(individualParams.chnDt) }}</p>
           </kw-form-item>
           <!-- 판매유형 -->
           <kw-form-item
@@ -691,7 +691,11 @@ async function getIndividualDelinquent() {
 /* 처리내역 조회 */
 async function getIndividualState() {
   const res = await dataService.get('sms/wells/service/individual-service-ps/process-state', { params: { ...searchParams.value, ...pageInfo.value } });
+  console.log(res.data);
   const { list: individualState, pageInfo: pagingResult } = res.data;
+
+  // individualState.forEach((v) => { v.cralLocaraTno = v.cralLocaraTno + v.mexnoEncr + v.cralIdvTno; });
+  // console.log(test.value);
 
   pageInfo.value = pagingResult;
   const individualStateView = grdIndividualStateRef.value.getView();
@@ -699,6 +703,8 @@ async function getIndividualState() {
   individualStateData.checkRowStates(false);
   individualStateData.addRows(individualState);
   individualStateData.checkRowStates(true);
+
+  console.log(individualState);
 }
 /* 상담내역 조회 */
 async function getIndividualCounsel() {
@@ -802,7 +808,7 @@ const initGridHousehold = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { locaraTno, exnoEncr, idvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(locaraTno && exnoEncr && idvTno) ? `${locaraTno}-${exnoEncr}-${idvTno}` : '-';
+        return !isEmpty(locaraTno || exnoEncr || idvTno) ? `${locaraTno}-${exnoEncr}-${idvTno}` : '';
       },
     },
     { fieldName: 'idvTelNo',
@@ -811,7 +817,7 @@ const initGridHousehold = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(cralLocaraTno && cralLocaraTno && cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '-';
+        return !isEmpty(cralLocaraTno || mexnoEncr || cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
       },
     },
   ];
@@ -835,9 +841,9 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'asCaus' },
     { fieldName: 'rtngdProcsTp' },
     { fieldName: 'fstVstFshDt' },
-    { fieldName: 'adrId' },
+    { fieldName: 'zipNo' },
     { fieldName: 'ogTp' },
-    { fieldName: 'ogId' },
+    { fieldName: 'ogNm' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrNm' },
     { fieldName: 'cralLocaraTno' },
@@ -859,9 +865,9 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
     { fieldName: 'rtngdProcsTp', header: t('MSG_TXT_RTNGD_PCS_INF'), width: '150' },
     { fieldName: 'fstVstFshDt', header: t('MSG_TXT_DSU_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'adrId', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'zipNo', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogTp', header: t('MSG_TXT_DIV'), width: '94', styleName: 'text-center' },
-    { fieldName: 'ogId', header: t('MSG_TXT_BLG'), width: '94', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '94', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '94', styleName: 'text-center' },
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '94', styleName: 'text-center' },
     { fieldName: 'prtnrTno',
@@ -870,7 +876,7 @@ const initGridState = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(cralLocaraTno && cralLocaraTno && cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '-';
+        return !isEmpty(cralLocaraTno || mexnoEncr || cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
       },
     },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLG_BLD'), width: '94', styleName: 'text-center' },
@@ -912,11 +918,11 @@ const initGridState = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: ['rcpDt', 'svBizDclsf'],
     },
-    'reqDt', 'vstFshDt', 'wkPrgsStat', 'asCaus', 'rtngdProcsTp', 'fstVstFshDt', 'adrId',
+    'reqDt', 'vstFshDt', 'wkPrgsStat', 'asCaus', 'rtngdProcsTp', 'fstVstFshDt', 'zipNo',
     {
       header: t('MSG_TXT_PIC_INF'),
       direction: 'horizontal',
-      items: ['ogTp', 'ogId', 'prtnrNo', 'prtnrNm', 'prtnrTno', 'bldNm'],
+      items: ['ogTp', 'ogNm', 'prtnrNo', 'prtnrNm', 'prtnrTno', 'bldNm'],
     },
     'imgYn',
   ]);
@@ -948,9 +954,9 @@ const initGridCounsel = defineGrid((data, view) => {
     { fieldName: 'cselSts', header: t('MSG_TXT_PROCS_STAT'), width: '100', styleName: 'text-center' },
     { fieldName: 'cnslDt', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center' },
     { fieldName: 'tktPcsSchDtm', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center' },
-    { fieldName: 'cnslTpHcsfCd', header: t('MSG_TXT_CNSL_HCLSF'), width: '200' },
-    { fieldName: 'cnslTpMcsfCd', header: t('MSG_TXT_CNSL_DCLSF'), width: '150' },
-    { fieldName: 'cnslTpLcsfCd', header: t('MSG_TXT_CNSL_LCLSF'), width: '250' },
+    { fieldName: 'cnslTpHcsfCd', header: t('MSG_TXT_CNSL_HCLSF'), width: '200', styleName: 'text-center' },
+    { fieldName: 'cnslTpMcsfCd', header: t('MSG_TXT_CNSL_DCLSF'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cnslTpLcsfCd', header: t('MSG_TXT_CNSL_LCLSF'), width: '250', styleName: 'text-center' },
     { fieldName: 'modUserId', header: t('MSG_TXT_PCP'), width: '100', styleName: 'text-center' },
     { fieldName: 'custResp', header: t('MSG_TXT_PROCS_DV'), width: '150' },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_RACT'), width: '100', styleName: 'text-center' },
@@ -1062,7 +1068,7 @@ const initGridFarmCode = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { locaraTno, exnoEncr, idvTno } = grid.getValues(index.itemIndex);
-        return `${locaraTno ?? ''}-${exnoEncr ?? ''}-${idvTno ?? ''}`;
+        return !isEmpty(locaraTno || exnoEncr || idvTno) ? `${locaraTno}-${exnoEncr}-${idvTno}` : '';
       },
     },
     { fieldName: 'idvTellNo',
@@ -1071,7 +1077,7 @@ const initGridFarmCode = defineGrid((data, view) => {
       styleName: 'text-left',
       displayCallback(grid, index) {
         const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
-        return `${cralLocaraTno ?? ''}-${mexnoEncr ?? ''}-${cralIdvTno ?? ''}`;
+        return !isEmpty(cralLocaraTno || mexnoEncr || cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
       },
     },
   ];
