@@ -630,7 +630,7 @@ async function getTimeTables() {
    { ...cachedParams,
    } });
 
-  // console.log(res);
+  console.log(res);
 
   data.value = res.data;
   // enableDays.value = [];
@@ -779,6 +779,8 @@ async function getTimeTables() {
       disableDays.value.push(item.disableFuldays);
     });
   }
+
+  console.log(data);
 
   data.value.amWrkCnt = 0; // am_wrk_cnt
   data.value.pmWrkCnt = 0; // pm_wrk_cnt
