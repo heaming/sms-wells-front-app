@@ -230,7 +230,7 @@ const searchParams = ref({
   cralIdvTno: '', // 휴대개별전화번호(계약자/설치자)
   bzrno: '', // 사업자번호
   sfkVal: '', // 세이프키값
-  sellTpCd: [''], // 계약구분(판매유형코드)
+  sellTpCd: ['1', '2', '3', '4', '6'], // 계약구분(판매유형코드)
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
 });
