@@ -322,6 +322,7 @@ function showStep(step) {
   });
   currentStepName.value = `step${step}`;
 }
+
 async function getSmrInfo(cntrNo) {
   const smrs = await dataService.get('sms/wells/contract/contracts/summaries', { params: { cntrNo } });
   contract.value.smr = smrs.data;
