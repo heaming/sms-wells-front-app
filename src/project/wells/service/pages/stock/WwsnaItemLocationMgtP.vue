@@ -208,8 +208,7 @@ async function fetchData() {
 
 async function onCheckedStckNoStdGb() {
   const stckStdGb = propParams.value.stdWareUseYn === 'N' ? 'Y' : 'N';
-  const apyYm = propParams.value.apyYm.substring(0, 6);
-  const { wareNo } = propParams.value;
+  const { apyYm, wareNo } = propParams.value;
 
   const res = await dataService.put(stdWareUri, { apyYm, stckStdGb, wareNo });
   if (res.data > 0) {

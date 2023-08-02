@@ -267,6 +267,8 @@ async function onClickExcelDownload() {
   const fetchURI = ref(`${detailURI}`);
   if (props.page === pageProps.remove) {
     fetchURI.value = removeURI;
+    const { itmOstrNo } = searchParams.value;
+    if (isEmpty(itmOstrNo)) return;
   }
 
   const view = grdMainRef.value.getView();
@@ -413,18 +415,18 @@ function setSearchParams(res) {
 
   searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
   searchParams.value.rgstDt = isEmpty(ostrAkRgstDt) ? dayjs().format('YYYYMMDD') : ostrAkRgstDt;
-  searchParams.value.apyYm = dayjs().format('YYYYMM');
 }
 
 async function onclickStandard() {
-  const { stckNoStdGb, baseYm, ostrWareNo } = searchParams.value;
+  const { stckNoStdGb, baseYm, ostrOjWareNo } = searchParams.value;
   const stckStdGb = stckNoStdGb === 'N' ? 'Y' : 'N';
   const apyYm = baseYm;
-  const wareNo = ostrWareNo;
+  const wareNo = ostrOjWareNo;
 
   const res = await dataService.put(standardURI, { apyYm, stckStdGb, wareNo });
   if (res.data > 0) {
     notify(t('MSG_ALT_CHG_DATA'));
+    await fetchData();
   }
 }
 
