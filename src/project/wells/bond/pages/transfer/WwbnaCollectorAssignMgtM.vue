@@ -236,7 +236,7 @@ import { useGlobal, codeUtil, getComponentType, router, useMeta, useDataService,
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
-import { chkInputSearchComplete, chkClctamPrtnrSearchComplete, openSearchUserCommonPopup, isCustomerCommon, openSearchClctamPsicCommonPopup, fetchPartnerNoCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
+import { chkInputSearchComplete, chkClctamPrtnrSearchComplete, openSearchUserCommonPopup, isCustomerCommon, openSearchClctamPsicCommonPopup, fetchPartnerNoCommon, checkAvailabilityCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -400,7 +400,20 @@ async function checkRquest(changedRows) {
   return isRequest;
 }
 
+async function checkAvailability(tfBizDvCd) {
+  const checkAvailabilityParams = { baseYm: cachedParams.baseYm,
+    bzHdqDvCd: cachedParams.bzHdqDvCd,
+    clctamDvCd: cachedParams.clctamDvCd,
+    tfBizDvCd };
+  return await checkAvailabilityCommon(checkAvailabilityParams);
+}
+
 async function onClickSave() {
+  if (!await checkAvailability('02')) {
+    notify('배정을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 배정 할 수 없습니다.)');
+    return;
+  }
+
   const view = grdSubRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
@@ -409,6 +422,9 @@ async function onClickSave() {
   if (!await checkRquest(changedRows)) {
     return;
   }
+  changedRows.forEach((obj) => {
+    obj.clctamDvCd = cachedParams.clctamDvCd;
+  });
   await dataService.put('/sms/wells/bond/collector-assigns', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -416,6 +432,10 @@ async function onClickSave() {
 }
 
 async function onClickCreate() {
+  if (!await checkAvailability('02')) {
+    notify('배정을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 배정 할 수 없습니다.)');
+    return;
+  }
   // TODO: 구현된 로직에 대한 테스트 지속적으로 필요, 완벽하다고 생각 되면 이 주석 제거 그 전까지 생각나면 내용 확인/갱신/테스트
   if (!await kwSearchRef.value.validate()) { return; }
   cachedParams = cloneDeep(searchParams.value);
@@ -435,6 +455,11 @@ async function onClickPageMove() {
 }
 
 async function onClickConfirm() {
+  if (!await checkAvailability('03')) {
+    notify('배정 확정을 수행 할 수 없습니다.(배정 상태인 경우에만 확정 할 수 있습니다.)');
+    return;
+  }
+
   // TODO: 명세서 다시 변경될 예정 맞춰서 수정 필요 search영역의 정보를 가지고 가고 필수 부분이 동일해 우선 kwSearchRef 기준으로 작업
   if (!await kwSearchRef.value.validate()) { return; }
   cachedParams = cloneDeep(searchParams.value);
@@ -710,6 +735,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'lwmDt' },
     { fieldName: 'dfltDt' },
     { fieldName: 'addr' },
+    { fieldName: 'clctamDvCd' },
     { fieldName: 'changeClctamPrtnrKnm' }, // 항목 수정여부 해당 값이 true라면 저장 할 수 없음
   ];
   const columns = [
@@ -747,6 +773,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_DT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'dfltDt', header: t('MSG_TXT_DE_RGST_DT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'addr', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-left', editable: false },
+    { fieldName: 'clctamDvCd', visible: false },
     { fieldName: 'changeClctamPrtnrKnm', default: 'N', visible: false },
   ];
 
