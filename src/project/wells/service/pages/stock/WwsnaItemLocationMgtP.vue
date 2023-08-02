@@ -187,7 +187,6 @@ async function stckStdGbFetchData() {
   const { wareNo } = propParams.value;
   const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
   const { stckStdGb } = res.data;
-  console.log(res);
   propParams.value.stdWareUseYn = stckStdGb === 'Y' ? 'N' : 'Y';
 }
 
@@ -213,9 +212,10 @@ async function onCheckedStckNoStdGb() {
   const { wareNo } = propParams.value;
 
   const res = await dataService.put(stdWareUri, { apyYm, stckStdGb, wareNo });
-  console.log(res);
-  notify(t('MSG_ALT_CHG_DATA'));
-  fetchData();
+  if (res.data > 0) {
+    notify(t('MSG_ALT_CHG_DATA'));
+    await fetchData();
+  }
 }
 
 async function onClickSave() {
