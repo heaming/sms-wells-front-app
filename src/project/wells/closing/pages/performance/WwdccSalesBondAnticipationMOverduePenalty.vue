@@ -25,9 +25,13 @@
           v-model="searchParams.slClYm"
           type="month"
           rules="required"
+          :label="$t('MSG_TXT_BASE_YM')"
         />
       </kw-search-item>
-      <kw-search-item :label="$t('MSG_TXT_AGRG_DV')">
+      <kw-search-item
+        :label="$t('MSG_TXT_AGRG_DV')"
+        required
+      >
         <kw-option-group
           v-model="searchParams.agrgDv"
           type="radio"
@@ -44,20 +48,28 @@
     <kw-search-row
       cols="3"
     >
-      <kw-search-item :label="$t('MSG_TXT_SAP_PD_DV_CD_NM')">
+      <kw-search-item
+        :label="$t('MSG_TXT_SAP_PD_DV_CD_NM')"
+        required
+      >
         <kw-select
           v-model="searchParams.sapPdDvCd"
+          rules="required"
           :options="sapPdDv"
           option-value="codeId"
           option-label="codeName"
           first-option="all"
-          first-option-value="ALL"
+          :label="$t('MSG_TXT_SAP_PD_DV_CD_NM')"
         /><!--SAP상품구분코드명-->
       </kw-search-item>
-      <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
+      <kw-search-item
+        :label="$t('MSG_TXT_SEL_TYPE')"
+        required
+      >
         <kw-select
           v-model="searchParams.sellTpCd"
           :options="codes.SELL_TP_CD.filter((v) => ['1', '2', '3', '6'].includes(v.codeId))"
+          :label="$t('MSG_TXT_SEL_TYPE')"
           @change="onChangeBusinessDivide"
         /><!--판매유형-->
         <kw-select
@@ -109,12 +121,16 @@
           @click-icon="onClickIcon"
         /><!-- 계약 상세 -->
       </kw-search-item>
-      <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
+      <kw-search-item
+        :label="$t('MSG_TXT_SEL_CHNL')"
+        required
+      >
         <kw-select
           v-model="searchParams.sellChnlDtl"
+          rules="required"
           :options="codes.SELL_CHNL_DTL_CD"
           first-option="all"
-          first-option-value="ALL"
+          :label="$t('MSG_TXT_SEL_CHNL')"
         />
       </kw-search-item><!-- 판매 채널 -->
     </kw-search-row>
@@ -216,10 +232,10 @@ const wrongHorizontalCalculationFormula = ref(false);
 const searchParams = ref({
   slClYm: dayjs().add(-1, 'M').format('YYYYMM'),
   agrgDv: '1', // 집계구분
-  sapPdDvCd: 'ALL', // SAP상품구분코드
+  sapPdDvCd: '', // SAP상품구분코드
   sellTpCd: '1', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
-  sellChnlDtl: 'ALL', // 판매채널
+  sellChnlDtl: '', // 판매채널
   cntr: '',
   inquiryDivide: '1', // 조회구분
 });
@@ -369,6 +385,7 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(view, {
     fileName: `${t('MSG_TIT_SL_BND_ATAM_PS')} - ${t('MSG_TIT_BZNS_ATAM')}`,
     timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
