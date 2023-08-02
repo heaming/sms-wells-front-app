@@ -189,6 +189,7 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(grdMainRegular.value.getView(), {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: gridUtil.getAllRowValues(grdMainRegular.value.getView()),
   });
 }
 
