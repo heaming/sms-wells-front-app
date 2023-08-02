@@ -14,7 +14,7 @@
 ****************************************************************************************************
 -->
 <template>
-  <kw-page :title="props.title">
+  <kw-page :title="props.title === '' ? $t('MSG_TIT_TIME_TABLE') + $t('MSG_TXT_SRCH') : props.title ">
     <!-- To. 개발  window popup width size: 940px  -->
     <h1>{{ $t('MSG_TIT_EGER_TIME_TABLE') /*엔지니어 Time table*/ }}</h1>
     <div class="normal-area normal-area--button-set-bottom pt30 mt15 w860">
