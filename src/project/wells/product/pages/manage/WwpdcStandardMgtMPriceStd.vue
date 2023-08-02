@@ -305,6 +305,7 @@ async function initGrid(data, view) {
       item.editor = 'list';
       item.options = currentCodes.value.svPdCd;
       item.styleName = 'text-left';
+      item.width = '300';
     }
     return item;
   });
