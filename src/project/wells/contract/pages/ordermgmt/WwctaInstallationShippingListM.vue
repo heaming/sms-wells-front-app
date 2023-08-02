@@ -215,8 +215,9 @@
                   {{ $t('MSG_TXT_EGER') }}
                 </p>
                 <span>
-                  {{ item.ogNm }}/{{ item.egerNm }}/
-                  {{ item.egerCrallocaraTno }}-{{ item.egerMexnoEncr }}-{{ item.egerCralIdvTno }}
+                  <!-- {{ item.ogNm }}/{{ item.egerNm }}/
+                  {{ item.egerCrallocaraTno }}-{{ item.egerMexnoEncr }}-{{ item.egerCralIdvTno }} -->
+                  {{ item.engineer }}
                 </span>
               </li>
               <li>
@@ -224,7 +225,7 @@
                 <p class="w90">
                   {{ $t('MSG_TXT_RQMT') }}
                 </p>
-                <span>{{ item.cnslMoCn }}</span>
+                <span>{{ isEmpty(item.cnslMoCn)?'':item.cnslMoCn }}</span>
               </li>
               <li>
                 <!-- 설치 일자 -->
@@ -238,7 +239,7 @@
                 <p class="w90">
                   {{ $t('MSG_TXT_SB_MEMO') }}
                 </p>
-                <span>{{ item.wkCanMoCn }}</span>
+                <span>{{ isEmpty(item.wkCanMoCn)?'':item.wkCanMoCn }}</span>
               </li>
             </div>
             <div v-show="item.istPcsvSellTpCd === '2'">
@@ -247,7 +248,7 @@
                 <p class="w90">
                   {{ $t('MSG_TXT_SPP_AK_D') }}
                 </p>
-                <span>{{ item.egerAsnDt }}</span>
+                <span>{{ setDateFormat(item.egerAsnDt) }}</span>
               </li>
               <li>
                 <!-- 제품관리팀수신일시 -->
@@ -263,21 +264,21 @@
                 <p class="w90">
                   {{ $t('MSG_TXT_SPP_AK_D') }}
                 </p>
-                <span>{{ item.sppDuedt }}</span>
+                <span>{{ setDateFormat(item.sppDuedt) }}</span>
               </li>
               <li>
                 <!-- 배송완료일자 -->
                 <p class="w90">
                   {{ $t('MSG_TXT_SHIPPING_END_DT') }}
                 </p>
-                <span>{{ item.cntrPdStrtdt }}</span>
+                <span>{{ setDateFormat(item.cntrPdStrtdt) }}</span>
               </li>
               <li>
                 <!-- 반송메모 -->
                 <p class="w90">
                   {{ $t('MSG_TXT_SB_MEMO') }}
                 </p>
-                <span>{{ item.wkCanMoCn }}</span>
+                <span>{{ isEmpty(item.wkCanMoCn)?'':item.wkCanMoCn }}</span>
               </li>
             </div>
           </ul>
@@ -637,6 +638,20 @@ function getInstallStatus() {
         element.cr = 'red';
         element.acpgStat = '9';
       }
+    }
+
+    // 엔진니어 표시 문자열 만들기
+    element.engineer = '';
+    if (!isEmpty(element.ogNm)) {
+      element.engineer += `${element.ogNm}/`;
+    }
+    if (!isEmpty(element.egerNm)) {
+      element.engineer += `${element.egerNm}/`;
+    }
+    if (isEmpty(element.egerCrallocaraTno) || isEmpty(element.egerMexnoEncr) || isEmpty(element.egerCralIdvTno)) {
+      element.engineer += '';
+    } else {
+      element.engineer += `${element.egerCrallocaraTno.trim()}-${element.egerMexnoEncr}-${element.egerCralIdvTno}`;
     }
   });
 }
