@@ -95,7 +95,7 @@
               text-color="primary"
               class="ml12"
             />
-            <p class="kw-font--14 kw-fc--black3 ml8">
+            <!-- <p class="kw-font--14 kw-fc--black3 ml8">
               {{ customerInfo?.copnDvNm }}
             </p>
             <kw-separator
@@ -103,8 +103,8 @@
               spaced
               vertical
               class="my4 mx8"
-            />
-            <span class="">
+            /> -->
+            <span class="ml10">
               {{ !isEmpty(customerInfo?.bryyMmdd)?dayjs(customerInfo.bryyMmdd).format('YYYY-MM-DD'):'' }}
             </span>
             <kw-separator
