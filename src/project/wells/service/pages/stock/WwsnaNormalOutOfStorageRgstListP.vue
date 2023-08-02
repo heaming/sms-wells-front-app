@@ -16,12 +16,11 @@
   <kw-popup
     ref="popupRef"
     size="3xl"
-    ignore-on-modified
-    no-action
   >
     <kw-form
       :cols="2"
       :default-visible-rows="3"
+      ignore-on-modified
     >
       <kw-form-row>
         <!-- 출고요청유형 -->
@@ -305,14 +304,6 @@ async function onClickDelete() {
     }
   }
 
-  const validRows = checkedRows.filter((item) => !isEmpty(item.strConfDt));
-
-  if (!isEmpty(validRows)) {
-    // 이미 입고가 완료되었기 때문에 삭제가 불가합니다.
-    await alert(t('MSG_ALT_ALD_STR_CMP_DEL_IMP'));
-    return;
-  }
-
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (!isEmpty(deletedRows)) {
     const res = await dataService.delete(detailURI, { data: [...deletedRows] });
@@ -438,10 +429,10 @@ async function onclickStandard() {
 }
 
 async function getItmOstrAk() {
-  const { ostrAkNo, ostrAkSn } = props;
+  const { ostrAkNo, ostrAkSn, itmOstrNo } = props;
 
   if (!isEmpty(ostrAkNo) && !isEmpty(ostrAkSn)) {
-    const res = await dataService.get(itmOstrAkUri, { params: { ostrAkNo, ostrAkSn } });
+    const res = await dataService.get(itmOstrAkUri, { params: { ostrAkNo, ostrAkSn, itmOstrNo } });
 
     setSearchParams(res);
   }
@@ -533,7 +524,6 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'number',
         editFormat: '#,##0',
-        maxLength: 12,
       },
       width: '100',
       styleName: 'text-right',
