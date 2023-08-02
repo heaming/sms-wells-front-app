@@ -7,6 +7,7 @@ export default {
   OSTR_TP_CD_QOM_MMT: '223',
   OSTR_TP_CD_RTNGD_INSI: '261',
   OSTR_TP_CD_RTNGD_OTSD: '262',
-  OSTR_TP_CD_SELL: '212',
+  OSTR_TP_CD_SELL: '211',
+  OSTR_TP_CD_DSU: '212',
   OSTR_TP_CD_ETC: '217',
 };

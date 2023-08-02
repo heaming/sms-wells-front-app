@@ -211,7 +211,7 @@ const initGrid = defineGrid((data, view) => {
     if (column === 'baseCntrDtlNo') {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       const cntrSn = g.getValue(itemIndex, 'cntrSn');
-      await popupUtil.open(`#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
     }
   };
 });

@@ -16,12 +16,11 @@
   <kw-popup
     ref="popupRef"
     size="3xl"
-    ignore-on-modified
-    no-action
   >
     <kw-form
       :cols="2"
       :default-visible-rows="3"
+      ignore-on-modified
     >
       <kw-form-row>
         <!-- 출고요청유형 -->
@@ -268,6 +267,8 @@ async function onClickExcelDownload() {
   const fetchURI = ref(`${detailURI}`);
   if (props.page === pageProps.remove) {
     fetchURI.value = removeURI;
+    const { itmOstrNo } = searchParams.value;
+    if (isEmpty(itmOstrNo)) return;
   }
 
   const view = grdMainRef.value.getView();
@@ -303,14 +304,6 @@ async function onClickDelete() {
       await alert(t('MSG_ALT_WARE_CLOSE_OSTR_IMP'));
       return;
     }
-  }
-
-  const validRows = checkedRows.filter((item) => !isEmpty(item.strConfDt));
-
-  if (!isEmpty(validRows)) {
-    // 이미 입고가 완료되었기 때문에 삭제가 불가합니다.
-    await alert(t('MSG_ALT_ALD_STR_CMP_DEL_IMP'));
-    return;
   }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
@@ -422,26 +415,26 @@ function setSearchParams(res) {
 
   searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
   searchParams.value.rgstDt = isEmpty(ostrAkRgstDt) ? dayjs().format('YYYYMMDD') : ostrAkRgstDt;
-  searchParams.value.apyYm = dayjs().format('YYYYMM');
 }
 
 async function onclickStandard() {
-  const { stckNoStdGb, baseYm, ostrWareNo } = searchParams.value;
+  const { stckNoStdGb, baseYm, ostrOjWareNo } = searchParams.value;
   const stckStdGb = stckNoStdGb === 'N' ? 'Y' : 'N';
   const apyYm = baseYm;
-  const wareNo = ostrWareNo;
+  const wareNo = ostrOjWareNo;
 
   const res = await dataService.put(standardURI, { apyYm, stckStdGb, wareNo });
   if (res.data > 0) {
     notify(t('MSG_ALT_CHG_DATA'));
+    await fetchData();
   }
 }
 
 async function getItmOstrAk() {
-  const { ostrAkNo, ostrAkSn } = props;
+  const { ostrAkNo, ostrAkSn, itmOstrNo } = props;
 
   if (!isEmpty(ostrAkNo) && !isEmpty(ostrAkSn)) {
-    const res = await dataService.get(itmOstrAkUri, { params: { ostrAkNo, ostrAkSn } });
+    const res = await dataService.get(itmOstrAkUri, { params: { ostrAkNo, ostrAkSn, itmOstrNo } });
 
     setSearchParams(res);
   }
@@ -533,7 +526,6 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'number',
         editFormat: '#,##0',
-        maxLength: 12,
       },
       width: '100',
       styleName: 'text-right',
