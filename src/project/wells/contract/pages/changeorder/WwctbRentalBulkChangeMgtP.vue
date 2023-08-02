@@ -62,14 +62,14 @@
             v-model="saveParams.dutyPtrmStrt"
             :label="$t('MSG_TXT_DUTY_PTRM')"
             regex="num"
-            maxlength="20"
+            maxlength="2"
           />
           <span>-></span>
           <kw-input
             v-model="saveParams.dutyPtrmEnd"
             :label="$t('MSG_TXT_DUTY_PTRM')"
             regex="num"
-            maxlength="20"
+            maxlength="2"
           />
         </kw-form-item>
         <!-- 인정실적 -->
@@ -284,6 +284,11 @@ async function onClickSave() {
     alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_PROCS_DV')]));
     return;
   }
+  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' || saveParams.value.procsDv === '623') {
+    alert(t('서비스 확인 중 입니다.'));
+    return;
+  }
+
   for (let i = 0; i < changedRows.length; i += 1) {
     if (isEmpty(changedRows[i].cntrNo)) { // 조회 데이터 체크
       alert(t('MSG_ALT_CHK_CNTR_NO', [changedRows[i].cntrDtlNo]));
@@ -645,7 +650,7 @@ async function onClickSave() {
     } else if (saveParams.value.procsDv === '625') { // 플래너상조제휴 강제 맵핑
       // 코드
     } else if (saveParams.value.procsDv === '626') { // (모종)수수료 인정건수 변경
-      if (isEmpty(saveParams.value.feeAckmtBaseAmt)) { // 수수료기준가격 필수체크
+      if (isEmpty(saveParams.value.feeAckmtCnt)) { // 수수료인정건수 필수체크
         alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_FEE_ACKMT_CNT')])); // 수수료인정건수을(를) 확인하세요.
         return;
       }
@@ -708,6 +713,10 @@ async function onProcsDvChange() {
     view.columnByName('lifeCstCd2').visible = true; // 라이프고객코드2
   } else if (saveParams.value.procsDv === '711') { // BS업체구분값 변경
     view.columnsByTag('bs').forEach((col) => { col.visible = true; }); // 업체구분
+  }
+
+  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' || saveParams.value.procsDv === '623') {
+    alert(t('서비스 확인 중 입니다.'));
   }
 }
 // -------------------------------------------------------------------------------------------------
@@ -827,7 +836,7 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
       },
       tag: 'rentalStp',
       visible: false }, // 중지기간(종료 YYYYMM)
-    { fieldName: 'rplyContact', header: t('회신연락처(메일or휴대전화)'), width: '176', styleName: 'text-center', tag: 'rentalStp', visible: false }, // 회신연락처(메일or휴대전화)
+    { fieldName: 'rplyContact', header: t('회신연락처(메일or휴대전화)'), width: '176', styleName: 'text-center', tag: 'rentalStp', editor: { maxLength: 200 }, visible: false }, // 회신연락처(메일or휴대전화)
     { fieldName: 'stpCanYm',
       header: t('중지취소년월(YYYYMM)'),
       width: '176',
@@ -847,18 +856,26 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
       editor: { type: 'list' },
       options: codes.PMOT_PRMIT_YN_ACD,
       visible: false }, // 수수료정액여부
-    { fieldName: 'dscMcnt', header: t('MSG_TXT_DSC_MCNT'), width: '126', styleName: 'text-center', tag: 'dsc', visible: false }, // 할인개월
-    { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: '126', styleName: 'text-center', tag: 'dsc', visible: false }, // 할인금액
-    { fieldName: 'lifeCstCd', header: t('라이프고객코드'), width: '126', styleName: 'text-center', visible: false }, // 라이프고객코드
-    { fieldName: 'lifeCstCd2', header: t('라이프고객코드2'), width: '126', styleName: 'text-center', visible: false }, // 라이프고객코드2
+    { fieldName: 'dscMcnt', header: t('MSG_TXT_DSC_MCNT'), width: '126', styleName: 'text-center', tag: 'dsc', editor: { maxLength: 2 }, visible: false }, // 할인개월
+    { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: '126', styleName: 'text-center', tag: 'dsc', editor: { maxLength: 20 }, visible: false }, // 할인금액
+    { fieldName: 'lifeCstCd', header: t('라이프고객코드'), width: '126', styleName: 'text-center', editor: { maxLength: 15 }, visible: false }, // 라이프고객코드
+    { fieldName: 'lifeCstCd2', header: t('라이프고객코드2'), width: '126', styleName: 'text-center', editor: { maxLength: 15 }, visible: false }, // 라이프고객코드2
     { fieldName: 'bfsvcBzsDvCd',
       header: t('MSG_TXT_CLSF_BS'),
       width: '126',
       styleName: 'text-center',
+      options: codes.BFSVC_BZS_DV_CD,
       editable: false,
       tag: 'bs',
       visible: false }, // 업체BS구분
-    { fieldName: 'splyBzsDvCd', header: t('MSG_TXT_CLSF_BUS'), width: '126', styleName: 'text-center', editable: false, tag: 'bs', visible: false }, // 업체구분
+    { fieldName: 'splyBzsDvCd',
+      header: t('MSG_TXT_CLSF_BUS'),
+      width: '126',
+      styleName: 'text-center',
+      options: codes.SPLY_BZS_DV_CD,
+      editable: false,
+      tag: 'bs',
+      visible: false }, // 업체구분
     { fieldName: 'modBfsvcBzsDvCd',
       header: `${t('MSG_TXT_MOD')} ${t('MSG_TXT_CLSF_BS')}`,
       width: '126',
@@ -877,7 +894,7 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
       options: codes.SPLY_BZS_DV_CD,
       placeHolder: t('MSG_TXT_SELT'),
       visible: false }, // 수정 업체구분
-    { fieldName: 'note', header: t('MSG_TXT_NOTE'), width: '528.4' }, // 비고
+    { fieldName: 'note', header: t('MSG_TXT_NOTE'), width: '528.4', editor: { maxLength: 500 } }, // 비고
   ];
 
   data.setFields(fields);
@@ -900,10 +917,12 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
         });
         if (result && saveParams.value.procsDv !== '623') {
           const { cntrNo, cntrSn } = payload;
+          const { procsDv } = saveParams.value;
           const res = await dataService.get('/sms/wells/contract/changeorder/rental-change-contracts', {
             params: {
               cntrNo,
               cntrSn,
+              procsDv,
             },
           });
           if ((!isEmpty(res.data))) {
@@ -935,10 +954,12 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
     });
     if (result && saveParams.value.procsDv !== '623') {
       const { cntrNo, cntrSn } = payload;
+      const { procsDv } = saveParams.value;
       const res = await dataService.get('/sms/wells/contract/changeorder/rental-change-contracts', {
         params: {
           cntrNo,
           cntrSn,
+          procsDv,
         },
       });
 
