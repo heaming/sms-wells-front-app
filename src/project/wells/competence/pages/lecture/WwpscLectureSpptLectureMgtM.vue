@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PSC
-2. 프로그램 ID : WwpscLectureSpptLecturerMgtM
+2. 프로그램 ID : WwpscLectureSpptLectureMgtM
 3. 작성자 : Park Yesol
 4. 작성일 : 2023.08.02
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 강의지원 강사관리
+- 강의지원 강의관리
 ****************************************************************************************************
 -->
 
@@ -35,10 +35,10 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="t('MSG_TXT_LECT_NM')"
+          :label="t('MSG_TXT_LECTR_NM')"
         >
           <kw-input
-            v-model="searchParams.lectNm"
+            v-model="searchParams.lectrNm"
             :placeholder="t('MSG_TXT_INP')"
           />
         </kw-search-item>
@@ -130,7 +130,7 @@ let cachedParams;
 // 검색조건 Parameter
 const searchParams = ref({
   ogTpCd: userInfo.ogTpCd, // 조직유형
-  lectNm: '', // 강사명
+  lectrNm: '', // 강사명
 });
 
 const pageInfo = ref({
@@ -140,7 +140,7 @@ const pageInfo = ref({
 });
 
 const fetchData = async () => {
-  const res = await dataService.get('/sms/wells/competence/lecture-sppt-lecturer/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/competence/lecture-sppt-lecture/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -160,7 +160,7 @@ const onClickSearch = async () => {
 
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, { ogTpCd: searchParams.value.ogTpCd, useYn: 'Y' });
+  gridUtil.insertRowAndFocus(view, 0, { lectrSpptOgTpCd: searchParams.value.ogTpCd, useYn: 'Y' });
 }
 
 async function onClickRemove() {
@@ -173,7 +173,7 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
   const changedRows = gridUtil.getChangedRowValues(view);
-  await dataService.post('/sms/wells/competence/lecture-sppt-lecturer', changedRows);
+  await dataService.post('/sms/wells/competence/lecture-sppt-lecture', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
@@ -185,8 +185,8 @@ async function onClickSave() {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'lectrSpptOgTpCd' },
-    { fieldName: 'lectrSpptLectCd' },
-    { fieldName: 'lectNm' },
+    { fieldName: 'lectrSpptLectrCd' },
+    { fieldName: 'lectrNm' },
     { fieldName: 'useYn' },
   ];
   const columns = [
@@ -198,19 +198,19 @@ const initGrdMain = defineGrid((data, view) => {
       options: ogTpCd.value,
       editor: { type: 'list' },
       styleCallback(grid, dataCell) {
-        const lectrSpptLectCd = grid.getValue(dataCell.index.itemIndex, 'lectrSpptLectCd');
-        return isEmpty(lectrSpptLectCd) ? { editable: true } : { editable: false };
+        const lectrSpptLectrCd = grid.getValue(dataCell.index.itemIndex, 'lectrSpptLectrCd');
+        return isEmpty(lectrSpptLectrCd) ? { editable: true } : { editable: false };
       },
     },
-    { fieldName: 'lectrSpptLectCd', header: t('MSG_TXT_LECT_CD'), width: '300', styleName: 'text-center', editable: false },
-    { fieldName: 'lectNm',
-      header: t('MSG_TXT_LECT_NM'),
+    { fieldName: 'lectrSpptLectrCd', header: t('MSG_TXT_LECTR_CD'), width: '300', styleName: 'text-center', editable: false },
+    { fieldName: 'lectrNm',
+      header: t('MSG_TXT_LECTR_NM'),
       width: '300',
       rules: 'required',
       styleName: 'text-center',
       styleCallback(grid, dataCell) {
-        const lectrSpptLectCd = grid.getValue(dataCell.index.itemIndex, 'lectrSpptLectCd');
-        return isEmpty(lectrSpptLectCd) ? { editable: true } : { editable: false };
+        const lectrSpptLectrCd = grid.getValue(dataCell.index.itemIndex, 'lectrSpptLectrCd');
+        return isEmpty(lectrSpptLectrCd) ? { editable: true } : { editable: false };
       },
     },
     { fieldName: 'useYn', header: t('MSG_TXT_USE_SEL'), width: '300', styleName: 'text-center', options: codes.COD_YN, editor: { type: 'list' } },
@@ -222,7 +222,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
   // 신규 생성만 삭제 가능
-  view.setCheckableExpression("value['lectrSpptLectCd'] is empty", true);
+  view.setCheckableExpression("value['lectrSpptLectrCd'] is empty", true);
 });
 
 </script>
