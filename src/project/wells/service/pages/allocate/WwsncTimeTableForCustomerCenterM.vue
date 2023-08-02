@@ -487,7 +487,7 @@ import { cloneDeep, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { /* ok, */ cancel } = useModal();
+const { ok, cancel } = useModal();
 
 const DATE_FORMAT_YM = 'YYYYMM';
 const DATE_FORMAT_YMD = 'YYYYMMDD';
@@ -1061,7 +1061,7 @@ async function onClickSave() {
     }
   }
 
-  let url = searchParams.value.returnUrl;
+  /* let url = searchParams.value.returnUrl;
   url += `?svBizHclsfCd=${searchParams.value.svDvCd}`;
   url += `&rcpdt=${data.value.wrkDt}`;
   url += `&mtrStatCd=${searchParams.value.mtrStatCd}`;
@@ -1073,7 +1073,9 @@ async function onClickSave() {
   url += `&userId=${data.value.userId}`;
   url += `&rcpOgTpCd=${data.value.rcpOgTpCd}`;
   url += `&cntrNo=${searchParams.value.cntrNo}`;
-  document.location.href = url;
+  window.location.href = url; */
+  window.opener?.postMessage(data.value);
+  ok();
 }
 
 onMounted(async () => {
