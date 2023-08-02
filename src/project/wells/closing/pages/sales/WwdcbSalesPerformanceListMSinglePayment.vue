@@ -23,11 +23,10 @@
         :label="$t('MSG_TXT_CNTR_DTL_NO')"
         required
       >
-        <kw-input
-          v-model="searchParams.cntrDtlNo"
+        <zctz-contract-detail-number
+          v-model:cntr-no="searchParams.cntrNo"
+          v-model:cntr-sn="searchParams.cntrSn"
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
-          icon="search"
-          clearable
           rules="required"
         />
       </kw-search-item>
@@ -49,7 +48,7 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_TASK_DIV')">
-          <p>{{ baseInformation.taskDiv }}</p>
+          <p>{{ baseInformation.sellTpCdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
           <p>{{ baseInformation.cntrDtlNo }}</p>
@@ -58,71 +57,68 @@
           <p>{{ baseInformation.cstKnm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_INDI_CORP')">
-          <p>{{ baseInformation.copnDvCd }}</p>
+          <p>{{ baseInformation.copnDvCdNm }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SELLER_INFO')">
-          <p>{{ baseInformation.sellPrtnrNo }}</p>
+          <p>{{ baseInformation.prtnrKnm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNTRCT_DT')">
-          <p>{{ baseInformation.cntrCnfmDtm }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.cntrDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE')">
-          <p>{{ baseInformation.slDt }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.slRcogDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CAN_D')">
-          <p>{{ baseInformation.slCanDt }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.canDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_OG_INF')">
-          <p>{{ baseInformation.sellOgTpCd }}</p>
+          <p>{{ baseInformation.ogInfo }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PD_INF')">
-          <p>{{ baseInformation.basePdCd }}</p>
+          <p>{{ baseInformation.pdInfo }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DSPRC')">
-          <p>{{ baseInformation.dscAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.dscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DISC_CODE')">
-          <p>{{ baseInformation.dscApyTpCd }}</p>
+          <p>{{ baseInformation.dscTp }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ALNC_INF')">
-          <p>{{ baseInformation.alncmpCd }}</p>
+          <p>{{ baseInformation.alncStu }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_EV_INF')">
-          <p>{{ baseInformation.evInf }}</p>
+          <p>{{ baseInformation.sellEvCd }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SLE_PRC')">
-          <p>{{ baseInformation.sellAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.sellAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ALNC_FEE')">
-          <p>{{ baseInformation.alncFee }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.alncFee)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_SUBSC_AMT')">
-          <p>{{ baseInformation.subscAmt }}</p>
-        </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_TK_AMT')">
-          <p>{{ baseInformation.tkAmt }}</p>
+        <kw-form-item :label="$t('MSG_TXT_CNTR_AMT')">
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.tkAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CRP_UC_AMT')">
-          <p>{{ baseInformation.crpUcAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.crpUcAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_BLAM')">
-          <p>{{ baseInformation.blam }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.istmPcamAmt)) }}</p>
+        </kw-form-item>
+        <kw-form-item :label="$t('MSG_TXT_ISTM_INF_MCNT_WON')">
+          <p>{{ baseInformation.istmInfo }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_ISTM_INF_MCNT_WON')">
-          <p>{{ baseInformation.istmMcn }}</p>
-        </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FEE')">
-          <p>{{ baseInformation.feeAckmtBaseAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.istmFeeLvyAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -137,24 +133,25 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_FULPY_DT')">
-          <p>{{ baseInformation.fulpyDt }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.fulpyDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FST_FULPY_D')">
+          <!-- <p>{{ stringUtil.getDateFormat(baseInformation.fstFulpyDt, 'YYYY-MM-DD') }}</p> -->
           <p>{{ baseInformation.fstFulpyDt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CHG_DT')">
-          <p>{{ baseInformation.chgDt }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.cntrChnDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ACC_DV')">
-          <p>{{ baseInformation.accDv }}</p>
+          <p>{{ baseInformation.cwkgubnm }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_STAT_CH_DT')">
-          <p>{{ baseInformation.statChDt }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.pdChDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_CH_DT')">
-          <p>{{ baseInformation.slChDt }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.slChDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_CH_SN')">
           <p>{{ baseInformation.slChSn }}</p>
@@ -170,30 +167,24 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ISTM_DP_AMT')">
-          <p>{{ baseInformation.dpAmt1 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.istmTotDpAmt)) }}</p>
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_SUBSC_DP_AMT')">
-          <p>{{ baseInformation.dpAmt2 }}</p>
+        <kw-form-item :label="$t('MSG_TXT_CNTRAM_DP_AMT_CRP_UC_DP_AMT')">
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.subscTotDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_CH_DP_AMT')">
-          <p>{{ baseInformation.dpAmt3 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.slChTotDpAmt)) }}</p>
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_TK_DP_AMT')">
-          <p>{{ baseInformation.dpAmt4 }}</p>
+        <kw-form-item :label="$t('MSG_TXT_DP_TAM')">
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.totDpAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_CRP_UC_AMT')">
-          <p>{{ baseInformation.dpAmt5 }}</p>
-        </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_DP_TAM')">
-          <p>{{ baseInformation.dpTam }}</p>
-        </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FNT_DV')">
-          <p>{{ baseInformation.fntDvCd }}</p>
+          <p>{{ baseInformation.dpTpCd }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FTD')">
-          <p>{{ baseInformation.rglFntD }}</p>
+          <p>{{ baseInformation.mpyBsdt }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -209,13 +200,13 @@
           <p>{{ baseInformation.dlqMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
-          <p>{{ baseInformation.eotDlqAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.thmOcDlqAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_UC_AMT')">
-          <p>{{ baseInformation.ucAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.ucBlam)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_UC_PRNT')">
-          <p>{{ baseInformation.ucPrnt }}</p>
+          <p>{{ baseInformation.ucPrt }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -228,24 +219,25 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DFA_DT')">
-          <p>{{ baseInformation.dfaBsdt }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.acdbtDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DFA_AMT')">
-          <p>{{ baseInformation.dfaProcsAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.dfaAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DFA_DP_AMT')">
-          <p>{{ baseInformation.dfaDpAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.dfaDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DFA_BLAM')">
-          <p>{{ baseInformation.dfaBlam }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.dfaBlam)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PY_DT')">
-          <p>{{ baseInformation.dfaPrcsdt }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.dfaRveDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DFA_FULPY_AMT')">
-          <p>{{ baseInformation.dfaFulpyAmt }}</p>
+          <!-- <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.dfaFnsAmt)) }}</p> -->
+          <p>{{ baseInformation.dfaFnsAmt }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -258,38 +250,38 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ACTCS_DT')">
-          <p>{{ baseInformation.actcsDt }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.actcsDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CLCTAM_TP')">
-          <p>{{ baseInformation.clctamDvCd }}</p>
+          <p>{{ baseInformation.clctamDvCdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CLCTAM_ICHR')">
-          <p>{{ baseInformation.clctamPrtnrNo }}</p>
+          <p>{{ baseInformation.clctamPrtnrNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DSB_GUR')">
-          <p>{{ baseInformation.dsbGur }}</p>
+          <p>{{ baseInformation.dsbGurTpCd }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_BU_NOTI')">
-          <p>{{ baseInformation.buNoti }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.buNotiDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_REDF_D')">
-          <p>{{ baseInformation.redfDt }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.redfDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADSB_D')">
-          <p>{{ baseInformation.adsbDt }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.adsbDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_NOTI_CN')">
-          <p>{{ baseInformation.notiCn }}</p>
+          <p>{{ baseInformation.buNotiTpCdNm }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_BNK_NM')">
-          <p>{{ baseInformation.bnkCd }}</p>
+          <p>{{ baseInformation.vacBnkCd }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_VT_AC')">
-          <p>{{ baseInformation.vtAc }}</p>
+          <p>{{ baseInformation.vacNo }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -320,7 +312,8 @@
         <kw-grid
           ref="grdSalesRef"
           name="grdSales"
-          :visible-rows="pageInfo.pageSize - 1"
+          :page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
           @init="initGridMain"
         />
 
@@ -356,7 +349,8 @@
         <kw-grid
           ref="grdDepositRef"
           name="grdDeposit"
-          :visible-rows="pageInfo.pageSize - 1"
+          :page-size="depositPageInfo.pageSize"
+          :total-count="depositPageInfo.totalCount"
           @init="initGridDetail"
         />
         <kw-pagination
@@ -373,8 +367,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMeta, stringUtil } from 'kw-lib';
+import { cloneDeep, toInteger } from 'lodash-es';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -474,16 +469,16 @@ async function onClickExportViewDetail() {
 // -------------------------------------------------------------------------------------------------
 const initGridMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'slClYm', header: t('MSG_TXT_BASE_YM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_TP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slClYm', header: t('MSG_TXT_BASE_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right' },
+    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'clctamDvCdNm', header: t('MSG_TXT_CLCTAM_TP'), width: '100', styleName: 'text-center' },
     { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_TP_ICHR'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col6', header: t('MSG_TXT_TOT_MPY_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col7', header: t('MSG_TXT_THM_MPY_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'col8', header: t('MSG_TXT_THM_CRP_UC_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'istmMcn', header: t('MSG_TXT_DTL'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slDpAggAmt', header: t('MSG_TXT_TOT_MPY_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'thmIntamDpAmt', header: t('MSG_TXT_THM_MPY_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'crpUcAmt', header: t('MSG_TXT_THM_CNTRAM_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'istmInfo', header: t('MSG_TXT_DTL'), width: '100', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -493,13 +488,13 @@ const initGridMain = defineGrid((data, view) => {
 
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'rveDvCd', header: t('MSG_TXT_DP_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rveDt', header: t('MSG_TXT_DP_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rveDvCd1', header: t('MSG_TXT_DP_DV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rveDt', header: t('MSG_TXT_DP_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'dpDvCd', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dpKndCd', header: t('MSG_TXT_DP_KND'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rveDvCd2', header: t('MSG_TXT_DP_KND'), width: '100', styleName: 'text-center' },
     { fieldName: 'dpTpCd', header: t('MSG_TXT_DP_TP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rveAmt', header: t('MSG_TXT_PROCS_AMT_WON'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'rveAmt', header: t('MSG_TXT_PROCS_AMT_WON'), width: '100', styleName: 'text-right', dataType: 'number' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
