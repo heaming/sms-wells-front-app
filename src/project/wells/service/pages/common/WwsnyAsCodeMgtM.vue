@@ -243,28 +243,24 @@ const onClickExcelUpload = async () => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'svTpCd' },
-    { fieldName: 'asLctCd' },
-    { fieldName: 'asLctNm' },
-    { fieldName: 'asPhnCd' },
-    { fieldName: 'asPhnNm' },
-    { fieldName: 'asCausCd' },
-    { fieldName: 'asCausNm' },
-    { fieldName: 'siteAwAtcCd' },
-    { fieldName: 'siteAwAtcNm' },
-    { fieldName: 'fuleyAwAmt', dataType: 'number' },
-    { fieldName: 'svAnaHclsfCd' },
-    { fieldName: 'svAnaHclsfNm' },
-  ];
-
   const columns = [
     {
-      fieldName: 'svTpCd',
+      fieldName: 'svTpNm',
       header: t('MSG_TXT_SV_TP'),
       width: '30',
-      options: codes.SV_BIZ_HCLSF_CD,
       styleName: 'text-center',
+    },
+    {
+      fieldName: 'pdGrpNm',
+      header: t('MSG_TXT_PD_GRP'),
+      width: '30',
+      styleName: 'text-center',
+    },
+    {
+      fieldName: 'pdNm',
+      header: t('MSG_TXT_GOODS_NM'),
+      width: '150',
+      styleName: 'text-left',
     },
     { fieldName: 'asLctCd', header: t('MSG_TXT_CODE'), width: '50', styleName: 'text-center' },
     {
@@ -313,9 +309,14 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.SV_BIZ_DCLSF_CD,
     },
   ];
+  const fields = columns.map((item) => ({ fieldName: item.fieldName }));
+  fields.find((item) => item.fieldName === 'fuleyAwAmt').dataType = 'number';
+  data.setFields(fields);
 
   const columnLayout = [
-    'svTpCd',
+    'svTpNm',
+    'pdGrpNm',
+    'pdNm',
     { direction: 'horizontal', items: ['asLctCd', 'asLctNm'], header: { text: t('MSG_TXT_AS_LCT') } },
     { direction: 'horizontal', items: ['asPhnCd', 'asPhnNm'], header: { text: t('MSG_TXT_AS_PHN') } },
     { direction: 'horizontal', items: ['asCausCd', 'asCausNm'], header: { text: t('MSG_TXT_AS_CAUS') } },
@@ -326,9 +327,9 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   view.setColumnLayout(columnLayout);
-
-  data.setFields(fields);
   view.setColumns(columns);
-  view.rowIndicator.visible = true;
+  view.editOptions.editable = false; // Grid Editable On
+  view.rowIndicator.visible = false;
+  view.displayOptions.selectionStyle = 'singleRow';
 });
 </script>
