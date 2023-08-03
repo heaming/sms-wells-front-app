@@ -161,7 +161,9 @@
 import { defineGrid, useGlobal, useDataService, useMeta, getComponentType, codeUtil, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
+import dayjs from 'dayjs';
 
+const now = dayjs();
 const { t } = useI18n();
 const { modal, notify } = useGlobal();
 const dataService = useDataService();
@@ -202,7 +204,7 @@ const pageInfo = ref({
 
 let cachedParams;
 const searchParams = ref({
-  apyStrtdt: '',
+  apyStrtdt: now.format('YYYYMMDD'),
   pdCd: '',
   pdNm: '',
   sellTpCd: '',
