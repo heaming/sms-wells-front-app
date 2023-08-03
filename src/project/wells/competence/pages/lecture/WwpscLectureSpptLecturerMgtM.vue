@@ -104,7 +104,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import { useDataService, getComponentType, gridUtil, codeUtil, useMeta, defineGrid, useGlobal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const { notify } = useGlobal();
@@ -176,7 +176,7 @@ async function onClickSave() {
   await dataService.post('/sms/wells/competence/lecture-sppt-lecturer', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
-  await onClickSearch();
+  await fetchData();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -190,29 +190,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'useYn' },
   ];
   const columns = [
-    { fieldName: 'lectrSpptOgTpCd',
-      header: t('MSG_TXT_OG_TP'),
-      width: '300',
-      styleName: 'text-center',
-      rules: 'required',
-      options: ogTpCd.value,
-      editor: { type: 'list' },
-      styleCallback(grid, dataCell) {
-        const lectrSpptLectCd = grid.getValue(dataCell.index.itemIndex, 'lectrSpptLectCd');
-        return isEmpty(lectrSpptLectCd) ? { editable: true } : { editable: false };
-      },
-    },
+    { fieldName: 'lectrSpptOgTpCd', header: t('MSG_TXT_OG_TP'), width: '300', styleName: 'text-center', rules: 'required', options: ogTpCd.value, editor: { type: 'list' } },
     { fieldName: 'lectrSpptLectCd', header: t('MSG_TXT_LECT_CD'), width: '300', styleName: 'text-center', editable: false },
-    { fieldName: 'lectNm',
-      header: t('MSG_TXT_LECT_NM'),
-      width: '300',
-      rules: 'required',
-      styleName: 'text-center',
-      styleCallback(grid, dataCell) {
-        const lectrSpptLectCd = grid.getValue(dataCell.index.itemIndex, 'lectrSpptLectCd');
-        return isEmpty(lectrSpptLectCd) ? { editable: true } : { editable: false };
-      },
-    },
+    { fieldName: 'lectNm', header: t('MSG_TXT_LECT_NM'), width: '300', rules: 'required', styleName: 'text-center' },
     { fieldName: 'useYn', header: t('MSG_TXT_USE_SEL'), width: '300', styleName: 'text-center', options: codes.COD_YN, editor: { type: 'list' } },
   ];
 
@@ -223,6 +203,12 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.editable = true;
   // 신규 생성만 삭제 가능
   view.setCheckableExpression("value['lectrSpptLectCd'] is empty", true);
+
+  view.onCellEditable = (grid, index) => {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && (index.column === 'lectrSpptOgTpCd' || index.column === 'lectNm')) {
+      return false;
+    }
+  };
 });
 
 </script>
