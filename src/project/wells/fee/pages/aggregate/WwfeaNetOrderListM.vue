@@ -279,6 +279,7 @@
               rules="required"
               type="month"
               :label="$t('MSG_TXT_FEE_YM')"
+              @change="onChangedOrdr"
             />
           </kw-search-item>
         </kw-search-row>
@@ -405,7 +406,7 @@ const grdMain2Ref = ref(getComponentType('KwGrid'));
 const totalCount1 = ref(0);
 const totalCount2 = ref(0);
 const codes = await codeUtil.getMultiCodes(
-  'SELL_TP_CD', // 수수료차수구분코드
+  'SELL_TP_CD',
   'COPN_DV_CD',
   'OG_TP_CD',
   'FEE_PDCT_TP_CD',
@@ -573,14 +574,20 @@ async function onChangedDvcd() {
  *  Event - 회차 선택시 집계버튼 사용여부 조회※
  */
 async function onChangedOrdr() {
-  const { tcntDvCd } = searchParams.value;
+  const { tcntDvCd, perfYm } = searchParams.value;
+  const nowMonth = now.add(-1, 'month').format('YYYYMM');
   if (tcntDvCd === '01') {
     searchParams.value.tcntDvTxt = '1차';
   } else if (tcntDvCd === '02') {
     searchParams.value.tcntDvTxt = '2차';
   }
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchData('confirmChk');
+  if (perfYm !== nowMonth) {
+    isReg.value = false;
+    isConfirm.value = false;
+  } else {
+    cachedParams = cloneDeep(searchParams.value);
+    await fetchData('confirmChk');
+  }
 }
 
 // 상품코드 검색 아이콘 클릭 이벤트
