@@ -66,7 +66,7 @@
             <kw-select
               v-model="searchParams.pdctTpCd"
               :label="$t('MSG_TXT_PDCT_TP')"
-              :options="customCodes.div5Cd"
+              :options="codes.FEE_PDCT_TP_CD"
               first-option
               first-option-value=""
               :first-option-label="$t('MSG_TXT_ALL')"
@@ -189,7 +189,7 @@
               v-model="searchParams.tcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
               type="radio"
-              :options="customCodes.div1Cd"
+              :options="codes.FEE_TCNT_DV_CD"
             />
           </kw-search-item>
           <kw-search-item
@@ -253,7 +253,7 @@
               v-model="searchParams.tcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
               type="radio"
-              :options="customCodes.div1Cd"
+              :options="codes.FEE_TCNT_DV_CD"
               @change="onChangedOrdr"
             />
           </kw-search-item>
@@ -409,14 +409,13 @@ const codes = await codeUtil.getMultiCodes(
   'COPN_DV_CD',
   'OG_TP_CD',
   'FEE_PDCT_TP_CD',
+  'FEE_TCNT_DV_CD',
 );
 
 const customCodes = {
-  div1Cd: [{ codeId: '01', codeName: '1차' }, { codeId: '02', codeName: '2차' }],
   div2Cd: [{ codeId: '01', codeName: '상세' }, { codeId: '02', codeName: '집계' }],
   div3Cd: [{ codeId: 'W02', codeName: 'M추진단' }, { codeId: 'W01', codeName: 'P추진단' }, { codeId: 'W03', codeName: '홈마스터' }, { codeId: 'W04', codeName: 'B2B' }, { codeId: 'W05', codeName: '총판' }, { codeId: 'W06', codeName: '기타' }],
   div4Cd: [{ codeId: '01', codeName: '접수' }, { codeId: '02', codeName: '예약' }, { codeId: '03', codeName: '매출' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
-  div5Cd: [{ codeId: 'A', codeName: '환경' }, { codeId: 'B', codeName: '웰스팜' }, { codeId: 'C', codeName: 'BH' }, { codeId: 'D', codeName: '캡슐' }, { codeId: 'E', codeName: '홈케어' }, { codeId: 'F', codeName: '소모품' }, { codeId: 'G', codeName: '부속품' }],
   div6Cd: [{ codeId: '2', codeName: '렌탈/리스' }, { codeId: '1', codeName: '일시불' }, { codeId: '6', codeName: '정기배송' }, { codeId: '7', codeName: '재약정' }, { codeId: '3', codeName: '홈케어멤버십' }],
 };
 

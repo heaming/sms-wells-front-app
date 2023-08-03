@@ -95,12 +95,7 @@ async function onClickCancel() {
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
   const response = await dataService.post('/sms/wells/fee/monthly-net/aggregations', data.value);
-  const netOrders = response.data;
-  if (netOrders.length === undefined) {
-    alert(t('MSG_ALT_CRT_FAIL'));
-  } else {
-    ok(response.data);
-  }
+  if (response.data === 'S') ok(response.data);
 }
 
 </script>
