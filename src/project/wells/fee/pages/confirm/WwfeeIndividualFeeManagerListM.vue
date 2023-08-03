@@ -231,7 +231,7 @@
           secondary
           dense
           :label="t('MSG_BTN_BU_DDTN')"
-          @click="openBurdenDeductionPopup"
+          @click="openZwfedFeeBurdenDeductionRegP"
         />
       </kw-action-top>
       <kw-form
@@ -447,44 +447,49 @@ async function openPerformancePopup() {
   }
 }
 /*
- *  Event - 재지급 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 재지급 버튼 클릭
  */
 async function openAgainDisbursementPopup() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    prtnrNo: searchParams.value.no,
+    ogTpCd: 'W02',
   };
 
   await modal({
-    component: 'openAgainDisbursementPopup',
+    component: 'WwdebAgainDisbursementDetailP',
     componentProps: param,
   });
 }
+
 /*
- *  Event - 부담공제 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 부담공제조정 버튼 클릭
  */
-async function openBurdenDeductionPopup() {
+async function openZwfedFeeBurdenDeductionRegP() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    dsbYm: dayjs(searchParams.value.perfYm).format('YYYY-MM'),
+    ogTpCd: 'W02',
+    ogTpCdTxt: 'M조직',
+    coCd: '2000',
+    coCdTxt: 'WELLS',
+    prtnrNo: searchParams.value.no,
   };
-
   await modal({
-    component: 'openBurdenDeductionPopup',
+    component: 'ZwfedFeeBurdenDeductionRegP',
     componentProps: param,
   });
 }
+
 /*
- *  Event - 되물림 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 되물림 버튼 클릭
  */
 async function openRedemptionOfFeePopup() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    prtnrNo: searchParams.value.no,
+    ogTpCd: 'W02',
   };
 
   await modal({
-    component: 'openRedemptionOfFeePopup',
+    component: 'WwdeaAllowanceDelinquentRedemptionFeeListP',
     componentProps: param,
   });
 }

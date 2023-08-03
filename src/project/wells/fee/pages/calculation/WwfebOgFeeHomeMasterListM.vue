@@ -169,6 +169,7 @@ const isExcelDown = ref(false);
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const { currentRoute } = useRouter();
+const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -177,6 +178,7 @@ const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const stepNaviRef = ref();
+
 const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD', // 수수료차수구분코드
   'RSB_DV_CD',
@@ -287,11 +289,20 @@ async function openZwfebFeeHistoryMgtP() {
 }
 
 async function onClickExcelDownload() {
+  let uri = '';
+  cachedParams = cloneDeep(searchParams.value);
+  stepNaviRef.value.initProps();
+
+  if (isGrid2Visile.value === true) {
+    uri = '-brmgr';
+  }
   const view = grdMainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/hmsts${uri}`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
@@ -300,7 +311,7 @@ async function onClickExcelDownload() {
  */
 async function setTitle() {
   const { perfYm, rsbTpCd } = searchParams.value;
-  searchParams.value.statTitle = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
+  searchParams.value.statTitleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
   if (rsbTpCd !== '') {
     const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTpCd);
     searchParams.value.rsbTpTxt = codeName;
@@ -561,11 +572,10 @@ async function onClickW314P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 품의작성 클릭 ※TBD
  */
 async function onClickW316P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { formId } = approval.value;
-  const { unitCd, perfYm } = searchParams.value;
+  const { unitCd, perfYm, ogTpCd } = searchParams.value;
   const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', searchParams.value); /* 품의진행상태 조회 */
   const resData = response.data;
-  approval.value.appKey = formId + unitCd + dayjs().format('YYYYMMDDHHmmss'); /* 10자리 + 4자리 + 14자리 = 28 appKey 생성 */
+  approval.value.appKey = perfYm + ogTpCd + unitCd + dayjs().format('YYYYMMDDHHmmss'); /* 6자리+3자리+4자리+ 14자리 = 27 appKey 생성 */
   const params = approval.value;
   saveInfo.value.appKey = approval.value.appKey;
   saveInfo.value.perfYm = perfYm;
@@ -590,18 +600,60 @@ async function onClickW316P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 전표생성 클릭 ※TBD
  */
-async function onClickW317P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+async function onClickW317P() {
+  const { perfYm, ogTpCd, rsbTpCd } = searchParams.value;
+  router.push({
+    path: '/fee/zwfee-fee-slip-publication-list',
+    query: {
+      baseYm: perfYm,
+      ogTpCd,
+      rsbDvCd: rsbTpCd,
+    },
+  });
 }
 
 /*
- *  Event - 선급판매 수수료확정 클릭 ※팝업 개발 미완료 상태
+ *  Event - 선급판매 수수료확정 클릭
 */
 
 async function onClickW318P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+  const { result: isUploadSuccess } = await modal({
+    component: 'WwfebAdvancePaymentFeeConfirmP',
+    componentProps: { feeSchdId },
+  });
+  if (isUploadSuccess) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    fetchData();
+  }
+}
+
+/*
+ *  Event - 교육집계 클릭 ※
+ */
+async function onClickW320P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.feeTcntDvCd);
+  if (searchParams.value.rsbTp === '') {
+    await alert(t('MSG_ALT_SELECT_RSB_TP'));
+  } else {
+    const param = {
+      ogTpCd: 'W03',
+      ogTpCdTxt: '홈마스터',
+      perfYm,
+      perfYmTxt: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+      feeTcntDvCd,
+      feeTcntDvCdTxt: codeName,
+      rsbTpCd,
+    };
+    const { result: isChanged } = await modal({
+      component: 'WwfeaFeeWellsEducationAttendanceRegP',
+      componentProps: param,
+    });
+    if (isChanged) {
+      await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+      fetchData();
+    }
+  }
 }
 
 /**
@@ -634,9 +686,11 @@ async function onclickStep(params) {
   } else if (params.code === 'W0316') { // 품의작성
     await onClickW316P(params.feeSchdId, params.code, '03');
   } else if (params.code === 'W0317') { // 전표생성
-    await onClickW317P(params.feeSchdId, params.code, '03');
+    await onClickW317P();
   } else if (params.code === 'W0318') { // 선급판매 수수료 확정
     await onClickW318P(params.feeSchdId, params.code, '03');
+  } else if (params.code === 'W0320') { // 교육집계
+    await onClickW320P(params.feeSchdId, params.code, '03');
   }
 }
 
@@ -651,40 +705,40 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm' },
     { fieldName: 'rsbDvCd' },
     { fieldName: 'akdsym' },
-    { fieldName: 'akdcha' },
-    { fieldName: 'prtnrGdCd' },
-    { fieldName: 'edu100' },
-    { fieldName: 'akcda10' },
-    { fieldName: 'akcda12' },
-    { fieldName: 'akcda14' },
-    { fieldName: 'akcda13' },
-    { fieldName: 'akcda15' },
-    { fieldName: 'akcda11' },
-    { fieldName: 'akcda19' },
-    { fieldName: 'dedeq3' },
-    { fieldName: 'akdeq0' },
-    { fieldName: 'lccnt1' },
-    { fieldName: 'cLccnt1' },
-    { fieldName: 'rLccnt1' },
-    { fieldName: 'gdSercnt' },
-    { fieldName: 'elecnt' },
-    { fieldName: 'sercnt' },
-    { fieldName: 'serryl' },
-    { fieldName: 'aksd01' },
-    { fieldName: 'aksd03' },
-    { fieldName: 'aksd04' },
-    { fieldName: 'aksd15' },
-    { fieldName: 'aksd05' },
-    { fieldName: 'aksd06' },
-    { fieldName: 'aksd07' },
-    { fieldName: 'aksd09' },
-    { fieldName: 'aksd10' },
-    { fieldName: 'aksd11' },
-    { fieldName: 'aksd13' },
-    { fieldName: 'aksd14' },
-    { fieldName: 'intbsSum' },
-    { fieldName: 'ddtnSum' },
-    { fieldName: 'aclDdbAmt' },
+    { fieldName: 'akdcha', dataType: 'number' },
+    { fieldName: 'prtnrGdCd', dataType: 'number' },
+    { fieldName: 'edu100', dataType: 'number' },
+    { fieldName: 'akcda10', dataType: 'number' },
+    { fieldName: 'akcda12', dataType: 'number' },
+    { fieldName: 'akcda14', dataType: 'number' },
+    { fieldName: 'akcda13', dataType: 'number' },
+    { fieldName: 'akcda15', dataType: 'number' },
+    { fieldName: 'akcda11', dataType: 'number' },
+    { fieldName: 'akcda19', dataType: 'number' },
+    { fieldName: 'dedeq3', dataType: 'number' },
+    { fieldName: 'akdeq0', dataType: 'number' },
+    { fieldName: 'lccnt1', dataType: 'number' },
+    { fieldName: 'cLccnt1', dataType: 'number' },
+    { fieldName: 'rLccnt1', dataType: 'number' },
+    { fieldName: 'gdSercnt', dataType: 'number' },
+    { fieldName: 'elecnt', dataType: 'number' },
+    { fieldName: 'sercnt', dataType: 'number' },
+    { fieldName: 'serryl', dataType: 'number' },
+    { fieldName: 'aksd01', dataType: 'number' },
+    { fieldName: 'aksd03', dataType: 'number' },
+    { fieldName: 'aksd04', dataType: 'number' },
+    { fieldName: 'aksd15', dataType: 'number' },
+    { fieldName: 'aksd05', dataType: 'number' },
+    { fieldName: 'aksd06', dataType: 'number' },
+    { fieldName: 'aksd07', dataType: 'number' },
+    { fieldName: 'aksd09', dataType: 'number' },
+    { fieldName: 'aksd10', dataType: 'number' },
+    { fieldName: 'aksd11', dataType: 'number' },
+    { fieldName: 'aksd13', dataType: 'number' },
+    { fieldName: 'aksd14', dataType: 'number' },
+    { fieldName: 'intbsSum', dataType: 'number' },
+    { fieldName: 'ddtnSum', dataType: 'number' },
+    { fieldName: 'aclDdbAmt', dataType: 'number' },
 
   ];
 
@@ -695,40 +749,40 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '119.9', styleName: 'text-left' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '119.9', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'akdsym', header: t('MSG_TXT_BIZ_RGST_MM'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akdcha', header: t('MSG_TXT_NMN'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'prtnrGdCd', header: t('MSG_TXT_GRCNT'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'edu100', header: t('MSG_TXT_NWCMR') + t('MSG_TXT_ENPSC') + t('MSG_TXT_EDUC'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda10', header: t('MSG_TXT_MTRRS'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda12', header: t('MSG_TXT_MTRRS') + t('MSG_TXT_EXCP'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda14', header: t('MSG_TXT_FXAM'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda13', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akcda15', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akcda11', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_PKG'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'dedeq3', header: `${t('MSG_TXT_CHNG')}(1)${t('MSG_TXT_COUNT')}`, width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akdeq0', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'lccnt1', header: t('MSG_TXT_ASGN') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'cLccnt1', header: t('MSG_TXT_CANCEL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'rLccnt1', header: t('MSG_TXT_REAL') + t('MSG_TXT_ASGN') + t('MSG_TXT_CNT'), width: '207.4', styleName: 'text-right' },
-    { fieldName: 'gdSercnt', header: `${t('MSG_TXT_WASHER')}/${t('MSG_TXT_ARCN')}/${t('MSG_TXT_DRYER')}${t('MSG_TXT_COUNT')}`, width: '207.4', styleName: 'text-right' },
-    { fieldName: 'elecnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right' },
-    { fieldName: 'aksd03', header: t('MSG_TXT_ENRG'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd04', header: t('MSG_TXT_SNGL_PMNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd15', header: t('MSG_TXT_CHNG'), width: '122.8', styleName: 'text-right' },
-    { fieldName: 'aksd05', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd06', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_SCENE'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd07', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACTI'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd09', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACML'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd10', header: t('MSG_TXT_EDUC'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd11', header: t('MSG_TXT_RGLVL'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd13', header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aclDdbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '124.7', styleName: 'text-right' },
+    { fieldName: 'akdcha', header: t('MSG_TXT_NMN'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'prtnrGdCd', header: t('MSG_TXT_GRCNT'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'edu100', header: t('MSG_TXT_NWCMR') + t('MSG_TXT_ENPSC') + t('MSG_TXT_EDUC'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda10', header: t('MSG_TXT_MTRRS'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda12', header: t('MSG_TXT_MTRRS') + t('MSG_TXT_EXCP'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda14', header: t('MSG_TXT_FXAM'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda13', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda15', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda11', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_PKG'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'dedeq3', header: `${t('MSG_TXT_CHNG')}(1)${t('MSG_TXT_COUNT')}`, width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akdeq0', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'lccnt1', header: t('MSG_TXT_ASGN') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'cLccnt1', header: t('MSG_TXT_CANCEL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'rLccnt1', header: t('MSG_TXT_REAL') + t('MSG_TXT_ASGN') + t('MSG_TXT_CNT'), width: '207.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'gdSercnt', header: `${t('MSG_TXT_WASHER')}/${t('MSG_TXT_ARCN')}/${t('MSG_TXT_DRYER')}${t('MSG_TXT_COUNT')}`, width: '207.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'elecnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd03', header: t('MSG_TXT_ENRG'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd04', header: t('MSG_TXT_SNGL_PMNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd15', header: t('MSG_TXT_CHNG'), width: '122.8', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd05', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd06', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_SCENE'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd07', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACTI'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd09', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACML'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd10', header: t('MSG_TXT_EDUC'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd11', header: t('MSG_TXT_RGLVL'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd13', header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aclDdbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '124.7', styleName: 'text-right', numberFormat: '#,##0' },
   ];
   data.setFields(fields);
   view.setColumns(columns);

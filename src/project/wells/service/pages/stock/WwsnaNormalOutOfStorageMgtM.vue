@@ -15,17 +15,24 @@
 <template>
   <kw-page>
     <kw-search
+      :cols="4"
       @search="onClickSearch"
-      @reset="fetchDefaultData"
     >
       <kw-search-row>
         <!-- 출고요청접수 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_AK_RCP')"
+          :colspan="2"
+          required
         >
           <kw-select
             v-model="searchParams.ostrOjWareNo"
             :options="codes.WARE_HOUSE"
+            :label="$t('MSG_TXT_OSTR_AK_RCP')"
+            option-value="wareNo"
+            option-label="wareNm"
+            first-option="select"
+            rules="required"
           />
         </kw-search-item>
         <!-- //출고요청접수 -->
@@ -48,6 +55,7 @@
             v-model="searchParams.ostrAkTpCd"
             :options="codes.OSTR_AK_TP_CD"
             first-option="all"
+            @change="onChangeOstrAkTpCd"
           />
         </kw-search-item>
         <!-- //출고요청유형 -->
@@ -82,12 +90,14 @@
         </kw-search-item>
         <!-- 출고요청창고 -->
         <kw-search-item
-          :colspan="1"
           :label="$t('MSG_TXT_OSTR_AK_WARE')"
+          required
         >
           <kw-select
             v-model="searchParams.wareDvCd"
             :options="codes.WARE_DV_CD"
+            first-option="select"
+            rules="required"
           />
         </kw-search-item>
         <!-- //출고요청창고 -->
@@ -136,16 +146,15 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
-// import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const { modal } = useGlobal();
 const { t } = useI18n();
 
 const dataService = useDataService();
-const baseURI = '/sms/wells/service/normal-outofstorages';
-const wareURI = `${baseURI}/warehouses`;
+const baseURI = '/sms/wells/service/normal-out-of-storages';
+const wareURI = `${baseURI}/ware-houses`;
 const grdMainRef = ref(getComponentType('KwGrid'));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -160,7 +169,6 @@ const codes = ref(await codeUtil.getMultiCodes(
 
 codes.value.OSTR_AK_TP_CD = codes.value.OSTR_AK_TP_CD.filter((v) => v.codeId === '310' || v.codeId === '320' || v.codeId === '330');
 const toMonth = dayjs().format('YYYYMMDD');
-console.log(`toMonth : ${toMonth}`);
 
 const searchParams = ref({
   strHopDtStr: toMonth,
@@ -181,7 +189,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get(`${baseURI}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -209,24 +217,60 @@ async function onClickExcelDownload() {
 }
 
 async function fetchDefaultData() {
-  const defaultParams = ref({
-    apyYm: dayjs(searchParams.value.strHopDtStr).format('YYYYMM'),
-  });
-  const res = await dataService.get(wareURI, { params: defaultParams.value });
-  if (res.data.length === 0) {
-    return false;
+  codes.value.WARE_HOUSE = [];
+  searchParams.value.ostrOjWareNo = '';
+
+  let { strHopDtStr } = searchParams.value;
+  if (isEmpty(strHopDtStr)) strHopDtStr = dayjs().format('YYYYMMDD');
+
+  const apyYm = dayjs(strHopDtStr).format('YYYYMM');
+  const res = await dataService.get(wareURI, { params: { apyYm } });
+  if (!isEmpty(res.data)) {
+    codes.value.WARE_HOUSE = res.data;
+    searchParams.value.ostrOjWareNo = res.data[0].wareNo;
   }
-  codes.value.WARE_HOUSE = res.data.map((v) => ({ codeId: v.wareNo, codeName: v.wareNm }));
-  searchParams.value.ostrOjWareNo = codes.value.WARE_HOUSE[0].codeId;
 }
 
 onMounted(async () => {
   await fetchDefaultData();
 });
+
+// 출고요청유형코드 변경시
+function onChangeOstrAkTpCd() {
+  const { ostrAkTpCd } = searchParams.value;
+
+  const yearMonth = dayjs.format('YYYYMM');
+
+  if (ostrAkTpCd === '330') {
+    searchParams.value.strHopDtStr = `${yearMonth}01`;
+    searchParams.value.strHopDtEnd = toMonth;
+    return;
+  }
+
+  searchParams.value.strHopDtStr = toMonth;
+  searchParams.value.strHopDtEnd = toMonth;
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'ostrAkNo' },
+    { fieldName: 'ostrAkTpCd' },
+    { fieldName: 'ostrOjWareNo' },
+    { fieldName: 'strOjWareNm' },
+    { fieldName: 'strOjWareNo' },
+    { fieldName: 'strHopDt' },
+    { fieldName: 'ovivTpCd' },
+    { fieldName: 'rectOstrDt' },
+    { fieldName: 'ostrDtrnYn' },
+    { fieldName: 'itmPdCd' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'ostrAkSn' },
+    { fieldName: 'rmkCn' },
+  ];
+
   const columns = [
     { fieldName: 'strHopDt',
       header: t('MSG_TXT_STR_HOP_D'),
@@ -270,29 +314,16 @@ const initGrdMain = defineGrid((data, view) => {
     },
   ];
 
-  const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
-  // const fields = columns.map((v) => ({ fieldName: v.fieldName }));
-  const fields = [...gridField,
-    { fieldName: 'ostrOjWareNo' },
-    { fieldName: 'ostrOjWareNm' },
-    { fieldName: 'strOjWareNo' },
-    { fieldName: 'ostrAkSn' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmOstrNo' },
-  ];
-
   data.setFields(fields);
   view.setColumns(columns);
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.onCellItemClicked = async (g, { column, dataRow }, v) => {
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
     const {
       ostrAkNo,
       ostrAkSn,
-      itmOstrNo,
     } = gridUtil.getRowValue(g, dataRow);
-    console.log(g, column, dataRow, v);
 
     if (column === 'rmkCn') {
       const { result } = await modal({
@@ -300,13 +331,11 @@ const initGrdMain = defineGrid((data, view) => {
         componentProps: {
           ostrAkNo,
           ostrAkSn,
-          itmOstrNo,
           page: 'WwsnaNormalOutOfStorageMgtM',
         },
       });
 
       if (result) {
-        // console.log(payload[0]);
         await fetchData();
       }
     }

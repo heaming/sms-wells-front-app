@@ -16,7 +16,6 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
-      @reset="onClickReset"
     >
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
@@ -39,23 +38,9 @@
           :label2="$t('MSG_TXT_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeStdWareDvCd"
+          @update:ware-no-m="onChagneHgrWareNo"
         />
-
-        <!-- <kw-search-item :label="$t('MSG_TXT_WARE_DV')">
-          <kw-select
-            v-model="searchParams.wareDv"
-            :options="codes.WARE_DV_CD"
-            first-option="all"
-          />
-        </kw-search-item> -->
-
-        <!-- <kw-search-item :label="$t('MSG_TXT_WARE_LOCARA')">
-          <kw-select
-            v-model="searchParams.wareLocaraCd"
-            :options="codes.ADM_ZN_CLSF_CD"
-            first-option="all"
-          />
-        </kw-search-item> -->
       </kw-search-row>
 
       <kw-search-row>
@@ -94,12 +79,6 @@
             @change="fetchData"
           />
         </template>
-        <!-- <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -230,17 +209,21 @@ const onChangeWareDvCd = async () => {
   }
 };
 
+function onChangeStdWareDvCd() {
+  searchParams.value.wareNoM = '';
+  searchParams.value.wareNoD = '';
+}
+
+function onChagneHgrWareNo() {
+  searchParams.value.wareNoD = '';
+}
+
 watch(() => searchParams.value.wareDvCd, (val) => {
   if (searchParams.value.wareDvCd !== val) {
     searchParams.value.wareDvCd = val;
   }
   onChangeWareDvCd();
 });
-
-// const carriedParams = ref({
-//   baseYm: dayjs().format('YYYYMM'), // 기준년월
-//   userId: store.getters['meta/getUserInfo'].userName,
-// });
 
 async function onClickCarriedOver() {
   const res = await dataService.get('/sms/wells/service/warehouse-organizations/carried-over', { params: { baseYm: searchParams.value.baseYm } });
@@ -255,11 +238,9 @@ async function onClickCarriedOver() {
 
   console.log(searchParams.value.baseYm);
 
-  // if (await confirm(t('MSG_ALT_IS_SAV_DATA'))) {
   await dataService.post('/sms/wells/service/warehouse-organizations/carried-over', { baseYm: searchParams.value.baseYm });
   await notify(t('MSG_ALT_CRDOVR_WK_FSH'));
   emit('reloadPages');
-  // }
 }
 
 async function fetchData() {
@@ -303,20 +284,6 @@ async function onClickWareOgCrdovr(apyYm, wareNo) {
   } else {
     await alert(t('MSG_ALT_THM_BF_WAREINF_MDFC_IMP'));
   }
-}
-
-function searchConditionReset() {
-  searchParams.value.baseYm = dayjs().format('YYYYMM');
-  searchParams.value.baseYmd = dayjs().format('YYYYMMDD');
-  searchParams.value.wareDvCd = '2';
-  searchParams.value.wareDtlDvCd = '';
-  searchParams.value.codeUseYn = '';
-  searchParams.value.wareMngtPrtnrNo = '';
-  searchParams.value.wareNoM = '';
-  searchParams.value.wareNoD = '';
-}
-function onClickReset() {
-  searchConditionReset();
 }
 
 onMounted(async () => {

@@ -165,8 +165,9 @@
         :label="$t('MSG_TXT_AK_DT')"
       >
         <kw-date-picker
-          v-model="searchDetail.reqDt"
+          v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
+          rules="required"
         />
       </kw-form-item>
       <!-- row1 취소일자 -->
@@ -174,8 +175,9 @@
         :label="$t('MSG_TXT_CANC_DT')"
       >
         <kw-date-picker
-          v-model="searchDetail.cancelDt"
+          v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
+          rules="required"
         />
       </kw-form-item>
       <!-- 취소유형 -->
@@ -187,7 +189,7 @@
         />
         <kw-input
           v-model="inputDetail.sel2Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel2')"
@@ -207,7 +209,7 @@
         />
         <kw-input
           v-model="inputDetail.sel3Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel3')"
@@ -221,6 +223,7 @@
           :label="$t('MSG_TXT_CANCEL_BULK_APPLY')"
           :false-value="N"
           :true-value="Y"
+          :disable="props.sametype==='N'"
         />
       </kw-form-item>
     </kw-form-row>
@@ -296,6 +299,7 @@ const emits = defineEmits([
 
 const props = defineProps({
   childDetail: { type: Object, required: true },
+  sametype: { type: String, required: true },
 });
 
 const searchDetail = reactive(props.childDetail);
@@ -328,7 +332,6 @@ async function onClickRefund() {
 }
 
 function onClickSave() {
-  searchDetail.rsgAplcDt = inputDetail.reqDt;
   emits('savedetail');
 }
 

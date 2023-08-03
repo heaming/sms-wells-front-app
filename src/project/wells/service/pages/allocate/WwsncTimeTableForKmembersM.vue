@@ -14,7 +14,7 @@
 ****************************************************************************************************
 -->
 <template>
-  <kw-page>
+  <kw-page :title="props.title === '' ? $t('MSG_TIT_TIME_TABLE') + $t('MSG_TXT_SRCH') : props.title ">
     <!-- To. 개발  window popup width size: 940px  -->
     <h1>{{ $t('MSG_TIT_EGER_TIME_TABLE') /*엔지니어 Time table*/ }}</h1>
     <div class="normal-area normal-area--button-set-bottom pt30 mt15 w860">
@@ -198,7 +198,8 @@
               </div>
               <kw-avatar size="60px">
                 <img
-                  src="node_modules/kw-lib/src/assets/images/example_profile.png"
+                  :src="'https://kportal.kyowon.co.kr/myoffice/Common/ezCommon_InterFace.aspx?TYPE=ENGINEER&FILENAME=' +
+                    data.psic.empPic"
                   alt="profile"
                 >
               </kw-avatar>
@@ -507,6 +508,7 @@ const props = defineProps({
   cntrNo: { type: String, default: '' },
   cntrSn: { type: String, default: '' },
   seq: { type: String, default: '' },
+  title: { type: String, default: '' },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -1063,7 +1065,7 @@ async function onClickSave() {
   const sendDataBase = {
     //-------------------------------------------------
     // inChnlDvCd: data.value.chnlDvCd,
-    inChnlDvCd: searchParams.value.inflwChnl,
+    inChnlDvCd: data.value.inflwChnl,
     asIstOjNo: '',
     // cstSvAsnNo: data.value.cstSvAsnNo,
     //-------------------------------------------------

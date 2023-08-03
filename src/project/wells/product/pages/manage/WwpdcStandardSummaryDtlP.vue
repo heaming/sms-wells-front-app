@@ -114,31 +114,45 @@
     <kw-grid
       ref="grdMaterialRef"
       :visible-rows="1"
-      class="mb20"
+      class="mb30"
       @init="initMaterialGrid"
     />
     <kw-grid
       ref="grdServiceRef"
       :visible-rows="1"
-      class="mb20"
+      class="mb30"
       @init="initServiceGrid"
     />
     <kw-grid
       ref="grdStandardRef"
       :visible-rows="1"
-      class="mb20"
+      class="mb30"
       @init="initStandardGrid"
     />
     <kw-grid
       ref="grdChangePrdRef"
       :visible-rows="1"
+      class="mb30"
       @init="initChangePrdGrid"
     />
-    <kw-separator />
-
+    <ul class="filter-box mb12">
+      <li class="filter-box__item">
+        <p class="filter-box__item-label">
+          <!-- 판매채널 -->
+          {{ $t('MSG_TXT_SEL_CHNL') }}
+        </p>
+        <kw-select
+          v-model="filterChannel"
+          dense
+          first-option="all"
+          class="w250"
+          :options="usedChannelCds"
+          @update:model-value="onUpdateSellChannel"
+        />
+      </li>
+    </ul>
     <kw-grid
       ref="grdMainRef"
-      class="mt40"
       name="grdMain"
       :visible-rows="5"
       @init="initGrid"
@@ -169,6 +183,8 @@ const grdStandardRef = ref(getComponentType('KwGrid'));
 const grdChangePrdRef = ref(getComponentType('KwGrid'));
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const filterChannel = ref();
+const usedChannelCds = ref([]);
 const currentPdCd = ref();
 const pdInfo = ref({});
 const pdRels = ref([]);
@@ -222,8 +238,13 @@ async function initGridRows() {
     }
   }
 
-  const view = grdMainRef.value?.getView();
+  const view = grdMainRef.value.getView();
   if (view) {
+    const sellChannelFilterCond = codes.SELL_CHNL_DTL_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
+    // 판매채널 필터
+    if (sellChannelFilterCond) {
+      view.setColumnFilters('sellChnlCd', sellChannelFilterCond, true);
+    }
     view.getDataSource().setRows(pdPrcs.value);
   }
 }
@@ -239,9 +260,26 @@ async function fetchData() {
 
   const resPrc = await dataService.get(`/sms/common/product/prices/products/${currentPdCd.value}`);
   pdPrcs.value = resPrc.data?.prices;
+  if (pdPrcs.value) {
+    const channels = pdPrcs.value.reduce((rtn, item) => {
+      if (item.sellChnlCd) {
+        rtn.push(item.sellChnlCd);
+      }
+      return rtn;
+    }, []);
+    usedChannelCds.value = codes.SELL_CHNL_DTL_CD.filter((item) => channels.includes(item.codeId));
+  }
 
   const resCls = await dataService.get('/sms/common/product/classifications', { params: { hgrPdClsfId: '', pdTpCd: pdConst.PD_TP_CD_STANDARD } });
   codes.clsfCodes = resCls.data?.map((item) => ({ ...item, codeId: item.pdClsfId, codeName: item.pdClsfNm }), []);
+}
+
+async function onUpdateSellChannel() {
+  const view = grdMainRef.value.getView();
+  view.activateAllColumnFilters('sellChnlCd', false);
+  if (filterChannel.value) {
+    view.activateColumnFilters('sellChnlCd', [filterChannel.value], true);
+  }
 }
 
 async function initProps() {
@@ -333,6 +371,8 @@ async function initServiceGrid(data, view) {
 }
 async function initStandardGrid(data, view) {
   const columns = [
+    // 관계구분
+    { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '85', styleName: 'text-center', options: codes.BASE_PD_REL_DV_CD },
     // 적용시작일자
     { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 적용종료일자
@@ -386,15 +426,15 @@ async function initChangePrdGrid(data, view) {
 async function initGrid(data, view) {
   const columns = [
     // 판매채널
-    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '128', styleName: 'text-center', options: codes.SELL_CHNL_DTL_CD },
+    { fieldName: 'sellChnlCd', header: t('MSG_TXT_SEL_CHNL'), width: '128', styleName: 'text-center', options: codes.SELL_CHNL_DTL_CD, autoFilter: false },
     // 적용시작일
-    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRT_DAY'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRT_DAY'), width: '97', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 적용종료일
-    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_END_DAY'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_END_DAY'), width: '97', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     // 판매유형
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '90', styleName: 'text-center', options: codes.SELL_TP_CD },
     // LV.1(SVC명)
-    { fieldName: 'svPdNm', header: t('MSG_TXT_PD_FEE_LV1'), width: '120' },
+    { fieldName: 'svPdNm', header: t('MSG_TXT_PD_FEE_LV1'), width: '220' },
     // LV.2(약정주기)
     { fieldName: 'stplPrdCd', header: t('MSG_TXT_PD_COM_PERI_LV2'), width: '120', styleName: 'text-center', options: codes.STPL_PRD_CD },
     // 일시불할인구분
@@ -409,6 +449,8 @@ async function initGrid(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.filteringOptions.enabled = false;
 
   initGridRows();
 }

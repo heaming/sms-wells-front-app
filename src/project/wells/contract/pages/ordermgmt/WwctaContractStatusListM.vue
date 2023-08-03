@@ -181,7 +181,7 @@
               v-if="item.numprds > 1"
               class="kw-font-pt18 kw-fc--primary"
             >
-              {{ item.sellTpNm }} 외 {{ item.numprds }}건
+              {{ item.sellTpNm }} 외 {{ item.numprds-1 }}건
             </p>
             <p
               v-else
@@ -272,14 +272,14 @@
           </span>
 
           <kw-slider
-            v-model="item.cntrPrgsStatCd"
-            markers="false"
-            min="0"
-            max="60"
+            :model-value="Number(item.cntrPrgsStatCd)"
+            :markers="false"
+            :min="0"
+            :max="60"
             track-size="7px"
             thumb-size="0px"
-            step="0"
-            v-bind="bindingProps"
+            readonly
+            :step="0"
           />
 
           <!-- 임시저장 -->
@@ -290,7 +290,7 @@
             <kw-btn
               :label="$t('MSG_BTN_MOD')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item)"
             />
             <kw-separator
               vertical
@@ -311,7 +311,7 @@
             <kw-btn
               :label="$t('MSG_BTN_MOD')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item)"
             />
             <kw-separator
               vertical
@@ -343,7 +343,7 @@
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item)"
             />
             <kw-separator
               vertical
@@ -364,7 +364,7 @@
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item)"
             />
             <kw-separator
               vertical
@@ -399,14 +399,16 @@
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item)"
             />
             <kw-separator
               vertical
               inset
               spaced="0px"
             />
+            <!--설치배정 -->
             <kw-btn
+              v-if="item.installYn ==='Y'"
               :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
               padding="12px"
               @click="onClickAssignContact(item)"
@@ -414,7 +416,7 @@
             <kw-btn
               :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
               padding="12px"
-              @click="onClickModify(item.cntrPrgsStatCd, item.cntrNo)"
+              @click="onClickModify(item)"
             />
             <!-- TODO : 확정 / 삭제 버튼 노출 조건 확인 : 계약접수완료일시===now
                                삭제/삭제요청 버튼 비노출 조건 문의 : 설치가 완료된 건일 경우
@@ -590,15 +592,14 @@ async function onClickConfirmTarget(paramCntrNo) {
 }
 
 // 수정
-async function onClickModify(paramStatCd, paramCntrNo) {
-  console.log(` onClickModify paramStatCd : ${paramStatCd}, paramCntrNo : ${paramCntrNo}`);
-
+async function onClickModify({ resultDiv, cntrNo, cntrSn, cntrPrgsStatCd }) {
   router.replace({
     path: 'wwcta-contract-registration-mgt',
     query: {
-      cntrNo: paramCntrNo,
-      cntrPrgsStatCd: paramStatCd,
-      cntrPrtnrNo: '',
+      resultDiv,
+      cntrNo,
+      cntrSn,
+      cntrPrgsStatCd,
     },
   });
 }
@@ -659,7 +660,11 @@ async function onClickF2fPayment(item) {
     const hash = `#${routePath}/?${routeParams.toString()}`;
     const url = `/mobile${hash}`;
 
-    popupUtil.open(url, { width: 360, height: 740 });
+    const { result, payload } = await popupUtil.open(url, { width: 360, height: 740 });
+
+    if (result || payload === 'forceClosed') {
+      await onClickSearch();
+    }
   }
 }
 

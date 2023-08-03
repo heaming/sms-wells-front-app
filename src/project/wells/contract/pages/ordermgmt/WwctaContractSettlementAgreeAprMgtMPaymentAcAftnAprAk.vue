@@ -89,6 +89,7 @@
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import { confirm, getComponentType, notify, useDataService } from 'kw-lib';
+import { scrollIntoView } from '~sms-common/contract/util';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -131,9 +132,9 @@ await fetchRegularFundTransferDayOptions();
 
 const approvalRequest = ref({
   stlmAmt: stlmBas.value.stlmAmt, /* TODO: 추후에 확인 필요 */
-  mpyBsdt: '10', /* 납부기준일자 */
+  mpyBsdt: mpyBsdtOptions.value[0]?.codeId, /* 납부기준일자 */
   acnoEncr: '', /* 계좌번호 */
-  owrKnm: props.cntrCstInfo.cntrCstKnm, /* 소유자 한글명 */
+  owrKnm: props.cntrCstInfo.cstKnm, /* 소유자 한글명 */
   copnDvCd: props.cntrCstInfo.copnDvCd,
   copnDvCdDrmVal: isCooperation.value ? props.cntrCstInfo.bzrno : props.cntrCstInfo.bryyMmdd,
 });
@@ -197,17 +198,12 @@ async function onClickApproval() {
 /* exposed */
 const topRef = ref();
 
-function scrollTo(ref) {
-  const el = ref.value.$el;
-  if (el) { el.scrollIntoView(true); }
-}
-
 async function validate() {
   if (!props.stlm) { return true; }
   const valid = approvalResponse.value?.fnitAprRsCd === 'Y';
   if (!valid) {
     notify('계좌 이체 요청을 해주세요.');
-    scrollTo(topRef);
+    scrollIntoView(topRef);
   }
   return valid;
 }

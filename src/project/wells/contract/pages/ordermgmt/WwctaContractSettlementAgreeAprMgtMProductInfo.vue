@@ -29,8 +29,11 @@
     default-opened
   >
     <kw-form class="pt20">
-      <kw-form-item label="최종결제금액">
-        <p>{{ `${stringUtil.getNumberWithComma(product.fnlAmt || 0)}원` }}</p>
+      <kw-form-item
+        v-if="product.sellTpCd === '1'"
+        :label="'최종결제금액'"
+      >
+        <p>{{ `${stringUtil.getNumberWithComma(product.cntrTam || 0)}원` }}</p>
       </kw-form-item>
       <kw-form-item label="계약상세번호">
         <p>{{ `${product.cntrNo}${product.cntrSn ? '-' + product.cntrSn : ''}` }}</p>
@@ -78,39 +81,76 @@ const props = defineProps({
     required: true,
   },
 });
+
+const labelForFnlAmt = computed(() => {
+  const sellTpCd = props.product?.sellTpCd;
+  if (sellTpCd === '1') {
+    return '상품금액';
+  }
+  if (sellTpCd === '2') {
+    return '월 렌탈료';
+  }
+  if (sellTpCd === '3') {
+    return '멤버쉽 회비';
+  }
+  if (sellTpCd === '6') {
+    return '정상가';
+  }
+  return '최종결제금액';
+});
+
 const productInfos = computed(() => {
   const infos = [];
   if (!props.product) {
     return infos;
   }
-  /* TODO!!!
-     렌탈: 의무사용기간/등록비/방문주기/월 렌탈료/프로모션
-     멤버십: 제품명/방문주기/멤버십 회비
-     정기배송: 상품명/정상가/할인가
-     일시불: 상품금액/정상가/할인가
-     홈케어: 추가정보1/추가정보2/브랜드 or 제조사 */
   const {
+    sellTpCd,
     sellTpDtlCd,
-    cntrPtrm,
+    stplPtrm,
+    fnlAmt,
+    sellAmt,
+    dscAmt,
+    cntrAmt,
+    svPrd,
   } = props.product;
+
+  if (sellTpCd === '1') { /* 일시불 */
+    infos.push({ label: labelForFnlAmt.value, value: `${stringUtil.getNumberWithComma(fnlAmt || 0)}원` });
+    infos.push({ label: '정상가', value: `${stringUtil.getNumberWithComma(sellAmt || 0)}원` });
+    infos.push({ label: '할인가', value: `${stringUtil.getNumberWithComma(dscAmt || 0)}원` });
+  }
+  if (sellTpCd === '2') { /* 렌탈 */
+    if (stplPtrm) {
+      infos.push({ label: '의무기간', value: `${stplPtrm}개월` });
+    }
+    infos.push({ label: labelForFnlAmt.value, value: `${stringUtil.getNumberWithComma(fnlAmt || 0)}원` });
+    infos.push({ label: '등록비', value: `${stringUtil.getNumberWithComma(cntrAmt || 0)}원` });
+    if (svPrd) {
+      infos.push({ label: '방문주기', value: `${svPrd}개월` });
+    }
+    infos.push({ label: '프로모션', value: '' }); /* TODO */
+  }
+  if (sellTpCd === '3') { /* 멤버십 */
+    if (svPrd) {
+      infos.push({ label: '방문주기', value: `${svPrd}개월` });
+    }
+    infos.push({ label: labelForFnlAmt.value, value: `${stringUtil.getNumberWithComma(fnlAmt || 0)}원` });
+  }
+  if (sellTpCd === '6') { /* 정기배송 */
+    infos.push({ label: labelForFnlAmt.value, value: `${stringUtil.getNumberWithComma(fnlAmt || 0)}원` });
+    if (svPrd) {
+      infos.push({ label: '방문주기', value: `${svPrd}개월` });
+    }
+  }
   switch (sellTpDtlCd) {
-    case '11':
-    case '13':
-      infos.push({ label: '의무기간', value: `${cntrPtrm}개월` });
-    // eslint-disable-next-line no-fallthrough
     case '12': /* 홈케어 */
+    case '33': /* 홈케어멤버십 */
       infos.push({ label: '추가정보1', value: '' });
       infos.push({ label: '추가정보2', value: '' });
       infos.push({ label: '브랜드', value: '' });
-      break;
-    case '21':
-    case '22':
-    case '23':
-    case '24':
-    case '25':
-      infos.push({ label: '의무기간', value: `${cntrPtrm}개월` });
-      break;
   }
+  return infos;
 });
 
 </script>

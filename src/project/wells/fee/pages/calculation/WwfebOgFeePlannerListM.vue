@@ -172,6 +172,7 @@ const isGrid2Visile = ref(false);
 const isGrid3Visile = ref(true);
 const isExcelDown = ref(false);
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -312,11 +313,19 @@ async function openZwfebFeeHistoryMgtP() {
  *  Event - 엑셀 다운로드 버튼 클릭 ※
  */
 async function onClickExcelDownload() {
+  let uri = '';
+  if (isGrid2Visile.value === true) {
+    uri = '-brmgr';
+  } else if (isGrid3Visile.value === true) {
+    uri = '-total';
+  }
   const view = grdMainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/plars${uri}`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
@@ -397,13 +406,14 @@ async function onClickW101P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     const param = {
       ogTpCd: 'W01',
       ogTpCdTxt: 'P추진단',
-      perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+      perfYm,
+      perfYmTxt: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
       feeTcntDvCd,
       feeTcntDvCdTxt: codeName,
       rsbTpCd,
     };
     const { result: isChanged } = await modal({
-      component: 'ZwfeaFeeMeetingAttendanceRegP',
+      component: 'WwfeaFeeWellsMeetingAttendanceRegP',
       componentProps: param,
     });
     if (isChanged) {
@@ -621,11 +631,10 @@ async function onClickW116P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 품의작성 클릭 ※TBD
  */
 async function onClickW118P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { formId } = approval.value;
-  const { unitCd, perfYm } = searchParams.value;
+  const { unitCd, perfYm, ogTpCd } = searchParams.value;
   const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', searchParams.value); /* 품의진행상태 조회 */
   const resData = response.data;
-  approval.value.appKey = formId + unitCd + dayjs().format('YYYYMMDDHHmmss'); /* 10자리 + 4자리 + 14자리 = 28 appKey 생성 */
+  approval.value.appKey = perfYm + ogTpCd + unitCd + dayjs().format('YYYYMMDDHHmmss'); /* 6자리+3자리+4자리+ 14자리 = 27 appKey 생성 */
   const params = approval.value;
   saveInfo.value.appKey = approval.value.appKey;
   saveInfo.value.perfYm = perfYm;
@@ -649,9 +658,16 @@ async function onClickW118P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 /*
  *  Event - 전표생성 클릭 ※TBD
  */
-async function onClickW119P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+async function onClickW119P() {
+  const { perfYm, ogTpCd, rsbTpCd } = searchParams.value;
+  router.push({
+    path: '/fee/zwfee-fee-slip-publication-list',
+    query: {
+      baseYm: perfYm,
+      ogTpCd,
+      rsbDvCd: rsbTpCd,
+    },
+  });
 }
 
 /*
@@ -659,8 +675,14 @@ async function onClickW119P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 */
 
 async function onClickW120P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+  const { result: isUploadSuccess } = await modal({
+    component: 'WwfebAdvancePaymentFeeConfirmP',
+    componentProps: { feeSchdId },
+  });
+  if (isUploadSuccess) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    fetchData();
+  }
 }
 
 /**
@@ -695,7 +717,7 @@ async function onclickStep(params) {
   } else if (params.code === 'W0118') { // 품의작성
     await onClickW118P(params.feeSchdId, params.code, '03');
   } else if (params.code === 'W0119') { // 전표생성
-    await onClickW119P(params.feeSchdId, params.code, '03');
+    await onClickW119P();
   } else if (params.code === 'W0120') { // 선급판매 수수료 확정
     await onClickW120P(params.feeSchdId, params.code, '03');
   }

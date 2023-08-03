@@ -178,7 +178,7 @@ const { ok } = useModal();
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/registration';
 const colsedUri = '/sms/wells/service/movement-stores/strware-monthly-end';
-const stdWareUri = '/sms/wells/service/normal-outofstorages/standard-ware';
+const stdWareUri = '/sms/wells/service/normal-out-of-storages/standard-ware';
 const grdMainRef = ref(getComponentType('KwGrid'));
 const props = defineProps({
   strRgstDt: {
@@ -292,7 +292,6 @@ async function stckStdGbFetchData() {
   const wareNo = searchParams.value.ostrWareNo;
   const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
   const { stckStdGb } = res.data;
-  console.log(res);
   searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
 }
 
@@ -323,9 +322,10 @@ async function onCheckedStckNoStdGb() {
   const wareNo = searchParams.value.ostrWareNo;
 
   const res = await dataService.put(stdWareUri, { apyYm, stckStdGb, wareNo });
-  console.log(res);
-  notify(t('MSG_ALT_CHG_DATA'));
-  fetchData();
+  if (res.data > 0) {
+    notify(t('MSG_ALT_CHG_DATA'));
+    await fetchData();
+  }
 }
 
 async function strWareMonthlyClosed() {
@@ -567,11 +567,10 @@ const initGrdMain = defineGrid((data, view) => {
       console.log(`payload : ${payload}`);
 
       if (result) {
-        fetchData();
-        console.log('재검색 하였습니다.');
+        await fetchData();
       }
 
-      stckStdGbFetchData();
+      await stckStdGbFetchData();
     }
   };
 

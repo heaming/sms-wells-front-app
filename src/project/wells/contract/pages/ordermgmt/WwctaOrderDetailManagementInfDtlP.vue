@@ -382,6 +382,40 @@ async function fetchData() {
     frmMainData.value.rgstCs = stringUtil.getNumberWithComma(Number(res.data[0].rgstCs), 0); // 등록비용
     frmMainData.value.rentalTam = stringUtil.getNumberWithComma(Number(res.data[0].rentalTam), 0); // 렌탈총액
     frmMainData.value.ackmtPerfAmt = stringUtil.getNumberWithComma(Number(res.data[0].ackmtPerfAmt), 0); // 인정실적금액
+  } else {
+    frmMainData.value.cntrDt = ''; // 계약일
+    frmMainData.value.pdNm = ''; // 상품명
+    frmMainData.value.pdCd = ''; // 상품코드
+    frmMainData.value.istDt = ''; // 설치일자
+    frmMainData.value.sellTpNm = ''; // 계약구분명(판매유형코드명)
+    frmMainData.value.dscDvNm = ''; // 할인구분(판매할인구분코드)
+    frmMainData.value.dscTpNm = ''; // 할인유형명
+    frmMainData.value.stplPtrm = ''; // 약정기간
+    frmMainData.value.prd = ''; // 주기
+    frmMainData.value.uswy = ''; // 용도(용도구분)
+    frmMainData.value.frisuAS = ''; // 무상A/S
+    frmMainData.value.sellPrtnrBlgCd = ''; // 판매자소속코드
+    frmMainData.value.sellPrtnrBlgNm = ''; // 판매자소속명
+    frmMainData.value.sellPrtnrBlgBrmgrNm = ''; // 판매자소속지점장명
+    frmMainData.value.sellPrtnrNm = ''; // 판매자성명
+    frmMainData.value.sellPrtnrNo = ''; // 판매파트너번호
+    frmMainData.value.chdvcDt = ''; // 기변일자
+    frmMainData.value.ptyCd = ''; // 상태코드
+    frmMainData.value.alncPtyCd = ''; // 제휴상태코드
+    frmMainData.value.etcArtc = ''; // 기타사항
+    frmMainData.value.chngDt = ''; // 교체일자
+    frmMainData.value.reqdDt = ''; // 철거일자
+    frmMainData.value.canDt = ''; // 취소일자
+    frmMainData.value.svStpDt = ''; // 중지일자
+    frmMainData.value.mshJoinDt = ''; // 멤버십가입
+    frmMainData.value.mshWdwalDt = ''; // 멤버십탈퇴
+    frmMainData.value.ichrWelsMngerNm = ''; // 담당웰스매니저명
+    frmMainData.value.istMthCd = ''; // 설치방법코드
+    frmMainData.value.istMthNm = ''; // 설치방법명
+    frmMainData.value.dutyStplMcnt = ''; // 의무약정개월
+    frmMainData.value.rgstCs = ''; // 등록비용
+    frmMainData.value.rentalTam = ''; // 렌탈총액
+    frmMainData.value.ackmtPerfAmt = ''; // 인정실적금액
   }
 }
 

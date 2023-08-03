@@ -19,6 +19,7 @@
       />
     </template>
     <kw-btn
+      v-show="onShowSave"
       dense
       grid-action
       :label="$t('MSG_BTN_SAVE')"
@@ -40,7 +41,7 @@
     />
   </kw-action-top>
   <kw-grid
-    ref="grdThirdRef"
+    ref="grdMainRef"
     name="grdTabThird"
     :visible-rows="10"
     @init="initGrdThird"
@@ -71,7 +72,7 @@
     />
   </kw-action-top>
   <kw-grid
-    ref="grdFourthRef"
+    ref="grdSubRef"
     name="grdTabFourth"
     :visible-rows="10"
     @init="initGrdFourth"
@@ -86,17 +87,17 @@ import { cloneDeep } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const dataService = useDataService();
-
+const { modal, notify, alert } = useGlobal();
 const { t } = useI18n();
-const { modal, notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 let cachedParams;
 const mainTotalCount = ref(0);
 const subTotalCount = ref(0);
-const grdThirdRef = ref(getComponentType('KwGrid'));
-const grdFourthRef = ref(getComponentType('KwGrid'));
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdSubRef = ref(getComponentType('KwGrid'));
+const onShowSave = ref(false);
 
 const codes = await codeUtil.getMultiCodes(
   'COD_YN',
@@ -121,14 +122,14 @@ const emits = defineEmits([
 
 async function adjustObject() {
   // 유가증권
-  debugger;
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/adjust-object', { params: cachedParams });
 
   mainTotalCount.value = res.data.length;
-  const view = grdThirdRef.value.getView();
+  const view = grdMainRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
   emits('tebEvent', 'sel', res.data);
+  // TODO 정산제외일경우 버튼 미노출
 }
 
 async function withholdingTaxAdjustList() {
@@ -136,31 +137,48 @@ async function withholdingTaxAdjustList() {
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/withholding-tax-adjust', { params: cachedParams });
 
   subTotalCount.value = res.data.length;
-  const view = grdFourthRef.value.getView();
+  const view = grdSubRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
+}
+
+async function settlementOfWithholdingTax() {
+  const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/withholding-tax', { params: cachedParams });
+
+  const view = grdMainRef.value.getView();
+  if (res.data === 'N') {
+    onShowSave.value = false;
+    view.columnByName('opcsAdjBtn').visible = false;
+  } else {
+    onShowSave.value = true;
+    view.columnByName('opcsAdjBtn').visible = true;
+  }
 }
 
 async function fetchData() {
   adjustObject();
   withholdingTaxAdjustList();
+  settlementOfWithholdingTax();
 }
 
 async function setData(paramData) {
+  if (grdMainRef.value?.getView()) gridUtil.reCreateGrid(grdMainRef.value.getView());
+  if (grdSubRef.value?.getView()) gridUtil.reCreateGrid(grdSubRef.value.getView());
+
   cachedParams = cloneDeep(paramData);
   fetchData();
 }
 
 async function onClickExcelDownload(flag) {
   if (flag === 'adjustObject') {
-    const view = grdThirdRef.value.getView();
+    const view = grdMainRef.value.getView();
 
     await gridUtil.exportView(view, {
       fileName: t('MSG_TXT_ADJ_OJ'),
       timePostfix: true,
     });
   } else if (flag === 'withholdingTaxAdjust') {
-    const view = grdFourthRef.value.getView();
+    const view = grdSubRef.value.getView();
     await gridUtil.exportView(view, {
       fileName: t('MSG_TXT_WHTX_ADJ_IZ'),
       timePostfix: true,
@@ -169,7 +187,7 @@ async function onClickExcelDownload(flag) {
 }
 
 async function onClickSave() {
-  const view = grdThirdRef.value.getView();
+  const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
   view.commit();
@@ -177,56 +195,44 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
-  const dataRows = [];
+  const exceptDatas = []; // 정산제외항목들
   checkedRows.forEach((checkedRow) => {
     if (checkedRow.opcsAdjExcdYn === 'Y') {
-      dataRows.push(checkedRow);
+      exceptDatas.push(checkedRow);
     }
   });
 
-  /*
-  if (count > 0) {
-    alert('정상제외여부가 "정산"이어야 가능 합니다.');
-    return;
-  }
-  */
+  if (exceptDatas.length >= 2) { // 정산제외할 항목이 두 개 로우 이상일때만 체크로직 시작
+    let isSatisfaction = true; // 정산제외 조건 체크완료 여부. 한 개라도 만족하지 않으면 중단
+    const checkedCarAprnoList = []; // 정산제외 체크 완료한 승인번호 리스트
+    exceptDatas.forEach((data) => {
+      if (isSatisfaction && !checkedCarAprnoList.includes(data.cardAprno)) { // 이전데이터 체크여부가 정상이고이미 진행한 승인번호인지 확인
+        // 승인번호 체크
+        const exceptCarAprnoDatas = exceptDatas.filter((exceptData) => exceptData.cardAprno === data.cardAprno);
+        if (exceptCarAprnoDatas < 2) { // 해당승인번호가 두 건 이상 있는지
+          alert('동일한 승인번호 갯수가 2개 이상이어야 가능합니다.');
+          isSatisfaction = false;
+          return;
+        }
+        // 사용금액 합계 체크
+        const domTrdAmtTotal = exceptCarAprnoDatas
+          .reduce((totalAmt, currentData) => totalAmt + currentData.domTrdAmt, 0);// 사용금액 합계
 
-  let updateTotal = 0;
-  let domTrdAmtTotal = 0;
-  let checkedCount = 0;
-  let cardAprno;
-  if (dataRows.length > 0) {
-    const sortRows = dataRows.sort((t1, t2) => (t1.cardAprno < t2.cardAprno ? -1 : 1));
-    for (let i = 0; i < sortRows.length; i += 1) {
-      cardAprno = sortRows[i].cardAprno;
-      domTrdAmtTotal = sortRows[i].domTrdAmt1;
-      domTrdAmtTotal = 0;
-
-      for (let j = i + 1; j < sortRows.length; j += 1) {
-        if (cardAprno === sortRows[j].cardAprno) {
-          domTrdAmtTotal += sortRows[j].domTrdAmt1;
-          checkedCount += 1;
+        if (domTrdAmtTotal !== 0) {
+          alert('승인번호가 모두 동일하여야 하며 사용금액 합계가 0 이 되어야 합니다.');
+          isSatisfaction = false;
         } else {
-          i = j;
-          if (checkedCount === 1) {
-            alert('2개 이상이어야 가능합니다.');
-            break;
-          }
+          checkedCarAprnoList.push(data.cardAprno); // 같은 승인번호의 사용금액의 합계가 0이면 체크완료
         }
       }
-      if (domTrdAmtTotal > 0) {
-        updateTotal += 1;
-      }
-    }
-
-    if (updateTotal > 0) {
-      alert('승인번호가 모두 동일하여야 하며 사용금액 합계가 0 이 되어야 합니다.');
+    });
+    if (!isSatisfaction) { // 정산제외 조건 체크완료 여부. 한 개라도 만족하지 않으면 wjwkd 중단
       return;
     }
   }
 
   const data = checkedRows;
-  await dataService.post('/sms/wells/closing/expense/marketable-securities', data);
+  await dataService.put('/sms/wells/closing/expense/marketable-securities', data);
   notify(t('MSG_ALT_SAVE_DATA'));
   fetchData();
 }
@@ -333,7 +339,7 @@ const initGrdThird = defineGrid((data, view) => {
     cachedParams.adjOgId = adjOgId;// 총괄단 아이디
     cachedParams.dgr1LevlOgId = dgr1LevlOgId;
     cachedParams.adjPrtnrNo = adjPrtnrNo;
-    debugger;
+
     if (column === 'opcsAdjBtn') {
       await modal({
         component: 'WwdcdMarketableSecuritiesMgtP',
@@ -361,13 +367,14 @@ const initGrdFourth = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'erntx', visible: false }, // 소득세
     { fieldName: 'rsdntx', visible: false }, // 주민세
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '149', styleName: 'text-left' }, /* 총괄단 */
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_OG_NM'), width: '149', styleName: 'text-left' }, /* 조직명 */
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '206', styleName: 'text-left' }, /* 지역단 */
     { fieldName: 'dstOjpsNm', header: t('MSG_TXT_EMPL_NM'), width: '198', styleName: 'text-left' }, /* 성명 */
     { fieldName: 'dstOjPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '218', styleName: 'text-center' }, /* 번호 */
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '219', styleName: 'text-left' }, /* 직책 */
     { fieldName: 'dstAmt', header: t('MSG_TXT_OPCS_ADJ_AMT'), width: '260', styleName: 'text-right', dataType: 'number' }, /* 운영비 정상금액 */
     { fieldName: 'dstWhtx', header: t('MSG_TXT_WHTX'), width: '246', styleName: 'text-right', dataType: 'number' }, /* 원천세 */
+    { fieldName: 'cardAprno', header: t('MSG_TXT_APR_NO'), width: '246', styleName: 'text-left' }, /* 승인번호 */
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

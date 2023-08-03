@@ -186,7 +186,7 @@
           secondary
           dense
           :label="t('MSG_BTN_BU_DDTN')"
-          @click="openBurdenDeductionPopup"
+          @click="openZwfedFeeBurdenDeductionRegP"
         />
       </kw-action-top>
       <kw-grid
@@ -314,59 +314,69 @@ async function openReportPopup() {
     componentProps: param,
   });
 }
+
 /*
- *  Event - 실적상세 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 실적상세 버튼 클릭
  */
 async function openPerformancePopup() {
+  const { perfYm, no } = searchParams.value;
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    perfYm,
+    no,
+    ogTpCd: 'W03',
   };
-
-  await modal({
-    component: 'openPerformancePopup',
-    componentProps: param,
-  });
+  if (no !== '') {
+    await modal({
+      component: 'WwfeeIndividualFeeDetailListP',
+      componentProps: param,
+    });
+  }
 }
+
 /*
- *  Event - 재지급 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 재지급 버튼 클릭
  */
 async function openAgainDisbursementPopup() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    prtnrNo: searchParams.value.no,
+    ogTpCd: 'W03',
   };
 
   await modal({
-    component: 'openAgainDisbursementPopup',
+    component: 'WwdebAgainDisbursementDetailP',
     componentProps: param,
   });
 }
+
 /*
- *  Event - 부담공제 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 부담공제조정 버튼 클릭
  */
-async function openBurdenDeductionPopup() {
+async function openZwfedFeeBurdenDeductionRegP() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    dsbYm: dayjs(searchParams.value.perfYm).format('YYYY-MM'),
+    ogTpCd: 'W03',
+    ogTpCdTxt: '홈마스터',
+    coCd: '2000',
+    coCdTxt: 'WELLS',
+    prtnrNo: searchParams.value.no,
   };
-
   await modal({
-    component: 'openBurdenDeductionPopup',
+    component: 'ZwfedFeeBurdenDeductionRegP',
     componentProps: param,
   });
 }
+
 /*
- *  Event - 되물림 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 되물림 버튼 클릭
  */
 async function openRedemptionOfFeePopup() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    prtnrNo: searchParams.value.no,
+    ogTpCd: 'W03',
   };
 
   await modal({
-    component: 'openRedemptionOfFeePopup',
+    component: 'WwdeaAllowanceDelinquentRedemptionFeeListP',
     componentProps: param,
   });
 }
@@ -421,9 +431,9 @@ const initGrd1Main = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'div', header: t('MSG_TXT_DIV'), width: '167', styleName: 'text-center' },
-    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '456', styleName: 'text-right' },
-    { fieldName: 'svCnt', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '456', styleName: 'text-right' },
-    { fieldName: 'svRat', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_PROCS_RT'), width: '458', styleName: 'text-right' },
+    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '300', styleName: 'text-right' },
+    { fieldName: 'svCnt', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '300', styleName: 'text-right' },
+    { fieldName: 'svRat', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_PROCS_RT'), width: '300', styleName: 'text-right' },
 
   ];
 

@@ -92,6 +92,17 @@
 import { codeUtil, useDataService, useMeta, getComponentType, useModal, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
+const props = defineProps({
+  prtnrNo: {
+    type: String,
+    default: null,
+  },
+  ogTpCd: {
+    type: String,
+    default: null,
+  },
+});
+
 const dataService = useDataService();
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -128,6 +139,11 @@ const getVisibleRows = computed(() => {
     rtnVal = pageInfo.value.totalCount;
   }
   return rtnVal < 10 ? 10 : rtnVal;
+});
+
+onMounted(() => {
+  searchParams.value.prtnrNo = props.prtnrNo;
+  searchParams.value.ogTpCd = props.ogTpCd;
 });
 
 // -------------------------------------------------------------------------------------------------

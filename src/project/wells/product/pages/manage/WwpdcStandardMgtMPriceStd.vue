@@ -277,9 +277,9 @@ async function initProps() {
 
 await initProps();
 
-onMounted(async () => {
+onActivated(async () => {
   // TODO 탭사용시 그리드 사라짐 문제로 아래 코드 임시조치
-  grdMainRef.value.getView().displayOptions.rowHeight = -1;
+  await initGridRows();
 });
 
 watch(() => props.pdCd, (val) => { currentPdCd.value = val; });
@@ -305,6 +305,7 @@ async function initGrid(data, view) {
       item.editor = 'list';
       item.options = currentCodes.value.svPdCd;
       item.styleName = 'text-left';
+      item.width = '300';
     }
     return item;
   });

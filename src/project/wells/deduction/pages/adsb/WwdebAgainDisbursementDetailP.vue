@@ -28,7 +28,7 @@
         >
           <kw-select
             v-model="searchParams.pstnDv"
-            :options="filterPstnDv"
+            :options="codes.DDTN_RPLC_WELLS_PSTN_DV_CD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -69,7 +69,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useMeta, getComponentType, useDataService, gridUtil } from 'kw-lib';
 import {
-  cloneDeep,
+  cloneDeep, isEmpty,
 } from 'lodash-es';
 
 /**
@@ -110,21 +110,11 @@ let cachedParamsTotal;
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
-  'WELLS_OJ_PSTN_RANK_CD', // WELLS 대상직급
+  'DDTN_RPLC_WELLS_PSTN_DV_CD', // 공제대체WELLS직급구분코드
 );
 
-const filterPstnDv = ref([]);
-codes.WELLS_OJ_PSTN_RANK_CD.forEach((e) => {
-  if (e.codeId !== '99') {
-    filterPstnDv.value.push({
-      codeId: e.codeId.trim(),
-      codeName: e.codeName.trim(),
-    });
-  }
-});
-
 const searchParams = ref({
-  pstnDv: filterPstnDv.value[0].codeId, // 직급구분,
+  pstnDv: codes.DDTN_RPLC_WELLS_PSTN_DV_CD[0].codeId, // 직급구분,
   prtnrNo: props.prtnrNo,
   ogTpCd: props.ogTpCd,
 });
@@ -214,7 +204,9 @@ function initGrid(data, view) {
       styleName: 'text-center ',
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
-        return `${cntrNo}-${cntrSn}`;
+        if (!isEmpty(cntrNo)) {
+          return `${cntrNo}-${cntrSn}`;
+        }
       } },
     { fieldName: 'cstKnm',
       header: t('MSG_TXT_CST_NM'), // 고객명

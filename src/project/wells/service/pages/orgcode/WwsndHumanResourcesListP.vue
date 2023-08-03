@@ -37,6 +37,9 @@
             v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
             v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
             v-model:dgr3-levl-og-id="searchParams.dgr3LevlOgId"
+            v-model:dgr1-levl-og="searchParams.dgr1LevlOg"
+            v-model:dgr2-levl-og="searchParams.dgr2LevlOg"
+            v-model:dgr3-levl-og="searchParams.dgr3LevlOg"
             use-og-level="3"
             :use-partner="false"
             dgr1-levl-og-first-option="all"
@@ -45,6 +48,9 @@
             dgr1-levl-og-label="ogCdNm"
             dgr2-levl-og-label="ogCdNm"
             dgr3-levl-og-label="ogCdNm"
+            :auth-yn="props.authYn"
+            :dgr2-levl-og-always-search="props.authYn === 'Y'"
+            :dgr3-levl-og-always-search="props.authYn === 'Y'"
           />
         </template>
         <template v-else>
@@ -54,6 +60,7 @@
             :use-partner="false"
             dgr1-levl-og-first-option="all"
             dgr1-levl-og-label="ogCdNm"
+            :auth-yn="props.authYn"
           />
           <kw-search-item
             :label="`${$t('MSG_TXT_EMPL_NM')}/${$t('MSG_TXT_EPNO')}`"
@@ -136,30 +143,14 @@ const { cancel: onClickCancel, ok } = useModal();
 const dataService = useDataService();
 
 const props = defineProps({
-  mngrDvCd: {
-    type: String,
-    default: '',
-  },
-  dgr1LevlOgId: {
-    type: String,
-    default: '',
-  },
-  dgr2LevlOgId: {
-    type: String,
-    default: '',
-  },
-  dgr3LevlOgId: {
-    type: String,
-    default: '',
-  },
-  searchText: {
-    type: String,
-    default: '',
-  },
-  checkType: {
-    type: String,
-    default: 'radio',
-  },
+  mngrDvCd: { type: String, default: '' },
+  dgr1LevlOgId: { type: String, default: '' },
+  dgr2LevlOgId: { type: String, default: '' },
+  dgr3LevlOgId: { type: String, default: '' },
+  searchText: { type: String, default: '' },
+  checkType: { type: String, default: 'radio' },
+  // auth
+  authYn: { type: String, default: 'Y' },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -187,6 +178,10 @@ const searchParams = ref({
   dgr2LevlOgId: props.dgr2LevlOgId,
   dgr3LevlOgId: props.dgr3LevlOgId,
   searchText: props.searchText,
+  authYn: props.authYn,
+  dgr1LevlOg: undefined,
+  dgr2LevlOg: undefined,
+  dgr3LevlOg: undefined,
 });
 
 let cachedParams;

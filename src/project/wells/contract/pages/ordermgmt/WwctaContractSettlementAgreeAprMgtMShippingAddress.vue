@@ -75,7 +75,7 @@
           v-model:add2="updateAddressInfo.adrDtl"
           v-model:addKey="updateAddressInfo.adrId"
           v-model:bldMngtNo="updateAddressInfo.bldMngtNo"
-          v-model:adrDvCd="updateAddressInfo.adrDvCd"
+          v-model:adrDvCd="weirdAdrDvCd"
           readonly
           label="주소"
           required
@@ -97,6 +97,7 @@ import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import { warn } from 'vue';
 import { notify } from 'kw-lib';
+import { scrollIntoView } from '~sms-common/contract/util';
 
 const props = defineProps({
   adrpc: {
@@ -137,8 +138,8 @@ const cntrCstAddressInfo = computed(() => {
     cralLocaraTno: contractCustomerInfo.cralLocaraTno,
     mexnoEncr: contractCustomerInfo.mexnoEncr,
     cralIdvTno: contractCustomerInfo.cralIdvTno,
-    adrDvCd: '', /* 고객 관계 DVO 에 있는지 확인 할 것 */
-    bldMngtNo: '', /* 빌딩관리번호란다. */
+    adrDvCd: undefined, /* 고객 관계 DVO 에 있는지 확인 할 것 */
+    bldMngtNo: undefined, /* 빌딩관리번호란다. */
     adr: contractCustomerInfo.adr,
     adrDtl: contractCustomerInfo.adrDtl,
     adrId: contractCustomerInfo.adrId,
@@ -207,11 +208,6 @@ function onChangeSameValue(val) {
 const frmRef = ref();
 const addressRef = ref();
 
-function scrollTo(ref) {
-  const el = ref.value.$el;
-  if (el) { el.scrollIntoView(true); }
-}
-
 const invalidRef = ref();
 async function validate() {
   if (sameValue.value) {
@@ -219,7 +215,7 @@ async function validate() {
   }
   const valid = await frmRef.value.validate();
   if (!valid) {
-    scrollTo(addressRef);
+    scrollIntoView(addressRef);
     notify('설치 주소를 확인해주세요.');
     invalidRef.value = addressRef.value;
   }
@@ -241,5 +237,12 @@ exposed.getUpdateShippingAddressInfo = getUpdateShippingAddressInfo;
 
 onActivated(() => {
   emit('activated', invalidRef.value);
+});
+
+const weirdAdrDvCd = computed({
+  get: () => Number(updateAddressInfo.value.adrDvCd),
+  set: (val) => {
+    updateAddressInfo.value.adrDvCd = String(val);
+  },
 });
 </script>

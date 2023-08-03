@@ -180,6 +180,7 @@ import {
   codeUtil,
   // useMeta,
 } from 'kw-lib';
+import { RowState } from 'realgrid';
 import {
   cloneDeep,
   isEmpty,
@@ -201,6 +202,7 @@ const totalCount = ref(0);
 const isLastDate = ref(false);
 const { getters } = useStore();
 const { roles } = getters['meta/getUserInfo'];
+console.log(JSON.stringify(roles));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -252,6 +254,7 @@ async function fetchData() {
   isLastDate.value = dayjs().add(-2, 'month').format('YYYYMM') > cachedParams.baseDt.substring(0, 6) - 1;
   view.columnByName('excdYn').readOnly = isLastDate.value;
   view.columnByName('authRsgExcdRsonCd').readOnly = isLastDate.value;
+  view.commit();
 }
 
 async function onClickSearch() {
@@ -305,6 +308,7 @@ async function onChangeCstNo() {
 // 파트너번호 변경
 async function onChangePrtnrNo() {
   searchParams.value.prtnrNoYn = 'N';
+  searchParams.value.clctamPrtnrNo = '';
 }
 
 // 저장
@@ -316,7 +320,7 @@ async function onClickSave() {
   const changedRows = gridUtil.getChangedRowValues(view);
   if (changedRows.every((item) => (
     item.authRsgExpYn === 'Y' && item.authRsgCnfmYn === 'Y')
-    || (item.authRsgExpYn === 'N' && item.authRsgCnfmYn === 'N')
+    || (item.authRsgExpYn === 'Y' && item.authRsgCnfmYn === 'N')
     || (item.authRsgExpYn === 'N' && item.authRsgCnfmYn === 'Y'))) {
     await alert(t('MSG_ALT_NOT_EXP_CNFM_DTA'));
     return false;
@@ -338,57 +342,73 @@ async function onClickSave() {
 }
 
 // 엑셀 업로드
+// TODO: 설계 전
 async function onClickExcelUpload() {
-  const apiUrl = `${baseUrl}/excel-upload`;
-  const templateId = 'T';
-  const {
-    payload,
-  } = await modal({
-    component: 'ZwcmzExcelUploadP',
-    componentProps: {
-      apiUrl,
-      templateId,
-    },
-  });
-  if (payload.status === 'S') {
-    notify(t('MSG_ALT_SAVE_DATA'));
-    await onClickSearch();
-  }
+  await alert('설계중');
+  // const apiUrl = `${baseUrl}/excel-upload`;
+  // const templateId = 'T';
+  // const {
+  //   payload,
+  // } = await modal({
+  //   component: 'ZwcmzExcelUploadP',
+  //   componentProps: {
+  //     apiUrl,
+  //     templateId,
+  //   },
+  // });
+  // if (payload.status === 'S') {
+  //   notify(t('MSG_ALT_SAVE_DATA'));
+  //   await onClickSearch();
+  // }
 }
 
 // 예정생성
 async function onClickExpectedCreate() {
   if (!await confirm(t('MSG_ALT_EXP_CRT'))) { return; }
-  await dataService.post(baseUrl, { baseDt: searchParams.value.baseDt });
+  const params = {
+    baseDt: searchParams.value.baseDt,
+  };
+  await dataService.post(baseUrl, params);
   notify(t('예정생성 완료되었습니다.'));
   await onClickSearch();
 }
-// 예정확정`
+// 예정확정
 async function onClickExpectedConfirm() {
   if (!await confirm(t('MSG_ALT_EXP_CNFM'))) { return; }
-  await dataService.put(`${baseUrl}/confirm`, { baseDt: searchParams.value.baseDt, confirmDvCd: '01' });
-  notify(t('MSG_ALT_COMPLETE_EXP_CNFM'));
+  const params = {
+    baseDt: searchParams.value.baseDt,
+    confirmDvCd: '01',
+  };
+  await dataService.put(`${baseUrl}/confirm`, params);
+  notify(t('MSG_ALT_COMPLETE_EXP_CREATE'));
   await onClickSearch();
 }
 // 취소자료 등록
+// TODO: 설계 전
 async function onClickCancelRgst() {
-  if (!await confirm(t('MSG_ALT_RGST_CAN_MTR'))) { return; }
-  await dataService.put(`${baseUrl}/cancel`, { });
-  notify(t('MSG_ALT_COMPLETE_CAN_MTR'));
-  await onClickSearch();
+  await alert('설계중');
+  // if (!await confirm(t('MSG_ALT_RGST_CAN_MTR'))) { return; }
+  // await dataService.put(`${baseUrl}/cancel`, { });
+  // notify(t('MSG_ALT_COMPLETE_CAN_MTR'));
+  // await onClickSearch();
 }
 // 최종확정
 async function onClickFinalConfirm() {
   if (!await confirm(t('MSG_ALT_FNL_CNFM'))) { return; }
-  await dataService.put(`${baseUrl}/confirm`, { baseDt: searchParams.value.baseDt, confirmDvCd: '02' });
+  const params = {
+    baseDt: searchParams.value.baseDt,
+    confirmDvCd: '02',
+  };
+  await dataService.put(`${baseUrl}/confirm`, params);
   notify(t('MSG_ALT_COMPLETE_FNL_CNFM'));
   await onClickSearch();
 }
 
+const isNotExpected = computed(() => searchParams.value.authRsgCd === '01');
 const isExpectedConfirm = computed(() => searchParams.value.authRsgCd === '02');
 const isfinalConfirm = computed(() => searchParams.value.authRsgCd === '03');
-// TODO: 룰 추가 예정 ( 현재 시스템 룰 적용 )
-const isPsic = computed(() => roles.some((v) => ['ROL_00010'].includes(v.roleId)));
+// TODO: 룰 추가 예정 ( 현재 시스템 룰, 집금담당자, 'DUMMY' 적용 )
+const isPsic = computed(() => roles.some((v) => ['ROL_00010', 'ROL_G7010', 'ROL_00000'].includes(v.roleId)));
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -400,24 +420,34 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'excdYn',
       header: t('MSG_TXT_EXCD'),
       width: '100',
-      styleName: 'text-left',
+      styleName: 'text-center',
       editable: true,
       editor: { type: 'list' },
       options: ynOpt,
+      styleCallback: () => {
+        const ret = {};
+        if (isNotExpected.value && !isLastDate.value) {
+          ret.editable = true;
+        } else {
+          ret.editable = false;
+        }
+      },
     },
     { fieldName: 'authRsgExcdRsonCd',
       header: t('MSG_TXT_EXCD_RSON'),
       width: '160',
+      styleName: 'text-center',
       editable: true,
       editor: { type: 'list' },
       options: codes.AUTH_RSG_EXCD_RSON_CD,
       styleCallback: (grid, dataCell) => {
         const ret = {};
         const { excdYn } = grid.getValues(dataCell.index.itemIndex);
-        if (excdYn === 'Y') {
+        const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
+        if (rowState === RowState.UPDATED && excdYn === 'N' && isNotExpected.value && !isLastDate.value) {
           ret.editable = false;
-        }
-        if (excdYn === 'N') {
+          grid.setValue(dataCell.index.itemIndex, 'authRsgExcdRsonCd', '');
+        } else {
           ret.editable = true;
         }
         return ret;
@@ -434,7 +464,7 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'rentalRgstCostBorAmt', header: t('MSG_TXT_BOR_RGST_CS'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'dscCsBorAmt', header: t('MSG_TXT_BOR_DSC_AMT'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'rstlBorAmt', header: t('MSG_TXT_BOR_RSTL'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'pBorAmt', header: t('MSG_TXT_BOR_P'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'pointBorAmt', header: t('MSG_TXT_BOR_P'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'csmbCsBorAmt', header: t('MSG_TXT_CSMB_CS'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'reqdCsBorAmt', header: t('MSG_TXT_REQD_CS'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '110', styleName: 'text-right', dataType: 'number' },
@@ -446,7 +476,7 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'clctamYn', header: t('MSG_TXT_CLCTAM_PSIC_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'rveAmt', header: t('MSG_TXT_DEPOSIT_AMT'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'authRsgExcdRqrPrtnrNo', header: t('MSG_TXT_THM_EXCD_EMPNO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rqrBaseYm', header: t('MSG_TXT_FST_EXCD_MM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rqrBaseYm', header: t('MSG_TXT_FST_EXCD_MM'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
     { fieldName: 'acuRveAmt', header: t('MSG_TXT_ACU_DP_AMOUNT'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_BIRTH_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrTpNm', header: t('MSG_TXT_CNTR_DV'), width: '100', styleName: 'text-center' },
@@ -475,6 +505,7 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'cntrSn' }, /* 계약일련번호 */
     { fieldName: 'authRsgExpYn' }, /* 직권해지예정여부 */
     { fieldName: 'authRsgCnfmYn' }, /* 직권해지확정여부 */
+    { fieldName: 'rowState' }, /* rowState */
   );
   data.setFields(fields);
   view.setColumns(columns);

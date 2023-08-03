@@ -16,120 +16,97 @@
   <kw-page>
     <kw-observer ref="obsMainRef">
       <div class="result-area">
-        <h3>
-          <!-- 접수 정보 -->
-          {{ $t('MSG_TIT_APP_DTLS') }}
-        </h3>
+        <h3>{{ $t('MSG_TIT_APP_DTLS',null,'접수 정보') }}</h3>
         <kw-form
           :cols="2"
           align-content="left"
           dense
         >
           <kw-form-row>
-            <!-- 접수일 -->
-            <kw-form-item :label="$t('MSG_TXT_RCP_D')">
+            <kw-form-item :label="$t('MSG_TXT_RCP_D',null,'접수일')">
               <p>{{ assignInfo.pspcCstInflwDt }}</p>
             </kw-form-item>
-            <!-- 접수번호 -->
-            <kw-form-item :label="$t('MSG_TXT_RCPT_NO')">
+            <kw-form-item :label="$t('MSG_TXT_RCPT_NO',null,'접수번호')">
               <p>{{ assignInfo.aplcSn }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
-            <!-- 접수구분 -->
-            <kw-form-item :label="$t('MSG_TXT_RCP_DV')">
+            <kw-form-item :label="$t('MSG_TXT_RCP_DV',null,'접수구분')">
               <p>{{ assignInfo.recvTpNm }}</p>
             </kw-form-item>
-            <!-- 상품구분 -->
-            <kw-form-item :label="$t('TXT_MSG_SELL_PD_DV_CD')">
+            <kw-form-item :label="$t('TXT_MSG_SELL_PD_DV_CD',null,'상품구분')">
               <p>{{ assignInfo.inrtPdDvNm }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
         <kw-separator />
 
-        <h3>
-          <!-- 고객 정보 -->
-          {{ $t('MSG_TIT_CST_INF') }}
-        </h3>
+        <h3>{{ $t('MSG_TIT_CST_INF',null,'고객 정보') }}</h3>
         <kw-form
           :cols="2"
           align-content="left"
           dense
         >
           <kw-form-row>
-            <!-- 고객이름 -->
-            <kw-form-item :label="$t('MSG_TXT_CST_NAME')">
+            <kw-form-item :label="$t('MSG_TXT_CST_NAME',null,'고객이름')">
               <p>{{ assignInfo.pspcCstKnm }}</p>
             </kw-form-item>
-            <!-- 고객코드 -->
-            <kw-form-item :label="$t('MSG_TXT_CST_CD')">
+            <kw-form-item :label="$t('MSG_TXT_CST_CD',null,'고객코드')">
               <p>{{ assignInfo.pspcCstCnslId }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
-            <!-- 휴대전화번호 -->
-            <kw-form-item :label="$t('MSG_TXT_MPNO')">
+            <kw-form-item :label="$t('MSG_TXT_MPNO',null,'휴대전화번호')">
               <p>{{ assignInfo.phNo }}</p>
             </kw-form-item>
-            <!-- 전화번호 -->
-            <kw-form-item :label="$t('MSG_TXT_TEL_NO')">
+            <kw-form-item :label="$t('MSG_TXT_TEL_NO',null,'전화번호')">
               <p>{{ assignInfo.wireTelNo }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
-            <!-- 컨택요청일 -->
-            <kw-form-item :label="$t('MSG_TXT_CONTACT_REQ_DT')">
+            <kw-form-item :label="$t('MSG_TXT_CONTACT_REQ_DT',null,'컨택요청일')">
               <!-- <p>{{ assignInfo.cnslPsbStrtDtm }}</p> -->
               <p>{{ assignInfo.contactDate }} {{ assignInfo.contactTime }}</p>
             </kw-form-item>
-            <!-- 요청내용 -->
-            <kw-form-item :label="$t('MSG_TXT_REQ_CN')">
+            <kw-form-item :label="$t('MSG_TXT_REQ_CN',null,'요청내용')">
               <p>{{ assignInfo.pspcCstRcpCn }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
-
         <kw-separator />
-        <h3>
-          <!-- 배정정보 -->
-          {{ $t('MSG_TXT_ASGN_INF') }}
-        </h3>
+
+        <h3>{{ $t('MSG_TXT_ASGN_INF',null,'배정정보') }}</h3>
         <kw-form
           :cols="2"
           align-content="left"
           dense
         >
           <kw-form-row>
-            <!-- 배정일자 -->
-            <kw-form-item :label="$t('MSG_TXT_ASN_DT')">
+            <kw-form-item :label="$t('MSG_TXT_ASN_DT',null,'배정일자')">
               <p>{{ assignInfo.ichrAsnFshDt }}</p>
             </kw-form-item>
-            <!-- 배정담당자 -->
-            <kw-form-item :label="$t('MSG_TXT_ASSIGN_MANAGER')">
-              <slot v-if="isShowManualAssignBtn">
-                <!-- 수동배정버튼 -->
-                <p>
+            <kw-form-item :label="$t('MSG_TXT_ASSIGN_MANAGER',null,'배정담당자')">
+              <p>
+                <slot v-if="isShowManualAssignBtn">
+                  <!-- padding="10px" -->
                   <kw-btn
                     secondary
-                    :label="$t('MSG_BTN_MANUAL_ASSIGN')"
-                    padding="10px"
+                    :label="$t('MSG_BTN_MANUAL_ASSIGN',null,'수동배정')"
+                    dense
                     @click="onClickManualAssign"
                   />
-                </p>
-              </slot>
-              <slot v-else>
-                <p>{{ assignInfo.ichrPrtnrNm }}</p>
-              </slot>
+                </slot>
+                <slot v-else>
+                  {{ assignInfo.ichrPrtnrNm }}
+                </slot>
+              </p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
-            <!-- 배정담당자 사번 -->
-            <kw-form-item :label="$t('MSG_TXT_ASSIGNER_EP_NO')">
+            <kw-form-item :label="$t('MSG_TXT_ASSIGNER_EP_NO',null,'배정담당자 사번')">
               <p>{{ assignInfo.ichrPrtnrNo }}</p>
             </kw-form-item>
-            <!-- 배정컨택 -->
-            <kw-form-item :label="$t('MSG_TXT_ASSIGN_CONTACT')">
+            <kw-form-item :label="$t('MSG_TXT_ASSIGN_CONTACT',null,'배정컨택')">
               <slot v-if="currentJobType === 'ASGN'">
                 <kw-select
                   v-model="assignInfo.pspcCstCnslRsCd"
@@ -140,14 +117,11 @@
               <slot v-else>
                 <p>{{ assignInfo.pspcCstCnslRsNm }}</p>
               </slot>
-
-              <!-- <p>계약성공</p> -->
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
-            <!-- 비고 -->
-            <slot v-if="currentJobType === 'ASGN'">
-              <kw-form-item :label="$t('MSG_TXT_NOTE')">
+            <kw-form-item :label="$t('MSG_TXT_NOTE',null,'비고')">
+              <slot v-if="currentJobType === 'ASGN'">
                 <kw-input
                   v-model="assignInfo.cnslMoCn"
                   type="textarea"
@@ -155,51 +129,42 @@
                   counter
                   maxlength="200"
                 />
-              </kw-form-item>
-            </slot>
-            <slot v-else>
-              <p>{{ assignInfo.cnslMoCn }}</p>
-            </slot>
+              </slot>
+              <slot v-else>
+                <p>{{ assignInfo.cnslMoCn }}</p>
+              </slot>
+            </kw-form-item>
           </kw-form-row>
         </kw-form>
-
         <kw-separator />
-        <h3>
-          <!-- 주문정보 -->
-          {{ $t('MSG_TXT_ODER_INF') }}
-        </h3>
+
+        <h3>{{ $t('MSG_TXT_ODER_INF',null,'주문정보') }}</h3>
         <kw-form
           :cols="2"
           align-content="left"
           dense
         >
           <kw-form-row>
-            <!-- 주문번호 -->
-            <kw-form-item :label="$t('MSG_TXT_ORD_NO')">
+            <kw-form-item :label="$t('MSG_TXT_ORD_NO',null,'주문번호')">
               <p>{{ assignInfo?.cntrNo }}</p>
             </kw-form-item>
-            <!-- 생성일 -->
-            <kw-form-item :label="$t('MSG_TXT_CRT_D')">
+            <kw-form-item :label="$t('MSG_TXT_CRT_D',null,'생성일')">
               <p>{{ assignInfo?.showFstRgstDtm }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
-            <!-- 예정일 -->
-            <kw-form-item :label="$t('MSG_TXT_DUEDT')">
+            <kw-form-item :label="$t('MSG_TXT_DUEDT',null,'예정일')">
               <p>{{ assignInfo?.sppDuedt }}</p>
             </kw-form-item>
-            <!-- 매출일 -->
-            <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE')">
+            <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE',null,'매출일')">
               <p>{{ assignInfo?.cntrPdStrtdt }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
-            <!-- 제품명 -->
-            <kw-form-item :label="$t('MSG_TXT_GOODS_NM')">
+            <kw-form-item :label="$t('MSG_TXT_GOODS_NM',null,'제품명')">
               <p>{{ assignInfo?.pdNm }}</p>
             </kw-form-item>
-            <!-- 주소 -->
-            <kw-form-item :label="$t('MSG_TXT_ADDR')">
+            <kw-form-item :label="$t('MSG_TXT_ADDR',null,'주소')">
               <p>{{ assignInfo?.custAdr }}</p>
             </kw-form-item>
           </kw-form-row>
@@ -209,12 +174,15 @@
                 <kw-btn
                   :label="$t('MSG_BTN_CANCEL')"
                   class="ml8"
+                  secondary
+                  dense
                   @click="onClickCancel"
                 />
                 <kw-btn
                   primary
                   :label="$t('MSG_BTN_SAVE')"
                   class="ml8"
+                  dense
                   @click="onClickSave"
                 />
               </slot>
@@ -340,6 +308,8 @@ async function initProps() {
   currentPspcCstCnslId.value = pspcCstCnslId;
   currentJobType.value = jobType;
   currentFromUi.value = fromUi;
+
+  console.log('currentJobType.value', currentJobType.value);
 
   if (isEmpty(currentPspcCstCnslId.value)) {
     await router.close();

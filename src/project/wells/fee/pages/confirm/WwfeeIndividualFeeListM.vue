@@ -92,7 +92,7 @@
             v-model="searchParams.feeDsbYn"
             type="radio"
             :label="t('MSG_TXT_FEE')+t('MSG_TXT_DSB_YN')"
-            :options="feeDsbCd"
+            :options="codes.COD_GV_USE"
           />
         </kw-search-item>
       </kw-search-row>
@@ -136,7 +136,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, defineGrid, modal } from 'kw-lib';
+import { useDataService, getComponentType, defineGrid, modal, codeUtil } from 'kw-lib';
 
 import dayjs from 'dayjs';
 
@@ -155,43 +155,24 @@ const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
 const isSelectVisile = ref(true);
 const isSelectVisile2 = ref(false);
-const ogTpCd = [
-  { codeId: 'W02', codeName: 'M추진단' },
-  { codeId: 'W01', codeName: 'P추진단' },
-  { codeId: 'W03', codeName: '홈마스터' },
-];
-const rsbTpCd = ref([
-  { codeId: 'W204', codeName: '지점장' },
-  { codeId: 'W205', codeName: '플래너' },
-]);
+const codes = await codeUtil.getMultiCodes(
+  'OG_TP_CD',
+  'RSB_DV_CD',
+  'COD_GV_USE',
+);
 
-const rsbTpCd1 = [
-  { codeId: 'W204', codeName: '지점장' },
-  { codeId: 'W205', codeName: '플래너' },
-];
-
-const rsbTpCd2 = [
-  { codeId: 'W104', codeName: '지점장' },
-  { codeId: 'W105', codeName: '플래너' },
-];
-
-const rsbTpCd3 = [
-  { codeId: 'W301', codeName: '지점장' },
-  { codeId: 'W302', codeName: '홈마스터' },
-];
-
-const feeDsbCd = [
-  { codeId: '', codeName: '전체' },
-  { codeId: 'Y', codeName: 'Yes' },
-  { codeId: 'N', codeName: 'No' },
-];
+const ogTpCd = codes.OG_TP_CD.filter((e) => ['W02', 'W01', 'W03'].includes(e.codeId));
+const rsbTpCd = codes.RSB_DV_CD.filter((e) => ['W0204', 'W0205'].includes(e.codeId));
+const rsbTpCd1 = codes.RSB_DV_CD.filter((e) => ['W0204', 'W0205'].includes(e.codeId));
+const rsbTpCd2 = codes.RSB_DV_CD.filter((e) => ['W0104', 'W0105'].includes(e.codeId));
+const rsbTpCd3 = codes.RSB_DV_CD.filter((e) => ['W0301', 'W0302'].includes(e.codeId));
 
 const totalCount = ref(0);
 const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   ogTp: 'W02',
-  rsbTp: 'W204',
+  rsbTp: 'W0204',
   ogLevl1: '',
   ogLevl2: '',
   ogLevl3: '',
@@ -287,17 +268,17 @@ async function onChangeOgTp() {
     isSelectVisile.value = true;
     isSelectVisile2.value = false;
     rsbTpCd.value = rsbTpCd1;
-    searchParams.value.rsbTp = 'W204';
+    searchParams.value.rsbTp = 'W0204';
   } else if (ogTp === 'W01') {
     isSelectVisile.value = true;
     isSelectVisile2.value = false;
     rsbTpCd.value = rsbTpCd2;
-    searchParams.value.rsbTp = 'W104';
+    searchParams.value.rsbTp = 'W0104';
   } else if (ogTp === 'W03') {
     isSelectVisile.value = false;
     isSelectVisile2.value = true;
     rsbTpCd.value = rsbTpCd3;
-    searchParams.value.rsbTp = 'W301';
+    searchParams.value.rsbTp = 'W0301';
   }
 }
 /*

@@ -27,7 +27,7 @@
             required
           >
             <kw-select
-              v-model="searchParams.schDiv"
+              v-model="searchParams.divCd"
               :label="$t('MSG_TXT_DIV')"
               :options="customCodes.divCd"
               rules="required"
@@ -38,8 +38,11 @@
             :label="$t('MSG_TXT_FEE_PERF')+$t('MSG_TXT_TYPE')"
           >
             <kw-select
-              v-model="searchParams.schFeePerf"
-              :options="customCodes.feePerfCd"
+              v-model="searchParams.feePerfCd"
+              :options="codes.FEE_PERF_TP_CD"
+              first-option
+              first-option-value=""
+              :first-option-label="$t('MSG_TXT_ALL')"
             />
           </kw-search-item>
           <kw-search-item
@@ -47,10 +50,12 @@
             required
           >
             <kw-select
-              v-model="searchParams.schPdctTp"
+              v-model="searchParams.pdctTpCd"
               :label="$t('MSG_TXT_PDCT_TP')"
-              :options="customCodes.pdctTpCd"
-              rules="required"
+              :options="codes.FEE_PDCT_TP_CD"
+              first-option
+              first-option-value=""
+              :first-option-label="$t('MSG_TXT_ALL')"
             />
           </kw-search-item>
         </kw-search-row>
@@ -59,7 +64,7 @@
             :label="$t('MSG_TXT_SEL_TYPE')"
           >
             <kw-select
-              v-model="searchParams.schSelType"
+              v-model="searchParams.sellTpCd"
               :label="$t('MSG_TXT_SEL_TYPE')"
               :options="customCodes.selTpCd"
             />
@@ -69,8 +74,8 @@
             required
           >
             <kw-date-range-picker
-              v-model:from="searchParams.schDtStrt"
-              v-model:to="searchParams.schDtEnd"
+              v-model:from="searchParams.strtDt"
+              v-model:to="searchParams.endDt"
               :label="$t('MSG_TXT_DT')"
               @change="onChangeDt"
             />
@@ -79,8 +84,8 @@
             :label="$t('MSG_TXT_CANC_DT')"
           >
             <kw-date-range-picker
-              v-model:from="searchParams.schCancDtStrt"
-              v-model:to="searchParams.schCancDtEnd"
+              v-model:from="searchParams.cancStrtDt"
+              v-model:to="searchParams.cancEndDt"
               :label="$t('MSG_TXT_CANC_DT')"
             />
           </kw-search-item>
@@ -90,7 +95,7 @@
             :label="$t('MSG_TXT_PRDT_CODE')"
           >
             <kw-input
-              v-model="searchParams.schPdCdStrt"
+              v-model="searchParams.pdStrtCd"
               maxlength="10"
               clearable
               icon="search"
@@ -98,7 +103,7 @@
             />
             <span>~</span>
             <kw-input
-              v-model="searchParams.schPdCdEnd"
+              v-model="searchParams.pdEndCd"
               maxlength="10"
               clearable
               icon="search"
@@ -109,20 +114,20 @@
             :label="$t('MSG_TXT_PKG_CD')"
           >
             <kw-input
-              v-model="searchParams.schPkgCdStrt"
+              v-model="searchParams.pkgStrtCd"
             />
             <span>~</span>
             <kw-input
-              v-model="searchParams.schPkgCdEnd"
+              v-model="searchParams.pkgEndCd"
             />
           </kw-search-item>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
             <zwog-level-select
-              v-model:og-levl-dv-cd1="searchParams.ogLevl1"
-              v-model:og-levl-dv-cd2="searchParams.ogLevl2"
-              v-model:og-levl-dv-cd3="searchParams.ogLevl3"
-              :og-tp-cd="searchParams.ogTp"
-              :base-ym="searchParams.schPerfYm"
+              v-model:og-levl-dv-cd1="searchParams.og1LevlId"
+              v-model:og-levl-dv-cd2="searchParams.og2LevlId"
+              v-model:og-levl-dv-cd3="searchParams.og3LevlId"
+              :og-tp-cd="searchParams.ogTpCd"
+              :base-ym="searchParams.perfYm"
               :start-level="1"
               :end-level="3"
             />
@@ -133,7 +138,7 @@
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
             <kw-input
-              v-model="searchParams.schPrtnrNo"
+              v-model="searchParams.prtnrNo"
               icon="search"
               clearable
               :on-click-icon="onClickSearchNo"
@@ -156,7 +161,7 @@
             required
           >
             <kw-select
-              v-model="searchParams.schDiv"
+              v-model="searchParams.divCd"
               :label="$t('MSG_TXT_DIV')"
               :options="customCodes.divCd"
               rules="required"
@@ -168,11 +173,11 @@
             required
           >
             <kw-option-group
-              v-model="searchParams.schOrdr"
+              v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
               rules="required"
               type="radio"
-              :options="customCodes.tcntCd"
+              :options="codes.FEE_TCNT_DV_CD"
             />
           </kw-search-item>
           <kw-search-item
@@ -180,7 +185,7 @@
             required
           >
             <kw-date-picker
-              v-model="searchParams.schPerfYm"
+              v-model="searchParams.perfYm"
               :label="$t('MSG_TXT_FEE_YM')"
               type="month"
               rules="required"
@@ -190,11 +195,11 @@
         <kw-search-row>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
             <zwog-level-select
-              v-model:og-levl-dv-cd1="searchParams.ogLevl1"
-              v-model:og-levl-dv-cd2="searchParams.ogLevl2"
-              v-model:og-levl-dv-cd3="searchParams.ogLevl3"
-              :og-tp-cd="searchParams.ogTp"
-              :base-ym="searchParams.schPerfYm"
+              v-model:og-levl-dv-cd1="searchParams.og1LevlId"
+              v-model:og-levl-dv-cd2="searchParams.og2LevlId"
+              v-model:og-levl-dv-cd3="searchParams.og3LevlId"
+              :og-tp-cd="searchParams.ogTpCd"
+              :base-ym="searchParams.perfYm"
               :start-level="1"
               :end-level="3"
             />
@@ -203,7 +208,7 @@
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
             <kw-input
-              v-model="searchParams.schPrtnrNo"
+              v-model="searchParams.prtnrNo"
               icon="search"
               clearable
               :on-click-icon="onClickSearchNo"
@@ -293,7 +298,7 @@ import dayjs from 'dayjs';
 
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
-import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid } from 'kw-lib';
+import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
@@ -309,11 +314,20 @@ const now = dayjs();
 const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
+const codes = await codeUtil.getMultiCodes(
+  'SELL_TP_CD',
+  'FEE_PERF_TP_CD',
+  'RGLR_SPP_PRC_DV_CD',
+  'MCHN_CH_TP_CD',
+  'FEE_PDCT_TP_CD',
+  'PMOT_TP_CD',
+  'SELL_DSC_DV_CD',
+  'SELL_DSC_TP_CD',
+  'FEE_TCNT_DV_CD',
+);
+
 const customCodes = {
   divCd: [{ codeId: '01', codeName: '매출' }, { codeId: '02', codeName: '접수' }, { codeId: '03', codeName: '예약' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
-  feePerfCd: [{ codeId: '00', codeName: '전체' }, { codeId: 'EH', codeName: '가전' }, { codeId: 'EX', codeName: '가전외' }, { codeId: 'ET', codeName: '기타' }, { codeId: 'UP', codeName: '미지급' }],
-  pdctTpCd: [{ codeId: '00', codeName: '전체' }, { codeId: 'A', codeName: '환경' }, { codeId: 'B', codeName: '웰스팜' }, { codeId: 'C', codeName: 'BH' }, { codeId: 'D', codeName: '캡슐' }, { codeId: 'E', codeName: '홈케어' }, { codeId: 'F', codeName: '소모품' }, { codeId: 'F', codeName: '부속품' }],
-  tcntCd: [{ codeId: '01', codeName: '1차' }, { codeId: '02', codeName: '2차' }],
   selTpCd: [{ codeId: '0', codeName: '전체' }, { codeId: '2', codeName: '렌탈/리스' }, { codeId: '1', codeName: '일시불' }, { codeId: '6', codeName: '정기배송' }, { codeId: '7', codeName: '재약정' }, { codeId: '3', codeName: '홈케어멤버십' }],
   rsbDvCd: [{ codeId: '00', codeName: '전체' }, { codeId: '15', codeName: '홈마스터' }, { codeId: '7', codeName: '지점장이상' }],
 };
@@ -323,27 +337,27 @@ const isExcelDown = ref(false);
 const isPerfVisile = ref(false);
 
 const searchParams = ref({
-  schOrdr: '01',
-  schDiv: '02',
-  schFeePerf: '00',
-  schPdctTp: '00',
-  schSelType: '0',
-  schDtStrt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
-  schDtEnd: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
-  schCancDtStrt: '',
-  schCancDtEnd: '',
-  schPdCdStrt: '',
-  schPdCdEnd: '',
-  schPkgCdStrt: '',
-  schPkgCdEnd: '',
-  ogLevl1: '',
-  ogLevl2: '',
-  ogLevl3: '',
-  schPrtnrNo: '',
-  schPerfYm: now.add(-1, 'month').format('YYYYMM'),
-  schRsbDv: '00',
+  feeTcntDvCd: '01',
+  divCd: '02',
+  feePerfCd: '',
+  pdctTpCd: '',
+  sellTpCd: '0',
+  strtDt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
+  endDt: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
+  cancStrtDt: '',
+  cancEndDt: '',
+  pdStrtCd: '',
+  pdEndCd: '',
+  pkgStrtCd: '',
+  pkgEndCd: '',
+  og1LevlId: '',
+  og2LevlId: '',
+  og3LevlId: '',
+  prtnrNo: '',
+  perfYm: now.add(-1, 'month').format('YYYYMM'),
+  rsbDvCd: '00',
   prtnrKnm: '',
-  ogTp: 'W03',
+  ogTpCd: 'W03',
   pdCd: '',
 });
 
@@ -355,23 +369,21 @@ let cachedParams;
 async function initSearchParams() {
   totalCount.value = 0;
   isExcelDown.value = false;
-  searchParams.value.schOrdr = '01';
-  searchParams.value.schFeePerf = '00';
-  searchParams.value.schPdctTp = '00';
-  searchParams.value.schSelType = '0';
-  searchParams.value.schDtStrt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
-  searchParams.value.schDtEnd = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
-  searchParams.value.schCancDtStrt = '';
-  searchParams.value.schCancDtEnd = '';
-  searchParams.value.schPdCdStrt = '';
-  searchParams.value.schPdCdEnd = '';
-  searchParams.value.schPkgCdStrt = '';
-  searchParams.value.schPkgCdEnd = '';
-  searchParams.value.schBlgStrt = '';
-  searchParams.value.schBlgEnd = '';
-  searchParams.value.schPrtnrNo = '';
-  searchParams.value.schPerfYm = now.add(-1, 'month').format('YYYYMM');
-  searchParams.value.schRsbDv = '00';
+  searchParams.value.feeTcntDvCd = '01';
+  searchParams.value.feePerfCd = '';
+  searchParams.value.pdctTpCd = '';
+  searchParams.value.sellTpCd = '0';
+  searchParams.value.strtDt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
+  searchParams.value.endDt = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
+  searchParams.value.cancStrtDt = '';
+  searchParams.value.cancEndDt = '';
+  searchParams.value.pdStrtCd = '';
+  searchParams.value.pdEndCd = '';
+  searchParams.value.pkgStrtCd = '';
+  searchParams.value.pkgEndCd = '';
+  searchParams.value.prtnrNo = '';
+  searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM');
+  searchParams.value.rsbDvCd = '00';
 }
 
 /*
@@ -381,8 +393,8 @@ async function onClickSearchNo() {
   const { result, payload } = await modal({
     component: 'ZwogzMonthPartnerListP',
     componentProps: {
-      baseYm: searchParams.value.schPerfYm,
-      prtnrNo: searchParams.value.schPrtnrNo,
+      baseYm: searchParams.value.perfYm,
+      prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W03',
       prtnrKnm: undefined,
     },
@@ -390,7 +402,7 @@ async function onClickSearchNo() {
 
   if (result) {
     if (!isEmpty(payload)) {
-      searchParams.value.schPrtnrNo = payload.prtnrNo;
+      searchParams.value.prtnrNo = payload.prtnrNo;
       searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
@@ -401,8 +413,8 @@ async function onClickSearchNo() {
  */
 
 async function onChangeInqrDv() {
-  const { schDiv } = searchParams.value;
-  if (schDiv === '04') {
+  const { divCd } = searchParams.value;
+  if (divCd === '04') {
     isSelectVisile1.value = false;
     isSelectVisile2.value = true;
     isPerfVisile.value = true;
@@ -419,9 +431,9 @@ async function onChangeInqrDv() {
  */
 async function onClickSearchPdCdPopup(arg) {
   if (arg === 'S') {
-    searchParams.value.pdCd = searchParams.value.schPdCdStrt;
+    searchParams.value.pdCd = searchParams.value.pdStrtCd;
   } else {
-    searchParams.value.pdCd = searchParams.value.schPdCdEnd;
+    searchParams.value.pdCd = searchParams.value.pdEndCd;
   }
   const searchPopupParams = {
     searchType: pdConst.PD_SEARCH_CODE,
@@ -433,9 +445,9 @@ async function onClickSearchPdCdPopup(arg) {
     componentProps: searchPopupParams,
   });
   if (arg === 'S') {
-    searchParams.value.schPdCdStrt = rtn.payload?.[0]?.pdCd;
+    searchParams.value.pdStrtCd = rtn.payload?.[0]?.pdCd;
   } else {
-    searchParams.value.schPdCdEnd = rtn.payload?.[0]?.pdCd;
+    searchParams.value.pdEndCd = rtn.payload?.[0]?.pdCd;
   }
 }
 
@@ -444,8 +456,8 @@ async function onClickSearchPdCdPopup(arg) {
  */
 
 async function onChangeDt() {
-  const { schDtStrt } = searchParams.value;
-  searchParams.value.schPerfYm = schDtStrt.substring(0, 6);
+  const { strtDt } = searchParams.value;
+  searchParams.value.perfYm = strtDt.substring(0, 6);
 }
 
 /*
@@ -456,7 +468,7 @@ async function openFeePerfCrtPopup() {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W03',
     dv: 'CR',
-    feeTcntDvCd: searchParams.value.schOrdr,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
     perfAgrgCrtDvCd: '301',
   };
   await modal({
@@ -473,7 +485,7 @@ async function openFeePerfCnfmPopup() {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W03',
     dv: 'CO',
-    feeTcntDvCd: searchParams.value.schOrdr,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
     perfAgrgCrtDvCd: '301',
   };
   await modal({
@@ -490,7 +502,7 @@ async function openFeePerfCnfmCanPopup() {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
     ogTp: 'W03',
     dv: 'CC',
-    feeTcntDvCd: searchParams.value.schOrdr,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
     perfAgrgCrtDvCd: '301',
   };
   await modal({
@@ -499,17 +511,41 @@ async function openFeePerfCnfmCanPopup() {
   });
 }
 
-async function onClickExcelDownload() {
+async function downloadExcelView1(uri) {
   const view = grd1MainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
+async function downloadExcelView2(uri) {
+  const view = grd2MainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams, timeout: 300000 });
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: response.data,
+  });
+}
+
+async function onClickExcelDownload() {
+  const { divCd } = searchParams.value;
+  cachedParams = cloneDeep(searchParams.value);
+
+  if (divCd === '04') {
+    await downloadExcelView1('hmst-fees');
+  } else {
+    await downloadExcelView2('hmsts');
+  }
+}
+
 async function fetchData(uri) {
-  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
   totalCount.value = resData.length;
   if (totalCount.value > 0) {
@@ -525,10 +561,10 @@ async function fetchData(uri) {
 }
 
 async function onClickSearch() {
-  const { schDiv } = searchParams.value;
+  const { divCd } = searchParams.value;
   let uri = '';
 
-  if (schDiv === '04') {
+  if (divCd === '04') {
     uri = 'hmst-fees';
   } else {
     uri = 'hmsts';
@@ -593,18 +629,18 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'og3Lv', header: t('MSG_TXT_BRANCH'), width: '120', styleName: 'text-center' },
     { fieldName: 'sequenceNumber', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '98' },
     { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '98' },
-    { fieldName: 'selType', header: t('MSG_TXT_SEL_TYPE'), width: '111.9', styleName: 'text-center' },
-    { fieldName: 'pdctTp', header: t('MSG_TXT_PDCT_TP'), width: '72', styleName: 'text-center' },
-    { fieldName: 'prcTp', header: t('MSG_TXT_PRC_TP'), width: '110' },
-    { fieldName: 'chdvcTp', header: t('MSG_TXT_CHDVC_TP'), width: '110' },
-    { fieldName: 'fee', header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF') + t('MSG_TXT_TYPE'), width: '110' },
+    { fieldName: 'selType', header: t('MSG_TXT_SEL_TYPE'), width: '111.9', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'pdctTp', header: t('MSG_TXT_PDCT_TP'), width: '72', styleName: 'text-center', options: codes.FEE_PERF_TP_CD },
+    { fieldName: 'prcTp', header: t('MSG_TXT_PRC_TP'), width: '110', styleName: 'text-center', options: codes.RGLR_SPP_PRC_DV_CD },
+    { fieldName: 'chdvcTp', header: t('MSG_TXT_CHDVC_TP'), width: '110', styleName: 'text-center', options: codes.MCHN_CH_TP_CD },
+    { fieldName: 'fee', header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF') + t('MSG_TXT_TYPE'), width: '110', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD },
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '110' },
     { fieldName: 'cstDv', header: t('MSG_TXT_CST_DV'), width: '188', styleName: 'text-center' },
     { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-center' },
     { fieldName: 'prdtCode', header: t('MSG_TXT_PRDT_CODE'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'pdDcClass', header: t('MSG_TXT_PD_DC_CLASS'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'discCode', header: t('MSG_TXT_DISC_CODE'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'dscSyst', header: t('MSG_TXT_DSC_SYST'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'pdDcClass', header: t('MSG_TXT_PD_DC_CLASS'), width: '83.5', styleName: 'text-center', options: codes.SELL_DSC_DV_CD },
+    { fieldName: 'discCode', header: t('MSG_TXT_DISC_CODE'), width: '83.5', styleName: 'text-center', options: codes.SELL_DSC_TP_CD },
+    { fieldName: 'dscSyst', header: t('MSG_TXT_DSC_SYST'), width: '83.5', styleName: 'text-center', options: codes.PMOT_TP_CD },
     { fieldName: 'combiDv', header: t('MSG_TXT_COMBI_DV'), width: '83.5', styleName: 'text-center' },
     { fieldName: 'istm', header: t('MSG_TXT_ISTM'), width: '83.5', styleName: 'text-right' },
     { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '84', styleName: 'text-right' },
@@ -669,12 +705,12 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'feePdctTpCd', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'feePdctTpCd', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
-    { fieldName: 'feePerfTpCd', header: t('MSG_TXT_PD_GRP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'feePerfTpCd', header: t('MSG_TXT_PD_GRP'), width: '120', styleName: 'text-center', options: codes.FEE_PERF_TP_CD },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center', options: codes.MCHN_CH_TP_CD },
 
   ];
 

@@ -57,7 +57,13 @@
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
-          <kw-input v-model="searchParams.no" />
+          <kw-input
+            v-model="searchParams.prtnrNo"
+            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            icon="search"
+            clearable
+            :on-click-icon="onClickSearchNo"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -94,7 +100,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useDataService } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
@@ -102,6 +108,7 @@ import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
+const { modal } = useGlobal();
 
 // M조직 수수료 개인상세 조회에서 router 호출
 const props = defineProps({
@@ -144,8 +151,23 @@ const searchParams = ref({
   ogLevlDvCd1: props.ogLv1Id,
   ogLevlDvCd2: props.ogLv2Id,
   ogLevlDvCd3: props.ogLv3Id,
-  no: props.prtnrNo,
+  prtnrNo: props.prtnrNo,
 });
+
+// 번호 검색 아이콘 클릭 이벤트
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzMonthPartnerListP',
+    componentProps: {
+      baseYm: searchParams.value.baseYm,
+      prtnrNo: searchParams.value.prtnrNo,
+    },
+  });
+
+  if (result) {
+    searchParams.value.prtnrNo = payload.prtnrNo;
+  }
+}
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value, timeout: 200000 });

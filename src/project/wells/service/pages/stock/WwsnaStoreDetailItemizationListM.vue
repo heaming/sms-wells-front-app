@@ -46,6 +46,8 @@
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeStrDvCd"
+          @update:ware-no-m="onChagneStrWareHgrNo"
         />
         <!-- 입고창고상세구분 -->
         <kw-search-item
@@ -76,7 +78,6 @@
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stStrDt"
           v-model:end-ym="searchParams.edStrDt"
-          v-model:options-ware-dv-cd="ostrWareDvCd"
           v-model:ware-dv-cd="searchParams.ostrWareDvCd"
           v-model:ware-no-m="searchParams.ostrWareNoM"
           v-model:ware-no-d="searchParams.ostrWareNoD"
@@ -86,6 +87,8 @@
           :label2="$t('MSG_TXT_OSTR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeOstrDvCd"
+          @update:ware-no-m="onChagneOstrWareHgrNo"
         />
         <!-- 출고창고상세구분 -->
         <kw-search-item
@@ -121,10 +124,13 @@
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
             first-option="all"
+            @change="onChangeItmKndCd"
           />
           <kw-select
             v-model="searchParams.itmPdCd"
-            :options="itemKndCdD"
+            :options="optionsItmPdCd"
+            option-value="pdCd"
+            option-label="pdNm"
             first-option="all"
           />
         </kw-search-item>
@@ -148,12 +154,6 @@
             :total-count="totalCount"
           />
         </template>
-        <!-- <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -182,7 +182,7 @@
 // import { codeUtil, getComponentType, useDataService, defineGrid } from 'kw-lib';
 import { codeUtil, getComponentType, defineGrid, useDataService, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -231,37 +231,58 @@ const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
 );
 
-// const wareDvCd = codes.WARE_DV_CD.filter((v) => v.codeId !== '1');
 const strTpCd = codes.STR_TP_CD.filter((v) => v.codeId !== '110');
 const strWareDvCd = { WARE_DV_CD: [
   { codeId: '2', codeName: '서비스센터' },
   { codeId: '3', codeName: '영업센터' },
 ] };
 
-console.log(strWareDvCd);
-
 const totalCount = ref(0);
-
-const itemKndCdD = ref();
 
 searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
 searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
-const onChangeItmKndCd = async () => {
-  // const paramItmKndCd = searchParams.value.itmKndCd;
-  // const itmKndCd = cloneDeep(searchParams.value.itmKndCd);
-  // const res = await dataService.get(`/sms/wells/service/individual-ware-ostrs/${itmKndCd}`);
-  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/filter-items', { params: searchParams.value });
-  itemKndCdD.value = res.data;
-  // searchParams.value.itmPdCd = itemKndCdD.value[0].codeId;
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
+
+// 품목조회
+const getProducts = async () => {
+  const result = await dataService.get('/sms/wells/service/out-of-storage-iz-dtls/products');
+  optionsItmPdCd.value = result.data;
+  optionsAllItmPdCd.value = result.data;
 };
 
-watch(() => searchParams.value.itmKndCd, (val) => {
-  if (searchParams.value.itmKndCd !== val) {
-    searchParams.value.itmKndCd = val;
+// 품목종류 변경 시 품목 필터링
+function onChangeItmKndCd() {
+  // 품목코드 클리어
+  searchParams.value.itmPdCd = '';
+  const { itmKndCd } = searchParams.value;
+
+  if (isEmpty(itmKndCd)) {
+    optionsItmPdCd.value = optionsAllItmPdCd.value;
+    return;
   }
-  onChangeItmKndCd();
-});
+
+  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+}
+
+function onChangeOstrDvCd() {
+  searchParams.value.ostrWareNoM = '';
+  searchParams.value.ostrWareNoD = '';
+}
+
+function onChagneOstrWareHgrNo() {
+  searchParams.value.ostrWareNoD = '';
+}
+
+function onChangeStrDvCd() {
+  searchParams.value.strWareNoM = '';
+  searchParams.value.strWareNoD = '';
+}
+
+function onChagneStrWareHgrNo() {
+  searchParams.value.strWareNoD = '';
+}
 
 // 입고창고구분이 변경되었을때
 const onChangeStrWareDvCd = async () => {
@@ -303,23 +324,22 @@ watch(() => searchParams.value.ostrWareDvCd, (val) => {
 
 const onDisableStrChk = async () => {
   const chkStrWareNoD = searchParams.value.strWareNoD;
-  if (chkStrWareNoD === undefined || chkStrWareNoD === null || chkStrWareNoD === '') {
+  if (isEmpty(chkStrWareNoD)) {
     isStrOk.value = false;
-  } else {
-    isStrOk.value = true;
-    searchParams.value.strWareDtlDvCd = '';
+    return;
   }
+  isStrOk.value = true;
+  searchParams.value.strWareDtlDvCd = '';
 };
 
 const onDisableOstrChk = async () => {
   const chkOstrWareNoD = searchParams.value.ostrWareNoD;
-  debugger;
-  if (chkOstrWareNoD === undefined || chkOstrWareNoD === null || chkOstrWareNoD === '') {
+  if (isEmpty(chkOstrWareNoD)) {
     isOstrOk.value = false;
-  } else {
-    isOstrOk.value = true;
-    searchParams.value.ostrWareDtlDvCd = '';
+    return;
   }
+  isOstrOk.value = true;
+  searchParams.value.ostrWareDtlDvCd = '';
 };
 
 watch(() => searchParams.value.strWareNoD, (val) => {
@@ -390,6 +410,7 @@ function onClickReset() {
 onMounted(async () => {
   await onChangeStrWareDvCd();
   await onChangeOstrWareDvCd();
+  await getProducts();
 });
 
 // -------------------------------------------------------------------------------------------------

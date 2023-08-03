@@ -107,7 +107,6 @@
           @click="onClickExcelUpload"
         />
         <kw-btn
-          v-permission:download
           icon="download_on"
           secondary
           dense

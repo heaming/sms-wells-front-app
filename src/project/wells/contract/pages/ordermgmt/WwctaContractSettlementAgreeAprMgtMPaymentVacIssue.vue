@@ -78,7 +78,7 @@
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import { alert, notify, useDataService, stringUtil, confirm } from 'kw-lib';
-import { CtCodeUtil } from '~sms-common/contract/util';
+import { CtCodeUtil, scrollIntoView } from '~sms-common/contract/util';
 
 const BANKS = 'banks';
 
@@ -147,17 +147,12 @@ await fetchBanks();
 /* expose */
 const topRef = ref();
 
-function scrollTo(ref) {
-  const el = ref.value.$el;
-  if (el) { el.scrollIntoView(true); }
-}
-
 async function validate() {
   if (!props.stlm) { return true; }
   const valid = !!issuedAccountInfo.value?.acnoEncr;
   if (!valid) {
     notify('가상계좌를 발급해주세요.');
-    scrollTo(topRef);
+    scrollIntoView(topRef);
   }
   return valid;
 }

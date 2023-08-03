@@ -69,9 +69,7 @@
         </kw-item-section>
       </template>
       <div class="pb20">
-        <kw-form
-          cols="4"
-        >
+        <kw-form cols="4">
           <kw-form-row>
             <!--상품정보-->
             <kw-form-item :label="$t('MSG_TXT_PD_INF')">
@@ -95,7 +93,7 @@
           <kw-form-row>
             <!--등록비용-->
             <kw-form-item :label="$t('MSG_TXT_REG_FEE')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.cntrAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.rentalRgstCost??'') }}</p>
             </kw-form-item>
             <!--등록비할인-->
             <kw-form-item :label="$t('MSG_TXT_RGST_COST_DSC')">
@@ -228,6 +226,7 @@
               <kw-input
                 v-model="searchDetail.slCtrRqrId"
                 maxlength="10"
+                regex="num"
               />
             </kw-form-item>
             <!-- row2-1 조정사유 -->
@@ -346,7 +345,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.reqDt"
+          v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
           rules="required"
         />
@@ -357,7 +356,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.cancelDt"
+          v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
           rules="required"
         />
@@ -509,7 +508,7 @@
         />
         <kw-input
           v-model="inputDetail.sel1Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel1')"
@@ -524,7 +523,7 @@
         />
         <kw-input
           v-model="inputDetail.sel2Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel2')"
@@ -555,7 +554,7 @@
         />
         <kw-input
           v-model="inputDetail.sel3Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel3')"
@@ -567,7 +566,7 @@
         />
         <kw-input
           v-model="inputDetail.sel4Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel4')"
@@ -601,6 +600,7 @@
           :label="$t('MSG_TXT_CANCEL_BULK_APPLY')"
           :false-value="N"
           :true-value="Y"
+          :disable="props.sametype==='N'"
         />
       </kw-form-item>
     </kw-form-row>
@@ -691,6 +691,7 @@ const emits = defineEmits([
 
 const props = defineProps({
   childDetail: { type: Object, required: true },
+  sametype: { type: String, required: true },
 });
 
 const searchDetail = reactive(props.childDetail);
@@ -735,16 +736,11 @@ function onClickCalculate() {
 // 5. 취소사항 > 취소사항 조회 클릭
 async function onClickSearchCancel() {
   if (!await frmMainRental.value.validate()) { return; }
-  if (inputDetail.value.reqDt < dayjs().format('YYYYMMDD')) {
-    await notify('요청일자가 현재일자 이전입니다.');
-    return;
-  }
 
-  emits('searchdetail', { reqDt: inputDetail.value.reqDt, cancelDt: inputDetail.value.cancelDt });
+  emits('searchdetail', { reqDt: searchDetail.rsgAplcDt, cancelDt: searchDetail.rsgFshDt });
 }
 
 function onClickSave() {
-  searchDetail.rsgAplcDt = inputDetail.reqDt;
   if (isEmpty(searchDetail.canCtrAmt)) {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';
@@ -791,23 +787,19 @@ async function onClickVacIssue() {
 }
 */
 async function onClickRequidation() {
-  const res = await modal({
+  await modal({
     component: 'WwsncTimeTableForContractP',
     componentProps: {
-      sellDate: searchDetail.cntrCnfmDt, // // 판매일자
       baseYm: dayjs().format('YYYYMM'), // 달력 초기 월
       chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
       svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
-      svBizDclsfCd: '3420',
+      sellDate: searchDetail.cntrCnfmDt, // // 판매일자
+      svBizDclsfCd: '3420', // TODO 확인/
+      mtrStatCd: '1',
       cntrNo: searchDetail.cntrNo,
       cntrSn: searchDetail.cntrSn,
-      dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
-      userId: searchDetail.sellPrtnrNo,
-      mtrStatCd: '1',
     },
   });
-
-  console.log(res);
 }
 
 async function onClickRefund() {
@@ -821,12 +813,6 @@ async function onClickRefund() {
 async function onClickTodo(param) {
   notify(`TODO: ${param} 준비 중`);
 }
-
-/*
-watch(props.childDetail, (val) => {
-  Object.assign(searchDetail, val);
-});
-*/
 
 watch(searchDetail, (val) => {
   emits('update:modelValue', val);

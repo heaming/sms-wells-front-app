@@ -341,9 +341,8 @@
                         v-model="item.sellDscTpCd"
                         :options="item.sellDscTpCds"
                         placeholder="렌탈할인유형"
-                        :readonly="!!item.isRentalDiscountFixed"
-                        @change="
-                          getPdAmts(item)"
+                        :readonly="!!item.rentalDiscountFixed"
+                        @change="getPdAmts(item)"
                       />
                       <kw-select
                         v-if="item.svPdCds"
@@ -631,8 +630,9 @@ const isItem = {
   crpCntr: () => step2.value.bas?.cntrTpCd === '02',
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
-  sltrRglrSpp: (i) => i.cntrRelDtlCd === '214', // 단독정기배송
   rglrSpp: (i) => i.cntrRelDtlCd === '216', // 정기배송
+  sltrRglrSpp: (i) => i.cntrRelDtlCd === '214' && i.sellTpDtlCd !== '61', // 단독정기배송
+  sltrRglrSppExcdMchn: (i) => i.sellTpDtlCd === '61', // 단독정기배송(홍삼 등 기기 필요 X)
 };
 
 // -------------------------------------------------------------------------------------------------
@@ -670,7 +670,7 @@ async function getPdAmts(pd) {
   ['fnlAmt', 'vat', 'sellFee', 'ackmtPerfRt', 'ackmtPerfAmt', 'cvtPerfAmt',
     'feeAckmtCt', 'feeAckmtBaseAmt', 'feeFxamYn',
     'pdPrcFnlDtlId', 'fxamFxrtDvCd', 'verSn', 'ctrVal', 'pdPrcId',
-    'isExistAlncPds',
+    'isExistAlncPds', 'rgstCsDscYn',
   ].forEach((col) => {
     pd[col] = prc.data ? prc.data[col] : undefined;
   });
@@ -679,6 +679,7 @@ async function getPdAmts(pd) {
 async function getPdSels(pd) {
   const sels = await dataService.get('sms/wells/contract/contracts/product-selects', {
     params: {
+      copnDvCd: step2.value.bas.copnDvCd,
       sellInflwChnlDtlCd: step2.value.bas.sellInflwChnlDtlCd,
       pdCd: pd.pdCd,
       sellTpCd: pd.sellTpCd,
@@ -731,8 +732,8 @@ async function onClickProduct(pd) {
       step2.value.dtls.push(p);
     }
   }
-  // 단독정기배송
-  if (npd.sellTpCd === '6') {
+  // 단독정기배송이면서 61(홍삼 등)이 아닌 경우 계약관계상세코드 214 세팅
+  if (npd.sellTpCd === '6' && npd.sellTpDtlCd !== '61') {
     npd.cntrRelDtlCd = '214';
   }
   resetCntrSn();
@@ -762,14 +763,14 @@ async function onClickOnePlusOne(pd) {
     };
     pd.cntrRelDtlCd = '215';
     pd.sellDscTpCd = '03';
-    pd.isRentalDiscountFixed = true;
+    pd.rentalDiscountFixed = true;
   }
 }
 
 function onClickDeleteOneplusone(pd) {
   pd.cntrRelDtlCd = '';
   pd.sellDscTpCd = '';
-  pd.isRentalDiscountFixed = false;
+  pd.rentalDiscountFixed = false;
   pd.opo = {};
 }
 
@@ -861,9 +862,7 @@ async function onChangePkgs(dtl) {
   resetCntrSn();
 }
 
-async function getCntrInfo(cntrNo) {
-  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 2 } });
-  step2.value = cntr.data.step2;
+function castCodeIdNumToStr() {
   step2.value.dtls.forEach((dtl) => {
     ['svPdCd', 'sellDscrCd', 'sellDscDvCd', 'alncmpCntrDrmVal',
       'frisuBfsvcPtrmN', // 일시불
@@ -873,6 +872,12 @@ async function getCntrInfo(cntrNo) {
       if (Number.isInteger(dtl[col])) dtl[col] = String(dtl[col]);
     });
   });
+}
+
+async function getCntrInfo(cntrNo) {
+  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 2 } });
+  step2.value = cntr.data.step2;
+  castCodeIdNumToStr();
   pCntrNo.value = step2.value.bas.cntrNo;
   ogStep2.value = cloneDeep(step2.value);
   console.log(step2.value);
@@ -909,21 +914,37 @@ function setFilter() {
   filteredClsfPds.value = clsfPds;
 }
 
+async function confirmProducts() {
+  const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value.dtls);
+  console.log(res);
+  if (res.data) {
+    step2.value.dtls = res.data;
+    castCodeIdNumToStr();
+    return true;
+  }
+  return false;
+}
+
 async function isChangedStep() {
   return step2.value.bas.cntrPrgsStatCd < 12 || JSON.stringify(ogStep2.value) !== JSON.stringify(step2.value);
 }
 
 async function isValidStep() {
-  if (step2.value.dtls.length === 0) {
+  const { dtls } = step2.value;
+  if (dtls.length === 0) {
     await alert('상품을 선택해주세요.');
     return false;
   }
-  if (step2.value.dtls.find((dtl) => (Number.isNaN(dtl.fnlAmt) || dtl.fnlAmt <= 0))) {
+  if (dtls.find((d) => (Number.isNaN(d.fnlAmt) || d.fnlAmt <= 0))) {
     await alert('상품 금액을 확인해주세요.');
     return false;
   }
-  if (step2.value.dtls.find((dtl) => dtl.cntrRelDtlCd === '214' && (!dtl.sltrRglrSppMchn || !dtl.sltrRglrSppMchn.rglrSppMchnYn))) {
+  if (dtls.find((d) => isItem.sltrRglrSpp(d) && (!d.sltrRglrSppMchn || !d.sltrRglrSppMchn.rglrSppMchnYn))) {
     await alert('정기배송 대상 기기를 선택해주세요.');
+    return false;
+  }
+  if (dtls.find((d) => d.sellDscTpCd === '03' && (!d.opo || !d.opo.opoYn))) {
+    await alert('1+1 대상 계약을 선택해주세요.');
     return false;
   }
   return true;
@@ -941,6 +962,7 @@ defineExpose({
   isValidStep,
   saveStep,
   getProducts,
+  confirmProducts,
 });
 onMounted(async () => {
   props.onChildMounted(2);

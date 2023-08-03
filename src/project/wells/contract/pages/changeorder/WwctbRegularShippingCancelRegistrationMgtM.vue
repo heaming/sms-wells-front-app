@@ -213,6 +213,7 @@
               <kw-input
                 v-model="searchDetail.slCtrRqrId"
                 maxlength="10"
+                regex="num"
               />
             </kw-form-item>
             <!-- row2-1 조정사유 -->
@@ -318,7 +319,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.reqDt"
+          v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
           rules="required"
         />
@@ -329,13 +330,16 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.cancelDt"
+          v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
           rules="required"
         />
       </kw-form-item>
       <!-- row1 사용일수 -->
-      <kw-form-item :label="$t('MSG_TXT_USE_DAY')">
+      <kw-form-item
+        :label="$t('MSG_TXT_USE_DAY')"
+        hint="렌탈조회시 사용일수 없음."
+      >
         <p>{{ stringUtil.getNumberWithComma(searchDetail.useDays??'') }} DAY</p>
       </kw-form-item>
     </kw-form-row>
@@ -422,7 +426,7 @@
         />
         <kw-input
           v-model="inputDetail.sel1Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel1')"
@@ -437,7 +441,7 @@
         />
         <kw-input
           v-model="inputDetail.sel2Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel2')"
@@ -465,6 +469,7 @@
           :label="$t('MSG_TXT_CANCEL_BULK_APPLY')"
           :false-value="N"
           :true-value="Y"
+          :disable="props.sametype==='N'"
         />
       </kw-form-item>
     </kw-form-row>
@@ -519,7 +524,6 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, stringUtil, useGlobal } from 'kw-lib';
-import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
@@ -540,6 +544,7 @@ const emits = defineEmits([
 
 const props = defineProps({
   childDetail: { type: Object, required: true },
+  sametype: { type: String, required: true },
 });
 
 const searchDetail = reactive(props.childDetail);
@@ -572,13 +577,9 @@ function onClickCcamView() {
 // 5. 취소사항 > 취소사항 조회 클릭
 async function onClickSearchCancel() {
   if (!await frmMainRegularSp.value.validate()) { return; }
-  if (inputDetail.value.reqDt < dayjs().format('YYYYMMDD')) {
-    await notify('요청일자가 현재일자 이전입니다.');
-    return;
-  }
 
-  emits('searchdetail', { reqDt: inputDetail.value.reqDt,
-    cancelDt: inputDetail.value.cancelDt,
+  emits('searchdetail', { reqDt: searchDetail.rsgAplcDt,
+    cancelDt: searchDetail.rsgFshDt,
     dscDdctam: searchDetail.dscDdctam ?? 0,
     filtDdctam: searchDetail.filtDdctam ?? 0,
     slCtrAmt: searchDetail.slCtrAmt ?? 0,
@@ -586,7 +587,6 @@ async function onClickSearchCancel() {
 }
 
 function onClickSave() {
-  searchDetail.rsgAplcDt = inputDetail.reqDt;
   if (isEmpty(searchDetail.canCtrAmt)) {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';

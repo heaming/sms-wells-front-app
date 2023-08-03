@@ -346,11 +346,13 @@ const codes = await codeUtil.getMultiCodes(
   'CNTR_TP_CD',
   'COPN_DV_CD',
 );
-const cntrTpCdOptions = computed(() => (
-  careerLevelCode === '7'
-    ? codes.CNTR_TP_CD.filter((code) => ['01', '02'].includes(code.codeId))
-    : codes.CNTR_TP_CD
-));
+const cntrTpCdOptions = computed(() => {
+  if (ogTpCd === 'HR1') {
+    return codes.CNTR_TP_CD.filter((code) => ['03'].includes(code.codeId));
+  }
+  return careerLevelCode === '7' ? codes.CNTR_TP_CD.filter((code) => ['01', '02'].includes(code.codeId))
+    : codes.CNTR_TP_CD.filter((code) => !['03'].includes(code.codeId));
+});
 const searchParams = ref({
   cntrNo: step1.value.bas?.cntrNo,
   cntrTpCd: '01',
@@ -452,6 +454,7 @@ async function getCntrInfo(cntrNo) {
 
 async function getCntrInfoByCst(cstNo) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
+    cntrTpCd: searchParams.value.cntrTpCd,
     cstNo,
     cntrNo: step1.value.bas?.cntrNo,
     cntrPrtnrNo: step1.value.prtnr?.prtnrNo,
@@ -527,9 +530,9 @@ async function onClickSearchCntrtInfo() {
   } else if (cntrTpIs.value.ensm) {
     // 임직원
     // 파트너와 계약자 모두 본인
-    const cstNo = await dataService.get('sms/wells/contract/contracts/prtnr-cst-no', { params: { prtnrNo } });
+    const cstNo = await dataService.get('sms/wells/contract/contracts/ensm-cst-no', { params: { prtnrNo } });
     if (!cstNo.data) {
-      await alert('임직원/파트너의 고객번호가 존재하지 않습니다.');
+      await alert('임직원의 고객번호가 존재하지 않습니다.');
       return;
     }
     await getCntrInfoByCst(cstNo.data);
@@ -541,7 +544,13 @@ async function onClickSearchCntrtInfo() {
       step1.value.cntrt = ref({});
       if (await confirm(t('MSG_ALT_NO_CST_REG'))) {
         // 법인: 법인고객 등록 화면으로 이동
-        await router.push({ path: '/customer/zwcsa-customer-mgt/zwcsa-corporate-customer-reg' });
+        await router.push({
+          path: '/contract/wwcta-contract-registration-mgt/zwcsa-corporate-customer-reg',
+          query: {
+            bzrno: searchParams.value.bzrno,
+            dlpnrNm: searchParams.value.cstKnm,
+          },
+        });
       }
     } else {
       // 조회된 고객이 있다면, 계약자: 공통고객 조회 팝업, 학습자: 학습자용 고객 조회 팝업 호출

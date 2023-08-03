@@ -18,22 +18,20 @@
     @search="onClickSearch"
   >
     <kw-search-row>
-      <!-- 접수기간 -->
       <kw-search-item
-        :label="$t('MSG_TXT_APPL_PRD')"
+        :label="$t('MSG_TXT_APPL_PRD',null,'접수기간')"
         required
       >
         <kw-date-range-picker
           v-model:from="searchParams.assignDtFrom"
           v-model:to="searchParams.assignDtTo"
           class="ml8"
-          :label="$t('MSG_TXT_APPL_PRD')"
+          :label="$t('MSG_TXT_APPL_PRD',null,'접수기간')"
           rules="date_range_required"
         />
       </kw-search-item>
 
-      <!-- 접수구분 -->
-      <kw-search-item :label="t('MSG_TXT_RCP_DV')">
+      <kw-search-item :label="t('MSG_TXT_RCP_DV',null,'접수구분')">
         <kw-select
           v-model="searchParams.sellInflwchnlDvCd"
           first-option="all"
@@ -41,8 +39,7 @@
         />
       </kw-search-item>
 
-      <!-- 상품구분 -->
-      <kw-search-item :label="t('MSG_TXT_PRDT_GUBUN')">
+      <kw-search-item :label="t('MSG_TXT_PRDT_GUBUN',null,'상품구분')">
         <kw-select
           v-model="searchParams.prdtType"
           :multiple="true"
@@ -65,7 +62,6 @@
       </template>
 
       <kw-btn
-        v-permission:download
         icon="download_on"
         dense
         :disable="pageInfo.totalCount === 0"
@@ -112,16 +108,16 @@ const baseUrl = '/sms/wells/customer/receipts';
 const codes = await codeUtil.getMultiCodes('COD_PAGE_SIZE_OPTIONS');
 
 const RECEIPT_TYPE_CODE = [
-  { codeId: '40', codeName: t('MSG_TXT_SERVICE_CENTER') }, /* 고객센터 */
-  { codeId: '20', codeName: t('MSG_TXT_HMPG') }, /* 홈페이지 */
+  { codeId: '40', codeName: t('MSG_TXT_SERVICE_CENTER', null, '고객센터') },
+  { codeId: '20', codeName: t('MSG_TXT_HMPG', null, '홈페이지') },
 ];
 
 const PRDT_TYPE_CODE = [
-  { codeId: '4', codeName: t('MSG_TXT_ENV_ELEC_1') }, /* 환경가전1 */
-  { codeId: '5', codeName: t('MSG_TXT_ENV_ELEC_2') }, /* 환경가전2 */
-  { codeId: '6', codeName: t('MSG_TXT_BEAN') }, /* 원두 */
-  { codeId: '8', codeName: t('MSG_TXT_HOME_CARE') }, /* 홈케어 */
-  { codeId: '7', codeName: t('MSG_TXT_SDING') }, /* 모종 */
+  { codeId: '4', codeName: t('MSG_TXT_ENV_ELEC_1', null, '환경가전1') },
+  { codeId: '5', codeName: t('MSG_TXT_ENV_ELEC_2', null, '환경가전2') },
+  { codeId: '6', codeName: t('MSG_TXT_BEAN', null, '원두') },
+  { codeId: '8', codeName: t('MSG_TXT_HOME_CARE', null, '홈케어') },
+  { codeId: '7', codeName: t('MSG_TXT_SDING', null, '모종') },
   /* 배송 TODO DB에 코드없음. */
   // { codeId: '06', codeName: t('MSG_TXT_DLVRY') },
 ];
@@ -235,7 +231,7 @@ const initgrdReceipt = defineGrid((data, view) => {
 
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_ASSIGNER_EP_NO'), width: '120', styleName: 'text-center' }, /* 배정담당자 사번 */
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, /* 계약번호 */
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_CRT_D'), width: '114', styleName: 'text-center', datetimeFormat: 'date' }, /* 생성일 */
+    { fieldName: 'fstRgstDtmCp', header: t('MSG_TXT_CRT_D'), width: '114', styleName: 'text-center', datetimeFormat: 'date' }, /* 생성일 */
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT'), width: '114', styleName: 'text-center' }, /* 예정일 */
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_DT_OF_SALE'), width: '114', styleName: 'text-center' }, /* 매출일 */
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '143', styleName: 'text-left' }, /* 제품명 */
@@ -243,11 +239,15 @@ const initgrdReceipt = defineGrid((data, view) => {
     { fieldName: 'custAdr', header: t('MSG_TXT_ADDR'), width: '275', styleName: 'text-left' }, /* 주소 */
 
     // 등록/수정일
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT', null, '등록일'), width: '114', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
+    { fieldName: 'fstRgstDeptNm', header: t('MSG_TXT_RGST_DEPT', null, '등록부서'), width: '120', styleName: 'text-center' },
+
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', datetimeFormat: 'date', editable: false },
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fnlMdfcUsrId', header: 'MDFC_ID', width: '50', visible: false },
+    { fieldName: 'fnlMdfcDeptNm', header: t('MSG_TXT_FNL_MDFC_DEPT', null, '최종수정부서'), width: '120', styleName: 'text-center' },
 
     /* ------- 내부 사용 변수 선언 (hidden값이므로 다국어처리 열외)  ------- */
     { fieldName: 'pspcCstCnslId', header: 'pspcCstCnslId', width: '50', visible: false },
@@ -259,7 +259,7 @@ const initgrdReceipt = defineGrid((data, view) => {
   view.setColumns(columns);
   view.rowIndicator.visible = true;
   view.editOptions.editable = false;
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
 
   view.onCellDblClicked = async (g, clickData) => {
     if (clickData.cellType === 'data') {
