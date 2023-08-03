@@ -16,6 +16,7 @@
   <kw-search
     :modified-targets="['grdConfirm']"
     @search="onClickSearch"
+    @reset="onClickReset"
   >
     <kw-search-row>
       <kw-search-item
@@ -218,6 +219,11 @@ async function onChangeCstNo() {
 async function onChangePrtnrNo() {
   searchParams.value.prtnrNoYn = 'N';
   searchParams.value.clctamPrtnrNo = '';
+}
+
+async function onClickReset() {
+  await onChangeCstNo();
+  await onChangePrtnrNo();
 }
 
 const { currentRoute } = useRouter();
