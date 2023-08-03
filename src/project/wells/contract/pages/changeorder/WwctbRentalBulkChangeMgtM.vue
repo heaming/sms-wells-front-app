@@ -183,9 +183,10 @@ async function onClickSearch() {
 }
 // 일괄변경 등록 버튼 클릭
 async function onClickBatchChangeReg() {
+  const procsDv = searchParams.value.cntrChTpCd;
   const { result } = await modal({
     component: 'WwctbRentalBulkChangeMgtP',
-    // componentProps: { apiUrl, templateId, extraData },
+    componentProps: { procsDv },
   });
   if (result) {
     if (isEmpty(searchParams.value.cntrChTpCd)) {
