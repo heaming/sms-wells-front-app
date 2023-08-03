@@ -17,6 +17,7 @@
     :cols="4"
     :modified-targets="['grdExpected']"
     @search="onClickSearch"
+    @reset="onClickReset"
   >
     <kw-search-row>
       <kw-search-item
@@ -311,6 +312,10 @@ async function onChangePrtnrNo() {
   searchParams.value.clctamPrtnrNo = '';
 }
 
+async function onClickReset() {
+  await onChangeCstNo();
+  await onChangePrtnrNo();
+}
 // 저장
 async function onClickSave() {
   const view = grdExpectedRef.value.getView();
