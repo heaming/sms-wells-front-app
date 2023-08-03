@@ -191,7 +191,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useMeta, useDataService, gridUtil, codeUtil, useGlobal, getComponentType, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
+import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdyClassification.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const { modal } = useGlobal();
