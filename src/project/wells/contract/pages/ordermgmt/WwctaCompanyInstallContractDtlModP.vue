@@ -15,7 +15,6 @@
 <template>
   <kw-popup
     size="3xl"
-    no-action
     :title="$t('MSG_TXT_CO_IST')+' '+$t('MSG_TIT_DEFAULT_INFO')+' '+$t('MSG_TXT_DTL')"
   >
     <kw-form ref="frmMainRef">
@@ -103,7 +102,6 @@
           />
           <kw-input
             v-model="installDetail.basAdr"
-            icon="search"
             readonly
           />
         </kw-form-item>
@@ -111,7 +109,7 @@
         <kw-form-item :label="$t('MSG_TXT_DETAIL_ADDR')">
           <kw-input
             v-model="installDetail.dtlAdr"
-            maxlength="200"
+            readonly
           />
         </kw-form-item>
       </kw-form-row>
@@ -140,6 +138,7 @@
         </kw-form-item>
         <kw-form-item no-label />
       </kw-form-row>
+
       <kw-form-row label-size="100">
         <!--주소-->
         <kw-form-item
@@ -153,7 +152,6 @@
           />
           <kw-input
             v-model="installDetail.installBasAdr"
-            icon="search"
             readonly
           />
         </kw-form-item>
@@ -182,7 +180,7 @@
           required
         >
           <kw-date-picker
-            v-model="installDetail.cntrRcpDt"
+            v-model="installDetail.cntrCnfmDt"
             readonly
           />
         </kw-form-item>
@@ -205,11 +203,11 @@
           />
           <kw-input
             v-model="installDetail.pdNm"
-            icon="search"
             readonly
           />
         </kw-form-item>
       </kw-form-row>
+
       <kw-form-row label-size="100">
         <!--주기/용도-->
         <kw-form-item
@@ -217,8 +215,9 @@
           required
         >
           <kw-select
-            v-model="installDetail.serviceCd"
-            :label="$t('MSG_TXT_CYCL')"
+            ref="isPdRelChg"
+            v-model="installDetail.ojPdCd"
+            :label="$t('MSG_TXT_CYCL')+'/'+$t('MSG_TXT_USWY')"
             :options="services"
             first-option="select"
             rules="required"
@@ -227,6 +226,7 @@
         <!--등급-->
         <kw-form-item :label="$t('MSG_TXT_GD')">
           <kw-select
+            ref="isCntrDtlChg"
             v-model="installDetail.pdGdCd"
             :options="codes.PD_GD_CD"
             first-option="select"
@@ -235,48 +235,28 @@
         <!--설치구분-->
         <kw-form-item :label="$t('MSG_TXT_INST_CLS')">
           <kw-select
+            ref="isWellsDtlChg"
             v-model="installDetail.coIstDvCd"
             :options="codes.CO_IST_DV_CD"
             first-option="select"
           />
         </kw-form-item>
       </kw-form-row>
+
       <kw-form-row label-size="100">
-        <!--체험단여부-->
-        <kw-form-item
-          :label="$t('MSG_TXT_EXPN_GRP')+$t('MSG_TXT_YN')"
-          hint="null"
-        >
-          <kw-checkbox
-            v-model="installDetail.expnYn"
-            label="체크 시, 일시불 멤버십비용 적용"
-            :true-value="Y"
-            :false-value="N"
-          />
-        </kw-form-item>
         <!--설치용도-->
         <kw-form-item :label="$t('MSG_TXT_INST_PURP')">
           <kw-select
+            ref="isWellsDtlChg"
             v-model="installDetail.coIstUswyCd"
             :options="codes.CO_IST_USWY_CD"
             first-option="select"
           />
         </kw-form-item>
-        <!--시리얼넘버-->
-        <kw-form-item
-          :label="$t('MSG_TXT_SR_NUM')"
-          hint="null"
-        >
-          <kw-input
-            v-model="installDetail.null"
-            maxlength=""
-          />
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row label-size="100">
         <!--관리구분-->
         <kw-form-item :label="$t('MSG_TXT_MNGT_DV')">
           <kw-select
+            ref="isWellsDtlChg"
             v-model="installDetail.coIstMngtDvCd"
             :options="codes.CO_IST_MNGT_DV_CD"
             first-option="select"
@@ -299,19 +279,22 @@
             rules="required"
           />
         </kw-form-item>
+      </kw-form-row>
+
+      <kw-form-row label-size="100">
         <!--회사코드-->
         <kw-form-item :label="$t('MSG_TXT_CPNY_CD')">
           <kw-input
+            ref="isCntrDtlChg"
             v-model="installDetail.coCd"
             maxlength="4"
             regex="num"
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row label-size="100">
         <!--무상기간-->
         <kw-form-item :label="$t('TXT_MSG_FRISU_PTRM')">
           <kw-input
+            ref="isWellsDtlChg"
             v-model="installDetail.frisuBfsvcPtrmN"
             regex="num"
             align="right"
@@ -321,32 +304,58 @@
         <!--A/S기간-->
         <kw-form-item :label="$t('MSG_TXT_AS_PERIOD')">
           <kw-input
+            ref="isWellsDtlChg"
             v-model="installDetail.frisuAsPtrmN"
             regex="num"
             align="right"
             maxlength="3"
           />
         </kw-form-item>
+      </kw-form-row>
+
+      <kw-form-row label-size="100">
         <!--설치장소-->
-        <kw-form-item
-          :label="$t('MSG_TXT_INST_PLAC')"
-          hint="tobe 없음."
-        >
+        <kw-form-item :label="$t('MSG_TXT_INST_PLAC')">
           <kw-select
+            ref="isWellsDtlChg"
             v-model="installDetail.istPlcTpCd"
             :options="codes.IST_PLC_TP_CD"
             first-option="select"
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row label-size="100">
         <!--월 비용-->
         <kw-form-item :label="$t('MSG_TXT_MM_CS')">
           <kw-input
+            ref="isCntrDtlChg"
             v-model="installDetail.fnlAmt"
             regex="num"
             align="right"
             maxlength="10"
+          />
+        </kw-form-item>
+      </kw-form-row>
+
+      <kw-form-row label-size="100">
+        <!--체험단여부-->
+        <kw-form-item
+          :label="$t('MSG_TXT_EXPN_GRP')+$t('MSG_TXT_YN')"
+          hint="null"
+        >
+          <kw-checkbox
+            v-model="installDetail.expnYn"
+            label="체크 시, 일시불 멤버십비용 적용"
+            :true-value="Y"
+            :false-value="N"
+          />
+        </kw-form-item>
+        <!--시리얼넘버-->
+        <kw-form-item
+          :label="$t('MSG_TXT_SR_NUM')"
+          hint="null"
+        >
+          <kw-input
+            v-model="installDetail.null"
+            maxlength=""
           />
         </kw-form-item>
       </kw-form-row>
@@ -362,6 +371,7 @@
         <!--반품일-->
         <kw-form-item :label="$t('MSG_TXT_RET_DT')">
           <kw-date-picker
+            ref="isCntrDtlChg"
             v-model="installDetail.rtnDt"
           />
         </kw-form-item>
@@ -371,6 +381,7 @@
           :colspan="2"
         >
           <kw-input
+            ref="isWellsDtlChg"
             v-model="installDetail.istAkArtcMoCn"
             maxlength="1000"
           />
@@ -398,75 +409,48 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, useDataService, useModal, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, useDataService, useGlobal, useMeta, useModal } from 'kw-lib';
+import { cloneDeep } from 'lodash';
 // simport { isEmpty } from 'lodash-es';
 
 const { notify } = useGlobal();
 const { ok, cancel: onClickCancel } = useModal();
 const { t } = useI18n();
 const dataService = useDataService();
+const sessionUserInfo = useMeta().getUserInfo();
 const frmMainRef = ref(getComponentType('KwForm'));
 
+const services = ref();
 const codes = await codeUtil.getMultiCodes(
   'CO_IST_DV_CD', // 설치구분
   'CO_IST_USWY_CD', // 설치용도
-  'RGLR_BFSVC_WK_PRD_CD', // 정기 BS 작업 주기
-  'SV_TP_CD',
   'PD_GD_CD', // 상품등급코드
   'CO_IST_USWY_CD', // 설치용도
   'CO_IST_MNGT_DV_CD', // 관리구분
   'IST_PLC_TP_CD', // 설치장소
 );
 
-const services = ref();
-
 const props = defineProps({
   cntrNoSn: { type: String, default: '' },
   cntrNo: { type: String, default: '' },
   cntrSn: { type: String, default: '' },
   cstKnm: { type: String, default: '' }, // [계약자명]
-  cntrCfmn: { type: String, default: '' }, // [확정]
-  assignCan: { type: String, default: '' }, // [배정취소]
-  istReRegn: { type: String, default: '' }, // [설치 재접수]
   bryyMmdd: { type: String, default: '' }, // [주민등록번호]
   bzrno: { type: String, default: '' }, // [사업자번호]
   cntrCstNo: { type: String, default: '' }, // [고객번호]
   rcgvpKnm: { type: String, default: '' }, // [설치자명]
-  cntrRcpDt: { type: String, default: '' }, // [접수일]
-  sellTpNm: { type: String, default: '' }, // [판매유형]
+  cntrCnfmDt: { type: String, default: '' }, // [접수일]
   coCd: { type: String, default: '' }, // [관리회사]
-  ogCd: { type: String, default: '' }, // [관리부서]
-  coIstMngtDvNm: { type: String, default: '' }, // [관리구분]
   basePdCd: { type: String, default: '' }, // [설치상품코드]
   pdNm: { type: String, default: '' }, // [설치상품명]
-  pkgPdCd: { type: String, default: '' }, // [모종패키지코드]
-  pkgPdNm: { type: String, default: '' }, // [패키지명]
-  bsPrd: { type: String, default: '' }, // [용도구분]
   pdGdCd: { type: String, default: '' }, // [제품등급]
-  coIstDvNm: { type: String, default: '' }, // [설치구분]
-  coIstUswyNm: { type: String, default: '' }, // [설치용도]
   istPlcTpCd: { type: String, default: '' }, // [설치장소]
   svPrd: { type: String, default: '' }, // [방문주기]
   frisuBfsvcPtrmN: { type: String, default: '' }, // [무상기간]
   frisuAsPtrmN: { type: String, default: '' }, // [A/S기간]
-  filterExp: { type: String, default: '' }, // [필터비용]
-  dscRate: { type: String, default: '' }, // [할인율(%)]
-  sppDuedt: { type: String, default: '' }, // [예정일]
   istDt: { type: String, default: '' }, // [설치일]
   rtnDt: { type: String, default: '' }, // [반품일]
-  cpsDt: { type: String, default: '' }, // [보상일]
   istAkArtcMoCn: { type: String, default: '' }, // [참고사항]
-  cttRsCd: { type: String, default: '' }, // [컨택코드]
-  cttPsicId: { type: String, default: '' }, // [컨택담당]
-  sconCn: { type: String, default: '' }, // [특약내용]
-  mtrDv: { type: String, default: '' }, // [자료구분]
-  sellTpDtlNm: { type: String, default: '' }, // [자료유형]
-  cntrNoSn216: { type: String, default: '' }, // [모종상세코드]
-  reguDelYn: { type: String, default: '' }, // [정기배송여부]
-  memExpGbn: { type: String, default: '' }, // [멤버십비용구분]
-  cntrNo216: { type: String, default: '' },
-  cntrSn216: { type: String, default: '' },
-  svPdTpCd: { type: String, default: '' },
   coIstDvCd: { type: String, default: '' },
   copnDvCd: { type: String, default: '' },
   coIstUswyCd: { type: String, default: '' },
@@ -480,34 +464,45 @@ const props = defineProps({
   installBasAdr: { type: String, default: '' },
   installDtlAdr: { type: String, default: '' },
   expnYn: { type: String, default: 'N' },
+  ojPdCd: { type: String, default: '' },
+  cntrDtlStatCd: { type: String, default: '' },
 });
 
-const installDetail = reactive(props);
-console.log(installDetail);
+const installDetail = ref({});
+const isPdRelChg = ref(false);
+const isCntrDtlChg = ref(false);
+const isWellsDtlChg = ref(false);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
+// 팝업 초기화
+async function initPage() {
+  installDetail.value = cloneDeep(props);
+  installDetail.value.ogCd = sessionUserInfo.ogCd;
+  installDetail.value.ogNm = sessionUserInfo.ogCdNm;
+
+  const codeRes = await dataService.get('/sms/wells/contract/contracts/company-service', { params: { pdCd: installDetail.value.basePdCd } });
+  services.value = codeRes.data;
+}
+
 // 저장 버튼 클릭
 async function onClickSave() {
-  if (true) {
-    notify('TODO : 저장 기능 개발 중');
-    return;
-  }
-
   // check validation
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
 
+  installDetail.value.isPdRelChg = isPdRelChg.value.isModified();
+  installDetail.value.isCntrDtlChg = isCntrDtlChg.value.isModified();
+  installDetail.value.isWellsDtlChg = isWellsDtlChg.value.isModified();
+
   // call service
-  await dataService.post('/sms/wells/contract/contracts/company-install', installDetail.value);
+  await dataService.put('/sms/wells/contract/contracts/company-install', { ...installDetail.value });
   ok();
   await notify(t('MSG_ALT_SAVE_DATA'));
 }
 
-onMounted(async () => {
-  const codeRes = await dataService.get('/sms/wells/contract/contracts/company-service', { params: { pdCd: installDetail.basePdCd } });
-  services.value = codeRes.data;
-});
+await initPage();
+
 </script>

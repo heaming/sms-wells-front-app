@@ -26,8 +26,9 @@
         </template>
         <kw-btn
           icon-right="search"
-          grid-action
-          label="계약자정보 조회"
+          negative
+          dense
+          :label="$t('MSG_TXT_CNTRT_INF')+' '+$t('MSG_TXT_SRCH')"
           @click="onClickSearchCst"
         />
       </kw-action-top>
@@ -104,6 +105,7 @@
           <kw-input
             v-model="installDetail.dtlAdr"
             maxlength="200"
+            readonly
           />
         </kw-form-item>
       </kw-form-row>
@@ -204,7 +206,7 @@
           required
         >
           <kw-date-picker
-            v-model="installDetail.cntrRcpDt"
+            v-model="installDetail.cntrCnfmDt"
             :label="$t('MSG_TXT_RCP_D')"
             rules="required"
           />
@@ -246,7 +248,7 @@
           required
         >
           <kw-select
-            v-model="installDetail.serviceCd"
+            v-model="installDetail.ojPdCd"
             :label="$t('MSG_TXT_CYCL')"
             :options="services"
             first-option="select"
@@ -440,18 +442,15 @@ const dataService = useDataService();
 const sessionUserInfo = useMeta().getUserInfo();
 const frmMainRef = ref(getComponentType('KwForm'));
 
+const services = ref();
 const codes = await codeUtil.getMultiCodes(
   'CO_IST_DV_CD', // 설치구분
   'CO_IST_USWY_CD', // 설치용도
-  'RGLR_BFSVC_WK_PRD_CD', // 정기 BS 작업 주기
-  'SV_TP_CD',
   'PD_GD_CD', // 상품등급코드
   'CO_IST_USWY_CD', // 설치용도
   'CO_IST_MNGT_DV_CD', // 관리구분
   'IST_PLC_TP_CD', // 설치장소
 );
-
-const services = ref();
 
 const installDetail = reactive({
   copyDataYn: 'N',
@@ -539,7 +538,7 @@ async function onClickSave() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
 
-  const { svTpCd, svPrd } = services.value.find((v) => v.codeId === installDetail.serviceCd);
+  const { svTpCd, svPrd } = services.value.find((v) => v.codeId === installDetail.ojPdCd);
   installDetail.svPdTpCd = svTpCd;
   installDetail.svPrd = svPrd;
 
