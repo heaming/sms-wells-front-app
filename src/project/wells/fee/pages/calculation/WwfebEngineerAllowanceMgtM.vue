@@ -33,7 +33,7 @@
           <kw-option-group
             v-model="searchParams.feeSchdTpCd"
             type="radio"
-            :options="feeSchdTpCd"
+            :options="codes.EGER_AW_DV_CD"
           />
         </kw-search-item>
         <kw-search-item
@@ -43,8 +43,8 @@
             v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.perfYm"
-            :start-level="2"
-            :end-level="2"
+            :start-level="1"
+            :end-level="1"
           />
         </kw-search-item>
       </kw-search-row>
@@ -73,7 +73,8 @@
     <div class="result-area">
       <h3>
         {{ searchParams.perfYm.substring(0,4)+'-'+searchParams.perfYm.substring(4) }}
-        {{ searchParams.feeSchdTpCd==='601'?'실적수당':'직책수당' }} {{ $t('MSG_TXT_PRGS_STE') }}
+        {{ codes.EGER_AW_DV_CD.find((v) => v.codeId === searchParams?.feeSchdTpCd)?.codeName }}
+        {{ $t('MSG_TXT_PRGS_STE') }}
       </h3>
       <!-- STEPER -->
       <zwfey-fee-step
@@ -98,6 +99,7 @@
         />
         <kw-btn
           v-if="isBtnVisible"
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -143,6 +145,7 @@
         />
         <kw-btn
           v-if="isBtnVisible"
+          v-permission:update
           primary
           dense
           :label="$t('MSG_BTN_DTRM')"
@@ -192,7 +195,6 @@ const isGrdEgerMngerVisible = ref(false);
 const isBtnVisible = ref(true);
 const stepNaviRef = ref();
 const changedRows = [];
-const currentStep = ref('');
 // TODO: 세션정보(직급/직무구분코드) & 센터확정일자에 따른 수당조정 가능 여부 체크
 // 확정이 되었는지 안되었는지도 체크함.
 // 확정이 되었으면 수정 못함.(센터)
@@ -201,13 +203,9 @@ const currentStep = ref('');
 const editYn = ref(false);
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
+  'PSTN_DV_CD',
+  'EGER_AW_DV_CD',
 );
-
-// 수당구분
-const feeSchdTpCd = [
-  { codeId: '601', codeName: t('MSG_TXT_PERF_AW') },
-  { codeId: '602', codeName: t('MSG_TXT_RSB_AW') },
-];
 
 // 조회조건
 const searchParams = ref({
@@ -221,34 +219,17 @@ const searchParams = ref({
   coCd: '2000',
 });
 
-// 수수료 일정 현재 단계 조회
-async function fetchDataFeeSchedule() {
-  const { data } = await dataService.get('/sms/common/fee/schedules/step-navi', {
-    params: { baseYm: searchParams.value.perfYm,
-      feeSchdTpCd: searchParams.value.feeSchdTpCd,
-      feeTcntDvCd: searchParams.value.feeTcntDvCd,
-      coCd: searchParams.value.coCd },
-  });
-
-  currentStep.value = data.filter((row) => row.stat === 'do').map((c) => c.feeSchdLvCd)[0];
-}
-
-// stepper 변경시 현재 단계를 재조회
-watch(() => stepNaviRef.value, async () => {
-  await fetchDataFeeSchedule();
-});
-
 // 수당구분 변경
 let rsbDvCd;
 watch(() => searchParams.value.feeSchdTpCd, async (val) => {
   totalCount.value = 0;
 
-  if (val === 'perf') {
+  if (val === '601') {
     isGrdEgerVisible.value = true;
     isGrdEgerMngerVisible.value = false;
     rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0601', 'W0602', 'W0603'].includes(v.codeId));
     isBtnVisible.value = true;
-  } else if (val === 'rsb') {
+  } else if (val === '602') {
     isGrdEgerVisible.value = false;
     isGrdEgerMngerVisible.value = true;
     rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0603', 'W0604'].includes(v.codeId));
@@ -265,22 +246,13 @@ async function onClickMod(bool) {
     return;
   }
 
-  if (bool && currentStep.value !== 'W0603') {
-    alert('수당 생성 후 진행해주세요.');
-    return;
-  }
-
   if (bool && !editYn.value) {
     alert(t('MSG_ALT_NO_AUTH'));
     return;
   }
 
-  let view;
-  if (searchParams.value.feeSchdTpCd === '601') {
-    view = grdEgerRef.value.getView();
-  } else if (searchParams.value.feeSchdTpCd === '602') {
-    view = grdEgerMngerRef.value.getView();
-  }
+  const view = grdEgerRef.value.getView();
+  view.checkAll();
 
   view.columnByName('feeW060019').editable = bool;
   view.columnByName('feeW060020').editable = bool;
@@ -334,9 +306,6 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   } else if (searchParams.value.feeSchdTpCd === '602') {
     await fetchData('engineer-managers');
   }
-
-  // 현재 단계 갱신
-  await fetchDataFeeSchedule();
 }
 
 // 실적집계
@@ -409,7 +378,7 @@ async function onclickDtrm(feeSchdId, code, nextStep) {
   confirmRows.forEach((e) => {
     confirmKeys.push({
       baseYm: e.baseYm,
-      ogCd: e.dgr2LevlOgCd,
+      ogCd: e.ogCd,
       prtnrNo: e.prtnrNo,
       type: 'H', // 센터 확정
       confirm: 'Y', // 확정(Y), 확정취소(N)
@@ -518,17 +487,7 @@ async function onClickHisMgt() {
 // 저장 버튼 클릭 이벤트
 // TODO: 권한 체크
 async function onClickSave() {
-  let view;
-  if (searchParams.value.feeSchdTpCd === '601') {
-    view = grdEgerRef.value.getView();
-  } else if (searchParams.value.feeSchdTpCd === '602') {
-    view = grdEgerMngerRef.value.getView();
-  }
-
-  if (currentStep.value !== 'W0603') {
-    alert('수당 생성 후 진행해주세요.');
-    return;
-  }
+  const view = grdEgerRef.value.getView();
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
@@ -559,11 +518,6 @@ async function onClickConfirm() {
     return;
   }
 
-  if (currentStep.value !== 'W0603') {
-    alert('확정 기간이 아닙니다.');
-    return;
-  }
-
   if (gridUtil.isModified(view)) {
     alert(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'));
   }
@@ -571,7 +525,7 @@ async function onClickConfirm() {
   confirmRows.forEach((e) => {
     confirmKeys.push({
       baseYm: e.baseYm,
-      ogCd: e.dgr2LevlOgCd,
+      ogCd: e.ogCd,
       prtnrNo: e.prtnrNo,
       type: 'C', // 센터 확정
       confirm: 'Y', // 확정(Y), 확정취소(N)
@@ -589,14 +543,13 @@ async function onClickConfirm() {
 const initEgerMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'baseYm', header: t('MSG_TXT_PERF_YM'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'dgr2LevlOgId', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', editable: false },
-    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'ogNm', header: t('MSG_TXT_BRANCH'), width: '146', styleName: 'text-left', editable: false },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-left', editable: false },
+    { fieldName: 'ogId', header: t('MSG_TXT_BRANCH'), width: '146', styleName: 'text-left', visible: false },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BRANCH'), width: '146', styleName: 'text-left', visible: false },
+    { fieldName: 'ogNm', header: t('MSG_TXT_BRANCH'), width: '146', styleName: 'text-center', editable: false },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center', editable: false },
-    { fieldName: 'pstnDvNm', header: t('MSG_TXT_CRLV'), width: '94', styleName: 'text-center', editable: false },
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-left', editable: false },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '94', styleName: 'text-center', editable: false, options: codes.PSTN_DV_CD },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-center', editable: false, options: codes.RSB_DV_CD },
     // 현장수당정보
     // 방문처리실적
     // 설치작업
@@ -686,7 +639,7 @@ const initEgerMain = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'baseYm', 'dgr2LevlOgId', 'dgr2LevlOgNm', 'dgr2LevlOgCd', 'ogNm', 'prtnrKnm', 'prtnrNo', 'pstnDvNm', 'rsbDvNm',
+    'baseYm', 'ogId', 'ogCd', 'ogNm', 'prtnrKnm', 'prtnrNo', 'pstnDvCd', 'rsbDvCd',
     {
       name: t('MSG_TXT_SITE_AW') + t('MSG_TXT_INF'),
       direction: 'horizontal',
@@ -838,7 +791,7 @@ const initEgerMain = defineGrid((data, view) => {
     changedRows.push({
       perfYm: editRow.baseYm,
       ogId: editRow.ogId,
-      ogCd: editRow.dgr2LevlOgCd,
+      ogCd: editRow.ogCd,
       rsbDvCd: editRow.rsbDvCd,
       prtnrNo: editRow.prtnrNo,
       feeCd,
@@ -849,13 +802,13 @@ const initEgerMain = defineGrid((data, view) => {
 
 const initEgerMnger = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr2LevlOgId', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left' },
+    { fieldName: 'ogId', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-center', visible: false },
+    { fieldName: 'ogCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-center', visible: false },
+    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-left' },
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-left' },
-    { fieldName: 'pstnDvNm', header: t('MSG_TXT_CRLV'), width: '90', styleName: 'text-left ' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-center', options: codes.RSB_DV_CD },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '90', styleName: 'text-center ', options: codes.PSTN_DV_CD },
     { fieldName: 'feeW060031', header: t('MSG_TXT_OUTC_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'feeW060032', header: t('MSG_TXT_QLF') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'totFee', header: t('MSG_TXT_AW') + t('MSG_TXT_SUM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
@@ -871,7 +824,7 @@ const initEgerMnger = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'dgr2LevlOgId', 'dgr2LevlOgCd', 'dgr2LevlOgNm', 'prtnrNo', 'prtnrKnm', 'rsbDvNm', 'pstnDvNm',
+    'ogId', 'ogCd', 'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'pstnDvCd',
     {
       header: t('MSG_TXT_AW') + t('MSG_TXT_INF'), // colspan title
       direction: 'horizontal', // merge type
