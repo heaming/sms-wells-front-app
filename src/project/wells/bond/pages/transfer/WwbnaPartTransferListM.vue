@@ -428,9 +428,9 @@ const validateSearchCstNo = async () => {
 
 watch(() => searchParams.value.baseYm, async (baseYm) => {
   if (baseYm !== defaultDate) {
-    isNotActivated.value = true;
+    // isNotActivated.value = true;
   } else {
-    isNotActivated.value = false;
+    // isNotActivated.value = false;
   }
 });
 
@@ -630,10 +630,11 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.onCellClicked = () => {
     if (cachedParams.baseYm !== defaultDate) {
-      view.editOptions.editable = false;
+      // view.editOptions.editable = false;
     } else {
-      view.editOptions.editable = true;
+      // view.editOptions.editable = true;
     }
+    view.editOptions.editable = true;
   };
 });
 </script>
