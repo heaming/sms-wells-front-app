@@ -39,6 +39,7 @@
           <kw-select
             v-model="searchParams.wareNo"
             :options="filterWareNo"
+            @change="onChangeFilterWareNo"
           />
         </kw-search-item>
         <!-- 관리부서 -->
@@ -60,6 +61,7 @@
           <kw-select
             v-model="searchParams.itmKnd"
             :options="codes.ITM_KND_CD"
+            @change="onChangeItmKndCd"
           />
         </kw-search-item>
         <!-- 상태조정유형 -->
@@ -199,11 +201,11 @@ const searchParams = ref({
 
 });
 
-const gridParams = ref({
-  wareNo: '',
-  itmKnd: '',
+// const gridParams = ref({
+//   wareNo: '',
+//   itmKnd: '',
 
-});
+// });
 
 // const gridItmParams = ref({
 //   wareNo: '',
@@ -216,6 +218,8 @@ const filterCodes = ref({
   filterWareDvCd: [],
   filterItmGdCtrTpCd: [],
 });
+
+// const itmGdCtrTpCds = ref([]);
 
 codes.WARE_DV_CD.forEach((e) => {
   if (e.codeId === '2' || e.codeId === '3') {
@@ -270,20 +274,15 @@ await getAllWareNo();
 // }
 
 async function fetchItmPdCd(params) {
-  console.log(params);
   return await dataService.get('/sms/wells/service/stock-status-control/product-warehouse', params);
 }
 
-// const onChangeItmKnd = async () => {
-//   const res = await fetchItmPdCd({ params: searchParams.value });
-//   products.value = res.data;
-//   console.log(products.value);
-//   // console.log(filterItems);
-//   // filterCodes.value.filterItmPdCd = filterItems.map((v) => ({ codeId: v.itmPdCd, codeName: v.itmPdNm }));
-//   // console.log(filterCodes.value.filterItmPdCd);
+async function onChangeFilterWareNo() {
+  const res = await fetchItmPdCd({ params: searchParams.value });
+  products.value = res.data;
+}
 
-//   // setItemPdCdCellStyle();
-// };
+await onChangeFilterWareNo();
 
 const onChangeWareNo = async () => {
   const res = await dataService.get(`/sms/wells/service/stock-status-control/organization/${searchParams.value.wareNo}`);
@@ -321,33 +320,49 @@ watch(() => searchParams.value.wareDvCd, (val) => {
 });
 
 if (searchParams.value.itmKnd === PD_ITM_KND_CD) {
+  filterCodes.value.filterItmGdCtrTpCd = [];
   filterCodes.value.filterItmGdCtrTpCd = codes.ITM_GD_CTR_TP_CD;
-  // onChangeItmKnd();
 } else {
+  filterCodes.value.filterItmGdCtrTpCd = [];
   filterCodes.value.filterItmGdCtrTpCd = codes.MAT_STOC_STAT_CTR_CD;
 }
 
-console.log(codes.ITM_GD_CTR_TP_CD);
-
 watch(() => searchParams.value.itmKnd, async (val) => {
   if (val === PD_ITM_KND_CD) {
+    filterCodes.value.filterItmGdCtrTpCd = [];
     filterCodes.value.filterItmGdCtrTpCd = codes.ITM_GD_CTR_TP_CD;
-    console.log(filterCodes.value.filterItmGdCtrTpCd);
   } else {
+    filterCodes.value.filterItmGdCtrTpCd = [];
     filterCodes.value.filterItmGdCtrTpCd = codes.MAT_STOC_STAT_CTR_CD;
-    console.log(filterCodes.value.filterItmGdCtrTpCd);
   }
-
-  // onChangeItmKnd();
 });
+
+console.log(codes.ITM_GD_CTR_TP_CD);
+
+// function setitmGdCtrTpCdsCellStyle() {
+//   const itmGdCtrTpCd = grdMainRef.value.getView().columnByField('itmGdCtrTpNm');
+
+//   itmGdCtrTpCd.editable = true;
+//   itmGdCtrTpCd.editor = { type: 'list' };
+//   itmGdCtrTpCd.labels = itmGdCtrTpCds.value.map((v) => v.codeName);
+//   itmGdCtrTpCd.values = itmGdCtrTpCds.value.map((v) => v.codeId);
+// }
+
+// function onChangeItmKndCd(itmKnd) {
+//   if (itmKnd === PD_ITM_KND_CD) {
+//     itmGdCtrTpCds.value = codes.ITM_GD_CTR_TP_CD;
+//   } else {
+//     itmGdCtrTpCds.value = codes.MAT_STOC_STAT_CTR_CD;
+//   }
+
+//   setitmGdCtrTpCdsCellStyle();
+// }
 
 let cachedParams;
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/stock-status-control/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: status, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
-
-  console.log(status);
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(status);
@@ -374,80 +389,7 @@ async function onClickDeleteRow() {
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
   }
-  // const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  // if (deletedRows.length > 0) {
-  //   // const result = await dataService.delete('/sms/wells/service/as-consumables-stores', { data: checkedRows });
-  //   if (result.data > 0) {
-  //     notify(t('MSG_ALT_SAVE_COMP'));
-  //   } else {
-  //     notify(t('MSG_ALT_PROC_FAIL'));
-  //   }
-  // }
 }
-
-// async function onChangeGridWareNm() {
-//   debugger;
-//   const res = await fetchItmPdCd({ params: gridParams.value });
-//   products.value = res.data;
-//   console.log(products.value);
-// }
-
-const onChangeGridWareNm = async () => {
-  const res = await fetchItmPdCd({ params: gridParams.value });
-  products.value = res.data;
-  console.log(products.value);
-};
-
-// async function onChangeGridWareNm(grid, dataCell) {
-//   debugger;
-//   const { wareNm, itemKnd } = grid.getValues(dataCell.index.itemIndex);
-//   gridParams.value.wareNo = wareNm;
-//   gridParams.value.itmKnd = itemKnd;
-//   const res = await fetchItmPdCd({ params: gridParams.value });
-//   products.value = res.data;
-//   console.log(products.value);
-// }
-
-// let returnOpt;
-// function setClctamOpt(grid, dataCell) {
-//   const ret = {};
-//   const { wareNm, itemKnd } = grid.getValues(dataCell.index.itemIndex);
-
-//   if (isEmpty(wareNm)) {
-//     returnOpt = [{ codeId: '', codeName: '' }];
-//   } else {
-//     debugger;
-//     gridParams.value.itmKnd = itemKnd;
-//     gridParams.value.wareNo = wareNm;
-//     onChangeGridWareNm();
-//     const gridItemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
-//     console.log(gridItemKnd);
-//     const searchItmPdCd = products.value.map((v) => v.codeId);
-//     returnOpt = gItmPdCd.value
-//       .filter((v) => searchItmPdCd.includes(v.codeId));
-//     // .map((v) => v.codeId);
-//     console.log(returnOpt);
-//   }
-
-//   ret.editor = {
-//     type: 'list',
-//     textReadOnly: true,
-//     // dropDownWhenClick: true,
-//     labels: returnOpt?.map((v) => v.codeName),
-//     values: returnOpt?.map((v) => v.codeId),
-//   };
-
-//   return ret;
-// }
-
-// function setABC(grid, itemIndex) {
-//   debugger;
-//   console.log(grid);
-//   console.log(itemIndex);
-//   const { wareNm, itemKnd, itmPdNm } = grid.getValues(itemIndex);
-//   const res = await dataService.get('/sms/wells/service/stock-status-control/ ')
-
-// }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -502,8 +444,8 @@ const initGrdMain = defineGrid((data, view) => {
       },
       width: '200',
       styleName: 'text-center',
+      editor: { type: 'dropdown' },
       options: gWareNo.value,
-      editor: { type: 'list' },
       editable: true,
       styleCallback: (grid, dataCell) => {
         const wareDvCd = grid.getValue(dataCell.index.itemIndex, 'wareDvCd');
@@ -531,6 +473,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       editor: { type: 'list' },
       options: filterCodes.value.filterItmGdCtrTpCd,
+      // options: itmGdCtrTpCds.value,
       editable: true,
       styleCallback: (grid, dataCell) => {
         const itemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
@@ -556,27 +499,29 @@ const initGrdMain = defineGrid((data, view) => {
       header: '품목명',
       styleName: 'text-center',
       width: '200',
-      editor: { type: 'list' },
       editable: true,
+      // options: gItmPdCd.value,
       // styleCallback: (grid, dataCell) => setClctamOpt(grid, dataCell),
-      styleCallback: async (grid, dataCell) => {
-        const gridItemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
-        console.log(gridItemKnd);
-        debugger;
-        const { wareNm, itemKnd } = grid.getValues(dataCell.index.itemIndex);
-        gridParams.value.itmKnd = itemKnd;
-        gridParams.value.wareNo = wareNm;
-        await onChangeGridWareNm();
-        // onChangeGridWareNm(grid, dataCell);
-        const searchItmPdCd = products.value.map((v) => v.codeId);
-        const gridItmPdCd = gItmPdCd.value
-          .filter((v) => searchItmPdCd.includes(v.codeId))
-          .map((v) => v.codeId);
-        const gridItmPdNm = gItmPdCd.value
-          .filter((v) => searchItmPdCd.includes(v.codeId))
-          .map((v) => v.codeName);
-        return { editor: { type: 'list', labels: gridItmPdNm, values: gridItmPdCd } };
-      },
+      // styleCallback: async (grid, dataCell) => {
+      //   const gridItemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
+      //   console.log(gridItemKnd);
+      //   // debugger;
+      //   const { wareNm, itemKnd } = grid.getValues(dataCell.index.itemIndex);
+      //   gridParams.value.itmKnd = itemKnd;
+      //   gridParams.value.wareNo = wareNm;
+      //   console.log('test');
+      //   await onChangeGridWareNm();
+      //   // onChangeGridWareNm(grid, dataCell);
+      //   console.log('test22');
+      //   const searchItmPdCd = products.value.map((v) => v.codeId);
+      //   const gridItmPdCd = gItmPdCd.value
+      //     .filter((v) => searchItmPdCd.includes(v.codeId))
+      //     .map((v) => v.codeId);
+      //   const gridItmPdNm = gItmPdCd.value
+      //     .filter((v) => searchItmPdCd.includes(v.codeId))
+      //     .map((v) => v.codeName);
+      //   return { editor: { type: 'list', labels: gridItmPdNm, values: gridItmPdCd } };
+      // },
       // styleCallback: (grid, dataCell) => {
       //   const ret = {};
       //   const gridItemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
@@ -647,47 +592,25 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
-  // view.onCellEdited = async (grid, itemIndex, row, field) => {
-  //   const { wareDvCd, wareNm, itemKnd, itmPdNm, itmGdCtrTpNm } = grid.getValues(itemIndex);
-  //   console.log(wareDvCd);
-  //   console.log(wareNm);
-  //   console.log(itemKnd);
-  //   console.log(itmPdNm);
-  //   console.log(itmGdCtrTpNm);
-  //   console.log(row);
-  //   console.log(field);
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const { itmGdCtrTpNm } = grid.getValues(itemIndex);
+    console.log(itmGdCtrTpNm);
+    console.log(row);
+    console.log(field);
+    console.log(codes.ITM_GD_CTR_TP_CD);
 
-  //   // const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
-  //   // const checkedValue = gridUtil.getRowValue(view, row);
+    if (changedFieldName === 'itmGdCtrTpNm') {
+      const itmGdCtrTpCd03 = codes.ITM_GD_CTR_TP_CD.filter((v) => (v.codeId === itmGdCtrTpNm)).map((v) => v.userDfn03);
+      console.log(itmGdCtrTpCd03);
+      const itmGdCtrTpCd04 = codes.ITM_GD_CTR_TP_CD.filter((v) => (v.codeId === itmGdCtrTpNm)).map((v) => v.userDfn04);
+      console.log(itmGdCtrTpCd04);
 
-  //   // if (changedFieldName === 'itmPdNm') {
-  //   //   // setABC(grid, itemIndex);
-  //   // }
-  //   // console.log(checkedValue);
-  //   // if (changedFieldName === 'wareNm') {
-  //   //   console.log(wareNm);
-  //   //   gridParams.value.itmKnd = itemKnd;
-  //   //   gridParams.value.wareNo = wareNm;
-  //   //   onChangeGridWareNm();
-  //   //   debugger;
-  //   //   const searchItmPdCd = products.value.map((v) => v.codeId);
-  //   //   const searchWareNo = products.value.map((v) => v.wareNo);
-  //   //   const gridItmPdCd = gItmPdCd.value
-  //   //     .filter((v) => (v.wareNm === searchWareNo && searchItmPdCd.includes(v.codeId)))
-  //   //     .map((v) => v.codeId);
-  //   //   const gridItmPdNm = gItmPdCd.value
-  //   //     .filter((v) => (v.wareNm === searchWareNo && searchItmPdCd.includes(v.codeId)))
-  //   //     .map((v) => v.codeName);
-  //   //   return { editor: { type: 'list', labels: gridItmPdNm, values: gridItmPdCd } };
-  //   // }
-  //   // debugger;
-  //   // if (changedFieldName === 'wareDvCd') {
-  //   //   const gridWareDvCd = wareDvCd;
-  //   //   console.log(gridWareDvCd);
-  //   //   onChangeWareNm(gridWareDvCd);
-  //   // }
-  // };
+      grid.setValue(itemIndex, 'bfctItmGdCd', itmGdCtrTpCd03);
+      grid.setValue(itemIndex, 'afctItmGdCd', itmGdCtrTpCd04);
+    }
+  };
 
   view.onCellEditable = (grid, index) => {
     if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['wareNm', 'itmGdCtrTpNm', 'itmPdNm'].includes(index.column)) {
