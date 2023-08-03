@@ -525,13 +525,13 @@ watch(() => searchParams.value.clctamPrtnrNm, async (clctamPrtnrNm) => {
   }
 });
 watch(() => searchParams.value.baseYm, async (baseYm) => {
-  const view = grdSubRef.value.getView();
+  // const view = grdSubRef.value.getView();
   if (baseYm !== defaultDate) {
-    view.editOptions.editable = false;
-    isNotActivated.value = true;
+    // view.editOptions.editable = false;
+    // isNotActivated.value = true;
   } else {
-    view.editOptions.editable = true;
-    isNotActivated.value = false;
+    // view.editOptions.editable = true;
+    // isNotActivated.value = false;
   }
 });
 // -------------------------------------------------------------------------------------------------
@@ -745,7 +745,8 @@ const initGrdSub = defineGrid((data, view) => {
       styleName: 'text-center, rg-button-icon--search',
       button: 'action',
       buttonVisibleCallback() {
-        return (cachedParams.baseYm === defaultDate);
+        // return (cachedParams.baseYm === defaultDate);
+        return true;
       },
     },
     { fieldName: 'lstmmClctamDvCd', header: t('MSG_TXT_LSTMM_ICHR_CLCTAM_DV'), width: '130', styleName: 'text-center', editable: false },

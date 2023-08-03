@@ -354,9 +354,9 @@ const onClickSend = async () => {
 
 watch(() => searchParams.value.baseYm, async (baseYm) => {
   if (baseYm !== now.format('YYYYMM')) {
-    isNotActivated.value = true;
+    // isNotActivated.value = true;
   } else {
-    isNotActivated.value = false;
+    // isNotActivated.value = false;
   }
 });
 // -------------------------------------------------------------------------------------------------
