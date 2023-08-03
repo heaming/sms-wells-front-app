@@ -221,7 +221,7 @@ const pops = [
   },
   {
     pname: 'WwctbProductChangeHistoryP',
-    title: '변경이력 리스트 W-SS-U-0101P03',
+    title: '계약유형 변경이력 W-SS-U-0101P03',
     param: {
       cntrNo: '',
       cntrSn: '',
