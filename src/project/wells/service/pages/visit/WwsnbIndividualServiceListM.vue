@@ -149,7 +149,7 @@
           <kw-form-item
             :label="$t('MSG_TIT_DOC_CRTR')"
           >
-            <p>{{ individualParams.wkPrtnrNo }}</p>
+            <p>{{ individualParams.wkPrtnrNm }}</p>
           </kw-form-item>
           <kw-form-item
             :label="$t('MSG_TIT_DRAT_DTM')"
@@ -694,9 +694,6 @@ async function getIndividualState() {
   console.log(res.data);
   const { list: individualState, pageInfo: pagingResult } = res.data;
 
-  // individualState.forEach((v) => { v.cralLocaraTno = v.cralLocaraTno + v.mexnoEncr + v.cralIdvTno; });
-  // console.log(test.value);
-
   pageInfo.value = pagingResult;
   const individualStateView = grdIndividualStateRef.value.getView();
   const individualStateData = individualStateView.getDataSource();
@@ -724,6 +721,9 @@ async function onClickSearch() {
     notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE'));
   } else {
     await getIndividualServicePs();
+    // init tab & cstUnuitmCn params
+    selectedTab.value = '1';
+    saveParams.value.cstUnuitmCn = '';
     if (isEmpty(individualParams.value)) {
       notify(t('MSG_ALT_CST_INF_NOT_EXST'));
       // init countInfo
