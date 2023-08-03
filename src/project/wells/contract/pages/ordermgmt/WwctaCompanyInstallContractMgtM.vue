@@ -135,11 +135,10 @@
         </kw-search-item>
         <!--조직구분 TODO : 코드확인-->
         <kw-search-item :label="$t('MSG_TXT_OG_DV')">
-          <kw-option-group
+          <kw-select
             v-model="searchParams.sellOgTpCd"
-            type="radio"
-            :options="[{codeId:'HR1', codeName:'본사'},
-                       {codeId:'W01', codeName:'신채널'}]"
+            :options="codes.OG_TP_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -205,16 +204,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, notify, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, notify, useDataService, useGlobal, useMeta } from 'kw-lib';
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import { CtCodeUtil } from '~sms-common/contract/util';
-// import { CtCodeUtil, validateBryyMmddWithCopnCdCd, validatePdCd } from '~sms-common/contract/util';
-// import { validateTel1, validateTel2, validateTel3 } from '~sms-common/contract/util/CtValidateUtil';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -225,10 +221,12 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const grdData = computed(() => grdMainRef.value?.getData());
 const grdView = computed(() => grdMainRef.value?.getView());
 
-const { codes } = await CtCodeUtil(
+const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'CO_IST_DV_CD', // 설치구분
   'CO_IST_USWY_CD', // 설치용도
+  'OG_TP_CD', // 조직유형코드
+  'IST_PLC_TP_CD', // 설치장소
 );
 
 const searchParams = ref({
@@ -287,7 +285,6 @@ async function fetchData() {
 
   pageInfo.value = pagingResult;
   grdData.value.setRows(details);
-  /// view.resetCurrent();
   grdView.value.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -415,7 +412,7 @@ const initGrid = defineGrid((data, view) => {
     bzrno: { label: t('MSG_TXT_CRNO'), width: '130', classes: 'text-center' }, // [사업자번호]
     cntrCstNo: { label: t('MSG_TXT_CST_NO'), width: '130', classes: 'text-center' }, // [고객번호]
     rcgvpKnm: { label: t('MSG_TXT_IST_NM'), width: '150', classes: 'text-center' }, // [설치자명]
-    cntrCnfmDt: { label: t('MSG_TXT_RCP_D'), width: '120', classes: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [접수일]
+    cntrCnfmDt: { label: t('MSG_TXT_RCP_D'), width: '120', datetimeFormat: 'yyyy-MM-dd' }, // [접수일]
     sellTpNm: { label: t('MSG_TXT_SEL_TYPE'), width: '100', classes: 'text-center' }, // [판매유형]
     coCd: { label: t('MSG_TXT_MNG_COMP'), width: '100', classes: 'text-center' }, // [관리회사]
     ogCd: { label: t('MSG_TXT_MGMT_DEPT'), width: '100', classes: 'text-center' }, // [관리부서]
@@ -423,22 +420,22 @@ const initGrid = defineGrid((data, view) => {
     basePdCd: { label: t('MSG_TXT_INST_PROD_CD'), width: '130', classes: 'text-center' }, // [설치상품코드]
     pdNm: { label: t('MSG_TXT_INST_PROD_NM'), width: '300' }, // [설치상품명]
     pkgPdCd: { label: t('MSG_TXT_SEED_PKG_CD'), width: '130', classes: 'text-center' }, // [모종패키지코드]
-    pkgPdNm: { label: t('MSG_TXT_PKG_NM'), width: '300' }, // [패키지명]
+    pkgPdNm: { label: t('MSG_TXT_PKG_NM'), width: '300', classes: 'text-center' }, // [패키지명]
     bsPrd: { label: t('MSG_TXT_BS_CYC'),
       width: '100',
       classes: 'text-right',
       valueExpression: 'values["svPrd"]' }, // [BS주기]
     svTpNm: { label: t('MSG_TXT_USWY_DV'), width: '110', classes: 'text-center' }, // [용도구분]
     pdGdCd: { label: t('MSG_TXT_PROD_GRD'), width: '110', classes: 'text-center' }, // [제품등급]
-    coIstDvNm: { label: t('MSG_TXT_INST_CLS'), width: '110', classes: 'text-center' }, // [설치구분]
-    coIstUswyNm: { label: t('MSG_TXT_INST_PURP'), width: '110', classes: 'text-center' }, // [설치용도]
-    istPlcTpCd: { label: t('MSG_TXT_INST_PLAC'), width: '200' }, // [설치장소]
+    coIstDvCd: { label: t('MSG_TXT_INST_CLS'), width: '110', classes: 'text-center', options: codes.CO_IST_DV_CD }, // [설치구분]
+    coIstUswyCd: { label: t('MSG_TXT_INST_PURP'), width: '110', classes: 'text-center', options: codes.CO_IST_USWY_CD }, // [설치용도]
+    istPlcTpCd: { label: t('MSG_TXT_INST_PLAC'), width: '110', classes: 'text-center', options: codes.IST_PLC_TP_CD }, // [설치장소]
     svPrd: { label: t('MSG_TXT_VST_PRD'), width: '110', classes: 'text-right' }, // [방문주기]
     frisuBfsvcPtrmN: { label: t('TXT_MSG_FRISU_PTRM'), width: '110', classes: 'text-right' }, // [무상기간]
     frisuAsPtrmN: { label: t('MSG_TXT_AS_PERIOD'), width: '110', classes: 'text-right' }, // [A/S기간]
-    sppDuedt: { label: t('MSG_TXT_DUEDT'), width: '120', classes: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [예정일]
-    istDt: { label: t('MSG_TXT_INST_DT'), width: '120', classes: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [설치일]
-    rtnDt: { label: t('MSG_TXT_RET_DT'), width: '120', classes: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [반품일]
+    sppDuedt: { label: t('MSG_TXT_DUEDT'), width: '120', datetimeFormat: 'yyyy-MM-dd' }, // [예정일]
+    istDt: { label: t('MSG_TXT_INST_DT'), width: '120', datetimeFormat: 'yyyy-MM-dd' }, // [설치일]
+    rtnDt: { label: t('MSG_TXT_RET_DT'), width: '120', datetimeFormat: 'yyyy-MM-dd' }, // [반품일]
     istAkArtcMoCn: { label: t('MSG_TXT_REFER_ARTC'), width: '350' }, // [참고사항]
     cttRsCd: { label: t('MSG_TXT_CTT_CD'), width: '110', classes: 'text-center' }, // [컨택코드]
     cttPsicId: { label: t('MSG_TXT_CTT_ICHR'), width: '120', classes: 'text-center' }, // [컨택담당]
@@ -458,36 +455,36 @@ const initGrid = defineGrid((data, view) => {
       } }, // [모종상세코드]
     reguDelYn: { label: t('MSG_TXT_IS_REG_DEL'), width: '110', classes: 'text-center' }, // [정기배송여부]
     memExpGbn: { label: t('MSG_TXT_CLS_MEM_CST'), width: '110', classes: 'text-center' }, // [멤버십비용구분]
-    fstRgstDt: { label: t('MSG_TXT_IN_D'), width: '120', classes: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [입력일]
-    fstRgstTm: { label: t('MSG_TXT_IN_HH'), width: '100', classes: 'text-center', datetimeFormat: 'hh:mm:ss' }, // [입력시간]
+    fstRgstDt: { label: t('MSG_TXT_IN_D'), width: '120', datetimeFormat: 'yyyy-MM-dd' }, // [입력일]
+    fstRgstTm: { label: t('MSG_TXT_IN_HH'), width: '100', datetimeFormat: 'hh:mm:ss' }, // [입력시간]
     fstRgstUsrId: { label: t('MSG_TXT_PIC_INP'), width: '120', classes: 'text-center' }, // [입력담당사번]
     fstRgstUsrNm: { label: t('MSG_TXT_IN_ICHR_NM'), width: '120', classes: 'text-center' }, // [입력담당명]
-    fnlMdfcDt: { label: t('MSG_TXT_MDFC_DT'), width: '120', classes: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [수정일]
-    fnlMdfcTm: { label: t('MSG_TXT_FERT_TM'), width: '100', classes: 'text-center', datetimeFormat: 'hh:mm:ss' }, // [수정시간]
+    fnlMdfcDt: { label: t('MSG_TXT_MDFC_DT'), width: '120', datetimeFormat: 'yyyy-MM-dd' }, // [수정일]
+    fnlMdfcTm: { label: t('MSG_TXT_FERT_TM'), width: '100', datetimeFormat: 'hh:mm:ss' }, // [수정시간]
     fnlMdfcUsrId: { label: t('MSG_TXT_MDFC_ICHR_EPNO'), width: '120', classes: 'text-center' }, // [수정담당사번]
     fnlMdfcUsrNm: { label: t('MSG_TXT_PIC_REV_NM'), width: '120', classes: 'text-center' }, // [수정담당자명]
     cntrNo: { displaying: false },
     cntrSn: { displaying: false },
     svPdTpCd: { displaying: false },
-    coIstDvCd: { displaying: false },
-    coIstUswyCd: { displaying: false },
     coIstMngtDvCd: { displaying: false },
     copnDvCd: { displaying: false },
     mpno: { displaying: false },
     zip: { displaying: false },
     basAdr: { displaying: false },
     dtlAdr: { displaying: false },
-    installMpno: { label: t('MSG_TXT_PIC_REV_NM'), width: '120' },
+    installMpno: { displaying: false },
     installCralLocaraTno: { displaying: false },
     installMexnoEncr: { displaying: false },
     installCralIdvTn: { displaying: false },
     installZip: { displaying: false },
     installBasAdr: { displaying: false },
-    installDtlAd: { displaying: false },
+    installDtlAdr: { displaying: false },
     fnlAmt: { displaying: false },
+    ojPdCd: { displaying: false },
+    cntrDtlStatCd: { displaying: false },
 
-    // wpDvNm: { label: `WP${t('MSG_TXT_DIV')}`, width: '100', classes: 'text-center' }, // [WP구분]
-    // filterExp: { label: t('MSG_TXT_FILTER_CST'), width: '110', classes: 'text-center' }, // [필터비용]
+    // wpDvNm: { label: `WP${t('MSG_TXT_DIV')}`, width: '100' }, // [WP구분]
+    // filterExp: { label: t('MSG_TXT_FILTER_CST'), width: '110' }, // [필터비용]
     // dscRate: { label: `${t('MSG_TXT_DSC_RT')}(%)`, width: '110', classes: 'text-right' }, // [할인율(%)]
     // cpsDt: { label: t('MSG_TXT_COMP_D'), width: '120',}, // [보상일]
   });
@@ -502,7 +499,7 @@ const initGrid = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['cntrNoSn', 'cstKnm', 'cntrCfmn', 'assignCan', 'istReRegn'],
     }, 'bryyMmdd', 'bzrno', 'cntrCstNo', 'rcgvpKnm', 'cntrCnfmDt', 'sellTpNm', 'coCd', 'ogCd', 'coIstMngtDvNm',
-    'basePdCd', 'pdNm', 'pkgPdCd', 'pkgPdNm', 'bsPrd', 'svTpNm', 'pdGdCd', 'coIstDvNm', 'coIstUswyNm', 'istPlcTpCd',
+    'basePdCd', 'pdNm', 'pkgPdCd', 'pkgPdNm', 'bsPrd', 'svTpNm', 'pdGdCd', 'coIstDvCd', 'coIstUswyCd', 'istPlcTpCd',
     'svPrd', 'frisuBfsvcPtrmN', 'frisuAsPtrmN', 'sppDuedt', 'istDt', 'rtnDt', 'istAkArtcMoCn',
     'cttRsCd', 'cttPsicId', 'sconCn', 'mtrDv', 'sellTpDtlNm', 'cntrNoSn216', 'reguDelYn', 'memExpGbn',
     'fstRgstDt', 'fstRgstTm', 'fstRgstUsrId', 'fstRgstUsrNm', 'fnlMdfcDt', 'fnlMdfcTm', 'fnlMdfcUsrId', 'fnlMdfcUsrNm',
@@ -528,10 +525,14 @@ const initGrid = defineGrid((data, view) => {
 
   // dbclick row
   view.onCellDblClicked = async (g, { dataRow }) => {
-    await modal({
+    const { result } = await modal({
       component: 'WwctaCompanyInstallContractDtlModP',
       componentProps: { ...gridUtil.getRowValue(g, dataRow) },
     });
+
+    if (result) {
+      await fetchData();
+    }
   };
 });
 </script>
