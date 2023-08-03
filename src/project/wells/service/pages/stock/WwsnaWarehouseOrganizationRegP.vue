@@ -442,8 +442,8 @@ async function onClickSave() {
   }
 
   await dataService.post('/sms/wells/service/warehouse-organizations', warehouseInfo.value);
+  notify(t('MSG_ALT_SAVE_DATA'));
   ok();
-  await notify(t('MSG_ALT_SAVE_DATA'));
 }
 
 onMounted(async () => {

@@ -61,7 +61,6 @@
           <kw-select
             v-model="searchParams.itmKnd"
             :options="codes.ITM_KND_CD"
-            @change="onChangeItmKndCd"
           />
         </kw-search-item>
         <!-- 상태조정유형 -->
@@ -156,8 +155,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useMeta, codeUtil, useDataService, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
-// import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -368,17 +366,30 @@ async function fetchData() {
   view.getDataSource().setRows(status);
 }
 
+const test = ref([]);
+async function fetchTest() {
+  test.value = [];
+  const res = await dataService.get('/sms/wells/service/stock-status-control/test', { params: { ...cachedParams } });
+  test.value = res.data;
+}
+
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  await fetchTest();
   await fetchData();
 }
 
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
+  const { itmKnd, wareDvCd, wareNo } = cachedParams;
+  const wareNoInfo = filterWareNo.value.find((e) => e.codeId === wareNo);
+
   await gridUtil.insertRowAndFocus(view, 0, {
     statCtrApyDt: dayjs().format('YYYYMMDD'),
-    itemKnd: searchParams.value.itmKnd,
-    wareDvCd: searchParams.value.wareDvCd,
+    itemKnd: itmKnd,
+    wareDvCd,
+    wareNo,
+    wareNm: isEmpty(wareNoInfo) ? '' : wareNoInfo.codeName,
   });
 }
 
@@ -445,17 +456,8 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       editor: { type: 'dropdown' },
-      options: gWareNo.value,
+      options: filterWareNo.value,
       editable: true,
-      styleCallback: (grid, dataCell) => {
-        const wareDvCd = grid.getValue(dataCell.index.itemIndex, 'wareDvCd');
-        const wareNo = gWareNo.value
-          .filter((v) => v.wareDvCd === wareDvCd)
-          .map((v) => v.codeId);
-        const wareNm = gWareNo.value.filter((v) => v.wareDvCd === wareDvCd)
-          .map((v) => v.codeName);
-        return { editor: { type: 'list', labels: wareNm, values: wareNo } };
-      },
     },
     { fieldName: 'ogNm',
       header: t('MSG_TXT_MGMT_DEPT'),
@@ -475,17 +477,6 @@ const initGrdMain = defineGrid((data, view) => {
       options: filterCodes.value.filterItmGdCtrTpCd,
       // options: itmGdCtrTpCds.value,
       editable: true,
-      styleCallback: (grid, dataCell) => {
-        const itemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
-        if (itemKnd === '4') {
-          const code = codes.ITM_GD_CTR_TP_CD.map((v) => v.codeId);
-          const codeNm = codes.ITM_GD_CTR_TP_CD.map((v) => v.codeName);
-          return { editor: { type: 'list', labels: codeNm, values: code } };
-        }
-        const codeId = codes.MAT_STOC_STAT_CTR_CD.map((v) => v.codeId);
-        const codeNm = codes.MAT_STOC_STAT_CTR_CD.map((v) => v.codeName);
-        return { editor: { type: 'list', labels: codeNm, values: codeId } };
-      },
     },
     { fieldName: 'ctrWkDt', header: '상태조정작업일 ', styleName: 'text-center', width: '150', datetimeFormat: 'date' },
     { fieldName: 'statCtrApyDt', header: '조정적용일자', styleName: 'text-center', width: '150', datetimeFormat: 'date' },
@@ -500,56 +491,14 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       width: '200',
       editable: true,
-      // options: gItmPdCd.value,
-      // styleCallback: (grid, dataCell) => setClctamOpt(grid, dataCell),
-      // styleCallback: async (grid, dataCell) => {
-      //   const gridItemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
-      //   console.log(gridItemKnd);
-      //   // debugger;
-      //   const { wareNm, itemKnd } = grid.getValues(dataCell.index.itemIndex);
-      //   gridParams.value.itmKnd = itemKnd;
-      //   gridParams.value.wareNo = wareNm;
-      //   console.log('test');
-      //   await onChangeGridWareNm();
-      //   // onChangeGridWareNm(grid, dataCell);
-      //   console.log('test22');
-      //   const searchItmPdCd = products.value.map((v) => v.codeId);
-      //   const gridItmPdCd = gItmPdCd.value
-      //     .filter((v) => searchItmPdCd.includes(v.codeId))
-      //     .map((v) => v.codeId);
-      //   const gridItmPdNm = gItmPdCd.value
-      //     .filter((v) => searchItmPdCd.includes(v.codeId))
-      //     .map((v) => v.codeName);
-      //   return { editor: { type: 'list', labels: gridItmPdNm, values: gridItmPdCd } };
-      // },
-      // styleCallback: (grid, dataCell) => {
-      //   const ret = {};
-      //   const gridItemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
-      //   console.log(gridItemKnd);
-      //   debugger;
-      //   const { wareNm, itemKnd } = grid.getValues(dataCell.index.itemIndex);
-      //   gridParams.value.itmKnd = itemKnd;
-      //   gridParams.value.wareNo = wareNm;
-      //   onChangeGridWareNm();
-      //   // onChangeGridWareNm(grid, dataCell);
-      //   const searchItmPdCd = products.value.map((v) => v.codeId);
-      //   const gridItmPdCd = gItmPdCd.value
-      //     .filter((v) => searchItmPdCd.includes(v.codeId));
-      //     // .map((v) => v.codeId);
-      //   const gridItmPdNm = gItmPdCd.value
-      //     .filter((v) => searchItmPdCd.includes(v.codeId));
-      //     // .map((v) => v.codeName);
-      //   ret.editor = {
-      //     type: 'list',
-      //     textReadOnly: true,
-      //     // dropDownWhenClick: true,
-      //     labels: gridItmPdNm.map((v) => v.codeName),
-      //     values: gridItmPdCd.map((v) => v.codeId),
-      //   };
-      //   return ret;
+      editor: { type: 'dropdown' },
+      options: test.value,
+      styleCallback: (grid, dataCell) => {
+        const { wareNo } = grid.getValues(dataCell.index.itemIndex);
+        const pdNms = test.value.filter((v) => wareNo.includes(v.wareNo)).map((v) => v.codeName);
 
-      //   // return { editor: { type: 'list', labels: gridItmPdNm, values: gridItmPdCd } };
-      // },
+        return { editor: { type: 'dropdown', labels: pdNms, values: pdNms } };
+      },
     },
     { fieldName: 'bfctNomStocAGdQty', header: 'A등급', styleName: 'text-right', width: '99' },
     { fieldName: 'bfctNomStocEGdQty', header: 'E등급', styleName: 'text-right', width: '99' },
@@ -609,6 +558,14 @@ const initGrdMain = defineGrid((data, view) => {
 
       grid.setValue(itemIndex, 'bfctItmGdCd', itmGdCtrTpCd03);
       grid.setValue(itemIndex, 'afctItmGdCd', itmGdCtrTpCd04);
+    } else if (changedFieldName === 'wareNm') {
+      const { wareNm } = grid.getValues(itemIndex);
+      grid.setValue(itemIndex, 'wareNo', wareNm);
+    } else if (changedFieldName === 'itmPdNm') {
+      const { itmPdNm } = grid.getValues(itemIndex);
+      const item = test.value.find((e) => e.codeName === itmPdNm);
+      const itmPdCd = isEmpty(item) ? '' : item.codeId;
+      grid.setValue(itemIndex, 'itmPdCd', itmPdCd);
     }
   };
 
