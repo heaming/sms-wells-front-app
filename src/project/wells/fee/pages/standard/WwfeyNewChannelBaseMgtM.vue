@@ -262,6 +262,9 @@ async function onClickRowDelete() {
 async function onClickRowAdd() {
   const view = grdRef.value.getView();
   const defaultRow = {
+    feeFxamYn: 'N',
+    apyStrtdt: searchParams.value.apyStrtdt,
+    apyEnddt: '99991231',
   };
   const dataRow = view.getDataSource().insertRow(0, defaultRow);
   gridUtil.focusCellInput(view, dataRow, 'basePdCd');
