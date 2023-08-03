@@ -155,7 +155,7 @@ import { useDataService, useMeta, gridUtil, useGlobal, codeUtil, getComponentTyp
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
+import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdyClassification.vue';
 import { getCodeNames, getAlreadyItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
 
 const { alert, notify, modal } = useGlobal();

@@ -219,5 +219,13 @@ const pops = [
       rcgvpTno: '01087654321',
     },
   },
+  {
+    pname: 'WwctbProductChangeHistoryP',
+    title: '계약유형 변경이력 W-SS-U-0101P03',
+    param: {
+      cntrNo: '',
+      cntrSn: '',
+    },
+  },
 ];
 </script>

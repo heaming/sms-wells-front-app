@@ -29,7 +29,10 @@
     default-opened
   >
     <kw-form class="pt20">
-      <kw-form-item :label="'최종결제금액'">
+      <kw-form-item
+        v-if="product.sellTpCd === '1'"
+        :label="'최종결제금액'"
+      >
         <p>{{ `${stringUtil.getNumberWithComma(product.cntrTam || 0)}원` }}</p>
       </kw-form-item>
       <kw-form-item label="계약상세번호">

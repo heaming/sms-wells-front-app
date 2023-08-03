@@ -16,6 +16,7 @@
 <template>
   <kw-popup
     size="xl"
+    :title="props.title === '' ? $t('MSG_TIT_TIME_TABLE') + $t('MSG_TXT_SRCH') : props.title "
   >
     <h1>{{ $t('MSG_TIT_EGER_TIME_TABLE') /*엔지니어 Time table*/ }}</h1>
     <div class="normal-area normal-area--button-set-bottom pt30 mt15 w940">
@@ -512,6 +513,7 @@ const props = defineProps({
   cntrNo: { type: String, default: '' },
   cntrSn: { type: String, default: '' },
   seq: { type: String, default: '' },
+  title: { type: String, default: '' },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -628,7 +630,7 @@ async function getTimeTables() {
    { ...cachedParams,
    } });
 
-  // console.log(res);
+  console.log(res);
 
   data.value = res.data;
   // enableDays.value = [];
@@ -777,6 +779,8 @@ async function getTimeTables() {
       disableDays.value.push(item.disableFuldays);
     });
   }
+
+  console.log(data);
 
   data.value.amWrkCnt = 0; // am_wrk_cnt
   data.value.pmWrkCnt = 0; // pm_wrk_cnt

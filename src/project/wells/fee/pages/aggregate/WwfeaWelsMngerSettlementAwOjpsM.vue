@@ -59,7 +59,7 @@
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_DIV')">
           <kw-select
-            v-model="searchParams.schDiv"
+            v-model="searchParams.divCd"
             :options="dvCd"
             first-option
             first-option-value=""
@@ -68,7 +68,7 @@
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_RSB_DV')">
           <kw-select
-            v-model="searchParams.schRsbDvCd"
+            v-model="searchParams.rsbDvCd"
             :options="filterRsbDvCd"
             first-option
             first-option-value=""
@@ -192,8 +192,8 @@ const searchParams = ref({
   tcntDvCd: '01',
   prtnrNo: '',
   prtnrKnm: '',
-  schDiv: '',
-  schRsbDvCd: '',
+  divCd: '',
+  rsbDvCd: '',
 });
 
 const info = ref({

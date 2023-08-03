@@ -479,6 +479,7 @@ async function onClickTf() {
   }));
 
   await dataService.post('/sms/wells/service/before-service-period-customer/transfer', data);
+  notify(t('MSG_ALT_SVE_DATA'));
 
   await fetchData();
 }
@@ -522,6 +523,7 @@ async function onClickTfConfirm() {
   }));
 
   await dataService.post('/sms/wells/service/before-service-period-customer/transfer-confirm', data);
+  notify(t('MSG_ALT_SVE_DATA'));
 
   await fetchData();
 }

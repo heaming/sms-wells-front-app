@@ -201,7 +201,7 @@ import { useGlobal, codeUtil, getComponentType, useMeta, useDataService, defineG
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
-import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
+import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon, checkAvailabilityCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -222,6 +222,8 @@ const codes = await codeUtil.getMultiCodes(
   'BND_NW_DV_CD',
   'BZ_HDQ_DV_CD',
   'BND_BIZ_DV_CD',
+  'LWM_TP_CD',
+  'LWM_DTL_TP_CD',
 );
 const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10' && obj.codeId !== '11' && obj.codeId !== '90')), BND_NW_DV_CD: codes.BND_NW_DV_CD.filter((obj) => (obj.codeId !== '01')) });
 
@@ -371,12 +373,27 @@ async function isCustomer(event, workType = 'type1') {
   }
 }
 
+async function checkAvailability(originClctamDvCd) {
+  const checkAvailabilityParams = { baseYm: cachedParams.baseYm,
+    bzHdqDvCd: cachedParams.bzHdqDvCd,
+    clctamDvCd: originClctamDvCd || '01',
+    tfBizDvCd: '01' };
+  return await checkAvailabilityCommon(checkAvailabilityParams);
+}
+
 async function onClickSave() {
   const view = grdSubRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
+  const { originClctamDvCd } = changedRows[0];
+
+  if (!await checkAvailability(originClctamDvCd)) {
+    notify('파트이관을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 파트이관 할 수 없습니다.)');
+    return;
+  }
+
   await dataService.put('/sms/wells/bond/part-transfers', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -384,6 +401,10 @@ async function onClickSave() {
 }
 
 async function onClickCreate() {
+  if (!await checkAvailability()) {
+    notify('파트이관을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 파트이관 할 수 없습니다.)');
+    return;
+  }
   cachedParams = cloneDeep(searchParams.value);
   const response = await dataService.get('/sms/wells/bond/part-transfers/has-part-transfer-detail', { params: cachedParams });
   if (response.data) {
@@ -546,6 +567,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'bzHdqDvCd' },
     { fieldName: 'cntrNo' },
     { fieldName: 'clctamDvCd' },
+    { fieldName: 'originClctamDvCd' },
     { fieldName: 'bfPrtnrKnm' },
     { fieldName: 'cntrSn' },
     { fieldName: 'cstNm' },
@@ -565,6 +587,7 @@ const initGrdSub = defineGrid((data, view) => {
   ];
   const columns = [
     { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_DV'), options: filteredCodes.value.CLCTAM_DV_CD, optionValue: 'codeId', optionLabel: 'codeName', editor: { type: 'list' }, width: '100' },
+    { fieldName: 'originClctamDvCd', visible: false },
     { fieldName: 'bfPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
@@ -584,8 +607,8 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
-    { fieldName: 'lwmTpCd', header: t('MSG_TXT_LWM_TP'), width: '110', numberFormat: '#,##0', editable: false },
-    { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_DTL'), width: '110', editable: false },
+    { fieldName: 'lwmTpCd', header: t('MSG_TXT_LWM_TP'), width: '110', options: codes.LWM_TP_CD, editable: false },
+    { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_DTL'), width: '110', options: codes.LWM_DTL_TP_CD, editable: false },
     { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_DT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'dfltDt', header: t('MSG_TXT_DE_RGST_DT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'addr', header: t('MSG_TXT_ADDR'), width: '200', editable: false },

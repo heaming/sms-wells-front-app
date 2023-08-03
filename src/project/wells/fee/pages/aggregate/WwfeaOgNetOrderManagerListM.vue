@@ -54,7 +54,10 @@
           >
             <kw-select
               v-model="searchParams.feePerfCd"
-              :options="customCodes.feePerfCd"
+              :options="codes.FEE_PERF_TP_CD"
+              first-option
+              first-option-value=""
+              :first-option-label="$t('MSG_TXT_ALL')"
             />
           </kw-search-item>
           <kw-search-item
@@ -64,8 +67,10 @@
             <kw-select
               v-model="searchParams.pdctTpCd"
               :label="$t('MSG_TXT_PDCT_TP')"
-              :options="customCodes.pdctTpCd"
-              rules="required"
+              :options="codes.FEE_PDCT_TP_CD"
+              first-option
+              first-option-value=""
+              :first-option-label="$t('MSG_TXT_ALL')"
             />
           </kw-search-item>
           <kw-search-item
@@ -198,7 +203,7 @@
               :label="$t('MSG_TXT_ORDR')"
               rules="required"
               type="radio"
-              :options="customCodes.tcntCd"
+              :options="codes.FEE_TCNT_DV_CD"
             />
           </kw-search-item>
         </kw-search-row>
@@ -281,7 +286,7 @@
               :label="$t('MSG_TXT_ORDR')"
               rules="required"
               type="radio"
-              :options="customCodes.tcntCd"
+              :options="codes.FEE_TCNT_DV_CD"
             />
           </kw-search-item>
         </kw-search-row>
@@ -436,14 +441,12 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_DSC_DV_CD',
   'SELL_DSC_TP_CD',
   'PMOT_TP_CD',
+  'FEE_TCNT_DV_CD',
 );
 
 const customCodes = {
   inqrCd: [{ codeId: '01', codeName: '상세' }, { codeId: '02', codeName: '집계' }],
   divCd: [{ codeId: '01', codeName: '매출' }, { codeId: '02', codeName: '접수' }, { codeId: '03', codeName: '예약' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
-  feePerfCd: [{ codeId: '00', codeName: '전체' }, { codeId: 'EH', codeName: '가전' }, { codeId: 'EX', codeName: '가전외' }, { codeId: 'ET', codeName: '기타' }, { codeId: 'UP', codeName: '미지급' }],
-  pdctTpCd: [{ codeId: '00', codeName: '전체' }, { codeId: 'A', codeName: '환경' }, { codeId: 'B', codeName: '웰스팜' }, { codeId: 'C', codeName: 'BH' }, { codeId: 'D', codeName: '캡슐' }, { codeId: 'E', codeName: '홈케어' }, { codeId: 'F', codeName: '소모품' }, { codeId: 'F', codeName: '부속품' }],
-  tcntCd: [{ codeId: '01', codeName: '1차' }, { codeId: '02', codeName: '2차' }],
   selTpCd: [{ codeId: '0', codeName: '전체' }, { codeId: '2', codeName: '렌탈/리스' }, { codeId: '1', codeName: '일시불' }, { codeId: '6', codeName: '정기배송' }, { codeId: '7', codeName: '재약정' }, { codeId: '3', codeName: '홈케어멤버십' }],
   rsbDvCd: [{ codeId: '00', codeName: '전체' }, { codeId: '15', codeName: '지구장이하' }, { codeId: '7', codeName: '지점장이상' }],
 };
@@ -457,8 +460,8 @@ const searchParams = ref({
   inqrDvCd: '01',
   feeTcntDvCd: '01',
   divCd: '02',
-  feePerfCd: '00',
-  pdctTpCd: '00',
+  feePerfCd: '',
+  pdctTpCd: '',
   sellTpCd: '0',
   strtDt: now.add(-1, 'month').startOf('month').format('YYYYMMDD'),
   endDt: now.add(-1, 'month').endOf('month').format('YYYYMMDD'),
@@ -488,8 +491,8 @@ async function initSearchParams() {
   totalCount.value = 0;
   isExcelDown.value = false;
   searchParams.value.feeTcntDvCd = '01';
-  searchParams.value.feePerfCd = '00';
-  searchParams.value.pdctTpCd = '00';
+  searchParams.value.feePerfCd = '';
+  searchParams.value.pdctTpCd = '';
   searchParams.value.sellTpCd = '0';
   searchParams.value.strtDt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
   searchParams.value.endDt = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
@@ -499,8 +502,6 @@ async function initSearchParams() {
   searchParams.value.pdEndCd = '';
   searchParams.value.pkgStrtCd = '';
   searchParams.value.pkgEndCd = '';
-  searchParams.value.schBlgStrt = '';
-  searchParams.value.schBlgEnd = '';
   searchParams.value.prtnrNo = '';
   searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM');
   searchParams.value.rsbDvCd = '00';
