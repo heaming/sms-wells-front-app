@@ -208,10 +208,14 @@ const codes = await codeUtil.getMultiCodes(
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const props = defineProps({
+  procsDv: { type: String, default: undefined },
+});
+
 let cachedParams;
 
 const saveParams = ref({
-  procsDv: '', // 처리구분
+  procsDv: props.procsDv, // 처리구분
   yrInstallation: '', // 설치년월
   dutyPtrmStrt: '', // 의무기간Start
   dutyPtrmEnd: '', // 의무기간End
@@ -907,12 +911,11 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
     if (field === 0) {
       const cntrDtlNo = grid.getValue(index, 0);
       if (!isEmpty(cntrDtlNo)) {
-        const paramCntrNo = String(cntrDtlNo).split('-')[0];
-        const paramCntrSn = String(cntrDtlNo).split('-')[1];
+        const cntrNoSn = cntrDtlNo.replaceAll('-', '');
         const { result, payload } = await modal({
           component: 'WwctaContractNumberListP',
           componentProps: {
-            cntrNo: paramCntrNo, cntrSn: paramCntrSn,
+            cntrNo: cntrNoSn?.slice(0, 12), cntrSn: cntrNoSn?.slice(12),
           },
         });
         if (result && saveParams.value.procsDv !== '623') {
@@ -944,37 +947,66 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
   view.onCellButtonClicked = async (g, { itemIndex }) => {
     const updateRow = view.getCurrent().dataRow;
     const { cntrDtlNo } = g.getValues(itemIndex);
-    const paramCntrNo = String(cntrDtlNo).split('-')[0];
-    const paramCntrSn = String(cntrDtlNo).split('-')[1];
-    const { result, payload } = await modal({
-      component: 'WwctaContractNumberListP',
-      componentProps: {
-        cntrNo: paramCntrNo, cntrSn: paramCntrSn,
-      },
-    });
-    if (result && saveParams.value.procsDv !== '623') {
-      const { cntrNo, cntrSn } = payload;
-      const { procsDv } = saveParams.value;
-      const res = await dataService.get('/sms/wells/contract/changeorder/rental-change-contracts', {
-        params: {
-          cntrNo,
-          cntrSn,
-          procsDv,
+    if (!isEmpty(cntrDtlNo)) {
+      const cntrNoSn = cntrDtlNo.replaceAll('-', '');
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+        componentProps: {
+          cntrNo: cntrNoSn?.slice(0, 12), cntrSn: cntrNoSn?.slice(12),
         },
       });
+      if (result && saveParams.value.procsDv !== '623') {
+        const { cntrNo, cntrSn } = payload;
+        const { procsDv } = saveParams.value;
+        const res = await dataService.get('/sms/wells/contract/changeorder/rental-change-contracts', {
+          params: {
+            cntrNo,
+            cntrSn,
+            procsDv,
+          },
+        });
 
-      if ((!isEmpty(res.data))) {
-        data.updateRow(updateRow, res.data);
-      } else {
-        for (let i = 0; i < data.getFieldCount(); i += 1) {
-          data.setValue(updateRow, i, '');
+        if ((!isEmpty(res.data))) {
+          data.updateRow(updateRow, res.data);
+        } else {
+          for (let i = 0; i < data.getFieldCount(); i += 1) {
+            data.setValue(updateRow, i, '');
+          }
+          data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
         }
+      } else if (result) {
         data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+        data.setValue(updateRow, 'cntrNo', payload.cntrNo);
+        data.setValue(updateRow, 'cntrSn', payload.cntrSn);
       }
-    } else if (result) {
-      data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-      data.setValue(updateRow, 'cntrNo', payload.cntrNo);
-      data.setValue(updateRow, 'cntrSn', payload.cntrSn);
+    } else {
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+      });
+      if (result && saveParams.value.procsDv !== '623') {
+        const { cntrNo, cntrSn } = payload;
+        const { procsDv } = saveParams.value;
+        const res = await dataService.get('/sms/wells/contract/changeorder/rental-change-contracts', {
+          params: {
+            cntrNo,
+            cntrSn,
+            procsDv,
+          },
+        });
+
+        if ((!isEmpty(res.data))) {
+          data.updateRow(updateRow, res.data);
+        } else {
+          for (let i = 0; i < data.getFieldCount(); i += 1) {
+            data.setValue(updateRow, i, '');
+          }
+          data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+        }
+      } else if (result) {
+        data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+        data.setValue(updateRow, 'cntrNo', payload.cntrNo);
+        data.setValue(updateRow, 'cntrSn', payload.cntrSn);
+      }
     }
   };
 });
