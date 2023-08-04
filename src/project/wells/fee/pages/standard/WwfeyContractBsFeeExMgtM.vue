@@ -154,7 +154,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, useGlobal, useDataService, useMeta, getComponentType, codeUtil, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -384,6 +384,17 @@ const initGrd = defineGrid((data, view) => {
         // 차수 max + 1
         const res = await dataService.get(`/sms/wells/fee/contract-bs-fee/next-order/${payload.cntrNo}-${payload.cntrSn}`);
         g.setValue(itemIndex, 'baseChTcnt', res.data);
+      }
+    }
+  };
+  // 시작월 종료월 체크
+  view.onValidate = async (g, index) => {
+    const { apyStrtYm } = await g.getValues(index.dataRow);
+    const { apyEndYm } = await g.getValues(index.dataRow);
+    if (!isEmpty(apyStrtYm) && !isEmpty(apyEndYm)) {
+      if (apyStrtYm > apyEndYm) {
+        gridUtil.focusCellInput(view, index.dataRow, 'apyStrtYm');
+        return t('MSG_ALT_STRT_MM_CHK');
       }
     }
   };

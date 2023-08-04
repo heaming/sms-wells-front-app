@@ -159,7 +159,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, useGlobal, useDataService, useMeta, getComponentType, codeUtil, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import dayjs from 'dayjs';
 
@@ -482,6 +482,17 @@ const initGrd = defineGrid((data, view) => {
     }
     if (filedName === 'sellDscDvCd') {
       grid.setValue(itemIndex, 'sellDscrCd', '');
+    }
+  };
+  // 시작월 종료월 체크
+  view.onValidate = async (g, index) => {
+    const { apyStrtdt } = await g.getValues(index.dataRow);
+    const { apyEnddt } = await g.getValues(index.dataRow);
+    if (!isEmpty(apyStrtdt) && !isEmpty(apyEnddt)) {
+      if (apyStrtdt > apyEnddt) {
+        gridUtil.focusCellInput(view, index.dataRow, 'apyStrtdt');
+        return t('MSG_ALT_ABLE_START_DT_PREC_FINS_DT');
+      }
     }
   };
 });
