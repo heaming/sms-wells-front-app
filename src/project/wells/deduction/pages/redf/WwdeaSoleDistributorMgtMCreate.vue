@@ -187,6 +187,8 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const monthFrom = dayjs().subtract(1, 'month').format('YYYYMM');
 const monthTo = dayjs().subtract(0, 'month').format('YYYYMM');
+const { getUserInfo } = useMeta();
+const userInfo = getUserInfo();
 
 const codes = await codeUtil.getMultiCodes(
   'DDTN_RPLC_OG_TP_CD',
@@ -318,6 +320,9 @@ async function onClickSearch() {
 async function onClickRedfAmountCreate() {
   await modal({
     component: 'ZwdeaRedfAmountCreateP',
+    componentProps: {
+      ogTpCd: userInfo.ogTpCd,
+    },
   });
 }
 
