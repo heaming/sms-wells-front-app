@@ -78,7 +78,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          @click="onClickExcel"
+          @click="onClickExcelDownload1"
         />
       </kw-action-top>
       <kw-grid
@@ -86,6 +86,15 @@
         @init="initGrdMain"
       />
       <h3>{{ $t('MSG_TXT_CRDOVR_STAT') }}</h3>
+      <kw-action-top>
+        <kw-btn
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          @click="onClickExcelDownload2"
+        />
+      </kw-action-top>
       <kw-grid
         ref="grdMainRef2"
         @init="initGrdMain2"
@@ -140,13 +149,13 @@ const onChageMngrDvCd = async () => {
 };
 
 async function fetchData1() {
-  const res = await dataService.get('/sms/wells/service/bs-og-procs', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/bs-organization-procs', { params: { ...cachedParams } });
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(res.data);
 }
 
 async function fetchData2() {
-  const res2 = await dataService.get('/sms/wells/service/bs-og-procs/crdOvr', { params: { ...cachedParams } });
+  const res2 = await dataService.get('/sms/wells/service/bs-organization-procs/carried-over', { params: { ...cachedParams } });
   const view2 = grdMainRef2.value.getView();
   view2.getDataSource().setRows(res2.data);
 }
@@ -157,9 +166,9 @@ async function onClickSearch() {
   await fetchData2();
 }
 
-async function onClickExcelDownload() {
+async function onClickExcelDownload1() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/bs-og-procs', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/bs-organization-procs', { params: { ...cachedParams } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -170,19 +179,13 @@ async function onClickExcelDownload() {
 
 async function onClickExcelDownload2() {
   const view = grdMainRef2.value.getView();
-  const res = await dataService.get('/sms/wells/service/bs-og-procs/crdOvr', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/bs-organization-procs/carried-over', { params: { ...cachedParams } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
-}
-
-async function onClickExcel() {
-  cachedParams = cloneDeep(searchParams.value);
-  await onClickExcelDownload();
-  await onClickExcelDownload2();
 }
 
 watch(() => searchParams.value.mngrDvCd, (val) => {
@@ -361,7 +364,7 @@ function initGrdMain2(data, view) {
       width: '80',
       styleName: 'text-center',
       mergeRule: {
-        criteria: 'value',
+        criteria: "values['ogNm']+value",
       } },
     { fieldName: 'vstPrgsStat', header: t('MSG_TXT_DIV'), width: '80', styleName: 'text-center' },
     { fieldName: 'crdovrTotal', header: t('MSG_TXT_TOT_SUM'), width: '86', styleName: 'text-right' },
