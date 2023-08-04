@@ -67,12 +67,6 @@
           />
         </template>
 
-        <!-- <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -191,19 +185,21 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'strTpCd' },
+    { fieldName: 'strTpNm' },
     { fieldName: 'strWareNo' },
-    { fieldName: 'strSn' },
+    { fieldName: 'strWareNm' },
     { fieldName: 'strRgstDt' },
     { fieldName: 'dlvgDlpnrNo' },
     { fieldName: 'itmStrNo' },
+    { fieldName: 'strSn' },
     { fieldName: 'ostrTpCd' },
     { fieldName: 'ostrWareNo' },
-    { fieldName: 'ostrDt' },
-    { fieldName: 'ostrSn' },
-    { fieldName: 'itmOstrNo' },
-    { fieldName: 'wareNm' },
-    { fieldName: 'strDelButn' },
+    { fieldName: 'ostrWareNm' },
     { fieldName: 'strHopDt' },
+    { fieldName: 'ostrDt' },
+    { fieldName: 'itmOstrNo' },
+    { fieldName: 'ostrSn' },
+    { fieldName: 'strDelButn' },
   ];
 
   const columns = [
@@ -226,37 +222,32 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.rowIndicator.visible = true;
 
-  view.onCellItemClicked = async (g, { column, dataRow }) => {
-    console.log(gridUtil.getRowValue(g, dataRow));
+  view.onCellItemClicked = async (g, { dataRow }) => {
     const {
       strRgstDt,
       strTpCd,
+      strTpNm,
       itmStrNo,
       strWareNo,
-      strWareNm: wareNm,
-      // itmPdNo,
-      // itmPdNm,
+      strWareNm,
       ostrWareNo,
-      // ostrWareNm,
+      ostrWareNm,
       ostrSn,
       strHopDt,
     } = gridUtil.getRowValue(g, dataRow);
-    console.log(g, column, dataRow);
 
     const { result: isChanged } = await modal({
       component: 'WwsnaMovementStoreRegP',
       componentProps: {
         strRgstDt,
         strTpCd,
-        strTpNm: codes.STR_TP_CD.find((atr) => atr.codeId === strTpCd).codeName,
+        strTpNm,
         itmStrNo,
         strWareNo,
-        strWareNm: wareNm,
+        strWareNm,
         ostrWareNo,
-        ostrWareNm: '',
+        ostrWareNm,
         ostrSn,
-        itmPdNo: '',
-        itmPdNm: '',
         strHopDt,
         flagChk: 1,
       },
@@ -266,9 +257,6 @@ const initGrdMain = defineGrid((data, view) => {
       notify(t('MSG_ALT_SAVE_DATA'));
       await fetchData();
     }
-    // if (column === 'strDelButn') {
-    //   alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
-    // }
   };
 });
 </script>
