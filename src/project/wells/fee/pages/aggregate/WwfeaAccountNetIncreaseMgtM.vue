@@ -219,7 +219,16 @@ const codes = await codeUtil.getMultiCodes(
 let cachedParams;
 
 async function fetchData(gridId) {
-  const res = await dataService.get('/sms/wells/fee/account-net-increase', { params: { ...cachedParams } });
+  let url;
+
+  if (searchParams.value.inqrDvCd === '01') {
+    url = '/sms/wells/fee/account-net-increase/cancels';
+  } else if (searchParams.value.inqrDvCd === '02') {
+    url = '/sms/wells/fee/account-net-increase/sells';
+  } else if (searchParams.value.inqrDvCd === '03') {
+    url = '/sms/wells/fee/account-net-increase/checks';
+  }
+  const res = await dataService.get(url, { params: { ...cachedParams } });
 
   totalCount.value = res.data.length;
 
@@ -270,8 +279,17 @@ async function onClickSearchNo() {
 }
 
 async function onClickExcelDownload(gridId) {
+  let url;
+
+  if (searchParams.value.inqrDvCd === '01') {
+    url = '/sms/wells/fee/account-net-increase/cancels';
+  } else if (searchParams.value.inqrDvCd === '02') {
+    url = '/sms/wells/fee/account-net-increase/sells';
+  } else if (searchParams.value.inqrDvCd === '03') {
+    url = '/sms/wells/fee/account-net-increase/checks';
+  }
   const view = gridId.value.getView();
-  const response = await dataService.get('/sms/wells/fee/account-net-increase', { params: { ...cachedParams } });
+  const response = await dataService.get(url, { params: { ...cachedParams } });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
