@@ -169,7 +169,7 @@ const getProducts = async () => {
 // 품목종류 변경 시 품목 필터링
 function onChangeItmKndCd() {
   // 품목코드 클리어
-  searchParams.value.itmPdCds = [];
+  searchParams.value.itmPdCd = '';
   const { itmKndCd } = searchParams.value;
 
   if (isEmpty(itmKndCd)) {
@@ -281,18 +281,17 @@ const initGrdMain = defineGrid((data, view) => {
   // 헤더 부분 merge
   const layoutColumns = ['sapMatCd', 'itmPdCd', 'pdNm', 'bsQty',
     { direction: 'horizontal',
-      header: { text: `${t('MSG_TXT_QOM')}${t('MSG_TXT_ASGN')}`,
-        items: ['qomAsnQty',
-          { direction: 'horizontal',
-            items: ['indiQty1', 'indiQty2', 'indiQty3'],
-            header: { text: `${t('MSG_TXT_INDV')} W/M` },
-          },
-          { direction: 'horizontal',
-            items: ['indeQty1', 'indeQty2', 'indeQty3'],
-            header: { text: `${t('MSG_TXT_INDP')} W/M` },
-          },
-        ],
-      },
+      header: { text: `${t('MSG_TXT_QOM')}${t('MSG_TXT_ASGN')}` },
+      items: ['qomAsnQty',
+        { direction: 'horizontal',
+          header: { text: `${t('MSG_TXT_INDV')} W/M` },
+          items: ['indiQty1', 'indiQty2', 'indiQty3'],
+        },
+        { direction: 'horizontal',
+          header: { text: `${t('MSG_TXT_INDP')} W/M` },
+          items: ['indeQty1', 'indeQty2', 'indeQty3'],
+        },
+      ],
     },
     { direction: 'horizontal',
       header: { text: `${t('MSG_TXT_LGST')}${t('MSG_TXT_STOC')}` },
