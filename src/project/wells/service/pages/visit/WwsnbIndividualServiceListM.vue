@@ -427,8 +427,6 @@
             </kw-form-row>
           </kw-form>
           <kw-separator />
-          <!--// rev:230621 첫번째 탭내 상단요소 구조 수정-->
-          <!-- rev:230621 kw-action-top 추가 -->
           <kw-action-top>
             <template #left>
               <kw-paging-info :total-count="countInfo.householdTotalCount" />
@@ -691,7 +689,6 @@ async function getIndividualDelinquent() {
 /* 처리내역 조회 */
 async function getIndividualState() {
   const res = await dataService.get('sms/wells/service/individual-service-ps/process-state', { params: { ...searchParams.value, ...pageInfo.value } });
-  console.log(res.data);
   const { list: individualState, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -700,8 +697,6 @@ async function getIndividualState() {
   individualStateData.checkRowStates(false);
   individualStateData.addRows(individualState);
   individualStateData.checkRowStates(true);
-
-  console.log(individualState);
 }
 /* 상담내역 조회 */
 async function getIndividualCounsel() {
@@ -718,7 +713,7 @@ async function getIndividualCounsel() {
 
 async function onClickSearch() {
   if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) {
-    notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE'));
+    notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_NO')}, ${t('MSG_TXT_BARCODE')}`]));
   } else {
     await getIndividualServicePs();
     // init tab & cstUnuitmCn params
