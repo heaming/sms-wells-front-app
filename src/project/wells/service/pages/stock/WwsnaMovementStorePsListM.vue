@@ -105,6 +105,7 @@ import useSnCode from '~sms-wells/service/composables/useSnCode';
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const store = useStore();
+const { currentRoute } = useRouter();
 
 const { t } = useI18n();
 const { getMonthWarehouse } = useSnCode();
@@ -160,7 +161,7 @@ async function onClickExcelDownload() {
   const response = await dataService.get('/sms/wells/service/movement-stores/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: 'MovementStorePssList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });

@@ -14,10 +14,13 @@
 --->
 <template>
   <kw-popup
+    ref="popupRef"
     size="4xl"
-    no-action
   >
-    <kw-form :cols="2">
+    <kw-form
+      :cols="2"
+      ignore-on-modified
+    >
       <kw-form-row>
         <!-- 입고관리번호 -->
         <kw-form-item
@@ -241,6 +244,7 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
 const codes = ref(await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 ));
@@ -296,7 +300,6 @@ async function stckStdGbFetchData() {
 }
 
 async function fetchData() {
-  console.log('fetchData~~~~~~~~~~~~~~~~~~~~~~~');
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
 
@@ -337,7 +340,7 @@ async function strWareMonthlyClosed() {
   };
 
   const res = await dataService.get(colsedUri, { params: closedParams });
-  console.log(res);
+
   if (res.data > 0) {
     return true;
   }
@@ -405,21 +408,20 @@ async function removeValidation() {
 }
 
 async function onClickSave() {
-  console.log('onClickSave~~~~~~~~~~~~~~~~~~~~~~~~~');
   const view = grdMainRef.value.getView();
   const rows = view.getCheckedItems();
-  if (await rows.length === 0) {
+  if (rows.length === 0) {
     notify(t('MSG_ALT_NOT_SELECT_MV'));
     return false;
   }
 
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {
-    if (await !saveValidation()) {
+    const result = await saveValidation();
+    if (!result) {
       return false;
     }
 
-    // const { result } = await dataService.put(baseURI, { params: confirmData.value });
     const confirmData = ref([]);
     confirmData.value = rows.map((v) => {
       const { strSn, strQty, itmStrNo, strWareNo, itmGdCd, itmPdCd } = view.getValues(v);
@@ -434,24 +436,22 @@ async function onClickSave() {
     });
 
     const res = await dataService.put(baseURI, confirmData.value);
-    console.log(`result : ${res}`);
+
     if (res.data) {
       ok();
       notify(t('MSG_ALT_SAVE_DTA'));
-    } else {
-      console.log(`등록 실패: result: ${res}`);
-      notify(t('MSG_ALT_SVE_ERR'));
+      return;
     }
+    notify(t('MSG_ALT_SVE_ERR'));
   }
 }
 async function onClickRemove() {
-  console.log('onClickRemove~~~~~~~~~~~~~~~~~~~~~~~~~');
   const view = grdMainRef.value.getView();
   const rows = view.getCheckedItems();
 
   // 삭제하시겠습니까?
   if (await confirm(t('MSG_ALT_WANT_DELT'))) {
-    if (await !removeValidation()) {
+    if (!await removeValidation()) {
       return false;
     }
 
@@ -475,15 +475,12 @@ async function onClickRemove() {
       ok();
       // 삭제 되었습니다.
       notify(t('MSG_ALT_DELETED'));
-    } else {
-      console.log(`삭제 실패 : result: ${result}`);
-      // 삭제에 실패 하였습니다.
-      notify(t('MSG_ALT_DEL_ERR'));
+      return;
     }
+    notify(t('MSG_ALT_DEL_ERR'));
   }
 }
 
-// TODO: W-SV-U-0169P02 - 네임텍 출력 개발 진행 후 반영 예정
 async function onClickNameTagPrint() {
   const { result: isChanged } = await modal({
     component: 'WwsnaNameTagPrintSortMgtP',
@@ -555,7 +552,7 @@ const initGrdMain = defineGrid((data, view) => {
     console.log(searchParams.value.ostrWareNo);
 
     if (c.column === 'itemLoc') {
-      const { result, payload } = await modal({
+      const { result } = await modal({
         component: 'WwsnaItemLocationMgtP',
         componentProps: {
           wareNo: searchParams.value.ostrWareNo,
@@ -563,8 +560,6 @@ const initGrdMain = defineGrid((data, view) => {
           apyYm: strRgstDt,
         },
       });
-      console.log(`result : ${result}`);
-      console.log(`payload : ${payload}`);
 
       if (result) {
         await fetchData();
@@ -574,11 +569,8 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
-  view.onItemChecked = async (grid, i, checkedVal) => {
-    console.log(grid, i, checkedVal);
-
+  view.onItemChecked = async (grid, i) => {
     const { strQty, ostrQty, strConfDt } = grid.getValues(i);
-    console.log(strConfDt);
 
     if (strConfDt) {
       // '이미 입고확인이 처리된 품목입니다.'
