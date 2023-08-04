@@ -36,8 +36,12 @@
           <kw-select
             v-model="calendarInfo.bndtWrkPsicNo"
             :options="customCodes.SERVICE_CENTER_ENGINEER"
+            :emit-value="false"
             option-value="prtnrNo"
             option-label="prtnrNoNm"
+            first-option="all"
+            first-option-value=""
+            :first-option-label="$t('없음')"
             :readonly="props.isHolidaySetter()"
           />
         </kw-form-item>
@@ -75,7 +79,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useModal, useDataService } from 'kw-lib';
-import { toInteger } from 'lodash-es';
+import { toInteger, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { ok, cancel: onClickCancel } = useModal();
@@ -113,6 +117,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  ogTpCd: {
+    type: String,
+    required: true,
+  },
   rmkCn: {
     type: String,
     required: true,
@@ -133,7 +141,11 @@ const calendarInfo = ref({
   baseMm: props.baseMm,
   baseD: props.baseD,
   dfYn: props.dfYn ?? 'N',
-  bndtWrkPsicNo: props.bndtWrkPsicNo,
+  // bndtWrkPsicNo: props.bndtWrkPsicNo,
+  // bndtWrkPsicNo: undefined,
+  bndtWrkPsicNo: { ogTpCd: '', prtnrNo: '' },
+  bndtWrkPsicNoPrtnrNo: '',
+  bndtWrkPsicNoOgTpCd: '',
   rmkCn: props.rmkCn,
 });
 
@@ -157,8 +169,12 @@ const customCodes = {
 async function getServiceCenterEngineer() {
   const res = await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: calendarInfo.value.svCnrOgId } });
   customCodes.SERVICE_CENTER_ENGINEER = res.data;
+
+  calendarInfo.value.bndtWrkPsicNo = customCodes.SERVICE_CENTER_ENGINEER
+    // .find((element) => (element.prtnrNo === props.bndtWrkPsicNo));
+    .find((element) => (element.prtnrNo === props.bndtWrkPsicNo && element.ogTpCd === props.ogTpCd));
 }
-await getServiceCenterEngineer();
+// await getServiceCenterEngineer();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -171,19 +187,30 @@ async function getCalendarDay() {
   res.data.dfYn = res.data.dfYn ?? 'N';
   calendarInfo.value = res.data;
 }
-getCalendarDay();
+// getCalendarDay();
 
 /*
  *  Event - 저장 버튼 클릭
  */
 async function onClickSave() {
-  // if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+  console.log('cherro ::: test');
+
+  if (isEmpty(calendarInfo.value.bndtWrkPsicNo) || isEmpty(calendarInfo.value.bndtWrkPsicNo.prtnrNo)) {
+    calendarInfo.value.bndtWrkPsicNoPrtnrNo = '';
+    calendarInfo.value.bndtWrkPsicNoOgTpCd = '';
+  } else {
+    calendarInfo.value.bndtWrkPsicNoPrtnrNo = calendarInfo.value.bndtWrkPsicNo.prtnrNo;
+    calendarInfo.value.bndtWrkPsicNoOgTpCd = calendarInfo.value.bndtWrkPsicNo.ogTpCd;
+  }
 
   await dataService.post('/sms/wells/service/calendars', calendarInfo.value);
-
-  // await notify(t('MSG_ALT_SAVE_DATA'));
   ok();
 }
+
+onMounted(async () => {
+  await getCalendarDay();
+  await getServiceCenterEngineer();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
