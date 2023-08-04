@@ -223,7 +223,7 @@ const saveParams = ref({
   feeAckmtBaseAmt: '', // 수수료기준가격
   feeAckmtCnt: '', // 수수료인정건수
   rentalDc: '', // 렌탈DC
-  paramIstDt: '', // 설치일자
+  paramIstDt: now.format('YYYYMMDD'), // 설치일자
 });
 
 // 삭제 버튼 클릭
@@ -302,68 +302,19 @@ async function onClickSave() {
       alert(t('MSG_ALT_CHECK_ITEM', [changedRows[i].dataRow, t('MSG_TXT_CNTR_DTL_NO')]));
       return;
     }
-    if (saveParams.value.procsDv === '601') { // 렌탈취소원복
-      if (!isEmpty(changedRows[i].istDt)) { // 설치일자 있으면
-        alert(t('MSG_ALT_ALRDY_IST_ORD')); // 설치완료된 주문입니다.
-        return;
-      }
-      if (changedRows[i].alncmpCd === '17' || changedRows[i].alncmpCd === '21' || changedRows[i].alncmpCd === '22'
-        || changedRows[i].alncmpCd === '30' || changedRows[i].alncmpCd === '33') { // 제휴사코드(17,21,22,30,33,)이면
-        alert(t('MSG_ALT_OCO_ALNC_ORDER')); // 타사 제휴 주문입니다
-        return;
-      }
-      // 예약판매이고 설치일자가 현재월이 아니면
-      if (!isEmpty(changedRows[i].booSellTpCd)) {
-        alert(t('MSG_ALT_NOT_RSV_CNCL_RESTORE')); // 예약건 취소 원복은 당월만 가능합니다.
-        return;
-      }
-      if (isEmpty(changedRows[i].cntrDtlStatCd)) { // 설치월 체크
-        alert(t('계약상세상태코드가 없습니다.')); // 계약상세상태코드가 없습니다.
-        return;
-      }
-      if (changedRows[i].cntrDtlStatCd.substring(0, 1) === '3' && changedRows[i].cntrDtlStatCd !== '303') { // 해지 이면
-        alert(t('MSG_ALT_CHK_CONFIRM', [`${t('MSG_TXT_CANCEL')} ${t('MSG_TXT_RGST_MTR')}`])); // 취소 등록자료 을(를) 확인하세요.
-        return;
-      }
-      if (changedRows[i].clCrtYn === 'Y') { // 매출생성됬으면
-        alert(t('MSG_ALT_SL_PERF_CRT_DATA')); // 매출실적 생성된 자료입니다
-        return;
-      }
+    if (saveParams.value.procsDv === '601') {
+      // 렌탈취소원복
     } else if (saveParams.value.procsDv === '604') { // 설치월면제
       if (isEmpty(saveParams.value.yrInstallation)) { // 설치월 체크
         alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_YR_INSTALLATION')])); // 설치년월 을(를) 확인하세요.
-        return;
-      }
-      if (isEmpty(changedRows[i].istDt)) { // 설치월 체크
-        alert(t('설치일자가 없습니다.')); // 설치일자가 없습니다.
-        return;
-      }
-      if (saveParams.value.yrInstallation === changedRows[i].istDt.substring(0, 6)) { // 설치년월 == 입력설치년월 체크
-        alert(t('설치년월과 면제년월이 같아야합니다.')); // 설치년월과 면제년월이 같아야합니다.
         return;
       }
       if (saveParams.value.yrInstallation < now.add(-1, 'month').format('YYYYMM')) { // 입력설치년월이 전월보다 작으면
         alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_YR_INSTALLATION')])); // 설치년월 을(를) 확인하세요.
         return;
       }
-      if (isEmpty(changedRows[i].istDt)) { // 설치일자가 없으면
-        alert(t('설치 전 주문입니다')); // 설치 전 주문입니다.
-        return;
-      }
-      if (changedRows[i].exmtYn === 'Y') { // 매출조정 정보 체크 = Y
-        alert(t('MSG_ALT_ALREADY_RGST_MT')); // 이미 등록된 자료입니다
-        return;
-      }
-      if (changedRows[i].istMmBilMthdTpCd === 'Y') { // 설치월면제 기등록 여부
-        alert(t('MSG_ALT_ALREADY_RGST_MT')); // 이미 등록된 자료입니다
-        return;
-      }
-      if (changedRows[i].sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
-        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_TXT_INST_MON_EXMP')}${t('MSG_TXT_IMPOSSIBLE')}!`); // 금융리스! 설치월면제 불가!
-        return;
-      }
-      if (changedRows[i].clCrtYn === 'Y') { // 매출실적 검사
-        alert(t('매출실적 마감된 자료입니다.')); // 매출실적 마감된 자료입니다.
+      if (saveParams.value.yrInstallation !== changedRows[i].istDt.substring(0, 6)) {
+        alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_YR_INSTALLATION')])); // 설치년월 을(를) 확인하세요.
         return;
       }
     } else if (saveParams.value.procsDv === '605') { // 의무기간
@@ -372,15 +323,11 @@ async function onClickSave() {
         return;
       }
       if (saveParams.value.dutyPtrmStrt === saveParams.value.dutyPtrmEnd) { // 입력기간 체크:현약정기간, 변경약정기간이 같을 수 없다.
-        alert(t('MSG_ALT_CHK_CONFIRM'[t('MSG_TXT_DUTY_PTRM')])); // 의무기간 을(를) 확인하세요.
+        alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_DUTY_PTRM')])); // 의무기간 을(를) 확인하세요.
         return;
       }
-      if (isEmpty(changedRows[i].istDt)) { // 설치일자가 없으면
-        alert(t('설치 전 주문입니다')); // 설치 전 주문입니다.
-        return;
-      }
-      if (changedRows[i].stplPtrm !== saveParams.value.dutyPtrmStrt) { // 약정기간 체크: 입력된 현약정기간이 약정기간과 다르면
-        alert(t('MSG_ALT_CHK_CONFIRM', [`${t('MSG_TXT_PREV')} ${t('MSG_TXT_DUTY_PTRM')}`])); // 이전 의무기간 을(를) 확인하세요.
+      if (saveParams.value.dutyPtrmStrt !== changedRows[i].stplPtrm) { // 입력된 현약정기간이 약정기간과 다르면
+        alert(t('이전 의무기간을 확인하세요')); // 이전 의무기간을 확인하세요
         return;
       }
     } else if (saveParams.value.procsDv === '607') { // 접수취소
@@ -388,21 +335,9 @@ async function onClickSave() {
         alert(t('MSG_ALT_ONE_RGST', [`${t('MSG_TXT_RCP')}${t('MSG_TXT_CANCEL')}`])); // 접수취소는 1건씩 등록해 주세요
         return;
       }
-      if (!isEmpty(changedRows[i].istDt)) { // 설치일자가 존재하면
-        alert(t('취소불가!설치 된 주문입니다')); // 취소불가!설치 된 주문입니다
-        return;
-      }
-      if (changedRows[i].cttRsCd === '01') { // 컨택코드=01 이면 불가
-        alert(t('취소불가!정상컨택 건입니다')); // 취소불가!정상컨택 건입니다
-        return;
-      }
-      if (changedRows[i].cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
-        return;
-      }
     } else if (saveParams.value.procsDv === '608') { // 인정실적 금액변경
       if (isEmpty(saveParams.value.pdAccRslt)) { // 인정실적 필수 체크
-        alert(t('MSG_ALT_CHK_CONFIRM'[t('MSG_TXT_PD_ACC_RSLT')])); // 인정실적 을(를) 확인하세요.
+        alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_PD_ACC_RSLT')])); // 인정실적 을(를) 확인하세요.
         return;
       }
     } else if (saveParams.value.procsDv === '609') { // 수수료 기준가격변경
@@ -410,17 +345,9 @@ async function onClickSave() {
         alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_BASE_PRC')])); // 기준가격 을(를) 확인하세요.
         return;
       }
-      if (changedRows[i].cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
-        return;
-      }
     } else if (saveParams.value.procsDv === '611') { // 수수료 인정건수 변경
       if (isEmpty(saveParams.value.feeAckmtCnt)) { // 수수료기준가격 필수체크
         alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_FEE_ACKMT_CNT')])); // 수수료인정건수을(를) 확인하세요.
-        return;
-      }
-      if (changedRows[i].cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
         return;
       }
     } else if (saveParams.value.procsDv === '612') { // 렌탈료DC 변경
@@ -432,22 +359,6 @@ async function onClickSave() {
         alert(t('MSG_ALT_CHK_CONFIRM', [`${t('MSG_TXT_RTLFE')}DC ${t('MSG_TXT_AMT')}`])); // 렌탈료DC 금액을(를) 확인하세요.
         return;
       }
-      if (changedRows[i].cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
-        return;
-      }
-      if (changedRows[i].sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
-        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_TXT_RTLFE')}DC ${t('MSG_TXT_CH_IMP')}!`); // 금융리스！렌탈료DC 변경 불가！
-        return;
-      }
-      if (isEmpty(changedRows[i].cntrCnfmDtm)) { // 주문확정일자 = null 이면
-        alert(t('주문확정일이 존재하지 않습니다')); // 주문확정일이 존재하지 않습니다
-        return;
-      }
-      if (changedRows[i].cntrCnfmDtm < '20160301') { // 주문확정일자 < 20160301
-        alert(t('2016년 3월 1일 이전 주문 확정건은 변경 불가')); // 2016년 3월 1일 이전 주문 확정건은  변경 불가
-        return;
-      }
     } else if (saveParams.value.procsDv === '613') { // 미관리제품 설치일자 변경
       if (isEmpty(saveParams.value.paramIstDt)) { // 설치일 필수체크
         alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_INST_DT')])); // 설치일을(를) 확인하세요.
@@ -457,39 +368,10 @@ async function onClickSave() {
         alert(t('MSG_ALT_ONLY_INPUT', [t('MSG_TXT_THM')])); // 당월만 입력가능합니다.
         return;
       }
-      if (changedRows[i].cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
-        return;
-      }
-      // 컨택코드!=01 or null 아니면 불가 -> 컨택코드 이상으로 변경 불가
-      if (changedRows[i].cttRsCd !== '01' && !isEmpty(changedRows[i].cttRsCd)) { // 컨택코드!=01 or null 아니면 불가
-        alert(t('컨택코드 이상으로 변경 불가')); // 컨택코드 이상으로 변경 불가
-        return;
-      }
-      if (!isEmpty(changedRows[i].istDt)) { // 설치일자가 존재하면
-        alert(t('MSG_ALT_EXIST', [t('MSG_TXT_IST_DT')])); // 설치일자가 존재합니다.
-        return;
-      }
-      if (!isEmpty(changedRows[i].cntrPdStrtdt)) { // 매출일자가 존재하면
-        alert(t('MSG_ALT_EXIST', [t('MSG_TXT_SL_DT')])); // 매출일자가 존재합니다.
-        return;
-      }
-      if (changedRows[i].istPcsvTpCd !== '2' || changedRows[i].envrElhmYn !== 'Y') { // 설치택배구분 != 2:택배 || 환경가전여부 != Y 이면
-        alert(t('적용되지 않는 주문입니다')); // 적용되지 않는 주문입니다
-        return;
-      }
     } else if (saveParams.value.procsDv === '615') { // 시리얼 번호 변경
       // 시리얼번호는 필수입력
       if (isEmpty(changedRows[i].serialNo)) {
-        alert(t('MSG_ALT_CHK_NCSR'[t('MSG_TXT_SERIAL_NO')])); // 시리얼번호 을(를) 입력해주세요.
-      }
-      if (changedRows[i].istBzsCd !== 'S') { // 설치업체구분 != S:삼성전자 변경불가
-        alert(t('삼성 제품만 변경 가능합니다')); // 삼성 제품만 변경 가능합니다
-        return;
-      }
-      if (changedRows[i].serlYn !== 'Y') { // 시리얼파일존재여부 != Y 불가
-        alert(t('설치되지 않았습니다. 삼성전자 확정일자를 먼저 등록해 주세요')); // 설치되지 않았습니다. 삼성전자 확정일자를 먼저 등록해 주세요
-        return;
+        alert(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_SERIAL_NO')])); // 시리얼번호 을(를) 입력해주세요.
       }
     } else if (saveParams.value.procsDv === '616') { // 법인 코로나 렌탈중지
       // 중지기간 체크 -필수 입력
@@ -517,30 +399,6 @@ async function onClickSave() {
         alert(t('회신 연락처 양식이 올바르지 않습니다.이메일과 핸드폰 번호만 가능합니다.')); // 회신 연락처 양식이 올바르지 않습니다.이메일과 핸드폰 번호만 가능합니다.-
         return;
       }
-      if (changedRows[i].sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
-        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_TXT_RENTAL')}${t('MSG_TXT_STP')} ${t('MSG_TXT_IMPOSSIBLE')}!`); // 금융리스！렌탈중지 불가！
-        return;
-      }
-      if (changedRows[i].copnDvCd !== '2') { // 법인격구분코드 != 2:법인 이면
-        alert(t('법인만 등록 가능합니다')); // 법인만 등록 가능합니다
-        return;
-      }
-      if (changedRows[i].cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
-        return;
-      }
-      if (isEmpty(changedRows[i].cntrEndDt)) { // 계산한만료일이 없으면
-        alert(t('만료일이 없습니다')); // 만료일이 없습니다
-        return;
-      }
-      if (changedRows[i].cntrEndDt <= now.format('YYYYMMDD')) { // 계산한만료일 <= today 이면
-        alert(t('만료된 주문입니다')); // 만료된 주문입니다
-        return;
-      }
-      if (changedRows[i].dlqAmt > 0) { // 연체금 > 0
-        alert(t('MSG_ALT_IS_PRESENT', [t('MSG_TXT_DLQAM')])); // 연체금이 있습니다
-        return;
-      }
     } else if (saveParams.value.procsDv === '617') { // 법인 코로나 렌탈중지 취소
       if (isEmpty(changedRows[i].stpCanYm)) { // 중지취소년월 필수체크
         alert(t('MSG_ALT_CHK_NCSR', [`${t('MSG_TXT_STP')}${t('MSG_TXT_CANCEL_YM')}`])); // 중지취소년월 을(를) 입력해주세요.
@@ -550,33 +408,9 @@ async function onClickSave() {
         alert(t('중지취소년월은 현재달보다 나중으로 입력해 주세요')); // 중지취소년월은 현재달보다 나중으로 입력해 주세요
         return;
       }
-      if (changedRows[i].sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
-        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_TXT_RENTAL')}${t('MSG_TXT_STP')} ${t('MSG_TXT_IMPOSSIBLE')}!`); // 금융리스！렌탈중지 불가！
-        return;
-      }
-      if (changedRows[i].copnDvCd !== '2') { // 법인격구분코드 != 2:법인 이면
-        alert(t('법인만 등록 가능합니다')); // 법인만 등록 가능합니다
-        return;
-      }
-      if (changedRows[i].cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
-        return;
-      }
-      if (isEmpty(changedRows[i].cntrEndDt)) { // 계산한만료일이 없으면
-        alert(t('만료일이 없습니다')); // 만료일이 없습니다
-        return;
-      }
-      if (changedRows[i].cntrEndDt <= now.format('YYYYMMDD')) { // 계산한만료일 <= today 이면
-        alert(t('만료된 주문입니다')); // 만료된 주문입니다
-        return;
-      }
     } else if (saveParams.value.procsDv === '618') { // 수수료 정액여부 변경
       if (isEmpty(changedRows[i].feeFxamYn)) { // 수수료 정액여부 필수체크
         alert(t('MSG_TXT_BEFORE_SELECT_IT', [t('MSG_TXT_PD_FEE_FIX')])); // 수수료정액여부(을)를 선택해주세요.
-        return;
-      }
-      if (changedRows[i].cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
         return;
       }
     } else if (saveParams.value.procsDv === '619') { // 프로모션 렌탈료 할인
@@ -588,52 +422,8 @@ async function onClickSave() {
         alert(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_DSC_AMT')])); // 할인금액 을(를) 입력해주세요.
         return;
       }
-      if (changedRows[i].cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
-        return;
-      }
-      if (isEmpty(changedRows[i].istDt)) { // 설치월 체크
-        alert(t('설치일자가 없습니다.')); // 설치일자가 없습니다.
-        return;
-      }
-      if (changedRows[i].istDt.substring(0, 6) === now.format('YYYYMM')) { // 설치일 이 당월인지 체크
-        alert(t('설치월 당월만 가능합니다')); // 설치월 당월만 가능합니다
-        return;
-      }
-    } else if (saveParams.value.procsDv === '620') { // 렌탈 전월 취소
-      // 취소된 주문(CNTR_DTL_STAT_CD != 303) 수정불가 -> 취소 되지 않은건은 제외! 전달 취소 철회 불가
-      if (changedRows[i].cntrDtlStatCd !== '303') { // 취소된 주문 != 303 수정불가
-        alert(t('취소 되지 않은건은 제외!') + t('MSG_ALT_CNCL_WDWL_IMP')); // 취소 되지 않은건은 제외! 전달 취소 철회 불가
-        return;
-      }
-      if (changedRows[i].sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
-        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_ALT_CNCL_WDWL_IMP')}`); // 금융리스! 전달 취소 철회 불가!
-        return;
-      }
-      if (!isEmpty(changedRows[i].reqdDt)) { // 철거일자 존재하면
-        alert(t('철거 완료건은 제외!') + t('MSG_ALT_CNCL_WDWL_IMP')); // 철거 완료건은 제외! 전달 취소 철회 불가!
-        return;
-      }
-      if (isEmpty(changedRows[i].cntrPdCandt)) {
-        alert(t('취소일자가 없습니다.')); // 취소일자가 없습니다.
-        return;
-      }
-      if (changedRows[i].lastlcpay !== changedRows[i].cntrPdCandt.substring(0, 6)) { // 마지막실적집계년월과 취소년월이 다르면
-        alert(t('전달만 취소 가능!') + t('MSG_ALT_CNCL_WDWL_IMP')); // 전달만 취소 가능! 전달 취소 철회 불가!
-        return;
-      }
-      if (changedRows[i].borAmt > 0) { // 위약금 > 0 이면
-        alert(t('MSG_ALT_IS_PRESENT', [t('MSG_TXT_CCAM')]) + t('MSG_ALT_CNCL_WDWL_IMP')); // 위약금이 있습니다. 전달 취소 철회 불가
-        return;
-      }
-      if (changedRows[i].cursleyn === 'N') { // 이번달매출 생성여부*TODO = N 이면
-        alert(t('이번달 매출이 생성 되지 않았습니다') + t('MSG_ALT_CNCL_WDWL_IMP')); // 이번달 매출이 생성 되지 않았습니다. 전달 취소 철회 불가
-        return;
-      }
-      if (!isEmpty(changedRows[i].sdingCntr)) { // 모종결합계약번호가 있으면
-        alert(t('웰스팜 연계 상품입니다. IT 확인 필요')); // 웰스팜 연계 상품입니다. IT 확인 필요
-        return;
-      }
+    } else if (saveParams.value.procsDv === '620') {
+      // 렌탈 전월 취소
     } else if (saveParams.value.procsDv === '621') { // (모종)인정실적금액변경
       if (isEmpty(saveParams.value.pdAccRslt)) { // 인정실적 필수 체크
         alert(t('MSG_ALT_CHK_CONFIRM', [t('TXT_MSG_ACKMT_PERF')])); // 인정실적을(를) 확인하세요.
@@ -658,10 +448,6 @@ async function onClickSave() {
         alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_FEE_ACKMT_CNT')])); // 수수료인정건수을(를) 확인하세요.
         return;
       }
-      if (changedRows[i].cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
-        return;
-      }
     } else if (saveParams.value.procsDv === '711') { // BS업체구분값 변경
       if (isEmpty(changedRows[i].modBfsvcBzsDvCd) && isEmpty(changedRows[i].modSplyBzsDvCd)) {
         alert(t('MSG_ALT_INPUT_ITEM1_OR_ITEM2', [`${t('MSG_TXT_MOD')} ${t('MSG_TXT_CLSF_BS')}`, `${t('MSG_TXT_MOD')} ${t('MSG_TXT_CLSF_BUS')}`]));
@@ -669,7 +455,7 @@ async function onClickSave() {
       }
     }
     if (isEmpty(changedRows[i].note)) { // 비고 필수체크
-      alert(t('MSG_ALT_CHK_NCSR'[t('MSG_TXT_NOTE')])); // 비고 을(를) 입력해주세요.
+      alert(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_NOTE')])); // 비고 을(를) 입력해주세요.
       return;
     }
   }
@@ -721,6 +507,329 @@ async function onProcsDvChange() {
 
   if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' || saveParams.value.procsDv === '623') {
     alert(t('서비스 확인 중 입니다.'));
+  }
+}
+
+// 그리드 조회 후 유효성 체크
+async function onSearchItemCheck(payload, dataRow) {
+  const view = grdRentalBulkChangeMgtList.value.getView();
+
+  const { cntrNo, cntrSn } = payload;
+  const { procsDv } = saveParams.value;
+  const res = await dataService.get('/sms/wells/contract/changeorder/rental-change-contracts', {
+    params: {
+      cntrNo,
+      cntrSn,
+      procsDv,
+    },
+  });
+  if ((!isEmpty(res.data))) {
+    if (procsDv === '601') {
+      if (res.data.cntrDtlStatCd !== '303') {
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('취소된 주문이 아닙니다.'));
+        return;
+      }
+      if (!isEmpty(res.data.istDt)) { // 설치일자 있으면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_ALRDY_IST_ORD')); // 설치완료된 주문입니다.
+        return;
+      }
+      if (res.data.alncmpCd === '17' || res.data.alncmpCd === '21' || res.data.alncmpCd === '22'
+        || res.data.alncmpCd === '30' || res.data.alncmpCd === '33') { // 제휴사코드(17,21,22,30,33,)이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_OCO_ALNC_ORDER')); // 타사 제휴 주문입니다
+        return;
+      }
+      // 예약판매이고 설치일자가 현재월이 아니면
+      if (!isEmpty(res.data.booSellTpCd)) {
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_NOT_RSV_CNCL_RESTORE')); // 예약건 취소 원복은 당월만 가능합니다.
+        return;
+      }
+      if (isEmpty(res.data.cntrDtlStatCd)) { // 설치월 체크
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('계약상세상태코드가 없습니다.')); // 계약상세상태코드가 없습니다.
+        return;
+      }
+      if (res.data.cntrDtlStatCd.substring(0, 1) === '3') { // 해지 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_CHK_CONFIRM', [`${t('MSG_TXT_CANCEL')} ${t('MSG_TXT_RGST_MTR')}`])); // 취소 등록자료 을(를) 확인하세요.
+        return;
+      }
+      if (res.data.clCrtYn === 'Y') { // 매출생성됬으면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_SL_PERF_CRT_DATA')); // 매출실적 생성된 자료입니다
+        return;
+      }
+    } else if (procsDv === '604') {
+      if (isEmpty(res.data.istDt)) { // 설치일자가 없으면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('설치 전 주문입니다')); // 설치 전 주문입니다.
+        return;
+      }
+      if (res.data.exmtYn === 'Y') { // 매출조정 정보 체크 = Y
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_ALREADY_RGST_MT')); // 이미 등록된 자료입니다
+        return;
+      }
+      if (res.data.istMmBilMthdTpCd === 'Y') { // 설치월면제 기등록 여부
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_ALREADY_RGST_MT')); // 이미 등록된 자료입니다
+        return;
+      }
+      if (res.data.sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_TXT_INST_MON_EXMP')}${t('MSG_TXT_IMPOSSIBLE')}!`); // 금융리스! 설치월면제 불가!
+        return;
+      }
+      if (res.data.clCrtYn === 'Y') { // 매출실적 검사
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('매출실적 마감된 자료입니다.')); // 매출실적 마감된 자료입니다.
+        return;
+      }
+    } else if (procsDv === '605') {
+      if (isEmpty(res.data.istDt)) { // 설치일자가 없으면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('설치 전 주문입니다')); // 설치 전 주문입니다.
+        return;
+      }
+    } else if (procsDv === '607') {
+      if (!isEmpty(res.data.istDt)) { // 설치일자가 존재하면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('취소불가!설치 된 주문입니다')); // 취소불가!설치 된 주문입니다
+        return;
+      }
+      if (res.data.cttRsCd === '01') { // 컨택코드=01 이면 불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('취소불가!정상컨택 건입니다')); // 취소불가!정상컨택 건입니다
+        return;
+      }
+      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        return;
+      }// 체크
+    } else if (procsDv === '608') {
+      // 체크
+    } else if (procsDv === '609') {
+      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        return;
+      }
+    } else if (procsDv === '611') {
+      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        return;
+      }
+    } else if (procsDv === '612') {
+      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        return;
+      }
+      if (res.data.sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_TXT_RTLFE')}DC ${t('MSG_TXT_CH_IMP')}!`); // 금융리스！렌탈료DC 변경 불가！
+        return;
+      }
+      if (isEmpty(res.data.cntrCnfmDtm)) { // 주문확정일자 = null 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('주문확정일이 존재하지 않습니다')); // 주문확정일이 존재하지 않습니다
+        return;
+      }
+      if (res.data.cntrCnfmDtm < '20160301') { // 주문확정일자 < 20160301
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('2016년 3월 1일 이전 주문 확정건은 변경 불가')); // 2016년 3월 1일 이전 주문 확정건은  변경 불가
+        return;
+      }
+    } else if (procsDv === '613') {
+      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        return;
+      }
+      // 컨택코드!=01 or null 아니면 불가 -> 컨택코드 이상으로 변경 불가
+      if (res.data.cttRsCd !== '01' && !isEmpty(res.data.cttRsCd)) { // 컨택코드!=01 or null 아니면 불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('컨택코드 이상으로 변경 불가')); // 컨택코드 이상으로 변경 불가
+        return;
+      }
+      if (!isEmpty(res.data.istDt)) { // 설치일자가 존재하면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_EXIST', [t('MSG_TXT_IST_DT')])); // 설치일자가 존재합니다.
+        return;
+      }
+      if (!isEmpty(res.data.cntrPdStrtdt)) { // 매출일자가 존재하면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_EXIST', [t('MSG_TXT_SL_DT')])); // 매출일자가 존재합니다.
+        return;
+      }
+      if (res.data.istPcsvTpCd !== '2' || res.data.envrElhmYn !== 'Y') { // 설치택배구분 != 2:택배 || 환경가전여부 != Y 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('적용되지 않는 주문입니다')); // 적용되지 않는 주문입니다
+        return;
+      }
+    } else if (procsDv === '615') {
+      if (res.data.istBzsCd !== 'S') { // 설치업체구분 != S:삼성전자 변경불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('삼성 제품만 변경 가능합니다')); // 삼성 제품만 변경 가능합니다
+        return;
+      }
+      if (res.data.serlYn !== 'Y') { // 시리얼파일존재여부 != Y 불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('설치되지 않았습니다. 삼성전자 확정일자를 먼저 등록해 주세요')); // 설치되지 않았습니다. 삼성전자 확정일자를 먼저 등록해 주세요
+        return;
+      }
+    } else if (procsDv === '616') {
+      if (res.data.sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_TXT_RENTAL')}${t('MSG_TXT_STP')} ${t('MSG_TXT_IMPOSSIBLE')}!`); // 금융리스！렌탈중지 불가！
+        return;
+      }
+      if (res.data.copnDvCd !== '2') { // 법인격구분코드 != 2:법인 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('법인만 등록 가능합니다')); // 법인만 등록 가능합니다
+        return;
+      }
+      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        return;
+      }
+      if (isEmpty(res.data.cntrEndDt)) { // 계산한만료일이 없으면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('만료일이 없습니다')); // 만료일이 없습니다
+        return;
+      }
+      if (res.data.cntrEndDt <= now.format('YYYYMMDD')) { // 계산한만료일 <= today 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('만료된 주문입니다')); // 만료된 주문입니다
+        return;
+      }
+      if (res.data.dlqAmt > 0) { // 연체금 > 0
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_IS_PRESENT', [t('MSG_TXT_DLQAM')])); // 연체금이 있습니다
+        return;
+      }
+    } else if (procsDv === '617') {
+      if (res.data.sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_TXT_RENTAL')}${t('MSG_TXT_STP')} ${t('MSG_TXT_IMPOSSIBLE')}!`); // 금융리스！렌탈중지 불가！
+        return;
+      }
+      if (res.data.copnDvCd !== '2') { // 법인격구분코드 != 2:법인 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('법인만 등록 가능합니다')); // 법인만 등록 가능합니다
+        return;
+      }
+      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        return;
+      }
+      if (isEmpty(res.data.cntrEndDt)) { // 계산한만료일이 없으면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('만료일이 없습니다')); // 만료일이 없습니다
+        return;
+      }
+      if (res.data.cntrEndDt <= now.format('YYYYMMDD')) { // 계산한만료일 <= today 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('만료된 주문입니다')); // 만료된 주문입니다
+        return;
+      }
+    } else if (procsDv === '618') {
+      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        return;
+      }
+    } else if (procsDv === '619') {
+      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        return;
+      }
+      if (isEmpty(res.data.istDt)) { // 설치월 체크
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('설치일자가 없습니다.')); // 설치일자가 없습니다.
+        return;
+      }
+      if (res.data.istDt.substring(0, 6) === now.format('YYYYMM')) { // 설치일 이 당월인지 체크
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('설치월 당월만 가능합니다')); // 설치월 당월만 가능합니다
+        return;
+      }
+    } else if (procsDv === '620') {
+      // 취소된 주문(CNTR_DTL_STAT_CD != 303) 수정불가 -> 취소 되지 않은건은 제외! 전달 취소 철회 불가
+      if (res.data.cntrDtlStatCd !== '303') { // 취소된 주문 != 303 수정불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('취소 되지 않은건은 제외!') + t('MSG_ALT_CNCL_WDWL_IMP')); // 취소 되지 않은건은 제외! 전달 취소 철회 불가
+        return;
+      }
+      if (res.data.sellTpDtlCd === '22') { // 판매유형상세코드 = 22:리스 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(`${t('MSG_TXT_FNN_LEASE')}! ${t('MSG_ALT_CNCL_WDWL_IMP')}`); // 금융리스! 전달 취소 철회 불가!
+        return;
+      }
+      if (!isEmpty(res.data.reqdDt)) { // 철거일자 존재하면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('철거 완료건은 제외!') + t('MSG_ALT_CNCL_WDWL_IMP')); // 철거 완료건은 제외! 전달 취소 철회 불가!
+        return;
+      }
+      if (isEmpty(res.data.cntrPdCandt)) {
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('취소일자가 없습니다.')); // 취소일자가 없습니다.
+        return;
+      }
+      if (res.data.lastlcpay !== res.data.cntrPdCandt.substring(0, 6)) { // 마지막실적집계년월과 취소년월이 다르면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('전달만 취소 가능!') + t('MSG_ALT_CNCL_WDWL_IMP')); // 전달만 취소 가능! 전달 취소 철회 불가!
+        return;
+      }
+      if (res.data.borAmt > 0) { // 위약금 > 0 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_IS_PRESENT', [t('MSG_TXT_CCAM')]) + t('MSG_ALT_CNCL_WDWL_IMP')); // 위약금이 있습니다. 전달 취소 철회 불가
+        return;
+      }
+      if (res.data.cursleyn === 'N') { // 이번달매출 생성여부*TODO = N 이면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('이번달 매출이 생성 되지 않았습니다') + t('MSG_ALT_CNCL_WDWL_IMP')); // 이번달 매출이 생성 되지 않았습니다. 전달 취소 철회 불가
+        return;
+      }
+      if (!isEmpty(res.data.sdingCntr)) { // 모종결합계약번호가 있으면
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('웰스팜 연계 상품입니다. IT 확인 필요')); // 웰스팜 연계 상품입니다. IT 확인 필요
+        return;
+      }
+    } else if (procsDv === '621') {
+      // 체크
+    } else if (procsDv === '622') {
+      // 체크
+    } else if (procsDv === '623') {
+      // 체크
+    } else if (procsDv === '624') {
+      // 체크
+    } else if (procsDv === '625') {
+      // 체크
+    } else if (procsDv === '626') {
+      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
+        view.setValue(dataRow, 'cntrDtlNo', '');
+        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
+        return;
+      }
+    } else if (procsDv === '711') {
+      // 체크
+    }
+    view.setValues(dataRow, res.data);
+  } else {
+    for (let i = 0; i < view.getFieldCount(); i += 1) {
+      view.setValue(dataRow, i, '');
+    }
+    view.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+    alert(t('대상 계약이 아닙니다.'));
   }
 }
 // -------------------------------------------------------------------------------------------------
@@ -918,28 +1027,8 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
             cntrNo: cntrNoSn?.slice(0, 12), cntrSn: cntrNoSn?.slice(12),
           },
         });
-        if (result && saveParams.value.procsDv !== '623') {
-          const { cntrNo, cntrSn } = payload;
-          const { procsDv } = saveParams.value;
-          const res = await dataService.get('/sms/wells/contract/changeorder/rental-change-contracts', {
-            params: {
-              cntrNo,
-              cntrSn,
-              procsDv,
-            },
-          });
-          if ((!isEmpty(res.data))) {
-            data.updateRow(dataRow, res.data);
-          } else {
-            for (let i = 0; i < data.getFieldCount(); i += 1) {
-              data.setValue(dataRow, i, '');
-            }
-            data.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-          }
-        } else if (result) {
-          data.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-          data.setValue(dataRow, 'cntrNo', payload.cntrNo);
-          data.setValue(dataRow, 'cntrSn', payload.cntrSn);
+        if (result) {
+          onSearchItemCheck(payload, dataRow);
         }
       }
     }
@@ -955,57 +1044,15 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
           cntrNo: cntrNoSn?.slice(0, 12), cntrSn: cntrNoSn?.slice(12),
         },
       });
-      if (result && saveParams.value.procsDv !== '623') {
-        const { cntrNo, cntrSn } = payload;
-        const { procsDv } = saveParams.value;
-        const res = await dataService.get('/sms/wells/contract/changeorder/rental-change-contracts', {
-          params: {
-            cntrNo,
-            cntrSn,
-            procsDv,
-          },
-        });
-
-        if ((!isEmpty(res.data))) {
-          data.updateRow(updateRow, res.data);
-        } else {
-          for (let i = 0; i < data.getFieldCount(); i += 1) {
-            data.setValue(updateRow, i, '');
-          }
-          data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-        }
-      } else if (result) {
-        data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-        data.setValue(updateRow, 'cntrNo', payload.cntrNo);
-        data.setValue(updateRow, 'cntrSn', payload.cntrSn);
+      if (result) {
+        onSearchItemCheck(payload, updateRow);
       }
     } else {
       const { result, payload } = await modal({
         component: 'WwctaContractNumberListP',
       });
-      if (result && saveParams.value.procsDv !== '623') {
-        const { cntrNo, cntrSn } = payload;
-        const { procsDv } = saveParams.value;
-        const res = await dataService.get('/sms/wells/contract/changeorder/rental-change-contracts', {
-          params: {
-            cntrNo,
-            cntrSn,
-            procsDv,
-          },
-        });
-
-        if ((!isEmpty(res.data))) {
-          data.updateRow(updateRow, res.data);
-        } else {
-          for (let i = 0; i < data.getFieldCount(); i += 1) {
-            data.setValue(updateRow, i, '');
-          }
-          data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-        }
-      } else if (result) {
-        data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-        data.setValue(updateRow, 'cntrNo', payload.cntrNo);
-        data.setValue(updateRow, 'cntrSn', payload.cntrSn);
+      if (result) {
+        onSearchItemCheck(payload, updateRow);
       }
     }
   };
