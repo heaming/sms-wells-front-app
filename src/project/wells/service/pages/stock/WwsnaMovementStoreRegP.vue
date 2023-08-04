@@ -145,6 +145,7 @@
         primary
         dense
         :label="$t('MSG_TXT_TF_STR_RGST')"
+        :disable="propsParams.flagChk === 1"
         @click="onClickSave"
       />
     </kw-action-top>
@@ -467,8 +468,8 @@ async function onClickSave() {
     const res = await dataService.put(baseURI, confirmData.value);
 
     if (res.data > 0) {
-      ok();
       notify(t('MSG_ALT_SAVE_DTA'));
+      ok();
       return;
     }
     notify(t('MSG_ALT_SVE_ERR'));
@@ -479,7 +480,7 @@ async function onClickRemove() {
   const rows = view.getCheckedItems();
 
   // 삭제하시겠습니까?
-  if (await confirm(t('MSG_ALT_WANT_DELT'))) {
+  if (await confirm(t('MSG_ALT_WANT_DEL'))) {
     if (!await removeValidation()) {
       return false;
     }
@@ -496,12 +497,13 @@ async function onClickRemove() {
       };
     });
 
-    const { res } = await dataService.delete(baseURI, { data: [...removeData] });
+    const res = await dataService.delete(baseURI, { data: [...removeData] });
+    const { processCount } = res.data;
 
-    if (res.data > 0) {
-      ok();
+    if (processCount > 0) {
       // 삭제 되었습니다.
       notify(t('MSG_ALT_DELETED'));
+      ok();
       return;
     }
     notify(t('MSG_ALT_DEL_ERR'));
