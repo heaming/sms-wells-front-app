@@ -15,12 +15,10 @@
 <template>
   <!-- 멤버십 일괄변경 등록 -->
   <kw-popup
-    size="xl"
+    size="2xl"
     :title="$t('MSG_TXT_MEM_BLK_CHNG')"
   >
-    <kw-form
-      :cols="3"
-    >
+    <kw-form :cols="2">
       <kw-form-row>
         <!-- 처리구분 -->
         <kw-form-item
@@ -39,7 +37,6 @@
         <kw-form-item
           :label="$t('MSG_TXT_CH_RSON')"
           required
-          :colspan="2"
         >
           <kw-input
             v-model="saveParams.chRson"
@@ -158,6 +155,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, gridUtil, getComponentType, defineGrid, useDataService, useMeta, useGlobal, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -169,8 +167,9 @@ const pageInfo = ref({
 });
 const grdMembershipBulkChangeRgsList = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 const { ok } = useModal();
+const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -199,6 +198,11 @@ async function onClickRemove() {
 
 // 행 추가 버튼 클릭
 async function onClickAdd() {
+  if (isEmpty(saveParams.value.procsDv)) { // 변경유형 미선택 시 행 추가 불가
+    alert(t('MSG_TXT_BEFORE_SELECT_IT', [t('MSG_TXT_PROCS_DV')])); // 처리구분(을)를 선택해주세요.
+    return;
+  }
+
   const view = grdMembershipBulkChangeRgsList.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {});
   pageInfo.value.totalCount = view.getItemCount();
@@ -213,43 +217,65 @@ async function onClickSave() {
   const changedRows = gridUtil.getChangedRowValues(view);
   // 처리구분 필수 체크
   if (isEmpty(saveParams.value.procsDv)) {
-    notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_PROCS_DV')]));
+    alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_PROCS_DV')]));
     return;
   }
 
   // 변경 사유 필수 체크
   if (isEmpty(saveParams.value.chRson)) {
-    notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_CH_RSON')]));
+    alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_CH_RSON')]));
     return;
   }
 
   if (saveParams.value.procsDv === '801' || saveParams.value.procsDv === '804') {
     if (isEmpty(saveParams.value.cttCd)) { // 취소의 경우 컨택코드 필수 체크
-      notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_CTT_CD')]));
+      alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_CTT_CD')]));
       return;
     }
-  } else if (saveParams.value.procsDv === '802' || saveParams.value.procsDv === '803') {
+  } else if (saveParams.value.procsDv === '802') {
     if (isEmpty(saveParams.value.subsDt)) { // 가입일자 변경의 경우 가입일 필수 체크
-      notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_SUBS_DT')]));
+      alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_SUBS_DT')]));
+      return;
+    }
+    if (saveParams.value.subsDt > now.format('YYYYMMDD')) {
+      alert(t('가입일자는 금일보다 클수없습니다.'));
+      return;
+    }
+  } else if (saveParams.value.procsDv === '803') {
+    if (isEmpty(saveParams.value.subsDt)) { // 가입일자 변경의 경우 가입일 필수 체크
+      alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_SUBS_DT')]));
+      return;
+    }
+    notify(saveParams.value.subsDt.substring(6, 8));
+    if (saveParams.value.subsDt.substring(6, 8) !== '01') {
+      alert(t('가입일자가 1일이 아닙니다'));
+      return;
+    }
+    if (saveParams.value.subsDt > now.format('YYYYMMDD')) {
+      alert(t('가입일자는 금일보다 클수없습니다.'));
       return;
     }
   } else if (saveParams.value.procsDv === '805') {
     if (isEmpty(saveParams.value.fxamYnCh)) { // 정액여부/기준수수료 변경의 경우 체크
-      notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [`${t('MSG_TXT_FXAM_YN')} ${t('MSG_TXT_CH')}`]));
+      alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [`${t('MSG_TXT_FXAM_YN')} ${t('MSG_TXT_CH')}`]));
       return;
     }
     if (isEmpty(saveParams.value.pdStdFee)) {
-      notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_PD_STD_FEE')]));
+      alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_PD_STD_FEE')]));
+      return;
+    }
+    if (saveParams.value.pdStdFee <= 0) {
+      alert(t('기준수수료는 0이상 이어야 합니다.'));
       return;
     }
   }
   for (let i = 0; i < changedRows.length; i += 1) {
     if (isEmpty(changedRows[i].cntrNo)) {
-      notify(t('MSG_ALT_MEM_ONLY_CH'));
+      alert(t('MSG_ALT_MEM_ONLY_CH'));
       return;
     }
     if (changedRows[i].cntrDtlNo !== (`${changedRows[i].cntrNo}-${changedRows[i].cntrSn}`)) {
-      notify(t('MSG_ALT_CHECK_ITEM', [i + 1, t('MSG_TXT_CNTR_DTL_NO')]));
+      alert(t('MSG_ALT_CHECK_ITEM', [i + 1, t('MSG_TXT_CNTR_DTL_NO')]));
       return;
     }
   }
@@ -372,20 +398,21 @@ const initMembershipBulkChangeRgsList = defineGrid((data, view) => {
     if (field === 0) {
       const cntrDtlNo = grid.getValue(index, 0);
       if (!isEmpty(cntrDtlNo)) {
-        const paramCntrNo = String(cntrDtlNo).split('-')[0];
-        const paramCntrSn = String(cntrDtlNo).split('-')[1];
+        const cntrNoSn = cntrDtlNo.replaceAll('-', '');
         const { result, payload } = await modal({
           component: 'WwctaContractNumberListP',
           componentProps: {
-            cntrNo: paramCntrNo, cntrSn: paramCntrSn,
+            cntrNo: cntrNoSn?.slice(0, 12), cntrSn: cntrNoSn?.slice(12),
           },
         });
         if (result) {
           const { cntrNo, cntrSn } = payload;
+          const { procsDv } = saveParams.value;
           const res = await dataService.get('/sms/wells/contract/changeorder/membership-change-contracts', {
             params: {
               cntrNo,
               cntrSn,
+              procsDv,
             },
           });
           if ((!isEmpty(res.data))) {
@@ -395,6 +422,7 @@ const initMembershipBulkChangeRgsList = defineGrid((data, view) => {
               data.setValue(dataRow, i, '');
             }
             data.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+            alert(t('대상 계약이 아닙니다.'));
           }
         }
       }
@@ -403,30 +431,59 @@ const initMembershipBulkChangeRgsList = defineGrid((data, view) => {
   view.onCellButtonClicked = async (g, { itemIndex }) => {
     const updateRow = view.getCurrent().dataRow;
     const { cntrDtlNo } = g.getValues(itemIndex);
-    const paramCntrNo = String(cntrDtlNo).split('-')[0];
-    const paramCntrSn = String(cntrDtlNo).split('-')[1];
-    const { result, payload } = await modal({
-      component: 'WwctaContractNumberListP',
-      componentProps: {
-        cntrNo: paramCntrNo, cntrSn: paramCntrSn,
-      },
-    });
-    if (result) {
-      const { cntrNo, cntrSn } = payload;
-      const res = await dataService.get('/sms/wells/contract/changeorder/membership-change-contracts', {
-        params: {
-          cntrNo,
-          cntrSn,
+    if (!isEmpty(cntrDtlNo)) {
+      const cntrNoSn = cntrDtlNo.replaceAll('-', '');
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+        componentProps: {
+          cntrNo: cntrNoSn?.slice(0, 12), cntrSn: cntrNoSn?.slice(12),
         },
       });
+      if (result) {
+        const { cntrNo, cntrSn } = payload;
+        const { procsDv } = saveParams.value;
+        const res = await dataService.get('/sms/wells/contract/changeorder/membership-change-contracts', {
+          params: {
+            cntrNo,
+            cntrSn,
+            procsDv,
+          },
+        });
 
-      if ((!isEmpty(res.data))) {
-        data.updateRow(updateRow, res.data);
-      } else {
-        for (let i = 0; i < data.getFieldCount(); i += 1) {
-          data.setValue(updateRow, i, '');
+        if ((!isEmpty(res.data))) {
+          data.updateRow(updateRow, res.data);
+        } else {
+          for (let i = 0; i < data.getFieldCount(); i += 1) {
+            data.setValue(updateRow, i, '');
+          }
+          data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+          alert(t('대상 계약이 아닙니다.'));
         }
-        data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+      }
+    } else {
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+      });
+      if (result) {
+        const { cntrNo, cntrSn } = payload;
+        const { procsDv } = saveParams.value;
+        const res = await dataService.get('/sms/wells/contract/changeorder/membership-change-contracts', {
+          params: {
+            cntrNo,
+            cntrSn,
+            procsDv,
+          },
+        });
+
+        if ((!isEmpty(res.data))) {
+          data.updateRow(updateRow, res.data);
+        } else {
+          for (let i = 0; i < data.getFieldCount(); i += 1) {
+            data.setValue(updateRow, i, '');
+          }
+          data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+          alert(t('대상 계약이 아닙니다.'));
+        }
       }
     }
   };

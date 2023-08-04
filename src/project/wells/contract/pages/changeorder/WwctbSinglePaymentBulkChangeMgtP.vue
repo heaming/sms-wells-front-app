@@ -14,11 +14,9 @@
 --->
 <template>
   <kw-popup
-    size="xl"
+    size="2xl"
   >
-    <kw-form
-      :cols="3"
-    >
+    <kw-form :cols="2">
       <kw-form-row>
         <!-- 처리구분 -->
         <kw-form-item
@@ -40,7 +38,6 @@
         <kw-form-item
           :label="$t('MSG_TXT_CH_RSON')"
           required
-          :colspan="2"
         >
           <kw-input
             v-model="saveParams.chRson"
@@ -90,7 +87,6 @@
         <kw-form-item
           v-if="saveParams.procsDv==='703'"
           :label="$t('MSG_TXT_DUEDT')"
-          colspan="2"
         >
           <kw-date-picker
             v-model="saveParams.duedt"
