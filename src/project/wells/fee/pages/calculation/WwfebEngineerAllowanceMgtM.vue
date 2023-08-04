@@ -199,7 +199,7 @@ const changedRows = [];
 const editYn = ref(false);
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
-  'PSTN_DV_CD',
+  'SAP_PSTN_DV_CD',
   'EGER_AW_DV_CD',
 );
 
@@ -573,7 +573,7 @@ const initEgerMain = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center', editable: false },
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '94', styleName: 'text-center', editable: false, options: codes.PSTN_DV_CD },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '126', styleName: 'text-center', editable: false, options: codes.SAP_PSTN_DV_CD },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-center', editable: false, options: codes.RSB_DV_CD },
     // 현장수당정보
     // 방문처리실적
@@ -833,7 +833,7 @@ const initEgerMnger = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '90', styleName: 'text-center ', options: codes.PSTN_DV_CD },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '86', styleName: 'text-center ', options: codes.SAP_PSTN_DV_CD },
     { fieldName: 'feeW060031', header: t('MSG_TXT_OUTC_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'feeW060032', header: t('MSG_TXT_QLF') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'totFee', header: t('MSG_TXT_AW') + t('MSG_TXT_SUM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
