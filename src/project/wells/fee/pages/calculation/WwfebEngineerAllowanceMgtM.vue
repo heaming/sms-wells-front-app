@@ -174,7 +174,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService, codeUtil } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService, codeUtil, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
@@ -184,6 +184,7 @@ const { modal, notify, confirm, alert } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
+const { hasRoleNickName } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // ------------------------------------------------------------------------------------------------
@@ -195,11 +196,6 @@ const isGrdEgerMngerVisible = ref(false);
 const isBtnVisible = ref(true);
 const stepNaviRef = ref();
 const changedRows = [];
-// TODO: 세션정보(직급/직무구분코드) & 센터확정일자에 따른 수당조정 가능 여부 체크
-// 확정이 되었는지 안되었는지도 체크함.
-// 확정이 되었으면 수정 못함.(센터)
-// 확정이 안되었으면 로그인한 사람의 영업조직 직급? 직무?로 결정됨.
-// ( 직급/직무코드 0 은 모르겠고... 센터소장만 수정 가능함. + 제주서비스센터(71365) 는 자재실장이어야 수정 가능함.)
 const editYn = ref(false);
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
@@ -238,7 +234,6 @@ watch(() => searchParams.value.feeSchdTpCd, async (val) => {
 }, { immediate: true });
 
 // 수정 버튼 클릭 이벤트
-// TODO: 권한 체크(센터장, 센터지원만 수정 가능)
 async function onClickMod(bool) {
   // 수정 모드 진입
   if (bool && totalCount.value === 0) {
@@ -246,10 +241,18 @@ async function onClickMod(bool) {
     return;
   }
 
-  if (bool && !editYn.value) {
+  // 시스템관리자, wells운영팀, 센터장만 수정 허용
+  if (bool && !(hasRoleNickName('SYS_ADMIN') || hasRoleNickName('ROL_W1560') || hasRoleNickName('ROL_W6010'))) {
     alert(t('MSG_ALT_NO_AUTH'));
     return;
   }
+
+  /*
+  if (bool && editYn.value) {
+    alert(t('MSG_ALT_NO_AUTH'));
+    return;
+  }
+  */
 
   const view = grdEgerRef.value.getView();
   view.checkAll();
@@ -332,7 +335,7 @@ async function onClickCreate(feeSchdId, code, nextStep) {
     component: 'WwfebEgerAllowanceRegP',
     componentProps: {
       perfYm: searchParams.value.perfYm,
-      rsbTp: searchParams.value.rsbDvCd, // TODO: 팝업 완료 후 수정 필요
+      rsbTp: searchParams.value.rsbDvCd,
     },
   });
   if (isChanged) {
@@ -485,8 +488,25 @@ async function onClickHisMgt() {
 }
 
 // 저장 버튼 클릭 이벤트
-// TODO: 권한 체크
 async function onClickSave() {
+  if (totalCount.value === 0) {
+    alert(t('MSG_ALT_NO_INFO_SRCH'));
+    return;
+  }
+
+  // 시스템관리자, wells운영팀, 센터장만 수정 허용
+  if (!(hasRoleNickName('SYS_ADMIN') || hasRoleNickName('ROL_W1560') || hasRoleNickName('ROL_W6010'))) {
+    alert(t('MSG_ALT_NO_AUTH'));
+    return;
+  }
+
+  /*
+  if (editYn.value) {
+    alert(t('MSG_ALT_NO_AUTH'));
+    return;
+  }
+  */
+
   const view = grdEgerRef.value.getView();
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -500,8 +520,13 @@ async function onClickSave() {
 }
 
 // 센터별 확정 버튼 클릭 이벤트
-// TODO: 권한 체크(센터장, 센터지원만 수정 가능)
 async function onClickConfirm() {
+  // 시스템관리자, wells운영팀, 센터장만 수정 허용
+  if (!(hasRoleNickName('SYS_ADMIN') || hasRoleNickName('ROL_W1560') || hasRoleNickName('ROL_W6010'))) {
+    alert(t('MSG_ALT_NO_AUTH'));
+    return;
+  }
+
   let view;
   if (searchParams.value.feeSchdTpCd === '601') {
     view = grdEgerRef.value.getView();
@@ -543,9 +568,9 @@ async function onClickConfirm() {
 const initEgerMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'baseYm', header: t('MSG_TXT_PERF_YM'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'ogId', header: t('MSG_TXT_BRANCH'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BRANCH'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'ogNm', header: t('MSG_TXT_BRANCH'), width: '146', styleName: 'text-center', editable: false },
+    { fieldName: 'ogId', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
+    { fieldName: 'ogCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
+    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center', editable: false },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '94', styleName: 'text-center', editable: false, options: codes.PSTN_DV_CD },
