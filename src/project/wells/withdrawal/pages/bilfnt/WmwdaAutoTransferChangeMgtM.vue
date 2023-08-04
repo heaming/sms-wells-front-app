@@ -180,7 +180,7 @@ async function onClickAlarmSend() {
   inputParams.value = { ...inputParams.value,
     nsUrl,
     nsFullUrl,
-    chr3ChYn: 'Y',
+    chr3ChYn: 'N',
   };
   await dataService.post('sms/common/withdrawal/bilfnt/auto-transfer-change/notification-talk-send', inputParams.value);
 
