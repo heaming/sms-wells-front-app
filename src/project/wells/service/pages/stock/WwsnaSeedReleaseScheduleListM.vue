@@ -38,17 +38,23 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="t('MSG_TXT_LOOKUP_PERIOD')"
-          :colspan="2"
+          :label="searchParams.dtTpCd !== '4' ? $t('MSG_TXT_LOOKUP_PERIOD') : $t('MSG_TXT_SRCH_DT')"
+          :colspan="searchParams.dtTpCd !== '4' ? 2 : 1"
           required
         >
           <kw-date-range-picker
+            v-if="searchParams.dtTpCd !== '4'"
             v-model:from="searchParams.strtDt"
             v-model:to="searchParams.endDt"
             :label="$t('MSG_TXT_LOOKUP_PERIOD')"
             rules="required|date_range_months:1"
-            :to-disable="isOstrDt"
-            @change="onChangePeriod"
+          />
+          <kw-date-picker
+            v-else-if="searchParams.dtTpCd === '4'"
+            v-model="searchParams.strtDt"
+            rules="required"
+            type="date"
+            @change="onChangeStrtDt"
           />
         </kw-search-item>
       </kw-search-row>
@@ -254,8 +260,6 @@ await Promise.all([
   codeFilter(),
 ]);
 
-const isOstrDt = computed(() => searchParams.value?.dtTpCd === '4');
-
 // 일자유형 변경 시
 function onChangeDtTpCd() {
   const { dtTpCd, strtDt } = searchParams.value;
@@ -265,11 +269,11 @@ function onChangeDtTpCd() {
   }
 }
 
-// 시작일자 변경 시
-function onChangePeriod() {
-  const { dtTpCd, strtDt } = searchParams.value;
-  // 일자유형이 출고일자인 경우 시작일자 = 종료일자
-  if (dtTpCd === '4' && isEmpty(strtDt)) {
+// 일자 변경 시
+function onChangeStrtDt() {
+  const { strtDt } = searchParams.value;
+  // 시작일자 = 종료일자
+  if (isEmpty(strtDt)) {
     searchParams.value.endDt = strtDt;
   }
 }
