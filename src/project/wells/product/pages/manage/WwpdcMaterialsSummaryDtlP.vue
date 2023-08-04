@@ -90,12 +90,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil, getComponentType, defineGrid, codeUtil } from 'kw-lib';
+import { useDataService, stringUtil, getComponentType, defineGrid, codeUtil, useModal } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
+const { cancel } = useModal();
 const props = defineProps({
   pdCd: { type: String, required: true, default: '' },
 });
@@ -125,7 +126,10 @@ const visibleRowCnt3 = ref(1);
 const codes = await codeUtil.getMultiCodes('PDCT_REL_DV_CD');
 
 async function fetchData() {
-  const res = await dataService.get(`${baseUrl}/${props.pdCd}`);
+  const res = await dataService.get(`${baseUrl}/${props.pdCd}`).catch(() => {
+    cancel();
+  });
+  if (!res || !res.data) return;
   pdBas.value = res.data[pdConst.TBL_PD_BAS];
   pdRel.value = res.data[pdConst.TBL_PD_REL];
   PdEcomPrpDtl.value = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];

@@ -76,7 +76,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, stringUtil } from 'kw-lib';
+import { codeUtil, useDataService, stringUtil, useModal } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 
 const props = defineProps({
@@ -84,6 +84,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const { cancel } = useModal();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -117,7 +118,10 @@ function getFieldName(colNm, defaultName) {
 }
 
 async function fetchData() {
-  const res = await dataService.get(`/sms/common/product/${currentPdCd.value}`);
+  const res = await dataService.get(`/sms/common/product/${currentPdCd.value}`).catch(() => {
+    cancel();
+  });
+  if (!res || !res.data) return;
   metaInfos.value = res.data?.metas;
   pdInfo.value = res.data?.product;
 }

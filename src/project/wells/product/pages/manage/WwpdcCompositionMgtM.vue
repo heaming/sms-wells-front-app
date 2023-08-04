@@ -159,7 +159,7 @@
 import { useDataService, codeUtil, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { pdMergeBy, pdRemoveBy, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, pdRemoveBy, getCopyProductInfo, isValidToProdcutSave } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
 import WwpdcCompositionMgtMPrice from './WwpdcCompositionMgtMPrice.vue';
 import WwpdcCompositionMgtMRel from './WwpdcCompositionMgtMRel.vue';
@@ -187,6 +187,7 @@ const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const rel = pdConst.TBL_PD_REL;
 
+const fnlMdfcDtm = ref();
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.COMPOSITION_STEP_BASIC, pdConst.COMPOSITION_STEP_REL_PROD,
   pdConst.COMPOSITION_STEP_PRICE, pdConst.COMPOSITION_STEP_CHECK]);
@@ -310,12 +311,16 @@ async function getSaveData() {
   return subList;
 }
 
+async function goList() {
+  await router.push({ path: '/product/zwpdc-sale-product-list', state: { stateParam: { searchYn: 'Y', pdTpCd: pdConst.PD_TP_CD_COMPOSITION } } });
+}
+
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/compositions/${currentPdCd.value}`);
     await obsMainRef.value.reset();
     await router.close();
-    await router.push({ path: '/product/zwpdc-sale-product-list', state: { stateParam: { searchYn: 'Y' } } });
+    await goList();
   }
 }
 
@@ -397,12 +402,19 @@ async function init() {
 
 async function fetchProduct() {
   if (currentPdCd.value) {
-    const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`);
+    const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     // console.log('WwpdcCompositionMgtM - fetchProduct - res.data', res.data);
     prevStepData.value = res.data;
+    fnlMdfcDtm.value = prevStepData.value[bas].fnlMdfcDtm;
     isTempSaveBtn.value = prevStepData.value[bas].tempSaveYn === 'Y';
   } else if (currentCopyPdCd.value) {
-    const res = await dataService.get(`/sms/wells/product/compositions/${currentCopyPdCd.value}`);
+    const res = await dataService.get(`/sms/wells/product/compositions/${currentCopyPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     prevStepData.value = await getCopyProductInfo(res.data);
     isTempSaveBtn.value = 'Y';
   }
@@ -452,16 +464,19 @@ async function onClickSave(tempSaveYn) {
   let rtn;
   if (isCreate.value) {
     rtn = await dataService.post('/sms/wells/product/compositions', subList);
-  } else {
+  } else if (await isValidToProdcutSave(currentPdCd.value, fnlMdfcDtm.value, pdConst.PD_JOB_TYPE_EDIT)) {
     rtn = await dataService.put(`/sms/wells/product/compositions/${currentPdCd.value}`, subList);
+  } else {
+    return;
   }
+
   notify(t('MSG_ALT_SAVE_DATA'));
   await init();
 
   if (tempSaveYn === 'N') {
     // 목록으로 이동
     // await router.close();
-    await router.push({ path: '/product/zwpdc-sale-product-list', state: { stateParam: { searchYn: 'Y', pdTpCd: pdConst.PD_TP_CD_COMPOSITION } } });
+    await goList();
     return;
   }
   if (isTempSaveBtn.value) {
@@ -487,6 +502,7 @@ async function resetData() {
   }
   currentStep.value = cloneDeep(pdConst.COMPOSITION_STEP_BASIC);
   prevStepData.value = {};
+  fnlMdfcDtm.value = null;
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.resetData) await item.value?.resetData();
     if (item.value?.init) await item.value?.init();
