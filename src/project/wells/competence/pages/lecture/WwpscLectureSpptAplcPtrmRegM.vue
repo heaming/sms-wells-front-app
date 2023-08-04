@@ -16,7 +16,6 @@
 <template>
   <kw-page>
     <kw-search
-      ref="frmSearchRef"
       :cols="2"
       @search="onClickSearch"
     >
@@ -187,7 +186,6 @@ async function onClickRemove() {
 async function onClickSave() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
-  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
   saveData.value.dtaDlYn = 'N';
   await dataService.post('/sms/wells/competence/lecture-sppt-aplc-ptrm', saveData.value);
   notify(t('MSG_ALT_SAVE_DATA'));
