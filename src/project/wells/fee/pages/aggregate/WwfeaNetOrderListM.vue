@@ -646,10 +646,12 @@ async function onClickSearchNo() {
  *  Event - 순주문 집계 버튼 클릭
  */
 async function openNtorAgrgPopup() {
+  const { tcntDvCd, perfYm, tcntDvTxt } = searchParams.value;
   const param = {
-    perfYm: now.add(-1, 'month').format('YYYY-MM'),
-    tcntDvCd: searchParams.value.tcntDvCd,
-    tcntDvTxt: searchParams.value.tcntDvTxt,
+    // perfYm: now.add(-1, 'month').format('YYYY-MM'),
+    perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+    tcntDvCd,
+    tcntDvTxt,
   };
 
   const { result: isChanged } = await modal({
@@ -668,7 +670,8 @@ async function openNtorAgrgPopup() {
 async function openNtorConfirmPopup() {
   const { tcntDvCd, perfYm, tcntDvTxt } = searchParams.value;
   const param = {
-    perfYm,
+    // perfYm: now.add(-1, 'month').format('YYYY-MM'),
+    perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
     tcntDvCd,
     tcntDvTxt,
   };
