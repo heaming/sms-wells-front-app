@@ -596,8 +596,22 @@ async function onChangeDt() {
  *  Event - 수수료 실적 생성 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCrtPopup() {
+  /* 테스트를 위한 임시처리
   const param = {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
+    ogTp: 'W01',
+    dv: 'CR',
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    perfAgrgCrtDvCd: '101',
+  };
+  await modal({
+    component: 'WwfeaOgNetOrderPerfAgrgRegP',
+    componentProps: param,
+  });
+  */
+  const { perfYm } = searchParams.value;
+  const param = {
+    perfYm,
     ogTp: 'W01',
     dv: 'CR',
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
@@ -613,8 +627,22 @@ async function openFeePerfCrtPopup() {
  *  Event - 수수료 실적 확정 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCnfmPopup() {
+  /* 테스트를 위한 임시처리
   const param = {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
+    ogTp: 'W01',
+    dv: 'CO',
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    perfAgrgCrtDvCd: '101',
+  };
+  await modal({
+    component: 'WwfeaOgNetOrderPerfAgrgRegP',
+    componentProps: param,
+  });
+  */
+  const { perfYm } = searchParams.value;
+  const param = {
+    perfYm,
     ogTp: 'W01',
     dv: 'CO',
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
@@ -630,8 +658,22 @@ async function openFeePerfCnfmPopup() {
  *  Event - 수수료 실적 확정 취소 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCnfmCanPopup() {
+  /* 테스트를 위한 임시처리
   const param = {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
+    ogTp: 'W01',
+    dv: 'CC',
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    perfAgrgCrtDvCd: '101',
+  };
+  await modal({
+    component: 'WwfeaOgNetOrderPerfAgrgRegP',
+    componentProps: param,
+  });
+  */
+  const { perfYm } = searchParams.value;
+  const param = {
+    perfYm,
     ogTp: 'W01',
     dv: 'CC',
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
