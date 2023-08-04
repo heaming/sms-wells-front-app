@@ -444,11 +444,11 @@ const searchParams = ref({
   pdCd: '',
   tcntDvTxt: '1차',
 });
-
+/*
 const info = ref({
   cnfmChk: '',
 });
-
+*/
 let cachedParams;
 
 async function excelDownload(url) {
@@ -500,6 +500,7 @@ async function fetchData(apiUrl) {
       isExcelDown2.value = false;
     }
   } else if (apiUrl === 'confirmChk') {
+    /* test를 위해 버튼 조정 임시처리
     info.value = netOrders;
     if (info.value.cnfmChk === 'Y') {
       isReg.value = false;
@@ -511,6 +512,9 @@ async function fetchData(apiUrl) {
       isReg.value = true;
       isConfirm.value = false;
     }
+    */
+    isReg.value = true;
+    isConfirm.value = true;
   } else {
     const view = grdMain1Ref.value.getView();
     view.getDataSource().setRows(netOrders);
@@ -574,13 +578,15 @@ async function onChangedDvcd() {
  *  Event - 회차 선택시 집계버튼 사용여부 조회※
  */
 async function onChangedOrdr() {
-  const { tcntDvCd, perfYm } = searchParams.value;
-  const nowMonth = now.add(-1, 'month').format('YYYYMM');
+  // const { tcntDvCd, perfYm } = searchParams.value;
+  // const nowMonth = now.add(-1, 'month').format('YYYYMM');
+  const { tcntDvCd } = searchParams.value;
   if (tcntDvCd === '01') {
     searchParams.value.tcntDvTxt = '1차';
   } else if (tcntDvCd === '02') {
     searchParams.value.tcntDvTxt = '2차';
   }
+  /* 테스트를 위해 버튼 활성화 임시처리
   if (perfYm !== nowMonth) {
     isReg.value = false;
     isConfirm.value = false;
@@ -588,6 +594,7 @@ async function onChangedOrdr() {
     cachedParams = cloneDeep(searchParams.value);
     await fetchData('confirmChk');
   }
+  */
 }
 
 // 상품코드 검색 아이콘 클릭 이벤트
@@ -659,10 +666,11 @@ async function openNtorAgrgPopup() {
  *  Event - 순주문 확정 버튼 클릭
  */
 async function openNtorConfirmPopup() {
+  const { tcntDvCd, perfYm, tcntDvTxt } = searchParams.value;
   const param = {
-    perfYm: now.add(-1, 'month').format('YYYY-MM'),
-    tcntDvCd: searchParams.value.tcntDvCd,
-    tcntDvTxt: searchParams.value.tcntDvTxt,
+    perfYm,
+    tcntDvCd,
+    tcntDvTxt,
   };
 
   const { result: isChanged } = await modal({
