@@ -164,6 +164,7 @@ const delvWares = [{ delvWareNo: '100002', delvWareNm: '파주물류센터' }];
 const products = ref([]);
 products.value = (await dataService.get('/sms/wells/service/shipping-management/products', { params: searchParams.value })).data;
 searchParams.value.pdCd = products.value[0].pdCd;
+const pdGroupCd = ref();
 
 async function onChangeAsnYm() {
   products.value = (await dataService.get('/sms/wells/service/shipping-management/products', { params: searchParams.value })).data;
@@ -172,6 +173,11 @@ async function onChangeAsnYm() {
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/shipping-management', { params: { ...cachedParams } });
   totalCount.value = res.data.length;
+  pdGroupCd.value = products.value.filter((v) => v.pdCd === cachedParams.pdCd)[0].pdGroupCd;
+  const list = res.data;
+  list.forEach((element) => {
+    element.pdGroupCd = pdGroupCd.value;
+  });
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.clearCurrent();
@@ -202,6 +208,7 @@ async function onClickConfirm() {
 
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
   }
   await dataService.post('/sms/wells/service/shipping-management', chkRows);
 
@@ -315,6 +322,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: ' partNmQty10' },
     { fieldName: 'sppThmYn' },
     { fieldName: 'cstNo' },
+    { fieldName: 'pdGroupCd' },
   ];
 
   const columns = [
