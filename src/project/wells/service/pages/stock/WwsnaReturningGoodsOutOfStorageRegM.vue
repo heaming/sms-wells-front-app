@@ -443,6 +443,8 @@ async function onClickDelete() {
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
+  console.log(deletedRows);
+
   setTotalCount();
 
   if (deletedRows.length > 0) {
@@ -539,6 +541,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strConfDt' },
     { fieldName: 'itmOstrNo' },
     { fieldName: 'ostrSn' },
+    { fieldName: 'itmStrNo' },
+    { fieldName: 'strSn' },
     { fieldName: 'itmKndCd' },
     { fieldName: 'acbDt' },
     { fieldName: 'evidDvCd' },
@@ -609,6 +613,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strConfDt' },
     { fieldName: 'itmOstrNo' },
     { fieldName: 'ostrSn' },
+    { fieldName: 'itmStrNo' },
+    { fieldName: 'strSn' },
     { fieldName: 'itmKndCd' },
     { fieldName: 'acbDt' },
     { fieldName: 'evidDvCd' },
