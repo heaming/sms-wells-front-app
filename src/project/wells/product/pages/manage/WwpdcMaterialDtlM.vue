@@ -44,6 +44,7 @@
 import { useDataService, stringUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
+import { pageMove } from '~sms-common/product/utils/pdUtil';
 import WwpdcMaterialDtlMContents from './WwpdcMaterialDtlMContents.vue';
 
 const props = defineProps({
@@ -53,6 +54,7 @@ const props = defineProps({
 });
 
 const dataService = useDataService();
+const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -63,9 +65,16 @@ const pdBas = ref({});
 const prevStepData = ref({});
 const currentPdCd = ref();
 
+async function goList() {
+  await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: true }, { searchYn: 'Y' });
+}
+
 async function fetchProduct() {
   if (currentPdCd.value) {
-    const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`);
+    const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     pdBas.value = res.data[pdConst.TBL_PD_BAS];
     prevStepData.value = cloneDeep(res.data);
   }
