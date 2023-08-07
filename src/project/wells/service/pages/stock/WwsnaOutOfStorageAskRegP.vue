@@ -97,6 +97,7 @@
         <kw-paging-info
           :total-count="totalCount"
         />
+        <span class="ml8">{{ t('MSG_TXT_UNIT_EA') }}</span>
       </template>
       <kw-btn
         :label="$t('MSG_TXT_DEL')"
