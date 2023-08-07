@@ -397,7 +397,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CENTER_DIVISION'),
       width: '150',
       editor: { type: 'list' },
-      editable: true,
+      editable: searchParams.value.pdlvDvCd === 'E',
       options: svcCode,
       optionValue: 'ogId',
       optionLabel: 'ogNm',
