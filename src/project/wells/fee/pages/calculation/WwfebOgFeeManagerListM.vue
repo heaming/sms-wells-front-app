@@ -371,7 +371,7 @@ async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       rsbTpCd,
     };
     const { result: isChanged } = await modal({
-      component: 'WwfeaFeeWellsMeetingAttendanceRegP',
+      component: 'WwfeaFeeMeetingAttendanceRegP',
       componentProps: param,
     });
     if (isChanged) {
@@ -385,9 +385,19 @@ async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 수수료생성 클릭
  */
 async function onClickW202P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  let feeCalcUnitTpCd;
+  if (rsbTpCd === 'W0205') {
+    feeCalcUnitTpCd = '201';
+  } else {
+    feeCalcUnitTpCd = '202';
+  }
   const { result: isUploadSuccess } = await modal({
     component: 'WwfebOgFeeMlannerRegP',
-    componentProps: { perfYm: searchParams.value.perfYm },
+    componentProps: { perfYm,
+      feeCalcUnitTpCd,
+      feeTcntDvCd,
+    },
   });
   if (isUploadSuccess) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
@@ -469,16 +479,13 @@ async function onClickW207P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  */
 async function onClickW209P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === feeTcntDvCd);
   if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
       ogTpCd: 'W02',
-      ogTpCdTxt: 'M추진단',
-      ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+      ddtnYm: perfYm,
       feeTcntDvCd,
-      feeTcntDvCdTxt: codeName,
       rsbTpCd,
     };
     const { result: isChanged } = await modal({
@@ -504,7 +511,7 @@ async function onClickW210P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       ogTpCd: 'W02',
       ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
       feeTcntDvCd,
-      rsbTpCd,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeePnpyamDeductionRegP',
@@ -572,7 +579,7 @@ async function onClickW216P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 async function onClickW217P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { perfYm, rsbTpCd, ogTpCd } = searchParams.value;
   const { result: isUploadSuccess } = await modal({
-    component: 'ZwfebFeeCreationFntIzRegP',
+    component: 'ZwfeeFeeCreationFntIzRegP',
     componentProps: {
       perfYm,
       ogTpCd,
@@ -590,7 +597,8 @@ async function onClickW217P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  */
 async function onClickW219P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { unitCd, perfYm, ogTpCd } = searchParams.value;
-  const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', searchParams.value); /* 품의진행상태 조회 */
+  cachedParams = cloneDeep(searchParams.value);
+  const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', { params: cachedParams }); /* 품의진행상태 조회 */
   const resData = response.data;
   approval.value.appKey = perfYm + ogTpCd + unitCd + dayjs().format('YYYYMMDDHHmmss'); /* 6자리+3자리+4자리+ 14자리 = 27 appKey 생성 */
   const params = approval.value;
