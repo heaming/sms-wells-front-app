@@ -162,16 +162,16 @@ const searchParams = ref({
 const delvWares = [{ delvWareNo: '100002', delvWareNm: '파주물류센터' }];
 
 const products = ref([]);
-products.value = (await dataService.get('/sms/wells/service/shipping-management/products', { params: searchParams.value })).data;
+products.value = (await dataService.get('/sms/wells/service/bs-regular-shipping/products', { params: searchParams.value })).data;
 searchParams.value.pdCd = products.value[0].pdCd;
 const pdGroupCd = ref();
 
 async function onChangeAsnYm() {
-  products.value = (await dataService.get('/sms/wells/service/shipping-management/products', { params: searchParams.value })).data;
+  products.value = (await dataService.get('/sms/wells/service/bs-regular-shipping/products', { params: searchParams.value })).data;
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/shipping-management', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/bs-regular-shipping', { params: { ...cachedParams } });
   totalCount.value = res.data.length;
   pdGroupCd.value = products.value.filter((v) => v.pdCd === cachedParams.pdCd)[0].pdGroupCd;
   const list = res.data;
@@ -192,7 +192,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/service/shipping-management', { params: { ...cachedParams } });
+  const response = await dataService.get('/sms/wells/service/bs-regular-shipping', { params: { ...cachedParams } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -210,7 +210,7 @@ async function onClickConfirm() {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
-  await dataService.post('/sms/wells/service/shipping-management', chkRows);
+  await dataService.post('/sms/wells/service/bs-regular-shipping', chkRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();

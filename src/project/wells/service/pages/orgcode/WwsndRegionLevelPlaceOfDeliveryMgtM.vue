@@ -190,7 +190,7 @@ const codes = await codeUtil.getMultiCodes(
   'PDLV_DV_CD',
 );
 
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
 
 const pageInfo = ref({
   totalCount: 0,

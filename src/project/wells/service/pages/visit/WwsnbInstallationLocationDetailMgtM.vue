@@ -230,7 +230,7 @@ const { currentRoute } = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
 
 const engineers = ref([]);
 const products = ref([]);
@@ -330,7 +330,7 @@ async function setEngineers() {
   if (searchParams.value.ogId === '') {
     engineers.value = [];
   } else {
-    const eng = (await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: searchParams.value.ogId } })).data;
+    const eng = (await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: searchParams.value.ogId, authYn: 'N' } })).data;
     if (searchParams.value.rgsnYn === 'Y') {
       const wrkEngByOdId = eng.filter((v) => v.cltnDt === null || v.cltnDt === '');
       engineers.value = wrkEngByOdId.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNm }));

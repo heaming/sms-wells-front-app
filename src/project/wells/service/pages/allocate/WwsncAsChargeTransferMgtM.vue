@@ -219,7 +219,7 @@ const now = dayjs();
 const tfPrtnrKnmRef = ref();
 const engineers1 = ref([]);
 /* 공통코드 가져오기 */
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
 
 /* 조회조건 */
 const searchVal = ref({
@@ -337,14 +337,14 @@ function onClickTransfetHistoryInquiry() {
 async function fetchEngineers(params) {
   return await dataService.get('/sms/wells/service/organizations/engineer', params);
 }
-const engineers = (await fetchEngineers({ params: { dgr1LevlOgId: '' } })).data;
+const engineers = (await fetchEngineers({ params: { dgr1LevlOgId: '', authYn: 'N' } })).data;
 
 async function setEngineers1() {
   if (searchVal.value.svCnrOgId === '') {
     engineers1.value = [];
     return;
   }
-  const res = await fetchEngineers({ params: { dgr1LevlOgId: searchVal.value.svCnrOgId } });
+  const res = await fetchEngineers({ params: { dgr1LevlOgId: searchVal.value.svCnrOgId, authYn: 'N' } });
   engineers1.value = res.data;
 }
 
@@ -353,7 +353,6 @@ async function onUpdateSvcCode1() {
   setEngineers1();
 }
 
-/* TODO: 임시데이터로 조회하게 해놓음. 조회조건 (소속 : 수원지점/의정부지점, ) */
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-transfers/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: asInfos, pageInfo: pagingResult } = res.data;
