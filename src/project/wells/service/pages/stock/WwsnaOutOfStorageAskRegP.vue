@@ -188,6 +188,8 @@ const props = defineProps({
 
 });
 
+const LGST_OSTR_AK_TP_CD = '1'; // 물류
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -390,13 +392,18 @@ async function onClickDelete() {
 
   for (let i = 0; i < checkedRows.length; i += 1) {
     const chkRectOstrDt = checkedRows[i].rectOstrDt;
+    const chkOstrWareDvCd = checkedRows[i].ostrAkWareDvCd;
     if (!isEmpty(chkRectOstrDt)) {
       notify(t('MSG_ALT_ARDY_OSTR', [t('MSG_TXT_DEL')]));
       return;
     }
+
+    if (chkOstrWareDvCd === LGST_OSTR_AK_TP_CD && checkedRows.length > 1) {
+      notify(t('MSG_ALT_ONE_PROCS_PSB'));
+      return;
+    }
   }
 
-  // if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   console.log(deletedRows);
 
