@@ -1,3 +1,4 @@
+<!-- eslint-disable max-len -->
 <!----
 ****************************************************************************************************
 * 프로그램 개요
@@ -41,10 +42,10 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PKG_INF')">
-          <p>{{ regularShippingDetail.pdNm }}</p>
+          <p>({{ regularShippingDetail.pkgCd }}) {{ regularShippingDetail.pkgNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_MCHN_INF')">
-          <p>{{ regularShippingDetail.lcJcnam }}</p>
+          <p>({{ regularShippingDetail.mchnCntrNo }}-{{ mchnCntrSn }}) {{ regularShippingDetail.mchnRcgvpKnm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SALE_PRICE')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.sellAmt)) }}</p>
@@ -63,13 +64,13 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_RCPDT')">
-          <p>{{ stringUtil.getDateFormat(regularShippingDetail.cntrDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(regularShippingDetail.cntrDt,'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SPP_DT')">
-          <p>{{ stringUtil.getDateFormat(regularShippingDetail.sppDtm) }}</p>
+          <p>{{ stringUtil.getDateFormat(regularShippingDetail.sppDt,'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_DT')">
-          <p>{{ stringUtil.getDateFormat(regularShippingDetail.slRcogDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(regularShippingDetail.lcsleDt,'YYYY-MM-DD') }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -83,13 +84,13 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SL_OC_MM')">
-          <p>{{ regularShippingDetail.lcdflg }}</p>
+          <p>{{ regularShippingDetail.slOccYm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SPP_YN')">
           <p>{{ regularShippingDetail.sppYn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRGS_SPP_NMN')">
-          <p>{{ regularShippingDetail.sppTn }}</p>
+          <p>{{ regularShippingDetail.rentalTn }} / {{ regularShippingDetail.sppTn }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -97,7 +98,7 @@
           <p>{{ regularShippingDetail.rentalDc }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
-          <p>{{ stringUtil.getDateFormat(regularShippingDetail.canDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(regularShippingDetail.canDt,'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_NOM_SL_AMT')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.nomSlAmt)) }}</p>
@@ -108,7 +109,7 @@
           <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.nomDscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FSH_DT')">
-          <p>{{ stringUtil.getDateFormat(regularShippingDetail.adsbDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(regularShippingDetail.fshDt,'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SPMT_SL_AMT')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.spmtSlAmt)) }}</p>
@@ -141,7 +142,7 @@
           <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.ctrAggAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_BLAM')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.col1)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.ucAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -188,7 +189,7 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.thmOcDlqAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.eotDlqAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -202,32 +203,32 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_BTD_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.mmIstmPcamAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.btdUcAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_THM_EXP_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.mmIstmIntAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.thmExpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_THM_SPMT_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.nomBilAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.thmAddAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_THM_DP_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.bilCtrAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.thmDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_THM_CTR_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.bilDscAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.thmAdjAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_BIL_BLAM')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.lstFnlBilAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.eotUcAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_NMN_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.istmPcamBlam)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.nextMonAmt1)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_MMS2_AFT_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.istmIntBlam)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.nextMonAmt2)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -241,18 +242,20 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DLQ_MCNT_AGG')">
-          <p>{{ regularShippingDetail.dlqMcn }}</p>
+          <p>{{ regularShippingDetail.dlqMcn }} / {{ regularShippingDetail.dlqAcuMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_STP')">
           <p>{{ regularShippingDetail.slStpYn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ACTCS_DT')">
-          <p>{{ stringUtil.getDateFormat(regularShippingDetail.actcsDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(regularShippingDetail.actcsDt,'YYYY-MM-DD') }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CLCTAM_ICHR')">
-          <p>{{ regularShippingDetail.prtnrKnm }}</p>
+          <p>
+            {{ regularShippingDetail.rcpAoffceCdNm }} / {{ regularShippingDetail.clctamDvCdNm }}({{ regularShippingDetail.clctamDvCd }}) {{ regularShippingDetail.clctamPrtnrNm }}({{ regularShippingDetail.clctamPrtnrNo }})
+          </p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
