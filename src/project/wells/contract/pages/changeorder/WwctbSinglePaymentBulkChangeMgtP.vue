@@ -536,6 +536,10 @@ async function onProcsDvChange() {
     view.columnsByTag('bs').forEach((col) => { col.visible = false; });
     view.columnsByTag('cntr').forEach((col) => { col.visible = true; });
   }
+
+  if (saveParams.value.procsDv === '704' || saveParams.value.procsDv === '710') {
+    alert(t('서비스 확인 중 입니다.'));
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
