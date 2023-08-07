@@ -405,16 +405,17 @@ async function onClickSearchNo() {
 }
 
 /*
- *  Event - 수수료조정 버튼 클릭  ※팝업화면 삭제됨
+ *  Event - 수수료조정 버튼 클릭
  */
 async function openFeeControlPopup() {
   const param = {
     perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    prtnrNo: searchParams.value.no,
+    ogTpCd: 'W02',
   };
 
   await modal({
-    component: 'openFeeControlPopup',
+    component: 'ZwfedFeeControlP',
     componentProps: param,
   });
 }
@@ -457,7 +458,7 @@ async function onClickSearch() {
  */
 async function openZwfedFeeBurdenDeductionRegP() {
   const param = {
-    dsbYm: dayjs(searchParams.value.perfYm).format('YYYY-MM'),
+    ddtnYm: searchParams.value.perfYm,
     ogTpCd: 'W02',
     coCd: '2000',
     prtnrNo: searchParams.value.no,
@@ -475,7 +476,7 @@ async function openZwfedFeeBurdenDeductionRegP() {
  */
 async function openZwfedFeePnpyamDeductionRegP() {
   const param = {
-    dsbYm: dayjs(searchParams.value.perfYm).format('YYYY-MM'),
+    dsbYm: searchParams.value.perfYm,
     ogTpCd: 'W02',
     coCd: '2000',
     prtnrNo: searchParams.value.no,
