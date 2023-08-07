@@ -544,7 +544,7 @@ function initGrid(data, view) {
     }, // [계약상세번호]
     { fieldName: 'copnDvNm', header: t('MSG_TXT_CNTRT_TP'), width: '88', styleName: 'text-center' }, // [계약자유형]
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '88', styleName: 'text-center' }, // [고객번호]
-    { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // [고객명]
+    { fieldName: 'cntrCstKnmMsk', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // [고객명]
     { fieldName: 'eotUcAmt', header: t('MSG_TXT_NPD_AMT'), width: '88', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '350' }, // [상품명]
     { fieldName: 'cntrNo', visible: false },
@@ -604,6 +604,7 @@ function initGrid(data, view) {
     { fieldName: 'sppDuedt', visible: false },
     { fieldName: 'sellPrtnrNo', visible: false },
     { fieldName: 'bulkApplyYN', visible: false },
+    { fieldName: 'cntrCstKnm', visible: false },
     { fieldName: 'disableChk', visible: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
