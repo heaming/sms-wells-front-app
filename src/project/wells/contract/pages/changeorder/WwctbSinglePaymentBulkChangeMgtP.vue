@@ -400,9 +400,9 @@ async function onClickSave() {
         return;
       }
       if ((userInfo.employeeIDNumber !== '36717'
-      && userInfo.employeeIDNumber !== '36717'
-      && userInfo.employeeIDNumber !== '36717') || !isEmpty(changedRows[i].istDt)) { // 사번이 36717,38754,31331 이 아니면 설치일자(IST_DT)가 있으면 수정불가
-        alert(t('MSG_ALT_NOT_MODIFY_SBSCM_CST', [changedRows[i].cntrDtlNo])); // 수정불가! 설치완료된 고객입니다!
+      && userInfo.employeeIDNumber !== '38754'
+      && userInfo.employeeIDNumber !== '31331') || !isEmpty(changedRows[i].istDt)) { // 사번이 36717,38754,31331 이 아니면 설치일자(IST_DT)가 있으면 수정불가
+        alert(t('MSG_ALT_NOT_MODIFY_IST_COMPLETE', [changedRows[i].cntrDtlNo])); // 수정불가! 설치완료된 고객입니다!
         return;
       }
     } else if (saveParams.value.procsDv === '703') { // 컨택정보변경
