@@ -794,9 +794,9 @@ const initGridHousehold = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrDtl', header: t('MSG_TXT_CST_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cntrDtl', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-center' },
     { fieldName: 'telNo',
       header: t('MSG_TXT_TEL_NO'),
       width: '150',
