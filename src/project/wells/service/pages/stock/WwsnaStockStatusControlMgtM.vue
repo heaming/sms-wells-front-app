@@ -294,9 +294,11 @@ async function onChangeFilterWareNo() {
 
 await onChangeFilterWareNo();
 
+const optionOgNm = ref();
 const onChangeWareNo = async () => {
   const res = await dataService.get(`/sms/wells/service/stock-status-control/organization/${searchParams.value.wareNo}`);
-  searchParams.value.ogNm = res.data.ogNm;
+  optionOgNm.value = res.data;
+  searchParams.value.ogNm = optionOgNm.value.ogNm;
   // onChangeItmKnd();
 };
 
@@ -397,6 +399,7 @@ async function onClickAddRow() {
   const view = grdMainRef.value.getView();
   const { itmKnd, wareDvCd, wareNo } = cachedParams;
   const wareNoInfo = filterWareNo.value.find((e) => e.codeId === wareNo);
+  const ogBasInfo = optionOgNm.value;
   isAddRow.value = true;
   await gridUtil.insertRowAndFocus(view, 0, {
     statCtrApyDt: dayjs().format('YYYYMMDD'),
@@ -404,6 +407,7 @@ async function onClickAddRow() {
     wareDvCd,
     wareNo,
     wareNm: isEmpty(wareNoInfo) ? '' : wareNoInfo.codeName,
+    ogNm: isEmpty(ogBasInfo) ? '' : ogBasInfo.ogNm,
   });
 }
 
@@ -533,14 +537,13 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       editor: { type: 'dropdown' },
       options: filterWareNo.value,
-      editable: true,
     },
     { fieldName: 'ogNm',
       header: t('MSG_TXT_MGMT_DEPT'),
       width: '150',
     },
     { fieldName: 'itemKnd',
-      header: '품목종류',
+      header: t('MSG_TXT_ITM_KND'),
       styleName: 'text-center',
       width: '150',
       options: codes.ITM_KND_CD,
@@ -564,16 +567,16 @@ const initGrdMain = defineGrid((data, view) => {
       //   return { editor: { type: 'list', labels: codeNm, values: codeId } };
       // },
     },
-    { fieldName: 'ctrWkDt', header: '상태조정작업일 ', styleName: 'text-center', width: '150', datetimeFormat: 'date' },
-    { fieldName: 'statCtrApyDt', header: '조정적용일자', styleName: 'text-center', width: '150', datetimeFormat: 'date' },
-    { fieldName: 'sapCd', header: 'SAP코드', styleName: 'text-center', width: '150' },
+    { fieldName: 'ctrWkDt', header: t('MSG_TXT_STAT_CTR_WK_D'), styleName: 'text-center', width: '150', datetimeFormat: 'date' },
+    { fieldName: 'statCtrApyDt', header: t('MSG_TXT_CTR_APY_DT'), styleName: 'text-center', width: '150', datetimeFormat: 'date' },
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), styleName: 'text-center', width: '150' },
     { fieldName: 'itmPdCd',
-      header: '품목코드',
+      header: t('TXT_MSG_AS_ITM_CD'),
       styleName: 'text-center',
       width: '150',
     },
     { fieldName: 'itmPdNm',
-      header: '품목명',
+      header: t('MSG_TXT_ITM_NM'),
       styleName: 'text-center',
       width: '200',
       editable: true,
@@ -586,22 +589,34 @@ const initGrdMain = defineGrid((data, view) => {
         return { editor: { type: 'dropdown', labels: pdNms, values: pdNms } };
       },
     },
-    { fieldName: 'bfctNomStocAGdQty', header: 'A등급', styleName: 'text-right', width: '99' },
-    { fieldName: 'bfctNomStocEGdQty', header: 'E등급', styleName: 'text-right', width: '99' },
-    { fieldName: 'bfctNomStocRGdQty', header: 'R등급', styleName: 'text-right', width: '99' },
-    { fieldName: 'bfctItmGdCd', header: '조정전등급', styleName: 'text-center', width: '99' },
-    { fieldName: 'afctItmGdCd', header: '조정후등급', styleName: 'text-center', width: '99' },
+    { fieldName: 'bfctNomStocAGdQty', header: t('MSG_TXT_A_GRADE'), styleName: 'text-right', width: '99' },
+    { fieldName: 'bfctNomStocEGdQty', header: t('MSG_TXT_E_GD'), styleName: 'text-right', width: '99' },
+    { fieldName: 'bfctNomStocRGdQty', header: t('MSG_TXT_R_GD'), styleName: 'text-right', width: '99' },
+    { fieldName: 'bfctItmGdCd', header: t('MSG_TXT_CTR_BF_GD'), styleName: 'text-center', width: '99' },
+    { fieldName: 'afctItmGdCd', header: t('MSG_TXT_CTR_AF_GD'), styleName: 'text-center', width: '99' },
     { fieldName: 'ctrQty',
       header: {
-        text: '조정수량',
+        text: t('MSG_TXT_CTR_QTY'),
         styleName: 'essential',
       },
       styleName: 'text-right',
       width: '99',
       editable: true,
+      // styleCallback: (grid, dataCell) => {
+      //   // eslint-disable-next-line max-len
+      //   const { bfctNomStocAGdQty, bfctNomStocEGdQty, bfctNomStocRGdQty, bfctItmGdCd, afctItmGdCd }
+      //  = grid.getValues(dataCell.index.itemIndex);
+      //   // eslint-disable-next-line max-len
+      //   if (!isEmpty(bfctNomStocAGdQty) && !isEmpty(bfctNomStocEGdQty)
+      // && !isEmpty(bfctNomStocRGdQty) && !isEmpty(bfctItmGdCd) && !isEmpty(afctItmGdCd)) {
+      //     return { editable: true };
+      //   }
+      //   return { editable: false };
+      // },
+
     },
     { fieldName: 'itmGdCtrRsonNm',
-      header: '조정사유',
+      header: t('MSG_TXT_CTR_RSON'),
       styleName: 'text-left',
       width: '99',
       editable: true,
@@ -610,7 +625,7 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.CTR_RSON_CD,
     },
     { fieldName: 'rmkCn',
-      header: '비고',
+      header: t('MSG_TXT_NOTE'),
       styleName: 'text-center',
       width: '99',
       editable: true },
@@ -698,28 +713,43 @@ const initGrdMain = defineGrid((data, view) => {
       console.log(afctItmGdCd);
       let chk = 0;
 
-      if (bfctItmGdCd === 'A') {
+      if (bfctItmGdCd === 'A' || isEmpty(bfctItmGdCd)) {
         if (Number(bfctNomStocAGdQty) < Number(ctrQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
-        }
-      } else if (bfctItmGdCd === 'E') {
-        if (Number(bfctNomStocEGdQty) < Number(ctrQty)) {
+        } else if (isEmpty(bfctNomStocAGdQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
         }
-      } else if (bfctItmGdCd === 'R') {
+      } else if (bfctItmGdCd === 'E' || isEmpty(bfctItmGdCd)) {
+        if (Number(bfctNomStocEGdQty) < Number(ctrQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        } else if (isEmpty(bfctNomStocEGdQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        }
+      } else if (bfctItmGdCd === 'R' || isEmpty(bfctItmGdCd)) {
         if (Number(bfctNomStocRGdQty) < Number(ctrQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
-        }
-      } else if (bfctItmGdCd === '정상') {
-        if (Number(bfctNomStocAGdQty) < Number(ctrQty)) {
+        } else if (isEmpty(bfctNomStocRGdQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
         }
-      } else if (bfctItmGdCd === '불량') {
+      } else if (bfctItmGdCd === '정상' || isEmpty(bfctItmGdCd)) {
+        if (Number(bfctNomStocAGdQty) < Number(ctrQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        } else if (isEmpty(bfctNomStocAGdQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        }
+      } else if (bfctItmGdCd === '불량' || isEmpty(bfctItmGdCd)) {
         if (Number(bfctNomStocEGdQty) < Number(ctrQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        } else if (isEmpty(bfctNomStocEGdQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
         }
