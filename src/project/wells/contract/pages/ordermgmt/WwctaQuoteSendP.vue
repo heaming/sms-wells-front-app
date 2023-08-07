@@ -233,11 +233,29 @@ const initQuoteSendList = defineGrid((data, view) => {
     { fieldName: 'callback',
       header: `${t('MSG_TXT_SEND')}${t('MSG_TXT_INF')}`,
       width: '196',
-      styleName: 'text-left' }, // 발신정보
+      styleName: 'text-left',
+      displayCallback(grid, index, value) {
+        // 사업자번호 3-2-5 형식으로 표시
+        if (!isEmpty(value) && value.length === 11) {
+          return `${value.substr(0, 3)}-${value.substr(3, 4)}-${value.substr(7, 4)}`;
+        }
+        if (!isEmpty(value) && value.length === 10) {
+          return `${value.substr(0, 3)}-${value.substr(3, 3)}-${value.substr(7, 4)}`;
+        }
+      } }, // 발신정보
     { fieldName: 'recipientNum',
       header: `${t('MSG_TXT_RECP')}${t('MSG_TXT_INF')}`,
       width: '196',
-      styleName: 'text-left' }, // 수신정보
+      styleName: 'text-left',
+      displayCallback(grid, index, value) {
+        // 사업자번호 3-2-5 형식으로 표시
+        if (!isEmpty(value) && value.length === 11) {
+          return `${value.substr(0, 3)}-${value.substr(3, 4)}-${value.substr(7, 4)}`;
+        }
+        if (!isEmpty(value) && value.length === 10) {
+          return `${value.substr(0, 3)}-${value.substr(3, 3)}-${value.substr(7, 4)}`;
+        }
+      } }, // 수신정보
     { fieldName: 'fwDtm',
       header: t('MSG_TXT_FW_DAY'),
       width: '133',
