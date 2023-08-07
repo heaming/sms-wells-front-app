@@ -117,6 +117,7 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
+const { currentRoute } = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
@@ -193,24 +194,32 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const exportLayout = [
-    'strHopDt',
-    'ostrAkTpNm',
-    'ostrAkNo',
-    'rectOstrDt',
-    'wareNm',
-  ];
-
-  const res = await dataService.get('/sms/wells/service/out-of-storage-asks', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/out-of-storage-asks/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportLayout,
-    exportData: res.data.map((v) => {
-      const { codeName } = codes.OSTR_AK_TP_CD.find((c) => c.codeId === v.ostrAkTpCd);
-      return { ...v, ostrAkTpNm: codeName };
-    }),
+    checkBar: 'hidden',
+    exportData: res.data,
   });
+
+  //   const exportLayout = [
+  //     'strHopDt',
+  //     'ostrAkTpNm',
+  //     'ostrAkNo',
+  //     'rectOstrDt',
+  //     'wareNm',
+  //   ];
+
+//   const res = await dataService.get('/sms/wells/service/out-of-storage-asks', { params: cachedParams });
+//   await gridUtil.exportView(view, {
+//     fileName: 'outOfStorageAskList',
+//     timePostfix: true,
+//     exportLayout,
+//     exportData: res.data.map((v) => {
+//       const { codeName } = codes.OSTR_AK_TP_CD.find((c) => c.codeId === v.ostrAkTpCd);
+//       return { ...v, ostrAkTpNm: codeName };
+//     }),
+//   });
 }
 
 async function onClickRegistration() {
