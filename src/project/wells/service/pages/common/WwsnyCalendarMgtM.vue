@@ -293,7 +293,17 @@ async function onDbClickCalendar(dayCnt) {
   //     rmkCn: calendarList.value[dayCnt - 1]?.rmkCn,
   //   },
   // });
-  const { svCnrOgCd, svCnrOgId, baseY, baseMm, baseD, dfYn, bndtWrkPsicNo, rmkCn } = calendarList.value[dayCnt - 1];
+  const {
+    svCnrOgCd,
+    svCnrOgId,
+    baseY,
+    baseMm,
+    baseD,
+    dfYn,
+    ogTpCd,
+    bndtWrkPsicNo,
+    rmkCn,
+  } = calendarList.value[dayCnt - 1];
   const { result: isChanged } = await modal({
     component: 'WwsnyCalendarRegP',
     componentProps: {
@@ -303,6 +313,7 @@ async function onDbClickCalendar(dayCnt) {
       baseMm,
       baseD,
       dfYn,
+      ogTpCd,
       bndtWrkPsicNo,
       rmkCn,
       isHolidaySetter,

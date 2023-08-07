@@ -15,6 +15,7 @@
 
 <template>
   <kw-popup
+    ref="popupRef"
     size="3xl"
   >
     <kw-form
@@ -165,9 +166,6 @@ const { ok } = useModal();
 const { modal, notify } = useGlobal();
 const { getMonthWarehouse } = useSnCode();
 const store = useStore();
-const { currentRoute } = useRouter();
-// const { getters } = useStore();
-// const userInfo = getters['meta/getUserInfo'];
 
 const props = defineProps({
   ostrAkNo: {
@@ -192,6 +190,7 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const popupRef = ref();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const isAkWare = ref(false); // 출고요청창고
@@ -376,7 +375,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/service/out-of-storage-asks/out-of-storage-items/excel-download', { params: searchParams.value });
 
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
     exportData: res.data,
   });

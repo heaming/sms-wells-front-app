@@ -16,6 +16,7 @@
   <kw-search
     :modified-targets="['grdResign']"
     @search="onClickSearch"
+    @reset="onChangePrtnrNo"
   >
     <kw-search-row>
       <kw-search-item

@@ -16,7 +16,6 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
-      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고요청창고 -->
@@ -120,9 +119,9 @@ import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 const { getConfig } = useMeta();
-// const { modal, notify, alert } = useGlobal();
 const { modal, notify } = useGlobal();
 const store = useStore();
 
@@ -204,7 +203,7 @@ async function onClickExcelDownload() {
 
   const res = await dataService.get('/sms/wells/service/out-of-storage-asks', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'outOfStorageAskList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportLayout,
     exportData: res.data.map((v) => {
@@ -251,21 +250,6 @@ async function openOutOfStorageP(g, { column, dataRow }) {
   if (result) {
     await fetchData();
   }
-}
-
-function searchConditionReset() {
-  fetchDefaultData();
-
-  searchParams.value.strOjWareNo = '';
-  searchParams.value.ostrAkTpCd = '';
-  searchParams.value.startStrHopDt = dayjs().format('YYYYMMDD');
-  searchParams.value.endStrHopDt = dayjs().format('YYYYMMDD');
-  searchParams.value.wareDvCd = '1';
-  searchParams.value.wareLocaraCd = '';
-}
-
-function onClickReset() {
-  searchConditionReset();
 }
 
 onMounted(async () => {

@@ -52,6 +52,7 @@ const props = defineProps({
   reloadYn: { type: String, default: null },
 });
 
+const router = useRouter();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -63,9 +64,16 @@ const pdBas = ref({});
 const currentInitData = ref({});
 const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 
+async function goList() {
+  await router.push({ path: '/product/zwpdc-service-list', state: { stateParam: { searchYn: 'Y' } } });
+}
+
 async function fetchProduct() {
   if (currentPdCd.value) {
-    const res = await dataService.get(`/sms/wells/product/services/${currentPdCd.value}`);
+    const res = await dataService.get(`/sms/wells/product/services/${currentPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     pdBas.value = res.data[pdConst.TBL_PD_BAS];
     currentInitData.value = cloneDeep(res.data);
   }

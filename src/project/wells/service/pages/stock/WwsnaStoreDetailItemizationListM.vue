@@ -18,7 +18,6 @@
     <kw-search
       :cols="9"
       @search="onClickSearch"
-      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 입고기간 -->
@@ -188,6 +187,7 @@ import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSe
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 const { t } = useI18n();
 
@@ -373,7 +373,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/store-detail-itemization/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'storeDetailItemizationList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
@@ -381,30 +381,7 @@ async function onClickExcelDownload() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  console.log(searchParams.value);
   await fetchData();
-}
-
-function searchConditionReset() {
-  searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
-  searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
-  searchParams.value.strTpCd = '';
-  searchParams.value.strWareDvCd = '2';
-  searchParams.value.strWareNoD = '';
-  searchParams.value.strWareNoM = '';
-  searchParams.value.ostrWareDvCd = '1';
-  searchParams.value.ostrWareNoD = '';
-  searchParams.value.ostrWareNoM = '';
-  searchParams.value.pgGdCd = '';
-  searchParams.value.itmKndCd = '';
-  searchParams.value.useYn = '';
-  searchParams.value.itmPdCd = '';
-  searchParams.value.strWareDtlDvCd = '';
-  searchParams.value.ostrWareDtlDvCd = '';
-}
-
-function onClickReset() {
-  searchConditionReset();
 }
 
 onMounted(async () => {

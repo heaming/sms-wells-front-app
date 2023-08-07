@@ -138,6 +138,7 @@ const props = defineProps({
 
   // auth
   authYn: { type: String, default: 'Y' },
+  bznsPsicAuthYn: { type: String, default: 'N' },
 
   // Select Always Search
   dgr2LevlOgAlwaysSearch: { type: Boolean, default: true },
@@ -192,7 +193,10 @@ async function fetchPartners(params) {
 
 async function getDgr1LevlOgs() {
   if (props.useOgLevel < '1') return;
-  const res = await fetchDgr1LevlOgs({ params: { authYn: props.authYn } });
+  const res = await fetchDgr1LevlOgs({ params: {
+    authYn: props.authYn,
+    bznsPsicAuthYn: props.bznsPsicAuthYn,
+  } });
   dgr1LevlOgs.value = res.data;
 }
 
@@ -202,6 +206,7 @@ async function getDgr2LevlOgs() {
     const res = await fetchDgr2LevlOgs({ params: {
       ogId: selectedDgr1LevlOgId.value,
       authYn: props.authYn,
+      bznsPsicAuthYn: props.bznsPsicAuthYn,
     } });
     dgr2LevlOgs.value = res.data;
   } else {
@@ -215,6 +220,7 @@ async function getDgr3LevlOgs() {
     const res = await fetchDgr3LevlOgs({ params: {
       ogId: selectedDgr2LevlOgId.value,
       authYn: props.authYn,
+      bznsPsicAuthYn: props.bznsPsicAuthYn,
     } });
     dgr3LevlOgs.value = res.data;
   } else {
@@ -235,6 +241,7 @@ async function getPartners() {
       dgr2LevlOgId: selectedDgr2LevlOgId.value,
       dgr3LevlOgId: selectedDgr3LevlOgId.value,
       authYn: props.authYn,
+      bznsPsicAuthYn: props.bznsPsicAuthYn,
     } });
     partners.value = res.data;
   } else {
@@ -301,19 +308,19 @@ watch(() => props.prtnrNo, (newVal) => {
 });
 
 await getDgr1LevlOgs();
-if (props.authYn === 'Y' && dgr1LevlOgs.value.length === 1) {
+if ((props.authYn === 'Y' || props.bznsPsicAuthYn === 'Y') && dgr1LevlOgs.value.length === 1) {
   selectedDgr1LevlOgId.value = dgr1LevlOgs.value[0].ogId;
   emit('update:dgr1LevlOgId', selectedDgr1LevlOgId.value);
   emit('update:dgr1LevlOg', dgr1LevlOgs.value.find((og) => og.ogId === selectedDgr1LevlOgId.value));
 }
 await getDgr2LevlOgs();
-if (props.authYn === 'Y' && dgr2LevlOgs.value.length === 1) {
+if ((props.authYn === 'Y' || props.bznsPsicAuthYn === 'Y') && dgr2LevlOgs.value.length === 1) {
   selectedDgr2LevlOgId.value = dgr2LevlOgs.value[0].ogId;
   emit('update:dgr2LevlOgId', selectedDgr2LevlOgId.value);
   emit('update:dgr2LevlOg', dgr2LevlOgs.value.find((og) => og.ogId === selectedDgr2LevlOgId.value));
 }
 await getDgr3LevlOgs();
-if (props.authYn === 'Y' && dgr3LevlOgs.value.length === 1) {
+if ((props.authYn === 'Y' || props.bznsPsicAuthYn === 'Y') && dgr3LevlOgs.value.length === 1) {
   selectedDgr3LevlOgId.value = dgr3LevlOgs.value[0].ogId;
   emit('update:dgr3LevlOgId', selectedDgr3LevlOgId.value);
   emit('update:dgr3LevlOg', dgr3LevlOgs.value.find((og) => og.ogId === selectedDgr3LevlOgId.value));

@@ -175,7 +175,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal, codeUtil } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
-import { pdMergeBy, pageMove, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, pageMove, getCopyProductInfo, isValidToProdcutSave } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue'; /* 속성 등록/수정 */
@@ -206,6 +206,7 @@ const dtl = pdConst.TBL_PD_DTL;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
 const rel = pdConst.TBL_PD_REL;
 
+const fnlMdfcDtm = ref();
 const isTempSaveBtn = ref(true);
 const regSteps = ref([
   pdConst.W_MATERIAL_STEP_BASIC,
@@ -273,11 +274,15 @@ async function getSaveData(tempSaveYn) {
   return subList;
 }
 
+async function goList() {
+  await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: true }, { searchYn: 'Y' });
+}
+
 // 삭제 버튼
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
-    await pageMove(pdConst.MATERIAL_LIST_PAGE, true, router, { isSearch: true }, { searchYn: 'Y' });
+    await goList();
   }
 }
 
@@ -333,17 +338,24 @@ async function init() {
 async function fetchProduct() {
   const initData = {};
   if (currentPdCd.value) {
-    const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`);
+    const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     initData[bas] = res.data[bas];
     initData[dtl] = res.data[dtl];
     initData[ecom] = res.data[ecom];
     initData[rel] = res.data[rel];
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     prevStepData.value = initData;
+    fnlMdfcDtm.value = prevStepData.value[bas].fnlMdfcDtm;
     subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
     await init();
   } else if (currentCopyPdCd.value) {
-    const res = await dataService.get(`${baseUrl}/${currentCopyPdCd.value}`);
+    const res = await dataService.get(`${baseUrl}/${currentCopyPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     prevStepData.value = await getCopyProductInfo(res.data);
     isTempSaveBtn.value = 'Y';
   }
@@ -396,9 +408,15 @@ async function onClickSave(tempSaveYn) {
   // }
 
   // 5. Insert or Update
-  const rtn = isCreate.value
-    ? await dataService.post(`${baseUrl}`, subList)
-    : await dataService.put(baseUrl, subList);
+  let rtn;
+  if (isCreate.value) {
+    rtn = await dataService.post(`${baseUrl}`, subList);
+  } else if (await isValidToProdcutSave(currentPdCd.value, fnlMdfcDtm.value, pdConst.PD_JOB_TYPE_EDIT)) {
+    rtn = await dataService.put(baseUrl, subList);
+  } else {
+    return;
+  }
+
   notify(t('MSG_ALT_SAVE_DATA'));
   await init();
 
@@ -435,6 +453,7 @@ async function resetData() {
   }
   currentStep.value = cloneDeep(pdConst.W_MATERIAL_STEP_BASIC);
   prevStepData.value = {};
+  fnlMdfcDtm.value = null;
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.resetData) await item.value?.resetData();
     if (item.value?.init) await item.value?.init();

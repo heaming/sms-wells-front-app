@@ -145,7 +145,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, useGlobal, useDataService, useMeta, getComponentType, codeUtil, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const { t } = useI18n();
@@ -354,6 +354,17 @@ const initGrd = defineGrid((data, view) => {
       if (result) {
         g.setValue(itemIndex, 'basePdcd', payload?.[0].pdCd);
         g.setValue(itemIndex, 'basePdNm', payload?.[0].pdNm);
+      }
+    }
+  };
+  // 시작월 종료월 체크
+  view.onValidate = async (g, index) => {
+    const { apyStrtYm } = await g.getValues(index.dataRow);
+    const { apyEndYm } = await g.getValues(index.dataRow);
+    if (!isEmpty(apyStrtYm) && !isEmpty(apyEndYm)) {
+      if (apyStrtYm > apyEndYm) {
+        gridUtil.focusCellInput(view, index.dataRow, 'apyStrtYm');
+        return t('MSG_ALT_STRT_MM_CHK');
       }
     }
   };

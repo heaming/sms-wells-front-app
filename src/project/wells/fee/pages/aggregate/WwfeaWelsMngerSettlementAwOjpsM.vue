@@ -260,8 +260,19 @@ async function onClickSearchNo() {
 
 // 저장 버튼 클릭 이벤트
 async function onClickSave() {
-  const view = grdMainRef.value.getView();
+  const { opngcnfmYn, opngCnfmCnt, feeCnfmYn } = searchParams.value;
   const { baseYm } = searchParams.value;
+  const view = grdMainRef.value.getView();
+  if (opngcnfmYn === 'Y') {
+    await alert(t('MSG_ALT_BF_CNFM_MDFC_IMP'));
+    return;
+  } if (opngCnfmCnt === 'Y') {
+    await alert(t('MSG_ALT_DATA_ALREADY_CNFM'));
+    return;
+  } if (feeCnfmYn === '0') {
+    await alert(t('MSG_ALT_DTA_EXST'));
+    return;
+  }
   if (bfMonth !== baseYm) {
     await alert(t('MSG_ALT_LSTMM_PSB'));
     return;
@@ -401,12 +412,11 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
-
   view.onCellEditable = async (g, { itemIndex }) => {
     const cnfmStatYn = g.getValue(itemIndex, 'cnfmStatYn');
     if (cnfmStatYn === 'N') {
       view.columnByName('opngCd').editable = true;
-    } else if (cnfmStatYn === 'Y' || cnfmStatYn === 'X') {
+    } else {
       view.columnByName('opngCd').editable = false;
     }
   };

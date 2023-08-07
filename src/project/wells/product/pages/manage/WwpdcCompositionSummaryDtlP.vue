@@ -101,7 +101,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, stringUtil, getComponentType } from 'kw-lib';
+import { useDataService, codeUtil, stringUtil, getComponentType, useModal } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getCodeNames } from '~sms-common/product/utils/pdUtil';
 
@@ -111,6 +111,7 @@ const props = defineProps({
 
 const dataService = useDataService();
 const { t } = useI18n();
+const { cancel } = useModal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -131,7 +132,10 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 async function fetchData() {
-  const resPd = await dataService.get(`/sms/common/product/${currentPdCd.value}`);
+  const resPd = await dataService.get(`/sms/common/product/${currentPdCd.value}`).catch(() => {
+    cancel();
+  });
+  if (!resPd || !resPd.data) return;
   pdInfo.value = resPd.data?.product;
 
   const resRel = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`);

@@ -67,10 +67,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil } from 'kw-lib';
+import { useDataService, stringUtil, useModal } from 'kw-lib';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const dataService = useDataService();
+const { cancel } = useModal();
+
 const props = defineProps({
   pdCd: { type: String, required: true, default: '' },
 });
@@ -88,7 +90,10 @@ const asMatCd = ref(''); // PART- 품목코드
 const asItmCd = ref(''); // PART- AS자재번호
 
 async function fetchData() {
-  const res = await dataService.get(`${baseUrl}/${props.pdCd}`);
+  const res = await dataService.get(`${baseUrl}/${props.pdCd}`).catch(() => {
+    cancel();
+  });
+  if (!res || !res.data) return;
   pdBas.value = res.data[pdConst.TBL_PD_BAS];
   PdEcomPrpDtl.value = res.data[pdConst.TBL_PD_ECOM_PRP_DTL];
 

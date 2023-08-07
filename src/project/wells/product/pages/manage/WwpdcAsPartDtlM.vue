@@ -44,6 +44,7 @@
 import { useDataService, stringUtil } from 'kw-lib'; // codeUtil
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
+import { pageMove } from '~sms-common/product/utils/pdUtil';
 import WwpdcAsPartDtlMContents from './WwpdcAsPartDtlMContents.vue';
 
 const props = defineProps({
@@ -52,6 +53,7 @@ const props = defineProps({
 });
 
 const dataService = useDataService();
+const router = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -64,9 +66,16 @@ const pdBas = ref({});
 const currentInitData = ref({});
 // const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 
+async function goList() {
+  await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { searchYn: 'Y' });
+}
+
 async function fetchProduct() {
   if (currentPdCd.value) {
-    const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`);
+    const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     pdBas.value = res.data[pdConst.TBL_PD_BAS];
     currentInitData.value = cloneDeep(res.data);
   }

@@ -17,7 +17,6 @@
     <kw-search
       :cols="4"
       @search="onClickSearch"
-      @reset="fetchDefaultData"
     >
       <kw-search-row>
         <!-- 입고창고 -->
@@ -79,13 +78,6 @@
             @change="fetchData"
           />
         </template>
-
-        <!-- <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -125,6 +117,7 @@ const { getConfig } = useMeta();
 const { modal, notify } = useGlobal();
 const { t } = useI18n();
 const store = useStore();
+const { currentRoute } = useRouter();
 
 const dataService = useDataService();
 const baseURI = '/sms/wells/service/movement-stores/management';
@@ -206,7 +199,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(excelURI, { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'movementStoreMgtM',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });

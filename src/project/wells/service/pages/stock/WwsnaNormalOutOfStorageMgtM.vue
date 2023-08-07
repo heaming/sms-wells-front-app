@@ -70,7 +70,7 @@
             v-model:from="searchParams.strHopDtStr"
             v-model:to="searchParams.strHopDtEnd"
             rules="date_range_months:1"
-            @change="fetchDefaultData"
+            @update:from="fetchDefaultData"
           />
           <!-- //입고희망일자 -->
           <!-- 출고확정-->

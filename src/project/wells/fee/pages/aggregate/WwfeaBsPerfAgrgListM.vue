@@ -83,6 +83,10 @@
     </kw-search>
     <div class="result-area">
       <kw-action-top>
+        <template #left>
+          <kw-paging-info :total-count="totalCount" />
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+        </template>
         <kw-btn
           icon="download_on"
           dense

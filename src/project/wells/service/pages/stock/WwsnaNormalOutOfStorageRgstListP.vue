@@ -296,6 +296,14 @@ async function onClickDelete() {
     return;
   }
 
+  const validRows = checkedRows.filter((item) => !isEmpty(item.strConfDt));
+
+  if (!isEmpty(validRows)) {
+    // 이미 입고가 완료되었기 때문에 삭제가 불가합니다.
+    await alert(t('MSG_ALT_ALD_STR_CMP_DEL_IMP'));
+    return;
+  }
+
   if (!isEmpty(ostrDt) && !isEmpty(ostrOjWareNo)) {
     // 창고마감여부 조회
     const res = await dataService.get(`${baseURI}/ware-close-yn`, { params: { ostrDt, ostrOjWareNo } });
