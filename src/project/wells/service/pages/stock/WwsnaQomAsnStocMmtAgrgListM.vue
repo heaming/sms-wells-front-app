@@ -144,7 +144,6 @@ const searchParams = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'ITM_KND_CD',
 );
 
@@ -260,22 +259,142 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text' },
-    { fieldName: 'bsQty', header: `${t('MSG_TXT_THM')}${t('MSG_TXT_BS')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'qomAsnQty', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'indiQty1', header: t('MSG_TXT_1ST'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'indiQty2', header: t('MSG_TXT_2ND'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'indiQty3', header: t('MSG_TXT_3RD'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'indeQty1', header: t('MSG_TXT_1ST'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'indeQty2', header: t('MSG_TXT_2ND'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'indeQty3', header: t('MSG_TXT_3RD'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'lgstQty', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'qty100002', header: t('MSG_TXT_PAJU'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'qty100008', header: t('MSG_TXT_SEONG_SU'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'lgstLackQty', header: t('MSG_TXT_PAJU_SEONG_SU'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'lackQty100008', header: t('MSG_TXT_SEONG_SU'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'centerQty', header: `${t('MSG_TXT_BSNS_CNTR')} ${t('MSG_TXT_OG')}${t('MSG_TXT_STOC')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'centerIndiQty', header: `${t('MSG_TXT_BSNS_CNTR')} ${t('MSG_TXT_INDV')}${t('MSG_TXT_STOC')}`, width: '120', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'bsQty',
+      header: `${t('MSG_TXT_THM')}${t('MSG_TXT_BS')}`,
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'qomAsnQty',
+      header: t('MSG_TXT_AGG'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'indiQty1',
+      header: t('MSG_TXT_1ST'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'indiQty2',
+      header: t('MSG_TXT_2ND'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'indiQty3',
+      header: t('MSG_TXT_3RD'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'indeQty1',
+      header: t('MSG_TXT_1ST'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'indeQty2',
+      header: t('MSG_TXT_2ND'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'indeQty3',
+      header: t('MSG_TXT_3RD'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'lgstQty',
+      header: t('MSG_TXT_AGG'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'qty100002',
+      header: t('MSG_TXT_PAJU'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'qty100008',
+      header: t('MSG_TXT_SEONG_SU'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'lgstLackQty',
+      header: t('MSG_TXT_PAJU_SEONG_SU'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'lackQty100008',
+      header: t('MSG_TXT_SEONG_SU'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'centerQty',
+      header: `${t('MSG_TXT_BSNS_CNTR')} ${t('MSG_TXT_OG')}${t('MSG_TXT_STOC')}`,
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'centerIndiQty',
+      header: `${t('MSG_TXT_BSNS_CNTR')} ${t('MSG_TXT_INDV')}${t('MSG_TXT_STOC')}`,
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
   ];
 
   // 헤더 부분 merge
@@ -307,6 +426,8 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.setColumnLayout(layoutColumns);
+  view.setFooters({ visible: true });
+  view.setOptions({ summaryMode: 'aggregate' });
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
