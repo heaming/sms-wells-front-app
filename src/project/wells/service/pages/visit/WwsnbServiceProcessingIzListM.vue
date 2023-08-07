@@ -202,8 +202,8 @@ const serviceTypes = [
 ];
 
 const refriTypes = [
-  { codeId: '1', codeName: '유상서비스' },
-  { codeId: '2', codeName: '무상서비스' },
+  { codeId: '1', codeName: '무상서비스' },
+  { codeId: '2', codeName: '유상서비스' },
   { codeId: '3', codeName: '유상(아웃소싱제외)' },
   { codeId: '4', codeName: '유상(아웃소싱)' },
 ];
