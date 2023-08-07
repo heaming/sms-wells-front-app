@@ -153,8 +153,6 @@ const searchParams = ref({
 });
 
 const saveData = ref({
-  lectrSpptOgTpCd: searchParams.value.lectrSpptOgTpCd, // 조직유형
-  lectrYm: searchParams.value.lectrYm, // 교육년월
   aplcStrtdt: '',
   aplcStrtHm: '',
   aplcEnddt: '',
@@ -186,6 +184,8 @@ async function onClickRemove() {
 async function onClickSave() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
+  saveData.value.lectrSpptOgTpCd = searchParams.value.lectrSpptOgTpCd;
+  saveData.value.lectrYm = searchParams.value.lectrYm;
   saveData.value.dtaDlYn = 'N';
   await dataService.post('/sms/wells/competence/lecture-sppt-aplc-ptrm', saveData.value);
   notify(t('MSG_ALT_SAVE_DATA'));
