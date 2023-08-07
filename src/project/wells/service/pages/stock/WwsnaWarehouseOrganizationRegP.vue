@@ -104,7 +104,6 @@
             v-model="warehouseInfo.hgrWareNo"
             :label="$t('MSG_TXT_HGR_WARE')"
             :options="hgrWarehouses"
-            :readonly="hasProps()"
           />
         </kw-form-item>
       </kw-form-row>
@@ -129,7 +128,6 @@
           <kw-input
             v-model="warehouseInfo.wareNm"
             :label="$t('MSG_TXT_WARE_NM')"
-            :readonly="!isOrgWarehouse"
           />
         </kw-form-item>
       </kw-form-row>
@@ -159,6 +157,20 @@
             :label="$t('MSG_TXT_BLD_INF')"
             :disable="isNotIndpWarehouse || warehouseInfo.adrUseYn === 'N'"
             @click="onClickOpenBuildingPopup"
+          />
+        </kw-form-item>
+        <!-- 노출순서 -->
+        <kw-form-item
+          :label="$t('MSG_TXT_EXPSR_ODR')"
+          :hint="$t('MSG_TXT_EXPSR_ODR_DUP_HINT')"
+          required
+        >
+          <kw-input
+            v-model="warehouseInfo.sortDvVal"
+            :label="$t('MSG_TXT_EXPSR_ODR')"
+            :regex="/^[0-9]{1,5}$/i"
+            :readonly="warehouseInfo.wareUseYn === 'N'"
+            rules="required"
           />
         </kw-form-item>
       </kw-form-row>
@@ -264,6 +276,8 @@ const initialWarehouseInfo = {
   ogTpCd: '', // 조직유형코드
   hgrWareNo: '', // 상위창고번호
   hgrWareNm: '', // 상위창고명
+  sortDvVal: '', // 노출순서(정렬구분값)
+  orglhgrWareNo: '', // 기존상위창고번호
   rmkCn: '', // 비고내용
   wareUseYn: 'Y', // 창고사용여부
   fstRgstDt: '', // 최초등록일
@@ -306,6 +320,56 @@ function resetWarehouseInfo() {
   hgrWarehouses.value = [];
 }
 
+async function fetchHigherWarehouses() {
+  const params = {
+    ogId: hasProps() ? null : warehouseInfo.value.ogId,
+    wareDvCd: warehouseInfo.value.wareDvCd,
+    wareDtlDvCd: warehouseInfo.value.wareDtlDvCd,
+  };
+
+  const res = await dataService.get('/sms/wells/service/warehouse-organizations/high-rank-warehouses', { params });
+  hgrWarehouses.value = res.data;
+  console.log('### 상위창고 ###');
+  console.log(res.data);
+
+  if (!hasProps()) {
+    if (isOrgWarehouse.value) {
+      warehouseInfo.value.hgrWareNo = '100002';
+    } else {
+      warehouseInfo.value.hgrWareNo = hgrWarehouses.value[0]?.codeId ?? '';
+    }
+  } else {
+    warehouseInfo.value.hgrWareNo = '';
+  }
+}
+
+// 영업센터 상위창고 변경 시 창고명 변경
+watch(() => warehouseInfo.value.hgrWareNo, (val) => {
+  console.log(`창고구분: ${warehouseInfo.value.wareDvCd} | 상위창고 ${val}(으)로 변경`);
+  if (!hasProps() || isEmpty(val) || warehouseInfo.value.wareDvCd !== '3') return;
+  const { codeName } = hgrWarehouses.value.find((v) => v.codeId === val) ?? { codeName: '' };
+  warehouseInfo.value.wareNm = `${codeName}(${warehouseInfo.value.prtnrKnm})`;
+});
+
+// 사용유무에 따른 노출순서 처리
+watch(() => warehouseInfo.value.wareUseYn, (val) => {
+  if (val === 'N') {
+    warehouseInfo.value.sortDvVal = 99999;
+  } else {
+    warehouseInfo.value.sortDvVal = '';
+  }
+});
+
+// 창고상세구분코드 변경 시 상위창고 목록 재조회
+watch(() => warehouseInfo.value.wareDtlDvCd, async (val) => {
+  if (!hasProps()) return;
+  if (isEmpty(val)) {
+    hgrWarehouses.value = [];
+  } else {
+    await fetchHigherWarehouses();
+  }
+});
+
 watch(() => warehouseInfo.value.wareDvCd, async (val) => {
   if (!hasProps()) {
     resetWarehouseInfo();
@@ -322,23 +386,6 @@ watch(() => warehouseInfo.value.wareDvCd, async (val) => {
   }
   wareDtlDvCdRule.value = wareDtlDvCds.value.map((v) => (v.codeId)).join(',');
 });
-
-async function fetchHigherWarehouses() {
-  const params = {
-    ogId: warehouseInfo.value.ogId,
-    wareDvCd: warehouseInfo.value.wareDvCd,
-    wareDtlDvCd: warehouseInfo.value.wareDtlDvCd,
-  };
-
-  const res = await dataService.get('/sms/wells/service/warehouse-organizations/high-rank-warehouses', { params });
-  hgrWarehouses.value = res.data;
-
-  if (isOrgWarehouse.value) {
-    warehouseInfo.value.hgrWareNo = '100002';
-  } else {
-    warehouseInfo.value.hgrWareNo = hgrWarehouses.value[0]?.codeId ?? '';
-  }
-}
 
 function validateWareDvCd() {
   if (warehouseInfo.value.wareDvCd === '') {
@@ -406,7 +453,6 @@ async function onClickOpenHumanResourcesPopup() {
 }
 
 async function onClickOpenBuildingPopup() {
-  // TODO: 빌딩정보조회 팝업 호출 (화면ID채번 필요)
   const { result: isChanged, payload } = await modal({
     component: 'WsnaBuildingsListP',
     componentProps: {
@@ -429,8 +475,12 @@ async function onClickOpenBuildingPopup() {
 async function fetchData() {
   const res = await dataService.get(`/sms/wells/service/warehouse-organizations/${props.apyYm}${props.wareNo}`);
   warehouseInfo.value = res.data;
-  const { hgrWareNo, hgrWareNm } = warehouseInfo.value;
-  hgrWarehouses.value = [{ codeId: hgrWareNo, codeName: hgrWareNm }];
+  warehouseInfo.value.orglhgrWareNo = res.data.hgrWareNo;
+  console.log('### 창고 정보 ###');
+  console.log(res.data);
+  // const { hgrWareNo, hgrWareNm } = warehouseInfo.value;
+  // hgrWarehouses.value = [{ codeId: hgrWareNo, codeName: hgrWareNm }];
+  await fetchHigherWarehouses();
 }
 
 async function onClickSave() {
