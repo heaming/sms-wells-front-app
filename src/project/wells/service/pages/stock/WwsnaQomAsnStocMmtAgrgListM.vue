@@ -144,7 +144,6 @@ const searchParams = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'ITM_KND_CD',
 );
 
