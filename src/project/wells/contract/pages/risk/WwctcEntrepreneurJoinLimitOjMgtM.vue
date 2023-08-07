@@ -304,7 +304,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellLmRlsDtm' },
     { fieldName: 'sellLmRson' },
     { fieldName: 'sellLmPsicNm' },
+    { fieldName: 'sellLmPsicNmEncr' },
     { fieldName: 'sellLmRlsPsicNm' },
+    { fieldName: 'sellLmRlsPsicNmEncr' },
     { fieldName: 'sellLmId' },
   ];
 
@@ -318,8 +320,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellLmOcDtm', header: t('MSG_TXT_OCCUR_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' }, rules: 'required' },
     { fieldName: 'sellLmRlsDtm', header: t('MSG_TXT_CNC_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' } },
     { fieldName: 'sellLmRson', header: t('MSG_TXT_OCC_RSN'), width: '376', styleName: 'text-left', editable: true, editor: { type: 'text', maxLength: 1000 } },
-    { fieldName: 'sellLmPsicNm', header: t('MSG_TXT_RGST_ICHR'), width: '180', styleName: 'text-center', editable: false },
-    { fieldName: 'sellLmRlsPsicNm', header: t('MSG_TXT_CNC_INCHR'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'sellLmPsicNmEncr', header: t('MSG_TXT_RGST_ICHR'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'sellLmRlsPsicNmEncr', header: t('MSG_TXT_CNC_INCHR'), width: '180', styleName: 'text-center', editable: false },
     { fieldName: 'sellLmId', visible: false },
   ];
 
