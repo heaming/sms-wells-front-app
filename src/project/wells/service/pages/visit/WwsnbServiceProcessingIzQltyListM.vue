@@ -240,8 +240,8 @@ const codes = await codeUtil.getMultiCodes(
   'WK_PRGS_STAT_CD',
 );
 
-const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center');
-const engineerRes = await dataService.get('/sms/wells/service/organizations/engineer');
+const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } });
+const engineerRes = await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } });
 const engineers = ref(engineerRes.data);
 
 watch(() => searchParams.value.ogId, async (val) => {

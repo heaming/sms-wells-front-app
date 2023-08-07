@@ -237,8 +237,8 @@ const codes = await codeUtil.getMultiCodes(
   'COD_YN',
 );
 
-const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center');
-const { data: engineers } = await dataService.get('/sms/wells/service/organizations/engineer');
+const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } });
+const { data: engineers } = await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } });
 
 const ctpvs = ref([]);
 const ctctys = ref([]);
