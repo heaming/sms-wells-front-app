@@ -648,7 +648,10 @@ async function fetchCustomerData() {
     const pextCstList = resData;
     const { result, payload } = await modal({
       component: 'ZwcsaCustomerChoiceListP',
-      componentProps: { pextCstList, copnDvCd: '1' },
+      componentProps: { pextCstList,
+        copnDvCd: '1',
+        callingPage: 'singleView',
+      },
     });
     if (result) {
       if (!isEmpty(payload)) {
