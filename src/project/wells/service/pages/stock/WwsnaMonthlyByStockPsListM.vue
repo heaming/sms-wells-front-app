@@ -136,7 +136,13 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <kw-paging-info :total-count="totalCount" />
+          <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
+          />
         </template>
 
         <kw-btn
@@ -144,7 +150,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -152,8 +158,15 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :total-count="totalCount"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -165,11 +178,12 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
+import { codeUtil, useMeta, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
+const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -197,7 +211,15 @@ const searchParams = ref({
   matUtlzDvCd: '',
 });
 
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
+});
+
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'WARE_DV_CD',
   'WARE_DTL_DV_CD',
   'PD_GD_CD',
@@ -221,10 +243,19 @@ function codeFilter() {
 const optionsHgrWareNo = ref([]);
 const optionsWareNo = ref([]);
 
+// 창고세부구분코드 필터링
+function wareDtlDvCdFilter() {
+  const { wareDvCd } = searchParams.value;
+  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => v.codeId.startsWith(wareDvCd));
+}
+
 const getHgrWareNos = async () => {
   // 상위창고번호 클리어
   searchParams.value.hgrWareNo = '';
   optionsHgrWareNo.value = [];
+  // 창고번호 클리어
+  searchParams.value.wareNo = '';
+  optionsWareNo.value = [];
   const result = await dataService.get(
     '/sms/wells/service/monthly-by-stock-state/ware-houses',
     { params: {
@@ -235,20 +266,11 @@ const getHgrWareNos = async () => {
   optionsHgrWareNo.value = result.data;
 };
 
-// 창고세부구분코드 필터링
-function wareDtlDvCdFilter() {
-  const { wareDvCd } = searchParams.value;
-  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => v.codeId.startsWith(wareDvCd));
-}
-
 async function onChangeHgrWareNo() {
   // 창고번호 클리어
   searchParams.value.wareNo = '';
   optionsWareNo.value = [];
   const { baseYm, hgrWareNo } = searchParams.value;
-
-  // 창고세부구분 코드 필터링
-  wareDtlDvCdFilter();
 
   if (isEmpty(baseYm) || isEmpty(hgrWareNo)) return;
 
@@ -261,6 +283,13 @@ async function onChangeHgrWareNo() {
     } },
   );
   optionsWareNo.value = result.data;
+}
+
+async function onChangeWareDvCd() {
+  // 창고세부구분 코드 필터링
+  wareDtlDvCdFilter();
+
+  await getHgrWareNos();
 }
 
 // 기준년월이 변경되었을 때 창고번호 재조회
@@ -327,20 +356,25 @@ await Promise.all([
   getProducts(),
 ]);
 
-const totalCount = ref(0);
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/monthly-by-stock-state', { params: { ...cachedParams } });
-  const item = res.data;
-  totalCount.value = item.length;
+  const res = await dataService.get('/sms/wells/service/monthly-by-stock-state/paging', { params: { ...cachedParams, ...pageInfo.value } });
+
+  const { list: stocks, pageInfo: pagingResult } = res.data;
+  // fetch시에는 총 건수 조회하지 않도록 변경
+  pagingResult.needTotalCount = false;
+  pageInfo.value = pagingResult;
 
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
-    view.getDataSource().setRows(item);
+    view.getDataSource().setRows(stocks);
   }
 }
 
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+  // 조회버튼 클릭 시에만 총 건수 조회하도록
+  pageInfo.value.needTotalCount = true;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
