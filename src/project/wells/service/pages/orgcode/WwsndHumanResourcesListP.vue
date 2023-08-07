@@ -150,7 +150,7 @@ const props = defineProps({
   searchText: { type: String, default: '' },
   checkType: { type: String, default: 'radio' },
   // auth
-  authYn: { type: String, default: 'Y' },
+  authYn: { type: String, default: 'N' },
 });
 
 // -------------------------------------------------------------------------------------------------
