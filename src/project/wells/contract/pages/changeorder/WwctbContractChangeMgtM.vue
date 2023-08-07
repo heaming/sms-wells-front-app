@@ -126,7 +126,7 @@
               <p>{{ getRentalMsg(item.sellTpCd) }}</p>
               <span>{{ getRentalAmt(item) }}</span>
             </li>
-            <div v-if="item.sellTpCd ==='2'">
+            <div v-if="isEqual(item.sellTpCd, '2')">
               <li>
                 <!-- 할인유형 -->
                 <p>{{ t('MSG_TXT_DISC_CODE') }}</p>
@@ -138,7 +138,7 @@
                 <span>{{ item.fgptInfo }}</span>
               </li>
             </div>
-            <li v-if="item.mclsfRefPdClsfVal === '06003' || item.mclsfRefPdClsfVal === '06005'">
+            <li v-if="isEqual(item.mclsfRefPdClsfVal, '06003') || isEqual(item.mclsfRefPdClsfVal, '06005')">
               <!-- 구분, 제조사 -->
               <p>{{ getGubunMsg(item.mclsfRefPdClsfVal) }}</p>
               <span>{{ getGubunNm(item) }}</span>
@@ -164,7 +164,7 @@
             />
             <!-- 계약유형 변경-->
             <kw-btn
-              v-if="item.sellTpCd === '2'"
+              v-if="isEqual(item.sellTpCd, '2')"
               secondary
               :label="`${t('MSG_TXT_CONTR_TYPE')} ${t('MSG_TXT_CH')}`"
               padding="10px"
@@ -172,7 +172,7 @@
             />
             <!-- 판매자 변경-->
             <kw-btn
-              v-if="ogTpCd === 'HR1'"
+              v-if="isEqual(ogTpCd, 'HR1')"
               secondary
               :label="`${t('MSG_TXT_SELLER_PERSON')} ${t('MSG_TXT_CH')}`"
               padding="10px"
@@ -180,12 +180,26 @@
             />
             <!-- 삭제요청-->
             <kw-btn
-              v-if="item.sellTpCd === '2' && isEmpty(item.istDt)"
+              v-if="isEqual(item.sellTpCd, '2') && isEmpty(item.istDt)"
               secondary
               :label="$t('MSG_TXT_DEL_REQ')"
               padding="10px"
               @click="onClickDelReq(item)"
             />
+            <div v-if="isEqual(item.histYn, 'Y')">
+              <kw-separator
+                vertical
+                inset
+                spaced="0"
+              />
+              <!-- 계약유형변경 이력 보기-->
+              <kw-btn
+                secondary
+                :label="$t('MSG_BTN_CNTR_TP_CHANGE_HIS_BRWS')"
+                padding="10px"
+                @click="onClickShowProductChangeHistoryP(item)"
+              />
+            </div>
           </div>
         </kw-card>
       </div>
@@ -204,7 +218,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, codeUtil, useDataService, stringUtil, useGlobal, modal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty, isEqual } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -212,6 +226,7 @@ const { t } = useI18n();
 const { alert, confirm, notify } = useGlobal();
 const { getters } = useStore();
 const { ogTpCd } = getters['meta/getUserInfo'];
+const router = useRouter();
 const dataService = useDataService();
 const now = dayjs();
 const codes = await codeUtil.getMultiCodes(
@@ -394,11 +409,14 @@ function getIstDtMsg(hclsfRefPdClsfVal) {
 }
 
 async function changeContract(item, popNm, gubun) {
-  const checkRes = await dataService.get('/sms/wells/contract/changeorder/changes/pre-checks', { params: { ...item } });
-  const { warnMsg } = checkRes.data;
+  // 변경유형(item.inDv) 존재시만(이력조회팝업은 check안함)
+  if (!isEmpty(item.inDv)) {
+    const checkRes = await dataService.get('/sms/wells/contract/changeorder/changes/pre-checks', { params: { ...item } });
+    const { warnMsg } = checkRes.data;
 
-  if (!isEmpty(warnMsg)) {
-    alert(warnMsg);
+    if (!isEmpty(warnMsg)) {
+      alert(warnMsg);
+    }
   }
 
   if (!isEmpty(gubun)) {
@@ -408,16 +426,34 @@ async function changeContract(item, popNm, gubun) {
       fetchData();
     }
   } else {
-    const { result } = await modal({
-      component: popNm,
-      componentProps: { cntrNo: item.cntrNo,
-        cntrSn: item.cntrSn,
-        copnDvCd: item.copnDvCd,
-        cttRsCd: item.cttRsCd,
-        istDt: item.istDt }, // 팝업 화면에 보낼 파라미터
-    });
-    if (result) {
-      fetchData();
+    switch (popNm) {
+      case 'WwctbCustomerModP': // 고객정보변경
+      case 'WwctbPartnerModP': // 판매자 변경
+      case 'WwctbProductChangeHistoryP': { // 계약유형변경 이력 보기
+        const { result } = await modal({
+          component: popNm,
+          componentProps: { cntrNo: item.cntrNo,
+            cntrSn: item.cntrSn,
+            copnDvCd: item.copnDvCd,
+            cttRsCd: item.cttRsCd,
+            istDt: item.istDt }, // 팝업 화면에 보낼 파라미터
+        });
+        if (result) {
+          fetchData();
+        }
+      }
+        break;
+      case 'WwctbRentalProductChangeM': // 렌탈 주문 수정_상품변경 Variation (PC화면)
+        router.push({
+          path: '/contract/wwctb-rental-product-change', // 나과장 작업중
+          query: {
+            cntrNo: item.cntrNo,
+            cntrSn: item.cntrSn },
+        });
+        break;
+      default:
+        //
+        break;
     }
   }
 }
@@ -431,12 +467,20 @@ function onClickCstChange(item) {
 // onClickCntrTpChange: 계약유형변경
 async function onClickCntrTpChange(item) {
   item.inDv = '20';
-  const { alncmpCd } = item;
-  if (alncmpCd === '70') {
+  const { alncmpCd, sellInflwChnlDtlCd } = item;
+  if (isEqual(alncmpCd, '70')) {
     alert(t('MSG_ALT_CANT_CONTR_TYPE_WHEN_MUTU_ALNC'));
     return;
   }
-  alert('계약유형변경 페이지 완료 시 추가 예정');
+  // 총판 비대면 접수 주문 변경 불가 : 계약상세의 판매유입채널상세코드가 '1010'인 건만 계약상품변경 수행 가능
+  if (!isEqual(sellInflwChnlDtlCd, '1010')) {
+    alert(t('MSG_ALT_SODBT_NFTF_ORD_CANNT_CHANGE'));
+    return;
+  }
+
+  // 렌탈 주문 수정_상품변경 Variation (PC화면) W-SS-U-0114M02 호출
+  alert('추가작업중입니다.');
+  // changeContract(item, 'WwctbRentalProductChangeM');
 }
 
 // onClickSellerChange: 판매자 변경
@@ -460,6 +504,12 @@ async function onClickDelReq(item) {
   if (await confirm(t('MSG_ALT_CNTR_DEL_AK_CONFIRM', [item.cntrDtlNo]))) {
     changeContract(item, '', '1');
   }
+}
+
+// onClickShowProductChangeHistoryP: 계약유형변경 이력 보기
+async function onClickShowProductChangeHistoryP(item) {
+  item.inDv = '';
+  changeContract(item, 'WwctbProductChangeHistoryP');
 }
 
 </script>
