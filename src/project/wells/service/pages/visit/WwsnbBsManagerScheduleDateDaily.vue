@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNB (방문관리)
- 2. 프로그램 ID : WwsnbBsManagerScheduleDateM - BS관리일정조회
+ 2. 프로그램 ID : WwsnbBsManagerScheduleDateDaily - BS관리일정조회
  3. 작성자 : 홍세기
  4. 작성일 : 2023.06.01
  ****************************************************************************************************
@@ -13,78 +13,77 @@
  ****************************************************************************************************
 --->
 <template>
-  <kw-page>
-    <kw-search
-      :cols="4"
-      @search="onClickSearch"
-    >
-      <kw-search-row>
-        <!-- 관리년월 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_MGT_YNM')"
-          :colspan="2"
-        >
-          <kw-date-range-picker
-            v-model:from="searchParams.baseDateFrom"
-            v-model:to="searchParams.baseDateTo"
-            rules="date_range_months:1"
-            name="$t('MSG_TXT_MGT_YNM')"
-          />
-        </kw-search-item>
-        <!-- 담당자 -->
-        <kw-form-item :label="$t('MSG_TXT_PIC')">
-          <kw-input
-            v-model.trim="searchParams.fxnPrtnrKnm"
-            icon="search"
-            clearable
-            @click-icon="onFxnPrtnrNoSearchPopup"
-          />
-          <kw-input
-            v-model="searchParams.fxnPrtnrNo"
-            class="w120"
-            placeholder=""
-            disable
-          />
-        </kw-form-item>
-      </kw-search-row>
-    </kw-search>
-
-    <div class="result-area">
-      <kw-grid
-        ref="grdfrontMainRef"
-        class="mt12"
-        :visible-rows="1"
-        @init="initfrontGrdMain"
-      />
-
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
-          />
-        </template>
-        <kw-btn
-          icon="download_on"
-          dense
-          secondary
-          :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
-          @click="onClickExcelDownload"
+  <kw-search
+    :cols="4"
+    @search="onClickSearch"
+  >
+    <kw-search-row>
+      <!-- 관리년월 -->
+      <kw-search-item
+        :label="$t('MSG_TXT_MGT_YNM')"
+        :colspan="2"
+      >
+        <kw-date-range-picker
+          v-model:from="searchParams.baseDateFrom"
+          v-model:to="searchParams.baseDateTo"
+          rules="date_range_months:1"
+          name="$t('MSG_TXT_MGT_YNM')"
         />
-      </kw-action-top>
+      </kw-search-item>
+      <!-- 담당자 -->
+      <kw-form-item :label="$t('MSG_TXT_PIC')">
+        <kw-input
+          v-model.trim="searchParams.fxnPrtnrKnm"
+          class="w120"
+          icon="search"
+          clearable
+          @click-icon="onFxnPrtnrNoSearchPopup"
+        />
+        <kw-input
+          v-model="searchParams.fxnPrtnrNo"
+          class="w120"
+          placeholder=""
+          disable
+        />
+      </kw-form-item>
+    </kw-search-row>
+  </kw-search>
 
-      <kw-grid
-        ref="grdMainRef"
-        class="mt12"
-        :visible-rows="pageInfo.pageSize"
-        @init="initGrdMain"
+  <div class="result-area">
+    <kw-grid
+      ref="grdfrontMainRef"
+      class="mt12"
+      :visible-rows="1"
+      @init="initfrontGrdMain"
+    />
+
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="fetchData"
+        />
+      </template>
+      <kw-btn
+        icon="download_on"
+        dense
+        secondary
+        :label="$t('MSG_BTN_EXCEL_DOWN')"
+        :disable="pageInfo.totalCount === 0"
+        @click="onClickExcelDownload"
       />
-    </div>
-  </kw-page>
+    </kw-action-top>
+
+    <kw-grid
+      ref="grdMainRef"
+      class="mt12"
+      :visible-rows="pageInfo.pageSize"
+      @init="initGrdMain"
+    />
+  </div>
 </template>
 
 <script setup>
