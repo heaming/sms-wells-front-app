@@ -419,7 +419,7 @@ async function openAgainDisbursementPopup() {
  */
 async function openZwfedFeeBurdenDeductionRegP() {
   const param = {
-    dsbYm: dayjs(searchParams.value.perfYm).format('YYYY-MM'),
+    ddtnYm: searchParams.value.perfYm,
     ogTpCd: 'W01',
     ogTpCdTxt: 'P조직',
     coCd: '2000',
