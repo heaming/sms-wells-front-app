@@ -220,13 +220,11 @@ async function onClickSearch() {
   await fetchData();
 }
 async function onClickExcelDownload() {
-  cachedParams = cloneDeep(searchParams.value);
   const view = grdMainRef.value.getView();
-  const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 // 빌딩 목록 조회

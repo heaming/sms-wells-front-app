@@ -168,6 +168,9 @@ const { getConfig } = useMeta();
 const { notify, confirm } = useGlobal();
 const SERVICE_DV_CD = '2';
 const STATUS_VAL = '실사완료';
+const STATUS_FSH = '신청완료';
+const STATUS_APY = '재고반영';
+// const STATUS_CNFM = '실사확정';
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -346,6 +349,10 @@ async function onClickAcinspCnfm() {
       // 실사완료건은 저장할 수 없습니다
       notify(t('MSG_ALT_ACINSP_FSH_SAVE_IMP'));
       return;
+    } if (statusT === STATUS_APY) {
+      // 재고반영 건은 저장할 수 없습니다.
+      notify(t('MSG_ALT_STOC_RFLT_CT_SAVE_IMP'));
+      return;
     }
   }
 
@@ -372,6 +379,20 @@ async function onClikcStocApy() {
 
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
 
+  for (let i = 0; i < checkedRows.length; i += 1) {
+    const { statusT } = checkedRows[i];
+
+    if (statusT === STATUS_VAL) {
+      // 실사완료건은 저장할 수 없습니다
+      notify(t('MSG_ALT_ACINSP_FSH_SAVE_IMP'));
+      return;
+    } if (statusT === STATUS_APY) {
+      // 재고반영 건은 저장할 수 없습니다.
+      notify(t('MSG_ALT_STOC_RFLT_CT_SAVE_IMP'));
+      return;
+    }
+  }
+
   const currentMonth = searchParams.value.baseYm;
 
   if (await confirm(t('MSG_ALT_RVPY_RFLT', [currentMonth.substring(0, 4), currentMonth.substring(4, 6)]))) {
@@ -395,6 +416,21 @@ async function onClickStocCancel() {
   if (!validateIsApplyRowExists()) return;
 
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+
+  for (let i = 0; i < checkedRows.length; i += 1) {
+    const { statusT } = checkedRows[i];
+
+    if (statusT === STATUS_APY) {
+      // 재고반영 건은 저장할 수 없습니다.
+      notify(t('MSG_ALT_STOC_RFLT_CT_SAVE_IMP'));
+      return;
+    }
+    if (statusT === STATUS_FSH) {
+      // 신청완료 건은 저장할 수 없습니다.
+      notify(t('MSG_ALT_APLC_FSH_CT_SAVE_IMP'));
+      return;
+    }
+  }
 
   const currentMonth = searchParams.value.baseYm;
 

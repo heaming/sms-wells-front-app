@@ -413,7 +413,7 @@ async function onClickW101P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       rsbTpCd,
     };
     const { result: isChanged } = await modal({
-      component: 'WwfeaFeeWellsMeetingAttendanceRegP',
+      component: 'WwfeaFeeMeetingAttendanceRegP',
       componentProps: param,
     });
     if (isChanged) {
@@ -427,9 +427,19 @@ async function onClickW101P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 수수료생성 클릭
  */
 async function onClickW102P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  let feeCalcUnitTpCd;
+  if (rsbTpCd === 'W0105') {
+    feeCalcUnitTpCd = '101';
+  } else {
+    feeCalcUnitTpCd = '102';
+  }
   const { result: isUploadSuccess } = await modal({
-    component: 'WwfebOgFeePlannerRegP',
-    componentProps: { perfYm: searchParams.value.perfYm },
+    component: 'WwfebOgFeeMlannerRegP',
+    componentProps: { perfYm,
+      feeCalcUnitTpCd,
+      feeTcntDvCd,
+    },
   });
   if (isUploadSuccess) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
@@ -511,16 +521,13 @@ async function onClickW106P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  */
 async function onClickW108P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === feeTcntDvCd);
   if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
       ogTpCd: 'W01',
-      ogTpCdTxt: 'P추진단',
-      ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+      ddtnYm: perfYm,
       feeTcntDvCd,
-      feeTcntDvCdTxt: codeName,
       rsbTpCd,
     };
     const { result: isChanged } = await modal({
@@ -546,7 +553,7 @@ async function onClickW109P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       ogTpCd: 'W01',
       ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
       feeTcntDvCd,
-      rsbTpCd,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeePnpyamDeductionRegP',
@@ -614,7 +621,7 @@ async function onClickW115P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 async function onClickW116P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { perfYm, ogTpCd, rsbTpCd } = searchParams.value;
   const { result: isUploadSuccess } = await modal({
-    component: 'ZwfebFeeCreationFntIzRegP',
+    component: 'ZwfeeFeeCreationFntIzRegP',
     componentProps: {
       perfYm,
       ogTpCd,
@@ -632,7 +639,8 @@ async function onClickW116P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  */
 async function onClickW118P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { unitCd, perfYm, ogTpCd } = searchParams.value;
-  const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', searchParams.value); /* 품의진행상태 조회 */
+  cachedParams = cloneDeep(searchParams.value);
+  const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', { params: cachedParams }); /* 품의진행상태 조회 */
   const resData = response.data;
   approval.value.appKey = perfYm + ogTpCd + unitCd + dayjs().format('YYYYMMDDHHmmss'); /* 6자리+3자리+4자리+ 14자리 = 27 appKey 생성 */
   const params = approval.value;
@@ -778,7 +786,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '88.7', styleName: 'text-right' },
     { fieldName: 'jagyuk', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '110.6', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'nJagyuk1', header: `M+1${t('MSG_TXT_TOPMR_PLAR')}`, width: '128.4', styleName: 'text-', options: codes.QLF_DV_CD },
-    { fieldName: 'is11edu', header: t('MSG_TXT_PLAR_SRTUP'), width: '124.6', styleName: 'text-center' },
+    { fieldName: 'is11edu', header: t('MSG_TXT_PLAR_SRTUP'), width: '124.6', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'is17edu', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_PRTIC'), width: '114.8', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'cntrDt', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'fstCntrDt', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },

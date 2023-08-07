@@ -154,6 +154,7 @@ const props = defineProps({
   newRegYn: { type: String, default: null },
   reloadYn: { type: String, default: null },
   copyPdCd: { type: String, default: null },
+  propWatch: { type: Object, default: null },
 });
 
 const router = useRouter();
@@ -442,9 +443,9 @@ async function initProps() {
 
 await initProps();
 
-watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd }) => {
-  console.log(` - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd}`);
-  if (pdCd && currentPdCd.value !== pdCd) {
+watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch }) => {
+  console.log(` - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd} propWatch: ${propWatch}`);
+  if (pdCd && (currentPdCd.value !== pdCd || propWatch)) {
     // 상품코드 변경
     currentPdCd.value = pdCd;
     currentNewRegYn.value = 'N';

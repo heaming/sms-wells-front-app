@@ -100,6 +100,9 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
+          <kw-paging-info
+            :total-count="totalCount"
+          />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-separator
@@ -118,14 +121,14 @@
         v-if="isSelectVisile"
         ref="grd1MainRef"
         name="grd1Main"
-        :visible-rows="3"
+        :visible-rows="10"
         @init="initGrd1Main"
       />
       <kw-grid
         v-if="isSelectVisile2"
         ref="grd2MainRef"
         name="grd2Main"
-        :visible-rows="3"
+        :visible-rows="10"
         @init="initGrd2Main"
       />
     </div>
@@ -356,9 +359,9 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'branch' },
     { fieldName: 'emplNm' },
     { fieldName: 'prtnrNo' },
-    { fieldName: 'rsb' },
-    { fieldName: 'qlf' },
-    { fieldName: 'bnk' },
+    { fieldName: 'rsbTpCd' },
+    { fieldName: 'qlfCd' },
+    { fieldName: 'bnkNm' },
     { fieldName: 'acNo' },
     { fieldName: 'intbsSum', dataType: 'number' },
     { fieldName: 'ddtnSum', dataType: 'number' },
@@ -373,10 +376,9 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
     { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
-    { fieldName: 'rsb', header: t('MSG_TXT_RSB'), width: '71' },
-    { fieldName: 'qlf', header: t('MSG_TXT_QLF'), width: '110' },
-
-    { fieldName: 'bnk', header: t('MSG_TXT_BNK'), width: '80' },
+    { fieldName: 'rsbTpCd', header: t('MSG_TXT_RSB'), width: '71' },
+    { fieldName: 'qlfCd', header: t('MSG_TXT_QLF'), width: '110' },
+    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK'), width: '80' },
     { fieldName: 'acNo', header: t('MSG_TXT_AC_NO'), width: '127' },
     { fieldName: 'intbsSum', header: t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
     { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },

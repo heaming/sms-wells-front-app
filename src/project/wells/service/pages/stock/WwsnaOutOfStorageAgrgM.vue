@@ -153,7 +153,7 @@ const codes = await codeUtil.getMultiCodes(
 
 let cachedParams;
 const searchParams = ref({
-  startDt: now.subtract(30, 'day').format('YYYYMMDD'),
+  startDt: now.startOf('month').format('YYYYMMDD'),
   endDt: now.format('YYYYMMDD'),
   ostrTpCd: '', // 출고유형
   sapMatCdFrom: '', // SAP코드 검색(시작)
@@ -198,7 +198,7 @@ async function onChangeMatUtlzDvCd() {
   }
 }
 // 창고조회
-async function getWareHouseList() {
+async function getWareHouses() {
   const result = await dataService.get(`${baseUrl}/ware-houses`);
   if (result.data.length > 0) {
     const wareHouses = result.data;
@@ -246,7 +246,7 @@ onMounted(async () => {
   // 품목구분 : 상품 기본설정
   searchParams.value.itmKndCd = '4';
   // 창고조회
-  await getWareHouseList();
+  await getWareHouses();
 });
 // 품목구분-하위품목 가져오기
 watch(() => searchParams.value.itmKndCd, async () => {
@@ -274,13 +274,11 @@ async function onClickSearch() {
   await fetchData();
 }
 async function onClickExcelDownload() {
-  cachedParams = cloneDeep(searchParams.value);
   const view = grdMainRef.value.getView();
-  const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
@@ -368,6 +366,8 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
 
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
   gridView = view;
   gridData = data;
 });

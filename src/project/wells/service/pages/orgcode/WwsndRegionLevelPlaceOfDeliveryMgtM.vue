@@ -190,7 +190,7 @@ const codes = await codeUtil.getMultiCodes(
   'PDLV_DV_CD',
 );
 
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
 
 const pageInfo = ref({
   totalCount: 0,
@@ -397,7 +397,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CENTER_DIVISION'),
       width: '150',
       editor: { type: 'list' },
-      editable: true,
+      editable: searchParams.value.pdlvDvCd === 'E',
       options: svcCode,
       optionValue: 'ogId',
       optionLabel: 'ogNm',

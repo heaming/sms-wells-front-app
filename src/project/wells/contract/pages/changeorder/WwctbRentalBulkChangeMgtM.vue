@@ -207,7 +207,7 @@ const initGrdRental = defineGrid((data, view) => {
     { fieldName: 'istYm', header: t('MSG_TXT_YR_INSTALLATION'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // [ 설치년월]
     { fieldName: 'bfchDutyPtrmN', header: t('MSG_TXT_DUTY_PTRM') + t('MSG_TXT_BFCH'), width: '100', styleName: 'text-right', dataType: 'number' }, // [ 의무기간 변경전]
     { fieldName: 'afchDutyPtrmN', header: t('MSG_TXT_DUTY_PTRM') + t('MSG_TXT_AFCH'), width: '100', styleName: 'text-right', dataType: 'number' }, // [ 의무기간 변경후]
-    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_AW_CT') + t('MSG_TXT_ACKMT'), width: '120', styleName: 'text-right', dataType: 'number' }, // [ 인정실적금액]
+    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_ACKMT_PERF_AMT'), width: '120', styleName: 'text-right', dataType: 'number' }, // [ 인정실적금액]
     { fieldName: 'feeBaseAmt', header: t('MSG_TXT_FEE_BASE_AMT'), width: '120', styleName: 'text-right', dataType: 'number' }, // [ 수수료기준가격]
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_FEE_ACKMT_CNT'), width: '100', styleName: 'text-right', dataType: 'number' }, // [ 수수료인정건수]
     { fieldName: 'rentalDscAmt', header: `${t('MSG_TXT_RENTAL')}DC${t('MSG_TXT_AMT')}`, width: '120', styleName: 'text-right', dataType: 'number' }, // [렌탈할인금액]
@@ -220,7 +220,7 @@ const initGrdRental = defineGrid((data, view) => {
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '100', styleName: 'text-center' }, // [ 수수료정액여부]
     { fieldName: 'pmotDscMcn', header: t('MSG_TXT_DSC_MCNT'), width: '100', styleName: 'text-right', dataType: 'number' }, // [ 할인개월]
     { fieldName: 'pmotDscAmt', header: t('MSG_TXT_DSC_AMT'), width: '120', styleName: 'text-right', dataType: 'number' }, // [ 할인금액]
-    { fieldName: 'sdingAckmtPerfAmt', header: t('MSG_TXT_AW_CT') + t('MSG_TXT_ACKMT'), width: '120', styleName: 'text-right' }, // [ 수당건수 인정]
+    { fieldName: 'sdingAckmtPerfAmt', header: t('MSG_TXT_ACKMT_PERF_AMT'), width: '120', styleName: 'text-right' }, // [ 인정실적금액]
     { fieldName: 'sdingFeeBaseAmt', header: t('MSG_TXT_FEE_BASE_AMT'), width: '120', styleName: 'text-right', dataType: 'number' }, // [ 수수료기준가격]
     { fieldName: 'bfchFeeAckmtCt', header: t('MSG_TXT_SDING') + t('MSG_TXT_FEE_ACKMT_CNT'), width: '120', styleName: 'text-center' }, // (모종)수수료 인정건수
     { fieldName: 'bfsvcBzsDvCd', header: t('MSG_TXT_CLSF_BS'), width: '120', styleName: 'text-center', options: codes.BFSVC_BZS_DV_CD }, // [ BS업체구분코드]
