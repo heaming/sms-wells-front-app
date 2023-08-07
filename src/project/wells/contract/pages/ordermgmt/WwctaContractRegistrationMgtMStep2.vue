@@ -651,28 +651,12 @@ async function getProducts(cntrNo) {
 }
 
 async function getPdAmts(pd) {
+  pd.sellInflwChnlDtlCd = step2.value.bas.sellInflwChnlDtlCd;
   const prc = await dataService.get('sms/wells/contract/contracts/product-prices', {
-    params: {
-      pdCd: pd.pdCd,
-      svPdCd: pd.svPdCd,
-      sellTpCd: pd.sellTpCd,
-      sellInflwChnlDtlCd: step2.value.bas.sellInflwChnlDtlCd,
-      frisuBfsvcPtrmN: pd.frisuBfsvcPtrmN,
-      sellDscrCd: pd.sellDscrCd,
-      stplPtrm: pd.stplPtrm,
-      sellDscDvCd: pd.sellDscDvCd,
-      sellDscTpCd: pd.sellDscTpCd,
-      cntrAmt: pd.cntrAmt,
-      cntrPtrm: pd.cntrPtrm,
-      rntlMcn: pd.rntlMcn,
-    },
+    params: pd,
   });
-  ['fnlAmt', 'vat', 'sellFee', 'ackmtPerfRt', 'ackmtPerfAmt', 'cvtPerfAmt',
-    'feeAckmtCt', 'feeAckmtBaseAmt', 'feeFxamYn',
-    'pdPrcFnlDtlId', 'fxamFxrtDvCd', 'verSn', 'ctrVal', 'pdPrcId',
-    'isExistAlncPds', 'rgstCsDscYn',
-  ].forEach((col) => {
-    pd[col] = prc.data ? prc.data[col] : undefined;
+  Object.entries(prc.data).forEach((p) => {
+    pd[p[0]] = p[1];
   });
 }
 
@@ -682,6 +666,7 @@ async function getPdSels(pd) {
       copnDvCd: step2.value.bas.copnDvCd,
       sellInflwChnlDtlCd: step2.value.bas.sellInflwChnlDtlCd,
       pdCd: pd.pdCd,
+      hgrPdCd: pd.hgrPdCd,
       sellTpCd: pd.sellTpCd,
       mshPdCds: pd.mshPdCds,
     },
@@ -701,13 +686,7 @@ function resetCntrSn() {
   }
 }
 
-async function onClickProduct(pd) {
-  if (isMshCntr.value && step2.value.dtls.length > 0) {
-    // 멤버십인 경우 상품 1개로 제한
-    await alert('멤버십계약은 1개의 상품만 선택 가능합니다.');
-    return;
-  }
-
+async function addProduct(pd) {
   const npd = cloneDeep(pd);
   const sels = await getPdSels(pd);
   ['svPdCds', 'sellDscrCds', 'sellDscDvCds', 'alncmpCntrDrmVals',
@@ -739,8 +718,40 @@ async function onClickProduct(pd) {
   resetCntrSn();
 }
 
+async function onClickProduct(pd) {
+  if (isMshCntr.value && step2.value.dtls.length > 0) {
+    // 멤버십인 경우 상품 1개로 제한
+    await alert('멤버십계약은 1개의 상품만 선택 가능합니다.');
+    return;
+  }
+
+  // 상품 추가
+  if (pd.pdClsf === '7') {
+    // 복합상품
+    // 중복 불가
+    if (step2.value.dtls.find((d) => d.hgrPdCd === pd.pdCd)) {
+      await alert('동일한 복합상품이 존재합니다.');
+      return;
+    }
+    // 하위상품 조회 후 추가
+    const pds = await dataService.get('sms/wells/contract/contracts/reg-cpt-products', {
+      params: {
+        cntrNo: step2.value.bas.cntrNo,
+        basePdCd: pd.pdCd,
+      },
+    });
+    pds.data.forEach(async (p) => await addProduct(p));
+  } else {
+    // 기준상품
+    await addProduct(pd);
+  }
+}
+
 function onClickDelete(pd) {
   if (isItem.rglrSpp(pd) && pd.sellTpDtlCd === '62') return;
+  if (pd.hgrPdCd) {
+    step2.value.dtls = step2.value.dtls.filter((spd) => pd.hgrPdCd !== spd.hgrPdCd);
+  }
   if (isItem.welsf(pd) || isItem.hcf(pd)) {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn && (pd.cntrSn + 1) !== spd.cntrSn);
   } else {
@@ -877,10 +888,11 @@ function castCodeIdNumToStr() {
 async function getCntrInfo(cntrNo) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 2 } });
   step2.value = cntr.data.step2;
-  castCodeIdNumToStr();
+  console.log(step2.value);
+  // castCodeIdNumToStr();
   pCntrNo.value = step2.value.bas.cntrNo;
   ogStep2.value = cloneDeep(step2.value);
-  console.log(step2.value);
+  // console.log(step2.value);
 }
 
 const clsfItemRefs = reactive({});
