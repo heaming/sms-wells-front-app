@@ -378,6 +378,7 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(view, {
     fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
+    checkBar: 'hidden',
     exportData: res.data,
   });
 }
@@ -397,7 +398,8 @@ async function onClickDelete() {
 
   // if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  // TODO: 출고완료 전 삭제해야 테스트가능할듯. 저장테스트 미실시로 확인 불가.
+  console.log(deletedRows);
+
   if (deletedRows.length > 0) {
     const result = await dataService.delete('/sms/wells/service/out-of-storage-asks', { data: checkedRows });
     if (result.data > 0) {

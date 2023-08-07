@@ -117,7 +117,6 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
-const { currentRoute } = useRouter();
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
@@ -201,30 +200,9 @@ async function onClickExcelDownload() {
     checkBar: 'hidden',
     exportData: res.data,
   });
-
-  //   const exportLayout = [
-  //     'strHopDt',
-  //     'ostrAkTpNm',
-  //     'ostrAkNo',
-  //     'rectOstrDt',
-  //     'wareNm',
-  //   ];
-
-//   const res = await dataService.get('/sms/wells/service/out-of-storage-asks', { params: cachedParams });
-//   await gridUtil.exportView(view, {
-//     fileName: 'outOfStorageAskList',
-//     timePostfix: true,
-//     exportLayout,
-//     exportData: res.data.map((v) => {
-//       const { codeName } = codes.OSTR_AK_TP_CD.find((c) => c.codeId === v.ostrAkTpCd);
-//       return { ...v, ostrAkTpNm: codeName };
-//     }),
-//   });
 }
 
 async function onClickRegistration() {
-  // TODO: 현재 출고요청등록 팝업화면 개발진행 후 변경 예정
-  // alert('현재 단위테스트 대상이아닙니다.');
   const { result: isChanged } = await modal({
     component: 'WwsnaOutOfStorageAskRegP',
   });
@@ -274,6 +252,7 @@ function initGrdMain(data, view) {
     { fieldName: 'ostrAkTpNm' },
     { fieldName: 'ostrAkNo' },
     { fieldName: 'rectOstrDt' },
+    { fieldName: 'lgstOstrAkNo' },
     { fieldName: 'wareNm' },
     { fieldName: 'itmNm' },
     { fieldName: 'ostrAkTpCd' },
@@ -286,6 +265,7 @@ function initGrdMain(data, view) {
     { fieldName: 'strHopDt', header: t('MSG_TXT_STR_HOP_D'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ostrAkTpNm', header: t('MSG_TXT_OSTR_AK_TP'), width: '150', styleName: 'text-center' },
     { fieldName: 'ostrAkNo', header: t('MSG_TXT_OSTR_AK_NO'), width: '250', styleName: 'text-center' },
+    { fieldName: 'lgstOstrAkNo', header: t('MSG_TXT_LGST_OSTR_AK_NO'), width: '250', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_OSTR_AK_RCP_WARE'), width: '150', styleName: 'text-center' },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_STR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'itmNm',
