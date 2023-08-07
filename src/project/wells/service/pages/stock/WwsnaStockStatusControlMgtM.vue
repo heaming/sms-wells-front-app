@@ -140,6 +140,7 @@
           secondary
           :disable="isSearch"
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+          @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
@@ -169,6 +170,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 const dataService = useDataService();
 const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
@@ -394,6 +396,19 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchTest();
   await fetchData();
+}
+
+// 엑셀다운로드
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  const res = await dataService.get('/sms/wells/service/stock-status-control/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    checkBar: 'hidden',
+    exportData: res.data,
+  });
 }
 
 async function onClickAddRow() {
