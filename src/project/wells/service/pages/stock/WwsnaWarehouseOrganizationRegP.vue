@@ -338,8 +338,6 @@ async function fetchHigherWarehouses() {
     } else {
       warehouseInfo.value.hgrWareNo = hgrWarehouses.value[0]?.codeId ?? '';
     }
-  } else {
-    warehouseInfo.value.hgrWareNo = '';
   }
 }
 
@@ -474,10 +472,11 @@ async function onClickOpenBuildingPopup() {
 
 async function fetchData() {
   const res = await dataService.get(`/sms/wells/service/warehouse-organizations/${props.apyYm}${props.wareNo}`);
-  warehouseInfo.value = res.data;
-  warehouseInfo.value.orglhgrWareNo = res.data.hgrWareNo;
   console.log('### 창고 정보 ###');
   console.log(res.data);
+  warehouseInfo.value = res.data;
+  warehouseInfo.value.orglhgrWareNo = res.data.hgrWareNo;
+  warehouseInfo.value.hgrWareNo = res.data.hgrWareNo;
   // const { hgrWareNo, hgrWareNm } = warehouseInfo.value;
   // hgrWarehouses.value = [{ codeId: hgrWareNo, codeName: hgrWareNm }];
   await fetchHigherWarehouses();
