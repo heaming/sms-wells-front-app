@@ -1055,10 +1055,25 @@ const initCustomerGrid = defineGrid((data, view) => {
     { fieldName: 'rnadr' }, // [계약자정보-주소1]
     { fieldName: 'rdadr' }, // [계약자정보-주소2]
     { fieldName: 'rprsCntrNo' }, // 묶음출금 대표계약번호
+    { fieldName: 'wPhoneNo' }, // [설치자정보-휴대전화번호]
+    { fieldName: 'wTelNo' }, // [설치자정보-전화번호]
+    { fieldName: 'phoneNo' }, // [계약자정보-휴대전화번호]
+    { fieldName: 'telNo' }, // [계약자정보-전화번호]
+    { fieldName: 'acnoEncr' }, // 계좌 번호
+    { fieldName: 'crcdnoEncr' }, // 신용카드 번호
+    { fieldName: 'prtnrKnmMask' }, // 이름 마스킹
   ];
 
   const columns = [
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_NAME'), width: '100', styleName: 'text-center' }, // 이름
+    { fieldName: 'prtnrKnm',
+      header: t('MSG_TXT_NAME'),
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { prtnrKnm, prtnrKnmMask } = grid.getValues(index.itemIndex);
+        return isEmpty(prtnrKnm) ? '' : prtnrKnmMask;
+      },
+    }, // 이름
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 업무구분
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, // 계약번호
     { fieldName: 'cntrSn', header: t('MSG_TXT_SERIAL_NUMBER'), width: '78', styleName: 'text-center' }, // 일련번호
@@ -1078,7 +1093,27 @@ const initCustomerGrid = defineGrid((data, view) => {
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FTD'), width: '96', styleName: 'text-center' }, // 이체일
     { fieldName: 'aftnInfFntDvNm', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center' }, // 이체구분
     { fieldName: 'bnkCdcoNm', header: `${t('MSG_TXT_CDCO')}/${t('MSG_TXT_BNK')}`, width: '120', styleName: 'text-center' }, // 카드사/은행
-    { fieldName: 'acnoCrcdno', header: t('MSG_TXT_CARD_ACNO'), width: '182', styleName: 'text-center' }, // 카드/계좌번호
+    { fieldName: 'acnoCrcdno',
+      header: t('MSG_TXT_CARD_ACNO'),
+      width: '182',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { acnoEncr, crcdnoEncr, dpTpCd } = grid.getValues(index.itemIndex);
+        let rtnMsg = '';
+        switch (dpTpCd) {
+          case '0102':
+            rtnMsg = acnoEncr;
+            break;
+          case '0203':
+            rtnMsg = crcdnoEncr;
+            break;
+          default:
+            rtnMsg = '';
+            break;
+        }
+        return rtnMsg;
+      },
+    }, // 카드/계좌번호
     { fieldName: 'isBndl',
       header: `${t('MSG_TXT_BNDL')}/${t('MSG_BTN_RPRS')}`, // 묶음/대표
       width: '96',
@@ -1108,11 +1143,11 @@ const initCustomerGrid = defineGrid((data, view) => {
       width: '136',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { wCralLocaraTno, wMexnoEncr, wCralIdvTno } = grid.getValues(index.itemIndex);
+        const { wCralLocaraTno, wMexnoEncr, wCralIdvTno, wPhoneNo } = grid.getValues(index.itemIndex);
         if (isEmpty(wCralLocaraTno) || isEmpty(wMexnoEncr) || isEmpty(wCralIdvTno)) {
           return '';
         }
-        return `${wCralLocaraTno}-${wMexnoEncr}-${wCralIdvTno}`;
+        return wPhoneNo;
       },
     },
     { fieldName: 'wLocaraTno',
@@ -1120,11 +1155,11 @@ const initCustomerGrid = defineGrid((data, view) => {
       width: '136',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { wLocaraTno, wExnoEncr, wIdvTno } = grid.getValues(index.itemIndex);
+        const { wLocaraTno, wExnoEncr, wIdvTno, wTelNo } = grid.getValues(index.itemIndex);
         if (isEmpty(wLocaraTno) || isEmpty(wExnoEncr) || isEmpty(wIdvTno)) {
           return '';
         }
-        return `${wLocaraTno}-${wExnoEncr}-${wIdvTno}`;
+        return wTelNo;
       },
     },
     { fieldName: 'wAdrZip', header: t('MSG_TXT_ZIP'), width: '96', styleName: 'text-center' }, // 우편번호
@@ -1135,11 +1170,11 @@ const initCustomerGrid = defineGrid((data, view) => {
       width: '136',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
+        const { cralLocaraTno, mexnoEncr, cralIdvTno, phoneNo } = grid.getValues(index.itemIndex);
         if (isEmpty(cralLocaraTno) || isEmpty(mexnoEncr) || isEmpty(cralIdvTno)) {
           return '';
         }
-        return `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}`;
+        return phoneNo;
       },
     },
     { fieldName: 'locaraTno',
@@ -1147,11 +1182,11 @@ const initCustomerGrid = defineGrid((data, view) => {
       width: '136',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { locaraTno, exnoEncr, idvTno } = grid.getValues(index.itemIndex);
+        const { locaraTno, exnoEncr, idvTno, telNo } = grid.getValues(index.itemIndex);
         if (isEmpty(locaraTno) || isEmpty(exnoEncr) || isEmpty(idvTno)) {
           return '';
         }
-        return `${locaraTno}-${exnoEncr}-${idvTno}`;
+        return telNo;
       },
     },
     { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '96', styleName: 'text-center' }, // 우편번호
@@ -1210,10 +1245,19 @@ const initPartnerGrid = defineGrid((data, view) => {
     { fieldName: 'curDgr1LevlDgPrtnrNo' }, // [대리인마스터-총괄단장] 1차레벨대표파트너번호
     { fieldName: 'curDgr1LevlOgCd' }, // [대리인마스터-총괄단코드] 1차레벨조직코드
     { fieldName: 'chEpNo' }, // [변경사번]
+    { fieldName: 'prtnrKnmMask' }, // 이름 마스킹
   ];
 
   const columns = [
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_NAME'), width: '100', styleName: 'text-center' }, // 이름
+    { fieldName: 'prtnrKnm',
+      header: t('MSG_TXT_NAME'),
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { prtnrKnm, prtnrKnmMask } = grid.getValues(index.itemIndex);
+        return isEmpty(prtnrKnm) ? '' : prtnrKnmMask;
+      },
+    }, // 이름
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 업무구분
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, // 계약번호
     { fieldName: 'cntrSn', header: t('MSG_TXT_SERIAL_NUMBER'), width: '78', styleName: 'text-center' }, // 일련번호
