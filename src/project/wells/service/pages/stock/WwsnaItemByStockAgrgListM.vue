@@ -289,7 +289,7 @@ async function getWareHouseList() {
       ...serviceWareNos.map((v) => ({
         fieldName: `qty${v.wareNo}`,
         header: v.wareNm,
-        width: '110',
+        width: '120',
         styleName: 'text-right',
         dataType: 'number',
         footer: {
@@ -302,7 +302,7 @@ async function getWareHouseList() {
       ...bizWareNos.map((v) => ({
         fieldName: `qty${v.wareNo}`,
         header: v.wareNm,
-        width: '110',
+        width: '125',
         styleName: 'text-right',
         dataType: 'number',
         footer: {
