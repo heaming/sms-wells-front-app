@@ -139,7 +139,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -396,13 +397,23 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'cnrOgId',
       header: t('MSG_TXT_CENTER_DIVISION'),
       width: '150',
-      editor: { type: 'list' },
-      editable: searchParams.value.pdlvDvCd === 'E',
       options: svcCode,
       optionValue: 'ogId',
       optionLabel: 'ogNm',
+      styleCallback(grid, dataCell) {
+        if (dataCell.item.pdlvDvCd === 'E') {
+          return {
+            editable: true,
+            editor: {
+              type: 'dropdown',
+            },
+          };
+        }
+        return {
+          editable: false,
+        };
+      },
     },
-
   ];
 
   const columnLayout = [

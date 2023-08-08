@@ -53,8 +53,8 @@
           <kw-select
             v-model="searchParams.pdCd"
             :options="products"
-            option-label="pdNm"
-            option-value="pdCd"
+            option-label="pdName"
+            option-value="pdCode"
           />
         </kw-search-item>
         <!-- 처리구분 -->
@@ -163,7 +163,7 @@ const delvWares = [{ delvWareNo: '100002', delvWareNm: '파주물류센터' }];
 
 const products = ref([]);
 products.value = (await dataService.get('/sms/wells/service/bs-regular-shipping/products', { params: searchParams.value })).data;
-searchParams.value.pdCd = products.value[0].pdCd;
+searchParams.value.pdCd = products.value[0].pdCode;
 const pdGroupCd = ref();
 
 async function onChangeAsnYm() {
@@ -173,7 +173,7 @@ async function onChangeAsnYm() {
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/bs-regular-shipping', { params: { ...cachedParams } });
   totalCount.value = res.data.length;
-  pdGroupCd.value = products.value.filter((v) => v.pdCd === cachedParams.pdCd)[0].pdGroupCd;
+  pdGroupCd.value = products.value.filter((v) => v.pdCode === cachedParams.pdCd)[0].pdGroupCd;
   const list = res.data;
   list.forEach((element) => {
     element.pdGroupCd = pdGroupCd.value;
@@ -184,7 +184,7 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  searchParams.value.sppThmYn = (products.value.filter((v) => v.pdCd === searchParams.value.pdCd))[0].sppThmYn;
+  searchParams.value.sppThmYn = (products.value.filter((v) => v.pdCode === searchParams.value.pdCd))[0].sppThmYn;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -231,34 +231,34 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: ' sppAkSpfDt' }, // 특정일자배송
     { fieldName: ' partCd01' },
     { fieldName: ' partNm01' },
-    { fieldName: ' partQty01' },
+    { fieldName: ' partQty01', dataType: 'number' },
     { fieldName: ' partCd02' },
     { fieldName: ' partNm02' },
-    { fieldName: ' partQty02' },
+    { fieldName: ' partQty02', dataType: 'number' },
     { fieldName: ' partCd03' },
     { fieldName: ' partNm03' },
-    { fieldName: ' partQty03' },
+    { fieldName: ' partQty03', dataType: 'number' },
     { fieldName: ' partCd04' },
     { fieldName: ' partNm04' },
-    { fieldName: ' partQty04' },
+    { fieldName: ' partQty04', dataType: 'number' },
     { fieldName: ' partCd05' },
     { fieldName: ' partNm05' },
-    { fieldName: ' partQty05' },
+    { fieldName: ' partQty05', dataType: 'number' },
     { fieldName: ' partCd06' },
     { fieldName: ' partNm06' },
-    { fieldName: ' partQty06' },
+    { fieldName: ' partQty06', dataType: 'number' },
     { fieldName: ' partCd07' },
     { fieldName: ' partNm07' },
-    { fieldName: ' partQty07' },
+    { fieldName: ' partQty07', dataType: 'number' },
     { fieldName: ' partCd08' },
     { fieldName: ' partNm08' },
-    { fieldName: ' partQty08' },
+    { fieldName: ' partQty08', dataType: 'number' },
     { fieldName: ' partCd09' },
     { fieldName: ' partNm09' },
-    { fieldName: ' partQty09' },
+    { fieldName: ' partQty09', dataType: 'number' },
     { fieldName: ' partCd10' },
     { fieldName: ' partNm10' },
-    { fieldName: ' partQty10' },
+    { fieldName: ' partQty10', dataType: 'number' },
     { fieldName: ' istDt' }, // 설치일자
     { fieldName: ' reqdDt' }, // 철거일자
     { fieldName: ' cpsDt' }, // 보상일자 (취소일자?)
@@ -350,6 +350,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CST_NM'),
       width: '150',
       styleName: 'text-center',
+      footer: { text: t('MSG_TXT_SUM'), expression: 'count' },
     },
     {
       fieldName: 'sppAkSpfDt',
@@ -374,6 +375,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
+      footer: { expression: 'sum' },
     },
     {
       fieldName: 'partCd02',
@@ -392,6 +394,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
+      footer: { expression: 'sum' },
     },
     {
       fieldName: 'partCd03',
@@ -410,6 +413,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
+      footer: { expression: 'sum' },
     },
     {
       fieldName: 'partCd04',
@@ -428,6 +432,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
+      footer: { expression: 'sum' },
     },
     {
       fieldName: 'partCd05',
@@ -446,6 +451,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
+      footer: { expression: 'sum' },
     },
     {
       fieldName: 'partCd06',
@@ -464,6 +470,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
+      footer: { expression: 'sum' },
     },
     {
       fieldName: 'partCd07',
@@ -482,6 +489,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
+      footer: { expression: 'sum' },
     },
     {
       fieldName: 'partCd08',
@@ -500,6 +508,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
+      footer: { expression: 'sum' },
     },
     {
       fieldName: 'partCd09',
@@ -518,6 +527,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
+      footer: { expression: 'sum' },
     },
     {
       fieldName: 'partCd10',
@@ -536,6 +546,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: `${t('MSG_TXT_QTY')}(EA)`,
       width: '80',
       styleName: 'text-right',
+      footer: { expression: 'sum' },
     },
     {
       fieldName: 'istDt',
@@ -726,8 +737,12 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columnLayout = [
-    'asnOjYm',
-    'cntrNo',
+    {
+      direction: 'horizontal',
+      items: [{ column: 'asnOjYm', footerUserSpans: [{ colspan: 2 }] },
+        'cntrNo',
+      ],
+    },
     'cstKnm',
     'sppAkSpfDt',
     {
@@ -928,6 +943,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.setFixedOptions({ colCount: 2, resizable: true });
+  view.setFooters({ visible: true, items: [{ height: 40 }] });
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
     if (column === 'cntrNo') {
