@@ -302,13 +302,17 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'bzrno' }, // 사업자번호
     { fieldName: 'leadCstNm' }, // 업체명
     { fieldName: 'leadCstRlpplNm' }, // 업체담당자(KEY-MAN)
+    { fieldName: 'leadCstRlpplNmEncr' }, // 업체담당자(KEY-MAN) 마스킹
     { fieldName: 'locaraTno' }, // 업체연락처1-1
     { fieldName: 'exnoEncr' }, // 업체연락처1-2
     { fieldName: 'idvTno' }, // 업체연락처1-3
+    { fieldName: 'idvTnoEncr' }, // 업체연락처1-3 마스킹
     { fieldName: 'cralLocaraTno' }, // 업체연락처2-1
     { fieldName: 'mexnoEncr' }, // 업체연락처2-2
     { fieldName: 'cralIdvTno' }, // 업체연락처2-3
+    { fieldName: 'cralIdvTnoEncr' }, // 업체연락처2-3 마스킹
     { fieldName: 'emadrCn' }, // 이메일
+    { fieldName: 'emadrCnEncr' }, // 이메일 마스킹
     { fieldName: 'crdrVal' }, // 신용등급
     { fieldName: 'etBiddDt' }, // 예상입찰일자
     { fieldName: 'opptCntrFomCd' }, // 기회계약형태코드
@@ -386,7 +390,8 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       editor: {
         maxLength: 50,
       } }, // 업체명
-    { fieldName: 'leadCstRlpplNm',
+    { fieldName: 'leadCstRlpplNm', visible: false },
+    { fieldName: 'leadCstRlpplNmEncr',
       header: t('MSG_TXT_COMP_RSP_USR'),
       width: '212',
       styleName: 'text-center',
@@ -395,11 +400,14 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       } }, // 업체담당자
     { fieldName: 'locaraTno', header: `${t('MSG_TXT_CRAL_LOCARA_TNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
     { fieldName: 'exnoEncr', header: `${t('MSG_TXT_MEXNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
-    { fieldName: 'idvTno', header: `${t('MSG_TXT_CRAL_IDV_TNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'idvTno', visible: false },
+    { fieldName: 'idvTnoEncr', header: `${t('MSG_TXT_CRAL_IDV_TNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
     { fieldName: 'cralLocaraTno', header: `${t('MSG_TXT_CRAL_LOCARA_TNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
     { fieldName: 'mexnoEncr', header: `${t('MSG_TXT_MEXNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
-    { fieldName: 'cralIdvTno', header: `${t('MSG_TXT_CRAL_IDV_TNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
-    { fieldName: 'emadrCn',
+    { fieldName: 'cralIdvTno', visible: false },
+    { fieldName: 'cralIdvTnoEncr', header: `${t('MSG_TXT_CRAL_IDV_TNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'emadrCn', visible: false },
+    { fieldName: 'emadrCnEncr',
       header: t('MSG_TXT_EMAIL'),
       width: '193',
       styleName: 'text-center',
@@ -500,7 +508,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     {
       header: t('Key-Man'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['leadCstRlpplNm', 'locaraTno', 'exnoEncr', 'idvTno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno', 'emadrCn'],
+      items: ['leadCstRlpplNmEncr', 'locaraTno', 'exnoEncr', 'idvTnoEncr', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTnoEncr', 'emadrCnEncr'],
     },
     'crdrVal', 'etBiddDt', 'opptCntrFomCd', 'totQty',
     {
@@ -549,6 +557,31 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       if (!isEmpty(bzrnoParam) && !isEmpty(leadCstNmParam)) {
         onKeyManFind(itemIndex);
       }
+    }
+    if (columnName === 'leadCstRlpplNmEncr') {
+      const leadCstRlpplNmEncr = grid.getValue(updateRow, 12);
+      grid.commit();
+      data.setValue(updateRow, 'leadCstRlpplNm', leadCstRlpplNmEncr);
+    }
+    if (columnName === 'idvTnoEncr') {
+      const idvTnoEncr = grid.getValue(updateRow, 15);
+      grid.commit();
+      data.setValue(updateRow, 'idvTno', idvTnoEncr);
+    }
+    if (columnName === 'idvTnoEncr') {
+      const idvTnoEncr = grid.getValue(updateRow, 15);
+      grid.commit();
+      data.setValue(updateRow, 'idvTno', idvTnoEncr);
+    }
+    if (columnName === 'cralIdvTnoEncr') {
+      const cralIdvTnoEncr = grid.getValue(updateRow, 19);
+      grid.commit();
+      data.setValue(updateRow, 'cralIdvTno', cralIdvTnoEncr);
+    }
+    if (columnName === 'emadrCnEncr') {
+      const emadrCnEncr = grid.getValue(updateRow, 21);
+      grid.commit();
+      data.setValue(updateRow, 'emadrCn', emadrCnEncr);
     }
   };
   view.setFixedOptions({

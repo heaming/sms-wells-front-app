@@ -299,7 +299,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
     { fieldName: 'spectxPrntY' }, // 발행년도
     { fieldName: 'spectxPblDDvCd' }, // 발행일
     { fieldName: 'spectxPrdDvCd' }, // 발행주기
-    { fieldName: 'emadr' }, // 이메일
+    { fieldName: 'emadrEncr' }, // 이메일 마스킹
     { fieldName: 'faxLocaraTno' }, // 팩스지역전화번호
     { fieldName: 'faxExno' }, // 팩스전화국번호
     { fieldName: 'faxIdvTno' }, // 팩스개별전화번호
@@ -309,6 +309,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
     { fieldName: 'fstRgstDtm' }, // 등록일시
     { fieldName: 'lstmmYn' }, // 전월여부
     { fieldName: 'cstNo' }, // 고객번호
+    { fieldName: 'emadr' }, // 이메일
   ];
 
   const columns = [
@@ -355,7 +356,8 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       editor: { type: 'list' },
       rules: 'required',
     }, // 발행주기
-    { fieldName: 'emadr', header: t('MSG_TXT_EMAIL'), width: '220', styleName: 'text-left' }, // 이메일
+    { fieldName: 'emadr', visible: false },
+    { fieldName: 'emadrEncr', header: t('MSG_TXT_EMAIL'), width: '220', styleName: 'text-left' }, // 이메일
     { fieldName: 'faxLocaraTno', header: t('MSG_TXT_FAX_LOCARA_TNO'), width: '220', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } }, // 팩스지역전화번호
     { fieldName: 'faxExno', header: t('MSG_TXT_FAX_MEXNO'), width: '220', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } }, // 팩스전화국번호
     { fieldName: 'faxIdvTno', header: t('MSG_TXT_FAX_IDV_TNO'), width: '220', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } }, // 팩스개별전화번호
@@ -395,6 +397,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
           data.setValue(dataRow, 'sellTpCd', '');
           data.setValue(dataRow, 'cstNm', '');
           data.setValue(dataRow, 'emadr', '');
+          data.setValue(dataRow, 'emadrEncr', '');
           if ((!isEmpty(res.data))) {
             data.setValue(dataRow, 'sellTpCd', res.data.sellTpCd);
             data.setValue(dataRow, 'cstNm', res.data.cstKnm);
@@ -404,8 +407,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
             data.setValue(dataRow, 'cntrDtlNo', `${cntrNo}-${cntrSn}`);
             for (let i = 0; i < rows.length; i += 1) {
               const row = gridUtil.findDataRow(view, (e) => e.spectxGrpNo === spectxGrpNo
-              && (e.emadr !== res.data.emadr)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
-              data.setValue(row, 'emadr', trim(res.data.emadr));
+              && (e.emadrEncr !== res.data.emadrEncr)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
+              data.setValue(row, 'emadrEncr', trim(res.data.emadrEncr));
+              data.setValue(row, 'emadr', trim(res.data.emadrEncr));
             }
           }
         }
@@ -419,8 +423,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       for (let i = 0; i < rows.length - 1; i += 1) {
         grid.commit();
         const row = gridUtil.findDataRow(view, (e) => e.spectxGrpNo === spectxGrpNo
-          && (e.emadr !== emadr)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
+          && (e.emadrEncr !== emadr)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
         data.setValue(row, 'emadr', emadr);
+        data.setValue(row, 'emadrEncr', emadr);
       }
       notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_EMAIL')])); // {이메일} 항목이 일괄변경 되었습니다.
     }
@@ -462,7 +467,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
     }
   };
   view.onCellClicked = async (g, { column }) => {
-    if (column === 'faxLocaraTno' || column === 'faxExno' || column === 'faxIdvTno' || column === 'emadr') {
+    if (column === 'faxLocaraTno' || column === 'faxExno' || column === 'faxIdvTno' || column === 'emadrEncr') {
       alert(t('MSG_ALT_SAME_COLLECTIVE_CHG', [t('MSG_TXT_GRP_NO')]));
     }
   };
@@ -491,6 +496,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       data.setValue(updateRow, 'sellTpCd', '');
       data.setValue(updateRow, 'cstNm', '');
       data.setValue(updateRow, 'emadr', '');
+      data.setValue(updateRow, 'emadrEncr', '');
       if ((!isEmpty(res.data))) {
         data.setValue(updateRow, 'sellTpCd', res.data.sellTpCd);
         data.setValue(updateRow, 'cstNm', res.data.cstKnm);
@@ -500,8 +506,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
         data.setValue(updateRow, 'cntrDtlNo', `${cntrNo}-${cntrSn}`);
         for (let i = 0; i < rows.length; i += 1) {
           const row = gridUtil.findDataRow(view, (e) => e.spectxGrpNo === spectxGrpNo
-              && (e.emadr !== res.data.emadr)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
-          data.setValue(row, 'emadr', trim(res.data.emadr));
+              && (e.emadrEncr !== res.data.emadrEncr)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
+          data.setValue(row, 'emadr', trim(res.data.emadrEncr));
+          data.setValue(row, 'emadrEncr', trim(res.data.emadrEncr));
         }
       }
       data.setValue(updateRow, 'cntrNo', payload.cntrNo);

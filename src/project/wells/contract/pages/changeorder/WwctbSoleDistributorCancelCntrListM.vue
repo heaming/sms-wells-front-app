@@ -74,7 +74,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useMeta, useDataService, getComponentType, useGlobal, defineGrid, gridUtil } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { getConfig } = useMeta();
@@ -144,7 +144,7 @@ const initGridSoleDistributorCanCntrList = defineGrid((data, view) => {
     { fieldName: 'cntrNo' }, // 계약번호
     { fieldName: 'cntrSn' }, // 계약 일련번호
     { fieldName: 'cstKnm' }, // 계약자 한글명
-    { fieldName: 'istMpno' }, // 설치자 휴대전화번호
+    { fieldName: 'telNo' }, // 설치자 휴대전화번호
     { fieldName: 'istCralLocaraTno' }, // 설치자 휴대전화번호1
     { fieldName: 'istMexnoEncr' }, // 설치자 휴대전화번호2
     { fieldName: 'istCralIdvTno' }, // 설치자 휴대전화번호3
@@ -166,20 +166,16 @@ const initGridSoleDistributorCanCntrList = defineGrid((data, view) => {
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '132', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '96' },
     {
-      fieldName: 'istMpno',
+      fieldName: 'telNo',
       header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_MPNO')}`,
       width: '178',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { istCralLocaraTno, istMexnoEncr, istCralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(istCralLocaraTno) && !isEmpty(istMexnoEncr) && !isEmpty(istCralIdvTno) ? `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}` : '';
-      },
     },
     { fieldName: 'istRnadr', header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_ADDR')}`, width: '432' },
     { fieldName: 'pdMclsfRnm', header: t('MSG_TXT_DIV'), width: '96', styleName: 'text-center', options: pdgrpCd.value },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_PRDT_NM'), width: '202' },
-    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '132', styleName: 'text-center' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '132', styleName: 'text-center' },
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '132', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '132', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     { fieldName: 'canCn', header: `${t('MSG_TXT_CANCEL')}${t('MSG_TXT_CNTN')}`, width: '321' },
   ];
 
