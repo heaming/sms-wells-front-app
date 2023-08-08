@@ -204,8 +204,10 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
     { fieldName: 'preview' }, // 미리보기
     { fieldName: 'spectxGrpNo' }, // 그룹번호
     { fieldName: 'cstNm' }, // 발급명
+    { fieldName: 'cstNmEncr' }, // 발급명
     { fieldName: 'slClYm' }, // 기간
     { fieldName: 'cstKnm' }, // 고객한글명
+    { fieldName: 'cstKnmEncr' }, // 고객한글명 마스킹
     { fieldName: 'cstNo' }, // 고객번호
     { fieldName: 'spectxPblDDvCd' }, // 발행일
     { fieldName: 'spectxPrntDt' }, // 출력일
@@ -223,6 +225,7 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
     { fieldName: 'basePdNm' }, // 상품명
     { fieldName: 'nomSlAmt' }, // 매출액
     { fieldName: 'emadr' }, // 이메일
+    { fieldName: 'emadrEncr' }, // 이메일
     { fieldName: 'faxLocaraTno' }, // 팩스지역전화번호
     { fieldName: 'faxExno' }, // 팩스전화국번호
     { fieldName: 'faxIdvTno' }, // 팩스개별전화번호
@@ -232,7 +235,7 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'preview', header: t('MSG_TXT_PREVIEW'), width: '112', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_PREVIEW') }, // 미리보기
     { fieldName: 'spectxGrpNo', header: t('MSG_TXT_GRP_NO'), width: '112', styleName: 'text-center' }, // 그룹번호
-    { fieldName: 'cstNm', header: t('MSG_TXT_IS_USR'), width: '155', styleName: 'text-left' }, // 발급담당자
+    { fieldName: 'cstNmEncr', header: t('MSG_TXT_IS_USR'), width: '155', styleName: 'text-left' }, // 발급담당자
     { fieldName: 'slClYm', header: t('MSG_TXT_PRD'), width: '130', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기간
     { fieldName: 'spectxPblDDvCd', header: t('MSG_TXT_PBL_DT'), width: '112', styleName: 'text-center' }, // 발행일자
     { fieldName: 'spectxPrntDt', header: t('MSG_TXT_PRNT_DT'), width: '112', styleName: 'text-center', datetimeFormat: 'date' }, // 출력일자
@@ -253,7 +256,7 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
     { fieldName: 'cntrCn', header: t('MSG_TXT_CNTR_CT'), width: '148', styleName: 'text-right' }, // 계약건수
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '246', styleName: 'text-left' }, // 상품명
     { fieldName: 'nomSlAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right' }, // 매출금액
-    { fieldName: 'emadr', header: t('MSG_TXT_EMAIL'), width: '246', styleName: 'text-left' }, // 이메일
+    { fieldName: 'emadrEncr', header: t('MSG_TXT_EMAIL'), width: '246', styleName: 'text-left' }, // 이메일
     { fieldName: 'faxLocaraTno', header: t('MSG_TXT_FAX_LOCARA_TNO'), width: '188', styleName: 'text-left' }, // 팩스번호1
     { fieldName: 'faxExno', header: t('MSG_TXT_FAX_MEXNO'), width: '188', styleName: 'text-left' }, // 팩스번호2
     { fieldName: 'faxIdvTno', header: t('MSG_TXT_FAX_IDV_TNO'), width: '188', styleName: 'text-left' }, // 팩스번호3
