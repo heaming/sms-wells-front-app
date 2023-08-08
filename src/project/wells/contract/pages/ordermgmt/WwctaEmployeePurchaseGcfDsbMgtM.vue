@@ -99,7 +99,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useDataService, useGlobal, gridUtil, codeUtil } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
@@ -242,13 +242,6 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_MPNO'),
       width: '138',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { cralLocaraTno: no1, mexnoEncr: no2, cralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
-          return `${no1}--${no3}`;
-        }
-        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
-      },
     }, // 휴대전화번호
     { fieldName: 'rsgnDt', header: t('MSG_TXT_RSGN_D'), width: '106', styleName: 'text-center', datetimeFormat: 'date' }, // 퇴사일
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_BLG'), width: '112', styleName: 'text-center' }, // 소속

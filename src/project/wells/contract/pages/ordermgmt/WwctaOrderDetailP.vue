@@ -442,8 +442,12 @@ async function fetchDataCustomerBase() {
           frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${res.data[0].aftnInfo.split(' ')[3]}`;
         }
       }
+    } else {
+      isAftnInfo.value = false;
+      frmMainData.value.aftnInfo = ''; // 자동이체(계좌/카드자동이체를 표시)
     }
     frmMainData.value.sfkVal = res.data[0].sfkVal; // 세이프키
+    // 가상계좌
     if (!isEmpty(res.data[0].vacInfo)) {
       // console.log(res.data[0].vacInfo.length + isVacInfo.value);
       if (res.data[0].vacInfo.length > 3) {
@@ -451,8 +455,16 @@ async function fetchDataCustomerBase() {
         frmMainData.value.vacBnkNm = res.data[0].vacInfo.split('$')[0]; // 가상계좌은행명
         frmMainData.value.vacInfo = `${res.data[0].vacInfo.split('$')[1]} ${res.data[0].vacInfo.split('$')[2]}`; // 가상계좌(가상계좌번호+입금일)
         frmMainData.value.vacVncoDvCd = res.data[0].vacInfo.split('$')[3]; // 가상계좌VAN사구분코드
+      } else {
+        isVacInfo.value = false;
+        frmMainData.value.vacBnkNm = '';
+        frmMainData.value.vacInfo = '';
+        frmMainData.value.vacVncoDvCd = '';
       }
-    } // 가상계좌
+    } else {
+      isVacInfo.value = false;
+      frmMainData.value.vacInfo = ''; // 가상계좌
+    }
     frmMainData.value.cntrtAdr = res.data[0].cntrtAdr; // 계약자 주소
     frmMainData.value.rcgvpKnm = res.data[0].rcgvpKnm; // 설치(배송정보) 고객명
     const { istCralLocaraTno, istMexnoEncr, istCralIdvTno } = res.data[0]; // 설치자 휴대지역전화번호
