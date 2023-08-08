@@ -36,6 +36,7 @@
         >
           <kw-input
             v-model="searchParams.no"
+            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
             :on-click-icon="onClickSearchNo"

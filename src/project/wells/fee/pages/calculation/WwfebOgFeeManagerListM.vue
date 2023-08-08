@@ -429,19 +429,15 @@ async function onClickW205P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 세금공제 클릭 ※
  */
 async function onClickW206P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { feeTcntDvCd, perfYm, rsbTpCd, rsbTpTxt } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === feeTcntDvCd);
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
   if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
       ogTpCd: 'W02',
-      ogTpCdTxt: 'M추진단',
-      ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+      ddtnYm: perfYm,
       feeTcntDvCd,
-      feeTcntDvCdTxt: codeName,
-      rsbTpCd,
-      rsbTpCdTxt: rsbTpTxt,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeTaxDeductionRegP',
@@ -509,7 +505,7 @@ async function onClickW210P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   } else {
     const param = {
       ogTpCd: 'W02',
-      ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+      ddtnYm: perfYm,
       feeTcntDvCd,
       rsbDvCd: rsbTpCd,
     };
