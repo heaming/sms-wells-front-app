@@ -131,7 +131,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PDCT'), width: '130', styleName: 'text-left' },
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_STPL_DT'), width: '130', styleName: 'text-center ', datetimeFormat: 'date' },
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_STPL_DT'), width: '130', styleName: 'text-center ' },
     { fieldName: 'fntDvNm', header: t('MSG_TXT_STLM_MES'), width: '130', styleName: 'text-center ' },
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '130', styleName: 'text-right', dataType: 'number' },

@@ -115,6 +115,7 @@
           spaced
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_BND_PRP_CH')"
           primary
           dense
@@ -156,6 +157,7 @@
           spaced
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_SEND')"
           primary
           dense
