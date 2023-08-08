@@ -279,17 +279,17 @@ async function getWareHouseList() {
       baseDt: cachedParams.baseDt,
     } },
   );
-  if (result.data.length > 0) {
+  if (!isEmpty(result.data)) {
     const wareHouses = result.data;
-
-    wareHouses.filter((v) => v.wareDtlDvCd === '20');
+    const serviceWareNos = wareHouses.filter((v) => v.wareDtlDvCd === '20');
+    const bizWareNos = wareHouses.filter((v) => v.wareDtlDvCd === '30');
 
     // 필드 구성
     tmpFields1.push(
-      wareHouses.filter((v) => v.wareDtlDvCd === '20').map((v) => ({
+      ...serviceWareNos.map((v) => ({
         fieldName: `qty${v.wareNo}`,
         header: v.wareNm,
-        width: '100',
+        width: '110',
         styleName: 'text-right',
         dataType: 'number',
         footer: {
@@ -299,10 +299,10 @@ async function getWareHouseList() {
       })),
     );
     tmpFields2.push(
-      wareHouses.filter((v) => v.wareDtlDvCd === '30').map((v) => ({
+      ...bizWareNos.map((v) => ({
         fieldName: `qty${v.wareNo}`,
         header: v.wareNm,
-        width: '100',
+        width: '110',
         styleName: 'text-right',
         dataType: 'number',
         footer: {
@@ -361,7 +361,7 @@ fieldsObj = {
   defaultFields: [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '500', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
     { fieldName: 'leadTime', header: t('TXT_MSG_AS_LDTM'), width: '100', styleName: 'text-right' },
     { fieldName: 'moq', header: t('MSG_TXT_MOQ'), width: '100', styleName: 'text-right' },
     { fieldName: 'qty100002',
