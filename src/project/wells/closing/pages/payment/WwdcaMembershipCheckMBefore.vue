@@ -94,7 +94,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
-const { departmentId: deptId } = getters['meta/getUserInfo'];
+const { departmentId: ogId } = getters['meta/getUserInfo'];
 
 let cachedParams;
 
@@ -102,7 +102,7 @@ let cachedParams;
 
 const searchParams = ref({
   searchPeriod: now.format('YYYYMM'),
-  deptCd: deptId,
+  deptCd: ogId,
 });
 
 const pageInfo = ref({
