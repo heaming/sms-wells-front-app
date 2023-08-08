@@ -165,7 +165,7 @@ import {
   gridUtil,
   useGlobal,
 } from 'kw-lib';
-import { cloneDeep, replace } from 'lodash-es';
+import { cloneDeep, replace, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -401,7 +401,8 @@ const initGrdMain = defineGrid((data, view) => {
       optionValue: 'ogId',
       optionLabel: 'ogNm',
       styleCallback(grid, dataCell) {
-        if (dataCell.item.pdlvDvCd === 'E') {
+        const pdlvDvCd = grid.getValue(dataCell.item.dataRow, 'pdlvDvCd');
+        if (pdlvDvCd === 'E') {
           return {
             editable: true,
             editor: {
@@ -477,7 +478,7 @@ const initGrdMain = defineGrid((data, view) => {
     if (apyEnddt !== '99991231') {
       return t('MSG_ALT_NOT_FINAL_APY_STRTDT');
     }
-    if (apyStrtdtMax >= apyStrtdt) {
+    if (!isEmpty(apyStrtdtMax) && apyStrtdtMax >= apyStrtdt) {
       return t('MSG_ALT_APY_STRT_D_CONF_MAX_DT', [apyStrtdtMax]);
     }
   };
