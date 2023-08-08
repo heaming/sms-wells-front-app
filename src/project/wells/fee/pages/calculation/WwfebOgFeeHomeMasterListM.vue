@@ -204,7 +204,7 @@ const searchParams = ref({
 
 const approval = ref({
   gb: 'ngt002', /* formId를 식별하는 구분 */
-  empno: sessionUserInfo.userId, /* 결재자 사번 */
+  empno: sessionUserInfo.employeeIDNumber, /* 결재자 사번 */
   formId: '2023000024', /* 홈마스터 조직 품의결재 폼ID 10자리 */
   appKey: '', /* 업무단에서 해당 결재를 확인할 KEY */
 });
@@ -468,7 +468,7 @@ async function onClickW306P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       ogTpCd: 'W03',
       ddtnYm: perfYm,
       feeTcntDvCd,
-      rsbTpCd,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeEmpInsuranceRegP',
