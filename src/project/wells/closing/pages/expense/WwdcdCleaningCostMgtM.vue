@@ -286,7 +286,16 @@ const initGrdMain = defineGrid((data, view) => {
         multiple: true,
         editable: false,
       },
-      displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS'),
+      styleCallback: (grid, model) => {
+        if (!isEmpty(model.value.__atthDocumentId)) {
+          return {
+            styleName: 'text-center rg-file-button',
+          };
+        }
+        return {
+          styleName: 'text-center rg-file-hide-button',
+        };
+      },
     }, // 영수증첨부
 
   ];
@@ -315,20 +324,6 @@ const initGrdMain = defineGrid((data, view) => {
       }
     }
   };
-
-  const f1 = (grid, model) => {
-    if (isEmpty(model.value.__atthDocumentId)) {
-      return {
-        styleName: 'custom-negative-cell',
-        renderer: {
-          type: 'text',
-        },
-      };
-    }
-  };
-
-  const column = view.columnByName('clingCostSrcpApnFileId');
-  column.styleCallback = f1;
 });
 
 onMounted(async () => {

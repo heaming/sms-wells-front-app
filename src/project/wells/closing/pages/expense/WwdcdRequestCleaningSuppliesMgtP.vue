@@ -12,7 +12,7 @@
 --->
 <template>
   <kw-popup
-    size="lg"
+    size="xl"
   >
     <kw-form
       ref="frmSaveRef"
@@ -58,7 +58,7 @@
             v-model="saveParams.bilAmt"
             :label="$t('MSG_TXT_AMT')"
             rules="required"
-            :regex="num"
+            mask="number"
             :disable="isDisable"
           />
         </kw-form-item>
@@ -194,14 +194,12 @@ const saveParams = ref({
 const buildingCodes = ref([]);
 async function buildingCode() {
   let sessionParams = {};
-  console.log('careerLevelCode:', careerLevelCode);
-  if (careerLevelCode === '2') { // 지역단장
+  if (careerLevelCode === '4') { // 지역단장
     sessionParams = { ogTpCd, prtnrNo };
   } else {
     sessionParams.ogTpCd = saveParams.value.ogTpCd;
     sessionParams.prtnrNo = saveParams.value.prtnrNo;
   }
-  debugger;
   const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/code', { params: sessionParams });
   buildingCodes.value = res.data;
 }
@@ -221,7 +219,7 @@ async function onClickClaimantName() {
       console.log('searchRsbDvCdParams:', searchRsbDvCdParams);
       const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/rsbDvcd', { params: searchRsbDvCdParams });
       console.log('res.data:', res.data);
-      if (res.data.rsbDvCd !== 'W0203') {
+      if (res.data.rsbDvCd !== 'W0103' && res.data.rsbDvCd !== 'W0203') {
         await alert(t('MSG_ALT_RSB_LCMGR_APLC_PSB')); // 직책이 지역단장만 신청 가능합니다.
         saveParams.value.prtnrNo = undefined;
         buildingCodes.value = [];
@@ -258,7 +256,6 @@ async function fetchData() {
   if (!isEmpty(clingCostAdjRcpNo)) {
     dataParams = { clingCostAdjRcpNo: cloneDeep(clingCostAdjRcpNo) };
     const res = await dataService.get(`/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/${clingCostAdjRcpNo}`, { params: dataParams });
-    debugger;
     saveParams.value = res.data;
     isApplication.value = true;
     isDisable.value = true;
@@ -269,5 +266,10 @@ async function fetchData() {
 
 onMounted(async () => {
   await fetchData();
+  const sessionInfo = store.getters['meta/getUserInfo'];
+  if (['W01', 'W02'].includes(sessionInfo.ogTpCd) && sessionInfo.careerLevelCode === '4') { // 웰스의 지역단장일 경우
+    saveParams.value.prtnrNo = sessionInfo.employeeIDNumber;
+    onClickClaimantName();
+  }
 });
 </script>
