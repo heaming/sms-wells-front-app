@@ -468,7 +468,7 @@ async function onClickW306P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       ogTpCd: 'W03',
       ddtnYm: perfYm,
       feeTcntDvCd,
-      rsbTpCd,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeEmpInsuranceRegP',
