@@ -54,9 +54,9 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <!-- 창고구분 -->
+        <!-- 출고창고구분 -->
         <kw-search-item
-          :label="$t('MSG_TXT_WARE_DV')"
+          :label="$t('MSG_TXT_OSTR_WARE_DV')"
         >
           <kw-select
             v-model="searchParams.wareDvCd"
