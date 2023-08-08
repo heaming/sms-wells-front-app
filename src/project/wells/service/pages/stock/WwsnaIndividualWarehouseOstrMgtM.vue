@@ -494,8 +494,13 @@ function onChangeNdlvQty() {
 // 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!await gridUtil.validate(view)) { return; }
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkedRows)) {
+    notify(t('MSG_ALT_SAV_SEL_DATA'));
+    return;
+  }
+
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
 
   // 출고일자
   const { ostrDt } = searchParams.value;
@@ -506,28 +511,11 @@ async function onClickSave() {
     return;
   }
 
-  const modifedData = gridUtil.getChangedRowValues(view);
-  let validWareNm = '';
-  let validItmPdCd = '';
-  modifedData.forEach((item) => {
-    const { outQty, logisticStocQty, wareNm, itmPdCd } = item;
-    // 출고수량 > 상위재고
-    if (outQty > logisticStocQty) {
-      validWareNm = wareNm;
-      validItmPdCd = itmPdCd;
-      return false;
-    }
+  checkedRows.forEach((item) => {
     item.ostrDt = ostrDt;
   });
 
-  if (!isEmpty(validWareNm) && !isEmpty(validItmPdCd)) {
-    const msg = `${validWareNm} ${t('MSG_TXT_WARE')} ${validItmPdCd} ${t('MSG_TXT_OF_ITM')}`;
-    // {0} 상위창고 재고수량이 부족합니다.
-    await alert(`${msg} ${t('MSG_ALT_HGR_WARE_STOC_STG')}`);
-    return;
-  }
-
-  const res = await dataService.post('/sms/wells/service/individual-ware-ostrs', modifedData);
+  const res = await dataService.post('/sms/wells/service/individual-ware-ostrs', checkedRows);
   const { processCount } = res.data;
   if (processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
@@ -579,6 +567,7 @@ async function onClickLgstTrs() {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'lgstTrsYn' },
+    { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
     { fieldName: 'wareNm' },
     { fieldName: 'sapMatCd' },
     { fieldName: 'itmPdCd' },
@@ -689,7 +678,8 @@ const initGrdMain = defineGrid((data, view) => {
     'outBoxQty', 'outQty', 'rmkCn',
   ]);
 
-  view.checkBar.visible = false;
+  view.checkBar.fieldName = 'chk';
+  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
