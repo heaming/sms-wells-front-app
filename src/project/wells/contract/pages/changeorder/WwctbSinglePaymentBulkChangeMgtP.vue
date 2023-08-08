@@ -107,10 +107,12 @@
           v-if="saveParams.procsDv==='704'"
           :label="$t('MSG_TXT_ISTM_FNT')"
         >
-          <kw-input
+          <kw-select
             v-model="saveParams.istmFnt"
+            first-option="all"
+            :first-option-label="$t('MSG_TXT_SELT')"
             :label="$t('MSG_TXT_ISTM_FNT')"
-            maxlength="100"
+            :options="codes.AUTO_FNT_DV_ACD.filter((v) => v.codeId === '1' || v.codeId === '2'|| v.codeId === 'N')"
           />
         </kw-form-item>
         <!-- 멤버십이체  TODO : 추후 입력제한 추가 -->
@@ -118,10 +120,12 @@
           v-if="saveParams.procsDv==='704'"
           :label="$t('MSG_TXT_MEMBRSHP_TRSFR')"
         >
-          <kw-input
+          <kw-select
             v-model="saveParams.membrshpSrsfr"
+            first-option="all"
+            :first-option-label="$t('MSG_TXT_SELT')"
             :label="$t('MSG_TXT_MEMBRSHP_TRSFR')"
-            maxlength="100"
+            :options="codes.AUTO_FNT_DV_ACD.filter((v) => v.codeId === '1' || v.codeId === '2'|| v.codeId === 'N')"
           />
         </kw-form-item>
         <!-- 정액여부 변경 -->
@@ -310,6 +314,8 @@ const codes = await codeUtil.getMultiCodes(
   'PMOT_PRMIT_YN_ACD',
   'BFSVC_BZS_DV_CD',
   'SPLY_BZS_DV_CD',
+  'AUTO_FNT_DV_ACD',
+  'DP_TP_CD',
 );
 
 let cachedParams;
@@ -438,8 +444,6 @@ async function onClickSave() {
         alert(t('MSG_ALT_INPUT_ITEM1_OR_ITEM2', [t('MSG_TXT_ISTM_FNT'), t('MSG_TXT_MEMBRSHP_TRSFR')]));
         return;
       }
-      alert(t('서비스 확인 중 입니다,'));
-      return;
     } else if (saveParams.value.procsDv === '705') {
       // TODO : AS-IS처리내역, 매핑안됨
       if (isEmpty(saveParams.value.fxamYnCh)) {
@@ -537,7 +541,7 @@ async function onProcsDvChange() {
     view.columnsByTag('cntr').forEach((col) => { col.visible = true; });
   }
 
-  if (saveParams.value.procsDv === '704' || saveParams.value.procsDv === '710') {
+  if (saveParams.value.procsDv === '710') {
     alert(t('서비스 확인 중 입니다.'));
   }
 }
@@ -592,6 +596,8 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
     { fieldName: 'splyBzsDvCd' }, // 조달업체구분코드
     { fieldName: 'modBfsvcBzsDvCd' }, // 수정 업체BS구분
     { fieldName: 'modSplyBzsDvCd' }, // 수정 업체구분
+    { fieldName: 'istmStlmHdDvCd' }, // 할부이체 보류코드
+    { fieldName: 'memStlmHdDvCd' }, // 멤버십이체 보류코드
   ];
 
   const columns = [
@@ -616,8 +622,22 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 인정건수
     { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_RECOG_AMT'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 인정금액
     { fieldName: 'ackmtPerfRt', header: t('MSG_TXT_RECOG_RT'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 인정율
-    { fieldName: 'dpTpCd', header: t('MSG_TXT_ISTM_FNT'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 할부이체
-    { fieldName: 'mmbsDpTpCd', header: t('MSG_TXT_MEMBRSHP_TRSFR'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 멤버십이체
+    { fieldName: 'dpTpCd',
+      header: t('MSG_TXT_ISTM_FNT'),
+      width: '117',
+      styleName: 'text-center',
+      editable: false,
+      tag: 'cntr',
+      editor: { type: 'list' },
+      options: codes.DP_TP_CD }, // 할부이체
+    { fieldName: 'mmbsDpTpCd',
+      header: t('MSG_TXT_MEMBRSHP_TRSFR'),
+      width: '117',
+      styleName: 'text-center',
+      editable: false,
+      tag: 'cntr',
+      editor: { type: 'list' },
+      options: codes.DP_TP_CD }, // 멤버십이체
     { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_FRISU_MSH'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 무상멤버십
     { fieldName: 'frisuAsPtrmN', header: t('MSG_TXT_FRISU_AS'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 무상A/S
     { fieldName: 'sellEvCd', header: t('MSG_TXT_EV_CD'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 행사코드
