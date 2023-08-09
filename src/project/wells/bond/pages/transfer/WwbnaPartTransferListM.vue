@@ -432,9 +432,9 @@ const validateSearchCstNo = async () => {
 
 watch(() => searchParams.value.baseYm, async (baseYm) => {
   if (baseYm !== defaultDate) {
-    // isNotActivated.value = true;
+    isNotActivated.value = true;
   } else {
-    // isNotActivated.value = false;
+    isNotActivated.value = false;
   }
 });
 
@@ -633,15 +633,11 @@ const initGrdSub = defineGrid((data, view) => {
   view.layoutByColumn('lwmTpCd').summaryUserSpans = { colspan: 5 };
 
   view.onCellClicked = () => {
-    // TODO: 임시주석 테스트 후 주석 삭제
-    view.editOptions.editable = true;
-    console.log(isCollectionManager);
     if (cachedParams.baseYm !== defaultDate) {
-      // view.editOptions.editable = false;
+      view.editOptions.editable = false;
     } else {
-      // view.editOptions.editable = isCollectionManager;
+      view.editOptions.editable = isCollectionManager;
     }
-    view.editOptions.editable = true;
   };
 });
 </script>

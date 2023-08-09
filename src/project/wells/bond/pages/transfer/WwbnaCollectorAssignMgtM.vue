@@ -532,14 +532,12 @@ watch(() => searchParams.value.clctamPrtnrNm, async (clctamPrtnrNm) => {
 });
 watch(() => searchParams.value.baseYm, async (baseYm) => {
   const view = grdSubRef.value.getView();
-  // TODO: 임시주석 테스트 후 주석 삭제
-  view.editOptions.editable = true;
   if (baseYm !== defaultDate) {
-    // view.editOptions.editable = false;
-    // isNotActivated.value = true;
+    view.editOptions.editable = false;
+    isNotActivated.value = true;
   } else {
-    // view.editOptions.editable = isCollectionManager;
-    // isNotActivated.value = false;
+    view.editOptions.editable = isCollectionManager;
+    isNotActivated.value = false;
   }
 });
 // -------------------------------------------------------------------------------------------------
@@ -753,8 +751,7 @@ const initGrdSub = defineGrid((data, view) => {
       styleName: 'text-center, rg-button-icon--search',
       button: 'action',
       buttonVisibleCallback() {
-        // return (cachedParams.baseYm === defaultDate);
-        return true;
+        return (cachedParams.baseYm === defaultDate && isCollectionManager);
       },
     },
     { fieldName: 'lstmmClctamDvCd', header: t('MSG_TXT_LSTMM_ICHR_CLCTAM_DV'), width: '130', styleName: 'text-center', editable: false },
