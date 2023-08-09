@@ -189,7 +189,7 @@ function ogAsnStatCdStyleCallback(grid, dataCell) {
   if (isEmpty(ichrPrtnrNo)) {
     ret.renderer = { type: 'button', editable: false };
     ret.editable = false;
-    ret.styleName = 'btnshow';
+    ret.styleName = 'btnshow rg-button-default';
   } else {
     // ret.styleName = 'btnhide';
     ret.renderer = { type: 'button', editable: false };

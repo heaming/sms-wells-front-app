@@ -30,6 +30,7 @@
               v-model.trim:model-value="searchParams.prtnrNo"
               :label="t('MSG_TXT_EPNO',null,'사번')"
               maxlength="10"
+              type="number"
               rules="required|numeric"
             />
             <kw-btn
