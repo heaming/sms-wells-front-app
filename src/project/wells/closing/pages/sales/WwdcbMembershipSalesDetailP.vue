@@ -339,7 +339,7 @@ const props = defineProps({
   cntrSn: {
     type: String,
     required: false,
-    default: '1',
+    default: '',
   },
 });
 
