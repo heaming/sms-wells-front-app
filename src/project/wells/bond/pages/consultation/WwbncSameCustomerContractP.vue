@@ -91,7 +91,7 @@
               <p>{{ deposit.ojAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_CCAM')">
-              <p>{{ deposit.borAmt }}</p>
+              <p>{{ deposit.rsgBorAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
               <p>{{ deposit.dlqAmt }}</p>
@@ -103,16 +103,16 @@
 
           <kw-form-row>
             <kw-form-item :label="$t('MSG_TXT_OJ_DP')">
-              <p>{{ deposit.slDpAmt }}</p>
+              <p>{{ deposit.ojDpAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_LSFE')">
-              <p>{{ deposit.lsfe }}</p>
+              <p>{{ deposit.lsRntf }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DLQ_DP')">
               <p>{{ deposit.dlqDpAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DP_AGG')">
-              <p>{{ deposit.slDpAggAmt }}</p>
+              <p>{{ deposit.dpAggAmt }}</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -151,7 +151,7 @@
               <p>  {{ deposit.ucDpAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_MM_CHRAM_DP')">
-              <p>{{ deposit.thmChramDpAmt }}</p>
+              <p>{{ deposit.mmChramDpAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DLQ_ADD_DP')">
               <p>{{ deposit.dlqAddDpAmt }}</p>
@@ -163,10 +163,10 @@
               <p> {{ deposit.ucBlam }}              </p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_MM_CHRAM_BLAM')">
-              <p>{{ deposit.thmChramBlam }}</p>
+              <p>{{ deposit.mmChramBlam }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DLQ_ADD_BLAM')">
-              <p>{{ deposit.eotDlqAddAmt }}</p>
+              <p>{{ deposit.dlqAddBlam }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -206,7 +206,7 @@
               <p>{{ deposit.ojAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_CCAM')">
-              <p>{{ deposit.borAmt }}</p>
+              <p>{{ deposit.rsgBorAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
               <p>{{ deposit.dlqAmt }}</p>
@@ -218,16 +218,16 @@
 
           <kw-form-row>
             <kw-form-item :label="$t('MSG_TXT_OJ_DP')">
-              <p>{{ deposit.slDpAmt }}</p>
+              <p>{{ deposit.ojDpAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_LSFE')">
-              <p>{{ deposit.lsfe }}</p>
+              <p>{{ deposit.lsRntf }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DLQ_DP')">
               <p>{{ deposit.dlqDpAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DP_AGG')">
-              <p>{{ deposit.slDpAggAmt }}</p>
+              <p>{{ deposit.dpAggAmt }}</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -268,7 +268,7 @@
               </p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_MM_CHRAM_DP')">
-              <p>{{ deposit.thmChramDpAmt }}</p>
+              <p>{{ deposit.mmChramDpAmt }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DLQ_ADD_DP')">
               <p>{{ deposit.dlqAddDpAmt }}</p>
@@ -282,10 +282,10 @@
               </p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_MM_CHRAM_BLAM')">
-              <p>{{ deposit.thmChramBlam }}</p>
+              <p>{{ deposit.mmChramBlam }}</p>
             </kw-form-item>
             <kw-form-item :label="$t('MSG_TXT_DLQ_ADD_BLAM')">
-              <p>{{ deposit.eotDlqAddAmt }}</p>
+              <p>{{ deposit.dlqAddBlam }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -315,6 +315,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, getComponentType, defineGrid, stringUtil } from 'kw-lib';
+import dayjs from 'dayjs';
 import WwbncSameCustomerContractPBreachOfPromise from './WwbncSameCustomerContractPBreachOfPromise.vue';
 import WwbncSameCustomerContractPSales from './WwbncSameCustomerContractPSales.vue';
 import WwbncSameCustomerContractPDeposit from './WwbncSameCustomerContractPDeposit.vue';
@@ -401,13 +402,13 @@ async function fetchDeposit() {
   deposit.value = res.data;
 
   deposit.value.ojAmt = stringUtil.getNumberWithComma(deposit.value.ojAmt);
-  deposit.value.borAmt = stringUtil.getNumberWithComma(deposit.value.borAmt);
+  deposit.value.rsgBorAmt = stringUtil.getNumberWithComma(deposit.value.rsgBorAmt);
   deposit.value.dlqAmt = stringUtil.getNumberWithComma(deposit.value.dlqAmt);
   deposit.value.slAggAmt = stringUtil.getNumberWithComma(deposit.value.slAggAmt);
-  deposit.value.slDpAmt = stringUtil.getNumberWithComma(deposit.value.slDpAmt);
-  deposit.value.lsfe = stringUtil.getNumberWithComma(deposit.value.lsfe);
+  deposit.value.ojDpAmt = stringUtil.getNumberWithComma(deposit.value.ojDpAmt);
+  deposit.value.lsRntf = stringUtil.getNumberWithComma(deposit.value.lsRntf);
   deposit.value.dlqDpAmt = stringUtil.getNumberWithComma(deposit.value.dlqDpAmt);
-  deposit.value.slDpAggAmt = stringUtil.getNumberWithComma(deposit.value.slDpAggAmt);
+  deposit.value.dpAggAmt = stringUtil.getNumberWithComma(deposit.value.dpAggAmt);
   deposit.value.ojBlam = stringUtil.getNumberWithComma(deposit.value.ojBlam);
   deposit.value.dlqBlam = stringUtil.getNumberWithComma(deposit.value.dlqBlam);
   deposit.value.dscAggAmt = stringUtil.getNumberWithComma(deposit.value.dscAggAmt);
@@ -416,11 +417,11 @@ async function fetchDeposit() {
   deposit.value.dlqAddAmt = stringUtil.getNumberWithComma(deposit.value.dlqAddAmt);
   deposit.value.ctrAggAmt = stringUtil.getNumberWithComma(deposit.value.ctrAggAmt);
   deposit.value.ucDpAmt = stringUtil.getNumberWithComma(deposit.value.ucDpAmt);
-  deposit.value.thmChramDpAmt = stringUtil.getNumberWithComma(deposit.value.thmChramDpAmt);
+  deposit.value.mmChramDpAmt = stringUtil.getNumberWithComma(deposit.value.mmChramDpAmt);
   deposit.value.dlqAddDpAmt = stringUtil.getNumberWithComma(deposit.value.dlqAddDpAmt);
   deposit.value.ucBlam = stringUtil.getNumberWithComma(deposit.value.ucBlam);
-  deposit.value.thmChramBlam = stringUtil.getNumberWithComma(deposit.value.thmChramBlam);
-  deposit.value.eotDlqAddAmt = stringUtil.getNumberWithComma(deposit.value.eotDlqAddAmt);
+  deposit.value.mmChramBlam = stringUtil.getNumberWithComma(deposit.value.mmChramBlam);
+  deposit.value.dlqAddBlam = stringUtil.getNumberWithComma(deposit.value.dlqAddBlam);
 
   await fetchDeposits();
 }
@@ -447,30 +448,20 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initMainGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'mpyDpTpNm', header: t('MSG_TXT_FNT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT'), width: '100', styleName: 'text-center', headerSummaries: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
     { fieldName: 'bndBizDvCd', header: t('TXT_MSG_SELL_TP_CD'), width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'bndBizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '130', styleName: 'text-left' },
-    {
-      fieldName: 'cntrNoSn',
-      header: t('MSG_TXT_CNTR_DTL_NO'),
-      styleName: 'text-center',
-      width: '200',
-
-      displayCallback(grid, index) {
-        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
-        return `${cntrNo}-${cntrSn}`;
-      },
-    },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), styleName: 'text-center', width: '200' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center', visible: false },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '50', styleName: 'text-center', visible: false },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-center' },
     { fieldName: 'authRsgCnfmdt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '152', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'totOjDpAmt', header: t('MSG_TXT_OJ_DP'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'totRemain', header: t('MSG_TXT_OJ_BLAM'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ojDpAmt', header: t('MSG_TXT_OJ_DP'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'ojBlam', header: t('MSG_TXT_OJ_BLAM'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -494,16 +485,24 @@ const initMainGrid = defineGrid((data, view) => {
       await fetchDeposit();
     }
   };
+
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 40 },
+    ],
+  });
+  view.layoutByColumn('mpyBsdt').summaryUserSpans = [{ colspan: 8 }];
 });
 
 const initLentalGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', header: t('MSG_TXT_PERF_MM'), width: '240', styleName: 'text-center' },
-    { fieldName: 'rentalTn', header: t('MSG_TXT_NMN'), width: '240', styleName: 'text-center' },
-    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'lentalDpAmt', header: t('MSG_TXT_DP_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'prmSlAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_MM'), width: '240', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'bilTn', header: t('MSG_TXT_NMN'), width: '240', styleName: 'text-center' },
+    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_SL_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'atamCvAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -519,15 +518,28 @@ const initLentalGrid = defineGrid((data, view) => {
 
 const initMembershipGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'jTn', header: t('MSG_TXT_NMN'), width: '144', styleName: 'text-center' },
-    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'mshDpAmt', header: t('MSG_TXT_DP_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'prmSlAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'perfDt', header: t('MSG_TXT_NMN'), width: '144', styleName: 'text-center', datetimeFormat: 'yyyy-MM', visible: false },
+    { fieldName: 'bilTn', header: t('MSG_TXT_NMN'), width: '144', styleName: 'text-center', visible: false },
+    {
+      fieldName: 'nmn',
+      header: t('MSG_TXT_NMN'),
+      styleName: 'text-center',
+      width: '144',
+
+      displayCallback(grid, index) {
+        const { perfDt, bilTn } = grid.getValues(index.itemIndex);
+        return `${bilTn} (${dayjs(perfDt).format('YYYY-MM')})`;
+      },
+    },
+    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_SL_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'atamCvAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '144', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'dlqAddAmt', header: t('MSG_BTN_DLQ_ADAMT'), width: '144', styleName: 'text-right' },
-    { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_DP'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'eotDlqAddAmt', header: t('MSG_BTN_DLQ_ADAMT'), width: '144', styleName: 'text-right' },
+    { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_DLQ_ADD_DP'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'ucAmt', header: t('MSG_TXT_UCAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
