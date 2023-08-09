@@ -86,6 +86,16 @@
             first-option="all"
           />
         </kw-search-item>
+        <kw-search-item :label="`${t('MSG_TXT_WARE')}${t('MSG_TXT_TYPE')}`">
+          <kw-select
+            v-model="searchParams.wareTpCd"
+            :options="[
+              {codeId: 'CORP', codeName: t('MSG_TXT_OG_WARE')},
+              {codeId: 'INDI', codeName: t('MSG_TXT_INDV_WARE')},
+            ]"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
@@ -187,6 +197,7 @@ const searchParams = ref({
   itmGdCd: '',
   useYn: '',
   matUtlzDvCd: '',
+  wareTpCd: '',
   itmPdCd: '',
   strtSapCd: '',
   endSapCd: '',
@@ -361,7 +372,16 @@ fieldsObj = {
   defaultFields: [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left', footer: { text: t('MSG_TXT_TOT_SUM') } },
+    { fieldName: 'csmrUprcAmt',
+      header: t('MSG_TXT_CSPRC'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
     { fieldName: 'leadTime', header: t('TXT_MSG_AS_LDTM'), width: '100', styleName: 'text-right' },
     { fieldName: 'moq', header: t('MSG_TXT_MOQ'), width: '100', styleName: 'text-right' },
     { fieldName: 'qty100002',
@@ -425,7 +445,7 @@ fieldsObj = {
     const columns = [...fieldsObj.defaultFields, ...tmpFields1, ...tmpFields2];
 
     // 헤더 부분 merge
-    const layoutColumns = ['sapMatCd', 'pdCd', 'pdNm', 'leadTime', 'moq',
+    const layoutColumns = ['sapMatCd', 'pdCd', 'pdNm', 'csmrUprcAmt', 'leadTime', 'moq',
       {
         header: t('MSG_TXT_STOC_PS'),
         direction: 'horizontal', // merge type
@@ -466,7 +486,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [...fieldsObj.defaultFields, ...tmpFields1, ...tmpFields2];
 
   // 헤더 부분 merge
-  const layoutColumns = ['sapMatCd', 'pdCd', 'pdNm', 'leadTime', 'moq',
+  const layoutColumns = ['sapMatCd', 'pdCd', 'pdNm', 'csmrUprcAmt', 'leadTime', 'moq',
     {
       header: t('MSG_TXT_STOC_PS'),
       direction: 'horizontal', // merge type
