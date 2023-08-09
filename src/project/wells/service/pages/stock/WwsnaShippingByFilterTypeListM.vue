@@ -380,6 +380,18 @@ async function onClickExcelDownload() {
   });
 }
 
+async function callSave(saveRows, msgId) {
+  if (!isEmpty(saveRows)) {
+    const res = await dataService.put('/sms/wells/service/shipping-by-filter-types', saveRows);
+    const { processCount } = res.data;
+    if (processCount > 0) {
+      notify(t(msgId));
+      pageInfo.value.needTotalCount = true;
+      await fetchData();
+    }
+  }
+}
+
 // 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
@@ -387,13 +399,7 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
   const modifedData = gridUtil.getChangedRowValues(view);
 
-  const res = await dataService.put('/sms/wells/service/shipping-by-filter-types', modifedData);
-  const { processCount } = res.data;
-  if (processCount > 0) {
-    notify(t('MSG_ALT_SAVE_DATA'));
-    pageInfo.value.needTotalCount = true;
-    await fetchData();
-  }
+  await callSave(modifedData, 'MSG_ALT_SAVE_DATA');
 }
 
 // 반납여부 일괄변경
@@ -419,15 +425,8 @@ async function onClickBulkGbYn() {
     item.stkrPrntYn = gbYn;
   });
 
-  // 저장
-  const res = await dataService.put('/sms/wells/service/shipping-by-filter-types', checkedRows);
-  const { processCount } = res.data;
-  if (processCount > 0) {
-    // 항목이 일괄변경 되었습니다.
-    notify(t('MSG_ALT_ATC_BLK_CH_FSH'));
-    pageInfo.value.needTotalCount = true;
-    await fetchData();
-  }
+  // 항목이 일괄변경 되었습니다.
+  await callSave(checkedRows, 'MSG_ALT_ATC_BLK_CH_FSH');
 }
 
 // 수거일자 일괄변경
@@ -453,15 +452,8 @@ async function onClickBulkOstrConfDt() {
     item.ostrConfDt = ostrConfDt;
   });
 
-  // 저장
-  const res = await dataService.put('/sms/wells/service/shipping-by-filter-types', checkedRows);
-  const { processCount } = res.data;
-  if (processCount > 0) {
-    // 항목이 일괄변경 되었습니다.
-    notify(t('MSG_ALT_ATC_BLK_CH_FSH'));
-    pageInfo.value.needTotalCount = true;
-    await fetchData();
-  }
+  // 항목이 일괄변경 되었습니다.
+  await callSave(checkedRows, 'MSG_ALT_ATC_BLK_CH_FSH');
 }
 
 // -------------------------------------------------------------------------------------------------
