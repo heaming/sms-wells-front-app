@@ -372,7 +372,16 @@ fieldsObj = {
   defaultFields: [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left', footer: { text: t('MSG_TXT_TOT_SUM') } },
+    { fieldName: 'csmrUprcAmt',
+      header: t('MSG_TXT_CSPRC'),
+      width: '100',
+      styleName: 'text-right',
+      dataType: 'number',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
     { fieldName: 'leadTime', header: t('TXT_MSG_AS_LDTM'), width: '100', styleName: 'text-right' },
     { fieldName: 'moq', header: t('MSG_TXT_MOQ'), width: '100', styleName: 'text-right' },
     { fieldName: 'qty100002',
