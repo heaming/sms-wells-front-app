@@ -15,12 +15,16 @@
 <template>
   <kw-popup
     size="lg"
-    title="확인사항"
   >
     <h4 class="kw-notification-title">
       유니폼신청
     </h4>
     <!-- 1st depth list -->
+    <div
+      style="background-color: #fff; padding: 15px; color: white;"
+      v-html="frmMainData.confArtcCn"
+    />
+    <!--
     <ul class="kw-notification">
       <li>
         구입가격은 유니폼 신청월부터 3회(하복), 6회(동복) 분할 수당 공제되며 6개월, 12개월 후 50%씩 재지급합니다.<br>
@@ -48,8 +52,42 @@
         반품주소(조양유로) : 서울시 종로구 이화장 1길 3 (2층) (이화동61-8번지) , (담당 신이수 대리010-9216-5837 02) 3672-0650)
       </li>
     </ul>
+    -->
   </kw-popup>
 </template>
 <script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
+import { useDataService, useMeta } from 'kw-lib';
 
+const { getUserInfo } = useMeta();
+const dataService = useDataService();
+const userInfo = getUserInfo();
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+const { ogTpCd } = userInfo;
+
+const frmMainData = ref({
+  ogTpCd, /* 조직유형코드 */
+  aplcPsbStrtD: '', /* 신청가능시작일 */
+  aplcPsbEndD: '', /* 신청가능종료일 */
+  rtngdPsbStrtD: '', /* 반품가능시작일 */
+  rtngdPsbEndD: '', /* 반품가능종료일 */
+  rtngdShrnEmadr: '', /* 반품공유이메일주소 */
+  confArtcCn: '', /* 확인사항내용 */
+});
+
+let cachedParams;
+
+async function fetchData() {
+  cachedParams = { ...frmMainData.value };
+  return await dataService.get('/sms/wells/competence/business/activity/base', { params: cachedParams });
+}
+
+onMounted(async () => {
+  const res = await fetchData();
+  Object.assign(frmMainData.value, res.data);
+});
 </script>
