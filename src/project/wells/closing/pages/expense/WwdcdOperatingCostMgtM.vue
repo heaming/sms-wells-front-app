@@ -173,56 +173,6 @@ const searchParams = ref({
 let opcsAdjExcdYn = 0;
 let usrSmryCn = 0;
 async function isTabData(flag, datas) {
-  /*
-  if (flag === 'basic') {
-    const sub = grdSubRef.value.getView();
-    const addValue = {};
-    let opcsAdjExcdYn = 0;
-    let usrSmryCn = 0;
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-
-    if (isEmpty(sub.getValues(0))) {
-      addValue.operatingExpensesTotal = opcsAdjExcdYn;
-      addValue.aesthetic = usrSmryCn;
-      sub.getDataSource().addRow(addValue);
-    } else {
-      sub.setValue(0, 'operatingExpensesTotal', opcsAdjExcdYn);
-      sub.setValue(0, 'aesthetic', usrSmryCn);
-    }
-  } else if (flag === 'sel') {
-    const sub = grdSubRef.value.getView();
-    const addValue = {};
-    let opcsAdjExcdYn = 0;
-    let usrSmryCn = 0;
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-
-    if (isEmpty(sub.getValues(0))) {
-      addValue.operatingExpensesTotal = opcsAdjExcdYn;
-      addValue.aesthetic = usrSmryCn;
-      sub.getDataSource().addRow(addValue);
-    } else {
-      sub.setValue(0, 'operatingExpensesTotal', opcsAdjExcdYn);
-      sub.setValue(0, 'aesthetic', usrSmryCn);
-    }
-  }
-  */
-
   if (flag === 'basic') { // 유가증권 제외 탭
     datas.forEach((data) => {
       if (data.opcsAdjExcdYn === 'N') {

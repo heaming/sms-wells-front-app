@@ -309,11 +309,12 @@ const initGrdThird = defineGrid((data, view) => {
     cachedParams.adjPrtnrNo = adjPrtnrNo;
     cachedParams.ogTpCd = ogTpCd;
     cachedParams.opcsAdjNo = opcsAdjNo;
+    console.log('opcsAdjNo : ', opcsAdjNo);
 
     if (column === 'opcsAdjBtn') {
       if (adjCls === '완료') {
         alert(t('정산이 완료된 건입니다'));
-        return;
+        // return;
       }
       if (opcsAdjExcdYn === '정산제외') {
         alert(t('정산제외 건은 원천세 정산이 불가능 합니다.'));

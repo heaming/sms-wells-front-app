@@ -293,7 +293,7 @@ const initGrdMain = defineGrid((data, view) => {
       }
       if (opcsAdjExcdYn === '정산제외') {
         alert(t('정산제외 건은 원천세 정산이 불가능 합니다.'));
-        return;
+        // return;
       }
       await modal({
         component: 'WwdcdMarketableSecuritiesExcdMgtP',
