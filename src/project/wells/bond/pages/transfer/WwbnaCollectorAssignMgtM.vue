@@ -135,6 +135,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           secondary
@@ -148,6 +149,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_DTRM')"
           secondary
           dense
@@ -158,6 +160,7 @@
           :label="$t('MSG_BTN_ASN_WEIT_MDFC')"
           secondary
           dense
+          :disable="!isCollectionManager"
           @click="onClickPageMove"
         />
         <kw-separator
@@ -166,6 +169,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="$t('MSG_BTN_CNTN_CREATE')"
@@ -192,6 +196,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:create
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           :disable="isNotActivated || assignConfirmed"
@@ -239,7 +244,7 @@ import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
 import { chkInputSearchComplete, chkClctamPrtnrSearchComplete, openSearchUserCommonPopup, isCustomerCommon, openSearchClctamPsicCommonPopup, fetchPartnerNoCommon, checkAvailabilityCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasRoleNickName } = useMeta();
 const { modal, notify } = useGlobal();
 const { getters } = useStore();
 const dataService = useDataService();
@@ -263,6 +268,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const isNotActivated = ref(false);
 const assignConfirmed = ref(false);
+const isCollectionManager = hasRoleNickName('CLCTAM_MNGT');
 const totalCount = ref(0);
 const pageInfo = ref({
   totalCount: 0,
@@ -525,12 +531,14 @@ watch(() => searchParams.value.clctamPrtnrNm, async (clctamPrtnrNm) => {
   }
 });
 watch(() => searchParams.value.baseYm, async (baseYm) => {
-  // const view = grdSubRef.value.getView();
+  const view = grdSubRef.value.getView();
+  // TODO: 임시주석 테스트 후 주석 삭제
+  view.editOptions.editable = true;
   if (baseYm !== defaultDate) {
     // view.editOptions.editable = false;
     // isNotActivated.value = true;
   } else {
-    // view.editOptions.editable = true;
+    // view.editOptions.editable = isCollectionManager;
     // isNotActivated.value = false;
   }
 });
