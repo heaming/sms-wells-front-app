@@ -63,6 +63,8 @@
           dgr2-levl-og-first-option="all"
           use-og-level="2"
           :use-partner="false"
+          auth-yn="N"
+          :dgr2-levl-og-always-search="false"
         />
       </kw-search-row>
     </kw-search>
@@ -126,7 +128,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useGlobal, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 import dayjs from 'dayjs';

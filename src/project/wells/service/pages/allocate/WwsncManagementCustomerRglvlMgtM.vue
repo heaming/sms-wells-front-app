@@ -77,12 +77,9 @@
           use-partner
           dgr3-levl-og-first-option="all"
           partner-first-option="all"
-          dgr1-levl-og-label="ogCdNm"
-          dgr2-levl-og-label="ogCdNm"
-          dgr3-levl-og-label="ogCdNm"
-          partner-label="prtnrNoNm"
           dgr1-levl-og-readonly
           dgr2-levl-og-readonly
+          bzns-psic-auth-yn="Y"
         />
       </kw-search-row>
       <!-- <kw-search-row>
@@ -251,7 +248,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, gridUtil, useDataService, getComponentType, useGlobal, codeUtil } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
