@@ -227,7 +227,7 @@ const initgrdAssign = defineGrid((data, view) => {
     { fieldName: 'sppDuedt', header: t('MSG_TXT_DUEDT', null, '예정일'), width: '114', styleName: 'text-center' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_DT_OF_SALE', null, '매출일'), width: '114', styleName: 'text-center' },
 
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM', null, '제품명'), width: '143', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM', null, '제품명'), width: '143', styleName: 'text-left' },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP', null, '우편번호'), width: '77', styleName: 'text-center' },
     { fieldName: 'custAdr', header: t('MSG_TXT_ADDR', null, '주소'), width: '275', styleName: 'text-left' },
     // 등록/수정일
