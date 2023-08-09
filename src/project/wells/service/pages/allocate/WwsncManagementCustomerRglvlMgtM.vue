@@ -361,7 +361,10 @@ async function getOrganizationInfo() {
   searchParams.value.executiveGroup = dgr1LevlOgId;
   searchParams.value.localGroup = dgr2LevlOgId;
 
-  const res = await fetchDgr2LevlOgs({ params: { ogId: dgr1LevlOgId } });
+  const res = await fetchDgr2LevlOgs({ params: {
+    ogId: dgr1LevlOgId,
+    bznsPsicAuthYn: 'Y',
+  } });
   const { ogCd } = res.data.find((option) => dgr2LevlOgId === option.ogId);
 
   localGroupCd.value = ogCd;
@@ -398,6 +401,7 @@ watch(() => mngStd.value.mngtPrtnrOgTpCd, async () => {
     dgr1LevlOgId: executiveGroup.value,
     dgr2LevlOgId: localGroup.value,
     dgr3LevlOgId: mngStd.value.mngtPrtnrOgTpCd,
+    bznsPsicAuthYn: 'Y',
   } });
   mngStdPrtnrNoOptions.value = data;
 });
@@ -455,6 +459,7 @@ watch(() => curMnthAlctn.value.asnPsicPrtnrOgTpCd, async () => {
     dgr1LevlOgId: executiveGroup.value,
     dgr2LevlOgId: localGroup.value,
     dgr3LevlOgId: curMnthAlctn.value.asnPsicPrtnrOgTpCd,
+    bznsPsicAuthYn: 'Y',
   } });
   curMnthAlctnPrtnrNoOptions.value = data;
 });
@@ -712,7 +717,10 @@ function initGrdMain(data, view) {
 
 onMounted(async () => {
   await getOrganizationInfo();
-  const { data } = await fetchDgr3LevlOgs({ params: { ogId: localGroup.value } });
+  const { data } = await fetchDgr3LevlOgs({ params: {
+    ogId: localGroup.value,
+    bznsPsicAuthYn: 'Y',
+  } });
   prtnrOgTpOptions.value = data;
 });
 </script>
