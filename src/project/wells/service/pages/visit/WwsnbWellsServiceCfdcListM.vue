@@ -273,7 +273,7 @@ async function initGrdMain(data, view) {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  await onClickSearch();
+  // await onClickSearch();
 }
 
 </script>
