@@ -161,7 +161,7 @@ let cachedParams;
 // 조회
 async function fetchData() {
   cachedParams = { ...cachedParams };
-  const res = await dataService.get('/sms/wells/fee/bs-fees', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/fee/bs-fees', { params: cachedParams, timeout: 400000 });
   totalCount.value = res.data.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(res.data);
