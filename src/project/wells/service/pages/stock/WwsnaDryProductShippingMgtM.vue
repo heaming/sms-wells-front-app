@@ -158,6 +158,7 @@ const searchParams = ref({
   sppDvCd: 'A2', // 자가필터 배송구분코드
   rownum: '',
   sppThmYn: '', // 배송0차월여부
+  pgGb: '',
 });
 const delvWares = [{ delvWareNo: '100002', delvWareNm: '파주물류센터' }];
 
@@ -185,6 +186,7 @@ async function fetchData() {
 
 async function onClickSearch() {
   searchParams.value.sppThmYn = (products.value.filter((v) => v.pdCode === searchParams.value.pdCd))[0].sppThmYn;
+  searchParams.value.pgGb = (products.value.filter((v) => v.pdCode === searchParams.value.pdCd))[0].pgGb;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
