@@ -105,7 +105,7 @@
         />
         <!-- 이메일 -->
         <zwcm-email-address
-          v-model="taxInvoiceData.email"
+          v-model="taxInvoiceData.emadr"
           :label="$t('MSG_TXT_EMAIL')"
           required
           class="py20"
