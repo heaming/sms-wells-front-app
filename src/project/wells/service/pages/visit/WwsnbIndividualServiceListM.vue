@@ -136,6 +136,8 @@
             <kw-input
               v-model="saveParams.cstUnuitmCn"
               :placeholder="individualParams.cstUnuitmCn"
+              type="textarea"
+              rows="1"
             />
             <!-- 저장 -->
             <kw-btn
@@ -612,6 +614,10 @@ async function onClickCstSearch() {
 async function getIndividualServicePs() {
   const res = await dataService.get('sms/wells/service/individual-service-ps', { params: searchParams.value });
   individualParams.value = res.data;
+
+  // init tab & cstUnuitmCn params
+  selectedTab.value = '1';
+  saveParams.value.cstUnuitmCn = '';
 }
 
 async function onClickVisitPeriodSearch() {
@@ -716,9 +722,6 @@ async function onClickSearch() {
     notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_NO')}, ${t('MSG_TXT_BARCODE')}`]));
   } else {
     await getIndividualServicePs();
-    // init tab & cstUnuitmCn params
-    selectedTab.value = '1';
-    saveParams.value.cstUnuitmCn = '';
     if (isEmpty(individualParams.value)) {
       notify(t('MSG_ALT_CST_INF_NOT_EXST'));
       // init countInfo
@@ -761,6 +764,7 @@ async function onClickSave() {
   saveParams.value.ogTpCd = individualParams.value.wkOgTpCd;
   saveParams.value.wkPrtnrNo = individualParams.value.wkPrtnrNo;
 
+  if (isEmpty(saveParams.value.cstUnuitmCn)) { return; }
   await dataService.post('sms/wells/service/individual-service-ps', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   await getIndividualServicePs();
@@ -875,6 +879,7 @@ const initGridState = defineGrid((data, view) => {
       },
     },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLG_BLD'), width: '94', styleName: 'text-center' },
+    { fieldName: 'bcNo', header: t('MSG_TXT_IN_WK_BC'), width: '94', styleName: 'text-center' },
     { fieldName: 'imgYn',
       header: t('MSG_TXT_PHO'),
       width: '94',
@@ -919,6 +924,7 @@ const initGridState = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['ogTp', 'ogNm', 'prtnrNo', 'prtnrNm', 'prtnrTno', 'bldNm'],
     },
+    'bcNo',
     'imgYn',
   ]);
 
