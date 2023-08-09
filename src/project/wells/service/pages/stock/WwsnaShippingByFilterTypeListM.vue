@@ -438,7 +438,7 @@ async function onClickBulkOstrConfDt() {
     notify(t('MSG_ALT_CHG_HLDY_DATA'));
     return;
   }
-  debugger;
+
   // 수거일자
   const { ostrConfDt } = bulkParams.value;
 
