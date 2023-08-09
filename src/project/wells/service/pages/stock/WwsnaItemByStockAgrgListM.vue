@@ -445,7 +445,7 @@ fieldsObj = {
     const columns = [...fieldsObj.defaultFields, ...tmpFields1, ...tmpFields2];
 
     // 헤더 부분 merge
-    const layoutColumns = ['sapMatCd', 'pdCd', 'pdNm', 'leadTime', 'moq',
+    const layoutColumns = ['sapMatCd', 'pdCd', 'pdNm', 'csmrUprcAmt', 'leadTime', 'moq',
       {
         header: t('MSG_TXT_STOC_PS'),
         direction: 'horizontal', // merge type
