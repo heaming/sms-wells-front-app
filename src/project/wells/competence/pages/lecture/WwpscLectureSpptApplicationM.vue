@@ -329,6 +329,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'lectrSpptOgTpCd' },
     { fieldName: 'lectrSpptAplcId' },
     { fieldName: 'lectrYm' },
+    { fieldName: 'ogId' },
   ];
   const columns = [
     { fieldName: 'lectrTCnt', header: t('MSG_TXT_JOB_PROT_CD'), width: '100', styleName: 'text-center', rules: 'required', options: codes.LECTR_TCNT_CD, editor: { type: 'list' } },
@@ -344,9 +345,12 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && (index.column === 'lectrTCnt')) {
-      return false;
+  view.onCellEdited = async (grid, itemIndex) => {
+    const { fieldName } = grid.getCurrent();
+    if (fieldName === 'bldCd' && !isEmpty(grid.getValue(itemIndex, 'bldCd'))) {
+      const bldCd = grid.getValue(itemIndex, 'bldCd');
+      const { ogId } = bldCdList.value.filter((v) => v.bldCd === bldCd)[0];
+      grid.setValue(itemIndex, 'ogId', ogId);
     }
   };
 });
