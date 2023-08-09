@@ -257,6 +257,7 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const monthFrom = dayjs().subtract(1, 'month').format('YYYYMM');
 const monthTo = dayjs().subtract(0, 'month').format('YYYYMM');
+const defalutMonth = dayjs().subtract(0, 'month').format('YYYYMM');
 const { getUserInfo } = useMeta();
 const userInfo = getUserInfo();
 
@@ -329,7 +330,7 @@ let pageUrl;
 
 const searchParams = ref({
   ogTpCd: codes.REDF_OG_TP_CD[0].codeId, // 되물림 조직유형코드 변경예정
-  redfAdsbOcYmFrom: monthFrom, // MSG_TXT_YEAR_OCCURNCE from
+  redfAdsbOcYmFrom: defalutMonth, // MSG_TXT_YEAR_OCCURNCE from
   redfAdsbOcYmTo: monthTo, // MSG_TXT_YEAR_OCCURNCE to
   slYmFrom: monthFrom, // MSG_TXT_SL_YM from
   slYmTo: monthTo, // MSG_TXT_SL_YM to
@@ -554,7 +555,7 @@ function initGrid(data, view) {
       } },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '100', styleName: 'text-center' },
     { fieldName: 'gnlrLedr', header: t('MSG_TXT_GNLR_LEDR'), width: '100', styleName: 'text-center' },
     { fieldName: 'localAreaManager', header: t('MSG_TXT_REG_DIR'), width: '100', styleName: 'text-center' },
     { fieldName: 'branchManager', header: t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-center' },
@@ -671,7 +672,7 @@ function initGrid2(data, view) {
     { fieldName: 'ogNm', header: t('MSG_TXT_CORP_NAME'), width: '140', styleName: 'text-center' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '140', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '140', styleName: 'text-center' },
     { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '140', styleName: 'text-center' },
