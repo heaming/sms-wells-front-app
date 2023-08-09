@@ -383,10 +383,10 @@ const initGrid1 = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
     },
-    { fieldName: 'dgCntr', header: t('MSG_TXT_MCHN_ORD_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'dgCntr', header: t('MSG_TXT_MCHN_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'dpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
     { fieldName: 'fnitAprRsCd', header: t('MSG_TXT_STT'), width: '120', styleName: 'text-center', options: codes.FNIT_APR_RS_CD },
-    { fieldName: 'dgCntrNo', header: t('MSG_TXT_BNDL_DG_NO'), width: '250', styleName: 'text-center' },
+    { fieldName: 'dgCntrNo', header: t('MSG_TXT_DG_CNTR_DTL_NO'), width: '250', styleName: 'text-center' },
     { fieldName: 'bnkNm', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'acnoEncr',
       header: t('MSG_TXT_FNT_NO'),
@@ -402,7 +402,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '120', styleName: 'text-center' },
 
     { fieldName: 'sdingCntrNo',
-      header: t('MSG_TXT_SDING_ORD_NO'),
+      header: t('MSG_TXT_SDING_CNTR_DTL_NO'),
       width: '250',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
@@ -412,7 +412,7 @@ const initGrid1 = defineGrid((data, view) => {
     },
     { fieldName: 'sdingDpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
     { fieldName: 'sdingFnitAprRsCd', header: t('MSG_TXT_STT'), width: '120', styleName: 'text-center', options: codes.FNIT_APR_RS_CD },
-    { fieldName: 'sdingDgCntrNo', header: t('MSG_TXT_BNDL_DG_NO'), width: '250', styleName: 'text-center' },
+    { fieldName: 'sdingDgCntrNo', header: t('MSG_TXT_DG_CNTR_DTL_NO'), width: '250', styleName: 'text-center' },
     { fieldName: 'sdingBnkNm', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'sdingAcnoEncr',
       header: t('MSG_TXT_FNT_NO'),
@@ -515,9 +515,9 @@ const initGrid2 = defineGrid((data, view) => {
       styleName: 'text-center',
       options: codes.BNDL_WDRW_UNRG_OJ_DV_CD },
 
-    { fieldName: 'cntrSn', header: t('MSG_TXT_MCHN_ORD_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_MCHN_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'dpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
-    { fieldName: 'dgCntrSn', header: t('MSG_TXT_BNDL_DG_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'dgCntrSn', header: t('MSG_TXT_DG_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'bnkCd', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'acnoEncr',
       header: t('MSG_TXT_FNT_NO'),
@@ -533,7 +533,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_FNT_CTF_NO'), width: '120', styleName: 'text-center' },
 
     { fieldName: 'sdingCntr',
-      header: t('MSG_TXT_SDING_ORD_NO'),
+      header: t('MSG_TXT_SDING_CNTR_DTL_NO'),
       width: '250',
       styleName: 'text-center',
       displayCallback(grid, index) {
@@ -541,7 +541,7 @@ const initGrid2 = defineGrid((data, view) => {
         return `${sdingCntrNo}-${sdingCntrSn}`;
       } },
     { fieldName: 'sdingDpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
-    { fieldName: 'sdingDgCntrSn', header: t('MSG_TXT_BNDL_DG_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'sdingDgCntrSn', header: t('MSG_TXT_DG_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'sdingBnkCd', header: t('MSG_TXT_FNT_BUR_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'sdingAcnoEncr',
       header: t('MSG_TXT_FNT_NO'),
