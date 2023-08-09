@@ -146,6 +146,7 @@
             v-model="saveParams.clinrFxnAmt"
             class="ml8"
             rules="required"
+            mask="number"
             :label="$t('MSG_TXT_FEE_DSB_WON')"
             :regex="/^[0-9]*$/i"
             :maxlength="20"

@@ -229,6 +229,7 @@ async function marketableSecuritiesExcd() {
 }
 
 async function fetchData() {
+  console.log('props.cachedParams : ', props.cachedParams);
   cachedParams = props.cachedParams;
   cachedParams.subOgTpCd = searchParams.value.ogTpCd; // 배분대상조직유형코드
 
@@ -323,6 +324,8 @@ async function onClickObjectPersonAdd() {
       alert('정산금액보다 큽니다.');
       return;
     }
+  }
+  for (let i = 0; i < checkedRows.length; i += 1) {
     checkedRows[i].adjYn = 'N';
     checkedRows[i].dstOjPrtnrNo = checkedRows[i].prtnrNo;
     checkedRows[i].ogTpCd = checkedRows[i].dstOjOgTpCd;
@@ -397,6 +400,7 @@ async function onClickSave() {
 
   if (adjCnfmAmt !== dstAmt) {
     alert(t('MSG_ALT_THE_REGI_AMOUNT_MUST_MATCH_THE_AMOUNT_SUBJECT_TO_SETT')); // 등록금액은 정산대상금액과 일치하여야 합니다.
+    return;
   }
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
@@ -407,6 +411,8 @@ async function onClickSave() {
   }
 
   const thirdList = [];
+  console.log('props.cachedParams.opcsAdjNo : ', props.cachedParams.opcsAdjNo);
+
   for (let i = 0; i < thirdTotal; i += 1) {
     view.setValue(i, 'opcsCardUseIzId', props.cachedParams.opcsCardUseIzId);
     view.setValue(i, 'baseYm', props.cachedParams.baseYm);

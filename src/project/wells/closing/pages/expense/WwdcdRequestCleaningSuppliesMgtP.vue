@@ -189,6 +189,7 @@ const saveParams = ref({
   attachFiles: [],
   ogTpCd: '', // 빌딩코드를 조회하기 위한
   prtnrNo: '', // 빌딩코드를 조회하기 위한
+  claimPrtnrNo: '',
 });
 
 const buildingCodes = ref([]);
@@ -216,9 +217,7 @@ async function onClickClaimantName() {
     });
     if (result) {
       searchRsbDvCdParams = { ogTpCd: payload.ogTpCd, prtnrNo: payload.prtnrNo };
-      console.log('searchRsbDvCdParams:', searchRsbDvCdParams);
       const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/rsbDvcd', { params: searchRsbDvCdParams });
-      console.log('res.data:', res.data);
       if (res.data.rsbDvCd !== 'W0103' && res.data.rsbDvCd !== 'W0203') {
         await alert(t('MSG_ALT_RSB_LCMGR_APLC_PSB')); // 직책이 지역단장만 신청 가능합니다.
         saveParams.value.prtnrNo = undefined;
@@ -229,6 +228,7 @@ async function onClickClaimantName() {
         saveParams.value.cardPsrNm = payload.prtnrKnm;
         saveParams.value.prtnrNo = payload.prtnrNo;
         saveParams.value.ogTpCd = payload.ogTpCd;
+        saveParams.value.claimPrtnrNo = payload.prtnrNo;
         // 선택한 지역단장 조직유형코드, 지역단장 파트너번호, 지역단장명 set 해야함
         buildingCode();
       }
@@ -256,6 +256,7 @@ async function fetchData() {
   if (!isEmpty(clingCostAdjRcpNo)) {
     dataParams = { clingCostAdjRcpNo: cloneDeep(clingCostAdjRcpNo) };
     const res = await dataService.get(`/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/${clingCostAdjRcpNo}`, { params: dataParams });
+    console.log('res : ', res);
     saveParams.value = res.data;
     isApplication.value = true;
     isDisable.value = true;
