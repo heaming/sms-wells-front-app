@@ -86,6 +86,16 @@
             first-option="all"
           />
         </kw-search-item>
+        <kw-search-item :label="`${t('MSG_TXT_WARE')}${t('MSG_TXT_TYPE')}`">
+          <kw-select
+            v-model="searchParams.wareTpCd"
+            :options="[
+              {codeId: 'CORP', codeName: t('MSG_TXT_OG_WARE')},
+              {codeId: 'INDI', codeName: t('MSG_TXT_INDV_WARE')},
+            ]"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
@@ -187,6 +197,7 @@ const searchParams = ref({
   itmGdCd: '',
   useYn: '',
   matUtlzDvCd: '',
+  wareTpCd: '',
   itmPdCd: '',
   strtSapCd: '',
   endSapCd: '',
