@@ -438,15 +438,9 @@ async function onClickBulkOstrConfDt() {
     notify(t('MSG_ALT_CHG_HLDY_DATA'));
     return;
   }
-
+  debugger;
   // 수거일자
   const { ostrConfDt } = bulkParams.value;
-
-  if (isEmpty(ostrConfDt)) {
-  // {0}(을)를 선택해주세요.
-    await alert(`${t('MSG_TXT_TKY_DT')}${t('MSG_TXT_BEFORE_SELECT_IT')}`);
-    return;
-  }
 
   checkedRows.forEach((item) => {
     item.ostrConfDt = ostrConfDt;
