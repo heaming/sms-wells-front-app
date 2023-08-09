@@ -174,7 +174,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService, codeUtil, useMeta } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService, codeUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
@@ -184,7 +184,7 @@ const { modal, notify, confirm, alert } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const { hasRoleNickName } = useMeta();
+// const { hasRoleNickName } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // ------------------------------------------------------------------------------------------------
@@ -242,10 +242,13 @@ async function onClickMod(bool) {
   }
 
   // 시스템관리자, wells운영팀, 센터장만 수정 허용
+  // TODO: 권한그룹 확인 후 주석 해제
+  /*
   if (bool && !(hasRoleNickName('SYS_ADMIN') || hasRoleNickName('ROL_W1560') || hasRoleNickName('ROL_W6010'))) {
     alert(t('MSG_ALT_NO_AUTH'));
     return;
   }
+  */
 
   /*
   if (bool && editYn.value) {
@@ -412,12 +415,10 @@ async function onclickStep(params) {
       await onClickCreate(params.feeSchdId, params.code, '03');
     }
     if (params.code === 'W0603') { // 수당 조정
-      // await onClickControl(params.feeSchdId, params.code, '03');
-      await onclickDtrm(params.feeSchdId, params.code, '03');
+      await onClickControl(params.feeSchdId, params.code, '03');
     }
     if (params.code === 'W0604') { // 수당 확정
-      // await onclickDtrm(params.feeSchdId, params.code, '03');
-      await onClickControl(params.feeSchdId, params.code, '03');
+      await onclickDtrm(params.feeSchdId, params.code, '03');
     }
   }
 }
@@ -495,10 +496,13 @@ async function onClickSave() {
   }
 
   // 시스템관리자, wells운영팀, 센터장만 수정 허용
+  // TODO: 권한그룹 확인 후 주석 해제
+  /*
   if (!(hasRoleNickName('SYS_ADMIN') || hasRoleNickName('ROL_W1560') || hasRoleNickName('ROL_W6010'))) {
     alert(t('MSG_ALT_NO_AUTH'));
     return;
   }
+  */
 
   /*
   if (editYn.value) {
@@ -522,10 +526,13 @@ async function onClickSave() {
 // 센터별 확정 버튼 클릭 이벤트
 async function onClickConfirm() {
   // 시스템관리자, wells운영팀, 센터장만 수정 허용
+  // TODO: 권한그룹 확인 후 주석 해제
+  /*
   if (!(hasRoleNickName('SYS_ADMIN') || hasRoleNickName('ROL_W1560') || hasRoleNickName('ROL_W6010'))) {
     alert(t('MSG_ALT_NO_AUTH'));
     return;
   }
+  */
 
   let view;
   if (searchParams.value.feeSchdTpCd === '601') {
