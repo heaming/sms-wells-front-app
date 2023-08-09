@@ -170,7 +170,7 @@ async function onClickSearchNo() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value, timeout: 200000 });
+  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value, timeout: 400000 });
 
   totalCount.value = res.data.length;
 
