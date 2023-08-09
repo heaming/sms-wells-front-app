@@ -24,8 +24,8 @@
           :label="t('MSG_TXT_SL_RCOG_DT')"
         >
           <kw-date-range-picker
-            v-model:from="searchParams.dtFrom"
-            v-model:to="searchParams.dtTo"
+            v-model:from="searchParams.startDate"
+            v-model:to="searchParams.endDate"
           />
           <!-- rules="date_range_months:1" -->
         </kw-search-item>
@@ -50,7 +50,6 @@
             v-model="searchParams.sellChnl"
             :options="codes.SELL_CHNL_DV_CD"
             first-option="all"
-            first-option-value="ALL"
           />
         </kw-search-item>
 
@@ -58,7 +57,6 @@
         <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
           <!-- v-model:og-levl-dv-cd3="searchParams.dgr3LevlOgId" 설계서상x 임시제거 필요시추가 -->
           <zwog-level-select
-            v-if="store.getters['meta/getUserInfo'].tenantId === clConst.TENANT_ID_WELLS"
             v-model:og-levl-dv-cd1="searchParams.dgr1LevlOgId"
             v-model:og-levl-dv-cd2="searchParams.dgr2LevlOgId"
             :og-tp-cd="searchParams.ogTpCd"
@@ -76,7 +74,6 @@
           <kw-select
             v-model="searchParams.slRcogDv"
             first-option="all"
-            first-option-value="ALL"
           />
           <!-- :options="코드값추가必(매출인식코드)" -->
         </kw-search-item>
@@ -86,7 +83,6 @@
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
-            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -120,6 +116,7 @@
           :label="t('MSG_TXT_RENTAL_NW_REQD_AGRG_PS')"
           secondary
           dense
+          :disable="true"
           @click="onClickMoveToPage"
         />
         <!-- 매출인식취소 -->
@@ -127,6 +124,7 @@
           :label="t('MSG_TXT_SL_RCOG_CAN')"
           secondary
           dense
+          :disable="true"
           @click="onClickSalesRecognitionCancel"
         />
         <!-- 매출 재인식-->
@@ -134,6 +132,7 @@
           :label="t('MSG_TXT_SL_RE_RCOG')"
           secondary
           dense
+          :disable="true"
           @click="onClickSalesRecognize"
         />
       </kw-action-top>
@@ -158,7 +157,7 @@
 // -------------------------------------------------------------------------------------------------
 // Initialize Component
 // -------------------------------------------------------------------------------------------------
-import clConst from '~sms-common/closing/constants/clConst';
+
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import { getComponentType, defineGrid, useGlobal, useMeta, gridUtil, codeUtil, useDataService } from 'kw-lib';
@@ -168,25 +167,26 @@ import dayjs from 'dayjs';
 const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
-const { getConfig } = useMeta();
-const store = useStore();
+const { getConfig, getUserInfo } = useMeta();
 const { t } = useI18n();
 const now = dayjs();
 const apiUrl = '/sms/wells/withdrawal/pchssl/sales-confirm';
 const { confirm, alert, notify } = useGlobal();
+const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 
 const searchParams = ref({
+  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   cntrNo: '',
   cntrSn: '',
   cellTpCd: '1', // 업무구분 1~7 (기본:일시불)
   dgr1LevlOgId: '', // 조직레벨LV1
   dgr2LevlOgId: '', // 조직레벨LV2
   // dgr3LevlOgId: '', // 설계서상x
-  ogTpCd: 'W02', // **테스트설정값.
-  dtFrom: now.format('YYYYMM01'), // 매출인식일 From
-  dtTo: now.format('YYYYMMDD'), // 매출인식일 To
-  sellChnl: 'ALL', // 판매채널
-  slRcogDv: 'ALL', // 판매인식구분
+  startDate: now.format('YYYYMM01'), // 매출인식일 From
+  endDate: now.format('YYYYMMDD'), // 매출인식일 To
+  sellChnl: '', // 판매채널
+  slRcogDv: '', // 판매인식구분
+  baseYm: dayjs().format('YYYYMM'),
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -316,13 +316,14 @@ const initGrid = defineGrid((data, view) => {
     // { fieldName: 'rentalDc' },
     { fieldName: 'slRcogPrdCd' },
     { fieldName: 'slRcogPrdDvCd' },
-    { fieldName: 'ostrDtm' },
-    { fieldName: 'istDtm' },
-    { fieldName: 'svDt' },
-    { fieldName: 'cntrCanDtm' },
-    { fieldName: 'slRcogDt' },
-    { fieldName: 'fnlMdfcDtm' },
+    { fieldName: 'ostrDtm', dataType: 'date' },
+    { fieldName: 'istDtm', dataType: 'date' },
+    { fieldName: 'svDt', dataType: 'date' },
+    { fieldName: 'cntrCanDtm', dataType: 'date' },
+    { fieldName: 'slRcogDt', dataType: 'date' },
+    { fieldName: 'fnlMdfcDtm', dataType: 'date' },
     { fieldName: 'fnlMdfcUsrId' },
+    { fieldName: 'col10' },
   ];
 
   const columns = [
@@ -343,19 +344,19 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rentalPtrm', header: t('MSG_TXT_RENT_PRD_MN'), width: '100', styleName: 'text-right' }, // 렌탈기간
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-right' }, // 렌탈차월
     { fieldName: 'mmIstmAmt', header: t('MSG_TXT_MM_MPY_AMT'), width: '100', styleName: 'text-right', headerSummary: { numberFormat: '#,###', expression: 'sum' } }, // 월납부액
-    { fieldName: 'slAmt', header: t('MSG_TXT_MM_MPY_AMT'), width: '128', styleName: 'text-right', headerSummary: { numberFormat: '#,###', expression: 'sum' } }, // 매출액 -> 매출액(원)
+    { fieldName: 'slAmt', header: t('매출액'), width: '128', styleName: 'text-right', headerSummary: { numberFormat: '#,###', expression: 'sum' } }, // 매출액 -> 매출액(원)
     { fieldName: 'pvdaAmt', header: t('MSG_TXT_PVDA'), width: '128', styleName: 'text-right', headerSummary: { numberFormat: '#,###', expression: 'sum' } }, // 현할차금액 -> 현재가치할인차금
     { fieldName: 'useDt', header: t('MSG_TXT_USE_DAY'), width: '109', styleName: 'text-right' }, // 사용일수
-    { fieldName: 'svDt', header: t('MSG_TXT_SL_RCOG_STAT'), width: '104', styleName: 'text-center' }, // 매출인식상태
+    { fieldName: 'col10', header: t('매출인식상태'), width: '104', styleName: 'text-center' }, // 매출인식상태
     { fieldName: 'crtErrCn', header: t('MSG_TXT_ERR_IZ'), width: '104' }, // 오류내역
     { fieldName: 'slRcogPrdCd', header: t('MSG_TXT_SL_RCOG_BASE'), width: '104' }, // 매출인식기준
     { fieldName: 'slRcogPrdDvCd', header: t('MSG_TXT_SL_RCOG_PRD_CD'), width: '100' }, // 매출인식주기코드
-    { fieldName: 'ostrDtm', header: t('MSG_TXT_OSTR_DT'), width: '100', styleName: 'text-center' }, // 출고일자
-    { fieldName: 'istDtm', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center' }, // 설치일자
-    { fieldName: 'svDt', header: t('MSG_TXT_SV_DT'), width: '100', styleName: 'text-center' }, // 서비스일자
-    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CNTR_CAN_DTM'), width: '100', styleName: 'text-center' }, // 계약취소일자 -> 계약취소일시
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_RCOG_DT'), width: '100', styleName: 'text-center' }, // 매출인식일자 -> 매출인식일
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_CH_DT'), width: '100', styleName: 'text-center' }, // 변경일자
+    { fieldName: 'ostrDtm', header: t('MSG_TXT_OSTR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 출고일자
+    { fieldName: 'istDtm', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일자
+    { fieldName: 'svDt', header: t('MSG_TXT_SV_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 서비스일자
+    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CNTR_CAN_DTM'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 계약취소일자 -> 계약취소일시
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_RCOG_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 매출인식일자 -> 매출인식일
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_CH_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 변경일자
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFR'), width: '104' }, // 변경자
   ];
 
