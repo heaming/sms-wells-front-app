@@ -100,8 +100,7 @@ const grdMgtMainRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const monthFrom = dayjs().subtract(1, 'month').format('YYYYMM');
-const monthTo = dayjs().subtract(0, 'month').format('YYYYMM');
+const defalutMonth = dayjs().subtract(0, 'month').format('YYYYMM');
 
 const codes = await codeUtil.getMultiCodes(
   'DDTN_RPLC_OG_TP_CD',
@@ -129,8 +128,8 @@ let cachedParams;
 
 const searchParams = ref({
   ogTpCd: filterOgTpCd.value[0].codeId,
-  redfAdsbOcYmFrom: monthFrom,
-  redfAdsbOcYmTo: monthTo,
+  redfAdsbOcYmFrom: defalutMonth,
+  redfAdsbOcYmTo: defalutMonth,
 });
 
 async function fetchData() {
@@ -200,7 +199,7 @@ function initGrid(data, view) {
   const columns = [
     { fieldName: 'ogNm', header: t('MSG_TXT_CORP_NAME'), width: '217', styleName: 'text-center' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '120', styleName: 'text-center' },
     { fieldName: 'redfDdtnBlamCrdovrAmt', header: t('MSG_TXT_LSTMM_BLAM'), width: '200', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'redfOcAmt', header: t('MSG_TXT_THM_OC'), width: '200', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'redfOcSum', header: t('MSG_TXT_THM_SUM'), width: '200', styleName: 'text-right', numberFormat: '#,##0' },
