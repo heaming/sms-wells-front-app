@@ -976,15 +976,20 @@ async function onClickCrcdChange() {
 async function onClickCrcdMpyChange() {
   if (!await frmCrcdRef.value.validate()) { return; }
 
+  const checkedList = gridUtil.getCheckedRowValues(grdCustomerRef.value.getView());
+
+  if (isEmpty(checkedList)) {
+    alert(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
+  }
+
   const params = {
-    vstYn: '',
-    chRqrDvCd: '',
-    aftnThpChYn: '',
-    clctamMngtYn: '',
+    copnDvCd: checkedList[0].copnDvCd,
+    cstNo: checkedList[0].cntrCstNo,
     akChdt: now.format('YYYYMMDD'),
   };
 
-  const query = `/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?${new URLSearchParams(params)}`;
+  const query = `/tablet/#/withdrawal/ztwda-auto-transfer-payment-change-req?${new URLSearchParams(params)}`;
 
   await popupUtil.open(query, { width: 1138, height: 712 }, false);
 }

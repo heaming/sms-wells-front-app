@@ -336,7 +336,7 @@ async function onClickSave() {
   }
 
   if (fieldRpblParams.value.cssrIsDvCd === '4') {
-    fieldBaseParams.afchCssrIsNo = `${fieldBaseParams.value.cralLocaraTno}${fieldBaseParams.value.mexnoEncr}${fieldBaseParams.value.cralIdvTno}`;
+    fieldBaseParams.value.afchCssrIsNo = `${fieldBaseParams.value.cralLocaraTno}${fieldBaseParams.value.mexnoEncr}${fieldBaseParams.value.cralIdvTno}`;
   }
 
   await dataService.post('/sms/wells/contract/contracts/order-details/cash-sales-receipts', fieldBaseParams.value);

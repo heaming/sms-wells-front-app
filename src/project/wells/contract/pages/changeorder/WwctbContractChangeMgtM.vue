@@ -63,6 +63,15 @@
             :name="t('MSG_TXT_CNTR_NO')"
           />
         </kw-search-item>
+        <kw-search-item
+          :label="t('MSG_TXT_CH_STT_DIV')"
+        >
+          <kw-option-group
+            v-model="fieldParams.pdChYn"
+            type="checkbox"
+            :options="[{codeId: 'Y', codeName: t('MSG_TXT_CH_PRD')}]"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -86,17 +95,25 @@
           v-for="(item, idx) of resultList"
           :key="idx"
         >
-          <div class="row items-center justify-between">
+          <div class="row justify-between items-center">
             <p class="kw-font--14 kw-fc--black2">
               {{ item.sellTpDtlNm }}
             </p>
-            <kw-chip
-              :label="item.copnDvNm"
-              color="primary"
-              outline
-            />
+            <div class="row justify-end">
+              <kw-chip
+                v-if="isEqual(item.pdChYn, 'Y')"
+                :label="t('MSG_TXT_CNTR_TYPE_CH_COMP')"
+                class="mr12"
+                negative
+                outline
+              />
+              <kw-chip
+                :label="item.copnDvNm"
+                color="primary"
+                outline
+              />
+            </div>
           </div>
-
           <h3 class="mt20 mb12">
             {{ `${item.cstKnm} (${getBzrnoFormat(item.copnDvCd, item.bryyBzrno)})` }}
           </h3>
@@ -186,20 +203,20 @@
               padding="10px"
               @click="onClickDelReq(item)"
             />
-            <div v-if="isEqual(item.histYn, 'Y')">
-              <kw-separator
-                vertical
-                inset
-                spaced="0"
-              />
-              <!-- 계약유형변경 이력 보기-->
-              <kw-btn
-                secondary
-                :label="$t('MSG_BTN_CNTR_TP_CHANGE_HIS_BRWS')"
-                padding="10px"
-                @click="onClickShowProductChangeHistoryP(item)"
-              />
-            </div>
+            <kw-separator
+              v-if="isEqual(item.histYn, 'Y')"
+              vertical
+              inset
+              spaced="0"
+            />
+            <!-- 계약유형변경 이력 보기-->
+            <kw-btn
+              v-if="isEqual(item.histYn, 'Y')"
+              secondary
+              :label="$t('MSG_BTN_CNTR_TP_CHANGE_HIS_BRWS')"
+              padding="10px"
+              @click="onClickShowProductChangeHistoryP(item)"
+            />
           </div>
         </kw-card>
       </div>
@@ -255,6 +272,7 @@ const fieldParams = ref({
   cstKnm: '', // 계약자명
   cntrCnfmDtmFr: now.startOf('month').format('YYYYMMDD'), // 계약시작접수일자
   cntrCnfmDtmTo: now.format('YYYYMMDD'), // 계약종료접수일자
+  pdChYn: [],
 });
 
 const filterdCodes = ref({
