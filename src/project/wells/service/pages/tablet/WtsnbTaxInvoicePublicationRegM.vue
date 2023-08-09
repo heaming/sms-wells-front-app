@@ -142,7 +142,7 @@
           :colspan="2"
         >
           <zwcm-email-address
-            v-model="taxInvoiceData.email"
+            v-model="taxInvoiceData.emadr"
             :label="$t('MSG_TXT_EMAIL')"
             rules="required"
             class="grow"
