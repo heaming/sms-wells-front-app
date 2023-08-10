@@ -414,6 +414,13 @@ async function onClickSave() {
     return;
   }
 
+  const validRows = checkedRows.filter((item) => item.lgstTrsYn === 'Y');
+  if (!isEmpty(validRows)) {
+    // 물류 이관된 데이터는 저장할 수 없습니다.
+    await alert(t('MSG_ALT_LGST_TF_SAVE_IMP'));
+    return;
+  }
+
   if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
 
   // 출고일자
