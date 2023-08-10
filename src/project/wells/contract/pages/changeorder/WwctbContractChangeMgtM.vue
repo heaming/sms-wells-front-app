@@ -497,8 +497,7 @@ async function onClickCntrTpChange(item) {
   }
 
   // 렌탈 주문 수정_상품변경 Variation (PC화면) W-SS-U-0114M02 호출
-  alert('추가작업중입니다.');
-  // changeContract(item, 'WwctbRentalProductChangeM');
+  changeContract(item, 'WwctbRentalProductChangeM');
 }
 
 // onClickSellerChange: 판매자 변경

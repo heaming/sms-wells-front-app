@@ -14,13 +14,15 @@
 --->
 
 <template>
-  <kw-page
-    ref="pageRef"
-  >
-    <kw-search one-row>
+  <kw-page>
+    <kw-search
+      one-row
+      @search="onClickSearch"
+    >
       <kw-search-row>
+        <!-- 계약상세번호 -->
         <kw-search-item
-          label="계약상세번호"
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
           required
         >
           <zctz-contract-detail-number
@@ -42,305 +44,337 @@
       </kw-search-row>
     </kw-search>
 
-    <div class="result-area">
-      <h3 class="text-bold kw-font-pt18">
-        계약정보
-      </h3>
-      <kw-form
-        :cols="2"
-        dense
-      >
-        <kw-form-row>
-          <kw-form-item label="계약상세번호">
-            <p>{{ fieldData.cntrNo + '-' + fieldData.cntrSn }}</p>
-          </kw-form-item>
-          <kw-form-item label="판매/접수구분">
-            <p>{{ fieldData.cntrDtlStatNm }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item label="계약일/설치일">
-            <p>
-              {{ stringUtil.getDateFormat(fieldData.cntrCnfmDt) || '-' }}
-              /
-              {{ stringUtil.getDateFormat(fieldData.istDt) || '-' }}
-            </p>
-          </kw-form-item>
-          <kw-form-item
-            label="취소/철거일자"
-            :colspan="2"
-          >
-            <p>
-              {{ stringUtil.getDateFormat(fieldData.canDt) || '-' }}
-              /
-              {{ stringUtil.getDateFormat(fieldData.reqdDt) || '-' }}
-            </p>
-          </kw-form-item>
-        </kw-form-row>
-      </kw-form>
-      <kw-separator
-        spaced="20px"
-        class="mb0"
-      />
-      <kw-list
-        separator
-        item-padding="20px 0"
-      >
-        <kw-expansion-item
-          padding-target="header"
-          expansion-icon-align="center"
-          expand-icon-class="kw-font-pt24"
+    <kw-form
+      ref="pageRef"
+    >
+      <div class="result-area">
+        <h3 class="text-bold kw-font-pt18">
+          {{ $t('MSG_TXT_CNTR_INF') }} <!-- 계약정보 -->
+        </h3>
+        <kw-form
+          :cols="2"
+          dense
         >
-          <template #header>
-            <kw-item-section>
-              <kw-item-label>
-                <span class="text-bold kw-font-pt18">계약자 고객정보</span>
-              </kw-item-label>
-            </kw-item-section>
-          </template>
-          <kw-form
-            dense
-            class="pb20"
-            :cols="2"
-          >
-            <kw-form-row>
-              <kw-form-item label="계약자 / 고객번호">
-                <p>
-                  {{ fieldData.cntrCstKnm }}
-                  /
-                  {{ fieldData.cntrCstNo }}
-                </p>
-              </kw-form-item>
-              <kw-form-item label="구분 / 생년월일">
-                <p>
-                  {{ fieldData.copnDvNm || '-' }}
-                  /
-                  {{ stringUtil.getDateFormat(fieldData.bryyMmdd) || '-' }}
-                  {{ isEmpty(fieldData.sexDvNm)?'':'(' }}{{ fieldData.sexDvNm }}{{ isEmpty(fieldData.sexDvNm)?'':')' }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item label="휴대전화번호">
-                <p>
-                  {{ isEmpty(fieldData.cralLocaraTno)||isEmpty(fieldData.mexnoEncr)||isEmpty(fieldData.cralIdvTno)?
-                    '': fieldData.cralLocaraTno + '-' + fieldData.mexnoEncr + '-' + fieldData.cralIdvTno }}
-                </p>
-              </kw-form-item>
-              <kw-form-item label="전화번호">
-                <p>
-                  {{ isEmpty(fieldData.locaraTno)||isEmpty(fieldData.exnoEncr)||isEmpty(fieldData.idvTno)?
-                    '': fieldData.locaraTno + '-' + fieldData.exnoEncr + '-' + fieldData.idvTno }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="주소"
-                :colspan="2"
-              >
-                <p>
-                  {{ fieldData.adrZip }}
-                  {{ fieldData.adrMain }}
-                  {{ fieldData.dtlAdr }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-          </kw-form>
-        </kw-expansion-item>
-        <kw-expansion-item
-          padding-target="header"
-          expansion-icon-align="center"
-          expand-icon-class="kw-font-pt24"
+          <kw-form-row>
+            <!-- 계약상세번호 -->
+            <kw-form-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
+              <p>{{ fieldData.cntrNo + '-' + fieldData.cntrSn }}</p>
+            </kw-form-item>
+            <!-- 판매/접수구분 -->
+            <kw-form-item :label="$t('MSG_TXT_SELL') + '/' + $t('MSG_TXT_RCP_DV')">
+              <p>{{ fieldData.cntrDtlStatNm }}</p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row>
+            <!-- 계약일/설치일 -->
+            <kw-form-item :label="$t('MSG_TXT_CNTRCT_DT') + '/' + $t('MSG_TXT_INST_DT')">
+              <p>
+                {{ stringUtil.getDateFormat(fieldData.cntrCnfmDt) || '-' }}
+                /
+                {{ stringUtil.getDateFormat(fieldData.istDt) || '-' }}
+              </p>
+            </kw-form-item>
+            <!-- 취소/철거일자 -->
+            <kw-form-item
+              :label="$t('MSG_TXT_CANCEL') + '/' + $t('MSG_TXT_DEM_DT')"
+              :colspan="2"
+            >
+              <p>
+                {{ stringUtil.getDateFormat(fieldData.canDt) || '-' }}
+                /
+                {{ stringUtil.getDateFormat(fieldData.reqdDt) || '-' }}
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+        </kw-form>
+        <kw-separator
+          spaced="20px"
+          class="mb0"
+        />
+        <kw-list
+          separator
+          item-padding="20px 0"
         >
-          <template #header>
-            <kw-item-section>
-              <kw-item-label>
-                <span class="text-bold kw-font-pt18">설치자 고객정보</span>
-              </kw-item-label>
-            </kw-item-section>
-          </template>
-          <kw-form
-            dense
-            class="pb20"
-            :cols="2"
+          <kw-expansion-item
+            padding-target="header"
+            expansion-icon-align="center"
+            expand-icon-class="kw-font-pt24"
           >
-            <kw-form-row>
-              <kw-form-item label="고객명">
-                <p>{{ fieldData.istKnm }}</p>
-              </kw-form-item>
-              <kw-form-item label="휴대전화번호">
-                <p>
-                  {{ isEmpty(fieldData.istCralLocaraTno)
-                    ||isEmpty(fieldData.istMexnoEncr)
-                    ||isEmpty(fieldData.istCralIdvTno)?
-                      '': fieldData.istCralLocaraTno + '-' + fieldData.istMexnoEncr + '-' + fieldData.istCralIdvTno }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="주소"
-                :colspan="2"
-              >
-                <p>
-                  {{ fieldData.istAdrZip }}
-                  {{ fieldData.istAdrMain }}
-                  {{ fieldData.istDtlAdr }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-          </kw-form>
-        </kw-expansion-item>
-        <kw-expansion-item
-          padding-target="header"
-          expansion-icon-align="center"
-          expand-icon-class="kw-font-pt24"
-          default-opened
-        >
-          <template #header>
-            <kw-item-section>
-              <kw-item-label>
-                <span class="text-bold kw-font-pt18">주문상품 선택</span>
-              </kw-item-label>
-            </kw-item-section>
-          </template>
-          <kw-form
-            :cols="1"
-            class="pb20"
+            <template #header>
+              <kw-item-section>
+                <kw-item-label>
+                  <!-- 계약자 고객정보 -->
+                  <span class="text-bold kw-font-pt18">{{ $t('MSG_TXT_CNTRT') + ' ' + $t('MSG_TXT_CST_INF') }}</span>
+                </kw-item-label>
+              </kw-item-section>
+            </template>
+            <kw-form
+              dense
+              class="pb20"
+              :cols="2"
+            >
+              <kw-form-row>
+                <!-- 계약자 / 고객번호 -->
+                <kw-form-item :label="$t('MSG_TXT_CNTRT') + ' / ' + $t('MSG_TXT_CST_NO')">
+                  <p>
+                    {{ fieldData.cntrCstKnm }}
+                    /
+                    {{ fieldData.cntrCstNo }}
+                  </p>
+                </kw-form-item>
+                <!-- 구분 / 생년월일 -->
+                <kw-form-item :label="$t('MSG_TXT_DIV') + ' / ' + $t('MSG_TXT_BIRTH_DATE')">
+                  <p>
+                    {{ fieldData.copnDvNm || '-' }}
+                    /
+                    {{ stringUtil.getDateFormat(fieldData.bryyMmdd) || '-' }}
+                    {{ isEmpty(fieldData.sexDvNm)?''
+                      :'(' }}{{ fieldData.sexDvNm }}{{ isEmpty(fieldData.sexDvNm)?'':')' }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <!-- 휴대전화번호 -->
+                <kw-form-item :label="$t('MSG_TXT_MPNO')">
+                  <p>
+                    {{ isEmpty(fieldData.cralLocaraTno)||isEmpty(fieldData.mexnoEncr)||isEmpty(fieldData.cralIdvTno)?
+                      '': fieldData.cralLocaraTno + '-' + fieldData.mexnoEncr + '-' + fieldData.cralIdvTno }}
+                  </p>
+                </kw-form-item>
+                <!-- 전화번호 -->
+                <kw-form-item :label="$t('MSG_TXT_TEL_NO')">
+                  <p>
+                    {{ isEmpty(fieldData.locaraTno)||isEmpty(fieldData.exnoEncr)||isEmpty(fieldData.idvTno)?
+                      '': fieldData.locaraTno + '-' + fieldData.exnoEncr + '-' + fieldData.idvTno }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <!-- 주소 -->
+                <kw-form-item
+                  :label="$t('MSG_TXT_ADDR')"
+                  :colspan="2"
+                >
+                  <p>
+                    {{ fieldData.adrZip }}
+                    {{ fieldData.adrMain }}
+                    {{ fieldData.dtlAdr }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+            </kw-form>
+          </kw-expansion-item>
+          <kw-expansion-item
+            padding-target="header"
+            expansion-icon-align="center"
+            expand-icon-class="kw-font-pt24"
           >
-            <kw-form-row>
-              <kw-form-item label="상품검색">
-                <div class="column col">
-                  <div
-                    class="row"
-                    style="max-width: 55%;"
-                  >
-                    <kw-input
-                      v-model="searchParams.pdNm"
-                      icon="search"
-                      grow
-                      @click-icon="onClickSelectProduct"
-                    />
-                  </div>
-                  <div class="border-box mt12">
-                    <div class="product">
-                      <div class="product-inside">
-                        <div class="product-left-area">
-                          <!-- 상품중분류명 -->
-                          <span class="product-type">
-                            {{ orderProduct.pdMclsfNm }}
-                          </span>
-                          <div class="product-content">
-                            <div class="column">
-                              <p class="kw-fc--black1 text-weight-medium ">
-                                {{ orderProduct.pdNm }}
-                                {{ '(' + orderProduct.pdCd + ')' }}
-                              </p>
+            <template #header>
+              <kw-item-section>
+                <kw-item-label>
+                  <!-- 설치자 고객정보 -->
+                  <span class="text-bold kw-font-pt18">{{ $t('MSG_TXT_INSTR') + ' ' + $t('MSG_TXT_CST_INF') }}</span>
+                </kw-item-label>
+              </kw-item-section>
+            </template>
+            <kw-form
+              dense
+              class="pb20"
+              :cols="2"
+            >
+              <kw-form-row>
+                <!-- 고객명 -->
+                <kw-form-item :label="$t('MSG_TXT_CST_NM')">
+                  <p>{{ fieldData.istKnm }}</p>
+                </kw-form-item>
+                <!-- 휴대전화번호 -->
+                <kw-form-item :label="$t('MSG_TXT_MPNO')">
+                  <p>
+                    {{ isEmpty(fieldData.istCralLocaraTno)
+                      ||isEmpty(fieldData.istMexnoEncr)
+                      ||isEmpty(fieldData.istCralIdvTno)?
+                        '': fieldData.istCralLocaraTno + '-' + fieldData.istMexnoEncr + '-' + fieldData.istCralIdvTno }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <!-- 주소 -->
+                <kw-form-item
+                  :label="$t('MSG_TXT_ADDR')"
+                  :colspan="2"
+                >
+                  <p>
+                    {{ fieldData.istAdrZip }}
+                    {{ fieldData.istAdrMain }}
+                    {{ fieldData.istDtlAdr }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+            </kw-form>
+          </kw-expansion-item>
+          <kw-expansion-item
+            padding-target="header"
+            expansion-icon-align="center"
+            expand-icon-class="kw-font-pt24"
+            default-opened
+          >
+            <template #header>
+              <kw-item-section>
+                <kw-item-label>
+                  <!-- 주문상품 선택 -->
+                  <span class="text-bold kw-font-pt18">
+                    {{ $t('MSG_TXT_ODER') + $t('MSG_TXT_PRDT') + ' ' + $t('MSG_TXT_SELT') }}
+                  </span>
+                </kw-item-label>
+              </kw-item-section>
+            </template>
+            <kw-form
+              :cols="1"
+              class="pb20"
+            >
+              <kw-form-row>
+                <!-- 상품검색 -->
+                <kw-form-item :label="$t('MSG_TXT_PRDT') + $t('MSG_TXT_SEARCH')">
+                  <div class="column col">
+                    <div
+                      class="row"
+                      style="max-width: 55%;"
+                    >
+                      <kw-input
+                        v-model="searchParams.pdNm"
+                        icon="search"
+                        grow
+                        @click-icon="onClickSelectProduct"
+                      />
+                    </div>
+                    <div class="border-box mt12">
+                      <div class="product">
+                        <div class="product-inside">
+                          <div class="product-left-area">
+                            <!-- 상품중분류명 -->
+                            <span class="product-type">
+                              {{ orderProduct.pdMclsfNm }}
+                            </span>
+                            <div class="product-content">
+                              <div class="column">
+                                <p class="kw-fc--black1 text-weight-medium ">
+                                  {{ orderProduct.pdNm }}
+                                  {{ '(' + orderProduct.pdCd + ')' }}
+                                </p>
+                              </div>
                             </div>
                           </div>
+                          <div class="row justify-end w155">
+                            <!-- 기기변경 -->
+                            <kw-btn
+                              :label="$t('MSG_TXT_MCHN_CH')"
+                              :disable="!isEmpty(orderProduct.plusCntrNo)"
+                              dense
+                              @click="onClickDeviceChange"
+                            />
+                            <kw-btn
+                              label="1+1"
+                              :disable="!isEmpty(orderProduct.mchChCntrNo)"
+                              class="ml8"
+                              dense
+                              @click="onClickOnePlusOne"
+                            />
+                          </div>
                         </div>
-                        <div class="row justify-end w155">
-                          <kw-btn
-                            label="기기변경"
-                            :disable="!isEmpty(orderProduct.plusCntrNo)"
-                            dense
-                            @click="onClickDeviceChange"
-                          />
-                          <kw-btn
-                            label="1+1"
-                            :disable="!isEmpty(orderProduct.mchChCntrNo)"
-                            class="ml8"
-                            dense
-                            @click="onClickOnePlusOne"
-                          />
-                        </div>
-                      </div>
-                      <ul class="setting-box">
-                        <li class="row items-center justify-between no-wrap">
-                          <ul
-                            class="product-price-list"
-                          >
-                            <li class="product-price-item">
-                              <p class="kw-font-pt14 kw-fc--black3">
-                                등록비
-                              </p>
-                              <span class="kw-fc--black1 text-bold ml8">
-                                {{ stringUtil.getNumberWithComma(orderProduct.cntrAmt || 0) }}원
-                              </span>
-                            </li>
-                            <!-- <li class="product-price-item">
+                        <ul class="setting-box">
+                          <li class="row items-center justify-between no-wrap">
+                            <ul
+                              class="product-price-list"
+                            >
+                              <li class="product-price-item">
+                                <p class="kw-font-pt14 kw-fc--black3">
+                                  {{ $t('MSG_TXT_RGST_FEE') }}<!-- 등록비 -->
+                                </p>
+                                <span class="kw-fc--black1 text-bold ml8">
+                                  {{ stringUtil.getNumberWithComma(orderProduct.cntrAmt || 0) }}원
+                                </span>
+                              </li>
+                              <!-- <li class="product-price-item">
                               <p class="kw-font-pt14 kw-fc--black3">
                                 선납금
                               </p>
                               <span class="kw-fc--black1 text-bold ml8">100,000원</span>
                             </li> -->
-                            <li class="product-price-item">
-                              <p class="kw-font-pt14 kw-fc--black3">
-                                월
-                              </p>
-                              <span class="kw-fc--black1 text-bold ml8">
-                                {{ stringUtil.getNumberWithComma(orderProduct.fnlAmt || 0) }}원
-                              </span>
+                              <li class="product-price-item">
+                                <p class="kw-font-pt14 kw-fc--black3">
+                                  월
+                                </p>
+                                <span class="kw-fc--black1 text-bold ml8">
+                                  {{ stringUtil.getNumberWithComma(orderProduct.fnlAmt || 0) }}원
+                                </span>
                               <!-- <span class="kw-font-pt14 kw-fc--black3 ml8 text-strike">120,000</span> -->
-                            </li>
-                          </ul>
-                          <zwcm-counter />
-                        </li>
-                        <li class="form-full-size">
-                          <kw-select
-                            v-model="orderProduct.stplPtrm"
-                            :options="stplPtrms"
-                            first-option="select"
-                            first-option-value=""
-                            first-option-label="약정기간 선택"
-                            @change="selectRentalPriceChanges"
-                          />
-                          <kw-select
-                            v-model="orderProduct.cntrPtrm"
-                            :options="cntrPtrms"
-                            first-option="select"
-                            first-option-value=""
-                            first-option-label="계약기간 선택"
-                            @change="selectRentalPriceChanges"
-                          />
-                          <kw-select
-                            v-model="orderProduct.cntrAmt"
-                            :options="rgstFees"
-                            first-option="select"
-                            first-option-value="0"
-                            first-option-label="등록비 선택"
-                            @change="selectRentalPriceChanges"
-                          />
-                          <kw-select
-                            v-model="orderProduct.sellDscDvCd"
-                            :options="rentalDscDvCds"
-                            first-option="select"
-                            first-option-value=""
-                            first-option-label="렌탈할인구분 선택"
-                            @change="selectRentalPriceChanges"
-                          />
-                          <kw-select
-                            v-model="orderProduct.sellDscTpCd"
-                            :options="rentalDscTpCds"
-                            :disable="!isEmpty(orderProduct.plusCntrNo)"
-                            first-option="select"
-                            first-option-value=""
-                            first-option-label="렌탈할인유형 선택"
-                            @change="selectRentalPriceChanges"
-                          />
-                        </li>
-                        <li class="scoped-child-select">
-                          <kw-select
-                            v-model="orderProduct.svPdCd"
-                            :colspan="1"
-                            :options="svPdCds"
-                            grow
-                            first-option="select"
-                            first-option-value=""
-                            first-option-label="서비스(용도/방문주기) 선택"
-                            @change="selectRentalPriceChanges"
-                          />
+                              </li>
+                            </ul>
+                            <zwcm-counter />
+                          </li>
+                          <li class="form-full-size">
+                            <!-- 약정기간 선택 -->
+                            <kw-select
+                              v-model="orderProduct.stplPtrm"
+                              :options="stplPtrms"
+                              first-option="select"
+                              first-option-value=""
+                              :first-option-label="$t('MSG_TXT_CONTRACT_PERI') + ' ' + $t('MSG_TXT_SELT')"
+                              @change="selectRentalPriceChanges"
+                            />
+                            <!-- 계약기간 선택 -->
+                            <kw-select
+                              v-model="orderProduct.cntrPtrm"
+                              :options="cntrPtrms"
+                              first-option="select"
+                              first-option-value=""
+                              :first-option-label="$t('MSG_TXT_CNTR_PTRM') + ' ' + $t('MSG_TXT_SELT')"
+                              @change="selectRentalPriceChanges"
+                            />
+                            <!-- 등록비 선택 -->
+                            <kw-select
+                              v-model="orderProduct.cntrAmt"
+                              :options="rgstFees"
+                              first-option="select"
+                              first-option-value="0"
+                              :first-option-label="$t('MSG_TXT_RGST_FEE') + ' ' + $t('MSG_TXT_SELT')"
+                              @change="selectRentalPriceChanges"
+                            />
+                            <!-- 렌탈할인구분 선택 -->
+                            <kw-select
+                              v-model="orderProduct.sellDscDvCd"
+                              :options="rentalDscDvCds"
+                              first-option="select"
+                              first-option-value=""
+                              :first-option-label="$t('TXT_MSG_RENTAL_DSC_DV_CD') + ' ' + $t('MSG_TXT_SELT')"
+                              @change="selectRentalPriceChanges"
+                            />
+                            <!-- 렌탈할인유형 선택 -->
+                            <kw-select
+                              v-model="orderProduct.sellDscTpCd"
+                              :options="rentalDscTpCds"
+                              :disable="!isEmpty(orderProduct.plusCntrNo)"
+                              first-option="select"
+                              first-option-value=""
+                              :first-option-label="$t('MSG_TXT_RENTAL_DSC_TP_CD') + ' ' + $t('MSG_TXT_SELT')"
+                              @change="selectRentalPriceChanges"
+                            />
+                          </li>
+                          <li class="scoped-child-select">
+                            <!-- 서비스(용도/방문주기) 선택 -->
+                            <kw-select
+                              v-model="orderProduct.svPdCd"
+                              :colspan="1"
+                              :options="svPdCds"
+                              grow
+                              first-option="select"
+                              first-option-value=""
+                              :first-option-label="
+                                $t('MSG_TXT_SERVICE')+
+                                  '('+$t('MSG_TXT_USWY')+'/'+$t('MSG_TXT_VST_PRD')+') '+
+                                  $t('MSG_TXT_SELT')"
+                              @change="selectRentalPriceChanges"
+                            />
                           <!-- <kw-select
                             v-model="orderProduct.evtCd"
                             :options="evtCds"
@@ -349,193 +383,216 @@
                             first-option-value=""
                             first-option-label="행사코드 선택"
                           /> -->
-                        </li>
-                      </ul>
+                          </li>
+                        </ul>
 
-                      <!-- 기기변경 내역 -->
-                      <div
-                        v-if="orderProduct.mchChCntrNo && orderProduct.mchChCntrSn"
-                        class="product-right-area"
-                      >
-                        <kw-separator class="dashed-line my20" />
-
-                        <div class="row items-center justify-between">
-                          <div
-                            class="row"
-                            style="width: calc(100% - 45px);"
-                          >
-                            <kw-chip
-                              label="기기변경"
-                              color="primary"
-                              outline
-                              class="ma2"
+                        <!-- 기기변경 내역 -->
+                        <kw-form
+                          v-show="false"
+                        >
+                          <kw-form-row>
+                            <kw-input
+                              v-model="orderProduct.mchChCntrNo"
                             />
+                          </kw-form-row>
+                        </kw-form>
+                        <div
+                          v-if="orderProduct.mchChCntrNo && orderProduct.mchChCntrSn"
+                          class="product-right-area"
+                        >
+                          <kw-separator class="dashed-line my20" />
 
-                            <ul
-                              class="product-price-list kw-grow"
-                              style="max-width: calc(100% - 45px);"
+                          <div class="row items-center justify-between">
+                            <div
+                              class="row"
+                              style="width: calc(100% - 45px);"
                             >
-                              <li
-                                class="product-price-item kw-grow"
-                                style="max-width: calc(100% - 355px);"
+                              <!-- 기기변경 -->
+                              <kw-chip
+                                :label="$t('MSG_TXT_MCHN_CH')"
+                                color="primary"
+                                outline
+                                class="ma2"
+                              />
+
+                              <ul
+                                class="product-price-list kw-grow"
+                                style="max-width: calc(100% - 45px);"
                               >
-                                <span
-                                  class="kw-fc--black1 ml8 "
-                                  style="overflow: hidden;
+                                <li
+                                  class="product-price-item kw-grow"
+                                  style="max-width: calc(100% - 355px);"
+                                >
+                                  <span
+                                    class="kw-fc--black1 ml8 "
+                                    style="overflow: hidden;
                                       text-overflow: ellipsis;
                                       white-space: nowrap;"
-                                >
-                                  {{ orderProduct.mchChPdNm }}
-                                </span>
-                              </li>
+                                  >
+                                    {{ orderProduct.mchChPdNm }}
+                                  </span>
+                                </li>
 
-                              <li class="product-price-item">
-                                <p class="kw-font-pt14 kw-fc--black3">
-                                  계약번호
-                                </p>
-                                <span class="kw-fc--black1 ml8">
-                                  {{ orderProduct.mchChCntrNo + '-' + orderProduct.mchChCntrSn }}
-                                </span>
-                              </li>
-                            </ul>
+                                <li class="product-price-item">
+                                  <p class="kw-font-pt14 kw-fc--black3">
+                                    {{ $t('MSG_TXT_CNTR_NO') }}<!-- 계약번호 -->
+                                  </p>
+                                  <span class="kw-fc--black1 ml8">
+                                    {{ orderProduct.mchChCntrNo + '-' + orderProduct.mchChCntrSn }}
+                                  </span>
+                                </li>
+                              </ul>
+                            </div>
+                            <kw-btn
+                              borderless
+                              icon="close_24"
+                              style="font-size: 24px;"
+                              class="w24"
+                            />
                           </div>
-                          <kw-btn
-                            borderless
-                            icon="close_24"
-                            style="font-size: 24px;"
-                            class="w24"
-                          />
                         </div>
-                      </div>
 
-                      <!-- 1+1 내역 -->
-                      <div
-                        v-if="orderProduct.plusCntrNo && orderProduct.plusCntrSn"
-                        class="product-right-area"
-                      >
-                        <kw-separator class="dashed-line my20" />
-
-                        <div class="row items-center justify-between">
-                          <div
-                            class="row"
-                            style="width: calc(100% - 45px);"
-                          >
-                            <kw-chip
-                              label="1+1"
-                              color="primary"
-                              outline
-                              class="ma2"
-                              @click="onClickDeleteDeviceChange"
+                        <!-- 1+1 내역 -->
+                        <kw-form
+                          v-show="false"
+                        >
+                          <kw-form-row>
+                            <kw-input
+                              v-model="orderProduct.plusCntrNo"
                             />
+                          </kw-form-row>
+                        </kw-form>
+                        <div
+                          v-if="orderProduct.plusCntrNo && orderProduct.plusCntrSn"
+                          class="product-right-area"
+                        >
+                          <kw-separator class="dashed-line my20" />
 
-                            <ul
-                              class="product-price-list kw-grow"
-                              style="max-width: calc(100% - 45px);"
+                          <div class="row items-center justify-between">
+                            <div
+                              class="row"
+                              style="width: calc(100% - 45px);"
                             >
-                              <li
-                                class="product-price-item kw-grow"
-                                style="max-width: calc(100% - 355px);"
+                              <kw-chip
+                                label="1+1"
+                                color="primary"
+                                outline
+                                class="ma2"
+                                @click="onClickDeleteDeviceChange"
+                              />
+
+                              <ul
+                                class="product-price-list kw-grow"
+                                style="max-width: calc(100% - 45px);"
                               >
-                                <span
-                                  class="kw-fc--black1 ml8 "
-                                  style="overflow: hidden;
+                                <li
+                                  class="product-price-item kw-grow"
+                                  style="max-width: calc(100% - 355px);"
+                                >
+                                  <span
+                                    class="kw-fc--black1 ml8 "
+                                    style="overflow: hidden;
                                       text-overflow: ellipsis;
                                       white-space: nowrap;"
-                                >
-                                  {{ orderProduct.plusPdNm }}
-                                </span>
-                              </li>
+                                  >
+                                    {{ orderProduct.plusPdNm }}
+                                  </span>
+                                </li>
 
-                              <li class="product-price-item">
-                                <p class="kw-font-pt14 kw-fc--black3">
-                                  계약번호
-                                </p>
-                                <span class="kw-fc--black1 ml8">
-                                  {{ orderProduct.plusCntrNo + '-' + orderProduct.plusCntrSn }}
-                                </span>
-                              </li>
-                            </ul>
+                                <li class="product-price-item">
+                                  <p class="kw-font-pt14 kw-fc--black3">
+                                    {{ $t('MSG_TXT_CNTR_NO') }}<!-- 계약번호 -->
+                                  </p>
+                                  <span class="kw-fc--black1 ml8">
+                                    {{ orderProduct.plusCntrNo + '-' + orderProduct.plusCntrSn }}
+                                  </span>
+                                </li>
+                              </ul>
+                            </div>
+                            <kw-btn
+                              borderless
+                              icon="close_24"
+                              style="font-size: 24px;"
+                              class="w24"
+                              @click="onClickDeleteOneplusone"
+                            />
                           </div>
-                          <kw-btn
-                            borderless
-                            icon="close_24"
-                            style="font-size: 24px;"
-                            class="w24"
-                            @click="onClickDeleteOneplusone"
-                          />
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div class="row justify-end mt20">
-                    <kw-btn
-                      padding="12px"
-                      label="초기화"
-                      @click="onClickInit"
-                    />
+                    <div class="row justify-end mt20">
+                      <!-- 초기화 -->
+                      <kw-btn
+                        padding="12px"
+                        :label="$t('MSG_BTN_INTL')"
+                        @click="onClickInit"
+                      />
                     <!-- <kw-btn
                       padding="12px"
                       class="ml8"
                       label="확정"
                     /> -->
+                    </div>
                   </div>
-                </div>
-              </kw-form-item>
-            </kw-form-row>
-          </kw-form>
-        </kw-expansion-item>
-        <kw-expansion-item
-          padding-target="header"
-          expansion-icon-align="center"
-          expand-icon-class="kw-font-pt24"
-          default-opened
-        >
-          <template #header>
-            <kw-item-section>
-              <kw-item-label>
-                <span class="text-bold kw-font-pt18">프로모션</span>
-              </kw-item-label>
-            </kw-item-section>
-          </template>
+                </kw-form-item>
+              </kw-form-row>
+            </kw-form>
+          </kw-expansion-item>
+          <kw-expansion-item
+            padding-target="header"
+            expansion-icon-align="center"
+            expand-icon-class="kw-font-pt24"
+            default-opened
+          >
+            <template #header>
+              <kw-item-section>
+                <kw-item-label>
+                  <span class="text-bold kw-font-pt18">{{ $t('MSG_TXT_PMOT') }}</span><!-- 프로모션 -->
+                </kw-item-label>
+              </kw-item-section>
+            </template>
 
-          <kw-form
-            class="pb20"
-            dense
+            <kw-form
+              class="pb20"
+              dense
+            >
+              <kw-form-row>
+                <!-- 유형 -->
+                <kw-form-item :label="$t('MSG_TXT_TYPE')">
+                  <p>{{ $t('MSG_TXT_FGPT') }}</p><!-- 사은품 -->
+                </kw-form-item>
+              </kw-form-row>
+            </kw-form>
+          </kw-expansion-item>
+          <kw-expansion-item
+            padding-target="header"
+            expansion-icon-align="center"
+            expand-icon-class="kw-font-pt24"
+            default-opened
           >
-            <kw-form-row>
-              <kw-form-item label="유형">
-                <p>사은품</p>
-              </kw-form-item>
-            </kw-form-row>
-          </kw-form>
-        </kw-expansion-item>
-        <kw-expansion-item
-          padding-target="header"
-          expansion-icon-align="center"
-          expand-icon-class="kw-font-pt24"
-          default-opened
-        >
-          <template #header>
-            <kw-item-section>
-              <kw-item-label>
-                <span class="text-bold kw-font-pt18">사은품 선택</span>
-              </kw-item-label>
-            </kw-item-section>
-          </template>
-          <kw-form
-            class="pb20"
-            :cols="1"
-          >
-            <kw-form-row>
-              <kw-form-item label="사은품">
-                <kw-option-group
-                  :model-value="'사은품 선택안함'"
-                  type="radio"
-                  :options="['(6422)라이브팩(1)', '(6422)라이브팩(2)','사은품 선택안함']"
-                  @change="alert('준비중입니다.')"
-                />
-              </kw-form-item>
-            </kw-form-row>
+            <template #header>
+              <kw-item-section>
+                <kw-item-label>
+                  <!-- 사은품 선택 -->
+                  <span class="text-bold kw-font-pt18">{{ $t('MSG_TXT_FGPT')+' '+$t('MSG_TXT_SELT') }}</span>
+                </kw-item-label>
+              </kw-item-section>
+            </template>
+            <kw-form
+              class="pb20"
+              :cols="1"
+            >
+              <kw-form-row>
+                <!-- 사은품 -->
+                <kw-form-item :label="$t('MSG_TXT_FGPT')">
+                  <kw-option-group
+                    :model-value="'사은품 선택안함'"
+                    type="radio"
+                    :options="['(6422)라이브팩(1)', '(6422)라이브팩(2)','사은품 선택안함']"
+                    @change="alert('준비중입니다.')"
+                  />
+                </kw-form-item>
+              </kw-form-row>
             <!-- <kw-form-row>
               <kw-form-item
                 label="사은품검색"
@@ -593,148 +650,167 @@
                 </div>
               </kw-form-item>
             </kw-form-row> -->
-          </kw-form>
-        </kw-expansion-item>
-        <kw-expansion-item
-          padding-target="header"
-          expansion-icon-align="center"
-          expand-icon-class="kw-font-pt24"
-          default-opened
-        >
-          <template #header>
-            <kw-item-section>
-              <kw-item-label>
-                <span class="text-bold kw-font-pt18">설치환경 및 요청사항</span>
-              </kw-item-label>
-            </kw-item-section>
-          </template>
-          <kw-form
-            class="pb20"
-            :cols="2"
+            </kw-form>
+          </kw-expansion-item>
+          <kw-expansion-item
+            padding-target="header"
+            expansion-icon-align="center"
+            expand-icon-class="kw-font-pt24"
+            default-opened
           >
-            <kw-form-row>
-              <kw-form-item label="전압">
-                <kw-option-group
-                  v-model="istEnvRequest.useElectTpCd"
-                  type="radio"
-                  :options="codes.USE_ELECT_TP_CD"
-                />
-              </kw-form-item>
-              <kw-form-item
-                label="수압"
-              >
-                <kw-option-group
-                  v-model="istEnvRequest.wprsItstTpCd"
-                  type="radio"
-                  :options="codes.WPRS_ITST_TP_CD"
-                />
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="수질"
-              >
-                <kw-option-group
-                  v-model="istEnvRequest.srcwtTpCd"
-                  type="radio"
-                  :options="codes.SRCWT_TP_CD"
-                />
-              </kw-form-item>
-              <kw-form-item label="장소">
-                <kw-select
-                  v-model="istEnvRequest.istPlcTpCd"
-                  :options="codes.IST_PLC_TP_CD"
-                  first-option="select"
-                />
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="요청사항"
-              >
-                <kw-input
-                  v-model="istEnvRequest.istAkArtcMoCn"
-                  type="textarea"
-                  :rows="3"
-                />
-              </kw-form-item>
-              <kw-form-item label="참고사항">
-                <p>{{ istEnvRequest.sconCn }}</p>
-              </kw-form-item>
-            </kw-form-row>
-          </kw-form>
-        </kw-expansion-item>
-        <kw-expansion-item
-          padding-target="header"
-          expansion-icon-align="center"
-          expand-icon-class="kw-font-pt24"
-          default-opened
-        >
-          <template #header>
-            <kw-item-section>
-              <kw-item-label>
-                <span class="text-bold kw-font-pt18">플래너 정보</span>
-              </kw-item-label>
-            </kw-item-section>
-          </template>
-          <kw-form
-            class="pb20"
-            dense
-            :cols="2"
+            <template #header>
+              <kw-item-section>
+                <kw-item-label>
+                  <span class="text-bold kw-font-pt18">
+                    {{ $t('MSG_TXT_IST_ENVR') + ' ' + $t('MSG_BTN_ALC') + ' ' + $t('MSG_TXT_RQMT') }}
+                  </span><!-- 설치환경 및 요청사항 -->
+                </kw-item-label>
+              </kw-item-section>
+            </template>
+            <kw-form
+              class="pb20"
+              :cols="2"
+            >
+              <kw-form-row>
+                <!-- 전압 -->
+                <kw-form-item :label="$t('MSG_TXT_VTG')">
+                  <kw-option-group
+                    v-model="istEnvRequest.useElectTpCd"
+                    type="radio"
+                    :options="codes.USE_ELECT_TP_CD"
+                  />
+                </kw-form-item>
+                <!-- 수압 -->
+                <kw-form-item
+                  :label="$t('MSG_TXT_WPRS')"
+                >
+                  <kw-option-group
+                    v-model="istEnvRequest.wprsItstTpCd"
+                    type="radio"
+                    :options="codes.WPRS_ITST_TP_CD"
+                  />
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <!-- 수질 -->
+                <kw-form-item
+                  :label="$t('MSG_TXT_WTQLTY')"
+                >
+                  <kw-option-group
+                    v-model="istEnvRequest.srcwtTpCd"
+                    type="radio"
+                    :options="codes.SRCWT_TP_CD"
+                  />
+                </kw-form-item>
+                <!-- 장소 -->
+                <kw-form-item :label="$t('MSG_TXT_PLAC')">
+                  <kw-select
+                    v-model="istEnvRequest.istPlcTpCd"
+                    :options="codes.IST_PLC_TP_CD"
+                    first-option="select"
+                  />
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <!-- 요청사항 -->
+                <kw-form-item
+                  :label="$t('MSG_TXT_RQMT')"
+                >
+                  <kw-input
+                    v-model="istEnvRequest.istAkArtcMoCn"
+                    type="textarea"
+                    :rows="3"
+                  />
+                </kw-form-item>
+                <!-- 참고사항 -->
+                <kw-form-item :label="$t('MSG_TXT_REFER_ARTC')">
+                  <p>{{ istEnvRequest.sconCn }}</p>
+                </kw-form-item>
+              </kw-form-row>
+            </kw-form>
+          </kw-expansion-item>
+          <kw-expansion-item
+            padding-target="header"
+            expansion-icon-align="center"
+            expand-icon-class="kw-font-pt24"
+            default-opened
           >
-            <kw-form-row>
-              <kw-form-item label="성명">
-                <p>{{ fieldData.prtnrKnm }}</p>
-              </kw-form-item>
-              <kw-form-item
-                label="플래너번호"
-              >
-                <p>{{ fieldData.prtnrNo }}</p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item label="지역단코드">
-                <p>{{ fieldData.dgr2LevlOgCd }}</p>
-              </kw-form-item>
-              <kw-form-item label="소속코드">
-                <p>{{ fieldData.ogCd }}</p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item label="휴대전화번호">
-                <p>
-                  {{ isEmpty(fieldData.prtnrCralLocaraTno)
-                    ||isEmpty(fieldData.prtnrMexnoEncr)
-                    ||isEmpty(fieldData.prtnrCralIdvTno)?
-                      '':
-                      fieldData.prtnrCralLocaraTno + '-' + fieldData.prtnrMexnoEncr + '-' + fieldData.prtnrCralIdvTno }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="주소"
-                :colspan="2"
-              >
-                <p>
-                  {{ fieldData.prtnrAdrZip }}
-                  {{ fieldData.prtnrAdrMain }}
-                  {{ fieldData.prtnrDtlAdr }}
-                </p>
-              </kw-form-item>
-            </kw-form-row>
-          </kw-form>
-        </kw-expansion-item>
-      </kw-list>
-      <kw-action-bottom>
-        <!-- 저장 -->
-        <kw-btn
-          primary
-          :label="$t('MSG_BTN_SAVE')"
-          @click="onClickSave"
-        />
-      </kw-action-bottom>
-    </div>
+            <template #header>
+              <kw-item-section>
+                <kw-item-label>
+                  <span class="text-bold kw-font-pt18">
+                    {{ $t('MSG_TXT_PLAR')+' '+$t('MSG_TXT_INF') }}
+                  </span><!-- 플래너 정보 -->
+                </kw-item-label>
+              </kw-item-section>
+            </template>
+            <kw-form
+              class="pb20"
+              dense
+              :cols="2"
+            >
+              <kw-form-row>
+                <!-- 성명 -->
+                <kw-form-item :label="$t('MSG_TXT_EMPL_NM')">
+                  <p>{{ fieldData.prtnrKnm }}</p>
+                </kw-form-item>
+                <!-- 플래너번호 -->
+                <kw-form-item
+                  :label="$t('MSG_TXT_PLAR')+$t('MSG_TXT_PRTNR_NO')"
+                >
+                  <p>{{ fieldData.prtnrNo }}</p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <!-- 지역단코드 -->
+                <kw-form-item :label="$t('MSG_TXT_RGRP_CD')">
+                  <p>{{ fieldData.dgr2LevlOgCd }}</p>
+                </kw-form-item>
+                <!-- 소속코드 -->
+                <kw-form-item :label="$t('MSG_TXT_BLG_CD')">
+                  <p>{{ fieldData.ogCd }}</p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <!-- 휴대전화번호 -->
+                <kw-form-item :label="$t('MSG_TXT_MPNO')">
+                  <p>
+                    {{ isEmpty(fieldData.prtnrCralLocaraTno)
+                      ||isEmpty(fieldData.prtnrMexnoEncr)
+                      ||isEmpty(fieldData.prtnrCralIdvTno)?
+                        '':
+                        fieldData.prtnrCralLocaraTno + '-' +
+                        fieldData.prtnrMexnoEncr + '-' +
+                        fieldData.prtnrCralIdvTno }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <!-- 주소 -->
+                <kw-form-item
+                  :label="$t('MSG_TXT_ADDR')"
+                  :colspan="2"
+                >
+                  <p>
+                    {{ fieldData.prtnrAdrZip }}
+                    {{ fieldData.prtnrAdrMain }}
+                    {{ fieldData.prtnrDtlAdr }}
+                  </p>
+                </kw-form-item>
+              </kw-form-row>
+            </kw-form>
+          </kw-expansion-item>
+        </kw-list>
+        <kw-action-bottom>
+          <!-- 저장 -->
+          <kw-btn
+            primary
+            :label="$t('MSG_BTN_SAVE')"
+            @click="onClickSave"
+          />
+        </kw-action-bottom>
+      </div>
+    </kw-form>
   </kw-page>
 </template>
 
@@ -748,6 +824,7 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 
 const dataService = useDataService();
 const { modal, alert, confirm, notify } = useGlobal();
+const { t } = useI18n();
 
 const props = defineProps({
   cntrNo: {
@@ -914,7 +991,7 @@ async function initProduct(gubun) {
   orderProduct.value.pdCd = (gubun === 'init') ? fieldData.value.basePdCd : productInfo.value.pdCd;
   orderProduct.value.pdNm = (gubun === 'init') ? fieldData.value.pdNm : productInfo.value.pdNm;
   orderProduct.value.sellInflwChnlDtlCd = (gubun === 'init') ? fieldData.value.sellInflwChnlDtlCd : productInfo.value.sellInflwChnlDtlCd;
-  orderProduct.value.cntrAmt = (gubun === 'init') ? fieldData.value.cntrAmt : '0';
+  orderProduct.value.cntrAmt = (gubun === 'init') ? fieldData.value.cntrAmt || '0' : '0';
   orderProduct.value.fnlAmt = (gubun === 'init') ? fieldData.value.fnlAmt : '0';
   orderProduct.value.stplPtrm = (gubun === 'init') ? fieldData.value.stplPtrm : '';
   orderProduct.value.cntrPtrm = (gubun === 'init') ? fieldData.value.cntrPtrm : '';
@@ -1130,7 +1207,7 @@ async function onClickSave() {
   // console.log(istEnvRequest.value);
 
   if (!pageRef.value.isModified()) {
-    await alert('MSG_ALT_NO_CHG_CNTN'); // 변경된 내용이 없습니다.
+    await alert(t('MSG_ALT_NO_CHG_CNTN')); // 변경된 내용이 없습니다.
     return;
   }
 
@@ -1156,7 +1233,12 @@ async function onClickSave() {
     rentalPrice: rentalPrice.value,
   });
 
-  notify('저장되었습니다.');
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
+}
+
+// 조회 버튼 클릭
+async function onClickSearch() {
   await fetchData();
 }
 
