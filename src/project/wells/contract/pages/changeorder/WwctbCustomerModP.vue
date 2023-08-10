@@ -357,7 +357,7 @@ function onChangeAddrInput() {
     fieldParams.value.istCralLocaraTno = fieldParams.value.cntrCralLocaraTno;
     fieldParams.value.istMexnoEncr = fieldParams.value.cntrMexnoEncr;
     fieldParams.value.istCralIdvTno = fieldParams.value.cntrCralIdvTno;
-    fieldParams.value.adrId = fieldParams.value.cntrAdrId;
+    fieldParams.value.istAdrId = fieldParams.value.cntrAdrId;
     fieldParams.value.istAdrZip = fieldParams.value.cntrAdrZip;
     fieldParams.value.adrDvCd = fieldParams.value.cntrAdrDvCd;
     fieldParams.value.istRnadr = fieldParams.value.cntrCstRnadr;
