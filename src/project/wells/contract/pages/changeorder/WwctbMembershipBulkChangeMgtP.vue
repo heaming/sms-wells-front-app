@@ -31,6 +31,7 @@
             :options="codes.CNTR_CH_TP_CD.filter((v) => v.codeId === '801' || v.codeId === '802'
               || v.codeId === '803' || v.codeId === '804' || v.codeId === '805')"
             rules="required"
+            @change="onProcsDvChange"
           />
         </kw-form-item>
         <!-- 변경사유 -->
@@ -287,6 +288,12 @@ async function onClickSave() {
   await dataService.post('/sms/wells/contract/changeorder/membership-bulk-change', cachedParams);
   notify(t('MSG_ALT_SAVE_DATA'));
   ok();
+}
+
+// 처리구분 변경 이벤트
+async function onProcsDvChange() {
+  // 그리드 초기화
+  grdMembershipBulkChangeRgsList.value.getData().clearRows();
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
