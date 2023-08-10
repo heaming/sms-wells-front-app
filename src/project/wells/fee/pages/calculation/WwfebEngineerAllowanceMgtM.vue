@@ -783,42 +783,44 @@ const initEgerMain = defineGrid((data, view) => {
     const editRow = gridUtil.getRowValue(grid, itemIndex);
 
     let feeCd;
-    let feeAmt;
+    const perfVal = {};
+    let feeAmt = 0;
 
     // 테이블에 수당 코드별로 값이 들어가기 때문에
     // 수정된 그리드 한 row를 수당 코드별로 쪼개서 넣음
     if (columnName === 'feeW060023Cnt') {
-      data.setValue(itemIndex, 'feeW060023', editRow.feeW060023Cnt * 2000); // 토요근무수당
       feeCd = 'W060023';
-      feeAmt = editRow.feeW060023Cnt * 2000;
+      perfVal.W06R00018 = editRow.feeW060023Cnt; /* 토요근무건수 */
+      const response = await dataService.post(`/sms/common/fee/fee-calculation/screen-performance-input-fees/${searchParams.value.perfYm}-${feeCd}`, perfVal);
+      feeAmt = response.data;
     } else if (columnName === 'feeW060024Cnt') {
-      data.setValue(itemIndex, 'feeW060024', editRow.feeW060024Cnt * 20000); // 휴무당직수당
       feeCd = 'W060024';
-      feeAmt = editRow.feeW060024Cnt * 20000;
+      perfVal.W06R00019 = editRow.feeW060024Cnt; /* 휴무당직건수 */
+      const response = await dataService.post(`/sms/common/fee/fee-calculation/screen-performance-input-fees/${searchParams.value.perfYm}-${feeCd}`, perfVal);
+      feeAmt = response.data;
     } else if (columnName === 'feeW060025Cnt') {
-      data.setValue(itemIndex, 'feeW060025', editRow.feeW060025Cnt * 10000); // 강의수당
       feeCd = 'W060025';
       feeAmt = editRow.feeW060025Cnt * 10000;
     } else if (columnName === 'feeW060026Cnt') {
-      data.setValue(itemIndex, 'feeW060026', editRow.feeW060026Cnt * 10000); // 도서방문수당
       feeCd = 'W060026';
-      feeAmt = editRow.feeW060026Cnt * 10000;
+      perfVal.W06R00021 = editRow.feeW060026Cnt; /* 방문일수 */
+      const response = await dataService.post(`/sms/common/fee/fee-calculation/screen-performance-input-fees/${searchParams.value.perfYm}-${feeCd}`, perfVal);
+      feeAmt = response.data;
     } else if (columnName === 'feeW060019') {
-      data.setValue(itemIndex, 'feeW060019', Math.floor(editRow.feeW060019)); // 소수점 절사
       feeCd = 'W060019';
       feeAmt = Math.floor(editRow.feeW060019);
     } else if (columnName === 'feeW060020') {
-      data.setValue(itemIndex, 'feeW060020', Math.floor(editRow.feeW060020)); // 소수점 절사
       feeCd = 'W060020';
       feeAmt = Math.floor(editRow.feeW060020);
     } else if (columnName === 'feeW060021') {
-      data.setValue(itemIndex, 'feeW060021', Math.floor(editRow.feeW060021)); // 소수점 절사
       feeCd = 'W060021';
       feeAmt = Math.floor(editRow.feeW060021);
     } else if (columnName === 'feeW060022') {
-      data.setValue(itemIndex, 'feeW060022', Math.floor(editRow.feeW060022)); // 소수점 절사
       feeCd = 'W060022';
       feeAmt = Math.floor(editRow.feeW060022);
+    }
+    if (feeAmt > 0) {
+      data.setValue(itemIndex, columnName.substring(0, 10), feeAmt);
     }
     changedRows.push({
       perfYm: editRow.baseYm,
