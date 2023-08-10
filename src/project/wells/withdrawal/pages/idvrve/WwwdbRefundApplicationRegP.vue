@@ -177,7 +177,7 @@
           <span class="kw-fc--black3">{{ $t('MSG_TXT_COM_TOT') }}</span>
           <span class="ml4 text-weight-bold">
             <!-- xxx 원 -->
-            {{ totRfndAkAmt }} {{ $t('MSG_TXT_CUR_WON') }}
+            {{ stringUtil.getNumberWithComma(totRfndAkAmt) }} {{ $t('MSG_TXT_CUR_WON') }}
           </span>
         </p>
       </template>
@@ -245,7 +245,7 @@
           required
         >
           <kw-input
-            v-model="saveParams.cstNo"
+            v-model="saveParams.cstNm"
             rules="required"
             readonly
           />
@@ -285,7 +285,7 @@
           <span class="kw-fc--black3">{{ $t('MSG_TXT_COM_TOT') }}</span>
           <span class="ml4 text-weight-bold">
             <!-- #,### 원-->
-            {{ totBltfAkAmt }} {{ $t('MSG_TXT_CUR_WON') }}
+            {{ stringUtil.getNumberWithComma(totBltfAkAmt) }} {{ $t('MSG_TXT_CUR_WON') }}
           </span>
         </p>
       </template>
@@ -343,7 +343,7 @@
       <kw-btn
         primary
         :label="$t('MSG_BTN_TMP_SAVE')"
-        @click="onClicktempSave"
+        @click="onClickTempSave"
       />
       <!-- 신청 -->
       <kw-btn
@@ -360,7 +360,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal, useModal } from 'kw-lib';
+import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { cloneDeep, isEqual } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
@@ -397,7 +397,7 @@ const grdPopRef2 = ref(); // 그리드 2번 - 환불상세
 const grdPopRef3 = ref(); // 그디르 3번 - 전금상세
 const grdPopRef4 = ref();
 const { ok } = useModal();
-// const { getConfig } = useMeta();
+const { getConfig } = useMeta();
 const dataService = useDataService();
 const { notify } = useGlobal();
 // const fnitCdRes = await dataService.get('/sms/common/common/codes/finance-code/bureau-codes');
@@ -412,8 +412,8 @@ const pageInfo1 = ref({ // 계약상세 페이지1
 const pageInfo2 = ref({ // 환불상세 페이지
   totalCount: 0,
   pageIndex: 1,
-  pageSize: 5,
-  // pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  // pageSize: 5,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 // eslint-disable-next-line no-unused-vars
@@ -447,7 +447,7 @@ const saveParams = ref({
   arfndYn: 'Y', // 선환불
   bankCode: '', // 은행구분
   acnoEncr: '', // 계좌번호
-  cstNo: '', // 예금주명
+  cstNm: '', // 예금주명
 
 });
 
@@ -621,12 +621,6 @@ async function onClickExcel3() {
 /* TODO: 최초 Mounted시 환불접수총액 SET, */
 onMounted(async () => {
   isDisableCheck.value = true;
-  // searchParams.value.cntrStartDay = '';
-  // searchParams.value.cntrEndDay = '';
-  // searchParams.value.cntrNo = 'W20221937224';
-  // searchParams.value.cntrSn = 1;
-  // await onClickSearch();
-  /// // 임시데이터전용
 
   const data = [{
     totRfndCshAkAmt: 0,
@@ -692,9 +686,8 @@ async function onClickEftnCheck() {
     psicId: '',
     deptId: '',
   };
-  const data = dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData });
-  console.log(data.data);
-  saveParams.value.achldrNm = data.data.acFntImpsCdNm;
+  const acnoData = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData });
+  saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
 }
 
 /**
@@ -745,7 +738,7 @@ async function onClickRefundAsk(stateCode) {
   if (!await onValidRfndCheck()) {
     return false;
   }
-  if (saveParams.value.cstNo === '') {
+  if (saveParams.value.cstNm === '' || saveParams.value.cstNm.trim().length === 0) {
     notify(t('예금주가(이) 없습니다.'));
     return false;
   }
@@ -755,6 +748,7 @@ async function onClickRefundAsk(stateCode) {
     notify(t('동일한 전금계약번호가 존재합니다.'));
     return false;
   }
+
   const changedRows2 = gridUtil.getChangedRowValues(view2); // 환불상세 그리드 데이터
   const changedRows3 = gridUtil.getChangedRowValues(view3); // 전금상세 그리드 체크 데이터
   // eslint-disable-next-line no-unused-vars
@@ -773,7 +767,7 @@ async function onClickRefundAsk(stateCode) {
       arfndYn: saveParams.value.arfndYn,
       cshRfndFnitCd: saveParams.value.bankCode,
       cshRfndAcnoEncr: saveParams.value.acnoEncr,
-      cshRfndAcownNm: saveParams.value.cstNo,
+      cshRfndAcownNm: saveParams.value.cstNm,
       rfndCshAkSumAmt: changedRows4[0].totRfndCshAkAmt,
       rfndCardAkSumAmt: changedRows4[0].totRfndCardAkAmt,
       rfndBltfAkSumAmt: changedRows4[0].totRfndBltfAkAmt,
@@ -795,7 +789,7 @@ async function onClickRefundAsk(stateCode) {
 }
 
 // 하단 임시저장
-async function onClicktempSave() {
+async function onClickTempSave() {
   const tempStateCode = '00'; // 임시저장 코드
   await onClickRefundAsk(tempStateCode); // 요청데이터 저장
 }
@@ -819,6 +813,7 @@ async function insertMainData(cntrNo, cntrSn) {
   const rfndRes = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: dataParams });
   const { list: application, pageInfo: pagingResult } = rfndRes.data;
   pageInfo2.value = pagingResult;
+
   const view2 = grdPopRef2.value.getView();
   view2.getDataSource().addRows(application);
 }
@@ -921,7 +916,7 @@ async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt
     sellTpCd,
     rfndBltfAkAmt: Number(0),
     cstNo,
-    rfndEvidMtrFileNm: '파일찾기',
+    rfndEvidMtrFileNm: '파일찾기', // rfndEvidMtrFileId가 아니라 FileNm으로 사용시 필요
     rveNo,
     rveSn,
     rfndAkNo,
@@ -930,6 +925,21 @@ async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+/**
+  * 23.08.10
+  * TODO: 신청시에는 fetchData로 검색, 메인에서 팝업진입(수정)시에는 fetchData2로 검색
+  * 신청시
+     첫째grid(계약)에서 아이템 클릭 시에 서비스를 통해 해당 수납데이터를 둘째 그리드(환불) 보여줌
+     둘째grid(환불)에 전금행추가 선택시 셋째grid(전금)데이터를 추가. (임시저장/신청) 가능.
+  * 수정시
+    선택된 환불데이터를 둘째(환불), 셋째(전금)에 보여줌. 첫째(계약)은 환불/전금관련만 보여줄 내용이므로
+    ( 삭제버튼 활성화됨 )
+    '신청' 화면과 동일하나 삭제버튼 선택시 해당 환불정보 DEL_YN (Y처리)
+  * 승인/반려 시
+    메인 환불상세를 선택하여 P03 선택시 화면은 동일하나 현재 상태와 일자 관련 업데이트
+    - 반려시 수정가능, 승인시 수정불가능로 변경됨
+  */
+
 /* 계약상세 그리드 */
 const initGrid = defineGrid((data, view) => {
   const fields = [

@@ -270,7 +270,7 @@ async function onClickApplicationRefund() {
       //   //   bzrno: searchParams.value.bzrno // 사업자등록번호
     },
   });
-  await fetchData();
+  await onClickSearch();
 }
 
 async function onClickCntramRfnd() {
@@ -285,6 +285,17 @@ async function onClickTkRfnd() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+/**
+ * 23.08.10 kimoon.lim
+ * TODO: 검색시 환불상태, 접수번호 기준에 맞춰 정렬(번호에 맞게 그룹화되어있음)
+ * 환불상태는 총5개중 현재 4개 사용중 (임시저장, 접수, 승인, 반려) - 진행중상태값은 인수인계 때 빼라는요청으로 빼고 진행함 RFND_AK_STAT_CD:02
+ * 순서: 환불신청 -> 접수 -> 승인
+   상태 - 임시저장, 접수일 때, 환불상태 그리드 선택 -> P01
+        - 승인,반려일 때, 환불상태 그리드 선택 -> P03
+   ---------------------------------------------
+  조정필요 : 환불 상세시 '승인자'에 기준이 필요
+          + 그리드 엑셀 업로드 기능 확인 필요
+ */
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
@@ -468,7 +479,7 @@ const initGrid = defineGrid((data, view) => {
             rfndAkNo, // 환불요청번호
           },
         });
-        await fetchData();
+        await onClickSearch();
       }
       if (rfndAkStatCd === '03' || rfndAkStatCd === '04') { // 04.반려, 03.승인
         await modal({
@@ -483,7 +494,7 @@ const initGrid = defineGrid((data, view) => {
             rfndAkDtm, /* 신청일자 */
           },
         });
-        await fetchData();
+        await onClickSearch();
       }
     }
 
@@ -500,7 +511,7 @@ const initGrid = defineGrid((data, view) => {
           rfndAkDtm, /* 신청일자 */
         },
       });
-      await fetchData();
+      await onClickSearch();
     }
     // 첨부파일 다운로드
     if (column === 'rfndEvidMtrFileId') {
