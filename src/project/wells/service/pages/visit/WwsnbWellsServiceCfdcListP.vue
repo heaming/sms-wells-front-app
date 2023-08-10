@@ -194,7 +194,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, codeUtil, alert } from 'kw-lib';
+import { alert, codeUtil, useDataService, useMeta } from 'kw-lib';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 import dayjs from 'dayjs';
@@ -209,6 +209,10 @@ const props = defineProps({
   cntrSn: { type: [String, Number], required: true },
   prtnrKnm: { type: String, required: true },
   nm: { type: String, required: true },
+  emadr: { type: String, default: '' },
+  mpno1: { type: String, default: '' },
+  mpno2: { type: String, default: '' },
+  mpno3: { type: String, default: '' },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -236,16 +240,16 @@ const sendInfo = ref({
   etcSelect: '1',
   publishDate: '',
   callingNumber: '1588-4113', // 고정
-  receivingNumber: '',
+  receivingNumber: props.mpno,
   caller: 'wellsorder@kyowon.co.kr', // 고정
-  receiver: '',
+  receiver: props.emadr,
 });
 
 const telNos = ref({
   telNo0: '',
-  telNo1: '',
-  telNo2: '',
-  telNo3: '',
+  telNo1: props.mpno1,
+  telNo2: props.mpno2,
+  telNo3: props.mpno3,
 });
 
 const frmMainRef = ref();

@@ -21,19 +21,85 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_CST_CHO')">
+        <kw-search-item
+          :label="$t('MSG_TXT_CST_CHO')"
+        >
           <!--고객선택-->
           <kw-select
             v-model="searchParams.searchType"
             :options="searchTypes"
-            class="w147"
+            class="w120"
             @change="onChangeSearchType"
           />
-          <kw-input v-model="searchParams.searchParam1" />
-          <kw-input
-            v-show="searchParams.searchType === '7'"
-            v-model="searchParams.searchParam2"
+          <zctz-contract-detail-number
+            v-if="searchParams.searchType === '1'"
+            ref="contractNumberRef"
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
+            disable-popup
           />
+          <kw-input
+            v-if="searchParams.searchType === '2'"
+            v-model="searchParams.cstNo"
+            :label="$t('고객번호')"
+            :placeholder="$t('고객번호 입력')"
+            :maxlength="20"
+            rules="numeric"
+          />
+          <kw-input
+            v-if="searchParams.searchType === '3'"
+            v-model="searchParams.cstNm"
+            :label="$t('계약자명')"
+            :placeholder="$t('계약자명 입력')"
+            :maxlength="100"
+          />
+          <kw-input
+            v-if="searchParams.searchType === '4' || searchParams.searchType === '5'"
+            v-model="searchParams.pno"
+            v-model:tel-no0="searchParams.pno1"
+            v-model:tel-no1="searchParams.pno2"
+            v-model:tel-no2="searchParams.pno3"
+            :placeholder="$t('MSG_TXT_FORMAT_HP')"
+            :label="$t('MSG_TXT_MPNO')"
+            mask="telephone"
+            rules="telephone"
+          />
+          <kw-input
+            v-if="searchParams.searchType === '6'"
+            v-model="searchParams.bzrno"
+            :label="$t('사업자등록번호')"
+            :placeholder="$t('사업자등록번호 입력')"
+            :maxlength="20"
+            rules="numeric"
+          />
+          <kw-input
+            v-if="searchParams.searchType === '7'"
+            v-model="searchParams.sellPrtnrNo"
+            :label="$t('판매자사번')"
+            :placeholder="$t('판매자사번 입력')"
+            upper-case
+            :maxlength="10"
+            rules="alpha_num"
+          />
+          <template
+            v-if="searchParams.searchType === '8'"
+          >
+            <kw-input
+              v-model="searchParams.fromOgCd"
+              :label="$t('조직코드')"
+              upper-case
+              :maxlength="8"
+              rules="alpha_num"
+            />
+            <span>~</span>
+            <kw-input
+              v-model="searchParams.toOgCd"
+              :label="$t('조직코드')"
+              upper-case
+              :maxlength="8"
+              rules="alpha_num"
+            />
+          </template>
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_PRD')"
@@ -107,9 +173,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, codeUtil, gridUtil, alert, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { alert, codeUtil, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
 const now = dayjs();
@@ -129,10 +196,11 @@ const searchTypes = ref([
   { codeId: '1', codeName: '계약상세번호' }, // 계약상세번호
   { codeId: '2', codeName: '고객번호' }, // 고객번호
   { codeId: '3', codeName: '계약자명' }, // 계약자명
-  { codeId: '4', codeName: '계약자전화번호' }, // 계약자전화번호
-  { codeId: '5', codeName: '계약자사업자번호' }, // 계약자사업자번호
-  { codeId: '6', codeName: '판매자사번' }, // 판매자사번
-  { codeId: '7', codeName: '조직코드' }, // 조직코드
+  { codeId: '4', codeName: '계약자휴대전화번호' }, // 계약자휴대전화번호
+  { codeId: '5', codeName: '계약자전화번호' }, // 계약자전화번호
+  { codeId: '6', codeName: '계약자사업자등록번호' }, // 계약자사업자등록번호
+  { codeId: '7', codeName: '판매자사번' }, // 판매자사번
+  { codeId: '8', codeName: '조직코드' }, // 조직코드
 ]);
 
 const grdMainRef = ref();
@@ -142,10 +210,18 @@ const searchParams = ref({
   fromDate: now.subtract(30, 'day').format('YYYYMMDD'),
   toDate: now.format('YYYYMMDD'),
   searchType: '1',
-  searchParam1: '',
-  searchParam2: '',
-  searchParam3: '',
-  searchParam4: '',
+  cntrNo: '',
+  cntrSn: '',
+  cstNo: '',
+  cstNm: '',
+  pno: '',
+  pno1: '',
+  pno2: '',
+  pno3: '',
+  bzrno: '',
+  sellPrtnrNo: '',
+  fromOgCd: '',
+  toOgCd: '',
 });
 
 const pageInfo = ref({
@@ -155,37 +231,36 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('/sms/wells/service/wells-service-cfdc/paging', { params: { ...cachedParams, ...pageInfo.value } });
-
-  list.forEach((row) => {
-    if (row.cralLocaraTno && row.mexnoEncr && row.cralIdvTno) { row.mobileTno = `${row.cralLocaraTno}-${row.mexnoEncr}-${row.cralIdvTno}`; }
-    if (row.locaraTno && row.exnoEncr && row.idvTno) { row.homeTno = `${row.locaraTno}-${row.exnoEncr}-${row.idvTno}`; }
-  });
-
-  pageInfo.value = pageInfoObj;
-
+  const res = await dataService.get('/sms/wells/service/wells-service-cfdc/paging', { params: {
+    ...cachedParams,
+    ...pageInfo.value,
+  } });
+  const { list, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(list);
+  view.getDataSource().setRows(list.map((x) => ({ ...x, cstNm2: x.cstNm })));
   view.resetCurrent();
 }
 
 async function onClickSearch() {
-  if (searchParams.value.searchType === '4') {
-    const numbers = searchParams.value.searchParam1.split('-');
-    searchParams.value.searchParam2 = numbers.length > 0 ? numbers[0] : '';
-    searchParams.value.searchParam3 = numbers.length > 1 ? numbers[1] : '';
-    searchParams.value.searchParam4 = numbers.length > 2 ? numbers[2] : '';
-  }
-
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
 function onChangeSearchType() {
-  searchParams.value.searchParam2 = '';
-  searchParams.value.searchParam3 = '';
-  searchParams.value.searchParam4 = '';
+  searchParams.value.cntrNo = '';
+  searchParams.value.cntrSn = '';
+  searchParams.value.cstNo = '';
+  searchParams.value.cstNm = '';
+  searchParams.value.pno = '';
+  searchParams.value.pno1 = '';
+  searchParams.value.pno2 = '';
+  searchParams.value.pno3 = '';
+  searchParams.value.bzrno = '';
+  searchParams.value.sellPrtnrNo = '';
+  searchParams.value.fromOgCd = '';
+  searchParams.value.toOgCd = '';
 }
 
 async function onClickExcelDownload() {
@@ -202,14 +277,23 @@ async function onClickSendServiceCfdc() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length === 0) {
-    alert(t('MSG_ALT_NOT_SEL_ITEM'));
+    await alert(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
 
-  const { cntrNo, cntrSn, prtnrKnm, nm } = checkedRows[0];
+  const { cntrNo, cntrSn, psicPrtnrNm, cstNm2, cstMpno1, cstMpno2, cstMpno3, cstEmadr } = checkedRows[0];
   await modal({
     component: 'WwsnbWellsServiceCfdcListP',
-    componentProps: { cntrNo, cntrSn, prtnrKnm, nm },
+    componentProps: {
+      cntrNo,
+      cntrSn,
+      prtnrKnm: psicPrtnrNm,
+      nm: cstNm2,
+      emadr: cstEmadr,
+      mpno1: (isEmpty(cstMpno1) || isEmpty(cstMpno2) || isEmpty(cstMpno3)) ? '' : cstMpno1,
+      mpno2: (isEmpty(cstMpno1) || isEmpty(cstMpno2) || isEmpty(cstMpno3)) ? '' : cstMpno2,
+      mpno3: (isEmpty(cstMpno1) || isEmpty(cstMpno2) || isEmpty(cstMpno3)) ? '' : cstMpno3,
+    },
   });
 }
 
@@ -219,50 +303,112 @@ async function onClickSendServiceCfdc() {
 
 async function initGrdMain(data, view) {
   const fields = [
-    { fieldName: 'cntrCstNo' },
-    { fieldName: 'asnOjYm' },
+    { fieldName: 'cstSvAsnNo' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
-    { fieldName: 'cntr' },
+    { fieldName: 'sellPrtnrOgTpCd' },
     { fieldName: 'sellPrtnrNo' },
-    { fieldName: 'ogCd' },
-    { fieldName: 'svpdNmAbbr1' },
-    { fieldName: 'cntrKnm' },
-    { fieldName: 'cralLocaraTno' },
-    { fieldName: 'mexnoEncr' },
-    { fieldName: 'cralIdvTno' },
-    { fieldName: 'locaraTno' },
-    { fieldName: 'exnoEncr' },
-    { fieldName: 'idvTno' },
+    { fieldName: 'sellPrtnrNm' },
+    { fieldName: 'sellPrtnrOgCd' },
+    { fieldName: 'cstNo' },
+    { fieldName: 'cstNm' },
+    { fieldName: 'cstMpno1' },
+    { fieldName: 'cstMpno2' },
+    { fieldName: 'cstMpno3' },
+    { fieldName: 'cstPno1' },
+    { fieldName: 'cstPno2' },
+    { fieldName: 'cstPno3' },
+    { fieldName: 'cstEmadr' },
     { fieldName: 'bzrno' },
-    { fieldName: 'installKnm' },
-    { fieldName: 'adr' },
+    { fieldName: 'rcgvpNm' },
+    { fieldName: 'adrId' },
+    { fieldName: 'newAdrZip' },
+    { fieldName: 'rnadr' },
+    { fieldName: 'rdadr' },
     { fieldName: 'wkExcnDt' },
     { fieldName: 'clsfCdSrnPrntCn' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'baseYm' },
-    { fieldName: 'nm' },
-
-    { fieldName: 'mobileTno' }, // 휴대전화
-    { fieldName: 'homeTno' }, // 전화번호
+    { fieldName: 'psicPrtnrOgTpCd' },
+    { fieldName: 'psicPrtnrNo' },
+    { fieldName: 'psicPrtnrNm' },
+    { fieldName: 'pdCd' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'pdAbbrNm' },
+    { fieldName: 'cstNm2' },
   ];
 
   const columns = [
-    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center', editable: false }, // 고객번호
-    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center', editable: false }, // 계약상세번호
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center', editable: false }, // 고객번호
+    { fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '150',
+      styleName: 'text-center',
+      editable: false,
+      displayCallback(grid, index, value) {
+        const cntrNo = value;
+        const cntrSn = grid.getValue(index.itemIndex, 'cntrSn');
+        return `${cntrNo}-${cntrSn}`;
+      },
+    }, // 계약상세번호
     { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_SELLER_ID'), width: '100', styleName: 'text-center', editable: false }, // 판매자사번
-    { fieldName: 'ogCd', header: t('MSG_TXT_SELLER_BLG'), width: '100', styleName: 'text-center', editable: false }, // 판매자소속
-    { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-left', editable: false }, // 상품명
-    { fieldName: 'cntrKnm', header: t('MSG_TXT_CNTOR_NM'), width: '100', styleName: 'text-left', editable: false }, // 계약자명
-    { fieldName: 'mobileTno', header: t('MSG_TXT_CNTRT_CPHON_NO'), width: '150', styleName: 'text-center', editable: false }, // 계약자휴대전화번호
-    { fieldName: 'homeTno', header: t('MSG_TXT_CNTRT_TNO'), width: '150', styleName: 'text-center', editable: false }, // 계약자전화번호
+    { fieldName: 'sellPrtnrOgCd', header: t('MSG_TXT_SELLER_BLG'), width: '100', styleName: 'text-center', editable: false }, // 판매자소속
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-left', editable: false }, // 상품명
+    { fieldName: 'cstNm', header: t('MSG_TXT_CNTOR_NM'), width: '100', styleName: 'text-left', editable: false }, // 계약자명
+    { fieldName: 'cstMpno1',
+      header: t('MSG_TXT_CNTRT_CPHON_NO'),
+      width: '150',
+      styleName: 'text-center',
+      editable: false,
+      displayCallback(grid, index, value) {
+        const mpno1 = value;
+        const mpno2 = grid.getValue(index.itemIndex, 'cstMpno2');
+        const mpno3 = grid.getValue(index.itemIndex, 'cstMpno3');
+        const rtn = [];
+        if (!isEmpty(mpno1)) rtn.push(mpno1);
+        if (!isEmpty(mpno2) || !isEmpty(mpno3)) {
+          rtn.push(isEmpty(mpno2) ? 'XXXX' : mpno2);
+          rtn.push(isEmpty(mpno3) ? 'XXXX' : mpno3);
+        }
+        return rtn.join('-');
+      },
+    }, // 계약자휴대전화번호
+    { fieldName: 'cstPno1',
+      header: t('MSG_TXT_CNTRT_TNO'),
+      width: '150',
+      styleName: 'text-center',
+      editable: false,
+      displayCallback(grid, index, value) {
+        const pno1 = value;
+        const pno2 = grid.getValue(index.itemIndex, 'cstPno2');
+        const pno3 = grid.getValue(index.itemIndex, 'cstPno3');
+        const rtn = [];
+        if (!isEmpty(pno1)) rtn.push(pno1);
+        if (!isEmpty(pno2) || !isEmpty(pno3)) {
+          rtn.push(isEmpty(pno2) ? 'XXXX' : pno2);
+          rtn.push(isEmpty(pno3) ? 'XXXX' : pno3);
+        }
+        return rtn.join('-');
+      },
+    }, // 계약자전화번호
     { fieldName: 'bzrno', header: t('MSG_TXT_CNTRT_ENTRP_NO'), width: '120', styleName: 'text-center', editable: false }, // 계약자사업자번호
-    { fieldName: 'installKnm', header: t('MSG_TXT_IST_NM'), width: '100', styleName: 'text-left', editable: false }, // 설치자명
-    { fieldName: 'adr', header: t('MSG_TXT_ISTLC_ADDR'), width: '350', styleName: 'text-left', editable: false }, // 설치처 주소
-    { fieldName: 'wkExcnDt', header: t('MSG_TXT_MNGT_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false }, // 관리일자
+    { fieldName: 'rcgvpNm', header: t('MSG_TXT_IST_NM'), width: '100', styleName: 'text-left', editable: false }, // 설치자명
+    { fieldName: 'rnadr',
+      header: t('MSG_TXT_ISTLC_ADDR'),
+      width: '350',
+      styleName: 'text-left',
+      editable: false,
+      displayCallback(grid, index, value) {
+        const rnadr = value;
+        const rdadr = grid.getValue(index.itemIndex, 'rdadr');
+        const rtn = [];
+        if (!isEmpty(rnadr)) rtn.push(rnadr);
+        if (!isEmpty(rdadr)) rtn.push(rdadr);
+        return rtn.join(' ');
+      },
+    }, // 설치처 주소
+    { fieldName: 'wkExcnDt', header: t('MSG_TXT_MNGT_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 관리일자
     { fieldName: 'clsfCdSrnPrntCn', header: t('MSG_TXT_MNGT_IZ'), width: '200', styleName: 'text-left', editable: false }, // 관리내역
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PIC'), width: '70', styleName: 'text-left' }, // 담당자
-    { fieldName: 'nm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' }, // 성명
+    { fieldName: 'psicPrtnrNm', header: t('MSG_TXT_PIC'), width: '70', styleName: 'text-left' }, // 담당자
+    { fieldName: 'cstNm2', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' }, // 성명
   ];
 
   data.setFields(fields);
@@ -272,8 +418,6 @@ async function initGrdMain(data, view) {
   view.checkBar.exclusive = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
-
-  // await onClickSearch();
 }
 
 </script>
