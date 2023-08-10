@@ -14,7 +14,9 @@
 --->
 
 <template>
-  <kw-page>
+  <kw-page
+    ref="obsRef"
+  >
     <kw-search
       one-row
       @search="onClickSearch"
@@ -44,9 +46,7 @@
       </kw-search-row>
     </kw-search>
 
-    <kw-form
-      ref="pageRef"
-    >
+    <kw-form>
       <div class="result-area">
         <h3 class="text-bold kw-font-pt18">
           {{ $t('MSG_TXT_CNTR_INF') }} <!-- 계약정보 -->
@@ -840,7 +840,7 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const pageRef = ref(getComponentType('KwPage'));
+const obsRef = ref(getComponentType('KwPage'));
 
 const codes = await codeUtil.getMultiCodes(
   'USE_ELECT_TP_CD', // 사용전력유형코드. 110V(1), 220V(2)
@@ -984,6 +984,8 @@ const rentalDscTpCds = ref([]); // 렌탈할인유형목록
 const svPdCds = ref([]); // 서비스상품목록
 const evtCds = ref([]); // 행사코드목록
 
+const isLinked = ref(false);
+
 // 주문상품 정보 초기화
 async function initProduct(gubun) {
   orderProduct.value.copnDvCd = fieldData.value.copnDvCd; // 개인/법인구분
@@ -1066,11 +1068,15 @@ async function fetchData() {
   // 설치환경 및 요청사항 초기화
   await initIstEnvRequest();
 
-  pageRef.value.init();
+  if (!isLinked.value) {
+    searchParams.value = {};
+  }
+
+  obsRef.value.init();
 }
 
 // 모창에서 연결되어 넘어왔는지 여부
-const isLinked = ref(false);
+
 onMounted(async () => {
   if (props.cntrNo && props.cntrSn) {
     searchParams.value.cntrNo = props.cntrNo;
@@ -1206,7 +1212,7 @@ async function onClickSave() {
   // console.log(orderProduct.value);
   // console.log(istEnvRequest.value);
 
-  if (!pageRef.value.isModified()) {
+  if (!obsRef.value.isModified()) {
     await alert(t('MSG_ALT_NO_CHG_CNTN')); // 변경된 내용이 없습니다.
     return;
   }
