@@ -482,7 +482,7 @@ async function onClickDelete() {
       maxFeeDdtnOcDt: row.maxFeeDdtnOcDt,
     }));
     if (await confirm(t('MSG_ALT_DDTN_CAN'))) {
-      await dataService.delete('/sms/wells/competence/business/activity/deductionItemization', { data: checkedRows });
+      await dataService.delete('/sms/wells/competence/business/activity/deduction-itemization', { data: checkedRows });
       await onClickSearch();
     }
   }

@@ -42,7 +42,7 @@ async function fetchData() {
     ogTpCd: userInfo.ogTpCd,
   };
 
-  const res = await dataService.get('/sms/wells/competence/business/activity/deductionItemization', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/competence/business/activity/deduction-itemization', { params: cachedParams });
   const view = grdPopupRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
