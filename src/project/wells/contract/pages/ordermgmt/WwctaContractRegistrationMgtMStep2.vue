@@ -406,6 +406,20 @@
                       />
                     </div>
                   </template>
+                  <template
+                    v-else-if="isItem.sltrRglrSppExcdMchn(item)"
+                  >
+                    <div class="scoped-item__field-row mb10">
+                      <kw-select
+                        v-if="item.stplPtrms"
+                        v-model="item.stplPtrm"
+                        :options="item.stplPtrms"
+                        placeholder="약정기간"
+                        class="w170"
+                        @change="getPdAmts(item)"
+                      />
+                    </div>
+                  </template>
 
                   <template
                     v-if="item.opo?.opoYn"
