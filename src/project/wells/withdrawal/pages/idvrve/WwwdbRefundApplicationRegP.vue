@@ -738,7 +738,7 @@ async function onClickRefundAsk(stateCode) {
   if (!await onValidRfndCheck()) {
     return false;
   }
-  if (saveParams.value.cstNm === '') {
+  if (saveParams.value.cstNm === '' || saveParams.value.cstNm.trim().length === 0) {
     notify(t('예금주가(이) 없습니다.'));
     return false;
   }
