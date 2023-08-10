@@ -160,7 +160,7 @@ async function onClickSave() {
     if (isExistData(props.checkedRows)) {
       const data = ref(initialize(props.checkedRows));
       cachedParams = cloneDeep(data.value);
-      await dataService.post('/sms/wells/competence/business/activity/application-cencel', cachedParams);
+      await dataService.delete('/sms/wells/competence/business/activity/application', cachedParams);
       notify(t('MSG_ALT_SAVE_DATA'));
       ok();
     }

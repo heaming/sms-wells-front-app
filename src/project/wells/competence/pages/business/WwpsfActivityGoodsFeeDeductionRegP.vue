@@ -81,7 +81,7 @@ async function onClickSave() {
   cachedParams = cloneDeep(data.value);
 
   console.log('props.checkedRows', props.checkedRows);
-  await dataService.post('/sms/wells/competence/business/activity/deductionItemization', cachedParams);
+  await dataService.post('/sms/wells/competence/business/activity/deduction-itemization', cachedParams);
   notify(t('MSG_ALT_RGSTD'));
   ok();
 }
