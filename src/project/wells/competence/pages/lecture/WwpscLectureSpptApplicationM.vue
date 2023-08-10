@@ -113,7 +113,7 @@
         name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
-        :visible-rows="10"
+        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -192,7 +192,7 @@ const fetchLeturer = async () => {
   lecturerList.value = res.data;
 };
 const fetBuildingCode = async () => {
-  const res = await dataService.get('/sms/wells/competence/lecture-sppt-application/bldCode', { params: { ogTpCd: searchParams.value.lectrSpptOgTpCd, baseYm: searchParams.value.lectrYm } });
+  const res = await dataService.get('/sms/wells/competence/lecture-sppt-application/bld-code', { params: { ogTpCd: searchParams.value.lectrSpptOgTpCd, baseYm: searchParams.value.lectrYm } });
   bldCdList.value = res.data;
 };
 await fetchLeture();

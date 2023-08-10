@@ -106,7 +106,7 @@
         name="ogGrdMain"
         :page-size="ogPageInfo.pageSize"
         :total-count="ogPageInfo.totalCount"
-        :visible-rows="10"
+        :visible-rows="ogPageInfo.pageSize - 1"
         @init="initOgGrdMain"
       />
       <kw-pagination
@@ -144,7 +144,7 @@
         name="lectGrdMain"
         :page-size="lectPageInfo.pageSize"
         :total-count="lectPageInfo.totalCount"
-        :visible-rows="10"
+        :visible-rows="lectPageInfo.pageSize - 1"
         @init="initLectGrdMain"
       />
       <kw-pagination
@@ -212,7 +212,7 @@ const lectPageInfo = ref({
 
 const fetchData = async () => {
   if (searchParams.value.gubun === '1') {
-    const res = await dataService.get('/sms/wells/competence/lecture-sppt-application/pagingForOgType', { params: { ...cachedParams, ...ogPageInfo.value } });
+    const res = await dataService.get('/sms/wells/competence/lecture-sppt-application/og-type/paging', { params: { ...cachedParams, ...ogPageInfo.value } });
     const { list, pageInfo: pagingResult } = res.data;
     ogPageInfo.value = pagingResult;
     const view = ogGrdMainRef.value.getView();
@@ -251,7 +251,7 @@ const onClickSearch = async () => {
 const onClickExcelDownload = async () => {
   if (searchParams.value.gubun === '1') {
     const view = ogGrdMainRef.value.getView();
-    const response = await dataService.get('/sms/wells/competence/lecture-sppt-application/excel-download-ogType', { params: cachedParams });
+    const response = await dataService.get('/sms/wells/competence/lecture-sppt-application/og-type/excel-download', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
       timePostfix: true,
@@ -313,17 +313,17 @@ const initOgGrdMain = defineGrid((data, view) => {
   view.setColumnLayout([
     'dgr1LevlOgNm', 'dgr2LevlOgNm',
     {
-      header: '1순위', // colspan title
+      header: t('MSG_TXT_LECT_TCNT', ['1']), // colspan title
       direction: 'horizontal', // merge type
       items: ['lectrTCnt1BldNm', 'lectrTCnt1LectNm', 'lectrTCnt1LectrNm', 'lectrTCnt1LectrDt'],
     },
     {
-      header: '2순위', // colspan title
+      header: t('MSG_TXT_LECT_TCNT', ['2']), // colspan title
       direction: 'horizontal', // merge type
       items: ['lectrTCnt2BldNm', 'lectrTCnt2LectNm', 'lectrTCnt2LectrNm', 'lectrTCnt2LectrDt'],
     },
     {
-      header: '3순위', // colspan title
+      header: t('MSG_TXT_LECT_TCNT', ['3']), // colspan title
       direction: 'horizontal', // merge type
       items: ['lectrTCnt3BldNm', 'lectrTCnt3LectNm', 'lectrTCnt3LectrNm', 'lectrTCnt3LectrDt'],
     },
