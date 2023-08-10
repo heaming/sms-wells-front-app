@@ -224,7 +224,6 @@
           <kw-select
             v-model="saveParams.bankCode"
             :options="codes.BNK_CD"
-            @change="saveParams.cstNm=''"
           />
         </kw-form-item>
       </kw-form-row>
@@ -522,7 +521,6 @@ async function fetchData2() {
   };
   const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...propsData, ...pageInfo3.value } });
   const { list: app3, pageInfo: pagingResult3 } = res3.data;
-  console.log(app3);
   const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: { ...propsData, ...pageInfo2.value } });
   const { list: app2, pageInfo: pagingResult2 } = res2.data;
 
@@ -531,16 +529,13 @@ async function fetchData2() {
 
   // eslint-disable-next-line max-len
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund', { params: { ...propsData } });
-
   saveParams.value.arfndYn = res.data.arfndYn;
   saveParams.value.bankCode = res.data.cshRfndFnitCd;
   saveParams.value.acnoEncr = res.data.cshRfndAcnoEncr;
   saveParams.value.cstNm = res.data.cshRfndAcownNm;
-
   pageInfo3.value = pagingResult3;
   pageInfo2.value = pagingResult2;
   pageInfo1.value = pagingResult1;
-
   const view1 = grdPopRef1.value.getView();
   view1.checkBar.visible = false;
 
@@ -549,7 +544,6 @@ async function fetchData2() {
   view2.getDataSource().setRows(app2);
   const view3 = grdPopRef3.value.getView();
   view3.getDataSource().setRows(app3);
-
   // eslint-disable-next-line no-use-before-define
   await onCheckTotalData(); // 그리드4 (총액 자동계산)
   // eslint-disable-next-line no-use-before-define
@@ -659,14 +653,17 @@ async function onClickDelete() {
 
 async function onValidRfndCheck() {
   if (saveParams.value.bankCode === '') {
-    notify(t('환불정보:은행정보가 비어있습니다.'));
+    // 은행코드를 확인하십시오
+    notify(t('MSG_ALT_BNK_CD_CHECK'));
     return false;
   }
 
   if (saveParams.value.acnoEncr === '') {
-    notify(t('환불정보:계좌번호가 비어있습니다.'));
+    // 계좌번호를 확인하십시오！
+    notify(t('MSG_ALT_AC_NO_CHECK'));
     return false;
   }
+
   return true;
 }
 
@@ -695,7 +692,6 @@ async function onClickEftnCheck() {
     deptId: '',
   };
   const acnoData = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData });
-  console.log(acnoData.data);
   saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
 }
 
@@ -748,7 +744,7 @@ async function onClickRefundAsk(stateCode) {
     return false;
   }
   if (saveParams.value.cstNm === '' || saveParams.value.cstNm.trim().length === 0) {
-    notify(t('예금주가(이) 없습니다.'));
+    notify(t('MSG_ALT_AC_INF_ACHLDR_NM_ERR')); // 입력하신 계좌정보 및 예금주명을 다시 확인해 주세요.(예금주가 없음.)
     return false;
   }
 
@@ -757,17 +753,24 @@ async function onClickRefundAsk(stateCode) {
     notify(t('동일한 전금계약번호가 존재합니다.'));
     return false;
   }
+  if (pageInfo1.value.totalCount < 1) {
+    notify(t('MSG_TXT_NO_DATA_RM')); // 조회결과가 없습니다. (검색안했을경우 또는 검색결과없는경우);
+    return false;
+  }
 
   const changedRows2 = gridUtil.getChangedRowValues(view2); // 환불상세 그리드 데이터
   const changedRows3 = gridUtil.getChangedRowValues(view3); // 전금상세 그리드 체크 데이터
   // eslint-disable-next-line no-unused-vars
   const changedRows4 = gridUtil.getAllRowValues(view4); // 환불접수총액
+  if (changedRows4[0].totRfndEtAmt === 0) {
+    notify(t('MSG_TXT_NO_DATA_FOUND')); // 데이터가 없습니다. (환불요청내역이없을때(0원일시))
+    return false;
+  }
 
   const checkedRows1 = gridUtil.getCheckedRowValues(view1);
   checkedRows1.forEach((element) => {
     element.rfndAkNo = props.rfndAkNo;
   });
-  // console.log(changedRows2);
 
   const params = {
     saveBaseReq: {
@@ -790,7 +793,6 @@ async function onClickRefundAsk(stateCode) {
     saveDtlReqs: changedRows2, /* 환불요청상세 */
     saveBltfReqs: changedRows3, /* 환불요청전금상세  */
   };
-  console.log(params);
 
   await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/reg/save', params);
   notify(t('MSG_ALT_SAVE_DATA'));
