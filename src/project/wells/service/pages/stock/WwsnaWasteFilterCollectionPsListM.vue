@@ -191,7 +191,7 @@ async function fetchData() {
 
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
-    view.getDataSource().setRows(pdCds);
+    view.getDataSource().setRows(filters);
   }
 }
 
@@ -274,21 +274,21 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapMatCd',
       header: t('MSG_TXT_SAPCD'),
-      width: '150',
+      width: '160',
       styleName: 'text-center',
       mergeRule: {
         criteria: 'value',
       } },
     { fieldName: 'pdCd',
       header: t('MSG_TXT_ITM_CD'),
-      width: '150',
+      width: '160',
       styleName: 'text-center',
       mergeRule: {
         criteria: 'value',
       } },
     { fieldName: 'pdNm',
       header: t('MSG_TXT_ITM_NM'),
-      width: '350',
+      width: '300',
       styleName: 'text-left',
       mergeRule: {
         criteria: 'value',
@@ -298,7 +298,7 @@ const initGrdMain = defineGrid((data, view) => {
       ] },
     { fieldName: 'gubun',
       header: t('MSG_TXT_DIV'),
-      width: '150',
+      width: '140',
       styleName: 'text-center',
       footers: [
         { text: t('MSG_TXT_WK_FSH_CT'), styleName: 'text-center' },
