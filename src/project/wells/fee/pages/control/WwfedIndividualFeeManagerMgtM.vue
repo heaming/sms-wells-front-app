@@ -97,19 +97,19 @@
             :label="t('MSG_TXT_RGS')+t('MSG_TXT_BASE_MM')"
             align-content="center"
           >
-            <p>{{ stringUtil.getDateFormat(info1.rgsBaseMm) }}</p>
+            <p>{{ info1.rgsBaseMm ? stringUtil.getDateFormat(info1.rgsBaseMm) : '-' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_PRFMT_MON')"
             align-content="center"
           >
-            <p>{{ stringUtil.getDateFormat(info1.prfmtMon) }}</p>
+            <p>{{ info1.prfmtMon ? stringUtil.getDateFormat(info1.prfmtMon) : '-' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BIZ_CLTN_MON')"
             align-content="center"
           >
-            <p>{{ stringUtil.getDateFormat(info1.bizCltnMon) }}</p>
+            <p>{{ info1.bizCltnMon ? stringUtil.getDateFormat(info1.bizCltnMon) : '-' }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -205,13 +205,13 @@
       >
         <kw-form-row>
           <kw-form-item :label="t('MSG_TXT_INTBS_SUM')">
-            <p>{{ stringUtil.getNumberWithComma(info1.intbsSum) }}</p>
+            <p>{{ info1.intbsSum ? stringUtil.getDateFormat(info1.intbsSum) : '0' }}</p>
           </kw-form-item>
           <kw-form-item :label="t('MSG_TXT_DDTN_SUM')">
-            <p>{{ stringUtil.getNumberWithComma(info1.ddtnSum) }}</p>
+            <p>{{ info1.ddtnSum ? stringUtil.getDateFormat(info1.ddtnSum) : '0' }}</p>
           </kw-form-item>
           <kw-form-item :label="t('MSG_TXT_ACL_DSB_AMT')">
-            <p>{{ stringUtil.getNumberWithComma(info1.aclDsbAmt) }}</p>
+            <p>{{ info1.aclDsbAmt ? stringUtil.getDateFormat(info1.aclDsbAmt) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -229,6 +229,7 @@
           dense
           secondary
           :label="t('MSG_BTN_FEE_CTR')"
+          :disable="!isBtnClick"
           @click="openFeeControlPopup"
         />
       </kw-action-top>
@@ -250,6 +251,7 @@
           dense
           secondary
           :label="t('MSG_BTN_BU_DDTN')+t('MSG_BTN_CTR')"
+          :disable="!isBtnClick"
           @click="openZwfedFeeBurdenDeductionRegP"
         />
         <kw-separator
@@ -261,6 +263,7 @@
           dense
           secondary
           :label="t('MSG_BTN_PNPYAM')+t('MSG_BTN_CTR')"
+          :disable="!isBtnClick"
           @click="openZwfedFeePnpyamDeductionRegP"
         />
       </kw-action-top>
@@ -332,6 +335,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const isBtnClick = ref(false);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -427,6 +431,12 @@ async function fetchData(type) {
   totalCount.value = resData.length;
   if (type === 'entrepreneur') {
     info1.value = resData;
+    if (info1.value.emplNm !== undefined) {
+      isBtnClick.value = true;
+    } else {
+      isBtnClick.value = false;
+      searchParams.value.prtnrKnm = '';
+    }
   } else if (type === 'base-info') {
     const baseView = grd1MainRef.value.getView();
     baseView.getDataSource().setRows(resData);
@@ -447,11 +457,13 @@ async function fetchData(type) {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('entrepreneur');
-  await fetchData('base-info');
-  await fetchData('before-services');
-  await fetchData('fee');
-  await fetchData('deduction');
-  await fetchData('control');
+  if (isBtnClick.value === true) {
+    await fetchData('base-info');
+    await fetchData('before-services');
+    await fetchData('fee');
+    await fetchData('deduction');
+    await fetchData('control');
+  }
 }
 
 /*

@@ -149,6 +149,7 @@
           dense
           secondary
           :label="t('MSG_BTN_FEE_CTR')"
+          :disable="!isBtnClick"
           @click="openFeeControlPopup"
         />
       </kw-action-top>
@@ -168,6 +169,7 @@
           dense
           secondary
           :label="t('MSG_BTN_BU_DDTN')+t('MSG_BTN_CTR')"
+          :disable="!isBtnClick"
           @click="openZwfedFeeBurdenDeductionRegP"
         />
         <kw-separator
@@ -179,6 +181,7 @@
           dense
           secondary
           :label="t('MSG_BTN_PNPYAM')+t('MSG_BTN_CTR')"
+          :disable="!isBtnClick"
           @click="openZwfedFeePnpyamDeductionRegP"
         />
       </kw-action-top>
@@ -249,6 +252,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const isBtnClick = ref(false);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -333,6 +337,12 @@ async function fetchData(type) {
   totalCount.value = resData.length;
   if (type === 'entrepreneur') {
     info1.value = resData;
+    if (info1.value.emplNm !== undefined) {
+      isBtnClick.value = true;
+    } else {
+      isBtnClick.value = false;
+      searchParams.value.prtnrKnm = '';
+    }
   } else if (type === 'basic') {
     const basicView = grd1MainRef.value.getView();
     basicView.getDataSource().setRows(resData);
@@ -350,10 +360,12 @@ async function fetchData(type) {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('entrepreneur');
-  await fetchData('basic');
-  await fetchData('fee');
-  await fetchData('deduction');
-  await fetchData('control');
+  if (isBtnClick.value === true) {
+    await fetchData('basic');
+    await fetchData('fee');
+    await fetchData('deduction');
+    await fetchData('control');
+  }
 }
 
 /*
