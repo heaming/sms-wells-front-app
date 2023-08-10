@@ -984,9 +984,22 @@ async function onClickCrcdMpyChange() {
   }
 
   const params = {
-    copnDvCd: checkedList[0].copnDvCd,
-    cstNo: checkedList[0].cntrCstNo,
-    akChdt: now.format('YYYYMMDD'),
+    // 고객 정보
+    copnDvCd: checkedList[0].copnDvCd, // 법인격구분코드 ex) 1
+    cstNo: checkedList[0].cntrCstNo, // 고객번호
+    mobileNo: `${checkedList[0].cstTno1}${checkedList[0].cstTno2}${checkedList[0].cstTno3}`, // ex) 01012345678
+    userName: checkedList[0].cstKnm, // 고객명 ex) 서권호
+    birthDate: checkedList[0].bryyMmdd, // 생년월일 ex) 19600101
+    bzrno: checkedList[0].bzrno, // 사업자번호
+    gender: checkedList[0].sexDvCd, // 성별 ex) 1
+    // 고정
+    vstYn: 'Y', // 방문 여부
+    chRqrDvCd: '2', // 3자: 2
+    aftnThpChYn: 'Y', // 3자: Y
+    clctamMngtYn: 'N', // 집금자 여부
+    hsCtfYn: 'Y', // 본인인증 여부
+    akChdt: now.format('YYYYMMDD'), // 현재일자
+    cntractBulkModYn: 'Y',
   };
 
   const query = `/tablet/#/withdrawal/ztwda-auto-transfer-payment-change-req?${new URLSearchParams(params)}`;
@@ -1023,6 +1036,13 @@ const initCustomerGrid = defineGrid((data, view) => {
     { fieldName: 'cntrNo' }, // [계약번호]
     { fieldName: 'cntrSn' }, // [일련번호] 계약일련번호
     { fieldName: 'cstKnm' }, // [고객명] 고객한글명
+    { fieldName: 'cstKnmMask' }, // [고객명] 고객한글명(Masked)
+    { fieldName: 'cstTno1' }, // [고객] 휴대전화번호1
+    { fieldName: 'cstTno2' }, // [고객] 휴대전화번호2
+    { fieldName: 'cstTno3' }, // [고객] 휴대전화번호3
+    { fieldName: 'bryyMmdd' }, // [고객] 생년월일
+    { fieldName: 'sexDvCd' }, // [고객] 성별구분코드
+    { fieldName: 'bzrno' }, // [고객] 사업자번호
     { fieldName: 'cntrCnfmDtm' }, // [접수일자] 계약확정일시
     { fieldName: 'cntrCstNo' }, // [고객번호] 계약고객번호
     { fieldName: 'txinvPblOjYn' }, // [세금계산서] 세금계산서발행대상여부
@@ -1082,7 +1102,7 @@ const initCustomerGrid = defineGrid((data, view) => {
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 업무구분
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, // 계약번호
     { fieldName: 'cntrSn', header: t('MSG_TXT_SERIAL_NUMBER'), width: '78', styleName: 'text-center' }, // 일련번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'cstKnmMask', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일자
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '110', styleName: 'text-center' }, // 고객번호
     { fieldName: 'txinvPblOjYn',
