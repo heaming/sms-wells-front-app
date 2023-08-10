@@ -14,9 +14,12 @@
 --->
 
 <template>
-  <kw-popup size="xl">
+  <kw-popup
+    ref="frmMainRef"
+    size="xl"
+  >
+    <h3>{{ $t('MSG_TXT_CNTRT_INF') }}</h3>
     <kw-observer ref="obsMainRef">
-      <h3>{{ $t('MSG_TXT_CNTRT_INF') }}</h3>
       <kw-form :cols="2">
         <div v-if="props.copnDvCd === '1'">
           <kw-form-row>
@@ -126,9 +129,11 @@
           </kw-form-item>
         </kw-form-row>
       </kw-form>
-      <kw-separator />
-      <!-- 설치자 정보 -->
-      <h3>{{ $t('MSG_TXT_INSTR_INFO') }}</h3>
+    </kw-observer>
+    <kw-separator />
+    <!-- 설치자 정보 -->
+    <h3>{{ $t('MSG_TXT_INSTR_INFO') }}</h3>
+    <kw-observer ref="obsSubRef">
       <kw-form :cols="2">
         <kw-form-row>
           <!-- 설치자 -->
@@ -225,7 +230,9 @@ const { cancel, ok } = useModal();
 const { notify, confirm, alert } = useGlobal();
 const dataService = useDataService();
 
+const frmMainRef = ref();
 const obsMainRef = ref(getComponentType('KwObserver'));
+const obsSubRef = ref(getComponentType('KwObserver'));
 
 const props = defineProps({
   cntrNo: {
@@ -299,17 +306,27 @@ async function fetchData() {
     cancel();
     return;
   }
+  frmMainRef.value.init();
   obsMainRef.value.init();
+  obsSubRef.value.init();
+
   fieldParams.value.check = false;
 }
 
 async function onClickSave() {
-  if (await obsMainRef.value.alertIfIsNotModified()) { return; }
-  if (!await obsMainRef.value.validate()) { return; }
-
-  if (!isEmpty(props.cttRsCd)) {
-    alert(t('MSG_ALT_INST_ADDR_CHG_BEFORE_CTT'));
-    return;
+  if (!hasIstDt.value) { // 설치일자 미존재시
+    if (await frmMainRef.value.alertIfIsNotModified()) { return; }
+    if (await obsSubRef.value.validate()) { // 설치자 정보 필수입력 확인여부
+      if (await obsSubRef.value.isModified() && !isEmpty(props.cttRsCd)) { // 설치자 정보 수정 && 컨택결과코드 존재 여부
+        alert(t('MSG_ALT_INST_ADDR_CHG_BEFORE_CTT'));
+        return;
+      }
+    } else {
+      return;
+    }
+  } else {
+    if (await obsMainRef.value.alertIfIsNotModified()) { return; } // 계약자 정보 체크
+    if (!await obsMainRef.value.validate()) { return; }
   }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
