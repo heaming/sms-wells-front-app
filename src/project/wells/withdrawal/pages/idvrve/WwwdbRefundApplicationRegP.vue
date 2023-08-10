@@ -75,6 +75,7 @@
         <!-- 계약상세번호 -->
         <kw-form-item
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
+          :hint="$t('MSG_TXT_SEARCHABLE_2IN1')"
         >
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
@@ -518,15 +519,22 @@ async function fetchData2() {
     cntrNo: props.cntrNo,
     cntrSn: props.cntrSn,
   };
-  console.log(props.rfndAkNo);
   const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...propsData, ...pageInfo3.value } });
   const { list: app3, pageInfo: pagingResult3 } = res3.data;
-
+  console.log(app3);
   const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: { ...propsData, ...pageInfo2.value } });
   const { list: app2, pageInfo: pagingResult2 } = res2.data;
 
   const res1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: { ...propsData, ...pageInfo1.value } });
   const { list: app1, pageInfo: pagingResult1 } = res1.data;
+
+  // eslint-disable-next-line max-len
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund', { params: { ...propsData } });
+
+  saveParams.value.arfndYn = res.data.arfndYn;
+  saveParams.value.bankCode = res.data.cshRfndFnitCd;
+  saveParams.value.acnoEncr = res.data.cshRfndAcnoEncr;
+  saveParams.value.cstNm = res.data.cshRfndAcownNm;
 
   pageInfo3.value = pagingResult3;
   pageInfo2.value = pagingResult2;
@@ -634,7 +642,6 @@ onMounted(async () => {
   if (props.rfndAkNo) {
     isDisableCheck.value = false;
     rgstStatCd = true;
-
     await fetchData2();
   }
 });
@@ -687,6 +694,7 @@ async function onClickEftnCheck() {
     deptId: '',
   };
   const acnoData = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData });
+  console.log(acnoData.data);
   saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
 }
 

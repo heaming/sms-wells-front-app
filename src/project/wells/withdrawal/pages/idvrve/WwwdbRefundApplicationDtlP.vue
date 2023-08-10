@@ -164,7 +164,6 @@
           <kw-input
             v-model="saveParams.acnoEncr"
             regex="num"
-            mask="################"
           />
           <!-- 호출되는 값이 16자 초과하면안되게 되어있음.-->
         </kw-form-item>
@@ -483,6 +482,18 @@ async function fetchData() {
   const res1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: { ...cachedParams, ...pageInfo1.value } });
   const { list: app1, pageInfo: pagingResult1 } = res1.data;
 
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund', { params: { ...cachedParams } });
+  console.log(res);
+  saveParams.value.arfndYn = res.data.arfndYn;
+  saveParams.value.acnoEncr = res.data.cshRfndAcnoEncr;
+  saveParams.value.bankCode = res.data.cshRfndFnitCd;
+  saveParams.value.cstNm = res.data.cshRfndAcownNm;
+  saveParams.value.rveDt = res.data.rfndRveDt;
+  saveParams.value.perfDt = res.data.rfndPerfDt;
+  saveParams.value.dsbDt = res.data.rfndDsbDt;
+  saveParams.value.procsDv = res.data.rfndProcsDvCd;
+  saveParams.value.procsCn = res.data.rfndProcsCn;
+
   pageInfo3.value = pagingResult3;
   pageInfo2.value = pagingResult2;
   pageInfo1.value = pagingResult1;
@@ -637,22 +648,21 @@ async function onClickRefundAsk(stateCode) {
       rfndCardAkSumAmt: changedRows4[0].rfndCardAkAmt,
       rfndBltfAkSumAmt: changedRows4[0].totRfndBltfAkAmt,
       crdcdFeeSumAmt: changedRows4[0].totCrdcdFeeAmt,
-      rfndAkStatCd: stateCode, // 일단은 임시저장
+      rfndAkStatCd: stateCode,
       rfndAkPrtnrNo: '',
       //  rfndProcsDvCd,
       /* 환불요청기본 추가 될 테이블  */
       rveDt: saveParams.value.rveDt,
       perfDt: saveParams.value.perfDt,
       dsbDt: saveParams.value.dsbDt,
-      procsDv: saveParams.value.procsDv,
-      procsCn: saveParams.value.procsCn,
+      rfndProcsDvCd: saveParams.value.procsDv,
+      rfndProcsCn: saveParams.value.procsCn,
 
     },
     saveCntrReqs: checkedRows1,
     saveDtlReqs: changedRows2,
     saveBltfReqs: changedRows3,
   };
-  debugger;
   await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/reg/save', params);
   notify(t('MSG_ALT_SAVE_DATA'));
   ok();
