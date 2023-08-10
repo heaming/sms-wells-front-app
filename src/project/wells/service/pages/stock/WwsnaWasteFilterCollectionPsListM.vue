@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaWasteFilterCollectionPsListM(W-SV-U-0257M01) - 매각자재관리현황
+ 2. 프로그램 ID : WwsnaWasteFilterCollectionPsListM(W-SV-U-0257M01) - 폐필터 회수 현황
  3. 작성자 : SaeRomI.Kim
  4. 작성일 : 2023.08.10
  ****************************************************************************************************
@@ -301,7 +301,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-center',
       footers: [
-        { text: t('MSG_TXT_WK_FSH_CTM'), styleName: 'text-center' },
+        { text: t('MSG_TXT_WK_FSH_CT'), styleName: 'text-center' },
         { text: t('MSG_TXT_GB_FSH_CT'), styleName: 'text-center' },
         { text: t('MSG_TXT_NOT_GB_CT'), styleName: 'text-center' },
       ],
@@ -314,7 +314,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d01Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d01Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -336,7 +336,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d02Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d02Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -357,7 +357,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d03Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d03Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -378,7 +378,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d04Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d04Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -399,7 +399,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d05Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d05Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -420,7 +420,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d06Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d06Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -441,7 +441,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d07Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d07Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -462,7 +462,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d08Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d08Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -483,7 +483,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d09Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d09Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -504,7 +504,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d10Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d10Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -525,7 +525,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d11Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d11Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -546,7 +546,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d12Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d12Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -567,7 +567,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d13Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d13Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -588,7 +588,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d14Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d14Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -609,7 +609,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d15Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d15Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -630,7 +630,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d16Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d16Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -651,7 +651,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d17Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d17Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -672,7 +672,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d18Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d18Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -693,7 +693,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d19Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d19Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -714,7 +714,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d20Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d20Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -735,7 +735,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d21Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d21Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -756,7 +756,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d22Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d22Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -777,7 +777,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d23Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d23Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -798,7 +798,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d24Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d24Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -819,7 +819,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d25Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d25Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -840,7 +840,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d26Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d26Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -861,7 +861,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d27Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d27Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -882,7 +882,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d28Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d28Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -903,7 +903,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d29Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d29Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -924,7 +924,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d30Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d30Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -945,7 +945,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d31Qty', 'WK_FSH_CTM');
+            return getQtyFooter('d31Qty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
@@ -966,7 +966,7 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('totQty', 'WK_FSH_CTM');
+            return getQtyFooter('totQty', 'WK_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
