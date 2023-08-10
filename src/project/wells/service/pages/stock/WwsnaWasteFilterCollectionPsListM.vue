@@ -3,21 +3,18 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaDisposalMaterialsPsListM(W-SV-U-0257M01) - 매각자재관리현황
+ 2. 프로그램 ID : WwsnaWasteFilterCollectionPsListM(W-SV-U-0257M01) - 매각자재관리현황
  3. 작성자 : SaeRomI.Kim
- 4. 작성일 : 2023.07.18
+ 4. 작성일 : 2023.08.10
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 관리자가 서비스작업출고를 통해 자재를 매각한 현황을 일별로 조회하는 화면 (http://localhost:3000/#/service/wwsna-disposal-materials-ps-list)
+ - 월별 창고별 폐필터 회수현황을 조회하는 화면 (http://localhost:3000/#/service/wwsna-waste-filter-collection-ps-list)
  ****************************************************************************************************
 --->
 <template>
   <kw-page>
-    <kw-search
-      one-row
-      @search="onClickSearch"
-    >
+    <kw-search @search="onClickSearch">
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
@@ -28,22 +25,39 @@
             type="month"
             rules="required"
             :label="$t('MSG_TXT_BASE_YM')"
-            @change="getWareHouses"
+            @change="onChangeBaseYm"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
+        <kw-search-item
+          :label="$t('MSG_TXT_SV_CNR')"
+        >
+          <kw-select
+            v-model="searchParams.hgrWareNo"
+            :options="optionsHgrWareNo"
+            first-option="all"
+            option-value="wareNo"
+            option-label="wareNm"
+            @change="onChangeHgrWareHouse"
+          />
           <kw-select
             v-model="searchParams.wareNo"
             :options="optionsWareNo"
+            first-option="all"
             option-value="wareNo"
             option-label="wareNm"
-            :label="$t('MSG_TXT_SV_CNR')"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_TASK_TYPE')"
+        >
+          <kw-select
+            v-model="searchParams.svBizHclsfCd"
+            :options="filterCodes.svBizHclsfCd"
             first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
-
     <div class="result-area">
       <kw-action-top>
         <template #left>
@@ -51,6 +65,7 @@
             :total-count="totalCount"
           />
         </template>
+
         <kw-btn
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
           :disable="totalCount === 0"
@@ -69,13 +84,14 @@
     </div>
   </kw-page>
 </template>
+
 <script setup>
 
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -93,39 +109,89 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
+  wareDvCd: '2',
+  hgrWareNo: '',
   wareNo: '',
+  svBizHclsfCd: '',
 });
 
+const codes = await codeUtil.getMultiCodes(
+  'SV_BIZ_HCLSF_CD',
+);
+
+const filterCodes = ref({
+  svBizHclsfCd: [],
+});
+
+function codeFilter() {
+  filterCodes.value.svBizHclsfCd = codes.SV_BIZ_HCLSF_CD.filter((v) => ['1', '2', '3'].includes(v.codeId));
+}
+
+// 창고 조회
+const optionsHgrWareNo = ref();
 const optionsWareNo = ref();
 
-// 창고조회
-const getWareHouses = async () => {
+const onChangeBaseYm = async () => {
+  searchParams.value.hgrWareNo = '';
   searchParams.value.wareNo = '';
-  const { baseYm } = searchParams.value;
+  const { baseYm, wareDvCd } = searchParams.value;
+
   if (isEmpty(baseYm)) {
+    optionsHgrWareNo.value = [];
     optionsWareNo.value = [];
     return;
   }
 
-  const result = await dataService.get('/sms/wells/service/disposal-materials-state/ware-houses', { params: { baseYm } });
+  const result = await dataService.get(
+    '/sms/wells/common/sms-wells-codes/ware-houses',
+    { params: {
+      startYm: baseYm,
+      endYm: baseYm,
+      wareDvCd,
+    } },
+  );
+
+  optionsHgrWareNo.value = result.data;
+};
+
+const onChangeHgrWareHouse = async () => {
+  searchParams.value.wareNo = '';
+  const { baseYm, wareDvCd, hgrWareNo } = searchParams.value;
+
+  if (isEmpty(baseYm) || isEmpty(hgrWareNo)) {
+    optionsWareNo.value = [];
+    return;
+  }
+
+  const result = await dataService.get(
+    '/sms/wells/common/sms-wells-codes/ware-houses',
+    { params: {
+      startYm: baseYm,
+      endYm: baseYm,
+      wareDvCd,
+      hgrWareNo,
+    } },
+  );
+
   optionsWareNo.value = result.data;
 };
 
 await Promise.all([
-  getWareHouses(),
+  codeFilter(),
+  onChangeBaseYm(),
 ]);
 
 const totalCount = ref(0);
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/disposal-materials-state', { params: { ...cachedParams } });
-  const dpMats = res.data;
-  const wareNos = dpMats.map((v) => v.wareNo);
-  totalCount.value = wareNos.filter((v, i) => wareNos.indexOf(v) === i).length;
+  const res = await dataService.get('/sms/wells/service/waste-filter-collections-state', { params: { ...cachedParams } });
+  const filters = res.data;
+  const pdCds = filters.map((v) => v.pdCd);
+  totalCount.value = pdCds.filter((v, i) => pdCds.indexOf(v) === i).length;
 
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
-    view.getDataSource().setRows(dpMats);
+    view.getDataSource().setRows(pdCds);
   }
 }
 
@@ -137,7 +203,7 @@ async function onClickSearch() {
 // 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/disposal-materials-state', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/waste-filter-collections-state', { params: { ...cachedParams } });
 
   gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -166,8 +232,9 @@ function getQtyFooter(column, gubunCd) {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'wareNm' },
-    { fieldName: 'wareNo' },
+    { fieldName: 'sapMatCd' },
+    { fieldName: 'pdCd' },
+    { fieldName: 'pdNm' },
     { fieldName: 'gubun' },
     { fieldName: 'gubunCd' },
     { fieldName: 'd01Qty', dataType: 'number' },
@@ -205,10 +272,24 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'wareNm',
-      header: t('MSG_TXT_SV_CNR'),
-      width: '100',
+    { fieldName: 'sapMatCd',
+      header: t('MSG_TXT_SAPCD'),
+      width: '150',
       styleName: 'text-center',
+      mergeRule: {
+        criteria: 'value',
+      } },
+    { fieldName: 'pdCd',
+      header: t('MSG_TXT_ITM_CD'),
+      width: '150',
+      styleName: 'text-center',
+      mergeRule: {
+        criteria: 'value',
+      } },
+    { fieldName: 'pdNm',
+      header: t('MSG_TXT_ITM_NM'),
+      width: '350',
+      styleName: 'text-left',
       mergeRule: {
         criteria: 'value',
       },
@@ -217,13 +298,12 @@ const initGrdMain = defineGrid((data, view) => {
       ] },
     { fieldName: 'gubun',
       header: t('MSG_TXT_DIV'),
-      width: '100',
+      width: '150',
       styleName: 'text-center',
       footers: [
-        { text: t('MSG_TXT_KIT'), styleName: 'text-center' },
-        { text: t('MSG_TXT_WTHOL_VLV'), styleName: 'text-center' },
-        { text: t('MSG_TXT_WATER_COND_MAT'), styleName: 'text-center' },
-        { text: t('MSG_TXT_SBSUM'), styleName: 'text-center' },
+        { text: t('MSG_TXT_WK_FSH_CTM'), styleName: 'text-center' },
+        { text: t('MSG_TXT_GB_FSH_CT'), styleName: 'text-center' },
+        { text: t('MSG_TXT_NOT_GB_CT'), styleName: 'text-center' },
       ],
     },
     { fieldName: 'd01Qty',
@@ -234,22 +314,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d01Qty', 'KIT');
+            return getQtyFooter('d01Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d01Qty', 'WTHOL_VLV');
+            return getQtyFooter('d01Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d01Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d01Qty', 'SBSUM');
+            return getQtyFooter('d01Qty', 'NOT_GB_CT');
           } },
       ],
     },
@@ -261,22 +336,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d02Qty', 'KIT');
+            return getQtyFooter('d02Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d02Qty', 'WTHOL_VLV');
+            return getQtyFooter('d02Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d02Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d02Qty', 'SBSUM');
+            return getQtyFooter('d02Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd03Qty',
@@ -287,22 +357,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d03Qty', 'KIT');
+            return getQtyFooter('d03Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d03Qty', 'WTHOL_VLV');
+            return getQtyFooter('d03Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d03Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d03Qty', 'SBSUM');
+            return getQtyFooter('d03Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd04Qty',
@@ -313,22 +378,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d04Qty', 'KIT');
+            return getQtyFooter('d04Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d04Qty', 'WTHOL_VLV');
+            return getQtyFooter('d04Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d04Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d04Qty', 'SBSUM');
+            return getQtyFooter('d04Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd05Qty',
@@ -339,22 +399,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d05Qty', 'KIT');
+            return getQtyFooter('d05Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d05Qty', 'WTHOL_VLV');
+            return getQtyFooter('d05Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d05Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d05Qty', 'SBSUM');
+            return getQtyFooter('d05Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd06Qty',
@@ -365,22 +420,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d06Qty', 'KIT');
+            return getQtyFooter('d06Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d06Qty', 'WTHOL_VLV');
+            return getQtyFooter('d06Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d06Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d06Qty', 'SBSUM');
+            return getQtyFooter('d06Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd07Qty',
@@ -391,22 +441,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d07Qty', 'KIT');
+            return getQtyFooter('d07Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d07Qty', 'WTHOL_VLV');
+            return getQtyFooter('d07Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d07Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d07Qty', 'SBSUM');
+            return getQtyFooter('d07Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd08Qty',
@@ -417,22 +462,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d08Qty', 'KIT');
+            return getQtyFooter('d08Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d08Qty', 'WTHOL_VLV');
+            return getQtyFooter('d08Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d08Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d08Qty', 'SBSUM');
+            return getQtyFooter('d08Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd09Qty',
@@ -443,22 +483,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d09Qty', 'KIT');
+            return getQtyFooter('d09Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d09Qty', 'WTHOL_VLV');
+            return getQtyFooter('d09Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d09Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d09Qty', 'SBSUM');
+            return getQtyFooter('d09Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd10Qty',
@@ -469,22 +504,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d10Qty', 'KIT');
+            return getQtyFooter('d10Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d10Qty', 'WTHOL_VLV');
+            return getQtyFooter('d10Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d10Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d10Qty', 'SBSUM');
+            return getQtyFooter('d10Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd11Qty',
@@ -495,22 +525,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d11Qty', 'KIT');
+            return getQtyFooter('d11Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d11Qty', 'WTHOL_VLV');
+            return getQtyFooter('d11Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d11Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d11Qty', 'SBSUM');
+            return getQtyFooter('d11Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd12Qty',
@@ -521,22 +546,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d12Qty', 'KIT');
+            return getQtyFooter('d12Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d12Qty', 'WTHOL_VLV');
+            return getQtyFooter('d12Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d12Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d12Qty', 'SBSUM');
+            return getQtyFooter('d12Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd13Qty',
@@ -547,22 +567,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d13Qty', 'KIT');
+            return getQtyFooter('d13Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d13Qty', 'WTHOL_VLV');
+            return getQtyFooter('d13Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d13Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d13Qty', 'SBSUM');
+            return getQtyFooter('d13Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd14Qty',
@@ -573,22 +588,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d14Qty', 'KIT');
+            return getQtyFooter('d14Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d14Qty', 'WTHOL_VLV');
+            return getQtyFooter('d14Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d14Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d14Qty', 'SBSUM');
+            return getQtyFooter('d14Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd15Qty',
@@ -599,22 +609,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d15Qty', 'KIT');
+            return getQtyFooter('d15Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d15Qty', 'WTHOL_VLV');
+            return getQtyFooter('d15Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d15Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d15Qty', 'SBSUM');
+            return getQtyFooter('d15Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd16Qty',
@@ -625,22 +630,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d16Qty', 'KIT');
+            return getQtyFooter('d16Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d16Qty', 'WTHOL_VLV');
+            return getQtyFooter('d16Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d16Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d16Qty', 'SBSUM');
+            return getQtyFooter('d16Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd17Qty',
@@ -651,22 +651,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d17Qty', 'KIT');
+            return getQtyFooter('d17Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d17Qty', 'WTHOL_VLV');
+            return getQtyFooter('d17Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d17Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d17Qty', 'SBSUM');
+            return getQtyFooter('d17Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd18Qty',
@@ -677,22 +672,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d18Qty', 'KIT');
+            return getQtyFooter('d18Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d18Qty', 'WTHOL_VLV');
+            return getQtyFooter('d18Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d18Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d18Qty', 'SBSUM');
+            return getQtyFooter('d18Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd19Qty',
@@ -703,22 +693,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d19Qty', 'KIT');
+            return getQtyFooter('d19Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d19Qty', 'WTHOL_VLV');
+            return getQtyFooter('d19Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d19Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d19Qty', 'SBSUM');
+            return getQtyFooter('d19Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd20Qty',
@@ -729,22 +714,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d20Qty', 'KIT');
+            return getQtyFooter('d20Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d20Qty', 'WTHOL_VLV');
+            return getQtyFooter('d20Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d20Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d20Qty', 'SBSUM');
+            return getQtyFooter('d20Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd21Qty',
@@ -755,22 +735,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d21Qty', 'KIT');
+            return getQtyFooter('d21Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d21Qty', 'WTHOL_VLV');
+            return getQtyFooter('d21Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d21Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d21Qty', 'SBSUM');
+            return getQtyFooter('d21Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd22Qty',
@@ -781,22 +756,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d22Qty', 'KIT');
+            return getQtyFooter('d22Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d22Qty', 'WTHOL_VLV');
+            return getQtyFooter('d22Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d22Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d22Qty', 'SBSUM');
+            return getQtyFooter('d22Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd23Qty',
@@ -807,22 +777,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d23Qty', 'KIT');
+            return getQtyFooter('d23Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d23Qty', 'WTHOL_VLV');
+            return getQtyFooter('d23Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d23Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d23Qty', 'SBSUM');
+            return getQtyFooter('d23Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd24Qty',
@@ -833,22 +798,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d24Qty', 'KIT');
+            return getQtyFooter('d24Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d24Qty', 'WTHOL_VLV');
+            return getQtyFooter('d24Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d24Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d24Qty', 'SBSUM');
+            return getQtyFooter('d24Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd25Qty',
@@ -859,22 +819,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d25Qty', 'KIT');
+            return getQtyFooter('d25Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d25Qty', 'WTHOL_VLV');
+            return getQtyFooter('d25Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d25Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d25Qty', 'SBSUM');
+            return getQtyFooter('d25Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd26Qty',
@@ -885,22 +840,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d26Qty', 'KIT');
+            return getQtyFooter('d26Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d26Qty', 'WTHOL_VLV');
+            return getQtyFooter('d26Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d26Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d26Qty', 'SBSUM');
+            return getQtyFooter('d26Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd27Qty',
@@ -911,22 +861,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d27Qty', 'KIT');
+            return getQtyFooter('d27Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d27Qty', 'WTHOL_VLV');
+            return getQtyFooter('d27Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d27Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d27Qty', 'SBSUM');
+            return getQtyFooter('d27Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd28Qty',
@@ -937,22 +882,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d28Qty', 'KIT');
+            return getQtyFooter('d28Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d28Qty', 'WTHOL_VLV');
+            return getQtyFooter('d28Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d28Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d28Qty', 'SBSUM');
+            return getQtyFooter('d28Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd29Qty',
@@ -963,22 +903,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d29Qty', 'KIT');
+            return getQtyFooter('d29Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d29Qty', 'WTHOL_VLV');
+            return getQtyFooter('d29Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d29Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d29Qty', 'SBSUM');
+            return getQtyFooter('d29Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd30Qty',
@@ -989,22 +924,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d30Qty', 'KIT');
+            return getQtyFooter('d30Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d30Qty', 'WTHOL_VLV');
+            return getQtyFooter('d30Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d30Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d30Qty', 'SBSUM');
+            return getQtyFooter('d30Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'd31Qty',
@@ -1015,22 +945,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d31Qty', 'KIT');
+            return getQtyFooter('d31Qty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d31Qty', 'WTHOL_VLV');
+            return getQtyFooter('d31Qty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('d31Qty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('d31Qty', 'SBSUM');
+            return getQtyFooter('d31Qty', 'NOT_GB_CT');
           } },
       ] },
     { fieldName: 'totQty',
@@ -1041,22 +966,17 @@ const initGrdMain = defineGrid((data, view) => {
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('totQty', 'KIT');
+            return getQtyFooter('totQty', 'WK_FSH_CTM');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('totQty', 'WTHOL_VLV');
+            return getQtyFooter('totQty', 'GB_FSH_CT');
           } },
         { styleName: 'text-right',
           numberFormat: '#,##0',
           valueCallback() {
-            return getQtyFooter('totQty', 'WATER_COND_MAT');
-          } },
-        { styleName: 'text-right',
-          numberFormat: '#,##0',
-          valueCallback() {
-            return getQtyFooter('totQty', 'SBSUM');
+            return getQtyFooter('totQty', 'NOT_GB_CT');
           } },
       ] },
   ];
@@ -1067,7 +987,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setFooters({
     visible: true,
     items: [
-      { height: 40 },
       { height: 40 },
       { height: 40 },
       { height: 40 },
