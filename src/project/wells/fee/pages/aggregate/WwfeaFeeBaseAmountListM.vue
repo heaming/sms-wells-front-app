@@ -108,11 +108,14 @@ const searchParams = ref({
 let cachedParams;
 
 async function onClickExcelDownload() {
+  cachedParams = cloneDeep(searchParams.value);
   const view = grdMainRef.value.getView();
+  const response = await dataService.get('/sms/wells/fee/fee-base-amounts', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 

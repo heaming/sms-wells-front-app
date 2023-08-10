@@ -14,13 +14,18 @@
 --->
 <template>
   <kw-page>
-    <kw-search :modified-targets="['grdMain']">
+    <kw-search
+      :cols="3"
+      two-row
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_MGT_YNM')"
           required
         >
           <kw-date-picker
+            v-model="searchParams.baseYm"
             :label="$t('MSG_TXT_MGT_YNM')"
             rules="required"
             type="month"
@@ -29,20 +34,21 @@
 
         <kw-search-item :label="$t('MSG_TXT_OG_TP')">
           <kw-option-group
-            :model-value="'M영업조직'"
+            v-model="searchParams.ogTpCd"
             type="radio"
-            :options="['M영업조직', 'P영업조직']"
+            :options="ogTp"
           />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_QLF_DV')"
           required
         >
-          <kw-select
+          <kw-option-group
+            v-model="searchParams.rsbDvCd"
             :label="$t('MSG_TXT_QLF_DV')"
-            :model-value="''"
-            :options="['전체', 'B', 'C', 'D']"
             rules="required"
+            type="radio"
+            :options="codes.QLF_DV_CD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -50,31 +56,29 @@
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_PERF_DV')">
           <kw-option-group
+            v-model="searchParams.perfDv"
             :model-value="'전체'"
             type="radio"
-            :options="['전체', '수당건수', '설치기준']"
+            :options="perfDv"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_SEQUENCE_NUMBER')">
-          <kw-input
-            icon="search"
+          <zwog-partner-search
+            v-model:prtnrNo="searchParams.prtnrNo"
+            v-model:og-tp-cd="searchParams.ogTpCd"
             clearable
+            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           />
-
-          <kw-input />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
-          <kw-select
-            :model-value="[]"
-            :options="['전체', 'B', 'C', 'D']"
-          />
-          <kw-select
-            :model-value="[]"
-            :options="['전체', 'B', 'C', 'D']"
-          />
-          <kw-select
-            :model-value="[]"
-            :options="['전체', 'B', 'C', 'D']"
+          <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
+            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
+            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
+            :og-tp-cd="searchParams.ogTpCd"
+            :start-level="1"
+            :base-ym="searchParams.baseYm"
+            :end-level="3"
           />
         </kw-search-item>
       </kw-search-row>
@@ -88,6 +92,7 @@
             v-model:page-index="pageInfo.pageIndex"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             :total-count="pageInfo.totalCount"
+            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -103,12 +108,14 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="4"
+        :visible-rows="10"
         @init="initGrid"
       />
       <kw-pagination
-        :model-value="1"
-        :total-count="100"
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -118,11 +125,19 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
+import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useMeta } from 'kw-lib';
+import dayjs from 'dayjs';
+import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
+import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, getUserInfo } = useMeta();
 const { currentRoute } = useRouter();
+const { wkOjOgTpCd, ogTpCd } = getUserInfo();
+const now = dayjs().format('YYYYMM');
+const dataService = useDataService();
+let cacheParams;
 
 const pageInfo = ref({
   totalCount: 0,
@@ -130,21 +145,70 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const grdMainRef = ref(getComponentType('KwGrid'));
-
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'QLF_DV_CD',
 );
+
+const ogTp = ref([
+  { codeId: 'W01', codeName: 'P추진' },
+  { codeId: 'W02', codeName: 'M추진' },
+]);
+
+const perfDv = ref([
+  { codeId: '', codeName: '전체' },
+  { codeId: 'A', codeName: '수당건수' },
+  { codeId: 'I', codeName: '설치기준' },
+]);
+
+const grdMainRef = ref(getComponentType('KwGrid'));
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const searchParams = ref({
+  baseYm: now,
+  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
+  ogLevlDvCd1: undefined,
+  ogLevlDvCd2: undefined,
+  ogLevlDvCd3: undefined,
+  qlfDvCd: '2',
+  prtnrNo: undefined,
+  perfDv: 'A',
+});
+
+function setGrid(response) {
+  const data = grdMainRef.value.getData();
+  data.setRows(response);
+}
+
+async function fetchData() {
+  const res = await dataService.get('/sms/wells/activity/accrue/paging', { params: { ...cacheParams, ...pageInfo.value } });
+
+  const { list, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+  const view = grdMainRef.value.getView();
+
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
+  setGrid(list);
+}
+
+async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
+  cacheParams = cloneDeep(searchParams.value);
+
+  await fetchData();
+}
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/activity/accrue/excel-download', { params: { ...cacheParams } });
+  view.__originalLayouts__ = view.saveColumnLayout();
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: res.data,
   });
 }
 
@@ -152,39 +216,6 @@ async function onClickExcelDownload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
-    { fieldName: 'col21' },
-    { fieldName: 'col22' },
-    { fieldName: 'col23' },
-    { fieldName: 'col24' },
-    { fieldName: 'col25' },
-    { fieldName: 'col26' },
-    { fieldName: 'col27' },
-    { fieldName: 'col28' },
-    { fieldName: 'col29' },
-
-  ];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '92', styleName: 'text-center' },
     { fieldName: 'col2', header: t('MSG_TXT_RGNL_GRP'), width: '106', styleName: 'text-center' },
@@ -220,7 +251,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'col29', header: t('MSG_TXT_THM_ACL_ACTI'), width: '106', styleName: 'text-center' },
   ];
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
 
   view.checkBar.visible = false;
@@ -275,13 +306,6 @@ const initGrid = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: ['col27', 'col28', 'col29'],
     },
-  ]);
-
-  data.setRows([
-    { col1: '서부', col2: '마포지역', col3: 'A029102', col4: '은평/대일 5층', col5: '홍길동', col6: '0000000', col7: '웰스매니저', col8: '2011-05-11', col9: '2011-05-11', col10: '2011-05-11', col11: '2011-05-11', col12: '2011-05-11', col13: '2011-05-11', col14: '2011-05-11', col15: '2011-05-11', col16: '2011-05-11', col17: '2011-05-11', col18: '0000000', col19: '홍길순', col20: '0', col21: '0', col22: '0', col23: '0', col24: '0', col25: '2021-01', col26: '2021-01', col27: '0', col28: '0', col29: '0' },
-    { col1: '서부', col2: '마포지역', col3: 'A029102', col4: '은평/대일 5층', col5: '홍길동', col6: '0000000', col7: '웰스매니저', col8: '2011-05-11', col9: '2011-05-11', col10: '2011-05-11', col11: '2011-05-11', col12: '2011-05-11', col13: '2011-05-11', col14: '2011-05-11', col15: '2011-05-11', col16: '2011-05-11', col17: '2011-05-11', col18: '0000000', col19: '홍길순', col20: '0', col21: '0', col22: '0', col23: '0', col24: '0', col25: '2021-01', col26: '2021-01', col27: '0', col28: '0', col29: '0' },
-    { col1: '서부', col2: '마포지역', col3: 'A029102', col4: '은평/대일 5층', col5: '홍길동', col6: '0000000', col7: '웰스매니저', col8: '2011-05-11', col9: '2011-05-11', col10: '2011-05-11', col11: '2011-05-11', col12: '2011-05-11', col13: '2011-05-11', col14: '2011-05-11', col15: '2011-05-11', col16: '2011-05-11', col17: '2011-05-11', col18: '0000000', col19: '홍길순', col20: '0', col21: '0', col22: '0', col23: '0', col24: '0', col25: '2021-01', col26: '2021-01', col27: '0', col28: '0', col29: '0' },
-    { col1: '서부', col2: '마포지역', col3: 'A029102', col4: '은평/대일 5층', col5: '홍길동', col6: '0000000', col7: '웰스매니저', col8: '2011-05-11', col9: '2011-05-11', col10: '2011-05-11', col11: '2011-05-11', col12: '2011-05-11', col13: '2011-05-11', col14: '2011-05-11', col15: '2011-05-11', col16: '2011-05-11', col17: '2011-05-11', col18: '0000000', col19: '홍길순', col20: '0', col21: '0', col22: '0', col23: '0', col24: '0', col25: '2021-01', col26: '2021-01', col27: '0', col28: '0', col29: '0' },
   ]);
 });
 

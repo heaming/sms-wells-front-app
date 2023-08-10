@@ -61,6 +61,7 @@ const cmpRef = ref();
 const currentPdCd = ref();
 const pdBas = ref({});
 const prevStepData = ref({});
+const router = useRouter();
 
 const codes = await codeUtil.getMultiCodes(
   'PD_TP_CD',
@@ -72,9 +73,16 @@ const codes = await codeUtil.getMultiCodes(
   'PD_TEMP_SAVE_CD',
 );
 
+async function goList() {
+  await router.push({ path: '/product/zwpdc-sale-product-list', state: { stateParam: { searchYn: 'Y', pdTpCd: pdConst.PD_TP_CD_COMPOSITION } } });
+}
+
 async function fetchProduct() {
   if (currentPdCd.value) {
-    const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`);
+    const res = await dataService.get(`/sms/wells/product/compositions/${currentPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     pdBas.value = res.data[pdConst.TBL_PD_BAS];
     prevStepData.value = res.data;
   }

@@ -17,6 +17,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 사용년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_USE_YM')"
           required
@@ -29,9 +30,10 @@
             type="month"
           />
         </kw-search-item>
+        <!-- 조직레벨 -->
         <kw-search-item
-          required
           :label="$t('MSG_TXT_OG_LEVL')"
+          required
         >
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.dgr1LevlOgId"
@@ -49,7 +51,7 @@
     <div class="result-area">
       <kw-action-top class="mb20">
         <template #left>
-          <h3>{{ t('MSG_TXT_OPCS_AMT_PS') }}</h3>
+          <h3>{{ t('MSG_TXT_OPCS_AMT_PS') }}</h3> <!-- 운영비 금액 현황 -->
         </template>
         <span class="kw-fc--black3 text-weight-regular"> {{ t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
@@ -60,37 +62,35 @@
         :visible-rows="1"
         @init="initGrdMain"
       />
-
       <kw-separator />
-
       <kw-action-top class="mb20">
         <template #left>
-          <h3>
-            {{ t('MSG_TXT_OPCS_SMRY_PS') }}
-            <ul class="kw-notification">
-              <li>
-                <span class="kw-fc--primary">{{ t('MSG_TXT_TH_TOT_F_UNW_ITE_SHO_BE_ZER_AEC_UNA') }}</span>
-              </li>
-            </ul>
-          </h3>
+          <h3>{{ t('MSG_TXT_OPCS_SMRY_PS') }} <!-- 운영비 적요 현황 --></h3>
+          <ul class="kw-notification">
+            <li>
+              <span class="kw-fc--primary">{{ t('MSG_TXT_TH_TOT_F_UNW_ITE_SHO_BE_ZER_AEC_UNA') }}</span>
+            </li>
+          </ul>
         </template>
         <span class="kw-fc--black3 text-weight-regular"> {{ t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
+      <!-- 운영비 적요 현황 그리드 -->
       <kw-grid
         ref="grdSubRef"
         name="grdSub"
         :visible-rows="1"
         @init="initGrdSub"
       />
-
       <kw-separator />
       <kw-tabs
         v-model="selectedTab"
       >
+        <!-- 유가증권 제외 탭 -->
         <kw-tab
           name="basic"
           :label="$t('MSG_TXT_MSCR_EXCD')"
         />
+        <!-- 유가증권 탭 -->
         <kw-tab
           name="sel"
           :label="$t('MSG_TXT_MSCR')"
@@ -107,18 +107,16 @@
           <kw-tab-panel name="basic">
             <wwdcd-operating-cost-mgt-m-securities-exception
               :ref="(searchParams) => tabRefs.basic = searchParams"
-              v-model:selected-link-id="selectedLinkId"
-              v-model:init-data="searchParams"
-              @reload-pages="fetchTabs('basic')"
+              :selected-link-id="selectedLinkId"
+              :init-data="searchParams"
               @teb-event="isTabData"
             />
           </kw-tab-panel>
           <kw-tab-panel name="sel">
             <wwdcd-operating-cost-mgt-m-securities
               :ref="(searchParams) => tabRefs.sel = searchParams"
-              v-model:selected-link-id="selectedLinkId"
-              v-model:init-data="searchParams"
-              @reload-pages="fetchTabs('sel')"
+              :selected-link-id="selectedLinkId"
+              :init-data="searchParams"
               @teb-event="isTabData"
             />
           </kw-tab-panel>
@@ -175,12 +173,7 @@ const searchParams = ref({
 let opcsAdjExcdYn = 0;
 let usrSmryCn = 0;
 async function isTabData(flag, datas) {
-  /*
-  if (flag === 'basic') {
-    const sub = grdSubRef.value.getView();
-    const addValue = {};
-    let opcsAdjExcdYn = 0;
-    let usrSmryCn = 0;
+  if (flag === 'basic') { // 유가증권 제외 탭
     datas.forEach((data) => {
       if (data.opcsAdjExcdYn === 'N') {
         opcsAdjExcdYn += 1;
@@ -190,20 +183,7 @@ async function isTabData(flag, datas) {
         usrSmryCn += 1;
       } // 구매품목
     });
-
-    if (isEmpty(sub.getValues(0))) {
-      addValue.operatingExpensesTotal = opcsAdjExcdYn;
-      addValue.aesthetic = usrSmryCn;
-      sub.getDataSource().addRow(addValue);
-    } else {
-      sub.setValue(0, 'operatingExpensesTotal', opcsAdjExcdYn);
-      sub.setValue(0, 'aesthetic', usrSmryCn);
-    }
-  } else if (flag === 'sel') {
-    const sub = grdSubRef.value.getView();
-    const addValue = {};
-    let opcsAdjExcdYn = 0;
-    let usrSmryCn = 0;
+  } else if (flag === 'sel') { // 유가증권 탭
     datas.forEach((data) => {
       if (data.opcsAdjExcdYn === 'N') {
         opcsAdjExcdYn += 1;
@@ -213,42 +193,10 @@ async function isTabData(flag, datas) {
         usrSmryCn += 1;
       } // 구매품목
     });
-
-    if (isEmpty(sub.getValues(0))) {
-      addValue.operatingExpensesTotal = opcsAdjExcdYn;
-      addValue.aesthetic = usrSmryCn;
-      sub.getDataSource().addRow(addValue);
-    } else {
-      sub.setValue(0, 'operatingExpensesTotal', opcsAdjExcdYn);
-      sub.setValue(0, 'aesthetic', usrSmryCn);
-    }
   }
-  */
 
   const sub = grdSubRef.value.getView();
   const addValue = {};
-
-  if (flag === 'basic') {
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-  } else if (flag === 'sel') {
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-  }
 
   if (isEmpty(sub.getValues(0))) {
     addValue.operatingExpensesTotal = opcsAdjExcdYn;
@@ -266,8 +214,6 @@ async function isTabData(flag, datas) {
 async function fetchAmountData() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/amount', { params: cachedParams });
-  view.getDataSource().setRows(res.data);
-  view.resetCurrent();
 
   const mainData = [];
   if (!isEmpty(res.data)) {
@@ -352,6 +298,7 @@ async function saveData(column, opcsCardId, file) {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
+// 운영비 금액현황
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'befCardResAmt', header: t('MSG_TXT_CRDOVR_BLAM'), width: '251', styleName: 'text-right', dataType: 'number' }, // 이월잔액
@@ -370,6 +317,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = false;
 });
 
+// 운영비 적요 현황  operatingExpensesTotal aesthetic
 const initGrdSub = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'opcsCardId', visible: false },

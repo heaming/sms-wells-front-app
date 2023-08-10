@@ -15,6 +15,7 @@
 
 <template>
   <kw-popup
+    ref="popupRef"
     size="3xl"
   >
     <kw-form
@@ -97,6 +98,7 @@
         <kw-paging-info
           :total-count="totalCount"
         />
+        <span class="ml8">{{ t('MSG_TXT_UNIT_EA') }}</span>
       </template>
       <kw-btn
         :label="$t('MSG_TXT_DEL')"
@@ -165,9 +167,6 @@ const { ok } = useModal();
 const { modal, notify } = useGlobal();
 const { getMonthWarehouse } = useSnCode();
 const store = useStore();
-const { currentRoute } = useRouter();
-// const { getters } = useStore();
-// const userInfo = getters['meta/getUserInfo'];
 
 const props = defineProps({
   ostrAkNo: {
@@ -189,9 +188,12 @@ const props = defineProps({
 
 });
 
+const LGST_OSTR_AK_TP_CD = '1'; // 물류
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const popupRef = ref();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const isAkWare = ref(false); // 출고요청창고
@@ -376,8 +378,9 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/service/out-of-storage-asks/out-of-storage-items/excel-download', { params: searchParams.value });
 
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
+    checkBar: 'hidden',
     exportData: res.data,
   });
 }
@@ -389,15 +392,21 @@ async function onClickDelete() {
 
   for (let i = 0; i < checkedRows.length; i += 1) {
     const chkRectOstrDt = checkedRows[i].rectOstrDt;
+    const chkOstrWareDvCd = checkedRows[i].ostrAkWareDvCd;
     if (!isEmpty(chkRectOstrDt)) {
       notify(t('MSG_ALT_ARDY_OSTR', [t('MSG_TXT_DEL')]));
       return;
     }
+
+    if (chkOstrWareDvCd === LGST_OSTR_AK_TP_CD && checkedRows.length > 1) {
+      notify(t('MSG_ALT_ONE_PROCS_PSB'));
+      return;
+    }
   }
 
-  // if (!await gridUtil.confirmIfIsModified(view)) { return; }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  // TODO: 출고완료 전 삭제해야 테스트가능할듯. 저장테스트 미실시로 확인 불가.
+  console.log(deletedRows);
+
   if (deletedRows.length > 0) {
     const result = await dataService.delete('/sms/wells/service/out-of-storage-asks', { data: checkedRows });
     if (result.data > 0) {

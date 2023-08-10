@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : WDB/idvrve
-2. 프로그램 ID : WwwdbDepositAggregateMaterialListM - W-WD-U-0144M01
+2. 프로그램 ID : WwdbDepositAggregateMaterialListM - W-WD-U-0144M01
 3. 작성자 : kimoon.lim
 4. 작성일 : 2023.06.12
 ****************************************************************************************************
@@ -82,7 +82,6 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="12"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrid"
@@ -130,25 +129,28 @@ const pageInfo = ref({
 });
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+
 let cachedParams;
-const totalParams = {
-  spayPer: 0,
-  rtlsPer: 0,
-  mbmsPer: 0,
-  coIstPer: 0,
-  mngtPer: 0,
-  rglrPer: 0,
-  filtPer: 0,
-  tot: 0,
-};
+let cachedParams2;
+const totalParams = ref({});
+// spayPer: 0,
+// rtlsPer: 0,
+// mbmsPer: 0,
+// coIstPer: 0,
+// mngtPer: 0,
+// rglrPer: 0,
+// filtPer: 0,
+// tot: 0,
+// };
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
 async function fetchData() {
-  cachedParams = { ...cachedParams, ...pageInfo };
+  cachedParams = { ...cachedParams, ...pageInfo.value };
   const res = await dataService.get(`${apiUrl}/paging`, { params: cachedParams });
-  const res2 = await dataService.get(`${apiUrl}/total`, { params: cachedParams });
+  const res2 = await dataService.get(`${apiUrl}/total`, { params: cachedParams2 });
   const { list: pages, pageInfo: pagingResult } = res.data;
   totalParams.value = res2.data;
   pageInfo.value = pagingResult;
@@ -158,7 +160,7 @@ async function fetchData() {
 
   data.checkRowStates(false);
   data.setRows(pages);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  // view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   data.checkRowStates(true);
 }
 
@@ -166,7 +168,7 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
 
   cachedParams = cloneDeep(searchParams.value);
-
+  cachedParams2 = cloneDeep(searchParams.value);
   await fetchData();
 }
 
@@ -175,7 +177,7 @@ async function onClickExcelDownload() {
   const res = await dataService.get(`${apiUrl}/excel-download`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName, // 법인 계좌 정보 관리 엑셀
+    fileName: currentRoute.value.meta.menuName, // 입금
     timePostfix: true,
     exportData: res.data,
   });

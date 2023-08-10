@@ -75,7 +75,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, codeUtil, useDataService, /* useGlobal, */ useMeta, gridUtil, getComponentType } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import { getDeptGubunCodes } from '../../../../../modules/sms-common/closing/utils/clUtil';
+import { getDeptGubunCodes } from '~/modules/sms-common/closing/utils/clUtil';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -94,15 +94,13 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const deptGubunCode = await getDeptGubunCodes();
-const { departmentId: deptId } = getters['meta/getUserInfo'];
+const { departmentId: ogId } = getters['meta/getUserInfo'];
 
 let cachedParams;
 
-// TODO: 부서코드 확정되면 부서별 조회구분 적용 필요
-
 const searchParams = ref({
   deptGubun: deptGubunCode[0].codeId,
-  deptCd: deptId,
+  deptCd: ogId,
 });
 
 const pageInfo = ref({
@@ -141,49 +139,37 @@ async function onClickExcelDownload() {
   });
 }
 
+onMounted(async () => {
+  if (ogId === '70078' || ogId === '70068') {
+    searchParams.value.deptGubun = deptGubunCode[0].codeId;
+  } else {
+    searchParams.value.deptGubun = deptGubunCode[1].codeId;
+  }
+});
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8', dataType: 'number' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-  ];
-
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_CNTR_DTL_NO'), width: '146', styleName: 'text-left' },
+    { fieldName: 'col1', header: t('MSG_TXT_CNTR_DTL_NO'), width: '146', styleName: 'text-center' },
     { fieldName: 'col2', header: t('MSG_TXT_CHECK_DV_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col3', header: t('MSG_TXT_CHECK_DV_NM'), width: '300', styleName: 'text-left' },
+    { fieldName: 'col3', header: t('MSG_TXT_CHECK_DV_NM'), width: '300', styleName: 'text-center' },
     { fieldName: 'col4', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'col5', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'col6', header: t('MSG_TXT_END_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-
     { fieldName: 'col7', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col8', header: t('MSG_TXT_MSH_SSPCS_WON'), width: '120', styleName: 'text-right' },
+    { fieldName: 'col8', header: t('MSG_TXT_MSH_SSPCS_WON'), width: '120', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'col9', header: t('MSG_TXT_RENT_PRD_MN'), width: '100', styleName: 'text-right' },
-
     { fieldName: 'col10', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-right' },
-    { fieldName: 'col11', header: t('MSG_TXT_IN_PSIC'), width: '120', styleName: 'text-left' },
-    { fieldName: 'col12', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-left' },
-
+    { fieldName: 'col11', header: t('MSG_TXT_IN_PSIC'), width: '120', styleName: 'text-center' },
+    { fieldName: 'col12', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' },
     { fieldName: 'col13', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right' },
     { fieldName: 'col14', header: `${t('MSG_TXT_DIV')}02`, width: '100', styleName: 'text-center' },
-    { fieldName: 'col15', header: t('MSG_TXT_NOTE'), width: '120', styleName: 'text-left' },
-
+    { fieldName: 'col15', header: t('MSG_TXT_NOTE'), width: '120' },
   ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);

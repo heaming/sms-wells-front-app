@@ -3,14 +3,14 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNB (방문관리)
- 2. 프로그램 ID : WsnbTaxInvoicePublicationRegM - 세금계산서 발행 요청
+ 2. 프로그램 ID : WmsnbTaxInvoicePublicationRegM - 세금계산서 발행 요청 (모바일)
  3. 작성자 : hyewon.kim
  4. 작성일 : 2023.05.30
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
  - 미인증 세션 페이지
- - 세금계산서 발행 요청 - 일반 (http://localhost:3000/#/ns/wsnb-tax-invoice-publication-reg)
+ - 세금계산서 발행 요청 - 일반 (http://localhost:3000/mobile/#/ns/wmsnb-tax-invoice-publication-reg)
  ****************************************************************************************************
 --->
 <template>
@@ -105,7 +105,7 @@
         />
         <!-- 이메일 -->
         <zwcm-email-address
-          v-model="taxInvoiceData.email"
+          v-model="taxInvoiceData.emadr"
           :label="$t('MSG_TXT_EMAIL')"
           required
           class="py20"
@@ -131,6 +131,7 @@
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, useDataService, useGlobal, stringUtil, notify } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
+import { aesDec } from '~common/utils/common';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 
 const { alert, confirm } = useGlobal();
@@ -236,6 +237,13 @@ async function fetchTaxInvoices() {
   taxInvoiceData.value.emadr = emadr;
 
   setTotalAmt();
+}
+
+const decData = ref();
+if (props.encryptedParam) {
+  const paramString = aesDec(props.encryptedParam);
+  decData.value = Object.fromEntries(new URLSearchParams(paramString));
+  console.log(decData.value);
 }
 
 onMounted(async () => {

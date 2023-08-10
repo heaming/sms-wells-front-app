@@ -129,6 +129,7 @@
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-no-m="onChagneHgrWareNo"
         />
       </kw-search-row>
     </kw-search>
@@ -270,6 +271,11 @@ const codes = await codeUtil.getMultiCodes(
   'WARE_DV_CD', // 창고구분코드
 );
 
+// 창고구분코드 필터링
+const strWareDvCd = { WARE_DV_CD: [
+  { codeId: '2', codeName: '서비스센터' },
+] };
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -308,6 +314,10 @@ const baseInfo = ref({
   ostrConfDt: '',
   rtngdProcsTpCd: '',
 });
+
+function onChagneHgrWareNo() {
+  searchParams.value.strWareNoD = '';
+}
 
 function isNotEmpty(obj) {
   return (obj !== undefined && obj !== null && obj !== '');
@@ -357,7 +367,7 @@ searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 const itemKndCdD = ref();
 
 const onChangeItmKndCd = async () => {
-  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/filter-items', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/as-consumables-stores/filter-items', { params: searchParams.value });
   itemKndCdD.value = res.data;
 };
 
@@ -527,7 +537,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrSn' }, // 고객순번
     { fieldName: 'rcgvpKnm' }, // 고객명
     { fieldName: 'sellTpNm' }, // 판매유형
-    { fieldName: 'col21' }, // 관리유형
+    { fieldName: 'mngtUnitNm' }, // 관리유형
     { fieldName: 'referArtc' }, // 참고사항
     { fieldName: 'stkrPrntYn' }, // 스티커출력여부
     { fieldName: 'svBizDclsfCd' }, // 서비스업무세분류코드
@@ -546,7 +556,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'svProcsCn' }, // 서비스처리내용
     { fieldName: 'ichrPrtnrNo' }, // 담당엔지니어사번
     { fieldName: 'empNm' }, // 담당엔지니어명
-    { fieldName: 'fstRgstUsrId' }, // 철거요청사번
+    { fieldName: 'rcpIchrPrtnrNo' }, // 철거요청사번
     { fieldName: 'fstRgstUserNm' }, // 철거요청자명
     { fieldName: 'col11' }, // 접수자구분
     { fieldName: 'col22' }, // 접수자구분
@@ -579,7 +589,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CST_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col21', header: t('MSG_TXT_MGT_TYP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MGT_TYP'), width: '100', styleName: 'text-center' },
     { fieldName: 'referArtc', header: t('MSG_TXT_REFER_ARTC'), width: '150', styleName: 'text-center' },
     { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'ostrConfDt',
@@ -617,7 +627,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'asCausNm', header: t('MSG_TXT_CAUS'), width: '100', styleName: 'text-center' },
     { fieldName: 'svProcsCn', header: t('MSG_TIT_APRV_DTLS'), width: '397', styleName: 'text-center' },
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_ICHR_EGER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_REQD_AK_EMPNO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'rcpIchrPrtnrNo', header: t('MSG_TXT_REQD_AK_EMPNO'), width: '150', styleName: 'text-center' },
     { fieldName: 'fstRgstUserNm', header: t('MSG_TXT_REQD_AK_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'col22', header: t('MSG_TXT_RCST_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'cnslMoCn', header: t('MSG_TXT_RCP_IZ'), width: '100', styleName: 'text-left' },
@@ -649,7 +659,7 @@ const initGrdMain = defineGrid((data, view) => {
     'cntrDtlNo',
     'rcgvpKnm',
     'sellTpNm',
-    'col21',
+    'mngtUnitNm',
     'referArtc',
     'svBizDclsfNm',
     'ostrConfDt',
@@ -664,9 +674,8 @@ const initGrdMain = defineGrid((data, view) => {
     'svProcsCn',
     'ichrPrtnrNo',
     // 'empNm',
-    { direction: 'horizontal', items: ['fstRgstUsrId', 'fstRgstUserNm'], header: { text: t('MSG_TXT_REQD_AK_EMPNO_NM') }, hideChildHeaders: true },
+    { direction: 'horizontal', items: ['rcpIchrPrtnrNo', 'fstRgstUserNm'], header: { text: t('MSG_TXT_REQD_AK_EMPNO_NM') }, hideChildHeaders: true },
     'col22',
-    // 'fstRgstUsrId',
     // 'fstRgstUserNm',
     // 'cnslMoCn',
     'col23',

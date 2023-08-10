@@ -97,8 +97,17 @@ const pops = [
     pname: 'WwctaContractDocumentMailForwardingP',
     title: 'wells 계약서 메일 발송',
     param: {
-      cntrNm: 'TEST',
-      cntrNo: 'E12345678900',
+      rcvrInfo: [{
+        cntrNm: '김계약',
+        cntrNo: 'E12345678901',
+        cntrSn: '2',
+        rstlYn: 'Y',
+      }, {
+        cntrNm: '김계약',
+        cntrNo: 'E12345678902',
+        cntrSn: '1',
+        rstlYn: 'N',
+      }],
     },
   },
   {
@@ -208,6 +217,14 @@ const pops = [
       cntrSn: '1',
       cralTno: '01012345678',
       rcgvpTno: '01087654321',
+    },
+  },
+  {
+    pname: 'WwctbProductChangeHistoryP',
+    title: '계약유형 변경이력 W-SS-U-0101P03',
+    param: {
+      cntrNo: '',
+      cntrSn: '',
     },
   },
 ];

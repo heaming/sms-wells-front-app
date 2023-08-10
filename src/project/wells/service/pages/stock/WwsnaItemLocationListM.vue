@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNA (재고관리)
-2. 프로그램 ID : WwsnaItemLocationMgtP(W-SV-U-0137M01) - 품목위치 관리
+2. 프로그램 ID : WwsnaItemLocationListM(W-SV-U-0137M01) - 품목위치 관리
 3. 작성자 : songTaeSung
 4. 작성일 : 2023.07.14
 ****************************************************************************************************
@@ -28,12 +28,18 @@
             :options="optionStockList"
             first-option="all"
           />
-          <kw-checkbox
-            v-model="searchParams.stckStdGb"
-            v-bind="field"
-            :label="$t('MSG_TXT_STD_NO_APY')"
-            @update:model-value="onCheckedStckNoStdGb"
-          />
+          <kw-field
+            :model-value="['Y', 'N']"
+          >
+            <template #default="{ field }">
+              <kw-checkbox
+                v-bind="field"
+                v-model="searchParams.stckStdGb"
+                :label="$t('MSG_TXT_STD_NO_APY')"
+                @update:model-value="onCheckedStckNoStdGb"
+              />
+            </template>
+          </kw-field>
         </kw-search-item>
         <!-- 품목종류 -->
         <kw-search-item
@@ -160,7 +166,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, codeUtil, useMeta, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-// import { defineGrid, getComponentType, useMeta, codeUtil, useDataService, gridUtil, useGlobal } from 'kw-lib';
+
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
@@ -186,7 +192,7 @@ const searchParams = ref({
   itmKnd: '',
   itmPdCdFrom: '',
   itmPdCdTo: '',
-  stckStdGb: 'N',
+  stckStdGb: 'Y',
 
 });
 
@@ -282,23 +288,6 @@ async function onClickGridBulkChange() {
     }
   }
   notify(t('MSG_ALT_ATC_BLK_CH_FSH'));
-
-  // if(!isEmpty(wareTpCd)) {
-
-  // }
-
-  // const data = view.getDataSource();
-  // data.beginUpdate();
-  // checkedRows.forEach((rowValue) => {
-  //   data.updateRow(rowValue.dataRow, {
-  //     wareTpCd,
-  //     itmLctAngleVal: lctAngleCd,
-  //     itmLctCofVal: lctCofCd,
-  //     itmLctFlorNoVal: lctFlorNoCd,
-  //     itmLctMatGrpCd: lctMatGrpCd,
-  //   });
-  // });
-  // data.endUpdate();
 }
 
 async function onClickSave() {
@@ -306,7 +295,6 @@ async function onClickSave() {
 
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  // const data = grdMainRef.value.getData();
 
   if (gridUtil.getCheckedRowValues(view).length === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
@@ -325,13 +313,11 @@ async function onClickSave() {
 // 표준미적용 버튼 클릭시
 async function onCheckedStckNoStdGb() {
   const { wareNo, stckStdGb } = searchParams.value;
-  console.log(wareNo);
-  console.log(stckStdGb);
-
   const res = await dataService.put('/sms/wells/service/item-locations/standard/locations', { stckStdGb, wareNo });
-  console.log(res);
-  notify(t('MSG_ALT_CHG_DATA'));
-  await fetchData();
+  const count = res.data;
+  if (count > 0) {
+    notify(t('MSG_ALT_CHG_DATA'));
+  }
 }
 
 // -------------------------------------------------------------------------------------------------

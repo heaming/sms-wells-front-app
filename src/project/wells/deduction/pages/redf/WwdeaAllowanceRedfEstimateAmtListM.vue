@@ -580,7 +580,11 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'cntrNoSn',
       header: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
       width: '160',
-      styleName: 'text-center' },
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } },
     { fieldName: 'cstKnm',
       header: t('MSG_TXT_CST_NM'), // 고객명
       width: '120',

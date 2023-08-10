@@ -7,6 +7,8 @@ export default {
   OSTR_TP_CD_QOM_MMT: '223',
   OSTR_TP_CD_RTNGD_INSI: '261',
   OSTR_TP_CD_RTNGD_OTSD: '262',
-  OSTR_TP_CD_SELL: '212',
+  OSTR_TP_CD_SELL: '211',
+  OSTR_TP_CD_DSU: '212',
   OSTR_TP_CD_ETC: '217',
+  PROCS_DV_CODES: [{ codeId: '1', codeName: '작업완료' }, { codeId: '2', codeName: '작업대기' }, { codeId: '3', codeName: '배송중지' }],
 };

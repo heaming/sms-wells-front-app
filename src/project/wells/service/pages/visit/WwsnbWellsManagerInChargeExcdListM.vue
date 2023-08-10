@@ -371,6 +371,6 @@ async function initGrdMain(data, view) {
     colCount: 5,
   });
 
-  await onClickSearch();
+  // await onClickSearch();
 }
 </script>

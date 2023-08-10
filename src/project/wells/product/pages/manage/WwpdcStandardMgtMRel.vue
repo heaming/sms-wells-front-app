@@ -97,6 +97,12 @@ async function init() {
 }
 
 async function getSaveData() {
+  // 미수정시 초기값 그대로 반환.
+  if (!(await isModifiedProps())) {
+    return {
+      [pdConst.RELATION_PRODUCTS]: currentInitData.value[pdConst.RELATION_PRODUCTS],
+    };
+  }
   const subList = {};
   subList[rel] = [];
   const prds = await cmpPrdRef.value.getSaveData();
@@ -156,15 +162,22 @@ async function resetFirstStep() {
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
-  currentInitData.value = cloneDeep(initData);
+  currentInitData.value = cloneDeep({
+    [pdConst.TBL_PD_REL]: initData[pdConst.TBL_PD_REL],
+    [pdConst.RELATION_PRODUCTS]: initData[pdConst.RELATION_PRODUCTS],
+  });
 }
 
 await initProps();
 
 watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
 watch(() => props.initData, (initData) => {
-  if (!isEqual(currentInitData.value, initData)) {
-    currentInitData.value = cloneDeep(initData);
+  const usedData = {
+    [pdConst.TBL_PD_REL]: initData[pdConst.TBL_PD_REL],
+    [pdConst.RELATION_PRODUCTS]: initData[pdConst.RELATION_PRODUCTS],
+  };
+  if (!isEqual(currentInitData.value, usedData)) {
+    currentInitData.value = cloneDeep(usedData);
   }
 }, { deep: true });
 </script>

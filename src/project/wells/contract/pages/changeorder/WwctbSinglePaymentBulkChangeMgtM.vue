@@ -65,17 +65,19 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, useGlobal, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
-const { alert } = useGlobal();
+const { alert, modal } = useGlobal();
 const dataService = useDataService();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const codes = await codeUtil.getMultiCodes(
+  'DP_TP_CD',
+);
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const totalCount = ref(0);
@@ -120,7 +122,13 @@ async function onClickSearch() {
 
 // 일괄변경 등록 버튼 클릭
 async function onClickBatchChangeReg() {
-  console.log('일괄변경 등록 버튼 클릭');
+  const { result } = await modal({
+    component: 'WwctbSinglePaymentBulkChangeMgtP',
+    // componentProps: { apiUrl, templateId, extraData },
+  });
+  if (result) {
+    await onClickSearch();
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -197,9 +205,19 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ackmtPerfRt', header: `${t('MSG_TXT_RECOG_RT')}(%)`, width: '117', styleName: 'text-right' }, // [인정율(%)] 인정실적율
     { fieldName: 'feeAckmtBaseAmt', header: `${t('MSG_TXT_PD_STD_FEE')}(${t('MSG_TXT_CUR_WON')})`, width: '131', styleName: 'text-right' }, // [기준수수료] 수수료인정기준금액
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '117', styleName: 'text-center' }, // [정액여부] 수수료정액여부
-    { fieldName: 'dpTpCd', header: t('MSG_TXT_ISTM_FNT'), width: '117', styleName: 'text-right' }, // [할부이체] 입금유형코드
+    { fieldName: 'dpTpCd',
+      header: t('MSG_TXT_ISTM_FNT'),
+      width: '117',
+      styleName: 'text-right',
+      editor: { type: 'list' },
+      options: codes.DP_TP_CD }, // [할부이체] 입금유형코드
     { fieldName: 'bfsvcBzsDvCd', header: t('MSG_TXT_INSTLMNT_PYMNT'), width: '117', styleName: 'text-right' }, // [할부실적] BS업체구분코드
-    { fieldName: 'mmbsDpTpCd', header: t('MSG_TXT_MEMBRSHP_TRSFR'), width: '117', styleName: 'text-right' }, // [멤버십이체] 입금유형코드
+    { fieldName: 'mmbsDpTpCd',
+      header: t('MSG_TXT_MEMBRSHP_TRSFR'),
+      width: '117',
+      styleName: 'text-right',
+      editor: { type: 'list' },
+      options: codes.DP_TP_CD }, // [멤버십이체] 입금유형코드
     { fieldName: 'copnDvYn', header: t('MSG_TXT_MEMBRSHP_LGDR'), width: '117', styleName: 'text-center' }, // [멤버십원장]
     { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_FRISU_MSH'), width: '117', styleName: 'text-right' }, // [무상멤버십] 무상BS기간수
     { fieldName: 'frisuAsPtrmN', header: t('MSG_TXT_FRISU_AS'), width: '117', styleName: 'text-right' }, // [무상A/S] 무상AS기간수

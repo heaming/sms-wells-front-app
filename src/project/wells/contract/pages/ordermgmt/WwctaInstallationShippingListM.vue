@@ -215,8 +215,9 @@
                   {{ $t('MSG_TXT_EGER') }}
                 </p>
                 <span>
-                  {{ item.ogNm }}/{{ item.egerNm }}/
-                  {{ item.egerCrallocaraTno }}-{{ item.egerMexnoEncr }}-{{ item.egerCralIdvTno }}
+                  <!-- {{ item.ogNm }}/{{ item.egerNm }}/
+                  {{ item.egerCrallocaraTno }}-{{ item.egerMexnoEncr }}-{{ item.egerCralIdvTno }} -->
+                  {{ item.engineer }}
                 </span>
               </li>
               <li>
@@ -224,7 +225,7 @@
                 <p class="w90">
                   {{ $t('MSG_TXT_RQMT') }}
                 </p>
-                <span>{{ item.cnslMoCn }}</span>
+                <span>{{ isEmpty(item.cnslMoCn)?'':item.cnslMoCn }}</span>
               </li>
               <li>
                 <!-- 설치 일자 -->
@@ -238,7 +239,7 @@
                 <p class="w90">
                   {{ $t('MSG_TXT_SB_MEMO') }}
                 </p>
-                <span>{{ item.wkCanMoCn }}</span>
+                <span>{{ isEmpty(item.wkCanMoCn)?'':item.wkCanMoCn }}</span>
               </li>
             </div>
             <div v-show="item.istPcsvSellTpCd === '2'">
@@ -247,7 +248,7 @@
                 <p class="w90">
                   {{ $t('MSG_TXT_SPP_AK_D') }}
                 </p>
-                <span>{{ item.egerAsnDt }}</span>
+                <span>{{ setDateFormat(item.egerAsnDt) }}</span>
               </li>
               <li>
                 <!-- 제품관리팀수신일시 -->
@@ -263,21 +264,21 @@
                 <p class="w90">
                   {{ $t('MSG_TXT_SPP_AK_D') }}
                 </p>
-                <span>{{ item.sppDuedt }}</span>
+                <span>{{ setDateFormat(item.sppDuedt) }}</span>
               </li>
               <li>
                 <!-- 배송완료일자 -->
                 <p class="w90">
                   {{ $t('MSG_TXT_SHIPPING_END_DT') }}
                 </p>
-                <span>{{ item.cntrPdStrtdt }}</span>
+                <span>{{ setDateFormat(item.cntrPdStrtdt) }}</span>
               </li>
               <li>
                 <!-- 반송메모 -->
                 <p class="w90">
                   {{ $t('MSG_TXT_SB_MEMO') }}
                 </p>
-                <span>{{ item.wkCanMoCn }}</span>
+                <span>{{ isEmpty(item.wkCanMoCn)?'':item.wkCanMoCn }}</span>
               </li>
             </div>
           </ul>
@@ -481,7 +482,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 /* import { codeUtil, defineGrid, gridUtil, useDataService, useGlobal, useModal } from 'kw-lib'; */
-import { codeUtil, useDataService, stringUtil, modal, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, useDataService, stringUtil, modal, useGlobal, useMeta, notify } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
@@ -638,6 +639,20 @@ function getInstallStatus() {
         element.acpgStat = '9';
       }
     }
+
+    // 엔진니어 표시 문자열 만들기
+    element.engineer = '';
+    if (!isEmpty(element.ogNm)) {
+      element.engineer += `${element.ogNm}/`;
+    }
+    if (!isEmpty(element.egerNm)) {
+      element.engineer += `${element.egerNm}/`;
+    }
+    if (isEmpty(element.egerCrallocaraTno) || isEmpty(element.egerMexnoEncr) || isEmpty(element.egerCralIdvTno)) {
+      element.engineer += '';
+    } else {
+      element.engineer += `${element.egerCrallocaraTno.trim()}-${element.egerMexnoEncr}-${element.egerCralIdvTno}`;
+    }
   });
 }
 
@@ -751,7 +766,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
 
       const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
       if (!isEmpty(res)) {
-        alert(t('MSG_ALT_SPP_SUCCESS'));
+        notify(t('MSG_ALT_SPP_SUCCESS'));
         fetchData();
       }
     } else {
@@ -791,7 +806,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
       });
 
       if (result) {
-        console.log(result);
+        fetchData();
       }
     }
   }
@@ -870,7 +885,7 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
     });
     const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings/due-date-cancel', saveCheckParams.value); // 취소
     if (!isEmpty(res)) {
-      alert(t('MSG_ALT_SPP_CAN_EXP_DT_CANCEL'));
+      notify(t('MSG_ALT_SPP_CAN_EXP_DT_CANCEL'));
     }
     return;
   }
@@ -908,7 +923,7 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
   }
   const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
   if (!isEmpty(res)) {
-    alert(t('MSG_ALT_WAS_CNCL'));
+    notify(t('MSG_ALT_WAS_CNCL'));
     fetchData();
   }
 }
@@ -918,7 +933,6 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
   let workDtParam = '';
   let asIstOjNoParam = '';
   let acpgDivParam = '';
-  const prdDivParam = prdDiv;
 
   // if (dataList.profile !== 'prd') {
   //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
@@ -956,7 +970,7 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
       istPcsvDvCd: searchParams.value.istPcsvDvCd,
       mnftCoId: dataList.mnftCoId, // 제조사(LCJEJO)
       svBizDclsfCd: '', // 서비스업무세분류코드
-      prdDiv: prdDivParam, // 접수구분
+      prdDiv, // 접수구분
     });
 
     if (dataList.kaetc1 === '8') {
@@ -970,9 +984,9 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
     const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings/checks', saveParams.value); // 체크
     if (!isEmpty(res)) {
       if (prdDiv !== '3') {
-        callKiwiTimeAssign(dataList);
+        callKiwiTimeAssign(dataList, prdDiv);
       } else {
-        cancelKiwiTimeAssign(dataList, prdDivParam);
+        cancelKiwiTimeAssign(dataList, prdDiv);
       }
     }
   }
@@ -1061,6 +1075,8 @@ async function onClickDelverInqr(sppOrdNo, pcsvBzsCd) {
   width: 100%;
   display: flex;
   column-gap: 6px;
+  row-gap: 6px;
+  flex-wrap: wrap;
 
   ::v-deep(.kw-btn) {
     padding: 8px 0;

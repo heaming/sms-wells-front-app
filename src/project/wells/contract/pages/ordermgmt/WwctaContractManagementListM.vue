@@ -144,7 +144,7 @@
             :label="$t('MSG_TXT_CST_NM')"
           >
             <kw-input
-              v-model="searchParams.cstNm"
+              v-model="searchParams.cstKnm"
               class="w185"
               clearable
               :maxlength="100"
@@ -364,7 +364,7 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 const dataService = useDataService();
 const { t } = useI18n();
 const { getters } = useStore();
-const { confirm, modal, notify } = useGlobal();
+const { alert, confirm, modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
 
 let cachedParams;
@@ -790,8 +790,7 @@ async function onClickExcelDownload() {
 // 계약서 메일발송 버튼 클릭 이벤트
 async function onClickCntrwMlFw() {
   let view;
-  let paramCntrNo;
-  let searchPopupParams = {};
+  const rcvrInfo = [];
 
   switch (searchParams.value.cntrDv) {
     case 'A': // 신규/변경
@@ -809,39 +808,44 @@ async function onClickCntrwMlFw() {
       break;
   }
 
-  const row = view.getCheckedItems();
-  if (row.length === 0) {
+  const checkedItems = view.getCheckedItems();
+  if (checkedItems.length === 0) {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
-  } else if (row.length > 1) {
-    notify(t('MSG_ALT_SELT_ONE_ITEM'));
   } else {
     const cntrs = gridUtil.getCheckedRowValues(view);
-    // 확정인 계약에 한해서만 가능, 계약진행상태코드 == 60 (확정)
-    if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)
-      && cntrs[0].cntrPrgsStatCd !== '60') {
-      notify(t('MSG_ALT_CNTR_PRGS_STAT_CD_NOT_CNFM')); // 계약진행상태가 확정이 아닙니다.
-      return;
-    }
+    cntrs.forEach((row) => {
+      // 확정인 계약에 한해서만 가능, 계약진행상태코드 == 60 (확정)
+      if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)
+        && cntrs[0].cntrPrgsStatCd !== '60') {
+        notify(t('MSG_ALT_CNTR_PRGS_STAT_CD_NOT_CNFM')); // 계약진행상태가 확정이 아닙니다.
+        return;
+      }
 
-    if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
-      paramCntrNo = String(cntrs[0].cntrDtlNo).split('-')[0];
-      searchPopupParams = {
-        cntrNm: cntrs[0].cstKnm,
-        cntrNo: paramCntrNo,
-      };
-    } else if (searchParams.value.cntrDv === 'R') {
-      paramCntrNo = cntrs[0].cntrNo;
-      // 추가 파라미터(재약정시  cndcId:RP002)
-      searchPopupParams = {
-        cntrNm: cntrs[0].cstKnm,
-        cntrNo: paramCntrNo,
-        cndcId: 'RP002',
-      };
-    }
+      if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
+        // 추가 파라미터(신규/변경시  rstlYn:'N')
+        rcvrInfo.push({
+          cntrNo: String(row.cntrDtlNo).split('-')[0],
+          cntrSn: String(row.cntrDtlNo).split('-')[1],
+          cntrNm: row.cstKnm,
+          rstlYn: 'N',
+          emadr: '',
+        });
+      } else if (searchParams.value.cntrDv === 'R') {
+        // 추가 파라미터(재약정시  rstlYn:'Y')
+        rcvrInfo.push({
+          cntrNo: row.cntrNo,
+          cntrSn: row.cntrSn,
+          cntrNm: row.cstKnm,
+          rstlYn: 'Y',
+          emadr: '',
+        });
+      }
+    });
 
+    console.log(rcvrInfo);
     const res = await modal({
       component: 'WwctaContractDocumentMailForwardingP',
-      componentProps: searchPopupParams,
+      componentProps: { rcvrInfo },
     });
 
     // 리턴값을 체크한 후 재조회
@@ -890,7 +894,7 @@ async function onClickNotakfW() {
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
         saveData.push({
           cntrNo: String(row.cntrDtlNo).split('-')[0],
-          cntrSn: String(row.cntrDtlNo).split('-')[1],
+          cntrSn: String(row.cntrDtlNo).split('-')[1].substr(0, 1),
           cntrDv: searchParams.value.cntrDv,
         });
       } else if (searchParams.value.cntrDv === 'R') { // 재약정
@@ -920,6 +924,8 @@ async function onClickNotakfW() {
       res = await dataService.put('/sms/wells/contract/contracts/managements/notification-talk-forwarding', saveData);
       if (res.data.processCount > 0) {
         await notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS')); // 알림톡이 발송되었습니다.
+        // 재조회 호출
+        await fetchMstData();
       } else {
         await notify(t('MSG_ALT_BIZTALK_ERR')); // 알림톡 전송중 에러가 발생했습니다.
       }
@@ -929,11 +935,17 @@ async function onClickNotakfW() {
 
 // 고객번호 팝업조회
 async function onClickSearchCntrCst() {
-  const res = await modal({ component: 'ZwcsaCustomerListP' });
+  const res = await modal({
+    component: 'ZwcsaCustomerListP',
+    componentProps: {
+      cstNo: searchParams.value.cntrCstNo,
+    },
+  });
   if (res.result && res.payload) {
     // searchParams.cntrCstKnm(res.payload.name);
     // searchParams.cntrCstNo(res.payload.cstNo);
     searchParams.value.cntrCstNo = res.payload.cstNo;
+    searchParams.value.cstKnm = res.payload.name;
   }
 }
 
@@ -1127,12 +1139,10 @@ const initGrdMstList = defineGrid((data, view) => {
       searchCnfmAprvParams.value.cntrSn = paramCntrSn;
       searchCnfmAprvParams.value.cnfmMsgYn = 'Y';
 
-      const rows = gridUtil.getAllRowValues(view);
-      rows.forEach((row) => {
-        row.cntrNo = searchCnfmAprvParams.value.cntrNo; // 계약번호
-        row.cntrSn = searchCnfmAprvParams.value.cntrSn; // 계약일련번호
-        row.cnfmMsgYn = searchCnfmAprvParams.value.cnfmMsgYn; // 확정승인메세지
-      });
+      const rows = [
+        { cntrNo: paramCntrNo, cntrSn: paramCntrSn, cnfmMsgYn: 'Y' },
+      ];
+
       console.log(rows);
       res = await dataService.put('/sms/wells/contract/contracts/managements/confirm-approval', rows);
       if (searchCnfmAprvParams.value.cnfmMsgYn === 'Y') {
@@ -1149,7 +1159,13 @@ const initGrdMstList = defineGrid((data, view) => {
           if (res.data.processCount === 0) {
             await notify(t('MSG_ALT_CNFM_APR_PROCS_FSH')); // 확정 승인 처리가 완료 되었습니다.
             if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
-              res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', searchCnfmAprvParams.value.cntrNo);
+              res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
+              console.log(res.data.processCount);
+              if (res.data.processCount === 0) {
+                await notify(t('MSG_ALT_ORD_CNFM')); // 주문이 확정되었습니다.
+                // 재조회 호출
+                await fetchMstData();
+              }
             }
           }
         }
@@ -1157,20 +1173,28 @@ const initGrdMstList = defineGrid((data, view) => {
         console.log(res.data.processCount);
       }
     } else if (['cnfm'].includes(column)) { // 확정버튼 클릭
-      const rows = gridUtil.getAllRowValues(view);
-      rows.forEach((row) => {
-        row.cntrNo = paramCntrNo; // 계약번호
-        row.cntrSn = paramCntrSn; // 계약일련번호
-        row.cnfmMsgYn = ''; // 확정승인메세지
-      });
+      const rows = [
+        { cntrNo: paramCntrNo },
+      ];
 
-      // res = await dataService.put('/sms/wells/contract/contracts/managements/confirm-approval', rows);
-      // console.log(res.data.processCount);
-      // if (res.data.processCount === 0) {
-      if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
-        res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
+      // 확정처리 전 계약번호의 계약진행상태코드 조회
+      searchCnfmAprvParams.value.cntrNo = paramCntrNo;
+      cachedParams = cloneDeep(searchCnfmAprvParams.value);
+      res = await dataService.get('/sms/wells/contract/contracts/managements/status', { params: { ...cachedParams } });
+      console.log(res.data[0].cntrPrgsStatCd);
+      if (res.data[0].cntrPrgsStatCd === '50') {
+        if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
+          res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
+          console.log(res.data.processCount);
+          if (res.data.processCount === 0) {
+            await notify(t('MSG_ALT_ORD_CNFM')); // 주문이 확정되었습니다.
+            // 재조회 호출
+            await fetchMstData();
+          }
+        }
+      } else {
+        await alert(t('MSG_ALT_STLM_FSH_STAT_ORD_CAN_ONLY_CNFM')); // 결제 완료 상태의 주문만 확정할 수 있습니다.
       }
-      // }
     } else if (['rqsIz'].includes(column)) { // 요청내역 버튼 클릭
       // const { fstRgstUsrId, fnlMdfcUsrId } = gridUtil.getRowValue(g, itemIndex);
       await modal({ component: 'WwConfirmApprovalAskIzListP', componentProps: { cntrNo: paramCntrNo } }); // 확정 승인 요청 내역
@@ -1264,6 +1288,8 @@ const initGrdMstList = defineGrid((data, view) => {
       searchDtlParams.value.cntrPrgsStatCd = cntrPrgsStatCd;
 
       await fetchDtlData();
+    } else if (['cntrwBrws'].includes(column)) { // 계약서보기 버튼 클릭
+      await alert('계약서보기 팝업은 작업예정입니다.');
     } else if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }

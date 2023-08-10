@@ -54,10 +54,10 @@
 
     <kw-action-top>
       <template #left>
+        <!-- v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize" -->
         <kw-paging-info
-          v-model:page-index="pageInfo.pageIndex"
-          v-model:page-size="pageInfo.pageSize"
-          :total-count="pageInfo.totalCount"
+          :total-count="mainCount"
           @change="fetchData"
         />
       </template>
@@ -66,8 +66,8 @@
         icon="download_on"
         dense
         secondary
-        :disable="pageInfo.totalCount === 0"
         :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :disable="mainCount === 0"
         @click="onClickExcelMainDownload"
       />
     </kw-action-top>
@@ -75,10 +75,10 @@
       ref="grdMainRef"
       name="grdPage"
       :visible-rows="10"
-      :page-size="pageInfo.pageSize - 1"
-      :total-count="pageInfo.totalCount"
       @init="initGrid1"
     />
+    <!-- :page-size="pageInfo.pageSize - 1"
+      :total-count="pageInfo.totalCount" -->
 
     <h3>
       {{ t('MSG_TXT_BILL_DTL_INF') }}
@@ -109,10 +109,10 @@
 
     <kw-action-top>
       <template #left>
+        <!-- v-model:page-index="pageInfoSecond.pageIndex"
+        v-model:page-size="pageInfoSecond.pageSize" -->
         <kw-paging-info
-          v-model:page-index="pageInfoSecond.pageIndex"
-          v-model:page-size="pageInfoSecond.pageSize"
-          :total-count="pageInfoSecond.totalCount"
+          :total-count="subCount"
           @change="fetchData"
         />
       </template>
@@ -122,17 +122,17 @@
         dense
         secondary
         :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
-        :disable="pageInfoSecond.totalCount === 0"
+        :disable="subCount === 0"
         @click="onClickExcelSubDownload"
       />
     </kw-action-top>
     <kw-grid
       ref="grdMainRef3"
       name="grdMain"
-      :page-size="pageInfoSecond.pageSize - 1"
-      :total-count="pageInfoSecond.totalCount"
       @init="initGrid3"
     />
+    <!-- :page-size="pageInfoSecond.pageSize - 1"
+      :total-count="pageInfoSecond.totalCount" -->
 
     <template #action>
       <kw-btn
@@ -151,10 +151,10 @@
 // -------------------------------------------------------------------------------------------------
 
 import dayjs from 'dayjs';
-import { defineGrid, getComponentType, gridUtil, modal, useDataService, useMeta, alert, confirm, notify, useModal, validate } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, modal, useDataService, alert, confirm, notify, useModal, validate } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
-const { getConfig } = useMeta();
+// const { getConfig } = useMeta();
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
@@ -214,6 +214,9 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const grdMainRef2 = ref(getComponentType('KwGrid'));
 const grdMainRef3 = ref(getComponentType('KwGrid'));
 
+const mainCount = ref(0);
+const subCount = ref(0);
+
 const popupRef = ref();
 
 const searchParams = ref({
@@ -221,19 +224,19 @@ const searchParams = ref({
   dlpnrNm: '',
 });
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  needTotalCount: true,
-});
+// const pageInfo = ref({
+//   totalCount: 0,
+//   pageIndex: 1,
+//   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+//   needTotalCount: true,
+// });
 
-const pageInfoSecond = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  needTotalCount: true,
-});
+// const pageInfoSecond = ref({
+//   totalCount: 0,
+//   pageIndex: 1,
+//   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+//   needTotalCount: true,
+// });
 
 const params = ref({ itgDpNo: '', cntrNo: '', bzrno: '' });
 
@@ -253,18 +256,22 @@ const validateChk = computed(() => async (val, options) => {
 });
 
 async function fetchData() {
-  cachedParams = { ...cachedParams, ...pageInfo.value };
+  // cachedParams = { ...cachedParams, ...pageInfo.value };
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic/paging', { params: cachedParams });
-  const { list: pages, pageInfo: pagingResult } = res.data;
+  // eslint-disable-next-line max-len
+  // const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic/paging', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic/execl-download', { params: cachedParams });
+  const pages = res.data;
 
-  pageInfo.value = pagingResult;
+  mainCount.value = pages.length;
+  // pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
 
   const data = view.getDataSource();
+
   data.checkRowStates(false);
-  data.addRows(pages);
+  data.setRows(pages);
   data.checkRowStates(true);
 }
 
@@ -272,7 +279,7 @@ async function fetchData() {
 async function onClickSearch() {
   grdMainRef.value.getData().clearRows();
 
-  pageInfo.value.pageIndex = 1;
+  // pageInfo.value.pageIndex = 1;
 
   cachedParams = cloneDeep(searchParams.value);
 
@@ -283,12 +290,16 @@ async function onClickSearch() {
 let cachedSubParams;
 
 async function fetchSubData() {
-  cachedSubParams = { ...cachedSubParams, ...pageInfoSecond.value };
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic-detail/excel-download', { params: cachedSubParams });
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic-detail/paging', { params: cachedSubParams });
-  const { list: pages, pageInfo: pagingResult } = res.data;
+  // cachedSubParams = { ...cachedSubParams, ...pageInfoSecond.value };
 
-  pageInfoSecond.value = pagingResult;
+  // eslint-disable-next-line max-len
+  // const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic-detail/paging', { params: cachedSubParams });
+  const pages = res.data;
+
+  subCount.value = pages.length;
+  // pageInfoSecond.value = pagingResult;
 
   const view = grdMainRef3.value.getView();
 
@@ -301,7 +312,7 @@ async function fetchSubData() {
 async function onClickSubSearch() {
   grdMainRef3.value.getData().clearRows();
 
-  pageInfoSecond.value.pageIndex = 1;
+  // pageInfoSecond.value.pageIndex = 1;
 
   const itgDp = { itgDpNo: itgDpNo.value, cntrNo: cntrNo.value };
 
@@ -351,6 +362,8 @@ async function onClickCreate() {
 
   await grdMainRef3.value.getData().clearRows();
 
+  subCount.value = checkItem.length;
+
   checkItem.forEach((data) => {
     gridUtil.insertRowAndFocus(view3, 0, {
 
@@ -363,7 +376,7 @@ async function onClickCreate() {
       cntrNo: data.cntrNo, /* 계약번호 */
       cntrSn: data.cntrSn, /* 일련번호 */
       cntr: data.cntrNo + data.cntrSn, /* 계약상세번호 */
-      billDpAmt: rowItem.billDpAmt, /* 입금금액 */
+      billDpAmt: data.sellAmt, /* 입금금액 */
       billDlpnrNm: checkItem[0].dlpnrNm,
       sellBzsBzrno: rowItem.sellBzsBzrno,
       pblBzsBzrno: rowItem.pblBzsBzrno,
@@ -398,12 +411,12 @@ async function onGridAdd() {
 
 // 저장버튼
 async function onClickSave() {
-  // const view2 = grdMainRef2.value.getView();
+  const view2 = grdMainRef2.value.getView();
   const view = grdMainRef3.value.getView();
-  // const changedRows2 = gridUtil.getChangedRowValues(view2);
+  const changedRows2 = gridUtil.getAllRowValues(view2);
   const changedRows = gridUtil.getChangedRowValues(view);
 
-  // console.log(changedRows2);
+  console.log(changedRows2);
   // console.log(changedRows);
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -418,8 +431,19 @@ async function onClickSave() {
   } else {
     changedRows[0].state = 'updated';
   }
+  // const dpAmt = Number(changedRows2[0].billDpAmt);
+  // const dpSubAmt = 0;
 
   changedRows.forEach((data) => { data.itgDpNo = itgDpNo.value; });
+  // changedRows.forEach((data) => { data.itgDpNo = itgDpNo.value; dpSubAmt += Number(data.billDpAmt); });
+
+  // console.log(dpAmt);
+  // console.log(dpSubAmt);
+
+  // if (dpAmt !== dpSubAmt) {
+  //   await alert('상세정보 입금액과 상세현황 입금액이 다릅니다.');
+  //   return;
+  // }
 
   const cachedParam = {
     saveMainReq: changedRows[0],
@@ -554,12 +578,12 @@ const initGrid1 = defineGrid((data, view) => {
   //   }
   // };
 
-  view.onScrollToBottom = async (g) => {
-    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-      pageInfo.value.pageIndex += 1;
-      await fetchData();
-    }
-  };
+  // view.onScrollToBottom = async (g) => {
+  //   if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+  //     pageInfo.value.pageIndex += 1;
+  //     await fetchData();
+  //   }
+  // };
 });
 
 const initGrid2 = defineGrid((data, view) => {
@@ -728,7 +752,11 @@ const initGrid3 = defineGrid((data, view) => {
       // , header: '통합입금번호'
       width: '126',
       styleName: 'text-left',
-      editable: false },
+      editable: false,
+      headerSummary: {
+        styleName: 'text-center',
+        text: t('MSG_TXT_SUM'),
+      } },
     { fieldName: 'rveCd',
       header: t('MSG_TXT_RVE_CD'),
       // , header: '수납코드'
@@ -766,6 +794,10 @@ const initGrid3 = defineGrid((data, view) => {
       // header: '계약상세번호',
       width: '120',
       styleName: 'text-right',
+      displayCallback(g, index) {
+        const param = g.getValues(index.itemIndex);
+        return `${param.cntrNo}-${param.cntrSn}`;
+      },
       editable: false },
     {
       fieldName: 'billDpAmt',
@@ -773,6 +805,10 @@ const initGrid3 = defineGrid((data, view) => {
         text: t('MSG_TXT_WON_DP_AMT'),
         // text: '입금액(원)',
         styleName: 'essential',
+      },
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
       },
       editor: {
         type: 'number',
@@ -791,12 +827,24 @@ const initGrid3 = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  view.onScrollToBottom = async (g) => {
-    if (pageInfoSecond.value.pageIndex * pageInfoSecond.value.pageSize <= g.getItemCount()) {
-      pageInfoSecond.value.pageIndex += 1;
-      await fetchData();
-    }
-  };
+  view.layoutByColumn('itgDpNo').summaryUserSpans = [{ colspan: 7 }];
+
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        // styleName: 'blue-column', //  개별 css 스타일 적용 필요시
+        height: 40,
+      },
+    ],
+  });
+
+  // view.onScrollToBottom = async (g) => {
+  //   if (pageInfoSecond.value.pageIndex * pageInfoSecond.value.pageSize <= g.getItemCount()) {
+  //     pageInfoSecond.value.pageIndex += 1;
+  //     await fetchData();
+  //   }
+  // };
 });
 
 </script>

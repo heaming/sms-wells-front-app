@@ -180,7 +180,7 @@ import { useDataService, codeUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { pdMergeBy, pdRemoveBy, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
+import { getCodeNames, pdMergeBy, pdRemoveBy, getCopyProductInfo, isValidToProdcutSave } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
 import WwpdcStandardMgtMPrice from './WwpdcStandardMgtMPrice.vue';
 import WwpdcStandardMgtMRel from './WwpdcStandardMgtMRel.vue';
@@ -191,6 +191,7 @@ const props = defineProps({
   newRegYn: { type: String, default: null },
   reloadYn: { type: String, default: null },
   copyPdCd: { type: String, default: null },
+  propWatch: { type: Object, default: null },
 });
 
 const router = useRouter();
@@ -222,6 +223,7 @@ const currentPdCd = ref();
 const currentNewRegYn = ref();
 const currentReloadYn = ref();
 const currentCopyPdCd = ref();
+const fnlMdfcDtm = ref();
 const isCreate = ref(false);
 const obsMainRef = ref();
 const subTitle = ref();
@@ -242,7 +244,25 @@ const codes = await codeUtil.getMultiCodes(
   'MSH_SELL_DTL_TP_CD', // 멤버십 판매상세유형 : 판매유형 - 3
 );
 
+// 상품 수정여부 검증
+async function isModifiedCheck() {
+  let modifiedOk = false;
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (!modifiedOk) {
+      if (await item.value.isModifiedProps()) {
+        modifiedOk = true;
+      }
+    }
+  }));
+  return modifiedOk;
+}
+
 async function getSaveData() {
+// 데이터가 많아서 수정여부를 체크하여 미수정시, 텝 데이터 수집을 하지않음.
+  if (!(await isModifiedCheck())) {
+    return prevStepData.value;
+  }
+
   const subList = { isModifiedProp: false,
     isOnlyFileModified: false,
     isModifiedPrice: false,
@@ -321,12 +341,16 @@ async function getSaveData() {
   return subList;
 }
 
+async function goList() {
+  await router.push({ path: '/product/zwpdc-sale-product-list', state: { stateParam: { searchYn: 'Y', pdTpCd: pdConst.PD_TP_CD_STANDARD } } });
+}
+
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/standards/${currentPdCd.value}`);
     await obsMainRef.value.reset();
     await router.close();
-    await router.push({ path: '/product/zwpdc-sale-product-list', state: { stateParam: { searchYn: 'Y' } } });
+    await goList();
   }
 }
 
@@ -412,13 +436,21 @@ async function init() {
 
 async function fetchProduct() {
   if (currentPdCd.value) {
-    const res = await dataService.get(`/sms/wells/product/standards/${currentPdCd.value}`);
+    const res = await dataService.get(`/sms/wells/product/standards/${currentPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
+
     // console.log('WwpdcStandardMgtM - fetchProduct - res.data', res.data);
     const initData = res.data;
+    fnlMdfcDtm.value = initData[bas].fnlMdfcDtm;
     isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
     prevStepData.value = initData;
   } else if (currentCopyPdCd.value) {
-    const res = await dataService.get(`/sms/wells/product/standards/${currentCopyPdCd.value}`);
+    const res = await dataService.get(`/sms/wells/product/standards/${currentCopyPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     prevStepData.value = await getCopyProductInfo(res.data);
     isTempSaveBtn.value = 'Y';
   }
@@ -436,15 +468,7 @@ async function onClickSave(tempSaveYn) {
   // 1. Step별 수정여부 확인
   // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
-    let modifiedOk = false;
-    await Promise.all(cmpStepRefs.value.map(async (item) => {
-      if (!modifiedOk) {
-        if (await item.value.isModifiedProps()) {
-          modifiedOk = true;
-        }
-      }
-    }));
-    if (!modifiedOk) {
+    if (!(await isModifiedCheck())) {
       notify(t('MSG_ALT_NO_CHG_CNTN'));
       return;
     }
@@ -482,8 +506,10 @@ async function onClickSave(tempSaveYn) {
   let rtn;
   if (isCreate.value) {
     rtn = await dataService.post('/sms/wells/product/standards', subList);
-  } else {
+  } else if (await isValidToProdcutSave(currentPdCd.value, fnlMdfcDtm.value, pdConst.PD_JOB_TYPE_EDIT)) {
     rtn = await dataService.put(`/sms/wells/product/standards/${currentPdCd.value}`, subList);
+  } else {
+    return;
   }
   notify(t('MSG_ALT_SAVE_DATA'));
   await init();
@@ -491,7 +517,7 @@ async function onClickSave(tempSaveYn) {
   if (tempSaveYn === 'N') {
     // 목록으로 이동
     // await router.close();
-    await router.push({ path: '/product/zwpdc-sale-product-list', state: { stateParam: { searchYn: 'Y', pdTpCd: pdConst.PD_TP_CD_STANDARD } } });
+    await goList();
     return;
   }
   if (isTempSaveBtn.value) {
@@ -516,6 +542,31 @@ async function setSellDetailTypeCodes(sellTpCd, isReset = false) {
   }
 }
 
+// 판매채널 변경시, 가격정보에서 사용된 채널은 복구
+async function checkUsedSellChannel(channels) {
+  if (channels && prevStepData.value[prcfd] && prevStepData.value[prcfd].length) {
+    // console.log('mgtNameFields?.avlChnlId.initValue : ', channels);
+    const prcUsedChannels = prevStepData.value[prcfd].reduce((rtn, item) => {
+      if (!rtn.includes(item.sellChnlCd)) {
+        rtn.push(item.sellChnlCd);
+      }
+      return rtn;
+    }, []);
+    const recoveryChannels = [];
+    prcUsedChannels.forEach(async (channel) => {
+      if (!channels.includes(channel)) {
+        recoveryChannels.push(channel);
+      }
+    });
+    if (recoveryChannels.length) {
+      channels.push(...recoveryChannels);
+      const recoveryChannelNames = getCodeNames(codes.SELL_CHNL_DTL_CD, recoveryChannels.join(','));
+      // 가격정보에서 사용중인 다음 채널은 복구 됩니다. {0}
+      notify(t('MSG_ALT_PD_RECOV_CHANNLS', [`[${recoveryChannelNames}]`]));
+    }
+  }
+}
+
 // 매출인식분류코드
 async function fetechSaleRecognitionClassification(slRcogClsfCd) {
   if (slRcogClsfCd) {
@@ -528,7 +579,10 @@ async function fetechSaleRecognitionClassification(slRcogClsfCd) {
 async function onUpdateBasicValue(field) {
   if (field.colNm === 'sellTpCd') {
     // 판매유형
-    setSellDetailTypeCodes(field.initValue, true);
+    await setSellDetailTypeCodes(field.initValue, true);
+  } else if (field.colNm === 'avlChnlId') {
+    // 판매채널
+    await checkUsedSellChannel(field.initValue);
   }
 }
 
@@ -565,6 +619,7 @@ async function resetData() {
   }
   currentStep.value = cloneDeep(pdConst.STANDARD_STEP_BASIC);
   prevStepData.value = {};
+  fnlMdfcDtm.value = null;
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.resetData) await item.value?.resetData();
     if (item.value?.init) await item.value?.init();
@@ -608,9 +663,9 @@ async function initProps() {
 
 await initProps();
 
-watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd }) => {
-  console.log(` WwpdcStandardMgtM - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd}`);
-  if (pdCd && currentPdCd.value !== pdCd) {
+watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch }) => {
+  console.log(` WwpdcStandardMgtM - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd} propWatch: ${propWatch}`);
+  if (pdCd && (currentPdCd.value !== pdCd || propWatch)) {
     // 상품코드 변경
     currentPdCd.value = pdCd;
     currentNewRegYn.value = 'N';

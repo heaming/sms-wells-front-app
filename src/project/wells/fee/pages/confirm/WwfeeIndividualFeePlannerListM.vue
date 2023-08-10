@@ -189,7 +189,7 @@
           secondary
           dense
           :label="t('MSG_BTN_BU_DDTN')"
-          @click="openBurdenDeductionPopup"
+          @click="openZwfedFeeBurdenDeductionRegP"
         />
       </kw-action-top>
       <kw-form
@@ -382,59 +382,67 @@ async function openReportPopup() {
 }
 
 /*
- *  Event - 실적상세 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 실적상세 버튼 클릭
  */
 async function openPerformancePopup() {
+  const { perfYm, no } = searchParams.value;
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    perfYm,
+    no,
+    ogTpCd: 'W01',
+  };
+  if (no !== '') {
+    await modal({
+      component: 'WwfeeIndividualFeeDetailListP',
+      componentProps: param,
+    });
+  }
+}
+
+/*
+ *  Event - 재지급 버튼 클릭
+ */
+async function openAgainDisbursementPopup() {
+  const param = {
+    prtnrNo: searchParams.value.no,
     ogTpCd: 'W01',
   };
 
   await modal({
-    component: 'WwfeeIndividualFeeDetailListP',
+    component: 'WwdebAgainDisbursementDetailP',
     componentProps: param,
   });
 }
-/*
- *  Event - 재지급 버튼 클릭  ※현재 팝업화면 없음
- */
-async function openAgainDisbursementPopup() {
-  const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
-  };
 
-  await modal({
-    component: 'openAgainDisbursementPopup',
-    componentProps: param,
-  });
-}
 /*
- *  Event - 부담공제 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 부담공제조정 버튼 클릭
  */
-async function openBurdenDeductionPopup() {
+async function openZwfedFeeBurdenDeductionRegP() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    ddtnYm: searchParams.value.perfYm,
+    ogTpCd: 'W01',
+    ogTpCdTxt: 'P조직',
+    coCd: '2000',
+    coCdTxt: 'WELLS',
+    prtnrNo: searchParams.value.no,
   };
-
   await modal({
-    component: 'openBurdenDeductionPopup',
+    component: 'ZwfedFeeBurdenDeductionRegP',
     componentProps: param,
   });
 }
+
 /*
- *  Event - 되물림 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 되물림 버튼 클릭
  */
 async function openRedemptionOfFeePopup() {
   const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
+    prtnrNo: searchParams.value.no,
+    ogTpCd: 'W01',
   };
 
   await modal({
-    component: 'openRedemptionOfFeePopup',
+    component: 'WwdeaAllowanceDelinquentRedemptionFeeListP',
     componentProps: param,
   });
 }

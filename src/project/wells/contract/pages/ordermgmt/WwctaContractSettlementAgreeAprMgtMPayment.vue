@@ -26,6 +26,7 @@
     :crdcd-stlms="crdcdStlms"
     :mileage-stlms="mileageStlms"
     @approved="onApprovedSpayStlms"
+    @approve-canceled="onApproveCanceledSpayStlms"
   />
   <card-automatic-transfer-approval
     ref="cardAftnRef"
@@ -45,6 +46,7 @@
     @approved="onIssuedVirtualAccount"
   />
   <cash-sales-receipt
+    v-if="cashSalesReceiptInfo"
     ref="cashRef"
     v-model="cashSalesReceiptInfo"
   />
@@ -134,6 +136,10 @@ function onApprovedSpayStlms(stlmsUpdateInfo) {
   spayStlmsUpdateInfo.value = stlmsUpdateInfo;
 }
 
+function onApproveCanceledSpayStlms() {
+  spayStlmsUpdateInfo.value = [];
+}
+
 /* account auto transfer */
 const crdCdAftnStlm = computed(() => Object.values(stlmInfo.value)
   .find((stlm) => CARD_AUTOMATIC_TRANSFER_DP_TP_CD === stlm.dpTpCd));
@@ -167,8 +173,13 @@ function onIssuedVirtualAccount(stlmUpdateInfo) {
 // const cashSalesStlmRels = computed(() => stlmRels.value
 //   .filter((rel) => VIRTUAL_ACCOUNT_ISSUE_DP_TP_CD === rel.dpTpCd));
 
-function getDefaultReceiptInfo(cntrCstInfo) {
+function getDefaultReceiptInfo(vacStlmId, cntrCstInfo) {
+  if (!vacStlmId) {
+    return;
+  }
   const normalized = {
+    /* 결재 기반으로 생성이 되지 않습니다. 계약 결제 관계 기반으로 생성 될 예정이나, back office 에서 처리할 것입니다. */
+    cntrStlmId: vacStlmId,
     cstKnm: '',
     cssrIsDvCd: '',
     cssrIsNo: '',
@@ -185,7 +196,7 @@ function getDefaultReceiptInfo(cntrCstInfo) {
   return normalized;
 }
 
-const cashSalesReceiptInfo = ref(getDefaultReceiptInfo(props.contractor));
+const cashSalesReceiptInfo = ref(getDefaultReceiptInfo(vacStlm.value?.cntrStlmId, props.contractor));
 
 /* expose */
 const spayRef = ref();
@@ -205,7 +216,7 @@ async function getInvalidRef() {
   if (vacIssueRef.value.ref && !await vacIssueRef.value.validate()) {
     return vacIssueRef.value.ref;
   }
-  if (cashRef.value.ref && !await cashRef.value.validate()) {
+  if (cashRef.value?.ref && !await cashRef.value.validate()) {
     return cashRef.value.ref;
   }
 }

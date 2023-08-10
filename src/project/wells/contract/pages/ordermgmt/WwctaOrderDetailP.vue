@@ -26,7 +26,7 @@
           <p>{{ frmMainData.cntrDtlNo }}</p>
         </kw-form-item>
         <!-- 계약상품리스트 -->
-        <slot v-if="props.sellTpCd !== '6'">
+        <slot v-if="frmMainData.sellTpCd !== '6'">
           <kw-form-item :label="$t('MSG_TXT_CNTRCT_PD_LIST')">
             <kw-select
               v-model="frmMainData.cntrDtlNo"
@@ -91,8 +91,8 @@
           class="mt30"
         >
           <kw-form-row>
-            <!-- 고객명 -->
-            <kw-form-item :label="$t('MSG_TXT_CST_NM')">
+            <!-- 계약자명 -->
+            <kw-form-item :label="$t('MSG_TXT_CNTOR_NM')">
               <p>{{ frmMainData.cstKnm }}</p>
             </kw-form-item>
             <!-- 고객번호 -->
@@ -102,9 +102,9 @@
           </kw-form-row>
 
           <kw-form-row>
-            <!-- 계약번호 -->
-            <kw-form-item :label="$t('MSG_TXT_CNTR_NO')">
-              <p>{{ frmMainData.cntrNo }}</p>
+            <!-- 계약상세번호 -->
+            <kw-form-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
+              <p>{{ frmMainData.cntrDtlNo }}</p>
             </kw-form-item>
             <slot v-if="props.copnDvCd === '1'">
               <!-- 생년월일 -->
@@ -136,6 +136,13 @@
             <kw-form-item :label="$t('MSG_TXT_GENDER')">
               <p>{{ frmMainData.sexDvNm }}</p>
             </kw-form-item>
+            <!-- 세이프키 -->
+            <kw-form-item :label="$t('MSG_TXT_SFK')">
+              <p>{{ frmMainData.sfkVal }}</p>
+            </kw-form-item>
+          </kw-form-row>
+
+          <kw-form-row>
             <!-- 자동이체 -->
             <kw-form-item :label="$t('MSG_TXT_AUTO_FNT')">
               <kw-chip
@@ -151,10 +158,6 @@
           </kw-form-row>
 
           <kw-form-row>
-            <!-- 세이프키 -->
-            <kw-form-item :label="$t('MSG_TXT_SFK')">
-              <p>{{ frmMainData.sfkVal }}</p>
-            </kw-form-item>
             <!-- 가상계좌 -->
             <kw-form-item :label="$t('MSG_TXT_VT_AC')">
               <kw-chip
@@ -330,7 +333,8 @@ const searchParams = ref({
 });
 
 const frmMainData = ref({
-  cntrDtlNo: '', // 계약상세번호
+  cntrDtlNo: `${props.cntrNo}-${props.cntrSn}`, // 계약상세번호
+  sellTpCd: props.sellTpCd, // 판매유형코드
   pdNm: '', // 상품명
   cstKnm: '', // 고객명
   cntrCstNo: '', // 고객번호
@@ -379,7 +383,7 @@ async function fetchDataContractLists() {
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
   res = await dataService.get('/sms/wells/contract/contracts/order-details/customer-bases/contract-lists', { params: cachedParams });
-  // console.log(res.data);
+  console.log(res.data);
   optionList.value = res.data;
 
   // eslint-disable-next-line no-use-before-define
@@ -397,6 +401,7 @@ async function fetchDataCustomerBase() {
   isVacInfo.value = false;
   if (res.data.length > 0) {
     frmMainData.value.cntrDtlNo = res.data[0].cntrDtlNo; // 계약상세번호
+    frmMainData.value.sellTpCd = res.data[0].sellTpCd; // 판매유형코드
     frmMainData.value.pdNm = res.data[0].pdNm; // 상품명
     frmMainData.value.cstKnm = res.data[0].cstKnm; // 고객명
     frmMainData.value.cntrCstNo = res.data[0].cntrCstNo; // 고객번호
@@ -437,8 +442,12 @@ async function fetchDataCustomerBase() {
           frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${res.data[0].aftnInfo.split(' ')[3]}`;
         }
       }
+    } else {
+      isAftnInfo.value = false;
+      frmMainData.value.aftnInfo = ''; // 자동이체(계좌/카드자동이체를 표시)
     }
     frmMainData.value.sfkVal = res.data[0].sfkVal; // 세이프키
+    // 가상계좌
     if (!isEmpty(res.data[0].vacInfo)) {
       // console.log(res.data[0].vacInfo.length + isVacInfo.value);
       if (res.data[0].vacInfo.length > 3) {
@@ -446,8 +455,16 @@ async function fetchDataCustomerBase() {
         frmMainData.value.vacBnkNm = res.data[0].vacInfo.split('$')[0]; // 가상계좌은행명
         frmMainData.value.vacInfo = `${res.data[0].vacInfo.split('$')[1]} ${res.data[0].vacInfo.split('$')[2]}`; // 가상계좌(가상계좌번호+입금일)
         frmMainData.value.vacVncoDvCd = res.data[0].vacInfo.split('$')[3]; // 가상계좌VAN사구분코드
+      } else {
+        isVacInfo.value = false;
+        frmMainData.value.vacBnkNm = '';
+        frmMainData.value.vacInfo = '';
+        frmMainData.value.vacVncoDvCd = '';
       }
-    } // 가상계좌
+    } else {
+      isVacInfo.value = false;
+      frmMainData.value.vacInfo = ''; // 가상계좌
+    }
     frmMainData.value.cntrtAdr = res.data[0].cntrtAdr; // 계약자 주소
     frmMainData.value.rcgvpKnm = res.data[0].rcgvpKnm; // 설치(배송정보) 고객명
     const { istCralLocaraTno, istMexnoEncr, istCralIdvTno } = res.data[0]; // 설치자 휴대지역전화번호
@@ -457,6 +474,36 @@ async function fetchDataCustomerBase() {
       frmMainData.value.rcgvpTno = isEmpty(istCralLocaraTno) && isEmpty(istMexnoEncr) && isEmpty(istCralIdvTno) ? '' : `${istCralLocaraTno}-${istMexnoEncr}-${istCralIdvTno}`; // 설치(배송정보) 휴대전화번호
     }
     frmMainData.value.rcgvpAdr = res.data[0].rcgvpAdr; // 설치(배송정보) 주소
+  } else {
+    frmMainData.value.pdNm = ''; // 상품명
+    frmMainData.value.cstKnm = ''; // 고객명
+    frmMainData.value.cntrCstNo = ''; // 고객번호
+    frmMainData.value.cntrNo = ''; // 계약번호
+    frmMainData.value.cntrSn = ''; // 계약일련번호
+    frmMainData.value.cstNo2 = ''; // 생년월일(개인법인에 따라 생년월일 또는 사업자등록번호 표시)
+    frmMainData.value.cntrCralLocaraTno = ''; // 계약자 휴대지역전화번호
+    frmMainData.value.cntrMexnoEncr = ''; // 계약자 휴대전화국번호암호화
+    frmMainData.value.cralTno = ''; // 계약자 휴대개별전화번호
+    frmMainData.value.cstGd = ''; // 고객등급
+    frmMainData.value.sexDvNm = ''; // 성별
+    frmMainData.value.cdcoNm = ''; // 은행/카드 회사명
+    frmMainData.value.aftnInfo = ''; // 자동이체(계좌/카드자동이체를 표시)
+    frmMainData.value.dpTpCd = ''; // 입금유형코드
+    frmMainData.value.acnoEncr = ''; // 계좌번호
+    frmMainData.value.crcdnoEncr = ''; // 카드번호
+    isAftnInfo.value = false;
+    frmMainData.value.sfkVal = ''; // 세이프키
+    isVacInfo.value = false; // 가상계좌 표시여부
+    frmMainData.value.vacBnkNm = ''; // 가상계좌은행명
+    frmMainData.value.vacInfo = ''; // 가상계좌
+    frmMainData.value.vacVncoDvCd = ''; // 가상계좌VAN사구분코드
+    frmMainData.value.cntrtAdr = ''; // 계약자 주소
+    frmMainData.value.rcgvpKnm = ''; // 설치(배송정보) 고객명
+    frmMainData.value.istCralLocaraTno = ''; // 설치자 휴대지역전화번호
+    frmMainData.value.istMexnoEncr = ''; // 설치자 휴대전화국번호암호화
+    frmMainData.value.istCralIdvTno = ''; // 설치자 휴대개별전화번호
+    frmMainData.value.rcgvpTno = ''; // 설치(배송정보) 휴대전화번호
+    frmMainData.value.rcgvpAdr = ''; // 설치(배송정보) 주소
   }
 }
 
@@ -471,14 +518,14 @@ async function currentTabFetchData() {
       await tabSellInfoRef.value.setDatas(
         searchParams.value.cntrNo,
         searchParams.value.cntrSn,
-        props.sellTpCd,
+        frmMainData.value.sellTpCd,
       );
       break;
     case 'dpIz': // 입금내역
       await tabDpIzRef.value.setDatas(
         searchParams.value.cntrNo,
         searchParams.value.cntrSn,
-        props.sellTpCd,
+        frmMainData.value.sellTpCd,
         props.cntrCstNo,
       );
       break;
@@ -513,10 +560,15 @@ async function currentTabFetchData() {
 async function onSelectCntrctPdList() {
   const cntrNo = frmMainData.value.cntrDtlNo.split('-')[0];
   const cntrSn = frmMainData.value.cntrDtlNo.split('-')[1];
-  console.log(cntrNo);
-  console.log(cntrSn);
+  // console.log(cntrNo);
+  // console.log(cntrSn);
   searchParams.value.cntrNo = cntrNo;
   searchParams.value.cntrSn = cntrSn;
+
+  const returnOpt = optionList.value.filter((v) => v.cntrDtlNo === frmMainData.value.cntrDtlNo);
+  if (!isEmpty(returnOpt[0].sellTpCd)) {
+    frmMainData.value.sellTpCd = returnOpt[0].sellTpCd;
+  }
 
   await currentTabFetchData();
 }
@@ -557,8 +609,8 @@ async function onClickEmailSend() {
 }
 
 onMounted(async () => {
-  console.log(`sellTpCd : ${props.sellTpCd}`);
-  console.log(`copnDvCd : ${props.copnDvCd}`);
+  // console.log(`sellTpCd : ${props.sellTpCd}`);
+  // console.log(`copnDvCd : ${props.copnDvCd}`);
   await fetchDataContractLists();
 });
 

@@ -193,6 +193,17 @@
         <kw-btn
           primary
           dense
+          :label="t('수당/연체 되물림(팝업) 테스트')"
+          @click="onClickTest"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+        <kw-btn
+          primary
+          dense
           :label="t('MSG_BTN_REDF_OJ_ALL_CRT')"
           @click="onClickRedfObjectCreate('all')"
         />
@@ -232,7 +243,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { codeUtil, getComponentType, gridUtil, useDataService, router, useMeta, modal, alert } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, router, useMeta, modal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 // -------------------------------------------------------------------------------------------------
@@ -246,6 +257,7 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const monthFrom = dayjs().subtract(1, 'month').format('YYYYMM');
 const monthTo = dayjs().subtract(0, 'month').format('YYYYMM');
+const defalutMonth = dayjs().subtract(0, 'month').format('YYYYMM');
 const { getUserInfo } = useMeta();
 const userInfo = getUserInfo();
 
@@ -318,7 +330,7 @@ let pageUrl;
 
 const searchParams = ref({
   ogTpCd: codes.REDF_OG_TP_CD[0].codeId, // 되물림 조직유형코드 변경예정
-  redfAdsbOcYmFrom: monthFrom, // MSG_TXT_YEAR_OCCURNCE from
+  redfAdsbOcYmFrom: defalutMonth, // MSG_TXT_YEAR_OCCURNCE from
   redfAdsbOcYmTo: monthTo, // MSG_TXT_YEAR_OCCURNCE to
   slYmFrom: monthFrom, // MSG_TXT_SL_YM from
   slYmTo: monthTo, // MSG_TXT_SL_YM to
@@ -394,6 +406,23 @@ async function onClickExcelDownload() {
   });
 }
 
+/* TODO: 어느 화면에서 호출하는지 없어서 우선 수당(실적) 되물림 관리 화면에 붙여놓음
+* 이규병 파트장님 요청 ( 테스트용 )
+*/
+async function onClickTest() {
+  // const { result, payload } =
+  await modal({
+    component: 'WwdeaAllowanceDelinquentRedemptionFeeListP',
+    componentProps: {
+      prtnrNo: '1331699',
+    //   ogTpCd: userInfo.ogTpCd,
+    },
+  });
+  // if (result) {
+  //   searchParams.value.prtnrNo = payload.prtnrNo;
+  // }
+}
+
 /* 되물림 대상(실적) 생성 */
 async function onClickRedfObjectCreate(param) {
   await modal({
@@ -409,8 +438,7 @@ async function onClickPageMove(routerType) {
   pageUrl = '';
   // '/fee/zwded-pnpyam-reg',
   if (routerType === 'SLS') {
-    await alert(t('현재 미개발된 화면으로 이동 불가합니다.'));
-    return;
+    pageUrl = '/fee/wwdea-partner-redf-object-agrg-list';
   } if (routerType === 'B2B') {
     pageUrl = '/fee/wwdea-sole-distributor-mgt';
   } else if (routerType === 'HM') {
@@ -517,10 +545,17 @@ function initGrid(data, view) {
     { fieldName: 'envrYn', header: t('MSG_TXT_ENVR_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' },
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
+    { fieldName: 'cntrNoSn',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '140',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '100', styleName: 'text-center' },
     { fieldName: 'gnlrLedr', header: t('MSG_TXT_GNLR_LEDR'), width: '100', styleName: 'text-center' },
     { fieldName: 'localAreaManager', header: t('MSG_TXT_REG_DIR'), width: '100', styleName: 'text-center' },
     { fieldName: 'branchManager', header: t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-center' },
@@ -637,7 +672,7 @@ function initGrid2(data, view) {
     { fieldName: 'ogNm', header: t('MSG_TXT_CORP_NAME'), width: '140', styleName: 'text-center' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '140', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '140', styleName: 'text-center' },
     { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '140', styleName: 'text-center' },

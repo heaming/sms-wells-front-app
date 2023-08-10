@@ -14,7 +14,7 @@
 ****************************************************************************************************
 -->
 <template>
-  <kw-page>
+  <kw-page :title="props.title === '' ? $t('MSG_TIT_TIME_TABLE') + $t('MSG_TXT_SRCH') : props.title ">
     <h1>{{ $t('MSG_TIT_EGER_TIME_TABLE') /*엔지니어 Time table*/ }}</h1>
     <div class="normal-area normal-area--button-set-bottom pt30 mt15 w940">
       <p class="kw-font--14">
@@ -119,25 +119,6 @@
                           </td>
                         </tr>
                       </tbody>
-                      <!--                      <tfoot>
-                        <tr>
-                          <th
-                            colspan="7"
-                            class="today"
-                            style="display: none;"
-                          >
-                            {{ $t('MSG_TXT_TODAY') /*오늘*/ }}
-                          </th>
-                        </tr><tr>
-                          <th
-                            colspan="7"
-                            class="clear"
-                            style="display: none;"
-                          >
-                            {{ $t('MSG_BTN_DEL') /*삭제*/ }}
-                          </th>
-                        </tr>
-                      </tfoot>-->
                     </table>
                   </div>
                 </div>
@@ -198,7 +179,8 @@
               <kw-avatar size="60px">
                 <img
                   alt="profile"
-                  src="node_modules/kw-lib/src/assets/images/example_profile.png"
+                  :src="'https://kportal.kyowon.co.kr/myoffice/Common/ezCommon_InterFace.aspx?TYPE=ENGINEER&FILENAME=' +
+                    data.psic.empPic"
                 >
               </kw-avatar>
             </div>
@@ -332,7 +314,9 @@
         <li>
           <kw-separator />
           <font size="4px">
-            [{{ $t('MSG_BTN_RECEIPT') + $t('MSG_TXT_DDLN') /*접수마감*/ }}]<br>내일 접수는 마감되었습니다.<br> 익일이후 날짜에 방문예약 바랍니다.
+            [{{ $t('MSG_BTN_RECEIPT') + $t('MSG_TXT_DDLN') /*접수마감*/
+            }}]<br>{{ $t('MSG_TXT_TMOR_RCP_CL' /*내일 접수는 마감되었습니다*/) }}<br>
+            {{ $t('MSG_TXT_NEXTDAY_AF_DT_VST_BOO' /*익일이후 날짜에 방문예약 바랍니다.*/) }}
           </font>
         </li>
       </ul>
@@ -344,7 +328,10 @@
         <kw-separator />
         <li>
           <font size="4px">
-            <br>해당 일자는 <br>타임테이블 스케쥴 배정 완료되어 <br>배정 가능일자 확인 후 배정 바랍니다.<br><br>감사합니다.
+            {{ $t('ASN_FSH_PSB_DT_CONF'
+            /*해당 일자는
+             타임테이블 스케쥴 배정 완료되어
+             배정 가능일자 확인 후 배정 바랍니다.감사합니다.*/) }}
           </font>
         </li>
       </ul>
@@ -354,13 +341,14 @@
       >
         <kw-separator />
         <li>
-          <font size="4px">
+          {{ $t('STNB_RCP_PRGS') }}
+          <!--          <font size="4px">
             방문시간 예약접수는 마감되었습니다.<br><br>
             단, 방문시간 미확정 접수는 가능하오니, 접수를<br><br>
             원할 경우 아래 “대기접수“ 버튼을 눌러주세요.<br><br>
             접수 후 담당 서비스엔지니어가 방문 가능시간을 <br><br>
             확인하여 연락 드리도록 하겠습니다.<br><br>
-          </font>(방문시간 예약접수가 필요한 경우 다른 날짜를 선택해 주세요.)
+          </font>(방문시간 예약접수가 필요한 경우 다른 날짜를 선택해 주세요.)-->
         </li>
       </ul>
       <ul v-else>
@@ -376,7 +364,7 @@
           </h3>
           <div class="row justify-between items-center mt20">
             <p class="kw-font--14">
-              정확한 방문시간은 엔지니어가 사전 연락 드리겠습니다.
+              {{ $t('MSG_TXT_VST_PRR_CTNT' /*정확한 방문시간은 엔지니어가 사전 연락 드리겠습니다.*/) }}
             </p>
             <ul class="reservation-state">
               <li class="kw-font--14">
@@ -506,30 +494,14 @@ const props = defineProps({
   cntrNo: { type: String, default: '' },
   cntrSn: { type: String, default: '' },
   seq: { type: String, default: '' },
+  title: { type: String, default: '' },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-// if (props.baseYm === '') alert('baseYm');
-// if (props.chnlDvCd === '') alert('chnlDvCd');
-// if (props.svDvCd === '') alert('svDvCd');
-// if (props.sellDate === '') alert('sellDate');
-// if (props.svBizDclsfCd === '') alert('svBizDclsfCd');
-// if (props.inflwChnl === '') alert('inflwChnl');
-// if (props.basePdCd === '') alert('basePdCd');
-// if (props.wrkDt === '') alert('wrkDt');
-// if (props.mtrStatCd === '') alert('mtrStatCd');
-// if (props.returnUrl === '') alert('returnUrl');
-// if (props.mkCo === '') alert('mkCo');
-// if (props.cntrNo === '') alert('cntrNo');
-// if (props.cntrSn === '') alert('cntrSn');
-// if (props.seq === '') alert('seq');
-
-// const currentDay = dayjs().format('YYYYMMDD');
 const currentTime = dayjs().format('HHmm');
 const nextDay = dayjs().add(1, 'day').format('YYYYMMDD');
 
-// const selectedDay = ref('');
 const schedules = ref([]);
 const scheduleInfo = ref({
   weekCnt: 0,
@@ -538,9 +510,7 @@ const scheduleInfo = ref({
 let cachedParams;
 const clickedBtn = ref(''); // 0:오전, 1:오후
 
-// const enableDays = ref([]);
 const disableDays = ref([]);
-// const timeConstMsg = ref([]);
 
 const searchParams = ref({
   baseYm: props.baseYm,
@@ -618,20 +588,15 @@ function getCurrentDate() {
 
 async function getTimeTables() {
   cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/wells/service/time-tables/time-assign', { params:
-   { ...cachedParams,
-   } });
-
-  // console.log(res);
+  const res = await dataService.get(
+    '/sms/wells/service/time-tables/time-assign',
+    { params: { ...cachedParams } },
+  );
 
   data.value = res.data;
-  // enableDays.value = [];
   disableDays.value = [];
-  // timeConstMsg.value = [];
   clickedBtn.value = '';
   data.value.sellTime = '';
-
-  // console.log(JSON.stringify(data.value));
 
   //---------------------------------------------------------------
   // test
@@ -754,11 +719,6 @@ async function getTimeTables() {
 
   // 모종이라면
   if (data.value.sidingYn === 'Y') {
-    // abledDays
-    // data.value.sidingDays.forEach((item) => {
-    //  enableDays.value.push(item.ablDays);
-    // });
-
     // ddd_abledays
     if (data.value.disableDays.length > 0) {
       data.value.disableDays.forEach((item) => {
@@ -851,8 +811,8 @@ function homecareAllTheseDays(inDate, isNotifyMessage) {
   }
 
   if (inDate >= twoMonth) {
+    /* 2개월 접수제한 */
     if (isNotifyMessage) notify(`2${t('MSG_TXT_MCNT'/* 개월 */)} ${t('MSG_BTN_RECEIPT' /* 접수 */)}${t('MSG_TXT_LIMIT' /* 제한 */)}`);
-    // 2개월 접수제한
     return 'N';
   }
   return 'Y';
@@ -879,10 +839,12 @@ function isEnable(dayCnt, isNotifyMessage) {
   // console.group('isEnable');
   const pointedDate = getYmdText(dayCnt).replace(/-/g, '');
 
+  // 모종
   if (data.value.sidingYn === 'Y') {
     return enableAllTheseDays(pointedDate, isNotifyMessage);
   }
 
+  // 홈케어
   if (data.value.svDvCd === '4') {
     return homecareAllTheseDays(pointedDate, isNotifyMessage);
   }
@@ -913,35 +875,26 @@ function getDayText(dayCnt) {
 
 async function onClickCalendar($event, weekIdx, dayIdx) {
   const dayCnt = getDayCnt(weekIdx, dayIdx);
-  // selectedDay.value = getYmdText(dayCnt);
   const selectedDay = getYmdText(dayCnt);
+  const today = dayjs().format('YYYYMMDD');
 
-  if (((searchParams.value.chnlDvCd === 'W' || searchParams.value.chnlDvCd === 'P')
-    && selectedDay === dayjs().format('YYYYMMDD'))
-    || (searchParams.value.chnlDvCd === 'K' && searchParams.value.svDvCd === '4'
-    && selectedDay === dayjs().format('YYYYMMDD'))) {
-    notify('웰스, 매니저, KSS 홈케어는 당일날짜 선택불가 합니다');
+  if (
+    // (웰스이거나 kmembers) 그리고 오늘
+    ((searchParams.value.chnlDvCd === 'W' || searchParams.value.chnlDvCd === 'P') && selectedDay === today)
+    // kss 이고 홈케어 그리고 오늘
+    || (searchParams.value.chnlDvCd === 'K' && searchParams.value.svDvCd === '4' && selectedDay === today)) {
+    /* 웰스, 매니저, KSS 홈케어는 당일날짜 선택불가 합니다 */
+    notify(t('MSG_TXT_TODAY_SELECT_DEGREE' /* 당일날짜 선택불가 합니다 */));
     return;
   }
 
-  if (selectedDay < dayjs().format('YYYYMMDD')) {
-    notify('날짜를 오늘 이후로 선택하여 주십시오');
+  if (selectedDay < today) {
+    /* 날짜를 오늘 이후로 선택하여 주십시오 */
+    notify(t('MSG_ALT_TD_AF'));
     return;
   }
-
-  // 의미없음
-  // if (searchParams.value.chnlDvCd === 'C' // CubicCC
-  //   || searchParams.value.chnlDvCd === 'W' // 웰스
-  //   || searchParams.value.chnlDvCd === 'P' //  K-MEMBERS
-  // )  {
-  //
-  // }
 
   const enable = isEnable(dayCnt, true);
-
-  // if (enable === 'N') {
-  //   notify('당일날짜는 선택불가 합니다');
-  // }
 
   // 선택 불가 확인
   if (enable === 'Y') {
@@ -955,14 +908,6 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
       element.classList.remove('active');
     });
     $event.target.classList.toggle('active');
-
-    // 의미없음
-    // if (searchParams.value.chnlDvCd === 'K' // KSS
-    //   || searchParams.value.chnlDvCd === 'I' // 엔지니어
-    //   || searchParams.value.chnlDvCd === 'E' //  엔지니어
-    //   || searchParams.value.chnlDvCd === 'M' //  매니저
-    // ) {
-    // }
   }
 }
 
@@ -1039,7 +984,7 @@ async function onClickSave() {
       && data.value.sellTime !== '0200'
       && data.value.sellTime !== '0300'
       && data.value.sellTime !== '0400') {
-      notify('현재 이후시간을 선택하여 주세요!');
+      notify(t('MSG_TXT_CRTL_HH_AF_CHO' /* 현재 이후시간을 선택하여 주세요 */));
       return;
     }
   }
@@ -1049,42 +994,31 @@ async function onClickSave() {
   ) {
     if (data.value.sellTime === '0100'
       && parseInt(dayjs().format('HHmm'), 10) > 1200) {
-      notify('미배정 오전 시간을 배정할 수 없습니다.');
+      notify(t('MSG_TXT_NASN_FRNN_HH_ASN_IMP') /* 미배정 오전 시간을 배정할 수 없습니다. */);
       return;
     }
     if (data.value.sellTime === '0200'
       && parseInt(dayjs().format('HHmm'), 10) > 1600) {
-      notify('미배정 오후1 시간을 배정할 수 없습니다.');
+      notify(t('MSG_TXT_NASN_AFNN_1HH_ASN_IMP') /* 미배정 오후1 시간을 배정할 수 없습니다. */);
       return;
     }
   }
 
-  const sendData = {
-    inChnlDvCd: data.value.chnlDvCd,
-    asIstOjNo: data.value.inflwChnl + data.value.svDvCd + data.value.wrkDt + data.value.seq,
-    svBizHclsfCd: searchParams.value.svDvCd,
-    rcpdt: data.value.wrkDt,
-    mtrStatCd: searchParams.value.mtrStatCd,
-    svBizDclsfCd: searchParams.value.svBizDclsfCd,
-    urgtYn: 'N',
-    vstRqdt: searchParams.value.sellDate,
-    vstAkHh: data.value.sellTime,
-    smsFwYn: 'N',
-    cnslMoCn: data.value.egerMemo,
-    ogTpCd: data.value.ogTpCd, // 엔지니어 조직유형
-    ichrPrtnrNo: data.value.prtnrNo, // 엔지니어 파트너번호
-    cntrNo: searchParams.value.cntrNo,
-    cntrSn: searchParams.value.cntrSn,
-    inflwChnl: searchParams.value.inflwChnl,
-    pdGdCd: 'A',
-    userId: data.value.userId, // 로그인한 사용자
-    rcpOgTpCd: data.value.rcpOgTpCd, // 로그인한 사용자 조직유형
-    cstSvAsnNo: data.value.cstSvAsnNo,
-  };
-
-  await dataService.post('/sms/wells/service/installation-works', sendData);
-  notify(t('MSG_ALT_SAVE_DATA'));
-  ok(sendData);
+  /* let url = searchParams.value.returnUrl;
+  url += `?svBizHclsfCd=${searchParams.value.svDvCd}`;
+  url += `&rcpdt=${data.value.wrkDt}`;
+  url += `&mtrStatCd=${searchParams.value.mtrStatCd}`;
+  url += `&vstRqdt=${searchParams.value.sellDate}`;
+  url += `&vstAkHh=${data.value.sellTime}`;
+  url += `&cnslMoCn=${data.value.egerMemo}`;
+  url += `&ogTpCd=${data.value.ogTpCd}`;
+  url += `&ichrPrtnrNo=${data.value.prtnrNo}`;
+  url += `&userId=${data.value.userId}`;
+  url += `&rcpOgTpCd=${data.value.rcpOgTpCd}`;
+  url += `&cntrNo=${searchParams.value.cntrNo}`;
+  window.location.href = url; */
+  window.opener?.postMessage(data.value);
+  ok();
 }
 
 onMounted(async () => {

@@ -273,11 +273,17 @@ async function onChangeBryyMmddEntrpNoCbnoryyMmdd() {
 
 // 고객번호 팝업조회
 async function onClickSearchCntrCst() {
-  const res = await modal({ component: 'ZwcsaCustomerListP' });
+  const res = await modal({
+    component: 'ZwcsaCustomerListP',
+    componentProps: {
+      cstNo: searchParams.value.cntrCstNo,
+    },
+  });
   if (res.result && res.payload) {
     // searchParams.cntrCstKnm(res.payload.name);
     // searchParams.cntrCstNo(res.payload.cstNo);
     searchParams.value.cntrCstNo = res.payload.cstNo;
+    searchParams.value.cstKnm = res.payload.name;
   }
 }
 
@@ -292,9 +298,11 @@ const initGridMembershipContractorList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약번호
     { fieldName: 'cstKnm' }, // 계약자명
+    { fieldName: 'cstKnmEncr' }, // 계약자명(암호화)
     { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'rcgvpKnm' }, // 설치자명
+    { fieldName: 'rcgvpKnmEncr' }, // 설치자명(암호화)
     { fieldName: 'sellTpDtlNm' }, // 계약구분
     { fieldName: 'mshDvNm' }, // 멤버십구분
     { fieldName: 'pdClsfNm' }, // 상품분류
@@ -318,8 +326,8 @@ const initGridMembershipContractorList = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자명
-    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-center' }, // 설치자명
+    { fieldName: 'cstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자명
+    { fieldName: 'rcgvpKnmEncr', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-center' }, // 설치자명
     { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_CNTR_DV'), width: '138' }, // 계약구분
     { fieldName: 'mshDvNm', header: t('MSG_TXT_MSH_DV'), width: '138' }, // 멤버십구분
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '138' }, // 상품분류

@@ -7,7 +7,7 @@
       />
       <kw-tab
         name="membership"
-        :label="$t('MSG_TXT_MEM')"
+        :label="$t('MSG_TXT_MEMBERSHIP')"
       />
       <kw-tab
         name="payment"

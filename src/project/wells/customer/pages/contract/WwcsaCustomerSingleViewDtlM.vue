@@ -50,7 +50,6 @@
         <!-- 성별 개인 -->
         <kw-search-item
           :label="$t('MSG_TXT_GENDER')"
-          required
         >
           <kw-option-group
             v-model="searchParams.sexDvCd"
@@ -96,7 +95,7 @@
               text-color="primary"
               class="ml12"
             />
-            <p class="kw-font--14 kw-fc--black3 ml8">
+            <!-- <p class="kw-font--14 kw-fc--black3 ml8">
               {{ customerInfo?.copnDvNm }}
             </p>
             <kw-separator
@@ -104,8 +103,8 @@
               spaced
               vertical
               class="my4 mx8"
-            />
-            <span class="">
+            /> -->
+            <span class="ml10">
               {{ !isEmpty(customerInfo?.bryyMmdd)?dayjs(customerInfo.bryyMmdd).format('YYYY-MM-DD'):'' }}
             </span>
             <kw-separator
@@ -157,7 +156,7 @@
           </kw-form-row>
         </kw-form>
 
-        <kw-separator />
+        <kw-separator class="mb25" />
 
         <template
           v-if="Number(payments?.thisRentalAmt) + Number(payments?.pyAmt)
@@ -243,7 +242,7 @@
           </div>
         </template>
 
-        <kw-separator />
+        <kw-separator class="mb25" />
 
         <template v-if="contracts.length > 0">
           <kw-btn
@@ -258,26 +257,46 @@
             class="info-table mt20"
           >
             <colgroup>
-              <col style="width: 120px; text-align: center;">
-              <col style="width: auto; text-align: left;">
-              <col style="width: 130px; text-align: center;">
-              <col style="width: 115px; text-align: left;">
+              <col style="width: 120px;">
+              <col style="width: auto;">
+              <col style="width: 130px;">
+              <col style="width: 115px;">
             </colgroup>
             <tbody>
               <tr
                 v-for="(contract, contractIdx) in contracts"
                 :key="contractIdx"
               >
-                <td>{{ dayjs(contract.cntrRcpFshDt).format('YYYY-MM-DD') }}</td>
-                <td>
-                  <kw-btn
-                    :label="contract.pdNm"
-                    underline
-                    @click="onClickContractDetailPop(contract)"
-                  />
+                <td class="text-center">
+                  {{ dayjs(contract.cntrRcpFshDt).format('YYYY-MM-DD') }}
                 </td>
-                <td>{{ contract.istCstKnm }}</td>
-                <td>{{ contract.cntrPrgsStatNm }}</td>
+                <td class="text-left">
+                  <kw-btn
+                    underline
+                    class="h20"
+                    style="max-width: 100%;"
+                    @click="onClickContractDetailPop(contract)"
+                  >
+                    <p class="ellipsis h20">
+                      {{ contract.pdNm }}
+                      <kw-tooltip
+                        show-when-ellipsised
+                        class="ellipsis_tooltip"
+                        anchor="bottom start"
+                        self="top start"
+                        :offset="[-8, 0]"
+                      >
+                        {{ contract.pdNm }}
+                      </kw-tooltip>
+                    </p>
+                  </kw-btn>
+                </td>
+                <td class="text-center">
+                  {{ contract.istCstKnm }}
+                </td>
+                <td class="text-left">
+                  {{ contract.cntrPrgsStatNm }}
+                </td>
               </tr>
             </tbody>
           </table>
@@ -320,25 +339,42 @@
                 class="info-table mt20"
               >
                 <colgroup>
-                  <col style="width: 110px; text-align: center;">
-                  <col style="width: 120px; text-align: center;">
-                  <col style="width: 70px; text-align: center;">
-                  <col style="width: 100px; text-align: left;">
-                  <col style="width: auto; text-align: left;">
+                  <col style="width: 110px;">
+                  <col style="width: 120px;">
+                  <col style="width: 70px;">
+                  <col style="width: 100px;">
+                  <col style="width: auto;">
                 </colgroup>
                 <tbody>
                   <tr
                     v-for="(service, serviceIdx) in services"
                     :key="serviceIdx"
                   >
-                    <td>{{ dayjs(service.wkExcnDt).format('YYYY-MM-DD') }}</td>
-                    <td>{{ service.cntrNo }}</td>
-                    <td>{{ service.serviceGb }}</td>
-                    <td>{{ service.pdGrpNm }}</td>
-                    <td
-                      :hint="service.pdNm"
-                    >
-                      {{ service.partPdNm }}
+                    <td class="text-center">
+                      {{ dayjs(service.wkExcnDt).format('YYYY-MM-DD') }}
+                    </td>
+                    <td class="text-left">
+                      {{ service.cntrNo }}
+                    </td>
+                    <td class="text-center">
+                      {{ service.serviceGb }}
+                    </td>
+                    <td class="text-left">
+                      {{ service.pdGrpNm }}
+                    </td>
+                    <td class="text-left">
+                      <p class="ellipsis">
+                        {{ service.partPdNm }}
+                        <kw-tooltip
+                          show-when-ellipsised
+                          class="ellipsis_tooltip"
+                          anchor="bottom start"
+                          self="top start"
+                          :offset="[-8, 0]"
+                        >
+                          {{ service.partPdNm }}
+                        </kw-tooltip>
+                      </p>
                     </td>
                   </tr>
                 </tbody>
@@ -612,7 +648,10 @@ async function fetchCustomerData() {
     const pextCstList = resData;
     const { result, payload } = await modal({
       component: 'ZwcsaCustomerChoiceListP',
-      componentProps: { pextCstList, copnDvCd: '1' },
+      componentProps: { pextCstList,
+        copnDvCd: '1',
+        callingPage: 'singleView',
+      },
     });
     if (result) {
       if (!isEmpty(payload)) {
@@ -735,6 +774,10 @@ function isHpFormat(hp) {
 
 .text-underline {
   text-underline-position: under;
+}
+
+.info-table {
+  table-layout: fixed;
 }
 
 </style>

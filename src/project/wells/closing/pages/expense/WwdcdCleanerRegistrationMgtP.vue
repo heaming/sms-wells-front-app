@@ -141,12 +141,12 @@
           required
         >
           <!--청소원고정금액-->
-
           {{ t('MSG_TXT_FXN_SAL') }}
           <kw-input
             v-model="saveParams.clinrFxnAmt"
             class="ml8"
             rules="required"
+            mask="number"
             :label="$t('MSG_TXT_FEE_DSB_WON')"
             :regex="/^[0-9]*$/i"
             :maxlength="20"
@@ -161,6 +161,7 @@
           <kw-input
             v-model="saveParams.taxDdctam"
             :disable="true"
+            mask="number"
           />
         </kw-form-item>
       </kw-form-row>
@@ -172,6 +173,7 @@
           <kw-input
             v-model="saveParams.dsbAmt"
             :disable="true"
+            mask="number"
           />
         </kw-form-item>
       </kw-form-row>
@@ -281,7 +283,6 @@
         <kw-form-item
           :label="$t('MSG_TXT_CNTR_RSG_ONE_APN')"
           :colspan="2"
-          required
         >
           <zwcm-file-attacher
             ref="attachFileRef4"
@@ -289,7 +290,6 @@
             :label="$t('MSG_TXT_CNTR_RSG_ONE_APN')"
             attach-group-id="ATG_DCD_CLING_COST"
             :attach-document-id="saveParams.cntrLroreApnFileId"
-            rules="required"
           />
           <kw-btn
             icon="download_off"
@@ -414,8 +414,6 @@ async function fetchData() {
     isDisableAplcDt.value = true;
     isDisableBldCd.value = true;
     newReg.value = true;
-
-    debugger;
   } else {
     saveParams.value.flag = '0';
     chReg.value = true;
@@ -472,4 +470,5 @@ onMounted(async () => {
   await buildingCode();
   await fetchData();
 });
+
 </script>

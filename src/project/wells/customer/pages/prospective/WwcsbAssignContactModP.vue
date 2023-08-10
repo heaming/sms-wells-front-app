@@ -20,22 +20,20 @@
         :cols="1"
       >
         <kw-form-row>
-          <!-- 배정컨택 -->
           <kw-form-item
-            :label="t('MSG_TXT_ASSIGN_CONTACT')"
+            :label="t('MSG_TXT_ASSIGN_CONTACT',null,'배정컨택')"
             required
           >
             <kw-select
               v-model="saveParams.pspcCstCnslRsCd"
               :options="codes.PSPC_CST_CNSL_RS_CD"
-              :label="t('MSG_TXT_ASSIGN_CONTACT')"
+              :label="t('MSG_TXT_ASSIGN_CONTACT',null,'배정컨택')"
               rules="required"
             />
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
-          <!-- 비고 -->
-          <kw-form-item :label="t('MSG_TXT_NOTE')">
+          <kw-form-item :label="t('MSG_TXT_NOTE',null,'비고')">
             <kw-input
               v-model.trim="saveParams.cnslMoCn"
               type="textarea"
@@ -46,7 +44,7 @@
           </kw-form-item>
         </kw-form-row>
       </kw-form>
-      <kw-separator />
+      <!-- <kw-separator /> -->
     </kw-observer>
 
     <template #action>
@@ -91,13 +89,13 @@ const props = defineProps({
   pspcCstCnslIds: { type: Object, required: true },
 });
 
+// 'PD_TP_CD',
 const codes = await codeUtil.getMultiCodes(
-  'PD_TP_CD',
   'COD_YN',
   'PSPC_CST_CNSL_RS_CD', /* 가망고객상담결과코드 */
 );
-const managePdTpCds = ['P', 'S'];
-codes.PD_TP_CD = codes.PD_TP_CD.filter((v) => (managePdTpCds.includes(v.codeId)));
+// const managePdTpCds = ['P', 'S'];
+// codes.PD_TP_CD = codes.PD_TP_CD.filter((v) => (managePdTpCds.includes(v.codeId)));
 
 const saveParams = ref({
   pspcCstCnslRsCd: '', /* 배정컨택코드 */
@@ -111,7 +109,7 @@ async function onClickSave() {
 
   console.log('saveParams.value', saveParams.value);
   await dataService.put(`${baseUrl}/contact`, saveParams.value);
-  notify('저장을 완료하였습니다');
+  notify(t('MSG_ALT_SAVE_DATA', null, '저장되었습니다.'));
   ok('T');
 }
 

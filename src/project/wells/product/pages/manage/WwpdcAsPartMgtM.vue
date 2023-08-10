@@ -50,6 +50,8 @@
                 :pd-tp-cd="pdConst.PD_TP_CD_MATERIAL"
                 :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
                 :pd-tp-dtl-cd="pdConst.PD_TP_DTL_CD_AS_PART"
+                @update="onUpdateMgtValue"
+                @keydown="onKeydownInput"
                 @open-popup="openPopup"
               />
             </kw-step-panel>
@@ -134,7 +136,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
-import { pdMergeBy, pageMove, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, pageMove, getCopyProductInfo, isValidToProdcutSave } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
 import WwpdcAsPartDtlMContents from './WwpdcAsPartDtlMContents.vue';
@@ -161,6 +163,7 @@ const rel = pdConst.TBL_PD_REL;
 
 const baseUrl = '/sms/wells/product/as-parts';
 
+const fnlMdfcDtm = ref();
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.W_AS_PART_STEP_BASIC, pdConst.W_AS_PART_STEP_CHECK]);
 const currentStep = cloneDeep(ref(pdConst.W_AS_PART_STEP_BASIC));
@@ -224,11 +227,15 @@ async function getSaveData() {
   return subList;
 }
 
+async function goList() {
+  await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { searchYn: 'Y' });
+}
+
 // 삭제 버튼
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
-    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { searchYn: 'Y' });
+    await goList();
   }
 }
 
@@ -283,12 +290,19 @@ async function init() {
 
 async function fetchProduct() {
   if (currentPdCd.value) {
-    const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`);
+    const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     prevStepData.value = res.data;
+    fnlMdfcDtm.value = prevStepData.value[bas].fnlMdfcDtm;
     isTempSaveBtn.value = prevStepData.value[bas].tempSaveYn === 'Y';
     await init();
   } else if (currentCopyPdCd.value) {
-    const res = await dataService.get(`${baseUrl}/${currentCopyPdCd.value}`);
+    const res = await dataService.get(`${baseUrl}/${currentCopyPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     prevStepData.value = await getCopyProductInfo(res.data);
     isTempSaveBtn.value = 'Y';
     // 복사기능으로 생성된 품목코드 및 AS자재번호는 삭제처리. 23-07-04
@@ -347,15 +361,21 @@ async function onClickSave(tempSaveYn) {
   }
 
   // 5. Insert or Update
-  const rtn = isCreate.value
-    ? await dataService.post(`${baseUrl}`, subList)
-    : await dataService.put(baseUrl, subList);
+  let rtn;
+  if (isCreate.value) {
+    rtn = await dataService.post(`${baseUrl}`, subList);
+  } else if (await isValidToProdcutSave(currentPdCd.value, fnlMdfcDtm.value, pdConst.PD_JOB_TYPE_EDIT)) {
+    rtn = await dataService.put(baseUrl, subList);
+  } else {
+    return;
+  }
   notify(t('MSG_ALT_SAVE_DATA'));
   await init();
 
   if (tempSaveYn === 'N') {
     // 목록으로 이동
-    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { newRegYn: 'N', reloadYn: 'N', copyPdCd: '' });
+    await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { newRegYn: 'N', reloadYn: 'N', copyPdCd: '', searchYn: 'Y' });
+    return;
   }
   if (isTempSaveBtn.value) {
     // 임시저장
@@ -380,6 +400,7 @@ async function resetData() {
   }
   currentStep.value = cloneDeep(pdConst.W_MATERIAL_STEP_BASIC);
   prevStepData.value = {};
+  fnlMdfcDtm.value = null;
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.resetData) await item.value?.resetData();
     if (item.value?.init) await item.value?.init();
@@ -456,15 +477,49 @@ async function popupCallback(payload) {
     if (isEmpty(prevStepData.value[bas])) {
       prevStepData.value = await getSaveData();
     }
-    prevStepData.value[bas].sapMatCd = payload.sapMatCd ?? '';
-    prevStepData.value[bas].modelNo = payload.modelNo ?? '';
-    prevStepData.value[bas].sapPdctSclsrtStrcVal = payload.sapPdctSclsrtStrcVal ?? '';
-    prevStepData.value[bas].sapPlntCd = payload.sapPlntCd ?? '';
-    prevStepData.value[bas].sapMatEvlClssVal = payload.sapMatEvlClssVal ?? '';
-    prevStepData.value[bas].sapMatGrpVal = payload.sapMatGrpVal ?? '';
-    prevStepData.value[bas].sapPlntCd = payload.sapPlntVal ?? '';
-    prevStepData.value[bas].sapMatTpVal = payload.sapMatTpVal ?? '';
+    // prevStepData.value[bas].sapMatCd = payload.sapMatCd ?? '';
+    // prevStepData.value[bas].modelNo = payload.modelNo ?? '';
+    // prevStepData.value[bas].sapPdctSclsrtStrcVal = payload.sapPdctSclsrtStrcVal ?? '';
+    // prevStepData.value[bas].sapPlntCd = payload.sapPlntCd ?? '';
+    // prevStepData.value[bas].sapMatEvlClssVal = payload.sapMatEvlClssVal ?? '';
+    // prevStepData.value[bas].sapMatGrpVal = payload.sapMatGrpVal ?? '';
+    // prevStepData.value[bas].sapPlntCd = payload.sapPlntVal ?? '';
+    // prevStepData.value[bas].sapMatTpVal = payload.sapMatTpVal ?? '';
+
+    const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
+    console.log('mgtNameFields', mgtNameFields);
+    console.log('payload', payload);
+    mgtNameFields.sapMatCd.initValue = payload.sapMatCd ?? '';
+    mgtNameFields.modelNo.initValue = payload.modelNo ?? '';
+    mgtNameFields.sapPdctSclsrtStrcVal.initValue = payload.sapPdctSclsrtStrcVal ?? '';
+    mgtNameFields.sapPlntCd.initValue = payload.sapPlntCd ?? '';
+    mgtNameFields.sapMatEvlClssVal.initValue = payload.sapMatEvlClssVal ?? '';
+    mgtNameFields.sapMatGrpVal.initValue = payload.sapMatGrpVal ?? '';
+    mgtNameFields.sapPlntCd.initValue = payload.sapPlntVal ?? '';
+    mgtNameFields.sapMatTpVal.initValue = payload.sapMatTpVal ?? '';
   }
+}
+
+// 메타 속성값 수정시 호출
+async function onUpdateMgtValue(field) {
+  // console.log('EwpdcStandardMgtM - onUpdateMgtValue - field : ', field);
+  /* && isEmpty(field.initName ) */
+  if (field.colNm === 'sapMatCd' && field.initName !== field.initValue) {
+    const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
+    mgtNameFields.sapMatCd.initValue = '';
+    mgtNameFields.modelNo.initValue = '';
+    mgtNameFields.sapPdctSclsrtStrcVal.initValue = '';
+    mgtNameFields.sapPlntCd.initValue = '';
+    mgtNameFields.sapMatEvlClssVal.initValue = '';
+    mgtNameFields.sapMatGrpVal.initValue = '';
+    mgtNameFields.sapMatTpVal.initValue = '';
+  }
+}
+
+// 팝업 키 다운 이벤트
+// eslint-disable-next-line no-unused-vars
+async function onKeydownInput(e, field) {
+  // console.log(e, field);
 }
 
 async function openPopup(field) {

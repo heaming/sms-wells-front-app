@@ -147,15 +147,14 @@ const codes = await codeUtil.getMultiCodes(
 
 async function fetchData() {
   // TODO. 본사 영업담당자, 본사 담당자 구분 해야함
-  debugger;
   const res = await dataService.get('/sms/wells/closing/expense/cleaners/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  console.log('res : ', res);
   const { list: pages, pageInfo: pagingResult } = res.data;
 
-  const view = grdSubRef.value.getView();
+  const subView = grdSubRef.value.getView();
   pageInfo.value = pagingResult;
-  view.getDataSource().setRows(pages);
-  view.resetCurrent();
-
+  await subView.getDataSource().setRows(pages);
+  await subView.resetCurrent();
   // view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -220,7 +219,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'aplcDt', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 신청일
     { fieldName: 'aplcnsNm', header: t('MSG_TXT_APPL_USER'), width: '200', styleName: 'text-center' }, // 신청자
     { fieldName: 'cntrwApnFileId',
-      header: t('MSG_TXT_CNTRW'),
+      header: t('MSG_TXT_CNTRW'), // 계약서
       width: '200',
       styleName: 'text-center',
       renderer: { type: 'button', hideWhenEmpty: false },
@@ -230,12 +229,22 @@ const initGrdSub = defineGrid((data, view) => {
         attachDocumentId: 'cntrwApnFileId',
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
-        multiple: true,
+        multiple: false,
         editable: false,
       },
-      displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 계약서
+      styleCallback: (grid, model) => {
+        if (!isEmpty(model.value.__atthDocumentId)) {
+          return {
+            styleName: 'text-center rg-file-button',
+          };
+        }
+        return {
+          styleName: 'text-center rg-file-hide-button',
+        };
+      },
+    },
     { fieldName: 'cntrLroreApnFileId',
-      header: t('MSG_TXT_A_CON_TERM_AGE'),
+      header: t('MSG_TXT_A_CON_TERM_AGE'), // 계약해지원
       width: '200',
       styleName: 'text-center',
       renderer: { type: 'button', hideWhenEmpty: false },
@@ -245,12 +254,22 @@ const initGrdSub = defineGrid((data, view) => {
         attachDocumentId: 'cntrLroreApnFileId',
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
-        multiple: true,
+        multiple: false,
         editable: false,
       },
-      displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 계약해지원
+      styleCallback: (grid, model) => {
+        if (!isEmpty(model.value.__atthDocumentId)) {
+          return {
+            styleName: 'text-center rg-file-button',
+          };
+        }
+        return {
+          styleName: 'text-center rg-file-hide-button',
+        };
+      },
+    },
     { fieldName: 'idfApnFileId',
-      header: t('MSG_TXT_IDF_CY'),
+      header: t('MSG_TXT_IDF_CY'), // 신분증사본
       width: '200',
       styleName: 'text-center',
       renderer: { type: 'button', hideWhenEmpty: false },
@@ -260,12 +279,22 @@ const initGrdSub = defineGrid((data, view) => {
         attachDocumentId: 'idfApnFileId',
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
-        multiple: true,
+        multiple: false,
         editable: false,
       },
-      displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 신분증사본
+      styleCallback: (grid, model) => {
+        if (!isEmpty(model.value.__atthDocumentId)) {
+          return {
+            styleName: 'text-center rg-file-button',
+          };
+        }
+        return {
+          styleName: 'text-center rg-file-hide-button',
+        };
+      },
+    },
     { fieldName: 'bnkbApnFileId',
-      header: t('MSG_TXT_BNKB_CY'),
+      header: t('MSG_TXT_BNKB_CY'), // 통장사본
       width: '200',
       styleName: 'text-center',
       renderer: { type: 'button', hideWhenEmpty: false },
@@ -275,23 +304,33 @@ const initGrdSub = defineGrid((data, view) => {
         attachDocumentId: 'bnkbApnFileId',
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
-        multiple: true,
+        multiple: false,
         editable: false,
       },
-      displayCallback: () => t('MSG_BTN_CLINR_MNGT_BRWS') }, // 통장사본
-    { fieldName: 'fmnCoSpptAmt', header: t('MSG_TXT_CO_SUFD_MM'), width: '182', styleName: 'text-center', dataType: 'number' }, // 회사지원금(월)
-    { fieldName: 'clinrFxnAmt', header: t('MSG_TXT_FXN_AMT_MM'), width: '182', styleName: 'text-center', dataType: 'number' }, // 고정금(월)
+      styleCallback: (grid, model) => {
+        if (!isEmpty(model.value.__atthDocumentId)) {
+          return {
+            styleName: 'text-center rg-file-button',
+          };
+        }
+        return {
+          styleName: 'text-center rg-file-hide-button',
+        };
+      },
+    }, // 통장사본
+    { fieldName: 'fmnCoSpptAmt', header: t('MSG_TXT_CO_SUFD_MM'), width: '182', styleName: 'text-right', dataType: 'number' }, // 회사지원금(월)
+    { fieldName: 'clinrFxnAmt', header: t('MSG_TXT_FXN_AMT_MM'), width: '182', styleName: 'text-right', dataType: 'number' }, // 고정금(월)
     { fieldName: 'taxDdctam', header: t('MSG_TXT_TAX_DDTN_WON'), width: '182', styleName: 'text-right', dataType: 'number' }, // 세금공제(원)
     { fieldName: 'amt', header: t('MSG_TXT_ACL_DSB_AMT_WON'), width: '182', styleName: 'text-right', dataType: 'number' }, // 실지급액(원)
-    { fieldName: 'wrkStrtdt', header: t('MSG_TXT_WRK_STRT_DT'), width: '182', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 근무시작일자
-    { fieldName: 'wrkEnddt', header: t('MSG_TXT_WRK_END_DT'), width: '182', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 근무종료일자
+    { fieldName: 'wrkStrtdt', header: t('MSG_TXT_WRK_STRT_DT'), width: '182', styleName: 'text-center', dataType: 'date', datetimeFormat: 'YYYY-MM-DD' }, // 근무시작일자
+    { fieldName: 'wrkEnddt', header: t('MSG_TXT_WRK_END_DT'), width: '182', styleName: 'text-center', dataType: 'date', datetimeFormat: 'YYYY-MM-DD' }, // 근무종료일자
     { fieldName: 'workStatus', header: t('MSG_TXT_WRK_YN'), width: '182', styleName: 'text-center' }, // 근무여부
     { fieldName: 'rrnoEncr', header: t('MSG_TXT_RRNO'), width: '182', styleName: 'text-center' }, // 주민등록번호
     { fieldName: 'telNum', header: t('MSG_TXT_CONTACT'), width: '182', styleName: 'text-center' }, // 연락처
     { fieldName: 'address', header: t('MSG_TXT_RRGT_ADR'), width: '182', styleName: 'text-right' }, // 주민등록상의 주소
     { fieldName: 'bnkCd', visible: false }, // 은행 // CD
-    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK_NM'), width: '182', styleName: 'text-right' }, // 은행명
-    { fieldName: 'acnoEncr', header: t('MSG_TXT_AC_NO'), width: '182', styleName: 'text-right' }, // 계좌번호
+    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK_NM'), width: '182', styleName: 'text-center' }, // 은행명
+    { fieldName: 'acnoEncr', header: t('MSG_TXT_AC_NO'), width: '182', styleName: 'text-center' }, // 계좌번호
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -301,7 +340,6 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-
   view.onCellItemClicked = (grid, { column, itemIndex }) => {
     // TODO.파일 업로드 개발 완료 되면 수정해야됨
     // 참고 ZdecRdsAnAccountErrorMgtService > saveAttachFile
@@ -326,29 +364,7 @@ const initGrdSub = defineGrid((data, view) => {
       }
     }
   };
-
-  const f1 = function (grid, model) {
-    if (isEmpty(model.value.__atthDocumentId)) {
-      return {
-        styleName: 'custom-negative-cell',
-        renderer: {
-          type: 'text',
-        },
-      };
-    }
-  };
-
-  const cntrwApnFileIdColumn = view.columnByName('cntrwApnFileId');
-  const cntrLroreApnFileIdColumn = view.columnByName('cntrLroreApnFileId');
-  const idfApnFileIdColumn = view.columnByName('idfApnFileId');
-  const bnkbApnFileIdColumn = view.columnByName('bnkbApnFileId');
-
-  cntrwApnFileIdColumn.styleCallback = f1;
-  cntrLroreApnFileIdColumn.styleCallback = f1;
-  idfApnFileIdColumn.styleCallback = f1;
-  bnkbApnFileIdColumn.styleCallback = f1;
 });
-
 </script>
 
 <style scoped>

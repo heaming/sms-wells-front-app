@@ -139,7 +139,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -164,7 +165,7 @@ import {
   gridUtil,
   useGlobal,
 } from 'kw-lib';
-import { cloneDeep, replace } from 'lodash-es';
+import { cloneDeep, replace, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -190,7 +191,7 @@ const codes = await codeUtil.getMultiCodes(
   'PDLV_DV_CD',
 );
 
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
 
 const pageInfo = ref({
   totalCount: 0,
@@ -396,13 +397,24 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'cnrOgId',
       header: t('MSG_TXT_CENTER_DIVISION'),
       width: '150',
-      editor: { type: 'list' },
-      editable: true,
       options: svcCode,
       optionValue: 'ogId',
       optionLabel: 'ogNm',
+      styleCallback(grid, dataCell) {
+        const pdlvDvCd = grid.getValue(dataCell.item.dataRow, 'pdlvDvCd');
+        if (pdlvDvCd === 'E') {
+          return {
+            editable: true,
+            editor: {
+              type: 'dropdown',
+            },
+          };
+        }
+        return {
+          editable: false,
+        };
+      },
     },
-
   ];
 
   const columnLayout = [
@@ -466,7 +478,7 @@ const initGrdMain = defineGrid((data, view) => {
     if (apyEnddt !== '99991231') {
       return t('MSG_ALT_NOT_FINAL_APY_STRTDT');
     }
-    if (apyStrtdtMax >= apyStrtdt) {
+    if (!isEmpty(apyStrtdtMax) && apyStrtdtMax >= apyStrtdt) {
       return t('MSG_ALT_APY_STRT_D_CONF_MAX_DT', [apyStrtdtMax]);
     }
   };

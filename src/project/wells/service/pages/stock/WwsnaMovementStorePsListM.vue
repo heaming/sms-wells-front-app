@@ -67,12 +67,6 @@
           />
         </template>
 
-        <!-- <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -105,6 +99,7 @@ import useSnCode from '~sms-wells/service/composables/useSnCode';
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const store = useStore();
+const { currentRoute } = useRouter();
 
 const { t } = useI18n();
 const { getMonthWarehouse } = useSnCode();
@@ -160,7 +155,7 @@ async function onClickExcelDownload() {
   const response = await dataService.get('/sms/wells/service/movement-stores/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: 'MovementStorePssList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
   });
@@ -190,26 +185,28 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'strTpCd' },
+    { fieldName: 'strTpNm' },
     { fieldName: 'strWareNo' },
-    { fieldName: 'strSn' },
+    { fieldName: 'strWareNm' },
     { fieldName: 'strRgstDt' },
     { fieldName: 'dlvgDlpnrNo' },
     { fieldName: 'itmStrNo' },
+    { fieldName: 'strSn' },
     { fieldName: 'ostrTpCd' },
     { fieldName: 'ostrWareNo' },
-    { fieldName: 'ostrDt' },
-    { fieldName: 'ostrSn' },
-    { fieldName: 'itmOstrNo' },
-    { fieldName: 'wareNm' },
-    { fieldName: 'strDelButn' },
+    { fieldName: 'ostrWareNm' },
     { fieldName: 'strHopDt' },
+    { fieldName: 'ostrDt' },
+    { fieldName: 'itmOstrNo' },
+    { fieldName: 'ostrSn' },
+    { fieldName: 'strDelButn' },
   ];
 
   const columns = [
     { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '126', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'strTpCd', header: t('MSG_TXT_STR_TP'), width: '126', styleName: 'text-center', options: codes.STR_TP_CD },
     { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '240', styleName: 'text-center' },
-    { fieldName: 'wareNm', header: t('MSG_TXT_OSTR_WARE'), width: '182', styleName: 'text-left' },
+    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '182', styleName: 'text-left' },
     { fieldName: 'itmOstrNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '240', styleName: 'text-center' },
     { fieldName: 'strDelButn',
       header: t('MSG_TXT_NOTE'),
@@ -225,37 +222,32 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.rowIndicator.visible = true;
 
-  view.onCellItemClicked = async (g, { column, dataRow }) => {
-    console.log(gridUtil.getRowValue(g, dataRow));
+  view.onCellItemClicked = async (g, { dataRow }) => {
     const {
       strRgstDt,
       strTpCd,
+      strTpNm,
       itmStrNo,
       strWareNo,
-      strWareNm: wareNm,
-      // itmPdNo,
-      // itmPdNm,
+      strWareNm,
       ostrWareNo,
-      // ostrWareNm,
+      ostrWareNm,
       ostrSn,
       strHopDt,
     } = gridUtil.getRowValue(g, dataRow);
-    console.log(g, column, dataRow);
 
     const { result: isChanged } = await modal({
       component: 'WwsnaMovementStoreRegP',
       componentProps: {
         strRgstDt,
         strTpCd,
-        strTpNm: codes.STR_TP_CD.find((atr) => atr.codeId === strTpCd).codeName,
+        strTpNm,
         itmStrNo,
         strWareNo,
-        strWareNm: wareNm,
+        strWareNm,
         ostrWareNo,
-        ostrWareNm: '',
+        ostrWareNm,
         ostrSn,
-        itmPdNo: '',
-        itmPdNm: '',
         strHopDt,
         flagChk: 1,
       },
@@ -265,9 +257,6 @@ const initGrdMain = defineGrid((data, view) => {
       notify(t('MSG_ALT_SAVE_DATA'));
       await fetchData();
     }
-    // if (column === 'strDelButn') {
-    //   alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
-    // }
   };
 });
 </script>

@@ -22,10 +22,14 @@
         <!-- 출고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_WARE')"
+          required
         >
           <kw-select
             v-model="searchParams.ostrWareNo"
             :options="warehouses"
+            first-option="select"
+            :label="$t('MSG_TXT_OSTR_WARE')"
+            rules="required"
           />
         </kw-search-item>
         <!-- 출고유형 -->
@@ -42,11 +46,13 @@
         <!-- 출고일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_DT')"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.stOstrDt"
             v-model:to="searchParams.edOstrDt"
-            rules="date_range_months:1"
+            :label="$t('MSG_TXT_OSTR_DT')"
+            rules="required|date_range_months:1"
           />
         </kw-search-item>
       </kw-search-row>
@@ -56,9 +62,9 @@
           v-model:start-ym="searchParams.stOstrDt"
           v-model:end-ym="searchParams.edOstrDt"
           v-model:options-ware-dv-cd="strWareDvCd"
-          v-model:ware-dv-cd="searchParams.ostrWareDvCd"
-          v-model:ware-no-d="searchParams.ostrWareNoD"
-          v-model:ware-no-m="searchParams.ostrWareNoM"
+          v-model:ware-dv-cd="searchParams.strWareDvCd"
+          v-model:ware-no-d="searchParams.strWareNoD"
+          v-model:ware-no-m="searchParams.strWareNoM"
           first-option="all"
           sub-first-option="all"
           :colspan="2"
@@ -66,6 +72,8 @@
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeWareDvCd"
+          @update:ware-no-m="onChagneHgrWareNo"
         />
       </kw-search-row>
     </kw-search>
@@ -91,6 +99,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
@@ -112,10 +121,9 @@
 // -------------------------------------------------------------------------------------------------
 
 import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, gridUtil, popupUtil, useMeta } from 'kw-lib';
-// TODO: 추후 공통서비스 변경후 적용 예정 (조직창고 , 조직창고에 해당하는 엔지니어조회)
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import snConst from '~sms-wells/service/constants/snConst';
 // 로그인한 사용자의 창고정보 조회
@@ -139,11 +147,10 @@ const searchParams = ref({
   stOstrDt: '',
   edOstrDt: '',
   ostrTpCd: '',
-  wareDvCd: '',
   ostrWareNo: '',
-  ostrWareDvCd: '2',
-  ostrWareNoD: '',
-  ostrWareNoM: '',
+  strWareDvCd: '2',
+  strWareNoD: '',
+  strWareNoM: '',
   divide: '0',
 });
 
@@ -167,7 +174,6 @@ const codes = await codeUtil.getMultiCodes(
 const filterOstrTpCd = codes.OSTR_TP_CD.filter((v) => v.codeId !== '211');
 
 // 창고구분코드 필터링
-// const wareDvCd = codes.WARE_DV_CD.filter((v) => v.codeId !== '1');
 const strWareDvCd = { WARE_DV_CD: [
   { codeId: '2', codeName: '서비스센터' },
   { codeId: '3', codeName: '영업센터' },
@@ -175,6 +181,15 @@ const strWareDvCd = { WARE_DV_CD: [
 
 searchParams.value.stOstrDt = dayjs().format('YYYYMMDD');
 searchParams.value.edOstrDt = dayjs().format('YYYYMMDD');
+
+function onChangeWareDvCd() {
+  searchParams.value.strWareNoM = '';
+  searchParams.value.strWareNoD = '';
+}
+
+function onChagneHgrWareNo() {
+  searchParams.value.strWareNoD = '';
+}
 
 let cachedParams;
 async function fetchData() {
@@ -208,7 +223,9 @@ async function fetchDefaultData() {
   const { userId } = wharehouseParams.value;
 
   warehouses.value = await getMonthWarehouse(userId, apyYm);
-  searchParams.value.ostrWareNo = warehouses.value[0].codeId;
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.ostrWareNo = warehouses.value[0].codeId;
+  }
 }
 
 const divideData = (val) => {
@@ -262,7 +279,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrSn' },
     { fieldName: 'wareNm' },
     { fieldName: 'wareAdrId' },
-    // { fieldName: 'newAdrZip' },
     { fieldName: 'txtNote' },
 
   ];
@@ -280,7 +296,6 @@ const initGrdMain = defineGrid((data, view) => {
       renderer: {
         type: 'button',
       },
-      // displayCallback: () => t('MSG_TXT_OSTR_AK_CH'),
       displayCallback: (g, index, val) => {
         const { ostrTpCd } = g.getValues(index.itemIndex);
         console.log(val);
@@ -295,9 +310,6 @@ const initGrdMain = defineGrid((data, view) => {
         return ' ';
       },
     },
-    // { fieldName: 'col7', header: t('MSG_TXT_ZIP'), width: '120', styleName: 'text-center' },
-    // { fieldName: 'col8', header: t('MSG_TXT_ADDR'), width: '390', styleName: 'text-left' },
-
   ];
 
   data.setFields(fields);
@@ -306,22 +318,15 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
-    // let url = '';
-    // if (window.location.href.includes('localhost')) {
-    //   url = 'http://localhost:3000';
-    // }
     console.log(gridUtil.getRowValue(g, dataRow));
     // eslint-disable-next-line max-len
     const { ostrTpCd, ostrWareNo, ostrDt, strWareNo, itmOstrNo, ostrAkNo, ostrAkSn } = gridUtil.getRowValue(g, dataRow);
 
     if (column === 'txtNote') {
       if (ostrTpCd === '217') {
-        // alert('현재 단위 테스트 대상이 아닙니다.(개발중)');
         await popupUtil.open(`/popup#/service/wwsna-etc-out-of-storage-reg?ostrTpCd=${ostrTpCd}&ostrWareNo=${ostrWareNo}&bilDept=${strWareNo}&ostrDt=${ostrDt}&itmOstrNo=${itmOstrNo}`, { width: 1800, height: 1000 }, false);
         return;
       } if (['221', '222', '223'].includes(ostrTpCd)) {
-        // eslint-disable-next-line max-len
-        // await popupUtil.open(`/popup#/service/wwsna-normal-out-of-storage-rgst-list?ostrAkNo=${ostrAkNo}ostrAkTpCd=${ostrTpCd}&ostrOjWareNo=${ostrWareNo}&ostrDt=${ostrDt}&strOjWareNo=${strWareNo}&itmOstrNo=${itmOstrNo}`, { width: 1800, height: 1000 }, false);
         const { result } = await modal({
           component: 'WwsnaNormalOutOfStorageRgstListP',
           componentProps: { ostrAkNo, ostrAkSn, itmOstrNo, page: 'WwsnaOutOfStorageManagementListM' },

@@ -301,7 +301,6 @@ async function fetchData() {
     fieldBaseParams.value.cntrSn = searchParams.value.cntrSn;
     fieldBaseParams.value.cstNo = searchParams.value.cstNo;
   }
-  console.log(fieldBaseParams.value);
 
   const resList = await dataService.get('/sms/wells/contract/contracts/order-details/cash-sales-receipt-pbls', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
   const view = grdMainRef.value.getView();
@@ -337,7 +336,7 @@ async function onClickSave() {
   }
 
   if (fieldRpblParams.value.cssrIsDvCd === '4') {
-    fieldBaseParams.afchCssrIsNo = `${fieldBaseParams.value.cralLocaraTno}${fieldBaseParams.value.mexnoEncr}${fieldBaseParams.value.cralIdvTno}`;
+    fieldBaseParams.value.afchCssrIsNo = `${fieldBaseParams.value.cralLocaraTno}${fieldBaseParams.value.mexnoEncr}${fieldBaseParams.value.cralIdvTno}`;
   }
 
   await dataService.post('/sms/wells/contract/contracts/order-details/cash-sales-receipts', fieldBaseParams.value);
@@ -482,14 +481,21 @@ const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'kwGrpCoCd' },
     { fieldName: 'cssrAgrgSn' },
+    { fieldName: 'cssrRveDvCd' },
     { fieldName: 'rveDt' },
     { fieldName: 'dpDvCd' },
     { fieldName: 'cssrDtlSn' },
     { fieldName: 'cssrIsDvCd' },
     { fieldName: 'bfchCssrIsNo' },
+    { fieldName: 'bfchCssrIsNoEncr' },
+    { fieldName: 'bfchCssrMexnoEncr' },
+    { fieldName: 'bfchCssrCrcdNoEncr' },
     { fieldName: 'bfchCssrTrdAmt', dataType: 'number' },
     { fieldName: 'bfchCssrAprRsCd' },
     { fieldName: 'afchCssrIsNo' },
+    { fieldName: 'afchCssrIsNoEncr' },
+    { fieldName: 'afchCssrMexnoEncr' },
+    { fieldName: 'afchCssrCrcdNoEncr' },
     { fieldName: 'afchCssrIsDvCd' },
     { fieldName: 'chRsonCn' },
     { fieldName: 'fnlMdfcDtm' },
@@ -500,10 +506,42 @@ const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'rveDt', header: t('MSG_TXT_RVE_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 수납일자
     { fieldName: 'cssrIsDvCd', header: t('MSG_TXT_ISSUANCE_CLAR'), width: '131', styleName: 'text-center', options: codes.CSSR_IS_DV_CD }, // 발행구분
-    { fieldName: 'bfchCssrIsNo', header: `${t('MSG_TXT_BFCH')} ${t('MSG_TXT_PBL_NO')}`, width: '131', styleName: 'text-center' }, // 변경 전 발핸번호
+    { fieldName: 'bfchCssrIsNo',
+      header: `${t('MSG_TXT_BFCH')} ${t('MSG_TXT_PBL_NO')}`,
+      width: '131',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { bfchCssrIsNoEncr, bfchCssrMexnoEncr, bfchCssrCrcdNoEncr } = grid.getValues(index.itemIndex);
+        if (!isEmpty(bfchCssrIsNoEncr)) {
+          return bfchCssrIsNoEncr;
+        }
+        if (!isEmpty(bfchCssrMexnoEncr)) {
+          return bfchCssrMexnoEncr;
+        }
+        if (!isEmpty(bfchCssrCrcdNoEncr)) {
+          return bfchCssrCrcdNoEncr;
+        }
+      },
+    }, // 변경 전 발핸번호
     { fieldName: 'bfchCssrTrdAmt', header: t('MSG_TXT_AMT'), width: '131', styleName: 'text-right' }, // 금액
     { fieldName: 'bfchCssrAprRsCd', header: t('MSG_TXT_APR_RS'), width: '131', styleName: 'text-center', options: codes.CSSR_APR_RS_CD }, // 승인결과
-    { fieldName: 'afchCssrIsNo', header: `${t('MSG_TXT_AFCH')} ${t('MSG_TXT_PBL_NO')}`, width: '131', styleName: 'text-center' }, // 변경 후 발행번호
+    { fieldName: 'afchCssrIsNo',
+      header: `${t('MSG_TXT_AFCH')} ${t('MSG_TXT_PBL_NO')}`,
+      width: '131',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { afchCssrIsNoEncr, afchCssrMexnoEncr, afchCssrCrcdNoEncr } = grid.getValues(index.itemIndex);
+        if (!isEmpty(afchCssrIsNoEncr)) {
+          return afchCssrIsNoEncr;
+        }
+        if (!isEmpty(afchCssrMexnoEncr)) {
+          return afchCssrMexnoEncr;
+        }
+        if (!isEmpty(afchCssrCrcdNoEncr)) {
+          return afchCssrCrcdNoEncr;
+        }
+      },
+    }, // 변경 후 발행번호
     { fieldName: 'chRsonCn', header: t('MSG_TXT_CH_RSON'), width: '99', styleName: 'text-center' }, // 변경사유
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_RGST_DT'), width: '99', styleName: 'text-center', datetimeFormat: 'datetime' }, // 등록일
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '99', styleName: 'text-center' }, // 등록자

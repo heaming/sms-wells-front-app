@@ -115,6 +115,7 @@
           spaced
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_BND_PRP_CH')"
           primary
           dense
@@ -156,6 +157,7 @@
           spaced
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_SEND')"
           primary
           dense
@@ -354,9 +356,9 @@ const onClickSend = async () => {
 
 watch(() => searchParams.value.baseYm, async (baseYm) => {
   if (baseYm !== now.format('YYYYMM')) {
-    isNotActivated.value = true;
+    // isNotActivated.value = true;
   } else {
-    isNotActivated.value = false;
+    // isNotActivated.value = false;
   }
 });
 // -------------------------------------------------------------------------------------------------

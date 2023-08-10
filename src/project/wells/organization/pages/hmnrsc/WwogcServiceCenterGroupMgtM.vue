@@ -136,7 +136,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, codeUtil, gridUtil, useGlobal } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, codeUtil, gridUtil, useGlobal, useMeta } from 'kw-lib';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 import { getPhoneNumber } from '~sms-common/organization/utils/ogUtil';
@@ -147,6 +147,8 @@ const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const { getUserInfo } = useMeta();
+const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -164,7 +166,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const searchParams = ref({
-  ogTpCd: 'W06',
+  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
   wkGrpCd: undefined,

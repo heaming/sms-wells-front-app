@@ -10,7 +10,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 관리자가 물류센터로 독립창고에 물량을 일괄요청하는 화면
+ - 관리자가 물류센터로 개인창고에 물량을 일괄요청하는 화면 (http://localhost:3000/#/service/wwsna-individual-warehouse-ostr-mgt)
  ****************************************************************************************************
 --->
 
@@ -24,37 +24,50 @@
         <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
+          required
         >
           <kw-date-picker
-            v-model="searchParams.baseYm"
+            v-model="searchParams.apyYm"
             type="month"
-            @change="onChangeBaseYm"
+            rules="required"
+            @change="onChangeApyYm"
           />
         </kw-search-item>
         <!-- 배정년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_ASN_YM')"
+          required
         >
           <kw-date-picker
             v-model="searchParams.asnOjYm"
             type="month"
+            rules="required"
+            @change="onChangeData"
           />
         </kw-search-item>
         <!-- 회차 -->
         <kw-search-item
           :label="$t('MSG_TXT_ORDERSELECT_TITLE')"
+          required
         >
           <kw-input
-            v-model="searchParams.asnTnN"
+            v-model="searchParams.cnt"
+            rules="required|numeric|min_value:1|max_value:999999999999"
+            @change="onChangeData"
           />
         </kw-search-item>
         <!-- 출고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_WARE')"
+          required
         >
           <kw-select
-            v-model="searchParams.ostrOjWareNo"
-            :options="logistics"
+            v-model="searchParams.ostrWareNo"
+            :options="optionsOstrWareNo"
+            option-value="wareNo"
+            option-label="wareNm"
+            rules="required"
+            @change="onChangeData"
           />
         </kw-search-item>
       </kw-search-row>
@@ -66,21 +79,29 @@
         >
           <kw-select
             v-model="searchParams.itmKndCd"
-            :options="filterCodes.filterItmKndCd"
+            :options="filterCodes.itmKndCd"
             first-option="all"
             class="w150"
+            @change="onChangeItmKndCd"
           />
           <kw-select
-            v-model="searchParams.itmKndCdD"
-            :options="itemKndCdD"
+            v-model="searchParams.itmPdCds"
+            :options="optionsItmPdCd"
+            :label="$t('MSG_TXT_ITM_DV')"
+            option-value="pdCd"
+            option-label="pdNm"
             first-option="all"
+            :multiple="true"
           />
         </kw-search-item>
         <!-- 총출고 -->
         <kw-search-item
           :label="$t('MSG_TXT_TOT_OSTR')"
         >
-          <kw-input />
+          <kw-input
+            v-model="searchParams.totOutQty"
+            rules="numeric|min_value:1|max_value:999999999999"
+          />
         </kw-search-item>
         <!-- 출고일자 -->
         <kw-search-item
@@ -89,32 +110,51 @@
           <kw-date-picker
             v-model="searchParams.ostrDt"
             type="date"
+            :min-date="minDate"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <ZwcmWareHouseSearch
-          v-model:start-ym="searchParams.baseYmd"
-          v-model:end-ym="searchParams.baseYmd"
-          v-model:options-ware-dv-cd="ostrWareDvCd"
-          v-model:ware-dv-cd="searchParams.ostrWareDvCd"
-          v-model:ware-no-m="searchParams.ostrWareNoM"
-          v-model:ware-no-d="searchParams.ostrWareNoD"
-          sub-first-option="all"
+        <kw-search-item
+          :label="$t('MSG_TXT_STR_WARE')"
           :colspan="2"
-          :label1="$t('MSG_TXT_STR_DT')"
-          :label2="$t('MSG_TXT_STR_WARE')"
-          :label3="$t('MSG_TXT_HGR_WARE')"
-          :label4="$t('MSG_TXT_WARE')"
-        />
+          required
+        >
+          <kw-select
+            v-model="searchParams.wareDvCd"
+            :options="filterCodes.wareDvCd"
+            :label="$t('MSG_TXT_STR_WARE')"
+            rules="required"
+          />
+          <kw-select
+            v-model="searchParams.hgrStrWareNo"
+            :options="optionsHgrStrWareNo"
+            option-value="wareNo"
+            option-label="wareNm"
+            :label="`${t('MSG_TXT_HGR')}${t('MSG_TXT_STR_WARE')}`"
+            first-option="select"
+            rules="required"
+            @change="onChangeHgrStrWareNo"
+          />
+          <kw-select
+            v-model="searchParams.strWareNo"
+            :options="optionsStrWareNo"
+            option-value="wareNo"
+            option-label="wareNm"
+            :label="$t('MSG_TXT_STR_WARE')"
+            first-option="all"
+          />
+        </kw-search-item>
         <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
-          :colspan="2"
         >
-          <kw-input />
-          <span>~</span>
-          <kw-input />
+          <kw-input
+            v-model="searchParams.itmPdCd"
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
+          />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
@@ -124,11 +164,17 @@
           :colspan="2"
         >
           <kw-input
-            v-model="searchParams.sapMatCdFrom"
+            v-model="searchParams.strtSapCd"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
           />
           <span>~</span>
           <kw-input
-            v-model="searchParams.sapMatCdTo"
+            v-model="searchParams.endSapCd"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -145,6 +191,7 @@
           dense
           grid-action
           :label="$t('MSG_TXT_SAVE')"
+          :disable="totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator
@@ -157,30 +204,32 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-btn
+          :label="`${t('MSG_TXT_LGST')}${t('MSG_TXT_TF')}`"
           dense
-          secondary
-          :label="$t('MSG_TXT_ASGN_EXLD_ITM_RGST')"
-          @click="onClickModal"
+          primary
+          @click="onClickLgstTrs"
         />
       </kw-action-top>
       <ul class="filter-box mb12">
         <li class="filter-box__item">
           <p class="filter-box__item-label">
-            구분
+            {{ t('MSG_TXT_DIV') }}
           </p>
           <kw-field
-            :model-value="[]"
+            :model-value="['N']"
           >
             <template #default="{ field }">
-              <!-- TODO: 추후 로직구성 -->
               <kw-checkbox
                 v-bind="field"
-                label="미출고수량제외"
-                val="미출고수량제외"
+                v-model="searchParams.ndlvQtyYn"
+                :label="$t('MSG_TXT_NDLV_QTY_EXCD')"
+                :true-value="'Y'"
+                :false-value="'N'"
+                @update:model-value="onChangeNdlvQty"
               />
             </template>
           </kw-field>
@@ -188,17 +237,9 @@
       </ul>
       <kw-grid
         ref="grdMainRef"
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
         name="grdMain"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -209,244 +250,450 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, codeUtil, useDataService, getComponentType, useMeta, gridUtil, useGlobal } from 'kw-lib';
+
+import { defineGrid, codeUtil, useDataService, getComponentType, useGlobal, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
-import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
-import { cloneDeep } from 'lodash-es';
+import { isEmpty, cloneDeep } from 'lodash-es';
+
+const { t } = useI18n();
+const { alert, notify, confirm } = useGlobal();
+const { currentRoute } = useRouter();
 
 const dataService = useDataService();
-const grdMainRef = ref(getComponentType('KwGrid'));
-const { t } = useI18n();
-const { getConfig } = useMeta();
-const { notify, modal } = useGlobal();
-
-const baseURI = '/sms/wells/service/individual-ware-ostrs';
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
+const grdMainRef = ref(getComponentType('KwGrid'));
+
 const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
+  'WARE_DV_CD',
 );
 
-// 품목구분 필터링
-const filterCodes = ref({
-  filterItmKndCd: [],
-});
-
-codes.ITM_KND_CD.forEach((e) => {
-  if (e.codeId === '4' || e.codeId === '5'
-    || e.codeId === '6') {
-    filterCodes.value.filterItmKndCd.push({
-      codeId: e.codeId.trim(),
-      codeName: e.codeName.trim(),
-    });
-  }
-});
-
-const totalCount = ref(0);
+const now = dayjs();
+const minDate = now.format('YYYY-MM-DD');
 
 let cachedParams;
-
 const searchParams = ref({
-  baseYm: dayjs().format('YYYYMM'),
-  baseYmd: dayjs().format('YYYYMMDD'),
-  asnOjYm: dayjs().format('YYYYMM'),
+  apyYm: now.format('YYYYMM'),
+  asnOjYm: now.format('YYYYMM'),
+  cnt: '1',
+  ostrWareNo: '100002',
   itmKndCd: '',
-  asnTnN: '1',
-  ostrOjWareNo: '',
-  ostrWareDvCd: '3',
-  ostrWareNoM: '',
-  ostrWareNoD: '',
-  ostrDt: dayjs().format('YYYYMMDD'),
-  itmKndCdD: '',
-  sapMatCdFrom: '',
-  sapMatCdTo: '',
+  itmPdCds: [],
+  totOutQty: '',
+  ostrDt: now.format('YYYYMMDD'),
+  wareDvCd: '3',
+  wareDtlDvCd: '31',
+  hgrDvCd: '30',
+  hgrStrWareNo: '',
+  strWareNo: '',
+  itmPdCd: '',
+  strtSapCd: '',
+  endSapCd: '',
+  ndlvQtyYn: 'N',
 });
 
-const ostrWareDvCd = { WARE_DV_CD: [
-  { codeId: '2', codeName: '서비스센터' },
-  { codeId: '3', codeName: '영업센터' },
-] };
-
-const itemKndCdD = ref();
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+const filterCodes = ref({
+  wareDvCd: [],
+  itmKndCd: [],
 });
 
-const onChangeItmKndCd = async () => {
-  // const paramItmKndCd = searchParams.value.itmKndCd;
-  // const itmKndCd = cloneDeep(searchParams.value.itmKndCd);
-  // const res = await dataService.get(`/sms/wells/service/individual-ware-ostrs/${itmKndCd}`);
-  searchParams.value.itmKndCdD = '';
-  const res = await dataService.get(`${baseURI}/filter-items`, { params: searchParams.value });
-  itemKndCdD.value = res.data;
-  // searchParams.value.itmKndCdD = itemKndCdD.value[0].codeId;
+function codeFilter() {
+  filterCodes.value.wareDvCd = codes.WARE_DV_CD.filter((v) => ['3'].includes(v.codeId));
+  filterCodes.value.itmKndCd = codes.ITM_KND_CD.filter((v) => ['4', '5', '6'].includes(v.codeId));
+}
+
+// 상위입고창고 조회
+const optionsHgrStrWareNo = ref();
+const onChangeHgrStrWareHouse = async () => {
+  searchParams.value.hgrDvCd = '30';
+  searchParams.value.hgrStrWareNo = '';
+  const result = await dataService.get('/sms/wells/service/individual-ware-ostrs/storage-wares', { params: { ...searchParams.value } });
+  optionsHgrStrWareNo.value = result.data;
 };
 
-watch(() => searchParams.value.itmKndCd, (val) => {
-  if (searchParams.value.itmKndCd !== val) {
-    searchParams.value.itmKndCd = val;
+const optionsOstrWareNo = ref();
+// 출고창고 조회
+const onChangeOstrWareHouse = async () => {
+  searchParams.value.ostrWareNo = '';
+  const result = await dataService.get(
+    '/sms/wells/service/individual-ware-ostrs/out-of-storage-wares',
+    { params: {
+      apyYm: searchParams.value.apyYm,
+    } },
+  );
+  optionsOstrWareNo.value = result.data;
+  if (!isEmpty(result.data)) {
+    searchParams.value.ostrWareNo = result.data[0].wareNo;
+    const { asnOjYm, cnt, ostrWareNo } = searchParams.value;
+    if (!isEmpty(asnOjYm) && !isEmpty(cnt) && !isEmpty(ostrWareNo)) {
+      onChangeHgrStrWareHouse();
+    }
   }
-  onChangeItmKndCd();
-});
+};
 
-// 기준년월이 변경되었을때
-function onChangeBaseYm() {
-  searchParams.value.baseYmd = `${searchParams.value.baseYm}01`;
+// 입고창고 조회
+const optionsStrWareNo = ref();
+
+async function onChangeHgrStrWareNo() {
+  const { hgrStrWareNo } = searchParams.value;
+
+  if (isEmpty(hgrStrWareNo)) {
+    searchParams.value.strWareNo = '';
+    optionsStrWareNo.value = [];
+    return;
+  }
+
+  searchParams.value.hgrDvCd = '31';
+  searchParams.value.strWareNo = '';
+  const result = await dataService.get('/sms/wells/service/individual-ware-ostrs/storage-wares', { params: { ...searchParams.value } });
+  optionsStrWareNo.value = result.data;
 }
 
-const logisticParams = ref({
-  apyYm: dayjs().format('YYYYMM'),
-});
+function onChangeApyYm() {
+  const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
+  if (isEmpty(apyYm)) {
+    searchParams.value.ostrWareNo = '';
+    optionsOstrWareNo.value = [];
 
-const logistics = ref();
+    searchParams.value.strWareNo = '';
+    optionsStrWareNo.value = [];
 
-async function fetchDefaultData() {
-  const res = await dataService.get(`${baseURI}/logistic`, { params: logisticParams.value });
-  logistics.value = res.data;
-  console.log(logistics.value);
-  searchParams.value.ostrOjWareNo = logistics.value[0].codeId;
+    searchParams.value.strHgrWareNo = '';
+    optionsHgrStrWareNo.value = [];
+    return;
+  }
+  onChangeOstrWareHouse();
+
+  if (isEmpty(asnOjYm) || isEmpty(cnt) || isEmpty(ostrWareNo)) {
+    searchParams.value.strWareNo = '';
+    optionsStrWareNo.value = [];
+
+    searchParams.value.strHgrWareNo = '';
+    optionsHgrStrWareNo.value = [];
+  }
 }
 
+// 입고창고조회 관련 데이터 변경 시
+function onChangeData() {
+  const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
+
+  if (isEmpty(apyYm) || isEmpty(asnOjYm) || isEmpty(cnt) || isEmpty(ostrWareNo)) {
+    searchParams.value.strWareNo = '';
+    optionsStrWareNo.value = [];
+
+    searchParams.value.strHgrWareNo = '';
+    optionsHgrStrWareNo.value = [];
+    return;
+  }
+
+  onChangeHgrStrWareHouse();
+}
+
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
+
+// 품목조회
+const getProducts = async () => {
+  const result = await dataService.get('/sms/wells/service/individual-ware-ostrs/products');
+  optionsItmPdCd.value = result.data;
+  optionsAllItmPdCd.value = result.data;
+};
+
+// 품목종류 변경 시 품목 필터링
+function onChangeItmKndCd() {
+  // 품목코드 클리어
+  searchParams.value.itmPdCds = [];
+  const { itmKndCd } = searchParams.value;
+
+  if (isEmpty(itmKndCd)) {
+    optionsItmPdCd.value = optionsAllItmPdCd.value;
+    return;
+  }
+
+  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
+}
+
+function onChangeStrtSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = strtSapCd;
+    searchParams.value.endSapCd = strtSapCd;
+  }
+}
+
+function onChangeEndSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = endSapCd;
+    searchParams.value.endSapCd = endSapCd;
+  }
+}
+
+await Promise.all([
+  codeFilter(),
+  onChangeOstrWareHouse(),
+  getProducts(),
+]);
+
+const allOstrItms = ref([]);
+const totalCount = ref(0);
+
+// 조회
 async function fetchData() {
-  const res = await dataService.get(baseURI, { params: cachedParams });
-  console.log(res);
-  const baseData = res.data;
-  totalCount.value = baseData.length;
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(baseData);
-  view.resetCurrent();
+  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs', { params: { ...cachedParams } });
+  const ostrItms = res.data;
+
+  allOstrItms.value = ostrItms;
+  totalCount.value = ostrItms.length;
+
+  if (grdMainRef.value != null) {
+    const view = grdMainRef.value.getView();
+    view.getDataSource().setRows(ostrItms);
+  }
 }
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  console.log(searchParams.value);
   await fetchData();
 }
 
-async function onClickSave() {
+// 엑셀 다운로드
+async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const chkRows = gridUtil.getCheckedRowValues(view);
-  if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NO_CHG_CNTN'));
-    return false;
+  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/excel-download', { params: cachedParams });
+
+  gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
+}
+
+// 미출고 수량제외 필터링
+function onChangeNdlvQty() {
+  const { ndlvQtyYn } = searchParams.value;
+
+  const view = grdMainRef.value.getView();
+  // 필터링 해제
+  if (ndlvQtyYn === 'N') {
+    view.getDataSource().setRows(allOstrItms.value);
+    return;
   }
 
-  const addParams = [];
-  addParams.push(chkRows.map((v, i) => {
-    const addValueParams = {};
-    addValueParams.ostrAkNo = '';
-    addValueParams.ostrAkSn = i + 1;
-    addValueParams.strWareNo = v.strWareNo;
-    addValueParams.ostrWareNo = v.ostrOjWareNo;
-    addValueParams.itmPdCd = v.itemCd;
-    addValueParams.mngtUnitCd = v.mgtUnt;
-    addValueParams.itmGdCd = v.matGdCd;
-    addValueParams.ostrAkQty = v.outQty;
-    addValueParams.rmkCn = v.rmks;
-    return addValueParams;
-  }));
-
-  const res = await dataService.post(`${baseURI}`, { params: addParams });
-  console.log(`res :  ${res}`);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  // 필터링
+  const filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.totOutQty < 15);
+  view.getDataSource().setRows(filterRows);
 }
 
-async function onClickModal() {
-  await modal({
-    component: 'WwsnaAssignExcludeItemRegP',
-    componentProps: {
-      itmPdCd: '',
-    },
+// 저장
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkedRows)) {
+    notify(t('MSG_ALT_SAV_SEL_DATA'));
+    return;
+  }
+
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
+
+  // 출고일자
+  const { ostrDt } = searchParams.value;
+
+  if (isEmpty(ostrDt)) {
+    // 출고일자를 선택해주세요
+    await alert(t('MSG_ALT_INP_RLS_NOT_DY'));
+    return;
+  }
+
+  checkedRows.forEach((item) => {
+    item.ostrDt = ostrDt;
   });
 
-  // const { result: isChanged } = await modal({
-  //   component: 'WwsnaMovementStoreRegP',
-  //   componentProps: {
-  //     itmPdCd,
-  //     sapMatCd,
-  //   },
-  // });
-
-  // if (result) {
-  //   console.log(payload[0]);
-  // }
+  const res = await dataService.post('/sms/wells/service/individual-ware-ostrs', checkedRows);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
 }
 
-onMounted(async () => {
-  await fetchDefaultData();
-  cachedParams = cloneDeep(searchParams.value);
-  // await fetchData();
-});
+// 물류이관
+async function onClickLgstTrs() {
+  const { asnOjYm, cnt, ostrWareNo } = searchParams.value;
+
+  if (isEmpty(asnOjYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ASN_YM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(cnt)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(ostrWareNo)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_OSTR_WARE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  // {0} 물량배정 데이터를 물류로 이관하시겠습니까?
+  const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
+  if (!await confirm(`${msg}${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_TXT_INDV_WARE')}${t('MSG_ALT_QOM_ASN_LGST_TRS')}`)) {
+    return;
+  }
+  // 물류 전송
+  const res = await dataService.post('/sms/wells/service/individual-ware-ostrs/logistics-transfer', searchParams.value, { timeout: 3000000 });
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    // 이관이 완료되었습니다.
+    notify(t('MSG_ALT_IS_FSH'));
+    await fetchData();
+  }
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 
 const initGrdMain = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'lgstTrsYn' },
+    { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
+    { fieldName: 'wareNm' },
+    { fieldName: 'sapMatCd' },
+    { fieldName: 'itmPdCd' },
+    { fieldName: 'pdAbbrNm' },
+    { fieldName: 'partUseQty', dataType: 'number' },
+    { fieldName: 'under20per', dataType: 'number' },
+    { fieldName: 'hgrCrtlStocQty', dataType: 'number' },
+    { fieldName: 'totOutQty', dataType: 'number' },
+    { fieldName: 'mngtUnit' },
+    { fieldName: 'mngtUnitNm' },
+    { fieldName: 'matGdCd' },
+    { fieldName: 'logisticStocQty', dataType: 'number' },
+    { fieldName: 'boxUnitQty', dataType: 'number' },
+    { fieldName: 'crtlStocQty', dataType: 'number' },
+    { fieldName: 'useQty', dataType: 'number' },
+    { fieldName: 'cnfmQty', dataType: 'number' },
+    { fieldName: 'cnfmBoxQty', dataType: 'number' },
+    { fieldName: 'aclOstrQty', dataType: 'number' },
+    { fieldName: 'aclOstrBoxQty', dataType: 'number' },
+    { fieldName: 'filterBoxQty', dataType: 'number' },
+    { fieldName: 'outQty', dataType: 'number' },
+    { fieldName: 'outBoxQty', dataType: 'number' },
+    { fieldName: 'itmQomAsnNo' },
+    { fieldName: 'asnOjYm' },
+    { fieldName: 'ostrWareNo' },
+    { fieldName: 'strWareNo' },
+    { fieldName: 'wareMngtPrtnrNo' },
+    { fieldName: 'ogTpCd' },
+    { fieldName: 'itmKndCd' },
+    { fieldName: 'rmkCn' },
+    { fieldName: 'asnTnN' },
+    { fieldName: 'wareDvCd' },
+    { fieldName: 'ostrAkNo' },
+    { fieldName: 'ostrAkSn' },
+    { fieldName: 'ostrDt' },
+    { fieldName: 'ostrWareDvCd' },
+    { fieldName: 'ostrPrtnrNo' },
+    { fieldName: 'ostrPrtnrOgTpCd' },
+  ];
+
   const columns = [
-    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '160', styleName: 'text-left' },
+    { fieldName: 'lgstTrsYn', header: `${t('MSG_TXT_LGST')}${t('MSG_TXT_TF_YN')}`, width: '100', styleName: 'text-center' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '160', styleName: 'text-center' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
-    { fieldName: 'filtUseQty', header: t('MSG_TXT_FILT_NED_QTY'), width: '106', styleName: 'text-right' },
-    { fieldName: 'under20per', header: t('MSG_TXT_ASN_QTY_CPR_STOC_QTY_STG'), width: '130', styleName: 'text-right' },
-    { fieldName: 'stocIzUpOnQty', header: t('MSG_TXT_CNR_STOC'), width: '110', styleName: 'text-right' },
-    { fieldName: 'toutQty', header: t('MSG_TXT_TOT_OSTR'), width: '100', styleName: 'text-right' },
-    { fieldName: 'mgtUntNm', header: t('MSG_TXT_MNGT_UNIT'), width: '106', styleName: 'text-right' },
-    { fieldName: 'mgtGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-right' },
-    { fieldName: 'stocIzOnQty', header: t('MSG_TXT_HGR_STOC'), width: '100', styleName: 'text-right' },
+    { fieldName: 'partUseQty', header: t('MSG_TXT_FILT_NED_QTY'), width: '106', styleName: 'text-right' },
+    { fieldName: 'under20per', header: t('MSG_TXT_ASN_QTY_CPR_STOC_QTY_STG'), width: '100', styleName: 'text-right' },
+    { fieldName: 'hgrCrtlStocQty', header: t('MSG_TXT_CNR_STOC'), width: '110', styleName: 'text-right' },
+    { fieldName: 'totOutQty', header: t('MSG_TXT_TOT_OSTR'), width: '100', styleName: 'text-right' },
+    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '106', styleName: 'text-center' },
+    { fieldName: 'matGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-center' },
+    { fieldName: 'logisticStocQty', header: t('MSG_TXT_HGR_STOC'), width: '100', styleName: 'text-right' },
     { fieldName: 'boxUnitQty', header: t('MSG_TXT_UNIT_QTY'), width: '136', styleName: 'text-right' },
     { fieldName: 'crtlStocQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'nedQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'cfrmQty', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right' },
-    { fieldName: 'boxUnitQty1', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
-    { fieldName: 'mcbyAcuOstrQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right' },
-    { fieldName: 'accBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
-    { fieldName: 'asnIzOutBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
-    { fieldName: 'outQty', header: t('MSG_TXT_OSTR_QTY'), width: '110', styleName: 'text-right' },
-    { fieldName: 'rmks', header: t('MSG_TXT_NOTE'), width: '240', styleName: 'text-left' },
+    { fieldName: 'useQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'cnfmQty', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right' },
+    { fieldName: 'cnfmBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
+    { fieldName: 'aclOstrQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right' },
+    { fieldName: 'aclOstrBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
+    { fieldName: 'outBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
+    { fieldName: 'outQty',
+      header: t('MSG_TXT_OSTR_QTY'),
+      width: '110',
+      rules: 'required|min_value:1|max_value:999999999999',
+      styleName: 'text-right',
+      editor: {
+        type: 'number',
+        editable: true } },
+    { fieldName: 'rmkCn',
+      header: t('MSG_TXT_NOTE'),
+      width: '240',
+      styleName: 'text-left',
+      rules: 'max:4000',
+      editor: {
+        type: 'text',
+        editable: true } },
   ];
-
-  const fields = columns.map((v) => ({ fieldName: v.fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
-
   view.setColumnLayout([
+    'lgstTrsYn',
     'wareNm',
     'sapMatCd',
     'itmPdCd',
     'pdAbbrNm',
-    'filtUseQty',
+    'partUseQty',
     'under20per',
-    'stocIzUpOnQty',
-    'toutQty',
-    'mgtUntNm',
-    'mgtGdCd',
-    'stocIzOnQty',
+    'hgrCrtlStocQty',
+    'totOutQty',
+    'mngtUnitNm',
+    'matGdCd',
+    'logisticStocQty',
     'boxUnitQty',
     'crtlStocQty', // single
-    'nedQty',
+    'useQty',
     {
       header: t('MSG_TXT_QOM_ASN_CNFM'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['cfrmQty', 'boxUnitQty1'],
+      items: ['cnfmQty', 'cnfmBoxQty'],
     },
     {
       header: t('MSG_TXT_QOM_ASN_OSTR'),
       direction: 'horizontal',
-      items: ['mcbyAcuOstrQty', 'accBoxQty'],
+      items: ['aclOstrQty', 'aclOstrBoxQty'],
     },
-    'asnIzOutBoxQty', 'outQty', 'rmks',
+    'outBoxQty', 'outQty', 'rmkCn',
   ]);
+
+  view.checkBar.fieldName = 'chk';
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
+
+  view.onCellEditable = (grid, index) => {
+    // 물류전송여부
+    const lgstTrsYn = gridUtil.getCellValue(view, index.dataRow, 'lgstTrsYn');
+
+    // 물류전송이 N인 경우, 출고수량, 비고만 입력 가능
+    if (lgstTrsYn === 'N' && ['outQty', 'rmkCn'].includes(index.column)) {
+      return true;
+    }
+
+    return false;
+  };
 });
 
 </script>

@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-popup
+    ref="popupRef"
     size="3xl"
     no-action
   >
@@ -128,7 +129,7 @@ const { ok } = useModal();
 const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const baseURI = '/sms/wells/service/item-locations';
-const stdWareUri = '/sms/wells/service/normal-outofstorages/standard-ware';
+const stdWareUri = '/sms/wells/service/normal-out-of-storages/standard-ware';
 
 const props = defineProps({
   itmPdCd: {
@@ -147,6 +148,9 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const popupRef = ref();
+
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'LCT_ANGLE_CD',
@@ -183,7 +187,6 @@ async function stckStdGbFetchData() {
   const { wareNo } = propParams.value;
   const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
   const { stckStdGb } = res.data;
-  console.log(res);
   propParams.value.stdWareUseYn = stckStdGb === 'Y' ? 'N' : 'Y';
 }
 
@@ -205,13 +208,13 @@ async function fetchData() {
 
 async function onCheckedStckNoStdGb() {
   const stckStdGb = propParams.value.stdWareUseYn === 'N' ? 'Y' : 'N';
-  const apyYm = propParams.value.apyYm.substring(0, 6);
-  const { wareNo } = propParams.value;
+  const { apyYm, wareNo } = propParams.value;
 
   const res = await dataService.put(stdWareUri, { apyYm, stckStdGb, wareNo });
-  console.log(res);
-  notify(t('MSG_ALT_CHG_DATA'));
-  fetchData();
+  if (res.data > 0) {
+    notify(t('MSG_ALT_CHG_DATA'));
+    await fetchData();
+  }
 }
 
 async function onClickSave() {
@@ -245,11 +248,10 @@ async function onClickSave() {
   // 등록하시겠습니까?
   if (await confirm(t('MSG_ALT_RGST'))) {
     const res = await dataService.put(baseURI, confirmData.value);
-    if (res.data.processCount) {
+    if (res.data.processCount > 0) {
       ok();
       notify(t('MSG_ALT_SAVE_DTA'));
     } else {
-      console.log(res);
       notify(t('MSG_ALT_SVE_ERR'));
     }
   }
@@ -259,9 +261,8 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   const response = await dataService.get(baseURI, { params: cachedParams });
-  const { currentRoute } = useRouter();
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
     exportData: response.data,
   });

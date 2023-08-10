@@ -16,7 +16,6 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
-      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고요청창고 -->
@@ -120,9 +119,9 @@ import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 
 const { getConfig } = useMeta();
-// const { modal, notify, alert } = useGlobal();
 const { modal, notify } = useGlobal();
 const store = useStore();
 
@@ -194,29 +193,16 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const exportLayout = [
-    'strHopDt',
-    'ostrAkTpNm',
-    'ostrAkNo',
-    'rectOstrDt',
-    'wareNm',
-  ];
-
-  const res = await dataService.get('/sms/wells/service/out-of-storage-asks', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/out-of-storage-asks/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'outOfStorageAskList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportLayout,
-    exportData: res.data.map((v) => {
-      const { codeName } = codes.OSTR_AK_TP_CD.find((c) => c.codeId === v.ostrAkTpCd);
-      return { ...v, ostrAkTpNm: codeName };
-    }),
+    checkBar: 'hidden',
+    exportData: res.data,
   });
 }
 
 async function onClickRegistration() {
-  // TODO: 현재 출고요청등록 팝업화면 개발진행 후 변경 예정
-  // alert('현재 단위테스트 대상이아닙니다.');
   const { result: isChanged } = await modal({
     component: 'WwsnaOutOfStorageAskRegP',
   });
@@ -253,21 +239,6 @@ async function openOutOfStorageP(g, { column, dataRow }) {
   }
 }
 
-function searchConditionReset() {
-  fetchDefaultData();
-
-  searchParams.value.strOjWareNo = '';
-  searchParams.value.ostrAkTpCd = '';
-  searchParams.value.startStrHopDt = dayjs().format('YYYYMMDD');
-  searchParams.value.endStrHopDt = dayjs().format('YYYYMMDD');
-  searchParams.value.wareDvCd = '1';
-  searchParams.value.wareLocaraCd = '';
-}
-
-function onClickReset() {
-  searchConditionReset();
-}
-
 onMounted(async () => {
   await fetchDefaultData();
 });
@@ -281,6 +252,7 @@ function initGrdMain(data, view) {
     { fieldName: 'ostrAkTpNm' },
     { fieldName: 'ostrAkNo' },
     { fieldName: 'rectOstrDt' },
+    { fieldName: 'lgstOstrAkNo' },
     { fieldName: 'wareNm' },
     { fieldName: 'itmNm' },
     { fieldName: 'ostrAkTpCd' },
@@ -293,6 +265,7 @@ function initGrdMain(data, view) {
     { fieldName: 'strHopDt', header: t('MSG_TXT_STR_HOP_D'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ostrAkTpNm', header: t('MSG_TXT_OSTR_AK_TP'), width: '150', styleName: 'text-center' },
     { fieldName: 'ostrAkNo', header: t('MSG_TXT_OSTR_AK_NO'), width: '250', styleName: 'text-center' },
+    { fieldName: 'lgstOstrAkNo', header: t('MSG_TXT_LGST_OSTR_AK_NO'), width: '250', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_OSTR_AK_RCP_WARE'), width: '150', styleName: 'text-center' },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_STR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'itmNm',

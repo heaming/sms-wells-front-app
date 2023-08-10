@@ -75,7 +75,8 @@
             clearable
             :on-keydown-no-click="true"
             maxlength="10"
-            @keydown.enter="isCustomer($event, 'type1')"
+            :rules="validateSearchCstNo"
+            @keydown="isCustomer($event, 'type1')"
           />
         </kw-search-item>
         <kw-search-item
@@ -90,7 +91,8 @@
             :on-keydown-no-click="true"
             regex="alpha_hangul"
             maxlength="25"
-            @keydown.enter="isCustomer($event, 'type2')"
+            :rules="validateSearchCstNo"
+            @keydown="isCustomer($event, 'type2')"
           />
         </kw-search-item>
         <kw-search-item
@@ -100,7 +102,8 @@
             v-model="searchParams.phoneNumber"
             :on-keydown-no-click="true"
             mask="telephone"
-            @keydown.enter="isCustomer($event, 'type3')"
+            :rules="validateSearchCstNo"
+            @keydown="isCustomer($event, 'type3')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -115,6 +118,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           secondary
@@ -128,6 +132,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="$t('MSG_BTN_CNTN_CREATE')"
@@ -154,6 +159,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_SAVE')"
           grid-action
           :disable="isNotActivated"
@@ -198,10 +204,10 @@ import { useGlobal, codeUtil, getComponentType, useMeta, useDataService, defineG
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
-import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
+import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon, checkAvailabilityCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasRoleNickName } = useMeta();
 const { notify, alert, confirm } = useGlobal();
 const { getters } = useStore();
 const dataService = useDataService();
@@ -219,12 +225,15 @@ const codes = await codeUtil.getMultiCodes(
   'BND_NW_DV_CD',
   'BZ_HDQ_DV_CD',
   'BND_BIZ_DV_CD',
+  'LWM_TP_CD',
+  'LWM_DTL_TP_CD',
 );
 const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10' && obj.codeId !== '11' && obj.codeId !== '90')), BND_NW_DV_CD: codes.BND_NW_DV_CD.filter((obj) => (obj.codeId !== '01')) });
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const isNotActivated = ref(false);
+const isCollectionManager = hasRoleNickName('CLCTAM_MNGT');
 const totalCount = ref(0);
 const pageInfo = ref({
   totalCount: 0,
@@ -258,10 +267,7 @@ const searchDetailsParams = ref({
 });
 
 const canFeasibleSearch = ref({
-  popSearchComplate: false,
-  type1: false,
-  type2: false,
-  type3: false,
+  searchCustomerComplate: false,
 });
 
 async function fetchData() {
@@ -289,7 +295,7 @@ async function hasPartTransfer() {
 async function onClickSearch() {
   const notifyMessage = await chkInputSearchComplete(searchParams, canFeasibleSearch);
   if (notifyMessage) {
-    notify(notifyMessage);
+    await alert(notifyMessage);
     return;
   }
   if (await hasPartTransfer()) {
@@ -356,15 +362,27 @@ async function openSearchUserPopup() {
 }
 
 async function isCustomer(event, workType = 'type1') {
-  if (!event.target.value) {
-    await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
-    return;
+  if (event.keyCode === 13) {
+    if (!event.target.value) {
+      await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
+      return;
+    }
+    searchParams.value.workType = workType;
+    const notifyMessage = await isCustomerCommon(searchParams, canFeasibleSearch);
+    if (notifyMessage) {
+      notify(notifyMessage);
+    }
+  } else {
+    canFeasibleSearch.value.searchCustomerComplate = false;
   }
-  searchParams.value.workType = workType;
-  const notifyMessage = await isCustomerCommon(searchParams, canFeasibleSearch);
-  if (notifyMessage) {
-    notify(notifyMessage);
-  }
+}
+
+async function checkAvailability(originClctamDvCd) {
+  const checkAvailabilityParams = { baseYm: cachedParams.baseYm,
+    bzHdqDvCd: cachedParams.bzHdqDvCd,
+    clctamDvCd: originClctamDvCd || '01',
+    tfBizDvCd: '01' };
+  return await checkAvailabilityCommon(checkAvailabilityParams);
 }
 
 async function onClickSave() {
@@ -373,6 +391,13 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
+  const { originClctamDvCd } = changedRows[0];
+
+  if (!await checkAvailability(originClctamDvCd)) {
+    notify('파트이관을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 파트이관 할 수 없습니다.)');
+    return;
+  }
+
   await dataService.put('/sms/wells/bond/part-transfers', changedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -380,6 +405,10 @@ async function onClickSave() {
 }
 
 async function onClickCreate() {
+  if (!await checkAvailability()) {
+    notify('파트이관을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 파트이관 할 수 없습니다.)');
+    return;
+  }
   cachedParams = cloneDeep(searchParams.value);
   const response = await dataService.get('/sms/wells/bond/part-transfers/has-part-transfer-detail', { params: cachedParams });
   if (response.data) {
@@ -388,29 +417,19 @@ async function onClickCreate() {
     notify(t('MSG_ALT_PA_TF_EXCN'));
   }
   await dataService.post('/sms/wells/bond/part-transfers', cachedParams);
+
+  // TODO: 통테 임시 작업 메시지 정의 필요
+  await alert('파트이관이 완료 되었습니다.');
 }
 
-watch(() => searchParams.value.cstNo, async () => {
-  if (canFeasibleSearch.value.popSearchComplate) {
-    canFeasibleSearch.value.popSearchComplate = false;
-  } else {
-    canFeasibleSearch.value.type1 = false;
+const validateSearchCstNo = async () => {
+  const validaateMessage = await chkInputSearchComplete(searchParams, canFeasibleSearch);
+  if (validaateMessage) {
+    return validaateMessage;
   }
-});
-watch(() => searchParams.value.cstNm, async () => {
-  if (canFeasibleSearch.value.popSearchComplate) {
-    canFeasibleSearch.value.popSearchComplate = false;
-  } else {
-    canFeasibleSearch.value.type2 = false;
-  }
-});
-watch(() => searchParams.value.phoneNumber, async () => {
-  if (canFeasibleSearch.value.popSearchComplate) {
-    canFeasibleSearch.value.popSearchComplate = false;
-  } else {
-    canFeasibleSearch.value.type3 = false;
-  }
-});
+  return true;
+};
+
 watch(() => searchParams.value.baseYm, async (baseYm) => {
   if (baseYm !== defaultDate) {
     isNotActivated.value = true;
@@ -552,6 +571,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'bzHdqDvCd' },
     { fieldName: 'cntrNo' },
     { fieldName: 'clctamDvCd' },
+    { fieldName: 'originClctamDvCd' },
     { fieldName: 'bfPrtnrKnm' },
     { fieldName: 'cntrSn' },
     { fieldName: 'cstNm' },
@@ -571,6 +591,7 @@ const initGrdSub = defineGrid((data, view) => {
   ];
   const columns = [
     { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_DV'), options: filteredCodes.value.CLCTAM_DV_CD, optionValue: 'codeId', optionLabel: 'codeName', editor: { type: 'list' }, width: '100' },
+    { fieldName: 'originClctamDvCd', visible: false },
     { fieldName: 'bfPrtnrKnm', header: t('MSG_TXT_LSTMM_PSIC'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
@@ -590,8 +611,8 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
-    { fieldName: 'lwmTpCd', header: t('MSG_TXT_LWM_TP'), width: '110', numberFormat: '#,##0', editable: false },
-    { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_DTL'), width: '110', editable: false },
+    { fieldName: 'lwmTpCd', header: t('MSG_TXT_LWM_TP'), width: '110', options: codes.LWM_TP_CD, editable: false },
+    { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_DTL'), width: '110', options: codes.LWM_DTL_TP_CD, editable: false },
     { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_DT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'dfltDt', header: t('MSG_TXT_DE_RGST_DT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'addr', header: t('MSG_TXT_ADDR'), width: '200', editable: false },
@@ -615,7 +636,7 @@ const initGrdSub = defineGrid((data, view) => {
     if (cachedParams.baseYm !== defaultDate) {
       view.editOptions.editable = false;
     } else {
-      view.editOptions.editable = true;
+      view.editOptions.editable = isCollectionManager;
     }
   };
 });

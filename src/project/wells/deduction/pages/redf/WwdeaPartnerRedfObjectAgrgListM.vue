@@ -83,14 +83,15 @@
 
       <kw-search-row>
         <kw-search-item
-          :label="t('MSG_TXT_PRTNR_NUM')"
+          :label="t('MSG_TXT_PRTNR_NUMBER')"
         >
           <kw-input
             v-model="searchParams.prtnrNo"
             regex="num"
             icon="search"
-            :label="t('MSG_TXT_PRTNR_NUM')"
+            :label="t('MSG_TXT_PRTNR_NUMBER')"
             rules="max:10|numeric"
+            clearable
             @click-icon="onClickSearchPartner"
           />
         </kw-search-item>
@@ -1127,7 +1128,7 @@ function initGrid(data, view) {
     { fieldName: 'baseYm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '100', styleName: 'text-center' },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '100', styleName: 'text-center' },
     { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '100', styleName: 'text-center' },
     { fieldName: 'qlfDvNm1', header: t('MSG_TXT_QLF_AFT_MM'), width: '100', styleName: 'text-center' },

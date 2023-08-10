@@ -69,9 +69,7 @@
         </kw-item-section>
       </template>
       <div class="pb20">
-        <kw-form
-          cols="4"
-        >
+        <kw-form cols="4">
           <kw-form-row>
             <!--상품정보-->
             <kw-form-item :label="$t('MSG_TXT_PD_INF')">
@@ -95,7 +93,7 @@
           <kw-form-row>
             <!--등록비용-->
             <kw-form-item :label="$t('MSG_TXT_REG_FEE')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.cntrAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.rentalRgstCost??'') }}</p>
             </kw-form-item>
             <!--등록비할인-->
             <kw-form-item :label="$t('MSG_TXT_RGST_COST_DSC')">
@@ -179,22 +177,15 @@
         <kw-form cols="4">
           <kw-form-row>
             <!-- row1 정상매출 -->
-            <kw-form-item
-              :label="$t('MSG_TXT_NOM_SL')"
-            >
+            <kw-form-item :label="$t('MSG_TXT_NOM_SL')">
               <p>{{ stringUtil.getNumberWithComma(searchDetail.nomSlAmt??'') }}</p>
             </kw-form-item>
             <!-- row1 렌탈일수 -->
-            <kw-form-item
-              :label="$t('MSG_TXT_RENTAL_DC')"
-              hint="사용일수"
-            >
-              <p>{{ searchDetail.useDays }}</p>
+            <kw-form-item :label="$t('MSG_TXT_RENTAL_DC')">
+              <p>{{ searchDetail.rentalDc }}</p>
             </kw-form-item>
             <!-- row1 교체일자 -->
-            <kw-form-item
-              :label="$t('MSG_TXT_CHNG_DT')"
-            >
+            <kw-form-item :label="$t('MSG_TXT_CHNG_DT')">
               <p>{{ stringUtil.getDateFormat(searchDetail.chgDt) }}</p>
             </kw-form-item>
             <!-- row1 추가매출  -->
@@ -216,7 +207,6 @@
                 regex="num"
                 maxlength="10"
                 align="right"
-                @update:model-value="onChangeCanCtr"
               />
             </kw-form-item>
             <!--row2 부가서비스  -->
@@ -229,14 +219,14 @@
             </kw-form-item>
           </kw-form-row>
 
-          <kw-separator v-if="isChageCanCtr" />
-          <kw-form-row v-if="isChageCanCtr">
+          <kw-separator v-if="searchDetail.canCtrAmt > 0" />
+          <kw-form-row v-if="searchDetail.canCtrAmt > 0">
             <!-- row2-1 조정요청자사번 -->
             <kw-form-item :label="$t('MSG_TXT_CTR')+$t('MSG_TXT_REQ_USER')+$t('MSG_TXT_EPNO')">
               <kw-input
                 v-model="searchDetail.slCtrRqrId"
-                regex="num"
                 maxlength="10"
+                regex="num"
               />
             </kw-form-item>
             <!-- row2-1 조정사유 -->
@@ -355,7 +345,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.reqDt"
+          v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
           rules="required"
         />
@@ -366,7 +356,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.cancelDt"
+          v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
           rules="required"
         />
@@ -434,7 +424,10 @@
         <p>{{ stringUtil.getNumberWithComma(searchDetail.resRtlfeBorAmt??'') }}</p>
       </kw-form-item>
       <!-- row5 원위약-등록비 -->
-      <kw-form-item :label="$t('MSG_TXT_CUR_WON')+$t('MSG_TXT_BOR')+'-'+$t('MSG_TXT_RGST_FEE')">
+      <kw-form-item
+        :label="$t('MSG_TXT_CUR_WON')+$t('MSG_TXT_BOR')+'-'+$t('MSG_TXT_RGST_FEE')"
+        hint="등록비할인위약금액"
+      >
         <p>{{ stringUtil.getNumberWithComma(searchDetail.rgstCostDscBorAmt??'') }}</p>
       </kw-form-item>
       <!-- row5 원위약-할인금액 -->
@@ -466,7 +459,7 @@
           regex="num"
           maxlength="10"
           align="right"
-          :readonly="searchDetail.sel1!=='4'"
+          :readonly="searchDetail.ccamExmptDvCd!=='4'"
         />
         <kw-btn
           :label="$t('MSG_TXT_CCAM_IZ_DOC')+' '+$t('MSG_BTN_VIEW')"
@@ -491,16 +484,13 @@
         />
       </kw-form-item>
       <!-- 소모품비 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_CSMB_CS')"
-        hint="null"
-      >
+      <kw-form-item :label="$t('MSG_TXT_CSMB_CS')">
         <kw-input
-          v-model="searchDetail.null"
+          v-model="searchDetail.csmbCostBorAmt2"
           regex="num"
           maxlength="10"
           align="right"
-          :readonly="searchDetail.sel3!=='4'"
+          :readonly="searchDetail.csmbCsExmptDvCd!=='4'"
         />
       </kw-form-item>
     </kw-form-row>
@@ -510,16 +500,15 @@
       <!-- 위약면책 -->
       <kw-form-item
         :label="$t('MSG_TXT_BOR')+$t('MSG_TXT_EXEMPTION')"
-        hint="입력되는곳 없음."
       >
         <kw-select
-          v-model="searchDetail.sel1"
+          v-model="searchDetail.ccamExmptDvCd"
           :options="codes.CCAM_EXMPT_DV_CD"
           first-option="select"
         />
         <kw-input
           v-model="inputDetail.sel1Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel1')"
@@ -534,23 +523,20 @@
         />
         <kw-input
           v-model="inputDetail.sel2Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel2')"
         />
       </kw-form-item>
       <!-- 철거 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_REQD')"
-        hint="null"
-      >
+      <kw-form-item :label="$t('MSG_TXT_REQD')">
         <kw-input
-          v-model="searchDetail.null"
+          v-model="searchDetail.reqdCsBorAmt2"
           regex="num"
           maxlength="10"
           align="right"
-          :readonly="searchDetail.sel4!=='4'"
+          :readonly="searchDetail.reqdCsExmptDvCd!=='4'"
         />
       </kw-form-item>
     </kw-form-row>
@@ -562,31 +548,31 @@
         colspan="3"
       >
         <kw-select
-          v-model="searchDetail.sel3"
+          v-model="searchDetail.csmbCsExmptDvCd"
           :options="codes.CSMB_CS_EXMPT_DV_CD"
           first-option="select"
         />
         <kw-input
           v-model="inputDetail.sel3Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel3')"
         />
         <kw-select
-          v-model="searchDetail.sel4"
+          v-model="searchDetail.reqdCsExmptDvCd"
           :options="codes.REQD_CS_EXMPT_DV_CD"
           first-option="select"
         />
         <kw-input
           v-model="inputDetail.sel4Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel4')"
         />
         <kw-select
-          v-model="searchDetail.sel5"
+          v-model="searchDetail.reqdAkRcvryDvCd"
           :options="codes.REQD_RCVRY_DV_CD"
           first-option="select"
         />
@@ -594,7 +580,7 @@
           :label="$t('MSG_TXT_RECOVERY')"
           secondary
           class="mx12"
-          @click="onClickRecovery"
+          @click="onClickTodo('복구')"
         />
       </kw-form-item>
     </kw-form-row>
@@ -614,6 +600,7 @@
           :label="$t('MSG_TXT_CANCEL_BULK_APPLY')"
           :false-value="N"
           :true-value="Y"
+          :disable="props.sametype==='N'"
         />
       </kw-form-item>
     </kw-form-row>
@@ -627,11 +614,13 @@
       v-if="searchDetail.cancelStatNm === '취소등록'"
       class="button-set--bottom-right"
     >
+      <!--
       <kw-btn
         :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
         class="ml8"
         @click="onClickVacIssue"
       />
+-->
       <kw-btn
         :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
         class="ml8"
@@ -645,7 +634,7 @@
       <kw-btn
         :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
-        @click="onClickTodo('환불접수')"
+        @click="onClickRefund"
       />
       <kw-btn
         :label="$t('MSG_TXT_RENTAL_RSG_CFDG')+$t('MSG_BTN_VIEW')"
@@ -677,14 +666,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, stringUtil, useDataService, useMeta, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, stringUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
-const { getUserInfo } = useMeta();
-const sessionUserInfo = getUserInfo();
-const dataService = useDataService();
 const frmMainRental = ref(getComponentType('KwForm'));
 const { notify, modal } = useGlobal();
 
@@ -696,10 +682,6 @@ const codes = await codeUtil.getMultiCodes(
   'REQD_RCVRY_DV_CD', // 철거복구구분코드
 );
 
-const props = defineProps({
-  childDetail: { type: Object, required: true },
-});
-
 const emits = defineEmits([
   'update:modelValue',
   'searchdetail',
@@ -707,7 +689,11 @@ const emits = defineEmits([
   'removedetail',
 ]);
 
-const isChageCanCtr = ref(false);
+const props = defineProps({
+  childDetail: { type: Object, required: true },
+  sametype: { type: String, required: true },
+});
+
 const searchDetail = reactive(props.childDetail);
 const inputDetail = ref({
   reqDt: '',
@@ -722,87 +708,17 @@ codes.REQD_CS_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-// 5. 취소사항 > 취소사항 조회 클릭
-async function onClickSearchCancel() {
-  if (!await frmMainRental.value.validate()) { return; }
-  if (inputDetail.value.reqDt < dayjs().format('YYYYMMDD')) {
-    await notify('요청일자가 현재일자 이전입니다.');
-    return;
+// SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
+function onChangeTextforSelect(div) {
+  if (div === 'sel1') {
+    searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+  } else if (div === 'sel2') {
+    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+  } else if (div === 'sel3') {
+    searchDetail.csmbCsExmptDvCd = inputDetail.value.sel3Text;
+  } else if (div === 'sel4') {
+    searchDetail.reqdCsExmptDvCd = inputDetail.value.sel4Text;
   }
-
-  emits('searchdetail', { reqDt: inputDetail.value.reqDt, cancelDt: inputDetail.value.cancelDt });
-}
-
-function onClickSave() {
-  searchDetail.rsgAplcDt = inputDetail.reqDt;
-  if (isEmpty(searchDetail.canCtrAmt)) {
-    searchDetail.slCtrRqrId = '';
-    searchDetail.slCtrRmkCn = '';
-  }
-  emits('savedetail');
-}
-
-function onClickCancel() {
-  emits('removedetail');
-}
-
-// 취소조정 추가 데이터 입력 여부 설정
-function onChangeCanCtr(val) {
-  isChageCanCtr.value = (val !== '0');
-}
-
-async function onCallStlm(pDiv) {
-  let component;
-  if (pDiv === 'Face') component = 'ZwwdbIndvVirtualAccountIssueMgtP';
-  else if (pDiv === 'NonFace') component = 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
-
-  if (isEmpty(component)) { return; }
-
-  /*
-  대면발급/비대면발급 가상계좌 파라미터
-  const props = defineProps({
-    rveAkNo: { type: String, required: true },
-    kwGrpCoCd: { type: String, required: true },
-  });
-  */
-
-  const { result } = await modal({
-    component,
-  });
-
-  if (result) {
-    // console.log(payload)
-  }
-}
-
-async function onClickVacIssue() {
-  const { result, payload } = await modal({
-    component: 'WwctbCancelRegistrationConfirmMgtP',
-  });
-  if (result) {
-    onCallStlm(payload);
-  }
-}
-
-async function onClickRequidation() {
-  const sendData = {
-    svBizHclsfCd: '9', // 필수, 계약취소
-    rcpdt: '',
-    mtrStatCd: '2', // 필수, 1: 신규, 2: 수정, 3: 삭제
-    svBizDclsfCd: '1111', // 1111 설치+철거
-    urgtYn: 'N',
-    cntrNo: searchDetail.cntrNo, // 필수  계약번호
-    cntrSn: searchDetail.cntrSn, // 다건 배열 cntrSn
-    inflwChnl: '3', // 필수 1: CubicCC, 3: KSS
-    pdGdCd: 'A', // 상품등급
-    userId: sessionUserInfo.userId, // 로그인한 사용자
-  };
-
-  await dataService.post('/sms/wells/service/installation-works', sendData);
-}
-
-async function onClickTodo(param) {
-  notify(`TODO: ${param} 기능 준비 중`);
 }
 
 // 위약금 내역서 보기
@@ -817,33 +733,89 @@ function onClickCalculate() {
   notify('TODO : 분실손료 계산 ');
 }
 
-// SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
-function onChangeTextforSelect(div) {
-  if (div === 'sel1') {
-    searchDetail.sel1 = inputDetail.value.sel1Text;
-  } else if (div === 'sel2') {
-    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
-  } else if (div === 'sel3') {
-    searchDetail.sel3 = inputDetail.value.sel3Text;
-  } else if (div === 'sel4') {
-    searchDetail.sel4 = inputDetail.value.sel4Text;
+// 5. 취소사항 > 취소사항 조회 클릭
+async function onClickSearchCancel() {
+  if (!await frmMainRental.value.validate()) { return; }
+
+  emits('searchdetail', { reqDt: searchDetail.rsgAplcDt, cancelDt: searchDetail.rsgFshDt });
+}
+
+function onClickSave() {
+  if (isEmpty(searchDetail.canCtrAmt)) {
+    searchDetail.slCtrRqrId = '';
+    searchDetail.slCtrRmkCn = '';
+  }
+
+  if (searchDetail.ccamExmptDvCd !== '4') searchDetail.borAmt = 0;
+  if (searchDetail.csmbCsExmptDvCd !== '4') searchDetail.csmbCostBorAmt2 = 0;
+  if (searchDetail.reqdCsExmptDvCd !== '4') searchDetail.reqdCsBorAmt2 = 0;
+
+  emits('savedetail');
+}
+
+function onClickCancel() {
+  emits('removedetail');
+}
+/*
+async function onCallStlm(pDiv) {
+  let component;
+  if (pDiv === 'Face') component = 'ZwwdbIndvVirtualAccountIssueMgtP';
+  else if (pDiv === 'NonFace') component = 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
+
+  if (isEmpty(component)) { return; }
+
+  await modal({
+    component,
+    componentProps: { rveAkNo: '12002023031700000601', kwGrpCoCd: '1200' },
+  });
+}
+
+async function onClickVacIssue() {
+  const btns = [{ label: '대면발급', returnText: 'Face' },
+    { label: '비대면발급', returnText: 'NonFace' }];
+
+  const { result, payload } = await modal({
+    component: 'ZwctaComfirmMgmtP',
+    componentProps: { contents: '가상계좌 발급 방법을 선택하여 주세요.',
+      isCancel: true,
+      isOk: false,
+      btns },
+  });
+  if (result) {
+    onCallStlm(payload);
   }
 }
-
-function onClickRecovery() {
-  notify('TODO : [복구] 정의 되지 않음 ');
+*/
+async function onClickRequidation() {
+  await modal({
+    component: 'WwsncTimeTableForContractP',
+    componentProps: {
+      baseYm: dayjs().format('YYYYMM'), // 달력 초기 월
+      chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
+      svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
+      sellDate: searchDetail.cntrCnfmDt, // // 판매일자
+      svBizDclsfCd: '3420', // TODO 확인/
+      mtrStatCd: '1',
+      cntrNo: searchDetail.cntrNo,
+      cntrSn: searchDetail.cntrSn,
+    },
+  });
 }
 
-watch(props.childDetail, (val) => {
-  Object.assign(searchDetail, val);
-});
+async function onClickRefund() {
+  const { cntrNo, cntrSn } = searchDetail;
+  await modal({
+    component: 'WwwdbRefundApplicationRegP',
+    componentProps: { cntrNo, cntrSn },
+  });
+}
+
+async function onClickTodo(param) {
+  notify(`TODO: ${param} 준비 중`);
+}
 
 watch(searchDetail, (val) => {
   emits('update:modelValue', val);
-});
-
-onMounted(async () => {
-  console.log(props.childDetail.cntrNo);
 });
 
 // -------------------------------------------------------------------------------------------------

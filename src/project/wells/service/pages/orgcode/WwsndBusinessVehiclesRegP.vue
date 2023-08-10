@@ -217,11 +217,9 @@
 
 import { codeUtil, notify, useDataService, useModal, getComponentType, validate } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
-import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
-const { getAllEngineers } = useSnCode();
 const { t } = useI18n();
 const { cancel: onClickCancel, ok } = useModal();
 
@@ -238,7 +236,6 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 
 const frmMainRef = ref(getComponentType('KwObserver'));
-const svcCenters = (await getAllEngineers()).G_ONLY_SVC;
 const codes = await codeUtil.getMultiCodes(
   'INSR_AGE_CD',
   'VHC_MNGT_TP_CD',
@@ -280,6 +277,13 @@ async function getEngineers() {
   const res = await fetchEngineers({ params: { dgr1LevlOgId: propsParam.value.ogId } });
   return res.data;
 }
+
+async function fetchAllCenters() {
+  const res = await dataService.get('/sms/wells/service/organizations/service-center');
+  return res.data;
+}
+
+const svcCenters = (await fetchAllCenters());
 
 const engs = (await getEngineers());
 

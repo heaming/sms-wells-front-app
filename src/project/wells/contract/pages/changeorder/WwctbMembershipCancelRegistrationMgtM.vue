@@ -18,7 +18,7 @@
     separator
     item-padding="20px 0"
   >
-    <!-- 3. 판매정보 --------------------------------------------------------------------------->
+    <!-- 2. 판매정보 --------------------------------------------------------------------------->
     <kw-expansion-item
       padding-target="header"
       expansion-icon-align="center"
@@ -27,7 +27,7 @@
       <template #header>
         <kw-item-section>
           <kw-item-label>
-            <span class="text-weight-medium kw-font-pt18">3. {{ t('MSG_TXT_SELL_INF') }}</span>
+            <span class="text-weight-medium kw-font-pt18">2. {{ t('MSG_TXT_SELL_INF') }}</span>
           </kw-item-label>
         </kw-item-section>
       </template>
@@ -66,6 +66,80 @@
               hint="null"
             >
               <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
+            </kw-form-item>
+          </kw-form-row>
+        </kw-form>
+      </div>
+    </kw-expansion-item>
+
+    <!-- 3. 계약상품 --------------------------------------------------------------------------->
+    <kw-expansion-item
+      padding-target="header"
+      expansion-icon-align="center"
+      expand-icon-class="kw-font-pt24"
+    >
+      <template #header>
+        <kw-item-section>
+          <kw-item-label>
+            <span class="text-weight-medium kw-font-pt18">3. {{ t('MSG_TXT_CNTR_PD') }}</span>
+          </kw-item-label>
+        </kw-item-section>
+      </template>
+      <div class="pb20">
+        <kw-form
+          cols="4"
+        >
+          <kw-form-row>
+            <!--상품코드-->
+            <kw-form-item :label="$t('TXT_MSG_PD_CD')">
+              <p>{{ searchDetail.basePdCd }}</p>
+            </kw-form-item>
+            <!--상품명-->
+            <kw-form-item :label="$t('MSG_TXT_PRDT_NM')">
+              <p>{{ searchDetail.pdNm }}</p>
+            </kw-form-item>
+            <!--BS주기-->
+            <kw-form-item :label="$t('MSG_TXT_BS_CYC')">
+              <p>{{ searchDetail.svPrd }}</p>
+            </kw-form-item>
+            <!--용도구분-->
+            <kw-form-item :label="$t('MSG_TXT_USWY_DV')">
+              <p>{{ searchDetail.svPdTpNm }}</p>
+            </kw-form-item>
+          </kw-form-row>
+
+          <kw-separator />
+          <kw-form-row>
+            <!--가입유형-->
+            <kw-form-item :label="$t('MSG_TXT_J_TP')">
+              <p>{{ searchDetail.stlmTpNm }}</p>
+            </kw-form-item>
+            <!--멤버십월회비-->
+            <kw-form-item
+              :label="$t('MSG_TXT_MEMBERSHIP')+t('MSG_TXT_MM_SSPCS')"
+              hint="null"
+            >
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
+            </kw-form-item>
+            <!--할인금액-->
+            <kw-form-item :label="$t('MSG_TXT_RNTL_TOTAL')">
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.dscAmt??'') }}</p>
+            </kw-form-item>
+          </kw-form-row>
+
+          <kw-separator />
+          <kw-form-row>
+            <!--계약일자 -->
+            <kw-form-item :label="$t('MSG_TXT_CNTR_DATE')">
+              <p> {{ stringUtil.getDateFormat(searchDetail.cntrRcpDt) }}</p>
+            </kw-form-item>
+            <!--확정일자-->
+            <kw-form-item :label="$t('MSG_TXT_RENTAL')+' DC'">
+              <p>{{ stringUtil.getDateFormat(searchDetail.cntrCnfmDt) }}</p>
+            </kw-form-item>
+            <!--가입일자-->
+            <kw-form-item :label="$t('MSG_TXT_J_DT')">
+              <p>{{ stringUtil.getDateFormat(searchDetail.cntrPdStrtdt) }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -203,7 +277,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.reqDt"
+          v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
           rules="required"
         />
@@ -214,7 +288,7 @@
         required
       >
         <kw-date-picker
-          v-model="inputDetail.cancelDt"
+          v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
           rules="required"
         />
@@ -324,7 +398,6 @@
           regex="num"
           maxlength="10"
           align="right"
-          readonly
         />
         <kw-btn
           :label="$t('MSG_TXT_CCAM_IZ_DOC')+' '+$t('MSG_BTN_VIEW')"
@@ -346,13 +419,13 @@
       <!-- 면책유형 -->
       <kw-form-item :label="$t('MSG_TXT_EXEMPTION')+$t('MSG_TXT_TYPE')">
         <kw-select
-          v-model="searchDetail.sel1"
+          v-model="searchDetail.ccamExmptDvCd"
           :options="codes.CCAM_EXMPT_DV_CD"
           first-option="select"
         />
         <kw-input
           v-model="inputDetail.sel1Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel1')"
@@ -367,7 +440,7 @@
         />
         <kw-input
           v-model="inputDetail.sel2Text"
-          class="w100"
+          class="w80"
           regex="num"
           maxlength="2"
           @update:model-value="onChangeTextforSelect('sel2')"
@@ -381,8 +454,8 @@
       <kw-form-item :label="$t('MSG_TXT_CTR')+$t('MSG_TXT_REQ_USER')+$t('MSG_TXT_EPNO')">
         <kw-input
           v-model="searchDetail.slCtrRqrId"
-          regex="num"
           maxlength="10"
+          regex="num"
         />
       </kw-form-item>
       <!-- row2-1 조정사유 -->
@@ -401,6 +474,7 @@
           :label="$t('MSG_TXT_CANCEL_BULK_APPLY')"
           :false-value="N"
           :true-value="Y"
+          :disable="props.sametype==='N'"
         />
       </kw-form-item>
     </kw-form-row>
@@ -414,11 +488,13 @@
       v-if="searchDetail.cancelStatNm === '취소등록'"
       class="button-set--bottom-right"
     >
+      <!--
       <kw-btn
         :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
         class="ml8"
         @click="onClickVacIssue"
       />
+      -->
       <kw-btn
         :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
         class="ml8"
@@ -427,7 +503,7 @@
       <kw-btn
         :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
-        @click="onClickTodo('환불접수')"
+        @click="onClickRefund"
       />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
@@ -456,7 +532,6 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, notify, stringUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { isEmpty } from 'lodash';
 
 const { t } = useI18n();
 const frmMainMembership = ref(getComponentType('KwForm'));
@@ -468,10 +543,6 @@ const codes = await codeUtil.getMultiCodes(
   'CMN_STAT_CH_RSON_CD', // 공통상태변경사유코드
 );
 
-const props = defineProps({
-  childDetail: { type: Object, required: true },
-});
-
 const emits = defineEmits([
   'update:modelValue',
   'searchdetail',
@@ -479,6 +550,10 @@ const emits = defineEmits([
   'removedetail',
 ]);
 
+const props = defineProps({
+  childDetail: { type: Object, required: true },
+  sametype: { type: String, required: true },
+});
 const searchDetail = reactive(props.childDetail);
 const inputDetail = ref({
   reqDt: now.format('YYYYMMDD'),
@@ -491,62 +566,13 @@ codes.CMN_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-// 5. 취소사항 > 취소사항 조회 클릭
-async function onClickSearchCancel() {
-  if (!await frmMainMembership.value.validate()) { return; }
-  if (inputDetail.value.reqDt < dayjs().format('YYYYMMDD')) {
-    await notify('요청일자가 현재일자 이전입니다.');
-    return;
+// SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
+function onChangeTextforSelect(div) {
+  if (div === 'sel1') {
+    searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+  } else if (div === 'sel2') {
+    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
   }
-
-  emits('searchdetail', { reqDt: inputDetail.value.reqDt,
-    cancelDt: inputDetail.value.cancelDt,
-    dscDdctam: searchDetail.dscDdctam,
-    filtDdctam: searchDetail.filtDdctam,
-    slCtrAmt: searchDetail.slCtrAmt,
-  });
-}
-
-function onClickSave() {
-  searchDetail.rsgAplcDt = inputDetail.reqDt;
-  if (isEmpty(searchDetail.canCtrAmt)) {
-    searchDetail.slCtrRqrId = '';
-    searchDetail.slCtrRmkCn = '';
-  }
-  emits('savedetail');
-}
-
-function onClickCancel() {
-  emits('removedetail');
-}
-
-async function onCallStlm(pDiv) {
-  let component;
-  if (pDiv === 'Face') component = 'ZwwdbIndvVirtualAccountIssueMgtP';
-  else if (pDiv === 'NonFace') component = 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
-
-  if (isEmpty(component)) { return; }
-
-  const { result } = await modal({
-    component,
-  });
-
-  if (result) {
-    // console.log(payload)
-  }
-}
-
-async function onClickVacIssue() {
-  const { result, payload } = await modal({
-    component: 'WwctbCancelRegistrationConfirmMgtP',
-  });
-  if (result) {
-    onCallStlm(payload);
-  }
-}
-
-async function onClickTodo(param) {
-  notify(`TODO: ${param} 기능 준비 중`);
 }
 
 // 위약금 내역서 보기
@@ -555,27 +581,41 @@ function onClickCcamView() {
   notify('TODO : 위약금 내역서 OZ뷰 호출 ');
 }
 
-// SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
-function onChangeTextforSelect(div) {
-  if (div === 'sel1') {
-    searchDetail.value.sel1 = inputDetail.value.sel1Text;
-  } else if (div === 'sel2') {
-    searchDetail.scntrStatChRsonCdel2 = inputDetail.value.sel2Text;
-  }
+// 5. 취소사항 > 취소사항 조회 클릭
+async function onClickSearchCancel() {
+  if (!await frmMainMembership.value.validate()) { return; }
+
+  emits('searchdetail', { reqDt: searchDetail.rsgAplcDt,
+    cancelDt: searchDetail.rsgFshDt,
+    dscDdctam: searchDetail.dscDdctam,
+    filtDdctam: searchDetail.filtDdctam,
+    slCtrAmt: searchDetail.slCtrAmt,
+  });
 }
 
-watch(props.childDetail, (val) => {
-  console.log(val);
-  Object.assign(searchDetail, val);
-});
+function onClickSave() {
+  emits('savedetail');
+}
+
+function onClickCancel() {
+  emits('removedetail');
+}
+
+async function onClickRefund() {
+  const { cntrNo, cntrSn } = searchDetail;
+  await modal({
+    component: 'WwwdbRefundApplicationRegP',
+    componentProps: { cntrNo, cntrSn },
+  });
+}
+
+async function onClickTodo(param) {
+  notify(`TODO: ${param} 기능 준비 중`);
+}
 
 watch(searchDetail, (val) => {
   console.log(val);
   emits('update:modelValue', val);
-});
-
-onMounted(async () => {
-  console.log(props.childDetail.cntrNo);
 });
 
 // -------------------------------------------------------------------------------------------------

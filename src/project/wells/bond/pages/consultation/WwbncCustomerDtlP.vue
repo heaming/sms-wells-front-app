@@ -1063,6 +1063,9 @@ const selectedGridRow = ref(null);
 const visitRef = ref();
 const lawMeasureRef = ref();
 
+popupUtil.registerCloseEvent();
+popupUtil.registerWindowKeyEvent();
+
 watch(selectedGridRow, (newValue) => {
   if (!newValue) {
     const view = grdMainRef.value.getView();
@@ -1188,7 +1191,10 @@ async function onClickDepositRegistration() {
 async function onClickCbInformationAsk() {
   await modal({
     component: 'ZwbncCreditBureauInformationP',
-    componentProps: customer.value,
+    componentProps: {
+      cstNo: customer.value.cstNo,
+      sfkVal: customer.value.sfk,
+    },
   });
 }
 
@@ -1338,6 +1344,7 @@ async function onClickCounselSave() {
   saveCounselParams.value.cstNo = customer.value.cstNo;
   saveCounselParams.value.cntrNo = customer.value.cntrNo;
   saveCounselParams.value.cntrSn = customer.value.cntrSn;
+  saveCounselParams.value.clctamPrtnrNo = customer.value.prtnrNo;
 
   saveCounselParams.value.telCnslPhCd = customer.value.cnslPh;
   saveCounselParams.value.telCnslRsCd = customer.value.crncyRs;

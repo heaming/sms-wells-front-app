@@ -20,9 +20,9 @@
           :label="$t('MSG_TXT_CHNL_DV')"
         >
           <kw-option-group
-            v-model="searchParams.ogTpCd"
+            v-model="searchParams.bfsvcOgTpCd"
             type="radio"
-            :options="ogTp"
+            :options="codes.BFSVC_OG_TP_CD"
           />
         </kw-search-item>
         <kw-search-item
@@ -83,6 +83,10 @@
     </kw-search>
     <div class="result-area">
       <kw-action-top>
+        <template #left>
+          <kw-paging-info :total-count="totalCount" />
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+        </template>
         <kw-btn
           icon="download_on"
           dense
@@ -132,18 +136,14 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD',
+  'BFSVC_OG_TP_CD',
 );
-
-// 채널 구분
-const ogTp = [
-  { codeId: 'W02', codeName: t('MSG_TXT_SLS') },
-  { codeId: 'W03', codeName: t('MSG_TXT_HMST') },
-];
 
 // 조회조건
 const searchParams = ref({
   perfYm: dayjs().subtract(1, 'month').format('YYYYMM'),
-  ogTpCd: 'W02',
+  bfsvcOgTpCd: '01',
+  ogTpCd: '',
   prtnrNo: '',
   feeTcntDvCd: '01',
   strtPdCd: '',
@@ -152,12 +152,16 @@ const searchParams = ref({
   endVstDt: dayjs().subtract(1, 'month').endOf('month').format('YYYYMMDD'),
 });
 
+watch(() => searchParams.value.bfsvcOgTpCd, async (val) => {
+  searchParams.value.ogTpCd = val === '01' ? 'W02' : 'W03';
+}, { immediate: true });
+
 let cachedParams;
 
 // 조회
 async function fetchData() {
   cachedParams = { ...cachedParams };
-  const res = await dataService.get('/sms/wells/fee/bs-fees', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/fee/bs-fees', { params: cachedParams, timeout: 400000 });
   totalCount.value = res.data.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(res.data);
@@ -187,6 +191,7 @@ async function openPartnerPopup() {
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
       baseYm: searchParams.value.perfYm,
+      ogTpCd: searchParams.value.ogTpCd,
     },
   });
 
@@ -207,11 +212,12 @@ async function onClickBsPerfAgrg() {
     componentProps: {
       perfYm: searchParams.value.perfYm,
       feeTcntDvCd: searchParams.value.feeTcntDvCd,
+      ogTpCd: searchParams.value.ogTpCd,
     },
   });
 
   if (isChanged) {
-    console.log('bs실적집계');
+    // ok
   }
 }
 

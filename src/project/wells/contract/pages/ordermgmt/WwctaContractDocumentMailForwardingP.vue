@@ -15,6 +15,8 @@
 <template>
   <kw-popup
     class="kw-popup--md"
+    ignore-on-modified
+    no-action
   >
     <kw-form
       :cols="1"
@@ -50,28 +52,45 @@
 import { useDataService, useGlobal, useModal } from 'kw-lib';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
 
-const { confirm, notify } = useGlobal();
+const { confirm, notify, alert } = useGlobal();
 const { t } = useI18n();
-const { cancel: onClickClose } = useModal();
+const { ok, cancel: onClickClose } = useModal();
 const dataService = useDataService();
 const props = defineProps({
-  cntrNm: { type: String },
-  cntrNo: { type: String },
+  rcvrInfo: { type: [Object] },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const params = ref({
-  cntrNm: props.cntrNm,
-  cntrNo: props.cntrNo,
+  rcvrInfo: props.rcvrInfo,
   emadr: '',
 });
 
+// 발송버튼 클릭 이벤트
 async function onClickSend() {
-  if (await confirm(t('MSG_ALT_EML_FW_CONF', [params.value.cntrNm, params.value.emadr]))) {
-    await dataService.post('/sms/wells/contract/contracts/send-emails', params.value);
+  let rcvrInfoCntrNm = '';
+  const rcvrInfoCnt = Number(params.value.rcvrInfo.length) - 1;
+  if (rcvrInfoCnt > 0) {
+    rcvrInfoCntrNm = `${params.value.rcvrInfo[0].cntrNm}외${rcvrInfoCnt}명`;
+  } else {
+    rcvrInfoCntrNm = params.value.rcvrInfo[0].cntrNm;
+  }
+
+  if (await confirm(t('MSG_ALT_EML_FW_CONF', [rcvrInfoCntrNm, params.value.emadr]))) {
+    params.value.rcvrInfo.forEach((n) => {
+      n.emadr = params.value.emadr;
+    });
+    await dataService.post('/sms/wells/contract/contracts/send-emails', params.value.rcvrInfo);
+    ok();
     await notify(t('MSG_ALT_EML_FW_FSH'));
-    onClickClose();
   }
 }
+
+onMounted(async () => {
+  if (!params.value.rcvrInfo || params.value.rcvrInfo.length <= 0) {
+    await alert('수신인 정보를 확인하세요.');
+    onClickClose();
+  }
+});
 </script>

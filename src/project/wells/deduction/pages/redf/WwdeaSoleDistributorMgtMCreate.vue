@@ -187,6 +187,9 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const monthFrom = dayjs().subtract(1, 'month').format('YYYYMM');
 const monthTo = dayjs().subtract(0, 'month').format('YYYYMM');
+const defalutMonth = dayjs().subtract(0, 'month').format('YYYYMM');
+const { getUserInfo } = useMeta();
+const userInfo = getUserInfo();
 
 const codes = await codeUtil.getMultiCodes(
   'DDTN_RPLC_OG_TP_CD',
@@ -232,7 +235,7 @@ let cachedParams;
 
 const searchParams = ref({
   ogTpCd: filterOgTpCd.value[0].codeId,
-  redfAdsbOcYmFrom: monthFrom,
+  redfAdsbOcYmFrom: defalutMonth,
   redfAdsbOcYmTo: monthTo,
   perfYmFrom: monthFrom,
   perfYmTo: monthTo,
@@ -318,6 +321,9 @@ async function onClickSearch() {
 async function onClickRedfAmountCreate() {
   await modal({
     component: 'ZwdeaRedfAmountCreateP',
+    componentProps: {
+      ogTpCd: userInfo.ogTpCd,
+    },
   });
 }
 
@@ -424,12 +430,12 @@ function initGrid(data, view) {
     { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_CORP_NAME'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '100', styleName: 'text-center' },
     { fieldName: 'totOcMmCnt', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '100', styleName: 'text-right' },
     { fieldName: 'totRedfBfCnt', header: t('MSG_TXT_REDF_BF'), width: '100', styleName: 'text-right' },
     { fieldName: 'totHcrCnt', header: t('MSG_TXT_HOME_CARE'), width: '100', styleName: 'text-right' },
     { fieldName: 'samOcMmCnt', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '100', styleName: 'text-right' },
-    { fieldName: 'samRedfBfCnt', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '100', styleName: 'text-right' },
+    { fieldName: 'samRedfBfCnt', header: t('MSG_TXT_REDF_BF'), width: '100', styleName: 'text-right' },
     { fieldName: 'welOcMmCnt', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '100', styleName: 'text-right' },
     { fieldName: 'welRedfBfCnt', header: t('MSG_TXT_REDF_BF'), width: '100', styleName: 'text-right' },
     { fieldName: 'redfTotCnt', header: t('MSG_TXT_TOT_PERF'), width: '100', styleName: 'text-right' },
@@ -525,8 +531,15 @@ function initGrid2(data, view) {
     { fieldName: 'ogCd', header: t('MSG_TXT_BRCH_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_BRCH_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrNoSn',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '140',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' },
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_NM'), width: '140', styleName: 'text-left' },
@@ -579,7 +592,7 @@ function initGrid3(data, view) {
     { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_CORP_NAME'), width: '100', styleName: 'text-' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '100', styleName: 'text-center' },
     { fieldName: 'ocPerfCn', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '100', styleName: 'text-right' },
     { fieldName: 'redfBfCn', header: t('MSG_TXT_REDF_BF'), width: '100', styleName: 'text-right' },
     { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_THM_REDF'), width: '100', styleName: 'text-right' },

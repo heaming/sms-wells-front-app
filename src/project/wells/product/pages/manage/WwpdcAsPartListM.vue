@@ -101,14 +101,15 @@
         <kw-btn
           v-permission:create
           icon="upload_on"
-          grid-action
+          secondary
+          dense
           :label="$t('MSG_BTN_EXCEL_UP')"
           @click="onClickExcelUpload"
         />
         <kw-btn
-          v-permission:download
           icon="download_on"
-          grid-action
+          secondary
+          dense
           :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
@@ -120,13 +121,14 @@
         />
         <kw-btn
           :label="$t('MSG_BTN_CNTN_COPY')"
-          grid-action
+          secondary
           dense
           :disable="pageInfo.totalCount === 0"
           @click="onClickCopy"
         />
         <kw-btn
-          grid-action
+          dense
+          secondary
           :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_SUMMARY_SRCH')"
           @click="onClickSummaryDtl"
@@ -166,8 +168,8 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, gridUtil, codeUtil, useGlobal, getComponentType, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
+import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdyClassification.vue';
 
 const props = defineProps({
   searchYn: { type: String, default: null },

@@ -23,6 +23,11 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <kw-form-item :label="$t('MSG_TXT_OG_TP')">
+          <p>{{ codes.OG_TP_CD.find((v) => v.codeId === params?.ogTpCd)?.codeName }}</p>
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ORDR')">
           <p>{{ codes.FEE_TCNT_DV_CD.find((v) => v.codeId === params?.feeTcntDvCd)?.codeName }}</p>
         </kw-form-item>
@@ -59,6 +64,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  ogTpCd: { // 조직유형코드
+    type: String,
+    required: true,
+  },
   feeTcntDvCd: { // 수수료차수구분코드
     type: String,
     required: true,
@@ -67,7 +76,9 @@ const props = defineProps({
 
 const params = ref({
   perfYm: props.perfYm,
+  ogTpCd: props.ogTpCd,
   feeTcntDvCd: props.feeTcntDvCd,
+  perfAgrgCrtDvCd: '',
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -75,6 +86,7 @@ const params = ref({
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD',
+  'OG_TP_CD',
 );
 
 async function onClickCancel() {
@@ -83,7 +95,8 @@ async function onClickCancel() {
 
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-  const response = dataService.post('/sms/wells/fee/organization-netorders/bs-aggregates', params.value);
-  ok(response.data);
+  params.value.perfAgrgCrtDvCd = params.value.ogTpCd === 'W02' ? '201' : '301';
+  const response = dataService.post('/sms/wells/fee/bs-fees', params.value);
+  if (response.data === 'S') ok(response.data);
 }
 </script>

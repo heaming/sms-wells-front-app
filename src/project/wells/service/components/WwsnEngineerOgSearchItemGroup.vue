@@ -87,6 +87,12 @@ const props = defineProps({
   // Select Read Only
   dgr1LevlOgReadonly: { type: Boolean, default: false },
   partnerReadonly: { type: Boolean, default: false },
+
+  // auth
+  authYn: { type: String, default: 'Y' },
+
+  // Select Always Search
+  partnerAlwaysSearch: { type: Boolean, default: true },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -108,8 +114,8 @@ const selectedPrtnrNo = ref(props.prtnrNo);
 const dgr1LevlOgs = ref([]);
 const partners = ref([]);
 
-async function fetchDgr1LevlOgs() {
-  return await dataService.get('/sms/wells/service/organizations/service-center');
+async function fetchDgr1LevlOgs(params) {
+  return await dataService.get('/sms/wells/service/organizations/service-center', params);
 }
 
 async function fetchPartners(params) {
@@ -118,7 +124,7 @@ async function fetchPartners(params) {
 
 async function getDgr1LevlOgs() {
   if (props.useOgLevel < '1') return;
-  const res = await fetchDgr1LevlOgs();
+  const res = await fetchDgr1LevlOgs({ params: { authYn: props.authYn } });
   dgr1LevlOgs.value = res.data;
 }
 
@@ -126,9 +132,11 @@ async function getPartners() {
   if (!props.usePartner) return;
   if ((props.useOgLevel === '1' && (props.dgr1LevlOgFirstOption === 'all' || !isEmpty(selectedDgr1LevlOgId.value)))
       || props.useOgLevel === '0'
+      || props.partnerAlwaysSearch
   ) {
     const res = await fetchPartners({ params: {
       dgr1LevlOgId: selectedDgr1LevlOgId.value,
+      authYn: props.authYn,
     } });
     partners.value = res.data;
   } else {
@@ -156,6 +164,11 @@ watch(() => props.prtnrNo, (newVal) => {
 });
 
 await getDgr1LevlOgs();
+if (props.authYn === 'Y' && dgr1LevlOgs.value.length === 1) {
+  selectedDgr1LevlOgId.value = dgr1LevlOgs.value[0].ogId;
+  emit('update:dgr1LevlOgId', selectedDgr1LevlOgId.value);
+  emit('update:dgr1LevlOg', dgr1LevlOgs.value.find((og) => og.ogId === selectedDgr1LevlOgId.value));
+}
 await getPartners();
 
 async function onChangeDgr1LevlOgId(val) {

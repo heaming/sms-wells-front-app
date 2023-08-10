@@ -525,6 +525,7 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
     { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'cstKnm' }, // 계약자명
+    { fieldName: 'cstKnmEncr' }, // 계약자명(암호화)
     { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'copnDvNm' }, // 고객구분
     { fieldName: 'bzrno' }, // 계약자 사업자등록번호
@@ -558,8 +559,9 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'sppIvcCrtDtm' }, // 사은품택배송장출력일
     { fieldName: 'booSellYn' }, // 예약판매여부
     { fieldName: 'cntrTpCd' }, // 계약유형코드
-    { fieldName: 'cntrTpNm' }, // 판매유형
+    { fieldName: 'cntrTpNm' }, // 판매유형(계약유형코드명)
     { fieldName: 'sellPrtnrNm' }, // 판매파트너명
+    { fieldName: 'sellPrtnrNmEncr' }, // 판매파트너명(암호화)
     { fieldName: 'fstRgstUsrId' }, // 업무담당자
     { fieldName: 'fstRgstDeptId' }, // 조직코드
     { fieldName: 'rveCd' }, // 수납코드
@@ -589,21 +591,24 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'mmIstmAmt', dataType: 'number' }, // 월할부금
     { fieldName: 'istmPcamAmt', dataType: 'number' }, // 총할부금액
     { fieldName: 'cntrCstNo' }, // 고객번호
-    { fieldName: 'cntrMpno' }, // 계약자휴대전화번호
-    { fieldName: 'cralLocaraTno' }, // 계약자휴대전화번호1
-    { fieldName: 'mexnoEncr' }, // 계약자휴대전화번호2
-    { fieldName: 'cralIdvTno' }, // 계약자휴대전화번호3
+    { fieldName: 'cralTno' }, // 계약자 휴대전화번호
+    { fieldName: 'cralLocaraTno' }, // 계약자 휴대지역전화번호
+    { fieldName: 'mexnoEncr' }, // 계약자 휴대전화국번호암호화(암호화)
+    { fieldName: 'cralIdvTno' }, // 계약자 휴대개별전화번호
     { fieldName: 'newAdrZip' }, // 우편번호
     { fieldName: 'rnadr' }, // 계약자 기준주소
     { fieldName: 'rdadr' }, // 계약자 상세주소
+    { fieldName: 'rdadrEncr' }, // 계약자 상세주소(암호화)
     { fieldName: 'rcgvpKnm' }, // 설치자명
-    { fieldName: 'istlcMpno' }, // 설치자 휴대전화번호
-    { fieldName: 'istlcCralLocaraTno' }, // 설치자 휴대전화번호1
-    { fieldName: 'istlcMexnoEncr' }, // 설치자 휴대전화번호2
-    { fieldName: 'istlcCralIdvTno' }, // 설치자 휴대전화번호3
+    { fieldName: 'rcgvpKnmEncr' }, // 설치자명(암호화)
+    { fieldName: 'istlcCralLocaraTno' }, // 설치자 휴대지역전화번호
+    { fieldName: 'istlcMexnoEncr' }, // 설치자 휴대전화국번호암호화(암호화)
+    { fieldName: 'istlcCralIdvTno' }, // 설치자 휴대개별전화번호
+    { fieldName: 'istlcCralTno' }, // 설치자 휴대전화번호
     { fieldName: 'istlcAdrZip' }, // 설치자우편번호
     { fieldName: 'istlcAdr' }, // 설치자 기준주소
     { fieldName: 'istlcDadr' }, // 설치자 상세주소
+    { fieldName: 'istlcDadrEncr' }, // 설치자 상세주소(암호화)
     { fieldName: 'cntrRelDtlNm' }, // 결합구분
     { fieldName: 'alncmpCntrDrmVal' }, // 제휴사계약식별값
     { fieldName: 'alncmpCd' }, // 제휴코드
@@ -628,7 +633,7 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'text-center rg-button-link', renderer: { type: 'button' } }, // 계약상세번호
     { fieldName: 'ordrInfoView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '180', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_ODER_INF_VIEW') }, // 주문정보 보기
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자명
+    { fieldName: 'cstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자명
     { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '138', styleName: 'text-center' }, // 고객구분
     { fieldName: 'rnmno',
       header: `${t('MSG_TXT_RRNO')}/${t('MSG_TXT_ENTRP_NO')}`,
@@ -669,7 +674,7 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'sppIvcCrtDtm', header: `${t('MSG_TXT_FGPT')}${t('MSG_TXT_IVC_NO')}${t('MSG_TXT_PRNT_DT')}`, width: '183' }, // 사은품송장번호출력일자
     { fieldName: 'booSellYn', header: t('TXT_MSG_BOO_SELL_YN'), width: '136', styleName: 'text-center' }, // 예약판매여부
     { fieldName: 'cntrTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '136', styleName: 'text-center' }, // 판매유형
-    { fieldName: 'sellPrtnrNm', header: t('MSG_TXT_PTNR_NAME'), width: '136', styleName: 'text-center' }, // 파트너명
+    { fieldName: 'sellPrtnrNmEncr', header: t('MSG_TXT_PTNR_NAME'), width: '136', styleName: 'text-center' }, // 파트너명
     { fieldName: 'fstRgstUsrId', header: `${t('MSG_TXT_TASK')}${t('MSG_TXT_PIC')}`, width: '136', styleName: 'text-center' }, // 업무담당자
     { fieldName: 'fstRgstDeptId', header: t('MSG_TXT_OG_CD'), width: '136', styleName: 'text-center' }, // 조직코드
     { fieldName: 'rveCd', header: t('MSG_TXT_RVE_CD'), width: '136', styleName: 'text-center' }, // 수납코드
@@ -698,35 +703,24 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     { fieldName: 'istmPcamAmt', header: `${t('MSG_TXT_COM_TOT')} ${t('MSG_TXT_ISTM_AMT')}`, width: '138', styleName: 'text-right' }, // 총할부금액
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '138', styleName: 'text-center' }, // 고객번호
     {
-      fieldName: 'cntrMpno',
+      fieldName: 'cralTno',
       header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_MPNO')}`,
       width: '160',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(cralLocaraTno) && !isEmpty(mexnoEncr) && !isEmpty(cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
-      },
     }, // 계약자 휴대전화번호
     { fieldName: 'newAdrZip', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_ZIP')}`, width: '144', styleName: 'text-center' }, // 계약자 우편번호
     { fieldName: 'rnadr', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_STD_ADDR')}`, width: '312', styleName: 'text-center' }, // 계약자 기준주소
-    { fieldName: 'rdadr', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_DETAIL_ADDR')}`, width: '284', styleName: 'text-left' }, // 계약자 상세주소
-    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '144', styleName: 'text-center' }, // 설치자명
+    { fieldName: 'rdadrEncr', header: `${t('MSG_TXT_CNTRT')} ${t('MSG_TXT_DETAIL_ADDR')}`, width: '284', styleName: 'text-left' }, // 계약자 상세주소
+    { fieldName: 'rcgvpKnmEncr', header: t('MSG_TXT_IST_NM'), width: '144', styleName: 'text-center' }, // 설치자명
     {
-      fieldName: 'istlcMpno',
+      fieldName: 'istlcCralTno',
       header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_MPNO')}`,
       width: '160',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { istlcCralLocaraTno: no1, istlcMexnoEncr: no2, istlcCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
-          return `${no1}--${no3}`;
-        }
-        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
-      },
     }, // 설치자 휴대전화번호
     { fieldName: 'istlcAdrZip', header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_ZIP')}`, width: '144', styleName: 'text-center' }, // 설치자 우편번호
     { fieldName: 'istlcAdr', header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_STD_ADDR')}`, width: '312' }, // 설치자 기준주소
-    { fieldName: 'istlcDadr', header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_DETAIL_ADDR')}`, width: '284' }, // 설치자 상세주소
+    { fieldName: 'istlcDadrEncr', header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_DETAIL_ADDR')}`, width: '284' }, // 설치자 상세주소
     { fieldName: 'cntrRelDtlNm', header: t('MSG_TXT_COMBI_DV'), width: '138', styleName: 'text-center' }, // 결합구분
     { fieldName: 'alncmpCd', header: t('MSG_TXT_ALNC_CD'), width: '138', styleName: 'text-center' }, // 제휴코드
     { fieldName: 'alncPrtnrDrmVal', header: `${t('MSG_TXT_ALNC')}${t('MSG_TXT_SELL_NO')}`, width: '138', styleName: 'text-center' }, // 제휴판매자코드

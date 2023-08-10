@@ -29,6 +29,7 @@
             type="month"
             :label="$t('MSG_TXT_BASE_YM')"
             rules="required"
+            @change="onChangeApyYm"
           />
         </kw-search-item>
         <!-- //기준년월 -->
@@ -155,6 +156,19 @@
           @click="onClickWareRenewal"
         />
         <!-- //창고갱신 -->
+        <kw-btn
+          dense
+          secondary
+          :label="$t('MSG_TXT_ASGN_EXLD_ITM_RGST')"
+          @click="openAssignExcludeItemP"
+        />
+        <kw-btn
+          :label="$t('MSG_TXT_RECREATION')"
+          dense
+          primary
+          :disable="isSearch"
+          @click="onClickRecreation"
+        />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
@@ -181,7 +195,7 @@ import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { notify, alert, confirm } = useGlobal();
+const { notify, alert, confirm, modal } = useGlobal();
 const { currentRoute } = useRouter();
 
 const dataService = useDataService();
@@ -233,7 +247,7 @@ const onChangeOstrWareHouse = async () => {
   const result = await dataService.get(
     '/sms/wells/service/qom-asn/out-of-storage-wares',
     { params: {
-      asnOjYm: searchParams.value.asnOjYm,
+      apyYm: searchParams.value.apyYm,
     } },
   );
   optionsOstrWareNo.value = result.data;
@@ -249,6 +263,7 @@ const onChangeStrWareHouse = async () => {
   const result = await dataService.get(
     '/sms/wells/service/qom-asn/storage-wares',
     { params: {
+      apyYm: searchParams.value.apyYm,
       asnOjYm: searchParams.value.asnOjYm,
       wareDvCd: searchParams.value.wareDvCd,
       wareDtlDvCd: searchParams.value.wareDtlDvCd,
@@ -257,10 +272,10 @@ const onChangeStrWareHouse = async () => {
   optionsStrWareNo.value = result.data;
 };
 
-// 배정년월이 변경되었을 때 창고번호 재조회
-function onChangeAsnOjYm() {
-  const { asnOjYm } = searchParams.value;
-  if (isEmpty(asnOjYm)) {
+// 기준년월, 배정년월이 변경되었을 때 창고번호 재조회
+function onChangeApyYm() {
+  const { apyYm, asnOjYm } = searchParams.value;
+  if (isEmpty(apyYm)) {
     searchParams.value.strWareNo = '';
     optionsStrWareNo.value = [];
 
@@ -269,6 +284,24 @@ function onChangeAsnOjYm() {
     return;
   }
   onChangeOstrWareHouse();
+
+  if (isEmpty(asnOjYm)) {
+    searchParams.value.strWareNo = '';
+    optionsStrWareNo.value = [];
+    return;
+  }
+
+  onChangeStrWareHouse();
+}
+
+function onChangeAsnOjYm() {
+  const { asnOjYm } = searchParams.value;
+  if (isEmpty(asnOjYm)) {
+    searchParams.value.strWareNo = '';
+    optionsStrWareNo.value = [];
+    return;
+  }
+
   onChangeStrWareHouse();
 }
 
@@ -292,13 +325,18 @@ async function fetchData() {
   }
 }
 
+const isSearch = ref(true);
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  const { ostrWareNo } = cachedParams;
+  isSearch.value = false;
 
   // 물량배정 데이터 건수 체크
   let res = await dataService.get('/sms/wells/service/qom-asn/exist-check', { params: { ...cachedParams } });
   const existYn = res.data;
-  if (existYn === 'N') {
+
+  // 출고창고가 파주일 경우만 데이터를 생성
+  if (existYn === 'N' && ostrWareNo === '100002') {
     const { asnOjYm, cnt } = cachedParams;
     // {0} 물량배정 데이터를 생성하시겠습니까?
     const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
@@ -306,22 +344,16 @@ async function onClickSearch() {
       return;
     }
 
-    // 데이터 조회
-    res = await dataService.get('/sms/wells/service/qom-asn/independence-wares', { params: { ...cachedParams }, timeout: 3000000 });
-    const qomAsnList = res.data;
-
-    if (isEmpty(qomAsnList)) {
-      // 적용 대상 데이터가 없습니다.
-      await alert(t('MSG_ALT_NO_APPY_OBJ_DT'));
+    // 데이터 생성
+    res = await dataService.post('/sms/wells/service/qom-asn/independence-wares', cachedParams, { timeout: 3000000 });
+    const { processCount } = res.data;
+    if (processCount === 0) {
+      // 생성할 데이터가 존재하지 않습니다.
+      await alert(t('MSG_ALT_CRT_NO_DATA'));
       return;
     }
-    // 데이터 생성
-    res = await dataService.post('/sms/wells/service/qom-asn', qomAsnList, { timeout: 3000000 });
-    const { processCount } = res.data;
-    if (processCount > 0) {
-      // 생성되었습니다.
-      notify(t('MSG_ALT_CREATE'));
-    }
+    // 생성되었습니다.
+    notify(t('MSG_ALT_CREATE'));
   }
 
   pageInfo.value.pageIndex = 1;
@@ -366,6 +398,60 @@ async function onClickWareRenewal() {
   }
   // 이미 처리되었습니다.
   notify(t('MSG_ALT_ALRDY_PROCS_FSH'));
+}
+
+// 배정제외품목 등록 팝업
+async function openAssignExcludeItemP() {
+  await modal({
+    component: 'WwsnaAssignExcludeItemRegP',
+    componentProps: {},
+  });
+}
+
+// 재생성
+async function onClickRecreation() {
+  const { asnOjYm, cnt, ostrWareNo } = cachedParams;
+
+  if (isEmpty(asnOjYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ASN_YM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(cnt)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(ostrWareNo)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_OSTR_WARE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  // {0} 물량배정 데이터를 재생성하시겠습니까?
+  const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
+  if (!await confirm(`${msg}${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_TXT_INDP_WARE')}${t('MSG_ALT_QOM_ASN_DTA_RECRT')}`)) {
+    return;
+  }
+
+  let res = await dataService.delete('/sms/wells/service/qom-asn', { data: cachedParams }, { timeout: 300000 });
+  const { processCount } = res.data;
+  if (processCount === 0) {
+    // 생성할 데이터가 존재하지 않습니다.
+    await alert(t('MSG_ALT_CRT_NO_DATA'));
+    return;
+  }
+  // 데이터 생성
+  res = await dataService.post('/sms/wells/service/qom-asn/independence-wares', cachedParams, { timeout: 3000000 });
+  // 생성되었습니다.
+  notify(t('MSG_ALT_CREATE'));
+
+  pageInfo.value.pageIndex = 1;
+  // 조회버튼 클릭 시에만 총 건수 조회하도록
+  pageInfo.value.needTotalCount = true;
+  await fetchData();
 }
 
 // -------------------------------------------------------------------------------------------------

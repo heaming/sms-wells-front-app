@@ -69,7 +69,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize - 1"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGridMain"
       />
       <kw-pagination
@@ -135,7 +136,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMeta } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -167,55 +168,41 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-let detailParams;
-async function fetchCancelData(cwinst) {
-  detailParams = cwinst;
+const detailParams = ref({
+  baseYm: '',
+});
 
-  const resType = await dataService.get('/sms/wells/closing/kmoney-sales-bond/cancel-detail', { params: detailParams });
+async function fetchCancelData() {
+  const resType = await dataService.get('/sms/wells/closing/kmoney-sales-bond/cancel-detail', { params: detailParams.value.baseYm });
   console.log(resType.data);
   const cancelDetail = resType.data;
   totalCountCancel.value = cancelDetail.length;
   const viewType = grdCancelRef.value.getView();
   viewType.getDataSource().setRows(cancelDetail);
-  viewType.resetCurrent();
 }
 
-async function fetchDepositData(cwinst) {
-  detailParams = cwinst;
-
-  const nowDate = now.format('YYYYMM');
-  // TODO. 데이터, 테이블 생성되면 확인 필!
-  if (detailParams === nowDate) {
-    detailParams.isCurrentYm = 'Y';
-  }
-
-  const resType = await dataService.get('/sms/wells/closing/kmoney-sales-bond/deposit-detail', { params: detailParams });
+async function fetchDepositData() {
+  const resType = await dataService.get('/sms/wells/closing/kmoney-sales-bond/deposit-detail', { params: detailParams.value.baseYm });
   console.log(resType.data);
   const depositDetail = resType.data;
   totalCountDeposit.value = depositDetail.length;
   const viewType = grdDepositRef.value.getView();
   viewType.getDataSource().setRows(depositDetail);
-  viewType.resetCurrent();
 }
 
 let cachedParams;
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/wells/closing/kmoney-sales-bond/sales-bond', { params: cachedParams, ...pageInfo.value });
+  const res = await dataService.get('/sms/wells/closing/kmoney-sales-bond/sales-bond', { params: { ...cachedParams, ...pageInfo.value } });
   console.log(res.data);
   const { list: mainList, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   console.log('pageInfo:', pageInfo.value);
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(mainList);
-  view.resetCurrent();
 
-  if (!isEmpty(mainList[0])) {
-    let params;
-    params.cwinst = mainList[0].cwinst;
-    await fetchDepositData(params);
-    await fetchCancelData(params);
-  }
+  gridUtil.reCreateGrid(grdDepositRef.value.getView());
+  gridUtil.reCreateGrid(grdCancelRef.value.getView());
 }
 
 async function onClickExportViewMain() {
@@ -246,6 +233,7 @@ async function onClickExportViewDetail(type) {
 }
 
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   await fetchData();
 }
 // -------------------------------------------------------------------------------------------------
@@ -253,14 +241,14 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 const initGridMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cwinst', header: t('MSG_TXT_BASE_YM'), width: '180', styleName: 'rg-button-link text-center', datetimeFormat: 'yyyy-MM', renderer: { type: 'button' } }, // 기준년월
-    { fieldName: 'lcbast', header: t('MSG_TXT_BTD_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기초금액
-    { fieldName: 'lctamt', header: t('MSG_TXT_OCCR_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 발생금액
-    { fieldName: 'cciamt', header: t('MSG_TXT_THM_DP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 당월 입금액
-    { fieldName: 'cwiamt', header: t('MSG_TXT_ACU_DP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 누적 입금액
-    { fieldName: 'lcblnc', header: t('MSG_TXT_BLAM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 잔액
-    { fieldName: 'lcacmt', header: t('MSG_TXT_ITG_RV_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 통합 적립액
-    { fieldName: 'lccact', header: t('MSG_TXT_ITG_RV_CAN_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 통합 적림 취소액
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '180', styleName: 'rg-button-link text-center', datetimeFormat: 'yyyy-MM', renderer: { type: 'button' } }, // 기준년월
+    { fieldName: 'btdAmt', header: t('MSG_TXT_BTD_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기초금액
+    { fieldName: 'sellAmt', header: t('MSG_TXT_OCCR_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 발생금액
+    { fieldName: 'rveAmt', header: t('MSG_TXT_THM_DP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 당월 입금액
+    { fieldName: 'acuRveAmt', header: t('MSG_TXT_ACU_DP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 누적 입금액
+    { fieldName: 'resAmt', header: t('MSG_TXT_BLAM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 잔액
+    { fieldName: 'mlgRvAmt', header: t('MSG_TXT_ITG_RV_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 통합 적립액
+    { fieldName: 'mlgCanAmt', header: t('MSG_TXT_ITG_RV_CAN_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 통합 적림 취소액
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -271,26 +259,26 @@ const initGridMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (grid, { column, dataRow }) => {
-    if (column === 'cwinst') {
-      const { cwinst } = gridUtil.getRowValue(grid, dataRow);
-      await fetchDepositData(cwinst);
-      await fetchCancelData(cwinst);
+    if (column === 'baseYm') {
+      detailParams.value.baseYm = gridUtil.getRowValue(grid, dataRow);
+      await fetchDepositData();
+      await fetchCancelData();
     }
   };
 });
 
 const initGridDeposit = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'lcordr', header: t('MSG_TXT_CNTR_DTL_NO'), width: '117', styleName: 'text-right' }, // 계약상세번호
-    { fieldName: 'lccnam', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-left' }, // 고객명
-    { fieldName: 'lccrtt', header: t('MSG_TXT_RCP_YM'), width: '70', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 접수년월
-    { fieldName: 'lcslet', header: t('MSG_TXT_YR_INSTALLATION'), width: '70', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 설치년월
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '117', styleName: 'text-right' }, // 계약상세번호
+    { fieldName: 'cntrCstNm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-left' }, // 고객명
+    { fieldName: 'rcpYm', header: t('MSG_TXT_RCP_YM'), width: '70', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 접수년월
+    { fieldName: 'istYm', header: t('MSG_TXT_YR_INSTALLATION'), width: '70', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 설치년월
     { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '85', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 판매금
-    { fieldName: 'cciamt', header: t('MSG_TXT_THM_DP_AMT_DFA_INC'), width: '80', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 당월입금액(대손포함)
-    { fieldName: 'cwiamt', header: t('MSG_TXT_ACU_DP_AMT_DFA_INC'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 누적입금액(대손포함)
-    { fieldName: 'lcblnc', header: t('MSG_TXT_BLAM_SLAMT_DP_AMT'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 잔액(판매금-입금액)
-    { fieldName: 'cwbamt', header: t('MSG_TXT_ACU_DFA_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 누적 대손입금액
-    { fieldName: 'cwbiym', header: t('MSG_TXT_DFA_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 대손년월
+    { fieldName: 'rveAmt', header: t('MSG_TXT_THM_DP_AMT_DFA_INC'), width: '80', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 당월입금액(대손포함)
+    { fieldName: 'acuRveAmt', header: t('MSG_TXT_ACU_DP_AMT_DFA_INC'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 누적입금액(대손포함)
+    { fieldName: 'resAmt', header: t('MSG_TXT_BLAM_SLAMT_DP_AMT'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 잔액(판매금-입금액)
+    { fieldName: 'acuDfaAmt', header: t('MSG_TXT_ACU_DFA_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 누적 대손입금액
+    { fieldName: 'dfaYm', header: t('MSG_TXT_DFA_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 대손년월
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -303,10 +291,10 @@ const initGridDeposit = defineGrid((data, view) => {
 
 const initGridCancel = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dpcndt', header: t('MSG_TXT_RV_CAN_DT'), width: '100', styleName: 'text-center', dataType: 'date' }, // 적립취소일
-    { fieldName: 'dpordr', header: t('MSG_TXT_CNTR_DTL_NO'), width: '153', styleName: 'text-right' }, // 계약상세번호
+    { fieldName: 'rvCanDt', header: t('MSG_TXT_RV_CAN_DT'), width: '100', styleName: 'text-center', dataType: 'date' }, // 적립취소일
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '153', styleName: 'text-right' }, // 계약상세번호
     { fieldName: 'canAmt', header: t('MSG_TXT_CAN_AMT_WON'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 취소금액(원)
-    { fieldName: 'lccant', header: t('MSG_TXT_LEDG_CAN_DT'), width: '100', styleName: 'text-center', dataType: 'date' }, // 원장취소일자
+    { fieldName: 'ledgCanDt', header: t('MSG_TXT_LEDG_CAN_DT'), width: '100', styleName: 'text-center', dataType: 'date' }, // 원장취소일자
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);

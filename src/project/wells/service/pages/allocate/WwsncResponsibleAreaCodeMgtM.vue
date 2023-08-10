@@ -201,8 +201,7 @@ const {
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
-/* 공통코드 가져오기(임시) */
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
 const sido = await getDistricts('sido');
 const sigungu = ref([]);
 

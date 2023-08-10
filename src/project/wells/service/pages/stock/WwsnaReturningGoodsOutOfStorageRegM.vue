@@ -25,12 +25,13 @@
           :label="$t('MSG_TXT_OSTR_TP')"
           required
         >
+          <!-- :readonly="hasProps()" -->
           <kw-select
             v-model="searchParams.ostrTpCd"
             :label="$t('MSG_TXT_OSTR_TP')"
             :options="ostrTpCds"
             rules="required"
-            :readonly="hasProps()"
+            :readonly="true"
             @change="onChangeOstrTp"
           />
         </kw-search-item>
@@ -237,7 +238,7 @@ const codes = await codeUtil.getMultiCodes(
 const pdGdCds = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
 
 function isReturingCode(codeId) {
-  return codeId === DISUSE || codeId === RETURN_INSIDE || codeId === RETURN_OUTSIDE;
+  return codeId === RETURN_INSIDE;
 }
 const ostrTpCds = codes.OSTR_TP_CD.filter((v) => isReturingCode(v.codeId));
 
@@ -253,6 +254,7 @@ const searchParams = ref({
   strWareNo: '', // 입고창고
   strWareNm: '', // 입고창고명
   itmOstrNo: '', // 품목출고번호
+  strWareDvCd: '',
 });
 
 const pageInfo = ref({
@@ -348,9 +350,10 @@ function setReasonCellStyle() {
 }
 
 function setStrWareNo() {
-  const { codeIdUp, codeNameUp } = warehouses.value.find((v) => v.codeId === searchParams.value.ostrWareNo);
+  const { codeIdUp, codeNameUp, wareDvCdUp } = warehouses.value.find((v) => v.codeId === searchParams.value.ostrWareNo);
   searchParams.value.strWareNo = codeIdUp;
   searchParams.value.strWareNm = codeNameUp;
+  searchParams.value.strWareDvCd = wareDvCdUp;
 }
 
 function onChangeOstrWareNo() {
@@ -439,6 +442,8 @@ async function onClickDelete() {
   }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+
+  console.log(deletedRows);
 
   setTotalCount();
 
@@ -536,6 +541,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strConfDt' },
     { fieldName: 'itmOstrNo' },
     { fieldName: 'ostrSn' },
+    { fieldName: 'itmStrNo' },
+    { fieldName: 'strSn' },
     { fieldName: 'itmKndCd' },
     { fieldName: 'acbDt' },
     { fieldName: 'evidDvCd' },
@@ -606,6 +613,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strConfDt' },
     { fieldName: 'itmOstrNo' },
     { fieldName: 'ostrSn' },
+    { fieldName: 'itmStrNo' },
+    { fieldName: 'strSn' },
     { fieldName: 'itmKndCd' },
     { fieldName: 'acbDt' },
     { fieldName: 'evidDvCd' },

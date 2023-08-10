@@ -33,13 +33,16 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          required
         >
           <kw-input
             v-model="searchParams.no"
+            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            rules="required"
           />
           <kw-input
             v-model="searchParams.prtnrKnm"
@@ -402,50 +405,17 @@ async function onClickSearchNo() {
 }
 
 /*
- *  Event - 수수료조정 버튼 클릭  ※현재 팝업화면 없음
+ *  Event - 수수료조정 버튼 클릭
  */
 async function openFeeControlPopup() {
   const param = {
     perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
-  };
-
-  await modal({
-    component: 'openFeeControlPopup',
-    componentProps: param,
-  });
-}
-
-/*
- *  Event - 부담공제조정 버튼 클릭
- */
-async function openZwfedFeeBurdenDeductionRegP() {
-  const param = {
-    dsbYm: searchParams.value.perfYm,
-    ogTpCd: 'W03',
-    ogTpCdTxt: '홈마스터',
-    coCd: '2000',
-    coCdTxt: 'WELLS',
     prtnrNo: searchParams.value.no,
-  };
-  await modal({
-    component: 'ZwfedFeeBurdenDeductionRegP',
-    componentProps: param,
-  });
-}
-
-/*
- *  Event - 가지급금조정 버튼 클릭
- */
-async function openZwfedFeePnpyamDeductionRegP() {
-  const param = {
-    ddtnYm: searchParams.value.perfYm,
     ogTpCd: 'W03',
-    feeTcntDvCd: '02',
-    rsbDvCd: 'W302',
   };
+
   await modal({
-    component: 'ZwfedFeePnpyamDeductionRegP',
+    component: 'ZwfedFeeControlP',
     componentProps: param,
   });
 }
@@ -475,6 +445,44 @@ async function onClickSearch() {
   await fetchData('control');
 }
 
+/*
+ *  Event - 부담공제조정 버튼 클릭
+ */
+async function openZwfedFeeBurdenDeductionRegP() {
+  const param = {
+    ddtnYm: searchParams.value.perfYm,
+    ogTpCd: 'W03',
+    coCd: '2000',
+    prtnrNo: searchParams.value.no,
+  };
+  const { result: isChanged } = await modal({
+    component: 'ZwfedFeeBurdenDeductionRegP',
+    componentProps: param,
+  });
+  if (isChanged) {
+    onClickSearch();
+  }
+}
+
+/*
+ *  Event - 가지급금조정 버튼 클릭
+ */
+async function openZwfedFeePnpyamDeductionRegP() {
+  const param = {
+    dsbYm: searchParams.value.perfYm,
+    ogTpCd: 'W03',
+    coCd: '2000',
+    prtnrNo: searchParams.value.no,
+  };
+
+  const { result: isChanged } = await modal({
+    component: 'ZwfedFeePnpyamDeductionRegP',
+    componentProps: param,
+  });
+  if (isChanged) {
+    onClickSearch();
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

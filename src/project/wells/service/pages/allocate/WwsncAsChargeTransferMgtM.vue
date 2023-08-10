@@ -31,7 +31,6 @@
             @update:model-value="onUpdateSvcCode1"
           />
         </kw-search-item>
-
         <kw-search-item
           :label="$t('MSG_TXT_EMPL_NM')"
         >
@@ -39,7 +38,7 @@
             v-model="searchVal.ichrPrtnrNo"
             first-option="all"
             :options="engineers1"
-            option-label="prtnrNm"
+            option-label="prtnrNoNm"
             option-value="prtnrNo"
           />
         </kw-search-item>
@@ -121,12 +120,7 @@
           :label="$t('MSG_BTN_TF_HIST_INQR')"
           @click="onClickTransfetHistoryInquiry"
         />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
-        <kw-select
+        <!-- <kw-select
           v-model="updateParams.svCnrOgId"
           dense
           :placeholder="$t('MSG_TXT_ANY_SELT',[$t('MSG_TXT_BLG')])"
@@ -143,6 +137,28 @@
           option-label="prtnrNm"
           option-value="prtnrNo"
           @update:model-value="onUpdateEngineers2"
+        /> -->
+        <kw-input
+          ref="tfPrtnrKnmRef"
+          v-model="updateParams.afchFnm"
+          readonly
+          class="w110"
+          icon="search_24"
+          rules="required"
+          :label="$t('MSG_TXT_BLG')"
+          :placeholder="$t('MSG_TXT_BLG_SLCT')"
+          @click-icon="onClickIconPrtnrNoSearchPopup"
+        />
+        <kw-btn
+          dense
+          secondary
+          :label="$t('담당자 일괄변경')"
+          @click="onClickBulkUpdate"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
         />
         <kw-btn
           primary
@@ -182,6 +198,7 @@ import {
 } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, replace } from 'lodash-es';
+import { RowState } from 'realgrid';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -193,16 +210,16 @@ const {
   modal,
   notify,
 } = useGlobal();
-
+const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const now = dayjs();
 
+const tfPrtnrKnmRef = ref();
 const engineers1 = ref([]);
-const engineers2 = ref([]);
 /* 공통코드 가져오기 */
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
 
 /* 조회조건 */
 const searchVal = ref({
@@ -225,8 +242,10 @@ const searchParams = ref({
 });
 
 const updateParams = ref({
-  svCnrOgId: '',
-  ichrPrtnrNo: '',
+  afchBlgCd: '',
+  afchOgTpCd: '',
+  afchEmpno: '',
+  afchFnm: '',
 });
 
 const pageInfo = ref({
@@ -298,7 +317,6 @@ async function onClickExcelDownload() {
 }
 
 function onClickTransfetHistoryInquiry() {
-  // TODO: 이관이력조회팝업(W-SV-U-0019P01) 개발전. 개발 후 수정.
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
 
@@ -319,25 +337,15 @@ function onClickTransfetHistoryInquiry() {
 async function fetchEngineers(params) {
   return await dataService.get('/sms/wells/service/organizations/engineer', params);
 }
-const engineers = (await fetchEngineers({ params: { dgr1LevlOgId: '' } })).data;
+const engineers = (await fetchEngineers({ params: { dgr1LevlOgId: '', authYn: 'N' } })).data;
 
 async function setEngineers1() {
   if (searchVal.value.svCnrOgId === '') {
     engineers1.value = [];
     return;
   }
-  const res = await fetchEngineers({ params: { dgr1LevlOgId: searchVal.value.svCnrOgId } });
-  debugger;
+  const res = await fetchEngineers({ params: { dgr1LevlOgId: searchVal.value.svCnrOgId, authYn: 'N' } });
   engineers1.value = res.data;
-}
-
-async function setEngineers2() {
-  if (updateParams.value.svCnrOgId === '') {
-    engineers2.value = [];
-    return;
-  }
-  const res = await fetchEngineers({ params: { dgr1LevlOgId: updateParams.value.svCnrOgId } });
-  engineers2.value = res.data;
 }
 
 async function onUpdateSvcCode1() {
@@ -345,28 +353,6 @@ async function onUpdateSvcCode1() {
   setEngineers1();
 }
 
-async function onUpdateSvcCode2() {
-  updateParams.value.ichrPrtnrNo = '';
-  setEngineers2();
-
-  const view = grdMainRef.value.getView();
-  const chkRows = gridUtil.getCheckedRowValues(view);
-
-  chkRows.forEach((v) => {
-    view.setValue(v.dataRow, 'afchBlgCd', updateParams.value.svCnrOgId);
-  });
-}
-
-async function onUpdateEngineers2() {
-  const view = grdMainRef.value.getView();
-  const chkRows = gridUtil.getCheckedRowValues(view);
-
-  chkRows.forEach((v) => {
-    view.setValue(v.dataRow, 'afchFnm', updateParams.value.ichrPrtnrNo);
-  });
-}
-
-/* TODO: 임시데이터로 조회하게 해놓음. 조회조건 (소속 : 수원지점/의정부지점, ) */
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-transfers/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: asInfos, pageInfo: pagingResult } = res.data;
@@ -411,29 +397,20 @@ async function onClickSearch() {
 async function onClickPsicTransfer() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
-  let flag = true;
-  debugger;
+
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
-  if (await gridUtil.validate(view, { isCheckedOnly: true })) {
-    chkRows.forEach((v) => {
-      if (v.rowState === 'none') {
-        if (!updateParams.value.ichrPrtnrNo || !updateParams.value.svCnrOgId) {
-          notify(t('MSG_ALT_IS_SELCT', [t('MSG_TXT_BLG')]));
-          flag = false;
-          return false;
-        }
-      }
-    });
 
-    if (flag) {
-      await dataService.post('/sms/wells/service/as-transfers', chkRows);
-      notify(t('MSG_ALT_SAVE_DATA'));
-      await fetchData();
-    }
+  if (chkRows.some(({ rowState }) => rowState !== RowState.UPDATED)) {
+    notify(t('MSG_ALT_NOT_EXST_TF_REQ_PSIC')); // 이관요청담당자가 없는 행이 존재합니다.
+    return;
   }
+
+  await dataService.post('/sms/wells/service/as-transfers', chkRows);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
 }
 
 function setAfchEmpno(grid, row, field) {
@@ -455,6 +432,49 @@ function setAfchEmpno(grid, row, field) {
   }
 }
 
+async function onClickIconPrtnrNoSearchPopup() {
+  const { result, payload } = await modal({
+    component: 'WwsndHumanResourcesListP',
+    componentProps: {
+      mngrDvCd: '',
+      searchText: '',
+      authYn: 'N',
+    },
+  });
+  if (result) {
+    updateParams.value.afchBlgCd = payload[0].ogId;
+    updateParams.value.afchOgTpCd = payload[0].ogTpCd;
+    updateParams.value.afchEmpno = payload[0].prtnrNo;
+    updateParams.value.afchFnm = payload[0].prtnrKnm;
+  }
+}
+
+async function onClickBulkUpdate() {
+  if (!await tfPrtnrKnmRef.value.validate()) {
+    return;
+  }
+
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  const data = view.getDataSource();
+
+  const { afchBlgCd, afchOgTpCd, afchEmpno, afchFnm } = updateParams.value;
+
+  data.beginUpdate();
+  checkedRows.forEach((rowValue) => {
+    data.updateRow(rowValue.dataRow, {
+      afchBlgCd,
+      afchOgTpCd,
+      afchEmpno,
+      afchFnm,
+    });
+  });
+  data.endUpdate();
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -526,6 +546,11 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center rg-button-link',
       renderer: {
         type: 'button',
+      },
+      displayCallback: (grid, index) => {
+        const cntrNo = grid.getValue(index.itemIndex, 'cntrNo');
+        const cntrSn = grid.getValue(index.itemIndex, 'cntrSn');
+        return `${cntrNo}-${cntrSn}`;
       },
     },
     {
@@ -797,6 +822,21 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellEdited = async (grid, itemIndex, row, field) => {
     grid.checkItem(itemIndex, true);
     setAfchEmpno(grid, row, field);
+  };
+
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntrNo') {
+      const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      const cntrSn = g.getValue(itemIndex, 'cntrSn');
+
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
+    }
   };
 });
 

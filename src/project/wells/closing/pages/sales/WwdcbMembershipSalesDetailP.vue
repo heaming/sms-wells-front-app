@@ -26,7 +26,7 @@
           <p>{{ membershipDetail.cntrDtlNo }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_YM')">
-          <p>{{ stringUtil.getDateFormat(membershipDetail.slClYm, 'YYYY-MM').substring(0,7) }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.slClYm, 'YYYY-MM') }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -38,13 +38,13 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRDT_CODE')">
-          <p>{{ membershipDetail.pdNm }} / {{ membershipDetail.pdCd }}</p>
+          <p>{{ membershipDetail.pdCd }} {{ membershipDetail.pdNm }} {{ membershipDetail.svTpCdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNTR_DATE')">
           <p>{{ stringUtil.getDateFormat(membershipDetail.cntrDt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNFM_DT')">
-          <p>{{ stringUtil.getDateFormat(membershipDetail.slRcogDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.cntrCnfmDt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -55,7 +55,7 @@
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
-          <p>{{ stringUtil.getDateFormat(membershipDetail.canDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.cntrCanDt) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -73,23 +73,23 @@
           <p>{{ membershipDetail.prmMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_STRT')">
-          <p>{{ membershipDetail.lcpsYrmn }}</p>
+          <p>{{ membershipDetail.prmStrtYm }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRM_END')">
-          <p>{{ membershipDetail.lcpeYrmn }}</p>
+          <p>{{ membershipDetail.prmEndYm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_DSCR_DSC_AMT')">
-          <p>{{ membershipDetail.prmDscr }}</p>
+          <p>{{ membershipDetail.prmDscr }}% / {{ membershipDetail.prmDscAmt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_1PRM_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcpmo1)) }}</p>
+          <p>{{ membershipDetail.prmMcn1 }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_2PRM_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcpmo2)) }}</p>
+          <p>{{ membershipDetail.prmMcn2 }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRM_TAM')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.totPrmAmt)) }}</p>
@@ -110,7 +110,7 @@
           <p>{{ membershipDetail.rentalDc }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_J_DT')">
-          <p>{{ stringUtil.getDateFormat(membershipDetail.lcentDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.jDt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -121,7 +121,7 @@
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.nomDscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_WDWAL_DT')">
-          <p>{{ stringUtil.getDateFormat(membershipDetail.lcoutDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.mshWdwalDt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -132,7 +132,7 @@
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.spmtDscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FSH_DT')">
-          <p>{{ stringUtil.getDateFormat(membershipDetail.lcwanDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(membershipDetail.fshDt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -228,24 +228,24 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DSC_DDTN_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam51)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dscSlAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DSC_DP_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam53)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dscDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DSC_UC_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam55)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dscUcAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_FILT_DDTN_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam61)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.filtDdtnAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FILT_DP_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam63)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.filtDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FILT_UC_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam65)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.filtUcAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -257,7 +257,7 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_BTD_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.btdDlqAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.btdDlqAddAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_OC_AMT')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.thmOcDlqAddAmt)) }}</p>
@@ -286,10 +286,13 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_VST_PRD_VST_DT')">
-          <p>{{ membershipDetail.lcvisDt }}</p>
+          <p>
+            {{ membershipDetail.svPrd }}{{ $t('MSG_TXT_MCNT') }}/
+            {{ stringUtil.getDateFormat(membershipDetail.vstDt) }}
+          </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_MCNT_AGG')">
-          <p>{{ membershipDetail.dlqMcn }}</p>
+          <p>{{ membershipDetail.dlqMcn }} / {{ membershipDetail.dlqAcuMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.eotDlqAmt)) }}</p>
@@ -297,10 +300,10 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DFA_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam67)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dfaAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DFA_DP_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.lcam68)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dfaDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_INCM_DT')">
           <p>{{ stringUtil.getDateFormat(membershipDetail.actcsDt) }}</p>
@@ -308,7 +311,7 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CLCTAM_ICHR')">
-          <p>{{ membershipDetail.prtnrKnm }}</p>
+          <p>{{ membershipDetail.clctamDvCd }}{{ membershipDetail.clctamPrtnrNo }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -319,7 +322,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil } from 'kw-lib';
-import { cloneDeep, toInteger } from 'lodash-es';
+import { cloneDeep, toInteger, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const props = defineProps({
@@ -328,7 +331,12 @@ const props = defineProps({
     required: false,
     default: '',
   },
-  cntrDtlNo: {
+  cntrNo: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  cntrSn: {
     type: String,
     required: false,
     default: '',
@@ -342,7 +350,8 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 const searchParams = ref({
   slClYm: props.slClYm,
-  cntrDtlNo: props.cntrDtlNo,
+  cntrNo: props.cntrNo,
+  cntrSn: props.cntrSn,
 });
 
 const membershipDetail = ref({});
@@ -354,6 +363,12 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/closing/membership-sales-detail', { params: cachedParams });
   console.log(res.data);
   membershipDetail.value = res.data;
+  membershipDetail.value.svTpCdNm = !isEmpty(membershipDetail.value.svTpCdNm) ? ` (${membershipDetail.value.svTpCdNm})` : '';
+  membershipDetail.value.prmMcn = Number(membershipDetail.value.prmMcn) > 0 ? ` ${membershipDetail.value.prmMcn}${t('MSG_TXT_MCNT')}` : '';
+  membershipDetail.value.prmMcn1 = Number(membershipDetail.value.prmMcn1) > 0 ? `${membershipDetail.value.prmMcn1}${t('MSG_TXT_MCNT')} ${stringUtil.getNumberWithComma(toInteger(membershipDetail.prmAmt1))}` : '';
+  membershipDetail.value.prmMcn2 = Number(membershipDetail.value.prmMcn2) > 0 ? ` ${membershipDetail.value.prmMcn2}${t('MSG_TXT_MCNT')} ${stringUtil.getNumberWithComma(toInteger(membershipDetail.prmAmt2))}` : '';
+  membershipDetail.value.clctamDvCd = membershipDetail.value.clctamDvCd ? `${membershipDetail.value.rcpAoffceCdNm}/${membershipDetail.value.clctamDvCdNm}(${membershipDetail.value.clctamDvCd})` : '';
+  membershipDetail.value.clctamPrtnrNo = membershipDetail.value.clctamPrtnrNo ? `${membershipDetail.value.clctamPrtnrNm}(${membershipDetail.value.clctamPrtnrNo})` : '';
 }
 
 onMounted(async () => {

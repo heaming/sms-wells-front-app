@@ -202,8 +202,8 @@ const serviceTypes = [
 ];
 
 const refriTypes = [
-  { codeId: '1', codeName: '유상서비스' },
-  { codeId: '2', codeName: '무상서비스' },
+  { codeId: '1', codeName: '무상서비스' },
+  { codeId: '2', codeName: '유상서비스' },
   { codeId: '3', codeName: '유상(아웃소싱제외)' },
   { codeId: '4', codeName: '유상(아웃소싱)' },
 ];
@@ -254,8 +254,8 @@ const codes = await codeUtil.getMultiCodes(
   'WK_PRGS_STAT_CD',
 );
 
-const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center');
-const engineerRes = await dataService.get('/sms/wells/service/organizations/engineer');
+const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } });
+const engineerRes = await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } });
 const engineers = ref(engineerRes.data);
 const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
 

@@ -152,7 +152,7 @@
                 vertical
                 class="mx12 my8"
               />
-              <span class="kw-font-pt18 text-weight-medium">{{ cancelDetailList[idx].pdNm }} {{ panelIdx }}</span>
+              <span class="kw-font-pt18 text-weight-medium">{{ cancelDetailList[idx].pdNm }}</span>
             </div>
             <div class="row items-center">
               <kw-btn
@@ -187,7 +187,8 @@
 
           <component
             :is="detailPanels[panelIdx].panel"
-            :ref="(el) => panelsRefs = el"
+            :key="compKey"
+            :sametype="sameType"
             :child-detail="cancelDetailList[idx]"
             @searchdetail="onSearchDetail"
             @savedetail="onSave"
@@ -212,10 +213,10 @@ import WwctbRentalCancelRegistrationMgtM from './WwctbRentalCancelRegistrationMg
 import WwctbRegularShippingCancelRegistrationMgtM from './WwctbRegularShippingCancelRegistrationMgtM.vue';
 import WwctbSinglePaymentCancelRegistrationMgtM from './WwctbSinglePaymentCancelRegistrationMgtM.vue';
 import WwctbMembershipCancelRegistrationMgtM from './WwctbMembershipCancelRegistrationMgtM.vue';
-import WwctbRentalppCancelRegistrationMgtM from './WwctbRentalppCancelRegistrationMgtM.vue';
+import WwctbCancelRegistrationEmptyMgtM from './WwctbCancelRegistrationEmptyMgtM.vue';
 
 const { t } = useI18n();
-const { modal, alert, notify } = useGlobal();
+const { alert, confirm, modal, notify } = useGlobal();
 const dataService = useDataService();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
@@ -225,17 +226,16 @@ const grdMainView = computed(() => grdMain.value?.getView());
 const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
-  cstNo: '040621938', // 고객번호
-  dm: '202305', // 조회년월
+  cstNo: '', // 고객번호
+  dm: '', // 조회년월
 });
-
 const totalCount = ref(0);
 const cachedParams = ref({});
+const compKey = ref(0);
+const sameType = ref('N');
 const idx = ref(-1);
-const panelIdx = ref(0);
-// const panelIdx = computed(() => getPanelIdx(cancelDetailList.value[idx.value].sellTpCd));
-
 const cancelDetailList = ref([]);
+
 const detailPanels = [
   {
     name: 'rental',
@@ -255,13 +255,37 @@ const detailPanels = [
   },
   {
     name: 'empty',
-    panel: WwctbRentalppCancelRegistrationMgtM,
+    panel: WwctbCancelRegistrationEmptyMgtM,
   },
 ];
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+function getPanelIdx(val) {
+  switch (val) {
+    case '1': return 2;
+    case '3': return 3;
+    case '6': return 1;
+    default: return 0;
+  }
+}
+// const panelIdx = ref(0);
+const panelIdx = computed(() => getPanelIdx(cancelDetailList.value[idx.value].sellTpCd));
+
+// 하위 component 강제 rendering
+function forceRender() {
+  const { sellTpCd } = cancelDetailList.value[idx.value];
+  sameType.value = cancelDetailList.value.every((v) => v.sellTpCd === sellTpCd) ? 'Y' : 'N';
+  panelIdx.value = getPanelIdx(sellTpCd);
+  compKey.value += 1;
+}
+
+// 하위 아코디언 초기화
+function initComponent() {
+  idx.value = -1;
+  cancelDetailList.value.splice(0, cancelDetailList.value.length);
+}
 
 async function fetchData() {
   if (isEmpty(cachedParams.value)) return;
@@ -282,31 +306,18 @@ async function onClickSearchCst() {
   }
 }
 
-async function onClickMoveInit() {
-  panelIdx.value = 4;
-  return true;
-}
-
 // summary > 좌/우 이동 클릭
 async function onClickMove(pDiv) {
-  await onClickMoveInit();
-
   if (pDiv === 'L') {
     idx.value = (idx.value > 0) ? (idx.value - 1) : idx.value;
   } else {
     idx.value = (idx.value < cancelDetailList.value.length) ? (idx.value + 1) : idx.value;
   }
+
+  forceRender();
 }
 
-function getPanelIdx(val) {
-  switch (val) {
-    case '1': return 2;
-    case '3': return 3;
-    case '6': return 1;
-    default: return 0;
-  }
-}
-
+// cancelDetailList 변경
 async function setGridCheckandSelect(row, isCheck) {
   grdMainView.value.setValue(row, 'disableChk', isCheck ? 'Y' : 'N');
   grdMainView.value.setCheckable(row, !isCheck);
@@ -318,32 +329,17 @@ async function setGridCheckandSelect(row, isCheck) {
       return;
     }
 
-    console.log(idx.value);
     cancelDetailList.value.push(grdMainView.value.getValues(row));
-    if (idx.value < 0) {
-      idx.value = 0;
-      panelIdx.value = getPanelIdx(cancelDetailList.value[0].sellTpCd);
-    }
+    if (idx.value < 0) { idx.value = 0; }
 
   // 삭제
   } else {
     const targetIdx = cloneDeep(idx.value);
-    const isLast = ((targetIdx + 1) === cancelDetailList.value.length);
-    if (isLast) {
+    if ((targetIdx + 1) === cancelDetailList.value.length) {
       await onClickMove('L');
-      cancelDetailList.value.splice(targetIdx, 1);
-    } else {
-      await onClickMove('R');
-      cancelDetailList.value.splice(targetIdx, 1);
-      idx.value += -1;
     }
+    cancelDetailList.value.splice(targetIdx, 1);
   }
-}
-
-// 하위 아코디언 초기화
-function initAccordion() {
-  idx.value = -1;
-  cancelDetailList.value.splice(0, cancelDetailList.value.length);
 }
 
 // 1. 계약리스트 > 선택건 취소등록 클릭
@@ -354,10 +350,7 @@ function onClickRegistCancel() {
   }
 
   if (cancelDetailList.value.length === 1 && cancelDetailList.value[0].cancelStatNm === '취소등록') {
-    // 하위 초기화
-    idx.value = -1;
-    cancelDetailList.value.splice(0, cancelDetailList.value.length);
-    panelIdx.value = 4;
+    initComponent();
   }
 
   grdMainView.value.getCheckedRows().forEach((i) => {
@@ -370,6 +363,8 @@ function onClickRegistCancel() {
   });
 
   grdMainView.value.setAllCheck(false);
+
+  forceRender();
 }
 
 // 1. 계약리스트 > 거래명세서 보기 클릭
@@ -391,7 +386,7 @@ function onClickVirtualAccountView() {
   notify('TODO : 거래명세서 OZ뷰 호출 ');
 }
 
-// 취소사항 조회 클릭
+// 5. 취소사항 > 취소사항 조회 클릭
 async function onSearchDetail(subParam) {
   const { cntrNo, cntrSn, sellTpCd } = cancelDetailList.value[idx.value];
   const res = await dataService.get('/sms/wells/contract/changeorder/breach-promises', { params: {
@@ -404,7 +399,9 @@ async function onSearchDetail(subParam) {
   }
 
   res.data.isSearch = 'Y';
-  res.data.slCtrRqrId = sessionUserInfo.userId; // 조정자 사번 셋팅
+  res.data.slCtrRqrId = sessionUserInfo.employeeIDNumber; // 조정자 사번 셋팅
+  res.data.rsgAplcDt = subParam.reqDt;
+  res.data.lsnt = cancelDetailList.value[idx.value].lsnt;
   Object.assign(cancelDetailList.value[idx.value], res.data);
 }
 
@@ -413,7 +410,9 @@ async function onDelete() {
   const { cntrNo, cntrSn } = cancelDetailList.value[idx.value];
   const row = gridUtil.findDataRow(grdMainView.value, (e) => ((e.cntrNo === cntrNo) && (e.cntrSn === cntrSn)));
 
-  setGridCheckandSelect(row, false);
+  await setGridCheckandSelect(row, false);
+
+  forceRender();
 }
 
 // 저장 클릭
@@ -424,22 +423,38 @@ async function onSave() {
   // 취소등록 정보 일괄적용 : 같은 판매유형의 취소등록건의 정보를 일괄적용
   if (param.bulkApplyYN === 'Y') {
     if (cancelDetailList.value.findIndex((v) => v.sellTpCd !== param.sellTpCd) >= 0) {
-      await notify('동일한 판매유형의 상품만 취소 일괄적용이 됩니다.');
+      await notify('판매유형이 모두 같은 경우만 일괄 적용이 가능합니다.');
       return;
     }
 
-    const inValidIdx = cancelDetailList.value.findIndex((v) => v.isSearch !== 'Y');
+    const inValidIdx = cancelDetailList.value.findIndex((v) => v.sellTpCd !== '1' && v.isSearch !== 'Y');
     if (inValidIdx >= 0) {
       await notify(`[${inValidIdx + 1}]번째 - 취소사항 조회를 해주세요.`);
       return;
     }
 
+    if (!await confirm(`${param.cntrNo}-${param.cntrSn}포함 총 ${cancelDetailList.value.length - 1}건의 취소를 저장하시겠습니까?`)) return;
+
     // 일괄 등록 시, 공통으로 적용할 파라미터 셋팅
+    const firstOne = cancelDetailList.value[0];
     cancelDetailList.value.forEach((element) => {
-      element.cntrStatChRsonCd = param.cntrStatChRsonCd;
-      element.canCtrAmt = param.canCtrAmt;
-      element.slCtrRqrId = param.slCtrRqrId;
-      element.slCtrRmkCn = param.slCtrRmkCn;
+      element.canCtrAmt = firstOne.canCtrAmt;
+      element.slCtrRqrId = firstOne.slCtrRqrId;
+      element.slCtrRmkCn = firstOne.slCtrRmkCn;
+      element.cntrStatChRsonCd = firstOne.cntrStatChRsonCd;
+      element.ccamExmptDvCd = firstOne.ccamExmptDvCd;
+      element.csmbCsExmptDvCd = firstOne.csmbCsExmptDvCd;
+      element.reqdCsExmptDvCd = firstOne.reqdCsExmptDvCd;
+      element.reqdAkRcvryDvCd = firstOne.reqdAkRcvryDvCd;
+      element.borAmt = firstOne.borAmt;
+      element.lsnt = firstOne.lsnt;
+      element.csmbCostBorAmt2 = firstOne.csmbCostBorAmt2;
+      element.reqdCsBorAmt2 = firstOne.reqdCsBorAmt2;
+      element.dscDdctam = firstOne.dscDdctam;
+      element.filtDdctam = firstOne.filtDdctam;
+      element.rsgAplcDt = firstOne.rsgAplcDt;
+      element.rsgFshDt = firstOne.rsgFshDt;
+      element.bulkApplyYN = 'Y';
     });
 
     saveList = cancelDetailList.value;
@@ -457,16 +472,16 @@ async function onSave() {
   await notify(t('MSG_ALT_SAVE_DATA'));
 
   // 하위 초기화
-  initAccordion();
+  initComponent();
 
   await fetchData();
 }
 
-async function onUpdateValue(param) {
-  console.log(param);
+async function onUpdateValue() {
+  // console.log(cancelDetailList.value[idx.value]);
 }
 
-async function onGetOne(cntrNo, cntrSn) {
+async function getCanceledInfo(cntrNo, cntrSn, row) {
   const { dm } = searchParams.value;
   const res = await dataService.get('/sms/wells/contract/changeorder/cancel-infos', { params: { cntrNo, cntrSn, dm } });
 
@@ -483,15 +498,18 @@ async function onGetOne(cntrNo, cntrSn) {
       }
     });
 
-    idx.value = -1;
-    cancelDetailList.value.splice(0, cancelDetailList.value.length);
-    panelIdx.value = 4;
+    initComponent();
   }
 
-  res.data.bulkApplyYN = 'N';
-  cancelDetailList.value.push(res.data);
+  // set grid data
+  cancelDetailList.value.push(grdMainView.value.getValues(row));
+
+  // set searched data
   idx.value = 0;
-  panelIdx.value = getPanelIdx(cancelDetailList.value[0].sellTpCd);
+  res.data.bulkApplyYN = 'N';
+  Object.assign(cancelDetailList.value[idx.value], res.data);
+
+  forceRender();
 }
 
 async function onClickSearch() {
@@ -502,36 +520,12 @@ async function onClickSearch() {
     await alert(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_CST_NO')}`]));
     return false;
   }
-  cachedParams.value = cloneDeep(searchParams.value);
 
-  // 하위 초기화
-  initAccordion();
+  initComponent();
+  cachedParams.value = cloneDeep(searchParams.value);
 
   await fetchData();
 }
-
-watch(idx, (val) => {
-  console.log(`!! watch!! idx.value : ${val}`);
-
-  if (!isEmpty(cancelDetailList.value)) {
-    panelIdx.value = getPanelIdx(cancelDetailList.value[val].sellTpCd);
-    console.log(`!! watch!! panelIdx.value : ${panelIdx.value}`);
-  }
-});
-
-onMounted(() => {
-  // onClickSearch();
-
-  // const source = ref({ a: '1', b: '2', c: 'c2' });
-  // let target = { a: '3', c: '4', e: 'ee' };
-
-  // target = Object.entries(target).reduce((obj, [key, val]) => {
-  //   obj[key] = source.value[key] ?? val;
-  //   return obj;
-  // }, {});
-
-  // console.log(target);
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -550,17 +544,23 @@ function initGrid(data, view) {
     }, // [계약상세번호]
     { fieldName: 'copnDvNm', header: t('MSG_TXT_CNTRT_TP'), width: '88', styleName: 'text-center' }, // [계약자유형]
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '88', styleName: 'text-center' }, // [고객번호]
-    { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // [고객명]
+    { fieldName: 'cntrCstKnmMsk', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // [고객명]
     { fieldName: 'eotUcAmt', header: t('MSG_TXT_NPD_AMT'), width: '88', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '270' }, // [상품명]
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '350' }, // [상품명]
+    { fieldName: 'cntrNo', visible: false },
+    { fieldName: 'cntrSn', visible: false },
+    { fieldName: 'sellTpCd', visible: false },
+    { fieldName: 'sellTpDtlCd', visible: false },
+    { fieldName: 'cntrDtlStatCd', visible: false },
+    { fieldName: 'basePdCd', visible: false }, // [상품코드]
     { fieldName: 'cntrGbn', visible: false },
+    { fieldName: 'ogCd', visible: false }, // [소속]
     { fieldName: 'hooPrtnrNm', visible: false }, // [본부장명]
     { fieldName: 'hooPrtnrNo', visible: false }, // [본부장사번]
-    { fieldName: 'ogCd', visible: false }, // [소속]
-    { fieldName: 'basePdCd', visible: false }, // [상품코드]
     { fieldName: 'stplPtrm', visible: false }, // [의무기간]
     { fieldName: 'cntrPdStrtdt', visible: false }, // [매출년월 - 설치일자생성 시 들어감]
-    { fieldName: 'cntrAmt', visible: false }, // [등록비]
+    { fieldName: 'cntrAmt', visible: false }, // [계약금액]
+    { fieldName: 'rentalRgstCost', visible: false }, // [렌탈 등록비]
     { fieldName: 'cntramDscAmt', visible: false }, // [등록비 할인]
     { fieldName: 'cntrTam', visible: false }, // [약총액]
     { fieldName: 'pdBaseAmt', visible: false }, // [정상렌탈료]
@@ -577,8 +577,6 @@ function initGrid(data, view) {
     { fieldName: 'chgDt', visible: false }, // [교체일자]
     { fieldName: 'spmtSlAmt', visible: false }, // [추가매출]
     { fieldName: 'nomDscAmt', visible: false }, // [정상할인]
-    { fieldName: 'canAtrAmt', visible: false }, // [취소조정금액]
-    { fieldName: 'addSrv', visible: false }, // [부가서비스]
     { fieldName: 'spmtDscAmt', visible: false }, // [추가할인]
     { fieldName: 'slCtrAmt', visible: false }, // [매출조정금액]
     { fieldName: 'thmSlSumAmt', visible: false }, // [매출금액]
@@ -595,14 +593,8 @@ function initGrid(data, view) {
     { fieldName: 'machineNm', visible: false }, // []
     { fieldName: 'lsnt', visible: false }, // [분실손료]
     { fieldName: 'sellAmt', visible: false },
-    { fieldName: 'sellTpCd', visible: false },
-    { fieldName: 'cntrNo', visible: false },
-    { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'sellTpDtlCd', visible: false },
-    { fieldName: 'sellTpDtlNm', visible: false },
     { fieldName: 'pkgYn', visible: false },
     { fieldName: 'cntrRcpDt', visible: false },
-    { fieldName: 'cntrDtlStatCd', visible: false },
     { fieldName: 'cntrPdEnddt', visible: false },
     { fieldName: 'rentalTn', visible: false },
     { fieldName: 'sppTn', visible: false },
@@ -610,28 +602,12 @@ function initGrid(data, view) {
     { fieldName: 'svPdTpNm', visible: false },
     { fieldName: 'stlmTpNm', visible: false },
     { fieldName: 'sppDuedt', visible: false },
+    { fieldName: 'sellPrtnrNo', visible: false },
     { fieldName: 'bulkApplyYN', visible: false },
+    { fieldName: 'cntrCstKnm', visible: false },
     { fieldName: 'disableChk', visible: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  /*
-chgDt
-spmtSlAmt
-nomDscAmt
-canAtrAmt
-addSrv
-spmtDscAmt
-slCtrAmt
-thmSlSumAmt
-slSumVat
-slAggAmt
-dscAggAmt
-ctrAggAmt
-thmPaiamAmt
-thmSrvAmt
-eotPcamBlam
-쓰이는곳 찾아볼것
-*/
 
   data.setFields(fields);
   view.setColumns(columns);
@@ -643,7 +619,7 @@ eotPcamBlam
   view.onCellClicked = async (g, clickData) => {
     const { cntrNo, cntrSn, cntrDtlStatCd } = g.getValues(clickData.dataRow);
     if (cntrDtlStatCd.indexOf('3') === 0) {
-      await onGetOne(cntrNo, cntrSn);
+      await getCanceledInfo(cntrNo, cntrSn, clickData.dataRow);
     }
   };
 }

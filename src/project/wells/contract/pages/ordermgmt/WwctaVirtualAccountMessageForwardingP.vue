@@ -131,10 +131,6 @@ async function onClickSend() {
     alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_BNK_NM')]));
     return false;
   }
-  if (isEmpty(fieldParam.value.vacNo)) {
-    alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_VT_AC')]));
-    return false;
-  }
   if (isEmpty(fieldParam.value.cstNo)) {
     alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_CST_NO')]));
     return false;
@@ -160,8 +156,12 @@ async function fetchData() {
   fieldParam.value.template = res.data.template; // 템플릿
   fieldParam.value.vacNo = res.data.vacNo; // 가상계좌번호
   fieldParam.value.vacBnkNm = res.data.vacBnkNm; // 가상계좌은행명
-
   obsMainRef.value.init();
+
+  if (isEmpty(fieldParam.value.vacNo)) {
+    alert(t('MSG_ALT_NOT_EXIST', [t('MSG_TXT_VT_AC_NO')]));
+    cancel();
+  }
 }
 
 async function onChange() {

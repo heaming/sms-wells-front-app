@@ -19,6 +19,7 @@
   >
     <kw-form
       :cols="1"
+      ignore-on-modified
     >
       <kw-form-row>
         <!-- 정렬구분 -->

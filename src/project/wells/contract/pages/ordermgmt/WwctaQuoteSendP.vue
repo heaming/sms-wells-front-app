@@ -215,29 +215,41 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initQuoteSendList = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'fwTpCd' }, // 구분
-    { fieldName: 'callback' }, // 발신자 전화 번호
-    { fieldName: 'recipientNum' }, // 수신자 전화 번호
+    { fieldName: 'notyFwTpCd' }, // 구분
+    { fieldName: 'sendVal' }, // 발신자 정보
+    { fieldName: 'rcvrVal' }, // 수신자 정보
+    { fieldName: 'sendUsrEmail' }, // 발신자 이메일
+    { fieldName: 'rcvrEmadr' }, // 수신자 이메일
+    { fieldName: 'sendPhoneNum' }, // 발신자 전화 번호
+    { fieldName: 'recipientPhoneNum' }, // 수신자 전화 번호
     { fieldName: 'fwDtm' }, // 발송일
   ];
 
   const columns = [
-    { fieldName: 'fwTpCd',
+    { fieldName: 'notyFwTpCd',
       header: `${t('MSG_TXT_SEND')}${t('MSG_TXT_TYPE')}`,
       width: '93',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
-        const fwTpCd = value ?? '';
-        return fwTpCd === '01' ? t('MSG_TXT_NOTAK') : t('MSG_TXT_EMAIL');
+        const notyFwTpCd = value ?? '';
+        return notyFwTpCd === '20' ? t('MSG_TXT_NOTAK') : t('MSG_TXT_EMAIL');
       } }, // 발신유형
-    { fieldName: 'callback',
+    { fieldName: 'sendVal',
       header: `${t('MSG_TXT_SEND')}${t('MSG_TXT_INF')}`,
       width: '196',
-      styleName: 'text-left' }, // 발신정보
-    { fieldName: 'recipientNum',
+      styleName: 'text-left',
+      displayCallback(grid, index) {
+        const { notyFwTpCd, sendPhoneNum, sendUsrEmail } = gridUtil.getRowValue(grid, index.dataRow);
+        return notyFwTpCd === '20' ? sendPhoneNum : sendUsrEmail;
+      } }, // 발신정보
+    { fieldName: 'rcvrVal',
       header: `${t('MSG_TXT_RECP')}${t('MSG_TXT_INF')}`,
       width: '196',
-      styleName: 'text-left' }, // 수신정보
+      styleName: 'text-left',
+      displayCallback(grid, index) {
+        const { notyFwTpCd, recipientPhoneNum, rcvrEmadr } = gridUtil.getRowValue(grid, index.dataRow);
+        return notyFwTpCd === '20' ? recipientPhoneNum : rcvrEmadr;
+      } }, // 수신정보
     { fieldName: 'fwDtm',
       header: t('MSG_TXT_FW_DAY'),
       width: '133',

@@ -86,47 +86,47 @@
                     </kw-item-section>
                   </template>
                   <template
-                    v-if="index === 0 && Object.keys(contract.step1 || {}).length !== 0"
+                    v-if="index === 0"
                   >
                     <div class="like-vertical-stepper__step-content">
                       <ul class="card-text">
                         <li>
                           <p>계약유형</p>
-                          <span>{{ smr.cntrTpNm }}</span>
+                          <span>{{ contract.smr.cntrTpNm }}</span>
                         </li>
                         <li>
                           <p>계약자</p>
-                          <span>{{ smr.cntrtKnm }}</span>
+                          <span>{{ contract.smr.cntrtKnm }}</span>
                         </li>
                       </ul>
                     </div>
                   </template>
                   <template
-                    v-else-if="index === 1 && Object.keys(contract.step2 || {}).length !== 0"
+                    v-else-if="index === 1"
                   >
                     <div class="like-vertical-stepper__step-content">
                       <ul class="card-text">
                         <li
-                          v-for="(pd, i) in smr.products"
+                          v-for="(pd, i) in contract.smr.products"
                           :key="i"
                         >
-                          <p>{{ pd.pdNm }}</p>
+                          <p>{{ pd }}</p>
                         </li>
                       </ul>
                     </div>
                   </template>
                   <template
-                    v-else-if="index === 2 && Object.keys(contract.step3 || {}).length !== 0"
+                    v-else-if="index === 2"
                   >
                     <div class="like-vertical-stepper__step-content">
                       <ul class="card-text">
                         <li>
                           <p>결제유형</p>
-                          <span>{{ smr.stlmTpNm }}</span>
+                          <span>{{ contract.smr.stlmTpNm }}</span>
                         </li>
                         <li>
                           <p>결제방법</p>
-                          <span>{{ smr.stlmMthNm }}</span>
+                          <span>{{ contract.smr.dpTpNm }}</span>
                         </li>
                       </ul>
                     </div>
@@ -138,10 +138,10 @@
                   <ul class="card-text card-text--bigger card-text--between">
                     <li>
                       <p>
-                        계약금(일시불)
+                        등록금(계약금)
                       </p>
                       <span class="text-bold kw-font-pt20">
-                        {{ smr.pdCntrAmt }}
+                        {{ stringUtil.getNumberWithComma(contract.smr.rcAmt || 0) }}
                       </span>
                     </li>
                   </ul>
@@ -152,7 +152,7 @@
                         월납부금
                       </p>
                       <span class="text-bold kw-font-pt20">
-                        {{ smr.pdAmt }}
+                        {{ stringUtil.getNumberWithComma(contract.smr.mpAmt || 0) }}
                       </span>
                     </li>
                   </ul>
@@ -168,7 +168,7 @@
       >
         <div class="button-set--bottom-left">
           <kw-btn
-            v-if="currentStepIndex > 0"
+            v-if="currentStepIndex > 0 && !contract.step4?.isRestipulation"
             :label="$t('MSG_BTN_PREV')"
             @click="onClickPrevious"
           />
@@ -195,8 +195,15 @@
               @click="onClickTempSave"
             />
             <kw-btn
-              v-if="currentStepIndex === 1"
+              v-if="currentStepIndex === 1 && !isCnfmPds"
               :label="$t('상품확정')"
+              class="ml8"
+              primary
+              @click="onClickPdCnfm"
+            />
+            <kw-btn
+              v-if="currentStepIndex === 1 && isCnfmPds"
+              :label="$t('다음')"
               class="ml8"
               primary
               @click="onClickNext"
@@ -239,7 +246,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import { stringUtil, useDataService, useGlobal } from 'kw-lib';
 import WwctaContractRegistrationMgtMStep1 from './WwctaContractRegistrationMgtMStep1.vue';
 import WwctaContractRegistrationMgtMStep2 from './WwctaContractRegistrationMgtMStep2.vue';
 import WwctaContractRegistrationMgtMStep3 from './WwctaContractRegistrationMgtMStep3.vue';
@@ -262,45 +269,31 @@ const currentStep = computed(() => steps.find((step) => step.name === currentSte
 const currentStepIndex = computed(() => steps.findIndex((step) => step.name === currentStepName.value));
 // 계약 현황 목록에서 진입한 경우
 const props = defineProps({
+  resultDiv: { type: String },
   cntrNo: { type: String, required: true },
+  cntrSn: { type: String, required: true },
   cntrPrgsStatCd: { type: String, required: true },
 });
-const codes = await codeUtil.getMultiCodes(
-  'CNTR_TP_CD',
-  'STLM_TP_CD',
-);
-codes.DP_TP_CD = [
-  { codeId: '0201', codeName: '카드' },
-  { codeId: '0101', codeName: '가상계좌' },
-  { codeId: '0203', codeName: '카드자동이체' },
-];
 const contract = ref({
   cntrNo: '',
   step1: {},
   step2: {},
   step3: {},
   step4: {},
-});
-const smr = ref({
-  cntrTpNm: computed(() => codes.CNTR_TP_CD.find((c) => c.codeId === contract.value.step1.bas?.cntrTpCd)?.codeName),
-  cntrtKnm: computed(() => contract.value.step1.cntrt?.cstKnm),
-  products: computed(() => contract.value.step2.dtls),
-  stlmTpNm: computed(() => codes.STLM_TP_CD.find((c) => c.codeId === contract.value.step3.stlmTpCd)?.codeName),
-  stlmMthNm: computed(() => codes.DP_TP_CD.find((c) => c.codeId === contract.value.step3.cntramDpTpCd)?.codeName),
-  pdCntrAmt: computed(() => stringUtil.getNumberWithComma(
-    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.cntrAmt || 0), 0)) || 0,
-  )),
-  pdAmt: computed(() => stringUtil.getNumberWithComma(
-    // dtl.sellAmt 판매금액(수량xfnlAmt)의 합
-    Number(contract.value.step2.dtls?.reduce((acc, cur) => Number(acc) + Number(cur.fnlAmt || 0), 0)) || 0,
-  )),
+  smr: {},
 });
 const isCnfmCntr = ref(false);
+const isRstlCntr = ref(props.resultDiv === '2');
+const isCnfmPds = ref(false); // step2 상품확정여부
 const stepsStatus = reactive([false, false, false, false]);
 watch(currentStepName, (value) => {
   console.log(value);
   // sideStepRefs[value].show();
 });
+watch(contract, () => {
+  // step2에서 계약관련 변화가 있을 시 상품확정 해제
+  isCnfmPds.value = false;
+}, { deep: true });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -311,10 +304,13 @@ function onChildMounted(step) {
   }, 1);
 }
 
+/*
+  20230719_통합테스트2차_마감접수체크비활성화
 async function isClosingTime() {
   const isClosing = await dataService.get('sms/wells/contract/business-hours/is-business-closed-hours');
   return isClosing.data;
 }
+ */
 
 function showStep(step) {
   [0, 1, 2].forEach((n) => {
@@ -327,16 +323,29 @@ function showStep(step) {
   currentStepName.value = `step${step}`;
 }
 
-async function getCntrInfo(step, cntrNo) {
+async function getSmrInfo(cntrNo) {
+  const smrs = await dataService.get('sms/wells/contract/contracts/summaries', { params: { cntrNo } });
+  contract.value.smr = smrs.data;
+}
+
+async function getCntrInfo(step, cntrNo, cntrSn) {
   if (step === 2) {
     // step2일 때 상품 조회
     await panelsRefs[currentStepName.value].getProducts(cntrNo);
   }
-  await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
+  if (step === 4 && isRstlCntr.value) {
+    // 재약정 계약 조회
+    await panelsRefs[currentStepName.value].getCntrInfoWithRstl(cntrNo, cntrSn);
+  } else {
+    await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
+  }
+  // 저장된 계약 재조회될 때 확정여부 true
+  isCnfmPds.value = true;
+  await getSmrInfo(cntrNo);
 }
 
 async function getExistedCntr() {
-  const { cntrNo, cntrPrgsStatCd } = props;
+  const { cntrNo, cntrSn, cntrPrgsStatCd } = props;
   if (!cntrNo || !cntrPrgsStatCd) return;
   isCnfmCntr.value = props.cntrPrgsStatCd > 20;
   const step = {
@@ -345,14 +354,7 @@ async function getExistedCntr() {
     14: 3,
   }[props.cntrPrgsStatCd] || 4;
   showStep(step);
-  // 기존계약 조회하는 경우에는 summary 따로 조회 필요
-  const smrs = await dataService.get('sms/wells/contract/contracts/summaries', { params: { cntrNo } });
-  // contract.value = smrs.data;
-  if (step >= 1) contract.value.step1 = smrs.data.step1;
-  if (step >= 2) contract.value.step2 = smrs.data.step2;
-  if (step >= 3) contract.value.step3 = smrs.data.step3;
-  if (step >= 4) contract.value.step4 = smrs.data.step4;
-  await getCntrInfo(step, cntrNo);
+  await getCntrInfo(step, cntrNo, cntrSn);
 }
 
 async function onClickPrevious() {
@@ -370,6 +372,12 @@ async function onClickTempSave() {
     }
   } else {
     await alert(t('MSG_ALT_NO_CHG_CNTN'));
+  }
+}
+
+async function onClickPdCnfm() {
+  if (await panelsRefs[currentStepName.value].confirmProducts()) {
+    isCnfmPds.value = true;
   }
 }
 
@@ -399,13 +407,11 @@ async function onClickNext() {
 
 async function eventStipulation(cntrNo, cntrSn) {
   // 재약정계약
-  console.log(cntrNo);
   const previousStep = steps[3];
   currentStepName.value = previousStep.name;
   await panelsRefs[currentStepName.value].setRestipulation(true, cntrSn);
-  console.log(currentStepName.value);
-
-  await getCntrInfo(3, cntrNo);
+  isRstlCntr.value = true;
+  await getCntrInfo(4, cntrNo);
 }
 
 async function eventMembership() {
@@ -421,11 +427,23 @@ watch(stepsStatus, async () => {
   }
 });
 
+watch(props, () => {
+  const { cntrNo, cntrPrgsStatCd } = props;
+  if (stepsStatus.every((s) => s)) {
+    if (cntrNo && cntrPrgsStatCd) {
+      getExistedCntr();
+    }
+  }
+});
+
 onMounted(async () => {
+  /*
+  20230719_통합테스트2차_마감접수체크비활성화
   if (!props.cntrNo && await isClosingTime()) {
     await alert('계약작성시간 마감으로 계약이 불가합니다');
-    await router.push({ path: '/' });
+    await router.close();
   }
+   */
 });
 </script>
 

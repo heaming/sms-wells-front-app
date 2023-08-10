@@ -36,7 +36,7 @@
           required
         >
           <kw-option-group
-            v-model="searchParams.schOrdr"
+            v-model="searchParams.feeTcntDvCd"
             :label="$t('MSG_TXT_ORDR')"
             type="radio"
             :options="codes.FEE_TCNT_DV_CD"
@@ -47,10 +47,13 @@
           required
         >
           <kw-option-group
-            v-model="searchParams.rsbTp"
+            v-model="searchParams.rsbTpCd"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
-            :options="customCodes.rsbDvCd"
+            :options="filterRsbDvCd"
+            first-option
+            first-option-value=""
+            :first-option-label="$t('MSG_TXT_ALL')"
             @change="onChangedRsbDv"
           />
         </kw-search-item>
@@ -58,12 +61,11 @@
       <kw-search-row>
         <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
-            v-model:og-levl-dv-cd1="searchParams.ogLevl1"
-            v-model:og-levl-dv-cd2="searchParams.ogLevl2"
-            v-model:og-levl-dv-cd3="searchParams.ogLevl3"
-            :og-tp-cd="searchParams.ogTp"
+            v-model:og-levl-dv-cd2="searchParams.ogLevl2Id"
+            v-model:og-levl-dv-cd3="searchParams.ogLevl3Id"
+            :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.perfYm"
-            :start-level="1"
+            :start-level="2"
             :end-level="3"
           />
         </kw-search-item>
@@ -71,7 +73,7 @@
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
           <kw-input
-            v-model="searchParams.no"
+            v-model="searchParams.prtnrNo"
             icon="search"
             clearable
             :on-click-icon="onClickSearchNo"
@@ -88,13 +90,13 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <h3>{{ searchParams.statTitle }}</h3>
+          <h3>{{ searchParams.statTitleText }}</h3>
         </template>
       </kw-action-top>
       <!-- STEPER -->
       <zwfey-fee-step
         ref="stepNaviRef"
-        :key="searchParams.perfYm"
+        :key="searchParams.perfYm+searchParams.feeTcntDvCd"
         v-model:base-ym="searchParams.perfYm"
         v-model:fee-schd-tp-cd="searchParams.feeSchdTpCd"
         v-model:fee-tcnt-dv-cd="searchParams.feeTcntDvCd"
@@ -167,6 +169,7 @@ const isExcelDown = ref(false);
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const { currentRoute } = useRouter();
+const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -175,40 +178,40 @@ const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const stepNaviRef = ref();
+
 const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD', // 수수료차수구분코드
+  'RSB_DV_CD',
 );
-const customCodes = {
-  rsbDvCd: [{ codeId: 'W0302', codeName: '홈마스터' }, { codeId: 'W0301', codeName: '지점장' }],
-};
+const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0302', 'W0301'].includes(v.codeId));
 const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
-  schOrdr: '01',
-  rsbTp: 'W0302',
+  feeTcntDvCd: '01',
+  rsbTpCd: '',
   rsbTpTxt: '',
-  no: '',
-  ogLevl2: '',
-  ogLevl3: '',
+  prtnrNo: '',
+  ogLevl2Id: '',
+  ogLevl3Id: '',
   prtnrKnm: '',
-  ogTp: 'W03',
-  statTitle: t('MSG_TXT_PRGS_STE'),
+  ogTpCd: 'W03',
+  statTitleText: t('MSG_TXT_PRGS_STE'),
   feeSchdTpCd: '301',
-  feeTcntDvCd: '02',
   coCd: '2000',
+  unitCd: 'W301',
 
 });
 
 const approval = ref({
   gb: 'ngt002', /* formId를 식별하는 구분 */
-  empno: sessionUserInfo.userId, /* 결재자 사번 */
-  formId: '2023000024', /* 홈마스터 조직 품의결재 폼ID */
+  empno: sessionUserInfo.employeeIDNumber, /* 결재자 사번 */
+  formId: '2023000024', /* 홈마스터 조직 품의결재 폼ID 10자리 */
   appKey: '', /* 업무단에서 해당 결재를 확인할 KEY */
 });
 
 const saveInfo = ref({
   perfYm: '',
-  ogTp: 'W03',
+  ogTpCd: 'W03',
   appKey: '',
   unitCd: 'W301',
 });
@@ -219,11 +222,12 @@ let cachedParams;
  *  Event - 번호 검색 아이콘 클릭 이벤트
  */
 async function onClickSearchNo() {
+  const { perfYm, prtnrNo } = searchParams.value;
   const { result, payload } = await modal({
     component: 'ZwogzMonthPartnerListP',
     componentProps: {
-      baseYm: searchParams.value.perfYm,
-      prtnrNo: searchParams.value.no,
+      baseYm: perfYm,
+      prtnrNo,
       ogTpCd: 'W03',
       prtnrKnm: undefined,
     },
@@ -231,7 +235,7 @@ async function onClickSearchNo() {
 
   if (result) {
     if (!isEmpty(payload)) {
-      searchParams.value.no = payload.prtnrNo;
+      searchParams.value.prtnrNo = payload.prtnrNo;
       searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
@@ -245,7 +249,7 @@ async function initData() {
   const view = grdMainRef.value.getData();
   view.clearRows();
   totalCount.value = 0;
-  searchParams.value.statTitle = t('MSG_TXT_PRGS_STE');
+  searchParams.value.statTitleText = t('MSG_TXT_PRGS_STE');
   stepNaviRef.value.initProps();
 }
 
@@ -260,8 +264,8 @@ async function onChangedPerfYm() {
  *  Event - 직책유형 선택 시 하단 그리드 변경※
  */
 async function onChangedRsbDv() {
-  const { rsbTp } = searchParams.value;
-  if (rsbTp === 'W0302') {
+  const { rsbTpCd } = searchParams.value;
+  if (rsbTpCd === 'W0302') {
     isGrid1Visile.value = true;
     isGrid2Visile.value = false;
   } else {
@@ -285,11 +289,20 @@ async function openZwfebFeeHistoryMgtP() {
 }
 
 async function onClickExcelDownload() {
+  let uri = '';
+  cachedParams = cloneDeep(searchParams.value);
+  stepNaviRef.value.initProps();
+
+  if (isGrid2Visile.value === true) {
+    uri = '-brmgr';
+  }
   const view = grdMainRef.value.getView();
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/hmsts${uri}`, { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
@@ -297,16 +310,15 @@ async function onClickExcelDownload() {
  *  Event - 조회 후 상단 title 변경
  */
 async function setTitle() {
-  const { perfYm } = searchParams.value;
-  const { rsbTp } = searchParams.value;
-  searchParams.value.statTitle = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
-  if (rsbTp !== '') {
-    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTp);
+  const { perfYm, rsbTpCd } = searchParams.value;
+  searchParams.value.statTitleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
+  if (rsbTpCd !== '') {
+    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTpCd);
     searchParams.value.rsbTpTxt = codeName;
-    searchParams.value.statTitle += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
+    searchParams.value.statTitleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
   } else {
     searchParams.value.rsbTpTxt = '';
-    searchParams.value.statTitle += ` ${t('MSG_TXT_PRGS_STE')}`;
+    searchParams.value.statTitleText += ` ${t('MSG_TXT_PRGS_STE')}`;
   }
 }
 
@@ -356,9 +368,19 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 수수료생성 클릭
  */
 async function onClickW301P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  let feeCalcUnitTpCd;
+  if (rsbTpCd === 'W0302') {
+    feeCalcUnitTpCd = '301';
+  } else {
+    feeCalcUnitTpCd = '302';
+  }
   const { result: isUploadSuccess } = await modal({
-    component: 'WwfebOgFeeHomeMasterRegP',
-    componentProps: { perfYm: searchParams.value.perfYm },
+    component: 'WwfebOgFeeMlannerRegP',
+    componentProps: { perfYm,
+      feeCalcUnitTpCd,
+      feeTcntDvCd,
+    },
   });
   if (isUploadSuccess) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
@@ -370,33 +392,35 @@ async function onClickW301P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 기타지원 업로드 클릭 ※업무개발에서 별도개발
  */
 async function onClickW302P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+  const { perfYm } = searchParams.value;
+  const { result: isUploadSuccess, payload } = await modal({
+    component: 'ZwfezXlsUpP',
+    componentProps: {
+      formatId: 'FOM_FEZ_0025',
+      baseYm: perfYm,
+      ogTpCd: 'W03',
+    },
+  });
+  if (isUploadSuccess) {
+    notify(t('MSG_ALT_SAVED_CNT', [payload.count]));
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    fetchData();
+  }
 }
 
 /*
  *  Event - 세금공제 클릭 ※
  */
 async function onClickW303P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdr } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.schOrdr);
-  const { perfYm } = searchParams.value;
-  if (searchParams.value.rsbTp === '') {
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
-    if (schOrdr === '01') {
-      searchParams.value.schOrdrTxt = '1차';
-    } else {
-      searchParams.value.schOrdrTxt = '2차';
-    }
     const param = {
       ogTpCd: 'W03',
-      ogTpCdTxt: '홈마스터',
-      ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: searchParams.value.schOrdr,
-      feeTcntDvCdTxt: codeName,
-      rsbTpCd: searchParams.value.rsbTp,
-      rsbTpCdTxt: searchParams.value.rsbTpTxt,
+      ddtnYm: perfYm,
+      feeTcntDvCd,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeTaxDeductionRegP',
@@ -413,12 +437,13 @@ async function onClickW303P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 원천세등록 클릭
  */
 async function onClickW304P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { perfYm, ogTpCd, rsbTpCd } = searchParams.value;
   const { result: isUploadSuccess } = await modal({
     component: 'ZwfebFeeCreationWhtxRegP',
     componentProps: {
-      perfYm: searchParams.value.perfYm,
-      ogTpCd: searchParams.value.ogTp,
-      rsbDvCd: searchParams.value.rsbTp,
+      perfYm,
+      ogTpCd,
+      rsbDvCd: rsbTpCd,
     },
   });
   if (isUploadSuccess) {
@@ -431,24 +456,15 @@ async function onClickW304P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 고용보험 공제 클릭 ※
  */
 async function onClickW306P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdr } = searchParams.value;
-  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.schOrdr);
-  const { perfYm } = searchParams.value;
-  if (searchParams.value.rsbTp === '') {
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
-    if (schOrdr === '01') {
-      searchParams.value.schOrdrTxt = '1차';
-    } else {
-      searchParams.value.schOrdrTxt = '2차';
-    }
     const param = {
       ogTpCd: 'W03',
-      ogTpCdTxt: '홈마스터',
-      ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: searchParams.value.schOrdr,
-      feeTcntDvCdTxt: codeName,
-      rsbTpCd: searchParams.value.rsbTp,
+      ddtnYm: perfYm,
+      feeTcntDvCd,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeEmpInsuranceRegP',
@@ -465,21 +481,15 @@ async function onClickW306P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 가지급금 공제 클릭 ※
  */
 async function onClickW307P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdr } = searchParams.value;
-  const { perfYm } = searchParams.value;
-  if (searchParams.value.rsbTp === '') {
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  if (searchParams.value.rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
-    if (schOrdr === '01') {
-      searchParams.value.schOrdrTxt = '1차';
-    } else {
-      searchParams.value.schOrdrTxt = '2차';
-    }
     const param = {
       ogTpCd: 'W03',
-      ddtnYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      feeTcntDvCd: searchParams.value.schOrdr,
-      rsbTpCd: searchParams.value.rsbTp,
+      ddtnYm: perfYm,
+      feeTcntDvCd,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeePnpyamDeductionRegP',
@@ -496,20 +506,14 @@ async function onClickW307P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 부담공제 클릭 ※
  */
 async function onClickW311P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdr } = searchParams.value;
-  const { perfYm } = searchParams.value;
-  if (searchParams.value.rsbTp === '') {
+  const { perfYm, rsbTpCd } = searchParams.value;
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
-    if (schOrdr === '01') {
-      searchParams.value.schOrdrTxt = '1차';
-    } else {
-      searchParams.value.schOrdrTxt = '2차';
-    }
     const param = {
       ogTpCd: 'W03',
       perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      rsbDvCd: searchParams.value.rsbTp,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeBurdenDeductionRegP',
@@ -526,21 +530,15 @@ async function onClickW311P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 보증예치금 적립 클릭 ※
  */
 async function onClickW313P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { schOrdr } = searchParams.value;
-  const { perfYm } = searchParams.value;
-  if (searchParams.value.rsbTp === '') {
+  const { perfYm, rsbTpCd } = searchParams.value;
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
-    if (schOrdr === '01') {
-      searchParams.value.schOrdrTxt = '1차';
-    } else {
-      searchParams.value.schOrdrTxt = '2차';
-    }
     const param = {
       ogTpCd: 'W03',
       perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
       ocYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      rsbDvCd: searchParams.value.rsbTp,
+      rsbDvCd: rsbTpCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeRdsReservingRegP',
@@ -557,12 +555,13 @@ async function onClickW313P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 이체자료 생성 클릭 ※팝업 개발 미완료 상태
  */
 async function onClickW314P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { perfYm, ogTpCd, rsbTpCd } = searchParams.value;
   const { result: isUploadSuccess } = await modal({
-    component: 'ZwfebFeeCreationFntIzRegP',
+    component: 'ZwfeeFeeCreationFntIzRegP',
     componentProps: {
-      perfYm: searchParams.value.perfYm,
-      ogTpCd: searchParams.value.ogTp,
-      rsbDvCd: searchParams.value.rsbTp,
+      perfYm,
+      ogTpCd,
+      rsbDvCd: rsbTpCd,
     },
   });
   if (isUploadSuccess) {
@@ -575,12 +574,15 @@ async function onClickW314P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 품의작성 클릭 ※TBD
  */
 async function onClickW316P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const response = await dataService.get('/sms/wells/fee/organization-fees/dsbCnst', searchParams.value); /* 품의진행상태 조회 */
+  const { unitCd, perfYm, ogTpCd } = searchParams.value;
+  cachedParams = cloneDeep(searchParams.value);
+  const response = await dataService.get('/sms/common/fee/fee-approval/dsb-cnst-status', { params: cachedParams }); /* 품의진행상태 조회 */
   const resData = response.data;
-  approval.value.appKey = `FEAM${dayjs().format('YYYYMMDDHHmmss')}`; /* 18자리 appKey 생성 */
+  approval.value.appKey = perfYm + ogTpCd + unitCd + dayjs().format('YYYYMMDDHHmmss'); /* 6자리+3자리+4자리+ 14자리 = 27 appKey 생성 */
   const params = approval.value;
   saveInfo.value.appKey = approval.value.appKey;
-  saveInfo.value.perfYm = searchParams.value.perfYm;
+  saveInfo.value.perfYm = perfYm;
+  saveInfo.value.unitCd = unitCd;
 
   if (resData.dsbCnstYn === 'Y') {
     await notify(t('MSG_ALT_PMT_BEEN_APRV')); /* 결재가 승인 되었습니다 > NEXT STEP */
@@ -590,31 +592,71 @@ async function onClickW316P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     await notify(t('MSG_ALT_CHK_IN_PRGS')); /* 결재가 진행중입니다 */
   } else if (resData.dsbCnstYn === 'P') { /* 이전 품의 반송, 회수 등의 이유로 재결재 */
     if (await confirm(t('MSG_ALT_PROC_TO_CHK'))) { /* 결재를 진행하시겠습니까? > Kportal popup */
+      await dataService.post('/sms/common/fee/fee-approval/dsb-cnst-update', saveInfo.value); /* 이전 품의결재 이력 최종여부 N 수정 */
       await openApprovalPopup(params); /* Kportal popup */
-      await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-udpate', saveInfo.value); /* 이전 품의결재 이력 최종여부 N 수정 */
-      await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-save', saveInfo.value); /* 신규 품의결재 이력 저장 */
     }
   } else if (await confirm(t('MSG_ALT_PROC_TO_CHK'))) { /* 결재를 진행하시겠습니까? > Kportal popup */
     await openApprovalPopup(params); /* Kportal popup */
-    await dataService.post('/sms/wells/fee/organization-fees/dsbCnst-save', saveInfo.value); /* 신규 품의결재 이력 저장 */
   }
 }
 
 /*
  *  Event - 전표생성 클릭 ※TBD
  */
-async function onClickW317P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+async function onClickW317P() {
+  const { perfYm, ogTpCd, rsbTpCd } = searchParams.value;
+  router.push({
+    path: '/fee/zwfee-fee-slip-publication-list',
+    query: {
+      baseYm: perfYm,
+      ogTpCd,
+      rsbDvCd: rsbTpCd,
+    },
+  });
 }
 
 /*
- *  Event - 선급판매 수수료확정 클릭 ※팝업 개발 미완료 상태
+ *  Event - 선급판매 수수료확정 클릭
 */
 
 async function onClickW318P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  fetchData();
+  const { result: isUploadSuccess } = await modal({
+    component: 'WwfebAdvancePaymentFeeConfirmP',
+    componentProps: { feeSchdId },
+  });
+  if (isUploadSuccess) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    fetchData();
+  }
+}
+
+/*
+ *  Event - 교육집계 클릭 ※
+ */
+async function onClickW320P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.feeTcntDvCd);
+  if (searchParams.value.rsbTp === '') {
+    await alert(t('MSG_ALT_SELECT_RSB_TP'));
+  } else {
+    const param = {
+      ogTpCd: 'W03',
+      ogTpCdTxt: '홈마스터',
+      perfYm,
+      perfYmTxt: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+      feeTcntDvCd,
+      feeTcntDvCdTxt: codeName,
+      rsbTpCd,
+    };
+    const { result: isChanged } = await modal({
+      component: 'WwfeaFeeEducationAttendanceRegP',
+      componentProps: param,
+    });
+    if (isChanged) {
+      await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+      fetchData();
+    }
+  }
 }
 
 /**
@@ -647,9 +689,11 @@ async function onclickStep(params) {
   } else if (params.code === 'W0316') { // 품의작성
     await onClickW316P(params.feeSchdId, params.code, '03');
   } else if (params.code === 'W0317') { // 전표생성
-    await onClickW317P(params.feeSchdId, params.code, '03');
+    await onClickW317P();
   } else if (params.code === 'W0318') { // 선급판매 수수료 확정
     await onClickW318P(params.feeSchdId, params.code, '03');
+  } else if (params.code === 'W0320') { // 교육집계
+    await onClickW320P(params.feeSchdId, params.code, '03');
   }
 }
 
@@ -664,40 +708,40 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm' },
     { fieldName: 'rsbDvCd' },
     { fieldName: 'akdsym' },
-    { fieldName: 'akdcha' },
-    { fieldName: 'prtnrGdCd' },
-    { fieldName: 'edu100' },
-    { fieldName: 'akcda10' },
-    { fieldName: 'akcda12' },
-    { fieldName: 'akcda14' },
-    { fieldName: 'akcda13' },
-    { fieldName: 'akcda15' },
-    { fieldName: 'akcda11' },
-    { fieldName: 'akcda19' },
-    { fieldName: 'dedeq3' },
-    { fieldName: 'akdeq0' },
-    { fieldName: 'lccnt1' },
-    { fieldName: 'cLccnt1' },
-    { fieldName: 'rLccnt1' },
-    { fieldName: 'gdSercnt' },
-    { fieldName: 'elecnt' },
-    { fieldName: 'sercnt' },
-    { fieldName: 'serryl' },
-    { fieldName: 'aksd01' },
-    { fieldName: 'aksd03' },
-    { fieldName: 'aksd04' },
-    { fieldName: 'aksd15' },
-    { fieldName: 'aksd05' },
-    { fieldName: 'aksd06' },
-    { fieldName: 'aksd07' },
-    { fieldName: 'aksd09' },
-    { fieldName: 'aksd10' },
-    { fieldName: 'aksd11' },
-    { fieldName: 'aksd13' },
-    { fieldName: 'aksd14' },
-    { fieldName: 'intbsSum' },
-    { fieldName: 'ddtnSum' },
-    { fieldName: 'aclDdbAmt' },
+    { fieldName: 'akdcha', dataType: 'number' },
+    { fieldName: 'prtnrGdCd', dataType: 'number' },
+    { fieldName: 'edu100', dataType: 'number' },
+    { fieldName: 'akcda10', dataType: 'number' },
+    { fieldName: 'akcda12', dataType: 'number' },
+    { fieldName: 'akcda14', dataType: 'number' },
+    { fieldName: 'akcda13', dataType: 'number' },
+    { fieldName: 'akcda15', dataType: 'number' },
+    { fieldName: 'akcda11', dataType: 'number' },
+    { fieldName: 'akcda19', dataType: 'number' },
+    { fieldName: 'dedeq3', dataType: 'number' },
+    { fieldName: 'akdeq0', dataType: 'number' },
+    { fieldName: 'lccnt1', dataType: 'number' },
+    { fieldName: 'cLccnt1', dataType: 'number' },
+    { fieldName: 'rLccnt1', dataType: 'number' },
+    { fieldName: 'gdSercnt', dataType: 'number' },
+    { fieldName: 'elecnt', dataType: 'number' },
+    { fieldName: 'sercnt', dataType: 'number' },
+    { fieldName: 'serryl', dataType: 'number' },
+    { fieldName: 'aksd01', dataType: 'number' },
+    { fieldName: 'aksd03', dataType: 'number' },
+    { fieldName: 'aksd04', dataType: 'number' },
+    { fieldName: 'aksd15', dataType: 'number' },
+    { fieldName: 'aksd05', dataType: 'number' },
+    { fieldName: 'aksd06', dataType: 'number' },
+    { fieldName: 'aksd07', dataType: 'number' },
+    { fieldName: 'aksd09', dataType: 'number' },
+    { fieldName: 'aksd10', dataType: 'number' },
+    { fieldName: 'aksd11', dataType: 'number' },
+    { fieldName: 'aksd13', dataType: 'number' },
+    { fieldName: 'aksd14', dataType: 'number' },
+    { fieldName: 'intbsSum', dataType: 'number' },
+    { fieldName: 'ddtnSum', dataType: 'number' },
+    { fieldName: 'aclDdbAmt', dataType: 'number' },
 
   ];
 
@@ -706,42 +750,42 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119.9', styleName: 'text-left' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '119.9', styleName: 'text-left' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '119.9', styleName: 'text-center' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '119.9', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'akdsym', header: t('MSG_TXT_BIZ_RGST_MM'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akdcha', header: t('MSG_TXT_NMN'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'prtnrGdCd', header: t('MSG_TXT_GRCNT'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'edu100', header: t('MSG_TXT_NWCMR') + t('MSG_TXT_ENPSC') + t('MSG_TXT_EDUC'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda10', header: t('MSG_TXT_MTRRS'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda12', header: t('MSG_TXT_MTRRS') + t('MSG_TXT_EXCP'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda14', header: t('MSG_TXT_FXAM'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda13', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akcda15', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akcda11', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_PKG'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'dedeq3', header: `${t('MSG_TXT_CHNG')}(1)${t('MSG_TXT_COUNT')}`, width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akdeq0', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'lccnt1', header: t('MSG_TXT_ASGN') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'cLccnt1', header: t('MSG_TXT_CANCEL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'rLccnt1', header: t('MSG_TXT_REAL') + t('MSG_TXT_ASGN') + t('MSG_TXT_CNT'), width: '207.4', styleName: 'text-right' },
-    { fieldName: 'gdSercnt', header: `${t('MSG_TXT_WASHER')}/${t('MSG_TXT_ARCN')}/${t('MSG_TXT_DRYER')}${t('MSG_TXT_COUNT')}`, width: '207.4', styleName: 'text-right' },
-    { fieldName: 'elecnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right' },
-    { fieldName: 'aksd03', header: t('MSG_TXT_ENRG'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd04', header: t('MSG_TXT_SNGL_PMNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd15', header: t('MSG_TXT_CHNG'), width: '122.8', styleName: 'text-right' },
-    { fieldName: 'aksd05', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd06', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_SCENE'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd07', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACTI'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd09', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACML'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd10', header: t('MSG_TXT_EDUC'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd11', header: t('MSG_TXT_RGLVL'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd13', header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aclDdbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '124.7', styleName: 'text-right' },
+    { fieldName: 'akdcha', header: t('MSG_TXT_NMN'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'prtnrGdCd', header: t('MSG_TXT_GRCNT'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'edu100', header: t('MSG_TXT_NWCMR') + t('MSG_TXT_ENPSC') + t('MSG_TXT_EDUC'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda10', header: t('MSG_TXT_MTRRS'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda12', header: t('MSG_TXT_MTRRS') + t('MSG_TXT_EXCP'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda14', header: t('MSG_TXT_FXAM'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda13', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda15', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda11', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_PKG'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'dedeq3', header: `${t('MSG_TXT_CHNG')}(1)${t('MSG_TXT_COUNT')}`, width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'akdeq0', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'lccnt1', header: t('MSG_TXT_ASGN') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'cLccnt1', header: t('MSG_TXT_CANCEL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'rLccnt1', header: t('MSG_TXT_REAL') + t('MSG_TXT_ASGN') + t('MSG_TXT_CNT'), width: '207.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'gdSercnt', header: `${t('MSG_TXT_WASHER')}/${t('MSG_TXT_ARCN')}/${t('MSG_TXT_DRYER')}${t('MSG_TXT_COUNT')}`, width: '207.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'elecnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd03', header: t('MSG_TXT_ENRG'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd04', header: t('MSG_TXT_SNGL_PMNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd15', header: t('MSG_TXT_CHNG'), width: '122.8', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd05', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd06', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_SCENE'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd07', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACTI'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd09', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACML'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd10', header: t('MSG_TXT_EDUC'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd11', header: t('MSG_TXT_RGLVL'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd13', header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aclDdbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '124.7', styleName: 'text-right', numberFormat: '#,##0' },
   ];
   data.setFields(fields);
   view.setColumns(columns);
@@ -801,46 +845,46 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'atcnt2' },
     { fieldName: 'is124edu' },
     { fieldName: 'is125edu' },
-    { fieldName: 'akcda10' },
-    { fieldName: 'akcda12' },
-    { fieldName: 'akcda14' },
-    { fieldName: 'akcda13' },
-    { fieldName: 'akcda15' },
-    { fieldName: 'akcda11' },
-    { fieldName: 'akcda19' },
-    { fieldName: 'dedeq3' },
-    { fieldName: 'akdeq0' },
-    { fieldName: 'lccnt1' },
-    { fieldName: 'cLccnt1' },
-    { fieldName: 'rLccnt1' },
-    { fieldName: 'gdSercnt' },
-    { fieldName: 'elecnt' },
-    { fieldName: 'sercnt' },
-    { fieldName: 'serryl' },
-    { fieldName: 'aksd01' },
-    { fieldName: 'aksd03' },
-    { fieldName: 'aksd04' },
-    { fieldName: 'aksd15' },
-    { fieldName: 'aksd05' },
-    { fieldName: 'aksd06' },
-    { fieldName: 'aksd07' },
-    { fieldName: 'aksd09' },
-    { fieldName: 'aksd10' },
-    { fieldName: 'aksd11' },
-    { fieldName: 'aksd13' },
-    { fieldName: 'aksd14' },
-    { fieldName: 'gadcnt' },
-    { fieldName: 'jAkdeq0' },
-    { fieldName: 'jSercnt' },
-    { fieldName: 'aksd51' },
-    { fieldName: 'aksd52' },
-    { fieldName: 'aksd53' },
-    { fieldName: 'aksd54' },
-    { fieldName: 'aksd55' },
-    { fieldName: 'aksd56' },
-    { fieldName: 'intbsSum' },
-    { fieldName: 'ddtnSum' },
-    { fieldName: 'aclDdbAmt' },
+    { fieldName: 'akcda10', dataType: 'number' },
+    { fieldName: 'akcda12', dataType: 'number' },
+    { fieldName: 'akcda14', dataType: 'number' },
+    { fieldName: 'akcda13', dataType: 'number' },
+    { fieldName: 'akcda15', dataType: 'number' },
+    { fieldName: 'akcda11', dataType: 'number' },
+    { fieldName: 'akcda19', dataType: 'number' },
+    { fieldName: 'dedeq3', dataType: 'number' },
+    { fieldName: 'akdeq0', dataType: 'number' },
+    { fieldName: 'lccnt1', dataType: 'number' },
+    { fieldName: 'cLccnt1', dataType: 'number' },
+    { fieldName: 'rLccnt1', dataType: 'number' },
+    { fieldName: 'gdSercnt', dataType: 'number' },
+    { fieldName: 'elecnt', dataType: 'number' },
+    { fieldName: 'sercnt', dataType: 'number' },
+    { fieldName: 'serryl', dataType: 'number' },
+    { fieldName: 'aksd01', dataType: 'number' },
+    { fieldName: 'aksd03', dataType: 'number' },
+    { fieldName: 'aksd04', dataType: 'number' },
+    { fieldName: 'aksd15', dataType: 'number' },
+    { fieldName: 'aksd05', dataType: 'number' },
+    { fieldName: 'aksd06', dataType: 'number' },
+    { fieldName: 'aksd07', dataType: 'number' },
+    { fieldName: 'aksd09', dataType: 'number' },
+    { fieldName: 'aksd10', dataType: 'number' },
+    { fieldName: 'aksd11', dataType: 'number' },
+    { fieldName: 'aksd13', dataType: 'number' },
+    { fieldName: 'aksd14', dataType: 'number' },
+    { fieldName: 'gadcnt', dataType: 'number' },
+    { fieldName: 'jAkdeq0', dataType: 'number' },
+    { fieldName: 'jSercnt', dataType: 'number' },
+    { fieldName: 'aksd51', dataType: 'number' },
+    { fieldName: 'aksd52', dataType: 'number' },
+    { fieldName: 'aksd53', dataType: 'number' },
+    { fieldName: 'aksd54', dataType: 'number' },
+    { fieldName: 'aksd55', dataType: 'number' },
+    { fieldName: 'aksd56', dataType: 'number' },
+    { fieldName: 'intbsSum', dataType: 'number' },
+    { fieldName: 'ddtnSum', dataType: 'number' },
+    { fieldName: 'aclDdbAmt', dataType: 'number' },
   ];
 
   const columns = [
@@ -848,7 +892,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119.9', styleName: 'text-left' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '119.9', styleName: 'text-left' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '119.9', styleName: 'text-center' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '119.9', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'akdsym', header: t('MSG_TXT_BIZ_RGST_MM'), width: '119.9', styleName: 'text-right' },
     { fieldName: 'akdcha', header: t('MSG_TXT_NMN'), width: '119.9', styleName: 'text-right' },
     { fieldName: 'prtnrGdCd', header: t('MSG_TXT_GRCNT'), width: '119.9', styleName: 'text-right' },
@@ -856,46 +900,46 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'atcnt2', header: t('MSG_TXT_ACPN') + t('MSG_TXT_EDUC'), width: '119.9', styleName: 'text-right' },
     { fieldName: 'is124edu', header: t('MSG_TXT_ASET') + t('MSG_TXT_EDUC'), width: '119.9', styleName: 'text-right' },
     { fieldName: 'is125edu', header: t('MSG_TXT_ACPN') + t('MSG_TXT_EDUC'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda10', header: t('MSG_TXT_MTRRS'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda12', header: t('MSG_TXT_MTRRS') + t('MSG_TXT_EXCP'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda14', header: t('MSG_TXT_FXAM'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'akcda13', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akcda15', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akcda11', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_PKG'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'dedeq3', header: `${t('MSG_TXT_CHNG')}(1)${t('MSG_TXT_COUNT')}`, width: '158.4', styleName: 'text-right' },
-    { fieldName: 'akdeq0', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'lccnt1', header: t('MSG_TXT_ASGN') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'cLccnt1', header: t('MSG_TXT_CANCEL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'rLccnt1', header: t('MSG_TXT_REAL') + t('MSG_TXT_ASGN') + t('MSG_TXT_CNT'), width: '207.4', styleName: 'text-right' },
-    { fieldName: 'gdSercnt', header: `${t('MSG_TXT_WASHER')}/${t('MSG_TXT_ARCN')}/${t('MSG_TXT_DRYER')}${t('MSG_TXT_COUNT')}`, width: '207.4', styleName: 'text-right' },
-    { fieldName: 'elecnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right' },
-    { fieldName: 'aksd03', header: t('MSG_TXT_ENRG'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd04', header: t('MSG_TXT_SNGL_PMNT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd15', header: t('MSG_TXT_CHNG'), width: '122.8', styleName: 'text-right' },
-    { fieldName: 'aksd05', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd06', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_SCENE'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd07', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACTI'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd09', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACML'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd10', header: t('MSG_TXT_EDUC'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd11', header: t('MSG_TXT_RGLVL'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd13', header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '158.4', styleName: 'text-right' },
-    { fieldName: 'gadcnt', header: t('MSG_TXT_ACL_ACTI_PPL'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'jAkdeq0', header: t('MSG_TXT_PD_ACC_CNT'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'jSercnt', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'aksd51', header: t('MSG_TXT_RENTAL'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'aksd52', header: `${t('MSG_TXT_SNGL_PMNT')}/${t('MSG_TXT_ISTM')}`, width: '119.9', styleName: 'text-right' },
-    { fieldName: 'aksd53', header: t('MSG_TXT_SELL') + t('MSG_TXT_CONN'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'aksd54', header: t('MSG_TXT_OG') + t('MSG_TXT_MGT'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'aksd55', header: t('MSG_TXT_NEW') + t('MSG_TXT_SELL'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'aksd56', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_CONN'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '119.9', styleName: 'text-right' },
-    { fieldName: 'aclDdbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '119.9', styleName: 'text-right' },
+    { fieldName: 'akcda10', header: t('MSG_TXT_MTRRS'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'akcda12', header: t('MSG_TXT_MTRRS') + t('MSG_TXT_EXCP'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'akcda14', header: t('MSG_TXT_FXAM'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'akcda13', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'akcda15', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'akcda11', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_PKG'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'dedeq3', header: `${t('MSG_TXT_CHNG')}(1)${t('MSG_TXT_COUNT')}`, width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'akdeq0', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'lccnt1', header: t('MSG_TXT_ASGN') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'cLccnt1', header: t('MSG_TXT_CANCEL') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'rLccnt1', header: t('MSG_TXT_REAL') + t('MSG_TXT_ASGN') + t('MSG_TXT_CNT'), width: '207.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'gdSercnt', header: `${t('MSG_TXT_WASHER')}/${t('MSG_TXT_ARCN')}/${t('MSG_TXT_DRYER')}${t('MSG_TXT_COUNT')}`, width: '207.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'elecnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd03', header: t('MSG_TXT_ENRG'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd04', header: t('MSG_TXT_SNGL_PMNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd15', header: t('MSG_TXT_CHNG'), width: '122.8', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd05', header: t('MSG_TXT_HOME_CARE') + t('MSG_TXT_MEMBERSHIP'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd06', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_SCENE'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd07', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACTI'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd09', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_ACML'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd10', header: t('MSG_TXT_EDUC'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd11', header: t('MSG_TXT_RGLVL'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd13', header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'gadcnt', header: t('MSG_TXT_ACL_ACTI_PPL'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'jAkdeq0', header: t('MSG_TXT_PD_ACC_CNT'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'jSercnt', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd51', header: t('MSG_TXT_RENTAL'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd52', header: `${t('MSG_TXT_SNGL_PMNT')}/${t('MSG_TXT_ISTM')}`, width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd53', header: t('MSG_TXT_SELL') + t('MSG_TXT_CONN'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd54', header: t('MSG_TXT_OG') + t('MSG_TXT_MGT'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd55', header: t('MSG_TXT_NEW') + t('MSG_TXT_SELL'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aksd56', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_CONN'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aclDdbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
   ];
   data.setFields(fields);
   view.setColumns(columns);

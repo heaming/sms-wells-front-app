@@ -144,7 +144,7 @@
 import { useDataService, useGlobal, codeUtil } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { pdMergeBy, getCopyProductInfo } from '~sms-common/product/utils/pdUtil';
+import { pdMergeBy, getCopyProductInfo, isValidToProdcutSave } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
 import WwpdcServiceMgtMFilter from './WwpdcServiceMgtMFilter.vue';
 import WwpdcServiceDtlMContents from './WwpdcServiceDtlMContents.vue';
@@ -154,6 +154,7 @@ const props = defineProps({
   newRegYn: { type: String, default: null },
   reloadYn: { type: String, default: null },
   copyPdCd: { type: String, default: null },
+  propWatch: { type: Object, default: null },
 });
 
 const router = useRouter();
@@ -169,6 +170,7 @@ const dtl = pdConst.TBL_PD_DTL;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
 const rel = pdConst.TBL_PD_REL;
 
+const fnlMdfcDtm = ref();
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.W_SERVICE_STEP_BASIC, pdConst.W_SERVICE_STEP_FILTER, pdConst.W_SERVICE_STEP_CHECK]);
 const currentStep = cloneDeep(ref(pdConst.W_SERVICE_STEP_BASIC));
@@ -184,7 +186,25 @@ const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 const obsMainRef = ref();
 const subTitle = ref();
 
+// 상품 수정여부 검증
+async function isModifiedCheck() {
+  let modifiedOk = false;
+  await Promise.all(cmpStepRefs.value.map(async (item) => {
+    if (!modifiedOk) {
+      if (await item.value.isModifiedProps()) {
+        modifiedOk = true;
+      }
+    }
+  }));
+  return modifiedOk;
+}
+
 async function getSaveData() {
+  // 데이터가 많아서 수정여부를 체크하여 미수정시, 텝 데이터 수집을 하지않음.
+  if (!(await isModifiedCheck())) {
+    return prevStepData.value;
+  }
+
   const subList = { isModifiedProp: false, isOnlyFileModified: false, isModifiedRelation: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
     const isModified = await item.value.isModifiedProps();
@@ -227,13 +247,17 @@ async function getSaveData() {
   return subList;
 }
 
+async function goList() {
+  await router.push({ path: '/product/zwpdc-service-list', state: { stateParam: { searchYn: 'Y' } } });
+}
+
 // 삭제 버튼
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/services/${currentPdCd.value}`);
     await obsMainRef.value.reset();
     await router.close();
-    await router.push({ path: '/product/zwpdc-service-list', state: { stateParam: { searchYn: 'Y' } } });
+    await goList();
   }
 }
 
@@ -296,11 +320,18 @@ async function init() {
 
 async function fetchProduct() {
   if (currentPdCd.value) {
-    const res = await dataService.get(`/sms/wells/product/services/${currentPdCd.value}`);
+    const res = await dataService.get(`/sms/wells/product/services/${currentPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     prevStepData.value = res.data;
+    fnlMdfcDtm.value = prevStepData.value[bas].fnlMdfcDtm;
     isTempSaveBtn.value = prevStepData.value[bas].tempSaveYn === 'Y';
   } else if (currentCopyPdCd.value) {
-    const res = await dataService.get(`/sms/wells/product/services/${currentCopyPdCd.value}`);
+    const res = await dataService.get(`/sms/wells/product/services/${currentCopyPdCd.value}`).catch(() => {
+      goList();
+    });
+    if (!res || !res.data) return;
     prevStepData.value = await getCopyProductInfo(res.data);
     isTempSaveBtn.value = 'Y';
   }
@@ -312,16 +343,7 @@ async function onClickSave(tempSaveYn) {
   // 1. Step별 수정여부 확인
   // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
   if (!(isTempSaveBtn.value && tempSaveYn === 'N')) {
-    let modifiedOk = false;
-    await Promise.all(cmpStepRefs.value.map(async (item) => {
-      if (!modifiedOk) {
-        if (await item.value.isModifiedProps()) {
-          // console.log('Update Idx : ', idx);
-          modifiedOk = true;
-        }
-      }
-    }));
-    if (!modifiedOk) {
+    if (!(await isModifiedCheck())) {
       notify(t('MSG_ALT_NO_CHG_CNTN'));
       return;
     }
@@ -354,16 +376,19 @@ async function onClickSave(tempSaveYn) {
   let rtn;
   if (isCreate.value) {
     rtn = await dataService.post('/sms/wells/product/services', subList);
-  } else {
+  } else if (await isValidToProdcutSave(currentPdCd.value, fnlMdfcDtm.value, pdConst.PD_JOB_TYPE_EDIT)) {
     rtn = await dataService.put(`/sms/wells/product/services/${currentPdCd.value}`, subList);
+  } else {
+    return;
   }
+
   notify(t('MSG_ALT_SAVE_DATA'));
   await init();
 
   if (tempSaveYn === 'N') {
     // 목록으로 이동
     // await router.close();
-    await router.push({ path: '/product/zwpdc-service-list', state: { stateParam: { searchYn: 'Y' } } });
+    await goList();
     return;
   }
   if (isTempSaveBtn.value) {
@@ -389,6 +414,7 @@ async function resetData() {
   }
   currentStep.value = cloneDeep(pdConst.W_SERVICE_STEP_BASIC);
   prevStepData.value = {};
+  fnlMdfcDtm.value = null;
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.resetData) await item.value?.resetData();
     if (item.value?.init) await item.value?.init();
@@ -417,9 +443,9 @@ async function initProps() {
 
 await initProps();
 
-watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd }) => {
-  console.log(` - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd}`);
-  if (pdCd && currentPdCd.value !== pdCd) {
+watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch }) => {
+  console.log(` - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd} propWatch: ${propWatch}`);
+  if (pdCd && (currentPdCd.value !== pdCd || propWatch)) {
     // 상품코드 변경
     currentPdCd.value = pdCd;
     currentNewRegYn.value = 'N';

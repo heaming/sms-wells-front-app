@@ -432,10 +432,6 @@ fieldsObj = {
     gridView.setColumns(columns);
     gridView.setColumnLayout(layoutColumns);
   },
-  // 리스트에 담겨진 항목중 {fieldName : "" }  만  가져옴
-  getColumnNameList(objList) {
-    return objList.map((obj) => ({ fieldName: obj.fieldName }));
-  },
   // 리스트에 담겨진 항목 중 fieldName 배열로 가져옴
   getColumnNameArr(objList) {
     return objList.map((v) => v.fieldName);

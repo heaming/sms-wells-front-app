@@ -230,7 +230,7 @@ const searchParams = ref({
   cralIdvTno: '', // 휴대개별전화번호(계약자/설치자)
   bzrno: '', // 사업자번호
   sfkVal: '', // 세이프키값
-  sellTpCd: [''], // 계약구분(판매유형코드)
+  sellTpCd: ['1', '2', '3', '4', '6'], // 계약구분(판매유형코드)
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
 });
@@ -585,11 +585,14 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'sexDvNm' }, // 성별
     { fieldName: 'cntrCstNo' }, // 고객번호
     { fieldName: 'adrZip' }, // 우편번호
-    { fieldName: 'instAddr' }, // 설치 주소
+    { fieldName: 'instAddr' }, // 설치주소
+    { fieldName: 'instRnadr' }, // 설치주소(기본)
+    { fieldName: 'instRdadr' }, // 설치주소(상세)
     { fieldName: 'sppOrdIvcNo' }, // 송장번호
     { fieldName: 'ogNm' }, // 소속코드
     { fieldName: 'sellPrtnrNo' }, // 판매자 사번
     { fieldName: 'sellPrtnrKnm' }, // 판매자명
+    { fieldName: 'sellPrtnrKnmEncr' }, // 판매자명(암호화)
     { fieldName: 'sellCralTno' }, // 판매자 휴대전화번호
     { fieldName: 'sellCralLocaraTno' }, // 판매자 휴대지역전화번호
     { fieldName: 'sellMexnoEncr' }, // 판매자 휴대전화국번호암호화
@@ -623,52 +626,24 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_TEL_NO'),
       width: '130',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { cntrLocaraTno: no1, cntrExnoEncr: no2, cntrIdvTno: no3 } = grid.getValues(index.itemIndex);
-        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
-          return `${no1}--${no3}`;
-        }
-        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
-      },
     }, // 계약자 전화번호
     {
       fieldName: 'cntrCralTno',
       header: t('MSG_TXT_MPNO'),
       width: '130',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { cntrCralLocaraTno: no1, cntrMexnoEncr: no2, cntrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
-          return `${no1}--${no3}`;
-        }
-        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
-      },
     }, // 계약자 휴대전화번호
     {
       fieldName: 'istTno',
       header: t('MSG_TXT_TEL_NO'),
       width: '130',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { istLocaraTno: no1, istExnoEncr: no2, istIdvTno: no3 } = grid.getValues(index.itemIndex);
-        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
-          return `${no1}--${no3}`;
-        }
-        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
-      },
     }, // 설치자 전화번호
     {
       fieldName: 'istCralTno',
       header: t('MSG_TXT_MPNO'),
       width: '130',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
-          return `${no1}--${no3}`;
-        }
-        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
-      },
     }, // 설치자 휴대전화번호
     { fieldName: 'dpTpNm', header: t('MSG_TXT_FNT_MTHD'), width: '130', styleName: 'text-center' }, // 이체방식 납부방식유형코드명
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FTD'), width: '130', styleName: 'text-center' }, // 이체일
@@ -688,23 +663,27 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'sexDvNm', header: t('MSG_TXT_GENDER'), width: '130', styleName: 'text-center' }, // 성별
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center' }, // 고객번호
     { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '130', styleName: 'text-center' }, // 우편번호
-    { fieldName: 'instAddr', header: t('MSG_TXT_INST_ADDR'), width: '464', styleName: 'text-left' }, // 설치주소
+    { fieldName: 'instAddr',
+      header: t('MSG_TXT_INST_ADDR'),
+      width: '464',
+      styleName: 'text-left',
+      displayCallback(grid, index) {
+        const { instRnadr } = grid.getValues(index.itemIndex);
+        const { instRdadr } = grid.getValues(index.itemIndex);
+        if (!isEmpty(instRnadr) && !isEmpty(instRdadr)) {
+          return `${instRnadr} ${instRdadr}`;
+        }
+      },
+    }, // 설치주소
     { fieldName: 'sppOrdIvcNo', header: t('MSG_TXT_IVC_NO'), width: '130', styleName: 'text-center' }, // 송장번호
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG_CD'), width: '130', styleName: 'text-center' }, // 소속코드
     { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PTNR_NO'), width: '130', styleName: 'text-center' }, // 판매자 사번
-    { fieldName: 'sellPrtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '130', styleName: 'text-center' }, // 판매자명
+    { fieldName: 'sellPrtnrKnmEncr', header: t('MSG_TXT_SELL_NM'), width: '130', styleName: 'text-center' }, // 판매자명
     {
       fieldName: 'sellCralTno',
       header: t('MSG_TXT_MPNO'),
       width: '130',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { sellCralLocaraTno: no1, sellMexnoEncr: no2, sellCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
-          return `${no1}--${no3}`;
-        }
-        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
-      },
     }, // 판매자 휴대전화번호
     { fieldName: 'bsOgNm', header: t('MSG_TXT_BLG_CD'), width: '130', styleName: 'text-center' }, // 소속코드
     { fieldName: 'bsPrtnrNo', header: t('MSG_TXT_MNGER_EPNO'), width: '134', styleName: 'text-center' }, // 웰스매니저 사번
@@ -714,13 +693,6 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_MPNO'),
       width: '130',
       styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { bsCralLocaraTno: no1, bsMexnoEncr: no2, bsCralIdvTno: no3 } = grid.getValues(index.itemIndex);
-        if (!isEmpty(no1) && isEmpty(no2) && !isEmpty(no3)) {
-          return `${no1}--${no3}`;
-        }
-        return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
-      },
     }, // 웰스매니저 휴대전화번호
   ];
 
@@ -770,7 +742,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_BLG_CD'), // 소속코드
       direction: 'horizontal',
-      items: ['ogNm', 'sellPrtnrNo', 'sellPrtnrKnm', 'sellCralTno'],
+      items: ['ogNm', 'sellPrtnrNo', 'sellPrtnrKnmEncr', 'sellCralTno'],
     },
     {
       header: t('MSG_TXT_WELS_MNGER'), // 웰스 매니저

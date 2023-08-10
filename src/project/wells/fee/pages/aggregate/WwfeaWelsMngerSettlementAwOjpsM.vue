@@ -59,7 +59,7 @@
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_DIV')">
           <kw-select
-            v-model="searchParams.schDiv"
+            v-model="searchParams.divCd"
             :options="dvCd"
             first-option
             first-option-value=""
@@ -68,7 +68,7 @@
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_RSB_DV')">
           <kw-select
-            v-model="searchParams.schRsbDvCd"
+            v-model="searchParams.rsbDvCd"
             :options="filterRsbDvCd"
             first-option
             first-option-value=""
@@ -192,8 +192,8 @@ const searchParams = ref({
   tcntDvCd: '01',
   prtnrNo: '',
   prtnrKnm: '',
-  schDiv: '',
-  schRsbDvCd: '',
+  divCd: '',
+  rsbDvCd: '',
 });
 
 const info = ref({
@@ -207,11 +207,14 @@ const bfMonth = now.add(-1, 'month').format('YYYYMM');
 let cachedParams;
 
 async function onClickExcelDownload() {
+  cachedParams = cloneDeep(searchParams.value);
   const view = grdMainRef.value.getView();
+  const response = await dataService.get('/sms/wells/fee/wm-settlement-allowances/wmList', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
@@ -257,8 +260,19 @@ async function onClickSearchNo() {
 
 // 저장 버튼 클릭 이벤트
 async function onClickSave() {
-  const view = grdMainRef.value.getView();
+  const { opngcnfmYn, opngCnfmCnt, feeCnfmYn } = searchParams.value;
   const { baseYm } = searchParams.value;
+  const view = grdMainRef.value.getView();
+  if (opngcnfmYn === 'Y') {
+    await alert(t('MSG_ALT_BF_CNFM_MDFC_IMP'));
+    return;
+  } if (opngCnfmCnt === 'Y') {
+    await alert(t('MSG_ALT_DATA_ALREADY_CNFM'));
+    return;
+  } if (feeCnfmYn === '0') {
+    await alert(t('MSG_ALT_DTA_EXST'));
+    return;
+  }
   if (bfMonth !== baseYm) {
     await alert(t('MSG_ALT_LSTMM_PSB'));
     return;
@@ -398,12 +412,11 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
-
   view.onCellEditable = async (g, { itemIndex }) => {
     const cnfmStatYn = g.getValue(itemIndex, 'cnfmStatYn');
     if (cnfmStatYn === 'N') {
       view.columnByName('opngCd').editable = true;
-    } else if (cnfmStatYn === 'Y' || cnfmStatYn === 'X') {
+    } else {
       view.columnByName('opngCd').editable = false;
     }
   };

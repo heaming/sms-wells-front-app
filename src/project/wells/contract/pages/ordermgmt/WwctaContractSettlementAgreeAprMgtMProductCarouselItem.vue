@@ -99,6 +99,7 @@
 <script setup>
 import { warn } from 'vue';
 import { notify } from 'kw-lib';
+import { scrollIntoView } from '~sms-common/contract/util';
 import ShippingAddressUpdate from './WwctaContractSettlementAgreeAprMgtMShippingAddress.vue';
 import ProductInfo from './WwctaContractSettlementAgreeAprMgtMProductInfo.vue';
 import PaymentsInfoUpdate from './WwctaContractSettlementAgreeAprMgtMPayment.vue';
@@ -156,20 +157,13 @@ const paymentsInfoUpdateRefs = ref({});
 
 const scrollRef = ref();
 
-function scrollTo(ref) {
-  const el = unref(ref)?.$el;
-  if (el) {
-    el.scrollIntoView(true);
-  }
-}
-
 async function validateDtl(dtl) {
   const { cntrSn } = dtl;
   const adrRef = addressUpdateRefs.value[`${ADDRESS_REF_PREFIX}${cntrSn}`];
   if (!adrRef) {
     notify('확인하지 않은 계약 상품이 있습니다.');
     setSlideOf(dtl);
-    scrollTo(carouselRef.value);
+    scrollIntoView(carouselRef.value);
     return false;
   }
 
@@ -184,7 +178,7 @@ async function validateDtl(dtl) {
       setSlideOf(dtl);
       scrollRef.value = adrRef.invalidRef;
     } else {
-      scrollTo(adrRef.invalidRef);
+      scrollIntoView(adrRef.invalidRef);
     }
     return false;
   }
@@ -205,7 +199,7 @@ async function validateDtl(dtl) {
       setSlideOf(dtl);
       scrollRef.value = paymentRef.invalidRef;
     } else {
-      scrollTo(adrRef.invalidRef);
+      scrollIntoView(adrRef.invalidRef);
     }
     return false;
   }
@@ -234,7 +228,7 @@ async function validate() {
 
 function onChildActivated(invalidRef) {
   if (invalidRef && scrollRef.value === invalidRef) {
-    scrollTo(scrollRef.value);
+    scrollIntoView(scrollRef.value);
     scrollRef.value = undefined;
   }
 }
@@ -258,9 +252,13 @@ async function getRequestData() {
       }
       return adrRef.getUpdateShippingAddressInfo();
     });
+  const cssrIss = Object.values(paymentsInfoUpdateRefs.value)
+    .filter((paymentRef) => (paymentRef && paymentRef.cashSalesReceiptInfo))
+    .map((paymentRef) => paymentRef.cashSalesReceiptInfo);
   return {
     stlmBases,
     adrpcs,
+    cssrIss,
   };
 }
 

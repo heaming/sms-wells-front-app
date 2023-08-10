@@ -32,7 +32,7 @@
         <kw-search-item :label="t('MSG_TXT_PSTN_DV')">
           <kw-select
             v-model="searchParams.pstnDvCd"
-            :options="filterPstnDvCd"
+            :options="codes.DDTN_RPLC_WELLS_PSTN_DV_CD"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_INQR_BASE')">
@@ -53,12 +53,12 @@
             first-option-value="ALL"
           />
         </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_PRTNR_NUM')">
+        <kw-search-item :label="t('MSG_TXT_PRTNR_NUMBER')">
           <kw-input
             v-model="searchParams.prtnrNo"
             regex="num"
             icon="search"
-            :label="t('MSG_TXT_PRTNR_NUM')"
+            :label="t('MSG_TXT_PRTNR_NUMBER')"
             rules="max:10|numeric"
             @click-icon="onClickSearchPartner"
           />
@@ -195,7 +195,7 @@ const userInfo = getUserInfo();
 const codes = await codeUtil.getMultiCodes(
   'REDF_OG_TP_CD',
   'DDTN_RPLC_BLNGT_DV_CD',
-  'WELLS_OJ_PSTN_RANK_CD',
+  'DDTN_RPLC_WELLS_PSTN_DV_CD',
 );
 
 const gridTpCd = ref([
@@ -213,16 +213,6 @@ const filterOgTpCd = ref([]);
 codes.REDF_OG_TP_CD.forEach((e) => {
   if (e.codeId.includes('W')) {
     filterOgTpCd.value.push({
-      codeId: e.codeId.trim(),
-      codeName: e.codeName.trim(),
-    });
-  }
-});
-
-const filterPstnDvCd = ref([]);
-codes.WELLS_OJ_PSTN_RANK_CD.forEach((e) => {
-  if (e.codeId !== '99') {
-    filterPstnDvCd.value.push({
       codeId: e.codeId.trim(),
       codeName: e.codeName.trim(),
     });
@@ -247,7 +237,7 @@ let cachedParams;
 
 const searchParams = ref({
   redfAdsbOcYm: currentMonth, // 발생년월
-  pstnDvCd: filterPstnDvCd.value[0].codeId, // 직급구분
+  pstnDvCd: codes.DDTN_RPLC_WELLS_PSTN_DV_CD[0].codeId,
   ogTpCd: 'ALL', // 조직유형
   prtnrNo: '', // 파트너번호
   cltnYn: 'ALL', // 해약여부
@@ -396,7 +386,7 @@ function initGrid(data, view) {
     },
     { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '120', styleName: 'text-center' },
     { fieldName: 'cltnYm', header: t('MSG_TXT_CLTN_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
@@ -448,6 +438,13 @@ function initGrid(data, view) {
     'sumAdsbAmt',
   ]);
 
+  view.onScrollToBottom = async (g) => {
+    if (pageMainInfo.value.pageIndex * pageMainInfo.value.pageSize <= g.getItemCount()) {
+      pageMainInfo.value.pageIndex += 1;
+      await fetchData();
+    }
+  };
+
   // 헤더쪽 합계 행고정, summary
   view.setHeaderSummaries({
     visible: true,
@@ -487,8 +484,15 @@ function initGrid1(data, view) {
       },
     },
     { fieldName: 'perfDt', header: t('MSG_TXT_BLNG_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '207', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cntrNoSn',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '207',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      } },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '150', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'sellPrtnrAdsbAmt',
       header: t('MSG_TXT_ADSB_AMT'),
@@ -499,7 +503,7 @@ function initGrid1(data, view) {
         numberFormat: '#,##0',
         expression: 'sum',
       } },
-    { fieldName: 'brchPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'brchPrtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '150', styleName: 'text-center' },
     { fieldName: 'brchPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'brchAdsbAmt',
       header: t('MSG_TXT_ADSB_AMT'),
@@ -531,6 +535,13 @@ function initGrid1(data, view) {
     },
 
   ]);
+
+  view.onScrollToBottom = async (g) => {
+    if (pageSecondInfo.value.pageIndex * pageSecondInfo.value.pageSize <= g.getItemCount()) {
+      pageSecondInfo.value.pageIndex += 1;
+      await fetchData2();
+    }
+  };
 
   // 헤더쪽 합계 행고정, summary
   view.setHeaderSummaries({

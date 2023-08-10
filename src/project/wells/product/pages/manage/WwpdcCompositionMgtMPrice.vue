@@ -161,6 +161,14 @@ async function init() {
 }
 
 async function getSaveData() {
+// 미수정시 초기값 그대로 반환.
+  if (!(await isModifiedProps())) {
+    return {
+      [prcd]: currentInitData.value[prcd],
+      [prcfd]: currentInitData.value[prcfd],
+    };
+  }
+
   const view = grdMainRef.value?.getView();
   const rowValues = gridUtil.getAllRowValues(view);
   const stdValues = await getGridRowsToSavePdProps(

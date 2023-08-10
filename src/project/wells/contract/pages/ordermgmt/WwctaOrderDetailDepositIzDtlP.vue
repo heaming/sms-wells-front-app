@@ -182,13 +182,6 @@
             spaced="10px"
             size="0"
           />
-          <!-- 상세조회 -->
-          <kw-btn
-            dense
-            secondary
-            :label="$t('MSG_BTN_DTL_INQR')"
-            @click="onClickLendingLimit"
-          />
         </kw-form-item>
         <!-- 여신한도 잔액 -->
         <kw-form-item
@@ -214,7 +207,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_SELL_TOT_AMT')"
         >
-          <p>{{ frmMainData.fnlAmt+$t('MSG_TXT_CUR_WON') }}</p>
+          <p>{{ frmMainData.sellTam+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -228,7 +221,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_SPMT_DSC')"
         >
-          <p>{{ frmMainData.sellDscCtrAmt+$t('MSG_TXT_CUR_WON') }}</p>
+          <p>{{ frmMainData.spmtDsc+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -236,7 +229,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_MM_BIL_PY_AMT')"
         >
-          <p>{{ frmMainData.bilPyAmt+$t('MSG_TXT_CUR_WON') }}</p>
+          <p>{{ frmMainData.mmBilPyAmt+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
         <!-- 주기 -->
         <kw-form-item
@@ -250,13 +243,13 @@
         <kw-form-item
           :label="$t('MSG_TXT_DLQ_AMT')"
         >
-          <p>{{ frmMainData.thmOcDlqAmt+$t('MSG_TXT_CUR_WON') }}</p>
+          <p>{{ frmMainData.dlqAmt+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
         <!-- 미수금액 -->
         <kw-form-item
           :label="$t('MSG_TXT_UC_AMT')"
         >
-          <p>{{ frmMainData.thmUcBlam+$t('MSG_TXT_CUR_WON') }}</p>
+          <p>{{ frmMainData.ucAmt+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -264,13 +257,13 @@
         <kw-form-item
           :label="$t('MSG_TXT_PRPD_AMT')"
         >
-          <p>{{ frmMainData.eotAtam+$t('MSG_TXT_CUR_WON') }}</p>
+          <p>{{ frmMainData.prpdAmt+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
         <!-- 청구미수 -->
         <kw-form-item
           :label="$t('MSG_TXT_BIL_UC')"
         >
-          <p>{{ frmMainData.eotUcAmt+$t('MSG_TXT_CUR_WON') }}</p>
+          <p>{{ frmMainData.bilUc+$t('MSG_TXT_CUR_WON') }}</p>
         </kw-form-item>
       </kw-form-row>
     </slot>
@@ -285,7 +278,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { alert, notify, modal } = useGlobal();
+const { notify, modal } = useGlobal();
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: true, default: '' },
@@ -326,17 +319,13 @@ const frmMainData = ref({
   ldLimTam: '', // 여신한도 총액
   ldLimBlam: '', // 여신한도 잔액
 
-  fnlAmt: '', // 최종금액(판매총액)
+  sellTam: '', // 최종금액(판매총액)
   dscAmt: '', // 할인금액
-  sellDscCtrAmt: '', // 판매할인조정금액(추가할인)
-  bilPyAmt: '', // 월 청구(납입)금액
+  spmtDsc: '', // 판매할인조정금액(추가할인)
+  mmBilPyAmt: '', // 월 청구(납입)금액
   svPrd: '', // 서비스주기(주기)
-  thmOcDlqAmt: '', // 당월발생연체금액(연체금액)
-  thmUcBlam: '', // 당월미수잔액
-  eotAtam: '', // 기말선수금(선수금액)
-  eotUcAmt: '', // 기말미수금액(청구미수)
+  bilUc: '', // 기말미수금액(청구미수)
   pcsvSpmt: '', // 택배추가
-
   prtnrKnm: '', // 판매자성명
 });
 
@@ -389,11 +378,6 @@ async function onClickDpDtlInf() {
     component: 'WwctaTradeSpecificationSheetListP', // 거래명세서 목록 조회
     componentProps: searchPopupParams,
   });
-}
-
-// 상세조회버튼 팝업 호출
-async function onClickLendingLimit() {
-  await alert('여신한도 상세조회는 개발예정입니다.');
 }
 
 // wells 주문 상세(판매내역)
@@ -482,25 +466,62 @@ async function fetchData() {
     // eslint-disable-next-line max-len
     frmMainData.value.sellAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].sellAmt), 0); // 판매금액
     // eslint-disable-next-line max-len
-    frmMainData.value.fnlAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].fnlAmt), 0); // 최종금액(판매총액)
+    frmMainData.value.sellTam = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].sellTam), 0); // 최종금액(판매총액)
     // eslint-disable-next-line max-len
     frmMainData.value.dscAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].dscAmt), 0); // 할인금액
     // eslint-disable-next-line max-len
-    frmMainData.value.sellDscCtrAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].sellDscCtrAmt), 0); // 판매할인조정금액(추가할인)
+    frmMainData.value.spmtDsc = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].spmtDsc), 0); // 판매할인조정금액(추가할인)
     // eslint-disable-next-line max-len
-    frmMainData.value.bilPyAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].bilPyAmt), 0); // 월 청구(납입)금액
+    frmMainData.value.mmBilPyAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].mmBilPyAmt), 0); // 월 청구(납입)금액
     frmMainData.value.svPrd = res.data.searchRegularShippingsDepositIzResList[0].svPrd; // 서비스주기(주기)
     // eslint-disable-next-line max-len
-    frmMainData.value.thmOcDlqAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].thmOcDlqAmt), 0); // 당월발생연체금액(연체금액)
+    frmMainData.value.dlqAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].dlqAmt), 0); // 당월발생연체금액(연체금액)
     // eslint-disable-next-line max-len
-    frmMainData.value.thmUcBlam = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].thmUcBlam), 0); // 당월미수잔액
+    frmMainData.value.ucAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].ucAmt), 0); // 당월미수잔액
     // eslint-disable-next-line max-len
-    frmMainData.value.eotAtam = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].eotAtam), 0); // 기말선수금(선수금액)
+    frmMainData.value.prpdAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].prpdAmt), 0); // 기말선수금(선수금액)
     // eslint-disable-next-line max-len
-    frmMainData.value.eotUcAmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].eotUcAmt), 0); // 기말미수금액(청구미수)
+    frmMainData.value.bilUc = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].bilUc), 0); // 기말미수금액(청구미수)
     // eslint-disable-next-line max-len
     frmMainData.value.pcsvSpmt = stringUtil.getNumberWithComma(Number(res.data.searchRegularShippingsDepositIzResList[0].pcsvSpmt), 0); // 택배추가
     frmMainData.value.prtnrKnm = res.data.searchRegularShippingsDepositIzResList[0].prtnrKnm; // 판매자성명
+  } else {
+    frmMainData.value.rentalMsh1Cost = '';
+    frmMainData.value.rental1Ptrm = '';
+    frmMainData.value.rentalMsh2Cost = '';
+    frmMainData.value.rental2Ptrm = '';
+    frmMainData.value.spmtSlAmt = '';
+    frmMainData.value.spmtDscAmt = '';
+    frmMainData.value.slDt = '';
+    frmMainData.value.slAmt = '';
+    frmMainData.value.prpdAmt = '';
+    frmMainData.value.ucAmt = '';
+    frmMainData.value.dlqAmt = '';
+    frmMainData.value.slStpAmt = '';
+    frmMainData.value.etMshAmt = '';
+
+    frmMainData.value.sellAmt = '';
+    frmMainData.value.mmIstmAmt = '';
+    frmMainData.value.istmMcn = '';
+    frmMainData.value.subscAmt = '';
+    frmMainData.value.istmAmt = '';
+    frmMainData.value.istmPcamAmt = '';
+    frmMainData.value.ldLimUse = '';
+    frmMainData.value.ldLimTam = '';
+    frmMainData.value.ldLimBlam = '';
+
+    frmMainData.value.sellTam = '';
+    frmMainData.value.dscAmt = '';
+    frmMainData.value.spmtDsc = '';
+    frmMainData.value.mmBilPyAmt = '';
+    frmMainData.value.svPrd = '';
+    frmMainData.value.dlqAmt = '';
+    frmMainData.value.ucAmt = '';
+    frmMainData.value.prpdAmt = '';
+    frmMainData.value.bilUc = '';
+    frmMainData.value.pcsvSpmt = '';
+
+    frmMainData.value.prtnrKnm = '';
   }
   // 여신한도조회
   const totalMisuAmt = ref(0); // 총미수금액

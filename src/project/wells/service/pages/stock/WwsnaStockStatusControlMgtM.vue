@@ -35,10 +35,13 @@
           <kw-select
             v-model="searchParams.wareDvCd"
             :options="filterCodes.filterWareDvCd"
+            :disable="isAddRow"
           />
           <kw-select
             v-model="searchParams.wareNo"
+            :disable="isAddRow"
             :options="filterWareNo"
+            @change="onChangeFilterWareNo"
           />
         </kw-search-item>
         <!-- 관리부서 -->
@@ -59,7 +62,9 @@
         >
           <kw-select
             v-model="searchParams.itmKnd"
+            :disable="isAddRow"
             :options="codes.ITM_KND_CD"
+            @change="onChangeItmKndCd"
           />
         </kw-search-item>
         <!-- 상태조정유형 -->
@@ -95,11 +100,13 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span class="ml8">{{ t('MSG_TXT_UNIT_EA') }}</span>
         </template>
         <!-- 삭제 -->
         <kw-btn
           :label="$t('MSG_TXT_DEL')"
           grid-action
+          :disable="isSearch"
           @click="onClickDeleteRow"
         />
         <kw-separator
@@ -111,12 +118,15 @@
         <kw-btn
           :label="$t('MSG_TXT_ROW_SPMT')"
           grid-action
+          :disable="isSearch"
           @click="onClickAddRow"
         />
         <!-- 저장 -->
         <kw-btn
           :label="$t('MSG_TXT_SAVE')"
           grid-action
+          :disable="isSearch"
+          @click="onClickSave"
         />
         <kw-separator
           vertical
@@ -128,7 +138,9 @@
           icon="download_on"
           dense
           secondary
+          :disable="isSearch"
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+          @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
@@ -154,11 +166,11 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useMeta, codeUtil, useDataService, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
-// import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 const dataService = useDataService();
 const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
@@ -186,6 +198,8 @@ const PD_ITM_KND_CD = '4';
 const products = ref([]);
 const filterWareNo = ref([]);
 const gridFilterWareNo = ref([]);
+const isSearch = ref(true);
+const isAddRow = ref(false);
 
 const searchParams = ref({
   wareDvCd: '2',
@@ -196,14 +210,15 @@ const searchParams = ref({
   itmGdCtrRsonCd: '',
   stFromYmd: dayjs().set('date', 1).format('YYYYMMDD'),
   edToYmd: dayjs().format('YYYYMMDD'),
+  itmPdCd: '',
 
 });
 
-const gridParams = ref({
-  wareNo: '',
-  itmKnd: '',
+// const gridParams = ref({
+//   wareNo: '',
+//   itmKnd: '',
 
-});
+// });
 
 // const gridItmParams = ref({
 //   wareNo: '',
@@ -216,6 +231,8 @@ const filterCodes = ref({
   filterWareDvCd: [],
   filterItmGdCtrTpCd: [],
 });
+
+const itmGdCtrTpCds = ref([]);
 
 codes.WARE_DV_CD.forEach((e) => {
   if (e.codeId === '2' || e.codeId === '3') {
@@ -270,24 +287,21 @@ await getAllWareNo();
 // }
 
 async function fetchItmPdCd(params) {
-  console.log(params);
   return await dataService.get('/sms/wells/service/stock-status-control/product-warehouse', params);
 }
 
-// const onChangeItmKnd = async () => {
-//   const res = await fetchItmPdCd({ params: searchParams.value });
-//   products.value = res.data;
-//   console.log(products.value);
-//   // console.log(filterItems);
-//   // filterCodes.value.filterItmPdCd = filterItems.map((v) => ({ codeId: v.itmPdCd, codeName: v.itmPdNm }));
-//   // console.log(filterCodes.value.filterItmPdCd);
+async function onChangeFilterWareNo() {
+  const res = await fetchItmPdCd({ params: searchParams.value });
+  products.value = res.data;
+}
 
-//   // setItemPdCdCellStyle();
-// };
+await onChangeFilterWareNo();
 
+const optionOgNm = ref();
 const onChangeWareNo = async () => {
   const res = await dataService.get(`/sms/wells/service/stock-status-control/organization/${searchParams.value.wareNo}`);
-  searchParams.value.ogNm = res.data.ogNm;
+  optionOgNm.value = res.data;
+  searchParams.value.ogNm = optionOgNm.value.ogNm;
   // onChangeItmKnd();
 };
 
@@ -321,25 +335,43 @@ watch(() => searchParams.value.wareDvCd, (val) => {
 });
 
 if (searchParams.value.itmKnd === PD_ITM_KND_CD) {
+  filterCodes.value.filterItmGdCtrTpCd = [];
   filterCodes.value.filterItmGdCtrTpCd = codes.ITM_GD_CTR_TP_CD;
-  // onChangeItmKnd();
 } else {
+  filterCodes.value.filterItmGdCtrTpCd = [];
   filterCodes.value.filterItmGdCtrTpCd = codes.MAT_STOC_STAT_CTR_CD;
 }
 
-console.log(codes.ITM_GD_CTR_TP_CD);
-
 watch(() => searchParams.value.itmKnd, async (val) => {
   if (val === PD_ITM_KND_CD) {
+    filterCodes.value.filterItmGdCtrTpCd = [];
     filterCodes.value.filterItmGdCtrTpCd = codes.ITM_GD_CTR_TP_CD;
-    console.log(filterCodes.value.filterItmGdCtrTpCd);
   } else {
+    filterCodes.value.filterItmGdCtrTpCd = [];
     filterCodes.value.filterItmGdCtrTpCd = codes.MAT_STOC_STAT_CTR_CD;
-    console.log(filterCodes.value.filterItmGdCtrTpCd);
+  }
+});
+
+console.log(codes.ITM_GD_CTR_TP_CD);
+
+function setitmGdCtrTpCdsCellStyle() {
+  const itmGdCtrTpCd = grdMainRef.value.getView().columnByField('itmGdCtrTpNm');
+
+  itmGdCtrTpCd.editable = true;
+  itmGdCtrTpCd.editor = { type: 'list' };
+  itmGdCtrTpCd.labels = itmGdCtrTpCds.value.map((v) => v.codeName);
+  itmGdCtrTpCd.values = itmGdCtrTpCds.value.map((v) => v.codeId);
+}
+
+function onChangeItmKndCd(itmKnd) {
+  if (itmKnd === PD_ITM_KND_CD) {
+    itmGdCtrTpCds.value = codes.ITM_GD_CTR_TP_CD;
+  } else {
+    itmGdCtrTpCds.value = codes.MAT_STOC_STAT_CTR_CD;
   }
 
-  // onChangeItmKnd();
-});
+  setitmGdCtrTpCdsCellStyle();
+}
 
 let cachedParams;
 async function fetchData() {
@@ -347,107 +379,123 @@ async function fetchData() {
   const { list: status, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
-  console.log(status);
-
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(status);
 }
 
+const test = ref([]);
+async function fetchTest() {
+  test.value = [];
+  const res = await dataService.get('/sms/wells/service/stock-status-control/status-product', { params: { ...cachedParams } });
+  test.value = res.data;
+}
+
 async function onClickSearch() {
+  isSearch.value = false;
+  isAddRow.value = false;
   cachedParams = cloneDeep(searchParams.value);
+  await fetchTest();
   await fetchData();
+}
+
+// 엑셀다운로드
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  const res = await dataService.get('/sms/wells/service/stock-status-control/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    checkBar: 'hidden',
+    exportData: res.data,
+  });
 }
 
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
+  const { itmKnd, wareDvCd, wareNo } = cachedParams;
+  const wareNoInfo = filterWareNo.value.find((e) => e.codeId === wareNo);
+  const ogBasInfo = optionOgNm.value;
+  isAddRow.value = true;
   await gridUtil.insertRowAndFocus(view, 0, {
     statCtrApyDt: dayjs().format('YYYYMMDD'),
-    itemKnd: searchParams.value.itmKnd,
-    wareDvCd: searchParams.value.wareDvCd,
+    itemKnd: itmKnd,
+    wareDvCd,
+    wareNo,
+    wareNm: isEmpty(wareNoInfo) ? '' : wareNoInfo.codeName,
+    ogNm: isEmpty(ogBasInfo) ? '' : ogBasInfo.ogNm,
   });
 }
 
+// 삭제버튼 클릭 이벤트
 async function onClickDeleteRow() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
-  if (checkedRows.length === 0) {
-    notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
+  if (isEmpty(checkedRows)) {
+    notify(t('MSG_ALT_DEL_NO_DATA'));
+    return;
   }
-  // const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  // if (deletedRows.length > 0) {
-  //   // const result = await dataService.delete('/sms/wells/service/as-consumables-stores', { data: checkedRows });
-  //   if (result.data > 0) {
-  //     notify(t('MSG_ALT_SAVE_COMP'));
-  //   } else {
-  //     notify(t('MSG_ALT_PROC_FAIL'));
-  //   }
-  // }
+
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+
+  if (!isEmpty(deletedRows)) {
+    const res = await dataService.delete('/sms/wells/service/stock-status-control', { data: [...deletedRows] });
+    const { processCount } = res.data;
+    if (processCount > 0) {
+      notify(t('MSG_ALT_DELETED'));
+      await fetchData();
+    }
+  }
 }
 
-// async function onChangeGridWareNm() {
-//   debugger;
-//   const res = await fetchItmPdCd({ params: gridParams.value });
-//   products.value = res.data;
-//   console.log(products.value);
-// }
+// 저장버튼 클릭 이벤트
+async function onClickSave() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
 
-const onChangeGridWareNm = async () => {
-  const res = await fetchItmPdCd({ params: gridParams.value });
-  products.value = res.data;
-  console.log(products.value);
-};
+  if (gridUtil.getCheckedRowValues(view).length === 0) {
+    notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
+    return;
+  }
 
-// async function onChangeGridWareNm(grid, dataCell) {
-//   debugger;
-//   const { wareNm, itemKnd } = grid.getValues(dataCell.index.itemIndex);
-//   gridParams.value.wareNo = wareNm;
-//   gridParams.value.itmKnd = itemKnd;
-//   const res = await fetchItmPdCd({ params: gridParams.value });
-//   products.value = res.data;
-//   console.log(products.value);
-// }
+  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
 
-// let returnOpt;
-// function setClctamOpt(grid, dataCell) {
-//   const ret = {};
-//   const { wareNm, itemKnd } = grid.getValues(dataCell.index.itemIndex);
+  console.log(checkedRows);
 
-//   if (isEmpty(wareNm)) {
-//     returnOpt = [{ codeId: '', codeName: '' }];
-//   } else {
-//     debugger;
-//     gridParams.value.itmKnd = itemKnd;
-//     gridParams.value.wareNo = wareNm;
-//     onChangeGridWareNm();
-//     const gridItemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
-//     console.log(gridItemKnd);
-//     const searchItmPdCd = products.value.map((v) => v.codeId);
-//     returnOpt = gItmPdCd.value
-//       .filter((v) => searchItmPdCd.includes(v.codeId));
-//     // .map((v) => v.codeId);
-//     console.log(returnOpt);
-//   }
+  for (let i = 0; i < checkedRows.length; i += 1) {
+    const checkedItmPdNm = checkedRows[i].itmPdNm;
+    const checkedCtrQty = checkedRows[i].ctrQty;
 
-//   ret.editor = {
-//     type: 'list',
-//     textReadOnly: true,
-//     // dropDownWhenClick: true,
-//     labels: returnOpt?.map((v) => v.codeName),
-//     values: returnOpt?.map((v) => v.codeId),
-//   };
+    if (isEmpty(checkedItmPdNm) || isEmpty(checkedCtrQty)) {
+      notify(t('MSG_ALT_MISSING_VALUE_PLEASE_CHECK'));
+      return;
+    }
+  }
 
-//   return ret;
-// }
+  await dataService.post('/sms/wells/service/stock-status-control', checkedRows);
 
-// function setABC(grid, itemIndex) {
-//   debugger;
-//   console.log(grid);
-//   console.log(itemIndex);
-//   const { wareNm, itemKnd, itmPdNm } = grid.getValues(itemIndex);
-//   const res = await dataService.get('/sms/wells/service/stock-status-control/ ')
+  notify(t('MSG_ALT_SAVE_DATA'));
 
-// }
+  await fetchData();
+}
+
+async function fetchItmQty(grid, itemIndex, itmPdCd) {
+  console.log(itmPdCd);
+  cachedParams.itmPdCd = itmPdCd;
+  const res = await dataService.get('/sms/wells/service/stock-status-control/product-qty', { params: { ...cachedParams } });
+  const itmQty = res.data;
+
+  const pitmStocAGdQty = isEmpty(itmQty.pitmStocAGdQty) ? '0' : itmQty.pitmStocAGdQty;
+  const pitmStocEGdQty = isEmpty(itmQty.pitmStocEGdQty) ? '0' : itmQty.pitmStocEGdQty;
+  const pitmStocRGdQty = isEmpty(itmQty.pitmStocRGdQty) ? '0' : itmQty.pitmStocRGdQty;
+  const mgtUnit = isEmpty(itmQty.mgtUnit) ? '' : itmQty.mgtUnit;
+
+  grid.setValue(itemIndex, 'bfctNomStocAGdQty', pitmStocAGdQty);
+  grid.setValue(itemIndex, 'bfctNomStocEGdQty', pitmStocEGdQty);
+  grid.setValue(itemIndex, 'bfctNomStocRGdQty', pitmStocRGdQty);
+  grid.setValue(itemIndex, 'mgtUnit', mgtUnit);
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -475,6 +523,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmGdCtrRsonNm' }, // 조정사유명
     { fieldName: 'ctrSn' }, // 조정일련번호
     { fieldName: 'itmGdCtrTpNm' }, // 상태조정유형
+    { fieldName: 'rmkCn' }, // 비고
 
   ];
 
@@ -502,25 +551,15 @@ const initGrdMain = defineGrid((data, view) => {
       },
       width: '200',
       styleName: 'text-center',
-      options: gWareNo.value,
-      editor: { type: 'list' },
-      editable: true,
-      styleCallback: (grid, dataCell) => {
-        const wareDvCd = grid.getValue(dataCell.index.itemIndex, 'wareDvCd');
-        const wareNo = gWareNo.value
-          .filter((v) => v.wareDvCd === wareDvCd)
-          .map((v) => v.codeId);
-        const wareNm = gWareNo.value.filter((v) => v.wareDvCd === wareDvCd)
-          .map((v) => v.codeName);
-        return { editor: { type: 'list', labels: wareNm, values: wareNo } };
-      },
+      editor: { type: 'dropdown' },
+      options: filterWareNo.value,
     },
     { fieldName: 'ogNm',
       header: t('MSG_TXT_MGMT_DEPT'),
       width: '150',
     },
     { fieldName: 'itemKnd',
-      header: '품목종류',
+      header: t('MSG_TXT_ITM_KND'),
       styleName: 'text-center',
       width: '150',
       options: codes.ITM_KND_CD,
@@ -530,89 +569,83 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       width: '150',
       editor: { type: 'list' },
-      options: filterCodes.value.filterItmGdCtrTpCd,
+      options: itmGdCtrTpCds.value,
       editable: true,
-      styleCallback: (grid, dataCell) => {
-        const itemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
-        if (itemKnd === '4') {
-          const code = codes.ITM_GD_CTR_TP_CD.map((v) => v.codeId);
-          const codeNm = codes.ITM_GD_CTR_TP_CD.map((v) => v.codeName);
-          return { editor: { type: 'list', labels: codeNm, values: code } };
-        }
-        const codeId = codes.MAT_STOC_STAT_CTR_CD.map((v) => v.codeId);
-        const codeNm = codes.MAT_STOC_STAT_CTR_CD.map((v) => v.codeName);
-        return { editor: { type: 'list', labels: codeNm, values: codeId } };
-      },
+      // styleCallback: (grid, dataCell) => {
+      //   const itemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
+      //   if (itemKnd === '4') {
+      //     const code = codes.ITM_GD_CTR_TP_CD.map((v) => v.codeId);
+      //     const codeNm = codes.ITM_GD_CTR_TP_CD.map((v) => v.codeName);
+      //     return { editor: { type: 'list', labels: codeNm, values: code } };
+      //   }
+      //   const codeId = codes.MAT_STOC_STAT_CTR_CD.map((v) => v.codeId);
+      //   const codeNm = codes.MAT_STOC_STAT_CTR_CD.map((v) => v.codeName);
+      //   return { editor: { type: 'list', labels: codeNm, values: codeId } };
+      // },
     },
-    { fieldName: 'ctrWkDt', header: '상태조정작업일 ', styleName: 'text-center', width: '150', datetimeFormat: 'date' },
-    { fieldName: 'statCtrApyDt', header: '조정적용일자', styleName: 'text-center', width: '150', datetimeFormat: 'date' },
-    { fieldName: 'sapCd', header: 'SAP코드', styleName: 'text-center', width: '150' },
+    { fieldName: 'ctrWkDt', header: t('MSG_TXT_STAT_CTR_WK_D'), styleName: 'text-center', width: '150', datetimeFormat: 'date' },
+    { fieldName: 'statCtrApyDt', header: t('MSG_TXT_CTR_APY_DT'), styleName: 'text-center', width: '150', datetimeFormat: 'date' },
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), styleName: 'text-center', width: '150' },
     { fieldName: 'itmPdCd',
-      header: '품목코드',
+      header: t('TXT_MSG_AS_ITM_CD'),
       styleName: 'text-center',
       width: '150',
     },
     { fieldName: 'itmPdNm',
-      header: '품목명',
+      header: t('MSG_TXT_ITM_NM'),
       styleName: 'text-center',
       width: '200',
-      editor: { type: 'list' },
       editable: true,
-      // styleCallback: (grid, dataCell) => setClctamOpt(grid, dataCell),
-      styleCallback: async (grid, dataCell) => {
-        const gridItemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
-        console.log(gridItemKnd);
-        debugger;
-        const { wareNm, itemKnd } = grid.getValues(dataCell.index.itemIndex);
-        gridParams.value.itmKnd = itemKnd;
-        gridParams.value.wareNo = wareNm;
-        await onChangeGridWareNm();
-        // onChangeGridWareNm(grid, dataCell);
-        const searchItmPdCd = products.value.map((v) => v.codeId);
-        const gridItmPdCd = gItmPdCd.value
-          .filter((v) => searchItmPdCd.includes(v.codeId))
-          .map((v) => v.codeId);
-        const gridItmPdNm = gItmPdCd.value
-          .filter((v) => searchItmPdCd.includes(v.codeId))
-          .map((v) => v.codeName);
-        return { editor: { type: 'list', labels: gridItmPdNm, values: gridItmPdCd } };
-      },
-      // styleCallback: (grid, dataCell) => {
-      //   const ret = {};
-      //   const gridItemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
-      //   console.log(gridItemKnd);
-      //   debugger;
-      //   const { wareNm, itemKnd } = grid.getValues(dataCell.index.itemIndex);
-      //   gridParams.value.itmKnd = itemKnd;
-      //   gridParams.value.wareNo = wareNm;
-      //   onChangeGridWareNm();
-      //   // onChangeGridWareNm(grid, dataCell);
-      //   const searchItmPdCd = products.value.map((v) => v.codeId);
-      //   const gridItmPdCd = gItmPdCd.value
-      //     .filter((v) => searchItmPdCd.includes(v.codeId));
-      //     // .map((v) => v.codeId);
-      //   const gridItmPdNm = gItmPdCd.value
-      //     .filter((v) => searchItmPdCd.includes(v.codeId));
-      //     // .map((v) => v.codeName);
-      //   ret.editor = {
-      //     type: 'list',
-      //     textReadOnly: true,
-      //     // dropDownWhenClick: true,
-      //     labels: gridItmPdNm.map((v) => v.codeName),
-      //     values: gridItmPdCd.map((v) => v.codeId),
-      //   };
-      //   return ret;
+      editor: { type: 'dropdown' },
+      options: test.value,
+      styleCallback: (grid, dataCell) => {
+        const { wareNo } = grid.getValues(dataCell.index.itemIndex);
+        const pdNms = test.value.filter((v) => wareNo.includes(v.wareNo)).map((v) => v.codeName);
 
-      //   // return { editor: { type: 'list', labels: gridItmPdNm, values: gridItmPdCd } };
-      // },
+        return { editor: { type: 'dropdown', labels: pdNms, values: pdNms } };
+      },
     },
-    { fieldName: 'bfctNomStocAGdQty', header: 'A등급', styleName: 'text-right', width: '99' },
-    { fieldName: 'bfctNomStocEGdQty', header: 'E등급', styleName: 'text-right', width: '99' },
-    { fieldName: 'bfctNomStocRGdQty', header: 'R등급', styleName: 'text-right', width: '99' },
-    { fieldName: 'bfctItmGdCd', header: '조정전등급', styleName: 'text-center', width: '99' },
-    { fieldName: 'afctItmGdCd', header: '조정후등급', styleName: 'text-center', width: '99' },
-    { fieldName: 'ctrQty', header: '조정수량', styleName: 'text-right', width: '99' },
-    { fieldName: 'itmGdCtrRsonNm', header: '조정사유', styleName: 'text-left', width: '99' },
+    { fieldName: 'bfctNomStocAGdQty', header: t('MSG_TXT_A_GRADE'), styleName: 'text-right', width: '99' },
+    { fieldName: 'bfctNomStocEGdQty', header: t('MSG_TXT_E_GD'), styleName: 'text-right', width: '99' },
+    { fieldName: 'bfctNomStocRGdQty', header: t('MSG_TXT_R_GD'), styleName: 'text-right', width: '99' },
+    { fieldName: 'bfctItmGdCd', header: t('MSG_TXT_CTR_BF_GD'), styleName: 'text-center', width: '99' },
+    { fieldName: 'afctItmGdCd', header: t('MSG_TXT_CTR_AF_GD'), styleName: 'text-center', width: '99' },
+    { fieldName: 'ctrQty',
+      header: {
+        text: t('MSG_TXT_CTR_QTY'),
+        styleName: 'essential',
+      },
+      styleName: 'text-right',
+      width: '99',
+      editable: true,
+      // styleCallback: (grid, dataCell) => {
+      //   // eslint-disable-next-line max-len
+      //   const { bfctNomStocAGdQty, bfctNomStocEGdQty, bfctNomStocRGdQty, bfctItmGdCd, afctItmGdCd }
+      //  = grid.getValues(dataCell.index.itemIndex);
+      //   // eslint-disable-next-line max-len
+      //   if (!isEmpty(bfctNomStocAGdQty) && !isEmpty(bfctNomStocEGdQty)
+      // && !isEmpty(bfctNomStocRGdQty) && !isEmpty(bfctItmGdCd) && !isEmpty(afctItmGdCd)) {
+      //     return { editable: true };
+      //   }
+      //   return { editable: false };
+      // },
+
+    },
+    { fieldName: 'itmGdCtrRsonNm',
+      header: t('MSG_TXT_CTR_RSON'),
+      styleName: 'text-left',
+      width: '99',
+      editable: true,
+      editor: {
+        type: 'dropdown' },
+      options: codes.CTR_RSON_CD,
+    },
+    { fieldName: 'rmkCn',
+      header: t('MSG_TXT_NOTE'),
+      styleName: 'text-center',
+      width: '99',
+      editable: true },
+    { fieldName: 'mgtUnit' },
   ];
 
   const columnLayout = [
@@ -638,6 +671,7 @@ const initGrdMain = defineGrid((data, view) => {
       items: ['bfctItmGdCd', 'afctItmGdCd', 'ctrQty'],
     },
     'itmGdCtrRsonNm',
+    'rmkCn',
   ];
 
   data.setFields(fields);
@@ -647,50 +681,104 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
-  // view.onCellEdited = async (grid, itemIndex, row, field) => {
-  //   const { wareDvCd, wareNm, itemKnd, itmPdNm, itmGdCtrTpNm } = grid.getValues(itemIndex);
-  //   console.log(wareDvCd);
-  //   console.log(wareNm);
-  //   console.log(itemKnd);
-  //   console.log(itmPdNm);
-  //   console.log(itmGdCtrTpNm);
-  //   console.log(row);
-  //   console.log(field);
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const { itmGdCtrTpNm } = grid.getValues(itemIndex);
+    console.log(itmGdCtrTpNm);
+    console.log(row);
+    console.log(field);
+    console.log(codes.ITM_GD_CTR_TP_CD);
 
-  //   // const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
-  //   // const checkedValue = gridUtil.getRowValue(view, row);
+    if (changedFieldName === 'itmGdCtrTpNm') {
+      if (['11', '12', '16', '21', '26', '31', '36'].includes(itmGdCtrTpNm)) {
+        // eslint-disable-next-line max-len
+        const itmGdCtrTpCd03 = codes.ITM_GD_CTR_TP_CD.filter((v) => (v.codeId === itmGdCtrTpNm)).map((v) => v.userDfn03);
+        console.log(itmGdCtrTpCd03);
+        // eslint-disable-next-line max-len
+        const itmGdCtrTpCd04 = codes.ITM_GD_CTR_TP_CD.filter((v) => (v.codeId === itmGdCtrTpNm)).map((v) => v.userDfn04);
+        console.log(itmGdCtrTpCd04);
+        grid.setValue(itemIndex, 'bfctItmGdCd', itmGdCtrTpCd03);
+        grid.setValue(itemIndex, 'afctItmGdCd', itmGdCtrTpCd04);
+      } else {
+        // eslint-disable-next-line max-len
+        const matStocStatCtrCd03 = codes.MAT_STOC_STAT_CTR_CD.filter((v) => (v.codeId === itmGdCtrTpNm)).map((v) => v.userDfn03);
+        // eslint-disable-next-line max-len
+        const matStocStatCtrCd04 = codes.MAT_STOC_STAT_CTR_CD.filter((v) => (v.codeId === itmGdCtrTpNm)).map((v) => v.userDfn04);
+        grid.setValue(itemIndex, 'bfctItmGdCd', matStocStatCtrCd03);
+        grid.setValue(itemIndex, 'afctItmGdCd', matStocStatCtrCd04);
+      }
+    } else if (changedFieldName === 'wareNm') {
+      const { wareNm } = grid.getValues(itemIndex);
+      grid.setValue(itemIndex, 'wareNo', wareNm);
+    } else if (changedFieldName === 'itmPdNm') {
+      const { itmPdNm } = grid.getValues(itemIndex);
+      const item = test.value.find((e) => e.codeName === itmPdNm);
+      const itmPdCd = isEmpty(item) ? '' : item.codeId;
+      grid.setValue(itemIndex, 'itmPdCd', itmPdCd);
+      await fetchItmQty(grid, itemIndex, itmPdCd);
+    } else if (changedFieldName === 'ctrQty') {
+      const { ctrQty, bfctNomStocAGdQty, bfctNomStocEGdQty, bfctNomStocRGdQty,
+        bfctItmGdCd, afctItmGdCd } = grid.getValues(itemIndex);
 
-  //   // if (changedFieldName === 'itmPdNm') {
-  //   //   // setABC(grid, itemIndex);
-  //   // }
-  //   // console.log(checkedValue);
-  //   // if (changedFieldName === 'wareNm') {
-  //   //   console.log(wareNm);
-  //   //   gridParams.value.itmKnd = itemKnd;
-  //   //   gridParams.value.wareNo = wareNm;
-  //   //   onChangeGridWareNm();
-  //   //   debugger;
-  //   //   const searchItmPdCd = products.value.map((v) => v.codeId);
-  //   //   const searchWareNo = products.value.map((v) => v.wareNo);
-  //   //   const gridItmPdCd = gItmPdCd.value
-  //   //     .filter((v) => (v.wareNm === searchWareNo && searchItmPdCd.includes(v.codeId)))
-  //   //     .map((v) => v.codeId);
-  //   //   const gridItmPdNm = gItmPdCd.value
-  //   //     .filter((v) => (v.wareNm === searchWareNo && searchItmPdCd.includes(v.codeId)))
-  //   //     .map((v) => v.codeName);
-  //   //   return { editor: { type: 'list', labels: gridItmPdNm, values: gridItmPdCd } };
-  //   // }
-  //   // debugger;
-  //   // if (changedFieldName === 'wareDvCd') {
-  //   //   const gridWareDvCd = wareDvCd;
-  //   //   console.log(gridWareDvCd);
-  //   //   onChangeWareNm(gridWareDvCd);
-  //   // }
-  // };
+      console.log(ctrQty);
+      console.log(bfctNomStocAGdQty);
+      console.log(bfctNomStocEGdQty);
+      console.log(bfctNomStocRGdQty);
+      console.log(bfctItmGdCd);
+      console.log(afctItmGdCd);
+      let chk = 0;
+
+      if (bfctItmGdCd === 'A' || isEmpty(bfctItmGdCd)) {
+        if (Number(bfctNomStocAGdQty) < Number(ctrQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        } else if (isEmpty(bfctNomStocAGdQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        }
+      } else if (bfctItmGdCd === 'E' || isEmpty(bfctItmGdCd)) {
+        if (Number(bfctNomStocEGdQty) < Number(ctrQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        } else if (isEmpty(bfctNomStocEGdQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        }
+      } else if (bfctItmGdCd === 'R' || isEmpty(bfctItmGdCd)) {
+        if (Number(bfctNomStocRGdQty) < Number(ctrQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        } else if (isEmpty(bfctNomStocRGdQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        }
+      } else if (bfctItmGdCd === '정상' || isEmpty(bfctItmGdCd)) {
+        if (Number(bfctNomStocAGdQty) < Number(ctrQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        } else if (isEmpty(bfctNomStocAGdQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        }
+      } else if (bfctItmGdCd === '불량' || isEmpty(bfctItmGdCd)) {
+        if (Number(bfctNomStocEGdQty) < Number(ctrQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        } else if (isEmpty(bfctNomStocEGdQty)) {
+          grid.setValue(itemIndex, 'ctrQty', '');
+          chk = 1;
+        }
+      }
+      if (chk === 1) {
+        // 조정 전 재고가 조정수량보다 작습니다.
+        notify(t('MSG_ALT_CTR_STOC_CTR_QTY_SMALL'));
+      }
+    }
+  };
 
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['wareNm', 'itmGdCtrTpNm', 'itmPdNm'].includes(index.column)) {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['wareNm', 'itmGdCtrTpNm', 'itmPdNm', 'itmGdCtrRsonNm', 'rmkCn'].includes(index.column)) {
       return false;
     }
   };
@@ -698,6 +786,7 @@ const initGrdMain = defineGrid((data, view) => {
 
 onMounted(async () => {
   onChangeWareDvCd();
+  onChangeItmKndCd('4');
 });
 </script>
 

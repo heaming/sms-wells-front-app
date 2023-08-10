@@ -38,17 +38,23 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="t('MSG_TXT_LOOKUP_PERIOD')"
-          :colspan="2"
+          :label="searchParams.dtTpCd !== '4' ? $t('MSG_TXT_LOOKUP_PERIOD') : $t('MSG_TXT_SRCH_DT')"
+          :colspan="searchParams.dtTpCd !== '4' ? 2 : 1"
           required
         >
           <kw-date-range-picker
+            v-if="searchParams.dtTpCd !== '4'"
             v-model:from="searchParams.strtDt"
             v-model:to="searchParams.endDt"
             :label="$t('MSG_TXT_LOOKUP_PERIOD')"
             rules="required|date_range_months:1"
-            :to-disable="isOstrDt"
-            @change="onChangePeriod"
+          />
+          <kw-date-picker
+            v-else-if="searchParams.dtTpCd === '4'"
+            v-model="searchParams.strtDt"
+            rules="required"
+            type="date"
+            @change="onChangeStrtDt"
           />
         </kw-search-item>
       </kw-search-row>
@@ -186,7 +192,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
+import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid, popupUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -254,8 +260,6 @@ await Promise.all([
   codeFilter(),
 ]);
 
-const isOstrDt = computed(() => searchParams.value?.dtTpCd === '4');
-
 // 일자유형 변경 시
 function onChangeDtTpCd() {
   const { dtTpCd, strtDt } = searchParams.value;
@@ -265,11 +269,11 @@ function onChangeDtTpCd() {
   }
 }
 
-// 시작일자 변경 시
-function onChangePeriod() {
-  const { dtTpCd, strtDt } = searchParams.value;
-  // 일자유형이 출고일자인 경우 시작일자 = 종료일자
-  if (dtTpCd === '4' && isEmpty(strtDt)) {
+// 일자 변경 시
+function onChangeStrtDt() {
+  const { strtDt } = searchParams.value;
+  // 시작일자 = 종료일자
+  if (isEmpty(strtDt)) {
     searchParams.value.endDt = strtDt;
   }
 }
@@ -451,11 +455,11 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'refriDiv', header: t('MSG_TXT_REFRI'), width: '90', styleName: 'text-center' },
     { fieldName: 'shipDiv', header: t('TXT_MSG_SPP_DV_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'receiptDiv', header: t('MSG_TXT_RCP_DV'), styleName: 'text-center', width: '90' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '146', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '146', styleName: 'text-center' },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), styleName: 'text-left', width: '90' },
     { fieldName: 'sppOrdNo', header: `${t('MSG_TXT_DLVRY')}${t('MSG_TXT_SEQUENCE_NUMBER')}`, styleName: 'text-center', width: '154' },
     { fieldName: 'mchnModel', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_MODEL')}`, styleName: 'text-left', width: '220' },
-    { fieldName: 'mchnCstDtlNo', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CNTR_DTL_NO')}`, styleName: 'text-center', width: '150' },
+    { fieldName: 'mchnCstDtlNo', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CNTR_DTL_NO')}`, width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
     { fieldName: 'mchnCstNm', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CST_NM')}`, styleName: 'text-center', width: '100' },
     { fieldName: 'ctrlPkg', header: `${t('MSG_TXT_CURRENT')}${t('MSG_TXT_PKG')}`, styleName: 'text-left', width: '150' },
     { fieldName: 'shipPkg', header: `${t('MSG_TXT_DLVRY')}${t('MSG_TXT_PKG')}`, width: '150', styleName: 'text-left' },
@@ -511,17 +515,14 @@ const initGrid = defineGrid((data, view) => {
     return false;
   };
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'cntrDtlNo') {
-      const cntrNo = g.getValue(itemIndex, 'cntrNo');
-      const cntrSn = g.getValue(itemIndex, 'cntrSn');
-      console.log(cntrNo + cntrSn);
-      // TO-DO await popupUtil.open(`#/service/wwsnb-individual-service-ps-mgt?cntrNo=${cntrNo}&cntrSn=${cntrSn}`);
-      alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+    if (column === 'mchnCstDtlNo') {
+      const mchnCstDtlNo = g.getValue(itemIndex, 'mchnCstDtlNo');
+      const idx = mchnCstDtlNo.indexOf('-');
+      const cntrNo = mchnCstDtlNo.substr(0, idx);
+      const cntrSn = mchnCstDtlNo.substr(idx + 1);
+      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
     }
   };
 });
 
 </script>
-
-<style scoped>
-</style>

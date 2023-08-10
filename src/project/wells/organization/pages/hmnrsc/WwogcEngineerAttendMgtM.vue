@@ -84,10 +84,12 @@ import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 
-const { getConfig } = useMeta();
+const { getConfig, getUserInfo } = useMeta();
 const dataService = useDataService();
 const { modal, notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
+const { wkOjOgTpCd, ogTpCd, baseRleCd } = getUserInfo();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -98,7 +100,7 @@ const now = dayjs().format('YYYYMMDD');
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
   baseDt: now,
-  ogTpCd: 'W06',
+  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
   ogId: undefined,
@@ -121,6 +123,7 @@ async function onClickSearch() {
   const { list, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
+
   view.getDataSource().setRows(list);
   view.resetCurrent();
 }
@@ -172,8 +175,34 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bizAgntYn', header: t('MSG_TXT_BIZ_AGNT'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'wrkDt', header: t('MSG_TXT_WRK_DT'), width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     { fieldName: 'wrkNm', header: t('MSG_TXT_WRK_DOW'), width: '106', styleName: 'text-center', editable: false },
-    { fieldName: 'egerWrkStatCd', header: t('MSG_TXT_WRK_STAT'), options: codes.EGER_WRK_STAT_CD, editor: { type: 'dropdown' } },
-    { fieldName: 'rmkCn', header: t('MSG_TXT_RMK_ARTC'), width: '146', styleName: 'text-center', editable: true, editor: { type: 'text', maxLength: 3500 } },
+    { fieldName: 'egerWrkStatCd',
+      header: t('MSG_TXT_WRK_STAT'),
+      options: codes.EGER_WRK_STAT_CD,
+      editor: { type: 'dropdown' },
+      styleCallback() {
+        const ret = {};
+        if ((baseRleCd === 'W6010' || baseRleCd === 'W6020' || baseRleCd === 'W6040' || baseRleCd === 'W4020') && searchParams.value.baseDt < now) {
+          ret.editable = false;
+        } else {
+          ret.editable = true;
+        }
+        return ret;
+      } },
+    { fieldName: 'rmkCn',
+      header: t('MSG_TXT_RMK_ARTC'),
+      width: '146',
+      styleName: 'text-center',
+      editable: true,
+      editor: { type: 'text', maxLength: 3500 },
+      styleCallback() {
+        const ret = {};
+        if ((baseRleCd === 'W6010' || baseRleCd === 'W6020' || baseRleCd === 'W6040' || baseRleCd === 'W4020') && searchParams.value.baseDt < now) {
+          ret.editable = false;
+        } else {
+          ret.editable = true;
+        }
+        return ret;
+      } },
     { fieldName: 'vcnInfo', header: t('MSG_TXT_VCN_INFO'), width: '107', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_VCN_INFO') },
     { fieldName: 'vcnStrtDt', header: t('MSG_TXT_STRT_DATE'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     { fieldName: 'vcnEndDt', header: t('MSG_TXT_END_DT'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
