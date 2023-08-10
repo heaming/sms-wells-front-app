@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTB
 2. 프로그램 ID : WwpsfRuleBaseDtlP - 규정 및 기준관리 상세정보
-3. 작성자 : gs.piit225
+3. 작성자 : jisung you
 4. 작성일 : 2023.06.22
 ****************************************************************************************************
 * 프로그램 설명
@@ -141,12 +141,11 @@ import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 const { notify } = useGlobal();
 const { cancel: onClickCancel, ok } = useModal();
 const { t } = useI18n();
-const frmMainRef = ref(getComponentType('KwForm'));
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
+const frmMainRef = ref(getComponentType('KwForm'));
 const ogTpCd = ref();
 const rsbDvCdM = ref();
 const rsbDvCdP = ref();
