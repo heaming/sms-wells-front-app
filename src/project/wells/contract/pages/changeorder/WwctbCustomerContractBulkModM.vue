@@ -1228,7 +1228,7 @@ const initCustomerGrid = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'prtnrKnm', 'sellTpNm', 'cntrNo', 'cntrSn', 'cstKnm', 'cntrCnfmDtm', 'cntrCstNo', 'txinvPblOjYn', 'emadr',
+    'prtnrKnm', 'sellTpNm', 'cntrNo', 'cntrSn', 'cstKnmMask', 'cntrCnfmDtm', 'cntrCstNo', 'txinvPblOjYn', 'emadr',
     {
       header: `${t('MSG_TXT_AUTO_FNT')} ${t('MSG_TXT_INF')}`, // 자동이체 정보
       direction: 'horizontal',
