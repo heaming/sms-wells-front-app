@@ -224,6 +224,7 @@
           <kw-select
             v-model="saveParams.bankCode"
             :options="codes.BNK_CD"
+            @change="saveParams.cstNm=''"
           />
         </kw-form-item>
       </kw-form-row>
@@ -236,7 +237,7 @@
           <kw-input
             v-model="saveParams.acnoEncr"
             regex="num"
-            mask="################"
+            @change="saveParams.cstNm=''"
           />
           <!-- 호출되는 값이 16자 초과하면안되게 되어있음.-->
         </kw-form-item>
