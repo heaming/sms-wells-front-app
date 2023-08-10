@@ -188,7 +188,6 @@ import WwctaContractSettlementAgreeItem
 import CrdcdExpSelect from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
 import { warn } from 'vue';
 import { CtCodeUtil, scrollIntoView } from '~sms-common/contract/util';
-import { aesEnc } from '~common/utils/common';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -240,7 +239,6 @@ const approvalRequest = ref({
   owrKnm: props.cntrCstInfo.cstKnm, /* 카드주 */
   copnDvCdDrmVal: isCooperation.value ? props.cntrCstInfo.bzrno : props.cntrCstInfo.bryyMmdd,
   cardExpdtYm: stlmBas.value.cardExpdtYm || '', /* 유효기한 */
-  fnitCd: '',
 });
 const approvalResponse = ref({
   aprNo: stlmBas.value.fnitAprRsCd === 'Y' ? stlmBas.value.aprNo : undefined,
@@ -322,18 +320,9 @@ function getStlmsUpdateInfo() {
   ];
 }
 
-async function getFinancialCode(cardNumber) {
-  const { data } = await dataService.get('/sms/wells/contract/contracts/settlements/finance-code', {
-    params: { encCrcdnoPrefix: aesEnc(cardNumber.substring(0, 8)) },
-  });
-
-  return data;
-}
-
 let cachedRequestParams;
 async function requestApproval() {
   cachedRequestParams = { ...approvalRequest.value };
-  cachedRequestParams.fnitCd = await getFinancialCode(cachedRequestParams.crcdnoEncr);
   const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/credit-card-spay', cachedRequestParams);
   approvalResponse.value = data;
 }
@@ -341,7 +330,6 @@ async function requestApproval() {
 let cachedCancelRequestParams;
 async function requestApprovalCancel() {
   cachedCancelRequestParams = { ...approvalRequest.value };
-  cachedCancelRequestParams.fnitCd = await getFinancialCode(cachedCancelRequestParams.crcdnoEncr);
   const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/credit-card-cancel', cachedCancelRequestParams);
   approvalResponse.value = data;
 }
