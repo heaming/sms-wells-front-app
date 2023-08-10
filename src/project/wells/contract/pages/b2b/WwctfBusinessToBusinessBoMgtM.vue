@@ -564,22 +564,17 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       data.setValue(updateRow, 'leadCstRlpplNm', leadCstRlpplNmEncr);
     }
     if (columnName === 'idvTnoEncr') {
-      const idvTnoEncr = grid.getValue(updateRow, 15);
-      grid.commit();
-      data.setValue(updateRow, 'idvTno', idvTnoEncr);
-    }
-    if (columnName === 'idvTnoEncr') {
-      const idvTnoEncr = grid.getValue(updateRow, 15);
+      const idvTnoEncr = grid.getValue(updateRow, 16);
       grid.commit();
       data.setValue(updateRow, 'idvTno', idvTnoEncr);
     }
     if (columnName === 'cralIdvTnoEncr') {
-      const cralIdvTnoEncr = grid.getValue(updateRow, 19);
+      const cralIdvTnoEncr = grid.getValue(updateRow, 20);
       grid.commit();
       data.setValue(updateRow, 'cralIdvTno', cralIdvTnoEncr);
     }
     if (columnName === 'emadrCnEncr') {
-      const emadrCnEncr = grid.getValue(updateRow, 21);
+      const emadrCnEncr = grid.getValue(updateRow, 22);
       grid.commit();
       data.setValue(updateRow, 'emadrCn', emadrCnEncr);
     }
