@@ -23,11 +23,14 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_VST_YM')"
+          required
         >
           <!--방문년월-->
           <kw-date-picker
             v-model="searchParams.visitYm"
             type="month"
+            :label="$t('MSG_TXT_VST_YM')"
+            rules="required"
           />
         </kw-search-item>
         <kw-search-item
