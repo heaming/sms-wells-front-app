@@ -102,7 +102,9 @@
         <p>
           <!-- 총 -->
           <span class="kw-fc--black3"> {{ $t('MSG_TXT_COM_TOT') }}</span>
-          <span class="ml4 text-weight-bold"> {{ totRfndAkAmt }} {{ $t('MSG_TXT_CUR_WON') }}</span>
+          <span class="ml4 text-weight-bold">
+            {{ stringUtil.getNumberWithComma(totRfndAkAmt) }} {{ $t('MSG_TXT_CUR_WON') }}
+          </span>
         </p>
       </template>
       <!-- 엑셀다운로드 -->
@@ -172,7 +174,7 @@
           required
         >
           <kw-input
-            v-model="saveParams.cstNo"
+            v-model="saveParams.cstNm"
             rules="required"
             readonly
           />
@@ -208,7 +210,9 @@
         <p>
           <!-- 총 -->
           <span class="kw-fc--black3">{{ $t('MSG_TXT_COM_TOT') }}</span>
-          <span class="ml4 text-weight-bold"> {{ totBltfAkAmt }} {{ $t('MSG_TXT_CUR_WON') }}</span>
+          <span class="ml4 text-weight-bold">
+            {{ stringUtil.getNumberWithComma(totBltfAkAmt) }} {{ $t('MSG_TXT_CUR_WON') }}
+          </span>
         </p>
       </template>
       <!-- 삭제 -->
@@ -329,7 +333,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal, useModal } from 'kw-lib';
+import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { isEqual } from 'lodash-es';
 // eslint-disable-next-line no-unused-vars
@@ -410,7 +414,7 @@ const saveParams = ref({
   arfndYn: 'Y', // 선환불정보
   acnoEncr: '', // 계좌번호
   bankCode: '', // fnitCd(은행코드)
-  cstNo: '', // 예금주
+  cstNm: '', // 예금주
 
   /* 처리정보(환불정보) */
   rveDt: '',
@@ -572,10 +576,8 @@ async function onClickEftnCheck() {
     psicId: '',
     deptId: '',
   };
-  const data = dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData });
-  console.log(data);
-  console.log(data.data);
-  saveParams.value.achldrNm = data.data.acFntImpsCdNm;
+  const acnoData = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData });
+  saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
 }
 
 async function onCheckValidate2() {
@@ -601,7 +603,7 @@ async function onClickRefundAsk(stateCode) {
   if (!await onValidRfndCheck()) {
     return false;
   }
-  if (saveParams.value.cstNo === '') {
+  if (saveParams.value.cstNm === '') {
     notify(t('예금주가(이) 없습니다.'));
     return false;
   }
@@ -630,7 +632,7 @@ async function onClickRefundAsk(stateCode) {
       arfndYn: saveParams.value.arfndYn,
       cshRfndFnitCd: saveParams.value.bankCode,
       cshRfndAcnoEncr: saveParams.value.acnoEncr,
-      cshRfndAcownNm: saveParams.value.cstNo,
+      cshRfndAcownNm: saveParams.value.cstNm,
       rfndCshAkSumAmt: changedRows4[0].rfndCshAkAmt,
       rfndCardAkSumAmt: changedRows4[0].rfndCardAkAmt,
       rfndBltfAkSumAmt: changedRows4[0].totRfndBltfAkAmt,
