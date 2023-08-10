@@ -20,16 +20,17 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_STR_HOP_DT')"
+          :label="$t('MSG_TXT_VST_DT')"
           :colspan="2"
           required
         >
           <kw-date-range-picker
             v-model:from="searchParams.strtDt"
             v-model:to="searchParams.endDt"
+            :label="$t('MSG_TXT_VST_DT')"
             rules="required"
-            @update:from="onChangeHopDt"
-            @update:to="onChangeHopDt"
+            @update:from="onChangeVstDt"
+            @update:to="onChangeVstDt"
           />
         </kw-search-item>
         <kw-search-item
@@ -270,7 +271,7 @@ function codeFilter() {
 const optionsHgrWareNo = ref();
 const optionsWareNo = ref();
 
-const onChangeHopDt = async () => {
+const onChangeVstDt = async () => {
   searchParams.value.hgrWareNo = '';
   searchParams.value.wareNo = '';
   const { strtDt, endDt, wareDvCd } = searchParams.value;
@@ -341,7 +342,7 @@ function onChangeItmGrCd() {
 
 await Promise.all([
   codeFilter(),
-  onChangeHopDt(),
+  onChangeVstDt(),
   getProducts(),
 ]);
 
@@ -361,6 +362,12 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  const { strtDt, endDt } = searchParams.value;
+  if (isEmpty(strtDt) || isEmpty(endDt)) {
+    await alert(`${t('MSG_TXT_VST_DT')}${t('MSG_ALT_NCSR_CD')}`);
+    return;
+  }
+
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
