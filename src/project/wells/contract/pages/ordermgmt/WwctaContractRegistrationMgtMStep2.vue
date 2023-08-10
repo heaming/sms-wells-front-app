@@ -407,7 +407,7 @@
                     </div>
                   </template>
                   <template
-                    v-else-if="isItem.sltrRglrSppExcdMchn(item)"
+                    v-else-if="!isItem.rglrSpp(item) && !isItem.sltrRglrSpp(item)"
                   >
                     <div class="scoped-item__field-row mb10">
                       <kw-select
