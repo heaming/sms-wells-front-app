@@ -272,7 +272,6 @@ async function fetchData() {
   const list = res.data;
 
   totalCount.value = list.length;
-  console.log(list);
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
