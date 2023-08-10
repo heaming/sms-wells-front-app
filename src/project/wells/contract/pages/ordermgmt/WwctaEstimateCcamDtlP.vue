@@ -374,6 +374,7 @@
     <kw-search
       one-row
       :cols="2"
+      @search="onClickEstimateCcamSearch"
     >
       <kw-search-row>
         <!-- 취소예정일자 -->
@@ -382,6 +383,7 @@
           required
         >
           <kw-date-picker
+            v-model="searchParams.rqdt"
             :label="$t('MSG_TXT_CAN_EXP_DT')"
             rules="required"
           />
@@ -514,7 +516,7 @@ const searchParams = ref({
   cntrNo: props.cntrNo, // 계약번호
   cntrSn: props.cntrSn, // 계약일련번호
   slClYm: '', // 기준년월
-  canExpDt: '', // 취소예정일자
+  rqdt: '', // 취소예정일자
 });
 
 const frmMainData = ref({
@@ -552,14 +554,14 @@ const frmMainData = ref({
   // thmUcBlam: '', // 미수금
 
   // 3.위약금예상-
-  resRtlfeBorAmt: '0', // 잔여렌탈료
-  rgstCostDscBorAmt: '0', // 등록비할인
-  rentalDscBorAmt: '0', // 할인금액
-  csmbCostBorAmt: '0', // 소모품비
-  rstlBorAmt: '0', // 재약정
-  pBorAmt: '0', // 사용포인트
-  reqdCsBorAmt: '0', // 위약금철거비
-  borAmt: '0', // 위약금총액
+  resRtlfeBorAmt: '', // 잔여렌탈료
+  rgstCostDscBorAmt: '', // 등록비할인
+  rentalDscBorAmt: '', // 할인금액
+  csmbCostBorAmt: '', // 소모품비
+  rstlBorAmt: '', // 재약정
+  pBorAmt: '', // 사용포인트
+  reqdCsBorAmt: '', // 위약금철거비
+  borAmt: '', // 위약금총액
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -613,8 +615,32 @@ async function fetchData() {
   }
 }
 
+async function fetchEstimateCcamData() {
+  // changing api & cacheparams according to search classification
+  let res = '';
+  cachedParams = cloneDeep(searchParams.value);
+  res = await dataService.get('/sms/wells/contract/estimate-cancellationFees', { params: cachedParams });
+  console.log(res.data);
+
+  // console.log(res.data.length);
+  // if (res.data.length > 0) {
+  frmMainData.value.resRtlfeBorAmt = stringUtil.getNumberWithComma(Number(res.data.resRtlfeBorAmt), 0);
+  frmMainData.value.rgstCostDscBorAmt = stringUtil.getNumberWithComma(Number(res.data.rgstCostDscBorAmt), 0);
+  frmMainData.value.rentalDscBorAmt = stringUtil.getNumberWithComma(Number(res.data.rentalDscBorAmt), 0);
+  frmMainData.value.csmbCostBorAmt = stringUtil.getNumberWithComma(Number(res.data.csmbCostBorAmt), 0);
+  frmMainData.value.rstlBorAmt = stringUtil.getNumberWithComma(Number(res.data.rstlBorAmt), 0); // 재약정
+  frmMainData.value.pBorAmt = stringUtil.getNumberWithComma(Number(res.data.pBorAmt), 0); // 사용포인트
+  frmMainData.value.reqdCsBorAmt = stringUtil.getNumberWithComma(Number(res.data.reqdCsBorAmt), 0); // 위약금철거비
+  frmMainData.value.borAmt = stringUtil.getNumberWithComma(Number(res.data.borAmt), 0); // 위약금총액
+  // }
+}
+
 async function onClickSearch() {
   await fetchData();
+}
+
+async function onClickEstimateCcamSearch() {
+  await fetchEstimateCcamData();
 }
 
 // -------------------------------------------------------------------------------------------------

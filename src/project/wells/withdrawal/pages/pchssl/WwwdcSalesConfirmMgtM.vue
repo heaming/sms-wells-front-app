@@ -194,6 +194,8 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_CHNL_DV_CD', // 판매채널구분코드 - 내용상이
   '', // 매출인식구분
   'COD_PAGE_SIZE_OPTIONS',
+  'SL_RCOG_PRD_DV_CD',
+  'SL_RCOG_PRD_CD',
 );
 const pageInfo = ref({
   totalCount: 0,
@@ -338,7 +340,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100' }, // 성명
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100' }, // 계약상세번호
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '96' }, // 업무구분
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '96', options: codes.SELL_TP_CD }, // 업무구분
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '176', styleName: 'text-center' }, // 상품구분
     { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '120', styleName: 'text-right', headerSummary: { numberFormat: '#,###', expression: 'sum' } }, // 판매금액
     { fieldName: 'rentalPtrm', header: t('MSG_TXT_RENT_PRD_MN'), width: '100', styleName: 'text-right' }, // 렌탈기간
@@ -349,8 +351,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'useDt', header: t('MSG_TXT_USE_DAY'), width: '109', styleName: 'text-right' }, // 사용일수
     { fieldName: 'col10', header: t('매출인식상태'), width: '104', styleName: 'text-center' }, // 매출인식상태
     { fieldName: 'crtErrCn', header: t('MSG_TXT_ERR_IZ'), width: '104' }, // 오류내역
-    { fieldName: 'slRcogPrdCd', header: t('MSG_TXT_SL_RCOG_BASE'), width: '104' }, // 매출인식기준
-    { fieldName: 'slRcogPrdDvCd', header: t('MSG_TXT_SL_RCOG_PRD_CD'), width: '100' }, // 매출인식주기코드
+    { fieldName: 'slRcogPrdCd', header: t('MSG_TXT_SL_RCOG_BASE'), width: '104', options: codes.SL_RCOG_PRD_DV_CD }, // 매출인식기준
+    { fieldName: 'slRcogPrdDvCd', header: t('MSG_TXT_SL_RCOG_PRD_CD'), width: '100', options: codes.SL_RCOG_PRD_CD }, // 매출인식주기코드
     { fieldName: 'ostrDtm', header: t('MSG_TXT_OSTR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 출고일자
     { fieldName: 'istDtm', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일자
     { fieldName: 'svDt', header: t('MSG_TXT_SV_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 서비스일자

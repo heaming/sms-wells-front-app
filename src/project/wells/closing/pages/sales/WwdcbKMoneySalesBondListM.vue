@@ -69,7 +69,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize - 1"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGridMain"
       />
       <kw-pagination
@@ -192,7 +193,7 @@ async function fetchDepositData() {
 let cachedParams;
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/wells/closing/kmoney-sales-bond/sales-bond', { params: cachedParams, ...pageInfo.value });
+  const res = await dataService.get('/sms/wells/closing/kmoney-sales-bond/sales-bond', { params: { ...cachedParams, ...pageInfo.value } });
   console.log(res.data);
   const { list: mainList, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
@@ -232,6 +233,7 @@ async function onClickExportViewDetail(type) {
 }
 
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   await fetchData();
 }
 // -------------------------------------------------------------------------------------------------

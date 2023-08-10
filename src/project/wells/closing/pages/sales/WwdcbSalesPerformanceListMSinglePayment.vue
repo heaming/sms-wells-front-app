@@ -62,13 +62,13 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SELLER_INFO')">
-          <p>{{ baseInformation.prtnrKnm }}</p>
+          <p>{{ baseInformation.prtnrKnm }} ({{ baseInformation.prtnrNo }})</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNTRCT_DT')">
           <p>{{ stringUtil.getDateFormat(baseInformation.cntrDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE')">
-          <p>{{ stringUtil.getDateFormat(baseInformation.slRcogDt, 'YYYY-MM-DD') }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.slDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CAN_D')">
           <p>{{ stringUtil.getDateFormat(baseInformation.canDt, 'YYYY-MM-DD') }}</p>
@@ -90,10 +90,10 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ALNC_INF')">
-          <p>{{ baseInformation.alncStu }}</p>
+          <p>{{ baseInformation.alncmpCdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_EV_INF')">
-          <p>{{ baseInformation.sellEvCd }}</p>
+          <p>{{ baseInformation.sellEvCdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SLE_PRC')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.sellAmt)) }}</p>
@@ -104,7 +104,7 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CNTR_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.tkAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.subscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CRP_UC_AMT')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.crpUcAmt)) }}</p>
@@ -181,7 +181,7 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_FNT_DV')">
-          <p>{{ baseInformation.dpTpCd }}</p>
+          <p>{{ baseInformation.dpTpCdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FTD')">
           <p>{{ baseInformation.mpyBsdt }}</p>
@@ -250,16 +250,16 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ACTCS_DT')">
-          <p>{{ stringUtil.getDateFormat(baseInformation.actcsDt, 'YYYY-MM-DD') }}</p>
+          <p>{{ stringUtil.getDateFormat(baseInformation.bndAsnDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CLCTAM_TP')">
-          <p>{{ baseInformation.clctamDvCdNm }}</p>
+          <p>{{ baseInformation.clctamDvCd }}.{{ baseInformation.clctamDvCdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CLCTAM_ICHR')">
-          <p>{{ baseInformation.clctamPrtnrNm }}</p>
+          <p>{{ baseInformation.clctamPrtnrNo }}({{ baseInformation.clctamPrtnrKnm }})</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DSB_GUR')">
-          <p>{{ baseInformation.dsbGurTpCd }}</p>
+          <p>{{ baseInformation.DsbGurTpCdNm }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -273,7 +273,7 @@
           <p>{{ stringUtil.getDateFormat(baseInformation.adsbDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_NOTI_CN')">
-          <p>{{ baseInformation.buNotiTpCdNm }}</p>
+          <p>{{ baseInformation.buNotiTpCd }}_{{ baseInformation.buNotiTpCdNm }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -488,7 +488,7 @@ const initGridMain = defineGrid((data, view) => {
 
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'rveDvCd1', header: t('MSG_TXT_DP_DV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rveGubun', header: t('MSG_TXT_DP_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'rveDt', header: t('MSG_TXT_DP_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'dpDvCd', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' },

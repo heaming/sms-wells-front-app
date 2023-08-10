@@ -342,11 +342,11 @@ async function onClickExcelDownload() {
   if (isGridMain.value === true) {
     view = grdMainRef.value.getView();
   } else if (isGridSub.value === true) {
-    view = grdMainRef.value.getView();
+    view = grdSubRef.value.getView();
   } else if (isGridThird.value === true) {
-    view = grdMainRef.value.getView();
+    view = grdThirdRef.value.getView();
   } else if (isGridFourth.value === true) {
-    view = grdMainRef.value.getView();
+    view = grdFourthRef.value.getView();
   }
 
   await gridUtil.exportView(view, {
