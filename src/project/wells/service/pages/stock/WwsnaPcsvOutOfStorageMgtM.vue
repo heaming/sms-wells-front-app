@@ -135,24 +135,6 @@
           @click="onClickPrint"
         />
         <kw-btn
-          v-if="false"
-          v-show="isCompStatus"
-          icon="download_on"
-          dense
-          secondry
-          :disable="totalCount === 0"
-          @click="onClickExcelDownload3"
-        />
-        <kw-btn
-          v-if="false"
-          v-show="isCompStatus"
-          icon="download_on"
-          dense
-          secondry
-          :disable="totalCount === 0"
-          @click="onClickExcelDownload2"
-        />
-        <kw-btn
           icon="download_on"
           dense
           secondary
@@ -166,12 +148,6 @@
         :total-count="totalCount"
         @init="initGrdMain"
       />
-    <!--
-    <kw-grid
-        ref="grdMainRef2"
-        visible-rows="0"
-        @init="initGrid2"
-      />-->
     </div>
   </kw-page>
 </template>
@@ -187,7 +163,6 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
-const grdMainRef2 = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 
 const { notify } = useGlobal();
@@ -309,24 +284,11 @@ async function onClickSearch() {
 }
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
-}
-async function onClickExcelDownload2() {
-  const view2 = grdMainRef2.value.getView();
-  const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
-  gridUtil.exportView(view2, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-    exportData: res.data,
-  });
-}
-async function onClickExcelDownload3() {
-  /* TODO 기능정의필요 */
 }
 async function onClickPrint() {
   // TODO : 출력 기능 연결
