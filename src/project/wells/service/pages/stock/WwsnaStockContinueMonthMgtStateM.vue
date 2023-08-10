@@ -209,6 +209,7 @@ const searchParams = ref({
   itmGdCd: 'A', // 등급
   useYn: '', // 사용여부
   stockTpCd: '', // 재고유형
+  itmKindCd: '', // 품목구분
 });
 
 searchParams.value.startDt = dayjs().set('date', 1).format('YYYYMMDD');
