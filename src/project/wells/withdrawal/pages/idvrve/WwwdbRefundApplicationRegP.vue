@@ -703,7 +703,7 @@ async function onClickEftnCheck() {
 async function onCheckValidate2() {
   const view2 = grdPopRef2.value.getView();
   if (!await gridUtil.validate(view2)) { return false; } // 유효성 검사
-  if (await gridUtil.alertIfIsNotModified(view2)) { return false; } // 수정된 행 없음
+  // if (await gridUtil.alertIfIsNotModified(view2)) { return false; } // 수정된 행 없음
   return view2;
 }
 async function onCheckValidate3() {
@@ -1303,7 +1303,8 @@ const initGrid3 = defineGrid((data, view) => {
       // 입금액
       width: '120',
       styleName: 'text-right',
-      editable: false },
+      editable: false,
+    },
     { fieldName: 'rfndBltfAkAmt',
       header: t('MSG_TXT_BLTF_AK_AMT'),
       // 전금요청금액
@@ -1435,12 +1436,15 @@ const initGrid3 = defineGrid((data, view) => {
 
   // eslint-disable-next-line no-unused-vars
   view.onValidate = (g, index, value) => {
-    const { cntrDtlNo, bltfOjCntrDtlNo } = g.getValues(index.dataRow);
+    const { cntrDtlNo, bltfOjCntrDtlNo, rfndBltfAkAmt } = g.getValues(index.dataRow);
     if (cntrDtlNo === bltfOjCntrDtlNo) {
       // g.setValue(index.dataRow, 'bltfRfndMbDvCd', '01');
+      // g.setValue(index.dataRow, 'bltfRfndMbDvCd', '02');
       return t('계약번호와 전금계약번호가 동일합니다.');
     }
-    // g.setValue(index.dataRow, 'bltfRfndMbDvCd', '02');
+    if (Number(rfndBltfAkAmt) <= 0) {
+      return t('전금금액은 0이하일 수 없습니다.');
+    }
   };
 });
 
