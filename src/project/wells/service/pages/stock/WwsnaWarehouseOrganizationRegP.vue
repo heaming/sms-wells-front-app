@@ -128,6 +128,7 @@
           <kw-input
             v-model="warehouseInfo.wareNm"
             :label="$t('MSG_TXT_WARE_NM')"
+            :readonly="!hasProps() || !isOrgWarehouse"
           />
         </kw-form-item>
       </kw-form-row>
@@ -345,6 +346,7 @@ async function fetchHigherWarehouses() {
 watch(() => warehouseInfo.value.hgrWareNo, (val) => {
   console.log(`창고구분: ${warehouseInfo.value.wareDvCd} | 상위창고 ${val}(으)로 변경`);
   if (!hasProps() || isEmpty(val) || warehouseInfo.value.wareDvCd !== '3') return;
+  if (hgrWarehouses.value.length === 0) return;
   const { codeName } = hgrWarehouses.value.find((v) => v.codeId === val) ?? { codeName: '' };
   warehouseInfo.value.wareNm = `${codeName}(${warehouseInfo.value.prtnrKnm})`;
 });
