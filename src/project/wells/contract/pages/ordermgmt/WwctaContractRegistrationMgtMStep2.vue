@@ -977,6 +977,7 @@ async function isValidStep() {
 }
 
 async function saveStep() {
+  resetCntrSn();
   const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step2', step2.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   ogStep2.value = cloneDeep(step2.value);
