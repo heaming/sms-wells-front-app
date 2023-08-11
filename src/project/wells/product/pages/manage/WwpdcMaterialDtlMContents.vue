@@ -146,7 +146,7 @@ async function resetData() {
 async function onClickUpdate() {
   const { pdCd, tempSaveYn } = props;
   const query = { pdCd, tempSaveYn, isSearch: true, fromUi: 'Dtl' };
-  const stateParam = { newRegYn: 'N', reloadYn: 'Y', copyPdCd: '' };
+  const stateParam = { newRegYn: 'N', reloadYn: 'Y', copyPdCd: '', propWatch: new Date() };
   await pageMove(pdConst.MATERIAL_MNGT_PAGE_W, true, router, query, stateParam);
 }
 

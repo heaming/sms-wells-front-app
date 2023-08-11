@@ -146,6 +146,7 @@ const props = defineProps({
   newRegYn: { type: String, default: null },
   reloadYn: { type: String, default: null },
   copyPdCd: { type: String, default: null },
+  propWatch: { type: Object, default: null },
 });
 
 const { t } = useI18n();
@@ -409,6 +410,7 @@ async function resetData() {
 
 // 초기화 버튼
 async function onClickReset() {
+  if (!await confirm(t('MSG_ALT_R_U_RESET', null, '조회항목을 초기화하시겠습니까?\n초기화 이후 STEP1으로 이동합니다. '))) return false;
   await resetData();
   await fetchProduct();
 }
@@ -431,9 +433,9 @@ onMounted(async () => {
   await initProps();
 });
 
-watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd }) => {
-  console.log(` - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd}`);
-  if (pdCd && currentPdCd.value !== pdCd) {
+watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch }) => {
+  console.log(` - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd} propWatch: ${propWatch}`);
+  if (pdCd && (currentPdCd.value !== pdCd || propWatch)) {
     // 상품코드 변경
     currentPdCd.value = pdCd;
     currentNewRegYn.value = 'N';
