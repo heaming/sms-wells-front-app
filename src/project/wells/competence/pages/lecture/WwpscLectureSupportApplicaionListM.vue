@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PSC
-2. 프로그램 ID : WwpscLectureSupportApplicaionPsM
+2. 프로그램 ID : WwpscLectureSupportApplicaionListM
 3. 작성자 : Park Yesol
 4. 작성일 : 2023.08.08
 ****************************************************************************************************
@@ -313,17 +313,17 @@ const initOgGrdMain = defineGrid((data, view) => {
   view.setColumnLayout([
     'dgr1LevlOgNm', 'dgr2LevlOgNm',
     {
-      header: t('MSG_TXT_LECT_TCNT', ['1']), // colspan title
+      header: t('MSG_TXT_LECTR_TCNT', ['1']), // colspan title
       direction: 'horizontal', // merge type
       items: ['lectrTCnt1BldNm', 'lectrTCnt1LectNm', 'lectrTCnt1LectrNm', 'lectrTCnt1LectrDt'],
     },
     {
-      header: t('MSG_TXT_LECT_TCNT', ['2']), // colspan title
+      header: t('MSG_TXT_LECTR_TCNT', ['2']), // colspan title
       direction: 'horizontal', // merge type
       items: ['lectrTCnt2BldNm', 'lectrTCnt2LectNm', 'lectrTCnt2LectrNm', 'lectrTCnt2LectrDt'],
     },
     {
-      header: t('MSG_TXT_LECT_TCNT', ['3']), // colspan title
+      header: t('MSG_TXT_LECTR_TCNT', ['3']), // colspan title
       direction: 'horizontal', // merge type
       items: ['lectrTCnt3BldNm', 'lectrTCnt3LectNm', 'lectrTCnt3LectrNm', 'lectrTCnt3LectrDt'],
     },
