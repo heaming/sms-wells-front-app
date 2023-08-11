@@ -39,10 +39,10 @@
     />
   </kw-action-top>
   <kw-grid
-    ref="grdMainRef"
-    name="grdTabMain"
+    ref="grdFirstRef"
+    name="grdTabFirst"
     :visible-rows="5"
-    @init="initGrdMain"
+    @init="initGrdFirst"
   />
   <kw-separator />
   <h3>{{ t('MSG_TXT_WHTX_ADJ_IZ') }}</h3>
@@ -61,10 +61,10 @@
     />
   </kw-action-top>
   <kw-grid
-    ref="grdSubRef"
-    name="grdTabSub"
+    ref="grdSecondRef"
+    name="grdTabSecond"
     :visible-rows="5"
-    @init="initGrdSub"
+    @init="initGrdSecond"
   />
 </template>
 <script setup>
@@ -82,8 +82,8 @@ const { currentRoute } = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 let cachedParams;
-const grdMainRef = ref(getComponentType('KwGrid'));
-const grdSubRef = ref(getComponentType('KwGrid'));
+const grdFirstRef = ref(getComponentType('KwGrid'));
+const grdSecondRef = ref(getComponentType('KwGrid'));
 const mainTotalCount = ref(0);
 const subTotalCount = ref(0);
 const onShowSave = ref(false);
@@ -93,18 +93,13 @@ const codes = await codeUtil.getMultiCodes(
   'OPCS_ADJ_SMRY_DV_CD',
 );
 
-const emits = defineEmits([
-  'tebEvent',
-]);
-
 // 정산대상 - 유가증권 제외
 async function adjustObject() {
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/adjust-object', { params: cachedParams });
   mainTotalCount.value = res.data.length;
-  const view = grdMainRef.value.getView();
+  const view = grdFirstRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
-  emits('tebEvent', 'basic', res.data);
   // TODO 정산제외일경우 버튼 미노출
 }
 
@@ -113,7 +108,7 @@ async function withholdingTaxAdjustList() {
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/withholding-tax-adjust', { params: cachedParams });
 
   subTotalCount.value = res.data.length;
-  const view = grdSubRef.value.getView();
+  const view = grdSecondRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
 }
@@ -121,7 +116,7 @@ async function withholdingTaxAdjustList() {
 // 정산대상 저장버튼 및 원천세정산 버튼 세팅
 async function settlementOfWithholdingTax() {
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/withholding-tax', { params: cachedParams });
-  const view = grdMainRef.value.getView();
+  const view = grdFirstRef.value.getView();
   if (res.data === 'N') {
     onShowSave.value = false;
     view.columnByName('opcsAdjBtn').visible = false;
@@ -138,14 +133,14 @@ async function fetchData() {
 }
 
 async function setData(paramData) {
-  if (grdMainRef.value?.getView()) gridUtil.reCreateGrid(grdMainRef.value.getView());
-  if (grdSubRef.value?.getView()) gridUtil.reCreateGrid(grdSubRef.value.getView());
+  if (grdFirstRef.value?.getView()) gridUtil.reCreateGrid(grdFirstRef.value.getView());
+  if (grdSecondRef.value?.getView()) gridUtil.reCreateGrid(grdSecondRef.value.getView());
   cachedParams = cloneDeep(paramData);
   fetchData();
 }
 
 async function onClickSave() {
-  const view = grdMainRef.value.getView();
+  const view = grdFirstRef.value.getView();
   const viewRows = gridUtil.getAllRowValues(view); // 모든 데이터
   const checkedRows = gridUtil.getCheckedRowValues(view); // 체크된 데이터
 
@@ -188,7 +183,7 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdMain = defineGrid((data, view) => {
+const initGrdFirst = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'opcsCardUseIzId', visible: false }, // 운영비카드사용내역ID
     { fieldName: 'adjOgId', visible: false },
@@ -289,11 +284,11 @@ const initGrdMain = defineGrid((data, view) => {
     if (column === 'opcsAdjBtn') {
       if (adjCls === '완료') {
         alert(t('정산이 완료된 건입니다'));
-      //   return;
+        return;
       }
       if (opcsAdjExcdYn === '정산제외') {
         alert(t('정산제외 건은 원천세 정산이 불가능 합니다.'));
-        // return;
+        return;
       }
       await modal({
         component: 'WwdcdMarketableSecuritiesExcdMgtP',
@@ -317,7 +312,7 @@ const initGrdMain = defineGrid((data, view) => {
   ]);
 });
 
-const initGrdSub = defineGrid((data, view) => {
+const initGrdSecond = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'erntx', visible: false }, // 소득세
     { fieldName: 'rsdntx', visible: false }, // 주민세
@@ -340,7 +335,7 @@ const initGrdSub = defineGrid((data, view) => {
 
 // 엑셀 다운로드 버튼
 async function onClickExcelDownload(type) {
-  const view = type === 'adjustObject' ? grdMainRef.value.getView() : grdSubRef.value.getView();
+  const view = type === 'adjustObject' ? grdFirstRef.value.getView() : grdSecondRef.value.getView();
   await gridUtil.exportView(view, {
     fileName: `${currentRoute.value.meta.menuName} ${type === 'adjustObject' ? t('MSG_TXT_ADJ_OJ') : t('MSG_TXT_WHTX_ADJ_IZ')}`,
     timePostfix: true,
