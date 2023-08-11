@@ -91,11 +91,13 @@
         <kw-search-item
           :label="$t('MSG_TXT_PRCSDT')"
           :colspan="2"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.stFnlVstFshDtFrom"
             v-model:to="searchParams.edFnlVstFshDtTo"
-            rules="date_range_months:1"
+            rules="date_range_months:1|required"
+            :label="$t('MSG_TXT_PRCSDT')"
           />
         </kw-search-item>
         <!-- 확인일자 -->
@@ -384,14 +386,7 @@ const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value =
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('itemGr', false);
-
-  // if (val === '') {
-  //   pageInfo.value.totalCount = view.getItemCount();
-  //   return;
-  // }
-
   view.activateColumnFilters('itemGr', [val], true);
-  // pageInfo.value.totalCount = view.getItemCount();
 }
 
 async function fetchData() {

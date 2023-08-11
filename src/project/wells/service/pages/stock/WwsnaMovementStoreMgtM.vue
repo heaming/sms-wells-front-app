@@ -22,10 +22,13 @@
         <!-- 입고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_STR_WARE')"
+          required
         >
           <kw-select
             v-model="searchParams.strOjWareNo"
             :options="warehouses"
+            :label="$t('MSG_TXT_STR_WARE')"
+            rules="required"
           />
         </kw-search-item>
 
@@ -44,12 +47,13 @@
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_PTRM')"
           :colspan="2"
+          required
         >
-          <!-- if essential case please add "required" -->
           <kw-date-range-picker
             v-model:from="searchParams.stStrDt"
             v-model:to="searchParams.edStrDt"
-            rules="date_range_months:1"
+            rules="required|date_range_months:1"
+            :label="$t('MSG_TXT_OSTR_PTRM')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -109,7 +113,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, gridUtil, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
@@ -144,7 +148,6 @@ const filterCodes = ref({
 filterCodes.value.filterStrTpCd = codes.STR_TP_CD.filter((v) => ['121', '122', '123', '162', '161'].includes(v.codeId));
 
 let cachedParams;
-// const totalCount = ref(0);
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
@@ -187,7 +190,9 @@ async function fetchDefaultData() {
   const { userId, apyYm } = wharehouseParams.value;
 
   warehouses.value = await getMonthWarehouse(userId, apyYm);
-  searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  }
 }
 
 async function onClickSearch() {
