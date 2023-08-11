@@ -227,7 +227,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal, codeUtil, useMeta, getComponentType, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdProductClassificationSelect.vue';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -449,6 +449,7 @@ function initGrid(data, view) {
     { fieldName: 'cntrNoSn' }, // [계약상세번호]
     { fieldName: 'cstKnm' }, // [계약자명] 계약자정보
     { fieldName: 'rcgvpKnm' }, // [설치자명] 설치자명
+    { fieldName: 'cntrTno' }, // [휴대전화번호] 계약자 휴대폰번호 마스킹
     { fieldName: 'cntrCralLocaraTno' }, // [휴대전화번호1] 계약자 휴대폰번호1
     { fieldName: 'cntrMexnoEncr' }, // [휴대전화번호2] 계약자 휴대폰번호2
     { fieldName: 'cntrCralIdvTno' }, // [휴대전화번호3] 계약자 휴대폰번호3
@@ -483,16 +484,7 @@ function initGrid(data, view) {
     { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '168', styleName: 'text-center' }, // [계약상세번호]
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '120', styleName: 'text-center' }, // [계약자명] 계약자정보
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '120', styleName: 'text-center' }, // [설치자명] 설치자명
-    { fieldName: 'cntrCralIdvTno',
-      header: t('MSG_TXT_MPNO'),
-      width: '140',
-      styleName: 'text-center',
-      displayCallback(grid, index) {
-        // 휴대폰번호 010-XXXX-XXXX 형식으로 표시
-        const { cntrCralLocaraTno, cntrMexnoEncr, cntrCralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(cntrCralLocaraTno) && !isEmpty(cntrMexnoEncr) && !isEmpty(cntrCralIdvTno) ? `${cntrCralLocaraTno}-${cntrMexnoEncr}-${cntrCralIdvTno}` : '';
-      },
-    }, // [휴대전화번호] 계약자 휴대폰번호
+    { fieldName: 'cntrTno', header: t('MSG_TXT_MPNO'), width: '140', styleName: 'text-center' }, // [휴대전화번호] 계약자 휴대폰번호 마스킹
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '220', styleName: 'text-center' }, // [상품분류] 상품분류(대분류 > 중분류)
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '124', styleName: 'text-center' }, // [상품코드] 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220' }, // [상품명] 상품명
