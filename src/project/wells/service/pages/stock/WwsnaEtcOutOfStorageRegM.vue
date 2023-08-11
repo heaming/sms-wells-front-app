@@ -376,8 +376,9 @@ async function onClickSave() {
 
   // 저장시 데이터정합성 체크
   if (!validateSaveRowData()) return;
-
   const view = grdMainRef.value.getView();
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
+
   const chkRows = gridUtil.getCheckedRowValues(view);
 
   const params = searchParams.value;
