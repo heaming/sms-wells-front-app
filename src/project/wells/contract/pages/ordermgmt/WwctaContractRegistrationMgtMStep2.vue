@@ -751,7 +751,7 @@ async function onClickProduct(pd) {
     const pds = await dataService.get('sms/wells/contract/contracts/reg-cpt-products', {
       params: {
         cntrNo: step2.value.bas.cntrNo,
-        basePdCd: pd.pdCd,
+        hgrPdCd: pd.pdCd,
       },
     });
     pds.data.forEach(async (p) => await addProduct(p));
