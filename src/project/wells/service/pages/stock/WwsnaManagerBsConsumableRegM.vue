@@ -64,7 +64,16 @@
             class="mr8"
           />
           <!-- TODO: 권한 체크 후 버튼 visible 컨트롤해야함 (wells 영업지원팀 권한만 visible: true) -->
+          <!-- <kw-btn
+            v-if="isBusinessSupportTeam"
+            secondary
+            dense
+            disable
+            :label="$t('MSG_BTN_RGST_PTRM_SE')"
+            @click="onClickRgstPtrmSe"
+          /> -->
           <kw-btn
+            v-if="false"
             secondary
             dense
             disable
@@ -104,14 +113,17 @@
           @click="onClickExcelDownload"
         />
         <kw-separator
+          v-if="isBusinessSupportTeam"
           vertical
           inset
           spaced
         />
         <kw-btn
+          v-if="isBusinessSupportTeam"
           dense
           primary
           :label="$t('MSG_BTN_OSTR_AK')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickOstrAk"
         />
       </kw-action-top>
@@ -141,7 +153,7 @@ import { defineGrid, useMeta, getComponentType, codeUtil, useDataService, gridUt
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
-const { getConfig } = useMeta();
+const { getConfig, hasRoleNickName } = useMeta();
 const { t } = useI18n();
 const dataService = useDataService();
 
@@ -165,6 +177,7 @@ const searchParams = ref({
   bldCds: [],
 });
 
+const isBusinessSupportTeam = computed(() => hasRoleNickName('ROL_W1580'));
 const bldCode = ref();
 const items1 = [];
 const items2 = [];
@@ -301,7 +314,7 @@ async function onClickSave() {
           csmbPdCd: itemsData.value[i].fxnPdCd,
           sapMatCd: itemsData.value[i].fxnSapMatCd,
           bfsvcCsmbDdlvQty: checkedRow[`fxnQty${f}`] === undefined ? '0' : checkedRow[`fxnQty${f}`], // TODO: 테스트용 삼항연산.. 추후 삭제
-          bfsvcCsmbDdlvStatCd: '10', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
+          bfsvcCsmbDdlvStatCd: '20', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
         });
 
         f += 1;
@@ -324,7 +337,7 @@ async function onClickSave() {
           csmbPdCd: itemsData.value[i].aplcPdCd,
           sapMatCd: itemsData.value[i].aplcSapMatCd,
           bfsvcCsmbDdlvQty: checkedRow[`aplcQty${a}`] === undefined ? '0' : checkedRow[`aplcQty${a}`], // TODO: 테스트용 삼항연산.. 추후 삭제
-          bfsvcCsmbDdlvStatCd: '10', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
+          bfsvcCsmbDdlvStatCd: '20', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
         });
 
         a += 1;
@@ -333,15 +346,16 @@ async function onClickSave() {
   });
 
   if (!isError) {
-    await dataService.post('/sms/wells/service/newmanager-bsconsumables', saveData);
+    await dataService.post('/sms/wells/service/manager-bsconsumables', saveData);
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
 }
 
 async function onClickOstrAk() {
-  // TODO: 물류출고요청 공통API 개발 후 세부 로직 추가 예정
-  alert('물류출고요청 공통 API 미개발');
+  await dataService.post(`/sms/wells/service/manager-bsconsumables/${searchParams.value.mngtYm}/request`);
+  notify(t('MSG_ALT_AK_FSH'));
+  await fetchData();
 }
 
 onMounted(async () => {
