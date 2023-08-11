@@ -18,10 +18,15 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
+        <kw-search-item
+          :label="$t('MSG_TXT_BASE_YM')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
+            rules="required"
+            :label="$t('MSG_TXT_BASE_YM')"
             @change="onChangeBaseYm"
           />
         </kw-search-item>

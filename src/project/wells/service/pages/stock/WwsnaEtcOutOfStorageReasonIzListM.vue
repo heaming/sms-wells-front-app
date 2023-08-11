@@ -24,12 +24,13 @@
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_DT')"
           :colspan="2"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.stOstrDt"
             v-model:to="searchParams.edOstrDt"
-            rules="date_range_months:1"
-            name="$t('MSG_TXT_OSTR_DT')"
+            rules="required|date_range_months:1"
+            :label="$t('MSG_TXT_OSTR_DT')"
           />
         </kw-search-item>
         <!-- 서비스센터 -->
@@ -85,14 +86,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info :total-count="totalCount" />
-        </template>
-        <!-- <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        /> -->
-        <!-- 엑셀다운로드 -->
+        </template>        <!-- 엑셀다운로드 -->
         <kw-btn
           icon="download_on"
           dense
@@ -136,9 +130,6 @@ console.log(getters['meta/getUserInfo']);
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-
-// const { getConfig } = useMeta();
-// const { notify } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
