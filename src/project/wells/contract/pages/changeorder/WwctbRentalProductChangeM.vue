@@ -1230,7 +1230,7 @@ async function onClickSave() {
 
   // 현재 선택된 서비스 방문주기 세팅
   const selectedSv = svPdCds.value.filter((item) => item.codeId === orderProduct.value.svPdCd);
-  orderProduct.value.svVstPrdCd = selectedSv[0].svVstPrdCd;
+  orderProduct.value.svVstPrdCd = isEmpty(selectedSv[0]) ? '' : selectedSv[0].svVstPrdCd;
 
   await dataService.post('/sms/wells/contract/changeorder/rental-change-infos', {
     baseInfo: fieldData.value,
