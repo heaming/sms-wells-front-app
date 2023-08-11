@@ -24,11 +24,13 @@
         <kw-search-item
           :label="$t('MSG_TXT_STR_PTRM')"
           :colspan="3"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.stStrDt"
             v-model:to="searchParams.edStrDt"
-            rules="date_range_months:1"
+            rules="required|date_range_months:1"
+            :label="$t('MSG_TXT_STR_PTRM')"
           />
         </kw-search-item>
         <!-- 입고창고 -->

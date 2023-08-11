@@ -24,6 +24,7 @@
         <!-- 등록년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_RGST_YM')"
+          required
         >
           <kw-date-picker
             v-model="searchParams.strRgstDt"
@@ -132,7 +133,6 @@
 import { codeUtil, useMeta, defineGrid, useDataService, getComponentType, useGlobal, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
-// import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const { getConfig } = useMeta();
 const { t } = useI18n();
