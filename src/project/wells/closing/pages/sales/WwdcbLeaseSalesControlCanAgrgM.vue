@@ -181,8 +181,12 @@ const initGrdMain = defineGrid((data, view) => {
   });
 
   view.columnByName('perfYm').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
+  view.columnByName('slCtrAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('slCanAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('leaseSlCtrAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('leaseSlCanAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('ctrPvdaAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
+  view.columnByName('canPvdaAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('eotDlqAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.columnByName('eotBorAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 3 }];
