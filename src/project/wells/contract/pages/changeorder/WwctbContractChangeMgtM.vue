@@ -350,11 +350,14 @@ function getRentalMsg(sellTpCd) {
 // getRentalAmt: 판매유형에 따라 금액 표기 분기처리
 function getRentalAmt(item) {
   let msg = '';
+  let rentatAmtMsg = '';
   const rentalAmt1 = stringUtil.getNumberWithComma(item.rentalAmt1);
   const rentalAmt2 = stringUtil.getNumberWithComma(item.rentalAmt2);
+
+  rentatAmtMsg = item.rentalAmt2 > 0 ? `| ${rentalAmt2}${t('MSG_TXT_CUR_WON')} / ${item.cntrPtrm2}${t('MSG_TXT_MCNT')}` : '';
   switch (item.sellTpCd) {
     case '2': // 렌탈
-      msg = `${rentalAmt1}${t('MSG_TXT_CUR_WON')} / ${item.cntrPtrm1}${t('MSG_TXT_MCNT')} | ${rentalAmt2}${t('MSG_TXT_CUR_WON')} / ${item.cntrPtrm2}${t('MSG_TXT_MCNT')}`; // 렌탈금액 원 렌탈개월
+      msg = `${rentalAmt1}${t('MSG_TXT_CUR_WON')} / ${item.cntrPtrm1}${t('MSG_TXT_MCNT')} ${rentatAmtMsg}`; // 렌탈금액 원 렌탈개월
       break;
     default:
       msg = `${rentalAmt1}${t('MSG_TXT_CUR_WON')}`;
