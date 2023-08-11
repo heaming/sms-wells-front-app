@@ -47,7 +47,7 @@
         <kw-search-item :label="t('MSG_TXT_OG_TP')">
           <kw-select
             v-model="searchParams.ogTpCd"
-            :options="codes.REDF_OG_TP_CD"
+            :options="filterOgTpCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -88,12 +88,16 @@
           <kw-input
             v-model="searchParams.prtnrNoFrom"
             rules="required"
+            maxlength="10"
+            regex="num"
             :label="t('MSG_TXT_PRTNR_NUM_FROM')"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.prtnrNoTo"
             rules="required"
+            maxlength="10"
+            regex="num"
             :label="t('MSG_TXT_PRTNR_NUM_TO')"
           />
         </kw-search-item>
@@ -281,6 +285,7 @@ const envrCode = ref([
 
 const filterHirFomCd = ref([]);
 const filterRedfAdsbTpCd = ref([]);
+const filterOgTpCd = ref([]);
 
 codes.REDF_ADSB_TP_CD.forEach((e) => {
   if (e.codeId === '0202' || e.codeId === '0203') {
@@ -299,6 +304,8 @@ codes.HIR_FOM_CD.forEach((e) => {
     });
   }
 });
+
+filterOgTpCd.value = codes.REDF_OG_TP_CD.filter((e) => e.codeId !== 'Z01');
 
 const pageMainInfo = ref({
   totalCount: 0,
@@ -334,7 +341,7 @@ const searchParams = ref({
   redfAdsbOcYmTo: monthTo, // MSG_TXT_YEAR_OCCURNCE to
   slYmFrom: monthFrom, // MSG_TXT_SL_YM from
   slYmTo: monthTo, // MSG_TXT_SL_YM to
-  sellTpCd: 'ALL', // MSG_TXT_PRDT_GUBUN(상품기본.판매유형코드, where 대입은 되물림재지급상품구분코드)
+  sellTpCd: 'ALL', // 상품구분(상품기본.판매유형코드, where 대입은 되물림재지급상품구분코드)
   redfAdsbTpCd: 'ALL', // MSG_TXT_PROCS_TP(REDF_ADSB_TP_CD 되물림재지급유형코드(02: 되물림))
   envrYn: 'ALL', // MSG_TXT_ENVR_YN
   prtnrNoFrom: '0', // MSG_TXT_PRTNR_NUM from
@@ -531,7 +538,7 @@ function initGrid(data, view) {
     { fieldName: 'feeAckmtBaseAmt', dataType: 'number' },
     { fieldName: 'ackmtPerfAmt', dataType: 'number' },
     { fieldName: 'booYn' },
-    { fieldName: 'ogId' },
+    { fieldName: 'ogCd' },
     { fieldName: 'cntrPdStrtdt' },
     { fieldName: 'canDt' },
     { fieldName: 'cpsnRedfYn' },
@@ -578,7 +585,7 @@ function initGrid(data, view) {
     { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_FEE_ACKMT_BASE_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_FEE_ACKMT_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'booYn', header: t('MSG_TXT_RSV_YN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogId', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cpsnRedfYn', header: t('MSG_TXT_CPSN_REDF_YN'), width: '120', styleName: 'text-center' },
@@ -596,7 +603,7 @@ function initGrid(data, view) {
     'rentalAmt', 'mchnChTpCd', 'feeFxamYn', 'feeAckmtCt', 'perfVal1',
     'perfVal2', 'sellDscDvCd', 'sellDscrCd', 'sellDscTpCd', 'pakSn',
     'feeAckmtBaseAmt', // WELLS-M
-    'booYn', 'ogId', 'cntrPdStrtdt', 'canDt', 'cpsnRedfYn',
+    'booYn', 'ogCd', 'cntrPdStrtdt', 'canDt', 'cpsnRedfYn',
   ];
 
   const wellsPLayout = [
@@ -610,7 +617,7 @@ function initGrid(data, view) {
     'rentalAmt', 'mchnChTpCd', 'feeFxamYn', 'feeAckmtCt', 'perfVal1',
     'perfVal2', 'sellDscDvCd', 'sellDscrCd', 'sellDscTpCd', 'pakSn',
     'ackmtPerfAmt', // WELLS-P
-    'booYn', 'ogId', 'cntrPdStrtdt', 'canDt', 'cpsnRedfYn',
+    'booYn', 'ogCd', 'cntrPdStrtdt', 'canDt', 'cpsnRedfYn',
   ];
 
   data.setFields(fields);
