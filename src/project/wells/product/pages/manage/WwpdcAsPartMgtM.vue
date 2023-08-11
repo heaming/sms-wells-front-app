@@ -410,7 +410,7 @@ async function resetData() {
 
 // 초기화 버튼
 async function onClickReset() {
-  if (!await confirm(t('MSG_ALT_R_U_RESET', null, '조회항목을 초기화하시겠습니까?\n초기화 이후 STEP1으로 이동합니다. '))) return false;
+  if (!await confirm(t('MSG_ALT_PD_RESET', null, '조회항목을 초기화하시겠습니까?\n초기화 이후 STEP1으로 이동합니다. '))) return false;
   await resetData();
   await fetchProduct();
 }
