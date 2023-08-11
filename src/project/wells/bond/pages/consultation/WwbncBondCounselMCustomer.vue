@@ -90,6 +90,7 @@
           regex="num"
           :maxlength="13"
           @click-icon="onClickSelectCustomer"
+          @change="onChangeSfk"
         />
       </kw-search-item>
 
@@ -297,6 +298,7 @@ const searchParams = ref({
   schCstNoYn: 'N',
   dv1: '',
   dv2: '',
+  schSfKYn: 'N',
 });
 
 const frmMainRef = ref(getComponentType('KwForm'));
@@ -328,10 +330,14 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
-
 // TODO: 고객번호/고객명 변경
 async function onChangeCstNo() {
   searchParams.value.schCstNoYn = 'N';
+}
+
+// TODO: 세이프키 변경
+async function onChangeSfk() {
+  searchParams.value.schSfKYn = 'N';
 }
 
 // TODO: 고객조회(공통)
@@ -352,6 +358,7 @@ async function onClickSelectCustomer() {
     searchParams.value.schCstNm = cstNm;
     searchParams.value.schSfK = sfkVal;
     searchParams.value.schCstNoYn = 'Y';
+    searchParams.value.schSfKYn = 'Y';
   }
 }
 
@@ -410,8 +417,9 @@ const onClickCntrMessageSend = async () => {
 async function onClickSearch() {
   const cstNo = searchParams.value.schCstNo;
   const cstNm = searchParams.value.schCstNm;
-  const sfkVal = searchParams.value.schSfK;
+  const sfk = searchParams.value.schSfK;
   const cstNoYn = searchParams.value.schCstNoYn;
+  const sfkYn = searchParams.value.schSfKYn;
 
   if (cstNo !== '' || cstNm !== '') {
     if (cstNoYn === 'N') {
@@ -419,8 +427,8 @@ async function onClickSearch() {
       return;
     }
   }
-  if (sfkVal !== '') {
-    if (cstNoYn === 'N') {
+  if (sfk !== '') {
+    if (sfkYn === 'N') {
       notify(t('MSG_ALT_SFK_IN'));
       return;
     }
