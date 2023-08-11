@@ -101,7 +101,7 @@
             </p>
             <div class="row justify-end">
               <kw-chip
-                v-if="isEqual(item.pdChYn, 'Y')"
+                v-show="isEqual(item.pdChYn, 'Y')"
                 :label="t('MSG_TXT_CNTR_TYPE_CH_COMP')"
                 class="mr12"
                 negative
@@ -143,7 +143,7 @@
               <p>{{ getRentalMsg(item.sellTpCd) }}</p>
               <span>{{ getRentalAmt(item) }}</span>
             </li>
-            <div v-if="isEqual(item.sellTpCd, '2')">
+            <div v-show="isEqual(item.sellTpCd, '2')">
               <li>
                 <!-- 할인유형 -->
                 <p>{{ t('MSG_TXT_DISC_CODE') }}</p>
@@ -155,7 +155,7 @@
                 <span>{{ item.fgptInfo }}</span>
               </li>
             </div>
-            <li v-if="isEqual(item.mclsfRefPdClsfVal, '06003') || isEqual(item.mclsfRefPdClsfVal, '06005')">
+            <li v-show="isEqual(item.mclsfRefPdClsfVal, '06003') || isEqual(item.mclsfRefPdClsfVal, '06005')">
               <!-- 구분, 제조사 -->
               <p>{{ getGubunMsg(item.mclsfRefPdClsfVal) }}</p>
               <span>{{ getGubunNm(item) }}</span>
@@ -166,10 +166,8 @@
               <span> {{ isEmpty(item.istDt) ? '-' : stringUtil.getDateFormat(item.istDt) }} </span>
             </li>
           </ul>
-
           <kw-separator
             spaced="20px"
-            class="mt-auto"
           />
           <div class="button-wrap">
             <!-- 고객정보 변경-->
@@ -181,7 +179,7 @@
             />
             <!-- 계약유형 변경-->
             <kw-btn
-              v-if="isEqual(item.sellTpCd, '2')"
+              v-show="isEqual(item.sellTpCd, '2')"
               secondary
               :label="`${t('MSG_TXT_CONTR_TYPE')} ${t('MSG_TXT_CH')}`"
               padding="10px"
@@ -189,7 +187,7 @@
             />
             <!-- 판매자 변경-->
             <kw-btn
-              v-if="isEqual(ogTpCd, 'HR1')"
+              v-show="isEqual(ogTpCd, 'HR1')"
               secondary
               :label="`${t('MSG_TXT_SELLER_PERSON')} ${t('MSG_TXT_CH')}`"
               padding="10px"
@@ -197,21 +195,21 @@
             />
             <!-- 삭제요청-->
             <kw-btn
-              v-if="isEqual(item.sellTpCd, '2') && isEmpty(item.istDt)"
+              v-show="isEqual(item.sellTpCd, '2') && isEmpty(item.istDt)"
               secondary
               :label="$t('MSG_TXT_DEL_REQ')"
               padding="10px"
               @click="onClickDelReq(item)"
             />
-            <kw-separator
-              v-if="isEqual(item.histYn, 'Y')"
+            <!-- <kw-separator
+              v-show="isEqual(item.histYn, 'Y')"
               vertical
               inset
               spaced="0"
-            />
+            /> -->
             <!-- 계약유형변경 이력 보기-->
             <kw-btn
-              v-if="isEqual(item.histYn, 'Y')"
+              v-show="isEqual(item.histYn, 'Y')"
               secondary
               :label="$t('MSG_BTN_CNTR_TP_CHANGE_HIS_BRWS')"
               padding="10px"
@@ -262,7 +260,7 @@ const resultList = ref({});
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: 8,
+  pageSize: 6,
 });
 
 const fieldParams = ref({
@@ -353,9 +351,10 @@ function getRentalMsg(sellTpCd) {
 function getRentalAmt(item) {
   let msg = '';
   const rentalAmt1 = stringUtil.getNumberWithComma(item.rentalAmt1);
+  const rentalAmt2 = stringUtil.getNumberWithComma(item.rentalAmt2);
   switch (item.sellTpCd) {
     case '2': // 렌탈
-      msg = `${rentalAmt1}${t('MSG_TXT_CUR_WON')} / ${item.cntrPtrm1}${t('MSG_TXT_MCNT')}`; // 렌탈금액 원 렌탈개월
+      msg = `${rentalAmt1}${t('MSG_TXT_CUR_WON')} / ${item.cntrPtrm1}${t('MSG_TXT_MCNT')} | ${rentalAmt2}${t('MSG_TXT_CUR_WON')} / ${item.cntrPtrm2}${t('MSG_TXT_MCNT')}`; // 렌탈금액 원 렌탈개월
       break;
     default:
       msg = `${rentalAmt1}${t('MSG_TXT_CUR_WON')}`;
@@ -533,7 +532,7 @@ async function onClickShowProductChangeHistoryP(item) {
 
 <style scoped lang="scss">
 .kw-card {
-  width: calc((100% - 80px) / 4);
+  width: calc((100% - 60px) / 3);
 }
 
 ::v-deep(.kw-card.q-card) {
@@ -558,20 +557,20 @@ async function onClickShowProductChangeHistoryP(item) {
 }
 
 .button-wrap {
-  align-self: flex-end;
-  width: 100%;
   display: flex;
   column-gap: 6px;
   row-gap: 6px;
-  flex-wrap: wrap;
+  flex-flow: row wrap;
+  white-space: nowrap;
 
   ::v-deep(.kw-btn) {
     padding: 8px 0;
-    min-height: 40px;
+    flex: 1 1 calc(100% / 6);
     font-size: 14px;
     font-weight: normal;
     letter-spacing: normal;
     color: #555;
+    min-height: 40px;
   }
 }
 
