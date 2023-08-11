@@ -642,6 +642,8 @@ async function setMountData() {
 
 // 초기화 버튼
 async function onClickReset() {
+  // 조회항목을 초기화하시겠습니까?\n초기화 이후 STEP1으로 이동합니다.
+  if (!await confirm(t('MSG_ALT_PD_RESET'))) return false;
   await resetData();
   await fetchProduct();
   await setMountData();
