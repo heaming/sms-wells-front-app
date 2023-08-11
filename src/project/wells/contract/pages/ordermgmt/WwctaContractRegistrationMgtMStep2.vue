@@ -693,7 +693,7 @@ async function resetFilter() {
   await getProducts(props.contract.cntrNo);
 }
 
-function resetCntrSn() {
+async function resetCntrSn() {
   // eslint-disable-next-line no-restricted-syntax
   for (const [idx, item] of step2.value.dtls.entries()) {
     item.cntrSn = idx + 1;
@@ -729,7 +729,7 @@ async function addProduct(pd) {
   if (npd.sellTpCd === '6' && npd.sellTpDtlCd !== '61') {
     npd.cntrRelDtlCd = '214';
   }
-  resetCntrSn();
+  await resetCntrSn();
 }
 
 async function onClickProduct(pd) {
@@ -761,7 +761,7 @@ async function onClickProduct(pd) {
   }
 }
 
-function onClickDelete(pd) {
+async function onClickDelete(pd) {
   if (isItem.rglrSpp(pd) && pd.sellTpDtlCd === '62') return;
   if (pd.hgrPdCd) {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.hgrPdCd !== spd.hgrPdCd);
@@ -771,7 +771,7 @@ function onClickDelete(pd) {
   } else {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn);
   }
-  resetCntrSn();
+  await resetCntrSn();
 }
 
 async function onClickOnePlusOne(pd) {
@@ -884,7 +884,7 @@ async function onChangePkgs(dtl) {
   pp.pkgs = cloneDeep(pkgs);
   pp.pkg = pp.codeId;
   step2.value.dtls[step2.value.dtls.findIndex((d) => d.cntrSn === cntrSn)] = pp;
-  resetCntrSn();
+  await resetCntrSn();
 }
 
 function castCodeIdNumToStr() {
@@ -977,7 +977,7 @@ async function isValidStep() {
 }
 
 async function saveStep() {
-  resetCntrSn();
+  await resetCntrSn();
   const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step2', step2.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   ogStep2.value = cloneDeep(step2.value);
