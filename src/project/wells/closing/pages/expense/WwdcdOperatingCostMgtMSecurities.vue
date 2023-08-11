@@ -100,6 +100,10 @@ const codes = await codeUtil.getMultiCodes(
   'OPCS_ADJ_SMRY_DV_CD',
 );
 
+const emits = defineEmits([
+  'tebEvent',
+]);
+
 // 정산대상 - 유가증권
 async function adjustObject() {
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/adjust-object', { params: cachedParams });
@@ -107,6 +111,7 @@ async function adjustObject() {
   const view = grdThirdRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
+  emits('tebEvent', 'sel', res.data);
   // TODO 정산제외일경우 버튼 미노출
 }
 
@@ -309,7 +314,7 @@ const initGrdThird = defineGrid((data, view) => {
     if (column === 'opcsAdjBtn') {
       if (adjCls === '완료') {
         alert(t('정산이 완료된 건입니다'));
-        return;
+        // return;
       }
       if (opcsAdjExcdYn === '정산제외') {
         alert(t('정산제외 건은 원천세 정산이 불가능 합니다.'));
