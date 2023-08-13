@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 수당(실적) 되물림 관리- 파트너 되물림 대상 집계 현황 조회 (통합)
+- 수당(실적) 되물림 관리- 파트너 되물림 대상 집계 현황 조회 (통합) - 영업부 되물림 생성
 ****************************************************************************************************
 --->
 <template>
@@ -782,7 +782,7 @@ const wpAndDstrcColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'sellEncrgRedf', 'wpMetgRedf', 'settleRedf', 'wpFxamRedfDstrc', 'sumWpRedfDstrc'],
+    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'wpPrSellEncrgRedf', 'wpMetgRedf', 'wpSettleRedfDstrc', 'wpFxamRedfDstrc', 'sumWpRedfDstrc'],
   },
   'dlqRedfAmt',
 ];
@@ -818,7 +818,7 @@ const wpAndBrchColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'wpPrSellEncrgRedf', 'wpEnvrOgRedf', 'ogSellEncrgRedf', 'wpSettleRedfBrch', 'wpFxamRedfBrch', 'sumWpRedfBrch'],
+    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'sellEncrgRedf', 'wpEnvrOgRedf', 'ogSellEncrgRedf', 'wpSettleRedfBrch', 'wpFxamRedfBrch', 'sumWpRedfBrch'],
   },
   'dlqRedfAmt',
 ];
@@ -1071,7 +1071,7 @@ function initGrid(data, view) {
     { fieldName: 'bOgMgtPpl', dataType: 'number' },
     { fieldName: 'ogMgtPpl', dataType: 'number' },
     { fieldName: 'aOgMgtPpl', dataType: 'number' },
-    { fieldName: 'wpChYm', dataType: 'number' },
+    { fieldName: 'wpChYm' },
     { fieldName: 'tbEnvrElhm', dataType: 'number' },
     { fieldName: 'tbMc', dataType: 'number' },
     { fieldName: 'tMc', dataType: 'number' },
@@ -1100,6 +1100,7 @@ function initGrid(data, view) {
     // { fieldName: 'wpEnvrExcpPrRedf' },
     { fieldName: 'wpMetgRedf', dataType: 'number' },
     { fieldName: 'wpSettleRedfBrch', dataType: 'number' },
+    { fieldName: 'wpSettleRedfDstrc', dataType: 'number' },
     { fieldName: 'wpFxamRedfBrch', dataType: 'number' },
     { fieldName: 'ogTpNm', dataType: 'number' },
     { fieldName: 'perfDvNm', dataType: 'number' },
@@ -1124,8 +1125,8 @@ function initGrid(data, view) {
 
   const columns = [
     // 기준정보
-    { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'baseYm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
+    { fieldName: 'baseYm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '100', styleName: 'text-center' },
@@ -1137,14 +1138,14 @@ function initGrid(data, view) {
     { fieldName: 'perfDvCd', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' },
     { fieldName: 'brchDec', header: t('MSG_TXT_BRCH_DCL'), width: '100', styleName: 'text-center' },
     { fieldName: 'marchDstrcYn', header: t('MSG_TXT_MAR_DSTRC'), width: '100', styleName: 'text-center' },
-    { fieldName: 'chYm', header: t('MSG_TXT_TOPMR_UPGR_BASE_MM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'chYm', header: t('MSG_TXT_TOPMR_UPGR_BASE_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
     { fieldName: 'educCpcMm', header: t('MSG_TXT_TOPMR_SETTLE_CPC_MM'), width: '120', styleName: 'text-center' },
     { fieldName: 'aksd48Yn', header: t('MSG_TXT_SETTLE_DSB_YN'), width: '120', styleName: 'text-center' },
     { fieldName: 'edu17Yn', header: t('MSG_TXT_PLAR_PRTIC_CPC_YN'), width: '140', styleName: 'text-center' },
     { fieldName: 'sellAmt', header: t('MSG_TXT_BLNG_MM_SL'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'ackmtPerfRt', header: t('MSG_TXT_PYT_RT'), width: '100', styleName: 'text-center' },
     { fieldName: 'oneteamYn', header: t('MSG_TXT_SLTR_DSTRC'), width: '100', styleName: 'text-center' },
-    { fieldName: 'wpChYm', header: t('MSG_TXT_UPGR_YM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'wpChYm', header: t('MSG_TXT_UPGR_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
     { fieldName: 'ogTpNm', header: t('MSG_TXT_OG_TP'), width: '100', styleName: 'text-center' },
     { fieldName: 'perfDvNm', header: t('MSG_TXT_PERF_DV'), width: '100', styleName: 'text-center' },
 
@@ -1302,7 +1303,7 @@ function initGrid(data, view) {
     { fieldName: 'envrExcpOgRedf201904', header: t('MSG_TXT_ENVR_ELHM_EXCP_OG_PRPN'), width: '140', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하
     { fieldName: 'ogSellEncrgRedf', header: t('MSG_TXT_OG_SELL_ENCRG'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'nwSellRedf', header: t('MSG_TXT_NW_SELL'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'sellEncrgRedf', header: t('MSG_TXT_SAL_INTV'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 판매장려
+    { fieldName: 'sellEncrgRedf', header: t('MSG_TXT_INDV_SELL_ENCRG'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 판매장려
     { fieldName: 'ogMgtRedf', header: t('MSG_TIT_OG_MNGT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'eduRedf', header: t('MSG_TXT_EDUC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 교육
     { fieldName: 'settleRedf', header: t('MSG_TXT_STMNT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하 // 정착
@@ -1313,7 +1314,7 @@ function initGrid(data, view) {
     { fieldName: 'envrExcpOgMetgRedf', header: t('MSG_TXT_ENVR_ELHM_OG_EXCP_METG'), width: '140', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'wpEnvrPrRedf', header: t('MSG_TXT_ELHM_INDV_PRPN'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지점장 이상 (가전 개인비례)
     { fieldName: 'wpEnvrExcpPrRedf', header: t('MSG_TXT_ELHM_EXCP_INDV_PRPN'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지점장 이상 (가전 외 개인비례)
-    { fieldName: 'wpPrSellEncrgRedf', header: t('MSG_TXT_INDV_SELL_ENCRG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'wpPrSellEncrgRedf', header: t('MSG_TXT_SAL_INTV'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'wpEnvrOgRedf', header: t('MSG_TXT_ELHM_OG_PRPN'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'wpEnvrExcpOgRedf', header: t('MSG_TXT_ELHM_EXCP_OG_PRPN'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'wpFxamRedfDstrc', header: t('MSG_TXT_FXAM'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하
@@ -1322,6 +1323,7 @@ function initGrid(data, view) {
     { fieldName: 'wpEnvrExcpPrRedf', header: t('MSG_TXT_ELHM_EXCP_PRPN'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하 (가전 외 개인비례)
     { fieldName: 'wpMetgRedf', header: t('MSG_TXT_METG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하
     { fieldName: 'wpSettleRedfBrch', header: t('MSG_TXT_STMNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지점장 이상
+    { fieldName: 'wpSettleRedfDstrc', header: t('MSG_TXT_STMNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하
     { fieldName: 'wpFxamRedfBrch', header: t('MSG_TXT_FXAM'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지점장 이상
     { fieldName: 'col182', header: t('MSG_TXT_RENTAL'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 되물림실적
     { fieldName: 'col183', header: t('MSG_TXT_ELHM_EXCP_SPAY_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 되물림실적.가전외 일시불 실적
