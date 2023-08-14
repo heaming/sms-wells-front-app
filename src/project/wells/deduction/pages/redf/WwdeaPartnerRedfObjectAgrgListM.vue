@@ -818,7 +818,7 @@ const wpAndBrchColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'sellEncrgRedf', 'wpEnvrOgRedf', 'ogSellEncrgRedf', 'wpSettleRedfBrch', 'wpFxamRedfBrch', 'sumWpRedfBrch'],
+    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'sellEncrgRedf', 'wpEnvrOgRedf', 'wpOgSellEncrgRedf', 'wpSettleRedfBrch', 'wpFxamRedfBrch', 'sumWpRedfBrch'],
   },
   'dlqRedfAmt',
 ];
@@ -1092,6 +1092,7 @@ function initGrid(data, view) {
     { fieldName: 'wpEnvrPrRedf', dataType: 'number' },
     { fieldName: 'wpEnvrExcpPrRedf', dataType: 'number' },
     { fieldName: 'wpPrSellEncrgRedf', dataType: 'number' },
+    { fieldName: 'wpOgSellEncrgRedf', dataType: 'number' }, // wells-p 조직판매장려
     { fieldName: 'wpEnvrOgRedf', dataType: 'number' },
     { fieldName: 'wpEnvrExcpOgRedf', dataType: 'number' },
     { fieldName: 'wpFxamRedfDstrc', dataType: 'number' },
@@ -1302,6 +1303,7 @@ function initGrid(data, view) {
     { fieldName: 'envrExcpOgMetgRedf', header: t('MSG_TXT_ENVR_ELHM_EXCP_OG_METG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'envrExcpOgRedf201904', header: t('MSG_TXT_ENVR_ELHM_EXCP_OG_PRPN'), width: '140', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하
     { fieldName: 'ogSellEncrgRedf', header: t('MSG_TXT_OG_SELL_ENCRG'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'wpOgSellEncrgRedf', header: t('MSG_TXT_OG_SELL_ENCRG'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'nwSellRedf', header: t('MSG_TXT_NW_SELL'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'sellEncrgRedf', header: t('MSG_TXT_INDV_SELL_ENCRG'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 판매장려
     { fieldName: 'ogMgtRedf', header: t('MSG_TIT_OG_MNGT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
