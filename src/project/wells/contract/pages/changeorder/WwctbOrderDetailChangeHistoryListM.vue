@@ -710,23 +710,24 @@ const initGridCntrDtlChgHist = defineGrid((data, view) => {
     { fieldName: 'basePdCd' }, // 기준상품코드
     { fieldName: 'hgrPdCd' }, // 상위상품코드
     { fieldName: 'pdQty', dataType: 'number' }, // 상품수량
-    { fieldName: 'sellTpCd' }, // 판매유형코드
-    { fieldName: 'sellTpDtlCd' }, // 판매유형상세코드
+    { fieldName: 'sellTpNm' }, // 판매유형코드
+    { fieldName: 'sellTpDtlNm' }, // 판매유형상세코드
     { fieldName: 'cntrDtlStatCd' }, // 계약상세상태코드
-    { fieldName: 'cntrPtrmUnitCd' }, // 계약기간단위코드
+    { fieldName: 'cntrDtlStatNm' }, // 계약상세상태코드명
+    { fieldName: 'cntrPtrmUnitNm' }, // 계약기간단위코드
     { fieldName: 'cntrPtrm' }, // 계약기간
     { fieldName: 'cntrPdStrtdt' }, // 계약상품시작일자
     { fieldName: 'cntrPdEnddt' }, // 계약상품종료일자
-    { fieldName: 'stplPtrmUnitCd' }, // 약정기간단위코드
+    { fieldName: 'stplPtrmUnitNm' }, // 약정기간단위코드
     { fieldName: 'stplPtrm' }, // 약정기간
-    { fieldName: 'svPtrmUnitCd' }, // 서비스기간단위코드
+    { fieldName: 'svPtrmUnitNm' }, // 서비스기간단위코드
     { fieldName: 'svPrd', dataType: 'number' }, // 서비스주기
-    { fieldName: 'cntrwTpCd' }, // 계약서유형코드
+    { fieldName: 'cntrwTpNm' }, // 계약서유형코드
     { fieldName: 'blgCrpCd' }, // 소속법인코드
     { fieldName: 'rveCrpCd' }, // 수납법인코드
     { fieldName: 'coCd' }, // 회사코드
-    { fieldName: 'booSellTpCd' }, // 예약판매유형코드
-    { fieldName: 'pdGdCd' }, // 상품등급코드
+    { fieldName: 'booSellTpNm' }, // 예약판매유형코드
+    { fieldName: 'pdGdNm' }, // 상품등급코드
     { fieldName: 'pdHclsfId' }, // 상품대분류ID
     { fieldName: 'pdMclsfId' }, // 상품중분류ID
     { fieldName: 'pdLclsfId' }, // 상품소분류ID
@@ -735,8 +736,8 @@ const initGridCntrDtlChgHist = defineGrid((data, view) => {
     { fieldName: 'sellDscrCd' }, // 판매할인율코드
     { fieldName: 'sellDscCtrAmt', dataType: 'number' }, // 판매할인조정금액
     { fieldName: 'sellDscTpCd' }, // 판매할인유형코드
-    { fieldName: 'stlmTpCd' }, // 결제유형코드
-    { fieldName: 'crncyDvCd' }, // 통화구분코드
+    { fieldName: 'stlmTpNm' }, // 결제유형코드
+    { fieldName: 'crncyDvNm' }, // 통화구분코드
     { fieldName: 'apyExcr' }, // 적용환율
     { fieldName: 'pdBaseAmt', dataType: 'number' }, // 상품기준금액
     { fieldName: 'sellAmt', dataType: 'number' }, // 판매금액
@@ -754,7 +755,7 @@ const initGridCntrDtlChgHist = defineGrid((data, view) => {
     { fieldName: 'cntrTam', dataType: 'number' }, // 계약총액
     { fieldName: 'ackmtPerfRt', dataType: 'number' }, // 인정실적율
     { fieldName: 'ackmtPerfAmt', dataType: 'number' }, // 인정실적금액
-    { fieldName: 'cvfPerfAmt', dataType: 'number' }, // 환산실적금액
+    { fieldName: 'cvtPerfAmt', dataType: 'number' }, // 환산실적금액
     { fieldName: 'feeAckmtCt' }, // 수수료인정건수
     { fieldName: 'feeAckmtBaseAmt', dataType: 'number' }, // 수수료인정기준금액
     { fieldName: 'feeFxamYn' }, // 수수료정액여부
@@ -762,9 +763,9 @@ const initGridCntrDtlChgHist = defineGrid((data, view) => {
     { fieldName: 'resubYn' }, // 재구독여부
     { fieldName: 'rstlYn' }, // 재약정여부
     { fieldName: 'frisuYn' }, // 무상여부
-    { fieldName: 'frisuDsbTpCd' }, // 무상지급유형코드
+    { fieldName: 'frisuDsbTpNm' }, // 무상지급유형코드
     { fieldName: 'txinvPblOjYn' }, // 세금계산서발행대상여부
-    { fieldName: 'alncmpCd' }, // 제휴사코드
+    { fieldName: 'alncmpNm' }, // 제휴사코드
     { fieldName: 'alncmpCntrDrmVal' }, // 제휴사계약식별값
     { fieldName: 'smtplId' }, // 스마트플랜ID
     { fieldName: 'smtplSn' }, // 스마트플랜일련번호
@@ -791,33 +792,33 @@ const initGridCntrDtlChgHist = defineGrid((data, view) => {
     { fieldName: 'basePdCd', header: t('MSG_TXT_PD_STD_CODE'), width: '200', styleName: 'text-left' }, // 기준상품코드
     { fieldName: 'hgrPdCd', header: t('MSG_TXT_HGR_PD_CD'), width: '200', styleName: 'text-left' }, // 상위상품코드
     { fieldName: 'pdQty', header: t('MSG_TXT_PROD_QUANT'), width: '200', styleName: 'text-right' }, // 상품수량
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SELL_TP_CD'), width: '200', styleName: 'text-center' }, // 판매유형코드
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TYPE_DTL_CD'), width: '200', styleName: 'text-center' }, // 판매유형상세코드
-    { fieldName: 'cntrDtlStatCd', header: t('MSG_TXT_CNTR_DTL_STAT_CD'), width: '200', styleName: 'text-center' }, // 계약상세상태코드
-    { fieldName: 'cntrPtrmUnitCd', header: t('MSG_TXT_CNTR_PTRM_UNIT_CD'), width: '200', styleName: 'text-center' }, // 계약기간단위코드
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_SELL_TP_CD'), width: '200', styleName: 'text-center' }, // 판매유형코드
+    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_SELL_TYPE_DTL_CD'), width: '200', styleName: 'text-center' }, // 판매유형상세코드
+    { fieldName: 'cntrDtlStatNm', header: t('MSG_TXT_CNTR_DTL_STAT_CD'), width: '200', styleName: 'text-center' }, // 계약상세상태코드
+    { fieldName: 'cntrPtrmUnitNm', header: t('MSG_TXT_CNTR_PTRM_UNIT_CD'), width: '200', styleName: 'text-center' }, // 계약기간단위코드
     { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '200', styleName: 'text-right' }, // 계약기간
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_CNTR_PD_STRT_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약상품시작일자
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_CNTR_PD_ENDDT'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 계약상품종료일자
-    { fieldName: 'stplPtrmUnitCd', header: t('MSG_TXT_STPL_PTRM_UNIT_CD'), width: '200', styleName: 'text-center' }, // 약정기간단위코드
+    { fieldName: 'stplPtrmUnitNm', header: t('MSG_TXT_STPL_PTRM_UNIT_CD'), width: '200', styleName: 'text-center' }, // 약정기간단위코드
     { fieldName: 'stplPtrm', header: t('MSG_TXT_CONTRACT_PERI'), width: '200', styleName: 'text-right' }, // 약정기간
-    { fieldName: 'svPtrmUnitCd', header: t('MSG_TXT_SV_PTRM_UNIT_CD'), width: '200', styleName: 'text-center' }, // 서비스기간단위코드
+    { fieldName: 'svPtrmUnitNm', header: t('MSG_TXT_SV_PTRM_UNIT_CD'), width: '200', styleName: 'text-center' }, // 서비스기간단위코드
     { fieldName: 'svPrd', header: t('MSG_TXT_SVC_BETWEEN'), width: '200', styleName: 'text-right' }, // 서비스주기
-    { fieldName: 'cntrwTpCd', header: t('MSG_TXT_CNTRW_TP_CD'), width: '200', styleName: 'text-center' }, // 계약서유형코드
+    { fieldName: 'cntrwTpNm', header: t('MSG_TXT_CNTRW_TP_CD'), width: '200', styleName: 'text-center' }, // 계약서유형코드
     { fieldName: 'blgCrpCd', header: t('MSG_TXT_BLG_COB_CD'), width: '200', styleName: 'text-center' }, // 소속법인코드
     { fieldName: 'rveCrpCd', header: t('MSG_TXT_RVE_COB_CD'), width: '200', styleName: 'text-center' }, // 수납법인코드
     { fieldName: 'coCd', header: t('MSG_TXT_CPNY_CD'), width: '250', styleName: 'text-center' }, // 회사코드
-    { fieldName: 'booSellTpCd', header: t('MSG_TXT_BOO_SELL_TP_CD'), width: '200', styleName: 'text-center' }, // 예약판매유형코드
-    { fieldName: 'pdGdCd', header: t('MSG_TXT_PD_GRD_CD'), width: '200', styleName: 'text-left' }, // 상품등급코드
+    { fieldName: 'booSellTpNm', header: t('MSG_TXT_BOO_SELL_TP_CD'), width: '200', styleName: 'text-center' }, // 예약판매유형코드
+    { fieldName: 'pdGdNm', header: t('MSG_TXT_PD_GRD_CD'), width: '200', styleName: 'text-left' }, // 상품등급코드
     { fieldName: 'pdHclsfId', header: t('MSG_TXT_PD_HCLSF_ID'), width: '200', styleName: 'text-center' }, // 상품대분류ID
     { fieldName: 'pdMclsfId', header: t('MSG_TXT_PRDT_MCLSF_ID'), width: '200', styleName: 'text-center' }, // 상품중분류ID
-    { fieldName: 'pdLclsfId', header: t('MSG_TXT_PD_LCLSF_IDI'), width: '200', styleName: 'text-center' }, // 상품소분류ID
+    { fieldName: 'pdLclsfId', header: t('MSG_TXT_PD_LCLSF_ID'), width: '200', styleName: 'text-center' }, // 상품소분류ID
     { fieldName: 'pdDclsfId', header: t('MSG_TXT_PD_DCLSF_ID'), width: '200', styleName: 'text-center' }, // 상품세분류ID
     { fieldName: 'sellDscDvCd', header: t('MSG_TXT_SELL_DSC_DV_CD'), width: '200', styleName: 'text-left' }, // 판매할인구분코드
     { fieldName: 'sellDscrCd', header: t('MSG_TXT_SELL_DSC_RT_CD'), width: '200', styleName: 'text-left' }, // 판매할인율코드
     { fieldName: 'sellDscCtrAmt', header: t('MSG_TXT_SELL_DSC_CTR_AMT'), width: '200', styleName: 'text-right' }, // 판매할인조정금액
     { fieldName: 'sellDscTpCd', header: t('MSG_TXT_SELL_DSC_TP_CD'), width: '200', styleName: 'text-left' }, // 판매할인유형코드
-    { fieldName: 'stlmTpCd', header: t('MSG_TXT_STLM_TP_CD'), width: '200', styleName: 'text-left' }, // 결제유형코드
-    { fieldName: 'crncyDvCd', header: t('MSG_TXT_CRNCY_DV_CD'), width: '200', styleName: 'text-left' }, // 통화구분코드
+    { fieldName: 'stlmTpNm', header: t('MSG_TXT_STLM_TP_CD'), width: '200', styleName: 'text-left' }, // 결제유형코드
+    { fieldName: 'crncyDvNm', header: t('MSG_TXT_CRNCY_DV_CD'), width: '200', styleName: 'text-left' }, // 통화구분코드
     { fieldName: 'apyExcr', header: t('MSG_TXT_APY_EXCHNG_RT'), width: '200', styleName: 'text-right' }, // 적용환율
     { fieldName: 'pdBaseAmt', header: t('MSG_TXT_PRDT_BASE_AMT'), width: '200', styleName: 'text-right' }, // 상품기준금액
     { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '200', styleName: 'text-right' }, // 판매금액
@@ -835,7 +836,7 @@ const initGridCntrDtlChgHist = defineGrid((data, view) => {
     { fieldName: 'cntrTam', header: t('MSG_TXT_CNTRCT_AMT'), width: '200', styleName: 'text-right' }, // 계약총액
     { fieldName: 'ackmtPerfRt', header: t('TXT_MSG_ACKMT_PERF_RT'), width: '200', styleName: 'text-right' }, // 인정실적율
     { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_ACKMT_PERF_AMT'), width: '200', styleName: 'text-right' }, // 인정실적금액
-    { fieldName: 'cvfPerfAmt', header: t('MSG_TXT_CVT_PERF_AMT'), width: '200', styleName: 'text-right' }, // 환산실적금액
+    { fieldName: 'cvtPerfAmt', header: t('MSG_TXT_CVT_PERF_AMT'), width: '200', styleName: 'text-right' }, // 환산실적금액
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_FEE_ACKMT_CNT'), width: '200', styleName: 'text-right' }, // 수수료인정건수
     { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_FEE_ACKMT_STNRD_AMT'), width: '200', styleName: 'text-right' }, // 수수료인정기준금액
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '200', styleName: 'text-center' }, // 수수료정액여부
@@ -843,9 +844,9 @@ const initGridCntrDtlChgHist = defineGrid((data, view) => {
     { fieldName: 'resubYn', header: t('MSG_TXT_RESUB_YN'), width: '200', styleName: 'text-center' }, // 재구독여부
     { fieldName: 'rstlYn', header: t('MSG_TXT_RECOMMITMENT'), width: '200', styleName: 'text-center' }, // 재약정여부
     { fieldName: 'frisuYn', header: t('MSG_TXT_FRISU_YN'), width: '200', styleName: 'text-center' }, // 무상여부
-    { fieldName: 'frisuDsbTpCd', header: t('MSG_TXT_FRISU_DSB_TP_CD'), width: '200', styleName: 'text-left' }, // 무상지급유형코드
+    { fieldName: 'frisuDsbTpNm', header: t('MSG_TXT_FRISU_DSB_TP_CD'), width: '200', styleName: 'text-left' }, // 무상지급유형코드
     { fieldName: 'txinvPblOjYn', header: t('MSG_TXT_TXINV_PBL_OJ_YN'), width: '200', styleName: 'text-center' }, // 세금계산서발행대상여부
-    { fieldName: 'alncmpCd', header: t('MSG_TXT_ALNCMP_CD'), width: '200', styleName: 'text-left' }, // 제휴사코드
+    { fieldName: 'alncmpNm', header: t('MSG_TXT_ALNCMP_CD'), width: '200', styleName: 'text-left' }, // 제휴사코드
     { fieldName: 'alncmpCntrDrmVal', header: t('MSG_TXT_ALNCMP_CNTR_ID'), width: '200', styleName: 'text-center' }, // 제휴사계약식별값
     { fieldName: 'smtplId', header: t('MSG_TXT_SMTPL_ID'), width: '200', styleName: 'text-center' }, // 스마트플랜ID
     { fieldName: 'smtplSn', header: t('MSG_TXT_SMTPL_SN'), width: '200', styleName: 'text-center' }, // 스마트플랜일련번호
@@ -853,7 +854,6 @@ const initGridCntrDtlChgHist = defineGrid((data, view) => {
     { fieldName: 'cntrChRcpId', header: t('MSG_TXT_CNTR_CH_RCP_ID'), width: '200', styleName: 'text-center' }, // 계약변경접수ID
     { fieldName: 'cntrChSn', header: t('MSG_TXT_CNTR_CHNG_SN'), width: '200', styleName: 'text-center' }, // 계약변경일련번호
     { fieldName: 'cntrChDtlAkCn', header: t('MSG_TXT_CNTR_CHNG_DTL_REQ_CN'), width: '250', styleName: 'text-left' }, // 계약변경상세요청내용
-
     { fieldName: 'dtaDlYn', header: t('MSG_TXT_DTA_DEL_YN'), width: '200', styleName: 'text-center' }, // 데이터삭제여부
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FRST_RGST_DTM'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 최초등록일시
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR_ID'), width: '200', styleName: 'text-center' }, // 최초등록사용자ID
