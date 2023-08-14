@@ -28,6 +28,7 @@
             v-model:from="searchParams.stOstrDt"
             v-model:to="searchParams.edOstrDt"
             rules="date_range_months:1|required"
+            :label="$t('MSG_TXT_OSTR_PTRM')"
           />
         </kw-search-item>
         <!-- //출고기간-->

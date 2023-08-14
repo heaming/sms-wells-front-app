@@ -156,7 +156,7 @@
           </kw-form-row>
         </kw-form>
 
-        <kw-separator />
+        <kw-separator class="mb25" />
 
         <template
           v-if="Number(payments?.thisRentalAmt) + Number(payments?.pyAmt)
@@ -242,7 +242,7 @@
           </div>
         </template>
 
-        <kw-separator />
+        <kw-separator class="mb25" />
 
         <template v-if="contracts.length > 0">
           <kw-btn

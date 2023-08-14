@@ -43,6 +43,7 @@
           icon="search"
           :maxlength="30"
           @click-icon="onClickSelectCustomer"
+          @change="onChangeCstNo"
         />
       </kw-search-item>
       <kw-search-item
@@ -92,6 +93,7 @@
           regex="num"
           clearable
           @click-icon="onClickSelectCustomer"
+          @change="onChangeCstNo"
         />
       </kw-search-item>
       <kw-search-item
@@ -137,6 +139,7 @@
           regex="num"
           :maxlength="13"
           @click-icon="onClickSelectCustomer"
+          @change="onChangeSfk"
         />
       </kw-search-item>
       <kw-search-item
@@ -362,6 +365,7 @@ const searchParams = ref({
   schCstNoYn: 'N',
   dv1: '',
   dv2: '',
+  schSfKYn: 'N',
 });
 
 const frmMainRef = ref(getComponentType('KwForm'));
@@ -394,6 +398,16 @@ async function onClickExcelDownload() {
   });
 }
 
+// TODO: 고객번호/고객명 변경
+async function onChangeCstNo() {
+  searchParams.value.schCstNoYn = 'N';
+}
+
+// TODO: 세이프키 변경
+async function onChangeSfk() {
+  searchParams.value.schSfKYn = 'N';
+}
+
 // TODO: 고객조회(공통)
 async function onClickSelectCustomer() {
   const { result, payload } = await modal({
@@ -412,6 +426,7 @@ async function onClickSelectCustomer() {
     searchParams.value.schCstNm = cstNm;
     searchParams.value.schSfK = sfkVal;
     searchParams.value.schCstNoYn = 'Y';
+    searchParams.value.schSfKYn = 'Y';
   }
 }
 
@@ -434,6 +449,7 @@ async function onClickSearch() {
   const cstNm = searchParams.value.schCstNm;
   const sfk = searchParams.value.schSfK;
   const cstNoYn = searchParams.value.schCstNoYn;
+  const sfkYn = searchParams.value.schSfKYn;
 
   if (cstNo !== '' || cstNm !== '') {
     if (cstNoYn === 'N') {
@@ -442,7 +458,7 @@ async function onClickSearch() {
     }
   }
   if (sfk !== '') {
-    if (cstNoYn === 'N') {
+    if (sfkYn === 'N') {
       notify(t('MSG_ALT_SFK_IN'));
       return;
     }
@@ -572,7 +588,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'ctt', header: t('MSG_TXT_CTT'), width: '52', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } },
     { fieldName: 'bizDv', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '140', styleName: 'text-center' },
     { fieldName: 'pdctNm', header: t('MSG_TXT_GOODS_NM'), width: '200', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
@@ -644,7 +660,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'istZip', header: t('MSG_TXT_IST_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'istAdr', header: t('MSG_BTN_INST_ADDR'), width: '200', styleName: 'text-left' },
     { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '100', styleName: 'text-left' },
-    { fieldName: 'vtAcno', header: t('MSG_TXT_VT_AC_NO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'vtAcno', header: t('MSG_TXT_VT_AC_NO'), width: '160', styleName: 'text-center' },
     { fieldName: 'pesuDt', header: t('MSG_TXT_PESU_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'hiDt', header: t('MSG_TXT_HI_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ovrdDt', header: t('MSG_TXT_LCY_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
@@ -656,7 +672,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cujOvrd', header: t('MSG_TXT_CUJ_DFLT'), width: '100', styleName: 'text-center' },
     { fieldName: 'vstRs', header: t('MSG_TXT_VST_RS'), width: '140', styleName: 'text-left' },
     { fieldName: 'vstDt', header: t('MSG_TXT_VST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '140', styleName: 'text-center' },
+    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '160', styleName: 'text-center' },
     { fieldName: 'unuitm', header: t('MSG_TXT_UNUITM'), width: '200', styleName: 'text-center' },
   ];
 
@@ -683,7 +699,7 @@ const initGrdMain = defineGrid((data, view) => {
     const cntrSn = g.getValue(dataRow, 'cntrSn');
     windowKey.value = `WwbncBondCounselMContract_${cstNo}`;
     if (cstNo) {
-      await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { cstNo, cntrNo, cntrSn }, windowKey.value);
+      await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { 'modal-popup': true }, { cstNo, cntrNo, cntrSn }, windowKey.value);
     }
   };
 });

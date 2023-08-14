@@ -1077,4 +1077,3 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
 });
 </script>
-<style scoped> </style>

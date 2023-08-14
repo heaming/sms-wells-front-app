@@ -109,7 +109,6 @@
               :ref="(searchParams) => tabRefs.basic = searchParams"
               :selected-link-id="selectedLinkId"
               :init-data="searchParams"
-              @teb-event="isTabData"
             />
           </kw-tab-panel>
           <kw-tab-panel name="sel">
@@ -117,7 +116,6 @@
               :ref="(searchParams) => tabRefs.sel = searchParams"
               :selected-link-id="selectedLinkId"
               :init-data="searchParams"
-              @teb-event="isTabData"
             />
           </kw-tab-panel>
         </kw-tab-panels>
@@ -152,8 +150,7 @@ const { alert } = useGlobal();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 // 본사 관리자가 아니면 코드 값 가져와야 함
-const userInfo = getters['meta/getUserInfo'];
-const { ogTpCd } = userInfo;
+const sessionInfo = getters['meta/getUserInfo'];
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 let cachedParams;
@@ -163,103 +160,8 @@ const searchParams = ref({
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
-  ogTpCd,
+  ogTpCd: sessionInfo.wkOjOgTpCd === null ? sessionInfo.ogTpCd : sessionInfo.wkOjOgTpCd,
 });
-
-// 운영비 총 사용 건수 =  "(TAB)유가증권 제외"의 정산대상 grid에서 정산제외여부='N' 인것의 row개수
-//                     + "(TAB)유가증권"의 정산대상 grid에서 정산제외여부='N' 인것의 row개수
-// 미적요 :  "(TAB)유가증권 제외"의 정산대상 grid에서 구매품목 및 사용내역 항목이 빈값인 row개수
-//           + "(TAB)유가증권"의 정산대상 grid에서 구매품목 및 사용내역 항목이 빈값인 row개수
-let opcsAdjExcdYn = 0;
-let usrSmryCn = 0;
-async function isTabData(flag, datas) {
-  /*
-  if (flag === 'basic') {
-    const sub = grdSubRef.value.getView();
-    const addValue = {};
-    let opcsAdjExcdYn = 0;
-    let usrSmryCn = 0;
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-
-    if (isEmpty(sub.getValues(0))) {
-      addValue.operatingExpensesTotal = opcsAdjExcdYn;
-      addValue.aesthetic = usrSmryCn;
-      sub.getDataSource().addRow(addValue);
-    } else {
-      sub.setValue(0, 'operatingExpensesTotal', opcsAdjExcdYn);
-      sub.setValue(0, 'aesthetic', usrSmryCn);
-    }
-  } else if (flag === 'sel') {
-    const sub = grdSubRef.value.getView();
-    const addValue = {};
-    let opcsAdjExcdYn = 0;
-    let usrSmryCn = 0;
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-
-    if (isEmpty(sub.getValues(0))) {
-      addValue.operatingExpensesTotal = opcsAdjExcdYn;
-      addValue.aesthetic = usrSmryCn;
-      sub.getDataSource().addRow(addValue);
-    } else {
-      sub.setValue(0, 'operatingExpensesTotal', opcsAdjExcdYn);
-      sub.setValue(0, 'aesthetic', usrSmryCn);
-    }
-  }
-  */
-
-  if (flag === 'basic') { // 유가증권 제외 탭
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-  } else if (flag === 'sel') { // 유가증권 탭
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-  }
-
-  const sub = grdSubRef.value.getView();
-  const addValue = {};
-
-  if (isEmpty(sub.getValues(0))) {
-    addValue.operatingExpensesTotal = opcsAdjExcdYn;
-    addValue.aesthetic = usrSmryCn;
-    sub.getDataSource().addRow(addValue);
-
-    sub.setValue(0, 'operatingExpensesTotal', 0);
-    sub.setValue(0, 'aesthetic', 0);
-  } else {
-    sub.setValue(0, 'operatingExpensesTotal', opcsAdjExcdYn);
-    sub.setValue(0, 'aesthetic', usrSmryCn);
-  }
-}
 
 async function fetchAmountData() {
   const view = grdMainRef.value.getView();
@@ -290,8 +192,17 @@ async function fetchAmountData() {
 async function fetchSummaryData() {
   const view = grdSubRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/summary', { params: cachedParams });
-  view.getDataSource().setRows(res.data);
-  view.resetCurrent();
+
+  const subData = [];
+  if (!isEmpty(res.data)) {
+    subData.push(res.data);
+
+    view.getDataSource().setRows(subData);
+    view.resetCurrent();
+  } else {
+    view.getDataSource().setRows(subData);
+    view.resetCurrent();
+  }
 }
 
 async function fetchData() {
@@ -317,13 +228,11 @@ async function fetchData() {
     cachedParams.dgr3LevlOgId = '';
   }
 
-  fetchAmountData(); // 금액
-  fetchSummaryData(); // 적요
+  await fetchAmountData(); // 금액
+  await fetchSummaryData(); // 적요
 }
 
 async function onClickSearch() {
-  opcsAdjExcdYn = 0;
-  usrSmryCn = 0;
   fetchData();
 }
 
@@ -371,8 +280,8 @@ const initGrdMain = defineGrid((data, view) => {
 const initGrdSub = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'opcsCardId', visible: false },
-    { fieldName: 'operatingExpensesTotal', header: t('MSG_TXT_OPCS_TOT_USE_CT'), width: '477', styleName: 'text-center', dataType: 'number' }, // 운영비 총 사용 건수
-    { fieldName: 'aesthetic', header: t('MSG_TXT_AES'), width: '450', styleName: 'text-center', dataType: 'number' }, // 미적요
+    { fieldName: 'opcsAdjCnt', header: t('MSG_TXT_OPCS_TOT_USE_CT'), width: '477', styleName: 'text-center', dataType: 'number' }, // 운영비 총 사용 건수
+    { fieldName: 'opcsSmryNCnt', header: t('MSG_TXT_AES'), width: '450', styleName: 'text-center', dataType: 'number' }, // 미적요
     { fieldName: 'opcsWhtxCfdcApnFileId',
       header: t('MSG_TXT_MSCR_WHTX_CFDC_APN_FILE'),
       width: '300',

@@ -157,7 +157,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, useGlobal } from 'kw-lib';
-import { isEmpty, cloneDeep } from 'lodash-es';
+import { isEmpty, cloneDeep, isEqual } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { pdMergeBy, pdRemoveBy, getCopyProductInfo, isValidToProdcutSave } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
@@ -188,6 +188,7 @@ const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const rel = pdConst.TBL_PD_REL;
 
+const prevProps = ref({});
 const fnlMdfcDtm = ref();
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.COMPOSITION_STEP_BASIC, pdConst.COMPOSITION_STEP_REL_PROD,
@@ -512,12 +513,14 @@ async function resetData() {
 
 // 초기화 버튼
 async function onClickReset() {
+  // 조회항목을 초기화하시겠습니까?\n초기화 이후 STEP1으로 이동합니다.
+  if (!await confirm(t('MSG_ALT_PD_RESET'))) return false;
   await resetData();
   await fetchProduct();
 }
 
 async function initProps() {
-  const { pdCd, newRegYn, reloadYn, copyPdCd } = props;
+  const { pdCd, newRegYn, reloadYn, copyPdCd, propWatch } = props;
   currentPdCd.value = pdCd;
   currentNewRegYn.value = newRegYn;
   currentReloadYn.value = reloadYn;
@@ -528,12 +531,18 @@ async function initProps() {
     isTempSaveBtn.value = true;
   }
   isCreate.value = isEmpty(currentPdCd.value);
+  prevProps.value = cloneDeep({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch });
 }
 
 await initProps();
 
 watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch }) => {
-  console.log(` WwpdcCompositionMgtM - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd} propWatch: ${propWatch}`);
+  // console.log(` WwpdcCompositionMgtM - watch - ${pdCd} : ${newRegYn} : ${reloadYn} : ${copyPdCd} : ${propWatch}`);
+  const newProps = { pdCd, newRegYn, reloadYn, copyPdCd, propWatch };
+  if (isEqual(newProps, prevProps.value)) {
+    return;
+  }
+  prevProps.value = cloneDeep({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch });
   if (pdCd && (currentPdCd.value !== pdCd || propWatch)) {
     // 상품코드 변경
     currentPdCd.value = pdCd;

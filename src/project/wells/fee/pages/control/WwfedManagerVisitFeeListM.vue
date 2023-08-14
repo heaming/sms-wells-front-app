@@ -19,7 +19,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
-          :colspan="2"
         >
           <kw-date-picker
             v-model="searchParams.baseYm"
@@ -38,6 +37,17 @@
             rules="required"
           />
         </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+        >
+          <kw-input
+            v-model="searchParams.prtnrNo"
+            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            icon="search"
+            clearable
+            :on-click-icon="onClickSearchNo"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
@@ -52,17 +62,6 @@
             :base-ym="searchParams.baseYm"
             :start-level="1"
             :end-level="3"
-          />
-        </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-        >
-          <kw-input
-            v-model="searchParams.prtnrNo"
-            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            icon="search"
-            clearable
-            :on-click-icon="onClickSearchNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -170,7 +169,7 @@ async function onClickSearchNo() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value, timeout: 200000 });
+  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value, timeout: 400000 });
 
   totalCount.value = res.data.length;
 

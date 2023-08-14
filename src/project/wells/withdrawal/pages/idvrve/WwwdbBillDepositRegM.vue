@@ -99,14 +99,14 @@
           dense
           secondary
           :label="t('MSG_BTN_DP_SLIP')"
-          @click="onClickTest"
+          @click="onClickDeposit"
         />
         <!-- label="입금전표" -->
         <kw-btn
           dense
           secondary
           :label="t('MSG_BTN_RPLC_SLIP')"
-          @click="onClickTest"
+          @click="onClickReplacementSlipProcessing"
         />
         <!-- label="대체전표" -->
         <kw-separator
@@ -189,7 +189,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, modal, useDataService, useMeta, notify } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, useDataService, useMeta, notify, confirm, alert } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -421,10 +421,80 @@ async function onClickSave() {
   // await onClickSubSearch(changedRows[0]);
 }
 
-// 대상조회
-async function onClickTest() {
-  notify(t('MSG_ALT_DEVELOPING')); // 기능개발중입니다.
+// 입금전표 생성
+async function onClickDeposit() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getCheckedRowValues(view);
+
+  if (changedRows === 0) {
+    await alert('데이터를 선택해주세요.');
+    return false;
+  }
+
+  let errorCount = 0;
+  changedRows.forEach((p1) => {
+    if (changedRows[0].billBndNo !== p1.billBndNo) {
+      errorCount += 1;
+      return false;
+    }
+
+    p1.sort = 'deposit';
+  });
+
+  if (errorCount > 0) {
+    alert('전표 생성의 경우 동일한 채권번호만 가능합니다.');
+    return false;
+  }
+
+  if (!await confirm('입금전표 생성 하시겠습니까?')) {
+    return false;
+  }
+
+  const cachedParam = changedRows;
+
+  await dataService.post('/sms/wells/withdrawal/idvrve/bill-deposits/deposit-processing', cachedParam);
+
+  await fetchData();
 }
+
+// 대체전표 생성
+async function onClickReplacementSlipProcessing() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getCheckedRowValues(view);
+
+  if (changedRows === 0) {
+    await alert('데이터를 선택해주세요.');
+    return false;
+  }
+
+  let errorCount = 0;
+  changedRows.forEach((p1) => {
+    if (changedRows[0].billBndNo !== p1.billBndNo) {
+      errorCount += 1;
+      return false;
+    }
+  });
+
+  if (errorCount > 0) {
+    alert('전표 생성의 경우 동일한 채권번호만 가능합니다.');
+    return false;
+  }
+
+  if (!await confirm('대체전표 생성 하시겠습니까?')) {
+    return false;
+  }
+
+  const cachedParam = changedRows;
+
+  await dataService.post('/sms/wells/withdrawal/idvrve/bill-deposits/deposit-processing', cachedParam);
+
+  await fetchData();
+}
+
+// 대상조회
+// async function onClickTest() {
+//   notify(t('MSG_ALT_DEVELOPING')); // 기능개발중입니다.
+// }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -433,6 +503,7 @@ const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNo' }, /* 계약번호 */
     { fieldName: 'cntrSn' }, /* 계약일련번호 */
+    { fieldName: 'cntrCstNo' }, /* 고객번호 */
     { fieldName: 'cntrDtlNo' }, /* 계약상세번호 */
     { fieldName: 'mconBzsNm' }, /* 거래처명 */
     { fieldName: 'billRmkCn' }, /* 어음구분 */
@@ -447,6 +518,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'col3' },
     { fieldName: 'sellBzsBzrno' }, /* 판매업체사업자번호 */
     { fieldName: 'pblBzsBzrno' }, /* 발행업체사업자번호 */
+    { fieldName: 'sort' }, /* 종류 */
 
   ];
 

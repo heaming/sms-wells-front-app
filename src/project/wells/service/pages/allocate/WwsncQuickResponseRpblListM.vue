@@ -266,14 +266,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useMeta, useDataService, useGlobal, gridUtil } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
 
 const { getConfig } = useMeta();
-const { alert } = useGlobal();
+const { alert, modal } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 const gridMainRef = ref(getComponentType('KwGrid'));
@@ -498,9 +498,14 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
-  view.onCellItemClicked = (g, index) => {
-    console.log(JSON.stringify(index, null, '\t'));
-    alert('개발중인 기능입니다.');
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'col4') {
+      const cstSignCn = g.getValue(itemIndex, 'cstSignCn');
+      await modal({
+        component: 'WwsnzSignPreviewP',
+        componentProps: { sign: cstSignCn },
+      });
+    }
   };
 
   // data.setRows([

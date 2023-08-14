@@ -53,6 +53,7 @@
           v-model="approvalRequest.acnoEncr"
           label="계좌번호"
           rules="required"
+          mask="#############################"
         />
         <kw-input
           v-model="approvalRequest.owrKnm"
@@ -67,17 +68,18 @@
           hint="개인카드의 경우, 생년월일(YYYYMMDD), 법인카드의 경우, 사업자번호 10자리를 입력해주세요."
           readonly
         />
-        <kw-input
-          :model-value="approvalResponse.aprNo"
-          label="승인번호"
-          readonly
-        />
+        <kw-item-label font="dense">
+          <span class="text-black2">승인결과</span>
+          <span
+            :class="fnitAprRsCdColorClass"
+            class="text-weight-medium ml12"
+          >{{ getCodeName('FNIT_APR_RS_CD', approvalResponse.fnitAprRsCd) }}</span>
+        </kw-item-label>
         <kw-btn
           stretch
           secondary
           border-color="black-btn-line"
-          :disable="!!approvalResponse.aprNo"
-          label="승인"
+          :label="approved ? '이체정보변경' : '승인'"
           @click="onClickApproval"
         />
       </kw-form>
@@ -88,8 +90,8 @@
 <script setup>
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
-import { confirm, getComponentType, notify, useDataService } from 'kw-lib';
-import { scrollIntoView } from '~sms-common/contract/util';
+import { alert, confirm, getComponentType, notify, useDataService } from 'kw-lib';
+import { CtCodeUtil, scrollIntoView } from '~sms-common/contract/util';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -98,53 +100,61 @@ const props = defineProps({
     default: undefined,
   },
 });
-
 const emit = defineEmits(['approved']);
-
-const dataService = useDataService();
-
 const exposed = {};
 defineExpose(exposed);
+const dataService = useDataService();
+
+const { getCodeName } = await CtCodeUtil('FNIT_APR_RS_CD');
 
 const frmRef = ref(getComponentType('KwForm'));
-
 const isCooperation = computed(() => props.cntrCstInfo.copnDvCd === '2' /* sorry, haha. */);
-
 const stlmBas = computed(() => (props.stlm ?? {}));
-
-const banks = ref([]);
 const mpyBsdtOptions = ref([]);
+const banks = ref([]);
+
+async function fetchRegularFundTransferDayOptions() {
+  if (!stlmBas.value.dpTpCd) { return; }
+  const { data } = await dataService.get(`/sms/common/contract/settlement/regular-fund-transfers-day-options/${stlmBas.value.dpTpCd}`);
+  mpyBsdtOptions.value = data;
+}
+await fetchRegularFundTransferDayOptions();
 
 async function fetchBanks() {
   const { data } = await dataService.get('/sms/common/common/codes/finance-code/bank-codes');
   banks.value = data;
 }
-
 await fetchBanks();
 
-async function fetchRegularFundTransferDayOptions() {
-  if (!stlmBas.value.dpTpCd) { return; }
-  const { data } = await dataService.get(`/sms/wells/contract/contracts/settlements/regular-fund-transfers-day-options/${stlmBas.value.dpTpCd}`);
-  mpyBsdtOptions.value = data;
-}
-
-await fetchRegularFundTransferDayOptions();
-
 const approvalRequest = ref({
+  cntrStlmId: stlmBas.value.cntrStlmId,
   stlmAmt: stlmBas.value.stlmAmt, /* TODO: 추후에 확인 필요 */
-  mpyBsdt: mpyBsdtOptions.value[0]?.codeId, /* 납부기준일자 */
-  acnoEncr: '', /* 계좌번호 */
+  mpyBsdt: stlmBas.value.mpyBsdt, /* 납부기준일자 */
+  acnoEncr: stlmBas.value.acnoEncr,
+  bnkCd: stlmBas.value.bnkCd,
   owrKnm: props.cntrCstInfo.cstKnm, /* 소유자 한글명 */
   copnDvCd: props.cntrCstInfo.copnDvCd,
   copnDvCdDrmVal: isCooperation.value ? props.cntrCstInfo.bzrno : props.cntrCstInfo.bryyMmdd,
 });
-
 const approvalResponse = ref({
   aprNo: undefined, /* 승인번호, 저장은 안하지만 와야함. */
   cdcoCd: undefined, /* 카드사 코드 */
-  fnitAprRsCd: undefined, /* 금융기관승인결과코드 */
+  fnitAprRsCd: 'N', /* 금융기관승인결과코드 */
   fnitAprFshDtm: undefined, /* 금융기관승인완료일시 */
 });
+
+const fnitAprRsCdColorClass = computed(() => {
+  const { fnitAprRsCd } = approvalResponse.value;
+  if (fnitAprRsCd === 'Y') {
+    return 'text-primary';
+  }
+  if (fnitAprRsCd === 'B') {
+    return 'text-error';
+  }
+  return 'text-black2';
+});
+const alreadyDone = (stlmBas.value.fnitAprRsCd === 'Y');
+const approved = ref(alreadyDone);
 
 function getStlmUpdateInfo() {
   const { cntrStlmId, dpTpCd, cntrNo } = stlmBas.value;
@@ -174,24 +184,23 @@ function getStlmUpdateInfo() {
   });
 }
 
+let cachedRequestParams;
 async function requestApproval() {
-  return new Promise((resolve) => {
-    const testResponse = {
-      data: {
-        aprNo: 'test123456789',
-        cdcoCd: '',
-        fnitAprRsCd: 'Y',
-      },
-    };
-    setTimeout(() => resolve(testResponse), 100);
-  });
+  cachedRequestParams = { ...approvalRequest.value };
+  const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/account-auto-transfer', cachedRequestParams);
+  approvalResponse.value = data;
+  if (data.fnitAprRsCd === 'B') {
+    await alert('임시로 유효성 체크는 통과합니다. 계좌 인증 안정시 수정.');
+  }
+
+  // approved.value = (data.fnitAprRsCd === 'Y'); FIXME 테스트 끝나면 돌려놓을 것
+  approved.value = true;
 }
 
 async function onClickApproval() {
   if (!await frmRef.value.validate()) { return; }
   if (!await confirm('자동이체를 등록하시겠습니까?')) { return; }
-  const response = await requestApproval();
-  approvalResponse.value = response.data;
+  await requestApproval();
   emit('approved', getStlmUpdateInfo());
 }
 
@@ -200,7 +209,7 @@ const topRef = ref();
 
 async function validate() {
   if (!props.stlm) { return true; }
-  const valid = approvalResponse.value?.fnitAprRsCd === 'Y';
+  const valid = approved.value;
   if (!valid) {
     notify('계좌 이체 요청을 해주세요.');
     scrollIntoView(topRef);

@@ -118,7 +118,7 @@ const searchParams = ref({
 async function onClickRenewal() {
   if (!await frmMainRef.value.validate()) return;
 
-  await dataService.put('/sms/wells/service/stock-master-renewal', searchParams.value);
+  await dataService.put('/sms/wells/service/stock-master-renewal', searchParams.value, { timeout: 3000000 });
 
   notify(t('MSG_ALT_RENEW_DATA'));
 }

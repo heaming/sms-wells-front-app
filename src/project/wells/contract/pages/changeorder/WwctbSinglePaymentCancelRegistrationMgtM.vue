@@ -211,7 +211,7 @@
           v-model="inputDetail.sel3Text"
           class="w80"
           regex="num"
-          maxlength="2"
+          maxlength="1"
           @update:model-value="onChangeTextforSelect('sel3')"
         />
       </kw-form-item>
@@ -254,6 +254,12 @@
         class="ml8"
         @click="onClickRefund"
       />
+      <!--삭제-->
+      <kw-btn
+        :label="$t('MSG_BTN_DEL')"
+        class="ml8"
+        @click="onClickDelete"
+      />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
     <div
@@ -295,6 +301,7 @@ const emits = defineEmits([
   'searchdetail',
   'savedetail',
   'removedetail',
+  'deletecancel',
 ]);
 
 const props = defineProps({
@@ -317,9 +324,17 @@ codes.CSMB_CS_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
 function onChangeTextforSelect(div) {
   if (div === 'sel2') {
-    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    if (codes.CMN_STAT_CH_RSON_CD.findIndex((v) => v.codeId === inputDetail.value.sel2Text) >= 0) {
+      searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    } else {
+      searchDetail.cntrStatChRsonCd = '';
+    }
   } else if (div === 'sel3') {
-    searchDetail.csmbCsExmptDvCd = inputDetail.value.sel3Text;
+    if (codes.CSMB_CS_EXMPT_DV_CD.findIndex((v) => v.codeId === inputDetail.value.sel3Text) >= 0) {
+      searchDetail.csmbCsExmptDvCd = inputDetail.value.sel3Text;
+    } else {
+      searchDetail.csmbCsExmptDvCd = '';
+    }
   }
 }
 
@@ -337,6 +352,10 @@ function onClickSave() {
 
 function onClickCancel() {
   emits('removedetail');
+}
+
+function onClickDelete() {
+  emits('deletecancel');
 }
 
 async function onClickTodo(param) {

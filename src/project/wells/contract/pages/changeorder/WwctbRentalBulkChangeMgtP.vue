@@ -552,7 +552,7 @@ async function onSearchItemCheck(payload, dataRow) {
         alert(t('계약상세상태코드가 없습니다.')); // 계약상세상태코드가 없습니다.
         return;
       }
-      if (res.data.cntrDtlStatCd.substring(0, 1) === '3') { // 해지 이면
+      if (res.data.cntrDtlStatCd.substring(0, 1) === '3' && res.data.cntrDtlStatCd !== '303') { // 해지 이면
         view.setValue(dataRow, 'cntrDtlNo', '');
         alert(t('MSG_ALT_CHK_CONFIRM', [`${t('MSG_TXT_CANCEL')} ${t('MSG_TXT_RGST_MTR')}`])); // 취소 등록자료 을(를) 확인하세요.
         return;
@@ -832,6 +832,38 @@ async function onSearchItemCheck(payload, dataRow) {
     alert(t('대상 계약이 아닙니다.'));
   }
 }
+
+onMounted(async () => {
+  // 콤보박스 선택 후 팝업 오픈 시 그리드 변경
+  const view = grdRentalBulkChangeMgtList.value.getView();
+  if (saveParams.value.procsDv === '601' || saveParams.value.procsDv === '605') {
+    view.columnByName('istDt').visible = false; // 설치일
+  } else if (saveParams.value.procsDv === '615') { // 시리얼 번호 변경
+    view.columnByName('serialNo').visible = true; // 시리얼번호
+  } else if (saveParams.value.procsDv === '616') { // 법인 코로나 렌탈중지
+    view.columnsByTag('rentalStp').forEach((col) => { col.visible = true; }); // 법인코로나 렌탈중지 취소
+  } else if (saveParams.value.procsDv === '617') { // 법인 코로나 렌탈중지 취소
+    view.columnByName('stpCanYm').visible = true; // 중지취소년월
+  } else if (saveParams.value.procsDv === '618') { // 수수료 정액여부 변경
+    view.columnByName('feeFxamYn').visible = true; // 수수료정액여부
+  } else if (saveParams.value.procsDv === '619') { // 프로모션 렌탈료 할인
+    view.columnsByTag('dsc').forEach((col) => { col.visible = true; }); // 할인개월, 할인금액
+  } else if (saveParams.value.procsDv === '623') { // 매출(BS) 중지 해제
+    view.columnByName('istDt').visible = false; // 설치일
+    view.columnByName('rcgvpKnm').visible = false; // 고객명
+  } else if (saveParams.value.procsDv === '624') { // 포인트플러스 강제 맵핑
+    view.columnByName('lifeCstCd').visible = true; // 라이프고객코드
+  } else if (saveParams.value.procsDv === '625') { // 플래너상조제휴 강제 맵핑
+    view.columnByName('lifeCstCd').visible = true; // 라이프고객코드
+    view.columnByName('lifeCstCd2').visible = true; // 라이프고객코드2
+  } else if (saveParams.value.procsDv === '711') { // BS업체구분값 변경
+    view.columnsByTag('bs').forEach((col) => { col.visible = true; }); // 업체구분
+  }
+
+  if (saveParams.value.procsDv === '612' || saveParams.value.procsDv === '620' || saveParams.value.procsDv === '623') {
+    alert(t('서비스 확인 중 입니다.'));
+  }
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -977,7 +1009,8 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
       header: t('MSG_TXT_CLSF_BS'),
       width: '126',
       styleName: 'text-center',
-      options: codes.BFSVC_BZS_DV_CD,
+      options: codes.BFSVC_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
+      // optionLabel: codes.BFSVC_BZS_DV_CD.map((v) => `${v.codeId}-${v.codeName}`),
       editable: false,
       tag: 'bs',
       visible: false }, // 업체BS구분
@@ -985,7 +1018,7 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
       header: t('MSG_TXT_CLSF_BUS'),
       width: '126',
       styleName: 'text-center',
-      options: codes.SPLY_BZS_DV_CD,
+      options: codes.SPLY_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       editable: false,
       tag: 'bs',
       visible: false }, // 업체구분
@@ -995,7 +1028,7 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
       styleName: 'text-center',
       tag: 'bs',
       editor: { type: 'list' },
-      options: codes.BFSVC_BZS_DV_CD,
+      options: codes.BFSVC_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       placeHolder: t('MSG_TXT_SELT'),
       visible: false }, // 수정 업체BS구분
     { fieldName: 'modSplyBzsDvCd',
@@ -1003,8 +1036,8 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
       width: '126',
       styleName: 'text-center',
       tag: 'bs',
+      options: codes.SPLY_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       editor: { type: 'list' },
-      options: codes.SPLY_BZS_DV_CD,
       placeHolder: t('MSG_TXT_SELT'),
       visible: false }, // 수정 업체구분
     { fieldName: 'note', header: t('MSG_TXT_NOTE'), width: '528.4', editor: { maxLength: 500 } }, // 비고

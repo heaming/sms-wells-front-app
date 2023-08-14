@@ -118,6 +118,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           secondary
@@ -131,6 +132,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="$t('MSG_BTN_CNTN_CREATE')"
@@ -157,6 +159,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_SAVE')"
           grid-action
           :disable="isNotActivated"
@@ -204,7 +207,7 @@ import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
 import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon, checkAvailabilityCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasRoleNickName } = useMeta();
 const { notify, alert, confirm } = useGlobal();
 const { getters } = useStore();
 const dataService = useDataService();
@@ -230,6 +233,7 @@ const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (ob
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const isNotActivated = ref(false);
+const isCollectionManager = hasRoleNickName('CLCTAM_MNGT');
 const totalCount = ref(0);
 const pageInfo = ref({
   totalCount: 0,
@@ -428,9 +432,9 @@ const validateSearchCstNo = async () => {
 
 watch(() => searchParams.value.baseYm, async (baseYm) => {
   if (baseYm !== defaultDate) {
-    // isNotActivated.value = true;
+    isNotActivated.value = true;
   } else {
-    // isNotActivated.value = false;
+    isNotActivated.value = false;
   }
 });
 
@@ -630,11 +634,10 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.onCellClicked = () => {
     if (cachedParams.baseYm !== defaultDate) {
-      // view.editOptions.editable = false;
+      view.editOptions.editable = false;
     } else {
-      // view.editOptions.editable = true;
+      view.editOptions.editable = isCollectionManager;
     }
-    view.editOptions.editable = true;
   };
 });
 </script>

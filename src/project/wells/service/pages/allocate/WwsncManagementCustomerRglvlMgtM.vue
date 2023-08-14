@@ -77,12 +77,9 @@
           use-partner
           dgr3-levl-og-first-option="all"
           partner-first-option="all"
-          dgr1-levl-og-label="ogCdNm"
-          dgr2-levl-og-label="ogCdNm"
-          dgr3-levl-og-label="ogCdNm"
-          partner-label="prtnrNoNm"
           dgr1-levl-og-readonly
           dgr2-levl-og-readonly
+          bzns-psic-auth-yn="Y"
         />
       </kw-search-row>
       <!-- <kw-search-row>
@@ -251,7 +248,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, gridUtil, useDataService, getComponentType, useGlobal, codeUtil } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -364,7 +361,10 @@ async function getOrganizationInfo() {
   searchParams.value.executiveGroup = dgr1LevlOgId;
   searchParams.value.localGroup = dgr2LevlOgId;
 
-  const res = await fetchDgr2LevlOgs({ params: { ogId: dgr1LevlOgId } });
+  const res = await fetchDgr2LevlOgs({ params: {
+    ogId: dgr1LevlOgId,
+    bznsPsicAuthYn: 'Y',
+  } });
   const { ogCd } = res.data.find((option) => dgr2LevlOgId === option.ogId);
 
   localGroupCd.value = ogCd;
@@ -401,6 +401,7 @@ watch(() => mngStd.value.mngtPrtnrOgTpCd, async () => {
     dgr1LevlOgId: executiveGroup.value,
     dgr2LevlOgId: localGroup.value,
     dgr3LevlOgId: mngStd.value.mngtPrtnrOgTpCd,
+    bznsPsicAuthYn: 'Y',
   } });
   mngStdPrtnrNoOptions.value = data;
 });
@@ -458,6 +459,7 @@ watch(() => curMnthAlctn.value.asnPsicPrtnrOgTpCd, async () => {
     dgr1LevlOgId: executiveGroup.value,
     dgr2LevlOgId: localGroup.value,
     dgr3LevlOgId: curMnthAlctn.value.asnPsicPrtnrOgTpCd,
+    bznsPsicAuthYn: 'Y',
   } });
   curMnthAlctnPrtnrNoOptions.value = data;
 });
@@ -715,7 +717,10 @@ function initGrdMain(data, view) {
 
 onMounted(async () => {
   await getOrganizationInfo();
-  const { data } = await fetchDgr3LevlOgs({ params: { ogId: localGroup.value } });
+  const { data } = await fetchDgr3LevlOgs({ params: {
+    ogId: localGroup.value,
+    bznsPsicAuthYn: 'Y',
+  } });
   prtnrOgTpOptions.value = data;
 });
 </script>

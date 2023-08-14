@@ -134,7 +134,7 @@ const usedChannelCds = ref([]);
 const addChannelId = ref();
 const usedChannelRef = ref();
 const vlStrtDtm = ref(now.format('YYYYMMDD'));
-const vlEndDtm = ref();
+const vlEndDtm = ref('99991231');
 
 const searchParams = ref({
   searchType: pdConst.PD_SEARCH_CODE,
@@ -148,7 +148,7 @@ async function resetData() {
   usedChannelCds.value = [];
   addChannelId.value = '';
   vlStrtDtm.value = now.format('YYYYMMDD');
-  vlEndDtm.value = null;
+  vlEndDtm.value = '99991231';
   removeObjects.value = [];
   gridRowCount.value = 0;
   const view = grdMainRef.value?.getView();
@@ -264,8 +264,10 @@ async function onClickAdd() {
       item.basePdCd = item.pdCd;
       item.baseSellTpCd = item.sellTpCd;
       item.sellChnlCd = addChannelId.value;
-      item.vlStrtDtm = item.vlStrtDtm ? item.vlStrtDtm.substr(0, 8) : vlStrtDtm.value;
-      item.vlEndDtm = item.vlEndDtm ? item.vlEndDtm.substr(0, 8) : vlEndDtm.value;
+      // item.vlStrtDtm = item.vlStrtDtm ? item.vlStrtDtm.substr(0, 8) : vlStrtDtm.value;
+      // item.vlEndDtm = item.vlEndDtm ? item.vlEndDtm.substr(0, 8) : vlEndDtm.value;
+      item.vlStrtDtm = vlStrtDtm.value;
+      item.vlEndDtm = vlEndDtm.value;
       item.pdCd = '';
       item.verSn = '';
       item.pdPrcId = '';

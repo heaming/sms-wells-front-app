@@ -386,7 +386,7 @@ function initGrid(data, view) {
     },
     { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '120', styleName: 'text-center' },
     { fieldName: 'cltnYm', header: t('MSG_TXT_CLTN_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },

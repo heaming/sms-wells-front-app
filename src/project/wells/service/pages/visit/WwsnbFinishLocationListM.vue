@@ -259,7 +259,7 @@ async function initGrdMain(data, view) {
 
   view.rowIndicator.visible = true;
 
-  await onClickSearch();
+  // await onClickSearch();
 }
 
 </script>
