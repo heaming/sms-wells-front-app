@@ -728,6 +728,7 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
           data.setValue(updateRow, i, '');
         }
         data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+        alert(t('대상 계약이 아닙니다.'));
       }
     }
   };
