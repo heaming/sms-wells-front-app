@@ -552,7 +552,7 @@ async function onSearchItemCheck(payload, dataRow) {
         alert(t('계약상세상태코드가 없습니다.')); // 계약상세상태코드가 없습니다.
         return;
       }
-      if (res.data.cntrDtlStatCd.substring(0, 1) === '3') { // 해지 이면
+      if (res.data.cntrDtlStatCd.substring(0, 1) === '3' && res.data.cntrDtlStatCd !== '303') { // 해지 이면
         view.setValue(dataRow, 'cntrDtlNo', '');
         alert(t('MSG_ALT_CHK_CONFIRM', [`${t('MSG_TXT_CANCEL')} ${t('MSG_TXT_RGST_MTR')}`])); // 취소 등록자료 을(를) 확인하세요.
         return;
