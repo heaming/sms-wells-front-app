@@ -806,6 +806,7 @@
           <kw-btn
             primary
             :label="$t('MSG_BTN_SAVE')"
+            :disable="!isFetched"
             @click="onClickSave"
           />
         </kw-action-bottom>
@@ -1048,10 +1049,15 @@ async function fetchProductAdditionalInfoData() {
   await initProduct();
 }
 
+const isFetched = ref(false);
 // 기본정보 조회
 async function fetchData() {
+  isFetched.value = false;
+
   const res = await dataService.get('/sms/wells/contract/changeorder/rental-change-infos', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
   Object.assign(fieldData.value, res.data);
+
+  isFetched.value = true;
 
   // 주문상품선택 추가정보를 가져오기 위한 파라미터 세팅
   searchParams.value.pdCd = fieldData.value.basePdCd;
