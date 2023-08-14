@@ -178,7 +178,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { isEmpty, cloneDeep } from 'lodash-es';
+import { isEmpty, cloneDeep, isEqual } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getCodeNames, pdMergeBy, pdRemoveBy, getCopyProductInfo, isValidToProdcutSave } from '~sms-common/product/utils/pdUtil';
 import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/ZwpdcPropGroupsMgt.vue';
@@ -211,6 +211,7 @@ const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const rel = pdConst.TBL_PD_REL;
 const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 
+const prevProps = ref({});
 const isTempSaveBtn = ref(true);
 const regSteps = ref([pdConst.STANDARD_STEP_BASIC, pdConst.STANDARD_STEP_REL_PROD,
   pdConst.STANDARD_STEP_MANAGE, pdConst.STANDARD_STEP_PRICE, pdConst.STANDARD_STEP_CHECK]);
@@ -650,7 +651,7 @@ async function onClickReset() {
 }
 
 async function initProps() {
-  const { pdCd, newRegYn, reloadYn, copyPdCd } = props;
+  const { pdCd, newRegYn, reloadYn, copyPdCd, propWatch } = props;
   currentPdCd.value = pdCd;
   currentNewRegYn.value = newRegYn;
   currentReloadYn.value = reloadYn;
@@ -661,12 +662,18 @@ async function initProps() {
     isTempSaveBtn.value = true;
   }
   isCreate.value = isEmpty(currentPdCd.value);
+  prevProps.value = cloneDeep({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch });
 }
 
 await initProps();
 
 watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch }) => {
-  console.log(` WwpdcStandardMgtM - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd} propWatch: ${propWatch}`);
+  // console.log(`WwpdcStandardMgtM - watch - ${pdCd} : ${newRegYn} : ${reloadYn} : ${copyPdCd} : ${propWatch}`);
+  const newProps = { pdCd, newRegYn, reloadYn, copyPdCd, propWatch };
+  if (isEqual(newProps, prevProps.value)) {
+    return;
+  }
+  prevProps.value = cloneDeep({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch });
   if (pdCd && (currentPdCd.value !== pdCd || propWatch)) {
     // 상품코드 변경
     currentPdCd.value = pdCd;
