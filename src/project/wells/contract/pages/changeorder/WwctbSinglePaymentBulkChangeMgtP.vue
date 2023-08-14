@@ -556,7 +556,6 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
     { fieldName: 'cntrSn' }, // 계약일련번호
     { fieldName: 'cstKnm' }, // 고객한글명
     { fieldName: 'rveCd' }, // 수납코드
-    { fieldName: 'pyerNo' }, // 납부자번호
     { fieldName: 'basePdCd' }, // 기준상품코드
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'cntrRcpFshDtm' }, // 계약접수완료일시
