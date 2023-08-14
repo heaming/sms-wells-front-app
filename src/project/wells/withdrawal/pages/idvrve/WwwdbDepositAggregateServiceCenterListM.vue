@@ -40,8 +40,8 @@
             option-value="ogId"
             option-label="ogNm"
             first-option="all"
-            first-option-value="ALL"
           />
+          <!-- first-option-value="ALL" -->
         </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_EGER')"
