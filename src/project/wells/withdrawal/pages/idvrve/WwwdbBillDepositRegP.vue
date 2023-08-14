@@ -425,8 +425,8 @@ async function onClickSave() {
 
   if (!itgDpNo.value) {
     const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic');
-    console.log(res.data);
-    itgDpNo.value = res.data;
+    console.log(res.data.itgDpNo);
+    itgDpNo.value = res.data.itgDpNo;
     changedRows[0].state = 'created';
   } else {
     changedRows[0].state = 'updated';
