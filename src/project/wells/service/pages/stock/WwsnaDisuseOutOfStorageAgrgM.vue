@@ -5,7 +5,7 @@
 1. 모듈 : SNA (재고관리)
 2. 프로그램 ID : WwsnaDisuseOutOfStorageAgrgM - 폐기출고집계현황(K-W-SV-U-0111M01)
 3. 작성자 : jungheejin
-4. 작성일 : 2023-08-11
+4. 작성일 : 2023-08-14
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -17,11 +17,11 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
-        <kw-search-item label="확인일자">
+        <kw-search-item :label="$t('MSG_TXT_CONF_DT')">
           <kw-date-range-picker
             v-model:from="searchParams.startDt"
             v-model:to="searchParams.endDt"
-            label="확인일자"
+            :label="$t('MSG_TXT_CONF_DT')"
             rules="date_range_required"
           />
         </kw-search-item>
@@ -69,7 +69,7 @@
         </kw-search-item>
 
         <kw-search-item
-          :label="$t('상품등급')"
+          :label="$t('MSG_TXT_PD_GRD')"
           class="w280"
         >
           <kw-select
@@ -161,7 +161,6 @@ async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
   const list = res.data;
   totalCount.value = list.length;
-  console.log(list);
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
@@ -209,14 +208,14 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'asMatItmGrpNm', header: '상품그룹', width: '150', styleName: 'text-center' },
-    { fieldName: 'sapMatCd', header: 'SAP코드', width: '170', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: '품목코드', width: '150' },
-    { fieldName: 'pdNm', header: '상품명', width: '260', styleName: 'text-center' },
-    { fieldName: 'asSplUnitAmt', header: '폐기단가', width: '120', styleName: 'text-right' },
+    { fieldName: 'asMatItmGrpNm', header: t('MSG_TXT_PD_GRP'), width: '150', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '170', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '260', styleName: 'text-center' },
+    { fieldName: 'asSplUnitAmt', header: t('MSG_TXT_DSCD_UPRC'), width: '120', styleName: 'text-right' },
     {
       fieldName: 'itemGdESum',
-      header: t('수량'),
+      header: t('MSG_TXT_QTY'),
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
@@ -228,7 +227,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'itemGdECostSum',
-      header: t('폐기금액'),
+      header: t('MSG_TXT_DSCD_AMT'),
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
@@ -240,7 +239,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'itemGdRSum',
-      header: t('수량'),
+      header: t('MSG_TXT_QTY'),
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
@@ -252,7 +251,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'itemGdRCostSum',
-      header: t('폐기금액'),
+      header: t('MSG_TXT_DSCD_AMT'),
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
@@ -265,7 +264,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'itemGdXSum',
-      header: t('수량'),
+      header: t('MSG_TXT_QTY'),
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
@@ -277,7 +276,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'itemGdXCostSum',
-      header: t('폐기금액'),
+      header: t('MSG_TXT_DSCD_AMT'),
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
@@ -289,7 +288,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'itemGdSum',
-      header: t('수량'),
+      header: t('MSG_TXT_QTY'),
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
@@ -301,7 +300,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'itemGdCostSum',
-      header: t('폐기금액'),
+      header: t('MSG_TXT_DSCD_AMT'),
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
@@ -313,7 +312,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'etcInstSum',
-      header: t('회사설치'),
+      header: t('MSG_TXT_CO_IST'),
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
@@ -321,7 +320,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'leaseSum',
-      header: t('금융리스'),
+      header: t('MSG_TXT_FNN_LEASE'),
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
@@ -329,7 +328,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'etcLeaseSum',
-      header: t('회사+금융'),
+      header: t('MSG_TXT_COMPANY_FNN'),
       width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
@@ -339,22 +338,22 @@ const initGrdMain = defineGrid((data, view) => {
   const columnLayout = [
     'asMatItmGrpNm', 'sapMatCd', 'pdCd', 'pdNm', 'asSplUnitAmt', // single
     {
-      header: 'E급', // colspan title
+      header: t('MSG_TXT_EGD'), // colspan title
       direction: 'horizontal', // merge type
       items: ['itemGdESum', 'itemGdECostSum'],
     },
     {
-      header: 'R급',
+      header: t('MSG_TXT_RGD'),
       direction: 'horizontal',
       items: ['itemGdRSum', 'itemGdRCostSum'],
     },
     {
-      header: 'X급',
+      header: t('MSG_TXT_XGD'),
       direction: 'horizontal',
       items: ['itemGdXSum', 'itemGdXCostSum'],
     },
     {
-      header: '총계',
+      header: t('MSG_TXT_TOT_SUM'),
       direction: 'horizontal',
       items: ['itemGdSum', 'itemGdCostSum'],
     },
@@ -363,7 +362,7 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.setColumnLayout(columnLayout);
-  view.columnByName('pdCd').setFooters({ text: t('합계'), styleName: 'text-center text-weight-bold' });
+  view.columnByName('pdCd').setFooters({ text: t('MSG_TXT_SUM'), styleName: 'text-center text-weight-bold' });
   view.setFooters({ visible: true, items: [{ height: 30 }] });
   view.setFixedOptions({ colCount: 5, resizable: true });
   view.checkBar.visible = false;
@@ -371,6 +370,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.groupBy(['asMatItmGrpNm']);
   view.setRowGroup({ mergeMode: true });
   view.layoutByColumn('sapMatCd').groupFooterUserSpans = [{ colspan: 4 }];
-  view.columnByName('sapMatCd').setGroupFooters({ text: '소계', styleName: 'text-center' });
+  view.columnByName('sapMatCd').setGroupFooters({ text: t('MSG_TXT_SBSUM'), styleName: 'text-center' });
 });
 </script>
