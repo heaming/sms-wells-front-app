@@ -247,7 +247,7 @@ import {
   stringUtil,
 } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
@@ -406,7 +406,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback: (grid, index) => {
         const fshDt = gridUtil.getCellValue(grid, index.dataRow, 'fshDt');
-        return (fshDt !== '' ? 'Y' : 'N');
+        return (isEmpty(fshDt) ? 'Y' : 'N');
       },
     },
     {
