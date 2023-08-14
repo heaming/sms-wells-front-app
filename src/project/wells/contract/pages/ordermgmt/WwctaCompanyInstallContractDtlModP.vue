@@ -448,6 +448,7 @@ const props = defineProps({
   svPrd: { type: String, default: '' }, // [방문주기]
   frisuBfsvcPtrmN: { type: String, default: '' }, // [무상기간]
   frisuAsPtrmN: { type: String, default: '' }, // [A/S기간]
+  fnlAmt: { type: String, default: '' }, // [월비용]
   istDt: { type: String, default: '' }, // [설치일]
   rtnDt: { type: String, default: '' }, // [반품일]
   istAkArtcMoCn: { type: String, default: '' }, // [참고사항]

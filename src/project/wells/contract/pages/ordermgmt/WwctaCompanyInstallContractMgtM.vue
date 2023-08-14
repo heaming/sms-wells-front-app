@@ -370,8 +370,6 @@ async function callInstallPopup(cntrNo, cntrSn, sellDate, mtrStatCd) {
       mtrStatCd,
       cntrNo,
       cntrSn,
-      // dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
-      // userId: sellPrtnrNo,
     },
   });
   console.log(res);
@@ -503,7 +501,7 @@ const initGrid = defineGrid((data, view) => {
     'svPrd', 'frisuBfsvcPtrmN', 'frisuAsPtrmN', 'sppDuedt', 'istDt', 'rtnDt', 'istAkArtcMoCn',
     'cttRsCd', 'cttPsicId', 'sconCn', 'mtrDv', 'sellTpDtlNm', 'cntrNoSn216', 'reguDelYn', 'memExpGbn',
     'fstRgstDt', 'fstRgstTm', 'fstRgstUsrId', 'fstRgstUsrNm', 'fnlMdfcDt', 'fnlMdfcTm', 'fnlMdfcUsrId', 'fnlMdfcUsrNm',
-    'cntrNo', 'cntrSn', 'cntrNo216', 'cntrSn216',
+    'cntrNo', 'cntrSn', 'cntrNo216', 'cntrSn216', 'fnlAmt',
   ]);
 
   // click button
