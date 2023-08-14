@@ -210,7 +210,6 @@ async function fetchData() {
   }
   // 작업 대기값 조회시 paging 하지않음.
   isPaging.value = (cachedParams.procsDvCd !== '2');
-
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.clearCurrent();
@@ -304,8 +303,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: ' svBizDclsfCd' }, // 작업구분코드
     { fieldName: ' svBizDclsfNm' }, // 작업구분명
     { fieldName: ' vstDuedt' }, // 방문예정일자
-    { fieldName: ' pVstPrgsStatCd' },
-    { fieldName: ' pVstPrgsStatNm' },
+    { fieldName: ' ppVstPrgsStatCd' },
+    { fieldName: ' ppVstPrgsStatNm' },
     { fieldName: ' vstPrgsStatCd' },
     { fieldName: ' vstPrgsStatNm' }, // 방문진행상태명
     { fieldName: ' wkExcnDt' }, // 작업수행일자(작업완료일자)
@@ -964,18 +963,18 @@ const initGrdMain = defineGrid((data, view) => {
     'dtlAdr',
   ];
 
-  const f = function checked(dataSource, item) {
-    if ((data.getValue(item.dataRow, 'pVstPrgsStatCd') === '00' || data.getValue(item.dataRow, 'pVstPrgsStatCd') === '10')) {
-      return false;
-    }
-    return true;
-  };
-
   data.setFields(fields);
   view.setColumns(columns);
   view.setColumnLayout(columnLayout);
 
   view.checkBar.visible = true;
+  const f = function checked(dataSource, item) {
+    if ((data.getValue(item.dataRow, 'ppVstPrgsStatCd') === '00') || (data.getValue(item.dataRow, 'ppVstPrgsStatCd') === '10')) {
+      return true;
+    }
+    return false;
+  };
+
   view.setCheckBar({ checkableCallback: f });
   view.rowIndicator.visible = true;
   view.setFixedOptions({ colCount: 3, resizable: true });
