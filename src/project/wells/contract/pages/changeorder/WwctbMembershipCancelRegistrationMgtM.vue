@@ -427,7 +427,7 @@
           v-model="inputDetail.sel1Text"
           class="w80"
           regex="num"
-          maxlength="2"
+          maxlength="1"
           @update:model-value="onChangeTextforSelect('sel1')"
         />
       </kw-form-item>
