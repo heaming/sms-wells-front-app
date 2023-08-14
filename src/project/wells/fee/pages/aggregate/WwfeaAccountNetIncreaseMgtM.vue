@@ -78,7 +78,7 @@
         <!-- 집계체크 -->
         <kw-search-item
           v-if="searchParams.inqrDvCd === '03'"
-          :label="$t('MSG_TXT_AGRG_CHECK')"
+          :label="$t('MSG_TXT_AGRG') + $t('MSG_TXT_TYPE')"
         >
           <kw-select
             v-model="searchParams.aggregateTpCd"
@@ -421,16 +421,16 @@ const initSellGrid = defineGrid((data, view) => {
 
 const initCheckGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'inqrDvCd', header: t('MSG_TXT_TYPE'), width: '100', styleName: 'text-center' }, // 유형
+    { fieldName: 'inqrDvCd', header: t('MSG_TXT_OG'), width: '100', styleName: 'text-center' }, // 조직
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '105', styleName: 'text-center' }, // 성명
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '105', styleName: 'text-center' }, // 번호
     { fieldName: 'rentalCanCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center' }, // 렌탈
-    { fieldName: 'leaseCanCt', header: t('MSG_TXT_RENT_LEAS'), width: '100', styleName: 'text-center' }, // 리스/할부
+    { fieldName: 'leaseCanCt', header: t('MSG_TXT_LEASE_ISTM'), width: '100', styleName: 'text-center' }, // 리스/할부
     { fieldName: 'mshSprCt', header: t('MSG_TXT_MMBR') + t('MSG_TXT_SEPARATION'), width: '100', styleName: 'text-center' }, // 멤버십이탈
     { fieldName: 'rentalExnCt', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_EXN'), width: '100', styleName: 'text-center' }, // 렌탈만료
     { fieldName: 'canTotCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-center' }, // 계
     { fieldName: 'rentalNwCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center' }, // 렌탈
-    { fieldName: 'leaseNwCt', header: t('MSG_TXT_RENT_LEAS') + t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' }, // 리스/할부
+    { fieldName: 'leaseNwCt', header: t('MSG_TXT_LEASE_ISTM'), width: '100', styleName: 'text-center' }, // 리스/할부
     { fieldName: 'nwTotCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-center' }, // 계
     { fieldName: 'accNincYn', header: t('MSG_TXT_ACC') + t('MSG_TXT_NINC'), width: '100', styleName: 'text-center' }, // 계정순증
   ];
