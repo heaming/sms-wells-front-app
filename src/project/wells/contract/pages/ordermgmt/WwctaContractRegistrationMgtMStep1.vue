@@ -83,13 +83,11 @@
         <kw-search-item
           v-if="cntrTpIs.crp || (cntrTpIs.msh && searchParams.copnDvCd === '2')"
           :label="$t('MSG_TXT_CRP_NM')"
-          required
         >
           <kw-input
             v-model="searchParams.cstKnm"
             :label="$t('MSG_TXT_CRP_NM')"
             maxlength="50"
-            rules="required"
             :disable="isReadonly"
           />
         </kw-search-item>
