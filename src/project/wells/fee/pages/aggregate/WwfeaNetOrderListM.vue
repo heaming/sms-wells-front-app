@@ -190,6 +190,7 @@
               :label="$t('MSG_TXT_ORDR')"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
+              @change="onChangedOrdr"
             />
           </kw-search-item>
           <kw-search-item

@@ -86,7 +86,7 @@
             :label="t('MSG_TXT_METG')"
             align-content="right"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.metg) }}</p>
+            <p>{{ info1.metg ?stringUtil.getNumberWithComma(info1.metg) : '0' }}</p>
           </kw-form-item>
           <kw-form-item />
           <kw-form-item
@@ -122,20 +122,14 @@
         align-content="right"
       >
         <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_INTBS_SUM')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info1.intbsSum) }}</p>
+          <kw-form-item :label="t('MSG_TXT_INTBS_SUM')">
+            <p>{{ info1.intbsSum ? stringUtil.getNumberWithComma(info1.intbsSum) : '0' }}</p>
           </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_DDTN_SUM')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info1.ddtnSum) }}</p>
+          <kw-form-item :label="t('MSG_TXT_DDTN_SUM')">
+            <p>{{ info1.ddtnSum ? stringUtil.getNumberWithComma(info1.ddtnSum) : '0' }}</p>
           </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_ACL_DSB_AMT')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info1.aclDsbAmt) }}</p>
+          <kw-form-item :label="t('MSG_TXT_ACL_DSB_AMT')">
+            <p>{{ info1.aclDsbAmt ? stringUtil.getNumberWithComma(info1.aclDsbAmt) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -193,34 +187,34 @@
           <kw-form-item
             :label="t('MSG_TXT_RDS')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.rds) }}</p>
+            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.rds) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ERNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.erntx) }}</p>
+            <p>{{ info2.erntx ? stringUtil.getNumberWithComma(info2.erntx) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSDNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.rsdntx) }}</p>
+            <p>{{ info2.rsdntx ? stringUtil.getNumberWithComma(info2.rsdntx) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_HIR_INSR')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.hirInsr) }}</p>
+            <p>{{ info2.hirInsr ? stringUtil.getNumberWithComma(info2.hirInsr) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BU_DDTN')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.buDdtn) }}</p>
+            <p>{{ info2.buDdtn ? stringUtil.getNumberWithComma(info2.buDdtn) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_PNPYAM')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.pnpyam) }}</p>
+            <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.pnpyam) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
