@@ -641,15 +641,15 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
     { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_FRISU_MSH'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 무상멤버십
     { fieldName: 'frisuAsPtrmN', header: t('MSG_TXT_FRISU_AS'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 무상A/S
     { fieldName: 'sellEvCd', header: t('MSG_TXT_EV_CD'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 행사코드
-    { fieldName: 'bfsvcBzsDvCd', header: t('MSG_TXT_CLSF_BS'), width: '117', styleName: 'text-center', editable: false, tag: 'bs', visible: false }, // 업체BS구분
-    { fieldName: 'splyBzsDvCd', header: t('MSG_TXT_CLSF_BUS'), width: '117', styleName: 'text-center', editable: false, tag: 'bs', visible: false }, // 업체구분
+    { fieldName: 'bfsvcBzsDvCd', header: t('MSG_TXT_CLSF_BS'), width: '117', styleName: 'text-center', editable: false, tag: 'bs', visible: false, options: codes.BFSVC_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })) }, // 업체BS구분
+    { fieldName: 'splyBzsDvCd', header: t('MSG_TXT_CLSF_BUS'), width: '117', styleName: 'text-center', editable: false, tag: 'bs', visible: false, options: codes.SPLY_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })) }, // 업체구분
     { fieldName: 'modBfsvcBzsDvCd',
       header: `${t('MSG_TXT_MOD')} ${t('MSG_TXT_CLSF_BS')}`,
       width: '117',
       styleName: 'text-center',
       tag: 'bs',
       editor: { type: 'list' },
-      options: codes.BFSVC_BZS_DV_CD,
+      options: codes.BFSVC_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       placeHolder: t('MSG_TXT_SELT'),
       visible: false }, // 수정 업체BS구분
     { fieldName: 'modSplyBzsDvCd',
@@ -658,7 +658,7 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
       styleName: 'text-center',
       tag: 'bs',
       editor: { type: 'list' },
-      options: codes.SPLY_BZS_DV_CD,
+      options: codes.SPLY_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       placeHolder: t('MSG_TXT_SELT'),
       visible: false }, // 수정 업체구분
   ];

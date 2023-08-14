@@ -223,8 +223,8 @@ const initGrdRental = defineGrid((data, view) => {
     { fieldName: 'sdingAckmtPerfAmt', header: t('MSG_TXT_ACKMT_PERF_AMT'), width: '120', styleName: 'text-right' }, // [ 인정실적금액]
     { fieldName: 'sdingFeeBaseAmt', header: t('MSG_TXT_FEE_BASE_AMT'), width: '120', styleName: 'text-right', dataType: 'number' }, // [ 수수료기준가격]
     { fieldName: 'bfchFeeAckmtCt', header: t('MSG_TXT_SDING') + t('MSG_TXT_FEE_ACKMT_CNT'), width: '120', styleName: 'text-center' }, // (모종)수수료 인정건수
-    { fieldName: 'bfsvcBzsDvCd', header: t('MSG_TXT_CLSF_BS'), width: '120', styleName: 'text-center', options: codes.BFSVC_BZS_DV_CD }, // [ BS업체구분코드]
-    { fieldName: 'splyBzsDvCd', header: t('MSG_TXT_CLSF_BUS'), width: '120', styleName: 'text-center', options: codes.SPLY_BZS_DV_CD }, // [ 조달업체구분코드]
+    { fieldName: 'bfsvcBzsDvCd', header: t('MSG_TXT_CLSF_BS'), width: '120', styleName: 'text-center', options: codes.BFSVC_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })) }, // [ BS업체구분코드]
+    { fieldName: 'splyBzsDvCd', header: t('MSG_TXT_CLSF_BUS'), width: '120', styleName: 'text-center', options: codes.SPLY_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })) }, // [ 조달업체구분코드]
     { fieldName: 'cntrChAkCn', header: t('MSG_TXT_NOTE'), width: '500', styleName: 'text-left' }, // [ 계약변경요청내용]
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '120', styleName: 'text-center' }, // [최초등록사용자명]
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '140', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd hh:mm:ss' }, // [ 최초등록일시]
