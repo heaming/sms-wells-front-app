@@ -321,12 +321,14 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogCd' },
     { fieldName: 'bldNm' },
     { fieldName: 'apyYm' },
+    { fieldName: 'sortDvVal' },
   ];
 
   const columns = [
     { fieldName: 'wareDvCd', header: t('MSG_TXT_WARE_DV'), options: codes.WARE_DV_CD, width: '120', styleName: 'text-center' },
     { fieldName: 'wareDtlDvCd', header: t('MSG_TXT_WARE_DTL_DV'), options: codes.WARE_DTL_DV_CD, width: '180', styleName: 'text-center' },
     { fieldName: 'wareUseYn', header: t('MSG_TXT_USE_EYN'), options: codes.USE_YN, width: '100', styleName: 'text-center' },
+    { fieldName: 'sortDvVal', header: t('MSG_TXT_SORT_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareCd', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNo', header: t('MSG_TXT_WARE_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '280' },
@@ -351,6 +353,7 @@ const initGrdMain = defineGrid((data, view) => {
     'wareDvCd',
     'wareDtlDvCd',
     'wareUseYn',
+    'sortDvVal',
     'wareCd',
     'wareNo',
     'wareNm',
