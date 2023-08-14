@@ -367,6 +367,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setFixedOptions({ colCount: 5, resizable: true });
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
   view.groupBy(['asMatItmGrpNm']);
   view.setRowGroup({ mergeMode: true });
   view.layoutByColumn('sapMatCd').groupFooterUserSpans = [{ colspan: 4 }];
