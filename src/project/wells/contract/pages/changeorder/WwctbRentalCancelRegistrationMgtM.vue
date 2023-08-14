@@ -626,11 +626,13 @@
         class="ml8"
         @click="onClickTodo('카드승인')"
       />
+      <!--철거접수-->
       <kw-btn
         :label="$t('MSG_TXT_REQD')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
         @click="onClickRequidation"
       />
+      <!--환불접수-->
       <kw-btn
         :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
@@ -640,6 +642,12 @@
         :label="$t('MSG_TXT_RENTAL_RSG_CFDG')+$t('MSG_BTN_VIEW')"
         class="ml8"
         @click="onClickTodo('렌탈계약해지확인서 보기')"
+      />
+      <!--삭제-->
+      <kw-btn
+        :label="$t('MSG_BTN_DEL')"
+        class="ml8"
+        @click="onClickDelete"
       />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
@@ -687,6 +695,7 @@ const emits = defineEmits([
   'searchdetail',
   'savedetail',
   'removedetail',
+  'deletecancel',
 ]);
 
 const props = defineProps({
@@ -711,13 +720,29 @@ codes.REQD_CS_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
 function onChangeTextforSelect(div) {
   if (div === 'sel1') {
-    searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+    if (codes.CCAM_EXMPT_DV_CD.findIndex((v) => v.codeId === inputDetail.value.sel1Text) >= 0) {
+      searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+    } else {
+      searchDetail.ccamExmptDvCd = '';
+    }
   } else if (div === 'sel2') {
-    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    if (codes.CMN_STAT_CH_RSON_CD.findIndex((v) => v.codeId === inputDetail.value.sel2Text) >= 0) {
+      searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    } else {
+      searchDetail.cntrStatChRsonCd = '';
+    }
   } else if (div === 'sel3') {
-    searchDetail.csmbCsExmptDvCd = inputDetail.value.sel3Text;
+    if (codes.CSMB_CS_EXMPT_DV_CD.findIndex((v) => v.codeId === inputDetail.value.sel3Text) >= 0) {
+      searchDetail.csmbCsExmptDvCd = inputDetail.value.sel3Text;
+    } else {
+      searchDetail.csmbCsExmptDvCd = '';
+    }
   } else if (div === 'sel4') {
-    searchDetail.reqdCsExmptDvCd = inputDetail.value.sel4Text;
+    if (codes.REQD_CS_EXMPT_DV_CD.findIndex((v) => v.codeId === inputDetail.value.sel4Text) >= 0) {
+      searchDetail.reqdCsExmptDvCd = inputDetail.value.sel4Text;
+    } else {
+      searchDetail.reqdCsExmptDvCd = '';
+    }
   }
 }
 
@@ -756,6 +781,11 @@ function onClickSave() {
 function onClickCancel() {
   emits('removedetail');
 }
+
+function onClickDelete() {
+  emits('deletecancel');
+}
+
 /*
 async function onCallStlm(pDiv) {
   let component;

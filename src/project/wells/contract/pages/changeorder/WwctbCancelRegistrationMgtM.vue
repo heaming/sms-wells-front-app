@@ -192,7 +192,8 @@
             :child-detail="cancelDetailList[idx]"
             @searchdetail="onSearchDetail"
             @savedetail="onSave"
-            @removedetail="onDelete"
+            @removedetail="onRemoveDetail"
+            @deletecancel="onDelete"
             @update:model-value="onUpdateValue"
           />
         </slot>
@@ -213,7 +214,6 @@ import WwctbRentalCancelRegistrationMgtM from './WwctbRentalCancelRegistrationMg
 import WwctbRegularShippingCancelRegistrationMgtM from './WwctbRegularShippingCancelRegistrationMgtM.vue';
 import WwctbSinglePaymentCancelRegistrationMgtM from './WwctbSinglePaymentCancelRegistrationMgtM.vue';
 import WwctbMembershipCancelRegistrationMgtM from './WwctbMembershipCancelRegistrationMgtM.vue';
-import WwctbCancelRegistrationEmptyMgtM from './WwctbCancelRegistrationEmptyMgtM.vue';
 
 const { t } = useI18n();
 const { alert, confirm, modal, notify } = useGlobal();
@@ -229,39 +229,25 @@ const searchParams = ref({
   cstNo: '', // 고객번호
   dm: '', // 조회년월
 });
+
 const totalCount = ref(0);
 const cachedParams = ref({});
-const compKey = ref(0);
-const sameType = ref('N');
-const idx = ref(-1);
 const cancelDetailList = ref([]);
+const compKey = ref(0); // unique key
+const sameType = ref('N'); // 하위 리스트가 모두 같은 sellTpCd 인지 여부
+const idx = ref(-1); // 현재 선택된 하위 리스트의 index
 
 const detailPanels = [
-  {
-    name: 'rental',
-    panel: WwctbRentalCancelRegistrationMgtM,
-  },
-  {
-    name: 'regularShipping',
-    panel: WwctbRegularShippingCancelRegistrationMgtM,
-  },
-  {
-    name: 'singlePayment',
-    panel: WwctbSinglePaymentCancelRegistrationMgtM,
-  },
-  {
-    name: 'membership',
-    panel: WwctbMembershipCancelRegistrationMgtM,
-  },
-  {
-    name: 'empty',
-    panel: WwctbCancelRegistrationEmptyMgtM,
-  },
+  { name: 'rental', panel: WwctbRentalCancelRegistrationMgtM },
+  { name: 'regularShipping', panel: WwctbRegularShippingCancelRegistrationMgtM },
+  { name: 'singlePayment', panel: WwctbSinglePaymentCancelRegistrationMgtM },
+  { name: 'membership', panel: WwctbMembershipCancelRegistrationMgtM },
 ];
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+// 하위 component index 설정
 function getPanelIdx(val) {
   switch (val) {
     case '1': return 2;
@@ -270,18 +256,19 @@ function getPanelIdx(val) {
     default: return 0;
   }
 }
-// const panelIdx = ref(0);
+
 const panelIdx = computed(() => getPanelIdx(cancelDetailList.value[idx.value].sellTpCd));
 
 // 하위 component 강제 rendering
 function forceRender() {
   const { sellTpCd } = cancelDetailList.value[idx.value];
+
+  compKey.value += 1;
   sameType.value = cancelDetailList.value.every((v) => v.sellTpCd === sellTpCd) ? 'Y' : 'N';
   panelIdx.value = getPanelIdx(sellTpCd);
-  compKey.value += 1;
 }
 
-// 하위 아코디언 초기화
+// 하위 상세 초기화
 function initComponent() {
   idx.value = -1;
   cancelDetailList.value.splice(0, cancelDetailList.value.length);
@@ -297,6 +284,7 @@ async function fetchData() {
   grdMainView.value.getDataSource().checkRowStates(false);
 }
 
+// search > 고객검색
 async function onClickSearchCst() {
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
@@ -376,16 +364,6 @@ function onClickSpcshView() {
   notify('TODO : 가장계좌확인서 OZ뷰 호출 ');
 }
 
-// summary > 가상계좌확인서 클릭
-function onClickVirtualAccountView() {
-  /*
-  거래명세서 보기 : 취소로 선택한 계약건에 대해서 거래명세서 OZ뷰를 호출 합니다
-  - 조회된 계약건중에서 렌탈, 정기배송의 계약유형에만 보여지면 됩니다.
-    (멤버십, 일시불은 거래명세서가 생성이 되지 않습니다.)
-  */
-  notify('TODO : 거래명세서 OZ뷰 호출 ');
-}
-
 // 5. 취소사항 > 취소사항 조회 클릭
 async function onSearchDetail(subParam) {
   const { cntrNo, cntrSn, sellTpCd } = cancelDetailList.value[idx.value];
@@ -405,8 +383,56 @@ async function onSearchDetail(subParam) {
   Object.assign(cancelDetailList.value[idx.value], res.data);
 }
 
+// 검색
+async function onClickSearch() {
+  if (isEmpty(searchParams.value.cntrNo)
+   && isEmpty(searchParams.value.cntrSn)
+   && isEmpty(searchParams.value.cstNo)) {
+    // 계약상세번호/고객번호 중 하나는 필수 항목 입니다.
+    await alert(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_CST_NO')}`]));
+    return false;
+  }
+
+  initComponent();
+  cachedParams.value = cloneDeep(searchParams.value);
+
+  await fetchData();
+}
+
+// 상세 조회(취소 등록 된 1건)
+async function getCanceledInfo(cntrNo, cntrSn, row) {
+  const { dm } = searchParams.value;
+  const res = await dataService.get('/sms/wells/contract/changeorder/cancel-infos', { params: { cntrNo, cntrSn, dm } });
+
+  if (isEmpty(res.data)) {
+    await notify(t('MSG_TXT_NO_DATA_FOUND'));
+    return;
+  }
+
+  // 그리드 체크 초기화
+  if (cancelDetailList.value.length > 0) {
+    grdMainView.value.getDataSource().getRows().forEach((item, i) => {
+      if (grdMainView.value.getValue(i, 'disableChk') === 'Y' && grdMainView.value.getValue(i, 'cancelStatNm') !== '취소등록') {
+        grdMainView.value.setValue(i, 'disableChk', 'N');
+      }
+    });
+
+    initComponent();
+  }
+
+  // set grid data
+  cancelDetailList.value.push(grdMainView.value.getValues(row));
+
+  // set searched data
+  idx.value = 0;
+  res.data.bulkApplyYN = 'N';
+  Object.assign(cancelDetailList.value[idx.value], res.data);
+
+  forceRender();
+}
+
 // 취소 클릭
-async function onDelete() {
+async function onRemoveDetail() {
   const { cntrNo, cntrSn } = cancelDetailList.value[idx.value];
   const row = gridUtil.findDataRow(grdMainView.value, (e) => ((e.cntrNo === cntrNo) && (e.cntrSn === cntrSn)));
 
@@ -477,54 +503,21 @@ async function onSave() {
   await fetchData();
 }
 
-async function onUpdateValue() {
-  // console.log(cancelDetailList.value[idx.value]);
-}
+async function onDelete() {
+  const { cntrNo, cntrSn } = cancelDetailList.value[idx.value];
+  if (!await confirm(t('MSG_ALT_WANT_DEL'))) return;
 
-async function getCanceledInfo(cntrNo, cntrSn, row) {
-  const { dm } = searchParams.value;
-  const res = await dataService.get('/sms/wells/contract/changeorder/cancel-infos', { params: { cntrNo, cntrSn, dm } });
+  await dataService.delete(`/sms/wells/contract/changeorder/delete-cancel/${cntrNo}/${cntrSn}`);
+  await notify(t('MSG_ALT_SAVE_DATA'));
 
-  if (isEmpty(res.data)) {
-    await notify(t('MSG_TXT_NO_DATA_FOUND'));
-    return;
-  }
-
-  // 그리드 체크 초기화
-  if (cancelDetailList.value.length > 0) {
-    grdMainView.value.getDataSource().getRows().forEach((item, i) => {
-      if (grdMainView.value.getValue(i, 'disableChk') === 'Y' && grdMainView.value.getValue(i, 'cancelStatNm') !== '취소등록') {
-        grdMainView.value.setValue(i, 'disableChk', 'N');
-      }
-    });
-
-    initComponent();
-  }
-
-  // set grid data
-  cancelDetailList.value.push(grdMainView.value.getValues(row));
-
-  // set searched data
-  idx.value = 0;
-  res.data.bulkApplyYN = 'N';
-  Object.assign(cancelDetailList.value[idx.value], res.data);
-
-  forceRender();
-}
-
-async function onClickSearch() {
-  if (isEmpty(searchParams.value.cntrNo)
-   && isEmpty(searchParams.value.cntrSn)
-   && isEmpty(searchParams.value.cstNo)) {
-    // 계약상세번호/고객번호 중 하나는 필수 항목 입니다.
-    await alert(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_CST_NO')}`]));
-    return false;
-  }
-
+  // 하위 초기화
   initComponent();
-  cachedParams.value = cloneDeep(searchParams.value);
 
   await fetchData();
+}
+
+async function onUpdateValue() {
+  console.log(cancelDetailList.value[idx.value]);
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -602,7 +595,6 @@ function initGrid(data, view) {
     { fieldName: 'svPdTpNm', visible: false },
     { fieldName: 'stlmTpNm', visible: false },
     { fieldName: 'sppDuedt', visible: false },
-    { fieldName: 'sellPrtnrNo', visible: false },
     { fieldName: 'bulkApplyYN', visible: false },
     { fieldName: 'cntrCstKnm', visible: false },
     { fieldName: 'disableChk', visible: false },
