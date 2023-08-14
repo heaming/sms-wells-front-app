@@ -78,9 +78,7 @@
 
         <kw-btn
           v-permission:delete
-          primary
-          dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_DEL')"
           :disable="pageInfo.totalCount === 0"
           @click="onClickRemoveRows"
@@ -92,15 +90,13 @@
         />
         <kw-btn
           v-permission:create
-          dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAdd"
         />
         <kw-btn
           v-permission:update
-          dense
-          secondary
+          grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
