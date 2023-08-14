@@ -243,7 +243,7 @@
             </kw-form-item>
             <!-- row5 매출잔액 -->
             <kw-form-item :label="$t('MSG_TXT_SL_BLAM')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotPcamBlam??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.slBlam??'') }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -427,7 +427,7 @@
           v-model="inputDetail.sel1Text"
           class="w80"
           regex="num"
-          maxlength="2"
+          maxlength="1"
           @update:model-value="onChangeTextforSelect('sel1')"
         />
       </kw-form-item>
@@ -505,6 +505,12 @@
         class="ml8"
         @click="onClickRefund"
       />
+      <!--삭제-->
+      <kw-btn
+        :label="$t('MSG_BTN_DEL')"
+        class="ml8"
+        @click="onClickDelete"
+      />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
     <div
@@ -548,6 +554,7 @@ const emits = defineEmits([
   'searchdetail',
   'savedetail',
   'removedetail',
+  'deletecancel',
 ]);
 
 const props = defineProps({
@@ -569,9 +576,17 @@ codes.CMN_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
 function onChangeTextforSelect(div) {
   if (div === 'sel1') {
-    searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+    if (codes.CCAM_EXMPT_DV_CD.findIndex((v) => v.codeId === inputDetail.value.sel1Text) >= 0) {
+      searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+    } else {
+      searchDetail.ccamExmptDvCd = '';
+    }
   } else if (div === 'sel2') {
-    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    if (codes.CMN_STAT_CH_RSON_CD.findIndex((v) => v.codeId === inputDetail.value.sel2Text) >= 0) {
+      searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    } else {
+      searchDetail.cntrStatChRsonCd = '';
+    }
   }
 }
 
@@ -607,6 +622,10 @@ async function onClickRefund() {
     component: 'WwwdbRefundApplicationRegP',
     componentProps: { cntrNo, cntrSn },
   });
+}
+
+function onClickDelete() {
+  emits('deletecancel');
 }
 
 async function onClickTodo(param) {
