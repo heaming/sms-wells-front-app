@@ -59,6 +59,7 @@
           dgr2-levl-og-label="ogCdNm"
           partner-label="prtnrNoNm"
           partner-required
+          :dgr2-levl-og-always-search="false"
         />
       </kw-search-row>
       <kw-search-row v-else-if="searchParams.mngtDvCd === '2'">
