@@ -189,7 +189,7 @@ async function onClickExcelDownload() {
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'alncNm', header: t('MSG_TXT_ALNC_DV'), width: '91', styleName: 'text-center' },
-    { fieldName: 'welsCntrNo', header: `Wells ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: `Wells ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
     { fieldName: 'lifCntrNo', header: `${t('MSG_TXT_MUTU')} ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '111', styleName: 'text-left ' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '104', styleName: 'text-center' },
