@@ -187,7 +187,8 @@ import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import CrdcdExpSelect from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
 import { warn } from 'vue';
-import { CtCodeUtil, scrollIntoView } from '~sms-common/contract/util';
+import { scrollIntoView } from '~sms-common/contract/util';
+import { useCtCode } from '~sms-common/contract/composable';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -217,7 +218,7 @@ const DP_TP_CD = 'DP_TP_CD';
 const ISTM_MCNT_CD = 'ISTM_MCNT_CD';
 const MERGED_CREDIT_CARD_SPAY_CD = '02';
 
-const { codes, getCodeName, addCodeItem } = await CtCodeUtil(
+const { codes, getCodeName, addCodeItem } = await useCtCode(
   DP_TP_CD,
   ISTM_MCNT_CD,
 );
