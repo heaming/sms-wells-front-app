@@ -104,6 +104,7 @@
             v-model="warehouseInfo.hgrWareNo"
             :label="$t('MSG_TXT_HGR_WARE')"
             :options="hgrWarehouses"
+            :readonly="hasProps() && warehouseInfo.wareDtlDvCd === '21'"
           />
         </kw-form-item>
       </kw-form-row>
@@ -162,16 +163,31 @@
         </kw-form-item>
         <!-- 노출순서 -->
         <kw-form-item
+          v-if="isOrgWarehouse"
           :label="$t('MSG_TXT_EXPSR_ODR')"
           :hint="$t('MSG_TXT_EXPSR_ODR_DUP_HINT')"
           required
         >
           <kw-input
+            v-if="isOrgWarehouse"
             v-model="warehouseInfo.sortDvVal"
             :label="$t('MSG_TXT_EXPSR_ODR')"
             :regex="/^[0-9]{1,5}$/i"
             :readonly="warehouseInfo.wareUseYn === 'N'"
             rules="required"
+          />
+        </kw-form-item>
+        <kw-form-item
+          v-if="!isOrgWarehouse"
+          :label="$t('MSG_TXT_EXPSR_ODR')"
+          :hint="$t('MSG_TXT_EXPSR_ODR_DUP_HINT')"
+        >
+          <kw-input
+            v-if="!isOrgWarehouse"
+            v-model="warehouseInfo.sortDvVal"
+            :label="$t('MSG_TXT_EXPSR_ODR')"
+            :regex="/^[0-9]{1,5}$/i"
+            :readonly="warehouseInfo.wareUseYn === 'N'"
           />
         </kw-form-item>
       </kw-form-row>
