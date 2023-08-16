@@ -32,13 +32,13 @@
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.baseYm"
             :start-level="1"
-            :end-level="2"
+            :end-level="1"
           />
         </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_ROLE_1')">
+        <kw-search-item :label="t('MSG_TXT_RSB')">
           <kw-select
-            v-model="searchParams.prtnrGdCd"
-            :options="codes.EGER_EVL_GD_CD"
+            v-model="searchParams.rolDvCd"
+            :options="codes.EGER_ROL_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -127,18 +127,17 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
-  'ROL_DV_CD',
   'RSB_DV_CD',
   'PRTNR_GD_CD',
   'EGER_EVL_GD_CD',
+  'EGER_ROL_CD',
 );
 
 const searchParams = ref({
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
-  prtnrGdCd: undefined,
-  searchYm: dayjs().format('YYYYMM'),
+  rolDvCd: undefined,
   baseYm: dayjs().format('YYYYMM'),
   chk: 'N',
 });
@@ -234,8 +233,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '166',
       styleName: 'text-center',
     },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'rolDvCd', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center', options: codes.ROL_DV_CD },
+    { fieldName: 'rolDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.EGER_ROL_CD },
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     {
       fieldName: 'prtnrGdCd',
