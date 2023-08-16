@@ -104,6 +104,42 @@
             :disable="isReadonly"
           />
         </kw-search-item>
+        <kw-search-item
+          v-if="cntrTpIs.ensm"
+          :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
+        >
+          <kw-select
+            v-model="searchParams.alncPrtnrDvCd"
+            :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
+            :options="codes.ALNC_PRTNR_DRM_DV_CD"
+            first-option=""
+            :disable="isReadonly"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row
+        v-if="cntrTpIs.ensm"
+      >
+        <kw-search-item
+          :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
+        >
+          <kw-input
+            v-model="searchParams.alncPrtnrNo"
+            :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
+            maxlength="10"
+            :disable="isReadonly"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
+        >
+          <kw-input
+            v-model="searchParams.alncPrtnrNm"
+            :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
+            maxlength="10"
+            :disable="isReadonly"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row
         v-if="!cntrTpIs.ensm"
@@ -342,6 +378,7 @@ const { cntrNo: pCntrNo, step1 } = toRefs(props.contract);
 const ogStep1 = ref({});
 const codes = await codeUtil.getMultiCodes(
   'CNTR_TP_CD',
+  'ALNC_PRTNR_DRM_DV_CD',
   'COPN_DV_CD',
 );
 const cntrTpCdOptions = computed(() => {
@@ -353,13 +390,16 @@ const cntrTpCdOptions = computed(() => {
 });
 const searchParams = ref({
   cntrNo: step1.value.bas?.cntrNo,
-  cntrTpCd: '01',
+  cntrTpCd: ogTpCd === 'HR1' ? '03' : '01',
   copnDvCd: '1',
   cstKnm: '',
   bzrno: '',
   cralLocaraTno: '',
   mexnoEncr: '',
   cralIdvTno: '',
+  alncPrtnrDvCd: '', // 임직원
+  alncPrtnrNo: '',
+  alncPrtnrNm: '',
 });
 const cntrTpIs = ref({
   indv: computed(() => searchParams.value.cntrTpCd === '01'), // 개인
@@ -381,36 +421,6 @@ const emits = defineEmits([
   'restipulation',
 ]);
 
-/**
- * TODO 제휴파트너 로직 추가
- *             <kw-form-row>
- *               <kw-form-item
- *                 :label="$t('MSG_TXT_ALNC_PRTNR')"
- *               >
- *                 <p>{{ step1.prtnr?.prtnrKnm }}</p>
- *               </kw-form-item>
- *             </kw-form-row>
- *             <kw-form-row>
- *               <kw-form-item
- *                 :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
- *               >
- *                 <kw-input
- *                   v-model="step1.alncPrtnrNm"
- *                   :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
- *                   maxlength="10"
- *                 />
- *               </kw-form-item>
- *               <kw-form-item
- *                 :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
- *               >
- *                 <kw-input
- *                   v-model="step1.alncPrtnrNo"
- *                   :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
- *                   maxlength="10"
- *                 />
- *               </kw-form-item>
- *             </kw-form-row>
- */
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -439,6 +449,12 @@ async function afterGetCntrInfo(cntr) {
       searchParams.value.copnDvCd = mshCntr.value.copnDvCd;
       step1.value.bas.copnDvCd = mshCntr.value.copnDvCd;
     }
+    // 임직원
+    if (cntrTpIs.value.ensm && !isEmpty(step1.value.prtnr.alncPrtnrDrmDvCd)) {
+      searchParams.value.alncPrtnrNo = step1.value.prtnr.alncPrtnrDrmVal;
+      searchParams.value.alncPrtnrNm = step1.value.prtnr.alncPrtnrIdnrNm;
+      searchParams.value.alncPrtnrDvCd = step1.value.prtnr.alncPrtnrDrmDvCd;
+    }
   }, 10);
 }
 
@@ -447,6 +463,7 @@ async function getCntrInfo(cntrNo) {
     cntrNo,
     step: 1,
   } });
+  console.log(JSON.stringify(cntr.data, null, '\t'));
   await afterGetCntrInfo(cntr);
 }
 
@@ -527,6 +544,16 @@ async function onClickSearchCntrtInfo() {
     }
   } else if (cntrTpIs.value.ensm) {
     // 임직원
+
+    // 조회 조건 validate 확인
+    const arr = ['alncPrtnrDvCd', 'alncPrtnrNo', 'alncPrtnrNm'];
+    const isAllEmpty = arr.every((key) => (isEmpty(searchParams.value[key])));
+    const isAllNotEmpty = arr.every((key) => (!isEmpty(searchParams.value[key])));
+    if (!isAllEmpty && !isAllNotEmpty) {
+      await alert('제휴파트너 정보입력시, 모든 값을 입력해야 합니다.');
+      return;
+    }
+
     // 파트너와 계약자 모두 본인
     const cstNo = await dataService.get('sms/wells/contract/contracts/ensm-cst-no', { params: { prtnrNo } });
     if (!cstNo.data) {
@@ -627,7 +654,8 @@ async function onChangeCntrtTpCd(v) {
 }
 
 async function onClickReset() {
-  ['cstKnm', 'bzrno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno'].forEach((key) => {
+  ['cstKnm', 'bzrno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno',
+    'alncPrtnrDvCd', 'alncPrtnrNo', 'alncPrtnrNm'].forEach((key) => {
     searchParams.value[key] = '';
   });
   searchParams.value.copnDvCd = '1';
@@ -675,7 +703,13 @@ async function saveStep() {
     step1.value.mshCntrNo = mshCntr.value.cntrNo;
     step1.value.mshCntrSn = mshCntr.value.cntrSn;
   }
+  if (cntrTpIs.value.ensm && !isEmpty(searchParams.value.alncPrtnrDvCd)) {
+    step1.value.prtnr.alncPrtnrDrmVal = searchParams.value.alncPrtnrNo;
+    step1.value.prtnr.alncPrtnrIdnrNm = searchParams.value.alncPrtnrNm;
+    step1.value.prtnr.alncPrtnrDrmDvCd = searchParams.value.alncPrtnrDvCd;
+  }
   const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step1', step1.value);
+  console.log(JSON.stringify(savedCntr, null, '\t'));
   notify(t('MSG_ALT_SAVE_DATA'));
   ogStep1.value = cloneDeep(step1.value);
   return savedCntr?.data?.key;
