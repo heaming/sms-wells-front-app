@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : FEA
-2. 프로그램 ID : WwfeaOgNetOrderHomeMasterListM - 홈마스터 수수료 순주문 관리
+2. 프로그램 ID :  - 홈마스터 수수료 순주문 관리
 3. 작성자 : gs.piit150
 4. 작성일 : 2023.02.24
 ****************************************************************************************************
@@ -121,19 +121,6 @@
               v-model="searchParams.pkgEndCd"
             />
           </kw-search-item>
-          <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
-            <zwog-level-select
-              v-model:og-levl-dv-cd1="searchParams.og1LevlId"
-              v-model:og-levl-dv-cd2="searchParams.og2LevlId"
-              v-model:og-levl-dv-cd3="searchParams.og3LevlId"
-              :og-tp-cd="searchParams.ogTpCd"
-              :base-ym="searchParams.perfYm"
-              :start-level="1"
-              :end-level="3"
-            />
-          </kw-search-item>
-        </kw-search-row>
-        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -148,6 +135,19 @@
               v-model="searchParams.prtnrKnm"
               :placeholder="$t('MSG_TXT_EMPL_NM')"
               readonly
+            />
+          </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
+          <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
+            <zwog-level-select
+              v-model:og-levl-dv-cd1="searchParams.og1LevlId"
+              v-model:og-levl-dv-cd2="searchParams.og2LevlId"
+              v-model:og-levl-dv-cd3="searchParams.og3LevlId"
+              :og-tp-cd="searchParams.ogTpCd"
+              :base-ym="searchParams.perfYm"
+              :start-level="1"
+              :end-level="3"
             />
           </kw-search-item>
         </kw-search-row>
@@ -193,17 +193,6 @@
           </kw-search-item>
         </kw-search-row>
         <kw-search-row>
-          <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
-            <zwog-level-select
-              v-model:og-levl-dv-cd1="searchParams.og1LevlId"
-              v-model:og-levl-dv-cd2="searchParams.og2LevlId"
-              v-model:og-levl-dv-cd3="searchParams.og3LevlId"
-              :og-tp-cd="searchParams.ogTpCd"
-              :base-ym="searchParams.perfYm"
-              :start-level="1"
-              :end-level="3"
-            />
-          </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -218,6 +207,17 @@
               v-model="searchParams.prtnrKnm"
               :placeholder="$t('MSG_TXT_EMPL_NM')"
               readonly
+            />
+          </kw-search-item>
+          <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
+            <zwog-level-select
+              v-model:og-levl-dv-cd1="searchParams.og1LevlId"
+              v-model:og-levl-dv-cd2="searchParams.og2LevlId"
+              v-model:og-levl-dv-cd3="searchParams.og3LevlId"
+              :og-tp-cd="searchParams.ogTpCd"
+              :base-ym="searchParams.perfYm"
+              :start-level="1"
+              :end-level="3"
             />
           </kw-search-item>
         </kw-search-row>
