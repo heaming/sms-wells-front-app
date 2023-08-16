@@ -352,7 +352,6 @@ function setPersonInChargeCellData(view, row, value, column) {
     view.setValue(row, `${column[3]}`, '');
     notify(t('MSG_ALT_EQ_EGER_NTHNG'));
   }
-  view.commit();
 }
 
 // 적용일자 일괄입력
@@ -400,8 +399,8 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'zipList' },
     { fieldName: 'hemdList' },
-    { fieldName: 'mgtCnt', dataType: 'number' },
-    { fieldName: 'wrkCnt', dataType: 'number' },
+    // { fieldName: 'mgtCnt', dataType: 'number' },
+    // { fieldName: 'wrkCnt', dataType: 'number' },
     { fieldName: 'rpbLocaraCd' },
     { fieldName: 'satWrkYn' },
     { fieldName: 'apyStrtdt', dataType: 'datetime' },
@@ -440,8 +439,8 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'zipList', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'hemdList', header: t('MSG_TXT_LAWC_ADM'), width: '150' },
-    { fieldName: 'mgtCnt', header: t('MSG_TXT_SV_ACC'), width: '100', styleName: 'text-right' },
-    { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-right' },
+    // { fieldName: 'mgtCnt', header: t('MSG_TXT_SV_ACC'), width: '100', styleName: 'text-right' },
+    // { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-right' },
     { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_LOCARA_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'satWrkYn',
       header: t('MSG_TXT_SAT_IST_LOCARA'),
@@ -513,8 +512,8 @@ const initGrdMain = defineGrid((data, view) => {
   const columnLayout = [
     'zipList',
     'hemdList',
-    'mgtCnt',
-    'wrkCnt',
+    // 'mgtCnt',
+    // 'wrkCnt',
     'rpbLocaraCd',
     'satWrkYn',
     'apyStrtdt',
