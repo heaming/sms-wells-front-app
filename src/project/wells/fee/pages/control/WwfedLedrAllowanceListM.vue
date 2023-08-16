@@ -63,6 +63,8 @@
           <kw-input
             v-model="searchParams.prtnrNo"
             icon="search"
+            :maxlength="10"
+            :regex="/^[0-9]*$/i"
             clearable
             :on-click-icon="onClickSearchNo"
           />
