@@ -169,7 +169,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ogCd', header: t('MSG_TXT_CODE'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'ogNm', header: t('MSG_TXT_CNT_NM'), width: '166', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '92', styleName: 'text-center', editable: false },
-    { fieldName: 'rolDvNm', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center', editable: false },
+    { fieldName: 'rolDvNm', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'wkGrpNm', header: t('MSG_TXT_WK_GRP'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'bizAgntYn', header: t('MSG_TXT_BIZ_AGNT'), width: '106', styleName: 'text-center', editable: false },
@@ -286,10 +286,11 @@ const initGrid = defineGrid((data, view) => {
       const { rolDvNm } = gridUtil.getRowValue(g, dataRow);
       const { prtnrKnm } = gridUtil.getRowValue(g, dataRow);
       const { wkGrpNm } = gridUtil.getRowValue(g, dataRow);
+      const { wrkDt } = gridUtil.getRowValue(g, dataRow);
 
       const { result } = await modal({
         component: 'WwogcEngineerAttendanceMgtP',
-        componentProps: { prtnrNo, ogTpCd: 'W06', rolDvNm, prtnrKnm, wkGrpNm },
+        componentProps: { prtnrNo, ogTpCd: 'W06', rolDvNm, prtnrKnm, wkGrpNm, wrkDt },
       });
 
       if (result) {
