@@ -281,7 +281,7 @@ async function onClickSendServiceCfdc() {
     return;
   }
 
-  const { cntrNo, cntrSn, psicPrtnrNm, cstNm2, cstMpno1, cstMpno2, cstMpno3, cstEmadr } = checkedRows[0];
+  const { cntrNo, cntrSn, psicPrtnrNm, cstNm2, cstMpno1, cstMpno2, cstMpno3, cstEmadr, cstSvAsnNo } = checkedRows[0];
   await modal({
     component: 'WwsnbWellsServiceCfdcListP',
     componentProps: {
@@ -293,6 +293,7 @@ async function onClickSendServiceCfdc() {
       mpno1: (isEmpty(cstMpno1) || isEmpty(cstMpno2) || isEmpty(cstMpno3)) ? '' : cstMpno1,
       mpno2: (isEmpty(cstMpno1) || isEmpty(cstMpno2) || isEmpty(cstMpno3)) ? '' : cstMpno2,
       mpno3: (isEmpty(cstMpno1) || isEmpty(cstMpno2) || isEmpty(cstMpno3)) ? '' : cstMpno3,
+      cstSvAsnNo,
     },
   });
 }
