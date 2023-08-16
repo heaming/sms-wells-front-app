@@ -269,10 +269,12 @@ async function onClickSearch() {
   //   return;
   // }
 
-  if (!isHolidaySetter()) {
-    searchParams.value.serviceCenterCd = searchParams.value.serviceCenter.ogCd;
-    searchParams.value.serviceCenterOgId = searchParams.value.serviceCenter.ogId;
-  }
+  // if (!isHolidaySetter()) {
+  //   searchParams.value.serviceCenterCd = searchParams.value.serviceCenter.ogCd;
+  //   searchParams.value.serviceCenterOgId = searchParams.value.serviceCenter.ogId;
+  // }
+  searchParams.value.serviceCenterCd = searchParams.value.serviceCenter.ogCd;
+  searchParams.value.serviceCenterOgId = searchParams.value.serviceCenter.ogId;
   cachedParams = cloneDeep(searchParams.value);
   await getCalendarMgt();
 }
