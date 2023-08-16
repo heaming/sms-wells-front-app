@@ -256,8 +256,8 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'newAdrZip' },
-    { fieldName: 'mgtCnt' },
-    { fieldName: 'wrkCnt' },
+    // { fieldName: 'mgtCnt' },
+    // { fieldName: 'wrkCnt' },
     { fieldName: 'ctpvNm' },
     { fieldName: 'ctctyNm' },
     { fieldName: 'lawcEmdNm' },
@@ -279,8 +279,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'mgtCnt', header: t('MSG_TXT_SV_ACC'), width: '100', styleName: 'text-right' },
-    { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-right' },
+    // { fieldName: 'mgtCnt', header: t('MSG_TXT_SV_ACC'), width: '100', styleName: 'text-right' },
+    // { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-right' },
     { fieldName: 'ctpvNm', header: t('MSG_TXT_CTPV_NM'), width: '150' },
     { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY_NM'), width: '150' },
     { fieldName: 'lawcEmdNm', header: t('MSG_TXT_EMD_NM'), width: '150' },
@@ -314,8 +314,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columnLayout = [
     'newAdrZip',
-    'mgtCnt',
-    'wrkCnt',
+    // 'mgtCnt',
+    // 'wrkCnt',
     {
       direction: 'horizontal',
       items: [
