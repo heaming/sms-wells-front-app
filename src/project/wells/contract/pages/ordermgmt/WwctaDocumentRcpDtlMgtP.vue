@@ -148,10 +148,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.nmchgIdfCyRealFpath+'/'+frmMainData.nmchgIdfCyFileNm"
+                <kw-image
+                  :file-uid="frmMainData.nmchgIdfCyFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -178,10 +178,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.nmchgEtcRealFpath1+'/'+frmMainData.nmchgEtcFileNm1"
+                <kw-image
+                  :file-uid="frmMainData.nmchgEtcFileUid1"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -211,10 +211,10 @@
                 </div>
                 <div class="preview-attach__bottom">
                   <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                  <img
-                    :src="frmMainData.nmchgEtcRealFpath2+'/'+frmMainData.nmchgEtcFileNm2"
+                  <kw-image
+                    :file-uid="frmMainData.nmchgEtcFileUid2"
                     alt=""
-                  >
+                  />
                 </div>
                 <ul class="preview-attach__infos">
                   <!-- 166730259072721428.jpg -->
@@ -247,10 +247,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.cmsApfRealFpath+'/'+frmMainData.cmsApfFileNm"
+                <kw-image
+                  :file-uid="frmMainData.cmsApfFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -277,10 +277,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.aftnIdfCyRealFpath+'/'+frmMainData.aftnIdfCyFileNm"
+                <kw-image
+                  :file-uid="frmMainData.aftnIdfCyFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -309,10 +309,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.aftnBnkbCyRealFpath+'/'+frmMainData.aftnBnkbCyFileNm"
+                <kw-image
+                  :file-uid="frmMainData.aftnBnkbCyFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -339,10 +339,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.aftnFmlCrtfDcmtRealFpath+'/'+frmMainData.aftnFmlCrtfDcmtFileNm"
+                <kw-image
+                  :file-uid="frmMainData.aftnFmlCrtfDcmtFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -371,10 +371,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.aftnBzrcCrpRealFpath+'/'+frmMainData.aftnBzrcCrpFileNm"
+                <kw-image
+                  :file-uid="frmMainData.aftnBzrcCrpFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -401,10 +401,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.aftnEtcRealFpath+'/'+frmMainData.aftnEtcFileNm"
+                <kw-image
+                  :file-uid="frmMainData.aftnEtcFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -436,10 +436,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.tftlApfRealFpath+'/'+frmMainData.tftlApfFileNm"
+                <kw-image
+                  :file-uid="frmMainData.tftlApfFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -466,10 +466,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.agrmntRealFpath+'/'+frmMainData.agrmntFileNm"
+                <kw-image
+                  :file-uid="frmMainData.agrmntFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -498,10 +498,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.tftlIdfCyRealFpath+'/'+frmMainData.tftlIdfCyFileNm"
+                <kw-image
+                  :file-uid="frmMainData.tftlIdfCyFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -528,10 +528,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.tftlBnkbCyRealFpath+'/'+frmMainData.tftlBnkbCyFileNm"
+                <kw-image
+                  :file-uid="frmMainData.tftlBnkbCyFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -560,10 +560,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.tftlBzrcCrpRealFpath+'/'+frmMainData.tftlBzrcCrpFileNm"
+                <kw-image
+                  :file-uid="frmMainData.tftlBzrcCrpFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -590,10 +590,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.tftlEtcRealFpath+'/'+frmMainData.tftlEtcFileNm"
+                <kw-image
+                  :file-uid="frmMainData.tftlEtcFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -625,10 +625,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.cnclEvdcDcmtRealFpath+'/'+frmMainData.cnclEvdcDcmtFileNm"
+                <kw-image
+                  :file-uid="frmMainData.cnclEvdcDcmtFileUid"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -655,10 +655,10 @@
               </div>
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <img
-                  :src="frmMainData.cnclEtcRealFpath1+'/'+frmMainData.cnclEtcFileNm1"
+                <kw-image
+                  :file-uid="frmMainData.cnclEtcFileUid1"
                   alt=""
-                >
+                />
               </div>
               <ul class="preview-attach__infos">
                 <!-- 166730259072721428.jpg -->
@@ -688,10 +688,10 @@
                 </div>
                 <div class="preview-attach__bottom">
                   <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                  <img
-                    :src="frmMainData.cnclEtcRealFpath2+'/'+frmMainData.cnclEtcFileNm2"
+                  <kw-image
+                    :file-uid="frmMainData.cnclEtcFileUid2"
                     alt=""
-                  >
+                  />
                 </div>
                 <ul class="preview-attach__infos">
                   <!-- 166730259072721428.jpg -->
@@ -1190,7 +1190,7 @@ async function onClickOpenImageViewer(fileUid) {
 
   await modal({
     component: 'ZwcmzImagePreviewP',
-    componentProps: { files: [cpProps] }, // fileUid만 주면 됨
+    componentProps: { files: [{ fileUid: cpProps }] }, // fileUid만 주면 됨
     // componentProps: { files: ['FIL-E9E84666-BFC3-44E2-9EC1-D3AFD05BF77B'] }, // fileUid만 주면 됨
   });
 }
