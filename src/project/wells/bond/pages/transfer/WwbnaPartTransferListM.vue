@@ -228,7 +228,7 @@ const codes = await codeUtil.getMultiCodes(
   'LWM_TP_CD',
   'LWM_DTL_TP_CD',
 );
-const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10' && obj.codeId !== '11' && obj.codeId !== '90')), BND_NW_DV_CD: codes.BND_NW_DV_CD.filter((obj) => (obj.codeId !== '01')) });
+const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10' && obj.codeId !== '11' && obj.codeId !== '90' && obj.codeId !== '99')), BND_NW_DV_CD: codes.BND_NW_DV_CD.filter((obj) => (obj.codeId !== '01')) });
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
