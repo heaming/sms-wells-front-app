@@ -782,7 +782,7 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
       }
       await modal({
         component: callComponent,
-        componentProps: { cntrDtlNo: `${cachedParams.cntrNo}${cachedParams.cntrSn}`, slClYm },
+        componentProps: { cntrDtlNo: `${cachedParams.cntrNo}${cachedParams.cntrSn}`, cntrNo: cachedParams.cntrNo, cntrSn: cachedParams.cntrSn, slClYm },
       });
     } else if (column === 'dpAmt') {
       await modal({
