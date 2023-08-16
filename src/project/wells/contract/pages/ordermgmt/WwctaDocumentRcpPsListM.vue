@@ -235,8 +235,8 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true; // create number indicator column
 
   view.onCellDblClicked = async (g, { dataRow }) => {
-    const paramCntrChRcpId = g.getValue(dataRow, 'cntrChRcpId'); // 접수번호
-    const paramCntrChTpCd = g.getValue(dataRow, 'cntrChTpCd'); // 접수유형
+    const paramCntrChRcpId = gridUtil.getCellValue(g, dataRow, 'cntrChRcpId'); // 접수번호
+    const paramCntrChTpCd = gridUtil.getCellValue(g, dataRow, 'cntrChTpCd'); // 접수유형
 
     const res = await modal({
       component: 'WwctaDocumentRcpDtlMgtP',
