@@ -59,17 +59,6 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
-          <zwog-level-select
-            v-model:og-levl-dv-cd1="searchParams.ogLevl1Id"
-            v-model:og-levl-dv-cd2="searchParams.ogLevl2Id"
-            v-model:og-levl-dv-cd3="searchParams.ogLevl3Id"
-            :og-tp-cd="searchParams.ogTpCd"
-            :base-ym="searchParams.perfYm"
-            :start-level="1"
-            :end-level="3"
-          />
-        </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -84,6 +73,17 @@
             v-model="searchParams.prtnrKnm"
             :placeholder="$t('MSG_TXT_EMPL_NM')"
             readonly
+          />
+        </kw-search-item>
+        <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
+          <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevl1Id"
+            v-model:og-levl-dv-cd2="searchParams.ogLevl2Id"
+            v-model:og-levl-dv-cd3="searchParams.ogLevl3Id"
+            :og-tp-cd="searchParams.ogTpCd"
+            :base-ym="searchParams.perfYm"
+            :start-level="1"
+            :end-level="3"
           />
         </kw-search-item>
       </kw-search-row>
