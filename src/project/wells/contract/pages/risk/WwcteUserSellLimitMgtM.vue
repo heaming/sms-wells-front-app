@@ -64,8 +64,7 @@
         <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
           <kw-select
             v-model="searchParams.sellType"
-            first-option="all"
-            :options="sellTpCds"
+            :options="sellTpCdGrids"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_SLS_RSTR')">
@@ -179,12 +178,6 @@ const orgOptions = ref([
   { codeId: '7', codeName: `7-M${t('MSG_TXT_OG')}` },
   { codeId: '8', codeName: `8-${t('MSG_TXT_EMP_SLS')}` },
   { codeId: '9', codeName: `9-${t('MSG_TXT_EMP_PRCH')}` },
-]);
-
-const sellTpCds = ref([
-  { codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') },
-  { codeId: '2', codeName: t('MSG_TXT_RENTAL') },
-  { codeId: '5', codeName: t('MSG_TXT_HOME_CARE') },
 ]);
 
 const sellTpCdGrids = ref([
