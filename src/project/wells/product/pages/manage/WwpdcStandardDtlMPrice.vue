@@ -75,6 +75,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
+const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
 const currentPdCd = ref();
 const currentInitData = ref(null);
 const currentMetaInfos = ref();
@@ -101,31 +102,11 @@ async function resetData() {
 async function initGridRows() {
   const view = grdMainRef.value.getView();
 
-  // 상품 선택변수
-  const checkedVals = currentInitData.value?.[pdConst.TBL_PD_DSC_PRUM_DTL]?.reduce((rtn, item) => {
-    if (item.pdDscPrumPrpVal01) {
-      rtn.push(item.pdDscPrumPrpVal01);
-    }
-    return rtn;
-  }, []);
   // Grid visible 초기화
-  resetVisibleGridColumns(currentMetaInfos.value, pdConst.PD_PRC_TP_CD_FINAL, view);
+  resetVisibleGridColumns(currentMetaInfos.value, prcfd, view, ['vlStrtDtm', 'vlEndDtm']);
 
-  // 선택변수
-  await fetchSelectVariableData();
-
-  if (checkedVals && checkedVals.length && selectionVariables.value) {
-    // 상품 선택변수 visible 적용
-    checkedVals.forEach((fieldName) => {
-      const columnName = selectionVariables.value?.find((item) => item.colNm === fieldName)?.codeId;
-      if (columnName) {
-        const column = view.columnByName(columnName);
-        if (column) {
-          column.visible = true;
-        }
-      }
-    });
-  }
+  // 선택된 선택변수 Visible 적용 ( 선택변수값 = Grid Filed명 )
+  await resetVisibleChannelColumns();
 
   // 수수료 변수 visible 적용
   feeVariables.value?.forEach((item) => {
@@ -207,7 +188,38 @@ async function fetchData() {
   }
 }
 
-// 수수료 선택변수
+// 선택변수 Visible 적용 ( 선택변수값 = Grid Filed명 )
+async function resetVisibleChannelColumns() {
+  // 선택변수 전체(판매유형)
+  await fetchSelectVariableData();
+  if (!selectionVariables.value?.length) {
+    // 선택변수가 없으면 초기화
+    return;
+  }
+
+  // 선택된 선택변수
+  const checkedVals = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
+    if (item.pdDscPrumPrpVal01) {
+      // 선택변수 DB 값은 대문자
+      rtn.push(item.pdDscPrumPrpVal01);
+    }
+    return rtn;
+  }, []);
+
+  selectionVariables.value.forEach((field) => {
+    const view = grdMainRef.value.getView();
+    const column = view.columnByName(field.codeId);
+    if (column) {
+      if (checkedVals && checkedVals.includes(field.colNm)) {
+        column.visible = true;
+      } else {
+        column.visible = false;
+      }
+    }
+  });
+}
+
+// 선택변수
 async function fetchSelectVariableData() {
   const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
   if (sellTpCd && (isEmpty(currentSellTpCd.value) || sellTpCd !== currentSellTpCd.value)) {

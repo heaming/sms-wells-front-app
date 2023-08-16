@@ -52,7 +52,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType, useGlobal } from 'kw-lib';
+import { useDataService, gridUtil, getComponentType, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { resetVisibleGridColumns, getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
@@ -71,6 +71,7 @@ const props = defineProps({
 });
 
 const { t } = useI18n();
+const dataService = useDataService();
 const { notify } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -87,6 +88,8 @@ const currentInitData = ref(null);
 const currentMetaInfos = ref();
 const removeObjects = ref([]);
 const gridRowCount = ref(0);
+const currentSellTpCd = ref(null);
+const selectionVariables = ref([]);
 const usedChannelCds = ref([]);
 const filterChannel = ref();
 const sellChannelFilterCond = ref();
@@ -200,23 +203,11 @@ async function initGridRows() {
     }
   }
 
-  // 선택변수
-  const checkedVals = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
-    if (item.pdDscPrumPrpVal01) {
-      rtn.push(item.pdDscPrumPrpVal01);
-    }
-    return rtn;
-  }, []);
-  resetVisibleGridColumns(currentMetaInfos.value, pdConst.PD_PRC_TP_CD_FINAL, view);
-  if (checkedVals && checkedVals.length) {
-    checkedVals.forEach((fieldName) => {
-    // 선택변수 표시
-      const column = view.columnByName(fieldName);
-      if (column) {
-        column.visible = true;
-      }
-    });
-  }
+  // Grid Column Visible 초기화
+  resetVisibleGridColumns(currentMetaInfos.value, prcfd, view);
+
+  // 선택된 선택변수 Visible 적용 ( 선택변수값 = Grid Filed명 )
+  await resetVisibleChannelColumns();
 
   if (await currentInitData.value?.[prcfd]) {
     // 기준가 정보
@@ -259,6 +250,48 @@ async function onUpdateSellChannel() {
   view.activateAllColumnFilters('sellChnlCd', false);
   if (filterChannel.value) {
     view.activateColumnFilters('sellChnlCd', [filterChannel.value], true);
+  }
+}
+
+// 선택변수 Visible 적용 ( 선택변수값 = Grid Filed명 )
+async function resetVisibleChannelColumns() {
+  // 선택변수 전체(판매유형)
+  await fetchSelectVariableData();
+  if (!selectionVariables.value?.length) {
+    // 선택변수가 없으면 초기화
+    return;
+  }
+
+  // 선택된 선택변수
+  const checkedVals = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
+    if (item.pdDscPrumPrpVal01) {
+      // 선택변수 DB 값은 대문자
+      rtn.push(item.pdDscPrumPrpVal01);
+    }
+    return rtn;
+  }, []);
+
+  selectionVariables.value.forEach((field) => {
+    const view = grdMainRef.value.getView();
+    const column = view.columnByName(field.codeId);
+    if (column) {
+      if (checkedVals && checkedVals.includes(field.colNm)) {
+        column.visible = true;
+      } else {
+        column.visible = false;
+      }
+    }
+  });
+}
+
+// 선택변수 전체
+async function fetchSelectVariableData() {
+  const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+  if (sellTpCd && (isEmpty(currentSellTpCd.value) || sellTpCd !== currentSellTpCd.value)) {
+    currentSellTpCd.value = sellTpCd;
+    // 선택변수
+    const typeRes = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd } });
+    selectionVariables.value = typeRes.data?.filter((item) => item.choFxnDvCd === pdConst.CHO_FXN_DV_CD_CHOICE);
   }
 }
 

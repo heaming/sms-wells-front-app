@@ -339,7 +339,6 @@ watch(() => props.initData, (initData) => {
     const priceDatas = cloneDeep(initData);
     priceDatas[prcfd] = getInitPriceDefault(priceDatas[prcd], priceDatas[prcfd]);
     currentInitData.value = priceDatas;
-    // console.log('currentInitData.value : ', currentInitData.value);
   }
 }, { deep: true });
 watch(() => props.codes, (codes) => { currentCodes.value = cloneDeep(codes); }, { deep: true });
