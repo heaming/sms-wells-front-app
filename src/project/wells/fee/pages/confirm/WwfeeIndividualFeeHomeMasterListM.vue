@@ -382,7 +382,7 @@ async function openRedemptionOfFeePopup() {
 }
 
 async function fetchData(type) {
-  const response = await dataService.get(`/sms/wells/fee/individual-fees/hmst-${type}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/individual-fees/hmst-${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
   totalCount.value = resData.length;
   if (type === 'informations') {

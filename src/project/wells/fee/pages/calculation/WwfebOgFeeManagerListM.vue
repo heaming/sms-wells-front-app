@@ -362,7 +362,7 @@ async function fetchData() {
   if (perfYm <= '202304') {
     uri += '-bf';
   }
-  const response = await dataService.get(`/sms/wells/fee/organization-fees/mngers${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/mngers${uri}`, { params: cachedParams, timeout: 300000 });
   const mngerFees = response.data;
   totalCount.value = mngerFees.length;
   if (totalCount.value > 0) {

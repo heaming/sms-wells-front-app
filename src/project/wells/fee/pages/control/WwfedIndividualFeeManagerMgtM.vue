@@ -426,7 +426,7 @@ async function openFeeControlPopup() {
 }
 
 async function fetchData(type) {
-  const response = await dataService.get(`/sms/wells/fee/individual-fee/mnger-${type}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/individual-fee/mnger-${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
   totalCount.value = resData.length;
   if (type === 'entrepreneur') {

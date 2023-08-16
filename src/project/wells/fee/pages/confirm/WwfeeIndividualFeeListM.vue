@@ -191,7 +191,7 @@ let cachedParams;
 const router = useRouter();
 
 async function fetchData(uri) {
-  const response = await dataService.get(`/sms/wells/fee/individual-fees/${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/individual-fees/${uri}`, { params: cachedParams, timeout: 300000 });
   const fees = response.data;
   searchParams.value.prPerfYm = searchParams.value.perfYm;
   searchParams.value.prOgTp = searchParams.value.ogTp;
