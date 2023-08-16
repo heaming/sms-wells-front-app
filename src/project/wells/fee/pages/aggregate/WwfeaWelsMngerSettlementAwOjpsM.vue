@@ -219,7 +219,7 @@ async function onClickExcelDownload() {
 }
 
 async function fetchData(type) {
-  const response = await dataService.get(`/sms/wells/fee/wm-settlement-allowances/${type}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/wm-settlement-allowances/${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
   if (type === 'wmList') {
     totalCount.value = resData.length;

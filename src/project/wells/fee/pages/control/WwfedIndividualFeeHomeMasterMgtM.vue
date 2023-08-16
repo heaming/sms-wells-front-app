@@ -419,7 +419,7 @@ async function openFeeControlPopup() {
 }
 
 async function fetchData(type) {
-  const response = await dataService.get(`/sms/wells/fee/individual-fee/home-master/${type}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/individual-fee/home-master/${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
   totalCount.value = resData.length;
   if (type === 'entrepreneurs') {

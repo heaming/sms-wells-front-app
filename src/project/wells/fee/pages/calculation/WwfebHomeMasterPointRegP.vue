@@ -136,7 +136,7 @@ const removeData = ref({
 
 async function fetchData() {
   cachedParams = cloneDeep(props);
-  const response = await dataService.get('/sms/wells/fee/home-master-grades/details', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/fee/home-master-grades/details', { params: cachedParams, timeout: 300000 });
   const hmstPoints = response.data;
   totalCount.value = hmstPoints.length;
   const view = grdMainRef.value.getView();

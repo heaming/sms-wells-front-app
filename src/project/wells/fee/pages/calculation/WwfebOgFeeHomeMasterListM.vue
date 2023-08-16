@@ -332,7 +332,7 @@ async function fetchData() {
   if (isGrid2Visile.value === true) {
     uri = '-brmgr';
   }
-  const response = await dataService.get(`/sms/wells/fee/organization-fees/hmsts${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/hmsts${uri}`, { params: cachedParams, timeout: 300000 });
   const hmstFees = response.data;
   totalCount.value = hmstFees.length;
   if (totalCount.value > 0) {

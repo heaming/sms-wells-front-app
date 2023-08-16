@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : FEB
-2. 프로그램 ID :  - P조직 수수료 생성관리
+2. 프로그램 ID : WwfebOgFeePlannerListM - P조직 수수료 생성관리
 3. 작성자 : gs.piit150
 4. 작성일 : 2023.02.17
 ****************************************************************************************************
@@ -359,7 +359,7 @@ async function fetchData() {
   } else if (isGrid3Visile.value === true) {
     uri = '-total';
   }
-  const response = await dataService.get(`/sms/wells/fee/organization-fees/plars${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/plars${uri}`, { params: cachedParams, timeout: 300000 });
   const plarFees = response.data;
   totalCount.value = plarFees.length;
   if (totalCount.value > 0) {
