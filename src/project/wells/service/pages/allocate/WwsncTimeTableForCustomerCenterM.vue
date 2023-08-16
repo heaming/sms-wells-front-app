@@ -46,8 +46,8 @@
                       <thead>
                         <tr>
                           <th
-                            colspan="7"
                             class="datepicker-title"
+                            colspan="7"
                             style="display: none;"
                           />
                         </tr>
@@ -59,8 +59,8 @@
                             «
                           </th>
                           <th
-                            colspan="5"
                             class="datepicker-switch"
+                            colspan="5"
                           >
                             {{ searchParams.baseYm.substring(0, 4) + $t('MSG_TXT_YEAR' /*년*/)
                             }}&nbsp;
@@ -106,12 +106,12 @@
                           <td
                             v-for="dayIdx of scheduleInfo.dayCnt"
                             :key="weekIdx * 0 + dayIdx"
-                            style="cursor: pointer;"
-                            :data-date="getYmdText(getDayCnt(weekIdx, dayIdx))"
                             :class="{ 'day old': /*비활성화*/ isOpacity(getDayCnt(weekIdx, dayIdx)),
                                       'day today': /*오늘*/isToday(getDayCnt(weekIdx, dayIdx)),
                                       'day sunday': /*휴일*/isHoliday(getDayCnt(weekIdx, dayIdx)),
                             }"
+                            :data-date="getYmdText(getDayCnt(weekIdx, dayIdx))"
+                            style="cursor: pointer;"
 
                             @click="onClickCalendar($event, weekIdx, dayIdx)"
                           >
@@ -139,9 +139,9 @@
                     {{ data.psic.prtnrKnm }}
                   </h3>
                   <kw-chip
+                    :label="data.psic.rolDvNm"
                     class="ml8"
                     color="primary"
-                    :label="data.psic.rolDvNm"
                     square
                     text-color="primary"
                   />
@@ -151,7 +151,10 @@
                     {{ data.psic.ogNm }}
                   </p>
                   <div class="row items-center">
-                    <p class="kw-font--14">
+                    <p
+                      class="kw-font--14"
+                      @click="clickPhone('clickHp')"
+                    >
                       {{ data.psic.cralLocaraTno }}-{{ data.psic.mexnoEncr }}-{{
                         data.psic.cralIdvTno }}
                     </p>
@@ -163,7 +166,10 @@
                     />-->
                   </div>
                   <div class="row items-center">
-                    <p class="kw-font--14">
+                    <p
+                      class="kw-font--14"
+                      @click="clickPhone('clickTel')"
+                    >
                       {{ data.psic.locaraTno }}-{{ data.psic.exnoEncr }}-{{
                         data.psic.idvTno }}
                     </p>
@@ -178,9 +184,9 @@
               </div>
               <kw-avatar size="60px">
                 <img
-                  alt="profile"
                   :src="'https://kportal.kyowon.co.kr/myoffice/Common/ezCommon_InterFace.aspx?TYPE=ENGINEER&FILENAME=' +
                     data.psic.empPic"
+                  alt="profile"
                 >
               </kw-avatar>
             </div>
@@ -193,16 +199,19 @@
                     {{ data.psic.prtnrKnm2 }}
                   </h3>
                   <kw-chip
+                    :label="$t('MSG_TXT_MANAGER')"
                     class="ml8"
                     color="primary"
-                    :label="$t('MSG_TXT_MANAGER')"
                     square
                     text-color="primary"
                   />
                 </div>
                 <div class="column mt12">
                   <div class="row items-center">
-                    <p class="kw-font--14">
+                    <p
+                      class="kw-font--14"
+                      @click="clickPhone('clickCenterHp')"
+                    >
                       {{ data.psic.sjHp1 }}-{{ data.psic.sjHp2 }}-{{ data.psic.sjHp3 }}
                     </p>
                     <!-- <kw-btn
@@ -321,9 +330,7 @@
         </li>
       </ul>
       <ul
-        v-else-if="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
-          data.psic.vstPos
-          === '해당일 방문불가' "
+        v-else-if="data.psic.vstPos === '해당일 방문불가'"
       >
         <kw-separator />
         <li>
@@ -435,13 +442,11 @@
         </h3>
         <kw-input
           v-model.trim="data.egerMemo"
+          :disable="data.psic.vstPos === '해당일 방문불가'"
           class="mt20 mb18"
           counter
           maxlength="500"
           type="textarea"
-          :disable="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
-            data.psic.vstPos
-            === '해당일 방문불가'"
         />
       </div>
       <div class="button-set--bottom row justify-center">
@@ -451,12 +456,10 @@
           @click="onClickCancel"
         />
         <kw-btn
-          class="ml8"
+          :disable="data.psic.vstPos === '해당일 방문불가'"
           :label="$t('MSG_BTN_SAVE')"
+          class="ml8"
           primary
-          :disable="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
-            data.psic.vstPos
-            === '해당일 방문불가'"
           @click="onClickSave"
         />
       </div>
@@ -1017,8 +1020,15 @@ async function onClickSave() {
   url += `&rcpOgTpCd=${data.value.rcpOgTpCd}`;
   url += `&cntrNo=${searchParams.value.cntrNo}`;
   window.location.href = url; */
-  window.opener?.postMessage(data.value);
+  // window.opener?.postMessage(data.value);
+  data.value.action = 'save';
+  window.opener?.postMessage(JSON.stringify(data.value), searchParams.value.returnUrl);
   ok();
+}
+
+async function clickPhone(action) {
+  data.value.action = action;
+  window.opener?.postMessage(JSON.stringify(data.psic.value));
 }
 
 onMounted(async () => {
