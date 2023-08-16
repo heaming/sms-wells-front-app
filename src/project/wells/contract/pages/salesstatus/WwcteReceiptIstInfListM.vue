@@ -196,10 +196,9 @@
       <kw-search-row>
         <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
           <kw-select
-            v-model="fieldParams.sellTpCd"
+            v-model="fieldParams.sellTpCds"
             :options="codes.sellTpCd"
-            first-option="all"
-            first-option-val=""
+            :multiple="true"
           />
         </kw-search-item>
       </kw-search-row>
@@ -262,11 +261,11 @@ const { currentRoute } = useRouter();
 const fieldParams = ref({
   cntrCnfmDtFr: now.format('YYYYMM01'), // 조회시작일자
   cntrCnfmDtTo: now.format('YYYYMMDD'), // 조회종료일자
-  sppDuedt: now.format('YYYYMMDD'), // 예정일자
+  sppDuedt: '', // 예정일자
   pdHclsfId: '', // 상품대분류ID
   pdMclsfId: '', // 상품중분류ID
   basePdCd: '', // 상품코드
-  sellTpCd: '', // 판매유형코드
+  sellTpCds: ['1', '2', '6'], // 판매유형코드
   inqrDv: '1', // 조회구분
   dgr1LevlOgId: '', // 총괄ID
   dgr2LevlOgId: '', // 지역단ID
@@ -277,7 +276,7 @@ const fieldParams = ref({
   sppDuedtYn: false, // 예정일 미등록
   mngSv: '', // 관리서비스
   pdNm: '', // 상품명
-  pdDvs: [''], // 제품구분
+  pdDvs: ['1', '2', '3'], // 제품구분
 });
 
 const srchMainRef = ref(getComponentType('KwSearch'));
