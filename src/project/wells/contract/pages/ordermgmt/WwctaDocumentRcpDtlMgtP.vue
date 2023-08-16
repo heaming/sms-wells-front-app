@@ -149,7 +149,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.nmchgIdfCyRealFpath"
+                  :src="frmMainData.nmchgIdfCyRealFpath+'/'+frmMainData.nmchgIdfCyFileNm"
                   alt=""
                 >
               </div>
@@ -160,7 +160,7 @@
                     dense
                     underline
                     :label="frmMainData.nmchgIdfCyFileNm"
-                    @click="onClickOpenImageViewer('nmchgIdfCyRealFpath')"
+                    @click="onClickOpenImageViewer('nmchgIdfCyFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -179,7 +179,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.nmchgEtcRealFpath"
+                  :src="frmMainData.nmchgEtcRealFpath1+'/'+frmMainData.nmchgEtcFileNm1"
                   alt=""
                 >
               </div>
@@ -189,18 +189,52 @@
                   <kw-btn
                     dense
                     underline
-                    :label="frmMainData.nmchgEtcFileNm"
-                    @click="onClickOpenImageViewer('nmchgEtcRealFpath')"
+                    :label="frmMainData.nmchgEtcFileNm1"
+                    @click="onClickOpenImageViewer('nmchgEtcFileUid1')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
                 <li class="kw-fc--black3 mt2 text-weight-regular">
-                  <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm }}</p>
+                  <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm1 }}</p>
                 </li>
               </ul>
             </div>
           </kw-form-item>
         </kw-form-row>
+        <slot v-if="frmMainData.nmchgEtcFileUid2 !== ''">
+          <kw-form-row>
+            <!-- 기타 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <img
+                    :src="frmMainData.nmchgEtcRealFpath2+'/'+frmMainData.nmchgEtcFileNm2"
+                    alt=""
+                  >
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.nmchgEtcFileNm2"
+                      @click="onClickOpenImageViewer('nmchgEtcFileUid2')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm2 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+          </kw-form-row>
+        </slot>
       </slot>
       <!-- 자동이체 변경 -->
       <slot v-else-if="props.cntrChTpCd === '301'">
@@ -214,7 +248,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.cmsApfRealFpath"
+                  :src="frmMainData.cmsApfRealFpath+'/'+frmMainData.cmsApfFileNm"
                   alt=""
                 >
               </div>
@@ -225,7 +259,7 @@
                     dense
                     underline
                     :label="frmMainData.cmsApfFileNm"
-                    @click="onClickOpenImageViewer('cmsApfRealFpath')"
+                    @click="onClickOpenImageViewer('cmsApfFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -244,7 +278,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.aftnIdfCyRealFpath"
+                  :src="frmMainData.aftnIdfCyRealFpath+'/'+frmMainData.aftnIdfCyFileNm"
                   alt=""
                 >
               </div>
@@ -255,7 +289,7 @@
                     dense
                     underline
                     :label="frmMainData.aftnIdfCyFileNm"
-                    @click="onClickOpenImageViewer('aftnIdfCyRealFpath')"
+                    @click="onClickOpenImageViewer('aftnIdfCyFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -276,7 +310,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.aftnBnkbCyRealFpath"
+                  :src="frmMainData.aftnBnkbCyRealFpath+'/'+frmMainData.aftnBnkbCyFileNm"
                   alt=""
                 >
               </div>
@@ -287,7 +321,7 @@
                     dense
                     underline
                     :label="frmMainData.aftnBnkbCyFileNm"
-                    @click="onClickOpenImageViewer('aftnBnkbCyRealFpath')"
+                    @click="onClickOpenImageViewer('aftnBnkbCyFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -306,7 +340,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.aftnFmlCrtfDcmtRealFpath"
+                  :src="frmMainData.aftnFmlCrtfDcmtRealFpath+'/'+frmMainData.aftnFmlCrtfDcmtFileNm"
                   alt=""
                 >
               </div>
@@ -317,7 +351,7 @@
                     dense
                     underline
                     :label="frmMainData.aftnFmlCrtfDcmtFileNm"
-                    @click="onClickOpenImageViewer('aftnFmlCrtfDcmtRealFpath')"
+                    @click="onClickOpenImageViewer('aftnFmlCrtfDcmtFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -338,7 +372,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.aftnBzrcCrpRealFpath"
+                  :src="frmMainData.aftnBzrcCrpRealFpath+'/'+frmMainData.aftnBzrcCrpFileNm"
                   alt=""
                 >
               </div>
@@ -349,7 +383,7 @@
                     dense
                     underline
                     :label="frmMainData.aftnBzrcCrpFileNm"
-                    @click="onClickOpenImageViewer('aftnBzrcCrpRealFpath')"
+                    @click="onClickOpenImageViewer('aftnBzrcCrpFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -368,7 +402,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.aftnEtcRealFpath"
+                  :src="frmMainData.aftnEtcRealFpath+'/'+frmMainData.aftnEtcFileNm"
                   alt=""
                 >
               </div>
@@ -379,7 +413,7 @@
                     dense
                     underline
                     :label="frmMainData.aftnEtcFileNm"
-                    @click="onClickOpenImageViewer('aftnEtcRealFpath')"
+                    @click="onClickOpenImageViewer('aftnEtcFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -403,7 +437,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.tftlApfRealFpath"
+                  :src="frmMainData.tftlApfRealFpath+'/'+frmMainData.tftlApfFileNm"
                   alt=""
                 >
               </div>
@@ -414,7 +448,7 @@
                     dense
                     underline
                     :label="frmMainData.tftlApfFileNm"
-                    @click="onClickOpenImageViewer('tftlApfRealFpath')"
+                    @click="onClickOpenImageViewer('tftlApfFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -433,7 +467,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.agrmntRealFpath"
+                  :src="frmMainData.agrmntRealFpath+'/'+frmMainData.agrmntFileNm"
                   alt=""
                 >
               </div>
@@ -444,7 +478,7 @@
                     dense
                     underline
                     :label="frmMainData.agrmntFileNm"
-                    @click="onClickOpenImageViewer('agrmntRealFpath')"
+                    @click="onClickOpenImageViewer('agrmntFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -465,7 +499,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.tftlIdfCyRealFpath"
+                  :src="frmMainData.tftlIdfCyRealFpath+'/'+frmMainData.tftlIdfCyFileNm"
                   alt=""
                 >
               </div>
@@ -476,7 +510,7 @@
                     dense
                     underline
                     :label="frmMainData.tftlIdfCyFileNm"
-                    @click="onClickOpenImageViewer('tftlIdfCyRealFpath')"
+                    @click="onClickOpenImageViewer('tftlIdfCyFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -495,7 +529,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.tftlBnkbCyRealFpath"
+                  :src="frmMainData.tftlBnkbCyRealFpath+'/'+frmMainData.tftlBnkbCyFileNm"
                   alt=""
                 >
               </div>
@@ -506,7 +540,7 @@
                     dense
                     underline
                     :label="frmMainData.tftlBnkbCyFileNm"
-                    @click="onClickOpenImageViewer('tftlBnkbCyRealFpath')"
+                    @click="onClickOpenImageViewer('tftlBnkbCyFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -527,7 +561,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.tftlBzrcCrpRealFpath"
+                  :src="frmMainData.tftlBzrcCrpRealFpath+'/'+frmMainData.tftlBzrcCrpFileNm"
                   alt=""
                 >
               </div>
@@ -538,7 +572,7 @@
                     dense
                     underline
                     :label="frmMainData.tftlBzrcCrpFileNm"
-                    @click="onClickOpenImageViewer('tftlBzrcCrpRealFpath')"
+                    @click="onClickOpenImageViewer('tftlBzrcCrpFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -557,7 +591,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.tftlEtcRealFpath"
+                  :src="frmMainData.tftlEtcRealFpath+'/'+frmMainData.tftlEtcFileNm"
                   alt=""
                 >
               </div>
@@ -568,7 +602,7 @@
                     dense
                     underline
                     :label="frmMainData.tftlEtcFileNm"
-                    @click="onClickOpenImageViewer('tftlEtcRealFpath')"
+                    @click="onClickOpenImageViewer('tftlEtcFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -592,7 +626,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.cnclEvdcDcmtRealFpath"
+                  :src="frmMainData.cnclEvdcDcmtRealFpath+'/'+frmMainData.cnclEvdcDcmtFileNm"
                   alt=""
                 >
               </div>
@@ -603,7 +637,7 @@
                     dense
                     underline
                     :label="frmMainData.cnclEvdcDcmtFileNm"
-                    @click="onClickOpenImageViewer('cnclEvdcDcmtRealFpath')"
+                    @click="onClickOpenImageViewer('cnclEvdcDcmtFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
@@ -622,7 +656,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <img
-                  :src="frmMainData.cnclEtcRealFpath"
+                  :src="frmMainData.cnclEtcRealFpath1+'/'+frmMainData.cnclEtcFileNm1"
                   alt=""
                 >
               </div>
@@ -632,18 +666,52 @@
                   <kw-btn
                     dense
                     underline
-                    :label="frmMainData.cnclEtcFileNm"
-                    @click="onClickOpenImageViewer('cnclEtcRealFpath')"
+                    :label="frmMainData.cnclEtcFileNm1"
+                    @click="onClickOpenImageViewer('cnclEtcFileUid1')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
                 <li class="kw-fc--black3 mt2 text-weight-regular">
-                  <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.cnclEtcFnlMdfcDtm }}</p>
+                  <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.cnclEtcFnlMdfcDtm1 }}</p>
                 </li>
               </ul>
             </div>
           </kw-form-item>
         </kw-form-row>
+        <slot v-if="frmMainData.cnclEtcFileUid2 !== ''">
+          <kw-form-row>
+            <!-- 기타 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <img
+                    :src="frmMainData.cnclEtcRealFpath2+'/'+frmMainData.cnclEtcFileNm2"
+                    alt=""
+                  >
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.cnclEtcFileNm2"
+                      @click="onClickOpenImageViewer('cnclEtcFileUid2')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.cnclEtcFnlMdfcDtm2 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+          </kw-form-row>
+        </slot>
       </slot>
     </kw-form>
     <template #action>
@@ -717,10 +785,14 @@ const frmMainData = ref({
   nmchgIdfCyRealFpath: '', // (개명신청)신분증사본 파일실제경로
   nmchgIdfCyFnlMdfcDtm: '', // (개명신청)신분증사본 파일최종등록일시
   nmchgIdfCyFileUid: '', // (개명신청)신분증사본 파일UID
-  nmchgEtcFileNm: '', // (개명신청)기타 파일명
-  nmchgEtcRealFpath: '', // (개명신청)기타 파일실제경로
-  nmchgEtcFnlMdfcDtm: '', // (개명신청)기타 파일최종등록일시
-  nmchgEtcFileUid: '', // (개명신청)기타 파일UID
+  nmchgEtcFileNm1: '', // (개명신청)기타 파일명1
+  nmchgEtcRealFpath1: '', // (개명신청)기타 파일실제경로1
+  nmchgEtcFnlMdfcDtm1: '', // (개명신청)기타 파일최종등록일시1
+  nmchgEtcFileUid1: '', // (개명신청)기타 파일UID1
+  nmchgEtcFileNm2: '', // (개명신청)기타 파일명2
+  nmchgEtcRealFpath2: '', // (개명신청)기타 파일실제경로2
+  nmchgEtcFnlMdfcDtm2: '', // (개명신청)기타 파일최종등록일시2
+  nmchgEtcFileUid2: '', // (개명신청)기타 파일UID2
 
   cmsApfFileNm: '', // (자동이체 변경)CMS변경신청서 파일명
   cmsApfRealFpath: '', // (자동이체 변경)CMS변경신청서 파일실제경로
@@ -776,10 +848,14 @@ const frmMainData = ref({
   cnclEvdcDcmtRealFpath: '', // (해지/철회신청)증빙서류 파일실제경로
   cnclEvdcDcmtFnlMdfcDtm: '', // (해지/철회신청)증빙서류 파일최종등록일시
   cnclEvdcDcmtFileUid: '', // (해지/철회신청)증빙서류 파일UID
-  cnclEtcFileNm: '', // (해지/철회신청)기타 파일명
-  cnclEtcRealFpath: '', // (해지/철회신청)기타 파일실제경로
-  cnclEtcFnlMdfcDtm: '', // (해지/철회신청)기타 파일최종등록일시
-  cnclEtcFileUid: '', // (해지/철회신청)기타 파일UID
+  cnclEtcFileNm1: '', // (해지/철회신청)기타 파일명1
+  cnclEtcRealFpath1: '', // (해지/철회신청)기타 파일실제경로1
+  cnclEtcFnlMdfcDtm1: '', // (해지/철회신청)기타 파일최종등록일시1
+  cnclEtcFileUid1: '', // (해지/철회신청)기타 파일UID1
+  cnclEtcFileNm2: '', // (해지/철회신청)기타 파일명2
+  cnclEtcRealFpath2: '', // (해지/철회신청)기타 파일실제경로2
+  cnclEtcFnlMdfcDtm2: '', // (해지/철회신청)기타 파일최종등록일시2
+  cnclEtcFileUid2: '', // (해지/철회신청)기타 파일UID2
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -841,10 +917,17 @@ async function fetchData() {
         }
         // 기타
         if (element.cntrChDocSeq === '2') {
-          frmMainData.value.nmchgEtcFileNm = element.fileNm; // 파일명
-          frmMainData.value.nmchgEtcRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.nmchgEtcFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.nmchgEtcFileUid = element.fileUid; // 파일UID
+          frmMainData.value.nmchgEtcFileNm1 = element.fileNm; // 파일명
+          frmMainData.value.nmchgEtcRealFpath1 = element.realFpath; // 파일실제경로
+          frmMainData.value.nmchgEtcFnlMdfcDtm1 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+          frmMainData.value.nmchgEtcFileUid1 = element.fileUid; // 파일UID
+        }
+        // 기타
+        if (element.cntrChDocSeq === '3') {
+          frmMainData.value.nmchgEtcFileNm2 = element.fileNm; // 파일명
+          frmMainData.value.nmchgEtcRealFpath2 = element.realFpath; // 파일실제경로
+          frmMainData.value.nmchgEtcFnlMdfcDtm2 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+          frmMainData.value.nmchgEtcFileUid2 = element.fileUid; // 파일UID
         }
       } else if (element.cntrChTpCd === '301') { // 자동이체 변경
         // CMS변경신청서
@@ -942,10 +1025,17 @@ async function fetchData() {
         }
         // 기타
         if (element.cntrChDocSeq === '2') {
-          frmMainData.value.cnclEtcFileNm = element.fileNm; // 파일명
-          frmMainData.value.cnclEtcRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.cnclEtcFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.cnclEtcFileUid = element.fileUid; // 파일UID
+          frmMainData.value.cnclEtcFileNm1 = element.fileNm; // 파일명
+          frmMainData.value.cnclEtcRealFpath1 = element.realFpath; // 파일실제경로
+          frmMainData.value.cnclEtcFnlMdfcDtm1 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+          frmMainData.value.cnclEtcFileUid1 = element.fileUid; // 파일UID
+        }
+        // 기타
+        if (element.cntrChDocSeq === '3') {
+          frmMainData.value.cnclEtcFileNm2 = element.fileNm; // 파일명
+          frmMainData.value.cnclEtcRealFpath2 = element.realFpath; // 파일실제경로
+          frmMainData.value.cnclEtcFnlMdfcDtm2 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+          frmMainData.value.cnclEtcFileUid2 = element.fileUid; // 파일UID
         }
       }
     });
@@ -1071,26 +1161,29 @@ async function onClickEtcEnd() {
 }
 
 // 이미지 뷰어 호출 이벤트
-async function onClickOpenImageViewer(realFpath) {
+async function onClickOpenImageViewer(fileUid) {
   let cpProps;
 
-  if (realFpath === 'nmchgIdfCyRealFpath') cpProps = frmMainData.value.nmchgIdfCyRealFpath;
-  if (realFpath === 'nmchgEtcRealFpath') cpProps = frmMainData.value.nmchgEtcRealFpath;
-  if (realFpath === 'cmsApfRealFpath') cpProps = frmMainData.value.cmsApfRealFpath;
-  if (realFpath === 'aftnIdfCyRealFpath') cpProps = frmMainData.value.aftnIdfCyRealFpath;
-  if (realFpath === 'aftnBnkbCyRealFpath') cpProps = frmMainData.value.aftnBnkbCyRealFpath;
-  if (realFpath === 'aftnFmlCrtfDcmtRealFpath') cpProps = frmMainData.value.aftnFmlCrtfDcmtRealFpath;
-  if (realFpath === 'aftnBzrcCrpRealFpath') cpProps = frmMainData.value.aftnBzrcCrpRealFpath;
-  if (realFpath === 'aftnEtcRealFpath') cpProps = frmMainData.value.aftnEtcRealFpath;
-  if (realFpath === 'tftlApfRealFpath') cpProps = frmMainData.value.tftlApfRealFpath;
-  if (realFpath === 'agrmntRealFpath') cpProps = frmMainData.value.agrmntRealFpath;
-  if (realFpath === 'tftlIdfCyRealFpath') cpProps = frmMainData.value.tftlIdfCyRealFpath;
-  if (realFpath === 'tftlBnkbCyRealFpath') cpProps = frmMainData.value.tftlBnkbCyRealFpath;
-  if (realFpath === 'tftlBzrcCrpRealFpath') cpProps = frmMainData.value.tftlBzrcCrpRealFpath;
-  if (realFpath === 'tftlEtcRealFpath') cpProps = frmMainData.value.tftlEtcRealFpath;
-  if (realFpath === 'cnclEvdcDcmtRealFpath') cpProps = frmMainData.value.cnclEvdcDcmtRealFpath;
-  if (realFpath === 'cnclEtcRealFpath') cpProps = frmMainData.value.cnclEtcRealFpath;
+  if (fileUid === 'nmchgIdfCyFileUid') cpProps = frmMainData.value.nmchgIdfCyFileUid;
+  if (fileUid === 'nmchgEtcFileUid1') cpProps = frmMainData.value.nmchgEtcFileUid1;
+  if (fileUid === 'nmchgEtcFileUid2') cpProps = frmMainData.value.nmchgEtcFileUid2;
+  if (fileUid === 'cmsApfFileUid') cpProps = frmMainData.value.cmsApfFileUid;
+  if (fileUid === 'aftnIdfCyFileUid') cpProps = frmMainData.value.aftnIdfCyFileUid;
+  if (fileUid === 'aftnBnkbCyFileUid') cpProps = frmMainData.value.aftnBnkbCyFileUid;
+  if (fileUid === 'aftnFmlCrtfDcmtFileUid') cpProps = frmMainData.value.aftnFmlCrtfDcmtFileUid;
+  if (fileUid === 'aftnBzrcCrpFileUid') cpProps = frmMainData.value.aftnBzrcCrpFileUid;
+  if (fileUid === 'aftnEtcFileUid') cpProps = frmMainData.value.aftnEtcFileUid;
+  if (fileUid === 'tftlApfFileUid') cpProps = frmMainData.value.tftlApfFileUid;
+  if (fileUid === 'agrmntFileUid') cpProps = frmMainData.value.agrmntFileUid;
+  if (fileUid === 'tftlIdfCyFileUid') cpProps = frmMainData.value.tftlIdfCyFileUid;
+  if (fileUid === 'tftlBnkbCyFileUid') cpProps = frmMainData.value.tftlBnkbCyFileUid;
+  if (fileUid === 'tftlBzrcCrpFileUid') cpProps = frmMainData.value.tftlBzrcCrpFileUid;
+  if (fileUid === 'tftlEtcFileUid') cpProps = frmMainData.value.tftlEtcFileUid;
+  if (fileUid === 'cnclEvdcDcmtFileUid') cpProps = frmMainData.value.cnclEvdcDcmtFileUid;
+  if (fileUid === 'cnclEtcFileUid1') cpProps = frmMainData.value.cnclEtcFileUid1;
+  if (fileUid === 'cnclEtcFileUid2') cpProps = frmMainData.value.cnclEtcFileUid2;
 
+  console.log(`fileUid : ${cpProps}`);
   if (isEmpty(cpProps)) {
     return;
   }
