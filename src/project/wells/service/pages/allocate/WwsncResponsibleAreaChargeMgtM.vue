@@ -318,6 +318,7 @@ function validateToday(val) {
   return true;
 }
 
+/*
 function validateGridApplyDate() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view, true);
@@ -336,6 +337,7 @@ function validateGridApplyDate() {
 
   return true;
 }
+*/
 
 function setPersonInChargeCellData(view, row, value, column) {
   const matchedEngineer = engineers.find((v) => v.prtnrNo === value);
@@ -372,7 +374,7 @@ async function onClickApplyDateBulkApply() {
 
 async function onClickSave() {
   if (!validateIsApplyRowExists()) return;
-  if (!validateGridApplyDate()) return;
+  // if (!validateGridApplyDate()) return;
 
   const view = grdMainRef.value.getView();
 
