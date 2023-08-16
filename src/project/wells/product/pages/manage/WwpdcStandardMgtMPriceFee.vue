@@ -176,10 +176,8 @@ async function initGridRows() {
   // 선택된 선택변수 Visible 적용 ( 선택변수값 = Grid Filed명 )
   await resetVisibleChannelColumns();
 
-  // 수수료 변수 적용
-  await fetchFeeVariableData();
-
   // 수수료 변수 visible 적용
+  // console.log('feeVariables.value : ', feeVariables.value);
   feeVariables.value?.forEach((item) => {
     const column = view.columnByName(item.codeId);
     if (column) {
@@ -269,16 +267,6 @@ async function resetVisibleChannelColumns() {
   });
 }
 
-// 수수료 선택변수
-async function fetchFeeVariableData() {
-  const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
-  if (sellTpCd && (isEmpty(currentSellTpCd.value) || sellTpCd !== currentSellTpCd.value)) {
-    currentSellTpCd.value = sellTpCd;
-    const typeRes = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd, choFxnDvCd: pdConst.CHO_FXN_DV_CD_FEE } });
-    feeVariables.value = typeRes.data;
-  }
-}
-
 async function onUpdateSellChannel() {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('sellChnlCd', false);
@@ -290,11 +278,16 @@ async function onUpdateSellChannel() {
 // 선택변수
 async function fetchSelectVariableData() {
   const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+  // console.log('sellTpCd : ', sellTpCd);
   if (sellTpCd && (isEmpty(currentSellTpCd.value) || sellTpCd !== currentSellTpCd.value)) {
     currentSellTpCd.value = sellTpCd;
     // 선택변수
     const typeRes = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd } });
     selectionVariables.value = typeRes.data?.filter((item) => item.choFxnDvCd === pdConst.CHO_FXN_DV_CD_CHOICE);
+
+    // 수수료 선택변수
+    const typeRes2 = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd, choFxnDvCd: pdConst.CHO_FXN_DV_CD_FEE } });
+    feeVariables.value = cloneDeep(typeRes2.data);
   }
 }
 
