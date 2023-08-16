@@ -451,7 +451,16 @@ async function onClickCreate() {
   } else {
     notify(t('MSG_ALT_ALLO_OF_COLL_EXCN'));
   }
-  await dataService.post('/sms/wells/bond/collector-assigns', cachedParams);
+  const responseBatchJob = await dataService.post('/sms/wells/bond/collector-assigns', cachedParams);
+  const { result } = await modal({
+    component: 'ZwbnaCollectorAssignP',
+    componentProps: {
+      jobId: responseBatchJob.data,
+    },
+  });
+  if (result) {
+    await fetchData();
+  }
 }
 
 async function onClickPageMove() {
