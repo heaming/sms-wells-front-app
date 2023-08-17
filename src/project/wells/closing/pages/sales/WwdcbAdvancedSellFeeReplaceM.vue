@@ -78,7 +78,6 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_CATE')"
-          :colspan="2"
         >
           <zwpd-product-classification-select
             v-model:product1-level="searchParams.pdHclsfId"
@@ -132,7 +131,7 @@
             v-model="searchParams.feeCd"
             first-option="all"
             first-option-value="ALL"
-            :options="feeGubunCode"
+            :options="dynamicChangeCodes.FEE_GBN_CD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -164,28 +163,28 @@
         <kw-btn
           primary
           dense
-          :label="$t('MSG_BTN_CNTN_CREATE')"
+          :label="$t('MSG_BTN_SLP_CRE')"
           :disable="totalCount === 0 || searchParams.baseYm !== lastMonth"
           @click="onClickSlipCreate"
         />
       </kw-action-top>
 
       <kw-grid
-        v-if="searchParams.searchGubun === '1'"
+        v-if="gridControl.gubun === '1'"
         ref="grdMainRef"
         name="grdMain"
         :visible-rows="10"
         @init="initGrid"
       />
       <kw-grid
-        v-else-if="searchParams.searchGubun === '2'"
+        v-else-if="gridControl.gubun === '2'"
         ref="grdMainRef"
         name="grdDtl"
         :visible-rows="10"
         @init="initGridDtl"
       />
       <kw-grid
-        v-else-if="searchParams.searchGubun === '3'"
+        v-else-if="gridControl.gubun === '3'"
         ref="grdMainRef"
         name="grdRtDtl"
         :visible-rows="10"
@@ -217,11 +216,11 @@ const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
 const totalCount = ref(0);
+const dynamicChangeCodes = ref({ FEE_GBN_CD: [] });
 
 const lastMonth = ref(now.subtract(1, 'month').format('YYYYMM'));
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'OG_TP_CD',
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
@@ -234,8 +233,6 @@ async function getCodes() {
   const res = await dataService.get('/sms/wells/closing/advanced-fee-replace/fee-gubun-code');
   return res.data;
 }
-
-const feeGubunCode = await getCodes();
 
 let cachedParams;
 
@@ -252,6 +249,10 @@ const searchParams = ref({
   cntrSn: '',
   feeChk: 'N',
   feeCd: 'ALL',
+});
+
+const gridControl = ref({
+  gubun: searchGubunCode[0].codeId,
 });
 
 async function setSummaryData(column, res) {
@@ -326,6 +327,9 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+
+  gridControl.value.gubun = searchParams.value.searchGubun;
+
   await fetchData();
 }
 
@@ -348,7 +352,7 @@ async function onClickSlipCreate() {
 async function onClickChkboxDetail() {
   const val = searchParams.value.feeChk;
   searchParams.value.feeCd = 'ALL';
-  if (searchParams.value.searchGubun !== '2') return;
+  if (searchParams.value.searchGubun !== '2' || gridControl.value.gubun !== '2') return;
 
   const view = grdMainRef.value.getView();
   if (val === 'Y') {
@@ -370,6 +374,10 @@ watch(() => searchParams.value.sellTpCd, async (val) => {
   if (!isEmpty(val)) {
     searchParams.value.sellTpDtlCd = 'ALL';
   }
+});
+
+onMounted(async () => {
+  dynamicChangeCodes.value.FEE_GBN_CD = await getCodes();
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -438,7 +446,7 @@ const initGridDtl = defineGrid((data, view) => {
     { fieldName: 'feeOcAmt', header: t('MSG_TXT_FEE_OC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'piaCsYn', header: t('MSG_TXT_PIA_TARGET_YN'), width: '120', styleName: 'text-center', options: piaCsYnCode },
     { fieldName: 'feeOcYm', header: t('MSG_TXT_FEE_OC_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'piaFeeOcAmt', header: t('MSG_TXT_PIA_FEE_OC_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'piaFeeOcAmt', header: t('MSG_TXT_PIA_FEE_OC_AMT'), width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'stplTn', header: t('MSG_TXT_STPL_CNTS'), width: '120', styleName: 'text-center' },
     { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
