@@ -187,9 +187,6 @@ import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGl
 import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-
-dayjs.extend(isSameOrBefore);
 
 const { getDistricts } = useSnCode();
 
@@ -251,7 +248,7 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(personInCharges);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
   baseInfo.value.ichrPrtnrNo = '';
   baseInfo.value.applyDateFrom = '';
@@ -311,7 +308,7 @@ function validateApplyDate() {
 
 function validateToday(val) {
   const today = dayjs().format('YYYYMMDD');
-  if (dayjs(val).isSameOrBefore(today)) {
+  if (dayjs(val).isBefore(today)) {
     notify(t('MSG_ALT_APY_STRT_D_CONF_FUR_DT'));
     return false;
   }
