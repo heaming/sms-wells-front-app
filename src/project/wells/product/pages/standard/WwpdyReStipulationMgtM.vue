@@ -216,9 +216,10 @@ async function onClickAdd() {
 
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
+  if (!await gridUtil.confirmIfIsModified(view)) { return; }
+  const checkedRowCount = view.getCheckedRows().length;
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  pageInfo.value.totalCount = Number(gridUtil.getAllRowValues(view)?.length);
-  console.log('deletedRows', deletedRows);
+  pageInfo.value.totalCount -= checkedRowCount - deletedRows.length;
   if (deletedRows.length > 0) {
     await dataService.delete(baseUrl, { data: deletedRows });
     await fetchData();
