@@ -237,6 +237,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(places);
   view.clearCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -258,7 +259,6 @@ function onClickAddRow() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
-
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {

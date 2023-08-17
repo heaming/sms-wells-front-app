@@ -78,8 +78,6 @@
           <kw-select
             v-model="searchParams.wkGrpCd"
             :options="codes.WK_GRP_CD"
-            option-label="codeName"
-            option-value="codeId"
           />
         </kw-search-item>
         <!--적용일자-->
@@ -244,7 +242,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
   // view.resetCurrent();
-  if (pagingResult.totalCount === 0) { notify(t('MSG_ALT_NO_INFO_SRCH')); }
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -289,8 +287,8 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'fr2pLgldCd' },
     { fieldName: 'zipList' },
-    { fieldName: 'mgtCnt' },
-    { fieldName: 'wrkCnt' },
+    // { fieldName: 'mgtCnt' },
+    // { fieldName: 'wrkCnt' },
     { fieldName: 'ctpvNm' },
     { fieldName: 'ctctyNm' },
     { fieldName: 'lawcEmdNm' },
@@ -317,18 +315,18 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
     },
-    {
-      fieldName: 'mgtCnt',
-      header: t('MSG_TXT_SV_ACC'),
-      width: '100',
-      styleName: 'text-right',
-    },
-    {
-      fieldName: 'wrkCnt',
-      header: t('MSG_TXT_MLMN_ACTCS'),
-      width: '100',
-      styleName: 'text-right',
-    },
+    // {
+    //   fieldName: 'mgtCnt',
+    //   header: t('MSG_TXT_SV_ACC'),
+    //   width: '100',
+    //   styleName: 'text-right',
+    // },
+    // {
+    //   fieldName: 'wrkCnt',
+    //   header: t('MSG_TXT_MLMN_ACTCS'),
+    //   width: '100',
+    //   styleName: 'text-right',
+    // },
     {
       fieldName: 'ctpvNm',
       header: t('MSG_TXT_CTPV_NM'),
@@ -431,8 +429,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columnLayout = [
     'zipList',
-    'mgtCnt',
-    'wrkCnt',
+    // 'mgtCnt',
+    // 'wrkCnt',
     {
       header: t('MSG_TXT_LGLD'), // colspan title
       direction: 'horizontal', // merge type
