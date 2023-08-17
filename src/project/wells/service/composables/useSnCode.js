@@ -25,6 +25,7 @@ export default () => {
     pdMclsfId,
     pdLclsfId,
     pdDclsfId,
+    svpdUseYn,
   ) {
     const result = await dataService.get(
       '/sms/wells/common/sms-wells-codes/part-master',
@@ -40,6 +41,7 @@ export default () => {
         pdMclsfId,
         pdLclsfId,
         pdDclsfId,
+        svpdUseYn, /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
       } },
     );
     return result.data;
