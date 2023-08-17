@@ -180,9 +180,13 @@ const customCodes = {
  */
 function isHolidaySetter() {
   // return sessionUserInfo.employeeIDNumber === '999999';
-  return sessionUserInfo.baseRleCd === 'W1560'; // 엔지니어(센터장)
+  return sessionUserInfo.baseRleCd === 'W1560'; // 휴무일지정자
 }
 
+/*
+ * 휴일근무 지정자가 edit 가능한지 체크하기 위한 funciton
+ * (서비스센터를 '휴무일지정'으로 했을 경우 edit 가능)
+ */
 function isHolidaySetable() {
   return (isHolidaySetter() && searchParams.value.serviceCenter.ogId === HOLIDAY_TEXT);
 }
