@@ -202,7 +202,6 @@ async function fetchData() {
   }
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
-  view.resetCurrent();
 }
 
 async function onClickExcelDownload() {
