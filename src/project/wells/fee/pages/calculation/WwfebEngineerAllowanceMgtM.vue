@@ -423,6 +423,7 @@ async function onclickStep(params) {
       await onclickDtrm(params.feeSchdId, params.code, '03');
     }
   }
+  stepNaviRef.value.initProps();
 }
 
 // 엑셀다운로드
