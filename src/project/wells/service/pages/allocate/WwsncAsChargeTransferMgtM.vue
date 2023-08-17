@@ -359,7 +359,8 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(asInfos);
-  view.resetCurrent();
+  // view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 async function onClickSearch() {
   if (searchVal.value.vstCnfmdtYn === 'Y') {
