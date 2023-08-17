@@ -77,11 +77,11 @@
     />
 
     <template #action>
-      <kw-btn
+      <!-- <kw-btn
         negative
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
-      />
+      /> -->
     </template>
   </kw-popup>
 </template>
@@ -89,7 +89,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, useMeta, getComponentType, useModal, gridUtil } from 'kw-lib';
+import { codeUtil, useDataService, useMeta, getComponentType, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const props = defineProps({
@@ -109,9 +109,9 @@ const { getConfig } = useMeta();
 const grdPopRef = ref(getComponentType('KwGrid'));
 const popupRef = ref();
 
-const {
-  cancel: onClickCancel,
-} = useModal();
+// const {
+//   // cancel: onClickCancel,
+// } = useModal();
 
 let pageCnt = 0;
 let cachedParams;
