@@ -61,6 +61,7 @@
             v-model:cntr-no="fieldParams.cntrNo"
             v-model:cntr-sn="fieldParams.cntrSn"
             :name="t('MSG_TXT_CNTR_NO')"
+            :select-only-validation="false"
           />
         </kw-search-item>
         <kw-search-item
@@ -275,6 +276,13 @@ const fieldParams = ref({
 
 const filterdCodes = ref({
   sellTpCd: codes.SELL_TP_CD.filter((code) => code.codeId <= '3'),
+});
+
+// 계약 현황 목록에서 진입한 경우
+const props = defineProps({
+  cntrNo: { type: String, required: true },
+  cntrSn: { type: String, required: true },
+  cntrCnfmDt: { type: String, required: true },
 });
 
 async function fetchData() {
@@ -530,6 +538,26 @@ async function onClickShowProductChangeHistoryP(item) {
   item.inDv = '';
   changeContract(item, 'WwctbProductChangeHistoryP');
 }
+
+async function getParamaSearch() {
+  const { cntrNo, cntrSn, cntrCnfmDt } = props;
+  if (cntrNo && cntrSn && cntrCnfmDt) {
+    fieldParams.value.cntrNo = cntrNo;
+    fieldParams.value.cntrSn = cntrSn;
+    fieldParams.value.cntrCnfmDtmFr = cntrCnfmDt;
+    fieldParams.value.cntrCnfmDtmTo = cntrCnfmDt;
+
+    onClickSearch();
+  }
+}
+
+watch(props, () => {
+  getParamaSearch();
+});
+
+onMounted(async () => {
+  getParamaSearch();
+});
 
 </script>
 

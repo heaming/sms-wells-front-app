@@ -416,7 +416,7 @@
             <kw-btn
               :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
               padding="12px"
-              @click="onClickModify(item)"
+              @click="onClickChange(item)"
             />
             <!-- TODO : 확정 / 삭제 버튼 노출 조건 확인 : 계약접수완료일시===now
                                삭제/삭제요청 버튼 비노출 조건 문의 : 설치가 완료된 건일 경우
@@ -599,6 +599,20 @@ async function onClickModify({ resultDiv, cntrNo, cntrSn, cntrPrgsStatCd }) {
       cntrNo,
       cntrSn,
       cntrPrgsStatCd,
+    },
+  });
+}
+
+// 계약변경
+async function onClickChange({ cntrNo, cntrSn, cntrCnfmDtm }) {
+  cntrCnfmDtm = cntrCnfmDtm.substring(0, 8);
+
+  router.replace({
+    path: 'wwctb-contract-change-mgt',
+    query: {
+      cntrNo,
+      cntrSn,
+      cntrCnfmDt: cntrCnfmDtm,
     },
   });
 }
