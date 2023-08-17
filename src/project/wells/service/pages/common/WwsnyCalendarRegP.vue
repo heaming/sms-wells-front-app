@@ -53,7 +53,7 @@
             :maxlength="1000"
             type="textarea"
             :rows="3"
-            :readonly="!props.isHolidaySetter()"
+            :readonly="!props.isHolidaySetable()"
           />
         </kw-form-item>
       </kw-form-row>
