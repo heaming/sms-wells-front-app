@@ -188,6 +188,16 @@
             :options="[{codeId:'01',codeName:t('MSG_TXT_APLC')},{codeId:'02',codeName:t('MSG_TXT_DDTN')}]"
           />
         </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_BLNGT_DV')"
+        >
+          <kw-option-group
+            v-model="searchParams.bzStatCd"
+            :label="$t('MSG_TXT_BLNGT_DV')"
+            type="radio"
+            :options="codes.BZ_STAT_CD"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
     <div class="result-area">
@@ -286,6 +296,7 @@ const ogTpCds = ref();
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'COD_PAGE_SIZE_OPTIONS',
+  'BZ_STAT_CD', // 사업상태코드
 );
 ogTpCds.value = codes.OG_TP_CD.filter((v) => ['W02', 'W03'].includes(v.codeId));
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -308,6 +319,7 @@ const searchParams = ref({
   actiStatCd: '01',
   prtnrNo: '',
   prtnrKnm: '',
+  bzStatCd: '',
 });
 
 const pageInfo = ref({
@@ -563,6 +575,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pnpyamOcAmt' },
     { fieldName: 'actiGdsDdtnId' },
     { fieldName: 'actiGdsStddNm' },
+    { fieldName: 'cltnDt' },
+    { fieldName: 'cntrDt' },
 
   ];
 
@@ -571,6 +585,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bldNm', header: t('MSG_TXT_MSG_TXT_LOCARA_AND_BLD_NM'), width: '150', styleName: 'text-left' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_PIC_NM'), width: '100', styleName: 'text-left' },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cltnDt', header: t('MSG_TXT_CLTN_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'col5',
       header: t('MSG_TXT_MPNO'),
       width: '150',
@@ -594,7 +610,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'startYrmn', header: t('MSG_TXT_OPNG_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'baseDvNm', header: t('MSG_TXT_DIV'), width: '80', styleName: 'text-center' },
-    { fieldName: 'aplcDtS', header: t('MSG_TXT_APPL_DT'), width: '100', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
+    { fieldName: 'aplcDtS', header: t('MSG_TXT_APPL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'actiGdsNm', header: t('MSG_TXT_CODE'), width: '150', styleName: 'text-center' },
     { fieldName: 'aplcQty', header: t('MSG_TXT_QTY'), width: '80', styleName: 'text-center' },
     { fieldName: 'actiGdsStddNm', header: t('MSG_TXT_SZ'), width: '80', styleName: 'text-center' },
@@ -669,7 +685,8 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_APPL_USER'),
       direction: 'horizontal',
-      items: ['bldNm', 'prtnrNo', 'prtnrKnm'],
+      items: ['bldNm', 'prtnrNo', 'prtnrKnm', 'cntrDt', 'cltnDt'],
+
     },
 
     'col5', 'startYrmn', 'baseDvNm',
