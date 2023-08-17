@@ -466,11 +466,6 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_FAX_IDV_TNO')])); // {팩스개별전화번호} 항목이 일괄변경 되었습니다.
     }
   };
-  view.onCellClicked = async (g, { column }) => {
-    if (column === 'faxLocaraTno' || column === 'faxExno' || column === 'faxIdvTno' || column === 'emadrEncr') {
-      alert(t('MSG_ALT_SAME_COLLECTIVE_CHG', [t('MSG_TXT_GRP_NO')]));
-    }
-  };
   view.onCellButtonClicked = async (g, { itemIndex }) => {
     const updateRow = view.getCurrent().dataRow;
     if (!isEmpty(data.getValue(updateRow, 15))) {
