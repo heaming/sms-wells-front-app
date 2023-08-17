@@ -583,7 +583,7 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const { notify, alert } = useGlobal();
 const props = defineProps({
-  contract: { type: String, required: true },
+  contract: { type: Object, required: true },
   onChildMounted: { type: Function, required: true },
 });
 const { getters } = useStore();

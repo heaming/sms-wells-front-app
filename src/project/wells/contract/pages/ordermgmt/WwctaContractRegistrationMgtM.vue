@@ -27,9 +27,9 @@
                 :ref="(el) => panelsRefs[step.name] = el"
                 :contract="contract"
                 :on-child-mounted="onChildMounted"
-                @restipulation="eventStipulation"
-                @membership="eventMembership"
               />
+              <!-- @restipulation="eventStipulation"-->
+              <!-- @membership="eventMembership"-->
             </kw-step-panel>
           </kw-stepper>
           <kw-separator
@@ -252,10 +252,18 @@ import WwctaContractRegistrationMgtMStep2 from './WwctaContractRegistrationMgtMS
 import WwctaContractRegistrationMgtMStep3 from './WwctaContractRegistrationMgtMStep3.vue';
 import WwctaContractRegistrationMgtMStep4 from './WwctaContractRegistrationMgtMStep4.vue';
 
+const props = defineProps({
+  resultDiv: { type: String },
+  cntrNo: { type: String, default: undefined },
+  cntrSn: { type: String, default: undefined },
+  cntrPrgsStatCd: { type: String, default: undefined },
+});
+
 const { t } = useI18n();
 const { alert } = useGlobal();
 const dataService = useDataService();
 const router = useRouter();
+
 const sideStepRefs = reactive({});
 const panelsRefs = reactive({});
 const steps = shallowReactive([
@@ -268,12 +276,7 @@ const currentStepName = ref('step1');
 const currentStep = computed(() => steps.find((step) => step.name === currentStepName.value));
 const currentStepIndex = computed(() => steps.findIndex((step) => step.name === currentStepName.value));
 // 계약 현황 목록에서 진입한 경우
-const props = defineProps({
-  resultDiv: { type: String },
-  cntrNo: { type: String, required: true },
-  cntrSn: { type: String, required: true },
-  cntrPrgsStatCd: { type: String, required: true },
-});
+
 const contract = ref({
   cntrNo: '',
   step1: {},
@@ -405,20 +408,20 @@ async function onClickNext() {
   }
 }
 
-async function eventStipulation(cntrNo, cntrSn) {
-  // 재약정계약
-  const previousStep = steps[3];
-  currentStepName.value = previousStep.name;
-  await panelsRefs[currentStepName.value].setRestipulation(true, cntrSn);
-  isRstlCntr.value = true;
-  await getCntrInfo(4, cntrNo);
-}
-
-async function eventMembership() {
-  debugger;
-  console.log(1);
-  // 멤버십계약
-}
+// async function eventStipulation(cntrNo, cntrSn) {
+//   // 재약정계약
+//   const previousStep = steps[3];
+//   currentStepName.value = previousStep.name;
+//   await panelsRefs[currentStepName.value].setRestipulation(true, cntrSn);
+//   isRstlCntr.value = true;
+//   await getCntrInfo(4, cntrNo);
+// }
+//
+// async function eventMembership() {
+//   debugger;
+//   console.log(1);
+//   // 멤버십계약
+// }
 
 watch(stepsStatus, async () => {
   // child 화면까지 완료되면 onMounted의 역할을 할 함수 수행

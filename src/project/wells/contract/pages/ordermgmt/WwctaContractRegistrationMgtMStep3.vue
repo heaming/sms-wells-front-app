@@ -475,7 +475,7 @@ const { ogTpCd } = getters['meta/getUserInfo'];
 const dataService = useDataService();
 const { notify, alert } = useGlobal();
 const props = defineProps({
-  contract: { type: String, required: true },
+  contract: { type: Object, required: true },
   onChildMounted: { type: Function, required: true },
 });
 const { cntrNo: pCntrNo, step3 } = toRefs(props.contract);
