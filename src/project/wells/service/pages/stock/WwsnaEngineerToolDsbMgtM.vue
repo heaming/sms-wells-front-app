@@ -281,7 +281,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
 
   view.getDataSource().setRows(engineerToolDsbHist);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
   setPymdtColumns(engineerToolDsbHist);
 }

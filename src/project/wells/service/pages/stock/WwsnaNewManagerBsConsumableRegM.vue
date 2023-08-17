@@ -300,7 +300,7 @@ async function fetchData() {
   };
 
   view.getDataSource().setRows(bldCsmbDeliveries);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
