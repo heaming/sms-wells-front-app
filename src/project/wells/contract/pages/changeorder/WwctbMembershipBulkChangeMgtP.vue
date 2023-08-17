@@ -382,12 +382,12 @@ const initMembershipBulkChangeRgsList = defineGrid((data, view) => {
     { fieldName: 'cttRsNm', header: t('MSG_TXT_CTT_CD_NM'), width: '117', styleName: 'text-center', editable: false }, // 컨택코드명
     { fieldName: 'cttPsicNm', header: t('MSG_TXT_CTT_ICHR'), width: '117', styleName: 'text-center', editable: false }, // 컨택담당
     { fieldName: 'hcrDvCd', header: `${t('MSG_TXT_PRDT_GUBUN')}1`, width: '117', styleName: 'text-center', editable: false }, // 상품구분1
-    { fieldName: 'col30', header: `${t('MSG_TXT_PRDT_GUBUN')}2`, width: '117', styleName: 'text-center', editable: false }, // 상품구분2
+    { fieldName: 'col30', header: `${t('MSG_TXT_PRDT_GUBUN')}2`, width: '117', styleName: 'text-center', editable: false, visible: false }, // 상품구분2 TODO : 추후 컬럼 확정되면 다시 반영
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '117', styleName: 'text-center', editable: false }, // 정액여부
     { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_PD_STD_FEE'), width: '117', styleName: 'text-center', numberFormat: '#,##0', editable: false }, // 기준수수료
     { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '117', styleName: 'text-center', editable: false }, // 할인구분
     { fieldName: 'sellDscrCd', header: t('MSG_TXT_DISC_CODE'), width: '117', styleName: 'text-center', editable: false }, // 할인유형
-    { fieldName: 'col35', header: t('MSG_TXT_GRP_DV'), width: '117', styleName: 'text-center', editable: false }, // 그룹구분
+    { fieldName: 'col35', header: t('MSG_TXT_GRP_DV'), width: '117', styleName: 'text-center', editable: false, visible: false }, // 그룹구분 TODO : 추후 컬럼 확정되면 다시 반영
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '117', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 등록일
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '117', styleName: 'text-center', editable: false }, // 등록자
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '117', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 최종수정일

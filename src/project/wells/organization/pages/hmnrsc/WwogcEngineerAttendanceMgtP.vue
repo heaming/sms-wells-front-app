@@ -70,19 +70,18 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, useMeta, defineGrid, getComponentType, gridUtil, useGlobal } from 'kw-lib';
-import dayjs from 'dayjs';
 import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
+import dayjs from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+
+dayjs.extend(isBetween);
 
 const grdMainRef = ref(getComponentType('KwGrid'));
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 const dataService = useDataService();
 const { getConfig, getUserInfo } = useMeta();
 const { t } = useI18n();
 const { wkOjOgTpCd } = getUserInfo();
-
-const now = dayjs().format('YYYYMM');
-
-console.log(now);
 
 const props = defineProps({
   prtnrNo: {
@@ -102,6 +101,10 @@ const props = defineProps({
     default: () => '',
   },
   ogTpCd: {
+    type: String,
+    default: () => '',
+  },
+  wrkDt: {
     type: String,
     default: () => '',
   },
@@ -126,11 +129,13 @@ const codes = await codeUtil.getMultiCodes(
 
 const searchParams = ref({
   prtnrNo: props.prtnrNo,
+  wrkDt: props.wrkDt,
 
 });
 
 // 조회
 async function fetchData() {
+  console.log(props.wrkDt);
   if (props.prtnrNo) {
     const res = await dataService.get(`${SMS_WELLS_URI}/partner-engineer/vacations`, { params: { ...searchParams.value, ...pageInfo.value } });
     const { list, pageInfo: pagingResult } = res.data;
@@ -148,6 +153,7 @@ async function onClickAdd() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {
     prtnrNo: props.prtnrNo,
+    wrkDt: props.wrkDt,
   });
 }
 
@@ -157,18 +163,48 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
+  const readRows = gridUtil.getReadRowValues(view);
   const changedRows = gridUtil.getChangedRowValues(view);
 
+  let checkCnt = 0;
   changedRows.forEach((obj) => {
     obj.oriVcnStrtDt = gridUtil.getOrigCellValue(view, obj.dataRow, 'vcnStrtDt');
-  });
+    obj.oriVcnEndDt = gridUtil.getOrigCellValue(view, obj.dataRow, 'vcnEndDt');
 
-  changedRows.forEach((obj) => {
-    const vcn = gridUtil.getCellValue(view, obj.dataRow, 'vcnStrtDt');
-    console.log(vcn);
+    if (dayjs(obj.oriVcnEndDt).diff(obj.oriVcnStrtDt, 'days') < 0) {
+      checkCnt += 1;
+    }
   });
-
   console.log(changedRows);
+  if (checkCnt > 0) {
+    alert(t('MSG_ALT_STRT_DATE_CHK'));
+    return;
+  }
+
+  let checkBetweenCnt = 0;
+  changedRows.some((item) => readRows.map((obj) => {
+    const oriVcnStrtDt = gridUtil.getOrigCellValue(view, item.dataRow, 'vcnStrtDt');
+    const oriVcnEndDt = gridUtil.getOrigCellValue(view, item.dataRow, 'vcnEndDt');
+
+    const targetOriVcnStrtDt = gridUtil.getOrigCellValue(view, obj.dataRow, 'vcnStrtDt');
+    const targetOriVcnEndDt = gridUtil.getOrigCellValue(view, obj.dataRow, 'vcnEndDt');
+
+    if (dayjs(oriVcnStrtDt).isBetween(dayjs(targetOriVcnStrtDt), dayjs(targetOriVcnEndDt), 'day', '[]')) {
+      checkBetweenCnt += 1;
+    }
+
+    if (dayjs(oriVcnEndDt).isBetween(dayjs(targetOriVcnStrtDt), dayjs(targetOriVcnEndDt), 'day', '[]')) {
+      checkBetweenCnt += 1;
+    }
+
+    return obj;
+  }));
+
+  if (checkBetweenCnt > 0) {
+    alert(t('MSG_ALT_VCN_INFO_EX'));
+    return;
+  }
+
   await dataService.post(`${SMS_WELLS_URI}/partner-engineer/vacations`, changedRows);
   await notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
@@ -187,7 +223,6 @@ async function onClickRemove() {
 
   if (deletedRows.length === 0) return;
 
-  console.log(deletedRows);
   await dataService.put(`${SMS_WELLS_URI}/partner-engineer/vacations`, deletedRows);
   await fetchData();
 }
@@ -205,18 +240,20 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'egerWrkStatCd',
       header: t('MSG_TXT_VCN_TYPE'),
       options: codes.EGER_WRK_STAT_CD,
+      rules: 'required',
       editor: {
         type: 'dropdown',
         values: codes.EGER_WRK_STAT_CD.filter((v) => v.codeId !== '000' && v.codeId !== '990').map((v) => v.codeId),
         labels: codes.EGER_WRK_STAT_CD.filter((v) => v.codeId !== '000' && v.codeId !== '990').map((v) => v.codeName),
       },
     },
-    { fieldName: 'vcnStrtDt', header: t('MSG_TXT_STRT_DATE'), width: '130', styleName: 'text-center', editor: { type: 'btdate' }, editable: true, datetimeFormat: 'date' },
-    { fieldName: 'vcnEndDt', header: t('MSG_TXT_END_DT'), width: '130', styleName: 'text-center', editor: { type: 'btdate' }, editable: true, datetimeFormat: 'date' },
+    { fieldName: 'vcnStrtDt', header: t('MSG_TXT_STRT_DATE'), width: '130', styleName: 'text-center', rules: 'required', editor: { type: 'btdate' }, editable: true, datetimeFormat: 'date' },
+    { fieldName: 'vcnEndDt', header: t('MSG_TXT_END_DT'), width: '130', styleName: 'text-center', rules: 'required', editor: { type: 'btdate' }, editable: true, datetimeFormat: 'date' },
     { fieldName: 'rmkCn', header: t('MSG_TXT_RMK_ARTC'), width: '250', styleName: 'text-left', editable: true, editor: { type: 'text', maxLength: 3500 } },
     { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '150', styleName: 'text-left, rg-button-icon--search', editor: { type: 'text' }, editable: true, button: 'action' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', visible: false },
+    { fieldName: 'wrkDt', visible: false },
 
   ];
 
@@ -235,7 +272,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_BIZ_AGNT_PRTNR'),
       direction: 'horizontal',
-      items: ['bizAgntPrtnrNo', 'prtnrKnm'],
+      items: ['bizAgntPrtnrNo', 'prtnrKnm', 'wrkDt'],
     },
 
   ]);

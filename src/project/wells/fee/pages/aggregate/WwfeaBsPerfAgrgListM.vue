@@ -39,11 +39,13 @@
         >
           <kw-input
             v-model="searchParams.strtPdCd"
+            maxlength="10"
             :label="$t('MSG_TXT_PRDT_CODE')"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.endPdCd"
+            maxlength="10"
             :label="$t('MSG_TXT_PRDT_CODE')"
           />
         </kw-search-item>
@@ -75,6 +77,8 @@
             v-model="searchParams.prtnrNo"
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
+            :maxlength="10"
+            :regex="/^[0-9]*$/i"
             clearable
             @click-icon="onClickSearchNo"
           />

@@ -394,7 +394,6 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(returningGoods);
-  view.resetCurrent();
 }
 
 async function fetchDefaultData() {

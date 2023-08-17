@@ -107,7 +107,7 @@
             <!-- 계약상세번호 -->
             <p
               class="kw-font-pt14 kw-fc--black2 text-underline contractNumber"
-              @click="onClickCntrDtlNo(item.cntrNo, item.cntrSn)"
+              @click="onClickCntrDtlNo(item)"
             >
               {{ item.cntrDtlNo }}
             </p>
@@ -331,7 +331,7 @@
             <!-- 계약상세번호 -->
             <p
               class="kw-font-pt14 kw-fc--black2 text-underline contractNumber"
-              @click="onClickCntrDtlNo(item.cntrNo, item.cntrSn)"
+              @click="onClickCntrDtlNo(item)"
             >
               {{ item.cntrDtlNo }}
             </p>
@@ -702,13 +702,17 @@ function setDateFormat(date, time) {
   return rtnDate;
 }
 
-async function onClickCntrDtlNo(itemCntrNo, itemCntrSn) {
-  if (!isEmpty(itemCntrNo)) {
+async function onClickCntrDtlNo(item) {
+  const { cntrNo, cntrSn, sellTpCd, copnDvCd } = item;
+
+  if (!isEmpty(cntrNo)) {
     await modal({
       component: 'WwctaOrderDetailP',
       componentProps: {
-        cntrNo: itemCntrNo,
-        cntrSn: itemCntrSn,
+        cntrNo,
+        cntrSn,
+        sellTpCd,
+        copnDvCd,
       },
     });
   }

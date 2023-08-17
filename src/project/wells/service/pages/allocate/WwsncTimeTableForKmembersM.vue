@@ -1062,7 +1062,7 @@ async function onClickSave() {
     }
   }
 
-  const sendDataBase = {
+  /* const sendDataBase = {
     //-------------------------------------------------
     // inChnlDvCd: data.value.chnlDvCd,
     inChnlDvCd: data.value.inflwChnl,
@@ -1106,7 +1106,9 @@ async function onClickSave() {
   console.log(sendDatas);
   await dataService.post('/sms/wells/service/installation-works', sendDatas);
   notify(t('MSG_ALT_SAVE_DATA'));
-  ok(sendDataBase);
+  ok(sendDataBase); */
+  window.opener?.postMessage(JSON.stringify(data.value), searchParams.value.returnUrl);
+  ok();
 }
 
 onMounted(async () => {

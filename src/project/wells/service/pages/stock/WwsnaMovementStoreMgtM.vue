@@ -183,6 +183,7 @@ async function fetchData() {
   const datasSource = view.getDataSource();
   datasSource.setRows(searchData);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 const warehouses = ref();

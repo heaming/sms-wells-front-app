@@ -221,7 +221,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
 
   view.getDataSource().setRows(customerBases);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
   if (pageInfo.value.totalCount === 1) {
     ok(view.getValues(0));

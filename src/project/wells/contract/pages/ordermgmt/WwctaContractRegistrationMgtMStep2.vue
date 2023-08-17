@@ -167,7 +167,7 @@
                     class="w350"
                     :options="item.pkgs"
                     @update:model-value="onChangePkgs(item)"
-                  />
+                  /><!-- ?? -->
                   <kw-item-label
                     v-else
                     class="scoped-item__product-name"
@@ -221,7 +221,7 @@
                   <kw-btn
                     v-if="isItem.rglrSpp(item)"
                     :disable="item.pdChoLmYn !== 'Y'"
-                    :label="(item.sellTpDtlCd == '62' ? '모종' : '캡슐') + '선택'"
+                    :label="(item.sellTpDtlCd === '62' ? '모종' : '캡슐') + '선택'"
                     class="mr10"
                     dense
                     @click="onClickSelSdingCapsl(item)"
@@ -620,13 +620,14 @@
 // -------------------------------------------------------------------------------------------------
 import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isArray, isEmpty } from 'lodash-es';
+import { warn } from 'vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
 
 const props = defineProps({
-  contract: { type: String, required: true },
+  contract: { type: Object, required: true },
   onChildMounted: { type: Function, required: true },
 });
 const { cntrNo: pCntrNo, step2 } = toRefs(props.contract);
@@ -770,6 +771,9 @@ async function onClickDelete(pd) {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn && (pd.cntrSn + 1) !== spd.cntrSn);
   } else {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn);
+  }
+  if (pd.packaged) {
+    step2.value.dtls = step2.value.dtls.filter((spd) => !spd.packaged);
   }
   await resetCntrSn();
 }
@@ -940,15 +944,49 @@ function setFilter() {
   filteredClsfPds.value = clsfPds;
 }
 
-async function confirmProducts() {
-  const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value.dtls);
-  console.log(res);
-  if (res.data) {
-    step2.value.dtls = res.data;
-    castCodeIdNumToStr();
-    return true;
+async function productPackaging() {
+  if (!Array.isArray(step2.value.dtls)) {
+    warn('상품 목록이 이상함.');
+    return;
   }
-  return false;
+
+  /* TODO: 15까지 만 있는게 있다 확인..! 16: 4건 이상 패키징 */
+  const rentalMultiCaseProducts = step2.value.dtls
+    .filter((dtl) => (dtl.sellDscTpCds?.includes('16')) && !dtl.sellDscTpCd?.trim());
+  if (rentalMultiCaseProducts.length < 2) {
+    return;
+  }
+  const { result, payload } = await modal({
+    component: 'WwctaRentalMultiCasePrchsDscChoP',
+    componentProps: {
+      rentals: rentalMultiCaseProducts,
+    },
+  });
+
+  if (result) {
+    rentalMultiCaseProducts.forEach((rentalDtl) => {
+      rentalDtl.sellDscTpCd = ' ';// hum?
+      rentalDtl.packaged = true;
+      rentalDtl.rentalDiscountFixed = true;
+    });
+
+    const firstSameCdProduct = rentalMultiCaseProducts.find((rentalDtl) => (rentalDtl.pdCd === payload.pdCd));
+    firstSameCdProduct.sellDscTpCd = payload.dscTpCd;
+  }
+  return rentalMultiCaseProducts;
+}
+
+async function confirmProducts() {
+  if (step2.value.dtls.find((dtl) => !dtl.fnlAmt)) {
+    notify('상품 가격을 확인해주세요');
+    return;
+  }
+
+  const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value.dtls);
+  step2.value.dtls = res.data;
+  castCodeIdNumToStr();
+  await productPackaging();
+  return true;
 }
 
 async function isChangedStep() {
@@ -1237,7 +1275,7 @@ onMounted(async () => {
 }
 
 // rev:230623 수정 및 추가
-::v-deep(.kw-form) {
+:deep(.kw-form) {
   &:not(.kw-form--dense) {
     .kw-form-row {
       min-height: 40px !important;

@@ -261,7 +261,7 @@ const codes = await codeUtil.getMultiCodes(
   'BND_NW_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
-const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10' && obj.codeId !== '11' && obj.codeId !== '90')) });
+const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10' && obj.codeId !== '11' && obj.codeId !== '90' && obj.codeId !== '99')) });
 
 const kwSearchRef = ref(getComponentType('KwSearch'));
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -451,7 +451,16 @@ async function onClickCreate() {
   } else {
     notify(t('MSG_ALT_ALLO_OF_COLL_EXCN'));
   }
-  await dataService.post('/sms/wells/bond/collector-assigns', cachedParams);
+  const responseBatchJob = await dataService.post('/sms/wells/bond/collector-assigns', cachedParams);
+  const { result } = await modal({
+    component: 'ZwbnaCollectorAssignP',
+    componentProps: {
+      jobId: responseBatchJob.data,
+    },
+  });
+  if (result) {
+    await fetchData();
+  }
 }
 
 async function onClickPageMove() {

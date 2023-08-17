@@ -47,7 +47,7 @@
         <kw-select
           v-model="searchParams.searchType"
           dense
-          class="ml12 w98"
+          class="ml12 w120"
           :options="materialSelectItems"
         />
         <kw-input

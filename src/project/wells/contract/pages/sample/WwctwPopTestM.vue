@@ -227,5 +227,42 @@ const pops = [
       cntrSn: '',
     },
   },
+  {
+    pname: 'WwctaRentalMultiCasePrchsDscChoP',
+    title: '렌탈 다건구매 할인 W-SS-U-0022P06',
+    param: {
+      rentals: [{
+        pdCd: 'pdCd0',
+        pdNm: '홈카페[WN920ZBA] 0',
+        fnlAmt: 66000,
+      },
+      {
+        pdCd: 'pdCd1',
+        pdNm: '홈카페[WN920ZBA] 1',
+        fnlAmt: 66000,
+      },
+      {
+        pdCd: 'pdCd2',
+        pdNm: '홈카페[WN920ZBA] 2',
+        fnlAmt: 66000,
+      },
+      {
+        pdCd: 'pdCd3',
+        pdNm: '홈카페[WN920ZBA] 3',
+        fnlAmt: 66000,
+      },
+      {
+        pdCd: 'pdCd4',
+        pdNm: '홈카페[WN920ZBA] 4',
+        fnlAmt: 66000,
+      },
+      {
+        pdCd: 'pdCd5',
+        pdNm: '홈카페[WN920ZBA] 5',
+        fnlAmt: 66000,
+      },
+      ],
+    },
+  },
 ];
 </script>

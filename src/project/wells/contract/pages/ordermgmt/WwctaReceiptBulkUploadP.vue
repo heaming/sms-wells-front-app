@@ -163,7 +163,7 @@
 </template>
 
 <script setup>
-import { CtCodeUtil } from '~sms-common/contract/util';
+import { useCtCode } from '~sms-common/contract/composable';
 
 // eslint-disable-next-line no-unused-vars
 const props = defineProps({
@@ -177,7 +177,7 @@ const props = defineProps({
   },
 });
 
-const { codes } = await CtCodeUtil(
+const { codes } = await useCtCode(
   'ALNCMP_DG_PRTNR_MAPNG_CD',
   'RENTAL_DSC_DV_CD',
   'RENTAL_DSC_TP_CD',

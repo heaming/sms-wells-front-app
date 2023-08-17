@@ -187,9 +187,6 @@ import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGl
 import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-
-dayjs.extend(isSameOrBefore);
 
 const { getDistricts } = useSnCode();
 
@@ -251,7 +248,7 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(personInCharges);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
   baseInfo.value.ichrPrtnrNo = '';
   baseInfo.value.applyDateFrom = '';
@@ -310,14 +307,16 @@ function validateApplyDate() {
 }
 
 function validateToday(val) {
-  const today = dayjs().format('YYYYMMDD');
-  if (dayjs(val).isSameOrBefore(today)) {
+  const applyDate = isEmpty(searchParams.value.applyDate) ? dayjs().format('YYYYMMDD') : dayjs(searchParams.value.applyDate).format('YYYYMMDD');
+
+  if (dayjs(val).isBefore(dayjs(applyDate).format('YYYYMMDD'))) {
     notify(t('MSG_ALT_APY_STRT_D_CONF_FUR_DT'));
     return false;
   }
   return true;
 }
 
+/*
 function validateGridApplyDate() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view, true);
@@ -336,6 +335,7 @@ function validateGridApplyDate() {
 
   return true;
 }
+*/
 
 function setPersonInChargeCellData(view, row, value, column) {
   const matchedEngineer = engineers.find((v) => v.prtnrNo === value);
@@ -352,7 +352,6 @@ function setPersonInChargeCellData(view, row, value, column) {
     view.setValue(row, `${column[3]}`, '');
     notify(t('MSG_ALT_EQ_EGER_NTHNG'));
   }
-  view.commit();
 }
 
 // 적용일자 일괄입력
@@ -373,7 +372,7 @@ async function onClickApplyDateBulkApply() {
 
 async function onClickSave() {
   if (!validateIsApplyRowExists()) return;
-  if (!validateGridApplyDate()) return;
+  // if (!validateGridApplyDate()) return;
 
   const view = grdMainRef.value.getView();
 
@@ -400,8 +399,8 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'zipList' },
     { fieldName: 'hemdList' },
-    { fieldName: 'mgtCnt', dataType: 'number' },
-    { fieldName: 'wrkCnt', dataType: 'number' },
+    // { fieldName: 'mgtCnt', dataType: 'number' },
+    // { fieldName: 'wrkCnt', dataType: 'number' },
     { fieldName: 'rpbLocaraCd' },
     { fieldName: 'satWrkYn' },
     { fieldName: 'apyStrtdt', dataType: 'datetime' },
@@ -440,8 +439,8 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'zipList', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'hemdList', header: t('MSG_TXT_LAWC_ADM'), width: '150' },
-    { fieldName: 'mgtCnt', header: t('MSG_TXT_SV_ACC'), width: '100', styleName: 'text-right' },
-    { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-right' },
+    // { fieldName: 'mgtCnt', header: t('MSG_TXT_SV_ACC'), width: '100', styleName: 'text-right' },
+    // { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-right' },
     { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_LOCARA_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'satWrkYn',
       header: t('MSG_TXT_SAT_IST_LOCARA'),
@@ -513,8 +512,8 @@ const initGrdMain = defineGrid((data, view) => {
   const columnLayout = [
     'zipList',
     'hemdList',
-    'mgtCnt',
-    'wrkCnt',
+    // 'mgtCnt',
+    // 'wrkCnt',
     'rpbLocaraCd',
     'satWrkYn',
     'apyStrtdt',

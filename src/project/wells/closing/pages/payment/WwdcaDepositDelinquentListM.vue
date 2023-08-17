@@ -187,18 +187,14 @@ async function fetchData() {
   const mainList = res.data;
   totalCount.value = mainList.length;
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(mainList);
-
-  const grid = [];
   if (searchParams.value.inqrDv === '1') {
     view.columnByName('sellInflwChnlDtlCd').visible = true;
     view.columnByName('pdClsfNm').visible = false;
-    grdMainRef.value.getData().setRows(grid);
   } else {
     view.columnByName('sellInflwChnlDtlCd').visible = false;
     view.columnByName('pdClsfNm').visible = true;
-    grdMainRef.value.getData().setRows(grid);
   }
+  view.getDataSource().setRows(mainList);
 }
 
 // 조회 버튼 클릭 이벤트

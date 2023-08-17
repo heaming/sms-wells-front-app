@@ -149,6 +149,8 @@
               :end-level="3"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -190,6 +192,7 @@
               :label="$t('MSG_TXT_ORDR')"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
+              @change="onChangedOrdr"
             />
           </kw-search-item>
           <kw-search-item
@@ -760,6 +763,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'homeCare', dataType: 'number' },
     { fieldName: 'csmb', dataType: 'number' },
     { fieldName: 'acsr', dataType: 'number' },
+    { fieldName: 'nopd', dataType: 'number' },
 
   ];
 
@@ -890,6 +894,15 @@ const initGrd2Main = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       } },
+    { fieldName: 'nopd',
+      header: t('MSG_TXT_UNREG_TP'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
   ];
 
   // multi row header setting
@@ -903,7 +916,7 @@ const initGrd2Main = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PDCT_TP'),
       direction: 'horizontal',
-      items: ['envr', 'welsf', 'bh', 'capsl', 'homeCare', 'csmb', 'acsr'],
+      items: ['envr', 'welsf', 'bh', 'capsl', 'homeCare', 'csmb', 'acsr', 'nopd'],
     },
   ]);
 

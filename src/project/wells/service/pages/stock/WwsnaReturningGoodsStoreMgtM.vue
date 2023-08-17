@@ -403,6 +403,7 @@ async function fetchData() {
 
   view.autoFiltersRefresh('itemGr', false);
   view.setColumnFilters('itemGr', filters, true);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {

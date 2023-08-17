@@ -375,7 +375,7 @@ const windowKey = ref('');
 
 /** 계약리스트 조회 */
 async function fetchContracts() {
-  const response = await dataService.get('/sms/wells/bond/bond-counsel/contracts', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/bond/bond-counsel/contracts', { params: cachedParams, timeout: 200000 });
   const contracts = response.data;
   totalCount.value = contracts.length;
 
@@ -699,7 +699,7 @@ const initGrdMain = defineGrid((data, view) => {
     const cntrSn = g.getValue(dataRow, 'cntrSn');
     windowKey.value = `WwbncBondCounselMContract_${cstNo}`;
     if (cstNo) {
-      await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { 'modal-popup': true }, { cstNo, cntrNo, cntrSn }, windowKey.value);
+      await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { 'modal-popup': true, cstNo, cntrNo, cntrSn }, windowKey.value);
     }
   };
 });

@@ -228,10 +228,10 @@ async function onClickSearch() {
 
 async function onClickRemoveRows() {
   const view = grdMainRef.value.getView();
-
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
+  const checkedRowCount = view.getCheckedRows().length;
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  pageInfo.value.totalCount = Number(gridUtil.getAllRowValues(view)?.length);
+  pageInfo.value.totalCount -= checkedRowCount - deletedRows.length;
   if (deletedRows.length) {
     // console.log('deletedRows : ', deletedRows);
     await dataService.delete('/sms/wells/product/alliances', { data: deletedRows });

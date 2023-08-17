@@ -33,7 +33,6 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_ORDR')"
-          required
         >
           <kw-option-group
             v-model="searchParams.feeTcntDvCd"
@@ -44,16 +43,12 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
         >
           <kw-option-group
             v-model="searchParams.rsbTpCd"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
             :options="filterRsbDvCd"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
             @change="onChangedRsbDv"
           />
         </kw-search-item>
@@ -188,7 +183,7 @@ const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   feeTcntDvCd: '01',
-  rsbTpCd: '',
+  rsbTpCd: 'W0302',
   rsbTpTxt: '',
   prtnrNo: '',
   ogLevl2Id: '',
@@ -332,7 +327,7 @@ async function fetchData() {
   if (isGrid2Visile.value === true) {
     uri = '-brmgr';
   }
-  const response = await dataService.get(`/sms/wells/fee/organization-fees/hmsts${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/hmsts${uri}`, { params: cachedParams, timeout: 300000 });
   const hmstFees = response.data;
   totalCount.value = hmstFees.length;
   if (totalCount.value > 0) {
@@ -360,7 +355,7 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   if (await confirm(t('MSG_ALT_LV_RESRT'))) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
     notify(t('MSG_ALT_SAVE_DATA'));
-    fetchData();
+    onClickSearch();
   }
 }
 
@@ -376,7 +371,7 @@ async function onClickW301P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     feeCalcUnitTpCd = '302';
   }
   const { result: isUploadSuccess } = await modal({
-    component: 'WwfebOgFeeMlannerRegP',
+    component: 'WwfebOgFeeHomeMasterRegP',
     componentProps: { perfYm,
       feeCalcUnitTpCd,
       feeTcntDvCd,
@@ -384,7 +379,7 @@ async function onClickW301P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   });
   if (isUploadSuccess) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   }
 }
 
@@ -404,7 +399,7 @@ async function onClickW302P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   if (isUploadSuccess) {
     notify(t('MSG_ALT_SAVED_CNT', [payload.count]));
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   }
 }
 
@@ -428,7 +423,7 @@ async function onClickW303P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }
@@ -448,7 +443,7 @@ async function onClickW304P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   });
   if (isUploadSuccess) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   }
 }
 
@@ -472,7 +467,7 @@ async function onClickW306P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }
@@ -497,7 +492,7 @@ async function onClickW307P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }
@@ -521,7 +516,7 @@ async function onClickW311P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }
@@ -546,7 +541,7 @@ async function onClickW313P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }
@@ -566,7 +561,7 @@ async function onClickW314P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   });
   if (isUploadSuccess) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   }
 }
 
@@ -587,7 +582,7 @@ async function onClickW316P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   if (resData.dsbCnstYn === 'Y') {
     await notify(t('MSG_ALT_PMT_BEEN_APRV')); /* 결재가 승인 되었습니다 > NEXT STEP */
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   } else if (resData.dsbCnstYn === 'N') {
     await notify(t('MSG_ALT_CHK_IN_PRGS')); /* 결재가 진행중입니다 */
   } else if (resData.dsbCnstYn === 'P') { /* 이전 품의 반송, 회수 등의 이유로 재결재 */
@@ -626,7 +621,7 @@ async function onClickW318P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   });
   if (isUploadSuccess) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   }
 }
 
@@ -654,7 +649,7 @@ async function onClickW320P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }

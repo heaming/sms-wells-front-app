@@ -227,6 +227,7 @@ async function fetchData() {
   const data = view.getDataSource();
 
   data.setRows(pages);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {

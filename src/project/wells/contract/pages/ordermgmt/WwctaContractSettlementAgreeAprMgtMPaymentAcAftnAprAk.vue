@@ -91,7 +91,8 @@
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import { alert, confirm, getComponentType, notify, useDataService } from 'kw-lib';
-import { CtCodeUtil, scrollIntoView } from '~sms-common/contract/util';
+import { scrollIntoView } from '~sms-common/contract/util';
+import { useCtCode } from '~sms-common/contract/composable';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -105,7 +106,7 @@ const exposed = {};
 defineExpose(exposed);
 const dataService = useDataService();
 
-const { getCodeName } = await CtCodeUtil('FNIT_APR_RS_CD');
+const { getCodeName } = await useCtCode('FNIT_APR_RS_CD');
 
 const frmRef = ref(getComponentType('KwForm'));
 const isCooperation = computed(() => props.cntrCstInfo.copnDvCd === '2' /* sorry, haha. */);

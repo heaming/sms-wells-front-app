@@ -429,16 +429,26 @@ async function fetchDataCustomerBase() {
       frmMainData.value.cdcoNm = res.data[0].aftnInfo.split(' ')[0];
       if (frmMainData.value.dpTpCd === '0102') {
         if (!isEmpty(frmMainData.value.acnoEncr)) {
-          isAftnInfo.value = true;
+          if (isEmpty(frmMainData.value.cdcoNm)) {
+            isAftnInfo.value = false;
+          } else {
+            isAftnInfo.value = true;
+          }
           frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.acnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
         } else {
+          isAftnInfo.value = false;
           frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${res.data[0].aftnInfo.split(' ')[3]}`;
         }
       } else if (frmMainData.value.dpTpCd === '0203') {
         if (!isEmpty(frmMainData.value.crcdnoEncr)) {
-          isAftnInfo.value = true;
+          if (isEmpty(frmMainData.value.cdcoNm)) {
+            isAftnInfo.value = false;
+          } else {
+            isAftnInfo.value = true;
+          }
           frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${frmMainData.value.crcdnoEncr} ${res.data[0].aftnInfo.split(' ')[3]}`;
         } else {
+          isAftnInfo.value = false;
           frmMainData.value.aftnInfo = `${res.data[0].aftnInfo.split(' ')[1]} ${res.data[0].aftnInfo.split(' ')[3]}`;
         }
       }

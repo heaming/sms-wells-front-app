@@ -65,6 +65,8 @@
             v-model="searchParams.prtnrNo"
             clearable
             icon="search"
+            :maxlength="10"
+            :regex="/^[0-9]*$/i"
             :on-click-icon="onClickSearchNo"
           />
         </kw-search-item>

@@ -143,7 +143,7 @@
             v-model="feeStandard.fuleyAwAmt"
             :label="t('MSG_TXT_PRMEMP')"
             mask="number"
-            :maxlength="5"
+            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -156,7 +156,7 @@
             v-model="feeStandard.rolLyr1TopmrAwAmt"
             :label="t('MSG_TXT_ROL_LYR1_TOPMR')"
             mask="number"
-            :maxlength="5"
+            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -171,7 +171,7 @@
             v-model="feeStandard.rolLyr1UplrAwAmt"
             :label="t('MSG_TXT_ROL_LYR1_H')"
             mask="number"
-            :maxlength="5"
+            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -184,7 +184,7 @@
             v-model="feeStandard.rolLyr1MdlyrAwAmt"
             :label="t('MSG_TXT_ROL_LYR1_M')"
             mask="number"
-            :maxlength="5"
+            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -197,7 +197,7 @@
             v-model="feeStandard.rolLyr1LolyrAwAmt"
             :label="t('MSG_TXT_ROL_LYR1_L')"
             mask="number"
-            :maxlength="5"
+            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -212,7 +212,7 @@
             v-model="feeStandard.rolL2UplrAwAmt"
             :label="t('MSG_TXT_ROL_L2_H')"
             mask="number"
-            :maxlength="5"
+            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -225,7 +225,7 @@
             v-model="feeStandard.rolL2MdlyrAwAmt"
             :label="t('MSG_TXT_ROL_L2_M')"
             mask="number"
-            :maxlength="5"
+            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -238,7 +238,7 @@
             v-model="feeStandard.rolL2LolyrAwAmt"
             :label="t('MSG_TXT_ROL_L2_L')"
             mask="number"
-            :maxlength="5"
+            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -253,7 +253,7 @@
             v-model="feeStandard.rolL3AwAmt"
             :label="t('MSG_TXT_ROL_L3')"
             mask="number"
-            :maxlength="5"
+            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -266,7 +266,7 @@
             v-model="feeStandard.crwkAwAmt"
             :label="t('MSG_TXT_CRWK')"
             mask="number"
-            :maxlength="5"
+            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -279,7 +279,7 @@
             v-model="feeStandard.indvEntrpAwAmt"
             :label="t('MSG_TXT_PRVT_BUSINESS')"
             mask="number"
-            :maxlength="5"
+            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />

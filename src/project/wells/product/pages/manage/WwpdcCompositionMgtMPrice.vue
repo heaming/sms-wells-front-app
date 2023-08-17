@@ -75,7 +75,7 @@
     <!-- 복사 -->
     <kw-btn
       :label="$t('MSG_BTN_CNTN_COPY')"
-      grid-action
+      secondary
       dense
       :disable="gridRowCount === 0"
       @click="onClickRowCopy"

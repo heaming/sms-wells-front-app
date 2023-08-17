@@ -102,7 +102,7 @@ import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 
 import { alert } from 'kw-lib';
-import { CtCodeUtil } from '~sms-common/contract/util';
+import { useCtCode } from '~sms-common/contract/composable';
 
 const AG_ATC_DV_CD = 'AG_ATC_DV_CD';
 
@@ -112,7 +112,7 @@ const props = defineProps({
 
 const emit = defineEmits(['confirm']);
 
-const { getCodeName } = await CtCodeUtil(AG_ATC_DV_CD);
+const { getCodeName } = await useCtCode(AG_ATC_DV_CD);
 
 const AG_STAT_CD_AG = '01';
 const AG_STAT_CD_REJ = '02';

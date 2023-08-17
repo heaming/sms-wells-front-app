@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : FEB
-2. 프로그램 ID :  - P조직 수수료 생성관리
+2. 프로그램 ID : WwfebOgFeePlannerListM - P조직 수수료 생성관리
 3. 작성자 : gs.piit150
 4. 작성일 : 2023.02.17
 ****************************************************************************************************
@@ -33,7 +33,6 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_ORDR')"
-          required
         >
           <kw-option-group
             v-model="searchParams.feeTcntDvCd"
@@ -44,7 +43,6 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
         >
           <kw-option-group
             v-model="searchParams.rsbTpCd"
@@ -59,17 +57,6 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
-          <zwog-level-select
-            v-model:og-levl-dv-cd1="searchParams.ogLevl1Id"
-            v-model:og-levl-dv-cd2="searchParams.ogLevl2Id"
-            v-model:og-levl-dv-cd3="searchParams.ogLevl3Id"
-            :og-tp-cd="searchParams.ogTpCd"
-            :base-ym="searchParams.perfYm"
-            :start-level="1"
-            :end-level="3"
-          />
-        </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -84,6 +71,17 @@
             v-model="searchParams.prtnrKnm"
             :placeholder="$t('MSG_TXT_EMPL_NM')"
             readonly
+          />
+        </kw-search-item>
+        <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
+          <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevl1Id"
+            v-model:og-levl-dv-cd2="searchParams.ogLevl2Id"
+            v-model:og-levl-dv-cd3="searchParams.ogLevl3Id"
+            :og-tp-cd="searchParams.ogTpCd"
+            :base-ym="searchParams.perfYm"
+            :start-level="1"
+            :end-level="3"
           />
         </kw-search-item>
       </kw-search-row>
@@ -359,7 +357,7 @@ async function fetchData() {
   } else if (isGrid3Visile.value === true) {
     uri = '-total';
   }
-  const response = await dataService.get(`/sms/wells/fee/organization-fees/plars${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/organization-fees/plars${uri}`, { params: cachedParams, timeout: 300000 });
   const plarFees = response.data;
   totalCount.value = plarFees.length;
   if (totalCount.value > 0) {
@@ -390,7 +388,7 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   if (await confirm(t('MSG_ALT_LV_RESRT'))) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
     notify(t('MSG_ALT_SAVE_DATA'));
-    fetchData();
+    onClickSearch();
   }
 }
 
@@ -418,7 +416,7 @@ async function onClickW101P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }
@@ -435,7 +433,7 @@ async function onClickW102P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     feeCalcUnitTpCd = '102';
   }
   const { result: isUploadSuccess } = await modal({
-    component: 'WwfebOgFeeMlannerRegP',
+    component: 'WwfebOgFeePlannerRegP',
     componentProps: { perfYm,
       feeCalcUnitTpCd,
       feeTcntDvCd,
@@ -443,7 +441,7 @@ async function onClickW102P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   });
   if (isUploadSuccess) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   }
 }
 
@@ -464,7 +462,7 @@ async function onClickW104P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   if (isUploadSuccess) {
     notify(t('MSG_ALT_SAVED_CNT', [payload.count]));
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   }
 }
 
@@ -488,7 +486,7 @@ async function onClickW105P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }
@@ -508,7 +506,7 @@ async function onClickW106P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   });
   if (isUploadSuccess) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   }
 }
 
@@ -532,7 +530,7 @@ async function onClickW108P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }
@@ -557,7 +555,7 @@ async function onClickW109P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }
@@ -581,7 +579,7 @@ async function onClickW113P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }
@@ -606,7 +604,7 @@ async function onClickW115P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     });
     if (isChanged) {
       await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-      fetchData();
+      onClickSearch();
     }
   }
 }
@@ -626,7 +624,7 @@ async function onClickW116P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   });
   if (isUploadSuccess) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   }
 }
 
@@ -646,7 +644,7 @@ async function onClickW118P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   if (resData.dsbCnstYn === 'Y') {
     await notify(t('MSG_ALT_PMT_BEEN_APRV')); /* 결재가 승인 되었습니다 > NEXT STEP */
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   } else if (resData.dsbCnstYn === 'N') {
     await notify(t('MSG_ALT_CHK_IN_PRGS')); /* 결재가 진행중입니다 */
   } else if (resData.dsbCnstYn === 'P') { /* 이전 품의 반송, 회수 등의 이유로 재결재 */
@@ -685,7 +683,7 @@ async function onClickW120P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   });
   if (isUploadSuccess) {
     await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-    fetchData();
+    onClickSearch();
   }
 }
 

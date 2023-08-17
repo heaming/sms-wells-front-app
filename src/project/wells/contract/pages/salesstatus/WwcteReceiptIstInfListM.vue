@@ -196,10 +196,9 @@
       <kw-search-row>
         <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
           <kw-select
-            v-model="fieldParams.sellTpCd"
+            v-model="fieldParams.sellTpCds"
             :options="codes.sellTpCd"
-            first-option="all"
-            first-option-val=""
+            :multiple="true"
           />
         </kw-search-item>
       </kw-search-row>
@@ -249,7 +248,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, defineGrid, useGlobal, getComponentType, gridUtil } from 'kw-lib';
-import { isEmpty, cloneDeep } from 'lodash-es';
+import { isEmpty, isEqual, cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -262,11 +261,11 @@ const { currentRoute } = useRouter();
 const fieldParams = ref({
   cntrCnfmDtFr: now.format('YYYYMM01'), // 조회시작일자
   cntrCnfmDtTo: now.format('YYYYMMDD'), // 조회종료일자
-  sppDuedt: now.format('YYYYMMDD'), // 예정일자
+  sppDuedt: '', // 예정일자
   pdHclsfId: '', // 상품대분류ID
   pdMclsfId: '', // 상품중분류ID
   basePdCd: '', // 상품코드
-  sellTpCd: '', // 판매유형코드
+  sellTpCds: ['1', '2', '6', '7'], // 판매유형코드
   inqrDv: '1', // 조회구분
   dgr1LevlOgId: '', // 총괄ID
   dgr2LevlOgId: '', // 지역단ID
@@ -277,7 +276,7 @@ const fieldParams = ref({
   sppDuedtYn: false, // 예정일 미등록
   mngSv: '', // 관리서비스
   pdNm: '', // 상품명
-  pdDvs: [''], // 제품구분
+  pdDvs: ['1', '2', '3'], // 제품구분
 });
 
 const srchMainRef = ref(getComponentType('KwSearch'));
@@ -311,7 +310,7 @@ const codes = ref({
   codesDgr3LevlAll: [],
   cstDvCd: commonCodes.COPN_DV_CD,
   careSvc: [{ codeId: '1', codeName: t('MSG_TXT_GREENCROSS') }],
-  sellTpCd: commonCodes.SELL_TP_CD,
+  sellTpCd: [{ codeId: '7', codeName: t('MSG_TXT_LEASE') }],
   sellInflwChnlDtlCd: commonCodes.SELL_CHNL_DTL_CD.filter((v) => v.codeId === '1010' || v.codeId === '3010'),
   incentiveYn: [{ codeId: 1, codeName: t('MSG_TXT_ICT_OJ') }],
   sppDuedtYn: [{ codeId: 1, codeName: `${t('MSG_TXT_DUEDT')} ${t('MSG_TXT_NO_RGS')}` }],
@@ -498,6 +497,20 @@ async function onClickExcelDownload() {
 }
 
 onMounted(async () => {
+  // 판매 유형 코드 추가
+  commonCodes.SELL_TP_CD.forEach((v) => {
+    if (isEqual(v.codeId, '2')) { v.codeName = t('MSG_TXT_RENTAL'); }
+    codes.value.sellTpCd.push({
+      codeId: v.codeId,
+      codeName: v.codeName,
+    });
+  });
+  // codeId 기준으로 오름차순 정렬
+  codes.value.sellTpCd.sort((a, b) => {
+    if (a.codeId < b.codeId) return -1;
+    if (a.codeId > b.codeId) return 1;
+    return 0;
+  });
   fetchCodes();
 });
 
@@ -511,8 +524,8 @@ watch(() => fieldParams.value.sppDuedtYn, async (val) => {
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sellDvNm' }, /* 접수구분 1 */
-    { fieldName: 'dpTpCd' }, /* 입금유형코드 - 이체구분 */
     { fieldName: 'dpTpNm' }, /* 입금유형명 - 이체구분 - F_CMZ_CD_NM 사용 1 */
+    { fieldName: 'dpTpCd' }, /* 입금유형코드 - 이체구분 */
     { fieldName: 'mpyBsdt' }, /* 납부기준일자 - 이체약정일 1 */
     { fieldName: 'newCstYn' }, /* 고객번호 신규 1 */
     { fieldName: 'mchnCh' }, /* 기변 1 */

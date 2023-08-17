@@ -78,7 +78,8 @@
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import { alert, notify, useDataService, stringUtil, confirm } from 'kw-lib';
-import { CtCodeUtil, scrollIntoView } from '~sms-common/contract/util';
+import { scrollIntoView } from '~sms-common/contract/util';
+import { useCtCode } from '~sms-common/contract/composable';
 
 const BANKS = 'banks';
 
@@ -94,7 +95,7 @@ const exposed = {};
 defineExpose(exposed);
 
 const dataService = useDataService();
-const { codes, addCode, getCodeName } = await CtCodeUtil('COD_YN');
+const { codes, addCode, getCodeName } = await useCtCode();
 const stlmBas = computed(() => (props.stlm ?? {}));
 
 const selectedBnkCd = ref(stlmBas.value.bnkCd);

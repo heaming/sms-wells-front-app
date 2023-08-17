@@ -825,7 +825,7 @@ async function onClickRequidation() {
       svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
       sellDate: searchDetail.cntrCnfmDt, // // 판매일자
       svBizDclsfCd: '3420', // TODO 확인/
-      mtrStatCd: '1',
+      mtrStatCd: '3',
       cntrNo: searchDetail.cntrNo,
       cntrSn: searchDetail.cntrSn,
     },

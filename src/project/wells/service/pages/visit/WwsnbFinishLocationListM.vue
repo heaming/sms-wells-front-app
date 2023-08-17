@@ -59,6 +59,7 @@
           dgr2-levl-og-label="ogCdNm"
           partner-label="prtnrNoNm"
           partner-required
+          :dgr2-levl-og-always-search="false"
         />
       </kw-search-row>
       <kw-search-row v-else-if="searchParams.mngtDvCd === '2'">
@@ -175,6 +176,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {

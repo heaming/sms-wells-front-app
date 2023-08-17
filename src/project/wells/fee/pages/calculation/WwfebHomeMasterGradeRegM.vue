@@ -138,7 +138,7 @@ const saveData = ref({
 let cachedParams;
 
 async function fetchData() {
-  const response = await dataService.get('/sms/wells/fee/home-master-grades', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/fee/home-master-grades', { params: cachedParams, timeout: 300000 });
   const hmstGds = response.data;
   totalCount.value = hmstGds.length;
   if (totalCount.value > 0) {

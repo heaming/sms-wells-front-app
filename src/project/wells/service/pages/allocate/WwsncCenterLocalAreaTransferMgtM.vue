@@ -245,6 +245,7 @@ async function getCenterAreaPages() {
   const view = gridMainRef.value.getView();
   view.getDataSource().setRows(centerAreas);
   // view.resetCurrent(); //첫 행 selectRow 없앰.
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 /*

@@ -104,6 +104,7 @@
             v-model="warehouseInfo.hgrWareNo"
             :label="$t('MSG_TXT_HGR_WARE')"
             :options="hgrWarehouses"
+            :readonly="hasProps() && warehouseInfo.wareDtlDvCd === '21'"
           />
         </kw-form-item>
       </kw-form-row>
@@ -128,7 +129,8 @@
           <kw-input
             v-model="warehouseInfo.wareNm"
             :label="$t('MSG_TXT_WARE_NM')"
-            :readonly="!hasProps() || !isOrgWarehouse"
+            :readonly="(hasProps() && !['20', '30'].includes(warehouseInfo.wareDtlDvCd))
+              || (!hasProps() && !['20', '21', '30'].includes(warehouseInfo.wareDtlDvCd))"
           />
         </kw-form-item>
       </kw-form-row>
@@ -162,16 +164,31 @@
         </kw-form-item>
         <!-- 노출순서 -->
         <kw-form-item
+          v-if="isOrgWarehouse"
           :label="$t('MSG_TXT_EXPSR_ODR')"
           :hint="$t('MSG_TXT_EXPSR_ODR_DUP_HINT')"
           required
         >
           <kw-input
+            v-if="isOrgWarehouse"
             v-model="warehouseInfo.sortDvVal"
             :label="$t('MSG_TXT_EXPSR_ODR')"
             :regex="/^[0-9]{1,5}$/i"
             :readonly="warehouseInfo.wareUseYn === 'N'"
             rules="required"
+          />
+        </kw-form-item>
+        <kw-form-item
+          v-if="!isOrgWarehouse"
+          :label="$t('MSG_TXT_EXPSR_ODR')"
+          :hint="$t('MSG_TXT_EXPSR_ODR_DUP_HINT')"
+        >
+          <kw-input
+            v-if="!isOrgWarehouse"
+            v-model="warehouseInfo.sortDvVal"
+            :label="$t('MSG_TXT_EXPSR_ODR')"
+            :regex="/^[0-9]{1,5}$/i"
+            :readonly="warehouseInfo.wareUseYn === 'N'"
           />
         </kw-form-item>
       </kw-form-row>
@@ -492,7 +509,7 @@ async function onClickSave() {
     warehouseInfo.value.apyYm = dayjs().format('YYYYMM');
   }
 
-  await dataService.post('/sms/wells/service/warehouse-organizations', warehouseInfo.value);
+  await dataService.post('/sms/wells/service/warehouse-organizations', warehouseInfo.value, { timeout: 3000000 });
   notify(t('MSG_ALT_SAVE_DATA'));
   ok();
 }

@@ -157,10 +157,10 @@ let cachedParams;
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
+  ogTpCd: sessionInfo.wkOjOgTpCd === null ? sessionInfo.ogTpCd : sessionInfo.wkOjOgTpCd,
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
-  ogTpCd: sessionInfo.wkOjOgTpCd === null ? sessionInfo.ogTpCd : sessionInfo.wkOjOgTpCd,
 });
 
 async function fetchAmountData() {
@@ -170,11 +170,10 @@ async function fetchAmountData() {
   const mainData = [];
   if (!isEmpty(res.data)) {
     cachedParams.opcsAdjNo = res.data.opcsAdjNo;
+    cachedParams.adjOgId = res.data.adjOgId;
     cachedParams.mainOgId = res.data.adjOgId;
-    cachedParams.mainOgTpCd = res.data.mainOgTpCd;
-    cachedParams.mainPrtnrNo = res.data.adjPrtnrNo;
-    cachedParams.rsbDvCd = res.data.rsbDvCd;
     cachedParams.mainOgTpCd = res.data.ogTpCd;
+    cachedParams.mainPrtnrNo = res.data.adjPrtnrNo;
 
     mainData.push(res.data);
 
@@ -192,7 +191,6 @@ async function fetchAmountData() {
 async function fetchSummaryData() {
   const view = grdSubRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/summary', { params: cachedParams });
-
   const subData = [];
   if (!isEmpty(res.data)) {
     subData.push(res.data);
@@ -274,6 +272,10 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
+
+  view.setCellStyleCallback(() => ({
+    styleName: 'right-border',
+  }));
 });
 
 // 운영비 적요 현황  operatingExpensesTotal aesthetic
@@ -299,7 +301,6 @@ const initGrdSub = defineGrid((data, view) => {
     },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -315,3 +316,8 @@ const initGrdSub = defineGrid((data, view) => {
 });
 
 </script>
+<style scoped>
+.right-border {
+  border-right: 1px solid #fff !important;
+}
+</style>

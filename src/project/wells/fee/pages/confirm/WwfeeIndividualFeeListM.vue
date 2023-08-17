@@ -43,29 +43,16 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
         >
           <kw-option-group
             v-model="searchParams.rsbTp"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
-            rules="required"
             :options="rsbTpCd"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
-          <zwog-level-select
-            v-model:og-levl-dv-cd1="searchParams.ogLevl1"
-            v-model:og-levl-dv-cd2="searchParams.ogLevl2"
-            v-model:og-levl-dv-cd3="searchParams.ogLevl3"
-            :og-tp-cd="searchParams.ogTp"
-            :base-ym="searchParams.perfYm"
-            :start-level="1"
-            :end-level="3"
-          />
-        </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -82,11 +69,21 @@
             readonly
           />
         </kw-search-item>
+        <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
+          <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevl1"
+            v-model:og-levl-dv-cd2="searchParams.ogLevl2"
+            v-model:og-levl-dv-cd3="searchParams.ogLevl3"
+            :og-tp-cd="searchParams.ogTp"
+            :base-ym="searchParams.perfYm"
+            :start-level="1"
+            :end-level="3"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
           :label="t('MSG_TXT_FEE')+t('MSG_TXT_DSB_YN')"
-          required
         >
           <kw-option-group
             v-model="searchParams.feeDsbYn"
@@ -181,7 +178,7 @@ const searchParams = ref({
   ogLevl3: '',
   prtnrNo: '',
   prtnrKnm: '',
-  feeDsbYn: '',
+  feeDsbYn: '0',
   prPerfYm: '',
   prOgTp: '',
 });
@@ -191,7 +188,7 @@ let cachedParams;
 const router = useRouter();
 
 async function fetchData(uri) {
-  const response = await dataService.get(`/sms/wells/fee/individual-fees/${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/individual-fees/${uri}`, { params: cachedParams, timeout: 300000 });
   const fees = response.data;
   searchParams.value.prPerfYm = searchParams.value.perfYm;
   searchParams.value.prOgTp = searchParams.value.ogTp;
