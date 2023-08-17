@@ -322,6 +322,10 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.SEP_IST_CS_ATC_CD,
       styleName: 'text-left',
       rules: 'required',
+      displayCallback(grd, idx) {
+        const sepIstCsAtcCd = grd.getValue(idx.dataRow, 'sepIstCsAtcCd');
+        return codes.SEP_IST_CS_ATC_CD.find((v) => ((v.codeId === sepIstCsAtcCd)))?.codeName;
+      },
     }, // 대분류
     {
       fieldName: 'sepIstCsDtlCd',
@@ -334,6 +338,10 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.SEP_IST_CS_DTL_CD,
       styleName: 'text-left',
       rules: 'required',
+      displayCallback(grd, idx) {
+        const sepIstCsDtlCd = grd.getValue(idx.dataRow, 'sepIstCsDtlCd');
+        return codes.SEP_IST_CS_DTL_CD.find((v) => ((v.codeId === sepIstCsDtlCd)))?.codeName;
+      },
     }, // 소분류
     {
       fieldName: 'apyStrtdt',
