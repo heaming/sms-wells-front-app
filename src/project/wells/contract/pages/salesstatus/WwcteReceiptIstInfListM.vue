@@ -524,8 +524,8 @@ watch(() => fieldParams.value.sppDuedtYn, async (val) => {
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sellDvNm' }, /* 접수구분 1 */
-    { fieldName: 'dpTpCd' }, /* 입금유형코드 - 이체구분 */
     { fieldName: 'dpTpNm' }, /* 입금유형명 - 이체구분 - F_CMZ_CD_NM 사용 1 */
+    { fieldName: 'dpTpCd' }, /* 입금유형코드 - 이체구분 */
     { fieldName: 'mpyBsdt' }, /* 납부기준일자 - 이체약정일 1 */
     { fieldName: 'newCstYn' }, /* 고객번호 신규 1 */
     { fieldName: 'mchnCh' }, /* 기변 1 */
