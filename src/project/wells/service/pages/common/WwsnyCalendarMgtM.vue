@@ -191,7 +191,7 @@ function isHolidaySetable() {
  * 서비스센터 조회
  */
 async function getServiceCenter() {
-  const res = await dataService.get('/sms/wells/service/organizations/service-center');
+  const res = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: sessionUserInfo.baseRleCd === 'W6010' ? 'N' : 'Y' } });
   customCodes.SERVICE_CENTER = res.data;
 
   // cherro test
