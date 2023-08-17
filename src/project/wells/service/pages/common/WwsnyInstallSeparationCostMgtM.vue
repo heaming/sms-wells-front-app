@@ -29,6 +29,7 @@
             v-model="searchParams.pdGr"
             :first-option-label="$t('MSG_TXT_ALL')"
             :options="codes.PD_GRP_CD"
+            @change="onChangePdGr()"
           />
         </kw-search-item>
         <!-- 상품그룹: 상품명 -->
@@ -173,22 +174,16 @@ const searchParams = ref({
 });
 const isDisable = computed(() => (isEmpty(searchParams.value.pdGr)));
 
-async function onChangePdGr() {
-  // debugger;
-  pdNm.value = await getPartMaster('4', searchParams.value.pdGr, 'M');
-  searchParams.value.pdNm = pdNm.value[0].codeId;
-  // searchParams.value.pdCd = pdNm.value[0].cd;
-}
-// 상품그룹: 상품명
-// watch(() => searchParams.value.pdGr, async () => {
-//   await onChangePdGr();
-// });
-
 async function onChangePdNm(val) {
   console.log(val);
   if (isEmpty(val)) return;
   const { cd } = pdNm.value.find((v) => v.codeId === val) || {};
   searchParams.value.pdCd = cd;
+}
+async function onChangePdGr() {
+  pdNm.value = await getPartMaster('4', searchParams.value.pdGr, 'M');
+  searchParams.value.pdNm = pdNm.value[0].codeId;
+  onChangePdNm();
 }
 
 let cachedParams;
