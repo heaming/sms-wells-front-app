@@ -369,12 +369,12 @@ async function onClickSearch() {
       return;
     }
     searchParams.value = {
-      svCnrOgId: '',
-      ichrPrtnrNo: '',
+      svCnrOgId: searchVal.value.svCnrOgId,
+      ichrPrtnrNo: searchVal.value.ichrPrtnrNo,
       assignDateFrom: '',
       assignDateTo: '',
       vstCnfmdt: searchVal.value.vstCnfmdt,
-      svBizHclsfCd: '',
+      svBizHclsfCd: searchVal.value.svBizHclsfCd,
     };
   } else {
     if (!searchVal.value.assignDateFrom || !searchVal.value.assignDateTo) {
