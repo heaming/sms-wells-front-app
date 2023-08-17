@@ -77,15 +77,11 @@ import isBetween from 'dayjs/plugin/isBetween';
 dayjs.extend(isBetween);
 
 const grdMainRef = ref(getComponentType('KwGrid'));
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 const dataService = useDataService();
 const { getConfig, getUserInfo } = useMeta();
 const { t } = useI18n();
 const { wkOjOgTpCd } = getUserInfo();
-
-const now = dayjs().format('YYYYMM');
-
-console.log(now);
 
 const props = defineProps({
   prtnrNo: {
@@ -181,7 +177,7 @@ async function onClickSave() {
   });
   console.log(changedRows);
   if (checkCnt > 0) {
-    notify(t('MSG_ALT_STRT_DATE_CHK'));
+    alert(t('MSG_ALT_STRT_DATE_CHK'));
     return;
   }
 
@@ -193,12 +189,10 @@ async function onClickSave() {
     const targetOriVcnStrtDt = gridUtil.getOrigCellValue(view, obj.dataRow, 'vcnStrtDt');
     const targetOriVcnEndDt = gridUtil.getOrigCellValue(view, obj.dataRow, 'vcnEndDt');
 
-    console.log(dayjs(oriVcnStrtDt).isBetween(dayjs(targetOriVcnStrtDt), dayjs(targetOriVcnEndDt), 'day', '[]'));
     if (dayjs(oriVcnStrtDt).isBetween(dayjs(targetOriVcnStrtDt), dayjs(targetOriVcnEndDt), 'day', '[]')) {
       checkBetweenCnt += 1;
     }
 
-    console.log(dayjs(oriVcnEndDt).isBetween(dayjs(targetOriVcnStrtDt), dayjs(targetOriVcnEndDt), 'day', '[]'));
     if (dayjs(oriVcnEndDt).isBetween(dayjs(targetOriVcnStrtDt), dayjs(targetOriVcnEndDt), 'day', '[]')) {
       checkBetweenCnt += 1;
     }
@@ -207,7 +201,7 @@ async function onClickSave() {
   }));
 
   if (checkBetweenCnt > 0) {
-    notify(t('MSG_ALT_VCN_INFO_EX'));
+    alert(t('MSG_ALT_VCN_INFO_EX'));
     return;
   }
 
@@ -259,7 +253,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '150', styleName: 'text-left, rg-button-icon--search', editor: { type: 'text' }, editable: true, button: 'action' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', visible: false },
-    { fieldName: 'wrkDt', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'wrkDt', visible: false },
 
   ];
 
