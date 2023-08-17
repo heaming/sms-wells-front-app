@@ -33,7 +33,6 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_ORDR')"
-          required
         >
           <kw-option-group
             v-model="searchParams.feeTcntDvCd"
@@ -44,7 +43,6 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
         >
           <kw-option-group
             v-model="searchParams.rsbTpCd"

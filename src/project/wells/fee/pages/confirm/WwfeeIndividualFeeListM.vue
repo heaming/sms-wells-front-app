@@ -43,13 +43,11 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
         >
           <kw-option-group
             v-model="searchParams.rsbTp"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
-            rules="required"
             :options="rsbTpCd"
           />
         </kw-search-item>
@@ -86,7 +84,6 @@
       <kw-search-row>
         <kw-search-item
           :label="t('MSG_TXT_FEE')+t('MSG_TXT_DSB_YN')"
-          required
         >
           <kw-option-group
             v-model="searchParams.feeDsbYn"
@@ -181,7 +178,7 @@ const searchParams = ref({
   ogLevl3: '',
   prtnrNo: '',
   prtnrKnm: '',
-  feeDsbYn: '',
+  feeDsbYn: '0',
   prPerfYm: '',
   prOgTp: '',
 });

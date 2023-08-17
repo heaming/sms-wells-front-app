@@ -31,13 +31,11 @@
           />
         </kw-search-item>
         <kw-search-item
-          required
           :label="$t('MSG_TXT_OG_TP')"
           :colspan="2"
         >
           <kw-option-group
             v-model="searchParams.ogTpCd"
-            rules="required"
             type="radio"
             :label="$t('MSG_TXT_OG_TP')"
             :options="filterOgTpCd"
