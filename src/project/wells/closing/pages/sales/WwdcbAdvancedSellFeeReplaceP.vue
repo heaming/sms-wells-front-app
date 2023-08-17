@@ -15,6 +15,7 @@
 <template>
   <kw-popup
     size="md"
+    ignore-on-modified
   >
     <kw-form :cols="1">
       <kw-form-row>
