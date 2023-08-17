@@ -763,6 +763,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'homeCare', dataType: 'number' },
     { fieldName: 'csmb', dataType: 'number' },
     { fieldName: 'acsr', dataType: 'number' },
+    { fieldName: 'nopd', dataType: 'number' },
 
   ];
 
@@ -893,6 +894,15 @@ const initGrd2Main = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       } },
+    { fieldName: 'nopd',
+      header: t('MSG_TXT_UNREG_TP'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
   ];
 
   // multi row header setting
@@ -906,7 +916,7 @@ const initGrd2Main = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PDCT_TP'),
       direction: 'horizontal',
-      items: ['envr', 'welsf', 'bh', 'capsl', 'homeCare', 'csmb', 'acsr'],
+      items: ['envr', 'welsf', 'bh', 'capsl', 'homeCare', 'csmb', 'acsr', 'nopd'],
     },
   ]);
 
