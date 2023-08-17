@@ -221,7 +221,7 @@ const pageInfo = ref({
 });
 
 const fetchData = async () => {
-  const res = await dataService.get('/sms/wells/competence/online-link-course/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/competence/educations/online-link-course/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;

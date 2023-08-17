@@ -316,6 +316,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'startYrmn' },
     { fieldName: 'actiGdsStddDvId' },
     { fieldName: 'actiGdsAplcStatNm' },
+    { fieldName: 'cltnDt' },
+    { fieldName: 'cntrDt' },
 
   ];
 
@@ -348,6 +350,8 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       rules: 'required',
       editable: false },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
+    { fieldName: 'cltnDt', header: t('MSG_TXT_CLTN_DT'), width: '100', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     {
       fieldName: 'mpno',
       header: t('MSG_TXT_MPNO'),
@@ -516,7 +520,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_APPL_USER'),
       direction: 'horizontal',
-      items: ['prtnrNo', 'prtnrKnm'],
+      items: ['prtnrNo', 'prtnrKnm', 'cntrDt', 'cltnDt'],
     },
     'mpno', 'startYrmn', 'baseDvNm',
     {
