@@ -118,7 +118,7 @@
         spaced
       />
       <kw-btn
-        label="알림톡 발송"
+        :label="$t('MSG_BTN_BIZTALK_SEND')"
         primary
         dense
         :disable="sendParams.baseYm !== dayjs().format('YYYYMM')"

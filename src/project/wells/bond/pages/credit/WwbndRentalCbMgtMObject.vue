@@ -195,7 +195,6 @@ async function onClickSearch() {
 }
 
 // 알림톡 대상생성
-let gridIndex;
 async function onClickSave() {
   const view = isCustomer.value ? grdCustomerRef.value.getView() : grdContractRef.value.getView();
   // 조회구분이 "계약별" 선택된 경우
@@ -208,27 +207,29 @@ async function onClickSave() {
   if (checkedRows.length === 0) {
     await alert(t('MSG_ALT_NO_CHECK_DATA')); return;
   }
-  // check data 중 "알림수신여부" Y 체크
-  checkedRows.forEach((v) => {
-    if (v.notyRcvYn === 'Y') {
-      gridIndex.push(v.dataRow);
-    }
-  });
 
-  if (gridIndex.length > 0) {
+  // check data 중 "알림수신여부" Y 체크
+  if (checkedRows.some((x) => x.notyRcvYn === 'Y')) {
     // 알림톡 대상으로 선정된 건이 포함되어 있습니다. 체크 제외 후 다시 진행해주시기 바랍니다.
-    await alert(t('MSG_ALT_INC_MSG_OBJ_CHECK_EXCD'), [gridIndex.toString()]); return;
+    await alert(t('MSG_ALT_INC_MSG_OBJ_CHECK_EXCD')); return false;
   }
 
-  await dataService.put(baseUrl, checkedRows);
+  const updateParams = [];
+  for (let i = 0; i < checkedRows.length; i += 1) {
+    updateParams.push({
+      cstNo: checkedRows[i].cstNo,
+      baseYm: cachedParams.baseYm,
+    });
+  }
+  await dataService.put(baseUrl, updateParams);
   notify(t('MSG_ALT_SAVE_DATA'));
-  await onClickSearch();
+  await fetchData();
 }
 
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = isCustomer.value ? grdCustomerRef.value.getView() : grdContractRef.value.getView();
-  if (await gridUtil.isModified(view)) { await notify(t('MSG_TXT_NEED_SAVE_EXCEL_DOWNLOAD')); return; }
+  if (gridUtil.isModified(view)) { notify(t('MSG_TXT_NEED_SAVE_EXCEL_DOWNLOAD')); return; }
 
   await gridUtil.exportView(view, {
     exportData: gridUtil.getAllRowValues(view),
@@ -244,8 +245,9 @@ async function onClickExcelDownload() {
 const initCustomerGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '160', styleName: 'text-center' },
+    { fieldName: 'notyRcvYn', header: t('MSG_TXT_NOTAK_SEND_REG_YN'), width: '160', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '160', styleName: 'text-center' },
-    { fieldName: 'copnDvCd', header: t('MSG_TXT_INDI_CORP'), width: '160', styleName: 'text-center' },
+    { fieldName: 'copnDvNm', header: t('MSG_TXT_INDI_CORP'), width: '160', styleName: 'text-center' },
     { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '160', styleName: 'text-center' },
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '160', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '160', styleName: 'text-right !important, rg-button-link', renderer: { type: 'button' }, dataType: 'number' },
