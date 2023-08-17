@@ -118,6 +118,7 @@ async function getSaveData() {
   if (!(await isModifiedProps())) {
     return {
       [pdConst.RELATION_PRODUCTS]: currentInitData.value[pdConst.RELATION_PRODUCTS],
+      [pdConst.TBL_PD_REL]: currentInitData.value[pdConst.RELATION_PRODUCTS],
     };
   }
 
