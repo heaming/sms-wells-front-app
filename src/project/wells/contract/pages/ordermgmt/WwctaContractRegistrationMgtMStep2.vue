@@ -246,9 +246,20 @@
                       금액
                     </p>
                     <span class="kw-fc--black1 text-bold ml8">
-                      {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }} 원
+                      {{ stringUtil.getNumberWithComma(item.fnlAmt * (item.qtyDv !== '1' ? 1 : item.pdQty) || 0) }} 원
                     </span>
                   </div>
+                  <template
+                    v-if="item.qtyDv === '1' || item.qtyDv === '2'"
+                  >
+                    <zwcm-counter
+                      v-model="item.pdQty"
+                      label="수량변경"
+                      min="1"
+                      max="999"
+                      class="w170"
+                    />
+                  </template>
                   <template
                     v-if="isItem.spay(item)"
                   >
@@ -618,6 +629,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isArray, isEmpty } from 'lodash-es';
 import { warn } from 'vue';
@@ -891,26 +903,12 @@ async function onChangePkgs(dtl) {
   await resetCntrSn();
 }
 
-function castCodeIdNumToStr() {
-  step2.value.dtls.forEach((dtl) => {
-    ['svPdCd', 'sellDscrCd', 'sellDscDvCd', 'alncmpCntrDrmVal',
-      'frisuBfsvcPtrmN', // 일시불
-      'stplPtrm', 'cntrPtrm', 'cntrAmt', 'sellDscTpCd', // 렌탈
-    ].forEach((col) => {
-      // codeId는 모두 String이므로 불러온 값이 자동으로 세팅되도록 number값을 string으로 변환(또는 v-model을 String casting)
-      if (Number.isInteger(dtl[col])) dtl[col] = String(dtl[col]);
-    });
-  });
-}
-
 async function getCntrInfo(cntrNo) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 2 } });
   step2.value = cntr.data.step2;
   console.log(step2.value);
-  // castCodeIdNumToStr();
   pCntrNo.value = step2.value.bas.cntrNo;
   ogStep2.value = cloneDeep(step2.value);
-  // console.log(step2.value);
 }
 
 const clsfItemRefs = reactive({});
@@ -984,7 +982,6 @@ async function confirmProducts() {
 
   const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value.dtls);
   step2.value.dtls = res.data;
-  castCodeIdNumToStr();
   await productPackaging();
   return true;
 }

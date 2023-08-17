@@ -159,6 +159,8 @@
                   :maxlength="15"
                 />
               </kw-form-item>
+            </kw-form-row>
+            <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_MPNO')"
                 required
@@ -167,6 +169,17 @@
                   v-model:tel-no1="item.adrpc.cralLocaraTno"
                   v-model:tel-no2="item.adrpc.mexnoEncr"
                   v-model:tel-no3="item.adrpc.cralIdvTno"
+                  required
+                />
+              </kw-form-item>
+              <kw-form-item
+                :label="$t('MSG_TXT_TEL_NO')"
+                required
+              >
+                <zwcm-telephone-number
+                  v-model:tel-no1="item.adrpc.locaraTno"
+                  v-model:tel-no2="item.adrpc.exnoEncr"
+                  v-model:tel-no3="item.adrpc.idvTno"
                   required
                 />
               </kw-form-item>
@@ -577,6 +590,9 @@ async function onClickAddRectRgstAdr(dtl) {
     && adr.cralLocaraTno === newAdr.cralLocaraTno
     && adr.mexnoEncr === newAdr.mexnoEncr
     && adr.cralIdvTno === newAdr.cralIdvTno
+    && adr.locaraTno === newAdr.locaraTno
+    && adr.exnoEncr === newAdr.exnoEncr
+    && adr.idvTno === newAdr.idvTno
     && adr.adrId === newAdr.adrId))) {
     alert('이미 등록된 주소입니다.');
   } else {
@@ -595,6 +611,9 @@ function onClickDeleteRectRgstAdr(delAdr) {
     || adr.cralLocaraTno !== delAdr.cralLocaraTno
     || adr.mexnoEncr !== delAdr.mexnoEncr
     || adr.cralIdvTno !== delAdr.cralIdvTno
+    || adr.locaraTno !== delAdr.locaraTno
+    || adr.exnoEncr !== delAdr.exnoEncr
+    || adr.idvTno !== delAdr.idvTno
     || adr.adrId !== delAdr.adrId);
 }
 
