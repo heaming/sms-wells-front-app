@@ -196,7 +196,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { alert, codeUtil, useDataService, useMeta } from 'kw-lib';
+import { alert, codeUtil, useDataService, useMeta, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
@@ -281,6 +281,7 @@ async function fetchDataKakao() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function fetchDataEmail() {
@@ -298,6 +299,7 @@ async function fetchDataEmail() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function fetchData() {
