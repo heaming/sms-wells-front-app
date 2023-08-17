@@ -48,7 +48,7 @@
         >
           <kw-select
             v-model="searchParams.sellChnl"
-            :options="codes.SELL_CHNL_DV_CD"
+            :options="codes.SELL_CHNL_DTL_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -196,6 +196,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'SL_RCOG_PRD_DV_CD',
   'SL_RCOG_PRD_CD',
+  'SELL_CHNL_DTL_CD', // 판매채널
 );
 const pageInfo = ref({
   totalCount: 0,
