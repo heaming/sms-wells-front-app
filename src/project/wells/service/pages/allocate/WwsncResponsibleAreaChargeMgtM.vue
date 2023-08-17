@@ -307,8 +307,9 @@ function validateApplyDate() {
 }
 
 function validateToday(val) {
-  const today = dayjs().format('YYYYMMDD');
-  if (dayjs(val).isBefore(today)) {
+  const applyDate = isEmpty(searchParams.value.applyDate) ? dayjs().format('YYYYMMDD') : dayjs(searchParams.value.applyDate).format('YYYYMMDD');
+
+  if (dayjs(val).isBefore(dayjs(applyDate).format('YYYYMMDD'))) {
     notify(t('MSG_ALT_APY_STRT_D_CONF_FUR_DT'));
     return false;
   }
