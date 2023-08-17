@@ -27,7 +27,7 @@
           <kw-select
             v-model="calendarInfo.dfYn"
             :options="codes.COD_YN"
-            :readonly="!props.isHolidaySetter()"
+            :readonly="!props.isHolidaySetable()"
           />
         </kw-form-item>
       </kw-form-row>
@@ -126,6 +126,10 @@ const props = defineProps({
     required: true,
   },
   isHolidaySetter: {
+    type: Function,
+    default: () => false,
+  },
+  isHolidaySetable: {
     type: Function,
     default: () => false,
   },
