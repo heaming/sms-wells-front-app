@@ -33,7 +33,7 @@
           <kw-select
             v-model="searchParams.sell"
             first-option="all"
-            :options="orgOptions"
+            :options="codes.SELL_BASE_TP_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` }))"
           />
           <kw-select
             v-model="searchParams.channel"
@@ -150,6 +150,7 @@ const dataService = useDataService();
 const codes = await codeUtil.getMultiCodes(
   'PRTNR_CHNL_DV_ACD',
   'COPN_DV_CD',
+  'SELL_BASE_TP_CD',
 );
 
 const searchParams = ref({
@@ -172,14 +173,6 @@ const pageInfo = ref({
 
 let cachedParams;
 
-const orgOptions = ref([
-  { codeId: 'A', codeName: `A-${t('MSG_TXT_ALL')}` },
-  { codeId: '2', codeName: `2-P${t('MSG_TXT_OG')}` },
-  { codeId: '7', codeName: `7-M${t('MSG_TXT_OG')}` },
-  { codeId: '8', codeName: `8-${t('MSG_TXT_EMP_SLS')}` },
-  { codeId: '9', codeName: `9-${t('MSG_TXT_EMP_PRCH')}` },
-]);
-
 const sellTpCdGrids = ref([
   { codeId: 'A', codeName: t('MSG_TXT_ALL') },
   { codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') },
@@ -192,12 +185,6 @@ const salesTypeOptions = ref([
   { codeId: '2', codeName: `2-${t('MSG_TXT_LIMIT')}` },
   { codeId: '3', codeName: `3-${t('MSG_TXT_EXP_GRNTD')}` },
   { codeId: '4', codeName: `4-${t('MSG_TXT_NEW_RGLTD')}` },
-]);
-
-const copnDvCdOptions = ref([
-  { codeId: 'A', codeName: `A-${t('MSG_TXT_ALL')}` },
-  { codeId: '1', codeName: t('MSG_TXT_INDV') },
-  { codeId: '2', codeName: t('MSG_TXT_CRP') },
 ]);
 
 async function fetchData() {
@@ -318,7 +305,7 @@ function initGrid(data, view) {
     { fieldName: 'sellBaseTpCd',
       header: t('MSG_TXT_SLS_CAT'),
       width: '142',
-      options: orgOptions.value,
+      options: codes.SELL_BASE_TP_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       rules: 'required',
       editor: { type: 'list' } },
     { fieldName: 'sellBaseChnl',
@@ -336,7 +323,10 @@ function initGrid(data, view) {
       header: t('MSG_TXT_INDI_CORP'),
       width: '142',
       rules: 'required',
-      options: copnDvCdOptions.value,
+      options: [
+        { codeId: 'A', codeName: `A-${t('MSG_TXT_ALL')}` },
+        ...codes.COPN_DV_CD,
+      ],
       editor: { type: 'list' } },
     { fieldName: 'zip', header: t('MSG_TXT_ZIP'), width: '180', styleName: 'text-center', editor: { mask: { editMask: '999999' } } },
     { fieldName: 'pdCd',
