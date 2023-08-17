@@ -36,9 +36,11 @@
           />
           <!--상품 그룹: 상품명-->
           <kw-select
-            v-model="searchParams.pdCd"
-            :options="pdGr"
+            v-model="searchParams.pdNm"
+            :options="pdNm"
             first-option="all"
+            class="w200"
+            @change="onChangePdNm(searchParams.pdNm)"
           />
         </kw-search-item>
 
@@ -164,6 +166,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+
 import {
   codeUtil,
   defineGrid,
@@ -173,12 +176,14 @@ import {
   gridUtil,
   notify,
 } from 'kw-lib';
+import smsCommon from '~sms-wells/service/composables/useSnCode';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
+const { getPartMaster } = smsCommon();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -207,6 +212,7 @@ const chgApyDt = ref({
 const searchParams = ref({
   hgrPdCd: '', // '4',
   pdCd: '', // 'WM03100193',
+  pdNm: '',
   cmnPartChk: 'N',
   apyMtrChk: 'N',
   applyDate: now.format('YYYYMMDD'),
@@ -215,11 +221,10 @@ const searchParams = ref({
 let cachedParams;
 
 /* 상품그룹 조회 */
-const pdGr = ref();
+const pdNm = ref([]);
 const onChangeHgrPdCd = async () => {
-  const res = await dataService.get('/sms/wells/service/paid-as-costs/filter-products', { params: searchParams.value });
-  pdGr.value = res.data;
-  searchParams.value.pdCd = '';
+  pdNm.value = await getPartMaster('4', searchParams.value.hgrPdCd, 'M');
+  searchParams.value.pdNm = '';
 };
 
 const isHgrPdCd = ref(false);
@@ -237,6 +242,12 @@ watch(() => searchParams.value.hgrPdCd, (val) => {
   }
   onChangeHgrPdCd();
 });
+async function onChangePdNm(val) {
+  console.log(val);
+  // if (val === undefined) return;
+  const { cd } = pdNm.value.find((v) => v.codeId === val) || {};
+  searchParams.value.pdCd = cd;
+}
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/paid-as-costs/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -246,7 +257,7 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(recapitalizationAsSvCs);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
