@@ -305,12 +305,12 @@
             <kw-form-item
               :label="$t('MSG_TXT_CNFM_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.slRcogDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.cntrCnfmDt) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CANC_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.canDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.cntrCanDt) }}</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -318,17 +318,17 @@
             <kw-form-item
               :label="$t('MSG_TXT_J_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.lcentDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.jDt) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_WDWAL_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.lcoutDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.mshWdwalDt) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_FSH_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.lcwanDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.fshDt) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_MM_SSPCS')"
@@ -340,7 +340,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_DSC_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.spmtDscAmt)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.dscAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_SL_AGG_AMT')"
@@ -374,13 +374,13 @@
             >
               <p>
                 {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotDlqAmt)) }}/
-                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.btdDlqAmt)) }}
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.btdDlqAddAmt)) }}
               </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_DFA_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.lcam67)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.dfaAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -388,7 +388,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_DFA_DP_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.lcam68)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.dfaDpAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
