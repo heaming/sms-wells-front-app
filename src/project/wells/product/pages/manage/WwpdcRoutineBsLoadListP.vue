@@ -182,6 +182,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(services);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   if (services?.length === 1 && props.selectType === pdConst.PD_SEARCH_SINGLE) {
     await onSelect();
   }
