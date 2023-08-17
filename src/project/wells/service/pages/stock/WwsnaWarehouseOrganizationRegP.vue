@@ -129,7 +129,7 @@
           <kw-input
             v-model="warehouseInfo.wareNm"
             :label="$t('MSG_TXT_WARE_NM')"
-            :readonly="!hasProps() || !isOrgWarehouse"
+            :readonly="!isOrgWarehouse"
           />
         </kw-form-item>
       </kw-form-row>
