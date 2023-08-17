@@ -33,7 +33,6 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_ORDR')"
-          required
         >
           <kw-option-group
             v-model="searchParams.feeTcntDvCd"
@@ -44,16 +43,12 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
         >
           <kw-option-group
             v-model="searchParams.rsbTpCd"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
             :options="filterRsbDvCd"
-            first-option
-            first-option-value=""
-            :first-option-label="$t('MSG_TXT_ALL')"
             @change="onChangedRsbDv"
           />
         </kw-search-item>
@@ -188,7 +183,7 @@ const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   feeTcntDvCd: '01',
-  rsbTpCd: '',
+  rsbTpCd: 'W0302',
   rsbTpTxt: '',
   prtnrNo: '',
   ogLevl2Id: '',
@@ -376,7 +371,7 @@ async function onClickW301P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     feeCalcUnitTpCd = '302';
   }
   const { result: isUploadSuccess } = await modal({
-    component: 'WwfebOgFeeMlannerRegP',
+    component: 'WwfebOgFeeHomeMasterRegP',
     componentProps: { perfYm,
       feeCalcUnitTpCd,
       feeTcntDvCd,

@@ -24,12 +24,10 @@
         <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_INQR_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.inqrCd"
               @change="onChangeInqrDv"
@@ -173,12 +171,10 @@
         <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_INQR_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.inqrCd"
               @change="onChangeInqrDv"
@@ -198,12 +194,10 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
-            required
           >
             <kw-option-group
               v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
-              rules="required"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
             />
@@ -258,12 +252,10 @@
         <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_INQR_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.inqrCd"
               @change="onChangeInqrDv"
@@ -271,24 +263,20 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_RSB_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.rsbDvCd"
               :label="$t('MSG_TXT_RSB_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.rsbDvCd"
             />
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
-            required
           >
             <kw-option-group
               v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
-              rules="required"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
             />

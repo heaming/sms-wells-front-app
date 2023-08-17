@@ -170,12 +170,10 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
-            required
           >
             <kw-option-group
               v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
-              rules="required"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
             />
