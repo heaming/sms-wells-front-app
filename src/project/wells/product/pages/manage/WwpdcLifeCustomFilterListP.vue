@@ -139,13 +139,14 @@ async function onClickAdd() {
 }
 
 async function onClickExcelDownload() {
-  const { svPdNm, pdctPdNm, partPdNm, svPdCd, pdctPdCd, partPdCd } = props;
+  // const { svPdNm, pdctPdNm, partPdNm, svPdCd, pdctPdCd, partPdCd } = props;
+  const { svPdNm, pdctPdNm, partPdNm } = props;
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/product/bs-works/life-filters', { params: { svPdCd, pdctPdCd, partPdCd } });
+  // const res = await dataService.get('/sms/wells/product/bs-works/life-filters',
+  // { params: { svPdCd, pdctPdCd, partPdCd } });
   await gridUtil.exportView(view, {
     fileName: `${svPdNm}_${pdctPdNm}_${partPdNm}_`,
     timePostfix: true,
-    exportData: res.data,
   });
 }
 
@@ -302,15 +303,15 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required',
       editor: { maxLength: 256 },
       button: 'action',
-      styleName: 'text-center rg-button-icon--search',
+      styleName: 'text-left rg-button-icon--search',
       styleCallback(grid, dataCell) {
         return dataCell.item.rowState === 'created'
           ? { editable: true }
-          : { editable: false, styleName: 'text-center rg-button-hide' };
+          : { editable: false, styleName: 'text-left rg-button-hide' };
       },
     },
     // 필터공용코드
-    { fieldName: 'filtCmuCdv', header: t('MSG_TXT_FLTER_PUB_CD'), width: '140', styleName: 'text-center', editor: { maxLength: 10 } },
+    { fieldName: 'filtCmuCdv', header: t('MSG_TXT_FLTER_PUB_CD'), width: '140', editor: { maxLength: 10 } },
     // 공용명
     { fieldName: 'filtCmuNm', header: t('MSG_TXT_PUB_NM'), width: '80', editable: true, editor: { maxLength: 500 } },
     // 공용설명
