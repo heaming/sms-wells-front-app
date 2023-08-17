@@ -180,18 +180,18 @@ const customCodes = {
  */
 function isHolidaySetter() {
   // return sessionUserInfo.employeeIDNumber === '999999';
-  return sessionUserInfo.baseRleCd === 'W6010'; // 엔지니어(센터장)
+  return sessionUserInfo.baseRleCd === 'W1560'; // 엔지니어(센터장)
 }
 
 function isHolidaySetable() {
-  return (isHolidaySetter() && searchParams.value.serviceCenter === HOLIDAY_TEXT);
+  return (isHolidaySetter() && searchParams.value.serviceCenter.ogId === HOLIDAY_TEXT);
 }
 
 /*
  * 서비스센터 조회
  */
 async function getServiceCenter() {
-  const res = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: sessionUserInfo.baseRleCd === 'W6010' ? 'N' : 'Y' } });
+  const res = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: isHolidaySetter() ? 'N' : 'Y' } });
   customCodes.SERVICE_CENTER = res.data;
 
   // cherro test
