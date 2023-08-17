@@ -597,7 +597,7 @@
 import { codeUtil, useGlobal, defineGrid, useDataService, getComponentType, gridUtil, notify, confirm, popupUtil } from 'kw-lib';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty, isEqual } from 'lodash-es';
 
 const { modal, alert } = useGlobal();
 const dataService = useDataService();
@@ -631,8 +631,8 @@ const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
   cntrCstNo: '', // 계약고객번호
-  rcpDtFrom: `${now.format('YYYYMM')}01`, // 접수기간From
-  rcpDtTo: now.format('YYYYMMDD'), // 접수기간To
+  rcpDtFrom: '', // 접수기간From
+  rcpDtTo: '', // 접수기간To
   prtnrNo: '', // 파트너번호
   prtnrKnm: '', // 파트너한글명
   emadr: '', // 이메일
@@ -689,6 +689,7 @@ function initFieldParams(gubun) {
   fieldParams.value.pblYn = ''; // (세금계산서) 발행여부
   fieldParams.value.prtnrNo = ''; // 파트너번호
   fieldParams.value.prtnrKnm = ''; // 파트너한글명
+  fieldParams.value.fntDvCd = ''; // 이체구분
 
   // 증빙유형코드가 변경되었을 때 여기서 멈춤
   if (gubun === 'evidTpCd') { return; }
@@ -976,22 +977,23 @@ async function onClickCrcdChange() {
 async function onClickCrcdMpyChange() {
   if (!await frmCrcdRef.value.validate()) { return; }
 
-  const checkedList = gridUtil.getCheckedRowValues(grdCustomerRef.value.getView());
+  const view = grdCustomerRef.value.getView();
+  const selectedRows = gridUtil.getSelectedRowValues(view);
 
-  if (isEmpty(checkedList)) {
+  if (isEmpty(selectedRows)) {
     alert(t('MSG_ALT_NO_CHECK_DATA'));
     return;
   }
 
   const params = {
     // 고객 정보
-    copnDvCd: checkedList[0].copnDvCd, // 법인격구분코드 ex) 1
-    cstNo: checkedList[0].cntrCstNo, // 고객번호
-    mobileNo: `${checkedList[0].cstTno1}${checkedList[0].cstTno2}${checkedList[0].cstTno3}`, // ex) 01012345678
-    userName: checkedList[0].cstKnm, // 고객명 ex) 서권호
-    birthDate: checkedList[0].bryyMmdd, // 생년월일 ex) 19600101
-    bzrno: checkedList[0].bzrno, // 사업자번호
-    gender: checkedList[0].sexDvCd, // 성별 ex) 1
+    copnDvCd: selectedRows[0].copnDvCd, // 법인격구분코드 ex) 1
+    cstNo: selectedRows[0].cntrCstNo, // 고객번호
+    mobileNo: `${selectedRows[0].cstTno1}${selectedRows[0].cstTno2}${selectedRows[0].cstTno3}`, // ex) 01012345678
+    userName: selectedRows[0].cstKnm, // 고객명 ex) 서권호
+    birthDate: selectedRows[0].bryyMmdd, // 생년월일 ex) 19600101
+    bzrno: selectedRows[0].bzrno, // 사업자번호
+    gender: selectedRows[0].sexDvCd, // 성별 ex) 1
     // 고정
     vstYn: 'Y', // 방문 여부
     chRqrDvCd: '2', // 3자: 2
@@ -1020,6 +1022,14 @@ watch(() => fieldParams.value.evidTpCd, (val) => {
   const view = grdCustomerRef.value.getView();
 
   view.columnByName('evidOcyInqr').visible = val === '3';
+});
+
+// 입금유형 변경 감시
+watch(() => fieldParams.value.fntDvCd, (val) => {
+  // 증빙원본 선택시, 그리드에서 증빙원본 조회버튼을 보여준다.
+  const view = grdCustomerRef.value.getView();
+
+  if (isEqual(val, '1') || isEqual(val, '2')) { view.checkBar.visible = false; } else { view.checkBar.visible = true; }
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -1090,19 +1100,11 @@ const initCustomerGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'prtnrKnm',
-      header: t('MSG_TXT_NAME'),
-      width: '100',
-      styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { prtnrKnm, prtnrKnmMask } = grid.getValues(index.itemIndex);
-        return isEmpty(prtnrKnm) ? '' : prtnrKnmMask;
-      },
-    }, // 이름
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_NAME'), width: '100', styleName: 'text-center' }, // 이름
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 업무구분
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, // 계약번호
     { fieldName: 'cntrSn', header: t('MSG_TXT_SERIAL_NUMBER'), width: '78', styleName: 'text-center' }, // 일련번호
-    { fieldName: 'cstKnmMask', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일자
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '110', styleName: 'text-center' }, // 고객번호
     { fieldName: 'txinvPblOjYn',
@@ -1228,7 +1230,7 @@ const initCustomerGrid = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'prtnrKnm', 'sellTpNm', 'cntrNo', 'cntrSn', 'cstKnmMask', 'cntrCnfmDtm', 'cntrCstNo', 'txinvPblOjYn', 'emadr',
+    'prtnrKnm', 'sellTpNm', 'cntrNo', 'cntrSn', 'cstKnm', 'cntrCnfmDtm', 'cntrCstNo', 'txinvPblOjYn', 'emadr',
     {
       header: `${t('MSG_TXT_AUTO_FNT')} ${t('MSG_TXT_INF')}`, // 자동이체 정보
       direction: 'horizontal',
