@@ -16,7 +16,7 @@
   <kw-popup
     size="2xl"
   >
-    <kw-form :cols="2">
+    <kw-form :cols="3">
       <kw-form-row>
         <!-- 처리구분 -->
         <kw-form-item
@@ -38,6 +38,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_CH_RSON')"
           required
+          colspan="2"
         >
           <kw-input
             v-model="saveParams.chRson"
@@ -132,7 +133,6 @@
         <kw-form-item
           v-if="saveParams.procsDv==='705'"
           :label="$t('MSG_TXT_FXAM_YN')+' '+$t('MSG_TXT_CH')"
-          required
         >
           <kw-select
             v-model="saveParams.fxamYnCh"
@@ -446,8 +446,9 @@ async function onClickSave() {
       }
     } else if (saveParams.value.procsDv === '705') {
       // TODO : AS-IS처리내역, 매핑안됨
-      if (isEmpty(saveParams.value.fxamYnCh)) {
-        alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [`${t('MSG_TXT_FXAM_YN')} ${t('MSG_TXT_CH')}`]));
+      if (isEmpty(saveParams.value.fxamYnCh) && isEmpty(saveParams.value.pdAccCnt) && isEmpty(saveParams.value.recogAmt)
+        && isEmpty(saveParams.value.recogRt) && isEmpty(saveParams.value.pdStdFee)) {
+        alert(t('MSG_ALT_BE_CHECK_IT', [t('MSG_TXT_PD_ACC_RSLT')]));
         return;
       }
     } else if (saveParams.value.procsDv === '706') {
