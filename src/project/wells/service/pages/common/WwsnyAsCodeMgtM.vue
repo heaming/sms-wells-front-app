@@ -11,6 +11,11 @@
 ****************************************************************************************************
 - AS코드관리 (http://localhost:3000/#/service/wwsny-after-service-code-mgt)
 ****************************************************************************************************
+* 변경사항
+****************************************************************************************************
+- 2023-08-17 적용일자 checkbox default 선택 적용
+- 2023-08-17 적용일자 default 오늘 날짜로 지정
+****************************************************************************************************
 -->
 <template>
   <kw-page>
@@ -23,19 +28,20 @@
         <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
           <kw-select
             v-model="searchParams.pdGrpCd"
+            :label="$t('MSG_TXT_PD_GRP')"
             :options="codes.PD_GRP_CD"
             first-option="all"
-            :label="$t('MSG_TXT_PD_GRP')"
             @change="changePdGrpCd"
           />
           <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
+            :label="$t('MSG_TXT_PRDT')"
             :options="pds"
+            class="w200"
             first-option="all"
             option-label="cdNm"
             option-value="cd"
-            :label="$t('MSG_TXT_PRDT')"
           />
         </kw-search-item>
         <!--서비스유형-->
@@ -57,7 +63,7 @@
       </kw-search-row>
       <kw-search-row>
         <!--적용일자-->
-        <kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_APPLY_DT')">
           <kw-date-picker
             v-model="searchParams.applyDate"
             :disable="searchParams.apyChk[0] !== '1' "
@@ -137,6 +143,7 @@ import {
 } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
+import dayjs from 'dayjs';
 
 const { getPartMaster } = smsCommon();
 
@@ -149,8 +156,8 @@ let cachedParams;
 const searchParams = ref({
   pdGrpCd: '',
   pdCd: '',
-  apyChk: [],
-  applyDate: '',
+  apyChk: ['1'],
+  applyDate: dayjs().format('YYYYMMDD'),
   svTpCd: '',
   asLctCd: '',
 });
@@ -180,7 +187,6 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
-  console.log(pageInfo.value);
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
   view.resetCurrent();
@@ -194,15 +200,23 @@ async function onClickSearch() {
 
 async function changePdGrpCd() {
   if (searchParams.value.pdGrpCd) {
-    pds.value = await getPartMaster('4', searchParams.value.pdGrpCd, 'M');
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
   } else pds.value = [];
 }
 async function onClickExcelDownload() {
-  // const view = grdMainRef.value.getView();
-  // await gridUtil.exportView(view, {
-  //   fileName: 'asCodeMngt',
-  //   timePostfix: true,
-  // });
   const res = await dataService.get(
     '/sms/wells/service/as-codes/excel-download',
     { params: { ...cachedParams } },
@@ -218,7 +232,6 @@ const onClickExcelUpload = async () => {
   cachedParams = cloneDeep(searchParams.value);
   const apiUrl = '/sms/wells/service/as-codes/excel-upload';
   const templateId = 'FOM_AS_CODE_MNGT';
-  console.log(cachedParams);
   const extraData = cachedParams;
   const { result } = await modal({
     component: 'ZwcmzExcelUploadP',
