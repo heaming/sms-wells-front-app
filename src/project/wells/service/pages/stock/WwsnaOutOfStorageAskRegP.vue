@@ -346,8 +346,6 @@ function validateChangeCode() {
 }
 
 async function fetchDefaultData() {
-  // TODO: 알맞는 값 없어서 하드코딩. session값 맞아지면 userInfo.employeeIDNumber 로 변경. WM: 1642720
-
   const { apyYm } = loginUserParams.value;
   const { userId } = loginUserParams.value;
   warehouses.value = await getMonthWarehouse(userId, apyYm);
@@ -455,7 +453,6 @@ async function onClickSave() {
       checkedRows[i].ostrAkNo = chkOstrAkNo;
     }
   }
-  // const params = searchParams.value;
   params = searchParams.value;
 
   params.ostrAkRgstDt = dayjs().format('YYYYMMDD');

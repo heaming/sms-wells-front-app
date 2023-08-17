@@ -137,6 +137,7 @@ async function getBuildingInformPages() {
   const view = grdMainRef.value.getView();
 
   view.getDataSource().setRows(BuildingResources);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
