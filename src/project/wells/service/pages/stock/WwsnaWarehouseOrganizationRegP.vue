@@ -129,7 +129,8 @@
           <kw-input
             v-model="warehouseInfo.wareNm"
             :label="$t('MSG_TXT_WARE_NM')"
-            :readonly="!isOrgWarehouse"
+            :readonly="(hasProps() && !['20', '30'].includes(warehouseInfo.wareDtlDvCd))
+              || (!hasProps() && !['20', '21', '30'].includes(warehouseInfo.wareDtlDvCd))"
           />
         </kw-form-item>
       </kw-form-row>
