@@ -150,7 +150,6 @@ async function fetchData() {
   totalCount.value = moveMentItem.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(moveMentItem.map((v) => ({ ...v, strDelButn: ' ' })));
-  view.resetCurrent();
 }
 
 async function onClickExcelDownload() {

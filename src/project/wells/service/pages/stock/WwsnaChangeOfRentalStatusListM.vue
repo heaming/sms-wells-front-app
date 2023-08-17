@@ -196,7 +196,7 @@ async function fetchData() {
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(rentalItem);
-    view.resetCurrent();
+    view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   }
 }
 

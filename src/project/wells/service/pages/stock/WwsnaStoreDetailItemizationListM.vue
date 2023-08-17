@@ -362,13 +362,10 @@ let cachedParams;
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/store-detail-itemizations', { params: cachedParams });
-  console.log(res);
   const store = res.data;
-  console.log(store.length);
   totalCount.value = store.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(store);
-  view.resetCurrent();
 }
 
 async function onClickExcelDownload() {
