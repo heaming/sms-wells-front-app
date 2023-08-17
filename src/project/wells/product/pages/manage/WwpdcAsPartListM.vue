@@ -74,6 +74,7 @@
             v-model.trim="searchParams.sapItemCdFrom"
             mask="#####-######"
             :rules="sapItemCdFromValidation"
+            class="mr8"
             clearable
           />
           ~
@@ -253,7 +254,6 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(material);
-  view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -383,9 +383,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdTpCd', header: t('MSG_TXT_DIV'), width: '90', styleName: 'text-center', options: codes.PD_TP_CD }, /* 구분 */
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176' }, /* 분류 */
     { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '195' }, /* 교재/자재명 */
-    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '140' }, /* 제품코드 */
-    { fieldName: 'asItmCd', header: t('TXT_MSG_AS_ITM_CD'), width: '130' }, /* 품목코드 */
-    { fieldName: 'asMatCd', header: t('TXT_MSG_AS_MAT_CD'), width: '130' }, /* AS자재번호 */
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '140', styleName: 'text-center' }, /* 제품코드 */
+    { fieldName: 'asItmCd', header: t('TXT_MSG_AS_ITM_CD'), width: '130', styleName: 'text-center' }, /* 품목코드 */
+    { fieldName: 'asMatCd', header: t('TXT_MSG_AS_MAT_CD'), width: '130', styleName: 'text-center' }, /* AS자재번호 */
     // 사용자 관련 공통 컬럼
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
