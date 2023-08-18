@@ -39,6 +39,9 @@
             v-model="searchParams.no"
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
+            type="number"
+            min="0"
+            max="10"
             clearable
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
