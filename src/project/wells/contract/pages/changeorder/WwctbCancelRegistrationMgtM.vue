@@ -480,7 +480,12 @@ async function onSave() {
       element.filtDdctam = firstOne.filtDdctam;
       element.rsgAplcDt = firstOne.rsgAplcDt;
       element.rsgFshDt = firstOne.rsgFshDt;
+      element.rtngdQty = firstOne.rtngdQty;
       element.bulkApplyYN = 'Y';
+
+      if (param.sellTpCd === '3') {
+        element.slCtrAmt = firstOne.slCtrAmt;
+      }
     });
 
     saveList = cancelDetailList.value;
