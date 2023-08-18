@@ -21,7 +21,7 @@
     <h3>{{ $t('MSG_TXT_CNTRT_INF') }}</h3>
     <kw-observer ref="obsMainRef">
       <kw-form :cols="2">
-        <div v-if="props.copnDvCd === '1'">
+        <div v-if="isEqual(props.copnDvCd, '1')">
           <kw-form-row>
             <!-- 계약자 -->
             <kw-form-item
@@ -51,7 +51,7 @@
             </kw-form-item>
           </kw-form-row>
         </div>
-        <div v-if="props.copnDvCd === '2'">
+        <div v-if="isEqual(props.copnDvCd, '2')">
           <kw-form-row>
             <!-- 계약자 -->
             <kw-form-item
@@ -83,7 +83,7 @@
                 v-model:telNo1="fieldParams.cntrCopnExnoEncr"
                 v-model:telNo2="fieldParams.cntrCopnIdvTno"
                 :placeholder="t('MSG_TXT_INP')"
-                :label="$t('MSG_TXT_MPNO')"
+                :label="$t('MSG_TXT_TEL_NO')"
                 rules="telephone"
                 mask="telephone"
               />
@@ -166,6 +166,25 @@
             />
           </kw-form-item>
         </kw-form-row>
+        <div v-if="isEqual(props.copnDvCd, '2')">
+          <kw-form-row>
+            <!-- 전화번호 -->
+            <kw-form-item
+              :label="t('MSG_TXT_TEL_NO')"
+            >
+              <kw-input
+                v-model:model-value="fieldParams.istPhoneNo"
+                v-model:telNo0="fieldParams.istLocaraTno"
+                v-model:telNo1="fieldParams.istExnoEncr"
+                v-model:telNo2="fieldParams.istIdvTno"
+                :label="$t('MSG_TXT_TEL_NO')"
+                :rules="!hasIstDt ? '|telephone' : ''"
+                :disable="hasIstDt"
+                mask="telephone"
+              />
+            </kw-form-item>
+          </kw-form-row>
+        </div>
       </kw-form>
       <kw-form
         :cols="1"
@@ -221,7 +240,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil, useModal, useGlobal, getComponentType } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { isEmpty, isEqual } from 'lodash-es';
 
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 
@@ -281,6 +300,10 @@ const fieldParams = ref({
   istAdrId: '',
   istAdrDvCd: '',
   istCralIdvTno: '',
+  istLocaraTno: '',
+  istExnoEncr: '',
+  istIdvTno: '',
+  istPhoneNo: '',
   istAdrZip: '',
   istRnadr: '',
   istRdadr: '',
@@ -300,6 +323,7 @@ async function fetchData() {
   fieldParams.value.cntrCralTno = `${fieldParams.value.cntrCralLocaraTno}${fieldParams.value.cntrMexnoEncr}${fieldParams.value.cntrCralIdvTno}`;
   fieldParams.value.istCralTno = `${fieldParams.value.istCralLocaraTno}${fieldParams.value.istMexnoEncr}${fieldParams.value.istCralIdvTno}`;
   fieldParams.value.cntrCopnCralTno = `${fieldParams.value.cntrCopnLocaraTno}${fieldParams.value.cntrCopnExnoEncr}${fieldParams.value.cntrCopnIdvTno}`;
+  fieldParams.value.istPhoneNo = `${fieldParams.value.istLocaraTno}${fieldParams.value.istExnoEncr}${fieldParams.value.istIdvTno}`;
 
   if (isEmpty(res.data)) {
     alert(t('MSG_ALT_CST_INF_NOT_EXST'));
