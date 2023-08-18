@@ -233,6 +233,7 @@ const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (ob
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const isNotActivated = ref(false);
+// const isCollectionManager = true;
 const isCollectionManager = hasRoleNickName('CLCTAM_MNGT');
 const totalCount = ref(0);
 const pageInfo = ref({
@@ -405,11 +406,11 @@ async function onClickSave() {
 }
 
 async function onClickCreate() {
+  cachedParams = cloneDeep(searchParams.value);
   if (!await checkAvailability()) {
     notify('파트이관을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 파트이관 할 수 없습니다.)');
     return;
   }
-  cachedParams = cloneDeep(searchParams.value);
   const response = await dataService.get('/sms/wells/bond/part-transfers/has-part-transfer-detail', { params: cachedParams });
   if (response.data) {
     if (!await confirm(t('MSG_ALT_ASN_DTA_RECRT'))) { return; }
@@ -420,6 +421,8 @@ async function onClickCreate() {
 
   // TODO: 통테 임시 작업 메시지 정의 필요
   await alert('파트이관이 완료 되었습니다.');
+
+  await fetchData();
 }
 
 const validateSearchCstNo = async () => {
