@@ -307,6 +307,24 @@
               :label="$t('MSG_TXT_FNT_DV')"
             />
           </kw-form-item>
+          <!-- 관계구분 (제3자 확인) -->
+          <div v-if="isEqual(fieldParams.fntDvCd, '1') || isEqual(fieldParams.fntDvCd, '2')">
+            <kw-form-item
+              :label="$t('MSG_TXT_RELATION_CLSF')"
+              required
+            >
+              <kw-option-group
+                v-model="fieldParams.relDvCd"
+                type="radio"
+                :options="[
+                  { codeId: '1', codeName: t('MSG_TXT_HS') },
+                  { codeId: '2', codeName: t('MSG_TXT_THP') },
+                ]"
+                :rules="searchParams.prcDvCd === '2' ? 'required': ''"
+                :label="$t('MSG_TXT_FNT_DV')"
+              />
+            </kw-form-item>
+          </div>
 
           <!-- 증빙(변경)유형
           <kw-form-item
@@ -652,6 +670,7 @@ const fieldParams = ref({
   prtnrNo: '', // 파트너번호
   prtnrKnm: '', // 파트너한글명
   fntDvCd: '', // 이체구분. 계좌(1), 카드(2), 가상계좌(S), 지로(G), 보류(N), 보류해제(B)
+  relDvCd: '', // 3자 구분
   evidTpCd: '', // 증빙유형. IDS(1), 첨부파일(2), 증빙원본(3), 계좌(4)
   fntDtChChk: 'N', // 이체일자변경
   bnkDvCd: '', // 은행구분코드
@@ -690,6 +709,7 @@ function initFieldParams(gubun) {
   fieldParams.value.prtnrNo = ''; // 파트너번호
   fieldParams.value.prtnrKnm = ''; // 파트너한글명
   fieldParams.value.fntDvCd = ''; // 이체구분
+  fieldParams.value.relDvCd = ''; // 제 3자구분
 
   // 증빙유형코드가 변경되었을 때 여기서 멈춤
   if (gubun === 'evidTpCd') { return; }
@@ -977,6 +997,8 @@ async function onClickCrcdChange() {
 async function onClickCrcdMpyChange() {
   if (!await frmCrcdRef.value.validate()) { return; }
 
+  const { relDvCd } = fieldParams.value;
+
   const view = grdCustomerRef.value.getView();
   const selectedRows = gridUtil.getSelectedRowValues(view);
 
@@ -996,8 +1018,8 @@ async function onClickCrcdMpyChange() {
     gender: selectedRows[0].sexDvCd, // 성별 ex) 1
     // 고정
     vstYn: 'Y', // 방문 여부
-    chRqrDvCd: '2', // 3자: 2
-    aftnThpChYn: 'Y', // 3자: Y
+    chRqrDvCd: relDvCd, // 본인: 1 3자: 2
+    aftnThpChYn: isEqual(relDvCd, '2') ? 'Y' : 'N', // 3자: Y
     clctamMngtYn: 'N', // 집금자 여부
     hsCtfYn: 'Y', // 본인인증 여부
     akChdt: now.format('YYYYMMDD'), // 현재일자
