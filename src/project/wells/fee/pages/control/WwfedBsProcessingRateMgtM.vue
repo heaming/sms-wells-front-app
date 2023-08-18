@@ -311,6 +311,29 @@ const initGridMain = defineGrid((data, view) => {
     }
   };
 
+  view.onKeyDown = async (grid, event) => {
+    const current = view.getCurrent();
+    const dataProvider = view.getDataSource();
+    const currentColumn = current.column;
+    const key = event.key || event.keyCode;
+    let { prtnrNo } = gridUtil.getRowValue(grid, current.itemIndex);
+    if (currentColumn === 'prtnrNo' && (key === 'Enter' || key === 13)) {
+      grid.commit();
+      prtnrNo = dataProvider.getValue(current.dataRow, 'prtnrNo');
+      const { result, payload } = await modal({
+        component: 'ZwogzMonthPartnerListP',
+        componentProps: {
+          baseYm: searchParams.value.perfYm,
+          ogTpCd: 'W02',
+          prtnrNo,
+        },
+      });
+      if (result) {
+        await searchPartnerBs(payload.prtnrNo, data, current.dataRow);
+      }
+    }
+  };
+
   // 수정처리율 소수점 절사(둘째자리)
   view.onCellEdited = async (grid, itemIndex) => {
     grid.commit(true);

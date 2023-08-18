@@ -201,7 +201,6 @@ const changedRows = [];
 const editYn = ref(false);
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
-  'SAP_PSTN_DV_CD',
   'EGER_AW_DV_CD',
 );
 
@@ -365,39 +364,41 @@ async function onClickControl(feeSchdId, code, nextStep) {
 
 // 본사 수당확정
 async function onclickDtrm(feeSchdId, code, nextStep) {
-  let view;
-  if (searchParams.value.feeSchdTpCd === '601') {
-    view = grdEgerRef.value.getView();
-  } else if (searchParams.value.feeSchdTpCd === '602') {
-    view = grdEgerMngerRef.value.getView();
-  }
+  if (searchParams.value.feeSchdTpCd === '602') {
+    // 직책수당
+    // 수수료 일정 단계 완료
+    if (!await confirm(t('MSG_ALT_IS_DTRM'))) { return; }
+    await onClickRetry(feeSchdId, code, nextStep);
+  } else {
+    // 실적수당
+    const view = grdEgerRef.value.getView();
+    const dataSource = view.getDataSource();
+    const confirmRows = dataSource.getJsonRows();
+    const confirmKeys = [];
 
-  const dataSource = view.getDataSource();
-  const confirmRows = dataSource.getJsonRows();
-  const confirmKeys = [];
+    if (confirmRows.length === 0) {
+      alert(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
+      return;
+    }
 
-  if (confirmRows.length === 0) {
-    alert(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
-    return;
-  }
+    if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
 
-  if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
-
-  confirmRows.forEach((e) => {
-    confirmKeys.push({
-      baseYm: e.baseYm,
-      ogCd: e.ogCd,
-      prtnrNo: e.prtnrNo,
-      type: 'H', // 센터 확정
-      confirm: 'Y', // 확정(Y), 확정취소(N)
+    confirmRows.forEach((e) => {
+      confirmKeys.push({
+        baseYm: e.baseYm,
+        ogCd: e.ogCd,
+        prtnrNo: e.prtnrNo,
+        type: 'H', // 센터 확정
+        confirm: 'Y', // 확정(Y), 확정취소(N)
+      });
     });
-  });
 
-  await dataService.put('/sms/wells/fee/eger-allowances/confirm', confirmKeys);
-  notify(t('MSG_ALT_CNFM_COMPLETE')); // 확정 완료했습니다.
+    await dataService.put('/sms/wells/fee/eger-allowances/confirm', confirmKeys);
+    notify(t('MSG_ALT_CNFM_COMPLETE')); // 확정 완료했습니다.
 
-  // 수수료 일정 단계 완료
-  await onClickRetry(feeSchdId, code, nextStep);
+    // 수수료 일정 단계 완료
+    await onClickRetry(feeSchdId, code, nextStep);
+  }
 }
 
 /**
@@ -459,6 +460,13 @@ async function openUploadPopup(componentProps) {
 
 // 엑셀업로드 버튼 클릭 이벤트
 async function onClickExcelUpload() {
+  // 수수료 일정 체크(수당확정 전이어야 업로드 가능)
+  const response = await dataService.get('/sms/wells/fee/eger-allowances/upload-check', { params: searchParams.value });
+  if (response.data.feeSchdLvCd === 'END') {
+    alert(t('MSG_ALT_NO_WK_PTRM')); // 작업 가능한 기간이 아닙니다.
+    return;
+  }
+
   openUploadPopup({ formatId: 'FOM_FEZ_0028', baseYm: searchParams.value.perfYm, ogTpCd: 'W06' });
 }
 
@@ -583,7 +591,7 @@ const initEgerMain = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center', editable: false },
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '126', styleName: 'text-center', editable: false, options: codes.SAP_PSTN_DV_CD },
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_CRLV'), width: '126', styleName: 'text-center', editable: false },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-center', editable: false, options: codes.RSB_DV_CD },
     // 현장수당정보
     // 방문처리실적
@@ -674,7 +682,7 @@ const initEgerMain = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'baseYm', 'ogId', 'ogCd', 'ogNm', 'prtnrKnm', 'prtnrNo', 'pstnDvCd', 'rsbDvCd',
+    'baseYm', 'ogId', 'ogCd', 'ogNm', 'prtnrKnm', 'prtnrNo', 'pstnDvNm', 'rsbDvCd',
     {
       name: t('MSG_TXT_SITE_AW') + t('MSG_TXT_INF'),
       direction: 'horizontal',
@@ -845,7 +853,7 @@ const initEgerMnger = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '86', styleName: 'text-center ', options: codes.SAP_PSTN_DV_CD },
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_CRLV'), width: '86', styleName: 'text-center' },
     { fieldName: 'feeW060031', header: t('MSG_TXT_OUTC_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'feeW060032', header: t('MSG_TXT_QLF') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'totFee', header: t('MSG_TXT_AW') + t('MSG_TXT_SUM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
@@ -861,7 +869,7 @@ const initEgerMnger = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'ogId', 'ogCd', 'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'pstnDvCd',
+    'ogId', 'ogCd', 'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'pstnDvNm',
     {
       header: t('MSG_TXT_AW') + t('MSG_TXT_INF'), // colspan title
       direction: 'horizontal', // merge type
