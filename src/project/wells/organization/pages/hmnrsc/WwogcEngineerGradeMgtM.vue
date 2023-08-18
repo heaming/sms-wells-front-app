@@ -241,7 +241,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '166',
       styleName: 'text-center',
       rules: 'required',
-      options: codes.EGER_EVL_GD_CD,
+      options: codes.PRTNR_GD_CD,
       editor: {
         type: 'dropdown',
       },
