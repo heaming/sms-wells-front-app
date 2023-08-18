@@ -480,7 +480,7 @@ let cachedParams;
 
 /*
  *  Event - 조회조건 선택에 변경 param init
- */
+
 async function initSearchParams() {
   totalCount.value = 0;
   isExcelDown.value = false;
@@ -500,7 +500,7 @@ async function initSearchParams() {
   searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM');
   searchParams.value.rsbDvCd = '00';
 }
-
+ */
 /*
  *  Event - 번호 검색 아이콘 클릭 이벤트
  */
@@ -541,13 +541,13 @@ async function onChangeInqrDv() {
       isSelectVisile3.value = false;
       isPerfVisile.value = false;
     }
-    initSearchParams();
+    // initSearchParams();
   } else if (inqrDvCd === '02') {
     isSelectVisile1.value = false;
     isSelectVisile2.value = false;
     isSelectVisile3.value = true;
     isPerfVisile.value = true;
-    initSearchParams();
+    // initSearchParams();
   }
 }
 
