@@ -91,6 +91,7 @@
           secondary
           primary
           dense
+          grid-action
           @click="onClickSave"
         />
         <kw-separator
