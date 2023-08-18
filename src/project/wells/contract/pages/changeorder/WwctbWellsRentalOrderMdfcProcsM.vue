@@ -1607,7 +1607,7 @@ async function onClickCntrDelete() {
 watch(() => orderProduct.value.sellDscCtrAmt, async () => {
   if (toNumber(orderProduct.value.sellDscCtrAmt || 0) > toNumber(orderProduct.value.fnlAmt || 0)) {
     alert('할인금액이 렌탈금액보다 높을 수 없습니다.');
-    // orderProduct.value.sellDscCtrAmt = 0;
+    orderProduct.value.sellDscCtrAmt = 0;
   }
 });
 
