@@ -32,9 +32,7 @@
         </kw-item-section>
       </template>
       <div class="pb20">
-        <kw-form
-          cols="4"
-        >
+        <kw-form cols="4">
           <kw-form-row>
             <!--고객명-->
             <kw-form-item :label="$t('MSG_TXT_CST_NM')">
@@ -86,9 +84,7 @@
         </kw-item-section>
       </template>
       <div class="pb20">
-        <kw-form
-          cols="4"
-        >
+        <kw-form cols="4">
           <kw-form-row>
             <!--상품코드-->
             <kw-form-item :label="$t('TXT_MSG_PD_CD')">
@@ -381,9 +377,7 @@
     <kw-separator />
     <kw-form-row>
       <!-- 할인공제금액 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_DSC_DDTN_AMT')"
-      >
+      <kw-form-item :label="$t('MSG_TXT_DSC_DDTN_AMT')">
         <kw-input
           v-model="searchDetail.dscDdctam"
           regex="num"
@@ -417,7 +411,10 @@
     <kw-separator />
     <kw-form-row>
       <!-- 면책유형 -->
-      <kw-form-item :label="$t('MSG_TXT_EXEMPTION')+$t('MSG_TXT_TYPE')">
+      <kw-form-item
+        :label="$t('MSG_TXT_EXEMPTION')+$t('MSG_TXT_TYPE')"
+        class="equal_division--2"
+      >
         <kw-select
           v-model="searchDetail.ccamExmptDvCd"
           :options="codes.CCAM_EXMPT_DV_CD"
@@ -432,7 +429,10 @@
         />
       </kw-form-item>
       <!-- 취소유형 -->
-      <kw-form-item :label="$t('MSG_TXT_CNCL_TP')">
+      <kw-form-item
+        :label="$t('MSG_TXT_CNCL_TP')"
+        class="equal_division--2"
+      >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
           :options="codes.CMN_STAT_CH_RSON_CD"
@@ -459,9 +459,7 @@
         />
       </kw-form-item>
       <!-- row2-1 조정사유 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_CTR_RSON')"
-      >
+      <kw-form-item :label="$t('MSG_TXT_CTR_RSON')">
         <kw-input
           v-model="searchDetail.slCtrRmkCn"
           maxlength="1000"
@@ -480,9 +478,7 @@
     </kw-form-row>
   </kw-form>
 
-  <div
-    class="button-set--bottom"
-  >
+  <div class="button-set--bottom">
     <!-- BTN Variation #2 : 취소등록 이후 or 이미 취소가 등록된 버튼 배열-->
     <div
       v-if="searchDetail.cancelStatNm === '취소등록'"

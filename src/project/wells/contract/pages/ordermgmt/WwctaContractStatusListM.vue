@@ -176,23 +176,14 @@
           :key="idx"
         >
           <div class="row items-center justify-between">
-            <p
-              v-if="item.numprds > 1"
-              class="kw-font-pt18 kw-fc--primary"
-            >
-              {{ item.sellTpNm }} 외 {{ item.numprds-1 }}건
-            </p>
-            <p
-              v-else
-              class="kw-font-pt18 kw-fc--primary"
-            >
-              {{ item.sellTpNm }}
+            <p class="h16 kw-font-pt18 kw-fc--primary">
+              {{ item.sellTpNm }}{{ item.numprds > 1? ` 외 ${item.numprds-1}건`:`` }}
             </p>
           </div>
+
           <p class="kw-font-subtitle mt20">
             {{ item.cstKnm }}({{ item.copnDvNm==='개인'?
               (item.bryyMmdd?dayjs(item.bryyMmdd).format('YYYY-MM-DD'):''):item.bryyMmdd }})
-
             <kw-chip
               color="placeholder"
               outline
@@ -200,6 +191,7 @@
               {{ item.copnDvNm }}
             </kw-chip>
           </p>
+
           <ul class="card-text my12">
             <li>
               <p class="w90">
@@ -209,12 +201,14 @@
                 {{ item.cntrNo }}
               </span>
             </li>
+
             <li>
               <p class="w90">
                 {{ t('MSG_TXT_RCP_D') }}
               </p>
               <span>{{ dayjs( item.viewRcpFshDtm).format('YYYY-MM-DD') }}</span>
             </li>
+
             <li>
               <p class="w90">
                 {{ t('MSG_TXT_GOODS_NM') }}
@@ -223,31 +217,19 @@
                 {{ item.pdNm }}
               </span>
             </li>
-            <li>
-              <p
-                v-if="Number(item.pymnamt) > 0 && item.viewCntrPrgsStatCd < 60"
-                class="w90"
-              >
+
+            <li v-if="Number(item.pymnamt) > 0 && item.viewCntrPrgsStatCd < 60">
+              <p class="w90">
                 {{ t('MSG_TXT_DPST_AMT') }}
               </p>
-              <p
-                v-else
-                class="w90"
-              >
-                <br>
-              </p>
-              <span
-                v-if="Number(item.pymnamt) > 0 && item.viewCntrPrgsStatCd < 60"
-                class="text-weight-bold kw-fc--error"
-              >
+              <span class="text-weight-bold kw-fc--error">
                 {{ stringUtil.getNumberWithComma(item.pymnamt||0) }}원
               </span>
-              <span
-                v-else
-              >
-                <br>
-              </span>
             </li>
+            <li v-else>
+              <p class="h16" />
+            </li>
+
             <li v-if="searchParams.isBrmgr === 'Y'">
               <p class="w90">
                 {{ t('MSG_TXT_PRTNR') }}
@@ -462,6 +444,10 @@ const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const now = dayjs();
 
+const props = defineProps({
+  srchCstNm: { type: String, default: '' },
+});
+
 const resultList = ref({});
 const summary = ref({
   cnfm: '0',
@@ -536,9 +522,34 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
-  await fetchDataSummary();
+
+  if (resultList.value.length > 0) {
+    await fetchDataSummary();
+  } else {
+    summary.value.cnfm = '0';
+    summary.value.aprv = '0';
+    summary.value.wrte = '0';
+    summary.value.inprgs = '0';
+    summary.value.delreq = '0';
+  }
 }
 
+// summary 클릭
+async function onClickPrgsSearch(prgsCd) {
+  if (prgsCd) {
+    searchParams.value.cntrPrgsStatCd = prgsCd;
+  }
+  await onClickSearch();
+}
+
+// 검색 > 계약자/계약번호 구분 변경
+function onChangeSearchDiv() {
+  searchParams.value.srchCntrNo = '';
+  searchParams.value.srchCstNm = '';
+  searchParams.value.srchText = '';
+}
+
+// 검색 > 계약번호 검색 팝업
 async function onClickCntrNoPop() {
   if (searchParams.value.srchDv !== 'NO') { return; }
 
@@ -552,10 +563,21 @@ async function onClickCntrNoPop() {
   }
 }
 
-function onChangeSearchDiv() {
-  searchParams.value.srchCntrNo = '';
-  searchParams.value.srchCstNm = '';
-  searchParams.value.srchText = '';
+// 계약관리 버튼 클릭
+async function onClickManage() {
+  router.replace(
+    {
+      path: 'wwcta-contract-management-list',
+    },
+  );
+}
+
+// CARD > 확정대상자조회 클릭
+async function onClickConfirmTarget(paramCntrNo) {
+  await modal({
+    component: 'WwConfirmApprovalAskIzListP',
+    componentProps: { cntrNo: paramCntrNo },
+  });
 }
 
 // 카드 하단 버튼 클릭 전, 계약상태코드 재조회
@@ -565,32 +587,7 @@ async function getPrgsStatCd(cntrNo) {
   return Number(res.data);
 }
 
-// 화면 상단 summary 클릭
-async function onClickPrgsSearch(prgsCd) {
-  if (prgsCd) {
-    searchParams.value.cntrPrgsStatCd = prgsCd;
-  }
-  await onClickSearch();
-}
-
-// 계약관리 클릭
-async function onClickManage() {
-  router.replace(
-    {
-      path: 'wwcta-contract-management-list',
-    },
-  );
-}
-
-// 확정대상자조회
-async function onClickConfirmTarget(paramCntrNo) {
-  await modal({
-    component: 'WwConfirmApprovalAskIzListP',
-    componentProps: { cntrNo: paramCntrNo },
-  });
-}
-
-// 수정
+// CARD > BUTTON > 수정
 async function onClickModify({ resultDiv, cntrNo, cntrSn, cntrPrgsStatCd }) {
   router.replace({
     path: 'wwcta-contract-registration-mgt',
@@ -603,7 +600,7 @@ async function onClickModify({ resultDiv, cntrNo, cntrSn, cntrPrgsStatCd }) {
   });
 }
 
-// 계약변경
+//  CARD > BUTTON > 계약변경
 async function onClickChange({ cntrNo, cntrSn, cntrCnfmDtm }) {
   cntrCnfmDtm = cntrCnfmDtm.substring(0, 8);
 
@@ -617,6 +614,7 @@ async function onClickChange({ cntrNo, cntrSn, cntrCnfmDtm }) {
   });
 }
 
+// CARD > BUTTON > 비대면결제
 async function onClickNonFcfPayment(item) {
   if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40') {
     // 계약진행상태코드 재확인
@@ -643,6 +641,7 @@ async function onClickNonFcfPayment(item) {
   }
 }
 
+// CARD > BUTTON > 대면결제
 async function onClickF2fPayment(item) {
   if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40') {
     // 계약진행상태코드 재확인
@@ -681,6 +680,7 @@ async function onClickF2fPayment(item) {
   }
 }
 
+// CARD > BUTTON > 확정요청
 async function onClickRequestConfirm(item) {
   console.log(item);
 
@@ -694,12 +694,14 @@ async function onClickRequestConfirm(item) {
   await dataService.post('/sms/wells/contract/contracts/contract-lists/send-messages', params);
 }
 
+// CARD > BUTTON > 확정승인
 async function onClickApprovalConfirm(item) {
   notify(`TODO : ${item.cntrNo} - 확정승인 프로세스`);
 
   // TODO : 확정승인 프로세스.
 }
 
+// CARD > BUTTON > 설치배정
 async function onClickAssignContact(item) {
   const response = await dataService.get(`/sms/wells/contract/contracts/contract-lists/${item.cntrNo}/installation-order-targets`);
   const installationOrderTargetCntrSns = response.data || [];
@@ -725,6 +727,7 @@ async function onClickAssignContact(item) {
   });
 }
 
+// CARD > BUTTON > 삭제요청
 async function onClickRequestDelete(item) {
   console.log(item);
   notify('TODO : 계약삭제요청 프로세스');
@@ -732,6 +735,7 @@ async function onClickRequestDelete(item) {
   // TODO : 계약삭제요청 프로세스
 }
 
+// CARD > BUTTON > 삭제
 async function onClickContractDelete(item) {
   if (item.viewCntrPrgsStatCd <= '20') {
     if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; }
@@ -741,11 +745,23 @@ async function onClickContractDelete(item) {
   }
 }
 
+/*
 onActivated(async () => {
   await onClickSearch();
 });
+*/
+
+watch(props, () => {
+  const { srchCstNm } = props;
+
+  if (srchCstNm) {
+    searchParams.value.srchCstNm = srchCstNm;
+    onClickSearch();
+  }
+}, { deep: true });
 
 onMounted(async () => {
+  if (props.srchCstNm) { searchParams.value.srchCstNm = props.srchCstNm; }
   await onClickSearch();
 });
 
