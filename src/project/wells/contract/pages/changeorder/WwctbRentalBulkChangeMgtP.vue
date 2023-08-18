@@ -275,6 +275,7 @@ function validatePhone(strPhone) {
 // 저장 버튼 클릭
 async function onClickSave() {
   const view = grdRentalBulkChangeMgtList.value.getView();
+
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
@@ -825,9 +826,23 @@ async function onSearchItemCheck(payload, dataRow) {
     }
     view.setValues(dataRow, res.data);
   } else {
-    for (let i = 0; i < view.getFieldCount(); i += 1) {
-      view.setValue(dataRow, i, '');
-    }
+    view.setValue(dataRow, 'cntrNo', '');
+    view.setValue(dataRow, 'cntrSn', '');
+    view.setValue(dataRow, 'istDt', '');
+    view.setValue(dataRow, 'serialNo', '');
+    view.setValue(dataRow, 'stpCanYm', '');
+    view.setValue(dataRow, 'feeFxamYn', '');
+    view.setValue(dataRow, 'rcgvpKnm', '');
+    view.setValue(dataRow, 'lifeCstCd', '');
+    view.setValue(dataRow, 'lifeCstCd2', '');
+    view.setValue(dataRow, 'stpPrdStrtYm', '');
+    view.setValue(dataRow, 'stpPrdEndYm', '');
+    view.setValue(dataRow, 'rplyContact', '');
+    view.setValue(dataRow, 'modSplyBzsDvCd', '');
+    view.setValue(dataRow, 'modBfsvcBzsDvCd', '');
+    view.setValue(dataRow, 'splyBzsDvCd', '');
+    view.setValue(dataRow, 'bfsvcBzsDvCd', '');
+    view.setValue(dataRow, 'note', '');
     view.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
     alert(t('대상 계약이 아닙니다.'));
   }

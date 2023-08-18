@@ -547,6 +547,48 @@ async function onProcsDvChange() {
   }
 }
 
+// 그리드 조회 후 유효성 체크
+async function onSearchItemCheck(payload, dataRow) {
+  const view = grdSinglePaymentBulkChangeList.value.getView();
+
+  const { cntrNo, cntrSn } = payload;
+  const res = await dataService.get('/sms/wells/contract/changeorder/singlepayment-change-contracts', {
+    params: {
+      cntrNo,
+      cntrSn,
+    },
+  });
+  if ((!isEmpty(res.data))) {
+    view.setValues(dataRow, res.data);
+  } else {
+    view.setValue(dataRow, 'cntrNo', '');
+    view.setValue(dataRow, 'cntrSn', '');
+    view.setValue(dataRow, 'cstKnm', '');
+    view.setValue(dataRow, 'basePdCd', '');
+    view.setValue(dataRow, 'pdNm', '');
+    view.setValue(dataRow, 'istDt', '');
+    view.setValue(dataRow, 'reqdDt', '');
+    view.setValue(dataRow, 'cntrCanDt', '');
+    view.setValue(dataRow, 'cpsDt', '');
+    view.setValue(dataRow, 'sppDuedt', '');
+    view.setValue(dataRow, 'cttRsNm', '');
+    view.setValue(dataRow, 'feeAckmtCt', '');
+    view.setValue(dataRow, 'ackmtPerfAmt', '');
+    view.setValue(dataRow, 'ackmtPerfRt', '');
+    view.setValue(dataRow, 'dpTpCd', '');
+    view.setValue(dataRow, 'mmbsDpTpCd', '');
+    view.setValue(dataRow, 'frisuBfsvcPtrmN', '');
+    view.setValue(dataRow, 'frisuAsPtrmN', '');
+    view.setValue(dataRow, 'sellEvCd', '');
+    view.setValue(dataRow, 'bfsvcBzsDvCd', '');
+    view.setValue(dataRow, 'splyBzsDvCd', '');
+    view.setValue(dataRow, 'modBfsvcBzsDvCd', '');
+    view.setValue(dataRow, 'modSplyBzsDvCd', '');
+    view.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+    view.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+    alert(t('대상 계약이 아닙니다.'));
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -683,21 +725,7 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
           },
         });
         if (result) {
-          const { cntrNo, cntrSn } = payload;
-          const res = await dataService.get('/sms/wells/contract/changeorder/singlepayment-change-contracts', {
-            params: {
-              cntrNo,
-              cntrSn,
-            },
-          });
-          if ((!isEmpty(res.data))) {
-            data.updateRow(dataRow, res.data);
-          } else {
-            for (let i = 0; i < data.getFieldCount(); i += 1) {
-              data.setValue(dataRow, i, '');
-            }
-            data.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-          }
+          onSearchItemCheck(payload, dataRow);
         }
       }
     }
@@ -705,31 +733,23 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
   view.onCellButtonClicked = async (g, { itemIndex }) => {
     const updateRow = view.getCurrent().dataRow;
     const { cntrDtlNo } = g.getValues(itemIndex);
-    const paramCntrNo = String(cntrDtlNo).split('-')[0];
-    const paramCntrSn = String(cntrDtlNo).split('-')[1];
-    const { result, payload } = await modal({
-      component: 'WwctaContractNumberListP',
-      componentProps: {
-        cntrNo: paramCntrNo, cntrSn: paramCntrSn,
-      },
-    });
-    if (result) {
-      const { cntrNo, cntrSn } = payload;
-      const res = await dataService.get('/sms/wells/contract/changeorder/singlepayment-change-contracts', {
-        params: {
-          cntrNo,
-          cntrSn,
+    if (!isEmpty(cntrDtlNo)) {
+      const cntrNoSn = cntrDtlNo.replaceAll('-', '');
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+        componentProps: {
+          cntrNo: cntrNoSn?.slice(0, 12), cntrSn: cntrNoSn?.slice(12),
         },
       });
-
-      if ((!isEmpty(res.data))) {
-        data.updateRow(updateRow, res.data);
-      } else {
-        for (let i = 0; i < data.getFieldCount(); i += 1) {
-          data.setValue(updateRow, i, '');
-        }
-        data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-        alert(t('대상 계약이 아닙니다.'));
+      if (result) {
+        onSearchItemCheck(payload, updateRow);
+      }
+    } else {
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+      });
+      if (result) {
+        onSearchItemCheck(payload, updateRow);
       }
     }
   };

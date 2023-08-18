@@ -295,6 +295,64 @@ async function onProcsDvChange() {
   // 그리드 초기화
   grdMembershipBulkChangeRgsList.value.getData().clearRows();
 }
+
+// 그리드 조회 후 유효성 체크
+async function onSearchItemCheck(payload, dataRow) {
+  const view = grdMembershipBulkChangeRgsList.value.getView();
+
+  const { cntrNo, cntrSn } = payload;
+  const { procsDv } = saveParams.value;
+  const res = await dataService.get('/sms/wells/contract/changeorder/membership-change-contracts', {
+    params: {
+      cntrNo,
+      cntrSn,
+      procsDv,
+    },
+  });
+  if ((!isEmpty(res.data))) {
+    view.setValues(dataRow, res.data);
+  } else {
+    view.setValue(dataRow, 'cntrNo', '');
+    view.setValue(dataRow, 'cntrSn', '');
+    view.setValue(dataRow, 'cstKnm', '');
+    view.setValue(dataRow, 'sellInflwChnlDtlCd', '');
+    view.setValue(dataRow, 'sellTpDtlCd', '');
+    view.setValue(dataRow, 'sellPrtnrNo', '');
+    view.setValue(dataRow, 'rveCd', '');
+    view.setValue(dataRow, 'reqdDt', '');
+    view.setValue(dataRow, 'rcpD', '');
+    view.setValue(dataRow, 'istDt', '');
+    view.setValue(dataRow, 'cntrPdStrtdt', '');
+    view.setValue(dataRow, 'svPrd', '');
+    view.setValue(dataRow, 'useyn', '');
+    view.setValue(dataRow, 'basePdCd', '');
+    view.setValue(dataRow, 'pdNm', '');
+    view.setValue(dataRow, 'fnlAmt', '');
+    view.setValue(dataRow, 'stlmTpCd', '');
+    view.setValue(dataRow, 'frisuBfsvcPtrmN', '');
+    view.setValue(dataRow, 'cntrwTpCd', '');
+    view.setValue(dataRow, 'stplPtrm', '');
+    view.setValue(dataRow, 'dtrmDate', '');
+    view.setValue(dataRow, 'cntrCanDtm', '');
+    view.setValue(dataRow, 'duedt', '');
+    view.setValue(dataRow, 'cntrCnfmDtm', '');
+    view.setValue(dataRow, 'wdwalDt', '');
+    view.setValue(dataRow, 'vstPrd', '');
+    view.setValue(dataRow, 'cttRsNm', '');
+    view.setValue(dataRow, 'cttPsicNm', '');
+    view.setValue(dataRow, 'hcrDvCd', '');
+    view.setValue(dataRow, 'feeFxamYn', '');
+    view.setValue(dataRow, 'feeAckmtBaseAmt', '');
+    view.setValue(dataRow, 'sellDscDvCd', '');
+    view.setValue(dataRow, 'sellDscrCd', '');
+    view.setValue(dataRow, 'fstRgstDtm', '');
+    view.setValue(dataRow, 'fstRgstUsrNm', '');
+    view.setValue(dataRow, 'fnlMdfcDtm', '');
+    view.setValue(dataRow, 'fnlMdfcUsrNm', '');
+    view.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+    alert(t('대상 계약이 아닙니다.'));
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -413,24 +471,7 @@ const initMembershipBulkChangeRgsList = defineGrid((data, view) => {
           },
         });
         if (result) {
-          const { cntrNo, cntrSn } = payload;
-          const { procsDv } = saveParams.value;
-          const res = await dataService.get('/sms/wells/contract/changeorder/membership-change-contracts', {
-            params: {
-              cntrNo,
-              cntrSn,
-              procsDv,
-            },
-          });
-          if ((!isEmpty(res.data))) {
-            data.updateRow(dataRow, res.data);
-          } else {
-            for (let i = 0; i < data.getFieldCount(); i += 1) {
-              data.setValue(dataRow, i, '');
-            }
-            data.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-            alert(t('대상 계약이 아닙니다.'));
-          }
+          onSearchItemCheck(payload, dataRow);
         }
       }
     }
@@ -447,50 +488,14 @@ const initMembershipBulkChangeRgsList = defineGrid((data, view) => {
         },
       });
       if (result) {
-        const { cntrNo, cntrSn } = payload;
-        const { procsDv } = saveParams.value;
-        const res = await dataService.get('/sms/wells/contract/changeorder/membership-change-contracts', {
-          params: {
-            cntrNo,
-            cntrSn,
-            procsDv,
-          },
-        });
-
-        if ((!isEmpty(res.data))) {
-          data.updateRow(updateRow, res.data);
-        } else {
-          for (let i = 0; i < data.getFieldCount(); i += 1) {
-            data.setValue(updateRow, i, '');
-          }
-          data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-          alert(t('대상 계약이 아닙니다.'));
-        }
+        onSearchItemCheck(payload, updateRow);
       }
     } else {
       const { result, payload } = await modal({
         component: 'WwctaContractNumberListP',
       });
       if (result) {
-        const { cntrNo, cntrSn } = payload;
-        const { procsDv } = saveParams.value;
-        const res = await dataService.get('/sms/wells/contract/changeorder/membership-change-contracts', {
-          params: {
-            cntrNo,
-            cntrSn,
-            procsDv,
-          },
-        });
-
-        if ((!isEmpty(res.data))) {
-          data.updateRow(updateRow, res.data);
-        } else {
-          for (let i = 0; i < data.getFieldCount(); i += 1) {
-            data.setValue(updateRow, i, '');
-          }
-          data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-          alert(t('대상 계약이 아닙니다.'));
-        }
+        onSearchItemCheck(payload, updateRow);
       }
     }
   };
