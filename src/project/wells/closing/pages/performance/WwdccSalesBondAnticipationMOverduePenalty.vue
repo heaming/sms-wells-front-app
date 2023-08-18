@@ -271,28 +271,22 @@ async function fetchData() {
       mainView = grdFourthRef.value.getView();
       res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/pointOrders', { params: cachedParams, timeout: 180000 });
     }
-  } else if (inquiryDivide === '1') {
-    if (sellTpCd === '6') { // 포인트 미선택, 정기배송 선택시
-      if (agrgDv === '1' || agrgDv === '2') { // 집계, 일자별
-        mainView = grdMainRef.value.getView();
-        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/regularShippingAggregates', { params: cachedParams, timeout: 180000 });
-      } else if (agrgDv === '3') { // 주문별
+  } else if (inquiryDivide === '1') { // 선수금 선택
+    if (agrgDv === '2') { // 일자별
+      mainView = grdMainRef.value.getView();
+      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationDates', { params: cachedParams, timeout: 180000 });
+    } else if (agrgDv === '1' || agrgDv === '3' || agrgDv === '4') { // 집계, 주문별, 가로계산식
+      if (sellTpCd === '1') { // 일시불 선택시
         mainView = grdSubRef.value.getView();
-        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/regularShippingOrders', { params: cachedParams, timeout: 180000 });
-      } else if (agrgDv === '4') { // 가로계산식 틀린회원
+        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationSinglePayments', { params: cachedParams, timeout: 180000 });
+      } else if (sellTpCd === '2') { // 렌탈,리스 선택시
+
+      } else if (sellTpCd === '3') { // 멤버십 선택시
         mainView = grdSubRef.value.getView();
-        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/', { params: cachedParams, timeout: 180000 });
-      }
-    } else if (sellTpCd === '1' || sellTpCd === '2' || sellTpCd === '3') {
-      if (agrgDv === '1' || agrgDv === '2') { // 집계, 일자별
-        mainView = grdMainRef.value.getView();
-        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/regularShippingExceptAggregates', { params: cachedParams, timeout: 180000 });
-      } else if (agrgDv === '3') { // 주문별
+        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationMemberships', { params: cachedParams, timeout: 180000 });
+      } else if (sellTpCd === '6') { // 정기배송 선택시
         mainView = grdSubRef.value.getView();
-        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/regularShippingExceptOrders', { params: cachedParams, timeout: 180000 });
-        mainView = grdSubRef.value.getView();
-      } else if (agrgDv === '4') { // 가로계산식 틀린회원
-        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/', { params: cachedParams, timeout: 180000 });
+        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationRegularShippings', { params: cachedParams, timeout: 180000 });
       }
     }
   }
@@ -306,29 +300,30 @@ async function fetchData() {
   isGridThird.value = false;
   isGridFourth.value = false;
 
-  if (agrgDv === '1' || agrgDv === '2') {
-    if (agrgDv === '1' && inquiryDivide === '2') {
+  if (inquiryDivide === '2') { // 포인트 선택시
+    if (agrgDv === '1') { // 집계
       isGridThird.value = true;
-    } else {
-      isGridMain.value = true;
-      if (agrgDv === '1') {
-        mainView.columnByName('perfDt').visible = false;
-        mainView.columnByName('slClYm').visible = true;
-        mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
-      } else if (agrgDv === '2') {
-        mainView.columnByName('slClYm').visible = false;
-        mainView.columnByName('perfDt').visible = true;
-        mainView.layoutByColumn('perfDt').summaryUserSpans = [{ colspan: 4 }];
-      }
-    }
-  } else if (agrgDv === '3') {
-    if (inquiryDivide === '1') {
-      isGridSub.value = true;
-    } else if (inquiryDivide === '2') {
+    } else if (agrgDv === '3') { // 주문별
       isGridFourth.value = true;
     }
-  } else if (agrgDv === '4') {
-    isGridSub.value = true;
+  } else if (inquiryDivide === '1') { // 선수금 선택
+    if (agrgDv === '2') { // 일자별
+      isGridMain.value = true;
+    } else if (agrgDv === '3' || agrgDv === '4') { // 주문별, 가로계산식
+      isGridSub.value = true;
+      mainView.columnByName('cntrNo').visible = true;
+      mainView.columnByName('cstKnm').visible = true;
+      mainView.columnByName('pdCd').visible = true;
+      mainView.columnByName('pdNm').visible = true;
+      mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 8 }];
+    } else if (agrgDv === '1') { // 집계
+      isGridSub.value = true;
+      mainView.columnByName('cntrNo').visible = false;
+      mainView.columnByName('cstKnm').visible = false;
+      mainView.columnByName('pdCd').visible = false;
+      mainView.columnByName('pdNm').visible = false;
+      mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
+    }
   }
 }
 
@@ -545,7 +540,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
     ],
   });
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 5 }];
 });
 
 // getSalesBondAtamDateList (두번째 그리드)
