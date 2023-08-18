@@ -17,6 +17,7 @@
     <kw-search
       :cols="4"
       @search="onClickSearch"
+      @reset="initFieldParams"
     >
       <kw-search-row>
         <!-- 업무구분 -->
@@ -313,16 +314,18 @@
               :label="$t('MSG_TXT_RELATION_CLSF')"
               required
             >
-              <kw-option-group
-                v-model="fieldParams.relDvCd"
-                type="radio"
-                :options="[
-                  { codeId: '1', codeName: t('MSG_TXT_HS') },
-                  { codeId: '2', codeName: t('MSG_TXT_THP') },
-                ]"
-                :rules="searchParams.prcDvCd === '2' ? 'required': ''"
-                :label="$t('MSG_TXT_FNT_DV')"
-              />
+              <p class="ml8">
+                <kw-option-group
+                  v-model="fieldParams.relDvCd"
+                  type="radio"
+                  :options="[
+                    { codeId: '1', codeName: t('MSG_TXT_HS') },
+                    { codeId: '2', codeName: t('MSG_TXT_THP') },
+                  ]"
+                  :rules="searchParams.prcDvCd === '2' ? 'required': ''"
+                  :label="$t('MSG_TXT_RELATION_CLSF')"
+                />
+              </p>
             </kw-form-item>
           </div>
 
