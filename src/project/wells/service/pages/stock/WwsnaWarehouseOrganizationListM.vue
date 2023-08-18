@@ -194,6 +194,7 @@ const searchParams = ref({
 });
 
 const wareDvCd = { WARE_DV_CD: [
+  { codeId: '1', codeName: '물류센터' },
   { codeId: '2', codeName: '서비스센터' },
   { codeId: '3', codeName: '영업센터' },
 ] };
@@ -207,7 +208,9 @@ function onChangeBaseYm() {
 const onChangeWareDvCd = async () => {
   const strWareDvCd = searchParams.value.wareDvCd;
 
-  if (strWareDvCd === '2') {
+  if (strWareDvCd === '1') {
+    filterCodes.value.filterWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10'].includes(v.codeId));
+  } else if (strWareDvCd === '2') {
     filterCodes.value.filterWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
   } else {
     filterCodes.value.filterWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
