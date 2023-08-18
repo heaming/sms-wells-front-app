@@ -245,7 +245,7 @@ import { chkInputSearchComplete, chkClctamPrtnrSearchComplete, openSearchUserCom
 
 const { t } = useI18n();
 const { getConfig, hasRoleNickName } = useMeta();
-const { modal, notify } = useGlobal();
+const { modal, notify, confirm } = useGlobal();
 const { getters } = useStore();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
@@ -268,6 +268,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const isNotActivated = ref(false);
 const assignConfirmed = ref(false);
+// const isCollectionManager = true;
 const isCollectionManager = hasRoleNickName('CLCTAM_MNGT');
 const totalCount = ref(0);
 const pageInfo = ref({
@@ -311,12 +312,12 @@ const pageMove = ref({
   url: '/bond/zwbny-assign-weight-mgt',
 });
 
-async function hasAssignConfirmed() {
-  // TODO: 단위테스트 시 버튼 막아야 해서 임시 작업, 바로 수정 작업 진행 해야함 6월7일 까지는 작업 시작 해야함, 확정된 상태인 경우 버튼 비활성화
-  const hasAssignConfirmedParams = cloneDeep(searchParams.value);
-  hasAssignConfirmedParams.tfBizDvCd = '05';
-  const response = await dataService.get('/sms/common/bond/collector-changes/has-collector-assing', { params: hasAssignConfirmedParams });
-  assignConfirmed.value = response.data;
+async function checkAvailability(tfBizDvCd) {
+  const checkAvailabilityParams = { baseYm: cachedParams.baseYm,
+    bzHdqDvCd: cachedParams.bzHdqDvCd,
+    clctamDvCd: cachedParams.clctamDvCd,
+    tfBizDvCd };
+  return await checkAvailabilityCommon(checkAvailabilityParams);
 }
 
 async function fetchData() {
@@ -329,12 +330,12 @@ async function fetchData() {
   totalCount.value = partTransfers.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(partTransfers);
-  // view.resetCurrent();
 
   grdSubRef.value?.getView().getDataSource().clearRows();
   pageInfo.value.totalCount = 0;
 
-  await hasAssignConfirmed();
+  // 작업 가능, 불가능 여부를 넘겨주게 되어 있어 disabled에 넣기 위해 ! 으로 변경
+  assignConfirmed.value = !await checkAvailability('02');
 }
 
 async function onClickSearch() {
@@ -406,20 +407,7 @@ async function checkRquest(changedRows) {
   return isRequest;
 }
 
-async function checkAvailability(tfBizDvCd) {
-  const checkAvailabilityParams = { baseYm: cachedParams.baseYm,
-    bzHdqDvCd: cachedParams.bzHdqDvCd,
-    clctamDvCd: cachedParams.clctamDvCd,
-    tfBizDvCd };
-  return await checkAvailabilityCommon(checkAvailabilityParams);
-}
-
 async function onClickSave() {
-  if (!await checkAvailability('02')) {
-    notify('배정을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 배정 할 수 없습니다.)');
-    return;
-  }
-
   const view = grdSubRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
@@ -438,12 +426,9 @@ async function onClickSave() {
 }
 
 async function onClickCreate() {
-  if (!await checkAvailability('02')) {
-    notify('배정을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 배정 할 수 없습니다.)');
-    return;
-  }
   // TODO: 구현된 로직에 대한 테스트 지속적으로 필요, 완벽하다고 생각 되면 이 주석 제거 그 전까지 생각나면 내용 확인/갱신/테스트
   if (!await kwSearchRef.value.validate()) { return; }
+  if (!await confirm(t('MSG_ALT_CLCTAM_PSIC_ASN_CONF', [codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId === searchParams.value.clctamDvCd))[0].codeName]))) { return; }
   cachedParams = cloneDeep(searchParams.value);
   const response = await dataService.get('/sms/common/bond/collector-changes/has-collector-assing', { params: cachedParams });
   if (response.data) {
@@ -451,6 +436,7 @@ async function onClickCreate() {
   } else {
     notify(t('MSG_ALT_ALLO_OF_COLL_EXCN'));
   }
+
   const responseBatchJob = await dataService.post('/sms/wells/bond/collector-assigns', cachedParams);
   const { result } = await modal({
     component: 'ZwbnaCollectorAssignP',
@@ -470,11 +456,6 @@ async function onClickPageMove() {
 }
 
 async function onClickConfirm() {
-  if (!await checkAvailability('03')) {
-    notify('배정 확정을 수행 할 수 없습니다.(배정 상태인 경우에만 확정 할 수 있습니다.)');
-    return;
-  }
-
   // TODO: 명세서 다시 변경될 예정 맞춰서 수정 필요 search영역의 정보를 가지고 가고 필수 부분이 동일해 우선 kwSearchRef 기준으로 작업
   if (!await kwSearchRef.value.validate()) { return; }
   cachedParams = cloneDeep(searchParams.value);
@@ -482,6 +463,8 @@ async function onClickConfirm() {
   if (response.data) {
     await dataService.put('/sms/wells/bond/collector-assigns/confirm', cachedParams);
     notify(t('MSG_ALT_MODIFIED'));
+
+    await fetchData();
   } else {
     notify('집금자배정을 먼저 수행해야 합니다'); // TODO: toast관련 내용 한번더 확인, 확정 후 수정
   }
@@ -803,7 +786,7 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
+  view.editOptions.editable = isCollectionManager;
 
   view.onCellButtonClicked = async (grid, { dataRow, column }) => {
     if (column === 'clctamPrtnrKnm') {
