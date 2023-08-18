@@ -301,21 +301,22 @@ const initGrdThird = defineGrid((data, view) => {
     const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, adjOgId,
       adjPrtnrNo, ogTpCd, opcsAdjNo, adjCls, opcsAdjExcdYn } = grid.getValues(itemIndex);
     cachedParams.authDate = useDtm;
-    cachedParams.mrcNm = mrcNm;
-    cachedParams.cardAprno = cardAprno;
-    cachedParams.domTrdAmt = domTrdAmt;
+    cachedParams.adjOgId = adjOgId; // 정산조직ID
+    cachedParams.opcsAdjNo = opcsAdjNo; // 정산번호
+    cachedParams.adjPrtnrNo = adjPrtnrNo; // 정산파트너번호
+    cachedParams.ogTpCd = ogTpCd; // 조직유형코드
+    cachedParams.cardAprno = cardAprno; // 카드승인번호
     cachedParams.opcsCardUseIzId = opcsCardUseIzId;
-    cachedParams.adjOgId = adjOgId;// 총괄단 아이디
-    cachedParams.adjPrtnrNo = adjPrtnrNo;
-    cachedParams.ogTpCd = ogTpCd;
-    cachedParams.opcsAdjNo = opcsAdjNo;
-    console.log('opcsAdjNo : ', opcsAdjNo);
+    cachedParams.mrcNm = mrcNm;
+    cachedParams.domTrdAmt = domTrdAmt;
+    console.log(column);
+    console.log(adjCls);
 
     if (column === 'opcsAdjBtn') {
-      if (adjCls === '완료') {
-        alert(t('정산이 완료된 건입니다'));
-        return;
-      }
+    //   if (adjCls === '완료') {
+    //     alert(t('정산이 완료된 건입니다'));
+    //     return;
+    //   }
       if (opcsAdjExcdYn === '정산제외') {
         alert(t('정산제외 건은 원천세 정산이 불가능 합니다.'));
         return;
