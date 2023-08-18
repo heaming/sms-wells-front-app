@@ -837,7 +837,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'hcrMshY3', header: t('MSG_TXT_HCR_MSH_Y3'), width: '141.2', styleName: 'text-center' },
     { fieldName: 'fxamYn', header: t('MSG_TXT_FXAM_YN'), width: '83.5', styleName: 'text-center' },
     { fieldName: 'fnnLease', header: t('MSG_TXT_FNN_LEASE'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '113.2', styleName: 'text-right' },
     { fieldName: 'nwSellCt', header: t('MSG_TXT_NW_SELL_CT'), width: '83.5', styleName: 'text-right' },
     { fieldName: 'obj', header: `BS${t('MSG_TXT_OBJ')}`, width: '83.5', styleName: 'text-right' },
     { fieldName: 'recommitment', header: t('MSG_TXT_RECOMMITMENT'), width: '113.2', styleName: 'text-center' },

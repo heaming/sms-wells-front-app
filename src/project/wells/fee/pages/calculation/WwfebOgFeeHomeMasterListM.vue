@@ -680,7 +680,7 @@ async function onclickStep(params) {
     await onClickW303P(params.feeSchdId, params.code, '03');
   } else if (params.code === 'W0304') { // 원천세 생성
     await onClickW304P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0305') { // 고용보험 산출
+  } else if (params.code === 'W0305' || params.code === 'W0308' || params.code === 'W0310' || params.code === 'W0312') {
     await onClickW305P();
   } else if (params.code === 'W0306') { // 고용보험 공제
     await onClickW306P(params.feeSchdId, params.code, '03');
@@ -708,8 +708,8 @@ async function onclickStep(params) {
 // -------------------------------------------------------------------------------------------------
 const initGrd1Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'dgr1LevlOgNm' },
     { fieldName: 'dgr2LevlOgNm' },
+    { fieldName: 'dgr3LevlOgNm' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'rsbDvCd' },
@@ -752,8 +752,8 @@ const initGrd1Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BUSINESS_DIVISION'), width: '119.9', styleName: 'text-center' },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '119.9', styleName: 'text-center' },
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '119.9', styleName: 'text-center' },
+    { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119.9', styleName: 'text-left' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '119.9', styleName: 'text-left' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '119.9', styleName: 'text-center', options: codes.RSB_DV_CD },
@@ -803,7 +803,7 @@ const initGrd1Main = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PRVCY'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['dgr1LevlOgNm', 'dgr2LevlOgNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'akdsym', 'akdcha', 'prtnrGdCd'],
+      items: ['dgr2LevlOgNm', 'dgr3LevlOgNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'akdsym', 'akdcha', 'prtnrGdCd'],
     },
     'edu100',
     {
@@ -839,8 +839,8 @@ const initGrd1Main = defineGrid((data, view) => {
 
 const initGrd2Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'dgr1LevlOgNm' },
     { fieldName: 'dgr2LevlOgNm' },
+    { fieldName: 'dgr3LevlOgNm' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'rsbDvCd' },
@@ -894,8 +894,8 @@ const initGrd2Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BUSINESS_DIVISION'), width: '119.9', styleName: 'text-center' },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '119.9', styleName: 'text-center' },
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '119.9', styleName: 'text-center' },
+    { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119.9', styleName: 'text-left' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '119.9', styleName: 'text-left' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '119.9', styleName: 'text-center', options: codes.RSB_DV_CD },
@@ -957,7 +957,7 @@ const initGrd2Main = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PRVCY'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['dgr1LevlOgNm', 'dgr2LevlOgNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'akdsym', 'akdcha', 'prtnrGdCd'],
+      items: ['dgr2LevlOgNm', 'dgr3LevlOgNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'akdsym', 'akdcha', 'prtnrGdCd'],
     },
     {
       header: t('MSG_TXT_EDUC') + t('MSG_TXT_PTCP_DC'),

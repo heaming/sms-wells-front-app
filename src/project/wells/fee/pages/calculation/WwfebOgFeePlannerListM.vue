@@ -715,7 +715,7 @@ async function onclickStep(params) {
     await onClickW105P(params.feeSchdId, params.code, '03');
   } else if (params.code === 'W0106') { // 원천세 생성
     await onClickW106P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0107') { // 고용보험 산출
+  } else if (params.code === 'W0107' || params.code === 'W0110' || params.code === 'W0112' || params.code === 'W0114') {
     await onClickW107P();
   } else if (params.code === 'W0108') { // 고용보험 공제
     await onClickW108P(params.feeSchdId, params.code, '03');

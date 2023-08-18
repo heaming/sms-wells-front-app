@@ -730,7 +730,7 @@ async function onclickStep(params) {
     await onClickW206P(params.feeSchdId, params.code, '03');
   } else if (params.code === 'W0207') { // 원천세 생성
     await onClickW207P(params.feeSchdId, params.code, '03');
-  } else if (params.code === 'W0208') { // 고용보험 산출
+  } else if (params.code === 'W0208' || params.code === 'W0211' || params.code === 'W0213' || params.code === 'W0215') {
     await onClickW208P();
   } else if (params.code === 'W0209') { // 고용보험 공제
     await onClickW209P(params.feeSchdId, params.code, '03');
@@ -914,10 +914,10 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'indv2Perf', header: '렌탈기준가', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv3Perf', header: '일시불기준가', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv4Perf', header: '기변건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv5Perf', header: '가전외인정실적', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'indv5Perf', header: '가전외인정실적', width: '100', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv1Sell', header: '정액건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv2Sell', header: '라이브팩건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Sell', header: '홈케어멤버십건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'indv3Sell', header: '홈케어멤버십건수', width: '110', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indvAcc1Ninc', header: '전월취소', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indvAcc2Ninc', header: '당월신규', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indvAcc3Ninc', header: '순증', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
@@ -1121,10 +1121,10 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'indv2Perf', header: '렌탈기준가', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv3Perf', header: '일시불기준가', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv4Perf', header: '기변건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv5Perf', header: '가전외인정실적', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'indv5Perf', header: '가전외인정실적', width: '100', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv1Sell', header: '정액건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv2Sell', header: '라이브팩건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Sell', header: '홈케어멤버십건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'indv3Sell', header: '홈케어멤버십건수', width: '110', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indvAcc1Ninc', header: '전월취소', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indvAcc2Ninc', header: '당월신규', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indvAcc3Ninc', header: '순증', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
@@ -1390,10 +1390,10 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'indv2Perf', header: '렌탈기준가', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv3Perf', header: '일시불기준가', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv4Perf', header: '기변건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv5Perf', header: '가전외인정실적', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'indv5Perf', header: '가전외인정실적', width: '100', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv1Sell', header: '정액건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv2Sell', header: '라이브팩건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Sell', header: '홈케어멤버십건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'indv3Sell', header: '홈케어멤버십건수', width: '110', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indvAcc1Ninc', header: '전월취소', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indvAcc2Ninc', header: '당월신규', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indvAcc3Ninc', header: '순증', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },

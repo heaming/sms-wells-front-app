@@ -58,7 +58,7 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_BASIC_INFO') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -142,7 +142,7 @@
       <kw-action-top>
         <template #left>
           <h3>{{ t('MSG_TXT_SELL_ETC_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-separator
           vertical
@@ -166,7 +166,7 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_FEE_IZ') }}</h3>
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -185,7 +185,7 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_DDTN_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -257,7 +257,7 @@
       <kw-action-top>
         <template #left>
           <h3>{{ t('MSG_TXT_PNPYAM_DTLP_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           secondary

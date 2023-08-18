@@ -186,7 +186,7 @@ const dvCd = [
   { codeId: '03', codeName: '해약제외' },
 ];
 const opngCd = [
-  { codeId: '', codeName: '미지급' },
+  { codeId: '999', codeName: '미지급' },
   { codeId: '1', codeName: '최초개시' },
   { codeId: '2', codeName: '최초개시_수석경력' },
   { codeId: '3', codeName: '재개시_1년초과' },
@@ -200,10 +200,11 @@ const searchParams = ref({
   prtnrKnm: '',
   divCd: '',
   rsbDvCd: '',
+  reCrtYn: 'N',
 });
 
 const info = ref({
-  opngcnfmYn: '',
+  opngCnfmYn: '',
   opngCnfmCnt: '',
   feeCnfmYn: '',
 });
@@ -238,8 +239,8 @@ async function fetchData(type) {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  await fetchData('wmList');
   await fetchData('etc');
+  await fetchData('wmList');
 }
 
 /*
@@ -266,16 +267,16 @@ async function onClickSearchNo() {
 
 // 저장 버튼 클릭 이벤트
 async function onClickSave() {
-  const { opngcnfmYn, opngCnfmCnt, feeCnfmYn } = searchParams.value;
   const { baseYm } = searchParams.value;
+  const { feeCnfmYn, opngCnfmYn, opngCnfmCnt } = info.value;
   const view = grdMainRef.value.getView();
-  if (opngcnfmYn === 'Y') {
+  if (feeCnfmYn === 'Y') {
     await alert(t('MSG_ALT_BF_CNFM_MDFC_IMP'));
     return;
-  } if (opngCnfmCnt === 'Y') {
+  } if (opngCnfmYn === 'Y') {
     await alert(t('MSG_ALT_DATA_ALREADY_CNFM'));
     return;
-  } if (feeCnfmYn === '0') {
+  } if (opngCnfmCnt <= 0) {
     await alert(t('MSG_ALT_DTA_EXST'));
     return;
   }
@@ -295,12 +296,21 @@ async function onClickSave() {
 // 개시구분 생성 버튼 클릭 이벤트
 async function onClickCreate() {
   const { baseYm } = searchParams.value;
+  const { feeCnfmYn, opngCnfmYn, opngCnfmCnt } = info.value;
   if (bfMonth !== baseYm) {
     await alert(t('MSG_ALT_LSTMM_PSB')); /* 전월만 생성가능 */
-  } else if (info.value.feeCnfmYn === 'Y') {
+  } else if (feeCnfmYn === 'Y') {
     await alert(t('MSG_ART_FEE_CL_CRT_IMP')); /* 수수료 마감 이후 생성불가 */
-  } else if (info.value.opngcnfmYn === 'Y') {
-    await alert(t('MSG_ART_BF_CNFM_CONF_DATA')); /* 개시구분 확정 이후 생성불가 */
+  } else if (opngCnfmYn === 'Y') {
+    await alert(t('MSG_ALT_BF_CNFM_CONF')); /* 개시구분 확정 이후 생성불가 */
+  } else if (opngCnfmCnt > 0) {
+    if (await confirm(t('MSG_ALT_EXIST_DATA_RECREATION'))) { /* 해당년월 데이터 존재 재생성? */
+      searchParams.value.reCrtYn = 'Y';
+      await dataService.post('/sms/wells/fee/wm-settlement-allowances/insert', searchParams.value);
+      searchParams.value.reCrtYn = 'N';
+      await onClickSearch();
+      notify(t('MSG_ALT_CRT_FSH'));
+    }
   } else if (await confirm(t('MSG_ALT_OPNG_CRT'))) {
     await dataService.post('/sms/wells/fee/wm-settlement-allowances/insert', searchParams.value);
     await onClickSearch();
@@ -311,11 +321,12 @@ async function onClickCreate() {
 // 개시구분 확정 버튼 클릭 이벤트
 async function onClickDtrm() {
   const { baseYm } = searchParams.value;
+  const { opngCnfmCnt, opngCnfmYn } = info.value;
   if (bfMonth !== baseYm) {
     await alert(t('MSG_ALT_LSTMM_PSB'));
-  } else if (info.value.opngCnfmCnt === '0') {
+  } else if (opngCnfmCnt <= 0) {
     await alert(t('MSG_ALT_NO_APPY_OBJ_DT')); /* 개시구분 데이터 = 0 확정 불가 */
-  } else if (info.value.opngcnfmYn === 'Y') {
+  } else if (opngCnfmYn === 'Y') {
     await alert(t('MSG_ALT_BF_CNFM_CONF')); /* 개시구분 확정 이후 중복확정 불가 */
   } else if (await confirm(t('MSG_ALT_OPNG_DTRM'))) {
     searchParams.value.cnfmStatYn = 'Y';
@@ -328,10 +339,13 @@ async function onClickDtrm() {
 // 개시구분 확정취소 버튼 클릭 이벤트
 async function onClickDtrmCan() {
   const { baseYm } = searchParams.value;
+  const { opngCnfmCnt, opngCnfmYn } = info.value;
   if (bfMonth !== baseYm) {
     await alert(t('MSG_ALT_LSTMM_PSB'));
-  } else if (info.value.opngCnfmCnt === '0') {
+  } else if (opngCnfmCnt <= 0) {
     await alert(t('MSG_ALT_NO_APPY_OBJ_DT')); /* 개시구분 데이터 = 0 확정취소 불가 */
+  } else if (opngCnfmYn === 'N') {
+    await alert(t('MSG_ALT_BF_CNFM_CANCEL_CONF')); /* 이미 확정취소 */
   } else if (await confirm(t('MSG_ALT_OPNG_CAN_DTRM'))) {
     searchParams.value.cnfmStatYn = 'N';
     await dataService.post('/sms/wells/fee/wm-settlement-allowances/confirm', searchParams.value);
@@ -401,11 +415,17 @@ const initGrdMain = defineGrid((data, view) => {
       width: '130',
       rules: 'required',
       options: opngCd,
-      editor: {
-        type: 'dropdown',
-      },
-      editable: false,
       styleName: 'text-center',
+      styleCallback(grid, dataCell) {
+        const cnfmStatYn = gridUtil.getCellValue(grid, dataCell.index.dataRow, 'cnfmStatYn');
+        if (cnfmStatYn === 'N') {
+          return { editable: true,
+            editor: {
+              type: 'dropdown',
+            } };
+        }
+        return { editable: false };
+      },
     },
     { fieldName: 'baseYm', visible: false },
     { fieldName: 'tcntDvCd', visible: false },
@@ -418,13 +438,5 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
-  view.onCellEditable = async (g, { itemIndex }) => {
-    const cnfmStatYn = g.getValue(itemIndex, 'cnfmStatYn');
-    if (cnfmStatYn === 'N') {
-      view.columnByName('opngCd').editable = true;
-    } else {
-      view.columnByName('opngCd').editable = false;
-    }
-  };
 });
 </script>
