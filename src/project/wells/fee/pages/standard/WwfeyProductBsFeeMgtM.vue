@@ -44,7 +44,11 @@
           :label="$t('MSG_TXT_VISIT_MN')"
         >
           <kw-input
-            v-model="searchParams.vstMcn"
+            v-model.trim="searchParams.vstMcn"
+            rules="numeric"
+            :maxlength="10"
+            type="number"
+            :label="$t('MSG_TXT_VISIT_MN')"
           />
         </kw-search-item>
         <!-- 서비스구분 -->
