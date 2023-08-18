@@ -148,7 +148,7 @@
         <template #left>
           <h3>{{ t('MSG_TXT_BAS_IZ') }}</h3>
         </template>
-        <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-grid
         ref="grd1MainRef"
@@ -165,7 +165,7 @@
             BS{{ t('MSG_TXT_IZ') }}
           </h3>
         </template>
-        <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-grid
         ref="grd2MainRef"
@@ -199,7 +199,7 @@
             {{ t('MSG_TXT_TOT_SUM') }}
           </h3>
         </template>
-        <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-form
         dense
@@ -225,7 +225,7 @@
           <h3>
             {{ t('MSG_TXT_FEE_IZ') }}
           </h3>
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           dense
@@ -247,7 +247,7 @@
           <h3>
             {{ t('MSG_TXT_DDTN_IZ') }}
           </h3>
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           dense
@@ -316,7 +316,7 @@
             {{ t('MSG_TXT_CTR_IZ') }}
           </h3>
         </template>
-        <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-grid
         ref="grd4MainRef"
