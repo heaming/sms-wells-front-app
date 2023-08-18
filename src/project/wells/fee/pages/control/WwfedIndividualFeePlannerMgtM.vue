@@ -42,8 +42,7 @@
             icon="search"
             clearable
             type="number"
-            min="0"
-            max="10"
+            :maxlength="10"
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             rules="required"
