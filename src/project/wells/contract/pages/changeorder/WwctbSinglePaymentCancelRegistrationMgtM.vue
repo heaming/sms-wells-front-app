@@ -69,9 +69,7 @@
         </kw-item-section>
       </template>
       <div class="pb20">
-        <kw-form
-          cols="4"
-        >
+        <kw-form cols="4">
           <kw-form-row>
             <!--상품코드-->
             <kw-form-item :label="$t('TXT_MSG_PD_CD')">
@@ -147,9 +145,7 @@
   </kw-list>
 
   <!-- 4. 취소사항 -->
-  <kw-action-top
-    class="mt30"
-  >
+  <kw-action-top class="mt30">
     <template #left>
       <h3>4. {{ t('MSG_TXT_CAN_ARTC') }}</h3>
     </template>
@@ -161,9 +157,7 @@
   >
     <kw-form-row>
       <!-- row1 요청일자 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_AK_DT')"
-      >
+      <kw-form-item :label="$t('MSG_TXT_AK_DT')">
         <kw-date-picker
           v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
@@ -171,9 +165,7 @@
         />
       </kw-form-item>
       <!-- row1 취소일자 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_CANC_DT')"
-      >
+      <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
         <kw-date-picker
           v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
@@ -181,7 +173,10 @@
         />
       </kw-form-item>
       <!-- 취소유형 -->
-      <kw-form-item :label="$t('MSG_TXT_CNCL_TP')">
+      <kw-form-item
+        :label="$t('MSG_TXT_CNCL_TP')"
+        class="equal_division--2"
+      >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
           :options="codes.CMN_STAT_CH_RSON_CD"
@@ -201,6 +196,7 @@
     <kw-form-row>
       <kw-form-item
         :label="$t('MSG_TXT_CONSUMPTION')"
+        class="equal_division--2"
       >
         <kw-select
           v-model="searchDetail.csmbCsExmptDvCd"
@@ -229,9 +225,7 @@
     </kw-form-row>
   </kw-form>
 
-  <div
-    class="button-set--bottom"
-  >
+  <div class="button-set--bottom">
     <!-- BTN Variation #2 : 취소등록 이후 or 이미 취소가 등록된 버튼 배열-->
     <div
       v-if="searchDetail.cancelStatNm === '취소등록'"

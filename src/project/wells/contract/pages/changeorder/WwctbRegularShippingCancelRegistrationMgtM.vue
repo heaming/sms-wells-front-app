@@ -112,9 +112,7 @@
         </kw-item-section>
       </template>
       <div class="pb20">
-        <kw-form
-          cols="4"
-        >
+        <kw-form cols="4">
           <kw-form-row>
             <!--기기정보-->
             <kw-form-item :label="$t('MSG_TXT_PD_INF')">
@@ -294,9 +292,7 @@
   </kw-list>
 
   <!-- 5. 취소사항 -->
-  <kw-action-top
-    class="mt30"
-  >
+  <kw-action-top class="mt30">
     <template #left>
       <h3>5. {{ t('MSG_TXT_CAN_ARTC') }}</h3>
     </template>
@@ -418,6 +414,7 @@
       <!-- row5 위약면책 -->
       <kw-form-item
         :label="$t('MSG_TXT_BOR')+$t('MSG_TXT_EXEMPTION')"
+        class="equal_division--2"
       >
         <kw-select
           v-model="searchDetail.ccamExmptDvCd"
@@ -433,7 +430,10 @@
         />
       </kw-form-item>
       <!-- row5 취소유형 -->
-      <kw-form-item :label="$t('MSG_TXT_CNCL_TP')">
+      <kw-form-item
+        :label="$t('MSG_TXT_CNCL_TP')"
+        class="equal_division--2"
+      >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
           :options="codes.CMN_STAT_CH_RSON_CD"

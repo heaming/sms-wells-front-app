@@ -320,9 +320,7 @@
   </kw-list>
 
   <!-- 5. 취소사항 -->
-  <kw-action-top
-    class="mt30"
-  >
+  <kw-action-top class="mt30">
     <template #left>
       <h3>5. {{ t('MSG_TXT_CAN_ARTC') }}</h3>
     </template>
@@ -500,6 +498,7 @@
       <!-- 위약면책 -->
       <kw-form-item
         :label="$t('MSG_TXT_BOR')+$t('MSG_TXT_EXEMPTION')"
+        class="equal_division--2"
       >
         <kw-select
           v-model="searchDetail.ccamExmptDvCd"
@@ -515,7 +514,10 @@
         />
       </kw-form-item>
       <!-- 취소유형 -->
-      <kw-form-item :label="$t('MSG_TXT_CNCL_TP')">
+      <kw-form-item
+        :label="$t('MSG_TXT_CNCL_TP')"
+        class="equal_division--2"
+      >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
           :options="codes.CMN_STAT_CH_RSON_CD"
@@ -606,9 +608,7 @@
     </kw-form-row>
   </kw-form>
 
-  <div
-    class="button-set--bottom"
-  >
+  <div class="button-set--bottom">
     <!-- BTN Variation #2 : 취소등록 이후 or 이미 취소가 등록된 버튼 배열-->
     <div
       v-if="searchDetail.cancelStatNm === '취소등록'"
