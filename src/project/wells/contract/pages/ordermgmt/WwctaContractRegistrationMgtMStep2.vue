@@ -252,13 +252,15 @@
                   <template
                     v-if="item.qtyDv === '1' || item.qtyDv === '2'"
                   >
-                    <zwcm-counter
-                      v-model="item.pdQty"
-                      label="수량변경"
-                      min="1"
-                      max="999"
-                      class="w170"
-                    />
+                    <div class="scoped-item__field-row mb10">
+                      <zwcm-counter
+                        v-model="item.pdQty"
+                        label="수량변경"
+                        min="1"
+                        max="999"
+                        class="w170"
+                      />
+                    </div>
                   </template>
                   <template
                     v-if="isItem.spay(item)"
@@ -719,6 +721,7 @@ async function addProduct(pd) {
   ['svPdCds', 'sellDscrCds', 'sellDscDvCds', 'alncmpCntrDrmVals',
     'frisuBfsvcPtrmNs', // 일시불
     'stplPtrms', 'cntrPtrms', 'rgstCss', 'sellDscTpCds', // 렌탈
+    'qtyDv',
   ].forEach((col) => {
     npd[col] = sels[col];
   });
