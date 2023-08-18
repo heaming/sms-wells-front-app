@@ -311,8 +311,8 @@ async function onClickApplyDateBulkChange() {
     notify(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_APY_STRTDT')]));
   } else {
     for (let i = 0; i < chkRows.length; i += 1) {
-      data.setValue(chkRows[i].dataRow, 'apyStrtdt', chgApyDt.value.apyStrtdt);
-      data.setValue(chkRows[i].dataRow, 'apyEnddt', chgApyDt.value.apyEnddt);
+      data.setValue(view.getItemIndex(chkRows[i].dataRow), 'apyStrtdt', chgApyDt.value.apyStrtdt);
+      data.setValue(view.getItemIndex(chkRows[i].dataRow), 'apyEnddt', chgApyDt.value.apyEnddt);
     }
   }
 }
