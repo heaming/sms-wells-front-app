@@ -316,6 +316,7 @@ async function onCheckedStckNoStdGb() {
   const count = res.data;
   if (count > 0) {
     notify(t('MSG_ALT_CHG_DATA'));
+    await fetchData();
   }
 }
 
@@ -328,7 +329,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd' }, // SAP코드
     { fieldName: 'itmPdCd' }, // 품목상품코드
     { fieldName: 'pdAbbrNm' }, // 품목명
-    { fieldName: 'pitmStocAGdQty' }, // 재고
+    { fieldName: 'pitmStocAGdQty', dataType: 'number' }, // 재고
     { fieldName: 'wareTpCd' },
     { fieldName: 'itmLctAngleVal' },
     { fieldName: 'itmLctCofVal' },
