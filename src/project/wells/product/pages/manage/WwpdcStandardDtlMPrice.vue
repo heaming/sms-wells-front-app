@@ -34,10 +34,19 @@
       </kw-search-row>
     </kw-search>
   </div>
+  <kw-action-top class="mt30">
+    <kw-btn
+      icon="download_on"
+      secondary
+      dense
+      :disable="gridRowCount === 0"
+      :label="$t('MSG_BTN_EXCEL_DOWN')"
+      @click="onClickExcelFormDownload"
+    />
+  </kw-action-top>
   <kw-grid
     ref="grdMainRef"
     name="grdDtlPriceMain"
-    class="mt40"
     :visible-rows="10"
     ignore-on-modified
     @init="initGrid"
@@ -216,6 +225,16 @@ async function resetVisibleChannelColumns() {
         column.visible = false;
       }
     }
+  });
+}
+
+// 엑셀다운로드
+async function onClickExcelFormDownload() {
+  const view = grdMainRef.value.getView();
+  const downFileName = `${t('MSG_TXT_PD_STD_PRC')}_`;
+  await gridUtil.exportView(view, {
+    fileName: downFileName,
+    timePostfix: true,
   });
 }
 
