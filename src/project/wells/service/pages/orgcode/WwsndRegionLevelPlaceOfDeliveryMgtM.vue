@@ -401,7 +401,7 @@ const initGrdMain = defineGrid((data, view) => {
       optionValue: 'ogId',
       optionLabel: 'ogNm',
       styleCallback(grid, dataCell) {
-        const pdlvDvCd = grid.getValue(dataCell.item.dataRow, 'pdlvDvCd');
+        const pdlvDvCd = grid.getValue(dataCell.item.index, 'pdlvDvCd');
         if (pdlvDvCd === 'E') {
           return {
             editable: true,
