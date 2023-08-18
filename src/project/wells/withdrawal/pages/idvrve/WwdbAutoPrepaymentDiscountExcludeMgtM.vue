@@ -179,8 +179,6 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/auto-prepayment-discount-exclude/paging', { params: cachedParams });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
-  console.log(res.data);
-
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
@@ -424,11 +422,11 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-right',
       editable: false },
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '200', styleName: 'text-center', editable: false },
-    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_NAME'), width: '70', styleName: 'text-left', editable: false }, // 통테DEF_512요청건. 등록자-> 이름
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_EPNO'), width: '88', styleName: 'text-center', editable: false }, // 통테DEF_512요청건. 번호 -> 사번
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGR_EP_NO'), width: '88', styleName: 'text-center', editable: false }, // 통테DEF_512요청건. 번호 -> 사번
+    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGR_NM'), width: '70', styleName: 'text-left', editable: false }, // 통테DEF_512요청건. 등록자-> 이름
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DTM'), width: '200', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TIT_MDFC_USR'), width: '70', styleName: 'text-left', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88', styleName: 'text-center', editable: false },
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_UPT_EMP_NO'), width: '88', styleName: 'text-center', editable: false },
+    { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_UDR_NM'), width: '70', styleName: 'text-left', editable: false },
   ];
 
   data.setFields(fields);
