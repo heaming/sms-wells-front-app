@@ -527,6 +527,13 @@ async function onClickW207P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 }
 
 /*
+ *  Event - 고용보험 산출 클릭 ※
+ */
+async function onClickW208P() {
+  await alert(t('MSG_ALT_BIZ_PROCS_NEXT'));
+}
+
+/*
  *  Event - 고용보험 공제 클릭 ※
  */
 async function onClickW209P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
@@ -723,6 +730,8 @@ async function onclickStep(params) {
     await onClickW206P(params.feeSchdId, params.code, '03');
   } else if (params.code === 'W0207') { // 원천세 생성
     await onClickW207P(params.feeSchdId, params.code, '03');
+  } else if (params.code === 'W0208') { // 고용보험 산출
+    await onClickW208P();
   } else if (params.code === 'W0209') { // 고용보험 공제
     await onClickW209P(params.feeSchdId, params.code, '03');
   } else if (params.code === 'W0210') { // 가지급금 공제 생성
