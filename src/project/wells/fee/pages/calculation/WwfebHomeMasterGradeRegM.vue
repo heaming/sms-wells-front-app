@@ -34,6 +34,7 @@
         >
           <kw-input
             v-model="searchParams.emplNm"
+            :maxlength="15"
           />
         </kw-search-item>
 
@@ -42,6 +43,8 @@
         >
           <kw-input
             v-model="searchParams.prtnrNo"
+            type="number"
+            :maxlength="10"
           />
         </kw-search-item>
       </kw-search-row>

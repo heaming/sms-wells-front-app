@@ -20,11 +20,13 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
+          required
         >
           <kw-date-picker
             v-model="searchParams.baseYm"
             :label="$t('MSG_TXT_BASE_YM')"
             type="month"
+            rules="required"
             @change="onChangeBaseYm"
           />
         </kw-search-item>
@@ -89,6 +91,7 @@
           secondary
           primary
           dense
+          grid-action
           @click="onClickSave"
         />
         <kw-separator
@@ -114,6 +117,7 @@
           secondary
           primary
           dense
+          grid-action
           @click="onClickCreate"
         />
         <kw-separator
@@ -126,6 +130,7 @@
           secondary
           primary
           dense
+          grid-action
           @click="onClickDtrm"
         />
         <kw-separator
@@ -138,6 +143,7 @@
           secondary
           primary
           dense
+          grid-action
           @click="onClickDtrmCan"
         />
       </kw-action-top>
