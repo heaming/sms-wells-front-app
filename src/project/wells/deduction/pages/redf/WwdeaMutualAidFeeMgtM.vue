@@ -99,6 +99,7 @@
           :label="$t('MSG_BTN_REDF_AMT_CRT')"
           primary
           dense
+          @click="onClickRedfAmountCreate"
         />
       </kw-action-top>
       <kw-grid
@@ -299,6 +300,15 @@ async function onChangeDvCd() {
   }
 }
 
+/* 되물림 금액 생성 */
+async function onClickRedfAmountCreate() {
+  await modal({
+    component: 'ZwdeaRedfAmountCreateP',
+    componentProps: {
+      ogTpCd: 'L01',
+    },
+  });
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
