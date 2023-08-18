@@ -358,6 +358,7 @@ async function fetchData() {
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(itms);
+    view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   }
 }
 
