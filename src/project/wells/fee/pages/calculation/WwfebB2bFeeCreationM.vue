@@ -14,7 +14,10 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      :cols="3"
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item
           :label="t('MSG_TXT_DIV')"
@@ -210,9 +213,12 @@ async function onClickSearch() {
 // 엑셀 다운로드 버튼
 async function onClickExcelDownload() {
   const view = cachedParams.type === 'A' ? grdRefA.value.getView() : grdRefB.value.getView();
+  const fixApi = cachedParams.type === 'A' ? 'performance' : 'fee';
+  const { data } = await dataService.get(`/sms/wells/fee/b2b/${fixApi}`, { params: { ...cachedParams } });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: data,
   });
 }
 // 이력관리 버튼 클릭

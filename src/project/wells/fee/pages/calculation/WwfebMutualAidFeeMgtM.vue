@@ -14,7 +14,10 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      :cols="3"
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
@@ -187,9 +190,12 @@ async function onClickSearch() {
 // 엑셀 다운로드 버튼
 async function onClickExcelDownload() {
   const view = grdType.value === 'A' ? grdRefA.value.getView() : grdRefB.value.getView();
+  const fixApi = cachedParams.type === 'A' ? 'individual' : 'group';
+  const { data } = await dataService.get(`/sms/wells/fee/mutual-aid/${fixApi}`, { params: { ...cachedParams } });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: data,
   });
 }
 // 수수료 생성 버튼
