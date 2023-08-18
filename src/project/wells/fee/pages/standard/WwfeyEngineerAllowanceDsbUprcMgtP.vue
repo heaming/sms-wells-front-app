@@ -431,8 +431,8 @@ async function onClickDelete() {
 }
 
 async function onClickSave() {
-  if (await frmRef.value.alertIfIsNotModified()) { return; }
   if (!await frmRef.value.validate()) { return; }
+  if (await frmRef.value.alertIfIsNotModified()) { return; }
   if (!await confirm(t('MSG_ALT_MDFC'))) { // 수정하시겠습니까?
     return;
   }
