@@ -43,6 +43,7 @@
             :base-ym="searchParams.baseYm"
             :start-level="1"
             :end-level="3"
+            @change="evOrganizationlevel"
           />
         </kw-search-item>
       </kw-search-row>
@@ -55,7 +56,6 @@
         </template>
         <span class="kw-fc--black3 text-weight-regular"> {{ t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
-
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
@@ -84,6 +84,7 @@
       <kw-separator />
       <kw-tabs
         v-model="selectedTab"
+        class="mt30"
       >
         <!-- 유가증권 제외 탭 -->
         <kw-tab
@@ -98,7 +99,7 @@
       </kw-tabs>
       <kw-observer
         ref="basic"
-        name="sel"
+        name="basic"
       >
         <kw-tab-panels
           :model-value="selectedTab"
@@ -131,36 +132,34 @@ import { useDataService, getComponentType, defineGrid, useGlobal } from 'kw-lib'
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
+import WwdcdOperatingCostMgtMSecuritiesException from './WwdcdOperatingCostMgtMSecuritiesException.vue'; // 유가증권 제외
+import WwdcdOperatingCostMgtMSecurities from './WwdcdOperatingCostMgtMSecurities.vue'; // 유가증권
 
-// 유가증권 제외
-import WwdcdOperatingCostMgtMSecuritiesException from './WwdcdOperatingCostMgtMSecuritiesException.vue';
-// 유가증권
-import WwdcdOperatingCostMgtMSecurities from './WwdcdOperatingCostMgtMSecurities.vue';
-
-// const store = useStore();
-// const { companyCode } = store.getters['meta/getUserInfo'];
+const store = useStore();
 const selectedTab = ref('basic');
+const selectedLinkId = ref(null);
 const dataService = useDataService();
 const { t } = useI18n();
 const tabRefs = reactive({});
-const selectedLinkId = ref(null);
-const { getters } = useStore();
 const { alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 // 본사 관리자가 아니면 코드 값 가져와야 함
-const sessionInfo = getters['meta/getUserInfo'];
+const userInfo = store.getters['meta/getUserInfo'];
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
-  ogTpCd: sessionInfo.wkOjOgTpCd === null ? sessionInfo.ogTpCd : sessionInfo.wkOjOgTpCd,
+  ogTpCd: userInfo.wkOjOgTpCd === null ? userInfo.ogTpCd : userInfo.wkOjOgTpCd,
+  adjOgId: '',
+  adjPrtnrNo: '',
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
+  dgr4LevlOgId: '',
 });
 
 async function fetchAmountData() {
@@ -171,9 +170,8 @@ async function fetchAmountData() {
   if (!isEmpty(res.data)) {
     cachedParams.opcsAdjNo = res.data.opcsAdjNo;
     cachedParams.adjOgId = res.data.adjOgId;
-    cachedParams.mainOgId = res.data.adjOgId;
-    cachedParams.mainOgTpCd = res.data.ogTpCd;
-    cachedParams.mainPrtnrNo = res.data.adjPrtnrNo;
+    cachedParams.adjOgTpCd = res.data.ogTpCd;
+    cachedParams.adjPrtnrNo = res.data.adjPrtnrNo;
 
     mainData.push(res.data);
 
@@ -205,7 +203,6 @@ async function fetchSummaryData() {
 
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
-
   if (isEmpty(cachedParams.dgr1LevlOgId)
   && isEmpty(cachedParams.dgr2LevlOgId)
   && isEmpty(cachedParams.dgr3LevlOgId)) {
@@ -250,11 +247,22 @@ async function saveData(column, opcsCardId, file) {
     fetchData();
   }
 }
+async function evOrganizationlevel() {
+  const res = await dataService.get('/sms/wells/closing/expense/operating-cost/organization-level');
+  searchParams.value.dgr1LevlOgId = res.data.dgr2LevlOgId;
+  searchParams.value.dgr1LevlOgNm = res.data.dgr2LevlOgNm;
+  searchParams.value.dgr2LevlOgId = res.data.dgr3LevlOgId;
+  searchParams.value.dgr2LevlOgNm = res.data.dgr3LevlOgNm;
+  searchParams.value.dgr3LevlOgId = res.data.dgr4LevlOgId;
+  searchParams.value.dgr3LevlOgNm = res.data.dgr4LevlOgNm;
+}
 
+onMounted(async () => {
+  await evOrganizationlevel();
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-
 // 운영비 금액현황
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
@@ -314,7 +322,6 @@ const initGrdSub = defineGrid((data, view) => {
     }
   };
 });
-
 </script>
 <style scoped>
 .right-border {
