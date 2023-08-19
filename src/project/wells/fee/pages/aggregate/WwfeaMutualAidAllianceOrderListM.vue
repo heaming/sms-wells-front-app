@@ -65,8 +65,8 @@
             type="radio"
             rules="required"
             :options="[{ codeId: '0', codeName: $t('MSG_TXT_ALL') },
-                       { codeId: '1', codeName: $t('MSG_TXT_PLAR') },
-                       { codeId: '2', codeName: $t('MSG_TXT_BRMGR') }]"
+                       { codeId: '15', codeName: $t('MSG_TXT_PLAR') },
+                       { codeId: '7', codeName: $t('MSG_TXT_BRMGR') }]"
             :label="$t('MSG_TXT_RSB_TP')"
           />
         </kw-search-item>
