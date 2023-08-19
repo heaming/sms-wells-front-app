@@ -15,8 +15,8 @@
 <template>
   <kw-page>
     <kw-search
-      one-row
       :cols="2"
+      one-row
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -47,12 +47,6 @@
             @change="fetchData"
           />
         </template>
-        <!-- 저장 -->
-        <kw-btn
-          :label="$t('MSG_BTN_SAVE')"
-          grid-action
-          @click="onClickSave"
-        />
         <!-- 삭제 -->
         <kw-btn
           :label="$t('MSG_BTN_DEL')"
@@ -60,36 +54,52 @@
           @click="onClickDelete"
         />
         <kw-separator
-          vertical
           inset
           spaced
+          vertical
+        />
+        <!-- 저장 -->
+        <kw-btn
+          :label="$t('MSG_BTN_SAVE')"
+          grid-action
+          @click="onClickSave"
+        />
+        <kw-btn
+          :disable="isDisable"
+          :label="$t('MSG_BTN_ROW_ADD')"
+          grid-action
+          @click="onClickAdd"
+        />
+        <kw-separator
+          inset
+          spaced
+          vertical
         />
         <!-- 엑셀 다운로드 -->
         <kw-btn
-          icon="download_on"
-          dense
-          secondary
-          :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          dense
+          icon="download_on"
+          secondary
           @click="onClickExcelDownload"
         />
-        <kw-separator
-          vertical
+        <!--        <kw-separator
           inset
           spaced
+          vertical
         />
         <kw-date-range-picker
-          dense
-          class="w320"
           :from-placeholder="$t('MSG_TXT_APY_STRT_D_CHO')"
           :to-placeholder="$t('MSG_TXT_APY_END_D_CHO')"
-        />
-        <!-- TODO: 적용일자 일괄변경 -->
-        <kw-btn
-          :label="$t('MSG_BTN_APY_DT_BLK_CH')"
-          secondary
+          class="w320"
           dense
         />
+        <kw-btn
+          :label="$t('MSG_BTN_APY_DT_BLK_CH')"
+          dense
+          secondary
+        />-->
       </kw-action-top>
       <ul class="filter-box mb12">
         <li class="filter-box__item">
@@ -103,10 +113,10 @@
             <template #default="{ field }">
               <!-- TODO: 현재적용자재 -->
               <kw-checkbox
-                v-bind="field"
                 :label="$t('MSG_TXT_CRTL_APY_MAT')"
-                val="현재적용자재"
                 dense
+                v-bind="field"
+                val="현재적용자재"
               />
             </template>
           </kw-field>
@@ -132,9 +142,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { notify, gridUtil, defineGrid, useMeta, codeUtil, getComponentType, useDataService } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { alert, notify, gridUtil, defineGrid, useMeta, codeUtil, getComponentType, useDataService }
+  from 'kw-lib';
+import { isEmpty, cloneDeep } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
+// eslint-disable-next-line no-unused-vars
+import dayjs from 'dayjs';
 
 const { getPartMaster } = smsCommon();
 
@@ -146,6 +159,7 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const isDisable = ref(false);
 const grdMainRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const searchParams = ref({
@@ -165,8 +179,21 @@ const codes = await codeUtil.getMultiCodes(
 const productCode = ref();
 watch(() => [searchParams.value.year, searchParams.value.pdGrpCd], async () => {
   // productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGrpCd);
-  const tempVal = await getPartMaster(undefined, searchParams.value.pdGrpCd);
-  productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.codeName }));
+  const tempVal = await getPartMaster(
+    '4',
+    searchParams.value.pdGrpCd,
+    'M',
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    'X',
+  );
+  productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.cdNm }));
 }, { immediate: true });
 
 async function fetchData() {
@@ -177,11 +204,11 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
   view.resetCurrent();
+  isDisable.value = false;
 }
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
-  console.log(searchParams.value);
   await fetchData();
 }
 
@@ -215,16 +242,33 @@ async function onClickExcelDownload() {
 
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
-  gridUtil.deleteCheckedRows(view);
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) return;
+  if (checkedRows[0].isLast === 'Y') {
+    gridUtil.deleteCheckedRows(view);
+    isDisable.value = false;
+  } else alert('현재적용자재만 삭제 가능합니다.');
 }
 
-// async function changePdGrpCd() {
-//   if (searchParams.value.pdGrpCd) {
-//     pds.value = await getPartMaster('4', searchParams.value.pdGrpCd, 'M');
-//   } else pds.value = [];
-// }
-// pds.value = await getPartMaster('4', null, 'M');
-// console.log(pds.value);
+async function onClickAdd() {
+  if (isEmpty(searchParams.value.pdGrpCd) || isEmpty(searchParams.value.pdCd)) {
+    alert('상품그룹 및 제품을 선택해주세요');
+    return false;
+  }
+
+  const view = grdMainRef.value.getView();
+  await gridUtil.insertRowAndFocus(view, 0, {
+    sapMatCd: '',
+    pdCd: searchParams.value.pdCd,
+    pdNm: '',
+    bstrCsAmt: '0',
+    apyStrtdt: dayjs().add('1', 'day').format('YYYYMMDD'),
+    apyEnddt: '99991231',
+    isLast: 'Y',
+  });
+  isDisable.value = true;
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -238,15 +282,15 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'apyStrtdt', dataType: 'date' }, /* 유효시작일시 */
     { fieldName: 'apyEnddt', dataType: 'date' }, /* 유효종료일시 */
     { fieldName: 'rmkCn' }, /* 비고내용 */
-    { fieldName: 'crtlApyMat', dataType: 'number' }, /* 현재적용자재 */
+    { fieldName: 'isLast' }, /* 현재적용자재 */
   ];
   const columns = [
     /* SAP코드 */
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '180', styleName: 'text-center' },
     /* 품목코드 */
     { fieldName: 'pdCd',
       header: t('MSG_TXT_ITM_CD'),
-      width: '150',
+      width: '180',
       styleName: 'text-center',
       editor: { type: 'dropdown' },
       options: codes.PD_CD,
@@ -275,18 +319,18 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_TRCS_WON'),
       width: '150',
       styleName: 'text-right',
-      editor: { type: 'number', maxLength: 10 },
-      rules: 'required',
+      editor: { type: 'number', maxLength: 10, numberFormat: '#,##0' },
+      rules: 'required|min_value:1|numeric|max_value:9999999',
     },
     /* 비고 */
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
-      width: '366',
+      width: '300',
       styleName: 'text-left',
       editor: { maxLength: 1000 },
     },
     /* 현재적용자재 */
-    { fieldName: 'crtlApyMat' },
+    { fieldName: 'isLast', header: t('MSG_TXT_CRTL_APY_MAT'), width: '100' },
   ];
 
   const columnLayout = [
@@ -303,6 +347,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.setColumnLayout(columnLayout);
   view.checkBar.visible = true;
+  view.checkBar.exclusive = true;
   view.rowIndicator.visible = true;
 
   view.editOptions.editable = true;
@@ -311,8 +356,13 @@ const initGrdMain = defineGrid((data, view) => {
   //   updatable: true,
   // });
 
-  view.onCellEditable = (grid, index) => {
-    if (['bstrCsAmt', 'rmkCn'].includes(index.column)) {
+  view.onCellEditable = (g, { column, itemIndex, dataRow }) => {
+    // if (['bstrCsAmt', 'rmkCn'].includes(column) && g.getValues(itemIndex).isLast === 'Y') {
+    //   return true;
+    // }
+    if (['bstrCsAmt', 'rmkCn', 'apyStrtdt'].includes(column)
+    && gridUtil.isCreatedRow(g, dataRow)
+    && g.getValues(itemIndex).isLast === 'Y') {
       return true;
     }
     return false;
