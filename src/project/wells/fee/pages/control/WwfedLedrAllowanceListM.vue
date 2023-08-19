@@ -247,10 +247,10 @@ async function onClickSearch() {
 const initGridIndv = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'dsbYm', header: t('MSG_TXT_PERF_YM'), width: '106', styleName: 'text-center' },
-    { fieldName: 'ogLevlDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-left' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', styleName: 'text-left' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '96', styleName: 'text-left' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-left' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-center', options: codes.RSB_DV_CD },
+    { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '96', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' },
     { fieldName: 'hmnrscEmpno', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center' },
     { fieldName: 'brchCt', header: t('MSG_TXT_BRCH_N'), width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
 
@@ -311,7 +311,7 @@ const initGridIndv = defineGrid((data, view) => {
   // multi row header setting
   view.setColumnLayout([
     'dsbYm',
-    'ogLevlDvNm',
+    'rsbDvCd',
     'ogNm',
     'ogCd',
     'prtnrKnm',
@@ -354,7 +354,7 @@ const initGridSum = defineGrid((data, view) => {
         text: t('MSG_TXT_SUM'),
       },
     },
-    { fieldName: 'ogLevlDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-left' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'hmnrscEmpnoCnt',
       header: t('MSG_TXT_PPL_N'),
       width: '106',
@@ -717,7 +717,7 @@ const initGridSum = defineGrid((data, view) => {
       column: 'dsbYm',
       summaryUserSpans: [{ colspan: 2 }],
     },
-    'ogLevlDvNm',
+    'rsbDvCd',
     'hmnrscEmpnoCnt',
     {
       header: t('MSG_TXT_FXN_SAL'), // colspan title
