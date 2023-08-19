@@ -128,12 +128,8 @@
                 class="col text-right"
               />
             </div>
-            <kw-input
+            <crdcd-no-input
               v-model="approvalRequest.crcdnoEncr"
-              label="카드번호"
-              mask="####-####-####-####"
-              unmasked-value
-              rules="required|min:14"
               :readonly="approved"
             />
             <crdcd-exp-select
@@ -185,7 +181,8 @@
 import { confirm, getComponentType, notify, stringUtil, useDataService } from 'kw-lib';
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
-import CrdcdExpSelect from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
+import CrdcdExpSelect from '~sms-common/contract/components/ZctaCrdcdExpSelect.vue';
+import CrdcdNoInput from '~sms-common/contract/components/ZctaCrdcdNoInput.vue';
 import { warn } from 'vue';
 import { scrollIntoView } from '~sms-common/contract/util';
 import { useCtCode } from '~sms-common/contract/composable';
