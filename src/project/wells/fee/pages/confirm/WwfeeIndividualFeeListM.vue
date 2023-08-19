@@ -244,11 +244,11 @@ async function onClickSearchNo() {
 async function movePage(no) {
   let url = '';
 
-  if (searchParams.value.prOgTp === 'M추진단') {
+  if (searchParams.value.prOgTp === 'W02') {
     url = '/fee/wwfee-individual-fee-manager-list';
-  } else if (searchParams.value.prOgTp === 'P추진단') {
+  } else if (searchParams.value.prOgTp === 'W01') {
     url = '/fee/wwfee-individual-fee-planner-list';
-  } else if (searchParams.value.prOgTp === '홈마스터') {
+  } else if (searchParams.value.prOgTp === 'W03') {
     url = '/fee/wwfee-individual-fee-home-master-list';
   }
 

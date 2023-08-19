@@ -419,7 +419,7 @@ async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   } else {
     const param = {
       ogTpCd: 'W02',
-      ogTpCdTxt: 'M추진단',
+      ogTpCdTxt: 'M추진',
       perfYm,
       perfYmTxt: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
       feeTcntDvCd,

@@ -418,7 +418,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const customCodes = {
   div2Cd: [{ codeId: '01', codeName: '상세' }, { codeId: '02', codeName: '집계' }],
-  div3Cd: [{ codeId: 'W02', codeName: 'M추진단' }, { codeId: 'W01', codeName: 'P추진단' }, { codeId: 'W03', codeName: '홈마스터' }, { codeId: 'W04', codeName: 'B2B' }, { codeId: 'W05', codeName: '총판' }, { codeId: 'W06', codeName: '기타' }],
+  div3Cd: [{ codeId: 'W02', codeName: 'M추진' }, { codeId: 'W01', codeName: 'P추진' }, { codeId: 'W03', codeName: '홈마스터' }, { codeId: 'W04', codeName: 'B2B' }, { codeId: 'W05', codeName: '총판' }, { codeId: 'W06', codeName: '기타' }],
   div4Cd: [{ codeId: '01', codeName: '접수' }, { codeId: '02', codeName: '예약' }, { codeId: '03', codeName: '매출' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
   div6Cd: [{ codeId: '2', codeName: '렌탈/리스' }, { codeId: '1', codeName: '일시불' }, { codeId: '6', codeName: '정기배송' }, { codeId: '7', codeName: '재약정' }, { codeId: '3', codeName: '홈케어멤버십' }],
 };
