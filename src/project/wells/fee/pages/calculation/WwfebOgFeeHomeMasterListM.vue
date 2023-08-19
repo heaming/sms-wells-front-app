@@ -151,7 +151,7 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 
-import { useDataService, useMeta, getComponentType, gridUtil, useGlobal, defineGrid, codeUtil } from 'kw-lib';
+import { useDataService, useMeta, getComponentType, gridUtil, useGlobal, defineGrid, codeUtil, alert } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import ZwfeyFeeStep from '~sms-common/fee/pages/schedule/ZwfeyFeeStep.vue';
@@ -159,7 +159,7 @@ import { openApprovalPopup } from '~common/utils/cmPopupUtil';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { notify, modal, confirm, alert } = useGlobal();
+const { notify, modal, confirm } = useGlobal();
 const isGrid1Visile = ref(true);
 const isGrid2Visile = ref(false);
 const isExcelDown = ref(false);
