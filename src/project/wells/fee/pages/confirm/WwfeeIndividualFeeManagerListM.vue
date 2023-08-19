@@ -33,12 +33,15 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          required
         >
           <kw-input
             v-model="searchParams.no"
+            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
             type="number"
+            rules="required"
             :maxlength="10"
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
