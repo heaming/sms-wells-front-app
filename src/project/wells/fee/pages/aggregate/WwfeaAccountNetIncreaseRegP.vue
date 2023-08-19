@@ -27,6 +27,13 @@
           <p>{{ params.perfYm.substring(0,4)+'-'+params.perfYm.substring(4) }}</p>
         </kw-form-item>
       </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="$t('MSG_TXT_ORDR')"
+        >
+          <p>{{ params.feeTcntDvCd }}</p>
+        </kw-form-item>
+      </kw-form-row>
     </kw-form>
     <template #action>
       <kw-btn
