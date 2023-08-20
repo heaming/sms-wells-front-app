@@ -50,7 +50,7 @@
     </ul>
     <kw-search
       :cols="3"
-      :disable="isReadonly"
+      :disable="isReadonly || cntrTpIs.quot"
       @search="onClickSearchCntrtInfo"
       @reset="onClickReset"
     >
@@ -69,6 +69,7 @@
           />
         </kw-search-item>
         <kw-search-item
+          v-if="!cntrTpIs.quot"
           :label="$t('MSG_TXT_CNTRT_TP')"
           required
         >
@@ -92,7 +93,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="!cntrTpIs.crp && !cntrTpIs.ensm && !(cntrTpIs.msh && searchParams.copnDvCd === '2')"
+          v-if="!cntrTpIs.crp && !cntrTpIs.ensm && !(cntrTpIs.msh && searchParams.copnDvCd === '2') && !cntrTpIs.quot"
           :label="$t('MSG_TXT_NAME')"
           required
         >
@@ -142,7 +143,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row
-        v-if="!cntrTpIs.ensm"
+        v-if="!cntrTpIs.ensm && !cntrTpIs.quot"
       >
         <kw-search-item
           v-if="cntrTpIs.crp || (cntrTpIs.msh && searchParams.copnDvCd === '2')"
@@ -176,6 +177,34 @@
       </kw-search-row>
     </kw-search>
 
+    <template
+      v-if="cntrTpIs.quot"
+    >
+      <h3>계약자정보 - 견적서</h3>
+
+      <kw-form
+        :cols="2"
+      >
+        <kw-form-row>
+          <kw-form-item :label="$t('MSG_TXT_DIV')">
+            <kw-option-group
+              v-model="searchParams.copnDvCd"
+              type="radio"
+              :options="codes.COPN_DV_CD.reverse()"
+            />
+          </kw-form-item>
+          <kw-form-item
+            :label="$t('MSG_TXT_CNTOR_NM')"
+            hint="상호명(법인)과 성명(개인)이 들어갑니다."
+          >
+            <kw-input
+              v-model="searchParams.cstKnm"
+              :label="$t('MSG_TXT_CNTOR_NM')"
+            />
+          </kw-form-item>
+        </kw-form-row>
+      </kw-form>
+    </template>
     <template
       v-if="step1.cntrt?.cstNo"
     >
@@ -419,6 +448,7 @@ const isReadonly = computed(() => !!step1.value.bas?.cntrPrgsStatCd);
 const emits = defineEmits([
   'membership',
   'restipulation',
+  'cntrTpCd',
 ]);
 
 // -------------------------------------------------------------------------------------------------
@@ -642,6 +672,7 @@ async function onClickMembership() {
 }
 
 async function onChangeCntrtTpCd(v) {
+  step1.value = ref({});
   ['cstKnm', 'bzrno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno'].forEach((key) => {
     searchParams.value[key] = '';
   });
@@ -649,8 +680,15 @@ async function onChangeCntrtTpCd(v) {
     searchParams.value.copnDvCd = '1';
   } else if (v === '02') {
     searchParams.value.copnDvCd = '2';
+  } else if (v === '09') {
+    const res = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
+      cntrTpCd: '09',
+      step: 1,
+    } });
+    console.log(JSON.stringify(res.data, null, '\t'));
+    await afterGetCntrInfo(res);
   }
-  step1.value = ref({});
+  emits('cntrTpCd', v);
 }
 
 async function onClickReset() {
@@ -680,6 +718,10 @@ function isChangedStep() {
 }
 
 async function isValidStep() {
+  if (cntrTpIs.value.quot) { // 견적서
+    return true;
+  }
+
   if (isEmpty(step1.value.cntrt)) {
     await alert('계약자를 선택해주세요.');
     return false;
@@ -707,6 +749,11 @@ async function saveStep() {
     step1.value.prtnr.alncPrtnrDrmVal = searchParams.value.alncPrtnrNo;
     step1.value.prtnr.alncPrtnrIdnrNm = searchParams.value.alncPrtnrNm;
     step1.value.prtnr.alncPrtnrDrmDvCd = searchParams.value.alncPrtnrDvCd;
+  }
+  if (cntrTpIs.value.quot) { // 견적서
+    step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
+    step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
+    step1.value.bas.cntrCstNm = searchParams.value.cstKnm;
   }
   const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step1', step1.value);
   console.log(JSON.stringify(savedCntr, null, '\t'));

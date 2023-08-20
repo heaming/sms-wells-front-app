@@ -72,9 +72,9 @@
             <p class="kw-font--14 kw-fc--black2">
               {{ item.sellTpCdNm }}
             </p>
-            <!-- 법인 -->
+            <!-- 법인/개인 -->
             <kw-chip
-              :label="$t('MSG_TXT_CRP')"
+              :label="item.copnDvCd === '2' ? $t('MSG_TXT_CRP') : $t('MSG_TXT_INDV')"
               color="primary"
               outline
             />
