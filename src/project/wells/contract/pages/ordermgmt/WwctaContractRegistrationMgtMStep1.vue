@@ -711,14 +711,18 @@ async function isPartnerStpa() {
 }
 
 function isChangedStep() {
-  if (isEmpty(step1.value.bas.cntrNo)) {
+  if (isEmpty(step1.value.bas?.cntrNo)) {
     return true;
   }
   return JSON.stringify(ogStep1.value) !== JSON.stringify(step1.value);
 }
 
 async function isValidStep() {
-  if (cntrTpIs.value.quot) { // 견적서
+  if (cntrTpIs.value.quot) { // 견적서, 계약자명 입력 필수
+    if (isEmpty(searchParams.value.cstKnm)) {
+      await alert('계약자명을 입력해주세요.');
+      return false;
+    }
     return true;
   }
 
