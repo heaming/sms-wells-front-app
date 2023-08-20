@@ -115,7 +115,7 @@
           <kw-date-range-picker
             v-model:from="feeStandard.apyStrtdt"
             v-model:to="feeStandard.apyEnddt"
-            rule="required"
+            rules="date_range_required"
             :min-date="tommorowDash"
             max-date="9999-12-31"
             :label="$t('MSG_TXT_ACEPT_PERIOD')"
@@ -142,8 +142,8 @@
           <kw-input
             v-model="feeStandard.fuleyAwAmt"
             :label="t('MSG_TXT_PRMEMP')"
+            rules="max:5"
             mask="number"
-            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -155,8 +155,8 @@
           <kw-input
             v-model="feeStandard.rolLyr1TopmrAwAmt"
             :label="t('MSG_TXT_ROL_LYR1_TOPMR')"
+            rules="max:5"
             mask="number"
-            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -170,8 +170,8 @@
           <kw-input
             v-model="feeStandard.rolLyr1UplrAwAmt"
             :label="t('MSG_TXT_ROL_LYR1_H')"
+            rules="max:5"
             mask="number"
-            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -183,8 +183,8 @@
           <kw-input
             v-model="feeStandard.rolLyr1MdlyrAwAmt"
             :label="t('MSG_TXT_ROL_LYR1_M')"
+            rules="max:5"
             mask="number"
-            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -196,8 +196,8 @@
           <kw-input
             v-model="feeStandard.rolLyr1LolyrAwAmt"
             :label="t('MSG_TXT_ROL_LYR1_L')"
+            rules="max:5"
             mask="number"
-            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -211,8 +211,8 @@
           <kw-input
             v-model="feeStandard.rolL2UplrAwAmt"
             :label="t('MSG_TXT_ROL_L2_H')"
+            rules="max:5"
             mask="number"
-            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -224,8 +224,8 @@
           <kw-input
             v-model="feeStandard.rolL2MdlyrAwAmt"
             :label="t('MSG_TXT_ROL_L2_M')"
+            rules="max:5"
             mask="number"
-            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -237,8 +237,8 @@
           <kw-input
             v-model="feeStandard.rolL2LolyrAwAmt"
             :label="t('MSG_TXT_ROL_L2_L')"
+            rules="max:5"
             mask="number"
-            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -252,8 +252,8 @@
           <kw-input
             v-model="feeStandard.rolL3AwAmt"
             :label="t('MSG_TXT_ROL_L3')"
+            rules="max:5"
             mask="number"
-            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -265,8 +265,8 @@
           <kw-input
             v-model="feeStandard.crwkAwAmt"
             :label="t('MSG_TXT_CRWK')"
+            rules="max:5"
             mask="number"
-            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -278,8 +278,8 @@
           <kw-input
             v-model="feeStandard.indvEntrpAwAmt"
             :label="t('MSG_TXT_PRVT_BUSINESS')"
+            rules="max:5"
             mask="number"
-            maxlength="5"
             align="left"
             :readonly="screenMode === 'VIEW'"
           />
@@ -295,8 +295,8 @@
             v-model="feeStandard.rmkCn"
             :label="t('MSG_TXT_RMK_ARTC')"
             type="textarea"
-            :maxlength="4000"
-            :rows="5"
+            maxlength="4000"
+            rows="5"
             :readonly="screenMode === 'VIEW'"
           />
         </kw-form-item>
