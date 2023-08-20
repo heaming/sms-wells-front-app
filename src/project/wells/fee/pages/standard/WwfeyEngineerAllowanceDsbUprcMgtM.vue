@@ -199,7 +199,7 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(view, {
     fileName: t('MSG_TXT_EGER_AW_UPRC'),
     timePostfix: true,
-
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
