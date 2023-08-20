@@ -174,7 +174,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'wkGrpNm', header: t('MSG_TXT_WK_GRP'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'bizAgntYn', header: t('MSG_TXT_BIZ_AGNT'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'wrkDt', header: t('MSG_TXT_WRK_DT'), width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
-    { fieldName: 'dowDv', header: t('MSG_TXT_WRK_DOW'), width: '106', styleName: 'text-center', editable: false },
+    { fieldName: 'wrkNm', header: t('MSG_TXT_WRK_DOW'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'egerWrkStatCd',
       header: t('MSG_TXT_WRK_STAT'),
       options: codes.EGER_WRK_STAT_CD,
@@ -207,9 +207,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'vcnStrtDt', header: t('MSG_TXT_STRT_DATE'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     { fieldName: 'vcnEndDt', header: t('MSG_TXT_END_DT'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '128', styleName: 'text-left', editable: false },
-    { fieldName: 'bizAgntNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'agntPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'pcpPrtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'pcpPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'pcpPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'procsDtm', header: t('MSG_TIT_PROC_DTM'), width: '182', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
 
   ];
@@ -234,7 +234,7 @@ const initGrid = defineGrid((data, view) => {
     },
     'bizAgntYn',
     'wrkDt',
-    'dowDv',
+    'wrkNm',
     'egerWrkStatCd',
     'rmkCn',
     'vcnInfo',
@@ -246,12 +246,12 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_BIZ_AGNT_PRTNR'),
       direction: 'horizontal',
-      items: ['bizAgntPrtnrNo', 'bizAgntNm'],
+      items: ['bizAgntPrtnrNo', 'agntPrtnrKnm'],
     },
     {
       header: t('MSG_TXT_PCP'),
       direction: 'horizontal',
-      items: ['pcpPrtnrNo', 'pcpPrtnrNm'],
+      items: ['pcpPrtnrNo', 'pcpPrtnrKnm'],
     },
     'procsDtm',
   ]);
