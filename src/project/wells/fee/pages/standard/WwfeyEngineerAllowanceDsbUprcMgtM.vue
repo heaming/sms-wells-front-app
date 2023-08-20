@@ -189,7 +189,7 @@ const filterdGroupDetailCode = computed(() => {
     // eslint-disable-next-line no-unsafe-optional-chaining
     ...(codes?.PD_GRP_DTL_CD.filter((item) => item.userDfn03 === searchParams.value.productGroupCode)),
   );
-  searchParams.value.productGroupDetailCode = data[1].codeId;
+  searchParams.value.productGroupDetailCode = data[1]?.codeId;
 
   return data;
 });
