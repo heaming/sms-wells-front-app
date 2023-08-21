@@ -342,7 +342,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdctPdNm', header: '상품명', width: '250', styleName: 'text-center' },
     { fieldName: 'sellTpCd', header: '판매유형', width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'fxnPrtnrDvCd', header: '관리구분', width: '100', styleName: 'text-center', options: codes.MNGR_DV_CD },
-    { fieldName: 'ogNm', header: '담당센터', width: '100', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: '담당센터', width: '120', styleName: 'text-center' },
     { fieldName: 'fxnPrtnrNo', header: '번호', width: '100', styleName: 'text-center' },
     { fieldName: 'fxnPrtnrKnm', header: '방문담당자', width: '100', styleName: 'text-center' },
     { fieldName: 'cltnDt', header: '퇴사일자', width: '100', styleName: 'text-center', datetimeFormat: 'date' },
