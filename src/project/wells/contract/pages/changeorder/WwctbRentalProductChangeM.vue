@@ -243,6 +243,7 @@
                       <kw-input
                         v-model="searchParams.pdNm"
                         icon="search"
+                        maxlength="100"
                         grow
                         @click-icon="onClickSelectProduct"
                       />
@@ -719,6 +720,7 @@
                   <kw-input
                     v-model="istEnvRequest.istAkArtcMoCn"
                     type="textarea"
+                    maxlength="1000"
                     :rows="3"
                   />
                 </kw-form-item>
