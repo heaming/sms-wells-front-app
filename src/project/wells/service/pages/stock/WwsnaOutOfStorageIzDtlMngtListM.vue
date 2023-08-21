@@ -279,7 +279,7 @@ const filterCodes = ref({
 
 // 입고창고구분이 변경되었을때
 const onChangeStrWareDvCd = async () => {
-  const searchStrWareDvCd = searchParams.value.strWareDvCd;
+  const { strWareDvCd: searchStrWareDvCd } = searchParams.value;
 
   if (searchStrWareDvCd === '2') {
     filterCodes.value.strWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
@@ -297,7 +297,7 @@ watch(() => searchParams.value.strWareDvCd, (val) => {
 
 // 출고창고구분이 변경되었을때
 const onChangeOstrWareDvCd = async () => {
-  const searchOstrWareDvCd = searchParams.value.ostrWareDvCd;
+  const { ostrWareDvCd: searchOstrWareDvCd } = searchParams.value;
 
   if (searchOstrWareDvCd === '1') {
     filterCodes.value.ostrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10'].includes(v.codeId));
