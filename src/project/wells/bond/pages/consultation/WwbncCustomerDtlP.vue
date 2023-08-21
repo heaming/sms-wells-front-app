@@ -914,7 +914,7 @@
                     <kw-form-row>
                       <kw-form-item
                         :label="$t('MSG_TXT_PROM_DTM')"
-                        required
+                        :required="isFlag === true"
                       >
                         <div class="column">
                           <kw-date-picker
@@ -922,13 +922,13 @@
                             :label="$t('MSG_TXT_PROM_DTM')"
                             dense
                             :placeholder="$t('MSG_TXT_SELT')"
-                            rules="required"
+                            :rules="{required: isFlag === true}"
                           />
                           <kw-time-picker
                             v-model="customer.promHh"
                             dense
                             class="mt8"
-                            rules="required"
+                            :rules="{required: isFlag === true}"
                           />
                         </div>
                       </kw-form-item>
@@ -936,7 +936,7 @@
                     <kw-form-row>
                       <kw-form-item
                         :label="$t('MSG_TXT_PROM_TP')"
-                        required
+                        :required="isFlag === true"
                       >
                         <kw-select
                           v-model="customer.promTp"
@@ -944,21 +944,21 @@
                           :options="codes.CLCTAM_PROM_TP_CD"
                           dense
                           :placeholder="$t('MSG_TXT_SELT')"
-                          rules="required"
+                          :rules="{required: isFlag === true}"
                         />
                       </kw-form-item>
                     </kw-form-row>
                     <kw-form-row>
                       <kw-form-item
                         :label="$t('MSG_TXT_PROM_AMT')"
-                        required
+                        :required="isFlag === true"
                       >
                         <kw-input
                           v-model="customer.promAmt"
                           :label="$t('MSG_TXT_PROM_AMT')"
                           dense
                           regex="num"
-                          rules="required"
+                          :rules="{required: isFlag === true}"
                           maxlength="20"
                         />
                       </kw-form-item>
@@ -1062,6 +1062,8 @@ const selectedTab = ref('tab1');
 const selectedGridRow = ref(null);
 const visitRef = ref();
 const lawMeasureRef = ref();
+const isFlag = ref();
+const isFlag2 = ref('N');
 
 popupUtil.registerCloseEvent();
 popupUtil.registerWindowKeyEvent();
@@ -1364,8 +1366,9 @@ async function onClickCounselSave() {
 
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
-  if (!await frmSubRef.value.validate()) { return; }
-
+  if (isFlag2.value === 'Y') {
+    if (!await frmSubRef.value.validate()) { return; }
+  }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
   cachedSaveParams = cloneDeep(saveCounselParams.value);
@@ -1377,6 +1380,17 @@ async function onClickCounselSave() {
 }
 
 onMounted(async () => {
+  const targetFirst = document.querySelectorAll('.q-item');
+  targetFirst.forEach((target) => target.addEventListener('click', () => {
+    if (isFlag2.value === 'N') {
+      isFlag2.value = 'Y';
+      isFlag.value = true;
+    } else {
+      isFlag2.value = 'N';
+      isFlag.value = false;
+    }
+  }));
+
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 });
