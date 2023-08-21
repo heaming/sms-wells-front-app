@@ -352,8 +352,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'useDt', header: t('MSG_TXT_USE_DAY'), width: '109', styleName: 'text-right' }, // 사용일수
     { fieldName: 'col10', header: t('매출인식상태'), width: '104', styleName: 'text-center' }, // 매출인식상태
     { fieldName: 'crtErrCn', header: t('MSG_TXT_ERR_IZ'), width: '104' }, // 오류내역
-    { fieldName: 'slRcogPrdCd', header: t('MSG_TXT_SL_RCOG_BASE'), width: '104', options: codes.SL_RCOG_PRD_CD }, // 매출인식기준
-    { fieldName: 'slRcogPrdDvCd', header: t('MSG_TXT_SL_RCOG_PRD_CD'), width: '100', options: codes.SL_RCOG_PRD_DV_CD }, // 매출인식주기코드
+    { fieldName: 'slRcogPrdDvCd', header: t('MSG_TXT_SL_RCOG_BASE'), width: '110', options: codes.SL_RCOG_PRD_DV_CD }, // 매출인식기준
+    { fieldName: 'slRcogPrdCd', header: t('MSG_TXT_SL_RCOG_PRD_CD'), width: '120', options: codes.SL_RCOG_PRD_CD }, // 매출인식주기코드
     { fieldName: 'ostrDtm', header: t('MSG_TXT_OSTR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 출고일자
     { fieldName: 'istDtm', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일자
     { fieldName: 'svDt', header: t('MSG_TXT_SV_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 서비스일자
