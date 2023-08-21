@@ -125,6 +125,7 @@
           primary
           dense
           :label="t('MSG_BTN_REDF_AMT_CRT')"
+          @click="onClickRedfAmountCreate"
         />
       </kw-action-top>
       <kw-grid
@@ -208,6 +209,16 @@ const searchParams = ref({
   ogCd: '', // 조직코드
 
 });
+
+/* 되물림 금액 생성 */
+async function onClickRedfAmountCreate() {
+  await modal({
+    component: 'ZwdeaRedfAmountCreateP',
+    componentProps: {
+      ogTpCd: userInfo.ogTpCd,
+    },
+  });
+}
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/deduction/redf/allowance-report/bizd-paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 480000 });
