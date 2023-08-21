@@ -55,6 +55,7 @@
           :label="$t('MSG_BTN_INDV_VST_INQR')"
           primary
           dense
+          :disable="isDisableButton"
           @click="onClickVisitPeriodSearch"
         />
         <!-- 개인별 방문주기 생성 -->
@@ -62,7 +63,7 @@
           :label="$t('MSG_BTN_INDV_VST_CRT')"
           primary
           dense
-          :disable="isDisable()"
+          :disable="isDisableButton"
           @click="onClickVisitPeriodCreate"
         />
       </kw-action-top>
@@ -558,6 +559,7 @@ const isDisableTab = computed(() => departmentId !== '71301' || departmentId ===
 const svHshdNo = ref('');
 const selectedTab = ref('1');
 // const cntrDtlNo = ref();
+const istPhFileUid = ref('');
 const countInfo = ref({
   householdTotalCount: 0,
   contactTotalCount: 0,
@@ -593,14 +595,15 @@ const saveParams = ref({
   wkPrtnrNo: '',
   cstUnuitmCn: '',
 });
+const isDisableButton = computed(() => isEmpty(searchParams.value.cntrNo) || isEmpty(searchParams.value.cntrSn));
 
-function isDisable() {
-  // if (departmentId === '70526' || departmentId === '70254' || departmentId === '71301') {
-  //   return false;
-  // }
-  // return true;
-  return false;
-}
+// function isDisable() {
+//   // if (departmentId === '70526' || departmentId === '70254' || departmentId === '71301') {
+//   //   return false;
+//   // }
+//   // return true;
+//   return false;
+// }
 
 async function onClickCstSearch() {
   const { result, payload } = await modal({ component: 'WwsnyCustomerBaseInformationP' });
@@ -696,6 +699,10 @@ async function getIndividualDelinquent() {
 async function getIndividualState() {
   const res = await dataService.get('sms/wells/service/individual-service-ps/process-state', { params: { ...searchParams.value, ...pageInfo.value } });
   const { list: individualState, pageInfo: pagingResult } = res.data;
+
+  console.log(res.data);
+  istPhFileUid.value = individualParams.value;
+  console.log(istPhFileUid.value.istCelngFileUid);
 
   pageInfo.value = pagingResult;
   const individualStateView = grdIndividualStateRef.value.getView();
@@ -852,6 +859,9 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'bldNm' },
     { fieldName: 'bcNo' },
     { fieldName: 'imgYn' },
+    { fieldName: 'istEnvrFileUid' },
+    { fieldName: 'istKitFileUid' },
+    { fieldName: 'istCelngFileUid' },
   ];
 
   const columns = [
@@ -902,6 +912,15 @@ const initGridState = defineGrid((data, view) => {
   view.onCellItemClicked = async (grd, clickData) => {
     if (clickData.fieldName === 'imgYn') {
       notify(' 설치환경상세 팝업(W-SV-U-0214P01) 호출');
+
+      // await modal({
+      //   component: 'WwsncSeedingDeliveryListP',
+      //   componentProps: {
+      //     istEnvrFileUid: istPhFileUid.value.istEnvrFileUid,
+      //     istKitFileUid: istPhFileUid.value.istKitFileUid,
+      //     istCelngFileUid: istPhFileUid.value.istCelngFileUid,
+      //   },
+      // });
     }
   };
   view.onCellClicked = async (grd, clikdD) => {
