@@ -507,7 +507,7 @@ const initGridDetail = ((data, view) => {
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-center', options: codes.BND_BIZ_DV_CD },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '86', styleName: 'text-center' },
-    { fieldName: 'trgAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
+    { fieldName: 'trgAmt', header: t('MSG_TXT_THM_OJ'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
     { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
     { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
