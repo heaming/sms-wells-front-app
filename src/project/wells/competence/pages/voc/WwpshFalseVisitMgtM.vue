@@ -157,7 +157,6 @@ async function onClickSearchNo() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: userInfo.ogTpCd,
     },
   });
 
@@ -328,7 +327,6 @@ const initGrdMain = defineGrid((data, view) => {
         component: 'ZwogzPartnerListP',
         componentProps: {
           prtnrNo,
-          ogTpCd: userInfo.ogTpCd,
         },
 
       });
