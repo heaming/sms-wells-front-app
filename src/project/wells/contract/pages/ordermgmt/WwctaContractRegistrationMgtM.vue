@@ -27,6 +27,7 @@
                 :ref="(el) => panelsRefs[step.name] = el"
                 :contract="contract"
                 :on-child-mounted="onChildMounted"
+                @cntr-tp-cd="eventCntrTpCd"
               />
               <!-- @restipulation="eventStipulation"-->
               <!-- @membership="eventMembership"-->
@@ -176,6 +177,7 @@
         <div class="button-set--bottom-right">
           <template v-if="currentStepIndex === 0">
             <kw-btn
+              v-if="currentStepIndex === 0 && currentCntrTpCd !== '09'"
               :label="$t('MSG_BTN_TEMP_SAVE')"
               class="ml8"
               @click="onClickTempSave"
@@ -190,20 +192,21 @@
           </template>
           <template v-if="currentStepIndex === 1">
             <kw-btn
+              v-if="currentStepIndex === 1 && currentCntrTpCd !== '09'"
               :label="$t('MSG_BTN_TEMP_SAVE')"
               class="ml8"
               @click="onClickTempSave"
             />
             <kw-btn
               v-if="currentStepIndex === 1 && !isCnfmPds"
-              :label="$t('상품확정')"
+              :label="$t('MSG_BTN_PD_CNFM')"
               class="ml8"
               primary
               @click="onClickPdCnfm"
             />
             <kw-btn
               v-if="currentStepIndex === 1 && isCnfmPds"
-              :label="$t('다음')"
+              :label="currentCntrTpCd !== '09' ? $t('MSG_BTN_NEXT') : $t('MSG_BTN_QUOT_CMPL')"
               class="ml8"
               primary
               @click="onClickNext"
@@ -230,7 +233,7 @@
             />
             <kw-btn
               v-if="currentStepIndex === 3"
-              :label="$t('작성완료')"
+              :label="$t('MSG_BTN_WRTE_FSH')"
               class="ml8"
               primary
               @click="onClickNext"
@@ -253,7 +256,7 @@ import WwctaContractRegistrationMgtMStep3 from './WwctaContractRegistrationMgtMS
 import WwctaContractRegistrationMgtMStep4 from './WwctaContractRegistrationMgtMStep4.vue';
 
 const props = defineProps({
-  resultDiv: { type: String },
+  resultDiv: { type: String, default: undefined },
   cntrNo: { type: String, default: undefined },
   cntrSn: { type: String, default: undefined },
   cntrPrgsStatCd: { type: String, default: undefined },
@@ -272,6 +275,7 @@ const steps = shallowReactive([
   { name: 'step3', title: '배송 및 결제 정보 등록', done: false, panel: WwctaContractRegistrationMgtMStep3 },
   { name: 'step4', title: '작성정보 확인', done: false, panel: WwctaContractRegistrationMgtMStep4 },
 ]);
+const currentCntrTpCd = ref('');
 const currentStepName = ref('step1');
 const currentStep = computed(() => steps.find((step) => step.name === currentStepName.value));
 const currentStepIndex = computed(() => steps.findIndex((step) => step.name === currentStepName.value));
@@ -398,6 +402,10 @@ async function onClickNext() {
     // step4에서 '다음'은 계약 현황 목록으로 화면 이동
     await router.close(0, true);
     await router.push({ path: '/contract/wwcta-contract-status-list' });
+  } else if (nextStep === 3 && currentCntrTpCd.value === '09') {
+    // 견적서 작성완료 시, 견적서 작성 목록 조회 화면으로 이동
+    await router.close(0, true);
+    await router.push({ path: '/contract/wwcta-estimate-order-write-list' });
   } else {
     currentStep.value.done = true;
     if (currentStepIndex.value === steps.length - 1) { return; }
@@ -408,6 +416,12 @@ async function onClickNext() {
   }
 }
 
+async function eventCntrTpCd(v) {
+  console.log(`emit event <--- ${currentCntrTpCd.value} : ${v}`);
+  if (v === currentCntrTpCd.value) return;
+  // TODO - kw-step 변경 (2단계 vs 4단계)
+  currentCntrTpCd.value = v;
+}
 // async function eventStipulation(cntrNo, cntrSn) {
 //   // 재약정계약
 //   const previousStep = steps[3];
