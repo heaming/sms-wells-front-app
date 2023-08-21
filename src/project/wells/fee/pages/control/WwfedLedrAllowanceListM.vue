@@ -204,7 +204,7 @@ async function openUploadPopup(componentProps) {
 }
 
 async function onClickExcelUpload() {
-  openUploadPopup({ formatId: 'FOM_FEZ_0027', baseYm: searchParams.value.perfYm });
+  openUploadPopup({ formatId: 'FOM_FEZ_0027', baseYm: searchParams.value.perfYm, ogTpCd: searchParams.value.ogTpCd === '7' ? 'W02' : 'W01', type: searchParams.value.rsbDvCd });
 }
 
 async function onClickSearchNo() {

@@ -467,7 +467,7 @@ async function onClickExcelUpload() {
     return;
   }
 
-  openUploadPopup({ formatId: 'FOM_FEZ_0028', baseYm: searchParams.value.perfYm, ogTpCd: 'W06' });
+  openUploadPopup({ formatId: 'FOM_FEZ_0028', baseYm: searchParams.value.perfYm, ogTpCd: 'W06', type: searchParams.value.rsbDvCd });
 }
 
 // 번호 검색 아이콘 클릭 이벤트
