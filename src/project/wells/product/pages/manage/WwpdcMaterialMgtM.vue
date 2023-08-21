@@ -517,8 +517,9 @@ async function popupCallback(payload) {
 async function onUpdateMgtValue(field) {
   // console.log('EwpdcStandardMgtM - onUpdateMgtValue - field : ', field);
   /* && isEmpty(field.initName ) */
-  if (field.colNm === 'sapMatCd' && field.initName !== field.initValue) {
-    console.log('1111111');
+  // if (field.colNm === 'sapMatCd' && field.initName !== field.initValue) {
+  if (field.colNm === 'sapMatCd' && isEmpty(field.initValue)) {
+    console.log('삭제');
 
     const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
     mgtNameFields.sapMatCd.initValue = '';
