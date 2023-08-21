@@ -242,6 +242,7 @@ const params = ref({ itgDpNo: '', cntrNo: '', bzrno: '' });
 
 const itgDpNo = ref();
 const cntrNo = ref();
+const billBndNo = ref();
 const isCheckReadonly = ref(true);
 let cachedParams;
 
@@ -314,7 +315,7 @@ async function onClickSubSearch() {
 
   // pageInfoSecond.value.pageIndex = 1;
 
-  const itgDp = { itgDpNo: itgDpNo.value, cntrNo: cntrNo.value };
+  const itgDp = { itgDpNo: itgDpNo.value, billBndNo: billBndNo.value };
 
   cachedSubParams = cloneDeep(itgDp);
 
@@ -397,7 +398,7 @@ async function onGridAdd() {
       billRmkCn: props.billRmkCn, // 어음구분
       billRcpDt: props.billRcpDt, // 접수일자
       billExprDt: props.billExprDt, // 만기일
-      billDpAmt: props.billDpAmt, // 입금금액
+      billBndAmt: props.billBndAmt, // 입금금액
       sellBzsBzrno: props.sellBzsBzrno,
       pblBzsBzrno: props.pblBzsBzrno,
     });
@@ -450,6 +451,8 @@ async function onClickSave() {
     SaveMainDtlReq: changedRows,
   };
 
+  console.log(cachedParam);
+
   await dataService.post('/sms/wells/withdrawal/idvrve/bill-deposits/electronic', cachedParam);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -500,6 +503,7 @@ async function initProps() {
     searchParams.value.dlpnrNm = props.mconBzsNm;
     itgDpNo.value = props.itgDpNo;
     cntrNo.value = props.cntrNo;
+    billBndNo.value = props.billBndNo;
     isCheckReadonly.value = true;
     await onClickSearch();
     await onClickSubSearch();
@@ -593,6 +597,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'billRcpDt' }, // 접수일자
     { fieldName: 'billExprDt' }, // 만기일
     { fieldName: 'billDpAmt', dataType: 'number' }, // 입금금액
+    { fieldName: 'billBndAmt', dataType: 'number' }, // 입금금액
     { fieldName: 'sellBzsBzrno' },
     { fieldName: 'pblBzsBzrno' },
 
@@ -660,7 +665,7 @@ const initGrid2 = defineGrid((data, view) => {
       },
     },
     {
-      fieldName: 'billDpAmt',
+      fieldName: 'billBndAmt',
       header: {
         text: t('MSG_TXT_WON_DP_AMT'),
         styleName: 'essential',

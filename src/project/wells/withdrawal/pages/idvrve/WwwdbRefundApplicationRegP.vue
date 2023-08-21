@@ -753,18 +753,18 @@ async function onClickRefundAsk(stateCode) {
 
   const changedRows2 = gridUtil.getChangedRowValues(view2); // 환불상세 그리드 데이터
 
-  let cashCount = 0;
-  changedRows2.forEach((p1) => { // 현금요청금액이 있는지 체크
-    if (Number(p1.rfndCshAkAmt) > 0) {
-      cashCount += 1;
-      return false;
-    }
-  });
+  // let cashCount = 0;
+  // changedRows2.forEach((p1) => { // 현금요청금액이 있는지 체크
+  //   if (Number(p1.rfndCshAkAmt) > 0) {
+  //     cashCount += 1;
+  //     return false;
+  //   }
+  // });
 
-  if (cashCount > 0 && (saveParams.value.cstNm === '' || saveParams.value.cstNm.trim().length === 0)) {
-    notify(t('MSG_ALT_AC_INF_ACHLDR_NM_ERR')); // 입력하신 계좌정보 및 예금주명을 다시 확인해 주세요.(예금주가 없음.)
-    return false;
-  }
+  // if (cashCount > 0 && (saveParams.value.cstNm === '' || saveParams.value.cstNm.trim().length === 0)) {
+  //   notify(t('MSG_ALT_AC_INF_ACHLDR_NM_ERR')); // 입력하신 계좌정보 및 예금주명을 다시 확인해 주세요.(예금주가 없음.)
+  //   return false;
+  // }
 
   if (!await cntrValidateView3()) {
     // 계약번호 - 전금계약번호가 동일하거나 , 전금계약상 데이터에 전금계약번호가 동일한경우.
