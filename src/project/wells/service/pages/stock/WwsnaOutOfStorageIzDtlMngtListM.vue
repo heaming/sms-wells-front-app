@@ -78,6 +78,7 @@
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stOstrDt"
           v-model:end-ym="searchParams.edOstrDt"
+          v-model:options-ware-dv-cd="strWareDvCd"
           v-model:ware-dv-cd="searchParams.strWareDvCd"
           v-model:ware-no-m="searchParams.strHgrWareNo"
           v-model:ware-no-d="searchParams.strWareNo"
@@ -241,6 +242,11 @@ const searchParams = ref({
   ostrWareDtlDvCd: '',
 });
 
+const strWareDvCd = { WARE_DV_CD: [
+  { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
+  { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
+] };
+
 const optionsItmPdCd = ref();
 const optionsAllItmPdCd = ref();
 
@@ -273,9 +279,9 @@ const filterCodes = ref({
 
 // 입고창고구분이 변경되었을때
 const onChangeStrWareDvCd = async () => {
-  const { strWareDvCd } = searchParams.value;
+  const searchStrWareDvCd = searchParams.value.strWareDvCd;
 
-  if (strWareDvCd === '2') {
+  if (searchStrWareDvCd === '2') {
     filterCodes.value.strWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
   } else {
     filterCodes.value.strWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
@@ -291,11 +297,11 @@ watch(() => searchParams.value.strWareDvCd, (val) => {
 
 // 출고창고구분이 변경되었을때
 const onChangeOstrWareDvCd = async () => {
-  const { ostrWareDvCd } = searchParams.value;
+  const searchOstrWareDvCd = searchParams.value.ostrWareDvCd;
 
-  if (ostrWareDvCd === '1') {
+  if (searchOstrWareDvCd === '1') {
     filterCodes.value.ostrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10'].includes(v.codeId));
-  } else if (ostrWareDvCd === '2') {
+  } else if (searchOstrWareDvCd === '2') {
     filterCodes.value.ostrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
   } else {
     filterCodes.value.ostrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
@@ -388,6 +394,8 @@ function defaultSet() {
 
 onMounted(async () => {
   defaultSet();
+  await onChangeStrWareDvCd();
+  await onChangeOstrWareDvCd();
   await getProducts();
 });
 // -------------------------------------------------------------------------------------------------
