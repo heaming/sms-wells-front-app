@@ -523,6 +523,22 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
+    { fieldName: 'billBndNo',
+      header: t('MSG_TXT_BND_NO'),
+      // , header: '채권번호'
+      width: '198',
+      styleName: 'rg-button-link text-left',
+      renderer: { type: 'button' },
+    },
+    { fieldName: 'mconBzsNm',
+      header: '거래처명',
+      width: '125',
+      styleName: 'text-center',
+    },
+    { fieldName: 'billRmkCn',
+      header: t('MSG_TXT_BILL_DV'),
+      // , header: '어음구분'
+      width: '150' },
     { fieldName: 'cntrDtlNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       // , header: '계약상세번호'
@@ -533,15 +549,6 @@ const initGrid = defineGrid((data, view) => {
         return `${cntrNo}-${cntrSn}`;
       },
     },
-    { fieldName: 'mconBzsNm',
-      header: '거래처명',
-      width: '125',
-      styleName: 'rg-button-link text-center',
-      renderer: { type: 'button' } },
-    { fieldName: 'billRmkCn',
-      header: t('MSG_TXT_BILL_DV'),
-      // , header: '어음구분'
-      width: '150' },
     { fieldName: 'billDpAmt',
     // , header: '입금액'
       header: t('MSG_TXT_DP_AMT'),
@@ -562,11 +569,7 @@ const initGrid = defineGrid((data, view) => {
       displayCallback(grid, index, value) {
         return !isEmpty(value) ? `${value.substring(0, 3)}-${value.substring(3, 5)}-${value.substring(5, 10)}` : value;
       } },
-    { fieldName: 'billBndNo',
-      header: t('MSG_TXT_BND_NO'),
-      // , header: '채권번호'
-      width: '198',
-      styleName: 'text-left' },
+
     { fieldName: 'billBndAmt',
       header: t('MSG_TXT_BND_AMT'),
       // , header: '채권금액'
@@ -613,9 +616,11 @@ const initGrid = defineGrid((data, view) => {
     const checkState = grid.isCheckedItem(itemIndex);
     const itgDpNo = grid.getValue(itemIndex, 'itgDpNo');
     const cntrNo = grid.getValue(itemIndex, 'cntrNo');
+    const cntrSn = grid.getValue(itemIndex, 'cntrSn');
     const paramData = {
       itgDpNo,
       cntrNo,
+      cntrSn,
     };
     if (checkState === true) {
       onClickSubSearch(paramData);
@@ -632,9 +637,10 @@ const initGrid = defineGrid((data, view) => {
   // };
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'mconBzsNm') {
+    if (column === 'billBndNo') {
       const { itgDpNo, cntrNo, bzrno, mconBzsNm,
-        billBndNo, billRmkCn, billRcpDt, billExprDt, billDpAmt, sellBzsBzrno, pblBzsBzrno } = g.getValues(itemIndex);
+        billBndNo, billRmkCn, billRcpDt, billExprDt, billDpAmt, sellBzsBzrno, pblBzsBzrno,
+        billBndAmt } = g.getValues(itemIndex);
 
       const paramData = {
         itgDpNo,
@@ -648,6 +654,7 @@ const initGrid = defineGrid((data, view) => {
         billRcpDt,
         billExprDt,
         billDpAmt,
+        billBndAmt,
       };
       const { result } = await modal({
         component: 'WwwdbBillDepositRegP',
