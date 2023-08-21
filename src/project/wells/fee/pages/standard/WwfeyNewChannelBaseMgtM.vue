@@ -22,12 +22,10 @@
         <!-- 적용시작일 -->
         <kw-search-item
           :label="$t('MSG_TXT_APY_STRT_DAY')"
-          required
         >
           <kw-date-picker
             v-model="searchParams.apyStrtdt"
             :label="$t('MSG_TXT_APY_STRT_DAY')"
-            rules="required"
           />
         </kw-search-item>
         <!-- 상품코드 -->
