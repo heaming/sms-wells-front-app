@@ -45,9 +45,7 @@
         <kw-search-item :label="$t('MSG_TXT_CNTOR_NM')">
           <kw-input
             v-model="searchParams.cntrt"
-            icon="search_24"
             maxlength="50"
-            @click-icon="onClickOpenPartnerListPopup"
           />
         </kw-search-item>
       </kw-search-row>
@@ -81,7 +79,7 @@
           </div>
 
           <h3 class="mt20 mb12">
-            {{ item.cstKnm }}({{ item.bryyMmddBzrno }})
+            {{ item.cstKnm }}
           </h3>
           <ul class="card-text">
             <li>
@@ -238,18 +236,6 @@ async function onClickSearch() {
   fetchData();
 }
 
-async function onClickOpenPartnerListPopup() {
-  const { result, payload } = await modal({
-    component: 'ZwogzPartnerListP',
-    componentProps: {
-      prtnrNo: searchParams.value.cntrt,
-    },
-  });
-  if (result) {
-    searchParams.value.cntrt = payload.prtnrKnm;
-  }
-}
-
 async function onClickCntr(item) {
   router.push({
     path: '/contract/wwcta-contract-registration-mgt',
@@ -260,11 +246,18 @@ async function onClickCntr(item) {
 }
 
 async function onClickSearchPopup() {
-  notify('팝업 준비중 입니다.'); // TODO : 추후 확인 후 팝업 추가
+  notify('견적서 리포트 완료 후 연결됩니다.'); // TODO : 추후 확인 후 팝업 추가
 }
 
-async function onClickUpdate() {
-  notify('팝업 준비중 입니다.'); // TODO : 추후 확인 후 팝업 추가
+async function onClickUpdate(item) {
+  router.push({
+    path: 'wwcta-contract-registration-mgt',
+    query: {
+      cntrNo: item.cntrNo,
+      cntrSn: item.cntrSn,
+      cntrPrgsStatCd: item.cntrPrgsStatCd,
+    },
+  });
 }
 
 async function onClickSend(item) {

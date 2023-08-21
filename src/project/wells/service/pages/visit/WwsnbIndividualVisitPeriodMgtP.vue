@@ -390,6 +390,7 @@ async function onClickBSAssign() {
 
   await dataService.post('/sms/wells/service/individual-visit-prds/bs-assigns', processParam.value);
   notify(t('MSG_ALT_SAVE_DATA'));
+  await getCustomerVisitPeriod();
 }
 
 /*
@@ -416,6 +417,7 @@ async function onClickBsCarriedForward() {
 
   await dataService.post('/sms/wells/service/individual-visit-prds/carried-forwards', processParam.value);
   notify(t('MSG_ALT_SAVE_DATA'));
+  await getCustomerVisitPeriod();
 }
 
 /*
@@ -442,6 +444,7 @@ async function onClickBSDelete() {
 
   await dataService.delete('/sms/wells/service/individual-visit-prds/bs-deletes', { params: { ...processParam.value } });
   notify(t('MSG_ALT_DELETED'));
+  await getCustomerVisitPeriod();
 }
 
 /*
@@ -468,6 +471,7 @@ async function onClickBSForceAssign() {
 
   await dataService.post('/sms/wells/service/individual-visit-prds/bs-force-assigns', processParam.value);
   notify(t('MSG_ALT_SAVE_DATA'));
+  await getCustomerVisitPeriod();
 }
 
 /*
@@ -488,6 +492,7 @@ async function onClickVisitPeriodDelete() {
 
   await dataService.delete('/sms/wells/service/individual-visit-prds/visit-period-deletes', { params: { ...processParam.value } });
   notify(t('MSG_ALT_DELETED'));
+  await getCustomerVisitPeriod();
 }
 
 /*
@@ -508,6 +513,7 @@ async function onClickVisitPeriodRegen() {
 
   await dataService.post('/sms/wells/service/individual-visit-prds/visit-period-regens', processParam.value);
   notify(t('MSG_ALT_SAVE_DATA'));
+  await getCustomerVisitPeriod();
 }
 
 /*

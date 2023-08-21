@@ -242,6 +242,7 @@
                       <kw-input
                         v-model="searchParams.pdNm"
                         icon="search"
+                        maxlength="100"
                         grow
                         @click-icon="onClickSelectProduct"
                       />
@@ -284,7 +285,7 @@
                               @change="selectRentalPriceChanges"
                             />
                             <kw-select
-                              v-if="rentalDscrCds && orderProduct.sellDscrCd === '5'"
+                              v-if="rentalDscrCds && orderProduct.sellDscDvCd === '5'"
                               v-model="orderProduct.sellDscrCd"
                               :options="rentalDscrCds"
                               placeholder="렌탈법인할인율"
@@ -374,12 +375,16 @@
                           <kw-form-item label="(법인)추가할인">
                             <kw-input
                               v-model="orderProduct.sellDscCtrAmt"
+                              maxlength="10"
+                              type="number"
                               :readonly="fieldData.copnDvCd !== '2'"
                             />
                           </kw-form-item>
                           <kw-form-item label="할인렌탈가(원)">
                             <span style="color: red;">
-                              {{ (orderProduct.fnlAmt||0) - (orderProduct.sellDscCtrAmt||0) }}
+                              {{ stringUtil.getNumberWithComma(
+                                (orderProduct.fnlAmt||0) - (orderProduct.sellDscCtrAmt||0)
+                              ) }}
                             </span>
                           </kw-form-item>
                         </kw-form-row>
@@ -416,6 +421,7 @@
                             <kw-input
                               v-model="orderProduct.cntrChAkCn"
                               type="textarea"
+                              maxlength="1000"
                               :rows="3"
                             />
                           </kw-form-item>
@@ -424,12 +430,14 @@
                           <kw-form-item
                             label="인정실적"
                           >
+                            <!-- 인정실적금액 -->
                             <kw-input
                               v-model="orderProduct.ackmtPerfAmt"
                               mask="number"
                               readonly
                               align="right"
                             /><p>&nbsp;원</p>
+                            <!-- 인정실적율 -->
                             <kw-input
                               v-model="orderProduct.ackmtPerfRt"
                               mask="number"
@@ -796,22 +804,28 @@
               </kw-form-row>
             </kw-form>
             <div class="row justify-end my20">
+              <!-- 등록 -->
               <kw-btn
                 padding="12px"
-                label="등록"
+                :label="$t('MSG_BTN_RGST')"
                 class="mr8"
                 :disable="!isFetched"
+                @click="alert('준비중입니다.')"
               />
+              <!-- 취소 -->
               <kw-btn
                 padding="12px"
-                label="취소"
+                :label="$t('MSG_BTN_CANCEL')"
                 class="mr8"
                 :disable="!isFetched"
+                @click="alert('준비중입니다.')"
               />
+              <!-- 저장 -->
               <kw-btn
                 padding="12px"
-                label="저장"
+                :label="$t('MSG_BTN_SAVE')"
                 :disable="!isFetched"
+                @click="alert('준비중입니다.')"
               />
             </div>
           </kw-expansion-item>
@@ -1018,6 +1032,7 @@
                   <kw-input
                     v-model="istEnvRequest.istAkArtcMoCn"
                     type="textarea"
+                    maxlength="1000"
                     :rows="3"
                   />
                 </kw-form-item>
@@ -1028,10 +1043,11 @@
               </kw-form-row>
             </kw-form>
             <div class="row justify-end my20">
+              <!-- 저장 -->
               <kw-btn
                 class="ml10"
                 padding="12px"
-                label="저장"
+                :label="$t('MSG_BTN_SAVE')"
                 :disable="!isFetched"
                 @click="onClickInstallmentEnvironmentSave"
               />
@@ -1115,12 +1131,14 @@
             primary
             :label="$t('MSG_BTN_CNTRW_PRNT')"
             :disable="!isFetched"
+            @click="alert('준비중입니다.')"
           />
           <!-- 청약서 변경 -->
           <kw-btn
             primary
             :label="$t('MSG_TXT_APLC_FORM') + ' ' + $t('MSG_TXT_CH')"
             :disable="!isFetched"
+            @click="alert('준비중입니다.')"
           />
         </kw-action-bottom>
       </div>
@@ -1313,7 +1331,7 @@ async function initProduct(gubun) {
   orderProduct.value.pdMclsfNm = (gubun === 'init') ? fieldData.value.pdMclsfNm : productInfo.value.pdMclsfNm;
   orderProduct.value.pdCd = (gubun === 'init') ? fieldData.value.basePdCd : productInfo.value.pdCd;
   orderProduct.value.pdNm = (gubun === 'init') ? fieldData.value.pdNm : productInfo.value.pdNm;
-  orderProduct.value.sellEvCd = (gubun === 'init') ? fieldData.value.sellEvCd : ''; console.log(`aaa => ${orderProduct.value.sellEvCd}`);
+  orderProduct.value.sellEvCd = (gubun === 'init') ? fieldData.value.sellEvCd : '';
   orderProduct.value.frisuAsPtrmN = (gubun === 'init') ? fieldData.value.frisuAsPtrmN : '';
   orderProduct.value.alncmpCd = (gubun === 'init') ? fieldData.value.alncmpCd : '';
   orderProduct.value.sellInflwChnlDtlCd = (gubun === 'init') ? fieldData.value.sellInflwChnlDtlCd : productInfo.value.sellInflwChnlDtlCd;
@@ -1357,6 +1375,7 @@ async function initIstEnvRequest() {
 
 // 선택가능한 약정기간, 계약기간, 등록비, 렌탈할인구분, 렌탈할인유형, 서비스상품, 행사코드 조회
 async function fetchProductAdditionalInfoData() {
+  productInfo.value = {};
   stplPtrms.value = [];
   cntrPtrms.value = [];
   rgstFees.value = [];
@@ -1384,6 +1403,10 @@ const isFetched = ref(false);
 // 기본정보 조회
 async function fetchData() {
   isFetched.value = false;
+
+  // 조회 전 기존 데이터 초기화
+  fieldData.value = {};
+  orderProduct.value = {};
 
   const res = await dataService.get(
     '/sms/wells/contract/changeorder/rental-change-infos',

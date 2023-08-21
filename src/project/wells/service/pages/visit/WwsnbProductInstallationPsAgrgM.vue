@@ -80,7 +80,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, toInteger } from 'lodash-es';
 import dayjs from 'dayjs';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 
@@ -116,7 +116,7 @@ async function fetchData() {
   let tcntTotal = 0;
   // 총합계
   list.forEach((item) => {
-    tcntTotal += item.tcnt;
+    tcntTotal += toInteger(item.tcnt);
   });
   // 개별 합계 / 총합계 * 100 (비율)
   list.forEach((item, idx) => {
@@ -158,13 +158,13 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'svBizMclsfCdNm',
       header: t('MSG_TXT_PD_GRP'),
-      width: '100',
+      width: '80',
       styleName: 'text-center',
     },
     {
       fieldName: 'tcnt',
       header: t('MSG_TXT_SUM'),
-      width: '150',
+      width: '120',
       styleName: 'text-right text-blue',
       dataType: 'number',
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right text-blue' },
@@ -172,7 +172,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'per',
       header: `${t('MSG_TXT_RAT')}(%)`,
-      width: '150',
+      width: '100',
       styleName: 'text-right',
       dataType: 'number',
       numberFormat: '#,##0.#',

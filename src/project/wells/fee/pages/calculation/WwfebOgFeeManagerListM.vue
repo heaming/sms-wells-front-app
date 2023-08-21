@@ -414,7 +414,7 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
   const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.feeTcntDvCd);
-  if (searchParams.value.rsbTp === '') {
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
@@ -465,13 +465,14 @@ async function onClickW202P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 기타지원 업로드 클릭 ※업무개발에서 별도개발
  */
 async function onClickW205P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { rsbTpCd } = searchParams.value;
   const { result: isUploadSuccess, payload } = await modal({
     component: 'ZwfezXlsUpP',
     componentProps: {
       formatId: 'FOM_FEZ_0023',
       baseYm: searchParams.value.perfYm,
       ogTpCd: 'W02',
-      type: searchParams.value.rsbTp,
+      type: rsbTpCd,
     },
   });
   if (isUploadSuccess) {
@@ -530,7 +531,7 @@ async function onClickW207P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 고용보험 산출 클릭 ※
  */
 async function onClickW208P() {
-  await alert(t('MSG_ALT_BIZ_PROCS_NEXT'));
+  await alert('업무 처리 완료 후, \n 좌상단 [완료처리] 버튼을 눌러주세요');
 }
 
 /*

@@ -387,9 +387,9 @@ async function openZwfedFeeBurdenDeductionRegP() {
  */
 async function openZwfedFeePnpyamDeductionRegP() {
   const param = {
-    dsbYm: searchParams.value.perfYm,
-    ogTpCd: 'W01',
+    ddtnYm: searchParams.value.perfYm,
     coCd: '2000',
+    ogTpCd: 'W01',
     prtnrNo: searchParams.value.no,
   };
   const { result: isChanged } = await modal({
