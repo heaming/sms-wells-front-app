@@ -284,7 +284,16 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: '계약번호', width: '150', styleName: 'text-center' },
+    { fieldName: 'cntrNo',
+      header: '계약번호',
+      width: '170',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        const cntrSn = grid.getValue(index.itemIndex, 'cntrSn') ?? '';
+        const cntrNo = value ?? '';
+        return `${cntrNo}-${cntrSn}`;
+      },
+    },
     { fieldName: 'rcgvpKnm', header: '고객명', width: '100', styleName: 'text-center' },
     { fieldName: 'newAdrZip', header: '우편번호', width: '100', styleName: 'text-center' },
     {
