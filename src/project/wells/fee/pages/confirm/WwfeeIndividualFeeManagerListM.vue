@@ -472,10 +472,8 @@ async function openAgainDisbursementPopup() {
 async function openZwfedFeeBurdenDeductionRegP() {
   const param = {
     ddtnYm: searchParams.value.perfYm,
-    ogTpCd: 'W02',
-    ogTpCdTxt: 'M조직',
     coCd: '2000',
-    coCdTxt: 'WELLS',
+    ogTpCd: 'W02',
     prtnrNo: searchParams.value.no,
   };
   await modal({
