@@ -244,6 +244,9 @@ const totalCount = ref(0);
 searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
 searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
+// 등급 필터링
+codes.PD_GD_CD = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
+
 const optionsItmPdCd = ref();
 const optionsAllItmPdCd = ref();
 
