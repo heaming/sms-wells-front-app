@@ -299,17 +299,26 @@
               inset
               spaced="0px"
             />
-            <kw-btn
-              v-if="item.viewCntrPrgsStatCd === '20' && item.pymnSkipYn === 'N'"
-              :label="$t('MSG_TXT_NON_FCF_PYMNT')"
-              padding="12px"
-              @click="onClickNonFcfPayment(item)"
-            />
-            <kw-btn
-              :label="$t('MSG_BTN_F2F_PYMNT')"
-              padding="12px"
-              @click="onClickF2fPayment(item)"
-            />
+            <template v-if="item.confirmYn=='Y'">
+              <kw-btn
+                :label="$t('MSG_BTN_DTRM')"
+                padding="12px"
+                @click="onClickApprovalConfirm(item)"
+              />
+            </template>
+            <template v-else>
+              <kw-btn
+                v-if="item.pymnSkipYn === 'N'"
+                :label="$t('MSG_TXT_NON_FCF_PYMNT')"
+                padding="12px"
+                @click="onClickNonFcfPayment(item)"
+              />
+              <kw-btn
+                :label="$t('MSG_BTN_F2F_PYMNT')"
+                padding="12px"
+                @click="onClickF2fPayment(item)"
+              />
+            </template>
             <kw-btn
               :label="$t('MSG_BTN_DEL')"
               padding="12px"
@@ -630,7 +639,7 @@ async function onClickNonFcfPayment(item) {
 
     if (!await confirm(message)) { return; }
 
-    const telNo = item.mobileTelNo.replace('-', '');
+    const telNo = item.mobileTelNo.replaceAll('-', '');
     const params = {
       type: 'SMS',
       receiver: `${item.cstKnm}^${telNo}`,
@@ -695,10 +704,11 @@ async function onClickRequestConfirm(item) {
 }
 
 // CARD > BUTTON > 확정승인
-async function onClickApprovalConfirm(item) {
-  notify(`TODO : ${item.cntrNo} - 확정승인 프로세스`);
+async function onClickApprovalConfirm({ cntrNo }) {
+  if (!await confirm('확정하시겠습니까?')) { return; }
 
-  // TODO : 확정승인 프로세스.
+  await dataService.post(`/sms/wells/contract/contracts/contract-lists/confirm/${cntrNo}`);
+  onClickSearch();
 }
 
 // CARD > BUTTON > 설치배정
