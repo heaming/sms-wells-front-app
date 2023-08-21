@@ -208,6 +208,10 @@ const props = defineProps({
     type: String,
     default: null,
   }, // 입금금액
+  billBndAmt: {
+    type: String,
+    default: null,
+  }, // 입금금액
 });
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -432,19 +436,22 @@ async function onClickSave() {
   } else {
     changedRows[0].state = 'updated';
   }
-  // const dpAmt = Number(changedRows2[0].billDpAmt);
-  // const dpSubAmt = 0;
+  const dpAmt = Number(changedRows2[0].billBndAmt);
+  let dpSubAmt = 0;
 
-  changedRows.forEach((data) => { data.itgDpNo = itgDpNo.value; });
-  // changedRows.forEach((data) => { data.itgDpNo = itgDpNo.value; dpSubAmt += Number(data.billDpAmt); });
+  // changedRows.forEach((data) => { data.itgDpNo = itgDpNo.value; });
+  changedRows.forEach((data) => {
+    data.itgDpNo = itgDpNo.value; dpSubAmt += Number(data.billDpAmt);
+    data.billBndAmt = changedRows2[0].billBndAmt;
+  });
 
   // console.log(dpAmt);
   // console.log(dpSubAmt);
 
-  // if (dpAmt !== dpSubAmt) {
-  //   await alert('상세정보 입금액과 상세현황 입금액이 다릅니다.');
-  //   return;
-  // }
+  if (dpAmt !== dpSubAmt) {
+    await alert('상세정보 입금액과 상세현황 입금액이 다릅니다.');
+    return;
+  }
 
   const cachedParam = {
     saveMainReq: changedRows[0],
