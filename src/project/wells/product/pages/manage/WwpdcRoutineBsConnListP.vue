@@ -375,7 +375,7 @@ async function onClickSave() {
       const workYear = Number(base.strtWkYVal ?? 0);
       // 총약정개월
       const totStplMcn = Number(base.totStplMcn ?? 0);
-      if (startMonth) {
+      if (Number(installMonth) === 0) {
         // 시작월이 있는 경우
         for (let i = 1; i <= (repeatCount + exceptMonths.length); i += 1) {
           // 시작월과 설치월중 하나는 0의 값을 가진다.
