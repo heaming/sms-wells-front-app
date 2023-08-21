@@ -31,7 +31,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_ORDR')"
         >
-          <p>{{ params.feeTcntDvCd }}</p>
+          <p>{{ params.feeTcntDvCd === '01' ? t('MSG_TXT_1ST') : t('MSG_TXT_2ST') }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
