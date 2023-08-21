@@ -435,7 +435,7 @@ const initGrid = defineGrid((data, view) => {
       options: codes.MNGR_DV_CD,
     },
     { fieldName: 'bfBrchOgId', header: '(전)지역단', width: '170', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcDtm', header: '최종이관', width: '160', styleName: 'text-center', editable: false },
+    { fieldName: 'fnlMdfcDtm', header: '최종이관', width: '160', styleName: 'text-center', datetimeFormat: 'datetime', editable: false },
     { fieldName: 'brchOgId', header: '(현)지역단', width: '174', styleName: 'text-center', editable: false },
     {
       fieldName: 'mdfcBrchOgId',
