@@ -318,7 +318,7 @@ async function onClickBundleWithdrawalRgst() {
 async function onClickExcelDownload(no) {
   if (no === 1) {
     const view = grdMainRef1.value.getView();
-    const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-unrgs/excel-download', { params: cachedParams });
+    const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-unrgs/excel-download', { params: cachedParams, timeout: 300000 });
 
     await gridUtil.exportView(view, {
       fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_UNRG_PS')}`, // 미등록 현황
@@ -327,7 +327,7 @@ async function onClickExcelDownload(no) {
     });
   } else {
     const view = grdMainRef2.value.getView();
-    const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist/excel-download', { params: cachedParams });
+    const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist/excel-download', { params: cachedParams, timeout: 300000 });
 
     await gridUtil.exportView(view, {
       fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_BNDL_RGST_HIST')}`, // 묶음 등록 이력
@@ -392,10 +392,10 @@ const initGrid1 = defineGrid((data, view) => {
       header: t('MSG_TXT_FNT_NO'),
       width: '180',
       styleName: 'text-center',
-      displayCallback(grid, index, value) {
-        const { dpTpCd, crcdnoEncr } = gridUtil.getRowValue(grid, index.itemIndex);
-        return dpTpCd === '0102' ? value : crcdnoEncr;
-      },
+      // displayCallback(grid, index, value) {
+      //   const { dpTpCd, crcdnoEncr } = gridUtil.getRowValue(grid, index.itemIndex);
+      //   return dpTpCd === '0102' ? value : crcdnoEncr;
+      // },
     },
     { fieldName: 'owrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center' },
@@ -418,10 +418,10 @@ const initGrid1 = defineGrid((data, view) => {
       header: t('MSG_TXT_FNT_NO'),
       width: '180',
       styleName: 'text-center',
-      displayCallback(grid, index, value) {
-        const { sdingDpTpCd, sdingCrcdnoEncr } = gridUtil.getRowValue(grid, index.itemIndex);
-        return sdingDpTpCd === '0102' ? value : sdingCrcdnoEncr;
-      },
+      // displayCallback(grid, index, value) {
+      //   const { sdingDpTpCd, sdingCrcdnoEncr } = gridUtil.getRowValue(grid, index.itemIndex);
+      //   return sdingDpTpCd === '0102' ? value : sdingCrcdnoEncr;
+      // },
     },
     { fieldName: 'sdingOwrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'sdingMpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-center' },
@@ -523,10 +523,10 @@ const initGrid2 = defineGrid((data, view) => {
       header: t('MSG_TXT_FNT_NO'),
       width: '180',
       styleName: 'text-center',
-      displayCallback(grid, index, value) {
-        const { dpTpCd, crcdnoEncr } = gridUtil.getRowValue(grid, index.itemIndex);
-        return dpTpCd === '0102' ? value : crcdnoEncr;
-      },
+      // displayCallback(grid, index, value) {
+      //   const { dpTpCd, crcdnoEncr } = gridUtil.getRowValue(grid, index.itemIndex);
+      //   return dpTpCd === '0102' ? value : crcdnoEncr;
+      // },
     },
     { fieldName: 'owrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center' },
@@ -547,10 +547,10 @@ const initGrid2 = defineGrid((data, view) => {
       header: t('MSG_TXT_FNT_NO'),
       width: '180',
       styleName: 'text-center',
-      displayCallback(grid, index, value) {
-        const { sdingDpTpCd, sdingCrcdnoEncr } = gridUtil.getRowValue(grid, index.itemIndex);
-        return sdingDpTpCd === '0102' ? value : sdingCrcdnoEncr;
-      },
+      // displayCallback(grid, index, value) {
+      //   const { sdingDpTpCd, sdingCrcdnoEncr } = gridUtil.getRowValue(grid, index.itemIndex);
+      //   return sdingDpTpCd === '0102' ? value : sdingCrcdnoEncr;
+      // },
     },
     { fieldName: 'sdingOwrKnm', header: t('MSG_TXT_FNT_PSR_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'sdingMpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-center' },
