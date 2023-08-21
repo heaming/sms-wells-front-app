@@ -277,22 +277,18 @@ async function fetchData() {
       mainView = grdMainRef.value.getView();
       res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationDates', { params: cachedParams, timeout: 180000 });
     } else if (agrgDv === '1' || agrgDv === '3' || agrgDv === '4') { // 집계, 주문별, 가로계산식
+      mainView = grdSubRef.value.getView();
       if (sellTpCd === '1') { // 일시불 선택시
-        mainView = grdSubRef.value.getView();
         res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationSinglePayments', { params: cachedParams, timeout: 180000 });
       } else if (sellTpCd === '2') { // 렌탈,리스 선택시
         if (sellTpDtlCd === '21' || sellTpDtlCd === '23') { // 렌탈 (판매유형상세 : 21, 23)
-          mainView = grdSubRef.value.getView();
           res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationRentals', { params: cachedParams, timeout: 180000 });
         } else { // 리스 (판매유형상세 : 21, 23 외)
-          mainView = grdSubRef.value.getView();
           res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationLeases', { params: cachedParams, timeout: 180000 });
         }
       } else if (sellTpCd === '3') { // 멤버십 선택시
-        mainView = grdSubRef.value.getView();
         res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationMemberships', { params: cachedParams, timeout: 180000 });
       } else if (sellTpCd === '6') { // 정기배송 선택시
-        mainView = grdSubRef.value.getView();
         res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationRegularShippings', { params: cachedParams, timeout: 180000 });
       }
     }
