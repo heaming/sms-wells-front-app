@@ -61,10 +61,12 @@
           </kw-field>
         </kw-search-item>
       </kw-search-row>
-      <kw-search-row>
+      <kw-search-row
+        v-show="aplcList"
+      >
         <!-- 신청리스트 -->
         <kw-search-item
-          v-show="aplcList"
+
           :label="$t('MSG_TXT_APLC_LIST')"
         >
           <kw-select
