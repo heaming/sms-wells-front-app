@@ -516,7 +516,7 @@ async function onClickW106P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 고용보험 산출 클릭 ※
  */
 async function onClickW107P() {
-  await alert(t('MSG_ALT_BIZ_PROCS_NEXT'));
+  await alert('업무 처리 완료 후, :\n2 좌상단 [완료처리] 버튼을 눌러주세요');
 }
 
 /*
