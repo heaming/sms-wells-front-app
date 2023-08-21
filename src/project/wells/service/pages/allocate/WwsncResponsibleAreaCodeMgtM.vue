@@ -183,7 +183,6 @@ const { currentRoute } = useRouter();
 
 const {
   getDistricts,
-  getLgldCtpvLocaras,
 } = smsCommon();
 
 const {
@@ -203,7 +202,6 @@ const svcCode = (await dataService.get('/sms/wells/service/organizations/service
 const sido = await getDistricts('sido');
 const sigungu = ref([]);
 
-const locaraCds = ref(await getLgldCtpvLocaras());
 let cachedParams;
 const codes = await codeUtil.getMultiCodes(
   'WK_GRP_CD',
@@ -235,9 +233,11 @@ async function changeSido() {
   }
 }
 
+let cachedCodes;
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
+  cachedCodes = cloneDeep(products);
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
@@ -294,6 +294,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'lawcEmdNm' },
     { fieldName: 'amtdNm' },
     { fieldName: 'rpbLocaraCd' },
+    { fieldName: 'changeCodes' },
     { fieldName: 'chLocaraCd' },
     { fieldName: 'apyStrtdt' },
     { fieldName: 'apyEnddt' },
@@ -358,15 +359,13 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CH_LOCARA'),
       width: '100',
       styleName: 'text-center',
-      editor: { type: 'dropdown' },
       editable: true,
+      editor: { type: 'list' },
       styleCallback: (grid, dataCell) => {
-        const ctpvNm = grid.getValue(dataCell.index.itemIndex, 'ctpvNm');
-        const rpbLocaraCd = locaraCds.value
-          .filter((v) => v.ctpvNm === ctpvNm)
-          .map((v) => v.rpbLocaraCd)
-          .reduce((a, v) => (a.includes(v) ? a : [...a, v]), []);
-        return { editor: { type: 'list', labels: rpbLocaraCd, values: rpbLocaraCd } };
+        const { changeCodes } = cachedCodes[dataCell.index.itemIndex];
+        const rpbLocaraCd = changeCodes.map((v) => v.rpbLocaraCd);
+
+        return { editor: { type: 'list', labels: rpbLocaraCd, values: rpbLocaraCd }, editable: true };
       },
       rules: 'required',
     },
