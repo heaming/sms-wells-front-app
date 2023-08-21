@@ -219,7 +219,6 @@ let cachedParams;
  *  Event - 번호 검색 아이콘 클릭 이벤트
  */
 async function onClickSearchNo() {
-  await alert('업무 처리 완료 후, \n 좌상단 [완료처리] 버튼을 눌러주세요');
   const { perfYm, prtnrNo } = searchParams.value;
   const { result, payload } = await modal({
     component: 'ZwogzMonthPartnerListP',
@@ -454,7 +453,7 @@ async function onClickW304P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 고용보험 산출 클릭 ※
  */
 async function onClickW305P() {
-  await alert('업무 처리 완료 후, :\n2 좌상단 [완료처리] 버튼을 눌러주세요');
+  await alert('업무 처리 완료 후, \n 좌상단 [완료처리] 버튼을 눌러주세요');
 }
 
 /*
