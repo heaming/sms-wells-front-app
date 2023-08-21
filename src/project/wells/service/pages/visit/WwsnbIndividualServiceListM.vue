@@ -29,6 +29,7 @@
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
             disable-popup
+            :update="updateCntrDtl()"
           >
             <template #append>
               <kw-icon
@@ -611,6 +612,15 @@ async function onClickCstSearch() {
     searchParams.value.cntrNo = payload.cntrNo ?? '';
     searchParams.value.cntrSn = payload.cntrSn ?? '';
   }
+}
+
+function updateCntrDtl() {
+  watch(props, (val) => {
+    if (val) {
+      searchParams.value.cntrNo = props.cntrNo;
+      searchParams.value.cntrSn = props.cntrSn;
+    }
+  });
 }
 
 /* 개인별 서비스현황 조회 */
