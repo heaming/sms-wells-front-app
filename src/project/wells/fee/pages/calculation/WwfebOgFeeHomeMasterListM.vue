@@ -389,13 +389,14 @@ async function onClickW301P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 기타지원 업로드 클릭 ※업무개발에서 별도개발
  */
 async function onClickW302P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { perfYm } = searchParams.value;
+  const { perfYm, rsbTpCd } = searchParams.value;
   const { result: isUploadSuccess, payload } = await modal({
     component: 'ZwfezXlsUpP',
     componentProps: {
       formatId: 'FOM_FEZ_0025',
       baseYm: perfYm,
       ogTpCd: 'W03',
+      type: rsbTpCd,
     },
   });
   if (isUploadSuccess) {
@@ -486,7 +487,7 @@ async function onClickW306P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  */
 async function onClickW307P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
-  if (searchParams.value.rsbTpCd === '') {
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
@@ -640,7 +641,7 @@ async function onClickW318P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 async function onClickW320P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
   const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.feeTcntDvCd);
-  if (searchParams.value.rsbTp === '') {
+  if (rsbTpCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
