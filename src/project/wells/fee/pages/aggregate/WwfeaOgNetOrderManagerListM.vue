@@ -720,9 +720,10 @@ async function onClickExcelDownload() {
   const { inqrDvCd, divCd } = searchParams.value;
   cachedParams = cloneDeep(searchParams.value);
   if (inqrDvCd === '01') {
-    await downloadExcelView1('mngers');
     if (divCd === '04') {
       await downloadExcelView2('mnger-fees');
+    } else {
+      await downloadExcelView1('mngers');
     }
   } else if (inqrDvCd === '02') {
     await downloadExcelView3('mnger-aggregation');

@@ -103,11 +103,6 @@
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
         <kw-btn
           secondary
           dense
