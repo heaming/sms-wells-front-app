@@ -431,11 +431,13 @@ const initExpectedGrid = defineGrid((data, view) => {
       options: ynOpt,
       styleCallback: () => {
         const ret = {};
+        debugger;
         if (isNotExpected.value && !isLastDate.value) {
           ret.editable = true;
         } else {
           ret.editable = false;
         }
+        return ret;
       },
     },
     { fieldName: 'authRsgExcdRsonCd',
@@ -452,6 +454,8 @@ const initExpectedGrid = defineGrid((data, view) => {
         if (rowState === RowState.UPDATED && excdYn === 'N' && isNotExpected.value && !isLastDate.value) {
           ret.editable = false;
           grid.setValue(dataCell.index.itemIndex, 'authRsgExcdRsonCd', '');
+        } else if (!isNotExpected.value) {
+          ret.editable = false;
         } else {
           ret.editable = true;
         }
