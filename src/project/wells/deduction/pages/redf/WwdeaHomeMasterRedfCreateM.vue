@@ -121,6 +121,7 @@
           :label="t('MSG_BTN_REDF_AMT_CRT')"
           dense
           primary
+          @click="onClickRedfAmountCreate"
         />
       </kw-action-top>
       <kw-grid
@@ -443,6 +444,15 @@ watch(() => [searchParams.value.redfAdsbTpCd, searchParams.value.rsbDvCd], async
   }
 });
 
+/* 되물림 금액 생성 */
+async function onClickRedfAmountCreate() {
+  await modal({
+    component: 'ZwdeaRedfAmountCreateP',
+    componentProps: {
+      ogTpCd: 'W03',
+    },
+  });
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
