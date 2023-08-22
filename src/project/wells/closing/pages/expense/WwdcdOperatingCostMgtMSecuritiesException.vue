@@ -136,7 +136,7 @@ async function setData(paramData) {
   if (grdFirstRef.value?.getView()) gridUtil.reCreateGrid(grdFirstRef.value.getView());
   if (grdSecondRef.value?.getView()) gridUtil.reCreateGrid(grdSecondRef.value.getView());
   cachedParams = cloneDeep(paramData);
-  fetchData();
+  await fetchData();
 }
 
 async function onClickSave() {
@@ -189,6 +189,7 @@ const initGrdFirst = defineGrid((data, view) => {
     { fieldName: 'adjOgId', visible: false },
     { fieldName: 'opcsAdjNo', visible: false }, // 운영비정산번호
     { fieldName: 'adjPrtnrNo', visible: false },
+    { fieldName: 'ogTpCd', visible: false },
     { fieldName: 'useDtm', header: t('MSG_TXT_USE_DTM'), width: '174', styleName: 'text-center', editable: false }, // 사용일시
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_OG_NM'), width: '71', styleName: 'text-left', editable: false }, // 조직명
     { fieldName: 'crcdnoEncr', header: t('MSG_TXT_CARD_NO'), width: '172', styleName: 'text-center', editable: false }, // 카드번호
@@ -269,17 +270,16 @@ const initGrdFirst = defineGrid((data, view) => {
   view.editOptions.editable = true;
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, adjOgId,
-      adjPrtnrNo, ogTpCd, opcsAdjNo, adjCls, opcsAdjExcdYn } = grid.getValues(itemIndex);
+    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, opcsAdjNo,
+      adjPrtnrNo, ogTpCd, adjCls, opcsAdjExcdYn } = grid.getValues(itemIndex);
     cachedParams.authDate = useDtm;
     cachedParams.mrcNm = mrcNm;
+    cachedParams.opcsAdjNo = opcsAdjNo;
     cachedParams.cardAprno = cardAprno;
     cachedParams.domTrdAmt = domTrdAmt;
     cachedParams.opcsCardUseIzId = opcsCardUseIzId;
-    cachedParams.adjOgId = adjOgId;// 총괄단 아이디
     cachedParams.adjPrtnrNo = adjPrtnrNo;
     cachedParams.ogTpCd = ogTpCd;
-    cachedParams.opcsAdjNo = opcsAdjNo;
     console.log(column);
     console.log(adjCls);
     if (column === 'opcsAdjBtn') {

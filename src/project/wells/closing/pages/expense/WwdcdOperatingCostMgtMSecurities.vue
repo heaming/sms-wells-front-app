@@ -19,9 +19,9 @@
     </template>
     <kw-btn
       v-show="onShowSave"
-      :label="$t('MSG_BTN_SAVE')"
-      grid-action
       dense
+      grid-action
+      :label="$t('MSG_BTN_SAVE')"
       @click="onClickSave"
     />
     <kw-separator
@@ -100,10 +100,6 @@ const codes = await codeUtil.getMultiCodes(
   'OPCS_ADJ_SMRY_DV_CD',
 );
 
-const emits = defineEmits([
-  'tebEvent',
-]);
-
 // 정산대상 - 유가증권
 async function adjustObject() {
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/adjust-object', { params: cachedParams });
@@ -111,8 +107,7 @@ async function adjustObject() {
   const view = grdThirdRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
-  emits('tebEvent', 'sel', res.data);
-  // TODO 정산제외일경우 버튼 미노출
+  // emits('tebEvent', 'sel', res.data);
 }
 
 // 원천세 정산내역
@@ -149,23 +144,6 @@ async function setData(paramData) {
   if (grdFourthRef.value?.getView()) gridUtil.reCreateGrid(grdFourthRef.value.getView());
   cachedParams = cloneDeep(paramData);
   fetchData();
-}
-
-async function onClickExcelDownload(flag) {
-  if (flag === 'adjustObject') {
-    const view = grdThirdRef.value.getView();
-
-    await gridUtil.exportView(view, {
-      fileName: t('MSG_TXT_ADJ_OJ'),
-      timePostfix: true,
-    });
-  } else if (flag === 'withholdingTaxAdjust') {
-    const view = grdFourthRef.value.getView();
-    await gridUtil.exportView(view, {
-      fileName: t('MSG_TXT_WHTX_ADJ_IZ'),
-      timePostfix: true,
-    });
-  }
 }
 
 async function onClickSave() {
@@ -209,6 +187,21 @@ async function onClickSave() {
   fetchData();
 }
 
+async function onClickExcelDownload(flag) {
+  if (flag === 'adjustObject') {
+    const view = grdThirdRef.value.getView();
+    await gridUtil.exportView(view, {
+      fileName: t('MSG_TXT_ADJ_OJ'),
+      timePostfix: true,
+    });
+  } else if (flag === 'withholdingTaxAdjust') {
+    const view = grdFourthRef.value.getView();
+    await gridUtil.exportView(view, {
+      fileName: t('MSG_TXT_WHTX_ADJ_IZ'),
+      timePostfix: true,
+    });
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -216,6 +209,7 @@ const initGrdThird = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'opcsCardUseIzId', visible: false }, // 운영비카드사용내역ID
     { fieldName: 'adjOgId', visible: false },
+    { fieldName: 'ogTpCd', visible: false },
     { fieldName: 'opcsAdjNo', visible: false }, // 운영비정산번호
     { fieldName: 'adjPrtnrNo', visible: false },
     { fieldName: 'useDtm', header: t('MSG_TXT_USE_DTM'), width: '174', styleName: 'text-center', editable: false }, // 사용일시
@@ -298,20 +292,18 @@ const initGrdThird = defineGrid((data, view) => {
   view.editOptions.editable = true;
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, adjOgId,
-      adjPrtnrNo, ogTpCd, opcsAdjNo, adjCls, opcsAdjExcdYn } = grid.getValues(itemIndex);
+    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, opcsAdjNo,
+      adjPrtnrNo, ogTpCd, adjCls, opcsAdjExcdYn } = grid.getValues(itemIndex);
     cachedParams.authDate = useDtm;
-    cachedParams.adjOgId = adjOgId; // 정산조직ID
-    cachedParams.opcsAdjNo = opcsAdjNo; // 정산번호
+    cachedParams.mrcNm = mrcNm;
+    cachedParams.opcsAdjNo = opcsAdjNo;
+    cachedParams.cardAprno = cardAprno; // 카드승인번호
+    cachedParams.domTrdAmt = domTrdAmt;
+    cachedParams.opcsCardUseIzId = opcsCardUseIzId;
     cachedParams.adjPrtnrNo = adjPrtnrNo; // 정산파트너번호
     cachedParams.ogTpCd = ogTpCd; // 조직유형코드
-    cachedParams.cardAprno = cardAprno; // 카드승인번호
-    cachedParams.opcsCardUseIzId = opcsCardUseIzId;
-    cachedParams.mrcNm = mrcNm;
-    cachedParams.domTrdAmt = domTrdAmt;
-    console.log(column);
-    console.log(adjCls);
-
+    console.log(column); // lint 회피하여 소스 보존을위해 로그출력
+    console.log(adjCls); // lint 회피하여 소스 보존을위해 로그출력
     if (column === 'opcsAdjBtn') {
     //   if (adjCls === '완료') {
     //     alert(t('정산이 완료된 건입니다'));
@@ -362,9 +354,6 @@ const initGrdFourth = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-});
-onMounted(async () => {
-  fetchData();
 });
 
 async function onClickOpenReport() {
