@@ -244,6 +244,7 @@
                         icon="search"
                         maxlength="100"
                         grow
+                        :disable="!isFetched"
                         @click-icon="onClickSelectProduct"
                       />
                       <kw-select
@@ -367,7 +368,7 @@
                           </kw-form-item>
                           <kw-form-item label="렌탈가(원)">
                             <p>
-                              {{ stringUtil.getNumberWithComma(orderProduct.fnlAmt || 0) }}
+                              {{ stringUtil.getNumberWithComma(orderProduct.sellAmt || 0) }}
                             </p>
                           </kw-form-item>
                         </kw-form-row>
@@ -382,9 +383,15 @@
                           </kw-form-item>
                           <kw-form-item label="할인렌탈가(원)">
                             <span style="color: red;">
-                              {{ stringUtil.getNumberWithComma(
-                                (orderProduct.fnlAmt||0) - (orderProduct.sellDscCtrAmt||0)
-                              ) }}
+                              {{ orderProduct.sellDscCtrAmt > 0 ? '(' : '' }}
+                              <span style="text-decoration: line-through;">
+                                {{
+                                  orderProduct.sellDscCtrAmt > 0 ?
+                                    stringUtil.getNumberWithComma(orderProduct.sellAmt||0) : ''
+                                }}
+                              </span>
+                              {{ orderProduct.sellDscCtrAmt > 0 ? ')' : '' }}
+                              {{ stringUtil.getNumberWithComma(orderProduct.fnlAmt||0) }}
                             </span>
                           </kw-form-item>
                         </kw-form-row>
@@ -1221,6 +1228,10 @@ const fieldData = ref({
   sellEvCd: '', /* 판매행사코드 */
   frisuAsPtrmN: '', /* 무상AS기간수 */
   cntrAmt: '', // [주문상품선택-등록비] 계약금액
+  cntramDscAmt: '', /* 계약금할인금액 */
+  pdBaseAmt: '', /* 상품기준금액 */
+  sellAmt: '', /* 판매금액 */
+  dscAmt: '', /* 할인금액 */
   fnlAmt: '', // [주문상품선택-월렌탈료] 최종금액
   sellInflwChnlDtlCd: '', // 판매유입채널상세코드
   stplPtrm: '', // [주문상품선택-약정기간]
@@ -1270,6 +1281,10 @@ const orderProduct = ref({
   sellEvCd: '', /* 판매행사코드 */
   frisuAsPtrmN: '', /* 무상AS기간수 */
   cntrAmt: '0', // 등록비(계약금액)
+  cntramDscAmt: '0', /* 계약금할인금액 */
+  pdBaseAmt: '0', /* 상품기준금액 */
+  sellAmt: '0', /* 판매금액 */
+  dscAmt: '0', /* 할인금액 */
   fnlAmt: '0', // 월렌탈료(최종금액)
   sellInflwChnlDtlCd: '', // 판매유입채널상세코드
   stplPtrm: '', // 약정기간
@@ -1336,7 +1351,11 @@ async function initProduct(gubun) {
   orderProduct.value.alncmpCd = (gubun === 'init') ? fieldData.value.alncmpCd : '';
   orderProduct.value.sellInflwChnlDtlCd = (gubun === 'init') ? fieldData.value.sellInflwChnlDtlCd : productInfo.value.sellInflwChnlDtlCd;
   orderProduct.value.cntrAmt = (gubun === 'init') ? fieldData.value.cntrAmt || '0' : '0';
-  orderProduct.value.fnlAmt = (gubun === 'init') ? fieldData.value.fnlAmt : '0';
+  orderProduct.value.cntramDscAmt = (gubun === 'init') ? fieldData.value.cntramDscAmt || '0' : '0';
+  orderProduct.value.pdBaseAmt = (gubun === 'init') ? fieldData.value.pdBaseAmt || '0' : '0';
+  orderProduct.value.sellAmt = (gubun === 'init') ? fieldData.value.sellAmt || '0' : '0';
+  orderProduct.value.dscAmt = (gubun === 'init') ? fieldData.value.dscAmt || '0' : '0';
+  orderProduct.value.fnlAmt = (gubun === 'init') ? fieldData.value.fnlAmt || '0' : '0';
   orderProduct.value.sellDscCtrAmt = (gubun === 'init') ? fieldData.value.sellDscCtrAmt : '0';
   orderProduct.value.stplPtrm = (gubun === 'init') ? fieldData.value.stplPtrm : '';
   orderProduct.value.cntrPtrm = (gubun === 'init') ? fieldData.value.cntrPtrm : '';
@@ -1479,14 +1498,18 @@ async function selectRentalPriceChanges() {
   if (orderProduct.sellDscDvCd !== '5') { orderProduct.sellDscrCd = ''; } // 렌탈법인할인율코드 초기화
 
   rentalPrice.value = {};
-  orderProduct.value.fnlAmt = '0';
 
   const res = await dataService.get(
     '/sms/wells/contract/changeorder/rental-price-changes',
     { params: orderProduct.value },
   );
   Object.assign(rentalPrice.value, res.data[0]);
-  orderProduct.value.fnlAmt = rentalPrice.value.fnlAmt; // 최종금액(=렌탈가)
+  orderProduct.value.pdBaseAmt = rentalPrice.value.basVal; // 기본값
+  // 할인금액 = 기본값(상품기준금액) - 최종값(판매금액)
+  orderProduct.value.dscAmt = rentalPrice.value.basVal - rentalPrice.value.fnlVal;
+  orderProduct.value.sellAmt = rentalPrice.value.fnlVal; // 판매금액(=렌탈가)
+  // 최종금액(=할인렌탈가) = 판매금액 - 판매할인조정금액
+  orderProduct.value.fnlAmt = rentalPrice.value.fnlVal - orderProduct.value.sellDscCtrAmt;
   orderProduct.value.ackmtPerfAmt = rentalPrice.value.ackmtPerfAmt; // 인정실적금액
   orderProduct.value.ackmtPerfRt = rentalPrice.value.ackmtPerfRt; // 인정실적율
   orderProduct.value.feeAckmtBaseAmt = rentalPrice.value.feeAckmtBaseAmt; // 수수료인정기준금액
@@ -1628,10 +1651,15 @@ async function onClickCntrDelete() {
 }
 
 watch(() => orderProduct.value.sellDscCtrAmt, async () => {
-  if (toNumber(orderProduct.value.sellDscCtrAmt || 0) > toNumber(orderProduct.value.fnlAmt || 0)) {
+  console.log(toNumber(orderProduct.value.sellDscCtrAmt || 0));
+  console.log(toNumber(orderProduct.value.sellAmt || 0));
+
+  if (toNumber(orderProduct.value.sellDscCtrAmt || 0) > toNumber(orderProduct.value.sellAmt || 0)) {
     alert('할인금액이 렌탈금액보다 높을 수 없습니다.');
     orderProduct.value.sellDscCtrAmt = 0;
   }
+  orderProduct.value.fnlAmt = toNumber(orderProduct.value.sellAmt || 0)
+  - toNumber(orderProduct.value.sellDscCtrAmt || 0);
 });
 
 // -------------------------------------------------------------------------------------------------
