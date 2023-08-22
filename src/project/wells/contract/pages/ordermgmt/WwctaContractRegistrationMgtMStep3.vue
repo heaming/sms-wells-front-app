@@ -174,7 +174,6 @@
               </kw-form-item>
               <kw-form-item
                 :label="$t('MSG_TXT_TEL_NO')"
-                required
               >
                 <zwcm-telephone-number
                   v-model:tel-no1="item.adrpc.locaraTno"
