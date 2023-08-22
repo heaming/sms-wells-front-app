@@ -529,16 +529,25 @@ const initGrid = defineGrid((data, view) => {
       width: '198',
       styleName: 'rg-button-link text-left',
       renderer: { type: 'button' },
+      mergeRule: {
+        criteria: 'value',
+      },
     },
     { fieldName: 'mconBzsNm',
       header: '거래처명',
       width: '125',
       styleName: 'text-center',
+      mergeRule: {
+        criteria: 'value',
+      },
     },
     { fieldName: 'billRmkCn',
       header: t('MSG_TXT_BILL_DV'),
       // , header: '어음구분'
-      width: '150' },
+      width: '150',
+      mergeRule: {
+        criteria: 'value',
+      } },
     { fieldName: 'cntrDtlNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       // , header: '계약상세번호'
@@ -690,7 +699,8 @@ const initGrid2 = defineGrid((data, view) => {
       // , header: '통합입금번호'
       width: '126',
       styleName: 'text-center',
-      editable: false },
+      editable: false,
+    },
     { fieldName: 'rveCd',
       header: t('MSG_TXT_RVE_CD'),
       // , header: '수납코드'

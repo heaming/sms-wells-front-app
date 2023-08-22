@@ -61,13 +61,17 @@
           <kw-input
             v-if="searchParams.encr === '01'"
             v-model="searchParams.crdcdNo"
+            :label="$t('MSG_TXT_CARD_ACNO')"
             mask="################"
             :disable="rgstStatCd"
-            rules="min:12|max:12"
+            :maxlength="20"
           />
+          <!-- rules="min:12|max:12" -->
           <kw-input
             v-if="searchParams.encr === '02'"
             v-model="searchParams.acnoEncr"
+            :maxlength="20"
+            :label="$t('MSG_TXT_CARD_ACNO')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -82,9 +86,12 @@
             v-model:cntr-sn="searchParams.cntrSn"
             :name="$t('MSG_TXT_CNTR_DTL_NO')"
             :disable="rgstStatCd"
-            :rules="!searchParams.cstNo ? 'date_range_required':''"
+            :rules="isValidate"
           />
         </kw-form-item>
+        <!-- :rules="(isEmpty(searchParams.acnoEncr) && isEmpty(searchParams.crdcdNo))
+            &&!searchParams.cstNo ? 'date_range_required':''"
+          :custom-messages="t('계약번호 또는 고객번호를 입력 후 조회해 주시기 바랍니다.')" -->
         <!-- label="고객번호"
         hint="계약상세번호, 고객번호 중 1가지항목 입력 후 조회 가능합니다. " -->
         <kw-search-item
@@ -98,9 +105,12 @@
             maxlength="20"
             :label="$t('MSG_TXT_CST_NO')"
             :disable="rgstStatCd"
-            :rules="!searchParams.cntrNo ? 'date_range_required':''"
+            :rules="isValidate"
             @click-icon="onClickCstSearch"
           />
+          <!-- :rules="(isEmpty(searchParams.acnoEncr) && isEmpty(searchParams.crdcdNo))
+              && !searchParams.cntrNo ? 'date_range_required':''"
+            :custom-messages="t('계약번호 또는 고객번호를 입력 후 조회해 주시기 바랍니다.')" -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -223,8 +233,9 @@
         >
           <kw-select
             v-model="saveParams.bankCode"
-            :options="codes.BNK_CD"
+            :options="optionList"
           />
+          <!-- :options="codes.BNK_CD" -->
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -363,7 +374,7 @@
 // eslint-disable-next-line no-unused-vars
 import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
-import { cloneDeep, isEqual } from 'lodash-es';
+import { cloneDeep, isEqual, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 // eslint-disable-next-line no-unused-vars
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
@@ -401,8 +412,9 @@ const { ok } = useModal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { notify } = useGlobal();
-// const fnitCdRes = await dataService.get('/sms/common/common/codes/finance-code/bureau-codes');
-// const optionList = fnitCdRes.data; // 은행코드(은행명)
+const fnitCdRes = await dataService.get('/sms/common/common/codes/finance-code/bank-codes');
+console.log(fnitCdRes);
+const optionList = fnitCdRes.data; // 은행코드(은행명)
 
 const pageInfo1 = ref({ // 계약상세 페이지1
   totalCount: 0,
@@ -603,6 +615,18 @@ async function onClickExcel2() {
     timePostfix: true,
   });
 }
+
+// 검색 유효성
+const isValidate = computed(() => async () => {
+  const errors = [];
+
+  if ((isEmpty(searchParams.value.acnoEncr) && isEmpty(searchParams.value.crdcdNo))
+            && (!searchParams.value.cstNo && !searchParams.value.cntrNo)) {
+    errors.push(t('계약상세번호, 고객번호 중 1가지항목 입력 후 조회 가능합니다.'));
+  }
+
+  return errors[0] || true;
+});
 
 // 전금상세 다운로드
 async function onClickExcel3() {
@@ -1155,6 +1179,8 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'rfndPsbAmt', dataType: 'number' }, /* 환불가능금액 */
     { fieldName: 'rveNo' },
     { fieldName: 'rveSn' },
+    { fieldName: 'fnitCd' },
+    { fieldName: 'crdcdFer' },
   ];
 
   const columns = [
@@ -1283,7 +1309,14 @@ const initGrid2 = defineGrid((data, view) => {
   // 2번째 GRID 변경(환불상세)에 따라 4번째 GRID(환불접수총액) 상시변경
   // eslint-disable-next-line no-unused-vars
   view.onCellEdited = async (grid, itemIndex) => {
+    // const { crdcdFer, fnitCd } = grid.getValues(itemIndex);
+
+    // if(){
+
+    // }
+
     grid.commit();
+
     await onCheckTotalData();
   };
 
