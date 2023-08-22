@@ -120,15 +120,6 @@
           inset
           spaced
         />
-        <!-- 엑셀다운로드 -->
-        <kw-btn
-          icon="download_on"
-          :disable="pageInfo.totalCount === 0"
-          dense
-          secondary
-          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-          @click="onClickExcelDownload"
-        />
       </kw-action-top>
 
       <kw-grid
@@ -149,12 +140,12 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
+import { getPhoneNumber } from '~sms-common/organization/utils/ogUtil';
 
 const { t } = useI18n();
 const now = dayjs();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const { currentRoute } = useRouter();
 const { notify, modal, alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -205,16 +196,6 @@ async function fetchData() {
 async function onClickSearch() {
   await fetchData();
 }
-
-async function onClickExcelDownload() {
-  const view = grdBusinessToBusinessBoList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/business-to-business/business-opportunities', { params: cachedParams });
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-    exportData: res.data,
-  });
-}
 function validateEmail(strEmail) {
   const re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
   return re.test(strEmail);
@@ -231,6 +212,18 @@ async function onClickSave() {
         alert(t('MSG_ALT_EMAIL'));
         return;
       }
+    }
+    if (!isEmpty(changedRows[i].telNo1)) {
+      const tel = changedRows[i].telNo1.replaceAll('-', '');
+      changedRows[i].locaraTno = getPhoneNumber(tel, 1);
+      changedRows[i].exnoEncr = getPhoneNumber(tel, 2);
+      changedRows[i].idvTno = getPhoneNumber(tel, 3);
+    }
+    if (!isEmpty(changedRows[i].telNo2)) {
+      const tel = changedRows[i].telNo2.replaceAll('-', '');
+      changedRows[i].cralLocaraTno = getPhoneNumber(tel, 1);
+      changedRows[i].mexnoEncr = getPhoneNumber(tel, 2);
+      changedRows[i].cralIdvTno = getPhoneNumber(tel, 3);
     }
   }
   await dataService.post('/sms/wells/contract/business-to-business/business-opportunities', changedRows);
@@ -266,22 +259,14 @@ async function onKeyManFind(dataRow) {
     },
   });
   view.setValue(dataRow, 'leadCstRlpplNm', '');
-  view.setValue(dataRow, 'locaraTno', '');
-  view.setValue(dataRow, 'exnoEncr', '');
-  view.setValue(dataRow, 'idvTno', '');
-  view.setValue(dataRow, 'cralLocaraTno', '');
-  view.setValue(dataRow, 'mexnoEncr', '');
-  view.setValue(dataRow, 'cralIdvTno', '');
+  view.setValue(dataRow, 'telNo1', '');
+  view.setValue(dataRow, 'telNo2', '');
   view.setValue(dataRow, 'emadrCn', '');
   const resData = res.data;
   if ((!isEmpty(res.data))) {
     view.setValue(dataRow, 'leadCstRlpplNm', resData.leadCstRlpplNm);
-    view.setValue(dataRow, 'locaraTno', resData.locaraTno);
-    view.setValue(dataRow, 'exnoEncr', resData.exnoEncr);
-    view.setValue(dataRow, 'idvTno', resData.idvTno);
-    view.setValue(dataRow, 'cralLocaraTno', resData.cralLocaraTno);
-    view.setValue(dataRow, 'mexnoEncr', resData.mexnoEncr);
-    view.setValue(dataRow, 'cralIdvTno', resData.cralIdvTno);
+    view.setValue(dataRow, 'telNo1', resData.locaraTno + resData.exnoEncr + resData.idvTno);
+    view.setValue(dataRow, 'telNo2', resData.cralLocaraTno + resData.mexnoEncr + resData.cralIdvTno);
     view.setValue(dataRow, 'emadrCn', resData.emadrCn);
   }
 }
@@ -306,13 +291,12 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'locaraTno' }, // 업체연락처1-1
     { fieldName: 'exnoEncr' }, // 업체연락처1-2
     { fieldName: 'idvTno' }, // 업체연락처1-3
-    { fieldName: 'idvTnoEncr' }, // 업체연락처1-3 마스킹
+    { fieldName: 'telNo1' }, // 업체연락처1
     { fieldName: 'cralLocaraTno' }, // 업체연락처2-1
     { fieldName: 'mexnoEncr' }, // 업체연락처2-2
     { fieldName: 'cralIdvTno' }, // 업체연락처2-3
-    { fieldName: 'cralIdvTnoEncr' }, // 업체연락처2-3 마스킹
+    { fieldName: 'telNo2' }, // 업체연락처2
     { fieldName: 'emadrCn' }, // 이메일
-    { fieldName: 'emadrCnEncr' }, // 이메일 마스킹
     { fieldName: 'crdrVal' }, // 신용등급
     { fieldName: 'etBiddDt' }, // 예상입찰일자
     { fieldName: 'opptCntrFomCd' }, // 기회계약형태코드
@@ -398,22 +382,33 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       editor: {
         maxLength: 100,
       } }, // 업체담당자
-    { fieldName: 'locaraTno', header: `${t('MSG_TXT_CRAL_LOCARA_TNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
-    { fieldName: 'exnoEncr', header: `${t('MSG_TXT_MEXNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'locaraTno', visible: false },
+    { fieldName: 'exnoEncr', visible: false },
     { fieldName: 'idvTno', visible: false },
-    { fieldName: 'idvTnoEncr', header: `${t('MSG_TXT_CRAL_IDV_TNO')}1`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
-    { fieldName: 'cralLocaraTno', header: `${t('MSG_TXT_CRAL_LOCARA_TNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
-    { fieldName: 'mexnoEncr', header: `${t('MSG_TXT_MEXNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
+    { fieldName: 'telNo1',
+      header: `${t('MSG_TXT_CRAL_IDV_TNO')}1`,
+      width: '150',
+      styleName: 'text-center',
+      editor: { type: 'telephone' },
+    },
+    { fieldName: 'cralLocaraTno', visible: false },
+    { fieldName: 'mexnoEncr', visible: false },
     { fieldName: 'cralIdvTno', visible: false },
-    { fieldName: 'cralIdvTnoEncr', header: `${t('MSG_TXT_CRAL_IDV_TNO')}2`, width: '150', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } },
-    { fieldName: 'emadrCn', visible: false },
-    { fieldName: 'emadrCnEncr',
+    { fieldName: 'telNo2',
+      header: `${t('MSG_TXT_CRAL_IDV_TNO')}2`,
+      width: '150',
+      styleName: 'text-center',
+      editor: { type: 'telephone' },
+    },
+    { fieldName: 'emadrCn',
+      visible: false,
       header: t('MSG_TXT_EMAIL'),
       width: '193',
       styleName: 'text-center',
       editor: {
         maxLength: 1000,
-      } }, // 이메일
+      },
+    }, // 이메일
     { fieldName: 'crdrVal',
       header: t('MSG_TXT_CRED_GRD'),
       width: '127',
@@ -502,13 +497,14 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
+  view.copyOptions.enabled = false;
   // multi row header setting
   view.setColumnLayout([
     'prjNm', 'opptId', 'fstRgstDt', 'dgr3LevlOgCd', 'opptIchrPrtnrNo', 'prtnrKnm', 'prjFomCd', 'bzrno', 'leadCstNm',
     {
       header: t('Key-Man'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['leadCstRlpplNmEncr', 'locaraTno', 'exnoEncr', 'idvTnoEncr', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTnoEncr', 'emadrCnEncr'],
+      items: ['leadCstRlpplNmEncr', 'telNo1', 'telNo2', 'emadrCn'],
     },
     'crdrVal', 'etBiddDt', 'opptCntrFomCd', 'totQty',
     {
@@ -563,24 +559,9 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       grid.commit();
       data.setValue(updateRow, 'leadCstRlpplNm', leadCstRlpplNmEncr);
     }
-    if (columnName === 'idvTnoEncr') {
-      const idvTnoEncr = grid.getValue(updateRow, 16);
-      grid.commit();
-      data.setValue(updateRow, 'idvTno', idvTnoEncr);
-    }
-    if (columnName === 'cralIdvTnoEncr') {
-      const cralIdvTnoEncr = grid.getValue(updateRow, 20);
-      grid.commit();
-      data.setValue(updateRow, 'cralIdvTno', cralIdvTnoEncr);
-    }
-    if (columnName === 'emadrCnEncr') {
-      const emadrCnEncr = grid.getValue(updateRow, 22);
-      grid.commit();
-      data.setValue(updateRow, 'emadrCn', emadrCnEncr);
-    }
   };
   view.setFixedOptions({
-    colCount: 6,
+    colCount: 1,
   });
   view.onCellDblClicked = async (g, { itemIndex }) => {
     const rowValue = gridUtil.getRowValue(g, itemIndex);

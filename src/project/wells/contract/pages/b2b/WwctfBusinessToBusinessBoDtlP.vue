@@ -169,6 +169,7 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
     { fieldName: 'basePdCdCheck' },
     { fieldName: 'pdQty', dataType: 'number' },
     { fieldName: 'fnlAmt', dataType: 'number' },
+    { fieldName: 'stplPtrm', dataType: 'number' },
     { fieldName: 'unuitmCn' },
   ];
   const columns = [
@@ -205,6 +206,16 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
         editFormat: '#,##0',
         maxLength: 20,
       } }, // 입찰가격
+    { fieldName: 'stplPtrm',
+      header: t('약정기간'),
+      width: '160',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      editor: {
+        type: 'number',
+        editFormat: '#,##0',
+        maxLength: 10,
+      } }, // 약정기간
     { fieldName: 'unuitmCn',
       header: t('MSG_TXT_UNUITM'),
       width: '376',
