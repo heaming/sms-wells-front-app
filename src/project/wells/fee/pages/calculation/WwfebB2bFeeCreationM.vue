@@ -339,21 +339,144 @@ const initGridBase = defineGrid((data, view) => {
     { fieldName: 'baseYm', visible: false },
     { fieldName: 'feeTcntDvCd', visible: false },
     { fieldName: 'coCd', visible: false },
-    { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
+    {
+      fieldName: 'coCdNm',
+      header: t('MSG_TXT_CORP_NAME'),
+      width: '127',
+      headerSummary: {
+        styleName: 'text-center',
+        text: t('MSG_TXT_SUM'),
+      },
+    },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
-    { fieldName: 'cnt', header: t('MSG_TXT_PERF'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amtW040001', header: t('MSG_TXT_BAS_FEE'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amtW040005', header: t('MSG_TXT_MED_FEE'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amtW040004', header: t('MSG_TXT_PMOT'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amtW040020', header: t('MSG_TXT_ADSB'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amtW040003', header: t('MSG_TXT_ICT'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'feeSumAmt', header: t('MSG_TXT_FEE_SUM'), width: '98', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amt01', header: t('MSG_TXT_RDS'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'amt01Cn', header: t('MSG_TXT_RDS_MDFC_RSON'), width: '150', styleName: 'text-left' },
-    { fieldName: 'amt08', header: t('MSG_TXT_RE_REDF'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'ddtnSumAmt', header: t('MSG_TXT_DDTN_SUM'), width: '150', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'acpyAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '150', styleName: 'text-right', dataType: 'number' },
+    {
+      fieldName: 'cnt',
+      header: t('MSG_TXT_PERF'),
+      width: '110',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'amtW040001',
+      header: t('MSG_TXT_BAS_FEE'),
+      width: '110',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'amtW040005',
+      header: t('MSG_TXT_MED_FEE'),
+      width: '110',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'amtW040004',
+      header: t('MSG_TXT_PMOT'),
+      width: '110',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'amtW040020',
+      header: t('MSG_TXT_ADSB'),
+      width: '110',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'amtW040003',
+      header: t('MSG_TXT_ICT'),
+      width: '110',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'feeSumAmt',
+      header: t('MSG_TXT_FEE_SUM'),
+      width: '98',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'amt01',
+      header: t('MSG_TXT_RDS'),
+      width: '110',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'amt01Cn',
+      header: t('MSG_TXT_RDS_MDFC_RSON'),
+      width: '150',
+      styleName: 'text-left',
+    },
+    {
+      fieldName: 'amt08',
+      header: t('MSG_TXT_RE_REDF'),
+      width: '110',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'ddtnSumAmt',
+      header: t('MSG_TXT_DDTN_SUM'),
+      width: '150',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'acpyAmt',
+      header: t('MSG_TXT_ACL_DSB_AMT'),
+      width: '150',
+      styleName: 'text-right',
+      dataType: 'number',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
   ];
   const fields = [
     { fieldName: 'baseYm' },
@@ -411,6 +534,13 @@ const initGridBase = defineGrid((data, view) => {
     },
     'acpyAmt',
   ]);
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 40 },
+    ],
+  });
+  view.layoutByColumn('coCdNm').summaryUserSpans = [{ colspan: 3 }];
 });
 
 </script>
