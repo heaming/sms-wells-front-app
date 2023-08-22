@@ -159,7 +159,6 @@ const searchParams = ref({
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
-  dgr4LevlOgId: '',
 });
 
 async function fetchAmountData() {
@@ -177,13 +176,14 @@ async function fetchAmountData() {
 
     view.getDataSource().setRows(mainData);
     view.resetCurrent();
-
-    await tabRefs.basic.setData(cachedParams);
-    await tabRefs.sel.setData(cachedParams);
   } else {
     view.getDataSource().setRows(mainData);
     view.resetCurrent();
   }
+
+  console.log('1 : ', cachedParams);
+  await tabRefs.basic.setData(cachedParams);
+  await tabRefs.sel.setData(cachedParams);
 }
 
 async function fetchSummaryData() {
@@ -213,12 +213,10 @@ async function fetchData() {
   if (!isEmpty(cachedParams.dgr3LevlOgId)) {
     cachedParams.dgr1LevlOgId = '';
     cachedParams.dgr2LevlOgId = '';
-  } else
-  if (!isEmpty(cachedParams.dgr2LevlOgId)) {
+  } else if (!isEmpty(cachedParams.dgr2LevlOgId)) {
     cachedParams.dgr1LevlOgId = '';
     cachedParams.dgr3LevlOgId = '';
-  } else
-  if (!isEmpty(cachedParams.dgr1LevlOgId)) {
+  } else if (!isEmpty(cachedParams.dgr1LevlOgId)) {
     cachedParams.dgr2LevlOgId = '';
     cachedParams.dgr3LevlOgId = '';
   }
@@ -249,12 +247,12 @@ async function saveData(column, opcsCardId, file) {
 }
 async function evOrganizationlevel() {
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/organization-level');
-  searchParams.value.dgr1LevlOgId = res.data.dgr2LevlOgId;
-  searchParams.value.dgr1LevlOgNm = res.data.dgr2LevlOgNm;
-  searchParams.value.dgr2LevlOgId = res.data.dgr3LevlOgId;
-  searchParams.value.dgr2LevlOgNm = res.data.dgr3LevlOgNm;
-  searchParams.value.dgr3LevlOgId = res.data.dgr4LevlOgId;
-  searchParams.value.dgr3LevlOgNm = res.data.dgr4LevlOgNm;
+  searchParams.value.dgr1LevlOgId = res.data.dgr1LevlOgId;
+  searchParams.value.dgr1LevlOgNm = res.data.dgr1LevlOgNm;
+  searchParams.value.dgr2LevlOgId = res.data.dgr2LevlOgId;
+  searchParams.value.dgr2LevlOgNm = res.data.dgr2LevlOgNm;
+  searchParams.value.dgr3LevlOgId = res.data.dgr3LevlOgId;
+  searchParams.value.dgr3LevlOgNm = res.data.dgr3LevlOgNm;
 }
 
 onMounted(async () => {
@@ -308,6 +306,7 @@ const initGrdSub = defineGrid((data, view) => {
       },
     },
   ];
+
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
