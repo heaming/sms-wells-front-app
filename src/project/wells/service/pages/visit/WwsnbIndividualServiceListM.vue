@@ -614,15 +614,6 @@ async function onClickCstSearch() {
   }
 }
 
-function updateCntrDtl() {
-  watch(props, (val) => {
-    if (val) {
-      searchParams.value.cntrNo = props.cntrNo;
-      searchParams.value.cntrSn = props.cntrSn;
-    }
-  });
-}
-
 /* 개인별 서비스현황 조회 */
 async function getIndividualServicePs() {
   const res = await dataService.get('sms/wells/service/individual-service-ps', { params: searchParams.value });
@@ -791,6 +782,16 @@ async function onClickSave() {
   await getIndividualDelinquent();
   await getIndividualState();
   await getIndividualCounsel();
+}
+
+function updateCntrDtl() {
+  watch(props, async (val) => {
+    if (val) {
+      searchParams.value.cntrNo = props.cntrNo;
+      searchParams.value.cntrSn = props.cntrSn;
+      await onClickSearch();
+    }
+  });
 }
 
 onMounted(async () => {
