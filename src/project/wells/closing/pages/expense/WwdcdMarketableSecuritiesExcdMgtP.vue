@@ -287,7 +287,6 @@ async function onClickSearch() {
   // cachedParams.dgr2levlogid = searchParams.value.dgr2LevlOgId; // 지역단 조직ID
   cachedParams.bldCd = searchParams.value.bldCd; // 빌딩 코드
   cachedParams.subPrtnrNo = searchParams.value.prtnrNo; // 배분대상파트너번호
-  console.log('cachedParams.rsbDvCd : ', cachedParams.rsbDvCd);
 
   await subject();
   await marketableSecuritiesExcd();
@@ -434,6 +433,7 @@ async function onClickSave() {
   for (let i = 0; i < thirdTotal; i += 1) {
     view.setValue(i, 'opcsCardUseIzId', props.cachedParams.opcsCardUseIzId);
     view.setValue(i, 'baseYm', props.cachedParams.baseYm);
+    view.setValue(i, 'ogTpCd', props.cachedParams.ogTpCd);
     view.setValue(i, 'opcsAdjNo', props.cachedParams.opcsAdjNo);
     view.setValue(i, 'adjPrtnrNo', props.cachedParams.adjPrtnrNo);
     thirdList.push(view.getValues(i));
@@ -720,7 +720,6 @@ onMounted(async () => {
 
   grdMainRef.value.getView().getDataSource().addRow(addValue);
   await fetchData();
-  console.log('3 : ', props.cachedParams.ogTpCd);
 });
 
 async function reset() {

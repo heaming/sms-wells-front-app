@@ -19,9 +19,9 @@
     </template>
     <kw-btn
       v-show="onShowSave"
-      dense
-      grid-action
       :label="$t('MSG_BTN_SAVE')"
+      grid-action
+      dense
       @click="onClickSave"
     />
     <kw-separator
@@ -107,7 +107,6 @@ async function adjustObject() {
   const view = grdThirdRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
-  // emits('tebEvent', 'sel', res.data);
 }
 
 // 원천세 정산내역
@@ -143,9 +142,10 @@ async function setData(paramData) {
   if (grdThirdRef.value?.getView()) gridUtil.reCreateGrid(grdThirdRef.value.getView());
   if (grdFourthRef.value?.getView()) gridUtil.reCreateGrid(grdFourthRef.value.getView());
   cachedParams = cloneDeep(paramData);
-  fetchData();
+  await fetchData();
 }
 
+// 저장
 async function onClickSave() {
   const view = grdThirdRef.value.getView();
   const viewRows = gridUtil.getAllRowValues(view); // 모든 데이터
@@ -184,7 +184,7 @@ async function onClickSave() {
   const data = checkedRows;
   await dataService.put('/sms/wells/closing/expense/marketable-securities', data);
   notify(t('MSG_ALT_SAVE_DATA'));
-  fetchData();
+  await fetchData();
 }
 
 async function onClickExcelDownload(flag) {
@@ -348,7 +348,6 @@ const initGrdFourth = defineGrid((data, view) => {
     { fieldName: 'dstWhtx', header: t('MSG_TXT_WHTX'), width: '246', styleName: 'text-right', dataType: 'number' }, /* 원천세 */
     { fieldName: 'cardAprno', header: t('MSG_TXT_APR_NO'), width: '246', styleName: 'text-left' }, /* 승인번호 */
   ];
-
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
@@ -358,7 +357,6 @@ const initGrdFourth = defineGrid((data, view) => {
 
 async function onClickOpenReport() {
   // params.userId = store.getters['meta/getUserInfo'].userId;
-
   // TODO.oz 리포트 W-CL-R-0009 띄워야함 하직 화면 없음
   openReportPopup(
     '/ksswells/ord/er/V4.90/contractL23.ozr',
