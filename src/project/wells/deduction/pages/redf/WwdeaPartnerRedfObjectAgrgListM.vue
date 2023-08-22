@@ -215,7 +215,7 @@ async function onClickRedfAmountCreate() {
   await modal({
     component: 'ZwdeaRedfAmountCreateP',
     componentProps: {
-      ogTpCd: userInfo.ogTpCd,
+      ogTpCd: searchParams.value.ogTpCd,
     },
   });
 }
@@ -223,7 +223,6 @@ async function onClickRedfAmountCreate() {
 async function fetchData() {
   const res = await dataService.get('/sms/wells/deduction/redf/allowance-report/bizd-paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 480000 });
   const { list: redfes, pageInfo: pagingResult } = res.data;
-
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   const dataSource = view.getDataSource();

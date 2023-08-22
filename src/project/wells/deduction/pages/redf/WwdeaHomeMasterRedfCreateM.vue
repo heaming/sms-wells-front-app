@@ -449,7 +449,7 @@ async function onClickRedfAmountCreate() {
   await modal({
     component: 'ZwdeaRedfAmountCreateP',
     componentProps: {
-      ogTpCd: userInfo.ogTpCd,
+      ogTpCd: 'W03',
     },
   });
 }
