@@ -288,7 +288,9 @@ async function onClickWareOgCrdovr(apyYm, wareNo) {
 
     if (isChanged) {
       notify(t('MSG_ALT_SAVE_DATA'));
+      searchParams.value.wareDvCd = '';
       await fetchData();
+      searchParams.value.wareDvCd = cachedParams.wareDvCd;
     }
   } else {
     await alert(t('MSG_ALT_THM_BF_WAREINF_MDFC_IMP'));
