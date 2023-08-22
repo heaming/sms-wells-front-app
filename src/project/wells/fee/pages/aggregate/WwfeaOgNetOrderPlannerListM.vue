@@ -719,9 +719,10 @@ async function onClickExcelDownload() {
   const { inqrDvCd, divCd } = searchParams.value;
   cachedParams = cloneDeep(searchParams.value);
   if (inqrDvCd === '01') {
-    await downloadExcelView1('plars');
     if (divCd === '04') {
       await downloadExcelView2('plar-fees');
+    } else {
+      await downloadExcelView1('plars');
     }
   } else if (inqrDvCd === '02') {
     await downloadExcelView3('plar-aggregation');
