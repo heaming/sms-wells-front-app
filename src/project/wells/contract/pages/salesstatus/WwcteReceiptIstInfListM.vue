@@ -265,7 +265,7 @@ const fieldParams = ref({
   pdHclsfId: '', // 상품대분류ID
   pdMclsfId: '', // 상품중분류ID
   basePdCd: '', // 상품코드
-  sellTpCds: ['1', '2', '6', '7'], // 판매유형코드
+  sellTpCds: ['1', '2', '7', '6'], // 판매유형코드
   inqrDv: '1', // 조회구분
   dgr1LevlOgId: '', // 총괄ID
   dgr2LevlOgId: '', // 지역단ID
@@ -310,7 +310,7 @@ const codes = ref({
   codesDgr3LevlAll: [],
   cstDvCd: commonCodes.COPN_DV_CD,
   careSvc: [{ codeId: '1', codeName: t('MSG_TXT_GREENCROSS') }],
-  sellTpCd: [{ codeId: '7', codeName: t('MSG_TXT_LEASE') }],
+  sellTpCd: [{ codeId: '7', codeName: t('MSG_TXT_LEASE'), num: 2 }],
   sellInflwChnlDtlCd: commonCodes.SELL_CHNL_DTL_CD.filter((v) => v.codeId === '1010' || v.codeId === '3010'),
   incentiveYn: [{ codeId: 1, codeName: t('MSG_TXT_ICT_OJ') }],
   sppDuedtYn: [{ codeId: 1, codeName: `${t('MSG_TXT_DUEDT')} ${t('MSG_TXT_NO_RGS')}` }],
@@ -498,17 +498,21 @@ async function onClickExcelDownload() {
 
 onMounted(async () => {
   // 판매 유형 코드 추가
+  let i = 0;
   commonCodes.SELL_TP_CD.forEach((v) => {
     if (isEqual(v.codeId, '2')) { v.codeName = t('MSG_TXT_RENTAL'); }
     codes.value.sellTpCd.push({
       codeId: v.codeId,
       codeName: v.codeName,
+      num: i,
     });
+    i += 1;
+    if (i === 2) { i = 3; }
   });
   // codeId 기준으로 오름차순 정렬
   codes.value.sellTpCd.sort((a, b) => {
-    if (a.codeId < b.codeId) return -1;
-    if (a.codeId > b.codeId) return 1;
+    if (a.num < b.num) return -1;
+    if (a.num > b.num) return 1;
     return 0;
   });
   fetchCodes();
