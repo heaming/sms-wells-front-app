@@ -258,6 +258,7 @@
         >
           <kw-input
             v-model="saveParams.cstNm"
+            :label="$t('MSG_TXT_ACHLDR')"
             rules="required"
             readonly
           />
@@ -528,8 +529,8 @@ async function fetchData2() {
   const propsData = {
     rfndAkNo: props.rfndAkNo,
     rfndAkStatCd: props.rfndAkStatCd,
-    cntrNo: props.cntrNo,
-    cntrSn: props.cntrSn,
+    // cntrNo: props.cntrNo,
+    // cntrSn: props.cntrSn,
   };
   const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...propsData, ...pageInfo3.value } });
   const { list: app3, pageInfo: pagingResult3 } = res3.data;
@@ -777,6 +778,9 @@ async function onClickRefundAsk(stateCode) {
 
   const changedRows2 = gridUtil.getChangedRowValues(view2); // 환불상세 그리드 데이터
 
+  const rows2 = changedRows2.filter((p1) => (Number(p1.rfndCshAkAmt) + Number(p1.rfndCardAkAmt)
+  + Number(p1.crdcdFeeAmt) + Number(p1.rfndBltfAkAmt)) > 0);
+
   // let cashCount = 0;
   // changedRows2.forEach((p1) => { // 현금요청금액이 있는지 체크
   //   if (Number(p1.rfndCshAkAmt) > 0) {
@@ -801,6 +805,9 @@ async function onClickRefundAsk(stateCode) {
   }
 
   const changedRows3 = gridUtil.getChangedRowValues(view3); // 전금상세 그리드 체크 데이터
+
+  const rows3 = changedRows3.filter((p1) => (Number(p1.rfndBltfAkAmt)) > 0);
+
   // eslint-disable-next-line no-unused-vars
   const changedRows4 = gridUtil.getAllRowValues(view4); // 환불접수총액
   if (changedRows4[0].totRfndEtAmt === 0) {
@@ -831,8 +838,8 @@ async function onClickRefundAsk(stateCode) {
       //  rfndProcsCn,
     },
     saveCntrReqs: checkedRows1, /* 환불요청계약상세 */
-    saveDtlReqs: changedRows2, /* 환불요청상세 */
-    saveBltfReqs: changedRows3, /* 환불요청전금상세  */
+    saveDtlReqs: rows2, /* 환불요청상세 */
+    saveBltfReqs: rows3, /* 환불요청전금상세  */
   };
 
   await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/reg/save', params);
@@ -1180,7 +1187,6 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'rveNo' },
     { fieldName: 'rveSn' },
     { fieldName: 'fnitCd' },
-    { fieldName: 'crdcdFer' },
   ];
 
   const columns = [
@@ -1309,11 +1315,12 @@ const initGrid2 = defineGrid((data, view) => {
   // 2번째 GRID 변경(환불상세)에 따라 4번째 GRID(환불접수총액) 상시변경
   // eslint-disable-next-line no-unused-vars
   view.onCellEdited = async (grid, itemIndex) => {
-    // const { crdcdFer, fnitCd } = grid.getValues(itemIndex);
+    const { dpMesCd, crdcdFer, rfndCshAkAmt } = grid.getValues(itemIndex);
 
-    // if(){
-
-    // }
+    if (dpMesCd === '02') {
+      const crdcdFeeAmt = Math.floor(Number(rfndCshAkAmt) * (Number(crdcdFer) / 100));
+      grid.setValue(itemIndex, 'crdcdFeeAmt', crdcdFeeAmt);
+    }
 
     grid.commit();
 

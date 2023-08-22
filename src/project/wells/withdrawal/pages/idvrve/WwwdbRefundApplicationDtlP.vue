@@ -175,6 +175,7 @@
         >
           <kw-input
             v-model="saveParams.cstNm"
+            :label="$t('MSG_TXT_ACHLDR')"
             rules="required"
             readonly
           />
@@ -723,8 +724,8 @@ onMounted(async () => {
   });
   // 자동 조회
   cachedParams = {
-    cntrNo: props.cntrNo,
-    cntrSn: props.cntrSn,
+    // cntrNo: props.cntrNo,
+    // cntrSn: props.cntrSn,
     rfndAkNo: props.rfndAkNo,
     rfndAkStatCd: props.rfndAkStatCd,
   };
