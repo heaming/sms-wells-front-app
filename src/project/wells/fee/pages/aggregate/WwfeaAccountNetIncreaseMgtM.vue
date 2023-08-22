@@ -147,21 +147,21 @@
         v-if="isCancelVisible"
         ref="grdCancelRef"
         name="grdCancel"
-        :visible-rows="3"
+        :visible-rows="10"
         @init="initCancelGrid"
       />
       <kw-grid
         v-if="isSellVisible"
         ref="grdSellRef"
         name="grdSell"
-        :visible-rows="3"
+        :visible-rows="10"
         @init="initSellGrid"
       />
       <kw-grid
         v-if="isCheckVisible"
         ref="grdCheckRef"
         name="grdCheck"
-        :visible-rows="3"
+        :visible-rows="10"
         @init="initCheckGrid"
       />
     </div>
