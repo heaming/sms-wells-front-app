@@ -560,7 +560,7 @@ const isDisableTab = computed(() => departmentId !== '71301' || departmentId ===
 const svHshdNo = ref('');
 const selectedTab = ref('1');
 // const cntrDtlNo = ref();
-const istPhFileUid = ref('');
+const istPhFileUid = ref([]);
 const countInfo = ref({
   householdTotalCount: 0,
   contactTotalCount: 0,
@@ -702,8 +702,8 @@ async function getIndividualState() {
   const { list: individualState, pageInfo: pagingResult } = res.data;
 
   console.log(res.data);
-  istPhFileUid.value = individualParams.value;
-  console.log(istPhFileUid.value.istCelngFileUid);
+  istPhFileUid.value = individualState;
+  console.log(istPhFileUid.value);
 
   pageInfo.value = pagingResult;
   const individualStateView = grdIndividualStateRef.value.getView();
@@ -931,7 +931,7 @@ const initGridState = defineGrid((data, view) => {
       notify(' 설치환경상세 팝업(W-SV-U-0214P01) 호출');
 
       // await modal({
-      //   component: 'WwsncSeedingDeliveryListP',
+      //   component: 'WwsnbInstallEnvironmentDtlP',
       //   componentProps: {
       //     istEnvrFileUid: istPhFileUid.value.istEnvrFileUid,
       //     istKitFileUid: istPhFileUid.value.istKitFileUid,
