@@ -432,7 +432,7 @@ const initExpectedGrid = defineGrid((data, view) => {
       styleCallback: () => {
         const ret = {};
         debugger;
-        if (isNotExpected.value && !isLastDate.value) {
+        if (!isfinalConfirm.value && !isLastDate.value) {
           ret.editable = true;
         } else {
           ret.editable = false;
@@ -454,7 +454,7 @@ const initExpectedGrid = defineGrid((data, view) => {
         if (rowState === RowState.UPDATED && excdYn === 'N' && isNotExpected.value && !isLastDate.value) {
           ret.editable = false;
           grid.setValue(dataCell.index.itemIndex, 'authRsgExcdRsonCd', '');
-        } else if (!isNotExpected.value) {
+        } else if (isfinalConfirm.value) {
           ret.editable = false;
         } else {
           ret.editable = true;
