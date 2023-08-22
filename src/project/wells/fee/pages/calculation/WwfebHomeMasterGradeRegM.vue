@@ -37,14 +37,21 @@
             :maxlength="15"
           />
         </kw-search-item>
-
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
           <kw-input
             v-model="searchParams.prtnrNo"
-            type="number"
+            icon="search"
+            clearable
             :maxlength="10"
+            :on-click-icon="onClickSearchNo"
+            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          />
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :placeholder="$t('MSG_TXT_EMPL_NM')"
+            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -105,8 +112,8 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 
-import { useDataService, getComponentType, gridUtil, defineGrid, modal, notify } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { useDataService, getComponentType, gridUtil, defineGrid, modal, notify, alert } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -126,6 +133,7 @@ const searchParams = ref({
   mngtYm: now.format('YYYYMM'),
   emplNm: '',
   prtnrNo: '',
+  prtnrKnm: '',
 
 });
 
@@ -177,6 +185,12 @@ async function onClickExcelDownload() {
  */
 
 async function onClickHmstGradeTransfer() {
+  const { mngtYm } = searchParams.value;
+  const bfMonth = now.add(-1, 'month').format('YYYYMM');
+  if (bfMonth !== mngtYm) {
+    await alert(t('MSG_ALT_LSTMM_PSB'));
+    return;
+  }
   await dataService.post('/sms/wells/fee/home-master-grades/grade-transfers', searchParams.value);
   notify(t('MSG_ALT_TRNS_FIN'));
   await fetchData();
@@ -220,6 +234,29 @@ async function openHmstGradePopup() {
     component: 'WwfebHomeMasterPointRegP',
     componentProps: param,
   });
+}
+
+/*
+ *  Event - 번호 검색 아이콘 클릭 이벤트
+ */
+async function onClickSearchNo() {
+  const { mngtYm, prtnrNo } = searchParams.value;
+  const { result, payload } = await modal({
+    component: 'ZwogzMonthPartnerListP',
+    componentProps: {
+      baseYm: mngtYm,
+      prtnrNo,
+      ogTpCd: 'W01',
+      prtnrKnm: undefined,
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.prtnrNo = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
+    }
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
