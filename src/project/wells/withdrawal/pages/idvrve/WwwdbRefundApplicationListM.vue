@@ -361,9 +361,9 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rfndPsbAmt',
       header: t('MSG_TXT_REFUND_AMT'),
       /* header: '환불가능금액' */
-      mergeRule: {
-        criteria: 'value',
-      },
+      // mergeRule: {
+      //   criteria: 'value',
+      // },
       width: '130',
       styleName: 'text-right' },
     { fieldName: 'rfndAkAmt',
