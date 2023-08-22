@@ -91,8 +91,8 @@
             icon="search"
             :label="$t('MSG_TXT_ADMIN')"
             rules="required"
-            :readonly="hasProps()"
-            :disable-icon="hasProps()"
+            :readonly="hasProps() && !isOrgWarehouse"
+            :disable-icon="hasProps() && !isOrgWarehouse"
             @click-icon="onClickOpenHumanResourcesPopup"
           />
         </kw-form-item>
@@ -164,27 +164,10 @@
         </kw-form-item>
         <!-- 노출순서 -->
         <kw-form-item
-          v-if="isOrgWarehouse"
-          :label="$t('MSG_TXT_EXPSR_ODR')"
-          :hint="$t('MSG_TXT_EXPSR_ODR_DUP_HINT')"
-          required
-        >
-          <kw-input
-            v-if="isOrgWarehouse"
-            v-model="warehouseInfo.sortDvVal"
-            :label="$t('MSG_TXT_EXPSR_ODR')"
-            :regex="/^[0-9]{1,5}$/i"
-            :readonly="warehouseInfo.wareUseYn === 'N'"
-            rules="required"
-          />
-        </kw-form-item>
-        <kw-form-item
-          v-if="!isOrgWarehouse"
           :label="$t('MSG_TXT_EXPSR_ODR')"
           :hint="$t('MSG_TXT_EXPSR_ODR_DUP_HINT')"
         >
           <kw-input
-            v-if="!isOrgWarehouse"
             v-model="warehouseInfo.sortDvVal"
             :label="$t('MSG_TXT_EXPSR_ODR')"
             :regex="/^[0-9]{1,5}$/i"
@@ -366,15 +349,6 @@ watch(() => warehouseInfo.value.hgrWareNo, (val) => {
   if (hgrWarehouses.value.length === 0) return;
   const { codeName } = hgrWarehouses.value.find((v) => v.codeId === val) ?? { codeName: '' };
   warehouseInfo.value.wareNm = `${codeName}(${warehouseInfo.value.prtnrKnm})`;
-});
-
-// 사용유무에 따른 노출순서 처리
-watch(() => warehouseInfo.value.wareUseYn, (val) => {
-  if (val === 'N') {
-    warehouseInfo.value.sortDvVal = 99999;
-  } else {
-    warehouseInfo.value.sortDvVal = '';
-  }
 });
 
 // 창고상세구분코드 변경 시 상위창고 목록 재조회
