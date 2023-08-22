@@ -127,8 +127,8 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_BAS_IZ') }}</h3>
-          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-form
         class="mt20"
@@ -185,8 +185,8 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_TOT_SUM') }}</h3>
-          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-form
         class="mt20"
@@ -307,8 +307,8 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_CTR_IZ') }}</h3>
-          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
