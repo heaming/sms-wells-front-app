@@ -231,24 +231,26 @@ async function onClickLifeFiltMgt() {
 
 async function getCheckAndNotExistRows(view, rows) {
   const alreadyItems = getAlreadyItems(view, rows, 'partPdCd');
-  if (rows.length === alreadyItems.length) {
-    notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
-    return [];
-  }
+  // if (rows.length === alreadyItems.length) {
+  //   notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
+  //   return [];
+  // }
   if (alreadyItems.length > 0) {
-    if (alreadyItems.length === 1) {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [`# ${alreadyItems[0].partPdNm} #`]));
-    } else {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [`# ${alreadyItems[0].partPdNm} #`, alreadyItems.length - 1])]));
-    }
-    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.partPdCd); return rtns; }, []);
+    // if (alreadyItems.length === 1) {
+    //   notify(t('MSG_ALT_ALREADY_RGST_CUT', [`# ${alreadyItems[0].partPdNm} #`]));
+    // } else {
+    // eslint-disable-next-line max-len
+    //   notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [`# ${alreadyItems[0].partPdNm} #`, alreadyItems.length - 1])]));
+    // }
+    // const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.partPdCd); return rtns; }, []);
     return rows.reduce((rtns, item) => {
-      if (!alreadyPdCds.includes(item.partPdCd)) {
-        rtns.push(item);
-      }
+      rtns.push(item);
+      // if (!alreadyPdCds.includes(item.partPdCd)) {}
       return rtns;
     }, []);
   }
+
+  console.log('rows', rows);
   return rows;
 }
 
