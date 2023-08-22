@@ -148,7 +148,7 @@
           vertical
           inset
         />
-        <kw-input
+        <!-- <kw-input
           ref="tfPrtnrKnmRef"
           v-model="updatePartnerObj.tfPrtnrKnm"
           readonly
@@ -158,6 +158,22 @@
           :label="$t('MSG_TXT_BLG')"
           :placeholder="$t('MSG_TXT_BLG_SLCT')"
           @click-icon="onClickIconPrtnrNoSearchPopup"
+        /> -->
+        <kw-input
+          ref="tfPrtnrKnmRef"
+          v-model="updatePartnerObj.tfPrtnrKnm"
+          dense
+          class="w120"
+          readonly
+          rules="required"
+          :label="$t('MSG_TXT_BLG')"
+          :placeholder="$t('담당자 입력')"
+        />
+        <kw-btn
+          dense
+          secondary
+          icon="search"
+          @click="onClickIconPrtnrNoSearchPopup"
         />
         <!-- <kw-select
           ref="refTfOgId"
