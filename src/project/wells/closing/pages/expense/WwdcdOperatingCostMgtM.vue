@@ -148,7 +148,7 @@ const { alert } = useGlobal();
 const userInfo = store.getters['meta/getUserInfo'];
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
-let cachedParams;
+const cachedParams = {};
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
