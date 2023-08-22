@@ -100,7 +100,6 @@ async function adjustObject() {
   const view = grdFirstRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
-  // TODO 정산제외일경우 버튼 미노출
 }
 
 // 원천세 정산내역
@@ -139,6 +138,7 @@ async function setData(paramData) {
   await fetchData();
 }
 
+// 저장
 async function onClickSave() {
   const view = grdFirstRef.value.getView();
   const viewRows = gridUtil.getAllRowValues(view); // 모든 데이터
@@ -177,7 +177,7 @@ async function onClickSave() {
   const data = checkedRows;
   await dataService.put('/sms/wells/closing/expense/marketable-securities-exclude', data);
   notify(t('MSG_ALT_SAVE_DATA'));
-  fetchData();
+  await fetchData();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -275,13 +275,13 @@ const initGrdFirst = defineGrid((data, view) => {
     cachedParams.authDate = useDtm;
     cachedParams.mrcNm = mrcNm;
     cachedParams.opcsAdjNo = opcsAdjNo;
-    cachedParams.cardAprno = cardAprno;
+    cachedParams.cardAprno = cardAprno; // 카드승인번호
     cachedParams.domTrdAmt = domTrdAmt;
     cachedParams.opcsCardUseIzId = opcsCardUseIzId;
-    cachedParams.adjPrtnrNo = adjPrtnrNo;
-    cachedParams.ogTpCd = ogTpCd;
-    console.log(column);
-    console.log(adjCls);
+    cachedParams.adjPrtnrNo = adjPrtnrNo; // 정산파트너번호
+    cachedParams.ogTpCd = ogTpCd; // 조직유형코드
+    console.log(column); // lint 회피하여 소스 보존을위해 로그출력
+    console.log(adjCls); // lint 회피하여 소스 보존을위해 로그출력
     if (column === 'opcsAdjBtn') {
     //   if (adjCls === '완료') {
     //     alert(t('정산이 완료된 건입니다'));

@@ -410,6 +410,7 @@ async function onClickSave() {
   for (let i = 0; i < thirdTotal; i += 1) {
     view.setValue(i, 'opcsCardUseIzId', props.cachedParams.opcsCardUseIzId);
     view.setValue(i, 'baseYm', props.cachedParams.baseYm);
+    view.setValue(i, 'ogTpCd', props.cachedParams.ogTpCd);
     view.setValue(i, 'opcsAdjNo', props.cachedParams.opcsAdjNo);
     view.setValue(i, 'adjPrtnrNo', props.cachedParams.adjPrtnrNo);
     thirdList.push(view.getValues(i));
@@ -553,6 +554,7 @@ const initGrdThird = defineGrid((data, view) => {
     { fieldName: 'adjOgId', visible: false }, /* (hidden)정산조직ID */
     { fieldName: 'ogTpCd', visible: false }, /* (hidden)조직유형코드 */
     { fieldName: 'adjPrtnrNo', visible: false }, /* (hidden)정산파트너번호 */
+    { fieldName: 'bldCd', visible: false }, /* (hidden)빌딩코드 */
     { fieldName: 'dstOjOgTpCd', visible: false }, /* (hidden)배분대상조직유형코드 */
     { fieldName: 'dstOjpsPerfAmt', visible: false }, /* (hidden)배분대상자실적금액 */
     { fieldName: 'cardUseAmt', visible: false, dataType: 'number' }, // 카드사용금액
@@ -564,7 +566,6 @@ const initGrdThird = defineGrid((data, view) => {
     { fieldName: 'pstnDvCd', visible: false },
     { fieldName: 'pdstOpt', visible: false },
     { fieldName: 'opcsCardUseIzId', visible: false },
-    { fieldName: 'bldCd', visible: false }, /* (hidden)빌딩코드 */
 
     { fieldName: 'erntx', visible: false, dataType: 'number' }, // 소득세
     { fieldName: 'rsdntx', visible: false, dataType: 'number' }, // 주민세

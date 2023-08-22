@@ -43,7 +43,6 @@
             :base-ym="searchParams.baseYm"
             :start-level="1"
             :end-level="3"
-            @change="evOrganizationlevel"
           />
         </kw-search-item>
       </kw-search-row>
@@ -129,7 +128,7 @@
 // Initialize Component (Tab)
 // -------------------------------------------------------------------------------------------------
 import { useDataService, getComponentType, defineGrid, useGlobal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import WwdcdOperatingCostMgtMSecuritiesException from './WwdcdOperatingCostMgtMSecuritiesException.vue'; // 유가증권 제외
@@ -180,8 +179,6 @@ async function fetchAmountData() {
     view.getDataSource().setRows(mainData);
     view.resetCurrent();
   }
-
-  console.log('1 : ', cachedParams);
   await tabRefs.basic.setData(cachedParams);
   await tabRefs.sel.setData(cachedParams);
 }
@@ -200,33 +197,50 @@ async function fetchSummaryData() {
     view.resetCurrent();
   }
 }
-
+// searchParams.value 에 값이 들어가지 않아 임시 조치
+watch(
+  () => [searchParams.value.dgr1LevlOgId, searchParams.value.dgr2LevlOgId, searchParams.value.dgr3LevlOgId],
+  ([newOgLevlDvCd1, newOgLevlDvCd2, newOgLevlDvCd3]) => {
+    if (!isEmpty(newOgLevlDvCd1) || !isEmpty(newOgLevlDvCd2) || !isEmpty(newOgLevlDvCd3)) {
+      cachedParams.dgr1LevlOgId = searchParams.value.dgr1LevlOgId;
+      cachedParams.dgr2LevlOgId = searchParams.value.dgr2LevlOgId;
+      cachedParams.dgr3LevlOgId = searchParams.value.dgr3LevlOgId;
+    }
+    if (!isEmpty(cachedParams.dgr3LevlOgId)) {
+      cachedParams.dgr1LevlOgId = null;
+      cachedParams.dgr2LevlOgId = null;
+    } else if (!isEmpty(cachedParams.dgr2LevlOgId)) {
+      cachedParams.dgr1LevlOgId = null;
+      cachedParams.dgr3LevlOgId = null;
+    } else if (!isEmpty(cachedParams.dgr1LevlOgId)) {
+      cachedParams.dgr2LevlOgId = null;
+      cachedParams.dgr3LevlOgId = null;
+    } else {
+      cachedParams.dgr1LevlOgId = null;
+      cachedParams.dgr2LevlOgId = null;
+      cachedParams.dgr3LevlOgId = null;
+    }
+  },
+);
 async function fetchData() {
-  cachedParams = cloneDeep(searchParams.value);
   if (isEmpty(cachedParams.dgr1LevlOgId)
-  && isEmpty(cachedParams.dgr2LevlOgId)
-  && isEmpty(cachedParams.dgr3LevlOgId)) {
+    && isEmpty(cachedParams.dgr2LevlOgId)
+    && isEmpty(cachedParams.dgr3LevlOgId)) {
     alert(t('조직레벨 필수 값 입니다.'));
     return;
   }
 
-  if (!isEmpty(cachedParams.dgr3LevlOgId)) {
-    cachedParams.dgr1LevlOgId = '';
-    cachedParams.dgr2LevlOgId = '';
-  } else if (!isEmpty(cachedParams.dgr2LevlOgId)) {
-    cachedParams.dgr1LevlOgId = '';
-    cachedParams.dgr3LevlOgId = '';
-  } else if (!isEmpty(cachedParams.dgr1LevlOgId)) {
-    cachedParams.dgr2LevlOgId = '';
-    cachedParams.dgr3LevlOgId = '';
-  }
+  cachedParams.baseYm = searchParams.value.baseYm;
+  cachedParams.ogTpCd = searchParams.value.ogTpCd;
+  cachedParams.adjOgId = searchParams.value.adjOgId;
+  cachedParams.adjPrtnrNo = searchParams.value.adjPrtnrNo;
 
   await fetchAmountData(); // 금액
   await fetchSummaryData(); // 적요
 }
 
 async function onClickSearch() {
-  fetchData();
+  await fetchData();
 }
 
 const saveParams = ref({
@@ -242,22 +256,9 @@ async function saveData(column, opcsCardId, file) {
     const data = saveParams.value;
     await dataService.post('/sms/wells/closing/expense/operating-cost', data);
 
-    fetchData();
+    await fetchData();
   }
 }
-async function evOrganizationlevel() {
-  const res = await dataService.get('/sms/wells/closing/expense/operating-cost/organization-level');
-  searchParams.value.dgr1LevlOgId = res.data.dgr1LevlOgId;
-  searchParams.value.dgr1LevlOgNm = res.data.dgr1LevlOgNm;
-  searchParams.value.dgr2LevlOgId = res.data.dgr2LevlOgId;
-  searchParams.value.dgr2LevlOgNm = res.data.dgr2LevlOgNm;
-  searchParams.value.dgr3LevlOgId = res.data.dgr3LevlOgId;
-  searchParams.value.dgr3LevlOgNm = res.data.dgr3LevlOgNm;
-}
-
-onMounted(async () => {
-  await evOrganizationlevel();
-});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
