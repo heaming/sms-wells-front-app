@@ -21,6 +21,7 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
+          required
         >
           <kw-date-picker
             v-model="searchParams.perfYm"
