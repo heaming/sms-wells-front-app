@@ -154,6 +154,7 @@
               v-model="searchParams.prtnrNo"
               icon="search"
               clearable
+              :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />
@@ -235,6 +236,7 @@
               v-model="searchParams.prtnrNo"
               icon="search"
               clearable
+              :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />
@@ -314,6 +316,7 @@
               v-model="searchParams.prtnrNo"
               icon="search"
               clearable
+              :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />

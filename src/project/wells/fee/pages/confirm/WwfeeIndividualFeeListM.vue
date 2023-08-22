@@ -60,7 +60,6 @@
             v-model="searchParams.prtnrNo"
             icon="search"
             clearable
-            type="number"
             :maxlength="10"
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
