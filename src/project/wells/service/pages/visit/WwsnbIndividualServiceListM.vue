@@ -793,6 +793,12 @@ async function onClickSave() {
   await getIndividualCounsel();
 }
 
+onMounted(async () => {
+  if (props.cntrNo) {
+    await onClickSearch();
+  }
+});
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
