@@ -99,11 +99,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
         </template>
         <kw-btn
@@ -231,14 +227,9 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="codes.COD_PAGE_SIZE_OPTIONS.find((x) => x.codeId === '30').codeName"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -267,6 +258,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const { getters } = useStore();
 const { currentRoute } = useRouter();
+const totalCount = ref(0);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -305,9 +297,8 @@ const pageInfo = ref({
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 async function fetchData() {
-  const { data: { list, pageInfo: pagingResult } } = await dataService.get('/sms/wells/service/manage-customer-rglvl/paging', { params: { ...cachedParams, ...pageInfo.value } });
-
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/manage-customer-rglvl', { params: cachedParams });
+  const list = res.data;
 
   list.forEach((row) => {
     row.cntr = `${row.cntrNo}-${row.cntrSn}`;
@@ -316,6 +307,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.clearCurrent();
+  totalCount.value = list.length;
 }
 
 const prtnrOgTpOptions = ref([]);
