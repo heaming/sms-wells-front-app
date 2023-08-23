@@ -242,16 +242,16 @@ async function fetchData() {
 
   if (!isEmpty(cachedParams.dgr3LevlOgId)) {
     cachedParams.mainDgr3LevlOgId = cachedParams.dgr3LevlOgId;
-    cachedParams.mainDgr1LevlOgId = '';
-    cachedParams.mainDgr2LevlOgId = '';
+    cachedParams.mainDgr1LevlOgId = null;
+    cachedParams.mainDgr2LevlOgId = null;
   } else if (!isEmpty(cachedParams.dgr2LevlOgId)) {
     cachedParams.mainDgr2LevlOgId = cachedParams.dgr2LevlOgId;
-    cachedParams.mainDgr1LevlOgId = '';
-    cachedParams.mainDgr3LevlOgId = '';
+    cachedParams.mainDgr1LevlOgId = null;
+    cachedParams.mainDgr3LevlOgId = null;
   } else if (!isEmpty(cachedParams.dgr1LevlOgId)) {
     cachedParams.mainDgr1LevlOgId = cachedParams.dgr1LevlOgId;
-    cachedParams.mainDgr2LevlOgId = '';
-    cachedParams.mainDgr3LevlOgId = '';
+    cachedParams.mainDgr2LevlOgId = null;
+    cachedParams.mainDgr3LevlOgId = null;
   }
 
   await ogLevlDvCd0();
