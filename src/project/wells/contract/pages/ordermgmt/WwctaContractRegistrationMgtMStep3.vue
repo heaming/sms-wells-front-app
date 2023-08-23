@@ -102,7 +102,7 @@
                     class="row items-start"
                     style="width: calc(100% - 60px);"
                   >
-                    <p class="kw-font-pt14">
+                    <p class="kw-font-pt14 mt8">
                       최근등록 주소 :
                     </p>
                     <div
@@ -179,6 +179,7 @@
                   v-model:tel-no1="item.adrpc.locaraTno"
                   v-model:tel-no2="item.adrpc.exnoEncr"
                   v-model:tel-no3="item.adrpc.idvTno"
+                  area
                   required
                 />
               </kw-form-item>
