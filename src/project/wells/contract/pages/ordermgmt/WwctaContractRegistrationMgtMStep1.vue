@@ -78,11 +78,13 @@
             :label="$t('MSG_TXT_CNTRT_TP')"
             :options="codes.COPN_DV_CD"
             rules="required"
-            :disable="cntrTpIs.indv || cntrTpIs.crp || cntrTpIs.ensm || isReadonly || !!mshCntr.cntrNo"
+            :disable="cntrTpIs.indv || cntrTpIs.crp || isReadonly || !!mshCntr.cntrNo"
           />
         </kw-search-item>
         <kw-search-item
-          v-if="cntrTpIs.crp || (cntrTpIs.msh && searchParams.copnDvCd === '2')"
+          v-if="cntrTpIs.crp
+            || (cntrTpIs.msh && searchParams.copnDvCd === '2')
+            || (cntrTpIs.ensm && searchParams.copnDvCd === '2')"
           :label="$t('MSG_TXT_CRP_NM')"
         >
           <kw-input
@@ -106,7 +108,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="cntrTpIs.ensm"
+          v-if="cntrTpIs.ensm && searchParams.copnDvCd === '1'"
           :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
         >
           <kw-select
@@ -122,6 +124,31 @@
         v-if="cntrTpIs.ensm"
       >
         <kw-search-item
+          v-if="searchParams.copnDvCd === '2'"
+          :label="$t('MSG_TXT_CRNO')"
+          required
+        >
+          <kw-input
+            v-model="searchParams.bzrno"
+            :label="$t('MSG_TXT_CRNO')"
+            rules="required"
+            maxlength="10"
+            :disable="isReadonly"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-if="searchParams.copnDvCd === '2'"
+          :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
+        >
+          <kw-select
+            v-model="searchParams.alncPrtnrDvCd"
+            :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
+            :options="codes.ALNC_PRTNR_DRM_DV_CD"
+            first-option=""
+            :disable="isReadonly"
+          />
+        </kw-search-item>
+        <kw-search-item
           :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
         >
           <kw-input
@@ -132,6 +159,22 @@
           />
         </kw-search-item>
         <kw-search-item
+          v-if="searchParams.copnDvCd === '1'"
+          :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
+        >
+          <kw-input
+            v-model="searchParams.alncPrtnrNm"
+            :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
+            maxlength="10"
+            :disable="isReadonly"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row
+        v-if="cntrTpIs.ensm"
+      >
+        <kw-search-item
+          v-if="searchParams.copnDvCd === '2'"
           :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
         >
           <kw-input
@@ -180,7 +223,7 @@
     <template
       v-if="cntrTpIs.quot"
     >
-      <h3>계약자정보 - 견적서</h3>
+      <h3>{{ $t('MSG_TXT_CNTRT_INF') }} - {{ $t('MSG_TXT_QUOT') }}</h3>
 
       <kw-form
         :cols="2"
@@ -217,7 +260,10 @@
         <template
           v-if="cntrTpIs.indv || cntrTpIs.ensm || (cntrTpIs.msh && searchParams.copnDvCd === '1')"
         >
-          <kw-form-row>
+          <kw-form-row
+            v-if="searchParams.copnDvCd === '1'"
+          >
+            <!-- 개인 -->
             <kw-form-item
               :label="$t('MSG_TXT_CNTRT')"
             >
@@ -242,6 +288,18 @@ ${step1.cntrt?.sexDvNm}` }}
                   :label="$t('MSG_TXT_SELF_AUTH_REQUIRED')"
                   @click="onClickSelfAuth"
                 />
+              </p>
+            </kw-form-item>
+          </kw-form-row>
+          <kw-form-row
+            v-if="searchParams.copnDvCd === '2'"
+          >
+            <!-- 법인 -->
+            <kw-form-item
+              :label="$t('MSG_TXT_CNTRT')"
+            >
+              <p>
+                {{ `${step1.cntrt?.cstKnm} / ${step1.cntrt?.bzrno}` }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -479,7 +537,7 @@ async function afterGetCntrInfo(cntr) {
       searchParams.value.copnDvCd = mshCntr.value.copnDvCd;
       step1.value.bas.copnDvCd = mshCntr.value.copnDvCd;
     }
-    // 임직원
+    // 임직원 (개인/법인)
     if (cntrTpIs.value.ensm && !isEmpty(step1.value.prtnr.alncPrtnrDrmDvCd)) {
       searchParams.value.alncPrtnrNo = step1.value.prtnr.alncPrtnrDrmVal;
       searchParams.value.alncPrtnrNm = step1.value.prtnr.alncPrtnrIdnrNm;
@@ -500,6 +558,7 @@ async function getCntrInfo(cntrNo) {
 async function getCntrInfoByCst(cstNo) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
     cntrTpCd: searchParams.value.cntrTpCd,
+    copnDvCd: searchParams.value.copnDvCd,
     cstNo,
     cntrNo: step1.value.bas?.cntrNo,
     cntrPrtnrNo: step1.value.prtnr?.prtnrNo,
@@ -530,6 +589,18 @@ async function onClickSelfAuth() {
     alert('URL 발송이 완료되었습니다.');
     notify(t('MSG_ALT_URL_TRS_FSH'));
   }
+}
+
+async function isValidAlncPrtnr() {
+  // 조회 조건 validate 확인
+  const arr = ['alncPrtnrDvCd', 'alncPrtnrNo', 'alncPrtnrNm'];
+  const isAllEmpty = arr.every((key) => (isEmpty(searchParams.value[key])));
+  const isAllNotEmpty = arr.every((key) => (!isEmpty(searchParams.value[key])));
+  if (!isAllEmpty && !isAllNotEmpty) {
+    await alert('제휴파트너 정보입력시, 모든 값을 입력해야 합니다.');
+    return false;
+  }
+  return true;
 }
 
 async function onClickSearchCntrtInfo() {
@@ -572,27 +643,27 @@ async function onClickSearchCntrtInfo() {
         await getCntrInfoByCst(res.payload.cstNo);
       }
     }
-  } else if (cntrTpIs.value.ensm) {
-    // 임직원
-
-    // 조회 조건 validate 확인
-    const arr = ['alncPrtnrDvCd', 'alncPrtnrNo', 'alncPrtnrNm'];
-    const isAllEmpty = arr.every((key) => (isEmpty(searchParams.value[key])));
-    const isAllNotEmpty = arr.every((key) => (!isEmpty(searchParams.value[key])));
-    if (!isAllEmpty && !isAllNotEmpty) {
-      await alert('제휴파트너 정보입력시, 모든 값을 입력해야 합니다.');
-      return;
+  } else if (cntrTpIs.value.ensm && searchParams.value.copnDvCd === '1') {
+    // 임직원 + 개인
+    if (isValidAlncPrtnr()) {
+      // 파트너와 계약자 모두 본인
+      const cstNo = await dataService.get('sms/wells/contract/contracts/ensm-cst-no', { params: { prtnrNo } });
+      if (!cstNo.data) {
+        await alert('임직원의 고객번호가 존재하지 않습니다.');
+        return;
+      }
+      await getCntrInfoByCst(cstNo.data);
     }
-
-    // 파트너와 계약자 모두 본인
-    const cstNo = await dataService.get('sms/wells/contract/contracts/ensm-cst-no', { params: { prtnrNo } });
-    if (!cstNo.data) {
-      await alert('임직원의 고객번호가 존재하지 않습니다.');
-      return;
-    }
-    await getCntrInfoByCst(cstNo.data);
-  } else if (cntrTpIs.value.crp || (cntrTpIs.value.msh && searchParams.value.copnDvCd === '2')) {
+  } else if (cntrTpIs.value.crp
+    || (cntrTpIs.value.msh && searchParams.value.copnDvCd === '2')
+    || (cntrTpIs.value.ensm && searchParams.value.copnDvCd === '2')) {
     // 법인
+
+    // 임직원 + 법인시, 제휴파트너 확인
+    if (cntrTpIs.value.ensm && !isValidAlncPrtnr()) {
+      return;
+    }
+    console.log(JSON.stringify(searchParams.value, null, '\t'));
     const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
     if (!isExistCntrt.data) {
       // 조회된 고객이 없다면
@@ -749,10 +820,14 @@ async function saveStep() {
     step1.value.mshCntrNo = mshCntr.value.cntrNo;
     step1.value.mshCntrSn = mshCntr.value.cntrSn;
   }
-  if (cntrTpIs.value.ensm && !isEmpty(searchParams.value.alncPrtnrDvCd)) {
-    step1.value.prtnr.alncPrtnrDrmVal = searchParams.value.alncPrtnrNo;
-    step1.value.prtnr.alncPrtnrIdnrNm = searchParams.value.alncPrtnrNm;
-    step1.value.prtnr.alncPrtnrDrmDvCd = searchParams.value.alncPrtnrDvCd;
+  if (cntrTpIs.value.ensm) {
+    step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
+    step1.value.cntrt.copnDvCd = searchParams.value.copnDvCd;
+    if (!isEmpty(searchParams.value.alncPrtnrDvCd)) {
+      step1.value.prtnr.alncPrtnrDrmVal = searchParams.value.alncPrtnrNo;
+      step1.value.prtnr.alncPrtnrIdnrNm = searchParams.value.alncPrtnrNm;
+      step1.value.prtnr.alncPrtnrDrmDvCd = searchParams.value.alncPrtnrDvCd;
+    }
   }
   if (cntrTpIs.value.quot) { // 견적서
     step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
