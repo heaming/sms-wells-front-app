@@ -1357,6 +1357,7 @@ async function onClickCounselSave() {
   saveCounselParams.value.bndClnPsblDvCd = customer.value.clnPsbl;
   saveCounselParams.value.bndClnPrcsDvCd = customer.value.clnPrcs;
   saveCounselParams.value.telCnslCn = customer.value.cnslCn;
+  saveCounselParams.value.bndBizDvCd = customer.value.bndBizDvCd;
 
   saveCounselParams.value.promDt = customer.value.promDt;
   saveCounselParams.value.promHh = customer.value.promHh;
