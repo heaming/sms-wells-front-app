@@ -184,6 +184,7 @@ const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { modal } = useGlobal();
+const router = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -343,7 +344,8 @@ async function initGrdMain(data, view) {
     { fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '150',
-      styleName: 'text-center',
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
       editable: false,
       displayCallback(grid, index, value) {
         const cntrNo = value;
@@ -420,6 +422,13 @@ async function initGrdMain(data, view) {
   view.checkBar.exclusive = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
+
+  view.onCellItemClicked = (grid, clickData) => {
+    if (clickData.column === 'cntrNo') {
+      const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
+    }
+  };
 }
 
 </script>
