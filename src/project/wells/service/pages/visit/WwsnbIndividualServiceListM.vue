@@ -528,7 +528,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta,
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil,
   // gridUtil,
 } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
@@ -560,7 +560,7 @@ const isDisableTab = computed(() => departmentId !== '71301' || departmentId ===
 const svHshdNo = ref('');
 const selectedTab = ref('1');
 // const cntrDtlNo = ref();
-const istPhFileUid = ref([]);
+// const istPhFileUid = ref([]);
 const countInfo = ref({
   householdTotalCount: 0,
   contactTotalCount: 0,
@@ -700,10 +700,6 @@ async function getIndividualDelinquent() {
 async function getIndividualState() {
   const res = await dataService.get('sms/wells/service/individual-service-ps/process-state', { params: { ...searchParams.value, ...pageInfo.value } });
   const { list: individualState, pageInfo: pagingResult } = res.data;
-
-  console.log(res.data);
-  istPhFileUid.value = individualState;
-  console.log(istPhFileUid.value);
 
   pageInfo.value = pagingResult;
   const individualStateView = grdIndividualStateRef.value.getView();
@@ -926,16 +922,19 @@ const initGridState = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-  view.onCellItemClicked = async (grd, clickData) => {
-    if (clickData.fieldName === 'imgYn') {
+  view.onCellItemClicked = async (grd, { column, dataRow }) => {
+    if (column === 'imgYn') {
       notify(' 설치환경상세 팝업(W-SV-U-0214P01) 호출');
-
+      const { istEnvrFileUid, istKitFileUid, istCelngFileUid } = gridUtil.getRowValue(grd, dataRow);
+      console.log(istEnvrFileUid);
+      console.log(istKitFileUid);
+      console.log(istCelngFileUid);
       // await modal({
       //   component: 'WwsnbInstallEnvironmentDtlP',
       //   componentProps: {
-      //     istEnvrFileUid: istPhFileUid.value.istEnvrFileUid,
-      //     istKitFileUid: istPhFileUid.value.istKitFileUid,
-      //     istCelngFileUid: istPhFileUid.value.istCelngFileUid,
+      //     istEnvrFileUid,
+      //     istKitFileUid,
+      //     istCelngFileUid,
       //   },
       // });
     }
@@ -943,6 +942,13 @@ const initGridState = defineGrid((data, view) => {
   view.onCellClicked = async (grd, clikdD) => {
     if (clikdD.fieldName === 'svBizDclsf') {
       notify(' 서비스처리상세 내역 팝업(W-SV-U-0165P01) 호출');
+    //   await modal({
+    //     component: '',
+    //     componentProps: {
+    //       cntrNo: searchParams.value.cntrNo,
+    //       cntrSn: searchParams.value.cntrSn,
+    //     },
+    //   });
     }
   };
 
