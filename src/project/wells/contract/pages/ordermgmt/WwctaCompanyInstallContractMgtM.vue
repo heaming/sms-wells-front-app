@@ -357,6 +357,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// mtrStatCd : 1. 신규/ 2.수정/ 3. 삭제
 async function callInstallPopup(cntrNo, cntrSn, sellDate, mtrStatCd) {
   // 설치오더 시작
   const res = await modal({
@@ -366,7 +367,7 @@ async function callInstallPopup(cntrNo, cntrSn, sellDate, mtrStatCd) {
       chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
       svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
       sellDate, // 판매일자
-      svBizDclsfCd: '1110', // 판매인 경우 1110(신규설치) fix
+      svBizDclsfCd: '1110',
       mtrStatCd,
       cntrNo,
       cntrSn,
@@ -515,9 +516,9 @@ const initGrid = defineGrid((data, view) => {
     } else if (column === 'assignCan') {
       if (!await confirm('설치기사 배정취소를 하시겠습니까?')) return;
 
-      callInstallPopup(cntrNo, cntrSn, cntrCnfmDt, '2');
-    } else if (column === 'istReRegn') {
       callInstallPopup(cntrNo, cntrSn, cntrCnfmDt, '3');
+    } else if (column === 'istReRegn') {
+      callInstallPopup(cntrNo, cntrSn, cntrCnfmDt, '2');
     }
   };
 
