@@ -16,9 +16,11 @@
   <kw-popup
     ref="popupRef"
     size="2xl"
+    :modified-targets="['grdMain']"
   >
     <kw-search
       :cols="2"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>

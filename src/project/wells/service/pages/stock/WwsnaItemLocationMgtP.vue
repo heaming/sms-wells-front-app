@@ -16,10 +16,11 @@
   <kw-popup
     ref="popupRef"
     size="3xl"
-    no-action
+    :modified-targets="['grdMain']"
   >
     <kw-form
       :cols="2"
+      ignore-on-modified
     >
       <kw-form-row>
         <!-- 품목코드 -->

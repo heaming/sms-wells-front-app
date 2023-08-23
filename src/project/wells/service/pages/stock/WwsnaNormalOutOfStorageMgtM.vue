@@ -116,7 +116,6 @@
           />
         </template>
         <kw-btn
-          v-permission:download
           dense
           icon="excel"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
