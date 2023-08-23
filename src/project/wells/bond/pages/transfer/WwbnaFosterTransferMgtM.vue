@@ -344,7 +344,7 @@ const onClickChangeView = async () => {
 const onClickSend = async () => {
   const view = grdDetailRef.value.getView();
   const dataRows = await gridUtil.getAllRowValues(view);
-  if (dataRows.length > 0) {
+  if (dataRows.length === 0) {
     notify(t('MSG_ALT_NO_SRCH_DATA'));
   } else if (cachedParams.baseYm !== now.format('YYYYMM')) {
     notify(t('MSG_ALT_THM_DTA_SEND_ONLY'));
