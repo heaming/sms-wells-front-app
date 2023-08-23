@@ -16,21 +16,21 @@
     @search="onClickSearch"
   >
     <kw-search-row>
-      <kw-search-item
-        :label="$t('MSG_TXT_BASE_YM')"
-      >
+      <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
         <kw-date-picker
           v-model="searchParams.slClYm"
           type="month"
           rules="date_range_months:1"
         />
       </kw-search-item>
-      <kw-search-item :label="$t('MSG_TXT_AGRG_DV')">
+      <kw-search-item
+        :label="$t('MSG_TXT_AGRG_DV')"
+        :colspan="2"
+      >
         <kw-option-group
           v-model="searchParams.agrgDv"
           type="radio"
           :options="aggregateDivide"
-          @change="onChangeAggregateDivide"
         />
       </kw-search-item>
     </kw-search-row>
@@ -38,54 +38,25 @@
       <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
         <kw-select
           v-model="searchParams.sellTpCd"
-          :options="codes.SELL_TP_CD.filter((v) => ['1', '2', '3', '6'].includes(v.codeId))"
-          @change="onChangeBusinessDivide"
+          :options="filteredCodes.SELL_TP_CD"
         />
         <kw-select
-          v-if="searchParams.sellTpCd === '1'"
           v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '11' || v.codeId === '12' || v.codeId === '13')"
-          first-option="all"
-          first-option-value="ALL"
+          :options="codes.SELL_TP_DTL_CD"
         />
-        <kw-select
-          v-if="searchParams.sellTpCd === '2'"
-          v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '21' || v.codeId === '22' || v.codeId === '23' ||
-            v.codeId === '24' || v.codeId === '25'|| v.codeId === '26')"
-          @change="onChangeSellTpDtlCd"
-        />
-        <kw-select
-          v-if="searchParams.sellTpCd === '3'"
-          v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '31' || v.codeId === '32'
-            || v.codeId === '33' || v.codeId === '34')"
-          first-option="all"
-          first-option-value="ALL"
-        />
-        <kw-select
-          v-if="searchParams.sellTpCd === '6'"
-          v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '61' || v.codeId === '62' || v.codeId === '63')"
-          first-option="all"
-          first-option-value="ALL"
-        />
-      </kw-search-item><!--판매유형상세-->
-
+      </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
         <kw-select
           v-model="searchParams.sellChnlDtl"
           :options="codes.SELL_CHNL_DTL_CD"
           first-option="all"
-          first-option-value="ALL"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
-        <kw-input
-          v-model.trim="searchParams.cntr"
-          icon="search_24"
-          :disable="isDisable"
-          @click-icon="onClickIcon"
+        <zctz-contract-detail-number
+          v-model:cntr-no="searchParams.cntrNo"
+          v-model:cntr-sn="searchParams.cntrSn"
+          :name="$t('MSG_TXT_CNTR_DTL_NO')"
         />
       </kw-search-item>
     </kw-search-row>
@@ -94,15 +65,11 @@
         <kw-select
           v-model="searchParams.sapPdDvCd"
           :options="sapPdDv"
-          option-value="codeId"
-          option-label="codeName"
           first-option="all"
-          first-option-value="ALL"
-        /><!--SAP상품구분코드명-->
+        />
       </kw-search-item>
     </kw-search-row>
   </kw-search>
-
   <div class="result-area">
     <kw-action-top>
       <template #left>
@@ -114,9 +81,9 @@
       </template>
       <kw-btn
         icon="report"
+        :label="$t('MSG_TXT_RPT_BRWS')"
         dense
         secondary
-        :label="$t('MSG_TXT_RPT_BRWS')"
         @click="onClickOpenReport"
       />
       <kw-separator
@@ -133,41 +100,11 @@
         @click="onClickExcelDownload"
       />
     </kw-action-top>
-
     <kw-grid
-      v-show="isGridSix"
-      ref="grdSixRef"
-      name="grdSix"
-      :visible-rows="10"
-      @init="initGrdSix"
-    />
-    <kw-grid
-      v-show="isGridSeven"
-      ref="grdSevenRef"
-      name="grdSeven"
-      :visible-rows="10"
-      @init="initGrdSeven"
-    />
-    <kw-grid
-      v-show="isGridEight"
-      ref="grdEightRef"
-      name="grdEight"
-      :visible-rows="10"
-      @init="initGrdEight"
-    />
-    <kw-grid
-      v-show="isGridNine"
-      ref="grdNineRef"
-      name="grdNine"
-      :visible-rows="10"
-      @init="initGrdNine"
-    />
-    <kw-grid
-      v-show="isGridFive"
-      ref="grdFiveRef"
-      name="grdFive"
-      :visible-rows="10"
-      @init="initGrdFive"
+      ref="grdSalesBondRef"
+      :total-count="totalCount"
+      name="grdSalesBond"
+      @init="initGrid"
     />
   </div>
 </template>
@@ -176,471 +113,84 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, gridUtil, useDataService, useGlobal, defineGrid } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { codeUtil, getComponentType, gridUtil, useDataService } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
-import { getAggregateDivide } from '~/modules/sms-common/closing/utils/clUtil';
+import { getAggregateDivide, textToNumberFormatter } from '~/modules/sms-common/closing/utils/clUtil';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
-const { modal } = useGlobal();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-// 검색조건 - 판매채널
+const grdSalesBondRef = ref(getComponentType('KwGrid'));
+
 const sapPdDv = (await dataService.get('/sms/wells/closing/performance/overdue-penalty/code'))
   .data.map((v) => ({ codeId: v.sapPdDvCd, codeName: v.sapPdDvNm }));
-
 const aggregateDivide = await getAggregateDivide();
-const grdFiveRef = ref(getComponentType('KwGrid'));
-const grdSixRef = ref(getComponentType('KwGrid'));
-const grdSevenRef = ref(getComponentType('KwGrid'));
-const grdEightRef = ref(getComponentType('KwGrid'));
-const grdNineRef = ref(getComponentType('KwGrid'));
-
-const isSelectDisable = ref(true);
-const isDisable = ref(true);
-const isGridSix = ref(false);
-const isGridSeven = ref(false);
-const isGridEight = ref(false);
-const isGridNine = ref(false);
-const isGridFive = ref(true);
-
 const totalCount = ref(0);
-
+const columnDisabled = ref(true);
 let cachedParams;
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD', // 판매유형
-  // 'PD_DTL_CD', 없음
   'SELL_TP_DTL_CD', // 판매유형
   'SELL_CHNL_DTL_CD', // 판매채널
 );
-
+const filteredCodes = ref({ SELL_TP_CD: codes.SELL_TP_CD.filter((obj) => ['1', '2', '3', '6'].includes(obj.codeId)) });
 const searchParams = ref({
-  slClYm: dayjs().add(-1, 'M').format('YYYYMM'),
+  slClYm: dayjs().format('YYYYMM'),
   agrgDv: '1', // 집계구분
   sellTpCd: '1', // 업무구분 (판매유형)
-  sellTpDtlCd: 'ALL', // 판매유형상세
-  sellChnlDtl: 'ALL', // 판매채널
-  cntr: '',
-  sapPdDvCd: 'ALL', // SAP상품구분코드
+  sellTpDtlCd: '', // 판매유형상세
+  sellChnlDtl: '', // 판매채널
+  cntrNo: '',
+  cntrSn: '',
+  sapPdDvCd: '', // SAP상품구분코드
 });
+// const dynamicChangeCodes = ref({ SELL_TP_DTL_CD: codes.value.SELL_TP_DTL_CD });
 
-async function fetchData() {
-  const { sellTpCd } = searchParams.value;
-  const { agrgDv } = searchParams.value;
-  const { sellTpDtlCd } = searchParams.value;
-  let res;
-
-  if (sellTpCd === '1') {
-    if (agrgDv === '1') {
-      res = await dataService.get('/sms/wells/closing/performance/sales-bond/aggregate', { params: cachedParams });
-    } else if (agrgDv === '2' || agrgDv === '3' || agrgDv === '4') {
-      res = await dataService.get('/sms/wells/closing/performance/sales-bond/order-date', { params: cachedParams });
-    }
-  } else if (sellTpCd === '2' && (sellTpDtlCd === '21' || sellTpDtlCd === '23')) {
-    // 렌탈
-    if (agrgDv === '1') {
-      res = await dataService.get('/sms/wells/closing/performance/sales-bond/rental-aggregate', { params: cachedParams });
-    } else if (agrgDv === '2' || agrgDv === '3' || agrgDv === '4') {
-      res = await dataService.get('/sms/wells/closing/performance/sales-bond/rental-day-perOrder', { params: cachedParams });
-    }
-  } else if (sellTpCd === '2' && (sellTpDtlCd === '22' || sellTpDtlCd === '24')) {
-    // 리스
-    if (agrgDv === '1') {
-      res = await dataService.get('/sms/wells/closing/performance/sales-bond/lease-aggregate', { params: cachedParams });
-    } else if (agrgDv === '2' || agrgDv === '3' || agrgDv === '4') {
-      res = await dataService.get('/sms/wells/closing/performance/sales-bond/lease-day-perOrder', { params: cachedParams });
-    }
-  } else if (sellTpCd === '3') {
-    // 멤버십
-    if (agrgDv === '1') {
-      res = await dataService.get('/sms/wells/closing/performance/sales-bond/member-aggregate', { params: cachedParams });
-    } else if (agrgDv === '2' || agrgDv === '3' || agrgDv === '4') {
-      res = await dataService.get('/sms/wells/closing/performance/sales-bond/member-day-perOrder', { params: cachedParams });
-    }
-  } else if (sellTpCd === '6') {
-    // 정기배송
-    if (agrgDv === '1') {
-      res = await dataService.get('/sms/wells/closing/performance/sales-bond/regular-delivery-aggregate', { params: cachedParams });
-    } else if (agrgDv === '2' || agrgDv === '3' || agrgDv === '4') {
-      res = await dataService.get('/sms/wells/closing/performance/sales-bond/regular-delivery-day-perOrder', { params: cachedParams });
-    }
+function setGridColumnLayoutType1(data, view) { // 일시불
+  if (!view) {
+    view = grdSalesBondRef.value.getView();
   }
-
-  const salesBond = res.data;
-  totalCount.value = salesBond.length;
-
-  let mainView;
-  if (sellTpCd === '1') {
-    mainView = grdFiveRef.value.getView();
-  } else if (sellTpCd === '2' && (sellTpDtlCd === '21' || sellTpDtlCd === '23')) {
-    mainView = grdSixRef.value.getView();
-  } else if (sellTpCd === '2' && (sellTpDtlCd === '22' || sellTpDtlCd === '24')) {
-    mainView = grdSevenRef.value.getView();
-  } else if (sellTpCd === '3') {
-    mainView = grdEightRef.value.getView();
-  } else if (sellTpCd === '6') {
-    mainView = grdNineRef.value.getView();
+  if (!data) {
+    data = view.getDataSource();
   }
-
-  mainView.getDataSource().setRows(salesBond);
-  mainView.resetCurrent();
-}
-
-async function onChangeChechOption() {
-  const { agrgDv } = searchParams.value; // 집계구분
-  const { sellTpCd } = searchParams.value; // 업무구분
-  const { sellTpDtlCd } = searchParams.value; // 업무구분
-  // const { mlgBtdPrpdAmt } = searchParams.value; // 포인트 조회
-
-  isGridFive.value = false;
-  isGridSix.value = false;
-  isGridSeven.value = false;
-  isGridEight.value = false;
-  isGridNine.value = false;
-
-  if (agrgDv === '3') {
-    isDisable.value = false;
-  } else {
-    isDisable.value = true;
-  }
-
-  if (sellTpCd === '1') {
-    isGridFive.value = true;
-  } else if (sellTpCd === '2' && (sellTpDtlCd === '21' || sellTpDtlCd === '23')) {
-    isGridSix.value = true;
-  } else if (sellTpCd === '2' && (sellTpDtlCd === '22' || sellTpDtlCd === '24')) {
-    isGridSeven.value = true;
-  } else if (sellTpCd === '3') {
-    isGridEight.value = true;
-  } else if (sellTpCd === '6') {
-    isGridNine.value = true;
-  }
-}
-async function onClickIcon() {
-  const { dtlCntr } = searchParams.value;
-  const res = await modal({
-    component: 'WwctaContractNumberListP',
-    componentProps: { dtlCntr },
-  });
-
-  if (res.result) {
-    // res.result
-  }
-}
-
-async function onClickSearch() {
-  cachedParams = cloneDeep(searchParams.value);
-  fetchData();
-}
-
-async function onChangeAgrgDiv() {
-  const { agrgDv } = searchParams.value;
-  const { sellTpCd } = searchParams.value;
-  const { sellTpDtlCd } = searchParams.value;
-
-  if (sellTpCd === '1') {
-    const view = grdFiveRef.value.getView();
-    if (agrgDv === '1') {
-      view.columnByName('slClYm').visible = true;
-      view.columnByName('perfDt').visible = false;
-      view.columnByName('sellTpCd').visible = false;
-      view.columnByName('sellTpDtlCd').visible = false;
-      view.columnByName('sapPdDvCd').visible = false;
-      view.columnByName('cntrNo').visible = false;
-      view.columnByName('cstKnm').visible = false;
-      view.columnByName('basePdCd').visible = false;
-      view.columnByName('pdNm').visible = false;
-      view.columnByName('slRcogDt').visible = false;
-
-      view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 2 }];
-    } else if (agrgDv === '2' || agrgDv === '3' || agrgDv === '4') {
-      view.columnByName('slClYm').visible = false;
-      view.columnByName('perfDt').visible = true;
-      view.columnByName('sellTpCd').visible = true;
-      view.columnByName('sellTpDtlCd').visible = true;
-      view.columnByName('sapPdDvCd').visible = true;
-      view.columnByName('cntrNo').visible = true;
-      view.columnByName('cstKnm').visible = true;
-      view.columnByName('basePdCd').visible = true;
-      view.columnByName('pdNm').visible = true;
-      view.columnByName('slRcogDt').visible = true;
-
-      view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
-    }
-  } else if (sellTpCd === '2' && (sellTpDtlCd === '21' || sellTpDtlCd === '23')) {
-    const view = grdSixRef.value.getView();
-    if (agrgDv === '1') {
-      view.columnByName('slClYm').visible = true;
-      view.columnByName('perfDt').visible = false;
-      view.columnByName('sellTpCd').visible = false;
-      view.columnByName('sellTpDtlCd').visible = false;
-      view.columnByName('sapPdDvCd').visible = false;
-      view.columnByName('cntrNo').visible = false;
-      view.columnByName('cstKnm').visible = false;
-      view.columnByName('basePdCd').visible = false;
-      view.columnByName('pdNm').visible = false;
-      view.columnByName('slRcogDt').visible = false;
-
-      view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 2 }];
-    } else if (agrgDv === '2' || agrgDv === '3' || agrgDv === '4') {
-      view.columnByName('slClYm').visible = false;
-      view.columnByName('perfDt').visible = true;
-      view.columnByName('sellTpCd').visible = true;
-      view.columnByName('sellTpDtlCd').visible = true;
-      view.columnByName('sapPdDvCd').visible = true;
-      view.columnByName('cntrNo').visible = true;
-      view.columnByName('cstKnm').visible = true;
-      view.columnByName('basePdCd').visible = true;
-      view.columnByName('pdNm').visible = true;
-      view.columnByName('slRcogDt').visible = true;
-
-      view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
-    }
-  } else if (sellTpCd === '2' && (sellTpDtlCd === '22' || sellTpDtlCd === '24')) {
-    const view = grdSevenRef.value.getView();
-    if (agrgDv === '1') {
-      view.columnByName('slClYm').visible = true;
-      view.columnByName('perfDt').visible = false;
-      view.columnByName('sellTpCd').visible = false;
-      view.columnByName('sellTpDtlCd').visible = false;
-      view.columnByName('sapPdDvCd').visible = false;
-      view.columnByName('cntrNo').visible = false;
-      view.columnByName('cstKnm').visible = false;
-      view.columnByName('basePdCd').visible = false;
-      view.columnByName('pdNm').visible = false;
-      view.columnByName('slRcogDt').visible = false;
-
-      view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 2 }];
-    } else if (agrgDv === '2' || agrgDv === '3' || agrgDv === '4') {
-      view.columnByName('slClYm').visible = false;
-      view.columnByName('perfDt').visible = true;
-      view.columnByName('sellTpCd').visible = true;
-      view.columnByName('sellTpDtlCd').visible = true;
-      view.columnByName('sapPdDvCd').visible = true;
-      view.columnByName('cntrNo').visible = true;
-      view.columnByName('cstKnm').visible = true;
-      view.columnByName('basePdCd').visible = true;
-      view.columnByName('pdNm').visible = true;
-      view.columnByName('slRcogDt').visible = true;
-
-      view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
-    }
-  } else if (sellTpCd === '3') {
-    const view = grdEightRef.value.getView();
-    if (agrgDv === '1') {
-      view.columnByName('slClYm').visible = true;
-      view.columnByName('perfDt').visible = false;
-      view.columnByName('sellTpCd').visible = false;
-      view.columnByName('sellTpDtlCd').visible = false;
-      view.columnByName('sapPdDvCd').visible = false;
-      view.columnByName('cntrNo').visible = false;
-      view.columnByName('cstKnm').visible = false;
-      view.columnByName('basePdCd').visible = false;
-      view.columnByName('pdNm').visible = false;
-      view.columnByName('slRcogDt').visible = false;
-
-      view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 2 }];
-    } else if (agrgDv === '2' || agrgDv === '3' || agrgDv === '4') {
-      view.columnByName('slClYm').visible = false;
-      view.columnByName('perfDt').visible = true;
-      view.columnByName('sellTpCd').visible = true;
-      view.columnByName('sellTpDtlCd').visible = true;
-      view.columnByName('sapPdDvCd').visible = true;
-      view.columnByName('cntrNo').visible = true;
-      view.columnByName('cstKnm').visible = true;
-      view.columnByName('basePdCd').visible = true;
-      view.columnByName('pdNm').visible = true;
-      view.columnByName('slRcogDt').visible = true;
-
-      view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
-    }
-  } else if (sellTpCd === '6') {
-    const view = grdNineRef.value.getView();
-    if (agrgDv === '1') {
-      view.columnByName('slClYm').visible = true;
-      view.columnByName('perfDt').visible = false;
-      view.columnByName('sellTpCd').visible = false;
-      view.columnByName('sellTpDtlCd').visible = false;
-      view.columnByName('sapPdDvCd').visible = false;
-      view.columnByName('cntrNo').visible = false;
-      view.columnByName('cstKnm').visible = false;
-      view.columnByName('basePdCd').visible = false;
-      view.columnByName('pdNm').visible = false;
-      view.columnByName('slRcogDt').visible = false;
-
-      view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 2 }];
-    } else if (agrgDv === '2' || agrgDv === '3' || agrgDv === '4') {
-      view.columnByName('slClYm').visible = false;
-      view.columnByName('perfDt').visible = true;
-      view.columnByName('sellTpCd').visible = true;
-      view.columnByName('sellTpDtlCd').visible = true;
-      view.columnByName('sapPdDvCd').visible = true;
-      view.columnByName('cntrNo').visible = true;
-      view.columnByName('cstKnm').visible = true;
-      view.columnByName('basePdCd').visible = true;
-      view.columnByName('pdNm').visible = true;
-      view.columnByName('slRcogDt').visible = true;
-
-      view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
-    }
-  }
-}
-
-async function onChangeAggregateDivide() {
-  onChangeChechOption();
-  onChangeAgrgDiv();
-  const { sellTpCd } = searchParams.value;
-  if (sellTpCd === '3' || sellTpCd === '5') {
-    isSelectDisable.value = false;
-  } else {
-    isSelectDisable.value = true;
-  }
-}
-
-async function onChangeBusinessDivide() {
-  onChangeChechOption();
-  onChangeAgrgDiv();
-}
-
-async function onChangeSellTpDtlCd() {
-  onChangeChechOption();
-  onChangeAgrgDiv();
-}
-
-async function onClickExcelDownload() {
-  let view;
-  if (isGridFive.value === true) {
-    view = grdFiveRef.value.getView();
-  } else if (isGridSix.value === true) {
-    view = grdSixRef.value.getView();
-  } else if (isGridSeven.value === true) {
-    view = grdSevenRef.value.getView();
-  } else if (isGridEight.value === true) {
-    view = grdEightRef.value.getView();
-  } else if (isGridNine.value === true) {
-    view = grdNineRef.value.getView();
-  }
-  await gridUtil.exportView(view, {
-    fileName: `${t('MSG_TIT_SL_BND_ATAM_PS')} - ${t('MSG_TIT_BZNS_ATAM')}`,
-    timePostfix: true,
-  });
-}
-
-async function onClickOpenReport() {
-  // 공통 오즈 팝업 가져오면됨
-
-}
-
-// -------------------------------------------------------------------------------------------------
-// Initialize Grid
-// -------------------------------------------------------------------------------------------------
-
-const initGrdFive = defineGrid((data, view) => {
-  const columns = [
-    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center' }, // 실적년월
-    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center' }, // 실적일자
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center' }, // 판매유형상세
-    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-left' }, // SAP상품구분코드명
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-left' }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-left' }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-left' }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center' }, // 매출일자
-    { fieldName: 'cwprep', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right' }, // 전기이월
-    { fieldName: 'cwwa111', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-right' }, // 매출 - 정상매출
-    { fieldName: 'cwwa121', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-right' }, // 매출 - 취소매출
-    { fieldName: 'cwwa14', header: t('MSG_TXT_FEE_SL'), width: '150', styleName: 'text-right' }, // 매출 - 수수료매출
-    { fieldName: 'cwwa112', header: t('MSG_TXT_GCF_NOM'), width: '150', styleName: 'text-right' }, // 매출 - 상품권정상
-    { fieldName: 'cwwa1221', header: t('MSG_TXT_GCF_CAN'), width: '150', styleName: 'text-right' }, // 매출 - 상품권취소
-    { fieldName: 'sumMeAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right' }, // 매출 - 합계
-    { fieldName: 'cwwa161', header: t('MSG_TXT_CNTRAM'), width: '150', styleName: 'text-right' }, // 매출대사 - 계약금
-    { fieldName: 'cwwa181', header: t('MSG_TXT_INTAM'), width: '150', styleName: 'text-right' }, // 매출대사 - 할부금
-    { fieldName: 'sumInAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right' }, // 매출대사 - 합계
-    { fieldName: 'col1', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right' }, // 대손
-    { fieldName: 'cwprop', header: t('MSG_TXT_EOT_PERID'), width: '150', styleName: 'text-right' }, // 기말기수
-    { fieldName: 'cwwa201', header: t('MSG_TXT_CRP_PERID'), width: '150', styleName: 'text-right' }, // 법인기수
-    { fieldName: 'cwwa182', header: t('MSG_TXT_GCF'), width: '150', styleName: 'text-right' }, // 상품권
-    { fieldName: 'cwwa183', header: t('MSG_TXT_ETC_PRPD_RPLC'), width: '150', styleName: 'text-right' }, // 기타선수대체
-    { fieldName: 'cwwa113', header: t('MSG_TXT_IND_TRD_NOM'), width: '150', styleName: 'text-right' }, // 사건거래정상
-    { fieldName: 'cwwa123', header: t('MSG_TXT_IND_TRD_CAN'), width: '150', styleName: 'text-right' }, // 사건거래취소
-    { fieldName: 'cwwa164', header: t('MSG_TXT_IND_TRD_DP'), width: '150', styleName: 'text-right' }, // 사건거래입금
-  ];
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
-
-  const layoutSub = [
-    'slClYm',
-    'perfDt',
-    'sellTpCd',
-    'sellTpDtlCd',
-    'sapPdDvCd',
-    'cntrNo',
-    'cstKnm',
-    'basePdCd',
-    'pdNm',
-    'slRcogDt',
-    'cwprep',
-    {
-      header: `${t('MSG_TXT_SL')}(+)`, /* 매출(+) */
-      direction: 'horizontal',
-      items: ['cwwa111', 'cwwa121', 'cwwa14', 'cwwa112', 'cwwa1221', 'sumMeAmt'],
-    },
-    {
-      header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, /* 매출대사(-) */
-      direction: 'horizontal',
-      items: ['cwwa161', 'cwwa181', 'sumInAmt'],
-    },
-    'col1',
-    'cwprop',
-    'cwwa201',
-    'cwwa182',
-    'cwwa183',
-    'cwwa113',
-    'cwwa123',
-    'cwwa164',
-  ];
-  view.setColumnLayout(layoutSub);
-
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
-
-  view.setHeaderSummaries({
-    visible: true,
-    items: [
-      {
-        height: 40,
-      },
-    ],
-  });
-});
-
-const initGrdSix = defineGrid((data, view) => {
+  view.setColumnLayout();
   const columns = [
     { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
-    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-left' }, // 판매유형상세
-    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-left' }, // SAP상품구분코드명
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-left' }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-left' }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date' }, // 매출일자
-    { fieldName: 'w1Am01', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number' }, // 전기이월
-    { fieldName: 'w1Am05', header: t('MSG_TXT_NOM_SL'), width: '130', styleName: 'text-right', dataType: 'number' }, // 매출 - 정상매출
-    { fieldName: 'w1Am06', header: t('MSG_TXT_CAN_SL'), width: '130', styleName: 'text-center', dataType: 'number' }, //  매출 - 취소매출
-    { fieldName: 'w1Am08', header: t('MSG_TXT_SUM'), width: '130', styleName: 'text-right', dataType: 'number' }, //  매출 - 합계
-    { fieldName: 'w1Am11', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '180', styleName: 'text-right', dataType: 'number' }, // 매출대사(-)
-    { fieldName: 'w1Am13', header: `${t('MSG_TXT_BOR_RES')}(+)`, width: '150', styleName: 'text-right', dataType: 'number' }, // 위약잔여(+)
-    { fieldName: 'w1Am14', header: `${t('MSG_TXT_BOR_CTR')}(-)`, width: '150', styleName: 'text-right', dataType: 'number' }, // 위약조정(-)
-    { fieldName: 'w1Cm34', header: `${t('MSG_TXT_PRPD_CV')}(+)`, width: '150', styleName: 'text-right', dataType: 'number' }, // 선수전환(+)
-    { fieldName: 'w1Am15', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number' }, //  대손(-)
-    { fieldName: 'w1Am16', header: t('MSG_TXT_UC_AMT'), width: '180', styleName: 'text-right', dataType: 'number' }, // 미수금액
+    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 실적일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD, disable: columnDisabled.value }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '150', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, disable: columnDisabled.value }, // 판매유형상세
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // SAP상품구분코드명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 매출일자
+    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
+
+    { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출 - 정상매출
+    { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 취소매출
+    { fieldName: 'feeSlAmt', header: t('MSG_TXT_FEE_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 수수료매출
+    { fieldName: 'boutNorSlAmt', header: t('MSG_TXT_GCF_NOM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 상품권정상
+    { fieldName: 'boutCanSlAmt', header: t('MSG_TXT_GCF_CAN'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 상품권취소
+    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 합계
+
+    { fieldName: 'cntrDpAmt', header: t('MSG_TXT_CNTRAM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출대사 - 계약금
+    { fieldName: 'instDpAmt', header: t('MSG_TXT_INTAM'), width: '180', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, //  매출대사 - 할부금
+    { fieldName: 'totDpAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출대사 - 합계
+
+    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 대손
+    { fieldName: 'eotUcAmt', header: t('MSG_TXT_EOT_UC'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기말미수
+    { fieldName: 'crpUcAmt', header: t('MSG_TXT_CRP_UC'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 법인미수
+    { fieldName: 'boutDpAmt', header: t('MSG_TXT_GCF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 상품권
+    { fieldName: 'etcDpAmt', header: t('MSG_TXT_ETC_PRPD_RPLC'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  기타선수대체
+    { fieldName: 'interContNomSlAmt', header: t('MSG_TXT_IND_TRD_NOM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 사건거래정상
+    { fieldName: 'interContCanSlAmt', header: t('MSG_TXT_IND_TRD_CAN'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 사건거래취소
+    { fieldName: 'interContDpAmt', header: t('MSG_TXT_IND_TRD_DP'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 사건거래입금
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -648,31 +198,41 @@ const initGrdSix = defineGrid((data, view) => {
 
   const layoutMain = [
     'slClYm',
-    'perfDt',
+    'slClDt',
     'sellTpCd',
     'sellTpDtlCd',
-    'sapPdDvCd',
+    'sapPdAtcNm',
     'cntrNo',
     'cstKnm',
     'basePdCd',
     'pdNm',
     'slRcogDt',
-    'w1Am01',
+    'preTotUcAmt',
     {
       header: `${t('MSG_TXT_SL')}(+)`, /* 매출(+) */
       direction: 'horizontal',
-      items: ['w1Am05', 'w1Am06', 'w1Am08'],
+      items: ['nomSlAmt', 'canSlAmt', 'feeSlAmt', 'boutNorSlAmt', 'boutCanSlAmt', 'totSlAmt'],
     },
-    'w1Am11',
-    'w1Am13',
-    'w1Am14',
-    'w1Cm34',
-    'w1Am15',
-    'w1Am16',
+    {
+      header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, /* 매출대사(-) */
+      direction: 'horizontal',
+      items: ['cntrDpAmt', 'instDpAmt', 'totDpAmt'],
+    },
+    'dfaProcsAmt',
+    'eotUcAmt',
+    'crpUcAmt',
+    'boutDpAmt',
+    'etcDpAmt',
+    'interContNomSlAmt',
+    'interContCanSlAmt',
+    'interContDpAmt',
   ];
+  if (searchParams.value.agrgDv === '1') {
+    layoutMain.splice(1, 9);
+  }
   view.setColumnLayout(layoutMain);
 
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
   view.setHeaderSummaries({
     visible: true,
     items: [
@@ -681,53 +241,71 @@ const initGrdSix = defineGrid((data, view) => {
       },
     ],
   });
-  view.rowIndicator.visible = true;
-});
-
-const initGrdSeven = defineGrid((data, view) => {
+}
+function setGridColumnLayoutType2(data, view) { // 렌탈
+  if (!view) {
+    view = grdSalesBondRef.value.getView();
+  }
+  if (!data) {
+    data = view.getDataSource();
+  }
+  view.setColumnLayout();
   const columns = [
     { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
-    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-left' }, // 판매유형상세
-    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-left' }, // SAP상품구분코드명
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-left' }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-left' }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-left' }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date' }, // 매출일자
-    { fieldName: 'w1Am01', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number' }, // 전기이월
-    { fieldName: 'w1Am04', header: t('MSG_TXT_PCAM_SL'), width: '150', styleName: 'text-right', dataType: 'number' }, // 원금매출
-    { fieldName: 'w1Am07', header: t('MSG_TXT_INT_SL'), width: '150', styleName: 'text-right', dataType: 'number' }, // 이자매출
-    { fieldName: 'w1Am58', header: t('MSG_TXT_SV_SL'), width: '150', styleName: 'text-right', dataType: 'number' }, // 서비스매출
-    { fieldName: 'w1Am59', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number' }, // 합계
-    { fieldName: 'w1Am08', header: t('MSG_TXT_SL_CTR'), width: '150', styleName: 'text-right', dataType: 'number' }, // 매출조정
-    { fieldName: 'w1Am11', header: t('MSG_TXT_SL_CPRCNF'), width: '150', styleName: 'text-right', dataType: 'number' }, // 매출대사
-    { fieldName: 'w1Am15', header: t('MSG_TXT_DFA'), width: '150', styleName: 'text-right', dataType: 'number' }, // 대손
-    { fieldName: 'w1Am12', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number' }, // 미수금액
+    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 실적일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD, disable: columnDisabled.value }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, disable: columnDisabled.value }, // 판매유형상세
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // SAP상품구분코드명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 매출일자
+    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
+    { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출 - 정상매출
+    { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '130', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 취소매출
+    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 합계
+    { fieldName: 'totDpAmt', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출대사(-)
+    { fieldName: 'borRemAmt', header: `${t('MSG_TXT_BOR_RES')}(+)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약잔여(+)
+    { fieldName: 'borAdjAmt', header: `${t('MSG_TXT_BOR_CTR')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약조정(-)
+    { fieldName: 'dpCngAmt', header: `${t('MSG_TXT_PRPD_CV')}(+)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 선수전환(+)
+    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  대손(-)
+    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
 
-  const layoutThird = [
-    'slClYm', 'perfDt', 'sellTpCd', 'sellTpDtlCd', 'sapPdDvCd', 'cntrNo', 'cstKnm', 'basePdCd', 'pdNm', 'slRcogDt', 'w1Am01',
+  const layoutMain = [
+    'slClYm',
+    'slClDt',
+    'sellTpCd',
+    'sellTpDtlCd',
+    'sapPdAtcNm',
+    'cntrNo',
+    'cstKnm',
+    'basePdCd',
+    'pdNm',
+    'slRcogDt',
+    'preTotUcAmt',
     {
       header: `${t('MSG_TXT_SL')}(+)`, /* 매출(+) */
       direction: 'horizontal',
-      items: ['w1Am04', 'w1Am07', 'w1Am58', 'w1Am59'],
+      items: ['nomSlAmt', 'canSlAmt', 'totSlAmt'],
     },
-    'w1Am08',
-    'w1Am11',
-    'w1Am15',
-    'w1Am12',
+    'totDpAmt',
+    'borRemAmt',
+    'borAdjAmt',
+    'dpCngAmt',
+    'dfaProcsAmt',
+    'totUcAmt',
   ];
-  view.setColumnLayout(layoutThird);
+  if (searchParams.value.agrgDv === '1') {
+    layoutMain.splice(1, 9);
+  }
+  view.setColumnLayout(layoutMain);
 
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
-
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
   view.setHeaderSummaries({
     visible: true,
     items: [
@@ -736,26 +314,33 @@ const initGrdSeven = defineGrid((data, view) => {
       },
     ],
   });
-});
-const initGrdEight = defineGrid((data, view) => {
+}
+function setGridColumnLayoutType3(data, view) { // 멤버십
+  if (!view) {
+    view = grdSalesBondRef.value.getView();
+  }
+  if (!data) {
+    data = view.getDataSource();
+  }
+  view.setColumnLayout();
   const columns = [
     { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
-    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-left' }, // 판매유형상세
-    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-left' }, // SAP상품구분코드명
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-left' }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-left' }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-left' }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'number' }, // 매출일자
-    { fieldName: 'w1Am01', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number' }, // 전기이월
-    { fieldName: 'w1Am02', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-center', dataType: 'number' }, // 원금매출
-    { fieldName: 'w1Am03', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-right', dataType: 'number' }, // 취소매출
-    { fieldName: 'w1Am06', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number' }, // 합계
-    { fieldName: 'w1Am09', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '150', styleName: 'text-right', dataType: 'number' }, // 매출대사
-    { fieldName: 'w1Am15', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number' }, // 대손
-    { fieldName: 'w1Am12', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number' }, // 미수금액
+    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 실적일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD, disable: columnDisabled.value }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, disable: columnDisabled.value }, // 판매유형상세
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // SAP상품구분코드명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', disable: columnDisabled.value }, // 매출일자
+    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
+    { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, // 정상매출
+    { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 취소매출
+    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 합계
+    { fieldName: 'totDpAmt', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출대사
+    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 대손
+    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -763,17 +348,20 @@ const initGrdEight = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
-  const layoutThird = [
-    'slClYm', 'perfDt', 'sellTpCd', 'sellTpDtlCd', 'sapPdDvCd', 'cntrNo', 'cstKnm', 'basePdCd', 'pdNm', 'slRcogDt', 'w1Am01',
+  const layoutMain = [
+    'slClYm', 'slClDt', 'sellTpCd', 'sellTpDtlCd', 'sapPdAtcNm', 'cntrNo', 'cstKnm', 'basePdCd', 'pdNm', 'slRcogDt', 'preTotUcAmt',
     {
       header: `${t('MSG_TXT_SL')}(+)`, /* 매출(+) */
       direction: 'horizontal',
-      items: ['w1Am02', 'w1Am03', 'w1Am06'],
+      items: ['nomSlAmt', 'canSlAmt', 'totSlAmt'],
     },
-    'w1Am09', 'w1Am15', 'w1Am12',
+    'totDpAmt', 'dfaProcsAmt', 'totUcAmt',
   ];
-  view.setColumnLayout(layoutThird);
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
+  if (searchParams.value.agrgDv === '1') {
+    layoutMain.splice(1, 9);
+  }
+  view.setColumnLayout(layoutMain);
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
 
   view.setHeaderSummaries({
     visible: true,
@@ -783,25 +371,31 @@ const initGrdEight = defineGrid((data, view) => {
       },
     ],
   });
-});
-
-const initGrdNine = defineGrid((data, view) => {
+}
+function setGridColumnLayoutType4(data, view) { // 정기배송
+  if (!view) {
+    view = grdSalesBondRef.value.getView();
+  }
+  if (!data) {
+    data = view.getDataSource();
+  }
+  view.setColumnLayout();
   const columns = [
-    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-left', datetimeFormat: 'yyyy-MM' }, // 실적년월
-    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-left', dataType: 'date' }, // 실적일자
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-left' }, // 판매유형상세
-    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-left' }, // SAP상품구분코드명
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-left' }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-left' }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-left' }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date' }, // 매출일자
-    { fieldName: 'w1Am01', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number' }, // 전기이월
-    { fieldName: 'w1Am19', header: `${t('MSG_TXT_SL')}(+)`, width: '130', styleName: 'text-right', dataType: 'number' }, // 매출
-    { fieldName: 'w1Am29', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '130', styleName: 'text-right', dataType: 'number' }, // 매출대사
-    { fieldName: 'w1Am15', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number' }, // 대손
-    { fieldName: 'w1Am99', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number' }, // 미수금액
+    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
+    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 실적일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD, disable: columnDisabled.value }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, disable: columnDisabled.value }, // 판매유형상세
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // SAP상품구분코드명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 매출일자
+    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
+    { fieldName: 'totSlAmt', header: `${t('MSG_TXT_SL')}(+)`, width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출
+    { fieldName: 'totDpAmt', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출대사
+    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 대손
+    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -809,7 +403,7 @@ const initGrdNine = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
 
   view.setHeaderSummaries({
     visible: true,
@@ -819,22 +413,209 @@ const initGrdNine = defineGrid((data, view) => {
       },
     ],
   });
+}
+function setGridColumnLayoutType5(data, view) { // 리스/할부
+  if (!view) {
+    view = grdSalesBondRef.value.getView();
+  }
+  if (!data) {
+    data = view.getDataSource();
+  }
+  view.setColumnLayout();
+  const columns = [
+    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
+    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 실적일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD, disable: columnDisabled.value }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, disable: columnDisabled.value }, // 판매유형상세
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // SAP상품구분코드명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 매출일자
+    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
+    { fieldName: 'oriSlAmt', header: t('MSG_TXT_PCAM_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 원금매출
+    { fieldName: 'itrSlAmt', header: t('MSG_TXT_INT_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 이자매출
+    { fieldName: 'svcSlAmt', header: t('MSG_TXT_SV_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 서비스매출
+    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 합계
+    { fieldName: 'slAdjAmt', header: t('MSG_TXT_SL_CTR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출조정
+    { fieldName: 'totDpAmt', header: t('MSG_TXT_SL_CPRCNF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출대사
+    { fieldName: 'dfaProcsAmt', header: t('MSG_TXT_DFA'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 대손
+    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
+  ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
+
+  const layoutMain = [
+    'slClYm', 'slClDt', 'sellTpCd', 'sellTpDtlCd', 'sapPdAtcNm', 'cntrNo', 'cstKnm', 'basePdCd', 'pdNm', 'slRcogDt', 'preTotUcAmt',
+    {
+      header: `${t('MSG_TXT_SL')}(+)`, /* 매출(+) */
+      direction: 'horizontal',
+      items: ['oriSlAmt', 'itrSlAmt', 'svcSlAmt', 'totSlAmt'],
+    },
+    'slAdjAmt',
+    'totDpAmt',
+    'dfaProcsAmt',
+    'totUcAmt',
+  ];
+  if (searchParams.value.agrgDv === '1') {
+    layoutMain.splice(1, 9);
+  }
+  view.setColumnLayout(layoutMain);
+
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
+
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        height: 40,
+      },
+    ],
+  });
+}
+
+function setGridHeader() {
+  columnDisabled.value = (searchParams.value.agrgDv === '1');
+  if (searchParams.value.sellTpCd === '1') { // 일시불
+    setGridColumnLayoutType1();
+  } else if (searchParams.value.sellTpCd === '2') { // 렌탈
+    setGridColumnLayoutType2();
+  } else if (searchParams.value.sellTpCd === '3') { // 멤버십
+    setGridColumnLayoutType3();
+  } else if (searchParams.value.sellTpCd === '6') { // 정기배송
+    setGridColumnLayoutType4();
+  } else if (searchParams.value.sellTpCd === '99') { // 리스/할부
+    setGridColumnLayoutType5();
+  }
+}
+function setHeaderSummary1(view, salesBond) {
+  view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
+  view.columnByName('nomSlAmt').headerSummary.text = textToNumberFormatter(salesBond.nomSlAmt);
+  view.columnByName('canSlAmt').headerSummary.text = textToNumberFormatter(salesBond.canSlAmt);
+  view.columnByName('feeSlAmt').headerSummary.text = textToNumberFormatter(salesBond.feeSlAmt);
+  view.columnByName('boutNorSlAmt').headerSummary.text = textToNumberFormatter(salesBond.boutNorSlAmt);
+  view.columnByName('boutCanSlAmt').headerSummary.text = textToNumberFormatter(salesBond.boutCanSlAmt);
+  view.columnByName('cntrDpAmt').headerSummary.text = textToNumberFormatter(salesBond.cntrDpAmt);
+  view.columnByName('instDpAmt').headerSummary.text = textToNumberFormatter(salesBond.instDpAmt);
+  view.columnByName('totDpAmt').headerSummary.text = textToNumberFormatter(salesBond.totDpAmt);
+  view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
+  view.columnByName('eotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.eotUcAmt);
+  view.columnByName('crpUcAmt').headerSummary.text = textToNumberFormatter(salesBond.crpUcAmt);
+  view.columnByName('boutDpAmt').headerSummary.text = textToNumberFormatter(salesBond.boutDpAmt);
+  view.columnByName('etcDpAmt').headerSummary.text = textToNumberFormatter(salesBond.etcDpAmt);
+  view.columnByName('interContNomSlAmt').headerSummary.text = textToNumberFormatter(salesBond.interContNomSlAmt);
+  view.columnByName('interContCanSlAmt').headerSummary.text = textToNumberFormatter(salesBond.interContCanSlAmt);
+  view.columnByName('interContDpAmt').headerSummary.text = textToNumberFormatter(salesBond.interContDpAmt);
+}
+function setHeaderSummary2(view, salesBond) {
+  view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
+  view.columnByName('nomSlAmt').headerSummary.text = textToNumberFormatter(salesBond.nomSlAmt);
+  view.columnByName('canSlAmt').headerSummary.text = textToNumberFormatter(salesBond.canSlAmt);
+  view.columnByName('totSlAmt').headerSummary.text = textToNumberFormatter(salesBond.totSlAmt);
+  view.columnByName('totDpAmt').headerSummary.text = textToNumberFormatter(salesBond.totDpAmt);
+  view.columnByName('borRemAmt').headerSummary.text = textToNumberFormatter(salesBond.borRemAmt);
+  view.columnByName('borAdjAmt').headerSummary.text = textToNumberFormatter(salesBond.borAdjAmt);
+  view.columnByName('dpCngAmt').headerSummary.text = textToNumberFormatter(salesBond.dpCngAmt);
+  view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
+  view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
+}
+function setHeaderSummary3(view, salesBond) {
+  view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
+  view.columnByName('nomSlAmt').headerSummary.text = textToNumberFormatter(salesBond.nomSlAmt);
+  view.columnByName('canSlAmt').headerSummary.text = textToNumberFormatter(salesBond.canSlAmt);
+  view.columnByName('totSlAmt').headerSummary.text = textToNumberFormatter(salesBond.totSlAmt);
+  view.columnByName('totDpAmt').headerSummary.text = textToNumberFormatter(salesBond.totDpAmt);
+  view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
+  view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
+}
+function setHeaderSummary4(view, salesBond) {
+  view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
+  view.columnByName('totSlAmt').headerSummary.text = textToNumberFormatter(salesBond.totSlAmt);
+  view.columnByName('totDpAmt').headerSummary.text = textToNumberFormatter(salesBond.totDpAmt);
+  view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
+  view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
+}
+function setHeaderSummary5(view, salesBond) {
+  view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
+  view.columnByName('oriSlAmt').headerSummary.text = textToNumberFormatter(salesBond.oriSlAmt);
+  view.columnByName('itrSlAmt').headerSummary.text = textToNumberFormatter(salesBond.itrSlAmt);
+  view.columnByName('svcSlAmt').headerSummary.text = textToNumberFormatter(salesBond.svcSlAmt);
+  view.columnByName('totSlAmt').headerSummary.text = textToNumberFormatter(salesBond.totSlAmt);
+  view.columnByName('slAdjAmt').headerSummary.text = textToNumberFormatter(salesBond.slAdjAmt);
+  view.columnByName('totDpAmt').headerSummary.text = textToNumberFormatter(salesBond.totDpAmt);
+  view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
+  view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
+}
+
+function setHeaderSummary(salesBond) {
+  const view = grdSalesBondRef.value.getView();
+  view.columnByName('slClYm').headerSummary.text = t('MSG_TXT_SUM');
+  if (searchParams.value.sellTpCd === '1') { // 일시불
+    setHeaderSummary1(view, salesBond);
+  } else if (searchParams.value.sellTpCd === '2') { // 렌탈
+    setHeaderSummary2(view, salesBond);
+  } else if (searchParams.value.sellTpCd === '3') { // 멤버십
+    setHeaderSummary3(view, salesBond);
+  } else if (searchParams.value.sellTpCd === '6') { // 정기배송
+    setHeaderSummary4(view, salesBond);
+  } else if (searchParams.value.sellTpCd === '99') { // 리스/할부
+    setHeaderSummary5(view, salesBond);
+  }
+  view.columnByName('slClYm').headerSummary.styleName = 'text-center';
+}
+
+async function fetchData() {
+  const res = await dataService.get('/sms/wells/closing/performance/sales-bond', { params: cachedParams });
+  const salesBonds = res.data;
+  totalCount.value = salesBonds.length - 1; // 총계 가지고 오기 때문에 그 부분 제외
+
+  if (!isEmpty(salesBonds) && salesBonds[0].slClYm === '총      계') {
+    setHeaderSummary(salesBonds[0]);
+    salesBonds.shift();
+  }
+
+  const view = grdSalesBondRef.value.getView();
+  view.getDataSource().setRows(salesBonds);
+}
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+  setGridHeader();
+  totalCount.value = 0;
+  fetchData();
+}
+
+async function onClickOpenReport() {
+  // TODO: 공통 팝업 호출 정보 설계 확인 중
+  /*
+  https://kyowon.atlassian.net/wiki/spaces/ForKUS/pages
+  /69500965/OZ#1.-%EC%97%85%EB%AC%B4-%ED%99%94%EB%A9%B4%EC%97%90%EC%84%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8-%ED%98%B8%EC%B6%9C
+  */
+}
+async function onClickExcelDownload() {
+  const view = grdSalesBondRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
+  });
+}
+
+/*
+watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
+  dynamicChangeCodes.value.SELL_TP_DTL_CD = await codeUtil.getSubCodes('SELL_TP_DTL_CD', sellTpCd);
 });
+*/
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+function initGrid(data, view) {
+  setGridColumnLayoutType1(data, view);
 
-onMounted(async () => {
-  debugger;
-  const view = grdFiveRef.value.getView();
-  view.columnByName('perfDt').visible = false;
-  view.columnByName('sellTpCd').visible = false;
-  view.columnByName('sellTpDtlCd').visible = false;
-  view.columnByName('sapPdDvCd').visible = false;
-  view.columnByName('cntrNo').visible = false;
-  view.columnByName('cstKnm').visible = false;
-  view.columnByName('basePdCd').visible = false;
-  view.columnByName('pdNm').visible = false;
-  view.columnByName('slRcogDt').visible = false;
-
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 2 }];
-});
-
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
+}
 </script>
