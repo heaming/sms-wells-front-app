@@ -54,7 +54,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_NW_DV')"
         >
-          <!-- TODO: 코드관리 등록 안되어 있어서 생성 후 수정 필요 -->
           <kw-select
             v-model="searchParams.bndNwDvCd"
             :options="filteredCodes.BND_NW_DV_CD"
@@ -66,7 +65,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_CST_NO')"
         >
-          <!-- TODO: 고객번호 다른 화면에 맞춰서 작업 한 이벤트 명세서 맞춰서 수정 필요한 경우 수정 -->
           <kw-input
             v-model="searchParams.cstNo"
             regex="num"
@@ -82,7 +80,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_CST_NM')"
         >
-          <!-- TODO: 고객번호 다른 화면에 맞춰서 작업 한 이벤트 명세서 맞춰서 수정 필요한 경우 수정 -->
           <kw-input
             v-model="searchParams.cstNm"
             icon="search"
