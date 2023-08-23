@@ -330,8 +330,6 @@ async function fetchHigherWarehouses() {
 
   const res = await dataService.get('/sms/wells/service/warehouse-organizations/high-rank-warehouses', { params });
   hgrWarehouses.value = res.data;
-  console.log('### 상위창고 ###');
-  console.log(res.data);
 
   if (!hasProps()) {
     if (isOrgWarehouse.value) {
@@ -341,6 +339,13 @@ async function fetchHigherWarehouses() {
     }
   }
 }
+
+// 주소사용여부(지정주소) 'N'으로 변경 시 빌딩명 삭제
+watch(() => warehouseInfo.value.adrUseYn, (val) => {
+  if (val === 'N') {
+    warehouseInfo.value.bldCdNm = '';
+  }
+});
 
 // 영업센터 상위창고 변경 시 창고명 변경
 watch(() => warehouseInfo.value.hgrWareNo, (val) => {

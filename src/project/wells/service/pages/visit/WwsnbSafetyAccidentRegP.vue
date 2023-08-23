@@ -440,7 +440,7 @@ const codes = await codeUtil.getMultiCodes(
   'CPS_DV_CD',
   'IMPTA_RSON_CD',
 );
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
 const sessionUserInfo = getUserInfo();
 const acdnPhoApnFile = ref([]); // 사고사진
 const acdnPictrApnFile = ref([]); // 사고영상

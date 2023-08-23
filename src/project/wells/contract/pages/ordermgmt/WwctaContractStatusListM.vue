@@ -270,7 +270,7 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_MOD')"
-              padding="12px"
+              padding="10px"
               @click="onClickModify(item)"
             />
             <kw-separator
@@ -280,7 +280,7 @@
             />
             <kw-btn
               :label="$t('MSG_BTN_DEL')"
-              padding="12px"
+              padding="10px"
               @click="onClickContractDelete(item)"
             />
           </div>
@@ -291,7 +291,7 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_MOD')"
-              padding="12px"
+              padding="10px"
               @click="onClickModify(item)"
             />
             <kw-separator
@@ -302,26 +302,26 @@
             <template v-if="item.confirmPsbYn=='Y'">
               <kw-btn
                 :label="$t('MSG_BTN_DTRM')"
-                padding="12px"
-                @click="onClickApprovalConfirm(item)"
+                padding="10px"
+                @click="onClickConfirm(item)"
               />
             </template>
             <template v-else>
               <kw-btn
                 v-if="item.pymnSkipYn === 'N'"
                 :label="$t('MSG_TXT_NON_FCF_PYMNT')"
-                padding="12px"
+                padding="10px"
                 @click="onClickNonFcfPayment(item)"
               />
               <kw-btn
                 :label="$t('MSG_BTN_F2F_PYMNT')"
-                padding="12px"
+                padding="10px"
                 @click="onClickF2fPayment(item)"
               />
             </template>
             <kw-btn
               :label="$t('MSG_BTN_DEL')"
-              padding="12px"
+              padding="10px"
               @click="onClickContractDelete(item)"
             />
           </div>
@@ -332,7 +332,7 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
-              padding="12px"
+              padding="10px"
               @click="onClickModify(item)"
             />
             <kw-separator
@@ -342,8 +342,13 @@
             />
             <kw-btn
               :label="$t('MSG_BTN_F2F_PYMNT')"
-              padding="12px"
+              padding="10px"
               @click="onClickF2fPayment(item)"
+            />
+            <kw-btn
+              :label="$t('MSG_BTN_DEL')"
+              padding="10px"
+              @click="onClickContractDelete(item)"
             />
           </div>
           <!-- 결제완료 -->
@@ -353,7 +358,7 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
-              padding="12px"
+              padding="10px"
               @click="onClickModify(item)"
             />
             <kw-separator
@@ -361,69 +366,87 @@
               inset
               spaced="0px"
             />
-            <kw-btn
-              v-if="searchParams.isBrmgr !='Y' && item.dfntaprcnt > 0 && item.pymnSkipYn === 'Y'"
-              :label="$t('MSG_BTN_DTRM')+$t('MSG_BTN_RQST')"
-              padding="12px"
-              @click="onClickRequestConfirm(item)"
-            />
-            <!-- TODO : 결재완료 / 지점장 일때 비대면결제 버튼 노출 조건 확인 -->
-            <kw-btn
-              v-if="searchParams.isBrmgr ==='Y'"
-              :label="$t('MSG_TXT_NON_FCF_PYMNT')"
-              padding="12px"
-              @click="onClickNonFcfPayment(item)"
-            />
-            <kw-btn
-              v-if="searchParams.isBrmgr ==='Y' && item.dfntaprcnt > 0"
-              :label="$t('MSG_BTN_DTRM')"
-              padding="12px"
-              @click="onClickApprovalConfirm(item)"
-            />
+            <template v-if="searchParams.isBrmgr === 'Y'">
+              <kw-btn
+                :label="$t('MSG_TXT_NON_FCF_PYMNT')"
+                padding="10px"
+                @click="onClickNonFcfPayment(item)"
+              />
+              <!--확정-->
+              <kw-btn
+                v-if="item.dfntaprcnt > 0"
+                :label="$t('MSG_BTN_DTRM')"
+                padding="10px"
+                @click="onClickConfirm(item)"
+              />
+            </template>
+            <template v-else>
+              <!--확정요청-->
+              <kw-btn
+                v-if="item.dfntaprcnt > 0 && item.pymnSkipYn === 'Y'"
+                :label="$t('MSG_BTN_DTRM')+$t('MSG_BTN_RQST')"
+                padding="10px"
+                @click="onClickRequestConfirm(item)"
+              />
+            </template>
           </div>
           <!-- 확정 -->
           <div
             v-else-if="item.viewCntrPrgsStatCd === '60'"
             class="button-wrap"
           >
-            <kw-btn
-              :label="$t('MSG_BTN_INQR')"
-              padding="12px"
-              @click="onClickModify(item)"
-            />
-            <kw-separator
-              vertical
-              inset
-              spaced="0px"
-            />
-            <!--설치배정 -->
-            <kw-btn
-              v-if="item.sellTpCd!=='3' && item.installYn ==='Y'"
-              :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
-              padding="12px"
-              @click="onClickAssignContact(item)"
-            />
-            <!--계약변경 -->
-            <kw-btn
-              :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
-              padding="12px"
-              @click="onClickChange(item)"
-            />
-            <!-- TODO : 확정 / 삭제 버튼 노출 조건 확인 : 계약접수완료일시===now
-                               삭제/삭제요청 버튼 비노출 조건 문의 : 설치가 완료된 건일 경우
-            -->
-            <kw-btn
-              v-if="item.cntrRcpFshDtm === dayjs().format('YYYYMMDD')"
-              :label="$t('MSG_BTN_DEL')"
-              padding="12px"
-              @click="onClickContractDelete(item)"
-            />
-            <kw-btn
-              v-else-if="item.cntrRcpFshDtm >= dayjs().add(-5, 'day').format('YYYYMMDD')"
-              :label="$t('MSG_TXT_DEL_REQ')"
-              padding="12px"
-              @click="onClickRequestDelete(item)"
-            />
+            <!--지점장이고, 삭제요청된 상태일 때, -->
+            <template v-if="searchParams.isBrmgr === 'Y' && item.deleteDv=='REQ'">
+              <kw-btn
+                :label="$t('MSG_BTN_DLT')"
+                padding="10px"
+                @click="onClickReject(item)"
+              />
+              <kw-btn
+                :label="$t('MSG_BTN_DLT_APPRVL')"
+                padding="10px"
+                @click="onClickApproval(item)"
+              />
+            </template>
+            <template v-else>
+              <kw-btn
+                :label="$t('MSG_BTN_INQR') "
+                padding="10px"
+                @click="onClickModify(item)"
+              />
+              <kw-separator
+                vertical
+                inset
+                spaced="0px"
+              />
+              <!--설치배정 -->
+              <kw-btn
+                v-if="item.sellTpCd!=='3' && item.installYn ==='Y'"
+                :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
+                padding="10px"
+                @click="onClickAssignContact(item)"
+              />
+              <!--계약변경 -->
+              <kw-btn
+                :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
+                padding="10px"
+                @click="onClickChange(item)"
+              />
+              <!--삭제-->
+              <kw-btn
+                v-if="item.deleteDv=='DEL' || (searchParams.isBrmgr === 'Y' && item.deleteDv=='PSB')"
+                :label="$t('MSG_BTN_DEL')"
+                padding="10px"
+                @click="onClickContractDelete(item)"
+              />
+              <!--삭제요청-->
+              <kw-btn
+                v-if="searchParams.isBrmgr !== 'Y' && item.deleteDv=='PSB'"
+                :label="$t('MSG_TXT_DEL_REQ')"
+                padding="10px"
+                @click="onClickRequestDelete(item)"
+              />
+            </template>
           </div>
         </kw-card>
       </div>
@@ -446,7 +469,7 @@ import { codeUtil, popupUtil, router, stringUtil, useDataService, useGlobal, use
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
-const { notify, alert, modal, confirm } = useGlobal();
+const { alert, modal, confirm } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { getUserInfo } = useMeta();
@@ -493,8 +516,9 @@ const pageInfo = ref({
 
 let cachedParams;
 
-// TODO : 99대신, 삭제요청, 삭제확정 들어가야함
+// 99 [삭제] 대신 [삭제요청] 으로 사용. 실제 조건문은 쿼리 확인.
 const cntrPrgsStatCds = codes.CNTR_PRGS_STAT_CD.filter((v) => ((searchParams.value.isBrmgr === 'Y') ? ['10', '20', '30', '40', '50', '60', '99'] : ['10', '20', '30', '40', '50', '60']).includes(v.codeId));
+codes.CNTR_PRGS_STAT_CD.forEach((e) => { e.codeName = (e.codeId === '99' ? '삭제요청' : e.codeName); });
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -503,6 +527,25 @@ const cntrPrgsStatCds = codes.CNTR_PRGS_STAT_CD.filter((v) => ((searchParams.val
 item.viewCntrPrgsStatCd :
  - 일반 : CNTR_PRGS_STAT_CD
  - 재약정 : RSTL_STAT_CD 010 -> 20(접수) / 020 -> 60(확정)
+
+item.confirmPsbYn : 작성완료 상태에서 결재진행하지 않고 확정시킬 수 있는지 여부
+ - 쿼리 조건문
+ CASE WHEN (세션.ogTpCd = 'W04' AND 법인) OR (T7.SELL_INFLW_CHNL_DTL_CD = '5010' AND 개인) THEN 'Y'
+      ELSE 'N'
+
+item.deleteDv : 삭제관련 버튼 노출용
+ - REQ:삭제요청됨 / 관리자 일 때 [삭제승인] [삭제반려], 판매자일때 []
+ - DEL:삭제가능 / [삭제]
+ - PSB: 삭제요청가능 / 관리자 일 때 [삭제], 판매자일때 [삭제요청]
+
+ - 쿼리 조건문
+ CASE WHEN 계약기본.CNTR_CAN_DTM IS NOT NULL THEN 'REQ'
+      WHEN 계약기본.CNTR_RCP_FSH_DTM = 당일 THEN 'DEL'
+      WHEN 계약기본.CNTR_CAN_DTM IS NULL AND 계약기본.CNTR_RCP_FSH_DTM >= 5일이내 AND 계약상세.SELL_TP_CD = '2' THEN
+        CASE WHEN (SUM(입금내역)) = 0 THEN 'PSB'
+             ELSE ''
+         END
+      ELSE ''
 */
 
 async function fetchData() {
@@ -704,8 +747,8 @@ async function onClickRequestConfirm(item) {
 }
 
 // CARD > BUTTON > 확정승인
-async function onClickApprovalConfirm({ cntrNo }) {
-  if (!await confirm(t('MSG_ALT_IS_DTRM'))) { return; }
+async function onClickConfirm({ cntrNo }) {
+  if (!await confirm(t('MSG_ALT_IS_DTRM'))) { return; } // 확정하시겠습니까?
 
   await dataService.post(`/sms/wells/contract/contracts/contract-lists/confirm/${cntrNo}`);
   onClickSearch();
@@ -752,22 +795,38 @@ async function onClickAssignContact(item) {
   });
 }
 
-// CARD > BUTTON > 삭제요청
-async function onClickRequestDelete(item) {
-  console.log(item);
-  notify('TODO : 계약삭제요청 프로세스');
-
-  // TODO : 계약삭제요청 프로세스
-}
-
 // CARD > BUTTON > 삭제
 async function onClickContractDelete(item) {
-  if (item.viewCntrPrgsStatCd <= '20') {
-    if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; }
+  if (item.viewCntrPrgsStatCd <= '40') {
+    if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; } // 삭제 하시겠습니까?
 
     await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { params: { cntrNo: item.cntrNo } });
     onClickSearch();
   }
+}
+
+// CARD > BUTTON > 삭제요청
+// 삭제요청은 계약기본의 계약취소일시에 값을 넣음으로써 처리
+async function onClickRequestDelete({ cntrNo }) {
+  if (!await confirm(t('MSG_ALT_CNTR_DEL_AK_CONFIRM', [cntrNo]))) { return; }
+
+  await dataService.put(`/sms/wells/contract/contracts/contract-lists/delete-request/${cntrNo}`);
+  onClickSearch();
+}
+// CARD > BUTTON > 삭제반려
+async function onClickReject({ cntrNo }) {
+  if (!await confirm(t('MSG_ALT_BAT_RJT_PRGS'))) { return; } // 반려 하시겠습니까?
+
+  await dataService.put(`/sms/wells/contract/contracts/contract-lists/delete-reject/${cntrNo}`);
+  onClickSearch();
+}
+
+// CARD > BUTTON > 삭제승인
+async function onClickApproval({ cntrNo }) {
+  if (!await confirm(t('MSG_ALT_APPR'))) { return; } // 승인하시겠습니까?
+
+  await dataService.put(`/sms/wells/contract/contracts/contract-lists/delete-approval/${cntrNo}`);
+  onClickSearch();
 }
 
 /*

@@ -31,6 +31,7 @@
               maxlength="10"
               type="number"
               rules="required|numeric"
+              @keydown="onKeydownInput"
             />
             <kw-btn
               :label="t('MSG_TXT_SRCH',null,'조회')"
@@ -158,6 +159,14 @@ async function fetchData() {
   const response = await dataService.get(`${baseUrl}/partner/${searchParams.value.prtnrNo}`);
   prtnrNoInfo.value = response.data;
   isDisableSave.value = isEmpty(response.data);
+}
+
+async function onKeydownInput(e, field) {
+  if (e.key === 'Enter'
+    && !isEmpty(searchParams.value.prtnrNo)) {
+    await fetchData();
+    console.log(e, field);
+  }
 }
 
 onMounted(async () => { });
