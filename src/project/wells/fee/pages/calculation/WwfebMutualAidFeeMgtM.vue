@@ -89,7 +89,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info :total-count="totalCount" />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
 
         <kw-btn
@@ -109,14 +109,12 @@
           :label="$t('MSG_BTN_FEE_CRT')"
           primary
           dense
-          :disable="(totalCount === 0)"
           @click="onClickCreate"
         />
         <kw-btn
           :label="$t('MSG_BTN_REDF_FEE_CRT')"
           primary
           dense
-          :disable="(totalCount === 0)"
           @click="onClickReCreate"
         />
       </kw-action-top>
@@ -145,7 +143,7 @@ import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSe
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
-const { modal, alert } = useGlobal();
+const { modal, alert, notify } = useGlobal();
 const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
@@ -203,6 +201,10 @@ async function onClickCreate() {
   const view = grdType.value === 'A' ? grdRefA.value.getView() : grdRefB.value.getView();
   const allRows = gridUtil.getAllRowValues(view, false);
 
+  if (allRows.length === 0) {
+    notify(t('MSG_ALT_USE_DT_SRCH_AF'));
+    return;
+  }
   if (allRows.some((row) => row.cnfmYn === 'Y')) {
     // 이미 확정되어 수수료 생성이 불가합니다.
     await alert(t('MSG_ALT_BF_CNFM_CONF_FEE'));
@@ -224,7 +226,10 @@ async function onClickCreate() {
 async function onClickReCreate() {
   const view = grdType.value === 'A' ? grdRefA.value.getView() : grdRefB.value.getView();
   const allRows = gridUtil.getAllRowValues(view, false);
-
+  if (allRows.length === 0) {
+    notify(t('MSG_ALT_USE_DT_SRCH_AF'));
+    return;
+  }
   if (allRows.some((row) => row.cnfmYn === 'Y')) {
     // 이미 확정되어 수수료 생성이 불가합니다.
     await alert(t('MSG_ALT_BF_CNFM_CONF_FEE'));
