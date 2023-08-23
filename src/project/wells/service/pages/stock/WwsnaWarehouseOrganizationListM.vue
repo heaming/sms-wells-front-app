@@ -262,6 +262,7 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }

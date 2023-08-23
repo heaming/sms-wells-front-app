@@ -15,7 +15,9 @@
 <template>
   <kw-page>
     <kw-search
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 입고희망일자 -->
@@ -145,6 +147,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
@@ -166,7 +169,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useMeta, codeUtil, useDataService, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty, isUndefined, isNull } from 'lodash-es';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -373,6 +376,10 @@ function onChangeItmKndCd(itmKnd) {
   setitmGdCtrTpCdsCellStyle();
 }
 
+function isBlank(val) {
+  return isUndefined(val) || isNull(val) || val === '';
+}
+
 let cachedParams;
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/stock-status-control/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -384,19 +391,25 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
-const test = ref([]);
-async function fetchTest() {
-  test.value = [];
+const product = ref([]);
+async function fetchProduct() {
+  product.value = [];
   const res = await dataService.get('/sms/wells/service/stock-status-control/status-product', { params: { ...cachedParams } });
-  test.value = res.data;
+  product.value = res.data;
 }
 
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   isSearch.value = false;
   isAddRow.value = false;
   cachedParams = cloneDeep(searchParams.value);
-  await fetchTest();
+  await fetchProduct();
   await fetchData();
+}
+
+function onClickReset() {
+  isSearch.value = true;
+  isAddRow.value = false;
 }
 
 // 엑셀다운로드
@@ -414,9 +427,8 @@ async function onClickExcelDownload() {
 
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
-  const { itmKnd, wareDvCd, wareNo } = cachedParams;
+  const { itmKnd, wareDvCd, wareNo, ogNm } = cachedParams;
   const wareNoInfo = filterWareNo.value.find((e) => e.codeId === wareNo);
-  const ogBasInfo = optionOgNm.value;
   isAddRow.value = true;
   await gridUtil.insertRowAndFocus(view, 0, {
     statCtrApyDt: dayjs().format('YYYYMMDD'),
@@ -424,7 +436,7 @@ async function onClickAddRow() {
     wareDvCd,
     wareNo,
     wareNm: isEmpty(wareNoInfo) ? '' : wareNoInfo.codeName,
-    ogNm: isEmpty(ogBasInfo) ? '' : ogBasInfo.ogNm,
+    ogNm,
   });
 }
 
@@ -441,7 +453,7 @@ async function onClickDeleteRow() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (!isEmpty(deletedRows)) {
-    const res = await dataService.delete('/sms/wells/service/stock-status-control', { data: [...deletedRows] });
+    const res = await dataService.delete('/sms/wells/service/stock-status-control', { data: checkedRows });
     const { processCount } = res.data;
     if (processCount > 0) {
       notify(t('MSG_ALT_DELETED'));
@@ -465,10 +477,11 @@ async function onClickSave() {
   console.log(checkedRows);
 
   for (let i = 0; i < checkedRows.length; i += 1) {
+    debugger;
     const checkedItmPdNm = checkedRows[i].itmPdNm;
     const checkedCtrQty = checkedRows[i].ctrQty;
 
-    if (isEmpty(checkedItmPdNm) || isEmpty(checkedCtrQty)) {
+    if (isEmpty(checkedItmPdNm) || isBlank(checkedCtrQty)) {
       notify(t('MSG_ALT_MISSING_VALUE_PLEASE_CHECK'));
       return;
     }
@@ -521,8 +534,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bfctItmGdCd' }, // 조정전품목등급코드
     { fieldName: 'afctItmGdCd' }, // 조정후품목등급코드
     { fieldName: 'ctrQty', dataType: 'number' }, // 조정수량
+    { fieldName: 'itmGdCtrRsonCd' }, // 조정사유코드
     { fieldName: 'itmGdCtrRsonNm' }, // 조정사유명
     { fieldName: 'ctrSn' }, // 조정일련번호
+    { fieldName: 'itmGdCtrTpCd' }, // 상태조정유형코드
     { fieldName: 'itmGdCtrTpNm' }, // 상태조정유형
     { fieldName: 'rmkCn' }, // 비고
 
@@ -598,10 +613,10 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       editable: true,
       editor: { type: 'dropdown' },
-      options: test.value,
+      options: product.value,
       styleCallback: (grid, dataCell) => {
         const { wareNo } = grid.getValues(dataCell.index.itemIndex);
-        const pdNms = test.value.filter((v) => wareNo.includes(v.wareNo)).map((v) => v.codeName);
+        const pdNms = product.value.filter((v) => wareNo.includes(v.wareNo)).map((v) => v.codeName);
 
         return { editor: { type: 'dropdown', labels: pdNms, values: pdNms } };
       },
@@ -714,7 +729,7 @@ const initGrdMain = defineGrid((data, view) => {
       grid.setValue(itemIndex, 'wareNo', wareNm);
     } else if (changedFieldName === 'itmPdNm') {
       const { itmPdNm } = grid.getValues(itemIndex);
-      const item = test.value.find((e) => e.codeName === itmPdNm);
+      const item = product.value.find((e) => e.codeName === itmPdNm);
       const itmPdCd = isEmpty(item) ? '' : item.codeId;
       grid.setValue(itemIndex, 'itmPdCd', itmPdCd);
       await fetchItmQty(grid, itemIndex, itmPdCd);
@@ -729,12 +744,11 @@ const initGrdMain = defineGrid((data, view) => {
       console.log(bfctItmGdCd);
       console.log(afctItmGdCd);
       let chk = 0;
-
       if (bfctItmGdCd === 'A' || isEmpty(bfctItmGdCd)) {
         if (Number(bfctNomStocAGdQty) < Number(ctrQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
-        } else if (isEmpty(bfctNomStocAGdQty)) {
+        } else if (isBlank(bfctNomStocAGdQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
         }
@@ -742,7 +756,7 @@ const initGrdMain = defineGrid((data, view) => {
         if (Number(bfctNomStocEGdQty) < Number(ctrQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
-        } else if (isEmpty(bfctNomStocEGdQty)) {
+        } else if (isBlank(bfctNomStocEGdQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
         }
@@ -750,7 +764,7 @@ const initGrdMain = defineGrid((data, view) => {
         if (Number(bfctNomStocRGdQty) < Number(ctrQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
-        } else if (isEmpty(bfctNomStocRGdQty)) {
+        } else if (isBlank(bfctNomStocRGdQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
         }
@@ -758,7 +772,7 @@ const initGrdMain = defineGrid((data, view) => {
         if (Number(bfctNomStocAGdQty) < Number(ctrQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
-        } else if (isEmpty(bfctNomStocAGdQty)) {
+        } else if (isBlank(bfctNomStocAGdQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
         }
@@ -766,7 +780,7 @@ const initGrdMain = defineGrid((data, view) => {
         if (Number(bfctNomStocEGdQty) < Number(ctrQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
-        } else if (isEmpty(bfctNomStocEGdQty)) {
+        } else if (isBlank(bfctNomStocEGdQty)) {
           grid.setValue(itemIndex, 'ctrQty', '');
           chk = 1;
         }
@@ -779,7 +793,7 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.onCellEditable = (grid, index) => {
-    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['wareNm', 'itmGdCtrTpNm', 'itmPdNm', 'itmGdCtrRsonNm', 'rmkCn'].includes(index.column)) {
+    if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['wareNm', 'itmGdCtrTpNm', 'itmPdNm', 'itmGdCtrRsonNm', 'ctrQty', 'rmkCn'].includes(index.column)) {
       return false;
     }
   };
