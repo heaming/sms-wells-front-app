@@ -136,10 +136,10 @@ async function onClickSave() {
     return false;
   }
 
-  if (props.ichrPrtnrNo.includes(prtnrNoInfo.value.prtnrNo)) {
-    notify(t('MSG_ALT_SAME_ASSIGNER2', null, '기존과 동일한 배정담당자가 존재합니다.'));
-    return false;
-  }
+  // if (props.ichrPrtnrNo.includes(prtnrNoInfo.value.prtnrNo)) {
+  //   notify(t('MSG_ALT_SAME_ASSIGNER2', null, '기존과 동일한 배정담당자가 존재합니다.'));
+  //   return false;
+  // }
 
   saveParams.value.pspcCstCnslIds = props.pspcCstCnslId;
   saveParams.value.ogTpCd = prtnrNoInfo.value.ogTpCd;
