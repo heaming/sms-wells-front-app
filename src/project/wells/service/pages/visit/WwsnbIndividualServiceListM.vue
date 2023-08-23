@@ -54,7 +54,7 @@
         <!-- 개인별 방문주기 조회 -->
         <kw-btn
           :label="$t('MSG_BTN_INDV_VST_INQR')"
-          primary
+          secondary
           dense
           :disable="isDisableButton"
           @click="onClickVisitPeriodSearch"
@@ -62,7 +62,7 @@
         <!-- 개인별 방문주기 생성 -->
         <kw-btn
           :label="$t('MSG_BTN_INDV_VST_CRT')"
-          primary
+          secondary
           dense
           :disable="isDisableButton"
           @click="onClickVisitPeriodCreate"
@@ -145,6 +145,7 @@
             <kw-btn
               secondary
               :label="$t('MSG_BTN_SAVE')"
+              padding="12px"
               @click="onClickSave"
             />
             <!-- rev:230621 padding="12px" 추가-->
@@ -702,6 +703,11 @@ async function getIndividualState() {
   const { list: individualState, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
+
+  console.log(res.data);
+  // console.log(pagingResult);
+
+  pageInfo.value.totalCount = individualState.length;
   const individualStateView = grdIndividualStateRef.value.getView();
   const individualStateData = individualStateView.getDataSource();
   individualStateData.checkRowStates(false);
@@ -729,20 +735,20 @@ async function onClickSearch() {
     if (isEmpty(individualParams.value)) {
       notify(t('MSG_ALT_CST_INF_NOT_EXST'));
       // init countInfo
-      svHshdNo.value = '';
-      countInfo.value.householdTotalCount = 0;
-      countInfo.value.contactTotalCount = 0;
-      countInfo.value.delinquentCount = 0;
-      countInfo.value.farmTotalCount = 0;
-      pageInfo.value.totalCount = 0;
-      secondPageInfo.value.totalCount = 0;
+      // svHshdNo.value = '';
+      // countInfo.value.householdTotalCount = 0;
+      // countInfo.value.contactTotalCount = 0;
+      // countInfo.value.delinquentCount = 0;
+      // countInfo.value.farmTotalCount = 0;
+      // pageInfo.value.totalCount = 0;
+      // secondPageInfo.value.totalCount = 0;
       // init dataSet
-      grdIndividualHouseholdRef.value.getData().clearRows();
-      grdIndividualContactRef.value.getData().clearRows();
-      grdIndividualDelinquentRef.value.getData().clearRows();
-      grdIndividualFarmCodeRef.value.getData().clearRows();
-      grdIndividualStateRef.value.getData().clearRows();
-      grdIndividualCounselRef.value.getData().clearRows();
+      // grdIndividualHouseholdRef.value.getData().clearRows();
+      // grdIndividualContactRef.value.getData().clearRows();
+      // grdIndividualDelinquentRef.value.getData().clearRows();
+      // grdIndividualFarmCodeRef.value.getData().clearRows();
+      // grdIndividualStateRef.value.getData().clearRows();
+      // grdIndividualCounselRef.value.getData().clearRows();
     } else {
       searchParams.value.cntrNo = individualParams.value.cntrNoDtl.substring(0, 12);
       searchParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
@@ -1013,8 +1019,8 @@ const initGridCounsel = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onScrollToBottom = async (g) => {
-    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-      pageInfo.value.pageIndex += 1;
+    if (secondPageInfo.value.pageIndex * secondPageInfo.value.pageSize <= g.getItemCount()) {
+      secondPageInfo.value.pageIndex += 1;
       await getIndividualCounsel();
     }
   };
