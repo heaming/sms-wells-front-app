@@ -39,7 +39,6 @@
             :options="[{ codeId: '0', codeName: $t('MSG_TXT_RCP') },
                        { codeId: '1', codeName: $t('MSG_TXT_CNTRCT') },
                        { codeId: '2', codeName: $t('MSG_TXT_CANCEL') }]"
-            rules="required"
             :label="$t('MSG_TXT_PERF_DV')"
           />
         </kw-search-item>
@@ -58,7 +57,6 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
         >
           <kw-option-group
             v-model="searchParams.rsbDvCd"
@@ -103,7 +101,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">{{ t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
 
         <kw-btn

@@ -83,7 +83,8 @@
       <kw-action-top>
         <template #left>
           <h3>
-            {{ stringUtil.getDateFormat(searchParams.perfYm, 'yyyy-MM').substring(0,7) }}
+            <!-- eslint-disable-next-line max-len -->
+            {{ stringUtil.getDateFormat(searchParams.perfYm, 'yyyy-MM').substring(0,4) }}{{ $t('MSG_TXT_YEAR') }} {{ stringUtil.getDateFormat(searchParams.perfYm, 'yyyy-MM').substring(5,7) }}{{ $t('MSG_TXT_MON') }}
             {{ $t('MSG_TXT_B2B_FEE_CRT_PRGS_STE') }}
           </h3>
         </template>
@@ -103,7 +104,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           dense
