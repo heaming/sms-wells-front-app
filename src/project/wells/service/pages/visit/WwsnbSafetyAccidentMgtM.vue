@@ -369,13 +369,10 @@ async function onClickAccidentReportPrint() {
 }
 
 async function onClickRegist() {
-  const view = grdMainRef.value.getView();
-  const chkRows = gridUtil.getCheckedRowValues(view);
-  const acdnRcpId = (chkRows.length === 0 ? '' : chkRows[0].acdnRcpId);
   await modal({
     component: 'WwsnbSafetyAccidentRegP',
     componentProps: {
-      acdnRcpId,
+      acdnRcpId: '',
     },
   });
   onClickSearch();
@@ -427,8 +424,8 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       displayCallback: (grid, index) => {
-        const fshDt = gridUtil.getCellValue(grid, index.dataRow, 'fshDt');
-        return (isEmpty(fshDt) ? 'Y' : 'N');
+        const fshDt = grid.getValues(index.itemIndex, 'fshDt');
+        return (isEmpty(fshDt) ? 'N' : 'Y');
       },
     },
     {
@@ -462,8 +459,8 @@ const initGrdMain = defineGrid((data, view) => {
       renderer: {
         type: 'button',
       },
-      displayCallback: (g, i) => {
-        const { cntrNo, cntrSn } = gridUtil.getRowValue(g, i.dataRow);
+      displayCallback: (grid, index) => {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         return `${cntrNo}-${cntrSn}`;
       },
     },
@@ -510,7 +507,8 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_ACDN_DTM'),
       width: '150',
       displayCallback: (grid, index) => {
-        const acdnDtm = gridUtil.getCellValue(grid, index.dataRow, 'acdnDtm');
+        const { acdnDtm } = grid.getValues(index.itemIndex);
+        console.log(acdnDtm);
         return stringUtil.getDatetimeFormat(acdnDtm);
       },
     },
@@ -636,8 +634,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
     if (column === 'cntrNo') {
-      const cntrNo = grid.getValue(itemIndex, 'cntrNo');
-      const cntrSn = grid.getValue(itemIndex, 'cntrSn');
+      const cntrNo = grid.getValues(itemIndex, 'cntrNo');
+      const cntrSn = grid.getValues(itemIndex, 'cntrSn');
 
       router.push({
         path: '/service/wwsnb-individual-service-list',
@@ -647,6 +645,16 @@ const initGrdMain = defineGrid((data, view) => {
         },
       });
     }
+  };
+
+  view.onCellDblClicked = async (g, clickData) => {
+    const { acdnRcpId } = g.getValues(clickData.itemIndex);
+    await modal({
+      component: 'WwsnbSafetyAccidentRegP',
+      componentProps: {
+        acdnRcpId,
+      },
+    });
   };
 });
 </script>
