@@ -146,6 +146,7 @@ const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { alert } = useGlobal();
+const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -301,7 +302,12 @@ async function initGrdMain(data, view) {
     { fieldName: 'dgr1LevlOgCd', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), styleName: 'text-center', width: '90' }, // 총괄단
     { fieldName: 'ogCd', header: t('MSG_TXT_RGNL_GRP'), styleName: 'text-center', width: '90' }, // 지역단
     { fieldName: 'ogTp', header: t('MSG_TXT_ZIP_PSIC'), styleName: 'text-center', width: '120' }, // 우편번호 담당자
-    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_NO'), styleName: 'text-center', width: '150' }, // 계약번호
+    { fieldName: 'cntr',
+      header: t('MSG_TXT_CNTR_NO'),
+      styleName: 'rg-button-link text-center',
+      width: '150',
+      renderer: { type: 'button' },
+    }, // 계약번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), styleName: 'text-center', width: '100' }, // 고객명
     { fieldName: 'cstGdCd',
       header: t('MSG_TXT_CST_GRD'),
@@ -371,6 +377,13 @@ async function initGrdMain(data, view) {
   view.setFixedOptions({
     colCount: 5,
   });
+
+  view.onCellItemClicked = (grid, clickData) => {
+    if (clickData.column === 'cntr') {
+      const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
+    }
+  };
 
   // await onClickSearch();
 }

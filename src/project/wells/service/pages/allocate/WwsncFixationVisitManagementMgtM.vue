@@ -139,6 +139,7 @@ const { getConfig } = useMeta();
 const dataService = useDataService();
 const gridMainRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 /*
  *  Search Parameter
@@ -287,7 +288,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrNo',
       header: '계약번호',
       width: '170',
-      styleName: 'text-center',
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
       displayCallback(grid, index, value) {
         const cntrSn = grid.getValue(index.itemIndex, 'cntrSn') ?? '';
         const cntrNo = value ?? '';
@@ -358,6 +360,13 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
   // view.editOptions.editable = true; // Grid Editable On
+
+  view.onCellItemClicked = (grid, clickData) => {
+    if (clickData.column === 'cntrNo') {
+      const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
+    }
+  };
 
   // multi row header setting
   view.setColumnLayout([
