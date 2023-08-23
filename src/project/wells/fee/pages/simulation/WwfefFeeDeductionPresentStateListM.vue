@@ -50,6 +50,11 @@
             v-model="searchParams.rsbDvCd"
             :options="codes.RSB_DV_CD.filter(
               (v) => v.prtsCodeId === searchParams.ogTpCd
+                && v.codeId != 'W0101'
+                && v.codeId != 'W0102'
+                && v.codeId != 'W0201'
+                && v.codeId != 'W0202'
+                && v.codeId != 'W0203'
             )"
             first-option="all"
             :label="$t('MSG_TXT_RSB_TP')"
@@ -57,6 +62,22 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+        >
+          <kw-input
+            v-model="searchParams.prtnrNo"
+            icon="search"
+            clearable
+            :on-click-icon="onClickSearchNo"
+            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          />
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :placeholder="$t('MSG_TXT_EMPL_NM')"
+            readonly
+          />
+        </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_OG_LEVL')"
         >
@@ -107,7 +128,7 @@
 // -------------------------------------------------------------------------------------------------
 // eslint-disable-next-line no-unused-vars
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, modal, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
@@ -146,7 +167,28 @@ const searchParams = ref({
   ogLevl1: '',
   ogLevl2: '',
   ogLevl3: '',
+  prtnrNo: '',
+  prtnrKnm: '',
 });
+
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzMonthPartnerListP',
+    componentProps: {
+      baseYm: searchParams.value.perfYm,
+      prtnrNo: searchParams.value.prtnrNo,
+      ogTpCd: 'W02',
+      prtnrKnm: undefined,
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.prtnrNo = payload.prtnrNo;
+      searchParams.value.prtnrKnm = payload.prtnrKnm;
+    }
+  }
+}
 
 let cachedParams;
 
