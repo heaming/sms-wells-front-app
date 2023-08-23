@@ -181,7 +181,7 @@ const dataService = useDataService();
 const date = dayjs();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const { alert, modal } = useGlobal();
+const { modal } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -228,7 +228,7 @@ async function fetchData(gridId) {
   } else if (searchParams.value.inqrDvCd === '03') {
     url = '/sms/wells/fee/account-net-increase/checks';
   }
-  const res = await dataService.get(url, { params: { ...cachedParams } });
+  const res = await dataService.get(url, { params: { ...cachedParams }, timeout: 200000 });
 
   totalCount.value = res.data.length;
 
@@ -298,11 +298,6 @@ async function onClickExcelDownload(gridId) {
 }
 
 async function onclickAgrg() {
-  const defaltDay = date.add(-1, 'month').format('YYYYMM');
-  if (defaltDay !== searchParams.value.perfYm) {
-    alert('집계가 가능한 실적년월이 아닙니다.');
-    return;
-  }
   const { result: isChanged } = await modal({
     component: 'WwfeaAccountNetIncreaseRegP',
     componentProps: {
@@ -328,14 +323,14 @@ const initCancelGrid = defineGrid((data, view) => {
     { fieldName: 'ichrMngerNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' }, // 번호
     { fieldName: 'ichrBrmgrNm', header: t('MSG_TXT_ICHR') + t('MSG_TXT_BRMGR'), width: '100', styleName: 'text-center' }, // 담당지점장
     { fieldName: 'ichrBrmgrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' }, // 번호
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center' }, // 계약일
-    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '100', styleName: 'text-center' }, // 설치일
-    { fieldName: 'cntrChRcpDtm', header: t('MSG_TXT_CANC_RQDT'), width: '100', styleName: 'text-center' }, // 취소요청일
-    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CAN_D'), width: '100', styleName: 'text-center' }, // 취소일
-    { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_EXP_DT'), width: '100', styleName: 'text-center' }, // 만료일
-    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_USE_DT'), width: '100', styleName: 'text-center' }, // 사용일
-    { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_MEMBERSHIP') + t('MSG_TXT_RCP_D'), width: '100', styleName: 'text-center' }, // 멤버십접수일
-    { fieldName: 'cntrCnfmAprDtm', header: t('MSG_TXT_MEMBERSHIP') + t('MSG_TXT_SUBS_DT'), width: '100', styleName: 'text-center' }, // 멤버십가입일
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 계약일
+    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 설치일
+    { fieldName: 'cntrChRcpDtm', header: t('MSG_TXT_CANC_RQDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 취소요청일
+    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CAN_D'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 취소일
+    { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_EXP_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 만료일
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_USE_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 사용일
+    { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_MEMBERSHIP') + t('MSG_TXT_RCP_D'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 멤버십접수일
+    { fieldName: 'cntrCnfmAprDtm', header: t('MSG_TXT_MEMBERSHIP') + t('MSG_TXT_SUBS_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 멤버십가입일
     { fieldName: 'cntrCanRsonCd', header: t('MSG_TXT_CAN_RSON'), width: '100', styleName: 'text-left' }, // 취소사유
     { fieldName: 'bzrno', header: t('MSG_TXT_ENTRP_NO'), width: '150', styleName: 'text-center' }, // 사업자번호
     { fieldName: 'b2bYn', header: `B2B${t('MSG_TXT_OJ_YN')}`, width: '100', styleName: 'text-center' }, // B2B대상여부
@@ -382,9 +377,9 @@ const initSellGrid = defineGrid((data, view) => {
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-center' }, // 상품명
     { fieldName: 'pdClsfId', header: t('MSG_TXT_PRDT_CODE'), width: '150', styleName: 'text-center' }, // 상품코드
 
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center', dataType: 'date' }, // 계약일
-    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '100', styleName: 'text-center' }, // 설치일
-    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CAN_D'), width: '100', styleName: 'text-center' }, // 취소일
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 계약일
+    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 설치일
+    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CAN_D'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '100', styleName: 'text-center', options: codes.MCHN_CH_TP_CD }, // 기변유형
 
     { fieldName: 'sellOgYn', header: t('MSG_TXT_SELL_OG'), width: '100', styleName: 'text-center' }, // 판매조직
@@ -424,14 +419,14 @@ const initCheckGrid = defineGrid((data, view) => {
     { fieldName: 'inqrDvCd', header: t('MSG_TXT_OG'), width: '100', styleName: 'text-center' }, // 조직
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '105', styleName: 'text-center' }, // 성명
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '105', styleName: 'text-center' }, // 번호
-    { fieldName: 'rentalCanCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center' }, // 렌탈
-    { fieldName: 'leaseCanCt', header: t('MSG_TXT_LEASE_ISTM'), width: '100', styleName: 'text-center' }, // 리스/할부
-    { fieldName: 'mshSprCt', header: t('MSG_TXT_MMBR') + t('MSG_TXT_SEPARATION'), width: '100', styleName: 'text-center' }, // 멤버십이탈
-    { fieldName: 'rentalExnCt', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_EXN'), width: '100', styleName: 'text-center' }, // 렌탈만료
-    { fieldName: 'canTotCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-center' }, // 계
-    { fieldName: 'rentalNwCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center' }, // 렌탈
-    { fieldName: 'leaseNwCt', header: t('MSG_TXT_LEASE_ISTM'), width: '100', styleName: 'text-center' }, // 리스/할부
-    { fieldName: 'nwTotCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-center' }, // 계
+    { fieldName: 'rentalCanCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈
+    { fieldName: 'leaseCanCt', header: t('MSG_TXT_LEASE_ISTM'), width: '100', styleName: 'text-center', dataType: 'number' }, // 리스/할부
+    { fieldName: 'mshSprCt', header: t('MSG_TXT_MMBR') + t('MSG_TXT_SEPARATION'), width: '100', styleName: 'text-center', dataType: 'number' }, // 멤버십이탈
+    { fieldName: 'rentalExnCt', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_EXN'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈만료
+    { fieldName: 'canTotCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-center', dataType: 'number' }, // 계
+    { fieldName: 'rentalNwCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈
+    { fieldName: 'leaseNwCt', header: t('MSG_TXT_LEASE_ISTM'), width: '100', styleName: 'text-center', dataType: 'number' }, // 리스/할부
+    { fieldName: 'nwTotCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-center', dataType: 'number' }, // 계
     { fieldName: 'accNincYn', header: t('MSG_TXT_ACC') + t('MSG_TXT_NINC'), width: '100', styleName: 'text-center' }, // 계정순증
   ];
 
