@@ -300,8 +300,8 @@ const initgrdReceipt = defineGrid((data, view) => {
     const rowData = gridUtil.getRowValue(g, dataRow);
     if (column === 'ichrPrtnrNm') {
       const componentProps = {
-        pspcCstCnslId: [...rowData.pspcCstCnslId],
-        ichrPrtnrNo: [...rowData.ichrPrtnrNo],
+        pspcCstCnslId: [rowData.pspcCstCnslId],
+        ichrPrtnrNo: [rowData.ichrPrtnrNo],
         jobType: 'RECV',
       };
       const { result, payload } = await modal({ component: 'WwcsbManualAssignModP', componentProps });
