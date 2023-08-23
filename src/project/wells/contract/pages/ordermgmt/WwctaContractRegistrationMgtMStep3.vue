@@ -99,15 +99,37 @@
               >
                 <div class="row items-start justify-between full-width ">
                   <div
-                    class="row items-start"
-                    style="width: calc(100% - 60px);"
+                    class="row items-start radio-multiline"
+                    style=" width: calc(100% - 90px); gap: 0 20px;"
                   >
-                    <p class="kw-font-pt14 mt8">
-                      최근등록 주소 :
-                    </p>
+                    <kw-field
+                      name="radio"
+                    >
+                      <template #default="{ field }">
+                        <kw-radio
+                          v-for="(adr, i) in adrs"
+                          v-show="i < 5"
+                          v-bind="field"
+                          :key="i"
+                          v-model="adrsVal"
+                          class="radio-close-button"
+                          :val="i"
+                          @update:model-value="onClickRectRgstAdr(item, adr)"
+                        >
+                          {{ adr.rcgvpKnm }}
+                          <kw-btn
+                            icon="close"
+                            borderless
+                            dense
+                            class="kw-fc--placeholder"
+                            @click="onClickDeleteRectRgstAdr(adr)"
+                          />
+                        </kw-radio>
+                      </template>
+                    </kw-field>
                     <div
-                      class="row items-start radio-multiline pl20"
-                      style=" width: calc(100% - 90px); gap: 12px 20px; min-height: 40px;"
+                      v-if="showAllAdrs"
+                      class="second-line"
                     >
                       <kw-field
                         name="radio"
@@ -115,6 +137,7 @@
                         <template #default="{ field }">
                           <kw-radio
                             v-for="(adr, i) in adrs"
+                            v-show="i >= 5"
                             v-bind="field"
                             :key="i"
                             v-model="adrsVal"
@@ -580,6 +603,10 @@ async function saveStep() {
 }
 
 async function onClickAddRectRgstAdr(dtl) {
+  if (adrs.value.length === 10) {
+    alert('주소는 10개까지만 등록 가능합니다.');
+    return;
+  }
   const newAdr = cloneDeep(dtl.adrpc);
   if (!await obsAdrRef.value[0].validate()) return;
   if (isEmpty(newAdr.adrId)) {
@@ -903,6 +930,10 @@ onMounted(async () => {
 // rev;230405 스타일 수정
 .radio-multiline {
   &::v-deep(.kw-radio) {
+    min-height: 40px;
+    height: 40px;
+    margin-right: 20px;
+
     &.radio-close-button {
       &.spaced-sibling + .spaced-sibling {
         margin-left: 0;
