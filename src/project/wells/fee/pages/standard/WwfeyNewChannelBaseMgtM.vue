@@ -134,6 +134,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -435,9 +436,9 @@ const initGrd = defineGrid((data, view) => {
     { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', editable: true, editor: { type: 'btdate', datetimeFormat: 'date' }, datetimeFormat: 'date' },
     { fieldName: 'sellFee', header: t('MSG_TXT_BASE_PRC'), width: '150', styleName: 'text-right', dataType: 'number', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 }, editable: true },
     { fieldName: 'totStplMcn', header: t('MSG_TXT_STPL_MCNT'), width: '150', styleName: 'text-right', dataType: 'number', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 }, editable: true },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_PSIC'), width: '150', styleName: 'text-center' },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_PSIC'), width: '150', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
