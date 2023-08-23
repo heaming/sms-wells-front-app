@@ -133,15 +133,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, getComponentType, defineGrid, gridUtil, codeUtil } from 'kw-lib';
+import { useDataService, useGlobal, useMeta, getComponentType, defineGrid, gridUtil, codeUtil } from 'kw-lib';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { modal } = useGlobal();
-// const { getUserInfo } = useMeta();
-// const sessionUserInfo = getUserInfo();
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
 const totalCount = ref(0);
 const dataService = useDataService();
 const { t } = useI18n();
@@ -157,9 +157,7 @@ const searchParams = ref({
   ogLevel3: '',
 });
 
-const codes = await codeUtil.getMultiCodes(
-  'OG_TP_CD',
-);
+const codes = await codeUtil.getMultiCodes('OG_TP_CD', 'RSB_DV_CD');
 
 // 수수료 코드 리스트
 let feeCodes;
@@ -256,8 +254,15 @@ function onClickOzReport() {
           userDiv: searchParams.value.rsbDvCd === '1' ? 'P' : 'M', // 플래너/지점장
           basYear: searchParams.value.perfDt.substring(0, 4),
           basMonth: searchParams.value.perfDt.substring(4, 6),
+          userId: searchParams.value.prtnrNo,
+          perfYm: searchParams.value.perfDt,
+          rsbDvCd: searchParams.value.rsbDvCd,
+          ogId: searchParams.value.ogId,
+          rsbCd: sessionUserInfo.rsbCd,
           pstn: '',
           deptCd: '',
+          basYrmn: searchParams.value.perfDt,
+
         }],
       },
     height: 1100,
@@ -327,7 +332,7 @@ fieldsObj = {
     { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '103.8', styleName: 'text-center' }, // 지점
     { fieldName: 'prtNrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110.8', styleName: 'text-center' }, // 번호
     { fieldName: 'prtNrKNm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-center' }, // 성명
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center' }, // 직책
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD }, // 직책
     { fieldName: 'meetDates', header: t('MSG_TXT_METG_PRSC_DC'), width: '93.1', styleName: 'text-right', dataType: 'number' }, // 미팅참석일수
   ],
   mp: { // M추진단 / 플래너
