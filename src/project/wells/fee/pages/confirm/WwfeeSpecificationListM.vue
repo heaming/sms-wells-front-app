@@ -38,9 +38,8 @@
           <kw-select
             v-model="searchParams.ogTpCd"
             :label="$t('MSG_TXT_OG_TP')"
-            :model-value="searchParams.ogTpCd"
             :options="ogTpCd"
-            @change="onChangeDiv"
+            @change="onChangeOgTpCd"
           />
         </kw-search-item>
         <kw-search-item
@@ -49,9 +48,8 @@
           <kw-option-group
             v-model="searchParams.rsbDvCd"
             :label="$t('MSG_TXT_RSB_TP')"
-            :model-value="searchParams.rsbDvCd"
             type="radio"
-            :options="serachRsbDbOptionList"
+            :options="rsbDvCd"
             @change="onChangeDiv"
           />
         </kw-search-item>
@@ -109,7 +107,7 @@
         <kw-btn
           dense
           secondary
-          :label="$t('MSG_BTN_DSB_SPCSH_PRNT')+&quot;(&quot;+t('MSG_TXT_HDOF')+&quot;)&quot;"
+          :label="$t('MSG_BTN_DSB_SPCSH_PRNT')+'('+t('MSG_TXT_HDOF')+')'"
           @click="onClickOzReportCenter"
         />
         <!-- 지급명세서 출력-->
@@ -151,13 +149,17 @@ const { t } = useI18n();
 const searchParams = ref({
   perfDt: dayjs().add(-1, 'month').format('YYYYMM'),
   ogTpCd: 'W02',
-  rsbDvCd: '1',
+  rsbDvCd: 'W0205',
   prtnrNo: '',
   feeCalcUnitTpCd: '201', // 수수료계산단위유형코드 (101 : P추진단 플래너, 102 : P추진단 지국장, 201 : M추진단-일반(15등급), 202 : M추진단
   ogLevel1: '',
   ogLevel2: '',
   ogLevel3: '',
 });
+
+const codes = await codeUtil.getMultiCodes(
+  'OG_TP_CD',
+);
 
 // 수수료 코드 리스트
 let feeCodes;
@@ -170,8 +172,10 @@ let fieldsObj;
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const codes = await codeUtil.getMultiCodes('OG_TP_CD', 'RSB_DV_CD');
+// 조직유형코드
 const ogTpCd = codes.OG_TP_CD.filter((v) => ['W01', 'W02', 'W03'].includes(v.codeId));
+// 직책구분코드
+const rsbDvCd = ref((await codeUtil.getSubCodes('RSB_DV_CD', searchParams.value.ogTpCd)).filter((v) => ['W0105', 'W0104', 'W0205', 'W0204', 'W0302', 'W0301'].includes(v.codeId))); // 로그인 한 조직에 따라 직책구분코드가 변경된다.
 const { currentRoute } = useRouter();
 
 let gridView;
@@ -272,30 +276,31 @@ function onClickOzReportCenter() {
   onClickOzReport();
 }
 
-// 직책유형 옵션
-const serachRsbDbOptionList = [
-  {
-    codeId: '1',
-    codeName: t('MSG_TXT_PLAR'), // 플래너
-  },
-  {
-    codeId: '2',
-    codeName: t('MSG_TXT_BRMGR'), // 지점장
-  },
-];
+async function onChangeOgTpCd() {
+  if (searchParams.value.ogTpCd === 'W01') { // P추진단
+    rsbDvCd.value = (await codeUtil.getSubCodes('RSB_DV_CD', 'W01')).filter((v) => ['W0105', 'W0104'].includes(v.codeId));
+    searchParams.value.rsbDvCd = 'W0105';
+  } else if (searchParams.value.ogTpCd === 'W02') { // M추진단
+    rsbDvCd.value = (await codeUtil.getSubCodes('RSB_DV_CD', 'W02')).filter((v) => ['W0205', 'W0204'].includes(v.codeId));
+    searchParams.value.rsbDvCd = 'W0205';
+  } else if (searchParams.value.ogTpCd === 'W03') { // 홈마스터
+    rsbDvCd.value = (await codeUtil.getSubCodes('RSB_DV_CD', 'W03')).filter((v) => ['W0302', 'W0301'].includes(v.codeId));
+    searchParams.value.rsbDvCd = 'W0302';
+  }
+}
 
 async function onChangeDiv() {
   let feeCalcUnitTpCd = '201';
 
   if (searchParams.value.ogTpCd === 'W01') { // P추진단
-    if (searchParams.value.rsbDvCd === '1') feeCalcUnitTpCd = '101'; // 플래너
-    else feeCalcUnitTpCd = '102'; // 지국장
+    if (searchParams.value.rsbDvCd === 'W0105') feeCalcUnitTpCd = '101'; // 플래너
+    else feeCalcUnitTpCd = '102'; // 지점장
   } else if (searchParams.value.ogTpCd === 'W02') { // M추진단
-    if (searchParams.value.rsbDvCd === '1') feeCalcUnitTpCd = '201'; // 플래너
-    else feeCalcUnitTpCd = '202'; // 지국장
+    if (searchParams.value.rsbDvCd === 'W0205') feeCalcUnitTpCd = '201'; // 플래너
+    else feeCalcUnitTpCd = '202'; // 지점장
   } else if (searchParams.value.ogTpCd === 'W03') { // 홈마스터
-    if (searchParams.value.rsbDvCd === '1') feeCalcUnitTpCd = '301'; // 플래너
-    else feeCalcUnitTpCd = '302'; // 지국장
+    if (searchParams.value.rsbDvCd === 'W0302') feeCalcUnitTpCd = '301'; // 홈마스터
+    else feeCalcUnitTpCd = '302'; // 지점장
   }
 
   searchParams.value.feeCalcUnitTpCd = feeCalcUnitTpCd;
