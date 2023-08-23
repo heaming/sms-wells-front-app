@@ -870,9 +870,7 @@ const initGrd1Main = defineGrid((data, view) => {
 
 const initGrd2Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'og1Lv' },
-    { fieldName: 'og2Lv' },
-    { fieldName: 'og3Lv' },
+    { fieldName: 'ogCd' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'cntrDtlNo' },
@@ -889,9 +887,7 @@ const initGrd2Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'og1Lv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'og2Lv', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
-    { fieldName: 'og3Lv', header: t('MSG_TXT_BRANCH'), width: '120', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
