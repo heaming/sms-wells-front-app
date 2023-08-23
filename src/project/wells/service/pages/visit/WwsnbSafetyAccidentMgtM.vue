@@ -274,7 +274,7 @@ const searchOptions = [
   { codeId: '1', codeName: t('MSG_TXT_FST_RGST_DT') }, // 등록일자
   { codeId: '2', codeName: t('MSG_TXT_FSH_DT') }, // 완료일자
 ];
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
 
 const searchParams = ref({
   svCnrOgId: '',
