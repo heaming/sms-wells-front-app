@@ -386,7 +386,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'exnoEncr', visible: false },
     { fieldName: 'idvTno', visible: false },
     { fieldName: 'telNo1',
-      header: `${t('MSG_TXT_CRAL_IDV_TNO')}1`,
+      header: `${t('MSG_TXT_COMP')}${t('MSG_TXT_CONTACT')}1`,
       width: '150',
       styleName: 'text-center',
       editor: { type: 'telephone' },
@@ -395,7 +395,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'mexnoEncr', visible: false },
     { fieldName: 'cralIdvTno', visible: false },
     { fieldName: 'telNo2',
-      header: `${t('MSG_TXT_CRAL_IDV_TNO')}2`,
+      header: `${t('MSG_TXT_COMP')}${t('MSG_TXT_CONTACT')}2`,
       width: '150',
       styleName: 'text-center',
       editor: { type: 'telephone' },
@@ -549,7 +549,6 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     if (columnName === 'bzrno' || columnName === 'leadCstNm') {
       const bzrnoParam = grid.getValue(updateRow, 9);
       const leadCstNmParam = grid.getValue(updateRow, 10);
-      console.log(fieldIndex);
       if (!isEmpty(bzrnoParam) && !isEmpty(leadCstNmParam)) {
         onKeyManFind(itemIndex);
       }
