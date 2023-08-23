@@ -128,7 +128,7 @@
 // Initialize Component (Tab)
 // -------------------------------------------------------------------------------------------------
 import { useDataService, getComponentType, defineGrid, useGlobal } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import WwdcdOperatingCostMgtMSecuritiesException from './WwdcdOperatingCostMgtMSecuritiesException.vue'; // 유가증권 제외
@@ -148,7 +148,7 @@ const { alert } = useGlobal();
 const userInfo = store.getters['meta/getUserInfo'];
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
-const cachedParams = {};
+let cachedParams = {};
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
@@ -197,43 +197,28 @@ async function fetchSummaryData() {
     view.resetCurrent();
   }
 }
-// searchParams.value 에 값이 들어가지 않아 임시 조치
-watch(
-  () => [searchParams.value.dgr1LevlOgId, searchParams.value.dgr2LevlOgId, searchParams.value.dgr3LevlOgId],
-  ([newOgLevlDvCd1, newOgLevlDvCd2, newOgLevlDvCd3]) => {
-    if (!isEmpty(newOgLevlDvCd1) || !isEmpty(newOgLevlDvCd2) || !isEmpty(newOgLevlDvCd3)) {
-      cachedParams.dgr1LevlOgId = searchParams.value.dgr1LevlOgId;
-      cachedParams.dgr2LevlOgId = searchParams.value.dgr2LevlOgId;
-      cachedParams.dgr3LevlOgId = searchParams.value.dgr3LevlOgId;
-    }
-    if (!isEmpty(cachedParams.dgr3LevlOgId)) {
-      cachedParams.dgr1LevlOgId = null;
-      cachedParams.dgr2LevlOgId = null;
-    } else if (!isEmpty(cachedParams.dgr2LevlOgId)) {
-      cachedParams.dgr1LevlOgId = null;
-      cachedParams.dgr3LevlOgId = null;
-    } else if (!isEmpty(cachedParams.dgr1LevlOgId)) {
-      cachedParams.dgr2LevlOgId = null;
-      cachedParams.dgr3LevlOgId = null;
-    } else {
-      cachedParams.dgr1LevlOgId = null;
-      cachedParams.dgr2LevlOgId = null;
-      cachedParams.dgr3LevlOgId = null;
-    }
-  },
-);
 async function fetchData() {
+  cachedParams = cloneDeep(searchParams.value);
   if (isEmpty(cachedParams.dgr1LevlOgId)
     && isEmpty(cachedParams.dgr2LevlOgId)
     && isEmpty(cachedParams.dgr3LevlOgId)) {
     alert(t('조직레벨 필수 값 입니다.'));
     return;
   }
-
-  cachedParams.baseYm = searchParams.value.baseYm;
-  cachedParams.ogTpCd = searchParams.value.ogTpCd;
-  cachedParams.adjOgId = searchParams.value.adjOgId;
-  cachedParams.adjPrtnrNo = searchParams.value.adjPrtnrNo;
+  if (!isEmpty(cachedParams.dgr3LevlOgId)) {
+    cachedParams.dgr1LevlOgId = null;
+    cachedParams.dgr2LevlOgId = null;
+  } else if (!isEmpty(cachedParams.dgr2LevlOgId)) {
+    cachedParams.dgr1LevlOgId = null;
+    cachedParams.dgr3LevlOgId = null;
+  } else if (!isEmpty(cachedParams.dgr1LevlOgId)) {
+    cachedParams.dgr2LevlOgId = null;
+    cachedParams.dgr3LevlOgId = null;
+  } else {
+    cachedParams.dgr1LevlOgId = null;
+    cachedParams.dgr2LevlOgId = null;
+    cachedParams.dgr3LevlOgId = null;
+  }
 
   await fetchAmountData(); // 금액
   await fetchSummaryData(); // 적요
