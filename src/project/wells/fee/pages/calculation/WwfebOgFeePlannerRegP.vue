@@ -148,8 +148,8 @@ async function onClickCancel() {
 async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
   await dataService.post(`/sms/common/fee/fee-calculation/${regData.value.perfYm}-${regData.value.feeTcntDvCd}-${regData.value.feeCalcUnitTpCd}`, null, { timeout: 5 * 60 * 1000 });
-  notify(t('MSG_ALT_CRT_FSH')); // 생성되었습니다.
   ok(true);
+  notify(t('MSG_ALT_CRT_FSH')); // 생성되었습니다.
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
