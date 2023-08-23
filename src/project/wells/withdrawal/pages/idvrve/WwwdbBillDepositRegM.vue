@@ -515,7 +515,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'billExprDt' }, /* 만기일자 */
     { fieldName: 'cntrCount' }, /* 계약수 */
     { fieldName: 'itgDpNo' }, /* 통합입금번호 */
-    { fieldName: 'col3' },
+    { fieldName: 'billDpSapSlpno' },
+    { fieldName: 'billRplcSapSlpno' },
     { fieldName: 'sellBzsBzrno' }, /* 판매업체사업자번호 */
     { fieldName: 'pblBzsBzrno' }, /* 발행업체사업자번호 */
     { fieldName: 'sort' }, /* 종류 */
@@ -601,12 +602,12 @@ const initGrid = defineGrid((data, view) => {
       // , header: '통합입금번호'
       width: '116',
       styleName: 'text-center' },
-    { fieldName: 'col3',
+    { fieldName: 'billDpSapSlpno',
       header: t('MSG_TXT_DP_SLIP_NO'),
       // , header: '입금전표번호'
       width: '116',
       styleName: 'text-left' },
-    { fieldName: 'col3',
+    { fieldName: 'billRplcSapSlpno',
       header: t('MSG_TXT_RPLC_SLIP_NO'),
       // , header: '대체전표번호'
       width: '116',
