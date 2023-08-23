@@ -401,7 +401,6 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       editor: { type: 'telephone' },
     },
     { fieldName: 'emadrCn',
-      visible: false,
       header: t('MSG_TXT_EMAIL'),
       width: '193',
       styleName: 'text-center',
