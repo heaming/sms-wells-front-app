@@ -23,12 +23,9 @@
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
-            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
             :og-tp-cd="searchParams.ogTpCd"
             :last-og-id="searchParams.ogId"
             :base-ym="searchParams.baseYm"
-            :start-level="1"
-            :end-level="2"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_BASE_D')">
@@ -169,7 +166,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ogCd', header: t('MSG_TXT_CODE'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'ogNm', header: t('MSG_TXT_CNT_NM'), width: '166', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '92', styleName: 'text-center', editable: false },
-    { fieldName: 'rolDvNm', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', editable: false },
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'wkGrpNm', header: t('MSG_TXT_WK_GRP'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'bizAgntYn', header: t('MSG_TXT_BIZ_AGNT'), width: '106', styleName: 'text-center', editable: false },
@@ -230,7 +228,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EGER'),
       direction: 'horizontal',
-      items: ['prtnrNo', 'rolDvNm', 'prtnrKnm', 'wkGrpNm'],
+      items: ['prtnrNo', 'rsbDvNm', 'pstnDvNm', 'prtnrKnm', 'wkGrpNm'],
     },
     'bizAgntYn',
     'wrkDt',
