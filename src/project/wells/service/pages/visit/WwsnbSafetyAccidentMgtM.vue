@@ -248,10 +248,11 @@ import {
 } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const { modal, alert, notify } = useGlobal();
+const { modal, notify } = useGlobal();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { t } = useI18n();
 const { currentRoute } = useRouter();
@@ -321,13 +322,34 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  const splited = (searchParams.value.cntrDtlNo).split('-');
+  searchParams.value.cntrNo = splited[0];
+  searchParams.value.cntrSn = splited[1];
+
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
 async function onClickAgreementPrint() {
-  await alert('합의서개발전');
+  const view = grdMainRef.value.getView();
+  const chkRows = gridUtil.getCheckedRowValues(view);
+  const { acdnRcpId } = chkRows[0];
+  const ozParam = ref({
+    args: {
+      searchApiUrl: `/api/v1/anonymous/sms/wells/service/safety-accident-agreement/${acdnRcpId}`,
+    },
+    height: 1100,
+    width: 1200,
+  });
+
+  // 조회 팝업
+  openReportPopup(
+    '/kyowon_as/safetyAccidentAgr.ozr',
+    '/kyowon_as/safetyAccidentAgr.odi',
+    JSON.stringify(ozParam.value.args),
+    { width: ozParam.width, height: ozParam.height },
+  );
 }
 
 async function onClickAccidentReportPrint() {
