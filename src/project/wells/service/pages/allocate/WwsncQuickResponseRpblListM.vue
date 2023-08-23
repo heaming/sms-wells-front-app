@@ -278,6 +278,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 const gridMainRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 /*
  *  Search Parameter
@@ -443,7 +444,18 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: '사번', width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: '담당자', width: '100', styleName: 'text-center' },
     { fieldName: 'pdNm', header: '상품', width: '400', styleName: 'text-left' },
-    { fieldName: 'cntrNo', header: '계약번호', width: '150', styleName: 'text-center' },
+    {
+      fieldName: 'cntrNo',
+      header: '계약번호',
+      width: '150',
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      displayCallback(grid, index, value) {
+        const cntrSn = grid.getValue(index.itemIndex, 'cntrSn') ?? '';
+        const cntrNo = value ?? '';
+        return `${cntrNo}-${cntrSn}`;
+      },
+    },
     { fieldName: 'rcgvpKnm', header: '고객명', width: '100', styleName: 'text-center' },
     { fieldName: 'newAdrZip', header: '우편번호', width: '100', styleName: 'text-center' },
     {
@@ -499,13 +511,16 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
-  view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'col4') {
-      const cstSignCn = g.getValue(itemIndex, 'cstSignCn');
+  view.onCellItemClicked = async (grid, clickData) => {
+    if (clickData.column === 'col4') {
+      const cstSignCn = grid.getValue(clickData.itemIndex, 'cstSignCn');
       await modal({
         component: 'WwsnzSignPreviewP',
         componentProps: { sign: cstSignCn },
       });
+    } else if (clickData.column === 'cntrNo') {
+      const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
     }
   };
 
