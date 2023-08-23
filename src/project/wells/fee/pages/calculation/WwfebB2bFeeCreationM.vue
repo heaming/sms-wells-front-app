@@ -516,7 +516,7 @@ const initGridBase = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
   view.onCellEditable = (grid, index) => {
-    if (!['amtW040005', 'amtW040005', 'amtW040020', 'amtW040003', 'amt01', 'amt01Cn'].includes(index.column)) {
+    if (!['amtW040005', 'amtW040005', 'amtW040004', 'amtW040020', 'amtW040003', 'amt01', 'amt01Cn'].includes(index.column)) {
       return false;
     }
   };
