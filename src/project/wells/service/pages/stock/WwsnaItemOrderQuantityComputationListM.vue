@@ -266,7 +266,7 @@ await Promise.all([
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/item-order-quantity/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/item-order-quantity/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 3000000 });
   const { list: excludeItem, pageInfo: pagingResult } = res.data;
   // fetch시에는 총 건수 조회하지 않도록 변경
   pagingResult.needTotalCount = false;
@@ -281,9 +281,9 @@ async function fetchData() {
 
 const isSearch = ref(true);
 async function onClickSearch() {
-  const { itmPdCds, itmPdCd, strtSapCd, endSapCd } = searchParams.value;
+  const { itmKndCd, itmPdCds, itmPdCd, strtSapCd, endSapCd } = searchParams.value;
 
-  if (isEmpty(itmPdCds) && isEmpty(itmPdCd) && isEmpty(strtSapCd) && isEmpty(endSapCd)) {
+  if (isEmpty(itmKndCd) && isEmpty(itmPdCds) && isEmpty(itmPdCd) && isEmpty(strtSapCd) && isEmpty(endSapCd)) {
     // 품목명, 품목코드, SAP코드 중 1개는 필수 입력입니다.
     await alert(t('MSG_ALT_REQ_INPUT_ITM_SAPCD'));
     return;
@@ -321,7 +321,7 @@ async function openExcludeItemP() {
 // 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/item-order-quantity/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/item-order-quantity/excel-download', { params: cachedParams, timeout: 3000000 });
 
   gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
