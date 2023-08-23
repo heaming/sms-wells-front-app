@@ -25,7 +25,6 @@
         <!--상품 그룹-->
         <kw-search-item
           :label="$t('MSG_TXT_PD_GRP')"
-          :colspan="2"
         >
           <!--상품 그룹: 상품 그룹-->
           <kw-select

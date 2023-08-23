@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNY
-2. 프로그램 ID : WwsnyInstallSeparationCostMgtM - 설치/분리비용 관리
+2. 프로그램 ID : WwsnyInstallSeparationCostMgtM - [W-SV-U-0158M01] 설치/분리비용 관리
 3. 작성자 : kyunglyn.lee
 4. 작성일 : 2023.04.07
 ****************************************************************************************************
@@ -165,6 +165,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 const pdNm = ref([]);
+const pdtNm = ref([]);
 /* 조회조건 */
 const searchParams = ref({
   pdNm: '',
@@ -175,9 +176,9 @@ const searchParams = ref({
 const isDisable = computed(() => (isEmpty(searchParams.value.pdGr)));
 
 async function onChangePdNm(val) {
-  console.log(val);
   if (isEmpty(val)) return;
   const { cd } = pdNm.value.find((v) => v.codeId === val) || {};
+  pdtNm.value = pdNm.value.map((v) => ({ codeId: v.cd, codeName: v.codeName })) ?? [];
   searchParams.value.pdCd = cd;
 }
 async function onChangePdGr() {
@@ -198,7 +199,6 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 async function onClickSearch() {
-  console.log(searchParams.value.pdCd);
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
 
@@ -207,6 +207,8 @@ async function onClickSearch() {
 
 const now = dayjs();
 async function onClickAdd() {
+  console.log(pdtNm.value);
+
   const view = grdMainRef.value.getView();
 
   await gridUtil.insertRowAndFocus(view, 0, {
@@ -222,8 +224,9 @@ async function onClickDelete() {
   if (deleteRows.length > 0) {
     await dataService.delete('/sms/wells/service/installation-separation-costs', { data: [...deleteRows] });
   }
-
-  await fetchData();
+  if (isEmpty(pageInfo)) {
+    await fetchData();
+  }
 }
 
 const { currentRoute } = useRouter();
@@ -302,13 +305,18 @@ const initGrdMain = defineGrid((data, view) => {
         styleName: 'essential',
       },
       width: '270',
-      // editor: { type: 'list' },
-      // options: pdNm.value,
+      editor: { type: 'list' },
+      options: pdtNm.value,
       styleName: 'text-left',
       rules: 'required',
       displayCallback(grd, { dataRow }) {
         const pdCd = grd.getValue(dataRow, 'pdCd');
         return pdNm.value.find((v) => v.cd === pdCd)?.codeName;
+      },
+      styleCallback: (grid, dataCell) => {
+        console.log(grid, dataCell);
+
+        return { editor: { type: 'list', labels: pdtNm.value.map((v) => v.codeName), values: pdtNm.value.map((v) => v.codeId) } };
       },
     }, // 상품명
     {
