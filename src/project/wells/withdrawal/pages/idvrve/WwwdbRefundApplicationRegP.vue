@@ -413,7 +413,7 @@ const { ok } = useModal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { notify } = useGlobal();
-const fnitCdRes = await dataService.get('/sms/common/common/codes/finance-code/bank-codes');
+const fnitCdRes = await dataService.get('/sms/common/common/codes/finance-code/fnit-codes/delegate');
 console.log(fnitCdRes);
 const optionList = fnitCdRes.data; // 은행코드(은행명)
 
