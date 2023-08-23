@@ -16,6 +16,7 @@
   <kw-popup
     ref="popupRef"
     size="3xl"
+    :modified-targets="['grdMain']"
   >
     <kw-form
       :cols="2"

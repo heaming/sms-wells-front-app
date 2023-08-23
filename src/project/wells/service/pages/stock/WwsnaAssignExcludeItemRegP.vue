@@ -15,6 +15,7 @@
 <template>
   <kw-popup
     size="2xl"
+    :modified-targets="['grdMain']"
   >
     <kw-search
       :modified-targets="['grdMain']"
