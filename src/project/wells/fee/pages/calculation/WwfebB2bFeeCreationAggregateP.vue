@@ -22,12 +22,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
         >
-          <kw-date-picker
-            v-model="regData.perfYm"
-            rules="required"
-            type="month"
-            :label="$t('MSG_TXT_PERF_YM')"
-          />
+          <p>{{ params.perfYm.substring(0,4)+'-'+params.perfYm.substring(4) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
