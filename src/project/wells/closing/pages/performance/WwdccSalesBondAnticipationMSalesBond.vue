@@ -42,7 +42,7 @@
         />
         <kw-select
           v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD"
+          :options="dynamicChangeCodes.SELL_TP_DTL_CD"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
@@ -104,7 +104,7 @@
       ref="grdSalesBondRef"
       :total-count="totalCount"
       name="grdSalesBond"
-      @init="initGrid"
+      @init="initSalesBondGrid"
     />
   </div>
 </template>
@@ -113,10 +113,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, gridUtil, useDataService } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
-import { getAggregateDivide, textToNumberFormatter } from '~/modules/sms-common/closing/utils/clUtil';
+import { getAggregateDivide, textToNumberFormatter, getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
@@ -125,20 +125,7 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdSalesBondRef = ref(getComponentType('KwGrid'));
-
-const sapPdDv = (await dataService.get('/sms/wells/closing/performance/overdue-penalty/code'))
-  .data.map((v) => ({ codeId: v.sapPdDvCd, codeName: v.sapPdDvNm }));
-const aggregateDivide = await getAggregateDivide();
-const totalCount = ref(0);
-const columnDisabled = ref(true);
 let cachedParams;
-const codes = await codeUtil.getMultiCodes(
-  'SELL_TP_CD', // 판매유형
-  'SELL_TP_DTL_CD', // 판매유형
-  'SELL_CHNL_DTL_CD', // 판매채널
-);
-const filteredCodes = ref({ SELL_TP_CD: codes.SELL_TP_CD.filter((obj) => ['1', '2', '3', '6'].includes(obj.codeId)) });
 const searchParams = ref({
   slClYm: dayjs().format('YYYYMM'),
   agrgDv: '1', // 집계구분
@@ -149,9 +136,26 @@ const searchParams = ref({
   cntrSn: '',
   sapPdDvCd: '', // SAP상품구분코드
 });
-// const dynamicChangeCodes = ref({ SELL_TP_DTL_CD: codes.value.SELL_TP_DTL_CD });
+
+const grdSalesBondRef = ref(getComponentType('KwGrid'));
+
+const sapPdDv = (await dataService.get('/sms/wells/closing/performance/overdue-penalty/code'))
+  .data.map((v) => ({ codeId: v.sapPdDvCd, codeName: v.sapPdDvNm }));
+const aggregateDivide = await getAggregateDivide();
+const totalCount = ref(0);
+const codes = await codeUtil.getMultiCodes(
+  'SELL_TP_CD', // 판매유형
+  'SELL_TP_DTL_CD', // 판매유형
+  'SELL_CHNL_DTL_CD', // 판매채널
+);
+const customCodes = ref({ SELL_TP_CD: await getSellTpCd(), SELL_TP_DTL_CD: await getSellTpDtlCd() });
+const filteredCodes = ref({ SELL_TP_CD: customCodes.value.SELL_TP_CD.filter((obj) => ['1', '2', '3', '6', '10'].includes(obj.codeId)) });
+const dynamicChangeCodes = ref({ SELL_TP_DTL_CD: customCodes.value.SELL_TP_DTL_CD.filter(
+  (obj) => (obj.userDfn02 === searchParams.value.sellTpCd),
+) });
 
 function setGridColumnLayoutType1(data, view) { // 일시불
+  console.log('setGridColumnLayoutType1');
   if (!view) {
     view = grdSalesBondRef.value.getView();
   }
@@ -161,15 +165,15 @@ function setGridColumnLayoutType1(data, view) { // 일시불
   view.setColumnLayout();
   const columns = [
     { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
-    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 실적일자
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD, disable: columnDisabled.value }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '150', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, disable: columnDisabled.value }, // 판매유형상세
-    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // SAP상품구분코드명
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 매출일자
+    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '150', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date' }, // 매출일자
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
 
     { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출 - 정상매출
@@ -230,9 +234,11 @@ function setGridColumnLayoutType1(data, view) { // 일시불
   if (searchParams.value.agrgDv === '1') {
     layoutMain.splice(1, 9);
   }
+  console.log(`layoutMain: ${layoutMain}`);
   view.setColumnLayout(layoutMain);
 
   view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
+  console.log(`summaryUserSpans: ${(searchParams.value.agrgDv === '1')}`);
   view.setHeaderSummaries({
     visible: true,
     items: [
@@ -252,15 +258,15 @@ function setGridColumnLayoutType2(data, view) { // 렌탈
   view.setColumnLayout();
   const columns = [
     { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
-    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 실적일자
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD, disable: columnDisabled.value }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, disable: columnDisabled.value }, // 판매유형상세
-    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // SAP상품구분코드명
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 매출일자
+    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date' }, // 매출일자
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
     { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출 - 정상매출
     { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '130', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 취소매출
@@ -325,15 +331,15 @@ function setGridColumnLayoutType3(data, view) { // 멤버십
   view.setColumnLayout();
   const columns = [
     { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
-    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 실적일자
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD, disable: columnDisabled.value }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, disable: columnDisabled.value }, // 판매유형상세
-    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // SAP상품구분코드명
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', disable: columnDisabled.value }, // 매출일자
+    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, // 매출일자
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
     { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, // 정상매출
     { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 취소매출
@@ -382,15 +388,15 @@ function setGridColumnLayoutType4(data, view) { // 정기배송
   view.setColumnLayout();
   const columns = [
     { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
-    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 실적일자
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD, disable: columnDisabled.value }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, disable: columnDisabled.value }, // 판매유형상세
-    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // SAP상품구분코드명
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 매출일자
+    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date' }, // 매출일자
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
     { fieldName: 'totSlAmt', header: `${t('MSG_TXT_SL')}(+)`, width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출
     { fieldName: 'totDpAmt', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출대사
@@ -424,15 +430,15 @@ function setGridColumnLayoutType5(data, view) { // 리스/할부
   view.setColumnLayout();
   const columns = [
     { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
-    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 실적일자
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD, disable: columnDisabled.value }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, disable: columnDisabled.value }, // 판매유형상세
-    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // SAP상품구분코드명
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', disable: columnDisabled.value }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', disable: columnDisabled.value }, // 매출일자
+    { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date' }, // 매출일자
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
     { fieldName: 'oriSlAmt', header: t('MSG_TXT_PCAM_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 원금매출
     { fieldName: 'itrSlAmt', header: t('MSG_TXT_INT_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 이자매출
@@ -479,7 +485,6 @@ function setGridColumnLayoutType5(data, view) { // 리스/할부
 }
 
 function setGridHeader() {
-  columnDisabled.value = (searchParams.value.agrgDv === '1');
   if (searchParams.value.sellTpCd === '1') { // 일시불
     setGridColumnLayoutType1();
   } else if (searchParams.value.sellTpCd === '2') { // 렌탈
@@ -604,18 +609,18 @@ async function onClickExcelDownload() {
   });
 }
 
-/*
 watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
-  dynamicChangeCodes.value.SELL_TP_DTL_CD = await codeUtil.getSubCodes('SELL_TP_DTL_CD', sellTpCd);
+  dynamicChangeCodes.value.SELL_TP_DTL_CD = customCodes.value.SELL_TP_DTL_CD.filter(
+    (obj) => (obj.userDfn02 === sellTpCd),
+  );
 });
-*/
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrid(data, view) {
+const initSalesBondGrid = defineGrid((data, view) => {
   setGridColumnLayoutType1(data, view);
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-}
+});
 </script>
