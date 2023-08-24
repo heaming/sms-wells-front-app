@@ -193,12 +193,15 @@ async function fetchData() {
   const { list: installSeperationCsMgt, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
+  // if (pageInfo.value.totalCount === 0) {
+  //   pageInfo.value.pageSize = 10;
+  // } else {
+  //   pageInfo.value.pageSize = Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'));
+  // }
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(installSeperationCsMgt);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
-
-  pageInfo.value.pageSize = installSeperationCsMgt.length;
 }
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
