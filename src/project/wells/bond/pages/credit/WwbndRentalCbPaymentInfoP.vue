@@ -124,14 +124,14 @@ onMounted(async () => {
 const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'cntrDtlSn', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' },
     { fieldName: 'copnDvNm', header: t('MSG_TXT_INDI_CORP'), width: '130', styleName: 'text-center' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '130', styleName: 'text-center' },
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PDCT'), width: '130', styleName: 'text-left' },
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_STPL_DT'), width: '130', styleName: 'text-center ', datetimeFormat: 'date' },
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_STPL_DT'), width: '130', styleName: 'text-center ' },
     { fieldName: 'fntDvNm', header: t('MSG_TXT_STLM_MES'), width: '130', styleName: 'text-center ' },
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '130', styleName: 'text-right', dataType: 'number' },

@@ -409,7 +409,7 @@ async function onClickFinalConfirm() {
   await onClickSearch();
 }
 
-const isNotExpected = computed(() => searchParams.value.authRsgCd === '01');
+// const isNotExpected = computed(() => searchParams.value.authRsgCd === '01');
 const isExpectedConfirm = computed(() => searchParams.value.authRsgCd === '02');
 const isfinalConfirm = computed(() => searchParams.value.authRsgCd === '03');
 // TODO: 룰 추가 예정 ( 현재 시스템 룰, 집금담당자, 'DUMMY' 적용 )
@@ -431,11 +431,13 @@ const initExpectedGrid = defineGrid((data, view) => {
       options: ynOpt,
       styleCallback: () => {
         const ret = {};
-        if (isNotExpected.value && !isLastDate.value) {
+        debugger;
+        if (!isfinalConfirm.value && !isLastDate.value) {
           ret.editable = true;
         } else {
           ret.editable = false;
         }
+        return ret;
       },
     },
     { fieldName: 'authRsgExcdRsonCd',
@@ -449,9 +451,11 @@ const initExpectedGrid = defineGrid((data, view) => {
         const ret = {};
         const { excdYn } = grid.getValues(dataCell.index.itemIndex);
         const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
-        if (rowState === RowState.UPDATED && excdYn === 'N' && isNotExpected.value && !isLastDate.value) {
+        if (rowState === RowState.UPDATED && excdYn === 'N' && !isLastDate.value) {
           ret.editable = false;
           grid.setValue(dataCell.index.itemIndex, 'authRsgExcdRsonCd', '');
+        } else if (isfinalConfirm.value) {
+          ret.editable = false;
         } else {
           ret.editable = true;
         }

@@ -37,9 +37,9 @@
           type="radio"
           :options="[
             { codeId: '1', codeName: t('MSG_TXT_AGRG') },
-            { codeId: '2', codeName: t('MSG_TXT_BY_DAY'), disable: dayClassifiedBy },
+            { codeId: '2', codeName: t('MSG_TXT_BY_DAY') },
             { codeId: '3', codeName: t('MSG_TXT_PER_ORDER') },
-            { codeId: '4', codeName: t('MSG_TXT_WRO_HORIZ_CAL_FORMULA'), disable: wrongHorizontalCalculationFormula },
+            { codeId: '4', codeName: t('MSG_TXT_WRO_HORIZ_CAL_FORMULA') },
           ]"
           @change="onChangeAgrgDv"
         />
@@ -70,66 +70,77 @@
           v-model="searchParams.sellTpCd"
           :options="codes.SELL_TP_CD.filter((v) => ['1', '2', '3', '6'].includes(v.codeId))"
           :label="$t('MSG_TXT_SEL_TYPE')"
-          @change="onChangeBusinessDivide"
+          @change="onChangeSellTpCd"
         /><!--판매유형-->
         <kw-select
           v-if="searchParams.sellTpCd === '1'"
           v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '11' || v.codeId === '12' || v.codeId === '13')"
-        />
-        <kw-select
-          v-if="searchParams.sellTpCd === '2'"
-          v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '21' || v.codeId === '22' || v.codeId === '23' ||
-            v.codeId === '24' || v.codeId === '25'|| v.codeId === '26')"
-        />
-        <kw-select
-          v-if="searchParams.sellTpCd === '3'"
-          v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '31' || v.codeId === '32'
-            || v.codeId === '33' || v.codeId === '34')"
+          :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '1')"
           first-option="all"
           first-option-value="ALL"
         />
         <kw-select
-          v-if="searchParams.sellTpCd === '6'"
+          v-else-if="searchParams.sellTpCd === '2'"
           v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '61' || v.codeId === '62' || v.codeId === '63')"
+          :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '2')"
+          first-option="all"
+          first-option-value="ALL"
+        />
+        <kw-select
+          v-else-if="searchParams.sellTpCd === '3'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '3')"
+          first-option="all"
+          first-option-value="ALL"
+        />
+        <kw-select
+          v-else-if="searchParams.sellTpCd === '6'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '6')"
           first-option="all"
           first-option-value="ALL"
         />
       </kw-search-item><!--판매유형상세-->
       <kw-search-item
-        v-show="isShowInquiryDivide"
+        v-if="searchParams.sellTpCd === '2'"
         :label="$t('MSG_TXT_INQR_DV')"
       >
         <kw-option-group
-          v-show="isShowInquiryDivide"
+          v-show="isInquiryDivide"
+          v-if="searchParams.agrgDv === '1' || searchParams.agrgDv === '3'"
           v-model="searchParams.inquiryDivide"
-          :options="inquiryDivideCode"
+          :options="selectInquiryDivide.options"
           type="radio"
           @change="onChangeInquiryDivide"
-        /><!--조회구분-->
+        />
+        <kw-option-group
+          v-show="isInquiryDivide"
+          v-if="searchParams.agrgDv === '2' || searchParams.agrgDv === '4'"
+          v-model="searchParams.inquiryDivide"
+          :options="selectInquiryDivideDis.options"
+          type="radio"
+          @change="onChangeInquiryDivide"
+        />
+        <!--조회구분-->
       </kw-search-item>
     </kw-search-row>
     <kw-search-row>
       <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
-        <kw-input
-          v-model.trim="searchParams.cntr"
-          icon="search_24"
+        <zctz-contract-detail-number
+          v-model:cntr-no="searchParams.cntrNo"
+          v-model:cntr-sn="searchParams.cntrSn"
           :disable="isDisable"
-          @click-icon="onClickIcon"
-        /><!-- 계약 상세 -->
+        />
+        <!-- 계약 상세 -->
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_SEL_CHNL')"
-        required
       >
         <kw-select
           v-model="searchParams.sellChnlDtl"
-          rules="required"
           :options="codes.SELL_CHNL_DTL_CD"
           first-option="all"
+          first-option-value="ALL"
           :label="$t('MSG_TXT_SEL_CHNL')"
         />
       </kw-search-item><!-- 판매 채널 -->
@@ -197,14 +208,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, defineGrid, gridUtil, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, defineGrid, gridUtil, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
-import { getInquiryDivide } from '~/modules/sms-common/closing/utils/clUtil';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { modal } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -212,22 +222,18 @@ const { modal } = useGlobal();
 // 검색조건 - 판매채널
 const sapPdDv = (await dataService.get('/sms/wells/closing/performance/overdue-penalty/code'))
   .data.map((v) => ({ codeId: v.sapPdDvCd, codeName: v.sapPdDvNm }));
-const inquiryDivideCode = await getInquiryDivide();
 const totalCount = ref(0);
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const grdThirdRef = ref(getComponentType('KwGrid'));
 const grdFourthRef = ref(getComponentType('KwGrid'));
 
-const isShow = ref(false);
-const isDisable = ref(false);
+const isDisable = ref(true);
 const isGridMain = ref(true);
 const isGridSub = ref(false);
 const isGridThird = ref(false);
 const isGridFourth = ref(false);
-const isShowInquiryDivide = ref(true);
-const dayClassifiedBy = ref(false);
-const wrongHorizontalCalculationFormula = ref(false);
+const isInquiryDivide = ref(false);
 
 const searchParams = ref({
   slClYm: dayjs().add(-1, 'M').format('YYYYMM'),
@@ -235,47 +241,93 @@ const searchParams = ref({
   sapPdDvCd: '', // SAP상품구분코드
   sellTpCd: '1', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
-  sellChnlDtl: '', // 판매채널
-  cntr: '',
+  sellChnlDtl: 'ALL', // 판매채널
+  cntrNo: '', // 계약번호
+  cntrSn: '', // 계약상세번호
   inquiryDivide: '1', // 조회구분
 });
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD', // 판매유형
-  // 'PD_DTL_CD', 없음
   'SELL_TP_DTL_CD', // 판매유형상세코드
   'SELL_CHNL_DTL_CD', // 판매채널
 );
 
 let cachedParams;
 async function fetchData() {
-  const { agrgDv } = searchParams.value;
+  const { agrgDv, inquiryDivide, sellTpCd, sellTpDtlCd } = searchParams.value;
   let res;
   let mainView;
 
-  if (isGridMain.value === true) {
-    mainView = grdMainRef.value.getView();
-    if (agrgDv === '1') {
-      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/mainAggregate', { params: cachedParams });
-    } else {
-      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/mainDates', { params: cachedParams });
-    }
-  } else if (isGridSub.value === true) {
-    mainView = grdSubRef.value.getView();
-    res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/subOrder', { params: cachedParams, timeout: 80000 });
-  } else if (isGridThird.value === true) {
-    mainView = grdThirdRef.value.getView();
-    res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/thirdAggregate', { params: cachedParams });
-  } else if (isGridFourth.value === true) {
-    mainView = grdFourthRef.value.getView();
-    res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/fourthOrder', { params: cachedParams });
-  }
+  console.log('agrgDv:', agrgDv);
+  console.log('inquiryDivide:', inquiryDivide);
+  console.log('sellTpCd:', sellTpCd);
+  console.log('sellTpDtlCd:', sellTpDtlCd);
 
+  if (inquiryDivide === '2') { // 포인트 선택시
+    if (agrgDv === '1') { // 집계
+      mainView = grdThirdRef.value.getView();
+      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/pointAggregates', { params: cachedParams, timeout: 180000 });
+    } else if (agrgDv === '3') { // 주문별
+      mainView = grdFourthRef.value.getView();
+      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/pointOrders', { params: cachedParams, timeout: 180000 });
+    }
+  } else if (inquiryDivide === '1') { // 선수금 선택
+    if (agrgDv === '2') { // 일자별
+      mainView = grdMainRef.value.getView();
+      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationDates', { params: cachedParams, timeout: 180000 });
+    } else if (agrgDv === '1' || agrgDv === '3' || agrgDv === '4') { // 집계, 주문별, 가로계산식
+      mainView = grdSubRef.value.getView();
+      if (sellTpCd === '1') { // 일시불 선택시
+        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationSinglePayments', { params: cachedParams, timeout: 180000 });
+      } else if (sellTpCd === '2') { // 렌탈,리스 선택시
+        if (sellTpDtlCd === '21' || sellTpDtlCd === '23') { // 렌탈 (판매유형상세 : 21, 23)
+          res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationRentals', { params: cachedParams, timeout: 180000 });
+        } else { // 리스 (판매유형상세 : 21, 23 외)
+          res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationLeases', { params: cachedParams, timeout: 180000 });
+        }
+      } else if (sellTpCd === '3') { // 멤버십 선택시
+        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationMemberships', { params: cachedParams, timeout: 180000 });
+      } else if (sellTpCd === '6') { // 정기배송 선택시
+        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationRegularShippings', { params: cachedParams, timeout: 180000 });
+      }
+    }
+  }
   const overduePenalty = res.data;
   totalCount.value = overduePenalty.length;
 
   mainView.getDataSource().setRows(overduePenalty);
-  mainView.resetCurrent();
+
+  isGridMain.value = false;
+  isGridSub.value = false;
+  isGridThird.value = false;
+  isGridFourth.value = false;
+
+  if (inquiryDivide === '2') { // 포인트 선택시
+    if (agrgDv === '1') { // 집계
+      isGridThird.value = true;
+    } else if (agrgDv === '3') { // 주문별
+      isGridFourth.value = true;
+    }
+  } else if (inquiryDivide === '1') { // 선수금 선택
+    if (agrgDv === '2') { // 일자별
+      isGridMain.value = true;
+    } else if (agrgDv === '3' || agrgDv === '4') { // 주문별, 가로계산식
+      isGridSub.value = true;
+      mainView.columnByName('cntrNo').visible = true;
+      mainView.columnByName('cstKnm').visible = true;
+      mainView.columnByName('pdCd').visible = true;
+      mainView.columnByName('pdNm').visible = true;
+      mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 8 }];
+    } else if (agrgDv === '1') { // 집계
+      isGridSub.value = true;
+      mainView.columnByName('cntrNo').visible = false;
+      mainView.columnByName('cstKnm').visible = false;
+      mainView.columnByName('pdCd').visible = false;
+      mainView.columnByName('pdNm').visible = false;
+      mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
+    }
+  }
 }
 
 async function onClickSearch() {
@@ -283,103 +335,16 @@ async function onClickSearch() {
   await fetchData();
 }
 
-async function onClickIcon() {
-  const { dtlCntr } = searchParams.value;
-  const res = await modal({
-    component: 'WwctaContractNumberListP',
-    componentProps: { dtlCntr },
-  });
-
-  if (res.result) {
-    // res.result
-  }
-}
-
-async function onChangeChechOption() {
-  const { agrgDv } = searchParams.value; // 집계구분
-  const { sellTpCd } = searchParams.value; // 업무구분
-  const { inquiryDivide } = searchParams.value; // 포인트 조회
-  const mainView = grdMainRef.value.getView();
-
-  isGridMain.value = false;
-  isGridSub.value = false;
-  isGridThird.value = false;
-  isGridFourth.value = false;
-
-  if (sellTpCd === '5' || sellTpCd === '6') {
-    isShow.value = true;
-  } else {
-    isShow.value = false;
-  }
-
-  if (agrgDv === '3') {
-    isDisable.value = false;
-  } else {
-    isDisable.value = true;
-  }
-
-  if (agrgDv === '1' || agrgDv === '3') {
-    isShowInquiryDivide.value = true;
-  } else {
-    isShowInquiryDivide.value = false;
-  }
-
-  if (agrgDv === '1' || agrgDv === '2') {
-    if (agrgDv === '1' && inquiryDivide === '2') {
-      isGridThird.value = true;
-    } else {
-      isGridMain.value = true;
-      if (agrgDv === '1') {
-        mainView.columnByName('perfDt').visible = false;
-        mainView.columnByName('slClYm').visible = true;
-        mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
-      } else if (agrgDv === '2') {
-        mainView.columnByName('slClYm').visible = false;
-        mainView.columnByName('perfDt').visible = true;
-        mainView.layoutByColumn('perfDt').summaryUserSpans = [{ colspan: 4 }];
-        if (sellTpCd === '2') {
-          searchParams.value.sellTpCd = '1';
-        }
-      }
-    }
-  } else if (agrgDv === '3') {
-    if (inquiryDivide === '1') {
-      isGridSub.value = true;
-    } else if (inquiryDivide === '2') {
-      isGridFourth.value = true;
-    }
-  } else if (agrgDv === '4') {
-    isGridSub.value = true;
-    if (sellTpCd === '2') {
-      searchParams.value.sellTpCd = '1';
-    }
-  }
-  onClickSearch();
-}
-
-async function onChangeBusinessDivide() {
-  debugger;
-  const { sellTpCd } = searchParams.value;
-
-  if (sellTpCd === '2') {
-    dayClassifiedBy.value = true;
-    wrongHorizontalCalculationFormula.value = true;
-  } else {
-    dayClassifiedBy.value = false;
-    wrongHorizontalCalculationFormula.value = false;
-  }
-}
-
 async function onClickExcelDownload() {
   let view;
   if (isGridMain.value === true) {
     view = grdMainRef.value.getView();
   } else if (isGridSub.value === true) {
-    view = grdMainRef.value.getView();
+    view = grdSubRef.value.getView();
   } else if (isGridThird.value === true) {
-    view = grdMainRef.value.getView();
+    view = grdThirdRef.value.getView();
   } else if (isGridFourth.value === true) {
-    view = grdMainRef.value.getView();
+    view = grdFourthRef.value.getView();
   }
 
   await gridUtil.exportView(view, {
@@ -390,11 +355,21 @@ async function onClickExcelDownload() {
 }
 
 async function onChangeAgrgDv() {
-  onChangeChechOption();
+  const { agrgDv } = searchParams.value;
+  if (agrgDv === '3') {
+    isDisable.value = false;
+  } else {
+    isDisable.value = true;
+  }
 }
 
-async function onChangeInquiryDivide() {
-  onChangeChechOption();
+async function onChangeSellTpCd() {
+  const { sellTpCd } = searchParams.value; // 판매유형
+  if (sellTpCd === '2') {
+    isInquiryDivide.value = true;
+  } else {
+    isInquiryDivide.value = false;
+  }
 }
 
 async function onClickOpenReport() {
@@ -417,7 +392,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       datetimeFormat: 'YYYY-MM',
     }, // 실적년월
-    { fieldName: 'perfDt',
+    { fieldName: 'slClDt',
       header: t('MSG_TXT_PERF_DT'),
       styleName: 'text-center',
       width: '130',
@@ -425,24 +400,24 @@ const initGrdMain = defineGrid((data, view) => {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       },
-      dataType: 'date',
+      datetimeFormat: 'date',
     }, // 실적일자
-    { fieldName: 'sellTpNm',
+    { fieldName: 'sellTpCdNm',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '130',
       styleName: 'text-left',
     }, // 판매유형
-    { fieldName: 'sellTpDtlNm',
+    { fieldName: 'sellTpDtlCdNm',
       header: t('MSG_TXT_SELL_TP_DTL'),
       width: '130',
       styleName: 'text-left',
     }, // 판매유형상세
-    { fieldName: 'sapPdDvNm',
+    { fieldName: 'sapPdAtcNm',
       header: t('MSG_TXT_SAP_PD_DV_CD_NM'),
       styleName: 'text-left',
       width: '130',
     }, // SAP상품구분코드명
-    { fieldName: 'w1Am01',
+    { fieldName: 'btdAtam',
       header: t('MSG_TXT_BTD_BZNS_ATAM'),
       width: '150',
       styleName: 'text-right',
@@ -452,7 +427,7 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0',
       },
     }, // 기초 영업선수금
-    { fieldName: 'w1Am02',
+    { fieldName: 'atamDpAmt',
       header: t('MSG_TXT_DP'),
       width: '150',
       styleName: 'text-right',
@@ -462,7 +437,7 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0',
       },
     }, // 입금
-    { fieldName: 'w1Am03',
+    { fieldName: 'thmAtamRfndAmt',
       header: t('MSG_TXT_RFND'),
       width: '180',
       styleName: 'text-right',
@@ -472,7 +447,7 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0',
       },
     }, // 환불
-    { fieldName: 'w1Am04',
+    { fieldName: 'dpTotAmt',
       header: t('MSG_TXT_SUM'),
       width: '150',
       styleName: 'text-right',
@@ -482,7 +457,7 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0',
       },
     }, // 합계
-    { fieldName: 'w1Am05',
+    { fieldName: 'slBndAlrpyAmt',
       header: `(-) ${t('MSG_TXT_SL_CPRCNF')}`,
       width: '150',
       styleName: 'text-right',
@@ -492,7 +467,7 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0',
       },
     }, // (-) 매출대사
-    { fieldName: 'w1Am06',
+    { fieldName: 'borAmt',
       header: `(-) ${t('MSG_TXT_CCAM')}`,
       width: '150',
       styleName: 'text-right',
@@ -503,7 +478,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
       hint: t(''),
     }, // (-) 위약금
-    { fieldName: 'w1Am07',
+    { fieldName: 'adjAmt',
       header: `(-) ${t('MSG_TXT_CTR_AMT')}`,
       width: '150',
       styleName: 'text-right',
@@ -513,7 +488,7 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0',
       },
     }, // (+) 조정금액
-    { fieldName: 'w1Am08',
+    { fieldName: 'etcProfit',
       header: `(+) ${t('MSG_TXT_PTYPF')}`,
       width: '150',
       styleName: 'text-right',
@@ -523,7 +498,7 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0',
       },
     }, // (-) 잡이익
-    { fieldName: 'w1Am09',
+    { fieldName: 'eotAtam',
       header: t('MSG_TXT_EOT_BZNS_ATAM'),
       width: '150',
       styleName: 'text-right',
@@ -542,22 +517,22 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.setColumnLayout([
     'slClYm',
-    'perfDt',
-    'sellTpNm',
-    'sellTpDtlNm',
-    'sapPdDvNm',
-    'w1Am01',
+    'slClDt',
+    'sellTpCdNm',
+    'sellTpDtlCdNm',
+    'sapPdAtcNm',
+    'btdAtam',
     {
       header: `(+)${t('MSG_TXT_BZNS_ATAM_DP_IZ')}`, // (+) 영업선수금 입금내역
       direction: 'horizontal',
-      items: ['w1Am02', 'w1Am03', 'w1Am04'],
+      items: ['atamDpAmt', 'thmAtamRfndAmt', 'dpTotAmt'],
     },
 
-    'w1Am05',
-    'w1Am06',
-    'w1Am07',
-    'w1Am08',
-    'w1Am09',
+    'slBndAlrpyAmt',
+    'borAmt',
+    'adjAmt',
+    'etcProfit',
+    'eotAtam',
   ]);
 
   view.setHeaderSummaries({
@@ -568,8 +543,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
     ],
   });
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
-  onChangeChechOption();
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 5 }];
 });
 
 // getSalesBondAtamDateList (두번째 그리드)
@@ -585,14 +559,14 @@ const initGrdSub = defineGrid((data, view) => {
       },
       datetimeFormat: 'YYYY-MM',
     }, // 실적년월
-    { fieldName: 'sellTpNm',
+    { fieldName: 'sellTpCdNm',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '150',
       styleName: 'text-left',
     }, // 판매유형
-    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-left' }, // 판매유형상세
+    { fieldName: 'sellTpDtlCdNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-left' }, // 판매유형상세
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-left' }, // SAP상품구분코드명
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-left' }, // SAP상품구분코드명
     { fieldName: 'cstKnm',
       header: t('MSG_TXT_CST_NM'),
       width: '150',
@@ -608,7 +582,7 @@ const initGrdSub = defineGrid((data, view) => {
       width: '180',
       styleName: 'text-left',
     }, // 상품명
-    { fieldName: 'w1Am01',
+    { fieldName: 'btdAtam',
       header: t('MSG_TXT_BTD_BZNS_ATAM'),
       width: '150',
       styleName: 'text-right',
@@ -618,7 +592,7 @@ const initGrdSub = defineGrid((data, view) => {
       },
       dataType: 'number',
     }, // 기초영업선수금
-    { fieldName: 'w1Am02',
+    { fieldName: 'atamDpAmt',
       header: t('MSG_TXT_DP'),
       width: '150',
       styleName: 'text-right',
@@ -628,7 +602,7 @@ const initGrdSub = defineGrid((data, view) => {
       },
       dataType: 'number',
     }, // 입금
-    { fieldName: 'w1Am03',
+    { fieldName: 'thmAtamRfndAmt',
       header: t('MSG_TXT_RFND'),
       width: '150',
       styleName: 'text-right',
@@ -638,7 +612,7 @@ const initGrdSub = defineGrid((data, view) => {
       },
       dataType: 'number',
     }, // 환불
-    { fieldName: 'w1Am04',
+    { fieldName: 'dpTotAmt',
       header: t('MSG_TXT_SUM'),
       width: '150',
       styleName: 'text-right',
@@ -648,7 +622,7 @@ const initGrdSub = defineGrid((data, view) => {
       },
       dataType: 'number',
     }, // 합계
-    { fieldName: 'w1Am05',
+    { fieldName: 'slBndAlrpyAmt',
       header: `(-) ${t('MSG_TXT_SL_CPRCNF')}`,
       width: '150',
       styleName: 'text-right',
@@ -658,7 +632,7 @@ const initGrdSub = defineGrid((data, view) => {
       },
       dataType: 'number',
     }, // (-) 매출대사
-    { fieldName: 'w1Am06',
+    { fieldName: 'borAmt',
       header: `(-) ${t('MSG_TXT_CCAM')}`,
       width: '150',
       styleName: 'text-right',
@@ -668,7 +642,7 @@ const initGrdSub = defineGrid((data, view) => {
       },
       dataType: 'number',
     }, // (-) 위약금
-    { fieldName: 'w1Am07',
+    { fieldName: 'adjAmt',
       header: `(+) ${t('MSG_TXT_CTR_AMT')}`,
       width: '150',
       styleName: 'text-right',
@@ -678,7 +652,7 @@ const initGrdSub = defineGrid((data, view) => {
       },
       dataType: 'number',
     }, // (+) 조정금액
-    { fieldName: 'w1Am08',
+    { fieldName: 'etcProfit',
       header: `(-) ${t('MSG_TXT_PTYPF')}`,
       width: '150',
       styleName: 'text-right',
@@ -688,7 +662,7 @@ const initGrdSub = defineGrid((data, view) => {
       },
       dataType: 'number',
     }, // (-) 잡이익
-    { fieldName: 'w1Am09',
+    { fieldName: 'eotAtam',
       header: t('MSG_TXT_EOT_BZNS_ATAM'),
       width: '150',
       styleName: 'text-right',
@@ -708,24 +682,24 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.setColumnLayout([
     'slClYm',
-    'sellTpNm',
-    'sellTpDtlNm',
+    'sellTpCdNm',
+    'sellTpDtlCdNm',
     'cntrNo',
-    'sapPdDvNm',
+    'sapPdAtcNm',
     'cstKnm',
     'pdCd',
     'pdNm',
-    'w1Am01',
+    'btdAtam',
     {
       header: `(+)${t('MSG_TXT_BZNS_ATAM_DP_IZ')}`, // (+) 영업선수금 입금내역
       direction: 'horizontal',
-      items: ['w1Am02', 'w1Am03', 'w1Am04'],
+      items: ['atamDpAmt', 'thmAtamRfndAmt', 'dpTotAmt'],
     },
-    'w1Am05',
-    'w1Am06',
-    'w1Am07',
-    'w1Am08',
-    'w1Am09',
+    'slBndAlrpyAmt',
+    'borAmt',
+    'adjAmt',
+    'etcProfit',
+    'eotAtam',
   ]);
 
   view.setHeaderSummaries({
@@ -752,18 +726,18 @@ const initGrdThird = defineGrid((data, view) => {
       },
       datetimeFormat: 'YYYY-MM',
     }, // 실적년월
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
-    { fieldName: 'sellTpDtlNm',
+    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
+    { fieldName: 'sellTpDtlCdNm',
       header: t('MSG_TXT_SELL_TP_DTL'),
       width: '130',
       styleName: 'text-left',
     }, // 판매유형상세
-    { fieldName: 'sapPdDvNm',
+    { fieldName: 'sapPdAtcNm',
       header: t('MSG_TXT_SAP_PD_DV_CD_NM'),
       width: '130',
       styleName: 'text-left',
     }, // SAP상품구분코드명
-    { fieldName: 'wpAm01',
+    { fieldName: 'mlgBtdPrpdAmt',
       header: t('MSG_TXT_BTD_AMT'),
       width: '130',
       styleName: 'text-right',
@@ -772,7 +746,7 @@ const initGrdThird = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } }, // 기초금액
-    { fieldName: 'wpAm02',
+    { fieldName: 'mlgDpAmt',
       header: t('MSG_TXT_PRPD_DP'),
       width: '150',
       styleName: 'text-right',
@@ -781,7 +755,7 @@ const initGrdThird = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } }, // 선수입금
-    { fieldName: 'wpAm03',
+    { fieldName: 'mlgRfndAmt',
       header: t('MSG_TXT_PRPD_RFND'),
       width: '150',
       styleName: 'text-right',
@@ -790,7 +764,7 @@ const initGrdThird = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } }, // 선수환불
-    { fieldName: 'wpAm04',
+    { fieldName: 'mlgTotAmt',
       header: t('MSG_TXT_SUM'),
       width: '150',
       styleName: 'text-right',
@@ -800,7 +774,7 @@ const initGrdThird = defineGrid((data, view) => {
         numberFormat: '#,##0',
       },
     }, // 합계
-    { fieldName: 'wpAm05',
+    { fieldName: 'mlgSlAmt',
       header: t('MSG_TXT_RENTAL_SL'),
       width: '150',
       styleName: 'text-right',
@@ -810,7 +784,7 @@ const initGrdThird = defineGrid((data, view) => {
         numberFormat: '#,##0',
       },
     }, // 렌탈매출 / header - 매출내역
-    { fieldName: 'wpAm06',
+    { fieldName: 'mlgEotPrpdAmt',
       header: t('MSG_TXT_SUM'),
       width: '150',
       styleName: 'text-right',
@@ -830,24 +804,24 @@ const initGrdThird = defineGrid((data, view) => {
 
   view.setColumnLayout([
     'slClYm',
-    'sellTpNm',
-    'sellTpDtlNm',
-    'sapPdDvNm',
-    'wpAm01',
+    'sellTpCdNm',
+    'sellTpDtlCdNm',
+    'sapPdAtcNm',
+    'mlgBtdPrpdAmt',
     {
       header: t('MSG_TXT_DP_IZ'), // 입금내역
       direction: 'horizontal',
-      items: ['wpAm02', 'wpAm03', 'wpAm04'],
+      items: ['mlgDpAmt', 'mlgRfndAmt', 'mlgTotAmt'],
     },
     {
       header: t('MSG_TXT_SL_IZ'), // 매출내역
       direction: 'horizontal',
-      items: ['wpAm05'],
+      items: ['mlgSlAmt'],
     },
     {
       header: t('MSG_TXT_EOT_BLAM'), // 기말잔액
       direction: 'horizontal',
-      items: ['wpAm06'],
+      items: ['mlgEotPrpdAmt'],
     },
   ]);
 
@@ -875,20 +849,20 @@ const initGrdFourth = defineGrid((data, view) => {
       },
       datetimeFormat: 'YYYY-MM',
     }, // 실적년월
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
-    { fieldName: 'sellTpDtlNm',
+    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
+    { fieldName: 'sellTpDtlCdNm',
       header: t('MSG_TXT_SELL_TP_DTL'),
       width: '130',
       styleName: 'text-left',
     }, // 판매유형상세
-    { fieldName: 'sapPdDvNm',
+    { fieldName: 'sapPdAtcNm',
       header: t('MSG_TXT_SAP_PD_DV_CD_NM'),
       width: '130',
       styleName: 'text-left',
     }, // SAP상품구분코드명
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
-    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', datetype: 'date' }, // 매출일자
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일자
     { fieldName: 'mlgBtdPrpdAmt',
       header: t('MSG_TXT_BTD_AMT'),
       width: '150',
@@ -898,7 +872,7 @@ const initGrdFourth = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } }, // 기초금액
-    { fieldName: 'lciam1',
+    { fieldName: 'chargedDpAmt',
       header: t('MSG_TXT_RECAP_DP'),
       width: '180',
       styleName: 'text-right',
@@ -907,7 +881,7 @@ const initGrdFourth = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } }, // 유상입금
-    { fieldName: 'lciam2',
+    { fieldName: 'freeDpAmt',
       header: t('MSG_TXT_FRISU_DP'),
       width: '150',
       styleName: 'text-right',
@@ -916,7 +890,7 @@ const initGrdFourth = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } }, // 무상입금
-    { fieldName: 'lciam3',
+    { fieldName: 'etcDpAmt',
       header: t('MSG_TXT_ETC_DP'),
       width: '150',
       styleName: 'text-right',
@@ -925,7 +899,7 @@ const initGrdFourth = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } }, // 기타입금
-    { fieldName: 'lcsam1',
+    { fieldName: 'chargedSlAmt',
       header: t('MSG_TXT_RECAP_SL'),
       width: '150',
       styleName: 'text-right',
@@ -934,7 +908,7 @@ const initGrdFourth = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } }, // 유상매출
-    { fieldName: 'lcsam2',
+    { fieldName: 'freeSlAmt',
       header: t('MSG_TXT_FRISU_SL'),
       width: '150',
       styleName: 'text-right',
@@ -943,7 +917,7 @@ const initGrdFourth = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } }, // 무상매출
-    { fieldName: 'lcsam3',
+    { fieldName: 'etcSlAmt',
       header: t('MSG_TXT_ETC_SL'),
       width: '150',
       styleName: 'text-right',
@@ -971,22 +945,22 @@ const initGrdFourth = defineGrid((data, view) => {
 
   view.setColumnLayout([
     'slClYm',
-    'sellTpNm',
-    'sellTpDtlNm',
-    'sapPdDvNm',
+    'sellTpCdNm',
+    'sellTpDtlCdNm',
+    'sapPdAtcNm',
     'cstKnm',
-    'cntr',
+    'cntrNo',
     'slRcogDt',
     'mlgBtdPrpdAmt',
     {
       header: t('MSG_TXT_DP_IZ'), // 입금내역
       direction: 'horizontal',
-      items: ['lciam1', 'lciam2', 'lciam3'],
+      items: ['chargedDpAmt', 'freeDpAmt', 'etcDpAmt'],
     },
     {
       header: t('MSG_TXT_SL_IZ'), // 매출내역
       direction: 'horizontal',
-      items: ['lcsam1', 'lcsam2', 'lcsam3'],
+      items: ['chargedSlAmt', 'freeSlAmt', 'etcSlAmt'],
     },
     'mlgEotPrpdAmt',
   ]);
@@ -1002,4 +976,11 @@ const initGrdFourth = defineGrid((data, view) => {
   view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
 });
 
+const selectInquiryDivide = { // 업무구분
+  options: [{ codeId: '1', codeName: t('MSG_TXT_ATAM'), disable: false }, { codeId: '2', codeName: t('MSG_TXT_P_ATAM'), disable: false }],
+};
+
+const selectInquiryDivideDis = { // 조회구분
+  options: [{ codeId: '1', codeName: t('MSG_TXT_ATAM'), disable: true }, { codeId: '2', codeName: t('MSG_TXT_P_ATAM'), disable: true }],
+};
 </script>

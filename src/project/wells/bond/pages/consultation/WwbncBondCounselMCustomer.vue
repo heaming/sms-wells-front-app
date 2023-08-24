@@ -90,6 +90,7 @@
           regex="num"
           :maxlength="13"
           @click-icon="onClickSelectCustomer"
+          @change="onChangeSfk"
         />
       </kw-search-item>
 
@@ -297,6 +298,7 @@ const searchParams = ref({
   schCstNoYn: 'N',
   dv1: '',
   dv2: '',
+  schSfKYn: 'N',
 });
 
 const frmMainRef = ref(getComponentType('KwForm'));
@@ -328,10 +330,14 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
-
 // TODO: 고객번호/고객명 변경
 async function onChangeCstNo() {
   searchParams.value.schCstNoYn = 'N';
+}
+
+// TODO: 세이프키 변경
+async function onChangeSfk() {
+  searchParams.value.schSfKYn = 'N';
 }
 
 // TODO: 고객조회(공통)
@@ -352,6 +358,7 @@ async function onClickSelectCustomer() {
     searchParams.value.schCstNm = cstNm;
     searchParams.value.schSfK = sfkVal;
     searchParams.value.schCstNoYn = 'Y';
+    searchParams.value.schSfKYn = 'Y';
   }
 }
 
@@ -410,8 +417,9 @@ const onClickCntrMessageSend = async () => {
 async function onClickSearch() {
   const cstNo = searchParams.value.schCstNo;
   const cstNm = searchParams.value.schCstNm;
-  const sfkVal = searchParams.value.schSfK;
+  const sfk = searchParams.value.schSfK;
   const cstNoYn = searchParams.value.schCstNoYn;
+  const sfkYn = searchParams.value.schSfKYn;
 
   if (cstNo !== '' || cstNm !== '') {
     if (cstNoYn === 'N') {
@@ -419,8 +427,8 @@ async function onClickSearch() {
       return;
     }
   }
-  if (sfkVal !== '') {
-    if (cstNoYn === 'N') {
+  if (sfk !== '') {
+    if (sfkYn === 'N') {
       notify(t('MSG_ALT_SFK_IN'));
       return;
     }
@@ -503,7 +511,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mmChramBlam', dataType: 'number' },
     { fieldName: 'dlqAddAmt', dataType: 'number' },
     { fieldName: 'dlqAddDp', dataType: 'number' },
-    { fieldName: 'dlqAddBlam', dataType: 'number' },
+    { fieldName: 'dlqAdamtBlam', dataType: 'number' },
     { fieldName: 'ucAmt', dataType: 'number' },
     { fieldName: 'ucDp', dataType: 'number' },
     { fieldName: 'ucBlam', dataType: 'number' },
@@ -551,7 +559,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mmChramBlam', header: t('MSG_TXT_MM_CHRAM_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'dlqAdamtBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ucAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ucDp', header: t('MSG_TXT_UC_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ucBlam', header: t('MSG_TXT_UC_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
@@ -592,8 +600,8 @@ const initGrdMain = defineGrid((data, view) => {
     },
 
     { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '100', styleName: 'text-center' },
-    { fieldName: 'vtAcNo', header: t('MSG_TXT_VT_AC_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '120', styleName: 'text-center' },
+    { fieldName: 'vtAcNo', header: t('MSG_TXT_VT_AC_NO'), width: '160', styleName: 'text-center' },
+    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '160', styleName: 'text-center' },
     { fieldName: 'clnPsbl', header: t('MSG_TXT_CLN_PSBL'), width: '100', styleName: 'text-center' },
     { fieldName: 'clnPrcs', header: t('MSG_TXT_CLN_PRCS'), width: '100', styleName: 'text-center' },
     { fieldName: 'cstStat', header: t('MSG_TXT_CST_STAT'), width: '100', styleName: 'text-center' },
@@ -626,7 +634,7 @@ const initGrdMain = defineGrid((data, view) => {
     const cntrSn = g.getValue(dataRow, 'cntrSn');
     windowKey.value = `WwbncBondCounselMCustomer_${cstNo}`;
     if (cstNo) {
-      await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { cstNo, cntrNo, cntrSn }, windowKey.value);
+      await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { 'modal-popup': true, cstNo, cntrNo, cntrSn }, windowKey.value);
     }
   };
 });

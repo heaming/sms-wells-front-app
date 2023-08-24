@@ -188,11 +188,15 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
     }
     data.insertRow(lastRow, row);
   });
-  await gridUtil.focusCellInput(view, lastRow);
 }
 
 async function deleteCheckedRows(view) {
   const checkedRows = view.getCheckedRows();
+  if (checkedRows.length === 0) {
+    // 데이터를 선택해주세요.
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
   const removeCreateRows = [];
   let isDbDataRemove = false;
   await Promise.all(checkedRows.map(async (row) => {

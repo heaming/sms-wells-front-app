@@ -49,8 +49,8 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, modal, notify, useDataService } from 'kw-lib';
-import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
-import { CtCodeUtil, validateBryyMmddWithCopnCdCd, validatePdCd } from '~sms-common/contract/util';
+import { useCtCode, useGridDataModel } from '~sms-common/contract/composable';
+import { validateBryyMmddWithCopnCdCd, validatePdCd } from '~sms-common/contract/util';
 import { validateTel1, validateTel2, validateTel3 } from '~sms-common/contract/util/CtValidateUtil';
 
 const { t } = useI18n();
@@ -68,7 +68,7 @@ const visibleRows = computed(() => Math.min(Math.max(pageInfo.value.totalCount, 
 const uploaded = ref(false);
 let gridDataModel;
 
-const { codes, getCode } = await CtCodeUtil(
+const { codes, getCode } = await useCtCode(
   'ALNCMP_DG_PRTNR_MAPNG_CD',
   'COPN_DV_CD',
   'SEX_DV_CD',

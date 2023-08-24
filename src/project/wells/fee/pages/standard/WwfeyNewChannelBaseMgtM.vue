@@ -22,12 +22,10 @@
         <!-- 적용시작일 -->
         <kw-search-item
           :label="$t('MSG_TXT_APY_STRT_DAY')"
-          required
         >
           <kw-date-picker
             v-model="searchParams.apyStrtdt"
             :label="$t('MSG_TXT_APY_STRT_DAY')"
-            rules="required"
           />
         </kw-search-item>
         <!-- 상품코드 -->
@@ -136,6 +134,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -176,7 +175,7 @@ const grdRef = ref(getComponentType('KwGrid'));
 const grdData = computed(() => grdRef.value?.getData());
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'COD_YN',
+  'YN_CD',
   'SELL_TP_CD',
   'USWY_TP_CD',
   'SELL_DSC_DV_CD',
@@ -255,7 +254,13 @@ async function onClickSearch() {
 // 그리드행삭제
 async function onClickRowDelete() {
   const view = grdRef.value.getView();
-  await gridUtil.confirmDeleteCheckedRows(view);
+  const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (deleteRows.length > 0) {
+    const allRows = gridUtil.getDeletedRowValues(view);
+    await dataService.post('/sms/wells/fee/new-chanel-base', allRows);
+    notify(t('MSG_ALT_DELETED'));
+    await fetchPage();
+  }
 }
 
 // 그리드행추가
@@ -432,14 +437,14 @@ const initGrd = defineGrid((data, view) => {
     { fieldName: 'sppDvCd', header: t('MSG_TXT_FULT_DV'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.RENTAL_COMBI_DV_CD, editor: { type: 'list' } },
     { fieldName: 'svPrd', header: t('MSG_TXT_BS_CYC'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.MNGT_PRD_ACD, editor: { type: 'list' } },
     { fieldName: 'hgrPdCd', header: t('MSG_TXT_PKG_PD_NO'), width: '150', styleName: 'text-center', editable: true, editor: { maxLength: 10, textCase: 'upper' } },
-    { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '150', styleName: 'text-center', editable: true, options: codes.COD_YN, editor: { type: 'list' }, firstOption: 'select', firstOptionValue: '', firstOptionLabel: ' ' },
+    { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '150', styleName: 'text-center', editable: true, options: codes.YN_CD, editor: { type: 'list' } },
     { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', rules: 'required', editable: true, editor: { type: 'btdate', datetimeFormat: 'date' }, datetimeFormat: 'date' },
     { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', editable: true, editor: { type: 'btdate', datetimeFormat: 'date' }, datetimeFormat: 'date' },
     { fieldName: 'sellFee', header: t('MSG_TXT_BASE_PRC'), width: '150', styleName: 'text-right', dataType: 'number', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 }, editable: true },
     { fieldName: 'totStplMcn', header: t('MSG_TXT_STPL_MCNT'), width: '150', styleName: 'text-right', dataType: 'number', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 }, editable: true },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_PSIC'), width: '150', styleName: 'text-center' },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_PSIC'), width: '150', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

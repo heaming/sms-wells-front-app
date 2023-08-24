@@ -47,7 +47,6 @@
             :start-level="2"
             :end-level="2"
             first-option="all"
-            rules="required"
           />
         </kw-search-item>
 
@@ -68,8 +67,10 @@
         <kw-search-item :label="$t('MSG_TXT_RSB')">
           <kw-option-group
             v-model="searchParams.rsbDvCd"
+            rules="required"
             type="radio"
             :options="position"
+            :label="$t('MSG_TXT_RSB')"
           />
         </kw-search-item>
         <!-- 대상자 -->
@@ -88,7 +89,7 @@
       {{ t('MSG_TXT_OJPS_INQR_RS') }} <!-- 대상자 조회 결과 -->
       <ul class="kw-notification">
         <li>
-          <span class="kw-fc--primary">{{ t('MSG_TXT_AMT_IN_AFT_SPMT_BUTN_CLK') }}</span>
+          <span class="kw-fc--primary">{{ t('MSG_TXT_AMT_IN_AFT_OJPS_SPMT_BUTN_CLK') }}</span>
         </li>
       </ul>
     </h3>
@@ -155,13 +156,14 @@
 // Initialize Component
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useDataService, useGlobal, gridUtil } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
+import { onMounted, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 const dataService = useDataService();
 const { modal, confirm, notify, alert } = useGlobal();
-const { getters } = useStore();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -172,7 +174,6 @@ const grdThirdRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const subTotalCount = ref(0);
 const thirdTotalCount = ref(0);
-const { ogTpCd } = getters['meta/getUserInfo'];
 
 const props = defineProps({
   cachedParams: {
@@ -186,9 +187,12 @@ const searchParams = ref({
   bldCd: '',
   dgr1LevlOgId: props.cachedParams.dgr1LevlOgId,
   dgr2LevlOgId: props.cachedParams.dgr2LevlOgId,
-  rsbDvCd: ogTpCd === 'W01' ? 'W0104' : 'W0204',
-  ogTpCd,
+  dgr3LevlOgId: props.cachedParams.dgr3LevlOgId,
+  rsbDvCd: props.cachedParams.ogTpCd === 'W01' ? 'W0104' : 'W0204',
+  ogTpCd: props.cachedParams.ogTpCd,
   dstOjpsNm: '',
+  subPrtnrNo: '',
+  subOgTpCd: '',
 });
 
 const buildingCodes = ref([]);
@@ -198,7 +202,10 @@ async function ogLevlDvCd0() {
 }
 
 watch(() => searchParams.value.dgr2LevlOgId, async () => {
-  ogLevlDvCd0();
+  if (searchParams.value.dgr2LevlOgId !== undefined) {
+    cachedParams.dgr2LevlOgId = searchParams.value.dgr2LevlOgId;
+  }
+  await ogLevlDvCd0();
 });
 
 async function subject() {
@@ -229,34 +236,32 @@ async function marketableSecuritiesExcd() {
 }
 
 async function fetchData() {
-  cachedParams = props.cachedParams;
-  cachedParams.subOgTpCd = searchParams.value.ogTpCd; // 배분대상조직유형코드
-
-  // 검색조건 4개
+  cachedParams = cloneDeep(props.cachedParams);
+  cachedParams.subOgTpCd = props.cachedParams.ogTpCd; // 배분대상조직유형코드
   cachedParams.rsbDvCd = searchParams.value.rsbDvCd; // 직책 구분코드
-  cachedParams.dgr2LevlOgId = searchParams.value.dgr2LevlOgId; // 지역단 조직ID
-  cachedParams.bldCd = searchParams.value.bldCd; // 빌딩 코드
-  cachedParams.subPrtnrNo = searchParams.value.prtnrNo; // 배분대상파트너번호
 
-  if (!isEmpty(props.cachedParams.dgr3LevlOgId)) {
-    cachedParams.mainDgr3LevlOgId = props.cachedParams.dgr3LevlOgId;
-  } else if (!isEmpty(props.cachedParams.dgr2LevlOgId)) {
-    cachedParams.mainDgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
-  } else if (!isEmpty(props.cachedParams.dgr1LevlOgId)) {
-    cachedParams.mainDgr1LevlOgId = props.cachedParams.dgr1LevlOgId;
+  if (!isEmpty(cachedParams.dgr3LevlOgId)) {
+    cachedParams.mainDgr3LevlOgId = cachedParams.dgr3LevlOgId;
+    cachedParams.mainDgr1LevlOgId = null;
+    cachedParams.mainDgr2LevlOgId = null;
+  } else if (!isEmpty(cachedParams.dgr2LevlOgId)) {
+    cachedParams.mainDgr2LevlOgId = cachedParams.dgr2LevlOgId;
+    cachedParams.mainDgr1LevlOgId = null;
+    cachedParams.mainDgr3LevlOgId = null;
+  } else if (!isEmpty(cachedParams.dgr1LevlOgId)) {
+    cachedParams.mainDgr1LevlOgId = cachedParams.dgr1LevlOgId;
+    cachedParams.mainDgr2LevlOgId = null;
+    cachedParams.mainDgr3LevlOgId = null;
   }
 
   await ogLevlDvCd0();
   await subject();
   await marketableSecuritiesExcd();
 }
-
 async function onClickSearch() {
-  cachedParams = props.cachedParams;
-  cachedParams.subOgTpCd = searchParams.value.ogTpCd; // 배분대상조직유형코드
-
+  // 검색조건 4개
   cachedParams.rsbDvCd = searchParams.value.rsbDvCd; // 직책 구분코드
-  cachedParams.dgr2LevlOgId = searchParams.value.dgr2LevlOgId; // 지역단 조직ID
+  // cachedParams.dgr2levlogid = searchParams.value.dgr2LevlOgId; // 지역단 조직ID
   cachedParams.bldCd = searchParams.value.bldCd; // 빌딩 코드
   cachedParams.subPrtnrNo = searchParams.value.prtnrNo; // 배분대상파트너번호
 
@@ -299,8 +304,8 @@ async function onClickObjectPersonAdd() {
       if (thirdRows[i].dgr2LevlOgId === checkedRows[j].dgr2LevlOgId
         && thirdRows[i].dstOjpsNm === checkedRows[j].prtnrKnm
         && thirdRows[i].dstOjPrtnrNo === checkedRows[j].prtnrNo) {
-        count += 1;
         selectedTarget += `[${checkedRows[j].prtnrNo}]`;
+        count += 1;
       }
     }
   }
@@ -308,21 +313,14 @@ async function onClickObjectPersonAdd() {
     alert(`선택된 대상은 추가되어 있습니다. \n 파트너 번호 :${selectedTarget}`); // TODO 메세지작업해야함
     return;
   }
-  // # DST_AMT < 33334 일 경우에는 아래 DST_WHTX, ERNTX, RSDNTX는 모두 0으로 입력처리
-  // # DST_AMT >= 33334 이상일 경우에는 아래 계산식 적용하여 DST_WHTX, ERNTX, RSDNTX
-  // -> 최종 원천세 정산 대상자 grid의 DST_WHTX             /*(hidden)원천세*/
-  // # DST_AMT의 금액이 33334 이상인 경우에만 계산하고 미만일 경우에는 0으로 입력
-  // # 원천세 계산식(원단위 절사처리) = ROUNDDOWN(DST_AMT*0.033,-1)
-  // -> 최종 원천세 정산 대상자 grid의 ERNTX                /*(hidden)소득세*/
-  // # 소득세 계산식(원단위 절사처리) = ROUNDDOWN(DST_AMT*0.03,-1)
-  // -> 최종 원천세 정산 대상자 grid의 RSDNTX               /*(hidden)주민세*/
-  // # 주민세 계산식(원단위 절사처리) = ROUNDDOWN(ROUNDDOWN(DST_AMT*0.03,-1)*0.1,-1)
-  // # 원천세 = 소득세 + 주민세 -> 금액이 서로 맞아야 함!!!
+
   for (let i = 0; i < checkedRows.length; i += 1) {
     if (mainValue.adjCnfmAmt < checkedRows[i].dstAmt) {
       alert('정산금액보다 큽니다.');
       return;
     }
+  }
+  for (let i = 0; i < checkedRows.length; i += 1) {
     checkedRows[i].adjYn = 'N';
     checkedRows[i].dstOjPrtnrNo = checkedRows[i].prtnrNo;
     checkedRows[i].ogTpCd = checkedRows[i].dstOjOgTpCd;
@@ -343,6 +341,7 @@ async function onClickObjectPersonAdd() {
     const view = grdThirdRef.value.getView();
     const dataProvider = view.getDataSource();
     dataProvider.insertRow(0, checkedRows[i]);
+    subView.checkItem(checkedRows[i].dataRow, false);
     thirdTotalCount.value += 1;
   }
 
@@ -397,6 +396,7 @@ async function onClickSave() {
 
   if (adjCnfmAmt !== dstAmt) {
     alert(t('MSG_ALT_THE_REGI_AMOUNT_MUST_MATCH_THE_AMOUNT_SUBJECT_TO_SETT')); // 등록금액은 정산대상금액과 일치하여야 합니다.
+    return;
   }
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
@@ -410,6 +410,7 @@ async function onClickSave() {
   for (let i = 0; i < thirdTotal; i += 1) {
     view.setValue(i, 'opcsCardUseIzId', props.cachedParams.opcsCardUseIzId);
     view.setValue(i, 'baseYm', props.cachedParams.baseYm);
+    view.setValue(i, 'ogTpCd', props.cachedParams.ogTpCd);
     view.setValue(i, 'opcsAdjNo', props.cachedParams.opcsAdjNo);
     view.setValue(i, 'adjPrtnrNo', props.cachedParams.adjPrtnrNo);
     thirdList.push(view.getValues(i));
@@ -419,7 +420,6 @@ async function onClickSave() {
   await dataService.post('/sms/wells/closing/expense/operating-cost/marketable-securities', data);
   await notify(t('MSG_ALT_SAVE_DATA'));
 }
-
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -427,7 +427,7 @@ async function onClickSave() {
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'authDate', header: t('MSG_TXT_USE_DTM'), width: '230', styleName: 'text-center' }, // 사용일시
-    { fieldName: 'mrcNm', header: t('MSG_TXT_MRC'), width: '230', styleName: 'text-left' }, // 가맹점
+    { fieldName: 'mrcNm', header: t('MSG_TXT_MRC'), width: '230', styleName: 'text-center' }, // 가맹점
     { fieldName: 'adjCnfmAmt', header: t('MSG_TXT_ADJ_OJ_AMT'), width: '200', styleName: 'text-right', dataType: 'number' }, // 정산대상금액
     { fieldName: 'dstAmt', header: t('MSG_TXT_RGST_AMT'), width: '200', styleName: 'text-right', dataType: 'number' }, // 등록금액
     { fieldName: 'amt', header: t('MSG_TXT_UNRG_AMT'), width: '201', styleName: 'text-right', dataType: 'number' }, // 미등록금액
@@ -461,12 +461,12 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'rsdntx', visible: false }, // 주민세
     { fieldName: 'mscrYn', visible: false }, // 정산 여부
 
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '96', styleName: 'text-left', editable: false }, // 총괄단
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '117', styleName: 'text-left', editable: false }, // 지역단
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '195', styleName: 'text-left', editable: false }, // 빌딩명
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '83', styleName: 'text-left', editable: false }, // 성명
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '96', styleName: 'text-center', editable: false }, // 총괄단
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '117', styleName: 'text-center', editable: false }, // 지역단
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '195', styleName: 'text-center', editable: false }, // 빌딩명
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '83', styleName: 'text-center', editable: false }, // 성명
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '85', styleName: 'text-center', editable: false }, // 번호
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '105', styleName: 'text-left', editable: false }, // 직책
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '105', styleName: 'text-center', editable: false }, // 직책
     { fieldName: 'perfVal', header: t('MSG_TXT_PERF'), width: '85', styleName: 'text-center', editable: false, dataType: 'number' }, // 실적
     {
       fieldName: 'dstAmt',
@@ -487,6 +487,63 @@ const initGrdSub = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
+
+  // grid - GridBase 컨트롤
+  // itemIndex - 변경된 행의 순서
+  // row - 변경된 행의 고유 번호
+  // field - 변경된 필드의 인덱스
+  // oldValue - 편집전 셀의 데이터 값
+  // newValue - 편집후 셀의 데이터 값
+  view.onEditRowChanged = async (grid, itemIndex, row, field, oldValue) => { // 직접편집했을때만
+    const dstAmt = grid.getValue(itemIndex, 'dstAmt');
+    const fieldValue = grid.getValue(itemIndex, field);
+    if (fieldValue !== dstAmt) {
+      alert(t('MSG_TXT_INVALID_ACCESS')); // 잘못된 접근입니다.
+      return;
+    }
+
+    if (grid.isCheckedItem(itemIndex)) {
+      const mainView = grdMainRef.value.getView();
+      const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
+      let mainDstAmt = mainView.getValue(0, 'dstAmt');
+
+      mainDstAmt += dstAmt - oldValue;
+
+      mainView.setValue(0, 'dstAmt', mainDstAmt); // 등록금액
+      mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
+    }
+  };
+
+  view.onItemAllChecked = async () => {
+    const subView = grdSubRef.value.getView();
+    const subViewDatas = gridUtil.getAllRowValues(subView);
+    const mainView = grdMainRef.value.getView();
+    const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
+    let mainDstAmt = mainView.getValue(0, 'dstAmt');
+    await subViewDatas.forEach((subViewdata, index) => {
+      const dstAmt = subView.getValue(index, 'dstAmt');
+      if (subView.isCheckedItem(index)) {
+        mainDstAmt += dstAmt;
+      } else {
+        mainDstAmt -= dstAmt;
+      }
+    });
+    mainView.setValue(0, 'dstAmt', mainDstAmt); // 등록금액
+    mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
+  };
+  view.onItemChecked = async (grid, itemIndex) => {
+    const dstAmt = grid.getValue(itemIndex, 'dstAmt');
+    const mainView = grdMainRef.value.getView();
+    const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
+    let mainDstAmt = mainView.getValue(0, 'dstAmt');
+    if (grid.isCheckedItem(itemIndex)) {
+      mainDstAmt += dstAmt;
+    } else {
+      mainDstAmt -= dstAmt;
+    }
+    mainView.setValue(0, 'dstAmt', mainDstAmt); // 등록금액
+    mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
+  };
 });
 
 // 최종 원천세 정산 대상자
@@ -497,6 +554,7 @@ const initGrdThird = defineGrid((data, view) => {
     { fieldName: 'adjOgId', visible: false }, /* (hidden)정산조직ID */
     { fieldName: 'ogTpCd', visible: false }, /* (hidden)조직유형코드 */
     { fieldName: 'adjPrtnrNo', visible: false }, /* (hidden)정산파트너번호 */
+    { fieldName: 'bldCd', visible: false }, /* (hidden)빌딩코드 */
     { fieldName: 'dstOjOgTpCd', visible: false }, /* (hidden)배분대상조직유형코드 */
     { fieldName: 'dstOjpsPerfAmt', visible: false }, /* (hidden)배분대상자실적금액 */
     { fieldName: 'cardUseAmt', visible: false, dataType: 'number' }, // 카드사용금액
@@ -508,18 +566,17 @@ const initGrdThird = defineGrid((data, view) => {
     { fieldName: 'pstnDvCd', visible: false },
     { fieldName: 'pdstOpt', visible: false },
     { fieldName: 'opcsCardUseIzId', visible: false },
-    { fieldName: 'bldCd', visible: false }, /* (hidden)빌딩코드 */
 
     { fieldName: 'erntx', visible: false, dataType: 'number' }, // 소득세
     { fieldName: 'rsdntx', visible: false, dataType: 'number' }, // 주민세
     { fieldName: 'mscrYn', visible: false, dataType: 'number' }, // 정산 여부
 
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '100', styleName: 'text-left' }, // 총괄단
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '101', styleName: 'text-left' }, // 지역단
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '164', styleName: 'text-left' }, // 빌딩명
-    { fieldName: 'dstOjpsNm', header: t('MSG_TXT_EMPL_NM'), width: '83', styleName: 'text-left' }, // 성명
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '100', styleName: 'text-center' }, // 총괄단
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '101', styleName: 'text-center' }, // 지역단
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '164', styleName: 'text-center' }, // 빌딩명
+    { fieldName: 'dstOjpsNm', header: t('MSG_TXT_EMPL_NM'), width: '83', styleName: 'text-center' }, // 성명
     { fieldName: 'dstOjPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '85', styleName: 'text-center' }, // 번호
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '105', styleName: 'text-left' }, // 직책
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '105', styleName: 'text-center' }, // 직책
     { fieldName: 'dstAmt', header: t('MSG_TXT_OPCS_ADJ_AMT'), width: '169', styleName: 'text-right', dataType: 'number' }, // 운영비 정산금액
     { fieldName: 'dstWhtx', header: t('MSG_TXT_WHTX'), width: '178', styleName: 'text-right', dataType: 'number' }, // 원천세
   ];
@@ -534,10 +591,10 @@ const initGrdThird = defineGrid((data, view) => {
 
 const position = ref();
 onMounted(async () => {
-  if (getters['meta/getUserInfo'].ogTpCd === 'W01') {
+  if (props.cachedParams.ogTpCd === 'W01') {
     position.value = [{ codeId: 'W0104', codeName: '지점장' }, { codeId: 'W0105', codeName: '프리매니저' }];
-  } else if (getters['meta/getUserInfo'].ogTpCd === 'W02') {
-    position.value = [{ codeId: 'W0204', codeName: '센터장' }, { codeId: 'W0205', codeName: '프리매니저' }];
+  } else if (props.cachedParams.ogTpCd === 'W02') {
+    position.value = [{ codeId: 'W0204', codeName: '지점장' }, { codeId: 'W0205', codeName: '프리매니저' }];
   }
   const addValue = {};
   addValue.adjCnfmAmt = props.cachedParams.domTrdAmt;

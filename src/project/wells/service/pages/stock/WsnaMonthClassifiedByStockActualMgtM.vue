@@ -226,8 +226,10 @@ function onChangeWareDvCd() {
 
   if (searchParams.value.wareDvCd === SERVICE_DV_CD) {
     filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+    searchParams.value.searchWareNo = '';
   } else {
     filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
+    searchParams.value.searchWareNo = '';
   }
 }
 
@@ -289,6 +291,7 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(monthItems);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {

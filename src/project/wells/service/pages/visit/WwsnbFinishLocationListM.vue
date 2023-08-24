@@ -59,6 +59,7 @@
           dgr2-levl-og-label="ogCdNm"
           partner-label="prtnrNoNm"
           partner-required
+          :dgr2-levl-og-always-search="false"
         />
       </kw-search-row>
       <kw-search-row v-else-if="searchParams.mngtDvCd === '2'">
@@ -133,6 +134,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
+const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -175,6 +177,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -230,7 +233,12 @@ async function initGrdMain(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cntr',
+      header: t('MSG_TXT_CNTR_NO'),
+      width: '150',
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+    }, // 계약번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-left' }, // 고객명
     { fieldName: 'mobileTno', header: t('MSG_TXT_CONTACT'), width: '120', styleName: 'text-center' }, // 연락처
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAPCD'), width: '200', styleName: 'text-center' }, // SAP코드
@@ -259,7 +267,14 @@ async function initGrdMain(data, view) {
 
   view.rowIndicator.visible = true;
 
-  await onClickSearch();
+  view.onCellItemClicked = (grid, clickData) => {
+    if (clickData.column === 'cntr') {
+      const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
+    }
+  };
+
+  // await onClickSearch();
 }
 
 </script>

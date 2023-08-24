@@ -41,6 +41,7 @@
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
+            :maxlength="10"
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             rules="required"
@@ -86,7 +87,7 @@
             :label="t('MSG_TXT_METG')"
             align-content="right"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.metg) }}</p>
+            <p>{{ info1.metg ?stringUtil.getNumberWithComma(info1.metg) : '0' }}</p>
           </kw-form-item>
           <kw-form-item />
           <kw-form-item
@@ -101,8 +102,8 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_BAS_IZ') }}</h3>
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
       </kw-action-top>
       <kw-grid
         ref="grd1MainRef"
@@ -114,28 +115,22 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_TOT_SUM') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-form
         dense
         align-content="right"
       >
         <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_INTBS_SUM')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info1.intbsSum) }}</p>
+          <kw-form-item :label="t('MSG_TXT_INTBS_SUM')">
+            <p>{{ info1.intbsSum ? stringUtil.getNumberWithComma(info1.intbsSum) : '0' }}</p>
           </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_DDTN_SUM')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info1.ddtnSum) }}</p>
+          <kw-form-item :label="t('MSG_TXT_DDTN_SUM')">
+            <p>{{ info1.ddtnSum ? stringUtil.getNumberWithComma(info1.ddtnSum) : '0' }}</p>
           </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_ACL_DSB_AMT')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info1.aclDsbAmt) }}</p>
+          <kw-form-item :label="t('MSG_TXT_ACL_DSB_AMT')">
+            <p>{{ info1.aclDsbAmt ? stringUtil.getNumberWithComma(info1.aclDsbAmt) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -143,12 +138,13 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_FEE_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           dense
           secondary
           :label="t('MSG_BTN_FEE_CTR')"
+          :disable="!isBtnClick"
           @click="openFeeControlPopup"
         />
       </kw-action-top>
@@ -162,12 +158,13 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_DDTN_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           dense
           secondary
           :label="t('MSG_BTN_BU_DDTN')+t('MSG_BTN_CTR')"
+          :disable="!isBtnClick"
           @click="openZwfedFeeBurdenDeductionRegP"
         />
         <kw-separator
@@ -179,6 +176,7 @@
           dense
           secondary
           :label="t('MSG_BTN_PNPYAM')+t('MSG_BTN_CTR')"
+          :disable="!isBtnClick"
           @click="openZwfedFeePnpyamDeductionRegP"
         />
       </kw-action-top>
@@ -190,34 +188,41 @@
           <kw-form-item
             :label="t('MSG_TXT_RDS')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.rds) }}</p>
+            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.rds) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ERNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.erntx) }}</p>
+            <p>{{ info2.erntx ? stringUtil.getNumberWithComma(info2.erntx) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSDNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.rsdntx) }}</p>
+            <p>{{ info2.rsdntx ? stringUtil.getNumberWithComma(info2.rsdntx) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_HIR_INSR')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.hirInsr) }}</p>
+            <p>{{ info2.hirInsr ? stringUtil.getNumberWithComma(info2.hirInsr) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BU_DDTN')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.buDdtn) }}</p>
+            <p>{{ info2.buDdtn ? stringUtil.getNumberWithComma(info2.buDdtn) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_PNPYAM')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.pnpyam) }}</p>
+            <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.pnpyam) : '0' }}</p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <kw-form-item
+            :label="t('MSG_TXT_INDD_INSR')"
+          >
+            <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -228,7 +233,7 @@
         <template #left>
           <h3>{{ t('MSG_TXT_CTR_IZ') }}</h3>
         </template>
-        <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-grid
         ref="grd3MainRef"
@@ -249,6 +254,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const isBtnClick = ref(false);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -285,6 +291,7 @@ const info2 = ref({
   hirInsr: '',
   buDdtn: '',
   pnpyam: '',
+  inddInsr: '',
 });
 
 let cachedParams;
@@ -328,11 +335,17 @@ async function onClickSearchNo() {
 }
 
 async function fetchData(type) {
-  const response = await dataService.get(`/sms/wells/fee/individual-fee/plar-${type}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/individual-fee/plar-${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
   totalCount.value = resData.length;
   if (type === 'entrepreneur') {
     info1.value = resData;
+    if (info1.value.emplNm !== undefined) {
+      isBtnClick.value = true;
+    } else {
+      isBtnClick.value = false;
+      searchParams.value.prtnrKnm = '';
+    }
   } else if (type === 'basic') {
     const basicView = grd1MainRef.value.getView();
     basicView.getDataSource().setRows(resData);
@@ -350,10 +363,12 @@ async function fetchData(type) {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('entrepreneur');
-  await fetchData('basic');
-  await fetchData('fee');
-  await fetchData('deduction');
-  await fetchData('control');
+  if (isBtnClick.value === true) {
+    await fetchData('basic');
+    await fetchData('fee');
+    await fetchData('deduction');
+    await fetchData('control');
+  }
 }
 
 /*
@@ -379,9 +394,9 @@ async function openZwfedFeeBurdenDeductionRegP() {
  */
 async function openZwfedFeePnpyamDeductionRegP() {
   const param = {
-    dsbYm: searchParams.value.perfYm,
-    ogTpCd: 'W01',
+    ddtnYm: searchParams.value.perfYm,
     coCd: '2000',
+    ogTpCd: 'W01',
     prtnrNo: searchParams.value.no,
   };
   const { result: isChanged } = await modal({

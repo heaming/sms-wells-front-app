@@ -17,6 +17,7 @@
     <kw-search
       :cols="4"
       @search="onClickSearch"
+      @reset="initFieldParams"
     >
       <kw-search-row>
         <!-- 업무구분 -->
@@ -307,6 +308,26 @@
               :label="$t('MSG_TXT_FNT_DV')"
             />
           </kw-form-item>
+          <!-- 관계구분 (제3자 확인) -->
+          <div v-if="isEqual(fieldParams.fntDvCd, '1') || isEqual(fieldParams.fntDvCd, '2')">
+            <kw-form-item
+              :label="$t('MSG_TXT_RELATION_CLSF')"
+              required
+            >
+              <p class="ml8">
+                <kw-option-group
+                  v-model="fieldParams.relDvCd"
+                  type="radio"
+                  :options="[
+                    { codeId: '1', codeName: t('MSG_TXT_HS') },
+                    { codeId: '2', codeName: t('MSG_TXT_THP') },
+                  ]"
+                  :rules="searchParams.prcDvCd === '2' ? 'required': ''"
+                  :label="$t('MSG_TXT_RELATION_CLSF')"
+                />
+              </p>
+            </kw-form-item>
+          </div>
 
           <!-- 증빙(변경)유형
           <kw-form-item
@@ -597,7 +618,7 @@
 import { codeUtil, useGlobal, defineGrid, useDataService, getComponentType, gridUtil, notify, confirm, popupUtil } from 'kw-lib';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty, isEqual } from 'lodash-es';
 
 const { modal, alert } = useGlobal();
 const dataService = useDataService();
@@ -631,8 +652,8 @@ const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
   cntrCstNo: '', // 계약고객번호
-  rcpDtFrom: `${now.format('YYYYMM')}01`, // 접수기간From
-  rcpDtTo: now.format('YYYYMMDD'), // 접수기간To
+  rcpDtFrom: '', // 접수기간From
+  rcpDtTo: '', // 접수기간To
   prtnrNo: '', // 파트너번호
   prtnrKnm: '', // 파트너한글명
   emadr: '', // 이메일
@@ -652,6 +673,7 @@ const fieldParams = ref({
   prtnrNo: '', // 파트너번호
   prtnrKnm: '', // 파트너한글명
   fntDvCd: '', // 이체구분. 계좌(1), 카드(2), 가상계좌(S), 지로(G), 보류(N), 보류해제(B)
+  relDvCd: '', // 3자 구분
   evidTpCd: '', // 증빙유형. IDS(1), 첨부파일(2), 증빙원본(3), 계좌(4)
   fntDtChChk: 'N', // 이체일자변경
   bnkDvCd: '', // 은행구분코드
@@ -689,6 +711,8 @@ function initFieldParams(gubun) {
   fieldParams.value.pblYn = ''; // (세금계산서) 발행여부
   fieldParams.value.prtnrNo = ''; // 파트너번호
   fieldParams.value.prtnrKnm = ''; // 파트너한글명
+  fieldParams.value.fntDvCd = ''; // 이체구분
+  fieldParams.value.relDvCd = ''; // 제 3자구분
 
   // 증빙유형코드가 변경되었을 때 여기서 멈춤
   if (gubun === 'evidTpCd') { return; }
@@ -976,15 +1000,36 @@ async function onClickCrcdChange() {
 async function onClickCrcdMpyChange() {
   if (!await frmCrcdRef.value.validate()) { return; }
 
+  const { relDvCd } = fieldParams.value;
+
+  const view = grdCustomerRef.value.getView();
+  const selectedRows = gridUtil.getSelectedRowValues(view);
+
+  if (isEmpty(selectedRows)) {
+    alert(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
+  }
+
   const params = {
-    vstYn: '',
-    chRqrDvCd: '',
-    aftnThpChYn: '',
-    clctamMngtYn: '',
-    akChdt: now.format('YYYYMMDD'),
+    // 고객 정보
+    copnDvCd: selectedRows[0].copnDvCd, // 법인격구분코드 ex) 1
+    cstNo: selectedRows[0].cntrCstNo, // 고객번호
+    mobileNo: `${selectedRows[0].cstTno1}${selectedRows[0].cstTno2}${selectedRows[0].cstTno3}`, // ex) 01012345678
+    userName: selectedRows[0].cstKnm, // 고객명 ex) 서권호
+    birthDate: selectedRows[0].bryyMmdd, // 생년월일 ex) 19600101
+    bzrno: selectedRows[0].bzrno, // 사업자번호
+    gender: selectedRows[0].sexDvCd, // 성별 ex) 1
+    // 고정
+    vstYn: 'Y', // 방문 여부
+    chRqrDvCd: relDvCd, // 본인: 1 3자: 2
+    aftnThpChYn: isEqual(relDvCd, '2') ? 'Y' : 'N', // 3자: Y
+    clctamMngtYn: 'N', // 집금자 여부
+    hsCtfYn: 'Y', // 본인인증 여부
+    akChdt: now.format('YYYYMMDD'), // 현재일자
+    cntractBulkModYn: 'Y',
   };
 
-  const query = `/tablet/#/withdrawal/ztwda-auto-transfer-payment-change?${new URLSearchParams(params)}`;
+  const query = `/tablet/#/withdrawal/ztwda-auto-transfer-payment-change-req?${new URLSearchParams(params)}`;
 
   await popupUtil.open(query, { width: 1138, height: 712 }, false);
 }
@@ -1004,6 +1049,14 @@ watch(() => fieldParams.value.evidTpCd, (val) => {
   view.columnByName('evidOcyInqr').visible = val === '3';
 });
 
+// 입금유형 변경 감시
+watch(() => fieldParams.value.fntDvCd, (val) => {
+  // 증빙원본 선택시, 그리드에서 증빙원본 조회버튼을 보여준다.
+  const view = grdCustomerRef.value.getView();
+
+  if (isEqual(val, '1') || isEqual(val, '2')) { view.checkBar.visible = false; } else { view.checkBar.visible = true; }
+});
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -1018,6 +1071,13 @@ const initCustomerGrid = defineGrid((data, view) => {
     { fieldName: 'cntrNo' }, // [계약번호]
     { fieldName: 'cntrSn' }, // [일련번호] 계약일련번호
     { fieldName: 'cstKnm' }, // [고객명] 고객한글명
+    { fieldName: 'cstKnmMask' }, // [고객명] 고객한글명(Masked)
+    { fieldName: 'cstTno1' }, // [고객] 휴대전화번호1
+    { fieldName: 'cstTno2' }, // [고객] 휴대전화번호2
+    { fieldName: 'cstTno3' }, // [고객] 휴대전화번호3
+    { fieldName: 'bryyMmdd' }, // [고객] 생년월일
+    { fieldName: 'sexDvCd' }, // [고객] 성별구분코드
+    { fieldName: 'bzrno' }, // [고객] 사업자번호
     { fieldName: 'cntrCnfmDtm' }, // [접수일자] 계약확정일시
     { fieldName: 'cntrCstNo' }, // [고객번호] 계약고객번호
     { fieldName: 'txinvPblOjYn' }, // [세금계산서] 세금계산서발행대상여부
@@ -1055,6 +1115,13 @@ const initCustomerGrid = defineGrid((data, view) => {
     { fieldName: 'rnadr' }, // [계약자정보-주소1]
     { fieldName: 'rdadr' }, // [계약자정보-주소2]
     { fieldName: 'rprsCntrNo' }, // 묶음출금 대표계약번호
+    { fieldName: 'wPhoneNo' }, // [설치자정보-휴대전화번호]
+    { fieldName: 'wTelNo' }, // [설치자정보-전화번호]
+    { fieldName: 'phoneNo' }, // [계약자정보-휴대전화번호]
+    { fieldName: 'telNo' }, // [계약자정보-전화번호]
+    { fieldName: 'acnoEncr' }, // 계좌 번호
+    { fieldName: 'crcdnoEncr' }, // 신용카드 번호
+    { fieldName: 'prtnrKnmMask' }, // 이름 마스킹
   ];
 
   const columns = [
@@ -1078,7 +1145,27 @@ const initCustomerGrid = defineGrid((data, view) => {
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FTD'), width: '96', styleName: 'text-center' }, // 이체일
     { fieldName: 'aftnInfFntDvNm', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center' }, // 이체구분
     { fieldName: 'bnkCdcoNm', header: `${t('MSG_TXT_CDCO')}/${t('MSG_TXT_BNK')}`, width: '120', styleName: 'text-center' }, // 카드사/은행
-    { fieldName: 'acnoCrcdno', header: t('MSG_TXT_CARD_ACNO'), width: '182', styleName: 'text-center' }, // 카드/계좌번호
+    { fieldName: 'acnoCrcdno',
+      header: t('MSG_TXT_CARD_ACNO'),
+      width: '182',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { acnoEncr, crcdnoEncr, dpTpCd } = grid.getValues(index.itemIndex);
+        let rtnMsg = '';
+        switch (dpTpCd) {
+          case '0102':
+            rtnMsg = acnoEncr;
+            break;
+          case '0203':
+            rtnMsg = crcdnoEncr;
+            break;
+          default:
+            rtnMsg = '';
+            break;
+        }
+        return rtnMsg;
+      },
+    }, // 카드/계좌번호
     { fieldName: 'isBndl',
       header: `${t('MSG_TXT_BNDL')}/${t('MSG_BTN_RPRS')}`, // 묶음/대표
       width: '96',
@@ -1108,11 +1195,11 @@ const initCustomerGrid = defineGrid((data, view) => {
       width: '136',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { wCralLocaraTno, wMexnoEncr, wCralIdvTno } = grid.getValues(index.itemIndex);
+        const { wCralLocaraTno, wMexnoEncr, wCralIdvTno, wPhoneNo } = grid.getValues(index.itemIndex);
         if (isEmpty(wCralLocaraTno) || isEmpty(wMexnoEncr) || isEmpty(wCralIdvTno)) {
           return '';
         }
-        return `${wCralLocaraTno}-${wMexnoEncr}-${wCralIdvTno}`;
+        return wPhoneNo;
       },
     },
     { fieldName: 'wLocaraTno',
@@ -1120,11 +1207,11 @@ const initCustomerGrid = defineGrid((data, view) => {
       width: '136',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { wLocaraTno, wExnoEncr, wIdvTno } = grid.getValues(index.itemIndex);
+        const { wLocaraTno, wExnoEncr, wIdvTno, wTelNo } = grid.getValues(index.itemIndex);
         if (isEmpty(wLocaraTno) || isEmpty(wExnoEncr) || isEmpty(wIdvTno)) {
           return '';
         }
-        return `${wLocaraTno}-${wExnoEncr}-${wIdvTno}`;
+        return wTelNo;
       },
     },
     { fieldName: 'wAdrZip', header: t('MSG_TXT_ZIP'), width: '96', styleName: 'text-center' }, // 우편번호
@@ -1135,11 +1222,11 @@ const initCustomerGrid = defineGrid((data, view) => {
       width: '136',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
+        const { cralLocaraTno, mexnoEncr, cralIdvTno, phoneNo } = grid.getValues(index.itemIndex);
         if (isEmpty(cralLocaraTno) || isEmpty(mexnoEncr) || isEmpty(cralIdvTno)) {
           return '';
         }
-        return `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}`;
+        return phoneNo;
       },
     },
     { fieldName: 'locaraTno',
@@ -1147,11 +1234,11 @@ const initCustomerGrid = defineGrid((data, view) => {
       width: '136',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { locaraTno, exnoEncr, idvTno } = grid.getValues(index.itemIndex);
+        const { locaraTno, exnoEncr, idvTno, telNo } = grid.getValues(index.itemIndex);
         if (isEmpty(locaraTno) || isEmpty(exnoEncr) || isEmpty(idvTno)) {
           return '';
         }
-        return `${locaraTno}-${exnoEncr}-${idvTno}`;
+        return telNo;
       },
     },
     { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '96', styleName: 'text-center' }, // 우편번호
@@ -1210,10 +1297,19 @@ const initPartnerGrid = defineGrid((data, view) => {
     { fieldName: 'curDgr1LevlDgPrtnrNo' }, // [대리인마스터-총괄단장] 1차레벨대표파트너번호
     { fieldName: 'curDgr1LevlOgCd' }, // [대리인마스터-총괄단코드] 1차레벨조직코드
     { fieldName: 'chEpNo' }, // [변경사번]
+    { fieldName: 'prtnrKnmMask' }, // 이름 마스킹
   ];
 
   const columns = [
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_NAME'), width: '100', styleName: 'text-center' }, // 이름
+    { fieldName: 'prtnrKnm',
+      header: t('MSG_TXT_NAME'),
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { prtnrKnm, prtnrKnmMask } = grid.getValues(index.itemIndex);
+        return isEmpty(prtnrKnm) ? '' : prtnrKnmMask;
+      },
+    }, // 이름
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 업무구분
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, // 계약번호
     { fieldName: 'cntrSn', header: t('MSG_TXT_SERIAL_NUMBER'), width: '78', styleName: 'text-center' }, // 일련번호

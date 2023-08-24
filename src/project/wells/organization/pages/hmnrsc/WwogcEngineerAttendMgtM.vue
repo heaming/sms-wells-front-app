@@ -23,12 +23,9 @@
         <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
-            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
             :og-tp-cd="searchParams.ogTpCd"
             :last-og-id="searchParams.ogId"
             :base-ym="searchParams.baseYm"
-            :start-level="1"
-            :end-level="2"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_BASE_D')">
@@ -88,7 +85,7 @@ const { getConfig, getUserInfo } = useMeta();
 const dataService = useDataService();
 const { modal, notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
-const { wkOjOgTpCd, ogTpCd } = getUserInfo();
+const { wkOjOgTpCd, ogTpCd, baseRleCd } = getUserInfo();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -123,6 +120,7 @@ async function onClickSearch() {
   const { list, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
+
   view.getDataSource().setRows(list);
   view.resetCurrent();
 }
@@ -168,21 +166,48 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ogCd', header: t('MSG_TXT_CODE'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'ogNm', header: t('MSG_TXT_CNT_NM'), width: '166', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '92', styleName: 'text-center', editable: false },
-    { fieldName: 'rolDvNm', header: t('MSG_TXT_ROLE_1'), width: '106', styleName: 'text-center', editable: false },
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'wkGrpNm', header: t('MSG_TXT_WK_GRP'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'bizAgntYn', header: t('MSG_TXT_BIZ_AGNT'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'wrkDt', header: t('MSG_TXT_WRK_DT'), width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
-    { fieldName: 'wrkNm', header: t('MSG_TXT_WRK_DOW'), width: '106', styleName: 'text-center', editable: false },
-    { fieldName: 'egerWrkStatCd', header: t('MSG_TXT_WRK_STAT'), options: codes.EGER_WRK_STAT_CD, editor: { type: 'dropdown' } },
-    { fieldName: 'rmkCn', header: t('MSG_TXT_RMK_ARTC'), width: '146', styleName: 'text-center', editable: true, editor: { type: 'text', maxLength: 3500 } },
+    { fieldName: 'dowDv', header: t('MSG_TXT_WRK_DOW'), width: '106', styleName: 'text-center', editable: false },
+    { fieldName: 'egerWrkStatCd',
+      header: t('MSG_TXT_WRK_STAT'),
+      options: codes.EGER_WRK_STAT_CD,
+      editor: { type: 'dropdown' },
+      styleCallback() {
+        const ret = {};
+        if ((baseRleCd === 'W6010' || baseRleCd === 'W6020' || baseRleCd === 'W6040' || baseRleCd === 'W4020') && searchParams.value.baseDt < now) {
+          ret.editable = false;
+        } else {
+          ret.editable = true;
+        }
+        return ret;
+      } },
+    { fieldName: 'rmkCn',
+      header: t('MSG_TXT_RMK_ARTC'),
+      width: '146',
+      styleName: 'text-center',
+      editable: true,
+      editor: { type: 'text', maxLength: 3500 },
+      styleCallback() {
+        const ret = {};
+        if ((baseRleCd === 'W6010' || baseRleCd === 'W6020' || baseRleCd === 'W6040' || baseRleCd === 'W4020') && searchParams.value.baseDt < now) {
+          ret.editable = false;
+        } else {
+          ret.editable = true;
+        }
+        return ret;
+      } },
     { fieldName: 'vcnInfo', header: t('MSG_TXT_VCN_INFO'), width: '107', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_VCN_INFO') },
     { fieldName: 'vcnStrtDt', header: t('MSG_TXT_STRT_DATE'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     { fieldName: 'vcnEndDt', header: t('MSG_TXT_END_DT'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '128', styleName: 'text-left', editable: false },
-    { fieldName: 'agntPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'bizAgntNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'pcpPrtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'pcpPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'pcpPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'procsDtm', header: t('MSG_TIT_PROC_DTM'), width: '182', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
 
   ];
@@ -203,11 +228,11 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EGER'),
       direction: 'horizontal',
-      items: ['prtnrNo', 'rolDvNm', 'prtnrKnm', 'wkGrpNm'],
+      items: ['prtnrNo', 'rsbDvNm', 'pstnDvNm', 'prtnrKnm', 'wkGrpNm'],
     },
     'bizAgntYn',
     'wrkDt',
-    'wrkNm',
+    'dowDv',
     'egerWrkStatCd',
     'rmkCn',
     'vcnInfo',
@@ -219,12 +244,12 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_BIZ_AGNT_PRTNR'),
       direction: 'horizontal',
-      items: ['bizAgntPrtnrNo', 'agntPrtnrKnm'],
+      items: ['bizAgntPrtnrNo', 'bizAgntNm'],
     },
     {
       header: t('MSG_TXT_PCP'),
       direction: 'horizontal',
-      items: ['pcpPrtnrNo', 'pcpPrtnrKnm'],
+      items: ['pcpPrtnrNo', 'pcpPrtnrNm'],
     },
     'procsDtm',
   ]);
@@ -259,10 +284,11 @@ const initGrid = defineGrid((data, view) => {
       const { rolDvNm } = gridUtil.getRowValue(g, dataRow);
       const { prtnrKnm } = gridUtil.getRowValue(g, dataRow);
       const { wkGrpNm } = gridUtil.getRowValue(g, dataRow);
+      const { wrkDt } = gridUtil.getRowValue(g, dataRow);
 
       const { result } = await modal({
         component: 'WwogcEngineerAttendanceMgtP',
-        componentProps: { prtnrNo, ogTpCd: 'W06', rolDvNm, prtnrKnm, wkGrpNm },
+        componentProps: { prtnrNo, ogTpCd: 'W06', rolDvNm, prtnrKnm, wkGrpNm, wrkDt },
       });
 
       if (result) {

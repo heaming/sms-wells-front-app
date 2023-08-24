@@ -43,18 +43,33 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
         >
           <kw-option-group
             v-model="searchParams.rsbTp"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
-            rules="required"
             :options="rsbTpCd"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+        >
+          <kw-input
+            v-model="searchParams.prtnrNo"
+            icon="search"
+            clearable
+            :maxlength="10"
+            :on-click-icon="onClickSearchNo"
+            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          />
+          <kw-input
+            v-model="searchParams.prtnrKnm"
+            :placeholder="$t('MSG_TXT_EMPL_NM')"
+            readonly
+          />
+        </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.ogLevl1"
@@ -66,27 +81,10 @@
             :end-level="3"
           />
         </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-        >
-          <kw-input
-            v-model="searchParams.prtnrNo"
-            icon="search"
-            clearable
-            :on-click-icon="onClickSearchNo"
-            :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-          />
-          <kw-input
-            v-model="searchParams.prtnrKnm"
-            :placeholder="$t('MSG_TXT_EMPL_NM')"
-            readonly
-          />
-        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
           :label="t('MSG_TXT_FEE')+t('MSG_TXT_DSB_YN')"
-          required
         >
           <kw-option-group
             v-model="searchParams.feeDsbYn"
@@ -105,11 +103,6 @@
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
         <kw-btn
           secondary
           dense
@@ -181,7 +174,7 @@ const searchParams = ref({
   ogLevl3: '',
   prtnrNo: '',
   prtnrKnm: '',
-  feeDsbYn: '',
+  feeDsbYn: '0',
   prPerfYm: '',
   prOgTp: '',
 });
@@ -191,7 +184,7 @@ let cachedParams;
 const router = useRouter();
 
 async function fetchData(uri) {
-  const response = await dataService.get(`/sms/wells/fee/individual-fees/${uri}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/individual-fees/${uri}`, { params: cachedParams, timeout: 300000 });
   const fees = response.data;
   searchParams.value.prPerfYm = searchParams.value.perfYm;
   searchParams.value.prOgTp = searchParams.value.ogTp;
@@ -245,11 +238,11 @@ async function onClickSearchNo() {
 async function movePage(no) {
   let url = '';
 
-  if (searchParams.value.prOgTp === 'M추진단') {
+  if (searchParams.value.prOgTp === 'W02') {
     url = '/fee/wwfee-individual-fee-manager-list';
-  } else if (searchParams.value.prOgTp === 'P추진단') {
+  } else if (searchParams.value.prOgTp === 'W01') {
     url = '/fee/wwfee-individual-fee-planner-list';
-  } else if (searchParams.value.prOgTp === '홈마스터') {
+  } else if (searchParams.value.prOgTp === 'W03') {
     url = '/fee/wwfee-individual-fee-home-master-list';
   }
 
@@ -309,9 +302,9 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'branch' },
     { fieldName: 'emplNm' },
     { fieldName: 'prtnrNo' },
-    { fieldName: 'rsb' },
-    { fieldName: 'qlf' },
-    { fieldName: 'bnk' },
+    { fieldName: 'rsbTpCd' },
+    { fieldName: 'qlfCd' },
+    { fieldName: 'bnkNm' },
     { fieldName: 'acNo' },
     { fieldName: 'intbsSum', dataType: 'number' },
     { fieldName: 'ddtnSum', dataType: 'number' },
@@ -327,10 +320,9 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
     { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
-    { fieldName: 'rsb', header: t('MSG_TXT_RSB'), width: '71' },
-    { fieldName: 'qlf', header: t('MSG_TXT_QLF'), width: '110' },
-
-    { fieldName: 'bnk', header: t('MSG_TXT_BNK'), width: '80' },
+    { fieldName: 'rsbTpCd', header: t('MSG_TXT_RSB'), width: '71', options: codes.RSB_DV_CD },
+    { fieldName: 'qlfCd', header: t('MSG_TXT_QLF'), width: '110' },
+    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK'), width: '80' },
     { fieldName: 'acNo', header: t('MSG_TXT_AC_NO'), width: '127' },
     { fieldName: 'intbsSum', header: t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
     { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
@@ -376,7 +368,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
     { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
-    { fieldName: 'rsbTpCd', header: t('MSG_TXT_RSB'), width: '71' },
+    { fieldName: 'rsbTpCd', header: t('MSG_TXT_RSB'), width: '71', options: codes.RSB_DV_CD },
     { fieldName: 'qlfCd', header: t('MSG_TXT_QLF'), width: '110' },
     { fieldName: 'bnkNm', header: t('MSG_TXT_BNK'), width: '80' },
     { fieldName: 'acNo', header: t('MSG_TXT_AC_NO'), width: '127' },

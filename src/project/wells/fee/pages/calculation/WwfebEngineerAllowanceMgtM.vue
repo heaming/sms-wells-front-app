@@ -65,6 +65,8 @@
             v-model="searchParams.prtnrNo"
             clearable
             icon="search"
+            :maxlength="10"
+            :regex="/^[0-9]*$/i"
             :on-click-icon="onClickSearchNo"
           />
         </kw-search-item>
@@ -174,7 +176,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService, codeUtil, useMeta } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService, codeUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
@@ -184,7 +186,7 @@ const { modal, notify, confirm, alert } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const { hasRoleNickName } = useMeta();
+// const { hasRoleNickName } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // ------------------------------------------------------------------------------------------------
@@ -199,7 +201,6 @@ const changedRows = [];
 const editYn = ref(false);
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
-  'SAP_PSTN_DV_CD',
   'EGER_AW_DV_CD',
 );
 
@@ -242,10 +243,13 @@ async function onClickMod(bool) {
   }
 
   // 시스템관리자, wells운영팀, 센터장만 수정 허용
+  // TODO: 권한그룹 확인 후 주석 해제
+  /*
   if (bool && !(hasRoleNickName('SYS_ADMIN') || hasRoleNickName('ROL_W1560') || hasRoleNickName('ROL_W6010'))) {
     alert(t('MSG_ALT_NO_AUTH'));
     return;
   }
+  */
 
   /*
   if (bool && editYn.value) {
@@ -360,39 +364,41 @@ async function onClickControl(feeSchdId, code, nextStep) {
 
 // 본사 수당확정
 async function onclickDtrm(feeSchdId, code, nextStep) {
-  let view;
-  if (searchParams.value.feeSchdTpCd === '601') {
-    view = grdEgerRef.value.getView();
-  } else if (searchParams.value.feeSchdTpCd === '602') {
-    view = grdEgerMngerRef.value.getView();
-  }
+  if (searchParams.value.feeSchdTpCd === '602') {
+    // 직책수당
+    // 수수료 일정 단계 완료
+    if (!await confirm(t('MSG_ALT_IS_DTRM'))) { return; }
+    await onClickRetry(feeSchdId, code, nextStep);
+  } else {
+    // 실적수당
+    const view = grdEgerRef.value.getView();
+    const dataSource = view.getDataSource();
+    const confirmRows = dataSource.getJsonRows();
+    const confirmKeys = [];
 
-  const dataSource = view.getDataSource();
-  const confirmRows = dataSource.getJsonRows();
-  const confirmKeys = [];
+    if (confirmRows.length === 0) {
+      alert(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
+      return;
+    }
 
-  if (confirmRows.length === 0) {
-    alert(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
-    return;
-  }
+    if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
 
-  if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
-
-  confirmRows.forEach((e) => {
-    confirmKeys.push({
-      baseYm: e.baseYm,
-      ogCd: e.ogCd,
-      prtnrNo: e.prtnrNo,
-      type: 'H', // 센터 확정
-      confirm: 'Y', // 확정(Y), 확정취소(N)
+    confirmRows.forEach((e) => {
+      confirmKeys.push({
+        baseYm: e.baseYm,
+        ogCd: e.ogCd,
+        prtnrNo: e.prtnrNo,
+        type: 'H', // 센터 확정
+        confirm: 'Y', // 확정(Y), 확정취소(N)
+      });
     });
-  });
 
-  await dataService.put('/sms/wells/fee/eger-allowances/confirm', confirmKeys);
-  notify(t('MSG_ALT_CNFM_COMPLETE')); // 확정 완료했습니다.
+    await dataService.put('/sms/wells/fee/eger-allowances/confirm', confirmKeys);
+    notify(t('MSG_ALT_CNFM_COMPLETE')); // 확정 완료했습니다.
 
-  // 수수료 일정 단계 완료
-  await onClickRetry(feeSchdId, code, nextStep);
+    // 수수료 일정 단계 완료
+    await onClickRetry(feeSchdId, code, nextStep);
+  }
 }
 
 /**
@@ -412,14 +418,13 @@ async function onclickStep(params) {
       await onClickCreate(params.feeSchdId, params.code, '03');
     }
     if (params.code === 'W0603') { // 수당 조정
-      // await onClickControl(params.feeSchdId, params.code, '03');
-      await onclickDtrm(params.feeSchdId, params.code, '03');
-    }
-    if (params.code === 'W0604') { // 수당 확정
-      // await onclickDtrm(params.feeSchdId, params.code, '03');
       await onClickControl(params.feeSchdId, params.code, '03');
     }
+    if (params.code === 'W0604') { // 수당 확정
+      await onclickDtrm(params.feeSchdId, params.code, '03');
+    }
   }
+  stepNaviRef.value.initProps();
 }
 
 // 엑셀다운로드
@@ -455,7 +460,14 @@ async function openUploadPopup(componentProps) {
 
 // 엑셀업로드 버튼 클릭 이벤트
 async function onClickExcelUpload() {
-  openUploadPopup({ formatId: 'FOM_FEZ_0028', baseYm: searchParams.value.perfYm, ogTpCd: 'W06' });
+  // 수수료 일정 체크(수당확정 전이어야 업로드 가능)
+  const response = await dataService.get('/sms/wells/fee/eger-allowances/upload-check', { params: searchParams.value });
+  if (response.data.feeSchdLvCd === 'END') {
+    alert(t('MSG_ALT_NO_WK_PTRM')); // 작업 가능한 기간이 아닙니다.
+    return;
+  }
+
+  openUploadPopup({ formatId: 'FOM_FEZ_0028', baseYm: searchParams.value.perfYm, ogTpCd: 'W06', type: searchParams.value.rsbDvCd });
 }
 
 // 번호 검색 아이콘 클릭 이벤트
@@ -495,10 +507,13 @@ async function onClickSave() {
   }
 
   // 시스템관리자, wells운영팀, 센터장만 수정 허용
+  // TODO: 권한그룹 확인 후 주석 해제
+  /*
   if (!(hasRoleNickName('SYS_ADMIN') || hasRoleNickName('ROL_W1560') || hasRoleNickName('ROL_W6010'))) {
     alert(t('MSG_ALT_NO_AUTH'));
     return;
   }
+  */
 
   /*
   if (editYn.value) {
@@ -522,10 +537,13 @@ async function onClickSave() {
 // 센터별 확정 버튼 클릭 이벤트
 async function onClickConfirm() {
   // 시스템관리자, wells운영팀, 센터장만 수정 허용
+  // TODO: 권한그룹 확인 후 주석 해제
+  /*
   if (!(hasRoleNickName('SYS_ADMIN') || hasRoleNickName('ROL_W1560') || hasRoleNickName('ROL_W6010'))) {
     alert(t('MSG_ALT_NO_AUTH'));
     return;
   }
+  */
 
   let view;
   if (searchParams.value.feeSchdTpCd === '601') {
@@ -573,7 +591,7 @@ const initEgerMain = defineGrid((data, view) => {
     { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center', editable: false },
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '126', styleName: 'text-center', editable: false, options: codes.SAP_PSTN_DV_CD },
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_CRLV'), width: '126', styleName: 'text-center', editable: false },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-center', editable: false, options: codes.RSB_DV_CD },
     // 현장수당정보
     // 방문처리실적
@@ -664,7 +682,7 @@ const initEgerMain = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'baseYm', 'ogId', 'ogCd', 'ogNm', 'prtnrKnm', 'prtnrNo', 'pstnDvCd', 'rsbDvCd',
+    'baseYm', 'ogId', 'ogCd', 'ogNm', 'prtnrKnm', 'prtnrNo', 'pstnDvNm', 'rsbDvCd',
     {
       name: t('MSG_TXT_SITE_AW') + t('MSG_TXT_INF'),
       direction: 'horizontal',
@@ -776,42 +794,44 @@ const initEgerMain = defineGrid((data, view) => {
     const editRow = gridUtil.getRowValue(grid, itemIndex);
 
     let feeCd;
-    let feeAmt;
+    const perfVal = {};
+    let feeAmt = 0;
 
     // 테이블에 수당 코드별로 값이 들어가기 때문에
     // 수정된 그리드 한 row를 수당 코드별로 쪼개서 넣음
     if (columnName === 'feeW060023Cnt') {
-      data.setValue(itemIndex, 'feeW060023', editRow.feeW060023Cnt * 2000); // 토요근무수당
       feeCd = 'W060023';
-      feeAmt = editRow.feeW060023Cnt * 2000;
+      perfVal.W06R00018 = editRow.feeW060023Cnt; /* 토요근무건수 */
+      const response = await dataService.post(`/sms/common/fee/fee-calculation/screen-performance-input-fees/${searchParams.value.perfYm}-${feeCd}`, perfVal);
+      feeAmt = response.data;
     } else if (columnName === 'feeW060024Cnt') {
-      data.setValue(itemIndex, 'feeW060024', editRow.feeW060024Cnt * 20000); // 휴무당직수당
       feeCd = 'W060024';
-      feeAmt = editRow.feeW060024Cnt * 20000;
+      perfVal.W06R00019 = editRow.feeW060024Cnt; /* 휴무당직건수 */
+      const response = await dataService.post(`/sms/common/fee/fee-calculation/screen-performance-input-fees/${searchParams.value.perfYm}-${feeCd}`, perfVal);
+      feeAmt = response.data;
     } else if (columnName === 'feeW060025Cnt') {
-      data.setValue(itemIndex, 'feeW060025', editRow.feeW060025Cnt * 10000); // 강의수당
       feeCd = 'W060025';
       feeAmt = editRow.feeW060025Cnt * 10000;
     } else if (columnName === 'feeW060026Cnt') {
-      data.setValue(itemIndex, 'feeW060026', editRow.feeW060026Cnt * 10000); // 도서방문수당
       feeCd = 'W060026';
-      feeAmt = editRow.feeW060026Cnt * 10000;
+      perfVal.W06R00021 = editRow.feeW060026Cnt; /* 방문일수 */
+      const response = await dataService.post(`/sms/common/fee/fee-calculation/screen-performance-input-fees/${searchParams.value.perfYm}-${feeCd}`, perfVal);
+      feeAmt = response.data;
     } else if (columnName === 'feeW060019') {
-      data.setValue(itemIndex, 'feeW060019', Math.floor(editRow.feeW060019)); // 소수점 절사
       feeCd = 'W060019';
       feeAmt = Math.floor(editRow.feeW060019);
     } else if (columnName === 'feeW060020') {
-      data.setValue(itemIndex, 'feeW060020', Math.floor(editRow.feeW060020)); // 소수점 절사
       feeCd = 'W060020';
       feeAmt = Math.floor(editRow.feeW060020);
     } else if (columnName === 'feeW060021') {
-      data.setValue(itemIndex, 'feeW060021', Math.floor(editRow.feeW060021)); // 소수점 절사
       feeCd = 'W060021';
       feeAmt = Math.floor(editRow.feeW060021);
     } else if (columnName === 'feeW060022') {
-      data.setValue(itemIndex, 'feeW060022', Math.floor(editRow.feeW060022)); // 소수점 절사
       feeCd = 'W060022';
       feeAmt = Math.floor(editRow.feeW060022);
+    }
+    if (feeAmt > 0) {
+      data.setValue(itemIndex, columnName.substring(0, 10), feeAmt);
     }
     changedRows.push({
       perfYm: editRow.baseYm,
@@ -833,7 +853,7 @@ const initEgerMnger = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '86', styleName: 'text-center ', options: codes.SAP_PSTN_DV_CD },
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_CRLV'), width: '86', styleName: 'text-center' },
     { fieldName: 'feeW060031', header: t('MSG_TXT_OUTC_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'feeW060032', header: t('MSG_TXT_QLF') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'totFee', header: t('MSG_TXT_AW') + t('MSG_TXT_SUM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
@@ -849,7 +869,7 @@ const initEgerMnger = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'ogId', 'ogCd', 'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'pstnDvCd',
+    'ogId', 'ogCd', 'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'pstnDvNm',
     {
       header: t('MSG_TXT_AW') + t('MSG_TXT_INF'), // colspan title
       direction: 'horizontal', // merge type

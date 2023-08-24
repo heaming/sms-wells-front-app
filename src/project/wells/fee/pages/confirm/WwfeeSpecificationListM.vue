@@ -34,28 +34,22 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_OG_TP')"
-          required
         >
           <kw-select
             v-model="searchParams.ogTpCd"
             :label="$t('MSG_TXT_OG_TP')"
-            :model-value="searchParams.ogTpCd"
             :options="ogTpCd"
-            rules="required"
-            @change="onChangeDiv"
+            @change="onChangeOgTpCd"
           />
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
         >
           <kw-option-group
             v-model="searchParams.rsbDvCd"
             :label="$t('MSG_TXT_RSB_TP')"
-            :model-value="'1'"
             type="radio"
-            rules="required"
-            :options="serachRsbDbOptionList"
+            :options="rsbDvCd"
             @change="onChangeDiv"
           />
         </kw-search-item>
@@ -81,8 +75,10 @@
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
           <kw-input
+            v-model="searchParams.prtnrNo"
             clearable
             icon="search"
+            @click-icon="onClickSearchNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -107,15 +103,19 @@
           vertical
           inset
         />
+        <!-- 지급명세서출력(본사)-->
         <kw-btn
           dense
           secondary
-          :label="$t('MSG_BTN_DSB_SPCSH_PRNT')+&quot;(&quot;+t('MSG_TXT_HDOF')+&quot;)&quot;"
+          :label="$t('MSG_BTN_DSB_SPCSH_PRNT')+'('+t('MSG_TXT_HDOF')+')'"
+          @click="onClickOzReportCenter"
         />
+        <!-- 지급명세서 출력-->
         <kw-btn
           dense
           secondary
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
+          @click="onClickOzReport"
         />
       </kw-action-top>
       <kw-grid
@@ -133,11 +133,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, defineGrid, gridUtil, codeUtil } from 'kw-lib';
+import { useDataService, useGlobal, useMeta, getComponentType, defineGrid, gridUtil, codeUtil } from 'kw-lib';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
-import { cloneDeep } from 'lodash-es';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
+const { modal } = useGlobal();
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
 const totalCount = ref(0);
 const dataService = useDataService();
 const { t } = useI18n();
@@ -145,12 +149,15 @@ const { t } = useI18n();
 const searchParams = ref({
   perfDt: dayjs().add(-1, 'month').format('YYYYMM'),
   ogTpCd: 'W02',
-  rsbDvCd: '1',
+  rsbDvCd: 'W0205',
+  prtnrNo: '',
   feeCalcUnitTpCd: '201', // 수수료계산단위유형코드 (101 : P추진단 플래너, 102 : P추진단 지국장, 201 : M추진단-일반(15등급), 202 : M추진단
   ogLevel1: '',
   ogLevel2: '',
   ogLevel3: '',
 });
+
+const codes = await codeUtil.getMultiCodes('OG_TP_CD', 'RSB_DV_CD');
 
 // 수수료 코드 리스트
 let feeCodes;
@@ -163,17 +170,20 @@ let fieldsObj;
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const codes = await codeUtil.getMultiCodes('OG_TP_CD', 'RSB_DV_CD');
+// 조직유형코드
 const ogTpCd = codes.OG_TP_CD.filter((v) => ['W01', 'W02', 'W03'].includes(v.codeId));
+// 직책구분코드
+const rsbDvCd = ref((await codeUtil.getSubCodes('RSB_DV_CD', searchParams.value.ogTpCd)).filter((v) => ['W0105', 'W0104', 'W0205', 'W0204', 'W0302', 'W0301'].includes(v.codeId))); // 로그인 한 조직에 따라 직책구분코드가 변경된다.
+const { currentRoute } = useRouter();
 
 let gridView;
 let gridData;
 let cashedFeeCodes;
+// let ozUsrDiv; // oz 팝업용 사용자 권한구분
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/fee/fee-specifications', { params: cachedParams });
   const datas = res.data;
-  console.log('datas: ', datas);
 
   totalCount.value = datas.length;
 
@@ -186,11 +196,26 @@ async function onClickSearch() {
   fetchData();
 }
 
+// 번호 검색 아이콘 클릭 이벤트
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzMonthPartnerListP',
+    componentProps: {
+      ogTpCd: searchParams.value.ogTpCd,
+      prtnrNo: searchParams.value.prtnrNo,
+      baseYm: searchParams.value.perfDt,
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.prtnrNo = payload.prtnrNo;
+    }
+  }
+}
+
 async function getFeeCodes() {
   const res = await dataService.get('/sms/wells/fee/fee-specifications/fee-codes', { params: searchParams.value });
-  // res.data.forEach((obj) => {
-  //   obj.feeNm = obj.feeNm.replaceAll(/\(.*?\)/g, '');
-  // });
   feeCodes = res.data;
 }
 
@@ -199,39 +224,93 @@ async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/fee/fee-specifications', { params: cachedParams });
 
   gridUtil.exportView(view, {
-    fileName: '수수료 지급 명세서',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
 }
 
-// 직책유형 옵션
-const serachRsbDbOptionList = [
-  {
-    codeId: '1',
-    codeName: t('MSG_TXT_PLAR'), // 플래너
-  },
-  {
-    codeId: '2',
-    codeName: t('MSG_TXT_BRMGR'), // 지점장
-  },
-];
+// 지급명세서 출력
+function onClickOzReport() {
+  let _ozrPath = '';
+  let _odiPath = '';
+  if (searchParams.value.ogTpCd === 'W01') { // P추진단
+    _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.ozr';
+    _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.odi';
+  } else if (searchParams.value.ogTpCd === 'W02') { // M추진단
+    _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.ozr';
+    _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.odi';
+  } else if (searchParams.value.ogTpCd === 'W03') { // 홈마스터
+    _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.ozr';
+    _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.odi';
+  }
+
+  const ozParam = {
+    ozrPath: _ozrPath,
+    odiPath: _odiPath,
+    args:
+      {
+        jsondata: [{
+          userDiv: searchParams.value.rsbDvCd === '1' ? 'P' : 'M', // 플래너/지점장
+          basYear: searchParams.value.perfDt.substring(0, 4),
+          basMonth: searchParams.value.perfDt.substring(4, 6),
+          userId: searchParams.value.prtnrNo,
+          perfYm: searchParams.value.perfDt,
+          rsbDvCd: searchParams.value.rsbDvCd,
+          ogId: searchParams.value.ogId,
+          rsbCd: sessionUserInfo.rsbCd,
+          pstn: '',
+          deptCd: '',
+          basYrmn: searchParams.value.perfDt,
+
+        }],
+      },
+    height: 1100,
+    width: 1200,
+  };
+
+  openReportPopup(
+    ozParam.ozrPath,
+    ozParam.odiPath,
+    JSON.stringify(ozParam.args),
+    { width: 1100, height: 1200 },
+  );
+}
+// 지급명세서 출력(본사)
+function onClickOzReportCenter() {
+  onClickOzReport();
+}
+
+async function onChangeOgTpCd() {
+  if (searchParams.value.ogTpCd === 'W01') { // P추진단
+    rsbDvCd.value = (await codeUtil.getSubCodes('RSB_DV_CD', 'W01')).filter((v) => ['W0105', 'W0104'].includes(v.codeId));
+    searchParams.value.rsbDvCd = 'W0105';
+  } else if (searchParams.value.ogTpCd === 'W02') { // M추진단
+    rsbDvCd.value = (await codeUtil.getSubCodes('RSB_DV_CD', 'W02')).filter((v) => ['W0205', 'W0204'].includes(v.codeId));
+    searchParams.value.rsbDvCd = 'W0205';
+  } else if (searchParams.value.ogTpCd === 'W03') { // 홈마스터
+    rsbDvCd.value = (await codeUtil.getSubCodes('RSB_DV_CD', 'W03')).filter((v) => ['W0302', 'W0301'].includes(v.codeId));
+    searchParams.value.rsbDvCd = 'W0302';
+  }
+}
 
 async function onChangeDiv() {
-  console.log(searchParams.value);
   let feeCalcUnitTpCd = '201';
 
   if (searchParams.value.ogTpCd === 'W01') { // P추진단
-    if (searchParams.value.rsbDvCd === '1') feeCalcUnitTpCd = '101'; // 플래너
-    else feeCalcUnitTpCd = '102'; // 지국장
+    if (searchParams.value.rsbDvCd === 'W0105') feeCalcUnitTpCd = '101'; // 플래너
+    else feeCalcUnitTpCd = '102'; // 지점장
   } else if (searchParams.value.ogTpCd === 'W02') { // M추진단
-    if (searchParams.value.rsbDvCd === '1') feeCalcUnitTpCd = '201'; // 플래너
-    else feeCalcUnitTpCd = '202'; // 지국장
+    if (searchParams.value.rsbDvCd === 'W0205') feeCalcUnitTpCd = '201'; // 플래너
+    else feeCalcUnitTpCd = '202'; // 지점장
+  } else if (searchParams.value.ogTpCd === 'W03') { // 홈마스터
+    if (searchParams.value.rsbDvCd === 'W0302') feeCalcUnitTpCd = '301'; // 홈마스터
+    else feeCalcUnitTpCd = '302'; // 지점장
   }
+
   searchParams.value.feeCalcUnitTpCd = feeCalcUnitTpCd;
   await getFeeCodes();
   cashedFeeCodes = feeCodes.filter((obj) => (obj.feeCalcUnitTpCd === searchParams.value.feeCalcUnitTpCd)); // 수수료 코드 필터링
-  console.log('cashedFeeCodes: ', cashedFeeCodes);
 
   fieldsObj.setFields();
 }
@@ -253,7 +332,7 @@ fieldsObj = {
     { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '103.8', styleName: 'text-center' }, // 지점
     { fieldName: 'prtNrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110.8', styleName: 'text-center' }, // 번호
     { fieldName: 'prtNrKNm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-center' }, // 성명
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center' }, // 직책
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD }, // 직책
     { fieldName: 'meetDates', header: t('MSG_TXT_METG_PRSC_DC'), width: '93.1', styleName: 'text-right', dataType: 'number' }, // 미팅참석일수
   ],
   mp: { // M추진단 / 플래너
@@ -321,6 +400,30 @@ fieldsObj = {
       { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
     ],
   },
+  hp: { // 홈마스터 / 플래너
+    perfFields: [], // 실적부분
+    deductionFields: [ // 공제 부분
+      { fieldName: 'ddtn01', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
+      { fieldName: 'ddtn02', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
+      { fieldName: 'ddtn03', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
+      { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
+      { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
+      { fieldName: 'ddtn99', header: t('MSG_TXT_EDDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 기타공제
+    ],
+  },
+  hm: { // 홈마스터 / 지점장
+    perfFields: [], // 실적부분
+    deductionFields: [ // 공제 부분
+      { fieldName: 'ddtn01', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
+      { fieldName: 'ddtn02', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
+      { fieldName: 'ddtn03', header: t('MSG_TXT_RSDNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 주민세
+      { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
+      { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
+      { fieldName: 'ddtn99', header: t('MSG_TXT_EDDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 기타공제
+    ],
+  },
 
   // 조직유형 , 직책유형에 따른 필드 세팅
   setFields() {
@@ -364,6 +467,38 @@ fieldsObj = {
         ...fieldsObj.getColumnNameArr([ddenSumFields]),
         ...fieldsObj.getColumnNameArr([dsbAmtFields]),
       ];
+    } else if (searchParams.value.feeCalcUnitTpCd === '302') { // 홈마스터 / 지점장
+      const { perfFields } = fieldsObj.hm;
+      const { deductionFields } = fieldsObj.hm;
+
+      columns = [...fieldsObj.defaultFields, ...perfFields,
+        ...tmpFeeFields, feeSumField, ...deductionFields, ddenSumFields, dsbAmtFields];
+
+      const personalFees = cashedFeeCodes.filter((obj) => obj.feeClsfCd === '04'); // 조직수수료
+      const ogFees = cashedFeeCodes.filter((obj) => obj.feeClsfCd !== '04'); // 개인수수료
+      const personalFeeFields = personalFees.map((obj) => ({ fieldName: obj.feeNm, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
+      const ogFeeFields = ogFees.map((obj) => ({ fieldName: obj.feeNm, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
+      // 헤더 부분 merge
+      layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
+        {
+          header: t('MSG_TXT_PRSNL_FEE'), // 개인수수료
+          direction: 'horizontal', // merge type
+          items: [...fieldsObj.getColumnNameArr(personalFeeFields)],
+        },
+        {
+          header: t('MSG_TXT_ORGNSTN_FEE'), // 조직수수료
+          direction: 'horizontal', // merge type
+          items: [...fieldsObj.getColumnNameArr(ogFeeFields)],
+        },
+        ...fieldsObj.getColumnNameArr([feeSumField]),
+        {
+          header: t('MSG_TXT_DDTN'),
+          direction: 'horizontal', // merge type
+          items: [...fieldsObj.getColumnNameArr(deductionFields)],
+        },
+        ...fieldsObj.getColumnNameArr([ddenSumFields]),
+        ...fieldsObj.getColumnNameArr([dsbAmtFields]),
+      ];
     } else {
       let perfFields = {};
       let deductionFields = {};
@@ -376,6 +511,9 @@ fieldsObj = {
       } else if (searchParams.value.feeCalcUnitTpCd === '202') { // m 추진단  지국장
         perfFields = fieldsObj.mm.perfFields;
         deductionFields = fieldsObj.mm.deductionFields;
+      } else if (searchParams.value.feeCalcUnitTpCd === '301') { // 홈마스터 - 플래너
+        perfFields = fieldsObj.hp.perfFields;
+        deductionFields = fieldsObj.hp.deductionFields;
       }
 
       columns = [...fieldsObj.defaultFields, ...perfFields,
@@ -403,11 +541,9 @@ fieldsObj = {
       ];
     }
     const fields = columns.map(({ fieldName, dataType }) => ({ fieldName, dataType }));
-    console.log('fields: ', fields);
 
     gridData.setFields(fields);
     gridView.setColumns(columns);
-    console.log('columns: ', columns);
 
     gridView.setColumnLayout([...layoutColumns]);
   },
@@ -436,7 +572,6 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  console.log('gridView', view);
   gridView = view;
   gridData = data;
 });

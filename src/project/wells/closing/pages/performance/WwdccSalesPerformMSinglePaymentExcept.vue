@@ -88,7 +88,8 @@
               :label="$t('MSG_TXT_PD_INF')"
             >
               <p>
-                {{ singlePaymentDetail.pdNm }} ( {{ singlePaymentDetail.pdCd }} )
+                ( {{ singlePaymentDetail.pdCd }} ){{ singlePaymentDetail.pdNm }} /
+                {{ singlePaymentDetail.svPrd }}{{ t('MSG_TXT_MCNT') }}{{ singlePaymentDetail.svTbCdNm }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -98,14 +99,14 @@
               :label="$t('MSG_TXT_EXN_TP')"
             >
               <p>
-                만료유형
+                {{ singlePaymentDetail.exnTp }}
               </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_ALNC_DV')"
             >
               <p>
-                제휴구분
+                {{ singlePaymentDetail.alncmpCdNm }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -159,31 +160,33 @@
               :label="$t('MSG_TXT_PD_DC_CLASS')"
             >
               <p>
-                {{ singlePaymentDetail.sellDscDvCdNm }}
+                {{ singlePaymentDetail.sellDscDvCdNm }}({{ singlePaymentDetail.sellDscDvCd }})/
+                {{ singlePaymentDetail.stplPtrm }}
               </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_FNT_INF_D')"
             >
               <p>
-                이체정보
+                {{ singlePaymentDetail.dpTpCd }}
+                {{ singlePaymentDetail.mpyBsdt }}/{{ singlePaymentDetail.fnitAprRsCd }}
               </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_RGST_CS_DSC')"
             >
               <p>
-                {{ `${stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalRgstCost))}
-                (DC ${stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.dscAmt))})` }}
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalRgstCost)) }}
+                ({{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.dscAmt)) }}){{ t('MSG_TXT_DSC') }}
               </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_RTLFE1_MCNT_WON')"
             >
               <p>
-                {{ `${singlePaymentDetail.rentalPtrm}
-                /${stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalAmt))}
-                (DC ${stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalDscAmt))})` }}
+                {{ singlePaymentDetail.rentalPtrm }}{{ t('MSG_TXT_MCNT') }}/
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalAmt)) }}{{ t('MSG_TXT_CUR_WON') }}
+                {{ singlePaymentDetail.rentalDscAmt }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -223,7 +226,7 @@
               :label="$t('MSG_TXT_UC_AMT')"
             >
               <p>
-                23,100
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.thmUcBlam)) }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -287,7 +290,10 @@
             <kw-form-item
               :label="$t('MSG_TXT_PD_INF')"
             >
-              <p>{{ singlePaymentDetail.pdNm }} / {{ singlePaymentDetail.pdCd }}</p>
+              <p>
+                ( {{ singlePaymentDetail.pdCd }} ){{ singlePaymentDetail.pdNm }} /
+                {{ singlePaymentDetail.svPrd }}{{ t('MSG_TXT_MCNT') }}{{ singlePaymentDetail.svTbCdNm }}
+              </p>
             </kw-form-item>
           </kw-form-row>
 
@@ -295,7 +301,10 @@
             <kw-form-item
               :label="$t('MSG_TXT_FNT_INF')"
             >
-              <p>이체정보</p>
+              <p>
+                {{ singlePaymentDetail.dpTpCd }}
+                {{ singlePaymentDetail.mpyBsdt }}/{{ singlePaymentDetail.fnitAprRsCd }}
+              </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CNTR_DATE')"
@@ -305,12 +314,12 @@
             <kw-form-item
               :label="$t('MSG_TXT_CNFM_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.slRcogDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.cntrCnfmDt) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CANC_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.canDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.cntrCanDt) }}</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -318,17 +327,17 @@
             <kw-form-item
               :label="$t('MSG_TXT_J_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.lcentDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.jDt) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_WDWAL_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.lcoutDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.mshWdwalDt) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_FSH_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.lcwanDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.fshDt) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_MM_SSPCS')"
@@ -340,7 +349,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_DSC_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.spmtDscAmt)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.dscAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_SL_AGG_AMT')"
@@ -374,13 +383,13 @@
             >
               <p>
                 {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotDlqAmt)) }}/
-                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.btdDlqAmt)) }}
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotDlqAddAmt)) }}
               </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_DFA_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.lcam67)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.dfaAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -388,7 +397,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_DFA_DP_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.lcam68)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.dfaDpAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -430,7 +439,10 @@
             <kw-form-item
               :label="$t('MSG_TXT_PKG_INF')"
             >
-              <p>{{ singlePaymentDetail.pkgNm }}</p>
+              <p>
+                {{ singlePaymentDetail.pglrSppPrcDvCd }}{{ singlePaymentDetail.pkgCd }}{{ singlePaymentDetail.pkgNm }}/
+                {{ singlePaymentDetail.pkgTpNm }}
+              </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_MCHN_INF')"
@@ -452,7 +464,10 @@
             <kw-form-item
               :label="$t('MSG_TXT_FNT_INF')"
             >
-              <p>이체정보</p>
+              <p>
+                {{ singlePaymentDetail.dpTpCd }}
+                {{ singlePaymentDetail.mpyBsdt }}/{{ singlePaymentDetail.fnitAprRsCd }}
+              </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_SL_AGG_AMT')"
@@ -629,6 +644,17 @@ async function fetchDetailData(slClYm, sellTpCd) {
     isShowRegular.value = true;
   }
   singlePaymentDetail.value = res.data;
+  if (!isEmpty(singlePaymentDetail.value.mpyBsdt)) {
+    singlePaymentDetail.value.mpyBsdt += t('MSG_TXT_D');
+  }
+  if (!isEmpty(singlePaymentDetail.value.rentalDscAmt) && singlePaymentDetail.value.rentalDscAmt > 0) {
+    singlePaymentDetail.value.rentalDscAmt += t('MSG_TXT_WON_DSC');
+  } else {
+    singlePaymentDetail.value.rentalDscAmt = '';
+  }
+  if (!isEmpty(singlePaymentDetail.value.pkgCd)) {
+    singlePaymentDetail.value.pkgCd = `(${singlePaymentDetail.value.pkgCd})`;
+  }
 }
 
 async function fetchData() {
@@ -782,7 +808,7 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
       }
       await modal({
         component: callComponent,
-        componentProps: { cntrDtlNo: `${cachedParams.cntrNo}${cachedParams.cntrSn}`, slClYm },
+        componentProps: { cntrDtlNo: `${cachedParams.cntrNo}${cachedParams.cntrSn}`, cntrNo: cachedParams.cntrNo, cntrSn: cachedParams.cntrSn, slClYm },
       });
     } else if (column === 'dpAmt') {
       await modal({

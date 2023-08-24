@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -85,7 +86,7 @@
         >
           <kw-select
             v-model="searchParams.fshProcsCd"
-            :options="codes.FSH_PROCS_CD"
+            :options="filterCodes.fshProcsCd"
             first-option="all"
           />
         </kw-search-item>
@@ -248,11 +249,13 @@ const codes = await codeUtil.getMultiCodes(
 
 const filterCodes = ref({
   svBizHclsfCd: [],
+  fshProcsCd: [],
   dtTpCd: [],
 });
 
 function codeFilter() {
   filterCodes.value.svBizHclsfCd = codes.SV_BIZ_HCLSF_CD.filter((v) => ['1', '2', '3'].includes(v.codeId));
+  filterCodes.value.fshProcsCd = codes.FSH_PROCS_CD.filter((v) => ['00', '20'].includes(v.codeId));
   filterCodes.value.dtTpCd = codes.DT_TP_CD.filter((v) => ['1', '2', '3', '4'].includes(v.codeId));
 }
 
@@ -289,6 +292,7 @@ async function fetchData() {
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(list);
+    view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   }
 }
 
@@ -455,7 +459,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'refriDiv', header: t('MSG_TXT_REFRI'), width: '90', styleName: 'text-center' },
     { fieldName: 'shipDiv', header: t('TXT_MSG_SPP_DV_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'receiptDiv', header: t('MSG_TXT_RCP_DV'), styleName: 'text-center', width: '90' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '146', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '146', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), styleName: 'text-left', width: '90' },
     { fieldName: 'sppOrdNo', header: `${t('MSG_TXT_DLVRY')}${t('MSG_TXT_SEQUENCE_NUMBER')}`, styleName: 'text-center', width: '154' },
     { fieldName: 'mchnModel', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_MODEL')}`, styleName: 'text-left', width: '220' },
@@ -515,11 +519,17 @@ const initGrid = defineGrid((data, view) => {
     return false;
   };
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'mchnCstDtlNo') {
+    if (column === 'cntrDtlNo') {
+      const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      const cntrSn = g.getValue(itemIndex, 'cntrSn');
+
+      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+    } else if (column === 'mchnCstDtlNo') {
       const mchnCstDtlNo = g.getValue(itemIndex, 'mchnCstDtlNo');
       const idx = mchnCstDtlNo.indexOf('-');
       const cntrNo = mchnCstDtlNo.substr(0, idx);
       const cntrSn = mchnCstDtlNo.substr(idx + 1);
+
       await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
     }
   };

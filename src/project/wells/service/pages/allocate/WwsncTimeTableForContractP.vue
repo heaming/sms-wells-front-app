@@ -497,6 +497,35 @@ const { ok, cancel } = useModal();
 const DATE_FORMAT_YM = 'YYYYMM';
 const DATE_FORMAT_YMD = 'YYYYMMDD';
 
+/**
+*
+*  mtrStatCd=1    (1: 신규, 2: 수정, 3: 삭제)
+*  chnlDvCd=K     (W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E : 엔지니어, M: 매니저, S: 조회용(일정), B: BS업무(엔지니어))
+*  svDvCd=1       (1:설치,2:B/S,3:A/S,4:홈케어,9: 당일취소)
+*
+*  ------------ 단건인 경우 필수 ------------
+*  cntrNo=W20234900601
+*  svBizDclsfCd=1110
+*  cntrSn=1
+*
+*
+*  ------------ 다건인 경우 필수 ------------
+*  cntrNo=W20234900601
+*  svBizDclsfCd=1110,1110
+*  cntrSn=1,2
+*
+*
+*
+*  예시)
+*      설치: svDvCd=1(설치), mtrStatCd=1(신규),  svBizDclSfCd = 1110(신규설치)
+ *     설치(수정): svDvCd=1(설치), mtrStatCd=2(수정),  svBizDclSfCd = 1110(신규설치)
+ *     설치(삭제): svDvCd=1(설치), mtrStatCd=3(삭제),  svBizDclSfCd = 1110(신규설치)
+ *
+ *     철거: svDvCd = 3(A/S), mtrStatCd = 1(신규), svBizDclSfCd = 3420(철거)
+ *     철거수정: svDvCd = 3(A/S), mtrStatCd = 2(수정), svBizDclSfCd = 3420(철거), cstSvAsnNo=고객서비스배정보
+ *     철거삭제: svDvCd = 3(A/S), mtrStatCd = 3(삭제), svBizDclSfCd = 3420(철거), cstSvAsnNo=고객서비스배정보
+ * */
+
 const props = defineProps({
   baseYm: { type: String, default: '' },
   // userId: { type: String, default: '' },
@@ -504,14 +533,14 @@ const props = defineProps({
   inflwChnl: { type: String, default: '' },
   svDvCd: { type: String, default: '' },
   sellDate: { type: String, default: '' },
-  svBizDclsfCd: { type: String, default: '' },
+  svBizDclsfCd: { type: String, default: '1110,1110' },
   basePdCd: { type: String, default: '' },
   wrkDt: { type: String, default: '' },
   mtrStatCd: { type: String, default: '' },
   returnUrl: { type: String, default: '' },
   mkCo: { type: String, default: '' },
-  cntrNo: { type: String, default: '' },
-  cntrSn: { type: String, default: '' },
+  cntrNo: { type: String, default: 'W2023010101' },
+  cntrSn: { type: String, default: '1,2' },
   seq: { type: String, default: '' },
   title: { type: String, default: '' },
 });
@@ -629,8 +658,6 @@ async function getTimeTables() {
   const res = await dataService.get('/sms/wells/service/time-tables/time-assign', { params:
    { ...cachedParams,
    } });
-
-  console.log(res);
 
   data.value = res.data;
   // enableDays.value = [];

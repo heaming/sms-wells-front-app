@@ -10,6 +10,7 @@
 * 프로그램 설명
 ****************************************************************************************************
 -- 웰스 입금내역, 당월 납입 내역 정보
+-- W-WD-U-0138M01
 ****************************************************************************************************
 --->
 <template>
@@ -129,8 +130,8 @@
     </kw-search>
     <div class="result-area">
       <ul class="kw-notification">
-        <li>
-          <span class="kw-fc--primary">{{ t('MSG_TXT_SRN_LIST_MAX_INQR_MTR_EXCEL_DLD') }}</span>
+        <li class="kw-fc--primary">
+          <span>{{ t('MSG_TXT_SRN_LIST_MAX_INQR_MTR_EXCEL_DLD') }}</span>
         <!-- ·화면의 목록은 최대 2,000건까지만 조회됩니다. 더 많은 자료는 엑셀다운로드를 이용하세요! -->
         </li>
       </ul>

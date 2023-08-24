@@ -24,11 +24,13 @@
         <kw-search-item
           :label="$t('MSG_TXT_STR_PTRM')"
           :colspan="3"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.stStrDt"
             v-model:to="searchParams.edStrDt"
-            rules="date_range_months:1"
+            rules="required|date_range_months:1"
+            :label="$t('MSG_TXT_STR_PTRM')"
           />
         </kw-search-item>
         <!-- 입고창고 -->
@@ -242,6 +244,9 @@ const totalCount = ref(0);
 searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
 searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
+// 등급 필터링
+codes.PD_GD_CD = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
+
 const optionsItmPdCd = ref();
 const optionsAllItmPdCd = ref();
 
@@ -360,13 +365,10 @@ let cachedParams;
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/store-detail-itemizations', { params: cachedParams });
-  console.log(res);
   const store = res.data;
-  console.log(store.length);
   totalCount.value = store.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(store);
-  view.resetCurrent();
 }
 
 async function onClickExcelDownload() {

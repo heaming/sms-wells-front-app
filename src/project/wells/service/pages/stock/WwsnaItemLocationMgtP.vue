@@ -16,10 +16,11 @@
   <kw-popup
     ref="popupRef"
     size="3xl"
-    no-action
+    :modified-targets="['grdMain']"
   >
     <kw-form
       :cols="2"
+      ignore-on-modified
     >
       <kw-form-row>
         <!-- 품목코드 -->
@@ -203,7 +204,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   const datasSource = view.getDataSource();
   datasSource.setRows(searchData);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onCheckedStckNoStdGb() {
@@ -281,7 +282,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '146', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '320' },
-    { fieldName: 'pitmStocAGdQty', header: t('MSG_TXT_STOC'), width: '80', styleName: 'text-center' },
+    { fieldName: 'pitmStocAGdQty', header: `${t('MSG_TXT_STOC')}(EA)`, width: '80', styleName: 'text-center' },
     { fieldName: 'itmLctAngleVal',
       header: t('MSG_TXT_ANGLE'),
       width: '80',

@@ -56,7 +56,6 @@
     </kw-search>
 
     <div class="result-area">
-      <h3>{{ $t('MSG_TXT_SRCH_RSLT') }}</h3>
       <kw-action-top>
         <template #left>
           <kw-paging-info
@@ -217,9 +216,10 @@ async function onClickAdd() {
 
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
+  if (!await gridUtil.confirmIfIsModified(view)) { return; }
+  const checkedRowCount = view.getCheckedRows().length;
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  pageInfo.value.totalCount = Number(gridUtil.getAllRowValues(view)?.length);
-  console.log('deletedRows', deletedRows);
+  pageInfo.value.totalCount -= checkedRowCount - deletedRows.length;
   if (deletedRows.length > 0) {
     await dataService.delete(baseUrl, { data: deletedRows });
     await fetchData();
@@ -396,21 +396,19 @@ const initGrdMain = defineGrid((data, view) => {
   const numberForamt = '#,##0';
   // , rules: 'required', dataType: 'number', numberFormat: '#,##0'
   const columns = [
-    /* 상품코드 */
     { fieldName: 'pdCd',
-      header: { text: t('MSG_TXT_PRDT_CODE'), styleName: 'essential' },
+      header: { text: t('MSG_TXT_PRDT_CODE', null, '상품코드'), styleName: 'essential' },
       width: '130',
       button: 'action',
       rules: 'required',
       styleCallback(grid, dataCell) {
         return dataCell.item.rowState === 'created'
-          ? { editable: true, styleName: 'text-left rg-button-icon--search btnshow', editor: { type: 'text' } }
+          ? { editable: true, styleName: 'text-center rg-button-icon--search btnshow', editor: { type: 'text' } }
           : { styleName: 'text-left btnhide', editable: false };
       },
     },
-    /* 상품명 */
     { fieldName: 'pdNm',
-      header: { text: t('MSG_TXT_PRDT_NM'), styleName: 'essential' },
+      header: { text: t('MSG_TXT_PRDT_NM', null, '상품명'), styleName: 'essential' },
       width: '180',
       button: 'action',
       rules: 'required',

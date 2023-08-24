@@ -54,7 +54,7 @@
           option-value="colNm"
           option-label="codeName"
           :options="selectionVariables"
-          @update:model-value="resetVisibleChannelColumns"
+          @update:model-value="onClickCheckVisible"
         />
       </kw-form-item>
     </kw-form-row>
@@ -109,7 +109,7 @@
 import { useDataService, stringUtil, gridUtil, getComponentType, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { resetVisibleGridColumns, getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -193,7 +193,10 @@ async function getSaveData() {
   if (removeObjects.value.length) {
     rtnValues[pdConst.REMOVE_ROWS] = cloneDeep(removeObjects.value);
   }
-  rtnValues[prumd] = checkedSelVals.value.reduce((rtn, item) => {
+
+  // console.log('WwpdcStandardMgtMPriceVal - getSaveData - checkedSelVals.value : ', checkedSelVals.value);
+
+  rtnValues[prumd] = checkedSelVals.value?.reduce((rtn, item) => {
     if (item) {
       rtn.push({ pdCd: currentPdCd.value, pdDscPrumPrpVal01: item });
     }
@@ -219,11 +222,9 @@ async function validateProps() {
 }
 
 async function resetInitData() {
-  // 판매유형
-  const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
-  if (sellTpCd !== currentSellTpCd.value) {
-    currentSellTpCd.value = sellTpCd;
-    await fetchSelVarData();
+  const view = grdMainRef.value?.getView();
+  if (isEmpty(view)) {
+    return;
   }
 
   // 기본 속성에서 등록 채널 목록
@@ -244,17 +245,13 @@ async function resetInitData() {
       grdMainRef.value?.getView().setColumnFilters('sellChnlCd', sellChannelFilterCond.value, true);
     }
   }
-  const checkedVals = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
-    if (item.pdDscPrumPrpVal01) {
-      rtn.push(item.pdDscPrumPrpVal01);
-    }
-    return rtn;
-  }, []);
-  if (checkedVals && checkedVals.length && selectionVariables.value) {
-    selectionVariables.value?.forEach((item, idx) => {
-      checkedSelVals.value[idx] = checkedVals.includes(item.colNm) ? item.colNm : null;
-    });
-  }
+
+  // Grid Column Visible 초기화
+  resetVisibleGridColumns(currentMetaInfos.value, prcfd, view);
+
+  // 선택된 선택변수 Visible 적용 ( 선택변수값 = Grid Filed명 )
+  await resetVisibleChannelColumns();
+
   await initGridRows();
 }
 
@@ -362,20 +359,10 @@ async function onClickRemove() {
   gridRowCount.value = getGridRowCount(view);
 }
 
-async function fetchSelVarData() {
-  const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
-  const res = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd, choFxnDvCd: pdConst.CHO_FXN_DV_CD_CHOICE } });
-  // console.log('selectionVariables.value : ', selectionVariables.value);
-  selectionVariables.value = res.data;
-  if (selectionVariables.value && selectionVariables.value.length) {
-    selectionVariables.value.forEach((item) => { item.codeName = t(item.codeName); });
-  }
-}
-
-async function resetVisibleChannelColumns() {
+async function onClickCheckVisible() {
   // console.log('checkedSelVals : ', checkedSelVals.value);
+  const view = grdMainRef.value.getView();
   selectionVariables.value.forEach((field) => {
-    const view = grdMainRef.value.getView();
     const column = view.columnByName(field.codeId);
     if (column) {
       if (checkedSelVals.value && checkedSelVals.value.includes(field.colNm)) {
@@ -385,6 +372,40 @@ async function resetVisibleChannelColumns() {
       }
     }
   });
+}
+
+async function fetchSelectVariableData() {
+  const sellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+  if (sellTpCd && (isEmpty(currentSellTpCd.value) || sellTpCd !== currentSellTpCd.value)) {
+    currentSellTpCd.value = sellTpCd;
+    // 선택변수
+    const typeRes = await dataService.get('/sms/common/product/type-variables', { params: { sellTpCd } });
+    selectionVariables.value = typeRes.data?.filter((item) => item.choFxnDvCd === pdConst.CHO_FXN_DV_CD_CHOICE);
+    if (selectionVariables.value && selectionVariables.value.length) {
+      selectionVariables.value.forEach((item) => { item.codeName = t(item.codeName); });
+    }
+  }
+}
+
+async function resetVisibleChannelColumns() {
+// 선택변수 전체(판매유형)
+  await fetchSelectVariableData();
+  if (!selectionVariables.value?.length) {
+    // 선택변수가 없으면 초기화
+    checkedSelVals.value = [];
+    return;
+  }
+
+  // 선택된 선택변수
+  checkedSelVals.value = currentInitData.value?.[prumd]?.reduce((rtn, item) => {
+    if (item.pdDscPrumPrpVal01) {
+      // 선택변수 DB 값은 대문자
+      rtn.push(item.pdDscPrumPrpVal01);
+    }
+    return rtn;
+  }, []) ?? [];
+
+  await onClickCheckVisible();
 }
 
 async function onUpdateSellChannel() {

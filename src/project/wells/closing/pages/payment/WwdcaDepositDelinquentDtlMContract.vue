@@ -39,7 +39,6 @@
           :options="codes.SELL_TP_CD"
           rules="required"
           first-option="all"
-          @change="onChangeSellTpCd"
         />
         <kw-select
           v-if="searchParams.sellTpCd === '1' || searchParams.sellTpCd === '2'
@@ -305,9 +304,15 @@ async function onClickSearchCustomer() {
   }
 }
 
-function onChangeSellTpCd() {
+watch(() => searchParams.value.ogTp, async (newVal) => {
+  if (newVal === 'ALL') {
+    searchParams.value.dgr1LevlOgCd = '';
+  }
+}, { immediate: true });
+
+watch(() => searchParams.value.sellTpCd, () => {
   searchParams.value.sellTpDtlCd = 'ALL';
-}
+}, { immediate: true });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

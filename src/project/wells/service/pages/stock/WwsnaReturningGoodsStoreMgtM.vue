@@ -91,11 +91,13 @@
         <kw-search-item
           :label="$t('MSG_TXT_PRCSDT')"
           :colspan="2"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.stFnlVstFshDtFrom"
             v-model:to="searchParams.edFnlVstFshDtTo"
-            rules="date_range_months:1"
+            rules="date_range_months:1|required"
+            :label="$t('MSG_TXT_PRCSDT')"
           />
         </kw-search-item>
         <!-- 확인일자 -->
@@ -384,14 +386,7 @@ const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value =
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('itemGr', false);
-
-  // if (val === '') {
-  //   pageInfo.value.totalCount = view.getItemCount();
-  //   return;
-  // }
-
   view.activateColumnFilters('itemGr', [val], true);
-  // pageInfo.value.totalCount = view.getItemCount();
 }
 
 async function fetchData() {
@@ -408,6 +403,7 @@ async function fetchData() {
 
   view.autoFiltersRefresh('itemGr', false);
   view.setColumnFilters('itemGr', filters, true);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {
@@ -537,7 +533,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrSn' }, // 고객순번
     { fieldName: 'rcgvpKnm' }, // 고객명
     { fieldName: 'sellTpNm' }, // 판매유형
-    { fieldName: 'col21' }, // 관리유형
+    { fieldName: 'mngtUnitNm' }, // 관리유형
     { fieldName: 'referArtc' }, // 참고사항
     { fieldName: 'stkrPrntYn' }, // 스티커출력여부
     { fieldName: 'svBizDclsfCd' }, // 서비스업무세분류코드
@@ -556,7 +552,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'svProcsCn' }, // 서비스처리내용
     { fieldName: 'ichrPrtnrNo' }, // 담당엔지니어사번
     { fieldName: 'empNm' }, // 담당엔지니어명
-    { fieldName: 'fstRgstUsrId' }, // 철거요청사번
+    { fieldName: 'rcpIchrPrtnrNo' }, // 철거요청사번
     { fieldName: 'fstRgstUserNm' }, // 철거요청자명
     { fieldName: 'col11' }, // 접수자구분
     { fieldName: 'col22' }, // 접수자구분
@@ -589,7 +585,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CST_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col21', header: t('MSG_TXT_MGT_TYP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MGT_TYP'), width: '100', styleName: 'text-center' },
     { fieldName: 'referArtc', header: t('MSG_TXT_REFER_ARTC'), width: '150', styleName: 'text-center' },
     { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'ostrConfDt',
@@ -627,7 +623,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'asCausNm', header: t('MSG_TXT_CAUS'), width: '100', styleName: 'text-center' },
     { fieldName: 'svProcsCn', header: t('MSG_TIT_APRV_DTLS'), width: '397', styleName: 'text-center' },
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_ICHR_EGER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_REQD_AK_EMPNO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'rcpIchrPrtnrNo', header: t('MSG_TXT_REQD_AK_EMPNO'), width: '150', styleName: 'text-center' },
     { fieldName: 'fstRgstUserNm', header: t('MSG_TXT_REQD_AK_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'col22', header: t('MSG_TXT_RCST_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'cnslMoCn', header: t('MSG_TXT_RCP_IZ'), width: '100', styleName: 'text-left' },
@@ -659,7 +655,7 @@ const initGrdMain = defineGrid((data, view) => {
     'cntrDtlNo',
     'rcgvpKnm',
     'sellTpNm',
-    'col21',
+    'mngtUnitNm',
     'referArtc',
     'svBizDclsfNm',
     'ostrConfDt',
@@ -674,9 +670,8 @@ const initGrdMain = defineGrid((data, view) => {
     'svProcsCn',
     'ichrPrtnrNo',
     // 'empNm',
-    { direction: 'horizontal', items: ['fstRgstUsrId', 'fstRgstUserNm'], header: { text: t('MSG_TXT_REQD_AK_EMPNO_NM') }, hideChildHeaders: true },
+    { direction: 'horizontal', items: ['rcpIchrPrtnrNo', 'fstRgstUserNm'], header: { text: t('MSG_TXT_REQD_AK_EMPNO_NM') }, hideChildHeaders: true },
     'col22',
-    // 'fstRgstUsrId',
     // 'fstRgstUserNm',
     // 'cnslMoCn',
     'col23',

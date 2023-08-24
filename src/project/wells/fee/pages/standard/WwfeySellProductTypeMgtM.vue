@@ -101,6 +101,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -196,7 +197,13 @@ async function onClickSearch() {
 // 그리드행삭제
 async function onClickRowDelete() {
   const view = grdRef.value.getView();
-  await gridUtil.confirmDeleteCheckedRows(view);
+  const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (deleteRows.length > 0) {
+    const allRows = gridUtil.getDeletedRowValues(view);
+    await dataService.post('/sms/wells/fee/sell-product-type', allRows);
+    notify(t('MSG_ALT_DELETED'));
+    await fetchPage();
+  }
 }
 
 // 그리드행추가
@@ -288,9 +295,9 @@ const initGrd = defineGrid((data, view) => {
     { fieldName: 'feePdctTpCd2', header: `${t('MSG_TXT_PDCT_TP')}(P)`, width: '120', styleName: 'text-center', editor: { type: 'list' }, options: codes.FEE_PDCT_TP_CD, rules: 'required', editable: true },
     { fieldName: 'apyStrtYm', header: t('MSG_TXT_APY_STRT_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true },
     { fieldName: 'apyEndYm', header: t('MSG_TXT_APY_END_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '130', styleName: 'text-center' },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '130', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

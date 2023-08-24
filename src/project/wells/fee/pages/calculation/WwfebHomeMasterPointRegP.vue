@@ -97,6 +97,7 @@ const popupRef = ref();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 let cachedParams;
+const { currentRoute } = useRouter();
 
 const props = defineProps({
   mngtYm: {
@@ -136,7 +137,7 @@ const removeData = ref({
 
 async function fetchData() {
   cachedParams = cloneDeep(props);
-  const response = await dataService.get('/sms/wells/fee/home-master-grades/details', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/fee/home-master-grades/details', { params: cachedParams, timeout: 300000 });
   const hmstPoints = response.data;
   totalCount.value = hmstPoints.length;
   const view = grdMainRef.value.getView();
@@ -178,13 +179,10 @@ async function onClickSave() {
  */
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  cachedParams = cloneDeep(props);
-  const response = await dataService.get('/sms/wells/fee/home-master-grades/points', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: popupRef.value.pageCtxTitle,
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: response.data,
   });
 }
 

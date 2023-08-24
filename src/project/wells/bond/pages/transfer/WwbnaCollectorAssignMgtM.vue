@@ -80,7 +80,8 @@
           <!-- TODO: 코드 정의 안되어 있음 정의 되면 코드보게 수정필요 -->
           <kw-select
             v-model="searchParams.bndNwDvCd"
-            :options="codes.BND_NW_DV_CD"
+            :options="filteredCodes.BND_NW_DV_CD"
+            first-option="all"
           />
         </kw-search-item>
         <kw-search-item
@@ -135,6 +136,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           secondary
@@ -148,6 +150,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_DTRM')"
           secondary
           dense
@@ -158,6 +161,7 @@
           :label="$t('MSG_BTN_ASN_WEIT_MDFC')"
           secondary
           dense
+          :disable="!isCollectionManager"
           @click="onClickPageMove"
         />
         <kw-separator
@@ -166,6 +170,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="$t('MSG_BTN_CNTN_CREATE')"
@@ -192,6 +197,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:create
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           :disable="isNotActivated || assignConfirmed"
@@ -239,8 +245,8 @@ import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
 import { chkInputSearchComplete, chkClctamPrtnrSearchComplete, openSearchUserCommonPopup, isCustomerCommon, openSearchClctamPsicCommonPopup, fetchPartnerNoCommon, checkAvailabilityCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
-const { modal, notify } = useGlobal();
+const { getConfig, hasRoleNickName } = useMeta();
+const { modal, notify, confirm } = useGlobal();
 const { getters } = useStore();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
@@ -256,13 +262,16 @@ const codes = await codeUtil.getMultiCodes(
   'BND_NW_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
-const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10' && obj.codeId !== '11' && obj.codeId !== '90')) });
+const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10' && obj.codeId !== '11' && obj.codeId !== '90' && obj.codeId !== '99')),
+  BND_NW_DV_CD: codes.BND_NW_DV_CD.filter((obj) => (obj.codeId !== '01')) });
 
 const kwSearchRef = ref(getComponentType('KwSearch'));
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const isNotActivated = ref(false);
 const assignConfirmed = ref(false);
+// const isCollectionManager = true;
+const isCollectionManager = hasRoleNickName('CLCTAM_MNGT');
 const totalCount = ref(0);
 const pageInfo = ref({
   totalCount: 0,
@@ -305,12 +314,12 @@ const pageMove = ref({
   url: '/bond/zwbny-assign-weight-mgt',
 });
 
-async function hasAssignConfirmed() {
-  // TODO: 단위테스트 시 버튼 막아야 해서 임시 작업, 바로 수정 작업 진행 해야함 6월7일 까지는 작업 시작 해야함, 확정된 상태인 경우 버튼 비활성화
-  const hasAssignConfirmedParams = cloneDeep(searchParams.value);
-  hasAssignConfirmedParams.tfBizDvCd = '05';
-  const response = await dataService.get('/sms/common/bond/collector-changes/has-collector-assing', { params: hasAssignConfirmedParams });
-  assignConfirmed.value = response.data;
+async function checkAvailability(tfBizDvCd) {
+  const checkAvailabilityParams = { baseYm: cachedParams.baseYm,
+    bzHdqDvCd: cachedParams.bzHdqDvCd,
+    clctamDvCd: cachedParams.clctamDvCd,
+    tfBizDvCd };
+  return await checkAvailabilityCommon(checkAvailabilityParams);
 }
 
 async function fetchData() {
@@ -323,12 +332,12 @@ async function fetchData() {
   totalCount.value = partTransfers.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(partTransfers);
-  // view.resetCurrent();
 
   grdSubRef.value?.getView().getDataSource().clearRows();
   pageInfo.value.totalCount = 0;
 
-  await hasAssignConfirmed();
+  // 작업 가능, 불가능 여부를 넘겨주게 되어 있어 disabled에 넣기 위해 ! 으로 변경
+  assignConfirmed.value = !await checkAvailability('02');
 }
 
 async function onClickSearch() {
@@ -400,20 +409,7 @@ async function checkRquest(changedRows) {
   return isRequest;
 }
 
-async function checkAvailability(tfBizDvCd) {
-  const checkAvailabilityParams = { baseYm: cachedParams.baseYm,
-    bzHdqDvCd: cachedParams.bzHdqDvCd,
-    clctamDvCd: cachedParams.clctamDvCd,
-    tfBizDvCd };
-  return await checkAvailabilityCommon(checkAvailabilityParams);
-}
-
 async function onClickSave() {
-  if (!await checkAvailability('02')) {
-    notify('배정을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 배정 할 수 없습니다.)');
-    return;
-  }
-
   const view = grdSubRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
@@ -432,12 +428,9 @@ async function onClickSave() {
 }
 
 async function onClickCreate() {
-  if (!await checkAvailability('02')) {
-    notify('배정을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 배정 할 수 없습니다.)');
-    return;
-  }
   // TODO: 구현된 로직에 대한 테스트 지속적으로 필요, 완벽하다고 생각 되면 이 주석 제거 그 전까지 생각나면 내용 확인/갱신/테스트
   if (!await kwSearchRef.value.validate()) { return; }
+  if (!await confirm(t('MSG_ALT_CLCTAM_PSIC_ASN_CONF', [codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId === searchParams.value.clctamDvCd))[0].codeName]))) { return; }
   cachedParams = cloneDeep(searchParams.value);
   const response = await dataService.get('/sms/common/bond/collector-changes/has-collector-assing', { params: cachedParams });
   if (response.data) {
@@ -445,7 +438,17 @@ async function onClickCreate() {
   } else {
     notify(t('MSG_ALT_ALLO_OF_COLL_EXCN'));
   }
-  await dataService.post('/sms/wells/bond/collector-assigns', cachedParams);
+
+  const responseBatchJob = await dataService.post('/sms/wells/bond/collector-assigns', cachedParams);
+  const { result } = await modal({
+    component: 'ZwbnaCollectorAssignP',
+    componentProps: {
+      jobId: responseBatchJob.data,
+    },
+  });
+  if (result) {
+    await fetchData();
+  }
 }
 
 async function onClickPageMove() {
@@ -455,11 +458,6 @@ async function onClickPageMove() {
 }
 
 async function onClickConfirm() {
-  if (!await checkAvailability('03')) {
-    notify('배정 확정을 수행 할 수 없습니다.(배정 상태인 경우에만 확정 할 수 있습니다.)');
-    return;
-  }
-
   // TODO: 명세서 다시 변경될 예정 맞춰서 수정 필요 search영역의 정보를 가지고 가고 필수 부분이 동일해 우선 kwSearchRef 기준으로 작업
   if (!await kwSearchRef.value.validate()) { return; }
   cachedParams = cloneDeep(searchParams.value);
@@ -467,6 +465,8 @@ async function onClickConfirm() {
   if (response.data) {
     await dataService.put('/sms/wells/bond/collector-assigns/confirm', cachedParams);
     notify(t('MSG_ALT_MODIFIED'));
+
+    await fetchData();
   } else {
     notify('집금자배정을 먼저 수행해야 합니다'); // TODO: toast관련 내용 한번더 확인, 확정 후 수정
   }
@@ -525,13 +525,13 @@ watch(() => searchParams.value.clctamPrtnrNm, async (clctamPrtnrNm) => {
   }
 });
 watch(() => searchParams.value.baseYm, async (baseYm) => {
-  // const view = grdSubRef.value.getView();
+  const view = grdSubRef.value.getView();
   if (baseYm !== defaultDate) {
-    // view.editOptions.editable = false;
-    // isNotActivated.value = true;
+    view.editOptions.editable = false;
+    isNotActivated.value = true;
   } else {
-    // view.editOptions.editable = true;
-    // isNotActivated.value = false;
+    view.editOptions.editable = isCollectionManager;
+    isNotActivated.value = false;
   }
 });
 // -------------------------------------------------------------------------------------------------
@@ -599,7 +599,7 @@ const initGrdMain = defineGrid((data, view) => {
 
     { fieldName: 'woCstCt', header: t('MSG_TXT_CST_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'woCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'woObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'woObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'woDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'woThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'woDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
@@ -607,7 +607,7 @@ const initGrdMain = defineGrid((data, view) => {
 
     { fieldName: 'rentalCstCt', header: t('MSG_TXT_CST_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rentalCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'rentalObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'rentalObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rentalDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '111', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rentalThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rentalDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
@@ -615,7 +615,7 @@ const initGrdMain = defineGrid((data, view) => {
 
     { fieldName: 'leaseCstCt', header: t('MSG_TXT_CST_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'leaseCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'leaseObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'leaseObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'leaseDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'leaseThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'leaseDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
@@ -623,7 +623,7 @@ const initGrdMain = defineGrid((data, view) => {
 
     { fieldName: 'geMshCstCt', header: t('MSG_TXT_CST_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'geMshCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'geMshObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'geMshObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'geMshDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'geMshThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'geMshDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
@@ -631,7 +631,7 @@ const initGrdMain = defineGrid((data, view) => {
 
     { fieldName: 'hcrMshCstCt', header: t('MSG_TXT_CST_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'hcrMshCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'hcrMshObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'hcrMshObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'hcrMshDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'hcrMshThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'hcrMshDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
@@ -639,7 +639,7 @@ const initGrdMain = defineGrid((data, view) => {
 
     { fieldName: 'spayCstCt', header: t('MSG_TXT_CST_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'spayCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'spayObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'spayObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'spayDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'spayThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'spayDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
@@ -647,7 +647,7 @@ const initGrdMain = defineGrid((data, view) => {
 
     { fieldName: 'rglrSppCstCt', header: t('MSG_TXT_CST_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rglrSppCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'rglrSppObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'rglrSppObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rglrSppDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rglrSppThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'rglrSppDlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right' },
@@ -745,8 +745,7 @@ const initGrdSub = defineGrid((data, view) => {
       styleName: 'text-center, rg-button-icon--search',
       button: 'action',
       buttonVisibleCallback() {
-        // return (cachedParams.baseYm === defaultDate);
-        return true;
+        return (cachedParams.baseYm === defaultDate && isCollectionManager);
       },
     },
     { fieldName: 'lstmmClctamDvCd', header: t('MSG_TXT_LSTMM_ICHR_CLCTAM_DV'), width: '130', styleName: 'text-center', editable: false },
@@ -764,7 +763,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'pdDvKnm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '86', styleName: 'text-right', editable: false },
-    { fieldName: 'objAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
+    { fieldName: 'objAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '116', numberFormat: '#,##0', styleName: 'text-right', editable: false },
@@ -789,7 +788,7 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
+  view.editOptions.editable = isCollectionManager;
 
   view.onCellButtonClicked = async (grid, { dataRow, column }) => {
     if (column === 'clctamPrtnrKnm') {

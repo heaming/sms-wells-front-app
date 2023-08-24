@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNY
-2. 프로그램 ID : WwsnyInstallSeparationCostMgtM - 설치/분리비용 관리
+2. 프로그램 ID : WwsnyInstallSeparationCostMgtM - [W-SV-U-0158M01] 설치/분리비용 관리
 3. 작성자 : kyunglyn.lee
 4. 작성일 : 2023.04.07
 ****************************************************************************************************
@@ -29,6 +29,7 @@
             v-model="searchParams.pdGr"
             :first-option-label="$t('MSG_TXT_ALL')"
             :options="codes.PD_GRP_CD"
+            @change="onChangePdGr()"
           />
         </kw-search-item>
         <!-- 상품그룹: 상품명 -->
@@ -36,9 +37,11 @@
           :label="$t('MSG_TXT_PRDT_NM')"
         >
           <kw-select
-            v-model="searchParams.pdCd"
+            v-model="searchParams.pdNm"
             :first-option-label="$t('MSG_TXT_ALL')"
             :options="pdNm"
+            class="w200"
+            @change="onChangePdNm(searchParams.pdNm)"
           />
           <kw-field
             v-model="searchParams.apyMtrChk"
@@ -134,10 +137,12 @@ import {
   notify,
 } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import smsCommon from '~sms-wells/service/composables/useSnCode';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
+const { getPartMaster } = smsCommon();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -160,33 +165,27 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 const pdNm = ref([]);
+const pdtNm = ref([]);
 /* 조회조건 */
 const searchParams = ref({
+  pdNm: '',
   pdCd: '', /* 상품코드 */
   pdGr: '1',
   apyMtrChk: 'N',
 });
 const isDisable = computed(() => (isEmpty(searchParams.value.pdGr)));
 
-async function onChangePdGr() {
-  const res = await dataService.get('/sms/wells/service/installation-separation-costs/filter-products', { params: searchParams.value });
-  pdNm.value = res.data;
-  searchParams.value.pdCd = pdNm.value[0]?.codeId ?? '';
-
-  const view = grdMainRef.value.getView();
-  const pdCd = view.columnByField('pdCd');
-  pdCd.editable = true;
-  pdCd.labels = pdNm.value.map((v) => v.codeName);
-  pdCd.values = pdNm.value.map((v) => v.codeId);
+async function onChangePdNm(val) {
+  if (isEmpty(val)) return;
+  const { cd } = pdNm.value.find((v) => v.codeId === val) || {};
+  pdtNm.value = pdNm.value.map((v) => ({ codeId: v.cd, codeName: v.codeName })) ?? [];
+  searchParams.value.pdCd = cd;
 }
-// 상품그룹: 상품명
-watch(() => searchParams.value.pdGr, async (val) => {
-  if (val === '') {
-    pdNm.value = [];
-    searchParams.value.pdCd = '';
-  }
-  await onChangePdGr();
-});
+async function onChangePdGr() {
+  pdNm.value = await getPartMaster('4', searchParams.value.pdGr, 'M');
+  searchParams.value.pdNm = pdNm.value[0].codeId;
+  onChangePdNm();
+}
 
 let cachedParams;
 async function fetchData() {
@@ -197,8 +196,7 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(installSeperationCsMgt);
-  view.resetCurrent();
-  await gridUtil.reset(view);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
@@ -209,10 +207,12 @@ async function onClickSearch() {
 
 const now = dayjs();
 async function onClickAdd() {
+  console.log(pdtNm.value);
+
   const view = grdMainRef.value.getView();
 
   await gridUtil.insertRowAndFocus(view, 0, {
-    pdCd: pdNm.value[0]?.codeId,
+    pdCd: searchParams.value.pdCd,
     apyStrtdt: now.add('1', 'day').format('YYYYMMDD'),
     apyEnddt: '99991231' });
 }
@@ -224,8 +224,9 @@ async function onClickDelete() {
   if (deleteRows.length > 0) {
     await dataService.delete('/sms/wells/service/installation-separation-costs', { data: [...deleteRows] });
   }
-
-  await fetchData();
+  if (isEmpty(pageInfo)) {
+    await fetchData();
+  }
 }
 
 const { currentRoute } = useRouter();
@@ -263,6 +264,7 @@ async function onClickSave() {
 }
 
 onMounted(async () => {
+  // await onChangePdNm();
   await onChangePdGr();
 });
 // -------------------------------------------------------------------------------------------------
@@ -304,9 +306,18 @@ const initGrdMain = defineGrid((data, view) => {
       },
       width: '270',
       editor: { type: 'list' },
-      options: pdNm.value,
+      options: pdtNm.value,
       styleName: 'text-left',
       rules: 'required',
+      displayCallback(grd, { dataRow }) {
+        const pdCd = grd.getValue(dataRow, 'pdCd');
+        return pdNm.value.find((v) => v.cd === pdCd)?.codeName;
+      },
+      styleCallback: (grid, dataCell) => {
+        console.log(grid, dataCell);
+
+        return { editor: { type: 'list', labels: pdtNm.value.map((v) => v.codeName), values: pdtNm.value.map((v) => v.codeId) } };
+      },
     }, // 상품명
     {
       fieldName: 'sepIstCsAtcCd',
@@ -319,6 +330,10 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.SEP_IST_CS_ATC_CD,
       styleName: 'text-left',
       rules: 'required',
+      displayCallback(grd, idx) {
+        const sepIstCsAtcCd = grd.getValue(idx.dataRow, 'sepIstCsAtcCd');
+        return codes.SEP_IST_CS_ATC_CD.find((v) => ((v.codeId === sepIstCsAtcCd)))?.codeName;
+      },
     }, // 대분류
     {
       fieldName: 'sepIstCsDtlCd',
@@ -331,6 +346,10 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.SEP_IST_CS_DTL_CD,
       styleName: 'text-left',
       rules: 'required',
+      displayCallback(grd, idx) {
+        const sepIstCsDtlCd = grd.getValue(idx.dataRow, 'sepIstCsDtlCd');
+        return codes.SEP_IST_CS_DTL_CD.find((v) => ((v.codeId === sepIstCsDtlCd)))?.codeName;
+      },
     }, // 소분류
     {
       fieldName: 'apyStrtdt',

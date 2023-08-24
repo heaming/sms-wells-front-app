@@ -78,8 +78,6 @@
           <kw-select
             v-model="searchParams.wkGrpCd"
             :options="codes.WK_GRP_CD"
-            option-label="codeName"
-            option-value="codeId"
           />
         </kw-search-item>
         <!--적용일자-->
@@ -185,7 +183,6 @@ const { currentRoute } = useRouter();
 
 const {
   getDistricts,
-  getLgldCtpvLocaras,
 } = smsCommon();
 
 const {
@@ -205,7 +202,6 @@ const svcCode = (await dataService.get('/sms/wells/service/organizations/service
 const sido = await getDistricts('sido');
 const sigungu = ref([]);
 
-const locaraCds = ref(await getLgldCtpvLocaras());
 let cachedParams;
 const codes = await codeUtil.getMultiCodes(
   'WK_GRP_CD',
@@ -237,14 +233,16 @@ async function changeSido() {
   }
 }
 
+let cachedCodes;
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
+  cachedCodes = cloneDeep(products);
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
   // view.resetCurrent();
-  if (pagingResult.totalCount === 0) { notify(t('MSG_ALT_NO_INFO_SRCH')); }
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -289,13 +287,14 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'fr2pLgldCd' },
     { fieldName: 'zipList' },
-    { fieldName: 'mgtCnt' },
-    { fieldName: 'wrkCnt' },
+    // { fieldName: 'mgtCnt' },
+    // { fieldName: 'wrkCnt' },
     { fieldName: 'ctpvNm' },
     { fieldName: 'ctctyNm' },
     { fieldName: 'lawcEmdNm' },
     { fieldName: 'amtdNm' },
     { fieldName: 'rpbLocaraCd' },
+    { fieldName: 'changeCodes' },
     { fieldName: 'chLocaraCd' },
     { fieldName: 'apyStrtdt' },
     { fieldName: 'apyEnddt' },
@@ -317,18 +316,18 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
     },
-    {
-      fieldName: 'mgtCnt',
-      header: t('MSG_TXT_SV_ACC'),
-      width: '100',
-      styleName: 'text-right',
-    },
-    {
-      fieldName: 'wrkCnt',
-      header: t('MSG_TXT_MLMN_ACTCS'),
-      width: '100',
-      styleName: 'text-right',
-    },
+    // {
+    //   fieldName: 'mgtCnt',
+    //   header: t('MSG_TXT_SV_ACC'),
+    //   width: '100',
+    //   styleName: 'text-right',
+    // },
+    // {
+    //   fieldName: 'wrkCnt',
+    //   header: t('MSG_TXT_MLMN_ACTCS'),
+    //   width: '100',
+    //   styleName: 'text-right',
+    // },
     {
       fieldName: 'ctpvNm',
       header: t('MSG_TXT_CTPV_NM'),
@@ -360,15 +359,13 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CH_LOCARA'),
       width: '100',
       styleName: 'text-center',
-      editor: { type: 'dropdown' },
       editable: true,
+      editor: { type: 'list' },
       styleCallback: (grid, dataCell) => {
-        const ctpvNm = grid.getValue(dataCell.index.itemIndex, 'ctpvNm');
-        const rpbLocaraCd = locaraCds.value
-          .filter((v) => v.ctpvNm === ctpvNm)
-          .map((v) => v.rpbLocaraCd)
-          .reduce((a, v) => (a.includes(v) ? a : [...a, v]), []);
-        return { editor: { type: 'list', labels: rpbLocaraCd, values: rpbLocaraCd } };
+        const { changeCodes } = cachedCodes[dataCell.index.itemIndex];
+        const rpbLocaraCd = changeCodes.map((v) => v.rpbLocaraCd);
+
+        return { editor: { type: 'list', labels: rpbLocaraCd, values: rpbLocaraCd }, editable: true };
       },
       rules: 'required',
     },
@@ -431,8 +428,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columnLayout = [
     'zipList',
-    'mgtCnt',
-    'wrkCnt',
+    // 'mgtCnt',
+    // 'wrkCnt',
     {
       header: t('MSG_TXT_LGLD'), // colspan title
       direction: 'horizontal', // merge type

@@ -100,10 +100,6 @@ const codes = await codeUtil.getMultiCodes(
   'OPCS_ADJ_SMRY_DV_CD',
 );
 
-const emits = defineEmits([
-  'tebEvent',
-]);
-
 // 정산대상 - 유가증권
 async function adjustObject() {
   const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/adjust-object', { params: cachedParams });
@@ -111,8 +107,6 @@ async function adjustObject() {
   const view = grdThirdRef.value.getView();
   view.getDataSource().setRows(res.data);
   view.resetCurrent();
-  emits('tebEvent', 'sel', res.data);
-  // TODO 정산제외일경우 버튼 미노출
 }
 
 // 원천세 정산내역
@@ -148,26 +142,10 @@ async function setData(paramData) {
   if (grdThirdRef.value?.getView()) gridUtil.reCreateGrid(grdThirdRef.value.getView());
   if (grdFourthRef.value?.getView()) gridUtil.reCreateGrid(grdFourthRef.value.getView());
   cachedParams = cloneDeep(paramData);
-  fetchData();
+  await fetchData();
 }
 
-async function onClickExcelDownload(flag) {
-  if (flag === 'adjustObject') {
-    const view = grdThirdRef.value.getView();
-
-    await gridUtil.exportView(view, {
-      fileName: t('MSG_TXT_ADJ_OJ'),
-      timePostfix: true,
-    });
-  } else if (flag === 'withholdingTaxAdjust') {
-    const view = grdFourthRef.value.getView();
-    await gridUtil.exportView(view, {
-      fileName: t('MSG_TXT_WHTX_ADJ_IZ'),
-      timePostfix: true,
-    });
-  }
-}
-
+// 저장
 async function onClickSave() {
   const view = grdThirdRef.value.getView();
   const viewRows = gridUtil.getAllRowValues(view); // 모든 데이터
@@ -206,9 +184,24 @@ async function onClickSave() {
   const data = checkedRows;
   await dataService.put('/sms/wells/closing/expense/marketable-securities', data);
   notify(t('MSG_ALT_SAVE_DATA'));
-  fetchData();
+  await fetchData();
 }
 
+async function onClickExcelDownload(flag) {
+  if (flag === 'adjustObject') {
+    const view = grdThirdRef.value.getView();
+    await gridUtil.exportView(view, {
+      fileName: t('MSG_TXT_ADJ_OJ'),
+      timePostfix: true,
+    });
+  } else if (flag === 'withholdingTaxAdjust') {
+    const view = grdFourthRef.value.getView();
+    await gridUtil.exportView(view, {
+      fileName: t('MSG_TXT_WHTX_ADJ_IZ'),
+      timePostfix: true,
+    });
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -216,6 +209,7 @@ const initGrdThird = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'opcsCardUseIzId', visible: false }, // 운영비카드사용내역ID
     { fieldName: 'adjOgId', visible: false },
+    { fieldName: 'ogTpCd', visible: false },
     { fieldName: 'opcsAdjNo', visible: false }, // 운영비정산번호
     { fieldName: 'adjPrtnrNo', visible: false },
     { fieldName: 'useDtm', header: t('MSG_TXT_USE_DTM'), width: '174', styleName: 'text-center', editable: false }, // 사용일시
@@ -298,23 +292,23 @@ const initGrdThird = defineGrid((data, view) => {
   view.editOptions.editable = true;
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, adjOgId,
-      adjPrtnrNo, ogTpCd, opcsAdjNo, adjCls, opcsAdjExcdYn } = grid.getValues(itemIndex);
+    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, opcsAdjNo,
+      adjPrtnrNo, ogTpCd, adjCls, opcsAdjExcdYn } = grid.getValues(itemIndex);
     cachedParams.authDate = useDtm;
     cachedParams.mrcNm = mrcNm;
-    cachedParams.cardAprno = cardAprno;
+    cachedParams.opcsAdjNo = opcsAdjNo;
+    cachedParams.cardAprno = cardAprno; // 카드승인번호
     cachedParams.domTrdAmt = domTrdAmt;
     cachedParams.opcsCardUseIzId = opcsCardUseIzId;
-    cachedParams.adjOgId = adjOgId;// 총괄단 아이디
-    cachedParams.adjPrtnrNo = adjPrtnrNo;
-    cachedParams.ogTpCd = ogTpCd;
-    cachedParams.opcsAdjNo = opcsAdjNo;
-
+    cachedParams.adjPrtnrNo = adjPrtnrNo; // 정산파트너번호
+    cachedParams.ogTpCd = ogTpCd; // 조직유형코드
+    console.log(column); // lint 회피하여 소스 보존을위해 로그출력
+    console.log(adjCls); // lint 회피하여 소스 보존을위해 로그출력
     if (column === 'opcsAdjBtn') {
-      if (adjCls === '완료') {
-        alert(t('정산이 완료된 건입니다'));
-        return;
-      }
+    //   if (adjCls === '완료') {
+    //     alert(t('정산이 완료된 건입니다'));
+    //     return;
+    //   }
       if (opcsAdjExcdYn === '정산제외') {
         alert(t('정산제외 건은 원천세 정산이 불가능 합니다.'));
         return;
@@ -354,20 +348,15 @@ const initGrdFourth = defineGrid((data, view) => {
     { fieldName: 'dstWhtx', header: t('MSG_TXT_WHTX'), width: '246', styleName: 'text-right', dataType: 'number' }, /* 원천세 */
     { fieldName: 'cardAprno', header: t('MSG_TXT_APR_NO'), width: '246', styleName: 'text-left' }, /* 승인번호 */
   ];
-
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 });
-onMounted(async () => {
-  fetchData();
-});
 
 async function onClickOpenReport() {
   // params.userId = store.getters['meta/getUserInfo'].userId;
-
   // TODO.oz 리포트 W-CL-R-0009 띄워야함 하직 화면 없음
   openReportPopup(
     '/ksswells/ord/er/V4.90/contractL23.ozr',

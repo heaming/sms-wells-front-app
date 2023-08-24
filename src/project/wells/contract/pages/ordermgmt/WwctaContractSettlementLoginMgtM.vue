@@ -66,19 +66,14 @@ const props = defineProps({
   encryptedParam: { type: String, default: undefined },
 });
 
-let decrypted;
+const params = decryptEncryptedParam(props.encryptedParam, {
+  cntrNo: props.cntrNo,
+});
 
-try {
-  decrypted = decryptEncryptedParam(props.encryptedParam);
-} catch (e) {
-  alert('주소에 문제가 있습니다.').then(() => {
-    window.close();
-  });
+if (!params.cntrNo) {
+  await alert('주소에 문제가 있습니다.');
+  window.close();
 }
-
-const params = {
-  cntrNo: props.cntrNo ?? decrypted.cntrNo,
-};
 
 const dataService = useDataService();
 const router = useRouter();

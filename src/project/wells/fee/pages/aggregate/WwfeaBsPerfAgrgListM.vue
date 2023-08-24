@@ -39,11 +39,13 @@
         >
           <kw-input
             v-model="searchParams.strtPdCd"
+            maxlength="10"
             :label="$t('MSG_TXT_PRDT_CODE')"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.endPdCd"
+            maxlength="10"
             :label="$t('MSG_TXT_PRDT_CODE')"
           />
         </kw-search-item>
@@ -75,6 +77,8 @@
             v-model="searchParams.prtnrNo"
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
+            :maxlength="10"
+            :regex="/^[0-9]*$/i"
             clearable
             @click-icon="onClickSearchNo"
           />
@@ -137,6 +141,7 @@ const totalCount = ref(0);
 const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD',
   'BFSVC_OG_TP_CD',
+  'SV_FEE_PD_DV_CD',
 );
 
 // 조회조건
@@ -161,7 +166,7 @@ let cachedParams;
 // 조회
 async function fetchData() {
   cachedParams = { ...cachedParams };
-  const res = await dataService.get('/sms/wells/fee/bs-fees', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/fee/bs-fees', { params: cachedParams, timeout: 400000 });
   totalCount.value = res.data.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(res.data);
@@ -232,7 +237,7 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' },
-    { fieldName: 'svFeePdDvNm', header: t('MSG_TXT_BS') + t('MSG_TXT_PDGRP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS') + t('MSG_TXT_PDGRP'), width: '100', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD },
     { fieldName: 'svFeeBaseAmt', header: t('MSG_TXT_BAS_FEE'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'feeCalcAmt', header: t('MSG_TXT_VST_FEE'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_WORK_TYPE'), width: '100', styleName: 'text-center' },

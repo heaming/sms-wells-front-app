@@ -246,6 +246,10 @@ async function onClickRemove() {
   const removeCreateRows = [];
   let isDbDataRemove = false;
 
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
   checkedRows.forEach((row) => {
     const item = gridUtil.getRowValue(view, row);
     if (item.rowState === 'created' || isEmpty(item[pdConst.REL_PD_ID]) || item[pdConst.REL_PD_ID].startsWith('REL_TMP')) {

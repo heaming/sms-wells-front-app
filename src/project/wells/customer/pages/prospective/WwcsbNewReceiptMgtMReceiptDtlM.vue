@@ -188,6 +188,7 @@
               </slot>
               <slot v-else>
                 <kw-btn
+                  v-if="false"
                   :label="$t('MSG_BTN_CONFIRM')"
                   @click="onClickConfirm"
                 />
@@ -269,7 +270,7 @@ async function onClickSave() {
   assignInfo.value.pspcCstCnslIds = [currentPspcCstCnslId.value];
 
   await dataService.put(`${baseUrl}/contact`, assignInfo.value);
-  notify('저장을 완료하였습니다');
+  notify(t('MSG_ALT_SAVE_DATA', null, '저장되었습니다.'));
 
   await router.close(0, true);
   const targetPage = currentJobType.value === 'RECV'
@@ -295,7 +296,11 @@ async function fetchData() {
 }
 
 async function onClickManualAssign() {
-  const componentProps = { pspcCstCnslId: assignInfo.value?.pspcCstCnslId, jobType: 'RECV', ichrPrtnrNo: assignInfo.value?.ichrPrtnrNo };
+  const componentProps = {
+    pspcCstCnslId: [assignInfo.value.pspcCstCnslId],
+    ichrPrtnrNo: [assignInfo.value.ichrPrtnrNo],
+    jobType: 'RECV',
+  };
   console.log('componentProps', componentProps);
   const { result, payload } = await modal({ component: 'WwcsbManualAssignModP', componentProps });
   if (result && payload) {

@@ -111,9 +111,6 @@ function onClickCheckCode() {
 
 async function validate(data) {
   const { adr1, adr2, basePdCd, svPdCd } = data;
-  if (!adr1 || !adr2) {
-    throw new Error('주소값은 필수 입니다.');
-  }
   const params = {
     basePdCd,
     svPdCd,
@@ -127,8 +124,11 @@ async function validate(data) {
 
   const { adr, pdBas } = response.data;
   const adrId = adr?.adrCd;
-  if (!adrId || adrId.startsWith('IF_ERR')) {
-    throw new Error('주소를 다시 확인해주세요.');
+
+  if (adr1) { // 주소가 입력된 경우에만,
+    if (!adrId || adrId.startsWith('IF_ERR')) {
+      throw new Error('주소를 다시 확인해주세요.');
+    }
   }
 
   // noinspection UnnecessaryLocalVariableJS
@@ -231,7 +231,7 @@ const initGrd = defineGrid((data, view) => {
     },
     idvTno: { label: `${t('전화')}3`, width: 128, classes: 'text-center', rules: 'numeric|length:4' },
     zip: { label: t('MSG_TXT_ZIP'), width: 128, classes: 'text-center' },
-    adr1: { label: `${t('MSG_TXT_ADDR')}1`, width: 275, classes: 'text-left', required: true },
+    adr1: { label: `${t('MSG_TXT_ADDR')}1`, width: 275, classes: 'text-left' },
     adr2: { label: `${t('MSG_TXT_ADDR')}2`, width: 275, classes: 'text-left' },
     alncmpDgPrtnrMapngCd: {
       label: t('대표파트너번호'),

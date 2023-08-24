@@ -77,12 +77,9 @@
           use-partner
           dgr3-levl-og-first-option="all"
           partner-first-option="all"
-          dgr1-levl-og-label="ogCdNm"
-          dgr2-levl-og-label="ogCdNm"
-          dgr3-levl-og-label="ogCdNm"
-          partner-label="prtnrNoNm"
           dgr1-levl-og-readonly
           dgr2-levl-og-readonly
+          bzns-psic-auth-yn="Y"
         />
       </kw-search-row>
       <!-- <kw-search-row>
@@ -102,11 +99,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
         </template>
         <kw-btn
@@ -234,14 +227,9 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="codes.COD_PAGE_SIZE_OPTIONS.find((x) => x.codeId === '30').codeName"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -251,7 +239,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, gridUtil, useDataService, getComponentType, useGlobal, codeUtil } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -270,6 +258,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const { getters } = useStore();
 const { currentRoute } = useRouter();
+const totalCount = ref(0);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -308,9 +297,8 @@ const pageInfo = ref({
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 async function fetchData() {
-  const { data: { list, pageInfo: pagingResult } } = await dataService.get('/sms/wells/service/manage-customer-rglvl/paging', { params: { ...cachedParams, ...pageInfo.value } });
-
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/manage-customer-rglvl', { params: cachedParams });
+  const list = res.data;
 
   list.forEach((row) => {
     row.cntr = `${row.cntrNo}-${row.cntrSn}`;
@@ -319,6 +307,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.clearCurrent();
+  totalCount.value = list.length;
 }
 
 const prtnrOgTpOptions = ref([]);
@@ -364,7 +353,10 @@ async function getOrganizationInfo() {
   searchParams.value.executiveGroup = dgr1LevlOgId;
   searchParams.value.localGroup = dgr2LevlOgId;
 
-  const res = await fetchDgr2LevlOgs({ params: { ogId: dgr1LevlOgId } });
+  const res = await fetchDgr2LevlOgs({ params: {
+    ogId: dgr1LevlOgId,
+    bznsPsicAuthYn: 'Y',
+  } });
   const { ogCd } = res.data.find((option) => dgr2LevlOgId === option.ogId);
 
   localGroupCd.value = ogCd;
@@ -401,6 +393,7 @@ watch(() => mngStd.value.mngtPrtnrOgTpCd, async () => {
     dgr1LevlOgId: executiveGroup.value,
     dgr2LevlOgId: localGroup.value,
     dgr3LevlOgId: mngStd.value.mngtPrtnrOgTpCd,
+    bznsPsicAuthYn: 'Y',
   } });
   mngStdPrtnrNoOptions.value = data;
 });
@@ -458,6 +451,7 @@ watch(() => curMnthAlctn.value.asnPsicPrtnrOgTpCd, async () => {
     dgr1LevlOgId: executiveGroup.value,
     dgr2LevlOgId: localGroup.value,
     dgr3LevlOgId: curMnthAlctn.value.asnPsicPrtnrOgTpCd,
+    bznsPsicAuthYn: 'Y',
   } });
   curMnthAlctnPrtnrNoOptions.value = data;
 });
@@ -715,7 +709,10 @@ function initGrdMain(data, view) {
 
 onMounted(async () => {
   await getOrganizationInfo();
-  const { data } = await fetchDgr3LevlOgs({ params: { ogId: localGroup.value } });
+  const { data } = await fetchDgr3LevlOgs({ params: {
+    ogId: localGroup.value,
+    bznsPsicAuthYn: 'Y',
+  } });
   prtnrOgTpOptions.value = data;
 });
 </script>

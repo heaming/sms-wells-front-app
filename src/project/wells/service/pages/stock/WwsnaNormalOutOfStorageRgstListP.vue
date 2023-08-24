@@ -16,6 +16,7 @@
   <kw-popup
     ref="popupRef"
     size="3xl"
+    :modified-targets="['grdMain']"
   >
     <kw-form
       :cols="2"
@@ -117,6 +118,7 @@
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchData"
         />
+        <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
       </template>
       <kw-btn
         primary
@@ -254,8 +256,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   const datasSource = view.getDataSource();
   datasSource.setRows(searchData);
-
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {

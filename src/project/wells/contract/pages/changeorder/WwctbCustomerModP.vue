@@ -14,11 +14,14 @@
 --->
 
 <template>
-  <kw-popup size="xl">
+  <kw-popup
+    ref="frmMainRef"
+    size="xl"
+  >
+    <h3>{{ $t('MSG_TXT_CNTRT_INF') }}</h3>
     <kw-observer ref="obsMainRef">
-      <h3>{{ $t('MSG_TXT_CNTRT_INF') }}</h3>
       <kw-form :cols="2">
-        <div v-if="props.copnDvCd === '1'">
+        <div v-if="isEqual(props.copnDvCd, '1')">
           <kw-form-row>
             <!-- 계약자 -->
             <kw-form-item
@@ -48,7 +51,7 @@
             </kw-form-item>
           </kw-form-row>
         </div>
-        <div v-if="props.copnDvCd === '2'">
+        <div v-if="isEqual(props.copnDvCd, '2')">
           <kw-form-row>
             <!-- 계약자 -->
             <kw-form-item
@@ -80,7 +83,7 @@
                 v-model:telNo1="fieldParams.cntrCopnExnoEncr"
                 v-model:telNo2="fieldParams.cntrCopnIdvTno"
                 :placeholder="t('MSG_TXT_INP')"
-                :label="$t('MSG_TXT_MPNO')"
+                :label="$t('MSG_TXT_TEL_NO')"
                 rules="telephone"
                 mask="telephone"
               />
@@ -126,9 +129,11 @@
           </kw-form-item>
         </kw-form-row>
       </kw-form>
-      <kw-separator />
-      <!-- 설치자 정보 -->
-      <h3>{{ $t('MSG_TXT_INSTR_INFO') }}</h3>
+    </kw-observer>
+    <kw-separator />
+    <!-- 설치자 정보 -->
+    <h3>{{ $t('MSG_TXT_INSTR_INFO') }}</h3>
+    <kw-observer ref="obsSubRef">
       <kw-form :cols="2">
         <kw-form-row>
           <!-- 설치자 -->
@@ -161,6 +166,25 @@
             />
           </kw-form-item>
         </kw-form-row>
+        <div v-if="isEqual(props.copnDvCd, '2')">
+          <kw-form-row>
+            <!-- 전화번호 -->
+            <kw-form-item
+              :label="t('MSG_TXT_TEL_NO')"
+            >
+              <kw-input
+                v-model:model-value="fieldParams.istPhoneNo"
+                v-model:telNo0="fieldParams.istLocaraTno"
+                v-model:telNo1="fieldParams.istExnoEncr"
+                v-model:telNo2="fieldParams.istIdvTno"
+                :label="$t('MSG_TXT_TEL_NO')"
+                :rules="!hasIstDt ? '|telephone' : ''"
+                :disable="hasIstDt"
+                mask="telephone"
+              />
+            </kw-form-item>
+          </kw-form-row>
+        </div>
       </kw-form>
       <kw-form
         :cols="1"
@@ -216,7 +240,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil, useModal, useGlobal, getComponentType } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { isEmpty, isEqual } from 'lodash-es';
 
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 
@@ -225,7 +249,9 @@ const { cancel, ok } = useModal();
 const { notify, confirm, alert } = useGlobal();
 const dataService = useDataService();
 
+const frmMainRef = ref();
 const obsMainRef = ref(getComponentType('KwObserver'));
+const obsSubRef = ref(getComponentType('KwObserver'));
 
 const props = defineProps({
   cntrNo: {
@@ -274,6 +300,10 @@ const fieldParams = ref({
   istAdrId: '',
   istAdrDvCd: '',
   istCralIdvTno: '',
+  istLocaraTno: '',
+  istExnoEncr: '',
+  istIdvTno: '',
+  istPhoneNo: '',
   istAdrZip: '',
   istRnadr: '',
   istRdadr: '',
@@ -293,23 +323,34 @@ async function fetchData() {
   fieldParams.value.cntrCralTno = `${fieldParams.value.cntrCralLocaraTno}${fieldParams.value.cntrMexnoEncr}${fieldParams.value.cntrCralIdvTno}`;
   fieldParams.value.istCralTno = `${fieldParams.value.istCralLocaraTno}${fieldParams.value.istMexnoEncr}${fieldParams.value.istCralIdvTno}`;
   fieldParams.value.cntrCopnCralTno = `${fieldParams.value.cntrCopnLocaraTno}${fieldParams.value.cntrCopnExnoEncr}${fieldParams.value.cntrCopnIdvTno}`;
+  fieldParams.value.istPhoneNo = `${fieldParams.value.istLocaraTno}${fieldParams.value.istExnoEncr}${fieldParams.value.istIdvTno}`;
 
   if (isEmpty(res.data)) {
     alert(t('MSG_ALT_CST_INF_NOT_EXST'));
     cancel();
     return;
   }
+  frmMainRef.value.init();
   obsMainRef.value.init();
+  obsSubRef.value.init();
+
   fieldParams.value.check = false;
 }
 
 async function onClickSave() {
-  if (await obsMainRef.value.alertIfIsNotModified()) { return; }
-  if (!await obsMainRef.value.validate()) { return; }
-
-  if (!isEmpty(props.cttRsCd)) {
-    alert(t('MSG_ALT_INST_ADDR_CHG_BEFORE_CTT'));
-    return;
+  if (!hasIstDt.value) { // 설치일자 미존재시
+    if (await frmMainRef.value.alertIfIsNotModified()) { return; }
+    if (await obsSubRef.value.validate()) { // 설치자 정보 필수입력 확인여부
+      if (await obsSubRef.value.isModified() && !isEmpty(props.cttRsCd)) { // 설치자 정보 수정 && 컨택결과코드 존재 여부
+        alert(t('MSG_ALT_INST_ADDR_CHG_BEFORE_CTT'));
+        return;
+      }
+    } else {
+      return;
+    }
+  } else {
+    if (await obsMainRef.value.alertIfIsNotModified()) { return; } // 계약자 정보 체크
+    if (!await obsMainRef.value.validate()) { return; }
   }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
@@ -340,7 +381,7 @@ function onChangeAddrInput() {
     fieldParams.value.istCralLocaraTno = fieldParams.value.cntrCralLocaraTno;
     fieldParams.value.istMexnoEncr = fieldParams.value.cntrMexnoEncr;
     fieldParams.value.istCralIdvTno = fieldParams.value.cntrCralIdvTno;
-    fieldParams.value.adrId = fieldParams.value.cntrAdrId;
+    fieldParams.value.istAdrId = fieldParams.value.cntrAdrId;
     fieldParams.value.istAdrZip = fieldParams.value.cntrAdrZip;
     fieldParams.value.adrDvCd = fieldParams.value.cntrAdrDvCd;
     fieldParams.value.istRnadr = fieldParams.value.cntrCstRnadr;

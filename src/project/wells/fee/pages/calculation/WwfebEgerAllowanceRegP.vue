@@ -25,9 +25,13 @@
         <!-- 실적년월 -->
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
-          required
+          :required="isEmpty(props.perfYm)"
         >
+          <p v-if="!isEmpty(props.perfYm)">
+            {{ params?.perfYm ? stringUtil.getDateFormat(params?.perfYm).substring(0,7) : '' }}
+          </p>
           <kw-date-picker
+            v-if="isEmpty(props.perfYm)"
             v-model="params.perfYm"
             rules="required"
             type="month"
@@ -64,7 +68,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
+import { useDataService, useGlobal, useModal, codeUtil, stringUtil } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 
 const { cancel, ok } = useModal();

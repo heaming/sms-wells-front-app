@@ -81,6 +81,7 @@ const now = dayjs();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -114,6 +115,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -174,7 +176,12 @@ async function initGrdMain(data, view) {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '70', styleName: 'text-left' }, // 성명
     { fieldName: 'mobileTno', header: t('MSG_TXT_MPNO'), width: '120', styleName: 'text-center' }, // 휴대전화번호
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-left' }, // 빌딩명
-    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cntr',
+      header: t('MSG_TXT_CNTR_NO'),
+      width: '150',
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+    }, // 계약번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '70', styleName: 'text-left' }, // 고객명
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' }, // 상품명
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '70', styleName: 'text-center' }, // 우편번호
@@ -190,6 +197,14 @@ async function initGrdMain(data, view) {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.onCellItemClicked = (grid, clickData) => {
+    if (clickData.column === 'cntr') {
+      const cntr = grid.getDataSource().getValue(clickData.dataRow, 'cntr');
+      const param = { cntrNo: cntr.split('-')[0], cntrSn: cntr.split('-')[1] };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
+    }
+  };
 
   await onClickSearch();
 }

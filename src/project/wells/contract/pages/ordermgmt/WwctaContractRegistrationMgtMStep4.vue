@@ -391,11 +391,20 @@ ${step4.cntrt.sexDvNm || ''}` }}
               >
                 <p>{{ item.adrpc.rcgvpKnm }}</p>
               </kw-form-item>
+            </kw-form-row>
+            <kw-form-row>
               <kw-form-item
                 label="휴대전화번호"
               >
                 <p>
                   {{ item.adrpc.cralLocaraTno }}-{{ item.adrpc.mexnoEncr }}-{{ item.adrpc.cralIdvTno }}
+                </p>
+              </kw-form-item>
+              <kw-form-item
+                label="전화번호"
+              >
+                <p>
+                  {{ item.adrpc.locaraTno }}-{{ item.adrpc.exnoEncr }}-{{ item.adrpc.idvTno }}
                 </p>
               </kw-form-item>
             </kw-form-row>
@@ -583,7 +592,7 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const { notify, alert } = useGlobal();
 const props = defineProps({
-  contract: { type: String, required: true },
+  contract: { type: Object, required: true },
   onChildMounted: { type: Function, required: true },
 });
 const { getters } = useStore();

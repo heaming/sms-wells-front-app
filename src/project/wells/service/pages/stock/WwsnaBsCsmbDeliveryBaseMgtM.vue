@@ -185,7 +185,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
 
   view.getDataSource().setRows(bsCsmbDdlvBases);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {

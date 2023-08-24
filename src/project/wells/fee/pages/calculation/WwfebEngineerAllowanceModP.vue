@@ -99,7 +99,7 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'ogId', header: t('MSG_TXT_CNT_NM'), width: '150', styleName: 'text-left', visible: false },
     { fieldName: 'ogNm', header: t('MSG_TXT_CNT_NM'), width: '150', styleName: 'text-left' },
     { fieldName: 'ogCd', header: t('MSG_TXT_CNT_NM'), width: '150', styleName: 'text-left', visible: false },
-    { fieldName: 'cnrAwCnfmDtm', header: t('MSG_TXT_CNR_CNFM_DTM'), width: '210', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'cnrAwCnfmDtm', header: t('MSG_TXT_CNR_CNFM_DTM'), width: '210', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
     {
       fieldName: 'cnfmBtnYn',
       header: t('MSG_TXT_CNFM_CAN'),

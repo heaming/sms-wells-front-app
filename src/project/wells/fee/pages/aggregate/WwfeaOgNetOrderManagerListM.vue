@@ -24,12 +24,10 @@
         <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_INQR_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.inqrCd"
               @change="onChangeInqrDv"
@@ -147,6 +145,8 @@
               :end-level="3"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -154,6 +154,7 @@
               v-model="searchParams.prtnrNo"
               icon="search"
               clearable
+              :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />
@@ -171,12 +172,10 @@
         <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_INQR_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.inqrCd"
               @change="onChangeInqrDv"
@@ -196,12 +195,10 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
-            required
           >
             <kw-option-group
               v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
-              rules="required"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
             />
@@ -230,6 +227,8 @@
               :end-level="3"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -237,6 +236,7 @@
               v-model="searchParams.prtnrNo"
               icon="search"
               clearable
+              :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />
@@ -254,12 +254,10 @@
         <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_INQR_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.inqrCd"
               @change="onChangeInqrDv"
@@ -267,24 +265,20 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_RSB_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.rsbDvCd"
               :label="$t('MSG_TXT_RSB_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.rsbDvCd"
             />
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
-            required
           >
             <kw-option-group
               v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
-              rules="required"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
             />
@@ -313,6 +307,8 @@
               :end-level="3"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -320,6 +316,7 @@
               v-model="searchParams.prtnrNo"
               icon="search"
               clearable
+              :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />
@@ -486,7 +483,7 @@ let cachedParams;
 
 /*
  *  Event - 조회조건 선택에 변경 param init
- */
+
 async function initSearchParams() {
   totalCount.value = 0;
   isExcelDown.value = false;
@@ -506,7 +503,7 @@ async function initSearchParams() {
   searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM');
   searchParams.value.rsbDvCd = '00';
 }
-
+ */
 /*
  *  Event - 번호 검색 아이콘 클릭 이벤트
  */
@@ -547,13 +544,13 @@ async function onChangeInqrDv() {
       isSelectVisile3.value = false;
       isPerfVisile.value = false;
     }
-    initSearchParams();
+    // initSearchParams();
   } else if (inqrDvCd === '02') {
     isSelectVisile1.value = false;
     isSelectVisile2.value = false;
     isSelectVisile3.value = true;
     isPerfVisile.value = true;
-    initSearchParams();
+    // initSearchParams();
   }
 }
 
@@ -723,9 +720,10 @@ async function onClickExcelDownload() {
   const { inqrDvCd, divCd } = searchParams.value;
   cachedParams = cloneDeep(searchParams.value);
   if (inqrDvCd === '01') {
-    await downloadExcelView1('mngers');
     if (divCd === '04') {
       await downloadExcelView2('mnger-fees');
+    } else {
+      await downloadExcelView1('mngers');
     }
   } else if (inqrDvCd === '02') {
     await downloadExcelView3('mnger-aggregation');
@@ -843,7 +841,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'hcrMshY3', header: t('MSG_TXT_HCR_MSH_Y3'), width: '141.2', styleName: 'text-center' },
     { fieldName: 'fxamYn', header: t('MSG_TXT_FXAM_YN'), width: '83.5', styleName: 'text-center' },
     { fieldName: 'fnnLease', header: t('MSG_TXT_FNN_LEASE'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '83.5', styleName: 'text-right' },
+    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '113.2', styleName: 'text-right' },
     { fieldName: 'nwSellCt', header: t('MSG_TXT_NW_SELL_CT'), width: '83.5', styleName: 'text-right' },
     { fieldName: 'obj', header: `BS${t('MSG_TXT_OBJ')}`, width: '83.5', styleName: 'text-right' },
     { fieldName: 'recommitment', header: t('MSG_TXT_RECOMMITMENT'), width: '113.2', styleName: 'text-center' },
@@ -872,9 +870,7 @@ const initGrd1Main = defineGrid((data, view) => {
 
 const initGrd2Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'og1Lv' },
-    { fieldName: 'og2Lv' },
-    { fieldName: 'og3Lv' },
+    { fieldName: 'ogCd' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'cntrDtlNo' },
@@ -891,9 +887,7 @@ const initGrd2Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'og1Lv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'og2Lv', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
-    { fieldName: 'og3Lv', header: t('MSG_TXT_BRANCH'), width: '120', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },

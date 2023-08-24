@@ -40,6 +40,7 @@
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
+            :maxlength="10"
             rules="required"
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
@@ -56,7 +57,7 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_BASIC_INFO') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -140,7 +141,7 @@
       <kw-action-top>
         <template #left>
           <h3>{{ t('MSG_TXT_SELL_ETC_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-separator
           vertical
@@ -164,7 +165,7 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_FEE_IZ') }}</h3>
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -183,7 +184,7 @@
       <kw-action-top class="mt30">
         <template #left>
           <h3>{{ t('MSG_TXT_DDTN_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -255,7 +256,7 @@
       <kw-action-top>
         <template #left>
           <h3>{{ t('MSG_TXT_PNPYAM_DTLP_IZ') }}</h3>
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           secondary
@@ -420,10 +421,8 @@ async function openAgainDisbursementPopup() {
 async function openZwfedFeeBurdenDeductionRegP() {
   const param = {
     ddtnYm: searchParams.value.perfYm,
-    ogTpCd: 'W01',
-    ogTpCdTxt: 'P조직',
     coCd: '2000',
-    coCdTxt: 'WELLS',
+    ogTpCd: 'W01',
     prtnrNo: searchParams.value.no,
   };
   await modal({
@@ -448,7 +447,7 @@ async function openRedemptionOfFeePopup() {
 }
 
 async function fetchData(type) {
-  const response = await dataService.get(`/sms/wells/fee/individual-fees/plar-${type}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/individual-fees/plar-${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
   totalCount.value = resData.length;
   if (type === 'informations') {

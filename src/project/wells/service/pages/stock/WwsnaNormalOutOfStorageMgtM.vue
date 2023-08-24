@@ -116,7 +116,6 @@
           />
         </template>
         <kw-btn
-          v-permission:download
           dense
           icon="excel"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
@@ -197,7 +196,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   const datasSource = view.getDataSource();
   datasSource.setRows(searchData);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {

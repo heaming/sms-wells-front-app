@@ -98,7 +98,7 @@
 import { defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-import { openReportPopup } from '~/modules/common/utils/cmPopupUtil';
+import { openReportPopup, openReportPopupWithOptions } from '~/modules/common/utils/cmPopupUtil';
 
 const now = dayjs();
 const dataService = useDataService();
@@ -295,7 +295,19 @@ const initGrid = defineGrid((data, view) => {
     const cwpSeq = g.getValue(dataRow, 'giroOcrPblSeqn');
 
     if (column === 'giroOcrPrnt') {
-      openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
+      // openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
+      const options = { directPrint: 'Y' };
+
+      const paramData = {
+        giroOcrPblDtm: cwwDte,
+        giroOcrPblSeqn: cwpSeq,
+      };
+
+      await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print/date', paramData);
+
+      openReportPopupWithOptions('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }), options);
+
+      await fetchData();
     }
     if (column === 'giroOcrRead') {
       openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));

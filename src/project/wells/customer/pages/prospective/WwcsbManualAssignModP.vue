@@ -9,9 +9,8 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품 분류체계 등록/수정 프로그램
+- 고객 >> 가망고객 >> 신규접수 배정관리 >> 담당자 수동배정 등록/수정 프로그램
 ****************************************************************************************************
---TODO LIST
 --->
 
 <template>
@@ -30,7 +29,9 @@
               v-model.trim:model-value="searchParams.prtnrNo"
               :label="t('MSG_TXT_EPNO',null,'사번')"
               maxlength="10"
+              type="number"
               rules="required|numeric"
+              @keydown="onKeydownInput"
             />
             <kw-btn
               :label="t('MSG_TXT_SRCH',null,'조회')"
@@ -62,7 +63,6 @@
           </kw-form-item>
         </kw-form-row>
       </kw-form>
-      <!-- <kw-separator /> -->
     </kw-observer>
 
     <template #action>
@@ -109,12 +109,12 @@ const baseUrl = '/sms/wells/customer/receipts';
 const codes = await codeUtil.getMultiCodes('PSTN_DV_CD');
 
 const props = defineProps({
-  pspcCstCnslId: { type: String, required: true, default: null },
-  ichrPrtnrNo: { type: String, required: false, default: null },
+  pspcCstCnslId: { type: Array, default: () => [], required: true },
+  ichrPrtnrNo: { type: Array, default: () => [], required: true },
 });
 
 const searchParams = ref({
-  prtnrNo: '', // 1076245
+  prtnrNo: '', // 1076245, 1993
 });
 
 const saveParams = ref({
@@ -132,18 +132,17 @@ async function onClickSave() {
   // if (await obsMainRef.value.alertIfIsNotModified()) { return; }
 
   if (isEmpty(prtnrNoInfo.value) || prtnrNoInfo.value.prtnrNo !== searchParams.value.prtnrNo) {
-    // 값이 변경되었습니다. 다시 조회하여 주세요.
-    notify(t('MSG_ALT_VALUE_CHANGED_BE_RESEARCH'));
+    notify(t('MSG_ALT_VALUE_CHANGED_BE_RESEARCH', null, '값이 변경되었습니다. 다시 조회하여 주세요.'));
     isDisableSave.value = true;
     return false;
   }
-  // 기존과 동일한 배정담당자 일경우 Blocking
-  if (props.ichrPrtnrNo === prtnrNoInfo.value.prtnrNo) {
-    notify(t('MSG_ALT_SAME_ASSIGNER', null, '기존과 동일한 배정담당자입니다'));
-    return false;
-  }
 
-  saveParams.value.pspcCstCnslId = props.pspcCstCnslId;
+  // if (props.ichrPrtnrNo.includes(prtnrNoInfo.value.prtnrNo)) {
+  //   notify(t('MSG_ALT_SAME_ASSIGNER2', null, '기존과 동일한 배정담당자가 존재합니다.'));
+  //   return false;
+  // }
+
+  saveParams.value.pspcCstCnslIds = props.pspcCstCnslId;
   saveParams.value.ogTpCd = prtnrNoInfo.value.ogTpCd;
   saveParams.value.prtnrNo = prtnrNoInfo.value.prtnrNo;
   const rtn = await dataService.put(`${baseUrl}/assign`, saveParams.value);
@@ -160,6 +159,14 @@ async function fetchData() {
   const response = await dataService.get(`${baseUrl}/partner/${searchParams.value.prtnrNo}`);
   prtnrNoInfo.value = response.data;
   isDisableSave.value = isEmpty(response.data);
+}
+
+async function onKeydownInput(e, field) {
+  if (e.key === 'Enter'
+    && !isEmpty(searchParams.value.prtnrNo)) {
+    await fetchData();
+    console.log(e, field);
+  }
 }
 
 onMounted(async () => { });

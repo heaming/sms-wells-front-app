@@ -213,6 +213,9 @@ async function getInvalidRef() {
   if (cardAftnRef.value.ref && !await cardAftnRef.value.validate()) {
     return cardAftnRef.value.ref;
   }
+  if (acAftnRef.value.ref && !await acAftnRef.value.validate()) {
+    return acAftnRef.value.ref;
+  }
   if (vacIssueRef.value.ref && !await vacIssueRef.value.validate()) {
     return vacIssueRef.value.ref;
   }

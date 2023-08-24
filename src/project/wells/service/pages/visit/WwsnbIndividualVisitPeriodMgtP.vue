@@ -390,6 +390,7 @@ async function onClickBSAssign() {
 
   await dataService.post('/sms/wells/service/individual-visit-prds/bs-assigns', processParam.value);
   notify(t('MSG_ALT_SAVE_DATA'));
+  await getCustomerVisitPeriod();
 }
 
 /*
@@ -416,6 +417,7 @@ async function onClickBsCarriedForward() {
 
   await dataService.post('/sms/wells/service/individual-visit-prds/carried-forwards', processParam.value);
   notify(t('MSG_ALT_SAVE_DATA'));
+  await getCustomerVisitPeriod();
 }
 
 /*
@@ -442,6 +444,7 @@ async function onClickBSDelete() {
 
   await dataService.delete('/sms/wells/service/individual-visit-prds/bs-deletes', { params: { ...processParam.value } });
   notify(t('MSG_ALT_DELETED'));
+  await getCustomerVisitPeriod();
 }
 
 /*
@@ -468,6 +471,7 @@ async function onClickBSForceAssign() {
 
   await dataService.post('/sms/wells/service/individual-visit-prds/bs-force-assigns', processParam.value);
   notify(t('MSG_ALT_SAVE_DATA'));
+  await getCustomerVisitPeriod();
 }
 
 /*
@@ -488,6 +492,7 @@ async function onClickVisitPeriodDelete() {
 
   await dataService.delete('/sms/wells/service/individual-visit-prds/visit-period-deletes', { params: { ...processParam.value } });
   notify(t('MSG_ALT_DELETED'));
+  await getCustomerVisitPeriod();
 }
 
 /*
@@ -508,6 +513,7 @@ async function onClickVisitPeriodRegen() {
 
   await dataService.post('/sms/wells/service/individual-visit-prds/visit-period-regens', processParam.value);
   notify(t('MSG_ALT_SAVE_DATA'));
+  await getCustomerVisitPeriod();
 }
 
 /*
@@ -516,6 +522,21 @@ async function onClickVisitPeriodRegen() {
 async function onChangeAsnOjYm() {
   // 배정년월 변경 시 이월대상에 자동 세팅
   processParam.value.carriedForwardYmd = `${processParam.value.asnOjYm}01`;
+}
+
+/*
+ * Event - Grid1 Cell Double Click Event
+ */
+function onCellDblClickedGrid1(grid, clickData) {
+  if (clickData.column !== 'vstDuedt') {
+    return;
+  }
+  const dummyDate = grid.getDataSource().getValue(clickData.dataRow, clickData.column);
+  if (isEmpty(dummyDate) || dummyDate.length < 8) {
+    return;
+  }
+  processParam.value.baseYmd = `${dummyDate.substr(0, 6)}01`;
+  processParam.value.asnOjYm = dummyDate.substr(0, 6);
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -559,19 +580,11 @@ const initGrid1 = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  data.setRows([
-    { vstNmnN: '3', istNmnN: '3', vstDuedt: '20140703', svBizDclsfCd: '정기점검', filtChngLvCd: '01', pdNm: '복합프리 <PK2 42000-1' },
-    { vstNmnN: '3', istNmnN: '', vstDuedt: '', svBizDclsfCd: '정기점검', filtChngLvCd: '00', pdNm: '복합프리 <PK2 42000-1' },
-    { vstNmnN: '3', istNmnN: '3', vstDuedt: '20140703', svBizDclsfCd: '정기점검', filtChngLvCd: '0', pdNm: '복합프리 <PK2 42000-1' },
-    { vstNmnN: '3', istNmnN: '3', vstDuedt: '20140703', svBizDclsfCd: '정기점검', filtChngLvCd: '01', pdNm: '복합프리 <PK2 42000-1' },
-    { vstNmnN: '3', istNmnN: '3', vstDuedt: '20140703', svBizDclsfCd: '정기점검', filtChngLvCd: '01', pdNm: '복합프리 <PK2 42000-1' },
-    { vstNmnN: '3', istNmnN: '3', vstDuedt: '20140703', svBizDclsfCd: '정기점검', filtChngLvCd: '01', pdNm: '복합프리 <PK2 42000-1' },
-    { vstNmnN: '3', istNmnN: '3', vstDuedt: '20140703', svBizDclsfCd: '정기점검', filtChngLvCd: '01', pdNm: '복합프리 <PK2 42000-1' },
-    { vstNmnN: '3', istNmnN: '3', vstDuedt: '20140703', svBizDclsfCd: '정기점검', filtChngLvCd: '01', pdNm: '복합프리 <PK2 42000-1' },
-    { vstNmnN: '3', istNmnN: '3', vstDuedt: '20140703', svBizDclsfCd: '정기점검', filtChngLvCd: '01', pdNm: '복합프리 <PK2 42000-1' },
-    { vstNmnN: '3', istNmnN: '3', vstDuedt: '20140703', svBizDclsfCd: '정기점검', filtChngLvCd: '01', pdNm: '복합프리 <PK2 42000-1' },
 
-  ]);
+  // Grid Double Click Event
+  view.onCellDblClicked = ((grid, clickData) => {
+    onCellDblClickedGrid1(grid, clickData);
+  });
 });
 
 const initGrid2 = defineGrid((data, view) => {

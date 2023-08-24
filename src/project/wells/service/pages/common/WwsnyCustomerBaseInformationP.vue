@@ -15,6 +15,7 @@
 <template>
   <kw-popup size="3xl">
     <kw-search
+      ref="frmMainRef"
       :cols="4"
       @search="onClickSearch"
     >
@@ -33,6 +34,7 @@
             v-model="searchParams.cntrDtlNo"
             :placeholder="`${$t('MSG_TXT_CNTR_NO')}-${$t('MSG_TXT_CNTR_SN')}`"
             :mask="cntrDtlNoMask"
+            :rules="validateCntrDtlNo"
           />
         </kw-search-item>
         <kw-search-item
@@ -136,6 +138,7 @@ const dataService = useDataService();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
+const frmMainRef = ref(getComponentType('KwObserver'));
 const grdMainRef = ref(getComponentType('KwGrid'));
 const pageInfo = ref({
   totalCount: 0,
@@ -191,6 +194,18 @@ const returnValues = ref({
 
 const cntrDtlNoMask = computed(() => (searchParams.value.cntrDtlNo.length === 12 ? 'A#############' : 'A###########-#####'));
 
+const validateCntrDtlNo = async () => {
+  const errors = [];
+
+  if (searchParams.value.cntrDtlNo) {
+    if (searchParams.value.cntrDtlNo.length <= 12) {
+      errors.push(t('MSG_ALT_CNTR_DTL_NO_CONF'));
+    }
+  }
+
+  return errors[0] || true;
+};
+
 let cachedParams;
 async function fetchData() {
   if (searchParams.value.cstNm === '' && searchParams.value.bzrno === '' && searchParams.value.bcNo === ''
@@ -206,7 +221,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
 
   view.getDataSource().setRows(customerBases);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
   if (pageInfo.value.totalCount === 1) {
     ok(view.getValues(0));
@@ -214,6 +229,8 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  if (!await frmMainRef.value.validate()) { return; }
+
   if (searchParams.value.cstNm === '' && searchParams.value.bzrno === '' && searchParams.value.bcNo === ''
   && searchParams.value.mpNo === '' && searchParams.value.telNo === '' && searchParams.value.cntrDtlNo === '') {
     notify(t('MSG_ALT_MNDT_IN_CNDT'));
@@ -225,6 +242,9 @@ async function onClickSearch() {
   if (searchParams.value.cntrDtlNo !== '') {
     searchParams.value.cntrNo = searchParams.value.cntrDtlNo.substring(0, 12);
     searchParams.value.cntrSn = searchParams.value.cntrDtlNo.substring(12);
+  } else {
+    searchParams.value.cntrNo = '';
+    searchParams.value.cntrSn = '';
   }
 
   if (searchParams.value.mpNo !== '') {

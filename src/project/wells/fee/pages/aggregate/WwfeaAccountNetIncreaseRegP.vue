@@ -27,6 +27,13 @@
           <p>{{ params.perfYm.substring(0,4)+'-'+params.perfYm.substring(4) }}</p>
         </kw-form-item>
       </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="$t('MSG_TXT_ORDR')"
+        >
+          <p>{{ params.feeTcntDvCdTxt }}</p>
+        </kw-form-item>
+      </kw-form-row>
     </kw-form>
     <template #action>
       <kw-btn
@@ -47,12 +54,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal } from 'kw-lib';
+import { codeUtil, useDataService, useGlobal, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 
 const { cancel, ok } = useModal();
 const { t } = useI18n();
-const { confirm, alert } = useGlobal();
+// const { confirm, alert } = useGlobal();
+const { confirm } = useGlobal();
 const dataService = useDataService();
 const props = defineProps({
   perfYm: { // 실적년월
@@ -65,6 +73,10 @@ const props = defineProps({
   },
 });
 
+const codes = await codeUtil.getMultiCodes(
+  'FEE_TCNT_DV_CD',
+);
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -72,6 +84,7 @@ const defaltDay = dayjs().add(-1, 'month').format('YYYYMM');
 const params = ref({
   perfYm: props.perfYm,
   feeTcntDvCd: props.feeTcntDvCd,
+  feeTcntDvCdTxt: codes.FEE_TCNT_DV_CD.find((v) => v.codeId === props.feeTcntDvCd).codeName,
 });
 
 async function onClickCancel() {
@@ -79,10 +92,13 @@ async function onClickCancel() {
 }
 
 async function onClickSave() {
+  console.log(defaltDay);
+  /*
   if (defaltDay !== params.value.perfYm) {
     alert('집계가 가능한 실적년월이 아닙니다.');
     return;
   }
+  */
 
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
   const response = await dataService.post('/sms/wells/fee/account-net-increase/aggregates', params.value);

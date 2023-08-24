@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaStockMasterRenewalMgtM - 재고마스터갱신
+ 2. 프로그램 ID : WwsnaStockMasterRenewalMgtM - 재고마스터갱신(W-SV-U-0279M01)
  3. 작성자 : hyewon.kim
  4. 작성일 : 2023.03.13
  ****************************************************************************************************
@@ -118,7 +118,7 @@ const searchParams = ref({
 async function onClickRenewal() {
   if (!await frmMainRef.value.validate()) return;
 
-  await dataService.put('/sms/wells/service/stock-master-renewal', searchParams.value);
+  await dataService.put('/sms/wells/service/stock-master-renewal', searchParams.value, { timeout: 3000000 });
 
   notify(t('MSG_ALT_RENEW_DATA'));
 }

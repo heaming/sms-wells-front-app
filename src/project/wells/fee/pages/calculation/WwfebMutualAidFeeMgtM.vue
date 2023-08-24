@@ -14,7 +14,10 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      :cols="3"
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
@@ -86,7 +89,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info :total-count="totalCount" />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
 
         <kw-btn
@@ -106,14 +109,12 @@
           :label="$t('MSG_BTN_FEE_CRT')"
           primary
           dense
-          :disable="(totalCount === 0)"
           @click="onClickCreate"
         />
         <kw-btn
           :label="$t('MSG_BTN_REDF_FEE_CRT')"
           primary
           dense
-          :disable="(totalCount === 0)"
           @click="onClickReCreate"
         />
       </kw-action-top>
@@ -142,7 +143,7 @@ import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSe
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
-const { modal, alert } = useGlobal();
+const { modal, alert, notify } = useGlobal();
 const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
@@ -187,9 +188,12 @@ async function onClickSearch() {
 // 엑셀 다운로드 버튼
 async function onClickExcelDownload() {
   const view = grdType.value === 'A' ? grdRefA.value.getView() : grdRefB.value.getView();
+  const fixApi = cachedParams.type === 'A' ? 'individual' : 'group';
+  const { data } = await dataService.get(`/sms/wells/fee/mutual-aid/${fixApi}`, { params: { ...cachedParams } });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: data,
   });
 }
 // 수수료 생성 버튼
@@ -197,6 +201,10 @@ async function onClickCreate() {
   const view = grdType.value === 'A' ? grdRefA.value.getView() : grdRefB.value.getView();
   const allRows = gridUtil.getAllRowValues(view, false);
 
+  if (allRows.length === 0) {
+    notify(t('MSG_ALT_USE_DT_SRCH_AF'));
+    return;
+  }
   if (allRows.some((row) => row.cnfmYn === 'Y')) {
     // 이미 확정되어 수수료 생성이 불가합니다.
     await alert(t('MSG_ALT_BF_CNFM_CONF_FEE'));
@@ -218,7 +226,10 @@ async function onClickCreate() {
 async function onClickReCreate() {
   const view = grdType.value === 'A' ? grdRefA.value.getView() : grdRefB.value.getView();
   const allRows = gridUtil.getAllRowValues(view, false);
-
+  if (allRows.length === 0) {
+    notify(t('MSG_ALT_USE_DT_SRCH_AF'));
+    return;
+  }
   if (allRows.some((row) => row.cnfmYn === 'Y')) {
     // 이미 확정되어 수수료 생성이 불가합니다.
     await alert(t('MSG_ALT_BF_CNFM_CONF_FEE'));
@@ -240,12 +251,12 @@ async function onClickReCreate() {
 const initGrdMainA = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'baseYm', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '103.8', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'cntrStat', header: t('MSG_TXT_CLASFCTN_FEE'), width: '110.8', styleName: 'text-left' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '110.8', styleName: 'text-left' },
-    { fieldName: 'PrtnrNo', header: t('MSG_TXT_SELLER_NO'), width: '110.8', styleName: 'text-left' },
-    { fieldName: 'PrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-left' },
+    { fieldName: 'cntrStat', header: t('MSG_TXT_CLASFCTN_FEE'), width: '110.8', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '110.8', styleName: 'text-center' },
+    { fieldName: 'PrtnrNo', header: t('MSG_TXT_SELLER_NO'), width: '110.8', styleName: 'text-center' },
+    { fieldName: 'PrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '110.8', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR_NO'), width: '110.8', styleName: 'text-left' },
+    { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR_NO'), width: '110.8', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '137.6', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '230.7', styleName: 'text-left' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_INST_DT'), width: '110.8', styleName: 'text-center', datetimeFormat: 'date' },
@@ -278,10 +289,10 @@ const initGrdMainB = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cnfmYn', visible: false },
     { fieldName: 'baseYm', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '103.8', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'cntrStat', header: t('MSG_TXT_CLASFCTN_FEE'), width: '110.8', styleName: 'text-left' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '110.8', styleName: 'text-left' },
-    { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR_NO'), width: '110.8', styleName: 'text-left' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-left' },
+    { fieldName: 'cntrStat', header: t('MSG_TXT_CLASFCTN_FEE'), width: '110.8', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '110.8', styleName: 'text-center' },
+    { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR_NO'), width: '110.8', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '110.8', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'brchCt', header: t('MSG_TXT_COUNT'), width: '110.8', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'brchAmt', header: t('MSG_TXT_AMT'), width: '126.7', styleName: 'text-right', dataType: 'number' },

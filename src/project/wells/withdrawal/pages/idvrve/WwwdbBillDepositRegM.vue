@@ -99,14 +99,14 @@
           dense
           secondary
           :label="t('MSG_BTN_DP_SLIP')"
-          @click="onClickTest"
+          @click="onClickDeposit"
         />
         <!-- label="입금전표" -->
         <kw-btn
           dense
           secondary
           :label="t('MSG_BTN_RPLC_SLIP')"
-          @click="onClickTest"
+          @click="onClickReplacementSlipProcessing"
         />
         <!-- label="대체전표" -->
         <kw-separator
@@ -189,7 +189,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, modal, useDataService, useMeta, notify } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, modal, useDataService, useMeta, notify, confirm, alert } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -421,10 +421,110 @@ async function onClickSave() {
   // await onClickSubSearch(changedRows[0]);
 }
 
-// 대상조회
-async function onClickTest() {
-  notify(t('MSG_ALT_DEVELOPING')); // 기능개발중입니다.
+// 입금전표 생성
+async function onClickDeposit() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getCheckedRowValues(view);
+
+  if (changedRows.length === 0) {
+    await alert('데이터를 선택해주세요.');
+    return false;
+  }
+
+  let errorCount = 0;
+  let duplicateCheck = 0;
+
+  changedRows.forEach((p1) => {
+    if (changedRows[0].billBndNo !== p1.billBndNo) {
+      errorCount += 1;
+      return false;
+    }
+
+    if (!isEmpty(p1.billDpSapSlpno)) {
+      duplicateCheck += 1;
+      return false;
+    }
+
+    p1.sort = 'deposit';
+  });
+
+  if (errorCount > 0) {
+    alert('전표 생성의 경우 동일한 채권번호만 가능합니다.');
+    return false;
+  }
+
+  if (duplicateCheck > 0) {
+    alert('이미 전표처리가 된 데이터가 존재합니다.');
+    return false;
+  }
+
+  if (!await confirm('입금전표 생성 하시겠습니까?')) {
+    return false;
+  }
+
+  const cachedParam = changedRows;
+
+  await dataService.post('/sms/wells/withdrawal/idvrve/bill-deposits/deposit-processing', cachedParam);
+
+  await fetchData();
 }
+
+// 대체전표 생성
+async function onClickReplacementSlipProcessing() {
+  const view = grdMainRef.value.getView();
+  const changedRows = gridUtil.getCheckedRowValues(view);
+
+  if (changedRows.length === 0) {
+    await alert('데이터를 선택해주세요.');
+    return false;
+  }
+
+  let errorCount = 0;
+  let duplicateCheck = 0;
+  let duplicateCheck2 = 0;
+  changedRows.forEach((p1) => {
+    if (changedRows[0].billBndNo !== p1.billBndNo) {
+      errorCount += 1;
+      return false;
+    }
+    if (isEmpty(p1.billDpSapSlpno)) {
+      duplicateCheck += 1;
+      return false;
+    }
+    if (!isEmpty(p1.billRplcSapSlpno)) {
+      duplicateCheck2 += 1;
+      return false;
+    }
+  });
+
+  if (errorCount > 0) {
+    alert('전표 생성의 경우 동일한 채권번호만 가능합니다.');
+    return false;
+  }
+  if (duplicateCheck > 0) {
+    alert('입금전표 생성이 안된 데이터 입니다.');
+    return false;
+  }
+  if (duplicateCheck2 > 0) {
+    alert('이미 전표처리가 된 데이터가 존재합니다.');
+    return false;
+  }
+
+  if (!await confirm('대체전표 생성 하시겠습니까?')) {
+    return false;
+  }
+
+  const cachedParam = changedRows;
+
+  await dataService.post('/sms/wells/withdrawal/idvrve/bill-deposits/deposit-processing', cachedParam);
+
+  await fetchData();
+}
+
+// 대상조회
+// async function onClickTest() {
+//   notify(t('MSG_ALT_DEVELOPING')); // 기능개발중입니다.
+// }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -433,6 +533,7 @@ const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNo' }, /* 계약번호 */
     { fieldName: 'cntrSn' }, /* 계약일련번호 */
+    { fieldName: 'cntrCstNo' }, /* 고객번호 */
     { fieldName: 'cntrDtlNo' }, /* 계약상세번호 */
     { fieldName: 'mconBzsNm' }, /* 거래처명 */
     { fieldName: 'billRmkCn' }, /* 어음구분 */
@@ -444,13 +545,40 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'billExprDt' }, /* 만기일자 */
     { fieldName: 'cntrCount' }, /* 계약수 */
     { fieldName: 'itgDpNo' }, /* 통합입금번호 */
-    { fieldName: 'col3' },
+    { fieldName: 'billDpSapSlpno' },
+    { fieldName: 'billRplcSapSlpno' },
     { fieldName: 'sellBzsBzrno' }, /* 판매업체사업자번호 */
     { fieldName: 'pblBzsBzrno' }, /* 발행업체사업자번호 */
+    { fieldName: 'sort' }, /* 종류 */
 
   ];
 
   const columns = [
+    { fieldName: 'billBndNo',
+      header: t('MSG_TXT_BND_NO'),
+      // , header: '채권번호'
+      width: '198',
+      styleName: 'rg-button-link text-left',
+      renderer: { type: 'button' },
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'mconBzsNm',
+      header: '거래처명',
+      width: '125',
+      styleName: 'text-center',
+      mergeRule: {
+        criteria: 'value',
+      },
+    },
+    { fieldName: 'billRmkCn',
+      header: t('MSG_TXT_BILL_DV'),
+      // , header: '어음구분'
+      width: '150',
+      mergeRule: {
+        criteria: 'value',
+      } },
     { fieldName: 'cntrDtlNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       // , header: '계약상세번호'
@@ -461,15 +589,6 @@ const initGrid = defineGrid((data, view) => {
         return `${cntrNo}-${cntrSn}`;
       },
     },
-    { fieldName: 'mconBzsNm',
-      header: '거래처명',
-      width: '125',
-      styleName: 'rg-button-link text-center',
-      renderer: { type: 'button' } },
-    { fieldName: 'billRmkCn',
-      header: t('MSG_TXT_BILL_DV'),
-      // , header: '어음구분'
-      width: '150' },
     { fieldName: 'billDpAmt',
     // , header: '입금액'
       header: t('MSG_TXT_DP_AMT'),
@@ -490,11 +609,7 @@ const initGrid = defineGrid((data, view) => {
       displayCallback(grid, index, value) {
         return !isEmpty(value) ? `${value.substring(0, 3)}-${value.substring(3, 5)}-${value.substring(5, 10)}` : value;
       } },
-    { fieldName: 'billBndNo',
-      header: t('MSG_TXT_BND_NO'),
-      // , header: '채권번호'
-      width: '198',
-      styleName: 'text-left' },
+
     { fieldName: 'billBndAmt',
       header: t('MSG_TXT_BND_AMT'),
       // , header: '채권금액'
@@ -517,12 +632,12 @@ const initGrid = defineGrid((data, view) => {
       // , header: '통합입금번호'
       width: '116',
       styleName: 'text-center' },
-    { fieldName: 'col3',
+    { fieldName: 'billDpSapSlpno',
       header: t('MSG_TXT_DP_SLIP_NO'),
       // , header: '입금전표번호'
       width: '116',
       styleName: 'text-left' },
-    { fieldName: 'col3',
+    { fieldName: 'billRplcSapSlpno',
       header: t('MSG_TXT_RPLC_SLIP_NO'),
       // , header: '대체전표번호'
       width: '116',
@@ -541,9 +656,11 @@ const initGrid = defineGrid((data, view) => {
     const checkState = grid.isCheckedItem(itemIndex);
     const itgDpNo = grid.getValue(itemIndex, 'itgDpNo');
     const cntrNo = grid.getValue(itemIndex, 'cntrNo');
+    const cntrSn = grid.getValue(itemIndex, 'cntrSn');
     const paramData = {
       itgDpNo,
       cntrNo,
+      cntrSn,
     };
     if (checkState === true) {
       onClickSubSearch(paramData);
@@ -560,9 +677,10 @@ const initGrid = defineGrid((data, view) => {
   // };
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'mconBzsNm') {
+    if (column === 'billBndNo') {
       const { itgDpNo, cntrNo, bzrno, mconBzsNm,
-        billBndNo, billRmkCn, billRcpDt, billExprDt, billDpAmt, sellBzsBzrno, pblBzsBzrno } = g.getValues(itemIndex);
+        billBndNo, billRmkCn, billRcpDt, billExprDt, billDpAmt, sellBzsBzrno, pblBzsBzrno,
+        billBndAmt } = g.getValues(itemIndex);
 
       const paramData = {
         itgDpNo,
@@ -576,6 +694,7 @@ const initGrid = defineGrid((data, view) => {
         billRcpDt,
         billExprDt,
         billDpAmt,
+        billBndAmt,
       };
       const { result } = await modal({
         component: 'WwwdbBillDepositRegP',
@@ -611,7 +730,8 @@ const initGrid2 = defineGrid((data, view) => {
       // , header: '통합입금번호'
       width: '126',
       styleName: 'text-center',
-      editable: false },
+      editable: false,
+    },
     { fieldName: 'rveCd',
       header: t('MSG_TXT_RVE_CD'),
       // , header: '수납코드'

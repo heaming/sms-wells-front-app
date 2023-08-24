@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -168,6 +169,9 @@
           <kw-paging-info
             :total-count="totalCount"
           />
+          <span class="ml8">
+            ({{ t('MSG_TXT_UNIT') }} : EA)
+          </span>
         </template>
 
         <kw-btn
@@ -414,6 +418,13 @@ async function onClickSave() {
     return;
   }
 
+  const validRows = checkedRows.filter((item) => item.lgstTrsYn === 'Y');
+  if (!isEmpty(validRows)) {
+    // 물류 이관된 데이터는 저장할 수 없습니다.
+    await alert(t('MSG_ALT_LGST_TF_SAVE_IMP'));
+    return;
+  }
+
   if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
 
   // 출고일자
@@ -518,7 +529,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'lgstTrsYn', header: `${t('MSG_TXT_LGST')}${t('MSG_TXT_TF_YN')}`, width: '100', styleName: 'text-center' },
-    { fieldName: 'strWareNo', header: t('MSG_TXT_WARE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'strWareNo', header: t('MSG_TXT_WARE_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '210', styleName: 'text-left' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '130', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },

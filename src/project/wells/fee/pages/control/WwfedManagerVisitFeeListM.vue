@@ -19,7 +19,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
-          :colspan="2"
         >
           <kw-date-picker
             v-model="searchParams.baseYm"
@@ -38,6 +37,19 @@
             rules="required"
           />
         </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+        >
+          <kw-input
+            v-model="searchParams.prtnrNo"
+            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            icon="search"
+            :maxlength="10"
+            :regex="/^[0-9]*$/i"
+            clearable
+            :on-click-icon="onClickSearchNo"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
@@ -54,17 +66,6 @@
             :end-level="3"
           />
         </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-        >
-          <kw-input
-            v-model="searchParams.prtnrNo"
-            :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            icon="search"
-            clearable
-            :on-click-icon="onClickSearchNo"
-          />
-        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -75,7 +76,6 @@
             :total-count="totalCount"
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
-          <span class="kw-fc--error ml8">* 엑셀 다운로드는 조회내역 전체를 내려받습니다.</span>
         </template>
         <kw-btn
           icon="download_on"
@@ -100,7 +100,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, codeUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
@@ -138,6 +138,9 @@ const props = defineProps({
 // ------------------------------------------------------------------------------------------------
 const totalCount = ref(0);
 const grdVisitFeeRef = ref(getComponentType('KwGrid'));
+const codes = await codeUtil.getMultiCodes(
+  'SV_FEE_PD_DV_CD',
+);
 const inqrDv = [
   { codeId: '01', codeName: t('MSG_TXT_MANAGEMENT_DEPARTMENT') },
   { codeId: '02', codeName: t('MSG_TXT_RGNL_GRP') },
@@ -170,7 +173,7 @@ async function onClickSearchNo() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value, timeout: 200000 });
+  const res = await dataService.get('/sms/wells/fee/manager-visit-fees', { params: searchParams.value, timeout: 400000 });
 
   totalCount.value = res.data.length;
 
@@ -211,7 +214,7 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'cntrNo', header: t('MSG_TXT_CST_CD'), width: '106', styleName: 'text-center' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'svFeePdDvNm', header: t('MSG_TXT_BS') + t('MSG_TXT_PDGRP'), width: '112', styleName: 'text-center' },
+    { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS') + t('MSG_TXT_PDGRP'), width: '112', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD },
     { fieldName: 'svFeeBaseAmt', header: t('MSG_TXT_BAS_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'feeCalcAmt', header: t('MSG_TXT_VST_FEE'), width: '122', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'vstRglvlGdNm', header: t('MSG_TXT_VST_RGLVL'), width: '106', styleName: 'text-center' },

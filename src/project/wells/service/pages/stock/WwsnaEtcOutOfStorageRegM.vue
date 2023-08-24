@@ -29,6 +29,8 @@
               v-model="searchParams.ostrWareNo"
               :options="warehouses"
               :readonly="isPropsNullChk()"
+              :label="$t('MSG_TXT_OSTR_WARE')"
+              rules="required"
             />
           </kw-form-item>
           <!-- 출고일자 -->
@@ -39,17 +41,22 @@
             <kw-date-picker
               v-model="searchParams.ostrDt"
               :readonly="isPropsNullChk()"
+              :label="$t('MSG_TXT_OSTR_DT')"
+              rules="required"
             />
           </kw-form-item>
           <!-- //TODO: 청구부서 조직데이터 생성시 변경예정 -->
           <kw-form-item
             :label="$t('MSG_TXT_BIL_DEPARTMENT')"
+            required
           >
             <kw-select
               v-model="searchParams.bilDept"
               :options="strDept"
               :readonly="isPropsNullChk()"
-              first-option="all"
+              first-option="select"
+              :label="$t('MSG_TXT_BIL_DEPARTMENT')"
+              rules="required"
             />
           </kw-form-item>
         </kw-form-row>
@@ -69,11 +76,7 @@
           class="w80"
           @click="onClickDelete"
         />
-        <kw-separator
-          spaced
-          vertical
-          inset
-        />
+
         <kw-separator
           spaced
           vertical
@@ -83,7 +86,7 @@
         <kw-select
           v-model="etcInfo.pdGdCd"
           dense
-          :options="codes.PD_GD_CD"
+          :options="filterCodes.pdGdCd"
           :disable="canEdit()"
           class="w200"
         />
@@ -101,6 +104,8 @@
           dense
           class="w150"
           :disable="canEdit()"
+          :label="$t('MSG_TXT_OSTR_QTY')"
+          rules="min_value:1|max_value:999999999999"
           :placeholder="$t('MSG_TXT_OSTR_QUANTITY_INPUT')"
         />
         <!-- 비고입력 -->
@@ -120,6 +125,11 @@
           :disable="canEdit()"
           @click="onClickAllSet"
         />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
         <!-- 품목추가버튼 -->
         <kw-btn
           dense
@@ -134,11 +144,6 @@
           inset
         />
 
-        <kw-separator
-          spaced
-          vertical
-          inset
-        />
         <!-- 등록버튼 -->
         <kw-btn
           dense
@@ -175,8 +180,7 @@ const { getWarehouseCloseCheck } = useSnCode();
 const { getMonthWarehouse } = useSnCode();
 
 const { t } = useI18n();
-const dataService = useDataService();
-// const { getConfig } = useMeta();
+const dataService = useDataService();// const { getConfig } = useMeta();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { alert, notify, modal } = useGlobal();
 const store = useStore();
@@ -238,6 +242,14 @@ const etcInfo = ref({
   bilRsonCd: '',
 });
 
+const filterCodes = ref({
+  pdGdCd: [],
+});
+
+function codeFilter() {
+  filterCodes.value.pdGdCd = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R'].includes(v.codeId));
+}
+
 const strDept = ref();
 
 const totalCount = ref(0);
@@ -258,7 +270,7 @@ function setSearchParams() {
 
   searchParams.value.ostrTpCd = ostrTpCd;
   searchParams.value.ostrDt = ostrDt;
-  searchParams.value.ostrWareno = ostrWareNo;
+  searchParams.value.ostrWareNo = ostrWareNo;
   searchParams.value.bilDept = bilDept;
   searchParams.value.itmOstrNo = itmOstrNo;
 }
@@ -280,12 +292,8 @@ function validateIsApplyRowExists() {
 }
 // 그리드 출고수량 체크
 function validateSaveRowData() {
-  const reqOstrDt = searchParams.value.ostrDt;
-  const reqOjWareNo = searchParams.value.ostrWareNo;
   const reqbilDept = searchParams.value.bilDept;
-  console.log(reqOstrDt);
-  console.log(reqOjWareNo);
-  console.log(reqbilDept);
+
   if (isEmpty(reqbilDept)) {
     alert(t('MSG_ALT_BIL_DEPT_CHO'));
     return false;
@@ -313,6 +321,11 @@ function validateSaveRowData() {
       alert(t('MSG_ALT_BIL_RSON_ATC_NULL_CONF'));
       return false;
     }
+    if (chkRows[i].ostrQty <= 0) {
+      // 출고수량은 0보다 커야합니다.
+      alert(t('MSG_ALT_OSTR_QTY_ZERO_BE_BIG'));
+      return false;
+    }
     if (chkRows[i].onQty < chkRows[i].ostrQty) {
       // 출고수량이 재고수량을 초과합니다.
       alert(t('MSG_ALT_OSTR_QTY_EXCEEDS_INVEN_QTY'));
@@ -335,7 +348,7 @@ function isPropsNullChk() {
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/etc-out-of-storages', { params: cachedParams });
-  console.log(res);
+
   const baseData = res.data;
   totalCount.value = res.data.length;
   const view = grdMainRef.value.getView();
@@ -350,7 +363,9 @@ async function fetchDefaultData() {
   const { userId } = wharehouseParams.value;
 
   warehouses.value = await getMonthWarehouse(userId, apyYm);
-  searchParams.value.ostrWareNo = warehouses.value[0].codeId;
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.ostrWareNo = warehouses.value[0].codeId;
+  }
 
   const res = await dataService.get('/sms/wells/service/etc-out-of-storages/dept');
   strDept.value = res.data;
@@ -361,21 +376,12 @@ async function onClickSave() {
 
   // 저장시 데이터정합성 체크
   if (!validateSaveRowData()) return;
-
   const view = grdMainRef.value.getView();
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
+
   const chkRows = gridUtil.getCheckedRowValues(view);
 
-  console.log(chkRows);
-
   const params = searchParams.value;
-
-  // console.log(strOjWareNo);
-  // console.log(ostrDt);
-  console.log(cachedParams);
-  console.log(params);
-
-  // await dataService.post(`/sms/wells/service//${strOjWareNo}/${ostrDt}/out-of`, chkRows);
-
   await dataService.post('/sms/wells/service/etc-out-of-storages', chkRows.map((v) => ({ ...v, ...params })));
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -402,17 +408,14 @@ async function onClickDelete() {
   const chkOjWareNo = searchParams.value.ostrWareNo;
   // 출고창고마감내역 공통추가 처리
   const checkWarehouse = await getWarehouseCloseCheck(chkOstrDt, chkOjWareNo);
-  console.log(checkWarehouse);
 
   if (!checkWarehouse) {
-    alert(t('MSG_ALT_DATE_EDIT_OUT_PUT'));
+    await alert(t('MSG_ALT_DATE_EDIT_OUT_PUT'));
     return;
   }
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   setTotalCount();
-
-  console.log(deletedRows);
 
   if (deletedRows.length > 0) {
     await dataService.delete('/sms/wells/service/etc-out-of-storages', { data: deletedRows });
@@ -489,6 +492,7 @@ function setCellEditableFalse() {
 }
 
 onMounted(async () => {
+  codeFilter();
   await fetchDefaultData();
   if (isPropsNullChk()) {
     setSearchParams();
@@ -561,25 +565,22 @@ const initGrdMain = defineGrid((data, view) => {
       styleCallback: setCellEditableFalse,
     },
     { fieldName: 'ostrQty',
-      header: {
-        text: t('MSG_TXT_OSTR_QTY'),
-        styleName: 'essential',
-        editor: {
-          type: 'input',
-        },
-      },
+      header: t('MSG_TXT_OSTR_QTY'),
+      editor: {
+        type: 'number',
+        editable: true },
+      rules: 'required|min_value:1|max_value:999999999999',
       editable: true,
       width: '110',
-      styleName: 'text-center',
+      styleName: 'text-right',
       styleCallback: setCellEditableFalse,
     },
     { fieldName: 'rmkCn',
-      header: {
-        text: t('MSG_TXT_NOTE'),
-      },
+      header: t('MSG_TXT_NOTE'),
+      rules: 'max:4000',
       editable: true,
       width: '264',
-      styleName: 'text-center',
+      styleName: 'text-left',
       styleCallback: setCellEditableFalse,
     },
 

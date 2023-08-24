@@ -47,7 +47,7 @@
         <kw-select
           v-model="searchParams.searchType"
           dense
-          class="ml12 w98"
+          class="ml12 w120"
           :options="materialSelectItems"
         />
         <kw-input
@@ -231,24 +231,26 @@ async function onClickLifeFiltMgt() {
 
 async function getCheckAndNotExistRows(view, rows) {
   const alreadyItems = getAlreadyItems(view, rows, 'partPdCd');
-  if (rows.length === alreadyItems.length) {
-    notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
-    return [];
-  }
+  // if (rows.length === alreadyItems.length) {
+  //   notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
+  //   return [];
+  // }
   if (alreadyItems.length > 0) {
-    if (alreadyItems.length === 1) {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [`# ${alreadyItems[0].partPdNm} #`]));
-    } else {
-      notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [`# ${alreadyItems[0].partPdNm} #`, alreadyItems.length - 1])]));
-    }
-    const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.partPdCd); return rtns; }, []);
+    // if (alreadyItems.length === 1) {
+    //   notify(t('MSG_ALT_ALREADY_RGST_CUT', [`# ${alreadyItems[0].partPdNm} #`]));
+    // } else {
+    // eslint-disable-next-line max-len
+    //   notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [`# ${alreadyItems[0].partPdNm} #`, alreadyItems.length - 1])]));
+    // }
+    // const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.partPdCd); return rtns; }, []);
     return rows.reduce((rtns, item) => {
-      if (!alreadyPdCds.includes(item.partPdCd)) {
-        rtns.push(item);
-      }
+      rtns.push(item);
+      // if (!alreadyPdCds.includes(item.partPdCd)) {}
       return rtns;
     }, []);
   }
+
+  console.log('rows', rows);
   return rows;
 }
 
@@ -375,7 +377,7 @@ async function onClickSave() {
       const workYear = Number(base.strtWkYVal ?? 0);
       // 총약정개월
       const totStplMcn = Number(base.totStplMcn ?? 0);
-      if (startMonth) {
+      if (Number(installMonth) === 0) {
         // 시작월이 있는 경우
         for (let i = 1; i <= (repeatCount + exceptMonths.length); i += 1) {
           // 시작월과 설치월중 하나는 0의 값을 가진다.
@@ -479,6 +481,7 @@ const initGridMain = defineGrid((data, view) => {
       header: t('MSG_TXT_STRT_MM'),
       width: '60',
       styleName: 'text-center',
+      dataType: 'number',
       editor: { type: 'number', editFormat: '999', maxLength: 3, positiveOnly: true },
     },
     // 반복횟수

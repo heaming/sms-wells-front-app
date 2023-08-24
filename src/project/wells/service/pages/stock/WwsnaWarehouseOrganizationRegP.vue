@@ -91,8 +91,8 @@
             icon="search"
             :label="$t('MSG_TXT_ADMIN')"
             rules="required"
-            :readonly="hasProps()"
-            :disable-icon="hasProps()"
+            :readonly="hasProps() && !isOrgWarehouse"
+            :disable-icon="hasProps() && !isOrgWarehouse"
             @click-icon="onClickOpenHumanResourcesPopup"
           />
         </kw-form-item>
@@ -104,6 +104,7 @@
             v-model="warehouseInfo.hgrWareNo"
             :label="$t('MSG_TXT_HGR_WARE')"
             :options="hgrWarehouses"
+            :readonly="hasProps() && warehouseInfo.wareDtlDvCd === '21'"
           />
         </kw-form-item>
       </kw-form-row>
@@ -128,6 +129,8 @@
           <kw-input
             v-model="warehouseInfo.wareNm"
             :label="$t('MSG_TXT_WARE_NM')"
+            :readonly="(hasProps() && !['20', '30'].includes(warehouseInfo.wareDtlDvCd))
+              || (!hasProps() && !['20', '21', '30'].includes(warehouseInfo.wareDtlDvCd))"
           />
         </kw-form-item>
       </kw-form-row>
@@ -163,14 +166,12 @@
         <kw-form-item
           :label="$t('MSG_TXT_EXPSR_ODR')"
           :hint="$t('MSG_TXT_EXPSR_ODR_DUP_HINT')"
-          required
         >
           <kw-input
             v-model="warehouseInfo.sortDvVal"
             :label="$t('MSG_TXT_EXPSR_ODR')"
             :regex="/^[0-9]{1,5}$/i"
             :readonly="warehouseInfo.wareUseYn === 'N'"
-            rules="required"
           />
         </kw-form-item>
       </kw-form-row>
@@ -329,8 +330,6 @@ async function fetchHigherWarehouses() {
 
   const res = await dataService.get('/sms/wells/service/warehouse-organizations/high-rank-warehouses', { params });
   hgrWarehouses.value = res.data;
-  console.log('### 상위창고 ###');
-  console.log(res.data);
 
   if (!hasProps()) {
     if (isOrgWarehouse.value) {
@@ -341,21 +340,20 @@ async function fetchHigherWarehouses() {
   }
 }
 
+// 주소사용여부(지정주소) 'N'으로 변경 시 빌딩명 삭제
+watch(() => warehouseInfo.value.adrUseYn, (val) => {
+  if (val === 'N') {
+    warehouseInfo.value.bldCdNm = '';
+  }
+});
+
 // 영업센터 상위창고 변경 시 창고명 변경
 watch(() => warehouseInfo.value.hgrWareNo, (val) => {
   console.log(`창고구분: ${warehouseInfo.value.wareDvCd} | 상위창고 ${val}(으)로 변경`);
   if (!hasProps() || isEmpty(val) || warehouseInfo.value.wareDvCd !== '3') return;
+  if (hgrWarehouses.value.length === 0) return;
   const { codeName } = hgrWarehouses.value.find((v) => v.codeId === val) ?? { codeName: '' };
   warehouseInfo.value.wareNm = `${codeName}(${warehouseInfo.value.prtnrKnm})`;
-});
-
-// 사용유무에 따른 노출순서 처리
-watch(() => warehouseInfo.value.wareUseYn, (val) => {
-  if (val === 'N') {
-    warehouseInfo.value.sortDvVal = 99999;
-  } else {
-    warehouseInfo.value.sortDvVal = '';
-  }
 });
 
 // 창고상세구분코드 변경 시 상위창고 목록 재조회
@@ -490,7 +488,7 @@ async function onClickSave() {
     warehouseInfo.value.apyYm = dayjs().format('YYYYMM');
   }
 
-  await dataService.post('/sms/wells/service/warehouse-organizations', warehouseInfo.value);
+  await dataService.post('/sms/wells/service/warehouse-organizations', warehouseInfo.value, { timeout: 3000000 });
   notify(t('MSG_ALT_SAVE_DATA'));
   ok();
 }

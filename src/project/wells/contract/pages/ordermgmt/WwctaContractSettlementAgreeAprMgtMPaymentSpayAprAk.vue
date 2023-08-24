@@ -128,12 +128,8 @@
                 class="col text-right"
               />
             </div>
-            <kw-input
+            <crdcd-no-input
               v-model="approvalRequest.crcdnoEncr"
-              label="카드번호"
-              mask="####-####-####-####"
-              unmasked-value
-              rules="required|min:14"
               :readonly="approved"
             />
             <crdcd-exp-select
@@ -185,10 +181,11 @@
 import { confirm, getComponentType, notify, stringUtil, useDataService } from 'kw-lib';
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
-import CrdcdExpSelect from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
+import CrdcdExpSelect from '~sms-common/contract/components/ZctaCrdcdExpSelect.vue';
+import CrdcdNoInput from '~sms-common/contract/components/ZctaCrdcdNoInput.vue';
 import { warn } from 'vue';
-import { CtCodeUtil, scrollIntoView } from '~sms-common/contract/util';
-import { aesEnc } from '~common/utils/common';
+import { scrollIntoView } from '~sms-common/contract/util';
+import { useCtCode } from '~sms-common/contract/composable';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -218,7 +215,7 @@ const DP_TP_CD = 'DP_TP_CD';
 const ISTM_MCNT_CD = 'ISTM_MCNT_CD';
 const MERGED_CREDIT_CARD_SPAY_CD = '02';
 
-const { codes, getCodeName, addCodeItem } = await CtCodeUtil(
+const { codes, getCodeName, addCodeItem } = await useCtCode(
   DP_TP_CD,
   ISTM_MCNT_CD,
 );
@@ -240,7 +237,6 @@ const approvalRequest = ref({
   owrKnm: props.cntrCstInfo.cstKnm, /* 카드주 */
   copnDvCdDrmVal: isCooperation.value ? props.cntrCstInfo.bzrno : props.cntrCstInfo.bryyMmdd,
   cardExpdtYm: stlmBas.value.cardExpdtYm || '', /* 유효기한 */
-  fnitCd: '',
 });
 const approvalResponse = ref({
   aprNo: stlmBas.value.fnitAprRsCd === 'Y' ? stlmBas.value.aprNo : undefined,
@@ -322,18 +318,9 @@ function getStlmsUpdateInfo() {
   ];
 }
 
-async function getFinancialCode(cardNumber) {
-  const { data } = await dataService.get('/sms/wells/contract/contracts/settlements/finance-code', {
-    params: { encCrcdnoPrefix: aesEnc(cardNumber.substring(0, 8)) },
-  });
-
-  return data;
-}
-
 let cachedRequestParams;
 async function requestApproval() {
   cachedRequestParams = { ...approvalRequest.value };
-  cachedRequestParams.fnitCd = await getFinancialCode(cachedRequestParams.crcdnoEncr);
   const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/credit-card-spay', cachedRequestParams);
   approvalResponse.value = data;
 }
@@ -341,7 +328,6 @@ async function requestApproval() {
 let cachedCancelRequestParams;
 async function requestApprovalCancel() {
   cachedCancelRequestParams = { ...approvalRequest.value };
-  cachedCancelRequestParams.fnitCd = await getFinancialCode(cachedCancelRequestParams.crcdnoEncr);
   const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/credit-card-cancel', cachedCancelRequestParams);
   approvalResponse.value = data;
 }

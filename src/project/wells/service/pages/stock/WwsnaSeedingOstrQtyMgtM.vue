@@ -17,6 +17,7 @@
     <kw-search
       :cols="2"
       one-row
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -51,6 +52,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
 
         <kw-btn
@@ -166,7 +168,7 @@ async function fetchData() {
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(excludeItem);
-    view.resetCurrent();
+    view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   }
 }
 

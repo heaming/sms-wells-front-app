@@ -16,9 +16,11 @@
   <kw-popup
     ref="popupRef"
     size="2xl"
+    :modified-targets="['grdMain']"
   >
     <kw-search
       :cols="2"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -280,6 +282,7 @@ async function fetchData() {
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(excludeItem);
+    view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   }
 }
 

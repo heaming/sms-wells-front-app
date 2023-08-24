@@ -247,11 +247,12 @@ import {
   stringUtil,
 } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { getConfig } = useMeta();
 const dataService = useDataService();
-const { modal, alert, notify } = useGlobal();
+const { modal, notify } = useGlobal();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const { t } = useI18n();
 const { currentRoute } = useRouter();
@@ -273,7 +274,7 @@ const searchOptions = [
   { codeId: '1', codeName: t('MSG_TXT_FST_RGST_DT') }, // 등록일자
   { codeId: '2', codeName: t('MSG_TXT_FSH_DT') }, // 완료일자
 ];
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center')).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
 
 const searchParams = ref({
   svCnrOgId: '',
@@ -321,13 +322,34 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  const splited = (searchParams.value.cntrDtlNo).split('-');
+  searchParams.value.cntrNo = splited[0];
+  searchParams.value.cntrSn = splited[1];
+
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
 async function onClickAgreementPrint() {
-  await alert('합의서개발전');
+  const view = grdMainRef.value.getView();
+  const chkRows = gridUtil.getCheckedRowValues(view);
+  const { acdnRcpId } = chkRows[0];
+  const ozParam = ref({
+    args: {
+      searchApiUrl: `/api/v1/anonymous/sms/wells/service/safety-accident-agreement/${acdnRcpId}`,
+    },
+    height: 1100,
+    width: 1200,
+  });
+
+  // 조회 팝업
+  openReportPopup(
+    '/kyowon_as/safetyAccidentAgr.ozr',
+    '/kyowon_as/safetyAccidentAgr.odi',
+    JSON.stringify(ozParam.value.args),
+    { width: ozParam.width, height: ozParam.height },
+  );
 }
 
 async function onClickAccidentReportPrint() {
@@ -347,13 +369,10 @@ async function onClickAccidentReportPrint() {
 }
 
 async function onClickRegist() {
-  const view = grdMainRef.value.getView();
-  const chkRows = gridUtil.getCheckedRowValues(view);
-  const acdnRcpId = (chkRows.length === 0 ? '' : chkRows[0].acdnRcpId);
   await modal({
     component: 'WwsnbSafetyAccidentRegP',
     componentProps: {
-      acdnRcpId,
+      acdnRcpId: '',
     },
   });
   onClickSearch();
@@ -405,8 +424,8 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       displayCallback: (grid, index) => {
-        const fshDt = gridUtil.getCellValue(grid, index.dataRow, 'fshDt');
-        return (fshDt !== '' ? 'Y' : 'N');
+        const fshDt = grid.getValues(index.itemIndex, 'fshDt');
+        return (isEmpty(fshDt) ? 'N' : 'Y');
       },
     },
     {
@@ -440,8 +459,8 @@ const initGrdMain = defineGrid((data, view) => {
       renderer: {
         type: 'button',
       },
-      displayCallback: (g, i) => {
-        const { cntrNo, cntrSn } = gridUtil.getRowValue(g, i.dataRow);
+      displayCallback: (grid, index) => {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         return `${cntrNo}-${cntrSn}`;
       },
     },
@@ -488,7 +507,8 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_ACDN_DTM'),
       width: '150',
       displayCallback: (grid, index) => {
-        const acdnDtm = gridUtil.getCellValue(grid, index.dataRow, 'acdnDtm');
+        const { acdnDtm } = grid.getValues(index.itemIndex);
+        console.log(acdnDtm);
         return stringUtil.getDatetimeFormat(acdnDtm);
       },
     },
@@ -614,8 +634,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
     if (column === 'cntrNo') {
-      const cntrNo = grid.getValue(itemIndex, 'cntrNo');
-      const cntrSn = grid.getValue(itemIndex, 'cntrSn');
+      const cntrNo = grid.getValues(itemIndex, 'cntrNo');
+      const cntrSn = grid.getValues(itemIndex, 'cntrSn');
 
       router.push({
         path: '/service/wwsnb-individual-service-list',
@@ -625,6 +645,16 @@ const initGrdMain = defineGrid((data, view) => {
         },
       });
     }
+  };
+
+  view.onCellDblClicked = async (g, clickData) => {
+    const { acdnRcpId } = g.getValues(clickData.itemIndex);
+    await modal({
+      component: 'WwsnbSafetyAccidentRegP',
+      componentProps: {
+        acdnRcpId,
+      },
+    });
   };
 });
 </script>

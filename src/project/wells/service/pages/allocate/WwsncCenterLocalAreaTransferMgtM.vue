@@ -77,11 +77,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="getCenterAreaPages"
+            :total-count="totalCount"
           />
         </template>
 
@@ -104,7 +100,7 @@
         />
         <kw-btn
           icon="download_on"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           secondary
           dense
           :label="$t('엑셀다운로드')"
@@ -143,16 +139,16 @@
       <kw-grid
         ref="gridMainRef"
         name="gridMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :page-size="codes.COD_PAGE_SIZE_OPTIONS.find((x) => x.codeId === '30').codeName"
+        :total-count="totalCount"
         @init="initGrid"
       />
-      <kw-pagination
+      <!-- <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @change="getCenterAreaPages"
-      />
+      /> -->
     </div>
   </kw-page>
 </template>
@@ -160,15 +156,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, gridUtil, useMeta, useDataService, useGlobal, defineGrid } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, useGlobal, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { notify, alert } = useGlobal();
-const { getConfig } = useMeta();
 const dataService = useDataService();
 const gridMainRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
+const totalCount = ref(0);
 
 /*
  *  Search Parameter
@@ -221,14 +217,6 @@ async function getRegionalGroup() {
 }
 await getRegionalGroup();
 
-/*
- *  Page Info setting
- */
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -237,13 +225,12 @@ const pageInfo = ref({
  */
 let cachedParams;
 async function getCenterAreaPages() {
-  const res = await dataService.get('/sms/wells/service/center-areas/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: centerAreas, pageInfo: pagingResult } = res.data;
-
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/center-areas', { params: cachedParams });
+  const centerAreas = res.data;
 
   const view = gridMainRef.value.getView();
   view.getDataSource().setRows(centerAreas);
+  totalCount.value = centerAreas.length;
   // view.resetCurrent(); //첫 행 selectRow 없앰.
 }
 
@@ -349,7 +336,6 @@ function onClickBatchUpdate() {
  *  Event - 조회 버튼 클릭
  */
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await getCenterAreaPages();
 }
@@ -434,7 +420,7 @@ const initGrid = defineGrid((data, view) => {
       options: codes.MNGR_DV_CD,
     },
     { fieldName: 'bfBrchOgId', header: '(전)지역단', width: '170', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcDtm', header: '최종이관', width: '160', styleName: 'text-center', editable: false },
+    { fieldName: 'fnlMdfcDtm', header: '최종이관', width: '160', styleName: 'text-center', datetimeFormat: 'datetime', editable: false },
     { fieldName: 'brchOgId', header: '(현)지역단', width: '174', styleName: 'text-center', editable: false },
     {
       fieldName: 'mdfcBrchOgId',

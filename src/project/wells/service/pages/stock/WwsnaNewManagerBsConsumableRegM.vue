@@ -67,8 +67,8 @@
             dense
             class="mr8"
           />
-          <!-- TODO: 권한 체크 후 버튼 visible 컨트롤해야함 (wells 영업지원팀 권한만 visible: true) -->
           <kw-btn
+            v-if="isBusinessSupportTeam"
             secondary
             dense
             :label="$t('MSG_BTN_RGST_PTRM_SE')"
@@ -104,11 +104,13 @@
           @click="onClickExcelDownload"
         />
         <kw-separator
+          v-if="isBusinessSupportTeam"
           vertical
           inset
           spaced
         />
         <kw-btn
+          v-if="isBusinessSupportTeam"
           dense
           primary
           :label="$t('MSG_BTN_OSTR_AK')"
@@ -145,7 +147,7 @@ import { useMeta, getComponentType, codeUtil, useDataService, defineGrid, gridUt
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
-const { getConfig } = useMeta();
+const { getConfig, hasRoleNickName } = useMeta();
 const { t } = useI18n();
 const dataService = useDataService();
 
@@ -169,6 +171,7 @@ const searchParams = ref({
   bldCds: [],
 });
 
+const isBusinessSupportTeam = computed(() => hasRoleNickName('ROL_W1580'));
 const bldCode = ref();
 const items1 = [];
 const items2 = [];
@@ -286,14 +289,18 @@ async function fetchData() {
     const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh);
     const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh);
 
+    console.log(grid);
+    console.log(itemIndex);
+
     // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
-    if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || !editFields.includes(itemIndex.column)) {
+    // if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || !editFields.includes(itemIndex.column)) {
+    if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || bldCsmbDeliveries[0].bfsvcCsmbDdlvStatCd === '30') {
       return false;
     }
   };
 
   view.getDataSource().setRows(bldCsmbDeliveries);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -318,7 +325,7 @@ async function onClickSave() {
     return;
   }
 
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  // if (await gridUtil.alertIfIsNotModified(view)) { return; }
   let errorYn = false;
   checkedRows.forEach((checkedRow) => {
     let f = 1;
@@ -332,7 +339,7 @@ async function onClickSave() {
           csmbPdCd: itemsData.value[i].fxnPdCd,
           sapMatCd: itemsData.value[i].fxnSapMatCd,
           bfsvcCsmbDdlvQty: checkedRow[`fxnQty${f}`] === undefined ? '0' : checkedRow[`fxnQty${f}`], // TODO: 테스트용 삼항연산.. 추후 삭제
-          bfsvcCsmbDdlvStatCd: '10', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
+          bfsvcCsmbDdlvStatCd: '20', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
         });
 
         f += 1;
@@ -355,7 +362,7 @@ async function onClickSave() {
           csmbPdCd: itemsData.value[i].aplcPdCd,
           sapMatCd: itemsData.value[i].aplcSapMatCd,
           bfsvcCsmbDdlvQty: checkedRow[`aplcQty${a}`] === undefined ? '0' : checkedRow[`aplcQty${a}`], // TODO: 테스트용 삼항연산.. 추후 삭제
-          bfsvcCsmbDdlvStatCd: '10', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
+          bfsvcCsmbDdlvStatCd: '20', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
         });
 
         a += 1;
@@ -371,8 +378,9 @@ async function onClickSave() {
 }
 
 async function onClickOstrAk() {
-  // TODO: 물류출고요청 공통API 개발 후 세부 로직 추가 예정
-  alert('물류출고요청 공통 API 미개발');
+  await dataService.post(`/sms/wells/service/newmanager-bsconsumables/${searchParams.value.mngtYm}/request`);
+  notify(t('MSG_ALT_AK_FSH'));
+  await fetchData();
 }
 
 onMounted(async () => {

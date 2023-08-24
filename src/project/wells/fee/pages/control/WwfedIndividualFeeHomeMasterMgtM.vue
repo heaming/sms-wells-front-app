@@ -40,6 +40,7 @@
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
+            :maxlength="10"
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             rules="required"
@@ -126,8 +127,8 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_BAS_IZ') }}</h3>
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-form
         class="mt20"
@@ -139,44 +140,44 @@
           <kw-form-item
             :label="t('MSG_TXT_COM_TOT')+ t('MSG_TXT_SELL')+ t('MSG_TXT_COUNT')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.akdeq0) }}</p>
+            <p>{{ info1.akdeq0 ? stringUtil.getNumberWithComma(info1.akdeq0) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_SERVICE')+ t('MSG_TXT_COUNT')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.sercnt) }}</p>
+            <p>{{ info1.sercnt ? stringUtil.getNumberWithComma(info1.sercnt) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_SERVICE')+ t('MSG_TXT_PROCS_RT')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.serryl) }}%</p>
+            <p>{{ info1.serryl ? stringUtil.getNumberWithComma(info1.serryl) : '0' }}%</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_HCR_MSH')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.akcda19) }}</p>
+            <p>{{ info1.akcda19 ? stringUtil.getNumberWithComma(info1.akcda19) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_MTRRS')+ t('MSG_TXT_RTLFE')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.akcda10) }}</p>
+            <p>{{ info1.akcda10 ? stringUtil.getNumberWithComma(info1.akcda10) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_MTRRS')+t('MSG_TXT_EXCP') +t('MSG_TXT_RTLFE')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.akcda12) }}</p>
+            <p>{{ info1.akcda12 ? stringUtil.getNumberWithComma(info1.akcda12) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ENVR_ELHM') +t('MSG_TXT_SNGL_PMNT')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.akcda13) }}</p>
+            <p>{{ info1.akcda13 ? stringUtil.getNumberWithComma(info1.akcda13) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ENVR_ELHM')+t('MSG_TXT_EXCP') +t('MSG_TXT_SNGL_PMNT')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info1.akcda15) }}</p>
+            <p>{{ info1.akcda15 ? stringUtil.getNumberWithComma(info1.akcda15) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -184,8 +185,8 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_TOT_SUM') }}</h3>
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-form
         class="mt20"
@@ -193,20 +194,14 @@
         align-content="right"
       >
         <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_INTBS_SUM')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info1.intbsSum) }}</p>
+          <kw-form-item :label="t('MSG_TXT_INTBS_SUM')">
+            <p>{{ info1.intbsSum ? stringUtil.getNumberWithComma(info1.intbsSum) : '0' }}</p>
           </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_DDTN_SUM')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info1.ddtnSum) }}</p>
+          <kw-form-item :label="t('MSG_TXT_DDTN_SUM')">
+            <p>{{ info1.ddtnSum ? stringUtil.getNumberWithComma(info1.ddtnSum) : '0' }}</p>
           </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_ACL_DSB_AMT')"
-          >
-            <p>{{ stringUtil.getNumberWithComma(info1.aclDsbAmt) }}</p>
+          <kw-form-item :label="t('MSG_TXT_ACL_DSB_AMT')">
+            <p>{{ info1.aclDsbAmt ? stringUtil.getNumberWithComma(info1.aclDsbAmt) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -214,12 +209,13 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_FEE_IZ') }}</h3>
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           dense
           secondary
           :label="t('MSG_BTN_FEE_CTR')"
+          :disable="!isBtnClick"
           @click="openFeeControlPopup"
         />
       </kw-action-top>
@@ -233,12 +229,13 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_DDTN_IZ') }}</h3>
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
           dense
           secondary
           :label="t('MSG_BTN_BU_DDTN')+t('MSG_BTN_CTR')"
+          :disable="!isBtnClick"
           @click="openZwfedFeeBurdenDeductionRegP"
         />
         <kw-separator
@@ -250,6 +247,7 @@
           dense
           secondary
           :label="t('MSG_BTN_PNPYAM')+t('MSG_BTN_CTR')"
+          :disable="!isBtnClick"
           @click="openZwfedFeePnpyamDeductionRegP"
         />
       </kw-action-top>
@@ -263,44 +261,44 @@
           <kw-form-item
             :label="t('MSG_TXT_ERNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info3.erntx) }}</p>
+            <p>{{ info3.erntx ? stringUtil.getNumberWithComma(info3.erntx) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSDNTX')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info3.rsdntx) }}</p>
+            <p>{{ info3.rsdntx ? stringUtil.getNumberWithComma(info3.rsdntx) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RDS')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info3.rds) }}</p>
+            <p>{{ info3.rds ? stringUtil.getNumberWithComma(info3.rds) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_HIR_INSR')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info3.hirInsr) }}</p>
+            <p>{{ info3.hirInsr ? stringUtil.getNumberWithComma(info3.hirInsr) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_INDD_INSR')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info3.inddInsr) }}</p>
+            <p>{{ info3.inddInsr ? stringUtil.getNumberWithComma(info3.inddInsr) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BU_DDTN')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info3.buDdtn) }}</p>
+            <p>{{ info3.buDdtn ? stringUtil.getNumberWithComma(info3.buDdtn) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_PNPYAM')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info3.pnpyam) }}</p>
+            <p>{{ info3.pnpyam ? stringUtil.getNumberWithComma(info3.pnpyam) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_DDTN_SUM')"
           >
-            <p>{{ stringUtil.getNumberWithComma(info3.ddtnSum) }}</p>
+            <p>{{ info3.ddtnSum ? stringUtil.getNumberWithComma(info3.ddtnSum) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -309,8 +307,8 @@
       <kw-action-top class="mb20">
         <template #left>
           <h3>{{ t('MSG_TXT_CTR_IZ') }}</h3>
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
+        <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
@@ -331,6 +329,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
+const isBtnClick = ref(false);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -421,11 +420,17 @@ async function openFeeControlPopup() {
 }
 
 async function fetchData(type) {
-  const response = await dataService.get(`/sms/wells/fee/individual-fee/home-master/${type}`, { params: cachedParams });
+  const response = await dataService.get(`/sms/wells/fee/individual-fee/home-master/${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
   totalCount.value = resData.length;
   if (type === 'entrepreneurs') {
     info1.value = resData;
+    if (info1.value.emplNm !== undefined) {
+      isBtnClick.value = true;
+    } else {
+      isBtnClick.value = false;
+      searchParams.value.prtnrKnm = '';
+    }
   } else if (type === 'fee') {
     const feeView = grd2MainRef.value.getView();
     feeView.getDataSource().setRows(resData);
@@ -440,9 +445,11 @@ async function fetchData(type) {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('entrepreneurs');
-  await fetchData('fee');
-  await fetchData('deduction');
-  await fetchData('control');
+  if (isBtnClick.value === true) {
+    await fetchData('fee');
+    await fetchData('deduction');
+    await fetchData('control');
+  }
 }
 
 /*
@@ -469,9 +476,9 @@ async function openZwfedFeeBurdenDeductionRegP() {
  */
 async function openZwfedFeePnpyamDeductionRegP() {
   const param = {
-    dsbYm: searchParams.value.perfYm,
-    ogTpCd: 'W03',
+    ddtnYm: searchParams.value.perfYm,
     coCd: '2000',
+    ogTpCd: 'W03',
     prtnrNo: searchParams.value.no,
   };
 

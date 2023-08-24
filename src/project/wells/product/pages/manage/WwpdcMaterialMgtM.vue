@@ -174,7 +174,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal, codeUtil } from 'kw-lib';
-import { isEmpty, cloneDeep } from 'lodash-es';
+import { isEmpty, cloneDeep, isEqual } from 'lodash-es';
 import { pdMergeBy, pageMove, getCopyProductInfo, isValidToProdcutSave } from '~sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
@@ -188,6 +188,7 @@ const props = defineProps({
   reloadYn: { type: String, default: null },
   tempSaveYn: { type: String, default: 'Y' },
   copyPdCd: { type: String, default: null },
+  propWatch: { type: Object, default: null },
 });
 
 const { t } = useI18n();
@@ -206,6 +207,7 @@ const dtl = pdConst.TBL_PD_DTL;
 const ecom = pdConst.TBL_PD_ECOM_PRP_DTL;
 const rel = pdConst.TBL_PD_REL;
 
+const prevProps = ref({});
 const fnlMdfcDtm = ref();
 const isTempSaveBtn = ref(true);
 const regSteps = ref([
@@ -461,12 +463,13 @@ async function resetData() {
 }
 
 async function onClickReset() {
+  if (!await confirm(t('MSG_ALT_PD_RESET', null, '조회항목을 초기화하시겠습니까?\n초기화 이후 STEP1으로 이동합니다. '))) return false;
   await resetData();
   await fetchProduct();
 }
 
 async function initProps() {
-  const { pdCd, newRegYn, reloadYn, copyPdCd } = props;
+  const { pdCd, newRegYn, reloadYn, copyPdCd, propWatch } = props;
   currentPdCd.value = pdCd;
   currentNewRegYn.value = newRegYn;
   currentReloadYn.value = reloadYn;
@@ -477,6 +480,7 @@ async function initProps() {
     isTempSaveBtn.value = true;
   }
   isCreate.value = isEmpty(currentPdCd.value);
+  prevProps.value = cloneDeep({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch });
 }
 
 onMounted(async () => {
@@ -513,8 +517,9 @@ async function popupCallback(payload) {
 async function onUpdateMgtValue(field) {
   // console.log('EwpdcStandardMgtM - onUpdateMgtValue - field : ', field);
   /* && isEmpty(field.initName ) */
-  if (field.colNm === 'sapMatCd' && field.initName !== field.initValue) {
-    console.log('1111111');
+  // if (field.colNm === 'sapMatCd' && field.initName !== field.initValue) {
+  if (field.colNm === 'sapMatCd' && isEmpty(field.initValue)) {
+    console.log('삭제');
 
     const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
     mgtNameFields.sapMatCd.initValue = '';
@@ -548,9 +553,14 @@ async function openPopup(field) {
   await popupCallback(payload);
 }
 
-watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd }) => {
-  console.log(` - watch - pdCd: ${pdCd} newRegYn: ${newRegYn} reloadYn: ${reloadYn} copyPdCd: ${copyPdCd}`);
-  if (pdCd && currentPdCd.value !== pdCd) {
+watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch }) => {
+  // console.log(` - watch - ${pdCd} : ${newRegYn} : ${reloadYn} : ${copyPdCd} : ${propWatch}`);
+  const newProps = { pdCd, newRegYn, reloadYn, copyPdCd, propWatch };
+  if (isEqual(newProps, prevProps.value)) {
+    return;
+  }
+  prevProps.value = cloneDeep({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch });
+  if (pdCd && (currentPdCd.value !== pdCd || propWatch)) {
     // 상품코드 변경
     currentPdCd.value = pdCd;
     currentNewRegYn.value = 'N';

@@ -128,21 +128,6 @@
                   @change="fetchDetailData"
                 />
               </template>
-              <kw-btn
-                dense
-                secondary
-                :label="$t('MSG_TXT_INIT_FILTER_INFO')"
-              />
-              <kw-separator
-                vertical
-                inset
-                spaced
-              />
-              <kw-btn
-                :label="$t('MSG_TXT_FILTER_REG')"
-                primary
-                dense
-              />
             </kw-action-top>
 
             <kw-grid
@@ -253,6 +238,7 @@ async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
 
   const res = await dataService.get('/sms/wells/contract/filters/paging', { params: { ...cachedParams, ...pageInfo.value } });
+
   const { list, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -266,11 +252,12 @@ async function fetchData() {
 async function fetchDetailData() {
   cachedParams = cloneDeep(searchDetailsParams.value);
 
-  const res = await dataService.get('/sms/wells/contract/filter-details/paging', { params: cachedParams, ...detailPageInfo.value });
-  const { list, detailPageInfo: pagingResult } = res.data;
+  const res = await dataService.get('/sms/wells/contract/filter-details/paging', { params: { ...cachedParams, ...detailPageInfo.value } });
+  const { list, pageInfo: pagingResult } = res.data;
 
   detailPageInfo.value = pagingResult;
 
+  console.log(JSON.stringify(res.data, null, '\t'));
   const view = grdDetailRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();

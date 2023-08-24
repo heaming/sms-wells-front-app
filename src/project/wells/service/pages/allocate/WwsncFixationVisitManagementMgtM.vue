@@ -63,6 +63,8 @@
           dgr2-levl-og-first-option="all"
           use-og-level="2"
           :use-partner="false"
+          auth-yn="N"
+          :dgr2-levl-og-always-search="false"
         />
       </kw-search-row>
     </kw-search>
@@ -126,7 +128,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useGlobal, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 import dayjs from 'dayjs';
@@ -137,6 +139,7 @@ const { getConfig } = useMeta();
 const dataService = useDataService();
 const gridMainRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 /*
  *  Search Parameter
@@ -187,6 +190,7 @@ async function getFixationRegistrationPages() {
   const view = gridMainRef.value.getView();
   view.getDataSource().setRows(fixationVisits);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 /*
@@ -281,7 +285,17 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: '계약번호', width: '150', styleName: 'text-center' },
+    { fieldName: 'cntrNo',
+      header: '계약번호',
+      width: '170',
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      displayCallback(grid, index, value) {
+        const cntrSn = grid.getValue(index.itemIndex, 'cntrSn') ?? '';
+        const cntrNo = value ?? '';
+        return `${cntrNo}-${cntrSn}`;
+      },
+    },
     { fieldName: 'rcgvpKnm', header: '고객명', width: '100', styleName: 'text-center' },
     { fieldName: 'newAdrZip', header: '우편번호', width: '100', styleName: 'text-center' },
     {
@@ -330,7 +344,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdctPdNm', header: '상품명', width: '250', styleName: 'text-center' },
     { fieldName: 'sellTpCd', header: '판매유형', width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'fxnPrtnrDvCd', header: '관리구분', width: '100', styleName: 'text-center', options: codes.MNGR_DV_CD },
-    { fieldName: 'ogNm', header: '담당센터', width: '100', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: '담당센터', width: '120', styleName: 'text-center' },
     { fieldName: 'fxnPrtnrNo', header: '번호', width: '100', styleName: 'text-center' },
     { fieldName: 'fxnPrtnrKnm', header: '방문담당자', width: '100', styleName: 'text-center' },
     { fieldName: 'cltnDt', header: '퇴사일자', width: '100', styleName: 'text-center', datetimeFormat: 'date' },
@@ -346,6 +360,13 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
   // view.editOptions.editable = true; // Grid Editable On
+
+  view.onCellItemClicked = (grid, clickData) => {
+    if (clickData.column === 'cntrNo') {
+      const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
+    }
+  };
 
   // multi row header setting
   view.setColumnLayout([

@@ -107,7 +107,7 @@
             <!-- 계약상세번호 -->
             <p
               class="kw-font-pt14 kw-fc--black2 text-underline contractNumber"
-              @click="onClickCntrDtlNo(item.cntrNo, item.cntrSn)"
+              @click="onClickCntrDtlNo(item)"
             >
               {{ item.cntrDtlNo }}
             </p>
@@ -144,7 +144,7 @@
               </p>
               <span> {{ setDateFormat(item.cntrRcpFshDt) }}</span>
             </li>
-            <li v-show="careerLevelCode !== '15'">
+            <li v-show="!isEqual(careerLevelCode, '15')">
               <!-- 판매자 -->
               <p class="w90">
                 {{ $t('MSG_TXT_SELLER_PERSON') }}
@@ -154,7 +154,11 @@
           </ul>
           <kw-separator spaced="20px" />
           <ul class="card-text">
-            <li v-show="item.istPcsvSellTpCd !== '2' && item.istPcsvSellTpCd !== '4' && item.kaetc1 !== '7'">
+            <li
+              v-show="!isEqual(item.istPcsvSellTpCd, '2')
+                && !isEqual(item.istPcsvSellTpCd, '4')
+                && !isEqual(item.kaetc1, '7')"
+            >
               <!-- 설치예정일시 -->
               <p class="w90">
                 {{ $t('MSG_TXT_INSTL_EXP_DT') }}
@@ -163,7 +167,7 @@
                 {{ setDateFormat(item.wkAcpteDt, item.wkAcpteHh) }}
               </span>
             </li>
-            <div v-show="item.istBzsCd === 'S'">
+            <div v-show="isEqual(item.istBzsCd, 'S')">
               <li>
                 <!-- 설치예약일시(삼성) -->
                 <p class="w90">
@@ -208,7 +212,11 @@
                 <span>{{ setDateFormat(item.sppDuedt) }}</span>
               </li>
             </div>
-            <div v-show="item.istPcsvSellTpCd !== '2' && item.istBzsCd !== 'S' && item.kaetc1 !== '7'">
+            <div
+              v-show="!isEqual(item.istPcsvSellTpCd, '2')
+                && !isEqual(item.istBzsCd, 'S')
+                && !isEqual(item.kaetc1, '7')"
+            >
               <li>
                 <!-- 엔지니어 -->
                 <p class="w90">
@@ -242,7 +250,7 @@
                 <span>{{ isEmpty(item.wkCanMoCn)?'':item.wkCanMoCn }}</span>
               </li>
             </div>
-            <div v-show="item.istPcsvSellTpCd === '2'">
+            <div v-show="isEqual(item.istPcsvSellTpCd, '2')">
               <li>
                 <!-- 배송요청일시 -->
                 <p class="w90">
@@ -258,7 +266,7 @@
                 <span>{{ setDateFormat(item.wkApcteDt, item.wkAcpteHh) }}</span>
               </li>
             </div>
-            <div v-show="item.istPcsvSellTpCd === '1' && item.kaetc1 === '7'">
+            <div v-show="isEqual(item.istPcsvSellTpCd, '1') && isEqual(item.kaetc1, '7')">
               <li>
                 <!-- 배송요청일 -->
                 <p class="w90">
@@ -283,29 +291,30 @@
             </div>
           </ul>
           <kw-separator spaced="20px" />
-          <kw-card-actions class="mt20">
+          <kw-card-actions class="button-wrap">
             <!-- 기타배송조회 -->
             <kw-btn
               v-show="item.sppQty > 0"
               :label="t('MSG_BTN_SPP_INQR_ETC')"
               @click="onClickInstallEtc(item)"
             />
-            <div v-show="item.lcCanyn === 'N'">
+            <div v-show="isEqual(item.lcCanyn, 'N')">
               <!-- 접수 -->
               <kw-btn
-                v-show="(item.acpgStat === '1' || item.acpgStat === '9') && item.istPcsvSellTpCd === '1'"
+                v-show="(isEqual(item.acpgStat, '1') || isEqual(item.acpgStat, '9'))
+                  && isEqual(item.istPcsvSellTpCd, '1')"
                 :label="t('MSG_BTN_RECEIPT')"
                 @click="onClickReceipt(item)"
               />
               <!-- 재접수 -->
               <kw-btn
-                v-show="item.kaetc1 === '7' && item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
+                v-show="isEqual(item.kaetc1, '7') && isEqual(item.acpgStat, '2') && isEqual(item.istPcsvSellTpCd, '1')"
                 :label="t('MSG_BTN_RE_REG')"
                 @click="onClickReRegistration(item)"
               />
               <!-- 배정취소 -->
               <kw-btn
-                v-show="item.acpgStat === '2' && item.istPcsvSellTpCd === '1'"
+                v-show="isEqual(item.acpgStat, '2') && isEqual(item.istPcsvSellTpCd, '1')"
                 :label="t('MSG_BTN_CNCL_ASGMT')"
                 @click="onClickCnclAsgmt(item)"
               />
@@ -322,7 +331,7 @@
             <!-- 계약상세번호 -->
             <p
               class="kw-font-pt14 kw-fc--black2 text-underline contractNumber"
-              @click="onClickCntrDtlNo(item.cntrNo, item.cntrSn)"
+              @click="onClickCntrDtlNo(item)"
             >
               {{ item.cntrDtlNo }}
             </p>
@@ -364,7 +373,7 @@
                 }}
               </span>
             </li>
-            <li v-show="careerLevelCode !== '15'">
+            <li v-show="!isEqual(careerLevelCode, '15')">
               <!-- 판매자 -->
               <p class="w90">
                 {{ $t('MSG_TXT_SELLER_PERSON') }}
@@ -374,7 +383,7 @@
           </ul>
           <kw-separator spaced="20px" />
           <ul class="card-text">
-            <div v-show="item.istBzsCd !== 'S'">
+            <div v-show="!isEqual(item.istBzsCd, 'S')">
               <li>
                 <!-- 배송예정일 -->
                 <p class="w90">
@@ -393,7 +402,7 @@
                   {{ isEmpty(item.pcsvBzsNm) ? '' : `(${item.pcsvBzsNm}) ${item.sppOrdNo}` }}
                 </span>
               </li>
-              <li v-show="item.kaetc1 === '4' && item.pdMclsfNm === 'C'">
+              <li v-show="isEqual(item.kaetc1, '4') && isEqual(item.pdMclsfNm, 'C')">
                 <!-- 예약확정 -->
                 <p class="w90">
                   {{ `${t('MSG_TXT_RSV')}${t('MSG_TXT_DTRM')}` }}
@@ -403,7 +412,7 @@
                 </span>
               </li>
             </div>
-            <div v-show="item.istBzsCd === 'S'">
+            <div v-show="isEqual(item.istBzsCd, 'S')">
               <li v-show="!isEmpty(item.ssSppDuedt)">
                 <!-- 배송예정일자 -->
                 <p class="w90">
@@ -437,7 +446,7 @@
             </div>
           </ul>
           <kw-card-actions
-            v-show="item.istBzsCd !== 'S'"
+            v-show="!isEqual(item.istBzsCd, 'S')"
             class="mt20"
           >
             <!-- 기타배송조회 -->
@@ -454,13 +463,13 @@
             />
             <!-- 예약확정 -->
             <kw-btn
-              v-show="item.booSellYn === 'Y' && item.kaetc1 === '4' && item.pdMclsfNm === 'C'"
+              v-show="isEqual(item.booSellYn, 'Y') && isEqual(item.kaetc1, '4') && isEqual(item.pdMclsfNm, 'C')"
               :label="`${t('MSG_BTN_RSV')}${t('MSG_BTN_DTRM')}`"
               @click="onClickDelverRsvDtrmEtc(item)"
             />
             <!-- 예약확정등록 -->
             <kw-btn
-              v-show="item.booSellYn !== 'Y' && item.kaetc1 === '4' && item.pdMclsfNm === 'C'"
+              v-show="!isEqual(item.booSellYn, 'Y') && isEqual(item.kaetc1, '4') && isEqual(item.pdMclsfNm, 'C')"
               :label="`${t('MSG_BTN_RSV')}${t('MSG_BTN_DTRM')}${t('MSG_BTN_RGST')}`"
               @click="onClickDelverRsvDtrmRgstEtc(item.sellTpCd, item.cntrNo)"
             />
@@ -483,7 +492,7 @@
 // -------------------------------------------------------------------------------------------------
 /* import { codeUtil, defineGrid, gridUtil, useDataService, useGlobal, useModal } from 'kw-lib'; */
 import { codeUtil, useDataService, stringUtil, modal, useGlobal, useMeta, notify } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty, isEqual } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
 
@@ -541,7 +550,7 @@ const pageInfo = ref({
 
 const isDelivery = ref(false);
 
-const isInstallation = computed(() => searchParams.value?.istPcsvDvCd === '1');
+const isInstallation = computed(() => isEqual(searchParams.value?.istPcsvDvCd, '1'));
 
 let cachedParams;
 
@@ -550,7 +559,7 @@ let cachedParams;
 // -------------------------------------------------------------------------------------------------
 
 function workGroupCode(code) {
-  return !isEmpty(code) ? wrkGrpCode.filter((obj) => (obj.codeId === code))[0].codeName : '';
+  return !isEmpty(code) ? wrkGrpCode.filter((obj) => (isEqual(obj.codeId, code)))[0].codeName : '';
 }
 
 function getInstallStatus() {
@@ -579,9 +588,9 @@ function getInstallStatus() {
     sellTpCd = element.sellTpCd;
     lcCanyn = element.lcCanyn;
 
-    if (kaetc1 === '8' && sellTpCd === '1' && cttRsCd === '91') {
+    if (isEqual(kaetc1, '8') && isEqual(sellTpCd, '1') && isEqual(cttRsCd, '91')) {
       element.cr = 'red';
-      if (lcCanyn === 'Y') {
+      if (isEqual(lcCanyn, 'Y')) {
         element.msg = t('MSG_TXT_RFND');
         element.acpgStat = '99';
       } else {
@@ -594,8 +603,8 @@ function getInstallStatus() {
       element.cr = 'orange';
       element.acpgStat = '1';
 
-      if (istPcsvSellTpCd === '4') {
-        if (cttRsCd === '99') {
+      if (isEqual(istPcsvSellTpCd, '4')) {
+        if (isEqual(cttRsCd, '99')) {
           element.msg = t('MSG_TXT_SB');
           element.cr = 'red';
           element.acpgStat = '9';
@@ -609,7 +618,7 @@ function getInstallStatus() {
           element.acpgStat = '2';
         }
       }
-      if (istPcsvSellTpCd === '1' && kaetc1 === '7') {
+      if (isEqual(istPcsvSellTpCd, '1') && isEqual(kaetc1, '7')) {
         if (!isEmpty(istDt)) {
           element.msg = t('MSG_TXT_INST_COMP');
           element.cr = 'cyan';
@@ -621,15 +630,15 @@ function getInstallStatus() {
         }
       }
     } else if (hasKiwiOrd) {
-      if (wkPrgsStatCd === '00' && isEmpty(wkAcpteStatCd)) {
+      if (isEqual(wkPrgsStatCd, '00') && isEmpty(wkAcpteStatCd)) {
         element.msg = `${t('MSG_TXT_INSTALLATION')}${t('MSG_TXT_ASGN')}`;
         element.cr = 'blue';
         element.acpgStat = '2';
-      } else if (wkPrgsStatCd < 20 && wkAcpteStatCd === 'Y') {
+      } else if (wkPrgsStatCd < 20 && isEqual(wkAcpteStatCd, 'Y')) {
         element.msg = t('MSG_TXT_ACPTE');
         element.cr = 'cyan';
         element.acpgStat = '3';
-      } else if (wkPrgsStatCd === '20' && retrTrgtYn !== 'Y') {
+      } else if (isEqual(wkPrgsStatCd, '20') && !isEqual(retrTrgtYn, 'Y')) {
         element.msg = t('MSG_TXT_INST_COMP');
         element.cr = 'cyan';
         element.acpgStat = '4';
@@ -667,7 +676,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   installationList.value = details;
 
-  if (searchParams.value.istPcsvDvCd === '2') {
+  if (isEqual(searchParams.value.istPcsvDvCd, '2')) {
     isDelivery.value = true;
   } else {
     isDelivery.value = false;
@@ -693,13 +702,17 @@ function setDateFormat(date, time) {
   return rtnDate;
 }
 
-async function onClickCntrDtlNo(itemCntrNo, itemCntrSn) {
-  if (!isEmpty(itemCntrNo)) {
+async function onClickCntrDtlNo(item) {
+  const { cntrNo, cntrSn, sellTpCd, copnDvCd } = item;
+
+  if (!isEmpty(cntrNo)) {
     await modal({
       component: 'WwctaOrderDetailP',
       componentProps: {
-        cntrNo: itemCntrNo,
-        cntrSn: itemCntrSn,
+        cntrNo,
+        cntrSn,
+        sellTpCd,
+        copnDvCd,
       },
     });
   }
@@ -724,17 +737,17 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
   let sellTpCd = '';
   let kaetc1 = '';
 
-  // if (dataList.profile !== 'prd') {
-  //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
-  //   return;
-  // }
+  if (!isEqual(dataList.profile, 'prd')) {
+    alert('처리되었습니다.(개발환경에선 처리 안됨)');
+    return;
+  }
 
-  if (dataList.lcCanyn !== 'Y') {
-    if (dataList.acpgStat === '1' || dataList.acpgStat === '9') {
+  if (!isEqual(dataList.lcCanyn, 'Y')) {
+    if (isEqual(dataList.acpgStat, '1') || isEqual(dataList.acpgStat, '9')) {
       acpgDiv = '1';
       workDt = now.format('YYYYMMDD');
       asIstOjNo = '';
-    } else if (dataList.acpgStat === '2') {
+    } else if (isEqual(dataList.acpgStat, '2')) {
       acpgDiv = '2';
       workDt = dataList.rcpdt;
       asIstOjNo = dataList.asIstOjNo;
@@ -758,7 +771,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
       prdDiv, // 배정구분코드
     });
 
-    if (dataList.basePdCd === 'WP02120086') { /* AS-IS: 4129 (렌탈) */
+    if (isEqual(dataList.basePdCd, 'WP02120086')) { /* AS-IS: 4129 (렌탈) */
       if (await confirm(t('MSG_ALT_CNFM_SPP'))) {
         alert(t('MSG_ALT_SPP_WRN'));
         return;
@@ -776,12 +789,12 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
       sellTpCd = dataList.sellTpCd;
       kaetc1 = dataList.kaetc1;
 
-      if (kaetc1 === '8') {
+      if (isEqual(kaetc1, '8')) {
         svDvCdParam = '4';
-        if (sellTpCd === '1') {
+        if (isEqual(sellTpCd, '1')) {
           svBizDclsfCdParam = '4110';
-        } else if (pkgYn === 'Y') {
-          if (sellTpCd === '1') {
+        } else if (isEqual(pkgYn, 'Y')) {
+          if (isEqual(sellTpCd, '1')) {
             svBizDclsfCdParam = '4130';
           } else {
             svBizDclsfCdParam = '4120';
@@ -860,18 +873,18 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
 // 설치/배송 취소
 async function cancelKiwiTimeAssign(dataList, prdDivParam) {
   const idNumber = sessionUserInfo.employeeIDNumber;
-  if (dataList.lcCanyn === 'Y') {
+  if (isEqual(dataList.lcCanyn, 'Y')) {
     alert(t('MSG_ALT_ALRDY_CANC_ORD'));
     return;
   }
-  if (dataList.kaetc1 === '7') {
-    if (idNumber.value !== '31754'
-        && idNumber.value !== '27342'
-        && idNumber.value !== '6545'
-        && idNumber.value !== '37668' // 사번전환_20211001 31754 -> 37668
-        && idNumber.value !== '36805' // 사번전환_20211001 27342 -> 36805
-        && idNumber.value !== '36544' // 사번전환_20211001  6545 -> 36544
-        && idNumber.value !== '36581' // 사공윤파트장님 추가
+  if (isEqual(dataList.kaetc1, '7')) {
+    if (!isEqual(idNumber.value, '31754')
+        && !isEqual(idNumber.value, '27342')
+        && !isEqual(idNumber.value, '6545')
+        && !isEqual(idNumber.value, '37668') // 사번전환_20211001 31754 -> 37668
+        && !isEqual(idNumber.value, '36805') // 사번전환_20211001 27342 -> 36805
+        && !isEqual(idNumber.value, '36544') // 사번전환_20211001  6545 -> 36544
+        && !isEqual(idNumber.value, '36581') // 사공윤파트장님 추가
     ) {
       alert(t('MSG_ALT_CANNOT_ASN_SPAY_SDING_CANC'));
       return;
@@ -890,7 +903,7 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
     return;
   }
 
-  // if (dataList.profile !== 'prd') {
+  // if (!isEqual(dataList.profile, 'prd')) {
   //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
   //   return;
   // }
@@ -913,8 +926,8 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
     mtrStatCd: prdDivParam, // 배정구분코드
   });
 
-  if (dataList.kaetc1 === '8') {
-    if (dataList.sellTpCd === '1') {
+  if (isEqual(dataList.kaetc1, '8')) {
+    if (isEqual(dataList.sellTpCd, '1')) {
       saveParams.value.wkGb = '4';
       saveParams.value.svBizDclsfCd = '4110';
     } else {
@@ -934,25 +947,25 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
   let asIstOjNoParam = '';
   let acpgDivParam = '';
 
-  // if (dataList.profile !== 'prd') {
+  // if (!isEqual(dataList.profile, 'prd')) {
   //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
   //   return;
   // }
 
-  if (dataList.lcCanyn !== 'Y') {
-    if (dataList.kaetc1 === '7') {
-      if (prdDiv !== '3') {
+  if (!isEqual(dataList.lcCanyn, 'Y')) {
+    if (isEqual(dataList.kaetc1, '7')) {
+      if (!isEqual(prdDiv, '3')) {
         callKiwiTimeAssign(dataList, prdDiv);
         return;
       }
       cancelKiwiTimeAssign(dataList, prdDiv);
       return;
     }
-    if (dataList.acpgStat === '1' || dataList.acpgStat === '9') {
+    if (isEqual(dataList.acpgStat, '1') || isEqual(dataList.acpgStat, '9')) {
       acpgDivParam = '1';
       workDtParam = now.format('YYYYMMDD');
       asIstOjNoParam = '';
-    } else if (dataList.acpgStat === '2') {
+    } else if (isEqual(dataList.acpgStat, '2')) {
       acpgDivParam = '2';
       workDtParam = dataList.rcpdt;
       asIstOjNoParam = dataList.asIstOjNo;
@@ -973,8 +986,8 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
       prdDiv, // 접수구분
     });
 
-    if (dataList.kaetc1 === '8') {
-      if (dataList.sellTpCd === '1') {
+    if (isEqual(dataList.kaetc1, '8')) {
+      if (isEqual(dataList.sellTpCd, '1')) {
         saveParams.value.wkGb = '4';
         saveParams.value.svBizDclsfCd = '4110';
       } else {
@@ -983,7 +996,7 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
     }
     const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings/checks', saveParams.value); // 체크
     if (!isEmpty(res)) {
-      if (prdDiv !== '3') {
+      if (!isEqual(prdDiv, '3')) {
         callKiwiTimeAssign(dataList, prdDiv);
       } else {
         cancelKiwiTimeAssign(dataList, prdDiv);
@@ -1015,9 +1028,9 @@ async function onClickDelverInqr(sppOrdNo, pcsvBzsCd) {
   console.log(sppOrdNo);
   console.log(pcsvBzsCd);
   let url = '';
-  if (pcsvBzsCd === '01') {
+  if (isEqual(pcsvBzsCd, '01')) {
     url = `'http://www.hanjinexpress.hanjin.net/customer/hddcw18_ms.tracking?w_num='${sppOrdNo}`;
-  } else if (pcsvBzsCd === '02') {
+  } else if (isEqual(pcsvBzsCd, '02')) {
     url = `'http://nexs.cjgls.com/web/info.jsp?slipno='${sppOrdNo}`;
   }
 
@@ -1040,7 +1053,7 @@ async function onClickDelverInqr(sppOrdNo, pcsvBzsCd) {
 
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .contractNumber {
   cursor: pointer;
 }
@@ -1071,20 +1084,19 @@ async function onClickDelverInqr(sppOrdNo, pcsvBzsCd) {
 }
 
 .button-wrap {
-  align-self: flex-end;
-  width: 100%;
   display: flex;
   column-gap: 6px;
   row-gap: 6px;
-  flex-wrap: wrap;
+  flex-flow: row wrap;
+  white-space: nowrap;
 
   ::v-deep(.kw-btn) {
-    padding: 8px 0;
-    min-height: 40px;
+    flex: 1 1 calc(100% / 4);
     font-size: 14px;
     font-weight: normal;
     letter-spacing: normal;
     color: #555;
+    min-height: 40px;
   }
 }
 

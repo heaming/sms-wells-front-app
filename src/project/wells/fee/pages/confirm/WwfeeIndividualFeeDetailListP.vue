@@ -72,7 +72,7 @@ const grdPlarRef = ref(getComponentType('KwGrid'));
 const grdMngerRef = ref(getComponentType('KwGrid'));
 const grdHmstRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
-const popupRef = ref();
+const { currentRoute } = useRouter();
 
 const props = defineProps({
   perfYm: { // 실적년월
@@ -115,11 +115,17 @@ async function fetchData(type) {
 
 // 엑셀다운로드
 async function onClickExcelDownload() {
-  const view = grdMain.value.getView();
+  let type;
+  if (searchParams.value.ogTpCd === 'W01') type = 'plar';
+  else if (searchParams.value.ogTpCd === 'W02') type = 'mnger';
+  else if (searchParams.value.ogTpCd === 'W03') type = 'hmst';
 
+  const response = await dataService.get(`/sms/wells/fee/individual-fees/${type}-details`, { params: searchParams.value });
+  const view = grdMain.value.getView();
   await gridUtil.exportView(view, {
-    fileName: popupRef.value.pageCtxTitle,
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
+    exportData: response.data,
   });
 }
 
@@ -136,19 +142,48 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdPlar = defineGrid((data, view) => {
   const columns = [
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '121', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '121', styleName: 'text-left' },
-    { fieldName: 'perfAtcNm', header: t('MSG_TXT_PERF_DV'), width: '119', styleName: 'text-center' },
-    { fieldName: 'cntrwTpNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '119', styleName: 'text-center' },
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '119', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
     { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '119', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '119', styleName: 'text-left' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '119', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '119', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PD_IZ'), width: '239', styleName: 'text-left' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '119', styleName: 'text-left' },
-    { fieldName: 'saleDiv', header: t('MSG_TXT_SLS_CAT'), width: '119', styleName: 'text-center' },
-    { fieldName: 'perfElhm', header: t('MSG_TXT_ELHM'), width: '119', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'perfElhmExcd', header: t('MSG_TXT_EXCEPT_HOUSEHOLD_APPLIANCES'), width: '119', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'perfChng', header: t('MSG_TXT_CHNG'), width: '119', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '119', styleName: 'text-center' },
+    { fieldName: 'saleDiv', header: t('MSG_TXT_CHDVC_TP'), width: '119', styleName: 'text-center' },
+    { fieldName: 'perfElhm',
+      header: t('MSG_TXT_ELHM_ACKMT_PERF'),
+      width: '119',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'perfElhmExcd',
+      header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'),
+      width: '119',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'perfChng',
+      header: t('MSG_TXT_CHNG') + t('MSG_TXT_PD_ACC_RSLT'),
+      width: '119',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+
+    // { fieldName: 'perfAtcNm', header: t('MSG_TXT_PERF_DV'), width: '119', styleName: 'text-center' },
+    // { fieldName: 'cntrwTpNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '119', styleName: 'text-center' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -157,23 +192,66 @@ const initGrdPlar = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+
+  view.layoutByColumn('prtnrKnm').summaryUserSpans = [
+    { colspan: 9 },
+  ];
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 40 },
+    ],
+  });
+  view.columnByName('prtnrKnm').setHeaderSummaries([
+    { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
+  ]);
 });
 
 const initGrdMnger = defineGrid((data, view) => {
   const columns = [
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '121', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '121', styleName: 'text-left' },
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '119', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
     { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '119', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '119', styleName: 'text-left' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '119', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '119', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PD_IZ'), width: '239', styleName: 'text-left' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '119', styleName: 'text-left' },
-    { fieldName: 'saleDiv', header: t('MSG_TXT_SLS_CAT'), width: '119', styleName: 'text-center' },
-    { fieldName: 'pdAccCnt', header: t('MSG_TXT_PD_ACC_CNT'), width: '119', styleName: 'text-right' },
-    { fieldName: 'perfBsPdAccCnt', header: t('MSG_TXT_BFSVC_ACKMT_CT'), width: '119', styleName: 'text-right' },
-    { fieldName: 'perfRental', header: t('MSG_TXT_ENVR_ELHM') + t('MSG_TXT_RENTAL'), width: '119', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'perfSnglPmnt', header: t('MSG_TXT_ENVR_ELHM') + t('MSG_TXT_SNGL_PMNT'), width: '119', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'perfFxam', header: t('MSG_TXT_ENVR_ELHM') + t('MSG_TXT_FXAM'), width: '119', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '119', styleName: 'text-center' },
+    { fieldName: 'saleDiv', header: t('MSG_TXT_CHDVC_TP'), width: '119', styleName: 'text-center' },
+    { fieldName: 'perfRental',
+      header: t('MSG_TXT_ELHM_BASE_PRC'),
+      width: '119',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'perfBsPdAccCnt',
+      header: t('MSG_TXT_ELHM_ACKMT_CT'),
+      width: '119',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'perfElhmExcpAckmt',
+      header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'),
+      width: '119',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    // { fieldName: 'perfSnglPmnt', header: t('MSG_TXT_ENVR_ELHM') + t('MSG_TXT_SNGL_PMNT')
+    // , width: '119', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    // { fieldName: 'perfFxam', header: t('MSG_TXT_ENVR_ELHM') + t('MSG_TXT_FXAM'), width: '119'
+    // , styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -182,21 +260,61 @@ const initGrdMnger = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+
+  view.layoutByColumn('prtnrKnm').summaryUserSpans = [
+    { colspan: 9 },
+  ];
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 40 },
+    ],
+  });
+  view.columnByName('prtnrKnm').setHeaderSummaries([
+    { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
+  ]);
 });
 
 const initGrdHmst = defineGrid((data, view) => {
   const columns = [
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '121', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '121', styleName: 'text-left' },
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '119', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
     { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '119', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '119', styleName: 'text-left' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '119', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PD_IZ'), width: '239', styleName: 'text-left' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '119', styleName: 'text-left' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '119', styleName: 'text-center' },
     { fieldName: 'saleDiv', header: t('MSG_TXT_SLS_CAT'), width: '119', styleName: 'text-center' },
-    { fieldName: 'pdAccCnt', header: t('MSG_TXT_PD_ACC_CNT'), width: '119', styleName: 'text-right' },
-    { fieldName: 'perfRental', header: t('MSG_TXT_RTLFE'), width: '119', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'perfSnglPmnt', header: t('MSG_TXT_SNGL_PMNT'), width: '119', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'pdAccCnt',
+      header: t('MSG_TXT_PD_ACC_CNT'),
+      width: '119',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'perfRental',
+      header: t('MSG_TXT_RTLFE'),
+      width: '119',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'perfSnglPmnt',
+      header: t('MSG_TXT_SNGL_PMNT'),
+      width: '119',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -205,5 +323,18 @@ const initGrdHmst = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+
+  view.layoutByColumn('prtnrKnm').summaryUserSpans = [
+    { colspan: 8 },
+  ];
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 40 },
+    ],
+  });
+  view.columnByName('prtnrKnm').setHeaderSummaries([
+    { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
+  ]);
 });
 </script>

@@ -149,6 +149,8 @@
               :end-level="3"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -156,6 +158,7 @@
               v-model="searchParams.prtnrNo"
               icon="search"
               clearable
+              :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />
@@ -190,6 +193,7 @@
               :label="$t('MSG_TXT_ORDR')"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
+              @change="onChangedOrdr"
             />
           </kw-search-item>
           <kw-search-item
@@ -415,7 +419,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const customCodes = {
   div2Cd: [{ codeId: '01', codeName: '상세' }, { codeId: '02', codeName: '집계' }],
-  div3Cd: [{ codeId: 'W02', codeName: 'M추진단' }, { codeId: 'W01', codeName: 'P추진단' }, { codeId: 'W03', codeName: '홈마스터' }, { codeId: 'W04', codeName: 'B2B' }, { codeId: 'W05', codeName: '총판' }, { codeId: 'W06', codeName: '기타' }],
+  div3Cd: [{ codeId: 'W02', codeName: 'M추진' }, { codeId: 'W01', codeName: 'P추진' }, { codeId: 'W03', codeName: '홈마스터' }, { codeId: 'W04', codeName: 'B2B' }, { codeId: 'W05', codeName: '총판' }, { codeId: 'W06', codeName: '기타' }],
   div4Cd: [{ codeId: '01', codeName: '접수' }, { codeId: '02', codeName: '예약' }, { codeId: '03', codeName: '매출' }, { codeId: '04', codeName: '수수료 실적 집계 대상' }],
   div6Cd: [{ codeId: '2', codeName: '렌탈/리스' }, { codeId: '1', codeName: '일시불' }, { codeId: '6', codeName: '정기배송' }, { codeId: '7', codeName: '재약정' }, { codeId: '3', codeName: '홈케어멤버십' }],
 };
@@ -760,6 +764,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'homeCare', dataType: 'number' },
     { fieldName: 'csmb', dataType: 'number' },
     { fieldName: 'acsr', dataType: 'number' },
+    { fieldName: 'nopd', dataType: 'number' },
 
   ];
 
@@ -890,6 +895,15 @@ const initGrd2Main = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       } },
+    { fieldName: 'nopd',
+      header: t('MSG_TXT_UNREG_TP'),
+      width: '120',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
   ];
 
   // multi row header setting
@@ -903,7 +917,7 @@ const initGrd2Main = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PDCT_TP'),
       direction: 'horizontal',
-      items: ['envr', 'welsf', 'bh', 'capsl', 'homeCare', 'csmb', 'acsr'],
+      items: ['envr', 'welsf', 'bh', 'capsl', 'homeCare', 'csmb', 'acsr', 'nopd'],
     },
   ]);
 

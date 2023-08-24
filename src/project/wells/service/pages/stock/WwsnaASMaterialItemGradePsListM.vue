@@ -59,6 +59,9 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span class="ml8">
+            ({{ t('MSG_TXT_UNIT') }} : EA)
+          </span>
         </template>
 
         <kw-btn
@@ -171,6 +174,7 @@ async function fetchData() {
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(itmGd);
+    view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   }
 }
 
@@ -235,6 +239,10 @@ fieldsObj = {
     gridView.setColumns(columns);
 
     gridView.setColumnLayout([...layoutColumns]);
+
+    gridView.setFixedOptions({
+      colCount: 4,
+    });
   },
   // 리스트에 담겨진 항목중 {fieldName : "" }  만  가져옴
   getColumnNameList(objList) {

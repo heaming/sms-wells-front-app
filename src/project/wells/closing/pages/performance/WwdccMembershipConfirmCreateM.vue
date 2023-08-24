@@ -61,14 +61,6 @@
             first-option="all"
           />
         </kw-search-item>
-
-        <kw-search-item :label="$t('MSG_TXT_MSH_DV')">
-          <kw-select
-            v-model="searchParams.sellTpDtlCd"
-            :options="sellTpDtlOpt"
-            first-option="all"
-          />
-        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -185,7 +177,6 @@ const searchParams = ref({
   cntrNo: '',
   cntrSn: 0,
   sellTpCd: '',
-  sellTpDtlCd: '',
 });
 
 const confirmParams = ref({
@@ -197,7 +188,6 @@ const ogOpt = [
   { codeId: '2', codeName: t('MSG_TXT_SLS') },
 ];
 const sellTpOpt = codes.SELL_TP_CD.filter((v) => ['1', '2', '4', '5'].includes(v.codeId));
-const sellTpDtlOpt = codes.SELL_TP_DTL_CD.filter((v) => ['11', '12'].includes(v.codeId));
 
 let cachedParams;
 async function fetchData() {

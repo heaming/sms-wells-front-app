@@ -112,6 +112,7 @@ import { useDataService, stringUtil, getComponentType, useGlobal } from 'kw-lib'
 const dataService = useDataService();
 const { t } = useI18n();
 const { confirm, notify } = useGlobal();
+const router = useRouter();
 
 const props = defineProps({
   cntrNo: {
@@ -232,7 +233,12 @@ function initGrid(data, view) {
 
   const columns = [
     { fieldName: 'fstRgstDt', header: t('MSG_TXT_AK_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 요청일자
-    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cntr',
+      header: t('MSG_TXT_CNTR_NO'),
+      width: '150',
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+    }, // 계약번호
     { fieldName: 'vstPromDt', header: t('MSG_TXT_APY_EXP_D'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 적용예정일
     { fieldName: 'request', header: t('MSG_TXT_AK'), width: '50', styleName: 'text-center' }, // 요청
     { fieldName: 'svpdNmKor', header: t('MSG_TXT_RGST_FILT'), width: '200' }, // 등록필터
@@ -244,6 +250,13 @@ function initGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
   view.rowIndicator.visible = true; // create number indicator column
+
+  view.onCellItemClicked = (grid, clickData) => {
+    if (clickData.column === 'cntr') {
+      const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
+    }
+  };
 }
 
 onMounted(async () => {

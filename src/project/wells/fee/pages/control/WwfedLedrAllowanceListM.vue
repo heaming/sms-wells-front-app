@@ -27,7 +27,7 @@
             :label="$t('MSG_TXT_PERF_YM')"
           />
         </kw-search-item>
-        <kw-search-item
+        <!-- <kw-search-item
           :label="$t('MSG_TXT_OG_DV')"
         >
           <kw-option-group
@@ -35,7 +35,7 @@
             type="radio"
             :options="codes.SELL_OG_DV_ACD"
           />
-        </kw-search-item>
+        </kw-search-item> -->
         <kw-search-item
           :label="$t('MSG_TXT_RSB')"
         >
@@ -47,8 +47,6 @@
             first-option-value=""
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
           <kw-option-group
             v-model="searchParams.inqrDvCd"
@@ -56,13 +54,16 @@
             :options="codes.WELS_MNGR_INQR_DV_CD"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item
-
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
           <kw-input
             v-model="searchParams.prtnrNo"
             icon="search"
+            :maxlength="10"
+            :regex="/^[0-9]*$/i"
             clearable
             :on-click-icon="onClickSearchNo"
           />
@@ -135,7 +136,7 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_OG_DV_ACD',
   'WELS_MNGR_INQR_DV_CD',
 );
-let rsbDvCd;
+const rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0103', 'W0202', 'W0203'].includes(v.codeId));
 
 const searchParams = ref({
   perfYm: dayjs().subtract(1, 'month').format('YYYYMM'),
@@ -146,10 +147,13 @@ const searchParams = ref({
   prtnrNo: '',
 });
 
+/*
 watch(() => searchParams.value.ogDvCd, async (val) => {
-  if (val === '7') { rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0202', 'W0203'].includes(v.codeId)); } else { rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0102', 'W0103'].includes(v.codeId)); }
+  if (val === '7') { rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0202', 'W0203'].includes(v.codeId)); }
+  else { rsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0102', 'W0103'].includes(v.codeId)); }
   searchParams.value.rsbDvCd = '';
 }, { immediate: true });
+*/
 
 watch(() => searchParams.value.inqrDvCd, async (val) => {
   totalCount.value = 0;
@@ -202,7 +206,7 @@ async function openUploadPopup(componentProps) {
 }
 
 async function onClickExcelUpload() {
-  openUploadPopup({ formatId: 'FOM_FEZ_0027', baseYm: searchParams.value.perfYm });
+  openUploadPopup({ formatId: 'FOM_FEZ_0027', baseYm: searchParams.value.perfYm, ogTpCd: searchParams.value.ogTpCd === '7' ? 'W02' : 'W01', type: searchParams.value.rsbDvCd });
 }
 
 async function onClickSearchNo() {
@@ -211,7 +215,8 @@ async function onClickSearchNo() {
     componentProps: {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: searchParams.value.ogTpCd === '7' ? 'W02' : 'W01',
+      // ogTpCd: 'HR1',
+      // ogTpCd: searchParams.value.ogTpCd === '7' ? 'W02' : 'W01',
     },
   });
 
@@ -245,10 +250,10 @@ async function onClickSearch() {
 const initGridIndv = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'dsbYm', header: t('MSG_TXT_PERF_YM'), width: '106', styleName: 'text-center' },
-    { fieldName: 'ogLevlDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-left' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', styleName: 'text-left' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '96', styleName: 'text-left' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-left' },
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_BLG_NM'), width: '96', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '96', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '96', styleName: 'text-center' },
     { fieldName: 'hmnrscEmpno', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center' },
     { fieldName: 'brchCt', header: t('MSG_TXT_BRCH_N'), width: '106', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
 
@@ -263,7 +268,7 @@ const initGridIndv = defineGrid((data, view) => {
     { fieldName: 'trgAchvAwAmt', header: t('MSG_TXT_TRG') + t('MSG_TXT_ACHV') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'mngrPerfGdCd', header: t('MSG_TXT_GD'), width: '133', styleName: 'text-right' }, // 등급(2021년 1월까지)
     { fieldName: 'ogAwAmt', header: t('MSG_TXT_OG') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 조직수당(2021년 2월부터)
-    { fieldName: 'evlAwAmt', header: t('MSG_TXT_EVL') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'ejtAwAmt', header: t('MSG_TXT_EJT') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'perfAwSumAmt', header: t('MSG_TXT_OUTC_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
 
     { fieldName: 'exclDivAwAmt', header: t('MSG_TXT_EXCL_DIV'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
@@ -309,7 +314,7 @@ const initGridIndv = defineGrid((data, view) => {
   // multi row header setting
   view.setColumnLayout([
     'dsbYm',
-    'ogLevlDvNm',
+    'rsbDvNm',
     'ogNm',
     'ogCd',
     'prtnrKnm',
@@ -323,7 +328,7 @@ const initGridIndv = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_OUTC_AW'),
       direction: 'horizontal',
-      items: ['trgCt', 'perfCt', 'perfAchvRat', 'trgAchvAwAmt', 'mngrPerfGdCd', 'ogAwAmt', 'evlAwAmt', 'perfAwSumAmt'],
+      items: ['trgCt', 'perfCt', 'perfAchvRat', 'trgAchvAwAmt', 'mngrPerfGdCd', 'ogAwAmt', 'ejtAwAmt', 'perfAwSumAmt'],
     },
     {
       header: t('MSG_TXT_ETC') + t('MSG_TXT_AW'), // colspan title
@@ -352,7 +357,7 @@ const initGridSum = defineGrid((data, view) => {
         text: t('MSG_TXT_SUM'),
       },
     },
-    { fieldName: 'ogLevlDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-left' },
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB_TP'), width: '96', styleName: 'text-center' },
     { fieldName: 'hmnrscEmpnoCnt',
       header: t('MSG_TXT_PPL_N'),
       width: '106',
@@ -454,8 +459,19 @@ const initGridSum = defineGrid((data, view) => {
         expression: 'sum',
       },
     },
-    { fieldName: 'evlAwAmt',
-      header: t('MSG_TXT_EVL') + t('MSG_TXT_AW'),
+    { fieldName: 'ogAwAmt',
+      header: t('MSG_TXT_OG') + t('MSG_TXT_AW'),
+      width: '133',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    { fieldName: 'ejtAwAmt',
+      header: t('MSG_TXT_EJT') + t('MSG_TXT_AW'),
       width: '133',
       styleName: 'text-right',
       dataType: 'number',
@@ -715,7 +731,7 @@ const initGridSum = defineGrid((data, view) => {
       column: 'dsbYm',
       summaryUserSpans: [{ colspan: 2 }],
     },
-    'ogLevlDvNm',
+    'rsbDvNm',
     'hmnrscEmpnoCnt',
     {
       header: t('MSG_TXT_FXN_SAL'), // colspan title
@@ -725,7 +741,7 @@ const initGridSum = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_OUTC_AW'),
       direction: 'horizontal',
-      items: ['trgCt', 'perfCt', 'perfAchvRat', 'trgAchvAwAmt', 'evlAwAmt', 'perfAwSumAmt'],
+      items: ['trgCt', 'perfCt', 'perfAchvRat', 'trgAchvAwAmt', 'ogAwAmt', 'ejtAwAmt', 'perfAwSumAmt'],
     },
     {
       header: t('MSG_TXT_ETC') + t('MSG_TXT_AW'), // colspan title

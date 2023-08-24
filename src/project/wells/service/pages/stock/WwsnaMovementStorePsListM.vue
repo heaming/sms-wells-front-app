@@ -21,10 +21,13 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_STR_WARE')"
+          required
         >
           <kw-select
             v-model="searchParams.strOjWareNo"
             :options="warehouses"
+            :label="$t('MSG_TXT_STR_WARE')"
+            rules="required"
           />
         </kw-search-item>
         <kw-search-item
@@ -38,11 +41,13 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_STR_DT')"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.stStrDt"
             v-model:to="searchParams.edStrDt"
-            rules="date_range_months:1"
+            rules="required|date_range_months:1"
+            :label="$t('MSG_TXT_STR_DT')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -93,7 +98,7 @@
 
 import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -140,13 +145,11 @@ searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 let cachedParams;
 
 async function fetchData() {
-  console.log(cachedParams);
   const res = await dataService.get('/sms/wells/service/movement-stores', { params: cachedParams });
   const moveMentItem = res.data;
   totalCount.value = moveMentItem.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(moveMentItem.map((v) => ({ ...v, strDelButn: ' ' })));
-  view.resetCurrent();
 }
 
 async function onClickExcelDownload() {
@@ -172,7 +175,9 @@ async function fetchDefaultData() {
   const { userId, apyYm } = wharehouseParams.value;
 
   warehouses.value = await getMonthWarehouse(userId, apyYm);
-  searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  }
 }
 
 onMounted(async () => {

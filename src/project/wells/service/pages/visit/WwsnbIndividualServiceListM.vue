@@ -29,6 +29,7 @@
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
             disable-popup
+            :update="updateCntrDtl()"
           >
             <template #append>
               <kw-icon
@@ -53,16 +54,17 @@
         <!-- 개인별 방문주기 조회 -->
         <kw-btn
           :label="$t('MSG_BTN_INDV_VST_INQR')"
-          primary
+          secondary
           dense
+          :disable="isDisableButton"
           @click="onClickVisitPeriodSearch"
         />
         <!-- 개인별 방문주기 생성 -->
         <kw-btn
           :label="$t('MSG_BTN_INDV_VST_CRT')"
-          primary
+          secondary
           dense
-          :disable="isDisable()"
+          :disable="isDisableButton"
           @click="onClickVisitPeriodCreate"
         />
       </kw-action-top>
@@ -136,11 +138,14 @@
             <kw-input
               v-model="saveParams.cstUnuitmCn"
               :placeholder="individualParams.cstUnuitmCn"
+              type="textarea"
+              rows="1"
             />
             <!-- 저장 -->
             <kw-btn
               secondary
               :label="$t('MSG_BTN_SAVE')"
+              padding="12px"
               @click="onClickSave"
             />
             <!-- rev:230621 padding="12px" 추가-->
@@ -524,7 +529,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta,
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil,
   // gridUtil,
 } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
@@ -556,6 +561,7 @@ const isDisableTab = computed(() => departmentId !== '71301' || departmentId ===
 const svHshdNo = ref('');
 const selectedTab = ref('1');
 // const cntrDtlNo = ref();
+// const istPhFileUid = ref([]);
 const countInfo = ref({
   householdTotalCount: 0,
   contactTotalCount: 0,
@@ -591,14 +597,15 @@ const saveParams = ref({
   wkPrtnrNo: '',
   cstUnuitmCn: '',
 });
+const isDisableButton = computed(() => isEmpty(searchParams.value.cntrNo) || isEmpty(searchParams.value.cntrSn));
 
-function isDisable() {
-  // if (departmentId === '70526' || departmentId === '70254' || departmentId === '71301') {
-  //   return false;
-  // }
-  // return true;
-  return false;
-}
+// function isDisable() {
+//   // if (departmentId === '70526' || departmentId === '70254' || departmentId === '71301') {
+//   //   return false;
+//   // }
+//   // return true;
+//   return false;
+// }
 
 async function onClickCstSearch() {
   const { result, payload } = await modal({ component: 'WwsnyCustomerBaseInformationP' });
@@ -612,6 +619,10 @@ async function onClickCstSearch() {
 async function getIndividualServicePs() {
   const res = await dataService.get('sms/wells/service/individual-service-ps', { params: searchParams.value });
   individualParams.value = res.data;
+
+  // init tab & cstUnuitmCn params
+  selectedTab.value = '1';
+  saveParams.value.cstUnuitmCn = '';
 }
 
 async function onClickVisitPeriodSearch() {
@@ -692,6 +703,11 @@ async function getIndividualState() {
   const { list: individualState, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
+
+  console.log(res.data);
+  // console.log(pagingResult);
+
+  pageInfo.value.totalCount = individualState.length;
   const individualStateView = grdIndividualStateRef.value.getView();
   const individualStateData = individualStateView.getDataSource();
   individualStateData.checkRowStates(false);
@@ -716,26 +732,23 @@ async function onClickSearch() {
     notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_NO')}, ${t('MSG_TXT_BARCODE')}`]));
   } else {
     await getIndividualServicePs();
-    // init tab & cstUnuitmCn params
-    selectedTab.value = '1';
-    saveParams.value.cstUnuitmCn = '';
     if (isEmpty(individualParams.value)) {
       notify(t('MSG_ALT_CST_INF_NOT_EXST'));
       // init countInfo
-      svHshdNo.value = '';
-      countInfo.value.householdTotalCount = 0;
-      countInfo.value.contactTotalCount = 0;
-      countInfo.value.delinquentCount = 0;
-      countInfo.value.farmTotalCount = 0;
-      pageInfo.value.totalCount = 0;
-      secondPageInfo.value.totalCount = 0;
+      // svHshdNo.value = '';
+      // countInfo.value.householdTotalCount = 0;
+      // countInfo.value.contactTotalCount = 0;
+      // countInfo.value.delinquentCount = 0;
+      // countInfo.value.farmTotalCount = 0;
+      // pageInfo.value.totalCount = 0;
+      // secondPageInfo.value.totalCount = 0;
       // init dataSet
-      grdIndividualHouseholdRef.value.getData().clearRows();
-      grdIndividualContactRef.value.getData().clearRows();
-      grdIndividualDelinquentRef.value.getData().clearRows();
-      grdIndividualFarmCodeRef.value.getData().clearRows();
-      grdIndividualStateRef.value.getData().clearRows();
-      grdIndividualCounselRef.value.getData().clearRows();
+      // grdIndividualHouseholdRef.value.getData().clearRows();
+      // grdIndividualContactRef.value.getData().clearRows();
+      // grdIndividualDelinquentRef.value.getData().clearRows();
+      // grdIndividualFarmCodeRef.value.getData().clearRows();
+      // grdIndividualStateRef.value.getData().clearRows();
+      // grdIndividualCounselRef.value.getData().clearRows();
     } else {
       searchParams.value.cntrNo = individualParams.value.cntrNoDtl.substring(0, 12);
       searchParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
@@ -761,6 +774,7 @@ async function onClickSave() {
   saveParams.value.ogTpCd = individualParams.value.wkOgTpCd;
   saveParams.value.wkPrtnrNo = individualParams.value.wkPrtnrNo;
 
+  if (isEmpty(saveParams.value.cstUnuitmCn)) { return; }
   await dataService.post('sms/wells/service/individual-service-ps', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   await getIndividualServicePs();
@@ -771,6 +785,22 @@ async function onClickSave() {
   await getIndividualState();
   await getIndividualCounsel();
 }
+
+function updateCntrDtl() {
+  watch(props, async (val) => {
+    if (val) {
+      searchParams.value.cntrNo = props.cntrNo;
+      searchParams.value.cntrSn = props.cntrSn;
+      await onClickSearch();
+    }
+  });
+}
+
+onMounted(async () => {
+  if (props.cntrNo) {
+    await onClickSearch();
+  }
+});
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -848,6 +878,9 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'bldNm' },
     { fieldName: 'bcNo' },
     { fieldName: 'imgYn' },
+    { fieldName: 'istEnvrFileUid' },
+    { fieldName: 'istKitFileUid' },
+    { fieldName: 'istCelngFileUid' },
   ];
 
   const columns = [
@@ -875,6 +908,7 @@ const initGridState = defineGrid((data, view) => {
       },
     },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLG_BLD'), width: '94', styleName: 'text-center' },
+    { fieldName: 'bcNo', header: t('MSG_TXT_IN_WK_BC'), width: '94', styleName: 'text-center' },
     { fieldName: 'imgYn',
       header: t('MSG_TXT_PHO'),
       width: '94',
@@ -894,14 +928,33 @@ const initGridState = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-  view.onCellItemClicked = async (grd, clickData) => {
-    if (clickData.fieldName === 'imgYn') {
+  view.onCellItemClicked = async (grd, { column, dataRow }) => {
+    if (column === 'imgYn') {
       notify(' 설치환경상세 팝업(W-SV-U-0214P01) 호출');
+      const { istEnvrFileUid, istKitFileUid, istCelngFileUid } = gridUtil.getRowValue(grd, dataRow);
+      console.log(istEnvrFileUid);
+      console.log(istKitFileUid);
+      console.log(istCelngFileUid);
+      // await modal({
+      //   component: 'WwsnbInstallEnvironmentDtlP',
+      //   componentProps: {
+      //     istEnvrFileUid,
+      //     istKitFileUid,
+      //     istCelngFileUid,
+      //   },
+      // });
     }
   };
   view.onCellClicked = async (grd, clikdD) => {
     if (clikdD.fieldName === 'svBizDclsf') {
       notify(' 서비스처리상세 내역 팝업(W-SV-U-0165P01) 호출');
+    //   await modal({
+    //     component: '',
+    //     componentProps: {
+    //       cntrNo: searchParams.value.cntrNo,
+    //       cntrSn: searchParams.value.cntrSn,
+    //     },
+    //   });
     }
   };
 
@@ -919,6 +972,7 @@ const initGridState = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['ogTp', 'ogNm', 'prtnrNo', 'prtnrNm', 'prtnrTno', 'bldNm'],
     },
+    'bcNo',
     'imgYn',
   ]);
 
@@ -965,8 +1019,8 @@ const initGridCounsel = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onScrollToBottom = async (g) => {
-    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
-      pageInfo.value.pageIndex += 1;
+    if (secondPageInfo.value.pageIndex * secondPageInfo.value.pageSize <= g.getItemCount()) {
+      secondPageInfo.value.pageIndex += 1;
       await getIndividualCounsel();
     }
   };

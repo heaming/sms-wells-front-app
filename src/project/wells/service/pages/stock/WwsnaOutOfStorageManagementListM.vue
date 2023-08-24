@@ -27,7 +27,6 @@
           <kw-select
             v-model="searchParams.ostrWareNo"
             :options="warehouses"
-            first-option="select"
             :label="$t('MSG_TXT_OSTR_WARE')"
             rules="required"
           />
@@ -193,13 +192,13 @@ function onChagneHgrWareNo() {
 
 let cachedParams;
 async function fetchData() {
-  console.log(searchParams.value.divide);
   const res = await dataService.get('/sms/wells/service/out-of-storage-itemizations/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: outOfItem, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(outOfItem.map((v) => ({ ...v, txtNote: ' ' })));
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {

@@ -26,7 +26,7 @@
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.baseYm"
             :start-level="1"
-            :end-level="2"
+            :end-level="1"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_WK_GRP')">
@@ -340,10 +340,10 @@ watch(() => saveParams.value.chk, async (newVal) => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '162', styleName: 'text-center' },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '125', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BLG'), width: '162', styleName: 'text-center' },
+    // { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '125', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '92', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '130', styleName: 'text-center' },
     {
       fieldName: 'wkGrpCd',
       header: t('MSG_TXT_WK_GRP'),

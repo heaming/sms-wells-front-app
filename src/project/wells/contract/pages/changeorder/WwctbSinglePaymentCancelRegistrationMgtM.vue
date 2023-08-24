@@ -69,9 +69,7 @@
         </kw-item-section>
       </template>
       <div class="pb20">
-        <kw-form
-          cols="4"
-        >
+        <kw-form cols="4">
           <kw-form-row>
             <!--상품코드-->
             <kw-form-item :label="$t('TXT_MSG_PD_CD')">
@@ -147,9 +145,7 @@
   </kw-list>
 
   <!-- 4. 취소사항 -->
-  <kw-action-top
-    class="mt30"
-  >
+  <kw-action-top class="mt30">
     <template #left>
       <h3>4. {{ t('MSG_TXT_CAN_ARTC') }}</h3>
     </template>
@@ -161,9 +157,7 @@
   >
     <kw-form-row>
       <!-- row1 요청일자 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_AK_DT')"
-      >
+      <kw-form-item :label="$t('MSG_TXT_AK_DT')">
         <kw-date-picker
           v-model="searchDetail.rsgAplcDt"
           :label="$t('MSG_TXT_AK_DT')"
@@ -171,9 +165,7 @@
         />
       </kw-form-item>
       <!-- row1 취소일자 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_CANC_DT')"
-      >
+      <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
         <kw-date-picker
           v-model="searchDetail.rsgFshDt"
           :label="$t('MSG_TXT_CANC_DT')"
@@ -181,7 +173,10 @@
         />
       </kw-form-item>
       <!-- 취소유형 -->
-      <kw-form-item :label="$t('MSG_TXT_CNCL_TP')">
+      <kw-form-item
+        :label="$t('MSG_TXT_CNCL_TP')"
+        class="equal_division--2"
+      >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
           :options="codes.CMN_STAT_CH_RSON_CD"
@@ -201,6 +196,7 @@
     <kw-form-row>
       <kw-form-item
         :label="$t('MSG_TXT_CONSUMPTION')"
+        class="equal_division--2"
       >
         <kw-select
           v-model="searchDetail.csmbCsExmptDvCd"
@@ -211,7 +207,7 @@
           v-model="inputDetail.sel3Text"
           class="w80"
           regex="num"
-          maxlength="2"
+          maxlength="1"
           @update:model-value="onChangeTextforSelect('sel3')"
         />
       </kw-form-item>
@@ -229,9 +225,7 @@
     </kw-form-row>
   </kw-form>
 
-  <div
-    class="button-set--bottom"
-  >
+  <div class="button-set--bottom">
     <!-- BTN Variation #2 : 취소등록 이후 or 이미 취소가 등록된 버튼 배열-->
     <div
       v-if="searchDetail.cancelStatNm === '취소등록'"
@@ -253,6 +247,12 @@
         :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
         @click="onClickRefund"
+      />
+      <!--삭제-->
+      <kw-btn
+        :label="$t('MSG_BTN_DEL')"
+        class="ml8"
+        @click="onClickDelete"
       />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
@@ -295,6 +295,7 @@ const emits = defineEmits([
   'searchdetail',
   'savedetail',
   'removedetail',
+  'deletecancel',
 ]);
 
 const props = defineProps({
@@ -317,9 +318,17 @@ codes.CSMB_CS_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
 function onChangeTextforSelect(div) {
   if (div === 'sel2') {
-    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    if (codes.CMN_STAT_CH_RSON_CD.findIndex((v) => v.codeId === inputDetail.value.sel2Text) >= 0) {
+      searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    } else {
+      searchDetail.cntrStatChRsonCd = '';
+    }
   } else if (div === 'sel3') {
-    searchDetail.csmbCsExmptDvCd = inputDetail.value.sel3Text;
+    if (codes.CSMB_CS_EXMPT_DV_CD.findIndex((v) => v.codeId === inputDetail.value.sel3Text) >= 0) {
+      searchDetail.csmbCsExmptDvCd = inputDetail.value.sel3Text;
+    } else {
+      searchDetail.csmbCsExmptDvCd = '';
+    }
   }
 }
 
@@ -337,6 +346,10 @@ function onClickSave() {
 
 function onClickCancel() {
   emits('removedetail');
+}
+
+function onClickDelete() {
+  emits('deletecancel');
 }
 
 async function onClickTodo(param) {

@@ -148,7 +148,7 @@
           vertical
           inset
         />
-        <kw-input
+        <!-- <kw-input
           ref="tfPrtnrKnmRef"
           v-model="updatePartnerObj.tfPrtnrKnm"
           readonly
@@ -158,6 +158,22 @@
           :label="$t('MSG_TXT_BLG')"
           :placeholder="$t('MSG_TXT_BLG_SLCT')"
           @click-icon="onClickIconPrtnrNoSearchPopup"
+        /> -->
+        <kw-input
+          ref="tfPrtnrKnmRef"
+          v-model="updatePartnerObj.tfPrtnrKnm"
+          dense
+          class="w120"
+          readonly
+          rules="required"
+          :label="$t('MSG_TXT_BLG')"
+          :placeholder="$t('담당자 입력')"
+        />
+        <kw-btn
+          dense
+          secondary
+          icon="search"
+          @click="onClickIconPrtnrNoSearchPopup"
         />
         <!-- <kw-select
           ref="refTfOgId"
@@ -327,6 +343,7 @@ async function fetchOrganizationOptions() {
   const { ogId, ogTpCd } = getters['meta/getUserInfo'];
   let dgr1LevlOgId;
   let dgr2LevlOgId;
+
   if (ogTpCd === 'W02') {
     const { data } = await dataService.get(`/sms/wells/service/manage-customer-rglvl/organization-info/${ogId}`);
     if (!data.dgr1LevlOgId) {
@@ -347,7 +364,19 @@ async function fetchOrganizationOptions() {
 }
 
 const { baseRleCd } = getters['meta/getUserInfo'];
-const isShowTfConfirmBtm = ref(baseRleCd === '9999');
+// const isShowTfConfirmBtm = ref(baseRleCd === '9999');
+const isShowTfConfirmBtm = ref(false);
+function isShowTfConfirmAuth() {
+  return (baseRleCd === 'W6010' || baseRleCd === 'W6020');
+}
+async function getManagerAuthYn() {
+  const res = await dataService.get('/sms/wells/service/before-service-period-customer/manager-auth-yn');
+  if ((isShowTfConfirmAuth() || res.data.managerAuthYn === 'Y')) {
+    isShowTfConfirmBtm.value = true;
+  } else {
+    isShowTfConfirmBtm.value = false;
+  }
+}
 
 const partnerOptions = ref([]);
 
@@ -752,6 +781,7 @@ function initGrdMain(data, view) {
 }
 
 onMounted(async () => {
+  await getManagerAuthYn();
   await fetchOrganizationOptions();
 });
 </script>

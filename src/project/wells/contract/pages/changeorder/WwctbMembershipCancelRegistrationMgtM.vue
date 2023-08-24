@@ -32,9 +32,7 @@
         </kw-item-section>
       </template>
       <div class="pb20">
-        <kw-form
-          cols="4"
-        >
+        <kw-form cols="4">
           <kw-form-row>
             <!--고객명-->
             <kw-form-item :label="$t('MSG_TXT_CST_NM')">
@@ -86,9 +84,7 @@
         </kw-item-section>
       </template>
       <div class="pb20">
-        <kw-form
-          cols="4"
-        >
+        <kw-form cols="4">
           <kw-form-row>
             <!--상품코드-->
             <kw-form-item :label="$t('TXT_MSG_PD_CD')">
@@ -243,7 +239,7 @@
             </kw-form-item>
             <!-- row5 매출잔액 -->
             <kw-form-item :label="$t('MSG_TXT_SL_BLAM')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotPcamBlam??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.slBlam??'') }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -381,9 +377,7 @@
     <kw-separator />
     <kw-form-row>
       <!-- 할인공제금액 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_DSC_DDTN_AMT')"
-      >
+      <kw-form-item :label="$t('MSG_TXT_DSC_DDTN_AMT')">
         <kw-input
           v-model="searchDetail.dscDdctam"
           regex="num"
@@ -417,7 +411,10 @@
     <kw-separator />
     <kw-form-row>
       <!-- 면책유형 -->
-      <kw-form-item :label="$t('MSG_TXT_EXEMPTION')+$t('MSG_TXT_TYPE')">
+      <kw-form-item
+        :label="$t('MSG_TXT_EXEMPTION')+$t('MSG_TXT_TYPE')"
+        class="equal_division--2"
+      >
         <kw-select
           v-model="searchDetail.ccamExmptDvCd"
           :options="codes.CCAM_EXMPT_DV_CD"
@@ -427,12 +424,15 @@
           v-model="inputDetail.sel1Text"
           class="w80"
           regex="num"
-          maxlength="2"
+          maxlength="1"
           @update:model-value="onChangeTextforSelect('sel1')"
         />
       </kw-form-item>
       <!-- 취소유형 -->
-      <kw-form-item :label="$t('MSG_TXT_CNCL_TP')">
+      <kw-form-item
+        :label="$t('MSG_TXT_CNCL_TP')"
+        class="equal_division--2"
+      >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
           :options="codes.CMN_STAT_CH_RSON_CD"
@@ -459,9 +459,7 @@
         />
       </kw-form-item>
       <!-- row2-1 조정사유 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_CTR_RSON')"
-      >
+      <kw-form-item :label="$t('MSG_TXT_CTR_RSON')">
         <kw-input
           v-model="searchDetail.slCtrRmkCn"
           maxlength="1000"
@@ -480,9 +478,7 @@
     </kw-form-row>
   </kw-form>
 
-  <div
-    class="button-set--bottom"
-  >
+  <div class="button-set--bottom">
     <!-- BTN Variation #2 : 취소등록 이후 or 이미 취소가 등록된 버튼 배열-->
     <div
       v-if="searchDetail.cancelStatNm === '취소등록'"
@@ -504,6 +500,12 @@
         :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
         @click="onClickRefund"
+      />
+      <!--삭제-->
+      <kw-btn
+        :label="$t('MSG_BTN_DEL')"
+        class="ml8"
+        @click="onClickDelete"
       />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
@@ -548,6 +550,7 @@ const emits = defineEmits([
   'searchdetail',
   'savedetail',
   'removedetail',
+  'deletecancel',
 ]);
 
 const props = defineProps({
@@ -569,9 +572,17 @@ codes.CMN_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
 function onChangeTextforSelect(div) {
   if (div === 'sel1') {
-    searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+    if (codes.CCAM_EXMPT_DV_CD.findIndex((v) => v.codeId === inputDetail.value.sel1Text) >= 0) {
+      searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+    } else {
+      searchDetail.ccamExmptDvCd = '';
+    }
   } else if (div === 'sel2') {
-    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    if (codes.CMN_STAT_CH_RSON_CD.findIndex((v) => v.codeId === inputDetail.value.sel2Text) >= 0) {
+      searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    } else {
+      searchDetail.cntrStatChRsonCd = '';
+    }
   }
 }
 
@@ -607,6 +618,10 @@ async function onClickRefund() {
     component: 'WwwdbRefundApplicationRegP',
     componentProps: { cntrNo, cntrSn },
   });
+}
+
+function onClickDelete() {
+  emits('deletecancel');
 }
 
 async function onClickTodo(param) {

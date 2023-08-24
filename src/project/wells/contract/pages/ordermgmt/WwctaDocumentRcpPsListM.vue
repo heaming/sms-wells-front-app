@@ -111,7 +111,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useDataService, useGlobal, gridUtil, codeUtil } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
@@ -207,6 +207,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cralLocaraTno' }, // 휴대지역전화번호
     { fieldName: 'mexnoEncr' }, // 휴대전화국번호암호화
     { fieldName: 'cralIdvTno' }, // 휴대개별전화번호
+    { fieldName: 'cralTno' }, // 휴대전화번호
     { fieldName: 'cntrChTpCd' }, // 접수유형
     { fieldName: 'cntrChTpNm' }, // 접수유형명
   ];
@@ -219,24 +220,11 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrChPrgsStatNmEnd', header: t('MSG_TXT_ETC_END'), width: '166', styleName: 'text-left' }, // 기타종료
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '166', styleName: 'text-center' }, // 고객명
     {
-      fieldName: 'cralLocaraTno',
+      fieldName: 'cralTno',
       name: 'mpno',
       header: t('MSG_TXT_MPNO'),
       styleName: 'text-center',
       width: '128',
-
-      displayCallback(grid, index, value) {
-        const mpno1 = value;
-        const mpno2 = grid.getValue(index.itemIndex, 'mexnoEncr');
-        const mpno3 = grid.getValue(index.itemIndex, 'cralIdvTno');
-
-        if (!isEmpty(mpno1) && !Number.isNaN(mpno1)
-            && !isEmpty(mpno2) && !Number.isNaN(mpno2)
-            && !isEmpty(mpno3) && !Number.isNaN(mpno3)) {
-          return `${mpno1}-${mpno2}-${mpno3}`;
-        }
-        return '';
-      },
     }, // 휴대전화번호
     { fieldName: 'cntrChTpNm', header: t('MSG_TXT_RCP_TP'), width: '166', styleName: 'text-left' }, // 접수유형
   ];
@@ -247,8 +235,8 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true; // create number indicator column
 
   view.onCellDblClicked = async (g, { dataRow }) => {
-    const paramCntrChRcpId = g.getValue(dataRow, 'cntrChRcpId'); // 접수번호
-    const paramCntrChTpCd = g.getValue(dataRow, 'cntrChTpCd'); // 접수유형
+    const paramCntrChRcpId = gridUtil.getCellValue(g, dataRow, 'cntrChRcpId'); // 접수번호
+    const paramCntrChTpCd = gridUtil.getCellValue(g, dataRow, 'cntrChTpCd'); // 접수유형
 
     const res = await modal({
       component: 'WwctaDocumentRcpDtlMgtP',

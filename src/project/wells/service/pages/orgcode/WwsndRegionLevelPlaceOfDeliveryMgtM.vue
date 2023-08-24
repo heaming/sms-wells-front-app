@@ -139,7 +139,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -164,7 +165,7 @@ import {
   gridUtil,
   useGlobal,
 } from 'kw-lib';
-import { cloneDeep, replace } from 'lodash-es';
+import { cloneDeep, replace, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -236,6 +237,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(places);
   view.clearCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -257,7 +259,6 @@ function onClickAddRow() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
-
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
@@ -310,8 +311,8 @@ async function onClickApplyDateBulkChange() {
     notify(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_APY_STRTDT')]));
   } else {
     for (let i = 0; i < chkRows.length; i += 1) {
-      data.setValue(chkRows[i].dataRow, 'apyStrtdt', chgApyDt.value.apyStrtdt);
-      data.setValue(chkRows[i].dataRow, 'apyEnddt', chgApyDt.value.apyEnddt);
+      data.setValue(view.getItemIndex(chkRows[i].dataRow), 'apyStrtdt', chgApyDt.value.apyStrtdt);
+      data.setValue(view.getItemIndex(chkRows[i].dataRow), 'apyEnddt', chgApyDt.value.apyEnddt);
     }
   }
 }
@@ -396,13 +397,24 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'cnrOgId',
       header: t('MSG_TXT_CENTER_DIVISION'),
       width: '150',
-      editor: { type: 'list' },
-      editable: searchParams.value.pdlvDvCd === 'E',
       options: svcCode,
       optionValue: 'ogId',
       optionLabel: 'ogNm',
+      styleCallback(grid, dataCell) {
+        const pdlvDvCd = grid.getValue(dataCell.item.index, 'pdlvDvCd');
+        if (pdlvDvCd === 'E') {
+          return {
+            editable: true,
+            editor: {
+              type: 'dropdown',
+            },
+          };
+        }
+        return {
+          editable: false,
+        };
+      },
     },
-
   ];
 
   const columnLayout = [
@@ -466,7 +478,7 @@ const initGrdMain = defineGrid((data, view) => {
     if (apyEnddt !== '99991231') {
       return t('MSG_ALT_NOT_FINAL_APY_STRTDT');
     }
-    if (apyStrtdtMax >= apyStrtdt) {
+    if (!isEmpty(apyStrtdtMax) && apyStrtdtMax >= apyStrtdt) {
       return t('MSG_ALT_APY_STRT_D_CONF_MAX_DT', [apyStrtdtMax]);
     }
   };

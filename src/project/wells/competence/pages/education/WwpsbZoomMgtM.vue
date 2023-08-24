@@ -215,7 +215,7 @@ const isThreeDepth = ref(true);
 
 async function fetchData() {
   const cachedParams = { ...searchParams.value };
-  return await dataService.get('/sms/wells/competence/zoom-counsel/trees', { params: cachedParams });
+  return await dataService.get('/sms/wells/competence/educations/zoom-counsel/trees', { params: cachedParams });
 }
 const totalCount = ref(0);
 async function init() {
@@ -408,7 +408,7 @@ async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL'))) {
     if (dataRow > 1) {
       data.removeRow(dataRow);
-      await dataService.delete('/sms/wells/competence/zoom-counsel', { data: { svEducMnalId } });
+      await dataService.delete('/sms/wells/competence/educations/zoom-counsel', { data: { svEducMnalId } });
       await init();
       if (searchParams.value.oneDepth !== '') {
         onClickSearch();
@@ -537,7 +537,7 @@ async function onClickSave() {
     treeList,
   };
 
-  await dataService.post('/sms/wells/competence/zoom-counsel/zooms', dataParams);
+  await dataService.post('/sms/wells/competence/educations/zoom-counsel/zooms', dataParams);
   notify(t('MSG_ALT_SAVE_DATA'));
   await init();
   if (searchParams.value.oneDepth !== '') {

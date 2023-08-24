@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTB
 2. 프로그램 ID : WwpshFalseVisitMgtM - 허위방문 관리
-3. 작성자 : gs.piit225
+3. 작성자 : jisung you
 4. 작성일 : 2023.05.25
 ****************************************************************************************************
 * 프로그램 설명
@@ -157,7 +157,6 @@ async function onClickSearchNo() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: userInfo.ogTpCd,
     },
   });
 
@@ -328,7 +327,6 @@ const initGrdMain = defineGrid((data, view) => {
         component: 'ZwogzPartnerListP',
         componentProps: {
           prtnrNo,
-          ogTpCd: userInfo.ogTpCd,
         },
 
       });
@@ -338,6 +336,7 @@ const initGrdMain = defineGrid((data, view) => {
         } else {
           prtnrPopupValidateChk.value -= 1;
         }
+        data.setValue(dataRow, 'ogTpCd', payload.ogTpCd);
         data.setValue(dataRow, 'prtnrNo', payload.prtnrNo);
         data.setValue(dataRow, 'prtnrKnm', payload.prtnrKnm);
         data.setValue(dataRow, 'hooPrtnrNo', payload.dgr3LevlDgPrtnrNo);

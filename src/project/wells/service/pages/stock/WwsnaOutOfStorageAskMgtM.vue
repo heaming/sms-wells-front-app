@@ -19,10 +19,16 @@
     >
       <kw-search-row>
         <!-- 출고요청창고 -->
-        <kw-search-item :label="$t('MSG_TXT_OSTR_AK_WARE')">
+        <kw-search-item
+          :label="$t('MSG_TXT_OSTR_AK_WARE')"
+          required
+        >
           <kw-select
             v-model="searchParams.strOjWareNo"
             :options="warehouses"
+            first-option="select"
+            :label="$t('MSG_TXT_OSTR_AK_WARE')"
+            rules="required"
           />
         </kw-search-item>
         <!-- 출고요청유형 -->
@@ -34,20 +40,29 @@
           />
         </kw-search-item>
         <!-- 입고희망일자 -->
-        <kw-search-item :label="$t('MSG_TXT_STR_HOP_DT')">
+        <kw-search-item
+          :label="$t('MSG_TXT_STR_HOP_DT')"
+          required
+        >
           <kw-date-range-picker
             v-model:from="searchParams.startStrHopDt"
             v-model:to="searchParams.endStrHopDt"
-            rules="date_range_months:1"
+            :label="$t('MSG_TXT_STR_HOP_DT')"
+            rules="required|date_range_months:1"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <!-- 출고요청접수창고 -->
-        <kw-search-item :label="$t('MSG_TXT_OSTR_AK_RCP_WARE')">
+        <kw-search-item
+          :label="$t('MSG_TXT_OSTR_AK_RCP_WARE')"
+          required
+        >
           <kw-select
             v-model="searchParams.wareDvCd"
             :options="codes.WARE_DV_CD"
+            :label="$t('MSG_TXT_OSTR_AK_RCP_WARE')"
+            rules="required"
           />
         </kw-search-item>
       </kw-search-row>
@@ -64,12 +79,6 @@
             @change="fetchData"
           />
         </template>
-        <!-- <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-        /> -->
         <kw-btn
           icon="download_on"
           dense
@@ -183,6 +192,7 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(newOutOfStorageAsks);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {

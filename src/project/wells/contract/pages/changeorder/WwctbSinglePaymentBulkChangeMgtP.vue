@@ -16,7 +16,7 @@
   <kw-popup
     size="2xl"
   >
-    <kw-form :cols="2">
+    <kw-form :cols="3">
       <kw-form-row>
         <!-- 처리구분 -->
         <kw-form-item
@@ -38,6 +38,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_CH_RSON')"
           required
+          colspan="2"
         >
           <kw-input
             v-model="saveParams.chRson"
@@ -107,10 +108,12 @@
           v-if="saveParams.procsDv==='704'"
           :label="$t('MSG_TXT_ISTM_FNT')"
         >
-          <kw-input
+          <kw-select
             v-model="saveParams.istmFnt"
+            first-option="all"
+            :first-option-label="$t('MSG_TXT_SELT')"
             :label="$t('MSG_TXT_ISTM_FNT')"
-            maxlength="100"
+            :options="codes.AUTO_FNT_DV_ACD.filter((v) => v.codeId === '1' || v.codeId === '2'|| v.codeId === 'N')"
           />
         </kw-form-item>
         <!-- 멤버십이체  TODO : 추후 입력제한 추가 -->
@@ -118,17 +121,18 @@
           v-if="saveParams.procsDv==='704'"
           :label="$t('MSG_TXT_MEMBRSHP_TRSFR')"
         >
-          <kw-input
+          <kw-select
             v-model="saveParams.membrshpSrsfr"
+            first-option="all"
+            :first-option-label="$t('MSG_TXT_SELT')"
             :label="$t('MSG_TXT_MEMBRSHP_TRSFR')"
-            maxlength="100"
+            :options="codes.AUTO_FNT_DV_ACD.filter((v) => v.codeId === '1' || v.codeId === '2'|| v.codeId === 'N')"
           />
         </kw-form-item>
         <!-- 정액여부 변경 -->
         <kw-form-item
           v-if="saveParams.procsDv==='705'"
           :label="$t('MSG_TXT_FXAM_YN')+' '+$t('MSG_TXT_CH')"
-          required
         >
           <kw-select
             v-model="saveParams.fxamYnCh"
@@ -310,6 +314,8 @@ const codes = await codeUtil.getMultiCodes(
   'PMOT_PRMIT_YN_ACD',
   'BFSVC_BZS_DV_CD',
   'SPLY_BZS_DV_CD',
+  'AUTO_FNT_DV_ACD',
+  'DP_TP_CD',
 );
 
 let cachedParams;
@@ -438,12 +444,11 @@ async function onClickSave() {
         alert(t('MSG_ALT_INPUT_ITEM1_OR_ITEM2', [t('MSG_TXT_ISTM_FNT'), t('MSG_TXT_MEMBRSHP_TRSFR')]));
         return;
       }
-      alert(t('서비스 확인 중 입니다,'));
-      return;
     } else if (saveParams.value.procsDv === '705') {
       // TODO : AS-IS처리내역, 매핑안됨
-      if (isEmpty(saveParams.value.fxamYnCh)) {
-        alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [`${t('MSG_TXT_FXAM_YN')} ${t('MSG_TXT_CH')}`]));
+      if (isEmpty(saveParams.value.fxamYnCh) && isEmpty(saveParams.value.pdAccCnt) && isEmpty(saveParams.value.recogAmt)
+        && isEmpty(saveParams.value.recogRt) && isEmpty(saveParams.value.pdStdFee)) {
+        alert(t('MSG_ALT_BE_CHECK_IT', [t('MSG_TXT_PD_ACC_RSLT')]));
         return;
       }
     } else if (saveParams.value.procsDv === '706') {
@@ -537,11 +542,53 @@ async function onProcsDvChange() {
     view.columnsByTag('cntr').forEach((col) => { col.visible = true; });
   }
 
-  if (saveParams.value.procsDv === '704' || saveParams.value.procsDv === '710') {
+  if (saveParams.value.procsDv === '710') {
     alert(t('서비스 확인 중 입니다.'));
   }
 }
 
+// 그리드 조회 후 유효성 체크
+async function onSearchItemCheck(payload, dataRow) {
+  const view = grdSinglePaymentBulkChangeList.value.getView();
+
+  const { cntrNo, cntrSn } = payload;
+  const res = await dataService.get('/sms/wells/contract/changeorder/singlepayment-change-contracts', {
+    params: {
+      cntrNo,
+      cntrSn,
+    },
+  });
+  if ((!isEmpty(res.data))) {
+    view.setValues(dataRow, res.data);
+  } else {
+    view.setValue(dataRow, 'cntrNo', '');
+    view.setValue(dataRow, 'cntrSn', '');
+    view.setValue(dataRow, 'cstKnm', '');
+    view.setValue(dataRow, 'basePdCd', '');
+    view.setValue(dataRow, 'pdNm', '');
+    view.setValue(dataRow, 'istDt', '');
+    view.setValue(dataRow, 'reqdDt', '');
+    view.setValue(dataRow, 'cntrCanDt', '');
+    view.setValue(dataRow, 'cpsDt', '');
+    view.setValue(dataRow, 'sppDuedt', '');
+    view.setValue(dataRow, 'cttRsNm', '');
+    view.setValue(dataRow, 'feeAckmtCt', '');
+    view.setValue(dataRow, 'ackmtPerfAmt', '');
+    view.setValue(dataRow, 'ackmtPerfRt', '');
+    view.setValue(dataRow, 'dpTpCd', '');
+    view.setValue(dataRow, 'mmbsDpTpCd', '');
+    view.setValue(dataRow, 'frisuBfsvcPtrmN', '');
+    view.setValue(dataRow, 'frisuAsPtrmN', '');
+    view.setValue(dataRow, 'sellEvCd', '');
+    view.setValue(dataRow, 'bfsvcBzsDvCd', '');
+    view.setValue(dataRow, 'splyBzsDvCd', '');
+    view.setValue(dataRow, 'modBfsvcBzsDvCd', '');
+    view.setValue(dataRow, 'modSplyBzsDvCd', '');
+    view.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+    view.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+    alert(t('대상 계약이 아닙니다.'));
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -552,7 +599,6 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
     { fieldName: 'cntrSn' }, // 계약일련번호
     { fieldName: 'cstKnm' }, // 고객한글명
     { fieldName: 'rveCd' }, // 수납코드
-    { fieldName: 'pyerNo' }, // 납부자번호
     { fieldName: 'basePdCd' }, // 기준상품코드
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'cntrRcpFshDtm' }, // 계약접수완료일시
@@ -592,6 +638,8 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
     { fieldName: 'splyBzsDvCd' }, // 조달업체구분코드
     { fieldName: 'modBfsvcBzsDvCd' }, // 수정 업체BS구분
     { fieldName: 'modSplyBzsDvCd' }, // 수정 업체구분
+    { fieldName: 'istmStlmHdDvCd' }, // 할부이체 보류코드
+    { fieldName: 'memStlmHdDvCd' }, // 멤버십이체 보류코드
   ];
 
   const columns = [
@@ -616,20 +664,34 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 인정건수
     { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_RECOG_AMT'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 인정금액
     { fieldName: 'ackmtPerfRt', header: t('MSG_TXT_RECOG_RT'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 인정율
-    { fieldName: 'dpTpCd', header: t('MSG_TXT_ISTM_FNT'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 할부이체
-    { fieldName: 'mmbsDpTpCd', header: t('MSG_TXT_MEMBRSHP_TRSFR'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 멤버십이체
+    { fieldName: 'dpTpCd',
+      header: t('MSG_TXT_ISTM_FNT'),
+      width: '117',
+      styleName: 'text-center',
+      editable: false,
+      tag: 'cntr',
+      editor: { type: 'list' },
+      options: codes.DP_TP_CD }, // 할부이체
+    { fieldName: 'mmbsDpTpCd',
+      header: t('MSG_TXT_MEMBRSHP_TRSFR'),
+      width: '117',
+      styleName: 'text-center',
+      editable: false,
+      tag: 'cntr',
+      editor: { type: 'list' },
+      options: codes.DP_TP_CD }, // 멤버십이체
     { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_FRISU_MSH'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 무상멤버십
     { fieldName: 'frisuAsPtrmN', header: t('MSG_TXT_FRISU_AS'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 무상A/S
     { fieldName: 'sellEvCd', header: t('MSG_TXT_EV_CD'), width: '117', styleName: 'text-center', editable: false, tag: 'cntr' }, // 행사코드
-    { fieldName: 'bfsvcBzsDvCd', header: t('MSG_TXT_CLSF_BS'), width: '117', styleName: 'text-center', editable: false, tag: 'bs', visible: false }, // 업체BS구분
-    { fieldName: 'splyBzsDvCd', header: t('MSG_TXT_CLSF_BUS'), width: '117', styleName: 'text-center', editable: false, tag: 'bs', visible: false }, // 업체구분
+    { fieldName: 'bfsvcBzsDvCd', header: t('MSG_TXT_CLSF_BS'), width: '117', styleName: 'text-center', editable: false, tag: 'bs', visible: false, options: codes.BFSVC_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })) }, // 업체BS구분
+    { fieldName: 'splyBzsDvCd', header: t('MSG_TXT_CLSF_BUS'), width: '117', styleName: 'text-center', editable: false, tag: 'bs', visible: false, options: codes.SPLY_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })) }, // 업체구분
     { fieldName: 'modBfsvcBzsDvCd',
       header: `${t('MSG_TXT_MOD')} ${t('MSG_TXT_CLSF_BS')}`,
       width: '117',
       styleName: 'text-center',
       tag: 'bs',
       editor: { type: 'list' },
-      options: codes.BFSVC_BZS_DV_CD,
+      options: codes.BFSVC_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       placeHolder: t('MSG_TXT_SELT'),
       visible: false }, // 수정 업체BS구분
     { fieldName: 'modSplyBzsDvCd',
@@ -638,7 +700,7 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
       styleName: 'text-center',
       tag: 'bs',
       editor: { type: 'list' },
-      options: codes.SPLY_BZS_DV_CD,
+      options: codes.SPLY_BZS_DV_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       placeHolder: t('MSG_TXT_SELT'),
       visible: false }, // 수정 업체구분
   ];
@@ -663,21 +725,7 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
           },
         });
         if (result) {
-          const { cntrNo, cntrSn } = payload;
-          const res = await dataService.get('/sms/wells/contract/changeorder/singlepayment-change-contracts', {
-            params: {
-              cntrNo,
-              cntrSn,
-            },
-          });
-          if ((!isEmpty(res.data))) {
-            data.updateRow(dataRow, res.data);
-          } else {
-            for (let i = 0; i < data.getFieldCount(); i += 1) {
-              data.setValue(dataRow, i, '');
-            }
-            data.setValue(dataRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
-          }
+          onSearchItemCheck(payload, dataRow);
         }
       }
     }
@@ -685,30 +733,23 @@ const initSinglePaymentBulkChangeList = defineGrid((data, view) => {
   view.onCellButtonClicked = async (g, { itemIndex }) => {
     const updateRow = view.getCurrent().dataRow;
     const { cntrDtlNo } = g.getValues(itemIndex);
-    const paramCntrNo = String(cntrDtlNo).split('-')[0];
-    const paramCntrSn = String(cntrDtlNo).split('-')[1];
-    const { result, payload } = await modal({
-      component: 'WwctaContractNumberListP',
-      componentProps: {
-        cntrNo: paramCntrNo, cntrSn: paramCntrSn,
-      },
-    });
-    if (result) {
-      const { cntrNo, cntrSn } = payload;
-      const res = await dataService.get('/sms/wells/contract/changeorder/singlepayment-change-contracts', {
-        params: {
-          cntrNo,
-          cntrSn,
+    if (!isEmpty(cntrDtlNo)) {
+      const cntrNoSn = cntrDtlNo.replaceAll('-', '');
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+        componentProps: {
+          cntrNo: cntrNoSn?.slice(0, 12), cntrSn: cntrNoSn?.slice(12),
         },
       });
-
-      if ((!isEmpty(res.data))) {
-        data.updateRow(updateRow, res.data);
-      } else {
-        for (let i = 0; i < data.getFieldCount(); i += 1) {
-          data.setValue(updateRow, i, '');
-        }
-        data.setValue(updateRow, 'cntrDtlNo', `${payload.cntrNo}-${payload.cntrSn}`);
+      if (result) {
+        onSearchItemCheck(payload, updateRow);
+      }
+    } else {
+      const { result, payload } = await modal({
+        component: 'WwctaContractNumberListP',
+      });
+      if (result) {
+        onSearchItemCheck(payload, updateRow);
       }
     }
   };

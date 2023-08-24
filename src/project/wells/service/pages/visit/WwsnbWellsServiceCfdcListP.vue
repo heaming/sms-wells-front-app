@@ -91,6 +91,7 @@
           v-if="sendInfo.sendType === '2'"
           :label="$t('MSG_TXT_RECP_NO')"
           required
+          colspan="2"
         >
           <!-- 수신번호 -->
           <zwcm-telephone-number
@@ -108,6 +109,7 @@
           v-else-if="sendInfo.sendType === '3'"
           :label="$t('MSG_TXT_RECP_USR')"
           required
+          colspan="2"
         >
           <!-- 수신자 -->
           <zwcm-email-address
@@ -194,10 +196,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, codeUtil, alert } from 'kw-lib';
+import { alert, codeUtil, useDataService, useMeta, gridUtil } from 'kw-lib';
+import dayjs from 'dayjs';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
-import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
@@ -209,6 +212,11 @@ const props = defineProps({
   cntrSn: { type: [String, Number], required: true },
   prtnrKnm: { type: String, required: true },
   nm: { type: String, required: true },
+  emadr: { type: String, default: '' },
+  mpno1: { type: String, default: '' },
+  mpno2: { type: String, default: '' },
+  mpno3: { type: String, default: '' },
+  cstSvAsnNo: { type: String, required: true },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -236,16 +244,16 @@ const sendInfo = ref({
   etcSelect: '1',
   publishDate: '',
   callingNumber: '1588-4113', // 고정
-  receivingNumber: '',
+  receivingNumber: props.mpno,
   caller: 'wellsorder@kyowon.co.kr', // 고정
-  receiver: '',
+  receiver: props.emadr,
 });
 
 const telNos = ref({
   telNo0: '',
-  telNo1: '',
-  telNo2: '',
-  telNo3: '',
+  telNo1: props.mpno1,
+  telNo2: props.mpno2,
+  telNo3: props.mpno3,
 });
 
 const frmMainRef = ref();
@@ -273,6 +281,7 @@ async function fetchDataKakao() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function fetchDataEmail() {
@@ -290,6 +299,7 @@ async function fetchDataEmail() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function fetchData() {
@@ -336,7 +346,7 @@ async function onClickSendKakao() {
     prtnrKnm,
     nm,
     etcSelect,
-    publishDatetime: `${publishDate}000000`,
+    publishDatetime: dayjs(publishDate).isAfter(dayjs(), 'day') ? `${publishDate}000000` : dayjs().format('YYYYMMDDHHmmss'),
     callingNumber: callingNumber.replaceAll('-', ''),
     receivingNumber: telNo1 + telNo2 + telNo3,
   };
@@ -357,7 +367,7 @@ async function onClickSendEmail() {
     prtnrKnm,
     nm,
     etcSelect,
-    publishDatetime: `${publishDate}000000`,
+    publishDatetime: dayjs(publishDate).isAfter(dayjs(), 'day') ? `${publishDate}000000` : dayjs().format('YYYYMMDDHHmmss'),
     caller,
     receiver,
   };
@@ -401,10 +411,14 @@ async function initGrdMain(data, view) {
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    console.log(itemIndex);
     if (column === 'report') {
-      // const userId = g.getValue(itemIndex, 'firstRegistrationUserId');
-      console.log(itemIndex);
-      alert('레포트 출력 적용 예정');
+      await openReportPopup(
+        'ksswells/cust/reprt/wellsServConf.ozr',
+        null,
+        null,
+        null,
+      );
     }
   };
 

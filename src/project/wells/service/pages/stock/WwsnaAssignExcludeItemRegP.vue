@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNA (재고관리)
-2. 프로그램 ID : WwsnaAssignExcludeItemRegP - 배정제외품목 등록
+2. 프로그램 ID : WwsnaAssignExcludeItemRegP(W-SV-U-0189P01) - 배정제외품목 등록
 3. 작성자 : inho.choi
 4. 작성일 : 2023.04.17
 ****************************************************************************************************
@@ -15,6 +15,7 @@
 <template>
   <kw-popup
     size="2xl"
+    :modified-targets="['grdMain']"
   >
     <kw-search
       :modified-targets="['grdMain']"
@@ -167,7 +168,7 @@ async function fetchData() {
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(excludeItem);
-    view.resetCurrent();
+    view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   }
 }
 

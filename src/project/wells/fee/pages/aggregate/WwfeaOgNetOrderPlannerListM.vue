@@ -24,12 +24,10 @@
         <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_INQR_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.inqrCd"
               @change="onChangeInqrDv"
@@ -147,6 +145,8 @@
               :end-level="3"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -154,6 +154,7 @@
               v-model="searchParams.prtnrNo"
               icon="search"
               clearable
+              :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />
@@ -171,12 +172,10 @@
         <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_INQR_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.inqrCd"
               @change="onChangeInqrDv"
@@ -196,12 +195,10 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
-            required
           >
             <kw-option-group
               v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
-              rules="required"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
             />
@@ -230,6 +227,8 @@
               :end-level="3"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -237,6 +236,7 @@
               v-model="searchParams.prtnrNo"
               icon="search"
               clearable
+              :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />
@@ -254,12 +254,10 @@
         <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_INQR_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.inqrDvCd"
               :label="$t('MSG_TXT_INQR_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.inqrCd"
               @change="onChangeInqrDv"
@@ -267,24 +265,20 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_RSB_DV')"
-            required
           >
             <kw-option-group
               v-model="searchParams.rsbDvCd"
               :label="$t('MSG_TXT_RSB_DV')"
-              rules="required"
               type="radio"
               :options="customCodes.rsbDvCd"
             />
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_ORDR')"
-            required
           >
             <kw-option-group
               v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
-              rules="required"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
             />
@@ -313,6 +307,8 @@
               :end-level="3"
             />
           </kw-search-item>
+        </kw-search-row>
+        <kw-search-row>
           <kw-search-item
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
           >
@@ -320,6 +316,7 @@
               v-model="searchParams.prtnrNo"
               icon="search"
               clearable
+              :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             />
@@ -485,7 +482,6 @@ let cachedParams;
 
 /*
  *  Event - 조회조건 선택에 변경 param init
- */
 async function initSearchParams() {
   totalCount.value = 0;
   isExcelDown.value = false;
@@ -505,6 +501,7 @@ async function initSearchParams() {
   searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM');
   searchParams.value.rsbDvCd = '00';
 }
+*/
 
 /*
  *  Event - 번호 검색 아이콘 클릭 이벤트
@@ -546,13 +543,13 @@ async function onChangeInqrDv() {
       isSelectVisile3.value = false;
       isPerfVisile.value = false;
     }
-    initSearchParams();
+    // initSearchParams();
   } else if (inqrDvCd === '02') {
     isSelectVisile1.value = false;
     isSelectVisile2.value = false;
     isSelectVisile3.value = true;
     isPerfVisile.value = true;
-    initSearchParams();
+    // initSearchParams();
   }
 }
 
@@ -722,9 +719,10 @@ async function onClickExcelDownload() {
   const { inqrDvCd, divCd } = searchParams.value;
   cachedParams = cloneDeep(searchParams.value);
   if (inqrDvCd === '01') {
-    await downloadExcelView1('plars');
     if (divCd === '04') {
       await downloadExcelView2('plar-fees');
+    } else {
+      await downloadExcelView1('plars');
     }
   } else if (inqrDvCd === '02') {
     await downloadExcelView3('plar-aggregation');
@@ -817,9 +815,9 @@ const initGrd1Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'og1Lv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98', styleName: 'text-center' },
-    { fieldName: 'og2Lv', header: t('MSG_TXT_RGNL_GRP'), width: '98', styleName: 'text-center' },
-    { fieldName: 'og3Lv', header: t('MSG_TXT_BRANCH'), width: '98', styleName: 'text-center' },
+    { fieldName: 'og1Lv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98', styleName: 'text-left' },
+    { fieldName: 'og2Lv', header: t('MSG_TXT_RGNL_GRP'), width: '98', styleName: 'text-left' },
+    { fieldName: 'og3Lv', header: t('MSG_TXT_BRANCH'), width: '98', styleName: 'text-left' },
     { fieldName: 'sequenceNumber', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '98' },
     { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '98' },
     { fieldName: 'selType', header: t('MSG_TXT_SEL_TYPE'), width: '111.9', styleName: 'text-center', options: codes.SELL_TP_CD },
@@ -828,7 +826,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'pdctTp', header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF') + t('MSG_TXT_TYPE'), width: '110', styleName: 'text-center', options: codes.FEE_PERF_TP_CD },
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '110' },
     { fieldName: 'cstDv', header: t('MSG_TXT_CST_DV'), width: '188', styleName: 'text-center' },
-    { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-center' },
+    { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-left' },
     { fieldName: 'prdtCode', header: t('MSG_TXT_PRDT_CODE'), width: '83.5', styleName: 'text-center' },
     { fieldName: 'uswy', header: t('MSG_TXT_USWY'), width: '83.5', styleName: 'text-center', options: codes.SV_PD_TP_CD },
     { fieldName: 'pdDcClass', header: t('MSG_TXT_PD_DC_CLASS'), width: '83.5', styleName: 'text-center', options: codes.SELL_DSC_DV_CD },
@@ -890,9 +888,9 @@ const initGrd2Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'og1Lv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'og2Lv', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
-    { fieldName: 'og3Lv', header: t('MSG_TXT_BRANCH'), width: '120', styleName: 'text-center' },
+    { fieldName: 'og1Lv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '120', styleName: 'text-left' },
+    { fieldName: 'og2Lv', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-left' },
+    { fieldName: 'og3Lv', header: t('MSG_TXT_BRANCH'), width: '120', styleName: 'text-left' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
@@ -902,7 +900,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'feePdctTpCd', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
     { fieldName: 'feePerfTpCd', header: t('MSG_TXT_PD_GRP'), width: '120', styleName: 'text-center', options: codes.FEE_PERF_TP_CD },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-left' },
     { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right' },
     { fieldName: 'bfsvcPrdCd', header: `BS${t('MSG_TXT_CYCL')}`, width: '120', styleName: 'text-right' },
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center', options: codes.MCHN_CH_TP_CD },
@@ -921,16 +919,16 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'pstnDvCd' },
-    { fieldName: 'ehCnt' },
-    { fieldName: 'exCnt' },
-    { fieldName: 'etCnt' },
-    { fieldName: 'upCnt' },
-    { fieldName: 'totCnt' },
-    { fieldName: 'ehAmt' },
-    { fieldName: 'exAmt' },
-    { fieldName: 'etAmt' },
-    { fieldName: 'upAmt' },
-    { fieldName: 'totAmt' },
+    { fieldName: 'ehCnt', dataType: 'number' },
+    { fieldName: 'exCnt', dataType: 'number' },
+    { fieldName: 'etCnt', dataType: 'number' },
+    { fieldName: 'upCnt', dataType: 'number' },
+    { fieldName: 'totCnt', dataType: 'number' },
+    { fieldName: 'ehAmt', dataType: 'number' },
+    { fieldName: 'exAmt', dataType: 'number' },
+    { fieldName: 'etAmt', dataType: 'number' },
+    { fieldName: 'upAmt', dataType: 'number' },
+    { fieldName: 'totAmt', dataType: 'number' },
 
   ];
 
@@ -939,16 +937,16 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '120', styleName: 'text-center' },
-    { fieldName: 'ehCnt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'exCnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-center' },
-    { fieldName: 'etCnt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-center' },
-    { fieldName: 'upCnt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-center' },
-    { fieldName: 'totCnt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-center' },
-    { fieldName: 'ehAmt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'exAmt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-center' },
-    { fieldName: 'etAmt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-center' },
-    { fieldName: 'upAmt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-center' },
-    { fieldName: 'totAmt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'ehCnt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-center', numberFormat: '#,###,##0' },
+    { fieldName: 'exCnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-center', numberFormat: '#,###,##0' },
+    { fieldName: 'etCnt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-center', numberFormat: '#,###,##0' },
+    { fieldName: 'upCnt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-center', numberFormat: '#,###,##0' },
+    { fieldName: 'totCnt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-center', numberFormat: '#,###,##0' },
+    { fieldName: 'ehAmt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-center', numberFormat: '#,###,##0' },
+    { fieldName: 'exAmt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-center', numberFormat: '#,###,##0' },
+    { fieldName: 'etAmt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-center', numberFormat: '#,###,##0' },
+    { fieldName: 'upAmt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-center', numberFormat: '#,###,##0' },
+    { fieldName: 'totAmt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-center', numberFormat: '#,###,##0' },
 
   ];
 

@@ -346,10 +346,11 @@ async function onClickSave() {
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdObjectRef.value.getView();
-  if (await gridUtil.isModified(view)) { notify(t('MSG_TXT_NEED_SAVE_EXCEL_DOWNLOAD')); return; }
+  if (gridUtil.isModified(view)) { notify(t('MSG_TXT_NEED_SAVE_EXCEL_DOWNLOAD')); return; }
 
+  const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
-    exportData: gridUtil.getAllRowValues(view),
+    exportData: res.data,
     fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TIT_RENTAL_CB_OBJECT')}`,
     timePostfix: true,
     indicator: 'hidden',

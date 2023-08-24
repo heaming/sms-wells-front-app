@@ -112,7 +112,7 @@ async function resetData() {
 async function onClickUpdate() {
   const { pdCd } = props;
   const query = { pdCd };
-  const stateParam = { newRegYn: 'N', reloadYn: 'Y', copyPdCd: '' };
+  const stateParam = { newRegYn: 'N', reloadYn: 'Y', copyPdCd: '', propWatch: new Date() };
   await pageMove(pdConst.ASPART_MNGT_PAGE, true, router, query, stateParam);
 }
 

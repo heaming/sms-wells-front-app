@@ -55,7 +55,6 @@
         </template>
         <span class="kw-fc--black3 text-weight-regular"> {{ t('MSG_TXT_UNIT_WON') }}</span>
       </kw-action-top>
-
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
@@ -84,6 +83,7 @@
       <kw-separator />
       <kw-tabs
         v-model="selectedTab"
+        class="mt30"
       >
         <!-- 유가증권 제외 탭 -->
         <kw-tab
@@ -98,7 +98,7 @@
       </kw-tabs>
       <kw-observer
         ref="basic"
-        name="sel"
+        name="basic"
       >
         <kw-tab-panels
           :model-value="selectedTab"
@@ -109,7 +109,6 @@
               :ref="(searchParams) => tabRefs.basic = searchParams"
               :selected-link-id="selectedLinkId"
               :init-data="searchParams"
-              @teb-event="isTabData"
             />
           </kw-tab-panel>
           <kw-tab-panel name="sel">
@@ -117,7 +116,6 @@
               :ref="(searchParams) => tabRefs.sel = searchParams"
               :selected-link-id="selectedLinkId"
               :init-data="searchParams"
-              @teb-event="isTabData"
             />
           </kw-tab-panel>
         </kw-tab-panels>
@@ -133,133 +131,34 @@ import { useDataService, getComponentType, defineGrid, useGlobal } from 'kw-lib'
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
+import WwdcdOperatingCostMgtMSecuritiesException from './WwdcdOperatingCostMgtMSecuritiesException.vue'; // 유가증권 제외
+import WwdcdOperatingCostMgtMSecurities from './WwdcdOperatingCostMgtMSecurities.vue'; // 유가증권
 
-// 유가증권 제외
-import WwdcdOperatingCostMgtMSecuritiesException from './WwdcdOperatingCostMgtMSecuritiesException.vue';
-// 유가증권
-import WwdcdOperatingCostMgtMSecurities from './WwdcdOperatingCostMgtMSecurities.vue';
-
-// const store = useStore();
-// const { companyCode } = store.getters['meta/getUserInfo'];
+const store = useStore();
 const selectedTab = ref('basic');
+const selectedLinkId = ref(null);
 const dataService = useDataService();
 const { t } = useI18n();
 const tabRefs = reactive({});
-const selectedLinkId = ref(null);
-const { getters } = useStore();
 const { alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 // 본사 관리자가 아니면 코드 값 가져와야 함
-const userInfo = getters['meta/getUserInfo'];
-const { ogTpCd } = userInfo;
+const userInfo = store.getters['meta/getUserInfo'];
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
-let cachedParams;
+let cachedParams = {};
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
+  ogTpCd: userInfo.wkOjOgTpCd === null ? userInfo.ogTpCd : userInfo.wkOjOgTpCd,
+  adjOgId: '',
+  adjPrtnrNo: '',
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
-  ogTpCd,
 });
-
-// 운영비 총 사용 건수 =  "(TAB)유가증권 제외"의 정산대상 grid에서 정산제외여부='N' 인것의 row개수
-//                     + "(TAB)유가증권"의 정산대상 grid에서 정산제외여부='N' 인것의 row개수
-// 미적요 :  "(TAB)유가증권 제외"의 정산대상 grid에서 구매품목 및 사용내역 항목이 빈값인 row개수
-//           + "(TAB)유가증권"의 정산대상 grid에서 구매품목 및 사용내역 항목이 빈값인 row개수
-let opcsAdjExcdYn = 0;
-let usrSmryCn = 0;
-async function isTabData(flag, datas) {
-  /*
-  if (flag === 'basic') {
-    const sub = grdSubRef.value.getView();
-    const addValue = {};
-    let opcsAdjExcdYn = 0;
-    let usrSmryCn = 0;
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-
-    if (isEmpty(sub.getValues(0))) {
-      addValue.operatingExpensesTotal = opcsAdjExcdYn;
-      addValue.aesthetic = usrSmryCn;
-      sub.getDataSource().addRow(addValue);
-    } else {
-      sub.setValue(0, 'operatingExpensesTotal', opcsAdjExcdYn);
-      sub.setValue(0, 'aesthetic', usrSmryCn);
-    }
-  } else if (flag === 'sel') {
-    const sub = grdSubRef.value.getView();
-    const addValue = {};
-    let opcsAdjExcdYn = 0;
-    let usrSmryCn = 0;
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-
-    if (isEmpty(sub.getValues(0))) {
-      addValue.operatingExpensesTotal = opcsAdjExcdYn;
-      addValue.aesthetic = usrSmryCn;
-      sub.getDataSource().addRow(addValue);
-    } else {
-      sub.setValue(0, 'operatingExpensesTotal', opcsAdjExcdYn);
-      sub.setValue(0, 'aesthetic', usrSmryCn);
-    }
-  }
-  */
-
-  if (flag === 'basic') { // 유가증권 제외 탭
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-  } else if (flag === 'sel') { // 유가증권 탭
-    datas.forEach((data) => {
-      if (data.opcsAdjExcdYn === 'N') {
-        opcsAdjExcdYn += 1;
-      } // 정산제외여부
-
-      if (isEmpty(data.usrSmryCn)) {
-        usrSmryCn += 1;
-      } // 구매품목
-    });
-  }
-
-  const sub = grdSubRef.value.getView();
-  const addValue = {};
-
-  if (isEmpty(sub.getValues(0))) {
-    addValue.operatingExpensesTotal = opcsAdjExcdYn;
-    addValue.aesthetic = usrSmryCn;
-    sub.getDataSource().addRow(addValue);
-
-    sub.setValue(0, 'operatingExpensesTotal', 0);
-    sub.setValue(0, 'aesthetic', 0);
-  } else {
-    sub.setValue(0, 'operatingExpensesTotal', opcsAdjExcdYn);
-    sub.setValue(0, 'aesthetic', usrSmryCn);
-  }
-}
 
 async function fetchAmountData() {
   const view = grdMainRef.value.getView();
@@ -268,63 +167,65 @@ async function fetchAmountData() {
   const mainData = [];
   if (!isEmpty(res.data)) {
     cachedParams.opcsAdjNo = res.data.opcsAdjNo;
-    cachedParams.mainOgId = res.data.adjOgId;
-    cachedParams.mainOgTpCd = res.data.mainOgTpCd;
-    cachedParams.mainPrtnrNo = res.data.adjPrtnrNo;
-    cachedParams.rsbDvCd = res.data.rsbDvCd;
-    cachedParams.mainOgTpCd = res.data.ogTpCd;
+    cachedParams.adjOgId = res.data.adjOgId;
+    cachedParams.adjOgTpCd = res.data.ogTpCd;
+    cachedParams.adjPrtnrNo = res.data.adjPrtnrNo;
 
     mainData.push(res.data);
 
     view.getDataSource().setRows(mainData);
     view.resetCurrent();
-
-    await tabRefs.basic.setData(cachedParams);
-    await tabRefs.sel.setData(cachedParams);
   } else {
     view.getDataSource().setRows(mainData);
     view.resetCurrent();
   }
+  await tabRefs.basic.setData(cachedParams);
+  await tabRefs.sel.setData(cachedParams);
 }
 
 async function fetchSummaryData() {
   const view = grdSubRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/summary', { params: cachedParams });
-  view.getDataSource().setRows(res.data);
-  view.resetCurrent();
-}
+  const subData = [];
+  if (!isEmpty(res.data)) {
+    subData.push(res.data);
 
+    view.getDataSource().setRows(subData);
+    view.resetCurrent();
+  } else {
+    view.getDataSource().setRows(subData);
+    view.resetCurrent();
+  }
+}
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
-
   if (isEmpty(cachedParams.dgr1LevlOgId)
-  && isEmpty(cachedParams.dgr2LevlOgId)
-  && isEmpty(cachedParams.dgr3LevlOgId)) {
+    && isEmpty(cachedParams.dgr2LevlOgId)
+    && isEmpty(cachedParams.dgr3LevlOgId)) {
     alert(t('조직레벨 필수 값 입니다.'));
     return;
   }
-
   if (!isEmpty(cachedParams.dgr3LevlOgId)) {
-    cachedParams.dgr1LevlOgId = '';
-    cachedParams.dgr2LevlOgId = '';
-  } else
-  if (!isEmpty(cachedParams.dgr2LevlOgId)) {
-    cachedParams.dgr1LevlOgId = '';
-    cachedParams.dgr3LevlOgId = '';
-  } else
-  if (!isEmpty(cachedParams.dgr1LevlOgId)) {
-    cachedParams.dgr2LevlOgId = '';
-    cachedParams.dgr3LevlOgId = '';
+    cachedParams.dgr1LevlOgId = null;
+    cachedParams.dgr2LevlOgId = null;
+  } else if (!isEmpty(cachedParams.dgr2LevlOgId)) {
+    cachedParams.dgr1LevlOgId = null;
+    cachedParams.dgr3LevlOgId = null;
+  } else if (!isEmpty(cachedParams.dgr1LevlOgId)) {
+    cachedParams.dgr2LevlOgId = null;
+    cachedParams.dgr3LevlOgId = null;
+  } else {
+    cachedParams.dgr1LevlOgId = null;
+    cachedParams.dgr2LevlOgId = null;
+    cachedParams.dgr3LevlOgId = null;
   }
 
-  fetchAmountData(); // 금액
-  fetchSummaryData(); // 적요
+  await fetchAmountData(); // 금액
+  await fetchSummaryData(); // 적요
 }
 
 async function onClickSearch() {
-  opcsAdjExcdYn = 0;
-  usrSmryCn = 0;
-  fetchData();
+  await fetchData();
 }
 
 const saveParams = ref({
@@ -340,14 +241,12 @@ async function saveData(column, opcsCardId, file) {
     const data = saveParams.value;
     await dataService.post('/sms/wells/closing/expense/operating-cost', data);
 
-    fetchData();
+    await fetchData();
   }
 }
-
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-
 // 운영비 금액현황
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
@@ -365,14 +264,18 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
+
+  view.setCellStyleCallback(() => ({
+    styleName: 'right-border',
+  }));
 });
 
 // 운영비 적요 현황  operatingExpensesTotal aesthetic
 const initGrdSub = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'opcsCardId', visible: false },
-    { fieldName: 'operatingExpensesTotal', header: t('MSG_TXT_OPCS_TOT_USE_CT'), width: '477', styleName: 'text-center', dataType: 'number' }, // 운영비 총 사용 건수
-    { fieldName: 'aesthetic', header: t('MSG_TXT_AES'), width: '450', styleName: 'text-center', dataType: 'number' }, // 미적요
+    { fieldName: 'opcsAdjCnt', header: t('MSG_TXT_OPCS_TOT_USE_CT'), width: '477', styleName: 'text-center', dataType: 'number' }, // 운영비 총 사용 건수
+    { fieldName: 'opcsSmryNCnt', header: t('MSG_TXT_AES'), width: '450', styleName: 'text-center', dataType: 'number' }, // 미적요
     { fieldName: 'opcsWhtxCfdcApnFileId',
       header: t('MSG_TXT_MSCR_WHTX_CFDC_APN_FILE'),
       width: '300',
@@ -389,8 +292,8 @@ const initGrdSub = defineGrid((data, view) => {
       },
     },
   ];
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
@@ -404,5 +307,9 @@ const initGrdSub = defineGrid((data, view) => {
     }
   };
 });
-
 </script>
+<style scoped>
+.right-border {
+  border-right: 1px solid #fff !important;
+}
+</style>

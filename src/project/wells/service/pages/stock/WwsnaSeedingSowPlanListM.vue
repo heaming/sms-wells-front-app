@@ -33,8 +33,8 @@
             v-model="searchParams.cntrDtlNo"
             type="text"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
-            rules="alpha_num|max:12"
-            :placeholder="$t('MSG_TXT_CNTR_NO')"
+            rules="alpha_dash|max:14"
+            :placeholder="`${$t('MSG_TXT_CNTR_NO')}-${t('MSG_TXT_CNTR_SN')}`"
           />
         </kw-search-item>
       </kw-search-row>
@@ -49,6 +49,7 @@
             :page-size-options="optionPages"
             @change="fetchData"
           />
+          <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
 
         <kw-btn
@@ -84,11 +85,12 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, useDataService, getComponentType, gridUtil, defineGrid, popupUtil } from 'kw-lib';
+import { codeUtil, useGlobal, useMeta, useDataService, getComponentType, gridUtil, defineGrid, popupUtil } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
+const { alert } = useGlobal();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 
@@ -130,6 +132,7 @@ async function fetchData() {
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(list);
+    view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   }
 }
 
@@ -138,6 +141,21 @@ async function onClickSearch() {
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
   cachedParams = cloneDeep(searchParams.value);
+
+  const { cntrDtlNo } = cachedParams;
+  if (!isEmpty(cntrDtlNo)) {
+    const idx = cntrDtlNo.indexOf('-');
+    if (idx < 0 || isEmpty(cntrDtlNo.substring(idx + 1))) {
+      // 올바른 계약상세번호로 조회 하세요.
+      await alert(t('MSG_ALT_CNTR_DTL_NO_CONF'));
+      return;
+    }
+    const cntrNo = cntrDtlNo.substring(0, idx);
+    const cntrSn = cntrDtlNo.substring(idx + 1);
+    cachedParams.cntrNo = cntrNo;
+    cachedParams.cntrSn = cntrSn;
+  }
+
   await fetchData();
 }
 
@@ -177,7 +195,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'baseCntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
     { fieldName: 'baseCstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-left' },
-    { fieldName: 'connCntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'connCntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
     { fieldName: 'connSdingPkgNm', header: t('MSG_TXT_SDING_PKG'), width: '150', styleName: 'text-left' },
     { fieldName: 'connSdingPdNm', header: `${t('MSG_TXT_SDING')}${t('MSG_TXT_NM')}`, width: '100', styleName: 'text-left' },
     { fieldName: 'connQty', header: t('MSG_TXT_QTY'), width: '60', styleName: 'text-right' },
@@ -211,6 +229,14 @@ const initGrid = defineGrid((data, view) => {
     if (column === 'baseCntrDtlNo') {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       const cntrSn = g.getValue(itemIndex, 'cntrSn');
+
+      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+    } else if (column === 'connCntrDtlNo') {
+      const connCntrDtlNo = g.getValue(itemIndex, 'connCntrDtlNo');
+      const idx = connCntrDtlNo.indexOf('-');
+      const cntrNo = connCntrDtlNo.substr(0, idx);
+      const cntrSn = connCntrDtlNo.substr(idx + 1);
+
       await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
     }
   };

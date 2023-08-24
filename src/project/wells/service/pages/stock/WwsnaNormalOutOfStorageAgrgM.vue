@@ -26,11 +26,12 @@
         >
           <kw-select
             v-model="searchParams.ostrOjWareNo"
-            :options="codes.WARE_HOUSE"
+            :options="customCodes.ostrOjWareNo"
             option-value="codeId"
             option-label="codeName"
             :label="$t('MSG_TXT_OSTR_AK_RCP')"
             rules="required"
+            readonly
           />
         </kw-search-item>
         <!-- //출고요청접수 -->
@@ -95,17 +96,6 @@
           />
         </kw-search-item>
         <!-- //출고요청창고 -->
-        <!-- 지역 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_LOCARA')"
-        >
-          <kw-select
-            v-model="searchParams.wareLocaraCd"
-            :options="codes.ADM_ZN_CLSF_CD"
-            first-option="all"
-          />
-        </kw-search-item>
-        <!-- //지역 -->
       </kw-search-row>
     </kw-search>
 
@@ -160,18 +150,22 @@ const codes = ref(await codeUtil.getMultiCodes(
   'OVIV_TP_CD',
   'ADM_ZN_CLSF_CD',
 ));
+const customCodes = {
+  ostrOjWareNo: [
+    { codeId: '100002', codeName: '교원파주물류센터' },
+  ],
+};
 codes.value.OSTR_AK_TP_CD = codes.value.OSTR_AK_TP_CD.filter((v) => ['310', '320', '330'].includes(v.codeId)); // 출고요청유형
 codes.value.ITM_KND_CD = codes.value.ITM_KND_CD.filter((v) => ['4', '5', '6', '7', '9'].includes(v.codeId)); // 출고품목
 codes.value.ADM_ZN_CLSF_CD = codes.value.ADM_ZN_CLSF_CD.filter((v) => v.codeId !== '99'); // 지역 코드 (공통) 제외
 const searchParams = ref({
   startStrHopDt: now.format('YYYYMMDD'),
   endStrHopDt: now.format('YYYYMMDD'),
-  ostrOjWareNo: '100002', // TODO 세션 정보에 매핑된 물류센터가 없으므로  파주물류센터로 임시 설정
+  ostrOjWareNo: '100002',
   ostrCnfmYn: 'N',
   ostrAkTpCd: '',
   itmKndCd: '',
   wareDvCd: '1',
-  wareLocaraCd: '',
 });
 const totalCount = ref(0);
 let cachedParams;
@@ -277,13 +271,13 @@ async function onClickSearch() {
 }
 
 // 출고요청접수(로그인 창고) 조회
-async function fetchLoginWare() {
-  const res = await dataService.get(`${baseUrl}/login-ware-houses`, { params: searchParams.value });
-  codes.value.WARE_HOUSE = res.data;
-  if (codes.value.WARE_HOUSE > 0) {
-    searchParams.value.ostrOjWareNo = codes.value.WARE_HOUSE[0].codeId;
-  }
-}
+// async function fetchLoginWare() {
+//   const res = await dataService.get(`${baseUrl}/login-ware-houses`, { params: searchParams.value });
+//   codes.value.WARE_HOUSE = res.data;
+//   if (codes.value.WARE_HOUSE > 0) {
+//     searchParams.value.ostrOjWareNo = codes.value.WARE_HOUSE[0].codeId;
+//   }
+// }
 // 입고희망일자 변경시 조회
 async function onChangeStrHopDt() {
   const { startStrHopDt } = searchParams.value;
@@ -293,13 +287,8 @@ async function onChangeStrHopDt() {
     const lastDay = new Date(startStrHopDt.substring(0, 4), startStrHopDt.substring(4, 6), 0).getDate();
     searchParams.value.endStrHopDt = dayjs(startStrHopDtYm.concat(lastDay)).format('YYYYMMDD');
   }
-  // 로그인 창고 입고일자 기준으로 조회
-  await fetchLoginWare();
 }
 
-onMounted(async () => {
-  await fetchLoginWare();
-});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

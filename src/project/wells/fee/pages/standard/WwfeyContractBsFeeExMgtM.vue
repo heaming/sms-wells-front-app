@@ -131,6 +131,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -175,6 +176,7 @@ const codes = await codeUtil.getMultiCodes(
   'SV_FEE_PD_DV_CD',
   'HCR_DV_CD',
   'COD_YN',
+  'YN_CD',
 );
 const pageInfo = ref({
   totalCount: 0,
@@ -236,7 +238,13 @@ async function onClickSearch() {
 // 그리드행삭제
 async function onClickRowDelete() {
   const view = grdRef.value.getView();
-  await gridUtil.confirmDeleteCheckedRows(view);
+  const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (deleteRows.length > 0) {
+    const allRows = gridUtil.getDeletedRowValues(view);
+    await dataService.post('/sms/wells/fee/contract-bs-fee', allRows);
+    notify(t('MSG_ALT_DELETED'));
+    await fetchPage();
+  }
 }
 
 // 그리드행추가
@@ -337,15 +345,15 @@ const initGrd = defineGrid((data, view) => {
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' },
     { fieldName: 'vstMcn', header: t('MSG_TXT_VISIT_MN'), width: '100', styleName: 'text-right', dataType: 'number', rules: 'required', editable: true, editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } },
-    { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS_PD_GRP'), width: '120', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD, editor: { type: 'list' }, editable: true, rules: 'required' }, /* 서비스수수료상품구분코드 */
+    { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS_PD_GRP'), width: '180', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD, editor: { type: 'list' }, editable: true, rules: 'required' }, /* 서비스수수료상품구분코드 */
     { fieldName: 'baseChTcnt', header: t('MSG_TXT_ORDR'), width: '100', styleName: 'text-right', dataType: 'number', editable: true, rules: 'required', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } },
-    { fieldName: 'svFeeBaseAmt', header: `${t('TXT_MSG_FEE_AMT')} (${t('MSG_TXT_FXAM')}/${t('MSG_TXT_HMST')})`, width: '150', styleName: 'text-right', dataType: 'number', editable: true, editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } }, /* 서비스수수료기준금액 */
-    { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '100', styleName: 'text-center', options: codes.COD_YN, editor: { type: 'list' }, editable: true },
+    { fieldName: 'svFeeBaseAmt', header: `${t('TXT_MSG_FEE_AMT')} (${t('MSG_TXT_FXAM')}/${t('MSG_TXT_HMST')})`, width: '250', styleName: 'text-right', dataType: 'number', editable: true, editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } }, /* 서비스수수료기준금액 */
+    { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '100', styleName: 'text-center', options: codes.YN_CD, editor: { type: 'list' }, editable: true },
     { fieldName: 'apyStrtYm', header: t('MSG_TXT_APY_STRT_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true },
     { fieldName: 'apyEndYm', header: t('MSG_TXT_APY_END_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '130', styleName: 'text-center' },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '130', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

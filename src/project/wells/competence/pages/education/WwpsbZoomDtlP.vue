@@ -160,7 +160,7 @@ async function onClickSave() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
   const data = await getSaveParams();
-  const response = await dataService.post('/sms/wells/competence/zoom-counsel', data);
+  const response = await dataService.post('/sms/wells/competence/educations/zoom-counsel', data);
   if (response.data) {
     notify(t('MSG_ALT_SAVE_DATA'));
     ok(frmMainRef.value);

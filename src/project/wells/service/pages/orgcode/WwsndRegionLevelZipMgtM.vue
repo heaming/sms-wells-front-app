@@ -192,7 +192,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(zips);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -274,8 +274,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-right' },
     { fieldName: 'ctpvNm', header: t('MSG_TXT_CTPV_NM'), width: '100' },
     { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY_NM'), width: '100' },
-    { fieldName: 'lawcEmdNm', header: t('MSG_TXT_EMD_NM'), width: '100' },
-    { fieldName: 'amtdNm', header: t('MSG_TXT_AMTD_NM'), width: '100' },
+    { fieldName: 'lawcEmdNm', header: t('MSG_TXT_LGLD'), width: '100' },
+    { fieldName: 'amtdNm', header: t('MSG_TXT_AMTD'), width: '100' },
     { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_LOCARA_CMN_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'rpbLocaraGrpCd', header: t('MSG_TXT_LOCARA_GRP_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '150' },
@@ -303,17 +303,9 @@ const initGrdMain = defineGrid((data, view) => {
     'newAdrZip',
     'mgtCnt',
     'wrkCnt',
-    {
-      direction: 'horizontal',
-      items: [
-        'ctpvNm',
-        'ctctyNm',
-        'lawcEmdNm',
-      ],
-      header: {
-        text: t('MSG_TXT_LGLD'),
-      },
-    },
+    'ctpvNm',
+    'ctctyNm',
+    'lawcEmdNm',
     'amtdNm',
     'rpbLocaraCd',
     'rpbLocaraGrpCd',

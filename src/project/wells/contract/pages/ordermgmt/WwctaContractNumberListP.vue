@@ -43,9 +43,9 @@
           :label="$t('MSG_TXT_MPNO')"
         >
           <kw-input
-            v-model.trim:telNo0="searchParams.cralLocaraTno"
-            v-model.trim:telNo1="searchParams.mexnoEncr"
-            v-model.trim:telNo2="searchParams.cralIdvTno"
+            v-model:telNo0="searchParams.cralLocaraTno"
+            v-model:telNo1="searchParams.mexnoEncr"
+            v-model:telNo2="searchParams.cralIdvTno"
             :label="$t('MSG_TXT_MPNO')"
             mask="telephone"
           />

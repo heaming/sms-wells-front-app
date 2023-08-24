@@ -42,7 +42,6 @@
             option-value="ogCd"
             option-label="ogNm"
             rules="required"
-            first-option="select"
             :label="$t('서비스센터')"
             @update:model-value="onItemChanged"
           />
@@ -146,6 +145,7 @@ const { notify, modal } = useGlobal();
 const { t } = useI18n();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
+const HOLIDAY_TEXT = 'holiday';
 
 const calendarList = ref([]);
 const calendarInfo = ref({
@@ -171,15 +171,6 @@ const customCodes = {
   SERVICE_CENTER: [], // 서비스센터
 };
 
-/*
- * 서비스센터 조회
- */
-async function getServiceCenter() {
-  const res = await dataService.get('/sms/wells/service/organizations/service-center');
-  customCodes.SERVICE_CENTER = res.data;
-}
-await getServiceCenter();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -188,10 +179,35 @@ await getServiceCenter();
  * 휴일근무 지정자인지 체크하기 위한 funciton
  */
 function isHolidaySetter() {
-  return sessionUserInfo.employeeIDNumber === '999999';
-  // return sessionUserInfo.userId === '999999';
-  // return sessionUserInfo.userId === 'admin';
+  // return sessionUserInfo.employeeIDNumber === '999999';
+  return sessionUserInfo.baseRleCd === 'W1560'; // 휴무일지정자
 }
+
+/*
+ * 휴일근무 지정자가 edit 가능한지 체크하기 위한 funciton
+ * (서비스센터를 '휴무일지정'으로 했을 경우 edit 가능)
+ */
+function isHolidaySetable() {
+  return (isHolidaySetter() && searchParams.value.serviceCenter.ogId === HOLIDAY_TEXT);
+}
+
+/*
+ * 서비스센터 조회
+ */
+async function getServiceCenter() {
+  const res = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: isHolidaySetter() ? 'N' : 'Y' } });
+  customCodes.SERVICE_CENTER = res.data;
+
+  // cherro test
+  if (isHolidaySetter()) {
+    customCodes.SERVICE_CENTER.unshift({ ogCd: HOLIDAY_TEXT, ogNm: '휴무일지정', ogId: HOLIDAY_TEXT });
+  }
+
+  if (customCodes.SERVICE_CENTER.length > 0) {
+    searchParams.value.serviceCenter = customCodes.SERVICE_CENTER[0];
+  }
+}
+await getServiceCenter();
 
 /*
  *  Search - 고정방문 관리 조회
@@ -269,10 +285,12 @@ async function onClickSearch() {
   //   return;
   // }
 
-  if (!isHolidaySetter()) {
-    searchParams.value.serviceCenterCd = searchParams.value.serviceCenter.ogCd;
-    searchParams.value.serviceCenterOgId = searchParams.value.serviceCenter.ogId;
-  }
+  // if (!isHolidaySetter()) {
+  //   searchParams.value.serviceCenterCd = searchParams.value.serviceCenter.ogCd;
+  //   searchParams.value.serviceCenterOgId = searchParams.value.serviceCenter.ogId;
+  // }
+  searchParams.value.serviceCenterCd = searchParams.value.serviceCenter.ogCd;
+  searchParams.value.serviceCenterOgId = searchParams.value.serviceCenter.ogId;
   cachedParams = cloneDeep(searchParams.value);
   await getCalendarMgt();
 }
@@ -317,6 +335,7 @@ async function onDbClickCalendar(dayCnt) {
       bndtWrkPsicNo,
       rmkCn,
       isHolidaySetter,
+      isHolidaySetable,
     },
   });
 

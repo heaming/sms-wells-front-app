@@ -39,7 +39,6 @@
             :options="[{ codeId: '0', codeName: $t('MSG_TXT_RCP') },
                        { codeId: '1', codeName: $t('MSG_TXT_CNTRCT') },
                        { codeId: '2', codeName: $t('MSG_TXT_CANCEL') }]"
-            rules="required"
             :label="$t('MSG_TXT_PERF_DV')"
           />
         </kw-search-item>
@@ -58,15 +57,14 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
-          required
         >
           <kw-option-group
             v-model="searchParams.rsbDvCd"
             type="radio"
             rules="required"
             :options="[{ codeId: '0', codeName: $t('MSG_TXT_ALL') },
-                       { codeId: '1', codeName: $t('MSG_TXT_PLAR') },
-                       { codeId: '2', codeName: $t('MSG_TXT_BRMGR') }]"
+                       { codeId: '15', codeName: $t('MSG_TXT_PLAR') },
+                       { codeId: '7', codeName: $t('MSG_TXT_BRMGR') }]"
             :label="$t('MSG_TXT_RSB_TP')"
           />
         </kw-search-item>
@@ -103,7 +101,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">({{ $t('MSG_TXT_UNIT') }}) : ({{ $t('MSG_TXT_CUR_WON') }})</span>
+          <span class="ml8">{{ t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
 
         <kw-btn
@@ -189,7 +187,7 @@ async function onClickExcelDownload() {
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'alncNm', header: t('MSG_TXT_ALNC_DV'), width: '91', styleName: 'text-center' },
-    { fieldName: 'welsCntrNo', header: `Wells ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: `Wells ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
     { fieldName: 'lifCntrNo', header: `${t('MSG_TXT_MUTU')} ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '111', styleName: 'text-left ' },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '104', styleName: 'text-center' },
@@ -200,8 +198,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCP_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'dpDt', header: t('MSG_TXT_DEP_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'wdwlDt', header: t('MSG_TXT_WTH_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'wdwlDt', header: t('MSG_TXT_WTH_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date', visible: false },
+    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date', visible: false },
     { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_MN'), width: '111', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

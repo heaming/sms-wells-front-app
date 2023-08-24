@@ -109,7 +109,7 @@ async function onClickSave() {
 
   console.log('saveParams.value', saveParams.value);
   await dataService.put(`${baseUrl}/contact`, saveParams.value);
-  notify('저장을 완료하였습니다');
+  notify(t('MSG_ALT_SAVE_DATA', null, '저장되었습니다.'));
   ok('T');
 }
 

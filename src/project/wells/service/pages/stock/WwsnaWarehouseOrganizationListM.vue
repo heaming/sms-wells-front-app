@@ -18,10 +18,15 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
+        <kw-search-item
+          :label="$t('MSG_TXT_BASE_YM')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
+            rules="required"
+            :label="$t('MSG_TXT_BASE_YM')"
             @change="onChangeBaseYm"
           />
         </kw-search-item>
@@ -189,6 +194,7 @@ const searchParams = ref({
 });
 
 const wareDvCd = { WARE_DV_CD: [
+  { codeId: '1', codeName: '물류센터' },
   { codeId: '2', codeName: '서비스센터' },
   { codeId: '3', codeName: '영업센터' },
 ] };
@@ -202,7 +208,9 @@ function onChangeBaseYm() {
 const onChangeWareDvCd = async () => {
   const strWareDvCd = searchParams.value.wareDvCd;
 
-  if (strWareDvCd === '2') {
+  if (strWareDvCd === '1') {
+    filterCodes.value.filterWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10'].includes(v.codeId));
+  } else if (strWareDvCd === '2') {
     filterCodes.value.filterWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
   } else {
     filterCodes.value.filterWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
@@ -250,9 +258,11 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(wareOg);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -279,7 +289,9 @@ async function onClickWareOgCrdovr(apyYm, wareNo) {
 
     if (isChanged) {
       notify(t('MSG_ALT_SAVE_DATA'));
+      searchParams.value.wareDvCd = '';
       await fetchData();
+      searchParams.value.wareDvCd = cachedParams.wareDvCd;
     }
   } else {
     await alert(t('MSG_ALT_THM_BF_WAREINF_MDFC_IMP'));
@@ -299,12 +311,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'wareDvCd' },
     { fieldName: 'wareDtlDvCd' },
     { fieldName: 'wareNo' },
-    { fieldName: 'wareCd' },
     { fieldName: 'wareNm' },
     { fieldName: 'adrNm' },
     { fieldName: 'wareMngtPrtnrNo' },
     { fieldName: 'wareStocMgr' },
-    { fieldName: 'hgrWare' },
     { fieldName: 'hgrWareNo' },
     { fieldName: 'hgrWareNm' },
     { fieldName: 'wareUseYn' },
@@ -316,18 +326,18 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogCd' },
     { fieldName: 'bldNm' },
     { fieldName: 'apyYm' },
+    { fieldName: 'sortDvVal' },
   ];
 
   const columns = [
     { fieldName: 'wareDvCd', header: t('MSG_TXT_WARE_DV'), options: codes.WARE_DV_CD, width: '120', styleName: 'text-center' },
     { fieldName: 'wareDtlDvCd', header: t('MSG_TXT_WARE_DTL_DV'), options: codes.WARE_DTL_DV_CD, width: '180', styleName: 'text-center' },
     { fieldName: 'wareUseYn', header: t('MSG_TXT_USE_EYN'), options: codes.USE_YN, width: '100', styleName: 'text-center' },
-    { fieldName: 'wareCd', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sortDvVal', header: t('MSG_TXT_SORT_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNo', header: t('MSG_TXT_WARE_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '280' },
     { fieldName: 'wareMngtPrtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareStocMgr', header: t('MSG_TXT_EMPL_NM'), width: '170' },
-    { fieldName: 'hgrWare', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'hgrWareNo', header: t('MSG_TXT_HGR_WARE_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE_NM'), width: '280' },
     { fieldName: 'adrNm', header: t('MSG_TXT_ADDR'), width: '280', styleName: 'text-left' },
@@ -346,7 +356,7 @@ const initGrdMain = defineGrid((data, view) => {
     'wareDvCd',
     'wareDtlDvCd',
     'wareUseYn',
-    'wareCd',
+    'sortDvVal',
     'wareNo',
     'wareNm',
     'wareMngtPrtnrNo',
@@ -354,7 +364,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_HGR_WARE'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['hgrWare', 'hgrWareNo', 'hgrWareNm', 'adrNm'],
+      items: ['hgrWareNo', 'hgrWareNm', 'adrNm'],
     },
     {
       header: t('MSG_TXT_DSN_ADR'),

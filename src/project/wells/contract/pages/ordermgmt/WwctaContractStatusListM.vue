@@ -131,7 +131,6 @@
             maxlength="12"
             @click-icon="onClickCntrNoPop"
           />
-          <!--   console.log(payload); -->
         </kw-search-item>
         <kw-search-item
           v-if="searchParams.isBrmgr === 'Y'"
@@ -177,23 +176,14 @@
           :key="idx"
         >
           <div class="row items-center justify-between">
-            <p
-              v-if="item.numprds > 1"
-              class="kw-font-pt18 kw-fc--primary"
-            >
-              {{ item.sellTpNm }} 외 {{ item.numprds-1 }}건
-            </p>
-            <p
-              v-else
-              class="kw-font-pt18 kw-fc--primary"
-            >
-              {{ item.sellTpNm }}
+            <p class="h16 kw-font-pt18 kw-fc--primary">
+              {{ item.sellTpNm }}{{ item.numprds > 1? ` 외 ${item.numprds-1}건`:`` }}
             </p>
           </div>
+
           <p class="kw-font-subtitle mt20">
             {{ item.cstKnm }}({{ item.copnDvNm==='개인'?
               (item.bryyMmdd?dayjs(item.bryyMmdd).format('YYYY-MM-DD'):''):item.bryyMmdd }})
-
             <kw-chip
               color="placeholder"
               outline
@@ -201,6 +191,7 @@
               {{ item.copnDvNm }}
             </kw-chip>
           </p>
+
           <ul class="card-text my12">
             <li>
               <p class="w90">
@@ -210,12 +201,14 @@
                 {{ item.cntrNo }}
               </span>
             </li>
+
             <li>
               <p class="w90">
                 {{ t('MSG_TXT_RCP_D') }}
               </p>
               <span>{{ dayjs( item.viewRcpFshDtm).format('YYYY-MM-DD') }}</span>
             </li>
+
             <li>
               <p class="w90">
                 {{ t('MSG_TXT_GOODS_NM') }}
@@ -224,31 +217,19 @@
                 {{ item.pdNm }}
               </span>
             </li>
-            <li>
-              <p
-                v-if="Number(item.pymnamt) > 0 && item.viewCntrPrgsStatCd < 60"
-                class="w90"
-              >
+
+            <li v-if="Number(item.pymnamt) > 0 && item.viewCntrPrgsStatCd < 60">
+              <p class="w90">
                 {{ t('MSG_TXT_DPST_AMT') }}
               </p>
-              <p
-                v-else
-                class="w90"
-              >
-                <br>
-              </p>
-              <span
-                v-if="Number(item.pymnamt) > 0 && item.viewCntrPrgsStatCd < 60"
-                class="text-weight-bold kw-fc--error"
-              >
+              <span class="text-weight-bold kw-fc--error">
                 {{ stringUtil.getNumberWithComma(item.pymnamt||0) }}원
               </span>
-              <span
-                v-else
-              >
-                <br>
-              </span>
             </li>
+            <li v-else>
+              <p class="h16" />
+            </li>
+
             <li v-if="searchParams.isBrmgr === 'Y'">
               <p class="w90">
                 {{ t('MSG_TXT_PRTNR') }}
@@ -289,7 +270,7 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_MOD')"
-              padding="12px"
+              padding="10px"
               @click="onClickModify(item)"
             />
             <kw-separator
@@ -299,7 +280,7 @@
             />
             <kw-btn
               :label="$t('MSG_BTN_DEL')"
-              padding="12px"
+              padding="10px"
               @click="onClickContractDelete(item)"
             />
           </div>
@@ -310,7 +291,7 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_MOD')"
-              padding="12px"
+              padding="10px"
               @click="onClickModify(item)"
             />
             <kw-separator
@@ -318,20 +299,29 @@
               inset
               spaced="0px"
             />
-            <kw-btn
-              v-if="item.viewCntrPrgsStatCd === '20' && item.pymnSkipYn === 'N'"
-              :label="$t('MSG_TXT_NON_FCF_PYMNT')"
-              padding="12px"
-              @click="onClickNonFcfPayment(item)"
-            />
-            <kw-btn
-              :label="$t('MSG_BTN_F2F_PYMNT')"
-              padding="12px"
-              @click="onClickF2fPayment(item)"
-            />
+            <template v-if="item.confirmPsbYn=='Y'">
+              <kw-btn
+                :label="$t('MSG_BTN_DTRM')"
+                padding="10px"
+                @click="onClickConfirm(item)"
+              />
+            </template>
+            <template v-else>
+              <kw-btn
+                v-if="item.pymnSkipYn === 'N'"
+                :label="$t('MSG_TXT_NON_FCF_PYMNT')"
+                padding="10px"
+                @click="onClickNonFcfPayment(item)"
+              />
+              <kw-btn
+                :label="$t('MSG_BTN_F2F_PYMNT')"
+                padding="10px"
+                @click="onClickF2fPayment(item)"
+              />
+            </template>
             <kw-btn
               :label="$t('MSG_BTN_DEL')"
-              padding="12px"
+              padding="10px"
               @click="onClickContractDelete(item)"
             />
           </div>
@@ -342,7 +332,7 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
-              padding="12px"
+              padding="10px"
               @click="onClickModify(item)"
             />
             <kw-separator
@@ -352,8 +342,13 @@
             />
             <kw-btn
               :label="$t('MSG_BTN_F2F_PYMNT')"
-              padding="12px"
+              padding="10px"
               @click="onClickF2fPayment(item)"
+            />
+            <kw-btn
+              :label="$t('MSG_BTN_DEL')"
+              padding="10px"
+              @click="onClickContractDelete(item)"
             />
           </div>
           <!-- 결제완료 -->
@@ -363,7 +358,7 @@
           >
             <kw-btn
               :label="$t('MSG_BTN_INQR')"
-              padding="12px"
+              padding="10px"
               @click="onClickModify(item)"
             />
             <kw-separator
@@ -371,68 +366,87 @@
               inset
               spaced="0px"
             />
-            <kw-btn
-              v-if="searchParams.isBrmgr !='Y' && item.dfntaprcnt > 0 && item.pymnSkipYn === 'Y'"
-              :label="$t('MSG_BTN_DTRM')+$t('MSG_BTN_RQST')"
-              padding="12px"
-              @click="onClickRequestConfirm(item)"
-            />
-            <!-- TODO : 결재완료 / 지점장 일때 비대면결제 버튼 노출 조건 확인 -->
-            <kw-btn
-              v-if="searchParams.isBrmgr ==='Y'"
-              :label="$t('MSG_TXT_NON_FCF_PYMNT')"
-              padding="12px"
-              @click="onClickNonFcfPayment(item)"
-            />
-            <kw-btn
-              v-if="searchParams.isBrmgr ==='Y' && item.dfntaprcnt > 0"
-              :label="$t('MSG_BTN_DTRM')"
-              padding="12px"
-              @click="onClickApprovalConfirm(item)"
-            />
+            <template v-if="searchParams.isBrmgr === 'Y'">
+              <kw-btn
+                :label="$t('MSG_TXT_NON_FCF_PYMNT')"
+                padding="10px"
+                @click="onClickNonFcfPayment(item)"
+              />
+              <!--확정-->
+              <kw-btn
+                v-if="item.dfntaprcnt > 0"
+                :label="$t('MSG_BTN_DTRM')"
+                padding="10px"
+                @click="onClickConfirm(item)"
+              />
+            </template>
+            <template v-else>
+              <!--확정요청-->
+              <kw-btn
+                v-if="item.dfntaprcnt > 0 && item.pymnSkipYn === 'Y'"
+                :label="$t('MSG_BTN_DTRM')+$t('MSG_BTN_RQST')"
+                padding="10px"
+                @click="onClickRequestConfirm(item)"
+              />
+            </template>
           </div>
           <!-- 확정 -->
           <div
             v-else-if="item.viewCntrPrgsStatCd === '60'"
             class="button-wrap"
           >
-            <kw-btn
-              :label="$t('MSG_BTN_INQR')"
-              padding="12px"
-              @click="onClickModify(item)"
-            />
-            <kw-separator
-              vertical
-              inset
-              spaced="0px"
-            />
-            <!--설치배정 -->
-            <kw-btn
-              v-if="item.installYn ==='Y'"
-              :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
-              padding="12px"
-              @click="onClickAssignContact(item)"
-            />
-            <kw-btn
-              :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
-              padding="12px"
-              @click="onClickModify(item)"
-            />
-            <!-- TODO : 확정 / 삭제 버튼 노출 조건 확인 : 계약접수완료일시===now
-                               삭제/삭제요청 버튼 비노출 조건 문의 : 설치가 완료된 건일 경우
-            -->
-            <kw-btn
-              v-if="item.cntrRcpFshDtm === dayjs().format('YYYYMMDD')"
-              :label="$t('MSG_BTN_DEL')"
-              padding="12px"
-              @click="onClickContractDelete(item)"
-            />
-            <kw-btn
-              v-else-if="item.cntrRcpFshDtm >= dayjs().add(-5, 'day').format('YYYYMMDD')"
-              :label="$t('MSG_TXT_DEL_REQ')"
-              padding="12px"
-              @click="onClickRequestDelete(item)"
-            />
+            <!--지점장이고, 삭제요청된 상태일 때, -->
+            <template v-if="searchParams.isBrmgr === 'Y' && item.deleteDv=='REQ'">
+              <kw-btn
+                :label="$t('MSG_BTN_DLT')"
+                padding="10px"
+                @click="onClickReject(item)"
+              />
+              <kw-btn
+                :label="$t('MSG_BTN_DLT_APPRVL')"
+                padding="10px"
+                @click="onClickApproval(item)"
+              />
+            </template>
+            <template v-else>
+              <kw-btn
+                :label="$t('MSG_BTN_INQR') "
+                padding="10px"
+                @click="onClickModify(item)"
+              />
+              <kw-separator
+                vertical
+                inset
+                spaced="0px"
+              />
+              <!--설치배정 -->
+              <kw-btn
+                v-if="item.sellTpCd!=='3' && item.installYn ==='Y'"
+                :label="$t('MSG_BTN_CNTCT_ASSGNMNT')"
+                padding="10px"
+                @click="onClickAssignContact(item)"
+              />
+              <!--계약변경 -->
+              <kw-btn
+                :label="$t('MSG_TXT_CNTRCT')+$t('MSG_BTN_CH')"
+                padding="10px"
+                @click="onClickChange(item)"
+              />
+              <!--삭제-->
+              <kw-btn
+                v-if="item.deleteDv=='DEL' || (searchParams.isBrmgr === 'Y' && item.deleteDv=='PSB')"
+                :label="$t('MSG_BTN_DEL')"
+                padding="10px"
+                @click="onClickContractDelete(item)"
+              />
+              <!--삭제요청-->
+              <kw-btn
+                v-if="searchParams.isBrmgr !== 'Y' && item.deleteDv=='PSB'"
+                :label="$t('MSG_TXT_DEL_REQ')"
+                padding="10px"
+                @click="onClickRequestDelete(item)"
+              />
+            </template>
           </div>
         </kw-card>
       </div>
@@ -455,12 +469,16 @@ import { codeUtil, popupUtil, router, stringUtil, useDataService, useGlobal, use
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
-const { notify, alert, modal, confirm } = useGlobal();
+const { alert, modal, confirm } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const now = dayjs();
+
+const props = defineProps({
+  srchCstNm: { type: String, default: '' },
+});
 
 const resultList = ref({});
 const summary = ref({
@@ -498,8 +516,9 @@ const pageInfo = ref({
 
 let cachedParams;
 
-// TODO : 99대신, 삭제요청, 삭제확정 들어가야함
+// 99 [삭제] 대신 [삭제요청] 으로 사용. 실제 조건문은 쿼리 확인.
 const cntrPrgsStatCds = codes.CNTR_PRGS_STAT_CD.filter((v) => ((searchParams.value.isBrmgr === 'Y') ? ['10', '20', '30', '40', '50', '60', '99'] : ['10', '20', '30', '40', '50', '60']).includes(v.codeId));
+codes.CNTR_PRGS_STAT_CD.forEach((e) => { e.codeName = (e.codeId === '99' ? '삭제요청' : e.codeName); });
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -508,6 +527,25 @@ const cntrPrgsStatCds = codes.CNTR_PRGS_STAT_CD.filter((v) => ((searchParams.val
 item.viewCntrPrgsStatCd :
  - 일반 : CNTR_PRGS_STAT_CD
  - 재약정 : RSTL_STAT_CD 010 -> 20(접수) / 020 -> 60(확정)
+
+item.confirmPsbYn : 작성완료 상태에서 결재진행하지 않고 확정시킬 수 있는지 여부
+ - 쿼리 조건문
+ CASE WHEN (세션.ogTpCd = 'W04' AND 법인) OR (T7.SELL_INFLW_CHNL_DTL_CD = '5010' AND 개인) THEN 'Y'
+      ELSE 'N'
+
+item.deleteDv : 삭제관련 버튼 노출용
+ - REQ:삭제요청됨 / 관리자 일 때 [삭제승인] [삭제반려], 판매자일때 []
+ - DEL:삭제가능 / [삭제]
+ - PSB: 삭제요청가능 / 관리자 일 때 [삭제], 판매자일때 [삭제요청]
+
+ - 쿼리 조건문
+ CASE WHEN 계약기본.CNTR_CAN_DTM IS NOT NULL THEN 'REQ'
+      WHEN 계약기본.CNTR_RCP_FSH_DTM = 당일 THEN 'DEL'
+      WHEN 계약기본.CNTR_CAN_DTM IS NULL AND 계약기본.CNTR_RCP_FSH_DTM >= 5일이내 AND 계약상세.SELL_TP_CD = '2' THEN
+        CASE WHEN (SUM(입금내역)) = 0 THEN 'PSB'
+             ELSE ''
+         END
+      ELSE ''
 */
 
 async function fetchData() {
@@ -516,7 +554,6 @@ async function fetchData() {
   if (!isEmpty(cachedParams.srchDv)) {
     cachedParams.srchText = (cachedParams.srchDv === 'NO') ? cachedParams.srchCntrNo : cachedParams.srchCstNm;
   }
-  console.log(cachedParams);
 
   const res = await dataService.get('/sms/wells/contract/contracts/contract-lists', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: details, pageInfo: pagingResult } = res.data;
@@ -537,9 +574,34 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
-  await fetchDataSummary();
+
+  if (resultList.value.length > 0) {
+    await fetchDataSummary();
+  } else {
+    summary.value.cnfm = '0';
+    summary.value.aprv = '0';
+    summary.value.wrte = '0';
+    summary.value.inprgs = '0';
+    summary.value.delreq = '0';
+  }
 }
 
+// summary 클릭
+async function onClickPrgsSearch(prgsCd) {
+  if (prgsCd) {
+    searchParams.value.cntrPrgsStatCd = prgsCd;
+  }
+  await onClickSearch();
+}
+
+// 검색 > 계약자/계약번호 구분 변경
+function onChangeSearchDiv() {
+  searchParams.value.srchCntrNo = '';
+  searchParams.value.srchCstNm = '';
+  searchParams.value.srchText = '';
+}
+
+// 검색 > 계약번호 검색 팝업
 async function onClickCntrNoPop() {
   if (searchParams.value.srchDv !== 'NO') { return; }
 
@@ -553,10 +615,21 @@ async function onClickCntrNoPop() {
   }
 }
 
-function onChangeSearchDiv() {
-  searchParams.value.srchCntrNo = '';
-  searchParams.value.srchCstNm = '';
-  searchParams.value.srchText = '';
+// 계약관리 버튼 클릭
+async function onClickManage() {
+  router.replace(
+    {
+      path: 'wwcta-contract-management-list',
+    },
+  );
+}
+
+// CARD > 확정대상자조회 클릭
+async function onClickConfirmTarget(paramCntrNo) {
+  await modal({
+    component: 'WwConfirmApprovalAskIzListP',
+    componentProps: { cntrNo: paramCntrNo },
+  });
 }
 
 // 카드 하단 버튼 클릭 전, 계약상태코드 재조회
@@ -566,32 +639,7 @@ async function getPrgsStatCd(cntrNo) {
   return Number(res.data);
 }
 
-// 화면 상단 summary 클릭
-async function onClickPrgsSearch(prgsCd) {
-  if (prgsCd) {
-    searchParams.value.cntrPrgsStatCd = prgsCd;
-  }
-  await onClickSearch();
-}
-
-// 계약관리 클릭
-async function onClickManage() {
-  router.replace(
-    {
-      path: 'wwcta-contract-management-list',
-    },
-  );
-}
-
-// 확정대상자조회
-async function onClickConfirmTarget(paramCntrNo) {
-  await modal({
-    component: 'WwConfirmApprovalAskIzListP',
-    componentProps: { cntrNo: paramCntrNo },
-  });
-}
-
-// 수정
+// CARD > BUTTON > 수정
 async function onClickModify({ resultDiv, cntrNo, cntrSn, cntrPrgsStatCd }) {
   router.replace({
     path: 'wwcta-contract-registration-mgt',
@@ -604,6 +652,21 @@ async function onClickModify({ resultDiv, cntrNo, cntrSn, cntrPrgsStatCd }) {
   });
 }
 
+//  CARD > BUTTON > 계약변경
+async function onClickChange({ cntrNo, cntrSn, cntrCnfmDtm }) {
+  cntrCnfmDtm = cntrCnfmDtm.substring(0, 8);
+
+  router.replace({
+    path: 'wwctb-contract-change-mgt',
+    query: {
+      cntrNo,
+      cntrSn,
+      cntrCnfmDt: cntrCnfmDtm,
+    },
+  });
+}
+
+// CARD > BUTTON > 비대면결제
 async function onClickNonFcfPayment(item) {
   if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40') {
     // 계약진행상태코드 재확인
@@ -619,7 +682,7 @@ async function onClickNonFcfPayment(item) {
 
     if (!await confirm(message)) { return; }
 
-    const telNo = item.mobileTelNo.replace('-', '');
+    const telNo = item.mobileTelNo.replaceAll('-', '');
     const params = {
       type: 'SMS',
       receiver: `${item.cstKnm}^${telNo}`,
@@ -630,6 +693,7 @@ async function onClickNonFcfPayment(item) {
   }
 }
 
+// CARD > BUTTON > 대면결제
 async function onClickF2fPayment(item) {
   if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40') {
     // 계약진행상태코드 재확인
@@ -668,6 +732,7 @@ async function onClickF2fPayment(item) {
   }
 }
 
+// CARD > BUTTON > 확정요청
 async function onClickRequestConfirm(item) {
   console.log(item);
 
@@ -681,64 +746,106 @@ async function onClickRequestConfirm(item) {
   await dataService.post('/sms/wells/contract/contracts/contract-lists/send-messages', params);
 }
 
-async function onClickApprovalConfirm(item) {
-  notify(`TODO : ${item.cntrNo} - 확정승인 프로세스`);
+// CARD > BUTTON > 확정승인
+async function onClickConfirm({ cntrNo }) {
+  if (!await confirm(t('MSG_ALT_IS_DTRM'))) { return; } // 확정하시겠습니까?
 
-  // TODO : 확정승인 프로세스.
+  await dataService.post(`/sms/wells/contract/contracts/contract-lists/confirm/${cntrNo}`);
+  onClickSearch();
 }
 
+// CARD > BUTTON > 설치배정
 async function onClickAssignContact(item) {
-  console.log(item);
-
   const response = await dataService.get(`/sms/wells/contract/contracts/contract-lists/${item.cntrNo}/installation-order-targets`);
-  const installationOrderTargetCntrSns = response.data || [];
+  const installationOrderTargets = response.data || [];
 
-  if (installationOrderTargetCntrSns.length === 0) {
+  if (installationOrderTargets.length === 0) {
     alert(t('MSG_ALT_NO_IST_TG')); /* '설치 오더 대상 상품이 없습니다.' */
     return;
   }
 
+  const targets = installationOrderTargets.reduce((rtn, val) => {
+    let svBizDclsfCd;
+    if (val.sellTpCd === '1' && val.sellTpDtlCd === '12') {
+      svBizDclsfCd = '4110';
+    } else if (val.sellTpCd === '3' && val.sellTpDtlCd === '33') {
+      svBizDclsfCd = '4120';
+    } else if (val.sellTpCd === '6') {
+      svBizDclsfCd = '1120';
+    } else {
+      svBizDclsfCd = '1110';
+    }
+    rtn.push({ cntrSn: val.cntrSn, svBizDclsfCd });
+    return rtn;
+  }, []);
+
   // 설치오더 시작
-  const res = await modal({
+  await modal({
     component: 'WwsncTimeTableForContractP',
     componentProps: {
-      sellDate: item.cntrCnfmDtm.substring(0, 8), // 판매일자
       baseYm: now.format('YYYYMM'), // 달력 초기 월
       chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
       svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
-      svBizDclsfCd: installationOrderTargetCntrSns.map(() => '1110').join(','), // 판매인 경우 1110(신규설치) fix
+      sellDate: item.cntrCnfmDtm.substring(0, 8), // 판매일자
+      svBizDclsfCd: targets.map((v) => v.svBizDclsfCd).join(','),
       cntrNo: item.cntrNo,
-      cntrSn: installationOrderTargetCntrSns.join(','),
-      dataStatCd: '1', // 1: 신규, 2: 수정, 3: 삭제
-      userId: item.sellPrtnrNo,
+      cntrSn: targets.map((v) => v.cntrSn).join(','),
       mtrStatCd: '1',
     },
   });
-
-  console.log(res);
 }
 
-async function onClickRequestDelete(item) {
-  console.log(item);
-  notify('TODO : 계약삭제요청 프로세스');
-
-  // TODO : 계약삭제요청 프로세스
-}
-
+// CARD > BUTTON > 삭제
 async function onClickContractDelete(item) {
-  if (item.viewCntrPrgsStatCd <= '20') {
-    if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; }
+  if (item.viewCntrPrgsStatCd <= '40') {
+    if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; } // 삭제 하시겠습니까?
 
     await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { params: { cntrNo: item.cntrNo } });
     onClickSearch();
   }
 }
 
+// CARD > BUTTON > 삭제요청
+// 삭제요청은 계약기본의 계약취소일시에 값을 넣음으로써 처리
+async function onClickRequestDelete({ cntrNo }) {
+  if (!await confirm(t('MSG_ALT_CNTR_DEL_AK_CONFIRM', [cntrNo]))) { return; }
+
+  await dataService.put(`/sms/wells/contract/contracts/contract-lists/delete-request/${cntrNo}`);
+  onClickSearch();
+}
+// CARD > BUTTON > 삭제반려
+async function onClickReject({ cntrNo }) {
+  if (!await confirm(t('MSG_ALT_BAT_RJT_PRGS'))) { return; } // 반려 하시겠습니까?
+
+  await dataService.put(`/sms/wells/contract/contracts/contract-lists/delete-reject/${cntrNo}`);
+  onClickSearch();
+}
+
+// CARD > BUTTON > 삭제승인
+async function onClickApproval({ cntrNo }) {
+  if (!await confirm(t('MSG_ALT_APPR'))) { return; } // 승인하시겠습니까?
+
+  await dataService.put(`/sms/wells/contract/contracts/contract-lists/delete-approval/${cntrNo}`);
+  onClickSearch();
+}
+
+/*
 onActivated(async () => {
   await onClickSearch();
 });
+*/
+
+watch(props, () => {
+  const { srchCstNm } = props;
+
+  if (srchCstNm) {
+    searchParams.value.srchCstNm = srchCstNm;
+    onClickSearch();
+  }
+}, { deep: true });
 
 onMounted(async () => {
+  if (props.srchCstNm) { searchParams.value.srchCstNm = props.srchCstNm; }
   await onClickSearch();
 });
 

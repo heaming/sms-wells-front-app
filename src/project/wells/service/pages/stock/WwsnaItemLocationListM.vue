@@ -26,7 +26,6 @@
           <kw-select
             v-model="searchParams.wareNo"
             :options="optionStockList"
-            first-option="all"
           />
           <kw-field
             :model-value="['Y', 'N']"
@@ -55,9 +54,9 @@
         <kw-search-item
           :label="$t('TXT_MSG_AS_ITM_CD')"
         >
-          <kw-input />
-          <span>~</span>
-          <kw-input />
+          <kw-input
+            v-model="searchParams.itmPdCd"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -190,8 +189,7 @@ const codes = await codeUtil.getMultiCodes(
 const searchParams = ref({
   wareNo: '',
   itmKnd: '',
-  itmPdCdFrom: '',
-  itmPdCdTo: '',
+  itmPdCd: '',
   stckStdGb: 'Y',
 
 });
@@ -227,6 +225,7 @@ async function fetchData() {
   const data = view.getDataSource();
 
   data.setRows(pages);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {
@@ -317,6 +316,7 @@ async function onCheckedStckNoStdGb() {
   const count = res.data;
   if (count > 0) {
     notify(t('MSG_ALT_CHG_DATA'));
+    await fetchData();
   }
 }
 
@@ -329,7 +329,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd' }, // SAP코드
     { fieldName: 'itmPdCd' }, // 품목상품코드
     { fieldName: 'pdAbbrNm' }, // 품목명
-    { fieldName: 'pitmStocAGdQty' }, // 재고
+    { fieldName: 'pitmStocAGdQty', dataType: 'number' }, // 재고
     { fieldName: 'wareTpCd' },
     { fieldName: 'itmLctAngleVal' },
     { fieldName: 'itmLctCofVal' },

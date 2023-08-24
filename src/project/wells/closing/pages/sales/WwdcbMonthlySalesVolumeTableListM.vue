@@ -50,8 +50,6 @@
             :options="makeADeliveryDivideCode"
             rules="required"
             :label="$t('MSG_TXT_MDLV_DV')"
-            first-option="all"
-            first-option-value="ALL"
           />
         </kw-search-item>
       </kw-search-row>
@@ -65,22 +63,17 @@
             :options="codes.SELL_CHNL_DTL_CD"
             rules="required"
             :label="$t('TXT_MSG_SELL_CHNL_CD')"
-            first-option="all"
-            first-option-value="ALL"
           />
         </kw-search-item>
 
         <kw-search-item
-          :label="$t('MSG_TXT_SEL_TYPE')"
-          required
+          :label="$t('MSG_TXT_INDI_CORP_GUBUN')"
         >
           <kw-select
             v-model="searchParams.copnDvCd"
-            :options="codes.SELL_TP_CD"
-            rules="required"
-            :label="$t('MSG_TXT_SEL_TYPE')"
+            :options="codes.INDV_CRP_CNTR_DV_CD"
+            :label="$t('MSG_TXT_INDI_CORP_GUBUN')"
             first-option="all"
-            first-option-value="ALL"
           />
         </kw-search-item>
       </kw-search-row>
@@ -89,20 +82,30 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <kw-paging-info :total-count="totalCount" />
+          <kw-paging-info
+            v-show="isChangeGridMain"
+            :total-count="totalMainCount"
+          />
+          <kw-paging-info
+            v-show="isChangeGridSub"
+            :total-count="totalSubCount"
+          />
         </template>
         <kw-btn
-          icon="report"
-          dense
-          :label="$t('MSG_TXT_RPT_BRWS')"
-          @click="onClickOpenReport"
-        />
-        <kw-btn
+          v-show="isChangeGridMain"
           icon="download_on"
           dense
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
-          @click="onClickExcelDownload"
+          :disable="totalMainCount === 0"
+          @click="onClickExcelDownload('main')"
+        />
+        <kw-btn
+          v-show="isChangeGridSub"
+          icon="download_on"
+          dense
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="totalSubCount === 0"
+          @click="onClickExcelDownload('sub')"
         />
       </kw-action-top>
 
@@ -146,44 +149,37 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const isChangeGridMain = ref(true);
 const isChangeGridSub = ref(false);
-const totalCount = ref(0);
+const totalMainCount = ref(0);
+const totalSubCount = ref(0);
 const searchParams = ref({
   sellTpCd: '1',
-  slStartDt: dayjs().format('YYYY-MM-DD'),
-  slEndDt: dayjs().format('YYYY-MM-DD'),
-  sppMthdTpCd: 'ALL',
-  sellInflwChnlDtlCd: 'ALL',
-  copnDvCd: 'ALL',
+  slStartDt: dayjs().format('YYYYMMDD'),
+  slEndDt: dayjs().format('YYYYMMDD'),
+  sppMthdTpCd: '',
+  sellInflwChnlDtlCd: '',
+  copnDvCd: '',
 });
 
 const codes = await codeUtil.getMultiCodes(
-  // 'SELL_TP_DTL_CD', // TODO. 판매유형 없어진건지 바뀐건지 확인
   'SELL_CHNL_DTL_CD', // 판매채널
   'SPP_MTHD_TP_CD',
-  'SELL_TP_CD',
+  'INDV_CRP_CNTR_DV_CD',
 );
 
 const makeADeliveryDivideCode = codes.SPP_MTHD_TP_CD.filter((v) => ['1', '2'].includes(v.codeId));
 
 async function fetchData() {
   const { sellTpCd } = searchParams.value;
+  const view = sellTpCd === '1' ? grdMainRef.value.getView() : grdSubRef.value.getView();
   let res;
-  let view;
-  let monthSalesQuantityAgrg;
-
   if (sellTpCd === '1') {
     res = await dataService.get('/sms/wells/closing/sales/rental', { params: cachedParams });
-    monthSalesQuantityAgrg = res.data;
-    view = grdMainRef.value.getView();
+    totalMainCount.value = res.data.length;
   } else if (sellTpCd === '2') {
     res = await dataService.get('/sms/wells/closing/sales/payment', { params: cachedParams });
-    monthSalesQuantityAgrg = res.data;
-    view = grdSubRef.value.getView();
+    totalSubCount.value = res.data.length;
   }
-
-  totalCount.value = monthSalesQuantityAgrg.length;
-  view.getDataSource().setRows(monthSalesQuantityAgrg);
-  view.resetCurrent();
+  view.getDataSource().setRows(res.data);
 }
 
 async function onClickSearch() {
@@ -203,29 +199,14 @@ async function onChangeBusinessDivide() {
   }
 }
 
-async function onClickExcelDownload() {
-  const { sellTpCd } = searchParams.value;
+async function onClickExcelDownload(gridGb) {
+  const view = gridGb === 'main' ? grdMainRef.value.getView() : grdSubRef.value.getView();
 
-  let view;
-  if (sellTpCd === '1') {
-    view = grdMainRef.value.getView();
-
-    await gridUtil.exportView(view, {
-      fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_RENTAL')}`,
-      timePostfix: true,
-    });
-  } else if (sellTpCd === '2') {
-    view = grdSubRef.value.getView();
-
-    await gridUtil.exportView(view, {
-      fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_LUMP_SUM_INST')}`,
-      timePostfix: true,
-    });
-  }
-}
-
-async function onClickOpenReport() {
-  // TODO. 기능 개발 확인중..
+  await gridUtil.exportView(view, {
+    fileName: gridGb === 'main' ? `${currentRoute.value.meta.menuName}_${t('MSG_TXT_RENTAL')}` : `${currentRoute.value.meta.menuName}_${t('MSG_TXT_LUMP_SUM_INST')}`,
+    timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
+  });
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -233,12 +214,12 @@ async function onClickOpenReport() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_PD_CD'), width: '250', styleName: 'text-center' }, // SAP상품코드
-    { fieldName: 'basePdCd', header: t('MSG_TXT_RVPY_CD'), width: '250', styleName: 'text-center' }, // 수불코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '250', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_PD_CD'), width: '200', styleName: 'text-center', headerSummaries: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // SAP상품코드
+    { fieldName: 'matPdCd', header: t('MSG_TXT_RVPY_CD'), width: '190', styleName: 'text-center' }, // 수불코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '190', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' }, // 상품명
-    { fieldName: 'sellPrpChval', header: t('MSG_TXT_USWY_DV'), width: '250', styleName: 'text-center' }, // 용도구분
-    { fieldName: 'test', header: t('MSG_TXT_CT_CASE'), width: '149', styleName: 'text-center' }, // 건수(건)
+    { fieldName: 'svPdTpCd', header: t('MSG_TXT_USWY_DV'), width: '150', styleName: 'text-center' }, // 용도구분
+    { fieldName: 'cnt', header: t('MSG_TXT_CT_CASE'), width: '149', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 건수(건)
 
   ];
 
@@ -246,32 +227,40 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 40 },
+    ],
+  });
+  view.layoutByColumn('sapMatCd').summaryUserSpans = [{ colspan: 5 }];
 });
 
 const initGrdSub = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_PD_CD'), width: '250', styleName: 'text-center' }, // SAP상품코드
-    { fieldName: 'basePdCd', header: t('MSG_TXT_RVPY_CD'), width: '250', styleName: 'text-center' }, // 수불코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '250', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_PD_CD'), width: '200', styleName: 'text-center', headerSummaries: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // SAP상품코드
+    { fieldName: 'matPdCd', header: t('MSG_TXT_RVPY_CD'), width: '190', styleName: 'text-center' }, // 수불코드
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '190', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' }, // 상품명
-    { fieldName: 'test1', header: t('MSG_TXT_ALL'), width: '250', styleName: 'text-center' }, // 전체
-    { fieldName: 'test2', header: t('MSG_TXT_FULPY'), width: '149', styleName: 'text-center' }, // 완불
-    { fieldName: 'test3', header: t('MSG_TXT_RFND'), width: '149', styleName: 'text-center' }, // 환불
+    { fieldName: 'tot', header: t('MSG_TXT_ALL'), width: '180', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 전체
+    { fieldName: 'stlmTpCd1', header: t('MSG_TXT_FULPY'), width: '149', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 완불
+    { fieldName: 'stlmTpCd2', header: t('MSG_TXT_ISTM'), width: '149', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 환불
   ];
 
   const layouts = [
     {
       header: t('MSG_TXT_PRDT_CODE'), /* 상품코드 */
       direction: 'horizontal',
-      items: ['sapMatCd', 'basePdCd', 'pdCd'],
+      items: ['sapMatCd', 'matPdCd', 'basePdCd'],
     },
     'pdNm',
     {
       header: t('MSG_TXT_CT_CASE'), /* 건수(건) */
       direction: 'horizontal',
-      items: ['test1', 'test2', 'test3'],
+      items: ['tot', 'stlmTpCd1', 'stlmTpCd2'],
     },
   ];
 
@@ -281,8 +270,16 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.setColumnLayout(layouts);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 40 },
+    ],
+  });
+  view.layoutByColumn('sapMatCd').summaryUserSpans = [{ colspan: 4 }];
 });
 
 </script>

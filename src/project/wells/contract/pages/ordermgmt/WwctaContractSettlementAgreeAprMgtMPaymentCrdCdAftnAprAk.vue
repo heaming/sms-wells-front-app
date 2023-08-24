@@ -43,12 +43,8 @@
           rules="required"
           :options="mpyBsdtOptions"
         />
-        <kw-input
-          v-model="approvalRequest.crcdnoEncr"
-          label="카드번호"
-          mask="####-####-####-####"
-          unmasked-value
-          rules="min:14|required"
+        <crdcd-no-input
+          v-model="approvalRequest.cardExpdtYm"
         />
         <crdcd-exp-select
           v-model="approvalRequest.cardExpdtYm"
@@ -66,17 +62,18 @@
           hint="개인카드의 경우, 생년월일(YYYYMMDD), 법인카드의 경우, 사업자번호 10자리를 입력해주세요."
           readonly
         />
-        <kw-input
-          :model-value="approvalResponse.aprNo"
-          label="승인번호"
-          readonly
-        />
+        <kw-item-label font="dense">
+          <span class="text-black2">승인결과</span>
+          <span
+            :class="fnitAprRsCdColorClass"
+            class="text-weight-medium ml12"
+          >{{ getCodeName('FNIT_APR_RS_CD', approvalResponse.fnitAprRsCd) }}</span>
+        </kw-item-label>
         <kw-btn
           stretch
           secondary
           border-color="black-btn-line"
-          :disable="!!approvalResponse.aprNo"
-          label="승인"
+          :label="approved ? '이체정보변경' : '승인'"
           @click="onClickApproval"
         />
       </kw-form>
@@ -87,9 +84,11 @@
 <script setup>
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
-import CrdcdExpSelect from '~sms-wells/contract/components/ordermgmt/WctaCrdcdExpSelect.vue';
-import { confirm, getComponentType, notify, useDataService } from 'kw-lib';
+import CrdcdExpSelect from '~sms-common/contract/components/ZctaCrdcdExpSelect.vue';
+import CrdcdNoInput from '~sms-common/contract/components/ZctaCrdcdNoInput.vue';
+import { alert, confirm, getComponentType, notify, useDataService } from 'kw-lib';
 import { scrollIntoView } from '~sms-common/contract/util';
+import { useCtCode } from '~sms-common/contract/composable';
 
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
@@ -98,47 +97,53 @@ const props = defineProps({
     default: undefined,
   },
 });
-
 const emit = defineEmits(['approved']);
-
 const exposed = {};
 defineExpose(exposed);
-
 const dataService = useDataService();
+const { getCodeName } = await useCtCode('FNIT_APR_RS_CD');
 
 const frmRef = ref(getComponentType('KwForm'));
-
 const isCooperation = computed(() => props.cntrCstInfo.copnDvCd === '2' /* sorry, haha. */);
-
 const stlmBas = computed(() => (props.stlm ?? {}));
-
 const mpyBsdtOptions = ref([]);
 
 async function fetchRegularFundTransferDayOptions() {
   if (!stlmBas.value.dpTpCd) { return; }
-  const { data } = await dataService.get(`/sms/wells/contract/contracts/settlements/regular-fund-transfers-day-options/${stlmBas.value.dpTpCd}`);
+  const { data } = await dataService.get(`/sms/common/contract/settlement/regular-fund-transfers-day-options/${stlmBas.value.dpTpCd}`);
   mpyBsdtOptions.value = data.map((day) => ({ codeId: day, codeName: `${day}일` }));
 }
-
 await fetchRegularFundTransferDayOptions();
 
 const approvalRequest = ref({
+  cntrStlmId: stlmBas.value.cntrStlmId,
   stlmAmt: stlmBas.value.stlmAmt,
-  mpyBsdt: mpyBsdtOptions.value[0]?.codeId, /* 납부기준일자
-  crcdnoEncr: '', /* 카드번호 */
-  cardExpdtYm: '', /* 유효기한 */
-  bryyMmdd: props.cntrCstInfo.bryyMmdd || '',
+  mpyBsdt: stlmBas.value.mpyBsdt, /* 납부기준일자 */
+  crcdnoEncr: stlmBas.value.crcdnoEncr || '', /* 카드번호 */
+  cardExpdtYm: stlmBas.value.cardExpdtYm || '', /* 유효기한 */
+
   owrKnm: props.cntrCstInfo.cstKnm, /* 카드주 */
   copnDvCd: props.cntrCstInfo.copnDvCd,
   copnDvCdDrmVal: isCooperation.value ? props.cntrCstInfo.bzrno : props.cntrCstInfo.bryyMmdd,
 });
-
 const approvalResponse = ref({
-  aprNo: undefined, /* 승인번호, 저장은 안하지만 와야함. */
-  cdcoCd: undefined, /* 카드사 코드 */
-  fnitAprRsCd: undefined, /* 금융기관승인결과코드 */
-  fnitAprFshDtm: undefined, /* 금융기관승인완료일시 */
+  fnitAprRsCd: stlmBas.value.fnitAprRsCd, /* 금융기관승인결과코드 */
+  cardFntImpsCd: stlmBas.value.cardFntImpsCd,
+  reason: '',
 });
+
+const fnitAprRsCdColorClass = computed(() => {
+  const { fnitAprRsCd } = approvalResponse.value;
+  if (fnitAprRsCd === 'Y') {
+    return 'text-primary';
+  }
+  if (fnitAprRsCd === 'B') {
+    return 'text-error';
+  }
+  return 'text-black2';
+});
+const alreadyDone = (stlmBas.value.fnitAprRsCd === 'Y');
+const approved = ref(alreadyDone);
 
 function getStlmUpdateInfo() {
   const { cntrStlmId, dpTpCd, cntrNo } = stlmBas.value;
@@ -170,24 +175,22 @@ function getStlmUpdateInfo() {
   });
 }
 
+let cachedRequestParams;
 async function requestApproval() {
-  return new Promise((resolve) => {
-    const testResponse = {
-      data: {
-        aprNo: 'test123456789',
-        cdcoCd: '',
-        fnitAprRsCd: 'Y',
-      },
-    };
-    setTimeout(() => resolve(testResponse), 100);
-  });
+  cachedRequestParams = { ...approvalRequest.value };
+  const { data } = await dataService.post('/sms/wells/contract/contracts/settlements/credit-card-auto-transfer', cachedRequestParams);
+  approvalResponse.value = data;
+  if (data.fnitAprRsCd === 'B') {
+    await alert(data.reason);
+  }
+
+  approved.value = (data.fnitAprRsCd === 'Y');
 }
 
 async function onClickApproval() {
   if (!await frmRef.value.validate()) { return; }
   if (!await confirm('자동이체를 등록하시겠습니까?')) { return; }
-  const response = await requestApproval();
-  approvalResponse.value = response.data;
+  await requestApproval();
   emit('approved', getStlmUpdateInfo());
 }
 
@@ -196,7 +199,7 @@ const topRef = ref();
 
 async function validate() {
   if (!props.stlm) { return true; }
-  const valid = approvalResponse.value?.fnitAprRsCd === 'Y';
+  const valid = approved.value;
   if (!valid) {
     notify('계좌 이체 요청을 해주세요.');
     scrollIntoView(topRef);

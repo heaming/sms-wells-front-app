@@ -320,9 +320,11 @@ async function fetchData() {
 }
 
 async function onCheckedStckNoStdGb() {
-  const stckStdGb = searchParams.value.stckNoStdGb === 'N' ? 'Y' : 'N';
-  const apyYm = searchParams.value.baseYm;
-  const wareNo = searchParams.value.ostrWareNo;
+  debugger;
+  const { stckNoStdGb, baseYm, ostrWareNo } = searchParams.value;
+  const stckStdGb = stckNoStdGb === 'N' ? 'Y' : 'N';
+  const apyYm = baseYm;
+  const wareNo = ostrWareNo;
 
   const res = await dataService.put(stdWareUri, { apyYm, stckStdGb, wareNo });
   if (res.data > 0) {
@@ -586,7 +588,7 @@ const initGrdMain = defineGrid((data, view) => {
         componentProps: {
           wareNo: searchParams.value.ostrWareNo,
           itmPdCd,
-          apyYm: strRgstDt,
+          apyYm: strRgstDt.substring(0, 6),
         },
       });
 

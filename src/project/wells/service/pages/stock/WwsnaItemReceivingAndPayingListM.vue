@@ -24,19 +24,20 @@
         <kw-search-item
           :colspan="2"
           :label="t('MSG_TXT_RVPY_DT')"
+          required
         >
           <!--rev:230410 :colspan="2" 추가 -->
           <kw-date-range-picker
             v-model:from="searchParams.stFromYmd"
             v-model:to="searchParams.edToYmd"
-            rules="date_range_months:1"
+            rules="required|date_range_months:1"
             :label="t('MSG_TXT_RVPY_DT')"
           />
         </kw-search-item>
         <!-- 창고구분 -->
         <ZwcmWareHouseSearch
-          v-model:start-ym="searchParams.stStrDt"
-          v-model:end-ym="searchParams.edStrDt"
+          v-model:start-ym="searchParams.stFromYmd"
+          v-model:end-ym="searchParams.edToYmd"
           v-model:options-ware-dv-cd="wareDvCd"
           v-model:ware-dv-cd="searchParams.strWareDvCd"
           v-model:ware-no-m="searchParams.strWareNoM"
@@ -83,6 +84,7 @@
             v-model="searchParams.itmKnd"
             class="w233"
             :options="codes.ITM_KND_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -94,6 +96,8 @@
         >
           <kw-input
             v-model="searchParams.itmPdCdFrom"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
           />
         </kw-search-item>
         <!-- SAP코드 -->
@@ -136,6 +140,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
@@ -149,6 +154,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
+        name="grdMain"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
@@ -195,18 +201,19 @@ const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD', // 품목구분코드
 );
 
+// 등급 필터링
+codes.PD_GD_CD = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
+
 const wareDvCd = { WARE_DV_CD: [
   { codeId: '2', codeName: '서비스센터' },
   { codeId: '3', codeName: '영업센터' },
 ] };
 
 const searchParams = ref({
-  stStrDt: '',
-  edStrDt: '',
   strWareDvCd: '2',
   strWareNoM: '',
   strWareNoD: '',
-  itmKnd: '4',
+  itmKnd: '',
   itmPdCdFrom: '',
   sapMatCdFrom: '',
   sapMatCdTo: '',
@@ -217,9 +224,6 @@ const searchParams = ref({
   edToYmd: dayjs().format('YYYYMMDD'),
 
 });
-
-searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
-searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
 function onChangeWareDvCd() {
   searchParams.value.strWareNoM = '';
@@ -257,6 +261,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(payments);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {
@@ -298,6 +303,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'etcStrQty', dataType: 'number' }, // 기타입고수량
     { fieldName: 'strCtrQty', dataType: 'number' }, // 입고등급수량
     { fieldName: 'cnfmPitmStrGapQty', dataType: 'number' }, // 재고실사수량
+    { fieldName: 'strQty', dataType: 'number' }, // 합계
     // 출고수량
     { fieldName: 'nomOstrQty', dataType: 'number' }, // 정상출고수량
     { fieldName: 'svcNomOstrQty', dataType: 'number' }, //
@@ -314,8 +320,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dsuOstrQty', dataType: 'number' }, // 폐기출고수량
     { fieldName: 'etcOstrQty', dataType: 'number' }, // 기타출고수량
     { fieldName: 'ostrCtrQty', dataType: 'number' }, // 출고등급수량
-    // 재고실사 컬럼 들어와야함
-    { fieldName: 'cnfmPitmOstrGapQty', dataType: 'number' }, // 기말재고수량
+    { fieldName: 'cnfmPitmOstrGapQty', dataType: 'number' }, // 재고실사
+    { fieldName: 'ostrQty', dataType: 'number' }, // 합계
+    { fieldName: 'eotStocQty', dataType: 'number' }, // 기말재고수량
     { fieldName: 'mmtStocQty', dataType: 'number' }, // 이동재고수량
 
   ];
@@ -404,7 +411,14 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0.##',
       } },
-
+    { fieldName: 'strQty',
+      header: t('MSG_TXT_SUM'),
+      width: '120',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
     { fieldName: 'nomOstrQty',
       header: t('MSG_TXT_NOM'),
       width: '120',
@@ -526,6 +540,22 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0.##',
       } },
     { fieldName: 'cnfmPitmOstrGapQty',
+      header: t('MSG_TXT_STOC_ACINSP'),
+      width: '120',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'ostrQty',
+      header: t('MSG_TXT_SUM'),
+      width: '120',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'eotStocQty',
       header: t('MSG_TXT_EOT_STOC_QTY'),
       width: '120',
       styleName: 'text-right',
@@ -562,6 +592,7 @@ const initGrdMain = defineGrid((data, view) => {
         'etcStrQty',
         'strCtrQty',
         'cnfmPitmStrGapQty',
+        'strQty',
       ],
     },
 
@@ -588,9 +619,11 @@ const initGrdMain = defineGrid((data, view) => {
         'dsuOstrQty',
         'etcOstrQty',
         'ostrCtrQty',
+        'cnfmPitmOstrGapQty',
+        'ostrQty',
       ],
     },
-    'cnfmPitmOstrGapQty',
+    'eotStocQty',
     'mmtStocQty',
 
   ];

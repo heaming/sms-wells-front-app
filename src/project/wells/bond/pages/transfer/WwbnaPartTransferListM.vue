@@ -54,7 +54,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_NW_DV')"
         >
-          <!-- TODO: 코드관리 등록 안되어 있어서 생성 후 수정 필요 -->
           <kw-select
             v-model="searchParams.bndNwDvCd"
             :options="filteredCodes.BND_NW_DV_CD"
@@ -66,7 +65,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_CST_NO')"
         >
-          <!-- TODO: 고객번호 다른 화면에 맞춰서 작업 한 이벤트 명세서 맞춰서 수정 필요한 경우 수정 -->
           <kw-input
             v-model="searchParams.cstNo"
             regex="num"
@@ -82,7 +80,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_CST_NM')"
         >
-          <!-- TODO: 고객번호 다른 화면에 맞춰서 작업 한 이벤트 명세서 맞춰서 수정 필요한 경우 수정 -->
           <kw-input
             v-model="searchParams.cstNm"
             icon="search"
@@ -118,6 +115,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           secondary
@@ -131,6 +129,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="$t('MSG_BTN_CNTN_CREATE')"
@@ -157,6 +156,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_SAVE')"
           grid-action
           :disable="isNotActivated"
@@ -204,7 +204,7 @@ import { getBzHdqDvcd } from '~sms-common/bond/utils/bnUtil';
 import { chkInputSearchComplete, openSearchUserCommonPopup, isCustomerCommon, checkAvailabilityCommon } from '~sms-common/bond/pages/transfer/utils/bnaTransferUtils';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, hasRoleNickName } = useMeta();
 const { notify, alert, confirm } = useGlobal();
 const { getters } = useStore();
 const dataService = useDataService();
@@ -225,11 +225,13 @@ const codes = await codeUtil.getMultiCodes(
   'LWM_TP_CD',
   'LWM_DTL_TP_CD',
 );
-const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10' && obj.codeId !== '11' && obj.codeId !== '90')), BND_NW_DV_CD: codes.BND_NW_DV_CD.filter((obj) => (obj.codeId !== '01')) });
+const filteredCodes = ref({ CLCTAM_DV_CD: codes.CLCTAM_DV_CD.filter((obj) => (obj.codeId !== '09' && obj.codeId !== '10' && obj.codeId !== '11' && obj.codeId !== '90' && obj.codeId !== '99')), BND_NW_DV_CD: codes.BND_NW_DV_CD.filter((obj) => (obj.codeId !== '01')) });
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const isNotActivated = ref(false);
+// const isCollectionManager = true;
+const isCollectionManager = hasRoleNickName('CLCTAM_MNGT');
 const totalCount = ref(0);
 const pageInfo = ref({
   totalCount: 0,
@@ -310,6 +312,7 @@ async function fetchSummaryData() {
   view.columnByName('thmChramAmt').headerSummary.text = res.data.thmChramAmt;
   view.columnByName('dlqAddDpAmt').headerSummary.text = res.data.dlqAddDpAmt;
   view.columnByName('rsgBorAmt').headerSummary.text = res.data.rsgBorAmt;
+  view.columnByName('ucAmt').headerSummary.text = res.data.ucAmt;
   view.columnByName('clctamDvCd').headerSummary.styleName = 'text-center';
 }
 
@@ -401,11 +404,11 @@ async function onClickSave() {
 }
 
 async function onClickCreate() {
+  cachedParams = cloneDeep(searchParams.value);
   if (!await checkAvailability()) {
     notify('파트이관을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 파트이관 할 수 없습니다.)');
     return;
   }
-  cachedParams = cloneDeep(searchParams.value);
   const response = await dataService.get('/sms/wells/bond/part-transfers/has-part-transfer-detail', { params: cachedParams });
   if (response.data) {
     if (!await confirm(t('MSG_ALT_ASN_DTA_RECRT'))) { return; }
@@ -416,6 +419,8 @@ async function onClickCreate() {
 
   // TODO: 통테 임시 작업 메시지 정의 필요
   await alert('파트이관이 완료 되었습니다.');
+
+  await fetchData();
 }
 
 const validateSearchCstNo = async () => {
@@ -428,9 +433,9 @@ const validateSearchCstNo = async () => {
 
 watch(() => searchParams.value.baseYm, async (baseYm) => {
   if (baseYm !== defaultDate) {
-    // isNotActivated.value = true;
+    isNotActivated.value = true;
   } else {
-    // isNotActivated.value = false;
+    isNotActivated.value = false;
   }
 });
 
@@ -452,49 +457,49 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'clctamDvCd', header: t('MSG_TXT_CLCTAM_DV'), options: codes.CLCTAM_DV_CD, width: '75', styleName: 'text-center' },
     { fieldName: 'woCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'woCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
-    { fieldName: 'woObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'woObjAmt', header: t('MSG_TXT_THM_OJ'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'woDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'woThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'woDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'woRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rentalCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rentalCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
-    { fieldName: 'rentalObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rentalObjAmt', header: t('MSG_TXT_THM_OJ'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rentalDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rentalThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rentalDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rentalRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'leaseCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'leaseCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
-    { fieldName: 'leaseObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'leaseObjAmt', header: t('MSG_TXT_THM_OJ'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'leaseDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'leaseThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'leaseDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'leaseRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'mshCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'mshCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
-    { fieldName: 'mshObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'mshObjAmt', header: t('MSG_TXT_THM_OJ'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'mshDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'mshThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'mshDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'mshRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rglrSppCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rglrSppCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
-    { fieldName: 'rglrSppObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'rglrSppObjAmt', header: t('MSG_TXT_THM_OJ'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rglrSppDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rglrSppThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rglrSppDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'rglrSppRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'hcrCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'hcrCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
-    { fieldName: 'hcrObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'hcrObjAmt', header: t('MSG_TXT_THM_OJ'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'hcrDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'hcrThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'hcrDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'hcrRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'spayCstCt', header: t('MSG_TXT_CST_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'spayCntrCt', header: t('MSG_TXT_CNTR_N'), width: '80', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
-    { fieldName: 'spayObjAmt', header: t('MSG_TXT_OJ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    { fieldName: 'spayObjAmt', header: t('MSG_TXT_THM_OJ'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'spayDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'spayThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
     { fieldName: 'spayDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '130', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
@@ -579,6 +584,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'thmChramAmt', dataType: 'number' },
     { fieldName: 'dlqAddDpAmt', dataType: 'number' },
     { fieldName: 'rsgBorAmt', dataType: 'number' },
+    { fieldName: 'ucAmt', dataType: 'number' },
     { fieldName: 'lwmTpCd' },
     { fieldName: 'lwmDtlTpCd' },
     { fieldName: 'lwmDt' },
@@ -602,11 +608,12 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '135', styleName: 'text-center', editable: false },
     { fieldName: 'bndBizDvCd', header: t('MSG_TXT_PRDT_GUBUN'), width: '100', options: codes.BND_BIZ_DV_CD, editable: false },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-right', editable: false },
-    { fieldName: 'objAmt', header: t('MSG_TXT_OJ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
+    { fieldName: 'objAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
+    { fieldName: 'ucAmt', header: t('MSG_TXT_UCAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'lwmTpCd', header: t('MSG_TXT_LWM_TP'), width: '110', options: codes.LWM_TP_CD, editable: false },
     { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_DTL'), width: '110', options: codes.LWM_DTL_TP_CD, editable: false },
     { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_DT'), width: '110', styleName: 'text-center', editable: false },
@@ -626,15 +633,14 @@ const initGrdSub = defineGrid((data, view) => {
     ],
   });
   view.layoutByColumn('clctamDvCd').summaryUserSpans = { colspan: 7 };
-  view.layoutByColumn('lwmTpCd').summaryUserSpans = { colspan: 5 };
+  view.layoutByColumn('lwmTpCd').summaryUserSpans = { colspan: 4 };
 
   view.onCellClicked = () => {
     if (cachedParams.baseYm !== defaultDate) {
-      // view.editOptions.editable = false;
+      view.editOptions.editable = false;
     } else {
-      // view.editOptions.editable = true;
+      view.editOptions.editable = isCollectionManager;
     }
-    view.editOptions.editable = true;
   };
 });
 </script>

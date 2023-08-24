@@ -320,9 +320,7 @@
   </kw-list>
 
   <!-- 5. 취소사항 -->
-  <kw-action-top
-    class="mt30"
-  >
+  <kw-action-top class="mt30">
     <template #left>
       <h3>5. {{ t('MSG_TXT_CAN_ARTC') }}</h3>
     </template>
@@ -500,6 +498,7 @@
       <!-- 위약면책 -->
       <kw-form-item
         :label="$t('MSG_TXT_BOR')+$t('MSG_TXT_EXEMPTION')"
+        class="equal_division--2"
       >
         <kw-select
           v-model="searchDetail.ccamExmptDvCd"
@@ -510,12 +509,15 @@
           v-model="inputDetail.sel1Text"
           class="w80"
           regex="num"
-          maxlength="2"
+          maxlength="1"
           @update:model-value="onChangeTextforSelect('sel1')"
         />
       </kw-form-item>
       <!-- 취소유형 -->
-      <kw-form-item :label="$t('MSG_TXT_CNCL_TP')">
+      <kw-form-item
+        :label="$t('MSG_TXT_CNCL_TP')"
+        class="equal_division--2"
+      >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
           :options="codes.CMN_STAT_CH_RSON_CD"
@@ -556,7 +558,7 @@
           v-model="inputDetail.sel3Text"
           class="w80"
           regex="num"
-          maxlength="2"
+          maxlength="1"
           @update:model-value="onChangeTextforSelect('sel3')"
         />
         <kw-select
@@ -568,7 +570,7 @@
           v-model="inputDetail.sel4Text"
           class="w80"
           regex="num"
-          maxlength="2"
+          maxlength="1"
           @update:model-value="onChangeTextforSelect('sel4')"
         />
         <kw-select
@@ -606,9 +608,7 @@
     </kw-form-row>
   </kw-form>
 
-  <div
-    class="button-set--bottom"
-  >
+  <div class="button-set--bottom">
     <!-- BTN Variation #2 : 취소등록 이후 or 이미 취소가 등록된 버튼 배열-->
     <div
       v-if="searchDetail.cancelStatNm === '취소등록'"
@@ -626,11 +626,13 @@
         class="ml8"
         @click="onClickTodo('카드승인')"
       />
+      <!--철거접수-->
       <kw-btn
         :label="$t('MSG_TXT_REQD')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
         @click="onClickRequidation"
       />
+      <!--환불접수-->
       <kw-btn
         :label="$t('MSG_TXT_RFND')+$t('MSG_BTN_RECEIPT')"
         class="ml8"
@@ -640,6 +642,12 @@
         :label="$t('MSG_TXT_RENTAL_RSG_CFDG')+$t('MSG_BTN_VIEW')"
         class="ml8"
         @click="onClickTodo('렌탈계약해지확인서 보기')"
+      />
+      <!--삭제-->
+      <kw-btn
+        :label="$t('MSG_BTN_DEL')"
+        class="ml8"
+        @click="onClickDelete"
       />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
@@ -687,6 +695,7 @@ const emits = defineEmits([
   'searchdetail',
   'savedetail',
   'removedetail',
+  'deletecancel',
 ]);
 
 const props = defineProps({
@@ -711,13 +720,29 @@ codes.REQD_CS_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeNa
 // SELECTBOX 를 선택하기 위한 TEXT 입력 이벤트
 function onChangeTextforSelect(div) {
   if (div === 'sel1') {
-    searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+    if (codes.CCAM_EXMPT_DV_CD.findIndex((v) => v.codeId === inputDetail.value.sel1Text) >= 0) {
+      searchDetail.ccamExmptDvCd = inputDetail.value.sel1Text;
+    } else {
+      searchDetail.ccamExmptDvCd = '';
+    }
   } else if (div === 'sel2') {
-    searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    if (codes.CMN_STAT_CH_RSON_CD.findIndex((v) => v.codeId === inputDetail.value.sel2Text) >= 0) {
+      searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
+    } else {
+      searchDetail.cntrStatChRsonCd = '';
+    }
   } else if (div === 'sel3') {
-    searchDetail.csmbCsExmptDvCd = inputDetail.value.sel3Text;
+    if (codes.CSMB_CS_EXMPT_DV_CD.findIndex((v) => v.codeId === inputDetail.value.sel3Text) >= 0) {
+      searchDetail.csmbCsExmptDvCd = inputDetail.value.sel3Text;
+    } else {
+      searchDetail.csmbCsExmptDvCd = '';
+    }
   } else if (div === 'sel4') {
-    searchDetail.reqdCsExmptDvCd = inputDetail.value.sel4Text;
+    if (codes.REQD_CS_EXMPT_DV_CD.findIndex((v) => v.codeId === inputDetail.value.sel4Text) >= 0) {
+      searchDetail.reqdCsExmptDvCd = inputDetail.value.sel4Text;
+    } else {
+      searchDetail.reqdCsExmptDvCd = '';
+    }
   }
 }
 
@@ -756,6 +781,11 @@ function onClickSave() {
 function onClickCancel() {
   emits('removedetail');
 }
+
+function onClickDelete() {
+  emits('deletecancel');
+}
+
 /*
 async function onCallStlm(pDiv) {
   let component;
@@ -795,7 +825,7 @@ async function onClickRequidation() {
       svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
       sellDate: searchDetail.cntrCnfmDt, // // 판매일자
       svBizDclsfCd: '3420', // TODO 확인/
-      mtrStatCd: '1',
+      mtrStatCd: '3',
       cntrNo: searchDetail.cntrNo,
       cntrSn: searchDetail.cntrSn,
     },

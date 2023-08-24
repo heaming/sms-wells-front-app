@@ -18,6 +18,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -185,6 +186,9 @@
           <kw-paging-info
             :total-count="totalCount"
           />
+          <span class="ml8">
+            ({{ t('MSG_TXT_UNIT') }} : EA)
+          </span>
         </template>
 
         <kw-btn
@@ -497,6 +501,13 @@ async function onClickSave() {
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (isEmpty(checkedRows)) {
     notify(t('MSG_ALT_SAV_SEL_DATA'));
+    return;
+  }
+
+  const validRows = checkedRows.filter((item) => item.lgstTrsYn === 'Y');
+  if (!isEmpty(validRows)) {
+    // 물류 이관된 데이터는 저장할 수 없습니다.
+    await alert(t('MSG_ALT_LGST_TF_SAVE_IMP'));
     return;
   }
 
