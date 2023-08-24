@@ -285,7 +285,7 @@ async function onClickSearch() {
   const { itmKndCd, itmPdCds, itmPdCd, strtSapCd, endSapCd } = searchParams.value;
 
   if (isEmpty(itmKndCd) && isEmpty(itmPdCds) && isEmpty(itmPdCd) && isEmpty(strtSapCd) && isEmpty(endSapCd)) {
-    // 품목명, 품목코드, SAP코드 중 1개는 필수 입력입니다.
+    // 품목구분, 품목코드, SAP코드 중 1개는 필수 입력입니다.
     await alert(t('MSG_ALT_REQ_INPUT_ITM_SAPCD'));
     return;
   }
