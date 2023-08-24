@@ -309,7 +309,7 @@ async function onClickSearchNo() {
 async function openHmstReportPopup() {
   const { perfYm, no, pstnDvCd } = searchParams.value;
   const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYY-MM');
-  if (info.value.prtnrNo !== '') {
+  if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     openReportPopup(
       '/ksswells/cmms/V5.2/cmmsSpec2023.ozr',
       '/ksswells/cmms/V5.2/cmmsSpec2023.odi',
@@ -335,7 +335,7 @@ async function openHmstReportPopup() {
  */
 async function openPerformancePopup() {
   const { perfYm, no } = searchParams.value;
-  if (info.value.prtnrNo !== '') {
+  if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     const param = {
       perfYm,
       no,
@@ -354,7 +354,7 @@ async function openPerformancePopup() {
  *  Event - 재지급 버튼 클릭
  */
 async function openAgainDisbursementPopup() {
-  if (info.value.prtnrNo !== '') {
+  if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     const param = {
       prtnrNo: searchParams.value.no,
       ogTpCd: 'W03',
@@ -374,7 +374,7 @@ async function openAgainDisbursementPopup() {
  */
 async function openZwfedFeeBurdenDeductionRegP() {
   const { perfYm, no } = searchParams.value;
-  if (info.value.prtnrNo !== '') {
+  if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     const param = {
       perfYm,
       ogTpCd: 'W03',
@@ -393,7 +393,7 @@ async function openZwfedFeeBurdenDeductionRegP() {
  *  Event - 되물림 버튼 클릭
  */
 async function openRedemptionOfFeePopup() {
-  if (info.value.prtnrNo !== '') {
+  if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     const param = {
       prtnrNo: searchParams.value.no,
       ogTpCd: 'W03',
