@@ -456,19 +456,16 @@ async function onClickSearch() {
  *  Event - 부담공제조정 버튼 클릭
  */
 async function openZwfedFeeBurdenDeductionRegP() {
+  const { perfYm, no } = searchParams.value;
   const param = {
-    ddtnYm: searchParams.value.perfYm,
+    perfYm,
     ogTpCd: 'W03',
-    coCd: '2000',
-    prtnrNo: searchParams.value.no,
+    prtnrNo: no,
   };
-  const { result: isChanged } = await modal({
-    component: 'ZwfedFeeBurdenDeductionRegP',
+  await modal({
+    component: 'ZwdeeBurdenDeductionP',
     componentProps: param,
   });
-  if (isChanged) {
-    onClickSearch();
-  }
 }
 
 /*
