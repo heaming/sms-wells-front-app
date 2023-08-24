@@ -21,7 +21,7 @@
       <kw-search-row>
         <!-- 출고기간-->
         <kw-search-item
-          :label="$t('MSG_TXT_OSTR_PTRM')"
+          :label="`${t('MSG_TXT_OSTR')}${t('MSG_TXT_PRD')}`"
           :colspan="3"
           required
         >
@@ -29,7 +29,7 @@
             v-model:from="searchParams.stOstrDt"
             v-model:to="searchParams.edOstrDt"
             rules="date_range_months:1|required"
-            :label="$t('MSG_TXT_OSTR_PTRM')"
+            :label="`${t('MSG_TXT_OSTR')}${t('MSG_TXT_PRD')}`"
           />
         </kw-search-item>
         <!-- //출고기간-->
@@ -432,9 +432,23 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' },
     { fieldName: 'ostrTpCd', header: t('MSG_TXT_OSTR_TP'), options: codes.OSTR_TP_CD, width: '100', styleName: 'text-center' },
     { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'itmGdNm', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ostrQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'boxQty', header: t('MSG_TXT_BOX_KOR_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'itmGdNm', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'ostrQty',
+      header: t('MSG_TXT_QTY'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
+    { fieldName: 'boxQty',
+      header: t('MSG_TXT_BOX_KOR_QTY'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0.##',
+      } },
     { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-left' },
     { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ostrAkDtlNo', header: t('MSG_TXT_OSTR_AK_NO'), width: '130', styleName: 'text-center' },
@@ -444,6 +458,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.setFooters({ visible: true });
+  view.setOptions({ summaryMode: 'aggregate' });
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
