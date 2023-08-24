@@ -63,7 +63,7 @@
           secondary
           dense
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
-          @click="openReportPopup"
+          @click="openPlarReportPopup"
         />
       </kw-action-top>
       <kw-form
@@ -75,7 +75,7 @@
             :label="t('MSG_TXT_PERF_YM')"
             align-content="center"
           >
-            <p>{{ stringUtil.getDateFormat(info.perfYm,'YYYY-MM').substring(0,7) }}</p>
+            <p>{{ info.frrSum ? stringUtil.getDateFormat(info.perfYm,'YYYY-MM').substring(0,7) : '' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BLG')"
@@ -107,21 +107,19 @@
             :label="t('MSG_TXT_FEE_SUM')"
             align-content="right"
           >
-            <p>{{ stringUtil.getNumberWithComma(info.frrSum) }}</p>
+            <p>{{ info.frrSum ? stringUtil.getNumberWithComma(info.frrSum) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_DDTN_SUM')"
             align-content="right"
           >
-            <p>
-              {{ stringUtil.getNumberWithComma(info.ddtnSum) }}
-            </p>
+            <p>{{ info.ddtnSum ? stringUtil.getNumberWithComma(info.ddtnSum) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ACL_DSB')"
             align-content="right"
           >
-            <p>{{ stringUtil.getNumberWithComma(info.aclDsb) }}</p>
+            <p>{{ info.aclDsb ? stringUtil.getNumberWithComma(info.aclDsb) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_DSB_BNK')"
@@ -202,25 +200,25 @@
             :label="t('MSG_TXT_RDS')"
             align-content="center"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.rds) }}</p>
+            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.rds) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ERNTX')"
             align-content="center"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.erntx) }}</p>
+            <p>{{ info2.erntx ? stringUtil.getNumberWithComma(info2.erntx) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSDNTX')"
             align-content="center"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.rsdntx) }}</p>
+            <p>{{ info2.rsdntx ? stringUtil.getNumberWithComma(info2.rsdntx) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_PNPYAM')"
             align-content="center"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.pnpyam) }}</p>
+            <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.pnpyam) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -228,27 +226,25 @@
             :label="t('MSG_TXT_HIR_INSR')"
             align-content="center"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.hirInsr) }}</p>
+            <p>{{ info2.hirInsr ? stringUtil.getNumberWithComma(info2.hirInsr) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_INDD_INSR')"
             align-content="center"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.inddInsr) }}</p>
+            <p>{{ info2.inddInsr ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BU_DDTN')"
             align-content="center"
           >
-            <p>
-              {{ stringUtil.getNumberWithComma(info2.buDdtn) }}
-            </p>
+            <p>{{ info2.buDdtn ? stringUtil.getNumberWithComma(info2.buDdtn) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_DDTN_SUM')"
             align-content="center"
           >
-            <p>{{ stringUtil.getNumberWithComma(info2.ddtnSum) }}</p>
+            <p>{{ info2.ddtnSum ? stringUtil.getNumberWithComma(info2.ddtnSum) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -279,8 +275,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, modal, defineGrid, stringUtil } from 'kw-lib';
+import { useDataService, getComponentType, modal, defineGrid, stringUtil, alert } from 'kw-lib';
 import dayjs from 'dayjs';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -327,6 +324,7 @@ const info = ref({
   aclDsb: '',
   dsbBnk: '',
   dsbAc: '',
+  pstnDvCd: '',
 });
 
 const info2 = ref({
@@ -370,16 +368,28 @@ async function onClickSearchNo() {
 /*
  *  Event - 지급명세서 출력 버튼 클릭  ※현재 팝업화면 없음
  */
-async function openReportPopup() {
-  const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.no,
-  };
-
-  await modal({
-    component: 'openReportPopup',
-    componentProps: param,
-  });
+async function openPlarReportPopup() {
+  const { perfYm, no, pstnDvCd } = searchParams.value;
+  const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYY-MM');
+  if (info.value.prtnrNo !== '') {
+    openReportPopup(
+      '/ksswells/cmms/V6.0/cmmsSpecP2022.ozr',
+      '/ksswells/cmms/V6.0/cmmsSpecP2022.odi',
+      JSON.stringify(
+        {
+          AKSDYM: perfYm,
+          AKSDTY: perfYm.substring(0, 4),
+          AKSDTM: perfYm.substring(4, 6),
+          AKDDTY: bfPerfYm.substring(0, 4),
+          AKDDTM: bfPerfYm.substring(4, 6),
+          AKDRNK: pstnDvCd,
+          AKDCDE: no,
+        },
+      ),
+    );
+  } else {
+    alert(t('MSG_ALT_USE_DT_SRCH_AF'));
+  }
 }
 
 /*
@@ -387,16 +397,18 @@ async function openReportPopup() {
  */
 async function openPerformancePopup() {
   const { perfYm, no } = searchParams.value;
-  const param = {
-    perfYm,
-    no,
-    ogTpCd: 'W01',
-  };
-  if (no !== '') {
+  if (info.value.prtnrNo !== '') {
+    const param = {
+      perfYm,
+      no,
+      ogTpCd: 'W01',
+    };
     await modal({
       component: 'WwfeeIndividualFeeDetailListP',
       componentProps: param,
     });
+  } else {
+    alert(t('MSG_ALT_USE_DT_SRCH_AF'));
   }
 }
 
@@ -404,46 +416,58 @@ async function openPerformancePopup() {
  *  Event - 재지급 버튼 클릭
  */
 async function openAgainDisbursementPopup() {
-  const param = {
-    prtnrNo: searchParams.value.no,
-    ogTpCd: 'W01',
-  };
+  if (info.value.prtnrNo !== '') {
+    const param = {
+      prtnrNo: searchParams.value.no,
+      ogTpCd: 'W01',
+    };
 
-  await modal({
-    component: 'WwdebAgainDisbursementDetailP',
-    componentProps: param,
-  });
+    await modal({
+      component: 'WwdebAgainDisbursementDetailP',
+      componentProps: param,
+    });
+  } else {
+    alert(t('MSG_ALT_USE_DT_SRCH_AF'));
+  }
 }
 
 /*
  *  Event - 부담공제조정 버튼 클릭
  */
 async function openZwfedFeeBurdenDeductionRegP() {
-  const param = {
-    ddtnYm: searchParams.value.perfYm,
-    coCd: '2000',
-    ogTpCd: 'W01',
-    prtnrNo: searchParams.value.no,
-  };
-  await modal({
-    component: 'ZwfedFeeBurdenDeductionRegP',
-    componentProps: param,
-  });
+  if (info.value.prtnrNo !== '') {
+    const { perfYm, no } = searchParams.value;
+    const param = {
+      perfYm,
+      ogTpCd: 'W01',
+      prtnrNo: no,
+    };
+    await modal({
+      component: 'ZwdeeBurdenDeductionP',
+      componentProps: param,
+    });
+  } else {
+    alert(t('MSG_ALT_USE_DT_SRCH_AF'));
+  }
 }
 
 /*
  *  Event - 되물림 버튼 클릭
  */
 async function openRedemptionOfFeePopup() {
-  const param = {
-    prtnrNo: searchParams.value.no,
-    ogTpCd: 'W01',
-  };
+  if (info.value.prtnrNo !== '') {
+    const param = {
+      prtnrNo: searchParams.value.no,
+      ogTpCd: 'W01',
+    };
 
-  await modal({
-    component: 'WwdeaAllowanceDelinquentRedemptionFeeListP',
-    componentProps: param,
-  });
+    await modal({
+      component: 'WwdeaAllowanceDelinquentRedemptionFeeListP',
+      componentProps: param,
+    });
+  } else {
+    alert(t('MSG_ALT_USE_DT_SRCH_AF'));
+  }
 }
 
 async function fetchData(type) {
@@ -467,6 +491,10 @@ async function fetchData(type) {
 }
 
 async function onClickSearch() {
+  info.value = {};
+  grd1MainRef.value.getData().clearRows();
+  grd2MainRef.value.getData().clearRows();
+  grd3MainRef.value.getData().clearRows();
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('informations');
   await fetchData('etcs');
