@@ -371,7 +371,7 @@ const initGridRentalInstallerList = defineGrid((data, view) => {
     { fieldName: 'cntrDt', header: t('MSG_TXT_TASK_OPNG_DT'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 파트너정보-업무개시일
     { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '166', styleName: 'text-center', datetimeFormat: 'date' }, // 파트너정보-업무해약일
     { fieldName: 'cstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
-    { fieldName: 'bryy', header: '생년(YY)', width: '138', styleName: 'text-center' }, // 계약자 정보-생년(YY)
+    { fieldName: 'bryy', header: t('MSG_TXT_BRYY'), width: '138', styleName: 'text-center' }, // 계약자 정보-생년(YY)
     { fieldName: 'bzrNo', header: t('MSG_TXT_ENTRP_NO'), width: '138', styleName: 'text-center' }, // 계약자 정보-사업자번호
     { fieldName: 'sexDvNm', header: t('MSG_TXT_GENDER'), width: '138', styleName: 'text-center' }, // 계약자 정보-성별
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '138', styleName: 'text-center' }, // 계약자 정보-고객번호
@@ -509,19 +509,19 @@ const initGridRentalInstallerList = defineGrid((data, view) => {
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '136', styleName: 'text-right' }, // 렌탈차월
     { fieldName: 'fgpt1PdNm', header: t('MSG_TXT_FGPT_NM_1'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품명1
     { fieldName: 'fgpt1PdCd', header: t('MSG_TXT_FGPT_CD_1'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품코드1
-    { fieldName: 'fgpt1Qty', header: t('MSG_TXT_FGPT_QTY_1'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품수량1
+    { fieldName: 'fgpt1Qty', header: t('MSG_TXT_FGPT_QTY_1'), width: '138', styleName: 'text-right' }, // 사은품정보-사은품수량1
     { fieldName: 'fgpt2PdNm', header: t('MSG_TXT_FGPT_NM_2'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품명2
     { fieldName: 'fgpt2PdCd', header: t('MSG_TXT_FGPT_CD_2'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품코드2
-    { fieldName: 'fgpt2Qty', header: t('MSG_TXT_FGPT_QTY_2'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품수량2
+    { fieldName: 'fgpt2Qty', header: t('MSG_TXT_FGPT_QTY_2'), width: '138', styleName: 'text-right' }, // 사은품정보-사은품수량2
     { fieldName: 'fgpt3PdNm', header: t('MSG_TXT_FGPT_NM_3'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품명3
     { fieldName: 'fgpt3PdCd', header: t('MSG_TXT_FGPT_CD_3'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품코드3
-    { fieldName: 'fgpt3Qty', header: t('MSG_TXT_FGPT_QTY_3'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품수량3
+    { fieldName: 'fgpt3Qty', header: t('MSG_TXT_FGPT_QTY_3'), width: '138', styleName: 'text-right' }, // 사은품정보-사은품수량3
     { fieldName: 'fgpt4PdNm', header: t('MSG_TXT_FGPT_NM_4'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품명4
     { fieldName: 'fgpt4PdCd', header: t('MSG_TXT_FGPT_CD_4'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품코드4
-    { fieldName: 'fgpt4Qty', header: t('MSG_TXT_FGPT_QTY_4'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품수량4
+    { fieldName: 'fgpt4Qty', header: t('MSG_TXT_FGPT_QTY_4'), width: '138', styleName: 'text-right' }, // 사은품정보-사은품수량4
     { fieldName: 'fgpt5PdNm', header: t('MSG_TXT_FGPT_NM_5'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품명5
     { fieldName: 'fgpt5PdCd', header: t('MSG_TXT_FGPT_CD_5'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품코드5
-    { fieldName: 'fgpt5Qty', header: t('MSG_TXT_FGPT_QTY_5'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품수량5
+    { fieldName: 'fgpt5Qty', header: t('MSG_TXT_FGPT_QTY_5'), width: '138', styleName: 'text-right' }, // 사은품정보-사은품수량5
   ];
 
   data.setFields(fields);

@@ -57,6 +57,7 @@ const props = defineProps({
   colDv: { type: String, required: false, default: '' },
   empno: { type: String, required: false, default: '' },
   srchGbn: { type: String, required: false, default: '' },
+  cntrtRelCd: { type: String, required: false, default: '' },
 });
 
 let cachedParams;
@@ -65,6 +66,7 @@ const searchParams = ref({
   colDv: props.colDv,
   empno: props.empno,
   srchGbn: props.srchGbn,
+  cntrtRelCd: props.cntrtRelCd,
 });
 
 const pageInfo = ref({

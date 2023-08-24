@@ -170,7 +170,7 @@
               </ul>
             </div>
           </kw-form-item>
-          <!-- 기타 -->
+          <!-- 기타1 -->
           <kw-form-item :label="$t('MSG_TXT_ETC')">
             <div class="preview-attach">
               <div class="preview-attach__top">
@@ -203,7 +203,7 @@
         </kw-form-row>
         <slot v-if="frmMainData.nmchgEtcFileUid2 !== ''">
           <kw-form-row>
-            <!-- 기타 -->
+            <!-- 기타2 -->
             <kw-form-item :label="$t('MSG_TXT_ETC')">
               <div class="preview-attach">
                 <div class="preview-attach__top">
@@ -233,6 +233,236 @@
                 </ul>
               </div>
             </kw-form-item>
+            <slot v-if="frmMainData.nmchgEtcFileUid3 !== ''">
+              <!-- 기타3 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.nmchgEtcFileUid3"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.nmchgEtcFileNm3"
+                        @click="onClickOpenImageViewer('nmchgEtcFileUid3')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm3 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
+          </kw-form-row>
+        </slot>
+        <slot v-if="frmMainData.nmchgEtcFileUid4 !== ''">
+          <kw-form-row>
+            <!-- 기타4 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.nmchgEtcFileUid4"
+                    alt=""
+                  />
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.nmchgEtcFileNm4"
+                      @click="onClickOpenImageViewer('nmchgEtcFileUid4')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm4 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+            <slot v-if="frmMainData.nmchgEtcFileUid5 !== ''">
+              <!-- 기타5 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.nmchgEtcFileUid5"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.nmchgEtcFileNm5"
+                        @click="onClickOpenImageViewer('nmchgEtcFileUid5')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm5 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
+          </kw-form-row>
+        </slot>
+        <slot v-if="frmMainData.nmchgEtcFileUid6 !== ''">
+          <kw-form-row>
+            <!-- 기타6 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.nmchgEtcFileUid6"
+                    alt=""
+                  />
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.nmchgEtcFileNm6"
+                      @click="onClickOpenImageViewer('nmchgEtcFileUid6')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm4 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+            <slot v-if="frmMainData.nmchgEtcFileUid7 !== ''">
+              <!-- 기타7 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.nmchgEtcFileUid7"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.nmchgEtcFileNm7"
+                        @click="onClickOpenImageViewer('nmchgEtcFileUid7')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm7 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
+          </kw-form-row>
+        </slot>
+        <slot v-if="frmMainData.nmchgEtcFileUid8 !== ''">
+          <kw-form-row>
+            <!-- 기타8 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.nmchgEtcFileUid8"
+                    alt=""
+                  />
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.nmchgEtcFileNm8"
+                      @click="onClickOpenImageViewer('nmchgEtcFileUid8')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm8 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+            <slot v-if="frmMainData.nmchgEtcFileUid9 !== ''">
+              <!-- 기타9 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.nmchgEtcFileUid9"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.nmchgEtcFileNm9"
+                        @click="onClickOpenImageViewer('nmchgEtcFileUid9')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm9 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
           </kw-form-row>
         </slot>
       </slot>
@@ -393,7 +623,7 @@
               </ul>
             </div>
           </kw-form-item>
-          <!-- 기타 -->
+          <!-- 기타1 -->
           <kw-form-item :label="$t('MSG_TXT_ETC')">
             <div class="preview-attach">
               <div class="preview-attach__top">
@@ -402,7 +632,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <kw-image
-                  :file-uid="frmMainData.aftnEtcFileUid"
+                  :file-uid="frmMainData.aftnEtcFileUid1"
                   alt=""
                 />
               </div>
@@ -412,18 +642,150 @@
                   <kw-btn
                     dense
                     underline
-                    :label="frmMainData.aftnEtcFileNm"
+                    :label="frmMainData.aftnEtcFileNm1"
                     @click="onClickOpenImageViewer('aftnEtcFileUid')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
                 <li class="kw-fc--black3 mt2 text-weight-regular">
-                  <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.aftnEtcFnlMdfcDtm }}</p>
+                  <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.aftnEtcFnlMdfcDtm1 }}</p>
                 </li>
               </ul>
             </div>
           </kw-form-item>
         </kw-form-row>
+        <slot v-if="frmMainData.aftnEtcFileUid2 !== ''">
+          <kw-form-row>
+            <!-- 기타2 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.aftnEtcFileUid2"
+                    alt=""
+                  />
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.aftnEtcFileNm2"
+                      @click="onClickOpenImageViewer('aftnEtcFileUid2')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.aftnEtcFnlMdfcDtm2 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+            <slot v-if="frmMainData.aftnEtcFileUid3 !== ''">
+              <!-- 기타3 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.aftnEtcFileUid3"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.aftnEtcFileNm3"
+                        @click="onClickOpenImageViewer('aftnEtcFileUid3')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.aftnEtcFnlMdfcDtm3 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
+          </kw-form-row>
+        </slot>
+        <slot v-if="frmMainData.aftnEtcFileUid4 !== ''">
+          <kw-form-row>
+            <!-- 기타4 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.aftnEtcFileUid4"
+                    alt=""
+                  />
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.aftnEtcFileNm4"
+                      @click="onClickOpenImageViewer('aftnEtcFileUid4')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.aftnEtcFnlMdfcDtm4 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+            <slot v-if="frmMainData.aftnEtcFileUid5 !== ''">
+              <!-- 기타5 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.aftnEtcFileUid5"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.aftnEtcFileNm5"
+                        @click="onClickOpenImageViewer('aftnEtcFileUid5')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.aftnEtcFnlMdfcDtm5 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
+          </kw-form-row>
+        </slot>
       </slot>
       <!-- 명의 변경 -->
       <slot v-else-if="props.cntrChTpCd === '103'">
@@ -582,7 +944,7 @@
               </ul>
             </div>
           </kw-form-item>
-          <!-- 기타 -->
+          <!-- 기타1 -->
           <kw-form-item :label="$t('MSG_TXT_ETC')">
             <div class="preview-attach">
               <div class="preview-attach__top">
@@ -591,7 +953,7 @@
               <div class="preview-attach__bottom">
                 <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
                 <kw-image
-                  :file-uid="frmMainData.tftlEtcFileUid"
+                  :file-uid="frmMainData.tftlEtcFileUid1"
                   alt=""
                 />
               </div>
@@ -601,18 +963,150 @@
                   <kw-btn
                     dense
                     underline
-                    :label="frmMainData.tftlEtcFileNm"
-                    @click="onClickOpenImageViewer('tftlEtcFileUid')"
+                    :label="frmMainData.tftlEtcFileNm1"
+                    @click="onClickOpenImageViewer('tftlEtcFileUid1')"
                   />
                 </li>
                 <!-- 등록일시 : 2022.11.01 20:36:43 -->
                 <li class="kw-fc--black3 mt2 text-weight-regular">
-                  <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.tftlEtcFnlMdfcDtm }}</p>
+                  <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.tftlEtcFnlMdfcDtm1 }}</p>
                 </li>
               </ul>
             </div>
           </kw-form-item>
         </kw-form-row>
+        <slot v-if="frmMainData.tftlEtcFileUid2 !== ''">
+          <kw-form-row>
+            <!-- 기타2 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.tftlEtcFileUid2"
+                    alt=""
+                  />
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.tftlEtcFileNm2"
+                      @click="onClickOpenImageViewer('tftlEtcFileUid2')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.tftlEtcFnlMdfcDtm2 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+            <slot v-if="frmMainData.tftlEtcFileUid3 !== ''">
+              <!-- 기타3 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.tftlEtcFileUid3"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.tftlEtcFileNm3"
+                        @click="onClickOpenImageViewer('tftlEtcFileUid3')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.tftlEtcFnlMdfcDtm3 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
+          </kw-form-row>
+        </slot>
+        <slot v-if="frmMainData.tftlEtcFileUid4 !== ''">
+          <kw-form-row>
+            <!-- 기타4 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.tftlEtcFileUid4"
+                    alt=""
+                  />
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.tftlEtcFileNm4"
+                      @click="onClickOpenImageViewer('tftlEtcFileUid4')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.tftlEtcFnlMdfcDtm4 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+            <slot v-if="frmMainData.tftlEtcFileUid5 !== ''">
+              <!-- 기타5 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.tftlEtcFileUid5"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.tftlEtcFileNm5"
+                        @click="onClickOpenImageViewer('tftlEtcFileUid5')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.tftlEtcFnlMdfcDtm5 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
+          </kw-form-row>
+        </slot>
       </slot>
       <!-- 해지/철회신청 -->
       <slot v-else-if="props.cntrChTpCd === '401'">
@@ -647,7 +1141,7 @@
               </ul>
             </div>
           </kw-form-item>
-          <!-- 기타 -->
+          <!-- 기타1 -->
           <kw-form-item :label="$t('MSG_TXT_ETC')">
             <div class="preview-attach">
               <div class="preview-attach__top">
@@ -680,7 +1174,7 @@
         </kw-form-row>
         <slot v-if="frmMainData.cnclEtcFileUid2 !== ''">
           <kw-form-row>
-            <!-- 기타 -->
+            <!-- 기타2 -->
             <kw-form-item :label="$t('MSG_TXT_ETC')">
               <div class="preview-attach">
                 <div class="preview-attach__top">
@@ -710,6 +1204,236 @@
                 </ul>
               </div>
             </kw-form-item>
+            <slot v-if="frmMainData.cnclEtcFileUid3 !== ''">
+              <!-- 기타3 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.cnclEtcFileUid3"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.cnclEtcFileNm3"
+                        @click="onClickOpenImageViewer('cnclEtcFileUid3')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.cnclEtcFnlMdfcDtm3 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
+          </kw-form-row>
+        </slot>
+        <slot v-if="frmMainData.cnclEtcFileUid4 !== ''">
+          <kw-form-row>
+            <!-- 기타4 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.cnclEtcFileUid4"
+                    alt=""
+                  />
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.cnclEtcFileNm4"
+                      @click="onClickOpenImageViewer('cnclEtcFileUid2')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.cnclEtcFnlMdfcDtm4 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+            <slot v-if="frmMainData.cnclEtcFileUid5 !== ''">
+              <!-- 기타5 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.cnclEtcFileUid5"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.cnclEtcFileNm5"
+                        @click="onClickOpenImageViewer('cnclEtcFileUid3')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.cnclEtcFnlMdfcDtm5 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
+          </kw-form-row>
+        </slot>
+        <slot v-if="frmMainData.cnclEtcFileUid6 !== ''">
+          <kw-form-row>
+            <!-- 기타6 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.cnclEtcFileUid6"
+                    alt=""
+                  />
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.cnclEtcFileNm6"
+                      @click="onClickOpenImageViewer('cnclEtcFileUid6')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.cnclEtcFnlMdfcDtm6 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+            <slot v-if="frmMainData.cnclEtcFileUid7 !== ''">
+              <!-- 기타7 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.cnclEtcFileUid7"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.cnclEtcFileNm7"
+                        @click="onClickOpenImageViewer('cnclEtcFileUid7')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.cnclEtcFnlMdfcDtm7 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
+          </kw-form-row>
+        </slot>
+        <slot v-if="frmMainData.cnclEtcFileUid8 !== ''">
+          <kw-form-row>
+            <!-- 기타8 -->
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.cnclEtcFileUid8"
+                    alt=""
+                  />
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.cnclEtcFileNm8"
+                      @click="onClickOpenImageViewer('cnclEtcFileUid2')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.cnclEtcFnlMdfcDtm8 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+            <slot v-if="frmMainData.cnclEtcFileUid9 !== ''">
+              <!-- 기타9 -->
+              <kw-form-item :label="$t('MSG_TXT_ETC')">
+                <div class="preview-attach">
+                  <div class="preview-attach__top">
+                    {{ $t('MSG_TXT_ETC') }}
+                  </div>
+                  <div class="preview-attach__bottom">
+                    <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                    <kw-image
+                      :file-uid="frmMainData.cnclEtcFileUid9"
+                      alt=""
+                    />
+                  </div>
+                  <ul class="preview-attach__infos">
+                    <!-- 166730259072721428.jpg -->
+                    <li class="text-underline cursor-pointer">
+                      <kw-btn
+                        dense
+                        underline
+                        :label="frmMainData.cnclEtcFileNm9"
+                        @click="onClickOpenImageViewer('cnclEtcFileUid9')"
+                      />
+                    </li>
+                    <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                    <li class="kw-fc--black3 mt2 text-weight-regular">
+                      <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.cnclEtcFnlMdfcDtm9 }}</p>
+                    </li>
+                  </ul>
+                </div>
+              </kw-form-item>
+            </slot>
           </kw-form-row>
         </slot>
       </slot>
@@ -793,6 +1517,38 @@ const frmMainData = ref({
   nmchgEtcRealFpath2: '', // (개명신청)기타 파일실제경로2
   nmchgEtcFnlMdfcDtm2: '', // (개명신청)기타 파일최종등록일시2
   nmchgEtcFileUid2: '', // (개명신청)기타 파일UID2
+  nmchgEtcFileNm3: '', // (개명신청)기타 파일명3
+  nmchgEtcRealFpath3: '', // (개명신청)기타 파일실제경로3
+  nmchgEtcFnlMdfcDtm3: '', // (개명신청)기타 파일최종등록일시3
+  nmchgEtcFileUid3: '', // (개명신청)기타 파일UID3
+  nmchgEtcFileNm4: '', // (개명신청)기타 파일명4
+  nmchgEtcRealFpath4: '', // (개명신청)기타 파일실제경로4
+  nmchgEtcFnlMdfcDtm4: '', // (개명신청)기타 파일최종등록일시4
+  nmchgEtcFileUid4: '', // (개명신청)기타 파일UID4
+  nmchgEtcFileNm5: '', // (개명신청)기타 파일명5
+  nmchgEtcRealFpath5: '', // (개명신청)기타 파일실제경로5
+  nmchgEtcFnlMdfcDtm5: '', // (개명신청)기타 파일최종등록일시5
+  nmchgEtcFileUid5: '', // (개명신청)기타 파일UID5
+  nmchgEtcFileNm6: '', // (개명신청)기타 파일명6
+  nmchgEtcRealFpath6: '', // (개명신청)기타 파일실제경로6
+  nmchgEtcFnlMdfcDtm6: '', // (개명신청)기타 파일최종등록일시6
+  nmchgEtcFileUid6: '', // (개명신청)기타 파일UID6
+  nmchgEtcFileNm7: '', // (개명신청)기타 파일명7
+  nmchgEtcRealFpath7: '', // (개명신청)기타 파일실제경로7
+  nmchgEtcFnlMdfcDtm7: '', // (개명신청)기타 파일최종등록일시7
+  nmchgEtcFileUid7: '', // (개명신청)기타 파일UID7
+  nmchgEtcFileNm8: '', // (개명신청)기타 파일명8
+  nmchgEtcRealFpath8: '', // (개명신청)기타 파일실제경로8
+  nmchgEtcFnlMdfcDtm8: '', // (개명신청)기타 파일최종등록일시8
+  nmchgEtcFileUid8: '', // (개명신청)기타 파일UID8
+  nmchgEtcFileNm9: '', // (개명신청)기타 파일명9
+  nmchgEtcRealFpath9: '', // (개명신청)기타 파일실제경로9
+  nmchgEtcFnlMdfcDtm9: '', // (개명신청)기타 파일최종등록일시9
+  nmchgEtcFileUid9: '', // (개명신청)기타 파일UID9
+  nmchgEtcFileNm10: '', // (개명신청)기타 파일명10
+  nmchgEtcRealFpath10: '', // (개명신청)기타 파일실제경로10
+  nmchgEtcFnlMdfcDtm10: '', // (개명신청)기타 파일최종등록일시10
+  nmchgEtcFileUid10: '', // (개명신청)기타 파일UID10
 
   cmsApfFileNm: '', // (자동이체 변경)CMS변경신청서 파일명
   cmsApfRealFpath: '', // (자동이체 변경)CMS변경신청서 파일실제경로
@@ -814,10 +1570,26 @@ const frmMainData = ref({
   aftnBzrcCrpRealFpath: '', // (자동이체 변경)사업자등록증(법인) 파일실제경로
   aftnBzrcCrpFnlMdfcDtm: '', // (자동이체 변경)사업자등록증(법인) 파일최종등록일시
   aftnBzrcCrpFileUid: '', // (자동이체 변경)사업자등록증(법인) 파일UID
-  aftnEtcFileNm: '', // (자동이체 변경)기타 파일명
-  aftnEtcRealFpath: '', // (자동이체 변경)기타 파일실제경로
-  aftnEtcFnlMdfcDtm: '', // (자동이체 변경)기타 파일최종등록일시
-  aftnEtcFileUid: '', // (자동이체 변경)기타 파일UID
+  aftnEtcFileNm1: '', // (자동이체 변경)기타 파일명1
+  aftnEtcRealFpath1: '', // (자동이체 변경)기타 파일실제경로1
+  aftnEtcFnlMdfcDtm1: '', // (자동이체 변경)기타 파일최종등록일시1
+  aftnEtcFileUid1: '', // (자동이체 변경)기타 파일UID1
+  aftnEtcFileNm2: '', // (자동이체 변경)기타 파일명2
+  aftnEtcRealFpath2: '', // (자동이체 변경)기타 파일실제경로2
+  aftnEtcFnlMdfcDtm2: '', // (자동이체 변경)기타 파일최종등록일시2
+  aftnEtcFileUid2: '', // (자동이체 변경)기타 파일UID2
+  aftnEtcFileNm3: '', // (자동이체 변경)기타 파일명3
+  aftnEtcRealFpath3: '', // (자동이체 변경)기타 파일실제경로3
+  aftnEtcFnlMdfcDtm3: '', // (자동이체 변경)기타 파일최종등록일시3
+  aftnEtcFileUid3: '', // (자동이체 변경)기타 파일UID3
+  aftnEtcFileNm4: '', // (자동이체 변경)기타 파일명4
+  aftnEtcRealFpath4: '', // (자동이체 변경)기타 파일실제경로4
+  aftnEtcFnlMdfcDtm: '', // (자동이체 변경)기타 파일최종등록일시4
+  aftnEtcFileUid4: '', // (자동이체 변경)기타 파일UID4
+  aftnEtcFileNm5: '', // (자동이체 변경)기타 파일명5
+  aftnEtcRealFpath5: '', // (자동이체 변경)기타 파일실제경로5
+  aftnEtcFnlMdfcDtm5: '', // (자동이체 변경)기타 파일최종등록일시5
+  aftnEtcFileUid5: '', // (자동이체 변경)기타 파일UID5
 
   tftlApfFileNm: '', // (명의 변경)명의변경신청서 파일명
   tftlApfRealFpath: '', // (명의 변경)명의변경신청서 파일실제경로
@@ -839,10 +1611,26 @@ const frmMainData = ref({
   tftlBzrcCrpRealFpath: '', // (명의 변경)사업자등록증(법인) 파일실제경로
   tftlBzrcCrpFnlMdfcDtm: '', // (명의 변경)사업자등록증(법인) 파일최종등록일시
   tftlBzrcCrpFileUid: '', // (명의 변경)사업자등록증(법인) 파일UID
-  tftlEtcFileNm: '', // (명의 변경)기타 파일명
-  tftlEtcRealFpath: '', // (명의 변경)기타 파일실제경로
-  tftlEtcFnlMdfcDtm: '', // (명의 변경)기타 파일최종등록일시
-  tftlEtcFileUid: '', // (명의 변경)기타 파일UID
+  tftlEtcFileNm1: '', // (명의 변경)기타 파일명1
+  tftlEtcRealFpath1: '', // (명의 변경)기타 파일실제경로1
+  tftlEtcFnlMdfcDtm1: '', // (명의 변경)기타 파일최종등록일시1
+  tftlEtcFileUid1: '', // (명의 변경)기타 파일UID1
+  tftlEtcFileNm2: '', // (명의 변경)기타 파일명2
+  tftlEtcRealFpath2: '', // (명의 변경)기타 파일실제경로2
+  tftlEtcFnlMdfcDtm2: '', // (명의 변경)기타 파일최종등록일시2
+  tftlEtcFileUid2: '', // (명의 변경)기타 파일UID2
+  tftlEtcFileNm3: '', // (명의 변경)기타 파일명3
+  tftlEtcRealFpath3: '', // (명의 변경)기타 파일실제경로3
+  tftlEtcFnlMdfcDtm3: '', // (명의 변경)기타 파일최종등록일시3
+  tftlEtcFileUid3: '', // (명의 변경)기타 파일UID3
+  tftlEtcFileNm4: '', // (명의 변경)기타 파일명4
+  tftlEtcRealFpath4: '', // (명의 변경)기타 파일실제경로4
+  tftlEtcFnlMdfcDtm4: '', // (명의 변경)기타 파일최종등록일시4
+  tftlEtcFileUid4: '', // (명의 변경)기타 파일UID4
+  tftlEtcFileNm5: '', // (명의 변경)기타 파일명5
+  tftlEtcRealFpath5: '', // (명의 변경)기타 파일실제경로5
+  tftlEtcFnlMdfcDtm5: '', // (명의 변경)기타 파일최종등록일시5
+  tftlEtcFileUid5: '', // (명의 변경)기타 파일UID5
 
   cnclEvdcDcmtFileNm: '', // (해지/철회신청)증빙서류 파일명
   cnclEvdcDcmtRealFpath: '', // (해지/철회신청)증빙서류 파일실제경로
@@ -856,6 +1644,38 @@ const frmMainData = ref({
   cnclEtcRealFpath2: '', // (해지/철회신청)기타 파일실제경로2
   cnclEtcFnlMdfcDtm2: '', // (해지/철회신청)기타 파일최종등록일시2
   cnclEtcFileUid2: '', // (해지/철회신청)기타 파일UID2
+  cnclEtcFileNm3: '', // (해지/철회신청)기타 파일명3
+  cnclEtcRealFpath3: '', // (해지/철회신청)기타 파일실제경로3
+  cnclEtcFnlMdfcDtm3: '', // (해지/철회신청)기타 파일최종등록일시3
+  cnclEtcFileUid3: '', // (해지/철회신청)기타 파일UID3
+  cnclEtcFileNm4: '', // (해지/철회신청)기타 파일명4
+  cnclEtcRealFpath4: '', // (해지/철회신청)기타 파일실제경로4
+  cnclEtcFnlMdfcDtm4: '', // (해지/철회신청)기타 파일최종등록일시4
+  cnclEtcFileUid4: '', // (해지/철회신청)기타 파일UID4
+  cnclEtcFileNm5: '', // (해지/철회신청)기타 파일명5
+  cnclEtcRealFpath5: '', // (해지/철회신청)기타 파일실제경로5
+  cnclEtcFnlMdfcDtm5: '', // (해지/철회신청)기타 파일최종등록일시5
+  cnclEtcFileUid5: '', // (해지/철회신청)기타 파일UID5
+  cnclEtcFileNm6: '', // (해지/철회신청)기타 파일명6
+  cnclEtcRealFpath6: '', // (해지/철회신청)기타 파일실제경로6
+  cnclEtcFnlMdfcDtm6: '', // (해지/철회신청)기타 파일최종등록일시6
+  cnclEtcFileUid6: '', // (해지/철회신청)기타 파일UID6
+  cnclEtcFileNm7: '', // (해지/철회신청)기타 파일명7
+  cnclEtcRealFpath7: '', // (해지/철회신청)기타 파일실제경로7
+  cnclEtcFnlMdfcDtm7: '', // (해지/철회신청)기타 파일최종등록일시7
+  cnclEtcFileUid7: '', // (해지/철회신청)기타 파일UID7
+  cnclEtcFileNm8: '', // (해지/철회신청)기타 파일명8
+  cnclEtcRealFpath8: '', // (해지/철회신청)기타 파일실제경로8
+  cnclEtcFnlMdfcDtm8: '', // (해지/철회신청)기타 파일최종등록일시8
+  cnclEtcFileUid8: '', // (해지/철회신청)기타 파일UID8
+  cnclEtcFileNm9: '', // (해지/철회신청)기타 파일명9
+  cnclEtcRealFpath9: '', // (해지/철회신청)기타 파일실제경로9
+  cnclEtcFnlMdfcDtm9: '', // (해지/철회신청)기타 파일최종등록일시9
+  cnclEtcFileUid9: '', // (해지/철회신청)기타 파일UID9
+  cnclEtcFileNm10: '', // (해지/철회신청)기타 파일명10
+  cnclEtcRealFpath10: '', // (해지/철회신청)기타 파일실제경로10
+  cnclEtcFnlMdfcDtm10: '', // (해지/철회신청)기타 파일최종등록일시10
+  cnclEtcFileUid10: '', // (해지/철회신청)기타 파일UID10
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -908,134 +1728,276 @@ async function fetchData() {
     const response = res.data.searchDocumentRcpDtlFileInfoResList;
     response.forEach((element) => {
       if (element.cntrChTpCd === '104') { // 개명신청
-        // 신분증사본
-        if (element.cntrChDocSeq === '1') {
-          frmMainData.value.nmchgIdfCyFileNm = element.fileNm; // 파일명
-          frmMainData.value.nmchgIdfCyRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.nmchgIdfCyFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.nmchgIdfCyFileUid = element.fileUid; // 파일UID
-        }
-        // 기타
-        if (element.cntrChDocSeq === '2') {
-          frmMainData.value.nmchgEtcFileNm1 = element.fileNm; // 파일명
-          frmMainData.value.nmchgEtcRealFpath1 = element.realFpath; // 파일실제경로
-          frmMainData.value.nmchgEtcFnlMdfcDtm1 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.nmchgEtcFileUid1 = element.fileUid; // 파일UID
-        }
-        // 기타
-        if (element.cntrChDocSeq === '3') {
-          frmMainData.value.nmchgEtcFileNm2 = element.fileNm; // 파일명
-          frmMainData.value.nmchgEtcRealFpath2 = element.realFpath; // 파일실제경로
-          frmMainData.value.nmchgEtcFnlMdfcDtm2 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.nmchgEtcFileUid2 = element.fileUid; // 파일UID
+        switch (element.cntrChDocSeq) {
+          case '1': // 신분증사본
+            frmMainData.value.nmchgIdfCyFileNm = element.fileNm; // 파일명
+            frmMainData.value.nmchgIdfCyRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgIdfCyFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgIdfCyFileUid = element.fileUid; // 파일UID
+            break;
+          case '2': // 기타1
+            frmMainData.value.nmchgEtcFileNm1 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath1 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm1 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid1 = element.fileUid; // 파일UID
+            break;
+          case '3': // 기타2
+            frmMainData.value.nmchgEtcFileNm2 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath2 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm2 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid2 = element.fileUid; // 파일UID
+            break;
+          case '4': // 기타3
+            frmMainData.value.nmchgEtcFileNm3 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath3 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm3 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid3 = element.fileUid; // 파일UID
+            break;
+          case '5': // 기타4
+            frmMainData.value.nmchgEtcFileNm4 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath4 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm4 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid4 = element.fileUid; // 파일UID
+            break;
+          case '6': // 기타5
+            frmMainData.value.nmchgEtcFileNm5 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath5 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm5 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid5 = element.fileUid; // 파일UID
+            break;
+          case '7': // 기타6
+            frmMainData.value.nmchgEtcFileNm6 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath6 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm6 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid6 = element.fileUid; // 파일UID
+            break;
+          case '8': // 기타7
+            frmMainData.value.nmchgEtcFileNm7 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath7 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm7 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid7 = element.fileUid; // 파일UID
+            break;
+          case '9': // 기타8
+            frmMainData.value.nmchgEtcFileNm8 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath8 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm8 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid8 = element.fileUid; // 파일UID
+            break;
+          case '10': // 기타9
+            frmMainData.value.nmchgEtcFileNm9 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath9 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm9 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid9 = element.fileUid; // 파일UID
+            break;
+          case '11': // 기타10
+            frmMainData.value.nmchgEtcFileNm10 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath10 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm10 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid10 = element.fileUid; // 파일UID
+            break;
+          default:
+            break;
         }
       } else if (element.cntrChTpCd === '301') { // 자동이체 변경
-        // CMS변경신청서
-        if (element.cntrChDocSeq === '1') {
-          frmMainData.value.cmsApfFileNm = element.fileNm; // 파일명
-          frmMainData.value.cmsApfRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.cmsApfFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.cmsApfFileUid = element.fileUid; // 파일UID
-        }
-        // 신분증사본
-        if (element.cntrChDocSeq === '2') {
-          frmMainData.value.aftnIdfCyFileNm = element.fileNm; // 파일명
-          frmMainData.value.aftnIdfCyRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.aftnIdfCyFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.aftnIdfCyFileUid = element.fileUid; // 파일UID
-        }
-        // 통장사본
-        if (element.cntrChDocSeq === '3') {
-          frmMainData.value.aftnBnkbCyFileNm = element.fileNm; // 파일명
-          frmMainData.value.aftnBnkbCyRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.aftnBnkbCyFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.aftnBnkbCyFileUid = element.fileUid; // 파일UID
-        }
-        // 가족관계증명서류
-        if (element.cntrChDocSeq === '4') {
-          frmMainData.value.aftnFmlCrtfDcmtFileNm = element.fileNm; // 파일명
-          frmMainData.value.aftnFmlCrtfDcmtRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.aftnFmlCrtfDcmtFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.aftnFmlCrtfDcmtFileUid = element.fileUid; // 파일UID
-        }
-        // 사업자등록증(법인)
-        if (element.cntrChDocSeq === '5') {
-          frmMainData.value.aftnBzrcCrpFileNm = element.fileNm; // 파일명
-          frmMainData.value.aftnBzrcCrpRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.aftnBzrcCrpFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.aftnBzrcCrpFileUid = element.fileUid; // 파일UID
-        }
-        // 기타
-        if (element.cntrChDocSeq === '6') {
-          frmMainData.value.aftnEtcFileNm = element.fileNm; // 파일명
-          frmMainData.value.aftnEtcRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.aftnEtcFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.aftnEtcFileUid = element.fileUid; // 파일UID
+        switch (element.cntrChDocSeq) {
+          case '1': // CMS변경신청서
+            frmMainData.value.cmsApfFileNm = element.fileNm; // 파일명
+            frmMainData.value.cmsApfRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.cmsApfFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cmsApfFileUid = element.fileUid; // 파일UID
+            break;
+          case '2': // 신분증사본
+            frmMainData.value.aftnIdfCyFileNm = element.fileNm; // 파일명
+            frmMainData.value.aftnIdfCyRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.aftnIdfCyFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.aftnIdfCyFileUid = element.fileUid; // 파일UID
+            break;
+          case '3': // 통장사본
+            frmMainData.value.aftnBnkbCyFileNm = element.fileNm; // 파일명
+            frmMainData.value.aftnBnkbCyRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.aftnBnkbCyFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.aftnBnkbCyFileUid = element.fileUid; // 파일UID
+            break;
+          case '4': // 가족관계증명서류
+            frmMainData.value.aftnFmlCrtfDcmtFileNm = element.fileNm; // 파일명
+            frmMainData.value.aftnFmlCrtfDcmtRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.aftnFmlCrtfDcmtFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.aftnFmlCrtfDcmtFileUid = element.fileUid; // 파일UID
+            break;
+          case '5': // 사업자등록증(법인)
+            frmMainData.value.aftnBzrcCrpFileNm = element.fileNm; // 파일명
+            frmMainData.value.aftnBzrcCrpRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.aftnBzrcCrpFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.aftnBzrcCrpFileUid = element.fileUid; // 파일UID
+            break;
+          case '6': // 기타1
+            frmMainData.value.aftnEtcFileNm1 = element.fileNm; // 파일명
+            frmMainData.value.aftnEtcRealFpath1 = element.realFpath; // 파일실제경로
+            frmMainData.value.aftnEtcFnlMdfcDtm1 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.aftnEtcFileUid1 = element.fileUid; // 파일UID
+            break;
+          case '7': // 기타2
+            frmMainData.value.aftnEtcFileNm2 = element.fileNm; // 파일명
+            frmMainData.value.aftnEtcRealFpath2 = element.realFpath; // 파일실제경로
+            frmMainData.value.aftnEtcFnlMdfcDtm2 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.aftnEtcFileUid2 = element.fileUid; // 파일UID
+            break;
+          case '8': // 기타3
+            frmMainData.value.nmchgEtcFileNm3 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath3 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm3 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid3 = element.fileUid; // 파일UID
+            break;
+          case '9': // 기타4
+            frmMainData.value.nmchgEtcFileNm4 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath4 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm4 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid4 = element.fileUid; // 파일UID
+            break;
+          case '10': // 기타5
+            frmMainData.value.nmchgEtcFileNm5 = element.fileNm; // 파일명
+            frmMainData.value.nmchgEtcRealFpath5 = element.realFpath; // 파일실제경로
+            frmMainData.value.nmchgEtcFnlMdfcDtm5 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.nmchgEtcFileUid5 = element.fileUid; // 파일UID
+            break;
+          default:
+            break;
         }
       } else if (element.cntrChTpCd === '103') { // 명의 변경
-        // 명의변경신청서
-        if (element.cntrChDocSeq === '1') {
-          frmMainData.value.tftlApfFileNm = element.fileNm; // 파일명
-          frmMainData.value.tftlApfRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.tftlApfFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.tftlApfFileUid = element.fileUid; // 파일UID
-        }
-        // 동의서
-        if (element.cntrChDocSeq === '2') {
-          frmMainData.value.agrmntFileNm = element.fileNm; // 파일명
-          frmMainData.value.agrmntRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.agrmntFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.agrmntFileUid = element.fileUid; // 파일UID
-        }
-        // 신분증사본
-        if (element.cntrChDocSeq === '3') {
-          frmMainData.value.tftlIdfCyFileNm = element.fileNm; // 파일명
-          frmMainData.value.tftlIdfCyRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.tftlIdfCyFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.tftlIdfCyFileUid = element.fileUid; // 파일UID
-        }
-        // 통장사본
-        if (element.cntrChDocSeq === '4') {
-          frmMainData.value.tftlBnkbCyFileNm = element.fileNm; // 파일명
-          frmMainData.value.tftlBnkbCyRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.tftlBnkbCyFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.tftlBnkbCyFileUid = element.fileUid; // 파일UID
-        }
-        // 사업자등록증(법인)
-        if (element.cntrChDocSeq === '5') {
-          frmMainData.value.tftlBzrcCrpFileNm = element.fileNm; // 파일명
-          frmMainData.value.tftlBzrcCrpRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.tftlBzrcCrpFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.tftlBzrcCrpFileUid = element.fileUid; // 파일UID
-        }
-        // 기타
-        if (element.cntrChDocSeq === '6') {
-          frmMainData.value.tftlEtcFileNm = element.fileNm; // 파일명
-          frmMainData.value.tftlEtcRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.tftlEtcFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.tftlEtcFileUid = element.fileUid; // 파일UID
+        switch (element.cntrChDocSeq) {
+          case '1': // 명의변경신청서
+            frmMainData.value.tftlApfFileNm = element.fileNm; // 파일명
+            frmMainData.value.tftlApfRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.tftlApfFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.tftlApfFileUid = element.fileUid; // 파일UID
+            break;
+          case '2': // 동의서
+            frmMainData.value.agrmntFileNm = element.fileNm; // 파일명
+            frmMainData.value.agrmntRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.agrmntFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.agrmntFileUid = element.fileUid; // 파일UID
+            break;
+          case '3': // 신분증사본
+            frmMainData.value.tftlIdfCyFileNm = element.fileNm; // 파일명
+            frmMainData.value.tftlIdfCyRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.tftlIdfCyFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.tftlIdfCyFileUid = element.fileUid; // 파일UID
+            break;
+          case '4': // 통장사본
+            frmMainData.value.tftlBnkbCyFileNm = element.fileNm; // 파일명
+            frmMainData.value.tftlBnkbCyRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.tftlBnkbCyFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.tftlBnkbCyFileUid = element.fileUid; // 파일UID
+            break;
+          case '5': // 사업자등록증(법인)
+            frmMainData.value.tftlBzrcCrpFileNm = element.fileNm; // 파일명
+            frmMainData.value.tftlBzrcCrpRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.tftlBzrcCrpFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.tftlBzrcCrpFileUid = element.fileUid; // 파일UID
+            break;
+          case '6': // 기타1
+            frmMainData.value.tftlEtcFileNm1 = element.fileNm; // 파일명
+            frmMainData.value.tftlEtcRealFpath1 = element.realFpath; // 파일실제경로
+            frmMainData.value.tftlEtcFnlMdfcDtm1 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.tftlEtcFileUid1 = element.fileUid; // 파일UID
+            break;
+          case '7': // 기타2
+            frmMainData.value.tftlEtcFileNm2 = element.fileNm; // 파일명
+            frmMainData.value.tftlEtcRealFpath2 = element.realFpath; // 파일실제경로
+            frmMainData.value.tftlEtcFnlMdfcDtm2 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.tftlEtcFileUid2 = element.fileUid; // 파일UID
+            break;
+          case '8': // 기타3
+            frmMainData.value.tftlEtcFileNm3 = element.fileNm; // 파일명
+            frmMainData.value.tftlEtcRealFpath3 = element.realFpath; // 파일실제경로
+            frmMainData.value.tftlEtcFnlMdfcDtm3 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.tftlEtcFileUid3 = element.fileUid; // 파일UID
+            break;
+          case '9': // 기타4
+            frmMainData.value.tftlEtcFileNm4 = element.fileNm; // 파일명
+            frmMainData.value.tftlEtcRealFpath4 = element.realFpath; // 파일실제경로
+            frmMainData.value.tftlEtcFnlMdfcDtm4 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.tftlEtcFileUid4 = element.fileUid; // 파일UID
+            break;
+          case '10': // 기타5
+            frmMainData.value.tftlEtcFileNm5 = element.fileNm; // 파일명
+            frmMainData.value.tftlEtcRealFpath5 = element.realFpath; // 파일실제경로
+            frmMainData.value.tftlEtcFnlMdfcDtm5 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.tftlEtcFileUid5 = element.fileUid; // 파일UID
+            break;
+          default:
+            break;
         }
       } else if (element.cntrChTpCd === '401') { // 해지/철회신청
-        // 증빙서류
-        if (element.cntrChDocSeq === '1') {
-          frmMainData.value.cnclEvdcDcmtFileNm = element.fileNm; // 파일명
-          frmMainData.value.cnclEvdcDcmtRealFpath = element.realFpath; // 파일실제경로
-          frmMainData.value.cnclEvdcDcmtFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.cnclEvdcDcmtFileUid = element.fileUid; // 파일UID
-        }
-        // 기타
-        if (element.cntrChDocSeq === '2') {
-          frmMainData.value.cnclEtcFileNm1 = element.fileNm; // 파일명
-          frmMainData.value.cnclEtcRealFpath1 = element.realFpath; // 파일실제경로
-          frmMainData.value.cnclEtcFnlMdfcDtm1 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.cnclEtcFileUid1 = element.fileUid; // 파일UID
-        }
-        // 기타
-        if (element.cntrChDocSeq === '3') {
-          frmMainData.value.cnclEtcFileNm2 = element.fileNm; // 파일명
-          frmMainData.value.cnclEtcRealFpath2 = element.realFpath; // 파일실제경로
-          frmMainData.value.cnclEtcFnlMdfcDtm2 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
-          frmMainData.value.cnclEtcFileUid2 = element.fileUid; // 파일UID
+        switch (element.cntrChDocSeq) {
+          case '1': // 증빙서류
+            frmMainData.value.cnclEvdcDcmtFileNm = element.fileNm; // 파일명
+            frmMainData.value.cnclEvdcDcmtRealFpath = element.realFpath; // 파일실제경로
+            frmMainData.value.cnclEvdcDcmtFnlMdfcDtm = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cnclEvdcDcmtFileUid = element.fileUid; // 파일UID
+            break;
+          case '2': // 기타1
+            frmMainData.value.cnclEtcFileNm1 = element.fileNm; // 파일명
+            frmMainData.value.cnclEtcRealFpath1 = element.realFpath; // 파일실제경로
+            frmMainData.value.cnclEtcFnlMdfcDtm1 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cnclEtcFileUid1 = element.fileUid; // 파일UID
+            break;
+          case '3': // 기타2
+            frmMainData.value.cnclEtcFileNm2 = element.fileNm; // 파일명
+            frmMainData.value.cnclEtcRealFpath2 = element.realFpath; // 파일실제경로
+            frmMainData.value.cnclEtcFnlMdfcDtm2 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cnclEtcFileUid2 = element.fileUid; // 파일UID
+            break;
+          case '4': // 기타3
+            frmMainData.value.cnclEtcFileNm3 = element.fileNm; // 파일명
+            frmMainData.value.cnclEtcRealFpath3 = element.realFpath; // 파일실제경로
+            frmMainData.value.cnclEtcFnlMdfcDtm3 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cnclEtcFileUid3 = element.fileUid; // 파일UID
+            break;
+          case '5': // 기타4
+            frmMainData.value.cnclEtcFileNm4 = element.fileNm; // 파일명
+            frmMainData.value.cnclEtcRealFpath4 = element.realFpath; // 파일실제경로
+            frmMainData.value.cnclEtcFnlMdfcDtm4 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cnclEtcFileUid4 = element.fileUid; // 파일UID
+            break;
+          case '6': // 기타5
+            frmMainData.value.cnclEtcFileNm5 = element.fileNm; // 파일명
+            frmMainData.value.cnclEtcRealFpath5 = element.realFpath; // 파일실제경로
+            frmMainData.value.cnclEtcFnlMdfcDtm5 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cnclEtcFileUid5 = element.fileUid; // 파일UID
+            break;
+          case '7': // 기타6
+            frmMainData.value.cnclEtcFileNm6 = element.fileNm; // 파일명
+            frmMainData.value.cnclEtcRealFpath6 = element.realFpath; // 파일실제경로
+            frmMainData.value.cnclEtcFnlMdfcDtm6 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cnclEtcFileUid6 = element.fileUid; // 파일UID
+            break;
+          case '8': // 기타7
+            frmMainData.value.cnclEtcFileNm7 = element.fileNm; // 파일명
+            frmMainData.value.cnclEtcRealFpath7 = element.realFpath; // 파일실제경로
+            frmMainData.value.cnclEtcFnlMdfcDtm7 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cnclEtcFileUid7 = element.fileUid; // 파일UID
+            break;
+          case '9': // 기타8
+            frmMainData.value.cnclEtcFileNm8 = element.fileNm; // 파일명
+            frmMainData.value.cnclEtcRealFpath8 = element.realFpath; // 파일실제경로
+            frmMainData.value.cnclEtcFnlMdfcDtm8 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cnclEtcFileUid8 = element.fileUid; // 파일UID
+            break;
+          case '10': // 기타9
+            frmMainData.value.cnclEtcFileNm9 = element.fileNm; // 파일명
+            frmMainData.value.cnclEtcRealFpath9 = element.realFpath; // 파일실제경로
+            frmMainData.value.cnclEtcFnlMdfcDtm9 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cnclEtcFileUid9 = element.fileUid; // 파일UID
+            break;
+          case '11': // 기타10
+            frmMainData.value.cnclEtcFileNm10 = element.fileNm; // 파일명
+            frmMainData.value.cnclEtcRealFpath10 = element.realFpath; // 파일실제경로
+            frmMainData.value.cnclEtcFnlMdfcDtm10 = stringUtil.getDatetimeFormat(element.fnlMdfcDtm); // 파일최종등록일시
+            frmMainData.value.cnclEtcFileUid10 = element.fileUid; // 파일UID
+            break;
+          default:
+            break;
         }
       }
     });
@@ -1167,21 +2129,45 @@ async function onClickOpenImageViewer(fileUid) {
   if (fileUid === 'nmchgIdfCyFileUid') cpProps = frmMainData.value.nmchgIdfCyFileUid;
   if (fileUid === 'nmchgEtcFileUid1') cpProps = frmMainData.value.nmchgEtcFileUid1;
   if (fileUid === 'nmchgEtcFileUid2') cpProps = frmMainData.value.nmchgEtcFileUid2;
+  if (fileUid === 'nmchgEtcFileUid3') cpProps = frmMainData.value.nmchgEtcFileUid3;
+  if (fileUid === 'nmchgEtcFileUid4') cpProps = frmMainData.value.nmchgEtcFileUid4;
+  if (fileUid === 'nmchgEtcFileUid5') cpProps = frmMainData.value.nmchgEtcFileUid5;
+  if (fileUid === 'nmchgEtcFileUid6') cpProps = frmMainData.value.nmchgEtcFileUid6;
+  if (fileUid === 'nmchgEtcFileUid7') cpProps = frmMainData.value.nmchgEtcFileUid7;
+  if (fileUid === 'nmchgEtcFileUid8') cpProps = frmMainData.value.nmchgEtcFileUid8;
+  if (fileUid === 'nmchgEtcFileUid9') cpProps = frmMainData.value.nmchgEtcFileUid9;
+  if (fileUid === 'nmchgEtcFileUid10') cpProps = frmMainData.value.nmchgEtcFileUid10;
   if (fileUid === 'cmsApfFileUid') cpProps = frmMainData.value.cmsApfFileUid;
   if (fileUid === 'aftnIdfCyFileUid') cpProps = frmMainData.value.aftnIdfCyFileUid;
   if (fileUid === 'aftnBnkbCyFileUid') cpProps = frmMainData.value.aftnBnkbCyFileUid;
   if (fileUid === 'aftnFmlCrtfDcmtFileUid') cpProps = frmMainData.value.aftnFmlCrtfDcmtFileUid;
   if (fileUid === 'aftnBzrcCrpFileUid') cpProps = frmMainData.value.aftnBzrcCrpFileUid;
-  if (fileUid === 'aftnEtcFileUid') cpProps = frmMainData.value.aftnEtcFileUid;
+  if (fileUid === 'aftnEtcFileUid1') cpProps = frmMainData.value.aftnEtcFileUid1;
+  if (fileUid === 'aftnEtcFileUid2') cpProps = frmMainData.value.aftnEtcFileUid2;
+  if (fileUid === 'aftnEtcFileUid3') cpProps = frmMainData.value.aftnEtcFileUid3;
+  if (fileUid === 'aftnEtcFileUid4') cpProps = frmMainData.value.aftnEtcFileUid4;
+  if (fileUid === 'aftnEtcFileUid5') cpProps = frmMainData.value.aftnEtcFileUid5;
   if (fileUid === 'tftlApfFileUid') cpProps = frmMainData.value.tftlApfFileUid;
   if (fileUid === 'agrmntFileUid') cpProps = frmMainData.value.agrmntFileUid;
   if (fileUid === 'tftlIdfCyFileUid') cpProps = frmMainData.value.tftlIdfCyFileUid;
   if (fileUid === 'tftlBnkbCyFileUid') cpProps = frmMainData.value.tftlBnkbCyFileUid;
   if (fileUid === 'tftlBzrcCrpFileUid') cpProps = frmMainData.value.tftlBzrcCrpFileUid;
-  if (fileUid === 'tftlEtcFileUid') cpProps = frmMainData.value.tftlEtcFileUid;
+  if (fileUid === 'tftlEtcFileUid1') cpProps = frmMainData.value.tftlEtcFileUid1;
+  if (fileUid === 'tftlEtcFileUid2') cpProps = frmMainData.value.tftlEtcFileUid2;
+  if (fileUid === 'tftlEtcFileUid3') cpProps = frmMainData.value.tftlEtcFileUid3;
+  if (fileUid === 'tftlEtcFileUid4') cpProps = frmMainData.value.tftlEtcFileUid4;
+  if (fileUid === 'tftlEtcFileUid5') cpProps = frmMainData.value.tftlEtcFileUid5;
   if (fileUid === 'cnclEvdcDcmtFileUid') cpProps = frmMainData.value.cnclEvdcDcmtFileUid;
   if (fileUid === 'cnclEtcFileUid1') cpProps = frmMainData.value.cnclEtcFileUid1;
   if (fileUid === 'cnclEtcFileUid2') cpProps = frmMainData.value.cnclEtcFileUid2;
+  if (fileUid === 'cnclEtcFileUid3') cpProps = frmMainData.value.cnclEtcFileUid3;
+  if (fileUid === 'cnclEtcFileUid4') cpProps = frmMainData.value.cnclEtcFileUid4;
+  if (fileUid === 'cnclEtcFileUid5') cpProps = frmMainData.value.cnclEtcFileUid5;
+  if (fileUid === 'cnclEtcFileUid6') cpProps = frmMainData.value.cnclEtcFileUid6;
+  if (fileUid === 'cnclEtcFileUid7') cpProps = frmMainData.value.cnclEtcFileUid7;
+  if (fileUid === 'cnclEtcFileUid8') cpProps = frmMainData.value.cnclEtcFileUid8;
+  if (fileUid === 'cnclEtcFileUid9') cpProps = frmMainData.value.cnclEtcFileUid9;
+  if (fileUid === 'cnclEtcFileUid10') cpProps = frmMainData.value.cnclEtcFileUid10;
 
   console.log(`fileUid : ${cpProps}`);
   if (isEmpty(cpProps)) {

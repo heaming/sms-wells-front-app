@@ -905,9 +905,10 @@ const initGrid = defineGrid((data, view) => {
     }
 
     console.log(`empno${empno}`);
+    const { cntrtRelCd } = searchParams.value;
     await modal({
       component: 'WwctaEmployeePurchaseContractListP',
-      componentProps: { stYy, colDv, empno, srchGbn },
+      componentProps: { stYy, colDv, empno, srchGbn, cntrtRelCd },
     });
   };
 });
