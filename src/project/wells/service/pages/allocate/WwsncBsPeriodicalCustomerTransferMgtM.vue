@@ -357,6 +357,8 @@ async function fetchOrganizationOptions() {
       { ogId: 'OG00000156', ogCdNm: '일산서비스센터' },
       { ogId: 'OG00086478', ogCdNm: '원주서비스센터' },
       { ogId: 'OG00108092', ogCdNm: '강릉서비스센터' },
+      { ogId: 'OG00098159', ogCdNm: '(홈)부천/서부지점-사업자' },
+      { ogId: 'OG00098160', ogCdNm: '(홈)성수/동부지점-사업자' },
     ];
     return;
   }
@@ -370,6 +372,7 @@ async function fetchOrganizationOptions() {
       { ogId: 'OG00108091', ogCdNm: '목포서비스센터' },
       { ogId: 'OG00107559', ogCdNm: '광양서비스센터' },
       { ogId: 'OG00000168', ogCdNm: '제주서비스센터' },
+      { ogId: 'OG00098161', ogCdNm: '(홈)세종/충청지점-사업자' },
     ];
     return;
   }
@@ -381,6 +384,7 @@ async function fetchOrganizationOptions() {
       { ogId: 'OG00086480', ogCdNm: '포항서비스센터' },
       { ogId: 'OG00000161', ogCdNm: '부산서비스센터' },
       { ogId: 'OG00086479', ogCdNm: '김해서비스센터' },
+      { ogId: 'OG00098163', ogCdNm: '(홈)칠곡/경북지점-사업자' },
     ];
     return;
   }
