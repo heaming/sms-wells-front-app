@@ -111,6 +111,8 @@
             clearable
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            regex="num"
+            :maxlength="10"
           />
         </kw-search-item>
         <!-- 번호 -->
