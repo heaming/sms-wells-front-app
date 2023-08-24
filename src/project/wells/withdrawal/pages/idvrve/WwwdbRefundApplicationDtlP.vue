@@ -272,6 +272,7 @@
         >
           <kw-date-picker
             v-model="saveParams.rveDt"
+            :label="$t('MSG_TXT_RVE_DT')"
             rules="required"
           />
         </kw-form-item>
@@ -282,6 +283,7 @@
         >
           <kw-date-picker
             v-model="saveParams.perfDt"
+            :label="$t('MSG_TXT_PERF_DT')"
             rules="required"
           />
         </kw-form-item>
@@ -302,6 +304,7 @@
         >
           <kw-select
             v-model="saveParams.procsDv"
+            :label="$t('MSG_TXT_PROCS_DV')"
             :options="codes.RFND_AK_STAT_CD.filter((v) => v.codeId === '03' || v.codeId === '99')"
             rules="required"
           />
@@ -336,14 +339,15 @@
 // eslint-disable-next-line no-unused-vars
 import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
-import { isEqual } from 'lodash-es';
+import { isEqual, isEmpty } from 'lodash-es';
 // eslint-disable-next-line no-unused-vars
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 // eslint-disable-next-line no-unused-vars
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 const { currentRoute } = useRouter();
+const now = dayjs();
 
 const props = defineProps({
   rfndAkStatCd: {
@@ -418,10 +422,10 @@ const saveParams = ref({
   cstNm: '', // 예금주
 
   /* 처리정보(환불정보) */
-  rveDt: '',
-  perfDt: '',
-  dsbDt: '',
-  procsDv: 'ALL',
+  rveDt: now.format('YYYYMMDD'),
+  perfDt: now.format('YYYYMMDD'),
+  dsbDt: now.format('YYYYMMDD'),
+  procsDv: '03',
   procsCn: '',
 
 });
@@ -444,6 +448,7 @@ const codes = await codeUtil.getMultiCodes(
 
   /* 처리구분(환불구분) */
   'RFND_AK_STAT_CD', // 환불구분
+  'RVE_DV_CD', // 수납구분코드
 );
 
 let cachedParams;
@@ -489,11 +494,11 @@ async function fetchData() {
   saveParams.value.arfndYn = res.data.arfndYn;
   saveParams.value.acnoEncr = res.data.cshRfndAcnoEncr;
   saveParams.value.bankCode = res.data.cshRfndFnitCd;
-  saveParams.value.cstNm = res.data.cshRfndAcownNm;
-  saveParams.value.rveDt = res.data.rfndRveDt;
-  saveParams.value.perfDt = res.data.rfndPerfDt;
-  saveParams.value.dsbDt = res.data.rfndDsbDt;
-  saveParams.value.procsDv = res.data.rfndProcsDvCd;
+  saveParams.value.cstNm = isEmpty(res.data.cshRfndAcownNm) ? '' : res.data.cshRfndAcownNm;
+  saveParams.value.rveDt = isEmpty(res.data.rfndRveDt) ? now.format('YYYYMMDD') : res.data.rfndRveDt;
+  saveParams.value.perfDt = isEmpty(res.data.rfndPerfDt) ? now.format('YYYYMMDD') : res.data.rfndPerfDt;
+  saveParams.value.dsbDt = isEmpty(res.data.rfndDsbDt) ? now.format('YYYYMMDD') : res.data.rfndDsbDt;
+  saveParams.value.procsDv = isEmpty(res.data.rfndProcsDvCd) ? '03' : res.data.rfndProcsDvCd;
   saveParams.value.procsCn = res.data.rfndProcsCn;
 
   pageInfo3.value = pagingResult3;
@@ -825,24 +830,24 @@ async function onCheckTotalData() {
   totRfndAkAmt = temp5;
 }
 // eslint-disable-next-line max-len
-async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo) {
-  const view = grdPopRef3.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, {
-    cntrNo,
-    cntrSn,
-    cntrDtlNo,
-    dpDt,
-    dpMesCd,
-    dpAmt,
-    sellTpCd,
-    rfndBltfAkAmt: Number(0),
-    cstNo,
-    rfndEvidMtrFileNm: '파일찾기',
-    rveNo,
-    rveSn,
-    rfndAkNo,
-  });
-}
+// async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo) {
+//   const view = grdPopRef3.value.getView();
+//   gridUtil.insertRowAndFocus(view, 0, {
+//     cntrNo,
+//     cntrSn,
+//     cntrDtlNo,
+//     dpDt,
+//     dpMesCd,
+//     dpAmt,
+//     sellTpCd,
+//     rfndBltfAkAmt: Number(0),
+//     cstNo,
+//     rfndEvidMtrFileNm: '파일찾기',
+//     rveNo,
+//     rveSn,
+//     rfndAkNo,
+//   });
+// }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -861,7 +866,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_APPL_USER'), width: 'auto', styleName: 'text-center' }, // 신청자
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: 'auto', styleName: 'text-center' }, // 번호
     { fieldName: 'rfndAkDtm', header: t('MSG_TXT_APPL_DTM'), width: 'auto', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' }, // 신청일시
-    { fieldName: 'rfndAkStatCd', header: t('MSG_TXT_PROCS_STAT'), width: 'auto', options: codes.RFND_AK_STAT_CD }, // 처리상태
+    { fieldName: 'rfndAkStatCd', header: t('MSG_TXT_PROCS_STAT'), width: 'auto', styleName: 'text-center', options: codes.RFND_AK_STAT_CD }, // 처리상태
   ];
 
   data.setFields(fields);
@@ -1161,18 +1166,18 @@ const initGrid2 = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
+  view.editOptions.editable = false;
 
   // 그리드의 버튼클릭시 이벤트 발생
-  view.onCellItemClicked = async (g, { column, dataRow }) => {
-    // eslint-disable-next-line max-len
-    const { cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo } = gridUtil.getRowValue(g, dataRow);
-    if (column === 'bltfAdd') {
-      // eslint-disable-next-line max-len
-      onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo);
-      pageInfo3.value.totalCount = gridUtil.getAllRowValues(grdPopRef3.value.getView()).length;
-    }
-  };
+  // view.onCellItemClicked = async (g, { column, dataRow }) => {
+  // eslint-disable-next-line max-len
+  //   const { cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo } = gridUtil.getRowValue(g, dataRow);
+  //   if (column === 'bltfAdd') {
+  //     // eslint-disable-next-line max-len
+  //     onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo);
+  //     pageInfo3.value.totalCount = gridUtil.getAllRowValues(grdPopRef3.value.getView()).length;
+  //   }
+  // };
 
   // 2번째 GRID 변경(환불상세)에 따라 4번째 GRID(환불접수총액) 상시변경
   // eslint-disable-next-line no-unused-vars
@@ -1338,7 +1343,7 @@ const initGrid3 = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
+  view.editOptions.editable = false;
 
   // 전금요청상세데이터가 변경될때마다, 환불상세 데이터를 변경.
   view.onCellEdited = async (grid, itemIndex) => {
