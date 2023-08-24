@@ -154,7 +154,7 @@ const dynamicChangeCodes = ref({ SELL_TP_DTL_CD: customCodes.value.SELL_TP_DTL_C
   (obj) => (obj.userDfn02 === searchParams.value.sellTpCd),
 ) });
 
-function setGridColumnLayoutType1(data, view) { // 일시불
+async function setGridColumnLayoutType1(data, view) { // 일시불
   console.log('setGridColumnLayoutType1');
   if (!view) {
     view = grdSalesBondRef.value.getView();
@@ -248,7 +248,7 @@ function setGridColumnLayoutType1(data, view) { // 일시불
     ],
   });
 }
-function setGridColumnLayoutType2(data, view) { // 렌탈
+async function setGridColumnLayoutType2(data, view) { // 렌탈
   if (!view) {
     view = grdSalesBondRef.value.getView();
   }
@@ -321,7 +321,7 @@ function setGridColumnLayoutType2(data, view) { // 렌탈
     ],
   });
 }
-function setGridColumnLayoutType3(data, view) { // 멤버십
+async function setGridColumnLayoutType3(data, view) { // 멤버십
   if (!view) {
     view = grdSalesBondRef.value.getView();
   }
@@ -378,7 +378,7 @@ function setGridColumnLayoutType3(data, view) { // 멤버십
     ],
   });
 }
-function setGridColumnLayoutType4(data, view) { // 정기배송
+async function setGridColumnLayoutType4(data, view) { // 정기배송
   if (!view) {
     view = grdSalesBondRef.value.getView();
   }
@@ -420,7 +420,7 @@ function setGridColumnLayoutType4(data, view) { // 정기배송
     ],
   });
 }
-function setGridColumnLayoutType5(data, view) { // 리스/할부
+async function setGridColumnLayoutType5(data, view) { // 리스/할부
   if (!view) {
     view = grdSalesBondRef.value.getView();
   }
@@ -484,20 +484,20 @@ function setGridColumnLayoutType5(data, view) { // 리스/할부
   });
 }
 
-function setGridHeader() {
+async function setGridHeader() {
   if (searchParams.value.sellTpCd === '1') { // 일시불
-    setGridColumnLayoutType1();
+    await setGridColumnLayoutType1();
   } else if (searchParams.value.sellTpCd === '2') { // 렌탈
-    setGridColumnLayoutType2();
+    await setGridColumnLayoutType2();
   } else if (searchParams.value.sellTpCd === '3') { // 멤버십
-    setGridColumnLayoutType3();
+    await setGridColumnLayoutType3();
   } else if (searchParams.value.sellTpCd === '6') { // 정기배송
-    setGridColumnLayoutType4();
+    await setGridColumnLayoutType4();
   } else if (searchParams.value.sellTpCd === '99') { // 리스/할부
-    setGridColumnLayoutType5();
+    await setGridColumnLayoutType5();
   }
 }
-function setHeaderSummary1(view, salesBond) {
+async function setHeaderSummary1(view, salesBond) {
   view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
   view.columnByName('nomSlAmt').headerSummary.text = textToNumberFormatter(salesBond.nomSlAmt);
   view.columnByName('canSlAmt').headerSummary.text = textToNumberFormatter(salesBond.canSlAmt);
@@ -516,7 +516,7 @@ function setHeaderSummary1(view, salesBond) {
   view.columnByName('interContCanSlAmt').headerSummary.text = textToNumberFormatter(salesBond.interContCanSlAmt);
   view.columnByName('interContDpAmt').headerSummary.text = textToNumberFormatter(salesBond.interContDpAmt);
 }
-function setHeaderSummary2(view, salesBond) {
+async function setHeaderSummary2(view, salesBond) {
   view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
   view.columnByName('nomSlAmt').headerSummary.text = textToNumberFormatter(salesBond.nomSlAmt);
   view.columnByName('canSlAmt').headerSummary.text = textToNumberFormatter(salesBond.canSlAmt);
@@ -528,7 +528,7 @@ function setHeaderSummary2(view, salesBond) {
   view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
   view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
 }
-function setHeaderSummary3(view, salesBond) {
+async function setHeaderSummary3(view, salesBond) {
   view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
   view.columnByName('nomSlAmt').headerSummary.text = textToNumberFormatter(salesBond.nomSlAmt);
   view.columnByName('canSlAmt').headerSummary.text = textToNumberFormatter(salesBond.canSlAmt);
@@ -537,14 +537,14 @@ function setHeaderSummary3(view, salesBond) {
   view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
   view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
 }
-function setHeaderSummary4(view, salesBond) {
+async function setHeaderSummary4(view, salesBond) {
   view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
   view.columnByName('totSlAmt').headerSummary.text = textToNumberFormatter(salesBond.totSlAmt);
   view.columnByName('totDpAmt').headerSummary.text = textToNumberFormatter(salesBond.totDpAmt);
   view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
   view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
 }
-function setHeaderSummary5(view, salesBond) {
+async function setHeaderSummary5(view, salesBond) {
   view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
   view.columnByName('oriSlAmt').headerSummary.text = textToNumberFormatter(salesBond.oriSlAmt);
   view.columnByName('itrSlAmt').headerSummary.text = textToNumberFormatter(salesBond.itrSlAmt);
@@ -556,19 +556,19 @@ function setHeaderSummary5(view, salesBond) {
   view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
 }
 
-function setHeaderSummary(salesBond) {
+async function setHeaderSummary(salesBond) {
   const view = grdSalesBondRef.value.getView();
   view.columnByName('slClYm').headerSummary.text = t('MSG_TXT_SUM');
   if (searchParams.value.sellTpCd === '1') { // 일시불
-    setHeaderSummary1(view, salesBond);
+    await setHeaderSummary1(view, salesBond);
   } else if (searchParams.value.sellTpCd === '2') { // 렌탈
-    setHeaderSummary2(view, salesBond);
+    await setHeaderSummary2(view, salesBond);
   } else if (searchParams.value.sellTpCd === '3') { // 멤버십
-    setHeaderSummary3(view, salesBond);
+    await setHeaderSummary3(view, salesBond);
   } else if (searchParams.value.sellTpCd === '6') { // 정기배송
-    setHeaderSummary4(view, salesBond);
+    await setHeaderSummary4(view, salesBond);
   } else if (searchParams.value.sellTpCd === '99') { // 리스/할부
-    setHeaderSummary5(view, salesBond);
+    await setHeaderSummary5(view, salesBond);
   }
   view.columnByName('slClYm').headerSummary.styleName = 'text-center';
 }
@@ -579,7 +579,7 @@ async function fetchData() {
   totalCount.value = salesBonds.length - 1; // 총계 가지고 오기 때문에 그 부분 제외
 
   if (!isEmpty(salesBonds) && salesBonds[0].slClYm === '총      계') {
-    setHeaderSummary(salesBonds[0]);
+    await setHeaderSummary(salesBonds[0]);
     salesBonds.shift();
   }
 
@@ -588,7 +588,7 @@ async function fetchData() {
 }
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  setGridHeader();
+  await setGridHeader();
   totalCount.value = 0;
   fetchData();
 }
@@ -617,8 +617,8 @@ watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initSalesBondGrid = defineGrid((data, view) => {
-  setGridColumnLayoutType1(data, view);
+const initSalesBondGrid = defineGrid(async (data, view) => {
+  await setGridColumnLayoutType1(data, view);
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
