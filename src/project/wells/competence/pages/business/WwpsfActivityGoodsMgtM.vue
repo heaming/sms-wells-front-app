@@ -288,10 +288,11 @@ const dataService = useDataService();
 const now = dayjs();
 const { currentRoute } = useRouter();
 const userInfo = getUserInfo();
+const { baseRleCd, ogTpCd } = userInfo;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const { baseRleCd, ogTpCd } = userInfo;
+
 const ogTpCds = ref();
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
@@ -310,9 +311,9 @@ const frmMainData = ref({
   confArtcCn: '', /* 확인사항내용 */
 });
 
-const isTopBtn = ['W1010'].includes(baseRleCd); // 본사스텝
+const isTopBtn = ['W1010', 'W1580'].includes(baseRleCd); // 본사스텝
 
-const isBtn = ['W1010', 'W1020'].includes(baseRleCd); // 본사스텝,업무담당
+const isBtn = ['W1010', 'W1020', 'W1580'].includes(baseRleCd); // 본사스텝,업무담당
 
 const searchParams = ref({
   aplcDt: now.format('YYYYMM'),
@@ -347,7 +348,6 @@ async function onClickIcon() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd,
     },
   });
 

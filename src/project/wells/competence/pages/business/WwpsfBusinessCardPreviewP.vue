@@ -13,14 +13,10 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-popup
-    size="md"
-  >
-    <div class="kw-auth-wrap text-center">
-      <div
-        style="max-width: 640px;margin: 0 auto;"
-      >
-        <div class="column w120">
+  <kw-page title="발송명함 조회">
+    <div class="border-box ma15 pa20">
+      <div class="row justify-between no-wrap">
+        <div class="column w80">
           <kw-avatar
             font-size="15px"
             color="line-bg"
@@ -29,9 +25,9 @@
           >
             KYOWON
             <!--<img
-                src="node_modules/kw-lib/src/assets/images/example_profile.png"
-                alt="profile"
-              >-->
+              src="node_modules/kw-lib/src/assets/images/example_profile.png"
+              alt="profile"
+            >-->
           </kw-avatar>
           <kw-avatar
             size="80px"
@@ -43,7 +39,7 @@
             >
           </kw-avatar>
         </div>
-        <ul class="card-text">
+        <ul class="column card-text ml20">
           <li>
             <h3>{{ searchParams.fnm }}</h3>
           </li>
@@ -83,7 +79,7 @@
             </span>
           </li>
         </ul>
-        <div class="column ml20 w80">
+        <div class="column">
           <kw-avatar
             font-size="15px"
             color="line-bg"
@@ -92,14 +88,14 @@
           >
             Wells
             <!--<img
-                src="node_modules/kw-lib/src/assets/images/example_profile.png"
-                alt="profile"
-              >-->
+              src="node_modules/kw-lib/src/assets/images/example_profile.png"
+              alt="profile"
+            >-->
           </kw-avatar>
         </div>
       </div>
     </div>
-  </kw-popup>
+  </kw-page>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
