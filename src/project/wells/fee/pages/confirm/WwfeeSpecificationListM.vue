@@ -279,8 +279,8 @@ function onClickOzReport(div) {
       _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2_sum.ozr'; //
       _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2_sum.odi'; //
     } else {
-      _ozrPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2ozr'; //
-      _odiPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2odi'; //
+      _ozrPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2.ozr'; //
+      _odiPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2.odi'; //
     }
   }
 
