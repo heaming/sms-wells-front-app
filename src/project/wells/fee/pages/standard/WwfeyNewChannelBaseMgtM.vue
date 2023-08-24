@@ -254,7 +254,13 @@ async function onClickSearch() {
 // 그리드행삭제
 async function onClickRowDelete() {
   const view = grdRef.value.getView();
-  await gridUtil.confirmDeleteCheckedRows(view);
+  const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (deleteRows.length > 0) {
+    const allRows = gridUtil.getDeletedRowValues(view);
+    await dataService.post('/sms/wells/fee/new-chanel-base', allRows);
+    notify(t('MSG_ALT_DELETED'));
+    await fetchPage();
+  }
 }
 
 // 그리드행추가
