@@ -84,21 +84,33 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          :total-count="totalCount"
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="fetchData"
         />
       </template>
     </kw-action-top>
     <kw-grid
       v-if="isGrid"
       ref="grdMainRef"
-      :visible-rows="10"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrdMain"
     />
     <kw-grid
       v-show="isGrid2"
       ref="grdMainRef2"
-      :visible-rows="10"
+      :page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       @init="initGrdMain2"
+    />
+    <kw-pagination
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
+      @change="fetchData"
     />
     <template #action>
       <kw-btn
@@ -122,7 +134,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // import { codeUtil, defineGrid, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
-import { codeUtil, useModal, getComponentType, defineGrid, gridUtil, useDataService } from 'kw-lib';
+import { codeUtil, useModal, getComponentType, defineGrid, gridUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 // import { onMounted } from 'vue';
@@ -138,11 +150,13 @@ const grdMainRef2 = ref(getComponentType('KwGrid'));
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
+const { getConfig } = useMeta();
 const isKndCd = ref(false); // 품목종류
 const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'MNGT_UNIT_CD',
   'APLC_DV_ACD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 // 그리드1
@@ -154,7 +168,6 @@ const aplcList = ref();
 // 안전재고체크박스
 const checkField = ref();
 
-const totalCount = ref(0);
 // TODO: 현재 테스트진행중 chk가 2인경우는 출고요청등록에서 들어온경우
 const props = defineProps({
   chk: {
@@ -186,6 +199,12 @@ const props = defineProps({
     default: '',
   },
 
+});
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const searchParams = ref({
@@ -262,37 +281,33 @@ async function onUpdateAplcDvAcd(val) {
 }
 let cachedParams;
 async function fetchData() {
-  let itemBase;
+  let pages;
   let view;
   if (props.chk === '1') {
-    const res = await dataService.get('/sms/wells/service/item-base-informations', { params: cachedParams });
-    itemBase = res.data;
+    const res = await dataService.get('/sms/wells/service/item-base-informations/paging', { params: { ...cachedParams, ...pageInfo.value } });
+    const { list: itemBase, pageInfo: pagingResult } = res.data;
+    pageInfo.value = pagingResult;
+    pages = itemBase;
     view = grdMainRef2.value.getView();
   } else {
-    console.log(cachedParams);
-    const res = await dataService.get('/sms/wells/service/item-base-informations/out-of', { params: cachedParams });
-    itemBase = res.data;
+    const res = await dataService.get('/sms/wells/service/item-base-informations/out-of/paging', { params: { ...cachedParams, ...pageInfo.value } });
+    const { list: itemBase, pageInfo: pagingResult } = res.data;
+    pages = itemBase;
+    pageInfo.value = pagingResult;
     view = grdMainRef.value.getView();
   }
 
-  totalCount.value = itemBase.length;
-  view.getDataSource().setRows(itemBase);
+  view.getDataSource().setRows(pages);
   validateChangeCode();
 
   list = gridUtil.getAllRowValues(view, false);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
-// watch(() => aplcParams.value.aplcList, (val) => {
-//   if (aplcParams.value.aplcList !== val) {
-//     aplcParams.value.aplcList = val;
-//   }
-//   onChangeAplcDvAcd();
-// });
 
 async function initDefault() {
   cachedParams = cloneDeep(searchParams.value);
@@ -357,7 +372,16 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center', autoFilter: false },
     { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '250' },
-    { fieldName: 'imgUrl', header: t('MSG_TXT_PHO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'imgUrl',
+      header: t('MSG_TXT_PHO'),
+      width: '100',
+      styleName: 'text-center',
+      renderer: {
+        type: 'button',
+        hideWhenEmpty: false,
+      },
+      displayCallback: () => t('MSG_TXT_IMG_BRWS'),
+    },
     { fieldName: 'warehouseQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'useQtyY', header: t('MSG_TXT_PVO_Y'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'useQtyP', header: t('MSG_TXT_LSTMM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
