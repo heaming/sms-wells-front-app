@@ -142,22 +142,18 @@ const props = defineProps({
   cstSvAsnNos: {
     type: String,
     required: true,
-    default: '3201209040000121218,3201209040000120195',
   },
   csBilNo: {
     type: String,
     required: true,
-    default: 'WB202209260000000185',
   },
   ogTpCd: {
     type: String,
     required: true,
-    default: 'W06',
   },
   prtnrNo: {
     type: String,
     required: true,
-    default: '36611',
   },
 });
 
