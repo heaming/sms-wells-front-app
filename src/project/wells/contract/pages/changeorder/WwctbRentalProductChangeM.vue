@@ -944,6 +944,10 @@ const orderProduct = ref({
   pdCd: '', // 상품코드
   pdNm: '', // 상품명
   cntrAmt: '0', // 등록비(계약금액)
+  cntramDscAmt: '0', /* 계약금할인금액 */
+  pdBaseAmt: '0', /* 상품기준금액 */
+  sellAmt: '0', /* 판매금액 */
+  dscAmt: '0', /* 할인금액 */
   fnlAmt: '0', // 월렌탈료(최종금액)
   sellInflwChnlDtlCd: '', // 판매유입채널상세코드
   stplPtrm: '', // 약정기간
@@ -1007,7 +1011,12 @@ async function initProduct(gubun) {
   orderProduct.value.alncmpCd = (gubun === 'init') ? fieldData.value.alncmpCd : '';
   orderProduct.value.sellInflwChnlDtlCd = (gubun === 'init') ? fieldData.value.sellInflwChnlDtlCd : productInfo.value.sellInflwChnlDtlCd;
   orderProduct.value.cntrAmt = (gubun === 'init') ? fieldData.value.cntrAmt || '0' : '0';
-  orderProduct.value.fnlAmt = (gubun === 'init') ? fieldData.value.fnlAmt : '0';
+  orderProduct.value.cntramDscAmt = (gubun === 'init') ? fieldData.value.cntramDscAmt || '0' : '0';
+  orderProduct.value.pdBaseAmt = (gubun === 'init') ? fieldData.value.pdBaseAmt || '0' : '0';
+  orderProduct.value.sellAmt = (gubun === 'init') ? fieldData.value.sellAmt || '0' : '0';
+  orderProduct.value.dscAmt = (gubun === 'init') ? fieldData.value.dscAmt || '0' : '0';
+  orderProduct.value.fnlAmt = (gubun === 'init') ? fieldData.value.fnlAmt || '0' : '0';
+  orderProduct.value.sellDscCtrAmt = (gubun === 'init') ? fieldData.value.sellDscCtrAmt : '0';
   orderProduct.value.stplPtrm = (gubun === 'init') ? fieldData.value.stplPtrm : '';
   orderProduct.value.cntrPtrm = (gubun === 'init') ? fieldData.value.cntrPtrm : '';
   orderProduct.value.sellDscDvCd = (gubun === 'init') ? fieldData.value.sellDscDvCd : '';
@@ -1148,7 +1157,15 @@ async function selectRentalPriceChanges() {
 
   const res = await dataService.get('/sms/wells/contract/changeorder/rental-price-changes', { params: orderProduct.value });
   Object.assign(rentalPrice.value, res.data[0]);
-  orderProduct.value.fnlAmt = rentalPrice.value.fnlAmt;
+  orderProduct.value.pdBaseAmt = rentalPrice.value.basVal; // 기본값
+  // 할인금액 = 기본값(상품기준금액) - 최종값(판매금액)
+  orderProduct.value.dscAmt = rentalPrice.value.basVal - rentalPrice.value.fnlVal;
+  orderProduct.value.sellAmt = rentalPrice.value.fnlVal; // 판매금액(=렌탈가)
+  // 최종금액(=할인렌탈가) = 판매금액 - 판매할인조정금액
+  orderProduct.value.fnlAmt = rentalPrice.value.fnlVal - orderProduct.value.sellDscCtrAmt;
+  orderProduct.value.ackmtPerfAmt = rentalPrice.value.ackmtPerfAmt; // 인정실적금액
+  orderProduct.value.ackmtPerfRt = rentalPrice.value.ackmtPerfRt; // 인정실적율
+  orderProduct.value.feeAckmtBaseAmt = rentalPrice.value.feeAckmtBaseAmt; // 수수료인정기준금액
 }
 
 // 기기변경 버튼 클릭
