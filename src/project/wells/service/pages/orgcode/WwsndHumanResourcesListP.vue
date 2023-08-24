@@ -231,8 +231,8 @@ async function getHumanResourcesPages() {
   const view = grdMainRef.value.getView();
 
   view.setColumnLayout(layouts.value);
-
   view.getDataSource().setRows(humanResources);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   view.resetCurrent();
 }
 
