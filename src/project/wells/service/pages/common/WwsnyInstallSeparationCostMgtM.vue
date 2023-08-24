@@ -197,6 +197,8 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(installSeperationCsMgt);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
+  pageInfo.value.pageSize = installSeperationCsMgt.length;
 }
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
