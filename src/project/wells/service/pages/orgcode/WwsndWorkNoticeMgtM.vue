@@ -176,6 +176,7 @@ async function getWorkNoticePages() {
   const view = grdMainRef.value.getView();
 
   view.getDataSource().setRows(workNotices);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   view.resetCurrent();
 }
 
