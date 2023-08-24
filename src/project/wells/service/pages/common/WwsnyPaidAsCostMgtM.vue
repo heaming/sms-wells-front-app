@@ -222,8 +222,9 @@ let cachedParams;
 /* 상품그룹 조회 */
 const pdNm = ref([]);
 const onChangeHgrPdCd = async () => {
-  pdNm.value = await getPartMaster('4', searchParams.value.hgrPdCd, 'M');
+  pdNm.value = await getPartMaster('4', searchParams.value.hgrPdCd);
   searchParams.value.pdNm = '';
+  searchParams.value.pdCd = '';
 };
 
 const isHgrPdCd = ref(false);
