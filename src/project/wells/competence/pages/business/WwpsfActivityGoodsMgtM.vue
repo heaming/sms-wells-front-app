@@ -414,6 +414,10 @@ async function init() {
   await fetchPages();
 }
 
+watch(() => frmMainData.value.ogTpCd, async () => {
+  await init();
+});
+
 async function onClickSave() {
   await dataService.post('/sms/wells/competence/business/activity/base', frmMainData.value);
   notify(t('MSG_ALT_SAVE_DATA'));
