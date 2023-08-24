@@ -132,6 +132,9 @@
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           />
+          <span class="ml8">
+            ({{ t('MSG_TXT_UNIT') }} : EA)
+          </span>
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
@@ -546,6 +549,10 @@ const initGrdMain = defineGrid((data, view) => {
       items: ['bldCd', 'bldNm', 'telNo', 'adrZip', 'rnadr', 'rdadr'],
     },
   ]);
+
+  view.setFixedOptions({
+    colCount: 1,
+  });
 });
 
 </script>

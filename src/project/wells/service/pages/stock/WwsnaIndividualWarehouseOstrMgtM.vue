@@ -186,6 +186,9 @@
           <kw-paging-info
             :total-count="totalCount"
           />
+          <span class="ml8">
+            ({{ t('MSG_TXT_UNIT') }} : EA)
+          </span>
         </template>
 
         <kw-btn

@@ -140,6 +140,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
@@ -199,6 +200,9 @@ const codes = await codeUtil.getMultiCodes(
   'USE_YN', // 사용여부
   'ITM_KND_CD', // 품목구분코드
 );
+
+// 등급 필터링
+codes.PD_GD_CD = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
 
 const wareDvCd = { WARE_DV_CD: [
   { codeId: '2', codeName: '서비스센터' },

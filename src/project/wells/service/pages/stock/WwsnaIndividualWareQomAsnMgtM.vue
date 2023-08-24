@@ -133,6 +133,9 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span class="ml8">
+            ({{ t('MSG_TXT_UNIT') }} : EA)
+          </span>
         </template>
 
         <kw-btn
@@ -543,6 +546,10 @@ const initGrdMain = defineGrid((data, view) => {
       items: ['bldCd', 'bldNm', 'telNo', 'adrZip', 'rnadr', 'rdadr'],
     },
   ]);
+
+  view.setFixedOptions({
+    colCount: 3,
+  });
 });
 
 </script>
