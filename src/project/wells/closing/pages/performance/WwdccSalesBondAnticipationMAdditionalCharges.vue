@@ -137,7 +137,7 @@ const grdAdditionalChargeRef = ref(getComponentType('KwGrid'));
 
 const columnVisibled = ref(false);
 
-function setHeaderSummary6(salesBond) {
+async function setHeaderSummary6(salesBond) {
   const view = grdAdditionalChargeRef.value.getView();
   view.columnByName('perfYm').headerSummary.text = t('MSG_TXT_SUM');
   view.columnByName('btdDlqAddAmt').headerSummary.text = textToNumberFormatter(salesBond.btdDlqAddAmt);
@@ -148,7 +148,7 @@ function setHeaderSummary6(salesBond) {
   view.columnByName('eotDlqAddAmt').headerSummary.text = textToNumberFormatter(salesBond.eotDlqAddAmt);
   view.columnByName('perfYm').headerSummary.styleName = 'text-center';
 }
-function setGridColumnLayoutType(data, view) { // 일시불
+async function setGridColumnLayoutType(data, view) { // 일시불
   if (!view) {
     view = grdAdditionalChargeRef.value.getView();
   }
@@ -203,7 +203,7 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   totalCount.value = 0;
   columnVisibled.value = (searchParams.value.agrgDv !== '1');
-  setGridColumnLayoutType();
+  await setGridColumnLayoutType();
   fetchData();
 }
 
@@ -230,8 +230,8 @@ watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initAdditionalChargeGrid = defineGrid((data, view) => {
-  setGridColumnLayoutType(data, view);
+const initAdditionalChargeGrid = defineGrid(async (data, view) => {
+  await setGridColumnLayoutType(data, view);
 });
 </script>
 <style scoped>
