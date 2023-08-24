@@ -125,6 +125,12 @@ async function validate(data) {
   const { adr, pdBas } = response.data;
   const adrId = adr?.adrCd;
 
+  if (adr1) { // 주소가 입력된 경우에만,
+    if (!adrId || adrId.startsWith('IF_ERR')) {
+      throw new Error('주소를 다시 확인해주세요.');
+    }
+  }
+
   // noinspection UnnecessaryLocalVariableJS
   const sideEffect = {
     adrId,
