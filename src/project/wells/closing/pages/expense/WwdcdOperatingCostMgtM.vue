@@ -175,12 +175,13 @@ async function fetchAmountData() {
 
     view.getDataSource().setRows(mainData);
     view.resetCurrent();
+
+    await tabRefs.basic.setData(cachedParams);
+    await tabRefs.sel.setData(cachedParams);
   } else {
     view.getDataSource().setRows(mainData);
     view.resetCurrent();
   }
-  await tabRefs.basic.setData(cachedParams);
-  await tabRefs.sel.setData(cachedParams);
 }
 
 async function fetchSummaryData() {
@@ -290,7 +291,7 @@ const initGrdSub = defineGrid((data, view) => {
         multiple: true,
         editable: true,
       },
-    },
+    }, // 유가증권 제외 원천세 확인서 - 등록
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

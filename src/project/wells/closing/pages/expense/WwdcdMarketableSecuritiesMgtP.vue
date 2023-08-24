@@ -253,7 +253,6 @@ async function fetchData() {
     cachedParams.mainDgr2LevlOgId = null;
     cachedParams.mainDgr3LevlOgId = null;
   }
-
   await ogLevlDvCd0();
   await subject();
   await marketableSecuritiesExcd();
@@ -321,28 +320,30 @@ async function onClickObjectPersonAdd() {
     }
   }
   for (let i = 0; i < checkedRows.length; i += 1) {
-    checkedRows[i].adjYn = 'N';
-    checkedRows[i].dstOjPrtnrNo = checkedRows[i].prtnrNo;
-    checkedRows[i].ogTpCd = checkedRows[i].dstOjOgTpCd;
-    checkedRows[i].adjOgId = checkedRows[i].ogId;
-    checkedRows[i].dstOjpsNm = checkedRows[i].prtnrKnm;
-    checkedRows[i].dstOjpsPerfAmt = isEmpty(checkedRows[i].perfVal) ? '0' : checkedRows[i].perfVal;
+    if (checkedRows[i].dstAmt > 0) {
+      checkedRows[i].adjYn = 'N';
+      checkedRows[i].dstOjPrtnrNo = checkedRows[i].prtnrNo;
+      checkedRows[i].ogTpCd = checkedRows[i].dstOjOgTpCd;
+      checkedRows[i].adjOgId = checkedRows[i].ogId;
+      checkedRows[i].dstOjpsNm = checkedRows[i].prtnrKnm;
+      checkedRows[i].dstOjpsPerfAmt = isEmpty(checkedRows[i].perfVal) ? '0' : checkedRows[i].perfVal;
 
-    // 원천세 : dstWhtx, 소득세 : erntx, 주민세 : rsdntx
-    if (checkedRows[i].dstAmt >= 33334) {
-      checkedRows[i].erntx = Math.floor((checkedRows[i].dstAmt * 0.03) / 10) * 10; // 소득세
-      checkedRows[i].rsdntx = Math.floor((checkedRows[i].dstAmt * 0.003) / 10) * 10; // 주민세
-      checkedRows[i].dstWhtx = checkedRows[i].rsdntx + checkedRows[i].erntx; // 원천세
-    } else {
-      checkedRows[i].dstWhtx = 0;
-      checkedRows[i].erntx = 0;
-      checkedRows[i].rsdntx = 0;
+      // 원천세 : dstWhtx, 소득세 : erntx, 주민세 : rsdntx
+      if (checkedRows[i].dstAmt >= 33334) {
+        checkedRows[i].erntx = Math.floor((checkedRows[i].dstAmt * 0.03) / 10) * 10; // 소득세
+        checkedRows[i].rsdntx = Math.floor((checkedRows[i].dstAmt * 0.003) / 10) * 10; // 주민세
+        checkedRows[i].dstWhtx = checkedRows[i].rsdntx + checkedRows[i].erntx; // 원천세
+      } else {
+        checkedRows[i].dstWhtx = 0;
+        checkedRows[i].erntx = 0;
+        checkedRows[i].rsdntx = 0;
+      }
+      const view = grdThirdRef.value.getView();
+      const dataProvider = view.getDataSource();
+      dataProvider.insertRow(0, checkedRows[i]);
+      subView.checkItem(checkedRows[i].dataRow, false);
+      thirdTotalCount.value += 1;
     }
-    const view = grdThirdRef.value.getView();
-    const dataProvider = view.getDataSource();
-    dataProvider.insertRow(0, checkedRows[i]);
-    subView.checkItem(checkedRows[i].dataRow, false);
-    thirdTotalCount.value += 1;
   }
 
   if (checkedRows.length === 0) {
@@ -419,6 +420,7 @@ async function onClickSave() {
 
   await dataService.post('/sms/wells/closing/expense/operating-cost/marketable-securities', data);
   await notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
