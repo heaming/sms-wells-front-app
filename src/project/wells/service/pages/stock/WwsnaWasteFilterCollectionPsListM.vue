@@ -29,7 +29,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_SV_CNR')"
+          :label="$t('MSG_TXT_CENTER_DIVISION')"
         >
           <kw-select
             v-model="searchParams.hgrWareNo"
@@ -39,6 +39,10 @@
             option-label="wareNm"
             @change="onChangeHgrWareHouse"
           />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_EGER')"
+        >
           <kw-select
             v-model="searchParams.wareNo"
             :options="optionsWareNo"
@@ -47,6 +51,8 @@
             option-label="wareNm"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_TASK_TYPE')"
         >
@@ -64,6 +70,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
+          <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
 
         <kw-btn
@@ -991,6 +998,10 @@ const initGrdMain = defineGrid((data, view) => {
       { height: 40 },
       { height: 40 },
     ],
+  });
+
+  view.setFixedOptions({
+    colCount: 4,
   });
 
   view.checkBar.visible = false;

@@ -430,11 +430,24 @@ async function fetchData() {
   setBndBizDvCd(props.bndBizDvCd);
   selectedGridRow.value = props;
 
-  const res = await dataService.get('/sms/wells/bond/same-customer-contracts', { params: props });
+  const res = await dataService.get('/sms/wells/bond/same-customer-contracts', { params: selectedGridRow.value });
   const sameCustomers = res.data;
   totalMainCount.value = sameCustomers.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(sameCustomers);
+
+  const startFieldIndex = ['cntrDtlNo'].indexOf(view.getCurrent().fieldName) + 1;
+  const options = {
+    fields: ['cntrDtlNo'],
+    value: `${selectedGridRow.value.cntrNo}-${selectedGridRow.value.cntrSn}`,
+    startIndex: view.getCurrent().itemIndex,
+    startFieldIndex,
+    wrap: true,
+    caseSensitive: false,
+    partialMatch: true,
+  };
+  const index = view.searchCell(options);
+  view.setCurrent(index);
 
   await fetchDeposit();
 }

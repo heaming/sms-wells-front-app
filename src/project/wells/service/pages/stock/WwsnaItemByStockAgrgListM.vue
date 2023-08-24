@@ -150,6 +150,9 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span class="ml8">
+            ({{ t('MSG_TXT_UNIT') }} : EA)
+          </span>
         </template>
 
         <kw-btn
@@ -466,6 +469,10 @@ fieldsObj = {
     gridView.setColumnLayout([...layoutColumns]);
     gridView.setFooters({ visible: true });
     gridView.setOptions({ summaryMode: 'aggregate' });
+
+    gridView.setFixedOptions({
+      colCount: 3,
+    });
   },
   // 리스트에 담겨진 항목 중 fieldName 배열로 가져옴
   getColumnNameArr(objList) {
