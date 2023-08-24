@@ -156,18 +156,18 @@ function setGridColumnLayoutType(data, view) { // 일시불
     data = view.getDataSource();
   }
   const columns = [
-    { fieldName: 'perfYm', header: '실적년월', width: '130', styleName: 'text-center' },
-    { fieldName: 'sellTpCdNm', header: '판매유형', width: '130', styleName: 'text-center' },
-    { fieldName: 'sellTpDtlCdNm', header: '판매유형상세', width: '130', styleName: 'text-center' },
-    { fieldName: 'sapPdAtcNm', header: 'SAP상품구분코드명', width: '130', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: '계약상세번호', width: '130', styleName: 'text-center', visible: columnVisibled.value },
-    { fieldName: 'cstKnm', header: '고객명', width: '130', styleName: 'text-center', visible: columnVisibled.value },
-    { fieldName: 'btdDlqAddAmt', header: '전기이월', width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'thmOcDlqAddAmt', header: '당월발생', width: '209', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'thmCtrDlqAddAmt', header: '당월공제', width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'thmDlqAddDpSumAmt', header: '당월입금', width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'thmDlqAddRfndSumAmt', header: '당월환불', width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'eotDlqAddAmt', header: '기말잔액', width: '197', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '130', styleName: 'text-center' },
+    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center' },
+    { fieldName: 'sellTpDtlCdNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center' },
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', visible: columnVisibled.value },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', visible: columnVisibled.value },
+    { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_THM_OC'), width: '209', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_THM_DDTN'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_THM_DP'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'thmDlqAddRfndSumAmt', header: t('MSG_TXT_THM_RFND'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_BLAM'), width: '197', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
