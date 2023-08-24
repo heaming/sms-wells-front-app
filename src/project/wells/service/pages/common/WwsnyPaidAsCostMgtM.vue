@@ -253,12 +253,15 @@ async function fetchData() {
   const { list: recapitalizationAsSvCs, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
+  // if (pageInfo.value.totalCount === 0) {
+  //   pageInfo.value.pageSize = 10;
+  // } else {
+  //   pageInfo.value.pageSize = Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'));
+  // }
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(recapitalizationAsSvCs);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
-
-  pageInfo.value.pageSize = recapitalizationAsSvCs.length;
 }
 
 async function onClickSearch() {
