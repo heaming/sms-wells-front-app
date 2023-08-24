@@ -363,7 +363,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       },
       displayCallback(grid, index, value) {
         // 사업자번호 3-2-5 형식으로 표시
-        if (!isEmpty(value) && value.length === 10) {
+        if (!isEmpty(value)) {
           return `${value.substr(0, 3)}-${value.substr(3, 2)}-${value.substr(5, 5)}`;
         }
       },
