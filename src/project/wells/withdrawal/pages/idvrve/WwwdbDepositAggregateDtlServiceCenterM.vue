@@ -195,6 +195,8 @@ const codes = await codeUtil.getMultiCodes(
   'ISCMP_CD', // 결제처
 );
 
+// const { companyCode } = store.getters['meta/getUserInfo'];
+
 const centerOptions = ref();
 
 const STLM_DV_CD = codes.STLM_DV_CD.filter((e) => ['01', '02', '03'].includes(e.codeId));
@@ -273,12 +275,29 @@ async function onClickSearch() {
 async function onClickModalPopup(component) {
   const view = grdMainRef.value.getView();
 
-  const checkCount = gridUtil.getCheckedRowValues(view); // 선택로우 가져오기
+  const changedRows = gridUtil.getCheckedRowValues(view); // 선택로우 가져오기
 
-  if (checkCount.length === 0) {
+  if (changedRows.length === 0) {
     await alert('선택된 데이터가 없습니다.');
     return;
   }
+
+  // const paramData = {
+  //     /* 수납요청기본 */
+
+  //     saveApprovalStandardReq: {
+  //       kwGrpCoCd: companyCode, /* 교원그룹회사코드 */
+  //       cstNo: changedRows[0].cntrCstNo, /* 고객번호 */
+  //       rveAkMthdCd: "01", /* 수납요청방식코드 01 대면 02비대면 */
+  //       rveAkAmt: changedRows[0].bilAmt, /* 수납요청금액 */
+  //       rveRqdt: now.format('YYYYMMDD'), /* 수납요청일자 */
+  //     },
+  //     saveApprovalDtlReq:[{
+  //       cntrNo:
+  //     }],
+  //   };
+
+  // const res2 = await dataService.post('/sms/common/withdrawal/idvrve/deposit/approval', paramData);
 
   await modal({
     component,

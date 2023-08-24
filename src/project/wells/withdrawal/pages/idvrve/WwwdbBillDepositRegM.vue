@@ -426,15 +426,22 @@ async function onClickDeposit() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getCheckedRowValues(view);
 
-  if (changedRows === 0) {
+  if (changedRows.length === 0) {
     await alert('데이터를 선택해주세요.');
     return false;
   }
 
   let errorCount = 0;
+  let duplicateCheck = 0;
+
   changedRows.forEach((p1) => {
     if (changedRows[0].billBndNo !== p1.billBndNo) {
       errorCount += 1;
+      return false;
+    }
+
+    if (!isEmpty(p1.billDpSapSlpno)) {
+      duplicateCheck += 1;
       return false;
     }
 
@@ -443,6 +450,11 @@ async function onClickDeposit() {
 
   if (errorCount > 0) {
     alert('전표 생성의 경우 동일한 채권번호만 가능합니다.');
+    return false;
+  }
+
+  if (duplicateCheck > 0) {
+    alert('이미 전표처리가 된 데이터가 존재합니다.');
     return false;
   }
 
@@ -462,21 +474,39 @@ async function onClickReplacementSlipProcessing() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getCheckedRowValues(view);
 
-  if (changedRows === 0) {
+  if (changedRows.length === 0) {
     await alert('데이터를 선택해주세요.');
     return false;
   }
 
   let errorCount = 0;
+  let duplicateCheck = 0;
+  let duplicateCheck2 = 0;
   changedRows.forEach((p1) => {
     if (changedRows[0].billBndNo !== p1.billBndNo) {
       errorCount += 1;
+      return false;
+    }
+    if (isEmpty(p1.billDpSapSlpno)) {
+      duplicateCheck += 1;
+      return false;
+    }
+    if (!isEmpty(p1.billRplcSapSlpno)) {
+      duplicateCheck2 += 1;
       return false;
     }
   });
 
   if (errorCount > 0) {
     alert('전표 생성의 경우 동일한 채권번호만 가능합니다.');
+    return false;
+  }
+  if (duplicateCheck > 0) {
+    alert('입금전표 생성이 안된 데이터 입니다.');
+    return false;
+  }
+  if (duplicateCheck2 > 0) {
+    alert('이미 전표처리가 된 데이터가 존재합니다.');
     return false;
   }
 
