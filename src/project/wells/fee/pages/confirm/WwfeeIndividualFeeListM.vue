@@ -227,7 +227,7 @@ const info = ref({
 });
 
 const saveParams = ref({
-  baseYm: searchParams.value.baseYm,
+  baseYm: searchParams.value.perfYm,
   ogTpCd: searchParams.value.ogTpCd,
   rsbDvCd: searchParams.value.rsbDvCd,
   ddlnDvId: '',
@@ -380,7 +380,7 @@ async function openFeeReportPopup() {
  *  Event - 수수료 조회기간 기간설정 버튼 클릭
  */
 async function onClickFeeDsbSpcsh() {
-  const { perfYm, ogTpCd, rsbDvCd } = searchParams.value;
+  const { ogTpCd } = searchParams.value;
   const ddlnDvId = 'DLD_FEE_DSB_SPCSH';
   let ddlnId = '';
   if (ogTpCd === 'W01') { /* P조직 */
@@ -400,10 +400,9 @@ async function onClickFeeDsbSpcsh() {
 
   if (result) {
     // 알림톡 데이터 저장
-    saveParams.value.feeMessagePk = `${ddlnDvId}-${ddlnId}-${perfYm}-${ogTpCd}-${rsbDvCd}`;
+    saveParams.value.feeMessagePk = `${ddlnDvId}-${ddlnId}-${saveParams.value.baseYm}-${saveParams.value.ogTpCd}-${saveParams.value.rsbDvCd}`;
     saveParams.value.ddlnDvId = ddlnDvId;
     saveParams.value.ddlnId = ddlnId;
-
     await dataService.post('/sms/common/fee/fee-specification/messages', saveParams.value);
 
     notify(t('MSG_ALT_FEE_BIZTALK_SET'));
