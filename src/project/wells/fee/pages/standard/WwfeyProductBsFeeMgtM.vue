@@ -231,17 +231,13 @@ async function onClickSearch() {
 // 그리드행삭제
 async function onClickRowDelete() {
   const view = grdRef.value.getView();
-  await gridUtil.confirmDeleteCheckedRows(view);
-  // const checkedRows = gridUtil.getCheckedRowValues(view);
-  // const data = view.getDataSource();
-  // if (checkedRows.length === 0) {
-  //   notify(t('MSG_ALT_NOT_SEL_ITEM'));
-  // }
-  // if (await confirm(t('MSG_ALT_WANT_DEL'))) {
-  //   for (let i = 0; i < checkedRows.length; i += 1) {
-  //     data.setValue(i, 'dtaDlYn', 'Y');
-  //   }
-  // }
+  const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (deleteRows.length > 0) {
+    const allRows = gridUtil.getDeletedRowValues(view);
+    await dataService.post('/sms/wells/fee/product-bs-fee', allRows);
+    notify(t('MSG_ALT_DELETED'));
+    await fetchPage();
+  }
 }
 
 // 그리드행추가
