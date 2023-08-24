@@ -142,7 +142,7 @@
 import { codeUtil, gridUtil, useModal, useGlobal, useDataService, getComponentType, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty, split, merge } from 'lodash-es';
 // import pdConst from '~sms-common/product/constants/pdConst';
-import { getAlreadyItems, getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
+import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const props = defineProps({
@@ -229,31 +229,6 @@ async function onClickLifeFiltMgt() {
   }
 }
 
-async function getCheckAndNotExistRows(view, rows) {
-  const alreadyItems = getAlreadyItems(view, rows, 'partPdCd');
-  // if (rows.length === alreadyItems.length) {
-  //   notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
-  //   return [];
-  // }
-  if (alreadyItems.length > 0) {
-    // if (alreadyItems.length === 1) {
-    //   notify(t('MSG_ALT_ALREADY_RGST_CUT', [`# ${alreadyItems[0].partPdNm} #`]));
-    // } else {
-    // eslint-disable-next-line max-len
-    //   notify(t('MSG_ALT_ALREADY_RGST_CUT', [t('MSG_TXT_EXID_CNT', [`# ${alreadyItems[0].partPdNm} #`, alreadyItems.length - 1])]));
-    // }
-    // const alreadyPdCds = alreadyItems.reduce((rtns, item) => { rtns.push(item.partPdCd); return rtns; }, []);
-    return rows.reduce((rtns, item) => {
-      rtns.push(item);
-      // if (!alreadyPdCds.includes(item.partPdCd)) {}
-      return rtns;
-    }, []);
-  }
-
-  console.log('rows', rows);
-  return rows;
-}
-
 async function onClickMaterialSchPopup() {
   const { svPdCd, pdctPdCd } = props;
   const view = grdMainRef.value.getView();
@@ -266,9 +241,9 @@ async function onClickMaterialSchPopup() {
       const data = view.getDataSource();
       const rows = cloneDeep(rtn.payload.map((item) => ({
         ...item, svPdCd, pdctPdCd, partPdCd: item.pdCd, partPdNm: item.pdNm, filtChngLvCd: 1 })));
-      const okRows = await getCheckAndNotExistRows(view, rows);
-      if (okRows && okRows.length) {
-        await data.insertRows(0, okRows);
+      // const okRows = await getCheckAndNotExistRows(view, rows);
+      if (rows && rows.length) {
+        await data.insertRows(0, rows);
         await gridUtil.focusCellInput(view, 0);
       }
     } else {
@@ -278,9 +253,9 @@ async function onClickMaterialSchPopup() {
       row.partPdCd = row.pdCd;
       row.partPdNm = row.pdNm;
       row.filtChngLvCd = 1;
-      const okRows = await getCheckAndNotExistRows(view, [row]);
-      if (okRows && okRows.length) {
-        await gridUtil.insertRowAndFocus(view, 0, okRows[0]);
+      // const okRows = await getCheckAndNotExistRows(view, [row]);
+      if (row) {
+        await gridUtil.insertRowAndFocus(view, 0, row);
       }
     }
   }
@@ -298,9 +273,9 @@ async function onClickLoadRoutineBsFltPart() {
     if (Array.isArray(payload) && payload.length > 0) {
       const data = view.getDataSource();
       const rows = payload.map((item) => merge(item, { svPdCd, pdctPdCd, dtlSn: null }));
-      const okRows = await getCheckAndNotExistRows(view, rows);
-      if (okRows && okRows.length) {
-        await data.insertRows(0, okRows);
+      // const okRows = await getCheckAndNotExistRows(view, rows);
+      if (rows && rows.length) {
+        await data.insertRows(0, rows);
         await gridUtil.focusCellInput(view, 0);
       }
     }
@@ -377,7 +352,16 @@ async function onClickSave() {
       const workYear = Number(base.strtWkYVal ?? 0);
       // 총약정개월
       const totStplMcn = Number(base.totStplMcn ?? 0);
-      if (Number(installMonth) === 0) {
+      if (installMonth) {
+        // 설치월이 있는 경우
+        for (let i = 1; i <= repeatCount; i += 1) {
+          const dtl = cloneDeep(base);
+          // 상세 작업연도 = Base에 시작연도 + ( 반복차수 * 주기연도 )
+          dtl.strtWkYVal = workYear + ((i - 1) * Math.floor(servicePeriod / 12));
+          details.push(dtl);
+        }
+        // 제외월이 없음
+      } else {
         // 시작월이 있는 경우
         for (let i = 1; i <= (repeatCount + exceptMonths.length); i += 1) {
           // 시작월과 설치월중 하나는 0의 값을 가진다.
@@ -393,15 +377,6 @@ async function onClickSave() {
               ...base, vstNmnN,
             });
           }
-        }
-        // 제외월이 없음
-      } else {
-        // 시작월이 없는 경우
-        for (let i = 1; i <= repeatCount; i += 1) {
-          const dtl = cloneDeep(base);
-          // 상세 작업연도 = Base에 시작연도 + ( 반복차수 * 주기연도 )
-          dtl.strtWkYVal = workYear + ((i - 1) * Math.floor(servicePeriod / 12));
-          details.push(dtl);
         }
       }
     });
