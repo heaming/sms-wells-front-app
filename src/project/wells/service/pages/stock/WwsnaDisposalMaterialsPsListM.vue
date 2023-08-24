@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaDisposalMaterialsPsListM(W-SV-U-0257M01) - 매각자재관리현황
+ 2. 프로그램 ID : WwsnaDisposalMaterialsPsListM(W-SV-U-0277M01) - 매각자재관리현황
  3. 작성자 : SaeRomI.Kim
  4. 작성일 : 2023.07.18
  ****************************************************************************************************
@@ -50,6 +50,9 @@
           <kw-paging-info
             :total-count="totalCount"
           />
+          <span class="ml8">
+            ({{ t('MSG_TXT_UNIT') }} : EA)
+          </span>
         </template>
         <kw-btn
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
@@ -1072,6 +1075,10 @@ const initGrdMain = defineGrid((data, view) => {
       { height: 40 },
       { height: 40 },
     ],
+  });
+
+  view.setFixedOptions({
+    colCount: 2,
   });
 
   view.checkBar.visible = false;
