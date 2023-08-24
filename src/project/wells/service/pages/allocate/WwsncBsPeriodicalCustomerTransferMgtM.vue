@@ -276,6 +276,8 @@ const { notify, modal, alert } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const { getters } = useStore();
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -345,6 +347,44 @@ async function fetchOrganizationOptions() {
   let dgr1LevlOgId;
   let dgr2LevlOgId;
 
+  // 유성진 매니저(36682) = 화성서비스센터 소속
+  if (sessionUserInfo.employeeIDNumber === '36682') {
+    organizationOptions.value = [
+      { ogId: 'OG00000154', ogCdNm: '의정부서비스센터' },
+      { ogId: 'OG00000169', ogCdNm: '하남서비스센터' },
+      { ogId: 'OG00000160', ogCdNm: '화성서비스센터' },
+      { ogId: 'OG00000159', ogCdNm: '인천서비스센터' },
+      { ogId: 'OG00000156', ogCdNm: '일산서비스센터' },
+      { ogId: 'OG00086478', ogCdNm: '원주서비스센터' },
+      { ogId: 'OG00108092', ogCdNm: '강릉서비스센터' },
+    ];
+    return;
+  }
+  // 이호성 매니저(36613) = 광주서비스센터 소속
+  if (sessionUserInfo.employeeIDNumber === '36613') {
+    organizationOptions.value = [
+      { ogId: 'OG00000163', ogCdNm: '청주서비스센터' },
+      { ogId: 'OG00108090', ogCdNm: '아산서비스센터' },
+      { ogId: 'OG00000167', ogCdNm: '전주서비스센터' },
+      { ogId: 'OG00000166', ogCdNm: '광주서비스센터' },
+      { ogId: 'OG00108091', ogCdNm: '목포서비스센터' },
+      { ogId: 'OG00107559', ogCdNm: '광양서비스센터' },
+      { ogId: 'OG00000168', ogCdNm: '제주서비스센터' },
+    ];
+    return;
+  }
+  // 정태진 매니저(36610) = 대구서비스센터 소속
+  if (sessionUserInfo.employeeIDNumber === '36610') {
+    organizationOptions.value = [
+      { ogId: 'OG00000164', ogCdNm: '대구서비스센터' },
+      { ogId: 'OG00108288', ogCdNm: '칠곡서비스센터' },
+      { ogId: 'OG00086480', ogCdNm: '포항서비스센터' },
+      { ogId: 'OG00000161', ogCdNm: '부산서비스센터' },
+      { ogId: 'OG00086479', ogCdNm: '김해서비스센터' },
+    ];
+    return;
+  }
+
   if (ogTpCd === 'W02') {
     const { data } = await dataService.get(`/sms/wells/service/manage-customer-rglvl/organization-info/${ogId}`);
     if (!data.dgr1LevlOgId) {
@@ -368,7 +408,14 @@ const { baseRleCd } = getters['meta/getUserInfo'];
 // const isShowTfConfirmBtm = ref(baseRleCd === '9999');
 const isShowTfConfirmBtm = ref(false);
 function isShowTfConfirmAuth() {
-  return (baseRleCd === 'W6010' || baseRleCd === 'W6020');
+  // return (baseRleCd === 'W6010' || baseRleCd === 'W6020');
+  return (
+    (baseRleCd === 'W6010' || baseRleCd === 'W6020')
+    // 유성진 매니저(36682) = 화성서비스센터 소속
+    // 이호성 매니저(36613) = 광주서비스센터 소속
+    // 정태진 매니저(36610) = 대구서비스센터 소속
+    || (sessionUserInfo.employeeIDNumber === '36682' || sessionUserInfo.employeeIDNumber === '36613' || sessionUserInfo.employeeIDNumber === '36610')
+  );
 }
 async function getManagerAuthYn() {
   const res = await dataService.get('/sms/wells/service/before-service-period-customer/manager-auth-yn');
