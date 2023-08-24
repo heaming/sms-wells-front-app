@@ -364,6 +364,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'dropdown',
       } },
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '130', styleName: 'text-center' },
     {
       fieldName: 'wkcrCd',
       header: t('MSG_TXT_CO'),

@@ -234,6 +234,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
     },
     { fieldName: 'rolDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.EGER_ROL_CD },
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '130', styleName: 'text-center' },
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     {
       fieldName: 'prtnrGdCd',
