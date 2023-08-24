@@ -41,7 +41,7 @@
           v-model:ware-no-d="searchParams.wareNo"
           name="wareSearchGroup"
           :colspan="2"
-          :label1="$t('MSG_TXT_WARE')"
+          :label1="$t('MSG_TXT_WARE_DV')"
           :label2="$t('MSG_TXT_WARE_DV')"
           :label3="$t('MSG_TXT_HGR_WARE')"
           :label4="$t('MSG_TXT_WARE')"
@@ -245,8 +245,12 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
   const createdRows = gridUtil.getChangedRowValues(view);
 
-  await dataService.post('/sms/wells/service/materials-assign-stocks', createdRows);
-  await fetchData();
+  const res = await dataService.post('/sms/wells/service/materials-assign-stocks', createdRows);
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
+  }
 }
 
 async function onCellClickedPrtnrNo(baseYm, wareNo) {
@@ -294,7 +298,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '70', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '120', styleName: 'text-left' },
-    { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE'), width: '120', styleName: 'text-left' },
+    { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE'), width: '120', styleName: 'text-center' },
     { fieldName: 'qomAsnApyYn',
       header: t('MSG_TXT_QOM_ASN_APY_YN'),
       width: '70',

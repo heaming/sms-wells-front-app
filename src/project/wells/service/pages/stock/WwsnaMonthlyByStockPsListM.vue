@@ -96,31 +96,27 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
-          <div class="row items-center">
-            <kw-input
-              v-model="searchParams.itmPdCd"
-              type="text"
-              :label="$t('MSG_TXT_ITM_CD')"
-              rules="alpha_num|max:10"
-            />
-          </div>
+          <kw-input
+            v-model="searchParams.itmPdCd"
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
+          />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_SAPCD')">
-          <div class="row items-center">
-            <kw-input
-              v-model="searchParams.strtSapCd"
-              :label="$t('MSG_TXT_STRT_SAP_CD')"
-              rules="numeric|max:18"
-              @change="onChangeStrtSapCd"
-            />
-            <span>~</span>
-            <kw-input
-              v-model="searchParams.endSapCd"
-              :label="$t('MSG_TXT_END_SAP_CD')"
-              rules="numeric|max:18"
-              @change="onChangeEndSapCd"
-            />
-          </div>
+          <kw-input
+            v-model="searchParams.strtSapCd"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.endSapCd"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
+          />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_MAT_DV')">
           <kw-select
@@ -202,8 +198,8 @@ const searchParams = ref({
   hgrWareNo: '',
   wareNo: '',
   wareDtlDvCd: '',
-  itmGdCd: 'A',
-  useYn: '',
+  itmGdCd: '',
+  useYn: 'Y',
   itmKndCd: '',
   itmPdCds: [],
   itmPdCd: '',
@@ -439,7 +435,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_TOT_SUM') } },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
     { fieldName: 'btdStocQty',
       header: t('MSG_TXT_BTD_STOC_QTY'),
       width: '110',
