@@ -260,7 +260,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
     { fieldName: 'bsQty',
       header: `${t('MSG_TXT_THM')}${t('MSG_TXT_BS')}`,
       width: '120',

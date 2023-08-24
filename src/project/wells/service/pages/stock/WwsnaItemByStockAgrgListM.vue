@@ -374,7 +374,7 @@ fieldsObj = {
   defaultFields: [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left', footer: { text: t('MSG_TXT_TOT_SUM') } },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
     { fieldName: 'csmrUprcAmt',
       header: t('MSG_TXT_CSPRC'),
       width: '100',
