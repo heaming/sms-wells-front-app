@@ -145,7 +145,7 @@ async function onClickSearch() {
   const { cntrDtlNo } = cachedParams;
   if (!isEmpty(cntrDtlNo)) {
     const idx = cntrDtlNo.indexOf('-');
-    if (idx < 0) {
+    if (idx < 0 || isEmpty(cntrDtlNo.substring(idx + 1))) {
       // 올바른 계약상세번호로 조회 하세요.
       await alert(t('MSG_ALT_CNTR_DTL_NO_CONF'));
       return;
