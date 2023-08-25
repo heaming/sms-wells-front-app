@@ -226,7 +226,7 @@ async function onClickDeleteRow() {
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRows.length > 0) {
-    const result = await dataService.delete('/sms/wells/service/as-consumables-stores', { data: checkedRows });
+    const result = await dataService.delete('/sms/wells/service/as-consumables-stores', { data: deletedRows });
     if (result.data > 0) {
       notify(t('MSG_ALT_SAVE_COMP'));
       await fetchData();
