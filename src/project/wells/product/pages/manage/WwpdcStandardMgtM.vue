@@ -91,6 +91,7 @@
               :pd-tp-cd="pdConst.PD_TP_CD_STANDARD"
               :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_MANUAL"
               @open-popup="openPopup"
+              @update="onUpdateBasicValue"
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.STANDARD_STEP_PRICE.name">
@@ -543,6 +544,24 @@ async function setSellDetailTypeCodes(sellTpCd, isReset = false) {
   }
 }
 
+// 현재가치할인차금여부 설정
+async function setCurrentPriceDepositYn() {
+  const basicAttrFields = await cmpStepRefs.value[0]?.value.getNameFields();
+  const mangeAttrFields = await cmpStepRefs.value[2]?.value.getNameFields();
+  if (basicAttrFields.sellTpDtlCd && mangeAttrFields.pvdaYn) {
+    // 판매상세유형
+    if (['22', '24'].includes(basicAttrFields.sellTpDtlCd.initValue)) {
+      if (mangeAttrFields.pvdaYn) {
+        mangeAttrFields.pvdaYn.initValue = 'Y';
+      } else {
+        mangeAttrFields.pvdaYn.initValue = 'N';
+      }
+    } else {
+      mangeAttrFields.pvdaYn.initValue = 'N';
+    }
+  }
+}
+
 // 판매채널 변경시, 가격정보에서 사용된 채널은 복구
 async function checkUsedSellChannel(channels) {
   if (channels && prevStepData.value[prcfd] && prevStepData.value[prcfd].length) {
@@ -584,6 +603,9 @@ async function onUpdateBasicValue(field) {
   } else if (field.colNm === 'avlChnlId') {
     // 판매채널
     await checkUsedSellChannel(field.initValue);
+  } else if (['sellTpCd', 'sellTpDtlCd', 'pvdaYn'].includes(field.colNm)) {
+    // 현재가치할인차금여부
+    await setCurrentPriceDepositYn();
   }
 }
 
