@@ -83,8 +83,8 @@ async function onClickCancel() {
 async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
   await dataService.post('/sms/wells/fee/mutual-aid/create', { baseYm: regData.value.baseYm });
-  notify(t('MSG_ALT_SAVE_DATA'));
   ok(true);
+  notify(t('MSG_ALT_SAVE_DATA'));
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
