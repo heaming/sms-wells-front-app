@@ -54,11 +54,6 @@
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
-          :label="$t('MSG_BTN_RPT_BRWS')"
-          icon="report"
-          dense
-        />
-        <kw-btn
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
           icon="download_on"
@@ -222,12 +217,14 @@ async function onClickExportViewDetail(type) {
     await gridUtil.exportView(view, {
       fileName: `${t('MSG_TIT_MCBY_DP_DTL_IZ')}`,
       timePostfix: true,
+      exportData: gridUtil.getAllRowValues(view),
     });
   } else if (type === 'cancel') {
     const view = grdCancelRef.value.getView();
     await gridUtil.exportView(view, {
       fileName: `${t('MSG_TIT_MCBY_RV_CAN_DTL_IZ')}`,
       timePostfix: true,
+      exportData: gridUtil.getAllRowValues(view),
     });
   }
 }
@@ -241,7 +238,16 @@ async function onClickSearch() {
 // -------------------------------------------------------------------------------------------------
 const initGridMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '180', styleName: 'rg-button-link text-center', datetimeFormat: 'yyyy-MM', renderer: { type: 'button' } }, // 기준년월
+    { fieldName: 'baseYm',
+      header: t('MSG_TXT_BASE_YM'),
+      width: '180',
+      styleName: 'rg-button-link text-center',
+      datetimeFormat: 'yyyy-MM',
+      renderer: { type: 'button' },
+      displayCallback(grid, index, value) {
+        return `${value.substring(0, 4)}-${value.substring(4, 6)}`;
+      },
+    }, // 기준년월
     { fieldName: 'btdAmt', header: t('MSG_TXT_BTD_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기초금액
     { fieldName: 'sellAmt', header: t('MSG_TXT_OCCR_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 발생금액
     { fieldName: 'rveAmt', header: t('MSG_TXT_THM_DP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 당월 입금액
@@ -269,7 +275,7 @@ const initGridMain = defineGrid((data, view) => {
 
 const initGridDeposit = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '117', styleName: 'text-right' }, // 계약상세번호
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '117', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cntrCstNm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-left' }, // 고객명
     { fieldName: 'rcpYm', header: t('MSG_TXT_RCP_YM'), width: '70', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 접수년월
     { fieldName: 'istYm', header: t('MSG_TXT_YR_INSTALLATION'), width: '70', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 설치년월
@@ -291,8 +297,8 @@ const initGridDeposit = defineGrid((data, view) => {
 
 const initGridCancel = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'rvCanDt', header: t('MSG_TXT_RV_CAN_DT'), width: '100', styleName: 'text-center', dataType: 'date' }, // 적립취소일
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '153', styleName: 'text-right' }, // 계약상세번호
+    { fieldName: 'rvCanDt', header: t('MSG_TXT_RV_CAN_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 적립취소일
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '153', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'canAmt', header: t('MSG_TXT_CAN_AMT_WON'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 취소금액(원)
     { fieldName: 'ledgCanDt', header: t('MSG_TXT_LEDG_CAN_DT'), width: '100', styleName: 'text-center', dataType: 'date' }, // 원장취소일자
   ];
