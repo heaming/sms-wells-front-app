@@ -223,7 +223,7 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  const product = (products.value.filter((v) => v.pdCode === searchParams.value.pdCd))[0];
+  const product = (products.value.filter((v) => v.lgstWkMthdCd === searchParams.value.lgstWkMthdCd))[0];
   searchParams.value.pgGb = product.pgGb;
   // 조회당시값 저장
   lgstWkMthdCd.value = product.lgstWkMthdCd;

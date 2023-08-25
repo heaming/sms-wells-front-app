@@ -138,7 +138,7 @@
           option-value="prtnrNo"
           @update:model-value="onUpdateEngineers2"
         /> -->
-        <kw-input
+        <!-- <kw-input
           ref="tfPrtnrKnmRef"
           v-model="updateParams.afchFnm"
           readonly
@@ -148,6 +148,22 @@
           :label="$t('MSG_TXT_BLG')"
           :placeholder="$t('MSG_TXT_BLG_SLCT')"
           @click-icon="onClickIconPrtnrNoSearchPopup"
+        /> -->
+        <kw-input
+          ref="tfPrtnrKnmRef"
+          v-model="updateParams.afchFnm"
+          dense
+          class="w120"
+          readonly
+          rules="required"
+          :label="$t('MSG_TXT_BLG')"
+          :placeholder="$t('담당자 입력')"
+        />
+        <kw-btn
+          dense
+          secondary
+          icon="search"
+          @click="onClickIconPrtnrNoSearchPopup"
         />
         <kw-btn
           dense
@@ -201,7 +217,7 @@ import { cloneDeep, replace } from 'lodash-es';
 import { RowState } from 'realgrid';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+const { getConfig, getUserInfo } = useMeta();
 const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
@@ -215,15 +231,16 @@ const router = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const now = dayjs();
-
+const sessionUserInfo = getUserInfo();
 const tfPrtnrKnmRef = ref();
 const engineers1 = ref([]);
 /* 공통코드 가져오기 */
 const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
+const initCenter = svcCode.filter((v) => v.ogId === sessionUserInfo.ogId)[0].ogId;
 
 /* 조회조건 */
 const searchVal = ref({
-  svCnrOgId: '',
+  svCnrOgId: initCenter,
   ichrPrtnrNo: '',
   assignDateFrom: `${now.format('YYYYMM')}01`,
   assignDateTo: now.format('YYYYMMDD'),
