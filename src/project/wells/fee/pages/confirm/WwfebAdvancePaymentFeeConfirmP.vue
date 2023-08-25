@@ -124,8 +124,8 @@ async function fetchStepStatus() {
 // 수수료 일정 단계 상태 변경
 async function confirmStat(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
-  notify(t('MSG_TXT_CRDCD_STLM_FSH'));
   ok(true);
+  notify(t('MSG_TXT_CRDCD_STLM_FSH'));
 }
 // 취소
 async function onClickCancel() {
