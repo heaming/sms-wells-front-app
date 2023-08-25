@@ -276,6 +276,19 @@
             <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.pnpyam) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
+        <kw-form-row>
+          <kw-form-item
+            :label="t('MSG_TXT_INDD_INSR')"
+          >
+            <p>{{ info2.inddInsr ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
+          </kw-form-item>
+          <kw-form-item>
+            <p />
+          </kw-form-item>
+          <kw-form-item>
+            <p />
+          </kw-form-item>
+        </kw-form-row>
       </kw-form>
       <kw-separator />
       <kw-action-top>
@@ -358,7 +371,7 @@ const info = ref({
   mgtCnt: '',
   vstCnt: '',
   procsRt: '',
-  rsbYn: '',
+  rsbDvCd: '',
   ogLv1Id: '',
   ogLv2Id: '',
   ogLv3Id: '',
@@ -372,6 +385,7 @@ const info2 = ref({
   hirInsr: '',
   buDdtn: '',
   pnpyam: '',
+  inddInsr: '',
 });
 
 const { prPerfYm } = searchParams.value;
@@ -433,19 +447,12 @@ async function openManagerReportPopup() {
  */
 async function openBsConfirmPopup() {
   const url = '/fee/wwfed-manager-visit-fee-list';
-  const { rsbYn, ogLv1Id, ogLv2Id, ogLv3Id, perfYm, prtnrNo } = info.value;
+  const { rsbDvCd, ogLv1Id, ogLv2Id, ogLv3Id, perfYm, prtnrNo } = info.value;
   if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
-    if (rsbYn === 'N') {
-      router.push({
-        path: url,
-        query: { perfYm, prtnrNo },
-      });
-    } else if (rsbYn === 'Y') {
-      router.push({
-        path: url,
-        query: { perfYm, prtnrNo, ogLv1Id, ogLv2Id, ogLv3Id },
-      });
-    }
+    router.push({
+      path: url,
+      query: { rsbDvCd, perfYm, prtnrNo, ogLv1Id, ogLv2Id, ogLv3Id },
+    });
   } else {
     alert(t('MSG_ALT_USE_DT_SRCH_AF'));
   }
