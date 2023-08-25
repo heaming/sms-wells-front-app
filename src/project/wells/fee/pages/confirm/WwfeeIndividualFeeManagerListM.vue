@@ -358,7 +358,7 @@ const info = ref({
   mgtCnt: '',
   vstCnt: '',
   procsRt: '',
-  rsbYn: '',
+  rsbDvCd: '',
   ogLv1Id: '',
   ogLv2Id: '',
   ogLv3Id: '',
@@ -433,19 +433,12 @@ async function openManagerReportPopup() {
  */
 async function openBsConfirmPopup() {
   const url = '/fee/wwfed-manager-visit-fee-list';
-  const { rsbYn, ogLv1Id, ogLv2Id, ogLv3Id, perfYm, prtnrNo } = info.value;
+  const { rsbDvCd, ogLv1Id, ogLv2Id, ogLv3Id, perfYm, prtnrNo } = info.value;
   if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
-    if (rsbYn === 'N') {
-      router.push({
-        path: url,
-        query: { perfYm, prtnrNo },
-      });
-    } else if (rsbYn === 'Y') {
-      router.push({
-        path: url,
-        query: { perfYm, prtnrNo, ogLv1Id, ogLv2Id, ogLv3Id },
-      });
-    }
+    router.push({
+      path: url,
+      query: { rsbDvCd, perfYm, prtnrNo, ogLv1Id, ogLv2Id, ogLv3Id },
+    });
   } else {
     alert(t('MSG_ALT_USE_DT_SRCH_AF'));
   }
