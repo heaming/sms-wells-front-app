@@ -199,10 +199,12 @@
         >
           <kw-date-picker
             v-model="searchEstimatedParams.duedt"
+            dense
           />
           <kw-btn
             secondary
-            :label="조회"
+            dense
+            :label="$t('MSG_BTN_INQR')"
             @click="onClickEstimatedSearch()"
           />
         </kw-form-item>
@@ -272,13 +274,13 @@ const props = defineProps({
 });
 
 const searchParams = ref({
-  slClYm: now.format('YYYY-MM'),
+  slClYm: now.format('YYYYMM'),
   cntrNo: props.cntrNo,
   cntrSn: props.cntrSn,
 });
 
 const searchEstimatedParams = ref({
-  duedt: now.format('YYYY-MM-DD'),
+  duedt: now.format('YYYYMMDD'),
 });
 
 async function fetchData() {
@@ -302,7 +304,7 @@ async function onClickEstimatedSearch() {
 }
 
 onMounted(async () => {
-  await fetchData();
+  await onClickSearch();
 });
 
 </script>
