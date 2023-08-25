@@ -469,7 +469,7 @@ const initGrid = defineGrid((data, view) => {
       // 접수, 진행중, 반려, 승인 중 해당 데이터 노출. 환불상태 : 01.접수, 05.진행중, 04.반려, 03.승인
       // 접수, 진행중 클릭 시 환불신청[W-WD-U-108P01] 팝업 노출하여 신청내역 조회
       // 반려, 승인 클릭 시 환불상세[W-WD-U-108P03] 팝업 노출하여 신청결과 조회
-      if (rfndAkStatCd === '00' || rfndAkStatCd === '01') { // 01.임시저장, 01. 접수
+      if (rfndAkStatCd === '00') { // 01.임시저장, 01. 접수
         await modal({
           component: 'WwwdbRefundApplicationRegP', // W-WD-U-0108P01 환불신청팝업
           componentProps: {
@@ -481,7 +481,7 @@ const initGrid = defineGrid((data, view) => {
         });
         await onClickSearch();
       }
-      if (rfndAkStatCd === '03' || rfndAkStatCd === '04') { // 04.반려, 03.승인
+      if (rfndAkStatCd === '03' || rfndAkStatCd === '99' || rfndAkStatCd === '01') { // 04.반려, 03.승인
         await modal({
           component: 'WwwdbRefundApplicationDtlP', // W-WD-U-0108P03 환불상세팝업
           componentProps: {
@@ -499,18 +499,31 @@ const initGrid = defineGrid((data, view) => {
     }
 
     if (column === 'rfndAkDtlCd') { // 환불상세
-      await modal({
-        component: 'WwwdbRefundApplicationDtlP',
-        componentProps: {
-          rfndAkStatCd, // 환불상태
-          cntrNo, // 계약번호
-          cntrSn, // 계약일련번호
-          rfndAkNo, // 환불접수번호
-          fnlMdfcUsrNm, // 신청자
-          fnlMdfcUsrId, // 번호
-          rfndAkDtm, /* 신청일자 */
-        },
-      });
+      if (rfndAkStatCd === '00') { // 01.임시저장, 01. 접수
+        await modal({
+          component: 'WwwdbRefundApplicationRegP', // W-WD-U-0108P01 환불신청팝업
+          componentProps: {
+            rfndAkStatCd, // 환불상태
+            cntrNo, // 계약번호
+            cntrSn, // 계약일련번호
+            rfndAkNo, // 환불요청번호
+          },
+        });
+      } else {
+        await modal({
+          component: 'WwwdbRefundApplicationDtlP',
+          componentProps: {
+            rfndAkStatCd, // 환불상태
+            cntrNo, // 계약번호
+            cntrSn, // 계약일련번호
+            rfndAkNo, // 환불접수번호
+            fnlMdfcUsrNm, // 신청자
+            fnlMdfcUsrId, // 번호
+            rfndAkDtm, /* 신청일자 */
+          },
+        });
+      }
+
       await onClickSearch();
     }
     // 첨부파일 다운로드
