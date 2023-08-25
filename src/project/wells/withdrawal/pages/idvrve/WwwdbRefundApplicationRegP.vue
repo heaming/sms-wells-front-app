@@ -233,7 +233,7 @@
         >
           <kw-select
             v-model="saveParams.bankCode"
-            :options="optionList"
+            :options="codes.CSH_RFND_FNIT_CD"
           />
           <!-- :options="codes.BNK_CD" -->
         </kw-form-item>
@@ -415,9 +415,9 @@ const { ok } = useModal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { notify } = useGlobal();
-const fnitCdRes = await dataService.get('/sms/common/common/codes/finance-code/fnit-codes/delegate');
-console.log(fnitCdRes);
-const optionList = fnitCdRes.data; // 은행코드(은행명)
+// const fnitCdRes = await dataService.get('/sms/common/common/codes/finance-code/fnit-codes/delegate');
+// console.log(fnitCdRes);
+// const optionList = fnitCdRes.data; // 은행코드(은행명)
 
 const pageInfo1 = ref({ // 계약상세 페이지1
   totalCount: 0,
@@ -471,7 +471,7 @@ const saveParams = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS', //
-  'BNK_CD', // 은행코드
+  'CSH_RFND_FNIT_CD', // 은행코드
   /* 계약상세 */
   'COPN_DV_CD', // 고객유형: 1.개인, 2.법인
   'SELL_TP_CD', // 판매유형
@@ -813,6 +813,8 @@ async function onClickRefundAsk(stateCode) {
 
   const rows3 = changedRows3.filter((p1) => (Number(p1.rfndBltfAkAmt)) > 0);
 
+  console.log(changedRows3);
+  console.log(rows3);
   // eslint-disable-next-line no-unused-vars
   const changedRows4 = gridUtil.getAllRowValues(view4); // 환불접수총액
   if (changedRows4[0].totRfndEtAmt === 0) {
