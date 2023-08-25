@@ -44,7 +44,7 @@
           :options="mpyBsdtOptions"
         />
         <crdcd-no-input
-          v-model="approvalRequest.cardExpdtYm"
+          v-model="approvalRequest.crcdnoEncr"
         />
         <crdcd-exp-select
           v-model="approvalRequest.cardExpdtYm"
