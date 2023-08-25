@@ -233,7 +233,7 @@ fieldsObj = {
   defaultFields: [
     { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '130', styleName: 'text-center', dataType: 'text' },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center', dataType: 'text' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '220', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_TOT_SUM') } },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '220', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
   ],
   allFields: [
     { fieldName: 'vCnt99',
