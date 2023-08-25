@@ -286,7 +286,6 @@
     <!-- // rev:230710 변경 및 추가 -->
     <!-- <div v-if="props.acdnRcpId !== ''"> -->
     <kw-action-top
-      v-if="props.acdnRcpId !== ''"
       class="mb20"
     >
       <template #left>
@@ -301,7 +300,6 @@
       />
     </kw-action-top>
     <kw-form
-      v-if="props.acdnRcpId !== ''"
       ref="frmMainRef5"
     >
       <kw-form-row>
@@ -420,6 +418,7 @@ import {
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import { isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { modal, notify } = useGlobal();
@@ -539,7 +538,6 @@ async function onClickSearchContract() {
   const { result, payload } = await modal({
     component: 'WwsnyCustomerBaseInformationP',
   });
-  console.log(payload);
   if (result) {
     safetyAccident.value.cntrNo = payload.cntrNo ?? '';
     safetyAccident.value.cntrSn = payload.cntrSn ?? '';
@@ -547,9 +545,8 @@ async function onClickSearchContract() {
 
     // 안전사고관리 데이터 조회
     const res = (await dataService.get('/sms/wells/service/safety-accidents/init', { params: safetyAccident.value })).data;
-    debugger;
     Object.assign(safetyAccident.value, res);
-    if (res.pdNm.length !== 0) {
+    if (!isEmpty(res.pdNm)) {
       onChangePdNm();
     }
   }
@@ -557,13 +554,18 @@ async function onClickSearchContract() {
 
 // 안전사고 합의서 알림톡 발송
 async function onClickAgreementFoward() {
-  if (!await frmMainRef1.value.confirmIfIsModified()) { return; }
-  if (!await frmMainRef1.value.confirmIfIsModified()) { return; }
-  if (!await frmMainRef1.value.confirmIfIsModified()) { return; }
-  if (!await frmMainRef1.value.confirmIfIsModified()) { return; }
-  if (props.acdnRcpId !== '' && sessionUserInfo.employeeIDNumber === safetyAccident.cnrldNo) {
-    if (!await frmMainRef5.value.confirmIfIsModified()) { return; }
+  if (!await frmMainRef1.value.confirmIfIsModified() || !await frmMainRef2.value.confirmIfIsModified()
+  || !await frmMainRef3.value.confirmIfIsModified() || !await frmMainRef4.value.confirmIfIsModified()
+  || (sessionUserInfo.employeeIDNumber === safetyAccident.cnrldNo && !await frmMainRef5.value.confirmIfIsModified())
+  ) {
+    return;
   }
+  // if (!await frmMainRef2.value.confirmIfIsModified()) { return; }
+  // if (!await frmMainRef3.value.confirmIfIsModified()) { return; }
+  // if (!await frmMainRef4.value.confirmIfIsModified()) { return; }
+  // if (sessionUserInfo.employeeIDNumber === safetyAccident.cnrldNo) {
+  //   if (!await frmMainRef5.value.confirmIfIsModified()) { return; }
+  // }
   const { result } = await modal({
     component: 'WwsnbSafetyAccidentAgreeBiztalkP',
     componentProps: {
@@ -577,7 +579,7 @@ async function onClickAgreementFoward() {
 
   if (result) {
     // 안전사고관리 데이터 조회
-    const res = (await dataService.get('/sms/wells/service/safety-accidents/init', { params: safetyAccident.value })).data;
+    const res = (await dataService.get(`/sms/wells/service/safety-accidents/${props.acdnRcpId}`)).data;
     Object.assign(safetyAccident.value, res);
     if (res.pdNm.length !== 0) {
       onChangePdNm();
@@ -586,12 +588,12 @@ async function onClickAgreementFoward() {
 }
 
 async function onClickSave() {
-  if (!await frmMainRef1.value.validate()) { return; }
-  if (!await frmMainRef2.value.validate()) { return; }
-  if (!await frmMainRef3.value.validate()) { return; }
-  if (!await frmMainRef4.value.validate()) { return; }
-  if (props.acdnRcpId !== '' && sessionUserInfo.employeeIDNumber === safetyAccident.cnrldNo) {
-    if (!await frmMainRef5.value.validate()) { return; }
+  if (!await frmMainRef1.value.validate() || !await frmMainRef2.value.validate()
+  || !await frmMainRef3.value.validate() || !await frmMainRef4.value.validate()
+  || (sessionUserInfo.employeeIDNumber === safetyAccident.cnrldNo && !await frmMainRef5.value.validate())
+  ) {
+    notify(t('MSG_ALT_CHK_REQ_VAL'));
+    return;
   }
 
   // 저장할 값 세팅.
