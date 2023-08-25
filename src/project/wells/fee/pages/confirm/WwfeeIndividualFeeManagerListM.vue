@@ -276,6 +276,19 @@
             <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.pnpyam) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
+        <kw-form-row>
+          <kw-form-item
+            :label="t('MSG_TXT_INDD_INSR')"
+          >
+            <p>{{ info2.inddInsr ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
+          </kw-form-item>
+          <kw-form-item>
+            <p />
+          </kw-form-item>
+          <kw-form-item>
+            <p />
+          </kw-form-item>
+        </kw-form-row>
       </kw-form>
       <kw-separator />
       <kw-action-top>
@@ -372,6 +385,7 @@ const info2 = ref({
   hirInsr: '',
   buDdtn: '',
   pnpyam: '',
+  inddInsr: '',
 });
 
 const { prPerfYm } = searchParams.value;
