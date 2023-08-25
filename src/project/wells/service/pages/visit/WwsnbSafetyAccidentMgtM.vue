@@ -425,7 +425,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       displayCallback: (grid, index) => {
-        const fshDt = grid.getValues(index.itemIndex, 'fshDt');
+        const { fshDt } = grid.getValues(index.itemIndex, 'fshDt');
         return (isEmpty(fshDt) ? 'N' : 'Y');
       },
     },
