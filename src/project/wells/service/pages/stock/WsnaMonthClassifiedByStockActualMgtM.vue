@@ -313,7 +313,7 @@ async function onClickSave() {
 
   console.log(checkedRows);
   if (!validateIsApplyRowExists()) return;
-
+  debugger;
   for (let i = 0; i < checkedRows.length; i += 1) {
     const { statusT, acinspRmkCn, minusQty } = checkedRows[i];
 
@@ -322,13 +322,15 @@ async function onClickSave() {
       notify(t('MSG_ALT_ACINSP_FSH_SAVE_IMP'));
       return;
     }
-    if (acinspRmkCn?.length < 5 && minusQty !== 0) {
-      // 재고차이 발생건 사유 입력을 해야합니다.
-      notify(t('MSG_ALT_STOC_GAP_OC_RSON_IN'));
-      return;
+
+    if (minusQty !== 0) {
+      if (isEmpty(acinspRmkCn) || acinspRmkCn?.length < 5) {
+        // 재고차이 발생건 사유 입력을 해야합니다.
+        notify(t('MSG_ALT_STOC_GAP_OC_RSON_IN'));
+        return;
+      }
     }
   }
-
   await dataService.post('/sms/wells/service/stock-acinp-rgst', checkedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -545,6 +547,17 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.setFooters({ visible: true });
   view.setOptions({ summaryMode: 'aggregate' });
+
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const { acinspQty, eotStoc } = grid.getValues(itemIndex);
+
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+
+    if (changedFieldName === 'acinspQty') {
+      const calcQty = Number(acinspQty) - Number(eotStoc);
+      grid.setValue(itemIndex, 'minusQty', calcQty);
+    }
+  };
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
