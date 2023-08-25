@@ -419,6 +419,8 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
     if (field === 9) {
       const spectxGrpNo = grid.getValue(index, 0);
       const emadr = grid.getValue(index, 9);
+      view.commit();
+      data.setValue(index, 'emadr', emadr);
       const rows = gridUtil.filter(view, (e) => e.spectxGrpNo === spectxGrpNo); // 같은 그룹번호 로우 찾기
       for (let i = 0; i < rows.length - 1; i += 1) {
         grid.commit();
