@@ -37,8 +37,8 @@
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_RSB')">
           <kw-select
-            v-model="searchParams.rolDvCd"
-            :options="codes.EGER_ROL_CD"
+            v-model="searchParams.rsbDvCd"
+            :options="codes.RSB_DV_CD.filter((v)=> v.prtsCodeId === 'W06')"
             first-option="all"
           />
         </kw-search-item>
@@ -129,15 +129,13 @@ const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'RSB_DV_CD',
   'PRTNR_GD_CD',
-  'EGER_EVL_GD_CD',
-  'EGER_ROL_CD',
 );
 
 const searchParams = ref({
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
-  rolDvCd: undefined,
+  rsbDvCd: undefined,
   baseYm: dayjs().format('YYYYMM'),
   chk: 'N',
 });
@@ -233,7 +231,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '166',
       styleName: 'text-center',
     },
-    { fieldName: 'rolDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.EGER_ROL_CD },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '130', styleName: 'text-center' },
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     {
