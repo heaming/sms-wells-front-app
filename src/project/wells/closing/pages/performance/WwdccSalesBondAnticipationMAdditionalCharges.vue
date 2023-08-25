@@ -101,8 +101,8 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep, isEmpty } from 'lodash-es';
-import { getAggregateDivide, textToNumberFormatter, getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
+import { cloneDeep } from 'lodash-es';
+import { getAggregateDivide, getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -135,75 +135,17 @@ const dynamicChangeCodes = ref({ SELL_TP_DTL_CD: customCodes.value.SELL_TP_DTL_C
 const totalCount = ref(0);
 const grdAdditionalChargeRef = ref(getComponentType('KwGrid'));
 
-const columnVisibled = ref(false);
-
-async function setHeaderSummary6(salesBond) {
-  const view = grdAdditionalChargeRef.value.getView();
-  view.columnByName('perfYm').headerSummary.text = t('MSG_TXT_SUM');
-  view.columnByName('btdDlqAddAmt').headerSummary.text = textToNumberFormatter(salesBond.btdDlqAddAmt);
-  view.columnByName('thmOcDlqAddAmt').headerSummary.text = textToNumberFormatter(salesBond.thmOcDlqAddAmt);
-  view.columnByName('thmCtrDlqAddAmt').headerSummary.text = textToNumberFormatter(salesBond.thmCtrDlqAddAmt);
-  view.columnByName('thmDlqAddDpSumAmt').headerSummary.text = textToNumberFormatter(salesBond.thmDlqAddDpSumAmt);
-  view.columnByName('thmDlqAddRfndSumAmt').headerSummary.text = textToNumberFormatter(salesBond.thmDlqAddRfndSumAmt);
-  view.columnByName('eotDlqAddAmt').headerSummary.text = textToNumberFormatter(salesBond.eotDlqAddAmt);
-  view.columnByName('perfYm').headerSummary.styleName = 'text-center';
-}
-async function setGridColumnLayoutType(data, view) { // 일시불
-  if (!view) {
-    view = grdAdditionalChargeRef.value.getView();
-  }
-  if (!data) {
-    data = view.getDataSource();
-  }
-  const columns = [
-    { fieldName: 'perfYm', header: t('MSG_TXT_PERF_YM'), width: '130', styleName: 'text-center' },
-    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center' },
-    { fieldName: 'sellTpDtlCdNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center' },
-    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', visible: columnVisibled.value },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', visible: columnVisibled.value },
-    { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_THM_OC'), width: '209', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_THM_DDTN'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_THM_DP'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'thmDlqAddRfndSumAmt', header: t('MSG_TXT_THM_RFND'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_BLAM'), width: '197', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-  ];
-
-  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = true;
-
-  view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 4 : 6 }];
-  view.setHeaderSummaries({
-    visible: true,
-    items: [
-      {
-        height: 40,
-      },
-    ],
-  });
-}
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges', { params: cachedParams, timeout: 800000 });
   const additionalCharges = res.data;
-  totalCount.value = additionalCharges.length - 1; // 총계 가지고 오기 때문에 그 부분 제외
 
-  if (!isEmpty(additionalCharges) && additionalCharges[0].perfYm === '총      계') {
-    setHeaderSummary6(additionalCharges[0]);
-    additionalCharges.shift();
-  }
+  totalCount.value = additionalCharges.length;
 
   const view = grdAdditionalChargeRef.value.getView();
   view.getDataSource().setRows(additionalCharges);
 }
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  totalCount.value = 0;
-  columnVisibled.value = (searchParams.value.agrgDv !== '1');
-  await setGridColumnLayoutType();
   fetchData();
 }
 
@@ -222,6 +164,11 @@ async function onClickOpenReport() {
   /69500965/OZ#1.-%EC%97%85%EB%AC%B4-%ED%99%94%EB%A9%B4%EC%97%90%EC%84%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8-%ED%98%B8%EC%B6%9C
   */
 }
+
+function visibleStyleCallback() {
+  return { visible: !(searchParams.value.agrgDv === '1') };
+}
+
 watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
   dynamicChangeCodes.value.SELL_TP_DTL_CD = customCodes.value.SELL_TP_DTL_CD.filter(
     (obj) => (obj.userDfn02 === sellTpCd),
@@ -231,7 +178,54 @@ watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initAdditionalChargeGrid = defineGrid(async (data, view) => {
-  await setGridColumnLayoutType(data, view);
+  const columns = [
+    { fieldName: 'perfYm',
+      header: t('MSG_TXT_PERF_YM'),
+      width: '130',
+      styleName: 'text-center',
+      headerSummary: {
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
+      },
+    },
+    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center' },
+    { fieldName: 'sellTpDtlCdNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center' },
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
+    { fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '130',
+      styleName: 'text-center',
+      styleCallback() { return visibleStyleCallback(); },
+    },
+    { fieldName: 'cstKnm',
+      header: t('MSG_TXT_CST_NM'),
+      width: '130',
+      styleName: 'text-center',
+      styleCallback() { return visibleStyleCallback(); },
+    },
+    { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_THM_OC'), width: '209', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_THM_DDTN'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_THM_DP'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'thmDlqAddRfndSumAmt', header: t('MSG_TXT_THM_RFND'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_BLAM'), width: '197', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+  ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
+
+  view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 4 : 6 }];
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        height: 40,
+      },
+    ],
+  });
 });
 </script>
 <style scoped>
