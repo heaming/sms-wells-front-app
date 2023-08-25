@@ -431,7 +431,6 @@ const initExpectedGrid = defineGrid((data, view) => {
       options: ynOpt,
       styleCallback: () => {
         const ret = {};
-        debugger;
         if (!isfinalConfirm.value && !isLastDate.value) {
           ret.editable = true;
         } else {
