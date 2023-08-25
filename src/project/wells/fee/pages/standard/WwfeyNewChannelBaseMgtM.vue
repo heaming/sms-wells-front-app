@@ -330,7 +330,7 @@ const initGrd = defineGrid((data, view) => {
       styleName: 'text-center',
       editable: true,
       styleCallback(grid, dataCell) {
-        const { sellTpCd } = gridUtil.getRowValue(grid, dataCell.index.itemIndex);
+        const { sellTpCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
         const ret = {};
         if (sellTpCd === '1') {
           ret.editor = {
@@ -379,7 +379,7 @@ const initGrd = defineGrid((data, view) => {
       styleName: 'text-center',
       editable: true,
       styleCallback(grid, dataCell) {
-        const { sellTpCd, sellDscDvCd } = gridUtil.getRowValue(grid, dataCell.index.itemIndex);
+        const { sellTpCd, sellDscDvCd } = gridUtil.getRowValue(grid, dataCell.index.dataRow);
         const ret = {};
         if (sellTpCd === '2' && sellDscDvCd === '5') {
           ret.editor = {
@@ -491,8 +491,7 @@ const initGrd = defineGrid((data, view) => {
   };
   // 시작월 종료월 체크
   view.onValidate = async (g, index) => {
-    const { apyStrtdt } = await g.getValues(index.dataRow);
-    const { apyEnddt } = await g.getValues(index.dataRow);
+    const { apyStrtdt, apyEnddt } = gridUtil.getRowValue(view, index.dataRow);
     if (!isEmpty(apyStrtdt) && !isEmpty(apyEnddt)) {
       if (apyStrtdt > apyEnddt) {
         gridUtil.focusCellInput(view, index.dataRow, 'apyStrtdt');
