@@ -164,7 +164,7 @@
                 {{ $t('MSG_TXT_INSTL_EXP_DT') }}
               </p>
               <span>
-                {{ setDateFormat(item.wkAcpteDt, item.wkAcpteHh) }}
+                {{ setIstExptDateFormat(item) }}
               </span>
             </li>
             <div v-show="isEqual(item.istBzsCd, 'S')">
@@ -233,7 +233,7 @@
                 <p class="w90">
                   {{ $t('MSG_TXT_RQMT') }}
                 </p>
-                <span>{{ isEmpty(item.cnslMoCn)?'':item.cnslMoCn }}</span>
+                <span>{{ isEmpty(item.cnslMoCn) ? '' : item.cnslMoCn }}</span>
               </li>
               <li>
                 <!-- 설치 일자 -->
@@ -690,6 +690,35 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   installationList.value = [];
   fetchData();
+}
+
+function setIstExptDateFormat(item) {
+  const { wkAcpteDt, wkAcpteHh, vstCnfmdt, vstCnfmHh } = item;
+
+  let date = '';
+  let time = '';
+  let returnDt = '';
+
+  // 날짜설정
+  if (isEmpty(wkAcpteDt)) {
+    if (!isEmpty(vstCnfmdt)) { date = vstCnfmdt; }
+  } else {
+    date = vstCnfmdt;
+  }
+
+  // 시간설정
+  if (isEmpty(wkAcpteHh)) {
+    if (!isEmpty(vstCnfmHh)) { time = vstCnfmHh; }
+  } else {
+    time = wkAcpteHh;
+  }
+
+  // 체크
+  if (isEmpty(date) && isEmpty(time)) { return; }
+
+  // 반환값 설정
+  returnDt = stringUtil.getDatetimeFormat(`${date}${time}`);
+  return returnDt;
 }
 
 function setDateFormat(date, time) {
