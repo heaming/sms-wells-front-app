@@ -99,3 +99,15 @@
     padding: 12px 20px;
   }
 }
+
+$unit: px;
+
+@for $size from 1 through 1000 {
+  .hp-w#{$size} {
+    width: #{$size} + $unit;
+  }
+
+  .hp-h#{$size} {
+    height: #{$size} + $unit;
+  }
+}
