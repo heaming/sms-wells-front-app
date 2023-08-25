@@ -29,8 +29,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_WARE_CD')"
-          :colspan="2"
+          :label="$t('MSG_TXT_WARE_DV')"
         >
           <kw-select
             v-model="searchParams.wareDvCd"
@@ -54,6 +53,8 @@
             option-label="wareNm"
             first-option="all"
           />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
           <kw-select
             v-model="searchParams.wareDtlDvCd"
             :options="filterCodes.wareDtlDvCd"
