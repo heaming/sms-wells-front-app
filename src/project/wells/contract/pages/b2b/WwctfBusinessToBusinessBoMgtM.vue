@@ -265,9 +265,15 @@ async function onKeyManFind(dataRow) {
   const resData = res.data;
   if ((!isEmpty(res.data))) {
     view.setValue(dataRow, 'leadCstRlpplNm', resData.leadCstRlpplNm);
-    view.setValue(dataRow, 'telNo1', `${resData.locaraTno}-${resData.exnoEncr}-${resData.idvTno}`);
-    view.setValue(dataRow, 'telNo2', `${resData.cralLocaraTno}-${resData.mexnoEncr}-${resData.cralIdvTno}`);
-    view.setValue(dataRow, 'emadrCn', resData.emadrCn);
+    if (!isEmpty(resData.locaraTno) && !isEmpty(resData.exnoEncr) && !isEmpty(resData.idvTno)) {
+      view.setValue(dataRow, 'telNo1', `${resData.locaraTno}-${resData.exnoEncr}-${resData.idvTno}`);
+    }
+    if (!isEmpty(resData.cralLocaraTno) && !isEmpty(resData.mexnoEncr) && !isEmpty(resData.cralIdvTno)) {
+      view.setValue(dataRow, 'telNo2', `${resData.cralLocaraTno}-${resData.mexnoEncr}-${resData.cralIdvTno}`);
+    }
+    if (!isEmpty(resData.emadrCn)) {
+      view.setValue(dataRow, 'emadrCn', resData.emadrCn);
+    }
   }
 }
 // -------------------------------------------------------------------------------------------------
