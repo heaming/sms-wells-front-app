@@ -137,7 +137,13 @@ const searchParams = ref({
   strWareDvCd: '',
   strWareNoM: '',
   strWareNoD: '',
+  // selectedStrWareNoD: [{ codeId: '1', codeName: '조직창고' }, { codeId: '2', codeName: '개인창고' }],
 });
+
+/*
+ *  strWareNoM 선택하지 않아도, 조직창고/개인창고 선택 가능하게 (이지영 매니저님)
+ */
+// const isStrWarNoMSelected = computed(() => searchParams.value.strWareNoM !== '');
 
 async function fetchData() {
   // eslint-disable-next-line max-len
@@ -181,19 +187,25 @@ async function onClickExcelDownload() {
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'wareNm' },
+    { fieldName: 'strRgstDt' },
+    { fieldName: 'strWareNm' },
     { fieldName: 'strWareNo' },
+    { fieldName: 'strTpCd' },
     { fieldName: 'pdNm' },
     { fieldName: 'itmPdCd' },
     { fieldName: 'naprvQty' },
+    { fieldName: 'ostrWareNm' },
   ];
 
   const columns = [
-    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '150', styleName: 'text-center' },
+    { fieldName: 'strWareNm', header: t('MSG_TXT_WARE_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'strWareNo', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'strTpCd', header: t('MSG_TXT_STR_TP'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_MATI_NM'), width: '400', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_MATI_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'naprvQty', header: t('MSG_TXT_UNAPPR') + t('MSG_TXT_QTY'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
