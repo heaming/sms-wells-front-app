@@ -43,7 +43,7 @@
               <kw-form dense>
                 <!-- 상품정보 -->
                 <kw-form-item :label="$t('MSG_TXT_PD_INF')">
-                  <p>{{ item.pdAbbrNm ?? '-' }}</p>
+                  <p>{{ `${item.pdGrpNm}(${item.pdAbbrNm})` }}</p>
                 </kw-form-item>
                 <!-- 계약정보 -->
                 <kw-form-item :label="$t('MSG_TXT_CNTR_INF')">
@@ -55,7 +55,7 @@
                 </kw-form-item>
                 <!-- 렌탈료 -->
                 <kw-form-item :label="$t('MSG_TXT_RTLFE')">
-                  <p>{{ stringUtil.getNumberWithComma(item.mmIstmAmt ?? 0) ?? 0 }}원</p>
+                  <p>{{ stringUtil.getNumberWithComma(item.fnlAmt ?? 0) ?? 0 }}원</p>
                 </kw-form-item>
                 <!-- 결제금액 -->
                 <kw-form-item :label="$t('MSG_TXT_STLM_AMT')">
@@ -142,22 +142,18 @@ const props = defineProps({
   cstSvAsnNos: {
     type: String,
     required: true,
-    default: '1202301050000228931,3202208160000816781,1202209130000910286,1202210060000975127',
   },
   csBilNo: {
     type: String,
     required: true,
-    default: 'WB202209260000000185',
   },
   ogTpCd: {
     type: String,
     required: true,
-    default: 'W06',
   },
   prtnrNo: {
     type: String,
     required: true,
-    default: '36671',
   },
 });
 
@@ -176,7 +172,8 @@ const billDvCd = [
 
 const taxInvoiceData = ref({
   csBilNo: props.csBilNo,
-  totalAmt: 0,
+  totalAmt: 0, // 화면에 노출되는 총결제금액으로 렌탈료 합산
+  stlmAmt: 0, // 렌탈료 제외한 결제금액 합계
   billDvCd: '2',
   billDvMsg: t('MSG_TXT_NTS_PBL_AFT_SV_CS_STLM'),
   copnDvCd: '',
@@ -196,33 +193,74 @@ async function validateBrzno() {
   const res = await dataService.get('/sms/wells/service/tax-invoices/business-number-check', { params: { bzrno: taxInvoiceData.value.bzrno } });
 
   if (res.data === 0) {
+    console.log('거래처기본 테이블에 사업자등록번호가 등록되어있지 않음.');
     notify(t('MSG_ALT_BZRC_PRR_RGST_NCST'));
     return false;
   }
   return true;
 }
 
+async function checkMobile() {
+  const ua = navigator.userAgent.toLowerCase();
+  if (ua.indexOf('kakaotalk') > -1) {
+    return 'kakaotalk';
+  } if (ua.indexOf('android') > -1) {
+    return 'android';
+  } if (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1 || ua.indexOf('ipod') > -1) {
+    return 'ios';
+  }
+  return 'other';
+}
+
+// 닫기
+function close() {
+  const windowInfo = window.navigator.userAgent || window.navigator.vendor || window.opera;
+  const type = checkMobile();
+  if (type === 'kakaotalk') {
+    window.location.href = (/iPad|iPhone|iPod/.test(windowInfo)) ? 'kakaoweb://closeBrowser' : 'kakaotalk://inappbrowser/close';
+  } else if (type === 'ios') {
+    window.open('', '_self', '');
+    window.close();
+  } else {
+    window.open('about:blank', '_self').self.close();
+  }
+}
+
+// 발행 요청
 async function onClickPublication() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
   if (!await validateBrzno()) return;
 
   if (await confirm(t('MSG_ALT_TXINV_PBL_AK_CONF'))) {
-    const res = await dataService.put(`/sms/wells/service/tax-invoices/${taxInvoiceData.value.csBilNo}`, { ...taxInvoiceData.value });
-    console.log(res);
-    await alert(t('MSG_ALT_AK_FSH'));
-    window.close();
+    const existsCheckRes = await dataService.get('/sms/wells/service/tax-invoices/exists-check', { params: { csBilNo: taxInvoiceData.value.csBilNo } });
+
+    if (existsCheckRes.data > 0) {
+      if (await alert(t('MSG_ALT_ALRD_AK_FSH'))) { // '이미 요청 완료되었습니다.'
+        close();
+      }
+    }
+
+    console.log(taxInvoiceData.value);
+    await dataService.post(`/sms/wells/service/tax-invoices/${taxInvoiceData.value.csBilNo}`, { ...taxInvoiceData.value });
+    await alert(t('MSG_ALT_AK_FSH')); // '요청 완료되었습니다.'
+
+    close();
   }
 }
 
 function getContractInfo(sellTpNm, copnDvNm, pdUswyNm, pdGdNm) {
-  return `${sellTpNm ?? '-'} | ${copnDvNm ?? '-'} | ${pdUswyNm ?? '-'} | ${pdGdNm ?? '-'}`;
+  return `${sellTpNm ?? '-'} | ${copnDvNm ?? '-'} | ${pdUswyNm ?? '-'} ${pdGdNm ?? '-'}`;
 }
 
 function setTotalAmt() {
   taxInvoiceData.value.totalAmt = services.value.reduce((pre, curr) => {
     pre += curr.stlmAmt ?? 0;
-    pre += curr.mmIstmAmt ?? 0;
+    pre += curr.fnlAmt ?? 0;
+    return pre;
+  }, 0);
+  taxInvoiceData.value.stlmAmt = services.value.reduce((pre, curr) => {
+    pre += curr.stlmAmt ?? 0;
     return pre;
   }, 0);
 }
@@ -252,4 +290,13 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
+.scoped_email_custom {
+  flex-wrap: unset !important;
+
+  ::v-deep(.zwcm-email-address__domain-select) {
+    margin-top: 24px !important;
+    margin-left: 8px !important;
+    flex-basis: 50% !important;
+  }
+}
 </style>

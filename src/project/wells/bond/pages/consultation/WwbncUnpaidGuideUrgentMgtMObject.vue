@@ -215,6 +215,7 @@
     <kw-grid
       ref="grdObjectRef"
       name="grdObject"
+      :visible-rows="pageInfo.pageSize"
       @init="initObjectGrid"
     />
     <kw-pagination
@@ -300,7 +301,7 @@ const clctamDvOpt = [
 // 검색 조회
 let cachedParams;
 async function fetchData() {
-  const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo } });
+  const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
 
   const { list: data, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
@@ -378,17 +379,17 @@ async function onClickCreate() {
       ojPyTmlmDt: searchParams.value.ojPyTmlmDt,
     };
     const { data } = await dataService.get(`${baseUrl}/check-object`, { params: { ...checkParams } });
-    if (data.totalCount !== 0 && data.cnfmYn === 'N') {
-      if (await confirm('MSG_ALT_EXIST_DATA_RECREATION')) { // 이미 생성된 자료가 있습니다. 재생성 하시겠습니까?
+    if (data.ojTotalCount !== 0 && data.cnfmYn === 'N') {
+      if (await confirm(t('MSG_ALT_EXIST_DATA_RECREATION'))) { // 이미 생성된 자료가 있습니다. 재생성 하시겠습니까?
         await dataService.post(`${baseUrl}/object`, objectParams);
 
         notify(t('MSG_ALT_CRT_FSH')); // 생성 되었습니다.
         await onClickSearch();
       }
-    } else if (data.totalCount !== 0 && data.cnfmYn === 'Y') {
-      await alert('MSG_ALT_BF_CNFM_CONF_DATA'); // 자료가 확정되어 생성할 수 없습니다
-    } else if (data.totalCount === 0) {
-      if (await confirm('MSG_ALT_WANT_CONTINUE_CREATE_DATA')) { // 자료를 생성합니다. 계속 진행하시겠습니까?
+    } else if (data.ojTotalCount !== 0 && data.cnfmYn === 'Y') {
+      await alert(t('MSG_ALT_BF_CNFM_CONF_DATA')); // 자료가 확정되어 생성할 수 없습니다
+    } else if (data.ojTotalCount === 0) {
+      if (await confirm(t('MSG_ALT_WANT_CONTINUE_CREATE_DATA'))) { // 자료를 생성합니다. 계속 진행하시겠습니까?
         await dataService.post(`${baseUrl}/object`, objectParams);
 
         notify(t('MSG_ALT_CRT_FSH')); // 생성 되었습니다.
@@ -404,17 +405,26 @@ async function onClickCreate() {
     };
 
     const { data } = await dataService.get(`${baseUrl}/check-customer`, { params: { ...checkParams } });
-    if (data.totalCount !== 0 && data.cnfmYn === 'N') {
-      await alert('MSG_ALT_ALREADY_CST_DATA_UNABLE_CREATE'); // 이미 생성된 고객번호기준 자료가 있습니다. 생성이 불가합니다.
-    } else if (data.totalCount !== 0 && data.cnfmYn === 'Y') {
-      await alert('MSG_ALT_BF_CNFM_CONF_DATA'); // 자료가 확정되어 생성할 수 없습니다
-    } else if (data.totalCount === 0) {
-      if (await confirm('MSG_ALT_WANT_CONTINUE_CREATE_DATA')) { // 자료를 생성합니다. 계속 진행하시겠습니까?
-        await dataService.post(`${baseUrl}/customer`, cstNoParams);
+    if (data.ojTotalCount === 0) {
+      await alert(t('MSG_ALT_NO_DATA_FIRST_PROCESS_CREATE_DATA')); // 생성된 자료가 없습니다. 자료생성을 먼저 진행해 주시기 바랍니다.
+      return;
+    }
 
-        notify(t('MSG_ALT_CRT_FSH')); // 생성 되었습니다.
-        await onClickSearch();
-      }
+    if (data.cnfmYn === 'N') {
+      await alert(t('MSG_ALT_NO_CONF_DATA_DONT_CREATE_CST_DATA')); // 확정된 자료가 없습니다. 고객번호기준 생성이 불가합니다.
+      return;
+    }
+
+    if (data.totalCount !== 0) {
+      await alert(t('MSG_ALT_ALREADY_CST_DATA_UNABLE_CREATE')); // 이미 생성된 고객번호기준 자료가 있습니다. 생성이 불가합니다.
+      return;
+    }
+
+    if (await confirm(t('MSG_ALT_WANT_CREATE_CST_NO_BASE_DATA'))) { // 고객번호기준 자료를 생성합니다. 게속 진행 하시겠습니까?
+      await dataService.post(`${baseUrl}/customer`, cstNoParams);
+
+      notify(t('MSG_ALT_CRT_FSH')); // 생성 되었습니다.
+      await onClickSearch();
     }
   }
 }
@@ -468,7 +478,7 @@ const initObjectGrid = defineGrid((data, view) => {
     { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADAMT'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'spmtSlAmt', header: t('MSG_TXT_SPMT_SL_AMOUNT'), width: '110', styleName: 'text-right', dataType: 'number' },
     // rev:230410 essential 추가
-    { fieldName: 'dlqMcn', header: { text: t('MSG_TXT_DLQ_MCNT'), styleName: 'essential' }, width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'dlqMcn', header: { text: t('MSG_TXT_DLQ_MCNT'), styleName: 'essential' }, width: '120', styleName: 'text-center' },
     // // rev:230410 essential 추가
     { fieldName: 'totNpdAmt', header: t('MSG_TXT_TOT_DLQ_AMT'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'pdgrpNm', header: t('MSG_TXT_PRD_GRP'), width: '110', styleName: 'text-center' },

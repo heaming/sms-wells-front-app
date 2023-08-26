@@ -69,7 +69,7 @@
             v-model:from="searchParams.strtVstDt"
             v-model:to="searchParams.endVstDt"
             :label="$t('MSG_TXT_VST_DT')"
-            rules="date_range_months:1"
+            rules="date_range_months:3"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_SEQUENCE_NUMBER')">

@@ -217,18 +217,6 @@ const searchParams = ref({
 
 });
 
-// const gridParams = ref({
-//   wareNo: '',
-//   itmKnd: '',
-
-// });
-
-// const gridItmParams = ref({
-//   wareNo: '',
-//   itmPdNm: '',
-
-// });
-
 // 품목구분 필터링
 const filterCodes = ref({
   filterWareDvCd: [],
@@ -272,23 +260,6 @@ async function getAllWareNo() {
 
 await getAllWareNo();
 
-// function setItmKndCellStyle() {
-//   const itmGdCtrTpNm = grdMainRef.value.getView().columnByField('itmGdCtrTpNm');
-
-//   itmGdCtrTpNm.editable = true;
-//   itmGdCtrTpNm.editor = { type: 'list' };
-//   itmGdCtrTpNm.labels = filterCodes.value.filterItmGdCtrTpCd.map((v) => v.codeName);
-//   itmGdCtrTpNm.values = filterCodes.value.filterItmGdCtrTpCd.map((v) => v.codeId);
-// }
-
-// function setWareNoCellStyle() {
-//   const wareNm = grdMainRef.value.getView().columnByField('wareNm');
-//   wareNm.editable = true;
-//   wareNm.editor = { type: 'list' };
-//   wareNm.labels = gridFilterWareNo.value.map((v) => v.codeName);
-//   wareNm.values = gridFilterWareNo.value.map((v) => v.codeId);
-// }
-
 async function fetchItmPdCd(params) {
   return await dataService.get('/sms/wells/service/stock-status-control/product-warehouse', params);
 }
@@ -321,8 +292,6 @@ const onChangeWareDvCd = async () => {
   filterWareNo.value = res.data;
   gridFilterWareNo.value = res.data;
 
-  // console.log(filterCodes.value.filterOgWareNo);
-  // ogWareNo.value = codeData.map((v) => ({ codeId: v.wareNo, codeName: v.wareNm }));
   searchParams.value.wareNo = filterWareNo.value[0].codeId;
 
   onChangeWareNo();
@@ -354,8 +323,6 @@ watch(() => searchParams.value.itmKnd, async (val) => {
     filterCodes.value.filterItmGdCtrTpCd = codes.MAT_STOC_STAT_CTR_CD;
   }
 });
-
-console.log(codes.ITM_GD_CTR_TP_CD);
 
 function setitmGdCtrTpCdsCellStyle() {
   const itmGdCtrTpCd = grdMainRef.value.getView().columnByField('itmGdCtrTpNm');
@@ -453,7 +420,7 @@ async function onClickDeleteRow() {
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
 
   if (!isEmpty(deletedRows)) {
-    const res = await dataService.delete('/sms/wells/service/stock-status-control', { data: checkedRows });
+    const res = await dataService.delete('/sms/wells/service/stock-status-control', { data: deletedRows });
     const { processCount } = res.data;
     if (processCount > 0) {
       notify(t('MSG_ALT_DELETED'));
@@ -474,14 +441,14 @@ async function onClickSave() {
 
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
 
-  console.log(checkedRows);
-
   for (let i = 0; i < checkedRows.length; i += 1) {
-    debugger;
     const checkedItmPdNm = checkedRows[i].itmPdNm;
     const checkedCtrQty = checkedRows[i].ctrQty;
+    const checkedItmGdCtrTpNm = checkedRows[i].itmGdCtrTpNm;
+    const checkedItmGdCtrRsonNm = checkedRows[i].itmGdCtrRsonNm;
 
-    if (isEmpty(checkedItmPdNm) || isBlank(checkedCtrQty)) {
+    if (isEmpty(checkedItmPdNm) || isBlank(checkedCtrQty)
+    || isEmpty(checkedItmGdCtrTpNm) || isEmpty(checkedItmGdCtrRsonNm)) {
       notify(t('MSG_ALT_MISSING_VALUE_PLEASE_CHECK'));
       return;
     }
@@ -495,7 +462,6 @@ async function onClickSave() {
 }
 
 async function fetchItmQty(grid, itemIndex, itmPdCd) {
-  console.log(itmPdCd);
   cachedParams.itmPdCd = itmPdCd;
   const res = await dataService.get('/sms/wells/service/stock-status-control/product-qty', { params: { ...cachedParams } });
   const itmQty = res.data;
@@ -581,23 +547,15 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.ITM_KND_CD,
     },
     { fieldName: 'itmGdCtrTpNm',
-      header: t('MSG_TXT_STAT_CTR_TP'),
+      header: {
+        text: t('MSG_TXT_STAT_CTR_TP'),
+        styleName: 'essential',
+      },
       styleName: 'text-center',
       width: '150',
       editor: { type: 'list' },
       options: itmGdCtrTpCds.value,
       editable: true,
-      // styleCallback: (grid, dataCell) => {
-      //   const itemKnd = grid.getValue(dataCell.index.itemIndex, 'itemKnd');
-      //   if (itemKnd === '4') {
-      //     const code = codes.ITM_GD_CTR_TP_CD.map((v) => v.codeId);
-      //     const codeNm = codes.ITM_GD_CTR_TP_CD.map((v) => v.codeName);
-      //     return { editor: { type: 'list', labels: codeNm, values: code } };
-      //   }
-      //   const codeId = codes.MAT_STOC_STAT_CTR_CD.map((v) => v.codeId);
-      //   const codeNm = codes.MAT_STOC_STAT_CTR_CD.map((v) => v.codeName);
-      //   return { editor: { type: 'list', labels: codeNm, values: codeId } };
-      // },
     },
     { fieldName: 'ctrWkDt', header: t('MSG_TXT_STAT_CTR_WK_D'), styleName: 'text-center', width: '150', datetimeFormat: 'date' },
     { fieldName: 'statCtrApyDt', header: t('MSG_TXT_CTR_APY_DT'), styleName: 'text-center', width: '150', datetimeFormat: 'date' },
@@ -608,7 +566,10 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
     },
     { fieldName: 'itmPdNm',
-      header: t('MSG_TXT_ITM_NM'),
+      header: {
+        text: t('MSG_TXT_ITM_NM'),
+        styleName: 'essential',
+      },
       styleName: 'text-center',
       width: '200',
       editable: true,
@@ -634,21 +595,12 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       width: '99',
       editable: true,
-      // styleCallback: (grid, dataCell) => {
-      //   // eslint-disable-next-line max-len
-      //   const { bfctNomStocAGdQty, bfctNomStocEGdQty, bfctNomStocRGdQty, bfctItmGdCd, afctItmGdCd }
-      //  = grid.getValues(dataCell.index.itemIndex);
-      //   // eslint-disable-next-line max-len
-      //   if (!isEmpty(bfctNomStocAGdQty) && !isEmpty(bfctNomStocEGdQty)
-      // && !isEmpty(bfctNomStocRGdQty) && !isEmpty(bfctItmGdCd) && !isEmpty(afctItmGdCd)) {
-      //     return { editable: true };
-      //   }
-      //   return { editable: false };
-      // },
-
     },
     { fieldName: 'itmGdCtrRsonNm',
-      header: t('MSG_TXT_CTR_RSON'),
+      header: {
+        text: t('MSG_TXT_CTR_RSON'),
+        styleName: 'essential',
+      },
       styleName: 'text-left',
       width: '99',
       editable: true,
@@ -699,10 +651,6 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
     const { itmGdCtrTpNm } = grid.getValues(itemIndex);
-    console.log(itmGdCtrTpNm);
-    console.log(row);
-    console.log(field);
-    console.log(codes.ITM_GD_CTR_TP_CD);
 
     const changedFieldName = grid.getDataSource().getOrgFieldName(field);
 
@@ -710,10 +658,8 @@ const initGrdMain = defineGrid((data, view) => {
       if (['11', '12', '16', '21', '26', '31', '36'].includes(itmGdCtrTpNm)) {
         // eslint-disable-next-line max-len
         const itmGdCtrTpCd03 = codes.ITM_GD_CTR_TP_CD.filter((v) => (v.codeId === itmGdCtrTpNm)).map((v) => v.userDfn03);
-        console.log(itmGdCtrTpCd03);
         // eslint-disable-next-line max-len
         const itmGdCtrTpCd04 = codes.ITM_GD_CTR_TP_CD.filter((v) => (v.codeId === itmGdCtrTpNm)).map((v) => v.userDfn04);
-        console.log(itmGdCtrTpCd04);
         grid.setValue(itemIndex, 'bfctItmGdCd', itmGdCtrTpCd03);
         grid.setValue(itemIndex, 'afctItmGdCd', itmGdCtrTpCd04);
       } else {
@@ -735,14 +681,8 @@ const initGrdMain = defineGrid((data, view) => {
       await fetchItmQty(grid, itemIndex, itmPdCd);
     } else if (changedFieldName === 'ctrQty') {
       const { ctrQty, bfctNomStocAGdQty, bfctNomStocEGdQty, bfctNomStocRGdQty,
-        bfctItmGdCd, afctItmGdCd } = grid.getValues(itemIndex);
+        bfctItmGdCd } = grid.getValues(itemIndex);
 
-      console.log(ctrQty);
-      console.log(bfctNomStocAGdQty);
-      console.log(bfctNomStocEGdQty);
-      console.log(bfctNomStocRGdQty);
-      console.log(bfctItmGdCd);
-      console.log(afctItmGdCd);
       let chk = 0;
       if (bfctItmGdCd === 'A' || isEmpty(bfctItmGdCd)) {
         if (Number(bfctNomStocAGdQty) < Number(ctrQty)) {

@@ -33,7 +33,7 @@
           <kw-option-group
             v-model="searchParams.feeSchdTpCd"
             type="radio"
-            :options="codes.EGER_AW_DV_CD"
+            :options="egerAwDvCd"
           />
         </kw-search-item>
         <kw-search-item
@@ -176,7 +176,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService, codeUtil } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useGlobal, useDataService, codeUtil, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
@@ -186,7 +186,7 @@ const { modal, notify, confirm, alert } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-// const { hasRoleNickName } = useMeta();
+const { hasRoleNickName } = useMeta();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // ------------------------------------------------------------------------------------------------
@@ -203,6 +203,14 @@ const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
   'EGER_AW_DV_CD',
 );
+
+// 센터장 권한일 때는 직책수당 숨김
+let egerAwDvCd;
+if (hasRoleNickName('ROL_W6010')) {
+  egerAwDvCd = codes.EGER_AW_DV_CD.filter((v) => ['601'].includes(v.codeId));
+} else {
+  egerAwDvCd = codes.EGER_AW_DV_CD.filter((v) => ['601', '602'].includes(v.codeId));
+}
 
 // 조회조건
 const searchParams = ref({
@@ -588,7 +596,14 @@ const initEgerMain = defineGrid((data, view) => {
     { fieldName: 'baseYm', header: t('MSG_TXT_PERF_YM'), width: '146', styleName: 'text-left', visible: false },
     { fieldName: 'ogId', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
     { fieldName: 'ogCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-left', visible: false },
-    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-center', editable: false },
+    { fieldName: 'ogNm',
+      header: t('MSG_TXT_CENTER_DIVISION'),
+      width: '146',
+      styleName: 'text-center',
+      editable: false,
+      headerSummary: {
+        text: t('MSG_TXT_SUM'),
+      } },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center', editable: false },
     { fieldName: 'pstnDvNm', header: t('MSG_TXT_CRLV'), width: '126', styleName: 'text-center', editable: false },
@@ -596,77 +611,556 @@ const initEgerMain = defineGrid((data, view) => {
     // 현장수당정보
     // 방문처리실적
     // 설치작업
-    { fieldName: 'perfW06p00001', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060001', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060002', header: t('MSG_TXT_RGLVL_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'perfW06p00001',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060001',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060002',
+      header: t('MSG_TXT_RGLVL_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 정기B/S작업
-    { fieldName: 'perfW06p00004', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060003', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060004', header: t('MSG_TXT_RGLVL_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'perfW06p00004',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060003',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060004',
+      header: t('MSG_TXT_RGLVL_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 일반A/S
-    { fieldName: 'perfW06p00005', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060005', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060006', header: t('MSG_TXT_RGLVL_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'perfW06p00005',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060005',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060006',
+      header: t('MSG_TXT_RGLVL_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 동행처리
-    { fieldName: 'perfW06p00006', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060007', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060008', header: t('MSG_TXT_RGLVL_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'perfW06p00006',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060007',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060008',
+      header: t('MSG_TXT_RGLVL_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 합계
-    { fieldName: 'totPerfVisit', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'totFeeVisit', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'totRglvlFeeVisit', header: t('MSG_TXT_RGLVL_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'totPerfVisit',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'totFeeVisit',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'totRglvlFeeVisit',
+      header: t('MSG_TXT_RGLVL_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 생산성인센티브
-    { fieldName: 'perfW06p00007', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060009', header: t('MSG_TXT_DSB_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'perfW06p00007',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060009',
+      header: t('MSG_TXT_DSB_AMT'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 입고수리실적
     // 스케일링
-    { fieldName: 'perfW06p00008', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060010', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'perfW06p00008',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060010',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 일반수리
-    { fieldName: 'perfW06p00009', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060011', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'perfW06p00009',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060011',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 경수리
-    { fieldName: 'perfW06p00010', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060012', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'perfW06p00010',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060012',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 중수리
-    { fieldName: 'perfW06p00025', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060017', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'perfW06p00025',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060017',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 아웃소싱
-    { fieldName: 'perfW06p00015', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060018', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'perfW06p00015',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060018',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 합계
-    { fieldName: 'totPerfRpr', header: t('MSG_TXT_WK_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'totFeeRpr', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'totPerfRpr',
+      header: t('MSG_TXT_WK_PERF'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'totFeeRpr',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
 
-    { fieldName: 'totFee', header: `${t('MSG_TXT_CTR_BF')} ${t('MSG_TXT_AW')}${t('MSG_TXT_SUM')}`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'totAfFee', header: `${t('MSG_TXT_CTR_AF')} ${t('MSG_TXT_AW')}${t('MSG_TXT_SUM')}`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'totFee',
+      header: `${t('MSG_TXT_CTR_BF')} ${t('MSG_TXT_AW')}${t('MSG_TXT_SUM')}`,
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'totAfFee',
+      header: `${t('MSG_TXT_CTR_AF')} ${t('MSG_TXT_AW')}${t('MSG_TXT_SUM')}`,
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
 
     // 부가수당정보
-    { fieldName: 'feeW060019', header: t('MSG_TXT_SUPPORT') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060020', header: t('MSG_TXT_ETC') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060021', header: `${t('MSG_TXT_REQD')}/${t('MSG_TXT_WDWL')}${t('MSG_TXT_AW')}`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'feeW060019',
+      header: t('MSG_TXT_SUPPORT') + t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060020',
+      header: t('MSG_TXT_ETC') + t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060021',
+      header: `${t('MSG_TXT_REQD')}/${t('MSG_TXT_WDWL')}${t('MSG_TXT_AW')}`,
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 판매권유수당
-    { fieldName: 'feeW060022', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'feeW060022',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 토요근무수당
     // perfW06P00018: AS-IS 실적건수로 가져왔지만 TO-BE 에서 수당 계산을 위해 계산식으로 가져온 출동건을 사용함.
-    { fieldName: 'feeW060023Cnt', header: '출동건', width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060023', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'feeW060023Cnt',
+      header: '출동건',
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060023',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 휴무당직수당
-    { fieldName: 'feeW060024Cnt', header: '출동건', width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060024', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'feeW060024Cnt',
+      header: '출동건',
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060024',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 강의수당
-    { fieldName: 'feeW060025Cnt', header: t('MSG_TXT_LECTR_HH'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060025', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'feeW060025Cnt',
+      header: t('MSG_TXT_LECTR_HH'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060025',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 도서방문수당
-    { fieldName: 'feeW060026Cnt', header: t('MSG_TXT_VST_DC'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'feeW060026', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'feeW060026Cnt',
+      header: t('MSG_TXT_VST_DC'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060026',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 기술숙련수당
-    { fieldName: 'feeW060027', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
+    { fieldName: 'feeW060027',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     // 조장수당
-    { fieldName: 'feeW060028', header: t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'totFeeEtc', header: t('MSG_TXT_ADN_AW_SUM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'dsbOjAmt', header: t('MSG_TXT_DSB_OJ') + t('MSG_TXT_AW') + t('MSG_TXT_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', editable: false },
-    { fieldName: 'cnrAwCnfmDtm', header: t('MSG_TXT_CNR_CNFM_DT'), width: '180', styleName: 'text-center', datetimeFormat: 'date', editable: false },
+    { fieldName: 'feeW060028',
+      header: t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'totFeeEtc',
+      header: t('MSG_TXT_ADN_AW_SUM'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'dsbOjAmt',
+      header: t('MSG_TXT_DSB_OJ') + t('MSG_TXT_AW') + t('MSG_TXT_AMT'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'cnrAwCnfmDtm',
+      header: t('MSG_TXT_CNR_CNFM_DT'),
+      width: '180',
+      styleName: 'text-center',
+      datetimeFormat: 'date',
+      editable: false,
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
     { fieldName: 'note', header: t('MSG_TXT_NOTE'), width: '180', styleName: 'text-center', editable: false },
     { fieldName: 'editYn', header: t('MSG_TXT_MDFC_PSB_YN'), width: '180', styleName: 'text-center', visible: false },
     { fieldName: 'empCnt', header: t('MSG_TXT_PPL_N'), width: '180', styleName: 'text-center', visible: false },
@@ -787,6 +1281,17 @@ const initEgerMain = defineGrid((data, view) => {
     'dsbOjAmt', 'cnrAwCnfmDtm', 'note', 'editYn', 'empCnt',
   ]);
 
+  // 헤더쪽 합계 행고정, summary
+  view.layoutByColumn('ogNm').summaryUserSpans = [{ colspan: 5 }];
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        height: 40,
+      },
+    ],
+  });
+
   // 값 수정시 수당 자동 계산
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
     grid.commit(true);
@@ -847,16 +1352,54 @@ const initEgerMain = defineGrid((data, view) => {
 
 const initEgerMnger = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'ogId', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-center', visible: false },
+    { fieldName: 'ogId',
+      header: t('MSG_TXT_CENTER_DIVISION'),
+      width: '146',
+      styleName: 'text-center',
+      visible: false,
+    },
     { fieldName: 'ogCd', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-center', visible: false },
-    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '146', styleName: 'text-center' },
+    { fieldName: 'ogNm',
+      header: t('MSG_TXT_CENTER_DIVISION'),
+      width: '146',
+      styleName: 'text-center',
+      headerSummary: {
+        text: t('MSG_TXT_SUM'),
+      } },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '94', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '126', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'pstnDvNm', header: t('MSG_TXT_CRLV'), width: '86', styleName: 'text-center' },
-    { fieldName: 'feeW060031', header: t('MSG_TXT_OUTC_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'feeW060032', header: t('MSG_TXT_QLF') + t('MSG_TXT_AW'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'totFee', header: t('MSG_TXT_AW') + t('MSG_TXT_SUM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'feeW060031',
+      header: t('MSG_TXT_OUTC_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'feeW060032',
+      header: t('MSG_TXT_QLF') + t('MSG_TXT_AW'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
+    { fieldName: 'totFee',
+      header: t('MSG_TXT_AW') + t('MSG_TXT_SUM'),
+      width: '180',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      headerSummary: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+      } },
 
   ];
 
@@ -866,6 +1409,17 @@ const initEgerMnger = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+
+  // 헤더쪽 합계 행고정, summary
+  view.layoutByColumn('ogNm').summaryUserSpans = [{ colspan: 5 }];
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        height: 40,
+      },
+    ],
+  });
 
   // multi row header setting
   view.setColumnLayout([

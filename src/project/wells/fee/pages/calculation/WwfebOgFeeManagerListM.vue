@@ -255,6 +255,22 @@ const saveInfo = ref({
 let cachedParams;
 
 /*
+ *  Event - 조회 후 상단 title 변경
+ */
+async function setTitle() {
+  const { perfYm, rsbTpCd } = searchParams.value;
+  searchParams.value.statTitleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
+  if (rsbTpCd !== '') {
+    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTpCd);
+    searchParams.value.rsbTpTxt = codeName;
+    searchParams.value.statTitleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
+  } else {
+    searchParams.value.rsbTpTxt = '';
+    searchParams.value.statTitleText += ` ${t('MSG_TXT_PRGS_STE')}`;
+  }
+}
+
+/*
  *  Event - 그리드 내역 초기화
  */
 
@@ -262,8 +278,8 @@ async function initData() {
   const view = grdMainRef.value.getData();
   view.clearRows();
   totalCount.value = 0;
-  searchParams.value.statTitle = t('MSG_TXT_PRGS_STE');
   stepNaviRef.value.initProps();
+  await setTitle();
 }
 
 /*
@@ -329,22 +345,6 @@ async function onChangedRsbTp() {
 }
 
 /*
- *  Event - 조회 후 상단 title 변경
- */
-async function setTitle() {
-  const { perfYm, rsbTpCd } = searchParams.value;
-  searchParams.value.statTitleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
-  if (rsbTpCd !== '') {
-    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTpCd);
-    searchParams.value.rsbTpTxt = codeName;
-    searchParams.value.statTitleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
-  } else {
-    searchParams.value.rsbTpTxt = '';
-    searchParams.value.statTitleText += ` ${t('MSG_TXT_PRGS_STE')}`;
-  }
-}
-
-/*
  *  Event - 조회 버튼 클릭
  */
 
@@ -375,7 +375,6 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(mngerFees);
-  await setTitle();
 }
 
 async function onClickSearch() {
@@ -887,7 +886,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'bizRgst4Artc', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'metgDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' },
     { fieldName: 'qlf1Atc', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'qlf2Atc', header: 'M+1', width: '91.4', styleName: 'text-center' },
+    { fieldName: 'qlf2Atc', header: 'M+1', width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'edu1Atc', header: '스타트업', width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'edu2Atc', header: 'Pre스타트업', width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'edu3Atc', header: '보수', width: '91.4', styleName: 'text-center' },
@@ -1105,7 +1104,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'prfmtNmn', header: '승진차월', width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'metgDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' },
     { fieldName: 'qlf1Atc', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'qlf2Atc', header: 'M+1', width: '91.4', styleName: 'text-center' },
+    { fieldName: 'qlf2Atc', header: 'M+1', width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'edu1Atc', header: '지점온라인', width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'indv1BsAtc', header: '배정건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv2BsAtc', header: '완료건수', width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
@@ -1262,8 +1261,8 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'bizRgst2Artc' },
     { fieldName: 'bizRgst3Artc' },
     { fieldName: 'bizRgst4Artc' },
-    { fieldName: 'prfmtMm', header: '승진월', width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'prfmtNmn', header: '승진차월', width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'prfmtMm' },
+    { fieldName: 'prfmtNmn' },
     { fieldName: 'metgDc' },
     { fieldName: 'qlf1Atc' },
     { fieldName: 'qlf2Atc' },
@@ -1358,7 +1357,7 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'prfmtNmn', header: '승진차월', width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'metgDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' },
     { fieldName: 'qlf1Atc', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'qlf2Atc', header: 'M+1', width: '91.4', styleName: 'text-center' },
+    { fieldName: 'qlf2Atc', header: 'M+1', width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'edu1Atc', header: '스타트업', width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'edu2Atc', header: 'Pre스타트업', width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'edu3Atc', header: '보수', width: '91.4', styleName: 'text-center' },

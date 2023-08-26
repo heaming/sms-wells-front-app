@@ -51,10 +51,10 @@
           :label="$t('MSG_TXT_ITM_NM')"
         >
           <kw-select
-            v-model="searchParams.pdCd"
+            v-model="searchParams.lgstWkMthdCd"
             :options="products"
             option-label="pdName"
-            option-value="pdCode"
+            option-value="lgstWkMthdCd"
           />
         </kw-search-item>
         <!-- 처리구분 -->
@@ -171,7 +171,7 @@ let cachedParams;
 const searchParams = ref({
   delvWareNo: '100002', // 파주물류센터
   asnYm: now.format('YYYYMM'), // 배정년월
-  pdCd: '',
+  lgstWkMthdCd: '',
   procsDvCd: '', // 처리구분
   sppDvCd: 'A1', // 자가필터 배송구분코드
   rownum: '',
@@ -189,8 +189,10 @@ const pageInfo = ref({
 const delvWares = [{ delvWareNo: '100002', delvWareNm: '파주물류센터' }];
 const products = ref([]);
 products.value = (await dataService.get('/sms/wells/service/bs-regular-shipping/products', { params: searchParams.value })).data;
-searchParams.value.pdCd = products.value[0].pdCode;
+searchParams.value.lgstWkMthdCd = products.value[0].lgstWkMthdCd;
 const isPaging = ref(true);
+const lgstWkMthdCd = ref();
+const cntLgstWkMthdCd = ref();
 
 async function onChangeAsnYm() {
   products.value = (await dataService.get('/sms/wells/service/bs-regular-shipping/products', { params: searchParams.value })).data;
@@ -213,10 +215,15 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.clearCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
-  searchParams.value.pgGb = (products.value.filter((v) => v.pdCode === searchParams.value.pdCd))[0].pgGb;
+  const product = (products.value.filter((v) => v.lgstWkMthdCd === searchParams.value.lgstWkMthdCd))[0];
+  searchParams.value.pgGb = product.pgGb;
+  // 조회당시값 저장
+  lgstWkMthdCd.value = product.lgstWkMthdCd;
+  cntLgstWkMthdCd.value = product.cntLgstWkMthdCd;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -240,6 +247,11 @@ async function onClickConfirm() {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
+  if (cntLgstWkMthdCd > 1) {
+    notify('잘못된 매핑이 존재합니다. 시스템 담당자에게 문의하시길 바랍니다.');
+    return;
+  }
+  chkRows[0].lgstWkMthdCd = lgstWkMthdCd.value;
   await dataService.post('/sms/wells/service/bs-regular-shipping', chkRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -339,7 +351,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: ' sppDvCd' },
     { fieldName: ' sppPdCd' },
     { fieldName: ' procsDvCd' },
-    { fieldName: ' sppPdNm' },
+    // { fieldName: ' sppPdNm' },
     { fieldName: ' partNmQty01' },
     { fieldName: ' partNmQty02' },
     { fieldName: ' partNmQty03' },
@@ -352,6 +364,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: ' partNmQty10' },
     { fieldName: 'cstNo' },
     { fieldName: 'pdGroupCd' },
+    { fieldName: 'lgstWkMthdCd' },
+    { fieldName: 'mpacSn' },
   ];
 
   const columns = [
@@ -969,6 +983,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   const f = function checked(dataSource, item) {
+    // console.log(data.getValue(item.dataRow, 'ppVstPrgsStatCd'));
     if ((data.getValue(item.dataRow, 'ppVstPrgsStatCd') === '00') || (data.getValue(item.dataRow, 'ppVstPrgsStatCd') === '10')) {
       return true;
     }

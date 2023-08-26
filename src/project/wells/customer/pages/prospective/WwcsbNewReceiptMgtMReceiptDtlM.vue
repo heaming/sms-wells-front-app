@@ -173,16 +173,15 @@
               <slot v-if="currentJobType === 'ASGN'">
                 <kw-btn
                   :label="$t('MSG_BTN_CANCEL')"
-                  class="ml8"
                   secondary
                   dense
                   @click="onClickCancel"
                 />
                 <kw-btn
-                  primary
                   :label="$t('MSG_BTN_SAVE')"
-                  class="ml8"
+                  primary
                   dense
+                  class="ml8"
                   @click="onClickSave"
                 />
               </slot>

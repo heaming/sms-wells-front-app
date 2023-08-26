@@ -250,6 +250,23 @@ async function onClickSearchNo() {
 }
 
 /*
+ *  Event - 조회 후 상단 title 변경
+ */
+async function setTitle() {
+  const { perfYm } = searchParams.value;
+  const { rsbTpCd } = searchParams.value;
+  searchParams.value.statTitleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
+  if (rsbTpCd !== '') {
+    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTpCd);
+    searchParams.value.rsbTpTxt = codeName;
+    searchParams.value.statTitleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
+  } else {
+    searchParams.value.rsbTpTxt = '';
+    searchParams.value.statTitleText += ` ${t('MSG_TXT_PRGS_STE')}`;
+  }
+}
+
+/*
  *  Event - 그리드 내역 초기화
  */
 
@@ -257,9 +274,9 @@ async function initData() {
   const view = grdMainRef.value.getData();
   view.clearRows();
   totalCount.value = 0;
-  searchParams.value.statTitleText = t('MSG_TXT_PRGS_STE');
   stepNaviRef.value.initProps();
   isExcelDown.value = false;
+  await setTitle();
 }
 
 /*
@@ -329,23 +346,6 @@ async function onClickExcelDownload() {
 }
 
 /*
- *  Event - 조회 후 상단 title 변경
- */
-async function setTitle() {
-  const { perfYm } = searchParams.value;
-  const { rsbTpCd } = searchParams.value;
-  searchParams.value.statTitleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
-  if (rsbTpCd !== '') {
-    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTpCd);
-    searchParams.value.rsbTpTxt = codeName;
-    searchParams.value.statTitleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
-  } else {
-    searchParams.value.rsbTpTxt = '';
-    searchParams.value.statTitleText += ` ${t('MSG_TXT_PRGS_STE')}`;
-  }
-}
-
-/*
  *  Event - 그리드 조회
  */
 async function fetchData() {
@@ -371,7 +371,6 @@ async function fetchData() {
   }
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(plarFees);
-  await setTitle();
 }
 
 /*

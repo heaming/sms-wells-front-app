@@ -269,6 +269,7 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'CPS_PRGS_CD',
   'IMPTA_RSON_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 const searchOptions = [
   { codeId: '1', codeName: t('MSG_TXT_FST_RGST_DT') }, // 등록일자
@@ -508,7 +509,6 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       displayCallback: (grid, index) => {
         const { acdnDtm } = grid.getValues(index.itemIndex);
-        console.log(acdnDtm);
         return stringUtil.getDatetimeFormat(acdnDtm);
       },
     },
@@ -632,11 +632,12 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.exclusive = true; // 한 행만 체크 가능.
   view.rowIndicator.visible = true; // create number indicator column
 
-  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    if (column === 'cntrNo') {
-      const cntrNo = grid.getValues(itemIndex, 'cntrNo');
-      const cntrSn = grid.getValues(itemIndex, 'cntrSn');
-
+  view.onCellItemClicked = async (grid, index) => {
+    if (index.column === 'cntrNo') {
+      const cntrNo = grid.getValue(index.itemIndex, 'cntrNo');
+      const cntrSn = grid.getValue(index.itemIndex, 'cntrSn');
+      console.log(`cntrNo : ${cntrNo}`);
+      // console.log(cntrSn);
       router.push({
         path: '/service/wwsnb-individual-service-list',
         query: {

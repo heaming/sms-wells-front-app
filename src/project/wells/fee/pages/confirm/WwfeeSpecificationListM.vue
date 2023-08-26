@@ -108,14 +108,14 @@
           dense
           secondary
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')+'('+t('MSG_TXT_HDOF')+')'"
-          @click="onClickOzReportCenter"
+          @click="onClickOzReport('tot')"
         />
         <!-- 지급명세서 출력-->
         <kw-btn
           dense
           secondary
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
-          @click="onClickOzReport"
+          @click="onClickOzReport()"
         />
       </kw-action-top>
       <kw-grid
@@ -231,18 +231,57 @@ async function onClickExcelDownload() {
 }
 
 // 지급명세서 출력
-function onClickOzReport() {
+function onClickOzReport(div) {
   let _ozrPath = '';
   let _odiPath = '';
-  if (searchParams.value.ogTpCd === 'W01') { // P추진단
-    _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.ozr';
-    _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.odi';
-  } else if (searchParams.value.ogTpCd === 'W02') { // M추진단
-    _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.ozr';
-    _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.odi';
-  } else if (searchParams.value.ogTpCd === 'W03') { // 홈마스터
-    _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.ozr';
-    _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.odi';
+
+  if (searchParams.value.rsbDvCd === 'W0105') { // P추진단 - 플래너
+    if (div === 'tot') { // 본사 -- 총계
+      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_01.ozr'; //
+      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_01.odi'; //
+    } else {
+      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.ozr'; //
+      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.odi'; //
+    }
+  } else if (searchParams.value.rsbDvCd === 'W0104') { // P 추진단 - 지점장
+    if (div === 'tot') { // 본사 -- 총계
+
+    } else {
+      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_04.ozr'; //
+      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_04.odi'; //
+    }
+  } else if (searchParams.value.rsbDvCd === 'W0205') { // M추진단 - 플래너
+    if (div === 'tot') { // 본사 -- 총계
+      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_01.ozr'; //
+      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_01.odi'; //
+    } else {
+      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.ozr'; //
+      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.odi'; //
+    }
+  } else if (searchParams.value.rsbDvCd === 'W0204') { // M 추진단 - 지점장
+    if (div === 'tot') { // 본사 -- 총계
+      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_03.odi'; //
+      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_03.odi'; //
+    } else {
+      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_04.odi'; //
+      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_04.odi'; //
+    }
+  } else if (searchParams.value.rsbDvCd === 'W0302') { // 홈마스터
+    if (div === 'tot') {
+      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1_sum.ozr'; //
+      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1_sum.odi'; //
+    } else {
+      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.ozr'; //
+      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.odi'; //
+    }
+  } else if (searchParams.value.rsbDvCd === 'W0301') { // 홈마스터 - 지점장
+    if (div === 'tot') {
+      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2_sum.ozr'; //
+      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2_sum.odi'; //
+    } else {
+      _ozrPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2.ozr'; //
+      _odiPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2.odi'; //
+    }
   }
 
   const ozParam = {
@@ -275,10 +314,6 @@ function onClickOzReport() {
     JSON.stringify(ozParam.args),
     { width: 1100, height: 1200 },
   );
-}
-// 지급명세서 출력(본사)
-function onClickOzReportCenter() {
-  onClickOzReport();
 }
 
 async function onChangeOgTpCd() {

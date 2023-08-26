@@ -222,8 +222,9 @@ let cachedParams;
 /* 상품그룹 조회 */
 const pdNm = ref([]);
 const onChangeHgrPdCd = async () => {
-  pdNm.value = await getPartMaster('4', searchParams.value.hgrPdCd, 'M');
+  pdNm.value = await getPartMaster('4', searchParams.value.hgrPdCd);
   searchParams.value.pdNm = '';
+  searchParams.value.pdCd = '';
 };
 
 const isHgrPdCd = ref(false);
@@ -253,6 +254,11 @@ async function fetchData() {
   const { list: recapitalizationAsSvCs, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
+  // if (pageInfo.value.totalCount === 0) {
+  //   pageInfo.value.pageSize = 10;
+  // } else {
+  //   pageInfo.value.pageSize = Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'));
+  // }
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(recapitalizationAsSvCs);

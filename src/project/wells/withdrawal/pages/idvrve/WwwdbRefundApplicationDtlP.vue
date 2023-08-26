@@ -151,7 +151,7 @@
         >
           <kw-select
             v-model="saveParams.bankCode"
-            :options="codes.BNK_CD"
+            :options="codes.CSH_RFND_FNIT_CD"
           />
         </kw-form-item>
       </kw-form-row>
@@ -217,16 +217,16 @@
         </p>
       </template>
       <!-- 삭제 -->
-      <kw-btn
+      <!-- <kw-btn
         :label="$t('MSG_BTN_DEL')"
         grid-action
         @click="onClickRfndDelete"
-      />
-      <kw-separator
+      /> -->
+      <!-- <kw-separator
         spaced
         vertical
         inset
-      />
+      /> -->
       <!-- 엑셀다운로드 -->
       <kw-btn
         icon="download_on"
@@ -263,60 +263,68 @@
       <!-- 처리정보 -->
       {{ $t('MSG_TXT_PCS_INF') }}
     </h3>
-    <kw-form>
-      <kw-form-row>
-        <!-- 수납일자 -->
-        <kw-form-item
-          :label="$t('MSG_TXT_RVE_DT')"
-          required
-        >
-          <kw-date-picker
-            v-model="saveParams.rveDt"
-            rules="required"
-          />
-        </kw-form-item>
-        <!-- 실적일자 -->
-        <kw-form-item
-          :label="$t('MSG_TXT_PERF_DT')"
-          required
-        >
-          <kw-date-picker
-            v-model="saveParams.perfDt"
-            rules="required"
-          />
-        </kw-form-item>
-        <!-- 지급일자-->
-        <kw-form-item
-          :label="$t('MSG_TXT_DSB_DT')"
-        >
-          <kw-date-picker
-            v-model="saveParams.dsbDt"
-          />
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <!-- 처리구분 -->
-        <kw-form-item
-          :label="$t('MSG_TXT_PROCS_DV')"
-          required
-        >
-          <kw-select
-            v-model="saveParams.procsDv"
-            :options="codes.RFND_AK_STAT_CD.filter((v) => v.codeId === '03' || v.codeId === '99')"
-            rules="required"
-          />
-        </kw-form-item>
-        <!-- 처리내용 -->
-        <kw-form-item
-          :label="$t('MSG_TXT_PROCS_CN')"
-          colspan="2"
-        >
-          <kw-input
-            v-model="saveParams.procsCn"
-          />
-        </kw-form-item>
-      </kw-form-row>
-    </kw-form>
+    <kw-observer ref="obsRef">
+      <kw-form>
+        <kw-form-row>
+          <!-- 수납일자 -->
+          <kw-form-item
+            :label="$t('MSG_TXT_RVE_DT')"
+            required
+          >
+            <kw-date-picker
+              v-model="saveParams.rveDt"
+              :label="$t('MSG_TXT_RVE_DT')"
+              rules="required"
+            />
+          </kw-form-item>
+          <!-- 실적일자 -->
+          <kw-form-item
+            :label="$t('MSG_TXT_PERF_DT')"
+            required
+          >
+            <kw-date-picker
+              v-model="saveParams.perfDt"
+              :label="$t('MSG_TXT_PERF_DT')"
+              rules="required"
+            />
+          </kw-form-item>
+          <!-- 지급일자-->
+          <kw-form-item
+            required
+            :label="$t('MSG_TXT_DSB_DT')"
+          >
+            <kw-date-picker
+              v-model="saveParams.dsbDt"
+              :label="$t('MSG_TXT_DSB_DT')"
+              rules="required"
+            />
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <!-- 처리구분 -->
+          <kw-form-item
+            :label="$t('MSG_TXT_PROCS_DV')"
+            required
+          >
+            <kw-select
+              v-model="saveParams.procsDv"
+              :label="$t('MSG_TXT_PROCS_DV')"
+              :options="codes.RFND_AK_STAT_CD.filter((v) => v.codeId === '03' || v.codeId === '99')"
+              rules="required"
+            />
+          </kw-form-item>
+          <!-- 처리내용 -->
+          <kw-form-item
+            :label="$t('MSG_TXT_PROCS_CN')"
+            colspan="2"
+          >
+            <kw-input
+              v-model="saveParams.procsCn"
+            />
+          </kw-form-item>
+        </kw-form-row>
+      </kw-form>
+    </kw-observer>
     <template #action>
       <!-- 저장 -->
       <kw-btn
@@ -336,14 +344,16 @@
 // eslint-disable-next-line no-unused-vars
 import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
-import { isEqual } from 'lodash-es';
+import { isEqual, isEmpty, cloneDeep } from 'lodash-es';
 // eslint-disable-next-line no-unused-vars
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 // eslint-disable-next-line no-unused-vars
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
-// import dayjs from 'dayjs';
+import dayjs from 'dayjs';
 
 const { currentRoute } = useRouter();
+const now = dayjs();
+const { confirm } = useGlobal();
 
 const props = defineProps({
   rfndAkStatCd: {
@@ -408,6 +418,7 @@ const grdPopRef1 = ref();
 const grdPopRef2 = ref();
 const grdPopRef3 = ref();
 const grdPopRef4 = ref();
+const obsRef = ref();
 const dataService = useDataService();
 const { ok } = useModal();
 
@@ -418,18 +429,18 @@ const saveParams = ref({
   cstNm: '', // 예금주
 
   /* 처리정보(환불정보) */
-  rveDt: '',
-  perfDt: '',
-  dsbDt: '',
-  procsDv: 'ALL',
+  rveDt: now.format('YYYYMMDD'),
+  perfDt: now.format('YYYYMMDD'),
+  dsbDt: now.format('YYYYMMDD'),
+  procsDv: '03',
   procsCn: '',
-
+  rfndAkNo: '',
 });
 
 // eslint-disable-next-line no-unused-vars
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS', //
-  'BNK_CD', // 은행코드
+  'CSH_RFND_FNIT_CD', // 은행코드
   /* 계약상세 */
   'COPN_DV_CD', // 고객유형: 1.개인, 2.법인
   'SELL_TP_CD', // 판매유형
@@ -444,6 +455,7 @@ const codes = await codeUtil.getMultiCodes(
 
   /* 처리구분(환불구분) */
   'RFND_AK_STAT_CD', // 환불구분
+  'RVE_DV_CD', // 수납구분코드
 );
 
 let cachedParams;
@@ -489,11 +501,11 @@ async function fetchData() {
   saveParams.value.arfndYn = res.data.arfndYn;
   saveParams.value.acnoEncr = res.data.cshRfndAcnoEncr;
   saveParams.value.bankCode = res.data.cshRfndFnitCd;
-  saveParams.value.cstNm = res.data.cshRfndAcownNm;
-  saveParams.value.rveDt = res.data.rfndRveDt;
-  saveParams.value.perfDt = res.data.rfndPerfDt;
-  saveParams.value.dsbDt = res.data.rfndDsbDt;
-  saveParams.value.procsDv = res.data.rfndProcsDvCd;
+  saveParams.value.cstNm = isEmpty(res.data.cshRfndAcownNm) ? '' : res.data.cshRfndAcownNm;
+  saveParams.value.rveDt = isEmpty(res.data.rfndRveDt) ? now.format('YYYYMMDD') : res.data.rfndRveDt;
+  saveParams.value.perfDt = isEmpty(res.data.rfndPerfDt) ? now.format('YYYYMMDD') : res.data.rfndPerfDt;
+  saveParams.value.dsbDt = isEmpty(res.data.rfndDsbDt) ? now.format('YYYYMMDD') : res.data.rfndDsbDt;
+  saveParams.value.procsDv = isEmpty(res.data.rfndProcsDvCd) ? '03' : res.data.rfndProcsDvCd;
   saveParams.value.procsCn = res.data.rfndProcsCn;
 
   pageInfo3.value = pagingResult3;
@@ -593,116 +605,140 @@ async function onClickEftnCheck() {
   saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
 }
 
-async function onCheckValidate2() {
-  const view2 = grdPopRef2.value.getView();
-  if (!await gridUtil.validate(view2)) { return false; } // 유효성 검사
-  return view2;
-}
-async function onCheckValidate3() {
-  const view3 = grdPopRef3.value.getView();
-  if (pageInfo3.value.totalCount > 0) {
-    if (!await gridUtil.validate(view3)) { return false; } // 유효성 검사
-  }
-  return view3;
-}
-async function cntrValidateView3() {
-  let flag = true;
-  const view3 = grdPopRef3.value.getView();
-  const allView3 = gridUtil.getAllRowValues(view3);
+// async function onCheckValidate2() {
+//   const view2 = grdPopRef2.value.getView();
+//   if (!await gridUtil.validate(view2)) { return false; } // 유효성 검사
+//   return view2;
+// }
+// async function onCheckValidate3() {
+//   const view3 = grdPopRef3.value.getView();
+//   if (pageInfo3.value.totalCount > 0) {
+//     if (!await gridUtil.validate(view3)) { return false; } // 유효성 검사
+//   }
+//   return view3;
+// }
+// async function cntrValidateView3() {
+//   let flag = true;
+//   const view3 = grdPopRef3.value.getView();
+//   const allView3 = gridUtil.getAllRowValues(view3);
 
-  for (let i = 0; i < allView3.length; i += 1) {
-    for (let j = i + 1; j < allView3.length; j += 1) {
-      if (allView3[i].bltfOjCntrDtlNo === allView3[j].bltfOjCntrDtlNo
-           && allView3[i].bltfOjCntrDtlSn === allView3[j].bltfOjCntrDtlSn) {
-        flag = false;
-        // 1. 동일한 전금계약번호가 존재하는경우 (토스트 메시지)
-      }
-    }
-  }
-  return flag;
-}
+//   for (let i = 0; i < allView3.length; i += 1) {
+//     for (let j = i + 1; j < allView3.length; j += 1) {
+//       if (allView3[i].bltfOjCntrDtlNo === allView3[j].bltfOjCntrDtlNo
+//            && allView3[i].bltfOjCntrDtlSn === allView3[j].bltfOjCntrDtlSn) {
+//         flag = false;
+//         // 1. 동일한 전금계약번호가 존재하는경우 (토스트 메시지)
+//       }
+//     }
+//   }
+//   return flag;
+// }
 
-async function onClickRefundAsk(stateCode) {
-  const view1 = grdPopRef1.value.getView();
-  const view2 = await onCheckValidate2();
-  const view3 = await onCheckValidate3();
-  const view4 = grdPopRef4.value.getView();
+// async function onClickRefundAsk(stateCode) {
+//   const view1 = grdPopRef1.value.getView();
+//   const view2 = await onCheckValidate2();
+//   const view3 = await onCheckValidate3();
+//   const view4 = grdPopRef4.value.getView();
 
-  /* TODO: 로컬테스트시, 여기부터 */
-  if (!await onValidRfndCheck()) {
-    return false;
-  }
-  if (saveParams.value.cstNm === '' || saveParams.value.cstNm.trim().length === 0) {
-    notify(t('MSG_ALT_AC_INF_ACHLDR_NM_ERR')); // 입력하신 계좌정보 및 예금주명을 다시 확인해 주세요.(예금주가 없음.)
-    return false;
-  }
+//   /* TODO: 로컬테스트시, 여기부터 */
+//   if (!await onValidRfndCheck()) {
+//     return false;
+//   }
+//   if (saveParams.value.cstNm === '' || saveParams.value.cstNm.trim().length === 0) {
+//     notify(t('MSG_ALT_AC_INF_ACHLDR_NM_ERR')); // 입력하신 계좌정보 및 예금주명을 다시 확인해 주세요.(예금주가 없음.)
+//     return false;
+//   }
 
-  if (!await cntrValidateView3()) {
-    // 계약번호 - 전금계약번호가 동일하거나 , 전금계약상 데이터에 전금계약번호가 동일한경우.
-    notify(t('동일한 전금계약번호가 존재합니다.'));
-    return false;
-  }
+//   if (!await cntrValidateView3()) {
+//     // 계약번호 - 전금계약번호가 동일하거나 , 전금계약상 데이터에 전금계약번호가 동일한경우.
+//     notify(t('동일한 전금계약번호가 존재합니다.'));
+//     return false;
+//   }
 
-  if (pageInfo1.value.totalCount < 1) {
-    notify(t('MSG_TXT_NO_DATA_RM')); // 조회결과가 없습니다. (검색안했을경우 또는 검색결과없는경우);
-    return false;
-  }
+//   if (pageInfo1.value.totalCount < 1) {
+//     notify(t('MSG_TXT_NO_DATA_RM')); // 조회결과가 없습니다. (검색안했을경우 또는 검색결과없는경우);
+//     return false;
+//   }
 
-  if (saveParams.value.rveDt === ''
-   || saveParams.value.perfDt === ''
-   || saveParams.value.procsDv === '') {
-    await notify(t('MSG_ALT_INPUT_COMMON', [t('MSG_TXT_PCS_INF')])); // 처리정보를 입력하세요
-    return false;
-  }
+//   if (saveParams.value.rveDt === ''
+//    || saveParams.value.perfDt === ''
+//    || saveParams.value.procsDv === '') {
+//     await notify(t('MSG_ALT_INPUT_COMMON', [t('MSG_TXT_PCS_INF')])); // 처리정보를 입력하세요
+//     return false;
+//   }
 
-  const changedRows2 = gridUtil.getChangedRowValues(view2); // 환불상세 그리드 데이터
-  const changedRows3 = gridUtil.getChangedRowValues(view3); // 전금상세 그리드 체크 데이터
-  const changedRows4 = gridUtil.getChangedRowValues(view4); // 환불접수총액
+//   const changedRows2 = gridUtil.getChangedRowValues(view2); // 환불상세 그리드 데이터
+//   const changedRows3 = gridUtil.getChangedRowValues(view3); // 전금상세 그리드 체크 데이터
+//   const changedRows4 = gridUtil.getChangedRowValues(view4); // 환불접수총액
 
-  if (changedRows4[0].totRfndEtAmt === 0) {
-    notify(t('MSG_TXT_NO_DATA_FOUND')); // 데이터가 없습니다. (환불요청내역이없을때(0원일시))
-    return false;
-  }
+//   if (changedRows4[0].totRfndEtAmt === 0) {
+//     notify(t('MSG_TXT_NO_DATA_FOUND')); // 데이터가 없습니다. (환불요청내역이없을때(0원일시))
+//     return false;
+//   }
 
-  const checkedRows1 = gridUtil.getCheckedRowValues(view1);
-  checkedRows1.forEach((element) => {
-    element.rfndAkNo = props.rfndAkNo;
-  });
+//   const checkedRows1 = gridUtil.getCheckedRowValues(view1);
+//   checkedRows1.forEach((element) => {
+//     element.rfndAkNo = props.rfndAkNo;
+//   });
 
-  const params = {
-    saveBaseReq: {
-      kwGrpCoCd: '2000',
-      rfndAkNo: props.rfndAkNo,
-      arfndYn: saveParams.value.arfndYn,
-      cshRfndFnitCd: saveParams.value.bankCode,
-      cshRfndAcnoEncr: saveParams.value.acnoEncr,
-      cshRfndAcownNm: saveParams.value.cstNm,
-      rfndCshAkSumAmt: changedRows4[0].rfndCshAkAmt,
-      rfndCardAkSumAmt: changedRows4[0].rfndCardAkAmt,
-      rfndBltfAkSumAmt: changedRows4[0].totRfndBltfAkAmt,
-      crdcdFeeSumAmt: changedRows4[0].totCrdcdFeeAmt,
-      rfndAkStatCd: stateCode,
-      rfndAkPrtnrNo: '',
-      //  rfndProcsDvCd,
-      /* 환불요청기본 추가 될 테이블  */
-      rveDt: saveParams.value.rveDt,
-      perfDt: saveParams.value.perfDt,
-      dsbDt: saveParams.value.dsbDt,
-      rfndProcsDvCd: saveParams.value.procsDv,
-      rfndProcsCn: saveParams.value.procsCn,
+//   const params = {
+//     saveBaseReq: {
+//       kwGrpCoCd: '2000',
+//       rfndAkNo: props.rfndAkNo,
+//       arfndYn: saveParams.value.arfndYn,
+//       cshRfndFnitCd: saveParams.value.bankCode,
+//       cshRfndAcnoEncr: saveParams.value.acnoEncr,
+//       cshRfndAcownNm: saveParams.value.cstNm,
+//       rfndCshAkSumAmt: changedRows4[0].rfndCshAkAmt,
+//       rfndCardAkSumAmt: changedRows4[0].rfndCardAkAmt,
+//       rfndBltfAkSumAmt: changedRows4[0].totRfndBltfAkAmt,
+//       crdcdFeeSumAmt: changedRows4[0].totCrdcdFeeAmt,
+//       rfndAkStatCd: stateCode,
+//       rfndAkPrtnrNo: '',
+//       //  rfndProcsDvCd,
+//       /* 환불요청기본 추가 될 테이블  */
+//       rveDt: saveParams.value.rveDt,
+//       perfDt: saveParams.value.perfDt,
+//       dsbDt: saveParams.value.dsbDt,
+//       rfndProcsDvCd: saveParams.value.procsDv,
+//       rfndProcsCn: saveParams.value.procsCn,
 
-    },
-    saveCntrReqs: checkedRows1,
-    saveDtlReqs: changedRows2,
-    saveBltfReqs: changedRows3,
-  };
-  await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/reg/save', params);
-  notify(t('MSG_ALT_SAVE_DATA'));
-  ok();
+//     },
+//     saveCntrReqs: checkedRows1,
+//     saveDtlReqs: changedRows2,
+//     saveBltfReqs: changedRows3,
+//   };
+//   await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/reg/save', params);
+//   notify(t('MSG_ALT_SAVE_DATA'));
+//   ok();
+// }
+
+async function onSaveValidation() {
+  if (!await obsRef.value.validate()) { return false; }
+
+  return true;
 }
 
 async function onClickSave() {
-  await onClickRefundAsk(saveParams.value.procsDv);
+  // await onClickRefundAsk(saveParams.value.procsDv);
+  if (!await onSaveValidation()) { return false; }
+
+  if (!await confirm('저장하시겠습니까?')) { return false; }
+
+  const view2 = grdPopRef2.value.getView();
+  const view3 = grdPopRef2.value.getView();
+
+  const changedRows2 = gridUtil.getAllRowValues(view2); // 환불상세 그리드 데이터
+  const changedRows3 = gridUtil.getAllRowValues(view3); // 전금상세 그리드 체크 데이터
+
+  const saveParam = {
+    saveBaseReq: cloneDeep(saveParams.value),
+    saveDtlReqs: changedRows2, // 환불상세 그리드 데이터
+    saveBltfReqs: changedRows3, // 전금상세 그리드 데이터
+  };
+
+  await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/reg/approval', saveParam);
+  ok();
 }
 
 onMounted(async () => {
@@ -729,6 +765,8 @@ onMounted(async () => {
     rfndAkNo: props.rfndAkNo,
     rfndAkStatCd: props.rfndAkStatCd,
   };
+
+  saveParams.value.rfndAkNo = props.rfndAkNo;
   await fetchData();
 });
 
@@ -793,11 +831,11 @@ async function onEditRfnd(cntrNo, rveNo, rveSn) {
 }
 
 // 그리드3 - 전금상세 행삭제
-async function onClickRfndDelete() {
-  const view = grdPopRef3.value.getView();
-  await gridUtil.confirmDeleteCheckedRows(view);
-  pageInfo3.value.totalCount = gridUtil.getAllRowValues(view).length;
-}
+// async function onClickRfndDelete() {
+//   const view = grdPopRef3.value.getView();
+//   await gridUtil.confirmDeleteCheckedRows(view);
+//   pageInfo3.value.totalCount = gridUtil.getAllRowValues(view).length;
+// }
 /** *************************************** */
 // 그리드4 (환불접수총액 실시간 계산) - 자동계산 및 기입
 async function onCheckTotalData() {
@@ -825,24 +863,24 @@ async function onCheckTotalData() {
   totRfndAkAmt = temp5;
 }
 // eslint-disable-next-line max-len
-async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo) {
-  const view = grdPopRef3.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, {
-    cntrNo,
-    cntrSn,
-    cntrDtlNo,
-    dpDt,
-    dpMesCd,
-    dpAmt,
-    sellTpCd,
-    rfndBltfAkAmt: Number(0),
-    cstNo,
-    rfndEvidMtrFileNm: '파일찾기',
-    rveNo,
-    rveSn,
-    rfndAkNo,
-  });
-}
+// async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo) {
+//   const view = grdPopRef3.value.getView();
+//   gridUtil.insertRowAndFocus(view, 0, {
+//     cntrNo,
+//     cntrSn,
+//     cntrDtlNo,
+//     dpDt,
+//     dpMesCd,
+//     dpAmt,
+//     sellTpCd,
+//     rfndBltfAkAmt: Number(0),
+//     cstNo,
+//     rfndEvidMtrFileNm: '파일찾기',
+//     rveNo,
+//     rveSn,
+//     rfndAkNo,
+//   });
+// }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -861,7 +899,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_APPL_USER'), width: 'auto', styleName: 'text-center' }, // 신청자
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: 'auto', styleName: 'text-center' }, // 번호
     { fieldName: 'rfndAkDtm', header: t('MSG_TXT_APPL_DTM'), width: 'auto', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' }, // 신청일시
-    { fieldName: 'rfndAkStatCd', header: t('MSG_TXT_PROCS_STAT'), width: 'auto', options: codes.RFND_AK_STAT_CD }, // 처리상태
+    { fieldName: 'rfndAkStatCd', header: t('MSG_TXT_PROCS_STAT'), width: 'auto', styleName: 'text-center', options: codes.RFND_AK_STAT_CD }, // 처리상태
   ];
 
   data.setFields(fields);
@@ -1161,18 +1199,18 @@ const initGrid2 = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
+  view.editOptions.editable = false;
 
   // 그리드의 버튼클릭시 이벤트 발생
-  view.onCellItemClicked = async (g, { column, dataRow }) => {
-    // eslint-disable-next-line max-len
-    const { cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo } = gridUtil.getRowValue(g, dataRow);
-    if (column === 'bltfAdd') {
-      // eslint-disable-next-line max-len
-      onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo);
-      pageInfo3.value.totalCount = gridUtil.getAllRowValues(grdPopRef3.value.getView()).length;
-    }
-  };
+  // view.onCellItemClicked = async (g, { column, dataRow }) => {
+  // eslint-disable-next-line max-len
+  //   const { cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo } = gridUtil.getRowValue(g, dataRow);
+  //   if (column === 'bltfAdd') {
+  //     // eslint-disable-next-line max-len
+  //     onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo);
+  //     pageInfo3.value.totalCount = gridUtil.getAllRowValues(grdPopRef3.value.getView()).length;
+  //   }
+  // };
 
   // 2번째 GRID 변경(환불상세)에 따라 4번째 GRID(환불접수총액) 상시변경
   // eslint-disable-next-line no-unused-vars
@@ -1264,8 +1302,7 @@ const initGrid3 = defineGrid((data, view) => {
         // 전금계약상세번호
         styleName: 'essential',
       },
-      styleName: 'text-left rg-button-icon--search',
-      button: 'action',
+      styleName: 'text-center',
       editor: {
         type: 'line',
       },
@@ -1338,7 +1375,7 @@ const initGrid3 = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
+  view.editOptions.editable = false;
 
   // 전금요청상세데이터가 변경될때마다, 환불상세 데이터를 변경.
   view.onCellEdited = async (grid, itemIndex) => {
@@ -1355,20 +1392,20 @@ const initGrid3 = defineGrid((data, view) => {
   };
 
   // 전금계약상세번호 검색
-  view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
-    if (column === 'bltfOjCntrDtlNo') {
-      const { result, payload } = await modal({
-        component: 'WwctaContractNumberListP',
-      });
-      if (result) {
-        // eslint-disable-next-line no-unused-vars
-        const { cntrNo, cntrSn, sellTpCd, cntrCstKnm, pdNm, pdCd } = payload;
-        view.setValue(itemIndex, 'bltfOjCntrNo', cntrNo);
-        view.setValue(itemIndex, 'bltfOjCntrSn', cntrSn);
-        view.setValue(itemIndex, 'bltfOjCntrDtlNo', cntrNo + cntrSn);
-        view.setValue(itemIndex, 'sellTpCd', sellTpCd);
-      }
-    }
+  view.onCellButtonClicked = async (grid, { column }) => {
+    // if (column === 'bltfOjCntrDtlNo') {
+    //   const { result, payload } = await modal({
+    //     component: 'WwctaContractNumberListP',
+    //   });
+    //   if (result) {
+    //     // eslint-disable-next-line no-unused-vars
+    //     const { cntrNo, cntrSn, sellTpCd, cntrCstKnm, pdNm, pdCd } = payload;
+    //     view.setValue(itemIndex, 'bltfOjCntrNo', cntrNo);
+    //     view.setValue(itemIndex, 'bltfOjCntrSn', cntrSn);
+    //     view.setValue(itemIndex, 'bltfOjCntrDtlNo', cntrNo + cntrSn);
+    //     view.setValue(itemIndex, 'sellTpCd', sellTpCd);
+    //   }
+    // }
     // 첨부파일 팝업
     // TODO: 그리드 엑셀업로드 확인필요
     if (column === 'rfndEvidMtrFileId') {

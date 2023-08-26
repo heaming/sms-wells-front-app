@@ -124,6 +124,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_CASES') }}</span>
         </template>
         <kw-btn
           icon="download_on"
@@ -317,9 +318,9 @@ async function onclickAgrg() {
 // -------------------------------------------------------------------------------------------------
 const initCancelGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'inqrDvCd', header: t('MSG_TXT_TYPE'), width: '100', styleName: 'text-center' }, // 유형
+    { fieldName: 'inqrDvCd', header: t('MSG_TXT_TYPE'), width: '100', styleName: 'text-center', options: codes.MNGER_OG_CNTR_CAN_TP_CD }, // 유형
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_NM'), width: '105', styleName: 'text-center' }, // 상품명
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_NM'), width: '230', styleName: 'text-center' }, // 상품명
     { fieldName: 'pdClsfId', header: t('MSG_TXT_PRDT_CODE'), width: '150', styleName: 'text-center' }, // 상품코드
     { fieldName: 'ichrMngerNm', header: t('MSG_TXT_ICHR_MNGER'), width: '105', styleName: 'text-center' }, // 담당매니저
     { fieldName: 'ichrMngerNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' }, // 번호
@@ -374,15 +375,15 @@ const initCancelGrid = defineGrid((data, view) => {
 
 const initSellGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'inqrDvCd', header: t('MSG_TXT_TYPE'), width: '100', styleName: 'text-center' }, // 유형
+    { fieldName: 'inqrDvCd', header: t('MSG_TXT_TYPE'), width: '100', styleName: 'text-center', options: codes.MNGER_OG_CNTR_CAN_TP_CD }, // 유형
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-center' }, // 상품명
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_NM'), width: '230', styleName: 'text-center' }, // 상품명
     { fieldName: 'pdClsfId', header: t('MSG_TXT_PRDT_CODE'), width: '150', styleName: 'text-center' }, // 상품코드
 
     { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 계약일
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CAN_D'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 취소일
-    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '100', styleName: 'text-center', options: codes.MCHN_CH_TP_CD }, // 기변유형
+    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center', options: codes.MCHN_CH_TP_CD }, // 기변유형
 
     { fieldName: 'sellOgYn', header: t('MSG_TXT_SELL_OG'), width: '100', styleName: 'text-center' }, // 판매조직
     { fieldName: 'sellPrtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '100', styleName: 'text-center' }, // 판매자

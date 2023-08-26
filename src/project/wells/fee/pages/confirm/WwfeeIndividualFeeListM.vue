@@ -34,9 +34,9 @@
           required
         >
           <kw-select
-            v-model="searchParams.ogTp"
+            v-model="searchParams.ogTpCd"
             :label="$t('MSG_TXT_OG_TP')"
-            :options="ogTpCd"
+            :options="slxOgTpCd"
             rules="required"
             @change="onChangeOgTp"
           />
@@ -45,10 +45,25 @@
           :label="$t('MSG_TXT_RSB_TP')"
         >
           <kw-option-group
-            v-model="searchParams.rsbTp"
+            v-if="isSelectVisile"
+            v-model="searchParams.rsbDvCd"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
-            :options="rsbTpCd"
+            :options="slxRsb1TpCd"
+          />
+          <kw-option-group
+            v-if="isSelectVisile2"
+            v-model="searchParams.rsbDvCd"
+            :label="$t('MSG_TXT_RSB_TP')"
+            type="radio"
+            :options="slxRsb2TpCd"
+          />
+          <kw-option-group
+            v-if="isSelectVisile3"
+            v-model="searchParams.rsbDvCd"
+            :label="$t('MSG_TXT_RSB_TP')"
+            type="radio"
+            :options="slxRsb3TpCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -72,10 +87,10 @@
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
-            v-model:og-levl-dv-cd1="searchParams.ogLevl1"
-            v-model:og-levl-dv-cd2="searchParams.ogLevl2"
-            v-model:og-levl-dv-cd3="searchParams.ogLevl3"
-            :og-tp-cd="searchParams.ogTp"
+            v-model:og-levl-dv-cd1="searchParams.ogLevl1Id"
+            v-model:og-levl-dv-cd2="searchParams.ogLevl2Id"
+            v-model:og-levl-dv-cd3="searchParams.ogLevl3Id"
+            :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.perfYm"
             :start-level="1"
             :end-level="3"
@@ -107,20 +122,37 @@
           secondary
           dense
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
-          @click="openReportPopup"
+          @click="openFeeReportPopup"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+        <kw-btn
+          :label="$t('MSG_BTN_FEE_INQR_PTRM_SE')"
+          dense
+          @click="onClickFeeDsbSpcsh"
         />
       </kw-action-top>
       <kw-grid
         v-if="isSelectVisile"
-        ref="grd1MainRef"
+        ref="grdMainRef"
         name="grd1Main"
         :visible-rows="10"
         @init="initGrd1Main"
       />
       <kw-grid
         v-if="isSelectVisile2"
-        ref="grd2MainRef"
+        ref="grdMainRef"
         name="grd2Main"
+        :visible-rows="10"
+        @init="initGrd1Main"
+      />
+      <kw-grid
+        v-if="isSelectVisile3"
+        ref="grdMainRef"
+        name="grd3Main"
         :visible-rows="10"
         @init="initGrd2Main"
       />
@@ -132,7 +164,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, defineGrid, modal, codeUtil } from 'kw-lib';
+import { useDataService, useMeta, getComponentType, defineGrid, modal, codeUtil, notify, gridUtil } from 'kw-lib';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 import dayjs from 'dayjs';
 
@@ -147,36 +180,60 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 
 const now = dayjs();
-const grd1MainRef = ref(getComponentType('KwGrid'));
-const grd2MainRef = ref(getComponentType('KwGrid'));
+const grdMainRef = ref(getComponentType('KwGrid'));
 const isSelectVisile = ref(true);
 const isSelectVisile2 = ref(false);
+const isSelectVisile3 = ref(false);
+const { getUserInfo } = useMeta();
+const sessionUserInfo = getUserInfo();
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'RSB_DV_CD',
   'COD_GV_USE',
+  'QLF_DV_CD',
+  'BNK_CD',
 );
 
-const ogTpCd = codes.OG_TP_CD.filter((e) => ['W02', 'W01', 'W03'].includes(e.codeId));
-const rsbTpCd = codes.RSB_DV_CD.filter((e) => ['W0204', 'W0205'].includes(e.codeId));
-const rsbTpCd1 = codes.RSB_DV_CD.filter((e) => ['W0204', 'W0205'].includes(e.codeId));
-const rsbTpCd2 = codes.RSB_DV_CD.filter((e) => ['W0104', 'W0105'].includes(e.codeId));
-const rsbTpCd3 = codes.RSB_DV_CD.filter((e) => ['W0301', 'W0302'].includes(e.codeId));
+const slxOgTpCd = codes.OG_TP_CD.filter((e) => ['W02', 'W01', 'W03'].includes(e.codeId));
+const slxRsb1TpCd = codes.RSB_DV_CD.filter((e) => ['W0204', 'W0205'].includes(e.codeId));
+const slxRsb2TpCd = codes.RSB_DV_CD.filter((e) => ['W0104', 'W0105'].includes(e.codeId));
+const slxRsb3TpCd = codes.RSB_DV_CD.filter((e) => ['W0301', 'W0302'].includes(e.codeId));
 
 const totalCount = ref(0);
 const searchParams = ref({
-
   perfYm: now.add(-1, 'month').format('YYYYMM'),
-  ogTp: 'W02',
-  rsbTp: 'W0204',
-  ogLevl1: '',
-  ogLevl2: '',
-  ogLevl3: '',
+  ogTpCd: 'W02',
+  rsbDvCd: 'W0205',
+  ogLevl1Id: '',
+  ogLevl2Id: '',
+  ogLevl3Id: '',
   prtnrNo: '',
   prtnrKnm: '',
   feeDsbYn: '0',
   prPerfYm: '',
-  prOgTp: '',
+  prOgTpCd: '',
+  userHirFomCd: '',
+  userEmpID: sessionUserInfo.employeeIDNumber,
+  userRsbCd: '',
+  userSpptRsbDvCd: '',
+  userPstnDvCd: '',
+});
+
+const info = ref({
+  hirFomCd: '',
+  bznsSpptRsbDvCd: '',
+  rsbDvCd: '',
+  pstnDvCd: '',
+});
+
+const saveParams = ref({
+  baseYm: searchParams.value.perfYm,
+  ogTpCd: searchParams.value.ogTpCd,
+  rsbDvCd: searchParams.value.rsbDvCd,
+  ddlnDvId: '',
+  ddlnId: '',
+  templateCode: 'FEE_DSB_SPCSH_E01',
+  feeMessagePk: '',
 });
 
 let cachedParams;
@@ -184,29 +241,33 @@ let cachedParams;
 const router = useRouter();
 
 async function fetchData(uri) {
+  const { perfYm, ogTpCd } = searchParams.value;
+  cachedParams = cloneDeep(searchParams.value);
   const response = await dataService.get(`/sms/wells/fee/individual-fees/${uri}`, { params: cachedParams, timeout: 300000 });
   const fees = response.data;
-  searchParams.value.prPerfYm = searchParams.value.perfYm;
-  searchParams.value.prOgTp = searchParams.value.ogTp;
+  searchParams.value.prPerfYm = perfYm;
+  searchParams.value.prOgTpCd = ogTpCd;
   totalCount.value = fees.length;
-  cachedParams = cloneDeep(searchParams.value);
-  if (isSelectVisile.value) {
-    const managerView = grd1MainRef.value.getView();
-    managerView.getDataSource().setRows(fees);
-  } else if (isSelectVisile2.value) {
-    const homeMasterView = grd2MainRef.value.getView();
-    homeMasterView.getDataSource().setRows(fees);
+  if (uri === 'feeLists') {
+    if (ogTpCd === 'W03') {
+      const homeMasterView = grdMainRef.value.getView();
+      homeMasterView.getDataSource().setRows(fees);
+    } else {
+      const managerView = grdMainRef.value.getView();
+      managerView.getDataSource().setRows(fees);
+    }
+  } else if (uri === 'userInfo') {
+    info.value = fees;
   }
 }
 
 async function onClickSearch() {
-  let uri = '';
-  cachedParams = cloneDeep(searchParams.value);
-  if (isSelectVisile.value) {
-    uri = 'manager-planers';
-  } else if (isSelectVisile2.value) {
-    uri = 'home-masters';
-  }
+  const { hirFomCd, bznsSpptRsbDvCd, rsbDvCd, pstnDvCd } = info.value;
+  searchParams.value.hirFomCd = hirFomCd;
+  searchParams.value.userRsbCd = rsbDvCd;
+  searchParams.value.userSpptRsbDvCd = bznsSpptRsbDvCd;
+  searchParams.value.userPstnDvCd = pstnDvCd;
+  const uri = 'feeLists';
   await fetchData(uri);
 }
 
@@ -219,7 +280,7 @@ async function onClickSearchNo() {
     componentProps: {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: searchParams.value.ogTp,
+      ogTpCd: searchParams.value.ogTpCd,
       prtnrKnm: undefined,
     },
   });
@@ -233,16 +294,16 @@ async function onClickSearchNo() {
 }
 
 /*
- *  Event - 그리드 사번 클릭시 개인상세조회 페이지 이동
+ *  Event - 그리드 사번 더블 클릭시 개인상세조회 페이지 이동
 */
 async function movePage(no) {
   let url = '';
 
-  if (searchParams.value.prOgTp === 'W02') {
+  if (searchParams.value.prOgTpCd === 'W02') {
     url = '/fee/wwfee-individual-fee-manager-list';
-  } else if (searchParams.value.prOgTp === 'W01') {
+  } else if (searchParams.value.prOgTpCd === 'W01') {
     url = '/fee/wwfee-individual-fee-planner-list';
-  } else if (searchParams.value.prOgTp === 'W03') {
+  } else if (searchParams.value.prOgTpCd === 'W03') {
     url = '/fee/wwfee-individual-fee-home-master-list';
   }
 
@@ -258,39 +319,99 @@ async function movePage(no) {
  *  Event - 조직유형 선택에 따른 그리드 변경
  */
 async function onChangeOgTp() {
-  const { ogTp } = searchParams.value;
-
-  if (ogTp === 'W02') {
+  const { ogTpCd } = searchParams.value;
+  if (ogTpCd === 'W02') {
     isSelectVisile.value = true;
     isSelectVisile2.value = false;
-    rsbTpCd.value = rsbTpCd1;
-    searchParams.value.rsbTp = 'W0204';
-  } else if (ogTp === 'W01') {
-    isSelectVisile.value = true;
-    isSelectVisile2.value = false;
-    rsbTpCd.value = rsbTpCd2;
-    searchParams.value.rsbTp = 'W0104';
-  } else if (ogTp === 'W03') {
+    isSelectVisile3.value = false;
+    searchParams.value.rsbDvCd = 'W0205';
+  } else if (ogTpCd === 'W01') {
     isSelectVisile.value = false;
     isSelectVisile2.value = true;
-    rsbTpCd.value = rsbTpCd3;
-    searchParams.value.rsbTp = 'W0301';
+    isSelectVisile3.value = false;
+    searchParams.value.rsbDvCd = 'W0105';
+  } else if (ogTpCd === 'W03') {
+    isSelectVisile.value = false;
+    isSelectVisile2.value = false;
+    isSelectVisile3.value = true;
+    searchParams.value.rsbDvCd = 'W0302';
   }
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData('userInfo');
 }
+
 /*
  *  Event - 지급명세서 출력 버튼 클릭  ※현재 팝업화면 없음
  */
-async function openReportPopup() {
-  const param = {
-    perfYm: searchParams.value.perfYm,
-    no: searchParams.value.prtnrNo,
-  };
-
-  await modal({
-    component: 'openReportPopup',
-    componentProps: param,
-  });
+async function openFeeReportPopup() {
+  const { perfYm } = searchParams.value;
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length !== 1) {
+    notify(t('MSG_ALT_ONE_PROCS_PSB'));
+    return;
+  }
+  const targetRow = checkedRows[0];
+  const slcPrtnrNo = targetRow.prtnrNo;
+  const slcPstnDvCd = targetRow.pstnDvCd;
+  if (slcPrtnrNo !== '' && slcPstnDvCd !== undefined) {
+    const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYY-MM');
+    openReportPopup(
+      '/ksswells/cmms/V5.2/cmmsSpec2023.ozr',
+      '/ksswells/cmms/V5.2/cmmsSpec2023.odi',
+      JSON.stringify(
+        {
+          AKSDYM: perfYm,
+          AKSDTY: perfYm.substring(0, 4),
+          AKSDTM: perfYm.substring(4, 6),
+          AKDDTY: bfPerfYm.substring(0, 4),
+          AKDDTM: bfPerfYm.substring(4, 6),
+          AKDRNK: slcPrtnrNo,
+          AKDCDE: slcPstnDvCd,
+        },
+      ),
+    );
+  } else {
+    alert(t('MSG_ALT_LIST_CHO'));
+  }
 }
+
+/*
+ *  Event - 수수료 조회기간 기간설정 버튼 클릭
+ */
+async function onClickFeeDsbSpcsh() {
+  const { ogTpCd } = searchParams.value;
+  const ddlnDvId = 'DLD_FEE_DSB_SPCSH';
+  let ddlnId = '';
+  if (ogTpCd === 'W01') { /* P조직 */
+    ddlnId = 'DLN_00009';
+  } else if (ogTpCd === 'W02') { /* M조직 */
+    ddlnId = 'DLN_00010';
+  } else if (ogTpCd === 'W03') { /* 홈마스터 */
+    ddlnId = 'DLN_00011';
+  }
+  const { result } = await modal({
+    component: 'ZwcmsDeadlineMgtP',
+    componentProps: {
+      ddlnDvId,
+      ddlnId,
+    },
+  });
+
+  if (result) {
+    // 알림톡 데이터 저장
+    saveParams.value.feeMessagePk = `${ddlnDvId}-${ddlnId}-${saveParams.value.baseYm}-${saveParams.value.ogTpCd}-${saveParams.value.rsbDvCd}`;
+    saveParams.value.ddlnDvId = ddlnDvId;
+    saveParams.value.ddlnId = ddlnId;
+    await dataService.post('/sms/common/fee/fee-specification/messages', saveParams.value);
+
+    notify(t('MSG_ALT_FEE_BIZTALK_SET'));
+  }
+}
+onMounted(async () => {
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData('userInfo');
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -302,9 +423,9 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'branch' },
     { fieldName: 'emplNm' },
     { fieldName: 'prtnrNo' },
-    { fieldName: 'rsbTpCd' },
-    { fieldName: 'qlfCd' },
-    { fieldName: 'bnkNm' },
+    { fieldName: 'rsbDvCd' },
+    { fieldName: 'qlfDvCd' },
+    { fieldName: 'fnitCd' },
     { fieldName: 'acNo' },
     { fieldName: 'intbsSum', dataType: 'number' },
     { fieldName: 'ddtnSum', dataType: 'number' },
@@ -312,6 +433,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'awbIntbsSum', dataType: 'number' },
     { fieldName: 'awbDdtnSum', dataType: 'number' },
     { fieldName: 'awbAclDsbAmt', dataType: 'number' },
+    { fieldName: 'pstnDvCd' },
   ];
 
   const columns = [
@@ -320,9 +442,9 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
     { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
-    { fieldName: 'rsbTpCd', header: t('MSG_TXT_RSB'), width: '71', options: codes.RSB_DV_CD },
-    { fieldName: 'qlfCd', header: t('MSG_TXT_QLF'), width: '110' },
-    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK'), width: '80' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '71', options: codes.RSB_DV_CD },
+    { fieldName: 'qlfDvCd', header: t('MSG_TXT_QLF'), width: '110', options: codes.QLF_DV_CD },
+    { fieldName: 'fnitCd', header: t('MSG_TXT_BNK'), width: '80', options: codes.BNK_CD },
     { fieldName: 'acNo', header: t('MSG_TXT_AC_NO'), width: '127' },
     { fieldName: 'intbsSum', header: t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
     { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
@@ -330,6 +452,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'awbIntbsSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
     { fieldName: 'awbDdtnSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
     { fieldName: 'awbAclDsbAmt', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right', visible: false },
   ];
 
   data.setFields(fields);
@@ -351,9 +474,9 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'branch' },
     { fieldName: 'emplNm' },
     { fieldName: 'prtnrNo' },
-    { fieldName: 'rsbTpCd' },
-    { fieldName: 'qlfCd' },
-    { fieldName: 'bnkNm' },
+    { fieldName: 'rsbDvCd' },
+    { fieldName: 'qlfDvCd' },
+    { fieldName: 'fnitCd' },
     { fieldName: 'acNo' },
     { fieldName: 'intbsSum', dataType: 'number' },
     { fieldName: 'ddtnSum', dataType: 'number' },
@@ -361,6 +484,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'awbIntbsSum', dataType: 'number' },
     { fieldName: 'awbDdtnSum', dataType: 'number' },
     { fieldName: 'awbAclDsbAmt', dataType: 'number' },
+    { fieldName: 'pstnDvCd' },
   ];
 
   const columns = [
@@ -368,9 +492,9 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
     { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
-    { fieldName: 'rsbTpCd', header: t('MSG_TXT_RSB'), width: '71', options: codes.RSB_DV_CD },
-    { fieldName: 'qlfCd', header: t('MSG_TXT_QLF'), width: '110' },
-    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK'), width: '80' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '71', options: codes.RSB_DV_CD },
+    { fieldName: 'qlfDvCd', header: t('MSG_TXT_QLF'), width: '110', options: codes.QLF_DV_CD },
+    { fieldName: 'fnitCd', header: t('MSG_TXT_BNK'), width: '80', options: codes.BNK_CD },
     { fieldName: 'acNo', header: t('MSG_TXT_AC_NO'), width: '127' },
     { fieldName: 'intbsSum', header: t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
     { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
@@ -378,6 +502,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'awbIntbsSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
     { fieldName: 'awbDdtnSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
     { fieldName: 'awbAclDsbAmt', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right', visible: false },
   ];
 
   data.setFields(fields);

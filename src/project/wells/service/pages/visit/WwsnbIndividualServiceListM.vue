@@ -70,7 +70,6 @@
       </kw-action-top>
       <kw-form
         :cols="4"
-        class="mb30"
       >
         <!-- rev:230621 dense 삭제 -->
         <kw-form-row>
@@ -162,6 +161,13 @@
             <p>{{ stringUtil.getDatetimeFormat(individualParams.wrteDt) }}</p>
           </kw-form-item>
         </kw-form-row>
+      </kw-form>
+
+      <kw-separator />
+      <kw-form
+        dense
+        cols="4"
+      >
         <kw-form-row>
           <!-- 계약상품 -->
           <kw-form-item
@@ -240,7 +246,6 @@
             <p>{{ individualParams.brmgrPrtnrNm }}</p>
           </kw-form-item>
         </kw-form-row>
-
         <kw-form-row>
           <!-- 배정일자 -->
           <kw-form-item
@@ -281,6 +286,15 @@
             <p>{{ individualParams.afCntrNo }}</p>
           </kw-form-item>
         </kw-form-row>
+      </kw-form>
+
+      <kw-separator />
+
+      <kw-form
+        cols="4"
+        dense
+        class="mb30"
+      >
         <kw-form-row>
           <!-- 설치일자 -->
           <kw-form-item
@@ -382,6 +396,7 @@
           </kw-form-item>
         </kw-form-row>
       </kw-form>
+
       <kw-tabs
         v-model="selectedTab"
       >
@@ -529,9 +544,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil,
-  // gridUtil,
-} from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -989,11 +1002,12 @@ const initGridCounsel = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cselSts' },
     { fieldName: 'cnslDt' },
-    { fieldName: 'tktPcsSchDtm' },
+    { fieldName: 'cnslEdDt' },
     { fieldName: 'cnslTpHcsfCd' },
     { fieldName: 'cnslTpMcsfCd' },
     { fieldName: 'cnslTpLcsfCd' },
     { fieldName: 'modUserId' },
+    { fieldName: 'cselRstCd' },
     { fieldName: 'custResp' },
     { fieldName: 'cstNm' },
     { fieldName: 'cnslCn' },
@@ -1001,15 +1015,16 @@ const initGridCounsel = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cselSts', header: t('MSG_TXT_PROCS_STAT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cnslDt', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center' },
-    { fieldName: 'tktPcsSchDtm', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cnslDt', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cnslEdDt', header: t('MSG_TXT_PRCSDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cnslTpHcsfCd', header: t('MSG_TXT_CNSL_HCLSF'), width: '200', styleName: 'text-center' },
     { fieldName: 'cnslTpMcsfCd', header: t('MSG_TXT_CNSL_DCLSF'), width: '150', styleName: 'text-center' },
     { fieldName: 'cnslTpLcsfCd', header: t('MSG_TXT_CNSL_LCLSF'), width: '250', styleName: 'text-center' },
     { fieldName: 'modUserId', header: t('MSG_TXT_PCP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'custResp', header: t('MSG_TXT_PROCS_DV'), width: '150' },
-    { fieldName: 'cstNm', header: t('MSG_TXT_CST_RACT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cnslCn', header: t('MSG_TXT_CLNT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cselRstCd', header: t('MSG_TXT_PROCS_DV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'custResp', header: t('MSG_TXT_CST_RACT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cstNm', header: t('MSG_TXT_CLNT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cnslCn', header: t('MSG_TXT_CNSL_CN'), width: '200', styleName: 'text-center' },
   ];
 
   data.setFields(fields);

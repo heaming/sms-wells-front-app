@@ -182,7 +182,7 @@ async function onChangePdNm(val) {
   searchParams.value.pdCd = cd;
 }
 async function onChangePdGr() {
-  pdNm.value = await getPartMaster('4', searchParams.value.pdGr, 'M');
+  pdNm.value = await getPartMaster('4', searchParams.value.pdGr);
   searchParams.value.pdNm = pdNm.value[0].codeId;
   onChangePdNm();
 }
@@ -193,6 +193,11 @@ async function fetchData() {
   const { list: installSeperationCsMgt, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
+  // if (pageInfo.value.totalCount === 0) {
+  //   pageInfo.value.pageSize = 10;
+  // } else {
+  //   pageInfo.value.pageSize = Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'));
+  // }
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(installSeperationCsMgt);

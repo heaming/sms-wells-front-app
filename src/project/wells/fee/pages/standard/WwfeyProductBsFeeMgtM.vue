@@ -361,8 +361,7 @@ const initGrd = defineGrid((data, view) => {
   };
   // 시작월 종료월 체크
   view.onValidate = async (g, index) => {
-    const { apyStrtYm } = await g.getValues(index.dataRow);
-    const { apyEndYm } = await g.getValues(index.dataRow);
+    const { apyStrtYm, apyEndYm } = gridUtil.getRowValue(view, index.dataRow);
     if (!isEmpty(apyStrtYm) && !isEmpty(apyEndYm)) {
       if (apyStrtYm > apyEndYm) {
         gridUtil.focusCellInput(view, index.dataRow, 'apyStrtYm');

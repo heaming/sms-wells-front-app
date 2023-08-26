@@ -233,7 +233,7 @@
         >
           <kw-select
             v-model="saveParams.bankCode"
-            :options="optionList"
+            :options="codes.CSH_RFND_FNIT_CD"
           />
           <!-- :options="codes.BNK_CD" -->
         </kw-form-item>
@@ -347,19 +347,21 @@
     <template #action>
       <!-- 삭제 -->
       <kw-btn
+        v-if="!isDisableCheck && rfndAkStatCd !== '01'"
         negative
         :label="$t('MSG_BTN_DEL')"
-        :disable="isDisableCheck"
         @click="onClickDelete"
       />
       <!-- 임시저장-->
       <kw-btn
+        v-if="rfndAkStatCd === '00'"
         primary
         :label="$t('MSG_BTN_TMP_SAVE')"
         @click="onClickTempSave"
       />
       <!-- 신청 -->
       <kw-btn
+        v-if="rfndAkStatCd === '00'"
         primary
         :label="$t('MSG_BTN_APPL')"
         @click="onClickApply"
@@ -413,9 +415,9 @@ const { ok } = useModal();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { notify } = useGlobal();
-const fnitCdRes = await dataService.get('/sms/common/common/codes/finance-code/fnit-codes/delegate');
-console.log(fnitCdRes);
-const optionList = fnitCdRes.data; // 은행코드(은행명)
+// const fnitCdRes = await dataService.get('/sms/common/common/codes/finance-code/fnit-codes/delegate');
+// console.log(fnitCdRes);
+// const optionList = fnitCdRes.data; // 은행코드(은행명)
 
 const pageInfo1 = ref({ // 계약상세 페이지1
   totalCount: 0,
@@ -456,6 +458,8 @@ const searchParams = ref({
 
 });
 
+const rfndAkStatCd = ref();
+
 const saveParams = ref({
   /* 환불정보 */
   arfndYn: 'N', // 선환불
@@ -467,7 +471,7 @@ const saveParams = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS', //
-  'BNK_CD', // 은행코드
+  'CSH_RFND_FNIT_CD', // 은행코드
   /* 계약상세 */
   'COPN_DV_CD', // 고객유형: 1.개인, 2.법인
   'SELL_TP_CD', // 판매유형
@@ -545,7 +549,7 @@ async function fetchData2() {
   saveParams.value.arfndYn = res.data.arfndYn;
   saveParams.value.bankCode = res.data.cshRfndFnitCd;
   saveParams.value.acnoEncr = res.data.cshRfndAcnoEncr;
-  saveParams.value.cstNm = res.data.cshRfndAcownNm;
+  saveParams.value.cstNm = isEmpty(res.data.cshRfndAcownNm) ? '' : res.data.cshRfndAcownNm;
   pageInfo3.value = pagingResult3;
   pageInfo2.value = pagingResult2;
   pageInfo1.value = pagingResult1;
@@ -649,6 +653,7 @@ async function onClickExcel3() {
 /* TODO: 최초 Mounted시 환불접수총액 SET, */
 onMounted(async () => {
   isDisableCheck.value = true;
+  rfndAkStatCd.value = isEmpty(props.rfndAkStatCd) ? '00' : props.rfndAkStatCd;
 
   const data = [{
     totRfndCshAkAmt: 0,
@@ -808,6 +813,8 @@ async function onClickRefundAsk(stateCode) {
 
   const rows3 = changedRows3.filter((p1) => (Number(p1.rfndBltfAkAmt)) > 0);
 
+  console.log(changedRows3);
+  console.log(rows3);
   // eslint-disable-next-line no-unused-vars
   const changedRows4 = gridUtil.getAllRowValues(view4); // 환불접수총액
   if (changedRows4[0].totRfndEtAmt === 0) {
@@ -1187,6 +1194,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'rveNo' },
     { fieldName: 'rveSn' },
     { fieldName: 'fnitCd' },
+    { fieldName: 'cstNo' },
   ];
 
   const columns = [
@@ -1300,15 +1308,19 @@ const initGrid2 = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
+
+  view.editOptions.editable = props.rfndAkStatCd !== '01';
 
   // 그리드의 버튼클릭시 이벤트 발생
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     // eslint-disable-next-line max-len
     const { cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo } = gridUtil.getRowValue(g, dataRow);
     if (column === 'bltfAdd') {
-      await onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo);
-      pageInfo3.value.totalCount = gridUtil.getAllRowValues(grdPopRef3.value.getView()).length;
+      if (props.rfndAkStatCd !== '01') {
+        // eslint-disable-next-line max-len
+        await onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo);
+        pageInfo3.value.totalCount = gridUtil.getAllRowValues(grdPopRef3.value.getView()).length;
+      }
     }
   };
 
@@ -1483,7 +1495,7 @@ const initGrid3 = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
+  view.editOptions.editable = props.rfndAkStatCd !== '01';
 
   // 전금요청상세데이터가 변경될때마다, 환불상세 데이터를 변경.
   view.onCellEdited = async (grid, itemIndex) => {
