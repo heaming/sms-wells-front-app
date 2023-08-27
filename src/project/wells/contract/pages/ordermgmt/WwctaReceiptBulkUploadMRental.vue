@@ -167,12 +167,7 @@ const initGrd = defineGrid((data, view) => {
       },
     },
     alncmpDgPrtnrOgTpCd: {
-      displaying: false,
-      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
-        const alncmpDgPrtnrMapngCdId = values[fields.indexOf('alncmpDgPrtnrMapngCd')];
-        const alncmpDgPrtnrMapngCd = getCode('ALNCMP_DG_PRTNR_MAPNG_CD', alncmpDgPrtnrMapngCdId);
-        return alncmpDgPrtnrMapngCd?.userDfn02 || '';
-      },
+      displaying: false, /* 코드가 불안정하며 서버에서 조회하도록 변경 */
     },
     cntrAmt: { label: t('등록비'), type: Number, width: 146 },
     cntrPtrm: { label: t('계약기간'), type: Number, width: 146, required: true },

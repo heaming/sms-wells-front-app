@@ -451,7 +451,6 @@ function clearPriceDefineVariables() {
 
 /* 저장된 값이 있다면 가격 결정요소를 맞추어 줍니다. */
 function initPriceDefineVariables() {
-  console.log('watch called');
   if (!pdPrcFnlDtlId.value) { return; }
   const selectedFinalPrice = finalPriceOptions.value
     .find((finalPrice) => (finalPrice.pdPrcFnlDtlId === pdPrcFnlDtlId.value));

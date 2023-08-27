@@ -82,8 +82,23 @@ const singlePromotions = ref([]);
 const groupingPromotionDict = ref({});
 const groupingPromotions = ref([]);
 
+function getApplyPromotions() {
+  if (!promotions.value?.length) {
+    return [];
+  }
+  const appliedSinglePmots = singlePromotions.value.filter((promotion) => (promotion.applied !== false));
+  const appliedGroupPmots = groupingPromotions.value
+    .flatMap(({ pmotApyGrpCd, pmotApyOptCd }) => groupingPromotionDict.value[pmotApyGrpCd][pmotApyOptCd]);
+  appliedPromotions.value = [...appliedSinglePmots, ...appliedGroupPmots];
+  return appliedPromotions.value;
+}
+
+function onChangePmotApyOptCd() {
+  getApplyPromotions();
+  emit('update:model-value', appliedPromotions.value);
+}
+
 function initializePromotions(pmots) {
-  console.log('initializePromotions', pmots);
   promotions.value = pmots;
   if (!pmots?.length) {
     return;
@@ -118,25 +133,11 @@ function initializePromotions(pmots) {
         pmotApyOptCd: pmotApyOptCds?.[0].codeId,
       };
     });
-}
-
-watch(() => props.promotions, initializePromotions, { immediate: true });
-
-function getApplyPromotions() {
-  if (!promotions.value?.length) {
-    return [];
-  }
-  const appliedSinglePmots = singlePromotions.value.filter((promotion) => (promotion.applied !== false));
-  const appliedGroupPmots = groupingPromotions.value
-    .flatMap(({ pmotApyGrpCd, pmotApyOptCd }) => groupingPromotionDict.value[pmotApyGrpCd][pmotApyOptCd]);
-  appliedPromotions.value = [...appliedSinglePmots, ...appliedGroupPmots];
-  return appliedPromotions.value;
-}
-
-function onChangePmotApyOptCd() {
   getApplyPromotions();
   emit('update:model-value', appliedPromotions.value);
 }
+
+watch(() => props.promotions, initializePromotions, { immediate: true });
 
 </script>
 
