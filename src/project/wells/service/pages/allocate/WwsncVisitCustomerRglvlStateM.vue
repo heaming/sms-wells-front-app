@@ -121,7 +121,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { getComponentType, defineGrid, gridUtil, useDataService, useGlobal, codeUtil } from 'kw-lib';
+import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -129,7 +129,8 @@ import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnMana
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
-const { modal } = useGlobal();
+
+const router = useRouter();
 
 const { t } = useI18n();
 const { currentRoute } = useRouter();
@@ -239,7 +240,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'rg-button-link', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
+    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center rg-button-link', renderer: { type: 'button' } }, // 계약상세번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAPCD'), width: '170', styleName: 'text-center' }, // SAP코드
     { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' }, // 품목코드
@@ -270,15 +271,17 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
     if (column === 'cntrCstNo') {
-      const cntrNo = g.getValue(itemIndex, 'cntrNo');
-      const cntrSn = g.getValue(itemIndex, 'cntrSn');
-      const cstSvAsnNo = g.getValue(itemIndex, 'cstSvAsnNo');
+      const cntrNo = grid.getValue(itemIndex, 'cntrNo');
+      const cntrSn = grid.getValue(itemIndex, 'cntrSn');
 
-      await modal({
-        component: 'WwsnbIndividualServiceListM', // 개인별 서비스 현황 팝업 호출
-        componentProps: { cntrNo, cntrSn, cstSvAsnNo },
+      router.push({
+        path: '/service/wwsnb-individual-service-list', // 개인별 서비스 현황 호출
+        query: {
+          cntrNo,
+          cntrSn,
+        },
       });
     }
   };
