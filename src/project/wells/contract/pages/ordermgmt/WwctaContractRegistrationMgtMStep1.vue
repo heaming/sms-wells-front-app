@@ -458,8 +458,8 @@ const { notify, confirm, modal } = useGlobal();
 const router = useRouter();
 
 const props = defineProps({
-  contract: { type: String, required: true },
-  onChildMounted: { type: Function, required: true },
+  contract: { type: Object, default: undefined },
+  onChildMounted: { type: Function, default: undefined },
 });
 const { cntrNo: pCntrNo, step1 } = toRefs(props.contract);
 const ogStep1 = ref({});
