@@ -76,20 +76,24 @@
             </kw-item-label>
             <kw-item-label
               class="text-black1 text-bold ml8"
-              :class="{'text-strike text-black3': promotionAppliedPrice && promotionAppliedPrice > 0}"
+              :class="{'text-strike text-black3': promotionAppliedPrice && promotionAppliedPrice.length}"
             >
               {{ displayedFinalPrice }}
             </kw-item-label>
-            <kw-separator
-              vertical
-              spaced="8px"
-            />
-            <kw-item-label class="kw-fc--black3 kw-font-pt14">
-              할인가
-            </kw-item-label>
-            <kw-item-label class="kw-fc--black1 text-bold ml8">
-              {{ promotionAppliedPrice }}
-            </kw-item-label>
+            <template v-if="promotionAppliedPrice">
+              <kw-separator
+                vertical
+                spaced="8px"
+              />
+              <kw-item-label
+                class="kw-fc--black3 kw-font-pt14"
+              >
+                할인가
+              </kw-item-label>
+              <kw-item-label class="kw-fc--black1 text-bold ml8">
+                {{ promotionAppliedPrice }}
+              </kw-item-label>
+            </template>
           </div>
           <div class="row items-center" />
         </kw-item-section>
@@ -326,6 +330,7 @@
       <promotion-select
         v-model="appliedPromotions"
         :promotions="promotions"
+        @update:model-value="calcPromotionAppliedPrice"
       />
     </template>
   </kw-expansion-item>
@@ -456,7 +461,9 @@ function clearPriceDefineVariables() {
 
 /* 저장된 값이 있다면 가격 결정요소를 맞추어 줍니다. */
 function initPriceDefineVariables() {
-  if (!pdPrcFnlDtlId.value) { return; }
+  if (!pdPrcFnlDtlId.value) {
+    return;
+  }
   const selectedFinalPrice = finalPriceOptions.value
     .find((finalPrice) => (finalPrice.pdPrcFnlDtlId === pdPrcFnlDtlId.value));
 
@@ -612,23 +619,27 @@ const displayedFinalPrice = computed(() => (selectedFinalPrice.value
   ? `${stringUtil.getNumberWithComma(selectedFinalPrice.value.fnlVal)}원`
   : '미확정'));
 
-const promotionAppliedPrice = computed(() => {
-  if (!appliedPromotions.value?.length) {
+const promotionAppliedPrice = ref();
+
+function calcPromotionAppliedPrice(aplyPmots) {
+  if (!aplyPmots?.length) {
     return;
   }
   const fnlVal = selectedFinalPrice.value?.fnlVal;
   if (!fnlVal) {
     return;
   }
-  const minRentalFxam = appliedPromotions.value
+  const minRentalFxam = aplyPmots
     .reduce((minVal, promotion) => Math.min(minVal, promotion.rentalFxam ?? 0), fnlVal);
-  const totalDscApyAmt = appliedPromotions.value
+  const totalDscApyAmt = aplyPmots
     .reduce((acc, promotion) => {
-      if (Number.isNaN(Number(promotion.dscApyAmt))) { return acc; }
+      if (Number.isNaN(Number(promotion.dscApyAmt))) {
+        return acc;
+      }
       return acc + Number(promotion.dscApyAmt);
     }, 0);
-  return `${stringUtil.getNumberWithComma(Math.max(minRentalFxam - totalDscApyAmt, 0))}원`;
-});
+  promotionAppliedPrice.value = `${stringUtil.getNumberWithComma(Math.max(minRentalFxam - totalDscApyAmt, 0))}원`;
+}
 
 function onClickDeviceChange() {
   emit('device-change', props.modelValue);
