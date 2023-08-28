@@ -31,7 +31,7 @@
         <kw-form-item :label="$t('MSG_TXT_DRT_IN')">
           <kw-input
             v-model="biztalkParams.etcCn1"
-            :disable="biztalkParams.fmlRelDvCD1 !== '7'"
+            :disable="biztalkParams.fmlRelDvCd1 !== '7'"
           />
         </kw-form-item>
       </kw-form-row>
@@ -72,7 +72,7 @@
         <kw-form-item :label="$t('MSG_TXT_DRT_IN')">
           <kw-input
             v-model="biztalkParams.etcCn2"
-            :disable="biztalkParams.fmlRelDvCD2 !== '7'"
+            :disable="biztalkParams.fmlRelDvCd2 !== '7'"
           />
         </kw-form-item>
       </kw-form-row>
@@ -109,8 +109,15 @@
         spaced="16px"
       />
 
-      <div class="kw-font-body mt10">
+      <!-- <div class="kw-font-body mt10">
         {{ templateCn }}
+      </div> -->
+      <div
+        v-for="(cn,idx) in templateCn"
+        :key="idx"
+        class="kw-font-body mt10"
+      >
+        {{ cn }}<br>
       </div>
     </div>
 
@@ -135,10 +142,11 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, useModal } from 'kw-lib';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
+import { split } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { ok, cancel: onClickCancel } = useModal();
+const { ok, cancel: onClickCancel, notify } = useModal();
 const props = defineProps({
   acdnRcpId: {
     type: String,
@@ -157,6 +165,14 @@ const props = defineProps({
     required: true,
   },
   mpno: {
+    type: String,
+    required: true,
+  },
+  cntrNo: {
+    type: String,
+    required: true,
+  },
+  cntrSn: {
     type: String,
     required: true,
   },
@@ -182,7 +198,7 @@ const biztalkParams = ref({
   rfndBnkCd: '',
   rfndAcownNm: '',
   rcpdt: props.rcpdt,
-  url: 'URL추후수정예정',
+  url: 'https://wsm.kyowon.co.kr/s1/Uw5ccg',
   mpno: '',
   cstNm: props.cstNm, // 설치자명
   pdNm: props.pdNm, // 제품명
@@ -195,13 +211,15 @@ const telNos = ref({
   telNo2: '',
   telNo3: '',
 });
-
-const templateCn = (await dataService.post('/sflex/common/common/templates/TMP_SNB_WELLS18387/previews', biztalkParams.value)).data;
-console.log(templateCn);
+const templateCn = ref([]);
+async function getTemplateContent() {
+  const res = await dataService.post('/sflex/common/common/templates/TMP_SNB_WELLS18387/previews', biztalkParams.value);
+  templateCn.value = split(res.data, '\n');
+}
 
 async function onClickSend() {
   if (!await frmMainRef.value.validate()) { return; }
-  biztalkParams.value.rcpdt = props.rcpdt;
+  biztalkParams.value.rcpdt = (props.rcpdt).replaceAll('-', '');
   biztalkParams.value.cralLocaraTno = telNos.value.telNo1;
   biztalkParams.value.mexnoEncr = telNos.value.telNo2;
   biztalkParams.value.cralIdvTno = telNos.value.telNo3;
@@ -213,5 +231,10 @@ async function onClickSend() {
     successYn: 'Y',
   };
   ok(payload);
+  notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
 }
+
+onMounted(async () => {
+  await getTemplateContent();
+});
 </script>
