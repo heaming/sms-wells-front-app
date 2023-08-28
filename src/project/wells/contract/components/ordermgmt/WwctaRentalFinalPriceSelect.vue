@@ -352,6 +352,8 @@ const emit = defineEmits([
   'device-change',
   'one-plus-one',
   'delete-one-plus-one',
+  'price-changed',
+  'promotion-changed',
   'delete',
 ]);
 
@@ -610,16 +612,23 @@ const selectedFinalPrice = computed(() => {
   return selectedPrice[0];
 });
 
-watch(selectedFinalPrice, (newPrice) => {
-  fnlAmt.value = newPrice?.fnlVal ?? undefined;
-  pdPrcFnlDtlId.value = newPrice?.pdPrcFnlDtlId ?? undefined;
-}, { immediate: true });
+function initializePrice() {
+  fnlAmt.value = selectedFinalPrice.value?.fnlVal ?? undefined;
+  pdPrcFnlDtlId.value = selectedFinalPrice.value?.pdPrcFnlDtlId ?? undefined;
+}
+initializePrice();
+
+const promotionAppliedPrice = ref();
 
 const displayedFinalPrice = computed(() => (selectedFinalPrice.value
   ? `${stringUtil.getNumberWithComma(selectedFinalPrice.value.fnlVal)}원`
   : '미확정'));
 
-const promotionAppliedPrice = ref();
+function clearPromotions() {
+  promotions.value = [];
+  appliedPromotions.value = [];
+  promotionAppliedPrice.value = undefined;
+}
 
 function calcPromotionAppliedPrice(aplyPmots) {
   if (!aplyPmots?.length) {
@@ -639,7 +648,16 @@ function calcPromotionAppliedPrice(aplyPmots) {
       return acc + Number(promotion.dscApyAmt);
     }, 0);
   promotionAppliedPrice.value = `${stringUtil.getNumberWithComma(Math.max(minRentalFxam - totalDscApyAmt, 0))}원`;
+  emit('promotion-changed', aplyPmots, promotionAppliedPrice.value);
 }
+
+watch(selectedFinalPrice, (newPrice) => {
+  fnlAmt.value = newPrice?.fnlVal ?? undefined;
+  pdPrcFnlDtlId.value = newPrice?.pdPrcFnlDtlId ?? undefined;
+  console.log('price-changed');
+  emit('price-changed', newPrice);
+  clearPromotions();
+});
 
 function onClickDeviceChange() {
   emit('device-change', props.modelValue);

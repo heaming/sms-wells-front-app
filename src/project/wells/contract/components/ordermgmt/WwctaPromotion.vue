@@ -27,7 +27,7 @@
               {{ promotion.pmotNm }}
             </kw-item-label>
             <kw-tooltip show-when-ellipsised>
-              {{ JSON.stringify(promotion) }}
+              {{ promotion.pmotNm }}
             </kw-tooltip>
           </div>
           <div
