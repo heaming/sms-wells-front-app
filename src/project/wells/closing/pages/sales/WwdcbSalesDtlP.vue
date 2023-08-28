@@ -25,237 +25,238 @@
         <kw-form-item
           :label="$t('MSG_TXT_REG_FEE')"
         >
-          <p>{{ salesRentalInf.rentalRgstCost }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.rentalRgstCost)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE1_MM_CHRAM')"
         >
-          <p>{{ salesRentalInf.col3 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.rentalAmt)) }}</p>
         </kw-form-item>
         <kw-form-item
-          :label="$t('MSG_TXT_PUR_MM_INTAM')"
+          :label="$t('MSG_TXT_RTLFE_DUTY_PTRM')"
         >
-          <p>{{ salesRentalInf.rentalAmt2 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.dutyUseMcn)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_REQD_RQDT')"
         >
-          <p>{{ salesRentalInf.rentalPtrm2 }}</p>
+          <p>{{ stringUtil.getDateFormat(salesRentalInf.reqdDtm) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_RGST_COST_DSC')"
         >
-          <p>{{ salesRentalInf.rentalAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.dscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE1_DSC')"
         >
-          <p>{{ salesRentalInf.col4 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.rentalDscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_PD_DC_CLASS')"
         >
-          <p>{{ salesRentalInf.col7 }}</p>
+          <p>{{ salesRentalInf.sellDscDvCd }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_CANC_DT')"
         >
-          <p>{{ salesRentalInf.slDt }}</p>
+          <p>{{ stringUtil.getDateFormat(salesRentalInf.canDt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_RNTL_TOTAL')"
         >
-          <p>{{ salesRentalInf.col1 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.cntrTam)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE1_MCNT')"
         >
-          <p>{{ salesRentalInf.istmAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.rentalPtrm)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_DISC_CODE')"
         >
-          <p>{{ salesRentalInf.col8 }}</p>
+          <p>{{ salesRentalInf.sellDscTpCd }}</p>
         </kw-form-item>
       </kw-form-row>
-
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_LEASE_DV')"
         >
-          <p>{{ salesRentalInf.reqdDtm }}</p>
+          <p>{{ salesRentalInf.sellTpDtlCd }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE2_MM_CHRAM')"
         >
-          <p>{{ salesRentalInf.rentalPtrm }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.rentalAmt2)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_MNGT_PRD_MCNT')"
         >
-          <p>{{ salesRentalInf.rentalDscAmt2 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.svPrd)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_1PLUS1_LK_CNTR')"
         >
-          <p>{{ salesRentalInf.col2 }}</p>
+          <p>{{ salesRentalInf.ojDtlCntr1 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE2_DSC')"
         >
-          <p>{{ salesRentalInf.col5 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.rentalDscAmt2)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_PAR_CNTR')"
         >
-          <p>{{ salesRentalInf.col9 }}</p>
+          <p>{{ salesRentalInf.ojDtlCntr3 }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_ALNC_LK_CNTR')"
         >
-          <p>{{ salesRentalInf.rentalDscAmt }}</p>
+          <p>{{ salesRentalInf.ojDtlCntr2 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE2_MCNT')"
         >
-          <p>{{ salesRentalInf.col6 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.rentalPtrm2)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_SL_DT')"
         >
-          <p>{{ salesRentalInf.col10 }}</p>
+          <p>{{ stringUtil.getDateFormat(salesRentalInf.slRcogDt) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
 
     <kw-form
       v-if="isShow2"
+      :cols="4"
       dense
     >
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_MM_SSPCS')"
         >
-          <p>{{ salesMembershipInf.sellAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesMembershipInf.sellAmt)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_DISC_CODE')"
         >
-          <p>{{ salesMembershipInf.col3 }}</p>
+          <p>{{ salesMembershipInf.sellDscTpCd }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_WDWAL_DT')"
         >
-          <p>{{ salesMembershipInf.col4 }}</p>
+          <p>{{ stringUtil.getDateFormat(salesMembershipInf.mshWdwalDt) }}</p>
         </kw-form-item>
         <kw-form-item
-          :label="$t('MSG_TXT_TXT_MSG_SV_VST_PRD_CD')"
+          :label="$t('MSG_TXT_VST_PRD')"
         >
-          <p>{{ salesMembershipInf.col7 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesMembershipInf.svPrd2)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_STPL_MCNT')"
         >
-          <p>{{ salesMembershipInf.col1 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesMembershipInf.stplPtrm)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_DSC_AMT')"
         >
-          <p>{{ salesMembershipInf.istmMcn }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesMembershipInf.dscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_VST_DT')"
         >
-          <p>{{ salesMembershipInf.col5 }}</p>
+          <p>{{ stringUtil.getDateFormat(salesMembershipInf.sppDuedt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_MNGT_PRD')"
         >
-          <p>{{ salesMembershipInf.col2 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesMembershipInf.svPrd1)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_J_DT')"
         >
-          <p>{{ salesMembershipInf.dscAmt }}</p>
+          <p>{{ stringUtil.getDateFormat(salesMembershipInf.jDt) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_VST_NMN')"
         >
-          <p>{{ salesMembershipInf.col6 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesMembershipInf.vstNmnN)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
 
     <kw-form
       v-if="isShow3"
+      :cols="4"
       dense
     >
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_FRISU_MSH')"
         >
-          <p>{{ salesSingleInf.frisuYn }}</p>
+          <p>{{ salesSingleInf.frisuBfsvcPtrmN }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_SALE_PRICE')"
         >
-          <p>{{ salesSingleInf.istmMcn }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesSingleInf.sellAmt)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_TK_AMT')"
         >
-          <p>{{ salesSingleInf.istmAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesSingleInf.cntrAmt2)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_ISTM_MCNT')"
         >
-          <p>{{ salesSingleInf.mmIstmAmt }}</p>
+          <p>{{ salesSingleInf.istmMcn }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_FRISU_AS')"
         >
-          <p>{{ salesSingleInf.sellAmt }}</p>
+          <p>{{ salesSingleInf.frisuAsPtrmN1 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_CNTRCT_AMT')"
         >
-          <p>{{ salesSingleInf.col1 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesSingleInf.fnlAmt)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_ISTM_AMT')"
         >
-          <p>{{ salesSingleInf.col2 }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesSingleInf.istmPcamAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item
           :label="$t('MSG_TXT_RECAP_MSH')"
         >
-          <p>{{ salesSingleInf.tkAmt }}</p>
+          <p>{{ salesSingleInf.frisuAsPtrmN2 }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_SBSCM')"
         >
-          <p>{{ salesSingleInf.cntrTam }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesSingleInf.cntrAmt1)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_MM_INTAM')"
         >
-          <p>{{ salesSingleInf.subscAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesSingleInf.mmIstmAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -265,17 +266,27 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { useDataService, stringUtil } from 'kw-lib';
+import { cloneDeep, toInteger } from 'lodash-es';
 
 const dataService = useDataService();
 const props = defineProps({
-  cntrDtlNo: {
+  cntrNo: {
     type: String,
     required: false,
     default: '',
   },
-  taskDiv: {
+  cntrSn: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  slRcogDt: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  sellTpCd: {
     type: String,
     required: false,
     default: '',
@@ -289,7 +300,10 @@ const isShow2 = ref(true);
 const isShow3 = ref(true);
 
 const searchParams = ref({
-  cntrDtlNo: props.cntrDtlNo,
+  cntrNo: props.cntrNo,
+  cntrSn: props.cntrSn,
+  slRcogDt: props.slRcogDt,
+  sellTpCd: props.sellTpCd,
 });
 
 const salesRentalInf = ref({});
@@ -301,31 +315,31 @@ async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
   console.log(searchParams.value);
 
-  const { taskDiv } = searchParams.value;
-  if (taskDiv === '2' || taskDiv === '3') {
+  const { sellTpCd } = searchParams.value;
+  if (sellTpCd === '2' || sellTpCd === '10') { // 렌탈, 리스
     const res = await dataService.get('/sms/wells/closing/sales-detail/rental', { params: cachedParams });
     console.log(res.data);
     salesRentalInf.value = res.data;
-  } else if (taskDiv === '4') {
+  } else if (sellTpCd === '3') { // 멤버십
     const res = await dataService.get('/sms/wells/closing/sales-detail/membership', { params: cachedParams });
     salesMembershipInf.value = res.data;
-  } else if (taskDiv === '1') {
+  } else if (sellTpCd === '1') { // 일시불
     const res = await dataService.get('/sms/wells/closing/sales-detail/single-payment', { params: cachedParams });
     salesSingleInf.value = res.data;
   }
 }
 
 onMounted(async () => {
-  console.log('props.taskDiv:', props.taskDiv);
-  if (props.taskDiv === '2' || props.taskDiv === '3') { // 렌탈, 금융리스
+  console.log('props.sellTpCd:', props.sellTpCd);
+  if (props.sellTpCd === '2' || props.sellTpCd === '10') { // 렌탈, 금융리스
     isShow1.value = true;
     isShow2.value = false;
     isShow3.value = false;
-  } else if (props.taskDiv === '4') { // 멤버십
+  } else if (props.sellTpCd === '3') { // 멤버십
     isShow1.value = false;
     isShow2.value = true;
     isShow3.value = false;
-  } else if (props.taskDiv === '1') { // 일시불
+  } else if (props.sellTpCd === '1') { // 일시불
     isShow1.value = false;
     isShow2.value = false;
     isShow3.value = true;
