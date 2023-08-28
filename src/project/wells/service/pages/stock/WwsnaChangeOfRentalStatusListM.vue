@@ -81,6 +81,8 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <!-- 단위 -->
+          <span class="ml8">{{ t('MSG_TXT_UNIT_EA') }}</span>
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
