@@ -404,6 +404,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 // 조회 버튼 클릭
@@ -485,7 +486,7 @@ function initGrid(data, view) {
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '120', styleName: 'text-center' }, // [계약자명] 계약자정보
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '120', styleName: 'text-center' }, // [설치자명] 설치자명
     { fieldName: 'cntrTno', header: t('MSG_TXT_MPNO'), width: '140', styleName: 'text-center' }, // [휴대전화번호] 계약자 휴대폰번호 마스킹
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '220', styleName: 'text-center' }, // [상품분류] 상품분류(대분류 > 중분류)
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '220' }, // [상품분류] 상품분류(대분류 > 중분류)
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '124', styleName: 'text-center' }, // [상품코드] 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220' }, // [상품명] 상품명
     { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '100', styleName: 'text-center' }, // [조직코드] 조직코드(판매자의조직코드)
