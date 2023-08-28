@@ -64,6 +64,7 @@
             :placeholder="t('MSG_TXT_MORE_INP_CHARS', [10])"
             rules="required|min:10"
             maxlength="2000"
+            :readonly="isDefault"
           />
         </kw-form-item>
       </kw-form-row>
@@ -79,7 +80,6 @@
         <!-- 저장 -->
         <kw-btn
           :label="$t('MSG_BTN_SAVE')"
-          negative
           @click="onClickSave"
         />
       </div>
@@ -88,7 +88,6 @@
         v-show="isDefault"
         v-model="defaultCheck"
         :label="`${$t('MSG_TXT_BASIC_INFO')} ${$t('MSG_TXT_CH')}`"
-        negative
         @click="onclickDefault"
       />
     </kw-action-bottom>

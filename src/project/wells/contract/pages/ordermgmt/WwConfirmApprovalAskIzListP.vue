@@ -43,6 +43,7 @@
         <template #left>
           <kw-paging-info :total-count="totalSubCount" />
         </template>
+        <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
       </kw-action-top>
       <kw-grid
         ref="grdSubRef"
@@ -130,7 +131,7 @@ const initGrdMain = defineGrid((data, view) => {
     /* { fieldName: 'col1', header: '요청순번', width: '78', styleName: 'text-center' }, */
     { fieldName: 'cntrAprAkDvCdNm', header: t('MSG_TXT_APR_REQ_CAT'), width: '301', styleName: 'text-center' },
     { fieldName: 'cntrAprFwDvNm', header: t('MSG_TXT_RQST'), width: '78', styleName: 'text-center' },
-    { fieldName: 'rqrNm', header: t('MSG_TXT_PIC'), width: '236', styleName: 'text-left' },
+    { fieldName: 'rqrNm', header: t('MSG_TXT_PIC'), width: '236', styleName: 'text-center' },
     { fieldName: 'sendDttm', header: t('MSG_TXT_SEND_DTM'), width: '236', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'aprvYn', header: t('MSG_TXT_APPR_STS'), width: '78', styleName: 'text-center' },
     { fieldName: 'aprvNm', header: t('MSG_TXT_APPROVER'), width: '78', styleName: 'text-center' },

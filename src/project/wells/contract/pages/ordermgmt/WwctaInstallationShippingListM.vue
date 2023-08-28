@@ -56,7 +56,7 @@
             :options="sttCode"
           />
         </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_CNTR_NO')">
+        <kw-search-item :label="t('MSG_TXT_CNTR_DTL_NO')">
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
