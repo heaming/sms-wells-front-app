@@ -262,14 +262,9 @@ const codes = await codeUtil.getMultiCodes(
 
 let cachedParams;
 async function fetchData() {
-  const { agrgDv, inquiryDivide, sellTpCd, sellTpDtlCd } = searchParams.value;
+  const { agrgDv, inquiryDivide, sellTpCd } = searchParams.value;
   let res;
   let mainView;
-
-  console.log('agrgDv:', agrgDv);
-  console.log('inquiryDivide:', inquiryDivide);
-  console.log('sellTpCd:', sellTpCd);
-  console.log('sellTpDtlCd:', sellTpDtlCd);
 
   if (agrgDv === '2') { // 일자별
     mainView = grdMainRef.value.getView();
