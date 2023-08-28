@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-search
+    one-row
     :cols="4"
     @search="onClickSearch"
   >
@@ -27,8 +28,8 @@
         <zctz-contract-detail-number
           v-model:cntr-no="searchParams.cntrNo"
           v-model:cntr-sn="searchParams.cntrSn"
+          icon="search"
           class="w300"
-          disable-popup="true"
           rules="required"
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
         />
