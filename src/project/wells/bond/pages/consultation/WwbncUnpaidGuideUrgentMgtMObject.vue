@@ -455,7 +455,7 @@ const initObjectGrid = defineGrid((data, view) => {
     // rev:230410 header 텍스트 변경
     { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '110', styleName: 'text-center' },
     // //rev:230410 header 텍스트 변경
-    { fieldName: 'cntrTpNm', header: t('MSG_TXT_CONTR_TYPE'), width: '110', styleName: 'text-center' },
+    { fieldName: 'copnDvNm', header: t('MSG_TXT_CONTR_TYPE'), width: '110', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTR_PERSON_NAME'), width: '110', styleName: 'text-center' },
     { fieldName: 'cstY', header: t('MSG_TXT_CST_Y'), width: '120', styleName: 'text-center' },
     { fieldName: 'cstCd', header: t('MSG_TXT_CST_CD'), width: '110', styleName: 'text-center' },
