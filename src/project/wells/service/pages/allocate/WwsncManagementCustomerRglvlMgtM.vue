@@ -163,7 +163,7 @@
         <kw-select
           ref="mngStdMngerRglvlDvCdRef"
           v-model="mngStd.mngStdMngerRglvlDvCd"
-          :options="codes.RGLVL_DV_CD"
+          :options="codes.MNGER_RGLVL_DV_CD"
           first-option
           first-option-value=""
           :first-option-label="$t('MSG_TXT_SLCT_MNGER_RGLVL_DV')"
@@ -209,7 +209,7 @@
         <kw-select
           ref="curMnthAlctnMngerRglvlDvCdRef"
           v-model="curMnthAlctn.curMnthAlctnMngerRglvlDvCd"
-          :options="codes.RGLVL_DV_CD"
+          :options="codes.MNGER_RGLVL_DV_CD"
           first-option
           first-option-value=""
           :first-option-label="$t('MSG_TXT_SLCT_MNGER_RGLVL_DV')"
@@ -253,7 +253,7 @@ const { t } = useI18n();
 const { alert, notify } = useGlobal();
 
 const codes = await codeUtil.getMultiCodes(
-  'RGLVL_DV_CD',
+  'MNGER_RGLVL_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
 
@@ -649,7 +649,7 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_MNGER_RGLVL_DV'),
       width: '100',
       styleName: 'text-center',
-      options: codes.RGLVL_DV_CD,
+      options: codes.MNGER_RGLVL_DV_CD,
       editor: {
         type: 'dropdown',
       } }, // 관리기준(관리계정): 관리기준급지
@@ -660,7 +660,7 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_MNGER_RGLVL_DV'),
       width: '100',
       styleName: 'text-center',
-      options: codes.RGLVL_DV_CD,
+      options: codes.MNGER_RGLVL_DV_CD,
       editor: {
         type: 'dropdown',
       },
