@@ -24,7 +24,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item
+        <!--        <kw-search-item
           :colspan="1"
           :label="$t('MSG_TXT_SV_TP' /*서비스유형*/)"
         >
@@ -47,13 +47,12 @@
             option-label="prtnrNm"
             option-value="prtnrNo"
           />
-        </kw-search-item>
+        </kw-search-item>-->
 
         <kw-search-item
-          :colspan="1"
           :label="$t('MSG_TXT_PD_GRP')"
         >
-          <kw-select
+          <!--          <kw-select
             v-model="searchParams.pdGrpCd"
             :label="$t('MSG_TXT_PD_GRP')"
             :options="codes.PD_GRP_CD"
@@ -64,10 +63,28 @@
             v-model="searchParams.pdCd"
             :options="productCode"
             first-option="all"
+          />-->
+          <kw-select
+            v-model="searchParams.pdGrpCd"
+            :label="$t('MSG_TXT_PD_GRP')"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            class="w100"
+            @change="changePdGrpCd"
+          />
+          <!--            rules="required"-->
+          <kw-select
+            v-model="searchParams.pdCd"
+            :label="$t('MSG_TXT_PRDT')"
+            :options="pds"
+            class="w220"
+            first-option="all"
+            option-label="cdNm"
+            option-value="cd"
           />
         </kw-search-item>
       </kw-search-row>
-      <kw-search-row>
+      <!--      <kw-search-row>
         <kw-search-item
           :colspan="1"
           label="조회기준"
@@ -90,7 +107,7 @@
             rules="date_range_months:1"
           />
         </kw-search-item>
-      </kw-search-row>
+      </kw-search-row>-->
     </kw-search>
 
     <div class="result-area">
@@ -142,7 +159,7 @@ import { codeUtil, useDataService, useMeta, defineGrid, getComponentType } from 
 import { cloneDeep } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
-const { getServiceCenterOrgs, getServiceCenterPrtnr, getPartMaster } = useSnCode();
+const { /* getServiceCenterOrgs, */ getServiceCenterPrtnr, getPartMaster } = useSnCode();
 const dataService = useDataService();
 const { t } = useI18n();
 // eslint-disable-next-line no-unused-vars
@@ -157,6 +174,7 @@ const codes = await codeUtil.getMultiCodes(
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const pds = ref([]);// = await getPartMaster('4', '1', 'M');
 const grdMainRef = ref(getComponentType('KwGrid'));
 const pageInfo = ref({
   totalCount: 0,
@@ -182,7 +200,7 @@ watch(() => [searchParams.value.pdGrpCd], async () => {
   productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.codeName }));
 }, { immediate: true });
 
-const servierCenterOrg = await getServiceCenterOrgs();
+// const servierCenterOrg = await getServiceCenterOrgs();
 
 watch(() => [searchParams.value.ogId], async () => {
   prtNrs.value = await getServiceCenterPrtnr(searchParams.value.ogId);
@@ -202,23 +220,46 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
+
+async function changePdGrpCd() {
+  if (searchParams.value.pdGrpCd) {
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
+  } else pds.value = [];
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'svBizHclsfNm', header: '서비스유형', width: '100', styleName: 'text-center' },
-    { fieldName: 'ogNm', header: '서비스센터명', width: '150', styleName: 'text-left' },
-    { fieldName: 'prtnrNm', header: '파트너명', width: '150', styleName: 'text-left' },
-    { fieldName: 'cntrCstNo', header: '고객번호', width: '150', styleName: 'text-center' },
-    { fieldName: 'istllKnm', header: '고객명', width: '150', styleName: 'text-left' },
-    { fieldName: 'tel', header: '연락처', width: '150', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: 'SAP코드', width: '170', styleName: 'text-center' },
+    // { fieldName: 'ogNm', header: '서비스센터명', width: '150', styleName: 'text-left' },
+    // { fieldName: 'prtnrNm', header: '파트너명', width: '150', styleName: 'text-left' },
+    // { fieldName: 'cntrCstNo', header: '고객번호', width: '150', styleName: 'text-center' },
+    // { fieldName: 'istllKnm', header: '고객명', width: '150', styleName: 'text-left' },
+    // { fieldName: 'tel', header: '연락처', width: '150', styleName: 'text-center' },
     { fieldName: 'pdNm', header: '상품명', width: '200', styleName: 'text-left' },
     { fieldName: 'pdCd', header: '품목코드', width: '150', styleName: 'text-center' },
-    { fieldName: 'adr', header: '주소', width: '400', styleName: 'text-left' },
-    { fieldName: 'cnslMoCn', header: '접수증상', width: '400', styleName: 'text-left' },
-    { fieldName: 'pdAbbrNm', header: '추천자재', width: '300', styleName: 'text-left' },
+    // { fieldName: 'adr', header: '주소', width: '400', styleName: 'text-left' },
     { fieldName: 'itmPdCd', header: '추천자재코드', width: '150', styleName: 'text-center' },
+    { fieldName: 'itmPdNm', header: '추천자재', width: '300', styleName: 'text-left' },
+    { fieldName: 'cnslTpLcsfCdNm', header: '접수증상', width: '120', styleName: 'text-left' },
+    { fieldName: 'cnslCn', header: '접수증상상세', width: '400', styleName: 'text-left' },
+    { fieldName: 'itmRcmdRnk', header: '추천순위', width: '100', styleName: 'text-center' },
+    { fieldName: 'itmRcmdQty', header: '수량', width: '100', styleName: 'text-right' },
+
   ];
   data.setFields(columns.map((item) => ({ fieldName: item.fieldName })));
   view.setColumns(columns);
@@ -234,8 +275,8 @@ const initGrdMain = defineGrid((data, view) => {
 onMounted(async () => {
   if (window.location.href.includes('localhost')) {
     searchParams.value.svTpCd = '3';
-    // searchParams.value.pdGrpCd = '1';
-    // searchParams.value.pdCd = 'WM03100816';
+    searchParams.value.pdGrpCd = '1';
+    searchParams.value.pdCd = 'WM03100205';
     searchParams.value.dateType = 'vstCnfmdt';
     searchParams.value.dateValueFromDt = '20230701';
     searchParams.value.dateValueToDt = '20230725';
