@@ -1282,12 +1282,12 @@ const initEgerMain = defineGrid((data, view) => {
   ]);
 
   // 헤더쪽 합계 행고정, summary
-  view.layoutByColumn('ogNm').summaryUserSpans = [{ colspan: 5 }];
+  // view.layoutByColumn('ogNm').summaryUserSpans = [{ colspan: 5 }];
   view.setHeaderSummaries({
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -1411,12 +1411,12 @@ const initEgerMnger = defineGrid((data, view) => {
   view.rowIndicator.visible = true; // create number indicator column
 
   // 헤더쪽 합계 행고정, summary
-  view.layoutByColumn('ogNm').summaryUserSpans = [{ colspan: 5 }];
+  // view.layoutByColumn('ogNm').summaryUserSpans = [{ colspan: 5 }];
   view.setHeaderSummaries({
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
