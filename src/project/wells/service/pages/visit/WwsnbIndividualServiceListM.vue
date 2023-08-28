@@ -406,7 +406,6 @@
         />
         <!-- 연체정보 -->
         <kw-tab
-          v-if="isDisableTab"
           name="2"
           :label="$t('MSG_BTN_DLQ_INF')"
         />
@@ -458,7 +457,6 @@
           />
         </kw-tab-panel>
         <kw-tab-panel
-          v-if="isDisableTab"
           name="2"
         >
           <kw-action-top class="mt30">
@@ -550,9 +548,9 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const { getters } = useStore();
-const userInfo = getters['meta/getUserInfo'];
-const { departmentId } = userInfo;
+// const { getters } = useStore();
+// const userInfo = getters['meta/getUserInfo'];
+// const { departmentId } = userInfo;
 
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
@@ -569,7 +567,7 @@ const grdIndividualStateRef = ref(getComponentType('KwGrid')); // 처리내역 �
 const grdIndividualCounselRef = ref(getComponentType('KwGrid')); // 상담내역 조회
 const grdIndividualDelinquentRef = ref(getComponentType('KwGrid')); // 연체정보 조회
 const individualParams = ref([]);
-const isDisableTab = computed(() => departmentId !== '71301' || departmentId === '70526');
+// const isVisibleTab = computed(() => departmentId === '71301' || departmentId === '70526');
 const svHshdNo = ref('');
 const selectedTab = ref('1');
 // const cntrDtlNo = ref();

@@ -133,6 +133,9 @@
       <kw-image
         v-if="!isEmpty(data.cstSignCn)"
         :src="data.cstSignCn"
+        width="100%"
+        height="100%"
+        fit="contain"
       />
     </div>
 

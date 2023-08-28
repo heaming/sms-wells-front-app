@@ -993,7 +993,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setCheckBar({ checkableCallback: f });
   view.rowIndicator.visible = true;
   view.setFixedOptions({ colCount: 3, resizable: true });
-  view.setFooters({ visible: true, items: [{ height: 40 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
     if (column === 'cntrNo') {
       const cntrNo = grid.getValue(itemIndex, 'cntrNo');

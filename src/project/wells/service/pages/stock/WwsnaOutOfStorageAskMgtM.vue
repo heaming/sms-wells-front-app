@@ -279,7 +279,7 @@ function initGrdMain(data, view) {
     { fieldName: 'wareNm', header: t('MSG_TXT_OSTR_AK_RCP_WARE'), width: '150', styleName: 'text-center' },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_STR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'itmNm',
-      header: t('MSG_TXT_ITM_NM'),
+      header: t('MSG_TXT_NOTE'),
       width: '150',
       styleName: 'text-center',
       renderer: {

@@ -942,7 +942,7 @@ async function onEditRfnd(cntrNo, rveNo, rveSn) {
     }
   }
 
-  grdPopRef4.value.getView().setValue(0, 'totRfndBltfAkAmt', Number(temp));
+  // grdPopRef4.value.getView().setValue(0, 'totRfndBltfAkAmt', Number(temp));
   totBltfAkAmt.value = temp;
 }
 
@@ -976,6 +976,7 @@ async function onCheckTotalData() {
   view4.setValue(0, 'totRfndBltfAkAmt', temp3);
   view4.setValue(0, 'totCrdcdFeeAmt', temp4);
   view4.setValue(0, 'totRfndEtAmt', Number(temp1) + Number(temp2) + Number(temp3) + Number(temp4));
+
   totRfndAkAmt.value = temp5; // 환불상세 총액
 
   totBltfAkAmt.value = temp3; // 전금상세 총액

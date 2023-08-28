@@ -213,7 +213,7 @@ import {
   useGlobal,
 } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep, replace } from 'lodash-es';
+import { cloneDeep, replace, isEmpty } from 'lodash-es';
 import { RowState } from 'realgrid';
 
 const { t } = useI18n();
@@ -236,8 +236,8 @@ const tfPrtnrKnmRef = ref();
 const engineers1 = ref([]);
 /* 공통코드 가져오기 */
 const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
-const initCenter = svcCode.filter((v) => v.ogId === sessionUserInfo.ogId)[0].ogId;
-
+const sessionVal = svcCode.filter((v) => v.ogId === sessionUserInfo.ogId)[0];
+const initCenter = (!isEmpty(sessionVal) ? sessionVal.ogId : '');
 /* 조회조건 */
 const searchVal = ref({
   svCnrOgId: initCenter,
