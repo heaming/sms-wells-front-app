@@ -22,7 +22,7 @@
       <kw-search-row>
         <!-- 계약번호 -->
         <kw-search-item
-          :label="$t('MSG_TXT_CNTR_NO')"
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
         >
           <zctz-contract-detail-number
             ref="contractNumberRef"
@@ -75,7 +75,7 @@
         <kw-form-row>
           <!-- 계약번호 -->
           <kw-form-item
-            :label="$t('MSG_TXT_CNTR_NO')"
+            :label="$t('MSG_TXT_CNTR_DTL_NO')"
           >
             <p>{{ individualParams.cntrNoDtl }}</p>
           </kw-form-item>
@@ -742,7 +742,7 @@ async function getIndividualCounsel() {
 
 async function onClickSearch() {
   if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) {
-    notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_NO')}, ${t('MSG_TXT_BARCODE')}`]));
+    notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`]));
   } else {
     await getIndividualServicePs();
     if (isEmpty(individualParams.value)) {
