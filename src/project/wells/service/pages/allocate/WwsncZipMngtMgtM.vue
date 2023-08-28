@@ -61,7 +61,7 @@
         <kw-search-item :label="'급지'">
           <kw-select
             v-model="searchParams.mngerRglvlDvCd"
-            :options="customCodes.RGLVL_DV_CD"
+            :options="customCodes.MNGER_RGLVL_DV_CD"
             first-option="all"
             first-option-value=""
           />
@@ -161,7 +161,7 @@ const customCodes = {
   ],
   MNGR_DV_CD: [], // 관리구분
   LOCARA_VST_PRD_CD: [], // 방문주기
-  RGLVL_DV_CD: [], // 급지
+  MNGER_RGLVL_DV_CD: [], // 급지
   DGR_2_LEVL_OG: [], // 지역단
 };
 
@@ -183,21 +183,21 @@ const codes = await codeUtil.getMultiCodes(
   'MNGR_DV_CD', // 관리구분
   // 'ADR_DV_ACD',    // cherro ::: DEL_YN 이 'Y'라서 조회를 못함.
   'LOCARA_VST_PRD_CD', // 지역 방문 주기
-  'RGLVL_DV_CD', // 급지 구분
+  'MNGER_RGLVL_DV_CD', // 급지 구분
 ).then((value) => {
   // customCodes에 조회용 공통코드 deep copy
   customCodes.MNGR_DV_CD = cloneDeep(value.MNGR_DV_CD);
   customCodes.LOCARA_VST_PRD_CD = cloneDeep(value.LOCARA_VST_PRD_CD);
-  customCodes.RGLVL_DV_CD = cloneDeep(value.RGLVL_DV_CD);
+  customCodes.MNGER_RGLVL_DV_CD = cloneDeep(value.MNGER_RGLVL_DV_CD);
 
   // Binding 되지 않은 데이터를 조회하기 위한 dummy code setting
   customCodes.MNGR_DV_CD.unshift({ codeId: 'NOTMATCH', codeName: t('미지정') });
   customCodes.LOCARA_VST_PRD_CD.unshift({ codeId: 'NOTMATCH', codeName: t('없음') });
-  customCodes.RGLVL_DV_CD.unshift({ codeId: 'NOTMATCH', codeName: t('없음') });
+  customCodes.MNGER_RGLVL_DV_CD.unshift({ codeId: 'NOTMATCH', codeName: t('없음') });
 
   // Grid에 null code binding을 위한 dummy code setting
   value.LOCARA_VST_PRD_CD.unshift({ codeId: null, codeName: t('없음') });
-  value.RGLVL_DV_CD.unshift({ codeId: null, codeName: t('없음') });
+  // value.MNGER_RGLVL_DV_CD.unshift({ codeId: null, codeName: t('없음') });
 
   return value;
 });
@@ -352,7 +352,7 @@ const initGridMain = defineGrid((data, view) => {
       optionLabel: 'ogNm',
       editor: { type: 'list' },
     },
-    { fieldName: 'mngerRglvlDvCd', header: '급지', width: '100', styleName: 'text-center', options: codes.RGLVL_DV_CD, editor: { type: 'list' } },
+    { fieldName: 'mngerRglvlDvCd', header: '급지', width: '100', styleName: 'text-center', options: codes.MNGER_RGLVL_DV_CD, editor: { type: 'list' } },
     { fieldName: 'fnlMdfcDtm', header: '최종수정일자', width: '100', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
   ];
 
