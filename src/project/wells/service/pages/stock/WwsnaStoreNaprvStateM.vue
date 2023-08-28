@@ -17,7 +17,7 @@
   <kw-page>
     <kw-search
       one-row
-      :cols="3"
+      :cols="4"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -29,12 +29,21 @@
           v-model:ware-no-m="searchParams.strWareNoM"
           v-model:ware-no-d="searchParams.strWareNoD"
           sub-first-option="all"
-          :colspan="4"
+          :colspan="3"
           :label1="$t('MSG_TXT_OSTR_PTRM')"
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeWareDvCd"
         />
+        <!-- @update:ware-no-m="onChagneHgrWareNo" -->
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
+          <kw-select
+            v-model="searchParams.wareDtlDvCd"
+            :options="filterWareDtlDvCd"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -103,6 +112,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'STR_TP_CD',
   'WARE_DV_CD',
+  'WARE_DTL_DV_CD',
 );
 
 /*
@@ -137,13 +147,25 @@ const searchParams = ref({
   strWareDvCd: '',
   strWareNoM: '',
   strWareNoD: '',
-  // selectedStrWareNoD: [{ codeId: '1', codeName: '조직창고' }, { codeId: '2', codeName: '개인창고' }],
+  wareDtlDvCd: '',
 });
 
 /*
- *  strWareNoM 선택하지 않아도, 조직창고/개인창고 선택 가능하게 (이지영 매니저님)
+ * 창고
  */
-// const isStrWarNoMSelected = computed(() => searchParams.value.strWareNoM !== '');
+const wareDtlDvCd = [
+  { codeId: '10', codeName: '물류센터창고', strWareDvCd: '1' },
+  { codeId: '20', codeName: '조직창고(서비스센터)', strWareDvCd: '2' },
+  { codeId: '21', codeName: '개인창고(서비스센터)', strWareDvCd: '2' },
+  { codeId: '30', codeName: '조직창고(영업센터)', strWareDvCd: '3' },
+  { codeId: '31', codeName: '개인창고(영업센터)', strWareDvCd: '3' },
+  { codeId: '32', codeName: '독립창고(영업센터)', strWareDvCd: '3' },
+];
+const filterWareDtlDvCd = ref([]);
+const onChangeWareDvCd = async () => {
+  filterWareDtlDvCd.value = wareDtlDvCd;
+  filterWareDtlDvCd.value = wareDtlDvCd.filter((v) => v.strWareDvCd === searchParams.value.strWareDvCd);
+};
 
 async function fetchData() {
   // eslint-disable-next-line max-len

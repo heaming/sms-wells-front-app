@@ -248,7 +248,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'itmGdCd', visible: false },
     { fieldName: 'pdNm', header: t('MSG_TXT_MATI_NM'), width: '250', styleName: 'text-center' },
-    { fieldName: 'strQty', header: t('MSG_TXT_STR_QTY'), width: '100', styleName: 'text-center', dataType: 'number' },
+    { fieldName: 'strQty', header: t('MSG_TXT_STR_QTY'), width: '90', styleName: 'text-center', dataType: 'number' },
     { fieldName: 'itmOstrNo', visible: false },
     { fieldName: 'ostrSn', visible: false },
     { fieldName: 'strSn', visible: false },
