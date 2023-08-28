@@ -135,8 +135,7 @@
             :colspan="2"
           >
             <kw-input
-              v-model="saveParams.cstUnuitmCn"
-              :placeholder="individualParams.cstUnuitmCn"
+              v-model="individualParams.cstUnuitmCn"
               type="textarea"
               rows="1"
             />
@@ -786,7 +785,7 @@ async function onClickSave() {
   saveParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
   saveParams.value.ogTpCd = individualParams.value.wkOgTpCd;
   saveParams.value.wkPrtnrNo = individualParams.value.wkPrtnrNo;
-
+  saveParams.value.cstUnuitmCn = individualParams.value.cstUnuitmCn;
   if (isEmpty(saveParams.value.cstUnuitmCn)) { return; }
   await dataService.post('sms/wells/service/individual-service-ps', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
