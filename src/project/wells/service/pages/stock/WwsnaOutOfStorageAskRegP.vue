@@ -720,11 +720,18 @@ const initGrdMain = defineGrid((data, view) => {
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     const { imgUrl } = g.getValues(itemIndex);
     if (column === 'imgUrl') {
-      await modal({
-        component: 'ZwcmzImagePreviewP',
-        componentProps: { files: [imgUrl] }, // fileUid만 주면 됨
+      if (isEmpty(imgUrl)) {
+        notify(t('MSG_ALT_NOT_PHO'));
+      } else {
+        await modal({
+          component: 'ZwcmzImagePreviewP',
+          componentProps: { files: [
+            { fileUid: imgUrl },
+          ] },
+          // componentProps: { files: [imgUrl] }, // fileUid만 주면 됨
         // componentProps: { files: ['FIL-E9E84666-BFC3-44E2-9EC1-D3AFD05BF77B'] }, // fileUid만 주면 됨
-      });
+        });
+      }
     }
   };
 
