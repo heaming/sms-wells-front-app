@@ -418,6 +418,7 @@ import {
   useDataService,
   useModal,
   useMeta,
+  stringUtil,
 } from 'kw-lib';
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
@@ -573,14 +574,17 @@ async function onClickAgreementFoward() {
   // if (sessionUserInfo.employeeIDNumber === safetyAccident.cnrldNo) {
   //   if (!await frmMainRef5.value.confirmIfIsModified()) { return; }
   // }
+  console.log(safetyAccident.value);
+  debugger;
   const { result } = await modal({
     component: 'WwsnbSafetyAccidentAgreeBiztalkP',
     componentProps: {
       acdnRcpId: props.acdnRcpId,
       cntrNo: safetyAccident.value.cntrNo,
-      cntrsn: safetyAccident.value.cntrSn,
+      cntrSn: safetyAccident.value.cntrSn,
       pdNm: safetyAccident.value.pdNm,
       cstNm: safetyAccident.value.cstNm,
+      rcpdt: stringUtil.getDateFormat(safetyAccident.value.rcpdt),
     },
   });
 
@@ -631,11 +635,14 @@ async function onClickSave() {
 
 function onChangeKwCpsAmt() {
   safetyAccident.value.totCpsAmt = Number(safetyAccident.value.insrcoCpsAmt) + Number(safetyAccident.value.kwCpsAmt);
+  if (safetyAccident.value.kwCpsAmt > 0) {
+    safetyAccident.value.cpsPrgsNm = '(주)교원프라퍼티(101-81-39767)';
+  }
 }
 
 function onChangeInsrcoCpsAmt() {
   safetyAccident.value.totCpsAmt = Number(safetyAccident.value.insrcoCpsAmt) + Number(safetyAccident.value.kwCpsAmt);
-  if (safetyAccident.value.insrcoCpsAmt > 1) {
+  if (safetyAccident.value.insrcoCpsAmt > 0) {
     safetyAccident.value.cpsPrgsNm = '보험사';
   } else {
     safetyAccident.value.cpsPrgsNm = '(주)교원프라퍼티(101-81-39767)';
