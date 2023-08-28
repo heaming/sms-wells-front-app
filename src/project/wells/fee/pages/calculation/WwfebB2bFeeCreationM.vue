@@ -538,7 +538,7 @@ const initGridBase = defineGrid((data, view) => {
   view.setHeaderSummaries({
     visible: true,
     items: [
-      { height: 40 },
+      { height: 42 },
     ],
   });
   view.layoutByColumn('coCdNm').summaryUserSpans = [{ colspan: 3 }];

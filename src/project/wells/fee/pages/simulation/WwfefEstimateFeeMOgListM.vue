@@ -662,7 +662,7 @@ const initGridSalesHist = defineGrid((data, view) => {
   view.setHeaderSummaries({
     visible: true,
     items: [
-      { height: 40 },
+      { height: 42 },
     ],
   });
   view.layoutByColumn('prtnrKnm').summaryUserSpans = [{ colspan: 9 }];
