@@ -23,7 +23,6 @@
         <!-- 조회구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_INQR_DV')"
-          required
         >
           <kw-select
             v-model="searchParams.srchGbn"
@@ -377,6 +376,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'leadCstNm',
       header: t('MSG_TXT_CORP_NAME'),
       width: '214',
+      styleName: 'text-center',
       editor: {
         maxLength: 50,
       } }, // 업체명
@@ -422,28 +422,28 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         maxLength: 10,
       } }, // 신용등급
     { fieldName: 'etBiddDt',
-      header: `${t('MSG_TXT_BID')}${t('MSG_TXT_DUEDT')}`,
+      header: `${t('MSG_TXT_BID')}${t('MSG_TXT_EXP_MM')}`,
       width: '127',
       styleName: 'text-center',
       datetimeFormat: 'date',
       editor: {
         type: 'date',
-      } }, // 입찰예정일
+      } }, // 입찰예정월
     { fieldName: 'opptCntrFomCd',
       header: t('MSG_TXT_CNTR_FOM'),
       width: '127',
-      styleName: 'text-centerr',
+      styleName: 'text-center',
       options: codes.OPPT_CNTR_FOM_CD,
       editor: { type: 'list' } }, // 계약형태
-    { fieldName: 'totQty', header: t('MSG_TXT_TOT_QTY'), width: '127', styleName: 'text-center', editable: false }, // 총 수량
-    { fieldName: 'wrfrQty', header: t('MSG_TXT_WRFR'), width: '142', styleName: 'text-center', editable: false }, // 정수기
-    { fieldName: 'arcleQty', header: t('MSG_TXT_PUF'), width: '142', styleName: 'text-center', editable: false }, // 청정기
-    { fieldName: 'bdtQty', header: t('MSG_TXT_BDT'), width: '142', styleName: 'text-center', editable: false }, // 비데
-    { fieldName: 'etcQty', header: t('MSG_TXT_ETC'), width: '142', styleName: 'text-center', editable: false }, // 기타
+    { fieldName: 'totQty', header: t('MSG_TXT_TOT_QTY'), width: '127', styleName: 'text-right', editable: false }, // 총 수량
+    { fieldName: 'wrfrQty', header: t('MSG_TXT_WRFR'), width: '142', styleName: 'text-right', editable: false }, // 정수기
+    { fieldName: 'arcleQty', header: t('MSG_TXT_PUF'), width: '142', styleName: 'text-right', editable: false }, // 청정기
+    { fieldName: 'bdtQty', header: t('MSG_TXT_BDT'), width: '142', styleName: 'text-right', editable: false }, // 비데
+    { fieldName: 'etcQty', header: t('MSG_TXT_ETC'), width: '142', styleName: 'text-right', editable: false }, // 기타
     { fieldName: 'etRcvodQty',
       header: `${t('MSG_BTN_ET')}${t('MSG_TXT_QTY')}`,
       width: '142',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editor: {
         type: 'number',
         maxLength: 12,
@@ -451,7 +451,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'etRcvodRat',
       header: t('MSG_TXT_ORDERS_RT'),
       width: '142',
-      styleName: 'text-center',
+      styleName: 'text-right',
       options: codes.RCVOD_PRBL_ACD,
       editor: { type: 'list' } }, // 수주확률
     { fieldName: 'rcvodDt',
@@ -478,7 +478,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       editor: {
         type: 'date',
       } }, // 계약시작일
-    { fieldName: 'maxStplPtrm', header: t('MSG_TXT_DUTY_STPL'), width: '142', styleName: 'text-center', editable: false }, // 의무약정
+    { fieldName: 'maxStplPtrm', header: t('MSG_TXT_DUTY_STPL'), width: '142', styleName: 'text-right', editable: false }, // 의무약정
     { fieldName: 'biddBzsNm',
       header: `${t('MSG_TXT_BID')}${t('MSG_TXT_COMP')}`,
       width: '142',
