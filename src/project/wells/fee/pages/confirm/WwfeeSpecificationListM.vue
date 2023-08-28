@@ -290,7 +290,7 @@ function onClickOzReport(div) {
     args:
       {
         jsondata: [{
-          userDiv: searchParams.value.rsbDvCd === '1' ? 'P' : 'M', // 플래너/지점장
+          userDiv: '',
           basYear: searchParams.value.perfDt.substring(0, 4),
           basMonth: searchParams.value.perfDt.substring(4, 6),
           userId: searchParams.value.prtnrNo,
@@ -330,23 +330,8 @@ async function onChangeOgTpCd() {
 }
 
 async function onChangeDiv() {
-  let feeCalcUnitTpCd = '201';
-
-  if (searchParams.value.ogTpCd === 'W01') { // P추진단
-    if (searchParams.value.rsbDvCd === 'W0105') feeCalcUnitTpCd = '101'; // 플래너
-    else feeCalcUnitTpCd = '102'; // 지점장
-  } else if (searchParams.value.ogTpCd === 'W02') { // M추진단
-    if (searchParams.value.rsbDvCd === 'W0205') feeCalcUnitTpCd = '201'; // 플래너
-    else feeCalcUnitTpCd = '202'; // 지점장
-  } else if (searchParams.value.ogTpCd === 'W03') { // 홈마스터
-    if (searchParams.value.rsbDvCd === 'W0302') feeCalcUnitTpCd = '301'; // 홈마스터
-    else feeCalcUnitTpCd = '302'; // 지점장
-  }
-
-  searchParams.value.feeCalcUnitTpCd = feeCalcUnitTpCd;
   await getFeeCodes();
-  cashedFeeCodes = feeCodes.filter((obj) => (obj.feeCalcUnitTpCd === searchParams.value.feeCalcUnitTpCd)); // 수수료 코드 필터링
-
+  cashedFeeCodes = feeCodes.filter((obj) => (obj.rsbDvCd === searchParams.value.rsbDvCd)); // 수수료 코드 필터링
   fieldsObj.setFields();
 }
 
@@ -385,10 +370,10 @@ fieldsObj = {
   },
   pp: { // P추진단 / 플래너
     perfFields: [ // 실적부분
-      { fieldName: 'w01p00001', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 가전인정건수
-      { fieldName: 'w01p00004', header: t('MSG_TXT_ELHM_EXCP_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전외
-      { fieldName: 'w01p00009', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 합산
-      { fieldName: 'w01p00028', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 기변실적
+      { fieldName: 'perf02', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 가전인정건수
+      { fieldName: 'perf03', header: t('MSG_TXT_ELHM_EXCP_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전외
+      { fieldName: 'perf04', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 합산
+      { fieldName: 'perf05', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 기변실적
     ],
     deductionFields: [ // 공제 부분
       { fieldName: 'ddtn02', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
@@ -417,14 +402,14 @@ fieldsObj = {
   },
   pm: { // P추진단 / 지점장
     perfFields: [ // 실적부분
-      { fieldName: 'oW01p00001', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전인정건수
-      { fieldName: 'oW01p00004', header: t('MSG_TXT_ELHM_EXCP_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전외
-      { fieldName: 'oW01p00029', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 조직 - 합산
+      { fieldName: 'perf01', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전인정건수
+      { fieldName: 'perf02', header: t('MSG_TXT_ELHM_EXCP_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전외
+      { fieldName: 'perf03', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 조직 - 합산
 
-      { fieldName: 'pW01p00001', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전인정건수
-      { fieldName: 'pW01p00004', header: t('MSG_TXT_ELHM_EXCP_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전외
-      { fieldName: 'pW01p00009', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 합산
-      { fieldName: 'pW00p00028', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 기변실적
+      { fieldName: 'perf04', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전인정건수
+      { fieldName: 'perf05', header: t('MSG_TXT_ELHM_EXCP_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전외
+      { fieldName: 'perf06', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 합산
+      { fieldName: 'perf07', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 기변실적
     ],
     deductionFields: [ // 공제 부분
       { fieldName: 'ddtn02', header: t('MSG_TXT_ERNTX'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 소득세
@@ -468,9 +453,9 @@ fieldsObj = {
     const ddenSumFields = { fieldName: 'ddtnsum', header: t('MSG_TXT_DDTN_SUM'), width: '142.8', styleName: 'text-right', dataType: 'number' }; // 공제계
     const dsbAmtFields = { fieldName: 'dsbamt', header: t('MSG_TXT_PAYOUTS'), width: '142.8', styleName: 'text-right', dataType: 'number' }; // 지급액
 
-    const tmpFeeFields = cashedFeeCodes.map((obj) => ({ fieldName: obj.feeNm, header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
+    const tmpFeeFields = cashedFeeCodes.map((obj) => ({ fieldName: obj.feeCd.toUpperCase(), header: obj.feeNm, width: '142.8', styleName: 'text-right', dataType: 'number' }));
 
-    if (searchParams.value.feeCalcUnitTpCd === '102') { // P추진단 / 지점장
+    if (searchParams.value.rsbDvCd === 'W0104') { // P추진단 / 지점장
       const { perfFields } = fieldsObj.pm;
       const { deductionFields } = fieldsObj.pm;
 
@@ -481,12 +466,12 @@ fieldsObj = {
         {
           header: t('MSG_TXT_OG_PERF'),
           direction: 'horizontal', // merge type
-          items: ['oW01p00001', 'oW01p00004', 'oW01p00029'],
+          items: ['perf01', 'perf02', 'perf03'],
         },
         {
           header: t('MSG_TXT_INDV_PERF'),
           direction: 'horizontal', // merge type
-          items: ['pW01p00001', 'pW01p00004', 'pW01p00009', 'pW00p00028'],
+          items: ['perf04', 'perf05', 'perf06', 'perf07'],
         },
         {
           header: t('MSG_TXT_FEE'),
@@ -502,7 +487,7 @@ fieldsObj = {
         ...fieldsObj.getColumnNameArr([ddenSumFields]),
         ...fieldsObj.getColumnNameArr([dsbAmtFields]),
       ];
-    } else if (searchParams.value.feeCalcUnitTpCd === '302') { // 홈마스터 / 지점장
+    } else if (searchParams.value.rsbDvCd === 'W0301') { // 홈마스터 / 지점장
       const { perfFields } = fieldsObj.hm;
       const { deductionFields } = fieldsObj.hm;
 
@@ -537,16 +522,16 @@ fieldsObj = {
     } else {
       let perfFields = {};
       let deductionFields = {};
-      if (searchParams.value.feeCalcUnitTpCd === '101') { // p 추진단 플래너
+      if (searchParams.value.rsbDvCd === 'W0105') { // p 추진단 플래너
         perfFields = fieldsObj.pp.perfFields;
         deductionFields = fieldsObj.pp.deductionFields;
-      } else if (searchParams.value.feeCalcUnitTpCd === '201') { // m 추진단  플래너
+      } else if (searchParams.value.rsbDvCd === 'W0205') { // m 추진단  플래너
         perfFields = fieldsObj.mp.perfFields;
         deductionFields = fieldsObj.mp.deductionFields;
-      } else if (searchParams.value.feeCalcUnitTpCd === '202') { // m 추진단  지국장
+      } else if (searchParams.value.rsbDvCd === 'W0204') { // m 추진단  지국장
         perfFields = fieldsObj.mm.perfFields;
         deductionFields = fieldsObj.mm.deductionFields;
-      } else if (searchParams.value.feeCalcUnitTpCd === '301') { // 홈마스터 - 플래너
+      } else if (searchParams.value.rsbDvCd === 'W0302') { // 홈마스터 - 플래너
         perfFields = fieldsObj.hp.perfFields;
         deductionFields = fieldsObj.hp.deductionFields;
       }
