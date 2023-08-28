@@ -207,6 +207,7 @@
           :required="!cntrTpIs.crp"
         >
           <kw-input
+            v-model:model-value="searchParams.cntrtTno"
             v-model:telNo0="searchParams.cralLocaraTno"
             v-model:telNo1="searchParams.mexnoEncr"
             v-model:telNo2="searchParams.cralIdvTno"
@@ -481,6 +482,7 @@ const searchParams = ref({
   copnDvCd: '1',
   cstKnm: '',
   bzrno: '',
+  cntrtTno: '',
   cralLocaraTno: '',
   mexnoEncr: '',
   cralIdvTno: '',
@@ -718,9 +720,18 @@ async function onClickReStipulation() {
       ogTpCd,
     },
   });
-  if (result) {
-    emits('restipulation', payload.cntrNo, payload.cntrSn);
+  if (result && payload) {
+    await getCntrInfoByCst(payload.cntrCstNo);
+
+    setTimeout(() => {
+      searchParams.value.cstKnm = payload.cstKnm;
+      searchParams.value.cntrtTno = payload.cntrtTno;
+      searchParams.value.cralLocaraTno = payload.cralLocaraTno;
+      searchParams.value.mexnoEncr = payload.mexnoEncr;
+      searchParams.value.cralIdvTno = payload.cralIdvTno;
+    }, 0);
   }
+  // emits('restipulation', payload.cntrNo, payload.cntrSn); // 별도 처리없음
 }
 
 async function onClickMembership() {
@@ -738,13 +749,21 @@ async function onClickMembership() {
   if (result && payload) {
     mshCntr.value = payload;
     await getCntrInfoByCst(mshCntr.value.cntrCstNo);
+
+    setTimeout(() => {
+      searchParams.value.cstKnm = payload.cstKnm;
+      searchParams.value.cntrtTno = payload.cntrtTno;
+      searchParams.value.cralLocaraTno = payload.cralLocaraTno;
+      searchParams.value.mexnoEncr = payload.mexnoEncr;
+      searchParams.value.cralIdvTno = payload.cralIdvTno;
+    }, 0);
   }
   // emits('membership', payload.cntrNo, payload.cntrSn);
 }
 
 async function onChangeCntrtTpCd(v) {
   step1.value = ref({});
-  ['cstKnm', 'bzrno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno'].forEach((key) => {
+  ['cstKnm', 'bzrno', 'cntrtTno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno'].forEach((key) => {
     searchParams.value[key] = '';
   });
   if (v === '01') {
@@ -763,7 +782,7 @@ async function onChangeCntrtTpCd(v) {
 }
 
 async function onClickReset() {
-  ['cstKnm', 'bzrno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno',
+  ['cstKnm', 'bzrno', 'cntrtTno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno',
     'alncPrtnrDvCd', 'alncPrtnrNo', 'alncPrtnrNm'].forEach((key) => {
     searchParams.value[key] = '';
   });
