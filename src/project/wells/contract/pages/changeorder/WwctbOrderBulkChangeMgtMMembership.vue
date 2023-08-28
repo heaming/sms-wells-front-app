@@ -43,7 +43,10 @@
           :total-count="pageInfo.totalCount"
           @change="fetchData"
         />
-        <span class="ml8">(단위: 원)</span>
+        <!-- (단위: 원, 건, 개월) -->
+        <span class="ml8">({{ $t('MSG_TXT_UNIT') }}:
+          {{ $t('MSG_TXT_CUR_WON') }}, {{ $t('MSG_TXT_CNT') }}, {{ $t('MSG_TXT_MCNT') }})
+        </span>
       </template>
       <!-- 일괄변경 등록 -->
       <kw-btn

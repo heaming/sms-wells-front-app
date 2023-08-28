@@ -98,8 +98,15 @@ function onChangePmotApyOptCd() {
   emit('update:model-value', appliedPromotions.value);
 }
 
+function clearPromotions() {
+  promotions.value = [];
+  singlePromotions.value = [];
+  groupingPromotionDict.value = {};
+  groupingPromotions.value = [];
+}
+
 function initializePromotions(pmots) {
-  promotions.value = pmots;
+  clearPromotions();
   if (!pmots?.length) {
     return;
   }

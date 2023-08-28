@@ -620,6 +620,7 @@
             :bas="step2.bas"
             @one-plus-one="onClickOnePlusOne"
             @device-change="onClickDeviceChange"
+            @price-changed="onPriceChanged"
             @delete="onClickDelete"
           />
         </template>
@@ -647,6 +648,8 @@ const props = defineProps({
   contract: { type: Object, required: true },
   onChildMounted: { type: Function, required: true },
 });
+const emit = defineEmits(['contract-modified']);
+
 const { cntrNo: pCntrNo, step2 } = toRefs(props.contract);
 const ogStep2 = ref({});
 const pdFilter = ref('');
@@ -746,6 +749,7 @@ async function addProduct(pd) {
     npd.cntrRelDtlCd = '214';
   }
   resetCntrSn();
+  emit('contract-modified');
 }
 
 async function onClickProduct(pd) {
@@ -791,6 +795,7 @@ async function onClickDelete(pd) {
     step2.value.dtls = step2.value.dtls.filter((spd) => !spd.packaged);
   }
   await resetCntrSn();
+  emit('contract-modified');
 }
 
 async function onClickOnePlusOne(pd) {
@@ -909,7 +914,6 @@ async function onChangePkgs(dtl) {
 async function getCntrInfo(cntrNo) {
   const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 2 } });
   step2.value = cntr.data.step2;
-  console.log(step2.value);
   pCntrNo.value = step2.value.bas.cntrNo;
   ogStep2.value = cloneDeep(step2.value);
 }
@@ -990,12 +994,6 @@ async function confirmProducts() {
   return true;
 }
 
-watch(step2.value.dtls, (val) => {
-  if (val?.[0]) {
-    console.log('dtl changed', val?.[0]);
-  }
-});
-
 async function isChangedStep() {
   return step2.value.bas.cntrPrgsStatCd < 12 || JSON.stringify(ogStep2.value) !== JSON.stringify(step2.value);
 }
@@ -1039,6 +1037,10 @@ defineExpose({
 onMounted(async () => {
   props.onChildMounted(2);
 });
+
+function onPriceChanged() {
+  emit('contract-modified');
+}
 </script>
 
 <style scoped lang="scss">
