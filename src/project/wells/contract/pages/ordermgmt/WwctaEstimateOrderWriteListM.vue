@@ -21,13 +21,13 @@
       <kw-search-row>
         <!-- 견적일 -->
         <kw-search-item
-          :label="$t('MSG_BTN_QUOTE_DT')"
+          :label="$t('MSG_TXT_QUOT_MM')"
           required
         >
           <kw-date-range-picker
             v-model:from="searchParams.fromEstDt"
             v-model:to="searchParams.toEstDt"
-            :label="$t('MSG_BTN_QUOTE_DT')"
+            :label="$t('MSG_TXT_QUOT_MM')"
             rules="date_range_required"
             type="month"
           />
