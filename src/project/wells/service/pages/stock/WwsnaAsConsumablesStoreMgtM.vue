@@ -198,12 +198,8 @@ function validateIsApplyRowExists() {
 }
 
 async function onClickSave() {
-  debugger;
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-
-  const today = dayjs().format('YYYYMM');
-  console.log(today);
 
   if (!validateIsApplyRowExists()) return;
 

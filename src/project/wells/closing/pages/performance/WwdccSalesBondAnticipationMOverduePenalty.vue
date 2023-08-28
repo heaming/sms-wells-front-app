@@ -50,16 +50,13 @@
     >
       <kw-search-item
         :label="$t('MSG_TXT_SAP_PD_DV_CD_NM')"
-        required
       >
         <kw-select
           v-model="searchParams.sapPdDvCd"
-          rules="required"
           :options="sapPdDv"
           option-value="codeId"
           option-label="codeName"
           first-option="all"
-          :label="$t('MSG_TXT_SAP_PD_DV_CD_NM')"
         /><!--SAP상품구분코드명-->
       </kw-search-item>
       <kw-search-item
@@ -68,41 +65,48 @@
       >
         <kw-select
           v-model="searchParams.sellTpCd"
-          :options="codes.SELL_TP_CD.filter((v) => ['1', '2', '3', '6'].includes(v.codeId))"
+          :options="selectSellTpCd"
           :label="$t('MSG_TXT_SEL_TYPE')"
           @change="onChangeSellTpCd"
         /><!--판매유형-->
         <kw-select
           v-if="searchParams.sellTpCd === '1'"
           v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '1')"
+          :options="selectSellTpDtlCd.filter(v => v.userDfn02 === '1')"
           first-option="all"
           first-option-value="ALL"
         />
         <kw-select
           v-else-if="searchParams.sellTpCd === '2'"
           v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '2')"
+          :options="selectSellTpDtlCd.filter(v => v.userDfn02 === '2')"
+          first-option="all"
+          first-option-value="ALL"
+        />
+        <kw-select
+          v-else-if="searchParams.sellTpCd === '10'"
+          v-model="searchParams.sellTpDtlCd"
+          :options="selectSellTpDtlCd.filter(v => v.userDfn02 === '10')"
           first-option="all"
           first-option-value="ALL"
         />
         <kw-select
           v-else-if="searchParams.sellTpCd === '3'"
           v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '3')"
+          :options="selectSellTpDtlCd.filter(v => v.userDfn02 === '3')"
           first-option="all"
           first-option-value="ALL"
         />
         <kw-select
           v-else-if="searchParams.sellTpCd === '6'"
           v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '6')"
+          :options="selectSellTpDtlCd.filter(v => v.userDfn02 === '6')"
           first-option="all"
           first-option-value="ALL"
         />
       </kw-search-item><!--판매유형상세-->
       <kw-search-item
-        v-if="searchParams.sellTpCd === '2'"
+        v-if="searchParams.sellTpCd === '2' || searchParams.sellTpCd === '10'"
         :label="$t('MSG_TXT_INQR_DV')"
       >
         <kw-option-group
@@ -212,6 +216,7 @@ import { codeUtil, getComponentType, defineGrid, gridUtil, useDataService } from
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import { getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -222,6 +227,8 @@ const { t } = useI18n();
 // 검색조건 - 판매채널
 const sapPdDv = (await dataService.get('/sms/wells/closing/performance/overdue-penalty/code'))
   .data.map((v) => ({ codeId: v.sapPdDvCd, codeName: v.sapPdDvNm }));
+const selectSellTpCd = await getSellTpCd();
+const selectSellTpDtlCd = await getSellTpDtlCd();
 const totalCount = ref(0);
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
@@ -264,28 +271,39 @@ async function fetchData() {
   console.log('sellTpCd:', sellTpCd);
   console.log('sellTpDtlCd:', sellTpDtlCd);
 
-  if (inquiryDivide === '2') { // 포인트 선택시
-    if (agrgDv === '1') { // 집계
-      mainView = grdThirdRef.value.getView();
-      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/pointAggregates', { params: cachedParams, timeout: 180000 });
-    } else if (agrgDv === '3') { // 주문별
-      mainView = grdFourthRef.value.getView();
-      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/pointOrders', { params: cachedParams, timeout: 180000 });
+  if (agrgDv === '2') { // 일자별
+    mainView = grdMainRef.value.getView();
+    res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationDates', { params: cachedParams, timeout: 180000 });
+  } else if (agrgDv === '4') { // 가로계산식
+    mainView = grdSubRef.value.getView();
+    if (sellTpCd === '1') { // 일시불 선택시
+      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationSinglePayments', { params: cachedParams, timeout: 180000 });
+    } else if (sellTpCd === '2') { // 렌탈 선택시
+      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationRentals', { params: cachedParams, timeout: 180000 });
+    } else if (sellTpCd === '10') { // 리스 선택시
+      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationLeases', { params: cachedParams, timeout: 180000 });
+    } else if (sellTpCd === '3') { // 멤버십 선택시
+      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationMemberships', { params: cachedParams, timeout: 180000 });
+    } else if (sellTpCd === '6') { // 정기배송 선택시
+      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationRegularShippings', { params: cachedParams, timeout: 180000 });
     }
-  } else if (inquiryDivide === '1') { // 선수금 선택
-    if (agrgDv === '2') { // 일자별
-      mainView = grdMainRef.value.getView();
-      res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationDates', { params: cachedParams, timeout: 180000 });
-    } else if (agrgDv === '1' || agrgDv === '3' || agrgDv === '4') { // 집계, 주문별, 가로계산식
+  } else if (agrgDv === '1' || agrgDv === '3') { // 집계, 주문별
+    if (inquiryDivide === '2') { // 포인트 선택시
+      if (agrgDv === '1') { // 집계
+        mainView = grdThirdRef.value.getView();
+        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/pointAggregates', { params: cachedParams, timeout: 180000 });
+      } else if (agrgDv === '3') { // 주문별
+        mainView = grdFourthRef.value.getView();
+        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/pointOrders', { params: cachedParams, timeout: 180000 });
+      }
+    } else {
       mainView = grdSubRef.value.getView();
       if (sellTpCd === '1') { // 일시불 선택시
         res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationSinglePayments', { params: cachedParams, timeout: 180000 });
-      } else if (sellTpCd === '2') { // 렌탈,리스 선택시
-        if (sellTpDtlCd === '21' || sellTpDtlCd === '23') { // 렌탈 (판매유형상세 : 21, 23)
-          res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationRentals', { params: cachedParams, timeout: 180000 });
-        } else { // 리스 (판매유형상세 : 21, 23 외)
-          res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationLeases', { params: cachedParams, timeout: 180000 });
-        }
+      } else if (sellTpCd === '2') { // 렌탈 선택시
+        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationRentals', { params: cachedParams, timeout: 180000 });
+      } else if (sellTpCd === '10') { // 리스 선택시
+        res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationLeases', { params: cachedParams, timeout: 180000 });
       } else if (sellTpCd === '3') { // 멤버십 선택시
         res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationMemberships', { params: cachedParams, timeout: 180000 });
       } else if (sellTpCd === '6') { // 정기배송 선택시
@@ -293,6 +311,7 @@ async function fetchData() {
       }
     }
   }
+
   const overduePenalty = res.data;
   totalCount.value = overduePenalty.length;
 
@@ -303,29 +322,38 @@ async function fetchData() {
   isGridThird.value = false;
   isGridFourth.value = false;
 
-  if (inquiryDivide === '2') { // 포인트 선택시
-    if (agrgDv === '1') { // 집계
-      isGridThird.value = true;
-    } else if (agrgDv === '3') { // 주문별
-      isGridFourth.value = true;
-    }
-  } else if (inquiryDivide === '1') { // 선수금 선택
-    if (agrgDv === '2') { // 일자별
-      isGridMain.value = true;
-    } else if (agrgDv === '3' || agrgDv === '4') { // 주문별, 가로계산식
-      isGridSub.value = true;
-      mainView.columnByName('cntrNo').visible = true;
-      mainView.columnByName('cstKnm').visible = true;
-      mainView.columnByName('pdCd').visible = true;
-      mainView.columnByName('pdNm').visible = true;
-      mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 8 }];
-    } else if (agrgDv === '1') { // 집계
-      isGridSub.value = true;
-      mainView.columnByName('cntrNo').visible = false;
-      mainView.columnByName('cstKnm').visible = false;
-      mainView.columnByName('pdCd').visible = false;
-      mainView.columnByName('pdNm').visible = false;
-      mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
+  if (agrgDv === '2') { // 일자별
+    isGridMain.value = true;
+  } else if (agrgDv === '4') { // 가로계산식
+    isGridSub.value = true;
+    mainView.columnByName('cntrNo').visible = true;
+    mainView.columnByName('cstKnm').visible = true;
+    mainView.columnByName('pdCd').visible = true;
+    mainView.columnByName('pdNm').visible = true;
+    mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 8 }];
+  } else if (agrgDv === '1' || agrgDv === '3') { // 집계, 주문별
+    if (inquiryDivide === '2') { // 포인트 선택시
+      if (agrgDv === '1') { // 집계
+        isGridThird.value = true;
+      } else if (agrgDv === '3') { // 주문별
+        isGridFourth.value = true;
+      }
+    } else if (inquiryDivide === '1') { // 포인트 미선택시
+      if (agrgDv === '1') { // 집계
+        isGridSub.value = true;
+        mainView.columnByName('cntrNo').visible = false;
+        mainView.columnByName('cstKnm').visible = false;
+        mainView.columnByName('pdCd').visible = false;
+        mainView.columnByName('pdNm').visible = false;
+        mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
+      } else if (agrgDv === '3') { // 주문별
+        isGridSub.value = true;
+        mainView.columnByName('cntrNo').visible = true;
+        mainView.columnByName('cstKnm').visible = true;
+        mainView.columnByName('pdCd').visible = true;
+        mainView.columnByName('pdNm').visible = true;
+        mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 8 }];
+      }
     }
   }
 }
@@ -365,11 +393,12 @@ async function onChangeAgrgDv() {
 
 async function onChangeSellTpCd() {
   const { sellTpCd } = searchParams.value; // 판매유형
-  if (sellTpCd === '2') {
+  if (sellTpCd === '2' || sellTpCd === '10') {
     isInquiryDivide.value = true;
   } else {
     isInquiryDivide.value = false;
   }
+  searchParams.value.sellTpDtlCd = 'ALL';
 }
 
 async function onClickOpenReport() {
@@ -976,7 +1005,7 @@ const initGrdFourth = defineGrid((data, view) => {
   view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
 });
 
-const selectInquiryDivide = { // 업무구분
+const selectInquiryDivide = { // 조회구분
   options: [{ codeId: '1', codeName: t('MSG_TXT_ATAM'), disable: false }, { codeId: '2', codeName: t('MSG_TXT_P_ATAM'), disable: false }],
 };
 

@@ -168,12 +168,7 @@ const initGrd = defineGrid((data, view) => {
       },
     },
     alncmpDgPrtnrOgTpCd: {
-      displaying: false,
-      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
-        const alncmpDgPrtnrMapngCdId = values[fields.indexOf('alncmpDgPrtnrMapngCd')];
-        const alncmpDgPrtnrMapngCd = getCode('ALNCMP_DG_PRTNR_MAPNG_CD', alncmpDgPrtnrMapngCdId);
-        return alncmpDgPrtnrMapngCd?.userDfn02 || '';
-      },
+      displaying: false, /* 코드가 불안정하며 서버에서 조회하도록 변경 */
     },
     spayDscDvCd: { label: t('일시불할인구분코드'), width: 146, options: codes.SPAY_DSC_DV_CD },
     spayDscrCd: { label: t('일시불할인율코드'), width: 146, options: codes.SPAY_DSCR_CD },

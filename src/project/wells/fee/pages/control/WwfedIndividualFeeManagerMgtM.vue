@@ -281,29 +281,42 @@
           <kw-form-item
             :label="t('MSG_TXT_ERNTX')"
           >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.erntx) : '0' }}</p>
+            <p>{{ info2.erntx ? stringUtil.getNumberWithComma(info2.erntx) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSDNTX')"
           >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.rsdntx) : '0' }}</p>
+            <p>{{ info2.rsdntx ? stringUtil.getNumberWithComma(info2.rsdntx) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_HIR_INSR')"
           >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.hirInsr) : '0' }}</p>
+            <p>{{ info2.hirInsr ? stringUtil.getNumberWithComma(info2.hirInsr) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BU_DDTN')"
           >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.buDdtn) : '0' }}</p>
+            <p>{{ info2.buDdtn ? stringUtil.getNumberWithComma(info2.buDdtn) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_PNPYAM')"
           >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.pnpyam) : '0' }}</p>
+            <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.pnpyam) : '0' }}</p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <kw-form-item
+            :label="t('MSG_TXT_INDD_INSR')"
+          >
+            <p>{{ info2.inddInsr ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
+          </kw-form-item>
+          <kw-form-item>
+            <p />
+          </kw-form-item>
+          <kw-form-item>
+            <p />
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -384,6 +397,7 @@ const info2 = ref({
   hirInsr: '',
   buDdtn: '',
   pnpyam: '',
+  inddInsr: '',
 });
 
 let cachedParams;

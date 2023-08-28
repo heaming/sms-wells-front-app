@@ -133,15 +133,16 @@
         separator
         item-padding="20px 0"
         :items="step2.dtls"
-        item-key="id"
+        item-key="cntrSn"
       >
         <template
           #item="{item}"
         >
           <kw-expansion-item
-            style="width: 100%;"
+            v-if="item?.sellTpCd !== '2'"
             expand-icon-class="hidden"
             default-opened
+            class="fit"
             header-class="scoped-item scoped-item--header"
             block-inherit-padding
             expand-icon-toggle
@@ -164,7 +165,6 @@
                   <kw-select
                     v-if="isItem.rglrSpp(item)"
                     v-model="item.pkg"
-                    class="w350"
                     :options="item.pkgs"
                     @update:model-value="onChangePkgs(item)"
                   /><!-- ?? -->
@@ -241,27 +241,24 @@
                 class="scoped-item scoped-item--data-modifier"
               >
                 <kw-item-section>
-                  <div class="scoped-item__field-row mb10">
-                    <p class="kw-font-pt14 kw-fc--black3">
-                      금액
-                    </p>
-                    <span class="kw-fc--black1 text-bold ml8">
-                      {{ stringUtil.getNumberWithComma(item.fnlAmt * (item.qtyDv !== '1' ? 1 : item.pdQty) || 0) }} 원
-                    </span>
-                  </div>
-                  <template
-                    v-if="item.qtyDv === '1' || item.qtyDv === '2'"
-                  >
-                    <div class="scoped-item__field-row mb10">
-                      <zwcm-counter
-                        v-model="item.pdQty"
-                        label="수량변경"
-                        min="1"
-                        max="999"
-                        class="w170"
-                      />
-                    </div>
-                  </template>
+                  <kw-item-label class="scoped-item__field-row mb10 ">
+                    <kw-field-wrap dense>
+                      <p class="kw-font-pt14 kw-fc--black3">
+                        금액
+                      </p>
+                      <span class="kw-fc--black1 text-bold ml8">
+                        {{ stringUtil.getNumberWithComma(item.fnlAmt * (item.qtyDv !== '1' ? 1 : item.pdQty) || 0) }} 원
+                      </span>
+                    </kw-field-wrap>
+                    <zwcm-counter
+                      v-if="item.qtyDv === '1' || item.qtyDv === '2'"
+                      v-model="item.pdQty"
+                      label="수량변경"
+                      :min="1"
+                      :max="999"
+                    />
+                  </kw-item-label>
+
                   <template
                     v-if="isItem.spay(item)"
                   >
@@ -433,7 +430,6 @@
                       />
                     </div>
                   </template>
-
                   <template
                     v-if="item.opo?.opoYn"
                   >
@@ -485,7 +481,6 @@
                       />
                     </div>
                   </template>
-
                   <template
                     v-if="item.mchnCh?.mchnChYn"
                   >
@@ -539,7 +534,6 @@
                       />
                     </div>
                   </template>
-
                   <template
                     v-if="item.sltrRglrSppMchn?.rglrSppMchnYn"
                   >
@@ -593,7 +587,6 @@
                       />
                     </div>
                   </template>
-
                   <div
                     v-if="isItem.sltrRglrSpp(item) || isItem.rglrSpp(item)"
                     class="product-right-area"
@@ -621,6 +614,14 @@
               </kw-item>
             </template>
           </kw-expansion-item>
+          <rental-price-select
+            v-if="item?.sellTpCd === '2'"
+            :model-value="item"
+            :bas="step2.bas"
+            @one-plus-one="onClickOnePlusOne"
+            @device-change="onClickDeviceChange"
+            @delete="onClickDelete"
+          />
         </template>
       </kw-list>
     </kw-scroll-area>
@@ -632,6 +633,8 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
+import RentalPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
+
 import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isArray, isEmpty } from 'lodash-es';
 import { warn } from 'vue';
@@ -708,11 +711,8 @@ async function resetFilter() {
   await getProducts(props.contract.cntrNo);
 }
 
-async function resetCntrSn() {
-  // eslint-disable-next-line no-restricted-syntax
-  for (const [idx, item] of step2.value.dtls.entries()) {
-    item.cntrSn = idx + 1;
-  }
+function resetCntrSn() {
+  step2.value.dtls.forEach((dtl, index) => { dtl.cntrSn = index + 1; });
 }
 
 async function addProduct(pd) {
@@ -745,7 +745,7 @@ async function addProduct(pd) {
   if (npd.sellTpCd === '6' && npd.sellTpDtlCd !== '61') {
     npd.cntrRelDtlCd = '214';
   }
-  await resetCntrSn();
+  resetCntrSn();
 }
 
 async function onClickProduct(pd) {
@@ -945,7 +945,8 @@ function setFilter() {
   filteredClsfPds.value = clsfPds;
 }
 
-async function productPackaging() {
+// eslint-disable-next-line no-unused-vars
+async function productPackaging(sellDscTpCd) {
   if (!Array.isArray(step2.value.dtls)) {
     warn('상품 목록이 이상함.');
     return;
@@ -953,7 +954,7 @@ async function productPackaging() {
 
   /* TODO: 15까지 만 있는게 있다 확인..! 16: 4건 이상 패키징 */
   const rentalMultiCaseProducts = step2.value.dtls
-    .filter((dtl) => (dtl.sellDscTpCds?.includes('16')) && !dtl.sellDscTpCd?.trim());
+    .filter((dtl) => (dtl.sellDscTpCds?.includes(sellDscTpCd)) && !dtl.sellDscTpCd?.trim());
   if (rentalMultiCaseProducts.length < 2) {
     return;
   }
@@ -985,9 +986,15 @@ async function confirmProducts() {
 
   const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value.dtls);
   step2.value.dtls = res.data;
-  await productPackaging();
+  // await productPackaging();
   return true;
 }
+
+watch(step2.value.dtls, (val) => {
+  if (val?.[0]) {
+    console.log('dtl changed', val?.[0]);
+  }
+});
 
 async function isChangedStep() {
   return step2.value.bas.cntrPrgsStatCd < 12 || JSON.stringify(ogStep2.value) !== JSON.stringify(step2.value);
@@ -1094,16 +1101,30 @@ onMounted(async () => {
 
 .scoped-item {
   $-root: &;
+  $-left-side-width: 68px;
+  $-right-side-width: 44px;
 
-  & :deep(.kw-item__section) {
+  & :deep(> .kw-item__section) {
     &.q-item__section--side {
-      min-width: 68px;
+      min-width: $-left-side-width;
       padding-right: $spacing-xs;
     }
 
     &.q-item__section--main ~ .q-item__section--side {
-      min-width: 44px;
+      min-width: $-right-side-width;
       padding-right: 0;
+    }
+
+    &.q-item__section:first-of-type {
+      &.q-item__section--main {
+        margin-left: $-left-side-width;
+      }
+    }
+
+    &.q-item__section:last-of-type {
+      &.q-item__section--main {
+        margin-right: $-right-side-width;
+      }
     }
   }
 
@@ -1190,7 +1211,8 @@ onMounted(async () => {
     gap: $spacing-xs;
 
     & > :where(.kw-field, .kw-field-wrap) {
-      width: 100%;
+      width: 1px;
+      flex: 1 1 0;
     }
   }
 
@@ -1272,16 +1294,6 @@ onMounted(async () => {
   border-top: 1px dashed #ddd;
   height: 0;
   background: none;
-}
-
-// rev:230623 수정 및 추가
-:deep(.kw-form) {
-  &:not(.kw-form--dense) {
-    .kw-form-row {
-      min-height: 40px !important;
-      padding: 0 !important;
-    }
-  }
 }
 
 .scoped-child-select {
