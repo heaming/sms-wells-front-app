@@ -299,8 +299,10 @@ const initGrdMain = defineGrid((data, view) => {
         const { ostrTpCd } = g.getValues(index.itemIndex);
         console.log(val);
         // 정상출고
-        if (['221', '222', '223'].includes(ostrTpCd)) {
+        if (['221', '222'].includes(ostrTpCd)) {
           return t('MSG_TXT_NOM_OSTR');
+        } if (ostrTpCd === '223') {
+          return t('MSG_TXT_QOM_MMT');
         } if (ostrTpCd === '217') {
           return t('MSG_TXT_ETC_OSTR');
         } if (['212', '261', '262'].includes(ostrTpCd)) {
