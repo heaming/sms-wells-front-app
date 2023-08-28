@@ -43,6 +43,7 @@
           <kw-select
             v-model="searchParams.wareDtlDvCd"
             :options="filterCodes.wareDtlDvCd"
+            first-option="all"
             @change="onChangeWareDtlDvCd"
           />
           <kw-select
@@ -50,6 +51,7 @@
             :options="optionsWareNo"
             option-value="wareNo"
             option-label="wareNm"
+            first-option="all"
           />
         </kw-search-item>
         <!-- 상태구분 -->
@@ -178,22 +180,20 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
-console.log(cachedParams);
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'), // 기준년월
   wareDvCd: '2',
-  wareDtlDvCd: '20',
+  wareDtlDvCd: '',
   searchWareNo: '',
   useYn: '',
 });
 
-const yearMonth = ref({
-  yyyy: dayjs().format('YYYY'),
-  mm: dayjs().format('MM'),
+// const yearMonth = ref({
+//   yyyy: dayjs().format('YYYY'),
+//   mm: dayjs().format('MM'),
 
-});
+// });
 
-console.log(yearMonth);
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -222,13 +222,13 @@ function wareDtlDvCdFilter() {
 }
 
 function onChangeWareDvCd() {
-  console.log(searchParams.value.wareDvCd);
-
   if (searchParams.value.wareDvCd === SERVICE_DV_CD) {
     filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+    searchParams.value.wareDtlDvCd = '';
     searchParams.value.searchWareNo = '';
   } else {
     filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
+    searchParams.value.wareDtlDvCd = '';
     searchParams.value.searchWareNo = '';
   }
 }
@@ -311,7 +311,6 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
-  console.log(checkedRows);
   if (!validateIsApplyRowExists()) return;
   debugger;
   for (let i = 0; i < checkedRows.length; i += 1) {
@@ -343,7 +342,6 @@ async function onClickAcinspCnfm() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
-  console.log(checkedRows);
   if (!validateIsApplyRowExists()) return;
 
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
@@ -377,8 +375,6 @@ async function onClickAcinspCnfm() {
 async function onClikcStocApy() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-
-  console.log(checkedRows);
 
   if (!validateIsApplyRowExists()) return;
 
@@ -415,8 +411,6 @@ async function onClikcStocApy() {
 async function onClickStocCancel() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-
-  console.log(checkedRows);
 
   if (!validateIsApplyRowExists()) return;
 
