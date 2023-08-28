@@ -311,8 +311,8 @@ async function openHmstReportPopup() {
   const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYY-MM');
   if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     openReportPopup(
-      '/ksswells/cmms/V5.2/cmmsSpec2023.ozr',
-      '/ksswells/cmms/V5.2/cmmsSpec2023.odi',
+      '/ksswells/hmCmms/V3.0/cmmsSpec2022.ozr',
+      '/ksswells/hmCmms/V3.0/cmmsSpec2022.odi',
       JSON.stringify(
         {
           AKSDYM: perfYm,
