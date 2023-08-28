@@ -592,7 +592,7 @@ const initGrdMain = defineGrid((data, view) => {
   ]);
 
   view.setFixedOptions({ colCount: 2 });
-  view.setFooters({ visible: true, items: [{ height: 40 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
   view.setOptions({ summaryMode: 'statistical' });
   view.rowIndicator.visible = true;
   view.filteringOptions.enabled = false;
