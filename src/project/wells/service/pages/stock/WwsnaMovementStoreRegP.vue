@@ -271,7 +271,7 @@ const propsParams = ref({
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
-  strRgstDt: props.strRgstDt,
+  strRgstDt: today,
   strTpCd: props.strTpCd,
   itmStrNo: props.itmStrNo,
   strWareNo: props.strWareNo,
