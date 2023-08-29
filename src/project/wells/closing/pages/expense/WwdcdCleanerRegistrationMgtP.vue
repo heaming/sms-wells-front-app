@@ -400,6 +400,10 @@ async function buildingCode() {
 
   const res = await dataService.get('/sms/wells/closing/expense/cleaners/cleaners-reqeust-change/code', { params: sessionParams });
   buildingCodes.value = res.data;
+
+  if (buildingCodes.value.length === 1) {
+    saveParams.value.bldCd = buildingCodes.value[0].bldCd;
+  }
 }
 
 async function fetchData() {
