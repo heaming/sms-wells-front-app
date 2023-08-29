@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-search
+    one-row
     :cols="4"
     @search="onClickSearch"
   >
@@ -28,7 +29,7 @@
           v-model:cntr-no="searchParams.cntrNo"
           v-model:cntr-sn="searchParams.cntrSn"
           class="w300"
-          disable-popup="true"
+          icon="search"
           rules="required"
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
         />
