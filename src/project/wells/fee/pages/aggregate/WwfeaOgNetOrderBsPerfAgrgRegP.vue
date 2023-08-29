@@ -56,7 +56,7 @@ import { useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
 
 const { cancel, ok } = useModal();
 const { t } = useI18n();
-const { confirm } = useGlobal();
+const { confirm, notify } = useGlobal();
 const dataService = useDataService();
 
 const props = defineProps({
@@ -78,7 +78,7 @@ const params = ref({
   perfYm: props.perfYm,
   ogTpCd: props.ogTpCd,
   feeTcntDvCd: props.feeTcntDvCd,
-  perfAgrgCrtDvCd: '',
+  perfAgrgCrtDvCd: props.ogTpCd === 'W02' ? '201' : '301',
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -95,8 +95,10 @@ async function onClickCancel() {
 
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-  params.value.perfAgrgCrtDvCd = params.value.ogTpCd === 'W02' ? '201' : '301';
-  const response = dataService.post('/sms/wells/fee/bs-fees', params.value);
-  if (response.data === 'S') ok(response.data);
+  // params.value.perfAgrgCrtDvCd = params.value.ogTpCd === 'W02' ? '201' : '301';
+  const response = await dataService.post('/sms/wells/fee/bs-fees', params.value, { timeout: 500000 });
+  ok(true);
+  if (response.data === 'Ended OK') notify(t('MSG_ALT_AGRG_FSH')); // 집계 되었습니다.
+  else if (response.data === 'Ended Not OK') notify(t('MSG_ALT_AGRG_FAIL')); // 집계가 실패 되었습니다.
 }
 </script>
