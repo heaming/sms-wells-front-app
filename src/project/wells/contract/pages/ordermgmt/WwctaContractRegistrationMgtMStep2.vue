@@ -132,14 +132,13 @@
       <kw-list
         separator
         item-padding="20px 0"
-        :items="step2.dtls"
-        item-key="cntrSn"
       >
         <template
-          #item="{item}"
+          v-for="(item, index) in step2.dtls"
         >
           <kw-expansion-item
             v-if="item?.sellTpCd !== '2'"
+            :key="`${item.pdCd} + ${index}`"
             expand-icon-class="hidden"
             default-opened
             class="fit"
@@ -231,7 +230,7 @@
                     icon="close_24"
                     style="font-size: 24px;"
                     class="w24"
-                    @click="onClickDelete(item)"
+                    @click="onClickDelete(index)"
                   />
                 </div>
               </kw-item-section>
@@ -616,12 +615,13 @@
           </kw-expansion-item>
           <rental-price-select
             v-if="item?.sellTpCd === '2'"
+            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
             :model-value="item"
             :bas="step2.bas"
             @one-plus-one="onClickOnePlusOne"
             @device-change="onClickDeviceChange"
             @price-changed="onPriceChanged"
-            @delete="onClickDelete"
+            @delete="onClickDelete(index)"
           />
         </template>
       </kw-list>
@@ -781,7 +781,8 @@ async function onClickProduct(pd) {
   }
 }
 
-async function onClickDelete(pd) {
+async function onClickDelete(index) {
+  const pd = step2.value.dtls[index];
   if (isItem.rglrSpp(pd) && pd.sellTpDtlCd === '62') return;
   if (pd.hgrPdCd) {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.hgrPdCd !== spd.hgrPdCd);
@@ -789,12 +790,12 @@ async function onClickDelete(pd) {
   if (isItem.welsf(pd) || isItem.hcf(pd)) {
     step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn && (pd.cntrSn + 1) !== spd.cntrSn);
   } else {
-    step2.value.dtls = step2.value.dtls.filter((spd) => pd.cntrSn !== spd.cntrSn);
+    step2.value.dtls.splice(index, 1);
   }
   if (pd.packaged) {
     step2.value.dtls = step2.value.dtls.filter((spd) => !spd.packaged);
   }
-  await resetCntrSn();
+  resetCntrSn();
   emit('contract-modified');
 }
 
@@ -908,7 +909,7 @@ async function onChangePkgs(dtl) {
   pp.pkgs = cloneDeep(pkgs);
   pp.pkg = pp.codeId;
   step2.value.dtls[step2.value.dtls.findIndex((d) => d.cntrSn === cntrSn)] = pp;
-  await resetCntrSn();
+  resetCntrSn();
 }
 
 async function getCntrInfo(cntrNo) {
@@ -989,7 +990,9 @@ async function confirmProducts() {
   }
 
   const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value.dtls);
-  step2.value.dtls = res.data;
+  res.data.forEach((newDtl, index) => {
+    step2.value.dtls[index].promotions = newDtl.promotions;
+  });
   // await productPackaging();
   return true;
 }
@@ -1020,7 +1023,7 @@ async function isValidStep() {
 }
 
 async function saveStep() {
-  await resetCntrSn();
+  resetCntrSn();
   const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step2', step2.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   ogStep2.value = cloneDeep(step2.value);
