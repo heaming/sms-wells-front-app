@@ -40,9 +40,9 @@
           rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
-      <!-- 계약번호 -->
+      <!-- 계약상세번호 -->
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_NO')"
+        :label="$t('MSG_TXT_CNTR_DTL_NO')"
       >
         <kw-input
           v-model="searchParams.cntrNo"
