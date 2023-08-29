@@ -409,6 +409,11 @@
           name="2"
           :label="$t('MSG_BTN_DLQ_INF')"
         />
+        <!-- <kw-tab
+          v-if="isVisibleTab"
+          name="2"
+          :label="$t('MSG_BTN_DLQ_INF')"
+        /> -->
         <!-- 컨택현황 -->
         <kw-tab
           name="3"
@@ -459,6 +464,10 @@
         <kw-tab-panel
           name="2"
         >
+          <!-- <kw-tab-panel
+        v-if="isVisibleTab"
+          name="2"
+        > -->
           <kw-action-top class="mt30">
             <template #left>
               <kw-paging-info :total-count="countInfo.delinquentCount" />
@@ -801,7 +810,6 @@ function updateCntrDtl() {
     if (val) {
       searchParams.value.cntrNo = props.cntrNo;
       searchParams.value.cntrSn = props.cntrSn;
-      await onClickSearch();
     }
   });
 }
