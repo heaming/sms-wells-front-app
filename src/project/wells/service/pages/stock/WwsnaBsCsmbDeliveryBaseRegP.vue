@@ -130,8 +130,8 @@
               v-model="ddlvOjCd1Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
-              :disable="isDisableYn1 || isDisable"
-              :rules="isRequiredDdlvTp1"
+              :disable="isDisableYn1 || isDisableCmptBaseCd1"
+              :rules="isRequiredCmptBaseCd1"
               class="w167"
             />
           </kw-field-wrap>
@@ -222,8 +222,8 @@
               v-model="ddlvOjCd2Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
-              :disable="isDisableYn2 || isDisable"
-              :rules="isRequiredDdlvTp2"
+              :disable="isDisableYn2 || isDisableCmptBaseCd2"
+              :rules="isRequiredCmptBaseCd2"
               class="w167"
             />
           </kw-field-wrap>
@@ -315,8 +315,8 @@
               v-model="ddlvOjCd3Data.bfsvcCsmbDdlvCmptBaseCd"
               :label="$t('MSG_TXT_DDLV_TP')"
               :options="codes.BFSVC_CSMB_DDLV_CMPT_BASE_CD"
-              :disable="isDisableYn3 || isDisable"
-              :rules="isRequiredDdlvTp3"
+              :disable="isDisableYn3 || isDisableCmptBaseCd3"
+              :rules="isRequiredCmptBaseCd3"
               class="w167"
             />
           </kw-field-wrap>
@@ -492,6 +492,21 @@ const isDisableYn1 = computed(() => ddlvOjCd1Data.value.bfsvcCsmbDdlvOrtYn === '
 const isDisableYn2 = computed(() => ddlvOjCd2Data.value.bfsvcCsmbDdlvOrtYn === 'N');
 const isDisableYn3 = computed(() => ddlvOjCd3Data.value.bfsvcCsmbDdlvOrtYn === 'N');
 
+const isDisableCmptBaseCd1 = computed(
+  () => ((props.csmbPdCd !== '' && props.mngtYm !== '') && (Number(props.mngtYm) < Number(dayjs().format('YYYYMM'))))
+          || ddlvOjCd1Data.value.bfsvcCsmbDdlvTpCd === '2',
+);
+
+const isDisableCmptBaseCd2 = computed(
+  () => ((props.csmbPdCd !== '' && props.mngtYm !== '') && (Number(props.mngtYm) < Number(dayjs().format('YYYYMM'))))
+          || ddlvOjCd2Data.value.bfsvcCsmbDdlvTpCd === '2',
+);
+
+const isDisableCmptBaseCd3 = computed(
+  () => ((props.csmbPdCd !== '' && props.mngtYm !== '') && (Number(props.mngtYm) < Number(dayjs().format('YYYYMM'))))
+          || ddlvOjCd3Data.value.bfsvcCsmbDdlvTpCd === '2',
+);
+
 function onChangeOrtYn(val) {
   switch (val) {
     case 1:
@@ -539,6 +554,18 @@ const isRequiredDdlvTp1 = async (val, options) => {
   const errors = [];
 
   if (ddlvOjCd1Data.value.bfsvcCsmbDdlvOrtYn === 'Y') {
+    errors.push(
+      ...(await validate(val, 'required', options)).errors,
+    );
+  }
+
+  return errors[0] || true;
+};
+
+const isRequiredCmptBaseCd1 = async (val, options) => {
+  const errors = [];
+
+  if (ddlvOjCd1Data.value.bfsvcCsmbDdlvTpCd === '1') {
     errors.push(
       ...(await validate(val, 'required', options)).errors,
     );
@@ -595,6 +622,18 @@ const isRequiredDdlvTp2 = async (val, options) => {
   return errors[0] || true;
 };
 
+const isRequiredCmptBaseCd2 = async (val, options) => {
+  const errors = [];
+
+  if (ddlvOjCd2Data.value.bfsvcCsmbDdlvTpCd === '1') {
+    errors.push(
+      ...(await validate(val, 'required', options)).errors,
+    );
+  }
+
+  return errors[0] || true;
+};
+
 const isRequiredUnitQty2 = async (val, options) => {
   const errors = [];
 
@@ -635,6 +674,18 @@ const isRequiredDdlvTp3 = async (val, options) => {
   const errors = [];
 
   if (ddlvOjCd3Data.value.bfsvcCsmbDdlvOrtYn === 'Y') {
+    errors.push(
+      ...(await validate(val, 'required', options)).errors,
+    );
+  }
+
+  return errors[0] || true;
+};
+
+const isRequiredCmptBaseCd3 = async (val, options) => {
+  const errors = [];
+
+  if (ddlvOjCd3Data.value.bfsvcCsmbDdlvTpCd === '1') {
     errors.push(
       ...(await validate(val, 'required', options)).errors,
     );
