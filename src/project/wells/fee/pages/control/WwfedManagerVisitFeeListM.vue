@@ -108,6 +108,7 @@ import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
+const route = useRoute();
 const { modal } = useGlobal();
 
 // M조직 수수료 개인상세 조회에서 router 호출
@@ -116,21 +117,25 @@ const props = defineProps({
     type: String,
     default: dayjs().subtract(1, 'month').format('YYYYMM'),
   },
+  rsbDvCd: { // 직책유형코드
+    type: String,
+    default: '',
+  },
   prtnrNo: { // 파트너번호
     type: String,
     default: '',
   },
-  ogLv1Id: { // 1조직레벨(지점장일 경우만)
+  ogLv1Id: { // 1조직레벨
     type: String,
-    default: '',
+    default: null,
   },
-  ogLv2Id: { // 2조직레벨(지점장일 경우만)
+  ogLv2Id: { // 2조직레벨
     type: String,
-    default: '',
+    default: null,
   },
-  ogLv3Id: { // 3조직레벨(지점장일 경우만)
+  ogLv3Id: { // 3조직레벨
     type: String,
-    default: '',
+    default: null,
   },
 });
 // -------------------------------------------------------------------------------------------------
@@ -149,12 +154,13 @@ const inqrDv = [
 ];
 const searchParams = ref({
   baseYm: props.perfYm,
-  inqrDv: '01',
+  inqrDv: !isEmpty(props.rsbDvCd) ? '04' : '01',
   ogTpCd: 'W02',
-  ogLevlDvCd1: props.ogLv1Id,
-  ogLevlDvCd2: props.ogLv2Id,
-  ogLevlDvCd3: props.ogLv3Id,
+  ogLevlDvCd1: undefined,
+  ogLevlDvCd2: undefined,
+  ogLevlDvCd3: undefined,
   prtnrNo: props.prtnrNo,
+  rsbDvCd: props.rsbDvCd,
 });
 
 // 번호 검색 아이콘 클릭 이벤트
@@ -196,12 +202,9 @@ async function onClickExcelDownload() {
 }
 
 onMounted(() => {
-  // M조직 수수료 개인상세 조회에서 탭으로 띄울 경우, 바로 조회함.
-  if (!isEmpty(searchParams.value.no)) {
-    if (!isEmpty(searchParams.value.ogLevlDvCd3)) searchParams.value.inqrDv = '03'; // 3조직레벨이 있으면 지점 기준 조회
-    else searchParams.value.inqrDv = '04'; // 없으면 개인 기준 조회
-    onClickSearch();
-  }
+  searchParams.value.ogLevlDvCd1 = route.params.ogLv1Id;
+  searchParams.value.ogLevlDvCd2 = route.params.ogLv2Id;
+  searchParams.value.ogLevlDvCd3 = route.params.ogLv3Id;
 });
 
 // -------------------------------------------------------------------------------------------------

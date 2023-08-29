@@ -56,12 +56,13 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="t('MSG_TXT_APY_D_BASE_INQR')"
+          :label="t('MSG_TXT_APPLY_DT')"
+          required
         >
           <kw-date-picker
             v-model="searchParams.vlDt"
             rules="required"
-            :label="t('MSG_TXT_APY_D_BASE_INQR')"
+            :label="t('MSG_TXT_APPLY_DT')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -72,28 +73,26 @@
         <template #left>
           <kw-paging-info :total-count="pageInfo.totalCount" />
         </template>
-        {{ $t('MSG_TXT_CHECK_ATC_MARK') }}
+        <span>{{ $t('MSG_TXT_CHECK_ATC_MARK') }}</span>
         <kw-checkbox
           v-model="saveParams.chk"
           :true-value="true"
           :false-value="false"
           :disable="pageInfo.totalCount === 0"
         />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
-        {{ $t('MSG_TXT_RFLT_APY_D') }}
+        <span>{{ $t('MSG_TXT_RFLT_APY_D') }}</span>
         <kw-date-picker
           v-model="saveParams.rfltAplyDt"
+          dense
         />
-        {{ $t('MSG_TXT_RFLT_END_D') }}
+        <span>{{ $t('MSG_TXT_RFLT_END_D') }}</span>
         <kw-date-picker
           v-model="saveParams.rfltEnddt"
+          dense
         />
         <kw-btn
           :label="t('MSG_BTN_RFLT_DT_BLK_SAVE')"
+          dense
           grid-action
           @click="onClickAllSave"
         />
@@ -342,8 +341,8 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BLG'), width: '162', styleName: 'text-center' },
     // { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '125', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '92', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '130', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '92', styleName: 'text-center' },
     {
       fieldName: 'wkGrpCd',
       header: t('MSG_TXT_WK_GRP'),
