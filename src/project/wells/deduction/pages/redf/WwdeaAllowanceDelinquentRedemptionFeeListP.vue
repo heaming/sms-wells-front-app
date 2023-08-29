@@ -28,8 +28,7 @@
         >
           <kw-select
             v-model="searchParams.perfDvCd"
-            first-option="all"
-            :options="codes.PERF_DV_CD"
+            :options="codes.WELS_REDF_PERF_DV_CD"
           />
         </kw-search-item>
 
@@ -118,12 +117,14 @@ let cachedParams;
 
 const codes = await codeUtil.getMultiCodes(
   'REDF_INQR_TP_CD',
-  'PERF_DV_CD',
+  // 'PERF_DV_CD',
+  'WELS_REDF_PERF_DV_CD', // 웰스되물림실적구분코드
 );
 
 const searchParams = ref({
   ogTpCd: '',
   prtnrNo: '',
+  perfDvCd: codes.WELS_REDF_PERF_DV_CD[0].codeId,
 });
 
 const pageInfo = ref({
