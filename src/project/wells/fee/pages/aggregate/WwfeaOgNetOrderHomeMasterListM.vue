@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : FEA
-2. 프로그램 ID :  - 홈마스터 수수료 순주문 관리
+2. 프로그램 ID : WwfeaOgNetOrderHomeMasterListM - 홈마스터 수수료 순주문 관리
 3. 작성자 : gs.piit150
 4. 작성일 : 2023.02.24
 ****************************************************************************************************
@@ -408,24 +408,6 @@ async function onClickSearchNo() {
 }
 
 /*
- *  Event - 조회조건 선택에 따른 검색조건 및 그리드 변경
- */
-
-async function onChangeInqrDv() {
-  const { divCd } = searchParams.value;
-  if (divCd === '04') {
-    isSelectVisile1.value = false;
-    isSelectVisile2.value = true;
-    isPerfVisile.value = true;
-  } else {
-    isSelectVisile1.value = true;
-    isSelectVisile2.value = false;
-    isPerfVisile.value = false;
-  }
-  // initSearchParams();
-}
-
-/*
  *  Event - 상품코드 검색 아이콘 클릭 이벤트
  */
 async function onClickSearchPdCdPopup(arg) {
@@ -614,6 +596,25 @@ async function onClickSearch() {
   await fetchData(uri);
 }
 
+/*
+ *  Event - 조회조건 선택에 따른 검색조건 및 그리드 변경
+ */
+
+async function onChangeInqrDv() {
+  const { divCd } = searchParams.value;
+  if (divCd === '04') {
+    isSelectVisile1.value = false;
+    isSelectVisile2.value = true;
+    isPerfVisile.value = true;
+  } else {
+    isSelectVisile1.value = true;
+    isSelectVisile2.value = false;
+    isPerfVisile.value = false;
+  }
+  // initSearchParams();
+  onClickSearch();
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -640,7 +641,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'istm' },
     { fieldName: 'stplMcnt' },
     { fieldName: 'mngtPrd' },
-    { fieldName: 'pdAccRslt' },
+    { fieldName: 'pdAccRslt', dataType: 'number' },
     { fieldName: 'basePrc', dataType: 'number' },
     { fieldName: 'homeCare' },
     { fieldName: 'hcrMshY3' },
@@ -669,7 +670,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'og2Lv', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
     { fieldName: 'og3Lv', header: t('MSG_TXT_BRANCH'), width: '120', styleName: 'text-center' },
     { fieldName: 'sequenceNumber', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '98' },
-    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '98' },
+    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '98', styleName: 'text-center' },
     { fieldName: 'selType', header: t('MSG_TXT_SEL_TYPE'), width: '111.9', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'pdctTp', header: t('MSG_TXT_PDCT_TP'), width: '72', styleName: 'text-center', options: codes.FEE_PERF_TP_CD },
     { fieldName: 'prcTp', header: t('MSG_TXT_PRC_TP'), width: '110', styleName: 'text-center', options: codes.RGLR_SPP_PRC_DV_CD },
@@ -677,7 +678,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'fee', header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF') + t('MSG_TXT_TYPE'), width: '110', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD },
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '110' },
     { fieldName: 'cstDv', header: t('MSG_TXT_CST_DV'), width: '188', styleName: 'text-center' },
-    { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-center' },
+    { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-left' },
     { fieldName: 'prdtCode', header: t('MSG_TXT_PRDT_CODE'), width: '83.5', styleName: 'text-center' },
     { fieldName: 'pdDcClass', header: t('MSG_TXT_PD_DC_CLASS'), width: '83.5', styleName: 'text-center', options: codes.SELL_DSC_DV_CD },
     { fieldName: 'discCode', header: t('MSG_TXT_DISC_CODE'), width: '83.5', styleName: 'text-center', options: codes.SELL_DSC_TP_CD },
@@ -686,7 +687,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'istm', header: t('MSG_TXT_ISTM'), width: '83.5', styleName: 'text-right' },
     { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '84', styleName: 'text-right' },
     { fieldName: 'mngtPrd', header: t('MSG_TXT_MNGT_PRD'), width: '84', styleName: 'text-right' },
-    { fieldName: 'pdAccRslt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '142', styleName: 'text-right' },
+    { fieldName: 'pdAccRslt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '142', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'basePrc', header: t('MSG_TXT_BASE_PRC'), width: '123.8', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'homeCare', header: t('MSG_TXT_HOME_CARE'), width: '83.5', styleName: 'text-right' },
     { fieldName: 'hcrMshY3', header: t('MSG_TXT_HCR_MSH_Y3'), width: '141.2', styleName: 'text-center' },
@@ -749,7 +750,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'feePdctTpCd', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
     { fieldName: 'feePerfTpCd', header: t('MSG_TXT_PD_GRP'), width: '120', styleName: 'text-center', options: codes.FEE_PERF_TP_CD },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-left' },
     { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-center' },
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center', options: codes.MCHN_CH_TP_CD },
 
