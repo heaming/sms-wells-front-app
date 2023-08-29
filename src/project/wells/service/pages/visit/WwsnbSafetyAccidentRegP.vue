@@ -574,8 +574,7 @@ async function onClickAgreementFoward() {
   // if (sessionUserInfo.employeeIDNumber === safetyAccident.cnrldNo) {
   //   if (!await frmMainRef5.value.confirmIfIsModified()) { return; }
   // }
-  console.log(safetyAccident.value);
-  debugger;
+
   const { result } = await modal({
     component: 'WwsnbSafetyAccidentAgreeBiztalkP',
     componentProps: {
