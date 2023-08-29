@@ -375,7 +375,7 @@ const windowKey = ref('');
 
 /** 계약리스트 조회 */
 async function fetchContracts() {
-  const response = await dataService.get('/sms/wells/bond/bond-counsel/contracts', { params: cachedParams, timeout: 200000 });
+  const response = await dataService.get('/sms/wells/bond/bond-counsel/contracts', { params: cachedParams, timeout: 300000 });
   const contracts = response.data;
   totalCount.value = contracts.length;
 
