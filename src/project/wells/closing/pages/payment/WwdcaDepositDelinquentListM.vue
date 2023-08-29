@@ -551,7 +551,7 @@ const initGrdMain = defineGrid((data, view) => {
   ]);
 
   view.groupBy(['sellTpCd']);
-  view.setFooters({ visible: true, items: [{ height: 40 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
   view.layoutByColumn('sellTpCd').groupFooterUserSpans = [{ colspan: 3 }];
   view.layoutByColumn('sellTpCd').footerUserSpans = [{ colspan: 3 }];
 });

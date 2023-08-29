@@ -299,7 +299,7 @@ const initGrdSinglePayment = defineGrid((data, view) => {
       } },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '200', styleName: 'text-left' },
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '100', styleName: 'text-center' },
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrDtlNo',
@@ -621,7 +621,7 @@ const initGrdRental = defineGrid((data, view) => {
       } },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '200', styleName: 'text-left' },
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '100', styleName: 'text-center' },
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrDtlNo',
@@ -833,7 +833,7 @@ const initGrdRental = defineGrid((data, view) => {
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -854,7 +854,7 @@ const initGrdMemberships = defineGrid((data, view) => {
       } },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '200', styleName: 'text-left' },
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '100', styleName: 'text-center' },
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrDtlNo',
@@ -1066,7 +1066,7 @@ const initGrdMemberships = defineGrid((data, view) => {
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });

@@ -333,7 +333,7 @@ const initGrdTotal = defineGrid((data, view) => {
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -405,7 +405,7 @@ const initGrdDetail = defineGrid((data, view) => {
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
