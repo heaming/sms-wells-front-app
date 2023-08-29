@@ -137,15 +137,16 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { modal, notify } = useGlobal();
+const { alert, modal, notify } = useGlobal();
 const dataService = useDataService();
+const router = useRouter();
 const now = dayjs();
 const grdMainSPay = ref(getComponentType('KwGrid'));
 
@@ -258,6 +259,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'etcPrpdAmt', header: t('MSG_TXT_ETC') + t('MSG_TXT_PREPAID'), width: '110', styleName: 'text-right', dataType: 'number' }, // [기타선수]
     { fieldName: 'cntrNo', visible: false },
     { fieldName: 'cntrSn', visible: false },
+    { fieldName: 'slClYm', visible: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
@@ -296,19 +298,46 @@ const initGrid = defineGrid((data, view) => {
     },
   ]);
 
-  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+  // cellclick
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
+    const { cntrNo, cntrSn, cntrCnfmDt } = gridUtil.getRowValue(g, dataRow);
+
     // 계약상세번호 클릭 - 팝업
     if (column === 'cntrNoSn') {
       await modal({
         component: 'WwctaOrderDetailP',
-        componentProps: {
-          cntrNo: g.getValue(itemIndex, 'cntrNo'),
-          cntrSn: g.getValue(itemIndex, 'cntrSn'),
-        },
+        componentProps: { cntrNo, cntrSn },
       });
     } else if (column === 'reqdAsn') {
-      notify('TODO : 키위에서 불러오는 서비스 기사 배정 타임 테이블 팝업을 불러 옵니다');
+      await modal({
+        component: 'WwsncTimeTableForContractP',
+        componentProps: {
+          baseYm: dayjs().format('YYYYMM'), // 달력 초기 월
+          chnlDvCd: 'W', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
+          svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
+          sellDate: cntrCnfmDt, // // 판매일자
+          svBizDclsfCd: '3420',
+          mtrStatCd: '3',
+          cntrNo,
+          cntrSn,
+        },
+      });
     }
+  };
+
+  // dbclick row - 상세조회 : 취소등록 메뉴  open
+  // 일시불 목록의 경우 계약해지처리내역에서 조회하지 않음
+  view.onCellDblClicked = async (g, { dataRow }) => {
+    const { cntrNo, cntrSn, slClYm } = gridUtil.getRowValue(g, dataRow);
+    if (isEmpty(slClYm)) {
+      await alert('매출마감년월 값이 없습니다.');
+      return;
+    }
+
+    router.replace({
+      path: 'wwctb-cancel-registration-mgt',
+      query: { cntrNo, cntrSn, dm: slClYm },
+    });
   };
 });
 </script>
