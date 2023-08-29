@@ -169,7 +169,7 @@
       <kw-grid
         ref="grd2MainRef"
         name="grd2Main"
-        :visible-rows="10"
+        :visible-rows="totalCount === 0 ? 1 : totalCount"
         @init="initGrd2Main"
       />
       <ul class="grid-fix-footer">
@@ -443,7 +443,6 @@ async function openFeeControlPopup() {
 async function fetchData(type) {
   const response = await dataService.get(`/sms/wells/fee/individual-fee/mnger-${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
-  totalCount.value = resData.length;
   if (type === 'entrepreneur') {
     info1.value = resData;
     if (info1.value.emplNm !== undefined) {
@@ -457,6 +456,7 @@ async function fetchData(type) {
     baseView.getDataSource().setRows(resData);
   } else if (type === 'before-services') {
     const bsView = grd2MainRef.value.getView();
+    totalCount.value = resData.length;
     bsView.getDataSource().setRows(resData);
   } else if (type === 'fee') {
     const feeView = grd3MainRef.value.getView();
@@ -602,7 +602,7 @@ const initGrd2Main = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.setFooters({ visible: true, items: [{ height: 30 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
 
   // multi row header setting
   view.setColumnLayout([

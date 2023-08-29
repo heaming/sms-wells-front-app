@@ -90,7 +90,6 @@
         <kw-btn
           :label="$t('MSG_BTN_SAVE')"
           secondary
-          primary
           dense
           grid-action
           @click="onClickSave"
@@ -116,7 +115,6 @@
         <kw-btn
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_CNTN_CREATE')"
           secondary
-          primary
           dense
           grid-action
           @click="onClickCreate"
@@ -129,7 +127,6 @@
         <kw-btn
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_DTRM')"
           secondary
-          primary
           dense
           grid-action
           @click="onClickDtrm"
