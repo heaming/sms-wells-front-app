@@ -23,7 +23,16 @@ export default defineConfig({
           .substr(0, 6);
         return `assets/[name].${hash}.js`;
       },
-      assetFileNames: () => 'assets/[name][extname]',
+      assetFileNames: (assetInfo) => {
+        if (assetInfo.name === 'grid.css') {
+          const hash = createHash('md5')
+            .update(Object.values(assetInfo.source).map((m) => m.code).join())
+            .digest('hex')
+            .substr(0, 6);
+          return `assets/[name].${hash}[extname]`;
+        }
+        return 'assets/[name][extname]';
+      },
     },
   },
 });
