@@ -428,20 +428,13 @@ async function onClickSave() {
 
   if (!await gridUtil.validate(view)) { return; }
 
-  if (!itgDpNo.value) {
-    const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic');
-    console.log(res.data.itgDpNo);
-    itgDpNo.value = res.data.itgDpNo;
-    changedRows[0].state = 'created';
-  } else {
-    changedRows[0].state = 'updated';
-  }
   const dpAmt = Number(changedRows2[0].billBndAmt);
   let dpSubAmt = 0;
 
   // changedRows.forEach((data) => { data.itgDpNo = itgDpNo.value; });
   changedRows.forEach((data) => {
-    data.itgDpNo = itgDpNo.value; dpSubAmt += Number(data.billDpAmt);
+    // data.itgDpNo = itgDpNo.value;
+    dpSubAmt += Number(data.billDpAmt);
     data.billBndAmt = changedRows2[0].billBndAmt;
   });
 
@@ -452,6 +445,19 @@ async function onClickSave() {
     await alert('상세정보 입금액과 상세현황 입금액이 다릅니다.');
     return;
   }
+
+  if (!itgDpNo.value) {
+    const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic');
+    console.log(res.data.itgDpNo);
+    itgDpNo.value = res.data.itgDpNo;
+    changedRows[0].state = 'created';
+  } else {
+    changedRows[0].state = 'updated';
+  }
+
+  changedRows.forEach((data) => {
+    data.itgDpNo = itgDpNo.value;
+  });
 
   const cachedParam = {
     saveMainReq: changedRows[0],
