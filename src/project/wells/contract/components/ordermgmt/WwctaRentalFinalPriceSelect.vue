@@ -41,7 +41,9 @@
         top
       >
         <kw-item-label class="flex gap-xs">
+          <!-- 로그인한 사용자의 채널이 5010(온라인총판) 이면 기기변경 버튼 발생하지 않음 -->
           <kw-btn
+            v-if="bas?.sellInflwChnlDtlCd !== '5010'"
             :disable="opo?.opoYn"
             label="기기변경"
             dense
