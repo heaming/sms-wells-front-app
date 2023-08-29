@@ -15,12 +15,12 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="5"
+      :cols="9"
       @search="onClickSearch"
     >
       <kw-search-row>
         <kw-search-item
-          :colspan="2"
+          :colspan="3"
           :label="$t('MSG_TXT_OSTR_DT')"
         >
           <kw-date-range-picker
@@ -30,51 +30,51 @@
             :rules="onValidateDate"
           />
         </kw-search-item>
+        <ZwcmWareHouseSearch
+          v-model:start-ym="searchParams.startDt"
+          v-model:end-ym="searchParams.endDt"
+          v-model:ware-dv-cd="searchParams.wareDvCd"
+          v-model:ware-no-m="searchParams.wareNoM"
+          v-model:ware-no-d="searchParams.wareNoD"
+          :label1="$t('MSG_TXT_WARE')"
+          :label2="$t('MSG_TXT_WARE_DV')"
+          :label3="$t('MSG_TXT_HGR_WARE')"
+          :label4="$t('MSG_TXT_WARE')"
+          first-option-value=""
+          first-option="all"
+          sub-first-option-value=""
+          sub-first-option="all"
+          :colspan="4"
+          @update:ware-dv-cd="onChangeStdWareDvCd"
+          @update:ware-no-m="onChagneHgrWareNo"
+        />
+        <!-- 창고상세구분 -->
         <kw-search-item
-          :label="$t('MSG_TXT_MNGT_WARE_NO')"
+          :label="$t('MSG_TXT_WARE_DTL_DV')"
           :colspan="2"
         >
           <kw-select
-            v-model="searchParams.wareDvCd"
-            :options="codes.WARE_DV_CD"
-            :label="$t('MSG_TXT_MNGT_WARE_NO')"
-            first-option="all"
-            rules="required"
-            @change="onChangeWareHouse"
-          />
-          <kw-select
             v-model="searchParams.wareDtlDvCd"
-            :options="optionWareDtlDvCd"
-            :label="$t('MSG_TXT_MNGT_WARE_NO')"
-            first-option="all"
-          />
-          <kw-select
-            v-model="searchParams.wareNo"
-            :options="optionsWareNo"
-            :label="$t('MSG_TXT_MNGT_WARE_NO')"
-            first-option="all"
-          />
-        </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_WARE_USE_YN')"
-          :colspan="1"
-        >
-          <kw-select
-            v-model="searchParams.wareUseYn"
-            :options="customCodes.wareUseYn"
+            :options="filterCodes.wareDtlDvCd"
             first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_GD')">
+        <kw-search-item
+          :label="$t('MSG_TXT_GD')"
+          :colspan="2"
+        >
           <kw-select
             v-model="searchParams.itmGdCd"
             first-option="all"
             :options="codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId))"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
+        <kw-search-item
+          :label="$t('MSG_TXT_USE_SEL')"
+          :colspan="2"
+        >
           <kw-select
             v-model="searchParams.useYn"
             first-option="all"
@@ -87,13 +87,23 @@
         >
           <kw-select
             v-model="searchParams.itmKndCd"
-            class="w166"
+            :colspan="3"
             :options="codes.ITM_KND_CD.filter((v) => ['4', '5', '6','7','9'].includes(v.codeId))"
             @change="onChangeItmKndCd"
           />
           <kw-select
             v-model="searchParams.itmPdCd"
             :options="productCodes"
+            first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_WARE_USE_YN')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.wareUseYn"
+            :options="customCodes.wareUseYn"
             first-option="all"
           />
         </kw-search-item>
@@ -133,6 +143,7 @@
 import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
@@ -159,15 +170,19 @@ const customCodes = {
     { codeId: 'N', codeName: t('MSG_TXT_NUSD') }, // 미사용
   ],
 };
+const filterCodes = ref({
+  wareDtlDvCd: [],
+});
 
 let cachedParams;
 const searchParams = ref({
   startDt: now.add(-3, 'month').startOf('M').format('YYYYMMDD'),
   endDt: now.format('YYYYMMDD'),
   wareDvCd: '', // 창고구분
-  wareDtlDvCd: '',
-  wareNo: '',
-  wareUseYn: '',
+  wareDtlDvCd: '', // 창고상세구분
+  wareNoM: '', // 조직창고
+  wareNoD: '', // 개인창고
+  wareUseYn: '', // 창고 사용여부
   itmGdCd: 'A', // 등급
   itmKndCd: '', // 품목구분
   itmPdCd: '', // 품목
@@ -181,17 +196,38 @@ let fieldsObj;
 const totalCount = ref(0);
 const initTotalCount = ref(0);
 const productCodes = ref();
-const optionsWareNo = ref();
-const optionWareDtlDvCd = ref();
-const onChangeWareHouse = async () => {
-  // 창고번호 목록 조회
-  searchParams.value.wareNo = '';
-  const result = await dataService.get(`${baseUrl}/ware-houses`, { params: searchParams.value });
-  if (result.data.length > 0) {
-    optionsWareNo.value = result.data;
-    optionWareDtlDvCd.value = codes.WARE_DTL_DV_CD.filter((v) => ['10', '20', '30'].includes(v.codeId));
+
+// 창고구분 변경 시, 창고상세구분 세팅
+const onChangeWareDvCd = async () => {
+  searchParams.value.wareDtlDvCd = '';
+  filterCodes.value.wareDtlDvCd = '';
+  const filterWareDvCd = searchParams.value.wareDvCd;
+  if (filterWareDvCd === '1') { // 물류센터
+    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10'].includes(v.codeId));
+  } else if (filterWareDvCd === '2') { // 서비스센터
+    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+  } else if (filterWareDvCd === '3') { // 영업센터
+    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31'].includes(v.codeId));
+  } else {
+    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10', '20', '21', '30', '31'].includes(v.codeId));
   }
 };
+
+function onChangeStdWareDvCd() {
+  searchParams.value.wareNoM = '';
+  searchParams.value.wareNoD = '';
+}
+
+function onChagneHgrWareNo() {
+  searchParams.value.wareNoD = '';
+}
+
+watch(() => searchParams.value.wareDvCd, (val) => {
+  if (searchParams.value.wareDvCd !== val) {
+    searchParams.value.wareDvCd = val;
+  }
+  onChangeWareDvCd();
+});
 
 async function onChangeItmKndCd() {
   const res = await dataService.get(`/sms/wells/service/bs-consumables/${searchParams.value.itmKndCd}/product-codes`);
@@ -226,9 +262,8 @@ const svpdCommGbFilter = [{ name: 'svpdCommGbFilter', criteria: "value = '01'" }
 // }
 onMounted(async () => {
   // 품목구분 : 상품 기본설정
-  searchParams.value.itmKndCd = '6';
-  // 필드 셋팅
-  await onChangeWareHouse();
+  searchParams.value.itmKndCd = '4';
+  await onChangeWareDvCd();
 });
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
