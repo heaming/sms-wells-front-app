@@ -80,6 +80,7 @@
           <kw-paging-info
             :total-count="pageInfo.totalCount"
           />
+          <span class="ml8">{{ t('MSG_TXT_UNIT_EA') }}</span>
         </template>
         <!-- 삭제 -->
         <kw-btn
