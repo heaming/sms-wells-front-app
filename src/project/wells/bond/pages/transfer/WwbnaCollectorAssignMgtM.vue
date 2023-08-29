@@ -731,6 +731,8 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'dlqAddDpAmt', dataType: 'number' },
     { fieldName: 'rsgBorAmt', dataType: 'number' },
     { fieldName: 'lwmTpCd' },
+    { fieldName: 'cujNm' },
+    { fieldName: 'indno' },
     { fieldName: 'lwmDtlTpCd' },
     { fieldName: 'lwmDt' },
     { fieldName: 'dfltDt' },
@@ -769,6 +771,8 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '116', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'lwmTpCd', header: t('MSG_TXT_LWM_TP'), options: codes.LWM_TP_CD, width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'cujNm', header: t('MSG_TXT_CUJ_NM'), width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'indno', header: t('MSG_TXT_IND_NO'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_DTL'), options: codes.LWM_DTL_TP_CD, width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_DT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'dfltDt', header: t('MSG_TXT_DE_RGST_DT'), width: '110', styleName: 'text-center', editable: false },
@@ -781,7 +785,7 @@ const initGrdSub = defineGrid((data, view) => {
   view.setColumns(columns);
   view.setHeaderSummaries({
     visible: true,
-    items: [{ height: 40 }],
+    items: [{ height: 42 }],
   });
   view.layoutByColumn('clctamPrtnrKnm').summaryUserSpans = { colspan: 8 };
   view.layoutByColumn('lwmDtlTpCd').summaryUserSpans = { colspan: 4 };

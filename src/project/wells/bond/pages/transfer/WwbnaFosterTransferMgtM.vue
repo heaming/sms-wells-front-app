@@ -530,7 +530,7 @@ const initGridDetail = ((data, view) => {
 
   view.setHeaderSummaries({
     visible: true,
-    items: [{ height: 40 }],
+    items: [{ height: 42 }],
   });
   view.layoutByColumn('fstrCoNm').summaryUserSpans = [{ colspan: 9 }];
 
