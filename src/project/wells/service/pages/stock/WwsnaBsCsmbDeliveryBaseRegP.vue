@@ -682,7 +682,8 @@ const isRequiredAccPrpnYn3 = async (val, options) => {
 async function onClickItemSearch() {
   const { result, payload } = await modal({
     component: 'WwsnaItemBaseInformationListP',
-    componentProps: { chk: '1', itmKndCd: '8', lpGbYn: 'Y', itmPdNm: basData.value.itmKnm },
+    // componentProps: { chk: '1', itmKndCd: '8', lpGbYn: 'Y', itmPdNm: basData.value.itmKnm },
+    componentProps: { chk: '1', lpGbYn: 'Y', itmPdNm: basData.value.itmKnm },
   });
 
   if (result) {
