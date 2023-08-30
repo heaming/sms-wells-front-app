@@ -128,7 +128,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useGlobal, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { notify, alert } = useGlobal();
@@ -169,7 +169,10 @@ const customCodes = {
  * 지역단 조회(Grid 콤보)
  */
 async function getRegionalGroup() {
-  const res = await dataService.get('/sms/wells/service/organizations/regional-group', { params: { ogId: '' } });
+  const res = await dataService.get('/sms/wells/service/organizations/regional-group', { params: {
+    ogId: '',
+    authYn: 'N',
+  } });
   customCodes.DGR_2_LEVL_OG = res.data;
 }
 await getRegionalGroup();
