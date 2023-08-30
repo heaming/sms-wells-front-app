@@ -148,6 +148,9 @@ const initGrid = defineGrid((data, view) => {
       await modal({
         component: 'WwctaOrderDetailP', // wells 주문 상세 조회 팝업
         componentProps: { cntrNo, cntrSn },
+        draggable: true,
+        window: true,
+        windowFeatures: { width: 1300, height: 1080 },
       });
     }
   };

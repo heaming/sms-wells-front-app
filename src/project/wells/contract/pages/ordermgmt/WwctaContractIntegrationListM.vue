@@ -761,7 +761,13 @@ const initGrid = defineGrid((data, view) => {
     const paramSellPrtnrKnm = gridUtil.getCellValue(g, dataRow, 'sellPrtnrKnm');
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
+      await modal({
+        component: 'WwctaOrderDetailP',
+        componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd },
+        draggable: true,
+        window: true,
+        windowFeatures: { width: 1300, height: 1080 },
+      });
     } else if (['depositDetail'].includes(column)) { // 입금내역
       // await alert('입금내역 팝업은 개발예정입니다.');
       await modal({ component: 'WwctaOrderDetailDepositRgstMgtP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, prtnrKnm: paramSellPrtnrKnm } });

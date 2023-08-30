@@ -342,6 +342,9 @@ const initGrid = defineGrid((data, view) => {
           cntrNo: g.getValue(itemIndex, 'cntrNo'),
           cntrSn: g.getValue(itemIndex, 'cntrSn'),
         },
+        draggable: true,
+        window: true,
+        windowFeatures: { width: 1300, height: 1080 },
       });
     }
   };

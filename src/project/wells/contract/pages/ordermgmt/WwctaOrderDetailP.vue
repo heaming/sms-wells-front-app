@@ -87,7 +87,6 @@
       <kw-tab-panel name="cstBaseInfo">
         <kw-form
           :cols="2"
-          dense
           class="mt30"
         >
           <kw-form-row>
@@ -171,41 +170,30 @@
               </p>
               <kw-separator
                 vertical
-                spaced="2px"
+                spaced="3px"
                 size="0"
               />
               <!-- 가상계좌확인서 -->
               <kw-btn
                 v-show="isVacInfo"
-                dense
-                secondary
                 :label="$t('MSG_BTN_VT_AC_CFDC')"
+                padding="12px"
                 @click="onClickVtAcCfdc"
-              />
-              <kw-separator
-                vertical
-                spaced="2px"
-                size="0"
               />
               <!-- 문자발송 -->
               <kw-btn
                 v-show="isVacInfo"
-                dense
-                secondary
                 :label="$t('MSG_BTN_CHAR_FW')"
+                padding="12px"
+                class="ml8"
                 @click="onClickCharFw"
-              />
-              <kw-separator
-                vertical
-                spaced="2px"
-                size="0"
               />
               <!-- 메일발송 -->
               <kw-btn
                 v-show="isVacInfo"
-                dense
-                secondary
                 :label="$t('MSG_BTN_EMAIL_SEND')"
+                padding="12px"
+                class="ml8"
                 @click="onClickEmailSend"
               />
             </kw-form-item>
@@ -289,8 +277,8 @@
     </kw-tab-panels>
     <template #action>
       <kw-btn
+        negative
         :label="$t('MSG_BTN_CLOSE')"
-        primary
         @click="onClickClose"
       />
     </template>
@@ -301,7 +289,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal, stringUtil } from 'kw-lib';
+import { useDataService, useGlobal, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import WwctaOrderDetailManagementInfDtlP from './WwctaOrderDetailManagementInfDtlP.vue';
 import WwctaOrderDetailDepositIzDtlP from './WwctaOrderDetailDepositIzDtlP.vue';
@@ -310,8 +298,6 @@ import WwctaOrderDetailTaxInvoiceDtlP from './WwctaOrderDetailTaxInvoiceDtlP.vue
 import WwctaOrderDetailCollectingAmountContactListP from './WwctaOrderDetailCollectingAmountContactListP.vue';
 
 const dataService = useDataService();
-// const { t } = useI18n();
-const { cancel: onClickClose } = useModal();
 const { alert, modal } = useGlobal();
 const optionList = ref([]);
 const props = defineProps({
@@ -616,6 +602,11 @@ async function onClickEmailSend() {
     component: 'WwctaVirtualAccountDocumentMailForwardingP', // 메일발송
     componentProps: searchPopupParams,
   });
+}
+
+// 닫기버튼호츌
+async function onClickClose() {
+  window.close();
 }
 
 onMounted(async () => {
