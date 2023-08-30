@@ -216,6 +216,7 @@ const searchParams = ref({
   dstOjpsNm: '',
   subPrtnrNo: '',
   subOgTpCd: '',
+  prtnrNo: '',
 });
 
 const buildingCodes = ref([]);
@@ -226,7 +227,7 @@ async function ogLevlDvCd0() {
 
 watch(() => searchParams.value.dgr2LevlOgId, async () => {
   if (searchParams.value.dgr2LevlOgId !== undefined) {
-    cachedParams.dgr2LevlOgId = searchParams.value.dgr2LevlOgId;
+    cachedParams.dgr2LevlOgId = cloneDeep(searchParams.value.dgr2LevlOgId);
   }
   await ogLevlDvCd0();
 });
@@ -283,7 +284,7 @@ async function fetchData() {
 async function onClickSearch() {
   // 검색조건 4개
   cachedParams.rsbDvCd = searchParams.value.rsbDvCd; // 직책 구분코드
-  // cachedParams.dgr2levlogid = searchParams.value.dgr2LevlOgId; // 지역단 조직ID
+  cachedParams.dgr2levlogid = searchParams.value.dgr2LevlOgId; // 지역단 조직ID
   cachedParams.bldCd = searchParams.value.bldCd; // 빌딩 코드
   cachedParams.subPrtnrNo = searchParams.value.prtnrNo; // 배분대상파트너번호
 
@@ -707,6 +708,7 @@ const initGrdThird = defineGrid((data, view) => {
 });
 
 const position = ref();
+let initSearchParams;
 onMounted(async () => {
   if (props.cachedParams.ogTpCd === 'W01') {
     position.value = [{ codeId: 'W0104', codeName: '지점장' }, { codeId: 'W0105', codeName: '프리매니저' }];
@@ -714,18 +716,18 @@ onMounted(async () => {
     position.value = [{ codeId: 'W0204', codeName: '지점장' }, { codeId: 'W0205', codeName: '프리매니저' }];
   }
   const addValue = {};
+  addValue.authDate = props.cachedParams.authDate;
   addValue.adjCnfmAmt = props.cachedParams.domTrdAmt;
   addValue.crcdnoEncr = props.cachedParams.crcdnoEncr;
   addValue.mrcNm = props.cachedParams.mrcNm;
   addValue.cardAprno = props.cachedParams.cardAprno;
-  addValue.authDate = props.cachedParams.authDate;
-
   grdMainRef.value.getView().getDataSource().addRow(addValue);
+
+  initSearchParams = cloneDeep(searchParams.value);
   await fetchData();
 });
 
 async function reset() {
-  searchParams.value.prtnrNo = null;
-  cachedParams = null;
+  searchParams.value = cloneDeep(initSearchParams);
 }
 </script>
