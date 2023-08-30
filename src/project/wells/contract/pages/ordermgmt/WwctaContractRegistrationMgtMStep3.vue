@@ -41,13 +41,13 @@
               v-if="item.sellTpCd === '1'"
               class="kw-fc--primary kw-font-subtitle"
             >
-              {{ stringUtil.getNumberWithComma(item.sellAmt || 0) }}원
+              {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
             </p>
             <p
               v-else
               class="kw-fc--primary kw-font-subtitle"
             >
-              월 {{ stringUtil.getNumberWithComma(item.sellAmt || 0) }}원({{ item.stplPtrm }}개월)
+              월 {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원({{ item.stplPtrm }}개월)
             </p>
 
             <div class="row items-center ml20">
@@ -387,7 +387,7 @@
                   :colspan="2"
                 >
                   <h3 class="my0">
-                    결제금액 : {{ stringUtil.getNumberWithComma(item.sellAmt || 0) }}원
+                    결제금액 : {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
                   </h3>
                 </kw-form-item>
               </kw-form-row>
@@ -450,7 +450,7 @@
                 </kw-form-item>
                 <kw-form-item no-label>
                   <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
-                    월 렌탈료 : {{ stringUtil.getNumberWithComma(item.sellAmt || 0) }}원
+                    월 렌탈료 : {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -485,8 +485,6 @@
                 <kw-checkbox
                   v-bind="field"
                   label="설정한 조건 나머지 상품에도 일괄적용"
-                  :false-value="N"
-                  :true-value="Y"
                 />
               </kw-field>
             </kw-form-item>
@@ -653,19 +651,19 @@ function onClickNextDtlSn() {
 }
 
 function onChangeCntram1(dtl) {
-  if (Number(dtl.cntrAmtCrd || 0) > Number(dtl.sellAmt || 0)) {
+  if (Number(dtl.cntrAmtCrd || 0) > Number(dtl.fnlAmt || 0)) {
     alert('계약금이 결제금액보다 클 수 없습니다.');
-    dtl.cntrAmtCrd = dtl.sellAmt;
+    dtl.cntrAmtCrd = dtl.fnlAmt;
   }
-  dtl.cntrAmtVac = Number(dtl.sellAmt || 0) - Number(dtl.cntrAmtCrd || 0);
+  dtl.cntrAmtVac = Number(dtl.fnlAmt || 0) - Number(dtl.cntrAmtCrd || 0);
 }
 
 function onChangeCntram2(dtl) {
-  if (Number(dtl.cntrAmtVac || 0) > Number(dtl.sellAmt || 0)) {
+  if (Number(dtl.cntrAmtVac || 0) > Number(dtl.fnlAmt || 0)) {
     alert('계약금이 결제금액보다 클 수 없습니다.');
-    dtl.cntrAmtVac = dtl.sellAmt;
+    dtl.cntrAmtVac = dtl.fnlAmt;
   }
-  dtl.cntrAmtCrd = Number(dtl.sellAmt || 0) - Number(dtl.cntrAmtVac || 0);
+  dtl.cntrAmtCrd = Number(dtl.fnlAmt || 0) - Number(dtl.cntrAmtVac || 0);
 }
 
 function onChangeSodbtNftfCntr(v) {
@@ -862,7 +860,7 @@ onMounted(async () => {
 
   &-content {
     display: flex;
-    align-items: left;
+    align-items: flex-start;
     width: 100%;
     flex-direction: column;
     gap: 12px 0;

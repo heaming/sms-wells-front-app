@@ -1034,7 +1034,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'borAmt', dataType: 'number' }, /* 위약금액(지불액) */
     { fieldName: 'pdCd' },
     { fieldName: 'pdNm' },
-    { fieldName: 'svAmt' }, /* 서비스 금액  */
+    { fieldName: 'svAmt', dataType: 'number' }, /* 서비스 금액  */
     { fieldName: 'sellAmt', dataType: 'number' },
   ];
   const columns = [

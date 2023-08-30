@@ -775,23 +775,27 @@ async function onClickAssignContact(item) {
     } else {
       svBizDclsfCd = '1110';
     }
-    rtn.push({ cntrSn: val.cntrSn, svBizDclsfCd });
+    rtn.push({ cntrSn: val.cntrSn, svBizDclsfCd, basePdCd: val.basePdCd });
     return rtn;
   }, []);
+
+  const installProps = {
+    baseYm: now.format('YYYYMM'), // 달력 초기 월
+    chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
+    svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
+    sellDate: item.cntrCnfmDtm.substring(0, 8), // 판매일자
+    svBizDclsfCd: targets.map((v) => v.svBizDclsfCd).join(','),
+    cntrNo: item.cntrNo,
+    cntrSn: targets.map((v) => v.cntrSn).join(','),
+    basePdCd: targets.map((v) => v.basePdCd).join(','),
+    mtrStatCd: '1',
+  };
+  console.log(installProps);
 
   // 설치오더 시작
   await modal({
     component: 'WwsncTimeTableForContractP',
-    componentProps: {
-      baseYm: now.format('YYYYMM'), // 달력 초기 월
-      chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
-      svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
-      sellDate: item.cntrCnfmDtm.substring(0, 8), // 판매일자
-      svBizDclsfCd: targets.map((v) => v.svBizDclsfCd).join(','),
-      cntrNo: item.cntrNo,
-      cntrSn: targets.map((v) => v.cntrSn).join(','),
-      mtrStatCd: '1',
-    },
+    componentProps: installProps,
   });
 }
 

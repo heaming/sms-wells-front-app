@@ -366,8 +366,8 @@ async function openFeeReportPopup() {
           AKSDTM: perfYm.substring(4, 6),
           AKDDTY: bfPerfYm.substring(0, 4),
           AKDDTM: bfPerfYm.substring(4, 6),
-          AKDRNK: slcPrtnrNo,
-          AKDCDE: slcPstnDvCd,
+          AKDRNK: slcPstnDvCd,
+          AKDCDE: slcPrtnrNo,
         },
       ),
     );

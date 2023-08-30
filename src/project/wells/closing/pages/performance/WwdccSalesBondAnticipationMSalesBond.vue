@@ -114,9 +114,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-import { getAggregateDivide, textToNumberFormatter, getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
+import { getAggregateDivide, getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
@@ -155,7 +155,6 @@ const dynamicChangeCodes = ref({ SELL_TP_DTL_CD: customCodes.value.SELL_TP_DTL_C
 ) });
 
 async function setGridColumnLayoutType1(data, view) { // 일시불
-  console.log('setGridColumnLayoutType1');
   if (!view) {
     view = grdSalesBondRef.value.getView();
   }
@@ -164,37 +163,37 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
   }
   view.setColumnLayout();
   const columns = [
-    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
+    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM', headerSummary: { text: t('MSG_TXT_TOT_SUM'), styleName: 'text-center' } }, // 실적년월
     { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '150', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
     { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date' }, // 매출일자
-    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
+    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
 
-    { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출 - 정상매출
-    { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 취소매출
-    { fieldName: 'feeSlAmt', header: t('MSG_TXT_FEE_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 수수료매출
-    { fieldName: 'boutNorSlAmt', header: t('MSG_TXT_GCF_NOM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 상품권정상
-    { fieldName: 'boutCanSlAmt', header: t('MSG_TXT_GCF_CAN'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 상품권취소
-    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 합계
+    { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출 - 정상매출
+    { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 취소매출
+    { fieldName: 'feeSlAmt', header: t('MSG_TXT_FEE_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 수수료매출
+    { fieldName: 'boutNorSlAmt', header: t('MSG_TXT_GCF_NOM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 상품권정상
+    { fieldName: 'boutCanSlAmt', header: t('MSG_TXT_GCF_CAN'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 상품권취소
+    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 합계
 
-    { fieldName: 'cntrDpAmt', header: t('MSG_TXT_CNTRAM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출대사 - 계약금
-    { fieldName: 'instDpAmt', header: t('MSG_TXT_INTAM'), width: '180', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, //  매출대사 - 할부금
-    { fieldName: 'totDpAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출대사 - 합계
+    { fieldName: 'cntrDpAmt', header: t('MSG_TXT_CNTRAM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출대사 - 계약금
+    { fieldName: 'instDpAmt', header: t('MSG_TXT_INTAM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출대사 - 할부금
+    { fieldName: 'totDpAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출대사 - 합계
 
-    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 대손
-    { fieldName: 'eotUcAmt', header: t('MSG_TXT_EOT_UC'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기말미수
-    { fieldName: 'crpUcAmt', header: t('MSG_TXT_CRP_UC'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 법인미수
-    { fieldName: 'boutDpAmt', header: t('MSG_TXT_GCF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 상품권
-    { fieldName: 'etcDpAmt', header: t('MSG_TXT_ETC_PRPD_RPLC'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  기타선수대체
-    { fieldName: 'interContNomSlAmt', header: t('MSG_TXT_IND_TRD_NOM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 사건거래정상
-    { fieldName: 'interContCanSlAmt', header: t('MSG_TXT_IND_TRD_CAN'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 사건거래취소
-    { fieldName: 'interContDpAmt', header: t('MSG_TXT_IND_TRD_DP'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 사건거래입금
+    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 대손
+    { fieldName: 'totUcBlam', header: t('MSG_TXT_EOT_UC'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 기말미수
+    { fieldName: 'crpUcAmt', header: t('MSG_TXT_CRP_UC'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 법인미수
+    { fieldName: 'boutDpAmt', header: t('MSG_TXT_GCF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 상품권
+    { fieldName: 'etcDpAmt', header: t('MSG_TXT_ETC_PRPD_RPLC'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  기타선수대체
+    { fieldName: 'interContNomSlAmt', header: t('MSG_TXT_IND_TRD_NOM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 사건거래정상
+    { fieldName: 'interContCanSlAmt', header: t('MSG_TXT_IND_TRD_CAN'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 사건거래취소
+    { fieldName: 'interContDpAmt', header: t('MSG_TXT_IND_TRD_DP'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 사건거래입금
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -223,7 +222,7 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
       items: ['cntrDpAmt', 'instDpAmt', 'totDpAmt'],
     },
     'dfaProcsAmt',
-    'eotUcAmt',
+    'totUcBlam',
     'crpUcAmt',
     'boutDpAmt',
     'etcDpAmt',
@@ -234,16 +233,14 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
   if (searchParams.value.agrgDv === '1') {
     layoutMain.splice(1, 9);
   }
-  console.log(`layoutMain: ${layoutMain}`);
   view.setColumnLayout(layoutMain);
 
   view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
-  console.log(`summaryUserSpans: ${(searchParams.value.agrgDv === '1')}`);
   view.setHeaderSummaries({
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -257,7 +254,7 @@ async function setGridColumnLayoutType2(data, view) { // 렌탈
   }
   view.setColumnLayout();
   const columns = [
-    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
+    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM', headerSummary: { text: t('MSG_TXT_TOT_SUM'), styleName: 'text-center' } }, // 실적년월
     { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
@@ -267,16 +264,16 @@ async function setGridColumnLayoutType2(data, view) { // 렌탈
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date' }, // 매출일자
-    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
-    { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출 - 정상매출
-    { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '130', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 취소매출
-    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  매출 - 합계
-    { fieldName: 'totDpAmt', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출대사(-)
-    { fieldName: 'borRemAmt', header: `${t('MSG_TXT_BOR_RES')}(+)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약잔여(+)
-    { fieldName: 'borAdjAmt', header: `${t('MSG_TXT_BOR_CTR')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약조정(-)
-    { fieldName: 'dpCngAmt', header: `${t('MSG_TXT_PRPD_CV')}(+)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 선수전환(+)
-    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, //  대손(-)
-    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
+    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
+    { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출 - 정상매출
+    { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 취소매출
+    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 합계
+    { fieldName: 'totDpAmt', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출대사(-)
+    { fieldName: 'borRemAmt', header: `${t('MSG_TXT_BOR_RES')}(+)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 위약잔여(+)
+    { fieldName: 'borAdjAmt', header: `${t('MSG_TXT_BOR_CTR')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 위약조정(-)
+    { fieldName: 'dpCngAmt', header: `${t('MSG_TXT_PRPD_CV')}(+)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 선수전환(+)
+    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  대손(-)
+    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 미수금액
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -316,7 +313,7 @@ async function setGridColumnLayoutType2(data, view) { // 렌탈
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -330,7 +327,7 @@ async function setGridColumnLayoutType3(data, view) { // 멤버십
   }
   view.setColumnLayout();
   const columns = [
-    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
+    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM', headerSummary: { text: t('MSG_TXT_TOT_SUM'), styleName: 'text-center' } }, // 실적년월
     { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
@@ -339,14 +336,14 @@ async function setGridColumnLayoutType3(data, view) { // 멤버십
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, // 매출일자
-    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
-    { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, // 정상매출
-    { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 취소매출
-    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 합계
-    { fieldName: 'totDpAmt', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출대사
-    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 대손
-    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출일자
+    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
+    { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 정상매출
+    { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 취소매출
+    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 합계
+    { fieldName: 'totDpAmt', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출대사
+    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 대손
+    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 미수금액
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -373,7 +370,7 @@ async function setGridColumnLayoutType3(data, view) { // 멤버십
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -387,7 +384,7 @@ async function setGridColumnLayoutType4(data, view) { // 정기배송
   }
   view.setColumnLayout();
   const columns = [
-    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
+    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM', headerSummary: { text: t('MSG_TXT_TOT_SUM'), styleName: 'text-center' } }, // 실적년월
     { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
@@ -397,11 +394,11 @@ async function setGridColumnLayoutType4(data, view) { // 정기배송
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date' }, // 매출일자
-    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
-    { fieldName: 'totSlAmt', header: `${t('MSG_TXT_SL')}(+)`, width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출
-    { fieldName: 'totDpAmt', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출대사
-    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 대손
-    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
+    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
+    { fieldName: 'totSlAmt', header: `${t('MSG_TXT_SL')}(+)`, width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출
+    { fieldName: 'totDpAmt', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출대사
+    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 대손
+    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 미수금액
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -415,7 +412,7 @@ async function setGridColumnLayoutType4(data, view) { // 정기배송
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -429,7 +426,7 @@ async function setGridColumnLayoutType5(data, view) { // 리스/할부
   }
   view.setColumnLayout();
   const columns = [
-    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적년월
+    { fieldName: 'slClYm', header: t('MSG_TXT_PERF_YM'), width: '150', styleName: 'text-center', datetimeFormat: 'yyyy-MM', headerSummary: { text: t('MSG_TXT_TOT_SUM'), styleName: 'text-center' } }, // 실적년월
     { fieldName: 'slClDt', header: t('MSG_TXT_PERF_DT'), wdth: '130', styleName: 'text-center', dataType: 'date' }, // 실적일자
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
@@ -439,15 +436,15 @@ async function setGridColumnLayoutType5(data, view) { // 리스/할부
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date' }, // 매출일자
-    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 전기이월
-    { fieldName: 'oriSlAmt', header: t('MSG_TXT_PCAM_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 원금매출
-    { fieldName: 'itrSlAmt', header: t('MSG_TXT_INT_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 이자매출
-    { fieldName: 'svcSlAmt', header: t('MSG_TXT_SV_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 서비스매출
-    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 합계
-    { fieldName: 'slAdjAmt', header: t('MSG_TXT_SL_CTR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출조정
-    { fieldName: 'totDpAmt', header: t('MSG_TXT_SL_CPRCNF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출대사
-    { fieldName: 'dfaProcsAmt', header: t('MSG_TXT_DFA'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 대손
-    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
+    { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
+    { fieldName: 'oriSlAmt', header: t('MSG_TXT_PCAM_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 원금매출
+    { fieldName: 'itrSlAmt', header: t('MSG_TXT_INT_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 이자매출
+    { fieldName: 'svcSlAmt', header: t('MSG_TXT_SV_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 서비스매출
+    { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 합계
+    { fieldName: 'slAdjAmt', header: t('MSG_TXT_SL_CTR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출조정
+    { fieldName: 'totDpAmt', header: t('MSG_TXT_SL_CPRCNF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출대사
+    { fieldName: 'dfaProcsAmt', header: t('MSG_TXT_DFA'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 대손
+    { fieldName: 'totUcAmt', header: t('MSG_TXT_UC_AMT'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 미수금액
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -478,7 +475,7 @@ async function setGridColumnLayoutType5(data, view) { // 리스/할부
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -493,104 +490,25 @@ async function setGridHeader() {
     await setGridColumnLayoutType3();
   } else if (searchParams.value.sellTpCd === '6') { // 정기배송
     await setGridColumnLayoutType4();
-  } else if (searchParams.value.sellTpCd === '99') { // 리스/할부
+  } else if (searchParams.value.sellTpCd === '10') { // 리스/할부
     await setGridColumnLayoutType5();
   }
 }
-async function setHeaderSummary1(view, salesBond) {
-  view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
-  view.columnByName('nomSlAmt').headerSummary.text = textToNumberFormatter(salesBond.nomSlAmt);
-  view.columnByName('canSlAmt').headerSummary.text = textToNumberFormatter(salesBond.canSlAmt);
-  view.columnByName('feeSlAmt').headerSummary.text = textToNumberFormatter(salesBond.feeSlAmt);
-  view.columnByName('boutNorSlAmt').headerSummary.text = textToNumberFormatter(salesBond.boutNorSlAmt);
-  view.columnByName('boutCanSlAmt').headerSummary.text = textToNumberFormatter(salesBond.boutCanSlAmt);
-  view.columnByName('cntrDpAmt').headerSummary.text = textToNumberFormatter(salesBond.cntrDpAmt);
-  view.columnByName('instDpAmt').headerSummary.text = textToNumberFormatter(salesBond.instDpAmt);
-  view.columnByName('totDpAmt').headerSummary.text = textToNumberFormatter(salesBond.totDpAmt);
-  view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
-  view.columnByName('eotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.eotUcAmt);
-  view.columnByName('crpUcAmt').headerSummary.text = textToNumberFormatter(salesBond.crpUcAmt);
-  view.columnByName('boutDpAmt').headerSummary.text = textToNumberFormatter(salesBond.boutDpAmt);
-  view.columnByName('etcDpAmt').headerSummary.text = textToNumberFormatter(salesBond.etcDpAmt);
-  view.columnByName('interContNomSlAmt').headerSummary.text = textToNumberFormatter(salesBond.interContNomSlAmt);
-  view.columnByName('interContCanSlAmt').headerSummary.text = textToNumberFormatter(salesBond.interContCanSlAmt);
-  view.columnByName('interContDpAmt').headerSummary.text = textToNumberFormatter(salesBond.interContDpAmt);
-}
-async function setHeaderSummary2(view, salesBond) {
-  view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
-  view.columnByName('nomSlAmt').headerSummary.text = textToNumberFormatter(salesBond.nomSlAmt);
-  view.columnByName('canSlAmt').headerSummary.text = textToNumberFormatter(salesBond.canSlAmt);
-  view.columnByName('totSlAmt').headerSummary.text = textToNumberFormatter(salesBond.totSlAmt);
-  view.columnByName('totDpAmt').headerSummary.text = textToNumberFormatter(salesBond.totDpAmt);
-  view.columnByName('borRemAmt').headerSummary.text = textToNumberFormatter(salesBond.borRemAmt);
-  view.columnByName('borAdjAmt').headerSummary.text = textToNumberFormatter(salesBond.borAdjAmt);
-  view.columnByName('dpCngAmt').headerSummary.text = textToNumberFormatter(salesBond.dpCngAmt);
-  view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
-  view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
-}
-async function setHeaderSummary3(view, salesBond) {
-  view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
-  view.columnByName('nomSlAmt').headerSummary.text = textToNumberFormatter(salesBond.nomSlAmt);
-  view.columnByName('canSlAmt').headerSummary.text = textToNumberFormatter(salesBond.canSlAmt);
-  view.columnByName('totSlAmt').headerSummary.text = textToNumberFormatter(salesBond.totSlAmt);
-  view.columnByName('totDpAmt').headerSummary.text = textToNumberFormatter(salesBond.totDpAmt);
-  view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
-  view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
-}
-async function setHeaderSummary4(view, salesBond) {
-  view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
-  view.columnByName('totSlAmt').headerSummary.text = textToNumberFormatter(salesBond.totSlAmt);
-  view.columnByName('totDpAmt').headerSummary.text = textToNumberFormatter(salesBond.totDpAmt);
-  view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
-  view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
-}
-async function setHeaderSummary5(view, salesBond) {
-  view.columnByName('preTotUcAmt').headerSummary.text = textToNumberFormatter(salesBond.preTotUcAmt);
-  view.columnByName('oriSlAmt').headerSummary.text = textToNumberFormatter(salesBond.oriSlAmt);
-  view.columnByName('itrSlAmt').headerSummary.text = textToNumberFormatter(salesBond.itrSlAmt);
-  view.columnByName('svcSlAmt').headerSummary.text = textToNumberFormatter(salesBond.svcSlAmt);
-  view.columnByName('totSlAmt').headerSummary.text = textToNumberFormatter(salesBond.totSlAmt);
-  view.columnByName('slAdjAmt').headerSummary.text = textToNumberFormatter(salesBond.slAdjAmt);
-  view.columnByName('totDpAmt').headerSummary.text = textToNumberFormatter(salesBond.totDpAmt);
-  view.columnByName('dfaProcsAmt').headerSummary.text = textToNumberFormatter(salesBond.dfaProcsAmt);
-  view.columnByName('totUcAmt').headerSummary.text = textToNumberFormatter(salesBond.totUcAmt);
-}
-
-async function setHeaderSummary(salesBond) {
-  const view = grdSalesBondRef.value.getView();
-  view.columnByName('slClYm').headerSummary.text = t('MSG_TXT_SUM');
-  if (searchParams.value.sellTpCd === '1') { // 일시불
-    await setHeaderSummary1(view, salesBond);
-  } else if (searchParams.value.sellTpCd === '2') { // 렌탈
-    await setHeaderSummary2(view, salesBond);
-  } else if (searchParams.value.sellTpCd === '3') { // 멤버십
-    await setHeaderSummary3(view, salesBond);
-  } else if (searchParams.value.sellTpCd === '6') { // 정기배송
-    await setHeaderSummary4(view, salesBond);
-  } else if (searchParams.value.sellTpCd === '99') { // 리스/할부
-    await setHeaderSummary5(view, salesBond);
-  }
-  view.columnByName('slClYm').headerSummary.styleName = 'text-center';
-}
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/performance/sales-bond', { params: cachedParams });
+  console.log('fetchData');
+  const res = await dataService.get('/sms/wells/closing/performance/sales-bond', { params: cachedParams, timeout: 800000 });
   const salesBonds = res.data;
-  totalCount.value = salesBonds.length - 1; // 총계 가지고 오기 때문에 그 부분 제외
-
-  if (!isEmpty(salesBonds) && salesBonds[0].slClYm === '총      계') {
-    await setHeaderSummary(salesBonds[0]);
-    salesBonds.shift();
-  }
+  totalCount.value = salesBonds.length;
 
   const view = grdSalesBondRef.value.getView();
   view.getDataSource().setRows(salesBonds);
 }
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  await setGridHeader();
+  setGridHeader();
   totalCount.value = 0;
-  fetchData();
+  await fetchData();
 }
 
 async function onClickOpenReport() {

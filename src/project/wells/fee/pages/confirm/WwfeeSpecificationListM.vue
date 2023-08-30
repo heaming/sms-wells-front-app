@@ -105,6 +105,7 @@
         />
         <!-- 지급명세서출력(본사)-->
         <kw-btn
+          v-if="sessionUserInfo.rsbCd.indexOf('HR') > -1"
           dense
           secondary
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')+'('+t('MSG_TXT_HDOF')+')'"

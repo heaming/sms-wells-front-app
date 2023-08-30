@@ -181,11 +181,7 @@
           <kw-action-top>
             <template #left>
               <kw-paging-info
-                v-model:page-index="pageInfoObjectPresentState.pageIndex"
-                v-model:page-size="pageInfoObjectPresentState.pageSize"
-                :total-count="pageInfoObjectPresentState.totalCount"
-                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-                @change="fetchObjectPresentState"
+                :total-count="totalObjectPresentStateCount"
               />
               <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
             </template>
@@ -194,7 +190,7 @@
               :label="$t('MSG_BTN_EXCEL_DOWN')"
               secondary
               dense
-              :disable="pageInfoObjectPresentState.totalCount === 0"
+              :disable="totalObjectPresentStateCount === 0"
               @click="onClickObjectPresentStateExcelDownload"
             />
             <kw-separator
@@ -212,6 +208,7 @@
 
           <kw-grid
             ref="grdObjectPresentStateRef"
+            name="objectPresentState"
             :visible-rows="10"
             @init="initGrdObjectPresentState"
           />
@@ -222,24 +219,10 @@
           <kw-action-top>
             <template #left>
               <kw-paging-info
-                v-model:page-index="pageInfoCharacterFwUld.pageIndex"
-                v-model:page-size="pageInfoCharacterFwUld.pageSize"
-                :total-count="pageInfoCharacterFwUld.totalCount"
-                :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-                @change="fetchCharacterFwUld"
+                :total-count="totalCharacterFwUldCount"
               />
               <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
             </template>
-            <kw-btn
-              dense
-              grid-action
-              :label="$t('MSG_BTN_DEL')"
-            />
-            <kw-btn
-              dense
-              grid-action
-              :label="$t('MSG_BTN_SAVE')"
-            />
             <kw-separator
               spaced
               vertical
@@ -250,7 +233,7 @@
               :label="$t('MSG_BTN_EXCEL_DOWN')"
               secondary
               dense
-              :disable="pageInfoCharacterFwUld.totalCount === 0"
+              :disable="totalCharacterFwUldCount === 0"
               @click="onClickCharacterFwUldExcelDownload"
             />
             <kw-separator
@@ -259,21 +242,27 @@
               inset
             />
             <kw-date-picker
+              v-model="sendParams.fwbooDate"
               class="w170"
               dense
+              :label="t('MSG_TXT_FW_DATE')"
             />
             <kw-time-picker
+              v-model="sendParams.fwbooTime"
               class="w170"
               dense
+              :label="t('MSG_TXT_FW_HH')"
             />
             <kw-btn
               primary
               dense
               :label="$t('MSG_BTN_BOO_FW_PRTC')"
+              @click="onClickSendMessage"
             />
           </kw-action-top>
           <kw-grid
             ref="grdCharacterFwUldRef"
+            name="characterFwUld"
             :visible-rows="10"
             @init="initGrdCharacterFwUld"
           />
@@ -289,14 +278,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, codeUtil, useMeta, gridUtil } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, codeUtil, useMeta, gridUtil, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import WwdccPrepaymentExpirationMCharacterFwIz from './WwdccPrepaymentExpirationMCharacterFwIz.vue';
 
+const { notify } = useGlobal();
 const dataService = useDataService();
-const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 const { getUserInfo } = useMeta();
 const userInfo = getUserInfo();
@@ -305,6 +294,8 @@ const { t } = useI18n();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const selectedTab = ref('tab1');
+const totalObjectPresentStateCount = ref(0);
+const totalCharacterFwUldCount = ref(0);
 
 const grdObjectPresentStateRef = ref(getComponentType('KwGrid'));
 const grdCharacterFwUldRef = ref(getComponentType('KwGrid'));
@@ -348,21 +339,14 @@ const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
 });
 
-const pageInfoObjectPresentState = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
-const pageInfoCharacterFwUld = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+const sendParams = ref({
+  fwbooDate: dayjs().format('YYYYMMDD'),
+  fwbooTime: '0900',
 });
 
 async function onClickObjectPresentStateExcelDownload() {
   const view = grdObjectPresentStateRef.value.getView();
-  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/object-present-state/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/object-present-state', { params: { ...cachedParams } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -373,7 +357,7 @@ async function onClickObjectPresentStateExcelDownload() {
 
 async function onClickCharacterFwUldExcelDownload() {
   const view = grdCharacterFwUldRef.value.getView();
-  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/character-fw-uld/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/character-fw-uld', { params: { ...cachedParams } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -383,23 +367,20 @@ async function onClickCharacterFwUldExcelDownload() {
 }
 
 async function fetchObjectPresentState() {
-  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/object-present-state/paging', { params: { ...cachedParams, ...pageInfoObjectPresentState.value, timeout: 300000 } });
-  const { list: pages, pageInfo: pagingResult } = res.data;
+  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/object-present-state', { params: { ...cachedParams } });
+  const objectPresentState = res.data;
+  totalObjectPresentStateCount.value = objectPresentState.length;
 
-  pageInfoObjectPresentState.value = pagingResult;
-
-  const view = grdObjectPresentStateRef.value.getView();
-  view.getDataSource().setRows(pages);
+  const gridView = grdObjectPresentStateRef.value.getView();
+  gridView.getDataSource().setRows(objectPresentState);
 }
 
 async function fetchCharacterFwUld() {
-  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/character-fw-uld/paging', { params: { ...cachedParams, ...pageInfoCharacterFwUld.value, timeout: 300000 } });
-  const { list: pages, pageInfo: pagingResult } = res.data;
-
-  pageInfoCharacterFwUld.value = pagingResult;
-
-  const view = grdCharacterFwUldRef.value.getView();
-  view.getDataSource().setRows(pages);
+  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/character-fw-uld', { params: { ...cachedParams } });
+  const characterFwUld = res.data;
+  totalCharacterFwUldCount.value = characterFwUld.length;
+  const gridView = grdCharacterFwUldRef.value.getView();
+  gridView.getDataSource().setRows(characterFwUld);
 }
 
 async function onClickObjectPresentStateSearch() {
@@ -424,6 +405,35 @@ async function onChangeHclsf(hclsf) {
     codes.PD_MCLSF = codes.PD_MCLSF_ALL.filter((code) => hclsf === code.hgrPdClsfId);
   }
   searchParams.value.pdMclsfId = '';
+}
+
+async function onClickSendMessage() {
+  const view = grdCharacterFwUldRef.value.getView();
+  const allRows = gridUtil.getAllRowValues(view);
+  const sendRows = allRows.filter((v) => v.resultYn !== 'Y').map((row) => ({
+    cntrCralTno: row.cntrCralTno1 + row.cntrCralTno2 + row.cntrCralTno3,
+    cstKnm: row.cstKnm,
+    cstNo: row.cstNo,
+    cntrNo: row.cntrNo,
+    cntrSn: row.cntrSn,
+    cntrInfo: row.cntrInfo,
+    prmEndYm: row.prmEndYm,
+    mmpmYm: row.mmpmYm,
+    prmReAplcYn: row.prmReAplcYn,
+    prmEndMm: row.prmEndMm,
+    pdNm: row.pdNm,
+    cnt: row.cnt,
+    currMm: row.currMm,
+    postYy: row.postYy,
+    postMm: row.postMm,
+    fwbooDate: sendParams.value.fwbooDate,
+    fwbooTime: sendParams.value.fwbooTime,
+  }));
+  if (sendRows.length === 0) { notify(t('MSG_ALT_NO_FW_OBJ')); return; }
+  await dataService.post('/sms/wells/closing/performance/prepayment-expiration', sendRows);
+
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await onClickCharacterFwUldSearch();
 }
 
 /*
@@ -495,10 +505,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { cntrLocalTno1: no1, cntrLocalTno2: no2, cntrLocalTno3: no3 } = grid.getValues(index.itemIndex);
-        if (no1 != null) {
-          return `${no1}-${no2}-${no3}`;
-        }
+        const { cntrLocalTno1, cntrLocalTno2, cntrLocalTno3 } = grid.getValues(index.itemIndex);
+        return `${cntrLocalTno1}-${cntrLocalTno2}-${cntrLocalTno3}`;
       },
     },
     { fieldName: 'cntrCralTno',
@@ -506,10 +514,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { cntrCralTno1: no1, cntrCralTno2: no2, cntrCralTno3: no3 } = grid.getValues(index.itemIndex);
-        if (no1 != null) {
-          return `${no1}-${no2}-${no3}`;
-        }
+        const { cntrCralTno1, cntrCralTno2, cntrCralTno3 } = grid.getValues(index.itemIndex);
+        return `${cntrCralTno1}-${cntrCralTno2}-${cntrCralTno3}`;
       },
     },
     { fieldName: 'rcgvpLocalTno',
@@ -517,10 +523,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { rcgvpLocalTno1: no1, rcgvpLocalTno2: no2, rcgvpLocalTno3: no3 } = grid.getValues(index.itemIndex);
-        if (no1 != null) {
-          return `${no1}-${no2}-${no3}`;
-        }
+        const { rcgvpLocalTno1, rcgvpLocalTno2, rcgvpLocalTno3 } = grid.getValues(index.itemIndex);
+        return `${rcgvpLocalTno1}-${rcgvpLocalTno2}-${rcgvpLocalTno3}`;
       },
     },
     { fieldName: 'rcgvpCralTno',
@@ -528,10 +532,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { rcgvpCralTno1: no1, rcgvpCralTno2: no2, rcgvpCralTno3: no3 } = grid.getValues(index.itemIndex);
-        if (no1 != null) {
-          return `${no1}-${no2}-${no3}`;
-        }
+        const { rcgvpCralTno1, rcgvpCralTno2, rcgvpCralTno3 } = grid.getValues(index.itemIndex);
+        return `${rcgvpCralTno1}-${rcgvpCralTno2}-${rcgvpCralTno3}`;
       },
     },
     { fieldName: 'dpClDt', header: t('MSG_TXT_DP_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' },
@@ -542,14 +544,12 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
     { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
     { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrLocalTno',
-      header: t('MSG_TXT_TEL_NO'),
+      header: t('MSG_TXT_ISTLL_MPNO'),
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { prtnrLocalTno1: no1, prtnrLocalTno2: no2, prtnrLocalTno3: no3 } = grid.getValues(index.itemIndex);
-        if (no1 != null) {
-          return `${no1}-${no2}-${no3}`;
-        }
+        const { prtnrLocalTno1, prtnrLocalTno2, prtnrLocalTno3 } = grid.getValues(index.itemIndex);
+        return `${prtnrLocalTno1}-${prtnrLocalTno2}-${prtnrLocalTno3}`;
       },
     },
     { fieldName: 'prtnrCralTno',
@@ -557,10 +557,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { prtnrCralTno1: no1, prtnrCralTno2: no2, prtnrCralTno3: no3 } = grid.getValues(index.itemIndex);
-        if (no1 != null) {
-          return `${no1}-${no2}-${no3}`;
-        }
+        const { prtnrCralTno1, prtnrCralTno2, prtnrCralTno3 } = grid.getValues(index.itemIndex);
+        return `${prtnrCralTno1}-${prtnrCralTno2}-${prtnrCralTno3}`;
       },
     },
     { fieldName: 'hooPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' },
@@ -571,10 +569,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { ogLocalTno1: no1, ogLocalTno2: no2, ogLocalTno3: no3 } = grid.getValues(index.itemIndex);
-        if (no1 != null) {
-          return `${no1}-${no2}-${no3}`;
-        }
+        const { ogLocalTno1, ogLocalTno2, ogLocalTno3 } = grid.getValues(index.itemIndex);
+        return `${ogLocalTno1}-${ogLocalTno2}-${ogLocalTno3}`;
       },
     },
     { fieldName: 'hooPrtnrCralTno',
@@ -582,10 +578,8 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { hooPrtnrCralTno1: no1, hooPrtnrCralTno2: no2, hooPrtnrCralTno3: no3 } = grid.getValues(index.itemIndex);
-        if (no1 != null) {
-          return `${no1}-${no2}-${no3}`;
-        }
+        const { hooPrtnrCralTno1, hooPrtnrCralTno2, hooPrtnrCralTno3 } = grid.getValues(index.itemIndex);
+        return `${hooPrtnrCralTno1}-${hooPrtnrCralTno2}-${hooPrtnrCralTno3}`;
       },
     },
   ];
@@ -616,34 +610,56 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
 
 const initGrdCharacterFwUld = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'cstNo' },
     { fieldName: 'cstKnm' },
     { fieldName: 'cntrCralTno' },
     { fieldName: 'cntrNo' },
+    { fieldName: 'cntrSn' },
+    { fieldName: 'cntrDtlNo' },
     { fieldName: 'cntrInfo' },
     { fieldName: 'prmEndYm' },
     { fieldName: 'mmpmYm' },
     { fieldName: 'prmReAplcYn' },
+    { fieldName: 'prmEndMm' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'cnt' },
+    { fieldName: 'currMm' },
+    { fieldName: 'postYy' },
+    { fieldName: 'postMm' },
+    { fieldName: 'cntrCralTno1' },
+    { fieldName: 'cntrCralTno2' },
+    { fieldName: 'cntrCralTno3' },
 
   ];
 
   const columns = [
-    { fieldName: 'cstKnm', header: '고객명(계약자)', width: '200', styleName: 'text-left' },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM_CNTRT'), width: '200', styleName: 'text-center' },
     { fieldName: 'cntrCralTno',
-      header: '계약자 휴대전화번호',
-      width: '250',
+      header: t('MSG_TXT_CNTRR_VAC_PH_NO'),
+      width: '200',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { cntrCralTno1: no1, cntrCralTno2: no2, cntrCralTno3: no3 } = grid.getValues(index.itemIndex);
-        if (no1 != null) {
-          return `${no1}-${no2}-${no3}`;
-        }
+        const { cntrCralTno1, cntrCralTno2, cntrCralTno3 } = grid.getValues(index.itemIndex);
+        return `${cntrCralTno1}-${cntrCralTno2}-${cntrCralTno3}`;
       },
     },
-    { fieldName: 'cntrNo', header: '계약번호', width: '250', styleName: 'text-center' },
-    { fieldName: 'cntrInfo', header: '상품정보', width: '249', styleName: 'text-left' },
-    { fieldName: 'prmEndYm', header: '선납만료년월', width: '250', styleName: 'text-center' },
-    { fieldName: 'mmpmYm', header: '월납시작년월', width: '250', styleName: 'text-center' },
-    { fieldName: 'prmReAplcYn', header: '발송대상', width: '200', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center' },
+    { fieldName: 'cntrInfo', header: t('MSG_TXT_PD_INF'), width: '249', styleName: 'text-left' },
+    { fieldName: 'prmEndYm', header: t('MSG_TXT_PRM_EXN_YM'), width: '250', styleName: 'text-center' },
+    { fieldName: 'mmpmYm', header: t('MSG_TXT_MM_PY_STRT_YM'), width: '250', styleName: 'text-center' },
+    { fieldName: 'prmReAplcYn', header: t('MSG_TXT_FW_OJ'), width: '200', styleName: 'text-center' },
+    { fieldName: 'prmEndMm', width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'pdNm', width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'cnt', width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'currMm', width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'postYy', width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'postMm', width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'cntrCralTno1', width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'cntrCralTno2', width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'cntrCralTno3', width: '250', styleName: 'text-center', visible: false },
 
   ];
 

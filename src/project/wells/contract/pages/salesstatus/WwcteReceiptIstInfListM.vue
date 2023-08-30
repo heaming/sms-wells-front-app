@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTC
 2. 프로그램 ID : WwcteReceiptIstInfListM - wells 접수 및 설치 정보 조회
-3. 작성자 : gs.piit165
+3. 작성자 : Myoungbin Joo
 4. 작성일 : 2023.06.08
 ****************************************************************************************************
 * 프로그램 설명
@@ -56,7 +56,6 @@
         <!-- 고객구분 -->
         <kw-search-item
           :label="t('MSG_TXT_CST_DV')"
-          required
         >
           <kw-option-group
             v-model="fieldParams.cstDvCd"
@@ -72,7 +71,6 @@
         <!-- 조직구분 -->
         <kw-search-item
           :label="t('MSG_TXT_OG_DV')"
-          required
         >
           <kw-option-group
             v-model="fieldParams.sellInflwChnlDtlCd"
@@ -181,6 +179,14 @@
             :options="codes.sppDuedtYn"
           />
         </kw-search-item>
+        <!-- 판매유형 -->
+        <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
+          <kw-select
+            v-model="fieldParams.sellTpCds"
+            :options="codes.sellTpCd"
+            :multiple="true"
+          />
+        </kw-search-item>
         <!-- 관리서비스 -->
         <kw-search-item :label="`${t('MSG_TXT_MGT')} ${t('MSG_TXT_SERVICE')}`">
           <kw-option-group
@@ -189,16 +195,6 @@
             first-option="all"
             first-option-val=""
             type="radio"
-          />
-        </kw-search-item>
-      </kw-search-row>
-      <!-- 판매유형 -->
-      <kw-search-row>
-        <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
-          <kw-select
-            v-model="fieldParams.sellTpCds"
-            :options="codes.sellTpCd"
-            :multiple="true"
           />
         </kw-search-item>
       </kw-search-row>
@@ -214,7 +210,7 @@
             :page-size-options="commonCodes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
-          <span class="ml8">{{ t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <span class="ml8">{{ t('MSG_TXT_UNIT_MCNT_WON_CASE') }}</span>
         </template>
         <!-- 엑셀 다운로드 -->
         <kw-btn

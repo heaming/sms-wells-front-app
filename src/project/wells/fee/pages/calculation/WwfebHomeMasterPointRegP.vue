@@ -25,19 +25,6 @@
         />
       </template>
       <kw-btn
-        icon="download_on"
-        dense
-        secondary
-        :label="$t('MSG_BTN_EXCEL_DOWN')"
-        :disable="totalCount.value === 0"
-        @click="onClickExcelDownload"
-      />
-      <kw-separator
-        vertical
-        inset
-        spaced
-      />
-      <kw-btn
         v-permission:delete
         grid-action
         :label="$t('MSG_BTN_DEL')"
@@ -53,6 +40,19 @@
         grid-action
         :label="$t('MSG_BTN_ROW_ADD')"
         @click="onClickAdd"
+      />
+      <kw-separator
+        spaced
+        vertical
+        inset
+      />
+      <kw-btn
+        icon="download_on"
+        dense
+        secondary
+        :label="$t('MSG_BTN_EXCEL_DOWN')"
+        :disable="totalCount.value === 0"
+        @click="onClickExcelDownload"
       />
       <kw-separator
         vertical
@@ -84,7 +84,7 @@ import { useDataService, getComponentType, defineGrid, gridUtil, useGlobal } fro
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
-const { confirm, notify } = useGlobal();
+const { notify } = useGlobal();
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -114,23 +114,6 @@ const props = defineProps({
   },
 });
 
-const saveData = ref({
-  prtnrNo: '',
-  mngtYm: '',
-  sellPVal: '',
-  svPVal: '',
-  educPVal: '',
-  etcPVal1: '',
-  etcPVal2: '',
-  etcPVal3: '',
-  clDvCd: '',
-});
-
-const removeData = ref({
-  prtnrNo: '',
-  mngtYm: '',
-});
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -157,21 +140,6 @@ async function onClickListSave() {
   await dataService.post('/sms/wells/fee/home-master-grades/points', changedRows);
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
-}
-
-/*
- *  Event - 그리드 개별 row 저장 버튼 클릭
- *  저장은 하지 않았으나 수정중인 row의 데이터가 존재할 수 있으므로 재조회X
- */
-async function onClickSave() {
-  const dataProvider = grdMainRef.value.getView().getDataSource();
-  const scRow = grdMainRef.value.getView().getCurrent().dataRow;
-
-  await dataService.post('/sms/wells/fee/home-master-grades/point', saveData.value);
-
-  notify(t('MSG_ALT_SAVE_DATA'));
-  dataProvider.setRowState(scRow, 'none');
-  dataProvider.setValue(scRow, 'newYn', 'N');
 }
 
 /*
@@ -233,24 +201,16 @@ async function onClickAdd() {
 
 /*
  *  Event - 행삭제 버튼 클릭
- *  저장 전 신규생성 row는 단순 그리드 삭제
+ *
  */
 async function onClickRemove() {
-  const dataProvider = grdMainRef.value.getView().getDataSource();
-  const scRow = grdMainRef.value.getView().getCurrent().dataRow;
-  const scRowState = dataProvider.getRowState(scRow);
-  const newRow = dataProvider.getValue(scRow, 'newYn');
-  if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; }
+  const view = grdMainRef.value.getView();
 
-  if (scRowState === 'created' || newRow === 'Y') {
-    dataProvider.removeRow(scRow);
-  } else {
-    removeData.value.prtnrNo = dataProvider.getValue(scRow, 'prtnrNo');
-    removeData.value.mngtYm = dataProvider.getValue(scRow, 'mngtYm');
-    const response = await dataService.delete('/sms/wells/fee/home-master-grades', { data: removeData.value });
-    if (response.data.processCount > 0) {
-      dataProvider.removeRow(scRow);
-    }
+  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  if (deletedRows.length > 0) {
+    await dataService.delete('/sms/wells/fee/home-master-grades', { data: [...deletedRows] });
+    notify(t('MSG_ALT_DELETED'));
+    await fetchData();
   }
 }
 
@@ -274,12 +234,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'etcPVal3' },
     { fieldName: 'totSum' },
     { fieldName: 'clDvCd' },
-    { fieldName: 'save' },
     { fieldName: 'newYn' },
   ];
 
   const columns = [
-    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-left', editable: false },
+    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'mngtYm', header: t('MSG_TXT_MON'), width: '106', styleName: 'text-center', dataType: 'datetime', datetimeFormat: 'yyyy-MM', editor: { type: 'number', textAlignment: 'far', maxIntegerLength: 6 } },
     { fieldName: 'sellPVal', header: t('MSG_TXT_SELL'), width: '92', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
@@ -290,7 +249,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'etcPVal3', header: t('MSG_TXT_SFT') + t('MSG_TXT_ACDN'), width: '92', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
     { fieldName: 'totSum', header: t('MSG_TXT_SUM'), width: '92', styleName: 'text-right', editable: false },
     { fieldName: 'clDvCd', header: t('MSG_TXT_GD'), width: '92', styleName: 'text-right', editable: false },
-    { fieldName: 'save', header: t('MSG_BTN_SAVE'), width: '106', styleName: 'text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
     { fieldName: 'newYn', header: 'NEW_YN', width: '50', styleName: 'text-center' },
 
   ];
@@ -298,7 +256,7 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.columnByName('newYn').visible = false;
-  view.checkBar.visible = false;
+  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
@@ -315,23 +273,8 @@ const initGrdMain = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['mngtYm', 'sellPVal', 'svPVal', 'educPVal', 'etcPVal1', 'etcPVal2', 'etcPVal3', 'totSum'],
     },
-    'clDvCd', 'save',
+    'clDvCd',
   ]);
-
-  view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'save') {
-      saveData.value.prtnrNo = g.getValue(itemIndex, 'prtnrNo');
-      saveData.value.mngtYm = g.getValue(itemIndex, 'mngtYm');
-      saveData.value.sellPVal = g.getValue(itemIndex, 'sellPVal');
-      saveData.value.svPVal = g.getValue(itemIndex, 'svPVal');
-      saveData.value.educPVal = g.getValue(itemIndex, 'educPVal');
-      saveData.value.etcPVal1 = g.getValue(itemIndex, 'etcPVal1');
-      saveData.value.etcPVal2 = g.getValue(itemIndex, 'etcPVal2');
-      saveData.value.etcPVal3 = g.getValue(itemIndex, 'etcPVal3');
-      saveData.value.clDvCd = g.getValue(itemIndex, 'clDvCd');
-      onClickSave();
-    }
-  };
 
   view.onCellEdited = async function summary(grid, index, dataRow) {
     const totSum = Number(grid.getValues(dataRow).sellPVal) + Number(grid.getValues(dataRow).svPVal)

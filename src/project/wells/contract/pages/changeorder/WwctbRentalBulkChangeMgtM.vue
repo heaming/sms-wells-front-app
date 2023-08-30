@@ -67,10 +67,7 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
-          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-          @change:model-value="(v)=>{pageeInfo.pageSize=v;}"
         />
         <!-- (단위: 원, 건, 개월) -->
         <span class="ml8">({{ $t('MSG_TXT_UNIT') }}:
@@ -97,19 +94,17 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, useMeta, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { getConfig } = useMeta();
 const grdMainRefRental = ref(getComponentType('KwGrid'));
 const grdMainRentalView = computed(() => grdMainRefRental.value?.getView());
 const { modal, alert } = useGlobal();
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'CNTR_CH_TP_CD', // 계약변경유형코드
   'BFSVC_BZS_DV_CD',
   'SPLY_BZS_DV_CD',
@@ -126,7 +121,7 @@ const searchParams = ref({
 
 const pageInfo = ref({
   totalCount: 0,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
 });
 
 let cachedParams;

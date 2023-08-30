@@ -270,17 +270,17 @@ async function fetchData() {
   view.getDataSource().setRows(mainList);
   if (searchParams.value.inqrDv === '1') {
     view.groupBy(['dgr1LevlOgNm']);
-    view.setFooters({ visible: true, items: [{ height: 40 }] });
+    view.setFooters({ visible: true, items: [{ height: 42 }] });
     view.layoutByColumn('ogCd').groupFooterUserSpans = [{ colspan: 6 }];
     view.layoutByColumn('ogCd').footerUserSpans = [{ colspan: 6 }];
   } else if (searchParams.value.inqrDv === '2') {
     view.groupBy(['dgr1LevlOgNm', 'dgr2LevlOgNm']);
-    view.setFooters({ visible: true, items: [{ height: 40 }] });
+    view.setFooters({ visible: true, items: [{ height: 42 }] });
     view.layoutByColumn('ogCd').groupFooterUserSpans = [{ colspan: 6 }];
     view.layoutByColumn('ogCd').footerUserSpans = [{ colspan: 6 }];
   } else if (searchParams.value.inqrDv === '3') {
     view.groupBy(['dgr1LevlOgNm', 'dgr2LevlOgNm', 'dgr3LevlOgNm']);
-    view.setFooters({ visible: true, items: [{ height: 40 }] });
+    view.setFooters({ visible: true, items: [{ height: 42 }] });
     view.layoutByColumn('ogCd').groupFooterUserSpans = [{ colspan: 6 }];
     view.layoutByColumn('ogCd').footerUserSpans = [{ colspan: 6 }];
   }

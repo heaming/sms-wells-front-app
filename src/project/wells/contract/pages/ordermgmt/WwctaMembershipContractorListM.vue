@@ -97,20 +97,23 @@
           :label="$t('MSG_TXT_CST_NO')"
           icon="search"
           clearable
-          :placeholder="t('MSG_TXT_INP_AND_SELT')"
+          :placeholder="t('MSG_TXT_INP')"
           :on-click-icon="onClickSearchCntrCst"
           rules="max:10|numeric"
           :maxlength="10"
         />
       </kw-search-item>
       <!-- 탈퇴제외 -->
-      <kw-search-item :label="$t('MSG_TXT_WTDR_EXLD')">
+      <kw-search-item
+        :label="$t('MSG_TXT_WDWAL') + $t('MSG_TXT_DIV')"
+      >
         <kw-field
           :model-value="[]"
         >
           <template #default="{ field }">
             <kw-checkbox
               v-model="checkType"
+              :label="$t('MSG_TXT_WTDR_EXLD')"
               v-bind="field"
               val=""
             />
@@ -192,7 +195,8 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  // 230828 수정 - default 값으로 30개를 받아야함
+  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[2].codeName),
   needTotalCount: true,
 });
 // -------------------------------------------------------------------------------------------------

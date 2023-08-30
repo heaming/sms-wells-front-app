@@ -68,7 +68,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
 
@@ -76,7 +80,7 @@
           icon="download_on"
           dense
           secondary
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
         />
@@ -84,8 +88,15 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -96,7 +107,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useGlobal } from 'kw-lib';
+import { useDataService, codeUtil, defineGrid, getComponentType, gridUtil, useGlobal, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
@@ -108,6 +119,7 @@ const { currentRoute } = useRouter();
 
 const { t } = useI18n();
 const { getMonthWarehouse } = useSnCode();
+const { getConfig } = useMeta();
 const { notify, modal } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
@@ -121,15 +133,20 @@ const searchParams = ref({
   wareDvCd: '2',
 });
 
-const totalCount = ref(0);
-
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'STR_TP_CD',
   'WARE_DV_CD',
   'PD_GD_CD',
   'ITM_KND_CD',
   'USE_YN',
 );
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+});
 
 // 입고유형 필터링
 const strTpCds = codes.STR_TP_CD.filter((v) => v.codeId !== '110');
@@ -145,11 +162,12 @@ searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 let cachedParams;
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/movement-stores', { params: cachedParams });
-  const moveMentItem = res.data;
-  totalCount.value = moveMentItem.length;
+  const res = await dataService.get('/sms/wells/service/movement-stores/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: moveMentItem, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(moveMentItem.map((v) => ({ ...v, strDelButn: ' ' })));
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {

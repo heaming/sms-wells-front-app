@@ -52,11 +52,7 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          v-model:page-index="pageInfo.pageIndex"
-          v-model:page-size="pageInfo.pageSize"
-          :total-count="pageInfo.totalCount"
-          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-          @change="fetchData"
+          :total-count="totalCount"
         />
         <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </template>
@@ -66,7 +62,7 @@
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         secondary
         dense
-        :disable="pageInfo.totalCount === 0"
+        :disable="totalCount === 0"
         @click="onClickExcelDownload"
       />
     </kw-action-top>
@@ -82,12 +78,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, codeUtil, useMeta, gridUtil } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, codeUtil, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
-const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 const { t } = useI18n();
 
@@ -95,6 +90,7 @@ const { t } = useI18n();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
+const totalCount = ref(0);
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -108,15 +104,9 @@ const searchParams = ref({
   cellNo: '',
 });
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/character-fw-iz/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/character-fw-iz', { params: { ...cachedParams } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -126,13 +116,12 @@ async function onClickExcelDownload() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/character-fw-iz/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: pages, pageInfo: pagingResult } = res.data;
+  const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/character-fw-iz', { params: { ...cachedParams } });
+  const date = res.data;
+  totalCount.value = date.length;
 
-  pageInfo.value = pagingResult;
-
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(pages);
+  const gridView = grdMainRef.value.getView();
+  gridView.getDataSource().setRows(date);
 }
 
 async function onClickSearch() {

@@ -567,7 +567,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'itmPdNm',
       header: t('MSG_TXT_ITM_NM'),
       width: '250',
-      styleName: 'text-center',
+      styleName: 'text-left',
     },
     {
       fieldName: 'itmGdCd',
@@ -700,10 +700,9 @@ const initGrdMain = defineGrid((data, view) => {
     'rmkCn', // 비고
   ];
 
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
+  view.setColumnLayout(columnLayout);
   view.setFooters({ visible: true });
   view.setOptions({ summaryMode: 'aggregate' });
 

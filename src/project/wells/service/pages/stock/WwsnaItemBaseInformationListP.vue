@@ -81,6 +81,7 @@
           <kw-input
             v-model="searchParams.strtSapCd"
             :label="$t('MSG_TXT_STRT_SAP_CD')"
+            :regex="/^[0-9]*$/i"
             rules="numeric|max:18"
             @change="onChangeStrtSapCd"
           />
@@ -88,6 +89,7 @@
           <kw-input
             v-model="searchParams.endSapCd"
             :label="$t('MSG_TXT_END_SAP_CD')"
+            :regex="/^[0-9]*$/i"
             rules="numeric|max:18"
             @change="onChangeEndSapCd"
           />
@@ -103,6 +105,7 @@
           <kw-input
             v-model="searchParams.strtSapCd"
             :label="$t('MSG_TXT_STRT_SAP_CD')"
+            :regex="/^[0-9]*$/i"
             rules="numeric|max:18"
             @change="onChangeStrtSapCd"
           />
@@ -110,6 +113,7 @@
           <kw-input
             v-model="searchParams.endSapCd"
             :label="$t('MSG_TXT_END_SAP_CD')"
+            :regex="/^[0-9]*$/i"
             rules="numeric|max:18"
             @change="onChangeEndSapCd"
           />
@@ -126,6 +130,7 @@
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchData"
         />
+        <span class="ml8">{{ t('MSG_TXT_UNIT_EA') }}</span>
       </template>
     </kw-action-top>
     <kw-grid

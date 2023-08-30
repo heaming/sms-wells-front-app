@@ -45,13 +45,13 @@
       :visible-rows="1"
       @init="initGridNewCstInfo"
     />
-    <template #action>
+    <!-- <template #action>
       <kw-btn
         primary
         :label="$t('MSG_BTN_CLOSE')"
         @click="onClickClose"
       />
-    </template>
+    </template> -->
   </kw-popup>
 </template>
 
@@ -59,12 +59,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useModal } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService /* , useModal */ } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { cancel } = useModal();
+// const { cancel } = useModal();
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: false, default: '' },
@@ -106,9 +106,9 @@ onMounted(async () => {
   await fetchData();
 });
 
-async function onClickClose() {
-  cancel();
-}
+// async function onClickClose() {
+//   cancel();
+// }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

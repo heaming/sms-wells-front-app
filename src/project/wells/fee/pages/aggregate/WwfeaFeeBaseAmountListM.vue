@@ -51,7 +51,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON_CASE_PER') }}</span>
         </template>
         <kw-btn
           dense
@@ -98,6 +98,7 @@ const codes = await codeUtil.getMultiCodes(
   'COPN_DV_CD',
   'SELL_DSC_TP_CD',
   'ALNCMP_CD',
+  'MCHN_CH_TP_CD',
 );
 const filterOgTpCd = codes.OG_TP_CD.filter((v) => ['W02', 'W01', 'W03'].includes(v.codeId));
 const searchParams = ref({
@@ -190,15 +191,15 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'lccode', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' },
     { fieldName: 'lccrtt', header: t('MSG_TXT_RCPDT'), width: '104', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'lccgub', header: t('MSG_TXT_INDV_DV'), width: '89', styleName: 'text-center ', options: codes.QLF_DV_CD },
+    { fieldName: 'lccgub', header: t('MSG_TXT_INDV_DV'), width: '89', styleName: 'text-center ', options: codes.COPN_DV_CD },
     { fieldName: 'og1Nm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '104', styleName: 'text-center' },
     { fieldName: 'og2Nm', header: t('MSG_TXT_RGNL_GRP'), width: '104', styleName: 'text-center' },
     { fieldName: 'og3Nm', header: t('MSG_TXT_BRANCH'), width: '91', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '159', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '104', styleName: 'text-right' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '104', styleName: 'text-center' },
     { fieldName: 'lcicde', header: t('MSG_TXT_SALE_PROD'), width: '131', styleName: 'text-right' },
     { fieldName: 'kaina1', header: t('MSG_TXT_SELL_PD_NM'), width: '160', styleName: 'text-right' },
-    { fieldName: 'lcprat', header: t('MSG_TXT_ACKMT_PFR'), width: '160', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'lcprat', header: t('MSG_TXT_ACKMT_PFR'), width: '160', styleName: 'text-right' },
     { fieldName: 'lcpamt', header: t('MSG_TXT_ACKMT_PERF_AMT'), width: '160', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'lcgub5', header: t('MSG_TXT_BASE_FEE_ORD_MST'), width: '160', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'l115Bam1', header: t('MSG_TXT_BASE_FEE_PRC_BASE'), width: '160', styleName: 'text-right', numberFormat: '#,###,##0' },
@@ -208,8 +209,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'imonIuse', header: t('MSG_TXT_PRD_USWY'), width: '119', styleName: 'text-center' },
     { fieldName: 'lcflg4', header: `${t('MSG_TXT_RE_RENTAL')}/1+1`, width: '83', styleName: 'text-center', options: codes.SELL_DSC_TP_CD },
     { fieldName: 'lcetc7', header: t('MSG_TXT_CHDVC_YN'), width: '103', styleName: 'text-center' },
-    { fieldName: 'lccgu1', header: t('MSG_TXT_CHNG') + t('MSG_TXT_INDV_DV'), width: '130', styleName: 'text-center' },
-    { fieldName: 'lcflag', header: t('MSG_TXT_CHDVC_TP'), width: '130', styleName: 'text-center' },
+    { fieldName: 'lccgu1', header: t('MSG_TXT_CHNG') + t('MSG_TXT_INDV_DV'), width: '130', styleName: 'text-center', options: codes.COPN_DV_CD },
+    { fieldName: 'lcflag', header: t('MSG_TXT_CHDVC_TP'), width: '130', styleName: 'text-center', options: codes.MCHN_CH_TP_CD },
     { fieldName: 'lcrate', header: t('MSG_TXT_CHNG') + t('MSG_TXT_PFR'), width: '130', styleName: 'text-center' },
     { fieldName: 'lccod1', header: t('MSG_TXT_CHNG') + 1 + t('MSG_TXT_Y'), width: '130', styleName: 'text-center' },
     { fieldName: 'lccod2', header: t('MSG_TXT_CHNG') + 2 + t('MSG_TXT_Y'), width: '130', styleName: 'text-center' },

@@ -90,7 +90,6 @@
         <kw-btn
           :label="$t('MSG_BTN_SAVE')"
           secondary
-          primary
           dense
           grid-action
           @click="onClickSave"
@@ -108,36 +107,19 @@
           :disable="totalCount.value === 0"
           @click="onClickExcelDownload"
         />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
         <kw-btn
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_CNTN_CREATE')"
           secondary
-          primary
           dense
           grid-action
           @click="onClickCreate"
         />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
         <kw-btn
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_DTRM')"
           secondary
-          primary
           dense
           grid-action
           @click="onClickDtrm"
-        />
-        <kw-separator
-          vertical
-          inset
-          spaced
         />
         <kw-btn
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_DTRM')+$t('MSG_BTN_CANCEL')"

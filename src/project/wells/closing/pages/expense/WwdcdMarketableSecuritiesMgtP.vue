@@ -320,7 +320,7 @@ async function onClickObjectPersonAdd() {
     }
   }
   for (let i = 0; i < checkedRows.length; i += 1) {
-    if (checkedRows[i].dstAmt > 0) {
+    if (checkedRows[i].dstAmt !== 0) {
       checkedRows[i].adjYn = 'N';
       checkedRows[i].dstOjPrtnrNo = checkedRows[i].prtnrNo;
       checkedRows[i].ogTpCd = checkedRows[i].dstOjOgTpCd;

@@ -216,6 +216,15 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickDetailsExcelDownload"
         />
+        <kw-btn
+          v-permission:create
+          icon="upload_on"
+          secondary
+          dense
+          :label="$t('MSG_BTN_EXCEL_UP')"
+          :disable="isNotActivated || assignConfirmed"
+          @click="onClickExcelUpload"
+        />
       </kw-action-top>
       <kw-grid
         ref="grdSubRef"
@@ -390,6 +399,24 @@ async function onClickDetailsExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
+}
+
+async function onClickExcelUpload() {
+  const apiUrl = '/sms/wells/bond/collector-assigns/details/excel-upload';
+  const templateId = 'FOM_BND_ASN';
+  const extraData = {
+    baseYm: cachedParams.baseYm,
+  };
+  const {
+    payload,
+  } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: { apiUrl, templateId, extraData },
+  });
+  if (payload.status === 'S') {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchDetailsData();
+  }
 }
 
 async function checkRquest(changedRows) {
@@ -731,6 +758,8 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'dlqAddDpAmt', dataType: 'number' },
     { fieldName: 'rsgBorAmt', dataType: 'number' },
     { fieldName: 'lwmTpCd' },
+    { fieldName: 'cujNm' },
+    { fieldName: 'indno' },
     { fieldName: 'lwmDtlTpCd' },
     { fieldName: 'lwmDt' },
     { fieldName: 'dfltDt' },
@@ -769,6 +798,8 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '116', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'lwmTpCd', header: t('MSG_TXT_LWM_TP'), options: codes.LWM_TP_CD, width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'cujNm', header: t('MSG_TXT_CUJ_NM'), width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'indno', header: t('MSG_TXT_IND_NO'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_DTL'), options: codes.LWM_DTL_TP_CD, width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_DT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'dfltDt', header: t('MSG_TXT_DE_RGST_DT'), width: '110', styleName: 'text-center', editable: false },
@@ -781,7 +812,7 @@ const initGrdSub = defineGrid((data, view) => {
   view.setColumns(columns);
   view.setHeaderSummaries({
     visible: true,
-    items: [{ height: 40 }],
+    items: [{ height: 42 }],
   });
   view.layoutByColumn('clctamPrtnrKnm').summaryUserSpans = { colspan: 8 };
   view.layoutByColumn('lwmDtlTpCd').summaryUserSpans = { colspan: 4 };

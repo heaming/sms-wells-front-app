@@ -117,11 +117,11 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
-const { modal, notify, ok } = useGlobal();
-const { getConfig } = useMeta();
+const { modal, notify, ok, alert } = useGlobal();
+const { getConfig, getUserInfo } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-
+const userInfo = getUserInfo;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -146,9 +146,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 async function fetchData() {
-  // TODO. 본사 영업담당자, 본사 담당자 구분 해야함
   const res = await dataService.get('/sms/wells/closing/expense/cleaners/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  console.log('res : ', res);
   const { list: pages, pageInfo: pagingResult } = res.data;
 
   const subView = grdSubRef.value.getView();
@@ -179,8 +177,32 @@ async function onClickRegister() {
 
 async function onClickDelete() {
   const view = grdSubRef.value.getView();
-  const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
-
+  const checkedRows = await gridUtil.confirmDeleteCheckedRows(view);
+  const deleteRows = [];
+  let authCount = 0;
+  let checkCount = 0;
+  checkedRows.forEach((checkedRow) => {
+    const registYearMonth = checkedRow.fstRgstDtm.replace('-', '').substring(0, 6);
+    const currentYearMonth = dayjs.format('YYYYMM'); // 현재년월
+    if (userInfo.baseRleCd === 'W1020' && registYearMonth === currentYearMonth) {
+      deleteRows.push(checkedRow);
+    } else {
+      if (userInfo.baseRleCd !== 'W1020') {
+        authCount += 1;
+      }
+      if (registYearMonth !== currentYearMonth) {
+        checkCount += 1;
+      }
+    }
+  });
+  if (authCount > 0) {
+    alert(t('삭제 권한이 없습니다.'));
+    return;
+  }
+  if (checkCount > 0) {
+    alert(t('현재 년월이 아닌 대상이 포함되어있습니다.'));
+    return;
+  }
   if (deleteRows.length > 0) {
     const clinrRgnos = deleteRows.map(({ clinrRgno }) => clinrRgno);
     await dataService.delete('/sms/wells/closing/expense/cleaners', { data: [...clinrRgnos] });

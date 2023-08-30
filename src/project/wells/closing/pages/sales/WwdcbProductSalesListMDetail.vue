@@ -36,41 +36,12 @@
       >
         <kw-select
           v-model="searchParams.sellTpCd"
-          :options="selectSellTpCd"
+          :options="codes.SELL_TP_CD"
           :label="$t('MSG_TXT_SEL_TYPE')"
         />
         <kw-select
-          v-if="searchParams.sellTpCd === '1'"
           v-model="searchParams.sellTpDtlCd"
-          :options="selectSellTpDtlCd.filter(v => v.userDfn02 === '1')"
-          first-option="all"
-          first-option-value="ALL"
-        />
-        <kw-select
-          v-else-if="searchParams.sellTpCd === '2'"
-          v-model="searchParams.sellTpDtlCd"
-          :options="selectSellTpDtlCd.filter(v => v.userDfn02 === '2')"
-          first-option="all"
-          first-option-value="ALL"
-        />
-        <kw-select
-          v-else-if="searchParams.sellTpCd === '10'"
-          v-model="searchParams.sellTpDtlCd"
-          :options="selectSellTpDtlCd.filter(v => v.userDfn02 === '10')"
-          first-option="all"
-          first-option-value="ALL"
-        />
-        <kw-select
-          v-else-if="searchParams.sellTpCd === '3'"
-          v-model="searchParams.sellTpDtlCd"
-          :options="selectSellTpDtlCd.filter(v => v.userDfn02 === '3')"
-          first-option="all"
-          first-option-value="ALL"
-        />
-        <kw-select
-          v-else-if="searchParams.sellTpCd === '6'"
-          v-model="searchParams.sellTpDtlCd"
-          :options="selectSellTpDtlCd.filter(v => v.userDfn02 === '6')"
+          :options="codes.SELL_TP_DTL_CD"
           first-option="all"
           first-option-value="ALL"
         />
@@ -82,7 +53,7 @@
       >
         <kw-select
           v-model="searchParams.sellChnlDtl"
-          :options="codes.SELL_CHNL_DTL_CD"
+          :options="codes.SELL_CHNL_DV_CD"
           first-option="all"
           first-option-value="ALL"
           :label="$t('MSG_TXT_SEL_CHNL')"
@@ -98,9 +69,12 @@
       <kw-search-item :label="$t('MSG_TXT_CST_NO')">
         <kw-input
           v-model="searchParams.cstNo"
+          :label="$t('MSG_TXT_CST_NO')"
           icon="search"
           clearable
-          :on-click-icon="onClickCstNo"
+          :regex="/^[0-9]*$/i"
+          maxlength="10"
+          @click-icon="onClickCustomer"
         />
       </kw-search-item>
     </kw-search-row>
@@ -108,9 +82,8 @@
       <kw-search-item :label="$t('MSG_TXT_SAP_SLPNO')">
         <kw-input
           v-model="searchParams.sapSlpno"
-          icon="search"
-          clearable
-          :click-icon="onClickIcon"
+          regex="alpha_num"
+          maxlength="14"
         />
       </kw-search-item>
       <kw-search-item
@@ -172,7 +145,7 @@ import { codeUtil, defineGrid, gridUtil, getComponentType, useDataService, useGl
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import { getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
+// import { getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
 
 const now = dayjs();
 const { t } = useI18n();
@@ -193,13 +166,13 @@ const totalCount = ref(0);
 
 const sapPdDv = (await dataService.get('/sms/wells/closing/performance/overdue-penalty/code'))
   .data.map((v) => ({ codeId: v.sapPdDvCd, codeName: v.sapPdDvNm }));
-const selectSellTpCd = await getSellTpCd();
-const selectSellTpDtlCd = await getSellTpDtlCd();
+// const selectSellTpCd = await getSellTpCd();
+// const codes.SELL_TP_DTL_CD = await getSellTpDtlCd();
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
-  'SELL_CHNL_DTL_CD', // 판매채널
+  'SELL_CHNL_DV_CD', // 판매채널
 );
 const searchParams = ref({
   baseDtmnFrom: now.subtract(30, 'day').format('YYYYMMDD'),
@@ -219,18 +192,8 @@ async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
   console.log('searchParams.value:', searchParams.value);
 
-  const { sellTpCd } = searchParams.value;
-  if (sellTpCd === '1' || sellTpCd === '10' || sellTpCd === '6') { // 일시불, 리스, 정기배송
-    isShow1.value = true;
-    isShow2.value = false;
-    isShow3.value = false;
-    const res = await dataService.get('/sms/wells/closing/product-sales-detail/single-payment', { params: cachedParams });
-    console.log(res.data);
-    const mainList = res.data;
-    totalCount.value = mainList.length;
-    const view = grdDetailSingleRef.value.getView();
-    view.getDataSource().setRows(mainList);
-  } else if (sellTpCd === '2') { // 렌탈
+  const { sellTpCd, sellTpDtlCd } = searchParams.value;
+  if (sellTpCd === '2' && (sellTpDtlCd === '21' || sellTpDtlCd === '23')) { // 렌탈
     isShow1.value = false;
     isShow2.value = true;
     isShow3.value = false;
@@ -248,6 +211,16 @@ async function fetchData() {
     totalCount.value = mainList.length;
     const view = grdDetailMembershipsRef.value.getView();
     view.getDataSource().setRows(mainList);
+  } else { // 일시불, 리스, 정기배송
+    isShow1.value = true;
+    isShow2.value = false;
+    isShow3.value = false;
+    const res = await dataService.get('/sms/wells/closing/product-sales-detail/single-payment', { params: cachedParams });
+    console.log(res.data);
+    const mainList = res.data;
+    totalCount.value = mainList.length;
+    const view = grdDetailSingleRef.value.getView();
+    view.getDataSource().setRows(mainList);
   }
 }
 
@@ -256,16 +229,8 @@ async function onClickSearch() {
 }
 
 async function onClickExportView() {
-  const { sellTpCd } = searchParams.value;
-  if (sellTpCd === '1' || sellTpCd === '10' || sellTpCd === '6') {
-    const view = grdDetailSingleRef.value.getView();
-    const response = await dataService.get('/sms/wells/closing/product-sales-detail/single-payment/excel-download', { params: cachedParams });
-    await gridUtil.exportView(view, {
-      fileName: 'mainList',
-      timePostfix: true,
-      exportData: response.data,
-    });
-  } else if (sellTpCd === '2') {
+  const { sellTpCd, sellTpDtlCd } = searchParams.value;
+  if (sellTpCd === '2' && (sellTpDtlCd === '21' || sellTpDtlCd === '23')) { // 렌탈
     const view = grdDetailRentalRef.value.getView();
     const response = await dataService.get('/sms/wells/closing/product-sales-detail/rental/excel-download', { params: cachedParams });
     await gridUtil.exportView(view, {
@@ -281,9 +246,29 @@ async function onClickExportView() {
       timePostfix: true,
       exportData: response.data,
     });
+  } else {
+    const view = grdDetailSingleRef.value.getView();
+    const response = await dataService.get('/sms/wells/closing/product-sales-detail/single-payment/excel-download', { params: cachedParams });
+    await gridUtil.exportView(view, {
+      fileName: 'mainList',
+      timePostfix: true,
+      exportData: response.data,
+    });
   }
 }
 
+const onClickCustomer = async () => {
+  const { result, payload } = await modal({
+    component: 'ZwcsaCustomerListP',
+    componentProps: {
+      cstNo: searchParams.value.cstNo,
+    },
+  });
+  if (result) {
+    const { cstNo } = payload;
+    searchParams.value.cstNo = cstNo;
+  }
+};
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -299,7 +284,7 @@ const initGrdSinglePayment = defineGrid((data, view) => {
       } },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '200', styleName: 'text-left' },
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '100', styleName: 'text-center' },
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrDtlNo',
@@ -621,7 +606,7 @@ const initGrdRental = defineGrid((data, view) => {
       } },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '200', styleName: 'text-left' },
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '100', styleName: 'text-center' },
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrDtlNo',
@@ -833,7 +818,7 @@ const initGrdRental = defineGrid((data, view) => {
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -854,7 +839,7 @@ const initGrdMemberships = defineGrid((data, view) => {
       } },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT'), width: '200', styleName: 'text-left' },
     { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '100', styleName: 'text-center' },
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrDtlNo',
@@ -1066,7 +1051,7 @@ const initGrdMemberships = defineGrid((data, view) => {
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });

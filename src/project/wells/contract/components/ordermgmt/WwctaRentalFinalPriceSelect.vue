@@ -41,17 +41,19 @@
         top
       >
         <kw-item-label class="flex gap-xs">
+          <!-- 로그인한 사용자의 채널이 5010(온라인총판) 이면 기기변경 버튼 발생하지 않음 -->
           <kw-btn
+            v-if="bas?.sellInflwChnlDtlCd !== '5010'"
             :disable="opo?.opoYn"
             label="기기변경"
             dense
-            @click="onClickDeviceChange(item)"
+            @click.stop="onClickDeviceChange(item)"
           />
           <kw-btn
             :disable="mchnCh?.mchnChYn"
             label="1+1"
             dense
-            @click="onClickOnePlusOne(item)"
+            @click.stop="onClickOnePlusOne(item)"
           />
         </kw-item-label>
       </kw-item-section>
@@ -63,7 +65,7 @@
           borderless
           icon="close_24"
           class="w24 kw-font-pt24"
-          @click="onClickDelete"
+          @click.stop="onClickDelete"
         />
       </kw-item-section>
     </template>
@@ -352,6 +354,8 @@ const emit = defineEmits([
   'device-change',
   'one-plus-one',
   'delete-one-plus-one',
+  'price-changed',
+  'promotion-changed',
   'delete',
 ]);
 
@@ -382,13 +386,11 @@ let mchnCh = toRef(props.modelValue, 'mchnCh');
 let opo = toRef(props.modelValue, 'opo');
 let bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
 let appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
-
-const promotions = ref(props.modelValue?.promotions); /* 적용가능한 프로모션 목록 */
+let promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
+let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions');
 // appliedPromotions.value ??= [];
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '2'));
-
-const finalPriceOptions = ref([]);
 
 async function fetchFinalPriceOptions() {
   const { data } = await dataService.get('sms/wells/contract/final-price', {
@@ -397,11 +399,14 @@ async function fetchFinalPriceOptions() {
       sellChnlDtlCd: dtl.value.sellChnlDtlCd,
       copnDvCd: props.bas?.copnDvCd,
     },
+    silent: true,
   });
   finalPriceOptions.value = data || [];
 }
 
-await fetchFinalPriceOptions();
+if (!finalPriceOptions.value?.length) {
+  await fetchFinalPriceOptions();
+}
 
 const priceDefineVariables = ref({
   svPdCd: toRef(props.modelValue, 'svPdCd'),
@@ -492,12 +497,23 @@ function reconnectReactivities() {
   mchnCh = toRef(props.modelValue, 'mchnCh');
   opo = toRef(props.modelValue, 'opo');
   bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
-  promotions.value = props.modelValue.promotions ?? []; /* 적용가능한 프로모션 목록 */
+  promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
+  finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions'); /* 적용된 프로모션 */
 }
 
-watch(() => props.modelValue, initPriceDefineVariables, { immediate: true });
-watch(() => props.modelValue, reconnectReactivities, { immediate: true });
+async function onChangeModelValue(newDtl) {
+  if (newDtl.finalPriceOptions) {
+    finalPriceOptions.value = newDtl.finalPriceOptions;
+  }
+  if (!finalPriceOptions.value?.length) {
+    await fetchFinalPriceOptions();
+  }
+  reconnectReactivities();
+  initPriceDefineVariables();
+}
+
+watch(() => props.modelValue, onChangeModelValue, { immediate: true });
 
 function reducerFinalPriceToSelectVarDict(varDict, finalPrice, variable) {
   /*  해당 변수를 선택할 수 없으면 제한다.  */
@@ -610,16 +626,24 @@ const selectedFinalPrice = computed(() => {
   return selectedPrice[0];
 });
 
-watch(selectedFinalPrice, (newPrice) => {
-  fnlAmt.value = newPrice?.fnlVal ?? undefined;
-  pdPrcFnlDtlId.value = newPrice?.pdPrcFnlDtlId ?? undefined;
-}, { immediate: true });
+function initializePrice() {
+  fnlAmt.value = selectedFinalPrice.value?.fnlVal ?? undefined;
+  pdPrcFnlDtlId.value = selectedFinalPrice.value?.pdPrcFnlDtlId ?? undefined;
+}
+
+initializePrice();
+
+const promotionAppliedPrice = ref();
 
 const displayedFinalPrice = computed(() => (selectedFinalPrice.value
   ? `${stringUtil.getNumberWithComma(selectedFinalPrice.value.fnlVal)}원`
   : '미확정'));
 
-const promotionAppliedPrice = ref();
+function clearPromotions() {
+  promotions.value = [];
+  appliedPromotions.value = [];
+  promotionAppliedPrice.value = undefined;
+}
 
 function calcPromotionAppliedPrice(aplyPmots) {
   if (!aplyPmots?.length) {
@@ -630,7 +654,15 @@ function calcPromotionAppliedPrice(aplyPmots) {
     return;
   }
   const minRentalFxam = aplyPmots
-    .reduce((minVal, promotion) => Math.min(minVal, promotion.rentalFxam ?? 0), fnlVal);
+    .reduce(
+      (minVal, promotion) => {
+        if (!promotion.rentalFxam || Number.isNaN(Number(promotion.rentalFxam))) {
+          return minVal;
+        }
+        return Math.min(minVal, Number(promotion.rentalFxam));
+      },
+      fnlVal,
+    );
   const totalDscApyAmt = aplyPmots
     .reduce((acc, promotion) => {
       if (Number.isNaN(Number(promotion.dscApyAmt))) {
@@ -638,8 +670,20 @@ function calcPromotionAppliedPrice(aplyPmots) {
       }
       return acc + Number(promotion.dscApyAmt);
     }, 0);
-  promotionAppliedPrice.value = `${stringUtil.getNumberWithComma(Math.max(minRentalFxam - totalDscApyAmt, 0))}원`;
+  const pmotAplyPrice = Math.max(minRentalFxam - totalDscApyAmt, 0);
+  if (selectedFinalPrice.value?.fnlVal === pmotAplyPrice) {
+    return;
+  }
+  promotionAppliedPrice.value = `${stringUtil.getNumberWithComma(pmotAplyPrice)}원`;
+  emit('promotion-changed', aplyPmots, promotionAppliedPrice.value);
 }
+
+watch(selectedFinalPrice, (newPrice) => {
+  fnlAmt.value = newPrice?.fnlVal ?? undefined;
+  pdPrcFnlDtlId.value = newPrice?.pdPrcFnlDtlId ?? undefined;
+  emit('price-changed', newPrice);
+  clearPromotions();
+});
 
 function onClickDeviceChange() {
   emit('device-change', props.modelValue);
@@ -650,7 +694,7 @@ function onClickOnePlusOne() {
 }
 
 function onClickDelete() {
-  emit('delete', props.modelValue);
+  emit('delete');
 }
 
 function onClickDeleteDeviceChange() {

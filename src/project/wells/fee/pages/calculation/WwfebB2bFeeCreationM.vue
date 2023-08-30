@@ -125,7 +125,15 @@
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
         />
+        <kw-btn
+          v-if="false"
+          dense
+          icon="report"
+          :label="$t('MSG_BTN_RPT_BRWS')"
+          @click="onClickOpenReport"
+        />
         <kw-separator
+          v-if="grdType === 'B'"
           vertical
           inset
           spaced
@@ -302,6 +310,28 @@ async function onclickStep(params) {
     }
   }
 }
+
+async function onClickOpenReport() {
+  notify('신규요청기능\n>업무로직 정의안됨\n>해당내용더블클릭으로 변경?\n>AS-IS ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.ozr');
+  // AS-IS정보
+  // ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.ozr
+  // AKSDTY 수당년
+  // AKSDTM 수당월
+  // AKDCDE 번호
+  // import { openReportPopup } from '~common/utils/cmPopupUtil';
+  // openReportPopup(
+  //   'ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.ozr',
+  //   'ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.odi',
+  //   JSON.stringify(
+  //     {
+  //       AKDCDE: '',
+  //       AKSDTY: '',
+  //       AKSDTM: ''
+  //     },
+  //   ),
+  // );
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -538,7 +568,7 @@ const initGridBase = defineGrid((data, view) => {
   view.setHeaderSummaries({
     visible: true,
     items: [
-      { height: 40 },
+      { height: 42 },
     ],
   });
   view.layoutByColumn('coCdNm').summaryUserSpans = [{ colspan: 3 }];

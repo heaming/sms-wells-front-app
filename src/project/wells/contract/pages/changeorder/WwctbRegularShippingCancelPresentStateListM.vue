@@ -141,8 +141,9 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
-const { modal, notify } = useGlobal();
+const { modal } = useGlobal();
 const dataService = useDataService();
+const router = useRouter();
 const grdMainRegular = ref(getComponentType('KwGrid'));
 const now = dayjs();
 
@@ -261,17 +262,14 @@ const initGrid = defineGrid((data, view) => {
     }
   };
 
+  // dbclick row - 상세조회 : 취소등록 메뉴  open
   view.onCellDblClicked = async (g, { dataRow }) => {
-    notify('TODO : 상세페이지 호출(W-SS-U-신규IDP02 정기구매 취소 수정 팝업)');
-    console.log(g, dataRow);
-    /*
-    const { result } = await modal({
-      component: '',
-      componentProps: { cntrNo: g.getValue(dataRow, 'cntrNo'), cntrSn: g.getValue(dataRow, 'cntrSn') },
-    });
+    const { cntrNo, cntrSn, rsgFshDt } = gridUtil.getRowValue(g, dataRow);
 
-    if (result) await fetchData();
-    */
+    router.replace({
+      path: 'wwctb-cancel-registration-mgt',
+      query: { cntrNo, cntrSn, dm: rsgFshDt.substring(0, 6) },
+    });
   };
 });
 
