@@ -149,7 +149,7 @@ const userInfo = getUserInfo();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const props = defineProps({
-  sumAmt: {
+  alncmpDpAmt: {
     type: Number,
     default: null,
   },
@@ -270,7 +270,7 @@ const onSelect = async (data) => {
     return;
   }
 
-  if (data.dpBlam !== props.sumAmt) {
+  if (data.dpBlam !== props.alncmpDpAmt) {
     await alert(t('통합입금잔액과 대상금액이 일치하지 않습니다.')); // 합계 금액이 입금 잔액보다 클 수 없습니다.
     return;
   }
