@@ -236,7 +236,7 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-left' },
     { fieldName: 'svFeePdDvCd', header: t('MSG_TXT_BS') + t('MSG_TXT_PDGRP'), width: '100', styleName: 'text-center', options: codes.SV_FEE_PD_DV_CD },
     { fieldName: 'svFeeBaseAmt', header: t('MSG_TXT_BAS_FEE'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'feeCalcAmt', header: t('MSG_TXT_VST_FEE'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
