@@ -28,8 +28,11 @@
         <kw-form-item :label="$t('MSG_TXT_PRDT_NM')">
           <p>{{ pdNm }}</p>
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_SVC_BETWEEN')">
-          <p>{{ vstPrdNm }}</p>
+        <kw-form-item
+          :label="$t('MSG_TXT_SVC_BETWEEN')"
+          :colspan="2"
+        >
+          <p>[ 택배 {{ customerParam.prdNm }} | 방문 {{ customerParam.vstPrdNm }} ] </p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -104,12 +107,18 @@ const props = defineProps({
     required: true,
     default: '',
   },
+  prdNm: {
+    type: String,
+    required: true,
+    default: '',
+  },
 });
 const customerParam = ref({
   cntrNo: '',
   cntrSn: '',
   pdNm: '',
   vstPrdNm: '',
+  prdNm: '',
 });
 
 const totalCountForCustomer = ref({
@@ -147,12 +156,12 @@ async function fetchData2() {
   view.resetCurrent();
 }
 async function initProps() {
-  console.log(props);
-  const { cntrNo, cntrSn, pdNm, vstPrdNm } = props;
+  const { cntrNo, cntrSn, pdNm, vstPrdNm, prdNm } = props;
   customerParam.value.cntrNo = cntrNo;
   customerParam.value.cntrSn = cntrSn;
   customerParam.value.pdNm = pdNm;
-  customerParam.value.vstPrdNm = vstPrdNm;
+  customerParam.value.vstPrdNm = isEmpty(vstPrdNm) ? '-개월' : vstPrdNm;
+  customerParam.value.prdNm = isEmpty(prdNm) ? '-개월' : prdNm;
   if (!isEmpty(customerParam.value.cntrNo) && !isEmpty(customerParam.value.cntrSn)) {
     await fetchData();
     await fetchData2();
@@ -211,21 +220,17 @@ const initGrid2 = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'mngtYm' },
     { fieldName: 'mngrDvNm' },
-    { fieldName: 'ogTpCd' },
+    { fieldName: 'ogCd' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
-    { fieldName: 'mngerRglvlDvCd' },
-    { fieldName: 'vstPrdNm' },
     { fieldName: 'svHshdNo' },
   ];
   const columns = [
     { fieldName: 'mngtYm', header: t('MSG_TXT_MGT_YNM'), width: '100', styleName: 'text-center' },
     { fieldName: 'mngrDvNm', header: t('MSG_TXT_DIV'), width: '80', styleName: 'text-center' },
-    { fieldName: 'ogTpCd', header: t('MSG_TXT_BLG'), width: '80', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '80', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'mngerRglvlDvCd', header: t('MSG_TXT_RGLVL'), width: '80', styleName: 'text-center' },
-    { fieldName: 'vstPrdNm', header: t('MSG_TXT_SVC_BETWEEN'), width: '80', styleName: 'text-center' },
     { fieldName: 'svHshdNo', header: t('MSG_TXT_HSHD_CD'), width: '100', styleName: 'text-center' },
   ];
 
