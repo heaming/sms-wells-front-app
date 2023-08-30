@@ -38,6 +38,12 @@
       :name="selectedTabs[3]"
       :label="$t('MSG_TXT_PD_REG_FEE')"
     />
+    <!-- 일괄복사 -->
+    <kw-tab
+      v-show="false"
+      :name="selectedTabs[4]"
+      :label="$t('MSG_TXT_BLK_COPY')"
+    />
   </kw-tabs>
   <kw-tab-panels :model-value="selectedTab">
     <kw-tab-panel :name="selectedTabs[0]">
@@ -80,6 +86,18 @@
         :readonly="props.readonly"
       />
     </kw-tab-panel>
+    <kw-tab-panel :name="selectedTabs[4]">
+      <wwpdc-standard-mgt-m-price-copy
+        v-show="false"
+        ref="cmpCopyRef"
+        v-model:pd-cd="currentPdCd"
+        v-model:init-data="currentInitData"
+        :meta-infos="metaInfos"
+        :codes="currentCodes"
+        :readonly="props.readonly"
+        @apply-data="applyData"
+      />
+    </kw-tab-panel>
   </kw-tab-panels>
 </template>
 <script setup>
@@ -94,6 +112,7 @@ import WwpdcStandardMgtMPriceStd from './WwpdcStandardMgtMPriceStd.vue';
 import WwpdcStandardMgtMPriceVal from './WwpdcStandardMgtMPriceVal.vue';
 import WwpdcStandardMgtMPriceFnl from './WwpdcStandardMgtMPriceFnl.vue';
 import WwpdcStandardMgtMPriceFee from './WwpdcStandardMgtMPriceFee.vue';
+import WwpdcStandardMgtMPriceCopy from './WwpdcStandardMgtMPriceCopy.vue';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -116,7 +135,7 @@ const props = defineProps({
 });
 
 const emits = defineEmits([
-  'clickTab',
+  'clickTab', 'applyData',
 ]);
 
 const dataService = useDataService();
@@ -131,10 +150,11 @@ const cmpStdRef = ref();
 const cmpValRef = ref();
 const cmpFnlRef = ref();
 const cmpFeeRef = ref();
+const cmpCopyRef = ref();
 const currentPdCd = ref();
 const metaInfos = ref({});
 const currentInitData = ref({});
-const selectedTabs = ref(['std', 'val', 'fnl', 'fee']);
+const selectedTabs = ref(['std', 'val', 'fnl', 'fee', 'copy']);
 const selectedTab = ref(selectedTabs.value[0]);
 const currentCodes = ref({});
 
@@ -144,6 +164,7 @@ async function resetData() {
   if (cmpValRef.value?.resetData) await cmpValRef.value.resetData();
   if (cmpFnlRef.value?.resetData) await cmpFnlRef.value.resetData();
   if (cmpFeeRef.value?.resetData) await cmpFeeRef.value.resetData();
+  if (cmpCopyRef.value?.resetData) await cmpCopyRef.value.resetData();
 }
 
 async function init() {
@@ -151,6 +172,7 @@ async function init() {
   if (cmpValRef.value?.init) await cmpValRef.value.init();
   if (cmpFnlRef.value?.init) await cmpFnlRef.value.init();
   if (cmpFeeRef.value?.init) await cmpFeeRef.value.init();
+  if (cmpCopyRef.value?.init) await cmpCopyRef.value.init();
 }
 
 function getInitPriceDefault(prcds, prcfds) {
@@ -177,9 +199,11 @@ function getInitPriceDefault(prcds, prcfds) {
   return prcfds;
 }
 
-async function getSaveData() {
+async function getSaveData(isBatchCopy) {
+  // console.log('isBatchCopy : ', isBatchCopy);
   // 미수정시 초기값 그대로 반환.
-  if (!(await isModifiedProps())) {
+  // isBatchCopy -일괄복사 탭 사용 여부
+  if (!(await isModifiedProps()) && !isBatchCopy) {
     return {
       [prcd]: currentInitData.value[prcd],
       [prcfd]: currentInitData.value[prcfd],
@@ -215,6 +239,13 @@ async function getSaveData() {
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 4 - subList[prcfd] : ', subList[prcfd]);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - REMOVE_ROWS : ', subList[pdConst.REMOVE_ROWS]);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - subList : ', subList);
+
+  // 일괄복사
+  if (isBatchCopy) {
+    const copies = await cmpCopyRef.value?.getSaveData();
+    subList[prcfd] = pdMergeBy(subList[prcfd], copies?.[prcfd], pdConst.PRC_FNL_ROW_ID);
+  }
+
   return subList;
 }
 
@@ -244,6 +275,10 @@ async function onClickTab(clickedTab) {
   emits('clickTab', clickedTab);
 }
 
+async function applyData() {
+  emits('applyData');
+}
+
 async function isModifiedProps() {
   if (await cmpStdRef.value.isModifiedProps()) {
     return true;
@@ -255,6 +290,9 @@ async function isModifiedProps() {
     return true;
   }
   if (await cmpFeeRef.value.isModifiedProps()) {
+    return true;
+  }
+  if (await cmpCopyRef.value.isModifiedProps()) {
     return true;
   }
   return false;

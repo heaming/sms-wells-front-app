@@ -104,6 +104,7 @@ import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, code
 import dayjs from 'dayjs';
 import { isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
+import { nextTick } from 'vue';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -202,9 +203,13 @@ async function onClickExcelDownload() {
 }
 
 onMounted(() => {
-  searchParams.value.ogLevlDvCd1 = route.params.ogLv1Id;
-  searchParams.value.ogLevlDvCd2 = route.params.ogLv2Id;
-  searchParams.value.ogLevlDvCd3 = route.params.ogLv3Id;
+  nextTick(() => {
+    if (!isEmpty(route.params.ogLv1Id)) {
+      searchParams.value.ogLevlDvCd1 = route.params.ogLv1Id;
+      searchParams.value.ogLevlDvCd2 = route.params.ogLv2Id;
+      searchParams.value.ogLevlDvCd3 = route.params.ogLv3Id;
+    }
+  });
 });
 
 // -------------------------------------------------------------------------------------------------
