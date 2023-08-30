@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNA (재고관리)
-2. 프로그램 ID : WwsnaOutOfStorageAgrgM - 월별출고집계현황(K-W-SV-U-0266M01)
+2. 프로그램 ID : WwsnaMonthlyOutOfStorageAgrgM - 월별출고집계현황(K-W-SV-U-0266M01)
 3. 작성자 : jungheejin
 4. 작성일 : 2023-08-29
 ****************************************************************************************************
@@ -153,7 +153,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil } from 'kw-lib';
+import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil, validate } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
@@ -252,8 +252,12 @@ async function onChangeItmKndCd() {
 }
 
 // 출고시작일자 및 출고종료일자 validation 체크 (12개월 미만으로만 선택가능)
-const onValidateDate = async () => {
+const onValidateDate = async (val, options) => {
   const errors = [];
+  errors.push(
+    ...(await validate(val, 'date_range_required', options)).errors,
+  );
+
   const monthDiff = dayjs(searchParams.value.startDt).startOf('month').diff(dayjs(searchParams.value.endDt).startOf('month'), 'month');
   if (monthDiff <= -12) {
     errors.push(t('MSG_ALT_SEARCH_UNDER_MN', [t('12')]));
@@ -329,7 +333,7 @@ fieldsObj = {
   asFields: [
     {
       fieldName: 'asLdtm',
-      header: t('리드타임'),
+      header: t('TXT_MSG_AS_LDTM'), // 리드타임
       width: '90',
       styleName: 'text-right',
       dataType: 'number',
@@ -338,7 +342,7 @@ fieldsObj = {
     },
     {
       fieldName: 'minGoQty',
-      header: t('MOQ'),
+      header: t('MSG_TXT_MOQ'), // MOQ
       width: '90',
       styleName: 'text-right',
       dataType: 'number',
@@ -519,22 +523,22 @@ fieldsObj = {
     // 총계및 월별 필드(품목별로 노출 변경)
     const layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields)];
     let totalItemFields = [];
-    let columnMonthlyItemFields = [];
+    let monthlyItemFields = [];
     if (searchParams.value.itmKndCd === '4') {
       // 총계 필드(상품)
       totalItemFields = ['totIstQty', 'totChngQty', 'totCoIstQty', 'totSumQty'];
       // 월별 필드(상품)
-      columnMonthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'chngQty', 'coIstQty', 'sumQty'].includes(v.fieldName));
+      monthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'chngQty', 'coIstQty', 'sumQty'].includes(v.fieldName));
     } else if (searchParams.value.itmKndCd === '5' || searchParams.value.itmKndCd === '9') {
       // 총계 필드(필터,판매소모품)
       totalItemFields = ['totIstQty', 'totBfsvcQty', 'totAsQty', 'totSumQty'];
       // 월별 필드(필터,판매소모품)
-      columnMonthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'bfsvcQty', 'asQty', 'sumQty'].includes(v.fieldName));
+      monthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'bfsvcQty', 'asQty', 'sumQty'].includes(v.fieldName));
     } else if (searchParams.value.itmKndCd === '6' || searchParams.value.itmKndCd === '7') {
       // 총계 필드(A/S자재, A/S 소모품)
       totalItemFields = ['totIstQty', 'totBfsvcQty', 'totRecapAsQty', 'totFrisuAsQty', 'totEtcQty', 'totSumQty'];
       // 월별 필드(A/S자재, AS 소모품)
-      columnMonthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'bfsvcQty', 'recapAsQty', 'frisuAsQty', 'etcQty', 'sumQty'].includes(v.fieldName));
+      monthlyItemFields = [...fieldsObj.monthlyFields].filter((v) => ['istQty', 'bfsvcQty', 'recapAsQty', 'frisuAsQty', 'etcQty', 'sumQty'].includes(v.fieldName));
       // AS 필드(리드타임,MOQ) 컬럼 표시
       columns = [...fieldsObj.defaultFields, ...fieldsObj.asFields, ...fieldsObj.totalFields];
       layoutColumns.push(...fieldsObj.getColumnNameArr(fieldsObj.asFields));
@@ -552,7 +556,7 @@ fieldsObj = {
     for (let mm = 1; mm <= 12; mm += 1) {
       const columnMonthly = [];
       const columnMonthlyItems = [];
-      const columnMonthlyFields = [...columnMonthlyItemFields];
+      const columnMonthlyFields = [...monthlyItemFields];
       columnMonthlyFields.forEach((row) => {
         // 월 전체 필드
         columnMonthlyTotals.push(
