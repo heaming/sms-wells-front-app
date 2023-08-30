@@ -19,9 +19,9 @@
       @reset="onClickReset"
     >
       <kw-search-row>
+        <!-- 조회구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_INQR_DV')"
-          required
         >
           <kw-option-group
             v-model="searchParams.srchGbn"
@@ -53,10 +53,10 @@
             :options="pdMclsfIdOptions"
           />
         </kw-search-item>
+        <!-- 총괄단 -->
         <kw-search-item
           v-else
           :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
-          required
         >
           <kw-select
             v-model="searchParams.dgr1LevlOgCd"
@@ -345,11 +345,11 @@ const initRentalAccountList = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'pdgrpNm', header: t('MSG_TXT_PDGRP'), width: '178', visible: true, tag: 'prod' },
+    { fieldName: 'pdgrpNm', header: t('MSG_TXT_PDGRP'), styleName: 'text-center', width: '178', visible: true, tag: 'prod' }, // 상품군
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '295', visible: true, tag: 'prod' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '125', styleName: 'text-center', visible: true, tag: 'prod' },
-    { fieldName: 'dgr1LevlOgCd', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '178', visible: false, tag: 'org' },
-    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '295', visible: false, tag: 'org' },
+    { fieldName: 'dgr1LevlOgCd', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), styleName: 'text-center', width: '178', visible: false, tag: 'org' },
+    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), styleName: 'text-center', width: '295', visible: false, tag: 'org' },
     { fieldName: 'istDt', header: t('MSG_TXT_YR_INSTALLATION'), width: '125', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'rstlYn', header: t('MSG_TXT_RECOMMITMENT'), width: '125', styleName: 'text-center' },
     { fieldName: 'jCnt', header: t('MSG_TXT_SUBSCRPTN_NO'), width: '139', styleName: 'text-right', numberFormat: '#,##0' },

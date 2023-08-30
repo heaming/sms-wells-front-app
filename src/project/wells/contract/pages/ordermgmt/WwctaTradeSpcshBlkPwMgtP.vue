@@ -102,22 +102,13 @@
       :visible-rows="5"
       @init="initTradeSpcshBlkPwMgtList"
     />
-
-    <template #action>
-      <!-- 닫기 -->
-      <kw-btn
-        negative
-        :label="$t('MSG_BTN_CLOSE')"
-        @click="onClickClose"
-      />
-    </template>
   </kw-popup>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, getComponentType, defineGrid, useDataService, useMeta, useGlobal, useModal } from 'kw-lib';
+import { codeUtil, gridUtil, getComponentType, defineGrid, useDataService, useMeta, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -130,7 +121,6 @@ const { alert, notify } = useGlobal();
 const grdTradeSpcshBlkPwMgtList = ref(getComponentType('KwGrid'));
 const now = dayjs();
 const { getConfig } = useMeta();
-const { cancel: onClickClose } = useModal();
 
 let cachedParams;
 const searchParams = ref({
@@ -226,13 +216,14 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
     { fieldName: 'nomSlAmt', dataType: 'number' }, // 매출액
     { fieldName: 'emadr' }, // 이메일
     { fieldName: 'emadrEncr' }, // 이메일
+    { fieldName: 'faxTelNo' }, // 팩스번호
     { fieldName: 'faxLocaraTno' }, // 팩스지역전화번호
     { fieldName: 'faxExno' }, // 팩스전화국번호
     { fieldName: 'faxIdvTno' }, // 팩스개별전화번호
   ];
 
   const columns = [
-    { fieldName: 'preview', header: t('MSG_TXT_PREVIEW'), width: '112', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_PREVIEW') }, // 미리보기
+    { fieldName: 'preview', header: t('MSG_TXT_PREVIEW'), width: '112', styleName: 'text-center', icon: 'report', renderer: { type: 'button', hideWhenEmpty: false, icon: 'report' }, displayCallback: () => t('MSG_BTN_PREVIEW') }, // 미리보기
     { fieldName: 'spectxGrpNo', header: t('MSG_TXT_GRP_NO'), width: '112', styleName: 'text-center' }, // 그룹번호
     { fieldName: 'cstNmEncr', header: t('MSG_TXT_IS_USR'), width: '155', styleName: 'text-left' }, // 발급담당자
     { fieldName: 'slClYm', header: t('MSG_TXT_PRD'), width: '130', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기간
@@ -256,9 +247,18 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '246', styleName: 'text-left' }, // 상품명
     { fieldName: 'nomSlAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0' }, // 매출금액
     { fieldName: 'emadrEncr', header: t('MSG_TXT_EMAIL'), width: '246', styleName: 'text-left' }, // 이메일
-    { fieldName: 'faxLocaraTno', header: t('MSG_TXT_FAX_LOCARA_TNO'), width: '188', styleName: 'text-left' }, // 팩스번호1
-    { fieldName: 'faxExno', header: t('MSG_TXT_FAX_MEXNO'), width: '188', styleName: 'text-left' }, // 팩스번호2
-    { fieldName: 'faxIdvTno', header: t('MSG_TXT_FAX_IDV_TNO'), width: '188', styleName: 'text-left' }, // 팩스번호3
+    { fieldName: 'faxTelNo',
+      header: t('MSG_TXT_FAX_LOCARA_TNO'),
+      width: '188',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { faxLocaraTno, faxExno, faxIdvTno } = grid.getValues(index.itemIndex);
+        return !isEmpty(faxLocaraTno) && !isEmpty(faxExno) && !isEmpty(faxIdvTno) ? `${faxLocaraTno}-${faxExno}-${faxIdvTno}` : '';
+      },
+    }, // 팩스번호
+    { fieldName: 'faxLocaraTno', header: t('MSG_TXT_FAX_LOCARA_TNO'), width: '188', styleName: 'text-left', visible: false }, // 팩스번호1
+    { fieldName: 'faxExno', header: t('MSG_TXT_FAX_MEXNO'), width: '188', styleName: 'text-left', visible: false }, // 팩스번호2
+    { fieldName: 'faxIdvTno', header: t('MSG_TXT_FAX_IDV_TNO'), width: '188', styleName: 'text-left', visible: false }, // 팩스번호3
   ];
 
   data.setFields(fields);
