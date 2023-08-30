@@ -158,7 +158,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal, codeUtil, useDataService, getComponentType, defineGrid, gridUtil, modal, popupUtil } from 'kw-lib';
+import { useGlobal, codeUtil, useDataService, getComponentType, defineGrid, gridUtil, modal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
@@ -172,6 +172,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const grdTotalRef = ref(getComponentType('KwGrid'));
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -281,7 +282,7 @@ const initMainGrid = defineGrid((data, view) => {
     { fieldName: 'cntrSn', header: t('MSG_TXT_PBL_CNT'), width: '110', styleName: 'text-center', visible: false },
     { fieldName: 'cstNo',
       header: t('MSG_TXT_CST_NO'),
-      width: '150',
+      width: '160',
       styleName: 'text-center',
       renderer: { type: 'button', hideWhenEmpty: false },
       displayCallback(grid, index) {
@@ -316,7 +317,7 @@ const initMainGrid = defineGrid((data, view) => {
         return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
       } },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '200' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_NM'), width: '200' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '200' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200' },
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '110', styleName: 'text-center' },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_IST_ZIP'), width: '136' },
@@ -365,16 +366,18 @@ const initMainGrid = defineGrid((data, view) => {
     const { cntrNo, cntrSn, cstSvAsnNo, cstSignCn } = gridUtil.getRowValue(grid, dataRow);
 
     if (column === 'cstNo') {
-      console.log('개인별 서비스 현황 화면', cntrNo, cntrSn);
-      // TODO: W-SV-U-0072M01 개인별 서비스 현황 화면 새창으로 열기
-      // TODO: 이경린님께 props 관련 요청
-      await popupUtil.open('#/service/wwsnb-individual-service-list', { width: 2000, height: 1100 }, false);
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
     } else if (column === 'showDetail') {
-      alert(`팝업 퍼블 기다리는 중...! \n 고객 배정 번호 :${cstSvAsnNo}`); // TODO
-      // await modal({ //  url : /pu-products
-      //   component: '',
-      //   componentProps: { svAsnNo: cstSvAsnNo },
-      // });
+      await modal({ //  url : /pu-products
+        component: 'WwsnbSnProcessingPsDetailP',
+        componentProps: { svAsnNo: cstSvAsnNo },
+      });
     } else if (column === 'cstSign') {
       if (!cstSignCn || cstSignCn === '') {
         alert('서명 데이터 없음');
