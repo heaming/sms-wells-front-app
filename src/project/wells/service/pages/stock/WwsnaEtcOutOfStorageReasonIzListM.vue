@@ -266,9 +266,9 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '124', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '146', styleName: 'text-center' },
-    { fieldName: 'itemNm', header: t('MSG_TXT_ITM_NM'), width: '500' },
+    { fieldName: 'itemNm', header: t('MSG_TXT_ITM_NM'), width: '250' },
     { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '78', styleName: 'text-center' },
     { fieldName: 'ostrDt',
       header: t('MSG_TXT_OSTR_DT'),
@@ -302,7 +302,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'deptNm', header: t('MSG_TXT_BIL_DEPARTMENT'), width: '140' },
     { fieldName: 'ostrRsonCd', header: t('MSG_TXT_BIL_RSON'), width: '140' },
-    { fieldName: 'wareNm', header: t('MSG_TXT_SV_CNR_BZNS_CNR'), width: '250' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_SV_CNR_BZNS_CNR'), width: '160' },
     { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '140' },
   ];
 
@@ -323,10 +323,9 @@ const initGrdMain = defineGrid((data, view) => {
     'rmkCn',
   ];
 
-  view.setColumnLayout(columnLayout);
-
   data.setFields(fields);
   view.setColumns(columns);
+  view.setColumnLayout(columnLayout);
   view.setFooters({ visible: true });
   view.setOptions({ summaryMode: 'aggregate' });
   view.checkBar.visible = false; // create checkbox column
