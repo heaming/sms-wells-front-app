@@ -307,9 +307,9 @@ async function onClickSearchNo() {
  *  Event - 지급명세서 출력 버튼 클릭
  */
 async function openHmstReportPopup() {
-  const { perfYm, no, pstnDvCd } = searchParams.value;
+  const { perfYm, prtnrNo, pstnDvCd } = info.value;
   const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYY-MM');
-  if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
+  if (prtnrNo !== '' && prtnrNo !== undefined) {
     openReportPopup(
       '/ksswells/hmCmms/V3.0/cmmsSpec2022.ozr',
       '/ksswells/hmCmms/V3.0/cmmsSpec2022.odi',
@@ -321,7 +321,7 @@ async function openHmstReportPopup() {
           AKDDTY: bfPerfYm.substring(0, 4),
           AKDDTM: bfPerfYm.substring(4, 6),
           AKDRNK: pstnDvCd,
-          AKDCDE: no,
+          AKDCDE: prtnrNo,
         },
       ),
     );

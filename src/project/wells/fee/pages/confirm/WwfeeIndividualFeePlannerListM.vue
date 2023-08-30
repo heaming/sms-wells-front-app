@@ -369,9 +369,9 @@ async function onClickSearchNo() {
  *  Event - 지급명세서 출력 버튼 클릭  ※현재 팝업화면 없음
  */
 async function openPlarReportPopup() {
-  const { perfYm, no, pstnDvCd } = searchParams.value;
+  const { perfYm, prtnrNo, pstnDvCd } = info.value;
   const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYY-MM');
-  if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
+  if (prtnrNo !== '' && prtnrNo !== undefined) {
     openReportPopup(
       '/ksswells/cmms/V6.0/cmmsSpecP2022.ozr',
       '/ksswells/cmms/V6.0/cmmsSpecP2022.odi',
@@ -383,7 +383,7 @@ async function openPlarReportPopup() {
           AKDDTY: bfPerfYm.substring(0, 4),
           AKDDTM: bfPerfYm.substring(4, 6),
           AKDRNK: pstnDvCd,
-          AKDCDE: no,
+          AKDCDE: prtnrNo,
         },
       ),
     );

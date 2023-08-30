@@ -419,8 +419,8 @@ async function onClickSearchNo() {
  *  Event - 지급명세서 출력 버튼 클릭
  */
 async function openManagerReportPopup() {
-  const { perfYm, no, pstnDvCd } = searchParams.value;
-  if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
+  const { perfYm, prtnrNo, pstnDvCd } = info.value;
+  if (prtnrNo !== '' && prtnrNo !== undefined) {
     const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYY-MM');
     openReportPopup(
       '/ksswells/cmms/V5.2/cmmsSpec2023.ozr',
@@ -433,7 +433,7 @@ async function openManagerReportPopup() {
           AKDDTY: bfPerfYm.substring(0, 4),
           AKDDTM: bfPerfYm.substring(4, 6),
           AKDRNK: pstnDvCd,
-          AKDCDE: no,
+          AKDCDE: prtnrNo,
         },
       ),
     );
