@@ -223,6 +223,9 @@ const buildingCodes = ref([]);
 async function ogLevlDvCd0() {
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities-excd/code', { params: cachedParams });
   buildingCodes.value = res.data;
+  if (buildingCodes.value.length === 1) {
+    searchParams.value.bldCd = buildingCodes.value[0].bldCd;
+  }
 }
 
 watch(() => searchParams.value.dgr2LevlOgId, async () => {
@@ -729,5 +732,6 @@ onMounted(async () => {
 
 async function reset() {
   searchParams.value = cloneDeep(initSearchParams);
+  await ogLevlDvCd0();
 }
 </script>
