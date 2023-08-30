@@ -145,7 +145,8 @@ async function validateProps() {
   return rtn;
 }
 
-async function setFinalVal(view, grid, itemIndex) {
+// 최종가 조정(소스 동기화시켜 주세요!: WwpdcStandardMgtMPriceFnl.vue, WwpdcStandardMgtMPriceCopy.vue)
+async function setFinalVal(grid, itemIndex) {
   const prcBefAdj = Number(grid.getValue(itemIndex, 'prcBefAdj') ?? 0);
   let ctrVal = Number(grid.getValue(itemIndex, 'ctrVal') ?? 0);
   let fnlVal = 0;
@@ -156,11 +157,11 @@ async function setFinalVal(view, grid, itemIndex) {
       `${grid.columnByName('ctrVal').header.text}(${ctrVal})`,
       `${grid.columnByName('prcBefAdj').header.text}(${prcBefAdj})`]));
     ctrVal = 0;
-    view.setValue(itemIndex, 'ctrVal', ctrVal);
+    grid.setValue(itemIndex, 'ctrVal', ctrVal);
   }
   // 조정 전 가격 = 조정전가격 - 조정가
   fnlVal = prcBefAdj + ctrVal;
-  view.setValue(itemIndex, 'fnlVal', fnlVal);
+  grid.setValue(itemIndex, 'fnlVal', fnlVal);
 }
 
 async function onClickRemove() {
@@ -380,10 +381,19 @@ async function initGrid(data, view) {
 
   // 조정 값 초기화
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
-    const changedFieldName = grid.getDataSource().getFieldName(fieldIndex);
-    if (changedFieldName === 'CTRVAL') {
-      await setFinalVal(view, grid, itemIndex);
+    const changedFieldName = grid.getDataSource().getOrgFieldNames()[fieldIndex];
+    if (changedFieldName === 'ctrVal') {
+      await setFinalVal(grid, itemIndex);
     }
+  };
+
+  // 붙여넣기 시,  전체 조정
+  view.onPasted = async (grid) => {
+    gridUtil.getAllRowValues(view).forEach((item) => {
+      if (['created', 'updated'].includes(item.rowState)) {
+        setFinalVal(grid, item.dataRow);
+      }
+    });
   };
   await initGridRows();
   await init();
