@@ -296,21 +296,22 @@ const initGrid = defineGrid((data, view) => {
 
     if (column === 'giroOcrPrnt') {
       // openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
-      const options = { directPrint: 'Y' };
 
       const paramData = {
         giroOcrPblDtm: cwwDte,
         giroOcrPblSeqn: cwpSeq,
       };
-
       await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print/date', paramData);
 
-      openReportPopupWithOptions('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }), options);
+      const options = { directPrint: 'Y' };
+
+      openReportPopupWithOptions('ksswells/hdof/giro/BIZ0000003-3.ozr', 'ksswells/hdof/giro/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }), options);
+      // openReportPopupWithOptions('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }), options);
 
       await fetchData();
     }
     if (column === 'giroOcrRead') {
-      openReportPopup('/BIZ0000003.ozr', '/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
+      openReportPopup('ksswells/hdof/giro/BIZ0000003-3.ozr', 'ksswells/hdof/giro/BIZ0000003.odi', JSON.stringify({ cwwDte, cwpSeq }));
     }
 
     // else if (column === 'giroOcrRead') {
