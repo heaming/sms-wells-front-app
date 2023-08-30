@@ -127,7 +127,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -158,18 +158,6 @@ import { codeUtil, getComponentType, useDataService, defineGrid, gridUtil, useMe
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-
-// const { getters } = useStore();
-
-// const { userId: sessionUserId, employeeIDNumber: epNo } = getters['meta/getUserInfo'];
-// // TODO: 현재 세션값으로 부서ID가 아닌 조직코드로 변경되거나 해야하는 과정이므로 강제로 값을 넣어 테스트진행중
-// const { departmentId: deptId } = getters['meta/getUserInfo'];
-// // const { departmentId: deptId } = getters['meta/getUserInfo'];
-
-// console.log(sessionUserId);
-// console.log(epNo);
-// // console.log(deptId);
-// console.log(getters['meta/getUserInfo']);
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -208,9 +196,6 @@ const searchParams = ref({
   startItemCd: '',
   endItemCd: '',
 });
-
-// searchParams.value.stOstrDt = dayjs().set('date', 1).format('YYYYMMDD');
-// searchParams.value.edOstrDt = dayjs().format('YYYYMMDD');
 
 const pageInfo = ref({
   totalCount: 0,
