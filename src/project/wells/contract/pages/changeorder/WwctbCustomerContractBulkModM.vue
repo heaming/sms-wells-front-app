@@ -34,7 +34,6 @@
         <!-- 처리구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_PROCS_DV')"
-          required
         >
           <!-- 설치자명 변경, 자동이체 변경, 세금계산서 변경, 플래너 변경  -->
           <kw-select
@@ -53,7 +52,6 @@
         <!-- 계약번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_CNTR_NO')"
-          required
         >
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
@@ -65,7 +63,6 @@
         <!-- 고객번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_CST_NO')"
-          required
         >
           <kw-input
             v-model="searchParams.cntrCstNo"
@@ -91,7 +88,6 @@
         <!-- 파트너 번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRTNR_NUMBER')"
-          required
         >
           <kw-input
             v-model="searchParams.prtnrNo"
