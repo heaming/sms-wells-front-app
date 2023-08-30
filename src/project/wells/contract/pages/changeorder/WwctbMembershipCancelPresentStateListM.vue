@@ -189,6 +189,7 @@ const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 const { modal } = useGlobal();
 const dataService = useDataService();
+const router = useRouter();
 const grdMainMembership = ref(getComponentType('KwGrid'));
 const now = dayjs();
 
@@ -331,6 +332,7 @@ const initGrid = defineGrid((data, view) => {
   view.setColumns(columns);
   view.rowIndicator.visible = true;
 
+  // cellclick
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     // 계약상세번호 클릭 - 팝업
     if (column === 'cntrNoSn') {
@@ -342,6 +344,16 @@ const initGrid = defineGrid((data, view) => {
         },
       });
     }
+  };
+
+  // dbclick row - 상세조회 : 취소등록 메뉴  open
+  view.onCellDblClicked = async (g, { dataRow }) => {
+    const { cntrNo, cntrSn, rsgFshDt } = gridUtil.getRowValue(g, dataRow);
+
+    router.replace({
+      path: 'wwctb-cancel-registration-mgt',
+      query: { cntrNo, cntrSn, dm: rsgFshDt.substring(0, 6) },
+    });
   };
 });
 

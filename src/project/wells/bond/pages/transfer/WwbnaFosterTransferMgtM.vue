@@ -492,7 +492,7 @@ const initGridResult = defineGrid((data, view) => {
 const initGridDetail = ((data, view) => {
   const columns = [
     { fieldName: 'fstrCoNm', header: t('MSG_TXT_FSTRCM'), styleName: 'text-center', width: '98', headerSummaries: { text: t('MSG_TXT_SUM'), styleName: 'text-center' }, options: codes.CLCO_CD },
-    { fieldName: 'clctnOjPrtnrNo', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center' },
+    { fieldName: 'clctamPrtnrNm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center' },
     { fieldName: 'clctamDvd', header: t('MSG_TXT_JBF_ICHR_CLCTAM_DV'), styleName: 'text-center', width: '130' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_JBF_PSIC'), styleName: 'text-center', width: '90' },
     { fieldName: 'cntrNoSn',
@@ -530,7 +530,7 @@ const initGridDetail = ((data, view) => {
 
   view.setHeaderSummaries({
     visible: true,
-    items: [{ height: 40 }],
+    items: [{ height: 42 }],
   });
   view.layoutByColumn('fstrCoNm').summaryUserSpans = [{ colspan: 9 }];
 

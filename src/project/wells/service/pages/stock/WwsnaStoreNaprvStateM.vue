@@ -17,7 +17,7 @@
   <kw-page>
     <kw-search
       one-row
-      :cols="3"
+      :cols="4"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -29,12 +29,21 @@
           v-model:ware-no-m="searchParams.strWareNoM"
           v-model:ware-no-d="searchParams.strWareNoD"
           sub-first-option="all"
-          :colspan="4"
+          :colspan="3"
           :label1="$t('MSG_TXT_OSTR_PTRM')"
           :label2="$t('MSG_TXT_STR_WARE')"
           :label3="$t('MSG_TXT_WARE')"
           :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeWareDvCd"
         />
+        <!-- @update:ware-no-m="onChagneHgrWareNo" -->
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
+          <kw-select
+            v-model="searchParams.wareDtlDvCd"
+            :options="filterWareDtlDvCd"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -103,6 +112,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'STR_TP_CD',
   'WARE_DV_CD',
+  'WARE_DTL_DV_CD',
 );
 
 /*
@@ -137,7 +147,25 @@ const searchParams = ref({
   strWareDvCd: '',
   strWareNoM: '',
   strWareNoD: '',
+  wareDtlDvCd: '',
 });
+
+/*
+ * 창고
+ */
+const wareDtlDvCd = [
+  { codeId: '10', codeName: '물류센터창고', strWareDvCd: '1' },
+  { codeId: '20', codeName: '조직창고(서비스센터)', strWareDvCd: '2' },
+  { codeId: '21', codeName: '개인창고(서비스센터)', strWareDvCd: '2' },
+  { codeId: '30', codeName: '조직창고(영업센터)', strWareDvCd: '3' },
+  { codeId: '31', codeName: '개인창고(영업센터)', strWareDvCd: '3' },
+  { codeId: '32', codeName: '독립창고(영업센터)', strWareDvCd: '3' },
+];
+const filterWareDtlDvCd = ref([]);
+const onChangeWareDvCd = async () => {
+  filterWareDtlDvCd.value = wareDtlDvCd;
+  filterWareDtlDvCd.value = wareDtlDvCd.filter((v) => v.strWareDvCd === searchParams.value.strWareDvCd);
+};
 
 async function fetchData() {
   // eslint-disable-next-line max-len
@@ -181,19 +209,25 @@ async function onClickExcelDownload() {
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'wareNm' },
+    { fieldName: 'strRgstDt' },
+    { fieldName: 'strWareNm' },
     { fieldName: 'strWareNo' },
+    { fieldName: 'strTpCd' },
     { fieldName: 'pdNm' },
     { fieldName: 'itmPdCd' },
     { fieldName: 'naprvQty' },
+    { fieldName: 'ostrWareNm' },
   ];
 
   const columns = [
-    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '150', styleName: 'text-center' },
+    { fieldName: 'strWareNm', header: t('MSG_TXT_WARE_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'strWareNo', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'strTpCd', header: t('MSG_TXT_STR_TP'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_MATI_NM'), width: '400', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_MATI_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'naprvQty', header: t('MSG_TXT_UNAPPR') + t('MSG_TXT_QTY'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-center' },
   ];
 
   data.setFields(fields);

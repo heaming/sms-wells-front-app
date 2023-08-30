@@ -542,7 +542,7 @@ const initGrdMain = defineGrid((data, view) => {
   ]);
 
   view.setFixedOptions({ colCount: 2 });
-  view.setFooters({ visible: true, items: [{ height: 40 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {

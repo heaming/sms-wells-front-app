@@ -41,6 +41,7 @@
             v-model="acdnPhoApnFile"
             attach-group-id="ATG_SNB_ACDN_ALL"
             :attach-document-id="safetyAccident.acdnPhoApnDocId"
+            downloadable
           />
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_ACDN_PICTR')">
@@ -49,6 +50,7 @@
             v-model="acdnPictrApnFile"
             attach-group-id="ATG_SNB_ACDN_ALL"
             :attach-document-id="safetyAccident.acdnPictrApnDocId"
+            downloadable
           />
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CAUS_ANA')">
@@ -57,6 +59,7 @@
             v-model="causAnaApnFile"
             attach-group-id="ATG_SNB_ACDN_ALL"
             :attach-document-id="safetyAccident.causAnaApnDocId"
+            downloadable
           />
         </kw-form-item>
       </kw-form-row>
@@ -203,6 +206,7 @@
             rules="required"
             option-label="ogNm"
             option-value="ogId"
+            @update:model-value="onChangeSvCnrOgId"
           />
         </kw-form-item>
         <kw-form-item
@@ -414,6 +418,7 @@ import {
   useDataService,
   useModal,
   useMeta,
+  stringUtil,
 } from 'kw-lib';
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
@@ -495,6 +500,9 @@ const safetyAccident = ref({
   acdnPhoApnDocId: '',
   acdnPictrApnDocId: '',
   causAnaApnDocId: '',
+  saveYn1: '',
+  saveYn2: '',
+  saveYn3: '',
 });
 const frmMainRef1 = ref();
 const frmMainRef2 = ref();
@@ -566,14 +574,16 @@ async function onClickAgreementFoward() {
   // if (sessionUserInfo.employeeIDNumber === safetyAccident.cnrldNo) {
   //   if (!await frmMainRef5.value.confirmIfIsModified()) { return; }
   // }
+
   const { result } = await modal({
     component: 'WwsnbSafetyAccidentAgreeBiztalkP',
     componentProps: {
       acdnRcpId: props.acdnRcpId,
       cntrNo: safetyAccident.value.cntrNo,
-      cntrsn: safetyAccident.value.cntrSn,
+      cntrSn: safetyAccident.value.cntrSn,
       pdNm: safetyAccident.value.pdNm,
       cstNm: safetyAccident.value.cstNm,
+      rcpdt: stringUtil.getDateFormat(safetyAccident.value.rcpdt),
     },
   });
 
@@ -601,9 +611,21 @@ async function onClickSave() {
   safetyAccident.value.krnTotCpsAmtMrkNm = convertToKoreanNumber(safetyAccident.value.totCpsAmt);
   safetyAccident.value.cpsPrgsCd = (safetyAccident.value.cpsPrgsNm === '보험사' ? '2' : '1');
   safetyAccident.value.svCnrNm = svCnrNm;
-  safetyAccident.value.acdnPhoApnFile = acdnPhoApnFile.value;
-  safetyAccident.value.acdnPictrApnFile = acdnPictrApnFile.value;
-  safetyAccident.value.causAnaApnFile = causAnaApnFile.value;
+
+  if (!isEmpty(acdnPhoApnFile.value)) {
+    safetyAccident.value.acdnPhoApnFile = (isEmpty(acdnPhoApnFile.value[0].fileUid) ? acdnPhoApnFile.value : null);
+  }
+  if (!isEmpty(acdnPictrApnFile.value)) {
+    // eslint-disable-next-line max-len
+    safetyAccident.value.acdnPictrApnFile = (isEmpty(acdnPictrApnFile.value[0].fileUid) ? acdnPictrApnFile.value : null);
+  }
+  if (!isEmpty(causAnaApnFile.value)) {
+    safetyAccident.value.causAnaApnFile = (isEmpty(causAnaApnFile.value[0].fileUid) ? causAnaApnFile.value : null);
+  }
+  // 저장값 세팅
+  safetyAccident.value.saveYn1 = (safetyAccident.value.acdnPhoApnFile === null ? 'N' : 'Y');
+  safetyAccident.value.saveYn2 = (safetyAccident.value.acdnPictrApnFile === null ? 'N' : 'Y');
+  safetyAccident.value.saveYn3 = (safetyAccident.value.causAnaApnFile === null ? 'N' : 'Y');
   safetyAccident.value.acdnDtm = `${safetyAccident.value.acdnDt}${safetyAccident.value.acdnTm}`;
   await dataService.post('/sms/wells/service/safety-accidents', safetyAccident.value);
   ok();
@@ -612,15 +634,24 @@ async function onClickSave() {
 
 function onChangeKwCpsAmt() {
   safetyAccident.value.totCpsAmt = Number(safetyAccident.value.insrcoCpsAmt) + Number(safetyAccident.value.kwCpsAmt);
+  if (safetyAccident.value.kwCpsAmt > 0) {
+    safetyAccident.value.cpsPrgsNm = '(주)교원프라퍼티(101-81-39767)';
+  }
 }
 
 function onChangeInsrcoCpsAmt() {
   safetyAccident.value.totCpsAmt = Number(safetyAccident.value.insrcoCpsAmt) + Number(safetyAccident.value.kwCpsAmt);
-  if (safetyAccident.value.insrcoCpsAmt > 1) {
+  if (safetyAccident.value.insrcoCpsAmt > 0) {
     safetyAccident.value.cpsPrgsNm = '보험사';
   } else {
     safetyAccident.value.cpsPrgsNm = '(주)교원프라퍼티(101-81-39767)';
   }
+}
+
+async function onChangeSvCnrOgId() {
+  const ogId = safetyAccident.value.svCnrOgId;
+  const cnrldNm = (await dataService.get(`/sms/wells/service/safety-accidents/cnrldNm/${ogId}`)).data;
+  safetyAccident.value.cnrldNm = cnrldNm;
 }
 
 onMounted(async () => {

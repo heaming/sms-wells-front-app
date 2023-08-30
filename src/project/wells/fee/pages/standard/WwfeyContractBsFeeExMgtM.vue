@@ -202,7 +202,7 @@ async function onClickSelectPdCd() {
   const searchPopupParams = {
     searchType: pdConst.PD_SEARCH_CODE,
     searchValue: searchParams.value.basePdCd,
-    selectType: '',
+    selectType: pdConst.PD_SEARCH_SINGLE,
   };
   const returnPdInfo = await modal({
     component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업

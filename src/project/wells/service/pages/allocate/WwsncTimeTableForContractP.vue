@@ -543,6 +543,8 @@ const props = defineProps({
   cntrSn: { type: String, default: '1,2' },
   seq: { type: String, default: '' },
   title: { type: String, default: '' },
+  asIstOjNo: { type: String, default: '' },
+  cstSvAsnNo: { type: String, default: '' },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -595,6 +597,8 @@ const searchParams = ref({
   cntrNo: props.cntrNo,
   cntrSn: props.cntrSn,
   seq: props.seq,
+  asIstOjNo: props.asIstOjNo,
+  cstSvAsnNo: props.cstSvAsnNo,
 });
 if (searchParams.value.chnlDvCd === 'K' && searchParams.value.inflwChnl === '') { // KSS
   searchParams.value.inflwChnl = '3';
@@ -647,6 +651,7 @@ const data = ref({
   cstSvAsnNo: '',
   prtnrNo: '',
   ogTpCd: '',
+  asIstOjNo: '',
 });
 
 function getCurrentDate() {
@@ -1100,8 +1105,8 @@ async function onClickSave() {
     //-------------------------------------------------
     // inChnlDvCd: data.value.chnlDvCd,
     inChnlDvCd: data.value.inflwChnl,
-    asIstOjNo: '',
-    // cstSvAsnNo: data.value.cstSvAsnNo,
+    cstSvAsnNo: searchParams.value.cstSvAsnNo ? searchParams.value.cstSvAsnNo : data.value.cstSvAsnNo,
+    asIstOjNo: searchParams.value.asIstOjNo,
     //-------------------------------------------------
     svBizHclsfCd: searchParams.value.svDvCd,
     rcpdt: data.value.wrkDt,

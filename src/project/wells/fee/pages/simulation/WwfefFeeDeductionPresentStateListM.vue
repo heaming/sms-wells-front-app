@@ -75,6 +75,7 @@
           <kw-input
             v-model="searchParams.prtnrKnm"
             :placeholder="$t('MSG_TXT_EMPL_NM')"
+            clearable
             readonly
           />
         </kw-search-item>
@@ -115,7 +116,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :page-size="pageInfo.pageSize"
+        :page-size="20"
         :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
@@ -252,8 +253,8 @@ function initGrid(data, view) {
     { fieldName: 'prtnrNm' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'rsbDvNm' },
+    { fieldName: 'intbsAmt', dataType: 'number' },
     { fieldName: 'dsbOjAmt', dataType: 'number' },
-    { fieldName: 'ddtnAft', dataType: 'number' },
     { fieldName: 'ddctam', dataType: 'number' },
     { fieldName: 'rdsTax', dataType: 'number' },
 
@@ -276,8 +277,8 @@ function initGrid(data, view) {
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dsbOjAmt', header: t('MSG_TXT_DDTN_BF'), width: '120', styleName: 'text-right' },
-    { fieldName: 'ddtnAft', header: t('MSG_TXT_DDTN_AFT'), width: '120', styleName: 'text-right' },
+    { fieldName: 'intbsAmt', header: t('MSG_TXT_DDTN_BF'), width: '120', styleName: 'text-right' },
+    { fieldName: 'dsbOjAmt', header: t('MSG_TXT_DDTN_AFT'), width: '120', styleName: 'text-right' },
     { fieldName: 'ddctam', header: t('MSG_TXT_DDTN_SUM2'), width: '120', styleName: 'text-right' },
     { fieldName: 'rdsTax', header: t('MSG_TXT_RDS_TAX'), width: '120', styleName: 'text-right' },
 
@@ -291,7 +292,6 @@ function initGrid(data, view) {
     { fieldName: 'inddInsr', header: t('MSG_TXT_INDD_INSR'), width: '120', styleName: 'text-right' },
     { fieldName: 'rdsBlam', header: t('MSG_TXT_RDS_BLAM_THM'), width: '120', styleName: 'text-right' },
     { fieldName: 'pnpyamBlam', header: t('MSG_TXT_PNPYAM_BLAM_LSTMM'), width: '120', styleName: 'text-right' },
-
   ];
   data.setFields(fields);
   view.setColumns(columns);
@@ -308,7 +308,7 @@ function initGrid(data, view) {
     {
       header: t('MSG_TXT_FEE_AMT'),
       direction: 'horizontal',
-      items: ['dsbOjAmt', 'ddtnAft'],
+      items: ['intbsAmt', 'dsbOjAmt'],
     },
     'ddctam',
     {
@@ -319,6 +319,14 @@ function initGrid(data, view) {
     'rdsBlam',
     'pnpyamBlam',
   ]);
+
+  /* 스크롤 페이징 */
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      await fetchData();
+    }
+  };
 }
 </script>
 <style scoped>

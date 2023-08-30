@@ -300,7 +300,7 @@ const initGridCancel = defineGrid((data, view) => {
     { fieldName: 'rvCanDt', header: t('MSG_TXT_RV_CAN_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 적립취소일
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '153', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'canAmt', header: t('MSG_TXT_CAN_AMT_WON'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 취소금액(원)
-    { fieldName: 'ledgCanDt', header: t('MSG_TXT_LEDG_CAN_DT'), width: '100', styleName: 'text-center', dataType: 'date' }, // 원장취소일자
+    { fieldName: 'ledgCanDt', header: t('MSG_TXT_LEDG_CAN_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 원장취소일자
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);

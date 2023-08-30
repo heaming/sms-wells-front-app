@@ -22,7 +22,7 @@
       <kw-search-row>
         <!-- 계약번호 -->
         <kw-search-item
-          :label="$t('MSG_TXT_CNTR_NO')"
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
         >
           <zctz-contract-detail-number
             ref="contractNumberRef"
@@ -75,7 +75,7 @@
         <kw-form-row>
           <!-- 계약번호 -->
           <kw-form-item
-            :label="$t('MSG_TXT_CNTR_NO')"
+            :label="$t('MSG_TXT_CNTR_DTL_NO')"
           >
             <p>{{ individualParams.cntrNoDtl }}</p>
           </kw-form-item>
@@ -135,8 +135,7 @@
             :colspan="2"
           >
             <kw-input
-              v-model="saveParams.cstUnuitmCn"
-              :placeholder="individualParams.cstUnuitmCn"
+              v-model="individualParams.cstUnuitmCn"
               type="textarea"
               rows="1"
             />
@@ -407,10 +406,14 @@
         />
         <!-- 연체정보 -->
         <kw-tab
-          v-if="isDisableTab"
           name="2"
           :label="$t('MSG_BTN_DLQ_INF')"
         />
+        <!-- <kw-tab
+          v-if="isVisibleTab"
+          name="2"
+          :label="$t('MSG_BTN_DLQ_INF')"
+        /> -->
         <!-- 컨택현황 -->
         <kw-tab
           name="3"
@@ -459,9 +462,12 @@
           />
         </kw-tab-panel>
         <kw-tab-panel
-          v-if="isDisableTab"
           name="2"
         >
+          <!-- <kw-tab-panel
+        v-if="isVisibleTab"
+          name="2"
+        > -->
           <kw-action-top class="mt30">
             <template #left>
               <kw-paging-info :total-count="countInfo.delinquentCount" />
@@ -551,9 +557,9 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const { getters } = useStore();
-const userInfo = getters['meta/getUserInfo'];
-const { departmentId } = userInfo;
+// const { getters } = useStore();
+// const userInfo = getters['meta/getUserInfo'];
+// const { departmentId } = userInfo;
 
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
@@ -570,7 +576,7 @@ const grdIndividualStateRef = ref(getComponentType('KwGrid')); // 처리내역 �
 const grdIndividualCounselRef = ref(getComponentType('KwGrid')); // 상담내역 조회
 const grdIndividualDelinquentRef = ref(getComponentType('KwGrid')); // 연체정보 조회
 const individualParams = ref([]);
-const isDisableTab = computed(() => departmentId !== '71301' || departmentId === '70526');
+// const isVisibleTab = computed(() => departmentId === '71301' || departmentId === '70526');
 const svHshdNo = ref('');
 const selectedTab = ref('1');
 // const cntrDtlNo = ref();
@@ -742,26 +748,11 @@ async function getIndividualCounsel() {
 
 async function onClickSearch() {
   if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) {
-    notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_NO')}, ${t('MSG_TXT_BARCODE')}`]));
+    notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`]));
   } else {
     await getIndividualServicePs();
     if (isEmpty(individualParams.value)) {
       notify(t('MSG_ALT_CST_INF_NOT_EXST'));
-      // init countInfo
-      // svHshdNo.value = '';
-      // countInfo.value.householdTotalCount = 0;
-      // countInfo.value.contactTotalCount = 0;
-      // countInfo.value.delinquentCount = 0;
-      // countInfo.value.farmTotalCount = 0;
-      // pageInfo.value.totalCount = 0;
-      // secondPageInfo.value.totalCount = 0;
-      // init dataSet
-      // grdIndividualHouseholdRef.value.getData().clearRows();
-      // grdIndividualContactRef.value.getData().clearRows();
-      // grdIndividualDelinquentRef.value.getData().clearRows();
-      // grdIndividualFarmCodeRef.value.getData().clearRows();
-      // grdIndividualStateRef.value.getData().clearRows();
-      // grdIndividualCounselRef.value.getData().clearRows();
     } else {
       searchParams.value.cntrNo = individualParams.value.cntrNoDtl.substring(0, 12);
       searchParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
@@ -786,25 +777,18 @@ async function onClickSave() {
   saveParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
   saveParams.value.ogTpCd = individualParams.value.wkOgTpCd;
   saveParams.value.wkPrtnrNo = individualParams.value.wkPrtnrNo;
-
+  saveParams.value.cstUnuitmCn = individualParams.value.cstUnuitmCn;
   if (isEmpty(saveParams.value.cstUnuitmCn)) { return; }
   await dataService.post('sms/wells/service/individual-service-ps', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
-  await getIndividualServicePs();
-  await getHousehold();
-  await getIndividualContact();
-  await getIndividualFarmCode();
-  await getIndividualDelinquent();
-  await getIndividualState();
-  await getIndividualCounsel();
+  await onClickSearch();
 }
 
-function updateCntrDtl() {
+async function updateCntrDtl() {
   watch(props, async (val) => {
     if (val) {
       searchParams.value.cntrNo = props.cntrNo;
       searchParams.value.cntrSn = props.cntrSn;
-      await onClickSearch();
     }
   });
 }
@@ -904,8 +888,6 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'vstFshDt', header: t('MSG_TXT_PRCSDT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'wkPrgsStat', header: t('MSG_TXT_PROCS_RS'), width: '100', styleName: 'text-center' },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
-    { fieldName: 'rtngdProcsTp', header: t('MSG_TXT_RTNGD_PCS_INF'), width: '150' },
-    { fieldName: 'fstVstFshDt', header: t('MSG_TXT_DSU_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'zipNo', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogTp', header: t('MSG_TXT_DIV'), width: '94', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '94', styleName: 'text-center' },
@@ -924,7 +906,7 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'bcNo', header: t('MSG_TXT_IN_WK_BC'), width: '94', styleName: 'text-center' },
     { fieldName: 'imgYn',
       header: t('MSG_TXT_PHO'),
-      width: '94',
+      width: '98',
       styleName: 'text-center',
       displayCallback(grd, idx, val) {
         const imgYn = val === 'Y' ? t('MSG_TXT_IMG_BRWS') : '';
@@ -935,6 +917,8 @@ const initGridState = defineGrid((data, view) => {
         return (imgYn === 'Y') ? { renderer: { type: 'button' } } : { renderer: { type: 'text' } };
       },
     },
+    { fieldName: 'rtngdProcsTp', header: t('MSG_TXT_RTNGD_PCS_INF'), width: '150' },
+    { fieldName: 'fstVstFshDt', header: t('MSG_TXT_DSU_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
   ];
 
   data.setFields(fields);
@@ -979,7 +963,7 @@ const initGridState = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: ['rcpDt', 'svBizDclsf'],
     },
-    'reqDt', 'vstFshDt', 'wkPrgsStat', 'asCaus', 'rtngdProcsTp', 'fstVstFshDt', 'zipNo',
+    'reqDt', 'vstFshDt', 'wkPrgsStat', 'asCaus', 'zipNo',
     {
       header: t('MSG_TXT_PIC_INF'),
       direction: 'horizontal',
@@ -987,6 +971,8 @@ const initGridState = defineGrid((data, view) => {
     },
     'bcNo',
     'imgYn',
+    'rtngdProcsTp',
+    'fstVstFshDt',
   ]);
 
   view.onScrollToBottom = async (g) => {

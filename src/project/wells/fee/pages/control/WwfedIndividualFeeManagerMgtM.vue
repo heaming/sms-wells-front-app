@@ -169,7 +169,7 @@
       <kw-grid
         ref="grd2MainRef"
         name="grd2Main"
-        :visible-rows="10"
+        :visible-rows="totalCount === 0 ? 1 : totalCount"
         @init="initGrd2Main"
       />
       <ul class="grid-fix-footer">
@@ -281,29 +281,42 @@
           <kw-form-item
             :label="t('MSG_TXT_ERNTX')"
           >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.erntx) : '0' }}</p>
+            <p>{{ info2.erntx ? stringUtil.getNumberWithComma(info2.erntx) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_RSDNTX')"
           >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.rsdntx) : '0' }}</p>
+            <p>{{ info2.rsdntx ? stringUtil.getNumberWithComma(info2.rsdntx) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_HIR_INSR')"
           >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.hirInsr) : '0' }}</p>
+            <p>{{ info2.hirInsr ? stringUtil.getNumberWithComma(info2.hirInsr) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BU_DDTN')"
           >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.buDdtn) : '0' }}</p>
+            <p>{{ info2.buDdtn ? stringUtil.getNumberWithComma(info2.buDdtn) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_PNPYAM')"
           >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.pnpyam) : '0' }}</p>
+            <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.pnpyam) : '0' }}</p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <kw-form-item
+            :label="t('MSG_TXT_INDD_INSR')"
+          >
+            <p>{{ info2.inddInsr ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
+          </kw-form-item>
+          <kw-form-item>
+            <p />
+          </kw-form-item>
+          <kw-form-item>
+            <p />
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -384,6 +397,7 @@ const info2 = ref({
   hirInsr: '',
   buDdtn: '',
   pnpyam: '',
+  inddInsr: '',
 });
 
 let cachedParams;
@@ -429,7 +443,6 @@ async function openFeeControlPopup() {
 async function fetchData(type) {
   const response = await dataService.get(`/sms/wells/fee/individual-fee/mnger-${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
-  totalCount.value = resData.length;
   if (type === 'entrepreneur') {
     info1.value = resData;
     if (info1.value.emplNm !== undefined) {
@@ -443,6 +456,7 @@ async function fetchData(type) {
     baseView.getDataSource().setRows(resData);
   } else if (type === 'before-services') {
     const bsView = grd2MainRef.value.getView();
+    totalCount.value = resData.length;
     bsView.getDataSource().setRows(resData);
   } else if (type === 'fee') {
     const feeView = grd3MainRef.value.getView();
@@ -588,7 +602,7 @@ const initGrd2Main = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.setFooters({ visible: true, items: [{ height: 30 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
 
   // multi row header setting
   view.setColumnLayout([

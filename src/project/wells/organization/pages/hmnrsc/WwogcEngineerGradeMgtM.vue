@@ -37,16 +37,17 @@
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_RSB')">
           <kw-select
-            v-model="searchParams.rolDvCd"
-            :options="codes.EGER_ROL_CD"
+            v-model="searchParams.rsbDvCd"
+            :options="codes.RSB_DV_CD.filter((v)=> v.prtsCodeId === 'W06')"
             first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="t('MSG_TXT_NO_RGS')">
+        <kw-search-item :label="t('MSG_TXT_RGST_YN')">
           <kw-checkbox
             v-model="searchParams.chk"
+            :label="t('MSG_TXT_NO_RGS')"
             :true-value="Y"
             :false-value="N"
           />
@@ -89,7 +90,7 @@
         ref="grdMainRef"
         name="grdMain"
         :page-size="pageInfo.pageSize"
-        :visible-rows="pageInfo.pageSize - 1"
+        :visible-rows="(pageInfo.totalCount === 0) ? '10' : pageInfo.pageSize - 1"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
@@ -129,15 +130,13 @@ const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'RSB_DV_CD',
   'PRTNR_GD_CD',
-  'EGER_EVL_GD_CD',
-  'EGER_ROL_CD',
 );
 
 const searchParams = ref({
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
-  rolDvCd: undefined,
+  rsbDvCd: undefined,
   baseYm: dayjs().format('YYYYMM'),
   chk: 'N',
 });
@@ -225,15 +224,14 @@ async function onClickExcelUpload() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BLG'), width: '152', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '110', styleName: 'text-center' },
     { fieldName: 'prtnrKnm',
       header: t('MSG_TXT_EMPL_NM'),
       width: '166',
       styleName: 'text-center',
     },
-    { fieldName: 'rolDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.EGER_ROL_CD },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '110', styleName: 'text-center' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '130', styleName: 'text-center' },
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     {

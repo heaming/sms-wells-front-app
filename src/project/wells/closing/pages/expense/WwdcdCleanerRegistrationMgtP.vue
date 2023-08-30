@@ -314,7 +314,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal, codeUtil, getComponentType } from 'kw-lib';
+import { useDataService, useGlobal, useModal, codeUtil, getComponentType, useMeta } from 'kw-lib';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
@@ -324,6 +324,7 @@ import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 import useCmFile from '~common/composables/useCmFile';
 
 const { notify, confirm } = useGlobal();
+const userInfo = useMeta().getUserInfo();
 const dataService = useDataService();
 
 const { ok } = useModal();
@@ -389,16 +390,20 @@ const saveParams = ref({
   cntrLroreApnFileId: '', // 계약해지 첨부파일
 });
 
-const { ogTpCd, careerLevelCode } = store.getters['meta/getUserInfo'];
+const { ogTpCd } = store.getters['meta/getUserInfo'];
 
 const buildingCodes = ref([]);
 async function buildingCode() {
   let sessionParams = {};
-  if (careerLevelCode === '2') { // 지역단장
-    sessionParams = { ogTpCd };
-  }
+  const registYearMonth = saveParams.value.aplcDt.replace('-', '').substring(0, 6);
+  sessionParams = { ogTpCd, registYearMonth };
+
   const res = await dataService.get('/sms/wells/closing/expense/cleaners/cleaners-reqeust-change/code', { params: sessionParams });
   buildingCodes.value = res.data;
+
+  if (buildingCodes.value.length === 1) {
+    saveParams.value.bldCd = buildingCodes.value[0].bldCd;
+  }
 }
 
 async function fetchData() {
@@ -416,6 +421,7 @@ async function fetchData() {
     newReg.value = true;
   } else {
     saveParams.value.flag = '0';
+    saveParams.value.aplcnsNm = userInfo.userName;
     chReg.value = true;
   }
 }

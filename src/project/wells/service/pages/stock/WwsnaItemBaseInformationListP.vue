@@ -62,20 +62,60 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row
-        v-show="aplcList"
+        v-if="aplcList"
       >
         <!-- 신청리스트 -->
         <kw-search-item
-
           :label="$t('MSG_TXT_APLC_LIST')"
         >
           <kw-select
-            v-show="aplcList"
+            v-if="aplcList"
             v-model="aplcParams.aplcList"
             :options="codes.APLC_DV_ACD"
             first-option="all"
             @change="onChangeAplcDvAcd"
             @update:model-value="onUpdateAplcDvAcd"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_SAPCD')">
+          <kw-input
+            v-model="searchParams.strtSapCd"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            :regex="/^[0-9]*$/i"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.endSapCd"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            :regex="/^[0-9]*$/i"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row
+        v-if="sapCombo"
+      >
+        <kw-search-item
+          v-if="sapCombo"
+          :label="$t('MSG_TXT_SAPCD')"
+        >
+          <kw-input
+            v-model="searchParams.strtSapCd"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            :regex="/^[0-9]*$/i"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.endSapCd"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            :regex="/^[0-9]*$/i"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -90,6 +130,7 @@
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchData"
         />
+        <span class="ml8">{{ t('MSG_TXT_UNIT_EA') }}</span>
       </template>
     </kw-action-top>
     <kw-grid
@@ -134,7 +175,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // import { codeUtil, defineGrid, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
-import { codeUtil, useModal, getComponentType, defineGrid, gridUtil, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, useModal, getComponentType, defineGrid, gridUtil, useDataService, useMeta, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 // import { onMounted } from 'vue';
@@ -143,6 +184,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const dataService = useDataService();
 const { cancel: onClickClose, ok } = useModal();
+const { modal, notify } = useGlobal();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdMainRef2 = ref(getComponentType('KwGrid'));
 
@@ -165,6 +207,8 @@ const isGrid = ref();
 const isGrid2 = ref();
 // 신청리스트
 const aplcList = ref();
+// SAP코드 FROM~TO
+const sapCombo = ref();
 // 안전재고체크박스
 const checkField = ref();
 
@@ -216,6 +260,8 @@ const searchParams = ref({
   ostrWareNo: props.ostrWareNo,
   wareDvCd: '',
   wareDtlDvCd: '',
+  strtSapCd: '',
+  endSapCd: '',
 
 });
 
@@ -316,6 +362,24 @@ async function initDefault() {
   searchParams.value.wareDtlDvCd = res.data[0].wareDtlDvCd;
 }
 
+function onChangeStrtSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = strtSapCd;
+    searchParams.value.endSapCd = strtSapCd;
+  }
+}
+
+function onChangeEndSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = endSapCd;
+    searchParams.value.endSapCd = endSapCd;
+  }
+}
+
 // 기본정보 세팅
 async function initData() {
   if (props.chk === '1') {
@@ -323,11 +387,13 @@ async function initData() {
     aplcList.value = false;
     checkField.value = false;
     isGrid2.value = true;
+    sapCombo.value = true;
   } else {
     isGrid2.value = false;
     isGrid.value = true;
     aplcList.value = true;
     checkField.value = true;
+    sapCombo.value = false;
   }
   await onClickSearch();
 }
@@ -398,6 +464,24 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.filteringOptions.enabled = false;
+
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    const { imgUrl } = g.getValues(itemIndex);
+    if (column === 'imgUrl') {
+      if (isEmpty(imgUrl)) {
+        notify(t('MSG_ALT_NOT_PHO'));
+      } else {
+        await modal({
+          component: 'ZwcmzImagePreviewP',
+          componentProps: { files: [
+            { fileUid: imgUrl },
+          ] },
+          // componentProps: { files: [imgUrl] }, // fileUid만 주면 됨
+        // componentProps: { files: ['FIL-E9E84666-BFC3-44E2-9EC1-D3AFD05BF77B'] }, // fileUid만 주면 됨
+        });
+      }
+    }
+  };
 });
 
 const initGrdMain2 = defineGrid((data, view) => {

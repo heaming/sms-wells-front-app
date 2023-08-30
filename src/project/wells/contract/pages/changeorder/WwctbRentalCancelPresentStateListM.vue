@@ -195,6 +195,7 @@ const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 const { modal, notify } = useGlobal();
 const dataService = useDataService();
+const router = useRouter();
 const now = dayjs();
 const grdMainRental = ref(getComponentType('KwGrid'));
 
@@ -341,5 +342,15 @@ const initGrid = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.rowIndicator.visible = true;
+
+  // dbclick row - 상세조회 : 취소등록 메뉴  open
+  view.onCellDblClicked = async (g, { dataRow }) => {
+    const { cntrNo, cntrSn, rsgFshDt } = gridUtil.getRowValue(g, dataRow);
+
+    router.replace({
+      path: 'wwctb-cancel-registration-mgt',
+      query: { cntrNo, cntrSn, dm: rsgFshDt.substring(0, 6) },
+    });
+  };
 });
 </script>

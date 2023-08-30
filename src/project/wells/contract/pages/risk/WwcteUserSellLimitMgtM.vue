@@ -51,14 +51,14 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="t('MSG_TXT_PRDT_NM')">
+        <kw-search-item :label="t('MSG_TXT_PRDT_CODE')">
           <kw-input
-            v-model="searchParams.productName"
+            v-model="searchParams.productCd"
             clearable
             icon="search"
             dense
             maxlength="100"
-            @click-icon="onClickSelectPdNm()"
+            @click-icon="onClickSelectPdCd()"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
@@ -160,7 +160,7 @@ const searchParams = ref({
   channel: '',
   deptCd: '',
   user: '',
-  productName: '',
+  productCd: '',
   sellType: '',
   sellLimit: '',
 });
@@ -256,10 +256,10 @@ async function onClickSave() {
 }
 
 // 상품명 검색아이콘 클릭
-async function onClickSelectPdNm() {
+async function onClickSelectPdCd() {
   const searchPopupParams = {
-    searchType: pdConst.PD_SEARCH_NAME,
-    searchValue: searchParams.value.productName,
+    searchType: pdConst.PD_SEARCH_CODE,
+    searchValue: searchParams.value.productCd,
     selectType: '',
   };
 
@@ -269,7 +269,7 @@ async function onClickSelectPdNm() {
   });
 
   if (returnPdInfo.result) {
-    searchParams.value.productName = returnPdInfo.payload?.[0].pdNm;
+    searchParams.value.productCd = returnPdInfo.payload?.[0].pdCd;
   }
 }
 // -------------------------------------------------------------------------------------------------
@@ -305,12 +305,14 @@ function initGrid(data, view) {
     { fieldName: 'sellBaseTpCd',
       header: t('MSG_TXT_SLS_CAT'),
       width: '142',
+      styleName: 'text-center',
       options: codes.SELL_BASE_TP_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       rules: 'required',
       editor: { type: 'list' } },
     { fieldName: 'sellBaseChnl',
       header: t('MSG_TXT_CHNL'),
       width: '142',
+      styleName: 'text-center',
       options: codes.PRTNR_CHNL_DV_ACD,
       firstOption: 'all',
       firstOptionValue: '',
@@ -322,6 +324,7 @@ function initGrid(data, view) {
     { fieldName: 'copnDvCd',
       header: t('MSG_TXT_INDI_CORP'),
       width: '142',
+      styleName: 'text-center',
       rules: 'required',
       options: [
         { codeId: 'A', codeName: `A-${t('MSG_TXT_ALL')}` },
@@ -334,24 +337,30 @@ function initGrid(data, view) {
       width: '180',
       styleName: 'text-center rg-button-icon--search',
       button: 'action',
-      editor: { maxLength: 10 } },
-    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '142', editable: false },
-    { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_TYPE'), width: '142', editable: false },
+      editor: { maxLength: 10 },
+      buttonVisibleCallback(grid, index) {
+        return grid.getCurrent().itemIndex === index.dataRow;
+      } },
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '142', styleName: 'text-center', editable: false },
+    { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_TYPE'), width: '142', styleName: 'text-center', editable: false },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220', editable: false },
-    { fieldName: 'sellBasePrd', header: t('MSG_TXT_CYCL'), width: '131', placeHolder: 'ALL', editor: { maxLength: 100 } },
+    { fieldName: 'sellBasePrd', header: t('MSG_TXT_CYCL'), width: '131', styleName: 'text-center', placeHolder: 'ALL', editor: { maxLength: 100 } },
     { fieldName: 'sellBaseSellTp',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '142',
+      styleName: 'text-center',
       options: sellTpCdGrids.value,
       editor: { type: 'list' } },
     { fieldName: 'sellPrmitDvCd',
       header: t('MSG_TXT_SLS_RSTR'),
       width: '142',
+      styleName: 'text-center',
       options: salesTypeOptions.value,
       editor: { type: 'list' } },
     { fieldName: 'vlStrtDtm',
       header: t('MSG_TXT_STRT_DT'),
       width: '196',
+      styleName: 'text-center',
       datetimeFormat: 'date',
       rules: 'required',
       editor: {
@@ -361,6 +370,7 @@ function initGrid(data, view) {
     { fieldName: 'vlEndDtm',
       header: t('MSG_TXT_END_DT'),
       width: '196',
+      styleName: 'text-center',
       datetimeFormat: 'date',
       rules: 'required',
       editor: {
@@ -369,9 +379,9 @@ function initGrid(data, view) {
     },
     { fieldName: 'sellBaseApyCn', header: t('MSG_TXT_NOTE'), width: '220', editor: { maxLength: 2000 } },
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '131', editable: false },
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '131', styleName: 'text-center', editable: false },
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '131', editable: false },
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '131', styleName: 'text-center', editable: false },
   ];
 
   data.setFields(fields);

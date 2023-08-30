@@ -53,6 +53,16 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
+          :label="$t('MSG_TXT_SELL_TP_CD')"
+        >
+          <kw-select
+            v-model="searchParams.sellTpCd"
+            :label="$t('MSG_TXT_SELL_TP_CD')"
+            :options="codes.SELL_TP_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item
           :label="$t('MSG_TXT_CST_NO')"
         >
           <kw-input
@@ -68,7 +78,6 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
-          :colspan="2"
         >
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
@@ -165,6 +174,7 @@ const props = defineProps({
   cralLocaraTno: { type: String, default: undefined },
   mexnoEncr: { type: String, default: undefined },
   cralIdvTno: { type: String, default: undefined },
+  sellTpCd: { type: String, default: undefined },
   cntrCstNo: { type: String, default: undefined },
   cntrNo: { type: String, default: undefined },
   cntrSn: { type: Number, default: undefined },
@@ -173,6 +183,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const grdData = computed(() => grdMainRef.value?.getData());
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'SELL_TP_CD',
 );
 let cachedParams;
 const searchParams = ref({
@@ -181,6 +192,7 @@ const searchParams = ref({
   cralLocaraTno: props.cralLocaraTno,
   mexnoEncr: props.mexnoEncr,
   cralIdvTno: props.cralIdvTno,
+  sellTpCd: props.sellTpCd,
   cntrCstNo: props.cntrCstNo,
   cntrNo: props.cntrNo,
   cntrSn: props.cntrSn,
@@ -203,6 +215,7 @@ async function onClickReset() {
   searchParams.value.cralLocaraTno = '';
   searchParams.value.mexnoEncr = '';
   searchParams.value.cralIdvTno = '';
+  searchParams.value.sellTpCd = '';
   searchParams.value.cntrCstNo = '';
   searchParams.value.cntrNo = '';
   searchParams.value.cntrSn = undefined;
@@ -277,8 +290,16 @@ const initGrid = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: 130, styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: 150, styleName: 'text-center' },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: 100, styleName: 'text-right' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: 100, options: codes.SELL_TP_CD },
+    { fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: 150,
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      },
+    },
     { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 100, styleName: 'text-center' },
     { fieldName: 'istCstKnm', header: t('MSG_TXT_IST_NM'), width: 100, styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 300 },

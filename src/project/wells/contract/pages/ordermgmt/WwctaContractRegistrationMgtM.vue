@@ -27,10 +27,9 @@
                 :ref="(el) => panelsRefs[step.name] = el"
                 :contract="contract"
                 :on-child-mounted="onChildMounted"
+                @contract-modified="onContractModified"
                 @cntr-tp-cd="eventCntrTpCd"
               />
-              <!-- @restipulation="eventStipulation"-->
-              <!-- @membership="eventMembership"-->
             </kw-step-panel>
           </kw-stepper>
           <kw-separator
@@ -297,10 +296,6 @@ watch(currentStepName, (value) => {
   console.log(value);
   // sideStepRefs[value].show();
 });
-watch(contract, () => {
-  // step2에서 계약관련 변화가 있을 시 상품확정 해제
-  isCnfmPds.value = false;
-}, { deep: true });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -347,7 +342,7 @@ async function getCntrInfo(step, cntrNo, cntrSn) {
     await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
   }
   // 저장된 계약 재조회될 때 확정여부 true
-  isCnfmPds.value = true;
+  isCnfmPds.value = false;
   await getSmrInfo(cntrNo);
 }
 
@@ -379,6 +374,12 @@ async function onClickTempSave() {
     }
   } else {
     await alert(t('MSG_ALT_NO_CHG_CNTN'));
+  }
+}
+
+function onContractModified() {
+  if (currentStepName.value === 'step2') {
+    isCnfmPds.value = false;
   }
 }
 

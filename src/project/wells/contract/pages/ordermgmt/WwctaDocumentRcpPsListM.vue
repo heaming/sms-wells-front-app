@@ -216,7 +216,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'reCntrChRcpId', header: t('MSG_TXT_RCPT_NO'), width: '166', styleName: 'text-center' }, // 접수번호
     { fieldName: 'cntrChRcpD', header: t('MSG_TXT_RCP_D'), width: '166', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'cntrChRcpTm', header: t('MSG_TXT_RCPT_HH'), width: '166', styleName: 'text-center', datetimeFormat: 'hh:mm:ss' }, // 접수시간
-    { fieldName: 'cntrChPrgsStatNm', header: t('MSG_TXT_RCP_PS'), width: '166', styleName: 'text-left' }, // 접수현황
+    { fieldName: 'cntrChPrgsStatNm', header: t('MSG_TXT_RCP_PS'), width: '166', styleName: 'text-center' }, // 접수현황
     { fieldName: 'cntrChPrgsStatNmEnd', header: t('MSG_TXT_ETC_END'), width: '166', styleName: 'text-left' }, // 기타종료
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '166', styleName: 'text-center' }, // 고객명
     {
@@ -226,7 +226,7 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       width: '128',
     }, // 휴대전화번호
-    { fieldName: 'cntrChTpNm', header: t('MSG_TXT_RCP_TP'), width: '166', styleName: 'text-left' }, // 접수유형
+    { fieldName: 'cntrChTpNm', header: t('MSG_TXT_RCP_TP'), width: '166', styleName: 'text-center' }, // 접수유형
   ];
 
   data.setFields(fields);

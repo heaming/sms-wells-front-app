@@ -389,15 +389,23 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
-    <kw-action-top class="mb20">
-      <template #left>
-        <!-- 상품정보 -->
-        <h3 class="mb20">
-          {{ $t('MSG_TXT_PD_INF') }}
-        </h3>
-      </template>
-      <span class="kw-fc--black3 text-weight-regular"> (단위:원)</span>
-    </kw-action-top>
+    <kw-form>
+      <!-- 상품정보 -->
+      <h3 class="mb20">
+        {{ $t('MSG_TXT_PD_INF') }}
+      </h3>
+      <kw-action-top class="mb20">
+        <template #left>
+          <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData"
+          />
+        </template>
+        <span class="kw-fc--black3 text-weight-regular"> (단위:원)</span>
+      </kw-action-top>
+    </kw-form>
     <kw-grid
       ref="grdMainRef"
       name="grdMainRef"

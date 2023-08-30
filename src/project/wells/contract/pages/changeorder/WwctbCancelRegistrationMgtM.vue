@@ -223,6 +223,12 @@ const sessionUserInfo = getUserInfo();
 const grdMain = ref(getComponentType('KwGrid'));
 const grdMainView = computed(() => grdMain.value?.getView());
 
+const props = defineProps({
+  cntrNo: { type: String, default: '' },
+  cntrSn: { type: String, default: '' },
+  dm: { type: String, default: '' },
+});
+
 const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
@@ -366,9 +372,10 @@ function onClickSpcshView() {
 
 // 5. 취소사항 > 취소사항 조회 클릭
 async function onSearchDetail(subParam) {
-  const { cntrNo, cntrSn, sellTpCd } = cancelDetailList.value[idx.value];
+  const { cntrNo, cntrSn, sellTpCd, cntrStatChRsonCd } = cancelDetailList.value[idx.value];
+
   const res = await dataService.get('/sms/wells/contract/changeorder/breach-promises', { params: {
-    cntrNo, cntrSn, sellTpCd, ...subParam },
+    cntrNo, cntrSn, sellTpCd, cntrStatChRsonCd, ...subParam },
   });
 
   if (isEmpty(res.data)) {
@@ -381,22 +388,6 @@ async function onSearchDetail(subParam) {
   res.data.rsgAplcDt = subParam.reqDt;
   res.data.lsnt = cancelDetailList.value[idx.value].lsnt;
   Object.assign(cancelDetailList.value[idx.value], res.data);
-}
-
-// 검색
-async function onClickSearch() {
-  if (isEmpty(searchParams.value.cntrNo)
-   && isEmpty(searchParams.value.cntrSn)
-   && isEmpty(searchParams.value.cstNo)) {
-    // 계약상세번호/고객번호 중 하나는 필수 항목 입니다.
-    await alert(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_CST_NO')}`]));
-    return false;
-  }
-
-  initComponent();
-  cachedParams.value = cloneDeep(searchParams.value);
-
-  await fetchData();
 }
 
 // 상세 조회(취소 등록 된 1건)
@@ -429,6 +420,27 @@ async function getCanceledInfo(cntrNo, cntrSn, row) {
   Object.assign(cancelDetailList.value[idx.value], res.data);
 
   forceRender();
+}
+
+// 검색
+// @param pDetailYn : 조회 결과 1건 시, 상세조회 여부 / 다른화면에서 호출 시 사용.
+async function onClickSearch(pDetailYn) {
+  if (isEmpty(searchParams.value.cntrNo)
+   && isEmpty(searchParams.value.cntrSn)
+   && isEmpty(searchParams.value.cstNo)) {
+    // 계약상세번호/고객번호 중 하나는 필수 항목 입니다.
+    await alert(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_CST_NO')}`]));
+    return false;
+  }
+
+  initComponent();
+  cachedParams.value = cloneDeep(searchParams.value);
+
+  await fetchData();
+
+  if (pDetailYn === 'Y' && totalCount.value === 1) {
+    getCanceledInfo(searchParams.value.cntrNo, searchParams.value.cntrSn, 0);
+  }
 }
 
 // 취소 클릭
@@ -524,6 +536,25 @@ async function onDelete() {
 async function onUpdateValue() {
   console.log(cancelDetailList.value[idx.value]);
 }
+
+watch(props, () => {
+  const { cntrNo, cntrSn, dm } = props;
+  console.log(props.value);
+
+  if (cntrNo && cntrSn && dm) {
+    searchParams.value = { ...props };
+    onClickSearch('Y');
+  }
+}, { deep: true });
+
+onMounted(async () => {
+  const { cntrNo, cntrSn, dm } = props;
+
+  if (cntrNo && cntrSn && dm) {
+    searchParams.value = { ...props };
+    onClickSearch('Y');
+  }
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

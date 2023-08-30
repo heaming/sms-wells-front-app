@@ -39,7 +39,7 @@
       icon="download_on"
       secondary
       dense
-      :disable="gridRowCount === 0"
+      :disable="totalCount === 0"
       :label="$t('MSG_BTN_EXCEL_DOWN')"
       @click="onClickExcelFormDownload"
     />

@@ -153,7 +153,7 @@ const router = useRouter();
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'CST_GD_CD',
-  'RGLVL_DV_CD',
+  'MNGER_RGLVL_DV_CD',
   'SELL_TP_CD',
   'VST_DV_CD',
   'WK_PRGS_STAT_CD',
@@ -359,7 +359,7 @@ async function initGrdMain(data, view) {
       header: t('MSG_TXT_RGLVL'),
       styleName: 'text-center',
       width: '80',
-      options: codes.RGLVL_DV_CD,
+      options: codes.MNGER_RGLVL_DV_CD,
       editor: {
         type: 'dropdown',
       } }, // 급지

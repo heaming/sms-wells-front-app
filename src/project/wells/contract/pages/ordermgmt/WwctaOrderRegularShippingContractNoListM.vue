@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-search
+    one-row
     :cols="4"
     @search="onClickSearch"
   >
@@ -28,7 +29,7 @@
           v-model:cntr-no="searchParams.cntrNo"
           v-model:cntr-sn="searchParams.cntrSn"
           class="w300"
-          disable-popup="true"
+          icon="search"
           rules="required"
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
         />
@@ -107,7 +108,8 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  // 230828 수정 - default 값으로 30개를 받아야함
+  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[2].codeName),
   needTotalCount: true,
 });
 

@@ -312,7 +312,7 @@ const initGrdTotal = defineGrid((data, view) => {
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -373,7 +373,7 @@ const initGrdProduct = defineGrid((data, view) => {
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -417,7 +417,7 @@ const initGrdProduct = defineGrid((data, view) => {
 
 const initGrdExcel = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
     { fieldName: 'custClsCd', header: t('MSG_TXT_CST_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NAME'), width: '100', styleName: 'text-center' },
@@ -524,7 +524,7 @@ const initGrdExcel = defineGrid((data, view) => {
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });

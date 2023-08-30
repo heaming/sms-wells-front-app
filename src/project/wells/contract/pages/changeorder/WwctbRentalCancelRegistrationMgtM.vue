@@ -286,16 +286,13 @@
           <kw-form-row>
             <!-- row5 연체가산금 -->
             <kw-form-item :label="$t('MSG_TXT_DLQ_ADAMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.btdDlqAddAmt??'') }}</p>
             </kw-form-item>
             <!-- row5 入 / 出 -->
-            <kw-form-item
-              label="入 / 出"
-              hint="null"
-            >
+            <kw-form-item label="入 / 出">
               <p>
-                {{ stringUtil.getNumberWithComma(searchDetail.null??'') }}/
-                {{ stringUtil.getNumberWithComma(searchDetail.null??'') }}
+                {{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddDpSumAmt??'') }} /
+                {{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddRfndSumAmt??'') }}
               </p>
             </kw-form-item>
             <!-- row5 가산금조정 -->
@@ -304,14 +301,14 @@
               hint="null"
             >
               <kw-input
-                v-model="searchDetail.null"
+                v-model="searchDetail.adCtrAmt"
                 regex="num"
                 maxlength="10"
               />
             </kw-form-item>
             <!-- row5 미수금(未) -->
             <kw-form-item :label="$t('MSG_TXT_UCAM')+'(未)'">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.ucAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -364,12 +361,13 @@
         <p>{{ stringUtil.getNumberWithComma(searchDetail.useDays??'') }} DAY ({{ searchDetail.grade }}급)</p>
       </kw-form-item>
     </kw-form-row>
+
     <kw-separator />
     <kw-form-row>
       <!-- row2 이월선납잔액 -->
       <kw-form-item
         :label="$t('MSG_TXT_CRDOVR')+$t('MSG_TXT_PRM_BLAM')"
-        hint="선납기초금액?prmBtdAmt"
+        hint="선납잔액기말금액?prmBtdAmt"
       >
         <p>{{ stringUtil.getNumberWithComma(searchDetail.prmBtdAmt??'') }}</p>
       </kw-form-item>
@@ -385,6 +383,7 @@
         <p>{{ stringUtil.getNumberWithComma(searchDetail.totPrpdAmt??'') }}</p>
       </kw-form-item>
     </kw-form-row>
+
     <kw-separator />
     <kw-form-row>
       <!-- row3 매출입금 -->
@@ -400,6 +399,7 @@
         <p>{{ stringUtil.getNumberWithComma(searchDetail.ucAmt??'') }}</p>
       </kw-form-item>
     </kw-form-row>
+
     <kw-separator />
     <kw-form-row>
       <!-- row4 선납환불 -->
@@ -415,6 +415,7 @@
         <p>{{ stringUtil.getNumberWithComma(searchDetail.rentalRgstCostRfndAmt??'') }}</p>
       </kw-form-item>
     </kw-form-row>
+
     <kw-separator />
     <kw-form-row>
       <!-- row5 원위약-렌탈잔여 -->
@@ -422,10 +423,7 @@
         <p>{{ stringUtil.getNumberWithComma(searchDetail.resRtlfeBorAmt??'') }}</p>
       </kw-form-item>
       <!-- row5 원위약-등록비 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_CUR_WON')+$t('MSG_TXT_BOR')+'-'+$t('MSG_TXT_RGST_FEE')"
-        hint="등록비할인위약금액"
-      >
+      <kw-form-item :label="$t('MSG_TXT_CUR_WON')+$t('MSG_TXT_BOR')+'-'+$t('MSG_TXT_RGST_FEE')">
         <p>{{ stringUtil.getNumberWithComma(searchDetail.rgstCostDscBorAmt??'') }}</p>
       </kw-form-item>
       <!-- row5 원위약-할인금액 -->
@@ -433,6 +431,7 @@
         <p>{{ stringUtil.getNumberWithComma(searchDetail.rentalDscBorAmt??'') }}</p>
       </kw-form-item>
     </kw-form-row>
+
     <kw-separator />
     <kw-form-row>
       <!-- row6 원위약-소모품 -->
@@ -448,6 +447,7 @@
         <p>{{ stringUtil.getNumberWithComma(searchDetail.pBorAmt??'') }}</p>
       </kw-form-item>
     </kw-form-row>
+
     <kw-separator />
     <kw-form-row>
       <!-- 위약금액 -->
@@ -542,6 +542,7 @@
         />
       </kw-form-item>
     </kw-form-row>
+
     <kw-separator />
     <kw-form-row>
       <!-- 소모/철거/복구 -->
@@ -586,6 +587,7 @@
         />
       </kw-form-item>
     </kw-form-row>
+
     <kw-separator />
     <kw-form-row>
       <!-- 환불총액 -->
@@ -762,7 +764,14 @@ function onClickCalculate() {
 async function onClickSearchCancel() {
   if (!await frmMainRental.value.validate()) { return; }
 
-  emits('searchdetail', { reqDt: searchDetail.rsgAplcDt, cancelDt: searchDetail.rsgFshDt });
+  emits('searchdetail', {
+    reqDt: searchDetail.rsgAplcDt,
+    cancelDt: searchDetail.rsgFshDt,
+    adCtrAmt: searchDetail.adCtrAmt,
+    canCtrAmt: searchDetail.canCtrAmt,
+    // lsnt: searchDetail.lsnt ?? 0,
+    // borAmt: (searchDetail.ccamExmptDvCd !== '4') ? 0 : (searchDetail.borAmt ?? 0),
+  });
 }
 
 function onClickSave() {

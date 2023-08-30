@@ -527,34 +527,6 @@ async function onClickSearchNo() {
 }
 
 /*
- *  Event - 조회조건 선택에 따른 검색조건 및 그리드 변경
- */
-
-async function onChangeInqrDv() {
-  const { inqrDvCd, divCd } = searchParams.value;
-  if (inqrDvCd === '01') {
-    if (divCd === '04') {
-      isSelectVisile1.value = false;
-      isSelectVisile2.value = true;
-      isSelectVisile3.value = false;
-      isPerfVisile.value = true;
-    } else {
-      isSelectVisile1.value = true;
-      isSelectVisile2.value = false;
-      isSelectVisile3.value = false;
-      isPerfVisile.value = false;
-    }
-    // initSearchParams();
-  } else if (inqrDvCd === '02') {
-    isSelectVisile1.value = false;
-    isSelectVisile2.value = false;
-    isSelectVisile3.value = true;
-    isPerfVisile.value = true;
-    // initSearchParams();
-  }
-}
-
-/*
  *  Event - 상품코드 검색 아이콘 클릭 이벤트
  */
 async function onClickSearchPdCdPopup(arg) {
@@ -765,6 +737,34 @@ async function onClickSearch() {
   await fetchData(uri);
 }
 
+/*
+ *  Event - 조회조건 선택에 따른 검색조건 및 그리드 변경
+ */
+
+async function onChangeInqrDv() {
+  const { inqrDvCd, divCd } = searchParams.value;
+  if (inqrDvCd === '01') {
+    if (divCd === '04') {
+      isSelectVisile1.value = false;
+      isSelectVisile2.value = true;
+      isSelectVisile3.value = false;
+      isPerfVisile.value = true;
+    } else {
+      isSelectVisile1.value = true;
+      isSelectVisile2.value = false;
+      isSelectVisile3.value = false;
+      isPerfVisile.value = false;
+    }
+    // initSearchParams();
+  } else if (inqrDvCd === '02') {
+    isSelectVisile1.value = false;
+    isSelectVisile2.value = false;
+    isSelectVisile3.value = true;
+    isPerfVisile.value = true;
+    // initSearchParams();
+  }
+  onClickSearch();
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

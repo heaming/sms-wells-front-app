@@ -87,7 +87,7 @@
       <kw-grid
         ref="grdMainRef"
         :page-size="pageInfo.pageSize"
-        :visible-rows="10"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -150,7 +150,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {

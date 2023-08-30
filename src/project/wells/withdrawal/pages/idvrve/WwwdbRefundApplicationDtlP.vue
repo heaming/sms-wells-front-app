@@ -826,7 +826,7 @@ async function onEditRfnd(cntrNo, rveNo, rveSn) {
     }
   }
 
-  grdPopRef4.value.getView().setValue(0, 'totRfndBltfAkAmt', Number(temp));
+  // grdPopRef4.value.getView().setValue(0, 'totRfndBltfAkAmt', Number(temp));
   totBltfAkAmt = temp;
 }
 

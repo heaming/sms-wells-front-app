@@ -38,7 +38,6 @@
             v-model:from="searchParams.startDate"
             v-model:to="searchParams.endDate"
             type="date"
-            rules="date_range_months:1"
           />
         </kw-search-item>
         <kw-search-item
@@ -232,9 +231,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ostrWareNm' },
     { fieldName: 'itmPdCd' },
     { fieldName: 'itmGdCd' },
+    { fieldName: 'pdNm' },
+    { fieldName: 'strQty', dataType: 'number' },
     { fieldName: 'itmOstrNo' },
     { fieldName: 'ostrSn' },
-    { fieldName: 'strQty' },
     { fieldName: 'strSn' },
 
   ];
@@ -243,13 +243,14 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '100', styleName: 'text-center' },
     { fieldName: 'strWareNm', header: t('MSG_TXT_WARE_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'strTpCd', header: t('MSG_TXT_STR_TP'), width: '120', styleName: 'text-center', options: codes.STR_TP_CD },
-    { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '250', styleName: 'text-center' },
+    { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '93', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'itmGdCd', visible: false },
+    { fieldName: 'pdNm', header: t('MSG_TXT_MATI_NM'), width: '250', styleName: 'text-center' },
+    { fieldName: 'strQty', header: t('MSG_TXT_STR_QTY'), width: '90', styleName: 'text-center', dataType: 'number' },
     { fieldName: 'itmOstrNo', visible: false },
     { fieldName: 'ostrSn', visible: false },
-    { fieldName: 'strQty', visible: false },
     { fieldName: 'strSn', visible: false },
   ];
 

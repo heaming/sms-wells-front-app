@@ -14,7 +14,9 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
@@ -47,6 +49,8 @@
             first-option-value=""
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
           <kw-option-group
             v-model="searchParams.inqrDvCd"
@@ -54,8 +58,6 @@
             :options="codes.WELS_MNGR_INQR_DV_CD"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -264,11 +266,11 @@ const initGridIndv = defineGrid((data, view) => {
 
     { fieldName: 'trgCt', header: t('MSG_TXT_TRG'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'perfCt', header: t('MSG_TXT_PERF'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'perfAchvRat', header: t('MSG_TXT_ACHV_RT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'perfAchvRat', header: t('MSG_TXT_ACHV_RT'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.#' },
     { fieldName: 'trgAchvAwAmt', header: t('MSG_TXT_TRG') + t('MSG_TXT_ACHV') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'mngrPerfGdCd', header: t('MSG_TXT_GD'), width: '133', styleName: 'text-right' }, // 등급(2021년 1월까지)
     { fieldName: 'ogAwAmt', header: t('MSG_TXT_OG') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 조직수당(2021년 2월부터)
-    { fieldName: 'ejtAwAmt', header: t('MSG_TXT_EJT') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'evlAwAmt', header: t('MSG_TXT_EVL') + t('MSG_TXT_AW'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'perfAwSumAmt', header: t('MSG_TXT_OUTC_AW_SUM'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
 
     { fieldName: 'exclDivAwAmt', header: t('MSG_TXT_EXCL_DIV'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
@@ -328,7 +330,7 @@ const initGridIndv = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_OUTC_AW'),
       direction: 'horizontal',
-      items: ['trgCt', 'perfCt', 'perfAchvRat', 'trgAchvAwAmt', 'mngrPerfGdCd', 'ogAwAmt', 'ejtAwAmt', 'perfAwSumAmt'],
+      items: ['trgCt', 'perfCt', 'perfAchvRat', 'trgAchvAwAmt', 'mngrPerfGdCd', 'ogAwAmt', 'evlAwAmt', 'perfAwSumAmt'],
     },
     {
       header: t('MSG_TXT_ETC') + t('MSG_TXT_AW'), // colspan title
@@ -442,9 +444,9 @@ const initGridSum = defineGrid((data, view) => {
       width: '133',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0',
+      numberFormat: '#,##0.#',
       headerSummary: {
-        numberFormat: '#,##0',
+        numberFormat: '#,##0.#',
         expression: 'sum',
       },
     },
@@ -470,8 +472,8 @@ const initGridSum = defineGrid((data, view) => {
         expression: 'sum',
       },
     },
-    { fieldName: 'ejtAwAmt',
-      header: t('MSG_TXT_EJT') + t('MSG_TXT_AW'),
+    { fieldName: 'evlAwAmt',
+      header: t('MSG_TXT_EVL') + t('MSG_TXT_AW'),
       width: '133',
       styleName: 'text-right',
       dataType: 'number',
@@ -717,7 +719,7 @@ const initGridSum = defineGrid((data, view) => {
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });
@@ -741,7 +743,7 @@ const initGridSum = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_OUTC_AW'),
       direction: 'horizontal',
-      items: ['trgCt', 'perfCt', 'perfAchvRat', 'trgAchvAwAmt', 'ogAwAmt', 'ejtAwAmt', 'perfAwSumAmt'],
+      items: ['trgCt', 'perfCt', 'perfAchvRat', 'trgAchvAwAmt', 'ogAwAmt', 'evlAwAmt', 'perfAwSumAmt'],
     },
     {
       header: t('MSG_TXT_ETC') + t('MSG_TXT_AW'), // colspan title

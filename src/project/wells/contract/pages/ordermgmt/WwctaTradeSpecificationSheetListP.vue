@@ -89,8 +89,8 @@
       />
       <!-- 발행(출력) -->
       <kw-btn
-        primary
         dense
+        icon="report"
         :label="$t('MSG_BTN_PBL_PRNT')"
         @click="onClickPblPrnt"
       />

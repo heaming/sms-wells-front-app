@@ -515,7 +515,7 @@ async function onUpdateMgtValue(field) {
   /* && isEmpty(field.initName ) */
   // if (field.colNm === 'sapMatCd' && field.initName !== field.initValue) {
   // if (field.colNm === 'sapMatCd' && isEmpty(field.initValue)) {
-  if ((field.colNm === 'sapMatCd' && isEmpty(field.initValue)) || field.initName !== field.initValue) {
+  if ((field.colNm === 'sapMatCd' && isEmpty(field.initValue)) || (field.colNm === 'sapMatCd' && field.initName !== field.initValue)) {
     console.log('삭제');
     const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
     mgtNameFields.sapMatCd.initValue = '';

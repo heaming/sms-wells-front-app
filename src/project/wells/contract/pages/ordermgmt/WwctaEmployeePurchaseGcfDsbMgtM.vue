@@ -779,7 +779,7 @@ const initGrid = defineGrid((data, view) => {
   view.setColumnLayout(columnLayout);
 
   view.rowIndicator.visible = true;
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     const stYy = searchParams.value.istDt;

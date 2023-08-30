@@ -538,7 +538,7 @@ const initGrid = defineGrid((data, view) => {
     visible: true,
     items: [
       {
-        height: 40,
+        height: 42,
       },
     ],
   });

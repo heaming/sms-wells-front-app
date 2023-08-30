@@ -425,7 +425,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       displayCallback: (grid, index) => {
-        const fshDt = grid.getValues(index.itemIndex, 'fshDt');
+        const { fshDt } = grid.getValues(index.itemIndex, 'fshDt');
         return (isEmpty(fshDt) ? 'N' : 'Y');
       },
     },
@@ -636,8 +636,6 @@ const initGrdMain = defineGrid((data, view) => {
     if (index.column === 'cntrNo') {
       const cntrNo = grid.getValue(index.itemIndex, 'cntrNo');
       const cntrSn = grid.getValue(index.itemIndex, 'cntrSn');
-      console.log(`cntrNo : ${cntrNo}`);
-      // console.log(cntrSn);
       router.push({
         path: '/service/wwsnb-individual-service-list',
         query: {
@@ -656,6 +654,7 @@ const initGrdMain = defineGrid((data, view) => {
         acdnRcpId,
       },
     });
+    await fetchData();
   };
 });
 </script>
