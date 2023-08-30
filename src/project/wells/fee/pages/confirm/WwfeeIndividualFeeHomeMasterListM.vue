@@ -308,7 +308,7 @@ async function onClickSearchNo() {
  */
 async function openHmstReportPopup() {
   const { perfYm, prtnrNo, pstnDvCd } = info.value;
-  const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYY-MM');
+  const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYYMM');
   if (prtnrNo !== '' && prtnrNo !== undefined) {
     openReportPopup(
       '/ksswells/hmCmms/V3.0/cmmsSpec2022.ozr',

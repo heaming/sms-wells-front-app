@@ -421,7 +421,7 @@ async function onClickSearchNo() {
 async function openManagerReportPopup() {
   const { perfYm, prtnrNo, pstnDvCd } = info.value;
   if (prtnrNo !== '' && prtnrNo !== undefined) {
-    const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYY-MM');
+    const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYYMM');
     openReportPopup(
       '/ksswells/cmms/V5.2/cmmsSpec2023.ozr',
       '/ksswells/cmms/V5.2/cmmsSpec2023.odi',

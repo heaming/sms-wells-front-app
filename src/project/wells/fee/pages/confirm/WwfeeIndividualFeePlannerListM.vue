@@ -370,7 +370,7 @@ async function onClickSearchNo() {
  */
 async function openPlarReportPopup() {
   const { perfYm, prtnrNo, pstnDvCd } = info.value;
-  const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYY-MM');
+  const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYYMM');
   if (prtnrNo !== '' && prtnrNo !== undefined) {
     openReportPopup(
       '/ksswells/cmms/V6.0/cmmsSpecP2022.ozr',
