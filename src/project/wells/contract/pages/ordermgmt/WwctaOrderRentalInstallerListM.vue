@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-search
+    one-row
     :cols="4"
     @search="onClickSearch"
   >

@@ -97,20 +97,23 @@
           :label="$t('MSG_TXT_CST_NO')"
           icon="search"
           clearable
-          :placeholder="t('MSG_TXT_INP_AND_SELT')"
+          :placeholder="t('MSG_TXT_INP')"
           :on-click-icon="onClickSearchCntrCst"
           rules="max:10|numeric"
           :maxlength="10"
         />
       </kw-search-item>
       <!-- 탈퇴제외 -->
-      <kw-search-item :label="$t('MSG_TXT_WTDR_EXLD')">
+      <kw-search-item
+        :label="$t('MSG_TXT_WDWAL') + $t('MSG_TXT_DIV')"
+      >
         <kw-field
           :model-value="[]"
         >
           <template #default="{ field }">
             <kw-checkbox
               v-model="checkType"
+              :label="$t('MSG_TXT_WTDR_EXLD')"
               v-bind="field"
               val=""
             />

@@ -40,15 +40,16 @@
           rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
-      <!-- 계약번호 -->
+      <!-- 계약상세번호 -->
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_NO')"
+        :label="$t('MSG_TXT_CNTR_DTL_NO')"
       >
         <kw-input
           v-model="searchParams.cntrNo"
           icon="search"
           clearable
           :label="$t('MSG_TXT_CNTR_NO')"
+          :placeholder="$t('MSG_TXT_CNTR_NO') + '-' + $t('MSG_TXT_CNTR_SN')"
           :maxlength="12"
           @keydown="onKeyDownSelectCntrNo"
           @click-icon="onClickSelectCntrNo"
@@ -120,7 +121,6 @@
         <kw-input
           v-model="searchParams.pdNm"
           clearable
-          icon="search"
           :maxlength="100"
         />
       </kw-search-item>
