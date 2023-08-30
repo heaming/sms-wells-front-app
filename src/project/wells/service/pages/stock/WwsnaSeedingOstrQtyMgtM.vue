@@ -249,7 +249,7 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'limQty',
       header: t('MSG_TXT_QTY'),
       width: '150',
-      rules: 'required|min_value:1|max_value:999999999999',
+      rules: 'required|min_value:0|max_value:999999999999',
       styleName: 'text-right',
       editor: {
         type: 'number',
