@@ -307,6 +307,9 @@ const initGrid = defineGrid((data, view) => {
       await modal({
         component: 'WwctaOrderDetailP',
         componentProps: { cntrNo, cntrSn },
+        draggable: true,
+        window: true,
+        windowFeatures: { width: 1300, height: 1080 },
       });
     } else if (column === 'reqdAsn') {
       await modal({

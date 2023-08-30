@@ -40,16 +40,15 @@
           rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
-      <!-- 계약상세번호 -->
+      <!-- 계약번호 -->
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_DTL_NO')"
+        :label="$t('MSG_TXT_CNTR_NO')"
       >
         <kw-input
           v-model="searchParams.cntrNo"
           icon="search"
           clearable
           :label="$t('MSG_TXT_CNTR_NO')"
-          :placeholder="$t('MSG_TXT_CNTR_NO') + '-' + $t('MSG_TXT_CNTR_SN')"
           :maxlength="12"
           @keydown="onKeyDownSelectCntrNo"
           @click-icon="onClickSelectCntrNo"
@@ -121,6 +120,7 @@
         <kw-input
           v-model="searchParams.pdNm"
           clearable
+          icon="search"
           :maxlength="100"
         />
       </kw-search-item>
@@ -311,8 +311,7 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
-  // 230828 수정 - default 값으로 30개를 받아야함
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[2].codeName),
+  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
   needTotalCount: true,
 });
 
@@ -753,7 +752,13 @@ const initGridSnglPmntContractList = defineGrid((data, view) => {
     const { copnDvCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
+      await modal({
+        component: 'WwctaOrderDetailP',
+        componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd },
+        draggable: true,
+        window: true,
+        windowFeatures: { width: 1300, height: 1080 },
+      });
     } else if (['ordrInfoView'].includes(column)) { // 일시불 주문정보 상세
       await modal({ component: 'WwctaSinglePaymentOrderDetailListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회

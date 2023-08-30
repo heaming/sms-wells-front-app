@@ -149,10 +149,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, gridUtil, stringUtil, getComponentType, useGlobal, defineGrid } from 'kw-lib';
+import { codeUtil, useDataService, gridUtil, stringUtil, useMeta, getComponentType, useGlobal, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
+const { getConfig } = useMeta();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const { modal } = useGlobal();
@@ -168,8 +169,7 @@ const codes = await codeUtil.getMultiCodes(
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  // 230828 수정 - default 값으로 30개를 받아야함
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[2].codeName),
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const searchGbns = ref([
@@ -476,6 +476,9 @@ const initGridSnglPmntContractorList = defineGrid((data, view) => {
       await modal({
         component: 'WwctaOrderDetailP',
         componentProps: { cntrNo, cntrSn, sellTpCd, cntrCstNo, copnDvCd },
+        draggable: true,
+        window: true,
+        windowFeatures: { width: 1300, height: 1080 },
       });
     } else if (column === 'orderInfView') {
       await modal({
