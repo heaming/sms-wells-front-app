@@ -485,12 +485,13 @@ async function onClickSearch() {
 async function openZwfedFeeBurdenDeductionRegP() {
   const { perfYm, no } = searchParams.value;
   const param = {
-    perfYm,
+    ddtnYm: perfYm,
+    coCd: '2000',
     ogTpCd: 'W02',
     prtnrNo: no,
   };
   await modal({
-    component: 'ZwdeeBurdenDeductionP',
+    component: 'ZwfedFeeBurdenDeductionRegP',
     componentProps: param,
   });
 }
