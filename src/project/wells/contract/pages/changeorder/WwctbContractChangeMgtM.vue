@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTB
 2. 프로그램 ID : WwctbContractChangeMgtM - 계약변경관리
-3. 작성자 : gs.piit165
+3. 작성자 : Myoungbin Joo
 4. 작성일 : 2023.06.30
 ****************************************************************************************************
 * 프로그램 설명
@@ -167,15 +167,15 @@
               <span> {{ isEmpty(item.istDt) ? '-' : stringUtil.getDateFormat(item.istDt) }} </span>
             </li>
           </ul>
-          <kw-separator
+          <!-- <kw-separator
             spaced="20px"
-          />
+          /> -->
           <div class="button-wrap">
             <!-- 고객정보 변경-->
             <kw-btn
               secondary
               :label="`${t('MSG_TXT_CST_INF')} ${t('MSG_TXT_CH')}`"
-              padding="10px"
+              padding="12px"
               @click="onClickCstChange(item)"
             />
             <!-- 계약유형 변경-->
@@ -183,7 +183,7 @@
               v-show="isEqual(item.sellTpCd, '2')"
               secondary
               :label="`${t('MSG_TXT_CONTR_TYPE')} ${t('MSG_TXT_CH')}`"
-              padding="10px"
+              padding="12px"
               @click="onClickCntrTpChange(item)"
             />
             <!-- 판매자 변경-->
@@ -191,7 +191,7 @@
               v-show="isEqual(ogTpCd, 'HR1')"
               secondary
               :label="`${t('MSG_TXT_SELLER_PERSON')} ${t('MSG_TXT_CH')}`"
-              padding="10px"
+              padding="12px"
               @click="onClickSellerChange(item)"
             />
             <!-- 삭제요청-->
@@ -199,21 +199,21 @@
               v-show="isEqual(item.sellTpCd, '2') && isEmpty(item.istDt)"
               secondary
               :label="$t('MSG_TXT_DEL_REQ')"
-              padding="10px"
+              padding="12px"
               @click="onClickDelReq(item)"
             />
-            <!-- <kw-separator
+            <kw-separator
               v-show="isEqual(item.histYn, 'Y')"
               vertical
               inset
               spaced="0"
-            /> -->
+            />
             <!-- 계약유형변경 이력 보기-->
             <kw-btn
               v-show="isEqual(item.histYn, 'Y')"
               secondary
               :label="$t('MSG_BTN_CNTR_TP_CHANGE_HIS_BRWS')"
-              padding="10px"
+              padding="12px"
               @click="onClickShowProductChangeHistoryP(item)"
             />
           </div>
@@ -576,7 +576,8 @@ onMounted(async () => {
 
   li {
     p {
-      min-width: 72px;
+      width: 85px;
+      min-width: 85px;
     }
 
     span {
@@ -588,24 +589,24 @@ onMounted(async () => {
 }
 
 .button-wrap {
+  margin-top: auto;
   display: flex;
-  column-gap: 6px;
-  row-gap: 6px;
   flex-flow: row wrap;
-  white-space: nowrap;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+  min-height: 88px;
 
   ::v-deep(.kw-btn) {
-    padding: 8px 0;
-    flex: 1 1 calc(100% / 6);
-    font-size: 14px;
-    font-weight: normal;
-    letter-spacing: normal;
-    color: #555;
-    min-height: 40px;
+    align-self: flex-start;
   }
 }
 
 .mt-auto {
   margin-top: auto !important;
+}
+
+::v-deep(.q-separator--vertical) {
+  height: 26px;
 }
 </style>
