@@ -188,7 +188,7 @@
       >
         <kw-select
           v-model="searchParams.schFntDv"
-          :options="selectCodes.FNT_DV"
+          :options="codes.DP_TP_CD.filter((v) => ['0203', '0102'].includes(v.codeId))"
           first-option="all"
         />
         <kw-select
@@ -330,6 +330,7 @@ const selectCodes = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'CST_SE_APY_DV_CD',
+  'DP_TP_CD',
 );
 
 const grdMainRef = ref(getComponentType('KwGrid'));
