@@ -536,9 +536,9 @@ const initGrdMain = defineGrid((data, view) => {
 
   ];
 
-  view.setColumnLayout(columnLayout);
   data.setFields(fields);
   view.setColumns(columns);
+  view.setColumnLayout(columnLayout);
   view.setFooters({ visible: true });
   view.setOptions({ summaryMode: 'aggregate' });
 
