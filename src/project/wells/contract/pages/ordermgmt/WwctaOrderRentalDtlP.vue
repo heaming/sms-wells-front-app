@@ -358,7 +358,7 @@
           {{ $t('MSG_TXT_PD_INF') }}
         </h3>
       </template>
-      <span>단위(원,개월)</span>
+      <span class="kw-fc--black3 text-weight-regular">(단위:원,개월)</span>
     </kw-action-top>
     <kw-form :cols="4">
       <kw-form-row>
@@ -734,7 +734,7 @@
           {{ $t('MSG_TXT_PMOT') }}
         </h3>
       </template>
-      <span>단위(원,개월)</span>
+      <span class="kw-fc--black3 text-weight-regular">(단위:원,개월)</span>
     </kw-action-top>
     <kw-form :cols="4">
       <kw-form-row>
@@ -811,7 +811,6 @@
         <!-- 연관상품조회 -->
         <kw-form-item :label="$t('MSG_TXT_RELT_PRDT_SELT')">
           <kw-btn
-            primary
             :label="$t('MSG_TXT_RELT_PRDT_SELT')"
             @click="onClickSearchReltPrdt"
           />
@@ -905,7 +904,7 @@
           {{ $t('MSG_TXT_ADN_INF') }}
         </h3>
       </template>
-      <span>단위(원,개월)</span>
+      <span class="kw-fc--black3 text-weight-regular">(단위:원,개월)</span>
     </kw-action-top>
     <kw-form :cols="4">
       <kw-form-row>
@@ -1181,7 +1180,7 @@
           {{ $t('MSG_TXT_PERF_ARTC') }}
         </h3>
       </template>
-      <span>단위(원)</span>
+      <span class="kw-fc--black3 text-weight-regular">(단위:월)</span>
     </kw-action-top>
     <kw-form :cols="4">
       <kw-form-row>
