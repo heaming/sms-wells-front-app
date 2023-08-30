@@ -27,7 +27,6 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="searchParams.inqrDvCd !== '01'"
           :label="$t('MSG_TXT_ORDR')"
         >
           <kw-option-group
