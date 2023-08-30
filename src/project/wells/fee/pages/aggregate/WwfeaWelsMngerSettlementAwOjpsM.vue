@@ -343,7 +343,8 @@ async function onChangeBaseYm() {
 }
 
 onMounted(async () => {
-  await onClickSearch();
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData('etc');
 });
 
 // -------------------------------------------------------------------------------------------------
