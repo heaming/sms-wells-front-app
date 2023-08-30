@@ -209,7 +209,7 @@ const customCodes = {
 };
 
 /*
- * 지역단 조회(Grid 콤보)
+ * 지역단 조회 (Grid 콤보)
  */
 async function getRegionalGroup() {
   const res = await dataService.get('/sms/wells/service/organizations/regional-group', { params: {
