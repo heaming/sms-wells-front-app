@@ -101,6 +101,7 @@
               v-model:init-data="prevStepData"
               :codes="codes"
               @click-tab="onClickSubTab"
+              @apply-data="applyData"
             />
           </kw-step-panel>
           <kw-step-panel :name="pdConst.STANDARD_STEP_CHECK.name">
@@ -259,9 +260,10 @@ async function isModifiedCheck() {
   return modifiedOk;
 }
 
-async function getSaveData() {
-// 데이터가 많아서 수정여부를 체크하여 미수정시, 텝 데이터 수집을 하지않음.
-  if (!(await isModifiedCheck())) {
+async function getSaveData(isBatchCopy) {
+  // 데이터가 많아서 수정여부를 체크하여 미수정시, 텝 데이터 수집을 하지않음.
+  // isBatchCopy - Wells - 기준정보 - 가격 - 일괄복사 여부
+  if (!(await isModifiedCheck()) && !isBatchCopy) {
     return prevStepData.value;
   }
 
@@ -270,7 +272,8 @@ async function getSaveData() {
     isModifiedPrice: false,
     isModifiedRelation: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
-    const saveData = await item.value?.getSaveData();
+    // isBatchCopy - Wells - 기준정보 - 가격 - 일괄복사 여부
+    const saveData = await item.value?.getSaveData(isBatchCopy);
     const isModified = await item.value.isModifiedProps();
     if (await saveData) {
       // console.log(`${idx}saveData : `, saveData);
@@ -420,6 +423,13 @@ async function onClickStep() {
 // 하위 컴포넌트 탭 이동시 호출
 async function onClickSubTab() {
   prevStepData.value = await getSaveData();
+}
+
+// 하위 컴포넌트 강제 값 적용(가격정보 등록 - 일괄복사)
+async function applyData() {
+  prevStepData.value = await getSaveData(true);
+  // 반영되었습니다.
+  notify(t('MSG_ALT_SUCCESS_RFL'));
 }
 
 // 취소 버튼

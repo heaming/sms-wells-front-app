@@ -408,11 +408,40 @@ async function resetVisibleChannelColumns() {
   await onClickCheckVisible();
 }
 
+// 판매채널 - 핕터 적용
 async function onUpdateSellChannel() {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('sellChnlCd', false);
   if (filterChannel.value) {
     view.activateColumnFilters('sellChnlCd', [filterChannel.value], true);
+  }
+}
+
+// 조정가 적용(소스 동기화시켜 주세요!: WwpdcStandardMgtMPriceVal.vue, WwpdcStandardMgtMPriceCopy.vue )
+async function onCellEditBaseValue(grid, itemIndex, changedFieldName) {
+  if (changedFieldName === 'cndtFxamFxrtDvCd') {
+    grid.setValue(itemIndex, 'cndtDscPrumVal', 0);
+  } else if (changedFieldName === 'cndtDscPrumVal' || isEmpty(changedFieldName)) {
+    const fixDvCd = grid.getValue(itemIndex, 'cndtFxamFxrtDvCd');
+    const fixValue = grid.getValue(itemIndex, 'cndtDscPrumVal');
+    if (fixDvCd === '01') {
+      const basVal = grid.getValue(itemIndex, 'basVal');
+      if (fixValue > basVal) {
+        /* {0}값이 {1}보다 큽니다. */
+        notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
+          `${grid.columnByName('cndtDscPrumVal').header.text}(${fixValue})`,
+          `${grid.columnByName('basVal').header.text}(${basVal})`]));
+        grid.setValue(itemIndex, 'cndtDscPrumVal', 0);
+      }
+    } else if (fixDvCd === '02') {
+      if (fixValue < -100) {
+        /* {0}값이 {1}보다 작습니다. */
+        notify(t('MSG_ALT_A_IS_LESS_THEN_B', [
+          grid.columnByName('cndtDscPrumVal').header.text,
+          '-100%']));
+        grid.setValue(itemIndex, 'cndtDscPrumVal', 0);
+      }
+    }
   }
 }
 
@@ -481,31 +510,18 @@ async function initGrid(data, view) {
 
   // 조정 값 초기화
   view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
-    const changedFieldName = grid.getColumn(fieldIndex).fieldName;
-    if (changedFieldName === 'cndtFxamFxrtDvCd') {
-      view.setValue(itemIndex, 'cndtDscPrumVal', 0);
-    } else if (changedFieldName === 'cndtDscPrumVal') {
-      const fixDvCd = grid.getValue(itemIndex, 'cndtFxamFxrtDvCd');
-      const fixValue = grid.getValue(itemIndex, 'cndtDscPrumVal');
-      if (fixDvCd === '01') {
-        const basVal = grid.getValue(itemIndex, 'basVal');
-        if (fixValue > basVal) {
-          /* {0}값이 {1}보다 큽니다. */
-          notify(t('MSG_ALT_A_IS_GREAT_THEN_B', [
-            `${grid.columnByName('cndtDscPrumVal').header.text}(${fixValue})`,
-            `${grid.columnByName('basVal').header.text}(${basVal})`]));
-          view.setValue(itemIndex, 'cndtDscPrumVal', 0);
-        }
-      } else if (fixDvCd === '02') {
-        if (fixValue < -100) {
-          /* {0}값이 {1}보다 작습니다. */
-          notify(t('MSG_ALT_A_IS_LESS_THEN_B', [
-            grid.columnByName('cndtDscPrumVal').header.text,
-            '-100%']));
-          view.setValue(itemIndex, 'cndtDscPrumVal', 0);
-        }
+    const changedFieldName = grid.getDataSource().getOrgFieldNames()[fieldIndex];
+    // console.log('changedFieldName : ', changedFieldName);
+    await onCellEditBaseValue(grid, itemIndex, changedFieldName);
+  };
+
+  // 붙여넣기 시,  전체 조정
+  view.onPasted = async (grid) => {
+    gridUtil.getAllRowValues(view).forEach((item) => {
+      if (['created', 'updated'].includes(item.rowState)) {
+        onCellEditBaseValue(grid, item.dataRow);
       }
-    }
+    });
   };
   await resetInitData();
   await init();
