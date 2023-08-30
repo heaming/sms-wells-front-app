@@ -216,6 +216,15 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickDetailsExcelDownload"
         />
+        <kw-btn
+          v-permission:create
+          icon="upload_on"
+          secondary
+          dense
+          :label="$t('MSG_BTN_EXCEL_UP')"
+          :disable="isNotActivated || assignConfirmed"
+          @click="onClickExcelUpload"
+        />
       </kw-action-top>
       <kw-grid
         ref="grdSubRef"
@@ -390,6 +399,24 @@ async function onClickDetailsExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
+}
+
+async function onClickExcelUpload() {
+  const apiUrl = '/sms/wells/bond/collector-assigns/details/excel-upload';
+  const templateId = 'FOM_BND_ASN';
+  const extraData = {
+    baseYm: cachedParams.baseYm,
+  };
+  const {
+    payload,
+  } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: { apiUrl, templateId, extraData },
+  });
+  if (payload.status === 'S') {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchDetailsData();
+  }
 }
 
 async function checkRquest(changedRows) {
