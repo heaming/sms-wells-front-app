@@ -204,7 +204,7 @@
           <kw-form-item
             :label="$t('MSG_TXT_PRD_CHNG')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.chnDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.chnDt) }}</p>
           </kw-form-item>
           <!-- 판매유형 -->
           <kw-form-item
@@ -224,7 +224,7 @@
           <kw-form-item
             :label="$t('MSG_TXT_CNTR_DATE')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.cntrDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.cntrDt) }}</p>
           </kw-form-item>
           <!-- 지점코드 -->
           <kw-form-item
@@ -250,7 +250,7 @@
           <kw-form-item
             :label="$t('MSG_TXT_ASN_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.asnDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.asnDt) }}</p>
           </kw-form-item>
           <!-- 판매채널 -->
           <kw-form-item
@@ -299,25 +299,25 @@
           <kw-form-item
             :label="$t('MSG_TXT_IST_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.istDt) }} </p>
+            <p>{{ stringUtil.getDateFormat(individualParams.istDt) }} </p>
           </kw-form-item>
           <!-- 교체일자 -->
           <kw-form-item
             :label="$t('MSG_TXT_CHNG_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.chngDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.chngDt) }}</p>
           </kw-form-item>
           <!-- 철거일자 -->
           <kw-form-item
             :label="$t('MSG_TXT_DEM_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.reqdDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.reqdDt) }}</p>
           </kw-form-item>
           <!-- 취소일자 -->
           <kw-form-item
             :label="$t('MSG_TXT_CANC_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.canDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.canDt) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -325,25 +325,25 @@
           <kw-form-item
             :label="$t('MSG_TXT_STP_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.svStpDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.svStpDt) }}</p>
           </kw-form-item>
           <!-- AS만기 -->
           <kw-form-item
             :label="$t('MSG_TXT_AS_EXPR')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.asExprDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.asExprDt) }}</p>
           </kw-form-item>
           <!-- BS만기 -->
           <kw-form-item
             :label="$t('MSG_TXT_BS_EXPR')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.bsExprDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.bsExprDt) }}</p>
           </kw-form-item>
           <!-- 기변일자 -->
           <kw-form-item
             :label="$t('MSG_TXT_MCHN_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.cpsDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.cpsDt) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -351,13 +351,13 @@
           <kw-form-item
             :label="$t('MSG_TXT_MSH_STRT_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.mshJDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.mshJDt) }}</p>
           </kw-form-item>
           <!-- 멤버십종료일 -->
           <kw-form-item
             :label="$t('MSG_TXT_MSH_END_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.mshWdwalDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.mshWdwalDt) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
