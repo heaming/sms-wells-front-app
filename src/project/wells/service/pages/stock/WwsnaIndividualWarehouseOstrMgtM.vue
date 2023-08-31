@@ -487,6 +487,7 @@ function onChangeNdlvQty() {
   const view = grdMainRef.value.getView();
   // 필터링 해제
   if (ndlvQtyYn === 'N') {
+    totalCount.value = allOstrItms.value.length;
     view.getDataSource().setRows(allOstrItms.value);
     return;
   }
@@ -497,6 +498,7 @@ function onChangeNdlvQty() {
   filterRows.forEach((item) => {
     item.chk = 'N';
   });
+  totalCount.value = filterRows.length;
   view.getDataSource().setRows(filterRows);
 }
 
