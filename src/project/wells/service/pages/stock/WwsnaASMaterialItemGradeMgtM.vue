@@ -403,6 +403,9 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
 
+  const headerHeight = view.header.height;
+  view.header.height = headerHeight + 50;
+
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
