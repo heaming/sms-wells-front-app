@@ -244,12 +244,10 @@ async function onClickSave() {
       }
     }
     // 팩스번호 세팅
-    if (!isEmpty(changedRows[i].faxTelNo)) {
-      const tel = changedRows[i].faxTelNo.replaceAll('-', '');
-      changedRows[i].faxLocaraTno = getPhoneNumber(tel, 1);
-      changedRows[i].faxExno = getPhoneNumber(tel, 2);
-      changedRows[i].faxIdvTno = getPhoneNumber(tel, 3);
-    }
+    const tel = changedRows[i].faxTelNo.replaceAll('-', '');
+    changedRows[i].faxLocaraTno = getPhoneNumber(tel, 1);
+    changedRows[i].faxExno = getPhoneNumber(tel, 2);
+    changedRows[i].faxIdvTno = getPhoneNumber(tel, 3);
 
     const row = gridUtil.findDataRow(view, (e) => (e.spectxGrpNo === changedRows[i].spectxGrpNo)
     && (e.cntrDtlNo === changedRows[i].cntrDtlNo));
@@ -338,6 +336,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       editor: { maxLength: 17 },
       styleCallback(grid, dataCell) {
         return { editable: dataCell.item.rowState === 'created' };
+      },
+      buttonVisibleCallback(g, index) {
+        return g.getDataSource().getRowState(index.dataRow) === 'created';
       },
     }, // 계약상세번호
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '110', styleName: 'text-center', rules: 'required', editable: false }, // 고객명
