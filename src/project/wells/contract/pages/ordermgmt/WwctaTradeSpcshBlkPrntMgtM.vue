@@ -339,6 +339,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         return { editable: dataCell.item.rowState === 'created' };
       },
+      buttonVisibleCallback(g, index) {
+        return g.getDataSource().getRowState(index.dataRow) === 'created';
+      },
     }, // 계약상세번호
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '110', styleName: 'text-center', rules: 'required', editable: false }, // 고객명
     { fieldName: 'spectxPrntY', header: `${t('MSG_TXT_PBL')}${t('MSG_TXT_Y')}`, width: '80', styleName: 'text-center', editable: false }, // 발행년도
