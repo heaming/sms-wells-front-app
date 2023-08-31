@@ -64,7 +64,9 @@
       <kw-search-row>
         <!-- 바코드필터링 -->
         <kw-search-item :label="$t('MSG_TXT_BC_FLTR')">
-          <kw-input />
+          <kw-input
+            v-model="searchParams.barCode"
+          />
         </kw-search-item>
         <!-- 업무유형 -->
         <kw-search-item :label="$t('MSG_TXT_TASK_TYPE')">
@@ -309,6 +311,7 @@ const searchParams = ref({
   strWareDvCd: '2',
   strWareNoM: '',
   strWareNoD: '',
+  barCode: '',
 
 });
 
@@ -582,7 +585,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnlItmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center', options: codes.PD_GD_CD },
     { fieldName: 'useQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'refrAsRcpYn', header: t('MSG_TXT_REFR_RCP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CST_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MGT_TYP'), width: '100', styleName: 'text-center' },
@@ -617,12 +620,13 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'rmkCn', header: t('MSG_TXT_UNUITM'), width: '150', styleName: 'text-center', editable: true },
     { fieldName: 'cntrNoNew', header: t('MSG_TXT_NW_CST_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'barCd', header: t('MSG_TXT_NW_CST_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'barCd', header: t('MSG_TXT_MNFT_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'asLctNm', header: t('MSG_TXT_LCT'), width: '100', styleName: 'text-center' },
     { fieldName: 'asphnNm', header: t('MSG_TXT_PHN'), width: '100', styleName: 'text-center' },
     { fieldName: 'asCausNm', header: t('MSG_TXT_CAUS'), width: '100', styleName: 'text-center' },
     { fieldName: 'svProcsCn', header: t('MSG_TIT_APRV_DTLS'), width: '397', styleName: 'text-center' },
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_ICHR_EGER'), width: '100', styleName: 'text-center' },
+    { fieldName: 'empNm', header: t('MSG_TXT_ICHR_EGER_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'rcpIchrPrtnrNo', header: t('MSG_TXT_REQD_AK_EMPNO'), width: '150', styleName: 'text-center' },
     { fieldName: 'fstRgstUserNm', header: t('MSG_TXT_REQD_AK_NM'), width: '150', styleName: 'text-center' },
     { fieldName: 'col22', header: t('MSG_TXT_RCST_DV'), width: '100', styleName: 'text-center' },
@@ -669,6 +673,7 @@ const initGrdMain = defineGrid((data, view) => {
     'asCausNm',
     'svProcsCn',
     'ichrPrtnrNo',
+    'empNm',
     // 'empNm',
     { direction: 'horizontal', items: ['rcpIchrPrtnrNo', 'fstRgstUserNm'], header: { text: t('MSG_TXT_REQD_AK_EMPNO_NM') }, hideChildHeaders: true },
     'col22',

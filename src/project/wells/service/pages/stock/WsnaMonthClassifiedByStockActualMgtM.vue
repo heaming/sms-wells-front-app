@@ -108,6 +108,13 @@
           secondary
           label="확인서"
         />
+        <!-- 신청취소 -->
+        <kw-btn
+          dense
+          secondary
+          :label="$t('MSG_BTN_APPL_CNCL')"
+          @click="onClickApplCancel"
+        />
         <!-- 실사취소 -->
         <kw-btn
           dense
@@ -403,6 +410,33 @@ async function onClikcStocApy() {
 
     notify(t('MSG_ALT_SAVE_DATA'));
 
+    await fetchData();
+  }
+}
+
+// 신청취소 버튼클릭 이벤트
+async function onClickApplCancel() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+
+  if (!validateIsApplyRowExists()) return;
+
+  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+
+  for (let i = 0; i < checkedRows.length; i += 1) {
+    const { cnfmdt } = checkedRows[i];
+
+    if (!isEmpty(cnfmdt)) {
+      // 실사 확정 및 재고 반영 완료된 건은 취소가 불가합니다.
+      notify(t('MSG_ALT_ACINSP_CNFM_STOC_RFLT_FSH_CAN_IMP'));
+      return;
+    }
+  }
+
+  const res = await dataService.delete('/sms/wells/service/stock-acinp-rgst', { data: checkedRows });
+  const { processCount } = res.data;
+  if (processCount > 0) {
+    notify(t('MSG_ALT_DELETED'));
     await fetchData();
   }
 }
