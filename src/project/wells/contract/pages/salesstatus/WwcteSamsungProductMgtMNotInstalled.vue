@@ -159,7 +159,7 @@ async function onClickSearch() {
 
 async function onClickExcelUpload() {
   const apiUrl = '/sms/wells/contract/sales-status/sec-product-management/not-installs/excel-upload';
-  const templateId = 'FOM_CTE_001';
+  const templateId = 'FOM_CTE_0001';
   const { result, payload } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId },
