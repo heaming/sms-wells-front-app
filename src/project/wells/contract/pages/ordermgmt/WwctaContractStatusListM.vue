@@ -787,7 +787,6 @@ async function onClickAssignContact(item) {
     svBizDclsfCd: targets.map((v) => v.svBizDclsfCd).join(','),
     cntrNo: item.cntrNo,
     cntrSn: targets.map((v) => v.cntrSn).join(','),
-    basePdCd: targets.map((v) => v.basePdCd).join(','),
     mtrStatCd: '1',
   };
   console.log(installProps);
