@@ -111,22 +111,18 @@
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_CNTN_CREATE')"
           secondary
           dense
-          grid-action
           @click="onClickCreate"
         />
         <kw-btn
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_DTRM')"
           secondary
           dense
-          grid-action
           @click="onClickDtrm"
         />
         <kw-btn
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_DTRM')+$t('MSG_BTN_CANCEL')"
           secondary
-          primary
           dense
-          grid-action
           @click="onClickDtrmCan"
         />
       </kw-action-top>
@@ -343,7 +339,8 @@ async function onChangeBaseYm() {
 }
 
 onMounted(async () => {
-  await onClickSearch();
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData('etc');
 });
 
 // -------------------------------------------------------------------------------------------------

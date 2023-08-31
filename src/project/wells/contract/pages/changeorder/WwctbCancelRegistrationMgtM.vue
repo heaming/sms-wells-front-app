@@ -280,6 +280,36 @@ function initComponent() {
   cancelDetailList.value.splice(0, cancelDetailList.value.length);
 }
 
+// 다건 정보 동일화
+// 다건 정보 동일화 대상 : input 박스
+function setBulkParam(firstOne) {
+  cancelDetailList.value.forEach((element) => {
+    element.rsgAplcDt = firstOne.rsgAplcDt; // [요청일자]
+    element.rsgFshDt = firstOne.rsgFshDt; // [취소일자]
+    element.bulkApplyYN = 'Y'; // [일괄적용]
+
+    element.canCtrAmt = firstOne.canCtrAmt; // [취소조정]
+    element.slCtrRqrId = firstOne.slCtrRqrId; // [조정요청자사번]
+    element.slCtrRmkCn = firstOne.slCtrRmkCn; // [조정사유]
+    element.cntrStatChRsonCd = firstOne.cntrStatChRsonCd; // [취소유형]
+    element.ccamExmptDvCd = firstOne.ccamExmptDvCd; // [위약면책]
+    element.csmbCsExmptDvCd = firstOne.csmbCsExmptDvCd; // [소모]
+    element.reqdCsExmptDvCd = firstOne.reqdCsExmptDvCd; // [철거]
+    element.reqdAkRcvryDvCd = firstOne.reqdAkRcvryDvCd; // [복구]
+    // element.borAmt = firstOne.borAmt; // [위약금액] //입력되는 값이지만 조회해오는 값이기도 함
+    // element.lsnt = firstOne.lsnt; // [분실손료] //입력되는 값이지만 조회해오는 값이기도 함
+    element.csmbCostBorAmt2 = firstOne.csmbCostBorAmt2; // [소모품비]
+    element.reqdCsBorAmt2 = firstOne.reqdCsBorAmt2; // [철거비]
+    element.dscDdctam = firstOne.dscDdctam; // [할인공제금액]
+    element.filtDdctam = firstOne.filtDdctam; // [필터공제(위약금)]
+    element.rtngdQty = firstOne.rtngdQty; // [반품수량]
+
+    if (firstOne.sellTpCd === '3') {
+      element.slCtrAmt = firstOne.slCtrAmt; // [매출조정]
+    }
+  });
+}
+
 async function fetchData() {
   if (isEmpty(cachedParams.value)) return;
 
@@ -372,22 +402,54 @@ function onClickSpcshView() {
 
 // 5. 취소사항 > 취소사항 조회 클릭
 async function onSearchDetail(subParam) {
-  const { cntrNo, cntrSn, sellTpCd, cntrStatChRsonCd } = cancelDetailList.value[idx.value];
+  const { bulkApplyYN } = cancelDetailList.value[idx.value];
+  let params = [];
 
-  const res = await dataService.get('/sms/wells/contract/changeorder/breach-promises', { params: {
-    cntrNo, cntrSn, sellTpCd, cntrStatChRsonCd, ...subParam },
-  });
+  // 1. 파라미터 셋팅
+  if (bulkApplyYN === 'Y') {
+    if (cancelDetailList.value.findIndex((v) => v.sellTpCd !== cancelDetailList.value[idx.value].sellTpCd) >= 0) {
+      await notify('판매유형이 모두 같은 경우만 일괄 적용이 가능합니다.');
+      return;
+    }
 
-  if (isEmpty(res.data)) {
-    alert(t('MSG_TXT_NO_DATA_FOUND'));
-    return;
+    params = cancelDetailList.value.reduce((arr, v) => {
+      const { cntrNo, cntrSn, sellTpCd } = v;
+      arr.push({ cntrNo, cntrSn, sellTpCd, ...subParam });
+      return arr;
+    }, []);
+  } else {
+    const { cntrNo, cntrSn, sellTpCd } = cancelDetailList.value[idx.value];
+    params.push({ cntrNo, cntrSn, sellTpCd, ...subParam });
   }
 
-  res.data.isSearch = 'Y';
-  res.data.slCtrRqrId = sessionUserInfo.employeeIDNumber; // 조정자 사번 셋팅
-  res.data.rsgAplcDt = subParam.reqDt;
-  res.data.lsnt = cancelDetailList.value[idx.value].lsnt;
-  Object.assign(cancelDetailList.value[idx.value], res.data);
+  // 2. 서비스 호출
+  const res = await dataService.post('/sms/wells/contract/changeorder/breach-promises', params);
+  if (isEmpty(res.data)) {
+    alert(t('MSG_TXT_NO_DATA_FOUND'));
+  }
+
+  // 3. 결과 셋팅
+  if (bulkApplyYN === 'Y') {
+    cancelDetailList.value.forEach((one) => {
+      const resOne = res.data.filter((v) => (v.cntrNo === one.cntrNo && v.cntrSn === one.cntrSn));
+
+      resOne[0].isSearch = 'Y';
+      resOne[0].slCtrRqrId = sessionUserInfo.employeeIDNumber;
+
+      // 취소 조회 결과 셋팅
+      Object.assign(one, resOne[0]);
+    });
+
+    // 나머지 배열에 입력값 동일화
+    setBulkParam(cancelDetailList.value[idx.value]);
+  } else {
+    const resOne = res.data[0];
+
+    resOne.isSearch = 'Y';
+    resOne.slCtrRqrId = sessionUserInfo.employeeIDNumber;
+
+    Object.assign(cancelDetailList.value[idx.value], resOne);
+  }
 }
 
 // 상세 조회(취소 등록 된 1건)
@@ -473,33 +535,8 @@ async function onSave() {
 
     if (!await confirm(`${param.cntrNo}-${param.cntrSn}포함 총 ${cancelDetailList.value.length - 1}건의 취소를 저장하시겠습니까?`)) return;
 
-    // 일괄 등록 시, 공통으로 적용할 파라미터 셋팅
-    const firstOne = cancelDetailList.value[0];
-    cancelDetailList.value.forEach((element) => {
-      element.canCtrAmt = firstOne.canCtrAmt;
-      element.slCtrRqrId = firstOne.slCtrRqrId;
-      element.slCtrRmkCn = firstOne.slCtrRmkCn;
-      element.cntrStatChRsonCd = firstOne.cntrStatChRsonCd;
-      element.ccamExmptDvCd = firstOne.ccamExmptDvCd;
-      element.csmbCsExmptDvCd = firstOne.csmbCsExmptDvCd;
-      element.reqdCsExmptDvCd = firstOne.reqdCsExmptDvCd;
-      element.reqdAkRcvryDvCd = firstOne.reqdAkRcvryDvCd;
-      element.borAmt = firstOne.borAmt;
-      element.lsnt = firstOne.lsnt;
-      element.csmbCostBorAmt2 = firstOne.csmbCostBorAmt2;
-      element.reqdCsBorAmt2 = firstOne.reqdCsBorAmt2;
-      element.dscDdctam = firstOne.dscDdctam;
-      element.filtDdctam = firstOne.filtDdctam;
-      element.rsgAplcDt = firstOne.rsgAplcDt;
-      element.rsgFshDt = firstOne.rsgFshDt;
-      element.rtngdQty = firstOne.rtngdQty;
-      element.bulkApplyYN = 'Y';
-
-      if (param.sellTpCd === '3') {
-        element.slCtrAmt = firstOne.slCtrAmt;
-      }
-    });
-
+    // 나머지 배열에 입력값 동일화
+    setBulkParam(cancelDetailList.value[0]);
     saveList = cancelDetailList.value;
   } else {
     if (param.isSearch !== 'Y') {
@@ -539,7 +576,6 @@ async function onUpdateValue() {
 
 watch(props, () => {
   const { cntrNo, cntrSn, dm } = props;
-  console.log(props.value);
 
   if (cntrNo && cntrSn && dm) {
     searchParams.value = { ...props };

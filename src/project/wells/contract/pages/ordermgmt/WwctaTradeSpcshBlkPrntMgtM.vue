@@ -58,11 +58,6 @@
             :total-count="pageInfo.totalCount"
           />
         </template>
-        <kw-paging-info
-          v-model:page-index="pageInfo.pageIndex"
-          :total-count="pageInfo.totalCount"
-          @change="fetchData"
-        />
         <!-- 삭제 -->
         <kw-btn
           :label="t('MSG_BTN_DEL')"
@@ -135,6 +130,7 @@ import { codeUtil, useDataService, gridUtil, getComponentType, useGlobal, define
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty, trim } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import { getPhoneNumber } from '~sms-common/organization/utils/ogUtil';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -204,7 +200,6 @@ async function fetchData() {
   dataSource.setRows(res.data);
   pageInfo.value.totalCount = view.getItemCount();
 
-  view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -248,6 +243,14 @@ async function onClickSave() {
         return;
       }
     }
+    // 팩스번호 세팅
+    if (!isEmpty(changedRows[i].faxTelNo)) {
+      const tel = changedRows[i].faxTelNo.replaceAll('-', '');
+      changedRows[i].faxLocaraTno = getPhoneNumber(tel, 1);
+      changedRows[i].faxExno = getPhoneNumber(tel, 2);
+      changedRows[i].faxIdvTno = getPhoneNumber(tel, 3);
+    }
+
     const row = gridUtil.findDataRow(view, (e) => (e.spectxGrpNo === changedRows[i].spectxGrpNo)
     && (e.cntrDtlNo === changedRows[i].cntrDtlNo));
     if (row !== changedRows[i].dataRow) {
@@ -300,6 +303,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
     { fieldName: 'spectxPblDDvCd' }, // 발행일
     { fieldName: 'spectxPrdDvCd' }, // 발행주기
     { fieldName: 'emadrEncr' }, // 이메일 마스킹
+    { fieldName: 'faxTelNo' }, // 팩스지역전화번호
     { fieldName: 'faxLocaraTno' }, // 팩스지역전화번호
     { fieldName: 'faxExno' }, // 팩스전화국번호
     { fieldName: 'faxIdvTno' }, // 팩스개별전화번호
@@ -358,9 +362,15 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
     }, // 발행주기
     { fieldName: 'emadr', visible: false },
     { fieldName: 'emadrEncr', header: t('MSG_TXT_EMAIL'), width: '220', styleName: 'text-left' }, // 이메일
-    { fieldName: 'faxLocaraTno', header: t('MSG_TXT_FAX_LOCARA_TNO'), width: '220', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } }, // 팩스지역전화번호
-    { fieldName: 'faxExno', header: t('MSG_TXT_FAX_MEXNO'), width: '220', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } }, // 팩스전화국번호
-    { fieldName: 'faxIdvTno', header: t('MSG_TXT_FAX_IDV_TNO'), width: '220', styleName: 'text-center', editor: { inputCharacters: ['0-9'], maxLength: 4 } }, // 팩스개별전화번호
+    { fieldName: 'faxTelNo',
+      header: t('MSG_TXT_FAX_TNO'),
+      width: '150',
+      styleName: 'text-center',
+      editor: { type: 'telephone' },
+    },
+    { fieldName: 'faxLocaraTno', header: t('MSG_TXT_FAX_LOCARA_TNO'), width: '220', visible: false }, // 팩스지역전화번호
+    { fieldName: 'faxExno', header: t('MSG_TXT_FAX_MEXNO'), width: '220', visible: false }, // 팩스전화국번호
+    { fieldName: 'faxIdvTno', header: t('MSG_TXT_FAX_IDV_TNO'), width: '220', visible: false }, // 팩스개별전화번호
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGR_EP_NO'), width: '100', styleName: 'text-center', editable: false }, // 등록자 사번
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '106', styleName: 'text-center', editable: false, datetimeFormat: 'date' }, // 등록일
     { fieldName: 'lstmmYn', header: `${t('MSG_TXT_LSTMM')}${t('MSG_TXT_YN')}`, width: '106', styleName: 'text-center', editable: false, renderer: { type: 'check', trueValues: 'Y', falseValues: 'N' } }, // 전월여부
@@ -433,39 +443,15 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
     }
     if (field === 10) {
       const spectxGrpNo = grid.getValue(index, 0);
-      const faxLocaraTno = grid.getValue(index, 10);
+      const faxTelNo = grid.getValue(index, 10);
       const rows = gridUtil.filter(view, (e) => e.spectxGrpNo === spectxGrpNo); // 같은 그룹번호 로우 찾기
       for (let i = 0; i < rows.length - 1; i += 1) {
         grid.commit();
         const row = gridUtil.findDataRow(view, (e) => (e.spectxGrpNo === spectxGrpNo)
-          && (e.faxLocaraTno !== faxLocaraTno)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
-        data.setValue(row, 'faxLocaraTno', faxLocaraTno);
+          && (e.faxTelNo !== faxTelNo)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
+        data.setValue(row, 'faxTelNo', faxTelNo);
       }
       notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_FAX_LOCARA_TNO')])); // {팩스지역전화번호} 항목이 일괄변경 되었습니다.
-    }
-    if (field === 11) {
-      const spectxGrpNo = grid.getValue(index, 0);
-      const faxExno = grid.getValue(index, 11);
-      const rows = gridUtil.filter(view, (e) => e.spectxGrpNo === spectxGrpNo); // 같은 그룹번호 로우 찾기
-      for (let i = 0; i < rows.length - 1; i += 1) {
-        grid.commit();
-        const row = gridUtil.findDataRow(view, (e) => (e.spectxGrpNo === spectxGrpNo)
-          && (e.faxExno !== faxExno)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
-        data.setValue(row, 'faxExno', faxExno);
-      }
-      notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_FAX_MEXNO')])); // {팩스전화국번호} 항목이 일괄변경 되었습니다.
-    }
-    if (field === 12) {
-      const spectxGrpNo = grid.getValue(index, 0);
-      const faxIdvTno = grid.getValue(index, 12);
-      const rows = gridUtil.filter(view, (e) => e.spectxGrpNo === spectxGrpNo); // 같은 그룹번호 로우 찾기
-      for (let i = 0; i < rows.length - 1; i += 1) {
-        grid.commit();
-        const row = gridUtil.findDataRow(view, (e) => (e.spectxGrpNo === spectxGrpNo)
-          && (e.faxIdvTno !== faxIdvTno)); // 같은 그룹번호의 이메일, 팩스번호 동일하게 셋팅
-        data.setValue(row, 'faxIdvTno', faxIdvTno);
-      }
-      notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_FAX_IDV_TNO')])); // {팩스개별전화번호} 항목이 일괄변경 되었습니다.
     }
   };
   view.onCellButtonClicked = async (g, { itemIndex }) => {

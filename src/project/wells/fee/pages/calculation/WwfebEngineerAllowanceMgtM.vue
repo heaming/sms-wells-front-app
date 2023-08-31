@@ -45,6 +45,7 @@
             :base-ym="searchParams.perfYm"
             :start-level="1"
             :end-level="1"
+            :vt-exld-yn="'Y'"
           />
         </kw-search-item>
       </kw-search-row>

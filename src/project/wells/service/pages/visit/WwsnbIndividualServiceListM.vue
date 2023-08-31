@@ -652,6 +652,7 @@ async function onClickVisitPeriodSearch() {
       cntrSn: searchParams.value.cntrSn,
       pdNm: individualParams.value.pdNm,
       vstPrdNm: individualParams.value.vstPrdNm,
+      prdNm: individualParams.value.prdNm,
     },
   });
 }
@@ -723,9 +724,6 @@ async function getIndividualState() {
 
   pageInfo.value = pagingResult;
 
-  console.log(res.data);
-  // console.log(pagingResult);
-
   pageInfo.value.totalCount = individualState.length;
   const individualStateView = grdIndividualStateRef.value.getView();
   const individualStateData = individualStateView.getDataSource();
@@ -747,28 +745,29 @@ async function getIndividualCounsel() {
 }
 
 async function onClickSearch() {
-  if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) {
-    notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`]));
+  if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) { notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`])); return; }
+  if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { notify(t('MSG_ALT_CHK_CNTR_SN')); return; }
+
+  await getIndividualServicePs();
+
+  if (isEmpty(individualParams.value)) {
+    notify(t('MSG_ALT_CST_INF_NOT_EXST'));
   } else {
-    await getIndividualServicePs();
-    if (isEmpty(individualParams.value)) {
-      notify(t('MSG_ALT_CST_INF_NOT_EXST'));
-    } else {
-      searchParams.value.cntrNo = individualParams.value.cntrNoDtl.substring(0, 12);
-      searchParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
+    console.log(individualParams.value.prdNm);
+    searchParams.value.cntrNo = individualParams.value.cntrNoDtl.substring(0, 12);
+    searchParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
 
-      grdIndividualStateRef.value.getData().clearRows();
-      pageInfo.value.pageIndex = 1;
-      grdIndividualCounselRef.value.getData().clearRows();
-      secondPageInfo.value.pageIndex = 1;
+    grdIndividualStateRef.value.getData().clearRows();
+    pageInfo.value.pageIndex = 1;
+    grdIndividualCounselRef.value.getData().clearRows();
+    secondPageInfo.value.pageIndex = 1;
 
-      await getHousehold();
-      await getIndividualContact();
-      await getIndividualFarmCode();
-      await getIndividualDelinquent();
-      await getIndividualState();
-      await getIndividualCounsel();
-    }
+    await getHousehold();
+    await getIndividualContact();
+    await getIndividualFarmCode();
+    await getIndividualDelinquent();
+    await getIndividualState();
+    await getIndividualCounsel();
   }
 }
 
@@ -882,10 +881,10 @@ const initGridState = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'svTp', header: t('MSG_TXT_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rcpDt', header: t('MSG_TXT_RCP_ANS_DT'), width: '150', datetimeFormat: 'date' },
+    { fieldName: 'rcpDt', header: t('MSG_TXT_RCP_ANS_DT'), width: '150', datetimeFormat: 'datetime' },
     { fieldName: 'svBizDclsf', header: t('MSG_TXT_RCP_ANS_IZ'), width: '150', styleName: 'text-center' },
-    { fieldName: 'reqDt', header: t('MSG_TXT_AK_PROM_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'vstFshDt', header: t('MSG_TXT_PRCSDT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'reqDt', header: t('MSG_TXT_AK_PROM_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'vstFshDt', header: t('MSG_TXT_PRCSDT'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'wkPrgsStat', header: t('MSG_TXT_PROCS_RS'), width: '100', styleName: 'text-center' },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
     { fieldName: 'zipNo', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
@@ -918,7 +917,7 @@ const initGridState = defineGrid((data, view) => {
       },
     },
     { fieldName: 'rtngdProcsTp', header: t('MSG_TXT_RTNGD_PCS_INF'), width: '150' },
-    { fieldName: 'fstVstFshDt', header: t('MSG_TXT_DSU_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'fstVstFshDt', header: t('MSG_TXT_DSU_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
   ];
 
   data.setFields(fields);
@@ -1001,8 +1000,8 @@ const initGridCounsel = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cselSts', header: t('MSG_TXT_PROCS_STAT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cnslDt', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cnslEdDt', header: t('MSG_TXT_PRCSDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cnslDt', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'cnslEdDt', header: t('MSG_TXT_PRCSDT'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'cnslTpHcsfCd', header: t('MSG_TXT_CNSL_HCLSF'), width: '200', styleName: 'text-center' },
     { fieldName: 'cnslTpMcsfCd', header: t('MSG_TXT_CNSL_DCLSF'), width: '150', styleName: 'text-center' },
     { fieldName: 'cnslTpLcsfCd', header: t('MSG_TXT_CNSL_LCLSF'), width: '250', styleName: 'text-center' },
@@ -1069,7 +1068,7 @@ const initGridContact = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntcDt', header: t('MSG_TXT_RGST_DTM'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntcDt', header: t('MSG_TXT_RGST_DTM'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'absncRsonKind', header: t('MSG_TXT_CTT_GRP'), width: '100', styleName: 'text-center' },
     { fieldName: 'absncRson', header: t('MSG_TXT_CTT_DV'), width: '100', styleName: 'text-left' },
     { fieldName: 'ogTpCd', header: t('MSG_TXT_BLG'), width: '100', styleName: 'text-center' },

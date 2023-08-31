@@ -35,6 +35,7 @@
         <kw-form-item
           v-if="searchParams.fwTpCd==='01'"
           :label="$t('MSG_TXT_DSPH_NO')"
+          required
         >
           <zwcm-telephone-number
             v-model:tel-no1="searchParams.sendTelNo1"
@@ -46,6 +47,7 @@
         <kw-form-item
           v-if="searchParams.fwTpCd==='02'"
           :label="$t('MSG_TXT_DSPTR_EML')"
+          required
         >
           <zwcm-email-address
             v-model="searchParams.sendMail"
@@ -57,6 +59,7 @@
         <kw-form-item
           v-if="searchParams.fwTpCd==='01'"
           :label="$t('MSG_TXT_RECP_NO')"
+          required
         >
           <zwcm-telephone-number
             v-model:tel-no1="searchParams.recpTelNo1"
@@ -68,6 +71,7 @@
         <kw-form-item
           v-if="searchParams.fwTpCd==='02'"
           :label="$t('MSG_TXT_RCVR_EML')"
+          required
         >
           <zwcm-email-address
             v-model="searchParams.recpMail"
@@ -75,16 +79,6 @@
         </kw-form-item>
       </kw-form-row>
     </kw-form>
-    <div class="row justify-end mt20">
-      <!--발송-->
-      <kw-btn
-        v-permission:update
-        :label="$t('MSG_BTN_SEND')"
-        secondary
-        dense
-        @click="onClickSend"
-      />
-    </div>
     <kw-separator />
     <kw-grid
       ref="grdQuoteSendList"
@@ -100,11 +94,11 @@
         negative
         @click="cancel"
       />
-      <!--확인-->
+      <!--발송-->
       <kw-btn
-        :label="$t('MSG_BTN_CONFIRM')"
+        :label="$t('MSG_BTN_SEND')"
         primary
-        @click="ok"
+        @click="onClickSend"
       />
     </template>
   </kw-popup>
@@ -204,7 +198,7 @@ async function onClickSend() {
 
   notify(t('MSG_ALT_SAVE_DATA'));
   sendYn.value = true;
-  await fetchData();
+  await ok();
 }
 
 onMounted(async () => {

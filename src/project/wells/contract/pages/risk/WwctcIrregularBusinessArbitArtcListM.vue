@@ -16,13 +16,11 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="4"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
       <kw-search-row>
         <kw-search-item
-          :colspan="3"
           :label="$t('MSG_TXT_ACEPT_PERIOD')"
         >
           <kw-select
@@ -46,8 +44,20 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 사번 -->
         <kw-search-item
-          :label="$t('MSG_TXT_POSIT')"
+          :label="$t('MSG_TXT_EPNO')"
+        >
+          <kw-input
+            v-model="searchParams.dangOjPrtnrNo"
+            icon="search"
+            maxlength="10"
+            regex="num"
+            @click-icon="onClickSearchPartnerId"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_POSIT')+$t('MSG_TXT_DIV')"
         >
           <!-- 직위 직급구분코드 공통코드 사용 (2: 총괄단장, 4: 지역단장: 5:BM, 7:지점장) -->
           <kw-select
@@ -59,39 +69,26 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
+          :label="$t('MSG_TXT_OG_CD')"
+          colspan="2"
         >
+          <!-- 총괄단 -->
           <kw-select
             v-model="searchParams.gnrdv"
             first-option="all"
             :options="codes.GNRDV_ACD"
           />
-        </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_RGNL_GRP')"
-        >
+          <!-- 지역단 -->
           <kw-input
             v-model="searchParams.rgrp"
             maxlength="10"
+            :placeholder="t('MSG_TXT_RGNL_GRP')"
           />
-        </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_BRANCH')"
-        >
+          <!-- 지점 -->
           <kw-input
             v-model="searchParams.brch"
             maxlength="10"
-          />
-        </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_EMP_SRCH')"
-        >
-          <kw-input
-            v-model="searchParams.dangOjPrtnrNo"
-            icon="search"
-            maxlength="10"
-            regex="num"
-            @click-icon="onClickSearchPartnerId"
+            :placeholder="t('MSG_TXT_BRANCH')"
           />
         </kw-search-item>
       </kw-search-row>

@@ -286,7 +286,7 @@
           <kw-form-row>
             <!-- row5 연체가산금 -->
             <kw-form-item :label="$t('MSG_TXT_DLQ_ADAMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.btdDlqAddAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
             </kw-form-item>
             <!-- row5 入 / 出 -->
             <kw-form-item label="入 / 出">
@@ -303,12 +303,15 @@
               <kw-input
                 v-model="searchDetail.adCtrAmt"
                 regex="num"
-                maxlength="10"
+                maxlength="12"
               />
             </kw-form-item>
             <!-- row5 미수금(未) -->
             <kw-form-item :label="$t('MSG_TXT_UCAM')+'(未)'">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
+              <p>
+                {{ stringUtil.getNumberWithComma( Number(searchDetail.eotDlqAddAmt??'0')
+                  - Number(searchDetail.thmDlqAddDpSumAmt??'0')) }}
+              </p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -765,6 +768,7 @@ async function onClickSearchCancel() {
   if (!await frmMainRental.value.validate()) { return; }
 
   emits('searchdetail', {
+    cntrStatChRsonCd: searchDetail.cntrStatChRsonCd,
     reqDt: searchDetail.rsgAplcDt,
     cancelDt: searchDetail.rsgFshDt,
     adCtrAmt: searchDetail.adCtrAmt,

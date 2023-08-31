@@ -236,6 +236,11 @@ const saveParams = ref({
   feeMessagePk: '',
 });
 
+const ozParam = ref({
+  ozrId: '',
+  odiId: '',
+});
+
 let cachedParams;
 
 const router = useRouter();
@@ -344,21 +349,32 @@ async function onChangeOgTp() {
  *  Event - 지급명세서 출력 버튼 클릭  ※현재 팝업화면 없음
  */
 async function openFeeReportPopup() {
-  const { perfYm } = searchParams.value;
+  const { perfYm, ogTpCd } = searchParams.value;
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length !== 1) {
     notify(t('MSG_ALT_ONE_PROCS_PSB'));
     return;
   }
+  if (ogTpCd === 'W01') {
+    ozParam.value.ozrId = '/ksswells/cmms/V6.0/cmmsSpecP2022.ozr';
+    ozParam.value.odiId = '/ksswells/cmms/V6.0/cmmsSpecP2022.odi';
+  } else if (ogTpCd === 'W02') {
+    ozParam.value.ozrId = '/ksswells/cmms/V5.2/cmmsSpec2023.ozr';
+    ozParam.value.odiId = '/ksswells/cmms/V5.2/cmmsSpec2023.odi';
+  } else if (ogTpCd === 'W03') {
+    ozParam.value.ozrId = '/ksswells/hmCmms/V3.0/cmmsSpec2022.ozr';
+    ozParam.value.odiId = '/ksswells/hmCmms/V3.0/cmmsSpec2022.odi';
+  }
+
   const targetRow = checkedRows[0];
   const slcPrtnrNo = targetRow.prtnrNo;
   const slcPstnDvCd = targetRow.pstnDvCd;
   if (slcPrtnrNo !== '' && slcPstnDvCd !== undefined) {
-    const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYY-MM');
+    const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYYMM');
     openReportPopup(
-      '/ksswells/cmms/V5.2/cmmsSpec2023.ozr',
-      '/ksswells/cmms/V5.2/cmmsSpec2023.odi',
+      ozParam.value.ozrId,
+      ozParam.value.odiId,
       JSON.stringify(
         {
           AKSDYM: perfYm,

@@ -128,7 +128,7 @@
       >
         <kw-select
           v-model="searchParams.schFntDv"
-          :options="selectCodes.FNT_DV"
+          :options="codes.DP_TP_CD.filter((v) => ['0203', '0102'].includes(v.codeId))"
           first-option="all"
         />
         <span>-</span>
@@ -259,6 +259,7 @@ const isRadioDisable = ref(true);
 
 const codes = await codeUtil.getMultiCodes(
   'CST_SE_APY_DV_CD',
+  'DP_TP_CD',
 );
 
 const selectCodes = ref({

@@ -176,7 +176,7 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
     { fieldName: 'opptId', header: t('MSG_TXT_UNIQUE_NUM'), width: '160', styleName: 'text-center', editable: false }, // 고유번호
     { fieldName: 'opptSn', visible: false },
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PDGRP'), width: '160', styleName: 'text-center', editable: false }, // 상품군
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '280', editable: false }, // 상품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '280', styleName: 'text-center', editable: false }, // 상품명
     { fieldName: 'basePdCd',
       header: t('MSG_TXT_PRDT_CODE'),
       width: '132',
