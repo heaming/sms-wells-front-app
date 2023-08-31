@@ -31,44 +31,23 @@
             rules="required"
           />
         </kw-search-item>
-        <!-- 총괄단 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')"
-        >
-          <kw-select
-            v-model="searchParams.mgtDept"
-            :options="mgtDeptAll"
-            first-option="all"
-            option-value="dgr1LevlOgCd"
-            option-label="dgr1LelOgNm"
-            @update:model-value="onUpdateMgtDept"
-          />
-        </kw-search-item>
-        <!-- 지역단 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_RGNL_GRP')"
-        >
-          <kw-select
-            v-model="searchParams.rgnlGrp"
-            :options="filteredRgnlGrp"
-            first-option="all"
-            option-value="dgr2LevlOgCd"
-            option-label="dgr2LevlOgNm"
-            @update:model-value="onUpdateRgnlGrp"
-          />
-        </kw-search-item>
-        <!-- 지점 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_BRANCH')"
-        >
-          <kw-select
-            v-model="searchParams.branch"
-            :options="filteredBranch"
-            first-option="all"
-            option-value="dgr3LevlOgCd"
-            option-label="dgr3LevlOgNm"
-          />
-        </kw-search-item>
+        <wwsn-manager-og-search-item-group
+          v-model:dgr1-levl-og-id="searchParams.mgtDept"
+          v-model:dgr2-levl-og-id="searchParams.rgnlGrp"
+          v-model:dgr3-levl-og-id="searchParams.branch"
+          v-model:dgr1-levl-og="searchParams.dgr1LevlOg"
+          v-model:dgr2-levl-og="searchParams.dgr2LevlOg"
+          v-model:dgr3-levl-og="searchParams.dgr3LevlOg"
+          use-og-level="3"
+          :use-partner="false"
+          dgr1-levl-og-required
+          dgr1-levl-og-first-option="all"
+          dgr2-levl-og-first-option="all"
+          dgr3-levl-og-first-option="all"
+          dgr1-levl-og-label="ogCdNm"
+          dgr2-levl-og-label="ogCdNm"
+          dgr3-levl-og-label="ogCdNm"
+        />
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
@@ -134,9 +113,10 @@
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, gridUtil, useDataService, codeUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
+import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
-// const { t } = useI18n();
+const { t } = useI18n();
 const now = dayjs();
 const dataService = useDataService();
 // const { getConfig } = useMeta();
@@ -154,6 +134,13 @@ const searchParams = ref({
   branch: '', // 지점
   zipFrom: '', // 우편번호
   zipTo: '',
+  dgr1LevlOg: {},
+  dgr2LevlOg: {},
+  dgr3LevlOg: {},
+  partner: {},
+  dgr1LevlOgId: '',
+  dgr2LevlOgId: '',
+  dgr3LevlOgId: '',
 });
 
 /*
@@ -173,28 +160,6 @@ const pageInfo = ref({
   pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
   needTotalCount: true,
 });
-
-/*
- * 조직코드 (총괄단/지역단/지점)
- */
-const mgtDeptAll = ref([]);
-const rgnlGrpAll = ref([]);
-const branchAll = ref([]);
-// const filteredMgtDept = ref([]);
-const filteredRgnlGrp = ref([]);
-const filteredBranch = ref([]);
-
-async function getRgnlGrpsNBranches() {
-  let res = [];
-  res = await dataService.get('/sms/wells/contract/partners/general-divisions');
-  mgtDeptAll.value = res.data;
-  res = await dataService.get('/sms/wells/contract/partners/regional-divisions');
-  rgnlGrpAll.value = res.data;
-  res = await dataService.get('/sms/wells/contract/partners/branch-divisions');
-  branchAll.value = res.data;
-}
-
-getRgnlGrpsNBranches();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -250,31 +215,12 @@ async function onClickExcelDownload() {
   });
 }
 
-/*
- * Event - 총괄단 변경
- */
-async function onUpdateMgtDept(value) {
-  searchParams.value.rgnlGrp = '';
-  searchParams.value.branch = '';
-
-  filteredRgnlGrp.value = rgnlGrpAll.value.filter((v) => value.includes(v.dgr1LevlOgCd));
-  filteredBranch.value = [];
-}
-
-/*
- * Event - 지역단 변경
- */
-async function onUpdateRgnlGrp(value) {
-  searchParams.value.branch = '';
-  filteredBranch.value = branchAll.value.filter((v) => value.includes(v.dgr2LevlOgCd));
-}
-
 // // -------------------------------------------------------------------------------------------------
 // // Initialize Grid
 // // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'rgnlGrp' },
+    { fieldName: 'mngtRgnlGrpNm' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cstKnm' },
     { fieldName: 'newAdrZip' },
@@ -284,7 +230,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'mexnoEncr' },
     { fieldName: 'cralIdvTno' },
     { fieldName: 'cstCp' },
-    { fieldName: 'hgrOgNm' },
+    { fieldName: 'vstRgnlGrpOgnm' },
     { fieldName: 'ogNm' },
     { fieldName: 'mngtPrtnrNo' },
     { fieldName: 'prtnrKnm' },
@@ -294,17 +240,17 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'rgnlGrp', header: '관리지역단', width: '160', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: '계약번호', width: '160', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: '고객명', width: '90', styleName: 'text-center' },
-    { fieldName: 'newAdrZip', header: '우편번호', width: '130', styleName: 'text-center' },
-    { fieldName: 'cstAdr', header: '주소', width: '150', styleName: 'text-center' },
-    { fieldName: 'ltnAdr', header: '읍면동', width: '200', styleName: 'text-center' },
-    // { fieldName: 'cralLocaraTno', header: '폰지역번호', width: '110', styleName: 'text-center' },
-    // { fieldName: 'mexnoEncr', header: '폰암호화', width: '110', styleName: 'text-center' },
-    // { fieldName: 'cralIdvTno', header: '폰개별', width: '110', styleName: 'text-center' },
+    { fieldName: 'mngtRgnlGrpNm', header: t('MSG_TXT_MGT') + t('MSG_TXT_RGNL_GRP'), width: '160', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center' },
+    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '130', styleName: 'text-center' },
+    { fieldName: 'cstAdr', header: t('MSG_TXT_ADDR'), width: '150', styleName: 'text-center' },
+    { fieldName: 'ltnAdr', header: t('MSG_TXT_EMD'), width: '200', styleName: 'text-center' },
+    { fieldName: 'cralLocaraTno', header: t('MSG_TXT_CP'), width: '110', styleName: 'text-center', visible: false },
+    { fieldName: 'mexnoEncr', header: t('MSG_TXT_CP'), width: '110', styleName: 'text-center', visible: false },
+    { fieldName: 'cralIdvTno', header: t('MSG_TXT_CP'), width: '110', styleName: 'text-center', visible: false },
     { fieldName: 'cstCp',
-      header: '휴대전화',
+      header: t('MSG_TXT_CP'),
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
@@ -313,13 +259,13 @@ const initGrid = defineGrid((data, view) => {
         return !isEmpty(no1) && !isEmpty(no2) && !isEmpty(no3) ? `${no1}-${no2}-${no3}` : '';
       },
     },
-    { fieldName: 'hgrOgNm', header: '방문지역단', width: '130', styleName: 'text-center' },
-    { fieldName: 'ogNm', header: '지점', width: '110', styleName: 'text-center' },
-    { fieldName: 'mngtPrtnrNo', header: '사번', width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: '매니저명', width: '110', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: '빌딩명', width: '100', styleName: 'text-center' },
-    { fieldName: 'fxnPrtnrYn', header: '구분(고정)', width: '105', styleName: 'text-center' },
-    { fieldName: 'mngerRglvlDvCd', header: '급지', width: '130', styleName: 'text-center' },
+    { fieldName: 'vstRgnlGrpOgnm', header: t('MSG_TXT_VST'), width: '130', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_BRANCH'), width: '110', styleName: 'text-center' },
+    { fieldName: 'mngtPrtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_MNGER_NM'), width: '110', styleName: 'text-center' },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'fxnPrtnrYn', header: t('MSG_TXT_FXN'), width: '105', styleName: 'text-center' },
+    { fieldName: 'mngerRglvlDvCd', header: t('MSG_TXT_RGLVL'), width: '130', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
