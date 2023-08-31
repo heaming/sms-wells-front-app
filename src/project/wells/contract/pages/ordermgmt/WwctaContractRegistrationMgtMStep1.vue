@@ -22,8 +22,9 @@
       class="kw-state-list kw-state-list--second-line col pt20"
     >
       <li class="kw-state-list__item">
+        <!-- 재약정대상 -->
         <p class="kw-state-list__top">
-          재약정대상
+          {{ t('MSG_TXT_RSTL') }}{{ t('MSG_TXT_OBJ') }}
         </p>
         <p class="kw-state-list__num">
           <a
@@ -31,12 +32,13 @@
             class="kw-state-list__under-line"
             @click="onClickReStipulation()"
           >{{ dashboardCounts.restipulationCnt }}</a>
-          <span class="kw-state-list__unit">명</span>
+          <span class="kw-state-list__unit">{{ t('MSG_TIT_CNT') }}</span>
         </p>
       </li>
       <li class="kw-state-list__item">
+        <!-- 멤버십대상 -->
         <p class="kw-state-list__top">
-          멤버십대상
+          {{ t('MSG_TXT_MEMBERSHIP') }}{{ t('MSG_TXT_OBJ') }}
         </p>
         <p class="kw-state-list__num">
           <a
@@ -44,7 +46,7 @@
             class="kw-state-list__under-line"
             @click="onClickMembership()"
           >{{ dashboardCounts.membershipCnt }}</a>
-          <span class="kw-state-list__unit">명</span>
+          <span class="kw-state-list__unit">{{ t('MSG_TIT_CNT') }}</span>
         </p>
       </li>
     </ul>
@@ -95,7 +97,10 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="!cntrTpIs.crp && !cntrTpIs.ensm && !(cntrTpIs.msh && searchParams.copnDvCd === '2') && !cntrTpIs.quot"
+          v-if="!cntrTpIs.crp
+            && !(cntrTpIs.ensm && searchParams.copnDvCd === '2')
+            && !(cntrTpIs.msh && searchParams.copnDvCd === '2')
+            && !cntrTpIs.quot"
           :label="$t('MSG_TXT_NAME')"
           required
         >
@@ -107,22 +112,27 @@
             :disable="isReadonly"
           />
         </kw-search-item>
-        <kw-search-item
-          v-if="cntrTpIs.ensm && searchParams.copnDvCd === '1'"
-          :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
-        >
-          <kw-select
-            v-model="searchParams.alncPrtnrDvCd"
-            :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
-            :options="codes.ALNC_PRTNR_DRM_DV_CD"
-            first-option=""
-            :disable="isReadonly"
-          />
-        </kw-search-item>
       </kw-search-row>
       <kw-search-row
         v-if="cntrTpIs.ensm"
       >
+        <kw-search-item
+          v-if="searchParams.copnDvCd === '1'"
+          :label="$t('MSG_TXT_MPNO')"
+          :required="!cntrTpIs.crp"
+        >
+          <kw-input
+            v-model:model-value="searchParams.cntrtTno"
+            v-model:telNo0="searchParams.cralLocaraTno"
+            v-model:telNo1="searchParams.mexnoEncr"
+            v-model:telNo2="searchParams.cralIdvTno"
+            :label="$t('MSG_TXT_MPNO')"
+            mask="telephone"
+            :unmasked-value="false"
+            rules="required"
+            :disable="isReadonly"
+          />
+        </kw-search-item>
         <kw-search-item
           v-if="searchParams.copnDvCd === '2'"
           :label="$t('MSG_TXT_CRNO')"
@@ -137,7 +147,6 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="searchParams.copnDvCd === '2'"
           :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
         >
           <kw-select
@@ -158,23 +167,11 @@
             :disable="isReadonly"
           />
         </kw-search-item>
-        <kw-search-item
-          v-if="searchParams.copnDvCd === '1'"
-          :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
-        >
-          <kw-input
-            v-model="searchParams.alncPrtnrNm"
-            :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
-            maxlength="10"
-            :disable="isReadonly"
-          />
-        </kw-search-item>
       </kw-search-row>
       <kw-search-row
         v-if="cntrTpIs.ensm"
       >
         <kw-search-item
-          v-if="searchParams.copnDvCd === '2'"
           :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
         >
           <kw-input
@@ -529,6 +526,18 @@ async function afterGetCntrInfo(cntr) {
     // 기존계약 조회 시
     if (cntr.data.step1.bas?.cntrNo && cntr.data.step1.bas?.cntrTpCd) {
       searchParams.value.copnDvCd = cntr.data.step1.bas.copnDvCd;
+
+      if (!isEmpty(step1.value.cntrt)) {
+        searchParams.value.cstKnm = step1.value.cntrt.cstKnm;
+        if (searchParams.value.copnDvCd === '1') {
+          searchParams.value.cntrtTno = `${step1.value.cntrt.cralLocaraTno}${step1.value.cntrt.mexnoEncr}${step1.value.cntrt.cralIdvTno}`;
+          searchParams.value.cralLocaraTno = step1.value.cntrt.cralLocaraTno;
+          searchParams.value.mexnoEncr = step1.value.cntrt.mexnoEncr;
+          searchParams.value.cralIdvTno = step1.value.cntrt.cralIdvTno;
+        } else if (searchParams.value.copnDvCd === '2') {
+          searchParams.value.bzrno = step1.value.cntrt.bzrno;
+        }
+      }
     }
     // 세팅
     step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
@@ -606,8 +615,16 @@ async function isValidAlncPrtnr() {
 }
 
 async function onClickSearchCntrtInfo() {
-  if (cntrTpIs.value.indv || (cntrTpIs.value.msh && searchParams.value.copnDvCd === '1')) {
+  if (cntrTpIs.value.indv
+    || (cntrTpIs.value.msh && searchParams.value.copnDvCd === '1')
+    || (cntrTpIs.value.ensm && searchParams.value.copnDvCd === '1')) {
     // 개인
+
+    // 임직원 + 개인, 제휴파트너 확인
+    if (cntrTpIs.value.ensm && !isValidAlncPrtnr()) {
+      return;
+    }
+
     const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
     if (!isExistCntrt.data) {
       // 조회된 고객이 없다면
@@ -644,17 +661,6 @@ async function onClickSearchCntrtInfo() {
         }
         await getCntrInfoByCst(res.payload.cstNo);
       }
-    }
-  } else if (cntrTpIs.value.ensm && searchParams.value.copnDvCd === '1') {
-    // 임직원 + 개인
-    if (isValidAlncPrtnr()) {
-      // 파트너와 계약자 모두 본인
-      const cstNo = await dataService.get('sms/wells/contract/contracts/ensm-cst-no', { params: { prtnrNo } });
-      if (!cstNo.data) {
-        await alert('임직원의 고객번호가 존재하지 않습니다.');
-        return;
-      }
-      await getCntrInfoByCst(cstNo.data);
     }
   } else if (cntrTpIs.value.crp
     || (cntrTpIs.value.msh && searchParams.value.copnDvCd === '2')
