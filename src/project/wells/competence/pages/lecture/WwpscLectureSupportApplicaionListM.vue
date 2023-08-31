@@ -236,7 +236,6 @@ const fetchData = async () => {
 const onClickSearch = async () => {
   if (searchParams.value.gubun === '1') {
     ogPageInfo.value.pageIndex = 1;
-    searchParams.value.ogLevlDvCd1 = '';
   }
   if (searchParams.value.gubun === '2') {
     searchParams.value.ogLevlDvCd1 = '';
