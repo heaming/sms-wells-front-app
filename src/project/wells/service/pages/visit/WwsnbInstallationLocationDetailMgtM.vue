@@ -248,10 +248,9 @@ const codes = await codeUtil.getMultiCodes(
   'PRD_MNGT_TP_CD',
 );
 const now = dayjs();
-
+const router = useRouter();
 const {
   notify,
-  alert,
 } = useGlobal();
 
 /* 조회조건 */
@@ -305,7 +304,7 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  const splited = split(searchParams.value.cntrdtlNo, '-');
+  const splited = split(searchParams.value.cntrDtlNo, '-');
   searchParams.value.cntrNo = splited[0];
   searchParams.value.cntrSn = splited[1];
   pageInfo.value.pageIndex = 1;
@@ -544,15 +543,18 @@ const initGrdMain = defineGrid((data, view) => {
     grid.checkItem(itemIndex, true);
   };
 
-  /* TODO : 연결페이지(W-SV-U-0072M01) 개발전. 개발완료 시 변경. */
-  view.onCellItemClicked = (/* grid, index */) => {
-    alert('연결페이지 개발 전입니다.');
-    // router.push({
-    //   path: '/service/wwsnc-responsible-area-code-mgt',
-    //   // query: {
-    //   //   value: 'value1'
-    //   // },
-    // });
+  view.onCellItemClicked = async (grid, index) => {
+    if (index.column === 'cntrNo') {
+      const cntrNo = grid.getValue(index.itemIndex, 'cntrNo');
+      const cntrSn = grid.getValue(index.itemIndex, 'cntrSn');
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
+    }
   };
 });
 
