@@ -59,6 +59,36 @@
         </kw-search-item>
         <!-- //영업센터 -->
       </kw-search-row>
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_CD')"
+        >
+          <kw-input
+            v-model="searchParams.itmPdCd"
+            type="text"
+            :label="$t('MSG_TXT_ITM_CD')"
+            rules="alpha_num|max:10"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_SAPCD')"
+          :colspan="2"
+        >
+          <kw-input
+            v-model="searchParams.strtSapCd"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.endSapCd"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
+          />
+        </kw-search-item>
+      </kw-search-row>
     </kw-search>
     <kw-action-top>
       <template #left>
@@ -125,6 +155,9 @@ const searchParams = ref({
   asnExcdDvCd: '0',
   itmKndCd: '',
   wareNo: '',
+  itmPdCd: '',
+  strtSapCd: '',
+  endSapCd: '',
 });
 
 const pageInfo = ref({
@@ -156,6 +189,24 @@ function onChangeAsnExcdDvCd() {
   const { asnExcdDvCd } = searchParams.value;
   if (asnExcdDvCd !== '0' && !isEmpty(optionsWareNo.value)) {
     searchParams.value.wareNo = optionsWareNo.value[0].wareNo;
+  }
+}
+
+function onChangeStrtSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = strtSapCd;
+    searchParams.value.endSapCd = strtSapCd;
+  }
+}
+
+function onChangeEndSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = endSapCd;
+    searchParams.value.endSapCd = endSapCd;
   }
 }
 
