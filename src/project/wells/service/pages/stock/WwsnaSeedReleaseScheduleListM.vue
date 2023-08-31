@@ -402,28 +402,30 @@ async function onClickExcelDownload() {
   });
 }
 
-let gridView;
-let fieldsObj;
-
+// 집계표 출력
 async function onClickAgrgPrint() {
   const { svBizHclsfCd, strtDt } = cachedParams;
   const res = await dataService.get('/sms/wells/service/seed-release-schedules/aggregations', { params: cachedParams });
 
   const date = `${strtDt.substring(0, 4)}-${strtDt.substring(4, 6)}-${strtDt.substring(6, 8)}`;
   let fileName = `${t('MSG_TXT_ALL')}_${date}`;
+
+  const view = isEmpty(svBizHclsfCd) ? grdTotalRef.value.getView() : grdSelectRef.value.getView();
   if (!isEmpty(svBizHclsfCd)) {
-    fieldsObj.setFields();
+    let headerNm = t('MSG_TXT_INSTALLATION');
 
     if (svBizHclsfCd === '1') {
       fileName = `${t('MSG_TXT_INSTALLATION')}_${date}`;
     } else if (svBizHclsfCd === '2') {
       fileName = `BS_${date}`;
+      headerNm = 'BS';
     } else if (svBizHclsfCd === '3') {
       fileName = `AS_${date}`;
+      headerNm = 'AS';
     }
-  }
 
-  const view = isEmpty(svBizHclsfCd) ? grdTotalRef.value.getView() : grdSelectRef.value.getView();
+    view.__originalLayouts__[1].header.text = headerNm;
+  }
 
   gridUtil.exportView(view, {
     fileName,
@@ -431,39 +433,6 @@ async function onClickAgrgPrint() {
     exportData: res.data,
   });
 }
-
-// 헤더 merge
-fieldsObj = {
-
-  setFields() {
-    const { svBizHclsfCd } = cachedParams;
-    let headerNm = t('MSG_TXT_INSTALLATION');
-
-    if (svBizHclsfCd === '2') {
-      headerNm = 'BS';
-    } else if (svBizHclsfCd === '3') {
-      headerNm = 'AS';
-    }
-
-    // 헤더 부분 merge
-    const columnLayout = [
-      'deptNm',
-      { direction: 'horizontal',
-        header: { text: headerNm },
-        items: [
-          'pak01001', 'pak01002', 'pak02001', 'pak02002', 'pak03001', 'pak03002', 'pak04001',
-          'pak04002', 'pak05001', 'pak05002', 'pak13001', 'pak13002', 'pak23001', 'pak50001',
-          'pak24001', 'pak08003', 'pak08004', 'pak09003', 'pak09004', 'pak12003', 'pak12004',
-          'pak08002', 'pak08001', 'pak09002', 'pak51001', 'pak52001', 'pak53001', 'pak54001',
-          'pak55001', 'pak56001', 'pak57001', 'pak58001', 'pak59001', 'pak60001', 'pak28001',
-          'pak28002', 'pak29001', 'pak29002', 'pak30001', 'pak30002', 'pak31001', 'pak31002',
-        ],
-      },
-    ];
-    gridView.setColumnLayout(columnLayout);
-  },
-
-};
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -1300,14 +1269,29 @@ const initGridSelect = defineGrid((data, view) => {
       } },
   ];
 
+  // 헤더 부분 merge
+  const columnLayout = [
+    'deptNm',
+    { direction: 'horizontal',
+      header: { text: t('MSG_TXT_INSTALLATION') },
+      items: [
+        'pak01001', 'pak01002', 'pak02001', 'pak02002', 'pak03001', 'pak03002', 'pak04001',
+        'pak04002', 'pak05001', 'pak05002', 'pak13001', 'pak13002', 'pak23001', 'pak50001',
+        'pak24001', 'pak08003', 'pak08004', 'pak09003', 'pak09004', 'pak12003', 'pak12004',
+        'pak08002', 'pak08001', 'pak09002', 'pak51001', 'pak52001', 'pak53001', 'pak54001',
+        'pak55001', 'pak56001', 'pak57001', 'pak58001', 'pak59001', 'pak60001', 'pak28001',
+        'pak28002', 'pak29001', 'pak29002', 'pak30001', 'pak30002', 'pak31001', 'pak31002',
+      ],
+    },
+  ];
+
   data.setFields(fields);
   view.setColumns(columns);
+  view.setColumnLayout(columnLayout);
   view.setFooters({ visible: true });
   view.setOptions({ summaryMode: 'aggregate' });
 
   view.rowIndicator.visible = true;
-
-  gridView = view;
 });
 
 </script>
