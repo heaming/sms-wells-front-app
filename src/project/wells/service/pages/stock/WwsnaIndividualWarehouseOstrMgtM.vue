@@ -101,7 +101,7 @@
         >
           <kw-input
             v-model="searchParams.totOutQty"
-            rules="numeric|min_value:1|max_value:999999999999"
+            rules="numeric|max_value:999999999999"
           />
         </kw-search-item>
         <!-- 출고일자 -->
@@ -242,6 +242,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
+        :visible-rows="30"
         :total-count="totalCount"
         @init="initGrdMain"
       />

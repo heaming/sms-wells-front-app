@@ -17,12 +17,12 @@
   <kw-page>
     <kw-search
       :modified-targets="['grdMain']"
+      cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_ACEPT_PERIOD')"
-          :colspan="2"
         >
           <kw-select
             v-model="searchParams.srchGbn"
@@ -45,28 +45,33 @@
             rules="required"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_MANAGEMENT_DEPARTMENT')">
+        <kw-search-item
+          :label="$t('MSG_TXT_OG_DV')"
+          colspan="2"
+        >
+          <!-- 총괄단 -->
           <kw-select
             v-model="searchParams.gnrdv"
             first-option="all"
             :options="codes.GNRDV_ACD"
           />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_RGNL_GRP')">
+          <!-- 지역단 -->
           <kw-input
             v-model="searchParams.rgrp"
             maxlength="10"
+            :placeholder="t('MSG_TXT_RGNL_GRP')"
           />
-        </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_BRANCH')">
+          <!-- 지점 -->
           <kw-input
             v-model="searchParams.brch"
             maxlength="10"
+            :placeholder="t('MSG_TXT_BRANCH')"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_EMP_SRCH')">
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 사번 -->
+        <kw-search-item :label="$t('MSG_TXT_EPNO')">
           <kw-input
             v-model="searchParams.dangOjPrtnrNo"
             icon="search_24"

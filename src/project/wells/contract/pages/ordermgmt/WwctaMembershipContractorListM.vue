@@ -195,8 +195,7 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
-  // 230828 수정 - default 값으로 30개를 받아야함
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[2].codeName),
+  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
   needTotalCount: true,
 });
 // -------------------------------------------------------------------------------------------------
@@ -369,7 +368,13 @@ const initGridMembershipContractorList = defineGrid((data, view) => {
     const { copnDvCd } = g.getValues(dataRow);
 
     if (['cntrDtlNo'].includes(column)) { // 계약상세(윈도우팝업)
-      await modal({ component: 'WwctaOrderDetailP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd } });
+      await modal({
+        component: 'WwctaOrderDetailP',
+        componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd, cntrCstNo, copnDvCd },
+        draggable: true,
+        window: true,
+        windowFeatures: { width: 1300, height: 1080 },
+      });
     }
   };
 });
