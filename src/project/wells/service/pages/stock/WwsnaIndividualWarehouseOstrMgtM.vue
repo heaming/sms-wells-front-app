@@ -492,8 +492,9 @@ function onChangeNdlvQty() {
   }
 
   // 필터링, 출고수량이 0보다 크고, 총 출고가 15보다 작은 경우
-  let filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.totOutQty < 15);
-  filterRows = filterRows.forEach((item) => {
+  const filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.totOutQty < 15);
+  // 미출고 수량 필터링일 경우 체크 해제
+  filterRows.forEach((item) => {
     item.chk = 'N';
   });
   view.getDataSource().setRows(filterRows);
