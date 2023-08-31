@@ -43,6 +43,7 @@
         <kw-select
           v-model="searchParams.sellTpDtlCd"
           :options="dynamicChangeCodes.SELL_TP_DTL_CD"
+          first-option="all"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
