@@ -444,7 +444,7 @@ async function onClickSave() {
   }
   const data = thirdList;
   await dataService.post('/sms/wells/closing/expense/operating-cost/marketable-securities-excd', data).then((res) => {
-    cachedParams.opcsAdjNo = res.data.opcsAdjNo;
+    cachedParams.opcsAdjNo = res.data;
   });
 
   await notify(t('MSG_ALT_SAVE_DATA'));
