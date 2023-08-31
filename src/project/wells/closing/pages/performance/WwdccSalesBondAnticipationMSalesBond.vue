@@ -232,7 +232,7 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
     'interContDpAmt',
   ];
   if (searchParams.value.agrgDv === '1') {
-    layoutMain.splice(1, 9);
+    layoutMain.splice(5, 5);
   }
   view.setColumnLayout(layoutMain);
 
@@ -305,7 +305,7 @@ async function setGridColumnLayoutType2(data, view) { // 렌탈
     'totUcAmt',
   ];
   if (searchParams.value.agrgDv === '1') {
-    layoutMain.splice(1, 9);
+    layoutMain.splice(5, 5);
   }
   view.setColumnLayout(layoutMain);
 
@@ -362,7 +362,7 @@ async function setGridColumnLayoutType3(data, view) { // 멤버십
     'totDpAmt', 'dfaProcsAmt', 'totUcAmt',
   ];
   if (searchParams.value.agrgDv === '1') {
-    layoutMain.splice(1, 9);
+    layoutMain.splice(5, 5);
   }
   view.setColumnLayout(layoutMain);
   view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
@@ -466,7 +466,7 @@ async function setGridColumnLayoutType5(data, view) { // 리스/할부
     'totUcAmt',
   ];
   if (searchParams.value.agrgDv === '1') {
-    layoutMain.splice(1, 9);
+    layoutMain.splice(5, 5);
   }
   view.setColumnLayout(layoutMain);
 
