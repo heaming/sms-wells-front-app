@@ -173,7 +173,7 @@ async function onClickExcelUpload() {
   const { result, payload } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
-      templateDocId: 'FOM_CTE_002',
+      templateDocId: 'FOM_CTE_0002',
       columns: {
         // veeValidate 에서 요구하는 형식과 해당 lint 룰과 상충된다.
         // eslint-disable-next-line no-useless-escape
