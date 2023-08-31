@@ -376,6 +376,9 @@ const initGrid = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         return { editable: dataCell.item.rowState === 'created' };
       },
+      buttonVisibleCallback(g, index) {
+        return g.getDataSource().getRowState(index.dataRow) === 'created';
+      },
     }, // 행위자사번
     { fieldName: 'dangOcStrtmm',
       header: t('MSG_TXT_YEAR_OCCURNCE'),
