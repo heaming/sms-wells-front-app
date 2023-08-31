@@ -37,9 +37,9 @@
             >
               <kw-form-row>
                 <kw-form-item
-                  :label="$t('MSG_TXT_CNTR_NO')"
+                  :label="$t('MSG_TXT_CNTR_DTL_NO')"
                 >
-                  <p>{{ customer.cntrNo }}</p>
+                  <p>{{ customer.cntrNo }}{{ customer.cntrSn }}</p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_CST_NM')"
@@ -222,7 +222,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_CRTL_MB_STAT')"
                 >
-                  <p>{{ customer.cntrDtlStatCd }}</p>
+                  <p>{{ customer.cntrDtlStatNm }}</p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
@@ -296,7 +296,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_AUTO_FNT')"
                 >
-                  <p>({{ customer.bnk }}){{ customer.vtAc }}</p>
+                  <p>{{ customer.vtAc }}</p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_FNT_DT')"
@@ -306,7 +306,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_FNT_STAT')"
                 >
-                  <p>{{ customer.mpyMthdTpCd }}</p>
+                  <p>{{ customer.mpyMthdTpNm }}</p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
@@ -1150,12 +1150,11 @@ async function fetchData() {
 
   const res = await dataService.get('/sms/wells/bond/bond-counsel/unusual-articles', { params: cachedParams });
   customer.value.cnslUnuitmCn = res.data.cnslUnuitmCn;
-
-  await fetchCustomerDetail();
 }
 
 // TODO: 특기사항 초기화 버튼 클릭 이벤트
 async function onClickUnuitmCnReset() {
+  await fetchCustomerDetail();
   customer.value.cnslUnuitmCn = '';
 }
 
