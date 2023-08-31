@@ -149,7 +149,7 @@
           secondary
           dense
           :label="$t('MSG_BTN_AGRG_CHT_PRNT')"
-          :disable="isSearch"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickAgrgPrint"
         />
         <kw-separator
@@ -317,7 +317,6 @@ async function fetchData() {
   }
 }
 
-const isSearch = ref(true);
 async function onClickSearch() {
   const { strtDt } = searchParams.value;
   searchParams.value.dayOfWeek = dayjs(strtDt).format('d');
@@ -325,7 +324,6 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
-  isSearch.value = false;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
