@@ -446,7 +446,6 @@ await Promise.all([
   getProducts(),
 ]);
 
-const allOstrItms = ref([]);
 const totalCount = ref(0);
 
 // 조회
@@ -454,7 +453,6 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/individual-ware-ostrs', { params: { ...cachedParams } });
   const ostrItms = res.data;
 
-  allOstrItms.value = ostrItms;
   totalCount.value = ostrItms.length;
 
   if (grdMainRef.value != null) {
@@ -480,26 +478,24 @@ async function onClickExcelDownload() {
   });
 }
 
+const allOstrItms = ref([]);
 // 미출고 수량제외 필터링
 function onChangeNdlvQty() {
   const { ndlvQtyYn } = searchParams.value;
 
   const view = grdMainRef.value.getView();
-  // 필터링 해제
-  if (ndlvQtyYn === 'N') {
-    totalCount.value = allOstrItms.value.length;
-    view.getDataSource().setRows(allOstrItms.value);
+  if (ndlvQtyYn === 'Y') {
+    // 필터링 전 데이터 담기
+    allOstrItms.value = view.getDataSource().getRows();
+    // 필터링, 출고수량이 0보다 크고, 물류전송여부가 N인 경우
+    const filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.lgstTrsYn === 'N');
+    totalCount.value = filterRows.length;
+    view.getDataSource().setRows(filterRows);
     return;
   }
 
-  // 필터링, 출고수량이 0보다 크고, 총 출고가 15보다 작은 경우
-  const filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.totOutQty < 15);
-  // 미출고 수량 필터링일 경우 체크 해제
-  filterRows.forEach((item) => {
-    item.chk = 'N';
-  });
-  totalCount.value = filterRows.length;
-  view.getDataSource().setRows(filterRows);
+  totalCount.value = allOstrItms.value.length;
+  view.getDataSource().setRows(allOstrItms.value);
 }
 
 // 저장
