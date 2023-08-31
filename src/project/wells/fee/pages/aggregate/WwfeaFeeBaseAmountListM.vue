@@ -51,7 +51,7 @@
           <kw-paging-info
             :total-count="totalCount"
           />
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON_CASE_PER') }}</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_PER_WON_CASE') }}</span>
         </template>
         <kw-btn
           dense
