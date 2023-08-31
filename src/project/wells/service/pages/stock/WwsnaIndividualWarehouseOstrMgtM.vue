@@ -447,37 +447,6 @@ await Promise.all([
 ]);
 
 const totalCount = ref(0);
-
-// 조회
-async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs', { params: { ...cachedParams } });
-  const ostrItms = res.data;
-
-  totalCount.value = ostrItms.length;
-
-  if (grdMainRef.value != null) {
-    const view = grdMainRef.value.getView();
-    view.getDataSource().setRows(ostrItms);
-  }
-}
-
-async function onClickSearch() {
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchData();
-}
-
-// 엑셀 다운로드
-async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/excel-download', { params: cachedParams });
-
-  gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-    exportData: res.data,
-  });
-}
-
 const allOstrItms = ref([]);
 // 미출고 수량제외 필터링
 function onChangeNdlvQty() {
@@ -496,6 +465,41 @@ function onChangeNdlvQty() {
 
   totalCount.value = allOstrItms.value.length;
   view.getDataSource().setRows(allOstrItms.value);
+}
+
+// 조회
+async function fetchData() {
+  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs', { params: { ...cachedParams } });
+  const ostrItms = res.data;
+
+  totalCount.value = ostrItms.length;
+
+  if (grdMainRef.value != null) {
+    const view = grdMainRef.value.getView();
+    view.getDataSource().setRows(ostrItms);
+  }
+
+  const { ndlvQtyYn } = searchParams.value;
+  if (ndlvQtyYn === 'Y') {
+    onChangeNdlvQty();
+  }
+}
+
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+  await fetchData();
+}
+
+// 엑셀 다운로드
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/excel-download', { params: cachedParams });
+
+  gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 // 저장
