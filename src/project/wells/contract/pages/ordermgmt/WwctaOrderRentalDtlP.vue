@@ -811,6 +811,8 @@
         <!-- 연관상품조회 -->
         <kw-form-item :label="$t('MSG_TXT_RELT_PRDT_SELT')">
           <kw-btn
+            secondary
+            padding="12px"
             :label="$t('MSG_TXT_RELT_PRDT_SELT')"
             @click="onClickSearchReltPrdt"
           />
