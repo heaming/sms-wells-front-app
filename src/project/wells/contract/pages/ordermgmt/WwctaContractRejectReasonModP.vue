@@ -14,8 +14,8 @@
 --->
 <template>
   <kw-popup
-    class="kw-popup--md"
-    :title="$t('MSG_TIT_RET_RSON')"
+    ref="kwPopRef"
+    size="lg"
   >
     <kw-form
       :cols="1"
@@ -57,11 +57,16 @@ const dataService = useDataService();
 const props = defineProps({
   cntrAprId: { type: String, required: true, default: '' },
   cntrNo: { type: String, required: true, default: '' },
+  cntrSn: { type: String, required: true, default: '' },
+  sellPrtnrNo: { type: String, required: true, default: '' },
 });
 
+const kwPopRef = ref();
 const searchParams = ref({
   cntrAprId: props.cntrAprId,
   cntrNo: props.cntrNo,
+  cntrSn: props.cntrSn,
+  sellPrtnrNo: props.sellPrtnrNo,
   rjRsonCn: '',
 });
 
@@ -73,14 +78,14 @@ const { cancel, ok } = useModal();
 // -------------------------------------------------------------------------------------------------
 async function fetchDataContractLists() {
   // changing api & cacheparams according to search classification
-  await dataService.post('/sms/wells/contract/contracts/reject-reasons', searchParams.value);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  if (kwPopRef.value.alertIfIsNotModified()) { return; }
 
+  await dataService.post('/sms/wells/contract/contracts/reject-reasons', searchParams.value);
   ok(true);
+  notify(t('MSG_ALT_SAVE_DATA'));
 }
-// -------------------------------------------------------------------------------------------------
-// Initialize Grid
-// -------------------------------------------------------------------------------------------------
+// onMounted(() => {
+// });
 </script>
 <style scoped>
 </style>
