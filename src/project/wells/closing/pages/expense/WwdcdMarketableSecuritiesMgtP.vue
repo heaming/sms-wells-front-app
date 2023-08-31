@@ -424,7 +424,7 @@ async function onClickSave() {
 
   await dataService.post('/sms/wells/closing/expense/operating-cost/marketable-securities', data);
   await notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  await onClickSearch();
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
