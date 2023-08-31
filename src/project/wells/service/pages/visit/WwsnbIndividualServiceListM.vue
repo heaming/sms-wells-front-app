@@ -515,6 +515,14 @@
             @change="getIndividualState"
           />
         </template>
+        <kw-btn
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickExcelDownload"
+        />
       </kw-action-top>
       <kw-grid
         ref="grdIndividualStateRef"
@@ -753,7 +761,6 @@ async function onClickSearch() {
   if (isEmpty(individualParams.value)) {
     notify(t('MSG_ALT_CST_INF_NOT_EXST'));
   } else {
-    console.log(individualParams.value.prdNm);
     searchParams.value.cntrNo = individualParams.value.cntrNoDtl.substring(0, 12);
     searchParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
 
@@ -769,6 +776,18 @@ async function onClickSearch() {
     await getIndividualState();
     await getIndividualCounsel();
   }
+}
+
+const { currentRoute } = useRouter();
+async function onClickExcelDownload() {
+  const view = grdIndividualStateRef.value.getView();
+  const res = dataService.get('sms/wells/service/individual-service-ps/process-state/excel-download', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
+
+  await gridUtil.exportView(view, {
+    filtName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 async function onClickSave() {
