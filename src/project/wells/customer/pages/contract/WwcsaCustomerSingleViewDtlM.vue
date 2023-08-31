@@ -431,8 +431,10 @@
                       vertical
                       class="my5 mx20"
                     />
-                    <span>{{ `월 ${isEmpty(product.fnlAmt)
-                      ?'0':stringUtil.getNumberWithComma(product.fnlAmt)} 원` }}</span>
+                    <span>
+                      {{ `${product.sellTpCd !== '1' ? '월' : ''} ${isEmpty(product.fnlAmt)
+                        ? '0' : stringUtil.getNumberWithComma(product.fnlAmt)} 원` }}
+                    </span>
                   </div>
 
                   <kw-separator class="my12" />
