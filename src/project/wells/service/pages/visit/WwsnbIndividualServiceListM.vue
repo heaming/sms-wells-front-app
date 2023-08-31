@@ -760,6 +760,15 @@ async function onClickSearch() {
 
   if (isEmpty(individualParams.value)) {
     notify(t('MSG_ALT_CST_INF_NOT_EXST'));
+    // init tabs & grids
+    await getHousehold();
+    await getIndividualContact();
+    await getIndividualFarmCode();
+    await getIndividualDelinquent();
+    await getIndividualState();
+    await getIndividualCounsel();
+    grdIndividualStateRef.value.getData().clearRows();
+    grdIndividualCounselRef.value.getData().clearRows();
   } else {
     searchParams.value.cntrNo = individualParams.value.cntrNoDtl.substring(0, 12);
     searchParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
