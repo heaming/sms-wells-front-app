@@ -387,7 +387,7 @@ fieldsObj = {
   },
   mm: { // M추진단 / 지점장
     perfFields: [ // 실적부분
-      { fieldName: 'pref02', header: t('MSG_TXT_OG_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 가전인정건수
+      { fieldName: 'perf02', header: t('MSG_TXT_OG_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 가전인정건수
       { fieldName: 'perf03', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전인정건수
       { fieldName: 'perf04', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 기변실적
     ],
