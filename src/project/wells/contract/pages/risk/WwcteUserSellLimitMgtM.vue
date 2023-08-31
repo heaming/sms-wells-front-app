@@ -339,7 +339,7 @@ function initGrid(data, view) {
       button: 'action',
       editor: { maxLength: 10 },
       buttonVisibleCallback(grid, index) {
-        return grid.getCurrent().itemIndex === index.dataRow;
+        return grid.getCurrent().dataRow === index.dataRow;
       } },
     { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '142', styleName: 'text-center', editable: false },
     { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_TYPE'), width: '142', styleName: 'text-center', editable: false },
