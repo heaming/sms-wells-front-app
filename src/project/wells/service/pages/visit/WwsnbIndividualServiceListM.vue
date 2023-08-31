@@ -29,7 +29,6 @@
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
             disable-popup
-            :update="updateCntrDtl()"
           >
             <template #append>
               <kw-icon
@@ -565,9 +564,13 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-// const { getters } = useStore();
-// const userInfo = getters['meta/getUserInfo'];
-// const { departmentId } = userInfo;
+const { getters } = useStore();
+const userInfo = getters['meta/getUserInfo'];
+const {
+  employeeIDNumber,
+  ogTpCd,
+  // departmentId,
+} = userInfo;
 
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
@@ -618,8 +621,8 @@ const searchParams = ref({
   cntrDtlNo: '',
 });
 const saveParams = ref({
-  cntrNo: '',
-  cntrSn: '',
+  cntrNo: props.cntrNo ?? '',
+  cntrSn: props.cntrSn ?? '',
   ogTpCd: '',
   wkPrtnrNo: '',
   cstUnuitmCn: '',
@@ -641,6 +644,13 @@ async function onClickCstSearch() {
     searchParams.value.cntrSn = payload.cntrSn ?? '';
   }
 }
+
+watch(props, async (val) => {
+  if (val) {
+    searchParams.value.cntrNo = props.cntrNo;
+    searchParams.value.cntrSn = props.cntrSn;
+  }
+});
 
 /* 개인별 서비스현황 조회 */
 async function getIndividualServicePs() {
@@ -752,6 +762,15 @@ async function getIndividualCounsel() {
   individualCounselData.checkRowStates(true);
 }
 
+async function fetchData() {
+  await getHousehold();
+  await getIndividualContact();
+  await getIndividualFarmCode();
+  await getIndividualDelinquent();
+  await getIndividualState();
+  await getIndividualCounsel();
+}
+
 async function onClickSearch() {
   if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) { notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`])); return; }
   if (searchParams.value.cntrNo) { if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { notify(t('MSG_ALT_CHK_CNTR_SN')); return; } }
@@ -760,12 +779,7 @@ async function onClickSearch() {
   if (isEmpty(individualParams.value)) {
     notify(t('MSG_ALT_CST_INF_NOT_EXST'));
     // init tabs & grids
-    await getHousehold();
-    await getIndividualContact();
-    await getIndividualFarmCode();
-    await getIndividualDelinquent();
-    await getIndividualState();
-    await getIndividualCounsel();
+    await fetchData();
     grdIndividualStateRef.value.getData().clearRows();
     grdIndividualCounselRef.value.getData().clearRows();
   } else {
@@ -777,12 +791,7 @@ async function onClickSearch() {
     grdIndividualCounselRef.value.getData().clearRows();
     secondPageInfo.value.pageIndex = 1;
 
-    await getHousehold();
-    await getIndividualContact();
-    await getIndividualFarmCode();
-    await getIndividualDelinquent();
-    await getIndividualState();
-    await getIndividualCounsel();
+    await fetchData();
   }
 }
 
@@ -801,29 +810,29 @@ async function onClickExcelDownload() {
 async function onClickSave() {
   saveParams.value.cntrNo = individualParams.value.cntrNoDtl.substring(0, 12);
   saveParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
-  saveParams.value.ogTpCd = individualParams.value.wkOgTpCd;
-  saveParams.value.wkPrtnrNo = individualParams.value.wkPrtnrNo;
+  saveParams.value.ogTpCd = ogTpCd;
+  saveParams.value.wkPrtnrNo = employeeIDNumber;
   saveParams.value.cstUnuitmCn = individualParams.value.cstUnuitmCn;
   if (isEmpty(saveParams.value.cstUnuitmCn)) { return; }
+  console.log(saveParams.value);
   await dataService.post('sms/wells/service/individual-service-ps', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
 }
 
-async function updateCntrDtl() {
-  watch(props, async (val) => {
-    if (val) {
-      searchParams.value.cntrNo = props.cntrNo;
-      searchParams.value.cntrSn = props.cntrSn;
-    }
-  });
-}
-
-onMounted(async () => {
-  if (props.cntrNo) {
+watch(async () => {
+  if (searchParams.value.cntrNo) {
     await onClickSearch();
   }
 });
+
+// onMounted(async () => {
+//   if (!isEmpty(props) && searchParams.value.cntrNo) {
+//     await getIndividualServicePs();
+//     await fetchData();
+//   }
+//   }
+// });
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
