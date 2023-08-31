@@ -746,12 +746,10 @@ async function getIndividualCounsel() {
 
 async function onClickSearch() {
   if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) { notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`])); return; }
-  console.log((searchParams.value.cntrNo + searchParams.value.cntrSn).length);
-  if ((searchParams.value.cntrNo + searchParams.value.cntrSn).length < 13) { notify(t('MSG_ALT_CHK_CNTR_SN')); return; }
-  // if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) {
-  //   notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`]));
-  // } else {
+  if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { notify(t('MSG_ALT_CHK_CNTR_SN')); return; }
+
   await getIndividualServicePs();
+
   if (isEmpty(individualParams.value)) {
     notify(t('MSG_ALT_CST_INF_NOT_EXST'));
   } else {
@@ -771,7 +769,6 @@ async function onClickSearch() {
     await getIndividualState();
     await getIndividualCounsel();
   }
-  // }
 }
 
 async function onClickSave() {
