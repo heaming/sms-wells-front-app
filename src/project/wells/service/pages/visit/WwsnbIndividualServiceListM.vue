@@ -1000,8 +1000,8 @@ const initGridCounsel = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cselSts', header: t('MSG_TXT_PROCS_STAT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cnslDt', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'cnslEdDt', header: t('MSG_TXT_PRCSDT'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'cnslDt', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cnslEdDt', header: t('MSG_TXT_PRCSDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cnslTpHcsfCd', header: t('MSG_TXT_CNSL_HCLSF'), width: '200', styleName: 'text-center' },
     { fieldName: 'cnslTpMcsfCd', header: t('MSG_TXT_CNSL_DCLSF'), width: '150', styleName: 'text-center' },
     { fieldName: 'cnslTpLcsfCd', header: t('MSG_TXT_CNSL_LCLSF'), width: '250', styleName: 'text-center' },
