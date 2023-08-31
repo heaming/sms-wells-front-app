@@ -3,7 +3,7 @@
 1. 모듈 : DCC
 2. 프로그램 ID : WwdccSalesBondAnticipationMOverduePenalty - 매출채권/선수금 현황 - 영업선수금 // W-CL-U-0058M01
 
-3. 작성자 : gs.piit172 kim juhyun
+3. 작성자 : gs.piit172 kim juhyun -> WOO SEUNGMIN
 4. 작성일 : 2023.03.08
 ****************************************************************************************************
 * 프로그램 설명
@@ -35,12 +35,7 @@
         <kw-option-group
           v-model="searchParams.agrgDv"
           type="radio"
-          :options="[
-            { codeId: '1', codeName: t('MSG_TXT_AGRG') },
-            { codeId: '2', codeName: t('MSG_TXT_BY_DAY') },
-            { codeId: '3', codeName: t('MSG_TXT_PER_ORDER') },
-            { codeId: '4', codeName: t('MSG_TXT_WRO_HORIZ_CAL_FORMULA') },
-          ]"
+          :options="selectAggregateDivide"
           @change="onChangeAgrgDv"
         />
       </kw-search-item>
@@ -216,7 +211,7 @@ import { codeUtil, getComponentType, defineGrid, gridUtil, useDataService } from
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import { getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
+import { getAggregateDivide, getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -227,6 +222,7 @@ const { t } = useI18n();
 // 검색조건 - 판매채널
 const sapPdDv = (await dataService.get('/sms/wells/closing/performance/overdue-penalty/code'))
   .data.map((v) => ({ codeId: v.sapPdDvCd, codeName: v.sapPdDvNm }));
+const selectAggregateDivide = await getAggregateDivide();
 const selectSellTpCd = await getSellTpCd();
 const selectSellTpDtlCd = await getSellTpDtlCd();
 const totalCount = ref(0);
@@ -266,6 +262,10 @@ async function fetchData() {
   let res;
   let mainView;
 
+  console.log('agrgDv:', agrgDv);
+  console.log('inquiryDivide:', inquiryDivide);
+  console.log('sellTpCd:', sellTpCd);
+
   if (agrgDv === '2') { // 일자별
     mainView = grdMainRef.value.getView();
     res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationDates', { params: cachedParams, timeout: 180000 });
@@ -283,7 +283,7 @@ async function fetchData() {
       res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/anticipationRegularShippings', { params: cachedParams, timeout: 180000 });
     }
   } else if (agrgDv === '1' || agrgDv === '3') { // 집계, 주문별
-    if (inquiryDivide === '2') { // 포인트 선택시
+    if (inquiryDivide === '2' && (sellTpCd === '2' || sellTpCd === '10')) { // 포인트 선택시
       if (agrgDv === '1') { // 집계
         mainView = grdThirdRef.value.getView();
         res = await dataService.get('/sms/wells/closing/performance/overdue-penalty/pointAggregates', { params: cachedParams, timeout: 180000 });
@@ -327,22 +327,21 @@ async function fetchData() {
     mainView.columnByName('pdNm').visible = true;
     mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 8 }];
   } else if (agrgDv === '1' || agrgDv === '3') { // 집계, 주문별
-    if (inquiryDivide === '2') { // 포인트 선택시
+    if (inquiryDivide === '2' && (sellTpCd === '2' || sellTpCd === '10')) { // 포인트 선택시
       if (agrgDv === '1') { // 집계
         isGridThird.value = true;
       } else if (agrgDv === '3') { // 주문별
         isGridFourth.value = true;
       }
-    } else if (inquiryDivide === '1') { // 포인트 미선택시
+    } else { // 포인트 미선택시
+      isGridSub.value = true;
       if (agrgDv === '1') { // 집계
-        isGridSub.value = true;
         mainView.columnByName('cntrNo').visible = false;
         mainView.columnByName('cstKnm').visible = false;
         mainView.columnByName('pdCd').visible = false;
         mainView.columnByName('pdNm').visible = false;
         mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
       } else if (agrgDv === '3') { // 주문별
-        isGridSub.value = true;
         mainView.columnByName('cntrNo').visible = true;
         mainView.columnByName('cstKnm').visible = true;
         mainView.columnByName('pdCd').visible = true;
