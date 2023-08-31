@@ -71,40 +71,6 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <!-- 품목구분 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_ITM_DV')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.itmKndCd"
-            :options="filterCodes.itmKndCd"
-            first-option="all"
-            class="w150"
-            @change="onChangeItmKndCd"
-          />
-          <kw-select
-            v-model="searchParams.itmPdCds"
-            :options="optionsItmPdCd"
-            :label="$t('MSG_TXT_ITM_DV')"
-            option-value="pdCd"
-            option-label="pdNm"
-            first-option="all"
-            :multiple="true"
-          />
-        </kw-search-item>
-        <!-- 출고일자 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_OSTR_DT')"
-        >
-          <kw-date-picker
-            v-model="searchParams.ostrDt"
-            type="date"
-            :min-date="minDate"
-          />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <!-- 입고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_STR_WARE')"
@@ -126,6 +92,40 @@
             :label="$t('MSG_TXT_STR_WARE')"
             first-option="select"
             rules="required"
+          />
+        </kw-search-item>
+        <!-- 출고일자 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_OSTR_DT')"
+        >
+          <kw-date-picker
+            v-model="searchParams.ostrDt"
+            type="date"
+            :min-date="minDate"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 품목구분 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_DV')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.itmKndCd"
+            :options="filterCodes.itmKndCd"
+            first-option="all"
+            class="w150"
+            @change="onChangeItmKndCd"
+          />
+          <kw-select
+            v-model="searchParams.itmPdCds"
+            :options="optionsItmPdCd"
+            :label="$t('MSG_TXT_ITM_DV')"
+            option-value="pdCd"
+            option-label="pdNm"
+            first-option="all"
+            :multiple="true"
           />
         </kw-search-item>
         <!-- 품목코드 -->
@@ -419,10 +419,17 @@ async function onClickSave() {
     return;
   }
 
-  const validRows = checkedRows.filter((item) => item.lgstTrsYn === 'Y');
+  let validRows = checkedRows.filter((item) => item.lgstTrsYn === 'Y');
   if (!isEmpty(validRows)) {
     // 물류 이관된 데이터는 저장할 수 없습니다.
     await alert(t('MSG_ALT_LGST_TF_SAVE_IMP'));
+    return;
+  }
+
+  validRows = checkedRows.filter((item) => item.outQty < 1);
+  if (!isEmpty(validRows)) {
+    // 출고수량은 0보다 커야합니다.
+    await alert(t('MSG_ALT_OSTR_QTY_ZERO_BE_BIG'));
     return;
   }
 
@@ -548,7 +555,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'outBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
     { fieldName: 'outQty',
       header: t('MSG_TXT_OSTR_QTY'),
-      rules: 'required|min_value:1|max_value:999999999999',
+      rules: 'required|min_value:0|max_value:999999999999',
       styleName: 'text-right',
       editor: {
         type: 'number',
@@ -586,6 +593,17 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
+
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+    if (changedFieldName === 'outQty') {
+      const { outQty } = grid.getValues(itemIndex);
+
+      if (outQty === 0) {
+        grid.setValue(itemIndex, 'chk', 'N');
+      }
+    }
+  };
 
   view.onCellEditable = (grid, index) => {
     // 물류전송여부

@@ -69,23 +69,24 @@
             :label="$t('MSG_TXT_ITM_CD')"
             rules="alpha_num|max:10"
           />
-          <kw-search-item
-            :label="$t('MSG_TXT_SAPCD')"
-          >
-            <kw-input
-              v-model="searchParams.strtSapCd"
-              :label="$t('MSG_TXT_STRT_SAP_CD')"
-              rules="numeric|max:18"
-              @change="onChangeStrtSapCd"
-            />
-            <span>~</span>
-            <kw-input
-              v-model="searchParams.endSapCd"
-              :label="$t('MSG_TXT_END_SAP_CD')"
-              rules="numeric|max:18"
-              @change="onChangeEndSapCd"
-            />
-          </kw-search-item>
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_SAPCD')"
+          :colspan="2"
+        >
+          <kw-input
+            v-model="searchParams.strtSapCd"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeStrtSapCd"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.endSapCd"
+            :label="$t('MSG_TXT_END_SAP_CD')"
+            rules="numeric|max:18"
+            @change="onChangeEndSapCd"
+          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
