@@ -172,16 +172,13 @@
           :label="t('MSG_TXT_OG_CD')"
           :colspan="2"
         >
-          <kw-input
-            v-model="searchParams.fromOgCd"
-            :placeholder="t('A000000')"
-            :maxlength="10"
-          />
-          <span>~</span>
-          <kw-input
-            v-model="searchParams.toOgCd"
-            :placeholder="t('9999999')"
-            :maxlength="10"
+          <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
+            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
+            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
+            :og-tp-cd="searchParams.ogTpCd"
+            :start-level="1"
+            :end-level="3"
           />
         </kw-search-item>
         <kw-search-item
@@ -273,6 +270,7 @@ import { codeUtil, useMeta, getComponentType, gridUtil, useDataService, useGloba
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
 const dataService = useDataService();
 const { currentRoute } = useRouter();
@@ -312,12 +310,15 @@ const searchParams = ref({
   pdNm: '',
   cstrGbn: '2',
   fntGbn: '',
-  fromOgCd: '',
-  toOgCd: '',
+  ogLevlDvCd1: '',
+  ogLevlDvCd2: '',
+  ogLevlDvCd3: '',
   prtnrNo: '',
   incentiveGbn: '',
   dlpnrItemNm: '',
   dlpnrBzclNm: '',
+  perfYm: now.format('YYYYMM'),
+  ogTpCd: 'W02',
 });
 
 const pageInfo = ref({
@@ -435,7 +436,6 @@ async function onHclsfChanged(selectedValues) {
   // 중분류 필터링
   mclsfs.value = responseMclsfIdOptions.value.filter((v) => selectedValues.includes(v.hgrPdClsfId));
 }
-
 onMounted(async () => {
   await fetchDefaultData();
 });
