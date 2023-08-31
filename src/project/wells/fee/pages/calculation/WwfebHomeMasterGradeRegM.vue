@@ -71,26 +71,15 @@
           :disable="!isExcelDown"
           @click="onClickExcelDownload"
         />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
         <kw-btn
           :label="$t('MSG_BTN_GD_TF')"
           secondary
           dense
           @click="onClickHmstGradeTransfer"
         />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
         <kw-btn
           dense
           primary
-          secondary
           :label="$t('MSG_BTN_GD_SAVE')"
           @click="onClickListSave"
         />
@@ -197,17 +186,6 @@ async function onClickHmstGradeTransfer() {
 }
 
 /*
- *  Event - 그리드 개별 저장 버튼 클릭
- */
-async function onClickSave() {
-  const dataProvider = grdMainRef.value.getView().getDataSource();
-  const scRow = grdMainRef.value.getView().getCurrent().dataRow;
-  await dataService.post('/sms/wells/fee/home-master-grades/grade', saveData.value);
-  notify(t('MSG_ALT_SVE_DATA'));
-  dataProvider.setRowState(scRow, 'none');
-}
-
-/*
  *  Event - 등급저장 버튼 클릭 (등급 리스트 저장)
  */
 
@@ -272,27 +250,25 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'brmgrEmplNm' },
     { fieldName: 'brmgrPrtnrNo' },
     { fieldName: 'clDvCd' },
-    { fieldName: 'save' },
     { fieldName: 'pointHistory' },
   ];
 
   const columns = [
     { fieldName: 'mngtYm', header: t('MSG_TXT_MGT_YNM'), width: '106', styleName: 'text-center', editable: false, dataType: 'datetime', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'belong', header: t('MSG_TXT_BLG'), width: '110', styleName: 'text-left', editable: false },
-    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-left', editable: false },
+    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'rgstYm', header: t('MSG_TXT_RGST_YM'), width: '106', styleName: 'text-center', editable: false, dataType: 'datetime', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'brmgrEmplNm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-left', editable: false },
+    { fieldName: 'brmgrEmplNm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'clDvCd', header: t('MSG_TXT_GD'), width: '78', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
-    { fieldName: 'save', header: t('MSG_TXT_SAVE'), width: '78', styleName: 'text-center', renderer: { type: 'button' }, editable: false },
     { fieldName: 'pointHistory', header: t('MSG_TXT_P') + t('MSG_TXT_HIS'), width: '112', styleName: 'text-center', renderer: { type: 'button' }, editable: false },
 
   ];
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = false;
+  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
@@ -309,16 +285,11 @@ const initGrdMain = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['brmgrEmplNm', 'brmgrPrtnrNo'],
     },
-    'clDvCd', 'save', 'pointHistory',
+    'clDvCd', 'pointHistory',
   ]);
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'save') {
-      saveData.value.mngtYm = g.getValue(itemIndex, 'mngtYm');
-      saveData.value.prtnrNo = g.getValue(itemIndex, 'prtnrNo');
-      saveData.value.clDvCd = g.getValue(itemIndex, 'clDvCd');
-      onClickSave();
-    } else if (column === 'pointHistory') {
+    if (column === 'pointHistory') {
       saveData.value.mngtYm = g.getValue(itemIndex, 'mngtYm');
       saveData.value.emplNm = g.getValue(itemIndex, 'emplNm');
       saveData.value.prtnrNo = g.getValue(itemIndex, 'prtnrNo');
