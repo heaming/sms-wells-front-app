@@ -125,6 +125,7 @@
               :disable="isDisableYn1 || isDisable"
               :rules="isRequiredDdlvTp1"
               class="mr8 w167"
+              @change="onChangeBfsvcCsmbDdlvTpCd(1)"
             />
             <kw-select
               v-model="ddlvOjCd1Data.bfsvcCsmbDdlvCmptBaseCd"
@@ -141,6 +142,7 @@
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             :options="codes.PD_GRP_CD"
+            first-option="all"
             :disable="isDisableYn1 || isDisable"
             :rules="isRequiredAccPrpnYn1"
           />
@@ -217,6 +219,7 @@
               :disable="isDisableYn2 || isDisable"
               :rules="isRequiredDdlvTp2"
               class="mr8 w167"
+              @change="onChangeBfsvcCsmbDdlvTpCd(2)"
             />
             <kw-select
               v-model="ddlvOjCd2Data.bfsvcCsmbDdlvCmptBaseCd"
@@ -233,6 +236,7 @@
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
             :options="codes.PD_GRP_CD"
+            first-option="all"
             :disable="isDisableYn2 || isDisable"
             :rules="isRequiredAccPrpnYn2"
           />
@@ -310,6 +314,7 @@
               :disable="isDisableYn3 || isDisable"
               :rules="isRequiredDdlvTp3"
               class="mr8 w167"
+              @change="onChangeBfsvcCsmbDdlvTpCd(3)"
             />
             <kw-select
               v-model="ddlvOjCd3Data.bfsvcCsmbDdlvCmptBaseCd"
@@ -325,6 +330,7 @@
           <kw-select
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvOjPdGrpCd"
             :label="$t('MSG_TXT_DDLV_OJ_PD_GRP')"
+            first-option="all"
             :options="codes.PD_GRP_CD"
             :disable="isDisableYn3 || isDisable"
             :rules="isRequiredAccPrpnYn3"
@@ -546,6 +552,22 @@ function onChangeOrtYn(val) {
         ddlvOjCd3Data.value.bfsvcCsmbDdlvUnitQty = '';
         ddlvOjCd3Data.value.sortOdr = '';
       }
+      break;
+  }
+}
+
+function onChangeBfsvcCsmbDdlvTpCd(val) {
+  switch (val) {
+    case 1:
+      ddlvOjCd1Data.value.bfsvcCsmbDdlvCmptBaseCd = '';
+      break;
+
+    case 2:
+      ddlvOjCd2Data.value.bfsvcCsmbDdlvCmptBaseCd = '';
+      break;
+
+    case 3:
+      ddlvOjCd3Data.value.bfsvcCsmbDdlvCmptBaseCd = '';
       break;
   }
 }
