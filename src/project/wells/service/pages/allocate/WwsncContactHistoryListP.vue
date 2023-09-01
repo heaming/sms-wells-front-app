@@ -83,7 +83,7 @@ async function getContactHistories() {
   totalCount.value.totalCount = res.data.length;
   const view = gridMainRef.value.getView();
   view.getDataSource().setRows(res.data);
-  view.resetCurrent();
+  // view.resetCurrent();
 }
 
 onMounted(async () => {
