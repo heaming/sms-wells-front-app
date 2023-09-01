@@ -193,6 +193,21 @@ const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
 );
 
+const isNowYyMm = computed(() => searchParams.value.mngtYm === dayjs().format('YYYYMM'));
+
+const baseYmd = computed(() => {
+  const baseYm = searchParams.value.mngtYm;
+  let returnValue = '';
+
+  if (isNowYyMm.value) {
+    returnValue = dayjs().format('YYYYMMDD');
+  } else {
+    returnValue = `${baseYm}01`;
+  }
+
+  return returnValue;
+});
+
 async function onChangeMngtYm() {
   ddlvYmNms.value.mms6bDdlvNm = dayjs(searchParams.value.mngtYm).add(-6, 'month').format('YYYY-MM');
   ddlvYmNms.value.mms5bDdlvNm = dayjs(searchParams.value.mngtYm).add(-5, 'month').format('YYYY-MM');
@@ -293,6 +308,17 @@ async function onClickSave() {
   await fetchData();
 }
 
+function roundExcel(val, position) {
+  if (Number(position) >= 0) {
+    return parseFloat(val.toFixed(position));
+  }
+
+  position = 10 ** position;
+  const n = Math.round(val * position);
+
+  return parseFloat(n.toFixed(0));
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -305,24 +331,24 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'csmbPdCd' },
     { fieldName: 'itmKnm' },
     { fieldName: 'mngtUnitCd' },
-    { fieldName: 'mms6bDdlvQty' },
-    { fieldName: 'mms5bDdlvQty' },
-    { fieldName: 'mms4bDdlvQty' },
-    { fieldName: 'mms3bDdlvQty' },
-    { fieldName: 'mms2bDdlvQty' },
-    { fieldName: 'mms1bDdlvQty' },
-    { fieldName: 'mmAvDdlvQty' },
-    { fieldName: 'strStnbQty' },
-    { fieldName: 'pajuLgstCnrStocQty' },
-    { fieldName: 'sgsuLgstCnrStocQty' },
-    { fieldName: 'woStocQty' },
+    { fieldName: 'mms6bDdlvQty', dataType: 'number' },
+    { fieldName: 'mms5bDdlvQty', dataType: 'number' },
+    { fieldName: 'mms4bDdlvQty', dataType: 'number' },
+    { fieldName: 'mms3bDdlvQty', dataType: 'number' },
+    { fieldName: 'mms2bDdlvQty', dataType: 'number' },
+    { fieldName: 'mms1bDdlvQty', dataType: 'number' },
+    { fieldName: 'mmAvDdlvQty', dataType: 'number' },
+    { fieldName: 'strStnbQty', dataType: 'number' },
+    { fieldName: 'pajuLgstCnrStocQty', dataType: 'number' },
+    { fieldName: 'sgsuLgstCnrStocQty', dataType: 'number' },
+    { fieldName: 'woStocQty', dataType: 'number' },
     { fieldName: 'stocPersMmN' },
-    { fieldName: 'etExsDt' },
-    { fieldName: 'goUprc' },
-    { fieldName: 'ncstQty' },
-    { fieldName: 'goQty' },
-    { fieldName: 'goAmt' },
-    { fieldName: 'minOrdQty' },
+    { fieldName: 'etExsDt', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'goUprc', dataType: 'number' },
+    { fieldName: 'ncstQty', dataType: 'number' },
+    { fieldName: 'goQty', dataType: 'number' },
+    { fieldName: 'goAmt', dataType: 'number' },
+    { fieldName: 'minOrdQty', dataType: 'number' },
     { fieldName: 'pypdDc' },
     { fieldName: 'rmkCn' },
   ];
@@ -340,13 +366,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mms1bDdlvQty', header: `${ddlvYmNms.value.mms1bDdlvNm}`, width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'mmAvDdlvQty', header: t('MSG_TXT_MM_AV_DDLV'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'strStnbQty', header: t('MSG_TXT_STR_STNB'), width: '130', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
-    { fieldName: 'pajuLgstCnrStocQty', header: t('MSG_TXT_PAJU_STOC'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
-    { fieldName: 'sgsuLgstCnrStocQty', header: t('MSG_TXT_SGSU_STOC'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
-    { fieldName: 'woStocQty', header: t('MSG_TXT_FNL_STOC'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
+    { fieldName: 'pajuLgstCnrStocQty', header: t('MSG_TXT_PAJU_STOC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
+    { fieldName: 'sgsuLgstCnrStocQty', header: t('MSG_TXT_SGSU_STOC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
+    { fieldName: 'woStocQty', header: t('MSG_TXT_FNL_STOC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'stocPersMmN', header: t('MSG_TXT_STOC_CTN_MM'), width: '130', styleName: 'text-right', editable: false },
-    { fieldName: 'etExsDt', header: t('MSG_TXT_ET_EXS_DT'), width: '130', styleName: 'text-center', editable: false },
-    { fieldName: 'goUprc', header: t('MSG_TXT_UPRC'), width: '130', styleName: 'text-right', editable: false },
-    { fieldName: 'ncstQty', header: t('MSG_TXT_NCST_QT'), width: '130', styleName: 'text-right', editable: false },
+    { fieldName: 'etExsDt', header: t('MSG_TXT_ET_EXS_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
+    { fieldName: 'goUprc', header: t('MSG_TXT_UPRC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false },
+    { fieldName: 'ncstQty', header: t('MSG_TXT_NCST_QT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false },
     { fieldName: 'goQty', header: t('MSG_TXT_GO_QTY'), width: '130', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'goAmt', header: t('MSG_TXT_GO_AMT'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'minOrdQty', header: t('MSG_TXT_MOQ'), width: '130', styleName: 'text-right', editable: false },
@@ -378,6 +404,74 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
+
+  // view.getEditValue = (grid, index, editResult) => {
+  //   console.log(grid);
+  //   console.log(index);
+  //   console.log(editResult);
+  //   debugger;
+  // };
+
+  view.onCellEdited = (grid, itemIndex, row, field) => {
+    const filedName = grid.getDataSource().getOrgFieldName(field);
+
+    if (filedName === 'strStnbQty') {
+      const strStnbQty = Number(grid.getValue(itemIndex, 'strStnbQty'));
+      const pajuQty = Number(grid.getValue(itemIndex, 'pajuLgstCnrStocQty'));
+      const sgsuQty = Number(grid.getValue(itemIndex, 'sgsuLgstCnrStocQty'));
+
+      grid.setValue(itemIndex, 'woStocQty', strStnbQty + pajuQty + sgsuQty);
+
+      const woStocQty = Number(grid.getValue(itemIndex, 'woStocQty'));
+      const mmAvDdlvQty = Number(grid.getValue(itemIndex, 'mmAvDdlvQty'));
+      const stocPersMmN = roundExcel(woStocQty / mmAvDdlvQty, 1);
+
+      grid.setValue(itemIndex, 'stocPersMmN', stocPersMmN);
+
+      const bfEtExsDt = dayjs(baseYmd.value).add(stocPersMmN, 'month').format('YYYYMMDD');
+
+      grid.setValue(itemIndex, 'etExsDt', bfEtExsDt);
+
+      let ncstQty = (Number(mmAvDdlvQty) * 3) - Number(woStocQty);
+
+      if (ncstQty > 0) {
+        grid.setValue(itemIndex, 'ncstQty', ncstQty);
+      } else {
+        grid.setValue(itemIndex, 'ncstQty', 0);
+        ncstQty = 0;
+      }
+
+      const moq = Number(grid.getValue(itemIndex, 'minOrdQty'));
+
+      if (moq === 0 || ncstQty === 0) {
+        grid.setValue(itemIndex, 'goQty', 0);
+      } else if (moq > ncstQty) {
+        grid.setValue(itemIndex, 'goQty', moq);
+      } else {
+        let i = 1;
+        let goQty = 0;
+
+        while (ncstQty >= goQty) {
+          goQty = moq * i;
+
+          if (ncstQty >= goQty) {
+            grid.setValue(itemIndex, 'goQty', goQty);
+          }
+
+          i += 1;
+        }
+      }
+    } else if (filedName === 'goQty') {
+      if (Number(grid.getValue(itemIndex, 'ncstQty')) === 0) {
+        grid.setValue(itemIndex, 'goQty', 0);
+      } else {
+        const goQty = Number(grid.getValue(itemIndex, 'goQty'));
+        const goAmt = Number(grid.getValue(itemIndex, 'goUprc')) * goQty;
+
+        grid.setValue(itemIndex, 'goAmt', goAmt);
+      }
+    }
+  };
 });
 
 </script>
