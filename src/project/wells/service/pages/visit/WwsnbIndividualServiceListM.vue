@@ -834,8 +834,8 @@ watch(props, async (val) => {
 });
 
 onMounted(async () => {
-  if (props) {
-    onClickSearch();
+  if (props.cntrNo && props.cntrSn) {
+    await onClickSearch();
   }
 });
 
