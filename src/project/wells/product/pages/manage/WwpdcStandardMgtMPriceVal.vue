@@ -18,7 +18,6 @@
   <kw-form
     ref="frmChannelRef"
     :cols="2"
-    dense
     ignore-on-modified
   >
     <kw-form-row>
@@ -59,12 +58,11 @@
       </kw-form-item>
     </kw-form-row>
   </kw-form>
-  <kw-separator v-if="selectionVariables && selectionVariables.length" />
-  <kw-action-bottom class="mb30">
+  <kw-action-bottom class="my20">
     <kw-btn
       v-show="!props.readonly"
       :label="$t('MSG_BTN_ADD')"
-      dense
+      padding="12px"
       @click="onClickAdd"
     />
   </kw-action-bottom>

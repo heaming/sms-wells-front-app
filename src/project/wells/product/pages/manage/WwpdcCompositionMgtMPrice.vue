@@ -50,14 +50,13 @@
       </kw-form-item>
     </kw-form-row>
   </kw-form>
-  <div class="row justify-end mt20">
+  <kw-action-bottom class="my20">
     <kw-btn
-      secondary
-      dense
+      padding="12px"
       :label="$t('MSG_BTN_ADD')"
       @click="onClickAdd"
     />
-  </div>
+  </kw-action-bottom>
   <kw-action-top class="mt30">
     <!-- 삭제 -->
     <kw-btn
@@ -75,7 +74,7 @@
     <!-- 복사 -->
     <kw-btn
       :label="$t('MSG_BTN_CNTN_COPY')"
-      secondary
+      grid-action
       dense
       :disable="gridRowCount === 0"
       @click="onClickRowCopy"

@@ -22,7 +22,7 @@
       <kw-select
         v-model="productSearchType"
         dense
-        class="ml12 w120"
+        class="ml12 w140"
         :options="productSelectItems"
       />
       <kw-input

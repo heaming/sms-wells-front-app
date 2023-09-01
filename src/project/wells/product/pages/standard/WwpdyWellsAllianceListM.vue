@@ -152,7 +152,7 @@ import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdyClassification.vue';
-import { getCodeNames, getAlreadyItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
+import { getCodeNames, getAlreadyItems, setGridDateFromTo, isValidGridCodes } from '~sms-common/product/utils/pdUtil';
 
 const { alert, notify, modal } = useGlobal();
 const router = useRouter();
@@ -319,6 +319,7 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
+  if (!await isValidGridCodes(view, ['pdCd'])) { return; } // 상품코드 검사
   if (await checkDuplication()) { return; } // 중복 검사
   if (!await checkValidation()) { return; } // 유효 가격 검사
 
@@ -376,7 +377,6 @@ const initGrdMain = defineGrid((data, view) => {
       width: '160',
       styleName: 'text-center',
       editable: false,
-      rules: 'required',
     },
     // 상품명
     {
