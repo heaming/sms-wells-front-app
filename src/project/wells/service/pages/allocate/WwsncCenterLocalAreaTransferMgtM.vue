@@ -35,8 +35,8 @@
           <kw-select
             v-model="searchParams.wareAreaCd"
             :options="customCodes.DGR_2_LEVL_OG"
-            option-value="ogCd"
-            option-label="ogNm"
+            option-value="ogId"
+            option-label="ogCd"
             first-option="all"
           />
         </kw-search-item>
@@ -115,8 +115,8 @@
           v-model="gridParams.wareAreaCd"
           class="w200"
           :options="customCodes.DGR_2_LEVL_OG"
-          option-value="ogCd"
-          option-label="ogNm"
+          option-value="ogId"
+          option-label="ogCd"
           :placeholder="$t('이관지역단 선택')"
         />
         <kw-separator
@@ -422,9 +422,25 @@ const initGrid = defineGrid((data, view) => {
       editable: false,
       options: codes.MNGR_DV_CD,
     },
-    { fieldName: 'bfBrchOgId', header: '(전)지역단', width: '170', styleName: 'text-center', editable: false },
+    { fieldName: 'bfBrchOgId',
+      header: '(전)지역단',
+      width: '170',
+      styleName: 'text-center',
+      options: customCodes.DGR_2_LEVL_OG,
+      optionValue: 'ogId',
+      optionLabel: 'ogCd',
+      editable: false,
+    },
     { fieldName: 'fnlMdfcDtm', header: '최종이관', width: '160', styleName: 'text-center', datetimeFormat: 'datetime', editable: false },
-    { fieldName: 'brchOgId', header: '(현)지역단', width: '174', styleName: 'text-center', editable: false },
+    { fieldName: 'brchOgId',
+      header: '(현)지역단',
+      width: '174',
+      styleName: 'text-center',
+      options: customCodes.DGR_2_LEVL_OG,
+      optionValue: 'ogId',
+      optionLabel: 'ogCd',
+      editable: false,
+    },
     {
       fieldName: 'mdfcBrchOgId',
       header: {
@@ -434,8 +450,9 @@ const initGrid = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       options: customCodes.DGR_2_LEVL_OG,
-      optionValue: 'ogCd',
-      optionLabel: 'ogNm',
+      optionValue: 'ogId',
+      optionLabel: 'ogCd',
+      rules: 'required',
       editor: {
         type: 'list',
       },
@@ -449,6 +466,7 @@ const initGrid = defineGrid((data, view) => {
       width: '180',
       styleName: 'text-center',
       options: codes.TF_AK_RSON_CD,
+      rules: 'required',
       editor: {
         type: 'list',
       },
