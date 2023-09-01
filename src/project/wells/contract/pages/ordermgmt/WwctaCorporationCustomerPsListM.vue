@@ -170,6 +170,7 @@
       <kw-search-row>
         <kw-search-item
           :label="t('MSG_TXT_OG_CD')"
+          class="selectOrgs"
           :colspan="2"
         >
           <zwog-level-select
@@ -232,7 +233,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
-          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+          <span class="ml8">{{ t('MSG_TXT_UNIT_WON_MCNT') }}</span>
         </template>
 
         <kw-btn
@@ -680,5 +681,12 @@ function initGrid(data, view) {
   ]);
 }
 </script>
-<style scoped>
+<style scoped lang="scss">
+.selectOrgs {
+  ::v-deep(.kw-field-wrap .kw-select) {
+    width: 250px !important;
+    max-width: 250px !important;
+    min-width: 33% !important;
+  }
+}
 </style>

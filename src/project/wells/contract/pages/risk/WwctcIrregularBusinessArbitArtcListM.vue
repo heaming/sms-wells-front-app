@@ -17,11 +17,13 @@
   <kw-page>
     <kw-search
       :modified-targets="['grdMain']"
+      cols="4"
       @search="onClickSearch"
     >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_ACEPT_PERIOD')"
+          colspan="2"
         >
           <kw-select
             v-model="searchParams.srchGbn "
@@ -71,6 +73,7 @@
         <!-- 조직코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_OG_CD')"
+          class="selectOrgs"
           colspan="2"
         >
           <zwog-level-select
@@ -310,5 +313,12 @@ const initGrdMain = defineGrid((data, view) => {
   ]);
 });
 </script>
-<style scoped>
+<style scoped lang="scss">
+.selectOrgs {
+  ::v-deep(.kw-field-wrap .kw-select) {
+    width: 250px !important;
+    max-width: 250px !important;
+    min-width: 33% !important;
+  }
+}
 </style>

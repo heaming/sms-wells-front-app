@@ -212,18 +212,14 @@ async function onClickSave() {
         return;
       }
     }
-    if (!isEmpty(changedRows[i].telNo1)) {
-      const tel = changedRows[i].telNo1.replaceAll('-', '');
-      changedRows[i].locaraTno = getPhoneNumber(tel, 1);
-      changedRows[i].exnoEncr = getPhoneNumber(tel, 2);
-      changedRows[i].idvTno = getPhoneNumber(tel, 3);
-    }
-    if (!isEmpty(changedRows[i].telNo2)) {
-      const tel = changedRows[i].telNo2.replaceAll('-', '');
-      changedRows[i].cralLocaraTno = getPhoneNumber(tel, 1);
-      changedRows[i].mexnoEncr = getPhoneNumber(tel, 2);
-      changedRows[i].cralIdvTno = getPhoneNumber(tel, 3);
-    }
+    const tel1 = changedRows[i].telNo1.replaceAll('-', '');
+    changedRows[i].locaraTno = getPhoneNumber(tel1, 1);
+    changedRows[i].exnoEncr = getPhoneNumber(tel1, 2);
+    changedRows[i].idvTno = getPhoneNumber(tel1, 3);
+    const tel2 = changedRows[i].telNo2.replaceAll('-', '');
+    changedRows[i].cralLocaraTno = getPhoneNumber(tel2, 1);
+    changedRows[i].mexnoEncr = getPhoneNumber(tel2, 2);
+    changedRows[i].cralIdvTno = getPhoneNumber(tel2, 3);
   }
   await dataService.post('/sms/wells/contract/business-to-business/business-opportunities', changedRows);
 

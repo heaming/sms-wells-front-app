@@ -17,7 +17,7 @@
   <kw-page>
     <kw-search
       :modified-targets="['grdMain']"
-      cols="3"
+      cols="2"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -48,7 +48,7 @@
         <!-- 조직코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_OG_DV')"
-          colspan="2"
+          class="selectOrgs"
         >
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
@@ -525,3 +525,12 @@ const initGrid = defineGrid((data, view) => {
 });
 
 </script>
+<style scoped lang="scss">
+.selectOrgs {
+  ::v-deep(.kw-field-wrap .kw-select) {
+    width: 250px !important;
+    max-width: 250px !important;
+    min-width: 33% !important;
+  }
+}
+</style>
