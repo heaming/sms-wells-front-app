@@ -99,7 +99,7 @@
             v-model="saveParams.pdStdFee"
             :label="$t('MSG_TXT_PD_STD_FEE')"
             rules="required"
-            maxlength="20"
+            maxlength="15"
             type="number"
           />
         </kw-form-item>
