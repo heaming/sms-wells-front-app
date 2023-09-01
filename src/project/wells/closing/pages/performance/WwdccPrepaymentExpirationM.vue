@@ -421,8 +421,8 @@ async function onClickSendMessage() {
     cntrInfo: row.cntrInfo,
     prmEndYm: row.prmEndYm,
     mmpmYm: row.mmpmYm,
-    prmReAplcYn: row.prmReAplcYn,
     prmEndMm: row.prmEndMm,
+    pdCd: row.pdCd,
     pdNm: row.pdNm,
     cnt: row.cnt,
     currMm: row.currMm,
@@ -663,6 +663,7 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
     { fieldName: 'mmpmYm' },
     { fieldName: 'prmReAplcYn' },
     { fieldName: 'prmEndMm' },
+    { fieldName: 'pdCd' },
     { fieldName: 'pdNm' },
     { fieldName: 'cnt' },
     { fieldName: 'currMm' },
@@ -694,8 +695,18 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
     { fieldName: 'cntrInfo', header: t('MSG_TXT_PD_INF'), width: '249', styleName: 'text-left' },
     { fieldName: 'prmEndYm', header: t('MSG_TXT_PRM_EXN_YM'), width: '250', styleName: 'text-center' },
     { fieldName: 'mmpmYm', header: t('MSG_TXT_MM_PY_STRT_YM'), width: '250', styleName: 'text-center' },
-    { fieldName: 'prmReAplcYn', header: t('MSG_TXT_FW_OJ'), width: '200', styleName: 'text-center' },
+    { fieldName: 'prmReAplcY',
+      header: t('MSG_TXT_FW_OJ'),
+      width: '200',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback(g, index) {
+        const values = g.getValues(index.itemIndex);
+        if (values.prmReAplcYn === 'Y') return t('MSG_BTN_EXLD');
+        return t('MSG_TXT_INC');
+      },
+    },
     { fieldName: 'prmEndMm', width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'pdCd', width: '250', styleName: 'text-center', visible: false },
     { fieldName: 'pdNm', width: '250', styleName: 'text-center', visible: false },
     { fieldName: 'cnt', width: '250', styleName: 'text-center', visible: false },
     { fieldName: 'currMm', width: '250', styleName: 'text-center', visible: false },
