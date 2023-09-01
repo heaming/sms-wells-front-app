@@ -36,19 +36,20 @@
         <kw-input
           v-if="isSearchBryyMmddVisible"
           v-model="searchParams.bryyMmdd"
-          placeholder="20100101"
+          placeholder="900101"
           rules="required|max:8|numeric"
           :label="$t('MSG_TXT_BIRTH_DATE')"
           :type="number"
           :regex="/^[0-9]*$/i"
-          :maxlength="8"
+          mask="####-##-##"
         />
         <kw-select
           v-if="isSearchSexDvCdVisible"
           v-model="searchParams.sexDvCd"
-          rules="required"
           :options="codes.SEX_CD"
           :label="$t('MSG_TXT_GENDER')"
+          style="width: 50px;"
+          rules="required"
         />
         <kw-input
           v-if="isSearchBzrnoVisible"
@@ -58,7 +59,7 @@
           :label="$t('MSG_TXT_CBNO')"
           :type="number"
           :regex="/^[0-9]*$/i"
-          :maxlength="10"
+          mask="###-##-#####"
         />
       </kw-search-item>
       <!-- 계약자명 -->
@@ -99,8 +100,8 @@
           clearable
           :placeholder="t('MSG_TXT_INP')"
           :on-click-icon="onClickSearchCntrCst"
-          rules="max:10|numeric"
           :maxlength="10"
+          regex="num"
         />
       </kw-search-item>
       <!-- 탈퇴제외 -->
@@ -175,7 +176,7 @@ let cachedParams;
 const searchParams = ref({
   bryyMmddEntrpNoCbno: '1', // 생년월일/사업자/법인등록번호
   bryyMmdd: '', // 생년월일
-  sexDvCd: '', // 성별구분
+  sexDvCd: 'M', // 성별구분
   bzrno: '', // 사업자번호/법인번호
   cstKnm: '', // 계약자명
   cntrCralTno: '', // 계약자 휴대전화번호

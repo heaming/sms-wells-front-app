@@ -76,6 +76,7 @@
           clearable
           :label="$t('MSG_TXT_CNTR_NO')"
           :maxlength="12"
+          :regex="contractNumberRegEx"
           @keydown="onKeyDownSelectCntrNo"
           @click-icon="onClickSelectCntrNo"
           @clear="onClearSelectCntrNo"
@@ -159,6 +160,7 @@
           clearable
           icon="search"
           :maxlength="10"
+          regex="alpha_num"
           dense
           @click-icon="onClickSelectPdCd()"
         />
@@ -182,6 +184,7 @@
           clearable
           icon="search"
           :maxlength="10"
+          regex="num"
           @click-icon="onClickSearchPrtnrNoPopup()"
         />
       </kw-search-item>
@@ -193,9 +196,11 @@
           :model-value="[]"
         >
           <template #default="{ field }">
+            <!-- 미가입자만보기 -->
             <kw-checkbox
               v-model="checkType"
               v-bind="field"
+              :label="$t('MSG_TXT_UNSSCB_VIEW')"
               val=""
             />
           </template>
@@ -264,7 +269,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import dayjs from 'dayjs';
@@ -272,28 +277,32 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const { t } = useI18n();
 const { alert, modal, notify } = useGlobal();
-// const { getConfig } = useMeta();
+const { getUserInfo } = useMeta();
+const { tenantCd } = getUserInfo();
+const availablePrefix = ['E', 'W'].includes(tenantCd) ? tenantCd : '[EW]';
+const contractNumberRegEx = RegExp(`^${availablePrefix}\\d{0,11}?$`);
 const { currentRoute } = useRouter();
 
 let cachedParams;
 const now = dayjs();
 const searchParams = ref({
-  rcpDateDv: '1',
+  rcpDateDv: '1', // 접수일
   strtDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
   endDt: now.format('YYYYMMDD'), // 종료일자
-  dateSeltDv: '',
-  choStrtDt: '',
-  choEndDt: '',
-  cntrNo: '',
-  sellTpDtlCd: '',
-  cntrwTpCd: '',
-  sellInflwChnlDtlCd: '',
-  hcsfVal: '',
-  hcsfMcsfVal: '',
-  pdCd: '',
-  pdNm: '',
-  sellPrtnrNo: '',
-  cntrRcpFshDtYn: '',
+  dateSeltDv: '', // 일자선택
+  choStrtDt: '', // 일자선택(시작일자)
+  choEndDt: '', // 일자선택(종료일자)
+  cntrNo: '', // 계약번호
+  cntrSn: '', // 계약일련번호
+  sellTpDtlCd: '', // 계약구분
+  cntrwTpCd: '', // 멤버십구분
+  sellInflwChnlDtlCd: '', // 판매구분
+  hcsfVal: '', // 상품분류-대분류
+  hcsfMcsfVal: '', // 상품분류-중분류
+  pdCd: '', // 상품코드
+  pdNm: '', // 상품명
+  sellPrtnrNo: '', // 파트너코드
+  cntrRcpFshDtYn: '', // 미가입자만보기
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -470,7 +479,7 @@ async function onClickSelectCntrNo() {
 
   if (result) {
     searchParams.value.cntrNo = payload.cntrNo;
-    searchParams.value.cntrSn = payload.cntrSn;
+    // searchParams.value.cntrSn = payload.cntrSn;
   }
 }
 

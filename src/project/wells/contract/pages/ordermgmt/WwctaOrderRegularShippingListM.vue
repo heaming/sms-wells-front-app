@@ -50,8 +50,8 @@
           icon="search"
           clearable
           :on-click-icon="onClickSearchCntrCst"
-          rules="max:10|numeric"
           :maxlength="10"
+          regex="num"
         />
       </kw-search-item>
       <!-- 자료구분 -->
@@ -142,6 +142,7 @@
           clearable
           icon="search"
           :maxlength="10"
+          regex="num"
           @click-icon="onClickSearchPrtnrNoPopup()"
         />
       </kw-search-item>

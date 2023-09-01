@@ -96,6 +96,7 @@
           icon="search"
           dense
           :maxlength="10"
+          regex="alpha_num"
           @click-icon="onClickSelectPdCd()"
         />
       </kw-search-item>
@@ -180,6 +181,7 @@
           clearable
           icon="search"
           :maxlength="10"
+          regex="num"
           @click-icon="onClickSearchPrtnrNoPopup()"
         />
       </kw-search-item>
