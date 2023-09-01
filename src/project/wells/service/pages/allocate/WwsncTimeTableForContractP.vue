@@ -15,8 +15,8 @@
 -->
 <template>
   <kw-popup
-    size="xl"
     :title="props.title === '' ? $t('MSG_TIT_TIME_TABLE') + $t('MSG_TXT_SRCH') : props.title "
+    size="xl"
   >
     <h1>{{ $t('MSG_TIT_EGER_TIME_TABLE') /*엔지니어 Time table*/ }}</h1>
     <div class="normal-area normal-area--button-set-bottom pt30 mt15 w940">
@@ -49,8 +49,8 @@
                       <thead>
                         <tr>
                           <th
-                            colspan="7"
                             class="datepicker-title"
+                            colspan="7"
                             style="display: none;"
                           />
                         </tr>
@@ -62,8 +62,8 @@
                             «
                           </th>
                           <th
-                            colspan="5"
                             class="datepicker-switch"
+                            colspan="5"
                           >
                             {{ searchParams.baseYm.substring(0, 4) + $t('MSG_TXT_YEAR' /*년*/)
                             }}&nbsp;
@@ -109,12 +109,12 @@
                           <td
                             v-for="dayIdx of scheduleInfo.dayCnt"
                             :key="weekIdx * 0 + dayIdx"
-                            style="cursor: pointer;"
-                            :data-date="getYmdText(getDayCnt(weekIdx, dayIdx))"
                             :class="{ 'day old': /*비활성화*/ isOpacity(getDayCnt(weekIdx, dayIdx)),
                                       'day today': /*오늘*/isToday(getDayCnt(weekIdx, dayIdx)),
                                       'day sunday': /*휴일*/isHoliday(getDayCnt(weekIdx, dayIdx)),
                             }"
+                            :data-date="getYmdText(getDayCnt(weekIdx, dayIdx))"
+                            style="cursor: pointer;"
 
                             @click="onClickCalendar($event, weekIdx, dayIdx)"
                           >
@@ -161,9 +161,9 @@
                     {{ data.psic.prtnrKnm }}
                   </h3>
                   <kw-chip
+                    :label="data.psic.rolDvNm"
                     class="ml8"
                     color="primary"
-                    :label="data.psic.rolDvNm"
                     square
                     text-color="primary"
                   />
@@ -200,9 +200,9 @@
               </div>
               <kw-avatar size="60px">
                 <img
-                  alt="profile"
                   :src="'https://kportal.kyowon.co.kr/myoffice/Common/ezCommon_InterFace.aspx?TYPE=ENGINEER&FILENAME=' +
                     data.psic.empPic"
+                  alt="profile"
                 >
               </kw-avatar>
             </div>
@@ -215,9 +215,9 @@
                     {{ data.psic.prtnrKnm2 }}
                   </h3>
                   <kw-chip
+                    :label="$t('MSG_TXT_MANAGER')"
                     class="ml8"
                     color="primary"
-                    :label="$t('MSG_TXT_MANAGER')"
                     square
                     text-color="primary"
                   />
@@ -452,13 +452,13 @@
         </h3>
         <kw-input
           v-model.trim="data.egerMemo"
+          :disable="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
+            data.psic.vstPos
+            === '해당일 방문불가'"
           class="mt20 mb18"
           counter
           maxlength="500"
           type="textarea"
-          :disable="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
-            data.psic.vstPos
-            === '해당일 방문불가'"
         />
       </div>
 
@@ -469,12 +469,12 @@
           @click="onClickCancel"
         />
         <kw-btn
-          class="ml8"
-          :label="$t('MSG_BTN_SAVE')"
-          primary
           :disable="(data.chnlDvCd === 'K' || data.chnlDvCd === 'P'|| data.chnlDvCd === 'W') &&
             data.psic.vstPos
             === '해당일 방문불가'"
+          :label="$t('MSG_BTN_SAVE')"
+          class="ml8"
+          primary
           @click="onClickSave"
         />
       </div>
@@ -485,7 +485,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { notify, useDataService, useModal/* , alert */ } from 'kw-lib';
+import { notify, useDataService, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 
 import { cloneDeep, toInteger } from 'lodash-es';
@@ -543,8 +543,8 @@ const props = defineProps({
   cntrSn: { type: String, default: '1,2' },
   seq: { type: String, default: '' },
   title: { type: String, default: '' },
-  asIstOjNo: { type: String, default: '' },
-  cstSvAsnNo: { type: String, default: '' },
+  // asIstOjNo: { type: String, default: '' },
+  // cstSvAsnNo: { type: String, default: '' },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -597,8 +597,8 @@ const searchParams = ref({
   cntrNo: props.cntrNo,
   cntrSn: props.cntrSn,
   seq: props.seq,
-  asIstOjNo: props.asIstOjNo,
-  cstSvAsnNo: props.cstSvAsnNo,
+  // asIstOjNo: props.asIstOjNo,
+  // cstSvAsnNo: props.cstSvAsnNo,
 });
 if (searchParams.value.chnlDvCd === 'K' && searchParams.value.inflwChnl === '') { // KSS
   searchParams.value.inflwChnl = '3';
@@ -608,7 +608,6 @@ if (searchParams.value.chnlDvCd === 'C' && searchParams.value.inflwChnl === '') 
   searchParams.value.inflwChnl = '1';
 }
 const data = ref({
-  svBizDclsfCd: '',
   chnlDvCd: '',
   svDvCd: '',
   cntrNo: '',
@@ -648,10 +647,11 @@ const data = ref({
   pmShowVar: 0,
   egerMemo: '',
   seq: '',
-  cstSvAsnNo: '',
+  // cstSvAsnNo: '',
   prtnrNo: '',
   ogTpCd: '',
-  asIstOjNo: '',
+  asIstOjNos: [],
+  svBizDclsfCds: [],
 });
 
 function getCurrentDate() {
@@ -670,8 +670,6 @@ async function getTimeTables() {
   // timeConstMsg.value = [];
   clickedBtn.value = '';
   data.value.sellTime = '';
-
-  // console.log(JSON.stringify(data.value));
 
   //---------------------------------------------------------------
   // test
@@ -812,7 +810,7 @@ async function getTimeTables() {
     });
   }
 
-  console.log(data);
+  console.log(data.value);
 
   data.value.amWrkCnt = 0; // am_wrk_cnt
   data.value.pmWrkCnt = 0; // pm_wrk_cnt
@@ -1101,13 +1099,8 @@ async function onClickSave() {
     }
   }
 
-  const sendDataBase = {
-    //-------------------------------------------------
-    // inChnlDvCd: data.value.chnlDvCd,
+  const base = {
     inChnlDvCd: data.value.inflwChnl,
-    cstSvAsnNo: searchParams.value.cstSvAsnNo ? searchParams.value.cstSvAsnNo : data.value.cstSvAsnNo,
-    asIstOjNo: searchParams.value.asIstOjNo,
-    //-------------------------------------------------
     svBizHclsfCd: searchParams.value.svDvCd,
     rcpdt: data.value.wrkDt,
     mtrStatCd: searchParams.value.mtrStatCd,
@@ -1122,30 +1115,33 @@ async function onClickSave() {
     userId: data.value.userId, // 로그인한 사용자
     rcpOgTpCd: data.value.rcpOgTpCd, // 로그인한 사용자 조직유형
     cntrNo: searchParams.value.cntrNo,
+    cntrSn: data.value.cntrSn,
+    svBizDclsfCd: data.value.svBizDclsfCds.length > 0 ? data.value.svBizDclsfCds[0] : '',
+    asIstOjNo: data.value.asIstOjNos.length > 0 ? data.value.asIstOjNos[0] : '',
   };
   const sendDatas = [];
 
-  if (searchParams.value.cntrSn.includes(',') && searchParams.value.svBizDclsfCd.includes(',')) {
-    const cntrSns = searchParams.value.cntrSn.split(',');
-    const svBizDclsfCds = searchParams.value.svBizDclsfCd.split(',');
+  if (data.value.cntrSn.includes(',') && data.value.svBizDclsfCds.includes(',')
+  && data.value.asIstOjNos.includes(',')) {
+    const cntrSns = data.value.cntrSn.split(',');
+    const svBizDclsfCds = data.value.svBizDclsfCds.split(',');
+    const asIstOjNos = data.value.asIstOjNos.split(',');
 
     const cloneObj = (obj) => JSON.parse(JSON.stringify(obj));
 
     cntrSns.forEach((item, idx) => {
-      const sendData = cloneObj(sendDataBase);
+      const sendData = cloneObj(base);
       sendData.cntrSn = cntrSns[idx];
       sendData.svBizDclsfCd = svBizDclsfCds[idx];
+      sendData.asIstOjNo = asIstOjNos[idx];
       sendDatas.push(sendData);
     });
-  } else {
-    sendDataBase.cntrSn = searchParams.value.cntrSn;
-    sendDataBase.svBizDclsfCd = searchParams.value.svBizDclsfCd;
-    sendDatas.push(sendDataBase);
-  }
+  } else sendDatas.push(base);
+
   console.log(sendDatas);
   await dataService.post('/sms/wells/service/installation-works', sendDatas);
   notify(t('MSG_ALT_SAVE_DATA'));
-  ok(sendDataBase);
+  ok(sendDatas);
 }
 
 onMounted(async () => {
