@@ -125,11 +125,6 @@
           :label="$t('MSG_BTN_HIS_MGT')"
           @click="openZwfebFeeHistoryMgtP"
         />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
       </kw-action-top>
       <kw-grid
         v-if="isGrid1Visile"

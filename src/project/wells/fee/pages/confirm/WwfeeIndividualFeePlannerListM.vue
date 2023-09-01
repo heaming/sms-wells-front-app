@@ -538,7 +538,7 @@ const initGrd1Main = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
 
-  view.setFooters({ visible: true, items: [{ height: 30 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
 
   // multi row header setting
   view.setColumnLayout([
@@ -591,7 +591,7 @@ const initGrd2Main = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
 
-  view.setFooters({ visible: true, items: [{ height: 30 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
 
   // multi row header setting
   view.setColumnLayout([
@@ -641,7 +641,7 @@ const initGrd3Main = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setFooters({ visible: true, items: [{ height: 30 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
 
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = false; // create number indicator column
