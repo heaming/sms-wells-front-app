@@ -26,16 +26,15 @@
     :use-rule="false"
     ignore-on-modified
   />
-  <div class="row justify-end mt20 mb30">
+  <kw-action-bottom class="my20">
     <kw-btn
       v-show="!props.readonly"
-      secondary
-      dense
+      padding="12px"
       :label="$t('MSG_BTN_ADD')"
       @click="onClickAdd(true)"
     />
-  </div>
-  <kw-action-top class="mt30">
+  </kw-action-bottom>
+  <kw-action-top>
     <kw-btn
       :label="$t('MSG_BTN_DEL')"
       grid-action

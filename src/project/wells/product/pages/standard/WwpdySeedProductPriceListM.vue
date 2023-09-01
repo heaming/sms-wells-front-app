@@ -138,7 +138,7 @@ import { useDataService, useMeta, gridUtil, stringUtil, useGlobal, codeUtil, get
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getCodeNames, getDuplicatedItems, setGridDateFromTo } from '~sms-common/product/utils/pdUtil';
+import { getCodeNames, getDuplicatedItems, setGridDateFromTo, isValidGridCodes } from '~sms-common/product/utils/pdUtil';
 
 const { alert, notify, modal } = useGlobal();
 const router = useRouter();
@@ -317,6 +317,7 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
   if (!await gridUtil.validate(view)) { return; } // 유효성 검사
+  if (!await isValidGridCodes(view, ['pdctPdCd'])) { return; } // 상품코드 검사
   if (await checkDuplication()) { return; } // 중복 검사
 
   const changedRows = gridUtil.getChangedRowValues(view);
@@ -351,7 +352,6 @@ const initGrdMain = defineGrid((data, view) => {
       width: '120',
       styleName: 'text-center',
       editable: false,
-      rules: 'required',
     },
     // 제품명
     { fieldName: 'pdctPdNm',
@@ -508,6 +508,10 @@ const initGrdMain = defineGrid((data, view) => {
       editable: false,
       options: codes.PD_TP_DTL_CD,
     },
+    // 등록일
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', editable: false },
+    // 등록자
+    { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_FST_RGST_USR'), width: '100', styleName: 'text-center', editable: false },
     // 최종수정일
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', editable: false },
     // 최종수정자

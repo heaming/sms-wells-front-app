@@ -131,7 +131,7 @@ const cmpStdRef = ref();
 const cmpValRef = ref();
 const cmpFnlRef = ref();
 const cmpFeeRef = ref();
-const cmpCopyRef = ref();
+// const cmpCopyRef = ref();
 const currentPdCd = ref();
 const metaInfos = ref({});
 const currentInitData = ref({});
@@ -223,10 +223,10 @@ async function getSaveData(isBatchCopy) {
   // console.log('WwpdcStandardMgtMPrice - getSaveData - subList : ', subList);
 
   // 일괄복사
-  if (isBatchCopy) {
-    const copies = await cmpCopyRef.value?.getSaveData();
-    subList[prcfd] = pdMergeBy(subList[prcfd], copies?.[prcfd], pdConst.PRC_FNL_ROW_ID);
-  }
+  // if (isBatchCopy) {
+  //   const copies = await cmpCopyRef.value?.getSaveData();
+  //   subList[prcfd] = pdMergeBy(subList[prcfd], copies?.[prcfd], pdConst.PRC_FNL_ROW_ID);
+  // }
 
   return subList;
 }
@@ -274,9 +274,9 @@ async function isModifiedProps() {
   if (await cmpFeeRef.value.isModifiedProps()) {
     return true;
   }
-  if (await cmpCopyRef.value.isModifiedProps()) {
-    return true;
-  }
+  // if (await cmpCopyRef.value.isModifiedProps()) {
+  //   return true;
+  // }
   return false;
 }
 
