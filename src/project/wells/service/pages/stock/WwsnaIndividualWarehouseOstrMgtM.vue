@@ -520,8 +520,8 @@ async function onClickSave() {
 
   validRows = checkedRows.filter((item) => item.outQty < 1);
   if (!isEmpty(validRows)) {
-    // 출고수량은 0보다 커야합니다.
-    await alert(t('MSG_ALT_OSTR_QTY_ZERO_BE_BIG'));
+    // 생성수량은 0보다 커야합니다.
+    await alert(t('MSG_ALT_CRT_QTY_ZERO_BE_BIG'));
     return;
   }
 
@@ -597,24 +597,16 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd' },
     { fieldName: 'itmPdCd' },
     { fieldName: 'pdAbbrNm' },
-    { fieldName: 'partUseQty', dataType: 'number' },
-    { fieldName: 'under20per', dataType: 'number' },
     { fieldName: 'hgrCrtlStocQty', dataType: 'number' },
     { fieldName: 'totOutQty', dataType: 'number' },
     { fieldName: 'mngtUnit' },
-    { fieldName: 'mngtUnitNm' },
     { fieldName: 'matGdCd' },
     { fieldName: 'logisticStocQty', dataType: 'number' },
     { fieldName: 'boxUnitQty', dataType: 'number' },
     { fieldName: 'crtlStocQty', dataType: 'number' },
-    { fieldName: 'useQty', dataType: 'number' },
     { fieldName: 'cnfmQty', dataType: 'number' },
-    { fieldName: 'cnfmBoxQty', dataType: 'number' },
     { fieldName: 'aclOstrQty', dataType: 'number' },
-    { fieldName: 'aclOstrBoxQty', dataType: 'number' },
-    { fieldName: 'filterBoxQty', dataType: 'number' },
     { fieldName: 'outQty', dataType: 'number' },
-    { fieldName: 'outBoxQty', dataType: 'number' },
     { fieldName: 'itmQomAsnNo' },
     { fieldName: 'asnOjYm' },
     { fieldName: 'ostrWareNo' },
@@ -639,29 +631,20 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
-    { fieldName: 'partUseQty', header: t('MSG_TXT_FILT_NED_QTY'), width: '106', styleName: 'text-right' },
-    { fieldName: 'under20per', header: t('MSG_TXT_ASN_QTY_CPR_STOC_QTY_STG'), width: '100', styleName: 'text-right' },
     { fieldName: 'hgrCrtlStocQty', header: t('MSG_TXT_CNR_STOC'), width: '110', styleName: 'text-right' },
-    { fieldName: 'totOutQty', header: t('MSG_TXT_TOT_OSTR'), width: '100', styleName: 'text-right' },
-    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '106', styleName: 'text-center' },
-    { fieldName: 'matGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-center' },
-    { fieldName: 'logisticStocQty', header: t('MSG_TXT_HGR_STOC'), width: '100', styleName: 'text-right' },
-    { fieldName: 'boxUnitQty', header: t('MSG_TXT_UNIT_QTY'), width: '136', styleName: 'text-right' },
-    { fieldName: 'crtlStocQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'useQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'cnfmQty', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right' },
-    { fieldName: 'cnfmBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
-    { fieldName: 'aclOstrQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right' },
-    { fieldName: 'aclOstrBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
-    { fieldName: 'outBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
     { fieldName: 'outQty',
-      header: t('MSG_TXT_OSTR_QTY'),
+      header: `${t('MSG_TXT_CRT')}${t('MSG_TXT_QTY')}`,
       width: '110',
       rules: 'required|min_value:0|max_value:999999999999',
       styleName: 'text-right',
       editor: {
         type: 'number',
         editable: true } },
+    { fieldName: 'totOutQty', header: `${t('MSG_TXT_DTRM')} ${t('MSG_TXT_AF')} ${t('MSG_TXT_STOC')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'logisticStocQty', header: `${t('MSG_TXT_LGST_CNR')}(${t('MSG_TXT_PAJU')})`, width: '100', styleName: 'text-right' },
+    { fieldName: 'crtlStocQty', header: `${t('MSG_TXT_STOC_QTY')}(${t('MSG_TXT_INDV')})`, width: '100', styleName: 'text-right' },
+    { fieldName: 'cnfmQty', header: `${t('MSG_TXT_FST')} ${t('MSG_TXT_CRT')}${t('MSG_TXT_QTY')}`, width: '84', styleName: 'text-right' },
+    { fieldName: 'aclOstrQty', header: t('MSG_TXT_CNFM_QTY'), width: '84', styleName: 'text-right' },
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
       width: '240',
@@ -674,34 +657,6 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setColumnLayout([
-    'lgstTrsYn',
-    'wareNm',
-    'sapMatCd',
-    'itmPdCd',
-    'pdAbbrNm',
-    'partUseQty',
-    'under20per',
-    'hgrCrtlStocQty',
-    'totOutQty',
-    'mngtUnitNm',
-    'matGdCd',
-    'logisticStocQty',
-    'boxUnitQty',
-    'crtlStocQty', // single
-    'useQty',
-    {
-      header: t('MSG_TXT_QOM_ASN_CNFM'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['cnfmQty', 'cnfmBoxQty'],
-    },
-    {
-      header: t('MSG_TXT_QOM_ASN_OSTR'),
-      direction: 'horizontal',
-      items: ['aclOstrQty', 'aclOstrBoxQty'],
-    },
-    'outBoxQty', 'outQty', 'rmkCn',
-  ]);
 
   view.checkBar.fieldName = 'chk';
   view.checkBar.visible = true;
