@@ -334,6 +334,8 @@ async function fetchHigherWarehouses() {
   if (!hasProps()) {
     if (isOrgWarehouse.value) {
       warehouseInfo.value.hgrWareNo = '100002';
+    } else if (['31', '32'].includes(warehouseInfo.value.wareDtlDvCd)) {
+      warehouseInfo.value.hgrWareNo = res.data?.find((v) => v.isSameOg === 'Y')?.codeId ?? '';
     } else {
       warehouseInfo.value.hgrWareNo = hgrWarehouses.value[0]?.codeId ?? '';
     }
@@ -349,7 +351,6 @@ watch(() => warehouseInfo.value.adrUseYn, (val) => {
 
 // 영업센터 상위창고 변경 시 창고명 변경
 watch(() => warehouseInfo.value.hgrWareNo, (val) => {
-  console.log(`창고구분: ${warehouseInfo.value.wareDvCd} | 상위창고 ${val}(으)로 변경`);
   if (!hasProps() || isEmpty(val) || warehouseInfo.value.wareDvCd !== '3') return;
   if (hgrWarehouses.value.length === 0) return;
   const { codeName } = hgrWarehouses.value.find((v) => v.codeId === val) ?? { codeName: '' };
@@ -460,23 +461,16 @@ async function onClickOpenBuildingPopup() {
   if (isChanged) {
     warehouseInfo.value.bldCd = payload[0].bldCd;
     warehouseInfo.value.bldCdNm = payload[0].bldCdNm;
-    // warehouseInfo.value.wareAdrId = payload[0].adrId;
-    // warehouseInfo.value.rnadr = payload[0].rnadr;
-    // warehouseInfo.value.rdadr = payload[0].rdadr;
-    // warehouseInfo.value.rdadr = payload[0].rdadr;
-    // warehouseInfo.value.newAdrZip = payload[0].newAdrZip;
   }
 }
 
 async function fetchData() {
   const res = await dataService.get(`/sms/wells/service/warehouse-organizations/${props.apyYm}${props.wareNo}`);
-  console.log('### 창고 정보 ###');
-  console.log(res.data);
+
   warehouseInfo.value = res.data;
   warehouseInfo.value.orglhgrWareNo = res.data.hgrWareNo;
   warehouseInfo.value.hgrWareNo = res.data.hgrWareNo;
-  // const { hgrWareNo, hgrWareNm } = warehouseInfo.value;
-  // hgrWarehouses.value = [{ codeId: hgrWareNo, codeName: hgrWareNm }];
+
   await fetchHigherWarehouses();
 }
 
