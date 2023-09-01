@@ -239,6 +239,9 @@ const frmMainData = ref({
   actiGdsStddDvId: '',
 
 });
+const searchParams = ref({
+  ogTpCd: userInfo.ogTpCd, /* 조직유형코드 */
+});
 
 const pageInfo = ref({
   totalCount: 0,
@@ -294,7 +297,7 @@ async function fetchPages() {
 
 const onClickSearch = async () => {
   pageInfo.value.pageIndex = 1;
-  cachedParams = cloneDeep();
+  cachedParams = cloneDeep(searchParams.value);
   await fetchPages();
 };
 
