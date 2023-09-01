@@ -570,21 +570,26 @@
               판매자 정보
             </h3>
             <kw-form dense>
-              <!-- rev:230724 dense 추가 -->
               <kw-form-row>
                 <kw-form-item label="회사구분">
-                  <p>교원</p>
+                  <p>{{ (prepayBas.coNm||'') }}</p>
                 </kw-form-item>
                 <kw-form-item label="본부장">
-                  <p>1306951    마리꼬    C93112</p>
+                  <p>
+                    {{ (prepayBas.hooPrtnrNo||'') + ' / ' + (prepayBas.hooPrtnrNm||'')
+                      + ' / ' + (prepayBas.hooOgCd||'') }}
+                  </p>
                 </kw-form-item>
                 <kw-form-item label="판매구분">
-                  <p>WELLS</p>
+                  <p>{{ (prepayBas.sellDv||'') }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="판매자">
-                  <p>1556632 / 김판매 / C93112 / 2022-12-12</p>
+                  <p>
+                    {{ (prepayBas.sellPrtnrNo||'') + ' / ' + (prepayBas.prtnrKnm||'')
+                      + ' / ' + (prepayBas.prtnrOgCd||'') }}
+                  </p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
@@ -598,46 +603,53 @@
               <!-- rev:230724 dense 추가 -->
               <kw-form-row>
                 <kw-form-item label="계약상품명">
-                  <p>4760     3M     0     웰스(P22W3)</p>
+                  <p>
+                    {{ (prepayBas.basePdCd||'') + ' ' + (prepayBas.svPrd||'') + (prepayBas.svPtrmUnitNm||'')
+                      + ' ' + (prepayBas.svPdTpCd||'') + ' ' + (prepayBas.pdNm||'') }}
+                  </p>
                 </kw-form-item>
                 <kw-form-item label="계약일자">
-                  <p>2022-12-21</p>
+                  <p>{{ stringUtil.getDateFormat(prepayBas.cntrCnfmDt||'') }}</p>
                 </kw-form-item>
                 <kw-form-item label="매출일자">
-                  <p>2022-12-21</p>
+                  <p>{{ stringUtil.getDateFormat(prepayBas.istDt||'') }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="등록비용">
-                  <p>100,000 / 100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.cntrAmt||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="할인금액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.cntramDscAmt||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="렌탈총액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.rentalTam||0) }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="(1)렌탈료">
-                  <p>60 / 100,000</p>
+                  <p>
+                    {{ (prepayBas.cntrPtrm||0) + ' / ' + stringUtil.getNumberWithComma(prepayBas.rentalAmt||0) }}
+                  </p>
                 </kw-form-item>
                 <kw-form-item label="(2)렌탈료">
-                  <p>0 /0</p>
+                  <p>
+                    {{ (prepayBas.rentalPtrm2||0) + ' / ' + stringUtil.getNumberWithComma(prepayBas.rentalAmt2||0) }}
+                  </p>
                 </kw-form-item>
                 <kw-form-item label="계약총액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.cntrTam||0) }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="(1)렌탈료DC">
-                  <p>0</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.rentalDscAmt||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="(2)렌탈료DC">
-                  <p>0</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.rentalDscAmt2||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="가격차수">
-                  <p>01</p>
+                  <p>{{ (prepayBas.prcTcnt||'') }}</p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
@@ -650,33 +662,33 @@
             <kw-form dense>
               <!-- rev:230724 dense 추가 -->
               <kw-form-row>
-                <kw-form-item label="렌타차월">
-                  <p>9 / 9</p>
+                <kw-form-item label="렌탈차월">
+                  <p>{{ (prepayBas.prmRentalTn||'') + ' / ' + (prepayBas.rentalTn||'') }}</p>
                 </kw-form-item>
                 <kw-form-item label="교체일자">
-                  <p>2022-12-21</p>
+                  <p>{{ stringUtil.getDateFormat(prepayBas.chngDt||'') }}</p>
                 </kw-form-item>
                 <kw-form-item label="취소일자">
-                  <p>2022-12-21</p>
+                  <p>{{ stringUtil.getDateFormat(prepayBas.canDt||'') }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="선납잔액">
-                  <p>100,000 / 100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.prmBlam||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="선수잔액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.atamBlam||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="선수총액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.prpdTam||0) }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="미수총액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.thmUcBlam||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="연체금액">
-                  <p>0</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.eotDlqAmt||0) }}</p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
@@ -687,49 +699,61 @@
               <span class="kw-fc--black3 text-weight-regular">(단위:원)</span>
             </kw-action-top>
             <kw-form dense>
-              <!-- rev:230724 dense 추가 -->
               <kw-form-row>
                 <kw-form-item label="선납회차">
-                  <p>1</p>
+                  <span style="color: red;">{{ (prepayBf.lstPrmTn||'') }}</span>
                 </kw-form-item>
                 <kw-form-item label="선납개월/할인율">
-                  <p>12 / 10%</p>
+                  <p>
+                    {{
+                      (prepayBf.lstPrmMcn||'') + ' / '
+                        + (prepayBf.lstPrmDscr||'') + (isEmpty(prepayBf.lstPrmDscr||'')?'':'%')
+                    }}
+                  </p>
                 </kw-form-item>
                 <kw-form-item label="선납유형">
-                  <p>정상</p>
+                  <p>{{ (prepayBf.prmTp||'') }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="선납시작">
-                  <p>2022-12</p>
+                  <p>{{ (prepayBf.prmStrtYm||'').substr(0,4) + '-' + (prepayBf.prmStrtYm||'').substr(4) }}</p>
                 </kw-form-item>
                 <kw-form-item label="선납종료">
-                  <p>2022-12</p>
+                  <p>{{ (prepayBf.prmEndYm||'').substr(0,4) + '-' + (prepayBf.prmEndYm||'').substr(4) }}</p>
                 </kw-form-item>
                 <kw-form-item label="선납일자">
-                  <p>2022-12-12</p>
+                  <p>{{ stringUtil.getDateFormat(prepayBf.prmDt||'') }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="(1)선납액">
-                  <p>21,510 / 12</p>
+                  <p>
+                    {{ stringUtil.getNumberWithComma(prepayBf.prmAmt||0)
+                      + (isEmpty(prepayBf.lstPrmMcn||'')?'':' / ')
+                      + (prepayBf.lstPrmMcn||'') }}
+                  </p>
                 </kw-form-item>
                 <kw-form-item label="(2)선납액">
-                  <p>0 / 0</p>
+                  <p>
+                    {{ stringUtil.getNumberWithComma(prepayBf.prmAmt2||0)
+                      + (isEmpty(prepayBf.prmPtrm2||'')?'':' / ')
+                      + (prepayBf.prmPtrm2||'') }}
+                  </p>
                 </kw-form-item>
                 <kw-form-item label="선납총액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBf.prmTam||0) }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="(1)할인액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBf.dscPrmAmt||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="(2)할인액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBf.dscPrmAmt2||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="할인총액">
-                  <p>0</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBf.dscTam||0) }}</p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
@@ -742,46 +766,63 @@
             <kw-form>
               <kw-form-row>
                 <kw-form-item label="선납회차">
-                  <p>1</p>
+                  <span style="color: red;">{{ (prepayAf.lstPrmTn||'') }}</span>
                 </kw-form-item>
                 <kw-form-item label="선납개월/할인율">
-                  <kw-input class="w80 mr8" /> <p>/ 10%</p>
+                  <kw-input
+                    v-model="prepayAf.lstPrmMcn"
+                    class="w80 mr8"
+                    readonly
+                  />
+                  <p>{{ ' / ' + (prepayAf.lstPrmDscr||'') + (isEmpty(prepayAf.lstPrmDscr||'')?'':'%') }}</p>
                 </kw-form-item>
                 <kw-form-item label="선납유형">
-                  <p>정상</p>
+                  <p>{{ (prepayAf.prmTp||'') }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="선납시작">
-                  <p>2022-12</p>
+                  <p>{{ (prepayAf.prmStrtYm||'').substr(0,4) + '-' + (prepayAf.prmStrtYm||'').substr(4) }}</p>
                 </kw-form-item>
                 <kw-form-item label="선납종료">
-                  <p>2022-12</p>
+                  <p>{{ (prepayAf.prmEndYm||'').substr(0,4) + '-' + (prepayAf.prmEndYm||'').substr(4) }}</p>
                 </kw-form-item>
                 <kw-form-item label="선납일자">
-                  <kw-input />
+                  <kw-date-picker
+                    v-model="prepayAf.prmDt"
+                    type="date"
+                    :readonly="!rgstMode"
+                  />
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="(1)선납액">
-                  <p>21,510 / 12</p>
+                  <p>
+                    {{ stringUtil.getNumberWithComma(prepayAf.prmAmt||0)
+                      + (isEmpty(prepayAf.lstPrmMcn||'')?'':' / ')
+                      + (prepayAf.lstPrmMcn||'') }}
+                  </p>
                 </kw-form-item>
                 <kw-form-item label="(2)선납액">
-                  <p>0 / 0</p>
+                  <p>
+                    {{ stringUtil.getNumberWithComma(prepayAf.prmAmt2||0)
+                      + (isEmpty(prepayAf.prmPtrm2||'')?'':' / ')
+                      + (prepayAf.prmPtrm2||'') }}
+                  </p>
                 </kw-form-item>
                 <kw-form-item label="선납총액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayAf.prmTam||0) }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="(1)할인액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayAf.dscPrmAmt||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="(2)할인액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayAf.dscPrmAmt2||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="할인총액">
-                  <p>0</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayAf.dscTam||0) }}</p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
@@ -792,21 +833,20 @@
               <span class="kw-fc--black3 text-weight-regular">(단위:원)</span>
             </kw-action-top>
             <kw-form dense>
-              <!-- rev:230724 dense 추가 -->
               <kw-form-row>
                 <kw-form-item label="선납차액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.prmDiff||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="할인차액">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.dscDiff||0) }}</p>
                 </kw-form-item>
                 <kw-form-item label="추가매출">
-                  <p>100,000</p>
+                  <p>{{ stringUtil.getNumberWithComma(prepayBas.extraSales||0) }}</p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item label="확정일자">
-                  <p>2022-12</p>
+                  <p>{{ stringUtil.getDateFormat(prepayBas.prmDt||'') }}</p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
@@ -816,23 +856,23 @@
                 padding="12px"
                 :label="$t('MSG_BTN_RGST')"
                 class="mr8"
-                :disable="!isFetched"
-                @click="alert('준비중입니다.')"
+                :disable="!isFetched || rgstMode"
+                @click="onClickPrepayRgst"
               />
               <!-- 취소 -->
               <kw-btn
                 padding="12px"
                 :label="$t('MSG_BTN_CANCEL')"
                 class="mr8"
-                :disable="!isFetched"
-                @click="alert('준비중입니다.')"
+                :disable="!isFetched || !rgstMode"
+                @click="onClickPrepayCancel"
               />
               <!-- 저장 -->
               <kw-btn
                 padding="12px"
                 :label="$t('MSG_BTN_SAVE')"
-                :disable="!isFetched"
-                @click="alert('준비중입니다.')"
+                :disable="!isFetched || !rgstMode"
+                @click="onClickPrepaySave"
               />
             </div>
           </kw-expansion-item>
@@ -851,11 +891,12 @@
 
             <kw-action-top>
               <template #left>
-                <kw-paging-info :total-count="156" />
+                <kw-paging-info :total-count="totalCount" />
               </template>
               <span class="kw-fc--black3 text-weight-regular">(단위 : 원/월/%)</span>
             </kw-action-top>
             <kw-grid
+              ref="grdPrepayRef"
               :visible-rows="4"
               class="mb20"
               @init="initGrid"
@@ -1169,6 +1210,7 @@ const { t } = useI18n();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const obsRef = ref(getComponentType('KwPage'));
+const grdPrepayRef = ref(getComponentType('KwGrid'));
 const saveGbn = ref({ prod: 'prod', prePay: 'prePay', pmot: 'pmot', istEnv: 'istEnv' });
 
 const codes = await codeUtil.getMultiCodes(
@@ -1418,10 +1460,43 @@ async function fetchProductAdditionalInfoData() {
   await initProduct();
 }
 
+const totalCount = ref(0);
+const prepayBas = ref({}); // 선변 기본정보
+const prepayBf = ref({}); // 선변(전)
+const prepayAf = ref({}); // 선변(후)
+
+// 선납 정보 조회
+async function fetchPrepayments() {
+  // 조회 전 초기화
+  const view = grdPrepayRef.value.getView();
+  view.getDataSource().clearRows();
+  prepayBas.value = {};
+  prepayBf.value = {};
+  prepayAf.value = {};
+
+  const res = await dataService.get(
+    '/sms/wells/contract/changeorder/rental-change-infos/prepayment',
+    { params:
+      { cntrNo: searchParams.value.cntrNo,
+        cntrSn: searchParams.value.cntrSn,
+      },
+    },
+  );
+
+  Object.assign(prepayBas.value, res.data[0]);
+  totalCount.value = res.data.length;
+
+  view.getDataSource().setRows(res.data);
+  view.resetCurrent();
+}
+
 const isFetched = ref(false);
+const rgstMode = ref(false); // 등록 모드 플래그
+
 // 기본정보 조회
 async function fetchData() {
   isFetched.value = false;
+  rgstMode.value = false;
 
   // 조회 전 기존 데이터 초기화
   fieldData.value = {};
@@ -1454,6 +1529,9 @@ async function fetchData() {
 
   // 설치환경 및 요청사항 초기화
   await initIstEnvRequest();
+
+  // 선납 정보 조회
+  await fetchPrepayments();
 
   obsRef.value.init();
 }
@@ -1605,6 +1683,48 @@ async function onClickProductChangeSave() {
   await fetchData();
 }
 
+// (선납) 등록 버튼 클릭
+async function onClickPrepayRgst() {
+  // 등록 플래그 true
+  rgstMode.value = true;
+
+  const view = grdPrepayRef.value.getView();
+  const dataSource = view.getDataSource();
+  const count = view.getItemCount();
+  const lastRowData = dataSource.getJsonRow(count - 1, false);
+
+  Object.assign(prepayBas.value, lastRowData);
+  prepayBas.value.prmDt = ''; // 확정일자(=선납일자) 초기화
+  Object.assign(prepayAf.value, lastRowData);
+  prepayAf.value = {
+    lstPrmTn: toNumber(lastRowData.lstPrmTn || 0) + 1, // 선납회차 세팅. 마지막 선납회차 + 1
+    lstPrmMcn: '12', // 선납개월 세팅. 12개월로 고정. 정책상 새로 등록하는 선납개월은 12개월만 허용한다고 함.
+    lstPrmDscr: '5', // 선납할인율 세팅. 5%로 고정. 선납개월 12개월에 대한 할인율 5%.
+  };
+}
+
+// (선납) 취소 버튼 클릭
+async function onClickPrepayCancel() {
+  // 등록 플래그 false
+  rgstMode.value = false;
+
+  // 선변 초기화
+  prepayBf.value = {};
+  prepayAf.value = {};
+}
+
+// (선납) 저장 버튼 클릭
+async function onClickPrepaySave() {
+  if (isEmpty(prepayAf.value.prmDt)) {
+    await alert('선납일자은(는) 필수입력입니다.');
+    return;
+  }
+
+  // TODO: 저장 구현
+  console.log(prepayAf.value);
+  console.log(prepayBf.value);
+}
+
 // 설치환경 저장 버튼 클릭
 async function onClickInstallmentEnvironmentSave() {
   if (!await confirm('설치환경 정보를 변경하시겠습니까?')) return;
@@ -1651,8 +1771,8 @@ async function onClickCntrDelete() {
 }
 
 watch(() => orderProduct.value.sellDscCtrAmt, async () => {
-  console.log(toNumber(orderProduct.value.sellDscCtrAmt || 0));
-  console.log(toNumber(orderProduct.value.sellAmt || 0));
+  // console.log(toNumber(orderProduct.value.sellDscCtrAmt || 0));
+  // console.log(toNumber(orderProduct.value.sellAmt || 0));
 
   if (toNumber(orderProduct.value.sellDscCtrAmt || 0) > toNumber(orderProduct.value.sellAmt || 0)) {
     alert('할인금액이 렌탈금액보다 높을 수 없습니다.');
@@ -1668,49 +1788,124 @@ watch(() => orderProduct.value.sellDscCtrAmt, async () => {
 
 function initGrid(data, view) {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
+    { fieldName: 'cntrNo' }, /* 계약번호 */
+    { fieldName: 'cntrSn' }, /* 계약일련번호 */
+    { fieldName: 'dtlBtn' }, /* 상세버튼 */
+    { fieldName: 'coCd' }, /* 회사코드 */
+    { fieldName: 'coCdNm' }, /* 회사코드명 */
+    { fieldName: 'coNm' }, /* [회사구분] 회사코드명 */
+    { fieldName: 'hooPrtnrNo' }, /* [본부장-사번] 조직장파트너번호 */
+    { fieldName: 'hooPrtnrNm' }, /* [본부장-이름] 조직장파트너명 */
+    { fieldName: 'hooOgCd' }, /* [본부장-조직코드] 조직장조직코드 */
+    { fieldName: 'sellDv' }, /* [판매구분] 판매유입채널상세코드 */
+    { fieldName: 'sellPrtnrNo' }, /* [판매자-사번] 판매파트너번호 */
+    { fieldName: 'prtnrKnm' }, /* [판매자-이름] 파트너한글명 */
+    { fieldName: 'prtnrOgCd' }, /* [판매자-조직코드] 파트너조직코드 */
+    { fieldName: 'basePdCd' }, /* [계약상품명-상품코드] 기준상품코드 */
+    { fieldName: 'svPrd' }, /* [계약상품명-서비스주기] 서비스주기 */
+    { fieldName: 'svPtrmUnitCd' }, /* 서비스기간단위코드 */
+    { fieldName: 'svPtrmUnitNm' }, /* [계약상품명-서비스기간단위] 서비스기간단위명 */
+    { fieldName: 'svPdTpCd' }, /* [계약상품명-서비스유형코드] 서비스유형코드 - 코드값 SV_TP_CD */
+    { fieldName: 'pdNm' }, /* [계약상품명-상품명] 상품명 */
+    { fieldName: 'cntrCnfmDt' }, /* [계약일자] 계약확정일 */
+    { fieldName: 'istDt' }, /* [매출일자] 설치일자 */
+    { fieldName: 'cntrAmt' }, /* [등록비용] 계약금 - AS-IS 확인시 계약금할인금액이 포함 됨 */
+    { fieldName: 'cntramDscAmt' }, /* [할인금액] 계약금할인금액 */
+    { fieldName: 'rentalTam' }, /* [렌탈총액] (최종금액 + 판매할인 조정금액) * 계약기간 */
+    { fieldName: 'cntrPtrm' }, /* [(1)렌탈료-기간] 계약기간 */
+    { fieldName: 'rentalAmt' }, /* [(1)렌탈료-금액] (최종금액 + 판매할인 조정금액) */
+    { fieldName: 'rentalPtrm2' }, /* [(2)렌탈료-기간] 렌탈기간2 */
+    { fieldName: 'rentalAmt2' }, /* [(2)렌탈료-금액] 렌탈금액2 */
+    { fieldName: 'cntrTam' }, /* [계약총액] 계약총액 */
+    { fieldName: 'rentalDscAmt' }, /* [(1)렌탈료DC] 렌탈료DC(판매금액-최종금액) */
+    { fieldName: 'rentalDscAmt2' }, /* [(2)렌탈료DC] 렌탈할인금액2 */
+    { fieldName: 'prcTcnt' }, /* [가격차수] 가격차수(LC5000P.LCETC3) TODO:맵핑없음 */
+    { fieldName: 'prmRentalTn' }, /* [렌탈차월-선납시작년월기준] 렌탈차월-선납시작년월기준 */
+    { fieldName: 'rentalTn' }, /* [렌탈차월-매출마감년월기준] 렌탈차월-매출마감년월기준 */
+    { fieldName: 'chngDt' }, /* [교체일자] 교체일자 */
+    { fieldName: 'canDt' }, /* [취소일자] 취소일자 AS-IS LC5000P에서 조회 하므로 WELLS매출월마감내역에서 조회하도록 함 */
+    { fieldName: 'prmBlam' }, /* [선납잔액] 선납잔액 - 금액동일 */
+    { fieldName: 'atamBlam' }, /* 선수잔액 - 금액동일 [선수잔액] */
+    { fieldName: 'prpdTam' }, /* [선수총액] 선수총액 */
+    { fieldName: 'thmUcBlam' }, /* [미수총액] 당월미수잔액(전월) */
+    { fieldName: 'eotDlqAmt' }, /* [연체금액] 기말연체금액 */
+    { fieldName: 'lstPrmTn' }, /* [선변-선납회차] 선납회차 */
+    { fieldName: 'lstPrmMcn' }, /* [선변-선납개월] 선납개월 */
+    { fieldName: 'lstPrmDscr' }, /* [선변-할인율] 선납할인율 [선변_前-선납개월/할인율] */
+    { fieldName: 'prmTp' }, /* [선변-선납유형] 선납유형(LC3200P.LCPFLG) TODO:맵핑없음 */
+    { fieldName: 'prmStrtYm' }, /* [선변-선납시작] 선납시작년월 */
+    { fieldName: 'prmEndYm' }, /* [선변-선납종료] 선납종료년월 */
+    { fieldName: 'prmDt' }, /* [선변-선납일자] 선납일 */
+    { fieldName: 'prmAmt', dataType: 'number' }, /* [선변-(1)선납액] = 렌탈료(1)-할인액(1)  */
+    { fieldName: 'prmAmt2', dataType: 'number' }, /* [선변-(2)선납액] (2)선납액. TODO:맵핑없음 */
+    { fieldName: 'prmDscAmt2' }, /* (2)선납액(할인액)[선변-(2)선납액] TODO:맵핑없음 */
+    { fieldName: 'prmPtrm2' }, /* [선변-(2)선납기간] TODO:맵핑없음 */
+    { fieldName: 'prmTam', dataType: 'number' }, /* [선변-선납총액] 선납총액 */
+    { fieldName: 'dscPrmAmt', dataType: 'number' }, /* [선변-(1)할인액] (1)할인액 */
+    { fieldName: 'dscPrmAmt2', dataType: 'number' }, /* [선변-(2)할인액] (2)할인액 TODO:맵핑없음 */
+    { fieldName: 'dscTam', dataType: 'number' }, /* [선변-할인총액] TODO:맵핑없음 */
+    { fieldName: 'prmDiff', dataType: 'number' }, /* [선변-선납차액] TODO:맵핑없음 */
+    { fieldName: 'dscDiff', dataType: 'number' }, /* [선변-할인차액] TODO:맵핑없음 */
+    { fieldName: 'extraSales', dataType: 'number' }, /* [선변-추가매출] TODO:맵핑없음 */
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '선납회차', width: '80', styleName: 'text-center' },
-    { fieldName: 'col2', header: '상세', width: '100', styleName: 'text-center', renderer: { type: 'button' } },
-    { fieldName: 'col3', header: '선납개월', width: '100', styleName: 'text-right' },
-    { fieldName: 'col4', header: '선납할인율', width: '100', styleName: 'text-right' },
-    { fieldName: 'col5', header: '선납유형', width: '100', styleName: 'text-center' },
-    { fieldName: 'col6', header: '선납시작', width: '100', styleName: 'text-center' },
-    { fieldName: 'col7', header: '선납종료', width: '100', styleName: 'text-center' },
-    { fieldName: 'col8', header: '선납일자', width: '100', styleName: 'text-center' },
-    { fieldName: 'col9', header: '(1)선납액', width: '100', styleName: 'text-right' },
-    { fieldName: 'col10', header: '(1)선납기간', width: '100', styleName: 'text-right' },
-    { fieldName: 'col11', header: '(2)선납액', width: '100', styleName: 'text-right' },
-    { fieldName: 'col12', header: '(2)선납기간', width: '100', styleName: 'text-right' },
-    { fieldName: 'col13', header: '선납총액', width: '100', styleName: 'text-right' },
-    { fieldName: 'col14', header: '(1)할인액', width: '100', styleName: 'text-right' },
-    { fieldName: 'col15', header: '(2)할인액', width: '100', styleName: 'text-right' },
-    { fieldName: 'col16', header: '할인총액', width: '100', styleName: 'text-right' },
-    { fieldName: 'col17', header: '선납총액', width: '100', styleName: 'text-right' },
-    { fieldName: 'col18', header: '할인차액', width: '100', styleName: 'text-right' },
-    { fieldName: 'col19', header: '할인차액', width: '100', styleName: 'text-right' },
-    { fieldName: 'col20', header: '확정일자', width: '100', styleName: 'text-center' },
+    { fieldName: 'lstPrmTn', header: '선납회차', width: '80', styleName: 'text-center' },
+    { fieldName: 'dtlBtn',
+      header: '상세',
+      width: '100',
+      styleName: 'text-center',
+      renderer: { type: 'button' },
+      displayCallback() {
+        return '상세보기';
+      },
+    },
+    { fieldName: 'lstPrmMcn', header: '선납개월', width: '100', styleName: 'text-right' },
+    { fieldName: 'lstPrmDscr', header: '선납할인율', width: '100', styleName: 'text-right' },
+    { fieldName: 'prmTp', header: '선납유형', width: '100', styleName: 'text-center' },
+    { fieldName: 'prmStrtYm',
+      header: '선납시작',
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(g, index, val) {
+        if (!isEmpty(val)) {
+          if (val.length === 5) {
+            return `${val.substr(0, 4)}-0${val.substr(4)}`;
+          } if (val.length === 6) {
+            return `${val.substr(0, 4)}-${val.substr(4)}`;
+          }
+          return '';
+        }
+      },
+    },
+    { fieldName: 'prmEndYm',
+      header: '선납종료',
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(g, index, val) {
+        if (!isEmpty(val)) {
+          if (val.length === 5) {
+            return `${val.substr(0, 4)}-0${val.substr(4)}`;
+          } if (val.length === 6) {
+            return `${val.substr(0, 4)}-${val.substr(4)}`;
+          }
+          return '';
+        }
+      },
+    },
+    { fieldName: 'prmDt', header: '선납일자', width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'prmAmt', header: '(1)선납액', width: '100', styleName: 'text-right' },
+    { fieldName: 'lstPrmMcn', header: '(1)선납기간', width: '100', styleName: 'text-right' },
+    { fieldName: 'prmAmt2', header: '(2)선납액', width: '100', styleName: 'text-right' },
+    { fieldName: 'prmPtrm2', header: '(2)선납기간', width: '100', styleName: 'text-right' },
+    { fieldName: 'prmTam', header: '선납총액', width: '100', styleName: 'text-right' },
+    { fieldName: 'dscPrmAmt', header: '(1)할인액', width: '100', styleName: 'text-right' },
+    { fieldName: 'dscPrmAmt2', header: '(2)할인액', width: '100', styleName: 'text-right' },
+    { fieldName: 'dscTam', header: '할인총액', width: '100', styleName: 'text-right' },
+    { fieldName: 'prmDiff', header: '선납차액', width: '100', styleName: 'text-right' },
+    { fieldName: 'dscDiff', header: '할인차액', width: '100', styleName: 'text-right' },
+    { fieldName: 'extraSales', header: '추가매출', width: '100', styleName: 'text-right' },
+    { fieldName: 'prmDt', header: '확정일자', width: '100', styleName: 'text-center', datetimeFormat: 'date' },
   ];
 
   data.setFields(fields);
@@ -1719,12 +1914,23 @@ function initGrid(data, view) {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  data.setRows([
-    { col1: '1', col2: '상세보기', col3: '12', col4: '10', col5: '정상', col6: '2022-06', col7: '2022-06', col8: '2022-06', col9: '20,000', col10: '12', col11: '0', col12: '0', col13: '23,000', col14: '5,000', col15: '0', col16: '12', col17: '12', col18: '12', col19: '12', col20: '2022-12-12' },
-    { col1: '2', col2: '상세보기', col3: '12', col4: '10', col5: '정상', col6: '2022-06', col7: '2022-06', col8: '2022-06', col9: '20,000', col10: '12', col11: '0', col12: '0', col13: '23,000', col14: '5,000', col15: '0', col16: '12', col17: '12', col18: '12', col19: '12', col20: '2022-12-12' },
-    { col1: '3', col2: '상세보기', col3: '12', col4: '10', col5: '정상', col6: '2022-06', col7: '2022-06', col8: '2022-06', col9: '20,000', col10: '12', col11: '0', col12: '0', col13: '23,000', col14: '5,000', col15: '0', col16: '12', col17: '12', col18: '12', col19: '12', col20: '2022-12-12' },
-    { col1: '4', col2: '수정', col3: '12', col4: '10', col5: '정상', col6: '2022-06', col7: '2022-06', col8: '2022-06', col9: '20,000', col10: '12', col11: '0', col12: '0', col13: '23,000', col14: '5,000', col15: '0', col16: '12', col17: '12', col18: '12', col19: '12', col20: '2022-12-12' },
-  ]);
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'dtlBtn') {
+      // 선변 기본 정보 세팅
+      prepayBas.value = g.getValues(itemIndex);
+
+      // 선변 전,후 정보 세팅
+      if (itemIndex === 0) {
+        prepayBf.value = g.getValues(itemIndex);
+        prepayAf.value = g.getValues(itemIndex);
+      } else {
+        prepayBf.value = g.getValues(itemIndex - 1);
+        prepayAf.value = g.getValues(itemIndex);
+      }
+      // 등록모드 종료
+      rgstMode.value = false;
+    }
+  };
 }
 </script>
 
