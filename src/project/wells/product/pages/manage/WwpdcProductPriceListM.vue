@@ -73,6 +73,16 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 판매유형 -->
+        <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
+          <kw-select
+            v-model="searchParams.sellTpCd"
+            :model-value="split(trim(searchParams.sellTpCd), ',')?.filter(i => i === 0 || i) ?? []"
+            :options="codes.SELL_TP_CD"
+            multiple
+            :readonly="searchParams.pdTpCd === 'C'"
+          />
+        </kw-search-item>
         <!-- 사은품 여부 -->
         <kw-search-item
           :label="$t('TXT_MSG_FGPT_YN')"
@@ -93,6 +103,8 @@
             multiple
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 판매여부 -->
         <kw-search-item
           :label="$t('MSG_TXT_SLE_YN')"
@@ -104,8 +116,6 @@
             first-option="all"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <!-- 계약(약정)개월 -->
         <kw-search-item :label="$t('MSG_TXT_CON_MONTHS')">
           <kw-input
@@ -170,14 +180,6 @@ import { merge, isEmpty, cloneDeep, split, trim } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getPdMetaToCodeNames, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
 import ZwpdProductClassificationSelect from '~sms-common/product/pages/standard/components/ZwpdyClassification.vue';
-
-const props = defineProps({
-  searchType: { type: String, default: null },
-  searchValue: { type: String, default: null },
-  selectType: { type: String, default: pdConst.PD_SEARCH_SINGLE },
-  exceptPdCd: { type: String, default: null },
-  sellTpCd: { type: String, default: null },
-});
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -293,30 +295,18 @@ async function onUpdateProductType() {
   grdCmpRef.value?.getView().getDataSource().clearRows();
   pageInfo.value.totalCount = 0;
   pageInfo.value.pageIndex = 1;
+  if (searchParams.value.pdTpCd !== pdConst.PD_TP_CD_STANDARD) {
+    searchParams.valuepdClsfCd = '';
+    searchParams.valueprdtCateHigh = '';
+    searchParams.valueprdtCateMid = '';
+    searchParams.valueprdtCateLow = '';
+    searchParams.valueprdtCateLowDtl = '';
+    searchParams.value.sellTpCd = '';
+  }
   pageInfo.value.pageSize = Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'));
 }
 
-async function initProps() {
-  const { searchType, searchValue, sellTpCd, exceptPdCd } = props;
-  searchParams.value.sellTpCd = sellTpCd;
-  searchParams.value.exceptPdCd = exceptPdCd;
-  if (searchType || searchValue) {
-    if (searchType === pdConst.PD_SEARCH_CODE) {
-      searchParams.value.pdCd = searchValue;
-    } else {
-      searchParams.value.pdNm = searchValue;
-    }
-
-    onMounted(async () => {
-      if (searchType && searchValue) {
-        await onClickSearch();
-      }
-    });
-  }
-}
 await fetchMetaData();
-
-await initProps();
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
