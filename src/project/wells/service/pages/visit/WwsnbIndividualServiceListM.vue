@@ -29,6 +29,7 @@
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
             disable-popup
+            cntr-sn-required
           >
             <template #append>
               <kw-icon
@@ -591,7 +592,6 @@ const individualParams = ref([]);
 const svHshdNo = ref('');
 const selectedTab = ref('1');
 // const cntrDtlNo = ref();
-// const istPhFileUid = ref([]);
 const countInfo = ref({
   householdTotalCount: 0,
   contactTotalCount: 0,
@@ -636,21 +636,6 @@ const isDisableButton = computed(() => isEmpty(searchParams.value.cntrNo) || isE
 //   // return true;
 //   return false;
 // }
-
-async function onClickCstSearch() {
-  const { result, payload } = await modal({ component: 'WwsnyCustomerBaseInformationP' });
-  if (result) {
-    searchParams.value.cntrNo = payload.cntrNo ?? '';
-    searchParams.value.cntrSn = payload.cntrSn ?? '';
-  }
-}
-
-watch(props, async (val) => {
-  if (val) {
-    searchParams.value.cntrNo = props.cntrNo;
-    searchParams.value.cntrSn = props.cntrSn;
-  }
-});
 
 /* 개인별 서비스현황 조회 */
 async function getIndividualServicePs() {
@@ -773,7 +758,10 @@ async function fetchData() {
 
 async function onClickSearch() {
   if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) { notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`])); return; }
-  if (searchParams.value.cntrNo) { if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { notify(t('MSG_ALT_CHK_CNTR_SN')); return; } }
+  if (searchParams.value.cntrNo) {
+    if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { return; }
+  }
+
   await getIndividualServicePs();
 
   if (isEmpty(individualParams.value)) {
@@ -814,25 +802,30 @@ async function onClickSave() {
   saveParams.value.wkPrtnrNo = employeeIDNumber;
   saveParams.value.cstUnuitmCn = individualParams.value.cstUnuitmCn;
   if (isEmpty(saveParams.value.cstUnuitmCn)) { return; }
-  console.log(saveParams.value);
+  // console.log(saveParams.value);
   await dataService.post('sms/wells/service/individual-service-ps', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
 }
 
-watch(async () => {
-  if (searchParams.value.cntrNo) {
+async function onClickCstSearch() {
+  const { payload } = await modal({ component: 'WwsnyCustomerBaseInformationP' });
+
+  if (payload) {
+    searchParams.value.cntrNo = payload.cntrNo ?? '';
+    searchParams.value.cntrSn = payload.cntrSn ?? '';
+    await onClickSearch();
+  }
+}
+
+watch(props, async (val) => {
+  console.log(val);
+  if (val) {
+    searchParams.value.cntrNo = props.cntrNo;
+    searchParams.value.cntrSn = props.cntrSn;
     await onClickSearch();
   }
 });
-
-// onMounted(async () => {
-//   if (!isEmpty(props) && searchParams.value.cntrNo) {
-//     await getIndividualServicePs();
-//     await fetchData();
-//   }
-//   }
-// });
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
