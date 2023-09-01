@@ -343,12 +343,13 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 watch(() => searchParams.value.ogTpCd, async (newVal) => {
-  frmMainData.value.ogTpCd = newVal;
+  if (newVal !== '') {
+    frmMainData.value.ogTpCd = newVal;
+  }
 });
 
 watch(() => searchParams.value.actiStatCd, async (newVal) => {
   const view = grdMainRef.value.getView();
-  console.log(newVal);
   if (newVal === '02') {
     view.columnByName('col5').visible = false;
     view.columnByName('startYrmn').visible = false;
