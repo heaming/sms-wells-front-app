@@ -356,7 +356,7 @@ async function getCustomerVisitPeriod() {
   const view1 = gridMainRef1.value.getView();
   totalCountForLeft.value.totalCount = visitRes.data.length;
   view1.getDataSource().setRows(visitRes.data);
-  view1.resetCurrent();
+  // view1.resetCurrent();
 
   // 주기표 조회
   periodParam.value.svPdCd = customerInfo.value.svPdCd;
@@ -366,7 +366,7 @@ async function getCustomerVisitPeriod() {
   const view2 = gridMainRef2.value.getView();
   totalCountForRight.value.totalCount = periodRes.data.length;
   view2.getDataSource().setRows(periodRes.data);
-  view2.resetCurrent();
+  // view2.resetCurrent();
 }
 onMounted(async () => {
   await getCustomerVisitPeriod();
