@@ -235,7 +235,7 @@ async function onClickSearch() {
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  if (await gridUtil.isModified(view)) { notify(t('MSG_TXT_NEED_SAVE_EXCEL_DOWNLOAD')); return; }
+  if (gridUtil.isModified(view)) { notify(t('MSG_TXT_NEED_SAVE_EXCEL_DOWNLOAD')); return; }
 
   await gridUtil.exportView(view, {
     exportData: gridUtil.getAllRowValues(view),
@@ -279,7 +279,7 @@ async function onClickSendMessage() {
 
   await dataService.post(baseUrl, sendRows);
 
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
   await onClickSearch();
 }
 
