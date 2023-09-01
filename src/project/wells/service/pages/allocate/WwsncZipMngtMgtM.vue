@@ -233,7 +233,7 @@ async function getZipAssignmentsPages(targetPage) {
 
   const view = gridMainRef.value.getView();
   view.getDataSource().setRows(customers);
-  view.resetCurrent();
+  // view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
