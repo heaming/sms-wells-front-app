@@ -85,6 +85,7 @@
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_SAVE')"
+          :disable="isDisableSave"
           @click="onClickSave"
         />
         <kw-separator
@@ -197,6 +198,18 @@ const aplcCloseData = ref({
   bizEndHh: '',
 });
 
+const isDisableSave = computed(() => {
+  const nowDateTime = Number(dayjs().format('YYYYMMDDHHmmss'));
+  const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh);
+  const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh);
+
+  if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) {
+    return true;
+  }
+
+  return false;
+});
+
 async function getItems() {
   const res = await dataService.get(`/sms/wells/service/building-bsconsumables/items/${searchParams.value.mngtYm}`);
   itemsData.value = res.data;
@@ -220,9 +233,9 @@ async function getBldCsmbAplcClose() {
 
 function validateRegPeriod() {
   const strtDt = aplcCloseData.value.bizStrtdt;
-  const strtHh = aplcCloseData.value.bizStrtHh;
+  const strtHh = aplcCloseData.value.bizStrtHh.substring(0, 4);
   const endDt = aplcCloseData.value.bizEnddt;
-  const endHh = aplcCloseData.value.bizEndHh;
+  const endHh = aplcCloseData.value.bizEndHh.substring(0, 4);
 
   if ((isEmpty(strtDt) || isEmpty(strtHh) || isEmpty(endDt) || isEmpty(endHh))
   || Number(strtDt + strtHh) >= Number(endDt + endHh)) {
@@ -239,6 +252,9 @@ async function onClickRgstPtrmSe() {
     notify(t('MSG_ALT_RGST_PTRM_CHECK'));
     return;
   }
+
+  aplcCloseData.value.bizStrtHh = aplcCloseData.value.bizStrtHh.substring(0, 4);
+  aplcCloseData.value.bizEndHh = aplcCloseData.value.bizEndHh.substring(0, 4);
 
   await dataService.post('/sms/wells/service/building-bsconsumables/period-term', aplcCloseData.value);
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -291,7 +307,7 @@ async function fetchData() {
     console.log(itemIndex);
     // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
     // if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || !editFields.includes(itemIndex.column)) {
-    if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || bldCsmbDeliveries[0].bfsvcCsmbDdlvStatCd === '30') {
+    if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || bldCsmbDeliveries[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
       return false;
     }
   };
@@ -336,7 +352,7 @@ async function onClickSave() {
           csmbPdCd: itemsData.value[i].fxnPdCd,
           sapMatCd: itemsData.value[i].fxnSapMatCd,
           bfsvcCsmbDdlvQty: checkedRow[`fxnQty${f}`] === undefined ? '0' : checkedRow[`fxnQty${f}`], // TODO: 테스트용 삼항연산.. 추후 삭제
-          bfsvcCsmbDdlvStatCd: '20', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
+          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
         });
 
         f += 1;
@@ -359,7 +375,7 @@ async function onClickSave() {
           csmbPdCd: itemsData.value[i].aplcPdCd,
           sapMatCd: itemsData.value[i].aplcSapMatCd,
           bfsvcCsmbDdlvQty: checkedRow[`aplcQty${a}`] === undefined ? '0' : checkedRow[`aplcQty${a}`], // TODO: 테스트용 삼항연산.. 추후 삭제
-          bfsvcCsmbDdlvStatCd: '20', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
+          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
         });
 
         a += 1;
@@ -420,7 +436,7 @@ const initGrdMain = defineGrid(async (data, view) => {
       header: fxnItems[i].fxnSapMatCd,
       width: '150',
       styleName: 'text-center',
-      editable: false,
+      editable: isBusinessSupportTeam.value,
     });
 
     // 고정품목 column layout 세팅
