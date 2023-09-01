@@ -339,7 +339,7 @@ async function getQuickResponseRpblPages() {
 
   const view = gridMainRef.value.getView();
   view.getDataSource().setRows(resList);
-  view.resetCurrent();
+  // view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
