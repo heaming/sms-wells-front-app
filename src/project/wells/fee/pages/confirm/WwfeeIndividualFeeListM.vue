@@ -232,7 +232,7 @@ const saveParams = ref({
   rsbDvCd: searchParams.value.rsbDvCd,
   ddlnDvId: '',
   ddlnId: '',
-  templateCode: 'FEE_DSB_SPCSH_E01',
+  templateCode: 'TMP_FEA_FEE_INQR_PTRM_E01',
   feeMessagePk: '',
 });
 
@@ -396,15 +396,27 @@ async function openFeeReportPopup() {
  *  Event - 수수료 조회기간 기간설정 버튼 클릭
  */
 async function onClickFeeDsbSpcsh() {
-  const { ogTpCd } = searchParams.value;
+  const { ogTpCd, rsbDvCd } = searchParams.value;
   const ddlnDvId = 'DLD_FEE_DSB_SPCSH';
   let ddlnId = '';
   if (ogTpCd === 'W01') { /* P조직 */
-    ddlnId = 'DLN_00009';
+    if (rsbDvCd === 'W0104') {
+      ddlnId = 'DLN_00012';
+    } else if (rsbDvCd === 'W0105') {
+      ddlnId = 'DLN_00013';
+    }
   } else if (ogTpCd === 'W02') { /* M조직 */
-    ddlnId = 'DLN_00010';
+    if (rsbDvCd === 'W0204') {
+      ddlnId = 'DLN_00014';
+    } else if (rsbDvCd === 'W0205') {
+      ddlnId = 'DLN_00015';
+    }
   } else if (ogTpCd === 'W03') { /* 홈마스터 */
-    ddlnId = 'DLN_00011';
+    if (rsbDvCd === 'W0301') {
+      ddlnId = 'DLN_00016';
+    } else if (rsbDvCd === 'W0302') {
+      ddlnId = 'DLN_00017';
+    }
   }
   const { result } = await modal({
     component: 'ZwcmsDeadlineMgtP',
