@@ -690,6 +690,22 @@ async function openNtorConfirmPopup() {
   }
 }
 
+/*
+ *  Event - 미등록 상품 조회 팝업
+ */
+async function openNoPdPopup() {
+  const { perfYm, tcntDvCd } = searchParams.value;
+  const param = {
+    perfYm,
+    tcntDvCd,
+  };
+
+  await modal({
+    component: 'WwfeaNetOrderProductListP',
+    componentProps: param,
+  });
+}
+
 onMounted(async () => {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('confirmChk');
@@ -934,6 +950,14 @@ const initGrd2Main = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.onCellClicked = (grid, clickData) => {
+    const { nopd } = gridUtil.getRowValue(grid, clickData.itemIndex);
+    if (clickData.column === 'nopd') {
+      if (nopd > 0) {
+        openNoPdPopup();
+      }
+    }
+  };
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;

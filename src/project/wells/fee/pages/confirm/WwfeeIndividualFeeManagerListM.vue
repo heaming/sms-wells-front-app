@@ -60,9 +60,9 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
-          secondary
-          dense
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
+          icon="report"
+          dense
           @click="openManagerReportPopup"
         />
       </kw-action-top>
