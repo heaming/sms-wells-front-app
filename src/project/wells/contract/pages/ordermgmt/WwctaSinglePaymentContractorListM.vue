@@ -32,22 +32,31 @@
           v-if="searchParams.searchGbn===1"
           v-model="searchParams.bryyMmdd"
           :label="$t('MSG_TXT_BRYY_MMDD_ENTRPNO_CBNO')"
-          :placeholder="t('19990101')"
-          rules="required"
+          :placeholder="t('900101')"
+          rules="required|max:8|numeric"
+          :type="number"
+          :regex="/^[0-9]*$/i"
+          mask="####-##-##"
         />
         <kw-input
           v-if="searchParams.searchGbn===2"
           v-model="searchParams.bzrno"
           :label="$t('MSG_TXT_BRYY_MMDD_ENTRPNO_CBNO')"
           :placeholder="t('MSG_TXT_INP')"
-          rules="required"
+          rules="required|max:10|numeric"
+          :type="number"
+          :regex="/^[0-9]*$/i"
+          mask="###-##-#####"
         />
         <kw-input
           v-if="searchParams.searchGbn===3"
           v-model="searchParams.bzrno"
           :label="$t('MSG_TXT_BRYY_MMDD_ENTRPNO_CBNO')"
           :placeholder="t('MSG_TXT_INP')"
-          rules="required"
+          rules="required|max:10|numeric"
+          :type="number"
+          :regex="/^[0-9]*$/i"
+          mask="###-##-#####"
         />
         <kw-select
           v-if="searchParams.searchGbn===1"
@@ -88,12 +97,14 @@
           v-model="searchParams.cntrCstNo"
           icon="search"
           clearable
-          :placeholder="t('MSG_TXT_INP_AND_SELT')"
+          :maxlength="10"
+          regex="num"
           @click-icon="onClickSearchCntrCstNo"
         />
       </kw-search-item>
+      <!-- 취소제외 -->
       <kw-search-item
-        :label="$t('MSG_TXT_EXCLD_CANC')"
+        :label="$t('MSG_TXT_CNCL_DV')"
       >
         <kw-field
           v-model="searchParams.cntrCanYn"
@@ -101,7 +112,7 @@
           <template #default="{ field }">
             <kw-checkbox
               v-bind="field"
-              label=""
+              :label="$t('MSG_TXT_EXCLD_CANC')"
               val=""
             />
           </template>
@@ -222,15 +233,13 @@ async function onClickExcelDownload() {
 }
 
 async function onClickSearchCntrCstNo() {
-  const res = await modal({
+  const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
-    componentProps: {
-      cstNo: searchParams.value.cntrCstNo,
-    },
+    componentProps: { cstType: '1', cstNo: searchParams.value.cntrCstNo },
   });
-  if (res.result && res.payload) {
-    // searchParams.value.cntrCstKnm = res.payload.name;
-    searchParams.value.cntrCstNo = res.payload.cstNo;
+
+  if (result) {
+    searchParams.value.cntrCstNo = payload.cstNo;
   }
 }
 
