@@ -189,7 +189,7 @@ async function getFixationRegistrationPages() {
 
   const view = gridMainRef.value.getView();
   view.getDataSource().setRows(fixationVisits);
-  view.resetCurrent();
+  // view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
