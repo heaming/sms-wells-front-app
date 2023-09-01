@@ -1150,11 +1150,12 @@ async function fetchData() {
 
   const res = await dataService.get('/sms/wells/bond/bond-counsel/unusual-articles', { params: cachedParams });
   customer.value.cnslUnuitmCn = res.data.cnslUnuitmCn;
+
+  await fetchCustomerDetail();
 }
 
 // TODO: 특기사항 초기화 버튼 클릭 이벤트
 async function onClickUnuitmCnReset() {
-  await fetchCustomerDetail();
   customer.value.cnslUnuitmCn = '';
 }
 
