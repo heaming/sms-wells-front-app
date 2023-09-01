@@ -143,7 +143,7 @@ import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSe
 const dataService = useDataService();
 const now = dayjs();
 const { t } = useI18n();
-const { modal, alert, notify } = useGlobal();
+const { modal, alert } = useGlobal();
 const { currentRoute } = useRouter();
 
 // -------------------------------------------------------------------------------------------------
@@ -200,11 +200,10 @@ async function onClickExcelDownload() {
 async function onClickCreate() {
   const view = grdType.value === 'A' ? grdRefA.value.getView() : grdRefB.value.getView();
   const allRows = gridUtil.getAllRowValues(view, false);
-
-  if (allRows.length === 0) {
-    notify(t('MSG_ALT_USE_DT_SRCH_AF'));
-    return;
-  }
+  // if (allRows.length === 0) {
+  //   notify(t('MSG_ALT_USE_DT_SRCH_AF'));
+  //   return;
+  // }
   if (allRows.some((row) => row.cnfmYn === 'Y')) {
     // 이미 확정되어 수수료 생성이 불가합니다.
     await alert(t('MSG_ALT_BF_CNFM_CONF_FEE'));
@@ -226,10 +225,10 @@ async function onClickCreate() {
 async function onClickReCreate() {
   const view = grdType.value === 'A' ? grdRefA.value.getView() : grdRefB.value.getView();
   const allRows = gridUtil.getAllRowValues(view, false);
-  if (allRows.length === 0) {
-    notify(t('MSG_ALT_USE_DT_SRCH_AF'));
-    return;
-  }
+  // if (allRows.length === 0) {
+  //   notify(t('MSG_ALT_USE_DT_SRCH_AF'));
+  //   return;
+  // }
   if (allRows.some((row) => row.cnfmYn === 'Y')) {
     // 이미 확정되어 수수료 생성이 불가합니다.
     await alert(t('MSG_ALT_BF_CNFM_CONF_FEE'));
