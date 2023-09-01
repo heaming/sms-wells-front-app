@@ -61,9 +61,9 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
-          secondary
-          dense
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
+          icon="report"
+          dense
           @click="openHmstReportPopup"
         />
       </kw-action-top>
@@ -315,9 +315,9 @@ async function openHmstReportPopup() {
       '/ksswells/hmCmms/V3.0/cmmsSpec2022.odi',
       JSON.stringify(
         {
-          AKSDYM: perfYm,
-          AKSDTY: perfYm.substring(0, 4),
-          AKSDTM: perfYm.substring(4, 6),
+          AKSDYM: perfYm.replaceAll('-', ''),
+          AKSDTY: perfYm.replaceAll('-', '').substring(0, 4),
+          AKSDTM: perfYm.replaceAll('-', '').substring(4, 6),
           AKDDTY: bfPerfYm.substring(0, 4),
           AKDDTM: bfPerfYm.substring(4, 6),
           AKDRNK: pstnDvCd,
