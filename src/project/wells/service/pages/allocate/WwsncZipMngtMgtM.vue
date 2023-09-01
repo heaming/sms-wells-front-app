@@ -352,7 +352,7 @@ const initGridMain = defineGrid((data, view) => {
       styleName: 'text-center',
       options: customCodes.DGR_2_LEVL_OG,
       optionValue: 'ogId',
-      optionLabel: 'ogNm',
+      optionLabel: 'ogCd',
       editor: { type: 'list' },
     },
     { fieldName: 'mngerRglvlDvCd', header: '급지', width: '100', styleName: 'text-center', options: codes.MNGER_RGLVL_DV_CD, editor: { type: 'list' } },
