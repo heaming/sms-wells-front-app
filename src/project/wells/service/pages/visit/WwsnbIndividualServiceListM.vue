@@ -812,6 +812,9 @@ async function onClickCstSearch() {
   const { payload } = await modal({ component: 'WwsnyCustomerBaseInformationP' });
 
   if (payload) {
+    searchParams.value.bcNo = '';
+    searchParams.value.sppIvcNo = '';
+
     searchParams.value.cntrNo = payload.cntrNo ?? '';
     searchParams.value.cntrSn = payload.cntrSn ?? '';
     await onClickSearch();
@@ -821,6 +824,9 @@ async function onClickCstSearch() {
 watch(props, async (val) => {
   console.log(val);
   if (val) {
+    searchParams.value.bcNo = '';
+    searchParams.value.sppIvcNo = '';
+
     searchParams.value.cntrNo = props.cntrNo;
     searchParams.value.cntrSn = props.cntrSn;
     await onClickSearch();
@@ -1015,29 +1021,29 @@ const initGridState = defineGrid((data, view) => {
 const initGridCounsel = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cselSts' },
-    { fieldName: 'cnslDt' },
+    { fieldName: 'cnslStDt' },
     { fieldName: 'cnslEdDt' },
     { fieldName: 'cnslTpHcsfCd' },
     { fieldName: 'cnslTpMcsfCd' },
     { fieldName: 'cnslTpLcsfCd' },
-    { fieldName: 'modUserId' },
+    { fieldName: 'pcpNm' },
     { fieldName: 'cselRstCd' },
     { fieldName: 'custResp' },
-    { fieldName: 'cstNm' },
+    { fieldName: 'clntDvNm' },
     { fieldName: 'cnslCn' },
   ];
 
   const columns = [
     { fieldName: 'cselSts', header: t('MSG_TXT_PROCS_STAT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cnslDt', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cnslStDt', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cnslEdDt', header: t('MSG_TXT_PRCSDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cnslTpHcsfCd', header: t('MSG_TXT_CNSL_HCLSF'), width: '200', styleName: 'text-center' },
     { fieldName: 'cnslTpMcsfCd', header: t('MSG_TXT_CNSL_DCLSF'), width: '150', styleName: 'text-center' },
     { fieldName: 'cnslTpLcsfCd', header: t('MSG_TXT_CNSL_LCLSF'), width: '250', styleName: 'text-center' },
-    { fieldName: 'modUserId', header: t('MSG_TXT_PCP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pcpNm', header: t('MSG_TXT_PCP'), width: '100', styleName: 'text-center' },
     { fieldName: 'cselRstCd', header: t('MSG_TXT_PROCS_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'custResp', header: t('MSG_TXT_CST_RACT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cstNm', header: t('MSG_TXT_CLNT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'clntDvNm', header: t('MSG_TXT_CLNT'), width: '100', styleName: 'text-center' },
     { fieldName: 'cnslCn', header: t('MSG_TXT_CNSL_CN'), width: '200', styleName: 'text-center' },
   ];
 
