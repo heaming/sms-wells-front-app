@@ -60,7 +60,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useModal, getComponentType, useDataService, useGlobal, stringUtil, useMeta } from 'kw-lib';
+import { useModal, getComponentType, useDataService, useGlobal, stringUtil,
+} from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
@@ -70,15 +71,13 @@ const { notify, alert } = useGlobal();
 
 const { t } = useI18n();
 const now = dayjs();
-const { getUserInfo } = useMeta();
-const userInfo = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const frmMainRef = ref(getComponentType('KwForm'));
 const nowDay = dayjs().format('DD');
 const baseData = ref({
-  ogTpCd: userInfo.ogTpCd, /* 조직유형코드 */
+  ogTpCd: '', /* 조직유형코드 */
   aplcPsbStrtD: '', /* 신청가능시작일 */
   aplcPsbEndD: '', /* 신청가능종료일 */
   rtngdPsbStrtD: '', /* 반품가능시작일 */
@@ -88,17 +87,22 @@ const baseData = ref({
 });
 
 const props = defineProps({
+  ogTpCd: { type: String, default: '' },
   checkedRows: { type: Array, default: () => [] },
   readonly: { type: Boolean, default: false },
 });
-console.log('props.readonly', props.readonly);
 
+const ogTpCd = ref(props.ogTpCd);
 const saveParams = ref({
   aplcDtNm: now.format('YYYY-MM-DD'),
   aplcDt: now.format('YYYYMMDD'),
   aplcRsonCn: '',
   actiGdsAplcStatCd: '02',
 });
+
+if (props.checkedRows.length === 1) {
+  ogTpCd.value = String(props.checkedRows[0].ogTpCd);
+}
 
 if (props.checkedRows.length === 1 && props.checkedRows[0].actiGdsAplcStatCd === '02') {
   const aplcDt = ref(props.checkedRows[0].aplcDt);
@@ -120,7 +124,7 @@ let cachedParams;
 
 async function fetchData() {
   cachedParams = {
-    ogTpCd: userInfo.ogTpCd,
+    ogTpCd: ogTpCd.value,
   };
 
   return await dataService.get('/sms/wells/competence/business/activity/base', { params: cachedParams });
@@ -160,7 +164,7 @@ async function onClickSave() {
     if (isExistData(props.checkedRows)) {
       const data = ref(initialize(props.checkedRows));
       cachedParams = cloneDeep(data.value);
-      await dataService.delete('/sms/wells/competence/business/activity/application', cachedParams);
+      await dataService.delete('/sms/wells/competence/business/activity/application', { data: [...cachedParams] });
       notify(t('MSG_ALT_SAVE_DATA'));
       ok();
     }
