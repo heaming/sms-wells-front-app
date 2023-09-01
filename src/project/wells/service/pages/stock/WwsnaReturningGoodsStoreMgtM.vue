@@ -301,7 +301,7 @@ const searchParams = ref({
   pdGrpCd: '',
   fnlItmGdCd: '',
   itmPdCd: '',
-  itmKndCd: '',
+  itmKndCd: '4',
   stFnlVstFshDtFrom: dayjs().set('date', 1).format('YYYYMMDD'),
   edFnlVstFshDtTo: dayjs().format('YYYYMMDD'),
   stRtngdProcsTpCd: '',
@@ -391,6 +391,10 @@ function onUpdateProductGroupCode(val) {
   view.activateAllColumnFilters('itemGr', false);
   view.activateColumnFilters('itemGr', [val], true);
 }
+
+await Promise.all([
+  onChangeItmKndCd(),
+]);
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/returning-goods-store/paging', { params: { ...cachedParams, ...pageInfo.value } });
