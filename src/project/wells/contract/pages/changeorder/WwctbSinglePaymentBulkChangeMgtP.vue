@@ -162,7 +162,7 @@
             v-model="saveParams.recogAmt"
             :label="$t('MSG_TXT_RECOG_AMT')"
             regex="num"
-            maxlength="20"
+            maxlength="15"
           />
         </kw-form-item>
         <!-- 무상멤버십 -->
@@ -220,7 +220,7 @@
           <kw-input
             v-model="saveParams.recogRt"
             :label="$t('MSG_TXT_RECOG_RT')+'(%)'"
-            maxlength="17"
+            maxlength="15"
             :regex="/^[\d]*\.?[\d]{0,4}$/"
           />
         </kw-form-item>
@@ -233,7 +233,7 @@
             v-model="saveParams.pdStdFee"
             :label="$t('MSG_TXT_PD_STD_FEE')"
             regex="num"
-            maxlength="20"
+            maxlength="15"
           />
         </kw-form-item>
       </kw-form-row>
