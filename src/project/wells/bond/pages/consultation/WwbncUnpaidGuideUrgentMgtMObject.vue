@@ -45,28 +45,24 @@
       </kw-search-item>
       <kw-search-item
         :label="t('MSG_TXT_INDI_CORP_GUBUN')"
-        required
       >
         <kw-select
           v-model="searchParams.copnDvCd"
           :options="codes.COPN_DV_CD"
-          rules="required"
           :label="t('MSG_TXT_INDI_CORP_GUBUN')"
-          first-option="select"
+          first-option="all"
         />
       </kw-search-item>
       <!-- rev:230410 label 변경 -->
       <kw-search-item
         :label="t('MSG_TXT_PRDT_GUBUN')"
-        required
       >
         <!-- // rev:230410 label 변경 -->
         <kw-select
           v-model="searchParams.bndBizDvCd"
           :options="codes.BND_BIZ_DV_CD"
-          rules="required"
           :label="t('MSG_TXT_PRDT_GUBUN')"
-          first-option="select"
+          first-option="all"
         />
       </kw-search-item>
     </kw-search-row>
@@ -461,7 +457,7 @@ const initObjectGrid = defineGrid((data, view) => {
     { fieldName: 'cstCd', header: t('MSG_TXT_CST_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'cntrSn', header: t('MSG_TXT_SERIAL_NUMBER'), width: '110', styleName: 'text-center' },
     { fieldName: 'agrgCt', header: t('MSG_TXT_COUNT'), width: '110', visible: false, styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'agrgMinusCt', header: t('MSG_TXT_REMAINING_CNT'), width: '110', visible: false, styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'agrgMinusCt', header: t('MSG_TXT_REMAINING_CNT'), width: '110', visible: false, styleName: 'text-right' },
     { fieldName: 'cntrBasAdr', header: t('MSG_TXT_ADR_1'), width: '250' },
     { fieldName: 'cntrDtlAdr', header: t('MSG_TXT_ADR_2'), width: '150' },
     { fieldName: 'cntrRefAdr', header: t('MSG_TXT_ADR_3'), width: '150' },
