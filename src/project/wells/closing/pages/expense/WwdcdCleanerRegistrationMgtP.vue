@@ -97,7 +97,7 @@
           required
         >
           <kw-input
-            v-model="saveParams.frontRrnoEncr"
+            v-model="saveParams.bryyMmdd"
             :label="$t('MSG_TXT_RRNO')"
             rules="required"
             :regex="/^[0-9]*$/i"
@@ -105,7 +105,7 @@
           />
           <span>-</span>
           <kw-input
-            v-model="saveParams.backRrnoEncr"
+            v-model="saveParams.rrnoEncr"
             :label="$t('MSG_TXT_RRNO')"
             rules="required"
             :regex="/^[0-9]*$/i"
@@ -368,8 +368,7 @@ const saveParams = ref({
   clinrNm: '', // 청소원 명
   wrkStrtdt: dayjs().format('YYYYMMDD'), // 근무시작일자
   wrkEnddt: `${dayjs().format('YYYY')}1230`, // 근무종료일자
-  frontRrnoEncr: '', // 앞 주민등록번호
-  backRrnoEncr: '', // 뒤 주민번호
+  bryyMmdd: '', // 생년월일
   rrnoEncr: '', // 주민번호 전체
   locaraTno: '', // 지역번호
   exnoEncr: '', // 전화국별
@@ -435,7 +434,6 @@ async function onClickSave() {
   saveParams.value.attachFiles2 = attachFiles2.value;
   saveParams.value.attachFiles3 = attachFiles3.value;
   saveParams.value.attachFiles4 = attachFiles4.value;
-  saveParams.value.rrnoEncr = saveParams.value.frontRrnoEncr + saveParams.value.backRrnoEncr;
   const data = saveParams.value;
 
   await dataService.post('/sms/wells/closing/expense/cleaners/cleaners-reqeust-change', data);
