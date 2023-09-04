@@ -280,7 +280,6 @@ async function fetchData() {
     cachedParams.mainDgr2LevlOgId = null;
     cachedParams.mainDgr3LevlOgId = null;
   }
-  await ogLevlDvCd0();
   await subject();
   await marketableSecuritiesExcd();
 }
@@ -444,10 +443,12 @@ async function onClickSave() {
     thirdList.push(view.getValues(i));
   }
   const data = thirdList;
+  await dataService.post('/sms/wells/closing/expense/operating-cost/marketable-securities-excd', data).then((res) => {
+    cachedParams.opcsAdjNo = res.data.data;
+  });
 
-  await dataService.post('/sms/wells/closing/expense/operating-cost/marketable-securities-excd', data);
   await notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  await onClickSearch();
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -726,6 +727,7 @@ onMounted(async () => {
   addValue.cardAprno = props.cachedParams.cardAprno;
   grdMainRef.value.getView().getDataSource().addRow(addValue);
 
+  searchParams.value.dgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
   initSearchParams = cloneDeep(searchParams.value);
   await fetchData();
 });

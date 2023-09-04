@@ -435,7 +435,7 @@ const initGrd1Main = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
 
-  view.setFooters({ visible: true, items: [{ height: 30 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
 
   // multi row header setting
   view.setColumnLayout([
@@ -488,7 +488,7 @@ const initGrd2Main = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
 
-  view.setFooters({ visible: true, items: [{ height: 30 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
 
   // multi row header setting
   view.setColumnLayout([

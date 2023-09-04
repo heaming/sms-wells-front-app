@@ -788,7 +788,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', options: codes.RSB_DV_CD },
     { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '88.7', styleName: 'text-right' },
     { fieldName: 'jagyuk', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '110.6', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'nJagyuk1', header: `M+1${t('MSG_TXT_TOPMR_PLAR')}`, width: '128.4', styleName: 'text-', options: codes.QLF_DV_CD },
+    { fieldName: 'nJagyuk1', header: `M+1${t('MSG_TXT_TOPMR_PLAR')}`, width: '128.4', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'is11edu', header: t('MSG_TXT_PLAR_SRTUP'), width: '124.6', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'is17edu', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_PRTIC'), width: '114.8', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'cntrDt', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },

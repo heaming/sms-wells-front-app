@@ -237,6 +237,10 @@ async function onClickSave() {
 
   const changedRows = gridUtil.getChangedRowValues(view);
   for (let i = 0; i < changedRows.length; i += 1) {
+    if (isEmpty(changedRows[i].cntrNo)) {
+      alert(t('MSG_ALT_CHK_CONFIRM', [t('MSG_TXT_CNTR_DTL_NO')]));
+      return;
+    }
     if (!isEmpty(changedRows[i].emadr)) {
       if (!validateEmail(changedRows[i].emadr)) {
         alert(t('MSG_ALT_EMAIL'));
@@ -244,12 +248,10 @@ async function onClickSave() {
       }
     }
     // 팩스번호 세팅
-    if (!isEmpty(changedRows[i].faxTelNo)) {
-      const tel = changedRows[i].faxTelNo.replaceAll('-', '');
-      changedRows[i].faxLocaraTno = getPhoneNumber(tel, 1);
-      changedRows[i].faxExno = getPhoneNumber(tel, 2);
-      changedRows[i].faxIdvTno = getPhoneNumber(tel, 3);
-    }
+    const tel = changedRows[i].faxTelNo.replaceAll('-', '');
+    changedRows[i].faxLocaraTno = getPhoneNumber(tel, 1);
+    changedRows[i].faxExno = getPhoneNumber(tel, 2);
+    changedRows[i].faxIdvTno = getPhoneNumber(tel, 3);
 
     const row = gridUtil.findDataRow(view, (e) => (e.spectxGrpNo === changedRows[i].spectxGrpNo)
     && (e.cntrDtlNo === changedRows[i].cntrDtlNo));
@@ -339,6 +341,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         return { editable: dataCell.item.rowState === 'created' };
       },
+      buttonVisibleCallback(g, index) {
+        return g.getDataSource().getRowState(index.dataRow) === 'created';
+      },
     }, // 계약상세번호
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '110', styleName: 'text-center', rules: 'required', editable: false }, // 고객명
     { fieldName: 'spectxPrntY', header: `${t('MSG_TXT_PBL')}${t('MSG_TXT_Y')}`, width: '80', styleName: 'text-center', editable: false }, // 발행년도
@@ -389,13 +394,13 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       if (!isEmpty(cntrDtlNo)) {
         const paramCntrNo = String(cntrDtlNo).split('-')[0];
         const paramCntrSn = String(cntrDtlNo).split('-')[1];
-        const { payload } = await modal({
+        const { payload, result } = await modal({
           component: 'WwctaContractNumberListP',
           componentProps: {
             cntrNo: paramCntrNo, cntrSn: paramCntrSn,
           },
         });
-        if (!isEmpty(payload)) {
+        if (result) {
           const { cntrNo, cntrSn } = payload;
           const res = await dataService.get(`sms/wells/contract/contracts/trade-specification-sheets/${cntrSn}`, {
             params: {
@@ -422,6 +427,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
               data.setValue(row, 'emadr', trim(res.data.emadrEncr));
             }
           }
+        } else {
+          data.setValue(dataRow, 'cntrNo', '');
+          data.setValue(dataRow, 'cntrSn', '');
         }
       }
       notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_EMAIL')])); // {이메일} 항목이 일괄변경 되었습니다.
@@ -460,13 +468,13 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       notify(t('MSG_ALT_ACCESS_WHEN_REG_MODE'));
       return;
     }
-    const { payload } = await modal({
+    const { payload, result } = await modal({
       component: 'WwctaContractNumberListP',
       componentProps: {
         cntrNo: g.getValues(itemIndex).cntrNo, cntrSn: g.getValues(itemIndex).cntrSn,
       },
     });
-    if (!isEmpty(payload)) {
+    if (result) {
       const { cntrNo, cntrSn } = payload;
       const spectxGrpNo = view.getValue(updateRow, 0);
       const res = await dataService.get(`sms/wells/contract/contracts/trade-specification-sheets/${cntrSn}`, {
@@ -494,7 +502,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
           data.setValue(row, 'emadrEncr', trim(res.data.emadrEncr));
         }
       }
-      data.setValue(updateRow, 'cntrNo', payload.cntrNo);
+    } else {
+      data.setValue(updateRow, 'cntrNo', '');
+      data.setValue(updateRow, 'cntrSn', '');
     }
   };
 });

@@ -346,9 +346,11 @@ const initGrdMain = defineGrid((data, view) => {
     const { placeOfDeliveries: pdlvs } = cachedZips[index.dataRow];
     const { pdlvNo, pdlvAdr } = pdlvs.find((v) => v.pdlvNm === editResult.value);
 
-    grid.setValue(index.dataRow, index.fieldName, editResult.value);
-    grid.setValue(index.dataRow, 'pdlvNo', pdlvNo);
-    grid.setValue(index.dataRow, 'pdlvAdr', pdlvAdr);
+    grid.setValue(grid.getItemIndex(index.dataRow), index.fieldName, editResult.value);
+    grid.setValue(grid.getItemIndex(index.dataRow), 'pdlvNo', pdlvNo);
+    grid.setValue(grid.getItemIndex(index.dataRow), 'pdlvAdr', pdlvAdr);
+
+    grid.commit();
   };
 });
 

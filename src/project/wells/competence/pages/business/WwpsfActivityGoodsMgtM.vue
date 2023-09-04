@@ -150,13 +150,26 @@
       </kw-list>
     </div>
     <kw-search
-      :cols="2"
+      :cols="3"
       @search="onClickSearch"
     >
       <h3 class="mt0 pb20">
         {{ $t('MSG_TXT_UNIFORM_APP') }}
       </h3>
       <kw-search-row>
+        <!-- 조직유형 -->
+        <kw-search-item
+          :label="t('MSG_TXT_OG_TP')"
+          required
+        >
+          <kw-select
+            v-model="searchParams.ogTpCd"
+            :label="t('MSG_TXT_OG_TP')"
+            rules="required"
+            :options="ogTpCds"
+            first-option="select"
+          />
+        </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_APL_DATE')"
         >
@@ -316,6 +329,7 @@ const isTopBtn = ['W1010', 'W1580'].includes(baseRleCd); // 본사스텝
 const isBtn = ['W1010', 'W1020', 'W1580'].includes(baseRleCd); // 본사스텝,업무담당
 
 const searchParams = ref({
+  ogTpCd: userInfo.ogTpCd, /* 조직유형코드 */
   aplcDt: now.format('YYYYMM'),
   actiStatCd: '01',
   prtnrNo: '',
@@ -328,10 +342,14 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+watch(() => searchParams.value.ogTpCd, async (newVal) => {
+  if (newVal !== '') {
+    frmMainData.value.ogTpCd = newVal;
+  }
+});
 
 watch(() => searchParams.value.actiStatCd, async (newVal) => {
   const view = grdMainRef.value.getView();
-  console.log(newVal);
   if (newVal === '02') {
     view.columnByName('col5').visible = false;
     view.columnByName('startYrmn').visible = false;
@@ -410,8 +428,7 @@ const onClickSearch = async () => {
 async function init() {
   const res = await fetchData();
   Object.assign(frmMainData.value, res.data);
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchPages();
+  await onClickSearch();
 }
 
 watch(() => frmMainData.value.ogTpCd, async () => {
@@ -436,7 +453,7 @@ async function onClickCancel(type) {
   if (type === '02') {
     const res = await modal({
       component: 'WwpsfCancelRegistrationRegP',
-      componentProps: { checkedRows },
+      componentProps: { ogTpCd: searchParams.value.ogTpCd, checkedRows },
     });
 
     if (res.result) {
@@ -446,7 +463,7 @@ async function onClickCancel(type) {
   } else {
     const res = await modal({
       component: 'WwpsfReturningRegistrationRegP',
-      componentProps: { checkedRows },
+      componentProps: { ogTpCd: searchParams.value.ogTpCd, checkedRows },
     });
 
     if (res.result) {

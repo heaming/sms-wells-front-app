@@ -58,7 +58,6 @@
             v-model="searchParams.fromGrpNo"
             :name="t('MSG_TXT_GRP_NO')"
             mask="#####"
-            maxlength="5"
             rules="required"
           />
           <span>~</span>
@@ -66,7 +65,6 @@
             v-model="searchParams.toGrpNo"
             :name="t('MSG_TXT_GRP_NO')"
             mask="#####"
-            maxlength="5"
             rules="required"
           />
         </kw-form-item>
@@ -223,7 +221,7 @@ const initTradeSpcshBlkPwMgtList = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'preview', header: t('MSG_TXT_PREVIEW'), width: '112', styleName: 'text-center', icon: 'report', renderer: { type: 'button', hideWhenEmpty: false, icon: 'report' }, displayCallback: () => t('MSG_BTN_PREVIEW') }, // 미리보기
+    { fieldName: 'preview', header: t('MSG_TXT_PREVIEW'), width: '120', styleName: 'text-center rg-button-report', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_SPCSH_VIEW') }, // 명세서 보기
     { fieldName: 'spectxGrpNo', header: t('MSG_TXT_GRP_NO'), width: '112', styleName: 'text-center' }, // 그룹번호
     { fieldName: 'cstNmEncr', header: t('MSG_TXT_IS_USR'), width: '155', styleName: 'text-left' }, // 발급담당자
     { fieldName: 'slClYm', header: t('MSG_TXT_PRD'), width: '130', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기간

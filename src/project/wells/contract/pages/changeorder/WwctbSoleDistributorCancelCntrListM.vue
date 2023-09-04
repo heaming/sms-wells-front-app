@@ -47,8 +47,8 @@
           />
         </template>
         <kw-btn
-          :label="$t('MSG_TXT_PRNT')"
-          primary
+          :label="$t('MSG_BTN_RPT_BRWS')"
+          icon="report"
           dense
           @click="ozPrint"
         />
@@ -156,9 +156,9 @@ const initGridSoleDistributorCanCntrList = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '109', styleName: 'text-center' },
-    { fieldName: 'hooPrtnrNm', header: t('MSG_TXT_GNR_MNG'), width: '96' },
+    { fieldName: 'hooPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_GNR_MNG'), width: '96' }, // 본부장
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '132', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '96' },
+    { fieldName: 'cstKnm', styleName: 'text-center', header: t('MSG_TXT_CST_NM'), width: '96' }, // 고객병
     {
       fieldName: 'telNo',
       header: `${t('MSG_TXT_INSTR')} ${t('MSG_TXT_MPNO')}`,

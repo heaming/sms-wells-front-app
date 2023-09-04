@@ -411,7 +411,9 @@ async function onClickSendMessage() {
   const view = grdCharacterFwUldRef.value.getView();
   const allRows = gridUtil.getAllRowValues(view);
   const sendRows = allRows.filter((v) => v.resultYn !== 'Y').map((row) => ({
-    cntrCralTno: row.cntrCralTno1 + row.cntrCralTno2 + row.cntrCralTno3,
+    cntrCralTno1: row.cntrCralTno1,
+    cntrCralTno2: row.cntrCralTno2,
+    cntrCralTno3: row.cntrCralTno3,
     cstKnm: row.cstKnm,
     cstNo: row.cstNo,
     cntrNo: row.cntrNo,
@@ -419,8 +421,8 @@ async function onClickSendMessage() {
     cntrInfo: row.cntrInfo,
     prmEndYm: row.prmEndYm,
     mmpmYm: row.mmpmYm,
-    prmReAplcYn: row.prmReAplcYn,
     prmEndMm: row.prmEndMm,
+    pdCd: row.pdCd,
     pdNm: row.pdNm,
     cnt: row.cnt,
     currMm: row.currMm,
@@ -467,9 +469,21 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
     { fieldName: 'totPrmAmt', dataType: 'number' },
     { fieldName: 'prmExcpt' },
     { fieldName: 'cntrLocalTno' },
+    { fieldName: 'cntrLocalTno1' },
+    { fieldName: 'cntrLocalTno2' },
+    { fieldName: 'cntrLocalTno3' },
     { fieldName: 'cntrCralTno' },
+    { fieldName: 'cntrCralTno1' },
+    { fieldName: 'cntrCralTno2' },
+    { fieldName: 'cntrCralTno3' },
     { fieldName: 'rcgvpLocalTno' },
+    { fieldName: 'rcgvpLocalTno1' },
+    { fieldName: 'rcgvpLocalTno2' },
+    { fieldName: 'rcgvpLocalTno3' },
     { fieldName: 'rcgvpCralTno' },
+    { fieldName: 'rcgvpCralTno1' },
+    { fieldName: 'rcgvpCralTno2' },
+    { fieldName: 'rcgvpCralTno3' },
     { fieldName: 'dpClDt' },
     { fieldName: 'dpTpCdNm' },
     { fieldName: 'dpAmt', dataType: 'number' },
@@ -478,12 +492,24 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
     { fieldName: 'sellPrtnrNo' },
     { fieldName: 'cltnDt' },
     { fieldName: 'prtnrLocalTno' },
+    { fieldName: 'prtnrLocalTno1' },
+    { fieldName: 'prtnrLocalTno2' },
+    { fieldName: 'prtnrLocalTno3' },
     { fieldName: 'prtnrCralTno' },
+    { fieldName: 'prtnrCralTno1' },
+    { fieldName: 'prtnrCralTno2' },
+    { fieldName: 'prtnrCralTno3' },
     { fieldName: 'hooPrtnrNm' },
     { fieldName: 'hooPrtnrNo' },
     { fieldName: 'hooPrtnrCltnDt' },
     { fieldName: 'ogLocalTno' },
+    { fieldName: 'ogLocalTno1' },
+    { fieldName: 'ogLocalTno2' },
+    { fieldName: 'ogLocalTno3' },
     { fieldName: 'hooPrtnrCralTno' },
+    { fieldName: 'hooPrtnrCralTno1' },
+    { fieldName: 'hooPrtnrCralTno2' },
+    { fieldName: 'hooPrtnrCralTno3' },
   ];
 
   const columns = [
@@ -506,7 +532,9 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cntrLocalTno1, cntrLocalTno2, cntrLocalTno3 } = grid.getValues(index.itemIndex);
-        return `${cntrLocalTno1}-${cntrLocalTno2}-${cntrLocalTno3}`;
+        if (cntrLocalTno1 != null) {
+          return `${cntrLocalTno1}-${cntrLocalTno2}-${cntrLocalTno3}`;
+        }
       },
     },
     { fieldName: 'cntrCralTno',
@@ -515,7 +543,9 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cntrCralTno1, cntrCralTno2, cntrCralTno3 } = grid.getValues(index.itemIndex);
-        return `${cntrCralTno1}-${cntrCralTno2}-${cntrCralTno3}`;
+        if (cntrCralTno1 != null) {
+          return `${cntrCralTno1}-${cntrCralTno2}-${cntrCralTno3}`;
+        }
       },
     },
     { fieldName: 'rcgvpLocalTno',
@@ -524,7 +554,9 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { rcgvpLocalTno1, rcgvpLocalTno2, rcgvpLocalTno3 } = grid.getValues(index.itemIndex);
-        return `${rcgvpLocalTno1}-${rcgvpLocalTno2}-${rcgvpLocalTno3}`;
+        if (rcgvpLocalTno1 != null) {
+          return `${rcgvpLocalTno1}-${rcgvpLocalTno2}-${rcgvpLocalTno3}`;
+        }
       },
     },
     { fieldName: 'rcgvpCralTno',
@@ -533,7 +565,9 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { rcgvpCralTno1, rcgvpCralTno2, rcgvpCralTno3 } = grid.getValues(index.itemIndex);
-        return `${rcgvpCralTno1}-${rcgvpCralTno2}-${rcgvpCralTno3}`;
+        if (rcgvpCralTno1 != null) {
+          return `${rcgvpCralTno1}-${rcgvpCralTno2}-${rcgvpCralTno3}`;
+        }
       },
     },
     { fieldName: 'dpClDt', header: t('MSG_TXT_DP_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' },
@@ -549,7 +583,9 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { prtnrLocalTno1, prtnrLocalTno2, prtnrLocalTno3 } = grid.getValues(index.itemIndex);
-        return `${prtnrLocalTno1}-${prtnrLocalTno2}-${prtnrLocalTno3}`;
+        if (prtnrLocalTno1 != null) {
+          return `${prtnrLocalTno1}-${prtnrLocalTno2}-${prtnrLocalTno3}`;
+        }
       },
     },
     { fieldName: 'prtnrCralTno',
@@ -558,7 +594,9 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { prtnrCralTno1, prtnrCralTno2, prtnrCralTno3 } = grid.getValues(index.itemIndex);
-        return `${prtnrCralTno1}-${prtnrCralTno2}-${prtnrCralTno3}`;
+        if (prtnrCralTno1 != null) {
+          return `${prtnrCralTno1}-${prtnrCralTno2}-${prtnrCralTno3}`;
+        }
       },
     },
     { fieldName: 'hooPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' },
@@ -570,7 +608,9 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { ogLocalTno1, ogLocalTno2, ogLocalTno3 } = grid.getValues(index.itemIndex);
-        return `${ogLocalTno1}-${ogLocalTno2}-${ogLocalTno3}`;
+        if (ogLocalTno1 != null) {
+          return `${ogLocalTno1}-${ogLocalTno2}-${ogLocalTno3}`;
+        }
       },
     },
     { fieldName: 'hooPrtnrCralTno',
@@ -579,7 +619,9 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { hooPrtnrCralTno1, hooPrtnrCralTno2, hooPrtnrCralTno3 } = grid.getValues(index.itemIndex);
-        return `${hooPrtnrCralTno1}-${hooPrtnrCralTno2}-${hooPrtnrCralTno3}`;
+        if (hooPrtnrCralTno1 != null) {
+          return `${hooPrtnrCralTno1}-${hooPrtnrCralTno2}-${hooPrtnrCralTno3}`;
+        }
       },
     },
   ];
@@ -621,6 +663,7 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
     { fieldName: 'mmpmYm' },
     { fieldName: 'prmReAplcYn' },
     { fieldName: 'prmEndMm' },
+    { fieldName: 'pdCd' },
     { fieldName: 'pdNm' },
     { fieldName: 'cnt' },
     { fieldName: 'currMm' },
@@ -641,7 +684,9 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cntrCralTno1, cntrCralTno2, cntrCralTno3 } = grid.getValues(index.itemIndex);
-        return `${cntrCralTno1}-${cntrCralTno2}-${cntrCralTno3}`;
+        if (cntrCralTno1 != null) {
+          return `${cntrCralTno1}-${cntrCralTno2}-${cntrCralTno3}`;
+        }
       },
     },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center', visible: false },
@@ -650,8 +695,18 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
     { fieldName: 'cntrInfo', header: t('MSG_TXT_PD_INF'), width: '249', styleName: 'text-left' },
     { fieldName: 'prmEndYm', header: t('MSG_TXT_PRM_EXN_YM'), width: '250', styleName: 'text-center' },
     { fieldName: 'mmpmYm', header: t('MSG_TXT_MM_PY_STRT_YM'), width: '250', styleName: 'text-center' },
-    { fieldName: 'prmReAplcYn', header: t('MSG_TXT_FW_OJ'), width: '200', styleName: 'text-center' },
+    { fieldName: 'prmReAplcY',
+      header: t('MSG_TXT_FW_OJ'),
+      width: '200',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback(g, index) {
+        const values = g.getValues(index.itemIndex);
+        if (values.prmReAplcYn === 'Y') return t('MSG_BTN_EXLD');
+        return t('MSG_TXT_INC');
+      },
+    },
     { fieldName: 'prmEndMm', width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'pdCd', width: '250', styleName: 'text-center', visible: false },
     { fieldName: 'pdNm', width: '250', styleName: 'text-center', visible: false },
     { fieldName: 'cnt', width: '250', styleName: 'text-center', visible: false },
     { fieldName: 'currMm', width: '250', styleName: 'text-center', visible: false },
@@ -665,7 +720,7 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true; // create checkbox column
+  view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 });
 

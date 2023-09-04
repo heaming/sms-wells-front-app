@@ -16,10 +16,23 @@
   <kw-page>
     <kw-search
       one-row
-      :cols="2"
+      :cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 조직유형 -->
+        <kw-search-item
+          :label="t('MSG_TXT_OG_TP')"
+          required
+        >
+          <kw-select
+            v-model="searchParams.ogTpCd"
+            :label="t('MSG_TXT_OG_TP')"
+            rules="required"
+            :options="ogTpCds"
+            first-option="select"
+          />
+        </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_APL_DATE')"
         >
@@ -126,13 +139,17 @@ const { currentRoute } = useRouter();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
+const ogTpCds = ref();
 const codes = await codeUtil.getMultiCodes(
+  'OG_TP_CD',
   'COD_PAGE_SIZE_OPTIONS',
   'ACTI_GDS_APLC_STAT_CD',
 );
+ogTpCds.value = codes.OG_TP_CD.filter((v) => ['W02', 'W03'].includes(v.codeId));
 const actiGdsSns = ref();
 const actiGdsStddCds = ref();
 const searchParams = ref({
+  ogTpCd: '', /* 조직유형코드 */
   aplcDt: now.format('YYYYMM'),
   prtnrNo: '',
   prtnrKnm: '',

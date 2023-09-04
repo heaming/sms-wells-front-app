@@ -253,7 +253,7 @@ async function onClickSave() {
   await fetchData();
 }
 // 수수료 생성 버튼
-async function onClickCreate() {
+async function onClickCreate(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   // 조회후 진행
   const { result: isChanged } = await modal({
     component: 'WwfebB2bFeeCreationRegP',
@@ -263,6 +263,7 @@ async function onClickCreate() {
     },
   });
   if (isChanged) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
     fetchData();
   }
 }
@@ -276,7 +277,7 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 }
 
 // 실적집계
-async function onClickAggregate() {
+async function onClickAggregate(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   const { result: isChanged } = await modal({
     component: 'WwfebB2bFeeCreationAggregateP',
     componentProps: {
@@ -285,6 +286,7 @@ async function onClickAggregate() {
     },
   });
   if (isChanged) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
     fetchData();
   }
 }
@@ -300,10 +302,10 @@ async function onclickStep(params) {
     await onClickRetry(params.feeSchdId, params.code, '02');
   } else {
     if (params.code === 'W0401') { // 실적집계
-      await onClickAggregate();
+      await onClickAggregate(params.feeSchdId, params.code, '03');
     }
     if (params.code === 'W0402') { // 수수료 생성
-      await onClickCreate();
+      await onClickCreate(params.feeSchdId, params.code, '03');
     }
     if (params.code === 'W0403') { // 보증예치금 적립
       // 미정의

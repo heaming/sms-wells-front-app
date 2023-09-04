@@ -355,7 +355,7 @@ function initGrid(data, view) {
     { fieldName: 'cntrAprSellDvCd', header: t('MSG_TXT_SLS_CAT'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: codes.CNTR_APR_SELL_DV_CD },
     { fieldName: 'cntrAprChnlDvVal', header: t('MSG_TXT_RSPBL_CHNL'), width: '180', styleName: 'text-center', editor: { type: 'text', maxLength: 10 } },
     { fieldName: 'cntrAprIchrDvCd', header: t('MSG_TXT_ICHR_DV'), width: '142', styleName: 'text-center', editor: { type: 'list' }, options: codes.CNTR_APR_ICHR_DV_CD },
-    { fieldName: 'ichrUsrId', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center rg-button-icon--search', button: 'action', editor: { type: 'text', maxLength: 10 } },
+    { fieldName: 'ichrUsrId', header: t('MSG_TXT_CNT_PER'), width: '180', styleName: 'text-center rg-button-icon--search', button: 'action', editor: { type: 'number', maxLength: 10 } },
     { fieldName: 'psicNm', header: t('MSG_TXT_PIC_NM'), width: '180', editor: { type: 'text' }, styleName: 'text-center', editable: false },
     { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' }, rules: 'required' },
     { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editor: { type: 'btdate' }, rules: 'required' },

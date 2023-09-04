@@ -29,7 +29,7 @@
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
             disable-popup
-            :update="updateCntrDtl()"
+            cntr-sn-required
           >
             <template #append>
               <kw-icon
@@ -204,7 +204,7 @@
           <kw-form-item
             :label="$t('MSG_TXT_PRD_CHNG')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.chnDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.chnDt) }}</p>
           </kw-form-item>
           <!-- 판매유형 -->
           <kw-form-item
@@ -224,7 +224,7 @@
           <kw-form-item
             :label="$t('MSG_TXT_CNTR_DATE')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.cntrDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.cntrDt) }}</p>
           </kw-form-item>
           <!-- 지점코드 -->
           <kw-form-item
@@ -250,7 +250,7 @@
           <kw-form-item
             :label="$t('MSG_TXT_ASN_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.asnDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.asnDt) }}</p>
           </kw-form-item>
           <!-- 판매채널 -->
           <kw-form-item
@@ -299,25 +299,25 @@
           <kw-form-item
             :label="$t('MSG_TXT_IST_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.istDt) }} </p>
+            <p>{{ stringUtil.getDateFormat(individualParams.istDt) }} </p>
           </kw-form-item>
           <!-- 교체일자 -->
           <kw-form-item
             :label="$t('MSG_TXT_CHNG_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.chngDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.chngDt) }}</p>
           </kw-form-item>
           <!-- 철거일자 -->
           <kw-form-item
             :label="$t('MSG_TXT_DEM_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.reqdDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.reqdDt) }}</p>
           </kw-form-item>
           <!-- 취소일자 -->
           <kw-form-item
             :label="$t('MSG_TXT_CANC_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.canDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.canDt) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -325,25 +325,25 @@
           <kw-form-item
             :label="$t('MSG_TXT_STP_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.svStpDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.svStpDt) }}</p>
           </kw-form-item>
           <!-- AS만기 -->
           <kw-form-item
             :label="$t('MSG_TXT_AS_EXPR')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.asExprDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.asExprDt) }}</p>
           </kw-form-item>
           <!-- BS만기 -->
           <kw-form-item
             :label="$t('MSG_TXT_BS_EXPR')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.bsExprDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.bsExprDt) }}</p>
           </kw-form-item>
           <!-- 기변일자 -->
           <kw-form-item
             :label="$t('MSG_TXT_MCHN_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.cpsDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.cpsDt) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -351,13 +351,13 @@
           <kw-form-item
             :label="$t('MSG_TXT_MSH_STRT_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.mshJDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.mshJDt) }}</p>
           </kw-form-item>
           <!-- 멤버십종료일 -->
           <kw-form-item
             :label="$t('MSG_TXT_MSH_END_DT')"
           >
-            <p>{{ stringUtil.getDatetimeFormat(individualParams.mshWdwalDt) }}</p>
+            <p>{{ stringUtil.getDateFormat(individualParams.mshWdwalDt) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -515,6 +515,14 @@
             @change="getIndividualState"
           />
         </template>
+        <kw-btn
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickExcelDownload"
+        />
       </kw-action-top>
       <kw-grid
         ref="grdIndividualStateRef"
@@ -557,9 +565,13 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-// const { getters } = useStore();
-// const userInfo = getters['meta/getUserInfo'];
-// const { departmentId } = userInfo;
+const { getters } = useStore();
+const userInfo = getters['meta/getUserInfo'];
+const {
+  employeeIDNumber,
+  ogTpCd,
+  // departmentId,
+} = userInfo;
 
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
@@ -580,7 +592,6 @@ const individualParams = ref([]);
 const svHshdNo = ref('');
 const selectedTab = ref('1');
 // const cntrDtlNo = ref();
-// const istPhFileUid = ref([]);
 const countInfo = ref({
   householdTotalCount: 0,
   contactTotalCount: 0,
@@ -610,8 +621,8 @@ const searchParams = ref({
   cntrDtlNo: '',
 });
 const saveParams = ref({
-  cntrNo: '',
-  cntrSn: '',
+  cntrNo: props.cntrNo ?? '',
+  cntrSn: props.cntrSn ?? '',
   ogTpCd: '',
   wkPrtnrNo: '',
   cstUnuitmCn: '',
@@ -625,14 +636,6 @@ const isDisableButton = computed(() => isEmpty(searchParams.value.cntrNo) || isE
 //   // return true;
 //   return false;
 // }
-
-async function onClickCstSearch() {
-  const { result, payload } = await modal({ component: 'WwsnyCustomerBaseInformationP' });
-  if (result) {
-    searchParams.value.cntrNo = payload.cntrNo ?? '';
-    searchParams.value.cntrSn = payload.cntrSn ?? '';
-  }
-}
 
 /* 개인별 서비스현황 조회 */
 async function getIndividualServicePs() {
@@ -744,16 +747,30 @@ async function getIndividualCounsel() {
   individualCounselData.checkRowStates(true);
 }
 
+async function fetchData() {
+  await getHousehold();
+  await getIndividualContact();
+  await getIndividualFarmCode();
+  await getIndividualDelinquent();
+  await getIndividualState();
+  await getIndividualCounsel();
+}
+
 async function onClickSearch() {
   if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) { notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`])); return; }
-  if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { notify(t('MSG_ALT_CHK_CNTR_SN')); return; }
+  if (searchParams.value.cntrNo) {
+    if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { return; }
+  }
 
   await getIndividualServicePs();
 
   if (isEmpty(individualParams.value)) {
     notify(t('MSG_ALT_CST_INF_NOT_EXST'));
+    // init tabs & grids
+    await fetchData();
+    grdIndividualStateRef.value.getData().clearRows();
+    grdIndividualCounselRef.value.getData().clearRows();
   } else {
-    console.log(individualParams.value.prdNm);
     searchParams.value.cntrNo = individualParams.value.cntrNoDtl.substring(0, 12);
     searchParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
 
@@ -762,38 +779,62 @@ async function onClickSearch() {
     grdIndividualCounselRef.value.getData().clearRows();
     secondPageInfo.value.pageIndex = 1;
 
-    await getHousehold();
-    await getIndividualContact();
-    await getIndividualFarmCode();
-    await getIndividualDelinquent();
-    await getIndividualState();
-    await getIndividualCounsel();
+    await fetchData();
   }
+}
+
+const { currentRoute } = useRouter();
+async function onClickExcelDownload() {
+  const view = grdIndividualStateRef.value.getView();
+  const res = dataService.get('sms/wells/service/individual-service-ps/process-state/excel-download', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
+
+  await gridUtil.exportView(view, {
+    filtName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 async function onClickSave() {
   saveParams.value.cntrNo = individualParams.value.cntrNoDtl.substring(0, 12);
   saveParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
-  saveParams.value.ogTpCd = individualParams.value.wkOgTpCd;
-  saveParams.value.wkPrtnrNo = individualParams.value.wkPrtnrNo;
+  saveParams.value.ogTpCd = ogTpCd;
+  saveParams.value.wkPrtnrNo = employeeIDNumber;
   saveParams.value.cstUnuitmCn = individualParams.value.cstUnuitmCn;
   if (isEmpty(saveParams.value.cstUnuitmCn)) { return; }
+  // console.log(saveParams.value);
   await dataService.post('sms/wells/service/individual-service-ps', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
 }
 
-async function updateCntrDtl() {
-  watch(props, async (val) => {
-    if (val) {
-      searchParams.value.cntrNo = props.cntrNo;
-      searchParams.value.cntrSn = props.cntrSn;
-    }
-  });
+async function onClickCstSearch() {
+  const { payload } = await modal({ component: 'WwsnyCustomerBaseInformationP' });
+
+  if (payload) {
+    searchParams.value.bcNo = '';
+    searchParams.value.sppIvcNo = '';
+
+    searchParams.value.cntrNo = payload.cntrNo ?? '';
+    searchParams.value.cntrSn = payload.cntrSn ?? '';
+    await onClickSearch();
+  }
 }
 
+watch(props, async (val) => {
+  console.log(val);
+  if (val) {
+    searchParams.value.bcNo = '';
+    searchParams.value.sppIvcNo = '';
+
+    searchParams.value.cntrNo = props.cntrNo;
+    searchParams.value.cntrSn = props.cntrSn;
+    await onClickSearch();
+  }
+});
+
 onMounted(async () => {
-  if (props.cntrNo) {
+  if (props.cntrNo && props.cntrSn) {
     await onClickSearch();
   }
 });
@@ -917,7 +958,7 @@ const initGridState = defineGrid((data, view) => {
       },
     },
     { fieldName: 'rtngdProcsTp', header: t('MSG_TXT_RTNGD_PCS_INF'), width: '150' },
-    { fieldName: 'fstVstFshDt', header: t('MSG_TXT_DSU_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'fstVstFshDt', header: t('MSG_TXT_DSU_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
   ];
 
   data.setFields(fields);
@@ -986,29 +1027,29 @@ const initGridState = defineGrid((data, view) => {
 const initGridCounsel = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cselSts' },
-    { fieldName: 'cnslDt' },
+    { fieldName: 'cnslStDt' },
     { fieldName: 'cnslEdDt' },
     { fieldName: 'cnslTpHcsfCd' },
     { fieldName: 'cnslTpMcsfCd' },
     { fieldName: 'cnslTpLcsfCd' },
-    { fieldName: 'modUserId' },
+    { fieldName: 'pcpNm' },
     { fieldName: 'cselRstCd' },
     { fieldName: 'custResp' },
-    { fieldName: 'cstNm' },
+    { fieldName: 'clntDvNm' },
     { fieldName: 'cnslCn' },
   ];
 
   const columns = [
     { fieldName: 'cselSts', header: t('MSG_TXT_PROCS_STAT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cnslDt', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'cnslEdDt', header: t('MSG_TXT_PRCSDT'), width: '150', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'cnslStDt', header: t('MSG_TXT_RCPDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cnslEdDt', header: t('MSG_TXT_PRCSDT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cnslTpHcsfCd', header: t('MSG_TXT_CNSL_HCLSF'), width: '200', styleName: 'text-center' },
     { fieldName: 'cnslTpMcsfCd', header: t('MSG_TXT_CNSL_DCLSF'), width: '150', styleName: 'text-center' },
     { fieldName: 'cnslTpLcsfCd', header: t('MSG_TXT_CNSL_LCLSF'), width: '250', styleName: 'text-center' },
-    { fieldName: 'modUserId', header: t('MSG_TXT_PCP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pcpNm', header: t('MSG_TXT_PCP'), width: '100', styleName: 'text-center' },
     { fieldName: 'cselRstCd', header: t('MSG_TXT_PROCS_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'custResp', header: t('MSG_TXT_CST_RACT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cstNm', header: t('MSG_TXT_CLNT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'clntDvNm', header: t('MSG_TXT_CLNT'), width: '100', styleName: 'text-center' },
     { fieldName: 'cnslCn', header: t('MSG_TXT_CNSL_CN'), width: '200', styleName: 'text-center' },
   ];
 

@@ -73,11 +73,10 @@
             @click="onClickRgstPtrmSe"
           /> -->
           <kw-btn
-            v-if="false"
             secondary
             dense
-            disable
             :label="$t('MSG_BTN_RGST_PTRM_SE')"
+            disable
             @click="onClickRgstPtrmSe"
           />
         </li>

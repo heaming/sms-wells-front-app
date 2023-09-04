@@ -60,9 +60,9 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
-          secondary
-          dense
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
+          icon="report"
+          dense
           @click="openManagerReportPopup"
         />
       </kw-action-top>
@@ -668,7 +668,7 @@ const initGrd2Main = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
-  view.setFooters({ visible: true, items: [{ height: 30 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
 
   // multi row header setting
   view.setColumnLayout([
@@ -768,7 +768,7 @@ const initGrd4Main = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setFooters({ visible: true, items: [{ height: 30 }] });
+  view.setFooters({ visible: true, items: [{ height: 42 }] });
 
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = false; // create number indicator column

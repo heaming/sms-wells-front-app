@@ -40,17 +40,17 @@
           rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
-      <!-- 계약상세번호 -->
+      <!-- 계약번호 -->
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_DTL_NO')"
+        :label="$t('MSG_TXT_CNTR_NO')"
       >
         <kw-input
           v-model="searchParams.cntrNo"
           icon="search"
           clearable
           :label="$t('MSG_TXT_CNTR_NO')"
-          :placeholder="$t('MSG_TXT_CNTR_NO') + '-' + $t('MSG_TXT_CNTR_SN')"
           :maxlength="12"
+          :regex="contractNumberRegEx"
           @keydown="onKeyDownSelectCntrNo"
           @click-icon="onClickSelectCntrNo"
           @clear="onClearSelectCntrNo"
@@ -65,9 +65,9 @@
           :label="$t('MSG_TXT_CST_NO')"
           icon="search"
           clearable
-          :on-click-icon="onClickSearchCustomer"
-          rules="max:10|numeric"
           :maxlength="10"
+          regex="num"
+          @click-icon="onClickSearchCntrCstNo"
         />
       </kw-search-item>
     </kw-search-row>
@@ -110,6 +110,7 @@
           clearable
           icon="search"
           :maxlength="10"
+          regex="alpha_num"
           dense
           @click-icon="onClickSelectPdCd()"
         />
@@ -171,6 +172,7 @@
           clearable
           icon="search"
           :maxlength="10"
+          regex="num"
           @click-icon="onClickSearchPrtnrNoPopup()"
         />
       </kw-search-item>
@@ -267,7 +269,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, stringUtil, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, stringUtil, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import dayjs from 'dayjs';
@@ -275,7 +277,10 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const { t } = useI18n();
 const { alert, modal } = useGlobal();
-// const { getConfig } = useMeta();
+const { getUserInfo } = useMeta();
+const { tenantCd } = getUserInfo();
+const availablePrefix = ['E', 'W'].includes(tenantCd) ? tenantCd : '[EW]';
+const contractNumberRegEx = RegExp(`^${availablePrefix}\\d{0,11}?$`);
 const { currentRoute } = useRouter();
 
 let cachedParams;
@@ -370,12 +375,12 @@ async function onClickSelectCntrNo() {
 
   if (result) {
     searchParams.value.cntrNo = payload.cntrNo;
-    searchParams.value.cntrSn = payload.cntrSn;
+    // searchParams.value.cntrSn = payload.cntrSn;
   }
 }
 
 // 고객번호 팝업조회
-async function onClickSearchCustomer() {
+async function onClickSearchCntrCstNo() {
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
     componentProps: { cstType: '1', cstNo: searchParams.value.cntrCstNo },

@@ -204,7 +204,7 @@ const initBusinessToBusinessBoDetailList = defineGrid((data, view) => {
       editor: {
         type: 'number',
         editFormat: '#,##0',
-        maxLength: 20,
+        maxLength: 15,
       } }, // 입찰가격
     { fieldName: 'stplPtrm',
       header: t('MSG_TXT_CONTRACT_PERI'),

@@ -53,14 +53,14 @@
           />
         </kw-search-item>
 
+        <!-- required -->
         <!-- 종료 구분 -->
         <kw-search-item
           :label="t('MSG_TXT_END_DV')"
-          required
         >
           <kw-select
             v-model="searchParams.cntrDtlStatCd"
-            :options="codes.EXN_EXAMT_END_DV_ACD"
+            :options="codes.CNTR_DTL_STAT_CD.filter((e) => ['402', '303'].includes(e.codeId))"
             first-option="all"
             first-option-value="ALL"
           />
@@ -122,9 +122,11 @@ const apiUrl = '/sms/wells/withdrawal/idvrve/rental-exn-examt';
 
 const codes = await codeUtil.getMultiCodes(
   'INDV_CRP_CNTR_DV_CD', // 계약구분
-  'EXN_EXAMT_END_DV_ACD', // 종료구분
+
   'BNK_CD', // 은행코드
   'COD_PAGE_SIZE_OPTIONS',
+  'CNTR_DTL_STAT_CD',
+
 );
 const searchParams = ref({
   dpDt: defaultMonth,
@@ -230,7 +232,7 @@ const initGrid = defineGrid((data, view) => {
       },
     },
 
-    { fieldName: 'cntrDtlStatCd', header: t('MSG_TXT_END_DV'), width: '120', styleName: 'text-center', options: codes.EXN_EXAMT_END_DV_ACD },
+    { fieldName: 'cntrDtlStatCd', header: t('MSG_TXT_END_DV'), width: '120', styleName: 'text-center', options: codes.CNTR_DTL_STAT_CD },
 
   ];
 

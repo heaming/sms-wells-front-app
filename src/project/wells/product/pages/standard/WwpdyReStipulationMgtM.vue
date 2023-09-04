@@ -130,6 +130,7 @@ import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGl
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
+import { isValidGridCodes } from '~sms-common/product/utils/pdUtil';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -300,6 +301,7 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
+  if (!await isValidGridCodes(view, ['pdCd'])) { return; } // 상품코드 검사
   if (await checkDuplicationByPk()) { return; } // Pk Dupli-Check
 
   const changedRows = gridUtil.getChangedRowValues(view);

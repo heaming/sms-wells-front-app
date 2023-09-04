@@ -21,6 +21,7 @@
       <template #left>
         <kw-paging-info :total-count="pageInfo.totalCount" />
       </template>
+      <span>{{ t('MSG_TXT_UNIT_MCNT') }}</span> <!-- 단위:개월 -->
     </kw-action-top>
     <kw-grid
       ref="grdEmployeePurchaseGcfDsbList"

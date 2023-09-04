@@ -105,13 +105,27 @@
             <kw-form-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
               <p>{{ frmMainData.cntrDtlNo }}</p>
             </kw-form-item>
+            <slot v-if="isEmpty(props.copnDvCd)">
+              <slot v-if="frmMainData.copnDvCd === '1'">
+                <!-- 생년월일 -->
+                <kw-form-item :label="$t('MSG_TXT_BIRTH_DATE')">
+                  <p>{{ stringUtil.getDateFormat(frmMainData.cstNo2) }}</p>
+                </kw-form-item>
+              </slot>
+              <slot v-else-if="frmMainData.copnDvCd === '2'">
+                <!-- 사업자등록번호 -->
+                <kw-form-item :label="$t('MSG_TXT_CRNO')">
+                  <p>{{ frmMainData.cstNo2 }}</p>
+                </kw-form-item>
+              </slot>
+            </slot>
             <slot v-if="props.copnDvCd === '1'">
               <!-- 생년월일 -->
               <kw-form-item :label="$t('MSG_TXT_BIRTH_DATE')">
                 <p>{{ stringUtil.getDateFormat(frmMainData.cstNo2) }}</p>
               </kw-form-item>
             </slot>
-            <slot v-if="props.copnDvCd === '2'">
+            <slot v-else-if="props.copnDvCd === '2'">
               <!-- 사업자등록번호 -->
               <kw-form-item :label="$t('MSG_TXT_CRNO')">
                 <p>{{ frmMainData.cstNo2 }}</p>
@@ -135,13 +149,6 @@
             <kw-form-item :label="$t('MSG_TXT_GENDER')">
               <p>{{ frmMainData.sexDvNm }}</p>
             </kw-form-item>
-            <!-- 세이프키 -->
-            <kw-form-item :label="$t('MSG_TXT_SFK')">
-              <p>{{ frmMainData.sfkVal }}</p>
-            </kw-form-item>
-          </kw-form-row>
-
-          <kw-form-row>
             <!-- 자동이체 -->
             <kw-form-item :label="$t('MSG_TXT_AUTO_FNT')">
               <kw-chip
@@ -157,6 +164,13 @@
           </kw-form-row>
 
           <kw-form-row>
+            <!-- 세이프키 -->
+            <kw-form-item :label="$t('MSG_TXT_SFK')">
+              <p>{{ frmMainData.sfkVal }}</p>
+            </kw-form-item>
+          </kw-form-row>
+
+          <kw-form-row>
             <!-- 가상계좌 -->
             <kw-form-item :label="$t('MSG_TXT_VT_AC')">
               <kw-chip
@@ -168,11 +182,8 @@
               <p class="ml8">
                 {{ frmMainData.vacInfo }}
               </p>
-              <kw-separator
-                vertical
-                spaced="3px"
-                size="0"
-              />
+            </kw-form-item>
+            <kw-form-item no-label>
               <!-- 가상계좌확인서 -->
               <kw-btn
                 v-show="isVacInfo"
@@ -324,6 +335,7 @@ const frmMainData = ref({
   pdNm: '', // 상품명
   cstKnm: '', // 고객명
   cntrCstNo: '', // 고객번호
+  copnDvCd: props.copnDvCd, // 고객구분코드(1:개인, 2:법인)
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
   cstNo2: '', // 생년월일(개인법인에 따라 생년월일 또는 사업자등록번호 표시)
@@ -391,11 +403,12 @@ async function fetchDataCustomerBase() {
     frmMainData.value.pdNm = res.data[0].pdNm; // 상품명
     frmMainData.value.cstKnm = res.data[0].cstKnm; // 고객명
     frmMainData.value.cntrCstNo = res.data[0].cntrCstNo; // 고객번호
+    frmMainData.value.copnDvCd = res.data[0].copnDvCd; // 고객구분코드(1:개인, 2:법인)
     frmMainData.value.cntrNo = res.data[0].cntrNo; // 계약번호
     frmMainData.value.cntrSn = res.data[0].cntrSn; // 계약일련번호
-    if (props.copnDvCd === '1') { // 생년월일
+    if (frmMainData.value.copnDvCd === '1') { // 생년월일
       frmMainData.value.cstNo2 = res.data[0].cstNo2;
-    } else if (props.copnDvCd === '2') { // 사업자등록번호
+    } else if (frmMainData.value.copnDvCd === '2') { // 사업자등록번호
       // 사업자등록번호 3-2-5 형식으로 표시
       if (!isEmpty(res.data[0].cstNo2) && res.data[0].cstNo2.length === 10) {
         frmMainData.value.cstNo2 = `${res.data[0].cstNo2.substr(0, 3)}-${res.data[0].cstNo2.substr(3, 2)}-${res.data[0].cstNo2.substr(5, 5)}`;

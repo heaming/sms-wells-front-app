@@ -73,49 +73,6 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <!-- 품목구분 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_ITM_DV')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.itmKndCd"
-            :options="filterCodes.itmKndCd"
-            first-option="all"
-            class="w150"
-            @change="onChangeItmKndCd"
-          />
-          <kw-select
-            v-model="searchParams.itmPdCds"
-            :options="optionsItmPdCd"
-            :label="$t('MSG_TXT_ITM_DV')"
-            option-value="pdCd"
-            option-label="pdNm"
-            first-option="all"
-            :multiple="true"
-          />
-        </kw-search-item>
-        <!-- 총출고 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_TOT_OSTR')"
-        >
-          <kw-input
-            v-model="searchParams.totOutQty"
-            rules="numeric|max_value:999999999999"
-          />
-        </kw-search-item>
-        <!-- 출고일자 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_OSTR_DT')"
-        >
-          <kw-date-picker
-            v-model="searchParams.ostrDt"
-            type="date"
-            :min-date="minDate"
-          />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_STR_WARE')"
           :colspan="2"
@@ -144,6 +101,49 @@
             option-label="wareNm"
             :label="$t('MSG_TXT_STR_WARE')"
             first-option="all"
+          />
+        </kw-search-item>
+        <!-- 총출고 -->
+        <kw-search-item
+          :label="`${t('MSG_TXT_DTRM')} ${t('MSG_TXT_AF')} ${t('MSG_TXT_STOC')}`"
+        >
+          <kw-input
+            v-model="searchParams.totOutQty"
+            rules="numeric|max_value:999999999999"
+          />
+        </kw-search-item>
+        <!-- 출고일자 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_OSTR_DT')"
+        >
+          <kw-date-picker
+            v-model="searchParams.ostrDt"
+            type="date"
+            :min-date="minDate"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 품목구분 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_DV')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.itmKndCd"
+            :options="filterCodes.itmKndCd"
+            first-option="all"
+            class="w150"
+            @change="onChangeItmKndCd"
+          />
+          <kw-select
+            v-model="searchParams.itmPdCds"
+            :options="optionsItmPdCd"
+            :label="$t('MSG_TXT_ITM_DV')"
+            option-value="pdCd"
+            option-label="pdNm"
+            first-option="all"
+            :multiple="true"
           />
         </kw-search-item>
         <!-- 품목코드 -->
@@ -446,20 +446,42 @@ await Promise.all([
   getProducts(),
 ]);
 
-const allOstrItms = ref([]);
 const totalCount = ref(0);
+const allOstrItms = ref([]);
+// 미출고 수량제외 필터링
+function onChangeNdlvQty() {
+  const { ndlvQtyYn } = searchParams.value;
+
+  const view = grdMainRef.value.getView();
+  if (ndlvQtyYn === 'Y') {
+    // 필터링 전 데이터 담기
+    allOstrItms.value = view.getDataSource().getRows();
+    // 필터링, 출고수량이 0보다 크고, 물류전송여부가 N인 경우
+    const filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.lgstTrsYn === 'N');
+    totalCount.value = filterRows.length;
+    view.getDataSource().setRows(filterRows);
+    return;
+  }
+
+  totalCount.value = allOstrItms.value.length;
+  view.getDataSource().setRows(allOstrItms.value);
+}
 
 // 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/individual-ware-ostrs', { params: { ...cachedParams } });
   const ostrItms = res.data;
 
-  allOstrItms.value = ostrItms;
   totalCount.value = ostrItms.length;
 
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(ostrItms);
+  }
+
+  const { ndlvQtyYn } = searchParams.value;
+  if (ndlvQtyYn === 'Y') {
+    onChangeNdlvQty();
   }
 }
 
@@ -480,22 +502,6 @@ async function onClickExcelDownload() {
   });
 }
 
-// 미출고 수량제외 필터링
-function onChangeNdlvQty() {
-  const { ndlvQtyYn } = searchParams.value;
-
-  const view = grdMainRef.value.getView();
-  // 필터링 해제
-  if (ndlvQtyYn === 'N') {
-    view.getDataSource().setRows(allOstrItms.value);
-    return;
-  }
-
-  // 필터링
-  const filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.totOutQty < 15);
-  view.getDataSource().setRows(filterRows);
-}
-
 // 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
@@ -505,10 +511,17 @@ async function onClickSave() {
     return;
   }
 
-  const validRows = checkedRows.filter((item) => item.lgstTrsYn === 'Y');
+  let validRows = checkedRows.filter((item) => item.lgstTrsYn === 'Y');
   if (!isEmpty(validRows)) {
     // 물류 이관된 데이터는 저장할 수 없습니다.
     await alert(t('MSG_ALT_LGST_TF_SAVE_IMP'));
+    return;
+  }
+
+  validRows = checkedRows.filter((item) => item.outQty < 1);
+  if (!isEmpty(validRows)) {
+    // 생성수량은 0보다 커야합니다.
+    await alert(t('MSG_ALT_CRT_QTY_ZERO_BE_BIG'));
     return;
   }
 
@@ -584,24 +597,16 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd' },
     { fieldName: 'itmPdCd' },
     { fieldName: 'pdAbbrNm' },
-    { fieldName: 'partUseQty', dataType: 'number' },
-    { fieldName: 'under20per', dataType: 'number' },
     { fieldName: 'hgrCrtlStocQty', dataType: 'number' },
     { fieldName: 'totOutQty', dataType: 'number' },
     { fieldName: 'mngtUnit' },
-    { fieldName: 'mngtUnitNm' },
     { fieldName: 'matGdCd' },
     { fieldName: 'logisticStocQty', dataType: 'number' },
     { fieldName: 'boxUnitQty', dataType: 'number' },
     { fieldName: 'crtlStocQty', dataType: 'number' },
-    { fieldName: 'useQty', dataType: 'number' },
     { fieldName: 'cnfmQty', dataType: 'number' },
-    { fieldName: 'cnfmBoxQty', dataType: 'number' },
     { fieldName: 'aclOstrQty', dataType: 'number' },
-    { fieldName: 'aclOstrBoxQty', dataType: 'number' },
-    { fieldName: 'filterBoxQty', dataType: 'number' },
     { fieldName: 'outQty', dataType: 'number' },
-    { fieldName: 'outBoxQty', dataType: 'number' },
     { fieldName: 'itmQomAsnNo' },
     { fieldName: 'asnOjYm' },
     { fieldName: 'ostrWareNo' },
@@ -626,29 +631,20 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
-    { fieldName: 'partUseQty', header: t('MSG_TXT_FILT_NED_QTY'), width: '106', styleName: 'text-right' },
-    { fieldName: 'under20per', header: t('MSG_TXT_ASN_QTY_CPR_STOC_QTY_STG'), width: '100', styleName: 'text-right' },
     { fieldName: 'hgrCrtlStocQty', header: t('MSG_TXT_CNR_STOC'), width: '110', styleName: 'text-right' },
-    { fieldName: 'totOutQty', header: t('MSG_TXT_TOT_OSTR'), width: '100', styleName: 'text-right' },
-    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '106', styleName: 'text-center' },
-    { fieldName: 'matGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-center' },
-    { fieldName: 'logisticStocQty', header: t('MSG_TXT_HGR_STOC'), width: '100', styleName: 'text-right' },
-    { fieldName: 'boxUnitQty', header: t('MSG_TXT_UNIT_QTY'), width: '136', styleName: 'text-right' },
-    { fieldName: 'crtlStocQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'useQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'cnfmQty', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right' },
-    { fieldName: 'cnfmBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
-    { fieldName: 'aclOstrQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right' },
-    { fieldName: 'aclOstrBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
-    { fieldName: 'outBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
     { fieldName: 'outQty',
-      header: t('MSG_TXT_OSTR_QTY'),
+      header: `${t('MSG_TXT_CRT')}${t('MSG_TXT_QTY')}`,
       width: '110',
-      rules: 'required|min_value:1|max_value:999999999999',
+      rules: 'required|min_value:0|max_value:999999999999',
       styleName: 'text-right',
       editor: {
         type: 'number',
         editable: true } },
+    { fieldName: 'totOutQty', header: `${t('MSG_TXT_DTRM')} ${t('MSG_TXT_AF')} ${t('MSG_TXT_STOC')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'logisticStocQty', header: `${t('MSG_TXT_LGST_CNR')}(${t('MSG_TXT_PAJU')})`, width: '100', styleName: 'text-right' },
+    { fieldName: 'crtlStocQty', header: `${t('MSG_TXT_STOC_QTY')}(${t('MSG_TXT_INDV')})`, width: '100', styleName: 'text-right' },
+    { fieldName: 'cnfmQty', header: `${t('MSG_TXT_FST')} ${t('MSG_TXT_CRT')}${t('MSG_TXT_QTY')}`, width: '84', styleName: 'text-right' },
+    { fieldName: 'aclOstrQty', header: t('MSG_TXT_CNFM_QTY'), width: '84', styleName: 'text-right' },
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
       width: '240',
@@ -661,39 +657,22 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setColumnLayout([
-    'lgstTrsYn',
-    'wareNm',
-    'sapMatCd',
-    'itmPdCd',
-    'pdAbbrNm',
-    'partUseQty',
-    'under20per',
-    'hgrCrtlStocQty',
-    'totOutQty',
-    'mngtUnitNm',
-    'matGdCd',
-    'logisticStocQty',
-    'boxUnitQty',
-    'crtlStocQty', // single
-    'useQty',
-    {
-      header: t('MSG_TXT_QOM_ASN_CNFM'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['cnfmQty', 'cnfmBoxQty'],
-    },
-    {
-      header: t('MSG_TXT_QOM_ASN_OSTR'),
-      direction: 'horizontal',
-      items: ['aclOstrQty', 'aclOstrBoxQty'],
-    },
-    'outBoxQty', 'outQty', 'rmkCn',
-  ]);
 
   view.checkBar.fieldName = 'chk';
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
+
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+    if (changedFieldName === 'outQty') {
+      const { outQty } = grid.getValues(itemIndex);
+
+      if (outQty === 0) {
+        grid.setValue(itemIndex, 'chk', 'N');
+      }
+    }
+  };
 
   view.onCellEditable = (grid, index) => {
     // 물류전송여부

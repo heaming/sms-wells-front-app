@@ -27,6 +27,7 @@
             v-model:from="searchParams.cntrChRcpStrtDtm"
             v-model:to="searchParams.cntrChRcpFinsDtm"
             rules="date_range_required|date_range_months:1"
+            :label="$t('MSG_TXT_CANC_DT')"
           />
         </kw-search-item>
         <!-- 계약상세번호 -->

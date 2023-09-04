@@ -168,7 +168,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, useDataService, getComponentType, gridUtil, useGlobal, useMeta } from 'kw-lib';
 // import { onMounted } from 'vue';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
@@ -182,8 +182,11 @@ const { getMonthWarehouse } = useSnCode();
 const { t } = useI18n();
 const dataService = useDataService();// const { getConfig } = useMeta();
 const grdMainRef = ref(getComponentType('KwGrid'));
+const { getUserInfo } = useMeta();
 const { alert, notify, modal } = useGlobal();
 const store = useStore();
+const sessionUserInfo = getUserInfo();
+const ROL_ID = 'ROL_W1580';
 
 // TODO: 출고관리(W-SV-U-0141M01) 에서 호출 시 분기처리 현재테스트 진행중
 const props = defineProps({
@@ -228,6 +231,9 @@ const searchParams = ref({
   bilDept: '',
   itmOstrNo: '',
 });
+
+const sessionRole = sessionUserInfo.roles.map((x) => x.roleNickName);
+const useRole = sessionRole.includes(ROL_ID);
 
 const wharehouseParams = ref({
   apyYm: dayjs().format('YYYYMM'),
@@ -357,6 +363,16 @@ async function fetchData() {
 }
 
 const warehouses = ref();
+
+async function fetchBsDefaultData() {
+  const { apyYm } = wharehouseParams.value;
+  const res = await dataService.get(`/sms/wells/service/etc-out-of-storages/wells-business/${apyYm}`);
+  warehouses.value = res.data;
+  searchParams.value.ostrWareNo = warehouses.value[0].codeId;
+
+  const res2 = await dataService.get('/sms/wells/service/etc-out-of-storages/dept');
+  strDept.value = res2.data;
+}
 
 async function fetchDefaultData() {
   const { apyYm } = wharehouseParams.value;
@@ -493,7 +509,11 @@ function setCellEditableFalse() {
 
 onMounted(async () => {
   codeFilter();
-  await fetchDefaultData();
+  if (useRole) {
+    await fetchBsDefaultData();
+  } else {
+    await fetchDefaultData();
+  }
   if (isPropsNullChk()) {
     setSearchParams();
     cachedParams = cloneDeep(searchParams.value);

@@ -145,6 +145,13 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickSave"
         />
+        <kw-btn
+          secondary
+          dense
+          :label="$t('MSG_BTN_AGRG_CHT_PRNT')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickAgrgPrint"
+        />
         <kw-separator
           spaced
           vertical
@@ -183,6 +190,18 @@
         :total-count="pageInfo.totalCount"
         @change="fetchData"
       />
+      <kw-grid
+        ref="grdTotalRef"
+        name="grdTotal"
+        hidden="true"
+        @init="initGridTotal"
+      />
+      <kw-grid
+        ref="grdSelectRef"
+        name="grdSelect"
+        hidden="true"
+        @init="initGridSelect"
+      />
     </div>
   </kw-page>
 </template>
@@ -209,6 +228,8 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+const grdTotalRef = ref(getComponentType('KwGrid'));
+const grdSelectRef = ref(getComponentType('KwGrid'));
 
 const now = dayjs();
 const minDate = now.format('YYYY-MM-DD');
@@ -381,6 +402,42 @@ async function onClickExcelDownload() {
   });
 }
 
+// 집계표 출력
+async function onClickAgrgPrint() {
+  const { svBizHclsfCd, strtDt } = cachedParams;
+  const res = await dataService.get('/sms/wells/service/seed-release-schedules/aggregations', { params: cachedParams });
+
+  const date = `${strtDt.substring(0, 4)}-${strtDt.substring(4, 6)}-${strtDt.substring(6, 8)}`;
+  let fileName = `${t('MSG_TXT_ALL')}_${date}`;
+
+  const view = isEmpty(svBizHclsfCd) ? grdTotalRef.value.getView() : grdSelectRef.value.getView();
+  const gridView = grdMainRef.value.getView();
+
+  if (!isEmpty(svBizHclsfCd)) {
+    let headerNm = t('MSG_TXT_INSTALLATION');
+
+    if (svBizHclsfCd === '1') {
+      fileName = `${t('MSG_TXT_INSTALLATION')}_${date}`;
+    } else if (svBizHclsfCd === '2') {
+      fileName = `BS_${date}`;
+      headerNm = 'BS';
+    } else if (svBizHclsfCd === '3') {
+      fileName = `AS_${date}`;
+      headerNm = 'AS';
+    }
+
+    view.__originalLayouts__[1].header.text = headerNm;
+  }
+
+  view.__searchConditionText__ = gridView.__searchConditionText__;
+
+  gridUtil.exportView(view, {
+    fileName,
+    timePostfix: true,
+    exportData: res.data,
+  });
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -494,7 +551,7 @@ const initGrid = defineGrid((data, view) => {
       } },
     { fieldName: 'ostrCnfmDt', header: `${t('MSG_TXT_OSTR')}${t('MSG_TXT_CNFM_DT')}`, styleName: 'text-center', width: '120', datetimeFormat: 'date' },
     { fieldName: 'sdingRcgWareNm', header: t('MSG_TXT_SDING_RCG_WARE'), styleName: 'text-left', width: '181' },
-    { fieldName: 'vstCenter', header: `${t('MSG_TXT_VST')}${t('MSG_TXT_CENTER_DIVISION')}`, styleName: 'text-left', width: '150' },
+    { fieldName: 'vstCenter', header: `${t('MSG_TXT_VST')}${t('MSG_TXT_CENTER_DIVISION')}`, styleName: 'text-center', width: '150' },
     { fieldName: 'vstIchr', header: `${t('MSG_TXT_VST')}${t('MSG_TXT_ICHR')}`, styleName: 'text-center', width: '100' },
     { fieldName: 'ichrCtnt', header: `${t('MSG_TXT_ICHR')}${t('MSG_TXT_CONTACT')}`, styleName: 'text-center', width: '150' },
     { fieldName: 'cstCtnt', header: `${t('MSG_TXT_CUSTOMER')}${t('MSG_TXT_CONTACT')}`, styleName: 'text-center', width: '150' },
@@ -533,6 +590,712 @@ const initGrid = defineGrid((data, view) => {
       await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
     }
   };
+});
+
+const initGridTotal = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'deptNm' },
+    { fieldName: 'pak01', dataType: 'number' },
+    { fieldName: 'pak02', dataType: 'number' },
+    { fieldName: 'pak03', dataType: 'number' },
+    { fieldName: 'pak04', dataType: 'number' },
+    { fieldName: 'pak05', dataType: 'number' },
+    { fieldName: 'pak13', dataType: 'number' },
+    { fieldName: 'pak23', dataType: 'number' },
+    { fieldName: 'pak50', dataType: 'number' },
+    { fieldName: 'pak24', dataType: 'number' },
+    { fieldName: 'pak08', dataType: 'number' },
+    { fieldName: 'pak09', dataType: 'number' },
+    { fieldName: 'pak12', dataType: 'number' },
+    { fieldName: 'pak51', dataType: 'number' },
+    { fieldName: 'pak52', dataType: 'number' },
+    { fieldName: 'pak53', dataType: 'number' },
+    { fieldName: 'pak54', dataType: 'number' },
+    { fieldName: 'pak55', dataType: 'number' },
+    { fieldName: 'pak56', dataType: 'number' },
+    { fieldName: 'pak57', dataType: 'number' },
+    { fieldName: 'pak58', dataType: 'number' },
+    { fieldName: 'pak61', dataType: 'number' },
+    { fieldName: 'pak62', dataType: 'number' },
+    { fieldName: 'pak63', dataType: 'number' },
+    { fieldName: 'pak64', dataType: 'number' },
+    { fieldName: 'pak28', dataType: 'number' },
+    { fieldName: 'pak29', dataType: 'number' },
+    { fieldName: 'pak30', dataType: 'number' },
+    { fieldName: 'pak31', dataType: 'number' },
+    { fieldName: 'totSum', dataType: 'number' },
+  ];
+
+  const columns = [
+    { fieldName: 'deptNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-left', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
+    { fieldName: 'pak01',
+      header: t('MSG_TXT_SALAD'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak02',
+      header: t('MSG_TXT_VGT_DIET'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak03',
+      header: t('MSG_TXT_HL_DINING_TBL'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak04',
+      header: t('MSG_TXT_CANCER_HL'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak05',
+      header: t('MSG_TXT_SLEEP_HEALING'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak13',
+      header: t('MSG_TXT_CLD_FOOD'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak23',
+      header: t('MSG_TXT_MINI'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak50',
+      header: t('MSG_TXT_CLD_GWUP'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak24',
+      header: t('MSG_TXT_CHO_SDING'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak08',
+      header: t('MSG_TXT_BUTTER_HEAD'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak09',
+      header: t('MSG_TXT_KALE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak12',
+      header: t('MSG_TXT_VITAMINS'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak51',
+      header: t('MSG_TXT_SATIVA'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak52',
+      header: t('MSG_TXT_YUREUM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak53',
+      header: t('MSG_TXT_BOK_CHOY'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak54',
+      header: t('MSG_TXT_SATIVA_YUREUM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak55',
+      header: t('MSG_TXT_SATIVA_BOK_CHOY'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak56',
+      header: t('MSG_TXT_SATIVA_RED'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak57',
+      header: t('MSG_TXT_YUREUM_BOK_CHOY'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak58',
+      header: t('MSG_TXT_YEREUM_RED'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak61',
+      header: `${t('MSG_TXT_INSTALLATION')}_${t('MSG_TXT_FRDM_WIDE')}`,
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak63',
+      header: `${t('MSG_TXT_INSTALLATION')}_${t('MSG_TXT_FRDM_SLIM')}`,
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak62',
+      header: `BS/AS_${t('MSG_TXT_FRDM_WIDE')}`,
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak64',
+      header: `BS/AS_${t('MSG_TXT_FRDM_SLIM')}`,
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak28',
+      header: t('MSG_TXT_EUROP'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak29',
+      header: t('MSG_TXT_OU_FML'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak30',
+      header: t('MSG_TXT_ASSORT_WRAPS'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak31',
+      header: t('MSG_TXT_FNC_VGT'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'totSum',
+      header: t('MSG_TXT_SBSUM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+  ];
+
+  const columnLayout = [
+    'deptNm',
+    { direction: 'horizontal',
+      header: { text: t('MSG_TXT_ITG_AGRG_CHT') },
+      items: [
+        'pak01', 'pak02', 'pak03', 'pak04', 'pak05',
+        'pak13', 'pak23', 'pak50', 'pak24', 'pak08',
+        'pak09', 'pak12', 'pak51', 'pak52', 'pak53',
+        'pak54', 'pak55', 'pak56', 'pak57', 'pak58',
+        'pak61', 'pak63', 'pak62', 'pak64', 'pak28',
+        'pak29', 'pak30', 'pak31', 'totSum',
+      ],
+    },
+  ];
+
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.setColumnLayout(columnLayout);
+  view.setFooters({ visible: true });
+  view.setOptions({ summaryMode: 'aggregate' });
+
+  view.rowIndicator.visible = true;
+});
+
+const initGridSelect = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'deptNm' },
+    { fieldName: 'pak01001', dataType: 'number' },
+    { fieldName: 'pak01002', dataType: 'number' },
+    { fieldName: 'pak02001', dataType: 'number' },
+    { fieldName: 'pak02002', dataType: 'number' },
+    { fieldName: 'pak03001', dataType: 'number' },
+    { fieldName: 'pak03002', dataType: 'number' },
+    { fieldName: 'pak04001', dataType: 'number' },
+    { fieldName: 'pak04002', dataType: 'number' },
+    { fieldName: 'pak05001', dataType: 'number' },
+    { fieldName: 'pak05002', dataType: 'number' },
+    { fieldName: 'pak13001', dataType: 'number' },
+    { fieldName: 'pak13002', dataType: 'number' },
+    { fieldName: 'pak08003', dataType: 'number' },
+    { fieldName: 'pak08004', dataType: 'number' },
+    { fieldName: 'pak09003', dataType: 'number' },
+    { fieldName: 'pak09004', dataType: 'number' },
+    { fieldName: 'pak12003', dataType: 'number' },
+    { fieldName: 'pak12004', dataType: 'number' },
+    { fieldName: 'pak08002', dataType: 'number' },
+    { fieldName: 'pak08001', dataType: 'number' },
+    { fieldName: 'pak09002', dataType: 'number' },
+    { fieldName: 'pak23001', dataType: 'number' },
+    { fieldName: 'pak50001', dataType: 'number' },
+    { fieldName: 'pak24001', dataType: 'number' },
+    { fieldName: 'pak51001', dataType: 'number' },
+    { fieldName: 'pak52001', dataType: 'number' },
+    { fieldName: 'pak53001', dataType: 'number' },
+    { fieldName: 'pak54001', dataType: 'number' },
+    { fieldName: 'pak55001', dataType: 'number' },
+    { fieldName: 'pak56001', dataType: 'number' },
+    { fieldName: 'pak57001', dataType: 'number' },
+    { fieldName: 'pak58001', dataType: 'number' },
+    { fieldName: 'pak59001', dataType: 'number' },
+    { fieldName: 'pak60001', dataType: 'number' },
+    { fieldName: 'pak28001', dataType: 'number' },
+    { fieldName: 'pak28002', dataType: 'number' },
+    { fieldName: 'pak29001', dataType: 'number' },
+    { fieldName: 'pak29002', dataType: 'number' },
+    { fieldName: 'pak30002', dataType: 'number' },
+    { fieldName: 'pak30001', dataType: 'number' },
+    { fieldName: 'pak31002', dataType: 'number' },
+    { fieldName: 'pak31001', dataType: 'number' },
+  ];
+
+  const columns = [
+    { fieldName: 'deptNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-left', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
+    { fieldName: 'pak01001',
+      header: t('MSG_TXT_HL_SALAD_JUICE_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak01002',
+      header: t('MSG_TXT_HL_SALAD_JUICE_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak02001',
+      header: t('MSG_TXT_OU_CLD_VGT_DIET_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak02002',
+      header: t('MSG_TXT_OU_CLD_VGT_DIET_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak03001',
+      header: t('MSG_TXT_HL_DINING_TBL_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak03002',
+      header: t('MSG_TXT_HL_DINING_TBL_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak04001',
+      header: t('MSG_TXT_CANCER_HL_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak04002',
+      header: t('MSG_TXT_CANCER_HL_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak05001',
+      header: t('MSG_TXT_SLEEP_HEALING_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak05002',
+      header: t('MSG_TXT_SLEEP_HEALING_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak13001',
+      header: t('MSG_TXT_OU_CLD_FRESH_FOOD_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak13002',
+      header: t('MSG_TXT_OU_CLD_FRESH_FOOD_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak23001',
+      header: t('MSG_TXT_WELSF_MINI_VGT'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak50001',
+      header: t('MSG_TXT_CLD_GWUP_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak24001',
+      header: t('MSG_TXT_CHO_SDING'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak08003',
+      header: t('MSG_TXT_BUTTER_HEAD_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak08004',
+      header: t('MSG_TXT_BUTTER_HEAD_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak09003',
+      header: t('MSG_TXT_KALE_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak09004',
+      header: t('MSG_TXT_KALE_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak12003',
+      header: t('MSG_TXT_VITAMINS_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak12004',
+      header: t('MSG_TXT_VITAMINS_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak08002',
+      header: t('MSG_TXT_BUTTER_KALE_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak08001',
+      header: t('MSG_TXT_BUTTER_HEAD_VITAMINS_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak09002',
+      header: t('MSG_TXT_KALE_VITAMINS_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak51001',
+      header: t('MSG_TXT_SATIVA_MINI'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak52001',
+      header: t('MSG_TXT_YUREUM_MINI'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak53001',
+      header: t('MSG_TXT_BOK_CHOY_MINI'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak54001',
+      header: t('MSG_TXT_SATIVA_YUREUM_MINI'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak55001',
+      header: t('MSG_TXT_SATIVA_BOK_CHOY_MINI'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak56001',
+      header: t('MSG_TXT_SATIVA_RED_MINI'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak57001',
+      header: t('MSG_TXT_YUREUM_BOK_CHOY_MINI'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak58001',
+      header: t('MSG_TXT_YEREUM_RED_MINI'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak59001',
+      header: t('MSG_TXT_CHO_SDING_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak60001',
+      header: t('MSG_TXT_CHO_SDING_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak28001',
+      header: t('MSG_TXT_EUROP_SALAD_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak28002',
+      header: t('MSG_TXT_EUROP_SALAD_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak29001',
+      header: t('MSG_TXT_OU_FML_HL_VGT_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak29002',
+      header: t('MSG_TXT_OU_FML_HL_VGT_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak30001',
+      header: t('MSG_TXT_ASSORT_WRAPS_VGT_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak30002',
+      header: t('MSG_TXT_ASSORT_WRAPS_VGT_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak31001',
+      header: t('MSG_TXT_FNC_VGT_SLIM'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'pak31002',
+      header: t('MSG_TXT_FNC_VGT_WIDE'),
+      width: '100',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      } },
+  ];
+
+  // 헤더 부분 merge
+  const columnLayout = [
+    'deptNm',
+    { direction: 'horizontal',
+      header: { text: t('MSG_TXT_INSTALLATION') },
+      items: [
+        'pak01001', 'pak01002', 'pak02001', 'pak02002', 'pak03001', 'pak03002', 'pak04001',
+        'pak04002', 'pak05001', 'pak05002', 'pak13001', 'pak13002', 'pak23001', 'pak50001',
+        'pak24001', 'pak08003', 'pak08004', 'pak09003', 'pak09004', 'pak12003', 'pak12004',
+        'pak08002', 'pak08001', 'pak09002', 'pak51001', 'pak52001', 'pak53001', 'pak54001',
+        'pak55001', 'pak56001', 'pak57001', 'pak58001', 'pak59001', 'pak60001', 'pak28001',
+        'pak28002', 'pak29001', 'pak29002', 'pak30001', 'pak30002', 'pak31001', 'pak31002',
+      ],
+    },
+  ];
+
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.setColumnLayout(columnLayout);
+  view.setFooters({ visible: true });
+  view.setOptions({ summaryMode: 'aggregate' });
+
+  view.rowIndicator.visible = true;
 });
 
 </script>

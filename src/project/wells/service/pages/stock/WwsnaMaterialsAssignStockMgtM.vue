@@ -189,7 +189,7 @@ const filterCodes = ref({
 });
 
 function wareDvCdFilter() {
-  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => v.codeId.startsWith('3'));
+  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['31', '32'].includes(v.codeId));
 }
 
 await Promise.all([

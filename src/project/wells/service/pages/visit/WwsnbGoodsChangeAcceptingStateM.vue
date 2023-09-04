@@ -242,7 +242,7 @@ watch(() => [searchParams.value.ogId], async () => {
 }, { immediate: true });
 
 async function fetchData() {
-  const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
+  const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: items, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -345,43 +345,53 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'aprAkStatCd', header: t('MSG_TXT_STT'), width: '50', styleName: 'text-center', options: tempOptions.aprAkStatCd }, // 상태
-    { fieldName: 'tpChYn', header: t('MSG_TXT_TYPE_CH_YN'), width: '100', styleName: 'text-center' }, // 유형변경여부
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center rg-button-link', renderer: { type: 'button' } }, // 계약상세번호
-    { fieldName: 'custNm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
-    { fieldName: 'custDiv', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center', options: tempOptions.custDivCd },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '180', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '180', styleName: 'text-center' },
-    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'changeRqstDt', header: t('MSG_TXT_CHANGE_AK_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 교체요청일자
-    { fieldName: 'useDt', header: t('MSG_TXT_USE_DAY'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdctChngAkRsonCd', header: t('MSG_TXT_CHANGE_AK_RSN'), width: '100', styleName: 'text-center', options: tempOptions.pdctChngAkRsonCd }, // 교체요청사유
-    { fieldName: 'schdDt', header: t('MSG_TXT_SCHD_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'recapOrFreeYn', header: t('MSG_TXT_RECAP_OR_FREE'), width: '60', styleName: 'text-center', options: tempOptions.recapOrFreeYnCd }, // 유무상
-    { fieldName: 'loc', header: t('MSG_TXT_LCT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'phn', header: t('MSG_TXT_PHN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'caus', header: t('MSG_TXT_CAUS'), width: '180', styleName: 'text-center' },
-    { fieldName: 'egerOpinion', header: t('MSG_TXT_EGER_OPINION'), width: '250', styleName: 'text-left' },
-    { fieldName: 'dratDtm', header: t('MSG_TXT_DRAT_DTM'), width: '180', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd mm:hh:ss' },
-    { fieldName: 'docCrtrBlg', header: t('MSG_TXT_DOC_CRTR_BLG'), width: '150', styleName: 'text-center' },
-    { fieldName: 'docCrtrSbn', header: t('MSG_TXT_DOC_CRTR_SBN'), width: '80', styleName: 'text-center' },
-    { fieldName: 'docCrtrNm', header: t('MSG_TXT_DOC_CRTR'), width: '80', styleName: 'text-center' },
-    { fieldName: 'adminOpinion', header: t('MSG_TXT_MNGR_OPINION'), width: '250', styleName: 'text-left' }, // 관리자소견
-    { fieldName: 'opinionDratDtm', header: t('MSG_TXT_OPINION_DRAT_DTM'), width: '180', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd mm:hh:ss' }, // 소견작성일시
-    { fieldName: 'adminSbn', header: t('MSG_TXT_ADMIN_SBN'), width: '80', styleName: 'text-center' }, // 관리자사번
-    { fieldName: 'adminNm', header: t('MSG_TXT_ADMIN'), width: '80', styleName: 'text-center' },
-    { fieldName: 'procsRs', header: t('MSG_TXT_PROCS_RS'), width: '300', styleName: 'text-left' }, // 처리결과
-    { fieldName: 'vstCnfmDt', header: t('MSG_TXT_VST_CNFM_D'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'procsDt', header: t('MSG_TXT_PRCSDT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'procsrBlg', header: t('MSG_TXT_PCP_BLG'), width: '150', styleName: 'text-center' }, // 처리자소속
-    { fieldName: 'procsrSbn', header: t('MSG_TXT_PCP_SBN'), width: '80', styleName: 'text-center' }, // 처리자사번
-    { fieldName: 'procsrNm', header: t('MSG_TXT_PCP'), width: '80', styleName: 'text-center' }, // 처리자
+    { fieldName: 'aprAkStatCd', header: t('MSG_TXT_STT'), width: '50', styleName: 'text-center', options: tempOptions.aprAkStatCd, editable: false }, // 상태
+    { fieldName: 'tpChYn', header: t('MSG_TXT_TYPE_CH_YN'), width: '100', styleName: 'text-center', editable: false }, // 유형변경여부
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center rg-button-link', renderer: { type: 'button' }, editable: false }, // 계약상세번호
+    { fieldName: 'custNm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center', editable: false },
+    { fieldName: 'custDiv', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center', options: tempOptions.custDivCd, editable: false },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center', editable: false },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
+    { fieldName: 'changeRqstDt', header: t('MSG_TXT_CHANGE_AK_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false }, // 교체요청일자
+    { fieldName: 'useDt', header: t('MSG_TXT_USE_DAY'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'pdctChngAkRsonCd', header: t('MSG_TXT_CHANGE_AK_RSN'), width: '100', styleName: 'text-center', options: tempOptions.pdctChngAkRsonCd, editable: false }, // 교체요청사유
+    { fieldName: 'schdDt', header: t('MSG_TXT_SCHD_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
+    { fieldName: 'recapOrFreeYn', header: t('MSG_TXT_RECAP_OR_FREE'), width: '60', styleName: 'text-center', options: tempOptions.recapOrFreeYnCd, editable: false }, // 유무상
+    { fieldName: 'loc', header: t('MSG_TXT_LCT'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'phn', header: t('MSG_TXT_PHN'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'caus', header: t('MSG_TXT_CAUS'), width: '180', styleName: 'text-center', editable: false },
+    { fieldName: 'egerOpinion', header: t('MSG_TXT_EGER_OPINION'), width: '250', styleName: 'text-left', editable: false },
+    { fieldName: 'dratDtm', header: t('MSG_TXT_DRAT_DTM'), width: '180', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd mm:hh:ss', editable: false },
+    { fieldName: 'docCrtrBlg', header: t('MSG_TXT_DOC_CRTR_BLG'), width: '150', styleName: 'text-center', editable: false },
+    { fieldName: 'docCrtrSbn', header: t('MSG_TXT_DOC_CRTR_SBN'), width: '80', styleName: 'text-center', editable: false },
+    { fieldName: 'docCrtrNm', header: t('MSG_TXT_DOC_CRTR'), width: '80', styleName: 'text-center', editable: false },
+    { fieldName: 'adminOpinion', header: t('MSG_TXT_MNGR_OPINION'), width: '250', styleName: 'text-left', editable: true }, // 관리자소견
+    { fieldName: 'opinionDratDtm', header: t('MSG_TXT_OPINION_DRAT_DTM'), width: '180', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd mm:hh:ss', editable: false }, // 소견작성일시
+    { fieldName: 'adminSbn', header: t('MSG_TXT_ADMIN_SBN'), width: '80', styleName: 'text-center', editable: false }, // 관리자사번
+    { fieldName: 'adminNm', header: t('MSG_TXT_ADMIN'), width: '80', styleName: 'text-center', editable: false },
+    { fieldName: 'procsRs', header: t('MSG_TXT_PROCS_RS'), width: '300', styleName: 'text-left', editable: false }, // 처리결과
+    { fieldName: 'vstCnfmDt', header: t('MSG_TXT_VST_CNFM_D'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
+    { fieldName: 'procsDt', header: t('MSG_TXT_PRCSDT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
+    { fieldName: 'procsrBlg', header: t('MSG_TXT_PCP_BLG'), width: '150', styleName: 'text-center', editable: false }, // 처리자소속
+    { fieldName: 'procsrSbn', header: t('MSG_TXT_PCP_SBN'), width: '80', styleName: 'text-center', editable: false }, // 처리자사번
+    { fieldName: 'procsrNm', header: t('MSG_TXT_PCP'), width: '80', styleName: 'text-center', editable: false }, // 처리자
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.setCheckableExpression("(value['aprAkStatCd']='01')", true);
+  view.setRowStyleCallback((g, { dataRow }) => {
+    const aprAkStatCd = '01';
+    if (aprAkStatCd !== g.getValue(dataRow, 'aprAkStatCd')) {
+      return {
+        editable: false,
+      };
+    }
+  });
+
+  view.editOptions.editable = true;
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 

@@ -105,7 +105,7 @@
         />
         <!-- 지급명세서출력(본사)-->
         <kw-btn
-          v-if="sessionUserInfo.rsbCd.indexOf('HR') > -1"
+          v-if="sessionUserInfo.ogTpCd?.indexOf('HR') > -1"
           dense
           secondary
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')+'('+t('MSG_TXT_HDOF')+')'"
@@ -189,7 +189,13 @@ async function fetchData() {
   totalCount.value = datas.length;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(datas);
+
+  const newData = datas.map((obj) => {
+    obj.dsbamt = Number(obj.feeSum) - Number(obj.ddtnsum);
+    return obj;
+  });
+
+  view.getDataSource().setRows(newData);
 }
 
 async function onClickSearch() {
@@ -330,14 +336,28 @@ async function onChangeOgTpCd() {
   }
 }
 
+// 직책구분에 따라 feeCalcUnitTpCd 세팅
+function setUnitTpCd() {
+  const rsbDvVal = searchParams.value.rsbDvCd;
+  const tpCdObj = {
+    W0105: '101', // P 플래너
+    W0104: '102', // P 지점장
+    W0205: '201', // M 플래너
+    W0204: '202', // M 지점장
+    W0302: '301', // 홈마스터 - 일반
+    W0301: '302', // 홈마스터 - 지점장
+  };
+  searchParams.value.feeCalcUnitTpCd = tpCdObj[rsbDvVal];
+}
+
 async function onChangeDiv() {
+  setUnitTpCd(); // feeCalcUnitTpCd 변경
   await getFeeCodes();
-  cashedFeeCodes = feeCodes.filter((obj) => (obj.rsbDvCd === searchParams.value.rsbDvCd)); // 수수료 코드 필터링
+  cashedFeeCodes = feeCodes.filter((obj) => (obj.feeCalcUnitTpCd === searchParams.value.feeCalcUnitTpCd)); // 수수료 코드 필터링
   fieldsObj.setFields();
 }
 
 onMounted(async () => {
-  await getFeeCodes();
   await onChangeDiv();
 });
 // -------------------------------------------------------------------------------------------------
@@ -367,12 +387,14 @@ fieldsObj = {
       { fieldName: 'ddtn01', header: t('MSG_TXT_RDS'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 보증예치금
       { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
       { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
+      { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
   pp: { // P추진단 / 플래너
     perfFields: [ // 실적부분
-      { fieldName: 'perf02', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 가전인정건수
-      { fieldName: 'perf03', header: t('MSG_TXT_ELHM_EXCP_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전외
+      { fieldName: 'perf02', header: t('MSG_TXT_ELHM_PERF'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 가전실적
+      { fieldName: 'perf03', header: t('MSG_TXT_ELHM_EXCP_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전외 실적
       { fieldName: 'perf04', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 합산
       { fieldName: 'perf05', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 기변실적
     ],
@@ -383,11 +405,12 @@ fieldsObj = {
       { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
       { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
       { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
   mm: { // M추진단 / 지점장
     perfFields: [ // 실적부분
-      { fieldName: 'pref02', header: t('MSG_TXT_OG_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 가전인정건수
+      { fieldName: 'perf02', header: t('MSG_TXT_OG_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 가전인정건수
       { fieldName: 'perf03', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 가전인정건수
       { fieldName: 'perf04', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 기변실적
     ],
@@ -399,16 +422,17 @@ fieldsObj = {
       { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
       { fieldName: 'ddtn88', header: t('MSG_TXT_DSC_SELL'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 할인판매
       { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
   pm: { // P추진단 / 지점장
     perfFields: [ // 실적부분
-      { fieldName: 'perf01', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전인정건수
-      { fieldName: 'perf02', header: t('MSG_TXT_ELHM_EXCP_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전외
+      { fieldName: 'perf01', header: t('MSG_TXT_ELHM_PERF'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전인정건수
+      { fieldName: 'perf02', header: t('MSG_TXT_ELHM_EXCP_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 조직 - 가전외
       { fieldName: 'perf03', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 조직 - 합산
 
-      { fieldName: 'perf04', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전인정건수
-      { fieldName: 'perf05', header: t('MSG_TXT_ELHM_EXCP_ACKMT_CT'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전외
+      { fieldName: 'perf04', header: t('MSG_TXT_ELHM_PERF'), width: '118.1', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전실적
+      { fieldName: 'perf05', header: t('MSG_TXT_ELHM_EXCP_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 가전외 실적
       { fieldName: 'perf06', header: t('MSG_TXT_ADP'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 합산
       { fieldName: 'perf07', header: t('MSG_TXT_MCHN_CH_PERF'), width: '111.9', styleName: 'text-right', dataType: 'number' }, // 개인 - 기변실적
     ],
@@ -419,6 +443,7 @@ fieldsObj = {
       { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
       { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
       { fieldName: 'ddtn05', header: t('MSG_TXT_HIR_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 고용보험
+      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
   hp: { // 홈마스터 / 플래너
@@ -431,6 +456,7 @@ fieldsObj = {
       { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
       { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
       { fieldName: 'ddtn99', header: t('MSG_TXT_EDDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 기타공제
+      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
   hm: { // 홈마스터 / 지점장
@@ -443,6 +469,7 @@ fieldsObj = {
       { fieldName: 'ddtn04', header: t('MSG_TXT_PNPYAM'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 가지급금
       { fieldName: 'ddtn07', header: t('MSG_TXT_BU_DDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 부담공제
       { fieldName: 'ddtn99', header: t('MSG_TXT_EDDTN'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 기타공제
+      { fieldName: 'ddtn06', header: t('MSG_TXT_INDD_INSR'), width: '142.8', styleName: 'text-right', dataType: 'number' }, // 산재보험
     ],
   },
 

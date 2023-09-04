@@ -31,13 +31,11 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_OG_TP')"
-          required
         >
           <kw-select
             v-model="searchParams.ogTpCd"
             :label="$t('MSG_TXT_OG_TP')"
             :options="slxOgTpCd"
-            rules="required"
             @change="onChangeOgTp"
           />
         </kw-search-item>
@@ -105,7 +103,10 @@
             v-model="searchParams.feeDsbYn"
             type="radio"
             :label="t('MSG_TXT_FEE')+t('MSG_TXT_DSB_YN')"
-            :options="codes.COD_GV_USE"
+            :options="codes.YN_CD"
+            first-option
+            first-option-value=""
+            :first-option-label="$t('MSG_TXT_ALL')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -118,10 +119,18 @@
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
+
         <kw-btn
-          secondary
           dense
+          secondary
+          icon="download_on"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          @click="onClickExcelDownload"
+        />
+        <kw-btn
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
+          icon="report"
+          dense
           @click="openFeeReportPopup"
         />
         <kw-separator
@@ -184,12 +193,13 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const isSelectVisile = ref(true);
 const isSelectVisile2 = ref(false);
 const isSelectVisile3 = ref(false);
+const { currentRoute } = useRouter();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'RSB_DV_CD',
-  'COD_GV_USE',
+  'YN_CD',
   'QLF_DV_CD',
   'BNK_CD',
 );
@@ -209,7 +219,7 @@ const searchParams = ref({
   ogLevl3Id: '',
   prtnrNo: '',
   prtnrKnm: '',
-  feeDsbYn: '0',
+  feeDsbYn: '',
   prPerfYm: '',
   prOgTpCd: '',
   userHirFomCd: '',
@@ -232,7 +242,7 @@ const saveParams = ref({
   rsbDvCd: searchParams.value.rsbDvCd,
   ddlnDvId: '',
   ddlnId: '',
-  templateCode: 'FEE_DSB_SPCSH_E01',
+  templateCode: 'TMP_FEA_FEE_INQR_PTRM_E01',
   feeMessagePk: '',
 });
 
@@ -244,6 +254,10 @@ const ozParam = ref({
 let cachedParams;
 
 const router = useRouter();
+
+/*
+ *  Event - 수수료 조회
+ */
 
 async function fetchData(uri) {
   const { perfYm, ogTpCd } = searchParams.value;
@@ -264,6 +278,27 @@ async function fetchData(uri) {
   } else if (uri === 'userInfo') {
     info.value = fees;
   }
+}
+
+/*
+ *  Event - 엑셀 다운로드
+ */
+async function onClickExcelDownload() {
+  const { hirFomCd, bznsSpptRsbDvCd, rsbDvCd, pstnDvCd } = info.value;
+  searchParams.value.hirFomCd = hirFomCd;
+  searchParams.value.userRsbCd = rsbDvCd;
+  searchParams.value.userSpptRsbDvCd = bznsSpptRsbDvCd;
+  searchParams.value.userPstnDvCd = pstnDvCd;
+  cachedParams = cloneDeep(searchParams.value);
+
+  const view = grdMainRef.value.getView();
+  const response = await dataService.get('/sms/wells/fee/individual-fees/feeLists', { params: cachedParams });
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: response.data,
+  });
 }
 
 async function onClickSearch() {
@@ -396,15 +431,27 @@ async function openFeeReportPopup() {
  *  Event - 수수료 조회기간 기간설정 버튼 클릭
  */
 async function onClickFeeDsbSpcsh() {
-  const { ogTpCd } = searchParams.value;
+  const { ogTpCd, rsbDvCd } = searchParams.value;
   const ddlnDvId = 'DLD_FEE_DSB_SPCSH';
   let ddlnId = '';
   if (ogTpCd === 'W01') { /* P조직 */
-    ddlnId = 'DLN_00009';
+    if (rsbDvCd === 'W0104') {
+      ddlnId = 'DLN_00012';
+    } else if (rsbDvCd === 'W0105') {
+      ddlnId = 'DLN_00013';
+    }
   } else if (ogTpCd === 'W02') { /* M조직 */
-    ddlnId = 'DLN_00010';
+    if (rsbDvCd === 'W0204') {
+      ddlnId = 'DLN_00014';
+    } else if (rsbDvCd === 'W0205') {
+      ddlnId = 'DLN_00015';
+    }
   } else if (ogTpCd === 'W03') { /* 홈마스터 */
-    ddlnId = 'DLN_00011';
+    if (rsbDvCd === 'W0301') {
+      ddlnId = 'DLN_00016';
+    } else if (rsbDvCd === 'W0302') {
+      ddlnId = 'DLN_00017';
+    }
   }
   const { result } = await modal({
     component: 'ZwcmsDeadlineMgtP',
@@ -454,7 +501,7 @@ const initGrd1Main = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'mngtDiv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98' },
-    { fieldName: 'renlGrp', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
+    { fieldName: 'renlGrp', header: t('MSG_TXT_BUSINESS_DIVISION'), width: '98' },
     { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
     { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },

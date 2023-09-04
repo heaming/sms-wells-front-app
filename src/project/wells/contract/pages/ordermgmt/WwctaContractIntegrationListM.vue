@@ -22,7 +22,6 @@
         <!-- 계약일 -->
         <kw-search-item
           :label="$t('MSG_TXT_CNTRCT_DT')"
-          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.cntrCnfmStrtDtm"
@@ -32,7 +31,6 @@
         <!-- 플래너 -->
         <kw-search-item
           :label="$t('MSG_TXT_PLAR')"
-          required
           :colspan="2"
         >
           <kw-select
@@ -74,7 +72,6 @@
         <!-- 고객선택 -->
         <kw-search-item
           :label="$t('MSG_TXT_CST_CHO')"
-          required
         >
           <kw-select
             v-model="searchParams.cntrCstSeltDv"
@@ -144,8 +141,7 @@
             v-if="isSearchCntrDtlNoVisible"
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
-            class="w160"
-            disable-popup="true"
+            icon="search"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
           />
         </kw-search-item>

@@ -235,7 +235,6 @@ async function onClickPrint() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
-  console.log('chkRows==========', chkRows);
 
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
@@ -325,6 +324,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdUswyCd' },
     { fieldName: 'urgtDvCd' },
     { fieldName: 'wellsReqdDt' },
+    { fieldName: 'ostrTpCd' },
+    { fieldName: 'ostrDt' },
   ];
 
   const columns = [ // t('')

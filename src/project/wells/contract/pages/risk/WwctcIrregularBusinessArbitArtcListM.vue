@@ -17,11 +17,13 @@
   <kw-page>
     <kw-search
       :modified-targets="['grdMain']"
+      cols="4"
       @search="onClickSearch"
     >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_ACEPT_PERIOD')"
+          colspan="2"
         >
           <kw-select
             v-model="searchParams.srchGbn "
@@ -68,27 +70,19 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 조직코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_OG_CD')"
+          class="selectOrgs"
           colspan="2"
         >
-          <!-- 총괄단 -->
-          <kw-select
-            v-model="searchParams.gnrdv"
-            first-option="all"
-            :options="codes.GNRDV_ACD"
-          />
-          <!-- 지역단 -->
-          <kw-input
-            v-model="searchParams.rgrp"
-            maxlength="10"
-            :placeholder="t('MSG_TXT_RGNL_GRP')"
-          />
-          <!-- 지점 -->
-          <kw-input
-            v-model="searchParams.brch"
-            maxlength="10"
-            :placeholder="t('MSG_TXT_BRANCH')"
+          <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
+            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
+            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
+            :og-tp-cd="searchParams.ogTpCd"
+            :start-level="1"
+            :end-level="3"
           />
         </kw-search-item>
       </kw-search-row>
@@ -131,6 +125,7 @@
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, defineGrid, getComponentType, useDataService, useGlobal, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import dayjs from 'dayjs';
 
 const { notify, modal } = useGlobal();
@@ -148,10 +143,12 @@ const searchParams = ref({
   dangOcStrtMonth: now.add('-1', 'month').format('YYYYMM'),
   dangOcEnddt: now.format('YYYYMMDD'),
   dangOcEndMonth: now.format('YYYYMM'),
-  gnrdv: '',
-  rgrp: '',
-  brch: '',
+  ogLevlDvCd1: '',
+  ogLevlDvCd2: '',
+  ogLevlDvCd3: '',
   dangOjPrtnrNo: '',
+  perfYm: now.format('YYYYMM'),
+  ogTpCd: 'W02',
 });
 
 const prdDivOption = ref([{ codeId: 1, codeName: t('MSG_TXT_FST_RGST_DT') },
@@ -275,23 +272,23 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'wellsOjPstnRankNm', header: t('MSG_TXT_POSIT'), width: '129', styleName: 'text-left' },
-    { fieldName: 'dangMngtPntnrOgNm', header: t('MSG_TXT_BLG_NM'), width: '129', styleName: 'text-left' },
-    { fieldName: 'dangMngtPntnrOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '129', styleName: 'text-left' },
-    { fieldName: 'dangMngtPntnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
-    { fieldName: 'dangMngtPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129', styleName: 'text-left' },
-    { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-left' },
-    { fieldName: 'dangOjPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129' },
-    { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', styleName: 'text-left' },
+    { fieldName: 'wellsOjPstnRankNm', header: t('MSG_TXT_POSIT'), width: '129', styleName: 'text-center' },
+    { fieldName: 'dangMngtPntnrOgNm', header: t('MSG_TXT_BLG_NM'), width: '129', styleName: 'text-center' },
+    { fieldName: 'dangMngtPntnrOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '129', styleName: 'text-center' },
+    { fieldName: 'dangMngtPntnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-center' },
+    { fieldName: 'dangMngtPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129', styleName: 'text-center' },
+    { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-center' },
+    { fieldName: 'dangOjPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129', styleName: 'text-center' },
+    { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', styleName: 'text-center' },
     { fieldName: 'dangOcStrtmm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'dangArbitOgNm', header: t('MSG_TXT_ACTN_DPT'), width: '306', styleName: 'text-center' },
+    { fieldName: 'dangArbitOgNm', header: t('MSG_TXT_ACTN_DPT'), width: '306', styleName: 'text-left' },
     { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', styleName: 'text-left' },
     { fieldName: 'dangArbitCdNm', header: t('MSG_TXT_ACTN_ITM'), width: '306', styleName: 'text-left' },
-    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', styleName: 'text-left' },
-    { fieldName: 'dangArbitLvyPc', header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'), width: '190', styleName: 'text-center' },
-    { fieldName: 'dangArbitLvyPcSum', header: t('MSG_TXT_TTL_PT'), width: '129', styleName: 'text-center' },
+    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', styleName: 'text-right' },
+    { fieldName: 'dangArbitLvyPc', header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'), width: '190', styleName: 'text-right' },
+    { fieldName: 'dangArbitLvyPcSum', header: t('MSG_TXT_TTL_PT'), width: '129', styleName: 'text-right' },
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '146', styleName: 'text-center' },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '165', styleName: 'text-left', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '165', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
   ];
 
   data.setFields(fields);
@@ -316,5 +313,12 @@ const initGrdMain = defineGrid((data, view) => {
   ]);
 });
 </script>
-<style scoped>
+<style scoped lang="scss">
+.selectOrgs {
+  ::v-deep(.kw-field-wrap .kw-select) {
+    width: 250px !important;
+    max-width: 250px !important;
+    min-width: 33% !important;
+  }
+}
 </style>

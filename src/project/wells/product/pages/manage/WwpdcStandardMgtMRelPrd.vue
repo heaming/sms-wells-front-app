@@ -22,7 +22,7 @@
       <kw-select
         v-model="materialSearchType"
         dense
-        class="ml12 w120"
+        class="ml12 w140"
         :options="materialSelectItems"
       />
       <kw-input
@@ -69,7 +69,7 @@
       <kw-select
         v-model="serviceSearchType"
         dense
-        class="ml12 w120"
+        class="ml8 w120"
         :options="serviceSelectItems"
       />
       <kw-input
@@ -106,7 +106,7 @@
       <kw-select
         v-model="standardSearchType"
         dense
-        class="ml12 w120"
+        class="ml12 w140"
         :options="standardSelectItems"
       />
       <kw-input
@@ -123,7 +123,7 @@
         ref="standardRelTypeRef"
         v-model="standardRelType"
         dense
-        class="ml12 w140"
+        class="ml8 w140"
         :label="$t('MSG_TXT_SEL_REL_TYPE')"
         :options="codes.BASE_PD_REL_DV_CD"
         :placeholder="$t('MSG_TXT_SEL_REL_TYPE')"

@@ -82,6 +82,7 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const bas = pdConst.TBL_PD_BAS;
 const prcd = pdConst.TBL_PD_PRC_DTL;
 const prcfd = pdConst.TBL_PD_PRC_FNL_DTL;
 const prumd = pdConst.TBL_PD_DSC_PRUM_DTL;
@@ -231,7 +232,8 @@ async function resetVisibleChannelColumns() {
 // 엑셀다운로드
 async function onClickExcelFormDownload() {
   const view = grdMainRef.value.getView();
-  const downFileName = `${t('MSG_TXT_PD_STD_PRC')}_`;
+  let downFileName = currentInitData.value[bas].pdCd ? `${currentInitData.value[bas].pdNm}(${currentInitData.value[bas].pdCd})` : currentInitData.value[bas].pdNm;
+  downFileName += `_${t('MSG_TXT_PRICE_INFO')}`;
   await gridUtil.exportView(view, {
     fileName: downFileName,
     timePostfix: true,

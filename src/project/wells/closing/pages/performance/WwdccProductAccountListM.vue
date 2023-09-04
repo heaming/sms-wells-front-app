@@ -35,21 +35,14 @@
         <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
           <kw-select
             v-model="searchParams.sellTpCd"
-            :options="codes.SELL_TP_CD"
+            :options="codes.SELL_TP_CD.filter((v) => ['2', '3', '6'].includes(v.codeId))"
             first-option="all"
             first-option-value="ALL"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_SELL_TP_DTL')">
           <kw-select
-            v-if="searchParams.sellTpCd === '1'"
-            v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '1')"
-            first-option="all"
-            first-option-value="ALL"
-          />
-          <kw-select
-            v-else-if="searchParams.sellTpCd === '2'"
+            v-if="searchParams.sellTpCd === '2'"
             v-model="searchParams.sellTpDtlCd"
             :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '2')"
             first-option="all"
@@ -59,27 +52,6 @@
             v-else-if="searchParams.sellTpCd === '3'"
             v-model="searchParams.sellTpDtlCd"
             :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === '3')"
-            first-option="all"
-            first-option-value="ALL"
-          />
-          <kw-select
-            v-else-if="searchParams.sellTpCd === '4'"
-            v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
-            first-option="all"
-            first-option-value="ALL"
-          />
-          <kw-select
-            v-else-if="searchParams.sellTpCd === '5'"
-            v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
-            first-option="all"
-            first-option-value="ALL"
-          />
-          <kw-select
-            v-else-if="searchParams.sellTpCd === '9'"
-            v-model="searchParams.sellTpDtlCd"
-            :options="codes.SELL_TP_DTL_CD.filter(v => v.codeId === 'ALL')"
             first-option="all"
             first-option-value="ALL"
           />

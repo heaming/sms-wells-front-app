@@ -17,7 +17,7 @@
   <kw-page>
     <kw-search
       :modified-targets="['grdMain']"
-      cols="3"
+      cols="2"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -45,27 +45,18 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 조직코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_OG_DV')"
-          colspan="2"
+          class="selectOrgs"
         >
-          <!-- 총괄단 -->
-          <kw-select
-            v-model="searchParams.gnrdv"
-            first-option="all"
-            :options="codes.GNRDV_ACD"
-          />
-          <!-- 지역단 -->
-          <kw-input
-            v-model="searchParams.rgrp"
-            maxlength="10"
-            :placeholder="t('MSG_TXT_RGNL_GRP')"
-          />
-          <!-- 지점 -->
-          <kw-input
-            v-model="searchParams.brch"
-            maxlength="10"
-            :placeholder="t('MSG_TXT_BRANCH')"
+          <zwog-level-select
+            v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
+            v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
+            v-model:og-levl-dv-cd3="searchParams.ogLevlDvCd3"
+            :og-tp-cd="searchParams.ogTpCd"
+            :start-level="1"
+            :end-level="3"
           />
         </kw-search-item>
       </kw-search-row>
@@ -144,6 +135,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import dayjs from 'dayjs';
 
 const { notify, modal } = useGlobal();
@@ -161,10 +153,12 @@ const searchParams = ref({
   dangOcStrtMonth: '',
   dangOcEnddt: '',
   dangOcEndMonth: '',
-  gnrdv: '',
-  rgrp: '',
-  brch: '',
+  ogLevlDvCd1: '',
+  ogLevlDvCd2: '',
+  ogLevlDvCd3: '',
   dangOjPrtnrNo: '',
+  perfYm: now.format('YYYYMM'),
+  ogTpCd: 'W02',
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -376,6 +370,9 @@ const initGrid = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         return { editable: dataCell.item.rowState === 'created' };
       },
+      buttonVisibleCallback(g, index) {
+        return g.getDataSource().getRowState(index.dataRow) === 'created';
+      },
     }, // 행위자사번
     { fieldName: 'dangOcStrtmm',
       header: t('MSG_TXT_YEAR_OCCURNCE'),
@@ -409,7 +406,7 @@ const initGrid = defineGrid((data, view) => {
       editor: { type: 'list' },
       rules: 'required',
     },
-    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', rules: 'required', editor: { inputCharacters: ['0-9'], maxLength: 12 } },
+    { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', styleName: 'text-right', rules: 'required', editor: { inputCharacters: ['0-9'], maxLength: 12 } },
     { fieldName: 'dangArbitLvyPc',
       header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'),
       width: '190',
@@ -528,3 +525,12 @@ const initGrid = defineGrid((data, view) => {
 });
 
 </script>
+<style scoped lang="scss">
+.selectOrgs {
+  ::v-deep(.kw-field-wrap .kw-select) {
+    width: 250px !important;
+    max-width: 250px !important;
+    min-width: 33% !important;
+  }
+}
+</style>

@@ -81,7 +81,7 @@
             v-model="saveParams.pdAccRslt"
             :label="$t('MSG_TXT_PD_ACC_RSLT')"
             regex="num"
-            maxlength="20"
+            maxlength="15"
           />
         </kw-form-item>
         <!-- 수수료기준가격 -->
@@ -93,7 +93,7 @@
             v-model="saveParams.feeAckmtBaseAmt"
             :label="$t('MSG_TXT_FEE_ACKMT_BASE_AMT')"
             regex="num"
-            maxlength="20"
+            maxlength="15"
           />
         </kw-form-item>
         <!-- 수수료인정건수 -->
@@ -117,7 +117,7 @@
             v-model="saveParams.rentalDc"
             :label="$t('MSG_TXT_RENTAL')+'DC'"
             regex="num"
-            maxlength="20"
+            maxlength="15"
           />
         </kw-form-item>
         <!-- 설치일자 -->

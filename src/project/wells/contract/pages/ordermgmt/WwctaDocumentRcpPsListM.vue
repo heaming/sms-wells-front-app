@@ -59,6 +59,7 @@
           <kw-input
             v-model="searchParams.cntrChRcpId"
             :maxlength="15"
+            regex="num"
           />
         </kw-search-item>
         <!-- 고객명 -->
@@ -85,7 +86,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -100,8 +105,14 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMainRef"
-        :visible-rows="10"
+        :visible-rows="pageInfo.pageSize"
         @init="initGrid"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -133,34 +144,42 @@ const searchParams = ref({
   mexnoEncr: '', // 계약자 휴대전화국번호암호화
   cralIdvTno: '', // 계약자 휴대개별전화번호
 });
+
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+  'CNTR_CH_TP_CD', // 계약변경유형코드
+);
+
 const pageInfo = ref({
   totalCount: 0,
+  pageIndex: 1,
+  // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
+  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  needTotalCount: true,
 });
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-const codes = await codeUtil.getMultiCodes(
-  'CNTR_CH_TP_CD', // 계약변경유형코드
-);
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   // console.log(cachedParams);
-  res = await dataService.get('/sms/wells/contract/document-receipts', { params: cachedParams });
+  res = await dataService.get('/sms/wells/contract/document-receipts/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
-  // const { list: accounts } = res.data;
-  // console.log(res.data);
+  const { list: pages, pageInfo: pagingResult } = res.data;
+
+  pageInfo.value = pagingResult;
+  console.log(res.data);
 
   const view = grdMainRef.value.getView();
-  // view.getDataSource().setRows(accounts);
-  view.getDataSource().setRows(res.data);
-  pageInfo.value.totalCount = view.getItemCount();
+  view.getDataSource().setRows(pages);
+  // pageInfo.value.totalCount = view.getItemCount();
   view.resetCurrent();
-  // view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 // 초기화버튼 클릭 이벤트
@@ -187,7 +206,6 @@ async function onClickExcelDownload() {
 }
 
 onMounted(async () => {
-  // await fetchData();
 });
 
 // -------------------------------------------------------------------------------------------------

@@ -261,13 +261,16 @@ async function onClickUpdate(item) {
 }
 
 async function onClickSend(item) {
-  await modal({
+  const result = await modal({
     component: 'WwctaQuoteSendP',
     componentProps: {
       cntrNo: item.cntrNo,
       cntrSn: item.cntrSn,
     },
   });
+  if (result) {
+    await fetchData();
+  }
 }
 
 async function onClickDelete(item) {

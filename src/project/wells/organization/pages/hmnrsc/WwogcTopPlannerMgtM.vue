@@ -146,15 +146,12 @@ const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 const { t } = useI18n();
 const codes = await codeUtil.getMultiCodes('EGER_WRK_STAT_CD', 'OG_TP_CD');
 const grdMainRef = ref(getComponentType('KwGrid'));
-const now = dayjs().format('YYYYMM');
+const thisYm = dayjs().format('YYYYMM');
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
-  mngtYm: now,
+  mngtYm: thisYm,
   mOgYn: 'N',
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
-  ogLevlDvCd1: undefined,
-  ogLevlDvCd2: undefined,
-  ogLevlDvCd3: undefined,
   ogId: undefined,
   prtnrNo: undefined,
 });
@@ -176,19 +173,19 @@ async function fetchData() {
   view.resetCurrent();
 
   if (searchParams.value.mOgYn === 'Y') {
-    view.columnByName('col21').visible = true;
-    view.columnByName('col22').visible = true;
-    view.columnByName('col23').visible = true;
-    view.columnByName('col24').visible = true;
-    view.columnByName('col25').visible = true;
-    view.columnByName('col26').visible = true;
+    view.columnByName('strtdt').visible = true;
+    view.columnByName('fnlEnddt').visible = true;
+    view.columnByName('cvDt').visible = true;
+    view.columnByName('enddt').visible = true;
+    view.columnByName('mQlfDvNm').visible = true;
+    view.columnByName('mTotCnt').visible = true;
   } else {
-    view.columnByName('col21').visible = false;
-    view.columnByName('col22').visible = false;
-    view.columnByName('col23').visible = false;
-    view.columnByName('col24').visible = false;
-    view.columnByName('col25').visible = false;
-    view.columnByName('col26').visible = false;
+    view.columnByName('strtdt').visible = false;
+    view.columnByName('fnlEnddt').visible = false;
+    view.columnByName('cvDt').visible = false;
+    view.columnByName('enddt').visible = false;
+    view.columnByName('mQlfDvNm').visible = false;
+    view.columnByName('mTotCnt').visible = false;
   }
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
@@ -244,29 +241,29 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
     { fieldName: 'mpiPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'qlfDvCd', header: t('MSG_TXT_THM_QLF'), width: '100', styleName: 'text-center' },
+    { fieldName: 'qlfDvNm', header: t('MSG_TXT_THM_QLF'), width: '100', styleName: 'text-center' },
     { fieldName: 'detail', header: t('MSG_BTN_PLAR_MGT'), width: '106', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_PLAR_MGT') },
-    { fieldName: 'pbPrtnrKnm', header: t('MSG_TXT_ENGM_FNM'), width: '150', styleName: 'text-center' },
+    { fieldName: 'rcmdrPrtnrNm', header: t('MSG_TXT_ENGM_FNM'), width: '150', styleName: 'text-center' },
     { fieldName: 'rcmdrPrtnrNo', header: t('MSG_TXT_ENGM_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_BIZ_RGST_MM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'rcntrDt', header: t('MSG_TXT_REREG_MN'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_SRTUP_CPC_MM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col12', header: t('MSG_TXT_JBF_MMS2_ACU_PERF'), width: '180', styleName: 'text-right' },
-    { fieldName: 'col13', header: t('MSG_TXT_THM_PERF'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col14', header: t('MSG_TXT_M_OG_CVT_PERF'), width: '150', styleName: 'text-right' },
-    { fieldName: 'col15', header: t('MSG_TXT_MNGT_PD'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col16', header: t('MSG_TXT_ACU_PERF'), width: '120', styleName: 'text-right' },
-    { fieldName: 'col17', header: t('MSG_TXT_TOPMR_UPGR_MM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col18', header: t('MSG_TXT_DMTN_DAY'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col19', header: t('MSG_TXT_DMTN_AFT_MNGT_PD'), width: '150', styleName: 'text-right' },
-    { fieldName: 'col20', header: t('MSG_TXT_DMTN_AFT_ACU_PERF'), width: '150', styleName: 'text-right' },
-    { fieldName: 'col21', header: t('MSG_TXT_BIZ_RGST_MM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col22', header: t('MSG_TXT_FNL_CLTN_MM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col23', header: t('MSG_TXT_REREG_MN'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col24', header: t('MSG_TXT_CLTN_MM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col25', header: t('MSG_TXT_CLTN_MM_QLF'), width: '120', styleName: 'text-center' },
-    { fieldName: 'col26', header: t('MSG_TXT_ACU_ACKMT_CT'), width: '120', styleName: 'text-right' },
+    { fieldName: 'cntrDt', header: t('MSG_TXT_BIZ_RGST_MM'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'rcntrDt', header: t('MSG_TXT_REREG_MN'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'edu14', header: t('MSG_TXT_SRTUP_CPC_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'twoSum', header: t('MSG_TXT_JBF_MMS2_ACU_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'curSum', header: t('MSG_TXT_THM_PERF'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'mTotSum', header: t('MSG_TXT_M_OG_CVT_PERF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'curBs', header: t('MSG_TXT_MNGT_PD'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'totSum', header: t('MSG_TXT_ACU_PERF'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'prfmtDt', header: t('MSG_TXT_TOPMR_UPGR_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'dmtnDt', header: t('MSG_TXT_DMTN_DAY'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'dmtnCurBs', header: t('MSG_TXT_DMTN_AFT_MNGT_PD'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'dmtnTotSum', header: t('MSG_TXT_DMTN_AFT_ACU_PERF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'strtdt', header: t('MSG_TXT_BIZ_RGST_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'fnlEnddt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cvDt', header: t('MSG_TXT_REREG_MN'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'enddt', header: t('MSG_TXT_CLTN_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'mQlfDvNm', header: t('MSG_TXT_CLTN_MM_QLF'), width: '120', styleName: 'text-center' },
+    { fieldName: 'mTotCnt', header: t('MSG_TXT_ACU_ACKMT_CT'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'mngtYm', visible: false },
     { fieldName: 'ogTpCd', visible: false },
   ];
@@ -283,28 +280,28 @@ const initGrid = defineGrid((data, view) => {
     'ogCd',
     'mpiPrtnrKnm',
     'prtnrNo',
-    'qlfDvCd',
+    'qlfDvNm',
     'detail',
     {
       header: t('MSG_TXT_P_ORG'),
       direction: 'horizontal',
-      items: ['pbPrtnrKnm', 'rcmdrPrtnrNo', 'cntrDt', 'fnlCltnDt', 'rcntrDt', 'col11', 'col12',
-        'col13', 'col14', 'col15', 'col16', 'col17', 'col18', 'col19', 'col20'],
+      items: ['rcmdrPrtnrNm', 'rcmdrPrtnrNo', 'cntrDt', 'fnlCltnDt', 'rcntrDt', 'edu14', 'twoSum',
+        'curSum', 'mTotSum', 'curBs', 'totSum', 'prfmtDt', 'dmtnDt', 'dmtnCurBs', 'dmtnTotSum'],
     },
     {
       header: t('MSG_TIT_M_ORG'),
       direction: 'horizontal',
-      items: ['col21', 'col22', 'col23', 'col24', 'col25', 'col26'],
+      items: ['strtdt', 'fnlEnddt', 'cvDt', 'enddt', 'mQlfDvNm', 'mTotCnt'],
     },
 
   ]);
 
-  view.columnByName('col21').visible = false;
-  view.columnByName('col22').visible = false;
-  view.columnByName('col23').visible = false;
-  view.columnByName('col24').visible = false;
-  view.columnByName('col25').visible = false;
-  view.columnByName('col26').visible = false;
+  view.columnByName('strtdt').visible = false;
+  view.columnByName('fnlEnddt').visible = false;
+  view.columnByName('cvDt').visible = false;
+  view.columnByName('enddt').visible = false;
+  view.columnByName('mQlfDvNm').visible = false;
+  view.columnByName('mTotCnt').visible = false;
 
   // 그리드 클릭 이벤트
   view.onCellItemClicked = async (g, { column, dataRow }) => {
