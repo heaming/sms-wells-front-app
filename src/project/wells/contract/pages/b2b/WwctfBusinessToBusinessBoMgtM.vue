@@ -58,7 +58,6 @@
           <kw-input
             v-model="searchParams.bzrno"
             mask="###-##-#####"
-            maxlength="10"
           />
         </kw-search-item>
       </kw-search-row>
@@ -356,7 +355,6 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       editor: {
         type: 'line',
         inputCharacters: ['0-9'],
-        maxLength: 10,
         mask: {
           editMask: '999-99-99999',
         },
