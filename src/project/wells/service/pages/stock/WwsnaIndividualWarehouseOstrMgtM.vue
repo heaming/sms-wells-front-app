@@ -105,7 +105,7 @@
         </kw-search-item>
         <!-- 총출고 -->
         <kw-search-item
-          :label="$t('MSG_TXT_TOT_OSTR')"
+          :label="`${t('MSG_TXT_DTRM')} ${t('MSG_TXT_AF')} ${t('MSG_TXT_STOC')}`"
         >
           <kw-input
             v-model="searchParams.totOutQty"
