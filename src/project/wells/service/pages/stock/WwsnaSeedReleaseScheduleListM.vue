@@ -411,6 +411,8 @@ async function onClickAgrgPrint() {
   let fileName = `${t('MSG_TXT_ALL')}_${date}`;
 
   const view = isEmpty(svBizHclsfCd) ? grdTotalRef.value.getView() : grdSelectRef.value.getView();
+  const gridView = grdMainRef.value.getView();
+
   if (!isEmpty(svBizHclsfCd)) {
     let headerNm = t('MSG_TXT_INSTALLATION');
 
@@ -426,6 +428,8 @@ async function onClickAgrgPrint() {
 
     view.__originalLayouts__[1].header.text = headerNm;
   }
+
+  view.__searchConditionText__ = gridView.__searchConditionText__;
 
   gridUtil.exportView(view, {
     fileName,
