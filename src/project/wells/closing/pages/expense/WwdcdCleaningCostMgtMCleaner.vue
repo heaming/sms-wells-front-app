@@ -148,7 +148,6 @@ const codes = await codeUtil.getMultiCodes(
 async function fetchData() {
   const res = await dataService.get('/sms/wells/closing/expense/cleaners/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: pages, pageInfo: pagingResult } = res.data;
-
   const subView = grdSubRef.value.getView();
   pageInfo.value = pagingResult;
   await subView.getDataSource().setRows(pages);
@@ -240,6 +239,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '200', styleName: 'text-left' }, // 빌딩 //NM
     { fieldName: 'aplcDt', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 신청일
     { fieldName: 'aplcnsNm', header: t('MSG_TXT_APPL_USER'), width: '200', styleName: 'text-center' }, // 신청자
+    { fieldName: 'aplcPrtnrNo', visible: false }, // 신청자 사번
     { fieldName: 'cntrwApnFileId',
       header: t('MSG_TXT_CNTRW'), // 계약서
       width: '200',
@@ -365,7 +365,7 @@ const initGrdSub = defineGrid((data, view) => {
   view.onCellItemClicked = (grid, { column, itemIndex }) => {
     // TODO.파일 업로드 개발 완료 되면 수정해야됨
     // 참고 ZdecRdsAnAccountErrorMgtService > saveAttachFile
-    const { clinrRgno, result } = grid.getValues(itemIndex);
+    const { clinrRgno, aplcPrtnrNo, result } = grid.getValues(itemIndex);
 
     if (column === 'cntrwApnFileId') {
       // 계약서
@@ -378,7 +378,7 @@ const initGrdSub = defineGrid((data, view) => {
     } else if (column === 'clinrNm') {
       modal({
         component: 'WwdcdCleanerRegistrationMgtP', // W-CL-U-0093P02
-        componentProps: { clinrRgno },
+        componentProps: { clinrRgno, aplcPrtnrNo },
       });
       if (result) {
         notify(t('MSG_ALT_SAVE_DATA'));

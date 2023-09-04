@@ -353,6 +353,10 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  aplcPrtnrNo: {
+    type: String,
+    default: null,
+  },
 });
 
 const saveParams = ref({
@@ -393,9 +397,14 @@ const { ogTpCd } = store.getters['meta/getUserInfo'];
 
 const buildingCodes = ref([]);
 async function buildingCode() {
-  let sessionParams = {};
+  const { clinrRgno, aplcPrtnrNo } = props;
   const registYearMonth = saveParams.value.aplcDt.replace('-', '').substring(0, 6);
-  sessionParams = { ogTpCd, registYearMonth };
+  let sessionParams = {};
+  if (!isEmpty(clinrRgno)) {
+    sessionParams = { ogTpCd, prtnrNo: aplcPrtnrNo, registYearMonth };
+  } else {
+    sessionParams = { ogTpCd, registYearMonth };
+  }
 
   const res = await dataService.get('/sms/wells/closing/expense/cleaners/cleaners-reqeust-change/code', { params: sessionParams });
   buildingCodes.value = res.data;
