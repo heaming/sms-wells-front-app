@@ -1201,7 +1201,9 @@
 import { useDataService, stringUtil, codeUtil, useGlobal, getComponentType } from 'kw-lib';
 import { isEmpty, toNumber } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import dayjs from 'dayjs';
 
+const now = dayjs();
 const dataService = useDataService();
 const { modal, alert, confirm, notify } = useGlobal();
 const { t } = useI18n();
@@ -1688,14 +1690,39 @@ async function onClickPrepayRgst() {
   // 등록 플래그 true
   rgstMode.value = true;
 
+  // 마지막 회차의 선납 데이터
   const view = grdPrepayRef.value.getView();
   const dataSource = view.getDataSource();
   const count = view.getItemCount();
   const lastRowData = dataSource.getJsonRow(count - 1, false);
 
+  // 등록 전 체크
+  // 1. 기존 선납 데이터가 존재해야 함.
+  if (count === 0) {
+    rgstMode.value = false;
+  }
+  // 2. 2023년 6월 이후 선납 데이터가 없어야 함.
+  if (lastRowData.prmStrtYm >= '202306') {
+    rgstMode.value = false;
+  }
+  // 3. 현재 유지중인 선납이 없어야 함.
+  if (lastRowData.prmEndYm >= now.format('YYYYMM')) {
+    rgstMode.value = false;
+  }
+  // 4. 마지막 선납 종료 후 다음달까지 신청해야 함.
+  if (lastRowData.prmEndYm !== now.subtract(1, 'month').format('YYYYMM')) {
+    rgstMode.value = false;
+  }
+  if (!rgstMode.value) {
+    await alert('선납할인제도가 2023년 6월 1일부로 종료되었습니다.\n'
+              + '2023년 6월 1일 이전에, 이미 선납 할인 중인 고객에 한해서\n'
+              + '1년 선납만 1회 연장 가능합니다.');
+    return;
+  }
+
   Object.assign(prepayBas.value, lastRowData);
   prepayBas.value.prmDt = ''; // 확정일자(=선납일자) 초기화
-  Object.assign(prepayAf.value, lastRowData);
+  Object.assign(prepayBf.value, lastRowData);
   prepayAf.value = {
     lstPrmTn: toNumber(lastRowData.lstPrmTn || 0) + 1, // 선납회차 세팅. 마지막 선납회차 + 1
     lstPrmMcn: '12', // 선납개월 세팅. 12개월로 고정. 정책상 새로 등록하는 선납개월은 12개월만 허용한다고 함.
@@ -1720,9 +1747,18 @@ async function onClickPrepaySave() {
     return;
   }
 
-  // TODO: 저장 구현
-  console.log(prepayAf.value);
-  console.log(prepayBf.value);
+  // 마지막 선납 종료 후 다음달까지 신청해야 함.
+  if (prepayBf.value.prmEndYm !== dayjs(prepayAf.value.prmDt).subtract(1, 'month').format('YYYYMM')) {
+    await alert('선납일자가 유효하지 않습니다.');
+    return;
+  }
+
+  await dataService.post('/sms/wells/contract/changeorder/rental-change-infos/prepayment', {
+    prepayBf: prepayBf.value,
+    prepayAf: prepayAf.value,
+  });
+
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
 }
 
 // 설치환경 저장 버튼 클릭
