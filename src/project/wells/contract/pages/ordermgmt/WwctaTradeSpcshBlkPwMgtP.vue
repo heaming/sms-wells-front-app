@@ -58,7 +58,6 @@
             v-model="searchParams.fromGrpNo"
             :name="t('MSG_TXT_GRP_NO')"
             mask="#####"
-            maxlength="5"
             rules="required"
           />
           <span>~</span>
@@ -66,7 +65,6 @@
             v-model="searchParams.toGrpNo"
             :name="t('MSG_TXT_GRP_NO')"
             mask="#####"
-            maxlength="5"
             rules="required"
           />
         </kw-form-item>
