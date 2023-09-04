@@ -85,11 +85,8 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
           />
         </template>
         <!-- 저장 -->
@@ -120,13 +117,6 @@
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
-      />
-
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -167,7 +157,6 @@ let cachedParams = cloneDeep(searchParams.value);
 
 const pageInfo = ref({
   totalCount: 0,
-  pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
@@ -182,17 +171,15 @@ const ctctys = ref([]);
 ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/responsible-area-zips/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: zips, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/responsible-area-zips', { params: { ...cachedParams } });
+  const zips = res.data;
+  pageInfo.value.totalCount = zips.length;
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(zips);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -200,7 +187,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/responsible-area-zips/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/responsible-area-zips', { params: { ...cachedParams } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
