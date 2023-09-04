@@ -75,7 +75,7 @@
     </kw-search>
     <div class="result-area">
       <h3>
-        {{ searchParams.perfYm.substring(0,4)+'-'+searchParams.perfYm.substring(4) }}
+        {{ searchParams.perfYm.substring(0,4)+'년 '+searchParams.perfYm.substring(4)+'월' }}
         {{ codes.EGER_AW_DV_CD.find((v) => v.codeId === searchParams?.feeSchdTpCd)?.codeName }}
         {{ $t('MSG_TXT_PRGS_STE') }}
       </h3>
@@ -114,10 +114,12 @@
           spaced
         />
         <kw-btn
+          icon="download_on"
           dense
           secondary
-          :label="$t('MSG_BTN_HIS_MGT')"
-          @click="onClickHisMgt"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="totalCount === 0"
+          @click="onClickExcelDownload"
         />
         <kw-separator
           vertical
@@ -125,12 +127,10 @@
           spaced
         />
         <kw-btn
-          icon="download_on"
           dense
           secondary
-          :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
-          @click="onClickExcelDownload"
+          :label="$t('MSG_BTN_HIS_MGT')"
+          @click="onClickHisMgt"
         />
         <kw-btn
           v-if="!isBtnVisible"
