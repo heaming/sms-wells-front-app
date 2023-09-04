@@ -103,7 +103,7 @@ const initGridMain = defineGrid((data, view) => {
     {
       fieldName: 'cnfmBtnYn',
       header: t('MSG_TXT_CNFM_CAN'),
-      styleName: 'rg-button-icon--x',
+      styleName: 'text-center rg-button-default',
       renderer: {
         type: 'button',
         hideWhenEmpty: true, // 빈 값일 때 버튼을 표시할지의 여부
