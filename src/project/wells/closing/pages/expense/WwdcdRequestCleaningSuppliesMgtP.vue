@@ -260,7 +260,6 @@ async function fetchData() {
   if (!isEmpty(clingCostAdjRcpNo)) {
     dataParams = { clingCostAdjRcpNo: cloneDeep(clingCostAdjRcpNo) };
     const res = await dataService.get(`/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/${clingCostAdjRcpNo}`, { params: dataParams });
-    console.log('res : ', res);
     saveParams.value = res.data;
     isApplication.value = true;
     isDisable.value = true;
