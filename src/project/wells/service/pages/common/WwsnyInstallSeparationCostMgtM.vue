@@ -168,8 +168,8 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-const pdNm = ref([]);
-const pdtNm = ref([]);
+// const pdNm = ref([]);
+// const pdtNm = ref([]);
 /* 조회조건 */
 const searchParams = ref({
   pdNm: '',
@@ -226,8 +226,6 @@ async function onClickSearch() {
 
 const now = dayjs();
 async function onClickAdd() {
-  console.log(pdtNm.value);
-
   const view = grdMainRef.value.getView();
 
   await gridUtil.insertRowAndFocus(view, 0, {
@@ -325,18 +323,16 @@ const initGrdMain = defineGrid((data, view) => {
       },
       width: '270',
       editor: { type: 'list' },
-      options: pdtNm.value,
+      options: pds.value,
       styleName: 'text-left',
       rules: 'required',
       displayCallback(grd, { dataRow }) {
         const pdCd = grd.getValue(dataRow, 'pdCd');
-        return pdNm.value.find((v) => v.cd === pdCd)?.codeName;
+        return pds.value.find((v) => v.cd === pdCd)?.cdNm;
       },
-      styleCallback: (grid, dataCell) => {
-        console.log(grid, dataCell);
-
-        return { editor: { type: 'list', labels: pdtNm.value.map((v) => v.codeName), values: pdtNm.value.map((v) => v.codeId) } };
-      },
+      styleCallback: () => ({ editor: { type: 'list',
+        labels: pds.value.map((v) => v.cdNm),
+        values: pds.value.map((v) => v.cd) } }),
     }, // 상품명
     {
       fieldName: 'sepIstCsAtcCd',
