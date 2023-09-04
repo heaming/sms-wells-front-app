@@ -82,7 +82,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, gridUtil, useDataService, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const now = dayjs();
@@ -167,7 +167,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrNoSn' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
-    { fieldName: 'sapMatCd' },
+    // { fieldName: 'sapMatCd' },
     { fieldName: 'basePdCd' },
     { fieldName: 'basePdNm' },
     { fieldName: 'svcTpNm' },
@@ -203,12 +203,12 @@ const initGrid = defineGrid((data, view) => {
     },
     { fieldName: 'cntrNo', visible: false },
     { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '90', styleName: 'text-center' },
-    { fieldName: 'basePdCd', header: t('MSG_TXT_ITM_CD'), width: '90', styleName: 'text-center' },
+    // { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'basePdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' },
-    { fieldName: 'svcTpNm', header: t('MSG_TXT_SV_TP'), width: '150', styleName: 'text-center' },
-    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '200' },
-    { fieldName: 'useMcn', header: t('MSG_TXT_INST_MONTH_CNT'), width: '110', styleName: 'text-center' },
+    { fieldName: 'svcTpNm', header: t('MSG_TXT_SV_TP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100' },
+    { fieldName: 'useMcn', header: t('MSG_TXT_INST_MONTH_CNT'), width: '100', styleName: 'text-center' },
     { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_FRISU_BFSVC_PTRM_N'), width: '130', styleName: 'text-center' },
     // { fieldName: 'nmClProCsStat', header: t('MSG_TXT_MM_CL_PROCS_STAT'), width: '110', styleName: 'text-center' },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
@@ -225,7 +225,9 @@ const initGrid = defineGrid((data, view) => {
       width: '110',
       styleName: 'text-center',
       // eslint-disable-next-line max-len
-      displayCallback: (grid, index) => (`${gridUtil.getCellValue(grid, index.dataRow, 'locaraTno')}-${gridUtil.getCellValue(grid, index.dataRow, 'exnoEncr')}-${gridUtil.getCellValue(grid, index.dataRow, 'idvTno')}`),
+      displayCallback: (grid, index) => (!isEmpty(gridUtil.getCellValue(grid, index.dataRow, 'locaraTno'))
+        ? `${gridUtil.getCellValue(grid, index.dataRow, 'locaraTno')}-${gridUtil.getCellValue(grid, index.dataRow, 'exnoEncr')}-${gridUtil.getCellValue(grid, index.dataRow, 'idvTno')}`
+        : ''),
     },
     { fieldName: 'mPno',
       header: t('MSG_TXT_MPNO'),
