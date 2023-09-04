@@ -290,6 +290,21 @@ export default () => {
     return (await dataService.get('/sms/wells/common/sms-wells-codes/service-center-prtnr', { params: { ogId } })).data;
   }
 
+  /**
+   * <pre>
+   * 고객센터 Class A, B, C 조회
+   * </pre>
+   */
+  async function getSearchCustomerCenterClass(cnslTpHcsfCd, cnslTpLcsfCd) {
+    const result = await dataService.get('/sms/wells/common/sms-wells-codes/class', {
+      params: {
+        cnslTpHcsfCd,
+        cnslTpLcsfCd,
+      },
+    });
+    return result.data;
+  }
+
   return {
     getPartMaster,
     getServiceCenters,
@@ -302,5 +317,6 @@ export default () => {
     getWarehouseCloseCheck,
     getMonthWarehouse,
     getServiceCenterPrtnr,
+    getSearchCustomerCenterClass,
   };
 };
