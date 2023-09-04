@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 출고집계현황 http://localhost:3000/#/service/wsny-business-type-work-hour-mgt
+- 출고집계현황 http://localhost:3000/#/service/wwsny-business-type-work-hour-mgt
 ****************************************************************************************************
 --->
 
@@ -35,23 +35,28 @@
         <kw-search-item
           :label="$t('MSG_TXT_PD_GRP')"
         >
-          <!--상품그룹-->
           <kw-select
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
             first-option="all"
-            :first-option-label="$t('MSG_TXT_ALL')"
             @change="changePdGrpCd"
           />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_NM')"
+        >
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
-            first-option="all"
+            first-option="select"
             option-label="cdNm"
             option-value="cd"
-            :label="$t('MSG_TXT_ALL')"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_TASK_TYPE')"
         >
@@ -63,8 +68,6 @@
             :first-option-label="$t('MSG_TXT_ALL')"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_APPLY_DT')"
         >
@@ -163,7 +166,6 @@ const now = dayjs();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/service/business-type-work-hour';
-const pds = ref([]);// = await getPartMaster('4', '1', 'M');
 
 const codes = await codeUtil.getMultiCodes(
   'SV_DV_CD',
@@ -223,11 +225,28 @@ async function onClickSave() {
   }
 }
 
+const pds = ref([]);
 async function changePdGrpCd() {
   if (searchParams.value.pdGrpCd) {
-    pds.value = await getPartMaster('4', searchParams.value.pdGrpCd, 'M');
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
   } else pds.value = [];
+  searchParams.value.pdCd = '';
 }
+changePdGrpCd();
+
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });

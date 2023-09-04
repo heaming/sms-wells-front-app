@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNB
-2. 프로그램 ID : [K-W-SV-U-0157M01] WwsnbCustomerPsByProductListM - 상품별 고객현황
+2. 프로그램 ID : [K-W-SV-U-0157M01] wwsnbCustomerPsByProductListM - 상품별 고객현황
 3. 작성자 : heymi.cho
 4. 작성일 : 2023.08.01
 ****************************************************************************************************
@@ -20,20 +20,26 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_ITM_DV')"
-          :colspan="2"
+          :label="$t('MSG_TXT_PD_GRP')"
         >
           <kw-select
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
-            class="w150"
             first-option="all"
-            @change="onChangePdGrpCd"
+            @change="changePdGrpCd"
           />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_NM')"
+        >
           <kw-select
             v-model="searchParams.pdCd"
-            :options="selectedProductByPdGrpCd"
-            first-option="all"
+            :options="pds"
+            first-option="select"
+            option-label="cdNm"
+            option-value="cd"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
           />
         </kw-search-item>
 
@@ -128,6 +134,9 @@
 import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
+import smsCommon from '~sms-wells/service/composables/useSnCode';
+
+const { getPartMaster } = smsCommon();
 
 const { t } = useI18n();
 const now = dayjs();
@@ -175,33 +184,56 @@ const searchParams = ref({
 /*
  *  Select Component 초기화 - 전체 상품 목록 가져오기
  */
-const products = ref([]);
-const selectedProductByPdGrpCd = ref([]);
+// const products = ref([]);
+// const selectedProductByPdGrpCd = ref([]);
 
-async function getProductList() {
-  cachedParams = cloneDeep(searchParams);
-  const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd', { params: { itmKndCd: searchParams.value.itmKndCd } });
-  products.value = response.data;
+// async function getProductList() {
+//   cachedParams = cloneDeep(searchParams);
+//   const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd',
+//   { params: { itmKndCd: searchParams.value.itmKndCd } });
+//   products.value = response.data;
+// }
+
+// onBeforeMount(async () => {
+//   searchParams.value.itmKndCd = '4';
+// });
+
+// onMounted(async () => {
+//   await getProductList();
+//   selectedProductByPdGrpCd.value = cloneDeep(products.value);
+//   selectedProductByPdGrpCd.value = selectedProductByPdGrpCd.value.map((v) =>
+//   ({ codeId: v.codeId, codeName: `${v.codeId} - ${v.codeName}` }));
+// });
+
+// const onChangePdGrpCd = (val) => {
+//   if (val.length < 1) {
+//     selectedProductByPdGrpCd.value = cloneDeep(products.value);
+//   } else {
+//     selectedProductByPdGrpCd.value = products.value.filter((v) => v.pdGrpCd === val);
+//   }
+// };
+
+const pds = ref([]);
+async function changePdGrpCd() {
+  if (searchParams.value.pdGrpCd) {
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
+  } else pds.value = [];
+  searchParams.value.pdCd = '';
 }
-
-onBeforeMount(async () => {
-  searchParams.value.itmKndCd = '4';
-});
-
-onMounted(async () => {
-  await getProductList();
-  selectedProductByPdGrpCd.value = cloneDeep(products.value);
-  selectedProductByPdGrpCd.value = selectedProductByPdGrpCd.value.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId} - ${v.codeName}` }));
-  // console.log(selectedProductByItmKnd.value);
-});
-
-const onChangePdGrpCd = (val) => {
-  if (val.length < 1) {
-    selectedProductByPdGrpCd.value = cloneDeep(products.value);
-  } else {
-    selectedProductByPdGrpCd.value = products.value.filter((v) => v.pdGrpCd === val);
-  }
-};
+changePdGrpCd();
 
 async function fetchData() {
   // eslint-disable-next-line max-len

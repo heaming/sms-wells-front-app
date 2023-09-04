@@ -9,7 +9,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 유상 AS 출장비 관리 (http://localhost:3000/#/service/recap-as-bstr-costs)
+ - 유상 AS 출장비 관리 (http://localhost:3000/#/service/wwsny-as-visit-cost-mgt)
  ****************************************************************************************************
 -->
 <template>
@@ -20,18 +20,27 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <!--상품그룹-->
-        <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
+        <kw-search-item
+          :label="$t('MSG_TXT_PD_GRP')"
+        >
           <kw-select
             v-model="searchParams.pdGrpCd"
-            :label="$t('MSG_TXT_PD_GRP')"
             :options="codes.PD_GRP_CD"
             first-option="all"
+            @change="changePdGrpCd"
           />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_NM')"
+        >
           <kw-select
             v-model="searchParams.pdCd"
-            :options="productCode"
-            first-option="all"
+            :options="pds"
+            first-option="select"
+            option-label="cdNm"
+            option-value="cd"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -176,25 +185,28 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'PD_GRP_CD',
 );
-const productCode = ref();
-watch(() => [searchParams.value.year, searchParams.value.pdGrpCd], async () => {
-  // productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGrpCd);
-  const tempVal = await getPartMaster(
-    '4',
-    searchParams.value.pdGrpCd,
-    'M',
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    'X',
-  );
-  productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.cdNm }));
-}, { immediate: true });
+
+const pds = ref([]);
+async function changePdGrpCd() {
+  if (searchParams.value.pdGrpCd) {
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
+  } else pds.value = [];
+  searchParams.value.pdCd = '';
+}
+changePdGrpCd();
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-visit-costs/paging', { params: {

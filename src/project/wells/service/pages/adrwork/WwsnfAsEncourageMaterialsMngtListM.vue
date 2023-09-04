@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNF
-2. 프로그램 ID : [W-SV-U-0198M01] WwsnfAsEncourageMaterialsMngtListM - AS유형별 권장자재 관리
+2. 프로그램 ID : [W-SV-U-0198M01] WwsnfAsEncourageMaterialsMngtListM - A/S 유형별 필요자재 관리
 3. 작성자 : gs.piit122
 4. 작성일 : 2023.07.31
 ****************************************************************************************************
@@ -37,11 +37,10 @@
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_NM')"
         >
-          <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
-            first-option="all"
+            first-option="select"
             option-label="cdNm"
             option-value="cd"
             :disable="searchParams.pdGrpCd === '' "
@@ -206,7 +205,7 @@ async function searchCustomerCenterClassB() {
   classCRef.value = await getSearchCustomerCenterClass(searchParams.value.classA, searchParams.value.classB);
 }
 
-const pds = ref([]);// = await getPartMaster('4', '1', 'M');
+const pds = ref([]);
 async function changePdGrpCd() {
   if (searchParams.value.pdGrpCd) {
     pds.value = await getPartMaster(
@@ -224,7 +223,9 @@ async function changePdGrpCd() {
       'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
     );
   } else pds.value = [];
+  searchParams.value.pdCd = '';
 }
+changePdGrpCd();
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

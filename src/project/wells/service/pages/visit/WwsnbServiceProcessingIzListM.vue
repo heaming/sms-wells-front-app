@@ -60,24 +60,6 @@
       </kw-search-row>
 
       <kw-search-row>
-        <!-- 상품그룹 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_PD_GRP')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.pdGrpCd"
-            :options="codes.PD_GRP_CD"
-            first-option="all"
-            class="w150"
-          />
-          <kw-select
-            v-model="searchParams.pdCd"
-            :options="products"
-            first-option="all"
-          />
-        </kw-search-item>
-
         <!-- 조회기준 -->
         <kw-search-item
           :label="$t('MSG_TXT_INQR_BASE')"
@@ -93,18 +75,6 @@
             rules="date_range_months:1"
           />
         </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row>
-        <!-- 업무유형 -->
-        <kw-search-item :label="$t('MSG_TXT_TASK_TYPE')">
-          <kw-select
-            v-model="searchParams.svBizDclsfCd"
-            :options="codes.SV_BIZ_DCLSF_CD"
-            first-option="all"
-          />
-        </kw-search-item>
-
         <!-- 작업상태 -->
         <kw-search-item :label="$t('MSG_TXT_WK_STS')">
           <kw-select
@@ -113,7 +83,6 @@
             first-option="all"
           />
         </kw-search-item>
-
         <!-- 설치기준 -->
         <kw-search-item :label="$t('MSG_TXT_IST_BASE')">
           <kw-select
@@ -122,6 +91,36 @@
             first-option="all"
           />
         </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_PD_GRP')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.pdGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+            @change="changePdGrpCd"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_NM')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.pdCd"
+            :options="pds"
+            first-option="select"
+            option-label="cdNm"
+            option-value="cd"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
+          />
+        </kw-search-item>
+
+        <kw-search-row />
       </kw-search-row>
     </kw-search>
 
@@ -186,6 +185,9 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, popupUtil } from 'kw-lib';
 import { cloneDeep, isEmpty, toNumber } from 'lodash-es';
 import dayjs from 'dayjs';
+import smsCommon from '~sms-wells/service/composables/useSnCode';
+
+const { getPartMaster } = smsCommon();
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -267,19 +269,41 @@ watch(() => searchParams.value.ogId, async (val) => {
   }
 });
 
-const products = ref([]);
-async function fetchProducts() {
-  const res = await dataService.get('/sms/wells/service/service-processing/products', { params: { pdGrpCd: searchParams.value.pdGrpCd } });
-  products.value = res.data;
-}
+// const products = ref([]);
+// async function fetchProducts() {
+//   const res = await dataService.get('/sms/wells/service/service-processing/products',
+//   { params: { pdGrpCd: searchParams.value.pdGrpCd } });
+//   products.value = res.data;
+// }
+// watch(() => searchParams.value.pdGrpCd, async (val) => {
+//   if (val === '') {
+//     products.value = [];
+//     return;
+//   }
+//   await fetchProducts();
+// }, { immediate: true });
 
-watch(() => searchParams.value.pdGrpCd, async (val) => {
-  if (val === '') {
-    products.value = [];
-    return;
-  }
-  await fetchProducts();
-}, { immediate: true });
+const pds = ref([]);
+async function changePdGrpCd() {
+  if (searchParams.value.pdGrpCd) {
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
+  } else pds.value = [];
+  searchParams.value.pdCd = '';
+}
+changePdGrpCd();
 
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();

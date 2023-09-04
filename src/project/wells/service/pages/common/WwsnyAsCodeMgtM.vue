@@ -25,23 +25,29 @@
     >
       <kw-search-row>
         <!--상품그룹-->
-        <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
+        <kw-search-item
+          :label="$t('MSG_TXT_PD_GRP')"
+        >
           <kw-select
             v-model="searchParams.pdGrpCd"
-            :label="$t('MSG_TXT_PD_GRP')"
             :options="codes.PD_GRP_CD"
             first-option="all"
             @change="changePdGrpCd"
           />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_NM')"
+        >
           <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
-            :label="$t('MSG_TXT_PRDT')"
             :options="pds"
-            class="w200"
             first-option="all"
             option-label="cdNm"
             option-value="cd"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
+            :rules="searchParams.pdGrpCd !== '' ? 'required' : '' "
           />
         </kw-search-item>
         <!--서비스유형-->
@@ -52,6 +58,8 @@
             first-option="all"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!--AS위치-->
         <kw-search-item :label="$t('MSG_TXT_AS_LCT')">
           <kw-select
@@ -60,8 +68,6 @@
             first-option="all"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <!--적용일자-->
         <kw-search-item :label="$t('MSG_TXT_APPLY_DT')">
           <kw-date-picker
@@ -181,7 +187,6 @@ const codes = await codeUtil.getMultiCodes(
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
-const pds = ref([]);// = await getPartMaster('4', '1', 'M');
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -195,9 +200,11 @@ async function fetchData() {
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+  console.log(cachedParams);
   await fetchData();
 }
 
+const pds = ref([]);
 async function changePdGrpCd() {
   if (searchParams.value.pdGrpCd) {
     pds.value = await getPartMaster(
@@ -215,7 +222,10 @@ async function changePdGrpCd() {
       'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
     );
   } else pds.value = [];
+  searchParams.value.pdCd = '';
 }
+changePdGrpCd();
+
 async function onClickExcelDownload() {
   const res = await dataService.get(
     '/sms/wells/service/as-codes/excel-download',
