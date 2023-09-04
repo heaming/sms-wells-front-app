@@ -119,11 +119,8 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
           />
         </template>
 
@@ -167,13 +164,6 @@
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
-      />
-
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -223,7 +213,6 @@ const baseInfo = ref({
 
 const pageInfo = ref({
   totalCount: 0,
-  pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
@@ -242,13 +231,12 @@ const ctctys = ref([]);
 ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/responsible-area-charges/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: personInCharges, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/responsible-area-charges', { params: { ...cachedParams } });
+  const personInCharges = res.data;
+  pageInfo.value.totalCount = personInCharges.length;
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(personInCharges);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
   baseInfo.value.ichrPrtnrNo = '';
   baseInfo.value.applyDateFrom = '';
@@ -256,7 +244,6 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -264,7 +251,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/responsible-area-charges/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/responsible-area-charges', { params: { ...cachedParams } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
