@@ -51,21 +51,27 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <!-- 상품그룹 -->
         <kw-search-item
           :label="$t('MSG_TXT_PD_GRP')"
-          :colspan="1"
         >
           <kw-select
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
             first-option="all"
-            class="w233"
+            @change="changePdGrpCd"
           />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_NM')"
+        >
           <kw-select
             v-model="searchParams.pdCd"
-            :options="products"
-            first-option="all"
+            :options="pds"
+            first-option="select"
+            option-label="cdNm"
+            option-value="cd"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -100,7 +106,10 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, codeUtil, gridUtil } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+// import { isEmpty } from 'lodash-es';
+import smsCommon from '~sms-wells/service/composables/useSnCode';
+
+const { getPartMaster } = smsCommon();
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -124,18 +133,41 @@ const searchParams = ref({
   pdCd: '',
 });
 
-const products = ref([]);
-async function fetchProducts() {
-  const res = await dataService.get('/sms/wells/service/service-processing/products', { params: { pdGrpCd: searchParams.value.pdGrpCd } });
-  products.value = res.data;
+// const products = ref([]);
+// async function fetchProducts() {
+//   const res = await dataService.get('/sms/wells/service/service-processing/products',
+//   { params: { pdGrpCd: searchParams.value.pdGrpCd } });
+//   products.value = res.data;
+// }
+// watch(() => searchParams.value.pdGrpCd, async (val) => {
+//   if (isEmpty(val)) {
+//     products.value = [];
+//     return;
+//   }
+//   await fetchProducts();
+// }, { immediate: true });
+
+const pds = ref([]);
+async function changePdGrpCd() {
+  if (searchParams.value.pdGrpCd) {
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
+  } else pds.value = [];
+  searchParams.value.pdCd = '';
 }
-watch(() => searchParams.value.pdGrpCd, async (val) => {
-  if (isEmpty(val)) {
-    products.value = [];
-    return;
-  }
-  await fetchProducts();
-}, { immediate: true });
+changePdGrpCd();
 
 const ArticlesName = [
   { codeId: '1', codeName: 'A/S건' },

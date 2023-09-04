@@ -15,8 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      one-row
-      :cols="2"
+      :cols="3"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
@@ -26,23 +25,28 @@
           :label="$t('MSG_TXT_PD_GRP')"
         >
           <kw-select
-            v-model="searchParams.pdGr"
-            :first-option-label="$t('MSG_TXT_ALL')"
+            v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
-            @change="onChangePdGr()"
+            first-option="all"
+            @change="changePdGrpCd"
           />
         </kw-search-item>
-        <!-- 상품그룹: 상품명 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_NM')"
         >
+          <!--            rules="required"-->
           <kw-select
-            v-model="searchParams.pdNm"
-            :first-option-label="$t('MSG_TXT_ALL')"
-            :options="pdNm"
-            class="w200"
-            @change="onChangePdNm(searchParams.pdNm)"
+            v-model="searchParams.pdCd"
+            :options="pds"
+            first-option="all"
+            option-label="cdNm"
+            option-value="cd"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
           />
+        </kw-search-item>
+
+        <kw-search-item>
           <kw-field
             v-model="searchParams.apyMtrChk"
           >
@@ -175,17 +179,27 @@ const searchParams = ref({
 });
 const isDisable = computed(() => (isEmpty(searchParams.value.pdGr)));
 
-async function onChangePdNm(val) {
-  if (isEmpty(val)) return;
-  const { cd } = pdNm.value.find((v) => v.codeId === val) || {};
-  pdtNm.value = pdNm.value.map((v) => ({ codeId: v.cd, codeName: v.codeName })) ?? [];
-  searchParams.value.pdCd = cd;
+const pds = ref([]);
+async function changePdGrpCd() {
+  if (searchParams.value.pdGrpCd) {
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
+  } else pds.value = [];
+  searchParams.value.pdCd = '';
 }
-async function onChangePdGr() {
-  pdNm.value = await getPartMaster('4', searchParams.value.pdGr);
-  searchParams.value.pdNm = pdNm.value[0].codeId;
-  onChangePdNm();
-}
+changePdGrpCd();
 
 let cachedParams;
 async function fetchData() {
@@ -270,7 +284,7 @@ async function onClickSave() {
 
 onMounted(async () => {
   // await onChangePdNm();
-  await onChangePdGr();
+  // await onChangePdGr();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
