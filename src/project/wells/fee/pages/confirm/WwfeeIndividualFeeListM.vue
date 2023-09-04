@@ -501,7 +501,7 @@ const initGrd1Main = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'mngtDiv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98' },
-    { fieldName: 'renlGrp', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
+    { fieldName: 'renlGrp', header: t('MSG_TXT_BUSINESS_DIVISION'), width: '98' },
     { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
     { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
