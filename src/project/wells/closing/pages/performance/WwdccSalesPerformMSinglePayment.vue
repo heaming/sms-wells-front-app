@@ -3,10 +3,10 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : DCB
-2. 프로그램 ID : WwdcbSalesPerformanceListMSinglePayment - 매출실적 현황_일시불(탭) - W-CL-U-0038M02
-3. 작성자 : WOO SEUNGMIN
-4. 작성일 : 2023.03.16
+1. 모듈 : DCC
+2. 프로그램 ID : WwdccSalesPerformMSinglePayment - 매출실적 현황_일시불(탭) - W-CL-U-0038M02
+3. 작성자 : gilyong.han
+4. 작성일 : 2023.09.05
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -383,6 +383,7 @@ const isShow = ref(false);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const baseUrl = '/sms/wells/closing/sales-performs/single-payment';
 const grdSalesRef = ref(getComponentType('KwGrid'));
 const grdDepositRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
@@ -409,7 +410,7 @@ const depositPageInfo = ref({
 
 let cachedParams;
 async function fetchBaseData() {
-  const res = await dataService.get('/sms/wells/closing/single-payment/base', { params: cachedParams });
+  const res = await dataService.get(`${baseUrl}/base`, { params: cachedParams });
   isShow.value = true;
   console.log(res.data);
   baseInformation.value = res.data;
@@ -417,7 +418,7 @@ async function fetchBaseData() {
 
 async function fetchSalesData() {
   console.log('pageInfo.value1:', pageInfo.value);
-  const res = await dataService.get('/sms/wells/closing/single-payment/sales', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get(`${baseUrl}/sales/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   console.log(res.data);
   const { list: mainList, pageInfo: pagingResult } = res.data;
   console.log('pagingResult:', pagingResult);
@@ -429,7 +430,7 @@ async function fetchSalesData() {
 }
 
 async function fetchDepositData() {
-  const res = await dataService.get('/sms/wells/closing/single-payment/deposits', { params: { ...cachedParams, ...depositPageInfo.value } });
+  const res = await dataService.get(`${baseUrl}/deposits/paging`, { params: { ...cachedParams, ...depositPageInfo.value } });
   console.log(res.data);
   const { list: mainList, pageInfo: pagingResult } = res.data;
 
@@ -451,7 +452,7 @@ async function onClickSearch() {
 async function onClickExportViewMain() {
   const view = grdSalesRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/closing/single-payment/sales/excel-download', { params: cachedParams });
+  const response = await dataService.get(`${baseUrl}/sales/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: `${t('MSG_TXT_SL_PERF_MCBY')}Excel`,
     timePostfix: true,
@@ -462,7 +463,7 @@ async function onClickExportViewMain() {
 async function onClickExportViewDetail() {
   const view = grdDepositRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/closing/single-payment/deposits/excel-download', { params: cachedParams });
+  const response = await dataService.get(`${baseUrl}/deposits/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: `${t('MSG_TIT_DP_IZ')}Excel`,
     timePostfix: true,

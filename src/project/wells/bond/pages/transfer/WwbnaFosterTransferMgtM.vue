@@ -38,11 +38,15 @@
             disable
           />
         </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_FSTRCM')">
+        <kw-search-item
+          :label="t('MSG_TXT_CLCTAM_DV')"
+          required
+        >
           <kw-select
-            v-model="searchParams.clcoCd"
-            disable
-            :options="codes.CLCO_CD"
+            v-model="searchParams.clctamDvCd"
+            first-option="select"
+            rules="required"
+            :options="clctamDvOpt"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_NW_DV')">
@@ -209,6 +213,7 @@ const totalCount = ref(0);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const baseUrl = '/sms/wells/bond/foster-transfers';
 const codes = await codeUtil.getMultiCodes(
   'BZ_HDQ_DV_CD',
   'CLCO_CD',
@@ -219,12 +224,12 @@ const codes = await codeUtil.getMultiCodes(
   'LWM_DTL_TP_CD',
   'BND_BIZ_DV_CD',
 );
-const baseUrl = '/sms/wells/bond/foster-transfers';
+const clctamDvOpt = codes.CLCTAM_DV_CD?.filter((v) => ['09', '11']?.includes(v.codeId));
 const now = dayjs();
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
   bzHdqDvCd: '',
-  clcoCd: '01',
+  clctamDvCd: '',
   bndNwDvCd: '',
   cstNm: '',
   cstNo: '',
