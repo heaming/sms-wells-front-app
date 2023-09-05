@@ -1003,7 +1003,7 @@ const initGridState = defineGrid((data, view) => {
     /* 설치환경상세 */
     if (cData.fieldName === 'imgYn') {
       notify(' 설치환경상세 팝업(W-SV-U-0214P01) 호출');
-      const { istEnvrFileUid, istKitFileUid, istCelngFileUid } = g.getRowValue(cData.itemIndex);
+      const { istEnvrFileUid, istKitFileUid, istCelngFileUid } = g.getValues(cData.itemIndex);
       console.log(istEnvrFileUid);
       console.log(istKitFileUid);
       console.log(istCelngFileUid);
