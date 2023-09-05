@@ -89,24 +89,28 @@
           v-permission:create
           dense
           grid-action
+          :disable="isDisableCancelBtn"
           :label="$t('MSG_TXT_CLTN')"
         />
         <kw-btn
           v-permission:create
           dense
           grid-action
+          :disable="isDisableHoldingBtn"
           :label="$t('MSG_BTN_QLF_HOLDON')"
         />
         <kw-btn
           v-permission:create
           dense
           grid-action
+          :disable="isDisableThisMonthUpgradesBtn"
           :label="$t('MSG_BTN_THM_UPGR')"
         />
         <kw-btn
           v-permission:create
           dense
           grid-action
+          :disable="isDisableUpgradesBtn"
           :label="$t('MSG_TXT_ADVMNT')"
         />
       </kw-action-top>
@@ -137,6 +141,18 @@ const { t } = useI18n();
 const dataService = useDataService();
 const { getUserInfo } = useMeta();
 const { wkOjOgTpCd, ogTpCd } = getUserInfo();
+
+// 해약
+const isDisableCancelBtn = ref(true);
+
+// 자격보류
+const isDisableHoldingBtn = ref(true);
+
+// 당월승급
+const isDisableThisMonthUpgradesBtn = ref(true);
+
+// 승급
+const isDisableUpgradesBtn = ref(true);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -187,27 +203,27 @@ async function fetchDetailData(prtnrNo) {
   return grdMain2Datas.value;
 }
 
-async function setGrdMain1(response) {
-  const data = await grdMain1Ref.value.getData();
+function setGrdMain1(response) {
+  const data = grdMain1Ref.value.getData();
   if (grdMain1PageInfo.value.pageIndex > 1) {
-    await data.addRows(response);
+    data.addRows(response);
   } else {
-    await data.setRows(response);
+    data.setRows(response);
   }
 }
 
-async function setGrdMain2(response) {
-  const data = await grdMain2Ref.value.getData();
+function setGrdMain2(response) {
+  const data = grdMain2Ref.value.getData();
   if (grdMain2PageInfo.value.pageIndex > 1) {
-    await data.addRows(response);
+    data.addRows(response);
   } else {
-    await data.setRows(response);
+    data.setRows(response);
   }
 }
 
 async function init() {
   const response = await fetchData();
-  await setGrdMain1(response);
+  setGrdMain1(response);
 }
 
 async function onclickSearch() {
@@ -224,7 +240,7 @@ async function onGrdMain2ScrollToBottom() {
   grdMain2PageInfo.value.pageIndex += 1;
   const { prtnrNo } = selectedCurrentRow.value;
   const response = await fetchDetailData(prtnrNo);
-  await setGrdMain2(response);
+  setGrdMain2(response);
 }
 
 const { currentRoute } = useRouter();
@@ -273,11 +289,11 @@ const initGrid1 = defineGrid((data, view) => {
         return '-';
       },
     },
+    { fieldName: 'bryyMmdd', header: t('MSG_TXT_RRNO'), width: '136', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYMMDD'); } },
     { fieldName: 'rcrtWrteDt', header: t('MSG_TIT_RCRT_DT'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'bryyMmdd', header: t('MSG_TXT_FNL_CLTN_DT'), width: '136', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_STRT_DT'), width: '168', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'edu143', header: t('MSG_TXT_RSG_DT'), width: '168', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'edu96', header: t('MSG_TXT_RSG_DT'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
+    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_DT'), width: '168', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
+    { fieldName: 'edu143', header: t('MSG_TXT_PRE_SRTUP'), width: '168', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
+    { fieldName: 'edu96', header: t('MSG_TXT_SRTUP'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
     { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
     // { fieldName: '', header: t('MSG_TXT_TOPMR_PLAR'), width: '122', styleName: 'text-center' },
     // { fieldName: '', header: t('MSG_TXT_STRT_DT'), width: '168', styleName: 'text-center' },
@@ -322,10 +338,48 @@ const initGrid1 = defineGrid((data, view) => {
 
   view.onCurrentRowChanged = async (grid, oldRow, newRow) => {
     const selectedRow = gridUtil.getRowValue(grid, newRow);
-    const { prtnrNo } = selectedRow;
-    selectedCurrentRow.value = selectedRow;
-    const response = await fetchDetailData(prtnrNo);
-    await setGrdMain2(response);
+
+    if (selectedRow) {
+      const { prtnrNo, edu143, edu96 } = selectedRow;
+      selectedCurrentRow.value = selectedRow;
+      const response = await fetchDetailData(prtnrNo);
+      setGrdMain2(response);
+
+      if (response.length > 0) {
+        // 해약 버튼
+        if (response[0].qlfDvCd === '3') {
+          isDisableCancelBtn.value = false;
+        } else {
+          isDisableCancelBtn.value = true;
+        }
+
+        // 자격보류 버튼
+        if ((response[0].qlfDvCd === '2' && edu143)
+          || (response[0].qlfDvCd === '2' && edu96)
+          || (response[0].qlfDvCd === '6' && edu96)) {
+          isDisableHoldingBtn.value = false;
+        } else {
+          isDisableHoldingBtn.value = true;
+        }
+
+        // 당월승급 버튼, 승급 버튼
+        if ((response[0].qlfDvCd === '2' && edu143)
+          || (response[0].qlfDvCd === '2' && edu96)
+          || (response[0].qlfDvCd === '6' && edu96)
+          || response[0].qlfAplcDvCd === '3') {
+          isDisableThisMonthUpgradesBtn.value = false;
+          isDisableUpgradesBtn.value = false;
+        } else {
+          isDisableThisMonthUpgradesBtn.value = true;
+          isDisableUpgradesBtn.value = true;
+        }
+      } else {
+        isDisableCancelBtn.value = true;
+        isDisableHoldingBtn.value = true;
+        isDisableThisMonthUpgradesBtn.value = true;
+        isDisableUpgradesBtn.value = true;
+      }
+    }
   };
 });
 
