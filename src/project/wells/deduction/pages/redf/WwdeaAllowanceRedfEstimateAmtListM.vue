@@ -187,6 +187,7 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const sessionMeta = useMeta();
+// eslint-disable-next-line no-unused-vars
 const userInfo = sessionMeta.getUserInfo();
 
 // -------------------------------------------------------------------------------------------------
@@ -368,7 +369,7 @@ async function onClickSearchPartner() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: searchParams.value.ogTpCd === 'ALL' ? userInfo.ogTpCd : searchParams.value.ogTpCd,
+      // ogTpCd: searchParams.value.ogTpCd === 'ALL' ? userInfo.ogTpCd : searchParams.value.ogTpCd,
     },
   });
   if (result) {
