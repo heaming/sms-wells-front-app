@@ -212,7 +212,7 @@ async function fetchData() {
     return;
   }
 
-  const res = await dataService.get('/sms/wells/contract/changeorder/paging', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorder/prepayment-change-customers/paging', { params: cachedParams });
   const view = grdMainRef.value.getView();
 
   grdMainRef.value.getData().clearRows();
@@ -276,7 +276,7 @@ async function fetchProduct(gubun) {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/contract/changeorder/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/contract/changeorder/prepayment-change-customers/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
