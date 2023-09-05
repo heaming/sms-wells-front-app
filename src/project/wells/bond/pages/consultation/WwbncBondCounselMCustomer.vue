@@ -442,7 +442,7 @@ async function onClickSearch() {
   const ojBlamStrt = searchParams.value.schOjBlamStrt;
   const ojBlamEnd = searchParams.value.schOjBlamEnd;
 
-  if (dlqMcntStrt > dlqMcntEnd) {
+  if (Number(dlqMcntStrt) > Number(dlqMcntEnd)) {
     await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_DLQ_MCNT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
     return false;
   }
