@@ -182,7 +182,10 @@
             </kw-form-item>
             <!-- row1 렌탈일수 -->
             <kw-form-item :label="$t('MSG_TXT_RENTAL_DC')">
-              <p>{{ searchDetail.rentalDc }}</p>
+              <p>
+                {{ searchDetail.cntrPasgDc }} /
+                {{ searchDetail.rsgFshDt ? searchDetail.rsgFshDt.substr(6):'' }}
+              </p>
             </kw-form-item>
             <!-- row1 교체일자 -->
             <kw-form-item :label="$t('MSG_TXT_CHNG_DT')">
@@ -465,6 +468,7 @@
           :label="$t('MSG_TXT_CCAM_IZ_DOC')+' '+$t('MSG_BTN_VIEW')"
           secondary
           class="px12"
+          icon="report"
           @click="onClickCcamView"
         />
       </kw-form-item>
@@ -621,6 +625,7 @@
       <kw-btn
         :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
         class="ml8"
+        :disable="searchDetail.totRfndAmt>=0"
         @click="onClickVacIssue"
       />
       <kw-btn
@@ -643,6 +648,7 @@
       <kw-btn
         :label="$t('MSG_TXT_RENTAL_RSG_CFDG')+$t('MSG_BTN_VIEW')"
         class="ml8"
+        icon="report"
         @click="onClickTodo('렌탈계약해지확인서 보기')"
       />
       <!--삭제-->
@@ -676,7 +682,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, stringUtil, store, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, isEqual } from 'lodash';
 
@@ -684,6 +690,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 const frmMainRental = ref(getComponentType('KwForm'));
 const { notify, modal } = useGlobal();
+const { companyCode } = store.getters['meta/getUserInfo'];
 
 const codes = await codeUtil.getMultiCodes(
   'CCAM_EXMPT_DV_CD', // 위약금면책구분코드
@@ -823,15 +830,17 @@ async function onClickVacIssue() {
     revAkNoParam.askAmt = searchDetail.totRfndAmt;
     const res = await dataService.get('/sms/wells/contract/changeorder/cancel/receive-ask-no', { params: revAkNoParam });
 
-    if (!isEmpty(res.data) || res.data > 0) {
+    if (!isEmpty(res.data)) {
       // 3. 가상계좌 팝업 호출
-      const rveAkNo = `${res.data}`;
+      const rveAkNo = res.data.receiveAskNumber;
       console.log(rveAkNo);
-      const component = (isEqual(payload, 'Face')) ? 'ZwwdbIndvVirtualAccountIssueMgtP' : 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
+
+      const component = (isEqual(payload, 'Face')) ? 'ZwwdbIndvVirtualAccountIssueMgtP'
+        : 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
 
       const popRes = await modal({
         component,
-        componentProps: { rveAkNo, kwGrpCoCd: '1200' },
+        componentProps: { rveAkNo, kwGrpCoCd: companyCode },
       });
 
       if (popRes) {

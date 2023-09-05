@@ -393,12 +393,6 @@
           maxlength="10"
           align="right"
         />
-        <kw-btn
-          :label="$t('MSG_TXT_CCAM_IZ_DOC')+' '+$t('MSG_BTN_VIEW')"
-          secondary
-          class="px12"
-          @click="onClickCcamView"
-        />
       </kw-form-item>
       <!-- 환불총액 -->
       <kw-form-item :label="$t('MSG_TXT_RFND_TOT_AMT')">
@@ -584,12 +578,6 @@ function onChangeTextforSelect(div) {
       searchDetail.cntrStatChRsonCd = '';
     }
   }
-}
-
-// 위약금 내역서 보기
-function onClickCcamView() {
-  // 위약금 내역서 보기 : 해당 계약번호에 대한 '위약금 내역' OZ뷰 팝업을 호출 합니다.
-  notify('TODO : 위약금 내역서 OZ뷰 호출 ');
 }
 
 // 5. 취소사항 > 취소사항 조회 클릭
