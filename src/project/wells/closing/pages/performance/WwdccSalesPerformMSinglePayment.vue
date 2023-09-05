@@ -499,7 +499,7 @@ const initGridDetail = defineGrid((data, view) => {
     { fieldName: 'rveDt', header: t('MSG_TXT_DP_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'dpDvCd', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rveDvCd2', header: t('MSG_TXT_DP_KND'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rveDvCd', header: t('MSG_TXT_DP_KND'), width: '100', styleName: 'text-center' },
     { fieldName: 'dpTpCd', header: t('MSG_TXT_DP_TP'), width: '100', styleName: 'text-center' },
     { fieldName: 'rveAmt', header: t('MSG_TXT_PROCS_AMT_WON'), width: '100', styleName: 'text-right', dataType: 'number' },
   ];
