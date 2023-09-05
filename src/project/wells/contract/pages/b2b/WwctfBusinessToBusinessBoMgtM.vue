@@ -374,8 +374,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       editor: {
         maxLength: 50,
       } }, // 업체명
-    { fieldName: 'leadCstRlpplNm', visible: false },
-    { fieldName: 'leadCstRlpplNmEncr',
+    { fieldName: 'leadCstRlpplNm',
       header: t('MSG_TXT_COMP_RSP_USR'),
       width: '212',
       styleName: 'text-center',
