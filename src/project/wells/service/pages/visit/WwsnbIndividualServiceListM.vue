@@ -565,6 +565,7 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
+const router = useRouter();
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
 const {
@@ -918,6 +919,7 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'istEnvrFileUid' },
     { fieldName: 'istKitFileUid' },
     { fieldName: 'istCelngFileUid' },
+    { fieldName: 'cstSvAsnNo' },
   ];
 
   const columns = [
@@ -926,7 +928,16 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'svBizDclsf', header: t('MSG_TXT_RCP_ANS_IZ'), width: '150', styleName: 'text-center' },
     { fieldName: 'reqDt', header: t('MSG_TXT_AK_PROM_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'vstFshDt', header: t('MSG_TXT_PRCSDT'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'wkPrgsStat', header: t('MSG_TXT_PROCS_RS'), width: '100', styleName: 'text-center' },
+    { fieldName: 'wkPrgsStat',
+      header: t('MSG_TXT_PROCS_RS'),
+      width: '100',
+      styleName: 'text-center',
+      styleCallback(grd, dataCell) {
+        const wkPrgsStat = grd.getValue(dataCell.item.dataRow, 'wkPrgsStat');
+        console.log(wkPrgsStat);
+        return (wkPrgsStat === '작업대기') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+      },
+    },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
     { fieldName: 'zipNo', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogTp', header: t('MSG_TXT_DIV'), width: '94', styleName: 'text-center' },
@@ -959,6 +970,7 @@ const initGridState = defineGrid((data, view) => {
     },
     { fieldName: 'rtngdProcsTp', header: t('MSG_TXT_RTNGD_PCS_INF'), width: '150' },
     { fieldName: 'fstVstFshDt', header: t('MSG_TXT_DSU_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '150', visible: false },
   ];
 
   data.setFields(fields);
@@ -982,9 +994,11 @@ const initGridState = defineGrid((data, view) => {
       // });
     }
   };
-  view.onCellClicked = async (grd, clikdD) => {
-    if (clikdD.fieldName === 'svBizDclsf') {
-      notify(' 서비스처리상세 내역 팝업(W-SV-U-0165P01) 호출');
+
+  view.onCellDblClicked = async (g, cData) => {
+    if (cData.fieldName === 'wkPrgsStat' || cData.fieldName === 'imgYn') { return false; }
+
+    notify(' 서비스처리상세 내역 팝업(W-SV-U-0165P01) 호출');
     //   await modal({
     //     component: '',
     //     componentProps: {
@@ -992,6 +1006,19 @@ const initGridState = defineGrid((data, view) => {
     //       cntrSn: searchParams.value.cntrSn,
     //     },
     //   });
+  };
+
+  view.onCellItemClicked = async (g, cData) => {
+    console.log(cData);
+    if (cData.fieldName === 'wkPrgsStat') {
+      const { cstSvAsnNo, wkPrgsStat } = g.getValues(cData.itemIndex);
+      if (wkPrgsStat === '작업대기') {
+        await router.push({
+          path: `${router.currentRoute.value.path}/wmsnb-as-work-detail-mgt`,
+          // path: '/wwsnb-individual-service-list/wmsnb-as-work-detail-mgt',
+          query: { cstSvAsnNo },
+        });
+      }
     }
   };
 
