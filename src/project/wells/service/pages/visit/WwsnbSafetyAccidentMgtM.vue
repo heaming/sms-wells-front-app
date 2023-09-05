@@ -431,7 +431,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'agrDocRcvYn',
-      header: t('MSG_TXT_AGR_RCV_YN'),
+      header: t('MSG_TXT_AGR_SIGN_YN'),
       width: '150',
       styleName: 'text-center',
     },
