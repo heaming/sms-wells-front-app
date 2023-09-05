@@ -9,40 +9,44 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 유상A/S 서비스비용 관리 (http://localhost:3000/#/service/wwsny-recapitalization-as-sv-cs-mngt-mgt)
+- 유상A/S 서비스비용 관리 (http://localhost:3000/#/service/wwsny-paid-as-cost-mgt)
 ****************************************************************************************************
 --->
 <template>
   <kw-page>
     <kw-search
-      one-row
       :cols="2"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
       @reset="onClickReset"
     >
       <kw-search-row>
-        <!--상품 그룹-->
         <kw-search-item
           :label="$t('MSG_TXT_PD_GRP')"
         >
-          <!--상품 그룹: 상품 그룹-->
           <kw-select
-            v-model="searchParams.hgrPdCd"
+            v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
-            class="w150"
             first-option="all"
-          />
-          <!--상품 그룹: 상품명-->
-          <kw-select
-            v-model="searchParams.pdNm"
-            :options="pdNm"
-            first-option="all"
-            class="w200"
-            @change="onChangePdNm(searchParams.pdNm)"
+            @change="changePdGrpCd"
           />
         </kw-search-item>
-
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_NM')"
+        >
+          <!--            rules="required"-->
+          <kw-select
+            v-model="searchParams.pdCd"
+            :options="pds"
+            first-option="all"
+            option-label="cdNm"
+            option-value="cd"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 자재구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_MAT_DV')"
@@ -219,13 +223,27 @@ const searchParams = ref({
 
 let cachedParams;
 
-/* 상품그룹 조회 */
-const pdNm = ref([]);
-const onChangeHgrPdCd = async () => {
-  pdNm.value = await getPartMaster('4', searchParams.value.hgrPdCd);
-  searchParams.value.pdNm = '';
+const pds = ref([]);
+async function changePdGrpCd() {
+  if (searchParams.value.pdGrpCd) {
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
+  } else pds.value = [];
   searchParams.value.pdCd = '';
-};
+}
+changePdGrpCd();
 
 const isHgrPdCd = ref(false);
 
@@ -240,14 +258,8 @@ watch(() => searchParams.value.hgrPdCd, (val) => {
   if (searchParams.value.hgrPdCd !== val) {
     searchParams.value.hgrPdCd = val;
   }
-  onChangeHgrPdCd();
+  changePdGrpCd();
 });
-async function onChangePdNm(val) {
-  console.log(val);
-  // if (val === undefined) return;
-  const { cd } = pdNm.value.find((v) => v.codeId === val) || {};
-  searchParams.value.pdCd = cd;
-}
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/paid-as-costs/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -330,7 +342,7 @@ function onClickReset() {
 
 onMounted(async () => {
   if (!isEmpty(searchParams.value.hgrPdCd)) {
-    await onChangeHgrPdCd();
+    await changePdGrpCd();
   }
 });
 // -------------------------------------------------------------------------------------------------
@@ -355,7 +367,11 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '200', styleName: 'text-center', editable: false }, // SAP코드
     { fieldName: 'useMatPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center', editable: false }, // 품목코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '350', styleName: 'text-center', editable: false }, // 상품명
+    { fieldName: 'pdNm',
+      header: t('MSG_TXT_PRDT_NM'),
+      width: '350',
+      styleName: 'text-left',
+      editable: false }, // 상품명
     { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 적용시작일
     { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 적용종료일
     { fieldName: 'csmrUprcAmt',
@@ -366,7 +382,7 @@ const initGrdMain = defineGrid((data, view) => {
         maxLength: 8,
         inputCharacters: '0-9',
       },
-      styleName: 'text-center',
+      styleName: 'text-right',
     }, // 소비자가
     { fieldName: 'whlsUprcAmt',
       header: t('MSG_TXT_WHLS_UPRC'),
@@ -376,7 +392,7 @@ const initGrdMain = defineGrid((data, view) => {
         maxLength: 8,
         inputCharacters: '0-9',
       },
-      styleName: 'text-center',
+      styleName: 'text-right',
     }, // 도매단가
     { fieldName: 'insiUprcAmt',
       header: t('MSG_TXT_INSI_UPRC'),
@@ -386,7 +402,7 @@ const initGrdMain = defineGrid((data, view) => {
         maxLength: 8,
         inputCharacters: '0-9',
       },
-      styleName: 'text-center',
+      styleName: 'text-right',
     }, // 내부단가
     { fieldName: 'tcfeeAmt',
       header: t('MSG_TXT_TCFEE'),
@@ -396,12 +412,12 @@ const initGrdMain = defineGrid((data, view) => {
         maxLength: 8,
         inputCharacters: '0-9',
       },
-      styleName: 'text-center',
+      styleName: 'text-right',
     }, // 기술료
     { fieldName: 'sumAmt',
       header: t('MSG_TXT_SUM_CSPRC_TCFEE'),
       width: '200',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: false,
       // displayCallback(grid, index, val) {
       //   const { csmrUprcAmt, tcfeeAmt } = grid.getValues(index.itemIndex);

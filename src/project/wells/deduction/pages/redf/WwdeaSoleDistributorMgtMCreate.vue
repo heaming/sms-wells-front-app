@@ -89,9 +89,9 @@
         />
         <kw-paging-info
           v-if="searchType.prtnrAndW04"
-          v-model:page-index="pageThirdnfo.pageIndex"
-          v-model:page-size="pageThirdnfo.pageSize"
-          :total-count="pageThirdnfo.totalCount"
+          v-model:page-index="pageThirdInfo.pageIndex"
+          v-model:page-size="pageThirdInfo.pageSize"
+          :total-count="pageThirdInfo.totalCount"
         />
         <!-- (단위 : 건) -->
         <span class="ml8">{{ t('MSG_TXT_MSG_TXT_UNIT_CASE') }}</span>
@@ -121,7 +121,7 @@
         dense
         secondary
         :label="t('MSG_BTN_EXCEL_DOWN')"
-        :disable="pageThirdnfo.totalCount === 0"
+        :disable="pageThirdInfo.totalCount === 0"
         @click="onClickExcelDownload"
       />
 
@@ -285,7 +285,7 @@ async function fetchData2() {
 }
 
 async function fetchData3() {
-  const res = await dataService.get('/sms/wells/deduction/sole-distributors/management/paging', { params: { ...cachedParams, ...pageThirdInfo.value } });
+  const res = await dataService.get('/sms/wells/deduction/sole-distributors/b2b/paging', { params: { ...cachedParams, ...pageThirdInfo.value } });
   const { list: redfes, pageInfo: pagingResult } = res.data;
 
   pageThirdInfo.value = pagingResult;
@@ -336,7 +336,7 @@ async function onClickExcelDownload() {
     res = await dataService.get('/sms/wells/deduction/sole-distributors/partner/excel-download', { params: cachedParams });
   } else if (conditionParam.value.type === 'prtnr' && searchParams.value.ogTpCd === 'W04') {
     view = grdThirdRef.value.getView();
-    res = await dataService.get('/sms/wells/deduction/sole-distributors/management/excel-download', { params: cachedParams });
+    res = await dataService.get('/sms/wells/deduction/sole-distributors/b2b/excel-download', { params: cachedParams });
   } else {
     view = grdSecondRef.value.getView();
     res = await dataService.get('/sms/wells/deduction/sole-distributors/contract/excel-download', { params: cachedParams });

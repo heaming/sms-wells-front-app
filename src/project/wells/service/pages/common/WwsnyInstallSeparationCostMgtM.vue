@@ -15,8 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      one-row
-      :cols="2"
+      :cols="3"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
@@ -26,23 +25,28 @@
           :label="$t('MSG_TXT_PD_GRP')"
         >
           <kw-select
-            v-model="searchParams.pdGr"
-            :first-option-label="$t('MSG_TXT_ALL')"
+            v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
-            @change="onChangePdGr()"
+            first-option="all"
+            @change="changePdGrpCd"
           />
         </kw-search-item>
-        <!-- 상품그룹: 상품명 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_NM')"
         >
+          <!--            rules="required"-->
           <kw-select
-            v-model="searchParams.pdNm"
-            :first-option-label="$t('MSG_TXT_ALL')"
-            :options="pdNm"
-            class="w200"
-            @change="onChangePdNm(searchParams.pdNm)"
+            v-model="searchParams.pdCd"
+            :options="pds"
+            first-option="all"
+            option-label="cdNm"
+            option-value="cd"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
           />
+        </kw-search-item>
+
+        <kw-search-item>
           <kw-field
             v-model="searchParams.apyMtrChk"
           >
@@ -164,8 +168,8 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-const pdNm = ref([]);
-const pdtNm = ref([]);
+// const pdNm = ref([]);
+// const pdtNm = ref([]);
 /* 조회조건 */
 const searchParams = ref({
   pdNm: '',
@@ -175,17 +179,27 @@ const searchParams = ref({
 });
 const isDisable = computed(() => (isEmpty(searchParams.value.pdGr)));
 
-async function onChangePdNm(val) {
-  if (isEmpty(val)) return;
-  const { cd } = pdNm.value.find((v) => v.codeId === val) || {};
-  pdtNm.value = pdNm.value.map((v) => ({ codeId: v.cd, codeName: v.codeName })) ?? [];
-  searchParams.value.pdCd = cd;
+const pds = ref([]);
+async function changePdGrpCd() {
+  if (searchParams.value.pdGrpCd) {
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
+  } else pds.value = [];
+  searchParams.value.pdCd = '';
 }
-async function onChangePdGr() {
-  pdNm.value = await getPartMaster('4', searchParams.value.pdGr);
-  searchParams.value.pdNm = pdNm.value[0].codeId;
-  onChangePdNm();
-}
+changePdGrpCd();
 
 let cachedParams;
 async function fetchData() {
@@ -212,8 +226,6 @@ async function onClickSearch() {
 
 const now = dayjs();
 async function onClickAdd() {
-  console.log(pdtNm.value);
-
   const view = grdMainRef.value.getView();
 
   await gridUtil.insertRowAndFocus(view, 0, {
@@ -270,7 +282,7 @@ async function onClickSave() {
 
 onMounted(async () => {
   // await onChangePdNm();
-  await onChangePdGr();
+  // await onChangePdGr();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -311,18 +323,16 @@ const initGrdMain = defineGrid((data, view) => {
       },
       width: '270',
       editor: { type: 'list' },
-      options: pdtNm.value,
+      options: pds.value,
       styleName: 'text-left',
       rules: 'required',
       displayCallback(grd, { dataRow }) {
         const pdCd = grd.getValue(dataRow, 'pdCd');
-        return pdNm.value.find((v) => v.cd === pdCd)?.codeName;
+        return pds.value.find((v) => v.cd === pdCd)?.cdNm;
       },
-      styleCallback: (grid, dataCell) => {
-        console.log(grid, dataCell);
-
-        return { editor: { type: 'list', labels: pdtNm.value.map((v) => v.codeName), values: pdtNm.value.map((v) => v.codeId) } };
-      },
+      styleCallback: () => ({ editor: { type: 'list',
+        labels: pds.value.map((v) => v.cdNm),
+        values: pds.value.map((v) => v.cd) } }),
     }, // 상품명
     {
       fieldName: 'sepIstCsAtcCd',

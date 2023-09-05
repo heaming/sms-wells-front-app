@@ -26,24 +26,27 @@
           />
         </kw-search-item>
         <kw-search-item
-          class="w500"
           :label="$t('MSG_TXT_PD_GRP')"
         >
-          <!--상품그룹-->
           <kw-select
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
             first-option="all"
-            class="w200"
             @change="changePdGrpCd"
           />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_NM')"
+        >
+          <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
             first-option="all"
             option-label="cdNm"
             option-value="cd"
-            class="w300"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -107,7 +110,6 @@ const searchParams = ref({
 });
 let cachedParams;
 const totalCount = ref(0);
-const pds = ref([]);
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
   const list = res.data;
@@ -138,11 +140,27 @@ async function onClickExcelDownload() {
     exportData: gridUtil.getAllRowValues(view),
   });
 }
+const pds = ref([]);
 async function changePdGrpCd() {
   if (searchParams.value.pdGrpCd) {
-    pds.value = await getPartMaster('4', searchParams.value.pdGrpCd, 'M');
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
   } else pds.value = [];
+  searchParams.value.pdCd = '';
 }
+changePdGrpCd();
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
