@@ -65,11 +65,12 @@
         <kw-search-item
           :label="$t('MSG_TXT_STR_HOP_DT')"
           :colspan="2"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.strHopDtStr"
             v-model:to="searchParams.strHopDtEnd"
-            rules="date_range_months:1"
+            rules="date_range_months:1|required"
             @update:from="fetchDefaultData"
           />
           <!-- //입고희망일자 -->
