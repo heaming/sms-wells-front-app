@@ -34,31 +34,6 @@
               outline
             />
           </div>
-          <div class="row items-center">
-            <kw-item-label class="kw-fc--black3 kw-font-pt14">
-              금액
-            </kw-item-label>
-            <kw-item-label
-              class="text-black1 text-bold ml8"
-              :class="{'text-strike text-black3': promotionAppliedPrice && promotionAppliedPrice.length}"
-            >
-              {{ displayedFinalPrice }}
-            </kw-item-label>
-            <template v-if="promotionAppliedPrice">
-              <kw-separator
-                vertical
-                spaced="8px"
-              />
-              <kw-item-label
-                class="kw-fc--black3 kw-font-pt14"
-              >
-                할인가
-              </kw-item-label>
-              <kw-item-label class="kw-fc--black1 text-bold ml8">
-                {{ promotionAppliedPrice }}
-              </kw-item-label>
-            </template>
-          </div>
         </div>
       </kw-item-section>
       <kw-item-section
@@ -66,19 +41,17 @@
         top
       >
         <kw-item-label class="flex gap-xs">
-          <!-- 로그인한 사용자의 채널이 5010(온라인총판) 이면 기기변경 버튼 발생하지 않음 -->
           <kw-btn
-            v-if="bas?.sellInflwChnlDtlCd !== '5010'"
             :disable="opo?.opoYn"
             label="기기변경"
             dense
-            @click.stop="onClickDeviceChange(item)"
+            @click="onClickDeviceChange(item)"
           />
           <kw-btn
             :disable="mchnCh?.mchnChYn"
             label="1+1"
             dense
-            @click.stop="onClickOnePlusOne(item)"
+            @click="onClickOnePlusOne(item)"
           />
         </kw-item-label>
       </kw-item-section>
@@ -90,11 +63,32 @@
           borderless
           icon="close_24"
           class="w24 kw-font-pt24"
-          @click.stop="onClickDelete"
+          @click="onClickDelete"
         />
       </kw-item-section>
     </template>
     <template #default>
+      <kw-item class="scoped-item scoped-item">
+        <kw-item-section>
+          <div class="row items-center">
+            <kw-item-label class="kw-fc--black3 kw-font-pt14">
+              금액
+            </kw-item-label>
+            <kw-item-label class="kw-fc--black1 text-bold ml8">
+              {{ displayedFinalPrice }}
+            </kw-item-label>
+            <kw-item-label class="kw-fc--black1 text-bold ml8">
+              {{ displayedFinalPrice }}
+            </kw-item-label>
+            <kw-item-label
+              v-if="false"
+              class="kw-fc--black1 text-bold ml8"
+            >
+              {{ selectedFinalPrice?.pdPrcFnlDtlId }}
+            </kw-item-label>
+          </div>
+        </kw-item-section>
+      </kw-item>
       <kw-item
         class="scoped-item scoped-item mt12"
       >
@@ -106,7 +100,7 @@
           >
             <kw-form-row>
               <kw-form-item
-                v-if="bcMngtPdYn !== 'Y'"
+                v-if="dtl.sellTpDtlCd === '11'"
                 :label="'수량변경'"
               >
                 <zwcm-counter
@@ -114,17 +108,6 @@
                   label="수량변경"
                   :min="1"
                   :max="999"
-                />
-              </kw-form-item>
-              <kw-form-item :label="'등록비'">
-                <kw-select
-                  v-if="priceDefineVariableOptions.cntrAmt"
-                  v-model="priceDefineVariables.cntrAmt"
-                  :options="priceDefineVariableOptions.cntrAmt"
-                  placeholder="등록비"
-                  first-option="select"
-                  dense
-                  @change="forcedChangeValidVariable"
                 />
               </kw-form-item>
             </kw-form-row>
@@ -190,61 +173,6 @@
                 />
               </kw-form-item>
             </kw-form-row>
-
-            <div
-              v-if="false"
-              class="flex wrap gap-xs scoped-price-form__no-labels"
-            >
-              <kw-select
-                v-if="priceDefineVariableOptions.stplPrdCd"
-                v-model="priceDefineVariables.stplPrdCd"
-                :options="priceDefineVariableOptions.stplPrdCd"
-                placeholder="약정기간"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.cntrPtrm"
-                v-model="priceDefineVariables.cntrPtrm"
-                :options="priceDefineVariableOptions.cntrPtrm"
-                placeholder="계약기간"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.cntrAmt"
-                v-model="priceDefineVariables.cntrAmt"
-                :options="priceDefineVariableOptions.cntrAmt"
-                placeholder="등록비"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.rentalDscDvCd"
-                v-model="priceDefineVariables.rentalDscDvCd"
-                :options="priceDefineVariableOptions.rentalDscDvCd"
-                placeholder="렌탈할인구분"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.rentalDscTpCd"
-                v-model="priceDefineVariables.rentalDscTpCd"
-                :options="priceDefineVariableOptions.rentalDscTpCd"
-                placeholder="렌탈할인유형"
-                :disable="!!rentalDiscountFixed"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.svPdCd"
-                v-model="priceDefineVariables.svPdCd"
-                :options="priceDefineVariableOptions.svPdCd"
-                placeholder="서비스(용도/방문주기)"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-            </div>
           </kw-form>
         </kw-item-section>
       </kw-item>
@@ -327,7 +255,6 @@
       <promotion-select
         v-model="appliedPromotions"
         :promotions="promotions"
-        @update:model-value="calcPromotionAppliedPrice"
       />
     </template>
   </kw-expansion-item>
@@ -349,17 +276,15 @@ const emit = defineEmits([
   'device-change',
   'one-plus-one',
   'delete-one-plus-one',
-  'price-changed',
-  'promotion-changed',
   'delete',
 ]);
 
 const { getCodeName } = await useCtCode(
   'SELl_TP_CD',
-  'RENTAL_DSC_DV_CD',
-  'RENTAL_CRP_DSCR_CD',
-  'RENTAL_DSC_TP_CD',
-  'RENTAL_COMBI_DV_CD',
+  'SPAY_DSC_DV_CD',
+  'SPAY_DSCR_CD',
+  'SPAY_PMOT_DV_CD',
+  'HCR_DV_CD',
   'SV_TP_CD',
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
@@ -379,13 +304,14 @@ let rentalDiscountFixed = toRef(props.modelValue, 'rentalDiscountFixed');
 let pdQty = toRef(props.modelValue, 'pdQty');
 let mchnCh = toRef(props.modelValue, 'mchnCh');
 let opo = toRef(props.modelValue, 'opo');
-let bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
 let appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
-let promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
-let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions');
-// appliedPromotions.value ??= [];
 
-const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '2'));
+const promotions = ref(props.modelValue?.promotions); /* 적용가능한 프로모션 목록 */
+appliedPromotions.value ??= [];
+
+const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '1'));
+
+const finalPriceOptions = ref([]);
 
 async function fetchFinalPriceOptions() {
   const { data } = await dataService.get('sms/wells/contract/final-price', {
@@ -394,39 +320,22 @@ async function fetchFinalPriceOptions() {
       sellChnlDtlCd: dtl.value.sellChnlDtlCd,
       copnDvCd: props.bas?.copnDvCd,
     },
-    silent: true,
   });
   finalPriceOptions.value = data || [];
 }
 
-if (!finalPriceOptions.value?.length) {
-  await fetchFinalPriceOptions();
-}
+await fetchFinalPriceOptions();
 
 const priceDefineVariables = ref({
   svPdCd: toRef(props.modelValue, 'svPdCd'),
-  stplPrdCd: toRef(props.modelValue, 'stplPtrm'),
+  stplPrdCd: toRef(props.modelValue, 'stplPrdCd'),
   cntrAmt: toRef(props.modelValue, 'cntrAmt'),
   cntrPtrm: toRef(props.modelValue, 'cntrPtrm'),
-  asMcn: toRef(props.modelValue, 'asMcn'),
-  rentalDscDvCd: toRef(props.modelValue, 'sellDscDvCd'),
-  rentalCrpDscrCd: toRef(props.modelValue, 'rentalCrpDscrCd'),
-  rentalDscTpCd: toRef(props.modelValue, 'sellDscTpCd'),
-  rentalCombiDvCd: toRef(props.modelValue, 'rentalCombiDvCd'),
+  spayDscDvCd: toRef(props.modelValue, 'spayDscDvCd'),
+  spayDscrCd: toRef(props.modelValue, 'spayDscrCd'),
+  spayPmotDvCd: toRef(props.modelValue, 'spayPmotDvCd'),
+  hcrDvCd: toRef(props.modelValue, 'hcrDvCd'),
 });
-
-// const mchnCh = ref({
-//   mchnChYn: true,
-//   ojCntrNo: 'E123213123213',
-//   ojCntrSn: 1,
-//   pdNm: '변경된 가격을 지정합니다.',
-// });
-// const opo = ref({
-//   opoYn: true,
-//   ojCntrNo: 'E123213123213',
-//   ojCntrSn: 1,
-//   pdNm: '길고길고길고길 상품 이름이 있습니다. 길고길고길고길 상품 이름이 있습니다.길고길고길고길 상품 이름이 있습니다.길고길고길고길 상품 이름이 있습니다.',
-// });
 
 const labelGenerator = {
   svPdCd: (val, finalPrice) => {
@@ -443,11 +352,10 @@ const labelGenerator = {
   stplPrdCd: (val) => `${val}개월`,
   cntrAmt: (val) => `${stringUtil.getNumberWithComma(val || 0)}원`,
   cntrPtrm: (val) => `${val}개월`,
-  asMcn: (val) => `${val}개월`,
-  rentalDscDvCd: (val) => getCodeName('RENTAL_DSC_DV_CD', val),
-  rentalCrpDscrCd: (val) => getCodeName('RENTAL_CRP_DSCR_CD', val),
-  rentalDscTpCd: (val) => getCodeName('RENTAL_DSC_TP_CD', val),
-  rentalCombiDvCd: (val) => getCodeName('RENTAL_COMBI_DV_CD', val),
+  spayDscDvCd: (val) => getCodeName('SPAY_DSC_DV_CD', val),
+  spayDscrCd: (val) => getCodeName('SPAY_DSCR_CD', val),
+  spayPmotDvCd: (val) => getCodeName('SPAY_PMOT_DV_CD', val),
+  hcrDvCd: (val) => getCodeName('HCR_DV_CD', val),
 };
 
 const variableNames = Object.getOwnPropertyNames(priceDefineVariables.value);
@@ -461,9 +369,7 @@ function clearPriceDefineVariables() {
 
 /* 저장된 값이 있다면 가격 결정요소를 맞추어 줍니다. */
 function initPriceDefineVariables() {
-  if (!pdPrcFnlDtlId.value) {
-    return;
-  }
+  if (!pdPrcFnlDtlId.value) { return; }
   const selectedFinalPrice = finalPriceOptions.value
     .find((finalPrice) => (finalPrice.pdPrcFnlDtlId === pdPrcFnlDtlId.value));
 
@@ -491,24 +397,12 @@ function reconnectReactivities() {
   pdQty = toRef(props.modelValue, 'pdQty');
   mchnCh = toRef(props.modelValue, 'mchnCh');
   opo = toRef(props.modelValue, 'opo');
-  bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
-  promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
+  promotions.value = props.modelValue.promotions ?? []; /* 적용가능한 프로모션 목록 */
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
-  finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions'); /* 적용된 프로모션 */
 }
 
-async function onChangeModelValue(newDtl) {
-  if (newDtl.finalPriceOptions) {
-    finalPriceOptions.value = newDtl.finalPriceOptions;
-  }
-  if (!finalPriceOptions.value?.length) {
-    await fetchFinalPriceOptions();
-  }
-  reconnectReactivities();
-  initPriceDefineVariables();
-}
-
-watch(() => props.modelValue, onChangeModelValue, { immediate: true });
+watch(() => props.modelValue, initPriceDefineVariables, { immediate: true });
+watch(() => props.modelValue, reconnectReactivities, { immediate: true });
 
 function reducerFinalPriceToSelectVarDict(varDict, finalPrice, variable) {
   /*  해당 변수를 선택할 수 없으면 제한다.  */
@@ -621,64 +515,12 @@ const selectedFinalPrice = computed(() => {
   return selectedPrice[0];
 });
 
-function initializePrice() {
-  fnlAmt.value = selectedFinalPrice.value?.fnlVal ?? undefined;
-  pdPrcFnlDtlId.value = selectedFinalPrice.value?.pdPrcFnlDtlId ?? undefined;
-}
-
-initializePrice();
-
-const promotionAppliedPrice = ref();
-
-const displayedFinalPrice = computed(() => (selectedFinalPrice.value
-  ? `${stringUtil.getNumberWithComma(selectedFinalPrice.value.fnlVal)}원`
-  : '미확정'));
-
-function clearPromotions() {
-  promotions.value = [];
-  appliedPromotions.value = [];
-  promotionAppliedPrice.value = undefined;
-}
-
-function calcPromotionAppliedPrice(aplyPmots) {
-  if (!aplyPmots?.length) {
-    return;
-  }
-  const fnlVal = selectedFinalPrice.value?.fnlVal;
-  if (!fnlVal) {
-    return;
-  }
-  const minRentalFxam = aplyPmots
-    .reduce(
-      (minVal, promotion) => {
-        if (!promotion.rentalFxam || Number.isNaN(Number(promotion.rentalFxam))) {
-          return minVal;
-        }
-        return Math.min(minVal, Number(promotion.rentalFxam));
-      },
-      fnlVal,
-    );
-  const totalDscApyAmt = aplyPmots
-    .reduce((acc, promotion) => {
-      if (Number.isNaN(Number(promotion.dscApyAmt))) {
-        return acc;
-      }
-      return acc + Number(promotion.dscApyAmt);
-    }, 0);
-  const pmotAplyPrice = Math.max(minRentalFxam - totalDscApyAmt, 0);
-  if (selectedFinalPrice.value?.fnlVal === pmotAplyPrice) {
-    return;
-  }
-  promotionAppliedPrice.value = `${stringUtil.getNumberWithComma(pmotAplyPrice)}원`;
-  emit('promotion-changed', aplyPmots, promotionAppliedPrice.value);
-}
-
 watch(selectedFinalPrice, (newPrice) => {
   fnlAmt.value = newPrice?.fnlVal ?? undefined;
   pdPrcFnlDtlId.value = newPrice?.pdPrcFnlDtlId ?? undefined;
-  emit('price-changed', newPrice);
-  clearPromotions();
-});
+}, { immediate: true });
+
+const displayedFinalPrice = computed(() => (selectedFinalPrice.value ? `${selectedFinalPrice.value.fnlVal}원` : '미확정'));
 
 function onClickDeviceChange() {
   emit('device-change', props.modelValue);
@@ -689,7 +531,7 @@ function onClickOnePlusOne() {
 }
 
 function onClickDelete() {
-  emit('delete');
+  emit('delete', props.modelValue);
 }
 
 function onClickDeleteDeviceChange() {
