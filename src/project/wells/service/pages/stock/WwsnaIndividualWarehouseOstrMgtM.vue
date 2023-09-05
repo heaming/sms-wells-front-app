@@ -109,7 +109,8 @@
         >
           <kw-input
             v-model="searchParams.totOutQty"
-            rules="numeric|max_value:999999999999"
+            :label="`${t('MSG_TXT_DTRM')} ${t('MSG_TXT_AF')} ${t('MSG_TXT_STOC')}`"
+            rules="integer|max_value:999999999999"
           />
         </kw-search-item>
         <!-- 출고일자 -->
@@ -230,7 +231,7 @@
               <kw-checkbox
                 v-bind="field"
                 v-model="searchParams.ndlvQtyYn"
-                :label="$t('MSG_TXT_NDLV_QTY_EXCD')"
+                :label="$t('MSG_TXT_CHECK_ATC_FLTR')"
                 :true-value="'Y'"
                 :false-value="'N'"
                 @update:model-value="onChangeNdlvQty"
@@ -450,14 +451,14 @@ const totalCount = ref(0);
 const allOstrItms = ref([]);
 // 미출고 수량제외 필터링
 function onChangeNdlvQty() {
-  const { ndlvQtyYn } = searchParams.value;
+  const { ndlvQtyYn, totOutQty } = searchParams.value;
 
   const view = grdMainRef.value.getView();
   if (ndlvQtyYn === 'Y') {
     // 필터링 전 데이터 담기
     allOstrItms.value = view.getDataSource().getRows();
     // 필터링, 출고수량이 0보다 크고, 물류전송여부가 N인 경우
-    const filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.lgstTrsYn === 'N');
+    const filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.lgstTrsYn === 'N' && (isEmpty(totOutQty) || e.totOutQty <= totOutQty));
     totalCount.value = filterRows.length;
     view.getDataSource().setRows(filterRows);
     return;
