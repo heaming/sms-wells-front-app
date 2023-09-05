@@ -803,7 +803,6 @@ async function onClickSave() {
   saveParams.value.wkPrtnrNo = employeeIDNumber;
   saveParams.value.cstUnuitmCn = individualParams.value.cstUnuitmCn;
   if (isEmpty(saveParams.value.cstUnuitmCn)) { return; }
-  // console.log(saveParams.value);
   await dataService.post('sms/wells/service/individual-service-ps', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
@@ -823,7 +822,6 @@ async function onClickCstSearch() {
 }
 
 watch(props, async (val) => {
-  console.log(val);
   if (val) {
     searchParams.value.bcNo = '';
     searchParams.value.sppIvcNo = '';
@@ -934,7 +932,6 @@ const initGridState = defineGrid((data, view) => {
       styleName: 'text-center',
       styleCallback(grd, dataCell) {
         const wkPrgsStat = grd.getValue(dataCell.item.dataRow, 'wkPrgsStat');
-        console.log(wkPrgsStat);
         return (wkPrgsStat === '작업대기') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
       },
     },
@@ -970,30 +967,12 @@ const initGridState = defineGrid((data, view) => {
     },
     { fieldName: 'rtngdProcsTp', header: t('MSG_TXT_RTNGD_PCS_INF'), width: '150' },
     { fieldName: 'fstVstFshDt', header: t('MSG_TXT_DSU_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '150', visible: false },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-  view.onCellItemClicked = async (grd, { column, dataRow }) => {
-    if (column === 'imgYn') {
-      notify(' 설치환경상세 팝업(W-SV-U-0214P01) 호출');
-      const { istEnvrFileUid, istKitFileUid, istCelngFileUid } = gridUtil.getRowValue(grd, dataRow);
-      console.log(istEnvrFileUid);
-      console.log(istKitFileUid);
-      console.log(istCelngFileUid);
-      // await modal({
-      //   component: 'WwsnbInstallEnvironmentDtlP',
-      //   componentProps: {
-      //     istEnvrFileUid,
-      //     istKitFileUid,
-      //     istCelngFileUid,
-      //   },
-      // });
-    }
-  };
 
   view.onCellDblClicked = async (g, cData) => {
     if (cData.fieldName === 'wkPrgsStat' || cData.fieldName === 'imgYn') { return false; }
@@ -1009,7 +988,7 @@ const initGridState = defineGrid((data, view) => {
   };
 
   view.onCellItemClicked = async (g, cData) => {
-    console.log(cData);
+    /* 일반작업상세 */
     if (cData.fieldName === 'wkPrgsStat') {
       const { cstSvAsnNo, wkPrgsStat } = g.getValues(cData.itemIndex);
       if (wkPrgsStat === '작업대기') {
@@ -1019,6 +998,23 @@ const initGridState = defineGrid((data, view) => {
           query: { cstSvAsnNo },
         });
       }
+    }
+
+    /* 설치환경상세 */
+    if (cData.fieldName === 'imgYn') {
+      notify(' 설치환경상세 팝업(W-SV-U-0214P01) 호출');
+      const { istEnvrFileUid, istKitFileUid, istCelngFileUid } = g.getRowValue(cData.itemIndex);
+      console.log(istEnvrFileUid);
+      console.log(istKitFileUid);
+      console.log(istCelngFileUid);
+      // await modal({
+      //   component: 'WwsnbInstallEnvironmentDtlP',
+      //   componentProps: {
+      //     istEnvrFileUid,
+      //     istKitFileUid,
+      //     istCelngFileUid,
+      //   },
+      // });
     }
   };
 
