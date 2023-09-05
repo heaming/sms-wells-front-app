@@ -198,7 +198,7 @@ async function fetchData() {
     ...cachedParams,
     ...pageInfo.value,
   };
-  const res = await dataService.get('/sms/common/deduction/redf/mutual-aid/paging', { params: cachedParamsTotal });
+  const res = await dataService.get('/sms/wells/deduction/redf/mutual-aid/paging', { params: cachedParamsTotal });
   let resList;
   let pagingResult;
 
@@ -272,7 +272,7 @@ async function onClickExcelDownload() {
   }
   // 전체 조회 다운 (쿼리조회)
   cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/common/deduction/redf/mutual-aid/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/deduction/redf/mutual-aid/excel-download', { params: cachedParams });
   let excelData;
   if (!isEmpty(res.data.mutualAidFeeForExcelDownload)) {
     excelData = res.data.mutualAidFeeForExcelDownload;
