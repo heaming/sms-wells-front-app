@@ -168,7 +168,7 @@ const fieldParams = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(commonCodes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  pageSize: Number(commonCodes.COD_PAGE_SIZE_OPTIONS[2].codeName), // 30
 });
 
 // -------------------------------------------------------------------------------------------------
