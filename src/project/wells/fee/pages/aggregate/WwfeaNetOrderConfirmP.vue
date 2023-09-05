@@ -65,7 +65,7 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  tcntDvCd: {
+  feeTcntDvCd: {
     type: String,
     default: '',
   },
@@ -78,7 +78,7 @@ const props = defineProps({
 const data = ref({
   baseYm: props.perfYm,
   perfYm: props.perfYm.replaceAll(/[^0-9]/g, ''),
-  tcntDvCd: props.tcntDvCd,
+  feeTcntDvCd: props.feeTcntDvCd,
   tcntDvTxt: props.tcntDvTxt,
 });
 
