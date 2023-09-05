@@ -26,11 +26,18 @@
             :og-tp-cd="searchParams.ogTpCd"
             :last-og-id="searchParams.ogId"
             :base-ym="searchParams.baseYm"
+            :start-level="1"
+            :end-level="1"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_BASE_D')">
+        <kw-search-item
+          :label="$t('MSG_TXT_BASE_D')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.baseDt"
+            rules="required"
+            :label="$t('MSG_TXT_BASE_D')"
           />
         </kw-search-item>
       </kw-search-row>
