@@ -258,32 +258,26 @@
           <kw-form-row>
             <!-- row5 연체가산금 -->
             <kw-form-item :label="$t('MSG_TXT_DLQ_ADAMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.btdDlqAddAmt??'') }}</p>
             </kw-form-item>
             <!-- row5 入 / 出 -->
-            <kw-form-item
-              label="入 / 出"
-              hint="null"
-            >
+            <kw-form-item label="入 / 出">
               <p>
-                {{ stringUtil.getNumberWithComma(searchDetail.null??'') }}/
-                {{ stringUtil.getNumberWithComma(searchDetail.null??'') }}
+                {{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddDpSumAmt??'') }}/
+                {{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddRfndSumAmt??'') }}
               </p>
             </kw-form-item>
             <!-- row5 가산금조정 -->
-            <kw-form-item
-              :label="$t('MSG_TXT_ADD_AM')+$t('MSG_TXT_CTR')"
-              hint="null"
-            >
+            <kw-form-item :label="$t('MSG_TXT_ADD_AM')+$t('MSG_TXT_CTR')">
               <kw-input
-                v-model="searchDetail.null"
+                v-model="searchDetail.adCtrAmt"
                 regex="num"
                 maxlength="10"
               />
             </kw-form-item>
             <!-- row5 미수금(未) -->
             <kw-form-item :label="$t('MSG_TXT_UCAM')+'(未)'">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.ucAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
