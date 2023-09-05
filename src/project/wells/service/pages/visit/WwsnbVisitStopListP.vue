@@ -258,7 +258,7 @@ let cachedParams;
 async function fetchData() {
   cachedParams = cloneDeep(props);
 
-  const res = await dataService.get('/sms/wells/service/visit-stop-inquiry/history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/visit-stops/history', { params: cachedParams });
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(res.data);
@@ -270,7 +270,7 @@ async function fetchData() {
 }
 
 async function fetchVisitStopCodes(crtnNo, cntrSn) {
-  const res = await dataService.get(`/sms/wells/service/visit-stop-inquiry/${crtnNo}-${cntrSn}`);
+  const res = await dataService.get(`/sms/wells/service/visit-stops/${crtnNo}-${cntrSn}`);
   const codes = res.data;
 
   const vstStpCd1Filt = codes.filter((v) => v.gbnCd === 'A');
