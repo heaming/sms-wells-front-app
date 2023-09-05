@@ -137,7 +137,7 @@
           v-for="(item, index) in step2.dtls"
         >
           <kw-expansion-item
-            v-if="item?.sellTpCd !== '2'"
+            v-if="!['2', '3'].includes(item?.sellTpCd)"
             :key="`${item.pdCd} + ${index}`"
             expand-icon-class="hidden"
             default-opened
@@ -613,6 +613,14 @@
               </kw-item>
             </template>
           </kw-expansion-item>
+          <single-pay-price-select
+            v-if="false"
+            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
+            :model-value="item"
+            :bas="step2.bas"
+            @price-changed="onPriceChanged"
+            @delete="onClickDelete(index)"
+          />
           <rental-price-select
             v-if="item?.sellTpCd === '2'"
             :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
@@ -621,6 +629,13 @@
             @one-plus-one="onClickOnePlusOne"
             @device-change="onClickDeviceChange"
             @price-changed="onPriceChanged"
+            @delete="onClickDelete(index)"
+          />
+          <membership-price-select
+            v-if="item?.sellTpCd === '3'"
+            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
+            :model-value="item"
+            :bas="step2.bas"
             @delete="onClickDelete(index)"
           />
         </template>
@@ -634,7 +649,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
+import SinglePayPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
 import RentalPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
+import MembershipPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
 
 import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isArray, isEmpty } from 'lodash-es';
@@ -675,7 +692,12 @@ const isItem = {
 // -------------------------------------------------------------------------------------------------
 
 async function getProducts(cntrNo) {
-  const pds = await dataService.get('sms/wells/contract/contracts/reg-products', { params: { cntrNo, pdFilter: pdFilter.value } });
+  const pds = await dataService.get('sms/wells/contract/contracts/reg-products', {
+    params: {
+      cntrNo,
+      pdFilter: pdFilter.value,
+    },
+  });
   classfiedPds.value = pds.data.pdClsf;
   pdFilter.value = '';
   cachedPdFilter.value = '';
@@ -715,7 +737,9 @@ async function resetFilter() {
 }
 
 function resetCntrSn() {
-  step2.value.dtls.forEach((dtl, index) => { dtl.cntrSn = index + 1; });
+  step2.value.dtls.forEach((dtl, index) => {
+    dtl.cntrSn = index + 1;
+  });
 }
 
 async function addProduct(pd) {
@@ -926,7 +950,9 @@ function setFilter() {
   Object.values(clsfItemRefs).forEach((vm) => {
     vm?.show();
   });
-  if (!Array.isArray(classfiedPds.value)) { return []; }
+  if (!Array.isArray(classfiedPds.value)) {
+    return [];
+  }
   let clsfPds = classfiedPds.value;
   if (!cachedPdFilter.value) {
     filteredClsfPds.value = clsfPds;
@@ -1029,6 +1055,7 @@ async function saveStep() {
   ogStep2.value = cloneDeep(step2.value);
   return savedCntr?.data?.key;
 }
+
 defineExpose({
   getCntrInfo,
   isChangedStep,
