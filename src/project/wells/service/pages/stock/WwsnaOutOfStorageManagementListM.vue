@@ -174,8 +174,9 @@ const filterOstrTpCd = codes.OSTR_TP_CD.filter((v) => v.codeId !== '211');
 
 // 창고구분코드 필터링
 const strWareDvCd = { WARE_DV_CD: [
-  { codeId: '2', codeName: '서비스센터' },
-  { codeId: '3', codeName: '영업센터' },
+  { codeId: '1', codeName: t('MSG_TXT_LGST_CNR') },
+  { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
+  { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
 ] };
 
 searchParams.value.stOstrDt = dayjs().format('YYYYMMDD');
