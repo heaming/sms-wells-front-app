@@ -165,7 +165,7 @@ const dvCd = [
   { codeId: '03', codeName: '해약제외' },
 ];
 const opngCd = [
-  { codeId: '999', codeName: '미지급' },
+  { codeId: '9', codeName: '미지급' },
   { codeId: '1', codeName: '최초개시' },
   { codeId: '2', codeName: '최초개시_수석경력' },
   { codeId: '3', codeName: '재개시_1년초과' },
