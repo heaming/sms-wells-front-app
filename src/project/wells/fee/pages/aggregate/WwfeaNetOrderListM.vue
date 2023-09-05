@@ -189,7 +189,7 @@
             :label="$t('MSG_TXT_ORDR')"
           >
             <kw-option-group
-              v-model="searchParams.tcntDvCd"
+              v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
@@ -254,7 +254,7 @@
             :label="$t('MSG_TXT_ORDR')"
           >
             <kw-option-group
-              v-model="searchParams.tcntDvCd"
+              v-model="searchParams.feeTcntDvCd"
               :label="$t('MSG_TXT_ORDR')"
               type="radio"
               :options="codes.FEE_TCNT_DV_CD"
@@ -385,7 +385,7 @@ import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid, code
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 // const { t } = useI18n();
-const { modal } = useGlobal();
+const { modal, alert } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
@@ -426,7 +426,7 @@ const customCodes = {
 
 const searchParams = ref({
   dvCd: '01',
-  tcntDvCd: '01',
+  feeTcntDvCd: '01',
   ogDvCd: '',
   divCd: '01',
   pdctTpCd: '',
@@ -447,6 +447,8 @@ const searchParams = ref({
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   pdCd: '',
   tcntDvTxt: '1차',
+  ogTpCd: 'W01', /* 조직유형코드= 배치 조회를 위함 의미X (본부영업실적집계 = 전체집계) */
+  feeBatWkId: 'WSM_FE_OA0005', /* 수수료배치작업ID= 본부영업실적집계 */
 });
 /*
 const info = ref({
@@ -582,12 +584,12 @@ async function onChangedDvcd() {
  *  Event - 회차 선택시 집계버튼 사용여부 조회※
  */
 async function onChangedOrdr() {
-  // const { tcntDvCd, perfYm } = searchParams.value;
+  // const { feeTcntDvCd, perfYm } = searchParams.value;
   // const nowMonth = now.add(-1, 'month').format('YYYYMM');
-  const { tcntDvCd } = searchParams.value;
-  if (tcntDvCd === '01') {
+  const { feeTcntDvCd } = searchParams.value;
+  if (feeTcntDvCd === '01') {
     searchParams.value.tcntDvTxt = '1차';
-  } else if (tcntDvCd === '02') {
+  } else if (feeTcntDvCd === '02') {
     searchParams.value.tcntDvTxt = '2차';
   }
   /* 테스트를 위해 버튼 활성화 임시처리
@@ -650,21 +652,27 @@ async function onClickSearchNo() {
  *  Event - 순주문 집계 버튼 클릭
  */
 async function openNtorAgrgPopup() {
-  const { tcntDvCd, perfYm, tcntDvTxt } = searchParams.value;
+  const { feeTcntDvCd, perfYm, tcntDvTxt } = searchParams.value;
+  cachedParams = cloneDeep(searchParams.value);
   const param = {
     // perfYm: now.add(-1, 'month').format('YYYY-MM'),
     perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-    tcntDvCd,
+    feeTcntDvCd,
     tcntDvTxt,
   };
 
-  const { result: isChanged } = await modal({
-    component: 'WwfeaNetOrderRegP',
-    componentProps: param,
-  });
-
-  if (isChanged) {
-    await onClickSearch();
+  const response = await dataService.get('/sms/wells/fee/monthly-net/end-of-batch', { params: cachedParams }); /* 이전 배치가 진행중인지 확인 */
+  const batchMsg = response.data;
+  if (batchMsg !== 'Executing') {
+    const { result: isChanged } = await modal({
+      component: 'WwfeaNetOrderRegP',
+      componentProps: param,
+    });
+    if (isChanged) {
+      await onClickSearch();
+    }
+  } else if (response.data === 'Executing') {
+    alert(t('MSG_ALT_ONDEMAND_ALREAY_EXECUTING'));
   }
 }
 
@@ -672,11 +680,11 @@ async function openNtorAgrgPopup() {
  *  Event - 순주문 확정 버튼 클릭
  */
 async function openNtorConfirmPopup() {
-  const { tcntDvCd, perfYm, tcntDvTxt } = searchParams.value;
+  const { feeTcntDvCd, perfYm, tcntDvTxt } = searchParams.value;
   const param = {
     // perfYm: now.add(-1, 'month').format('YYYY-MM'),
     perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-    tcntDvCd,
+    feeTcntDvCd,
     tcntDvTxt,
   };
 
@@ -694,10 +702,10 @@ async function openNtorConfirmPopup() {
  *  Event - 미등록 상품 조회 팝업
  */
 async function openNoPdPopup() {
-  const { perfYm, tcntDvCd } = searchParams.value;
+  const { perfYm, feeTcntDvCd } = searchParams.value;
   const param = {
     perfYm,
-    tcntDvCd,
+    feeTcntDvCd,
   };
 
   await modal({
