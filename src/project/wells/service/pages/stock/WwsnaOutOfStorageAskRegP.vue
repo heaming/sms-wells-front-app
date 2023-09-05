@@ -188,7 +188,7 @@ const props = defineProps({
 
 });
 
-const LGST_OSTR_AK_TP_CD = '1'; // 물류
+// const LGST_OSTR_AK_TP_CD = '1'; // 물류
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -241,7 +241,6 @@ const filterCodes = ref({
 filterCodes.value.filterOstrTpCd = codes.OSTR_AK_TP_CD.filter((v) => ['310', '320', '330'].includes(v.codeId));
 
 function changeOstrAkQty(row, val) {
-  console.log(val);
   const view = grdMainRef.value.getView();
   view.setValue(row, 'ostrCnfmQty', val);
 }
@@ -273,7 +272,6 @@ async function onClickItemPop(type, row) {
     },
   });
   const target = [];
-  // TODO: 연결화면 개발진행중이라, 받아와서 처리하는 로직은 임시값으로 테스트한 코드임. 팝업화면에서 넘어오는 형식따라 수정가능성있음.
   if (result) {
     const view = grdMainRef.value.getView();
     const list = gridUtil.getAllRowValues(view, false);
@@ -383,36 +381,28 @@ async function onClickExcelDownload() {
   });
 }
 
-// TODO: 데이터 생기면 확인해볼것
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
   for (let i = 0; i < checkedRows.length; i += 1) {
     const chkRectOstrDt = checkedRows[i].rectOstrDt;
-    const chkOstrWareDvCd = checkedRows[i].ostrAkWareDvCd;
     if (!isEmpty(chkRectOstrDt)) {
       notify(t('MSG_ALT_ARDY_OSTR', [t('MSG_TXT_DEL')]));
-      return;
-    }
-
-    if (chkOstrWareDvCd === LGST_OSTR_AK_TP_CD && checkedRows.length > 1) {
-      notify(t('MSG_ALT_ONE_PROCS_PSB'));
       return;
     }
   }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  console.log(deletedRows);
 
   if (deletedRows.length > 0) {
-    const result = await dataService.delete('/sms/wells/service/out-of-storage-asks', { data: checkedRows });
+    const result = await dataService.delete('/sms/wells/service/out-of-storage-asks', { data: deletedRows });
     if (result.data > 0) {
       notify(t('MSG_ALT_SAVE_COMP'));
     } else {
       notify(t('MSG_ALT_PROC_FAIL'));
     }
-    await fetchOstrAkDataItem();
+    ok();
   }
 }
 
@@ -458,10 +448,9 @@ async function onClickSave() {
   params.ostrAkRgstDt = dayjs().format('YYYYMMDD');
   // eslint-disable-next-line max-len
   const result = await dataService.post('/sms/wells/service/out-of-storage-asks', checkedRows.map((v) => ({ ...v, ...params })));
-  if (result > 0) {
+  if (result.data.processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
   }
-  await fetchOstrAkDataItem();
   ok();
 }
 
@@ -512,7 +501,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrWareMngtPrtnrNo' }, /* 출고창고관리파트너번호 */
     { fieldName: 'ostrOjWareNo' }, /* 출고대상창고번호 */
     { fieldName: 'strOjWareNo' }, /* 입고대상창고번호 */
-    { fieldName: 'itmKnd' }, /* 품목종류 */
+    { fieldName: 'itemKnd' }, /* 품목종류 */
     { fieldName: 'itmKndNm' }, /* 품목종류명 */
     { fieldName: 'imgUrl' }, /* imgUrl */
     { fieldName: 'ovivTpCd' }, /* 배차형태 */
