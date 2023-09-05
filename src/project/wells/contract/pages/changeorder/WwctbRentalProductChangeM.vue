@@ -449,6 +449,7 @@
                               icon="close_24"
                               style="font-size: 24px;"
                               class="w24"
+                              @click="onClickDeleteDeviceChange"
                             />
                           </div>
                         </div>
@@ -479,7 +480,6 @@
                                 color="primary"
                                 outline
                                 class="ma2"
-                                @click="onClickDeleteDeviceChange"
                               />
 
                               <ul
