@@ -230,6 +230,7 @@ const searchParams = ref({
   ostrWareNo: '',
   bilDept: '',
   itmOstrNo: '',
+  wareDvCd: '',
 });
 
 const sessionRole = sessionUserInfo.roles.map((x) => x.roleNickName);
@@ -369,6 +370,7 @@ async function fetchBsDefaultData() {
   const res = await dataService.get(`/sms/wells/service/etc-out-of-storages/wells-business/${apyYm}`);
   warehouses.value = res.data;
   searchParams.value.ostrWareNo = warehouses.value[0].codeId;
+  searchParams.value.wareDvCd = warehouses.value[0].wareDvCd;
 
   const res2 = await dataService.get('/sms/wells/service/etc-out-of-storages/dept');
   strDept.value = res2.data;
@@ -445,14 +447,14 @@ function setCheckedGridValue(view, row, value, column) {
 }
 function getRowData(rowData) {
   // eslint-disable-next-line max-len
-  return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0, pdabbrNm: rowData.itmPdNm, itmKndCd: rowData.itmKnd };
+  return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0, pdabbrNm: rowData.itmPdNm };
 }
 
 const chk = '1';
 async function openItemBasePopup(type, row) {
   const { result, payload } = await modal({
     component: 'WwsnaItemBaseInformationListP',
-    componentProps: { chk },
+    componentProps: { chk, wareDvCd: searchParams.value.wareDvCd, wareNo: searchParams.value.ostrWareNo },
   });
 
   if (result) {

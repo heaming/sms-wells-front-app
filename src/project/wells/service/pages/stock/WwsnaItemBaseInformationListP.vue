@@ -242,6 +242,10 @@ const props = defineProps({
     type: String,
     default: '',
   },
+  wareDvCd: {
+    type: String,
+    default: '',
+  },
 
 });
 
@@ -401,6 +405,11 @@ async function initData() {
 onMounted(async () => {
   if (isEmpty(props.itmKndCd)) {
     searchParams.value.itmKndCd = '4';
+  }
+  if (isEmpty(props.wareDvCd)) {
+    searchParams.value.wareDvCd = '2';
+  } else {
+    searchParams.value.wareDvCd = props.wareDvCd;
   }
   if (props.chk === '2') {
     await initDefault();
