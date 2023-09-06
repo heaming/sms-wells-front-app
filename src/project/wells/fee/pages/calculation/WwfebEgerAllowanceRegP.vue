@@ -109,7 +109,7 @@ async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
   await dataService.post(`/sms/common/fee/fee-calculation/${params.value.perfYm}-${params.value.feeTcntDvCd}-${params.value.feeCalcUnitTpCd}`);
   ok(true);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_CRT_FSH'));
 }
 
 </script>
