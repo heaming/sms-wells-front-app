@@ -200,7 +200,7 @@
           </kw-form-item>
           <!-- 판매유형 -->
           <kw-form-item
-            :label="$t('MSG_TXT_USWY_DV')"
+            :label="$t('MSG_TXT_SEL_TYPE')"
           >
             <p>{{ individualParams.sellTpNm }}</p>
           </kw-form-item>
@@ -550,7 +550,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil,
+  // popupUtil
+} from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -984,6 +986,14 @@ const initGridState = defineGrid((data, view) => {
     if (cData.fieldName === 'wkPrgsStat') {
       const { cstSvAsnNo, wkPrgsStat } = g.getValues(cData.itemIndex);
       if (wkPrgsStat === '작업대기') {
+        // let url = '';
+        // if (window.location.href.includes('localhost')) {
+        //   url = 'https://m-wpm.kyowon.co.kr/#/mobile';
+        //   // url = 'http://localhost:3000';
+        // } else {
+        //   url = window.location.origin;
+        // }
+        // await popupUtil.open(`${url}/wwsnb-individual-service-list/wmsnb-as-work-detail-mgt?${cstSvAsnNo}`);
         await router.push({
           path: `${router.currentRoute.value.path}/wmsnb-as-work-detail-mgt`,
           // path: '/wwsnb-individual-service-list/wmsnb-as-work-detail-mgt',
