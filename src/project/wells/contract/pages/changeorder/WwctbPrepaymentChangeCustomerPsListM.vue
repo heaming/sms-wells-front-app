@@ -45,6 +45,8 @@
             v-model="fieldParams.ogCd"
             rules="required"
             icon="search"
+            clearable
+            regex="alpha_num"
             :on-click-icon="fetchOgCd"
             maxlength="10"
             :label="t('MSG_TXT_OG_CD')"
@@ -76,6 +78,7 @@
           <kw-input
             v-model="fieldParams.pdCd"
             icon="search"
+            regex="alpha_num"
             :on-click-icon="fetchProduct"
             maxlength="10"
           />
