@@ -731,6 +731,9 @@ async function onClickContractDetailPop(dataInfo) {
       cntrCstNo: dataInfo.cntrCstNo,
       copnDvCd: '1',
     },
+    draggable: true,
+    window: true,
+    windowFeatures: { width: 1300, height: 1080 },
   });
 }
 
