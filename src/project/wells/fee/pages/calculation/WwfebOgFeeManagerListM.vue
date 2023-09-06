@@ -209,15 +209,8 @@ const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD', // 수수료차수구분코드
   'RSB_DV_CD',
   'QLF_DV_CD',
+  'OPNG_CD',
 );
-
-const opngCd = [
-  { codeId: '9', codeName: '미지급' },
-  { codeId: '1', codeName: '최초개시' },
-  { codeId: '2', codeName: '최초개시_수석경력' },
-  { codeId: '3', codeName: '재개시_1년초과' },
-  { codeId: '4', codeName: '재개시_수석경력' },
-];
 
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
@@ -904,7 +897,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'mngr3Atc', header: t('MSG_TXT_FNL_CLTN_MM'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'mngr4Atc', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'mngr5Atc', header: t('MSG_TXT_OPNG_NMN'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'mngr6Atc', header: t('MSG_TXT_STMNT') + t('MSG_TXT_PAY_TYPE'), width: '91.4', styleName: 'text-center', options: opngCd },
+    { fieldName: 'mngr6Atc', header: t('MSG_TXT_STMNT') + t('MSG_TXT_PAY_TYPE'), width: '91.4', styleName: 'text-center', options: codes.OPNG_CD },
     { fieldName: 'mngr7Atc', header: `5${t('MSG_TXT_D')}${t('MSG_TXT_ASN_N')}`, width: '91.4', styleName: 'text-center' },
     { fieldName: 'indv1BsAtc', header: t('MSG_TXT_ASGN_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv2BsAtc', header: t('MSG_TXT_FHS_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
@@ -1376,7 +1369,7 @@ const initGrd3Main = defineGrid((data, view) => {
     { fieldName: 'mngr3Atc', header: t('MSG_TXT_FNL_CLTN_MM'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'mngr4Atc', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'mngr5Atc', header: t('MSG_TXT_OPNG_NMN'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'mngr6Atc', header: t('MSG_TXT_STMNT') + t('MSG_TXT_PAY_TYPE'), width: '91.4', styleName: 'text-center', options: opngCd },
+    { fieldName: 'mngr6Atc', header: t('MSG_TXT_STMNT') + t('MSG_TXT_PAY_TYPE'), width: '91.4', styleName: 'text-center', options: codes.OPNG_CD },
     { fieldName: 'mngr7Atc', header: `5${t('MSG_TXT_D')}${t('MSG_TXT_ASN_N')}`, width: '91.4', styleName: 'text-center' },
     { fieldName: 'indv1BsAtc', header: t('MSG_TXT_ASGN_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'indv2BsAtc', header: t('MSG_TXT_FHS_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
