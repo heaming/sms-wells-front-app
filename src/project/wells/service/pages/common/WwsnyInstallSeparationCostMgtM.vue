@@ -33,20 +33,20 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_NM')"
+          :colspan="2"
         >
           <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
-            first-option="all"
+            first-option="select"
             option-label="cdNm"
             option-value="cd"
             :disable="searchParams.pdGrpCd === '' "
             :label="$t('MSG_TXT_PRDT_NM')"
+            class="w250"
+            :rules="searchParams.pdGrpCd !== '' ? 'required' : '' "
           />
-        </kw-search-item>
-
-        <kw-search-item>
           <kw-field
             v-model="searchParams.apyMtrChk"
           >
@@ -179,6 +179,7 @@ const searchParams = ref({
 });
 const isDisable = computed(() => (isEmpty(searchParams.value.pdGr)));
 
+const pdsAll = ref([]);
 const pds = ref([]);
 async function changePdGrpCd() {
   if (searchParams.value.pdGrpCd) {
@@ -200,6 +201,21 @@ async function changePdGrpCd() {
   searchParams.value.pdCd = '';
 }
 changePdGrpCd();
+
+pdsAll.value = await getPartMaster(
+  '4',
+  null,
+  'M',
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+  'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+);
 
 let cachedParams;
 async function fetchData() {
@@ -323,12 +339,12 @@ const initGrdMain = defineGrid((data, view) => {
       },
       width: '270',
       editor: { type: 'list' },
-      options: pds.value,
+      options: pdsAll.value,
       styleName: 'text-left',
       rules: 'required',
       displayCallback(grd, { dataRow }) {
         const pdCd = grd.getValue(dataRow, 'pdCd');
-        return pds.value.find((v) => v.cd === pdCd)?.cdNm;
+        return pdsAll.value.find((v) => v.cd === pdCd)?.cdNm;
       },
       styleCallback: () => ({ editor: { type: 'list',
         labels: pds.value.map((v) => v.cdNm),
