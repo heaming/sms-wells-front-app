@@ -85,16 +85,23 @@
             rules="required"
           />
         </kw-search-item>
-        <!-- 계약번호 -->
-        <kw-form-item
-          :label="$t('MSG_TXT_CNTR_DTL_NO')"
+        <!-- 상품그룹 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_PD_GRP')"
+          :colspan="2"
         >
-          <kw-input
-            v-model="searchParams.cntrDtlNo"
-            :maxlength="14"
-            class="w200"
+          <kw-select
+            v-model="searchParams.pdGrpCd"
+            first-option="all"
+            :options="codes.PD_GRP_CD"
+            @update:model-value="onUpdatePdGrpCd"
           />
-        </kw-form-item>
+          <kw-select
+            v-model="searchParams.pdCd"
+            first-option="all"
+            :options="products"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <!-- 고객구분 -->
@@ -115,30 +122,16 @@
             v-model="searchParams.cstNm"
           />
         </kw-form-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_PD_GRP')"
+        <!-- 계약번호 -->
+        <kw-form-item
+          :label="$t('MSG_TXT_CNTR_DTL_NO')"
         >
-          <kw-select
-            v-model="searchParams.pdGrpCd"
-            :options="codes.PD_GRP_CD"
-            first-option="all"
-            @change="changePdGrpCd"
+          <kw-input
+            v-model="searchParams.cntrDtlNo"
+            :maxlength="14"
+            class="w200"
           />
-        </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_PRDT_NM')"
-        >
-          <!--            rules="required"-->
-          <kw-select
-            v-model="searchParams.pdCd"
-            :options="pds"
-            first-option="all"
-            option-label="cdNm"
-            option-value="cd"
-            :disable="searchParams.pdGrpCd === '' "
-            :label="$t('MSG_TXT_PRDT_NM')"
-          />
-        </kw-search-item>
+        </kw-form-item>
       </kw-search-row>
     </kw-search>
 
@@ -218,7 +211,6 @@ import {
 
 import { cloneDeep, replace, split } from 'lodash-es';
 import dayjs from 'dayjs';
-import smsCommon from '~sms-wells/service/composables/useSnCode';
 // import smsCommon from '~sms-wells/service/composables/useSnCode';
 // import ZwcmMultiSelect from '@/modules/common/components/ZwcmMultiSelect.vue';
 
@@ -242,7 +234,7 @@ const svcCode = (await dataService.get('/sms/wells/service/organizations/service
 
 const engineers = ref([]);
 const products = ref([]);
-const { getPartMaster } = smsCommon();
+
 const prd = (await dataService.get('/sms/wells/service/installation-locations/products')).data;
 products.value = prd;
 // engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrKnm }));
@@ -256,6 +248,7 @@ const codes = await codeUtil.getMultiCodes(
   'PRD_MNGT_TP_CD',
 );
 const now = dayjs();
+
 const router = useRouter();
 const {
   notify,
@@ -348,13 +341,13 @@ async function setEngineers() {
   }
 }
 
-// function setProducts() {
-//   if (searchParams.value.pdGrpCd === '') {
-//     products.value = prd;
-//   } else {
-//     products.value = prd.filter((v) => v.pdGrpCd === searchParams.value.pdGrpCd);
-//   }
-// }
+function setProducts() {
+  if (searchParams.value.pdGrpCd === '') {
+    products.value = prd;
+  } else {
+    products.value = prd.filter((v) => v.pdGrpCd === searchParams.value.pdGrpCd);
+  }
+}
 
 async function onUpdateSvcCode() {
   searchParams.value.egerId = '';
@@ -366,32 +359,10 @@ async function onUpdateRgsnYn() {
   setEngineers();
 }
 
-// async function onUpdatePdGrpCd() {
-//   searchParams.value.pdCd = '';
-//   setProducts();
-// }
-
-const pds = ref([]);
-async function changePdGrpCd() {
-  if (searchParams.value.pdGrpCd) {
-    pds.value = await getPartMaster(
-      '4',
-      searchParams.value.pdGrpCd,
-      'M',
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
-    );
-  } else pds.value = [];
+async function onUpdatePdGrpCd() {
   searchParams.value.pdCd = '';
+  setProducts();
 }
-changePdGrpCd();
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="2"
+      :cols="3"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
       @reset="onClickReset"
@@ -45,8 +45,6 @@
             :label="$t('MSG_TXT_PRDT_NM')"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <!-- 자재구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_MAT_DV')"
@@ -63,7 +61,6 @@
             </template>
           </kw-field>
         </kw-search-item>
-        <kw-search-item />
       </kw-search-row>
     </kw-search>
 
