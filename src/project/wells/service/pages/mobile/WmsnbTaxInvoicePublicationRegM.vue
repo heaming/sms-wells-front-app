@@ -43,7 +43,7 @@
               <kw-form dense>
                 <!-- 상품정보 -->
                 <kw-form-item :label="$t('MSG_TXT_PD_INF')">
-                  <p>{{ `${item.pdGrpNm}(${item.pdAbbrNm})` }}</p>
+                  <p>{{ item.pdAbbrNm }}</p>
                 </kw-form-item>
                 <!-- 계약정보 -->
                 <kw-form-item :label="$t('MSG_TXT_CNTR_INF')">
