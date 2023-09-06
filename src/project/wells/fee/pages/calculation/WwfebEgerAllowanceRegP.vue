@@ -108,8 +108,8 @@ async function onClickCreate() {
   // const response = await dataService.post('/sms/wells/fee/eger-allowances/creates', params.value);
   if (!await popupRef.value.validate()) { return; }
   await dataService.post(`/sms/common/fee/fee-calculation/${params.value.perfYm}-${params.value.feeTcntDvCd}-${params.value.feeCalcUnitTpCd}`);
-  notify(t('MSG_ALT_SAVE_DATA'));
   ok(true);
+  notify(t('MSG_ALT_CRT_FSH'));
 }
 
 </script>
