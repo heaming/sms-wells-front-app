@@ -98,12 +98,8 @@
             :label="$t('MSG_TXT_TEL_NO')"
           >
             <p>
-              {{ !isEmpty(individualParams.locaraTno
-                && individualParams.exnoEncr
-                && individualParams.idvTno)
-                ? `${individualParams.locaraTno}
-                -${individualParams.exnoEncr}
-                -${individualParams.idvTno}`
+              {{ !isEmpty(individualParams.locaraTno && individualParams.exnoEncr && individualParams.idvTno)
+                ? `${individualParams.locaraTno}-${individualParams.exnoEncr}-${individualParams.idvTno}`
                 : '' }}
             </p>
           </kw-form-item>
@@ -111,12 +107,8 @@
             :label="$t('MSG_TXT_MPNO')"
           >
             <p>
-              {{ !isEmpty(individualParams.cralLocaraTno
-                && individualParams.mexnoEncr
-                && individualParams.cralIdvTno)
-                ? `${individualParams.cralLocaraTno}
-                -${individualParams.mexnoEncr}
-                -${individualParams.cralIdvTno}`
+              {{ !isEmpty(individualParams.cralLocaraTno && individualParams.mexnoEncr && individualParams.cralIdvTno)
+                ? `${individualParams.cralLocaraTno}-${individualParams.mexnoEncr}-${individualParams.cralIdvTno}`
                 : '' }}
             </p>
           </kw-form-item>
