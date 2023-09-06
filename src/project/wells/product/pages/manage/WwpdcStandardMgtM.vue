@@ -134,7 +134,7 @@
             />
             <!-- 초기화 -->
             <kw-btn
-              v-show="!isCreate"
+              v-show="!isCreate && currentStep.step !== pdConst.STANDARD_STEP_CHECK.step"
               :label="$t('MSG_BTN_INTL')"
               class="ml8"
               @click="onClickReset"
@@ -233,7 +233,6 @@ const subTitle = ref();
 
 const codes = await codeUtil.getMultiCodes(
   'PD_TP_CD',
-  'COD_PRDT_STT',
   'SELL_CHNL_DTL_CD',
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',

@@ -63,7 +63,6 @@ const prevStepData = ref({});
 
 const codes = await codeUtil.getMultiCodes(
   'PD_TP_CD',
-  'COD_PRDT_STT',
   'SELL_CHNL_DTL_CD',
   'SELL_TP_CD',
   'COD_YN',

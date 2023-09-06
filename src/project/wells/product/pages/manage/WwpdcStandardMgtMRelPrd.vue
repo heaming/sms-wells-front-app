@@ -739,7 +739,7 @@ async function initStandardGrid(data, view) {
       button: 'action',
     },
     // 서비스코드
-    { fieldName: 'svPdCd', header: t('MSG_TXT_SVC_CODE'), width: '120', editable: false },
+    { fieldName: 'svPdCd', header: t('MSG_TXT_SVC_CODE'), width: '120', editable: false, styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
