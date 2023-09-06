@@ -406,7 +406,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         return dataCell.item.rowState === 'created'
           ? { editable: true, styleName: 'text-center rg-button-icon--search btnshow', editor: { type: 'text' } }
-          : { styleName: 'text-left btnhide', editable: false };
+          : { styleName: 'text-center btnhide', editable: false };
       },
     },
     { fieldName: 'pdNm',

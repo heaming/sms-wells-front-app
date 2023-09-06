@@ -86,6 +86,30 @@
           />
         </kw-search-item>
       </kw-search-row>
+
+      <kw-search-row>
+        <kw-search-item :label="t('MSG_TXT_ITM_KND', null, '품목종류')">
+          <kw-select
+            v-model="searchParams.asMatItmKndCd"
+            :options="codes.AS_MAT_ITM_KND_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item :label="t('MSG_TXT_ITM_GRP', null, '품목그룹')">
+          <kw-select
+            v-model="searchParams.asMatItmGrpCd"
+            :options="codes.AS_MAT_ITM_GRP_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item :label="t('TXT_MSG_SAP_MAT_GRP_VAL', null, '자재그룹')">
+          <kw-select
+            v-model="searchParams.svMatGrpCd"
+            :options="codes.SV_MAT_GRP_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+      </kw-search-row>
     </kw-search>
 
     <div class="result-area">
@@ -214,9 +238,12 @@ const searchParams = ref({
   sapMatCd: '',
   sapItemCdFrom: '',
   sapItemCdTo: '',
+  asMatItmKndCd: '',
+  asMatItmGrpCd: '',
+  svMatGrpCd: '',
 });
 
-const codes = await codeUtil.getMultiCodes('PD_TP_CD', 'PD_TEMP_SAVE_CD', 'COD_YN', 'COD_PAGE_SIZE_OPTIONS');
+const codes = await codeUtil.getMultiCodes('PD_TP_CD', 'PD_TEMP_SAVE_CD', 'COD_YN', 'COD_PAGE_SIZE_OPTIONS', 'AS_MAT_ITM_KND_CD', 'AS_MAT_ITM_GRP_CD', 'SV_MAT_GRP_CD');
 
 // 자재코드 조회팝업(sapMatCd)
 async function onClickSapMaterial() {
@@ -251,6 +278,7 @@ async function fetchData() {
   const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: material, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
+  console.log('material', material);
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(material);
@@ -386,6 +414,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '140', styleName: 'text-center' }, /* 제품코드 */
     { fieldName: 'asItmCd', header: t('TXT_MSG_AS_ITM_CD'), width: '130', styleName: 'text-center' }, /* 품목코드 */
     { fieldName: 'asMatCd', header: t('TXT_MSG_AS_MAT_CD'), width: '130', styleName: 'text-center' }, /* AS자재번호 */
+
+    { fieldName: 'asMatItmKndCd', header: t('MSG_TXT_ITM_KND', null, '품목종류'), width: '90', styleName: 'text-center', options: codes.AS_MAT_ITM_KND_CD },
+    { fieldName: 'asMatItmGrpCd', header: t('MSG_TXT_ITM_GRP', null, '품목그룹'), width: '90', styleName: 'text-center', options: codes.AS_MAT_ITM_GRP_CD },
+    { fieldName: 'svMatGrpCd', header: t('TXT_MSG_SAP_MAT_GRP_VAL', null, '자재그룹'), width: '90', styleName: 'text-center', options: codes.SV_MAT_GRP_CD },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD', null, 'SAP자재코드'), width: '130', styleName: 'text-center' },
+
     // 사용자 관련 공통 컬럼
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
