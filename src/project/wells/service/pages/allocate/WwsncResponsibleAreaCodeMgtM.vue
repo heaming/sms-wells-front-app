@@ -227,6 +227,7 @@ let cachedCodes;
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-codes', { params: cachedParams });
   const products = res.data;
+  cachedCodes = cloneDeep(products);
   pageInfo.value.totalCount = res.data.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
