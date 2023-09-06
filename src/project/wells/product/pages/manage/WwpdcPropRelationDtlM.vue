@@ -20,7 +20,7 @@
     :visible-rows="visibleRowCnt"
     @init="initGrd3rd"
   />
-  <kw-separator />
+  <!-- <kw-separator /> -->
   <h3>{{ grd2ndTit.codeName }}</h3>
   <kw-grid
     ref="grd2ndRef"
@@ -28,7 +28,7 @@
     :visible-rows="visibleRowCnt"
     @init="initGrd2nd"
   />
-  <kw-separator />
+  <!-- <kw-separator /> -->
   <h3>{{ grd1stTit.codeName }}</h3>
   <kw-grid
     ref="grd1stRef"
