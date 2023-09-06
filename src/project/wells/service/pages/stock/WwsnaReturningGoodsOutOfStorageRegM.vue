@@ -363,7 +363,9 @@ function onChangeOstrWareNo() {
   }
 }
 
-function onChangeOstrTp(ostrTpCd) {
+function onChangeOstrTp() {
+  const { ostrTpCd } = searchParams.value;
+
   if (ostrTpCd === DISUSE) {
     ostrRsonCds.value = codes.DSU_RSON_CD;
     searchParams.value.strWareNm = '';
@@ -508,6 +510,7 @@ async function onClickSave() {
 
 onMounted(async () => {
   await fetchDefaultData();
+  onChangeOstrTp();
   if (hasProps()) {
     setSearchParams();
     await fetchData();
