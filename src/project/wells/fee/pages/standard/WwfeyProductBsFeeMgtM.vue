@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search
       :cols="3"
+      :modified-targets="['grdRef']"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -132,6 +133,7 @@
       </kw-action-top>
       <kw-grid
         ref="grdRef"
+        name="grdRef"
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrd"
