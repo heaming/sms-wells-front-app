@@ -746,7 +746,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'aksd14', dataType: 'number' },
     { fieldName: 'intbsSum', dataType: 'number' },
     { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDdbAmt', dataType: 'number' },
+    { fieldName: 'aclDsbAmt', dataType: 'number' },
 
   ];
 
@@ -790,7 +790,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'aclDdbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '124.7', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '124.7', styleName: 'text-right', numberFormat: '#,##0' },
   ];
   data.setFields(fields);
   view.setColumns(columns);
@@ -831,7 +831,7 @@ const initGrd1Main = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['aksd01', 'aksd03', 'aksd04', 'aksd15', 'aksd05', 'aksd06', 'aksd07', 'aksd09', 'aksd10', 'aksd11', 'aksd13', 'aksd14'],
     },
-    'intbsSum', 'ddtnSum', 'aclDdbAmt',
+    'intbsSum', 'ddtnSum', 'aclDsbAmt',
 
   ]);
 });
@@ -889,7 +889,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'aksd56', dataType: 'number' },
     { fieldName: 'intbsSum', dataType: 'number' },
     { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDdbAmt', dataType: 'number' },
+    { fieldName: 'aclDsbAmt', dataType: 'number' },
   ];
 
   const columns = [
@@ -944,7 +944,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'aksd56', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_CONN'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aclDdbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
   ];
   data.setFields(fields);
   view.setColumns(columns);
@@ -1000,7 +1000,7 @@ const initGrd2Main = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['gadcnt', 'jAkdeq0', 'jSercnt', 'aksd51', 'aksd52', 'aksd53', 'aksd54', 'aksd55', 'aksd56'],
     },
-    'intbsSum', 'ddtnSum', 'aclDdbAmt',
+    'intbsSum', 'ddtnSum', 'aclDsbAmt',
   ]);
 });
 
