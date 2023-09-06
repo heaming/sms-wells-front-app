@@ -78,6 +78,7 @@
           <kw-input
             v-model="fieldParams.pdCd"
             icon="search"
+            regex="alpha_num"
             :on-click-icon="fetchProduct"
             maxlength="10"
           />
