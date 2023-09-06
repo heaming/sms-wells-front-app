@@ -81,9 +81,17 @@
           :label="$t('MSG_TXT_SV_CNR')"
         >
           <kw-select
+            v-if="svcCode.length !== 1"
             v-model="searchParams.svCnrOgId"
             :options="svcCode"
             first-option="all"
+            option-label="ogNm"
+            option-value="ogId"
+          />
+          <kw-select
+            v-if="svcCode.length === 1"
+            v-model="searchParams.svCnrOgId"
+            :options="svcCode"
             option-label="ogNm"
             option-value="ogId"
           />
@@ -250,7 +258,7 @@ import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
-const { getConfig } = useMeta();
+const { getConfig, getUserInfo } = useMeta();
 const dataService = useDataService();
 const { modal, notify } = useGlobal();
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -266,6 +274,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+const sessionUserInfo = getUserInfo();
 const codes = await codeUtil.getMultiCodes(
   'CPS_PRGS_CD',
   'IMPTA_RSON_CD',
@@ -275,10 +284,15 @@ const searchOptions = [
   { codeId: '1', codeName: t('MSG_TXT_FST_RGST_DT') }, // 등록일자
   { codeId: '2', codeName: t('MSG_TXT_FSH_DT') }, // 완료일자
 ];
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
 
+const sessionRole = sessionUserInfo.roles.map((x) => x.roleNickName);
+let svcCode;
+svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
+if (!sessionRole.includes('ROL_W1560')) { // WellsCS운영팀이 아니면
+  svcCode = svcCode.filter((v) => v.ogId === sessionUserInfo.ogId);
+}
 const searchParams = ref({
-  svCnrOgId: '',
+  svCnrOgId: (svcCode.length === 1 ? svcCode[0].ogId : ''),
   vstDtFrom: dayjs().subtract(3, 'month').format('YYYYMMDD'),
   vstDtTo: dayjs().format('YYYYMMDD'),
   acdnRcpNm: '',
@@ -340,8 +354,8 @@ async function onClickAgreementPrint() {
     args: {
       searchApiUrl: `/api/v1/anonymous/sms/wells/service/safety-accident-agreement/${acdnRcpId}`,
     },
-    height: 1100,
-    width: 1200,
+    height: 1600,
+    width: 1300,
   });
 
   // 조회 팝업
