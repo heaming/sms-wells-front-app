@@ -301,16 +301,25 @@ async function onClickSave() {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
     /* 저장시 출고확정 순번조회 */
-    const checkParams = { pdCd: chkRows[0].pdCd, svBizDclsfCd: chkRows[0].svBizDclsfCd };
-    const res = await dataService.get(`${baseUrl}/ivc-prntsn`, { params: checkParams });
-    const ivcPrntSn = res.data;
+    // const checkParams = { pdCd: chkRows[0].pdCd, svBizDclsfCd: chkRows[0].svBizDclsfCd };
+    // const res = await dataService.get(`${baseUrl}/ivc-prntsn`, { params: checkParams });
+    // const ivcPrntSn = res.data;
     /* 저장시 상품 그룹 코드 및 출고확정 순번 설정 */
+    const checkRowProducts = [];
     chkRows.forEach((obj) => {
-      obj.pdGrpCd = products.value?.find((item) => item.pdCd === obj.pdCd)?.pdGrpCd;
-      obj.ivcPrntSn = ivcPrntSn;
+      // 상품 갯수만큼 셋팅
+      for (let cnt = 1; cnt <= obj.pdCnt; cnt += 1) {
+        checkRowProducts.push(
+          {
+            pdCd: obj[`pdCd${cnt}`],
+            pdNm: obj[`pdNm${cnt}`],
+            useQty: obj[`useQty${cnt}`],
+          },
+        );
+      }
+      obj.products = checkRowProducts;
     });
     console.log(chkRows);
-
     const response = await dataService.post(`${baseUrl}`, chkRows);
     console.log(response);
     notify(t('MSG_ALT_SAVE_DATA'));
@@ -323,54 +332,6 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'cntrRcpFshDtm' },
-    { fieldName: 'svBizDclsfCd' },
-    { fieldName: 'svBizDclsfNm' },
-    { fieldName: 'wkPrgsStatNm' },
-    { fieldName: 'vstFshDt' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'rcgvpKnm' },
-    { fieldName: 'basePdCd' },
-    { fieldName: 'basePdNm' },
-    { fieldName: 'cralLocaraTno' }, // [휴대전화번호1]
-    { fieldName: 'mexnoEncr' }, // [휴대전화번호2]
-    { fieldName: 'cralIdvTno' }, // [휴대전화번호3]
-    { fieldName: 'locaraTno' }, // [전화번호1]
-    { fieldName: 'exnoEncr' }, // [전화번호2]
-    { fieldName: 'idvTno' }, // [전화번호3]
-    { fieldName: 'newAdrZip' },
-    { fieldName: 'rnadr' },
-    { fieldName: 'rdadr' },
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'useQty' },
-    { fieldName: 'reqdDt' },
-    { fieldName: 'rsgFshDt' },
-    { fieldName: 'cstSvAsnNo' },
-    { fieldName: 'wkWareNo' }, /* 이하 컬럼등은 저장시 사용 */
-    { fieldName: 'svBizHclsfCd' },
-    { fieldName: 'wkPrgsStatCd' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'pdGdCd' },
-    { fieldName: 'istDt' },
-    { fieldName: 'urgtDvCd' },
-    { fieldName: 'rpbLocaraCd' },
-    { fieldName: 'asRefriDvCd' },
-    { fieldName: 'bfsvcRefriDvCd' },
-    { fieldName: 'filtSellTpCd' },
-    { fieldName: 'pdSellTpCd' },
-    { fieldName: 'pdUswyCd' },
-    { fieldName: 'siteAwSvTpCd' },
-    { fieldName: 'siteAwAtcCd' },
-    { fieldName: 'asLctCd' },
-    { fieldName: 'asPhnCd' },
-    { fieldName: 'asCausCd' },
-    { fieldName: 'ogTpCd' },
-    { fieldName: 'wareMngtPrtnrNo' },
-  ];
-
   const columns = [
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '90', styleName: 'text-center' },
@@ -420,13 +381,73 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '80', styleName: 'text-center' },
     { fieldName: 'rnadr', header: t('MSG_TXT_ADDR'), width: '380', styleName: 'text-left' },
     { fieldName: 'rdadr', header: t('MSG_TXT_ADDR_DTL'), width: '380', styleName: 'text-left' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
-    { fieldName: 'useQty', header: t('MSG_TXT_QTY'), width: '90', styleName: 'text-right' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'wkWareNo', visible: false }, /* 이하 컬럼등은 저장시 사용 */
+    { fieldName: 'svBizHclsfCd', visible: false },
+    { fieldName: 'wkPrgsStatCd', visible: false },
+    { fieldName: 'cntrSn', visible: false },
+    { fieldName: 'prtnrNo', visible: false },
+    { fieldName: 'pdGdCd', visible: false },
+    { fieldName: 'istDt', visible: false },
+    { fieldName: 'urgtDvCd', visible: false },
+    { fieldName: 'rpbLocaraCd', visible: false },
+    { fieldName: 'asRefriDvCd', visible: false },
+    { fieldName: 'bfsvcRefriDvCd', visible: false },
+    { fieldName: 'filtSellTpCd', visible: false },
+    { fieldName: 'pdSellTpCd', visible: false },
+    { fieldName: 'pdUswyCd', visible: false },
+    { fieldName: 'siteAwSvTpCd', visible: false },
+    { fieldName: 'siteAwAtcCd', visible: false },
+    { fieldName: 'asLctCd', visible: false },
+    { fieldName: 'asPhnCd', visible: false },
+    { fieldName: 'asCausCd', visible: false },
+    { fieldName: 'ogTpCd', visible: false },
+    { fieldName: 'wareMngtPrtnrNo', visible: false },
+    { fieldName: 'pdCnt', visible: false },
   ];
+  // 상품 동적 필드
+  const pdColums = [
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
+    {
+      fieldName: 'useQty',
+      header: t('MSG_TXT_QTY'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+    },
+  ];
+
+  const columnPdTotals = [];
+  const columnPdLayouts = [];
+  for (let cnt = 1; cnt <= 10; cnt += 1) { // 상품 갯수 최대 10개
+    pdColums.forEach((row) => {
+      // 상품 전체 필드
+      columnPdTotals.push(
+        {
+          fieldName: `${row.fieldName}${cnt}`,
+          header: row.header,
+          width: row.width,
+          styleName: row.styleName,
+          dataType: row.dataType,
+          numberFormat: row.numberFormat,
+        },
+      );
+    });
+    // 상품 레이아웃 필드
+    columnPdLayouts.push(
+      {
+        header: `${t('MSG_TXT_OSTR_INF')}${cnt}`,
+        direction: 'horizontal',
+        items: [`pdCd${cnt}`, `pdNm${cnt}`, `useQty${cnt}`],
+      },
+    );
+  }
+  columns.push(...columnPdTotals);
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.setFixedOptions({ colCount: 6, resizable: true });
@@ -454,60 +475,11 @@ const initGrdMain = defineGrid((data, view) => {
     'newAdrZip',
     'rnadr',
     'rdadr',
-    {
-      header: t('MSG_TXT_OSTR_INF'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['pdCd', 'pdNm', 'useQty'],
-    },
+    ...columnPdLayouts,
     'reqdDt',
     'rsgFshDt',
     'cstSvAsnNo',
 
   ]);
 });
-//  23-06-16 요청에 의한 주석처리
-// -- 송장 다운로드 미노출
-// -- 집계표 다운로드 미노출
-// -- 재고수량 미노출
-// const initGrid2 = defineGrid((data, view) => {
-//   const fields = [
-//     { fieldName: 'cntrNo' },
-//     { fieldName: 'rcgvpKnm' },
-//     { fieldName: 'vstFshDt' },
-//     { fieldName: 'pdNm' },
-//     { fieldName: 'col5' },
-//     { fieldName: 'col6' },
-//     { fieldName: 'col7' },
-//     { fieldName: 'col8' },
-//     { fieldName: 'col9' },
-//     { fieldName: 'col10' },
-//     { fieldName: 'col11' },
-//     { fieldName: 'col12' },
-//     { fieldName: 'col13' },
-//     { fieldName: 'wkPrgsStatNm' },
-//     { fieldName: 'col15' },
-//     { fieldName: 'col16' },
-//     { fieldName: 'col17' },
-//     { fieldName: 'col18' },
-//     { fieldName: 'col19' },
-//   ];
-//
-//   const columns = [
-//     { fieldName: 'cntrNo', header: '고객코드', width: '150', styleName: 'text-center' },
-//     { fieldName: 'rcgvpKnm', header: '고객명', width: '150', styleName: 'text-center' },
-//     { fieldName: 'vstFshDt', header: '출고확정일', width: '150', styleName: 'text-center' },
-//     { fieldName: 'pdNm', header: '상품명:수량', width: '150', styleName: 'text-center' },
-//     { fieldName: 'wkPrgsStatNm', header: '작업결과', width: '150', styleName: 'text-center' },
-//     { fieldName: 'col15', header: '우편번호', width: '150', styleName: 'text-center' },
-//     { fieldName: 'col16', header: '주소', width: '150', styleName: 'text-center' },
-//     { fieldName: 'col17', header: '전화번호', width: '150', styleName: 'text-center' },
-//     { fieldName: 'col18', header: '휴대전화', width: '150', styleName: 'text-center' },
-//     { fieldName: 'col19', header: '메모', width: '150', styleName: 'text-center' },
-//   ];
-//
-//   data.setFields(fields);
-//   view.setColumns(columns);
-//   view.rowIndicator.visible = false;
-// });
-
 </script>
