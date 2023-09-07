@@ -284,6 +284,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_AMT_WON'), width: '100' },
     { fieldName: 'svAnaHclsfCd', header: t('MSG_TXT_CODE'), width: '80', styleName: 'text-center' },
     { fieldName: 'svAnaHclsfNm', header: t('MSG_TXT_ALTN'), width: '100', options: codes.SV_BIZ_DCLSF_CD },
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRTDT'), width: '100' },
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_ENDDT'), width: '100' },
   ];
   const fields = columns.map((item) => ({ fieldName: item.fieldName }));
   fields.find((item) => item.fieldName === 'fuleyAwAmt').dataType = 'number';
@@ -293,7 +295,10 @@ const initGrdMain = defineGrid((data, view) => {
   const columnLayout = [
     'svTpNm',
     'pdGrpNm',
-    'pdCd', 'pdNm',
+    'pdCd',
+    'pdNm',
+    'apyStrtdt',
+    'apyEnddt',
     { direction: 'horizontal', items: ['asLctCd', 'asLctNm'], header: { text: t('MSG_TXT_AS_LCT') } },
     { direction: 'horizontal', items: ['asPhnCd', 'asPhnNm'], header: { text: t('MSG_TXT_AS_PHN') } },
     { direction: 'horizontal', items: ['asCausCd', 'asCausNm'], header: { text: t('MSG_TXT_AS_CAUS') } },
@@ -301,7 +306,8 @@ const initGrdMain = defineGrid((data, view) => {
       items: ['siteAwAtcCd', 'siteAwAtcNm', 'fuleyAwAmt'],
       header:
     { text: t('MSG_TXT_SITE_AW') } },
-    { direction: 'horizontal', items: ['svAnaHclsfCd', 'svAnaHclsfNm'], header: { text: t('MSG_TXT_TASK_TYPE') } }];
+    { direction: 'horizontal', items: ['svAnaHclsfCd', 'svAnaHclsfNm'], header: { text: t('MSG_TXT_TASK_TYPE') } },
+  ];
   view.setColumnLayout(columnLayout);
 
   view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
