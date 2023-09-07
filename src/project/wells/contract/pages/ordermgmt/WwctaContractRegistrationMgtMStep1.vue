@@ -64,10 +64,10 @@
           <kw-select
             v-model="searchParams.cntrTpCd"
             :label="$t('MSG_TXT_CONTR_TYPE')"
-            :options="cntrTpCdOptions"
+            :options="codes.CNTR_TP_CD"
             rules="required"
             :disable="isReadonly"
-            @change="onChangeCntrtTpCd"
+            @change="onChangeCntrTpCd"
           />
         </kw-search-item>
         <kw-search-item
@@ -380,7 +380,7 @@
         </template>
 
         <template
-          v-if="(cntrTpIs.indv && '7' === careerLevelCode) || cntrTpIs.ensm"
+          v-if="(cntrTpIs.indv && '7' === currentPartner.pstnDvCd) || cntrTpIs.ensm"
         >
           <kw-separator />
           <h3>{{ $t('MSG_TXT_PRTNR_INF') }}</h3>
