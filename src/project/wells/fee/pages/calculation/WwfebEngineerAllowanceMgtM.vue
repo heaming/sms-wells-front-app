@@ -114,6 +114,14 @@
           spaced
         />
         <kw-btn
+          v-if="!isBtnVisible"
+          icon="upload_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_UP')"
+          @click="onClickExcelUpload"
+        />
+        <kw-btn
           icon="download_on"
           dense
           secondary
@@ -131,14 +139,6 @@
           secondary
           :label="$t('MSG_BTN_HIS_MGT')"
           @click="onClickHisMgt"
-        />
-        <kw-btn
-          v-if="!isBtnVisible"
-          icon="upload_on"
-          dense
-          secondary
-          :label="$t('MSG_BTN_EXCEL_UP')"
-          @click="onClickExcelUpload"
         />
         <kw-separator
           v-if="isBtnVisible"
