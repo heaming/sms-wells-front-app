@@ -71,11 +71,9 @@
         <!--적용일자-->
         <kw-search-item
           :label="$t('MSG_TXT_APPLY_DT')"
-          :colspan="2"
         >
-          <kw-date-range-picker
-            v-model:from="searchParams.applyDateStart"
-            v-model:to="searchParams.applyDateEnd"
+          <kw-date-picker
+            v-model="searchParams.applyDate"
             :disable="searchParams.apyChk[0] !== '1' "
             :label="$t('MSG_TXT_APPLY_DT')"
             :rules="searchParams.apyChk[0] === '1' ? 'required' : '' "
@@ -164,8 +162,7 @@ const searchParams = ref({
   pdGrpCd: '',
   pdCd: '',
   apyChk: ['1'],
-  applyDateStart: dayjs().add(-1, 'month').format('YYYYMMDD'),
-  applyDateEnd: dayjs().format('YYYYMMDD'),
+  applyDate: dayjs().format('YYYYMMDD'),
   svTpCd: '',
   asLctCd: '',
 });
@@ -271,18 +268,18 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'svTpNm', header: t('MSG_TXT_SV_TP'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdGrpNm', header: t('MSG_TXT_PD_GRP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('TXT_MSG_MAT_PD_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('TXT_MSG_MAT_PD_CD'), width: '115', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '220', styleName: 'text-left' },
-    { fieldName: 'asLctCd', header: t('MSG_TXT_CODE'), width: '80', styleName: 'text-center' },
+    { fieldName: 'asLctCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
     { fieldName: 'asLctNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.AS_LCT_CD },
-    { fieldName: 'asPhnCd', header: t('MSG_TXT_CODE'), width: '80', styleName: 'text-center' },
+    { fieldName: 'asPhnCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
     { fieldName: 'asPhnNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.AS_PHN_CD },
-    { fieldName: 'asCausCd', header: t('MSG_TXT_CODE'), width: '80', styleName: 'text-center' },
+    { fieldName: 'asCausCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
     { fieldName: 'asCausNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.AS_CAUS_CD },
-    { fieldName: 'siteAwAtcCd', header: t('MSG_TXT_CODE'), width: '80', styleName: 'text-center' },
+    { fieldName: 'siteAwAtcCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
     { fieldName: 'siteAwAtcNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.SITE_AW_ATC_CD },
     { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_AMT_WON'), width: '100' },
-    { fieldName: 'svAnaHclsfCd', header: t('MSG_TXT_CODE'), width: '80', styleName: 'text-center' },
+    { fieldName: 'svAnaHclsfCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
     { fieldName: 'svAnaHclsfNm', header: t('MSG_TXT_ALTN'), width: '100', options: codes.SV_BIZ_DCLSF_CD },
     { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRTDT'), width: '100' },
     { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_ENDDT'), width: '100' },
