@@ -204,9 +204,9 @@ async function onClickAdd() {
   gridUtil.insertRowAndFocus(view, 0, {
     apyStrtdt: dayjs().format('YYYY-MM-DD'),
     apyEnddt: '9999-12-31',
-    ackmtAmt: '0',
-    ackmtCt: '0',
-    feeAckmtBaseAmt: '0',
+    ackmtAmt: '',
+    ackmtCt: '',
+    feeAckmtBaseAmt: '',
     feeFxamYn: 'Y',
   });
   view.setColumnProperty('pdCd', 'styleName', 'btnshow');
