@@ -31,12 +31,14 @@
       />
       <!-- 행추가 -->
       <kw-btn
+        v-permission:create
         grid-action
         :label="$t('MSG_BTN_ROW_ADD')"
         @click="onClickAdd"
       />
       <!-- 저장 -->
       <kw-btn
+        v-permission:update
         grid-action
         :label="$t('MSG_BTN_SAVE')"
         @click="onClickSave"
@@ -47,6 +49,7 @@
         spaced
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         :disable="pageInfo.totalCount === 0"
         dense

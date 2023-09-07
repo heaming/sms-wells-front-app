@@ -60,6 +60,7 @@
         </template>
         <!-- 삭제 -->
         <kw-btn
+          v-permission:delete
           :label="t('MSG_BTN_DEL')"
           grid-action
           @click="onClickRemove"
@@ -77,12 +78,14 @@
         />
         <!-- 행 추가 -->
         <kw-btn
+          v-permission:create
           :label="t('MSG_BTN_ROW_ADD')"
           grid-action
           @click="onClickAdd"
         />
         <!-- 저장 -->
         <kw-btn
+          v-permission:update
           :label="t('MSG_BTN_SAVE')"
           grid-action
           @click="onClickSave"
@@ -94,6 +97,7 @@
         />
         <!-- 엑셀 다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

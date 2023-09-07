@@ -39,6 +39,7 @@
         @click="cancel"
       />
       <kw-btn
+        v-permission:update
         primary
         :label="$t('MSG_BTN_CONFIRM')"
         @click="fetchDataContractLists"

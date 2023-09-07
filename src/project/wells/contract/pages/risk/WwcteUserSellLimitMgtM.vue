@@ -94,11 +94,13 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           grid-action
           :label="t('MSG_BTN_ROW_ADD')"
           @click="onClickRowAdd"
         />
         <kw-btn
+          v-permission:update
           grid-action
           :label="t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -109,6 +111,7 @@
           inset
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

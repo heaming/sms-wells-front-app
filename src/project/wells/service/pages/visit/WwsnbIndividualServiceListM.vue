@@ -91,6 +91,12 @@
           >
             <p>{{ individualParams.cstGdNm }}</p>
           </kw-form-item>
+          <!-- 고정방문자명 -->
+          <kw-form-item
+            :label="$t('MSG_TXT_FXN_TIT_GV')"
+          >
+            <p>{{ individualParams.fxnPrtnrNm }}</p>
+          </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 전화번호 -->
@@ -428,7 +434,7 @@
             <kw-form-row>
               <kw-form-item :label="$t('MSG_TXT_BHSHD_CD')">
                 <p class="kw-grow">
-                  {{ svHshdNo[0] }}
+                  {{ svHshdNum[0] }}
                 </p> <kw-btn
                   :label="$t('MSG_TXT_SDING_HIST')"
                   padding="12px"
@@ -550,7 +556,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil, popupUtil } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -571,6 +577,10 @@ const props = defineProps({
   cntrSn: { type: String, required: true, default: '' },
 });
 
+// if(props.cntrNo) {
+//   router.push({path:'/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt', query:{...props}},
+//   }
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -582,7 +592,7 @@ const grdIndividualCounselRef = ref(getComponentType('KwGrid')); // 상담내역
 const grdIndividualDelinquentRef = ref(getComponentType('KwGrid')); // 연체정보 조회
 const individualParams = ref([]);
 // const isVisibleTab = computed(() => departmentId === '71301' || departmentId === '70526');
-const svHshdNo = ref('');
+const svHshdNum = ref('');
 const selectedTab = ref('1');
 // const cntrDtlNo = ref();
 const countInfo = ref({
@@ -675,7 +685,7 @@ async function onClickSearchSeeding() {
 async function getHousehold() {
   const res = await dataService.get('sms/wells/service/individual-service-ps/household', { params: searchParams.value });
   const individualHousehold = res.data;
-  svHshdNo.value = res.data.map((v) => (v.svHshdNo));
+  svHshdNum.value = res.data.map((v) => (v.svHshdNo));
 
   const individualHouseholdView = grdIndividualHouseholdRef.value.getView();
   countInfo.value.householdTotalCount = individualHousehold.length;
@@ -910,6 +920,14 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'istKitFileUid' },
     { fieldName: 'istCelngFileUid' },
     { fieldName: 'cstSvAsnNo' },
+    { fieldName: 'svHshdNo' },
+    { fieldName: 'svHshdNoCnt' },
+    { fieldName: 'svBizHclsfCd' },
+    { fieldName: 'svBizDclsfCd' },
+    { fieldName: 'procStus' },
+    { fieldName: 'cntrNo' },
+    { fieldName: 'cntrSn' },
+
   ];
 
   const columns = [
@@ -982,18 +1000,35 @@ const initGridState = defineGrid((data, view) => {
   view.onCellItemClicked = async (g, cData) => {
     /* 작업상세 */
     if (cData.fieldName === 'wkPrgsStat') {
-      const { cstSvAsnNo, wkPrgsStat } = g.getValues(cData.itemIndex);
-      console.log(cstSvAsnNo);
-      if (wkPrgsStat === '작업대기') {
-        // sample
-        // const redirectUrl = encodeURIComponent('/popup/mobile/wmsnb-as-work-list');
-        // window.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}`);
+      const { wkPrgsStat,
+        cstSvAsnNo,
+        prtnrNo,
+        svHshdNo,
+        svHshdNoCnt,
+        svBizHclsfCd,
+        svBizDclsfCd,
+        procStus,
+        cntrNo,
+        cntrSn,
+      } = g.getValues(cData.itemIndex);
 
-        // const url = '/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt';
-        const redirectUrl = encodeURIComponent('/popup/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt');
-        const queryString = new URLSearchParams(cstSvAsnNo);
-        // window.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
-        popupUtil.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
+      if (wkPrgsStat === '작업대기') {
+        const bypassPrtnrNo = prtnrNo;
+        const wkPrgsStatCd = procStus;
+
+        const param = `cstSvAsnNo=${cstSvAsnNo}&bypassPrtnrNo=${bypassPrtnrNo}&svHshdNo=${svHshdNo}&svHshdNoCnt=${svHshdNoCnt}&svBizHclsfCd=${svBizHclsfCd}&svBizDclsfCd=${svBizDclsfCd}&wkPrgsStatCd=${wkPrgsStatCd}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`;
+        const redirectUrl = encodeURIComponent('/popup/mobile/wmsnb-as-work-list');
+        const queryString = new URLSearchParams(param);
+        let url = '';
+        if (window.location.href.includes('localhost')) {
+          url = 'https://m-wpm.kyowon.co.kr';
+        } else {
+          url = window.location.origin;
+        }// env.mode === 'qa'
+
+        window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
+
+        // popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
       }
     }
 

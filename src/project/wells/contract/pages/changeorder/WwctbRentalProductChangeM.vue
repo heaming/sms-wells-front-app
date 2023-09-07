@@ -268,12 +268,14 @@
                           <div class="row justify-end w155">
                             <!-- 기기변경 -->
                             <kw-btn
+                              v-permission:update
                               :label="$t('MSG_TXT_MCHN_CH')"
                               :disable="!isEmpty(orderProduct.plusCntrNo)"
                               dense
                               @click="onClickDeviceChange"
                             />
                             <kw-btn
+                              v-permission:update
                               label="1+1"
                               :disable="!isEmpty(orderProduct.mchChCntrNo)"
                               class="ml8"
@@ -445,6 +447,7 @@
                               </ul>
                             </div>
                             <kw-btn
+                              v-permission:delete
                               borderless
                               icon="close_24"
                               style="font-size: 24px;"
@@ -511,6 +514,7 @@
                               </ul>
                             </div>
                             <kw-btn
+                              v-permission:delete
                               borderless
                               icon="close_24"
                               style="font-size: 24px;"
@@ -806,6 +810,7 @@
         <kw-action-bottom>
           <!-- 저장 -->
           <kw-btn
+            v-permission:update
             primary
             :label="$t('MSG_BTN_SAVE')"
             :disable="!isFetched"

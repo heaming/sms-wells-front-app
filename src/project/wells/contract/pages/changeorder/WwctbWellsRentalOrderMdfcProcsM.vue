@@ -53,6 +53,7 @@
               <!-- 삭제 -->
               <kw-btn
                 v-if="isFetched"
+                v-permission:delete
                 label="삭제"
                 padding="12px"
                 class="ml8"
@@ -268,6 +269,7 @@
                           <div class="row justify-end grow">
                             <!-- 기기변경 -->
                             <kw-btn
+                              v-permission:update
                               :label="$t('MSG_TXT_MCHN_CH')"
                               :disable="!isEmpty(orderProduct.plusCntrNo) || !isFetched"
                               padding="12px"
@@ -524,6 +526,7 @@
                               </ul>
                             </div>
                             <kw-btn
+                              v-permission:delete
                               borderless
                               icon="close_24"
                               style="font-size: 24px;"
@@ -541,6 +544,7 @@
                         label="확정"
                       /> -->
                       <kw-btn
+                        v-permission:update
                         class="ml10"
                         padding="12px"
                         label="저장"
@@ -853,6 +857,7 @@
             <div class="row justify-end my20">
               <!-- 등록 -->
               <kw-btn
+                v-permission:create
                 padding="12px"
                 :label="$t('MSG_BTN_RGST')"
                 class="mr8"
@@ -869,6 +874,7 @@
               />
               <!-- 저장 -->
               <kw-btn
+                v-permission:create
                 padding="12px"
                 :label="$t('MSG_BTN_SAVE')"
                 :disable="!isFetched || !rgstMode"
@@ -1093,6 +1099,7 @@
             <div class="row justify-end my20">
               <!-- 저장 -->
               <kw-btn
+                v-permission:update
                 class="ml10"
                 padding="12px"
                 :label="$t('MSG_BTN_SAVE')"
@@ -1176,6 +1183,7 @@
         <kw-action-bottom>
           <!-- 계약서 출력 -->
           <kw-btn
+            v-permission:print
             primary
             :label="$t('MSG_BTN_CNTRW_PRNT')"
             :disable="!isFetched"
@@ -1183,6 +1191,7 @@
           />
           <!-- 청약서 변경 -->
           <kw-btn
+            v-permission:update
             primary
             :label="$t('MSG_TXT_APLC_FORM') + ' ' + $t('MSG_TXT_CH')"
             :disable="!isFetched"

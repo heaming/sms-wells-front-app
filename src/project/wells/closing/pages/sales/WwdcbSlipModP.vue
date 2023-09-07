@@ -115,7 +115,7 @@ async function onClickSeltSlipIntlz() {
     return;
   }
 
-  if (await confirm(t('MSG_ALT_SLIP_ALRPY_SLIP_OC_IZ_INTLZ'))) {
+  if (await confirm('선택한 전표의 반제 전표 발생내역을\n\r초기화 하시겠습니까?')) {
     if (!await gridUtil.validate(view)) { return; }
     await dataService.post('sms/wells/closing/business-atam-adjusts/sapAlrpySlpno', chkDataRows);
     notify(t('MSG_ALT_SAVE_DATA'));
