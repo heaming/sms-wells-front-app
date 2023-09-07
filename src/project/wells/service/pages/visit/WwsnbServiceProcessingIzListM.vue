@@ -69,7 +69,7 @@
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
             first-option="all"
-            class="w247"
+            class="w150"
           />
           <kw-select
             v-model="searchParams.pdCd"
@@ -287,6 +287,7 @@ async function fetchProducts() {
 watch(() => searchParams.value.pdGrpCd, async (val) => {
   if (val === '') {
     products.value = [];
+    searchParams.value.pdCd = '';
     return;
   }
   await fetchProducts();
