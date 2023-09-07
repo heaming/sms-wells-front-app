@@ -69,6 +69,7 @@
       />
       <!-- 저장 -->
       <kw-btn
+        v-permission:update
         primary
         :label="$t('MSG_TXT_SAVE')"
         @click="onClickSave"
