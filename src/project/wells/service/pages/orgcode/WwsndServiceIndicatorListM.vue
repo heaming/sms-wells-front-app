@@ -5,7 +5,7 @@
 1. 모듈 : SND
 2. 프로그램 ID : [K-W-SV-U-0307M01] WwsndServiceIndicatorListM - 웰스매니저 서비스종합지표
 3. 작성자 : heymi.cho
-4. 작성일 : 2022.12.13
+4. 작성일 : 2023.09.06
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -46,6 +46,7 @@
           <kw-date-picker
             v-model:from="searchParams.mgtYnm"
             :label="$t('MSG_TXT_MGT_YNM')"
+            type="month"
             rules="required"
           />
         </kw-search-item>
@@ -193,7 +194,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bhshdCd', header: t('MSG_TXT_BHSHD_CD'), width: '150', styleName: 'text-left' },
     { fieldName: 'cntcOgNm', header: t('MSG_TXT_BLG'), width: '150', styleName: 'text-left' },
     { fieldName: 'cntcPrtnrNo', header: t('MSG_TXT_EPNO'), width: '150', styleName: 'text-left' },
-    { fieldName: 'cntcPrtnrKnm', header: t('MSG_EMPL_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'cntcPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-left' },
     { fieldName: 'absncRsonCd', header: t('MSG_TXT_CTT') + t('MSG_TXT_RSULT'), width: '150', styleName: 'text-left' },
     { fieldName: 'cntcDt',
       header: t('MSG_TXT_CTT_DT'),
@@ -233,7 +234,7 @@ const initGrdMain = defineGrid((data, view) => {
       datetimeFormat: 'HH:mm:ss' },
     { fieldName: 'vstPrgsStatCd', header: t('MSG_TXT_VST_RS'), width: '150', styleName: 'text-left' },
     { fieldName: 'cnfmPsicPrtnrNo', header: t('MSG_TXT_EPNO'), width: '150', styleName: 'text-left' },
-    { fieldName: 'prtnrKnm', header: t('MSG_EMPL_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '150', styleName: 'text-left' },
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '150', styleName: 'text-left' },
     { fieldName: 'hpcallYn', header: t('MSG_TXT_PSH_SEND'), width: '80', styleName: 'text-left' },
     { fieldName: 'hpcallStpcN', header: t('MSG_TXT_RSULT'), width: '150', styleName: 'text-left' },
@@ -250,34 +251,30 @@ const initGrdMain = defineGrid((data, view) => {
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   const columnLayout = [
-    'cstNo', 'cntrNo', 'cntrSn', 'copnDvCd', 'pdNm', 'fstPrtnrNo', 'fstPrtnrKnm', 'bhshdCd', // single
+    'cstNo', 'copnDvCd', 'pdNm', 'fstPrtnrNo', 'fstPrtnrKnm', 'bhshdCd', // single
     {
-      header: t('MSG_TXT_EGD'), // colspan title
+      header: t('MSG_TXT_CTT'), // colspan title
       direction: 'horizontal', // merge type
       items: ['cntcOgNm', 'cntcPrtnrNo', 'cntcPrtnrKnm', 'absncRsonCd', 'cntcDt', 'cntcHh', 'callYn', 'msgYn', 'cntcDtBf3'],
     },
     {
-      header: t('MSG_TXT_RGD'),
+      header: t('MSG_TXT_PROM_DT'),
       direction: 'horizontal',
       items: ['vstDuedt', 'vstExpHh'],
     },
+
     {
-      header: t('MSG_TXT_XGD'),
+      header: t('MSG_TXT_CMPLTD'),
       direction: 'horizontal',
-      items: ['bsInMthdCd', 'itemGdXCostSum'],
+      items: ['bsInMthdCd', 'vstFshDt', 'vstFshHh', 'vstPrgsStatCd', 'cnfmPsicPrtnrNo', 'prtnrKnm'],
     },
     {
-      header: t('MSG_TXT_TOT_SUM'),
-      direction: 'horizontal',
-      items: ['vstFshDt', 'vstFshHh', 'vstPrgsStatCd', 'cnfmPsicPrtnrNo', 'prtnrKnm'],
-    },
-    {
-      header: t('MSG_TXT_TOT_SUM'),
+      header: t('MSG_TXT_HPCALL'),
       direction: 'horizontal',
       items: ['hpcallYn', 'hpcallStpcN'],
     },
     {
-      header: t('MSG_TXT_TOT_SUM'),
+      header: t('MSG_TXT_NO_PROC'),
       direction: 'horizontal',
       items: ['npVstDt', 'npVstMth'],
     },
