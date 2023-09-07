@@ -64,10 +64,10 @@
           <kw-select
             v-model="searchParams.cntrTpCd"
             :label="$t('MSG_TXT_CONTR_TYPE')"
-            :options="codes.CNTR_TP_CD"
+            :options="cntrTpCdOptions"
             rules="required"
-            :disable="isReadonly"
-            @change="onChangeCntrTpCd"
+            :disable="isReadonly || !!mshCntr.cntrNo"
+            @change="onChangeCntrtTpCd"
           />
         </kw-search-item>
         <kw-search-item
@@ -80,7 +80,7 @@
             :label="$t('MSG_TXT_CNTRT_TP')"
             :options="codes.COPN_DV_CD"
             rules="required"
-            :disable="cntrTpIs.indv || cntrTpIs.crp || isReadonly"
+            :disable="cntrTpIs.indv || cntrTpIs.crp || isReadonly || !!mshCntr.cntrNo"
           />
         </kw-search-item>
         <kw-search-item
@@ -272,12 +272,12 @@
               </p>
             </kw-form-item>
             <kw-form-item
-              label="본인인증여부"
+              :label="$t('MSG_TXT_IDENT_VERF')"
             >
               <p
                 v-if="step1.cntrt?.cikVal"
               >
-                본인인증완료
+                {{ $t('MSG_TXT_IDENT_VERF_COMPL') }}
               </p>
               <p
                 v-if="!step1.cntrt?.cikVal"
@@ -380,7 +380,7 @@
         </template>
 
         <template
-          v-if="(cntrTpIs.indv && '7' === currentPartner.pstnDvCd) || cntrTpIs.ensm"
+          v-if="(cntrTpIs.indv && '7' === careerLevelCode) || cntrTpIs.ensm"
         >
           <kw-separator />
           <h3>{{ $t('MSG_TXT_PRTNR_INF') }}</h3>
@@ -615,13 +615,13 @@ async function onClickSelfAuth() {
   }
 }
 
-async function isValidAlncPrtnr() {
+function isValidAlncPrtnr() {
   // 조회 조건 validate 확인
   const arr = ['alncPrtnrDvCd', 'alncPrtnrNo', 'alncPrtnrNm'];
   const isAllEmpty = arr.every((key) => (isEmpty(searchParams.value[key])));
   const isAllNotEmpty = arr.every((key) => (!isEmpty(searchParams.value[key])));
   if (!isAllEmpty && !isAllNotEmpty) {
-    await alert('제휴파트너 정보입력시, 모든 값을 입력해야 합니다.');
+    alert('제휴파트너 정보입력시, 모든 값을 입력해야 합니다.');
     return false;
   }
   return true;
