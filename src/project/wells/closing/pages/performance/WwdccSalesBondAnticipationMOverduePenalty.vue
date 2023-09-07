@@ -177,28 +177,28 @@
       v-show="isGridMain"
       ref="grdMainRef"
       name="grdMain"
-      :visible-rows="totalCount > 30 ? 30 : 10"
+      :total-count="totalCount"
       @init="initGrdMain"
     />
     <kw-grid
       v-show="isGridSub"
       ref="grdSubRef"
       name="grdSub"
-      :visible-rows="totalCount > 30 ? 30 : 10"
+      :total-count="totalCount"
       @init="initGrdSub"
     />
     <kw-grid
       v-show="isGridThird"
       ref="grdThirdRef"
       name="grdThird"
-      :visible-rows="totalCount > 30 ? 30 : 10"
+      :total-count="totalCount"
       @init="initGrdThird"
     />
     <kw-grid
       v-show="isGridFourth"
       ref="grdFourthRef"
       name="grdFourth"
-      :visible-rows="totalCount > 30 ? 30 : 10"
+      :total-count="totalCount"
       @init="initGrdFourth"
     />
   </div>
