@@ -269,10 +269,11 @@ async function onClickSearchPd() {
 
 async function onClickExcelDownload() {
   const view = grdMainRental.value.getView();
+  const res = await dataService.get('/sms/wells/contract/changeorder/rental-cancels/excel-download', { params: { ...cachedParams } });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: gridUtil.getAllRowValues(view),
+    exportData: res.data,
   });
 }
 
