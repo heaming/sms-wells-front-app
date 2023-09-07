@@ -66,7 +66,7 @@
             :label="$t('MSG_TXT_CONTR_TYPE')"
             :options="cntrTpCdOptions"
             rules="required"
-            :disable="isReadonly || !!mshCntr.cntrNo"
+            :disable="isReadonly"
             @change="onChangeCntrtTpCd"
           />
         </kw-search-item>
@@ -80,7 +80,7 @@
             :label="$t('MSG_TXT_CNTRT_TP')"
             :options="codes.COPN_DV_CD"
             rules="required"
-            :disable="cntrTpIs.indv || cntrTpIs.crp || isReadonly || !!mshCntr.cntrNo"
+            :disable="cntrTpIs.indv || cntrTpIs.crp || isReadonly"
           />
         </kw-search-item>
         <kw-search-item
