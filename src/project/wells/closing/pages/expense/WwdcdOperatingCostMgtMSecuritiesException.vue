@@ -78,6 +78,9 @@ const dataService = useDataService();
 const { modal, notify, alert } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
+const emits = defineEmits([
+  'search',
+]);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -99,7 +102,6 @@ async function adjustObject() {
   mainTotalCount.value = res.data.length;
   const view = grdFirstRef.value.getView();
   view.getDataSource().setRows(res.data);
-  view.resetCurrent();
 }
 
 // 원천세 정산내역
@@ -109,7 +111,6 @@ async function withholdingTaxAdjustList() {
   subTotalCount.value = res.data.length;
   const view = grdSecondRef.value.getView();
   view.getDataSource().setRows(res.data);
-  view.resetCurrent();
 }
 
 // 정산대상 저장버튼 및 원천세정산 버튼 세팅
@@ -295,6 +296,7 @@ const initGrdFirst = defineGrid((data, view) => {
         component: 'WwdcdMarketableSecuritiesExcdMgtP',
         componentProps: { cachedParams },
       });
+      await emits('search');
     }
   };
   // multi row header setting
@@ -326,7 +328,6 @@ const initGrdSecond = defineGrid((data, view) => {
     { fieldName: 'dstWhtx', header: t('MSG_TXT_WHTX'), width: '246', styleName: 'text-right', dataType: 'number' }, /* 원천세 */
     { fieldName: 'cardAprno', header: t('MSG_TXT_APR_NO'), width: '246', styleName: 'text-left' }, /* 승인번호 */
   ];
-
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
