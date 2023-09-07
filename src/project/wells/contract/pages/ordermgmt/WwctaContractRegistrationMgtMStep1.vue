@@ -271,12 +271,12 @@ ${step1.cntrt?.sexDvNm}` }}
               </p>
             </kw-form-item>
             <kw-form-item
-              label="본인인증여부"
+              :label="$t('MSG_TXT_IDENT_VERF')"
             >
               <p
                 v-if="step1.cntrt?.cikVal"
               >
-                본인인증완료
+                {{ $t('MSG_TXT_IDENT_VERF_COMPL') }}
               </p>
               <p
                 v-if="!step1.cntrt?.cikVal"
@@ -621,7 +621,7 @@ async function onClickSearchCntrtInfo() {
     // 개인
 
     // 임직원 + 개인, 제휴파트너 확인
-    if (cntrTpIs.value.ensm && !isValidAlncPrtnr()) {
+    if (cntrTpIs.value.ensm && !await isValidAlncPrtnr()) {
       return;
     }
 
@@ -668,7 +668,7 @@ async function onClickSearchCntrtInfo() {
     // 법인
 
     // 임직원 + 법인시, 제휴파트너 확인
-    if (cntrTpIs.value.ensm && !isValidAlncPrtnr()) {
+    if (cntrTpIs.value.ensm && !await isValidAlncPrtnr()) {
       return;
     }
     console.log(JSON.stringify(searchParams.value, null, '\t'));
