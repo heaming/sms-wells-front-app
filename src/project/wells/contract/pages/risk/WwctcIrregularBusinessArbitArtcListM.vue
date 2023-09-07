@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTC
 2. 프로그램 ID : WwctcIrregularBusinessArbitArtcListM - 비정도영업조치사항조회
-3. 작성자 : gs.rahul.n
+3. 작성자 : gs.rahul.n / JSY
 4. 작성일 : 2023.01.30
 ****************************************************************************************************
 * 프로그램 설명
@@ -170,7 +170,7 @@ let cachedParams;
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/risk-audits/irregular-sales-actions/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
