@@ -380,9 +380,9 @@ let pdQty = toRef(props.modelValue, 'pdQty');
 let mchnCh = toRef(props.modelValue, 'mchnCh');
 let opo = toRef(props.modelValue, 'opo');
 let bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
-let appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
-let promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
-let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions');
+let appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
+let promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
+let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
 // appliedPromotions.value ??= [];
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '2'));
@@ -396,6 +396,9 @@ async function fetchFinalPriceOptions() {
     },
     silent: true,
   });
+  if (!data?.length) {
+    alert('선택 가능한 가격 조건이 없습니다.');
+  }
   finalPriceOptions.value = data || [];
 }
 
@@ -479,7 +482,7 @@ function initPriceDefineVariables() {
   }
 
   variableNames.forEach((variableName) => {
-    priceDefineVariables.value[variableName] = selectedFinalPrice[variableName];
+    priceDefineVariables.value[variableName] = selectedFinalPrice[variableName] ?? EMPTY_ID;
   });
 }
 
