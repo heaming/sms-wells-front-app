@@ -27,13 +27,26 @@
 
 <script setup>
 import {
-  useSession,
+  useSession, useMeta,
   WebLayout, WebHeader, WebLeftDrawer, WebTabView, WebFallbackLogin, CustDoaminError, DevEnvSign,
 } from 'kw-lib';
 
 const {
   isReady,
 } = useSession();
+
+const router = useRouter();
+const { getUserInfo } = useMeta();
+
+const userInfo = computed(() => getUserInfo());
+
+onActivated(() => {
+  if (userInfo?.value?.portalId === 'NO_SESSION' || userInfo?.value?.userId === 'anonymous') router.replace({ name: 'ErrorNotFound' });
+});
+
+onMounted(() => {
+  if (userInfo?.value?.portalId === 'NO_SESSION' || userInfo?.value?.userId === 'anonymous') router.replace({ name: 'ErrorNotFound' });
+});
 
 await isReady();
 const { MODE } = import.meta.env;

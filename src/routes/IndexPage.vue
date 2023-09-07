@@ -26,11 +26,11 @@
 </template>
 
 <script setup>
-import { WebDashboardM,
+import { WebDashboardM, useMeta,
   // , consts
 } from 'kw-lib';
 
-// const { push } = useRouter();
+const { replace } = useRouter();
 // const store = useStore();
 
 const homecards = import.meta.globEager('../modules/common/components/homecard/*.vue');
@@ -41,6 +41,18 @@ const components = shallowRef(
   })),
 );
 const showHomeCard = ref(false);
+
+const { getUserInfo } = useMeta();
+
+const userInfo = computed(() => getUserInfo());
+
+onActivated(() => {
+  if (userInfo?.value?.portalId === 'NO_SESSION' || userInfo?.value?.userId === 'anonymous') replace({ name: 'ErrorNotFound' });
+});
+
+onMounted(() => {
+  if (userInfo?.value?.portalId === 'NO_SESSION' || userInfo?.value?.userId === 'anonymous') replace({ name: 'ErrorNotFound' });
+});
 
 // function onClickShowHomeCard() {
 //   push({ name: consts.ROUTE_HOME_NAME });
