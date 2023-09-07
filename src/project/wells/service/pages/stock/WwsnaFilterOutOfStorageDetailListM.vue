@@ -78,7 +78,6 @@
             v-model="searchParams.mngrDvCd"
             :options="codes.MNGR_DV_CD"
             first-option="all"
-            @update:model-value="onChangeMngrDvCd"
           />
         <!--
          <kw-field
@@ -121,42 +120,6 @@
             first-option="all"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <!-- 총괄단, 지역단, 지점 ,매니저 -->
-        <template v-if="isManagerSelected">
-          <wwsn-manager-og-search-item-group
-            v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
-            v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
-            v-model:dgr3-levl-og-id="searchParams.dgr3LevlOgId"
-            v-model:prtnr-no="searchParams.prtnrNo"
-            use-og-level="3"
-            use-partner
-            dgr1-levl-og-first-option="all"
-            dgr2-levl-og-first-option="all"
-            dgr3-levl-og-first-option="all"
-            partner-first-option="all"
-            dgr1-levl-og-label="ogCdNm"
-            dgr2-levl-og-label="ogCdNm"
-            dgr3-levl-og-label="ogCdNm"
-            partner-label="prtnrNoNm"
-            auth-yn="N"
-          />
-        </template>
-        <template v-if="isEngineerSelected">
-          <!-- 서비스센터, 엔지니어-->
-          <wwsn-engineer-og-search-item-group
-            v-model:dgr1-levl-og-id="searchParams.ogId"
-            v-model:prtnr-no="searchParams.prtnrNo"
-            use-og-level="1"
-            use-partner
-            dgr1-levl-og-first-option="all"
-            dgr1-levl-og-label="ogCdNm"
-            partner-first-option="all"
-            partner-label="prtnrNoNm"
-            auth-yn="N"
-          />
-        </template>
       </kw-search-row>
     </kw-search>
     <div class="result-area">
@@ -205,8 +168,6 @@ import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil } from
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
-import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
-import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
@@ -241,11 +202,6 @@ const searchParams = ref({
   fnlSellTpCd: '',
   svBizHclsfCd: '',
   pdGrpCd: '',
-  ogId: '',
-  prtnrNo: '',
-  dgr1LevlOgId: '',
-  dgr2LevlOgId: '',
-  dgr3LevlOgId: '',
   rgsnYn: 'N', // 퇴사자 제외 여부
 });
 const pageInfo = ref({
@@ -253,18 +209,6 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: 10,
 });
-
-/* 관리 구분 : 매니저 */
-const isManagerSelected = computed(() => searchParams.value.mngrDvCd === '1');
-const isEngineerSelected = computed(() => searchParams.value.mngrDvCd === '2');
-/*  관리구분 변경시 초기화 */
-async function onChangeMngrDvCd() {
-  searchParams.value.dgr1LevlOgId = '';
-  searchParams.value.dgr2LevlOgId = '';
-  searchParams.value.dgr3LevlOgId = '';
-  searchParams.value.ogId = '';
-  searchParams.value.prtnrNo = '';
-}
 
 function onChangeStdWareDvCd() {
   searchParams.value.wareNoM = '';

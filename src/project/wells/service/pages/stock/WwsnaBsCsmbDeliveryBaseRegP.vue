@@ -125,7 +125,7 @@
               :disable="isDisableYn1 || isDisable"
               :rules="isRequiredDdlvTp1"
               class="mr8 w167"
-              @change="onChangeBfsvcCsmbDdlvTpCd(1)"
+              @update:model-value="onChangeBfsvcCsmbDdlvTpCd(1)"
             />
             <kw-select
               v-model="ddlvOjCd1Data.bfsvcCsmbDdlvCmptBaseCd"
@@ -219,7 +219,7 @@
               :disable="isDisableYn2 || isDisable"
               :rules="isRequiredDdlvTp2"
               class="mr8 w167"
-              @change="onChangeBfsvcCsmbDdlvTpCd(2)"
+              @update:model-value="onChangeBfsvcCsmbDdlvTpCd(2)"
             />
             <kw-select
               v-model="ddlvOjCd2Data.bfsvcCsmbDdlvCmptBaseCd"
@@ -314,7 +314,7 @@
               :disable="isDisableYn3 || isDisable"
               :rules="isRequiredDdlvTp3"
               class="mr8 w167"
-              @change="onChangeBfsvcCsmbDdlvTpCd(3)"
+              @update:model-value="onChangeBfsvcCsmbDdlvTpCd(3)"
             />
             <kw-select
               v-model="ddlvOjCd3Data.bfsvcCsmbDdlvCmptBaseCd"

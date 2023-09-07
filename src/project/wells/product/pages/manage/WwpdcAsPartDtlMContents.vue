@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-tabs
+    v-if="props.isHistoryTab"
     v-model="selectedTab"
     class="mt24"
   >

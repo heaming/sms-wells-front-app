@@ -481,6 +481,10 @@ const initGrdMain = defineGrid(async (data, view) => {
   view.rowIndicator.visible = true;
   view.setFixedOptions({ colCount: 1 });
 
+  view.onCellClicked = (grd, cData) => {
+    if (cData.cellType !== 'check') { return false; }
+  };
+
   view.setColumnLayout([
     {
       header: '소속',

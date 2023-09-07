@@ -39,7 +39,7 @@
         ref="materialRelTypeRef"
         v-model="materialRelType"
         dense
-        class="ml12 w140"
+        class="ml8 w140"
         :label="$t('MSG_TXT_SEL_REL_TYPE')"
         :options="codes.PD_PDCT_REL_DV_CD"
         rules="required"
@@ -69,7 +69,7 @@
       <kw-select
         v-model="serviceSearchType"
         dense
-        class="ml8 w120"
+        class="ml12 w140"
         :options="serviceSelectItems"
       />
       <kw-input
@@ -739,7 +739,7 @@ async function initStandardGrid(data, view) {
       button: 'action',
     },
     // 서비스코드
-    { fieldName: 'svPdCd', header: t('MSG_TXT_SVC_CODE'), width: '120', editable: false },
+    { fieldName: 'svPdCd', header: t('MSG_TXT_SVC_CODE'), width: '120', editable: false, styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: pdConst.REL_PD_ID });
@@ -759,7 +759,9 @@ async function initStandardGrid(data, view) {
       const svPdNm = grid.getValue(itemIndex, 'svPdNm');
       const { payload } = await modal({
         component: 'ZwpdcServiceListP',
-        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME,
+          selectType: pdConst.PD_SEARCH_SINGLE,
+          searchValue: svPdNm },
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;

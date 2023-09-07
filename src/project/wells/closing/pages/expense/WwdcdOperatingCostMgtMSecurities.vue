@@ -85,6 +85,9 @@ import { openReportPopup } from '~common/utils/cmPopupUtil';
 const dataService = useDataService();
 const { modal, notify, alert } = useGlobal();
 const { t } = useI18n();
+const emits = defineEmits([
+  'search',
+]);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -216,9 +219,9 @@ const initGrdThird = defineGrid((data, view) => {
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '79', styleName: 'text-center', editable: false }, // 조직명
     { fieldName: 'crcdnoEncr', header: t('MSG_TXT_CARD_NO'), width: '159', styleName: 'text-center', editable: false }, // 카드번호
     { fieldName: 'mrcNm', header: t('MSG_TXT_MRC'), width: '96', styleName: 'text-left', editable: false }, // 가맹점
+    { fieldName: 'cardAprno', header: t('MSG_TXT_APR_NO'), width: '78', styleName: 'text-center', editable: false }, // 승인번호
     { fieldName: 'mrcTobzNm', header: t('MSG_TXT_MER_BUS_NA'), width: '96', styleName: 'text-center', editable: false }, // 가맹점업종명
     { fieldName: 'mrcAdrCn', header: t('MSG_TXT_MER_ADD'), width: '96', styleName: 'text-center', editable: false }, // 가맹점주소
-    { fieldName: 'cardAprno', header: t('MSG_TXT_APR_NO'), width: '78', styleName: 'text-center', editable: false }, // 승인번호
     { fieldName: 'domTrdAmt', header: t('MSG_TXT_USE_AMT'), width: '101', styleName: 'text-right', editable: false, dataType: 'number' }, // 사용금액
     { fieldName: 'opcsAdjExcdYn',
       header: t('MSG_TXT_ADJ_EXCD_YN'),
@@ -291,34 +294,6 @@ const initGrdThird = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, opcsAdjNo,
-      adjPrtnrNo, ogTpCd, adjCls, opcsAdjExcdYn } = grid.getValues(itemIndex);
-    cachedParams.authDate = useDtm;
-    cachedParams.mrcNm = mrcNm;
-    cachedParams.opcsAdjNo = opcsAdjNo;
-    cachedParams.cardAprno = cardAprno; // 카드승인번호
-    cachedParams.domTrdAmt = domTrdAmt;
-    cachedParams.opcsCardUseIzId = opcsCardUseIzId;
-    cachedParams.adjPrtnrNo = adjPrtnrNo; // 정산파트너번호
-    cachedParams.ogTpCd = ogTpCd; // 조직유형코드
-    console.log(column); // lint 회피하여 소스 보존을위해 로그출력
-    console.log(adjCls); // lint 회피하여 소스 보존을위해 로그출력
-    if (column === 'opcsAdjBtn') {
-    //   if (adjCls === '완료') {
-    //     alert(t('정산이 완료된 건입니다'));
-    //     return;
-    //   }
-      if (opcsAdjExcdYn === '정산제외') {
-        alert(t('정산제외 건은 원천세 정산이 불가능 합니다.'));
-        return;
-      }
-      await modal({
-        component: 'WwdcdMarketableSecuritiesMgtP',
-        componentProps: { cachedParams },
-      });
-    }
-  };
   // multi row header setting
   view.setColumnLayout([
     'useDtm', 'dgr1LevlOgNm', 'crcdnoEncr', 'mrcNm', 'mrcTobzNm', 'mrcAdrCn', 'cardAprno', 'domTrdAmt', 'opcsAdjExcdYn', // single
@@ -333,6 +308,33 @@ const initGrdThird = defineGrid((data, view) => {
       items: ['opcsAdjBtn', 'adjCls'],
     },
   ]);
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
+    const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, opcsAdjNo,
+      adjPrtnrNo, ogTpCd, opcsAdjExcdYn } = grid.getValues(itemIndex);
+    cachedParams.authDate = useDtm;
+    cachedParams.mrcNm = mrcNm;
+    cachedParams.opcsAdjNo = opcsAdjNo;
+    cachedParams.cardAprno = cardAprno; // 카드승인번호
+    cachedParams.domTrdAmt = domTrdAmt;
+    cachedParams.opcsCardUseIzId = opcsCardUseIzId;
+    cachedParams.adjPrtnrNo = adjPrtnrNo; // 정산파트너번호
+    cachedParams.ogTpCd = ogTpCd; // 조직유형코드
+    if (column === 'opcsAdjBtn') {
+    //   if (adjCls === '완료') {
+    //     alert(t('정산이 완료된 건입니다'));
+    //     return;
+    //   }
+      if (opcsAdjExcdYn === '정산제외') {
+        alert(t('정산제외 건은 원천세 정산이 불가능 합니다.'));
+        return;
+      }
+      await modal({
+        component: 'WwdcdMarketableSecuritiesMgtP',
+        componentProps: { cachedParams },
+      });
+      await emits('search');
+    }
+  };
 });
 
 const initGrdFourth = defineGrid((data, view) => {

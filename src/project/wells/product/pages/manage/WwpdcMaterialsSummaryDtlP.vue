@@ -27,37 +27,34 @@
     </h2>
 
     <!-- 기본속성 -->
-    <h3 class="pt0 pb20">
+    <!-- <h3 class="pt0 pb20">
       {{ $t('MSG_TXT_BAS_ATTR') }}
-    </h3>
+    </h3> -->
     <kw-form
       :cols="2"
+      class="pt30"
       dense
     >
       <kw-form-row>
-        <!-- 제품분류 -->
-        <kw-form-item :label="$t('MSG_TXT_PRDT_CLSF')">
+        <kw-form-item :label="$t('MSG_TXT_PRDT_CLSF', null, '제품분류')">
           <p>{{ pdBas.pdClsfNm }} </p>
         </kw-form-item>
-        <!-- 자재코드 -->
-        <kw-form-item :label="$t('MSG_TXT_MATI_CD')">
+        <kw-form-item :label="$t('MSG_TXT_MATI_CD', null, '자재코드')">
           <p>{{ pdBas.sapMatCd }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
-        <!-- 모델NO -->
-        <kw-form-item :label="$t('MSG_TXT_PD_MODEL_NO')">
+        <kw-form-item :label="$t('MSG_TXT_PD_MODEL_NO', null, '모델NO')">
           <p>{{ pdBas.modelNo }}</p>
         </kw-form-item>
-        <!-- 모델색상 -->
-        <kw-form-item :label="$t('MSG_TXT_MODEL_COLOR')">
+        <kw-form-item :label="$t('MSG_TXT_MODEL_COLOR', null, '모델색상')">
           <p>{{ pdColoNm }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
 
-    <kw-separator />
+    <!-- <kw-separator /> -->
     <h3>{{ grd3rdTit.codeName ?? t('MSG_TXT_REP_PROD') }}</h3>
     <kw-grid
       ref="grd3rdRef"
@@ -65,7 +62,7 @@
       :visible-rows="visibleRowCnt3"
       @init="initGrd3rd"
     />
-    <kw-separator />
+    <!-- <kw-separator /> -->
     <h3>{{ grd2ndTit.codeName ?? t('MSG_TXT_AVOID_EAT_ALONE') }}</h3>
     <kw-grid
       ref="grd2ndRef"
@@ -73,7 +70,7 @@
       :visible-rows="visibleRowCnt2"
       @init="initGrd2nd"
     />
-    <kw-separator />
+    <!-- <kw-separator /> -->
     <h3>{{ grd1stTit.codeName ?? t('MSG_TXT_AS_PART') }}</h3>
     <kw-grid
       ref="grd1stRef"
@@ -81,8 +78,7 @@
       :visible-rows="visibleRowCnt1"
       @init="initGrd1st"
     />
-
-    <template #action />
+    <!-- <template #action /> -->
   </kw-popup>
 </template>
 

@@ -173,8 +173,8 @@ const searchParams = ref({
 
 const isBusinessSupportTeam = computed(() => hasRoleNickName('ROL_W1580'));
 const bldCode = ref();
-const items1 = [];
-const items2 = [];
+let items1 = [];
+let items2 = [];
 let saveData = [];
 
 const itemsData = ref({
@@ -260,7 +260,153 @@ async function onClickRgstPtrmSe() {
   notify(t('MSG_ALT_SAVE_DATA'));
 }
 
+async function reAryGrid() {
+  const view = grdMainRef.value.getView();
+  const data = view.getDataSource();
+
+  data.setFields([]);
+  view.setColumns(null);
+  view.setColumnLayout([]);
+  items1 = [];
+  items2 = [];
+
+  const fields = [
+    { fieldName: 'reqYn' },
+    { fieldName: 'bldCd' },
+    { fieldName: 'bldNm' },
+    { fieldName: 'prtnrNmNo' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'blank' },
+  ];
+
+  const columns = [
+    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '80', styleName: 'text-center', editable: false },
+    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '120', styleName: 'text-center', editable: false },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-center', editable: false },
+    { fieldName: 'prtnrNmNo', header: t('MSG_TXT_MANAGER'), width: '150', styleName: 'text-center', editable: false },
+    { fieldName: 'blank', header: '', width: '80', styleName: 'text-center', editable: false }, // 헤더 정상 생성을 위한 필드, 사용은 안함
+  ];
+
+  const gridData = await getItems(); // 고정/신청품목 그리드 헤더를 위해 조회
+  const fxnItems = gridData.filter((v) => v.bfsvcCsmbDdlvTpCd === '1'); // 고정품목
+  const aplcItems = gridData.filter((v) => v.bfsvcCsmbDdlvTpCd === '2'); // 신청품목
+
+  let j = 1;
+  for (let i = 0; i < fxnItems.length; i += 1) {
+    // 고정품목 갯수만큼 field, column 추가
+    fields.push({ fieldName: `fxnQty${j}` });
+    columns.push({
+      fieldName: `fxnQty${j}`,
+      header: fxnItems[i].fxnSapMatCd,
+      width: '180',
+      styleName: 'text-center',
+      editable: isBusinessSupportTeam.value,
+    });
+
+    // 고정품목 column layout 세팅
+    items1.push(
+      {
+        header: `${fxnItems[i].fxnPdNm}`,
+        width: '180',
+        direction: 'horizontal',
+        items: [
+          {
+            header: `${fxnItems[i].fxnPckngUnit}`,
+            direction: 'horizontal',
+            items: [`fxnQty${j}`],
+          },
+        ],
+      },
+    );
+
+    j += 1;
+  }
+
+  let k = 1;
+  for (let i = 0; i < aplcItems.length; i += 1) {
+    // 신청품목 갯수만큼 field, column 추가
+    fields.push({ fieldName: `aplcQty${k}` });
+    columns.push({
+      fieldName: `aplcQty${k}`,
+      header: aplcItems[i].aplcSapMatCd,
+      width: '180',
+      styleName: 'text-center',
+      editable: true,
+    });
+
+    // 신청품목 column layout 세팅
+    items2.push(
+      {
+        header: `${aplcItems[i].aplcPdNm}`,
+        width: '180',
+        direction: 'horizontal',
+        items: [
+          {
+            header: `${aplcItems[i].aplcPckngUnit}`,
+            direction: 'horizontal',
+            items: [`aplcQty${k}`],
+          },
+        ],
+      },
+    );
+
+    k += 1;
+  }
+
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.setColumnLayout([
+    {
+      header: t('MSG_TXT_BLD_INF'),
+      direction: 'horizontal',
+      items: [
+        'reqYn',
+        'bldCd',
+        'bldNm',
+        'prtnrNmNo',
+        {
+          header: t('MSG_TXT_ACTI_GDS'),
+          direction: 'horizontal',
+          items: [
+            {
+              header: t('MSG_TXT_PCKNG_UNIT'),
+              direction: 'horizontal',
+              items: [
+                {
+                  header: t('MSG_TXT_SAP'),
+                  direction: 'horizontal',
+                  hideChildHeaders: true,
+                  items: ['blank'], // 최하위 그리드 헤더(SAP) 아래 컬럼이 있어야 헤더 생성됨
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      header: t('MSG_TXT_FXN'),
+      direction: 'horizontal',
+      items: items1,
+    },
+    {
+      header: t('MSG_TXT_APLC'),
+      direction: 'horizontal',
+      items: items2,
+    },
+  ]);
+
+  const editFields = [];
+
+  for (let i = 0; i < aplcItems.length; i += 1) {
+    let l = i + 1;
+    editFields.push(`aplcQty${l}`);
+    l += 1;
+  }
+}
+
 async function fetchData() {
+  await reAryGrid();
   await getBldCsmbAplcClose();
 
   const res = await dataService.get('/sms/wells/service/building-bsconsumables/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -303,8 +449,6 @@ async function fetchData() {
     const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh);
     const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh);
 
-    console.log(grid);
-    console.log(itemIndex);
     // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
     // if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || !editFields.includes(itemIndex.column)) {
     if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || bldCsmbDeliveries[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
@@ -535,6 +679,10 @@ const initGrdMain = defineGrid(async (data, view) => {
   view.setColumns(columns);
   view.setColumnLayout(columnLayout);
   view.setFixedOptions({ colCount: 1 });
+
+  view.onCellClicked = (grd, cData) => {
+    if (cData.cellType !== 'check') { return false; }
+  };
 
   const editFields = [];
 

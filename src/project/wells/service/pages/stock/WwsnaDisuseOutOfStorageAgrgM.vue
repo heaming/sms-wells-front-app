@@ -54,7 +54,6 @@
           dgr1-levl-og-first-option="all"
           dgr1-levl-og-label="ogCdNm"
           :use-partner="false"
-          auth-yn="N"
         />
         <kw-search-item
           :label="$t('MSG_TXT_RTNGD_PROCS_TP')"

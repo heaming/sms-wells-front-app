@@ -707,9 +707,9 @@
         />
       </kw-tab-panel>
       <kw-tab-panel name="detailTab">
-        <wwdcb-sales-performance-list-m-single-payment
+        <!-- <wwdcb-sales-performance-list-m-single-payment
           v-model:selected-link-id="selectedLinkId"
-        />
+        /> -->
       </kw-tab-panel>
     </kw-tab-panels>
   </kw-page>
@@ -722,7 +722,7 @@ import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMe
 import { cloneDeep, toInteger } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import WwdcbSalesPerformanceListMSinglePayment from './WwdcbSalesPerformanceListMSinglePayment.vue';
+// import WwdcbSalesPerformanceListMSinglePayment from './WwdcbSalesPerformanceListMSinglePayment.vue';
 
 const selectedTab = ref('mainTab');
 const now = dayjs();

@@ -244,6 +244,7 @@ const searchParams = ref({
 });
 
 const strWareDvCd = { WARE_DV_CD: [
+  { codeId: '1', codeName: t('MSG_TXT_LGST_CNR') },
   { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
   { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
 ] };
@@ -282,11 +283,7 @@ const filterCodes = ref({
 const onChangeStrWareDvCd = async () => {
   const { strWareDvCd: searchStrWareDvCd } = searchParams.value;
 
-  if (searchStrWareDvCd === '2') {
-    filterCodes.value.strWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
-  } else {
-    filterCodes.value.strWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
-  }
+  filterCodes.value.strWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => v.codeId.startsWith(searchStrWareDvCd));
 };
 
 watch(() => searchParams.value.strWareDvCd, (val) => {
@@ -300,13 +297,7 @@ watch(() => searchParams.value.strWareDvCd, (val) => {
 const onChangeOstrWareDvCd = async () => {
   const { ostrWareDvCd: searchOstrWareDvCd } = searchParams.value;
 
-  if (searchOstrWareDvCd === '1') {
-    filterCodes.value.ostrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10'].includes(v.codeId));
-  } else if (searchOstrWareDvCd === '2') {
-    filterCodes.value.ostrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
-  } else {
-    filterCodes.value.ostrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
-  }
+  filterCodes.value.ostrWareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => v.codeId.startsWith(searchOstrWareDvCd));
 };
 
 watch(() => searchParams.value.ostrWareDvCd, (val) => {

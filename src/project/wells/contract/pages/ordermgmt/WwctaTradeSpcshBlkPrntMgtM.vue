@@ -430,6 +430,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
         } else {
           data.setValue(dataRow, 'cntrNo', '');
           data.setValue(dataRow, 'cntrSn', '');
+          data.setValue(dataRow, 'sellTpCd', '');
+          data.setValue(dataRow, 'cstNm', '');
+          data.setValue(dataRow, 'cstNo', '');
         }
       }
       notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_EMAIL')])); // {이메일} 항목이 일괄변경 되었습니다.
@@ -505,6 +508,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
     } else {
       data.setValue(updateRow, 'cntrNo', '');
       data.setValue(updateRow, 'cntrSn', '');
+      data.setValue(updateRow, 'sellTpCd', '');
+      data.setValue(updateRow, 'cstNm', '');
+      data.setValue(updateRow, 'cstNo', '');
     }
   };
 });

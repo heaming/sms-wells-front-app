@@ -126,14 +126,16 @@
             />
             <!-- 초기화 -->
             <kw-btn
-              v-show="!isCreate"
+              v-show="!isCreate && currentStep.step !== pdConst.W_MATERIAL_STEP_CHECK.step"
               :label="$t('MSG_BTN_INTL')"
               class="ml8"
               @click="onClickReset"
             />
-            <!-- 취소 -->
-            <kw-btn
+            <!--
+              취소
               v-show="!isTempSaveBtn"
+            -->
+            <kw-btn
               :label="$t('MSG_BTN_CANCEL')"
               class="ml8"
               @click="onClickCancel"

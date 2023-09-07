@@ -36,6 +36,7 @@
             first-option="all"
             option-label="ogNm"
             option-value="ogId"
+            class="w247"
           />
           <kw-select
             v-model="searchParams.prtnrNo"
@@ -43,7 +44,6 @@
             first-option="all"
             option-label="prtnrNoNm"
             option-value="prtnrNo"
-            class="w150"
           />
         </kw-search-item>
 
@@ -60,40 +60,7 @@
       </kw-search-row>
 
       <kw-search-row>
-        <!-- 조회기준 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_INQR_BASE')"
-          :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.inquiryBase"
-            :options="inquiryBases"
-          />
-          <kw-date-range-picker
-            v-model:from="searchParams.baseDateFrom"
-            v-model:to="searchParams.baseDateTo"
-            rules="date_range_months:1"
-          />
-        </kw-search-item>
-        <!-- 작업상태 -->
-        <kw-search-item :label="$t('MSG_TXT_WK_STS')">
-          <kw-select
-            v-model="searchParams.wkPrgsStatCd"
-            :options="codes.WK_PRGS_STAT_CD"
-            first-option="all"
-          />
-        </kw-search-item>
-        <!-- 설치기준 -->
-        <kw-search-item :label="$t('MSG_TXT_IST_BASE')">
-          <kw-select
-            v-model="searchParams.installBase"
-            :options="installBases"
-            first-option="all"
-          />
-        </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row>
+        <!-- 상품그룹 -->
         <kw-search-item
           :label="$t('MSG_TXT_PD_GRP')"
           :colspan="2"
@@ -102,25 +69,62 @@
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
             first-option="all"
-            @change="changePdGrpCd"
+            class="w247"
           />
-        </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_PRDT_NM')"
-          :colspan="2"
-        >
           <kw-select
             v-model="searchParams.pdCd"
-            :options="pds"
-            first-option="select"
-            option-label="cdNm"
-            option-value="cd"
-            :disable="searchParams.pdGrpCd === '' "
-            :label="$t('MSG_TXT_PRDT_NM')"
+            :options="products"
+            first-option="all"
+            :disable="searchParams.pdGrpCd === ''"
           />
         </kw-search-item>
 
-        <kw-search-row />
+        <!-- 조회기준 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_INQR_BASE')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.inquiryBase"
+            :options="inquiryBases"
+            class="w247"
+          />
+          <kw-date-range-picker
+            v-model:from="searchParams.baseDateFrom"
+            v-model:to="searchParams.baseDateTo"
+            rules="date_range_months:1"
+            :label="$t('MSG_TXT_INQR_BASE')"
+          />
+        </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
+        <!-- 업무유형 -->
+        <kw-search-item :label="$t('MSG_TXT_TASK_TYPE')">
+          <kw-select
+            v-model="searchParams.svBizDclsfCd"
+            :options="codes.SV_BIZ_DCLSF_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+
+        <!-- 작업상태 -->
+        <kw-search-item :label="$t('MSG_TXT_WK_STS')">
+          <kw-select
+            v-model="searchParams.wkPrgsStatCd"
+            :options="codes.WK_PRGS_STAT_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+
+        <!-- 설치기준 -->
+        <kw-search-item :label="$t('MSG_TXT_IST_BASE')">
+          <kw-select
+            v-model="searchParams.installBase"
+            :options="installBases"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -134,6 +138,12 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <kw-separator
+            vertical
+            inset
+            spaced
+          />
+          <span>(단위:원)</span>
         </template>
         <kw-btn
           icon="download_on"
@@ -182,16 +192,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, popupUtil } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty, toNumber } from 'lodash-es';
 import dayjs from 'dayjs';
-import smsCommon from '~sms-wells/service/composables/useSnCode';
-
-const { getPartMaster } = smsCommon();
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const { modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 const dataService = useDataService();
 
@@ -269,41 +278,19 @@ watch(() => searchParams.value.ogId, async (val) => {
   }
 });
 
-// const products = ref([]);
-// async function fetchProducts() {
-//   const res = await dataService.get('/sms/wells/service/service-processing/products',
-//   { params: { pdGrpCd: searchParams.value.pdGrpCd } });
-//   products.value = res.data;
-// }
-// watch(() => searchParams.value.pdGrpCd, async (val) => {
-//   if (val === '') {
-//     products.value = [];
-//     return;
-//   }
-//   await fetchProducts();
-// }, { immediate: true });
-
-const pds = ref([]);
-async function changePdGrpCd() {
-  if (searchParams.value.pdGrpCd) {
-    pds.value = await getPartMaster(
-      '4',
-      searchParams.value.pdGrpCd,
-      'M',
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
-    );
-  } else pds.value = [];
-  searchParams.value.pdCd = '';
+const products = ref([]);
+async function fetchProducts() {
+  const res = await dataService.get('/sms/wells/service/service-processing/products', { params: { pdGrpCd: searchParams.value.pdGrpCd } });
+  products.value = res.data;
 }
-changePdGrpCd();
+
+watch(() => searchParams.value.pdGrpCd, async (val) => {
+  if (val === '') {
+    products.value = [];
+    return;
+  }
+  await fetchProducts();
+});
 
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
@@ -374,7 +361,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center rg-button-link',
       footer: { text: t('MSG_TXT_SUM') },
       renderer: { type: 'button' },
-      preventCellItemFocus: true,
+      // preventCellItemFocus: true,
     },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'copnDvNm', header: t('MSG_TXT_INDV_CRP_DV'), width: '150', styleName: 'text-center' }, // 개인법인구분
@@ -392,7 +379,6 @@ const initGrdMain = defineGrid((data, view) => {
       width: 150,
       styleName: 'text-center',
       displayCallback: (grid, index) => {
-        console.log(index);
         const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.dataRow) || {};
         return getPhoneNo(cralLocaraTno, mexnoEncr, cralIdvTno);
       },
@@ -507,8 +493,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cashStlm', header: t('MSG_TXT_CASH'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(현금)
     { fieldName: 'cardStlm', header: t('MSG_TXT_CARD'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(카드)
     { fieldName: 'elcStlm', header: t('MSG_TXT_ELC_STLM'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(전자결제)
-    { fieldName: 'cstSignHsYn', header: t('MSG_BTN_CST_SIGN'), width: '145', styleName: 'text-center' }, // 고객서명
-    { fieldName: 'istEnvrPhoPhCn', header: t('MSG_TXT_PHO'), width: '145', styleName: 'text-center' }, // 사진
+    { fieldName: 'cstSignHsYn', header: t('MSG_BTN_CST_SIGN'), width: '100', styleName: 'text-center' }, // 고객서명
+    { fieldName: 'istEnvrPhoPhFileUid' }, // 설치환경사진
+    { fieldName: 'istKitPhoPhFileUid' }, // 설치키트사진
+    { fieldName: 'istCelngPhoPhFileUid' }, // 설치천장사진
+    { fieldName: 'istImg', header: t('MSG_TXT_PHO'), width: '100', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => '+' }, // 설치사진
     { fieldName: 'acpnPrtnrKnm', header: t('MSG_TXT_CMPA_NM'), width: '145', styleName: 'text-center' }, // 동행작업자(동행자명)
     { fieldName: 'acpnPrtnrGdNm', header: t('MSG_TXT_PSTN_DV'), width: '145', styleName: 'text-center' }, // 동행작업자(직급구분)
   ];
@@ -607,7 +596,7 @@ const initGrdMain = defineGrid((data, view) => {
       items: ['cashStlm', 'cardStlm', 'elcStlm'],
     },
     'cstSignHsYn',
-    'istEnvrPhoPhCn',
+    'istImg',
     {
       header: t('MSG_TXT_ACPN_WKP'), // 동행작업자
       direction: 'horizontal',
@@ -622,12 +611,25 @@ const initGrdMain = defineGrid((data, view) => {
   view.filteringOptions.enabled = false;
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const { cntrNo, cntrSn } = grid.getValues(itemIndex);
+    const { cntrNo, cntrSn, istEnvrPhoPhFileUid, istKitPhoPhFileUid, istCelngPhoPhFileUid } = grid.getValues(itemIndex);
+    console.log(`[${istEnvrPhoPhFileUid}, ${istKitPhoPhFileUid}, ${istCelngPhoPhFileUid}]`);
 
     if (column === 'cntrNoSn') {
-      console.log('개인별 서비스 현황 화면', cntrNo, cntrSn);
-      // TODO: W-SV-U-0072M01 개인별 서비스 현황 화면 새창으로 열기
-      await popupUtil.open(`#/service/wwsnb-service-processing-iz-qlty-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+      router.push({ path: '/service/wwsnb-individual-service-list', query: { cntrNo, cntrSn } });
+    }
+
+    if (column === 'istImg') {
+      const imgFiles = [istEnvrPhoPhFileUid, istKitPhoPhFileUid, istCelngPhoPhFileUid].filter((v) => !isEmpty(v));
+      console.log(imgFiles);
+
+      if (imgFiles.length > 0) {
+        await modal({
+          component: 'ZwcmzImagePreviewP',
+          componentProps: { files: imgFiles },
+        });
+      } else {
+        notify('등록된 이미지가 없습니다.');
+      }
     }
   };
 });

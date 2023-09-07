@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTB
 2. 프로그램 ID : WwctbRentalProductChangeM - 렌탈 주문 수정_상품변경 Variation (PC화면)
-3. 작성자 : hyeonjongRa
+3. 작성자 : hyeonjong.ra
 4. 작성일 : 2023.08.03
 ****************************************************************************************************
 * 프로그램 설명
@@ -449,6 +449,7 @@
                               icon="close_24"
                               style="font-size: 24px;"
                               class="w24"
+                              @click="onClickDeleteDeviceChange"
                             />
                           </div>
                         </div>
@@ -479,7 +480,6 @@
                                 color="primary"
                                 outline
                                 class="ma2"
-                                @click="onClickDeleteDeviceChange"
                               />
 
                               <ul

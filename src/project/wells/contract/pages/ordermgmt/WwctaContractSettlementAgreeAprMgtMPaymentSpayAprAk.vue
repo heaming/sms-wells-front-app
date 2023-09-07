@@ -181,8 +181,8 @@
 import { confirm, getComponentType, notify, stringUtil, useDataService } from 'kw-lib';
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
-import CrdcdExpSelect from '~sms-common/contract/components/ZctaCrdcdExpSelect.vue';
-import CrdcdNoInput from '~sms-common/contract/components/ZctaCrdcdNoInput.vue';
+import CrdcdExpSelect from '~sms-common/contract/components/ZctzCrdcdExpSelect.vue';
+import CrdcdNoInput from '~sms-common/contract/components/ZctzCrdcdNoInput.vue';
 import { warn } from 'vue';
 import { scrollIntoView } from '~sms-common/contract/util';
 import { useCtCode } from '~sms-common/contract/composable';

@@ -105,7 +105,7 @@
         dense
         grid-action
         :label="t('MSG_BTN_SAVE')"
-        :disable="isLastDate || isExpectedConfirm"
+        :disable="!isSearchMonth || isExpectedConfirm"
         @click="onClickSave"
       />
       <kw-separator
@@ -130,14 +130,14 @@
         dense
         secondary
         :label="t('MSG_BTN_EXP_CRT')"
-        :disable="isLastDate || isExpectedConfirm"
+        :disable="!isSearchMonth || isExpectedConfirm"
         @click="onClickExpectedCreate"
       />
       <kw-btn
         dense
         secondary
         :label="t('MSG_BTN_EXP_CNFM')"
-        :disable="isLastDate || isExpectedConfirm || !isPsic"
+        :disable="!isSearchMonth || isExpectedConfirm || !isPsic"
         @click="onClickExpectedConfirm"
       />
       <kw-btn
@@ -200,7 +200,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 const grdExpectedRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
-const isLastDate = ref(false);
+const isSearchMonth = ref(false);
 const { getters } = useStore();
 const { roles } = getters['meta/getUserInfo'];
 console.log(JSON.stringify(roles));
@@ -252,9 +252,9 @@ async function fetchData() {
 
   view.getDataSource().setRows(data);
   // 2개월 전 대상 조회시 저장, 예정생성, 예정확정 버튼 disable
-  isLastDate.value = dayjs().add(-2, 'month').format('YYYYMM') > cachedParams.baseDt.substring(0, 6) - 1;
-  view.columnByName('excdYn').readOnly = isLastDate.value;
-  view.columnByName('authRsgExcdRsonCd').readOnly = isLastDate.value;
+  isSearchMonth.value = dayjs().add(-1, 'month').format('YYYYMM') <= cachedParams.baseDt.substring(0, 6);
+  view.columnByName('excdYn').readOnly = !isSearchMonth.value;
+  view.columnByName('authRsgExcdRsonCd').readOnly = !isSearchMonth.value;
   view.commit();
 }
 
@@ -374,7 +374,7 @@ async function onClickExpectedCreate() {
     baseDt: searchParams.value.baseDt,
   };
   await dataService.post(baseUrl, params);
-  notify(t('예정생성 완료되었습니다.'));
+  notify(t('MSG_ALT_COMPLETE_EXP_CREATE'));
   await onClickSearch();
 }
 // 예정확정
@@ -429,9 +429,10 @@ const initExpectedGrid = defineGrid((data, view) => {
       editable: true,
       editor: { type: 'list' },
       options: ynOpt,
-      styleCallback: () => {
+      styleCallback: (grid, dataCell) => {
         const ret = {};
-        if (!isfinalConfirm.value && !isLastDate.value) {
+        const { bndStrtYn } = grid.getValues(dataCell.index.itemIndex);
+        if (!isfinalConfirm.value && isSearchMonth.value && bndStrtYn === 'N') {
           ret.editable = true;
         } else {
           ret.editable = false;
@@ -448,16 +449,18 @@ const initExpectedGrid = defineGrid((data, view) => {
       options: codes.AUTH_RSG_EXCD_RSON_CD,
       styleCallback: (grid, dataCell) => {
         const ret = {};
-        const { excdYn } = grid.getValues(dataCell.index.itemIndex);
+        const { excdYn, bndStrtYn } = grid.getValues(dataCell.index.itemIndex);
         const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
-        if (rowState === RowState.UPDATED && excdYn === 'N' && !isLastDate.value) {
-          ret.editable = false;
-          grid.setValue(dataCell.index.itemIndex, 'authRsgExcdRsonCd', '');
-        } else if (isfinalConfirm.value) {
-          ret.editable = false;
-        } else {
+        if (excdYn === 'Y' && isSearchMonth.value && !isfinalConfirm.value && bndStrtYn === 'N') {
           ret.editable = true;
+        } else {
+          ret.editable = false;
         }
+
+        if (rowState === RowState.UPDATED && excdYn === 'N') {
+          grid.setValue(dataCell.index.itemIndex, 'authRsgExcdRsonCd', '');
+        }
+
         return ret;
       } },
     { fieldName: 'totNpdAmt', header: t('MSG_TXT_TOT_NPD_CHRAM'), width: '110', styleName: 'text-right', dataType: 'number' },
@@ -502,7 +505,7 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'totNpdExpAmt', header: t('MSG_TXT_TOT_NPD_AMT_EXP'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'rtrnDbtExpAmt', header: t('MSG_TXT_RTRN_H_TOT_DBT_AMT_EXP'), width: '160', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'nrtrnDbtExpAmt', header: t('MSG_TXT_N_RTRN_H_TOT_DBT_AMT_EXP'), width: '160', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'totNpdFnlAmt', header: t('MSG_TXT_TOT_NPD_CHRAM'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'totNpdFnlAmt', header: t('MSG_TXT_TOT_NPD_CHRAM_FNL'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'rtrnDbtFnlAmt', header: t('MSG_TXT_RTRN_H_TOT_DBT_AMT_FNL'), width: '160', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'nrtrnDbtFnlAmt', header: t('MSG_TXT_N_RTRN_H_TOT_DBT_AMT_FNL'), width: '160', styleName: 'text-right', dataType: 'number' },
   ];
@@ -513,6 +516,7 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'cntrSn' }, /* 계약일련번호 */
     { fieldName: 'authRsgExpYn' }, /* 직권해지예정여부 */
     { fieldName: 'authRsgCnfmYn' }, /* 직권해지확정여부 */
+    { fieldName: 'bndStrtYn' }, /* 채권전략팀 여부 */
     { fieldName: 'rowState' }, /* rowState */
   );
   data.setFields(fields);

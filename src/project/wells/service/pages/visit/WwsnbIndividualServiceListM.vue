@@ -98,12 +98,8 @@
             :label="$t('MSG_TXT_TEL_NO')"
           >
             <p>
-              {{ !isEmpty(individualParams.locaraTno
-                && individualParams.exnoEncr
-                && individualParams.idvTno)
-                ? `${individualParams.locaraTno}
-                -${individualParams.exnoEncr}
-                -${individualParams.idvTno}`
+              {{ !isEmpty(individualParams.locaraTno && individualParams.exnoEncr && individualParams.idvTno)
+                ? `${individualParams.locaraTno}-${individualParams.exnoEncr}-${individualParams.idvTno}`
                 : '' }}
             </p>
           </kw-form-item>
@@ -111,12 +107,8 @@
             :label="$t('MSG_TXT_MPNO')"
           >
             <p>
-              {{ !isEmpty(individualParams.cralLocaraTno
-                && individualParams.mexnoEncr
-                && individualParams.cralIdvTno)
-                ? `${individualParams.cralLocaraTno}
-                -${individualParams.mexnoEncr}
-                -${individualParams.cralIdvTno}`
+              {{ !isEmpty(individualParams.cralLocaraTno && individualParams.mexnoEncr && individualParams.cralIdvTno)
+                ? `${individualParams.cralLocaraTno}-${individualParams.mexnoEncr}-${individualParams.cralIdvTno}`
                 : '' }}
             </p>
           </kw-form-item>
@@ -208,7 +200,7 @@
           </kw-form-item>
           <!-- 판매유형 -->
           <kw-form-item
-            :label="$t('MSG_TXT_USWY_DV')"
+            :label="$t('MSG_TXT_SEL_TYPE')"
           >
             <p>{{ individualParams.sellTpNm }}</p>
           </kw-form-item>
@@ -558,13 +550,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil, popupUtil } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
+// const router = useRouter();
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
 const {
@@ -802,7 +795,6 @@ async function onClickSave() {
   saveParams.value.wkPrtnrNo = employeeIDNumber;
   saveParams.value.cstUnuitmCn = individualParams.value.cstUnuitmCn;
   if (isEmpty(saveParams.value.cstUnuitmCn)) { return; }
-  // console.log(saveParams.value);
   await dataService.post('sms/wells/service/individual-service-ps', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
@@ -822,7 +814,6 @@ async function onClickCstSearch() {
 }
 
 watch(props, async (val) => {
-  console.log(val);
   if (val) {
     searchParams.value.bcNo = '';
     searchParams.value.sppIvcNo = '';
@@ -918,6 +909,7 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'istEnvrFileUid' },
     { fieldName: 'istKitFileUid' },
     { fieldName: 'istCelngFileUid' },
+    { fieldName: 'cstSvAsnNo' },
   ];
 
   const columns = [
@@ -926,7 +918,15 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'svBizDclsf', header: t('MSG_TXT_RCP_ANS_IZ'), width: '150', styleName: 'text-center' },
     { fieldName: 'reqDt', header: t('MSG_TXT_AK_PROM_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'vstFshDt', header: t('MSG_TXT_PRCSDT'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'wkPrgsStat', header: t('MSG_TXT_PROCS_RS'), width: '100', styleName: 'text-center' },
+    { fieldName: 'wkPrgsStat',
+      header: t('MSG_TXT_PROCS_RS'),
+      width: '100',
+      styleName: 'text-center',
+      styleCallback(grd, dataCell) {
+        const wkPrgsStat = grd.getValue(dataCell.item.dataRow, 'wkPrgsStat');
+        return (wkPrgsStat === '작업대기') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+      },
+    },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
     { fieldName: 'zipNo', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogTp', header: t('MSG_TXT_DIV'), width: '94', styleName: 'text-center' },
@@ -965,10 +965,42 @@ const initGridState = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-  view.onCellItemClicked = async (grd, { column, dataRow }) => {
-    if (column === 'imgYn') {
+
+  view.onCellDblClicked = async (g, cData) => {
+    if (cData.fieldName === 'wkPrgsStat' || cData.fieldName === 'imgYn') { return false; }
+
+    notify(' 서비스처리상세 내역 팝업(W-SV-U-0165P01) 호출');
+    //   await modal({
+    //     component: '',
+    //     componentProps: {
+    //       cntrNo: searchParams.value.cntrNo,
+    //       cntrSn: searchParams.value.cntrSn,
+    //     },
+    //   });
+  };
+
+  view.onCellItemClicked = async (g, cData) => {
+    /* 작업상세 */
+    if (cData.fieldName === 'wkPrgsStat') {
+      const { cstSvAsnNo, wkPrgsStat } = g.getValues(cData.itemIndex);
+      console.log(cstSvAsnNo);
+      if (wkPrgsStat === '작업대기') {
+        // sample
+        // const redirectUrl = encodeURIComponent('/popup/mobile/wmsnb-as-work-list');
+        // window.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}`);
+
+        // const url = '/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt';
+        const redirectUrl = encodeURIComponent('/popup/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt');
+        const queryString = new URLSearchParams(cstSvAsnNo);
+        // window.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
+        popupUtil.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
+      }
+    }
+
+    /* 설치환경상세 */
+    if (cData.fieldName === 'imgYn') {
       notify(' 설치환경상세 팝업(W-SV-U-0214P01) 호출');
-      const { istEnvrFileUid, istKitFileUid, istCelngFileUid } = gridUtil.getRowValue(grd, dataRow);
+      const { istEnvrFileUid, istKitFileUid, istCelngFileUid } = g.getValues(cData.itemIndex);
       console.log(istEnvrFileUid);
       console.log(istKitFileUid);
       console.log(istCelngFileUid);
@@ -980,18 +1012,6 @@ const initGridState = defineGrid((data, view) => {
       //     istCelngFileUid,
       //   },
       // });
-    }
-  };
-  view.onCellClicked = async (grd, clikdD) => {
-    if (clikdD.fieldName === 'svBizDclsf') {
-      notify(' 서비스처리상세 내역 팝업(W-SV-U-0165P01) 호출');
-    //   await modal({
-    //     component: '',
-    //     componentProps: {
-    //       cntrNo: searchParams.value.cntrNo,
-    //       cntrSn: searchParams.value.cntrSn,
-    //     },
-    //   });
     }
   };
 

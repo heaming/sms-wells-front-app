@@ -92,7 +92,6 @@
             dgr2-levl-og-label="ogCdNm"
             dgr3-levl-og-label="ogCdNm"
             partner-label="prtnrNoNm"
-            auth-yn="N"
           />
         </template>
         <template v-if="isEngineerSelected">
@@ -106,7 +105,6 @@
             dgr1-levl-og-label="ogCdNm"
             partner-first-option="all"
             partner-label="prtnrNoNm"
-            auth-yn="N"
           />
         </template>
       </kw-search-row>
