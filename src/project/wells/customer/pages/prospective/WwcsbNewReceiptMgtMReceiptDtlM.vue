@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-observer ref="obsMainRef">
-      <div class="result-area">
+      <div class="normal-area  normal-area--button-set-bottom">
         <h3>{{ $t('MSG_TIT_APP_DTLS',null,'접수 정보') }}</h3>
         <kw-form
           :cols="2"
@@ -168,33 +168,30 @@
               <p>{{ assignInfo?.custAdr }}</p>
             </kw-form-item>
           </kw-form-row>
-          <div class="row justify-end items-center pt8">
-            <div class="item">
-              <slot v-if="currentJobType === 'ASGN'">
-                <kw-btn
-                  :label="$t('MSG_BTN_CANCEL')"
-                  secondary
-                  dense
-                  @click="onClickCancel"
-                />
-                <kw-btn
-                  :label="$t('MSG_BTN_SAVE')"
-                  primary
-                  dense
-                  class="ml8"
-                  @click="onClickSave"
-                />
-              </slot>
-              <slot v-else>
-                <kw-btn
-                  v-if="false"
-                  :label="$t('MSG_BTN_CONFIRM')"
-                  @click="onClickConfirm"
-                />
-              </slot>
-            </div>
-          </div>
         </kw-form>
+        <div class="button-set--bottom">
+          <div class="button-set--bottom-right">
+            <slot v-if="currentJobType === 'ASGN'">
+              <kw-btn
+                :label="$t('MSG_BTN_CANCEL')"
+                @click="onClickCancel"
+              />
+              <kw-btn
+                :label="$t('MSG_BTN_SAVE')"
+                primary
+                class="ml8"
+                @click="onClickSave"
+              />
+            </slot>
+            <slot v-else>
+              <kw-btn
+                v-if="false"
+                :label="$t('MSG_BTN_CONFIRM')"
+                @click="onClickConfirm"
+              />
+            </slot>
+          </div>
+        </div>
       </div>
     </kw-observer>
   </kw-page>
