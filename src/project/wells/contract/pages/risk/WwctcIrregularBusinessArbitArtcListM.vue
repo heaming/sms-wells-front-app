@@ -101,6 +101,7 @@
           @click="onClickDelete"
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           :disable="pageInfo.totalCount === 0"
           dense
