@@ -14,11 +14,6 @@
 --->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header
-        :options="['홈', '정보관리','기준정보관리','AS유형별 필요자재 관리']"
-      />
-    </template>
     <kw-search
       :cols="3"
       @search="onClickSearch"
@@ -132,7 +127,6 @@ const { getConfig } = useMeta();
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  // 'SV_DV_CD',
   'PD_GRP_CD',
 );
 
@@ -144,38 +138,18 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  // pageSize: 10,
 });
 let cachedParams;
 const searchParams = ref({
-  // svTpCd: '',
   pdGrpCd: '',
-  // ogId: '',
   pdCd: '',
   classA: '',
   classB: '',
   classC: '',
-  // dateType: '',
-  // dateValueFromDt: '',
-  // dateValueToDt: '',
-  // prtnrNo: '',
 });
 const classARef = ref([]);
 const classBRef = ref([]);
 const classCRef = ref([]);
-// const productCode = ref();
-// const prtNrs = ref();
-// watch(() => [searchParams.value.pdGrpCd], async () => {
-//   const tempVal = await getPartMaster(undefined, searchParams.value.pdGrpCd);
-//   productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.codeName }));
-// }, { immediate: true });
-
-// const servierCenterOrg = await getServiceCenterOrgs();
-
-// watch(() => [searchParams.value.ogId], async () => {
-//   prtNrs.value = await getServiceCenterPrtnr(searchParams.value.ogId);
-//   searchParams.value.prtnrNo = '';
-// }, { immediate: true });
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-encourage-materials-mngt', { params: { ...cachedParams, ...pageInfo.value } });
