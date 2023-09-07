@@ -75,7 +75,7 @@ addCode('PMOT_APY_GRP_CD', Array.from({ length: 5 })
 addCode('PMOT_APY_OPT_CD', Array.from({ length: 5 })
   .map((_, index) => ({ codeId: `${index + 1}`, codeName: `옵션${index + 1}` })));
 
-const appliedPromotions = toRef(props.modelValue);
+const appliedPromotions = ref(props.modelValue);
 
 const promotions = ref([]);
 const singlePromotions = ref([]);
