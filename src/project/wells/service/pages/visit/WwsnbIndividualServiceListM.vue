@@ -550,7 +550,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil, popupUtil } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -983,16 +983,17 @@ const initGridState = defineGrid((data, view) => {
     /* 작업상세 */
     if (cData.fieldName === 'wkPrgsStat') {
       const { cstSvAsnNo, wkPrgsStat } = g.getValues(cData.itemIndex);
+      console.log(cstSvAsnNo);
       if (wkPrgsStat === '작업대기') {
         // sample
         // const redirectUrl = encodeURIComponent('/popup/mobile/wmsnb-as-work-list');
         // window.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}`);
 
-        const url = '/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt';
-        const redirectUrl = encodeURIComponent(`/popup${url}`);
+        // const url = '/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt';
+        const redirectUrl = encodeURIComponent('/popup/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt');
         const queryString = new URLSearchParams(cstSvAsnNo);
-        window.open(`https://d-afm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
-        // popupUtil.open(`https://d-afm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
+        // window.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
+        popupUtil.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
       }
     }
 
