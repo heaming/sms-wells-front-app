@@ -55,6 +55,7 @@
       <kw-action-top>
         <!-- 등록  -->
         <kw-btn
+          v-permission:create
           primary
           등록
           :label="$t('MSG_BTN_RGST')"
@@ -112,6 +113,7 @@
           <kw-separator spaced="20px" />
           <!-- 계약  -->
           <kw-btn
+            v-permission:read
             secondary
             :label="$t('MSG_TXT_CNTRCT')"
             padding="10px"
@@ -119,6 +121,7 @@
           />
           <!-- 조회  -->
           <kw-btn
+            v-permission:read
             secondary
             :label="$t('MSG_BTN_INQR')"
             padding="10px"
@@ -127,6 +130,7 @@
           />
           <!-- 수정  -->
           <kw-btn
+            v-permission:update
             secondary
             :label="$t('MSG_BTN_MOD')"
             padding="10px"
@@ -143,6 +147,7 @@
           />
           <!-- 삭제  -->
           <kw-btn
+            v-permission:delete
             secondary
             :label="$t('MSG_BTN_DEL')"
             padding="10px"

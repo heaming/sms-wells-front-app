@@ -133,7 +133,7 @@
       />
       <!-- 저장 -->
       <kw-btn
-        v-permission:create
+        v-permission:update
         grid-action
         dense
         :label="$t('MSG_BTN_SAVE')"
