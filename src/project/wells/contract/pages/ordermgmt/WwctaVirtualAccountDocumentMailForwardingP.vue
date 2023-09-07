@@ -36,6 +36,7 @@
       />
       <!-- 발송 -->
       <kw-btn
+        v-permission:create
         primary
         :label="$t('MSG_BTN_SEND')"
         @click="onClickSend"
