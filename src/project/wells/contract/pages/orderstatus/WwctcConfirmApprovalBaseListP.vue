@@ -39,12 +39,30 @@
       <template #left>
         <kw-paging-info :total-count="totalCount" />
       </template>
+      <!-- 삭제 -->
       <kw-btn
+        v-if="isEqual(checkUser, 'I')"
         v-permission:delete
         dense
         grid-action
         :label="t('MSG_BTN_DEL')"
         @click="onClickDelete"
+      />
+      <!-- 저장 -->
+      <kw-btn
+        v-if="isNotPlanner"
+        v-permission:update
+        grid-action
+        :label="$t('MSG_BTN_SAVE')"
+        @click="onClickSave"
+      />
+      <!-- 추가 -->
+      <kw-btn
+        v-if="isEqual(checkUser, 'I')"
+        v-permission:create
+        grid-action
+        :label="$t('MSG_BTN_ROW_ADD')"
+        @click="onClickAdd"
       />
     </kw-action-top>
     <kw-grid
@@ -70,8 +88,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, getComponentType, useDataService, useModal, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { defineGrid, gridUtil, getComponentType, useDataService, useModal, useGlobal, useMeta } from 'kw-lib';
+import { cloneDeep, isEmpty, isEqual } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -79,6 +97,27 @@ const { notify } = useGlobal();
 
 const { ok, cancel: onClickCancel } = useModal();
 const grdConfirmRef = ref(getComponentType('KwGrid'));
+
+const { getUserInfo } = useMeta();
+const { baseRleCd } = getUserInfo();
+
+const checkUser = computed(() => { // 유저 권한 여부 확인 computed
+  if (isEmpty(baseRleCd)) { return ''; }
+
+  if (isEqual(baseRleCd, 'W1010')) { return 'I'; } // IT 담당자
+
+  if (baseRleCd.startsWith('W2') || baseRleCd.startsWith('W3')) {
+    if (isEqual(baseRleCd.substr(2, 4), '010')) { return 'P'; } // 플래너
+    return 'W'; // 현업
+  }
+
+  return '';
+});
+
+const isNotPlanner = computed(() => { // 플래너 제외 computed
+  const rtn = isEqual(checkUser.value, 'W') || isEqual(checkUser.value, 'I');
+  return rtn;
+});
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -98,6 +137,7 @@ const searchParams = ref({
 const totalCount = ref(0);
 let cachedParams;
 
+// fetchData: 조회
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
   grdConfirmRef.value.getData().clearRows();
@@ -109,10 +149,7 @@ async function fetchData() {
   view.getDataSource().setRows(res.data);
 }
 
-onMounted(async () => {
-  fetchData();
-});
-
+// onClickDelete: 삭제
 async function onClickDelete() {
   const view = grdConfirmRef.value.getView();
 
@@ -122,14 +159,111 @@ async function onClickDelete() {
 
   if (deletedRows.length > 0) {
     await notify(t('MSG_ALT_DELETED'));
-    await dataService.delete('sms/wells/contract/contracts/approval-request-standards', { data: deletedRows });
+    await dataService.delete('/sms/wells/contract/contracts/approval-request-standards', { data: deletedRows });
     fetchData();
   }
 }
 
+// onClickSave: 저장
+async function onClickSave() {
+  const view = grdConfirmRef.value.getView();
+  const changedRows = gridUtil.getChangedRowValues(view);
+
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+
+  await dataService.post('/sms/wells/contract/contracts/approval-request-standards', changedRows);
+
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
+}
+
+// onClickAdd: 행추가
+async function onClickAdd() {
+  const view = grdConfirmRef.value.getView();
+  await gridUtil.insertRowAndFocus(view, 0, {});
+}
+
+// isEditable: 승인요청구분 수정 StyleCallback
+function isEditable(grid, dataCell) {
+  const ret = {};
+  const state = grid.getDataSource().getRowState(dataCell.index.itemIndex);
+  let isInserted = false;
+
+  ret.renderer = { type: 'button' };
+
+  if (isEqual(state, 'created') && isNotPlanner.value) {
+    ret.renderer = { type: 'text' };
+    isInserted = true;
+  }
+
+  ret.editable = isInserted;
+  return ret;
+}
+
+// onMounted: 화면 실행 시 발생하는 이벤트
+onMounted(async () => {
+  await fetchData();
+});
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
+// const initGrid = defineGrid(async (data, view) => {
+//   const fields = [
+//     { fieldName: 'cntrAprAkDvCdNm' },
+//     { fieldName: 'cntrAprAkMsgCn' },
+//     { fieldName: 'cntrAprCanMsgCn' },
+//     { fieldName: 'cntrAprConfMsgCn' },
+//     { fieldName: 'vlStrtDtm' },
+//     { fieldName: 'vlEndDtm' },
+//     { fieldName: 'cntrAprAkDvCd' },
+//     { fieldName: 'cntrAprAkDvNm' },
+//     { fieldName: 'cntrAprAkDvPk' },
+//     { fieldName: 'vlStrtDtmPk' },
+//   ];
+
+//   const columns = [
+//     { fieldName: 'cntrAprAkDvCdNm',
+//       header: t('MSG_TXT_APR_REQ_CAT'),
+//       width: '180',
+//       styleName: 'rg-button-link text-center',
+//       renderer: { type: 'button' }
+//     },
+//     { fieldName: 'cntrAprAkMsgCn', header: t('MSG_TXT_REQ_MSG'), width: '477' },
+//     { fieldName: 'cntrAprCanMsgCn', header: t('MSG_TXT_REQ_CAN_MSG'), width: '477' },
+//     { fieldName: 'cntrAprConfMsgCn', header: t('MSG_TXT_APR_CNFM_MSG'), width: '477' },
+//     { fieldName: 'vlStrtDtm',
+//       header: t('MSG_TXT_STRT_DT'),
+//       width: '180',
+//       datetimeFormat: 'date',
+//       styleName: 'text-center'
+//     },
+//     { fieldName: 'vlEndDtm',
+//       header: t('MSG_TXT_END_DT'),
+//       width: '180',
+//       datetimeFormat: 'date',
+//       styleName: 'text-center'
+//     },
+//   ];
+
+//   data.setFields(fields);
+//   view.setColumns(columns);
+//   view.checkBar.visible = true; // create checkbox column
+//   view.rowIndicator.visible = true; // create number indicator column
+
+//   view.onCellItemClicked = async (g, { column, itemIndex }) => {
+//     if (column === 'cntrAprAkDvCdNm') {
+//       const row = g.getValue(itemIndex, 'cntrAprAkDvCd');
+//       const payload = {
+//         cntrAprAkDvCd: row,
+//         standardDt: searchParams.value.standardDt,
+//       };
+//       ok(payload);
+//     }
+//   };
+// });
+
 const initGrid = defineGrid(async (data, view) => {
   const fields = [
     { fieldName: 'cntrAprAkDvCdNm' },
@@ -145,18 +279,27 @@ const initGrid = defineGrid(async (data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrAprAkDvCdNm', header: t('MSG_TXT_APR_REQ_CAT'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
-    { fieldName: 'cntrAprAkMsgCn', header: t('MSG_TXT_REQ_MSG'), width: '477' },
-    { fieldName: 'cntrAprCanMsgCn', header: t('MSG_TXT_REQ_CAN_MSG'), width: '477' },
-    { fieldName: 'cntrAprConfMsgCn', header: t('MSG_TXT_APR_CNFM_MSG'), width: '477' },
-    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '180', datetimeFormat: 'date', styleName: 'text-center' },
-    { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '180', datetimeFormat: 'date', styleName: 'text-center' },
+    { fieldName: 'cntrAprAkDvCdNm',
+      header: t('MSG_TXT_APR_REQ_CAT'),
+      width: '180',
+      styleName: 'rg-button-link text-center',
+      // renderer: { type: 'button' },
+      rules: 'required',
+      // editable: false,
+      styleCallback(grid, dataCell) { return isEditable(grid, dataCell); },
+    },
+    { fieldName: 'cntrAprAkMsgCn', header: t('MSG_TXT_REQ_MSG'), width: '477', maxLength: 500 },
+    { fieldName: 'cntrAprCanMsgCn', header: t('MSG_TXT_REQ_CAN_MSG'), width: '477', maxLength: 500 },
+    { fieldName: 'cntrAprConfMsgCn', header: t('MSG_TXT_APR_CNFM_MSG'), width: '477', maxLength: 500 },
+    { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '180', datetimeFormat: 'date', styleName: 'text-center', rules: 'required', editor: { type: 'btdate', datetimeFormat: 'date' } },
+    { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '180', datetimeFormat: 'date', styleName: 'text-center', rules: 'required', editor: { type: 'btdate', datetimeFormat: 'date' } },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+  view.editOptions.editable = isNotPlanner.value;
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'cntrAprAkDvCdNm') {
