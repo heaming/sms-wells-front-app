@@ -256,10 +256,12 @@ async function onClickSearchPd() {
 }
 
 async function onClickExcelDownload() {
-  await gridUtil.exportView(grdMainMembership.value.getView(), {
+  const view = grdMainMembership.value.getView();
+  const res = await dataService.get('/sms/wells/contract/changeorder/membership-cancels/excel-download', { params: { ...cachedParams } });
+  await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: gridUtil.getAllRowValues(grdMainMembership.value.getView()),
+    exportData: res.data,
   });
 }
 

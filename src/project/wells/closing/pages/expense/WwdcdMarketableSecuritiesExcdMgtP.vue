@@ -187,6 +187,7 @@ import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 const dataService = useDataService();
 const { modal, confirm, notify, alert } = useGlobal();
+// const { ok } = useModal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -255,11 +256,18 @@ async function marketableSecuritiesExcd() {
   res.data.forEach((rowData) => {
     subPerfValTotal += Number(rowData.dstAmt);
   });
+  const addValue = {};
   const mainView = grdMainRef.value.getView();
-  mainView.setValue(0, 'dstAmt', subPerfValTotal);
-  const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
+  const adjCnfmAmt = props.cachedParams.domTrdAmt;
   const unregisteredAmount = adjCnfmAmt - subPerfValTotal;
-  mainView.setValue(0, 'amt', unregisteredAmount);
+  addValue.authDate = props.cachedParams.authDate;
+  addValue.adjCnfmAmt = adjCnfmAmt;
+  addValue.crcdnoEncr = props.cachedParams.crcdnoEncr;
+  addValue.mrcNm = props.cachedParams.mrcNm;
+  addValue.cardAprno = props.cachedParams.cardAprno;
+  addValue.dstAmt = subPerfValTotal;
+  addValue.amt = unregisteredAmount;
+  mainView.getDataSource().setRows([addValue]);
 }
 
 async function fetchData() {
@@ -449,6 +457,7 @@ async function onClickSave() {
 
   await notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
+  // await ok();
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -719,13 +728,6 @@ onMounted(async () => {
   } else if (props.cachedParams.ogTpCd === 'W02') {
     position.value = [{ codeId: 'W0204', codeName: '지점장' }, { codeId: 'W0205', codeName: '프리매니저' }];
   }
-  const addValue = {};
-  addValue.authDate = props.cachedParams.authDate;
-  addValue.adjCnfmAmt = props.cachedParams.domTrdAmt;
-  addValue.crcdnoEncr = props.cachedParams.crcdnoEncr;
-  addValue.mrcNm = props.cachedParams.mrcNm;
-  addValue.cardAprno = props.cachedParams.cardAprno;
-  grdMainRef.value.getView().getDataSource().addRow(addValue);
 
   searchParams.value.dgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
   initSearchParams = cloneDeep(searchParams.value);

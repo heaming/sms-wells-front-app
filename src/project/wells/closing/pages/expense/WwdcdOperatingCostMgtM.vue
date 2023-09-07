@@ -109,6 +109,7 @@
               :ref="(searchParams) => tabRefs.basic = searchParams"
               :selected-link-id="selectedLinkId"
               :init-data="searchParams"
+              @search="onClickSearch"
             />
           </kw-tab-panel>
           <kw-tab-panel name="sel">
@@ -116,6 +117,7 @@
               :ref="(searchParams) => tabRefs.sel = searchParams"
               :selected-link-id="selectedLinkId"
               :init-data="searchParams"
+              @search="onClickSearch"
             />
           </kw-tab-panel>
         </kw-tab-panels>

@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PDC (상품운영관리)
-2. 프로그램 ID : WwpdcStandardMgtMPriceVal - 기준상품 등록/변경- 가격정보 - 선택변수 등록 (  )
+2. 프로그램 ID : WwpdcStandardMgtMPriceVal - 기준상품 등록/변경- 가격정보 - 선택변수 등록 ( W-PD-U-0010M02 )
 3. 작성자 : jintae.choi
 4. 작성일 : 2022.12.31
 ****************************************************************************************************
@@ -15,11 +15,7 @@
 <template>
   <!-- 선택변수 등록 -->
   <h3>{{ $t('MSG_TXT_PD_REG_SEL_VAR') }}</h3>
-  <kw-form
-    ref="frmChannelRef"
-    :cols="2"
-    ignore-on-modified
-  >
+  <kw-form>
     <kw-form-row>
       <!-- 판매채널 -->
       <kw-form-item
@@ -33,21 +29,19 @@
           :options="usedChannelCds"
           rules="required"
           :label="$t('MSG_TXT_SEL_CHNL')"
+          ignore-on-modified
         />
       </kw-form-item>
     </kw-form-row>
-  </kw-form>
-  <kw-separator />
-  <kw-form
-    v-show="selectionVariables && selectionVariables.length"
-    ref="frmVariableRef"
-    :cols="2"
-    dense
-  >
+
     <kw-form-row>
       <!-- 선택변수 -->
-      <kw-form-item :label="$t('MSG_TXT_PD_SEL_VAL')">
+      <kw-form-item
+        :label="$t('MSG_TXT_PD_SEL_VAL')"
+        :colspan="3"
+      >
         <kw-option-group
+          ref="frmVariableRef"
           v-model="checkedSelVals"
           type="checkbox"
           option-value="colNm"
@@ -58,6 +52,7 @@
       </kw-form-item>
     </kw-form-row>
   </kw-form>
+
   <kw-action-bottom class="my20">
     <kw-btn
       v-show="!props.readonly"
@@ -66,7 +61,7 @@
       @click="onClickAdd"
     />
   </kw-action-bottom>
-
+  <kw-separator />
   <kw-action-top>
     <kw-btn
       v-show="!props.readonly"
@@ -129,7 +124,6 @@ const { notify } = useGlobal();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
-const frmChannelRef = ref();
 const frmVariableRef = ref();
 
 const prcd = pdConst.TBL_PD_PRC_DTL;
@@ -158,7 +152,6 @@ async function resetData() {
   addChannelId.value = '';
   removeObjects.value = [];
   gridRowCount.value = 0;
-  frmChannelRef.value.reset();
   frmVariableRef.value.reset();
   filterChannel.value = null;
   sellChannelFilterCond.value = null;
@@ -168,7 +161,6 @@ async function resetData() {
 
 async function init() {
   if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
-  frmChannelRef.value.init();
   frmVariableRef.value.init();
 }
 
