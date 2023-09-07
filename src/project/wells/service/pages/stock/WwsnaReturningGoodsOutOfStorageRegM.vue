@@ -505,7 +505,8 @@ async function onClickSave() {
 
   notify(t('MSG_ALT_SAVE_DATA'));
 
-  await fetchData();
+  view.getDataSource().clearRows();
+  view.setAllCheck(false);
 }
 
 onMounted(async () => {

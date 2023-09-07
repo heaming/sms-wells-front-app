@@ -424,6 +424,8 @@ async function onClickSave() {
     const chkOstrAkQty = checkedRows[i].ostrAkQty;
     const chkRectOstrDt = checkedRows[i].rectOstrDt;
     const chkOstrAkNo = searchParams.value.ostrAkNo;
+    const chkStrOjWareNo = searchParams.value.strOjWareNo.substring(0, 1);
+    const chkItemKnd = checkedRows[i].itemKnd;
 
     if (chkOstrAkTpCd === '310' && searchParams.value.ostrOjWareNo.substring(0, 1) === '3' && chkWarehouseQty === 0) {
       notify(t('MSG_ALT_NO_OSTR_WARE_STOC'));
@@ -441,6 +443,24 @@ async function onClickSave() {
 
     if (!isEmpty(chkOstrAkNo)) {
       checkedRows[i].ostrAkNo = chkOstrAkNo;
+    }
+
+    if (searchParams.value.ostrOjWareNo.substring(0, 1) === '1') {
+      if (chkStrOjWareNo === '2' && chkItemKnd === '4') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE01';
+      } else if (chkStrOjWareNo === '2' && chkItemKnd === '5') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE03';
+      } else if (chkStrOjWareNo === '2' && chkItemKnd !== '4' && chkItemKnd !== '5') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE02';
+      }
+
+      if (chkStrOjWareNo === '3' && chkItemKnd === '4') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE04';
+      } else if (chkStrOjWareNo === '3' && chkItemKnd === '5') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE06';
+      } else if (chkStrOjWareNo === '3' && chkItemKnd !== '4' && chkItemKnd !== '5') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE05';
+      }
     }
   }
   params = searchParams.value;
@@ -513,29 +533,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'useQty', dataType: 'number' }, /* 당월수량 */
     { fieldName: 'baseStocQty', dataType: 'number' }, /* 기준재고수량 */
     { fieldName: 'sftStocQty', dataType: 'number' }, /* 안전재고수량 */
-
-    // { fieldName: 'ostrAkWareDvCd' }, // 출고요청창고구분코드
-    // { fieldName: 'wareMngtPrtnrNo' }, // 창고관리파트너번호
-    // { fieldName: 'ostrOjWareDvCd' }, // 출고대상창고구분코드
-    // { fieldName: 'ostrOjWareNo' }, // 출고대상창고번호
-    // { fieldName: 'ostrWareMngtPrtnrNo' }, // 출고창고관리파트너번호
-    // { fieldName: 'mngtUnitCd' },
-    // { fieldName: 'boxUnitQty', dataType: 'number' },
-    // { fieldName: 'itmGdCd' },
-    // { fieldName: 'onQty', dataType: 'number' },
-    // { fieldName: 'ostrAkQty', dataType: 'number' }, // 출고요청수량
-    // { fieldName: 'ostrCnfmQty', dataType: 'number' }, // 출고확정수량
-    // { fieldName: 'rmkCn' }, // 비고
-    // { fieldName: 'rectOstrDt' }, // 최근출고일자
-    // { fieldName: 'ostrAggQty' }, // 출고누계수량
-    // { fieldName: 'warehouseQty', dataType: 'number' }, // 재고
-    // { fieldName: 'baseStocQty', dataType: 'number' }, // 기준재고수량
-    // { fieldName: 'sftStocQty', dataType: 'number' }, // 안전재고수량
-    // { fieldName: 'useQty', dataType: 'number' }, // 당월수량
-    // { fieldName: 'centerQty', dataType: 'number' }, // 센터수량
-    // { fieldName: 'indiQty', dataType: 'number' }, // 개인수량
-    // { fieldName: 'imgApnFileId' }, // 이미지첨부파일ID
-    // { fieldName: 'cfrmCnt', dataType: 'number' }, // 방문확정수량
+    { fieldName: 'chkLgstWkMthdCd' },
   ];
 
   const columns = [
@@ -668,6 +666,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-left',
       editable: true,
     },
+    { fieldName: 'chkLgstWkMthdCd' },
   ];
 
   const columnLayout = [
