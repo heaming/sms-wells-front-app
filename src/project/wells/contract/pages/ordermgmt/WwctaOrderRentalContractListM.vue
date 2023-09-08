@@ -43,6 +43,12 @@
           v-model:from="searchParams.strtDt"
           v-model:to="searchParams.endDt"
           rules="date_range_required|date_range_months:1"
+          :label="searchParams.prdEnqry === '1' ? $t('MSG_TXT_RCP_D'):
+            searchParams.prdEnqry === '2' ? $t('MSG_TXT_DT_OF_SALE'):
+            searchParams.prdEnqry === '3' ? $t('MSG_TXT_CAN_D'):
+            searchParams.prdEnqry === '4' ? $t('MSG_TXT_INST_DT'):
+            searchParams.prdEnqry === '5' ? $t('MSG_TXT_EXP_DT'):
+            searchParams.prdEnqry === '7' ? $t('MSG_TXT_DUEDT'):$t('MSG_TXT_RCP_D')"
         />
         <kw-input
           v-if="isSearchRentalNmnVisible"
