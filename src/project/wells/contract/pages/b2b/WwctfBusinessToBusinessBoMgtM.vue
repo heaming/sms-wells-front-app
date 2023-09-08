@@ -408,7 +408,6 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       styleName: 'text-center',
       editor: {
         maxLength: 10,
-        inputCharacters: ['0-9'],
       } }, // 신용등급
     { fieldName: 'etBiddDt',
       header: `${t('MSG_TXT_BID')}${t('MSG_TXT_EXP_MM')}`,
@@ -557,7 +556,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       }
       const rcvodDt = grid.getValue(updateRow, 31);
       const etCntrStrtdt = grid.getValue(updateRow, 33);
-      if (rcvodDt > etCntrStrtdt) {
+      if (rcvodDt > etCntrStrtdt && !isEmpty(etCntrStrtdt) && !isEmpty(rcvodDt)) {
         view.commit();
         if (columnName === 'rcvodDt') {
           data.setValue(updateRow, 'etCntrStrtdt', rcvodDt);

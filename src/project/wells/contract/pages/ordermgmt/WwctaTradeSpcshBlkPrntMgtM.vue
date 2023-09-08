@@ -370,7 +370,13 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       rules: 'required',
     }, // 발행주기
     { fieldName: 'emadr', visible: false },
-    { fieldName: 'emadrEncr', header: t('MSG_TXT_EMAIL'), width: '220', styleName: 'text-left' }, // 이메일
+    { fieldName: 'emadrEncr',
+      header: t('MSG_TXT_EMAIL'),
+      width: '220',
+      styleName: 'text-left',
+      editor: {
+        maxLength: 200,
+      } }, // 이메일
     { fieldName: 'faxTelNo',
       header: t('MSG_TXT_FAX_TNO'),
       width: '150',
