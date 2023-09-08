@@ -19,9 +19,7 @@
   >
     <kw-search-row>
       <!-- row1 소속구분 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_BLG')+$t('MSG_TXT_DIV')"
-      >
+      <kw-search-item :label="$t('MSG_TXT_BLG')+$t('MSG_TXT_DIV')">
         <kw-select
           v-model="searchParams.ogCd"
           :options="[{ codeId: '70079', codeName: '아웃바운드운영팀'},
@@ -48,9 +46,7 @@
         />
       </kw-search-item>
       <!-- row1 판매구분 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_SLS_CAT')"
-      >
+      <kw-search-item :label="$t('MSG_TXT_SLS_CAT')">
         <kw-select
           v-model="searchParams.sellOgTpCd"
           :options="codes.OG_TP_CD"
@@ -78,9 +74,7 @@
         />
       </kw-search-item>
       <!-- row2 상품코드 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_PRDT_CODE')"
-      >
+      <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
         <kw-input
           v-model="searchParams.basePdCd"
           icon="search"
@@ -88,9 +82,7 @@
         />
       </kw-search-item>
       <!-- row2 판매유형 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_SEL_TYPE')"
-      >
+      <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
         <kw-select
           v-model="searchParams.sellTpDtlCd"
           :options="codes.SELL_TP_DTL_CD.filter((v) => ['31','32','33','34'].includes(v.codeId))"
@@ -101,9 +93,7 @@
 
     <kw-search-row>
       <!-- row3 등록담당 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_RGST_PSIC')+$t('MSG_TXT_EPNO')"
-      >
+      <kw-search-item :label="$t('MSG_TXT_RGST_PSIC')+$t('MSG_TXT_EPNO')">
         <kw-input
           v-model="searchParams.rgstUsrEpNo"
           maxlength="10"
@@ -121,9 +111,7 @@
         />
       </kw-search-item>
       <!-- row3 취소유형 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_CNCL_TP')"
-      >
+      <kw-search-item :label="$t('MSG_TXT_CNCL_TP')">
         <kw-select
           v-model="searchParams.cntrStatChRsonCd"
           :options="codes.CMN_STAT_CH_RSON_CD"
@@ -131,9 +119,7 @@
         />
       </kw-search-item>
       <!-- row3 고객구분 -->
-      <kw-search-item
-        :label="$t('MSG_TXT_CST_DV')"
-      >
+      <kw-search-item :label="$t('MSG_TXT_CST_DV')">
         <kw-select
           v-model="searchParams.copnDvCd"
           :options="codes.COPN_DV_CD"
