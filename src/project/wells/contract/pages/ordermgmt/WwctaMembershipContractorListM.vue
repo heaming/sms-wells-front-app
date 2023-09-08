@@ -33,15 +33,13 @@
                      { codeId: '3', codeName: t('MSG_TXT_CBNO') }]"
           @change="onChangeBryyMmddEntrpNoCbnoryyMmdd"
         />
-        <kw-input
+        <kw-date-picker
           v-if="isSearchBryyMmddVisible"
           v-model="searchParams.bryyMmdd"
           placeholder="900101"
           rules="required|max:8|numeric"
           :label="$t('MSG_TXT_BIRTH_DATE')"
-          :type="number"
-          :regex="/^[0-9]*$/i"
-          mask="####-##-##"
+          type="date"
         />
         <kw-select
           v-if="isSearchSexDvCdVisible"
@@ -137,6 +135,7 @@
       </template>
       <!-- 엑셀다운로드 -->
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary

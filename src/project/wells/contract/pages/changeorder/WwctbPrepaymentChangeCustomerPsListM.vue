@@ -45,6 +45,8 @@
             v-model="fieldParams.ogCd"
             rules="required"
             icon="search"
+            clearable
+            regex="alpha_num"
             :on-click-icon="fetchOgCd"
             maxlength="10"
             :label="t('MSG_TXT_OG_CD')"
@@ -76,6 +78,7 @@
           <kw-input
             v-model="fieldParams.pdCd"
             icon="search"
+            regex="alpha_num"
             :on-click-icon="fetchProduct"
             maxlength="10"
           />
@@ -104,6 +107,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -168,7 +172,7 @@ const fieldParams = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(commonCodes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  pageSize: Number(commonCodes.COD_PAGE_SIZE_OPTIONS[2].codeName), // 30
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -212,7 +216,7 @@ async function fetchData() {
     return;
   }
 
-  const res = await dataService.get('/sms/wells/contract/changeorder/paging', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorder/prepayment-change-customers/paging', { params: cachedParams });
   const view = grdMainRef.value.getView();
 
   grdMainRef.value.getData().clearRows();
@@ -276,7 +280,7 @@ async function fetchProduct(gubun) {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/contract/changeorder/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/contract/changeorder/prepayment-change-customers/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,

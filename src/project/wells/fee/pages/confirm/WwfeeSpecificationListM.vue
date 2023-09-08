@@ -108,6 +108,7 @@
           v-if="sessionUserInfo.ogTpCd?.indexOf('HR') > -1"
           dense
           secondary
+          icon="report"
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')+'('+t('MSG_TXT_HDOF')+')'"
           @click="onClickOzReport('tot')"
         />
@@ -115,6 +116,7 @@
         <kw-btn
           dense
           secondary
+          icon="report"
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
           @click="onClickOzReport()"
         />

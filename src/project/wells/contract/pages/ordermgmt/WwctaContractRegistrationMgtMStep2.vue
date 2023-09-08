@@ -137,7 +137,7 @@
           v-for="(item, index) in step2.dtls"
         >
           <kw-expansion-item
-            v-if="item?.sellTpCd !== '2'"
+            v-if="!['2', '3'].includes(item?.sellTpCd)"
             :key="`${item.pdCd} + ${index}`"
             expand-icon-class="hidden"
             default-opened
@@ -613,6 +613,14 @@
               </kw-item>
             </template>
           </kw-expansion-item>
+          <single-pay-price-select
+            v-if="false"
+            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
+            :model-value="item"
+            :bas="step2.bas"
+            @price-changed="onPriceChanged"
+            @delete="onClickDelete(index)"
+          />
           <rental-price-select
             v-if="item?.sellTpCd === '2'"
             :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
@@ -621,6 +629,13 @@
             @one-plus-one="onClickOnePlusOne"
             @device-change="onClickDeviceChange"
             @price-changed="onPriceChanged"
+            @delete="onClickDelete(index)"
+          />
+          <membership-price-select
+            v-if="item?.sellTpCd === '3'"
+            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
+            :model-value="item"
+            :bas="step2.bas"
             @delete="onClickDelete(index)"
           />
         </template>
@@ -634,35 +649,45 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
+import SinglePayPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
 import RentalPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
-
+import MembershipPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
 import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isArray, isEmpty } from 'lodash-es';
 import { warn } from 'vue';
+import { useCtCode } from '~sms-common/contract/composable';
+
+const props = defineProps({
+  contract: { type: Object, required: true },
+});
+const emit = defineEmits([
+  'activated',
+  'contract-modified',
+]);
+const exposed = {};
+defineExpose(exposed);
 
 const { t } = useI18n();
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
+await useCtCode('CNTR_TP_CD');
+const router = useRouter();
 
-const props = defineProps({
-  contract: { type: Object, required: true },
-  onChildMounted: { type: Function, required: true },
-});
-const emit = defineEmits(['contract-modified']);
-
-const { cntrNo: pCntrNo, step2 } = toRefs(props.contract);
+const cntrNo = toRef(props.contract, 'cntrNo');
+const cntrTpCd = toRef(props.contract, 'cntrTpCd');
+const step2 = toRef(props.contract, 'step2');
 const ogStep2 = ref({});
 const pdFilter = ref('');
 const cachedPdFilter = ref('');
 const classfiedPds = ref([]);
 const filteredClsfPds = ref([]);
-const isMshCntr = computed(() => step2.value.bas?.cntrTpCd === '07');
+const isMshCntr = computed(() => cntrTpCd.value === '07');
 const isItem = {
   spay: (i) => i.sellTpCd === '1',
   rntl: (i) => i.sellTpCd === '2',
   msh: (i) => i.sellTpCd === '3',
   rgsp: (i) => i.sellTpCd === '6',
-  crpCntr: () => step2.value.bas?.cntrTpCd === '02',
+  crpCntr: () => cntrTpCd.value === '02',
   welsf: (i) => i.lclsfVal === '05001003',
   hcf: (i) => i.lclsfVal === '01003001',
   rglrSpp: (i) => i.cntrRelDtlCd === '216', // 정기배송
@@ -674,9 +699,19 @@ const isItem = {
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-async function getProducts(cntrNo) {
-  const pds = await dataService.get('sms/wells/contract/contracts/reg-products', { params: { cntrNo, pdFilter: pdFilter.value } });
-  classfiedPds.value = pds.data.pdClsf;
+async function getProducts() {
+  if (!cntrNo.value) {
+    await alert('잘못된 접근입니다.');
+    router.go(-1);
+    return;
+  }
+  const { data } = await dataService.get('sms/wells/contract/contracts/reg-products', {
+    params: {
+      cntrNo: cntrNo.value,
+      pdFilter: pdFilter.value,
+    },
+  });
+  classfiedPds.value = data.pdClsf;
   pdFilter.value = '';
   cachedPdFilter.value = '';
   filteredClsfPds.value = classfiedPds.value;
@@ -715,7 +750,9 @@ async function resetFilter() {
 }
 
 function resetCntrSn() {
-  step2.value.dtls.forEach((dtl, index) => { dtl.cntrSn = index + 1; });
+  step2.value.dtls.forEach((dtl, index) => {
+    dtl.cntrSn = index + 1;
+  });
 }
 
 async function addProduct(pd) {
@@ -912,10 +949,19 @@ async function onChangePkgs(dtl) {
   resetCntrSn();
 }
 
-async function getCntrInfo(cntrNo) {
-  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 2 } });
-  step2.value = cntr.data.step2;
-  pCntrNo.value = step2.value.bas.cntrNo;
+async function getCntrInfo() {
+  if (!cntrNo.value) {
+    await alert('잘못된 접근입니다.');
+    router.go(-1);
+    return;
+  }
+  const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', {
+    params: {
+      cntrNo: cntrNo.value,
+      step: 2,
+    },
+  });
+  step2.value = data.step2;
   ogStep2.value = cloneDeep(step2.value);
 }
 
@@ -926,7 +972,9 @@ function setFilter() {
   Object.values(clsfItemRefs).forEach((vm) => {
     vm?.show();
   });
-  if (!Array.isArray(classfiedPds.value)) { return []; }
+  if (!Array.isArray(classfiedPds.value)) {
+    return [];
+  }
   let clsfPds = classfiedPds.value;
   if (!cachedPdFilter.value) {
     filteredClsfPds.value = clsfPds;
@@ -1022,6 +1070,11 @@ async function isValidStep() {
   return true;
 }
 
+async function initStep() {
+  await getCntrInfo();
+  await getProducts();
+}
+
 async function saveStep() {
   resetCntrSn();
   const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step2', step2.value);
@@ -1029,21 +1082,24 @@ async function saveStep() {
   ogStep2.value = cloneDeep(step2.value);
   return savedCntr?.data?.key;
 }
-defineExpose({
-  getCntrInfo,
-  isChangedStep,
-  isValidStep,
-  saveStep,
-  getProducts,
-  confirmProducts,
-});
-onMounted(async () => {
-  props.onChildMounted(2);
+
+exposed.getCntrInfo = getCntrInfo;
+exposed.isChangedStep = isChangedStep;
+exposed.isValidStep = isValidStep;
+exposed.initStep = initStep;
+exposed.saveStep = saveStep;
+exposed.getProducts = getProducts;
+exposed.confirmProducts = confirmProducts;
+
+onActivated(() => {
+  initStep();
+  emit('activated', 2);
 });
 
 function onPriceChanged() {
   emit('contract-modified');
 }
+
 </script>
 
 <style scoped lang="scss">

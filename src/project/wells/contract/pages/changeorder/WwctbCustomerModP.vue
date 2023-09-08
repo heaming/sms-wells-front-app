@@ -223,11 +223,13 @@
     </kw-observer>
     <template #action>
       <kw-btn
+        v-permission:read
         negative
         :label="t('MSG_BTN_CANCEL')"
         @click="cancel"
       />
       <kw-btn
+        v-permission:update
         primary
         :label="t('MSG_BTN_SAVE')"
         @click="onClickSave"

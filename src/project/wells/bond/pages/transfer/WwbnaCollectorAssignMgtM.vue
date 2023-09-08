@@ -402,6 +402,7 @@ async function onClickDetailsExcelDownload() {
 }
 
 async function onClickExcelUpload() {
+  cachedParams = cloneDeep(searchParams.value);
   const apiUrl = '/sms/wells/bond/collector-assigns/details/excel-upload';
   const templateId = 'FOM_BND_ASN';
   const extraData = {

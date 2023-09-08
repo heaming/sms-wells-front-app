@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNC (배정관리)
-2. 프로그램 ID : [K-W-SV-U-0230M01] wwsncBsAccountByProductListM - 상품별 BS계정 현황
+2. 프로그램 ID : [K-W-SV-U-0230M01] WwsncBsAccountByProductListM - 상품별 BS계정 현황
 3. 작성자 : heymi.cho
 4. 작성일 : 2023.08.04
 ****************************************************************************************************
@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="3"
+      :cols="4"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -55,9 +55,6 @@
             @update:model-value="onUpdateRgnlGrp"
           />
         </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row>
         <!-- 지점 -->
         <kw-search-item
           :label="$t('MSG_TXT_BRANCH')"
@@ -70,27 +67,24 @@
             option-label="dgr3LevlOgNm"
           />
         </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_PD_GRP')"
+          :label="$t('MSG_TXT_ITM_DV')"
+          :colspan="2"
         >
           <kw-select
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
+            class="w150"
             first-option="all"
-            @change="changePdGrpCd"
+            @change="onChangePdGrpCd"
           />
-        </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_PRDT_NM')"
-        >
           <kw-select
             v-model="searchParams.pdCd"
-            :options="pds"
-            first-option="select"
-            option-label="cdNm"
-            option-value="cd"
-            :disable="searchParams.pdGrpCd === '' "
-            :label="$t('MSG_TXT_PRDT_NM')"
+            :options="selectedProductByPdGrpCd"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -140,13 +134,11 @@
 import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
-import smsCommon from '~sms-wells/service/composables/useSnCode';
 
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
 const now = dayjs();
-const { getPartMaster } = smsCommon();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -225,53 +217,33 @@ async function onUpdateRgnlGrp(value) {
 /*
  *  Select Component 초기화 - 전체 상품 목록 가져오기
  */
-// const products = ref([]);
-// const selectedProductByPdGrpCd = ref([]);
+const products = ref([]);
+const selectedProductByPdGrpCd = ref([]);
 
-// async function getProductList() {
-//   cachedParams = cloneDeep(searchParams);
-//   const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd',
-//   { params: { itmKndCd: searchParams.value.itmKndCd } });
-//   products.value = response.data;
-// }
-// onBeforeMount(async () => {
-//   searchParams.value.itmKndCd = '4';
-// });
-// onMounted(async () => {
-//   await getProductList();
-//   selectedProductByPdGrpCd.value = cloneDeep(products.value);
-//   selectedProductByPdGrpCd.value = selectedProductByPdGrpCd.value.map((v) =>
-//   ({ codeId: v.codeId, codeName: `${v.codeId} - ${v.codeName}` }));
-// });
-// const onChangePdGrpCd = (val) => {
-//   if (val.length < 1) {
-//     selectedProductByPdGrpCd.value = cloneDeep(products.value);
-//   } else {
-//     selectedProductByPdGrpCd.value = products.value.filter((v) => v.pdGrpCd === val);
-//   }
-// };
-
-const pds = ref([]);
-async function changePdGrpCd() {
-  if (searchParams.value.pdGrpCd) {
-    pds.value = await getPartMaster(
-      '4',
-      searchParams.value.pdGrpCd,
-      'M',
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
-    );
-  } else pds.value = [];
-  searchParams.value.pdCd = '';
+async function getProductList() {
+  cachedParams = cloneDeep(searchParams);
+  const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd', { params: { itmKndCd: searchParams.value.itmKndCd } });
+  products.value = response.data;
 }
-changePdGrpCd();
+
+onBeforeMount(async () => {
+  searchParams.value.itmKndCd = '4';
+});
+
+onMounted(async () => {
+  await getProductList();
+  selectedProductByPdGrpCd.value = cloneDeep(products.value);
+  selectedProductByPdGrpCd.value = selectedProductByPdGrpCd.value.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId} - ${v.codeName}` }));
+  // console.log(selectedProductByItmKnd.value);
+});
+
+const onChangePdGrpCd = (val) => {
+  if (val.length < 1) {
+    selectedProductByPdGrpCd.value = cloneDeep(products.value);
+  } else {
+    selectedProductByPdGrpCd.value = products.value.filter((v) => v.pdGrpCd === val);
+  }
+};
 
 async function fetchData() {
   // eslint-disable-next-line max-len

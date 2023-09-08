@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTB
 2. 프로그램 ID : WwctbRentalProductChangeM - 렌탈 주문 수정_상품변경 Variation (PC화면)
-3. 작성자 : hyeonjongRa
+3. 작성자 : hyeonjong.ra
 4. 작성일 : 2023.08.03
 ****************************************************************************************************
 * 프로그램 설명
@@ -268,12 +268,14 @@
                           <div class="row justify-end w155">
                             <!-- 기기변경 -->
                             <kw-btn
+                              v-permission:update
                               :label="$t('MSG_TXT_MCHN_CH')"
                               :disable="!isEmpty(orderProduct.plusCntrNo)"
                               dense
                               @click="onClickDeviceChange"
                             />
                             <kw-btn
+                              v-permission:update
                               label="1+1"
                               :disable="!isEmpty(orderProduct.mchChCntrNo)"
                               class="ml8"
@@ -445,10 +447,12 @@
                               </ul>
                             </div>
                             <kw-btn
+                              v-permission:delete
                               borderless
                               icon="close_24"
                               style="font-size: 24px;"
                               class="w24"
+                              @click="onClickDeleteDeviceChange"
                             />
                           </div>
                         </div>
@@ -479,7 +483,6 @@
                                 color="primary"
                                 outline
                                 class="ma2"
-                                @click="onClickDeleteDeviceChange"
                               />
 
                               <ul
@@ -511,6 +514,7 @@
                               </ul>
                             </div>
                             <kw-btn
+                              v-permission:delete
                               borderless
                               icon="close_24"
                               style="font-size: 24px;"
@@ -806,6 +810,7 @@
         <kw-action-bottom>
           <!-- 저장 -->
           <kw-btn
+            v-permission:update
             primary
             :label="$t('MSG_BTN_SAVE')"
             :disable="!isFetched"

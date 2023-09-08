@@ -110,11 +110,8 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             :total-count="pageInfo.totalCount"
-            @change="fetchData"
           />
         </template>
         <kw-btn
@@ -148,12 +145,6 @@
         :page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -195,7 +186,6 @@ const {
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs();
 const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
@@ -235,14 +225,12 @@ async function changeSido() {
 
 let cachedCodes;
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/responsible-area-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: products, pageInfo: pagingResult } = res.data;
+  const res = await dataService.get('/sms/wells/service/responsible-area-codes', { params: cachedParams });
+  const products = res.data;
   cachedCodes = cloneDeep(products);
-  pageInfo.value = pagingResult;
+  pageInfo.value.totalCount = res.data.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
-  // view.resetCurrent();
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -254,7 +242,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/service/responsible-area-codes/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/service/responsible-area-codes', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,

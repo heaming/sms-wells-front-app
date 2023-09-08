@@ -30,6 +30,7 @@
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_AGRG_DV')"
+        :colspan="2"
         required
       >
         <kw-option-group
@@ -176,28 +177,28 @@
       v-show="isGridMain"
       ref="grdMainRef"
       name="grdMain"
-      :visible-rows="10"
+      :total-count="totalCount"
       @init="initGrdMain"
     />
     <kw-grid
       v-show="isGridSub"
       ref="grdSubRef"
       name="grdSub"
-      :visible-rows="10"
+      :total-count="totalCount"
       @init="initGrdSub"
     />
     <kw-grid
       v-show="isGridThird"
       ref="grdThirdRef"
       name="grdThird"
-      :visible-rows="10"
+      :total-count="totalCount"
       @init="initGrdThird"
     />
     <kw-grid
       v-show="isGridFourth"
       ref="grdFourthRef"
       name="grdFourth"
-      :visible-rows="10"
+      :total-count="totalCount"
       @init="initGrdFourth"
     />
   </div>
@@ -428,16 +429,16 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sellTpCdNm',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '130',
-      styleName: 'text-left',
+      styleName: 'text-center',
     }, // 판매유형
     { fieldName: 'sellTpDtlCdNm',
       header: t('MSG_TXT_SELL_TP_DTL'),
       width: '130',
-      styleName: 'text-left',
+      styleName: 'text-center',
     }, // 판매유형상세
     { fieldName: 'sapPdAtcNm',
       header: t('MSG_TXT_SAP_PD_DV_CD_NM'),
-      styleName: 'text-left',
+      styleName: 'text-center',
       width: '130',
     }, // SAP상품구분코드명
     { fieldName: 'btdAtam',
@@ -585,20 +586,20 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'sellTpCdNm',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '150',
-      styleName: 'text-left',
+      styleName: 'text-center',
     }, // 판매유형
-    { fieldName: 'sellTpDtlCdNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-left' }, // 판매유형상세
+    { fieldName: 'sellTpDtlCdNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center' }, // 판매유형상세
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-left' }, // SAP상품구분코드명
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
     { fieldName: 'cstKnm',
       header: t('MSG_TXT_CST_NM'),
       width: '150',
-      styleName: 'text-left',
+      styleName: 'text-center',
     }, // 고객명
     { fieldName: 'pdCd',
       header: t('MSG_TXT_PRDT_CODE'),
       width: '150',
-      styleName: 'text-left',
+      styleName: 'text-center',
     }, // 상품코드
     { fieldName: 'pdNm',
       header: t('MSG_TXT_PRDT_NM'),
@@ -749,16 +750,16 @@ const initGrdThird = defineGrid((data, view) => {
       },
       datetimeFormat: 'YYYY-MM',
     }, // 실적년월
-    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
+    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center' }, // 판매유형
     { fieldName: 'sellTpDtlCdNm',
       header: t('MSG_TXT_SELL_TP_DTL'),
       width: '130',
-      styleName: 'text-left',
+      styleName: 'text-center',
     }, // 판매유형상세
     { fieldName: 'sapPdAtcNm',
       header: t('MSG_TXT_SAP_PD_DV_CD_NM'),
       width: '130',
-      styleName: 'text-left',
+      styleName: 'text-center',
     }, // SAP상품구분코드명
     { fieldName: 'mlgBtdPrpdAmt',
       header: t('MSG_TXT_BTD_AMT'),
@@ -872,16 +873,16 @@ const initGrdFourth = defineGrid((data, view) => {
       },
       datetimeFormat: 'YYYY-MM',
     }, // 실적년월
-    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-left' }, // 판매유형
+    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center' }, // 판매유형
     { fieldName: 'sellTpDtlCdNm',
       header: t('MSG_TXT_SELL_TP_DTL'),
       width: '130',
-      styleName: 'text-left',
+      styleName: 'text-center',
     }, // 판매유형상세
     { fieldName: 'sapPdAtcNm',
       header: t('MSG_TXT_SAP_PD_DV_CD_NM'),
       width: '130',
-      styleName: 'text-left',
+      styleName: 'text-center',
     }, // SAP상품구분코드명
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호

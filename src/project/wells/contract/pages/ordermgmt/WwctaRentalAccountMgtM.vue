@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTA
 2. 프로그램 ID : WwctaRentalAccountMgtM - 렌탈 계정 관리 현황
-3. 작성자 : gs.nidhi.d
+3. 작성자 : gs.nidhi.d / JSY
 4. 작성일 : 2023.01.24
 ****************************************************************************************************
 * 프로그램 설명
@@ -113,6 +113,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -232,9 +233,9 @@ async function onClickExcelDownload() {
   const view = grdRentalAccountList.value.getView();
   let res = '';
   if (isProd.value) {
-    res = await dataService.get('/sms/wells/contract/rental-accounts/products', { params: cachedParams });
+    res = await dataService.get('/sms/wells/contract/rental-accounts/products/excel-download', { params: cachedParams });
   } else {
-    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations', { params: cachedParams });
+    res = await dataService.get('/sms/wells/contract/rental-accounts/organizations/excel-download', { params: cachedParams });
   }
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,

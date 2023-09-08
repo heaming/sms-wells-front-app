@@ -22,7 +22,9 @@
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
         >
-          <p>{{ params.perfYm.substring(0,4)+'-'+params.perfYm.substring(4) }}</p>
+          <p>
+            {{ regData?.perfYm ? stringUtil.getDateFormat(regData?.perfYm).substring(0,7) : '' }}
+          </p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -44,7 +46,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useModal, useDataService, useGlobal } from 'kw-lib';
+import { useModal, useDataService, useGlobal, stringUtil } from 'kw-lib';
 
 const { cancel, ok } = useModal();
 const { notify } = useGlobal();

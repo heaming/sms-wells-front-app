@@ -363,7 +363,9 @@ function onChangeOstrWareNo() {
   }
 }
 
-function onChangeOstrTp(ostrTpCd) {
+function onChangeOstrTp() {
+  const { ostrTpCd } = searchParams.value;
+
   if (ostrTpCd === DISUSE) {
     ostrRsonCds.value = codes.DSU_RSON_CD;
     searchParams.value.strWareNm = '';
@@ -503,11 +505,13 @@ async function onClickSave() {
 
   notify(t('MSG_ALT_SAVE_DATA'));
 
-  await fetchData();
+  view.getDataSource().clearRows();
+  view.setAllCheck(false);
 }
 
 onMounted(async () => {
   await fetchDefaultData();
+  onChangeOstrTp();
   if (hasProps()) {
     setSearchParams();
     await fetchData();

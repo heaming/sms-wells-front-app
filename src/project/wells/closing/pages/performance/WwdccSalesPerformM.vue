@@ -40,7 +40,7 @@
           />
         </kw-tab-panel>
         <kw-tab-panel name="singlePayment">
-          <wwdcb-sales-performance-list-m-single-payment
+          <wwdcc-sales-perform-m-single-payment
             :ref="(vm) => tabRefs.prpDelinquentAdamt = vm"
           />
         </kw-tab-panel>
@@ -50,7 +50,7 @@
 </template>
 <script setup>
 import WwdccSalesPerformMSinglePaymentExcept from './WwdccSalesPerformMSinglePaymentExcept.vue';
-import WwdcbSalesPerformanceListMSinglePayment from '../sales/WwdcbSalesPerformanceListMSinglePayment.vue';
+import WwdccSalesPerformMSinglePayment from './WwdccSalesPerformMSinglePayment.vue';
 
 const tabRefs = reactive({});
 const selectedTab = ref('singlePaymentExcept');

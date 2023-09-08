@@ -103,12 +103,14 @@
         />
         <!-- 행추가 -->
         <kw-btn
+          v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAdd"
         />
         <!-- 저장 -->
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -287,7 +289,6 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'bzrno' }, // 사업자번호
     { fieldName: 'leadCstNm' }, // 업체명
     { fieldName: 'leadCstRlpplNm' }, // 업체담당자(KEY-MAN)
-    { fieldName: 'leadCstRlpplNmEncr' }, // 업체담당자(KEY-MAN) 마스킹
     { fieldName: 'locaraTno' }, // 업체연락처1-1
     { fieldName: 'exnoEncr' }, // 업체연락처1-2
     { fieldName: 'idvTno' }, // 업체연락처1-3
@@ -374,8 +375,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       editor: {
         maxLength: 50,
       } }, // 업체명
-    { fieldName: 'leadCstRlpplNm', visible: false },
-    { fieldName: 'leadCstRlpplNmEncr',
+    { fieldName: 'leadCstRlpplNm',
       header: t('MSG_TXT_COMP_RSP_USR'),
       width: '212',
       styleName: 'text-center',
@@ -503,7 +503,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     {
       header: t('Key-Man'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['leadCstRlpplNmEncr', 'telNo1', 'telNo2', 'emadrCn'],
+      items: ['leadCstRlpplNm', 'telNo1', 'telNo2', 'emadrCn'],
     },
     'crdrVal', 'etBiddDt', 'opptCntrFomCd', 'totQty',
     {
@@ -551,11 +551,6 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       if (!isEmpty(bzrnoParam) && !isEmpty(leadCstNmParam)) {
         onKeyManFind(itemIndex);
       }
-    }
-    if (columnName === 'leadCstRlpplNmEncr') {
-      const leadCstRlpplNmEncr = grid.getValue(updateRow, 12);
-      grid.commit();
-      data.setValue(updateRow, 'leadCstRlpplNm', leadCstRlpplNmEncr);
     }
   };
   view.setFixedOptions({

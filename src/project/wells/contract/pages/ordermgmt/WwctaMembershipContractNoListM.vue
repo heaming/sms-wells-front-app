@@ -50,6 +50,7 @@
       </template>
       <!-- 확정관리 -->
       <kw-btn
+        v-permission:update
         dense
         secondary
         :label="$t('MSG_TXT_CNFM_MNGT')"
@@ -58,6 +59,7 @@
       />
       <!-- 홈케어관리 -->
       <kw-btn
+        v-permission:update
         dense
         secondary
         :label="$t('MSG_TXT_HCR_MNGT')"
@@ -71,6 +73,7 @@
       />
       <!-- 엑셀다운로드 -->
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary

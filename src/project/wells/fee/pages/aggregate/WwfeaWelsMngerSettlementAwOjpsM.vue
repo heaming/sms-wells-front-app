@@ -157,19 +157,12 @@ const { currentRoute } = useRouter();
 const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
-const codes = await codeUtil.getMultiCodes('FEE_TCNT_DV_CD', 'RSB_DV_CD');
+const codes = await codeUtil.getMultiCodes('FEE_TCNT_DV_CD', 'RSB_DV_CD', 'OPNG_CD');
 const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0204', 'W0205'].includes(v.codeId));
 const dvCd = [
   { codeId: '01', codeName: '계약일' },
   { codeId: '02', codeName: '해약일' },
   { codeId: '03', codeName: '해약제외' },
-];
-const opngCd = [
-  { codeId: '999', codeName: '미지급' },
-  { codeId: '1', codeName: '최초개시' },
-  { codeId: '2', codeName: '최초개시_수석경력' },
-  { codeId: '3', codeName: '재개시_1년초과' },
-  { codeId: '4', codeName: '재개시_수석경력' },
 ];
 
 const searchParams = ref({
@@ -274,16 +267,17 @@ async function onClickSave() {
 
 // 개시구분 생성 버튼 클릭 이벤트
 async function onClickCreate() {
+  /*
   const { baseYm } = searchParams.value;
   const { feeCnfmYn, opngCnfmYn, opngCnfmCnt } = info.value;
   if (bfMonth !== baseYm) {
-    await alert(t('MSG_ALT_LSTMM_PSB')); /* 전월만 생성가능 */
+    await alert(t('MSG_ALT_LSTMM_PSB')); // 전월만 생성가능
   } else if (feeCnfmYn === 'Y') {
-    await alert(t('MSG_ART_FEE_CL_CRT_IMP')); /* 수수료 마감 이후 생성불가 */
+    await alert(t('MSG_ART_FEE_CL_CRT_IMP')); // 수수료 마감 이후 생성불가
   } else if (opngCnfmYn === 'Y') {
-    await alert(t('MSG_ALT_BF_CNFM_CONF')); /* 개시구분 확정 이후 생성불가 */
+    await alert(t('MSG_ALT_BF_CNFM_CONF')); // 개시구분 확정 이후 생성불가
   } else if (opngCnfmCnt > 0) {
-    if (await confirm(t('MSG_ALT_EXIST_DATA_RECREATION'))) { /* 해당년월 데이터 존재 재생성? */
+    if (await confirm(t('MSG_ALT_EXIST_DATA_RECREATION'))) { // 해당년월 데이터 존재 재생성?
       searchParams.value.reCrtYn = 'Y';
       await dataService.post('/sms/wells/fee/wm-settlement-allowances/insert', searchParams.value);
       searchParams.value.reCrtYn = 'N';
@@ -292,9 +286,16 @@ async function onClickCreate() {
     }
   } else if (await confirm(t('MSG_ALT_OPNG_CRT'))) {
     await dataService.post('/sms/wells/fee/wm-settlement-allowances/insert', searchParams.value);
-    await onClickSearch();
     notify(t('MSG_ALT_CRT_FSH'));
+    await onClickSearch();
   }
+  test를 위한 임시처리
+  */
+  searchParams.value.reCrtYn = 'Y';
+  await dataService.post('/sms/wells/fee/wm-settlement-allowances/insert', searchParams.value);
+  searchParams.value.reCrtYn = 'N';
+  notify(t('MSG_ALT_CRT_FSH'));
+  await onClickSearch();
 }
 
 // 개시구분 확정 버튼 클릭 이벤트
@@ -394,7 +395,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_OPNG_TP'),
       width: '130',
       rules: 'required',
-      options: opngCd,
+      options: codes.OPNG_CD,
       styleName: 'text-center',
       styleCallback(grid, dataCell) {
         const cnfmStatYn = gridUtil.getCellValue(grid, dataCell.index.dataRow, 'cnfmStatYn');

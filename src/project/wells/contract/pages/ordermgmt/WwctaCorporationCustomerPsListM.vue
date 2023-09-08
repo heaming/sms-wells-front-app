@@ -13,9 +13,7 @@
 ****************************************************************************************************
 --->
 <template>
-  <kw-page
-    @load="onLoad"
-  >
+  <kw-page>
     <kw-search
       :modified-targets="['grdMain']"
       :cols="4"
@@ -42,6 +40,7 @@
             :options="[{codeId: '1', codeName:$t('MSG_TXT_DP_PERF')},{codeId:'2',codeName:$t('MSG_TXT_PD_ACC_RSLT')}]"
           />
         </kw-search-item>
+        <!-- 직원구분 -->
         <kw-search-item
           :label="t('MSG_TXT_EMPL_DV')"
         >
@@ -51,6 +50,7 @@
             :options="[{codeId: '', codeName:$t('MSG_TXT_ALL')},{codeId:'1',codeName:$t('MSG_TXT_EMP_PRCH')}]"
           />
         </kw-search-item>
+        <!-- 취소구분 -->
         <kw-search-item
           :label="t('MSG_TXT_CNCL_DV')"
         >
@@ -62,6 +62,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 조회기간 -->
         <kw-search-item
           :label="t('MSG_TXT_LOOKUP_PERIOD')"
           required
@@ -77,6 +78,7 @@
             rules="required"
             @change="onChangeSearch"
           />
+          <!-- 접수일, 설치일 -->
           <kw-date-range-picker
             v-if="searchParams.dateGbn!=3"
             v-model:from="searchParams.fromDate"
@@ -84,6 +86,7 @@
             :name="t('MSG_TXT_LOOKUP_PERIOD')"
             rules="date_range_required|date_range_months:1"
           />
+          <!-- 렌탈차월 -->
           <kw-input
             v-if="searchParams.dateGbn==3"
             v-model="searchParams.fromRental"
@@ -101,6 +104,7 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 상품분류 -->
         <kw-search-item
           :label="t('MSG_TXT_PRDT_CATE')"
           :colspan="2"
@@ -123,6 +127,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 상품코드 -->
         <kw-search-item
           :label="t('TXT_MSG_PD_CD')"
         >
@@ -135,6 +140,7 @@
             @click-icon="onClickSelectPdCd()"
           />
         </kw-search-item>
+        <!-- 상품명 -->
         <kw-search-item
           :label="t('MSG_TXT_PRDT_NM')"
           :placeholder="t('MSG_TXT_INP')"
@@ -144,6 +150,7 @@
             :maxlength="100"
           />
         </kw-search-item>
+        <!-- 고객구분 -->
         <kw-search-item
           :label="t('MSG_TXT_CST_DV')"
         >
@@ -157,6 +164,7 @@
             ]"
           />
         </kw-search-item>
+        <!-- 이체구분 -->
         <kw-search-item
           :label="t('MSG_TXT_FNT_DV')"
         >
@@ -168,6 +176,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 조직코드 -->
         <kw-search-item
           :label="t('MSG_TXT_OG_CD')"
           class="selectOrgs"
@@ -182,6 +191,7 @@
             :end-level="3"
           />
         </kw-search-item>
+        <!-- 번호 -->
         <kw-search-item
           :label="t('MSG_TXT_PRTNR_NO')"
         >
@@ -193,6 +203,7 @@
             @click-icon="onClickSearchPrtnrNoPopup()"
           />
         </kw-search-item>
+        <!-- 인센티브대상여부 -->
         <kw-search-item
           :label="t('TXT_MSG_FEE_ICT_OJ_YN')"
         >
@@ -204,6 +215,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 업종 -->
         <kw-search-item
           :label="t('MSG_TXT_BZ_ITM')"
         >
@@ -212,6 +224,7 @@
             :maxlength="50"
           />
         </kw-search-item>
+        <!-- 업태 -->
         <kw-search-item
           :label="t('MSG_TXT_BZCL')"
         >
@@ -269,7 +282,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useMeta, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
+import { cloneDeep, uniqBy } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
@@ -327,17 +340,6 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-
-async function onLoad() {
-  const responses = await dataService.get('/sms/wells/contract/product-standards/high-levels');
-
-  const initHclsfs = [];
-
-  responses.data.forEach((v) => {
-    if (!isEmpty(v.gnrCd)) initHclsfs.push({ codeId: v.pdClsfId, codeName: v.pdClsfNm });
-  });
-  hclsfs.value = uniqBy(initHclsfs, 'codeId');
-}
 
 function onChangeSearch() {
   searchParams.value.fromDate = now.startOf('month').format('YYYYMMDD');

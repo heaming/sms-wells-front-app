@@ -20,7 +20,7 @@
         <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
           <kw-select
             v-model="searchParams.ogId"
-            :options="serviceCenter"
+            :options="serviceCenters"
             first-option="all"
             option-label="ogNm"
             option-value="ogId"
@@ -113,11 +113,8 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
-import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
-
-const { getServiceCenterOrgs } = useSnCode();
 
 const { t } = useI18n();
 const { currentRoute } = useRouter();
@@ -151,7 +148,7 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GRP_CD',
 );
 
-const serviceCenter = await getServiceCenterOrgs();
+const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } });
 const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
 
 function onUpdateProductGroupCode(val) {
@@ -238,11 +235,11 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM') } },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '150', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '170', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200' },
     { fieldName: 'cntt', header: t('MSG_TXT_TOT_SUM'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
-    { fieldName: 'svpdItemGr', header: t('MSG_TXT_PD_DV_CD'), width: '150', visible: false, autoFilter: false },
+    { fieldName: 'svpdItemGr', header: t('MSG_TXT_PD_DV_CD'), width: '50', visible: false, autoFilter: false },
     { fieldName: 'cnt1110', header: t('MSG_TXT_NW_IST'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
     { fieldName: 'cnt1111', header: t('MSG_TXT_IST_REQD'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },
     { fieldName: 'cnt1122', header: t('MSG_TXT_MYCO_NCLT'), width: '96', styleName: 'text-right', footer: { text: t('MSG_TXT_SUM'), expression: 'sum' } },

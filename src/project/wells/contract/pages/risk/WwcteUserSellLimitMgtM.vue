@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTE
 2. 프로그램 ID : WwcteUserSellLimitMgtM - 사용자 판매 제한 관리
-3. 작성자 : gs.anil.rawat
+3. 작성자 : gs.anil.rawat / JSY
 4. 작성일 : 2023.01.30
 ****************************************************************************************************
 * 프로그램 설명
@@ -94,11 +94,13 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           grid-action
           :label="t('MSG_BTN_ROW_ADD')"
           @click="onClickRowAdd"
         />
         <kw-btn
+          v-permission:update
           grid-action
           :label="t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -109,6 +111,7 @@
           inset
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -206,7 +209,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = gridMainRef.value.getView();
 
-  const res = await dataService.get('sms/wells/contract/sales-limits/users', { params: cachedParams });
+  const res = await dataService.get('sms/wells/contract/sales-limits/users/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,

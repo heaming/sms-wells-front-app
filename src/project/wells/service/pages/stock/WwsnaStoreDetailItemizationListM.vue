@@ -29,7 +29,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.stStrDt"
             v-model:to="searchParams.edStrDt"
-            rules="required|date_range_months:1"
+            rules="required"
             :label="$t('MSG_TXT_STR_PTRM')"
           />
         </kw-search-item>
@@ -373,7 +373,7 @@ async function fetchData() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/store-detail-itemization/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/store-detail-itemizations/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,

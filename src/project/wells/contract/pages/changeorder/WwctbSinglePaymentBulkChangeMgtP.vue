@@ -88,6 +88,7 @@
         <kw-form-item
           v-if="saveParams.procsDv==='703'"
           :label="$t('MSG_TXT_DUEDT')"
+          colspan="2"
         >
           <kw-date-picker
             v-model="saveParams.duedt"
@@ -265,7 +266,7 @@
       />
       <!-- 저장 -->
       <kw-btn
-        v-permission:create
+        v-permission:update
         grid-action
         dense
         :label="$t('MSG_BTN_SAVE')"

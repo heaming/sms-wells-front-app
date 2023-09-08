@@ -89,6 +89,7 @@
       />
       <!-- 발행(출력) -->
       <kw-btn
+        v-permission:print
         dense
         icon="report"
         :label="$t('MSG_BTN_PBL_PRNT')"

@@ -47,6 +47,7 @@
           />
         </template>
         <kw-btn
+          v-permission:print
           :label="$t('MSG_BTN_RPT_BRWS')"
           icon="report"
           dense
@@ -107,7 +108,7 @@ const codes = await codeUtil.getMultiCodes(
 let cachedParams;
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/contract/contracts/soledistributor-cancel-contracts', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/contract/contracts/soledistributor-cancel-contracts/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: pages, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 

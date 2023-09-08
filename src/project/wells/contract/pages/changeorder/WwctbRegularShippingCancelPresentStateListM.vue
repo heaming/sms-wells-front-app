@@ -187,10 +187,11 @@ async function fetchData() {
 }
 
 async function onClickExcelDownload() {
+  const res = await dataService.get('/sms/wells/contract/changeorder/regular-shipping-cancels/excel-download', { params: { ...cachedParams } });
   await gridUtil.exportView(grdMainRegular.value.getView(), {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: gridUtil.getAllRowValues(grdMainRegular.value.getView()),
+    exportData: res.data,
   });
 }
 

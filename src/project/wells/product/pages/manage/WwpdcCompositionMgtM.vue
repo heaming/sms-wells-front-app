@@ -112,7 +112,7 @@
             />
             <!-- 초기화 -->
             <kw-btn
-              v-show="!isCreate"
+              v-show="!isCreate && currentStep.step !== pdConst.COMPOSITION_STEP_CHECK.step"
               :label="$t('MSG_BTN_INTL')"
               class="ml8"
               @click="onClickReset"

@@ -65,7 +65,7 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  tcntDvCd: {
+  feeTcntDvCd: {
     type: String,
     default: '',
   },
@@ -73,7 +73,7 @@ const props = defineProps({
 
 const searchParams = ref({
   perfYm: props.perfYm,
-  tcntDvCd: props.tcntDvCd,
+  feeTcntDvCd: props.feeTcntDvCd,
 });
 
 let cachedParams;

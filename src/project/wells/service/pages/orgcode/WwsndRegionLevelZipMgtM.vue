@@ -72,7 +72,7 @@
         <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
           <kw-select
             v-model="searchParams.ogId"
-            :options="serviceCenter"
+            :options="serviceCenters"
             first-option="all"
             option-label="ogNm"
             option-value="ogId"
@@ -140,7 +140,7 @@ import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMe
 import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
-const { getDistricts, getServiceCenterOrgs } = useSnCode();
+const { getDistricts } = useSnCode();
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -177,7 +177,7 @@ const codes = await codeUtil.getMultiCodes(
   'LOCARA_VST_PRD_CD',
 );
 
-const serviceCenter = await getServiceCenterOrgs();
+const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } });
 const ctpvs = ref([]);
 const ctctys = ref([]);
 ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
@@ -272,13 +272,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'mgtCnt', header: t('MSG_TXT_SV_ACC'), width: '100', styleName: 'text-right' },
     { fieldName: 'wrkCnt', header: t('MSG_TXT_MLMN_ACTCS'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ctpvNm', header: t('MSG_TXT_CTPV_NM'), width: '100' },
-    { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY_NM'), width: '100' },
-    { fieldName: 'lawcEmdNm', header: t('MSG_TXT_LGLD'), width: '100' },
+    { fieldName: 'ctpvNm', header: t('MSG_TXT_CTPV'), width: '100' },
+    { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY'), width: '100' },
     { fieldName: 'amtdNm', header: t('MSG_TXT_AMTD'), width: '100' },
+    { fieldName: 'lawcEmdNm', header: t('MSG_TXT_LGLD'), width: '100' },
     { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_LOCARA_CMN_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'rpbLocaraGrpCd', header: t('MSG_TXT_LOCARA_GRP_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '150' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_SV_CNR'), width: '150' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_RPB_PRTNR_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RPB_ICHR'), width: '100' },
     { fieldName: 'vstDowVal', header: t('MSG_TXT_VST_DOW'), width: '100', options: codes.LOCARA_VST_PRD_CD },
@@ -305,8 +305,8 @@ const initGrdMain = defineGrid((data, view) => {
     'wrkCnt',
     'ctpvNm',
     'ctctyNm',
-    'lawcEmdNm',
     'amtdNm',
+    'lawcEmdNm',
     'rpbLocaraCd',
     'rpbLocaraGrpCd',
     'ogNm',

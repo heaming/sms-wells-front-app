@@ -81,7 +81,7 @@
         >
           <kw-select
             v-model="searchParams.aggregateTpCd"
-            :options="codes.MNGER_OG_AGRG_TP_CD"
+            :options="codes.MNGER_OG_AGRG_TP_CD.filter((v) => ['01', '02', '03', '04'].includes(v.codeId))"
           />
         </kw-search-item>
 

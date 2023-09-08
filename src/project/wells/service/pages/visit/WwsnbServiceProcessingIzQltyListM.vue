@@ -36,6 +36,7 @@
             first-option="all"
             option-label="ogNm"
             option-value="ogId"
+            class="w247"
           />
           <kw-select
             v-model="searchParams.prtnrNo"
@@ -43,7 +44,6 @@
             first-option="all"
             option-label="prtnrNoNm"
             option-value="prtnrNo"
-            class="w150"
           />
         </kw-search-item>
 
@@ -56,7 +56,9 @@
           />
         </kw-search-item>
       </kw-search-row>
+
       <kw-search-row>
+        <!-- 상품그룹 -->
         <kw-search-item
           :label="$t('MSG_TXT_PD_GRP')"
           :colspan="2"
@@ -65,26 +67,16 @@
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
             first-option="all"
-            @change="changePdGrpCd"
+            class="w150"
           />
-        </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_PRDT_NM')"
-          :colspan="2"
-        >
           <kw-select
             v-model="searchParams.pdCd"
-            :options="pds"
-            first-option="select"
-            option-label="cdNm"
-            option-value="cd"
-            :disable="searchParams.pdGrpCd === '' "
-            :label="$t('MSG_TXT_PRDT_NM')"
+            :options="products"
+            first-option="all"
+            :disable="searchParams.pdGrpCd === ''"
           />
         </kw-search-item>
-      </kw-search-row>
 
-      <kw-search-row>
         <!-- 조회기준 -->
         <kw-search-item
           :label="$t('MSG_TXT_INQR_BASE')"
@@ -93,6 +85,7 @@
           <kw-select
             v-model="searchParams.inquiryBase"
             :options="inquiryBases"
+            class="w247"
           />
           <kw-date-range-picker
             v-model:from="searchParams.baseDateFrom"
@@ -100,6 +93,9 @@
             rules="date_range_months:1"
           />
         </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
         <!-- 업무유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_TASK_TYPE')"
@@ -110,9 +106,7 @@
             first-option="all"
           />
         </kw-search-item>
-      </kw-search-row>
 
-      <kw-search-row>
         <!-- 작업상태 -->
         <kw-search-item
           :label="$t('MSG_TXT_WK_STS')"
@@ -180,16 +174,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, popupUtil } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty, toNumber } from 'lodash-es';
 import dayjs from 'dayjs';
-import smsCommon from '~sms-wells/service/composables/useSnCode';
-
-const { getPartMaster } = smsCommon();
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 const dataService = useDataService();
 
@@ -263,42 +255,20 @@ watch(() => searchParams.value.ogId, async (val) => {
   }
 });
 
-// const products = ref([]);
-// async function fetchProducts() {
-//   const res = await dataService.get('/sms/wells/service/service-processing/products',
-//   { params: { pdGrpCd: searchParams.value.pdGrpCd } });
-//   products.value = res.data;
-// }
-
-// watch(() => searchParams.value.pdGrpCd, async (val) => {
-//   if (isEmpty(val)) {
-//     products.value = [];
-//     return;
-//   }
-//   await fetchProducts();
-// }, { immediate: true });
-
-const pds = ref([]);
-async function changePdGrpCd() {
-  if (searchParams.value.pdGrpCd) {
-    pds.value = await getPartMaster(
-      '4',
-      searchParams.value.pdGrpCd,
-      'M',
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
-    );
-  } else pds.value = [];
-  searchParams.value.pdCd = '';
+const products = ref([]);
+async function fetchProducts() {
+  const res = await dataService.get('/sms/wells/service/service-processing/products', { params: { pdGrpCd: searchParams.value.pdGrpCd } });
+  products.value = res.data;
 }
-changePdGrpCd();
+
+watch(() => searchParams.value.pdGrpCd, async (val) => {
+  if (val === '') {
+    products.value = [];
+    searchParams.value.pdCd = '';
+    return;
+  }
+  await fetchProducts();
+});
 
 function getPhoneNo(locaraTno, exnoEncr, idvTno) {
   if (isEmpty(locaraTno) || isEmpty(exnoEncr) || isEmpty(idvTno)) return '';
@@ -353,7 +323,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center rg-button-link',
       footer: { text: t('MSG_TXT_SUM') },
       renderer: { type: 'button' },
-      preventCellItemFocus: true,
+      // preventCellItemFocus: true,
     },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'copnDvNm', header: t('MSG_TXT_INDV_CRP_DV'), width: '150', styleName: 'text-center' }, // 개인법인구분
@@ -583,9 +553,7 @@ const initGrdMain = defineGrid((data, view) => {
     const { cntrNo, cntrSn } = grid.getValues(itemIndex);
 
     if (column === 'cntrNoSn') {
-      console.log('개인별 서비스 현황 화면', cntrNo, cntrSn);
-      // TODO: W-SV-U-0072M01 개인별 서비스 현황 화면 새창으로 열기
-      await popupUtil.open(`#/service/wwsnb-service-processing-iz-qlty-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+      router.push({ path: '/service/wwsnb-individual-service-list', query: { cntrNo, cntrSn } });
     }
   };
 });

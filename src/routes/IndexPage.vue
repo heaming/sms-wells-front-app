@@ -30,7 +30,6 @@ import { WebDashboardM,
   // , consts
 } from 'kw-lib';
 
-// const { push } = useRouter();
 // const store = useStore();
 
 const homecards = import.meta.globEager('../modules/common/components/homecard/*.vue');

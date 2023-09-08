@@ -302,7 +302,7 @@
             <kw-form-row>
               <kw-form-item
                 label="요청사항"
-                colspan="2"
+                :colspan="2"
               >
                 <kw-input
                   v-model="item.wellsDtl.istAkArtcMoCn"
@@ -326,7 +326,7 @@
             <kw-form-row>
               <kw-form-item
                 label="요청사항"
-                colspan="2"
+                :colspan="2"
               >
                 <kw-input
                   v-model="item.wellsDtl.istAkArtcMoCn"
@@ -368,7 +368,7 @@
             v-if="item.sodbtNftfCntrYn !== 'Y'"
           >
             <kw-form-row
-              v-if="step3.bas.cntrTpCd === '02'"
+              v-if="cntrTpCd === '02'"
             >
               <kw-form-item label=" 세금계산서발행">
                 <kw-option-group
@@ -504,17 +504,20 @@ import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 import { codeUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
+const props = defineProps({
+  contract: { type: Object, required: true },
+});
+const emit = defineEmits([
+  'activated',
+]);
+const exposed = {};
+defineExpose(exposed);
+
 const { getters } = useStore();
 const { ogTpCd } = getters['meta/getUserInfo'];
 const dataService = useDataService();
 const { notify, alert } = useGlobal();
-const props = defineProps({
-  contract: { type: Object, required: true },
-  onChildMounted: { type: Function, required: true },
-});
-const { cntrNo: pCntrNo, step3 } = toRefs(props.contract);
-const ogStep3 = ref({});
-const { t } = useI18n();
+const router = useRouter();
 const codes = await codeUtil.getMultiCodes(
   'CNTRT_REL_CD',
   'IST_PLC_TP_CD',
@@ -531,6 +534,14 @@ codes.FMMB_N = [
   { codeId: 3, codeName: '3인 가구' },
   { codeId: 4, codeName: '4인 이상 가구' },
 ];
+
+const cntrNo = toRef(props.contract, 'cntrNo');
+const cntrTpCd = toRef(props.contract, 'cntrTpCd');
+const step3 = toRef(props.contract, 'step3');
+
+const ogStep3 = ref({});
+const { t } = useI18n();
+
 codes.DP_TP_CD_IDRV = [
   { codeId: '0201', codeName: '카드' },
   { codeId: '0101', codeName: '가상계좌' },
@@ -548,11 +559,20 @@ const isPsbBlkApy = ref(true);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-async function getCntrInfo(cntrNo) {
-  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 3 } });
+async function getCntrInfo() {
+  if (!cntrNo.value) {
+    await alert('잘못된 접근입니다.');
+    router.go(-1);
+    return;
+  }
+  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', {
+    params: {
+      cntrNo: cntrNo.value,
+      step: 3,
+    },
+  });
   step3.value = cntr.data.step3;
   adrs.value[0] = step3.value.basAdrpc;
-  pCntrNo.value = step3.value.bas.cntrNo;
 
   // 일괄적용 여부(렌탈이면서 유상멤버십기간, 판매유형코드, 판매유형상세코드 등이 일치해야 함)
   const baseDtl = step3.value.dtls[0];
@@ -576,8 +596,6 @@ async function getCntrInfo(cntrNo) {
       dtl.blkApy = 'N';
     });
   }
-
-  console.log(step3.value);
   ogStep3.value = cloneDeep(step3.value);
 }
 
@@ -612,13 +630,13 @@ async function onClickAddRectRgstAdr(dtl) {
     return;
   }
   if (!isEmpty(adrs.value.find((adr) => adr.rcgvpKnm === newAdr.rcgvpKnm
-    && adr.cralLocaraTno === newAdr.cralLocaraTno
-    && adr.mexnoEncr === newAdr.mexnoEncr
-    && adr.cralIdvTno === newAdr.cralIdvTno
-    && adr.locaraTno === newAdr.locaraTno
-    && adr.exnoEncr === newAdr.exnoEncr
-    && adr.idvTno === newAdr.idvTno
-    && adr.adrId === newAdr.adrId))) {
+      && adr.cralLocaraTno === newAdr.cralLocaraTno
+      && adr.mexnoEncr === newAdr.mexnoEncr
+      && adr.cralIdvTno === newAdr.cralIdvTno
+      && adr.locaraTno === newAdr.locaraTno
+      && adr.exnoEncr === newAdr.exnoEncr
+      && adr.idvTno === newAdr.idvTno
+      && adr.adrId === newAdr.adrId))) {
     alert('이미 등록된 주소입니다.');
   } else {
     adrs.value.push(newAdr);
@@ -633,13 +651,13 @@ function onClickRectRgstAdr(dtl, adr) {
 
 function onClickDeleteRectRgstAdr(delAdr) {
   adrs.value = adrs.value.filter((adr) => adr.rcgvpKnm !== delAdr.rcgvpKnm
-    || adr.cralLocaraTno !== delAdr.cralLocaraTno
-    || adr.mexnoEncr !== delAdr.mexnoEncr
-    || adr.cralIdvTno !== delAdr.cralIdvTno
-    || adr.locaraTno !== delAdr.locaraTno
-    || adr.exnoEncr !== delAdr.exnoEncr
-    || adr.idvTno !== delAdr.idvTno
-    || adr.adrId !== delAdr.adrId);
+      || adr.cralLocaraTno !== delAdr.cralLocaraTno
+      || adr.mexnoEncr !== delAdr.mexnoEncr
+      || adr.cralIdvTno !== delAdr.cralIdvTno
+      || adr.locaraTno !== delAdr.locaraTno
+      || adr.exnoEncr !== delAdr.exnoEncr
+      || adr.idvTno !== delAdr.idvTno
+      || adr.adrId !== delAdr.adrId);
 }
 
 function onClickPrevDtlSn() {
@@ -672,14 +690,19 @@ function onChangeSodbtNftfCntr(v) {
   });
 }
 
-defineExpose({
-  getCntrInfo,
-  isChangedStep,
-  isValidStep,
-  saveStep,
-});
-onMounted(async () => {
-  props.onChildMounted(3);
+async function initStep() {
+  await getCntrInfo();
+}
+
+exposed.getCntrInfo = getCntrInfo;
+exposed.isChangedStep = isChangedStep;
+exposed.isValidStep = isValidStep;
+exposed.initStep = initStep;
+exposed.saveStep = saveStep;
+
+onActivated(() => {
+  initStep();
+  emit('activated', 1);
 });
 </script>
 

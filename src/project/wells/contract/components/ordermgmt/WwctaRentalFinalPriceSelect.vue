@@ -34,6 +34,31 @@
               outline
             />
           </div>
+          <div class="row items-center">
+            <kw-item-label class="kw-fc--black3 kw-font-pt14">
+              금액
+            </kw-item-label>
+            <kw-item-label
+              class="text-black1 text-bold ml8"
+              :class="{'text-strike text-black3': promotionAppliedPrice && promotionAppliedPrice.length}"
+            >
+              {{ displayedFinalPrice }}
+            </kw-item-label>
+            <template v-if="promotionAppliedPrice">
+              <kw-separator
+                vertical
+                spaced="8px"
+              />
+              <kw-item-label
+                class="kw-fc--black3 kw-font-pt14"
+              >
+                할인가
+              </kw-item-label>
+              <kw-item-label class="kw-fc--black1 text-bold ml8">
+                {{ promotionAppliedPrice }}
+              </kw-item-label>
+            </template>
+          </div>
         </div>
       </kw-item-section>
       <kw-item-section
@@ -70,36 +95,6 @@
       </kw-item-section>
     </template>
     <template #default>
-      <kw-item class="scoped-item scoped-item">
-        <kw-item-section>
-          <div class="row items-center">
-            <kw-item-label class="kw-fc--black3 kw-font-pt14">
-              금액
-            </kw-item-label>
-            <kw-item-label
-              class="text-black1 text-bold ml8"
-              :class="{'text-strike text-black3': promotionAppliedPrice && promotionAppliedPrice.length}"
-            >
-              {{ displayedFinalPrice }}
-            </kw-item-label>
-            <template v-if="promotionAppliedPrice">
-              <kw-separator
-                vertical
-                spaced="8px"
-              />
-              <kw-item-label
-                class="kw-fc--black3 kw-font-pt14"
-              >
-                할인가
-              </kw-item-label>
-              <kw-item-label class="kw-fc--black1 text-bold ml8">
-                {{ promotionAppliedPrice }}
-              </kw-item-label>
-            </template>
-          </div>
-          <div class="row items-center" />
-        </kw-item-section>
-      </kw-item>
       <kw-item
         class="scoped-item scoped-item mt12"
       >
@@ -385,9 +380,9 @@ let pdQty = toRef(props.modelValue, 'pdQty');
 let mchnCh = toRef(props.modelValue, 'mchnCh');
 let opo = toRef(props.modelValue, 'opo');
 let bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
-let appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
-let promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
-let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions');
+let appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
+let promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
+let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
 // appliedPromotions.value ??= [];
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '2'));
@@ -401,6 +396,9 @@ async function fetchFinalPriceOptions() {
     },
     silent: true,
   });
+  if (!data?.length) {
+    alert('선택 가능한 가격 조건이 없습니다.');
+  }
   finalPriceOptions.value = data || [];
 }
 
@@ -484,7 +482,7 @@ function initPriceDefineVariables() {
   }
 
   variableNames.forEach((variableName) => {
-    priceDefineVariables.value[variableName] = selectedFinalPrice[variableName];
+    priceDefineVariables.value[variableName] = selectedFinalPrice[variableName] ?? EMPTY_ID;
   });
 }
 
