@@ -243,6 +243,7 @@
         <span class="ml8">(단위:원, 개월:건)</span>
       </template>
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary

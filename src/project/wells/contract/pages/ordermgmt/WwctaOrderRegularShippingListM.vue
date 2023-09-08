@@ -162,6 +162,7 @@
       </template>
       <kw-btn
         v-if="isCsvDownloadVisible"
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -170,6 +171,7 @@
         @click="onClickCsvDownload"
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -563,7 +565,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
     { fieldName: 'fnlAmt', header: t('MSG_TXT_SLE_PRC'), width: '134', styleName: 'text-right' }, // 판매가격
     { fieldName: 'sellAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '134', styleName: 'text-right' }, // 공급가액
     { fieldName: 'vat', header: t('MSG_TXT_VAT'), width: '134', styleName: 'text-right' }, // 부가세
-    { fieldName: 'cntrAmt', header: t('MSG_TXT_CNTR_PTRM'), width: '134', styleName: 'text-right' }, // 계약총액
+    { fieldName: 'cntrAmt', header: t('MSG_TXT_CNTRCT_AMT'), width: '134', styleName: 'text-right' }, // 계약총액
     { fieldName: 'mmBilAmt', header: t('MSG_TXT_MM_BIL_AMT'), width: '134', styleName: 'text-right' }, // 월청구액
     { fieldName: 'pdBaseAmt', header: t('MSG_TXT_PD_NOM_PRC'), width: '134', styleName: 'text-right' }, // 상품정상가격
     { fieldName: 'ackmtPerfRt', header: t('MSG_TXT_ACKMT_PERF_RAT'), width: '136', styleName: 'text-right' }, // 인정실적률(%)

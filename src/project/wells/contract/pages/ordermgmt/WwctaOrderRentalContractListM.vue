@@ -235,6 +235,7 @@
       </template>
       <kw-btn
         v-if="isCsvDownloadVisible"
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -243,6 +244,7 @@
         @click="onClickCsvDownload"
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -329,7 +331,7 @@ const pageInfo = ref({
 const grdRentalContractList = ref(getComponentType('KwGrid'));
 const isSearchPrdEnqryVisible = ref(true); // 조회조건(기간조회)
 const isSearchRentalNmnVisible = ref(false); // 조회조건(렌탈차월)
-const isCsvDownloadVisible = ref(false); // CSV Download Button
+const isCsvDownloadVisible = ref(true); // CSV Download Button
 const checkType = ref([]); // 자료구분
 const checkOption = ref([
   { codeId: 1, codeName: t('MSG_TXT_BOO_MTR') }, // 예약자료
