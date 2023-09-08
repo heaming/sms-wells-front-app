@@ -3,9 +3,9 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNC
- 2. 프로그램 ID : [K-W-SV-U-0243M01] WwsnbTotalAfterServiceRateOdmPerOemM - 실적_총A/S율-ODM/OEM
+ 2. 프로그램 ID : [K-W-SV-U-0245M01] WwsnbNewPdctMThreeAcuAfSvRtM - 실적_신제품 M+3 누적 A/S율
  3. 작성자 : gs.piit231
- 4. 작성일 : 2023.09.06
+ 4. 작성일 : 2023.09.07
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
@@ -16,7 +16,7 @@
   <kw-page>
     <template #header>
       <kw-page-header
-        :options="['홈', '품질현황', '품질관리', '총A/S율-ODM/OEM']"
+        :options="['홈', '품질현황', '품질관리', '신제품 M+3 누적 A/S율']"
       />
     </template>
     <kw-search @search="onClickSearch">
@@ -93,11 +93,21 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
+
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <kw-btn
+          primary
+          label="M+3 출시일 등록"
+          @click="onClickPopup"
+        />
       </kw-action-top>
       <!-- <kw-grid
-        ref="grdMainRef"
-        :visible-rows="30"
-        @init="initGrdMain"
+        :visible-rows="5"
+        @init="initGrid"
       /> -->
       <kw-grid
         ref="grdMainRef"
@@ -111,12 +121,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, useMeta, gridUtil } from 'kw-lib';
+import { useDataService, useGlobal, useMeta, codeUtil, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 import { printElement } from '~common/utils/common';
 
 const { t } = useI18n();
+const { modal } = useGlobal();
 const { getConfig } = useMeta();
 
 const dataService = useDataService();
@@ -200,13 +211,14 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '실적_총A/S율-ODM/OEM',
+    fileName: '실적_신제품 M+3 누적 A/S율',
     timePostfix: true,
   });
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/total-afterservice-rate-odmperoem', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/newpd-m-three-acu-af-sv-rt', { params: searchParams.value });
+  console.log('res.data >>>>', res.data);
   pageInfo.value.totalCount = res.data.length;
 
   const view = grdMainRef.value.getView();
@@ -216,6 +228,16 @@ async function fetchData() {
 
 async function onClickSearch() {
   await fetchData();
+}
+
+async function onClickPopup() {
+  await modal({
+    component: 'WwsnbNewPdctMThreeAcuAfSvRtP',
+    componentProps: {
+      pdGrp: searchParams.value.pdGrp, // 상품그룹
+      pdCd: searchParams.value.pdCd, // 상품명
+    },
+  });
 }
 
 const divCd = [
@@ -229,7 +251,7 @@ const divCd = [
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-async function initGrdMain(data, view) {
+function initGrdMain(data, view) {
   const fields = [
     { fieldName: 'atcNm' }, // 항목명
     { fieldName: 'totalCnt', dataType: 'number' }, // 합계
@@ -419,32 +441,11 @@ async function initGrdMain(data, view) {
     ],
   });
 
+  // view.layoutByColumn('MSG_TXT_DIV').summaryUserSpans = [{ colspan: 2 }];
+
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-
-  // data.setRows([
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // ]);
 }
 </script>
