@@ -408,7 +408,6 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       styleName: 'text-center',
       editor: {
         maxLength: 10,
-        inputCharacters: ['0-9'],
       } }, // 신용등급
     { fieldName: 'etBiddDt',
       header: `${t('MSG_TXT_BID')}${t('MSG_TXT_EXP_MM')}`,
