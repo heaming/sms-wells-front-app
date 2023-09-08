@@ -556,7 +556,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       }
       const rcvodDt = grid.getValue(updateRow, 31);
       const etCntrStrtdt = grid.getValue(updateRow, 33);
-      if (rcvodDt > etCntrStrtdt) {
+      if (rcvodDt > etCntrStrtdt && !isEmpty(etCntrStrtdt) && !isEmpty(rcvodDt)) {
         view.commit();
         if (columnName === 'rcvodDt') {
           data.setValue(updateRow, 'etCntrStrtdt', rcvodDt);
