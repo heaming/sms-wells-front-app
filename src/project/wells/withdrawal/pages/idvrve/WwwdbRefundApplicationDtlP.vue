@@ -141,6 +141,7 @@
             :false-value="N"
             :true-value="Y"
             :label="$t('MSG_TXT_PPYM_RFND')"
+            @update:model-value="onClickArfndYn"
           />
           <!-- v-model="searchParams.check" -->
         </kw-form-item>
@@ -295,6 +296,8 @@
           >
             <kw-date-picker
               v-model="saveParams.dsbDt"
+              :min-date="minDate"
+              :disable="arfndYnChk"
               :label="$t('MSG_TXT_DSB_DT')"
               rules="required"
             />
@@ -419,6 +422,8 @@ const grdPopRef2 = ref();
 const grdPopRef3 = ref();
 const grdPopRef4 = ref();
 const obsRef = ref();
+const arfndYnChk = ref(false);
+const minDate = ref();
 const dataService = useDataService();
 const { ok } = useModal();
 
@@ -431,7 +436,7 @@ const saveParams = ref({
   /* 처리정보(환불정보) */
   rveDt: now.format('YYYYMMDD'),
   perfDt: now.format('YYYYMMDD'),
-  dsbDt: now.format('YYYYMMDD'),
+  dsbDt: now.add(2, 'd').format('YYYYMMDD'),
   procsDv: '03',
   procsCn: '',
   rfndAkNo: '',
@@ -563,6 +568,20 @@ async function onClickExcel2() {
     fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_RFND_DTL')}`,
     timePostfix: true,
   });
+}
+
+async function onClickArfndYn() {
+  const { arfndYn } = saveParams.value;
+
+  if (arfndYn === 'Y') {
+    saveParams.value.dsbDt = now.format('YYYYMMDD');
+    arfndYnChk.value = true;
+  } else {
+    const date = now.add(2, 'd').format('YYYYMMDD');
+    saveParams.value.dsbDt = date;
+    minDate.value = now.add(2, 'd').format('YYYY-MM-DD');
+    arfndYnChk.value = false;
+  }
 }
 
 // 전금상세 다운로드
@@ -768,8 +787,8 @@ onMounted(async () => {
 
   saveParams.value.rfndAkNo = props.rfndAkNo;
   await fetchData();
+  onClickArfndYn();
 });
-
 /** ****************환불상세 function *********************** */
 
 // 단일행추가
