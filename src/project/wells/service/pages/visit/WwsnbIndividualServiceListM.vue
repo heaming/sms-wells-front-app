@@ -556,13 +556,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil, popupUtil } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, gridUtil, popupUtil } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { getConfig } = useMeta();
+// const { getConfig } = useMeta();
 // const router = useRouter();
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
@@ -605,13 +605,13 @@ const countInfo = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
   needTotalCount: true,
 });
 const secondPageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
   needTotalCount: true,
 });
 
@@ -730,7 +730,7 @@ async function getIndividualState() {
 
   pageInfo.value = pagingResult;
 
-  pageInfo.value.totalCount = individualState.length;
+  // pageInfo.value.totalCount = individualState.length;
   const individualStateView = grdIndividualStateRef.value.getView();
   const individualStateData = individualStateView.getDataSource();
   individualStateData.checkRowStates(false);
@@ -1073,6 +1073,7 @@ const initGridState = defineGrid((data, view) => {
   ]);
 
   view.onScrollToBottom = async (g) => {
+    debugger;
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
       await getIndividualState();
