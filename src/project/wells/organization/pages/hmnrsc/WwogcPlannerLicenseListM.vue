@@ -294,23 +294,46 @@ async function onClickUpgrades(type) {
     cvdt: qualification.cvdt,
     qlfAplcDvCd: qualification.targetQlfAplcDvCd,
   };
-  console.log('>>>>> params: ', params);
-  const res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
-  console.log('>>>>> res: ', res);
 
-  if (res.data > 1) {
+  switch (type) {
+    case 'CANCEL':
+      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]));
+      break;
+    case 'HOLDING':
+      params.qlfAplcDvCd = '3'; // 보류
+      params.qlfDvCd = grdMain2Datas.value[0].qlfDvCd;
+      params.strtdt = grdMain2Datas.value[0].strtdt;
+
+      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_QLF_HOLDON')]));
+      break;
+    case 'THIS_OPENING':
+      params.strtdt = dayjs().format('YYYYMMDD');
+
+      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_THM_OPNG')]));
+      break;
+    default:
+      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]));
+  }
+  const res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
+
+  onclickSearch();
+
+  console.log('>>>>> res: ', res);
+  // eslint-disable-next-line no-unsafe-optional-chaining
+  const { processCount } = res?.data;
+  if (processCount > 0) {
     switch (type) {
       case 'CANCEL':
-        notify(t('MSG_ALT_PROCS_FSH', t('MSG_TXT_CLTN')));
+        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]));
         break;
       case 'HOLDING':
-        notify(t('MSG_ALT_PROCS_FSH', t('MSG_BTN_QLF_HOLDON')));
+        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_QLF_HOLDON')]));
         break;
       case 'THIS_OPENING':
-        notify(t('MSG_ALT_PROCS_FSH', t('MSG_BTN_THM_OPNG')));
+        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_THM_OPNG')]));
         break;
       default:
-        notify(t('MSG_ALT_PROCS_FSH', t('MSG_BTN_NMN_OPNG')));
+        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]));
     }
 
     onclickSearch();
