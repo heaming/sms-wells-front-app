@@ -29,7 +29,7 @@
           <kw-date-range-picker
             v-model:from="searchParams.stStrDt"
             v-model:to="searchParams.edStrDt"
-            rules="required|date_range_months:1"
+            rules="required"
             :label="$t('MSG_TXT_STR_PTRM')"
           />
         </kw-search-item>

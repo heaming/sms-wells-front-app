@@ -556,7 +556,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil, popupUtil } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
@@ -1017,8 +1017,9 @@ const initGridState = defineGrid((data, view) => {
         const wkPrgsStatCd = procStus;
 
         const param = `cstSvAsnNo=${cstSvAsnNo}&bypassPrtnrNo=${bypassPrtnrNo}&svHshdNo=${svHshdNo}&svHshdNoCnt=${svHshdNoCnt}&svBizHclsfCd=${svBizHclsfCd}&svBizDclsfCd=${svBizDclsfCd}&wkPrgsStatCd=${wkPrgsStatCd}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`;
-        const redirectUrl = encodeURIComponent('/popup/mobile/wmsnb-as-work-list');
-        const queryString = new URLSearchParams(param);
+        const redirectUrl = encodeURIComponent(`/popup/mobile/wmsnb-as-work-list?${param}`);
+        // const queryString = new URLSearchParams(param);
+        // console.log(queryString);
         let url = '';
         if (window.location.href.includes('localhost')) {
           url = 'https://m-wpm.kyowon.co.kr';
@@ -1026,9 +1027,8 @@ const initGridState = defineGrid((data, view) => {
           url = window.location.origin;
         }// env.mode === 'qa'
 
-        window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
-
-        // popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
+        // window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
+        popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
       }
     }
 

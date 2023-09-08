@@ -49,6 +49,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -74,6 +75,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -98,6 +100,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -122,6 +125,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -146,6 +150,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -170,6 +175,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -195,6 +201,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -219,6 +226,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -244,6 +252,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -268,6 +277,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -293,6 +303,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -318,6 +329,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -479,51 +491,52 @@ async function onClickSearch() {
 // 계약변경이력 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload1() {
   const view = grdCntrChgHistList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download1', { params: cachedParams });
+  console.log(res.data);
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.searchTbSsctCntrChHistResList,
+    exportData: res.data,
   });
 }
 
 // 계약상세변경이력 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload2() {
   const view = grdCntrDtlChgHistList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download2', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.searchTbSsctCntrDchHistResList,
+    exportData: res.data,
   });
 }
 
 // 계약고객관계 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload3() {
   const view = grdCntrCstRelList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download3', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.searchTbSsctCntrCstRelResList,
+    exportData: res.data,
   });
 }
 
 // 계약파트너관계 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload4() {
   const view = grdCntrPrtnrRelList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download4', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.searchTbSsctCntrPrtnrRelResList,
+    exportData: res.data,
   });
 }
 
 // 계약주소관계 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload5() {
   const view = grdCntrAdrRelList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download5', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -534,77 +547,77 @@ async function onClickExcelDownload5() {
 // 계약주소변경이력 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload6() {
   const view = grdCntrAdrChgHistList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download6', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.searchTbSsctCntrAdrChHistResList,
+    exportData: res.data,
   });
 }
 
 // 계약결제관계 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload7() {
   const view = grdCntrStlmRelList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download7', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.searchTbSsctCntrStlmRelResList,
+    exportData: res.data,
   });
 }
 
 // 계약결제변경이력 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload8() {
   const view = grdCntrStlmChgHistList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download8', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.searchTbSsctCntrStlmChHistResList,
+    exportData: res.data,
   });
 }
 
 // 계약WELLS상세변경이력 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload9() {
   const view = grdCntrWellsDtlChgHistList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download9', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.searchTbSsctCntrWellsDchHistResList,
+    exportData: res.data,
   });
 }
 
 // 계약관계 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload10() {
   const view = grdCntrRelList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download10', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.searchTbSsctCntrRelResList,
+    exportData: res.data,
   });
 }
 
 // 기기변경이력 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload11() {
   const view = grdCntrMchnChgHistList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download11', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.searchTbSsctMchnChHistResList,
+    exportData: res.data,
   });
 }
 
 // 렌탈재약정변경이력 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload12() {
   const view = grdRentalRstlChgHistList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorders/order-change-history/excel-download12', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.searchTbSsctRentalRstlChHistResList,
+    exportData: res.data,
   });
 }
 

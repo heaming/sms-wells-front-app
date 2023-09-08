@@ -186,6 +186,8 @@
         <div class="row justify-end items-center">
           <!-- 수정 -->
           <kw-btn
+            v-permission:create
+            v-permission:update
             :label="$t('MSG_TXT_MOD')"
             class="ml8"
             primary
@@ -222,6 +224,8 @@
         <div class="row justify-end items-center">
           <!-- 수정 -->
           <kw-btn
+            v-permission:create
+            v-permission:update
             :label="$t('MSG_TXT_MOD')"
             class="ml8"
             primary
@@ -268,6 +272,8 @@
         <div class="row justify-end items-center">
           <!-- 수정 -->
           <kw-btn
+            v-permission:create
+            v-permission:update
             :label="$t('MSG_TXT_MOD')"
             class="ml8"
             primary
@@ -584,6 +590,8 @@
         >
           <!-- 수정 -->
           <kw-btn
+            v-permission:create
+            v-permission:update
             :label="$t('MSG_TXT_MOD')"
             class="ml8"
             primary
@@ -596,6 +604,7 @@
         >
           <!-- 자동이체납부정보변경 -->
           <kw-btn
+            v-permission:update
             :label="$t('MSG_BTN_CRDCD_MPY_INF_CHANGE')"
             class="ml8"
             primary

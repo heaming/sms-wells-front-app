@@ -17,6 +17,7 @@
   <kw-action-top class="mt30">
     <!-- 입금 -->
     <kw-btn
+      v-permission:read
       dense
       secondary
       :label="$t('MSG_BTN_DP')"
@@ -25,6 +26,7 @@
     <!-- 선납 -->
     <kw-btn
       v-if="isSearchPrepaymentVisible"
+      v-permission:read
       dense
       secondary
       :label="$t('MSG_BTN_PRM')"
@@ -32,6 +34,7 @@
     />
     <!-- 입금상세정보 -->
     <kw-btn
+      v-permission:read
       dense
       secondary
       :label="$t('MSG_BTN_DP_DTL_INF')"
