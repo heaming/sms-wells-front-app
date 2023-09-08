@@ -43,26 +43,24 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_MDLV_DV')"
-          required
         >
           <kw-select
             v-model="searchParams.sppMthdTpCd"
             :options="makeADeliveryDivideCode"
-            rules="required"
             :label="$t('MSG_TXT_MDLV_DV')"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
           :label="$t('TXT_MSG_SELL_CHNL_CD')"
-          required
         >
           <kw-select
             v-model="searchParams.sellInflwChnlDtlCd"
             :options="codes.SELL_CHNL_DTL_CD"
-            rules="required"
             :label="$t('TXT_MSG_SELL_CHNL_CD')"
+            first-option="all"
           />
         </kw-search-item>
 
@@ -233,7 +231,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setHeaderSummaries({
     visible: true,
     items: [
-      { height: 40 },
+      { height: 42 },
     ],
   });
   view.layoutByColumn('sapMatCd').summaryUserSpans = [{ colspan: 5 }];
@@ -276,7 +274,7 @@ const initGrdSub = defineGrid((data, view) => {
   view.setHeaderSummaries({
     visible: true,
     items: [
-      { height: 40 },
+      { height: 42 },
     ],
   });
   view.layoutByColumn('sapMatCd').summaryUserSpans = [{ colspan: 4 }];
