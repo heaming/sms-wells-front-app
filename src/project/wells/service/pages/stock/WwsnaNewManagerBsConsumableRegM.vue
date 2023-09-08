@@ -89,7 +89,7 @@
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_SAVE')"
-          :disable="isDisableSave"
+          :disable="isDisableSave && pageInfo.totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator

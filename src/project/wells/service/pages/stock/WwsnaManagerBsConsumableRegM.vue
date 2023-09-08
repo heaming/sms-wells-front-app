@@ -83,12 +83,10 @@
             @change="fetchData"
           />
         </template>
-        <!-- @TODO: TEMP_CODE :: AS-IS 저장기능 없음 -->
-        <!-- 신청품목 신규추가 될 경우 disable 해제 -->
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_SAVE')"
-          :disable="isDisableSave"
+          :disable="isDisableSave && pageInfo.totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator
