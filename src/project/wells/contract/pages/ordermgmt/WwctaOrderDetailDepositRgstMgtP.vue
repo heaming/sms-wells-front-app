@@ -45,6 +45,7 @@
             v-model:from="searchParams.rveDtFr"
             v-model:to="searchParams.rveDtTo"
             rules="date_range_required|date_range_months:1"
+            :label="$t('MSG_TXT_DP_DT')"
           />
         </kw-search-item>
       </kw-search-row>
