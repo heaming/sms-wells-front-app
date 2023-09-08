@@ -17,6 +17,7 @@
   <kw-action-top class="mt30">
     <!-- 위약금 예상 -->
     <kw-btn
+      v-permission:read
       dense
       secondary
       :label="$t('MSG_BTN_CCAM_ET')"
@@ -24,6 +25,7 @@
     />
     <!-- 프로모션 -->
     <kw-btn
+      v-permission:read
       dense
       secondary
       :label="$t('MSG_BTN_PMOT')"
@@ -31,6 +33,7 @@
     />
     <!-- 연관계약리스트 -->
     <kw-btn
+      v-permission:read
       dense
       secondary
       :label="$t('MSG_BTN_RLTD_CNTR_LIST')"

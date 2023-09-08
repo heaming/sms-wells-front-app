@@ -187,6 +187,7 @@
               <!-- 가상계좌확인서 -->
               <kw-btn
                 v-show="isVacInfo"
+                v-permission:print
                 :label="$t('MSG_BTN_VT_AC_CFDC')"
                 padding="12px"
                 @click="onClickVtAcCfdc"
