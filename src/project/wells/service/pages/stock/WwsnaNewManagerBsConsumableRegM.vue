@@ -234,36 +234,6 @@ async function getNewMCsmbAplcClose() {
   aplcCloseData.value = res.data;
 }
 
-function validateRegPeriod() {
-  const strtDt = aplcCloseData.value.bizStrtdt;
-  const strtHh = aplcCloseData.value.bizStrtHh;
-  const endDt = aplcCloseData.value.bizEnddt;
-  const endHh = aplcCloseData.value.bizEndHh;
-
-  if ((isEmpty(strtDt) || isEmpty(strtHh) || isEmpty(endDt) || isEmpty(endHh))
-  || Number(strtDt + strtHh) >= Number(endDt + endHh)) {
-    return false;
-  }
-
-  return true;
-}
-
-async function onClickRgstPtrmSe() {
-  aplcCloseData.value.mngtYm = aplcCloseData.value.bizStrtdt.substring(0, 6);
-
-  if (!validateRegPeriod()) {
-    notify(t('MSG_ALT_RGST_PTRM_CHECK'));
-    return;
-  }
-
-  aplcCloseData.value.bizStrtHh = aplcCloseData.value.bizStrtHh.substring(0, 4);
-  aplcCloseData.value.bizEndHh = aplcCloseData.value.bizEndHh.substring(0, 4);
-
-  await dataService.post('/sms/wells/service/newmanager-bsconsumables/period-term', aplcCloseData.value);
-  notify(t('MSG_ALT_SAVE_DATA'));
-  await getNewMCsmbAplcClose();
-}
-
 async function reAryGrid() {
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
@@ -281,6 +251,7 @@ async function reAryGrid() {
     { fieldName: 'prtnrNmNo' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'blank' },
+    { fieldName: 'bfsvcCsmbDdlvStatCd' },
   ];
 
   const columns = [
@@ -462,6 +433,46 @@ async function fetchData() {
 
   view.getDataSource().setRows(bldCsmbDeliveries);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
+  view.setCheckableCallback((dataSource, item) => {
+    debugger;
+    const { bfsvcCsmbDdlvStatCd } = gridUtil.getRowValue(view, item.dataRow);
+
+    if (bfsvcCsmbDdlvStatCd === '30') {
+      return false;
+    }
+    return true;
+  }, true);
+}
+
+function validateRegPeriod() {
+  const strtDt = aplcCloseData.value.bizStrtdt;
+  const strtHh = aplcCloseData.value.bizStrtHh;
+  const endDt = aplcCloseData.value.bizEnddt;
+  const endHh = aplcCloseData.value.bizEndHh;
+
+  if ((isEmpty(strtDt) || isEmpty(strtHh) || isEmpty(endDt) || isEmpty(endHh))
+  || Number(strtDt + strtHh) >= Number(endDt + endHh)) {
+    return false;
+  }
+
+  return true;
+}
+
+async function onClickRgstPtrmSe() {
+  aplcCloseData.value.mngtYm = aplcCloseData.value.bizStrtdt.substring(0, 6);
+
+  if (!validateRegPeriod()) {
+    notify(t('MSG_ALT_RGST_PTRM_CHECK'));
+    return;
+  }
+
+  aplcCloseData.value.bizStrtHh = aplcCloseData.value.bizStrtHh.substring(0, 4);
+  aplcCloseData.value.bizEndHh = aplcCloseData.value.bizEndHh.substring(0, 4);
+
+  await dataService.post('/sms/wells/service/newmanager-bsconsumables/period-term', aplcCloseData.value);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
 }
 
 async function onClickSearch() {
@@ -595,6 +606,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'prtnrNmNo' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'blank' },
+    { fieldName: 'bfsvcCsmbDdlvStatCd' },
   ];
 
   const columns = [
