@@ -1022,6 +1022,7 @@ const initGridState = defineGrid((data, view) => {
         // console.log(queryString);
 
         let url = '';
+        console.log(import.meta.env.MODE);
         if (import.meta.env.MODE === 'qa') {
           url = 'https://q-m-wpm.kyowon.co.kr';
         } else {
