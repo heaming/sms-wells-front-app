@@ -941,8 +941,8 @@ const initGridState = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       styleCallback(grd, dataCell) {
-        const wkPrgsStat = grd.getValue(dataCell.item.dataRow, 'wkPrgsStat');
-        return (wkPrgsStat === '작업대기') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+        const procStus = grd.getValue(dataCell.item.dataRow, 'procStus');
+        return (procStus === '00') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
       },
     },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
@@ -1000,7 +1000,7 @@ const initGridState = defineGrid((data, view) => {
   view.onCellItemClicked = async (g, cData) => {
     /* 작업상세 */
     if (cData.fieldName === 'wkPrgsStat') {
-      const { wkPrgsStat,
+      const {
         cstSvAsnNo,
         prtnrNo,
         svHshdNo,
@@ -1012,7 +1012,7 @@ const initGridState = defineGrid((data, view) => {
         cntrSn,
       } = g.getValues(cData.itemIndex);
 
-      if (wkPrgsStat === '작업대기') {
+      if (procStus === '00') {
         const bypassPrtnrNo = prtnrNo;
         const wkPrgsStatCd = procStus;
 
@@ -1020,12 +1020,14 @@ const initGridState = defineGrid((data, view) => {
         const redirectUrl = encodeURIComponent(`/popup/mobile/wmsnb-as-work-list?${param}`);
         // const queryString = new URLSearchParams(param);
         // console.log(queryString);
+
         let url = '';
-        if (window.location.href.includes('localhost')) {
-          url = 'https://m-wpm.kyowon.co.kr';
+        console.log(import.meta.env.MODE);
+        if (import.meta.env.MODE === 'qa') {
+          url = 'https://q-m-wpm.kyowon.co.kr';
         } else {
-          url = window.location.origin;
-        }// env.mode === 'qa'
+          url = 'https://m-wpm.kyowon.co.kr';
+        }
 
         // window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
         popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
