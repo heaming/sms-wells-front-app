@@ -860,13 +860,19 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 .kw-card {
+  display: flex;
+  flex-flow: column wrap;
   cursor: pointer;
 
   // min-width: 450px;
+  // width: calc((100% - 60px) / 3);
   width: calc((100% - 80px) / 4);
 }
 
 .state-chip {
+  margin-top: auto;
+  flex: none;
+  max-width: max-content;
   height: 24px;
   border-radius: 10px !important;
   background-color: rgba(47 138 243 / 10%);
@@ -874,20 +880,29 @@ onMounted(async () => {
   font-weight: 500;
 }
 
+// rev:230601 수정
 .button-wrap {
   display: flex;
-  column-gap: 6px;
+  column-gap: 8px;
   flex-flow: row nowrap;
   white-space: nowrap;
+}
 
-  ::v-deep(.kw-btn) {
-    padding: 8px 0;
-    flex: 1 1 100%;
-    font-size: 14px;
-    font-weight: normal;
-    letter-spacing: normal;
-    color: #555;
-    min-height: 40px;
+// //rev:230601 수정
+
+// rev:230706 추가
+.scoped-progress-bar {
+  margin: 20px 0;
+  width: 100%;
+  height: 6px;
+  background-color: #ddd;
+
+  &__value {
+    height: 100%;
+    background-color: $primary;
   }
 }
+
+// //rev:230706 추가
 </style>
+<!-- // // rev:230821 스타일 수정 -->
