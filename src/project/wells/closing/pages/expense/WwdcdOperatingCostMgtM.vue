@@ -237,9 +237,9 @@ const saveParams = ref({
 
 async function saveData(column, opcsCardId, file) {
   if (!isEmpty(file.files)) {
-    if (column === 'opcsWhtxCfdcApnFileId') {
+    if (column === 'mscrWhtxCfdcApnFileId') {
       saveParams.value.opcsCardId = opcsCardId;
-      saveParams.value.attachOpcsWhtxCfdcApnFileId = file.files;
+      saveParams.value.attachMscrWhtxCfdcApnFileId = file.files;
     }
     const data = saveParams.value;
     await dataService.post('/sms/wells/closing/expense/operating-cost', data);
@@ -279,15 +279,14 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'opcsCardId', visible: false },
     { fieldName: 'opcsAdjCnt', header: t('MSG_TXT_OPCS_TOT_USE_CT'), width: '477', styleName: 'text-center', dataType: 'number' }, // 운영비 총 사용 건수
     { fieldName: 'opcsSmryNCnt', header: t('MSG_TXT_AES'), width: '450', styleName: 'text-center', dataType: 'number' }, // 미적요
-    { fieldName: 'opcsWhtxCfdcApnFileId',
+    { fieldName: 'mscrWhtxCfdcApnFileId',
       header: t('MSG_TXT_MSCR_WHTX_CFDC_APN_FILE'),
       width: '300',
       styleName: 'text-center',
       dataType: 'file',
-      editable: true,
       editor: {
         type: 'file',
-        attachDocumentId: 'opcsWhtxCfdcApnFileId',
+        attachDocumentId: 'mscrWhtxCfdcApnFileId',
         attachGroupId: 'ATG_DCD_OPCS_WHTX_CFDC',
         downloadable: true,
         multiple: true,
@@ -304,9 +303,10 @@ const initGrdSub = defineGrid((data, view) => {
   view.rowIndicator.visible = false;
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'opcsWhtxCfdcApnFileId') {
-      const { opcsCardId, opcsWhtxCfdcApnFileId } = g.getValues(itemIndex);
-      saveData(column, opcsCardId, opcsWhtxCfdcApnFileId);
+    if (column === 'mscrWhtxCfdcApnFileId') {
+      console.log('mscrWhtxCfdcApnFileId : ', column);
+      const { opcsCardId, mscrWhtxCfdcApnFileId } = g.getValues(itemIndex);
+      saveData(column, opcsCardId, mscrWhtxCfdcApnFileId);
     }
   };
 });

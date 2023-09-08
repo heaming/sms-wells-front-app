@@ -50,6 +50,7 @@
       </template>
       <kw-btn
         v-if="isCsvDownloadVisible"
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -58,6 +59,7 @@
         @click="onClickCsvDownload"
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -116,7 +118,7 @@ const pageInfo = ref({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdRentalContractorNoList = ref(getComponentType('KwGrid'));
-const isCsvDownloadVisible = ref(false); // CSV Download Button
+const isCsvDownloadVisible = ref(true); // CSV Download Button
 
 async function fetchData() {
   // changing api & cacheparams according to search classification

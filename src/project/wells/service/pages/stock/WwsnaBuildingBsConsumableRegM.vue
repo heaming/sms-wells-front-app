@@ -36,7 +36,6 @@
       <ul class="filter-box my12">
         <li class="filter-box__item">
           <p class="filter-box__item-label">
-            <!-- TODO: 권한 체크 후 신청기간영역 컨트롤해야함(빌딩 업무담당일 경우 날싸 및 시간 없음 :: 신청 불가) -->
             {{ $t('MSG_TXT_REG_PERIOD') }}
           </p>
           <kw-date-picker
@@ -85,7 +84,7 @@
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_SAVE')"
-          :disable="isDisableSave"
+          :disable="isDisableSave && pageInfo.totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator
@@ -199,9 +198,9 @@ const aplcCloseData = ref({
 });
 
 const isDisableSave = computed(() => {
-  const nowDateTime = Number(dayjs().format('YYYYMMDDHHmmss'));
-  const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh);
-  const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh);
+  const nowDateTime = Number(dayjs().format('YYYYMMDDHHmm'));
+  const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh.substring(0, 4));
+  const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh.substring(0, 4));
 
   if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) {
     return true;
@@ -231,35 +230,6 @@ async function getBldCsmbAplcClose() {
   aplcCloseData.value = res.data;
 }
 
-function validateRegPeriod() {
-  const strtDt = aplcCloseData.value.bizStrtdt;
-  const strtHh = aplcCloseData.value.bizStrtHh.substring(0, 4);
-  const endDt = aplcCloseData.value.bizEnddt;
-  const endHh = aplcCloseData.value.bizEndHh.substring(0, 4);
-
-  if ((isEmpty(strtDt) || isEmpty(strtHh) || isEmpty(endDt) || isEmpty(endHh))
-  || Number(strtDt + strtHh) >= Number(endDt + endHh)) {
-    return false;
-  }
-
-  return true;
-}
-
-async function onClickRgstPtrmSe() {
-  aplcCloseData.value.mngtYm = aplcCloseData.value.bizStrtdt.substring(0, 6);
-
-  if (!validateRegPeriod()) {
-    notify(t('MSG_ALT_RGST_PTRM_CHECK'));
-    return;
-  }
-
-  aplcCloseData.value.bizStrtHh = aplcCloseData.value.bizStrtHh.substring(0, 4);
-  aplcCloseData.value.bizEndHh = aplcCloseData.value.bizEndHh.substring(0, 4);
-
-  await dataService.post('/sms/wells/service/building-bsconsumables/period-term', aplcCloseData.value);
-  notify(t('MSG_ALT_SAVE_DATA'));
-}
-
 async function reAryGrid() {
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
@@ -277,6 +247,7 @@ async function reAryGrid() {
     { fieldName: 'prtnrNmNo' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'blank' },
+    { fieldName: 'bfsvcCsmbDdlvStatCd' },
   ];
 
   const columns = [
@@ -458,6 +429,45 @@ async function fetchData() {
 
   view.getDataSource().setRows(bldCsmbDeliveries);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
+  view.setCheckableCallback((dataSource, item) => {
+    const { bfsvcCsmbDdlvStatCd } = gridUtil.getRowValue(view, item.dataRow);
+
+    if (bfsvcCsmbDdlvStatCd === '30') {
+      return false;
+    }
+    return true;
+  }, true);
+}
+
+function validateRegPeriod() {
+  const strtDt = aplcCloseData.value.bizStrtdt;
+  const strtHh = aplcCloseData.value.bizStrtHh.substring(0, 4);
+  const endDt = aplcCloseData.value.bizEnddt;
+  const endHh = aplcCloseData.value.bizEndHh.substring(0, 4);
+
+  if ((isEmpty(strtDt) || isEmpty(strtHh) || isEmpty(endDt) || isEmpty(endHh))
+  || Number(strtDt + strtHh) >= Number(endDt + endHh)) {
+    return false;
+  }
+
+  return true;
+}
+
+async function onClickRgstPtrmSe() {
+  aplcCloseData.value.mngtYm = aplcCloseData.value.bizStrtdt.substring(0, 6);
+
+  if (!validateRegPeriod()) {
+    notify(t('MSG_ALT_RGST_PTRM_CHECK'));
+    return;
+  }
+
+  aplcCloseData.value.bizStrtHh = aplcCloseData.value.bizStrtHh.substring(0, 4);
+  aplcCloseData.value.bizEndHh = aplcCloseData.value.bizEndHh.substring(0, 4);
+
+  await dataService.post('/sms/wells/service/building-bsconsumables/period-term', aplcCloseData.value);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
 }
 
 async function onClickSearch() {
@@ -556,6 +566,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     { fieldName: 'rsppPrtnrNo' },
     { fieldName: 'vstCstN' },
     { fieldName: 'blank' },
+    { fieldName: 'bfsvcCsmbDdlvStatCd' },
   ];
 
   const columns = [

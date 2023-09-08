@@ -51,6 +51,7 @@
       </template>
       <kw-btn
         v-if="isCsvDownloadVisible"
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -59,6 +60,7 @@
         @click="onClickCsvDownload"
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary

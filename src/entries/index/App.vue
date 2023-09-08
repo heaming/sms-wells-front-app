@@ -27,7 +27,7 @@
 
 <script setup>
 import {
-  useSession,
+  useSession, useMeta,
   WebLayout, WebHeader, WebLeftDrawer, WebTabView, WebFallbackLogin, CustDoaminError, DevEnvSign,
 } from 'kw-lib';
 
@@ -36,5 +36,18 @@ const {
 } = useSession();
 
 await isReady();
+
+const router = useRouter();
+const { getUserInfo } = useMeta();
+
+const userInfo = computed(() => getUserInfo());
+
+onActivated(() => {
+  if (userInfo?.value?.portalId === 'NO_SESSION' || userInfo?.value?.userId === 'anonymous') router.replace({ name: 'ErrorNotFound' });
+});
+
+onMounted(() => {
+  if (userInfo?.value?.portalId === 'NO_SESSION' || userInfo?.value?.userId === 'anonymous') router.replace({ name: 'ErrorNotFound' });
+});
 const { MODE } = import.meta.env;
 </script>

@@ -39,6 +39,12 @@
           v-model:from="searchParams.strtDt"
           v-model:to="searchParams.endDt"
           rules="date_range_required|date_range_months:1"
+          :label="searchParams.rcpDateDv === '1' ? $t('MSG_TXT_RCPDT'):
+            searchParams.rcpDateDv === '2' ? $t('MSG_TXT_SCHD_DT'):
+            searchParams.rcpDateDv === '3' ? $t('MSG_TXT_WDWAL_DT'):
+            searchParams.rcpDateDv === '4' ? $t('MSG_TXT_J_DT'):
+            searchParams.rcpDateDv === '5' ? $t('MSG_TXT_MAND_EXP_DT_FRISU'):
+            searchParams.rcpDateDv === '6' ? $t('MSG_TXT_MAND_EXP_DT_RECAP'):$t('MSG_TXT_RCPDT')"
         />
       </kw-search-item>
       <!-- 일자선택 -->
@@ -222,6 +228,7 @@
       </template>
       <!-- 확정관리 -->
       <kw-btn
+        v-permission:update
         dense
         secondary
         :label="$t('MSG_TXT_CNFM_MNGT')"
@@ -230,6 +237,7 @@
       />
       <!-- 홈케어관리 -->
       <kw-btn
+        v-permission:update
         dense
         secondary
         :label="$t('MSG_TXT_HCR_MNGT')"
@@ -243,6 +251,7 @@
       />
       <!-- 엑셀다운로드 -->
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -280,7 +289,8 @@ const { alert, modal, notify } = useGlobal();
 const { getUserInfo } = useMeta();
 const { tenantCd } = getUserInfo();
 const availablePrefix = ['E', 'W'].includes(tenantCd) ? tenantCd : '[EW]';
-const contractNumberRegEx = RegExp(`^${availablePrefix}\\d{0,11}?$`);
+const contractNumberRegEx = RegExp(`^${availablePrefix}\\d{0,11}?$`); // 계약번호
+// const contractNumberRegEx = RegExp(`^${availablePrefix}\\d{11}(-\\d{0,5})?$|^$`); // 계약상세번호
 const { currentRoute } = useRouter();
 
 let cachedParams;
@@ -607,7 +617,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_GUBUN') + 1, width: '138' }, // 상품구분1
     { fieldName: 'pdDclsfNm', header: t('MSG_TXT_PRDT_GUBUN') + 2, width: '138' }, // 상품구분2
     { fieldName: 'cntrDtlStatNm', header: t('MSG_TXT_MSH_STAT'), width: '138', styleName: 'text-center' }, // 멤버십상태
-    { fieldName: 'sellDscDvNm', header: `${t('MSG_TXT_SSPCS')}/${t('MSG_TXT_MTR_DV')}`, width: '138' }, // 할인적용구분명
+    { fieldName: 'sellDscDvNm', header: `${t('MSG_TXT_SSPCS')}/${t('MSG_TXT_MTR_DV')}`, width: '138', styleName: 'text-center' }, // 할인적용구분명(회비/자료구분)
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '138', styleName: 'text-right' }, // 인정건수
     { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_RECOG_AMT'), width: '138', styleName: 'text-right' }, // 인정금액
     { fieldName: 'cntrCtrAmt', header: t('MSG_TXT_DSC_AMT'), width: '138', styleName: 'text-right' }, // 할인금액

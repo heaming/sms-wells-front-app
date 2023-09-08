@@ -231,11 +231,14 @@ async function getFeeCodes() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/fee/fee-specifications', { params: cachedParams });
-
+  const newData = res.data.map((obj) => {
+    obj.dsbamt = Number(obj.feeSum) - Number(obj.ddtnsum);
+    return obj;
+  });
   gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: newData,
   });
 }
 
@@ -518,10 +521,9 @@ fieldsObj = {
         ...fieldsObj.getColumnNameArr([dsbAmtFields]),
       ];
     } else if (searchParams.value.rsbDvCd === 'W0301') { // 홈마스터 / 지점장
-      const { perfFields } = fieldsObj.hm;
       const { deductionFields } = fieldsObj.hm;
 
-      columns = [...fieldsObj.defaultFields, ...perfFields,
+      columns = [...fieldsObj.defaultFields,
         ...tmpFeeFields, feeSumField, ...deductionFields, ddenSumFields, dsbAmtFields];
 
       const personalFees = cashedFeeCodes.filter((obj) => obj.feeClsfCd === '04'); // 조직수수료
@@ -562,12 +564,13 @@ fieldsObj = {
         perfFields = fieldsObj.mm.perfFields;
         deductionFields = fieldsObj.mm.deductionFields;
       } else if (searchParams.value.rsbDvCd === 'W0302') { // 홈마스터 - 플래너
-        perfFields = fieldsObj.hp.perfFields;
+        perfFields = [];
         deductionFields = fieldsObj.hp.deductionFields;
       }
 
       columns = [...fieldsObj.defaultFields, ...perfFields,
         ...tmpFeeFields, feeSumField, ...deductionFields, ddenSumFields, dsbAmtFields];
+
       // 헤더 부분 merge
       layoutColumns = [...fieldsObj.getColumnNameArr(fieldsObj.defaultFields),
         {
@@ -589,6 +592,13 @@ fieldsObj = {
         ...fieldsObj.getColumnNameArr([ddenSumFields]),
         ...fieldsObj.getColumnNameArr([dsbAmtFields]),
       ];
+
+      // 비어있는 항목의 헤더 영역 제거
+      layoutColumns = layoutColumns.filter((obj) => {
+        if (typeof (obj) === 'string') return true;
+        if (typeof (obj) === 'object' && !isEmpty(obj.items)) return true;
+        return false;
+      });
     }
     const fields = columns.map(({ fieldName, dataType }) => ({ fieldName, dataType }));
 

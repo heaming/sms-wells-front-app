@@ -91,6 +91,12 @@
           >
             <p>{{ individualParams.cstGdNm }}</p>
           </kw-form-item>
+          <!-- 고정방문자명 -->
+          <kw-form-item
+            :label="$t('MSG_TXT_FXN_TIT_GV')"
+          >
+            <p>{{ individualParams.fxnPrtnrNm }}</p>
+          </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 전화번호 -->
@@ -428,7 +434,7 @@
             <kw-form-row>
               <kw-form-item :label="$t('MSG_TXT_BHSHD_CD')">
                 <p class="kw-grow">
-                  {{ svHshdNo[0] }}
+                  {{ svHshdNum[0] }}
                 </p> <kw-btn
                   :label="$t('MSG_TXT_SDING_HIST')"
                   padding="12px"
@@ -550,13 +556,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil, popupUtil } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, gridUtil, popupUtil } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { getConfig } = useMeta();
+// const { getConfig } = useMeta();
 // const router = useRouter();
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
@@ -571,6 +577,10 @@ const props = defineProps({
   cntrSn: { type: String, required: true, default: '' },
 });
 
+// if(props.cntrNo) {
+//   router.push({path:'/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt', query:{...props}},
+//   }
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -582,7 +592,7 @@ const grdIndividualCounselRef = ref(getComponentType('KwGrid')); // 상담내역
 const grdIndividualDelinquentRef = ref(getComponentType('KwGrid')); // 연체정보 조회
 const individualParams = ref([]);
 // const isVisibleTab = computed(() => departmentId === '71301' || departmentId === '70526');
-const svHshdNo = ref('');
+const svHshdNum = ref('');
 const selectedTab = ref('1');
 // const cntrDtlNo = ref();
 const countInfo = ref({
@@ -595,13 +605,13 @@ const countInfo = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
   needTotalCount: true,
 });
 const secondPageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
   needTotalCount: true,
 });
 
@@ -675,7 +685,7 @@ async function onClickSearchSeeding() {
 async function getHousehold() {
   const res = await dataService.get('sms/wells/service/individual-service-ps/household', { params: searchParams.value });
   const individualHousehold = res.data;
-  svHshdNo.value = res.data.map((v) => (v.svHshdNo));
+  svHshdNum.value = res.data.map((v) => (v.svHshdNo));
 
   const individualHouseholdView = grdIndividualHouseholdRef.value.getView();
   countInfo.value.householdTotalCount = individualHousehold.length;
@@ -720,7 +730,7 @@ async function getIndividualState() {
 
   pageInfo.value = pagingResult;
 
-  pageInfo.value.totalCount = individualState.length;
+  // pageInfo.value.totalCount = individualState.length;
   const individualStateView = grdIndividualStateRef.value.getView();
   const individualStateData = individualStateView.getDataSource();
   individualStateData.checkRowStates(false);
@@ -910,6 +920,14 @@ const initGridState = defineGrid((data, view) => {
     { fieldName: 'istKitFileUid' },
     { fieldName: 'istCelngFileUid' },
     { fieldName: 'cstSvAsnNo' },
+    { fieldName: 'svHshdNo' },
+    { fieldName: 'svHshdNoCnt' },
+    { fieldName: 'svBizHclsfCd' },
+    { fieldName: 'svBizDclsfCd' },
+    { fieldName: 'procStus' },
+    { fieldName: 'cntrNo' },
+    { fieldName: 'cntrSn' },
+
   ];
 
   const columns = [
@@ -923,8 +941,8 @@ const initGridState = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       styleCallback(grd, dataCell) {
-        const wkPrgsStat = grd.getValue(dataCell.item.dataRow, 'wkPrgsStat');
-        return (wkPrgsStat === '작업대기') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+        const procStus = grd.getValue(dataCell.item.dataRow, 'procStus');
+        return (procStus === '00') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
       },
     },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
@@ -982,18 +1000,37 @@ const initGridState = defineGrid((data, view) => {
   view.onCellItemClicked = async (g, cData) => {
     /* 작업상세 */
     if (cData.fieldName === 'wkPrgsStat') {
-      const { cstSvAsnNo, wkPrgsStat } = g.getValues(cData.itemIndex);
-      console.log(cstSvAsnNo);
-      if (wkPrgsStat === '작업대기') {
-        // sample
-        // const redirectUrl = encodeURIComponent('/popup/mobile/wmsnb-as-work-list');
-        // window.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}`);
+      const {
+        cstSvAsnNo,
+        prtnrNo,
+        svHshdNo,
+        svHshdNoCnt,
+        svBizHclsfCd,
+        svBizDclsfCd,
+        procStus,
+        cntrNo,
+        cntrSn,
+      } = g.getValues(cData.itemIndex);
 
-        // const url = '/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt';
-        const redirectUrl = encodeURIComponent('/popup/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt');
-        const queryString = new URLSearchParams(cstSvAsnNo);
-        // window.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
-        popupUtil.open(`https://m-wpm.kyowon.co.kr/certification/sso/login?redirectUrl=${redirectUrl}&${queryString}`);
+      if (procStus === '00') {
+        const bypassPrtnrNo = prtnrNo;
+        const wkPrgsStatCd = procStus;
+
+        const param = `cstSvAsnNo=${cstSvAsnNo}&bypassPrtnrNo=${bypassPrtnrNo}&svHshdNo=${svHshdNo}&svHshdNoCnt=${svHshdNoCnt}&svBizHclsfCd=${svBizHclsfCd}&svBizDclsfCd=${svBizDclsfCd}&wkPrgsStatCd=${wkPrgsStatCd}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`;
+        const redirectUrl = encodeURIComponent(`/popup/mobile/wmsnb-as-work-list?${param}`);
+        // const queryString = new URLSearchParams(param);
+        // console.log(queryString);
+
+        let url = '';
+        console.log(import.meta.env.MODE);
+        if (import.meta.env.MODE === 'qa') {
+          url = 'https://q-m-wpm.kyowon.co.kr';
+        } else {
+          url = 'https://m-wpm.kyowon.co.kr';
+        }
+
+        // window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
+        popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
       }
     }
 
@@ -1036,6 +1073,7 @@ const initGridState = defineGrid((data, view) => {
   ]);
 
   view.onScrollToBottom = async (g) => {
+    debugger;
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
       await getIndividualState();

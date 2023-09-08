@@ -101,7 +101,7 @@
         >
           <kw-select
             v-model="searchParams.cntrStatCd"
-            :options="codes.CNTR_STAT_CD"
+            :options="codes.CNTR_DTL_STAT_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -150,10 +150,9 @@
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_CASES') }}</span>
         </template>
 
         <kw-btn
@@ -168,13 +167,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
+        :visible-rows="pageInfo.pageSize - 1"
         @init="initGrid"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
       <kw-grid
         v-show="isShow"
@@ -206,7 +200,7 @@ const grdExcelRef = ref(getComponentType('KwGrid'));
 const isShow = ref(false);
 
 const codes = await codeUtil.getMultiCodes(
-  'CNTR_STAT_CD',
+  'CNTR_DTL_STAT_CD',
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
   'COD_PAGE_SIZE_OPTIONS',
@@ -321,9 +315,10 @@ async function fetchData() {
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(sellResult);
-  view.resetCurrent();
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
+  view.getDataSource().checkRowStates(false);
+  view.getDataSource().addRows(sellResult);
+  view.getDataSource().checkRowStates(true);
 }
 
 // 조회 버튼 클릭
@@ -341,6 +336,11 @@ async function onClickSearch() {
 
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+
+  // 재조회시 초기화
+  const view = grdMainRef.value.getView();
+  view.getDataSource().setRows([]);
+
   await fetchData();
 }
 
@@ -388,6 +388,13 @@ function initGrid(data, view) {
   view.rowIndicator.visible = true;
 
   data.setRows([]);
+
+  view.onScrollToBottom = (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      fetchData();
+    }
+  };
 }
 
 function initGridExcel(data, view) {

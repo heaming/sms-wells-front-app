@@ -19,10 +19,15 @@
     >
       <kw-search-row>
         <!-- 귀속년도 -->
-        <kw-search-item :label="$t('MSG_TXT_BLNG_Y')">
+        <kw-search-item
+          :label="$t('MSG_TXT_BLNG_Y')"
+          required
+        >
           <kw-date-picker
             v-model="searchParams.istDt"
             type="year"
+            rules="required"
+            :label="$t('MSG_TXT_BLNG_Y')"
           />
         </kw-search-item>
         <!-- 직원구분 -->
@@ -77,6 +82,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

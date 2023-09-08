@@ -36,6 +36,7 @@
             first-option="all"
             option-label="ogNm"
             option-value="ogId"
+            class="w247"
           />
           <kw-select
             v-model="searchParams.prtnrNo"
@@ -43,7 +44,6 @@
             first-option="all"
             option-label="prtnrNoNm"
             option-value="prtnrNo"
-            class="w150"
           />
         </kw-search-item>
 
@@ -73,6 +73,7 @@
             v-model="searchParams.pdCd"
             :options="products"
             first-option="all"
+            :disable="searchParams.pdGrpCd === ''"
           />
         </kw-search-item>
 
@@ -84,6 +85,7 @@
           <kw-select
             v-model="searchParams.inquiryBase"
             :options="inquiryBases"
+            class="w247"
           />
           <kw-date-range-picker
             v-model:from="searchParams.baseDateFrom"
@@ -172,13 +174,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, popupUtil } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty, toNumber } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 const dataService = useDataService();
 
@@ -259,12 +262,13 @@ async function fetchProducts() {
 }
 
 watch(() => searchParams.value.pdGrpCd, async (val) => {
-  if (isEmpty(val)) {
+  if (val === '') {
     products.value = [];
+    searchParams.value.pdCd = '';
     return;
   }
   await fetchProducts();
-}, { immediate: true });
+});
 
 function getPhoneNo(locaraTno, exnoEncr, idvTno) {
   if (isEmpty(locaraTno) || isEmpty(exnoEncr) || isEmpty(idvTno)) return '';
@@ -319,7 +323,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center rg-button-link',
       footer: { text: t('MSG_TXT_SUM') },
       renderer: { type: 'button' },
-      preventCellItemFocus: true,
+      // preventCellItemFocus: true,
     },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'copnDvNm', header: t('MSG_TXT_INDV_CRP_DV'), width: '150', styleName: 'text-center' }, // 개인법인구분
@@ -549,9 +553,7 @@ const initGrdMain = defineGrid((data, view) => {
     const { cntrNo, cntrSn } = grid.getValues(itemIndex);
 
     if (column === 'cntrNoSn') {
-      console.log('개인별 서비스 현황 화면', cntrNo, cntrSn);
-      // TODO: W-SV-U-0072M01 개인별 서비스 현황 화면 새창으로 열기
-      await popupUtil.open(`#/service/wwsnb-service-processing-iz-qlty-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+      router.push({ path: '/service/wwsnb-individual-service-list', query: { cntrNo, cntrSn } });
     }
   };
 });

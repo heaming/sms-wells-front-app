@@ -250,16 +250,19 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
+    <!-- 상품정보 -->
+    <h3 class="mb20">
+      {{ $t('MSG_TXT_PD_INF') }}
+    </h3>
     <kw-action-top class="mb20">
       <template #left>
-        <!-- 상품정보 -->
-        <h3 class="mb20">
-          {{ $t('MSG_TXT_PD_INF') }}
-        </h3>
+        <kw-paging-info
+          v-model:page-index="pageInfo.pageIndex"
+          v-model:page-size="pageInfo.pageSize"
+          :total-count="pageInfo.totalCount"
+          @change="fetchData"
+        />
       </template>
-      <kw-paging-info
-        :total-count="pageInfo.totalCount"
-      />
       <span class="kw-fc--black3 text-weight-regular"> (단위:원)</span>
     </kw-action-top>
     <kw-grid

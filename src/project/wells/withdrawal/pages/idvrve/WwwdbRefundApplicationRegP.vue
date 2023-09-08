@@ -224,6 +224,7 @@
             :true-value="Y"
             :label="$t('MSG_TXT_PPYM_RFND')"
           />
+          <!-- @click="onClickArfndYn" -->
           <!-- v-model="searchParams.check" -->
         </kw-form-item>
         <!-- 지급은행 -->
@@ -1331,7 +1332,13 @@ const initGrid2 = defineGrid((data, view) => {
     const { dpMesCd, crdcdFer, rfndCshAkAmt } = grid.getValues(itemIndex);
 
     if (dpMesCd === '02') {
-      const crdcdFeeAmt = Math.floor(Number(rfndCshAkAmt) * (Number(crdcdFer) / 100));
+      let fee = crdcdFer;
+
+      if (fee === 0 || isEmpty(fee)) {
+        fee = 2.5;
+      }
+
+      const crdcdFeeAmt = Math.floor(Number(rfndCshAkAmt) * (Number(fee) / 100));
       grid.setValue(itemIndex, 'crdcdFeeAmt', crdcdFeeAmt);
     }
 

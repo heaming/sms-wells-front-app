@@ -173,6 +173,7 @@
           <div class="button-wrap">
             <!-- 고객정보 변경-->
             <kw-btn
+              v-permission:update
               secondary
               :label="`${t('MSG_TXT_CST_INF')} ${t('MSG_TXT_CH')}`"
               padding="12px"
@@ -181,6 +182,7 @@
             <!-- 계약유형 변경-->
             <kw-btn
               v-show="isEqual(item.sellTpCd, '2')"
+              v-permission:update
               secondary
               :label="`${t('MSG_TXT_CONTR_TYPE')} ${t('MSG_TXT_CH')}`"
               padding="12px"
@@ -189,6 +191,7 @@
             <!-- 판매자 변경-->
             <kw-btn
               v-show="isEqual(ogTpCd, 'HR1')"
+              v-permission:update
               secondary
               :label="`${t('MSG_TXT_SELLER_PERSON')} ${t('MSG_TXT_CH')}`"
               padding="12px"
@@ -197,6 +200,7 @@
             <!-- 삭제요청-->
             <kw-btn
               v-show="isEqual(item.sellTpCd, '2') && isEmpty(item.istDt)"
+              v-permission:update
               secondary
               :label="$t('MSG_TXT_DEL_REQ')"
               padding="12px"
@@ -211,6 +215,7 @@
             <!-- 계약유형변경 이력 보기-->
             <kw-btn
               v-show="isEqual(item.histYn, 'Y')"
+              v-permission:read
               secondary
               :label="$t('MSG_BTN_CNTR_TP_CHANGE_HIS_BRWS')"
               padding="12px"
