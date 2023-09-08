@@ -152,7 +152,7 @@
             :total-count="pageInfo.totalCount"
             @change="fetchData"
           />
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_CASES') }}</span>
         </template>
 
         <kw-btn
