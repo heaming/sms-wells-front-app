@@ -35,6 +35,8 @@ const {
   isReady,
 } = useSession();
 
+await isReady();
+
 const router = useRouter();
 const { getUserInfo } = useMeta();
 
@@ -47,7 +49,5 @@ onActivated(() => {
 onMounted(() => {
   if (userInfo?.value?.portalId === 'NO_SESSION' || userInfo?.value?.userId === 'anonymous') router.replace({ name: 'ErrorNotFound' });
 });
-
-await isReady();
 const { MODE } = import.meta.env;
 </script>
