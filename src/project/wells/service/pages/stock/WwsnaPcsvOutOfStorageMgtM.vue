@@ -28,16 +28,16 @@
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_ITM_NM')">
           <kw-select
-            v-model="searchParams.pdCd"
+            v-model="searchParams.lgstWkMthdCd"
             :options="products"
-            option-value="pdCd"
-            option-label="pdNm"
+            option-value="lgstWkMthdCd"
+            option-label="lgstWkMthdPdNm"
             first-option="select"
             first-option-value=""
             placeholder="선택"
             rules="required"
             :label="$t('MSG_TXT_ITM_NM')"
-            @change="fetchIvcPrntSns"
+            class="w230"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OSTR_DV')">
@@ -77,7 +77,6 @@
             v-model="searchParams.vstFshDt"
             :label="$t('MSG_TXT_OSTR_CNFM_DT')"
             rules="required"
-            @change="fetchIvcPrntSns"
           />
         </kw-search-item>
         <kw-search-item
@@ -90,26 +89,6 @@
             rules="numeric"
             :label="$t('MSG_TXT_SEL_LIMIT_CNT')"
             clearable
-          />
-        </kw-search-item>
-        <kw-search-item
-          v-if="isCompStatus"
-          :label="$t('MSG_TXT_OSTR_CNFM_SEQ')"
-        >
-          <kw-select
-            v-model="searchParams.ivcPrntSn"
-            :options="ivcPrntSns"
-            first-option="select"
-            first-option-value=""
-            rules="required"
-            :label="$t('MSG_TXT_OSTR_CNFM_SEQ')"
-          />
-        </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_STOC_QTY')">
-          <kw-input
-            v-model="qty"
-            readonly
-            placeholder=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -191,22 +170,19 @@ const searchParams = ref({
   startDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
   endDt: now.format('YYYYMMDD'), // 종료일자
   vstFshDt: now.format('YYYYMMDD'),
-  findGb: '2',
   wkWareNo: '100002', /* 교원파주물류센터 */
   svBizDclsfCd: '1112', /* 배송출고  */
-  pdCd: '',
+  lgstWkMthdCd: '',
+  findGb: '2', /* 조회 구분 */
   selCnt: '', /* 조회 제한건수  */
-  ivcPrntSn: '', /* 출고확정 순번 */
 });
 let cachedParams;
 const totalCount = ref(0);
-const qty = ref([]);
 const isCompStatus = ref(false);
 const isWaitStatus = ref(true);
 
 const logisticsCenters = ref();
 const products = ref();
-const ivcPrntSns = ref();
 
 /* 물류센터 조회 */
 async function fetchLogisticsCenters() {
@@ -217,21 +193,7 @@ async function fetchLogisticsCenters() {
 /* 상품 조회 */
 async function fetchProducts() {
   const res = await dataService.get(`${baseUrl}/products`, { params: { svBizDclsfCd: '1112' } });
-  console.log(res);
   products.value = res.data;
-}
-
-/* 택배 출고확정순번 조회 */
-async function fetchIvcPrntSns() {
-  /* 작업완료이면서 상품을 선택했을경우에만 */
-  if (isCompStatus.value && searchParams.value.pdCd !== '') {
-    const res = await dataService.get(`${baseUrl}/ivc-prntsns`, { params: searchParams.value });
-    ivcPrntSns.value = res.data;
-
-    searchParams.value.ivcPrntSn = '1';
-  } else {
-    searchParams.value.ivcPrntSn = '';
-  }
 }
 
 async function onChangeCompStatus() {
@@ -245,7 +207,6 @@ async function onChangeCompStatus() {
   /* 작업완료 */
   if (findGb === '1') {
     isCompStatus.value = true;
-    await fetchIvcPrntSns();
   }
 
   /* 작업대기 */
@@ -255,20 +216,13 @@ async function onChangeCompStatus() {
   }
 }
 
-/* 재고 수량 조회 */
-async function fetchStockQty() {
-  // 23-06-16 요청에 의한 주석처리
-  // const res =  await dataService.get(`${baseUrl}/stock-qty`, { params: { ...searchParams.value } });
-  // qty.value = res.data;
-}
-
 await fetchLogisticsCenters();
 await fetchProducts();
-await fetchStockQty();
 
 /* 택배 출고관리 조회 */
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: { ...cachedParams } });
+  console.log(res);
   const list = res.data;
 
   totalCount.value = list.length;
@@ -300,28 +254,22 @@ async function onClickSave() {
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
-    /* 저장시 출고확정 순번조회 */
-    // const checkParams = { pdCd: chkRows[0].pdCd, svBizDclsfCd: chkRows[0].svBizDclsfCd };
-    // const res = await dataService.get(`${baseUrl}/ivc-prntsn`, { params: checkParams });
-    // const ivcPrntSn = res.data;
-    /* 저장시 상품 그룹 코드 및 출고확정 순번 설정 */
     const checkRowProducts = [];
     chkRows.forEach((obj) => {
       // 상품 갯수만큼 셋팅
-      for (let cnt = 1; cnt <= obj.pdCnt; cnt += 1) {
+      for (let cnt = 1; cnt <= obj.partCnt; cnt += 1) {
         checkRowProducts.push(
           {
-            pdCd: obj[`pdCd${cnt}`],
-            pdNm: obj[`pdNm${cnt}`],
-            useQty: obj[`useQty${cnt}`],
+            pdCd: obj[`partCd${cnt}`],
+            pdNm: obj[`partNm${cnt}`],
+            useQty: obj[`partQty${cnt}`],
           },
         );
       }
       obj.products = checkRowProducts;
     });
     console.log(chkRows);
-    const response = await dataService.post(`${baseUrl}`, chkRows);
-    console.log(response);
+    await dataService.post(`${baseUrl}/test`, chkRows);
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
@@ -384,7 +332,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'wkWareNo', visible: false }, /* 이하 컬럼등은 저장시 사용 */
+    { fieldName: 'ostrAkNo', header: t('MSG_TXT_SV_OSTR_AK_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'lgstOstrAkNo', header: t('MSG_TXT_LGST_OSTR_AK_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'ostrNo', header: t('MSG_TXT_LGST_OSTR_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'mpacSn', visible: false }, /* 이하 컬럼등은 저장시 사용 */
+    { fieldName: 'lgstWkMthdCd', visible: false },
+    { fieldName: 'wkWareNo', visible: false },
     { fieldName: 'svBizHclsfCd', visible: false },
     { fieldName: 'wkPrgsStatCd', visible: false },
     { fieldName: 'cntrSn', visible: false },
@@ -395,8 +348,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rpbLocaraCd', visible: false },
     { fieldName: 'asRefriDvCd', visible: false },
     { fieldName: 'bfsvcRefriDvCd', visible: false },
-    { fieldName: 'filtSellTpCd', visible: false },
-    { fieldName: 'pdSellTpCd', visible: false },
+    { fieldName: 'sellTpCd', visible: false },
     { fieldName: 'pdUswyCd', visible: false },
     { fieldName: 'siteAwSvTpCd', visible: false },
     { fieldName: 'siteAwAtcCd', visible: false },
@@ -405,14 +357,18 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'asCausCd', visible: false },
     { fieldName: 'ogTpCd', visible: false },
     { fieldName: 'wareMngtPrtnrNo', visible: false },
-    { fieldName: 'pdCnt', visible: false },
+    { fieldName: 'wareMngtPrtnrOgTpCd', visible: false },
+    { fieldName: 'partCnt', visible: false },
+    { fieldName: 'cntrCstNo', visible: false },
+    { fieldName: 'ogId', visible: false },
+    { fieldName: 'pdGrpCd', visible: false }, //  상품그룹코드
   ];
   // 상품 동적 필드
   const pdColums = [
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'partCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'partNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
     {
-      fieldName: 'useQty',
+      fieldName: 'partQty',
       header: t('MSG_TXT_QTY'),
       width: '80',
       styleName: 'text-right',
@@ -442,7 +398,7 @@ const initGrdMain = defineGrid((data, view) => {
       {
         header: `${t('MSG_TXT_OSTR_INF')}${cnt}`,
         direction: 'horizontal',
-        items: [`pdCd${cnt}`, `pdNm${cnt}`, `useQty${cnt}`],
+        items: [`partCd${cnt}`, `partNm${cnt}`, `partQty${cnt}`],
       },
     );
   }
@@ -479,7 +435,9 @@ const initGrdMain = defineGrid((data, view) => {
     'reqdDt',
     'rsgFshDt',
     'cstSvAsnNo',
-
+    'ostrAkNo',
+    'lgstOstrAkNo',
+    'ostrNo',
   ]);
 });
 </script>
