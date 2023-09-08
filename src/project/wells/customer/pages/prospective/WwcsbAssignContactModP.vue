@@ -53,6 +53,7 @@
           <kw-btn
             :label="$t('MSG_BTN_CANCEL')"
             class="ml8"
+            negative
             @click="cancel"
           />
           <kw-btn

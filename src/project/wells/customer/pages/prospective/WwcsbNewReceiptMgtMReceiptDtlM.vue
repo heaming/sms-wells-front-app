@@ -20,7 +20,6 @@
         <kw-form
           :cols="2"
           align-content="left"
-          dense
         >
           <kw-form-row>
             <kw-form-item :label="$t('MSG_TXT_RCP_D',null,'접수일')">

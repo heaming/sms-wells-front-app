@@ -35,6 +35,7 @@
             />
             <kw-btn
               :label="t('MSG_TXT_SRCH',null,'조회')"
+              padding="12px"
               secondary
               @click="fetchData"
             />
@@ -70,6 +71,7 @@
         <div class="button-set--bottom-right">
           <kw-btn
             :label="$t('MSG_BTN_CANCEL')"
+            negative
             class="ml8"
             @click="cancel"
           />
