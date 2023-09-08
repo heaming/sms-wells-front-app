@@ -39,8 +39,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_ZIP')"
-          :colspan="2"
+          :label="$t('조회구분')"
         >
           <!--우편번호-->
           <!-- <kw-select
@@ -48,13 +47,20 @@
             :options="[{ codeId: 'ALL', codeName: t('전체') },
                        { codeId: 'NONE', codeName: t('담당자 없음') }]"
           /> -->
-          <kw-input
+          <!-- <kw-input
             v-model="searchParams.addressZipFrom"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.addressZipTo"
+          /> -->
+          <kw-select
+            v-model="searchParams.bizPsicSrnDvCd"
+            first-option="all"
+            :options="codes.SV_BIZ_PSIC_SRN_DV_CD"
           />
+        </kw-search-item>
+        <kw-search-item>
           <kw-field
             :model-value="[]"
           >
@@ -77,9 +83,8 @@
           use-partner
           dgr3-levl-og-first-option="all"
           partner-first-option="all"
-          dgr1-levl-og-readonly
-          dgr2-levl-og-readonly
-          bzns-psic-auth-yn="Y"
+          bzns-psic-auth-yn="N"
+          auth-yn="N"
         />
       </kw-search-row>
       <!-- <kw-search-row>
@@ -93,6 +98,19 @@
           />
         </kw-search-item>
       </kw-search-row> -->
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_ZIP')"
+        >
+          <kw-input
+            v-model="searchParams.addressZipFrom"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.addressZipTo"
+          />
+        </kw-search-item>
+      </kw-search-row>
     </kw-search>
 
     <div class="result-area">
@@ -241,7 +259,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
@@ -255,6 +273,7 @@ const { alert, notify } = useGlobal();
 const codes = await codeUtil.getMultiCodes(
   'MNGER_RGLVL_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
+  'SV_BIZ_PSIC_SRN_DV_CD',
 );
 
 const { getters } = useStore();
@@ -285,6 +304,7 @@ const searchParams = ref({
   branchOffice: 'ALL',
   branchOfficeCd: '',
   partnerNo: 'ALL',
+  bizPsicSrnDvCd: '', // 조회구분
 });
 
 let cachedParams;
@@ -298,6 +318,11 @@ const pageInfo = ref({
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 async function fetchData() {
+  if (isEmpty(searchParams.value.localGroupCd)) {
+    await alert(t('MSG_ALT_NOT_FOUND_OG_INF')); // 조직정보를 찾을 수 없습니다.
+    return;
+  }
+
   const res = await dataService.get('/sms/wells/service/manage-customer-rglvl', { params: cachedParams });
   const list = res.data;
 
