@@ -620,7 +620,8 @@ const initGrdMain = defineGrid((data, view) => {
     }
 
     if (column === 'istImg') {
-      const imgFiles = [istEnvrPhoPhFileUid, istKitPhoPhFileUid, istCelngPhoPhFileUid].filter((v) => !isEmpty(v));
+      const imgFiles = [istEnvrPhoPhFileUid, istKitPhoPhFileUid, istCelngPhoPhFileUid]
+        .filter((v) => !isEmpty(v)).map((v) => ({ fileUid: v }));
       console.log(imgFiles);
 
       if (imgFiles.length > 0) {
