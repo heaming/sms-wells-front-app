@@ -577,7 +577,7 @@ async function onClickLgstTrs() {
     return;
   }
   // 물류 전송
-  const res = await dataService.post('/sms/wells/service/individual-ware-ostrs/logistics-transfer', searchParams.value, { timeout: 3000000 });
+  const res = await dataService.post('/sms/wells/service/individual-ware-ostrs/logistics-transfer', searchParams.value, { timeout: 360000 });
   const { processCount } = res.data;
   if (processCount > 0) {
     // 이관이 완료되었습니다.

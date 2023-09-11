@@ -482,7 +482,7 @@ async function onClickSave() {
     warehouseInfo.value.apyYm = dayjs().format('YYYYMM');
   }
 
-  await dataService.post('/sms/wells/service/warehouse-organizations', warehouseInfo.value, { timeout: 3000000 });
+  await dataService.post('/sms/wells/service/warehouse-organizations', warehouseInfo.value, { timeout: 360000 });
   notify(t('MSG_ALT_SAVE_DATA'));
   ok();
 }
