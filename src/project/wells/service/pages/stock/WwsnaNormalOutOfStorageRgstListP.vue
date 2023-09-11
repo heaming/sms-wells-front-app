@@ -420,7 +420,6 @@ async function onChangeRgstDt() {
 }
 
 function setSearchParams(res) {
-  debugger;
   searchParams.value = cloneDeep(res.data);
   const { stckStdGb, ostrAkRgstDt } = res.data;
 
