@@ -368,7 +368,8 @@ const initGridDetail = defineGrid((data, view) => {
   view.onCellDblClicked = async (g, clickData) => {
     const baseYm = g.getValue(clickData.itemIndex, 'baseYm');
     const prtnrNo = g.getValue(clickData.itemIndex, 'prtnrNo');
-    await onClickOpenReport(baseYm, prtnrNo);
+    console.log(`${baseYm} ${prtnrNo}`);
+    // await onClickOpenReport(baseYm, prtnrNo);
   };
 });
 
