@@ -221,7 +221,7 @@ async function onClickRedfAmountCreate() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/deduction/redf/allowance-report/bizd-paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 480000 });
+  const res = await dataService.get('/sms/wells/deduction/redf/allowance-report/bizd-paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 200000 });
   const { list: redfes, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -241,7 +241,7 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/deduction/redf/allowance-report/bizd-excel-download', { params: cachedParams, timeout: 480000 });
+  const res = await dataService.get('/sms/wells/deduction/redf/allowance-report/bizd-excel-download', { params: cachedParams, timeout: 200000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
