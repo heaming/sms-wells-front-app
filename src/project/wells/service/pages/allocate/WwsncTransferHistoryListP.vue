@@ -49,6 +49,7 @@ const gridMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'TF_AK_DV_CD',
+  'TF_AK_RSON_CD',
 );
 
 /*
@@ -97,6 +98,13 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'afOgNm' },
     { fieldName: 'afCnfmPsicPrtnrNo' },
     { fieldName: 'afPrtnrKnm' },
+    { fieldName: 'tfCnfmdt' },
+    { fieldName: 'tfAkRsonCd' },
+    { fieldName: 'tfOgNm' },
+    { fieldName: 'tfPrtnrKnm' },
+    { fieldName: 'tfOgTpCd' },
+    { fieldName: 'tfPrtnrNo' },
+    { fieldName: 'tfOgId' },
   ];
 
   const columns = [
@@ -104,11 +112,14 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'asnTfDvCd', header: t('이관사유'), width: '150', styleName: 'text-center', options: codes.TF_AK_DV_CD },
     { fieldName: 'bfOgNm', header: t('소속'), width: '150', styleName: 'text-left' },
     { fieldName: 'bfCnfmPsicPrtnrNo', header: t('사번'), width: '100', styleName: 'text-right' },
-    { fieldName: 'bfPrtnrKnm', header: t('성명'), width: '100', styleName: 'text-left' },
+    { fieldName: 'bfPrtnrKnm', header: t('성명'), width: '100', styleName: 'text-center' },
     { fieldName: 'afOgNm', header: t('소속'), width: '150', styleName: 'text-left' },
     { fieldName: 'afCnfmPsicPrtnrNo', header: t('사번'), width: '100', styleName: 'text-right' },
-    { fieldName: 'afPrtnrKnm', header: t('성명'), width: '100', styleName: 'text-left' },
-
+    { fieldName: 'afPrtnrKnm', header: t('성명'), width: '100', styleName: 'text-center' },
+    { fieldName: 'tfCnfmdt', header: t('이관일자'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'tfAkRsonCd', header: t('이관사유'), width: '170', styleName: 'text-center', options: codes.TF_AK_RSON_CD },
+    { fieldName: 'tfOgNm', header: t('소속'), width: '150', styleName: 'text-left' },
+    { fieldName: 'tfPrtnrKnm', header: t('성명'), width: '100', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
@@ -127,6 +138,11 @@ const initGrid = defineGrid((data, view) => {
       header: t('이관 후 담당자'),
       direction: 'horizontal',
       items: ['afOgNm', 'afCnfmPsicPrtnrNo', 'afPrtnrKnm'],
+    },
+    {
+      header: t('이관요청정보'),
+      direction: 'horizontal',
+      items: ['tfCnfmdt', 'tfAkRsonCd', 'tfOgNm', 'tfPrtnrKnm'],
     },
   ]);
 });
