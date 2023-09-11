@@ -234,22 +234,22 @@ async function onClickDelete() {
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   if (deletedRows.length > 0) {
-    await dataService.delete('/sms/wells/closing/normal-account', { data: [...deletedRows] });
+    const nomAccExcdIds = deletedRows.map(({ nomAccExcdId }) => nomAccExcdId);
+    await dataService.delete('/sms/wells/closing/normal-account', { params: { nomAccExcdIds } });
     await fetchData();
   }
 }
 
 async function onClickExcelUpload() {
   const apiUrl = '/sms/wells/closing/normal-account/excel-upload';
-  const templateId = 'FOM_MSG_RESO_XLS_UP';
-  const {
-    result,
-  } = await modal({
+  const templateId = 'FOM_NORMAL_ACCOUNT_EXCEPT';
+  const { result } = await modal({
     component: 'ZwcmzExcelUploadP',
     componentProps: { apiUrl, templateId },
   });
-  if (result.status === 'S') {
+  if (result) {
     notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
   }
 }
 
