@@ -3,9 +3,9 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNC
- 2. 프로그램 ID : [K-W-SV-U-0243M01] WwsnbTotalAfterServiceRateOdmPerOemM - 실적_총A/S율-ODM/OEM
+ 2. 프로그램 ID : [K-W-SV-U-0281M01] WwsnbInstallationOneYearAcuAfSvRtM - 실적_설치1년누적AS율
  3. 작성자 : gs.piit231
- 4. 작성일 : 2023.09.06
+ 4. 작성일 : 2023.09.07
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
@@ -16,10 +16,13 @@
   <kw-page>
     <template #header>
       <kw-page-header
-        :options="['홈', '품질현황', '품질관리', '총A/S율-ODM/OEM']"
+        :options="['홈', '품질현황', '품질관리', '설치1년누적A/S율']"
       />
     </template>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      :cols="3"
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <!-- 기준년도 -->
         <kw-search-item :label="t('MSG_TXT_BASE_YEAR')">
@@ -49,7 +52,10 @@
       </kw-search-row>
       <kw-search-row>
         <!-- 상품그룹 -->
-        <kw-search-item :label="t('MSG_TXT_PD_GRP')">
+        <kw-search-item
+          colspan="2"
+          :label="t('MSG_TXT_PD_GRP')"
+        >
           <kw-select
             v-model="searchParams.pdGrp"
             :options="codes.PD_GRP_CD"
@@ -94,11 +100,6 @@
           @click="onClickExcelDownload"
         />
       </kw-action-top>
-      <!-- <kw-grid
-        ref="grdMainRef"
-        :visible-rows="30"
-        @init="initGrdMain"
-      /> -->
       <kw-grid
         ref="grdMainRef"
         @init="initGrdMain"
@@ -200,13 +201,13 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
-    fileName: '실적_총A/S율-ODM/OEM',
+    fileName: '실적_설치1년누적AS율',
     timePostfix: true,
   });
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/total-afterservice-rate-odmperoem', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/installation-yone-acu-af-sv-rt/installationOneYearAcuAfSvRtInfo', { params: searchParams.value });
   pageInfo.value.totalCount = res.data.length;
 
   const view = grdMainRef.value.getView();
@@ -229,7 +230,8 @@ const divCd = [
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-async function initGrdMain(data, view) {
+
+function initGrdMain(data, view) {
   const fields = [
     { fieldName: 'atcNm' }, // 항목명
     { fieldName: 'totalCnt', dataType: 'number' }, // 합계
@@ -423,28 +425,5 @@ async function initGrdMain(data, view) {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-
-  // data.setRows([
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // ]);
 }
 </script>
