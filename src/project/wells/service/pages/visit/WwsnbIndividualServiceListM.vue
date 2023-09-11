@@ -1034,13 +1034,14 @@ const initGridState = defineGrid((data, view) => {
     /* 설치환경상세 */
     if (cData.fieldName === 'imgYn') {
       const { istEnvrFileUid, istKitFileUid, istCelngFileUid } = g.getValues(cData.itemIndex);
+      const fileUids = ref({
+        istEnvrFileId: istEnvrFileUid ?? '',
+        istKitFileId: istKitFileUid ?? '',
+        celngFileId: istCelngFileUid ?? '',
+      });
       await modal({
         component: 'WwsnbInstallEnvironmentDtlP',
-        componentProps: {
-          istEnvrFileId: istEnvrFileUid ?? '',
-          istKitFileId: istKitFileUid ?? '',
-          celngFileId: istCelngFileUid ?? '',
-        },
+        componentProps: { files: fileUids.value },
       });
     }
   };
