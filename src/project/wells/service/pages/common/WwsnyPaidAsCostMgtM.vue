@@ -244,7 +244,7 @@ changePdGrpCd();
 
 const isHgrPdCd = ref(false);
 
-watch(() => searchParams.value.hgrPdCd, (val) => {
+watch(() => searchParams.value.pdGrpCd, (val) => {
   if (!isEmpty(val) && Number(val) > 9) {
     isHgrPdCd.value = true;
     searchParams.value.cmnPartChk = 'N';
@@ -252,8 +252,8 @@ watch(() => searchParams.value.hgrPdCd, (val) => {
     isHgrPdCd.value = false;
   }
 
-  if (searchParams.value.hgrPdCd !== val) {
-    searchParams.value.hgrPdCd = val;
+  if (searchParams.value.pdGrpCd !== val) {
+    searchParams.value.pdGrpCd = val;
   }
   changePdGrpCd();
 });
@@ -311,7 +311,7 @@ async function onClickApplyDateBulkChange() {
 }
 
 function searchConditionReset() {
-  searchParams.value.hgrPdCd = '';
+  searchParams.value.pdGrpCd = '';
   searchParams.value.cmnPartChk = 'N';
   searchParams.value.apyMtrChk = 'N';
 }
@@ -338,7 +338,7 @@ function onClickReset() {
 }
 
 onMounted(async () => {
-  if (!isEmpty(searchParams.value.hgrPdCd)) {
+  if (!isEmpty(searchParams.value.pdGrpCd)) {
     await changePdGrpCd();
   }
 });
