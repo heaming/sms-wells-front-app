@@ -121,6 +121,7 @@
         <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
       </template>
       <kw-btn
+        v-permission:delete
         primary
         :label="$t('MSG_BTN_DEL')"
         :disable="props.page !== pageProps.remove"
@@ -419,6 +420,7 @@ async function onChangeRgstDt() {
 }
 
 function setSearchParams(res) {
+  debugger;
   searchParams.value = cloneDeep(res.data);
   const { stckStdGb, ostrAkRgstDt } = res.data;
 
