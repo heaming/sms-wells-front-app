@@ -57,7 +57,7 @@
         </kw-search-item>
         <!-- 아웃소싱 선택일때, -->
         <kw-search-item
-          v-show="isPdctDv"
+          v-if="isPdctDv"
           :label="$t('MSG_TXT_PRTNR_BZS_CD')"
         >
           <kw-select
