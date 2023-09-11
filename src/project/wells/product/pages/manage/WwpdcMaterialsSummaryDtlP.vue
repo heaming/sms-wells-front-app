@@ -203,7 +203,7 @@ const initGrd1st = defineGrid((data, view) => {
     .filter((visible) => visible);
   data.setFields(fields);
   view.setColumns(columns);
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
   view.checkBar.visible = false;
 });
 
@@ -212,7 +212,7 @@ const initGrd2nd = defineGrid((data, view) => {
     .filter((visible) => visible);
   data.setFields(fields);
   view.setColumns(columns);
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
   view.checkBar.visible = false;
 });
 
@@ -221,7 +221,7 @@ const initGrd3rd = defineGrid((data, view) => {
     .filter((visible) => visible);
   data.setFields(fields);
   view.setColumns(columns);
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
   view.checkBar.visible = false;
 });
 
