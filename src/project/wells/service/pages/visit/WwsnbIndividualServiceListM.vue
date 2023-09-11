@@ -556,14 +556,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, useMeta, gridUtil, popupUtil } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, gridUtil, popupUtil, useMeta } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-// const router = useRouter();
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
 const {
@@ -576,10 +575,6 @@ const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: true, default: '' },
 });
-
-// if(props.cntrNo) {
-//   router.push({path:'/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt', query:{...props}},
-//   }
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -730,7 +725,7 @@ async function getIndividualState() {
 
   pageInfo.value = pagingResult;
 
-  pageInfo.value.totalCount = individualState.length;
+  // pageInfo.value.totalCount = individualState.length;
   const individualStateView = grdIndividualStateRef.value.getView();
   const individualStateData = individualStateView.getDataSource();
   individualStateData.checkRowStates(false);
@@ -759,14 +754,8 @@ async function fetchData() {
   await getIndividualCounsel();
 }
 
-async function onClickSearch() {
-  if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) { notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`])); return; }
-  if (searchParams.value.cntrNo) {
-    if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { return; }
-  }
-
+async function isValidateIndividualParams() {
   await getIndividualServicePs();
-
   if (isEmpty(individualParams.value)) {
     notify(t('MSG_ALT_CST_INF_NOT_EXST'));
     // init tabs & grids
@@ -784,6 +773,14 @@ async function onClickSearch() {
 
     await fetchData();
   }
+}
+
+async function onClickSearch() {
+  if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) { notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`])); return; }
+  if (searchParams.value.cntrNo) {
+    if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { return; }
+  }
+  await isValidateIndividualParams();
 }
 
 const { currentRoute } = useRouter();
@@ -807,7 +804,7 @@ async function onClickSave() {
   if (isEmpty(saveParams.value.cstUnuitmCn)) { return; }
   await dataService.post('sms/wells/service/individual-service-ps', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
-  await onClickSearch();
+  await isValidateIndividualParams();
 }
 
 async function onClickCstSearch() {
@@ -819,7 +816,7 @@ async function onClickCstSearch() {
 
     searchParams.value.cntrNo = payload.cntrNo ?? '';
     searchParams.value.cntrSn = payload.cntrSn ?? '';
-    await onClickSearch();
+    await isValidateIndividualParams();
   }
 }
 
@@ -830,13 +827,13 @@ watch(props, async (val) => {
 
     searchParams.value.cntrNo = props.cntrNo;
     searchParams.value.cntrSn = props.cntrSn;
-    await onClickSearch();
+    await isValidateIndividualParams();
   }
 });
 
 onMounted(async () => {
   if (props.cntrNo && props.cntrSn) {
-    await onClickSearch();
+    await isValidateIndividualParams();
   }
 });
 
@@ -941,8 +938,8 @@ const initGridState = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       styleCallback(grd, dataCell) {
-        const wkPrgsStat = grd.getValue(dataCell.item.dataRow, 'wkPrgsStat');
-        return (wkPrgsStat === '작업대기') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+        const procStus = grd.getValue(dataCell.item.dataRow, 'procStus');
+        return (procStus === '00') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
       },
     },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
@@ -1000,7 +997,7 @@ const initGridState = defineGrid((data, view) => {
   view.onCellItemClicked = async (g, cData) => {
     /* 작업상세 */
     if (cData.fieldName === 'wkPrgsStat') {
-      const { wkPrgsStat,
+      const {
         cstSvAsnNo,
         prtnrNo,
         svHshdNo,
@@ -1012,7 +1009,7 @@ const initGridState = defineGrid((data, view) => {
         cntrSn,
       } = g.getValues(cData.itemIndex);
 
-      if (wkPrgsStat === '작업대기') {
+      if (procStus === '00') {
         const bypassPrtnrNo = prtnrNo;
         const wkPrgsStatCd = procStus;
 
@@ -1020,12 +1017,14 @@ const initGridState = defineGrid((data, view) => {
         const redirectUrl = encodeURIComponent(`/popup/mobile/wmsnb-as-work-list?${param}`);
         // const queryString = new URLSearchParams(param);
         // console.log(queryString);
+
         let url = '';
-        if (window.location.href.includes('localhost')) {
-          url = 'https://m-wpm.kyowon.co.kr';
+        console.log(import.meta.env.MODE);
+        if (import.meta.env.MODE === 'qa') {
+          url = 'https://q-m-wpm.kyowon.co.kr';
         } else {
-          url = window.location.origin;
-        }// env.mode === 'qa'
+          url = 'https://m-wpm.kyowon.co.kr';
+        }
 
         // window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
         popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
@@ -1071,6 +1070,7 @@ const initGridState = defineGrid((data, view) => {
   ]);
 
   view.onScrollToBottom = async (g) => {
+    debugger;
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
       await getIndividualState();

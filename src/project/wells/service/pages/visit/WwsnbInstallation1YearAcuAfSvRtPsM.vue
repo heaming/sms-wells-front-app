@@ -195,6 +195,15 @@ async function onClickPrintEl() {
   printElement(pageRef);
 }
 
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+
+  await gridUtil.exportView(view, {
+    fileName: '설치1년누적A/S율',
+    timePostfix: true,
+  });
+}
+
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/ist-y1-acu-af-sv-rt-ps', { params: searchParams.value });
   console.log('res.data >>>>', res.data);
@@ -248,21 +257,168 @@ async function initGrdMain(data, view) {
         const { returnNm } = gridUtil.getRowValue(g, i.itemIndex);
         return divCd.find((x) => x.codeId === returnNm).codeName;
       },
+      headerSummary: {
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
     },
-    { fieldName: 'totalCnt', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm01', header: t('MSG_TXT_JAN'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm02', header: t('MSG_TXT_FEB'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm03', header: t('MSG_TXT_MAR'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm04', header: t('MSG_TXT_APRI'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm05', header: t('MSG_TXT_MAY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm06', header: t('MSG_TXT_JUN'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm07', header: t('MSG_TXT_JUL'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm08', header: t('MSG_TXT_AUG'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm09', header: t('MSG_TXT_SEPT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm10', header: t('MSG_TXT_OCT'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm11', header: t('MSG_TXT_NOV'), width: '100', styleName: 'text-right' },
-    { fieldName: 'm12', header: t('MSG_TXT_DECE'), width: '100', styleName: 'text-right' },
+    {
+      fieldName: 'totalCnt',
+      header: t('MSG_TXT_SUM'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm01',
+      header: t('MSG_TXT_JAN'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm02',
+      header: t('MSG_TXT_FEB'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm03',
+      header: t('MSG_TXT_MAR'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm04',
+      header: t('MSG_TXT_APRI'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm05',
+      header: t('MSG_TXT_MAY'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm06',
+      header: t('MSG_TXT_JUN'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm07',
+      header: t('MSG_TXT_JUL'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm08',
+      header: t('MSG_TXT_AUG'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm09',
+      header: t('MSG_TXT_SEPT'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm10',
+      header: t('MSG_TXT_OCT'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm11',
+      header: t('MSG_TXT_NOV'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
+    {
+      fieldName: 'm12',
+      header: t('MSG_TXT_DECE'),
+      width: '100',
+      styleName: 'text-right',
+      headerSummary: {
+        type: 'number',
+        numberFormat: '#,##0',
+        expression: 'sum',
+      },
+    },
   ];
+
+  // 헤더쪽 합계 행고정, summary
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        height: 40,
+      },
+    ],
+  });
 
   data.setFields(fields);
   view.setColumns(columns);

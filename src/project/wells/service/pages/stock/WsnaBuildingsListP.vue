@@ -174,8 +174,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'bldAdr', header: t('MSG_TXT_ADDR'), width: '380', styleName: 'text-center' },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'bldAdr', header: t('MSG_TXT_ADDR'), width: '380', styleName: 'text-left' },
   ];
 
   data.setFields(fields);

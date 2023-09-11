@@ -152,23 +152,36 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
+          <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
         <kw-btn
           icon="download_on"
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
 
       <kw-grid
         ref="grdMainRef"
-        :total-count="totalCount"
+        name="grdMain"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -181,13 +194,14 @@
 // -------------------------------------------------------------------------------------------------
 
 // import { codeUtil, getComponentType, useDataService, defineGrid } from 'kw-lib';
-import { codeUtil, getComponentType, defineGrid, useDataService, gridUtil } from 'kw-lib';
+import { codeUtil, getComponentType, defineGrid, useDataService, gridUtil, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 
+const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 
@@ -233,13 +247,18 @@ const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
 );
 
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
+});
+
 const strTpCd = codes.STR_TP_CD.filter((v) => v.codeId !== '110');
 const strWareDvCd = { WARE_DV_CD: [
-  { codeId: '2', codeName: '서비스센터' },
-  { codeId: '3', codeName: '영업센터' },
+  { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
+  { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
 ] };
-
-const totalCount = ref(0);
 
 searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
 searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
@@ -274,19 +293,23 @@ function onChangeItmKndCd() {
 function onChangeOstrDvCd() {
   searchParams.value.ostrWareNoM = '';
   searchParams.value.ostrWareNoD = '';
+  searchParams.value.ostrWareDtlDvCd = '';
 }
 
 function onChagneOstrWareHgrNo() {
   searchParams.value.ostrWareNoD = '';
+  searchParams.value.ostrWareDtlDvCd = '';
 }
 
 function onChangeStrDvCd() {
   searchParams.value.strWareNoM = '';
   searchParams.value.strWareNoD = '';
+  searchParams.value.strWareDtlDvCd = '';
 }
 
 function onChagneStrWareHgrNo() {
   searchParams.value.strWareNoD = '';
+  searchParams.value.strWareDtlDvCd = '';
 }
 
 // 입고창고구분이 변경되었을때
@@ -364,11 +387,13 @@ watch(() => searchParams.value.ostrWareNoD, (val) => {
 let cachedParams;
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/store-detail-itemizations', { params: cachedParams });
-  const store = res.data;
-  totalCount.value = store.length;
+  const res = await dataService.get('/sms/wells/service/store-detail-itemizations/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { list: store, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(store);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {

@@ -48,22 +48,23 @@
           :label="$t('MSG_TXT_IST_PCSV_PDCT_DV')"
         >
           <kw-select
-            v-model="searchParams.adrpcTpCd"
-            :options="adrpcTpCd"
+            v-model="searchParams.pdctDv"
+            :options="pdctDv"
             :label="$t('MSG_TXT_IST_PCSV_PDCT_DV')"
             first-option="all"
-            @change="onChangeAdrpcTpCd"
+            @change="onChangePdctDv"
           />
         </kw-search-item>
         <!-- 아웃소싱 선택일때, -->
         <kw-search-item
-          v-show="isAdrpcTpCd"
-          :label="$t('MSG_TXT_CMPNY_CD')"
+          v-if="isPdctDv"
+          :label="$t('MSG_TXT_PRTNR_BZS_CD')"
         >
-          <kw-input
-            v-model="searchParams.sppProcsBzsCd"
-            :label="$t('MSG_TXT_CMPNY_CD')"
-            clearable
+          <kw-select
+            v-model="searchParams.prtnrBzsCd"
+            :options="codes.PRTNR_BZS_CD"
+            :label="$t('MSG_TXT_PRTNR_BZS_CD')"
+            first-option="all"
           />
         </kw-search-item>
         <!-- 아웃소싱 선택일때, -->
@@ -128,8 +129,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, gridUtil } from 'kw-lib';
-import { getAdrpcTpCd } from '~/modules/sms-common/closing/utils/clUtil';
+import { useDataService, defineGrid, getComponentType, gridUtil, codeUtil } from 'kw-lib';
+import { getPdctDv } from '~/modules/sms-common/closing/utils/clUtil';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -143,11 +144,11 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const totalMainCount = ref(0);
 const totalSubCount = ref(0);
-const isAdrpcTpCd = ref(false);
+const isPdctDv = ref(false);
 const searchParams = ref({ slYm: dayjs().format('YYYYMM'),
   startDt: dayjs().format('YYYYMM').concat('01'),
   endDt: dayjs().format('YYYYMMDD') });
-const adrpcTpCd = await getAdrpcTpCd();
+const pdctDv = await getPdctDv();
 const limitStartDtFrom = computed(() => dayjs(`${searchParams.value.slYm}01`).format('YYYY-MM-DD'));
 const limitEndDtTo = computed(() => {
   const yy = (searchParams.value.slYm).substring(0, 4);
@@ -156,13 +157,22 @@ const limitEndDtTo = computed(() => {
   return dayjs(`${searchParams.value.slYm}${lastDay}`).format('YYYY-MM-DD');
 });
 
+const codes = await codeUtil.getMultiCodes(
+  'PRTNR_BZS_CD',
+);
+
 function onChangeSlYm() {
   searchParams.value.startDt = `${searchParams.value.slYm}01`;
   searchParams.value.endDt = `${searchParams.value.slYm}${dayjs().format('YYYYMMDD').substring(6, 8)}`;
 }
 
-function onChangeAdrpcTpCd() {
-  isAdrpcTpCd.value = searchParams.value.adrpcTpCd === '1';
+function onChangePdctDv() {
+  isPdctDv.value = searchParams.value.pdctDv === '1';
+  if (['1', '2', '3'].includes(searchParams.value.pdctDv)) {
+    searchParams.value.adrpcTpCd = searchParams.value.pdctDv === '3' ? '3' : '2';
+  } else {
+    searchParams.value.adrpcTpCd = '';
+  }
 }
 
 async function onClickExcelDownload(gridGb) {
@@ -252,7 +262,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'istDt', dataType: 'date' },
     { fieldName: 'cntrPdEnddt', dataType: 'date' },
     { fieldName: 'reqdDt', dataType: 'date' },
-    { fieldName: 'sppProcsBzsCd' },
+    { fieldName: 'prtnrBzsNm' },
 
   ];
 
@@ -267,7 +277,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sppProcsBzsCd', header: t('MSG_TXT_CMPNY_CD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'prtnrBzsNm', header: t('MSG_TXT_PRTNR_BZS_CD'), width: '120', styleName: 'text-center' },
 
   ];
 

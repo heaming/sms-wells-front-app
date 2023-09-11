@@ -91,6 +91,7 @@
           grid-action
           :disable="isDisableCancelBtn"
           :label="$t('MSG_TXT_CLTN')"
+          @click="onClickUpgrades('CANCEL')"
         />
         <kw-btn
           v-permission:create
@@ -98,20 +99,23 @@
           grid-action
           :disable="isDisableHoldingBtn"
           :label="$t('MSG_BTN_QLF_HOLDON')"
+          @click="onClickUpgrades('HOLDING')"
         />
         <kw-btn
           v-permission:create
           dense
           grid-action
           :disable="isDisableThisMonthUpgradesBtn"
-          :label="$t('MSG_BTN_THM_UPGR')"
+          :label="$t('MSG_BTN_THM_OPNG')"
+          @click="onClickUpgrades('THIS_OPENING')"
         />
         <kw-btn
           v-permission:create
           dense
           grid-action
           :disable="isDisableUpgradesBtn"
-          :label="$t('MSG_TXT_ADVMNT')"
+          :label="$t('MSG_BTN_NMN_OPNG')"
+          @click="onClickUpgrades('NEXT_OPENING')"
         />
       </kw-action-top>
 
@@ -131,13 +135,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useMeta, gridUtil, codeUtil } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, useMeta, useGlobal, gridUtil, codeUtil } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 
 const { t } = useI18n();
+const { notify } = useGlobal();
 const dataService = useDataService();
 const { getUserInfo } = useMeta();
 const { wkOjOgTpCd, ogTpCd } = getUserInfo();
@@ -255,6 +260,86 @@ async function onClickExcelDownload() {
   });
 }
 
+function getTargetQualification(item, details) {
+  const result = {
+    targetQlfDvCd: undefined,
+    targetQlfAplcDvCd: undefined,
+    cvdt: undefined,
+  };
+
+  result.targetQlfAplcDvCd = '1'; // 승급
+  if (details[0].qlfDvCd === '2' && item.edu143) {
+    result.targetQlfDvCd = '6'; // BS프리매니저
+  } else if (details[0].qlfDvCd === '2' && item.edu96) {
+    result.targetQlfDvCd = '3'; // 웰스매니저
+  } else if (details[0].qlfDvCd === '6' && item.edu96) {
+    result.targetQlfDvCd = '3'; // 웰스매니저
+    result.cvdt = dayjs().format('YYYYMMDD'); // 전환일자
+  }
+
+  return result;
+}
+
+async function onClickUpgrades(type) {
+  const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo } = selectedCurrentRow.value;
+  const strtdt = `${dayjs().add(1, 'M').format('YYYYMM')}01`;
+
+  const qualification = getTargetQualification(selectedCurrentRow.value, grdMain2Datas.value);
+
+  const params = {
+    ogTpCd: currentRowOgTpCd,
+    prtnrNo: currentRowPrtnrNo,
+    qlfDvCd: qualification.targetQlfDvCd,
+    strtdt,
+    cvdt: qualification.cvdt,
+    qlfAplcDvCd: qualification.targetQlfAplcDvCd,
+  };
+
+  switch (type) {
+    case 'CANCEL':
+      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]));
+      break;
+    case 'HOLDING':
+      params.qlfAplcDvCd = '3'; // 보류
+      params.qlfDvCd = grdMain2Datas.value[0].qlfDvCd;
+      params.strtdt = grdMain2Datas.value[0].strtdt;
+
+      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_QLF_HOLDON')]));
+      break;
+    case 'THIS_OPENING':
+      params.strtdt = dayjs().format('YYYYMMDD');
+
+      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_THM_OPNG')]));
+      break;
+    default:
+      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]));
+  }
+  const res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
+
+  onclickSearch();
+
+  console.log('>>>>> res: ', res);
+  // eslint-disable-next-line no-unsafe-optional-chaining
+  const { processCount } = res?.data;
+  if (processCount > 0) {
+    switch (type) {
+      case 'CANCEL':
+        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]));
+        break;
+      case 'HOLDING':
+        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_QLF_HOLDON')]));
+        break;
+      case 'THIS_OPENING':
+        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_THM_OPNG')]));
+        break;
+      default:
+        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]));
+    }
+
+    onclickSearch();
+  }
+}
+
 onMounted(() => {
   init();
 });
@@ -295,12 +380,11 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'edu143', header: t('MSG_TXT_PRE_SRTUP'), width: '168', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
     { fieldName: 'edu96', header: t('MSG_TXT_SRTUP'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
     { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
-    // { fieldName: '', header: t('MSG_TXT_TOPMR_PLAR'), width: '122', styleName: 'text-center' },
-    // { fieldName: '', header: t('MSG_TXT_STRT_DT'), width: '168', styleName: 'text-center' },
-    // { fieldName: '', header: t('MSG_TXT_RSG_DT'), width: '168', styleName: 'text-center' },
-    // { fieldName: '', header: t('MSG_TXT_QLF_YN'), width: '122', styleName: 'text-center' },
+    { fieldName: 'ogTpCd', visible: false },
     { fieldName: 'bizUseExnoEncr', visible: false },
     { fieldName: 'bizUseLocaraTno', visible: false },
+    { fieldName: 'qlfDvCd', visible: false },
+    { fieldName: 'qlfAplcDvCd', visible: false },
   ];
 
   // eslint-disable-next-line max-len
@@ -354,9 +438,7 @@ const initGrid1 = defineGrid((data, view) => {
         }
 
         // 자격보류 버튼
-        if ((response[0].qlfDvCd === '2' && edu143)
-          || (response[0].qlfDvCd === '2' && edu96)
-          || (response[0].qlfDvCd === '6' && edu96)) {
+        if (dayjs(response[0].strtdt).format('YYYYMMDD') > dayjs().format('YYYYMMDD')) {
           isDisableHoldingBtn.value = false;
         } else {
           isDisableHoldingBtn.value = true;

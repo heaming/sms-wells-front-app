@@ -30,14 +30,12 @@
           <kw-date-range-picker
             v-model:from="searchParams.perfStrtDt"
             v-model:to="searchParams.perfEndDt"
+            :label="$t('MSG_TXT_PERF_PRD')"
             rules="date_range_required"
             @change="onChangePerfDt"
           />
         </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_PERF_DV')"
-          required
-        >
+        <kw-search-item :label="$t('MSG_TXT_PERF_DV')">
           <kw-option-group
             v-model="searchParams.perfDv"
             type="radio"
@@ -45,10 +43,7 @@
                        { codeId: 'S', codeName: t('MSG_TXT_NTOR') }]"
           />
         </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_OPTN_DV')"
-          required
-        >
+        <kw-search-item :label="$t('MSG_TXT_OPTN_DV')">
           <kw-select
             v-model="searchParams.optnDv"
             :options="codes.OPTN_DV"
@@ -59,10 +54,7 @@
       </kw-search-row>
 
       <kw-search-row>
-        <kw-search-item
-          :label="$t('MSG_TXT_INQR_DV')"
-          required
-        >
+        <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
           <kw-select
             v-model="searchParams.inqrDv"
             :options="[{ codeId: '1', codeName: t('MSG_TXT_MANAGEMENT_DEPARTMENT') },

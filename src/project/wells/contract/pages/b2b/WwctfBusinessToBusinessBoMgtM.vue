@@ -359,14 +359,8 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         mask: {
           editMask: '999-99-99999',
         },
-
       },
-      displayCallback(grid, index, value) {
-        // 사업자번호 3-2-5 형식으로 표시
-        if (!isEmpty(value)) {
-          return `${value.substr(0, 3)}-${value.substr(3, 2)}-${value.substr(5, 5)}`;
-        }
-      },
+      displayCallback: (g, i, v) => ((!isEmpty(v)) ? v.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3') : ''),
     }, // 사업자번호
     { fieldName: 'leadCstNm',
       header: t('MSG_TXT_CORP_NAME'),
@@ -550,6 +544,38 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       const leadCstNmParam = grid.getValue(updateRow, 10);
       if (!isEmpty(bzrnoParam) && !isEmpty(leadCstNmParam)) {
         onKeyManFind(itemIndex);
+      }
+    }
+    if (columnName === 'rcvodDt' || columnName === 'etCntrStrtdt') {
+      const lossDt = grid.getValue(updateRow, 32);
+      if (!isEmpty(lossDt)) {
+        view.commit();
+        data.setValue(updateRow, 'rcvodDt', '');
+        data.setValue(updateRow, 'etCntrStrtdt', '');
+        alert('낙주일이 존재합니다.');
+      }
+      const rcvodDt = grid.getValue(updateRow, 31);
+      const etCntrStrtdt = grid.getValue(updateRow, 33);
+      if (rcvodDt > etCntrStrtdt && !isEmpty(etCntrStrtdt) && !isEmpty(rcvodDt)) {
+        view.commit();
+        if (columnName === 'rcvodDt') {
+          data.setValue(updateRow, 'etCntrStrtdt', rcvodDt);
+        } else {
+          data.setValue(updateRow, 'rcvodDt', etCntrStrtdt);
+        }
+      }
+    }
+    if (columnName === 'lossDt') {
+      const rcvodDt = grid.getValue(updateRow, 31);
+      const etCntrStrtdt = grid.getValue(updateRow, 33);
+      if (!isEmpty(rcvodDt)) {
+        view.commit();
+        data.setValue(updateRow, 'lossDt', '');
+        alert('수주일이 존재합니다.');
+      } else if (!isEmpty(etCntrStrtdt)) {
+        view.commit();
+        data.setValue(updateRow, 'lossDt', '');
+        alert('계약시작일이 존재합니다.');
       }
     }
   };

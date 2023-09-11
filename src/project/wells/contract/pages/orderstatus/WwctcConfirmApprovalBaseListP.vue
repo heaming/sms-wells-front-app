@@ -98,13 +98,15 @@ const { notify } = useGlobal();
 const { ok, cancel: onClickCancel } = useModal();
 const grdConfirmRef = ref(getComponentType('KwGrid'));
 
-const { getUserInfo } = useMeta();
+const { getUserInfo, hasRoleNickName } = useMeta();
 const { baseRleCd } = getUserInfo();
 
 const checkUser = computed(() => { // 유저 권한 여부 확인 computed
   if (isEmpty(baseRleCd)) { return ''; }
 
-  if (isEqual(baseRleCd, 'W1010')) { return 'I'; } // IT 담당자
+  if (hasRoleNickName('SYS_ADMIN')) { return 'I'; } // IT 담당자
+
+  if (baseRleCd.startsWith('W1')) { return 'W'; } // 현업(본사)
 
   if (baseRleCd.startsWith('W2') || baseRleCd.startsWith('W3')) {
     if (isEqual(baseRleCd.substr(2, 4), '010')) { return 'P'; } // 플래너

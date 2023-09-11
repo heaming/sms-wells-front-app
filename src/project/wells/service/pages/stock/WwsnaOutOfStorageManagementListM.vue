@@ -198,7 +198,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(outOfItem.map((v) => ({ ...v, txtNote: ' ' })));
+  view.getDataSource().setRows(outOfItem);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -296,21 +296,6 @@ const initGrdMain = defineGrid((data, view) => {
       renderer: {
         type: 'button',
       },
-      displayCallback: (g, index, val) => {
-        const { ostrTpCd } = g.getValues(index.itemIndex);
-        console.log(val);
-        // 정상출고
-        if (['221', '222'].includes(ostrTpCd)) {
-          return t('MSG_TXT_NOM_OSTR');
-        } if (ostrTpCd === '223') {
-          return t('MSG_TXT_QOM_MMT');
-        } if (ostrTpCd === '217') {
-          return t('MSG_TXT_ETC_OSTR');
-        } if (['212', '261', '262'].includes(ostrTpCd)) {
-          return t('MSG_TXT_RTNGD_OSTR');
-        }
-        return ' ';
-      },
     },
   ];
 
@@ -328,7 +313,7 @@ const initGrdMain = defineGrid((data, view) => {
       if (ostrTpCd === '217') {
         await popupUtil.open(`/popup#/service/wwsna-etc-out-of-storage-reg?ostrTpCd=${ostrTpCd}&ostrWareNo=${ostrWareNo}&bilDept=${strWareNo}&ostrDt=${ostrDt}&itmOstrNo=${itmOstrNo}`, { width: 1800, height: 1000 }, false);
         return;
-      } if (['221', '222', '223'].includes(ostrTpCd)) {
+      } if (['221', '223'].includes(ostrTpCd)) {
         const { result } = await modal({
           component: 'WwsnaNormalOutOfStorageRgstListP',
           componentProps: { ostrAkNo, ostrAkSn, itmOstrNo, page: 'WwsnaOutOfStorageManagementListM' },

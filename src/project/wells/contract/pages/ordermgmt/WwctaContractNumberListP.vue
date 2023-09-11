@@ -284,25 +284,36 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm' },
     { fieldName: 'cntrCstKnm' },
     { fieldName: 'istCstKnm' },
+    { fieldName: 'memCntrNo' },
+    { fieldName: 'memCntrSn' },
     { fieldName: 'pdCd' },
     { fieldName: 'pdNm' },
   ];
 
   const columns = [
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: 130, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: 100, styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: 100, options: codes.SELL_TP_CD },
     { fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
-      width: 150,
+      width: 140,
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         return `${cntrNo}-${cntrSn}`;
       },
     },
-    { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 100, styleName: 'text-center' },
-    { fieldName: 'istCstKnm', header: t('MSG_TXT_IST_NM'), width: 100, styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 300 },
+    { fieldName: 'cntrCstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 80, styleName: 'text-center' },
+    { fieldName: 'istCstKnm', header: t('MSG_TXT_IST_NM'), width: 80, styleName: 'text-center' },
+    { fieldName: 'memCntrNo',
+      header: '멤버십번호',
+      width: 140,
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { memCntrNo, memCntrSn } = grid.getValues(index.itemIndex);
+        return (memCntrNo && memCntrSn) ? `${memCntrNo}-${memCntrSn}` : '';
+      },
+    },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 250 },
   ];
 
   data.setFields(fields);

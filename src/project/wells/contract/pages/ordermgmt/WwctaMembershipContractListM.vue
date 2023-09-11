@@ -39,6 +39,12 @@
           v-model:from="searchParams.strtDt"
           v-model:to="searchParams.endDt"
           rules="date_range_required|date_range_months:1"
+          :label="searchParams.rcpDateDv === '1' ? $t('MSG_TXT_RCPDT'):
+            searchParams.rcpDateDv === '2' ? $t('MSG_TXT_SCHD_DT'):
+            searchParams.rcpDateDv === '3' ? $t('MSG_TXT_WDWAL_DT'):
+            searchParams.rcpDateDv === '4' ? $t('MSG_TXT_J_DT'):
+            searchParams.rcpDateDv === '5' ? $t('MSG_TXT_MAND_EXP_DT_FRISU'):
+            searchParams.rcpDateDv === '6' ? $t('MSG_TXT_MAND_EXP_DT_RECAP'):$t('MSG_TXT_RCPDT')"
         />
       </kw-search-item>
       <!-- 일자선택 -->

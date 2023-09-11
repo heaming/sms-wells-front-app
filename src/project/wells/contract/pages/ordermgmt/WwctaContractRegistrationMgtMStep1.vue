@@ -86,6 +86,7 @@
         <kw-search-item
           v-if="cntrTpIs.crp
             || (cntrTpIs.msh && searchParams.copnDvCd === '2')
+            || (cntrTpIs.rstl && searchParams.copnDvCd === '2')
             || (cntrTpIs.ensm && searchParams.copnDvCd === '2')"
           :label="$t('MSG_TXT_CRP_NM')"
         >
@@ -100,6 +101,7 @@
           v-if="!cntrTpIs.crp
             && !(cntrTpIs.ensm && searchParams.copnDvCd === '2')
             && !(cntrTpIs.msh && searchParams.copnDvCd === '2')
+            && !(cntrTpIs.rstl && searchParams.copnDvCd === '2')
             && !cntrTpIs.quot"
           :label="$t('MSG_TXT_NAME')"
           required
@@ -186,7 +188,9 @@
         v-if="!cntrTpIs.ensm && !cntrTpIs.quot"
       >
         <kw-search-item
-          v-if="cntrTpIs.crp || (cntrTpIs.msh && searchParams.copnDvCd === '2')"
+          v-if="cntrTpIs.crp
+            || (cntrTpIs.msh && searchParams.copnDvCd === '2')
+            || (cntrTpIs.rstl && searchParams.copnDvCd === '2')"
           :label="$t('MSG_TXT_CRNO')"
           required
         >
@@ -199,7 +203,9 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="!cntrTpIs.crp && !(cntrTpIs.msh && searchParams.copnDvCd === '2')"
+          v-if="!cntrTpIs.crp
+            && !(cntrTpIs.msh && searchParams.copnDvCd === '2')
+            && !(cntrTpIs.rstl && searchParams.copnDvCd === '2')"
           :label="$t('MSG_TXT_MPNO')"
           :required="!cntrTpIs.crp"
         >
@@ -256,7 +262,10 @@
         dense
       >
         <template
-          v-if="cntrTpIs.indv || cntrTpIs.ensm || (cntrTpIs.msh && searchParams.copnDvCd === '1')"
+          v-if="cntrTpIs.indv
+            || cntrTpIs.ensm
+            || (cntrTpIs.msh && searchParams.copnDvCd === '1')
+            || (cntrTpIs.rstl && searchParams.copnDvCd === '1')"
         >
           <kw-form-row
             v-if="searchParams.copnDvCd === '1'"
@@ -329,7 +338,9 @@
           </kw-form-row>
         </template>
         <template
-          v-if="cntrTpIs.crp || (cntrTpIs.msh && searchParams.copnDvCd === '2')"
+          v-if="cntrTpIs.crp
+            || (cntrTpIs.msh && searchParams.copnDvCd === '2')
+            || (cntrTpIs.rstl && searchParams.copnDvCd === '2')"
         >
           <kw-form-row>
             <kw-form-item
@@ -704,8 +715,10 @@ async function onClickSearch() {
   await getCntrtByCstNo(payload.cstNo);
 }
 
-function onChangeCntrTpCd(value) {
-  step1.value = {};
+async function onChangeCntrTpCd(value) {
+  if (value !== '07' && value !== '08') { // 재약정, 멤버십 유형
+    step1.value = {};
+  }
   ['cstKnm', 'bzrno', 'cntrtTno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno'].forEach((key) => {
     searchParams.value[key] = '';
   });
@@ -727,16 +740,24 @@ async function onClickReStipulation() {
       ogTpCd: currentPartner.ogTpCd,
     },
   });
-  if (!result) { return; }
+  // console.log(JSON.stringify(payload, null, '\t'));
+  if (result && payload) {
+    step1.value.prtnr = currentPartner;
+    await getCntrtByCstNo(payload.cntrCstNo);
 
-  await getCntrtByCstNo(payload.cntrCstNo);
-  searchParams.value.cntrTpCd = '08';
-  onChangeCntrTpCd('08');
-  searchParams.value.cstKnm = payload.cstKnm;
-  searchParams.value.cntrtTno = payload.cntrtTno;
-  searchParams.value.cralLocaraTno = payload.cralLocaraTno;
-  searchParams.value.mexnoEncr = payload.mexnoEncr;
-  searchParams.value.cralIdvTno = payload.cralIdvTno;
+    await addCode('CNTR_TP_CD', (code) => (code.codeId === '08' && code));
+    searchParams.value.cntrTpCd = '08';
+
+    setTimeout(() => {
+      searchParams.value.cstKnm = payload.cstKnm;
+      searchParams.value.copnDvCd = payload.copnDvCd;
+      searchParams.value.bzrno = payload.bzrno;
+      searchParams.value.cntrtTno = payload.cntrtTno;
+      searchParams.value.cralLocaraTno = payload.cralLocaraTno;
+      searchParams.value.mexnoEncr = payload.mexnoEncr;
+      searchParams.value.cralIdvTno = payload.cralIdvTno;
+    }, 0);
+  }
 }
 
 async function onClickMembership() {
@@ -753,10 +774,16 @@ async function onClickMembership() {
     step1.value.mshCntrNo = payload.cntrNo;
     step1.value.mshCntrSn = payload.cntrSn;
 
+    step1.value.prtnr = currentPartner;
     await getCntrtByCstNo(payload.cntrCstNo);
+
+    await addCode('CNTR_TP_CD', (code) => (code.codeId === '07' && code));
+    searchParams.value.cntrTpCd = '07';
 
     setTimeout(() => {
       searchParams.value.cstKnm = payload.cstKnm;
+      searchParams.value.copnDvCd = payload.copnDvCd;
+      searchParams.value.bzrno = payload.bzrno;
       searchParams.value.cntrtTno = payload.cntrtTno;
       searchParams.value.cralLocaraTno = payload.cralLocaraTno;
       searchParams.value.mexnoEncr = payload.mexnoEncr;
