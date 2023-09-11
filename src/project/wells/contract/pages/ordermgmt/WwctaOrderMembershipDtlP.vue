@@ -522,6 +522,7 @@
         <kw-form-item :label="$t('MSG_TXT_TXINV')">
           <kw-input
             v-model="frmMainData.txinvPblOjYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -555,6 +556,7 @@
         <kw-form-item :label="$t('MSG_TXT_SPAY_STPL_YN')">
           <kw-input
             v-model="frmMainData.feeFxamYn"
+            align="left"
             placeholder="Y"
             readonly
           />
@@ -563,6 +565,7 @@
         <kw-form-item :label="$t('MSG_TXT_FRISU_CST_YN')">
           <kw-input
             v-model="frmMainData.frisuCstYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -661,6 +664,7 @@
         <kw-form-item :label="$t('MSG_TXT_CNFM_EYN')">
           <kw-input
             v-model="frmMainData.cntrCnfmYn"
+            align="left"
             placeholder=""
             readonly
           />
