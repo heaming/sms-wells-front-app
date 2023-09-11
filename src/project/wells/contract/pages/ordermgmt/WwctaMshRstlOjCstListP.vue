@@ -203,6 +203,7 @@ const initGrd = defineGrid((data, view) => {
       options: codes.COPN_DV_CD,
     },
     cntrCstNo: { label: t('MSG_TXT_CST_NO') /* 고객번호' */, width: 100, classes: 'text-center' },
+    bzrno: { displaying: false },
     cntrNo: { displaying: false },
     cntrSn: { displaying: false },
     cntrNoSn: {
