@@ -515,7 +515,9 @@ const initGrdMain = defineGrid((data, view) => {
       const pdNm = grid.getValue(itemIndex, 'pdNm');
       const { payload } = await modal({
         component: 'ZwpdcStandardListP',
-        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: pdNm },
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME,
+          searchValue: pdNm,
+          selectType: pdConst.PD_SEARCH_SINGLE },
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
@@ -527,7 +529,9 @@ const initGrdMain = defineGrid((data, view) => {
       const svPdNm = grid.getValue(itemIndex, 'svPdNm');
       const { payload } = await modal({
         component: 'ZwpdcServiceListP',
-        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME,
+          searchValue: svPdNm,
+          selectType: pdConst.PD_SEARCH_SINGLE },
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
