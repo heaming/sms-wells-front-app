@@ -31,14 +31,13 @@
       </kw-search-item>
       <kw-search-item
         :label="$t('MSG_TXT_SEL_TYPE')"
-        required
       >
         <kw-select
           v-model="searchParams.sellTpCd"
           :label="$t('MSG_TXT_SEL_TYPE')"
           :options="codes.SELL_TP_CD"
-          rules="required"
           first-option="all"
+          first-option-value="ALL"
         />
         <kw-select
           v-if="searchParams.sellTpCd === '1' || searchParams.sellTpCd === '2'
@@ -211,9 +210,9 @@ const selectDlqDv = { // 연체구분
 };
 
 const selectDlqMcnt = { // 연체개월
-  options: [{ codeId: '0', codeName: '0개월' }, { codeId: '1', codeName: '1개월' }, { codeId: '2', codeName: '2개월' },
-    { codeId: '3', codeName: '3개월' }, { codeId: '4', codeName: '4개월' }, { codeId: '5', codeName: '5개월' },
-    { codeId: '6', codeName: '6개월' }, { codeId: '7', codeName: '7개월이상' }],
+  options: [{ codeId: '0', codeName: '0차월' }, { codeId: '1', codeName: '1차월' }, { codeId: '2', codeName: '2차월' },
+    { codeId: '3', codeName: '3차월' }, { codeId: '4', codeName: '4차월' }, { codeId: '5', codeName: '5차월' },
+    { codeId: '6', codeName: '6차월' }, { codeId: '7', codeName: '7차월이상' }],
 };
 
 const ogTpCd = codes.OG_TP_CD.filter((v) => ['W01', 'W02'].includes(v.codeId));
@@ -222,7 +221,7 @@ const searchParams = ref({
   perfYm: now.format('YYYYMM'), // 실적년월
   dlqDv: 'ALL', // 연체구분
   dlqMcnt: [], // 연체개월
-  sellTpCd: '', // 판매유형
+  sellTpCd: 'ALL', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
   ogTp: 'ALL', // 조직유형
   dgr1LevlOgCd: '',
@@ -320,18 +319,18 @@ const initGrdDetail = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-left' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'slClDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '140', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '140', styleName: 'text-left' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'billingAmount', header: t('MSG_TXT_TOT_BIL_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'depositAmount', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'uncollectedAmount', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'dpTpCd', header: t('MSG_TXT_STLM_MTHD'), width: '120', styleName: 'text-left', options: codes.DP_TP_CD },
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_STPL_D'), width: '120', styleName: 'text-right' },
+    { fieldName: 'dpTpCd', header: t('MSG_TXT_STLM_MTHD'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_STPL_D'), width: '120', styleName: 'text-center' },
     { fieldName: 'approveCode', header: t('MSG_TXT_STLM_CD'), width: '80', styleName: 'text-center' },
     { fieldName: 'nonPaymentReason', header: t('MSG_TXT_OSTD_RSON'), width: '120', styleName: 'text-left' },
     { fieldName: 'slAggAmt', header: t('MSG_TXT_SL_AGG_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
@@ -340,15 +339,15 @@ const initGrdDetail = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
     { fieldName: 'fstCntrDt', header: t('MSG_TXT_SELLER_BIZ_RGST_D'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_SELLER_RSB'), width: '120', styleName: 'text-center' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_SELLER_DV'), width: '120', styleName: 'text-left', options: codes.RSB_DV_CD },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_SELLER_DV'), width: '120', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' },
     { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-left' },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'dgr1LevlOgCd', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '100', styleName: 'text-center' },
     { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'insidePurchase', header: t('MSG_TXT_INSI_PRCHS'), width: '120', styleName: 'text-left' },
-    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_PSIC'), width: '120', styleName: 'text-center' },
-    { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '70', styleName: 'text-center' },
+    { fieldName: 'insidePurchase', header: t('MSG_TXT_INSI_PRCHS'), width: '120', styleName: 'text-center' },
+    { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '120', styleName: 'text-center' },
+    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '70', styleName: 'text-center' },
     { fieldName: 'crpMpno', header: t('MSG_TXT_CLCTAM_ICHR_TNO'), width: '140', styleName: 'text-center' },
     { fieldName: 'mmIstmAmt', header: t('MSG_TXT_MM_MPY_AMT'), width: '120', styleName: 'text-right', dataType: 'number' },
 
