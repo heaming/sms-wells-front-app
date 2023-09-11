@@ -299,7 +299,7 @@ const initGrid = defineGrid(async (data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true; // create checkbox column
+  view.checkBar.visible = isNotPlanner.value; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
   view.editOptions.editable = isNotPlanner.value;
 
