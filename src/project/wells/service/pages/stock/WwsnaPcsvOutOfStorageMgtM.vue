@@ -222,7 +222,6 @@ await fetchProducts();
 /* 택배 출고관리 조회 */
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: { ...cachedParams } });
-  console.log(res);
   const list = res.data;
 
   totalCount.value = list.length;
@@ -298,10 +297,13 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     },
+    { fieldName: 'cntrSn', visible: false },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'cralIdvTno',
+    { fieldName: 'cralLocaraTno', visible: false }, // [휴대전화번호1]
+    { fieldName: 'mexnoEncr', visible: false }, // [휴대전화번호2]
+    { fieldName: 'cralIdvTno', // [휴대전화번호3]
       header: t('MSG_TXT_MPNO'),
       width: '150',
       styleName: 'text-center',
@@ -313,8 +315,10 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     }, // [휴대전화번호]
+    { fieldName: 'locaraTno', visible: false }, // [전화번호1]
+    { fieldName: 'exnoEncr', visible: false }, // [전화번호2]
     {
-      fieldName: 'idvTno',
+      fieldName: 'idvTno', // [전화번호3]
       header: t('MSG_TXT_TEL_NO'),
       width: '150',
       styleName: 'text-center',
@@ -340,7 +344,6 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'wkWareNo', visible: false },
     { fieldName: 'svBizHclsfCd', visible: false },
     { fieldName: 'wkPrgsStatCd', visible: false },
-    { fieldName: 'cntrSn', visible: false },
     { fieldName: 'prtnrNo', visible: false },
     { fieldName: 'pdGdCd', visible: false },
     { fieldName: 'istDt', visible: false },
