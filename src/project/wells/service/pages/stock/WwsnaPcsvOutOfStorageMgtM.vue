@@ -107,13 +107,6 @@
           @click="onClickSave"
         />
         <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-          @click="onClickPrint"
-        />
-        <kw-btn
           icon="download_on"
           dense
           secondary
@@ -242,10 +235,7 @@ async function onClickExcelDownload() {
     exportData: gridUtil.getAllRowValues(view),
   });
 }
-async function onClickPrint() {
-  // TODO : 출력 기능 연결
-  notify('TODO : 출력기능?');
-}
+
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
