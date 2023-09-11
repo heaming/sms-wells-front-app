@@ -569,6 +569,7 @@ const initGrdMain = defineGrid((data, view) => {
         component: 'ZwpdcStandardListP',
         componentProps: { searchType: pdConst.PD_SEARCH_NAME,
           searchValue: pdNm,
+          selectType: pdConst.PD_SEARCH_SINGLE,
           sellTpCd: '6' },
       });
       if (payload) {
