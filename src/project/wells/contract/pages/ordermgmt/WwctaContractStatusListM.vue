@@ -129,6 +129,8 @@
             icon="search"
             clearable
             maxlength="12"
+            :regex="contractNumberRegEx"
+            style="text-transform: uppercase;"
             @click-icon="onClickCntrNoPop"
           />
         </kw-search-item>
@@ -475,6 +477,7 @@ const { t } = useI18n();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const now = dayjs();
+const contractNumberRegEx = RegExp(`^${sessionUserInfo.tenantCd}\\d{0,11}?$`); // 계약번호 입력 정규식
 
 const props = defineProps({
   srchCstNm: { type: String, default: '' },
@@ -607,7 +610,7 @@ async function onClickCntrNoPop() {
 
   const { result, payload } = await modal({
     component: 'WwctaContractNumberListP',
-    componentProps: { cntrNo: searchParams.value.srchCntrNo },
+    componentProps: { cntrNo: searchParams.value.srchCntrNo.toLocaleUpperCase() },
   });
 
   if (result) {
