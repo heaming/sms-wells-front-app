@@ -267,7 +267,7 @@ await Promise.all([
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/item-order-quantity/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 3000000 });
+  const res = await dataService.get('/sms/wells/service/item-order-quantity/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: excludeItem, pageInfo: pagingResult } = res.data;
   // fetch시에는 총 건수 조회하지 않도록 변경
   pagingResult.needTotalCount = false;
@@ -322,7 +322,7 @@ async function openExcludeItemP() {
 // 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/item-order-quantity/excel-download', { params: cachedParams, timeout: 3000000 });
+  const res = await dataService.get('/sms/wells/service/item-order-quantity/excel-download', { params: cachedParams, timeout: 360000 });
 
   gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
