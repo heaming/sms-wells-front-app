@@ -472,11 +472,11 @@ async function onClickBulkUpdate() {
   checkedRows.forEach((rowValue) => {
     data.updateRow(rowValue.dataRow, {
       tfAkRsonCd,
-      tfOgNm,
-      tfOgTpCd,
-      tfOgId,
-      tfPrtnrKnm,
-      tfPrtnrNo,
+      afchIchrOgNm: tfOgNm,
+      afchIchrPrtnrOgTpCd: tfOgTpCd,
+      afchIchrBrchOgId: tfOgId,
+      afchIchrPrtnrKnm: tfPrtnrKnm,
+      afchIchrPrtnrNo: tfPrtnrNo,
     });
   });
   data.endUpdate();
