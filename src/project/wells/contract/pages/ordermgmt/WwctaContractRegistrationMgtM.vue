@@ -168,7 +168,6 @@ const { alert } = useGlobal();
 // const dataService = useDataService();
 const router = useRouter();
 
-// const sideStepRefs = reactive({});
 const steps = [
   { name: 'step1', title: '계약자정보입력', done: ref(false), panel: WwctaContractRegistrationMgtMStep1, ref: ref() },
   { name: 'step2', title: '상품선택', done: ref(false), panel: WwctaContractRegistrationMgtMStep2, ref: ref() },
@@ -221,27 +220,6 @@ function showStep(step) {
   });
   currentStepName.value = `step${step}`;
 }
-
-// async function getSmrInfo(cntrNo) {
-//   const smrs = await dataService.get('sms/wells/contract/contracts/summaries', { params: { cntrNo } });
-//   contract.value.smr = smrs.data;
-// }
-
-/* async function getCntrInfo(step, cntrNo, cntrSn) {
-  // if (step === 2) {
-  //   // step2일 때 상품 조회
-  //   await panelsRefs[currentStepName.value].getProducts(cntrNo);
-  // }
-  // if (step === 4 && isRstlCntr.value) {
-  //   // 재약정 계약 조회
-  //   await panelsRefs[currentStepName.value].getCntrInfoWithRstl(cntrNo, cntrSn);
-  // } else {
-  // await panelsRefs[currentStepName.value].getCntrInfo(cntrNo);
-  // }
-  // 저장된 계약 재조회될 때 확정여부 true
-  isCnfmPds.value = false;
-  await getSmrInfo(cntrNo);
-} */
 
 async function getExistedCntr() {
   const { cntrNo, cntrPrgsStatCd } = props;
@@ -333,21 +311,6 @@ async function onChildActivated(step) {
   console.log('activated', step);
 }
 
-// async function eventStipulation(cntrNo, cntrSn) {
-//   // 재약정계약
-//   const previousStep = steps[3];
-//   currentStepName.value = previousStep.name;
-//   await panelsRefs[currentStepName.value].setRestipulation(true, cntrSn);
-//   isRstlCntr.value = true;
-//   await getCntrInfo(4, cntrNo);
-// }
-//
-// async function eventMembership() {
-//   debugger;
-//   console.log(1);
-//   // 멤버십계약
-// }
-
 watch(() => props.cntrNo, (newValue, oldValue) => {
   if (newValue !== oldValue) {
     getExistedCntr();
@@ -374,10 +337,3 @@ onMounted(() => {
   }
 });
 </script>
-
-<style lang="scss" scoped>
-.contract-summary {
-  padding: 20px;
-  background: rgb(47 138 243 / 10%);
-}
-</style>
