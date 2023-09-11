@@ -80,6 +80,7 @@
           <kw-paging-info
             :total-count="pageInfo.totalCount"
           />
+          <span class="ml8">(단위:건)</span>
         </template>
         <kw-btn
           v-permission:download

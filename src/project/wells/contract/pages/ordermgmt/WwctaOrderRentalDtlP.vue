@@ -602,6 +602,7 @@
         <kw-form-item :label="$t('MSG_TXT_CHDVC_YN')">
           <kw-input
             v-model="frmMainData.lcetc7"
+            align="left"
             placeholder=""
             readonly
           />
@@ -855,6 +856,7 @@
         <kw-form-item :label="$t('MSG_TXT_HDDM_YN')">
           <kw-input
             v-model="frmMainData.lcetc6"
+            align="left"
             placeholder=""
             readonly
           />
@@ -925,6 +927,7 @@
         <kw-form-item :label="$t('MSG_TXT_MCHN_CH_YN')">
           <kw-input
             v-model="frmMainData.mchnChYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -933,6 +936,7 @@
         <kw-form-item :label="$t('MSG_TXT_RECOMMITMENT')">
           <kw-input
             v-model="frmMainData.rstlYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -950,6 +954,7 @@
         <kw-form-item :label="$t('MSG_TXT_ADN_SV_YN')">
           <kw-input
             v-model="frmMainData.adnSvYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -1123,6 +1128,7 @@
         <kw-form-item :label="$t('MSG_TXT_FRE_EXPN_YN')">
           <kw-input
             v-model="frmMainData.frisuYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -1140,6 +1146,7 @@
         <kw-form-item :label="$t('MSG_TXT_EXPN_DTRM_YN')">
           <kw-input
             v-model="frmMainData.freExpnCnfmYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -1226,6 +1233,7 @@
         >
           <kw-input
             v-model="frmMainData.booSellYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -1236,6 +1244,7 @@
         <kw-form-item :label="$t('MSG_TXT_PD_FEE_FIX')">
           <kw-input
             v-model="frmMainData.feeFxamYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -1322,6 +1331,7 @@
         <kw-form-item :label="$t('MSG_TXT_MAKT_AG')">
           <kw-input
             v-model="frmMainData.z13Yn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -1330,6 +1340,7 @@
         <kw-form-item :label="$t('MSG_TXT_THP_AG')">
           <kw-input
             v-model="frmMainData.z15Yn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -1338,6 +1349,7 @@
         <kw-form-item :label="$t('MSG_TXT_THP_AG_FEV')">
           <kw-input
             v-model="frmMainData.w22Yn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -1346,6 +1358,7 @@
         <kw-form-item :label="$t('MSG_TXT_INF_CLCT_AG')">
           <kw-input
             v-model="frmMainData.z11Yn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -1379,6 +1392,7 @@
         <kw-form-item :label="$t('MSG_TXT_WPRS_YN')">
           <kw-input
             v-model="frmMainData.wprsItstTpNm"
+            align="left"
             placeholder=""
             readonly
           />
@@ -1397,6 +1411,7 @@
         <kw-form-item :label="$t('MSG_TXT_WAT_QTY_INSP')">
           <kw-input
             v-model="frmMainData.wtqltyTstYn"
+            align="left"
             placeholder=""
             readonly
           />

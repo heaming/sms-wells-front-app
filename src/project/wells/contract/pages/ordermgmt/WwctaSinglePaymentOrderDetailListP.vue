@@ -382,13 +382,13 @@
           <!-- 제휴업체코드 -->
           <kw-input
             v-model="frmMainData.alncmpCd"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_ALNC_CD')"
             readonly
           />
           <!-- 제휴업체코드명 -->
           <kw-input
             v-model="frmMainData.alncmpNm"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_ALNC_CD_NM')"
             readonly
           />
         </kw-form-item>
@@ -400,13 +400,13 @@
           <!-- 행사코드 -->
           <kw-input
             v-model="frmMainData.sellEvCd"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_EV_CD')"
             readonly
           />
           <!-- 행사코드명 -->
           <kw-input
             v-model="frmMainData.sellEvNm"
-            placeholder=""
+            :placeholder="$t('MSG_TXT_EV_CD_NM')"
             readonly
           />
         </kw-form-item>
@@ -573,6 +573,7 @@
         <kw-form-item :label="$t('MSG_TXT_FXAM_YN')">
           <kw-input
             v-model="frmMainData.feeFxamYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -647,6 +648,7 @@
         <kw-form-item :label="$t('MSG_TXT_RECAP_MSH_YN')">
           <kw-input
             v-model="frmMainData.recapDutyYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -737,6 +739,7 @@
         <kw-form-item :label="$t('MSG_TXT_RSV_YN')">
           <kw-input
             v-model="frmMainData.booSellYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -745,6 +748,7 @@
         <kw-form-item :label="$t('MSG_TXT_COMP_D')">
           <kw-input
             v-model="frmMainData.frisuMshCrtYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -753,6 +757,7 @@
         <kw-form-item :label="$t('MSG_TXT_FRE_EXPN_YN')">
           <kw-input
             v-model="frmMainData.frisuYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -814,6 +819,7 @@
         <kw-form-item :label="$t('MSG_TXT_TXINV_PBL_YN')">
           <kw-input
             v-model="frmMainData.txinvPblOjYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -848,6 +854,7 @@
         <kw-form-item :label="$t('MSG_TXT_FGPT_IVC_PRNT_YN')">
           <kw-input
             v-model="frmMainData.sppIvcCrtYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -856,6 +863,7 @@
         <kw-form-item :label="$t('MSG_TXT_PROT_TF')">
           <kw-input
             v-model="frmMainData.urgtOjYn"
+            align="left"
             placeholder=""
             readonly
           />
