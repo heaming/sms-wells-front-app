@@ -21,7 +21,10 @@
       v-if="!isReadonly"
       class="kw-state-list kw-state-list--second-line col pt20"
     >
-      <li class="kw-state-list__item">
+      <li
+        v-if="ableToReStipulation"
+        class="kw-state-list__item"
+      >
         <!-- 재약정대상 -->
         <p class="kw-state-list__top">
           {{ t('MSG_TXT_RSTL') }}{{ t('MSG_TXT_OBJ') }}
@@ -35,7 +38,10 @@
           <span class="kw-state-list__unit">{{ t('MSG_TIT_CNT') }}</span>
         </p>
       </li>
-      <li class="kw-state-list__item">
+      <li
+        v-if="ableToMembership"
+        class="kw-state-list__item"
+      >
         <!-- 멤버십대상 -->
         <p class="kw-state-list__top">
           {{ t('MSG_TXT_MEMBERSHIP') }}{{ t('MSG_TXT_OBJ') }}
@@ -71,7 +77,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="!cntrTpIs.quot"
+          v-if="popupRequiredCstInfos"
           :label="$t('MSG_TXT_CNTRT_TP')"
           required
         >
@@ -84,31 +90,13 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="cntrTpIs.crp
-            || (cntrTpIs.msh && searchParams.copnDvCd === '2')
-            || (cntrTpIs.rstl && searchParams.copnDvCd === '2')
-            || (cntrTpIs.ensm && searchParams.copnDvCd === '2')"
-          :label="$t('MSG_TXT_CRP_NM')"
-        >
-          <kw-input
-            v-model="searchParams.cstKnm"
-            :label="$t('MSG_TXT_CRP_NM')"
-            maxlength="50"
-            :disable="isReadonly"
-          />
-        </kw-search-item>
-        <kw-search-item
-          v-if="!cntrTpIs.crp
-            && !(cntrTpIs.ensm && searchParams.copnDvCd === '2')
-            && !(cntrTpIs.msh && searchParams.copnDvCd === '2')
-            && !(cntrTpIs.rstl && searchParams.copnDvCd === '2')
-            && !cntrTpIs.quot"
-          :label="$t('MSG_TXT_NAME')"
+          v-if="popupRequiredCstInfos"
+          :label="cstKnmLabel"
           required
         >
           <kw-input
             v-model="searchParams.cstKnm"
-            :label="$t('MSG_TXT_NAME')"
+            :label="cstKnmLabel"
             maxlength="50"
             rules="required"
             :disable="isReadonly"
@@ -116,12 +104,25 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row
-        v-if="cntrTpIs.ensm"
+        v-if="popupRequiredCstInfos"
       >
         <kw-search-item
-          v-if="searchParams.copnDvCd === '1'"
+          v-if="popupRequiredCstInfos && searchParams.copnDvCd === '2'"
+          :label="$t('MSG_TXT_CRNO')"
+          required
+        >
+          <kw-input
+            v-model="searchParams.bzrno"
+            :label="$t('MSG_TXT_CRNO')"
+            rules="required"
+            maxlength="10"
+            :disable="isReadonly"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-if="popupRequiredCstInfos && searchParams.copnDvCd === '1'"
           :label="$t('MSG_TXT_MPNO')"
-          :required="!cntrTpIs.crp"
+          required
         >
           <kw-input
             v-model:model-value="searchParams.cntrtTno"
@@ -136,19 +137,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="searchParams.copnDvCd === '2'"
-          :label="$t('MSG_TXT_CRNO')"
-          required
-        >
-          <kw-input
-            v-model="searchParams.bzrno"
-            :label="$t('MSG_TXT_CRNO')"
-            rules="required"
-            maxlength="10"
-            :disable="isReadonly"
-          />
-        </kw-search-item>
-        <kw-search-item
+          v-if="popupRequiredCstInfos && searchParams.cntrTpCd === employeeCntrTpCd"
           :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
         >
           <kw-select
@@ -160,6 +149,7 @@
           />
         </kw-search-item>
         <kw-search-item
+          v-if="popupRequiredCstInfos && searchParams.cntrTpCd === employeeCntrTpCd"
           :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
         >
           <kw-input
@@ -171,7 +161,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row
-        v-if="cntrTpIs.ensm"
+        v-if="popupRequiredCstInfos && searchParams.cntrTpCd === employeeCntrTpCd"
       >
         <kw-search-item
           :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
@@ -180,44 +170,6 @@
             v-model="searchParams.alncPrtnrNm"
             :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
             maxlength="10"
-            :disable="isReadonly"
-          />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row
-        v-if="!cntrTpIs.ensm && !cntrTpIs.quot"
-      >
-        <kw-search-item
-          v-if="cntrTpIs.crp
-            || (cntrTpIs.msh && searchParams.copnDvCd === '2')
-            || (cntrTpIs.rstl && searchParams.copnDvCd === '2')"
-          :label="$t('MSG_TXT_CRNO')"
-          required
-        >
-          <kw-input
-            v-model="searchParams.bzrno"
-            :label="$t('MSG_TXT_CRNO')"
-            rules="required"
-            maxlength="10"
-            :disable="isReadonly"
-          />
-        </kw-search-item>
-        <kw-search-item
-          v-if="!cntrTpIs.crp
-            && !(cntrTpIs.msh && searchParams.copnDvCd === '2')
-            && !(cntrTpIs.rstl && searchParams.copnDvCd === '2')"
-          :label="$t('MSG_TXT_MPNO')"
-          :required="!cntrTpIs.crp"
-        >
-          <kw-input
-            v-model:model-value="searchParams.cntrtTno"
-            v-model:telNo0="searchParams.cralLocaraTno"
-            v-model:telNo1="searchParams.mexnoEncr"
-            v-model:telNo2="searchParams.cralIdvTno"
-            :label="$t('MSG_TXT_MPNO')"
-            mask="telephone"
-            :unmasked-value="false"
-            rules="required"
             :disable="isReadonly"
           />
         </kw-search-item>
@@ -466,8 +418,6 @@ const props = defineProps({
 });
 const emit = defineEmits([
   'activated',
-  'membership',
-  'restipulation',
 ]);
 
 const exposed = {};
@@ -485,39 +435,30 @@ const dataService = useDataService();
 const { notify, confirm, modal } = useGlobal();
 const router = useRouter();
 
-const { codes, getCodeName, addCode } = await useCtCode(
+const { codes, getCodeName, addCode, getCode } = await useCtCode(
   'ALNC_PRTNR_DRM_DV_CD',
   'COPN_DV_CD',
   'SEX_DV_CD',
 );
-await addCode('CNTR_TP_CD', (code) => {
-  if (currentPartner.ogTpCd === 'HR1') {
-    return code.codeId === '03' && code;
-  }
-  if (currentPartner.pstnDvCd === '7') {
-    return ['01', '02'].includes(code.codeId) && code;
-  }
-  return ['01', '02', '09'].includes(code.codeId) && code;
-});
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+
+const employeeCntrTpCd = '03';
+const membershipCntrTpCd = '07';
+const reStipulationCntrTpCd = '08';
 
 const cntrNo = toRef(props.contract, 'cntrNo');
+const rstlCntrNo = toRef(props.contract, 'rstlCntrNo');
+const rstlCntrSn = toRef(props.contract, 'rstlCntrSn');
 const cntrTpCd = toRef(props.contract, 'cntrTpCd');
-const step1 = toRef(props.contract, 'step1');
+const step1 = toRef(props.contract, 'step1', { bas: {} });
 const ogStep1 = ref({});
 
-function initStep1() {
-  step1.value.bas ??= {
-    cntrTpCd: currentPartner.ogTpCd === 'HR1' ? '03' : '01',
-  };
-
-  cntrTpCd.value = step1.value.bas.cntrTpCd;
-}
-
-initStep1();
-
 const searchParams = ref({
-  cntrNo: step1.value.bas.cntrNo,
-  cntrTpCd: step1.value.bas.cntrTpCd,
+  cntrNo: '',
+  cntrTpCd: '',
   copnDvCd: '1',
   cstKnm: '',
   bzrno: '',
@@ -529,6 +470,38 @@ const searchParams = ref({
   alncPrtnrNo: '',
   alncPrtnrNm: '',
 });
+
+async function setupAvailableCntrTpCd() {
+  await addCode('CNTR_TP_CD', (code) => {
+    if (currentPartner.ogTpCd === 'HR1') {
+      return code.codeId === '03' && code;
+    }
+    if (currentPartner.pstnDvCd === '7') {
+      return ['01', '02'].includes(code.codeId) && code;
+    }
+    return ['01', '02', '07', '08', '09'].includes(code.codeId) && code;
+  });
+  searchParams.value.cntrTpCd = codes.CNTR_TP_CD[0]?.codeId;
+}
+await setupAvailableCntrTpCd();
+const ableToReStipulation = !!await getCode('CNTR_TP_CD', '07');
+const ableToMembership = !!await getCode('CNTR_TP_CD', '08');
+
+function setupSearchParams(newParams) {
+  searchParams.value.cntrTpCd = newParams?.cntrTpCd || codes.CNTR_TP_CD[0]?.codeId;
+  searchParams.value.copnDvCd = newParams?.copnDvCd || '1';
+  searchParams.value.cstKnm = newParams?.cstKnm || '';
+  searchParams.value.copnDvCd = newParams.copnDvCd || '';
+  searchParams.value.bzrno = newParams.bzrno || '';
+  searchParams.value.cntrtTno = newParams.cntrtTno || '';
+  searchParams.value.cralLocaraTno = newParams.cralLocaraTno || '';
+  searchParams.value.mexnoEncr = newParams.mexnoEncr || '';
+  searchParams.value.cralIdvTno = newParams.cralIdvTno || '';
+  searchParams.value.alncPrtnrDvCd = newParams.alncPrtnrDvCd || '';
+  searchParams.value.alncPrtnrNo = newParams.alncPrtnrNo || '';
+  searchParams.value.alncPrtnrNm = newParams.alncPrtnrNm || '';
+}
+
 const cntrTpIs = ref({
   indv: computed(() => searchParams.value.cntrTpCd === '01'), // 개인
   crp: computed(() => searchParams.value.cntrTpCd === '02'), // 법인
@@ -543,20 +516,25 @@ const dashboardCounts = ref({
   membershipCnt: 0,
 });
 const isReadonly = computed(() => !!step1.value.bas?.cntrPrgsStatCd);
+const popupRequiredCstInfos = computed(() => searchParams.value.cntrTpCd === '01'
+      || searchParams.value.cntrTpCd === '02'
+      || searchParams.value.cntrTpCd === '03');
+const cstKnmLabel = computed(() => (searchParams.value.copnDvCd === '2' ? t('MSG_TXT_CRP_NM') : t('MSG_TXT_NAME')));
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
-function initEmptyStep1() {
+function setupNewContract() {
   step1.value ??= {};
   step1.value.bas ??= {};
+  step1.value.bas.cntrTpCd = codes.CNTR_TP_CD[0].codeId;
+  cntrTpCd.value = step1.value.bas.cntrTpCd;
 }
 
 async function getCntrInfo() {
   if (!cntrNo.value) {
-    initEmptyStep1();
+    setupNewContract();
     return;
   }
+
+  searchParams.cntrNo = cntrNo.value;
   const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
     cntrNo: cntrNo.value,
     step: 1,
@@ -596,11 +574,9 @@ async function getCntrInfo() {
   }
 }
 
-async function getCntrtByCstNo(cstNo) {
-  const { data } = await dataService.get('sms/wells/contract/contracts/cntrt', { params: {
-    cstNo,
-  } });
-  step1.value.cntrt = data;
+function clearSelected() {
+  step1.value.prtnr = {};
+  step1.value.cntrt = {};
 }
 
 async function onClickSelfAuth() {
@@ -638,36 +614,11 @@ function isValidAlncPrtnr() {
   return true;
 }
 
-async function chooseBelongPartner() {
-  // 지국장인 경우 소속파트너 선택
-  const { result, payload } = await modal({
-    component: 'WwctaBelongPartnerChoiceListP',
-    componentProps: {
-      dsmnPrtnrNo: currentPartner.prtnrNo,
-      ogTpCd: currentPartner.ogTpCd,
-    },
-  });
-  if (!result) { return; }
-  step1.value.prtnr = payload;
-}
+async function checkExistContractor() {
+  const { copnDvCd } = searchParams.value;
+  const { data: exist } = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
 
-async function onClickSearch() {
-  let { copnDvCd } = searchParams.value;
-  if (searchParams.value.cntrTpCd === '01') {
-    copnDvCd = '1';
-  }
-  if (searchParams.value.cntrTpCd === '02') {
-    copnDvCd = '2';
-  }
-  if (searchParams.value.cntrTpCd === '03') {
-    if (!isValidAlncPrtnr()) {
-      return;
-    }
-  }
-
-  const isExistCntrt = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
-
-  if (!isExistCntrt.data) {
+  if (!exist) {
     step1.value.cntrt = ref({});
     if (await confirm(t('MSG_ALT_NO_CST_REG'))) {
       if (copnDvCd === '1') {
@@ -685,7 +636,11 @@ async function onClickSearch() {
       }
     }
   }
+  return exist;
+}
 
+async function openCustomerSelectPopup() {
+  const { copnDvCd } = searchParams.value;
   const customerListPopupProps = copnDvCd === '1' ? {
     cstType: '1',
     cstNm: searchParams.value.cstKnm,
@@ -697,70 +652,63 @@ async function onClickSearch() {
     dlpnrNm: searchParams.value.cstKnm,
     bzrno: searchParams.value.bzrno,
   };
-
-  const { result, payload } = await modal({
+  return await modal({
     component: 'ZwcsaCustomerListP',
     // 개인: 공통팝업(이름, 성별, 생년월일, 휴대전화번호)
     componentProps: customerListPopupProps,
   });
+}
+
+async function fetchCntrtByCstNo(cstNo) {
+  try {
+    const { data } = await dataService.get('sms/wells/contract/contracts/cntrt', { params: {
+      cstNo,
+    } });
+    step1.value.cntrt = data;
+  } catch (e) {
+    console.log('fetchCntrtByCstNo failed');
+    setupSearchParams();
+  }
+}
+
+async function selectContractor() {
+  if (!searchParams.value.cntrTpCd === '07' && !searchParams.value.cntrTpCd === '08') {
+    if (!await checkExistContractor()) {
+      return;
+    }
+  }
+
+  const { result, payload } = await openCustomerSelectPopup();
 
   if (!result) { return; }
 
+  await fetchCntrtByCstNo(payload.cstNo);
+}
+
+async function chooseBelongPartner() {
+  // 지국장인 경우 소속파트너 선택
+  const { result, payload } = await modal({
+    component: 'WwctaBelongPartnerChoiceListP',
+    componentProps: {
+      dsmnPrtnrNo: currentPartner.prtnrNo,
+      ogTpCd: currentPartner.ogTpCd,
+    },
+  });
+  if (!result) { return; }
+  step1.value.prtnr = payload;
+}
+
+async function selectPartner() {
   step1.value.prtnr = currentPartner;
 
   if (currentPartner.pstnDvCd === '7') {
     await chooseBelongPartner();
   }
-
-  await getCntrtByCstNo(payload.cstNo);
-}
-
-async function onChangeCntrTpCd(value) {
-  if (value !== '07' && value !== '08') { // 재약정, 멤버십 유형
-    step1.value = {};
-  }
-  ['cstKnm', 'bzrno', 'cntrtTno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno'].forEach((key) => {
-    searchParams.value[key] = '';
-  });
-  if (value === '01') {
-    searchParams.value.copnDvCd = '1';
-  } else if (value === '02') {
-    searchParams.value.copnDvCd = '2';
-  }
-  cntrTpCd.value = value;
-}
-
-async function onClickReStipulation() {
-  const { result, payload } = await modal({
-    component: 'WwctaMshRstlOjCstListP',
-    componentProps: {
-      copnDvCd: '1',
-      cntrTpCd: '2',
-      prtnrNo: currentPartner.prtnrNo,
-      ogTpCd: currentPartner.ogTpCd,
-    },
-  });
-  // console.log(JSON.stringify(payload, null, '\t'));
-  if (result && payload) {
-    step1.value.prtnr = currentPartner;
-    await getCntrtByCstNo(payload.cntrCstNo);
-
-    await addCode('CNTR_TP_CD', (code) => (code.codeId === '08' && code));
-    searchParams.value.cntrTpCd = '08';
-
-    setTimeout(() => {
-      searchParams.value.cstKnm = payload.cstKnm;
-      searchParams.value.copnDvCd = payload.copnDvCd;
-      searchParams.value.bzrno = payload.bzrno;
-      searchParams.value.cntrtTno = payload.cntrtTno;
-      searchParams.value.cralLocaraTno = payload.cralLocaraTno;
-      searchParams.value.mexnoEncr = payload.mexnoEncr;
-      searchParams.value.cralIdvTno = payload.cralIdvTno;
-    }, 0);
-  }
 }
 
 async function onClickMembership() {
+  clearSelected();
+
   const { result, payload } = await modal({
     component: 'WwctaMshRstlOjCstListP',
     componentProps: {
@@ -770,27 +718,98 @@ async function onClickMembership() {
       ogTpCd: currentPartner.ogTpCd,
     },
   });
-  if (result && payload) {
-    step1.value.mshCntrNo = payload.cntrNo;
-    step1.value.mshCntrSn = payload.cntrSn;
-
-    step1.value.prtnr = currentPartner;
-    await getCntrtByCstNo(payload.cntrCstNo);
-
-    await addCode('CNTR_TP_CD', (code) => (code.codeId === '07' && code));
-    searchParams.value.cntrTpCd = '07';
-
-    setTimeout(() => {
-      searchParams.value.cstKnm = payload.cstKnm;
-      searchParams.value.copnDvCd = payload.copnDvCd;
-      searchParams.value.bzrno = payload.bzrno;
-      searchParams.value.cntrtTno = payload.cntrtTno;
-      searchParams.value.cralLocaraTno = payload.cralLocaraTno;
-      searchParams.value.mexnoEncr = payload.mexnoEncr;
-      searchParams.value.cralIdvTno = payload.cralIdvTno;
-    }, 0);
+  if (!result) {
+    setupSearchParams();
+    return;
   }
-  // emits('membership', payload.cntrNo, payload.cntrSn);
+
+  step1.value.mshCntrNo = payload.cntrNo;
+  step1.value.mshCntrSn = payload.cntrSn;
+  step1.value.prtnr = currentPartner;
+
+  await fetchCntrtByCstNo(payload.cntrCstNo);
+  cntrTpCd.value = membershipCntrTpCd;
+  setupSearchParams({
+    ...step1.value.cntrt,
+    cntrTpCd: membershipCntrTpCd,
+  });
+}
+
+async function onClickReStipulation() {
+  clearSelected();
+
+  const { result, payload } = await modal({
+    component: 'WwctaMshRstlOjCstListP',
+    componentProps: {
+      copnDvCd: '1',
+      cntrTpCd: '2',
+      prtnrNo: currentPartner.prtnrNo,
+      ogTpCd: currentPartner.ogTpCd,
+    },
+  });
+
+  if (!result) {
+    setupSearchParams();
+    return;
+  }
+
+  rstlCntrNo.value = payload.cntrNo;
+  rstlCntrSn.value = payload.cntrSn;
+  step1.value.prtnr = currentPartner;
+
+  await fetchCntrtByCstNo(payload.cntrCstNo);
+  cntrTpCd.value = reStipulationCntrTpCd;
+  setupSearchParams({
+    ...step1.value.cntrt,
+    cntrTpCd: reStipulationCntrTpCd,
+  });
+}
+
+async function onClickSearch() {
+  if (searchParams.value.cntrTpCd === employeeCntrTpCd) {
+    if (!isValidAlncPrtnr()) {
+      return;
+    }
+  } else if (searchParams.value.cntrTpCd === membershipCntrTpCd) {
+    await onClickMembership();
+    return;
+  } else if (searchParams.value.cntrTpCd === reStipulationCntrTpCd) {
+    await onClickReStipulation();
+    return;
+  }
+
+  clearSelected();
+  await selectContractor();
+  await selectPartner();
+}
+
+async function onChangeCntrTpCd(value) {
+  if (cntrTpCd.value === value) {
+    return;
+  }
+  clearSelected();
+  if (value === '01') {
+    setupSearchParams({
+      ...searchParams.value,
+      copnDvCd: '1',
+    });
+  }
+  if (value === '02') {
+    setupSearchParams({
+      ...searchParams.value,
+      copnDvCd: '2',
+    });
+  }
+  if (value === '07') {
+    await onClickMembership();
+    return;
+  }
+  if (value === '08') {
+    await onClickReStipulation();
+    return;
+  }
+
+  cntrTpCd.value = value;
 }
 
 async function onClickReset() {
@@ -832,7 +851,7 @@ async function isValidStep() {
     return false;
   }
 
-  if (!step1.value.cntrt.cikVal && step1.value.bas.copnDvCd === '1') {
+  if (!step1.value.cntrt.cikVal && step1.value.cntrt.copnDvCd === '1') {
     await alert('본인인증을 먼저 진행해주세요.');
     return false;
   }
@@ -860,6 +879,9 @@ async function saveStep() {
     step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
     step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
     step1.value.bas.cntrCstNm = searchParams.value.cstKnm;
+  }
+  if (cntrTpCd.value === reStipulationCntrTpCd) {
+    return rstlCntrNo.value;
   }
   const { data } = await dataService.post('sms/wells/contract/contracts/save-cntr-step1', step1.value);
   notify(t('MSG_ALT_SAVE_DATA'));
