@@ -556,14 +556,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, gridUtil, popupUtil } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, modal, notify, stringUtil, gridUtil, popupUtil, useMeta } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
 const dataService = useDataService();
-// const { getConfig } = useMeta();
-// const router = useRouter();
+const { getConfig } = useMeta();
 const { getters } = useStore();
 const userInfo = getters['meta/getUserInfo'];
 const {
@@ -576,10 +575,6 @@ const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: true, default: '' },
 });
-
-// if(props.cntrNo) {
-//   router.push({path:'/mobile/wmsnb-as-work-list/wmsnb-as-work-detail-mgt', query:{...props}},
-//   }
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -605,13 +600,13 @@ const countInfo = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: 10,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
 });
 const secondPageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: 10,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
   needTotalCount: true,
 });
 
@@ -759,14 +754,8 @@ async function fetchData() {
   await getIndividualCounsel();
 }
 
-async function onClickSearch() {
-  if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) { notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`])); return; }
-  if (searchParams.value.cntrNo) {
-    if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { return; }
-  }
-
+async function isValidateIndividualParams() {
   await getIndividualServicePs();
-
   if (isEmpty(individualParams.value)) {
     notify(t('MSG_ALT_CST_INF_NOT_EXST'));
     // init tabs & grids
@@ -784,6 +773,14 @@ async function onClickSearch() {
 
     await fetchData();
   }
+}
+
+async function onClickSearch() {
+  if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) { notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`])); return; }
+  if (searchParams.value.cntrNo) {
+    if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { return; }
+  }
+  await isValidateIndividualParams();
 }
 
 const { currentRoute } = useRouter();
@@ -807,7 +804,7 @@ async function onClickSave() {
   if (isEmpty(saveParams.value.cstUnuitmCn)) { return; }
   await dataService.post('sms/wells/service/individual-service-ps', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
-  await onClickSearch();
+  await isValidateIndividualParams();
 }
 
 async function onClickCstSearch() {
@@ -819,7 +816,7 @@ async function onClickCstSearch() {
 
     searchParams.value.cntrNo = payload.cntrNo ?? '';
     searchParams.value.cntrSn = payload.cntrSn ?? '';
-    await onClickSearch();
+    await isValidateIndividualParams();
   }
 }
 
@@ -830,13 +827,13 @@ watch(props, async (val) => {
 
     searchParams.value.cntrNo = props.cntrNo;
     searchParams.value.cntrSn = props.cntrSn;
-    await onClickSearch();
+    await isValidateIndividualParams();
   }
 });
 
 onMounted(async () => {
   if (props.cntrNo && props.cntrSn) {
-    await onClickSearch();
+    await isValidateIndividualParams();
   }
 });
 
