@@ -322,7 +322,7 @@ async function openExcludeItemP() {
 // 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/item-order-quantity/excel-download', { params: cachedParams, timeout: 360000 });
+  const res = await dataService.get('/sms/wells/service/item-order-quantity/excel-download', { params: cachedParams, timeout: 300000 });
 
   gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
