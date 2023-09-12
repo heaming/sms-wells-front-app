@@ -51,7 +51,7 @@
         class="mb20"
       >
         <kw-form-row>
-          <kw-form-item :label="$t('MSG_TXT_TASK_DIV')">
+          <kw-form-item :label="$t('MSG_TXT_SEL_TYPE')">
             <p>{{ baseInformation.sellTpCdNm }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
@@ -69,13 +69,13 @@
             <p>{{ baseInformation.prtnrKnm }} ({{ baseInformation.prtnrNo }})</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_CNTRCT_DT')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.cntrDt, 'YYYY-MM-DD') }}</p>
+            <p>{{ baseInformation.cntrDt }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.slDt, 'YYYY-MM-DD') }}</p>
+            <p>{{ baseInformation.slDt }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_CAN_D')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.canDt, 'YYYY-MM-DD') }}</p>
+            <p>{{ baseInformation.canDt }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -110,14 +110,11 @@
           <kw-form-item :label="$t('MSG_TXT_CNTR_AMT')">
             <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.subscAmt)) }}</p>
           </kw-form-item>
-          <kw-form-item :label="$t('MSG_TXT_CRP_UC_AMT')">
-            <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.crpUcAmt)) }}</p>
-          </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_BLAM')">
             <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.istmPcamAmt)) }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_ISTM_INF_MCNT_WON')">
-            <p>{{ baseInformation.istmMcn }}*{{ stringUtil.getNumberWithComma(toInteger(baseInformation.mmIstmAmt)) }}</p>
+            <p>{{ baseInformation.istmInfo }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -137,14 +134,10 @@
       >
         <kw-form-row>
           <kw-form-item :label="$t('MSG_TXT_FULPY_DT')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.fulpyDt, 'YYYY-MM-DD') }}</p>
-          </kw-form-item>
-          <kw-form-item :label="$t('MSG_TXT_FST_FULPY_D')">
-            <!-- <p>{{ stringUtil.getDateFormat(baseInformation.fstFulpyDt, 'YYYY-MM-DD') }}</p> -->
-            <p>{{ baseInformation.fstFulpyDt }}</p>
+            <p>{{ baseInformation.fulpyDt }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_CHG_DT')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.cntrChnDt, 'YYYY-MM-DD') }}</p>
+            <p>{{ baseInformation.cntrChnDt }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_ACC_DV')">
             <p>{{ baseInformation.cwkgubnm }}</p>
@@ -152,10 +145,10 @@
         </kw-form-row>
         <kw-form-row>
           <kw-form-item :label="$t('MSG_TXT_STAT_CH_DT')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.pdChDt, 'YYYY-MM-DD') }}</p>
+            <p>{{ baseInformation.pdChDt }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_SL_CH_DT')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.slChDt, 'YYYY-MM-DD') }}</p>
+            <p>{{ baseInformation.slChDt }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_SL_CH_SN')">
             <p>{{ baseInformation.slChSn }}</p>
@@ -185,7 +178,7 @@
         </kw-form-row>
         <kw-form-row>
           <kw-form-item :label="$t('MSG_TXT_FNT_DV')">
-            <p>{{ baseInformation.dpTpCdNm }}</p>
+            <p>{{ baseInformation.dpTpCd }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_FTD')">
             <p>{{ baseInformation.mpyBsdt }}</p>
@@ -223,7 +216,7 @@
       >
         <kw-form-row>
           <kw-form-item :label="$t('MSG_TXT_DFA_DT')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.acdbtDt, 'YYYY-MM-DD') }}</p>
+            <p>{{ baseInformation.acdbtDt }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_DFA_AMT')">
             <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.dfaAmt)) }}</p>
@@ -237,11 +230,7 @@
         </kw-form-row>
         <kw-form-row>
           <kw-form-item :label="$t('MSG_TXT_PY_DT')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.dfaRveDt, 'YYYY-MM-DD') }}</p>
-          </kw-form-item>
-          <kw-form-item :label="$t('MSG_TXT_DFA_FULPY_AMT')">
-            <!-- <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.dfaFnsAmt)) }}</p> -->
-            <p>{{ baseInformation.dfaFnsAmt }}</p>
+            <p>{{ baseInformation.dfaRveDt }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -254,7 +243,7 @@
       >
         <kw-form-row>
           <kw-form-item :label="$t('MSG_TXT_ACTCS_DT')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.bndAsnDt, 'YYYY-MM-DD') }}</p>
+            <p>{{ baseInformation.bndAsnDt }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_CLCTAM_TP')">
             <p>{{ baseInformation.clctamDvCd }}.{{ baseInformation.clctamDvCdNm }}</p>
@@ -268,13 +257,13 @@
         </kw-form-row>
         <kw-form-row>
           <kw-form-item :label="$t('MSG_TXT_BU_NOTI')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.buNotiDt, 'YYYY-MM-DD') }}</p>
+            <p>{{ baseInformation.buNotiDt }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_REDF_D')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.redfDt, 'YYYY-MM-DD') }}</p>
+            <p>{{ baseInformation.redfDt }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_ADSB_D')">
-            <p>{{ stringUtil.getDateFormat(baseInformation.adsbDt, 'YYYY-MM-DD') }}</p>
+            <p>{{ baseInformation.adsbDt }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_NOTI_CN')">
             <p>{{ baseInformation.buNotiTpCd }}_{{ baseInformation.buNotiTpCdNm }}</p>
