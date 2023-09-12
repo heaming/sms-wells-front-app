@@ -32,30 +32,25 @@
       dense
     >
       <kw-form-row>
-        <!-- 제품분류 -->
-        <kw-form-item :label="$t('MSG_TXT_PRDT_CLSF')">
+        <kw-form-item :label="$t('MSG_TXT_PRDT_CLSF', null, '제품분류')">
           <p>{{ pdBas.pdClsfNm }} </p>
         </kw-form-item>
-        <!-- 자재코드 -->
-        <kw-form-item :label="$t('MSG_TXT_MATI_CD')">
+        <kw-form-item :label="$t('MSG_TXT_MATI_CD', null, '자재코드')">
           <p>{{ pdBas.sapMatCd }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
-        <!-- 모델NO -->
-        <kw-form-item :label="$t('MSG_TXT_PD_MODEL_NO')">
+        <kw-form-item :label="$t('MSG_TXT_PD_MODEL_NO', null, '모델NO')">
           <p>{{ pdBas.modelNo }}</p>
         </kw-form-item>
-        <!-- 품목코드 -->
-        <kw-form-item :label="$t('MSG_TXT_ITM_CD')">
+        <kw-form-item :label="$t('MSG_TXT_ITM_CD', null, '품목코드')">
           <p>{{ asMatCd }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
-        <!-- AS자재번호 -->
-        <kw-form-item :label="$t('TXT_MSG_AS_MAT_CD')">
+        <kw-form-item :label="$t('TXT_MSG_AS_MAT_CD', null, 'AS자재번호')">
           <p>{{ asItmCd }}</p>
         </kw-form-item>
       </kw-form-row>

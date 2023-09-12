@@ -308,8 +308,7 @@ async function initProps() {
   currentPspcCstCnslId.value = pspcCstCnslId;
   currentJobType.value = jobType;
   currentFromUi.value = fromUi;
-
-  console.log('currentJobType.value', currentJobType.value);
+  // console.log('currentJobType.value', currentJobType.value);
 
   if (isEmpty(currentPspcCstCnslId.value)) {
     await router.close();

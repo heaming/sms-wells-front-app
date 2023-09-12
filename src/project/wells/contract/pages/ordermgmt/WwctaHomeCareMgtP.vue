@@ -14,35 +14,34 @@
 --->
 <template>
   <kw-popup
-    size="xl"
+    size="2xl"
+    ignore-on-modified
+    no-action
   >
-    <kw-search
-      :cols="2"
-      one-row
-    >
-      <kw-search-row>
-        <kw-search-item
+    <kw-form>
+      <kw-form-row>
+        <kw-form-item
           :label="$t('MSG_TXT_CAN_D')"
         >
           <kw-date-picker
             v-model="dts.candt"
           />
-        </kw-search-item>
-        <kw-search-item
+        </kw-form-item>
+        <kw-form-item
           :label="$t('MSG_TXT_DUEDT')"
         >
           <kw-date-picker
             v-model="dts.duedt"
           />
-        </kw-search-item>
-      </kw-search-row>
-    </kw-search>
+        </kw-form-item>
+      </kw-form-row>
+    </kw-form>
+    <kw-separator />
     <kw-grid
       ref="grdMainRef"
       :visible-rows="5"
       @init="initGrid"
     />
-
     <template #action>
       <kw-btn
         negative
@@ -65,12 +64,12 @@ import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useM
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
-const { notify } = useGlobal();
+const { alert, notify } = useGlobal();
 const { t } = useI18n();
-const { cancel: onClickClose } = useModal();
+const { ok, cancel: onClickClose } = useModal();
 const dataService = useDataService();
 const props = defineProps({
-  cntrs: { type: Array }, // [{ "cntrNo": "", "cntrSn": "" }, {...}]
+  cntrs: { type: Array, default: () => [] },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -81,16 +80,17 @@ const dts = ref({
   candt: '',
   duedt: '',
 });
-async function fetchData() {
-  const res = await dataService.post('/sms/wells/contract/contracts/homecares', props.cntrs);
+// async function fetchData() {
+//   const res = await dataService.post('/sms/wells/contract/contracts/homecares', props.cntrs);
 
-  const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(res.data);
-  view.resetCurrent();
-}
+//   const view = grdMainRef.value.getView();
+//   view.getDataSource().setRows(res.data);
+//   view.resetCurrent();
+// }
 
 async function onClickSave() {
   const view = grdMainRef.value.getView();
+  console.log(view.getDataSource().getRowCount());
   // 저장조건 검증
   if (view.getDataSource().getRowCount() <= 0) {
     // 모화면에서 계약을 가져오므로 일반적으로 데이터가 없는 경우는 없을 것
@@ -111,13 +111,17 @@ async function onClickSave() {
   });
   console.log(rows);
   await dataService.put('/sms/wells/contract/contracts/homecares', rows);
-
+  ok();
   await notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  // await fetchData();
 }
 
 onMounted(async () => {
-  await fetchData();
+  console.log(props.cntrs);
+  const view = grdMainRef.value.getView();
+  view.getDataSource().setRows(props.cntrs);
+  view.resetCurrent();
+  // await fetchData();
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -130,7 +134,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rcgvpKnm' },
     { fieldName: 'pdCd' },
     { fieldName: 'pdNm' },
-    { fieldName: 'cntrCnfmDtm' },
+    { fieldName: 'cntrCnfmDt' },
   ];
 
   const columns = [
@@ -139,7 +143,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: 100, styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: 150, styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 200 },
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_DTRM_DATE'), width: 100, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_DTRM_DATE'), width: 100, styleName: 'text-center', datetimeFormat: 'date' },
   ];
 
   data.setFields(fields);
