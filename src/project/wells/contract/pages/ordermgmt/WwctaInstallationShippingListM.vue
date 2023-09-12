@@ -703,7 +703,7 @@ function setIstExptDateFormat(item) {
   if (isEmpty(vstCnfmdt)) {
     if (!isEmpty(wkAcpteDt)) { date = wkAcpteDt; }
   } else {
-    date = wkAcpteDt;
+    date = vstCnfmdt;
   }
 
   // 시간설정
