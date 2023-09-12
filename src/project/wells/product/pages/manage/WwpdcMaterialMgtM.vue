@@ -108,59 +108,49 @@
 
         <div class="button-set--bottom">
           <div class="button-set--bottom-left">
-            <!-- 이전 -->
             <kw-btn
               v-show="isTempSaveBtn && currentStep.step > 1"
-              :label="$t('MSG_BTN_PREV')"
+              :label="$t('MSG_BTN_PREV', null, '이전')"
               class="ml8"
               @click="onClickPrevStep"
             />
           </div>
           <div class="button-set--bottom-right">
-            <!-- 삭제 -->
             <kw-btn
               v-show="!isCreate"
               v-permission:delete
-              :label="$t('MSG_BTN_DEL')"
+              :label="$t('MSG_BTN_DEL', null, '삭제')"
               @click="onClickDelete"
             />
-            <!-- 초기화 -->
             <kw-btn
               v-show="!isCreate && currentStep.step !== pdConst.W_MATERIAL_STEP_CHECK.step"
-              :label="$t('MSG_BTN_INTL')"
+              :label="$t('MSG_BTN_INTL', null, '초기화')"
               class="ml8"
               @click="onClickReset"
             />
-            <!--
-              취소
-              v-show="!isTempSaveBtn"
-            -->
             <kw-btn
-              :label="$t('MSG_BTN_CANCEL')"
+              :label="$t('MSG_BTN_CANCEL', null, '취소')"
               class="ml8"
               @click="onClickCancel"
             />
-            <!-- 임시저장 -->
             <kw-btn
               v-show="(currentStep.step < regSteps.length ) && isTempSaveBtn"
               v-permission:update
-              :label="$t('MSG_BTN_TMP_SAVE')"
+              :label="$t('MSG_BTN_TMP_SAVE', null, '임시저장')"
               class="ml8"
               @click="onClickSave('Y')"
             />
-            <!-- 다음 -->
             <kw-btn
               v-show="isTempSaveBtn && (currentStep.step < regSteps.length)"
-              :label="$t('MSG_BTN_NEXT')"
+              :label="$t('MSG_BTN_NEXT', null, '다음')"
               class="ml8"
               primary
               @click="onClickNextStep"
             />
-            <!-- 저장 -->
             <kw-btn
               v-show="!isTempSaveBtn || currentStep.step === regSteps.length"
               v-permission:update
-              :label="$t('MSG_BTN_SAVE')"
+              :label="$t('MSG_BTN_SAVE', null, '저장')"
               class="ml8"
               primary
               @click="onClickSave('N')"
@@ -239,7 +229,6 @@ async function getSaveData(tempSaveYn) {
     // 기본속성, 관리 속성 수정여부
     if (await isModified && (idx === 0 || idx === 2)) {
       subList.isModifiedProp = true;
-      // subList.isOnlyFileModified = item.value?.isOnlyFileModified ? await item.value?.isOnlyFileModified() : false;
       if (idx === 0 && isModified) {
         subList.isOnlyFileModified = item.value?.isOnlyFileModified ? await item.value?.isOnlyFileModified() : false;
       } else if (idx === 2 && isModified) {
@@ -284,7 +273,7 @@ async function goList() {
 
 // 삭제 버튼
 async function onClickDelete() {
-  if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
+  if (await confirm(t('MSG_ALT_WANT_DEL_WCC', null, '삭제 하시겠습니까?'))) {
     await dataService.delete(`${baseUrl}/${currentPdCd.value}`);
     await goList();
   }
@@ -494,14 +483,6 @@ async function popupCallback(payload) {
     if (isEmpty(prevStepData.value[bas])) {
       prevStepData.value = await getSaveData();
     }
-    // prevStepData.value[bas].sapMatCd = payload.sapMatCd ?? '';
-    // prevStepData.value[bas].modelNo = payload.modelNo ?? '';
-    // prevStepData.value[bas].sapPdctSclsrtStrcVal = payload.sapPdctSclsrtStrcVal ?? '';
-    // prevStepData.value[bas].sapPlntCd = payload.sapPlntCd ?? '';
-    // prevStepData.value[bas].sapMatEvlClssVal = payload.sapMatEvlClssVal ?? '';
-    // prevStepData.value[bas].sapMatGrpVal = payload.sapMatGrpVal ?? '';
-    // prevStepData.value[bas].sapPlntCd = payload.sapPlntVal ?? '';
-    // prevStepData.value[bas].sapMatTpVal = payload.sapMatTpVal ?? '';
 
     const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
     mgtNameFields.sapMatCd.initValue = payload.sapMatCd ?? '';
@@ -517,13 +498,7 @@ async function popupCallback(payload) {
 
 // 메타 속성값 수정시 호출
 async function onUpdateMgtValue(field) {
-  // console.log('EwpdcStandardMgtM - onUpdateMgtValue - field : ', field);
-  /* && isEmpty(field.initName ) */
-  // if (field.colNm === 'sapMatCd' && field.initName !== field.initValue) {
-  // if (field.colNm === 'sapMatCd' && isEmpty(field.initValue)) {
   if ((field.colNm === 'sapMatCd' && isEmpty(field.initValue)) || (field.colNm === 'sapMatCd' && field.initName !== field.initValue)) {
-    console.log('삭제');
-
     const mgtNameFields = await cmpStepRefs.value[0]?.value.getNameFields();
     mgtNameFields.sapMatCd.initValue = '';
     mgtNameFields.modelNo.initValue = '';

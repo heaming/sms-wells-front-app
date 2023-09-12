@@ -64,7 +64,6 @@ const cmpRef = ref();
 const currentPdCd = ref();
 const pdBas = ref({});
 const currentInitData = ref({});
-// const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 
 async function goList() {
   await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { searchYn: 'Y' });
