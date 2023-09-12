@@ -43,7 +43,6 @@
           <kw-option-group
             v-model="searchParams.istPcsvDvCd"
             type="radio"
-            :disable="true"
             :options="codes.IST_PCSV_DV_CD"
           />
         </kw-search-item>
