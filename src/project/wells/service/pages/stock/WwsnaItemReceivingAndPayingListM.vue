@@ -267,7 +267,7 @@ async function fetchData() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/receipts-and-payments/excel-download', { params: cachedParams, timeout: 360000 });
+  const res = await dataService.get('/sms/wells/service/receipts-and-payments/excel-download', { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
