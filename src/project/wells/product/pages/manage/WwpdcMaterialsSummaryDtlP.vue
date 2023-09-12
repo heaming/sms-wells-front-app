@@ -26,10 +26,6 @@
       </p>
     </h2>
 
-    <!-- 기본속성 -->
-    <!-- <h3 class="pt0 pb20">
-      {{ $t('MSG_TXT_BAS_ATTR') }}
-    </h3> -->
     <kw-form
       :cols="2"
       class="pt30"
@@ -78,7 +74,6 @@
       :visible-rows="visibleRowCnt1"
       @init="initGrd1st"
     />
-    <!-- <template #action /> -->
   </kw-popup>
 </template>
 
@@ -177,23 +172,21 @@ onMounted(async () => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const columns = [
-  // 적용시작일자
-  { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-  // 적용종료일자
-  { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD }, /* 관계구분 */
-  { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
-  { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
-  { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '121' }, /* 자재코드 교재/제재코드 */
-  { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '152', styleName: 'text-center' }, /* 모델No */
-  { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '226', styleName: 'text-left', visible: false }, /* 약어 */
-  { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER'), width: '214', styleName: 'text-left', visible: false }, /* 출고센터 */
-  { fieldName: 'pdTpCd', header: t('MSG_TIT_PRDT_TYPE'), width: '214', visible: false }, /* 상품종류 */
-  { fieldName: 'ojPdCd', header: t('MSG_TIT_TARGET_PRDT_CD'), width: '214', visible: false }, /* 대상상품코드 */
-  { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 등록일 */
-  { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 등록자 */
-  { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 최종수정일 */
-  { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 최종수정자 */
+  { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT', null, '적용시작일자'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+  { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT', null, '적용종료일자'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF', null, '관계구분'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD },
+  { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF', null, '분류'), width: '176', styleName: 'text-left' },
+  { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM', null, '교재/자재명'), width: '382', styleName: 'text-left' },
+  { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD', null, '자재코드'), width: '121' },
+  { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO', null, '모델No'), width: '152', styleName: 'text-center' },
+  { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR', null, '약어'), width: '226', styleName: 'text-left', visible: false },
+  { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER', null, '출고센터'), width: '214', styleName: 'text-left', visible: false },
+  { fieldName: 'pdTpCd', header: t('MSG_TIT_PRDT_TYPE', null, '상품종류'), width: '214', visible: false },
+  { fieldName: 'ojPdCd', header: t('MSG_TIT_TARGET_PRDT_CD', null, '대상상품코드'), width: '214', visible: false },
+  { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false },
+  { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false },
+  { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false },
+  { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false },
   { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
   { fieldName: 'fnlMdfcUsrId', header: 'MDFC_ID', width: '50', visible: false },
 ];
