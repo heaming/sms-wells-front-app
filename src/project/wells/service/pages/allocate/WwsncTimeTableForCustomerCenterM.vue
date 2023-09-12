@@ -153,32 +153,39 @@
                   <div class="row items-center">
                     <p
                       class="kw-font--14"
-                      @click="clickPhone('clickHp')"
                     >
                       {{ data.psic.cralLocaraTno }}-{{ data.psic.mexnoEncr }}-{{
                         data.psic.cralIdvTno }}
                     </p>
-                    <!--                    <kw-btn
+                    <kw-btn
+                      icon="cellphone"
                       borderless
-                      class="ml4"
-                      icon="sms_24"
                       style="font-size: 24px;"
-                    />-->
+                      class="ml4"
+                      @click="clickCell('clickHp')"
+                    />
+                    <kw-btn
+                      icon="sms_24"
+                      borderless
+                      style="font-size: 24px;"
+                      class="ml4"
+                      @click="clickCell('clickSms')"
+                    />
                   </div>
                   <div class="row items-center">
                     <p
                       class="kw-font--14"
-                      @click="clickPhone('clickTel')"
                     >
                       {{ data.psic.locaraTno }}-{{ data.psic.exnoEncr }}-{{
                         data.psic.idvTno }}
                     </p>
-                    <!--                    <kw-btn
+                    <kw-btn
+                      icon="cellphone"
                       borderless
-                      class="ml4"
-                      icon="sms_24"
                       style="font-size: 24px;"
-                    />-->
+                      class="ml4"
+                      @click="clickCell('clickTel')"
+                    />
                   </div>
                 </div>
               </div>
@@ -210,16 +217,23 @@
                   <div class="row items-center">
                     <p
                       class="kw-font--14"
-                      @click="clickPhone('clickCenterHp')"
                     >
                       {{ data.psic.sjHp1 }}-{{ data.psic.sjHp2 }}-{{ data.psic.sjHp3 }}
                     </p>
-                    <!-- <kw-btn
-                    icon="sms_24"
-                    borderless
-                    style="font-size: 24px;"
-                    class="ml4"
-                  /> -->
+                    <kw-btn
+                      icon="cellphone"
+                      borderless
+                      style="font-size: 24px;"
+                      class="ml4"
+                      @click="clickCell('clickCenterHp')"
+                    />
+                    <kw-btn
+                      icon="sms_24"
+                      borderless
+                      style="font-size: 24px;"
+                      class="ml4"
+                      @click="clickCell('clickCenterSms')"
+                    />
                   </div>
                 </div>
               </div>
@@ -1026,9 +1040,9 @@ async function onClickSave() {
   ok();
 }
 
-async function clickPhone(action) {
+async function clickCell(action) {
   data.value.action = action;
-  window.opener?.postMessage(JSON.stringify(data.psic.value));
+  window.opener?.postMessage(JSON.stringify(data.value.psic));
 }
 
 onMounted(async () => {
