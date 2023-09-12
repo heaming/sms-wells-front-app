@@ -3,159 +3,116 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : DCB
-2. 프로그램 ID : WwdcbProductSalesListM - 상품별 매출현황 - W-CL-U-0028M03
-3. 작성자 : WOO SEUNGMIN
-4. 작성일 : 2023.03.02
+2. 프로그램 ID : WwdcbProductSalesListMAggregate - 상품별 매출현황 - W-CL-U-0028M03
+3. 작성자 : Kicheol Choi
+4. 작성일 : 2023.09.11
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 상품별 매출현황 조회
+- 상품별 매출현황 조회 - 집계 탭
 ****************************************************************************************************
 ---->
 <template>
-  <kw-page>
-    <kw-tabs
-      v-model="selectedTab"
-    >
-      <kw-tab
-        name="mainTab"
-        :label="$t('MSG_TIT_SL_PS_AGRG')"
-      />
-      <kw-tab
-        name="detailTab"
-        :label="$t('MSG_TIT_SL_DTL_INQR')"
-      />
-    </kw-tabs>
-    <kw-tab-panels
-      v-model="selectedTab"
-    >
-      <kw-tab-panel name="mainTab">
-        <kw-search
-          :cols="3"
-          two-row
-          @search="onClickSearch"
-        >
-          <kw-search-row>
-            <kw-search-item
-              :label="$t('MSG_TXT_SL_DT')"
-              required
-            >
-              <kw-date-range-picker
-                v-model:from="searchParams.baseDtmnFrom"
-                v-model:to="searchParams.baseDtmnTo"
-                type="date"
-                :label="$t('MSG_TXT_SL_DT')"
-                rules="date_range_required"
-              />
-            </kw-search-item>
-            <kw-search-item
-              :label="$t('MSG_TXT_TASK_DIV')"
-              :colspan="2"
-            >
-              <kw-option-group
-                v-model="searchParams.taskDiv"
-                type="radio"
-                :options="selectTaskDiv.options"
-                @change="onSelectTaskDiv"
-              />
-            </kw-search-item>
-          </kw-search-row>
-          <kw-search-row>
-            <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
-              <kw-option-group
-                v-model="searchParams.inqrDv"
-                :disable="isInqrDv"
-                type="radio"
-                :options="selectInqrDv.options"
-                @change="onSelectInqrDv"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
-              <kw-select
-                v-if="searchParams.taskDiv === '3'"
-                v-model="searchParams.sellTp"
-                :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '1' || v.codeId === '3' )"
-                first-option="all"
-                first-option-value="ALL"
-              />
-              <kw-select
-                v-else-if="searchParams.taskDiv === '4'"
-                v-model="searchParams.sellTp"
-                :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '1')"
-                first-option="all"
-                first-option-value="ALL"
-              />
-              <kw-select
-                v-else-if="searchParams.taskDiv === '5'"
-                v-model="searchParams.sellTp"
-                :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '5')"
-                first-option="all"
-                first-option-value="ALL"
-              />
-              <kw-select
-                v-else
-                v-model="searchParams.sellTp"
-                :options="codes.SELL_TP_DTL_CD"
-                first-option="all"
-                first-option-value="ALL"
-              />
-            </kw-search-item>
-            <kw-search-item :label="$t('MSG_TXT_SLS_CAT')">
-              <kw-select
-                v-model="searchParams.sellDv"
-                :options="codes.REDF_SELL_DV_CD"
-                first-option="all"
-                first-option-value="ALL"
-              />
-            </kw-search-item>
-          </kw-search-row>
-        </kw-search>
-        <div class="result-area">
-          <kw-action-top>
-            <template #left>
-              <kw-paging-info :total-count="totalCount" />
-              <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
-            </template>
-            <kw-btn
-              icon="download_on"
-              :disable="totalCount === 0"
-              dense
-              secondary
-              :label="$t('MSG_BTN_EXCEL_DOWN')"
-              @click="onClickExportView"
-            />
-          </kw-action-top>
-
-          <kw-grid
-            v-if="isShow1"
-            ref="grdSinglePaymentRef"
-            name="grdSinglePayment"
-            :visible-rows="10"
-            @init="initGrdSinglePayment"
-          />
-          <kw-grid
-            v-if="isShow2"
-            ref="grdRentalRef"
-            name="grdRental"
-            :visible-rows="10"
-            @init="initGrdRental"
-          />
-          <kw-grid
-            v-if="isShow3"
-            ref="grdMembershipsRef"
-            name="grdMemberships"
-            :visible-rows="10"
-            @init="initGrdMemberships"
-          />
-        </div>
-      </kw-tab-panel>
-      <kw-tab-panel name="detailTab">
-        <WwdcbProductSalesListMDetail
-          v-model:selected-link-id="selectedLinkId"
+  <kw-search
+    :cols="3"
+    two-row
+    @search="onClickSearch"
+  >
+    <kw-search-row>
+      <kw-search-item
+        :label="$t('MSG_TXT_SL_DT')"
+        required
+      >
+        <kw-date-range-picker
+          v-model:from="searchParams.baseDtmnFrom"
+          v-model:to="searchParams.baseDtmnTo"
+          type="date"
+          :label="$t('MSG_TXT_SL_DT')"
+          rules="date_range_required"
         />
-      </kw-tab-panel>
-    </kw-tab-panels>
-  </kw-page>
+      </kw-search-item>
+      <kw-search-item
+        :label="$t('MSG_TXT_TASK_DIV')"
+        :colspan="1"
+      >
+        <kw-select
+          v-model="searchParams.sellTpCd"
+          :options="codes.SELL_TP_CD"
+        />
+        <kw-select
+          v-model="searchParams.sellTpDtlCd"
+          :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === searchParams.sellTpCd)"
+        />
+      </kw-search-item>
+    </kw-search-row>
+    <kw-search-row>
+      <kw-search-item :label="$t('MSG_TXT_INQR_DV')">
+        <kw-option-group
+          v-model="searchParams.inqrDv"
+          :disable="isInqrDv"
+          type="radio"
+          :options="selectInqrDv.options"
+          @change="onSelectInqrDv"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
+        <kw-select
+          v-model="searchParams.sellChnlDvCd"
+          :options="codes.SELL_CHNL_DV_CD"
+          first-option
+          first-option-value="ALL"
+          :first-option-label="$t('MSG_TXT_ALL')"
+        />
+      </kw-search-item>
+      <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
+        <kw-select
+          v-model="searchParams.sapPdDvCd"
+          :options="codes.SAP_PD_DV_CD"
+          first-option
+          first-option-value="ALL"
+          :first-option-label="$t('MSG_TXT_ALL')"
+        />
+      </kw-search-item>
+    </kw-search-row>
+  </kw-search>
+  <div class="result-area">
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info :total-count="totalCount" />
+        <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+      </template>
+      <kw-btn
+        icon="download_on"
+        :disable="totalCount === 0"
+        dense
+        secondary
+        :label="$t('MSG_BTN_EXCEL_DOWN')"
+        @click="onClickExportView"
+      />
+    </kw-action-top>
+
+    <kw-grid
+      v-if="isShow1"
+      ref="grdSinglePaymentRef"
+      name="grdSinglePayment"
+      :visible-rows="10"
+      @init="initGrdSinglePayment"
+    />
+    <kw-grid
+      v-if="isShow2"
+      ref="grdRentalRef"
+      name="grdRental"
+      :visible-rows="10"
+      @init="initGrdRental"
+    />
+    <kw-grid
+      v-if="isShow3"
+      ref="grdMembershipsRef"
+      name="grdMemberships"
+      :visible-rows="10"
+      @init="initGrdMemberships"
+    />
+  </div>
 </template>
 <script setup>
 // -------------------------------------------------------------------------------------------------
@@ -164,9 +121,7 @@
 import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-import WwdcbProductSalesListMDetail from './WwdcbProductSalesListMDetail.vue';
 
-const selectedTab = ref('mainTab');
 const now = dayjs();
 const { t } = useI18n();
 const dataService = useDataService();
@@ -185,33 +140,31 @@ const isShow3 = ref(false);
 const isInqrDv = ref(false);
 const totalCount = ref(0);
 
-const selectTaskDiv = { // 업무구분
-  options: [{ codeId: '1', codeName: '일시불' }, { codeId: '2', codeName: '렌탈' }, { codeId: '3', codeName: '금융리스' }, { codeId: '4', codeName: '멤버십' }, { codeId: '5', codeName: '정기구매' }],
-};
-
 const selectInqrDv = { // 조회구분
   options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '상품' }],
 };
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-  'EDI_PD_DV_CD',
+  'SELL_TP_CD',
   'SELL_TP_DTL_CD', // 판매유형상세코드 (1.일반, 2:공유, 3:환경리스, 4:장기할부)
-  'REDF_SELL_DV_CD',
+  'SELL_CHNL_DV_CD',
+  'KW_GRP_CO_CD',
+  'SAP_PD_DV_CD',
 );
 const searchParams = ref({
-  baseDtmnFrom: now.subtract(30, 'day').format('YYYYMMDD'),
+  baseDtmnFrom: now.format('YYYYMMDD'),
   baseDtmnTo: now.format('YYYYMMDD'),
-  taskDiv: '1', // 업무구분
-  inqrDv: '1', // 조회구분
-  sellTp: 'ALL', // 판매유형
-  sellDv: 'ALL', // 판매구분
+  sellTpCd: 'ALL', // 판매유형
+  sellTpDtlCd: 'ALL', // 판매유형상세
+  inqrDv: '1', // 판매구분
+  sellChnlDvCd: 'ALL',
+  sapPdDvCd: 'ALL',
 });
 
 const initGridData = [];
 async function onSelectInqrDv() {
-  const { taskDiv, inqrDv } = searchParams.value;
-  if (taskDiv === '1' || taskDiv === '3' || taskDiv === '5') {
+  const { sellTpCd, inqrDv } = searchParams.value;
+  if (sellTpCd === '1' || sellTpCd === '3' || sellTpCd === '5') {
     const view = grdSinglePaymentRef.value.getView();
     view.getDataSource().setRows(initGridData);
     if (inqrDv === '1') {
@@ -223,7 +176,7 @@ async function onSelectInqrDv() {
       view.columnByName('pdNm').visible = true;
       view.layoutByColumn('slDt').summaryUserSpans = [{ colspan: 5 }];
     }
-  } else if (taskDiv === '2') {
+  } else if (sellTpCd === '2') {
     const view = grdRentalRef.value.getView();
     view.getDataSource().setRows(initGridData);
     if (inqrDv === '1') {
@@ -235,7 +188,7 @@ async function onSelectInqrDv() {
       view.columnByName('pdNm').visible = true;
       view.layoutByColumn('slDt').summaryUserSpans = [{ colspan: 4 }];
     }
-  } else if (taskDiv === '4') {
+  } else if (sellTpCd === '4') {
     const view = grdMembershipsRef.value.getView();
     view.getDataSource().setRows(initGridData);
   }
@@ -245,23 +198,22 @@ let cachedParams;
 async function fetchData() {
   await onSelectInqrDv();
   cachedParams = cloneDeep(searchParams.value);
-  console.log(searchParams.value);
 
-  const { taskDiv, inqrDv } = searchParams.value;
+  const { sellTpCd, inqrDv } = searchParams.value;
   let res;
-  if (taskDiv === '1' || taskDiv === '3' || taskDiv === '5') { // 일시불, 금융리스, 정기배송
+  if (sellTpCd === '1' || sellTpCd === '3' || sellTpCd === '5') { // 일시불, 금융리스, 정기배송
     if (inqrDv === '1') { // 집계
       res = await dataService.get('/sms/wells/closing/product-sales/single-payment-aggregates', { params: cachedParams });
     } else if (inqrDv === '2') { // 상품
       res = await dataService.get('/sms/wells/closing/product-sales/single-payment-products', { params: cachedParams });
     }
-  } else if (taskDiv === '2') { // 렌탈
+  } else if (sellTpCd === '2') { // 렌탈
     if (inqrDv === '1') { // 집계
       res = await dataService.get('/sms/wells/closing/product-sales/rental-aggregates', { params: cachedParams });
     } else if (inqrDv === '2') { // 상품
       res = await dataService.get('/sms/wells/closing/product-sales/rental-products', { params: cachedParams });
     }
-  } else if (taskDiv === '4') { // 멤버십
+  } else if (sellTpCd === '4') { // 멤버십
     res = await dataService.get('/sms/wells/closing/product-sales/memberships', { params: cachedParams });
   }
 
@@ -285,34 +237,6 @@ async function onClickSearch() {
   await fetchData();
 }
 
-// 1. 일시불, 2.렌탈, 3. 금융리스, 4.멤버십, 5.정기구매
-async function onSelectTaskDiv() {
-  const { taskDiv } = searchParams.value;
-  if (taskDiv === '1' || taskDiv === '3') {
-    isShow1.value = true;
-    isShow2.value = false;
-    isShow3.value = false;
-    isInqrDv.value = false;
-  } else if (taskDiv === '2') {
-    isShow1.value = false;
-    isShow2.value = true;
-    isShow3.value = false;
-    isInqrDv.value = false;
-  } else if (taskDiv === '4') {
-    isShow1.value = false;
-    isShow2.value = false;
-    isShow3.value = true;
-    searchParams.value.inqrDv = '1';
-    isInqrDv.value = true;
-  } else if (taskDiv === '5') {
-    isShow1.value = true;
-    isShow2.value = false;
-    isShow3.value = false;
-    searchParams.value.inqrDv = '1';
-    isInqrDv.value = true;
-  }
-}
-
 async function onClickExportView() {
   let view;
   if (isShow1.value === true) {
@@ -333,11 +257,7 @@ async function onClickExportView() {
 // -------------------------------------------------------------------------------------------------
 const initGrdSinglePayment = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'slDt',
-      header: t('MSG_TXT_SL_DT'),
-      width: '100',
-      styleName: 'text-center',
-      datetimeFormat: 'date' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdDtlCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center', visible: false },
