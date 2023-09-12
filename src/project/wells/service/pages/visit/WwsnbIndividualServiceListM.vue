@@ -1016,10 +1016,8 @@ const initGridState = defineGrid((data, view) => {
         const param = `cstSvAsnNo=${cstSvAsnNo}&bypassPrtnrNo=${bypassPrtnrNo}&svHshdNo=${svHshdNo}&svHshdNoCnt=${svHshdNoCnt}&svBizHclsfCd=${svBizHclsfCd}&svBizDclsfCd=${svBizDclsfCd}&wkPrgsStatCd=${wkPrgsStatCd}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`;
         const redirectUrl = encodeURIComponent(`/popup/mobile/wmsnb-as-work-list?${param}`);
         // const queryString = new URLSearchParams(param);
-        // console.log(queryString);
 
         let url = '';
-        console.log(import.meta.env.MODE);
         if (import.meta.env.MODE === 'qa') {
           url = 'https://q-m-wpm.kyowon.co.kr';
         } else {
@@ -1067,7 +1065,6 @@ const initGridState = defineGrid((data, view) => {
   ]);
 
   view.onScrollToBottom = async (g) => {
-    debugger;
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
       await getIndividualState();
