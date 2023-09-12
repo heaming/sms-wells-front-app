@@ -604,6 +604,8 @@ function getCurrentDate() {
 }
 
 async function getTimeTables() {
+  console.log(searchParams.value);
+
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get(
     '/sms/wells/service/time-tables/time-assign',
@@ -614,6 +616,8 @@ async function getTimeTables() {
   disableDays.value = [];
   clickedBtn.value = '';
   data.value.sellTime = '';
+
+  console.log(data.value);
 
   //---------------------------------------------------------------
   // test
