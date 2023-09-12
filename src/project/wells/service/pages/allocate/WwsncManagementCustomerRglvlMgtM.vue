@@ -104,10 +104,16 @@
         >
           <kw-input
             v-model="searchParams.addressZipFrom"
+            :regex="/^[0-9]*$/i"
+            :maxlength="5"
+            @blur="zipFromPad"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.addressZipTo"
+            :regex="/^[0-9]*$/i"
+            :maxlength="5"
+            @blur="zipToPad"
           />
         </kw-search-item>
       </kw-search-row>
@@ -596,6 +602,42 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: data,
   });
+}
+
+/*
+ *  우편번호 From, To Validation check
+ *  (2023.04.28 ::: 불필요한 Validation이라고 그렇게 말했지만 안통해서 반영하는 로직. 추후 삭제는 절대 없는 로직.)
+ *  (이종욱 매니저, 이규하 프로)
+ */
+function isValidZip() {
+  if (isEmpty(searchParams.value.addressZipFrom) || isEmpty(searchParams.value.addressZipTo)) {
+    return true;
+  }
+  if (searchParams.value.addressZipFrom > searchParams.value.addressZipTo) {
+    alert(t('MSG_TXT_ZIP_VALIDATE')); // 정확한 우편번호를 입력하세요.
+    return false;
+  }
+  return true;
+}
+/*
+ *  우편번호 조회조건 변경 시 5자리로 '0'을 Left Padding
+ */
+function zipPad(value) {
+  if (value.length > 0) {
+    return value.padStart(5, '0');
+  }
+}
+async function zipFromPad() {
+  searchParams.value.addressZipFrom = zipPad(searchParams.value.addressZipFrom);
+  if (!isValidZip()) {
+    searchParams.value.addressZipFrom = '';
+  }
+}
+async function zipToPad() {
+  searchParams.value.addressZipTo = zipPad(searchParams.value.addressZipTo);
+  if (!isValidZip()) {
+    searchParams.value.addressZipTo = '';
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
