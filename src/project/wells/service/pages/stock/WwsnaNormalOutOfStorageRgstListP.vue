@@ -121,6 +121,7 @@
         <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
       </template>
       <kw-btn
+        v-permission:delete
         primary
         :label="$t('MSG_BTN_DEL')"
         :disable="props.page !== pageProps.remove"
