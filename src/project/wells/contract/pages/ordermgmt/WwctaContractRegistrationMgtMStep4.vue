@@ -528,7 +528,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
             >
               <kw-select
                 v-model="restipulationBasInfo.stplTpCd"
-                :options="restipulationBasInfo.data"
+                :options="stplTpCdOptions"
                 option-value="rstlBaseTpCd"
                 option-label="text"
                 @change="calcRestipulation"
@@ -632,6 +632,8 @@ codes.DP_TP_CD_AFTN = [
 const sessionUserId = getters['meta/getUserInfo'];
 const cntrNo = toRef(props.contract, 'cntrNo');
 const cntrTpCd = toRef(props.contract, 'cntrTpCd');
+const rstlCntrNo = toRef(props.contract, 'rstlCntrNo');
+const rstlCntrSn = toRef(props.contract, 'rstlCntrSn');
 const step4 = toRef(props.contract, 'step4');
 step4.value = {
   bas: {},
@@ -643,7 +645,8 @@ step4.value = {
 };
 const ogStep4 = ref({});
 const isRestipulation = ref(false);
-const restipulationCntrSn = ref(0);
+// const restipulationCntrSn = ref(0);
+const stplTpCdOptions = ref([]);
 const restipulationBasInfo = ref({});
 const { t } = useI18n();
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -675,9 +678,7 @@ function setGrid() {
 }
 
 async function calcRestipulation() {
-  const datas = restipulationBasInfo.value.data;
-
-  datas.forEach((element) => {
+  stplTpCdOptions.value.forEach((element) => {
     if (restipulationBasInfo.value.stplTpCd === element.rstlBaseTpCd) {
       restipulationBasInfo.value.stplDscAmt = element.stplDscAmt;
       restipulationBasInfo.value.stplPtrm = element.rstlMcn;
@@ -700,12 +701,10 @@ async function calcRestipulation() {
     }
   });
   if (restipulationBasInfo.value.newFnlValue) {
-    const { cntrSn } = restipulationBasInfo.value;
-    const res = await dataService.get(
+    const { data } = await dataService.get(
       'sms/wells/contract/re-stipulation/contract-info',
-      { params: { cntrNo, cntrSn } },
+      { params: restipulationBasInfo.value },
     );
-    const data = cloneDeep(res.data);
     const stplStrtdt = data.rentalTn >= data.stplPtrm ? now.add(1, 'month').startOf('M').format('YYYYMMDD')
       : dayjs(data.istDt, 'YYYYMMDD').add(Number(data.stplPtrm), 'month').startOf('M').format('YYYYMMDD');
     const stplEnddt = dayjs(stplStrtdt, 'YYYYMMDD').add(Number(restipulationBasInfo.value.stplPtrm), 'month').endOf('M').format('YYYYMMDD');
@@ -738,39 +737,44 @@ async function getCntrInfo() {
 
   setGrid();
 }
-async function getCntrInfoWithRstl(cntrSn) {
-  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 4 } });
-  step4.value = cntr.data.step4;
-  // 총판채널인 경우 고객센터 이관만 보이도록
-  codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
-  ogStep4.value = cloneDeep(step4.value);
-  setGrid();
-  // step1에서 재약정 선택해서 진입하거나, 기존 재약정 계약을 조회하는 경우 재약정 화면 설정
-  restipulationCntrSn.value = cntrSn;
-  // const cntrSn = isRestipulation.value ? restipulationCntrSn.value : pCntrSn;
-  const sels = await dataService.get(
+
+async function fetchStplTpCdOptions() {
+  const params = { cntrNo: rstlCntrNo.value, cntrSn: rstlCntrSn.value };
+  const { data } = await dataService.get(
     'sms/wells/contract/re-stipulation/standard-info',
-    { params: { cntrNo, cntrSn } },
+    { params },
   );
-  restipulationBasInfo.value = cloneDeep(sels);
-  restipulationBasInfo.value.cntrSn = cntrSn;
-  if (cntrSn) {
-    // 기존 데이터 조회(세팅)
-    const res = await dataService.get(
-      'sms/wells/contract/re-stipulation/contract',
-      { params: { cntrNo, cntrSn } },
-    );
-    restipulationBasInfo.value.stplTpCd = res.data.stplTpCd;
-    calcRestipulation();
+  stplTpCdOptions.value = data;
+}
+
+async function fetchInitialStplTpCd() {
+  const params = { cntrNo: rstlCntrNo.value, cntrSn: rstlCntrSn.value };
+  const response = await dataService.get(
+    'sms/wells/contract/re-stipulation/contract',
+    { params },
+  );
+  restipulationBasInfo.value.cntrNo = rstlCntrNo.value;
+  restipulationBasInfo.value.cntrSn = rstlCntrSn.value;
+  restipulationBasInfo.value.stplTpCd = response.data.stplTpCd;
+}
+
+async function getCntrInfoWithRstl() {
+  if (!rstlCntrNo.value || !rstlCntrSn.value) {
+    await alert('잘못된 접근입니다.');
+    router.go(-1);
+    return;
   }
+
+  cntrNo.value = rstlCntrNo.value;
+
+  await getCntrInfo();
+
+  await fetchStplTpCdOptions();
+  await fetchInitialStplTpCd();
+
   step4.value.isRestipulation = true;
   isRestipulation.value = true;
 }
-
-/* async function setRestipulation(flag, cntrSn) {
-  isRestipulation.value = flag;
-  restipulationCntrSn.value = cntrSn;
-} */
 
 function isChangedStep() {
   return true;
@@ -806,9 +810,10 @@ function onClickNextDtlSn() {
   if (dtlSn.value < step4.value.dtls.length) dtlSn.value += 1;
 }
 
-async function initStep(cntrSn) {
-  if (cntrTpCd.value === '08' && cntrSn) {
-    await getCntrInfoWithRstl(cntrSn);
+async function initStep() {
+  debugger;
+  if (cntrTpCd.value === '08') {
+    await getCntrInfoWithRstl();
   } else {
     await getCntrInfo();
   }
