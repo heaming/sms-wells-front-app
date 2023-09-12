@@ -465,7 +465,6 @@ async function onProcsDvChange() {
   const view = grdRentalBulkChangeMgtList.value.getView();
   view.columnsByTag('bs').forEach((col) => { col.visible = false; }); // 업체구분
   view.columnsByTag('rentalStp').forEach((col) => { col.visible = false; }); // 법인코로나 렌탈중지 취소
-  view.columnsByTag('dsc').forEach((col) => { col.visible = false; }); // 할인개월, 할인금액
   view.columnByName('rcgvpKnm').visible = true; // 고객명
   view.columnByName('istDt').visible = true; // 설치일
   view.columnByName('serialNo').visible = false; // 시리얼번호
@@ -824,6 +823,15 @@ async function onSearchItemCheck(payload, dataRow) {
 onMounted(async () => {
   // 콤보박스 선택 후 팝업 오픈 시 그리드 변경
   const view = grdRentalBulkChangeMgtList.value.getView();
+  view.columnsByTag('bs').forEach((col) => { col.visible = false; }); // 업체구분
+  view.columnsByTag('rentalStp').forEach((col) => { col.visible = false; }); // 법인코로나 렌탈중지 취소
+  view.columnByName('rcgvpKnm').visible = true; // 고객명
+  view.columnByName('istDt').visible = true; // 설치일
+  view.columnByName('serialNo').visible = false; // 시리얼번호
+  view.columnByName('stpCanYm').visible = false; // 중지취소년월
+  view.columnByName('feeFxamYn').visible = false; // 수수료정액여부
+  view.columnByName('lifeCstCd').visible = false; // 라이프고객코드
+  view.columnByName('lifeCstCd2').visible = false; // 라이프고객코드2
   if (saveParams.value.procsDv === '601' || saveParams.value.procsDv === '605') {
     view.columnByName('istDt').visible = false; // 설치일
   } else if (saveParams.value.procsDv === '615') { // 시리얼 번호 변경
@@ -928,7 +936,7 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
     { fieldName: 'cntrNo', header: '', width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'cntrSn', header: '', width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CNTOR_NM'), width: '126', styleName: 'text-center', editable: false }, // 계약자명
-    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '126', styleName: 'text-center', editable: false, visible: false }, // 설치일자
+    { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '126', styleName: 'text-center', editable: false, visible: false, datetimeFormat: 'date' }, // 설치일자
     { fieldName: 'serialNo',
       header: t('MSG_TXT_SERIAL_NO'),
       width: '126',
