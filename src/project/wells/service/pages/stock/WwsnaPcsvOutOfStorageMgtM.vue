@@ -28,16 +28,16 @@
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_ITM_NM')">
           <kw-select
-            v-model="searchParams.pdCd"
+            v-model="searchParams.lgstWkMthdCd"
             :options="products"
-            option-value="pdCd"
-            option-label="pdNm"
+            option-value="lgstWkMthdCd"
+            option-label="lgstWkMthdPdNm"
             first-option="select"
             first-option-value=""
             placeholder="선택"
             rules="required"
             :label="$t('MSG_TXT_ITM_NM')"
-            @change="fetchIvcPrntSns"
+            class="w230"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_OSTR_DV')">
@@ -77,7 +77,6 @@
             v-model="searchParams.vstFshDt"
             :label="$t('MSG_TXT_OSTR_CNFM_DT')"
             rules="required"
-            @change="fetchIvcPrntSns"
           />
         </kw-search-item>
         <kw-search-item
@@ -90,26 +89,6 @@
             rules="numeric"
             :label="$t('MSG_TXT_SEL_LIMIT_CNT')"
             clearable
-          />
-        </kw-search-item>
-        <kw-search-item
-          v-if="isCompStatus"
-          :label="$t('MSG_TXT_OSTR_CNFM_SEQ')"
-        >
-          <kw-select
-            v-model="searchParams.ivcPrntSn"
-            :options="ivcPrntSns"
-            first-option="select"
-            first-option-value=""
-            rules="required"
-            :label="$t('MSG_TXT_OSTR_CNFM_SEQ')"
-          />
-        </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_STOC_QTY')">
-          <kw-input
-            v-model="qty"
-            readonly
-            placeholder=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -126,13 +105,6 @@
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
-        />
-        <kw-btn
-          icon="print"
-          dense
-          secondary
-          :label="$t('MSG_BTN_PRTG')"
-          @click="onClickPrint"
         />
         <kw-btn
           icon="download_on"
@@ -191,22 +163,19 @@ const searchParams = ref({
   startDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
   endDt: now.format('YYYYMMDD'), // 종료일자
   vstFshDt: now.format('YYYYMMDD'),
-  findGb: '2',
   wkWareNo: '100002', /* 교원파주물류센터 */
   svBizDclsfCd: '1112', /* 배송출고  */
-  pdCd: '',
+  lgstWkMthdCd: '',
+  findGb: '2', /* 조회 구분 */
   selCnt: '', /* 조회 제한건수  */
-  ivcPrntSn: '', /* 출고확정 순번 */
 });
 let cachedParams;
 const totalCount = ref(0);
-const qty = ref([]);
 const isCompStatus = ref(false);
 const isWaitStatus = ref(true);
 
 const logisticsCenters = ref();
 const products = ref();
-const ivcPrntSns = ref();
 
 /* 물류센터 조회 */
 async function fetchLogisticsCenters() {
@@ -217,21 +186,7 @@ async function fetchLogisticsCenters() {
 /* 상품 조회 */
 async function fetchProducts() {
   const res = await dataService.get(`${baseUrl}/products`, { params: { svBizDclsfCd: '1112' } });
-  console.log(res);
   products.value = res.data;
-}
-
-/* 택배 출고확정순번 조회 */
-async function fetchIvcPrntSns() {
-  /* 작업완료이면서 상품을 선택했을경우에만 */
-  if (isCompStatus.value && searchParams.value.pdCd !== '') {
-    const res = await dataService.get(`${baseUrl}/ivc-prntsns`, { params: searchParams.value });
-    ivcPrntSns.value = res.data;
-
-    searchParams.value.ivcPrntSn = '1';
-  } else {
-    searchParams.value.ivcPrntSn = '';
-  }
 }
 
 async function onChangeCompStatus() {
@@ -245,7 +200,6 @@ async function onChangeCompStatus() {
   /* 작업완료 */
   if (findGb === '1') {
     isCompStatus.value = true;
-    await fetchIvcPrntSns();
   }
 
   /* 작업대기 */
@@ -255,16 +209,8 @@ async function onChangeCompStatus() {
   }
 }
 
-/* 재고 수량 조회 */
-async function fetchStockQty() {
-  // 23-06-16 요청에 의한 주석처리
-  // const res =  await dataService.get(`${baseUrl}/stock-qty`, { params: { ...searchParams.value } });
-  // qty.value = res.data;
-}
-
 await fetchLogisticsCenters();
 await fetchProducts();
-await fetchStockQty();
 
 /* 택배 출고관리 조회 */
 async function fetchData() {
@@ -289,10 +235,7 @@ async function onClickExcelDownload() {
     exportData: gridUtil.getAllRowValues(view),
   });
 }
-async function onClickPrint() {
-  // TODO : 출력 기능 연결
-  notify('TODO : 출력기능?');
-}
+
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
@@ -300,19 +243,22 @@ async function onClickSave() {
   if (chkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
-    /* 저장시 출고확정 순번조회 */
-    const checkParams = { pdCd: chkRows[0].pdCd, svBizDclsfCd: chkRows[0].svBizDclsfCd };
-    const res = await dataService.get(`${baseUrl}/ivc-prntsn`, { params: checkParams });
-    const ivcPrntSn = res.data;
-    /* 저장시 상품 그룹 코드 및 출고확정 순번 설정 */
+    const checkRowProducts = [];
     chkRows.forEach((obj) => {
-      obj.pdGrpCd = products.value?.find((item) => item.pdCd === obj.pdCd)?.pdGrpCd;
-      obj.ivcPrntSn = ivcPrntSn;
+      // 상품 갯수만큼 셋팅
+      for (let cnt = 1; cnt <= obj.partCnt; cnt += 1) {
+        checkRowProducts.push(
+          {
+            pdCd: obj[`partCd${cnt}`],
+            pdNm: obj[`partNm${cnt}`],
+            useQty: obj[`partQty${cnt}`],
+          },
+        );
+      }
+      obj.products = checkRowProducts;
     });
     console.log(chkRows);
-
-    const response = await dataService.post(`${baseUrl}`, chkRows);
-    console.log(response);
+    await dataService.post(`${baseUrl}/test`, chkRows);
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
@@ -323,54 +269,6 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'cntrRcpFshDtm' },
-    { fieldName: 'svBizDclsfCd' },
-    { fieldName: 'svBizDclsfNm' },
-    { fieldName: 'wkPrgsStatNm' },
-    { fieldName: 'vstFshDt' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'rcgvpKnm' },
-    { fieldName: 'basePdCd' },
-    { fieldName: 'basePdNm' },
-    { fieldName: 'cralLocaraTno' }, // [휴대전화번호1]
-    { fieldName: 'mexnoEncr' }, // [휴대전화번호2]
-    { fieldName: 'cralIdvTno' }, // [휴대전화번호3]
-    { fieldName: 'locaraTno' }, // [전화번호1]
-    { fieldName: 'exnoEncr' }, // [전화번호2]
-    { fieldName: 'idvTno' }, // [전화번호3]
-    { fieldName: 'newAdrZip' },
-    { fieldName: 'rnadr' },
-    { fieldName: 'rdadr' },
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'useQty' },
-    { fieldName: 'reqdDt' },
-    { fieldName: 'rsgFshDt' },
-    { fieldName: 'cstSvAsnNo' },
-    { fieldName: 'wkWareNo' }, /* 이하 컬럼등은 저장시 사용 */
-    { fieldName: 'svBizHclsfCd' },
-    { fieldName: 'wkPrgsStatCd' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'pdGdCd' },
-    { fieldName: 'istDt' },
-    { fieldName: 'urgtDvCd' },
-    { fieldName: 'rpbLocaraCd' },
-    { fieldName: 'asRefriDvCd' },
-    { fieldName: 'bfsvcRefriDvCd' },
-    { fieldName: 'filtSellTpCd' },
-    { fieldName: 'pdSellTpCd' },
-    { fieldName: 'pdUswyCd' },
-    { fieldName: 'siteAwSvTpCd' },
-    { fieldName: 'siteAwAtcCd' },
-    { fieldName: 'asLctCd' },
-    { fieldName: 'asPhnCd' },
-    { fieldName: 'asCausCd' },
-    { fieldName: 'ogTpCd' },
-    { fieldName: 'wareMngtPrtnrNo' },
-  ];
-
   const columns = [
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '90', styleName: 'text-center' },
@@ -389,10 +287,13 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     },
+    { fieldName: 'cntrSn', visible: false },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'cralIdvTno',
+    { fieldName: 'cralLocaraTno', visible: false }, // [휴대전화번호1]
+    { fieldName: 'mexnoEncr', visible: false }, // [휴대전화번호2]
+    { fieldName: 'cralIdvTno', // [휴대전화번호3]
       header: t('MSG_TXT_MPNO'),
       width: '150',
       styleName: 'text-center',
@@ -404,8 +305,10 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     }, // [휴대전화번호]
+    { fieldName: 'locaraTno', visible: false }, // [전화번호1]
+    { fieldName: 'exnoEncr', visible: false }, // [전화번호2]
     {
-      fieldName: 'idvTno',
+      fieldName: 'idvTno', // [전화번호3]
       header: t('MSG_TXT_TEL_NO'),
       width: '150',
       styleName: 'text-center',
@@ -420,13 +323,80 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '80', styleName: 'text-center' },
     { fieldName: 'rnadr', header: t('MSG_TXT_ADDR'), width: '380', styleName: 'text-left' },
     { fieldName: 'rdadr', header: t('MSG_TXT_ADDR_DTL'), width: '380', styleName: 'text-left' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
-    { fieldName: 'useQty', header: t('MSG_TXT_QTY'), width: '90', styleName: 'text-right' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'ostrAkNo', header: t('MSG_TXT_SV_OSTR_AK_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'lgstOstrAkNo', header: t('MSG_TXT_LGST_OSTR_AK_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'ostrNo', header: t('MSG_TXT_LGST_OSTR_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'mpacSn', visible: false }, /* 이하 컬럼등은 저장시 사용 */
+    { fieldName: 'lgstWkMthdCd', visible: false },
+    { fieldName: 'wkWareNo', visible: false },
+    { fieldName: 'svBizHclsfCd', visible: false },
+    { fieldName: 'wkPrgsStatCd', visible: false },
+    { fieldName: 'prtnrNo', visible: false },
+    { fieldName: 'pdGdCd', visible: false },
+    { fieldName: 'istDt', visible: false },
+    { fieldName: 'urgtDvCd', visible: false },
+    { fieldName: 'rpbLocaraCd', visible: false },
+    { fieldName: 'asRefriDvCd', visible: false },
+    { fieldName: 'bfsvcRefriDvCd', visible: false },
+    { fieldName: 'sellTpCd', visible: false },
+    { fieldName: 'pdUswyCd', visible: false },
+    { fieldName: 'siteAwSvTpCd', visible: false },
+    { fieldName: 'siteAwAtcCd', visible: false },
+    { fieldName: 'asLctCd', visible: false },
+    { fieldName: 'asPhnCd', visible: false },
+    { fieldName: 'asCausCd', visible: false },
+    { fieldName: 'ogTpCd', visible: false },
+    { fieldName: 'wareMngtPrtnrNo', visible: false },
+    { fieldName: 'wareMngtPrtnrOgTpCd', visible: false },
+    { fieldName: 'partCnt', visible: false },
+    { fieldName: 'cntrCstNo', visible: false },
+    { fieldName: 'ogId', visible: false },
+    { fieldName: 'pdGrpCd', visible: false }, //  상품그룹코드
   ];
+  // 상품 동적 필드
+  const pdColums = [
+    { fieldName: 'partCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'partNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
+    {
+      fieldName: 'partQty',
+      header: t('MSG_TXT_QTY'),
+      width: '80',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+    },
+  ];
+
+  const columnPdTotals = [];
+  const columnPdLayouts = [];
+  for (let cnt = 1; cnt <= 10; cnt += 1) { // 상품 갯수 최대 10개
+    pdColums.forEach((row) => {
+      // 상품 전체 필드
+      columnPdTotals.push(
+        {
+          fieldName: `${row.fieldName}${cnt}`,
+          header: row.header,
+          width: row.width,
+          styleName: row.styleName,
+          dataType: row.dataType,
+          numberFormat: row.numberFormat,
+        },
+      );
+    });
+    // 상품 레이아웃 필드
+    columnPdLayouts.push(
+      {
+        header: `${t('MSG_TXT_OSTR_INF')}${cnt}`,
+        direction: 'horizontal',
+        items: [`partCd${cnt}`, `partNm${cnt}`, `partQty${cnt}`],
+      },
+    );
+  }
+  columns.push(...columnPdTotals);
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.setFixedOptions({ colCount: 6, resizable: true });
@@ -454,60 +424,13 @@ const initGrdMain = defineGrid((data, view) => {
     'newAdrZip',
     'rnadr',
     'rdadr',
-    {
-      header: t('MSG_TXT_OSTR_INF'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['pdCd', 'pdNm', 'useQty'],
-    },
+    ...columnPdLayouts,
     'reqdDt',
     'rsgFshDt',
     'cstSvAsnNo',
-
+    'ostrAkNo',
+    'lgstOstrAkNo',
+    'ostrNo',
   ]);
 });
-//  23-06-16 요청에 의한 주석처리
-// -- 송장 다운로드 미노출
-// -- 집계표 다운로드 미노출
-// -- 재고수량 미노출
-// const initGrid2 = defineGrid((data, view) => {
-//   const fields = [
-//     { fieldName: 'cntrNo' },
-//     { fieldName: 'rcgvpKnm' },
-//     { fieldName: 'vstFshDt' },
-//     { fieldName: 'pdNm' },
-//     { fieldName: 'col5' },
-//     { fieldName: 'col6' },
-//     { fieldName: 'col7' },
-//     { fieldName: 'col8' },
-//     { fieldName: 'col9' },
-//     { fieldName: 'col10' },
-//     { fieldName: 'col11' },
-//     { fieldName: 'col12' },
-//     { fieldName: 'col13' },
-//     { fieldName: 'wkPrgsStatNm' },
-//     { fieldName: 'col15' },
-//     { fieldName: 'col16' },
-//     { fieldName: 'col17' },
-//     { fieldName: 'col18' },
-//     { fieldName: 'col19' },
-//   ];
-//
-//   const columns = [
-//     { fieldName: 'cntrNo', header: '고객코드', width: '150', styleName: 'text-center' },
-//     { fieldName: 'rcgvpKnm', header: '고객명', width: '150', styleName: 'text-center' },
-//     { fieldName: 'vstFshDt', header: '출고확정일', width: '150', styleName: 'text-center' },
-//     { fieldName: 'pdNm', header: '상품명:수량', width: '150', styleName: 'text-center' },
-//     { fieldName: 'wkPrgsStatNm', header: '작업결과', width: '150', styleName: 'text-center' },
-//     { fieldName: 'col15', header: '우편번호', width: '150', styleName: 'text-center' },
-//     { fieldName: 'col16', header: '주소', width: '150', styleName: 'text-center' },
-//     { fieldName: 'col17', header: '전화번호', width: '150', styleName: 'text-center' },
-//     { fieldName: 'col18', header: '휴대전화', width: '150', styleName: 'text-center' },
-//     { fieldName: 'col19', header: '메모', width: '150', styleName: 'text-center' },
-//   ];
-//
-//   data.setFields(fields);
-//   view.setColumns(columns);
-//   view.rowIndicator.visible = false;
-// });
-
 </script>
