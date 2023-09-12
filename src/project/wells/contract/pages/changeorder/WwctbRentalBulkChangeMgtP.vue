@@ -33,7 +33,7 @@
               || v.codeId === '605' || v.codeId === '607' || v.codeId === '608'
               || v.codeId === '609'|| v.codeId === '611'|| v.codeId === '612'
               || v.codeId === '613'|| v.codeId === '615'|| v.codeId === '616'
-              || v.codeId === '617'|| v.codeId === '618'|| v.codeId === '619'
+              || v.codeId === '617'|| v.codeId === '618'
               || v.codeId === '620'|| v.codeId === '621'|| v.codeId === '622'
               || v.codeId === '623'|| v.codeId === '624'|| v.codeId === '625'
               || v.codeId === '626'|| v.codeId === '711')"
@@ -414,15 +414,6 @@ async function onClickSave() {
         alert(t('MSG_TXT_BEFORE_SELECT_IT', [t('MSG_TXT_PD_FEE_FIX')])); // 수수료정액여부(을)를 선택해주세요.
         return;
       }
-    } else if (saveParams.value.procsDv === '619') { // 프로모션 렌탈료 할인
-      if (isEmpty(changedRows[i].dscMcnt)) { // 할인개월 필수입력
-        alert(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_DSC_MCNT')])); // 할인개월 을(를) 입력해주세요.
-        return;
-      }
-      if (isEmpty(changedRows[i].dscAmt)) { // 할인금액 필수입력
-        alert(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_DSC_AMT')])); // 할인금액 을(를) 입력해주세요.
-        return;
-      }
     } else if (saveParams.value.procsDv === '620') {
       // 렌탈 전월 취소
     } else if (saveParams.value.procsDv === '621') { // (모종)인정실적금액변경
@@ -492,8 +483,6 @@ async function onProcsDvChange() {
     view.columnByName('stpCanYm').visible = true; // 중지취소년월
   } else if (saveParams.value.procsDv === '618') { // 수수료 정액여부 변경
     view.columnByName('feeFxamYn').visible = true; // 수수료정액여부
-  } else if (saveParams.value.procsDv === '619') { // 프로모션 렌탈료 할인
-    view.columnsByTag('dsc').forEach((col) => { col.visible = true; }); // 할인개월, 할인금액
   } else if (saveParams.value.procsDv === '623') { // 매출(BS) 중지 해제
     view.columnByName('istDt').visible = false; // 설치일
     view.columnByName('rcgvpKnm').visible = false; // 고객명
@@ -747,22 +736,6 @@ async function onSearchItemCheck(payload, dataRow) {
         alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
         return;
       }
-    } else if (procsDv === '619') {
-      if (res.data.cntrDtlStatCd === '303') { // 취소된 주문 = 303 수정불가
-        view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('MSG_ALT_CNCL_ORDER')); // 취소된 주문입니다
-        return;
-      }
-      if (isEmpty(res.data.istDt)) { // 설치월 체크
-        view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('설치일자가 없습니다.')); // 설치일자가 없습니다.
-        return;
-      }
-      if (res.data.istDt.substring(0, 6) === now.format('YYYYMM')) { // 설치일 이 당월인지 체크
-        view.setValue(dataRow, 'cntrDtlNo', '');
-        alert(t('설치월 당월만 가능합니다')); // 설치월 당월만 가능합니다
-        return;
-      }
     } else if (procsDv === '620') {
       // 취소된 주문(CNTR_DTL_STAT_CD != 303) 수정불가 -> 취소 되지 않은건은 제외! 전달 취소 철회 불가
       if (res.data.cntrDtlStatCd !== '303') { // 취소된 주문 != 303 수정불가
@@ -861,8 +834,6 @@ onMounted(async () => {
     view.columnByName('stpCanYm').visible = true; // 중지취소년월
   } else if (saveParams.value.procsDv === '618') { // 수수료 정액여부 변경
     view.columnByName('feeFxamYn').visible = true; // 수수료정액여부
-  } else if (saveParams.value.procsDv === '619') { // 프로모션 렌탈료 할인
-    view.columnsByTag('dsc').forEach((col) => { col.visible = true; }); // 할인개월, 할인금액
   } else if (saveParams.value.procsDv === '623') { // 매출(BS) 중지 해제
     view.columnByName('istDt').visible = false; // 설치일
     view.columnByName('rcgvpKnm').visible = false; // 고객명
@@ -932,8 +903,6 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
     { fieldName: 'rplyContact' }, // 회신연락처(메일or휴대전화)
     { fieldName: 'stpCanYm' }, // 중지취소년월(YYYYMM)
     { fieldName: 'feeFxamYn' }, // 수수료정액여부
-    { fieldName: 'dscMcnt' }, // 할인개월
-    { fieldName: 'dscAmt' }, // 할인금액
     { fieldName: 'lifeCstCd' }, // 라이프고객코드
     { fieldName: 'lifeCstCd2' }, // 라이프고객코드2
     { fieldName: 'bfsvcBzsDvCd' }, // 업체BS구분
@@ -945,7 +914,6 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
     { fieldName: 'feeAckmtCt' }, // 수수료인정건수
     { fieldName: 'pdctIdno' }, // 출고일련번호
     { fieldName: 'feeFxam' }, // 수수료정액여부
-    { fieldName: 'cntrDscAmt' }, // 할인금액
     { fieldName: 'alncmpCntrDrmVal' }, // 제휴사계약식별값
     { fieldName: 'prmApyDvCd' }, // 선납적용구분코드
   ];
@@ -1016,8 +984,6 @@ const initRentalBulkChangeMgtList = defineGrid((data, view) => {
       editor: { type: 'list' },
       options: codes.PMOT_PRMIT_YN_ACD,
       visible: false }, // 수수료정액여부
-    { fieldName: 'dscMcnt', header: t('MSG_TXT_DSC_MCNT'), width: '126', styleName: 'text-center', tag: 'dsc', editor: { maxLength: 2 }, visible: false }, // 할인개월
-    { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: '126', styleName: 'text-center', tag: 'dsc', editor: { maxLength: 20 }, visible: false }, // 할인금액
     { fieldName: 'lifeCstCd', header: t('라이프고객코드'), width: '126', styleName: 'text-center', editor: { maxLength: 15 }, visible: false }, // 라이프고객코드
     { fieldName: 'lifeCstCd2', header: t('라이프고객코드2'), width: '126', styleName: 'text-center', editor: { maxLength: 15 }, visible: false }, // 라이프고객코드2
     { fieldName: 'bfsvcBzsDvCd',
