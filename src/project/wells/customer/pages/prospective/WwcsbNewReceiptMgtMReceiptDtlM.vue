@@ -75,10 +75,11 @@
         <kw-separator />
 
         <h3>{{ $t('MSG_TXT_ASGN_INF',null,'배정정보') }}</h3>
+        <!-- 230912 form 안에 input 컴포너트가 있을시 dense 제거  -->
         <kw-form
           :cols="2"
           align-content="left"
-          dense
+          :dense="currentJobType !== 'ASGN'"
         >
           <kw-form-row>
             <kw-form-item :label="$t('MSG_TXT_ASN_DT',null,'배정일자')">
@@ -87,10 +88,9 @@
             <kw-form-item :label="$t('MSG_TXT_ASSIGN_MANAGER',null,'배정담당자')">
               <p>
                 <slot v-if="isShowManualAssignBtn">
-                  <!-- padding="10px" -->
                   <kw-btn
-                    secondary
                     :label="$t('MSG_BTN_MANUAL_ASSIGN',null,'수동배정')"
+                    secondary
                     dense
                     @click="onClickManualAssign"
                   />

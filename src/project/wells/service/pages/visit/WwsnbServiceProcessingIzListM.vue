@@ -613,15 +613,14 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
     const { cntrNo, cntrSn, istEnvrPhoPhFileUid, istKitPhoPhFileUid, istCelngPhoPhFileUid } = grid.getValues(itemIndex);
-    console.log(`[${istEnvrPhoPhFileUid}, ${istKitPhoPhFileUid}, ${istCelngPhoPhFileUid}]`);
 
     if (column === 'cntrNoSn') {
       router.push({ path: '/service/wwsnb-individual-service-list', query: { cntrNo, cntrSn } });
     }
 
     if (column === 'istImg') {
-      const imgFiles = [istEnvrPhoPhFileUid, istKitPhoPhFileUid, istCelngPhoPhFileUid].filter((v) => !isEmpty(v));
-      console.log(imgFiles);
+      const imgFiles = [istEnvrPhoPhFileUid, istKitPhoPhFileUid, istCelngPhoPhFileUid]
+        .filter((v) => !isEmpty(v)).map((v) => ({ fileUid: v }));
 
       if (imgFiles.length > 0) {
         await modal({
@@ -629,7 +628,7 @@ const initGrdMain = defineGrid((data, view) => {
           componentProps: { files: imgFiles },
         });
       } else {
-        notify('등록된 이미지가 없습니다.');
+        notify(t('MSG_ALT_RGST_IMG_NTHNG'));
       }
     }
   };

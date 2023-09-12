@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTD
 2. 프로그램 ID : WwctdConfirmMembershipPresentStateListM - 확정 멤버십 현황 조회
-3. 작성자 : gs.rahul.n
+3. 작성자 : gs.rahul.n -> joonghyung.kim
 4. 작성일 : 2023.03.30
 ****************************************************************************************************
 * 프로그램 설명
@@ -126,6 +126,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span>{{ t('MSG_TXT_UNIT_MCNT') }}</span> <!-- 단위:개월 -->
         </template>
         <kw-btn
           icon="download_on"
@@ -325,7 +326,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdMclsfNm', header: t('TXT_MSG_PD_MCLSF_ID'), width: '112', styleName: 'text-center' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '112', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250' },
-    { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_MEM_FREE_MN'), width: '154', styleName: 'text-center' },
+    { fieldName: 'frisuBfsvcPtrmN', header: t('MSG_TXT_MEM_FREE_MN'), width: '154', styleName: 'text-right' },
     { fieldName: 'frisuMshCrtYn', header: t('MSG_TXT_FREE_MEM_CRT'), width: '154', styleName: 'text-center' },
     { fieldName: 'nationSptYn', header: t('MSG_TXT_STT_SUB'), width: '154', styleName: 'text-center' },
     { fieldName: 'feeYn', header: t('MSG_TXT_FEE_PD_YN'), width: '154', styleName: 'text-center' },

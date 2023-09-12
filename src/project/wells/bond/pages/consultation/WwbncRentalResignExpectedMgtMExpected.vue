@@ -113,6 +113,20 @@
         vertical
         inset
       />
+      <kw-btn
+        icon="download_on"
+        dense
+        secondary
+        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :disable="totalCount === 0"
+        @click="onClickExcelDownload"
+      />
+
+      <kw-separator
+        spaced
+        vertical
+        inset
+      />
 
       <kw-btn
         icon="upload_on"
@@ -144,7 +158,7 @@
         dense
         secondary
         :label="t('MSG_BTN_CAN_MTR_RGST')"
-        :disable="isExpectedConfirm || !isPsic"
+        :disable="!isExpectedConfirm || !isPsic || isNotExpected"
         @click="onClickCancelRgst"
       />
       <kw-separator
@@ -156,7 +170,7 @@
         dense
         primary
         :label="t('MSG_TXT_FNL_CNFM')"
-        :disable="isfinalConfirm || !isPsic"
+        :disable="isfinalConfirm || !isPsic || isNotExpected"
         @click="onClickFinalConfirm"
       />
     </kw-action-top>
@@ -196,6 +210,7 @@ const {
   modal,
 } = useGlobal();
 const { t } = useI18n();
+const { currentRoute } = useRouter();
 // const { getConfig } = useMeta();
 const dataService = useDataService();
 const grdExpectedRef = ref(getComponentType('KwGrid'));
@@ -213,6 +228,7 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'CLCTAM_DV_CD',
   'AUTH_RSG_EXCD_RSON_CD',
+  'BND_CLCTN_PRP_DV_CD',
 );
 const ynOpt = [
   { codeId: 'Y', codeName: 'Y' },
@@ -241,6 +257,13 @@ const searchParams = ref({
   authRsgCd: '01',
 });
 
+// const isNotExpected = computed(() => searchParams.value.authRsgCd === '01');
+// const isExpectedConfirm = computed(() => searchParams.value.authRsgCd === '02');
+// const isfinalConfirm = computed(() => searchParams.value.authRsgCd === '03');
+const isNotExpected = ref(true);
+const isExpectedConfirm = ref(false);
+const isfinalConfirm = ref(false);
+
 // 검색 조회
 let cachedParams;
 async function fetchData() {
@@ -256,6 +279,22 @@ async function fetchData() {
   view.columnByName('excdYn').readOnly = !isSearchMonth.value;
   view.columnByName('authRsgExcdRsonCd').readOnly = !isSearchMonth.value;
   view.commit();
+
+  if (cachedParams.authRsgCd === '01') {
+    isNotExpected.value = true;
+    isExpectedConfirm.value = false;
+    isfinalConfirm.value = false;
+  }
+  if (cachedParams.authRsgCd === '02') {
+    isNotExpected.value = false;
+    isExpectedConfirm.value = true;
+    isfinalConfirm.value = false;
+  }
+  if (cachedParams.authRsgCd === '03') {
+    isNotExpected.value = false;
+    isExpectedConfirm.value = false;
+    isfinalConfirm.value = true;
+  }
 }
 
 async function onClickSearch() {
@@ -346,6 +385,16 @@ async function onClickSave() {
   await onClickSearch();
 }
 
+async function onClickExcelDownload() {
+  const view = grdExpectedRef.value.getView();
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
+  });
+}
+
 // 엑셀 업로드
 // TODO: 설계 전
 async function onClickExcelUpload() {
@@ -409,9 +458,6 @@ async function onClickFinalConfirm() {
   await onClickSearch();
 }
 
-// const isNotExpected = computed(() => searchParams.value.authRsgCd === '01');
-const isExpectedConfirm = computed(() => searchParams.value.authRsgCd === '02');
-const isfinalConfirm = computed(() => searchParams.value.authRsgCd === '03');
 // TODO: 룰 추가 예정 ( 현재 시스템 룰, 집금담당자, 'DUMMY' 적용 )
 const isPsic = computed(() => roles.some((v) => ['ROL_00010', 'ROL_G7010', 'ROL_00000'].includes(v.roleId)));
 // -------------------------------------------------------------------------------------------------
@@ -480,6 +526,7 @@ const initExpectedGrid = defineGrid((data, view) => {
     { fieldName: 'reqdCsBorAmt', header: t('MSG_TXT_REQD_CS'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'rentalNmnN', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bndClctnPrpDvCd', header: t('MSG_TXT_BND_PRP'), width: '100', styleName: 'text-center', options: codes.BND_CLCTN_PRP_DV_CD },
     // rev:230410 header 텍스트 변경
     { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR_EMPNO'), width: '100', styleName: 'text-center' },
     // // rev:230410 header 텍스트 변경
