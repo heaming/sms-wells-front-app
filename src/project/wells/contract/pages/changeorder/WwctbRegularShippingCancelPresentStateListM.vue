@@ -63,6 +63,8 @@
           v-model="searchParams.rgstUsrEpNo"
           maxlength="10"
           regex="num"
+          icon="search"
+          @click-icon="onClickHr"
         />
       </kw-search-item>
       <!-- row2 계약상세번호 -->
@@ -199,6 +201,21 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
+}
+
+async function onClickHr() {
+  const { result, payload } = await modal({
+    component: 'ZwogzEmployeeListP',
+    componentProps: {
+      prtnrNo: searchParams.value.rgstUsrEpNo,
+      ogTpCd: 'HR1',
+      baseYm: now.format('YYYYMM'),
+    },
+  });
+
+  if (result) {
+    searchParams.value.rgstUsrEpNo = payload.prtnrNo;
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
