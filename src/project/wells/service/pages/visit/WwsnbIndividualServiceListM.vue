@@ -711,7 +711,8 @@ async function getIndividualDelinquent() {
   const individualDelinquent = ref([
     { gubun: t('MSG_TXT_LSTMM'), suminamt: individualDelinquentData.psuminamt, dlyamt: individualDelinquentData.pdlyamt },
     { gubun: t('MSG_TXT_THM'), suminamt: individualDelinquentData.csuminamt, dlyamt: individualDelinquentData.cdlyamt },
-    { gubun: t('MSG_TXT_TOT_SUM'), suminamt: individualDelinquentData.tsuminamt, dlyamt: individualDelinquentData.tdlyamt },
+    // { gubun: t('MSG_TXT_TOT_SUM'), suminamt: individualDelinquentData.tsuminamt,
+    // dlyamt: individualDelinquentData.tdlyamt },
   ]);
 
   const individualDelinquentView = grdIndividualDelinquentRef.value.getView();
@@ -1121,24 +1122,45 @@ const initGridCounsel = defineGrid((data, view) => {
 function initGridDelinquent(data, view) {
   const fields = [
     { fieldName: 'gubun' },
-    { fieldName: 'suminamt' },
-    { fieldName: 'dlyamt' },
+    { fieldName: 'suminamt', dataType: 'number' },
+    { fieldName: 'dlyamt', dataType: 'number' },
+    { fieldName: 'tsuminamt', dataType: 'number' },
+    { fieldName: 'tdlyamt', dataType: 'number' },
   ];
 
   const columns = [
-    { fieldName: 'gubun', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'suminamt', header: t('MSG_TXT_WON_DP_AMT'), width: '150', styleName: 'text-right' },
+    { fieldName: 'gubun',
+      header: t('MSG_TXT_DIV'),
+      width: '100',
+      styleName: 'text-center',
+      footer: { text: t('MSG_TXT_TOT_SUM'), expression: 'sum', numberFormat: '#,##0.##' },
+    },
+    { fieldName: 'suminamt',
+      header: t('MSG_TXT_WON_DP_AMT'),
+      width: '150',
+      styleName: 'text-right',
+      groupFooter: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+        styleName: 'text-right',
+      },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' },
+    },
     { fieldName: 'dlyamt',
       header: {
         text: t('MSG_TXT_ANYTHING_AMT_WON', [t('MSG_TXT_DLQ')]), // 연체금액(원)
       },
       width: '150',
       styleName: 'text-right',
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' },
     },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
+
+  view.setFooters({ visible: true, items: [{ height: 40 }] });
+  view.setOptions({ summaryMode: 'aggregate' });
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
