@@ -251,6 +251,7 @@
               :label="t('MSG_TXT_FW_HH')"
             />
             <kw-btn
+              :disable="totalCharacterFwUldCount === 0"
               primary
               dense
               :label="$t('MSG_BTN_BOO_FW_PRTC')"
@@ -320,8 +321,8 @@ const searchParams = ref({
   pdMclsfId: '',
   pdCd: '',
   pdNm: '',
-  dpStDt: `${dayjs().format('YYYYMM')}`,
-  dpEdDt: `${dayjs().format('YYYYMM')}`,
+  dpStDt: dayjs().format('YYYYMM'),
+  dpEdDt: dayjs().format('YYYYMM'),
   ogcd1: '',
   ogcd2: '',
   ogcd3: '',
@@ -408,6 +409,21 @@ async function onChangeHclsf(hclsf) {
 async function onClickSendMessage() {
   const view = grdCharacterFwUldRef.value.getView();
   const allRows = gridUtil.getAllRowValues(view);
+
+  let cnt = 0;
+  gridUtil.forEach(view, (rowValue) => {
+    if (rowValue.prmReAplcYn === 'Y') {
+      if (isEmpty(rowValue.cntrCralTno1) || isEmpty(rowValue.cntrCralTno2) || isEmpty(rowValue.cntrCralTno3)) {
+        cnt += 1;
+      }
+    }
+  });
+
+  if (cnt > 0) {
+    alert(t('MSG_ALT_CNTRT_MPNO'));
+    return;
+  }
+
   const sendRows = allRows.filter((v) => v.prmReAplcYn === 'Y').map((row) => ({
     cntrCralTno1: row.cntrCralTno1,
     cntrCralTno2: row.cntrCralTno2,
@@ -429,6 +445,16 @@ async function onClickSendMessage() {
     fwbooDate: sendParams.value.fwbooDate,
     fwbooTime: sendParams.value.fwbooTime,
   }));
+
+  const yymmdd = sendParams.value.fwbooDate + sendParams.value.fwbooTime;
+  const lastDate = dayjs(yymmdd);
+
+  const currDate = dayjs();
+
+  if (lastDate.diff(currDate, 'hour') <= 0) {
+    alert(t('MSG_ALT_FW_CRTL_HH'));
+    return;
+  }
 
   if (sendRows.length > 2000) {
     alert(t('MSG_ALT_ULD_OVR'));
