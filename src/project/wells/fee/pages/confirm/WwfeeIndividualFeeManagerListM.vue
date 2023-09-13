@@ -127,7 +127,7 @@
             :label="t('MSG_TXT_DSB_AC')"
             align-content="right"
           >
-            <p>{{ info.dsbAc ? stringUtil.getNumberWithComma(info.dsbAc) : '0' }}</p>
+            <p>{{ info.dsbAc }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
