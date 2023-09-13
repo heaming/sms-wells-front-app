@@ -188,7 +188,7 @@
       >
         <kw-select
           v-model="searchParams.schFntDv"
-          :options="codes.DP_TP_CD.filter((v) => ['0203', '0102'].includes(v.codeId))"
+          :options="selectCodes.FNT_DV"
           first-option="all"
         />
         <kw-select
@@ -472,17 +472,17 @@ async function onClickSearch() {
   const ojBlamStrt = searchParams.value.schOjBlamStrt;
   const ojBlamEnd = searchParams.value.schOjBlamEnd;
 
-  if (dlqMcntStrt > dlqMcntEnd) {
-    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_DLQ_MCNT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+  if (Number(dlqMcntStrt) > Number(dlqMcntEnd)) {
+    notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_DLQ_MCNT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
     return false;
   }
   if (fntDtStrt > fntDtEnd) {
-    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_FNT_DT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_FNT_DT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
     return false;
   }
 
   if (Number(ojBlamStrt) > Number(ojBlamEnd)) {
-    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_OJ_BLAM') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_OJ_BLAM') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
     return false;
   }
 

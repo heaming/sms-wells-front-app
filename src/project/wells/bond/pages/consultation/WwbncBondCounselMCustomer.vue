@@ -128,7 +128,7 @@
       >
         <kw-select
           v-model="searchParams.schFntDv"
-          :options="codes.DP_TP_CD.filter((v) => ['0203', '0102'].includes(v.codeId))"
+          :options="selectCodes.FNT_DV"
           first-option="all"
         />
         <span>-</span>
