@@ -24,15 +24,15 @@
         required
       >
         <kw-date-range-picker
-          v-model:from="searchParams.baseDtmnFrom"
-          v-model:to="searchParams.baseDtmnTo"
+          v-model:from="searchParams.baseDtFrom"
+          v-model:to="searchParams.baseDtTo"
           type="date"
           :label="$t('MSG_TXT_SL_DT')"
           rules="date_range_required"
         />
       </kw-search-item>
       <kw-search-item
-        :label="$t('MSG_TXT_TASK_DIV')"
+        :label="$t('MSG_TXT_SEL_TYPE')"
         :colspan="1"
       >
         <kw-select
@@ -42,6 +42,8 @@
         <kw-select
           v-model="searchParams.sellTpDtlCd"
           :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === searchParams.sellTpCd)"
+          first-option="all"
+          first-option-value="ALL"
         />
       </kw-search-item>
     </kw-search-row>
@@ -52,25 +54,22 @@
           :disable="isInqrDv"
           type="radio"
           :options="selectInqrDv.options"
-          @change="onSelectInqrDv"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
         <kw-select
           v-model="searchParams.sellChnlDvCd"
-          :options="codes.SELL_CHNL_DV_CD"
-          first-option
+          :options="codes.SELL_CHNL_DTL_CD"
+          first-option="all"
           first-option-value="ALL"
-          :first-option-label="$t('MSG_TXT_ALL')"
         />
       </kw-search-item>
-      <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
+      <kw-search-item :label="$t('MSG_TXT_SAP_PD_DV_CD_NM')">
         <kw-select
           v-model="searchParams.sapPdDvCd"
-          :options="codes.SAP_PD_DV_CD"
-          first-option
+          :options="dynamicChangeCodes.PRD_DV_CD"
+          first-option="all"
           first-option-value="ALL"
-          :first-option-label="$t('MSG_TXT_ALL')"
         />
       </kw-search-item>
     </kw-search-row>
@@ -92,25 +91,25 @@
     </kw-action-top>
 
     <kw-grid
-      v-if="isShow1"
-      ref="grdSinglePaymentRef"
-      name="grdSinglePayment"
+      v-if="gridControl.gubun === '1'"
+      ref="grdMainRef"
+      name="grdBasic"
       :visible-rows="10"
-      @init="initGrdSinglePayment"
+      @init="initGrdBasic"
     />
     <kw-grid
-      v-if="isShow2"
-      ref="grdRentalRef"
+      v-else-if="gridControl.gubun === '2'"
+      ref="grdMainRef"
       name="grdRental"
       :visible-rows="10"
       @init="initGrdRental"
     />
     <kw-grid
-      v-if="isShow3"
-      ref="grdMembershipsRef"
-      name="grdMemberships"
+      v-else-if="gridControl.gubun === '3'"
+      ref="grdMainRef"
+      name="grdMembership"
       :visible-rows="10"
-      @init="initGrdMemberships"
+      @init="initGrdMembership"
     />
   </div>
 </template>
@@ -130,15 +129,12 @@ const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const grdSinglePaymentRef = ref(getComponentType('KwGrid'));
-const grdRentalRef = ref(getComponentType('KwGrid'));
-const grdMembershipsRef = ref(getComponentType('KwGrid'));
+const grdMainRef = ref(getComponentType('KwGrid'));
 
-const isShow1 = ref(true);
-const isShow2 = ref(false);
-const isShow3 = ref(false);
 const isInqrDv = ref(false);
 const totalCount = ref(0);
+
+const dynamicChangeCodes = ref({ PRD_DV_CD: [] });
 
 const selectInqrDv = { // 조회구분
   options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '상품' }],
@@ -147,199 +143,196 @@ const selectInqrDv = { // 조회구분
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
   'SELL_TP_DTL_CD', // 판매유형상세코드 (1.일반, 2:공유, 3:환경리스, 4:장기할부)
-  'SELL_CHNL_DV_CD',
-  'KW_GRP_CO_CD',
-  'SAP_PD_DV_CD',
+  'SELL_CHNL_DTL_CD',
 );
+
+const gridControl = ref({
+  gubun: '1',
+});
+
 const searchParams = ref({
-  baseDtmnFrom: now.format('YYYYMMDD'),
-  baseDtmnTo: now.format('YYYYMMDD'),
-  sellTpCd: 'ALL', // 판매유형
+  baseDtFrom: now.format('YYYYMMDD'),
+  baseDtTo: now.format('YYYYMMDD'),
+  sellTpCd: '1', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
   inqrDv: '1', // 판매구분
   sellChnlDvCd: 'ALL',
   sapPdDvCd: 'ALL',
 });
 
-const initGridData = [];
-async function onSelectInqrDv() {
-  const { sellTpCd, inqrDv } = searchParams.value;
-  if (sellTpCd === '1' || sellTpCd === '3' || sellTpCd === '5') {
-    const view = grdSinglePaymentRef.value.getView();
-    view.getDataSource().setRows(initGridData);
-    if (inqrDv === '1') {
-      view.columnByName('pdDtlCd').visible = false;
-      view.columnByName('pdNm').visible = false;
-      view.layoutByColumn('slDt').summaryUserSpans = [{ colspan: 3 }];
-    } else if (inqrDv === '2') {
-      view.columnByName('pdDtlCd').visible = true;
-      view.columnByName('pdNm').visible = true;
-      view.layoutByColumn('slDt').summaryUserSpans = [{ colspan: 5 }];
-    }
-  } else if (sellTpCd === '2') {
-    const view = grdRentalRef.value.getView();
-    view.getDataSource().setRows(initGridData);
-    if (inqrDv === '1') {
-      view.columnByName('pdDtlCd').visible = false;
-      view.columnByName('pdNm').visible = false;
-      view.layoutByColumn('slDt').summaryUserSpans = [{ colspan: 2 }];
-    } else if (inqrDv === '2') {
-      view.columnByName('pdDtlCd').visible = true;
-      view.columnByName('pdNm').visible = true;
-      view.layoutByColumn('slDt').summaryUserSpans = [{ colspan: 4 }];
-    }
-  } else if (sellTpCd === '4') {
-    const view = grdMembershipsRef.value.getView();
-    view.getDataSource().setRows(initGridData);
-  }
+let cachedParams;
+
+async function getCodes() {
+  cachedParams = cloneDeep(searchParams.value);
+  const res = await dataService.get('/sms/common/closing/income-slip/product-divide-code', { params: { ...cachedParams } });
+  return res.data;
 }
 
-let cachedParams;
-async function fetchData() {
-  await onSelectInqrDv();
-  cachedParams = cloneDeep(searchParams.value);
+async function onSelectInqrDv() {
+  console.log('>>>>>> onSelectInqrDv >>>>>>>>');
+  const { sellTpCd, sellTpDtlCd, inqrDv } = searchParams.value;
+  const view = grdMainRef.value.getView();
 
-  const { sellTpCd, inqrDv } = searchParams.value;
-  let res;
-  if (sellTpCd === '1' || sellTpCd === '3' || sellTpCd === '5') { // 일시불, 금융리스, 정기배송
-    if (inqrDv === '1') { // 집계
-      res = await dataService.get('/sms/wells/closing/product-sales/single-payment-aggregates', { params: cachedParams });
-    } else if (inqrDv === '2') { // 상품
-      res = await dataService.get('/sms/wells/closing/product-sales/single-payment-products', { params: cachedParams });
-    }
-  } else if (sellTpCd === '2') { // 렌탈
-    if (inqrDv === '1') { // 집계
-      res = await dataService.get('/sms/wells/closing/product-sales/rental-aggregates', { params: cachedParams });
-    } else if (inqrDv === '2') { // 상품
-      res = await dataService.get('/sms/wells/closing/product-sales/rental-products', { params: cachedParams });
-    }
-  } else if (sellTpCd === '4') { // 멤버십
-    res = await dataService.get('/sms/wells/closing/product-sales/memberships', { params: cachedParams });
+  if (sellTpCd !== '3') {
+    view.columnByName('pdCd').visible = inqrDv === '2';
+    view.columnByName('pdNm').visible = inqrDv === '2';
   }
+
+  let cellCnt = 3;
+
+  if (sellTpDtlCd === '21' || sellTpDtlCd === '23' || sellTpCd === '3') {
+    cellCnt = inqrDv === '1' ? 1 : 3;
+  } else {
+    cellCnt = inqrDv === '1' ? 3 : 5;
+  }
+
+  view.layoutByColumn('sellTpCd').spanCallback = (grid, layout, itemIndex) => {
+    const value = grid.getValue(itemIndex, 'slRcogDt');
+    if (typeof value === 'undefined') {
+      return cellCnt - 1; // 가로 병합 수
+    }
+    return 1;
+  };
+
+  view.setRowStyleCallback((grid, item) => {
+    const value = grid.getValue(item.index, 'sellTpCd');
+    console.log(`value : ${value}`);
+    if (value === '합계') {
+      const ret = {};
+      ret.styleName = 'text-center total-column';
+      return ret;
+    }
+  });
+
+  console.log('<<<<<<< onSelectInqrDv <<<<<<<<');
+}
+
+async function fetchData() {
+  const { sellTpCd, sellTpDtlCd } = searchParams.value;
+
+  let apiParam;
+
+  if (sellTpDtlCd === '21' || sellTpDtlCd === '23') { // 렌탈
+    apiParam = 'rental';
+    gridControl.value.gubun = '2';
+  } else if (sellTpCd === '3') { // 멤버십
+    apiParam = 'membership';
+    gridControl.value.gubun = '3';
+  } else {
+    apiParam = 'basic';
+    gridControl.value.gubun = '1';
+  }
+
+  const res = await dataService.get(`/sms/wells/closing/product-sales/${apiParam}/lists`, { params: cachedParams });
 
   const mainList = res.data;
   totalCount.value = mainList.length;
 
-  let mainView;
-  if (isShow1.value === true) {
-    mainView = grdSinglePaymentRef.value.getView();
-  } else if (isShow2.value === true) {
-    mainView = grdRentalRef.value.getView();
-  } else if (isShow3.value === true) {
-    mainView = grdMembershipsRef.value.getView();
-  }
+  const view = grdMainRef.value.getView();
 
-  mainView.getDataSource().setRows(mainList);
-  mainView.resetCurrent();
+  view.getDataSource().setRows(mainList);
 }
 
 async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+
   await fetchData();
+  await onSelectInqrDv();
 }
 
 async function onClickExportView() {
-  let view;
-  if (isShow1.value === true) {
-    view = grdSinglePaymentRef.value.getView();
-  } else if (isShow2.value === true) {
-    view = grdRentalRef.value.getView();
-  } else if (isShow3.value === true) {
-    view = grdMembershipsRef.value.getView();
-  }
+  const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
   });
 }
+
+watch(() => searchParams.value.sellTpCd, async (val) => {
+  searchParams.value.inqrDv = '1';
+  isInqrDv.value = val === '3';
+});
+
+watch(() => searchParams.value.sellTpCd, async () => {
+  searchParams.value.sellTpDtlCd = 'ALL';
+});
+
+onMounted(async () => {
+  dynamicChangeCodes.value.PRD_DV_CD = await getCodes();
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrdSinglePayment = defineGrid((data, view) => {
+const initGrdBasic = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdDtlCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'col1', header: t('MSG_TXT_SLS_CAT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'normalSellQty', header: t('MSG_TXT_SELL_QTY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'normalMpyAmt', header: t('MSG_TXT_MPY_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'normalMmIstmPcamAmt', header: t('MSG_TXT_PVDA'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'normalVat', header: t('MSG_TXT_VAT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'normalPurSlAmt', header: t('MSG_TXT_PUR_SLPRC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'chgSellQty', header: t('MSG_TXT_SELL_QTY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'chgMpyAmt', header: t('MSG_TXT_MPY_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'chgMmIstmPcamAmt', header: t('MSG_TXT_PVDA'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'chgVat', header: t('MSG_TXT_VAT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'chgPurSlAmt', header: t('MSG_TXT_PUR_SLPRC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'canSellQty', header: t('MSG_TXT_SELL_QTY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'canMpyAmt', header: t('MSG_TXT_MPY_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'canMmIstmPcamAmt', header: t('MSG_TXT_PVDA'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'canVat', header: t('MSG_TXT_VAT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'canPurSlAmt', header: t('MSG_TXT_PUR_SLPRC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'sumSellQty', header: t('MSG_TXT_SELL_QTY'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'sumMpyAmt', header: t('MSG_TXT_MPY_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'sumMmIstmPcamAmt', header: t('MSG_TXT_PVDA'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'sumVat', header: t('MSG_TXT_VAT'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'sumPurSlAmt', header: t('MSG_TXT_PUR_SLPRC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false },
+    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
+
+    // 정상매출
+    { fieldName: 'sellQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'sellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'sellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'sellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'pvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+
+    // 매출변경
+    { fieldName: 'chQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'slChAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'chSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'chVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'chPvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+
+    // 매출취소
+    { fieldName: 'canQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'slCanAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'canSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'canVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'canPvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+
+    // 매출합계
+    { fieldName: 'totQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totPvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.setHeaderSummaries({
-    visible: true,
-    items: [
-      {
-        height: 40,
-      },
-    ],
-  });
-  view.columnByName('slDt').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
-  view.columnByName('normalSellQty').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('normalMpyAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('normalMmIstmPcamAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('normalVat').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('normalPurSlAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('chgSellQty').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum', styleName: 'rg-button-link text-right', renderer: { type: 'button' } });
-  view.columnByName('chgMpyAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('chgMmIstmPcamAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('chgVat').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('chgPurSlAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('canSellQty').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('canMpyAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('canMmIstmPcamAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('canVat').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('canPurSlAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('sumSellQty').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('sumMpyAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('sumMmIstmPcamAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('sumVat').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
-  view.columnByName('sumPurSlAmt').setHeaderSummaries({ numberFormat: '#,##0', expression: 'sum' });
   view.onCellClicked = async (g, clickData) => {
-    console.log('clickData:', clickData);
-    if (clickData.cellType === 'summary') {
-      if (clickData.column === 'col11' || clickData.column === 'col12') {
+    const { column, cellType } = clickData;
+    if (cellType === 'summary') {
+      if (column === 'slChAmt' || column === 'chSplAmt' || column === 'chVat' || column === 'chPvdaAmt'
+       || column === 'slCanAmt' || column === 'canSplAmt' || column === 'canVat' || column === 'canPvdaAmt') {
         console.log('매출변경 및 매출취소 팝업 호출');
       }
     }
   };
 
   const layout1 = [
-    'slDt',
+    'slRcogDt',
     'sellTpCd',
-    'pdDtlCd',
+    'sellTpDtlCd',
+    'pdCd',
     'pdNm',
-    'col1',
+    'sapPdDvNm',
     {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'normalSellQty',
-        'normalMpyAmt',
-        'normalMmIstmPcamAmt',
-        'normalVat',
-        'normalPurSlAmt',
+        'sellQty',
+        'sellAmt',
+        'sellSplAmt',
+        'sellAmtVat',
+        'pvdaAmt',
       ],
       header: {
         text: t('MSG_TXT_NOM_SL'),
@@ -349,11 +342,11 @@ const initGrdSinglePayment = defineGrid((data, view) => {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'chgSellQty',
-        'chgMpyAmt',
-        'chgMmIstmPcamAmt',
-        'chgVat',
-        'chgPurSlAmt',
+        'chQty',
+        'slChAmt',
+        'chSplAmt',
+        'chVat',
+        'chPvdaAmt',
       ],
       header: {
         text: t('MSG_TXT_SL_CH'),
@@ -363,11 +356,11 @@ const initGrdSinglePayment = defineGrid((data, view) => {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'canSellQty',
-        'canMpyAmt',
-        'canMmIstmPcamAmt',
+        'canQty',
+        'slCanAmt',
+        'canSplAmt',
         'canVat',
-        'canPurSlAmt',
+        'canPvdaAmt',
       ],
       header: {
         text: t('MSG_TXT_SL_CAN'),
@@ -377,11 +370,11 @@ const initGrdSinglePayment = defineGrid((data, view) => {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'sumSellQty',
-        'sumMpyAmt',
-        'sumMmIstmPcamAmt',
-        'sumVat',
-        'sumPurSlAmt',
+        'totQty',
+        'totAmt',
+        'totSplAmt',
+        'totVat',
+        'totPvdaAmt',
       ],
       header: {
         text: t('MSG_TXT_SL_SUM'),
@@ -389,143 +382,45 @@ const initGrdSinglePayment = defineGrid((data, view) => {
     },
   ];
   view.setColumnLayout(layout1);
-
-  view.layoutByColumn('slDt').summaryUserSpans = [{ colspan: 3 }];
   view.rowIndicator.visible = true;
 });
 
 const initGrdRental = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'slDt',
-      header: t('MSG_TXT_SL_DT'),
-      width: '100',
-      styleName: 'text-center',
-      headerSummary: {
-        text: t('MSG_TXT_SUM'),
-        styleName: 'text-center',
-      },
-      datetimeFormat: 'date' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdDtlCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'rgstQty',
-      header: t('MSG_TXT_ACC_QTY'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'rgstCost',
-      header: t('MSG_TXT_MPY_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'rgstVat',
-      header: t('MSG_TXT_VAT_AMOUNT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'rgstSlAmt',
-      header: t('MSG_TXT_PUR_SLPRC'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'rentalQty',
-      header: t('MSG_TXT_ACC_QTY'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'rentalCost',
-      header: t('MSG_TXT_MPY_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'rentalVat',
-      header: t('MSG_TXT_VAT_AMOUNT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'rentalSlAmt',
-      header: t('MSG_TXT_PUR_SLPRC'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'sumQty',
-      header: t('MSG_TXT_ACC_QTY'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'sumCost',
-      header: t('MSG_TXT_MPY_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'sumVat',
-      header: t('MSG_TXT_VAT_AMOUNT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'sumSlAmt',
-      header: t('MSG_TXT_PUR_SLPRC'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
+    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false },
+    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
+
+    { fieldName: 'rentalRgstCostCnt', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'rentalRgstCost', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'rentalRgstCostSpl', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'rentalRgstCostVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+
+    { fieldName: 'slQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'nomSlAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'splAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'vat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+
+    { fieldName: 'totQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totSlAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totSpl', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
   const layout1 = [
-    'slDt',
+    'slRcogDt',
     'sellTpCd',
-    'pdDtlCd',
+    'sellTpDtlCd',
+    'pdCd',
     'pdNm',
+    'sapPdDvNm',
     {
       name: 'normalGroup',
       direction: 'horizontal',
@@ -534,10 +429,10 @@ const initGrdRental = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'rgstQty',
-            'rgstCost',
-            'rgstVat',
-            'rgstSlAmt',
+            'rentalRgstCostCnt',
+            'rentalRgstCost',
+            'rentalRgstCostSpl',
+            'rentalRgstCostVat',
           ],
           header: {
             text: t('MSG_TXT_RGST_FEE'),
@@ -547,10 +442,10 @@ const initGrdRental = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'rentalQty',
-            'rentalCost',
-            'rentalVat',
-            'rentalSlAmt',
+            'slQty',
+            'nomSlAmt',
+            'splAmt',
+            'vat',
           ],
           header: {
             text: t('MSG_TXT_RTLFE'),
@@ -565,10 +460,10 @@ const initGrdRental = defineGrid((data, view) => {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'sumQty',
-        'sumCost',
-        'sumVat',
-        'sumSlAmt',
+        'totQty',
+        'totSlAmt',
+        'totSpl',
+        'totVat',
       ],
       header: {
         text: t('MSG_TXT_SL_SUM'),
@@ -576,146 +471,42 @@ const initGrdRental = defineGrid((data, view) => {
     },
   ];
   view.setColumnLayout(layout1);
-  view.setHeaderSummaries({
-    visible: true,
-    items: [
-      {
-        height: 40,
-      },
-    ],
-  });
-  view.layoutByColumn('slDt').summaryUserSpans = [{ colspan: 2 }];
   view.rowIndicator.visible = true;
 });
 
-const initGrdMemberships = defineGrid((data, view) => {
+const initGrdMembership = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'slDt',
-      header: t('MSG_TXT_SL_DT'),
-      width: '100',
-      styleName: 'text-center',
-      headerSummary: {
-        text: t('MSG_TXT_SUM'),
-        styleName: 'text-center',
-      },
-      datetimeFormat: 'date' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sspcsSellQty',
-      header: t('MSG_TXT_ACC_QTY'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'sspcsMpyAmt',
-      header: t('MSG_TXT_MPY_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'sspcsVat',
-      header: t('MSG_TXT_VAT_AMOUNT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'sspcsSlAmt',
-      header: t('MSG_TXT_PUR_SLPRC'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'filtSellQty',
-      header: t('MSG_TXT_ACC_QTY'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'filtMpyAmt',
-      header: t('MSG_TXT_MPY_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'filtVat',
-      header: t('MSG_TXT_VAT_AMOUNT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'filtSlAmt',
-      header: t('MSG_TXT_PUR_SLPRC'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'sumSellQty',
-      header: t('MSG_TXT_ACC_QTY'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'sumMpyAmt',
-      header: t('MSG_TXT_MPY_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'sumVat',
-      header: t('MSG_TXT_VAT_AMOUNT'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
-    { fieldName: 'sumSlAmt',
-      header: t('MSG_TXT_PUR_SLPRC'),
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      headerSummary: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      } },
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
+    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false },
+    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
+
+    { fieldName: 'sellQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'sellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'sellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'sellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+
+    { fieldName: 'filSellQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'filSellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'filSellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'filSellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+
+    { fieldName: 'totSelQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totSellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totSellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totSellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
   const layout1 = [
-    'slDt',
+    'slRcogDt',
     'sellTpCd',
+    'sellTpDtlCd',
+    'sapPdDvCd',
+    'sapPdDvNm',
     {
       name: 'normalGroup',
       direction: 'horizontal',
@@ -724,10 +515,10 @@ const initGrdMemberships = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'sspcsSellQty',
-            'sspcsMpyAmt',
-            'sspcsVat',
-            'sspcsSlAmt',
+            'sellQty',
+            'sellAmt',
+            'sellSplAmt',
+            'sellAmtVat',
           ],
           header: {
             text: t('MSG_TXT_SSPCS'),
@@ -737,10 +528,10 @@ const initGrdMemberships = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'filtSellQty',
-            'filtMpyAmt',
-            'filtVat',
-            'filtSlAmt',
+            'filSellQty',
+            'filSellAmt',
+            'filSellSplAmt',
+            'filSellAmtVat',
           ],
           header: {
             text: t('MSG_TXT_FLTR'),
@@ -755,10 +546,10 @@ const initGrdMemberships = defineGrid((data, view) => {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'sumSellQty',
-        'sumMpyAmt',
-        'sumVat',
-        'sumSlAmt',
+        'totSelQty',
+        'totSellAmt',
+        'totSellSplAmt',
+        'totSellAmtVat',
       ],
       header: {
         text: t('MSG_TXT_SL_SUM'),
@@ -766,16 +557,18 @@ const initGrdMemberships = defineGrid((data, view) => {
     },
   ];
   view.setColumnLayout(layout1);
-  view.setHeaderSummaries({
-    visible: true,
-    items: [
-      {
-        height: 40,
-      },
-    ],
-  });
-  view.layoutByColumn('slDt').summaryUserSpans = [{ colspan: 2 }];
   view.rowIndicator.visible = true;
 });
 
 </script>
+
+<style>
+.total-column {
+  border-bottom: none !important;
+  border-right: none !important;
+  border-top: none !important;
+  border-left: none !important;
+  background: #d5e8fd;
+  background-color: #d5e8fd;
+}
+</style>

@@ -18,7 +18,7 @@
   >
     <kw-search
       one-row
-      :cols="2"
+      :cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -31,6 +31,7 @@
         <kw-search-item
           :label="$t('MSG_TXT_SL_YM')"
           required
+          :colspan="2"
         >
           <kw-date-range-picker
             v-model:from="searchParams.slClYmFrom"
