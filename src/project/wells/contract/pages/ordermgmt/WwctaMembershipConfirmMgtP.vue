@@ -235,7 +235,7 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '118', styleName: 'text-center' }, // 계약자명
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '118', styleName: 'text-center' }, // 설치자명
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' }, // 상품코드
