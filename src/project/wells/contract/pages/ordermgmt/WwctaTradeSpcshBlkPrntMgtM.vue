@@ -252,10 +252,16 @@ async function onClickSave() {
       }
     }
     // 팩스번호 세팅
-    const tel = changedRows[i].faxTelNo.replaceAll('-', '');
-    changedRows[i].faxLocaraTno = getPhoneNumber(tel, 1);
-    changedRows[i].faxExno = getPhoneNumber(tel, 2);
-    changedRows[i].faxIdvTno = getPhoneNumber(tel, 3);
+    if (!isEmpty(changedRows[i].faxTelNo)) {
+      const tel = changedRows[i].faxTelNo.replaceAll('-', '');
+      changedRows[i].faxLocaraTno = getPhoneNumber(tel, 1);
+      changedRows[i].faxExno = getPhoneNumber(tel, 2);
+      changedRows[i].faxIdvTno = getPhoneNumber(tel, 3);
+    } else {
+      changedRows[i].faxLocaraTno = '';
+      changedRows[i].faxExno = '';
+      changedRows[i].faxIdvTno = '';
+    }
 
     const row = gridUtil.findDataRow(view, (e) => (e.spectxGrpNo === changedRows[i].spectxGrpNo)
     && (e.cntrDtlNo === changedRows[i].cntrDtlNo));
