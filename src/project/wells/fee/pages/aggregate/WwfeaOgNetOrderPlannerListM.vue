@@ -483,26 +483,13 @@ let cachedParams;
 
 /*
  *  Event - 조회조건 선택에 변경 param init
+*/
 async function initSearchParams() {
   totalCount.value = 0;
-  isExcelDown.value = false;
-  searchParams.value.feeTcntDvCd = '01';
-  searchParams.value.feePerfCd = '';
-  searchParams.value.pdctTpCd = '';
-  searchParams.value.sellTpCd = '0';
-  searchParams.value.strtDt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
-  searchParams.value.endDt = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
-  searchParams.value.cancStrtDt = '';
-  searchParams.value.cancEndDt = '';
-  searchParams.value.pdStrtCd = '';
-  searchParams.value.pdEndCd = '';
-  searchParams.value.pdEndCd = '';
-  searchParams.value.pkgEndCd = '';
-  searchParams.value.prtnrNo = '';
-  searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM');
-  searchParams.value.rsbDvCd = '00';
+  grd1MainRef.value.getData().clearRows();
+  grd2MainRef.value.getData().clearRows();
+  grd3MainRef.value.getData().clearRows();
 }
-*/
 
 /*
  *  Event - 번호 검색 아이콘 클릭 이벤트
@@ -767,15 +754,15 @@ async function onChangeInqrDv() {
       isSelectVisile3.value = false;
       isPerfVisile.value = false;
     }
-    // initSearchParams();
+    initSearchParams();
   } else if (inqrDvCd === '02') {
     isSelectVisile1.value = false;
     isSelectVisile2.value = false;
     isSelectVisile3.value = true;
     isPerfVisile.value = true;
-    // initSearchParams();
+    initSearchParams();
   }
-  onClickSearch();
+  totalCount.value = 0;
 }
 
 // -------------------------------------------------------------------------------------------------
