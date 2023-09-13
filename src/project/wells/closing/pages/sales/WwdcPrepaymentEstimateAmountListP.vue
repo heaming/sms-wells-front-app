@@ -215,7 +215,7 @@ async function onClickSearch() {
 
 async function onClickFirstDepositRentalSearch() {
   // console.log('선입금렌탈조회'); // 선입금렌탈조회 페이지에서는 계약상세번호로 조회함.
-  const cntrDtlNo = `${props.cntrNo}${props.cntrSn}`;
+  const cntrDtlNo = `${props.cntrNo}-${props.cntrSn}`;
 
   await modal({
     component: 'WwdcbPrepaidDepositRentalP',
