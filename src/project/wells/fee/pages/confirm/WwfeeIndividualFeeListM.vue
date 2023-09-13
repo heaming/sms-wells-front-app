@@ -119,19 +119,19 @@
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
-
-        <kw-btn
-          dense
-          secondary
-          icon="download_on"
-          :label="$t('MSG_BTN_EXCEL_DOWN')"
-          @click="onClickExcelDownload"
-        />
         <kw-btn
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
           icon="report"
           dense
           @click="openFeeReportPopup"
+        />
+        <kw-btn
+          dense
+          secondary
+          icon="download_on"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="!isExcelDown"
+          @click="onClickExcelDownload"
         />
         <kw-separator
           vertical
@@ -193,6 +193,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const isSelectVisile = ref(true);
 const isSelectVisile2 = ref(false);
 const isSelectVisile3 = ref(false);
+const isExcelDown = ref(false);
 const { currentRoute } = useRouter();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
@@ -267,6 +268,11 @@ async function fetchData(uri) {
   searchParams.value.prPerfYm = perfYm;
   searchParams.value.prOgTpCd = ogTpCd;
   totalCount.value = fees.length;
+  if (totalCount.value > 0) {
+    isExcelDown.value = true;
+  } else {
+    isExcelDown.value = false;
+  }
   if (uri === 'feeLists') {
     if (ogTpCd === 'W03') {
       const homeMasterView = grdMainRef.value.getView();
@@ -503,7 +509,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'mngtDiv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98' },
     { fieldName: 'renlGrp', header: t('MSG_TXT_BUSINESS_DIVISION'), width: '98' },
     { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
-    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95' },
+    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '71', options: codes.RSB_DV_CD },
     { fieldName: 'qlfDvCd', header: t('MSG_TXT_QLF'), width: '110', options: codes.QLF_DV_CD },
@@ -553,7 +559,7 @@ const initGrd2Main = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'renlGrp', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
     { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
-    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95' },
+    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '71', options: codes.RSB_DV_CD },
     { fieldName: 'qlfDvCd', header: t('MSG_TXT_QLF'), width: '110', options: codes.QLF_DV_CD },
