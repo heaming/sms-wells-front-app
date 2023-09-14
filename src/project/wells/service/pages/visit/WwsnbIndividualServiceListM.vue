@@ -778,9 +778,7 @@ async function isValidateIndividualParams() {
 
 async function onClickSearch() {
   if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) { notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`])); return; }
-  if (searchParams.value.cntrNo) {
-    if (searchParams.value.cntrNo.length < 12 || searchParams.value.cntrSn.length < 0) { return; }
-  }
+  if (searchParams.value.cntrNo) { if (searchParams.value.cntrSn.length < 0) { return; } }
   await isValidateIndividualParams();
 }
 
