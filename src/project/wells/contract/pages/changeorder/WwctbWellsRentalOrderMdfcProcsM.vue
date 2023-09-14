@@ -245,7 +245,7 @@
                         icon="search"
                         maxlength="100"
                         grow
-                        :disable="!isFetched"
+                        :disable="!isFetched || fieldData.slClYn==='Y'"
                         @click-icon="onClickSelectProduct"
                       />
                       <kw-select
@@ -255,6 +255,7 @@
                           ['2','4','5','8','9','C','F','H','7','D','E','I'].includes(v.codeId))"
                         first-option="select"
                         first-option-label="선택없음"
+                        :disable="fieldData.slClYn==='Y'"
                       />
                     </div>
                     <div class="border-box mt12">
@@ -271,7 +272,7 @@
                             <kw-btn
                               v-permission:update
                               :label="$t('MSG_TXT_MCHN_CH')"
-                              :disable="!isEmpty(orderProduct.plusCntrNo) || !isFetched"
+                              :disable="!isEmpty(orderProduct.plusCntrNo) || !isFetched || fieldData.slClYn==='Y'"
                               padding="12px"
                               @click="onClickDeviceChange"
                             />
@@ -285,6 +286,7 @@
                               first-option="select"
                               first-option-value=""
                               :first-option-label="$t('TXT_MSG_RENTAL_DSC_DV_CD') + ' ' + $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                             <kw-select
@@ -292,6 +294,7 @@
                               v-model="orderProduct.sellDscrCd"
                               :options="rentalDscrCds"
                               placeholder="렌탈법인할인율"
+                              :disable="fieldData.slClYn==='Y'"
                             />
                           </kw-form-item>
                           <kw-form-item label="주기/용도 선택">
@@ -306,6 +309,7 @@
                                 $t('MSG_TXT_SERVICE')+
                                   '('+$t('MSG_TXT_USWY')+'/'+$t('MSG_TXT_VST_PRD')+') '+
                                   $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                           </kw-form-item>
@@ -315,6 +319,7 @@
                             <kw-input
                               v-model="orderProduct.stplPtrm"
                               readonly
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                             <!-- 계약기간 선택 -->
@@ -324,6 +329,7 @@
                               first-option="select"
                               first-option-value=""
                               :first-option-label="$t('MSG_TXT_CNTR_PTRM') + ' ' + $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                           </kw-form-item>
@@ -331,6 +337,7 @@
                             <kw-select
                               v-model="orderProduct.frisuAsPtrmN"
                               first-option="select"
+                              :disable="fieldData.slClYn==='Y'"
                             />
                             <kw-select
                               v-model="orderProduct.cntrAmt"
@@ -338,6 +345,7 @@
                               first-option="select"
                               first-option-value="0"
                               :first-option-label="$t('MSG_TXT_RGST_FEE') + ' ' + $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                           </kw-form-item>
@@ -348,6 +356,7 @@
                               v-model="orderProduct.alncmpCd"
                               :options="codes.ALNC_CO_ACD"
                               first-option="select"
+                              :disable="fieldData.slClYn==='Y'"
                             />
                           </kw-form-item>
                           <kw-form-item label="프로모션 코드">
@@ -355,6 +364,7 @@
                               v-model="orderProduct.sellDscTpCd"
                               :options="rentalDscTpCds"
                               first-option="select"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                           </kw-form-item>
@@ -381,6 +391,7 @@
                               maxlength="10"
                               type="number"
                               :readonly="fieldData.copnDvCd !== '2'"
+                              :disable="fieldData.slClYn==='Y'"
                             />
                           </kw-form-item>
                           <kw-form-item label="할인렌탈가(원)">
@@ -432,6 +443,7 @@
                               type="textarea"
                               maxlength="1000"
                               :rows="3"
+                              :disable="fieldData.slClYn==='Y'"
                             />
                           </kw-form-item>
                         </kw-form-row>
@@ -531,6 +543,7 @@
                               icon="close_24"
                               style="font-size: 24px;"
                               class="w24"
+                              :disable="fieldData.slClYn==='Y'"
                               @click="onClickDeleteDeviceChange"
                             />
                           </div>
@@ -548,7 +561,7 @@
                         class="ml10"
                         padding="12px"
                         label="저장"
-                        :disable="!isFetched"
+                        :disable="!isFetched || fieldData.slClYn==='Y'"
                         @click="onClickProductChangeSave"
                       />
                     </div>
@@ -1253,6 +1266,7 @@ const fieldData = ref({
   istDt: '', // [계약정보-설치일] 설치일자
   canDt: '', // [계약정보-취소일자] 취소일자
   reqdDt: '', // [계약정보-철거일자] 철거일자
+  slClYn: '', // 전월매출마감여부
   cntrCstKnm: '', // [계약자고객정보-계약자] 계약자명
   cntrCstNo: '', // [계약자고객정보-고객번호] 계약자고객번호
   copnDvCd: '', // 개인/법인구분
