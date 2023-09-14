@@ -379,7 +379,7 @@ function onClickRegistCancel() {
     initComponent();
   }
 
-  grdMainView.value.getCheckedRows().forEach((i) => {
+  grdMainView.value.getCheckedItems().forEach((i) => {
     if (grdMainView.value.getValue(i, 'disableChk') === 'Y') {
       return true;
     }
@@ -460,7 +460,7 @@ async function onSearchDetail(subParam) {
 }
 
 // 상세 조회(취소 등록 된 1건)
-async function getCanceledInfo(cntrNo, cntrSn, row) {
+async function getCanceledInfo(cntrNo, cntrSn, itemIndex) {
   const { dm } = searchParams.value;
   const res = await dataService.get('/sms/wells/contract/changeorder/cancel-infos', { params: { cntrNo, cntrSn, dm } });
 
@@ -481,7 +481,7 @@ async function getCanceledInfo(cntrNo, cntrSn, row) {
   }
 
   // set grid data
-  cancelDetailList.value.push(grdMainView.value.getValues(row));
+  cancelDetailList.value.push(grdMainView.value.getValues(itemIndex));
 
   // set searched data
   idx.value = 0;
@@ -546,7 +546,7 @@ async function onSave() {
     setBulkParam(cancelDetailList.value[0]);
     saveList = cancelDetailList.value;
   } else {
-    if (param.isSearch !== 'Y') {
+    if (param.sellTpCd !== '1' && param.isSearch !== 'Y') {
       await notify('취소사항 조회를 해주세요.');
       return;
     }
@@ -687,10 +687,11 @@ function initGrid(data, view) {
   view.setCheckableExpression("(value['disableChk']<>'Y')", true);
 
   // click button
-  view.onCellClicked = async (g, clickData) => {
-    const { cntrNo, cntrSn, cntrDtlStatCd } = g.getValues(clickData.dataRow);
+  view.onCellClicked = async (g, { itemIndex }) => {
+    const { cntrNo, cntrSn, cntrDtlStatCd } = g.getValues(itemIndex);
+
     if (cntrDtlStatCd.indexOf('3') === 0) {
-      await getCanceledInfo(cntrNo, cntrSn, clickData.dataRow);
+      await getCanceledInfo(cntrNo, cntrSn, itemIndex);
     }
   };
 }
