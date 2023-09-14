@@ -39,9 +39,6 @@
             :options="filterAll"
           />
         </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row>
         <!-- 구분 -->
         <!-- TODO: 코드 확인 필요 -->
         <kw-search-item
@@ -55,6 +52,9 @@
             @change="onChangeDvCd"
           />
         </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
         <!-- 파트너번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRTNR_NUMBER')"
