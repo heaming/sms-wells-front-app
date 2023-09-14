@@ -169,8 +169,7 @@ async function getCodes() {
 }
 
 async function onSelectInqrDv() {
-  console.log('>>>>>> onSelectInqrDv >>>>>>>>');
-  const { sellTpCd, sellTpDtlCd, inqrDv } = searchParams.value;
+  const { sellTpCd, inqrDv } = searchParams.value;
   const view = grdMainRef.value.getView();
 
   if (sellTpCd !== '3') {
@@ -178,33 +177,38 @@ async function onSelectInqrDv() {
     view.columnByName('pdNm').visible = inqrDv === '2';
   }
 
-  let cellCnt = 3;
+  view.layoutByColumn('slRcogDt').summaryUserSpans = [
+    { colspan: inqrDv === '1' ? 4 : 6 },
+  ];
+}
 
-  if (sellTpDtlCd === '21' || sellTpDtlCd === '23' || sellTpCd === '3') {
-    cellCnt = inqrDv === '1' ? 1 : 3;
-  } else {
-    cellCnt = inqrDv === '1' ? 3 : 5;
-  }
+async function fetchSummaryData(apiParam) {
+  const res = await dataService.get(`/sms/wells/closing/product-sales/${apiParam}/summary`, { params: cachedParams });
+  const view = grdMainRef.value.getView();
 
-  view.layoutByColumn('sellTpCd').spanCallback = (grid, layout, itemIndex) => {
-    const value = grid.getValue(itemIndex, 'slRcogDt');
-    if (typeof value === 'undefined') {
-      return cellCnt - 1; // 가로 병합 수
-    }
-    return 1;
-  };
-
-  view.setRowStyleCallback((grid, item) => {
-    const value = grid.getValue(item.index, 'sellTpCd');
-    console.log(`value : ${value}`);
-    if (value === '합계') {
-      const ret = {};
-      ret.styleName = 'text-center total-column';
-      return ret;
-    }
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 40 },
+    ],
   });
 
-  console.log('<<<<<<< onSelectInqrDv <<<<<<<<');
+  const { inqrDv } = searchParams.value;
+
+  const cellCnt = inqrDv === '1' ? 4 : 6;
+  const cellCnt2 = inqrDv === '1' ? 7 : 6;
+
+  if (apiParam === 'basic') {
+    view.getColumnNames().forEach((val, idx) => (
+      idx < cellCnt || val === 'normalGroup' ? null : view.columnByName(val).setHeaderSummaries({ text: res.data[val],
+        styleCallback() { return res.data[val] !== '0' && idx > cellCnt + cellCnt2 ? { styleName: 'text-right text-underline cursor-pointer' } : { styleName: 'text-right' }; } })
+    ));
+  } else {
+    view.getColumnNames().forEach((val, idx) => (
+      idx < cellCnt || val === 'normalGroup' ? null : view.columnByName(val).setHeaderSummaries({ text: res.data[val], styleName: 'text-right' })));
+  }
+
+  view.columnByName('slRcogDt').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
 }
 
 async function fetchData() {
@@ -223,6 +227,7 @@ async function fetchData() {
     gridControl.value.gubun = '1';
   }
 
+  fetchSummaryData(apiParam);
   const res = await dataService.get(`/sms/wells/closing/product-sales/${apiParam}/lists`, { params: cachedParams });
 
   const mainList = res.data;
@@ -269,8 +274,8 @@ const initGrdBasic = defineGrid((data, view) => {
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', visible: false },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-center', visible: false },
     { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false },
     { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
 
@@ -390,8 +395,8 @@ const initGrdRental = defineGrid((data, view) => {
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', visible: false },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-center', visible: false },
     { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false },
     { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
 
@@ -561,14 +566,3 @@ const initGrdMembership = defineGrid((data, view) => {
 });
 
 </script>
-
-<style>
-.total-column {
-  border-bottom: none !important;
-  border-right: none !important;
-  border-top: none !important;
-  border-left: none !important;
-  background: #d5e8fd;
-  background-color: #d5e8fd;
-}
-</style>
