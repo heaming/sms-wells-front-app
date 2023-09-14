@@ -169,7 +169,7 @@ const initGrdMain = defineGrid((data, view) => {
     // 작업구분
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_WK_CLS'), width: '80', styleName: 'text-center', options: codes.SV_BIZ_DCLSF_CD, editable: false },
     // 단계
-    { fieldName: 'filtChngLvCd', header: t('MSG_TXT_STEP'), width: '60', styleName: 'text-center', rules: 'required', dataType: 'number', editable: false },
+    { fieldName: 'filtChngLvCd', header: t('MSG_TXT_STEP'), width: '60', styleName: 'text-center', dataType: 'number', editable: false },
     // 필터/부품명
     { fieldName: 'partPdNm', header: t('MSG_TXT_FLT_AND_PART_NM'), width: '180', editable: false },
     // 부품사용수량
