@@ -134,7 +134,7 @@ const searchParams = ref({
   a: now.format('YYYYMM'),
   startDt: '202307',
   endDt: '202307',
-  bfsvcBzsDvCd: '',
+  bfsvcBzsDvCd: '2',
 });
 let cachedParams;
 const totalCount = ref(0);
