@@ -91,6 +91,12 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <kw-separator
+            vertical
+            inset
+            spaced
+          />
+          <span>(단위:개,건)</span>
         </template>
         <!-- 저장 -->
         <kw-btn
