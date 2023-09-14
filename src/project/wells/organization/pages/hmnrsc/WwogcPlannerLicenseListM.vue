@@ -250,7 +250,7 @@ async function currentRowDetail(currentRow) {
 
     if (response.length > 0) {
       // 해약 버튼
-      if (response[0].qlfDvCd === '3' && dayjs(response[0].strtdt).format('YYYYMMDD') <= dayjs().format('YYYYMMDD')) {
+      if (response[0].qlfDvCd === '3' && response[0].qlfAplcDvCd !== '2' && dayjs(response[0].strtdt).format('YYYYMMDD') <= dayjs().format('YYYYMMDD')) {
         isDisableCancelBtn.value = false;
       } else {
         isDisableCancelBtn.value = true;
@@ -340,7 +340,6 @@ function getTargetQualification(item, details) {
 async function onClickUpgrades(type) {
   const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo } = selectedCurrentRow.value;
   const strtdt = `${dayjs().add(1, 'M').format('YYYYMM')}01`;
-
   const qualification = getTargetQualification(selectedCurrentRow.value, grdMain2Datas.value);
 
   const params = {
@@ -358,7 +357,7 @@ async function onClickUpgrades(type) {
     case 'CANCEL':
       params.qlfDvCd = grdMain2Datas.value[0].qlfDvCd;
       params.strtdt = grdMain2Datas.value[0].strtdt;
-      params.enddt = dayjs().format('YYYYMMDD');
+      params.enddt = dayjs(params.strtdt).format('YYYYMM').concat(dayjs(params.strtdt).daysInMonth());
 
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]);
       res = await dataService.put('/sms/wells/partner/planner-qualification-cancel', params);
@@ -380,6 +379,7 @@ async function onClickUpgrades(type) {
       res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
       break;
     default:
+      params.enddt = dayjs('99991231').format('YYYYMMDD');
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]);
       res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
   }
@@ -388,7 +388,7 @@ async function onClickUpgrades(type) {
   const { processCount } = res?.data;
   if (processCount > 0) {
     notify(message);
-    currentRowDetail(selectedRow.value);
+    await currentRowDetail(selectedRow.value);
   }
 }
 
@@ -485,7 +485,7 @@ const initGrid1 = defineGrid((data, view) => {
 
   view.onCurrentRowChanged = async (grid, oldRow, newRow) => {
     selectedRow.value = gridUtil.getRowValue(grid, newRow);
-    currentRowDetail(selectedRow.value);
+    await currentRowDetail(selectedRow.value);
   };
 });
 
