@@ -69,7 +69,7 @@ import { useDataService, useGlobal, useModal, codeUtil } from 'kw-lib';
 
 const { cancel, ok } = useModal();
 const { t } = useI18n();
-const { confirm } = useGlobal();
+const { confirm, notify } = useGlobal();
 const dataService = useDataService();
 
 const props = defineProps({
@@ -118,18 +118,20 @@ async function onClickCancel() {
 async function onClickCreate() {
   if (!await confirm(t('MSG_ALT_CREATED'))) { return; }
   const response = await dataService.post('/sms/wells/fee/organization-netorders/aggregates', params.value);
-  if (response.data === 'S') ok(response.data);
+  if (response.data === 'S') ok(true);
 }
 
 async function onClickConfirm() {
   if (!await confirm(t('MSG_ALT_DTRM'))) { return; }
-  const response = await dataService.put('/sms/wells/fee/organization-netorders', params.value);
-  ok(response.data);
+  await dataService.put('/sms/wells/fee/organization-netorders', params.value);
+  notify(t('MSG_ALT_CNFM')); // 확정되었습니다.
+  ok(true);
 }
 
 async function onClickConfirmCancel() {
   if (!await confirm(t('MSG_ALT_WANT_CANCEL_DTRM'))) { return; }
-  const response = await dataService.put('/sms/wells/fee/organization-netorders', params.value);
-  ok(response.data);
+  await dataService.put('/sms/wells/fee/organization-netorders', params.value);
+  notify(t('MSG_ALT_CNFM_CANCEL_CONF')); // 확정취소 되었습니다.
+  ok(true);
 }
 </script>
