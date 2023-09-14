@@ -136,7 +136,7 @@ const totalCount = ref(0);
 const grdAdditionalChargeRef = ref(getComponentType('KwGrid'));
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges', { params: cachedParams, timeout: 800000 });
+  const res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges', { params: cachedParams, timeout: 240000 });
   const additionalCharges = res.data;
 
   totalCount.value = additionalCharges.length;

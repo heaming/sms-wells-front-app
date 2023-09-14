@@ -109,7 +109,7 @@ const codes = await codeUtil.getMultiCodes(
   'BFSVC_BZS_DV_CD',
   'SPLY_BZS_DV_CD',
 );
-codes.CNTR_CH_TP_CD = codes.CNTR_CH_TP_CD.filter((v) => v.codeId.indexOf('6') === 0 || v.codeId === '711');
+codes.CNTR_CH_TP_CD = codes.CNTR_CH_TP_CD.filter((v) => (v.codeId.indexOf('6') === 0 && v.codeId !== '619') || v.codeId === '711');
 
 const searchParams = ref({
   cntrChTpCd: '', // 처리구분
@@ -140,7 +140,6 @@ const gridLayout = ref({
   616: ['cntrDtlNo', 'cstKnm', 'stpStrtYm', 'stpEndYm', 'cralLocaraTno', 'cntrChAkCn', 'fstRgstUsrNm', 'fstRgstDtm'], // 법인 코로나 렌탈중지
   617: ['cntrDtlNo', 'cstKnm', 'stpCanYm', 'cntrChAkCn', 'fstRgstUsrNm', 'fstRgstDtm'], // 법인 코로나 렌탈중지 취소
   618: ['cntrDtlNo', 'cstKnm', 'feeFxamYn', 'cntrChAkCn', 'fstRgstUsrNm', 'fstRgstDtm'], // 수수료 정액여부 변경
-  619: ['cntrDtlNo', 'cstKnm', 'pmotDscMcn', 'pmotDscAmt', 'cntrChAkCn', 'fstRgstUsrNm', 'fstRgstDtm'], // 프로모션 렌탈료 할인
   620: ['cntrDtlNo', 'cstKnm', 'cntrChAkCn', 'fstRgstUsrNm', 'fstRgstDtm'], // 렌탈 전월 취소(기본)
   621: ['cntrDtlNo', 'cstKnm', 'sdingAckmtPerfAmt', 'cntrChAkCn', 'fstRgstUsrNm', 'fstRgstDtm'], // (모종)인정실적금액변경
   622: ['cntrDtlNo', 'cstKnm', 'sdingFeeBaseAmt', 'cntrChAkCn', 'fstRgstUsrNm', 'fstRgstDtm'], // (모종)수수료기준가격변경
@@ -213,8 +212,6 @@ const initGrdRental = defineGrid((data, view) => {
     { fieldName: 'stpCanYm', header: `${t('MSG_TXT_STP')}${t('MSG_TXT_CANCEL_YM')}`, width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [중지취소년월]
     { fieldName: 'cralLocaraTno', header: t('MSG_TXT_RPLY') + t('MSG_TXT_CONTACT'), width: '150', styleName: 'text-center' }, // [ 휴대전화]
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '100', styleName: 'text-center' }, // [ 수수료정액여부]
-    { fieldName: 'pmotDscMcn', header: t('MSG_TXT_DSC_MCNT'), width: '100', styleName: 'text-right', dataType: 'number' }, // [ 할인개월]
-    { fieldName: 'pmotDscAmt', header: t('MSG_TXT_DSC_AMT'), width: '120', styleName: 'text-right', dataType: 'number' }, // [ 할인금액]
     { fieldName: 'sdingAckmtPerfAmt', header: t('MSG_TXT_ACKMT_PERF_AMT'), width: '120', styleName: 'text-right' }, // [ 인정실적금액]
     { fieldName: 'sdingFeeBaseAmt', header: t('MSG_TXT_FEE_BASE_AMT'), width: '120', styleName: 'text-right', dataType: 'number' }, // [ 수수료기준가격]
     { fieldName: 'bfchFeeAckmtCt', header: t('MSG_TXT_SDING') + t('MSG_TXT_FEE_ACKMT_CNT'), width: '120', styleName: 'text-center' }, // (모종)수수료 인정건수

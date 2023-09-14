@@ -90,19 +90,7 @@
           <kw-paging-info :total-count="totalCount" />
           <span class="ml8">(단위:원)</span>
         </template>
-        <kw-btn
-          icon="download_on"
-          dense
-          secondary
-          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="totalCount === 0"
-          @click="onClickExcelDownload"
-        />
-        <kw-separator
-          spaced
-          vertical
-          inset
-        />
+
         <!-- 지급명세서출력(본사)-->
         <kw-btn
           v-if="sessionUserInfo.ogTpCd?.indexOf('HR') > -1"
@@ -119,6 +107,19 @@
           icon="report"
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
           @click="onClickOzReport()"
+        />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <kw-btn
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+          :disable="totalCount === 0"
+          @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid

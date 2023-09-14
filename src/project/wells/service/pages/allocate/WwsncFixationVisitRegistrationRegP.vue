@@ -161,19 +161,30 @@
     </kw-form>
     <kw-separator />
     <kw-form
+      ref="frmRef"
       :cols="2"
     >
       <kw-form-row>
-        <kw-form-item :label="$t('적용기간')">
+        <kw-form-item
+          :label="$t('적용기간')"
+          required
+        >
           <kw-date-picker
             v-model="contractInfo.apyStrtYm"
             type="month"
+            rules="required"
+            :name="$t('적용기간')"
           />
         </kw-form-item>
-        <kw-form-item :label="$t('변경구분')">
+        <kw-form-item
+          :label="$t('변경구분')"
+          required
+        >
           <kw-select
             v-model="contractInfo.chMngrDvCd"
             :options="codes.FXN_MNGER_DSN_DV_CD"
+            rules="required"
+            :name="$t('변경구분')"
           />
         </kw-form-item>
       </kw-form-row>
@@ -181,15 +192,23 @@
         <kw-form-item :label="$t('변경등록일자')">
           <p>{{ stringUtil.getDateFormat(contractInfo.fnlMdfcDtm) }}</p>
         </kw-form-item>
-        <kw-form-item :label="$t('지정대상')">
+        <kw-form-item
+          :label="$t('지정대상')"
+          required
+        >
           <kw-select
             v-model="contractInfo.fxnPrtnrDvCd"
             :options="codes.MNGR_DV_CD"
+            rules="required"
+            :name="$t('지정대상')"
           />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <kw-form-item :label="$t('방문담당')">
+        <kw-form-item
+          :label="$t('방문담당')"
+          required
+        >
           <kw-input
             v-model.trim="contractInfo.fxnPrtnrKnm"
             icon="search"
@@ -201,12 +220,19 @@
             class="w120"
             placeholder=""
             disable
+            :name="$t('방문담당')"
+            rules="required"
           />
         </kw-form-item>
-        <kw-form-item :label="$t('삭제여부')">
+        <kw-form-item
+          :label="$t('삭제여부')"
+          required
+        >
           <kw-select
             v-model="contractInfo.dtaDlYn"
             :options="codes.COD_YN"
+            rules="required"
+            :name="$t('삭제여부')"
           />
         </kw-form-item>
       </kw-form-row>
@@ -267,6 +293,7 @@ const searchParams = ref({
   fxnPrtnrDvCd: '',
 });
 
+const frmRef = ref();
 /*
  *  Response Data setting을 위한 parameter
  */
@@ -324,6 +351,12 @@ let cachedParams;
 async function fetchFixationRegistration() {
   const res = await dataService.get('/sms/wells/service/fixation-visit', { params: { ...cachedParams } });
   contractInfo.value = { ...contractSaveInfo.value, ...res.data };
+
+  if (isEmpty(contractInfo.value.dtaDlYn)) {
+    contractInfo.value.dtaDlYn = 'N';
+  }
+
+  frmRef.value.init();
 }
 
 /*
@@ -352,6 +385,7 @@ function getAddress(rnadr, rdadr) {
  *  Event - 저장 버튼 클릭
  */
 async function onClickSave() {
+  if (!await frmRef.value.validate()) return false;
   if (isEmpty(searchParams.value.cntrNo) || isEmpty(searchParams.value.cntrSn)) {
     await alert('계약정보를 조회한 후 저장할 수 있습니다.');
     return;
@@ -495,6 +529,7 @@ async function onClickSearchContract() {
     // customerData.value.frisuBfsvcPtrmN = payload.frisuBfsvcPtrmN ?? '';
     // customerData.value.cycleCode = payload.cycleCode ?? '';
   }
+  frmRef.value.init();
 }
 
 // -------------------------------------------------------------------------------------------------

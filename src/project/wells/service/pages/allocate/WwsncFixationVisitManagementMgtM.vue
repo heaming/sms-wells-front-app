@@ -66,6 +66,21 @@
           auth-yn="N"
           :dgr2-levl-og-always-search="false"
         />
+        <kw-search-item :label="$t('계약번호')">
+          <zctz-contract-detail-number
+            ref="contractNumberRef"
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
+            disable-popup
+          >
+            <template #append>
+              <kw-icon
+                name="search"
+                @click="onClickSearchContract"
+              />
+            </template>
+          </zctz-contract-detail-number>
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
     <div class="result-area">
@@ -131,6 +146,7 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
 
 const { notify, modal/* , alert */ } = useGlobal();
@@ -153,6 +169,9 @@ const searchParams = ref({
   dgr2LevlOgId: '',
   dgr1LevlOg: '',
   dgr2LevlOg: '',
+  cntrNo: '',
+  cntrSn: '',
+  cntrDtlNo: '',
 });
 
 /*
@@ -248,6 +267,21 @@ async function onFxnPrtnrNoSearchPopup() {
 
   if (isChanged) {
     searchParams.value.fxnPrtnrNo = payload[0].prtnrNo;
+  }
+}
+
+/*
+ * 계약번호 조회
+ */
+async function onClickSearchContract() {
+  const { result, payload } = await modal({
+    component: 'WwsnyCustomerBaseInformationP',
+  });
+
+  if (result) {
+    searchParams.value.cntrNo = payload.cntrNo ?? '';
+    searchParams.value.cntrSn = payload.cntrSn ?? '';
+    searchParams.value.cntrDtlNo = `${payload.cntrNo ?? ''}-${payload.cntrSn ?? ''}`;
   }
 }
 

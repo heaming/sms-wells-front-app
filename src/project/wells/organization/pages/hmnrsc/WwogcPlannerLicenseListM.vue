@@ -56,6 +56,17 @@
           />
         </template>
         <kw-btn
+          dense
+          secondary
+          :label="t('MSG_BTN_SAVE')"
+          @click="onClickSave"
+        />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <kw-btn
           icon="download_on"
           dense
           secondary
@@ -140,12 +151,14 @@ import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
+import useOgReport from '~sms-common/organization/composables/useOgReport';
 
 const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
 const { getUserInfo } = useMeta();
 const { wkOjOgTpCd, ogTpCd } = getUserInfo();
+const { openReport } = useOgReport();
 
 // 해약
 const isDisableCancelBtn = ref(true);
@@ -192,6 +205,8 @@ const searchParams = ref({
   qlfDvCd: undefined,
 });
 
+const selectedRow = ref({});
+
 async function fetchData() {
   const res = await dataService.get('/sms/wells/partner/planner-license/paging', { params: { ...searchParams.value, ...grdMain1PageInfo.value } });
   const { list, pageInfo: pagingResult } = res.data;
@@ -223,6 +238,48 @@ function setGrdMain2(response) {
     data.addRows(response);
   } else {
     data.setRows(response);
+  }
+}
+
+async function currentRowDetail(currentRow) {
+  if (currentRow) {
+    const { prtnrNo, edu143, edu96 } = currentRow;
+    selectedCurrentRow.value = currentRow;
+    const response = await fetchDetailData(prtnrNo);
+    setGrdMain2(response);
+
+    if (response.length > 0) {
+      // 해약 버튼
+      if (response[0].qlfDvCd === '3' && dayjs(response[0].strtdt).format('YYYYMMDD') <= dayjs().format('YYYYMMDD')) {
+        isDisableCancelBtn.value = false;
+      } else {
+        isDisableCancelBtn.value = true;
+      }
+
+      // 자격보류 버튼
+      if (response[0].qlfAplcDvCd === '1' && dayjs(response[0].strtdt).format('YYYYMMDD') > dayjs().format('YYYYMMDD')) {
+        isDisableHoldingBtn.value = false;
+      } else {
+        isDisableHoldingBtn.value = true;
+      }
+
+      // 당월승급 버튼, 승급 버튼
+      if ((response[0].qlfDvCd === '2' && edu143)
+        || (response[0].qlfDvCd === '2' && edu96)
+        || (response[0].qlfDvCd === '6' && edu96)
+        || response[0].qlfAplcDvCd === '3') {
+        isDisableThisMonthUpgradesBtn.value = false;
+        isDisableUpgradesBtn.value = false;
+      } else {
+        isDisableThisMonthUpgradesBtn.value = true;
+        isDisableUpgradesBtn.value = true;
+      }
+    } else {
+      isDisableCancelBtn.value = true;
+      isDisableHoldingBtn.value = true;
+      isDisableThisMonthUpgradesBtn.value = true;
+      isDisableUpgradesBtn.value = true;
+    }
   }
 }
 
@@ -295,49 +352,48 @@ async function onClickUpgrades(type) {
     qlfAplcDvCd: qualification.targetQlfAplcDvCd,
   };
 
+  let res;
+  let message;
   switch (type) {
     case 'CANCEL':
-      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]));
+      params.qlfDvCd = grdMain2Datas.value[0].qlfDvCd;
+      params.strtdt = grdMain2Datas.value[0].strtdt;
+      params.enddt = dayjs().format('YYYYMMDD');
+
+      message = t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]);
+      res = await dataService.put('/sms/wells/partner/planner-qualification-cancel', params);
       break;
     case 'HOLDING':
       params.qlfAplcDvCd = '3'; // 보류
       params.qlfDvCd = grdMain2Datas.value[0].qlfDvCd;
       params.strtdt = grdMain2Datas.value[0].strtdt;
 
-      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_QLF_HOLDON')]));
+      message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_QLF_HOLDON')]);
+      res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
       break;
     case 'THIS_OPENING':
       params.strtdt = dayjs().format('YYYYMMDD');
+      params.enddt = dayjs('99991231').format('YYYYMMDD');
+      params.cvdt = undefined;
 
-      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_THM_OPNG')]));
+      message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_THM_OPNG')]);
+      res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
       break;
     default:
-      notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]));
+      message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]);
+      res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
   }
-  const res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
 
-  onclickSearch();
-
-  console.log('>>>>> res: ', res);
   // eslint-disable-next-line no-unsafe-optional-chaining
   const { processCount } = res?.data;
   if (processCount > 0) {
-    switch (type) {
-      case 'CANCEL':
-        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]));
-        break;
-      case 'HOLDING':
-        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_QLF_HOLDON')]));
-        break;
-      case 'THIS_OPENING':
-        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_THM_OPNG')]));
-        break;
-      default:
-        notify(t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]));
-    }
-
-    onclickSearch();
+    notify(message);
+    currentRowDetail(selectedRow.value);
   }
+}
+
+function onClickSave() {
+  console.log('저장');
 }
 
 onMounted(() => {
@@ -349,13 +405,13 @@ onMounted(() => {
 // -------------------------------------------------------------------------------------------------
 const initGrid1 = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '106', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '160', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center' },
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '92', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '106', styleName: 'text-center', editable: false },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '160', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center', editable: false },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '92', styleName: 'text-center', editable: false },
     {
       fieldName: 'bizUseIdvTno',
       header: t('MSG_TXT_CP'),
@@ -373,13 +429,19 @@ const initGrid1 = defineGrid((data, view) => {
         }
         return '-';
       },
+      editable: true,
+      editor: {
+        maxLength: 11,
+        inputCharacters: '0-9',
+      },
+      textFormat: '([0-9]{3})([0-9]{3,4})([0-9]{4});$1-$2-$3',
     },
-    { fieldName: 'bryyMmdd', header: t('MSG_TXT_RRNO'), width: '136', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYMMDD'); } },
-    { fieldName: 'rcrtWrteDt', header: t('MSG_TIT_RCRT_DT'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_DT'), width: '168', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'edu143', header: t('MSG_TXT_PRE_SRTUP'), width: '168', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'edu96', header: t('MSG_TXT_SRTUP'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
+    { fieldName: 'bryyMmdd', header: t('MSG_TXT_RRNO'), width: '136', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYMMDD'); }, editable: false },
+    { fieldName: 'rcrtWrteDt', header: t('MSG_TIT_RCRT_DT'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
+    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_DT'), width: '168', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
+    { fieldName: 'edu143', header: t('MSG_TXT_PRE_SRTUP'), width: '168', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
+    { fieldName: 'edu96', header: t('MSG_TXT_SRTUP'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
+    { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
     { fieldName: 'ogTpCd', visible: false },
     { fieldName: 'bizUseExnoEncr', visible: false },
     { fieldName: 'bizUseLocaraTno', visible: false },
@@ -393,6 +455,7 @@ const initGrid1 = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 
   view.setColumnLayout([
     {
@@ -421,47 +484,8 @@ const initGrid1 = defineGrid((data, view) => {
   };
 
   view.onCurrentRowChanged = async (grid, oldRow, newRow) => {
-    const selectedRow = gridUtil.getRowValue(grid, newRow);
-
-    if (selectedRow) {
-      const { prtnrNo, edu143, edu96 } = selectedRow;
-      selectedCurrentRow.value = selectedRow;
-      const response = await fetchDetailData(prtnrNo);
-      setGrdMain2(response);
-
-      if (response.length > 0) {
-        // 해약 버튼
-        if (response[0].qlfDvCd === '3') {
-          isDisableCancelBtn.value = false;
-        } else {
-          isDisableCancelBtn.value = true;
-        }
-
-        // 자격보류 버튼
-        if (dayjs(response[0].strtdt).format('YYYYMMDD') > dayjs().format('YYYYMMDD')) {
-          isDisableHoldingBtn.value = false;
-        } else {
-          isDisableHoldingBtn.value = true;
-        }
-
-        // 당월승급 버튼, 승급 버튼
-        if ((response[0].qlfDvCd === '2' && edu143)
-          || (response[0].qlfDvCd === '2' && edu96)
-          || (response[0].qlfDvCd === '6' && edu96)
-          || response[0].qlfAplcDvCd === '3') {
-          isDisableThisMonthUpgradesBtn.value = false;
-          isDisableUpgradesBtn.value = false;
-        } else {
-          isDisableThisMonthUpgradesBtn.value = true;
-          isDisableUpgradesBtn.value = true;
-        }
-      } else {
-        isDisableCancelBtn.value = true;
-        isDisableHoldingBtn.value = true;
-        isDisableThisMonthUpgradesBtn.value = true;
-        isDisableUpgradesBtn.value = true;
-      }
-    }
+    selectedRow.value = gridUtil.getRowValue(grid, newRow);
+    currentRowDetail(selectedRow.value);
   };
 });
 
@@ -472,12 +496,28 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'strtdt', header: t('MSG_TXT_STRT_DATE'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
     { fieldName: 'cvDt', header: t('MSG_TXT_CV_DT'), width: '160', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
     { fieldName: 'enddt', header: t('MSG_TXT_END_DT'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'col1', header: t('MSG_TXT_CNTRW_BRWS'), width: '92', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_CNTRW_BRWS') },
+    {
+      fieldName: 'col1',
+      header: t('MSG_TXT_CNTRW_BRWS'),
+      width: '92',
+      styleName: 'text-center',
+      renderer: { type: 'button',
+        hideWhenEmpty: false,
+      },
+      styleCallback(grid, dataCell) {
+        const cntrDt = grid.getValue(dataCell.item.dataRow, 'cntrDt');
+        console.log('cntrdt: ', cntrDt);
+        return { renderer: { type: 'button', hideWhenEmpty: isEmpty(cntrDt) } };
+      },
+      displayCallback: () => t('MSG_BTN_CNTRW_BRWS'),
+    },
     { fieldName: 'pymdt', header: t('MSG_TXT_DSB_DT'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'dsbAmt', header: t('MSG_TXT_DSB_AMT'), width: '92', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'dsbAmt', header: t('MSG_TXT_DSB_AMT'), width: '92', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
     { fieldName: 'col2', header: t('MSG_TXT_MDFC_USR_NO'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
     { fieldName: 'col3', header: t('MSG_TXT_MDFC_USR'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
     { fieldName: 'col4', header: t('MSG_TXT_MDFC_DATE'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
+    { fieldName: 'cntrDt', visible: false },
+    { fieldName: 'prtnrCntrTpCd', visible: false },
   ];
 
   // eslint-disable-next-line max-len
@@ -491,6 +531,25 @@ const initGrid2 = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (grdMain2PageInfo.value.pageIndex * grdMain2PageInfo.value.pageSize <= g.getItemCount()) {
       await onGrdMain2ScrollToBottom();
+    }
+  };
+
+  view.onCellButtonClicked = async (grid, { dataRow, column }) => {
+    const {
+      ogTpCd: reportParamOgTpCd,
+      prtnrNo: reportParamPrtnrNo,
+      cntrDt: reportParamCntrDt,
+      prtnrCntrTpCd: reportParamPrtnrCntrTpCd,
+    } = gridUtil.getRowValue(grid, dataRow);
+
+    if (column === 'col1') {
+      const param = {
+        prtnrNo: reportParamPrtnrNo,
+        ogTpCd: reportParamOgTpCd,
+        cntrDt: reportParamCntrDt,
+        prtnrCntrTpCd: reportParamPrtnrCntrTpCd,
+      };
+      openReport(param);
     }
   };
 });

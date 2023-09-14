@@ -81,25 +81,22 @@ const currentCodes = ref({});
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const columns = [
-  // 상태
-  { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '85', styleName: 'text-center', options: currentCodes.value.PD_TEMP_SAVE_CD },
-  // 적용시작일자
-  { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-  // 적용종료일자
-  { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD }, /* 관계구분 */
-  { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176', styleName: 'text-left' }, /* 분류 */
-  { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '382', styleName: 'text-left' }, /* 교재/자재명 */
+  { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT', null, '상태'), width: '85', styleName: 'text-center', options: currentCodes.value.PD_TEMP_SAVE_CD },
+  { fieldName: 'vlStrtDtm', header: t('MSG_TXT_APY_STRTDT', null, '적용시작일자'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+  { fieldName: 'vlEndDtm', header: t('MSG_TXT_APY_ENDDT', null, '적용종료일자'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+  { fieldName: 'pdRelTpCd', header: t('MSG_TXT_RELATION_CLSF', null, '관계구분'), width: '106', styleName: 'text-center', options: codes.PDCT_REL_DV_CD },
+  { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF', null, '분류'), width: '176', styleName: 'text-left' },
+  { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM', null, '교재/자재명'), width: '382', styleName: 'text-left' },
   { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '121', styleName: 'text-center' }, /* 자재코드 교재/제재코드 */
-  { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO'), width: '152', styleName: 'text-center' }, /* 모델No */
-  { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR'), width: '226', styleName: 'text-left' }, /* 약어 */
-  { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER'), width: '214', styleName: 'text-left' }, /* 출고센터 */
-  { fieldName: 'pdTpCd', header: t('MSG_TIT_PRDT_TYPE'), width: '214', visible: false }, /* 상품종류 */
-  { fieldName: 'ojPdCd', header: t('MSG_TIT_TARGET_PRDT_CD'), width: '214', visible: false }, /* 대상상품코드 */
-  { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 등록일 */
-  { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 등록자 */
-  { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false }, /* 최종수정일 */
-  { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false }, /* 최종수정자 */
+  { fieldName: 'modelNo', header: t('MSG_TXT_PD_MODEL_NO', null, '모델No'), width: '152', styleName: 'text-center' },
+  { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ABBR', null, '약어'), width: '226', styleName: 'text-left' },
+  { fieldName: 'ostrCnrCd', header: t('MSG_TIT_SHIPPING_CENTER', null, '출고센터'), width: '214', styleName: 'text-left' },
+  { fieldName: 'pdTpCd', header: t('MSG_TIT_PRDT_TYPE', null, '상품종류'), width: '214', visible: false },
+  { fieldName: 'ojPdCd', header: t('MSG_TIT_TARGET_PRDT_CD', null, '대상상품코드'), width: '214', visible: false },
+  { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false },
+  { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false },
+  { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: false },
+  { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true, visible: false },
   { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
   { fieldName: 'fnlMdfcUsrId', header: 'MDFC_ID', width: '50', visible: false },
 ];
@@ -132,10 +129,10 @@ const initGrd3rd = defineGrid((data, view) => {
 });
 
 async function setData() {
-  // Grid Header Binding (06: 대체, 13: 혼식, 14: AS)
-  grd1stTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '14');
-  grd2ndTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '13');
-  grd3rdTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '06');
+  // Grid Header Binding
+  grd1stTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '14'); // AS부품
+  grd2ndTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '13'); // 혼식불가
+  grd3rdTit.value = codes.PDCT_REL_DV_CD.find((v) => v.codeId === '06'); // 대체품
 
   const relData = props.initData[pdConst.TBL_PD_REL];
   if (isEmpty(relData)) return;

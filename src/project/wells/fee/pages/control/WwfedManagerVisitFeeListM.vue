@@ -111,34 +111,6 @@ const { t } = useI18n();
 const { currentRoute } = useRouter();
 const route = useRoute();
 const { modal } = useGlobal();
-
-// M조직 수수료 개인상세 조회에서 router 호출
-const props = defineProps({
-  perfYm: { // 실적년월
-    type: String,
-    default: dayjs().subtract(1, 'month').format('YYYYMM'),
-  },
-  rsbDvCd: { // 직책유형코드
-    type: String,
-    default: '',
-  },
-  prtnrNo: { // 파트너번호
-    type: String,
-    default: '',
-  },
-  ogLv1Id: { // 1조직레벨
-    type: String,
-    default: null,
-  },
-  ogLv2Id: { // 2조직레벨
-    type: String,
-    default: null,
-  },
-  ogLv3Id: { // 3조직레벨
-    type: String,
-    default: null,
-  },
-});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // ------------------------------------------------------------------------------------------------
@@ -154,14 +126,14 @@ const inqrDv = [
   { codeId: '04', codeName: t('MSG_TXT_INDV') },
 ];
 const searchParams = ref({
-  baseYm: props.perfYm,
-  inqrDv: !isEmpty(props.rsbDvCd) ? '04' : '01',
+  baseYm: '',
+  inqrDv: '01',
   ogTpCd: 'W02',
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
   ogLevlDvCd3: undefined,
-  prtnrNo: props.prtnrNo,
-  rsbDvCd: props.rsbDvCd,
+  prtnrNo: '',
+  rsbDvCd: '',
 });
 
 // 번호 검색 아이콘 클릭 이벤트
@@ -202,13 +174,33 @@ async function onClickExcelDownload() {
   });
 }
 
+function setParams() {
+  if (!isEmpty(route.params)) {
+    searchParams.value.ogLevlDvCd1 = route.params.ogLv1Id;
+    searchParams.value.ogLevlDvCd2 = route.params.ogLv2Id;
+    searchParams.value.ogLevlDvCd3 = route.params.ogLv3Id;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+    searchParams.value.rsbDvCd = route.params.rsbDvCd;
+    searchParams.value.inqrDv = '04';
+
+    onClickSearch();
+  }
+}
+
+onBeforeMount(() => {
+  if (!isEmpty(route.params)) { searchParams.value.baseYm = route.params.perfYm; } else { searchParams.value.baseYm = dayjs().subtract(1, 'month').format('YYYYMM'); }
+});
+
 onMounted(() => {
   nextTick(() => {
-    if (!isEmpty(route.params.ogLv1Id)) {
-      searchParams.value.ogLevlDvCd1 = route.params.ogLv1Id;
-      searchParams.value.ogLevlDvCd2 = route.params.ogLv2Id;
-      searchParams.value.ogLevlDvCd3 = route.params.ogLv3Id;
-    }
+    setParams();
+  });
+});
+
+onActivated(() => {
+  if (!isEmpty(route.params)) { searchParams.value.baseYm = route.params.perfYm; } else { searchParams.value.baseYm = dayjs().subtract(1, 'month').format('YYYYMM'); }
+  nextTick(() => {
+    setParams();
   });
 });
 

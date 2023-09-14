@@ -775,7 +775,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'gdSercnt', header: `${t('MSG_TXT_WASHER')}/${t('MSG_TXT_ARCN')}/${t('MSG_TXT_DRYER')}${t('MSG_TXT_COUNT')}`, width: '207.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'elecnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right', numberFormat: '###0.##' },
     { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd03', header: t('MSG_TXT_ENRG'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd04', header: t('MSG_TXT_SNGL_PMNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },

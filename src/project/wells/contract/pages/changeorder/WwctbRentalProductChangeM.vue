@@ -48,7 +48,7 @@
 
     <kw-form>
       <div class="result-area">
-        <h3 class="text-bold kw-font-pt18">
+        <h3>
           {{ $t('MSG_TXT_CNTR_INF') }} <!-- 계약정보 -->
         </h3>
         <kw-form
@@ -104,7 +104,7 @@
               <kw-item-section>
                 <kw-item-label>
                   <!-- 계약자 고객정보 -->
-                  <span class="text-bold kw-font-pt18">{{ $t('MSG_TXT_CNTRT') + ' ' + $t('MSG_TXT_CST_INF') }}</span>
+                  <h3>{{ $t('MSG_TXT_CNTRT') + ' ' + $t('MSG_TXT_CST_INF') }}</h3>
                 </kw-item-label>
               </kw-item-section>
             </template>
@@ -173,7 +173,7 @@
               <kw-item-section>
                 <kw-item-label>
                   <!-- 설치자 고객정보 -->
-                  <span class="text-bold kw-font-pt18">{{ $t('MSG_TXT_INSTR') + ' ' + $t('MSG_TXT_CST_INF') }}</span>
+                  <h3>{{ $t('MSG_TXT_INSTR') + ' ' + $t('MSG_TXT_CST_INF') }}</h3>
                 </kw-item-label>
               </kw-item-section>
             </template>
@@ -222,9 +222,9 @@
               <kw-item-section>
                 <kw-item-label>
                   <!-- 주문상품 선택 -->
-                  <span class="text-bold kw-font-pt18">
+                  <h3>
                     {{ $t('MSG_TXT_ODER') + $t('MSG_TXT_PRDT') + ' ' + $t('MSG_TXT_SELT') }}
-                  </span>
+                  </h3>
                 </kw-item-label>
               </kw-item-section>
             </template>
@@ -552,7 +552,7 @@
             <template #header>
               <kw-item-section>
                 <kw-item-label>
-                  <span class="text-bold kw-font-pt18">{{ $t('MSG_TXT_PMOT') }}</span><!-- 프로모션 -->
+                  <h3>{{ $t('MSG_TXT_PMOT') }}</h3><!-- 프로모션 -->
                 </kw-item-label>
               </kw-item-section>
             </template>
@@ -579,7 +579,7 @@
               <kw-item-section>
                 <kw-item-label>
                   <!-- 사은품 선택 -->
-                  <span class="text-bold kw-font-pt18">{{ $t('MSG_TXT_FGPT')+' '+$t('MSG_TXT_SELT') }}</span>
+                  <h3>{{ $t('MSG_TXT_FGPT')+' '+$t('MSG_TXT_SELT') }}</h3>
                 </kw-item-label>
               </kw-item-section>
             </template>
@@ -666,9 +666,9 @@
             <template #header>
               <kw-item-section>
                 <kw-item-label>
-                  <span class="text-bold kw-font-pt18">
+                  <h3>
                     {{ $t('MSG_TXT_IST_ENVR') + ' ' + $t('MSG_BTN_ALC') + ' ' + $t('MSG_TXT_RQMT') }}
-                  </span><!-- 설치환경 및 요청사항 -->
+                  </h3><!-- 설치환경 및 요청사항 -->
                 </kw-item-label>
               </kw-item-section>
             </template>
@@ -744,9 +744,9 @@
             <template #header>
               <kw-item-section>
                 <kw-item-label>
-                  <span class="text-bold kw-font-pt18">
+                  <h3>
                     {{ $t('MSG_TXT_PLAR')+' '+$t('MSG_TXT_INF') }}
-                  </span><!-- 플래너 정보 -->
+                  </h3><!-- 플래너 정보 -->
                 </kw-item-label>
               </kw-item-section>
             </template>

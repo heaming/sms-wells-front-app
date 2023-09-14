@@ -18,16 +18,14 @@
     v-model="selectedTab"
     class="mt24"
   >
-    <!-- 속성 -->
     <kw-tab
       :name="pdConst.W_AS_PART_STEP_BASIC.name"
-      :label="$t('MSG_TXT_PRP')"
+      :label="$t('MSG_TXT_PRP', null, '속성')"
     />
-    <!-- 변경이력 -->
     <kw-tab
       v-if="props.isHistoryTab"
       name="hist"
-      :label="$t('MSG_TXT_REVS_HIST')"
+      :label="$t('MSG_TXT_REVS_HIST', null, '변경이력')"
     />
   </kw-tabs>
   <kw-tab-panels :model-value="selectedTab">
@@ -40,8 +38,6 @@
         :pd-grp-dv-cd="pdConst.PD_PRP_GRP_DV_CD_BASIC"
         :pd-tp-dtl-cd="pdConst.PD_TP_DTL_CD_AS_PART"
         :is-first-title="true"
-        :prefix-title="$t('MSG_TXT_BAS_ATTR')"
-        is-auto-group-title
         :is-reg-check-page="props.isRegCheckPage"
       />
     </kw-tab-panel>

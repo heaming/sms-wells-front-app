@@ -51,10 +51,11 @@
             option-label="wareNm"
             :label="$t('MSG_TXT_MNGT_WARE_NO')"
             first-option="all"
+            @change="onChangeCenterHouse"
           />
           <kw-select
             v-model="searchParams.wareDtlDvCd"
-            :options="filterCodes.wareDtlDvCd"
+            :options="filterCodes.wareSubDtlcd"
             :label="$t('MSG_TXT_MNGT_WARE_NO')"
             first-option="all"
           />
@@ -225,10 +226,12 @@ const codes = await codeUtil.getMultiCodes(
 const filterCodes = ref({
   wareDtlDvCd: [],
   pdGdCd: [],
+  wareSubDtlcd: [],
 });
 
 function wareDtlDvCdFilter() {
   filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21', '30', '31'].includes(v.codeId));
+  filterCodes.value.wareSubDtlcd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21', '30', '31'].includes(v.codeId));
 }
 
 function pdGdCdFilter() {
@@ -253,11 +256,45 @@ const onChangeWareHouse = async () => {
 
   if (searchParams.value.wareDvCd === '2') {
     filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+    filterCodes.value.wareSubDtlcd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31'].includes(v.codeId));
   } else if (searchParams.value.wareDvCd === '3') {
     filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31'].includes(v.codeId));
+    filterCodes.value.wareSubDtlcd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31'].includes(v.codeId));
   } else {
     filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10'].includes(v.codeId));
+    filterCodes.value.wareSubDtlcd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31'].includes(v.codeId));
   }
+};
+
+const onChangeCenterHouse = async () => {
+  // 창고번호 클리어
+  const result = await dataService.get(
+    '/sms/wells/service/material-have-qty/ware-houses',
+    { params: {
+      baseYm: dayjs().format('YYYYMM'),
+      wareDvCd: searchParams.value.wareDvCd,
+      hgrWareNo: searchParams.value.wareNo,
+
+    } },
+  );
+
+  if (searchParams.value.wareDvCd === '2') {
+    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+    filterCodes.value.wareSubDtlcd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31'].includes(v.codeId));
+  } else if (searchParams.value.wareDvCd === '3') {
+    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31'].includes(v.codeId));
+    filterCodes.value.wareSubDtlcd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31'].includes(v.codeId));
+  } else {
+    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10'].includes(v.codeId));
+    filterCodes.value.wareSubDtlcd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31'].includes(v.codeId));
+  }
+
+  result.data.forEach(async (element) => {
+    filterCodes.value.wareSubDtlcd.push({
+      codeId: element.wareNo.trim(),
+      codeName: element.wareNm.trim(),
+    });
+  });
 };
 
 async function onChangeItmKndCd() {
