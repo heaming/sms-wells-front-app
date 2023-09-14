@@ -180,7 +180,7 @@ async function onClickSelectIntegrationDeposit() {
   // console.log(searchParams.value.rveNm);
 
   const { result, payload } = await modal({
-    component: 'WwdbIntegrationDepositListP',
+    component: 'WwwdbIntegrationDepositListP',
     componentProps: {
       itgDpNo: searchParams.value.itgDpNo,
       rveCd: searchParams.value.rveCd,
