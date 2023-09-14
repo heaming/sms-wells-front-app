@@ -695,9 +695,9 @@ const initGrdMain = defineGrid((data, view) => {
   view.layoutByColumn('promDt').summaryUserSpans = [{ colspan: 31 }];
 
   view.onCellDblClicked = async (g, { dataRow }) => {
-    const cstNo = g.getValue(dataRow, 'cstNo');
-    const cntrNo = g.getValue(dataRow, 'cntrNo');
-    const cntrSn = g.getValue(dataRow, 'cntrSn');
+    const cstNo = gridUtil.getCellValue(g, dataRow, 'cstNo');
+    const cntrNo = gridUtil.getCellValue(g, dataRow, 'cntrNo');
+    const cntrSn = gridUtil.getCellValue(g, dataRow, 'cntrSn');
     windowKey.value = `WwbncBondCounselMContract_${cstNo}`;
     if (cstNo) {
       await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { 'modal-popup': true, cstNo, cntrNo, cntrSn }, windowKey.value);
