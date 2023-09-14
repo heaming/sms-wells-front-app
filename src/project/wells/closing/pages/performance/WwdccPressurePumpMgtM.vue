@@ -351,7 +351,7 @@ async function onClickSave() {
       rcpdt: obj.rcpdt,
       istDuedt: obj.istDuedt,
       istDt: obj.istDt,
-      gubn: obj.gubn,
+      svBizHclsfCd: obj.svBizHclsfCd,
     });
   });
 
@@ -392,6 +392,7 @@ const initGridConfirm = defineGrid((data, view) => {
     { fieldName: 'pdNm' },
     { fieldName: 'ogNm' },
     { fieldName: 'wrkTypNm' },
+    { fieldName: 'svBizHclsfCd' },
     { fieldName: 'gubn' },
     { fieldName: 'lctamt', dataType: 'number' },
     { fieldName: 'svMcn' },
@@ -440,6 +441,7 @@ const initGridConfirm = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: t('MSG_TXT_PRESSURE_PUMP_MAT'), width: '150', styleName: 'text-left' },
     { fieldName: 'ogNm', header: t('MSG_TXT_CENTER_DIVISION'), width: '120', styleName: 'text-left' },
     { fieldName: 'wrkTypNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-left' },
+    { fieldName: 'svBizHclsfCd', width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'gubn', header: t('MSG_TXT_USE_CLN'), width: '80', styleName: 'text-center' },
     { fieldName: 'lctamt', header: t('MSG_TXT_PDCT_PRC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'svMcn', header: t('MSG_TXT_SV_PTRM'), width: '80', styleName: 'text-center' },
