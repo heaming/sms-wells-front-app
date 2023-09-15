@@ -263,9 +263,7 @@ async function onClickSave() {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
     const response = await dataService.post('/sms/wells/service/region-levels/place-of-deliverys', chkRows);
-    if (response.data.processCount === -2) {
-      notify(t('MSG_ALT_DUP_PDLV_DV'));
-    } else if (response.data.processCount === -1) {
+    if (response.data.processCount === -1) {
       notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT'));
     } else {
       notify(t('MSG_ALT_SAVE_DATA'));
