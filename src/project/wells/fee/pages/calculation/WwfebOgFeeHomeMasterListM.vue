@@ -730,6 +730,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'rLccnt1', dataType: 'number' },
     { fieldName: 'gdSercnt', dataType: 'number' },
     { fieldName: 'elecnt', dataType: 'number' },
+    { fieldName: 'nelecnt', dataType: 'number' },
     { fieldName: 'sercnt', dataType: 'number' },
     { fieldName: 'serryl', dataType: 'number' },
     { fieldName: 'aksd01', dataType: 'number' },
@@ -774,6 +775,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'rLccnt1', header: t('MSG_TXT_REAL') + t('MSG_TXT_ASGN') + t('MSG_TXT_CNT'), width: '207.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'gdSercnt', header: `${t('MSG_TXT_WASHER')}/${t('MSG_TXT_ARCN')}/${t('MSG_TXT_DRYER')}${t('MSG_TXT_COUNT')}`, width: '207.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'elecnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'nelecnt', header: t('MSG_TXT_ELHM_EXCP') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right', numberFormat: '###0.##' },
     { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right', numberFormat: '#,##0' },
@@ -824,7 +826,7 @@ const initGrd1Main = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_SERVICE'),
       direction: 'horizontal',
-      items: ['lccnt1', 'cLccnt1', 'rLccnt1', 'gdSercnt', 'elecnt', 'sercnt', 'serryl'],
+      items: ['lccnt1', 'cLccnt1', 'rLccnt1', 'gdSercnt', 'elecnt', 'nelecnt', 'sercnt', 'serryl'],
     },
     {
       header: t('MSG_TXT_FEE'),
@@ -864,6 +866,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'rLccnt1', dataType: 'number' },
     { fieldName: 'gdSercnt', dataType: 'number' },
     { fieldName: 'elecnt', dataType: 'number' },
+    { fieldName: 'nelecnt', dataType: 'number' },
     { fieldName: 'sercnt', dataType: 'number' },
     { fieldName: 'serryl', dataType: 'number' },
     { fieldName: 'aksd01', dataType: 'number' },
@@ -919,6 +922,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'rLccnt1', header: t('MSG_TXT_REAL') + t('MSG_TXT_ASGN') + t('MSG_TXT_CNT'), width: '207.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'gdSercnt', header: `${t('MSG_TXT_WASHER')}/${t('MSG_TXT_ARCN')}/${t('MSG_TXT_DRYER')}${t('MSG_TXT_COUNT')}`, width: '207.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'elecnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'nelecnt', header: t('MSG_TXT_ELHM_EXCP') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right', numberFormat: '#,###,##0' },
@@ -988,7 +992,7 @@ const initGrd2Main = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_SERVICE'),
       direction: 'horizontal',
-      items: ['lccnt1', 'cLccnt1', 'rLccnt1', 'gdSercnt', 'elecnt', 'sercnt', 'serryl'],
+      items: ['lccnt1', 'cLccnt1', 'rLccnt1', 'gdSercnt', 'elecnt', 'nelecnt', 'sercnt', 'serryl'],
     },
     {
       header: t('MSG_TXT_INDV') + t('MSG_TXT_FEE'),
