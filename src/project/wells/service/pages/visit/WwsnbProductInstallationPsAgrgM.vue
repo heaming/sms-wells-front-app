@@ -116,12 +116,12 @@ async function fetchData() {
   let tcntTotal = 0;
   // 총합계
   list.forEach((item) => {
-    tcntTotal += item.tcnt;
     tcntTotal += toInteger(item.tcnt);
   });
   // 개별 합계 / 총합계 * 100 (비율)
   list.forEach((item, idx) => {
-    list[idx].per = ((item.tcnt / tcntTotal) * 100).toFixed(1);
+    list[idx].per = ((item.tcnt / tcntTotal) * 100).toFixed(2);
+    console.log(list[idx].per);
   });
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);

@@ -126,7 +126,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            :total-count="pageInfo.totalCount"
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            v-model:total-count="pageInfo.totalCount"
+            v-model:page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
         </template>
         <kw-separator
@@ -188,6 +192,7 @@ const codes = await codeUtil.getMultiCodes(
   'MNGR_DV_CD',
   'REFRI_DV_CD',
   'PRD_MNGT_TP_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const searchParams = ref({
