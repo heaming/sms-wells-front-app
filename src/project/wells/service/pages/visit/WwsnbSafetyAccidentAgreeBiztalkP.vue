@@ -140,13 +140,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, useModal } from 'kw-lib';
+import { useDataService, codeUtil, useGlobal, useModal } from 'kw-lib';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import { split } from 'lodash-es';
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { ok, cancel: onClickCancel, notify } = useModal();
+const { notify } = useGlobal();
+const { ok, cancel: onClickCancel } = useModal();
 const props = defineProps({
   acdnRcpId: {
     type: String,
@@ -225,8 +226,8 @@ async function onClickSend() {
   biztalkParams.value.cralIdvTno = telNos.value.telNo3;
   biztalkParams.value.mpno = `${telNos.value.telNo1}${telNos.value.telNo2}${telNos.value.telNo3}`;
   // 저장.
-  await dataService.post('/sms/wells/service/safety-accidents/biztalk', biztalkParams.value);
-
+  const res = await dataService.post('/sms/wells/service/safety-accidents/biztalk', biztalkParams.value);
+  console.log(res.data);
   const payload = {
     successYn: 'Y',
   };
