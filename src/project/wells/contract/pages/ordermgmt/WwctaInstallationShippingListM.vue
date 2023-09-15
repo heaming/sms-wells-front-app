@@ -752,7 +752,7 @@ async function onClickCntrDtlNo(item) {
 
 // 기타배송조회(설치, 배송)
 async function onClickInstallEtc(dataList) {
-  alert('서비스 파트에서 화면 개발 완료 시, 추가 예정 ([W-SV-U-0053P01] 기타 물품 배송 조회)');
+  alert('추가 예정 ([W-SV-U-0053P01] 기타 물품 배송 조회)');
   await modal({
     component: 'WwsnbEtcGoodsShippingListP',
     componentProps: { dataList },
