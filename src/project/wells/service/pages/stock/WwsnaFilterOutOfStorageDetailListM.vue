@@ -128,8 +128,8 @@
           <kw-paging-info
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
-            v-model:total-count="pageInfo.totalCount"
-            v-model:page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
         </template>
