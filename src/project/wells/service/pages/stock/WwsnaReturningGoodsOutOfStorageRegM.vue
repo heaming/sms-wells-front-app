@@ -17,6 +17,7 @@
     <kw-search
       class="kw-search-style"
       :cols="2"
+      default-visible-rows="3"
       no-reset-btn
     >
       <kw-search-row>
@@ -70,6 +71,19 @@
             icon="search"
             :disable="searchParams.ostrTpCd !== RETURN_INSIDE"
             readonly
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 운송코드 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_TRNSPN_CD')"
+        >
+          <kw-select
+            v-model="searchParams.trnspnCd"
+            :label="$t('MSG_TXT_TRNSPN_CD')"
+            :options="trnspnCds"
+            :readonly="hasProps()"
           />
         </kw-search-item>
       </kw-search-row>
@@ -234,9 +248,12 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GD_CD', // 상품등급코드
   'RTNGD_RSON_CD', // 반품사유 (출고사유코드)
   'DSU_RSON_CD', // 폐기사유 (출고사유코드)
+  'SPP_MTHD_TP_CD', // 배송방식유형코드
 );
 
 const pdGdCds = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
+
+const trnspnCds = codes.SPP_MTHD_TP_CD.filter((v) => ['6', '5', '0'].includes(v.codeId));
 
 function isReturingCode(codeId) {
   return codeId === RETURN_INSIDE;
@@ -256,6 +273,7 @@ const searchParams = ref({
   strWareNm: '', // 입고창고명
   itmOstrNo: '', // 품목출고번호
   strWareDvCd: '',
+  trnspnCd: '', // 운송코드
 });
 
 const pageInfo = ref({
@@ -444,8 +462,6 @@ async function onClickDelete() {
   }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-
-  console.log(deletedRows);
 
   setTotalCount();
 
