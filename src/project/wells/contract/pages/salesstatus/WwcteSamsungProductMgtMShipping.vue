@@ -244,14 +244,11 @@ function onChangePageInfo(pageIndex, pageSize) {
 }
 
 async function onClickCombiExcelDownload() {
-  const combiPdCds = ['WP02120302', 'WP02120313', 'WP02120586', 'WP02120589', 'WP02120592', 'WP02120069', 'WP02120428'];
   const params = {
     strtdt: cachedParams.strtdt,
     enddt: cachedParams.enddt,
     pdMclsfIds: cachedParams.pdMclsfIds,
-    pdCds: cachedParams.pdCds
-      ? cachedParams.pdCds.split(',').filter((pdCd) => combiPdCds.includes(pdCd)).join(',')
-      : combiPdCds.join(','),
+    pdCds: cachedParams.pdCds,
     isCombi: 'Y',
   };
   const res = await dataService.get('/sms/wells/contract/sales-status/sec-product-management/shipping-items', { params });
@@ -445,6 +442,14 @@ const initGrdCombi = defineGrid((data, view) => {
       label: `${t('MSG_TXT_CNTR_DTL_NO')}(${t('MSG_TXT_COM_WALL')})`,
       width: 180,
       valueExpression: 'values["ojDtlCntrNo"] + "-" + values["ojDtlCntrSn"]',
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const ojDtlCntrNo = values[fields.indexOf('ojDtlCntrNo')];
+        const ojDtlCntrSn = values[fields.indexOf('ojDtlCntrSn')];
+        if (!ojDtlCntrNo) {
+          return '';
+        }
+        return `${ojDtlCntrNo}-${ojDtlCntrSn}`;
+      },
       classes: 'text-center',
     },
     rcgvpKnm: {
@@ -484,6 +489,17 @@ const initGrdCombi = defineGrid((data, view) => {
           return '';
         }
         return `${pdNm}${pdCd ? `(${pdCd})` : ''}`;
+      },
+    },
+    combiPdNm: {
+      label: t('MSG_TXT_COMBI_PRDT_NM'),
+      width: 240,
+      valueCallback: (gridBase, rowId, fieldName, fields, values) => {
+        const combiPdNm = values[fields.indexOf('combiPdNm')];
+        if (!combiPdNm) {
+          return '';
+        }
+        return `${combiPdNm}`;
       },
     },
     cralLocaraTno: { displaying: false },
