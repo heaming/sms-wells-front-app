@@ -452,10 +452,8 @@ async function callConfirm(isClose) {
   if (!isEmpty(newItmOstrNo)) {
     // 확정 되었습니다.
     notify(t('MSG_TXT_CNFM_SCS'));
-    if (isClose) {
-      ok();
-      return;
-    }
+    ok();
+    if (isClose) return;
 
     await openReport(newItmOstrNo);
   }
