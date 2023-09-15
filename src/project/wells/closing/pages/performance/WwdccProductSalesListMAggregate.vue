@@ -117,12 +117,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService } from 'kw-lib';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useGlobal, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const now = dayjs();
 const { t } = useI18n();
+const { modal } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 
@@ -266,6 +267,7 @@ watch(() => searchParams.value.sellTpCd, async () => {
 onMounted(async () => {
   dynamicChangeCodes.value.PRD_DV_CD = await getCodes();
 });
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -315,9 +317,17 @@ const initGrdBasic = defineGrid((data, view) => {
   view.onCellClicked = async (g, clickData) => {
     const { column, cellType } = clickData;
     if (cellType === 'summary') {
-      if (column === 'slChAmt' || column === 'chSplAmt' || column === 'chVat' || column === 'chPvdaAmt'
-       || column === 'slCanAmt' || column === 'canSplAmt' || column === 'canVat' || column === 'canPvdaAmt') {
-        console.log('매출변경 및 매출취소 팝업 호출');
+      if (column === 'chQty' || column === 'slChAmt' || column === 'chSplAmt' || column === 'chVat' || column === 'chPvdaAmt'
+       || column === 'canQty' || column === 'slCanAmt' || column === 'canSplAmt' || column === 'canVat' || column === 'canPvdaAmt'
+       || column === 'totQty' || column === 'totAmt' || column === 'totSplAmt' || column === 'totVat' || column === 'totPvdaAmt') {
+        await modal({
+          component: 'ZwdccProductSalesChangeCancelP',
+          componentProps: {
+            sellTpCd: searchParams.value.sellTpCd,
+            baseDtFrom: searchParams.value.baseDtFrom,
+            baseDtTo: searchParams.value.baseDtTo,
+          },
+        });
       }
     }
   };
@@ -341,6 +351,7 @@ const initGrdBasic = defineGrid((data, view) => {
       ],
       header: {
         text: t('MSG_TXT_NOM_SL'),
+        hint: 'test',
       },
     },
     {
