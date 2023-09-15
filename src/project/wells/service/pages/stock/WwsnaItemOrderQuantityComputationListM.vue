@@ -389,7 +389,6 @@ fieldsObj = {
       header: t('MSG_TXT_MOQ'),
       width: '120',
       styleName: 'text-right',
-      dataType: 'number',
     },
     { fieldName: 'leadTime',
       header: t('MSG_TXT_LEAD_TIME_SHORT'),
