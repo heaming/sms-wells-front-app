@@ -38,11 +38,16 @@
             disable
           />
         </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_FSTRCM')">
+        <kw-search-item
+          :label="t('MSG_TXT_CLCTAM_DV')"
+          required
+        >
           <kw-select
-            v-model="searchParams.clcoCd"
-            disable
-            :options="codes.CLCO_CD"
+            v-model="searchParams.clctamDvCd"
+            first-option="select"
+            rules="required"
+            :options="clctamDvOpt"
+            :label="t('MSG_TXT_CLCTAM_DV')"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_NW_DV')">
@@ -121,6 +126,19 @@
           dense
           @click="onClickChangeView"
         />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+        <kw-btn
+          v-permission:update
+          :label="$t('확정')"
+          primary
+          dense
+          :disable="isNotActivated"
+          @click="onClickConfirm"
+        />
       </kw-action-top>
 
       <kw-grid
@@ -144,12 +162,11 @@
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
-          icon="download_on"
-          dense
-          secondary
-          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="pageDetailInfo.totalCount === 0"
-          @click="onClickExcelDownload('detail')"
+          v-permission:update
+          :label="$t('MSG_TXT_SAVE')"
+          grid-action
+          :disable="(cachedParams?.baseYm !== now.format('YYYYMM')) || pageDetailInfo.totalCount === 0"
+          @click="onClickSave"
         />
         <kw-separator
           vertical
@@ -158,11 +175,20 @@
         />
         <kw-btn
           v-permission:update
-          :label="$t('MSG_BTN_SEND')"
-          primary
+          icon="upload_on"
+          secondary
           dense
-          :disable="isNotActivated"
-          @click="onClickSend"
+          :label="$t('MSG_BTN_EXCEL_UP')"
+          :disable="(cachedParams?.baseYm !== now.format('YYYYMM')) || pageDetailInfo.totalCount === 0"
+          @click="onClickExcelUpload"
+        />
+        <kw-btn
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+          :disable="pageDetailInfo.totalCount === 0"
+          @click="onClickExcelDownload('detail')"
         />
       </kw-action-top>
       <kw-grid
@@ -209,6 +235,7 @@ const totalCount = ref(0);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const baseUrl = '/sms/wells/bond/foster-transfers';
 const codes = await codeUtil.getMultiCodes(
   'BZ_HDQ_DV_CD',
   'CLCO_CD',
@@ -219,12 +246,12 @@ const codes = await codeUtil.getMultiCodes(
   'LWM_DTL_TP_CD',
   'BND_BIZ_DV_CD',
 );
-const baseUrl = '/sms/wells/bond/foster-transfers';
+const clctamDvOpt = codes.CLCTAM_DV_CD?.filter((v) => ['09', '11']?.includes(v.codeId));
 const now = dayjs();
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
   bzHdqDvCd: '',
-  clcoCd: '01',
+  clctamDvCd: '',
   bndNwDvCd: '',
   cstNm: '',
   cstNo: '',
@@ -232,6 +259,10 @@ const searchParams = ref({
   mexnoEncr: '',
   cralIdvTno: '',
 });
+const searchDatail = ref({
+  clctamPrtnrNo: '',
+});
+
 // TODO: 세션 MSG_TXT_DIV2가 명확하지 않음
 const { tenantId } = getters['meta/getUserInfo'];
 watch(() => tenantId, (val) => {
@@ -262,7 +293,7 @@ async function fetchData() {
 }
 
 async function fetchSummaryData() {
-  const res = await dataService.get(`${baseUrl}/detail/summary`, { params: { ...cachedParams } });
+  const res = await dataService.get(`${baseUrl}/detail/summary`, { params: { ...cachedParams, ...searchDatail.value } });
   const view = grdDetailRef.value.getView();
 
   view.columnByName('trgAmt').headerSummary.text = res.data.trgAmt;
@@ -273,7 +304,7 @@ async function fetchSummaryData() {
 }
 
 async function fetchDetailData() {
-  const res = await dataService.get(`${baseUrl}/detail/paging`, { params: { ...cachedParams, ...pageDetailInfo.value } });
+  const res = await dataService.get(`${baseUrl}/detail/paging`, { params: { ...cachedParams, ...searchDatail.value, ...pageDetailInfo.value } });
   const { list: data, pageInfo: pagingResult } = res.data;
   pageDetailInfo.value = pagingResult;
 
@@ -312,45 +343,93 @@ const onClickCustomer = async () => {
   }
 };
 
+// 엑셀다운로드
 const { currentRoute } = useRouter();
 let excelView;
+let downFileName;
+let nowDate;
 async function onClickExcelDownload(gridType) {
+  const { pageId, menuName } = currentRoute.value.meta;
   if (gridType === 'result') {
     excelView = grdResultRef.value.getView();
 
     await gridUtil.exportView(excelView, {
-      fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_AGRG_RS')}`,
+      fileName: `${menuName}_${t('MSG_TXT_AGRG_RS')}`,
       timePostfix: true,
       exportData: gridUtil.getAllRowValues(excelView),
     });
   }
   if (gridType === 'detail') {
     excelView = grdDetailRef.value.getView();
-
-    const res = await dataService.get(`${baseUrl}/detail/excel-download`, { params: cachedParams });
+    nowDate = dayjs().format('YYYYMMDDHHmmss');
+    downFileName = `${menuName}_${t('MSG_TXT_AGRG_RS_DTL')}_${nowDate}`;
+    const res = await dataService.get(`${baseUrl}/detail/excel-download`, { params: { ...cachedParams, ...searchDatail.value, downFileName, pageId } });
 
     await gridUtil.exportView(excelView, {
-      fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_AGRG_RS_DTL')}`,
+      fileName: `${menuName}_${t('MSG_TXT_AGRG_RS_DTL')}`,
       timePostfix: true,
       exportData: res.data,
     });
   }
 }
 
+// 채권속성변경
 const onClickChangeView = async () => {
   await router.push({ path: '/bond/zwbna-bond-property-mgt', query: {} });
 };
 
-const onClickSend = async () => {
+// 확정
+const onClickConfirm = async () => {
   const view = grdDetailRef.value.getView();
-  const dataRows = await gridUtil.getAllRowValues(view);
+  const dataRows = gridUtil.getAllRowValues(view);
   if (dataRows.length === 0) {
     notify(t('MSG_ALT_NO_SRCH_DATA'));
   } else if (cachedParams.baseYm !== now.format('YYYYMM')) {
     notify(t('MSG_ALT_THM_DTA_SEND_ONLY'));
   } else {
-    await dataService.post(`${baseUrl}/send`, cachedParams);
+    await dataService.post(`${baseUrl}/confirm`, cachedParams);
     await alert(t('MSG_ALT_FOSTER_SEND_SUCCESS'));
+  }
+};
+
+// 저장
+const onClickSave = async () => {
+  const view = grdDetailRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+
+  const changedRows = gridUtil.getChangedRowValues(view);
+
+  await dataService.put(baseUrl, changedRows);
+
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
+};
+
+// 엑셀 업로드
+const onClickExcelUpload = async () => {
+  const apiUrl = `${baseUrl}/excel-upload`;
+  const extraData = {
+    baseYm: cachedParams.baseYm,
+    bzHdqDvCd: cachedParams.bzHdqDvCd,
+    clctamDvCd: cachedParams.clctamDvCd,
+    pageId: currentRoute.value.meta.pageId,
+  };
+  const templateId = 'FOM_BND_FSTR_TF';
+
+  const {
+    payload,
+  } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: {
+      apiUrl,
+      templateId,
+      extraData,
+    },
+  });
+  if (payload.status === 'S') {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await fetchData();
   }
 };
 
@@ -367,7 +446,7 @@ watch(() => searchParams.value.baseYm, async (baseYm) => {
 const initGridResult = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'bzHdqDvCd', header: t('MSG_TXT_DIV2'), width: '75', styleName: 'text-center', headerSummaries: { text: t('MSG_TXT_TOT_SUMMARY'), styleName: 'text-center' }, options: codes.BZ_HDQ_DV_CD },
-    { fieldName: 'clcoCd', header: t('MSG_TXT_FSTRCM'), width: '98', styleName: 'text-center', options: codes.CLCO_CD },
+    { fieldName: 'clctamPrtnrNm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center !important, rg-button-link', renderer: { type: 'button' } },
 
     { fieldName: 'woCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
     { fieldName: 'woCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
@@ -429,13 +508,15 @@ const initGridResult = defineGrid((data, view) => {
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push(
     { fieldName: 'baseYm' },
+    { fieldName: 'clctamPrtnrNo' },
+    { fieldName: 'fnlMdfcDtm' },
   );
   data.setFields(fields);
   view.setColumns(columns);
 
   view.setColumnLayout([
     'bzHdqDvCd',
-    'clcoCd',
+    'clctamPrtnrNm',
     // single
     {
       header: t('MSG_TIT_TOT'), // colspan title
@@ -478,12 +559,14 @@ const initGridResult = defineGrid((data, view) => {
 
   view.setHeaderSummaries({
     visible: true,
-    items: [{ height: 40 }],
+    items: [{ height: 42 }],
   });
   view.layoutByColumn('bzHdqDvCd').summaryUserSpans = [{ colspan: 2 }];
 
-  view.onCellClicked = (g, { cellType }) => {
-    if (cellType === 'data' || cellType === 'indicator') {
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
+    if (column === 'clctamPrtnrNm') {
+      const { clctamPrtnrNo } = grid.getValues(itemIndex);
+      searchDatail.value.clctamPrtnrNo = clctamPrtnrNo;
       onChangeDetailPageInfo();
     }
   };
@@ -492,7 +575,17 @@ const initGridResult = defineGrid((data, view) => {
 const initGridDetail = ((data, view) => {
   const columns = [
     { fieldName: 'fstrCoNm', header: t('MSG_TXT_FSTRCM'), styleName: 'text-center', width: '98', headerSummaries: { text: t('MSG_TXT_SUM'), styleName: 'text-center' }, options: codes.CLCO_CD },
-    { fieldName: 'clctamPrtnrNm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center' },
+    { fieldName: 'clctamPrtnrNm',
+      header: t('MSG_TXT_PIC_NM'),
+      width: '98',
+      styleName: 'text-center !important, rg-button-icon--search',
+      button: 'action',
+      rules: 'required',
+      editor: {
+        type: 'line',
+        maxLength: 20,
+      },
+      editable: true },
     { fieldName: 'clctamDvd', header: t('MSG_TXT_JBF_ICHR_CLCTAM_DV'), styleName: 'text-center', width: '130' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_JBF_PSIC'), styleName: 'text-center', width: '90' },
     { fieldName: 'cntrNoSn',
@@ -517,13 +610,13 @@ const initGridDetail = ((data, view) => {
     { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'dfltDt', header: t('MSG_TXT_DE_RGST_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'addr', header: t('MSG_TXT_ADDR'), width: '200' },
-    // { fieldName: 'cntrSn', visible: false },
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push(
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
+    { fieldName: 'clctamPrtnrNo' },
   );
   data.setFields(fields);
   view.setColumns(columns);
@@ -535,6 +628,41 @@ const initGridDetail = ((data, view) => {
   view.layoutByColumn('fstrCoNm').summaryUserSpans = [{ colspan: 9 }];
 
   view.rowIndicator.visible = true;
+  view.checkBar.visible = true;
+  view.editOptions.columnEditableFirst = true;
+
+  view.onCellButtonClicked = async (grid, { dataRow, column, itemIndex }) => {
+    if (column === 'clctamPrtnrNm') {
+      const { clctamPrtnrNm } = grid.getValues(itemIndex);
+      const { result, payload } = await modal({
+        component: 'ZwbnyCollectorListP',
+        componentProps: {
+          clctamPrtnrNm,
+        },
+      });
+      if (result) {
+        console.log(payload);
+        const { prtnrNo, prtnrKnm, clctamDvCd } = payload;
+        if (cachedParams.clctamDvCd !== clctamDvCd) {
+          await alert(t('해당 계약의 집금구분과 맞는 담당자를 선택해 주세요.'));
+          data.setValue(dataRow, 'clctamPrtnrNm', '');
+          data.setValue(dataRow, 'clctamPrtnrNo', '');
+          return false;
+        }
+        data.setValue(dataRow, 'clctamPrtnrNo', prtnrNo);
+        data.setValue(dataRow, 'clctamPrtnrNm', prtnrKnm);
+      }
+    }
+  };
+
+  view.onValidate = async (g, index) => {
+    if (index.column === 'clctamPrtnrNm') {
+      const { clctamPrtnrNo } = g.getValues(index.itemIndex);
+      if (!clctamPrtnrNo) {
+        return t('MSG_ALT_PLZ_USE_CLCTAM_PSIC_POPUP');
+      }
+    }
+  };
 });
 
 </script>

@@ -16,23 +16,20 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
-        <!-- 상품구분 -->
-        <kw-search-item :label="$t('MSG_TXT_PRDT_GUBUN')">
+        <kw-search-item :label="$t('MSG_TXT_PRDT_GUBUN', null, '상품구분')">
           <kw-select
             v-model="searchParams.pdTpCd"
             :options="codes.PD_TP_CD"
             :readonly="true"
           />
         </kw-search-item>
-        <!-- 교재/자재명 -->
-        <kw-search-item :label="$t('MSG_TIT_MATERIAL_NM')">
+        <kw-search-item :label="$t('MSG_TIT_AS_PART_NM', null, 'AS부품명')">
           <kw-input
             v-model.trim="searchParams.pdNm"
             :maxlength="100"
           />
         </kw-search-item>
-        <!-- 제품코드 -->
-        <kw-search-item :label="$t('MSG_TXT_PROD_CD')">
+        <kw-search-item :label="$t('MSG_TIT_AS_PART_CD', null, 'AS부품코드')">
           <kw-input
             v-model.trim="searchParams.pdCd"
             :maxlength="10"
@@ -44,10 +41,7 @@
       </kw-search-row>
 
       <kw-search-row>
-        <!-- AS부품 분류 -->
-        <kw-search-item
-          :label="$t('MSG_TIT_AS_PART_CLASSIFICATION')"
-        >
+        <kw-search-item :label="t('MSG_TXT_CLSF', null, '분류')">
           <zwpd-product-classification-select
             ref="classfySelRef"
             v-model:product1-level="searchParams.prdtCateHigh"
@@ -83,6 +77,31 @@
             mask="#####-######"
             :rules="sapItemCdToValidation"
             clearable
+          />
+        </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
+        <kw-search-item :label="t('MSG_TXT_ITM_KND', null, '품목종류')">
+          <!-- :multiple="true" -->
+          <kw-select
+            v-model="searchParams.asMatItmKndCd"
+            :options="codes.ITM_KND_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item :label="t('MSG_TXT_ITM_GRP', null, '품목그룹')">
+          <kw-select
+            v-model="searchParams.asMatItmGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item :label="t('TXT_MSG_SAP_MAT_GRP_VAL', null, '자재그룹')">
+          <kw-select
+            v-model="searchParams.svMatGrpCd"
+            :options="codes.SV_MAT_GRP_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -214,9 +233,12 @@ const searchParams = ref({
   sapMatCd: '',
   sapItemCdFrom: '',
   sapItemCdTo: '',
+  asMatItmKndCd: '',
+  asMatItmGrpCd: '',
+  svMatGrpCd: '',
 });
 
-const codes = await codeUtil.getMultiCodes('PD_TP_CD', 'PD_TEMP_SAVE_CD', 'COD_YN', 'COD_PAGE_SIZE_OPTIONS');
+const codes = await codeUtil.getMultiCodes('PD_TP_CD', 'PD_TEMP_SAVE_CD', 'COD_YN', 'COD_PAGE_SIZE_OPTIONS', 'ITM_KND_CD', 'PD_GRP_CD', 'SV_MAT_GRP_CD');
 
 // 자재코드 조회팝업(sapMatCd)
 async function onClickSapMaterial() {
@@ -251,6 +273,7 @@ async function fetchData() {
   const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: material, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
+  console.log('material', material);
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(material);
@@ -379,18 +402,23 @@ watch(() => props, ({ searchYn }) => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT'), width: '90', styleName: 'text-center', options: codes.PD_TEMP_SAVE_CD }, /* 상태 */
-    { fieldName: 'pdTpCd', header: t('MSG_TXT_DIV'), width: '90', styleName: 'text-center', options: codes.PD_TP_CD }, /* 구분 */
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF'), width: '176' }, /* 분류 */
-    { fieldName: 'pdNm', header: t('MSG_TIT_MATERIAL_NM'), width: '195' }, /* 교재/자재명 */
-    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '140', styleName: 'text-center' }, /* 제품코드 */
-    { fieldName: 'asItmCd', header: t('TXT_MSG_AS_ITM_CD'), width: '130', styleName: 'text-center' }, /* 품목코드 */
-    { fieldName: 'asMatCd', header: t('TXT_MSG_AS_MAT_CD'), width: '130', styleName: 'text-center' }, /* AS자재번호 */
+    { fieldName: 'tempSaveYn', header: t('MSG_TXT_STT', null, '상태'), width: '90', styleName: 'text-center', options: codes.PD_TEMP_SAVE_CD },
+    { fieldName: 'pdTpCd', header: t('MSG_TXT_DIV', null, '구분'), width: '90', styleName: 'text-center', options: codes.PD_TP_CD },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_CLSF', null, '분류'), width: '176' },
+    { fieldName: 'pdNm', header: t('MSG_TIT_AS_PART_NM', null, 'AS부품명'), width: '195' },
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_PD_ABBREVIATION_1', null, '약어1'), width: '195' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD', null, '자재코드'), width: '180', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TIT_AS_PART_CD', null, 'AS부품코드'), width: '130', styleName: 'text-center' },
+    { fieldName: 'asItmCd', header: t('TXT_MSG_AS_ITM_CD', null, '품목코드'), width: '200', styleName: 'text-center' },
+    { fieldName: 'asMatCd', header: t('TXT_MSG_AS_MAT_CD', null, 'AS자재번호'), width: '130', styleName: 'text-center', visible: false }, /* 품목코드에 병합. */
+    { fieldName: 'asMatItmGrpCd', header: t('MSG_TXT_ITM_GRP', null, '품목그룹'), width: '90', styleName: 'text-center', options: codes.PD_GRP_CD },
+    { fieldName: 'asMatItmKndCd', header: t('MSG_TXT_ITM_KND', null, '품목종류'), width: '90', styleName: 'text-center', options: codes.ITM_KND_CD },
+    { fieldName: 'svMatGrpCd', header: t('TXT_MSG_SAP_MAT_GRP_VAL', null, '자재그룹'), width: '90', styleName: 'text-center', options: codes.SV_MAT_GRP_CD },
     // 사용자 관련 공통 컬럼
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 등록일 */
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_RGST_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fstRgstUsrId', header: 'RGST_ID', width: '50', visible: false },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, /* 최종수정일 */
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_FNL_MDFC_D'), width: '110', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     { fieldName: 'fnlMdfcUsrNm', header: t('MSG_TXT_FNL_MDFC_USR'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'fnlMdfcUsrId', header: 'MDFC_ID', width: '50', visible: false },
   ];

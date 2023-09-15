@@ -367,7 +367,7 @@
             readonly
           />
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_AGR_RCV_YN2')">
+        <kw-form-item :label="$t('MSG_TXT_AGR_SIGN_YN')">
           <kw-input
             v-model="safetyAccident.agrDocRcvYn"
             readonly
@@ -511,7 +511,7 @@ const frmMainRef4 = ref();
 const frmMainRef5 = ref();
 
 function onChangePdNm() {
-  safetyAccident.value.acdnRcpNm = safetyAccident.value.pdNm;
+  safetyAccident.value.acdnRcpNm = `[${safetyAccident.value.pdNm}] 제목을 입력해주세요.`;
 }
 
 /* 숫자금액 -> 한글 변환 */

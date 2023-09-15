@@ -116,6 +116,7 @@ async function fetchData() {
   let tcntTotal = 0;
   // 총합계
   list.forEach((item) => {
+    tcntTotal += item.tcnt;
     tcntTotal += toInteger(item.tcnt);
   });
   // 개별 합계 / 총합계 * 100 (비율)

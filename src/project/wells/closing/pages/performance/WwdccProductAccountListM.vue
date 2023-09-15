@@ -105,7 +105,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info :total-count="totalCount" />
-          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+          <span class="ml8">{{ t('MSG_TXT_MSG_TXT_UNIT_CASE') }}</span>
         </template>
         <kw-btn
           icon="download_on"
@@ -182,7 +182,7 @@ const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
 );
 const searchParams = ref({
-  baseYmFrom: now.subtract(1, 'month').format('YYYYMM'),
+  baseYmFrom: now.format('YYYYMM'),
   baseYmTo: now.format('YYYYMM'),
   sellTpCd: 'ALL', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
@@ -192,22 +192,15 @@ const searchParams = ref({
   prdtCateMid: '', // 상품중분류
 });
 
-async function onSelectInqrDv() {
-  const { inqrDv } = searchParams.value;
-  if (inqrDv === '1') {
-    isShow.value = true;
-  } else if (inqrDv === '2') {
-    isShow.value = false;
-  }
-}
-
 let cachedParams;
 async function fetchData() {
   const { inqrDv } = searchParams.value;
   let res;
   if (inqrDv === '1') { // 집계
+    isShow.value = true;
     res = await dataService.get('/sms/wells/closing/product-account/total', { params: cachedParams });
   } else if (inqrDv === '2') { // 상품
+    isShow.value = false;
     res = await dataService.get('/sms/wells/closing/product-account/product', { params: cachedParams });
   }
   console.log(res.data);
@@ -330,7 +323,7 @@ const initGrdProduct = defineGrid((data, view) => {
     { fieldName: 'pdHclsfId', header: t('MSG_TXT_PD_HCLSF'), width: '116', styleName: 'text-center' },
     { fieldName: 'pdMclsfId', header: t('MSG_TXT_PD_MCLSF'), width: '116', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '239', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '239', styleName: 'text-left' },
     { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'agrgCt2', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'agrgCt3', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' },

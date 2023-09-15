@@ -174,8 +174,9 @@ const filterOstrTpCd = codes.OSTR_TP_CD.filter((v) => v.codeId !== '211');
 
 // 창고구분코드 필터링
 const strWareDvCd = { WARE_DV_CD: [
-  { codeId: '2', codeName: '서비스센터' },
-  { codeId: '3', codeName: '영업센터' },
+  { codeId: '1', codeName: t('MSG_TXT_LGST_CNR') },
+  { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
+  { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
 ] };
 
 searchParams.value.stOstrDt = dayjs().format('YYYYMMDD');
@@ -197,7 +198,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(outOfItem.map((v) => ({ ...v, txtNote: ' ' })));
+  view.getDataSource().setRows(outOfItem);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -295,21 +296,6 @@ const initGrdMain = defineGrid((data, view) => {
       renderer: {
         type: 'button',
       },
-      displayCallback: (g, index, val) => {
-        const { ostrTpCd } = g.getValues(index.itemIndex);
-        console.log(val);
-        // 정상출고
-        if (['221', '222'].includes(ostrTpCd)) {
-          return t('MSG_TXT_NOM_OSTR');
-        } if (ostrTpCd === '223') {
-          return t('MSG_TXT_QOM_MMT');
-        } if (ostrTpCd === '217') {
-          return t('MSG_TXT_ETC_OSTR');
-        } if (['212', '261', '262'].includes(ostrTpCd)) {
-          return t('MSG_TXT_RTNGD_OSTR');
-        }
-        return ' ';
-      },
     },
   ];
 
@@ -327,7 +313,7 @@ const initGrdMain = defineGrid((data, view) => {
       if (ostrTpCd === '217') {
         await popupUtil.open(`/popup#/service/wwsna-etc-out-of-storage-reg?ostrTpCd=${ostrTpCd}&ostrWareNo=${ostrWareNo}&bilDept=${strWareNo}&ostrDt=${ostrDt}&itmOstrNo=${itmOstrNo}`, { width: 1800, height: 1000 }, false);
         return;
-      } if (['221', '222', '223'].includes(ostrTpCd)) {
+      } if (['221', '223'].includes(ostrTpCd)) {
         const { result } = await modal({
           component: 'WwsnaNormalOutOfStorageRgstListP',
           componentProps: { ostrAkNo, ostrAkSn, itmOstrNo, page: 'WwsnaOutOfStorageManagementListM' },

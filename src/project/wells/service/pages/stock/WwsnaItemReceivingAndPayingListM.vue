@@ -267,7 +267,7 @@ async function fetchData() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/receipts-and-payments/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/receipts-and-payments/excel-download', { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -330,7 +330,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left', footer: { text: t('MSG_TXT_SUM') } },
     { fieldName: 'basStocQty',
       header: t('MSG_TXT_BTD_STOC_QTY'),
       width: '120',

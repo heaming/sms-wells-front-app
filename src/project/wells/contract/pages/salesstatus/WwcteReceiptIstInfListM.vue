@@ -214,6 +214,7 @@
         </template>
         <!-- 엑셀 다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -464,7 +465,7 @@ async function fetchProduct(gubun) {
 
 async function fetchData() {
   if (!await srchMainRef.value.validate()) { return; }
-  const res = await dataService.get('/sms/wells/contract/receipt-installations/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/contract/sales-status/receipt-installations/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
@@ -483,7 +484,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/contract/receipt-installations/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/contract/sales-status/receipt-installations/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,

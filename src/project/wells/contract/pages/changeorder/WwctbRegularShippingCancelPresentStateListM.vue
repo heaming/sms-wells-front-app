@@ -63,6 +63,8 @@
           v-model="searchParams.rgstUsrEpNo"
           maxlength="10"
           regex="num"
+          icon="search"
+          @click-icon="onClickHr"
         />
       </kw-search-item>
       <!-- row2 계약상세번호 -->
@@ -187,10 +189,11 @@ async function fetchData() {
 }
 
 async function onClickExcelDownload() {
+  const res = await dataService.get('/sms/wells/contract/changeorder/regular-shipping-cancels/excel-download', { params: { ...cachedParams } });
   await gridUtil.exportView(grdMainRegular.value.getView(), {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: gridUtil.getAllRowValues(grdMainRegular.value.getView()),
+    exportData: res.data,
   });
 }
 
@@ -198,6 +201,21 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
+}
+
+async function onClickHr() {
+  const { result, payload } = await modal({
+    component: 'ZwogzEmployeeListP',
+    componentProps: {
+      prtnrNo: searchParams.value.rgstUsrEpNo,
+      ogTpCd: 'HR1',
+      baseYm: now.format('YYYYMM'),
+    },
+  });
+
+  if (result) {
+    searchParams.value.rgstUsrEpNo = payload.prtnrNo;
+  }
 }
 
 // -------------------------------------------------------------------------------------------------

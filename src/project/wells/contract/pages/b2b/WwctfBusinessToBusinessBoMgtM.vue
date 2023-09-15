@@ -103,12 +103,14 @@
         />
         <!-- 행추가 -->
         <kw-btn
+          v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAdd"
         />
         <!-- 저장 -->
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -287,7 +289,6 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     { fieldName: 'bzrno' }, // 사업자번호
     { fieldName: 'leadCstNm' }, // 업체명
     { fieldName: 'leadCstRlpplNm' }, // 업체담당자(KEY-MAN)
-    { fieldName: 'leadCstRlpplNmEncr' }, // 업체담당자(KEY-MAN) 마스킹
     { fieldName: 'locaraTno' }, // 업체연락처1-1
     { fieldName: 'exnoEncr' }, // 업체연락처1-2
     { fieldName: 'idvTno' }, // 업체연락처1-3
@@ -358,14 +359,8 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         mask: {
           editMask: '999-99-99999',
         },
-
       },
-      displayCallback(grid, index, value) {
-        // 사업자번호 3-2-5 형식으로 표시
-        if (!isEmpty(value)) {
-          return `${value.substr(0, 3)}-${value.substr(3, 2)}-${value.substr(5, 5)}`;
-        }
-      },
+      displayCallback: (g, i, v) => ((!isEmpty(v)) ? v.replace(/(\d{3})(\d{2})(\d{5})/, '$1-$2-$3') : ''),
     }, // 사업자번호
     { fieldName: 'leadCstNm',
       header: t('MSG_TXT_CORP_NAME'),
@@ -374,8 +369,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       editor: {
         maxLength: 50,
       } }, // 업체명
-    { fieldName: 'leadCstRlpplNm', visible: false },
-    { fieldName: 'leadCstRlpplNmEncr',
+    { fieldName: 'leadCstRlpplNm',
       header: t('MSG_TXT_COMP_RSP_USR'),
       width: '212',
       styleName: 'text-center',
@@ -503,7 +497,7 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
     {
       header: t('Key-Man'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['leadCstRlpplNmEncr', 'telNo1', 'telNo2', 'emadrCn'],
+      items: ['leadCstRlpplNm', 'telNo1', 'telNo2', 'emadrCn'],
     },
     'crdrVal', 'etBiddDt', 'opptCntrFomCd', 'totQty',
     {
@@ -552,10 +546,37 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
         onKeyManFind(itemIndex);
       }
     }
-    if (columnName === 'leadCstRlpplNmEncr') {
-      const leadCstRlpplNmEncr = grid.getValue(updateRow, 12);
-      grid.commit();
-      data.setValue(updateRow, 'leadCstRlpplNm', leadCstRlpplNmEncr);
+    if (columnName === 'rcvodDt' || columnName === 'etCntrStrtdt') {
+      const lossDt = grid.getValue(updateRow, 32);
+      if (!isEmpty(lossDt)) {
+        view.commit();
+        data.setValue(updateRow, 'rcvodDt', '');
+        data.setValue(updateRow, 'etCntrStrtdt', '');
+        alert('낙주일이 존재합니다.');
+      }
+      const rcvodDt = grid.getValue(updateRow, 31);
+      const etCntrStrtdt = grid.getValue(updateRow, 33);
+      if (rcvodDt > etCntrStrtdt && !isEmpty(etCntrStrtdt) && !isEmpty(rcvodDt)) {
+        view.commit();
+        if (columnName === 'rcvodDt') {
+          data.setValue(updateRow, 'etCntrStrtdt', rcvodDt);
+        } else {
+          data.setValue(updateRow, 'rcvodDt', etCntrStrtdt);
+        }
+      }
+    }
+    if (columnName === 'lossDt') {
+      const rcvodDt = grid.getValue(updateRow, 31);
+      const etCntrStrtdt = grid.getValue(updateRow, 33);
+      if (!isEmpty(rcvodDt)) {
+        view.commit();
+        data.setValue(updateRow, 'lossDt', '');
+        alert('수주일이 존재합니다.');
+      } else if (!isEmpty(etCntrStrtdt)) {
+        view.commit();
+        data.setValue(updateRow, 'lossDt', '');
+        alert('계약시작일이 존재합니다.');
+      }
     }
   };
   view.setFixedOptions({

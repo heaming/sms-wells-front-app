@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTE
 2. 프로그램 ID : WwcteUserSellLimitMgtM - 사용자 판매 제한 관리
-3. 작성자 : gs.anil.rawat
+3. 작성자 : gs.anil.rawat / JSY
 4. 작성일 : 2023.01.30
 ****************************************************************************************************
 * 프로그램 설명
@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 적용기간 -->
         <kw-search-item :label="t('MSG_TXT_ACEPT_PERIOD')">
           <kw-date-range-picker
             v-model:from="searchParams.startDate"
@@ -26,24 +27,29 @@
             type="date"
           />
         </kw-search-item>
+        <!-- 판매/채널/조직/플래너 -->
         <kw-search-item
           :label="t('MSG_TXT_SLS_CHNL_ORG_USRS')"
           :colspan="2"
         >
+          <!-- 판매 -->
           <kw-select
             v-model="searchParams.sell"
             first-option="all"
             :options="codes.SELL_BASE_TP_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` }))"
           />
+          <!-- 채널 -->
           <kw-select
             v-model="searchParams.channel"
             first-option="all"
             :options="codes.PRTNR_CHNL_DV_ACD"
           />
+          <!-- 조직 -->
           <kw-input
             v-model="searchParams.deptCd"
             maxlength="100"
           />
+          <!-- 플래너 -->
           <kw-input
             v-model="searchParams.user"
             maxlength="100"
@@ -51,6 +57,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 상품코드 -->
         <kw-search-item :label="t('MSG_TXT_PRDT_CODE')">
           <kw-input
             v-model="searchParams.productCd"
@@ -61,12 +68,14 @@
             @click-icon="onClickSelectPdCd()"
           />
         </kw-search-item>
+        <!-- 판매유형 -->
         <kw-search-item :label="t('MSG_TXT_SEL_TYPE')">
           <kw-select
             v-model="searchParams.sellType"
             :options="sellTpCdGrids"
           />
         </kw-search-item>
+        <!-- 판매제한 -->
         <kw-search-item :label="t('MSG_TXT_SLS_RSTR')">
           <kw-select
             v-model="searchParams.sellLimit"
@@ -82,6 +91,7 @@
             :total-count="pageInfo.totalCount"
           />
         </template>
+        <!-- 삭제 -->
         <kw-btn
           v-permission:delete
           :label="t('MSG_BTN_DEL')"
@@ -93,12 +103,16 @@
           inset
           spaced
         />
+        <!-- 행추가 -->
         <kw-btn
+          v-permission:create
           grid-action
           :label="t('MSG_BTN_ROW_ADD')"
           @click="onClickRowAdd"
         />
+        <!-- 저장 -->
         <kw-btn
+          v-permission:update
           grid-action
           :label="t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -108,7 +122,9 @@
           vertical
           inset
         />
+        <!-- 엑셀 다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -173,20 +189,22 @@ const pageInfo = ref({
 
 let cachedParams;
 
+// 판매유형 목록
 const sellTpCdGrids = ref([
-  { codeId: 'A', codeName: t('MSG_TXT_ALL') },
-  { codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') },
-  { codeId: '2', codeName: t('MSG_TXT_RENTAL') },
-  { codeId: '5', codeName: t('MSG_TXT_HOME_CARE') },
-  { codeId: '6', codeName: t('MSG_TXT_REG_DLVR') },
+  { codeId: 'A', codeName: t('MSG_TXT_ALL') }, // 전체
+  { codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') }, // 일시불
+  { codeId: '2', codeName: t('MSG_TXT_RENTAL') }, // 렌탈
+  { codeId: '5', codeName: t('MSG_TXT_HOME_CARE') }, // 홈케어
+  { codeId: '6', codeName: t('MSG_TXT_REG_DLVR') }, // 정기배송
 ]);
 
 const salesTypeOptions = ref([
-  { codeId: '2', codeName: `2-${t('MSG_TXT_LIMIT')}` },
-  { codeId: '3', codeName: `3-${t('MSG_TXT_EXP_GRNTD')}` },
-  { codeId: '4', codeName: `4-${t('MSG_TXT_NEW_RGLTD')}` },
+  { codeId: '2', codeName: `2-${t('MSG_TXT_LIMIT')}` }, // 2-제한
+  { codeId: '3', codeName: `3-${t('MSG_TXT_EXP_GRNTD')}` }, // 3-예외허용
+  { codeId: '4', codeName: `4-${t('MSG_TXT_NEW_RGLTD')}` }, // 4-신규제한
 ]);
 
+// 조회 이벤트
 async function fetchData() {
   const res = await dataService.get('sms/wells/contract/sales-limits/users', { params: cachedParams });
 
@@ -198,6 +216,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회 버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -206,7 +225,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = gridMainRef.value.getView();
 
-  const res = await dataService.get('sms/wells/contract/sales-limits/users', { params: cachedParams });
+  const res = await dataService.get('sms/wells/contract/sales-limits/users/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -214,6 +233,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 삭제 버튼 클릭
 async function onClickDelete() {
   const view = gridMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -227,21 +247,19 @@ async function onClickDelete() {
   }
 }
 
+// 행 추가 버튼 클릭
 async function onClickRowAdd() {
   const view = gridMainRef.value.getView();
   const row = view.getCurrent().dataRow < 0 ? '0' : view.getCurrent().dataRow;
   await gridUtil.insertRowAndFocus(view, row, {});
 }
 
+// 저장 버튼 클릭
 async function onClickSave() {
   const view = gridMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
   for (let i = 0; i < gridUtil.getChangedRowValues(view).length; i += 1) {
-    if (!isEmpty(gridUtil.getChangedRowValues(view)[i].dangOjOgId)) {
-      notify(t('MSG_ALT_EXIST_BEAN_ID'));
-      return;
-    }
     if (gridUtil.getChangedRowValues(view)[i].vlStrtDtm > gridUtil.getChangedRowValues(view)[i].vlEndDtm) {
       notify(t('MSG_ALT_CHK_DT_RLT'));
       return;
@@ -277,38 +295,38 @@ async function onClickSelectPdCd() {
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const fields = [
-    { fieldName: 'sellBaseId' },
-    { fieldName: 'sellBaseTpCd' },
-    { fieldName: 'sellBaseChnl' },
-    { fieldName: 'deptCd' },
-    { fieldName: 'sellBaseUsr' },
-    { fieldName: 'copnDvCd' },
-    { fieldName: 'zip' },
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdMclsfNm' },
-    { fieldName: 'pdLclsfNm' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'sellBasePrd' },
-    { fieldName: 'sellBaseSellTp' },
-    { fieldName: 'sellPrmitDvCd' },
-    { fieldName: 'vlStrtDtm' },
-    { fieldName: 'vlEndDtm' },
-    { fieldName: 'sellBaseApyCn' },
-    { fieldName: 'fstRgstDtm' },
-    { fieldName: 'fstRgstUsrId' },
-    { fieldName: 'fnlMdfcDtm' },
-    { fieldName: 'fnlMdfcUsrId' },
+    { fieldName: 'sellBaseId' }, // 판매기준ID
+    { fieldName: 'sellBaseTpCd' }, // 판매기준유형코드
+    { fieldName: 'sellBaseChnl' }, // 채널
+    { fieldName: 'deptCd' }, // 조직
+    { fieldName: 'sellBaseUsr' }, // 사용자
+    { fieldName: 'copnDvCd' }, // 개인/법인
+    { fieldName: 'zip' }, // 우편번호
+    { fieldName: 'pdCd' }, // 상품코드
+    { fieldName: 'pdMclsfNm' }, // 상품분류
+    { fieldName: 'pdLclsfNm' }, // 상품유형
+    { fieldName: 'pdNm' }, // 상품명
+    { fieldName: 'sellBasePrd' }, // 주기
+    { fieldName: 'sellBaseSellTp' }, // 판매유형
+    { fieldName: 'sellPrmitDvCd' }, // 판매제한
+    { fieldName: 'vlStrtDtm' }, // 게시일자
+    { fieldName: 'vlEndDtm' }, // 종료일자
+    { fieldName: 'sellBaseApyCn' }, // 비고
+    { fieldName: 'fstRgstDtm' }, // 등록일
+    { fieldName: 'fstRgstUsrId' }, // 등록자
+    { fieldName: 'fnlMdfcDtm' }, // 수정일
+    { fieldName: 'fnlMdfcUsrId' }, // 수정자
   ];
 
   const columns = [
-    { fieldName: 'sellBaseId', visible: false },
+    { fieldName: 'sellBaseId', visible: false }, // 판매기준ID
     { fieldName: 'sellBaseTpCd',
       header: t('MSG_TXT_SLS_CAT'),
       width: '142',
       styleName: 'text-center',
       options: codes.SELL_BASE_TP_CD.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId}-${v.codeName}` })),
       rules: 'required',
-      editor: { type: 'list' } },
+      editor: { type: 'list' } }, // 판매기준유형코드
     { fieldName: 'sellBaseChnl',
       header: t('MSG_TXT_CHNL'),
       width: '142',
@@ -318,9 +336,9 @@ function initGrid(data, view) {
       firstOptionValue: '',
       placeHolder: '전체',
       editor: { type: 'list' },
-    },
-    { fieldName: 'deptCd', header: t('MSG_TXT_OG'), width: '126', styleName: 'text-center', placeHolder: 'ALL', editor: { maxLength: 100 } },
-    { fieldName: 'sellBaseUsr', header: t('MSG_TXT_USR'), width: '126', styleName: 'text-center', placeHolder: 'ALL', editor: { maxLength: 100 } },
+    }, // 채널
+    { fieldName: 'deptCd', header: t('MSG_TXT_OG'), width: '126', styleName: 'text-center', placeHolder: 'ALL', editor: { maxLength: 100 } }, // 조직
+    { fieldName: 'sellBaseUsr', header: t('MSG_TXT_USR'), width: '126', styleName: 'text-center', placeHolder: 'ALL', editor: { maxLength: 100 } }, // 사용자
     { fieldName: 'copnDvCd',
       header: t('MSG_TXT_INDI_CORP'),
       width: '142',
@@ -330,8 +348,8 @@ function initGrid(data, view) {
         { codeId: 'A', codeName: `A-${t('MSG_TXT_ALL')}` },
         ...codes.COPN_DV_CD,
       ],
-      editor: { type: 'list' } },
-    { fieldName: 'zip', header: t('MSG_TXT_ZIP'), width: '180', styleName: 'text-center', editor: { mask: { editMask: '999999' } } },
+      editor: { type: 'list' } }, // 개인/법인
+    { fieldName: 'zip', header: t('MSG_TXT_ZIP'), width: '180', styleName: 'text-center', editor: { mask: { editMask: '999999' } } }, // 우편번호
     { fieldName: 'pdCd',
       header: t('MSG_TXT_PRDT_CODE'),
       width: '180',
@@ -340,23 +358,23 @@ function initGrid(data, view) {
       editor: { maxLength: 10 },
       buttonVisibleCallback(grid, index) {
         return grid.getCurrent().dataRow === index.dataRow;
-      } },
-    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '142', styleName: 'text-center', editable: false },
-    { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_TYPE'), width: '142', styleName: 'text-center', editable: false },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220', editable: false },
-    { fieldName: 'sellBasePrd', header: t('MSG_TXT_CYCL'), width: '131', styleName: 'text-center', placeHolder: 'ALL', editor: { maxLength: 100 } },
+      } }, // 상품코드
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '142', styleName: 'text-center', editable: false }, // 상품분류
+    { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_TYPE'), width: '142', styleName: 'text-center', editable: false }, // 상품유형
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220', editable: false }, // 상품명
+    { fieldName: 'sellBasePrd', header: t('MSG_TXT_CYCL'), width: '131', styleName: 'text-center', placeHolder: 'ALL', editor: { maxLength: 100 } }, // 주기
     { fieldName: 'sellBaseSellTp',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '142',
       styleName: 'text-center',
       options: sellTpCdGrids.value,
-      editor: { type: 'list' } },
+      editor: { type: 'list' } }, // 판매유형
     { fieldName: 'sellPrmitDvCd',
       header: t('MSG_TXT_SLS_RSTR'),
       width: '142',
       styleName: 'text-center',
       options: salesTypeOptions.value,
-      editor: { type: 'list' } },
+      editor: { type: 'list' } }, // 판매제한
     { fieldName: 'vlStrtDtm',
       header: t('MSG_TXT_STRT_DT'),
       width: '196',
@@ -366,7 +384,7 @@ function initGrid(data, view) {
       editor: {
         type: 'btdate',
       },
-    },
+    }, // 게시일자
     { fieldName: 'vlEndDtm',
       header: t('MSG_TXT_END_DT'),
       width: '196',
@@ -376,12 +394,12 @@ function initGrid(data, view) {
       editor: {
         type: 'btdate',
       },
-    },
-    { fieldName: 'sellBaseApyCn', header: t('MSG_TXT_NOTE'), width: '220', editor: { maxLength: 2000 } },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '131', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '131', styleName: 'text-center', editable: false },
+    }, // 종료일자
+    { fieldName: 'sellBaseApyCn', header: t('MSG_TXT_NOTE'), width: '220', editor: { maxLength: 2000 } }, // 비고
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false }, // 등록일
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '131', styleName: 'text-center', editable: false }, // 등록자
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), datetimeFormat: 'date', width: '196', styleName: 'text-center', editable: false }, // 수정일
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '131', styleName: 'text-center', editable: false }, // 수정자
   ];
 
   data.setFields(fields);

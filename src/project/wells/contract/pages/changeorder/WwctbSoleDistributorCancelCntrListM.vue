@@ -47,6 +47,7 @@
           />
         </template>
         <kw-btn
+          v-permission:print
           :label="$t('MSG_BTN_RPT_BRWS')"
           icon="report"
           dense

@@ -522,6 +522,7 @@
         <kw-form-item :label="$t('MSG_TXT_TXINV')">
           <kw-input
             v-model="frmMainData.txinvPblOjYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -555,6 +556,7 @@
         <kw-form-item :label="$t('MSG_TXT_SPAY_STPL_YN')">
           <kw-input
             v-model="frmMainData.feeFxamYn"
+            align="left"
             placeholder="Y"
             readonly
           />
@@ -563,6 +565,7 @@
         <kw-form-item :label="$t('MSG_TXT_FRISU_CST_YN')">
           <kw-input
             v-model="frmMainData.frisuCstYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -661,6 +664,7 @@
         <kw-form-item :label="$t('MSG_TXT_CNFM_EYN')">
           <kw-input
             v-model="frmMainData.cntrCnfmYn"
+            align="left"
             placeholder=""
             readonly
           />
@@ -884,7 +888,14 @@ async function fetchData() {
     // 계약자 정보
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.cstKnm = pages[0].cstKnm; // 계약자 명
-    frmMainData.value.bryyBzrno = pages[0].bryyBzrno; // 사업자등록/주민번호
+    if (pages[0].copnDvCd === '1') { // 생년월일
+      frmMainData.value.bryyBzrno = stringUtil.getDateFormat(pages[0].bryyBzrno);
+    } else if (pages[0].copnDvCd === '2') { // 사업자등록번호
+      // 사업자등록번호 3-2-5 형식으로 표시
+      if (!isEmpty(pages[0].bryyBzrno) && pages[0].bryyBzrno.length === 10) {
+        frmMainData.value.bryyBzrno = `${pages[0].bryyBzrno.substr(0, 3)}-${pages[0].bryyBzrno.substr(3, 2)}-${pages[0].bryyBzrno.substr(5, 5)}`;
+      }
+    }
     const { cntrCralLocaraTno } = pages[0];
     const { cntrMexnoEncr } = pages[0];
     const { cntrCralIdvTno } = pages[0];

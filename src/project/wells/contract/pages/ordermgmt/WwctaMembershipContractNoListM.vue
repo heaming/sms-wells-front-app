@@ -50,6 +50,7 @@
       </template>
       <!-- 확정관리 -->
       <kw-btn
+        v-permission:update
         dense
         secondary
         :label="$t('MSG_TXT_CNFM_MNGT')"
@@ -58,6 +59,7 @@
       />
       <!-- 홈케어관리 -->
       <kw-btn
+        v-permission:update
         dense
         secondary
         :label="$t('MSG_TXT_HCR_MNGT')"
@@ -71,6 +73,7 @@
       />
       <!-- 엑셀다운로드 -->
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -103,7 +106,7 @@ import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContra
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { alert, modal } = useGlobal();
+const { alert, modal, notify } = useGlobal();
 // const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 
@@ -166,9 +169,15 @@ async function onClickExcelDownload() {
   });
 }
 
+// 확정관리 팝업조회
 async function onClickConfirmManagement() {
-  // await alert('멤버십 확정관리 팝업연계 예정(WwctaMembershipConfirmMgtP)');
   const view = grdMembershipContractNoList.value.getView();
+  const row = view.getCheckedItems();
+  if (row.length === 0) {
+    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
+    return;
+  }
+
   const cntrs = gridUtil.getCheckedRowValues(view);
   const res = await modal({
     component: 'WwctaMembershipConfirmMgtP',
@@ -181,20 +190,35 @@ async function onClickConfirmManagement() {
 
 // 홈케어관리 팝업조회
 async function onClickHomeCareManagement() {
+  let isHcrMgntPopupOpen = true; // 홈케어관리 팝업 오픈 여부
   const view = grdMembershipContractNoList.value.getView();
   const row = view.getCheckedItems();
-  const paramCntrNo = gridUtil.getCellValue(view, row, 'cntrNo'); // 계약번호
-  const paramCntrSn = gridUtil.getCellValue(view, row, 'cntrSn'); // 계약일련번호
-  const paramWwctaHomeCareMgtP = ref({
-    param: `{"cntrs":[{"cntrNo":"${paramCntrNo}","cntrSn":${paramCntrSn}}]}`,
-    return: '',
+  if (row.length === 0) {
+    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
+    return;
+  }
+
+  const cntrs = gridUtil.getCheckedRowValues(view);
+  cntrs.forEach(async (item) => {
+    // console.log(item.sellTpDtlCd);
+    if (item.sellTpDtlCd !== '33') { // 판매유형상세코드(홈케어 멤버십)
+      isHcrMgntPopupOpen = false;
+      // 계약상세번호 : {0} 는 멤버십 구분이 홈케어가 아닙니다.
+      // 멤버십 구분이 홈케어만 변경 가능합니다.
+      await alert(t('MSG_ALT_MSH_DV_ONLY_HCR_CHG_IMP', [item.cntrDtlNo]));
+    }
   });
 
-  const res = await modal({
-    component: 'WwctaHomeCareMgtP',
-    componentProps: JSON.parse(paramWwctaHomeCareMgtP.value.param),
-  });
-  paramWwctaHomeCareMgtP.value.return = JSON.stringify(res);
+  // console.log(`isHcrMgntPopupOpen : ${isHcrMgntPopupOpen}`);
+  if (isHcrMgntPopupOpen) {
+    const res = await modal({
+      component: 'WwctaHomeCareMgtP',
+      componentProps: { cntrs },
+    });
+
+    // 리턴값을 체크한 후 재조회
+    if (res.result) fetchData();
+  }
 }
 
 onMounted(async () => {
@@ -208,14 +232,16 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrDtlNo' }, // 계약상세번호
     { fieldName: 'ordrInfoView' }, // 주문정보 보기
-    { fieldName: 'cntrSn' }, // 순번
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약일련번호
     { fieldName: 'sellTpCd' }, // 판매유형코드
     { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'cstKnm' }, // 계약자명
     { fieldName: 'cstKnmEncr' }, // 계약자명(암호화)
     { fieldName: 'rcgvpKnm' }, // 설치자명
     { fieldName: 'rcgvpKnmEncr' }, // 설치자명(암호화)
-    { fieldName: 'sellTpDtlNm' }, // 계약구분
+    { fieldName: 'sellTpDtlCd' }, // 계약구분(판매유형상세코드)
+    { fieldName: 'sellTpDtlNm' }, // 계약구분명
     { fieldName: 'mshDvNm' }, // 멤버십구분
     { fieldName: 'pdClsfNm' }, // 상품분류
     { fieldName: 'pdCd' }, // 상품코드
@@ -305,7 +331,7 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
     { fieldName: 'ordrInfoView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '130', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_ODER_INF_VIEW') }, // 주문정보 보기
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '138', styleName: 'text-center' }, // 순번
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '138', styleName: 'text-center' }, // 계약일련번호
     { fieldName: 'cstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-left' }, // 계약자명
     { fieldName: 'rcgvpKnmEncr', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-left' }, // 설치자명
     { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_CNTR_DV'), width: '138' }, // 계약구분

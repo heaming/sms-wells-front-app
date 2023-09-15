@@ -15,12 +15,11 @@
 <template>
   <kw-page>
     <kw-observer ref="obsMainRef">
-      <div class="result-area">
+      <div class="normal-area  normal-area--button-set-bottom">
         <h3>{{ $t('MSG_TIT_APP_DTLS',null,'접수 정보') }}</h3>
         <kw-form
           :cols="2"
           align-content="left"
-          dense
         >
           <kw-form-row>
             <kw-form-item :label="$t('MSG_TXT_RCP_D',null,'접수일')">
@@ -76,10 +75,11 @@
         <kw-separator />
 
         <h3>{{ $t('MSG_TXT_ASGN_INF',null,'배정정보') }}</h3>
+        <!-- 230912 form 안에 input 컴포너트가 있을시 dense 제거  -->
         <kw-form
           :cols="2"
           align-content="left"
-          dense
+          :dense="currentJobType !== 'ASGN'"
         >
           <kw-form-row>
             <kw-form-item :label="$t('MSG_TXT_ASN_DT',null,'배정일자')">
@@ -88,10 +88,9 @@
             <kw-form-item :label="$t('MSG_TXT_ASSIGN_MANAGER',null,'배정담당자')">
               <p>
                 <slot v-if="isShowManualAssignBtn">
-                  <!-- padding="10px" -->
                   <kw-btn
-                    secondary
                     :label="$t('MSG_BTN_MANUAL_ASSIGN',null,'수동배정')"
+                    secondary
                     dense
                     @click="onClickManualAssign"
                   />
@@ -168,33 +167,30 @@
               <p>{{ assignInfo?.custAdr }}</p>
             </kw-form-item>
           </kw-form-row>
-          <div class="row justify-end items-center pt8">
-            <div class="item">
-              <slot v-if="currentJobType === 'ASGN'">
-                <kw-btn
-                  :label="$t('MSG_BTN_CANCEL')"
-                  secondary
-                  dense
-                  @click="onClickCancel"
-                />
-                <kw-btn
-                  :label="$t('MSG_BTN_SAVE')"
-                  primary
-                  dense
-                  class="ml8"
-                  @click="onClickSave"
-                />
-              </slot>
-              <slot v-else>
-                <kw-btn
-                  v-if="false"
-                  :label="$t('MSG_BTN_CONFIRM')"
-                  @click="onClickConfirm"
-                />
-              </slot>
-            </div>
-          </div>
         </kw-form>
+        <div class="button-set--bottom">
+          <div class="button-set--bottom-right">
+            <slot v-if="currentJobType === 'ASGN'">
+              <kw-btn
+                :label="$t('MSG_BTN_CANCEL')"
+                @click="onClickCancel"
+              />
+              <kw-btn
+                :label="$t('MSG_BTN_SAVE')"
+                primary
+                class="ml8"
+                @click="onClickSave"
+              />
+            </slot>
+            <slot v-else>
+              <kw-btn
+                v-if="false"
+                :label="$t('MSG_BTN_CONFIRM')"
+                @click="onClickConfirm"
+              />
+            </slot>
+          </div>
+        </div>
       </div>
     </kw-observer>
   </kw-page>
@@ -312,8 +308,7 @@ async function initProps() {
   currentPspcCstCnslId.value = pspcCstCnslId;
   currentJobType.value = jobType;
   currentFromUi.value = fromUi;
-
-  console.log('currentJobType.value', currentJobType.value);
+  // console.log('currentJobType.value', currentJobType.value);
 
   if (isEmpty(currentPspcCstCnslId.value)) {
     await router.close();

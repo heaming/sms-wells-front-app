@@ -133,8 +133,7 @@
             >
               <kw-select
                 v-model="searchParams.dpYn"
-                :options="codes.COD_YN"
-                option-label="codeId"
+                :options="['Y', 'N']"
                 first-option="all"
               />
             </kw-search-item>
@@ -143,8 +142,7 @@
             >
               <kw-select
                 v-model="searchParams.canYn"
-                :options="codes.COD_YN"
-                option-label="codeId"
+                :options="['Y', 'N']"
                 first-option="all"
               />
             </kw-search-item>
@@ -169,8 +167,7 @@
             >
               <kw-select
                 v-model="searchParams.upYn"
-                :options="codes.COD_YN"
-                option-label="codeId"
+                :options="['Y', 'N']"
                 first-option="all"
               />
             </kw-search-item>
@@ -254,6 +251,7 @@
               :label="t('MSG_TXT_FW_HH')"
             />
             <kw-btn
+              :disable="totalCharacterFwUldCount === 0"
               primary
               dense
               :label="$t('MSG_BTN_BOO_FW_PRTC')"
@@ -284,7 +282,7 @@ import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import WwdccPrepaymentExpirationMCharacterFwIz from './WwdccPrepaymentExpirationMCharacterFwIz.vue';
 
-const { notify } = useGlobal();
+const { notify, alert } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { getUserInfo } = useMeta();
@@ -323,8 +321,8 @@ const searchParams = ref({
   pdMclsfId: '',
   pdCd: '',
   pdNm: '',
-  dpStDt: `${dayjs().format('YYYYMM')}`,
-  dpEdDt: `${dayjs().format('YYYYMM')}`,
+  dpStDt: dayjs().format('YYYYMM'),
+  dpEdDt: dayjs().format('YYYYMM'),
   ogcd1: '',
   ogcd2: '',
   ogcd3: '',
@@ -379,6 +377,7 @@ async function fetchCharacterFwUld() {
   const res = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/character-fw-uld', { params: { ...cachedParams } });
   const characterFwUld = res.data;
   totalCharacterFwUldCount.value = characterFwUld.length;
+
   const gridView = grdCharacterFwUldRef.value.getView();
   gridView.getDataSource().setRows(characterFwUld);
 }
@@ -410,7 +409,22 @@ async function onChangeHclsf(hclsf) {
 async function onClickSendMessage() {
   const view = grdCharacterFwUldRef.value.getView();
   const allRows = gridUtil.getAllRowValues(view);
-  const sendRows = allRows.filter((v) => v.resultYn !== 'Y').map((row) => ({
+
+  let cnt = 0;
+  gridUtil.forEach(view, (rowValue) => {
+    if (rowValue.prmReAplcYn === 'Y') {
+      if (isEmpty(rowValue.cntrCralTno1) || isEmpty(rowValue.cntrCralTno2) || isEmpty(rowValue.cntrCralTno3)) {
+        cnt += 1;
+      }
+    }
+  });
+
+  if (cnt > 0) {
+    alert(t('MSG_ALT_CNTRT_MPNO'));
+    return;
+  }
+
+  const sendRows = allRows.filter((v) => v.prmReAplcYn === 'Y').map((row) => ({
     cntrCralTno1: row.cntrCralTno1,
     cntrCralTno2: row.cntrCralTno2,
     cntrCralTno3: row.cntrCralTno3,
@@ -431,6 +445,22 @@ async function onClickSendMessage() {
     fwbooDate: sendParams.value.fwbooDate,
     fwbooTime: sendParams.value.fwbooTime,
   }));
+
+  const yymmdd = sendParams.value.fwbooDate + sendParams.value.fwbooTime;
+  const lastDate = dayjs(yymmdd);
+
+  const currDate = dayjs();
+
+  if (lastDate.diff(currDate, 'hour') <= 0) {
+    alert(t('MSG_ALT_FW_CRTL_HH'));
+    return;
+  }
+
+  if (sendRows.length > 2000) {
+    alert(t('MSG_ALT_ULD_OVR'));
+    return;
+  }
+
   if (sendRows.length === 0) { notify(t('MSG_ALT_NO_FW_OBJ')); return; }
   await dataService.post('/sms/wells/closing/performance/prepayment-expiration', sendRows);
 
@@ -676,12 +706,13 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM_CNTRT'), width: '200', styleName: 'text-center' },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM_CNTRT'), width: '200', styleName: 'text-center', editable: false },
     { fieldName: 'cntrCralTno',
       header: t('MSG_TXT_CNTRR_VAC_PH_NO'),
       width: '200',
       styleName: 'text-center',
+      editable: false,
       displayCallback(grid, index) {
         const { cntrCralTno1, cntrCralTno2, cntrCralTno3 } = grid.getValues(index.itemIndex);
         if (cntrCralTno1 != null) {
@@ -689,32 +720,32 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center' },
-    { fieldName: 'cntrInfo', header: t('MSG_TXT_PD_INF'), width: '249', styleName: 'text-left' },
-    { fieldName: 'prmEndYm', header: t('MSG_TXT_PRM_EXN_YM'), width: '250', styleName: 'text-center' },
-    { fieldName: 'mmpmYm', header: t('MSG_TXT_MM_PY_STRT_YM'), width: '250', styleName: 'text-center' },
-    { fieldName: 'prmReAplcY',
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center', editable: false },
+    { fieldName: 'cntrInfo', header: t('MSG_TXT_PD_INF'), width: '249', styleName: 'text-left', editable: false },
+    { fieldName: 'prmEndYm', header: t('MSG_TXT_PRM_EXN_YM'), width: '250', styleName: 'text-center', editable: false },
+    { fieldName: 'mmpmYm', header: t('MSG_TXT_MM_PY_STRT_YM'), width: '250', styleName: 'text-center', editable: false },
+    {
+      fieldName: 'prmReAplcYn',
       header: t('MSG_TXT_FW_OJ'),
       width: '200',
-      renderer: { type: 'button', hideWhenEmpty: false },
-      displayCallback(g, index) {
-        const values = g.getValues(index.itemIndex);
-        if (values.prmReAplcYn === 'Y') return t('MSG_BTN_EXLD');
-        return t('MSG_TXT_INC');
+      renderer: {
+        type: 'radio',
       },
+      options: [{ codeId: 'N', codeName: t('MSG_TXT_EXCD') }, { codeId: 'Y', codeName: t('MSG_TXT_INC') }],
+      styleName: 'rg-button-toggle',
     },
-    { fieldName: 'prmEndMm', width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'pdCd', width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'pdNm', width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'cnt', width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'currMm', width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'postYy', width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'postMm', width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrCralTno1', width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrCralTno2', width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrCralTno3', width: '250', styleName: 'text-center', visible: false },
+    { fieldName: 'prmEndMm', width: '250', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'pdCd', width: '250', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'pdNm', width: '250', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'cnt', width: '250', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'currMm', width: '250', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'postYy', width: '250', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'postMm', width: '250', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'cntrCralTno1', width: '250', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'cntrCralTno2', width: '250', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'cntrCralTno3', width: '250', styleName: 'text-center', visible: false, editable: false },
 
   ];
 
@@ -722,6 +753,7 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+  view.editOptions.editable = true;
 });
 
 </script>

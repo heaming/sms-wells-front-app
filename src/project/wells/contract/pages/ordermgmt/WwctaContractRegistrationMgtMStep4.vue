@@ -117,28 +117,30 @@ ${step4.cntrt.sexDvNm || ''}` }}
 
       <kw-separator />
 
-      <h3>고객결제방법 선택</h3>
+      <template v-if="step4.value?.bas?.cstStlmInMthCd !== '30'">
+        <h3>고객결제방법 선택</h3>
 
-      <kw-form
-        :cols="1"
-        class="mt20"
-      >
-        <kw-form-row>
-          <kw-form-item label="고객결제방법선택">
-            <p
-              v-if="isReadonly"
-            >
-              {{ codes.CST_STLM_IN_MTH_CD.find((code) => code.codeId === step4.bas?.cstStlmInMthCd)?.codeName }}
-            </p>
-            <kw-option-group
-              v-else
-              :model-value="step4.bas?.cstStlmInMthCd"
-              type="radio"
-              :options="codes.CST_STLM_IN_MTH_CD"
-            />
-          </kw-form-item>
-        </kw-form-row>
-      </kw-form>
+        <kw-form
+          :cols="1"
+          class="mt20"
+        >
+          <kw-form-row>
+            <kw-form-item label="고객결제방법선택">
+              <p
+                v-if="isReadonly"
+              >
+                {{ codes.CST_STLM_IN_MTH_CD.find((code) => code.codeId === step4.bas?.cstStlmInMthCd)?.codeName }}
+              </p>
+              <kw-option-group
+                v-else
+                :model-value="step4.bas?.cstStlmInMthCd"
+                type="radio"
+                :options="codes.CST_STLM_IN_MTH_CD"
+              />
+            </kw-form-item><!--TODO CHECK-->
+          </kw-form-row>
+        </kw-form>
+      </template>
 
       <kw-separator />
 
@@ -526,7 +528,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
             >
               <kw-select
                 v-model="restipulationBasInfo.stplTpCd"
-                :options="restipulationBasInfo.data"
+                :options="stplTpCdOptions"
                 option-value="rstlBaseTpCd"
                 option-label="text"
                 @change="calcRestipulation"
@@ -589,32 +591,19 @@ import { codeUtil, defineGrid, getComponentType, stringUtil, useDataService, use
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
-const dataService = useDataService();
-const { notify, alert } = useGlobal();
 const props = defineProps({
   contract: { type: Object, required: true },
-  onChildMounted: { type: Function, required: true },
 });
+const emit = defineEmits([
+  'activated',
+]);
+const exposed = {};
+defineExpose(exposed);
+const router = useRouter();
+
+const dataService = useDataService();
+const { notify, alert } = useGlobal();
 const { getters } = useStore();
-const sessionUserId = getters['meta/getUserInfo'];
-const { cntrNo: pCntrNo, step4 } = toRefs(props.contract);
-step4.value = {
-  bas: {},
-  cntrt: {},
-  prtnr: {},
-  prtnr7: {},
-  cntrDtls: [{}],
-  stlmDtls: [{}],
-};
-const ogStep4 = ref({});
-const isRestipulation = ref(false);
-const restipulationCntrSn = ref(0);
-const restipulationBasInfo = ref({});
-const { t } = useI18n();
-const grdMainRef = ref(getComponentType('KwGrid'));
-const grdStlmRef = ref(getComponentType('KwGrid'));
-const countGrdMain = ref(1);
-const countGrdStlm = ref(1);
 const codes = await codeUtil.getMultiCodes(
   'CNTR_TP_CD',
   'CST_STLM_IN_MTH_CD',
@@ -639,6 +628,32 @@ codes.DP_TP_CD_AFTN = [
   { codeId: '0203', codeName: '카드이체' },
   { codeId: '0102', codeName: '계좌이체' },
 ];
+
+const sessionUserId = getters['meta/getUserInfo'];
+const cntrNo = toRef(props.contract, 'cntrNo');
+const cntrTpCd = toRef(props.contract, 'cntrTpCd');
+const rstlCntrNo = toRef(props.contract, 'rstlCntrNo');
+const rstlCntrSn = toRef(props.contract, 'rstlCntrSn');
+const step4 = toRef(props.contract, 'step4');
+step4.value = {
+  bas: {},
+  cntrt: {},
+  prtnr: {},
+  prtnr7: {},
+  cntrDtls: [{}],
+  stlmDtls: [{}],
+};
+const ogStep4 = ref({});
+const isRestipulation = ref(false);
+// const restipulationCntrSn = ref(0);
+const stplTpCdOptions = ref([]);
+const restipulationBasInfo = ref({});
+const { t } = useI18n();
+const grdMainRef = ref(getComponentType('KwGrid'));
+const grdStlmRef = ref(getComponentType('KwGrid'));
+const countGrdMain = ref(1);
+const countGrdStlm = ref(1);
+
 const dtlSn = ref(1);
 const now = dayjs();
 const cntrTpIs = ref({
@@ -663,9 +678,7 @@ function setGrid() {
 }
 
 async function calcRestipulation() {
-  const datas = restipulationBasInfo.value.data;
-
-  datas.forEach((element) => {
+  stplTpCdOptions.value.forEach((element) => {
     if (restipulationBasInfo.value.stplTpCd === element.rstlBaseTpCd) {
       restipulationBasInfo.value.stplDscAmt = element.stplDscAmt;
       restipulationBasInfo.value.stplPtrm = element.rstlMcn;
@@ -688,13 +701,10 @@ async function calcRestipulation() {
     }
   });
   if (restipulationBasInfo.value.newFnlValue) {
-    const { cntrNo } = step4.value.bas;
-    const { cntrSn } = restipulationBasInfo.value;
-    const res = await dataService.get(
+    const { data } = await dataService.get(
       'sms/wells/contract/re-stipulation/contract-info',
-      { params: { cntrNo, cntrSn } },
+      { params: restipulationBasInfo.value },
     );
-    const data = cloneDeep(res.data);
     const stplStrtdt = data.rentalTn >= data.stplPtrm ? now.add(1, 'month').startOf('M').format('YYYYMMDD')
       : dayjs(data.istDt, 'YYYYMMDD').add(Number(data.stplPtrm), 'month').startOf('M').format('YYYYMMDD');
     const stplEnddt = dayjs(stplStrtdt, 'YYYYMMDD').add(Number(restipulationBasInfo.value.stplPtrm), 'month').endOf('M').format('YYYYMMDD');
@@ -709,50 +719,61 @@ async function calcRestipulation() {
   }
 }
 
-async function getCntrInfo(cntrNo) {
-  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 4 } });
-  step4.value = cntr.data.step4;
-  pCntrNo.value = step4.value.bas.cntrNo;
-  console.log(step4.value);
-  // 총판채널인 경우 고객센터 이관만 보이도록
-  codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
-  ogStep4.value = cloneDeep(step4.value);
-  setGrid();
-}
-async function getCntrInfoWithRstl(cntrNo, pCntrSn) {
-  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: { cntrNo, step: 4 } });
-  step4.value = cntr.data.step4;
-  pCntrNo.value = step4.value.bas.cntrNo;
-  console.log(step4.value);
-  // 총판채널인 경우 고객센터 이관만 보이도록
-  codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
-  ogStep4.value = cloneDeep(step4.value);
-  setGrid();
-  // step1에서 재약정 선택해서 진입하거나, 기존 재약정 계약을 조회하는 경우 재약정 화면 설정
-  const cntrSn = isRestipulation.value ? restipulationCntrSn.value : pCntrSn;
-  const sels = await dataService.get(
-    'sms/wells/contract/re-stipulation/standard-info',
-    { params: { cntrNo, cntrSn } },
-  );
-  restipulationBasInfo.value = cloneDeep(sels);
-  restipulationBasInfo.value.cntrSn = cntrSn;
-  if (pCntrSn) {
-    // 기존 데이터 조회(세팅)
-    const res = await dataService.get(
-      'sms/wells/contract/re-stipulation/contract',
-      { params: { cntrNo, cntrSn } },
-    );
-    console.log(res);
-    restipulationBasInfo.value.stplTpCd = res.data.stplTpCd;
-    calcRestipulation();
+async function getCntrInfo() {
+  if (!cntrNo.value) {
+    await alert('잘못된 접근입니다.');
+    router.go(-1);
+    return;
   }
-  step4.value.isRestipulation = true;
-  isRestipulation.value = true;
+  const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
+    cntrNo: cntrNo.value,
+    step: 4,
+  } });
+
+  step4.value = data.step4;
+  ogStep4.value = cloneDeep(step4.value);
+  // 총판채널인 경우 고객센터 이관만 보이도록
+  codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
+
+  setGrid();
 }
 
-async function setRestipulation(flag, cntrSn) {
-  isRestipulation.value = flag;
-  restipulationCntrSn.value = cntrSn;
+async function fetchStplTpCdOptions() {
+  const params = { cntrNo: rstlCntrNo.value, cntrSn: rstlCntrSn.value };
+  const { data } = await dataService.get(
+    'sms/wells/contract/re-stipulation/standard-info',
+    { params },
+  );
+  stplTpCdOptions.value = data;
+}
+
+async function fetchInitialStplTpCd() {
+  const params = { cntrNo: rstlCntrNo.value, cntrSn: rstlCntrSn.value };
+  const response = await dataService.get(
+    'sms/wells/contract/re-stipulation/contract',
+    { params },
+  );
+  restipulationBasInfo.value.cntrNo = rstlCntrNo.value;
+  restipulationBasInfo.value.cntrSn = rstlCntrSn.value;
+  restipulationBasInfo.value.stplTpCd = response.data.stplTpCd;
+}
+
+async function getCntrInfoWithRstl() {
+  if (!rstlCntrNo.value || !rstlCntrSn.value) {
+    await alert('잘못된 접근입니다.');
+    router.go(-1);
+    return;
+  }
+
+  cntrNo.value = rstlCntrNo.value;
+
+  await getCntrInfo();
+
+  await fetchStplTpCdOptions();
+  await fetchInitialStplTpCd();
+
+  step4.value.isRestipulation = true;
+  isRestipulation.value = true;
 }
 
 function isChangedStep() {
@@ -789,17 +810,26 @@ function onClickNextDtlSn() {
   if (dtlSn.value < step4.value.dtls.length) dtlSn.value += 1;
 }
 
-defineExpose({
-  getCntrInfo,
-  getCntrInfoWithRstl,
-  isChangedStep,
-  isValidStep,
-  saveStep,
-  setRestipulation,
-});
+async function initStep() {
+  debugger;
+  if (cntrTpCd.value === '08') {
+    await getCntrInfoWithRstl();
+  } else {
+    await getCntrInfo();
+  }
+}
 
-onMounted(async () => {
-  props.onChildMounted(4);
+exposed.getCntrInfo = getCntrInfo;
+exposed.getCntrInfoWithRstl = getCntrInfoWithRstl;
+exposed.isChangedStep = isChangedStep;
+exposed.isValidStep = isValidStep;
+exposed.initStep = initStep;
+exposed.saveStep = saveStep;
+/* exposed.setRestipulation = setRestipulation; */
+
+onActivated(() => {
+  initStep();
+  emit('activated', 4);
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -823,8 +853,8 @@ const initGrdMain = defineGrid((data, view) => {
       width: '140',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
-        return `${cntrNo}-${cntrSn}`;
+        const { cntrNo: pCntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${pCntrNo}-${cntrSn}`;
       },
     },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_CNTR_DV'), width: 70 },

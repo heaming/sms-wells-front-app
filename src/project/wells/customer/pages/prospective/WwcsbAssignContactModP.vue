@@ -53,6 +53,7 @@
           <kw-btn
             :label="$t('MSG_BTN_CANCEL')"
             class="ml8"
+            negative
             @click="cancel"
           />
           <kw-btn
@@ -115,7 +116,7 @@ async function onClickSave() {
 
 onMounted(async () => {
   saveParams.value.pspcCstCnslIds = props.pspcCstCnslIds;
-  console.log('saveParams.value.pspcCstCnslIds', saveParams.value.pspcCstCnslIds);
+  // console.log('saveParams.value.pspcCstCnslIds', saveParams.value.pspcCstCnslIds);
   obsMainRef.value.init();
 });
 </script>

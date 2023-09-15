@@ -350,7 +350,7 @@ async function onClickSearch() {
     }
 
     // 데이터 생성
-    res = await dataService.post('/sms/wells/service/qom-asn/individual-wares', cachedParams, { timeout: 3000000 });
+    res = await dataService.post('/sms/wells/service/qom-asn/individual-wares', cachedParams, { timeout: 300000 });
     const { processCount } = res.data;
     if (processCount === 0) {
       // 생성할 데이터가 존재하지 않습니다.
@@ -394,7 +394,7 @@ async function onClickWareRenewal() {
     return;
   }
 
-  const res = await dataService.put('/sms/wells/service/qom-asn/ware-renewal', searchParams.value, { timeout: 300000 });
+  const res = await dataService.put('/sms/wells/service/qom-asn/ware-renewal', searchParams.value);
   const { processCount } = res.data;
   if (processCount > 0) {
     // 창고 갱신이 완료되었습니다.
@@ -441,7 +441,7 @@ async function onClickRecreation() {
     return;
   }
 
-  let res = await dataService.delete('/sms/wells/service/qom-asn', { data: cachedParams }, { timeout: 300000 });
+  let res = await dataService.delete('/sms/wells/service/qom-asn', { data: cachedParams });
   const { processCount } = res.data;
   if (processCount === 0) {
     // 생성할 데이터가 존재하지 않습니다.
@@ -449,7 +449,7 @@ async function onClickRecreation() {
     return;
   }
   // 데이터 생성
-  res = await dataService.post('/sms/wells/service/qom-asn/individual-wares', cachedParams, { timeout: 3000000 });
+  res = await dataService.post('/sms/wells/service/qom-asn/individual-wares', cachedParams, { timeout: 300000 });
   // 생성되었습니다.
   notify(t('MSG_ALT_CREATE'));
 

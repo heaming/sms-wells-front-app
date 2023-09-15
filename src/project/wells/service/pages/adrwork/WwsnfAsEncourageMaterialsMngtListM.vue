@@ -3,22 +3,17 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNF
-2. 프로그램 ID : [W-SV-U-0198M01] WwsnfAsEncourageMaterialsMngtListM - AS유형별 권장자재 관리
+2. 프로그램 ID : [W-SV-U-0198M01] WwsnfAsEncourageMaterialsMngtListM - A/S 유형별 필요자재 관리
 3. 작성자 : gs.piit122
 4. 작성일 : 2023.07.31
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
--
+- http://localhost:3000/#/service/wwsnf-as-encourage-materials-mngt-list
 ****************************************************************************************************
 --->
 <template>
   <kw-page>
-    <template #header>
-      <kw-page-header
-        :options="['홈', '정보관리','기준정보관리','AS유형별 필요자재 관리']"
-      />
-    </template>
     <kw-search
       :cols="3"
       @search="onClickSearch"
@@ -37,11 +32,10 @@
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_NM')"
         >
-          <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
-            first-option="all"
+            first-option="select"
             option-label="cdNm"
             option-value="cd"
             :disable="searchParams.pdGrpCd === '' "
@@ -133,7 +127,6 @@ const { getConfig } = useMeta();
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  // 'SV_DV_CD',
   'PD_GRP_CD',
 );
 
@@ -145,38 +138,18 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  // pageSize: 10,
 });
 let cachedParams;
 const searchParams = ref({
-  // svTpCd: '',
   pdGrpCd: '',
-  // ogId: '',
   pdCd: '',
   classA: '',
   classB: '',
   classC: '',
-  // dateType: '',
-  // dateValueFromDt: '',
-  // dateValueToDt: '',
-  // prtnrNo: '',
 });
 const classARef = ref([]);
 const classBRef = ref([]);
 const classCRef = ref([]);
-// const productCode = ref();
-// const prtNrs = ref();
-// watch(() => [searchParams.value.pdGrpCd], async () => {
-//   const tempVal = await getPartMaster(undefined, searchParams.value.pdGrpCd);
-//   productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.codeName }));
-// }, { immediate: true });
-
-// const servierCenterOrg = await getServiceCenterOrgs();
-
-// watch(() => [searchParams.value.ogId], async () => {
-//   prtNrs.value = await getServiceCenterPrtnr(searchParams.value.ogId);
-//   searchParams.value.prtnrNo = '';
-// }, { immediate: true });
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-encourage-materials-mngt', { params: { ...cachedParams, ...pageInfo.value } });
@@ -206,7 +179,7 @@ async function searchCustomerCenterClassB() {
   classCRef.value = await getSearchCustomerCenterClass(searchParams.value.classA, searchParams.value.classB);
 }
 
-const pds = ref([]);// = await getPartMaster('4', '1', 'M');
+const pds = ref([]);
 async function changePdGrpCd() {
   if (searchParams.value.pdGrpCd) {
     pds.value = await getPartMaster(
@@ -224,7 +197,9 @@ async function changePdGrpCd() {
       'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
     );
   } else pds.value = [];
+  searchParams.value.pdCd = '';
 }
+changePdGrpCd();
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

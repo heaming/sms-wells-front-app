@@ -34,7 +34,6 @@
         <!-- 실적년월 -->
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
-          hint="실적년월 선택불가"
         >
           <p>{{ data.perfYmTxt }}</p>
         </kw-form-item>
@@ -43,7 +42,7 @@
       <kw-form-row>
         <!-- 작업구분 -->
         <kw-form-item
-          :label="$t('MSG_TXT_WK_CLS')"
+          :label="$t('MSG_TXT_ORDR')"
         >
           <p>{{ data.feeTcntDvCdTxt }}</p>
         </kw-form-item>

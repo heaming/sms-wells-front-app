@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="4"
+      :cols="5"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -39,6 +39,7 @@
         <!-- 출고품목 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_ITM')"
+          :colspan="2"
         >
           <kw-select
             v-model="searchParams.itmKndCd"
@@ -65,29 +66,32 @@
         <kw-search-item
           :label="$t('MSG_TXT_STR_HOP_DT')"
           :colspan="2"
+          required
         >
           <kw-date-range-picker
             v-model:from="searchParams.strHopDtStr"
             v-model:to="searchParams.strHopDtEnd"
-            rules="date_range_months:1"
+            rules="date_range_months:1|required"
             @update:from="fetchDefaultData"
           />
           <!-- //입고희망일자 -->
-          <!-- 출고확정-->
-          <kw-field
-            v-model="searchParams.ostrCnfm"
-            class="ml20"
-          >
-            <template #default="{ field }">
-              <kw-checkbox
-                v-model="searchParams.ostrCnfm"
-                v-bind="field"
-                :label="$t('MSG_TXT_OSTR_DTRM')"
-              />
-            </template>
-          </kw-field>
-          <!-- //출고확정-->
         </kw-search-item>
+
+        <kw-search-item
+          :label="`${t('MSG_TXT_OSTR')}${t('MSG_TXT_STT')}`"
+          :colspan="2"
+        >
+          <kw-option-group
+            v-model="searchParams.ostrStts"
+            type="checkbox"
+            :options="[
+              {codeId: 'STNB', codeName: `${t('MSG_TXT_OSTR_STNB')}`},
+              {codeId: 'PRTN', codeName: `${t('MSG_TXT_PRTN_OSTR')}`},
+              {codeId: 'FSH', codeName: `${t('MSG_TXT_OSTR_FSH')}`},
+            ]"
+          />
+        </kw-search-item>
+
         <!-- 출고요청창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_AK_WARE')"
@@ -172,12 +176,11 @@ const toMonth = dayjs().format('YYYYMMDD');
 const searchParams = ref({
   strHopDtStr: toMonth,
   strHopDtEnd: toMonth,
-  ostrCnfm: 'N',
+  ostrStts: ['STNB', 'PRTN'],
   ostrAkTpCd: '',
   ostrOjWareNo: '',
   itmKndCd: '',
   wareDvCd: '2',
-  wareLocaraCd: '',
 });
 let cachedParams;
 
@@ -301,7 +304,7 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.value.OVIV_TP_CD,
     },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_OSTR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'ostrDtrnYn', header: t('MSG_TXT_OSTR_DTRM_YN'), width: '150', styleName: 'text-center' },
+    { fieldName: 'ostrDtrnYn', header: `${t('MSG_TXT_OSTR')}${t('MSG_TXT_STT')}`, width: '150', styleName: 'text-center' },
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
       width: '142',

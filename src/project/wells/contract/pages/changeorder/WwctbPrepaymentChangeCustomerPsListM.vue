@@ -45,6 +45,8 @@
             v-model="fieldParams.ogCd"
             rules="required"
             icon="search"
+            clearable
+            regex="alpha_num"
             :on-click-icon="fetchOgCd"
             maxlength="10"
             :label="t('MSG_TXT_OG_CD')"
@@ -76,6 +78,7 @@
           <kw-input
             v-model="fieldParams.pdCd"
             icon="search"
+            regex="alpha_num"
             :on-click-icon="fetchProduct"
             maxlength="10"
           />
@@ -102,8 +105,10 @@
             :page-size-options="commonCodes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span>{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -168,7 +173,7 @@ const fieldParams = ref({
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(commonCodes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  pageSize: Number(commonCodes.COD_PAGE_SIZE_OPTIONS[2].codeName), // 30
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -212,7 +217,7 @@ async function fetchData() {
     return;
   }
 
-  const res = await dataService.get('/sms/wells/contract/changeorder/paging', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorder/prepayment-change-customers/paging', { params: cachedParams });
   const view = grdMainRef.value.getView();
 
   grdMainRef.value.getData().clearRows();
@@ -276,7 +281,7 @@ async function fetchProduct(gubun) {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get('/sms/wells/contract/changeorder/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/contract/changeorder/prepayment-change-customers/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -302,18 +307,18 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdCd' },
     { fieldName: 'pdNm' },
     { fieldName: 'prmPtrm' },
-    { fieldName: 'prmMcn' },
-    { fieldName: 'prmDscr' },
+    { fieldName: 'prmMcn', dataType: 'number' },
+    { fieldName: 'prmDscr', dataType: 'number' },
     { fieldName: 'prmPtrmThm' },
-    { fieldName: 'prmMcnThm' },
-    { fieldName: 'prmDscrThm' },
+    { fieldName: 'prmMcnThm', dataType: 'number' },
+    { fieldName: 'prmDscrThm', dataType: 'number' },
     { fieldName: 'cralLocaraTno' },
     { fieldName: 'mexnoEncr' },
     { fieldName: 'cralIdvTno' },
   ];
 
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
     { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '118', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '118', styleName: 'text-center' },
     {
@@ -331,10 +336,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '237', styleName: 'text-left' },
     { fieldName: 'prmPtrm', header: t('MSG_TXT_PRM_PTRM'), width: '160', styleName: 'text-center' },
     { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'prmDscr', header: t('MSG_TXT_PRM_DSCR_DSC_AMT'), width: '110', styleName: 'text-right' },
+    { fieldName: 'prmDscr', header: t('MSG_TXT_PRM_DSCR'), width: '110', styleName: 'text-right' },
     { fieldName: 'prmPtrmThm', header: t('MSG_TXT_PRM_PTRM'), width: '160', styleName: 'text-center' },
     { fieldName: 'prmMcnThm', header: t('MSG_TXT_PRM_MCNT'), width: '110', styleName: 'text-right' },
-    { fieldName: 'prmDscrThm', header: t('MSG_TXT_PRM_DSCR_DSC_AMT'), width: '110', styleName: 'text-right' },
+    { fieldName: 'prmDscrThm', header: t('MSG_TXT_PRM_DSCR'), width: '110', styleName: 'text-right' },
 
   ];
 

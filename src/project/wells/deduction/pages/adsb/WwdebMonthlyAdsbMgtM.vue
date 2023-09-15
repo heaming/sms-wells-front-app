@@ -294,7 +294,7 @@ async function onClickSearch() {
 
 async function onClickMainExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/deduction/adsb/prtnr/excel-download', { params: cachedParams, timeout: 480000 });
+  const res = await dataService.get('/sms/wells/deduction/adsb/prtnr/excel-download', { params: cachedParams, timeout: 100000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -305,7 +305,7 @@ async function onClickMainExcelDownload() {
 
 async function onClickSecondExcelDownload() {
   const view = grdSecondRef.value.getView();
-  const res = await dataService.get('/sms/wells/deduction/adsb/contract/excel-download', { params: cachedParams, timeout: 480000 });
+  const res = await dataService.get('/sms/wells/deduction/adsb/contract/excel-download', { params: cachedParams, timeout: 100000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,

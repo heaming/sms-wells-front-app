@@ -551,10 +551,8 @@ fieldsObj = {
     );
     // 월별 필드(품목별로 노출 변경)
     const columnMonthlyTotals = [];
-    const columnMonthlys = [];
     // monthlyFields 필드에 정의된 필드를 기준으로 동적 필드 생성
     for (let mm = 1; mm <= 12; mm += 1) {
-      const columnMonthly = [];
       const columnMonthlyItems = [];
       const columnMonthlyFields = [...monthlyItemFields];
       columnMonthlyFields.forEach((row) => {
@@ -579,20 +577,18 @@ fieldsObj = {
           },
         );
       });
-      // 월별 헤더
-      columnMonthly.push(
+      // 월별 레이아웃 필드
+      const layoutColumnsMonthly = [];
+      layoutColumnsMonthly.push(
         {
           direction: 'horizontal',
           header: `${mm}${t('MSG_TXT_MON')}`,
           items: columnMonthlyItems,
         },
       );
-      columnMonthlys.push(columnMonthly);
+      layoutColumns.push(layoutColumnsMonthly[0]);
     }
     columns.push(...columnMonthlyTotals);
-    columnMonthlys.forEach((item) => {
-      layoutColumns.push(item[0]);
-    });
     const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
     gridData.setFields(fields);
     gridView.setColumns(columns);

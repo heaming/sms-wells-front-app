@@ -298,7 +298,7 @@ async function onChangeMngtYm() {
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '100', styleName: 'text-left' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
     { fieldName: 'nwcmr', header: t('MSG_TXT_NWCMR'), width: '80', styleName: 'text-center' },
     { fieldName: 'indv', header: t('MSG_TXT_INDV'), width: '80', styleName: 'text-center' },

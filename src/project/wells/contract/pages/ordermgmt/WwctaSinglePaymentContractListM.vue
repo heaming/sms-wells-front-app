@@ -36,7 +36,9 @@
         <kw-date-range-picker
           v-model:from="searchParams.strtDt"
           v-model:to="searchParams.endDt"
-          :label="searchParams.prdEnqry === '1' ? $t('MSG_TXT_RCP_D') : searchParams.prdEnqry === '2' ? $t('MSG_TXT_DT_OF_SALE') : searchParams.prdEnqry === '3' ? $t('MSG_TXT_CAN_D') : ''"
+          :label="searchParams.prdEnqry === '1' ? $t('MSG_TXT_RCP_D'):
+            searchParams.prdEnqry === '2' ? $t('MSG_TXT_DT_OF_SALE'):
+            searchParams.prdEnqry === '3' ? $t('MSG_TXT_CAN_D'):$t('MSG_TXT_RCP_D')"
           rules="date_range_required|date_range_months:1"
         />
       </kw-search-item>
@@ -243,6 +245,7 @@
         <span class="ml8">(단위:원, 개월:건)</span>
       </template>
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary

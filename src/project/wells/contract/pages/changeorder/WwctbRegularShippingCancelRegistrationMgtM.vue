@@ -115,7 +115,10 @@
         <kw-form cols="4">
           <kw-form-row>
             <!--기기정보-->
-            <kw-form-item :label="$t('MSG_TXT_PD_INF')">
+            <kw-form-item
+              :label="$t('MSG_TXT_PD_INF')"
+              colspan="4"
+            >
               <p>{{ searchDetail.machineNm }}</p>
             </kw-form-item>
           </kw-form-row>
@@ -172,7 +175,7 @@
             </kw-form-item>
             <!-- row1 정상매출 -->
             <kw-form-item :label="$t('MSG_TXT_NOM_SL')">
-              <p>{{ stringUtil.getDateFormat(searchDetail.nomSlAmt) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.nomSlAmt??'') }}</p>
             </kw-form-item>
             <!-- row1 정상할인 -->
             <kw-form-item :label="$t('MSG_TXT_NOM_DSC')">
@@ -258,32 +261,26 @@
           <kw-form-row>
             <!-- row5 연체가산금 -->
             <kw-form-item :label="$t('MSG_TXT_DLQ_ADAMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.btdDlqAddAmt??'') }}</p>
             </kw-form-item>
             <!-- row5 入 / 出 -->
-            <kw-form-item
-              label="入 / 出"
-              hint="null"
-            >
+            <kw-form-item label="入 / 出">
               <p>
-                {{ stringUtil.getNumberWithComma(searchDetail.null??'') }}/
-                {{ stringUtil.getNumberWithComma(searchDetail.null??'') }}
+                {{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddDpSumAmt??'') }}/
+                {{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddRfndSumAmt??'') }}
               </p>
             </kw-form-item>
             <!-- row5 가산금조정 -->
-            <kw-form-item
-              :label="$t('MSG_TXT_ADD_AM')+$t('MSG_TXT_CTR')"
-              hint="null"
-            >
+            <kw-form-item :label="$t('MSG_TXT_ADD_AM')+$t('MSG_TXT_CTR')">
               <kw-input
-                v-model="searchDetail.null"
+                v-model="searchDetail.adCtrAmt"
                 regex="num"
                 maxlength="10"
               />
             </kw-form-item>
             <!-- row5 미수금(未) -->
             <kw-form-item :label="$t('MSG_TXT_UCAM')+'(未)'">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.ucAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -381,12 +378,6 @@
           maxlength="10"
           align="right"
           :readonly="searchDetail.ccamExmptDvCd!=='4'"
-        />
-        <kw-btn
-          :label="$t('MSG_TXT_CCAM_IZ_DOC')+' '+$t('MSG_BTN_VIEW')"
-          secondary
-          class="px12"
-          @click="onClickCcamView"
         />
       </kw-form-item>
       <!-- row4 반품수량 -->
@@ -581,12 +572,6 @@ function onChangeTextforSelect(div) {
       searchDetail.cntrStatChRsonCd = '';
     }
   }
-}
-
-// 위약금 내역서 보기
-function onClickCcamView() {
-  // 위약금 내역서 보기 : 해당 계약번호에 대한 '위약금 내역' OZ뷰 팝업을 호출 합니다.
-  notify('TODO : 위약금 내역서 OZ뷰 호출 ');
 }
 
 // 5. 취소사항 > 취소사항 조회 클릭

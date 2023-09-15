@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : [WSNC] allocate(배정관리)
-2. 프로그램 ID : WwsncProductServicePresentStateListM  - 제품 서비스 현황 (W-SV-U-0229M01)
+2. 프로그램 ID : wwsncProductServicePresentStateListM  - 제품 서비스 현황 (W-SV-U-0229M01)
 3. 작성자 : gs.piit122 김동엽
 4. 작성일 : 2023-01-02
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 조회조건에 일치하는 상품별, 작업유형별 서비스 처리 정보를 조회한다.
+- http://localhost:3000/#/service/wwsnc-product-service-present-state-list
 ****************************************************************************************************
 -->
 <template>
@@ -34,16 +34,30 @@
             first-option="all"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_PD_GRP')"
+        >
           <kw-select
             v-model="searchParams.pdGrpCd"
-            :label="$t('MSG_TXT_PD_GRP')"
             :options="codes.PD_GRP_CD"
+            first-option="all"
+            @change="changePdGrpCd"
           />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_NM')"
+        >
+          <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
-            :options="productCode"
+            :options="pds"
             first-option="all"
+            option-label="cdNm"
+            option-value="cd"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -118,12 +132,28 @@ const codes = await codeUtil.getMultiCodes(
   'LOCARA_MNGT_DV_CD',
   'PD_GRP_CD',
 );
-const productCode = ref();
-watch(() => [searchParams.value.year, searchParams.value.pdGrpCd], async () => {
-  // productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGrpCd);
-  const tempVal = await getPartMaster(undefined, searchParams.value.pdGrpCd);
-  productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.codeName }));
-}, { immediate: true });
+
+const pds = ref([]);
+async function changePdGrpCd() {
+  if (searchParams.value.pdGrpCd) {
+    pds.value = await getPartMaster(
+      '4',
+      searchParams.value.pdGrpCd,
+      'M',
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
+    );
+  } else pds.value = [];
+  searchParams.value.pdCd = '';
+}
+changePdGrpCd();
 
 function calcData(data) {
   let totalSum = 0;
@@ -168,7 +198,6 @@ async function fetchData() {
     '/sms/wells/service/as-assign-state/product-services',
     { params: { ...cachedParams } },
   );
-  console.log(JSON.stringify(res.data));
 
   const view = grdMainRef.value.getView();
 

@@ -32,8 +32,9 @@
           <kw-search-item :label="$t('MSG_TXT_ENTRP_NO')">
             <kw-input
               v-model="searchParams.sellLmBzrno"
+              icon="search"
               mask="###-##-#####"
-              :max="10"
+              @click-icon="onClickBzrno"
             />
           </kw-search-item>
           <kw-search-item :label="$t('MSG_TXT_BSN_NM')">
@@ -101,6 +102,7 @@
             @click="onClickExcelUpload"
           />
           <kw-btn
+            v-permission:download
             icon="download_on"
             dense
             secondary
@@ -139,7 +141,6 @@ const dataService = useDataService();
 const { t } = useI18n();
 const { notify } = useGlobal();
 const { getConfig } = useMeta();
-const { hasRoleNickName } = useMeta();
 const { alert } = useGlobal();
 const { currentRoute } = useRouter();
 
@@ -172,13 +173,13 @@ const isSellLmOcDtmEmpty = computed(() => isEmpty(searchParams.value.sellLmOcDtm
 
 let cachedParams;
 
+// onClickAdd: 행추가 이벤트
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {});
 }
 
-console.log(hasRoleNickName);
-
+// fetchData: 조회
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
@@ -198,6 +199,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// onClickSearch: 조회버튼 클릭 이벤트
 async function onClickSearch() {
   const paramsValue = searchParams.value;
 
@@ -219,6 +221,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// onClickSave: 저장 이벤트
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -233,6 +236,7 @@ async function onClickSave() {
   onClickSearch();
 }
 
+// onClickDelete: 삭제 이벤트
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -250,6 +254,8 @@ async function onclickExcelTemplatDownload() {
   getStandardFormFile('FOM_CTC_0001');
 }
 */
+
+// onClickExcelDownload: 엑셀 다운로드 이벤트
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -262,6 +268,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// onClickExcelUpload: 엑셀 업로드 이벤트
 async function onClickExcelUpload() {
   const apiUrl = '/sms/wells/contract/sales-limits/business-partners/excel-upload';
   const templateId = 'FOM_CTC_0001';
@@ -282,6 +289,24 @@ async function onClickExcelUpload() {
       });
     }
   }
+}
+// callBzrnoPopup: 고객 조회 팝업
+async function callBzrnoPopup() {
+  const { result, payload } = await modal({
+    component: 'ZwcsaCustomerListP',
+    componentProps: {
+      bzrno: searchParams.value.sellLmBzrno,
+      cstType: '2',
+    },
+  });
+  if (result) {
+    searchParams.value.sellLmBzrno = payload.bzrno;
+  }
+}
+
+// onClickBzrno: 사업자번호 아이콘 클릭 이벤트
+async function onClickBzrno() {
+  callBzrnoPopup();
 }
 
 /*
@@ -313,10 +338,10 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sellLmDv', header: t('MSG_TXT_INF_CLS'), width: '142', styleName: 'text-center', editable: true, editor: { type: 'list' }, options: [{ codeId: '3', codeName: t('MSG_TXT_RGS') }, { codeId: '4', codeName: t('MSG_TXT_RSTRCT') }], rules: 'required' }, /* 공통코드 미존재로 하드코딩 설정 */
     { fieldName: 'sellLmBzrno', header: t('MSG_TXT_ENTRP_NO'), width: '127', styleName: 'text-center', editable: true, editor: { maxLength: 10, mask: { editMask: '000-00-00000' } }, rules: 'required', maxLength: 10 },
-    { fieldName: 'dlpnrNm', header: t('MSG_TXT_BSN_NM'), width: '127', styleName: 'text-left', editable: false },
+    { fieldName: 'dlpnrNm', header: t('MSG_TXT_BSN_NM'), width: '127', styleName: 'text-center', editable: false },
     { fieldName: 'dlgpsNm', header: t('MSG_TXT_RPRS_NM'), width: '127', styleName: 'text-center', editable: false },
     { fieldName: 'bryyMmdd', header: t('MSG_TXT_BIRTH_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: false, editor: { type: 'btdate' } },
-    { fieldName: 'sellLmRsonCd', header: t('MSG_TXT_DFT_CD'), width: '211', editable: true, editor: { type: 'list' }, options: codes.SELL_LM_RSON_CD },
+    { fieldName: 'sellLmRsonCd', header: t('MSG_TXT_DFT_CD'), width: '211', styleName: 'text-center', editable: true, editor: { type: 'list' }, options: codes.SELL_LM_RSON_CD },
     { fieldName: 'sellLmOcDtm', header: t('MSG_TXT_OCCUR_DATE'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' }, rules: 'required' },
     { fieldName: 'sellLmRlsDtm', header: t('MSG_TXT_CNC_DT'), width: '196', styleName: 'text-center', datetimeFormat: 'date', editable: true, editor: { type: 'btdate' } },
     { fieldName: 'sellLmRson', header: t('MSG_TXT_OCC_RSN'), width: '376', styleName: 'text-left', editable: true, editor: { type: 'text', maxLength: 1000 } },

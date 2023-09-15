@@ -89,6 +89,7 @@
                   secondary
                   :label="$t('MSG_TXT_TRD_SPCSH')+' '+$t('MSG_BTN_VIEW')"
                   :disable="!totalCount"
+                  icon="report"
                   @click="onClickSpcshView"
                 />
 
@@ -159,6 +160,7 @@
                 :label="$t('MSG_BTN_VT_AC_CFDC')+' '+$t('MSG_BTN_VIEW')"
                 secondary
                 dense
+                icon="report"
                 @click="onClickVirtualAccountView"
               />
               <div class="row items-center ml20">
@@ -377,7 +379,7 @@ function onClickRegistCancel() {
     initComponent();
   }
 
-  grdMainView.value.getCheckedRows().forEach((i) => {
+  grdMainView.value.getCheckedItems().forEach((i) => {
     if (grdMainView.value.getValue(i, 'disableChk') === 'Y') {
       return true;
     }
@@ -397,7 +399,12 @@ function onClickSpcshView() {
   - 해당 버튼은 해당 계약상세번호가 가상계좌를 발급한 경우에만 노출이 됩니다.
   가상계좌 발급 이력이 없으 면 버튼이 노출이 되지 않습니다.
   */
-  notify('TODO : 가장계좌확인서 OZ뷰 호출 ');
+  notify('TODO : 거래명세서 OZ뷰 호출 ');
+}
+
+// 1. 계약리스트 > 가상계좌확인서 보기 클릭
+function onClickVirtualAccountView() {
+  notify('TODO : 가상계좌확인서 OZ뷰 호출 ');
 }
 
 // 5. 취소사항 > 취소사항 조회 클릭
@@ -453,7 +460,7 @@ async function onSearchDetail(subParam) {
 }
 
 // 상세 조회(취소 등록 된 1건)
-async function getCanceledInfo(cntrNo, cntrSn, row) {
+async function getCanceledInfo(cntrNo, cntrSn, itemIndex) {
   const { dm } = searchParams.value;
   const res = await dataService.get('/sms/wells/contract/changeorder/cancel-infos', { params: { cntrNo, cntrSn, dm } });
 
@@ -474,7 +481,7 @@ async function getCanceledInfo(cntrNo, cntrSn, row) {
   }
 
   // set grid data
-  cancelDetailList.value.push(grdMainView.value.getValues(row));
+  cancelDetailList.value.push(grdMainView.value.getValues(itemIndex));
 
   // set searched data
   idx.value = 0;
@@ -539,7 +546,7 @@ async function onSave() {
     setBulkParam(cancelDetailList.value[0]);
     saveList = cancelDetailList.value;
   } else {
-    if (param.isSearch !== 'Y') {
+    if (param.sellTpCd !== '1' && param.isSearch !== 'Y') {
       await notify('취소사항 조회를 해주세요.');
       return;
     }
@@ -680,10 +687,11 @@ function initGrid(data, view) {
   view.setCheckableExpression("(value['disableChk']<>'Y')", true);
 
   // click button
-  view.onCellClicked = async (g, clickData) => {
-    const { cntrNo, cntrSn, cntrDtlStatCd } = g.getValues(clickData.dataRow);
+  view.onCellClicked = async (g, { itemIndex }) => {
+    const { cntrNo, cntrSn, cntrDtlStatCd } = g.getValues(itemIndex);
+
     if (cntrDtlStatCd.indexOf('3') === 0) {
-      await getCanceledInfo(cntrNo, cntrSn, clickData.dataRow);
+      await getCanceledInfo(cntrNo, cntrSn, itemIndex);
     }
   };
 }

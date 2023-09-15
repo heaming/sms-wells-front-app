@@ -332,7 +332,7 @@ async function getWareHouseList() {
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/item-by-stock-aggs/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 3000000 });
+  const res = await dataService.get('/sms/wells/service/item-by-stock-aggs/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: itmGd, pageInfo: pagingResult } = res.data;
   // fetch시에는 총 건수 조회하지 않도록 변경
   pagingResult.needTotalCount = false;
@@ -359,7 +359,7 @@ async function onClickSearch() {
 // 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/item-by-stock-aggs/excel-download', { params: cachedParams, timeout: 3000000 });
+  const res = await dataService.get('/sms/wells/service/item-by-stock-aggs/excel-download', { params: cachedParams, timeout: 300000 });
 
   gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,

@@ -39,9 +39,6 @@
             :options="filterAll"
           />
         </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row>
         <!-- 구분 -->
         <!-- TODO: 코드 확인 필요 -->
         <kw-search-item
@@ -55,6 +52,9 @@
             @change="onChangeDvCd"
           />
         </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
         <!-- 파트너번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRTNR_NUMBER')"
@@ -198,7 +198,7 @@ async function fetchData() {
     ...cachedParams,
     ...pageInfo.value,
   };
-  const res = await dataService.get('/sms/common/deduction/redf/mutual-aid/paging', { params: cachedParamsTotal });
+  const res = await dataService.get('/sms/wells/deduction/redf/mutual-aid/paging', { params: cachedParamsTotal });
   let resList;
   let pagingResult;
 
@@ -272,7 +272,7 @@ async function onClickExcelDownload() {
   }
   // 전체 조회 다운 (쿼리조회)
   cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/common/deduction/redf/mutual-aid/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/deduction/redf/mutual-aid/excel-download', { params: cachedParams });
   let excelData;
   if (!isEmpty(res.data.mutualAidFeeForExcelDownload)) {
     excelData = res.data.mutualAidFeeForExcelDownload;

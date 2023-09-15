@@ -410,7 +410,7 @@ const initGrid = defineGrid((data, view) => {
       width: '190',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
-        return !isEmpty(value) ? `${value.substring(0, 4)}-${value.substring(4, 8)}-${value.substring(8, 12)}-●●●●` : value;
+        return !isEmpty(value) ? `${value.substring(0, 4)}-${value.substring(4, 8)}-${value.substring(8, 12)}-${value.substring(12)}` : value;
       },
     },
 

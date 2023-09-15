@@ -75,14 +75,13 @@
         <kw-search-item
           :label="$t('MSG_TXT_SEL_TYPE')"
           :colspan="2"
-          required
         >
           <kw-select
             v-model="searchParams.sellTpCd"
             :label="$t('MSG_TXT_SEL_TYPE')"
             :options="codes.SELL_TP_CD"
-            rules="required"
             first-option="all"
+            first-option-value="ALL"
             @change="onChangeSellTpCd"
           />
 
@@ -173,7 +172,7 @@ const searchParams = ref({
   copnDvCd: 'ALL', // 개인/법인구분
   inqrDv: '1', // 조회구분
   sellChnl: [], // 판매채널
-  sellTpCd: '', // 판매유형
+  sellTpCd: 'ALL', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약상세번호

@@ -498,7 +498,7 @@ async function setGridHeader() {
 
 async function fetchData() {
   console.log('fetchData');
-  const res = await dataService.get('/sms/wells/closing/performance/sales-bond', { params: cachedParams, timeout: 800000 });
+  const res = await dataService.get('/sms/wells/closing/performance/sales-bond', { params: cachedParams, timeout: 240000 });
   const salesBonds = res.data;
   totalCount.value = salesBonds.length;
 

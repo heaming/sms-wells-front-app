@@ -182,7 +182,10 @@
             </kw-form-item>
             <!-- row1 렌탈일수 -->
             <kw-form-item :label="$t('MSG_TXT_RENTAL_DC')">
-              <p>{{ searchDetail.rentalDc }}</p>
+              <p>
+                {{ searchDetail.cntrPasgDc }} /
+                {{ searchDetail.rsgFshDt ? searchDetail.rsgFshDt.substr(6):'' }}
+              </p>
             </kw-form-item>
             <!-- row1 교체일자 -->
             <kw-form-item :label="$t('MSG_TXT_CHNG_DT')">
@@ -286,7 +289,7 @@
           <kw-form-row>
             <!-- row5 연체가산금 -->
             <kw-form-item :label="$t('MSG_TXT_DLQ_ADAMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.btdDlqAddAmt??'') }}</p>
             </kw-form-item>
             <!-- row5 入 / 出 -->
             <kw-form-item label="入 / 出">
@@ -309,8 +312,7 @@
             <!-- row5 미수금(未) -->
             <kw-form-item :label="$t('MSG_TXT_UCAM')+'(未)'">
               <p>
-                {{ stringUtil.getNumberWithComma( Number(searchDetail.eotDlqAddAmt??'0')
-                  - Number(searchDetail.thmDlqAddDpSumAmt??'0')) }}
+                {{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -466,6 +468,7 @@
           :label="$t('MSG_TXT_CCAM_IZ_DOC')+' '+$t('MSG_BTN_VIEW')"
           secondary
           class="px12"
+          icon="report"
           @click="onClickCcamView"
         />
       </kw-form-item>
@@ -619,13 +622,12 @@
       v-if="searchDetail.cancelStatNm === '취소등록'"
       class="button-set--bottom-right"
     >
-      <!--
       <kw-btn
         :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
         class="ml8"
+        :disable="searchDetail.totRfndAmt>=0"
         @click="onClickVacIssue"
       />
--->
       <kw-btn
         :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
         class="ml8"
@@ -646,6 +648,7 @@
       <kw-btn
         :label="$t('MSG_TXT_RENTAL_RSG_CFDG')+$t('MSG_BTN_VIEW')"
         class="ml8"
+        icon="report"
         @click="onClickTodo('렌탈계약해지확인서 보기')"
       />
       <!--삭제-->
@@ -679,13 +682,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, stringUtil, useGlobal } from 'kw-lib';
+import { codeUtil, getComponentType, stringUtil, store, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { isEmpty } from 'lodash';
+import { isEmpty, isEqual } from 'lodash';
 
 const { t } = useI18n();
+const dataService = useDataService();
 const frmMainRental = ref(getComponentType('KwForm'));
 const { notify, modal } = useGlobal();
+const { companyCode } = store.getters['meta/getUserInfo'];
 
 const codes = await codeUtil.getMultiCodes(
   'CCAM_EXMPT_DV_CD', // 위약금면책구분코드
@@ -799,21 +804,8 @@ function onClickDelete() {
   emits('deletecancel');
 }
 
-/*
-async function onCallStlm(pDiv) {
-  let component;
-  if (pDiv === 'Face') component = 'ZwwdbIndvVirtualAccountIssueMgtP';
-  else if (pDiv === 'NonFace') component = 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
-
-  if (isEmpty(component)) { return; }
-
-  await modal({
-    component,
-    componentProps: { rveAkNo: '12002023031700000601', kwGrpCoCd: '1200' },
-  });
-}
-
 async function onClickVacIssue() {
+  // 1. 대면/비대면 선택
   const btns = [{ label: '대면발급', returnText: 'Face' },
     { label: '비대면발급', returnText: 'NonFace' }];
 
@@ -824,11 +816,40 @@ async function onClickVacIssue() {
       isOk: false,
       btns },
   });
+
   if (result) {
-    onCallStlm(payload);
+    // 2. 수납요청번호 생성
+    const revAkNoParam = {};
+
+    revAkNoParam.cntrNo = searchDetail.cntrNo;
+    revAkNoParam.cntrSn = searchDetail.cntrSn;
+    revAkNoParam.cstNo = searchDetail.cntrCstNo;
+    revAkNoParam.dpTpCd = '0102';// 입금구분코드
+    revAkNoParam.rveAkMthdCd = (isEqual(payload, 'Face')) ? '01' : '02'; // 수납요청방식코드 01:대면, 02:비대면
+    revAkNoParam.rveAkPhCd = '06'; // 수납요청경로코드 05:판매-카드, 06:판매-계좌
+    revAkNoParam.askAmt = searchDetail.totRfndAmt;
+    const res = await dataService.get('/sms/wells/contract/changeorder/cancel/receive-ask-no', { params: revAkNoParam });
+
+    if (!isEmpty(res.data)) {
+      // 3. 가상계좌 팝업 호출
+      const rveAkNo = res.data.receiveAskNumber;
+      console.log(rveAkNo);
+
+      const component = (isEqual(payload, 'Face')) ? 'ZwwdbIndvVirtualAccountIssueMgtP'
+        : 'ZwwdbIndvVirtualAccountNoContactIssueMgtP';
+
+      const popRes = await modal({
+        component,
+        componentProps: { rveAkNo, kwGrpCoCd: companyCode },
+      });
+
+      if (popRes) {
+        console.log(popRes);
+      }
+    }
   }
 }
-*/
+
 async function onClickRequidation() {
   await modal({
     component: 'WwsncTimeTableForContractP',

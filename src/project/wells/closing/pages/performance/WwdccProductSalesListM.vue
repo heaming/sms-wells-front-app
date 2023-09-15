@@ -2,56 +2,50 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : CTB
-2. 프로그램 ID : WwctbCancelRegistrationConfirmMgtP - confrim popup
-3. 작성자 : younuk
-4. 작성일 : 2023.07.18
+1. 모듈 : DCB
+2. 프로그램 ID : WwdcbProductSalesListM - 상품별 매출현황
+3. 작성자 : Kicheol Choi
+4. 작성일 : 2023.09.11
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-
+- 상품별 매출현황 조회
 ****************************************************************************************************
---->
+---->
 <template>
-  <kw-popup
-    size="sm"
-    no-close-btn="true"
-    title="  "
-  >
-    <p class="text-weight-medium kw-font-pt20 text-center">
-      가상계좌 발급 방법을 선택하여 주세요.
-    </p>
-    <template #action>
-      <!-- 취소 -->
-      <kw-btn
-        negative
-        label="취소"
-        @click="onClickCancel"
+  <kw-page>
+    <kw-tabs v-model="selectedTab">
+      <kw-tab
+        :name="selectedTabs[0]"
+        :label="$t('MSG_TIT_SL_PS_AGRG')"
       />
-      <kw-btn
-        primary
-        label="대면발급"
-        @click="ok('Face')"
+      <kw-tab
+        :name="selectedTabs[1]"
+        :label="$t('MSG_TIT_SL_DTL_INQR')"
       />
-      <!-- 저장 -->
-      <kw-btn
-        primary
-        label="비대면발급"
-        @click="ok('NonFace')"
-      />
-    </template>
-  </kw-popup>
+    </kw-tabs>
+    <kw-tab-panels :model-value="selectedTab">
+      <kw-tab-panel :name="selectedTabs[0]">
+        <wwdcc-product-sales-list-m-aggregate />
+      </kw-tab-panel>
+      <kw-tab-panel :name="selectedTabs[1]">
+        <wwdcc-product-sales-list-m-detail />
+      </kw-tab-panel>
+    </kw-tab-panels>
+  </kw-page>
 </template>
+
 <script setup>
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useModal } from 'kw-lib';
-
-const { ok, cancel: onClickCancel } = useModal();
+import WwdccProductSalesListMAggregate from './WwdccProductSalesListMAggregate.vue';
+import WwdccProductSalesListMDetail from './WwdccProductSalesListMDetail.vue';
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const selectedTabs = ref(['aggregate', 'detail']);
+const selectedTab = ref(selectedTabs.value[0]);
 
 </script>

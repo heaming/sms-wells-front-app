@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTB
 2. 프로그램 ID : WwctbWellsRentalOrderMdfcProcsM - wells 렌탈 주문 수정 처리(어드민)
-3. 작성자 : hyeonjongRa
+3. 작성자 : hyeonjong.ra
 4. 작성일 : 2023.08.14
 ****************************************************************************************************
 * 프로그램 설명
@@ -53,6 +53,7 @@
               <!-- 삭제 -->
               <kw-btn
                 v-if="isFetched"
+                v-permission:delete
                 label="삭제"
                 padding="12px"
                 class="ml8"
@@ -244,7 +245,7 @@
                         icon="search"
                         maxlength="100"
                         grow
-                        :disable="!isFetched"
+                        :disable="!isFetched || fieldData.slClYn==='Y'"
                         @click-icon="onClickSelectProduct"
                       />
                       <kw-select
@@ -254,6 +255,7 @@
                           ['2','4','5','8','9','C','F','H','7','D','E','I'].includes(v.codeId))"
                         first-option="select"
                         first-option-label="선택없음"
+                        :disable="fieldData.slClYn==='Y'"
                       />
                     </div>
                     <div class="border-box mt12">
@@ -268,8 +270,9 @@
                           <div class="row justify-end grow">
                             <!-- 기기변경 -->
                             <kw-btn
+                              v-permission:update
                               :label="$t('MSG_TXT_MCHN_CH')"
-                              :disable="!isEmpty(orderProduct.plusCntrNo) || !isFetched"
+                              :disable="!isEmpty(orderProduct.plusCntrNo) || !isFetched || fieldData.slClYn==='Y'"
                               padding="12px"
                               @click="onClickDeviceChange"
                             />
@@ -283,6 +286,7 @@
                               first-option="select"
                               first-option-value=""
                               :first-option-label="$t('TXT_MSG_RENTAL_DSC_DV_CD') + ' ' + $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                             <kw-select
@@ -290,6 +294,7 @@
                               v-model="orderProduct.sellDscrCd"
                               :options="rentalDscrCds"
                               placeholder="렌탈법인할인율"
+                              :disable="fieldData.slClYn==='Y'"
                             />
                           </kw-form-item>
                           <kw-form-item label="주기/용도 선택">
@@ -304,6 +309,7 @@
                                 $t('MSG_TXT_SERVICE')+
                                   '('+$t('MSG_TXT_USWY')+'/'+$t('MSG_TXT_VST_PRD')+') '+
                                   $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                           </kw-form-item>
@@ -313,6 +319,7 @@
                             <kw-input
                               v-model="orderProduct.stplPtrm"
                               readonly
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                             <!-- 계약기간 선택 -->
@@ -322,6 +329,7 @@
                               first-option="select"
                               first-option-value=""
                               :first-option-label="$t('MSG_TXT_CNTR_PTRM') + ' ' + $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                           </kw-form-item>
@@ -329,6 +337,7 @@
                             <kw-select
                               v-model="orderProduct.frisuAsPtrmN"
                               first-option="select"
+                              :disable="fieldData.slClYn==='Y'"
                             />
                             <kw-select
                               v-model="orderProduct.cntrAmt"
@@ -336,6 +345,7 @@
                               first-option="select"
                               first-option-value="0"
                               :first-option-label="$t('MSG_TXT_RGST_FEE') + ' ' + $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                           </kw-form-item>
@@ -346,6 +356,7 @@
                               v-model="orderProduct.alncmpCd"
                               :options="codes.ALNC_CO_ACD"
                               first-option="select"
+                              :disable="fieldData.slClYn==='Y'"
                             />
                           </kw-form-item>
                           <kw-form-item label="프로모션 코드">
@@ -353,6 +364,7 @@
                               v-model="orderProduct.sellDscTpCd"
                               :options="rentalDscTpCds"
                               first-option="select"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                           </kw-form-item>
@@ -379,6 +391,7 @@
                               maxlength="10"
                               type="number"
                               :readonly="fieldData.copnDvCd !== '2'"
+                              :disable="fieldData.slClYn==='Y'"
                             />
                           </kw-form-item>
                           <kw-form-item label="할인렌탈가(원)">
@@ -430,6 +443,7 @@
                               type="textarea"
                               maxlength="1000"
                               :rows="3"
+                              :disable="fieldData.slClYn==='Y'"
                             />
                           </kw-form-item>
                         </kw-form-row>
@@ -524,10 +538,12 @@
                               </ul>
                             </div>
                             <kw-btn
+                              v-permission:delete
                               borderless
                               icon="close_24"
                               style="font-size: 24px;"
                               class="w24"
+                              :disable="fieldData.slClYn==='Y'"
                               @click="onClickDeleteDeviceChange"
                             />
                           </div>
@@ -541,10 +557,11 @@
                         label="확정"
                       /> -->
                       <kw-btn
+                        v-permission:update
                         class="ml10"
                         padding="12px"
                         label="저장"
-                        :disable="!isFetched"
+                        :disable="!isFetched || fieldData.slClYn==='Y'"
                         @click="onClickProductChangeSave"
                       />
                     </div>
@@ -853,6 +870,7 @@
             <div class="row justify-end my20">
               <!-- 등록 -->
               <kw-btn
+                v-permission:create
                 padding="12px"
                 :label="$t('MSG_BTN_RGST')"
                 class="mr8"
@@ -869,6 +887,7 @@
               />
               <!-- 저장 -->
               <kw-btn
+                v-permission:create
                 padding="12px"
                 :label="$t('MSG_BTN_SAVE')"
                 :disable="!isFetched || !rgstMode"
@@ -1093,6 +1112,7 @@
             <div class="row justify-end my20">
               <!-- 저장 -->
               <kw-btn
+                v-permission:update
                 class="ml10"
                 padding="12px"
                 :label="$t('MSG_BTN_SAVE')"
@@ -1176,6 +1196,7 @@
         <kw-action-bottom>
           <!-- 계약서 출력 -->
           <kw-btn
+            v-permission:print
             primary
             :label="$t('MSG_BTN_CNTRW_PRNT')"
             :disable="!isFetched"
@@ -1183,6 +1204,7 @@
           />
           <!-- 청약서 변경 -->
           <kw-btn
+            v-permission:update
             primary
             :label="$t('MSG_TXT_APLC_FORM') + ' ' + $t('MSG_TXT_CH')"
             :disable="!isFetched"
@@ -1201,7 +1223,9 @@
 import { useDataService, stringUtil, codeUtil, useGlobal, getComponentType } from 'kw-lib';
 import { isEmpty, toNumber } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import dayjs from 'dayjs';
 
+const now = dayjs();
 const dataService = useDataService();
 const { modal, alert, confirm, notify } = useGlobal();
 const { t } = useI18n();
@@ -1242,6 +1266,7 @@ const fieldData = ref({
   istDt: '', // [계약정보-설치일] 설치일자
   canDt: '', // [계약정보-취소일자] 취소일자
   reqdDt: '', // [계약정보-철거일자] 철거일자
+  slClYn: '', // 전월매출마감여부
   cntrCstKnm: '', // [계약자고객정보-계약자] 계약자명
   cntrCstNo: '', // [계약자고객정보-고객번호] 계약자고객번호
   copnDvCd: '', // 개인/법인구분
@@ -1688,14 +1713,39 @@ async function onClickPrepayRgst() {
   // 등록 플래그 true
   rgstMode.value = true;
 
+  // 마지막 회차의 선납 데이터
   const view = grdPrepayRef.value.getView();
   const dataSource = view.getDataSource();
   const count = view.getItemCount();
   const lastRowData = dataSource.getJsonRow(count - 1, false);
 
+  // 등록 전 체크
+  // 1. 기존 선납 데이터가 존재해야 함.
+  if (count === 0) {
+    rgstMode.value = false;
+  }
+  // 2. 2023년 6월 이후 선납 데이터가 없어야 함.
+  if (lastRowData.prmStrtYm >= '202306') {
+    rgstMode.value = false;
+  }
+  // 3. 현재 유지중인 선납이 없어야 함.
+  if (lastRowData.prmEndYm >= now.format('YYYYMM')) {
+    rgstMode.value = false;
+  }
+  // 4. 마지막 선납 종료 후 다음달까지 신청해야 함.
+  if (lastRowData.prmEndYm !== now.subtract(1, 'month').format('YYYYMM')) {
+    rgstMode.value = false;
+  }
+  if (!rgstMode.value) {
+    await alert('선납할인제도가 2023년 6월 1일부로 종료되었습니다.\n'
+              + '2023년 6월 1일 이전에, 이미 선납 할인 중인 고객에 한해서\n'
+              + '1년 선납만 1회 연장 가능합니다.');
+    return;
+  }
+
   Object.assign(prepayBas.value, lastRowData);
   prepayBas.value.prmDt = ''; // 확정일자(=선납일자) 초기화
-  Object.assign(prepayAf.value, lastRowData);
+  Object.assign(prepayBf.value, lastRowData);
   prepayAf.value = {
     lstPrmTn: toNumber(lastRowData.lstPrmTn || 0) + 1, // 선납회차 세팅. 마지막 선납회차 + 1
     lstPrmMcn: '12', // 선납개월 세팅. 12개월로 고정. 정책상 새로 등록하는 선납개월은 12개월만 허용한다고 함.
@@ -1720,9 +1770,18 @@ async function onClickPrepaySave() {
     return;
   }
 
-  // TODO: 저장 구현
-  console.log(prepayAf.value);
-  console.log(prepayBf.value);
+  // 마지막 선납 종료 후 다음달까지 신청해야 함.
+  if (prepayBf.value.prmEndYm !== dayjs(prepayAf.value.prmDt).subtract(1, 'month').format('YYYYMM')) {
+    await alert('선납일자가 유효하지 않습니다.');
+    return;
+  }
+
+  await dataService.post('/sms/wells/contract/changeorder/rental-change-infos/prepayment', {
+    prepayBf: prepayBf.value,
+    prepayAf: prepayAf.value,
+  });
+
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
 }
 
 // 설치환경 저장 버튼 클릭

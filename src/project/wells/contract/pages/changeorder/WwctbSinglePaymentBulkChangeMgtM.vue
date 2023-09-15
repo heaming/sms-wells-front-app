@@ -4,12 +4,12 @@
 ****************************************************************************************************
 1. 모듈 : CTB
 2. 프로그램 ID : WwctbSinglePaymentBulkChangeMgtM - 일시불 일괄변경 관리
-3. 작성자 : gs.nidhi.d
+3. 작성자 : hyeonjong.ra
 4. 작성일 : 2023.04.27
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 일시불 일괄변경 관리
+- [W-SS-U-0113M03] 일시불 일괄변경 관리
 ****************************************************************************************************
 --->
 <template>
@@ -48,6 +48,7 @@
       </template>
       <!-- 일괄변경 등록 -->
       <kw-btn
+        v-permission:create
         :label="$t('MSG_TXT_BTCH_CHNG_REG')"
         primary
         dense
@@ -99,7 +100,7 @@ async function onClickSelectCntrno(cntrNo, cntrSn) {
 async function fetchData() {
   cachedParams = { ...cachedParams };
 
-  const res = await dataService.get('/sms/wells/contract/changeorder/SinglePayment-bulk-changes', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/contract/changeorder/singlepayment-bulk-changes', { params: cachedParams });
 
   totalCount.value = res.data.length;
 

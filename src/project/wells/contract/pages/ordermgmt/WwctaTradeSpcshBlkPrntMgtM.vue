@@ -60,6 +60,7 @@
         </template>
         <!-- 삭제 -->
         <kw-btn
+          v-permission:delete
           :label="t('MSG_BTN_DEL')"
           grid-action
           @click="onClickRemove"
@@ -77,12 +78,14 @@
         />
         <!-- 행 추가 -->
         <kw-btn
+          v-permission:create
           :label="t('MSG_BTN_ROW_ADD')"
           grid-action
           @click="onClickAdd"
         />
         <!-- 저장 -->
         <kw-btn
+          v-permission:update
           :label="t('MSG_BTN_SAVE')"
           grid-action
           @click="onClickSave"
@@ -94,6 +97,7 @@
         />
         <!-- 엑셀 다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -248,10 +252,16 @@ async function onClickSave() {
       }
     }
     // 팩스번호 세팅
-    const tel = changedRows[i].faxTelNo.replaceAll('-', '');
-    changedRows[i].faxLocaraTno = getPhoneNumber(tel, 1);
-    changedRows[i].faxExno = getPhoneNumber(tel, 2);
-    changedRows[i].faxIdvTno = getPhoneNumber(tel, 3);
+    if (!isEmpty(changedRows[i].faxTelNo)) {
+      const tel = changedRows[i].faxTelNo.replaceAll('-', '');
+      changedRows[i].faxLocaraTno = getPhoneNumber(tel, 1);
+      changedRows[i].faxExno = getPhoneNumber(tel, 2);
+      changedRows[i].faxIdvTno = getPhoneNumber(tel, 3);
+    } else {
+      changedRows[i].faxLocaraTno = '';
+      changedRows[i].faxExno = '';
+      changedRows[i].faxIdvTno = '';
+    }
 
     const row = gridUtil.findDataRow(view, (e) => (e.spectxGrpNo === changedRows[i].spectxGrpNo)
     && (e.cntrDtlNo === changedRows[i].cntrDtlNo));
@@ -366,7 +376,13 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       rules: 'required',
     }, // 발행주기
     { fieldName: 'emadr', visible: false },
-    { fieldName: 'emadrEncr', header: t('MSG_TXT_EMAIL'), width: '220', styleName: 'text-left' }, // 이메일
+    { fieldName: 'emadrEncr',
+      header: t('MSG_TXT_EMAIL'),
+      width: '220',
+      styleName: 'text-left',
+      editor: {
+        maxLength: 200,
+      } }, // 이메일
     { fieldName: 'faxTelNo',
       header: t('MSG_TXT_FAX_TNO'),
       width: '150',
@@ -430,6 +446,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
         } else {
           data.setValue(dataRow, 'cntrNo', '');
           data.setValue(dataRow, 'cntrSn', '');
+          data.setValue(dataRow, 'sellTpCd', '');
+          data.setValue(dataRow, 'cstNm', '');
+          data.setValue(dataRow, 'cstNo', '');
         }
       }
       notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_EMAIL')])); // {이메일} 항목이 일괄변경 되었습니다.
@@ -505,6 +524,9 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
     } else {
       data.setValue(updateRow, 'cntrNo', '');
       data.setValue(updateRow, 'cntrSn', '');
+      data.setValue(updateRow, 'sellTpCd', '');
+      data.setValue(updateRow, 'cstNm', '');
+      data.setValue(updateRow, 'cstNo', '');
     }
   };
 });

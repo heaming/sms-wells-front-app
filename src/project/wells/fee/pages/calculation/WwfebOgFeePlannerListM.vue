@@ -784,8 +784,8 @@ const initGrd1Main = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', options: codes.RSB_DV_CD },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '88.7', styleName: 'text-right' },
     { fieldName: 'jagyuk', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '110.6', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'nJagyuk1', header: `M+1${t('MSG_TXT_TOPMR_PLAR')}`, width: '128.4', styleName: 'text-center', options: codes.QLF_DV_CD },
@@ -913,8 +913,8 @@ const initGrd2Main = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', options: codes.RSB_DV_CD },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'jagyuk', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '88.7', styleName: 'text-right', options: codes.QLF_DV_CD },
     { fieldName: 'nJagyuk1', header: 'M+1', width: '110.6', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'cntrDt', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '128.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
@@ -1065,8 +1065,8 @@ const initGrd3Main = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '88.7', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', options: codes.RSB_DV_CD },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '88.7', styleName: 'text-right' },
     { fieldName: 'jagyuk', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '110.6', styleName: 'text-center', options: codes.QLF_DV_CD },
     { fieldName: 'nJagyuk1', header: 'M+1', width: '128.4', styleName: 'text-center', options: codes.QLF_DV_CD },

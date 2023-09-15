@@ -168,6 +168,7 @@ import { defineGrid, gridUtil, getComponentType, useDataService, useGlobal, stri
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 import ZwfeyFeeStep from '~sms-common/fee/pages/schedule/ZwfeyFeeStep.vue';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const dataService = useDataService();
 const now = dayjs();
@@ -313,25 +314,24 @@ async function onclickStep(params) {
   }
 }
 
-async function onClickOpenReport() {
-  notify('신규요청기능\n>업무로직 정의안됨\n>해당내용더블클릭으로 변경?\n>AS-IS ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.ozr');
+async function onClickOpenReport(baseYm, prtnrNo) {
+  // notify('신규요청기능\n>업무로직 정의안됨\n>해당내용더블클릭으로 변경?\n>AS-IS ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.ozr');
   // AS-IS정보
   // ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.ozr
   // AKSDTY 수당년
   // AKSDTM 수당월
   // AKDCDE 번호
-  // import { openReportPopup } from '~common/utils/cmPopupUtil';
-  // openReportPopup(
-  //   'ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.ozr',
-  //   'ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.odi',
-  //   JSON.stringify(
-  //     {
-  //       AKDCDE: '',
-  //       AKSDTY: '',
-  //       AKSDTM: ''
-  //     },
-  //   ),
-  // );
+  openReportPopup(
+    'ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.ozr',
+    'ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.odi',
+    JSON.stringify(
+      {
+        AKDCDE: prtnrNo,
+        AKSDTY: baseYm.substring(0, 4),
+        AKSDTM: baseYm.substring(4, 6),
+      },
+    ),
+  );
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -365,6 +365,12 @@ const initGridDetail = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.onCellDblClicked = async (g, clickData) => {
+    const baseYm = g.getValue(clickData.itemIndex, 'baseYm');
+    const prtnrNo = g.getValue(clickData.itemIndex, 'prtnrNo');
+    console.log(`${baseYm} ${prtnrNo}`);
+    // await onClickOpenReport(baseYm, prtnrNo);
+  };
 });
 
 const initGridBase = defineGrid((data, view) => {

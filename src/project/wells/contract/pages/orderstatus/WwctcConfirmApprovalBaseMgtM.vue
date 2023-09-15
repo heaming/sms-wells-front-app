@@ -155,7 +155,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { gridUtil, getComponentType, useGlobal, useMeta, useDataService, codeUtil } from 'kw-lib';
-import { cloneDeep, isEmpty, uniqBy } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { alert } = useGlobal();
@@ -200,7 +200,6 @@ const aprReqCtCode = ref([
   { codeId: true, codeName: t('MSG_TXT_BASE_DT_IN') },
 ]);
 
-const aprAkDvcodes = [];
 const aprAkDvcodeOptions = ref([]);
 
 let cachedParams;
@@ -232,14 +231,14 @@ async function fetchData() {
 
 async function fetchAprCodes() {
   cachedParams = cloneDeep(searchParams.value);
+
   const res = await dataService.get('/sms/wells/contract/contracts/approval-request-standards', { params: cachedParams });
-  aprAkDvcodes.value = [];
+
   res.data.forEach((v) => {
     if ((!isEmpty(v)) && (!isEmpty(v.cntrAprAkDvCd))) {
-      aprAkDvcodes.value.push({ codeId: v.cntrAprAkDvCd, codeName: v.cntrAprAkDvCdNm });
+      aprAkDvcodeOptions.value.push({ codeId: v.cntrAprAkDvCd, codeName: v.cntrAprAkDvCdNm });
     }
   });
-  aprAkDvcodeOptions.value = uniqBy(aprAkDvcodes.value, 'codeId'); // 중복제거
 }
 
 async function onClickSearch() {
@@ -290,13 +289,27 @@ async function onClickConfirmCriteriaMangement() {
     component: 'WwctcConfirmApprovalBaseListP',
     componentProps: { standardDt: searchParams.value.standardDt },
   });
+
   if (result) {
     searchParams.value.standardDt = payload.standardDt;
     searchParams.value.cntrAprAkDvCd = payload.cntrAprAkDvCd;
     onClickSearch();
   }
   aprAkDvcodeOptions.value = [];
-  fetchAprCodes();
+  await fetchAprCodes();
+
+  console.log(aprAkDvcodeOptions);
+  const view = grdMainRef.value.getView();
+  view.setColumn({
+    name: 'cntrAprAkDvCd',
+    width: '142',
+    styleName: 'text-center',
+    editor: { type: 'list' },
+    rules: 'required',
+    options: aprAkDvcodeOptions.value,
+    optionValue: 'codeId',
+    optionLabel: 'codeName',
+  });
 }
 
 async function onClickRemove() {
@@ -331,8 +344,8 @@ async function onClickExcelDownload() {
     exportData: response.data,
   });
 }
-await fetchAprCodes();
 
+await fetchAprCodes();
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

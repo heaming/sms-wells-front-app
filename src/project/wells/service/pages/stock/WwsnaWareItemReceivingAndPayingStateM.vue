@@ -62,7 +62,7 @@
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_GD')"
-          :colspan="3"
+          :colspan="2"
         >
           <kw-select
             v-model="searchParams.itmGdCd"
@@ -71,7 +71,7 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_USE_YN')"
-          :colspan="3"
+          :colspan="2"
         >
           <kw-select
             v-model="searchParams.useYn"
@@ -80,13 +80,20 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('MSG_TXT_ITM_DV')"
-          :colspan="3"
+          :label="$t('MSG_TXT_ITM_GRP')"
+          :colspan="5"
         >
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
-            first-option="all"
+            class="w230"
+            @change="onChangeItmKndCd"
+          />
+          <kw-select
+            v-model="searchParams.pdCd"
+            :label="$t('MSG_TXT_ITM_GRP')"
+            :options="productCodes"
+            rules="required"
           />
         </kw-search-item>
       </kw-search-row>
@@ -184,6 +191,7 @@ const searchParams = ref({
   itmGdCd: '', // 등급
   useYn: '', // 사용여부
   itmKndCd: '', // 품목구분
+  pdCd: '',
 });
 
 // 창고구분 변경 시, 창고상세구분 세팅
@@ -229,7 +237,6 @@ async function fetchData() {
 }
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  console.log('cachedParams=======', cachedParams);
   await fetchData();
 }
 async function onClickExcelDownload() {
@@ -242,6 +249,14 @@ async function onClickExcelDownload() {
   });
 }
 
+const productCodes = ref([]);
+
+async function onChangeItmKndCd() {
+  const res = await dataService.get(`/sms/wells/service/bs-consumables/${searchParams.value.itmKndCd}/product-codes`);
+
+  productCodes.value = res.data.map((v) => ({ codeId: v.svpdPdCd, codeName: v.svpdNmKor }));
+}
+
 onMounted(async () => {
   // 품목구분 : 상품 기본설정(4)
   searchParams.value.startDt = dayjs().format('YYYYMMDD');
@@ -249,6 +264,7 @@ onMounted(async () => {
   searchParams.value.itmKndCd = '4';
   searchParams.value.itmGdCd = 'A';
   await onChangeWareDvCd();
+  await onChangeItmKndCd();
 });
 
 // -------------------------------------------------------------------------------------------------

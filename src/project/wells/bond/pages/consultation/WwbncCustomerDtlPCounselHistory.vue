@@ -97,7 +97,7 @@ function initGrdMain(data, view) {
   ];
   const columns = [
     { fieldName: 'telCnslId', width: '200', styleName: 'text-center', visible: false },
-    { fieldName: 'inDt', header: t('MSG_TXT_IN_DTM'), width: '200', styleName: 'text-center' },
+    { fieldName: 'inDt', header: t('MSG_TXT_IN_DTM'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'inIchr', header: t('MSG_TXT_RGST_ICHR_EPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'inIchrNm', header: t('MSG_TXT_RGST_PSIC'), width: '90', styleName: 'text-center' },
     { fieldName: 'cnslPh', header: t('MSG_TXT_CNSL_PH'), width: '90', styleName: 'text-center' },

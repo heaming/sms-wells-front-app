@@ -28,15 +28,13 @@
           :options="searchGbns"
           rules="required"
         />
-        <kw-input
+        <kw-date-picker
           v-if="searchParams.searchGbn===1"
           v-model="searchParams.bryyMmdd"
-          :label="$t('MSG_TXT_BRYY_MMDD_ENTRPNO_CBNO')"
+          :label="$t('MSG_TXT_BIRTH_DATE')"
           :placeholder="t('900101')"
           rules="required|max:8|numeric"
-          :type="number"
-          :regex="/^[0-9]*$/i"
-          mask="####-##-##"
+          type="date"
         />
         <kw-input
           v-if="searchParams.searchGbn===2"
@@ -132,6 +130,7 @@
         />
       </template>
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary

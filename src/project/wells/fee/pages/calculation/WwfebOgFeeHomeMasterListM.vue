@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : FEB
-2. 프로그램 ID : WwfebOgFeeHomeMasterListM - 홈마스터 수수료 생성관리
+2. 프로그램 ID :  - 홈마스터 수수료 생성관리
 3. 작성자 : gs.piit150
 4. 작성일 : 2023.02.17
 ****************************************************************************************************
@@ -746,17 +746,17 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'aksd14', dataType: 'number' },
     { fieldName: 'intbsSum', dataType: 'number' },
     { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDdbAmt', dataType: 'number' },
+    { fieldName: 'aclDsbAmt', dataType: 'number' },
 
   ];
 
   const columns = [
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '119.9', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119.9', styleName: 'text-left' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '119.9', styleName: 'text-left' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119.9', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '119.9', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'akdsym', header: t('MSG_TXT_BIZ_RGST_MM'), width: '119.9', styleName: 'text-right' },
+    { fieldName: 'akdsym', header: t('MSG_TXT_BIZ_RGST_MM'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'akdcha', header: t('MSG_TXT_NMN'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'prtnrGdCd', header: t('MSG_TXT_GRCNT'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'edu100', header: t('MSG_TXT_NWCMR') + t('MSG_TXT_ENPSC') + t('MSG_TXT_EDUC'), width: '119.9', styleName: 'text-right', numberFormat: '#,##0' },
@@ -775,7 +775,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'gdSercnt', header: `${t('MSG_TXT_WASHER')}/${t('MSG_TXT_ARCN')}/${t('MSG_TXT_DRYER')}${t('MSG_TXT_COUNT')}`, width: '207.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'elecnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'sercnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_SERVICE') + t('MSG_TXT_COUNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'serryl', header: t('MSG_TXT_PROCS_RT'), width: '158.4', styleName: 'text-right', numberFormat: '###0.##' },
     { fieldName: 'aksd01', header: t('MSG_TXT_PRPN'), width: '286', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd03', header: t('MSG_TXT_ENRG'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'aksd04', header: t('MSG_TXT_SNGL_PMNT'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
@@ -790,7 +790,7 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '158.4', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'aclDdbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '124.7', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '124.7', styleName: 'text-right', numberFormat: '#,##0' },
   ];
   data.setFields(fields);
   view.setColumns(columns);
@@ -831,7 +831,7 @@ const initGrd1Main = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['aksd01', 'aksd03', 'aksd04', 'aksd15', 'aksd05', 'aksd06', 'aksd07', 'aksd09', 'aksd10', 'aksd11', 'aksd13', 'aksd14'],
     },
-    'intbsSum', 'ddtnSum', 'aclDdbAmt',
+    'intbsSum', 'ddtnSum', 'aclDsbAmt',
 
   ]);
 });
@@ -889,16 +889,16 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'aksd56', dataType: 'number' },
     { fieldName: 'intbsSum', dataType: 'number' },
     { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDdbAmt', dataType: 'number' },
+    { fieldName: 'aclDsbAmt', dataType: 'number' },
   ];
 
   const columns = [
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '119.9', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119.9', styleName: 'text-left' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '119.9', styleName: 'text-left' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '119.9', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '119.9', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'akdsym', header: t('MSG_TXT_BIZ_RGST_MM'), width: '119.9', styleName: 'text-right' },
+    { fieldName: 'akdsym', header: t('MSG_TXT_BIZ_RGST_MM'), width: '119.9', styleName: 'text-center' },
     { fieldName: 'akdcha', header: t('MSG_TXT_NMN'), width: '119.9', styleName: 'text-right' },
     { fieldName: 'prtnrGdCd', header: t('MSG_TXT_GRCNT'), width: '119.9', styleName: 'text-right' },
     { fieldName: 'atcnt1', header: t('MSG_TXT_ASET') + t('MSG_TXT_EDUC'), width: '119.9', styleName: 'text-right' },
@@ -944,7 +944,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'aksd56', header: t('MSG_TXT_SERVICE') + t('MSG_TXT_CONN'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aclDdbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '119.9', styleName: 'text-right', numberFormat: '#,###,##0' },
   ];
   data.setFields(fields);
   view.setColumns(columns);
@@ -1000,7 +1000,7 @@ const initGrd2Main = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['gadcnt', 'jAkdeq0', 'jSercnt', 'aksd51', 'aksd52', 'aksd53', 'aksd54', 'aksd55', 'aksd56'],
     },
-    'intbsSum', 'ddtnSum', 'aclDdbAmt',
+    'intbsSum', 'ddtnSum', 'aclDsbAmt',
   ]);
 });
 

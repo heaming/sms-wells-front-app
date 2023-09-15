@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- AS코드관리 (http://localhost:3000/#/service/wwsny-after-service-code-mgt)
+- AS코드관리 (http://localhost:3000/#/service/wwsny-as-code-mgt)
 ****************************************************************************************************
 * 변경사항
 ****************************************************************************************************
@@ -25,20 +25,26 @@
     >
       <kw-search-row>
         <!--상품그룹-->
-        <kw-search-item :label="$t('MSG_TXT_PD_GRP')">
+        <kw-search-item
+          :label="$t('MSG_TXT_PD_GRP')"
+        >
           <kw-select
             v-model="searchParams.pdGrpCd"
-            :label="$t('MSG_TXT_PD_GRP')"
             :options="codes.PD_GRP_CD"
             first-option="all"
             @change="changePdGrpCd"
           />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_NM')"
+        >
           <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
-            :label="$t('MSG_TXT_PRDT')"
+            :disable="searchParams.pdGrpCd === '' "
+            :label="$t('MSG_TXT_PRDT_NM')"
             :options="pds"
-            class="w200"
+            :rules="searchParams.pdGrpCd !== '' ? 'required' : '' "
             first-option="all"
             option-label="cdNm"
             option-value="cd"
@@ -52,24 +58,27 @@
             first-option="all"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!--AS위치-->
-        <kw-search-item :label="$t('MSG_TXT_AS_LCT')">
+        <!--        <kw-search-item :label="$t('MSG_TXT_AS_LCT')">
           <kw-select
             v-model="searchParams.asLctCd"
             :options="codes.AS_LCT_CD"
             first-option="all"
           />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
+        </kw-search-item>-->
         <!--적용일자-->
-        <kw-search-item :label="$t('MSG_TXT_APPLY_DT')">
+        <kw-search-item
+          :label="$t('MSG_TXT_APPLY_DT')"
+        >
           <kw-date-picker
             v-model="searchParams.applyDate"
             :disable="searchParams.apyChk[0] !== '1' "
             :label="$t('MSG_TXT_APPLY_DT')"
             :rules="searchParams.apyChk[0] === '1' ? 'required' : '' "
           />
+
           <kw-option-group
             v-model="searchParams.apyChk"
             :options="codesYn"
@@ -116,7 +125,9 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        name="grdMain"
         @init="initGrdMain"
       />
       <kw-action-bottom />
@@ -134,13 +145,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import {
-  codeUtil,
-  defineGrid,
-  getComponentType, gridUtil,
-  useDataService, useGlobal,
-  useMeta,
-} from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
@@ -181,7 +186,6 @@ const codes = await codeUtil.getMultiCodes(
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const codesYn = [{ code: '1', name: t('MSG_TXT_APPLY_DT') }];
-const pds = ref([]);// = await getPartMaster('4', '1', 'M');
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-codes/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -195,9 +199,11 @@ async function fetchData() {
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+  console.log(cachedParams);
   await fetchData();
 }
 
+const pds = ref([]);
 async function changePdGrpCd() {
   if (searchParams.value.pdGrpCd) {
     pds.value = await getPartMaster(
@@ -215,7 +221,10 @@ async function changePdGrpCd() {
       'X', /* 단종여부Y/N, 만약 X로 데이터가 유입되면 단종여부를 조회하지 않음 */
     );
   } else pds.value = [];
+  searchParams.value.pdCd = '';
 }
+changePdGrpCd();
+
 async function onClickExcelDownload() {
   const res = await dataService.get(
     '/sms/wells/service/as-codes/excel-download',
@@ -257,92 +266,51 @@ const onClickExcelUpload = async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    {
-      fieldName: 'svTpNm',
-      header: t('MSG_TXT_SV_TP'),
-      width: '30',
-      styleName: 'text-center',
-    },
-    {
-      fieldName: 'pdGrpNm',
-      header: t('MSG_TXT_PD_GRP'),
-      width: '30',
-      styleName: 'text-center',
-    },
-    {
-      fieldName: 'pdNm',
-      header: t('MSG_TXT_GOODS_NM'),
-      width: '150',
-      styleName: 'text-left',
-    },
-    { fieldName: 'asLctCd', header: t('MSG_TXT_CODE'), width: '50', styleName: 'text-center' },
-    {
-      fieldName: 'asLctNm',
-      header: t('MSG_TXT_ALTN'),
-      width: '100',
-      options: codes.AS_LCT_CD,
-    },
-    { fieldName: 'asPhnCd', header: t('MSG_TXT_CODE'), width: '30', styleName: 'text-center' },
-    {
-      fieldName: 'asPhnNm',
-      header: t('MSG_TXT_ALTN'),
-      width: '100',
-      options: codes.AS_PHN_CD,
-    },
-    { fieldName: 'asCausCd', header: t('MSG_TXT_CODE'), width: '30', styleName: 'text-center' },
-    {
-      fieldName: 'asCausNm',
-      header: t('MSG_TXT_ALTN'),
-      width: '100',
-      options: codes.AS_CAUS_CD,
-    },
-    {
-      fieldName: 'siteAwAtcCd',
-      header: t('MSG_TXT_CODE'),
-      width: '30',
-      styleName: 'text-center',
-    },
-    {
-      fieldName: 'siteAwAtcNm',
-      header: t('MSG_TXT_ALTN'),
-      width: '50',
-      options: codes.SITE_AW_ATC_CD,
-    },
-    { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_AMT_WON'), width: '80' },
-    {
-      fieldName: 'svAnaHclsfCd',
-      header: t('MSG_TXT_CODE'),
-      width: '30',
-      styleName: 'text-center',
-    },
-    {
-      fieldName: 'svAnaHclsfNm',
-      header: t('MSG_TXT_ALTN'),
-      width: '100',
-      options: codes.SV_BIZ_DCLSF_CD,
-    },
+    { fieldName: 'svTpNm', header: t('MSG_TXT_SV_TP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdGrpNm', header: t('MSG_TXT_PD_GRP'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('TXT_MSG_MAT_PD_CD'), width: '115', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '220', styleName: 'text-left' },
+    { fieldName: 'asLctCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
+    { fieldName: 'asLctNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.AS_LCT_CD },
+    { fieldName: 'asPhnCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
+    { fieldName: 'asPhnNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.AS_PHN_CD },
+    { fieldName: 'asCausCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
+    { fieldName: 'asCausNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.AS_CAUS_CD },
+    { fieldName: 'siteAwAtcCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
+    { fieldName: 'siteAwAtcNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.SITE_AW_ATC_CD },
+    { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_AMT_WON'), width: '100' },
+    { fieldName: 'svAnaHclsfCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
+    { fieldName: 'svAnaHclsfNm', header: t('MSG_TXT_ALTN'), width: '100', options: codes.SV_BIZ_DCLSF_CD },
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRTDT'), width: '100' },
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_ENDDT'), width: '100' },
   ];
   const fields = columns.map((item) => ({ fieldName: item.fieldName }));
   fields.find((item) => item.fieldName === 'fuleyAwAmt').dataType = 'number';
   data.setFields(fields);
+  view.setColumns(columns);
 
   const columnLayout = [
     'svTpNm',
     'pdGrpNm',
+    'pdCd',
     'pdNm',
+    'apyStrtdt',
+    'apyEnddt',
     { direction: 'horizontal', items: ['asLctCd', 'asLctNm'], header: { text: t('MSG_TXT_AS_LCT') } },
     { direction: 'horizontal', items: ['asPhnCd', 'asPhnNm'], header: { text: t('MSG_TXT_AS_PHN') } },
     { direction: 'horizontal', items: ['asCausCd', 'asCausNm'], header: { text: t('MSG_TXT_AS_CAUS') } },
-    { direction: 'horizontal', items: ['siteAwAtcCd', 'siteAwAtcNm', 'fuleyAwAmt'], header: { text: t('MSG_TXT_SITE_AW') } },
     { direction: 'horizontal',
-      items: ['svAnaHclsfCd', 'svAnaHclsfNm'],
-      header: { text: t('MSG_TXT_TASK_TYPE') } },
+      items: ['siteAwAtcCd', 'siteAwAtcNm', 'fuleyAwAmt'],
+      header:
+    { text: t('MSG_TXT_SITE_AW') } },
+    { direction: 'horizontal', items: ['svAnaHclsfCd', 'svAnaHclsfNm'], header: { text: t('MSG_TXT_TASK_TYPE') } },
   ];
-
   view.setColumnLayout(columnLayout);
-  view.setColumns(columns);
-  view.editOptions.editable = false; // Grid Editable On
+
+  view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
+  view.checkBar.visible = false;
   view.rowIndicator.visible = false;
+  view.editOptions.editable = false; // Grid Editable On
   view.displayOptions.selectionStyle = 'singleRow';
 });
 </script>

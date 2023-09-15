@@ -25,6 +25,7 @@
         <kw-paging-info :total-count="totalMainCount" />
       </template>
       <kw-btn
+        v-permission:read
         primary
         dense
         :label="$t('MSG_BTN_RNTL_PRCH_IZ')"

@@ -23,15 +23,13 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <!-- 상품명 -->
-        <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
+        <kw-search-item :label="$t('MSG_TXT_PRDT_NM', null, '상품명')">
           <kw-input
             v-model.trim="searchParams.pdNm"
             :maxlength="100"
           />
         </kw-search-item>
-        <!-- 상품코드 -->
-        <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
+        <kw-search-item :label="$t('MSG_TXT_PRDT_CODE', null, '상품코드')">
           <kw-input
             v-model.trim="searchParams.pdCd"
             :maxlength="10"
@@ -40,16 +38,15 @@
             @click-icon="onClickProduct(pdConst.PD_SEARCH_CODE)"
           />
         </kw-search-item>
-
         <kw-search-item
-          :label="t('MSG_TXT_ACEPT_PERIOD')"
+          :label="t('MSG_TXT_ACEPT_PERIOD', null, '적용기간')"
           required
         >
           <kw-date-range-picker
             v-model:from="searchParams.startDate"
             v-model:to="searchParams.endDate"
             rules="date_range_required"
-            :label="t('MSG_TXT_ACEPT_PERIOD')"
+            :label="t('MSG_TXT_ACEPT_PERIOD', null, '적용기간')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -65,7 +62,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
-          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span><!-- (단위:원) -->
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON', null, '(단위: 원)') }}</span>
         </template>
 
         <kw-btn
@@ -204,9 +201,9 @@ async function onClickAdd() {
   gridUtil.insertRowAndFocus(view, 0, {
     apyStrtdt: dayjs().format('YYYY-MM-DD'),
     apyEnddt: '9999-12-31',
-    ackmtAmt: '0',
-    ackmtCt: '0',
-    feeAckmtBaseAmt: '0',
+    ackmtAmt: '',
+    ackmtCt: '',
+    feeAckmtBaseAmt: '',
     feeFxamYn: 'Y',
   });
   view.setColumnProperty('pdCd', 'styleName', 'btnshow');
@@ -240,8 +237,7 @@ async function checkDuplicationByPk() {
     const baseRow = insUpdRows[i];
     for (let j = 1; j < insUpdRows.length; j += 1) {
       const targetRow = insUpdRows[j];
-
-      console.log(i, j, baseRow, targetRow);
+      // console.log(i, j, baseRow, targetRow);
 
       if (i !== j
       && baseRow.pdCd === targetRow.pdCd
@@ -254,33 +250,25 @@ async function checkDuplicationByPk() {
         const ts = Number(targetRow.apyStrtdt.replaceAll('-', ''));
         const te = Number(targetRow.apyEnddt.replaceAll('-', ''));
 
-        // Error Ver.1
-        // if (i !== j && ((baseStrt <= TargetStrt <= baseEnd) || baseStrt <= TargetEnd <= baseEnd)) {
-        //   console.log('ovewrab');
-        //   aaaa = true;
-        //   break;
-        // }
-        console.log(bs, be, ts, te);
+        // console.log(bs, be, ts, te);
         if (
           (((ts >= bs && ts <= be) || (te <= bs && te <= be)) && (te >= bs))
           || ((ts <= bs) && (te >= bs && te <= be))
           || ((ts >= bs && ts <= be) && (te >= be))
           || ((ts <= bs) && (te >= be))
         ) {
-          console.log('error');
+          // console.log('error');
           isInvailVal = true;
           dupPdNm = baseRow.pdNm;
           break;
         } else {
-          console.log('OK');
+          console.debug('OK');
         }
       }
     }// j - FOR
-
-    // if (isDup) break;
   } // i - FOR
 
-  console.log('isInvailVal', isInvailVal);
+  // console.log('isInvailVal', isInvailVal);
   if (isInvailVal) {
     notify(t('EXIST_DUP_RANGE_PD', [dupPdNm]));
     return await true;
@@ -396,7 +384,7 @@ const initGrdMain = defineGrid((data, view) => {
   const numberEditor5 = { type: 'number', positiveOnly: true, editFormat: '#,##0', maxLength: 5 };
   const numberEditor20 = { type: 'number', positiveOnly: true, editFormat: '#,##0', maxLength: 10 };
   const numberForamt = '#,##0';
-  // , rules: 'required', dataType: 'number', numberFormat: '#,##0'
+
   const columns = [
     { fieldName: 'pdCd',
       header: { text: t('MSG_TXT_PRDT_CODE', null, '상품코드'), styleName: 'essential' },
@@ -406,7 +394,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         return dataCell.item.rowState === 'created'
           ? { editable: true, styleName: 'text-center rg-button-icon--search btnshow', editor: { type: 'text' } }
-          : { styleName: 'text-left btnhide', editable: false };
+          : { styleName: 'text-center btnhide', editable: false };
       },
     },
     { fieldName: 'pdNm',

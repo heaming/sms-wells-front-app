@@ -43,7 +43,7 @@
             v-model:from="searchParams.cntrRcpStrtdt"
             v-model:to="searchParams.cntrRcpEnddt"
             class="w270"
-            rules="date_range_months:1"
+            :label="$t('MSG_TXT_WRTE_DT')"
           />
         </kw-search-item>
         <kw-separator
@@ -135,7 +135,6 @@
               v-model:cntr-sn="searchParams.cntrSn"
               class="w185"
               icon="search"
-              disable-popup="false"
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
             />
           </kw-search-item>
@@ -177,7 +176,7 @@
               v-model:cntr-no="searchParams.cntrNo"
               v-model:cntr-sn="searchParams.cntrSn"
               class="w185"
-              disable-popup
+              icon="search"
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
             />
           </kw-search-item>
@@ -223,6 +222,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           dense
           icon="download_on"
           secondary
@@ -368,15 +368,14 @@ const { alert, confirm, modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
 
 let cachedParams;
-const now = dayjs();
 const loginInfo = ref({
   userId: '', // 로그인 UserId(sessionUserId)
 });
 
 const searchParams = ref({
   cntrDv: 'A', // 계약구분
-  cntrRcpStrtdt: now.startOf('month').format('YYYYMMDD'), // 작성일자-시작일자
-  cntrRcpEnddt: now.format('YYYYMMDD'), // 작성일자-종료일자
+  cntrRcpStrtdt: '', // 작성일자-시작일자
+  cntrRcpEnddt: '', // 작성일자-종료일자
   cntrwTpCd: '', // 계약서구분(계약서유형코드)
   alncmpCd: [], // 계약서구분2-상조관련
   dgr2LevlOgId: [], // 조직코드-지역단
@@ -738,6 +737,35 @@ async function fetchDtlData() {
 
 // 조회버튼 클릭 이벤트
 async function onClickSearch() {
+  // 조회조건 2가지 중 최소 한개 이상 적용(작성일자/계약상세번호)
+  if (isEmpty(searchParams.value.cntrRcpStrtdt)
+   && isEmpty(searchParams.value.cntrRcpEnddt)
+   && isEmpty(searchParams.value.cntrNo)
+   && isEmpty(searchParams.value.cntrSn)) {
+    // 작성일자, 계약상세번호 중 하나 이상의 검색조건이 필요합니다.
+    await alert(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_WRTE_DT')}, ${t('MSG_TXT_CNTR_DTL_NO')}`]));
+    return;
+  // eslint-disable-next-line no-else-return
+  } else if ((isEmpty(searchParams.value.cntrRcpStrtdt)
+           && !isEmpty(searchParams.value.cntrRcpEnddt))) {
+    if (isEmpty(searchParams.value.cntrRcpStrtdt)) {
+      await alert(t('MSG_ALT_INPUT_COMMON', [t('MSG_TXT_WRTE_STRTDT')])); // 작성시작일자를 입력하세요.
+      return;
+    }
+  } else if ((!isEmpty(searchParams.value.cntrRcpStrtdt)
+           && isEmpty(searchParams.value.cntrRcpEnddt))) {
+    await alert(t('MSG_ALT_SRCH_WRTE_DT_CNDT_MAX_DC', ['31'])); // 작성일자 조건은 최대 {0}일까지 검색할 수 있습니다.
+    searchParams.value.cntrRcpEnddt = dayjs(searchParams.value.cntrRcpStrtdt).add(31, 'day').format('YYYYMMDD');
+  } else if ((!isEmpty(searchParams.value.cntrRcpStrtdt)
+           && !isEmpty(searchParams.value.cntrRcpEnddt))) {
+    const diff = dayjs(searchParams.value.cntrRcpEnddt).diff(searchParams.value.cntrRcpStrtdt, 'day');
+    // console.log(`diff : ${diff}`);
+    if (diff > 31) {
+      await alert(t('MSG_ALT_SRCH_WRTE_DT_CNDT_MAX_DC', ['31'])); // 작성일자 조건은 최대 {0}일까지 검색할 수 있습니다.
+      return;
+    }
+  }
+
   // 선택한 조직 코드에 해당하는 조직 ID 세팅
   searchParams.value.dgr2LevlOgId = codesDgr2Levl.value
     .filter((v) => selectedDgr2LevlOgCds.value.includes(v.dgr2LevlOgCd))
@@ -751,9 +779,6 @@ async function onClickSearch() {
 
 // 초기화버튼 클릭 이벤트
 async function onClickReset() {
-  searchParams.value.cntrRcpStrtdt = now.startOf('month').format('YYYYMMDD'); // 시작일자
-  searchParams.value.cntrRcpEnddt = now.format('YYYYMMDD'); // 종료일자
-
   isGrdMstListVisible.value = true;
   isGrdMstRstlListVisible.value = false;
   isGrdMstEmpPrchListVisible.value = false;
@@ -762,27 +787,29 @@ async function onClickReset() {
 
 // 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload() {
-  const res = await dataService.get('/sms/wells/contract/contracts/managements', { params: cachedParams });
   if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
+    const res = await dataService.get('/sms/wells/contract/contracts/managements/excel-download1', { params: cachedParams });
     const view = grdMstList.value.getView();
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
       timePostfix: true,
-      exportData: res.data.searchKssOrdrListResList,
+      exportData: res.data,
     });
   } else if (searchParams.value.cntrDv === 'R') {
+    const res = await dataService.get('/sms/wells/contract/contracts/managements/excel-download2', { params: cachedParams });
     const view = grdMstRstlList.value.getView();
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
       timePostfix: true,
-      exportData: res.data.searchRePromConcListResList,
+      exportData: res.data,
     });
   } else if (searchParams.value.cntrDv === 'S') {
+    const res = await dataService.get('/sms/wells/contract/contracts/managements/excel-download3', { params: cachedParams });
     const view = grdMstEmpPrchList.value.getView();
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
       timePostfix: true,
-      exportData: res.data.searchEmployeePurchaseListResList,
+      exportData: res.data,
     });
   }
 }

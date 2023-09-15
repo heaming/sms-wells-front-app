@@ -43,7 +43,6 @@
           <kw-option-group
             v-model="searchParams.istPcsvDvCd"
             type="radio"
-            :disable="true"
             :options="codes.IST_PCSV_DV_CD"
           />
         </kw-search-item>
@@ -666,6 +665,13 @@ function getInstallStatus() {
 }
 
 async function fetchData() {
+  if (isEqual(searchParams.value.istPcsvDvCd, '2')) {
+    searchParams.value.wkGrpDv = '';
+    isDelivery.value = true;
+  } else {
+    isDelivery.value = false;
+    // getInstallStatus();
+  }
   cachedParams = cloneDeep(searchParams.value);
 
   if (isEmpty(cachedParams)) return;
@@ -676,12 +682,6 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   installationList.value = details;
 
-  if (isEqual(searchParams.value.istPcsvDvCd, '2')) {
-    isDelivery.value = true;
-  } else {
-    isDelivery.value = false;
-    // getInstallStatus();
-  }
   getInstallStatus();
 }
 
@@ -700,17 +700,17 @@ function setIstExptDateFormat(item) {
   let returnDt = '';
 
   // 날짜설정
-  if (isEmpty(wkAcpteDt)) {
-    if (!isEmpty(vstCnfmdt)) { date = vstCnfmdt; }
+  if (isEmpty(vstCnfmdt)) {
+    if (!isEmpty(wkAcpteDt)) { date = wkAcpteDt; }
   } else {
-    date = wkAcpteDt;
+    date = vstCnfmdt;
   }
 
   // 시간설정
-  if (isEmpty(wkAcpteHh)) {
-    if (!isEmpty(vstCnfmHh)) { time = vstCnfmHh; }
+  if (isEmpty(vstCnfmHh)) {
+    if (!isEmpty(wkAcpteHh)) { time = wkAcpteHh; }
   } else {
-    time = wkAcpteHh;
+    time = vstCnfmHh;
   }
 
   // 체크

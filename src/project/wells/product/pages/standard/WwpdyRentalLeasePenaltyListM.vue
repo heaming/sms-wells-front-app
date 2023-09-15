@@ -72,6 +72,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span class="ml8">({{ $t('MSG_TXT_UNIT_CUR_WON') }})</span>
         </template>
 
         <kw-btn
@@ -395,7 +396,9 @@ const initGrdMain = defineGrid((data, view) => {
       const svPdNm = grid.getValue(itemIndex, 'pdNm');
       const { payload } = await modal({
         component: 'ZwpdcStandardListP',
-        componentProps: { searchType: pdConst.PD_SEARCH_NAME, searchValue: svPdNm },
+        componentProps: { searchType: pdConst.PD_SEARCH_NAME,
+          searchValue: svPdNm,
+          selectType: pdConst.PD_SEARCH_SINGLE },
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;

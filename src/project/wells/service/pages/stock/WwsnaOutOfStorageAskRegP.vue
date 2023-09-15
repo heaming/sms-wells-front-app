@@ -188,7 +188,7 @@ const props = defineProps({
 
 });
 
-const LGST_OSTR_AK_TP_CD = '1'; // 물류
+// const LGST_OSTR_AK_TP_CD = '1'; // 물류
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -241,7 +241,6 @@ const filterCodes = ref({
 filterCodes.value.filterOstrTpCd = codes.OSTR_AK_TP_CD.filter((v) => ['310', '320', '330'].includes(v.codeId));
 
 function changeOstrAkQty(row, val) {
-  console.log(val);
   const view = grdMainRef.value.getView();
   view.setValue(row, 'ostrCnfmQty', val);
 }
@@ -273,7 +272,6 @@ async function onClickItemPop(type, row) {
     },
   });
   const target = [];
-  // TODO: 연결화면 개발진행중이라, 받아와서 처리하는 로직은 임시값으로 테스트한 코드임. 팝업화면에서 넘어오는 형식따라 수정가능성있음.
   if (result) {
     const view = grdMainRef.value.getView();
     const list = gridUtil.getAllRowValues(view, false);
@@ -383,36 +381,28 @@ async function onClickExcelDownload() {
   });
 }
 
-// TODO: 데이터 생기면 확인해볼것
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
   for (let i = 0; i < checkedRows.length; i += 1) {
     const chkRectOstrDt = checkedRows[i].rectOstrDt;
-    const chkOstrWareDvCd = checkedRows[i].ostrAkWareDvCd;
     if (!isEmpty(chkRectOstrDt)) {
       notify(t('MSG_ALT_ARDY_OSTR', [t('MSG_TXT_DEL')]));
-      return;
-    }
-
-    if (chkOstrWareDvCd === LGST_OSTR_AK_TP_CD && checkedRows.length > 1) {
-      notify(t('MSG_ALT_ONE_PROCS_PSB'));
       return;
     }
   }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  console.log(deletedRows);
 
   if (deletedRows.length > 0) {
-    const result = await dataService.delete('/sms/wells/service/out-of-storage-asks', { data: checkedRows });
+    const result = await dataService.delete('/sms/wells/service/out-of-storage-asks', { data: deletedRows });
     if (result.data > 0) {
       notify(t('MSG_ALT_SAVE_COMP'));
     } else {
       notify(t('MSG_ALT_PROC_FAIL'));
     }
-    await fetchOstrAkDataItem();
+    ok();
   }
 }
 
@@ -434,6 +424,8 @@ async function onClickSave() {
     const chkOstrAkQty = checkedRows[i].ostrAkQty;
     const chkRectOstrDt = checkedRows[i].rectOstrDt;
     const chkOstrAkNo = searchParams.value.ostrAkNo;
+    const chkStrOjWareNo = searchParams.value.strOjWareNo.substring(0, 1);
+    const chkItemKnd = checkedRows[i].itemKnd;
 
     if (chkOstrAkTpCd === '310' && searchParams.value.ostrOjWareNo.substring(0, 1) === '3' && chkWarehouseQty === 0) {
       notify(t('MSG_ALT_NO_OSTR_WARE_STOC'));
@@ -452,16 +444,33 @@ async function onClickSave() {
     if (!isEmpty(chkOstrAkNo)) {
       checkedRows[i].ostrAkNo = chkOstrAkNo;
     }
+
+    if (searchParams.value.ostrOjWareNo.substring(0, 1) === '1') {
+      if (chkStrOjWareNo === '2' && chkItemKnd === '4') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE01';
+      } else if (chkStrOjWareNo === '2' && chkItemKnd === '5') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE03';
+      } else if (chkStrOjWareNo === '2' && chkItemKnd !== '4' && chkItemKnd !== '5') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE02';
+      }
+
+      if (chkStrOjWareNo === '3' && chkItemKnd === '4') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE04';
+      } else if (chkStrOjWareNo === '3' && chkItemKnd === '5') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE06';
+      } else if (chkStrOjWareNo === '3' && chkItemKnd !== '4' && chkItemKnd !== '5') {
+        checkedRows[i].chkLgstWkMthdCd = 'WE05';
+      }
+    }
   }
   params = searchParams.value;
 
   params.ostrAkRgstDt = dayjs().format('YYYYMMDD');
   // eslint-disable-next-line max-len
   const result = await dataService.post('/sms/wells/service/out-of-storage-asks', checkedRows.map((v) => ({ ...v, ...params })));
-  if (result > 0) {
+  if (result.data.processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
   }
-  await fetchOstrAkDataItem();
   ok();
 }
 
@@ -512,7 +521,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrWareMngtPrtnrNo' }, /* 출고창고관리파트너번호 */
     { fieldName: 'ostrOjWareNo' }, /* 출고대상창고번호 */
     { fieldName: 'strOjWareNo' }, /* 입고대상창고번호 */
-    { fieldName: 'itmKnd' }, /* 품목종류 */
+    { fieldName: 'itemKnd' }, /* 품목종류 */
     { fieldName: 'itmKndNm' }, /* 품목종류명 */
     { fieldName: 'imgUrl' }, /* imgUrl */
     { fieldName: 'ovivTpCd' }, /* 배차형태 */
@@ -524,29 +533,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'useQty', dataType: 'number' }, /* 당월수량 */
     { fieldName: 'baseStocQty', dataType: 'number' }, /* 기준재고수량 */
     { fieldName: 'sftStocQty', dataType: 'number' }, /* 안전재고수량 */
-
-    // { fieldName: 'ostrAkWareDvCd' }, // 출고요청창고구분코드
-    // { fieldName: 'wareMngtPrtnrNo' }, // 창고관리파트너번호
-    // { fieldName: 'ostrOjWareDvCd' }, // 출고대상창고구분코드
-    // { fieldName: 'ostrOjWareNo' }, // 출고대상창고번호
-    // { fieldName: 'ostrWareMngtPrtnrNo' }, // 출고창고관리파트너번호
-    // { fieldName: 'mngtUnitCd' },
-    // { fieldName: 'boxUnitQty', dataType: 'number' },
-    // { fieldName: 'itmGdCd' },
-    // { fieldName: 'onQty', dataType: 'number' },
-    // { fieldName: 'ostrAkQty', dataType: 'number' }, // 출고요청수량
-    // { fieldName: 'ostrCnfmQty', dataType: 'number' }, // 출고확정수량
-    // { fieldName: 'rmkCn' }, // 비고
-    // { fieldName: 'rectOstrDt' }, // 최근출고일자
-    // { fieldName: 'ostrAggQty' }, // 출고누계수량
-    // { fieldName: 'warehouseQty', dataType: 'number' }, // 재고
-    // { fieldName: 'baseStocQty', dataType: 'number' }, // 기준재고수량
-    // { fieldName: 'sftStocQty', dataType: 'number' }, // 안전재고수량
-    // { fieldName: 'useQty', dataType: 'number' }, // 당월수량
-    // { fieldName: 'centerQty', dataType: 'number' }, // 센터수량
-    // { fieldName: 'indiQty', dataType: 'number' }, // 개인수량
-    // { fieldName: 'imgApnFileId' }, // 이미지첨부파일ID
-    // { fieldName: 'cfrmCnt', dataType: 'number' }, // 방문확정수량
+    { fieldName: 'chkLgstWkMthdCd' },
   ];
 
   const columns = [
@@ -679,6 +666,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-left',
       editable: true,
     },
+    { fieldName: 'chkLgstWkMthdCd' },
   ];
 
   const columnLayout = [

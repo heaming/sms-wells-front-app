@@ -36,6 +36,7 @@
             first-option="all"
             option-label="ogNm"
             option-value="ogId"
+            class="w247"
           />
           <kw-select
             v-model="searchParams.prtnrNo"
@@ -43,7 +44,6 @@
             first-option="all"
             option-label="prtnrNoNm"
             option-value="prtnrNo"
-            class="w150"
           />
         </kw-search-item>
 
@@ -75,6 +75,7 @@
             v-model="searchParams.pdCd"
             :options="products"
             first-option="all"
+            :disable="searchParams.pdGrpCd === ''"
           />
         </kw-search-item>
 
@@ -86,11 +87,13 @@
           <kw-select
             v-model="searchParams.inquiryBase"
             :options="inquiryBases"
+            class="w247"
           />
           <kw-date-range-picker
             v-model:from="searchParams.baseDateFrom"
             v-model:to="searchParams.baseDateTo"
             rules="date_range_months:1"
+            :label="$t('MSG_TXT_INQR_BASE')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -135,6 +138,12 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <kw-separator
+            vertical
+            inset
+            spaced
+          />
+          <span>(단위:원)</span>
         </template>
         <kw-btn
           icon="download_on"
@@ -183,13 +192,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta, popupUtil } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty, toNumber } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const { modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 const dataService = useDataService();
 
@@ -276,10 +287,11 @@ async function fetchProducts() {
 watch(() => searchParams.value.pdGrpCd, async (val) => {
   if (val === '') {
     products.value = [];
+    searchParams.value.pdCd = '';
     return;
   }
   await fetchProducts();
-}, { immediate: true });
+});
 
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
@@ -350,7 +362,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center rg-button-link',
       footer: { text: t('MSG_TXT_SUM') },
       renderer: { type: 'button' },
-      preventCellItemFocus: true,
+      // preventCellItemFocus: true,
     },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'copnDvNm', header: t('MSG_TXT_INDV_CRP_DV'), width: '150', styleName: 'text-center' }, // 개인법인구분
@@ -368,7 +380,6 @@ const initGrdMain = defineGrid((data, view) => {
       width: 150,
       styleName: 'text-center',
       displayCallback: (grid, index) => {
-        console.log(index);
         const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.dataRow) || {};
         return getPhoneNo(cralLocaraTno, mexnoEncr, cralIdvTno);
       },
@@ -483,8 +494,11 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cashStlm', header: t('MSG_TXT_CASH'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(현금)
     { fieldName: 'cardStlm', header: t('MSG_TXT_CARD'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(카드)
     { fieldName: 'elcStlm', header: t('MSG_TXT_ELC_STLM'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(전자결제)
-    { fieldName: 'cstSignHsYn', header: t('MSG_BTN_CST_SIGN'), width: '145', styleName: 'text-center' }, // 고객서명
-    { fieldName: 'istEnvrPhoPhCn', header: t('MSG_TXT_PHO'), width: '145', styleName: 'text-center' }, // 사진
+    { fieldName: 'cstSignHsYn', header: t('MSG_BTN_CST_SIGN'), width: '100', styleName: 'text-center' }, // 고객서명
+    { fieldName: 'istEnvrPhoPhFileUid' }, // 설치환경사진
+    { fieldName: 'istKitPhoPhFileUid' }, // 설치키트사진
+    { fieldName: 'istCelngPhoPhFileUid' }, // 설치천장사진
+    { fieldName: 'istImg', header: t('MSG_TXT_PHO'), width: '100', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => '+' }, // 설치사진
     { fieldName: 'acpnPrtnrKnm', header: t('MSG_TXT_CMPA_NM'), width: '145', styleName: 'text-center' }, // 동행작업자(동행자명)
     { fieldName: 'acpnPrtnrGdNm', header: t('MSG_TXT_PSTN_DV'), width: '145', styleName: 'text-center' }, // 동행작업자(직급구분)
   ];
@@ -583,7 +597,7 @@ const initGrdMain = defineGrid((data, view) => {
       items: ['cashStlm', 'cardStlm', 'elcStlm'],
     },
     'cstSignHsYn',
-    'istEnvrPhoPhCn',
+    'istImg',
     {
       header: t('MSG_TXT_ACPN_WKP'), // 동행작업자
       direction: 'horizontal',
@@ -598,12 +612,24 @@ const initGrdMain = defineGrid((data, view) => {
   view.filteringOptions.enabled = false;
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const { cntrNo, cntrSn } = grid.getValues(itemIndex);
+    const { cntrNo, cntrSn, istEnvrPhoPhFileUid, istKitPhoPhFileUid, istCelngPhoPhFileUid } = grid.getValues(itemIndex);
 
     if (column === 'cntrNoSn') {
-      console.log('개인별 서비스 현황 화면', cntrNo, cntrSn);
-      // TODO: W-SV-U-0072M01 개인별 서비스 현황 화면 새창으로 열기
-      await popupUtil.open(`#/service/wwsnb-service-processing-iz-qlty-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+      router.push({ path: '/service/wwsnb-individual-service-list', query: { cntrNo, cntrSn } });
+    }
+
+    if (column === 'istImg') {
+      const imgFiles = [istEnvrPhoPhFileUid, istKitPhoPhFileUid, istCelngPhoPhFileUid]
+        .filter((v) => !isEmpty(v)).map((v) => ({ fileUid: v }));
+
+      if (imgFiles.length > 0) {
+        await modal({
+          component: 'ZwcmzImagePreviewP',
+          componentProps: { files: imgFiles },
+        });
+      } else {
+        notify(t('MSG_ALT_RGST_IMG_NTHNG'));
+      }
     }
   };
 });
