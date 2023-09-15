@@ -29,8 +29,9 @@
         <kw-search-item :label="t('TXT_MSG_SV_TP_CD')">
           <!-- 서비스 유형 -->
           <kw-select
-            v-model="searchParams.svBizHclsfNm"
+            v-model="searchParams.svTpCd"
             :options="selectCodes.SELECT_SERVICE"
+            first-option="all"
             class="w150"
           />
           <!-- 서비스센터 -->
@@ -107,7 +108,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, getComponentType, defineGrid, codeUtil, gridUtil } from 'kw-lib';
+import { useDataService, useMeta, getComponentType, defineGrid, codeUtil, gridUtil, stringUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -124,15 +125,16 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 /* 공통코드 */
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'SV_DV_CD',
 );
+console.log('codes.SV_DV_CD >>>>', codes.SV_DV_CD);
 
 // 사용자 정의코드
 const selectCodes = {
-  // 서비스유형 : 01.전체, 02.설치, 03.A/S, 04.홈케어
-  SELECT_SERVICE: [{ codeId: '01', codeName: t('MSG_TXT_ALL') },
-    { codeId: '02', codeName: t('MSG_TXT_INSTALLATION') },
-    { codeId: '03', codeName: t('MSG_TXT_AFTER_SERVICE') },
-    { codeId: '04', codeName: t('MSG_TXT_HOME_CARE') }],
+  // 서비스유형 : all.전체, 1.설치, 3.A/S, 4.홈케어
+  SELECT_SERVICE: [{ codeId: '1', codeName: t('MSG_TXT_INSTALLATION') },
+    { codeId: '3', codeName: t('MSG_TXT_AFTER_SERVICE') },
+    { codeId: '4', codeName: t('MSG_TXT_HOME_CARE') }],
   // 조회기준 : 01.접수일자, 02.예정일자, 03.처리일자, 04.방문확정일
   SELECT_DAY: [{ codeId: '01', codeName: t('MSG_TXT_RCPDT') },
     { codeId: '02', codeName: t('MSG_TXT_SCHD_DT') },
@@ -143,7 +145,7 @@ const selectCodes = {
 let cachedParams;
 
 const searchParams = ref({
-  svBizHclsfNm: '', // 서비스유형 : 01.전체, 02.설치, 03.A/S, 04.홈케어
+  svTpCd: '', // 서비스유형 : all.전체, 1.설치, 3.A/S, 4.홈케어
   ogCd: '', // 서비스센터
   prtnrNo: '', // 담당자
   searchDateType: '01', // 조회기준 : 01.접수일자, 02.예정일자, 03.처리일자, 04.방문확정일
@@ -184,6 +186,12 @@ async function onClickExcelDownload() {
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/service-region-level-ps/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list, pageInfo: pagingResult } = res.data;
+  // if (list.length > 0) {
+  //   list.forEach((data) => {
+  //     data.grdTotAmt = data.wrkGrdAmt + data.mvGrdAmt;
+  //   });
+  // }
+  // console.log('list >>>', list);
   const resData = list;
   pageInfo.value = pagingResult;
 
@@ -203,253 +211,169 @@ async function onClickSearch() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  // const fields = [
-  //   { fieldName: 'bsdt' },
-  //   { fieldName: 'dgr1LevlOgNm' },
-  //   { fieldName: 'dgr1LevlOgCd' },
-  //   { fieldName: 'dgr1LevlOgId' },
-  //   { fieldName: 'ogCd' },
-  //   { fieldName: 'ogNm' },
-  //   { fieldName: 'ogId' },
-  //   { fieldName: 'ichrPrtnrNo' },
-  //   { fieldName: 'rglvlSn' },
-  //   { fieldName: 'prtnrKnm' },
-  //   { fieldName: 'ac025EmpOr' },
-  //   { fieldName: 'ogTpCd' },
-  //   { fieldName: 'cntrNo' },
-  //   { fieldName: 'cntrSn' },
-  //   { fieldName: 'custCd' },
-  //   { fieldName: 'rcgvpKnm' },
-  //   { fieldName: 'procStusNm' },
-  //   { fieldName: 'newAdrZip' },
-  //   { fieldName: 'ctpvNm' },
-  //   { fieldName: 'ctctyNm' },
-  //   { fieldName: 'ac112EmdKorNm' },
-  //   { fieldName: 'amtdNm' },
-  //   { fieldName: 'co410FeeGb' },
-  //   { fieldName: 'itemNm' },
-  //   { fieldName: 'arrDttm' },
-  //   { fieldName: 'wkFshDt' },
-  //   { fieldName: 'wkFshHh' },
-  //   { fieldName: 'timeStand' },
-  //   { fieldName: 'al170BasePdlvNo' },
-  //   { fieldName: 'dptuPdlvNo' },
-  //   { fieldName: 'arvPdlvNo' },
-  //   { fieldName: 'mvSisock' },
-  //   { fieldName: 'al170MvDistance' },
-  //   { fieldName: 'al170MvTime' },
-  //   { fieldName: 'al170MvFee' },
-  //   { fieldName: 'orgShpNm' },
-  //   { fieldName: 'orgShpAdd' },
-  //   { fieldName: 'chuljangCd' },
-  //   { fieldName: 'chuljangAdd' },
-  //   { fieldName: 'strShpNm' },
-  //   { fieldName: 'strShpAdd' },
-  //   { fieldName: 'endShpNm' },
-  //   { fieldName: 'endShpAdd' },
-  //   { fieldName: 'mvDistance' },
-  //   { fieldName: 'mvGrd' },
-  //   { fieldName: 'mvGrdAmt' },
-  //   { fieldName: 'mvTime' },
-  //   { fieldName: 'wrkGrd' },
-  //   { fieldName: 'wrkGrdAmt' },
-  //   { fieldName: 'strIslandYn' },
-  //   { fieldName: 'endIslandYn' },
-  // ];
-
-  // const columns = [
-  //   { fieldName: 'bsdt', visible: false }, // 기준일자
-  //   { fieldName: 'dgr1LevlOgNm', visible: false }, // 1차레벨조직ID
-  //   { fieldName: 'dgr1LevlOgCd', header: t('담당사번'), width: '150' }, // 1차레벨조직코드
-  //   { fieldName: 'dgr1LevlOgId', header: t('담당성명'), width: '150' }, // 1차레벨조직명
-  //   { fieldName: 'ogCd', header: t('MSG_TXT_RSB'), width: '150' }, // 조직코드
-  //   { fieldName: 'ogNm', header: t('MSG_TXT_CNTR_NO'), width: '150' }, // 조직명
-  //   { fieldName: 'ogId', header: t('MSG_TXT_ZIP'), width: '150' }, // 조직ID
-  //   { fieldName: 'ichrPrtnrNo', visible: false }, // 담당파트너번호
-  //   { fieldName: 'rglvlSn', visible: false }, // 급지일련번호
-  //   { fieldName: 'prtnrKnm', header: t('MSG_TXT_PRTNR_FNM'), width: '150' }, // 파트너한글명
-  //   { fieldName: 'ac025EmpOr', header: t('MSG_TXT_PRTNR_GD'), width: '150' }, // 파트너등급코드
-  //   { fieldName: 'ogTpCd', visible: false }, // 조직유형코드
-  //   { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '150' }, // 계약번호
-  //   { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '150' }, // 계약일련번호
-  //   { fieldName: 'custCd', header: t('MSG_TXT_CNTR_NO'), width: '150' }, // 계약번호 '-' 계약일련번호
-  //   { fieldName: 'rcgvpKnm', visible: false }, // 담당성명
-  //   { fieldName: 'procStusNm', visible: false },
-  //   { fieldName: 'newAdrZip', visible: false }, // 우편번호
-  //   { fieldName: 'ctpvNm', visible: false }, // 시도명
-  //   { fieldName: 'ctctyNm', visible: false }, // 시군구명
-  //   { fieldName: 'ac112EmdKorNm', visible: false }, // 법정읍면동명
-  //   { fieldName: 'amtdNm', visible: false }, // 행정동명
-  //   { fieldName: 'co410FeeGb', visible: false },
-  //   { fieldName: 'itemNm', visible: false }, // 상품명????
-  //   { fieldName: 'arrDttm', visible: false },
-  //   { fieldName: 'wkFshDt', visible: false }, // 작업완료일자
-  //   { fieldName: 'wkFshHh', visible: false }, // 작업완료시간
-  //   { fieldName: 'timeStand', visible: false },
-  //   { fieldName: 'al170BasePdlvNo', visible: false }, // 기준출고지번호
-  //   { fieldName: 'dptuPdlvNo', visible: false }, // 출발출고지번호
-  //   { fieldName: 'arvPdlvNo', visible: false }, // 도착출고지번호
-  //   { fieldName: 'mvSisock', visible: false },
-  //   { fieldName: 'al170MvDistance', visible: false },
-  //   { fieldName: 'al170MvTime', visible: false },
-  //   { fieldName: 'al170MvFee', visible: false },
-  //   { fieldName: 'orgShpNm', visible: false }, // 출고지명
-  //   { fieldName: 'orgShpAdd', visible: false }, // 출고지주소
-  //   { fieldName: 'chuljangCd', visible: false },
-  //   { fieldName: 'chuljangAdd', visible: false },
-  //   { fieldName: 'strShpNm', visible: false },
-  //   { fieldName: 'strShpAdd', visible: false },
-  //   { fieldName: 'endShpNm', visible: false },
-  //   { fieldName: 'endShpAdd', visible: false },
-  //   { fieldName: 'mvDistance', visible: false },
-  //   { fieldName: 'mvGrd', visible: false },
-  //   { fieldName: 'mvGrdAmt', visible: false },
-  //   { fieldName: 'mvTime', visible: false },
-  //   { fieldName: 'wrkGrd', visible: false },
-  //   { fieldName: 'wrkGrdAmt', visible: false },
-  //   { fieldName: 'strIslandYn', visible: false },
-  //   { fieldName: 'endIslandYn', visible: false },
-  // ];
-
+  // 51ea
   const fields = [
-    { fieldName: 'bsdt' },
-    { fieldName: 'dgr1LevlOgNm' },
-    { fieldName: 'dgr1LevlOgCd' },
-    { fieldName: 'dgr1LevlOgId' },
-    { fieldName: 'ogCd' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'ogId' },
-    { fieldName: 'ichrPrtnrNo' },
-    { fieldName: 'rglvlSn' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'ac025EmpOr' },
-    { fieldName: 'ogTpCd' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'custCd' },
-    { fieldName: 'rcgvpKnm' },
-    { fieldName: 'procStusNm' },
-    { fieldName: 'newAdrZip' },
-    { fieldName: 'ctpvNm' },
-    { fieldName: 'ctctyNm' },
-    { fieldName: 'ac112EmdKorNm' },
-    { fieldName: 'amtdNm' },
-    { fieldName: 'co410FeeGb' },
-    { fieldName: 'itemNm' },
-    { fieldName: 'arrDttm' },
-    { fieldName: 'wkFshDt' },
-    { fieldName: 'wkFshHh' },
-    { fieldName: 'timeStand' },
-    { fieldName: 'al170BasePdlvNo' },
-    { fieldName: 'dptuPdlvNo' },
-    { fieldName: 'arvPdlvNo' },
-    { fieldName: 'mvSisock' },
-    { fieldName: 'al170MvDistance' },
-    { fieldName: 'al170MvTime' },
-    { fieldName: 'al170MvFee' },
-    { fieldName: 'orgShpNm' },
-    { fieldName: 'orgShpAdd' },
-    { fieldName: 'chuljangCd' },
-    { fieldName: 'chuljangAdd' },
-    { fieldName: 'strShpNm' },
-    { fieldName: 'strShpAdd' },
-    { fieldName: 'endShpNm' },
-    { fieldName: 'endShpAdd' },
-    { fieldName: 'mvDistance' },
-    { fieldName: 'mvGrd' },
-    { fieldName: 'mvGrdAmt' },
-    { fieldName: 'mvTime' },
-    { fieldName: 'wrkGrd' },
-    { fieldName: 'wrkGrdAmt' },
-    { fieldName: 'strIslandYn' },
-    { fieldName: 'endIslandYn' },
+    { fieldName: 'ogCd' }, // 서비스센터 코드
+    { fieldName: 'ogNm' }, // 서비스센터명
+    { fieldName: 'ichrPrtnrNo' }, // 담당자 사번
+    { fieldName: 'prtnrKnm' }, // 담당자 명
+    { fieldName: 'ac025EmpOr' }, // 직책
+    { fieldName: 'custCd' }, // 계약번호+일련번호 화면표시용
+    { fieldName: 'newAdrZip' }, // 신우편번호
+    { fieldName: 'ctpvNm' }, // 시도명
+    { fieldName: 'ctctyNm' }, // 시군구명
+    { fieldName: 'amtdNm' }, // 행정동명
+    { fieldName: 'ac112EmdKorNm' }, // 읍면동명
+    { fieldName: 'itemNm' }, // 상품명
+    { fieldName: 'co410FeeGb' }, // 수당항목 명
+    { fieldName: 'arrDttm' }, // 작업도착
+    { fieldName: 'wkFshDt' }, // 작업완료일자
+    { fieldName: 'wkFshHh' }, // 작업완료시간
+    { fieldName: 'orgShpNm' }, // 기본출고지명
+    { fieldName: 'orgShpAdd' }, // 기본출고지 주소
+    { fieldName: 'chuljangNm' }, // 출장출고지 명
+    { fieldName: 'chuljangAdd' }, // 출장출고지 주소
+    { fieldName: 'strShpNm' }, // 출발출고지명
+    { fieldName: 'strShpAdd' }, // 출발주소
+    { fieldName: 'strIslandYn' }, // 출발 섬구분
+    { fieldName: 'endShpNm' }, // 도착출고지명
+    { fieldName: 'endShpAdd' }, // 도착출고지주소
+    { fieldName: 'endIslandYn' }, // 도착 섬구분
+    { fieldName: 'timeStand' }, // 시간대 (작업)
+    { fieldName: 'al170MvDistance' }, // 경로 - 이동거리
+    { fieldName: 'al170MvTime' }, // 경로 - 이동시간
+    { fieldName: 'al170MvFee' }, // 경로  - 요금
+    { fieldName: 'mvGrd' }, // 이동급지 - 등급
+    { fieldName: 'mvGrdAmt' }, // 이동급지 - 급지수당
+    { fieldName: 'grdTotAmt' }, // 급지합계
+    { fieldName: 'mvDistance' }, // 이동합계
+    { fieldName: 'wrkGrd' }, // 업무급지 - 등급
+    { fieldName: 'wrkGrdAmt' }, // 업무급지 - 급지수당
+    { fieldName: 'bsdt' }, // 기준일자
+    { fieldName: 'dgr1LevlOgNm' }, // 상위 조직명
+    { fieldName: 'dgr1LevlOgCd' }, // 상위 조직코드
+    { fieldName: 'dgr1LevlOgId' }, // 상위 조직 ID
+    { fieldName: 'ogId' }, // 서비스센터 조직 ID  참조용
+    { fieldName: 'rglvlSn' }, // 급지일련번호
+    { fieldName: 'ogTpCd' }, // 조직유형코드 W06
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약일련번호
+    { fieldName: 'rcgvpKnm' }, // 고객명
+    { fieldName: 'procStusNm' }, // 작업상태   작업진행상태
+    { fieldName: 'al170BasePdlvNo' }, // 기본출고지번호
+    { fieldName: 'dptuPdlvNo' }, // 출장출고지번호
+    { fieldName: 'arvPdlvNo' }, // 도착출고지번호
+    { fieldName: 'mvSisock' }, // 시속(경로)
+    { fieldName: 'mvTime' }, // 이동시간 (계산시 필요함)
   ];
   /**------------------------------------------------------------------
    * 확인필요 컬럼
    * 직책, 작업상태
   **------------------------------------------------------------------*/
   const columns = [
-    // 배정정보
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_SV_CNR'), width: '150' }, // 1차레벨조직ID ~> 서비스센터
-    { fieldName: 'ichrPrtnrNo', header: t('담당사번'), width: '150' }, // 담당파트너번호
-    { fieldName: 'ogNm', header: t('담당성명'), width: '150' }, // 조직명..지점명? ~> 담당성명
-    { fieldName: 'custCd', header: t('MSG_TXT_CNTR_NO'), width: '150' }, // 계약번호 '-' 계약일련번호 ~> 고객번호
-    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '150' }, // 고객명
+    // 배정정보..1dept
+    /**
+     * 2dept
+     * 서비스센터, 지점, 담당사번, 담당성명, 직책
+     * , 계약번호, 우편번호, 시도명, 시군구명, 행정동명
+     * , 읍면동, SAP코드, 품목코드, 상품명, 수당항목
+     * , 작업도착, 작업완료, 소요시간
+     */
+    { fieldName: 'ogCd', header: t('MSG_TXT_SV_CNR'), width: '150' }, // 서비스센터 코드..서비스센터
+    { fieldName: 'ogNm', header: t('MSG_TXT_BRANCH'), width: '150' }, // 서비스센터명..지점
+    { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '150' }, // 파트너번호..담당사번
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: '150' }, // 파트너명..담당성명
+    { fieldName: 'ac025EmpOr', header: t('MSG_TXT_RSB'), width: '150' }, // 직책
+    { fieldName: 'custCd', header: t('MSG_TXT_CNTR_NO'), width: '150' }, // 계약번호+일련번호 화면표시용 ~> 계약번호
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '150' }, // 우편번호
     { fieldName: 'ctpvNm', header: t('MSG_TXT_CTPV_NM'), width: '150' }, // 시도명
     { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY_NM'), width: '150' }, // 시군구명
     { fieldName: 'amtdNm', header: t('MSG_TXT_AMTD_NM'), width: '150' }, // 행정동명
-    { fieldName: 'ac112EmdKorNm', header: t('법정읍면동명'), width: '150' }, // 법정읍면동명
-    { fieldName: 'itemNm', header: t('MSG_TXT_PRDT_NM'), width: '150' }, // 상품명????
-    { fieldName: 'co410FeeGb', visible: false }, // 수당항목
-    { fieldName: 'arrDttm', visible: false }, // 작업도착
-    { fieldName: 'wkFshDt', visible: false }, // 작업완료일자
-    { fieldName: 'wkFshHh', visible: false }, // 작업완료시간
-
-    // 기본출고지
-    { fieldName: 'orgShpAdd', header: t('MSG_TXT_PDLV_ADR'), width: '150' }, // 출고지주소
-    { fieldName: 'al170BasePdlvNo', header: t('기준출고지번호'), width: '150' }, // 기준출고지번호
-    // 출장출고지
-    { fieldName: 'arvPdlvNo', header: t('도착출고지번호'), width: '150' }, // 도착출고지번호
-
-    // 출발
+    { fieldName: 'ac112EmdKorNm', header: t('MSG_TXT_EMD_NM'), width: '150' }, // 읍면동명
+    // SAP코드, 품목코드..차후 추가
+    { fieldName: 'itemNm', header: t('MSG_TXT_PRDT_NM'), width: '150' }, // 상품명
+    { fieldName: 'co410FeeGb', header: t('수당항목'), width: '150' }, // 수당항목
+    { fieldName: 'arrDttm', header: t('작업도착'), width: '150' }, // 작업도착
+    { fieldName: 'wkFshDt', header: t('MSG_TXT_WK_FSH'), width: '150' }, // 작업완료일자..작업완료
+    { fieldName: 'wkFshHh', header: t('MSG_TXT_LDTM'), width: '150' }, // 작업완료시간..소요시간
+    // 기본출고지..1dept
+    // 2dept..출고지명, 출장출고지주소
     { fieldName: 'orgShpNm', header: t('MSG_TXT_PDLV_NM'), width: '150' }, // 출고지명
-    { fieldName: 'dptuPdlvNo', header: t('출발출고지번호'), width: '150' }, // 출발출고지번호
-
-    // 도착
-
-    // 작업
-
-    // 경로
-
-    // 업무급지
-
-    // 이동급지
-
-    // 접수자
-
-    { fieldName: 'ogCd', visible: false }, // 조직코드..지점? ~> 담당사번
+    { fieldName: 'orgShpAdd', header: t('출장출고지주소'), width: '150' }, // 출장출고지주소
+    // 출장출고지..1dept
+    // 2dept..출고지명, 출장출고지주소
+    { fieldName: 'chuljangNm', header: t('MSG_TXT_PDLV_NM'), width: '150' }, // 출고지명
+    { fieldName: 'chuljangAdd', header: t('출장출고지주소'), width: '150' }, // 출장출고지주소
+    // 출발..1dept
+    // 2dept..출고지/주민센터, 출발주소, 섬구분
+    { fieldName: 'strShpNm', header: t('출고지/주민센터'), width: '150' }, // 출고지/주민센터
+    { fieldName: 'strShpAdd', header: t('출발주소'), width: '150' }, // 출발주소
+    { fieldName: 'strIslandYn', header: t('MSG_TXT_ILD_DV'), width: '150' }, // 섬구분
+    // 도착..1dept
+    // 2dept..출고지/주민센터, 출발주소, 섬구분
+    { fieldName: 'endShpNm', header: t('출고지/주민센터'), width: '150' }, // 출고지/주민센터
+    { fieldName: 'endShpAdd', header: t('출발주소'), width: '150' }, // 출발주소
+    { fieldName: 'endIslandYn', header: t('MSG_TXT_ILD_DV'), width: '150' }, // 섬구분
+    // 작업..1dept
+    // 2dept..시간대
+    { fieldName: 'timeStand', header: t('시간대'), width: '150' }, // 시간대
+    // 경로..1dept
+    // 2dept..이동거리, 이동시간, 요금
+    { fieldName: 'al170MvDistance', header: t('이동거리'), width: '150' }, // 이동거리
+    { fieldName: 'al170MvTime', header: t('MSG_TXT_MMT_HH'), width: '150' }, // 이동시간
+    { fieldName: 'al170MvFee', header: t('MSG_TXT_CHARGE'), width: '150', dataType: 'number' }, // 요금
+    // 업무급지..1dept
+    // 2dept..등급, 급지수당
+    { fieldName: 'wrkGrd', header: t('MSG_TXT_GD'), width: '150' }, // 등급
+    { fieldName: 'wrkGrdAmt', header: t('MSG_TXT_RGLVL_AW'), width: '150', dataType: 'number', numberFormat: '#.##' }, // 급지수당
+    // 이동급지..1dept
+    // 2dept..이동합계, 등급, 급지수당
+    { fieldName: 'mvDistance', header: t('이동합계'), width: '150' }, // 이동합계
+    { fieldName: 'mvGrd', header: t('MSG_TXT_GD'), width: '150' }, // 등급
+    { fieldName: 'mvGrdAmt', header: t('MSG_TXT_RGLVL_AW'), width: '150', dataType: 'number', numberFormat: '#.##' }, // 급지수당
+    // 급지합계..하위dept 없음
+    // 계산해야 하는듯
+    {
+      fieldName: 'grdTotAmt',
+      header: t('급지합계'),
+      width: '150',
+      numberFormat: '#.##',
+      styleName: 'text-right',
+      displayCallback(g, index) {
+        const { wrkGrdAmt, mvGrdAmt } = g.getValues(index.itemIndex);
+        return stringUtil.getNumberWithComma((wrkGrdAmt + mvGrdAmt));
+      },
+    }, // 급지합계
+    // 접수자..1dept
+    // 2dept..접수자소속, 접수자
+    { fieldName: 'dgr1LevlOgNm', visible: false }, // 상위 조직명
+    { fieldName: 'dgr1LevlOgCd', visible: false }, // 상위 조직코드
+    { fieldName: 'dgr1LevlOgId', visible: false }, // 상위 조직 ID
+    { fieldName: 'rcgvpKnm', visible: false }, // 고객명
+    { fieldName: 'al170BasePdlvNo', visible: false }, // 기본출고지번호
+    { fieldName: 'arvPdlvNo', visible: false }, // 도착출고지번호
+    { fieldName: 'dptuPdlvNo', visible: false }, // 출장출고지번호
     { fieldName: 'rglvlSn', visible: false }, // 급지일련번호
-    { fieldName: 'prtnrKnm', visible: false }, // 파트너한글명
-    { fieldName: 'ac025EmpOr', visible: false }, // 파트너등급코드
-    { fieldName: 'ogTpCd', visible: false }, // 조직유형코드
+    { fieldName: 'ogTpCd', visible: false }, // 조직유형코드 W06
     { fieldName: 'cntrNo', visible: false }, // 계약번호
     { fieldName: 'cntrSn', visible: false }, // 계약일련번호
-    { fieldName: 'procStusNm', visible: false },
-    { fieldName: 'timeStand', visible: false },
-    { fieldName: 'mvSisock', visible: false },
-    { fieldName: 'al170MvDistance', visible: false },
-    { fieldName: 'al170MvTime', visible: false },
-    { fieldName: 'al170MvFee', visible: false },
-    { fieldName: 'chuljangCd', visible: false },
-    { fieldName: 'chuljangAdd', visible: false },
-    { fieldName: 'strShpNm', visible: false },
-    { fieldName: 'strShpAdd', visible: false },
-    { fieldName: 'endShpNm', visible: false },
-    { fieldName: 'endShpAdd', visible: false },
-    { fieldName: 'mvDistance', visible: false },
-    { fieldName: 'mvGrd', visible: false },
-    { fieldName: 'mvGrdAmt', visible: false },
-    { fieldName: 'mvTime', visible: false },
-    { fieldName: 'wrkGrd', visible: false },
-    { fieldName: 'wrkGrdAmt', visible: false },
-    { fieldName: 'strIslandYn', visible: false },
-    { fieldName: 'endIslandYn', visible: false },
+    { fieldName: 'procStusNm', visible: false }, // 작업상태   작업진행상태
+    { fieldName: 'mvSisock', visible: false }, // 시속(경로)
+    { fieldName: 'mvTime', visible: false }, // 이동시간 (계산시 필요함)
     { fieldName: 'bsdt', visible: false }, // 기준일자
-    { fieldName: 'dgr1LevlOgCd', visible: false }, // 1차레벨조직코드
-    { fieldName: 'dgr1LevlOgId', visible: false }, // 1차레벨조직명
-    { fieldName: 'ogId', visible: false }, // ?
+    { fieldName: 'ogId', visible: false }, // 서비스센터 조직 ID  참조용
   ];
 
   const columnLayout = [
     { // 배정정보
       direction: 'horizontal',
       items: [
-        'dgr1LevlOgNm',
-        'ichrPrtnrNo',
+        'ogCd',
         'ogNm',
+        'ichrPrtnrNo',
+        'prtnrKnm',
+        'ac025EmpOr',
         'custCd',
-        'rcgvpKnm',
         'newAdrZip',
         'ctpvNm',
         'ctctyNm',
@@ -466,30 +390,85 @@ const initGrdMain = defineGrid((data, view) => {
     { // 기본출고지
       direction: 'horizontal',
       items: [
+        'orgShpNm',
         'orgShpAdd',
-        'al170BasePdlvNo',
       ],
       header: { text: `${t('MSG_TXT_DFLT')} ${t('출고지')}` },
     },
     { // 출장출고지
       direction: 'horizontal',
-      items: ['arvPdlvNo'],
+      items: [
+        'chuljangNm',
+        'chuljangAdd',
+      ],
       header: { text: `${t('출장출고지')}` },
     },
     { // 출발
       direction: 'horizontal',
       items: [
-        'orgShpNm',
-        'dptuPdlvNo',
+        'strShpNm',
+        'strShpAdd',
+        'strIslandYn',
       ],
       header: { text: `${t('출발')}` },
     },
-    // 도착
-    // 작업
-    // 경로
-    // 업무급지
-    // 이동급지
-    // 접수자
+    { // 도착
+      direction: 'horizontal',
+      items: [
+        'endShpNm',
+        'endShpAdd',
+        'endIslandYn',
+      ],
+      header: { text: `${t('도착')}` },
+    },
+    { // 작업
+      direction: 'horizontal',
+      items: [
+        'timeStand',
+      ],
+      header: { text: `${t('작업')}` },
+    },
+    { // 경로
+      direction: 'horizontal',
+      items: [
+        'al170MvDistance',
+        'al170MvTime',
+        'al170MvFee',
+      ],
+      header: { text: `${t('경로')}` },
+    },
+    { // 업무급지
+      direction: 'horizontal',
+      items: [
+        'wrkGrd',
+        'wrkGrdAmt',
+      ],
+      header: { text: `${t('업무급지')}` },
+    },
+    { // 이동급지
+      direction: 'horizontal',
+      items: [
+        'mvDistance',
+        'mvGrd',
+        'mvGrdAmt',
+      ],
+      header: { text: `${t('이동급지')}` },
+    },
+    { // 이동급지
+      direction: 'horizontal',
+      items: [
+        'grdTotAmt',
+      ],
+      header: { text: `${t('급지합계')}` },
+    },
+    // { // 접수자
+    //   direction: 'horizontal',
+    //   items: [
+    //     'mvDistance',
+    //     'mvGrd',
+    //   ],
+    //   header: { text: `${t('접수자')}` },
+    // },
   ];
 
   view.setColumnLayout(columnLayout);
@@ -499,6 +478,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+  view.header.height += view.header.height + 100;
 
   // multi row header setting
   // view.setColumnLayout([

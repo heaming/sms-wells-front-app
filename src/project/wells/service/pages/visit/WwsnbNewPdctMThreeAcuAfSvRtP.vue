@@ -25,7 +25,7 @@
           v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-          @change="onClickSearch"
+          @change="fetchData"
         />
       </template>
       <!-- 삭제 -->
@@ -61,6 +61,7 @@
       name="grdPopup"
       :page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
+      :visible-rows="10"
       @init="initGrid"
     />
     <kw-pagination
@@ -76,24 +77,40 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, codeUtil, getComponentType, useMeta, gridUtil } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
-// import smsCommon from '~sms-wells/service/composables/useSnCode';
+import { useDataService, useGlobal, codeUtil, getComponentType, useMeta, gridUtil, stringUtil, defineGrid } from 'kw-lib';
+import { isEmpty, cloneDeep } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
 const { notify } = useGlobal();
+const { getConfig } = useMeta();
 
 const dataService = useDataService();
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS', // 페이징 옵션
+  'PD_GRP_CD', // 상품그룹코드
 );
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdPopupRef = ref(getComponentType('KwGrid'));
+
+// 상품그룹코드 리스트
+const pdGrpList = ref([]);
+// 상품명 리스트
+const pdGrpDtlList = ref([]);
+async function getPdDtlList() {
+  // 상품그룹코드 setting
+  pdGrpList.value = codes.PD_GRP_CD;
+
+  const pdDtlList = await dataService.get('/sms/wells/service/newpd-m-three-acu-af-sv-rt/pd-dtl-list');
+  if (pdDtlList.data.length > 0) {
+    pdGrpDtlList.value = pdDtlList.data;
+  }
+}
+await getPdDtlList();
 
 const props = defineProps({
   pdGrp: { type: String, default: '' },
@@ -104,6 +121,7 @@ const searchParams = ref({
   pdGrp: isEmpty(props.pdGrp) ? '' : props.pdGrp, // 상품그룹
   pdCd: isEmpty(props.pdGrp) ? '' : props.pdCd, // 상품명
 });
+let cachedParams;
 
 const pageInfo = ref({
   totalCount: 0,
@@ -112,8 +130,8 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const pdList = await dataService.get('/sms/wells/service/newpd-m-three-acu-af-sv-rt/pd-result/paging', { params: searchParams.value, ...pageInfo.value });
-  console.log('pdList.data >>>>', pdList.data);
+  cachedParams = cloneDeep(searchParams.value);
+  const pdList = await dataService.get('/sms/wells/service/newpd-m-three-acu-af-sv-rt/pd-result/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list, pageInfo: pagingResult } = pdList.data;
   pageInfo.value = pagingResult;
 
@@ -125,32 +143,41 @@ async function fetchData() {
 // 행추가 버튼 클릭
 async function onClickAddRow() {
   const view = grdPopupRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, {});
-}
 
-function validateIsApplyRowExists() {
-  const view = grdPopupRef.value.getView();
-  if (view.getCheckedItems().length === 0) {
-    notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
-    return false;
-  }
-  return true;
+  gridUtil.insertRowAndFocus(view, 0, {
+    lncStrtdt: dayjs().format('YYYYMMDD'),
+    lncExdt: dayjs().format('YYYYMMDD'),
+    tempField: 'Y',
+  });
 }
 
 async function onClickSave() {
-  if (!validateIsApplyRowExists()) return;
-
   const view = grdPopupRef.value.getView();
-  console.log('onClickSave view >>>', view);
+  const changedRows = gridUtil.getChangedRowValues(view);
+  if (await gridUtil.alertIfIsNotModified(view)) return;
 
-  if (!await gridUtil.alertIfIsNotModified(view)) {
-    const changedRows = gridUtil.getChangedRowValues(view);
-    console.log('changedRows >?>>>>', changedRows);
-    await dataService.post('/sms/wells/service/newpd-m-three-acu-af-sv-rt/pd-result-changes', changedRows);
+  changedRows.forEach((v) => {
+    console.log('changeRows v >>>>>>>>', v);
+    if (v.rowState === 'created') {
+      console.log('created');
+      if (!v.pdGrpCd) {
+        notify(t('MSG_ALT_BE_CHECK_IT', [t('MSG_TXT_PD_GRP')]));
+        return;
+      }
+      if (!v.nmKor) {
+        notify(t('MSG_ALT_BE_CHECK_IT', [t('MSG_TXT_PRDT_NM')]));
+        return;
+      }
 
-    notify(t('MSG_ALT_SAVE_DATA'));
-    await fetchData();
-  }
+      // 신규 등록시 상품대분류 코드 셋팅
+      v.pdHclsfId = pdGrpDtlList.value.filter((pdListData) => pdListData.svpdItemGr === v.pdGrpCd)[0].pdHclsfId;
+    }
+  });
+
+  await dataService.post('/sms/wells/service/newpd-m-three-acu-af-sv-rt/pd-result-changes', changedRows);
+
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
 }
 
 // 삭제 버튼 클릭
@@ -159,9 +186,8 @@ async function onClickDelete() {
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  const pdCds = deletedRows.map(({ svpdPdCd }) => svpdPdCd);
+  const pdCds = deletedRows.map(({ pdCd }) => pdCd);
   if (deletedRows.length > 0) {
-    console.log('deletedRows >?>>>>', deletedRows);
     await dataService.delete('/sms/wells/service/newpd-m-three-acu-af-sv-rt/pd-result-changes', { params: { pdCds } });
 
     notify(t('MSG_ALT_DELETED')); // 삭제되었습니다.
@@ -172,21 +198,107 @@ async function onClickDelete() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-function initGrid(data, view) {
+const initGrid = defineGrid((data, view) => {
+  const pdGrpClass = { id: 'pdGrpClass', levels: 1, keys: [], values: [] };
+  const pdDtlClass = { id: 'pdDtlClass', levels: 2, tags: [], keys: [], values: [] };
+
+  pdGrpList.value.forEach((v) => {
+    pdGrpClass.keys.push(v.codeId);
+    pdGrpClass.values.push(v.codeName);
+  });
+  pdGrpDtlList.value.forEach((v) => {
+    pdDtlClass.tags.push(v.cd);
+    pdDtlClass.keys.push([v.svpdItemGr, v.cd]);
+    pdDtlClass.values.push(v.cdNm);
+  });
+  // view.addLookupSource(pdGrpList);
+  view.addLookupSource(pdDtlClass);
+
   const fields = [
-    { fieldName: 'svpdNmAbbr1' },
-    { fieldName: 'svpdNmKor' },
-    { fieldName: 'sellStrtdt' },
-    { fieldName: 'sellEnddt' },
-    { fieldName: 'svpdPdCd' },
+    { fieldName: 'pdGrpCd' },
+    { fieldName: 'nmKor' },
+    { fieldName: 'lncStrtdt' },
+    { fieldName: 'lncExdt' },
+    { fieldName: 'chk' },
+    { fieldName: 'code' },
+    { fieldName: 'codeName' },
+    { fieldName: 'itmKndCd' },
+    { fieldName: 'pdCd' },
+    { fieldName: 'pdHclsfId' },
+    { fieldName: 'pdTpCd' },
+    { fieldName: 'tempField' }, // 행 추가시 상품그룹, 상품명 출력여부 확인용 field
   ];
 
   const columns = [
-    { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PD_GRP'), width: '200', editable: true }, // 상품그룹
-    { fieldName: 'svpdNmKor', header: t('MSG_TXT_PRDT_NM'), width: '418', editable: true }, // 상품명
-    { fieldName: 'sellStrtdt', header: t('출시일'), width: '150', styleName: 'text-center', editor: { type: 'date', datetimeFormat: 'yyyy-MM-dd' } }, // 출시일
-    { fieldName: 'sellEnddt', header: t('MSG_TXT_END_DATE'), width: '150', styleName: 'text-center', editor: { type: 'date', datetimeFormat: 'yyyy-MM-dd' } }, // 종료일
-    { fieldName: 'svpdPdCd', visible: false }, // 상품코드
+    { // 상품그룹
+      fieldName: 'pdGrpCd',
+      header: t('MSG_TXT_PD_GRP'),
+      width: '200',
+      lookupDisplay: true,
+      values: pdGrpClass.keys,
+      labels: pdGrpClass.values,
+      editor: { type: 'dropdown' },
+      rules: 'required',
+      styleCallback(grid, dataCell) {
+        const editableYn = grid.getValue(dataCell.item.dataRow, 'tempField');
+        return (editableYn === 'Y') ? { editable: true } : { editable: false };
+      },
+    },
+    { // 상품명
+      fieldName: 'nmKor',
+      header: t('MSG_TXT_PRDT_NM'),
+      width: '418',
+      styleName: 'text-center',
+      lookupDisplay: true,
+      lookupSourceId: 'pdDtlClass',
+      lookupKeyFields: ['pdGrpCd', 'nmKor'],
+      values: pdDtlClass.keys,
+      labels: pdDtlClass.values,
+      editor: { type: 'dropdown' },
+      rules: 'required',
+      styleCallback(grid, dataCell) {
+        const editableYn = grid.getValue(dataCell.item.dataRow, 'tempField');
+        return (editableYn === 'Y') ? { editable: true } : { editable: false };
+      },
+    },
+    { // 출시일
+      fieldName: 'lncStrtdt',
+      header: t('출시일'),
+      width: '150',
+      styleName: 'text-center',
+      rules: 'required',
+      editor: {
+        type: 'date',
+        datetimeFormat: 'yyyy-MM-dd',
+      },
+      displayCallback: (g, i) => {
+        const { lncStrtdt } = gridUtil.getRowValue(g, i.itemIndex);
+        return stringUtil.getDateFormat(lncStrtdt);
+      },
+    },
+    { // 종료일
+      fieldName: 'lncExdt',
+      header: t('MSG_TXT_END_DATE'),
+      width: '150',
+      styleName: 'text-center',
+      rules: 'required',
+      editor: {
+        type: 'date',
+        datetimeFormat: 'yyyy-MM-dd',
+      },
+      displayCallback: (g, i) => {
+        const { lncExdt } = gridUtil.getRowValue(g, i.itemIndex);
+        return stringUtil.getDateFormat(lncExdt);
+      },
+    },
+    { fieldName: 'chk', visible: false },
+    { fieldName: 'code', visible: false }, // 상품코드
+    { fieldName: 'codeName', visible: false }, // 상품코드  + 상품명
+    { fieldName: 'itmKndCd', visible: false }, // 품목종류코드
+    { fieldName: 'pdCd', visible: false }, // 상품코드
+    { fieldName: 'pdHclsfId', visible: false }, // 상품대분류
+    { fieldName: 'pdTpCd', visible: false }, // 상품유형코드
+    { fieldName: 'tempField', visible: false }, // 행 추가시 상품그룹, 상품명 출력여부 확인용 field
   ];
 
   data.setFields(fields);
@@ -195,22 +307,35 @@ function initGrid(data, view) {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  // data.setRows([
-  //   { col1: '비데', col2: '부산 북구 만덕3로 33번길 4-1', col3: '2021-10-06', col4: '2021-10-06' },
-  //   { col1: '비데', col2: '부산 북구 만덕3로 33번길 4-1', col3: '2021-10-06', col4: '2021-10-06' },
-  //   { col1: '비데', col2: '부산 북구 만덕3로 33번길 4-1', col3: '2021-10-06', col4: '2021-10-06' },
-  //   { col1: '비데', col2: '부산 북구 만덕3로 33번길 4-1', col3: '2021-10-06', col4: '2021-10-06' },
-  //   { col1: '비데', col2: '부산 북구 만덕3로 33번길 4-1', col3: '2021-10-06', col4: '2021-10-06' },
-  //   { col1: '비데', col2: '부산 북구 만덕3로 33번길 4-1', col3: '2021-10-06', col4: '2021-10-06' },
-  //   { col1: '비데', col2: '부산 북구 만덕3로 33번길 4-1', col3: '2021-10-06', col4: '2021-10-06' },
-  //   { col1: '비데', col2: '부산 북구 만덕3로 33번길 4-1', col3: '2021-10-06', col4: '2021-10-06' },
-  //   { col1: '비데', col2: '부산 북구 만덕3로 33번길 4-1', col3: '2021-10-06', col4: '2021-10-06' },
-  //   { col1: '비데', col2: '부산 북구 만덕3로 33번길 4-1', col3: '2021-10-06', col4: '2021-10-06' },
-  // ]);
-}
+  // view.onCellEdited = (grid, itemIndex) => {
+  //   const { fieldName } = grid.getCurrent();
+  //   const pdGrpCd = grid.getValue(itemIndex, 'pdGrpCd');
+
+  //   if (fieldName === 'nmKor') {
+  //     const filterData = pds.value.filter((v) => v.svpdItemGr === pdGrpCd)
+  //       .map((rtnData) => ({ codeId: rtnData.cd, codeName: rtnData.cdNm }));
+  //     grid.setValue(itemIndex, fieldName, JSON.stringify(filterData));
+  //   }
+  // };
+
+  // view.onCellClicked = (grid, index) => {
+  //   const { fieldName } = grid.getCurrent();
+  //   console.log('fieldName >>>', fieldName);
+
+  //   if (fieldName === 'nmKor') {
+  //     const pdGrpCd = grid.getValue(index.dataRow, 'pdGrpCd');
+
+  //     const filterData = pds.value.filter((v) => v.svpdItemGr === pdGrpCd)
+  //       .map((rtnData) => ({ codeId: rtnData.cd, codeName: rtnData.cdNm }));
+  //     // console.log('filterData >>>', JSON.stringify(filterData));
+  //     console.log(filterData);
+  //     // nmKor <-filterData
+  //     grid.setValue(index.dataRow, fieldName, JSON.stringify(filterData));
+  //   }
+  // };
+});
 
 onMounted(async () => {
   await fetchData();
 });
-
 </script>
