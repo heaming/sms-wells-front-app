@@ -122,10 +122,17 @@
       </template>
       <kw-btn
         v-permission:delete
-        primary
+        grid-action
         :label="$t('MSG_BTN_DEL')"
         :disable="props.page !== pageProps.remove"
         @click="onClickDelete"
+      />
+      <kw-btn
+        dense
+        secondary
+        :label="$t('MSG_BTN_PRINT')"
+        :disable="props.page !== pageProps.remove"
+        @click="onClickPrint"
       />
       <kw-separator
         spaced
@@ -183,7 +190,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal, gridUtil, useModal } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal, gridUtil, useModal, useCmPopup } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 
@@ -191,6 +198,7 @@ const { getConfig } = useMeta();
 const { modal, confirm, notify, alert } = useGlobal();
 const { t } = useI18n();
 const { ok } = useModal();
+const { openReportPopup } = useCmPopup();
 
 const dataService = useDataService();
 
@@ -327,6 +335,23 @@ async function onClickDelete() {
   }
 }
 
+// 출고증 출력
+async function openReport(itmOstrNo) {
+  openReportPopup(
+    '/kyowon_as/stckout.ozr',
+    '/kyowon_as/stckout.odi',
+    JSON.stringify(
+      {
+        ITM_OSTR_NO: itmOstrNo,
+      },
+    ),
+  );
+}
+
+async function onClickPrint() {
+  await openReport(props.itmOstrNo);
+}
+
 async function callConfirm(isClose) {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -394,8 +419,8 @@ async function callConfirm(isClose) {
     return;
   }
   res = await dataService.post(detailURI, checkedRows);
-  const { processCount } = res.data;
-  if (processCount > 0) {
+  const newItmOstrNo = res.data;
+  if (!isEmpty(newItmOstrNo)) {
     // 확정 되었습니다.
     notify(t('MSG_TXT_CNFM_SCS'));
     if (isClose) {
@@ -403,7 +428,7 @@ async function callConfirm(isClose) {
       return;
     }
 
-    notify('오즈리포트 기능입니다.');
+    await openReport(newItmOstrNo);
   }
 }
 

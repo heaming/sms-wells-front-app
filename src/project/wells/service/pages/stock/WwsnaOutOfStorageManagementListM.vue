@@ -95,6 +95,16 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <kw-btn
+          grid-action
+          :label="$t('MSG_BTN_OSTR_CTFC_PRNT')"
+          @click="onClickPrint"
+        />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
@@ -119,7 +129,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, gridUtil, popupUtil, useMeta } from 'kw-lib';
+import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, gridUtil, popupUtil, useMeta, useCmPopup } from 'kw-lib';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
@@ -132,11 +142,12 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 
 const { t } = useI18n();
-const { modal } = useGlobal();
+const { modal, notify } = useGlobal();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 const { getMonthWarehouse } = useSnCode();
 const store = useStore();
+const { openReportPopup } = useCmPopup();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -261,6 +272,26 @@ onMounted(async () => {
   await fetchDefaultData();
 });
 
+async function onClickPrint() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkedRows)) {
+    // 출력할 데이터를 선택해 주세요.
+    notify(t('MSG_ALT_NOT_SELECT_OSTR_PRINT'));
+    return;
+  }
+
+  openReportPopup(
+    '/kyowon_as/stckout.ozr',
+    '/kyowon_as/stckout.odi',
+    JSON.stringify(
+      {
+        ITM_OSTR_NO: '',
+      },
+    ),
+  );
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -286,9 +317,23 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'ostrDt', header: t('MSG_TXT_OSTR_DT'), datetimeFormat: 'date', width: '126', styleName: 'text-center' },
     { fieldName: 'ostrTpCd', header: t('MSG_TXT_OSTR_TP'), options: codes.OSTR_TP_CD, width: '100', styleName: 'text-center' },
-    { fieldName: 'itmOstrNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'itmOstrNo',
+      header: t('MSG_TXT_OSTR_MNGT_NO'),
+      width: '200',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+        return v.replace(regExp, '$1-$2-$3');
+      } },
     { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-left' },
-    { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '200', styleName: 'text-center' },
+    { fieldName: 'itmStrNo',
+      header: t('MSG_TXT_STR_MNGT_NO'),
+      width: '200',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+        return v.replace(regExp, '$1-$2-$3');
+      } },
     { fieldName: 'txtNote',
       header: t('MSG_TXT_NOTE'),
       width: '150',
@@ -301,7 +346,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = false;
+  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
