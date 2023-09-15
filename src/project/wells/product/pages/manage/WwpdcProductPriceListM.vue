@@ -324,20 +324,19 @@ async function initGrdStd(data, view) {
     pdConst.PD_PRC_TP_CD_FINAL,
     pdConst.PD_PRC_TP_CD_FEE];
 
-  const criteriaRule = 'values["pdCd"] + value';
   const pdColumns = [
     // 판매여부
-    { fieldName: 'sellYn', header: t('MSG_TXT_SLE_YN'), width: '80', styleName: 'text-center', mergeRule: { criteria: criteriaRule } },
+    { fieldName: 'sellYn', header: t('MSG_TXT_SLE_YN'), width: '80', styleName: 'text-center' },
     // 상품분류
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '240', mergeRule: { criteria: criteriaRule } },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '240' },
     // 상품명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '195', mergeRule: { criteria: criteriaRule } },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '195' },
     // 상품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center', mergeRule: { criteria: criteriaRule } },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
     // 판매기간
-    { fieldName: 'sellDurtion', header: t('MSG_TXT_PRDT_SLE_PRD'), width: '180', styleName: 'text-center', mergeRule: { criteria: criteriaRule } },
+    { fieldName: 'sellDurtion', header: t('MSG_TXT_PRDT_SLE_PRD'), width: '180', styleName: 'text-center' },
     // 사은품 여부
-    { fieldName: 'fgptYn', header: t('TXT_MSG_FGPT_YN'), width: '80', styleName: 'text-center', mergeRule: { criteria: criteriaRule } },
+    { fieldName: 'fgptYn', header: t('TXT_MSG_FGPT_YN'), width: '80', styleName: 'text-center' },
   ];
 
   const pdFields = pdColumns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -406,14 +405,13 @@ async function initGrdStd(data, view) {
 }
 
 async function initGrdCmp(data, view) {
-  const criteriaRule = 'values["pdCd"] + value';
   const pdColumns = [
     // 판매여부
-    { fieldName: 'sellYn', header: t('MSG_TXT_SLE_YN'), width: '80', styleName: 'text-center', mergeRule: { criteria: criteriaRule } },
+    { fieldName: 'sellYn', header: t('MSG_TXT_SLE_YN'), width: '80', styleName: 'text-center' },
     // 상품명
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '195', mergeRule: { criteria: criteriaRule } },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '195' },
     // 상품코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center', mergeRule: { criteria: criteriaRule } },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
 
     // 기준상품명
     { fieldName: 'basePdNm', header: t('MSG_TXT_PD_STD_NAME'), width: '126' },
