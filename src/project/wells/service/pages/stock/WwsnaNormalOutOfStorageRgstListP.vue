@@ -30,7 +30,7 @@
         >
           <kw-input
             v-model="searchParams.ostrAkTpNm"
-            :disable="true"
+            :readonly="true"
           />
         </kw-form-item>
         <!-- //출고요청유형 -->
@@ -40,7 +40,7 @@
         >
           <kw-input
             v-model="searchParams.ostrOjWareNm"
-            :disable="true"
+            :readonly="true"
           />
           <!-- 표준 미적용 -->
           <kw-field
@@ -66,7 +66,7 @@
         >
           <kw-date-picker
             v-model="searchParams.strHopDt"
-            :disable="true"
+            :readonly="true"
           />
         </kw-form-item>
         <!-- //입고희망일 -->
@@ -76,7 +76,7 @@
         >
           <kw-input
             v-model="searchParams.ostrAkNo"
-            :disable="true"
+            :readonly="true"
             mask="###-########-#######"
           />
         </kw-form-item>
@@ -85,14 +85,15 @@
       <kw-form-row>
         <!-- 등록일자 -->
         <kw-form-item
-          :label="$t('MSG_TXT_FST_RGST_DT')"
+          :label="$t('MSG_TXT_OSTR_DT')"
           required
         >
           <kw-date-picker
-            v-model="searchParams.rgstDt"
+            v-model="searchParams.ostrDt"
+            :readonly="props.page !== pageProps.confirm"
             rules="required"
             type="date"
-            @change="onChangeRgstDt"
+            :min-date="minDate"
           />
         </kw-form-item>
         <!-- //등록일자 -->
@@ -102,7 +103,7 @@
         >
           <kw-input
             v-model="searchParams.strOjWareNm"
-            :disable="true"
+            :readonly="true"
           />
         </kw-form-item>
         <!-- //입고창고 -->
@@ -190,15 +191,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal, gridUtil, useModal, useCmPopup } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal, gridUtil, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { getConfig } = useMeta();
 const { modal, confirm, notify, alert } = useGlobal();
 const { t } = useI18n();
 const { ok } = useModal();
-const { openReportPopup } = useCmPopup();
 
 const dataService = useDataService();
 
@@ -249,6 +250,9 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+const now = dayjs();
+const minDate = now.format('YYYY-MM-DD');
+
 async function fetchData() {
   const fetchURI = ref(`${detailURI}`);
   if (props.page === pageProps.remove) {
@@ -290,6 +294,15 @@ async function onClickExcelDownload() {
   });
 }
 
+async function checkWareClose(ostrDt, ostrOjWareNo) {
+  if (!isEmpty(ostrDt) && !isEmpty(ostrOjWareNo)) {
+    // 창고마감여부 조회
+    const res = await dataService.get(`${baseURI}/ware-close-yn`, { params: { ostrDt, ostrOjWareNo } });
+    return res.data === 'Y';
+  }
+  return false;
+}
+
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -298,7 +311,7 @@ async function onClickDelete() {
     return;
   }
 
-  const { ostrDt, ostrOjWareNo, ostrWareDvCd } = checkedRows[0];
+  const { rectOstrDt, ostrOjWareNo, ostrWareDvCd } = checkedRows[0];
   // 출고창고가 물류센터인 경우
   if (ostrWareDvCd === '1') {
     // 출고창고가 물류센터이면 처리할 수 없습니다.
@@ -314,14 +327,12 @@ async function onClickDelete() {
     return;
   }
 
-  if (!isEmpty(ostrDt) && !isEmpty(ostrOjWareNo)) {
-    // 창고마감여부 조회
-    const res = await dataService.get(`${baseURI}/ware-close-yn`, { params: { ostrDt, ostrOjWareNo } });
-    if (res.data === 'Y') {
-      // 해당 출고년월에는 이미 마감이 완료되어, 출고수정작업이 불가합니다.
-      await alert(t('MSG_ALT_WARE_CLOSE_OSTR_IMP'));
-      return;
-    }
+  // 창고마감여부 조회
+  const isWareClose = await checkWareClose(rectOstrDt, ostrOjWareNo);
+  if (isWareClose) {
+    // 해당 출고년월에는 이미 마감이 완료되어, 출고수정작업이 불가합니다.
+    await alert(t('MSG_ALT_WARE_CLOSE_OSTR_IMP'));
+    return;
   }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
@@ -335,16 +346,18 @@ async function onClickDelete() {
   }
 }
 
+const ozParam = ref({
+  height: 1100,
+  width: 1200,
+});
+
 // 출고증 출력
 async function openReport(itmOstrNo) {
   openReportPopup(
     '/kyowon_as/stckout.ozr',
     '/kyowon_as/stckout.odi',
-    JSON.stringify(
-      {
-        ITM_OSTR_NO: itmOstrNo,
-      },
-    ),
+    JSON.stringify({ ITM_OSTR_NO: itmOstrNo }),
+    { width: ozParam.width, height: ozParam.height },
   );
 }
 
@@ -363,7 +376,7 @@ async function callConfirm(isClose) {
   if (!await confirm(t('MSG_ALT_WANT_DTRM'))) return;
   if (!await gridUtil.validate(view, { isCheckedOnly: true })) return;
 
-  const { ostrDt, ostrOjWareNo, ostrWareDvCd } = checkedRows[0];
+  const { ostrOjWareNo, ostrWareDvCd } = checkedRows[0];
   // 출고창고가 물류센터인 경우
   if (ostrWareDvCd === '1') {
     // 출고창고가 물류센터이면 처리할 수 없습니다.
@@ -399,14 +412,26 @@ async function callConfirm(isClose) {
     return;
   }
 
-  if (!isEmpty(ostrDt) && !isEmpty(ostrOjWareNo)) {
-    // 창고마감여부 조회
-    const res = await dataService.get(`${baseURI}/ware-close-yn`, { params: { ostrDt, ostrOjWareNo } });
-    if (res.data === 'Y') {
-      // 해당 출고년월에는 이미 마감이 완료되어, 출고수정작업이 불가합니다.
-      await alert(t('MSG_ALT_WARE_CLOSE_OSTR_IMP'));
-      return;
-    }
+  const { ostrDt } = searchParams.value;
+
+  if (isEmpty(ostrDt)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_OSTR_DT')}${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (ostrDt < now.format('YYYYMMDD')) {
+    // 출고일자는 현재일자 이후로 선택해 주세요.
+    await alert(t('MSG_ALT_OSTR_DT_AFTER_CUR_DT'));
+    return;
+  }
+
+  // 창고마감여부 조회
+  const isWareClose = await checkWareClose(ostrDt, ostrOjWareNo);
+  if (isWareClose) {
+    // 해당 출고년월에는 이미 마감이 완료되어, 출고수정작업이 불가합니다.
+    await alert(t('MSG_ALT_WARE_CLOSE_OSTR_IMP'));
+    return;
   }
 
   const checkRows = checkedRows.map((v) => (v.ostrAkSn));
@@ -418,8 +443,12 @@ async function callConfirm(isClose) {
     await alert(t('MSG_ALT_ALDY_NOR_OSTR_CMP'));
     return;
   }
+  checkedRows.forEach((item) => {
+    item.ostrDt = ostrDt;
+  });
+
   res = await dataService.post(detailURI, checkedRows);
-  const newItmOstrNo = res.data;
+  const newItmOstrNo = res.data.data;
   if (!isEmpty(newItmOstrNo)) {
     // 확정 되었습니다.
     notify(t('MSG_TXT_CNFM_SCS'));
@@ -440,16 +469,15 @@ async function onClickConfirmAfterMove() {
   await callConfirm(false);
 }
 
-async function onChangeRgstDt() {
-  await onClickSearch();
-}
-
 function setSearchParams(res) {
   searchParams.value = cloneDeep(res.data);
   const { stckStdGb, ostrAkRgstDt } = res.data;
 
   searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
   searchParams.value.rgstDt = isEmpty(ostrAkRgstDt) ? dayjs().format('YYYYMMDD') : ostrAkRgstDt;
+  if (props.page === pageProps.confirm) {
+    searchParams.value.ostrDt = now.format('YYYYMMDD');
+  }
 }
 
 async function onclickStandard() {
