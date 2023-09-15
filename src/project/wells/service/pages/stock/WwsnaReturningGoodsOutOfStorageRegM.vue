@@ -78,7 +78,6 @@
         <!-- 운송코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_TRNSPN_CD')"
-          required
         >
           <kw-select
             v-model="searchParams.trnspnCd"
