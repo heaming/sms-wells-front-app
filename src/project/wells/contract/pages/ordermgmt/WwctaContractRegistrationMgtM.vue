@@ -290,7 +290,7 @@ async function onClickNext() {
     await router.push({ path: '/contract/wwcta-contract-status-list' });
     return;
   }
-  if (currentStepName === 'step2' && contract.value.cntrTpCd === '09') {
+  if (currentStepName.value === 'step2' && contract.value.cntrTpCd === '09') {
     // 견적서 작성완료 시, 견적서 작성 목록 조회 화면으로 이동
     await router.close(0, true);
     await router.push({ path: '/contract/wwcta-estimate-order-write-list' });
