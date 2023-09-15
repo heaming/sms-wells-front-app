@@ -513,8 +513,26 @@ async function onClickRemove() {
 }
 
 async function onClickNameTagPrint() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+
+  if (isEmpty(checkedRows)) {
+    // 출력할 데이터를 선택해 주세요.
+    notify(t('MSG_ALT_NOT_SELECT_OSTR_PRINT'));
+    return;
+  }
+
+  const { strTpCd, strRgstDt } = propsParams.value;
+  const { itmStrNo } = checkedRows[0];
+  const itmPdCds = checkedRows.map((v) => `'${v.itmPdCd}'`).join(',');
   const { result: isChanged } = await modal({
     component: 'WwsnaNameTagPrintSortMgtP',
+    componentProps: {
+      itmStrNo,
+      strTpCd,
+      itmPdCds: `(${itmPdCds})`,
+      strRgstDt,
+    },
   });
 
   if (isChanged) {
