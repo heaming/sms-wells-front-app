@@ -136,13 +136,13 @@ import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect
 import WwdcdOperatingCostMgtMSecuritiesException from './WwdcdOperatingCostMgtMSecuritiesException.vue'; // 유가증권 제외
 import WwdcdOperatingCostMgtMSecurities from './WwdcdOperatingCostMgtMSecurities.vue'; // 유가증권
 
+const { alert } = useGlobal();
 const store = useStore();
 const selectedTab = ref('basic');
 const selectedLinkId = ref(null);
 const dataService = useDataService();
 const { t } = useI18n();
 const tabRefs = reactive({});
-const { alert } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -168,22 +168,16 @@ async function fetchAmountData() {
 
   const mainData = [];
   if (!isEmpty(res.data)) {
-    cachedParams.opcsAdjNo = res.data.opcsAdjNo;
-    cachedParams.adjOgId = res.data.adjOgId;
-    cachedParams.adjOgTpCd = res.data.ogTpCd;
-    cachedParams.adjPrtnrNo = res.data.adjPrtnrNo;
-
     mainData.push(res.data);
-
-    view.getDataSource().setRows(mainData);
-    view.resetCurrent();
-
-    await tabRefs.basic.setData(cachedParams);
-    await tabRefs.sel.setData(cachedParams);
-  } else {
-    view.getDataSource().setRows(mainData);
-    view.resetCurrent();
   }
+  view.getDataSource().setRows(mainData);
+
+  cachedParams.opcsAdjNo = res.data.opcsAdjNo;
+  cachedParams.adjOgId = res.data.adjOgId;
+  cachedParams.adjOgTpCd = res.data.ogTpCd;
+  cachedParams.adjPrtnrNo = res.data.adjPrtnrNo;
+  await tabRefs.basic.setData(cachedParams);
+  await tabRefs.sel.setData(cachedParams);
 }
 
 async function fetchSummaryData() {
@@ -192,13 +186,8 @@ async function fetchSummaryData() {
   const subData = [];
   if (!isEmpty(res.data)) {
     subData.push(res.data);
-
-    view.getDataSource().setRows(subData);
-    view.resetCurrent();
-  } else {
-    view.getDataSource().setRows(subData);
-    view.resetCurrent();
   }
+  view.getDataSource().setRows(subData);
 }
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
@@ -304,7 +293,6 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'mscrWhtxCfdcApnFileId') {
-      console.log('mscrWhtxCfdcApnFileId : ', column);
       const { opcsCardId, mscrWhtxCfdcApnFileId } = g.getValues(itemIndex);
       saveData(column, opcsCardId, mscrWhtxCfdcApnFileId);
     }

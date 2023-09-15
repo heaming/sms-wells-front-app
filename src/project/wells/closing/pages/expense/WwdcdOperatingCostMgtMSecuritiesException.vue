@@ -272,7 +272,7 @@ const initGrdFirst = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
     const { useDtm, mrcNm, cardAprno, domTrdAmt, opcsCardUseIzId, opcsAdjNo,
-      adjPrtnrNo, ogTpCd, adjCls, opcsAdjExcdYn } = grid.getValues(itemIndex);
+      adjPrtnrNo, ogTpCd, opcsAdjExcdYn } = grid.getValues(itemIndex);
     cachedParams.authDate = useDtm;
     cachedParams.mrcNm = mrcNm;
     cachedParams.opcsAdjNo = opcsAdjNo;
@@ -281,8 +281,6 @@ const initGrdFirst = defineGrid((data, view) => {
     cachedParams.opcsCardUseIzId = opcsCardUseIzId;
     cachedParams.adjPrtnrNo = adjPrtnrNo; // 정산파트너번호
     cachedParams.ogTpCd = ogTpCd; // 조직유형코드
-    console.log(column); // lint 회피하여 소스 보존을위해 로그출력
-    console.log(adjCls); // lint 회피하여 소스 보존을위해 로그출력
     if (column === 'opcsAdjBtn') {
     //   if (adjCls === '완료') {
     //     alert(t('정산이 완료된 건입니다'));
