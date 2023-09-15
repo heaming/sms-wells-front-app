@@ -73,11 +73,12 @@
           </p>
         </kw-form-item>
       </kw-form-row>
+
       <kw-form-row>
-        <!-- 판매국가 -->
-        <kw-form-item :label="$t('MSG_TXT_SEL_COUNTRY')">
+        <!-- 판매상세유형 -->
+        <kw-form-item :label="$t('MSG_TXT_SELL_TP_DTL_CD')">
           <p>
-            {{ getCodeNames(codes, pdInfo.sellNatCd, 'NAT_CD') }}
+            {{ getCodeNames(codes, pdInfo.sellTpDtlCd, 'SELL_TP_DTL_CD') }}
           </p>
         </kw-form-item>
         <!-- 리퍼여부 -->
@@ -88,10 +89,10 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <!-- 손료비 -->
-        <kw-form-item :label="$t('MSG_TXT_PD_LENT_WORN_LOS')">
+        <!-- 판매여부 -->
+        <kw-form-item :label="$t('MSG_TXT_SLE_YN')">
           <p>
-            {{ pdInfo.rntf }}
+            {{ pdInfo.sellYn }}
           </p>
         </kw-form-item>
         <!-- 설치택배구분 -->
@@ -191,8 +192,8 @@ const pdInfo = ref({});
 const pdRels = ref([]);
 const pdPrcs = ref([]);
 const codes = await codeUtil.getMultiCodes(
-  'NAT_CD',
   'SELL_TP_CD',
+  'SELL_TP_DTL_CD',
   'SV_PRD_UNIT_CD',
   'SV_VST_PRD_CD',
   'SELL_CHNL_DTL_CD',
