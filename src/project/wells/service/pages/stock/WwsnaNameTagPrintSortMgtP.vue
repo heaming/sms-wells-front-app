@@ -63,17 +63,38 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useModal, useGlobal } from 'kw-lib';
+import { codeUtil, useModal } from 'kw-lib';
 
-const { alert } = useGlobal();
+import { openReportPopup } from '~common/utils/cmPopupUtil';
+
 const { cancel: onClickCancel } = useModal();
+
+const props = defineProps({
+  itmStrNo: {
+    type: String,
+    default: '',
+  },
+  strTpCd: {
+    type: String,
+    default: '',
+  },
+  itmPdCds: {
+    type: String,
+    default: '',
+  },
+  strRgstDt: {
+    type: String,
+    default: '',
+  },
+
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
 const searchParams = ref({
-  sortAtcCd: '',
-  sortOdrCd: '',
+  sortAtcCd: 'ITM_PD_CD',
+  sortOdrCd: 'ASC',
 
 });
 
@@ -82,9 +103,29 @@ const codes = await codeUtil.getMultiCodes(
   'SORT_ODR_CD',
 );
 
+const ozParam = ref({
+  height: 1100,
+  width: 1200,
+});
+
 // TODO : nametec.ozr 붙여야하고 nametec에서 필요한 정렬값들 넘겨줘야함.
 async function onClickConfirm() {
-  alert('네임택 오즈리포트 호출 필요');
+  const { itmStrNo, itmPdCds, strTpCd, strRgstDt } = props;
+  openReportPopup(
+    '/kyowon_as/nametec.ozr',
+    '/kyowon_as/nametec.odi',
+    JSON.stringify(
+      {
+        ITM_STR_NO: itmStrNo,
+        ITM_PD_CDS: itmPdCds,
+        STR_TP_CD: strTpCd,
+        STR_DT: strRgstDt,
+        COLUMN: searchParams.value.sortAtcCd,
+        SC: searchParams.value.sortOdrCd,
+      },
+    ),
+    { width: ozParam.width, height: ozParam.height },
+  );
 }
 
 </script>
