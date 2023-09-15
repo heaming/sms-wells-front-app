@@ -84,7 +84,7 @@
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_SAVE')"
-          :disable="isDisableSave && pageInfo.totalCount === 0"
+          :disable="isDisableSave || pageInfo.totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator
@@ -202,7 +202,7 @@ const isDisableSave = computed(() => {
   const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh.substring(0, 4));
   const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh.substring(0, 4));
 
-  if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) {
+  if (!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) {
     return true;
   }
 
@@ -422,7 +422,7 @@ async function fetchData() {
 
     // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
     // if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || !editFields.includes(itemIndex.column)) {
-    if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || bldCsmbDeliveries[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
+    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || bldCsmbDeliveries[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
       return false;
     }
   };
