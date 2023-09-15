@@ -383,6 +383,14 @@ async function fetchCharacterFwUld() {
 }
 
 async function onClickObjectPresentStateSearch() {
+  const { rentalStn } = searchParams.value;
+  const { rentalEtn } = searchParams.value;
+
+  if (Number(rentalStn) > Number(rentalEtn)) {
+    notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_RNTL_SN') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    return false;
+  }
+
   cachedParams = cloneDeep(searchParams.value);
   await fetchObjectPresentState();
 }
@@ -412,7 +420,7 @@ async function onClickSendMessage() {
 
   let cnt = 0;
   gridUtil.forEach(view, (rowValue) => {
-    if (rowValue.prmReAplcYn === 'Y') {
+    if (rowValue.prmReAplcYn === 'N') {
       if (isEmpty(rowValue.cntrCralTno1) || isEmpty(rowValue.cntrCralTno2) || isEmpty(rowValue.cntrCralTno3)) {
         cnt += 1;
       }
@@ -424,7 +432,7 @@ async function onClickSendMessage() {
     return;
   }
 
-  const sendRows = allRows.filter((v) => v.prmReAplcYn === 'Y').map((row) => ({
+  const sendRows = allRows.filter((v) => v.prmReAplcYn === 'N').map((row) => ({
     cntrCralTno1: row.cntrCralTno1,
     cntrCralTno2: row.cntrCralTno2,
     cntrCralTno3: row.cntrCralTno3,
@@ -485,7 +493,7 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdObjectPresentState = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNo' },
+    { fieldName: 'cntrDtlNo' },
     { fieldName: 'cstKnm' },
     { fieldName: 'rcgvpKnm' },
     { fieldName: 'pdNm' },
@@ -543,10 +551,10 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-left' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '140', styleName: 'text-left' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '250', styleName: 'text-left' },
     { fieldName: 'rentalTn', header: t('MSG_TXT_RNTL_SN'), width: '100', styleName: 'text-right' },
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-right' },
     { fieldName: 'lcsleDt', header: t('MSG_TXT_SL_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' },
@@ -601,14 +609,14 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       },
     },
     { fieldName: 'dpClDt', header: t('MSG_TXT_DP_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'dpTpCdNm', header: t('MSG_TXT_DP_TP'), width: '140', styleName: 'text-left' },
+    { fieldName: 'dpTpCdNm', header: t('MSG_TXT_DP_TP'), width: '140', styleName: 'text-center' },
     { fieldName: 'dpAmt', header: t('MSG_TXT_DEPOSIT_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
     { fieldName: 'cltnDt', header: t('MSG_TXT_BIZ_CLTN_D'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrLocalTno',
-      header: t('MSG_TXT_ISTLL_MPNO'),
+      header: t('MSG_TXT_TEL_NO'),
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
@@ -629,9 +637,9 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'hooPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-left' },
+    { fieldName: 'hooPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'hooPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'hooPrtnrCltnDt', header: t('MSG_TXT_BRMGR_CLTN_D'), width: '100', styleName: 'text-left' },
+    { fieldName: 'hooPrtnrCltnDt', header: t('MSG_TXT_BRMGR_CLTN_D'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogLocalTno',
       header: t('MSG_TXT_BRCH_TNO'),
       width: '130',
@@ -658,12 +666,12 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true; // create checkbox column
+  view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
   // multi row header setting
   view.setColumnLayout([
-    'cntrNo', 'cstKnm', 'rcgvpKnm', 'pdNm', 'rentalTn',
+    'cntrDtlNo', 'cstKnm', 'rcgvpKnm', 'pdNm', 'rentalTn',
     'mpyBsdt', 'lcsleDt', 'cntrCanDt', 'prmMcn', 'prmDscr',
     'prmPeriod', 'totPrmAmt', 'prmExcpt', 'cntrLocalTno', 'cntrCralTno',
     'rcgvpLocalTno', 'rcgvpCralTno', 'dpClDt', 'dpTpCdNm', 'dpAmt', // single
@@ -706,11 +714,11 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM_CNTRT'), width: '200', styleName: 'text-center', editable: false },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '80', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM_CNTRT'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'cntrCralTno',
       header: t('MSG_TXT_CNTRR_VAC_PH_NO'),
-      width: '200',
+      width: '140',
       styleName: 'text-center',
       editable: false,
       displayCallback(grid, index) {
@@ -720,21 +728,30 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center', visible: false, editable: false },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '250', styleName: 'text-center', editable: false },
-    { fieldName: 'cntrInfo', header: t('MSG_TXT_PD_INF'), width: '249', styleName: 'text-left', editable: false },
-    { fieldName: 'prmEndYm', header: t('MSG_TXT_PRM_EXN_YM'), width: '250', styleName: 'text-center', editable: false },
-    { fieldName: 'mmpmYm', header: t('MSG_TXT_MM_PY_STRT_YM'), width: '250', styleName: 'text-center', editable: false },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center', visible: false, editable: false },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '160', styleName: 'text-center', editable: false },
+    { fieldName: 'cntrInfo', header: t('MSG_TXT_PD_INF'), width: '300', styleName: 'text-left', editable: false },
+    { fieldName: 'prmEndYm', header: t('MSG_TXT_PRM_EXN_YM'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'mmpmYm', header: t('MSG_TXT_MM_PY_STRT_YM'), width: '100', styleName: 'text-center', editable: false },
     {
       fieldName: 'prmReAplcYn',
       header: t('MSG_TXT_FW_OJ'),
-      width: '200',
-      renderer: {
-        type: 'radio',
+      width: '100',
+      styleName: 'rg-button-toggle rg-button-disabled',
+      options: [{ codeId: 'Y', codeName: t('MSG_TXT_EXCD') }, { codeId: 'N', codeName: t('MSG_TXT_INC') }],
+      styleCallback(grid, dataCell) {
+        const ret = {};
+        const { prmReAplcYn } = grid.getValues(dataCell.index.itemIndex);
+        if (prmReAplcYn === 'Y') {
+          ret.renderer = { type: 'radio', editable: false };
+          ret.styleName = 'rg-button-toggle rg-button-disabled';
+        } else {
+          ret.renderer = { type: 'radio', editable: true };
+          ret.styleName = 'rg-button-toggle';
+        }
+        return ret;
       },
-      options: [{ codeId: 'N', codeName: t('MSG_TXT_EXCD') }, { codeId: 'Y', codeName: t('MSG_TXT_INC') }],
-      styleName: 'rg-button-toggle',
     },
     { fieldName: 'prmEndMm', width: '250', styleName: 'text-center', visible: false, editable: false },
     { fieldName: 'pdCd', width: '250', styleName: 'text-center', visible: false, editable: false },

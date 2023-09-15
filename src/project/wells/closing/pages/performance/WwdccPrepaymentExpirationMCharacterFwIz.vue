@@ -79,7 +79,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, useDataService, codeUtil, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
@@ -147,16 +147,24 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'dateClientReq', header: t('MSG_TXT_BOO_FW_DTM'), width: '191', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM_CNTRT'), width: '150', styleName: 'text-left' },
-    { fieldName: 'recipientNum', header: t('MSG_TXT_CNTRT_MPNO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '174', styleName: 'text-center' },
-    { fieldName: 'bndMsgTpVal4', header: t('MSG_TXT_PD_INF'), width: '160', styleName: 'text-left' },
-    { fieldName: 'bndMsgTpVal2', header: t('MSG_TXT_PRM_EXN_YM'), width: '127', styleName: 'text-center' },
-    { fieldName: 'sucYn', header: t('MSG_TXT_SCS_YN'), width: '122', styleName: 'text-center' },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_IN_DTM'), width: '191', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'usrNm', header: t('MSG_TXT_INP_NM'), width: '115', styleName: 'text-center' },
-    { fieldName: 'epno', header: t('MSG_TXT_EPNO'), width: '114', styleName: 'text-right' },
+    { fieldName: 'dateClientReq', header: t('MSG_TXT_BOO_FW_DTM'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM_CNTRT'), width: '120', styleName: 'text-center' },
+    { fieldName: 'recipientNum',
+      header: t('MSG_TXT_CNTRT_MPNO'),
+      styleName: 'text-center',
+      width: '140',
+      displayCallback(grid, index, value) {
+        return !isEmpty(value) ? `${value.substring(0, 3)}-${value.substring(3, 7)}-${value.substring(7, 11)}` : value;
+      },
+    },
+
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' },
+    { fieldName: 'bndMsgTpVal4', header: t('MSG_TXT_PD_INF'), width: '260', styleName: 'text-left' },
+    { fieldName: 'bndMsgTpVal2', header: t('MSG_TXT_PRM_EXN_YM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'sucYn', header: t('MSG_TXT_SCS_YN'), width: '80', styleName: 'text-center' },
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_IN_DTM'), width: '160', styleName: 'text-center', datetimeFormat: 'datetime' },
+    { fieldName: 'usrNm', header: t('MSG_TXT_INP_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'epno', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
 
   ];
 
