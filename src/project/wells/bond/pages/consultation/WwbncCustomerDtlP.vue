@@ -337,7 +337,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_AUTO_FNT')"
                 >
-                  <p>{{ customer.vtAc }}</p>
+                  <p>({{ customer.bnk }}){{ customer.vtAc }}</p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_FNT_DT')"

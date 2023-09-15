@@ -14,11 +14,11 @@
 --->
 <template>
   <kw-popup
-    size="2xl"
+    size="3xl"
   >
     <kw-search
       one-row
-      :cols="3"
+      :cols="2"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -31,7 +31,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_SL_YM')"
           required
-          :colspan="2"
         >
           <kw-date-range-picker
             v-model:from="searchParams.slClYmFrom"
@@ -111,8 +110,12 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const cntr = props.cntrDtlNo.split('-');
+
 const searchParams = ref({
   cntrDtlNo: props.cntrDtlNo,
+  cntrNo: cntr[0],
+  cntrSn: cntr[1],
   slClYmFrom: now.format('YYYYMM'),
   slClYmTo: now.format('YYYYMM'),
 });
