@@ -103,6 +103,7 @@
         <kw-btn
           grid-action
           :label="$t('MSG_BTN_OSTR_CTFC_PRNT')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickPrint"
         />
       </kw-action-top>
@@ -129,12 +130,13 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, gridUtil, popupUtil, useMeta, useCmPopup } from 'kw-lib';
+import { useGlobal, codeUtil, defineGrid, useDataService, getComponentType, gridUtil, popupUtil, useMeta } from 'kw-lib';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import snConst from '~sms-wells/service/constants/snConst';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 // 로그인한 사용자의 창고정보 조회
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -147,7 +149,6 @@ const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 const { getMonthWarehouse } = useSnCode();
 const store = useStore();
-const { openReportPopup } = useCmPopup();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -272,6 +273,11 @@ onMounted(async () => {
   await fetchDefaultData();
 });
 
+const ozParam = ref({
+  height: 1100,
+  width: 1200,
+});
+
 async function onClickPrint() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -281,14 +287,13 @@ async function onClickPrint() {
     return;
   }
 
+  const itmOstrNo = checkedRows.map((v) => (v.itmOstrNo)).join('|');
+
   openReportPopup(
     '/kyowon_as/stckout.ozr',
     '/kyowon_as/stckout.odi',
-    JSON.stringify(
-      {
-        ITM_OSTR_NO: '',
-      },
-    ),
+    JSON.stringify({ ITM_OSTR_NO: itmOstrNo }),
+    { width: ozParam.width, height: ozParam.height },
   );
 }
 
