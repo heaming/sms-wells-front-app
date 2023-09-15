@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNA (재고관리)
-2. 프로그램 ID : WwsnaOutOfStorageAgrgM - 대리점 지역별 필터발주 현황(K-W-SV-U-0148M01)
+2. 프로그램 ID : WwsnaAgencyLocaraFilterGiveAOrderPsListM - 대리점 지역별 필터발주 현황(K-W-SV-U-0148M01)
 3. 작성자 : jungheejin
 4. 작성일 : 2023-09-11
 ****************************************************************************************************
@@ -38,7 +38,7 @@
       </kw-search-row>
     </kw-search>
     <div class="result-area">
-      <h3>필터발주 현황</h3>
+      <h3>{{ $t('MSG_TXT_FILT_GO_PS') }}</h3>
       <kw-action-top>
         <template #left>
           <kw-paging-info
@@ -59,7 +59,7 @@
         :total-count="totalCount"
         @init="initGrdMain"
       />
-      <h3>상세현황</h3>
+      <h3>{{ $t('MSG_TXT_DTL_PS') }}</h3>
       <kw-action-top>
         <template #left>
           <kw-paging-info
@@ -108,9 +108,9 @@ import dayjs from 'dayjs';
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdMainRef2 = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
-
-const { t } = useI18n();
+const router = useRouter();
 const { currentRoute } = useRouter();
+const { t } = useI18n();
 const now = dayjs();
 
 // -------------------------------------------------------------------------------------------------
@@ -122,22 +122,21 @@ const codes = await codeUtil.getMultiCodes(
   'BFSVC_BZS_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
+const searchParams = ref({
+  startDt: now.format('YYYYMM'),
+  endDt: now.format('YYYYMM'),
+  bfsvcBzsDvCd: '2',
+});
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: 10,
 });
 
-const searchParams = ref({
-  // startDt: now.format('YYYYMM'),
-  // endDt: now.format('YYYYMM'),
-  a: now.format('YYYYMM'),
-  startDt: '202307',
-  endDt: '202307',
-  bfsvcBzsDvCd: '2',
-});
-let cachedParams;
 const totalCount = ref(0);
+
+let cachedParams;
 
 async function fetchData1() {
   const res = await dataService.get(`${baseUrl}/agrg`, { params: cachedParams });
@@ -150,20 +149,21 @@ async function fetchData1() {
 }
 async function fetchData2() {
   const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: pages, pageInfo: pagingResult } = res.data;
-
+  const { list: result, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
-  console.log(pages);
-
   const view = grdMainRef2.value.getView();
-  view.getDataSource().setRows(pages);
+  view.getDataSource().setRows(result);
   view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
-  await fetchData1();
-  await fetchData2();
+  await Promise.all([
+    fetchData1(),
+    fetchData2(),
+  ]);
 }
 
 async function onClickExcelDownload() {
@@ -190,10 +190,10 @@ async function onClickExcelDownload2() {
 // 필터발주 현황
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'yymm', header: t('년월'), width: '80', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'locaraDvNm', header: t('지역'), width: '80', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('업체명'), width: '80', styleName: 'text-center' },
-    { fieldName: 'filtNm', header: t('필터명'), width: '200', styleName: 'text-left' },
+    { fieldName: 'yymm', header: t('MSG_TXT_YM'), width: '80', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'locaraDvNm', header: t('MSG_TXT_LOCARA'), width: '80', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CORP_NAME'), width: '80', styleName: 'text-center' },
+    { fieldName: 'filtNm', header: t('MSG_TXT_FLTR_NM'), width: '200', styleName: 'text-left' },
     {
       fieldName: 'sumPartUseQty',
       header: t('MSG_TXT_SUM'),
@@ -216,14 +216,15 @@ const initGrdMain = defineGrid((data, view) => {
 // 필터발주 상세현황
 const initGrdMain2 = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'yymm', header: t('년월'), width: '80', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'yymm', header: t('MSG_TXT_YM'), width: '80', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CORP_NAME'), width: '140', styleName: 'text-left' },
     { fieldName: 'cntrSn', visible: false },
     {
       fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '150',
-      styleName: 'text-center',
+      renderer: { type: 'button' },
+      styleName: 'text-center rg-button-link',
       displayCallback(grid, index) {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         if (!isEmpty(cntrNo)) {
@@ -233,15 +234,15 @@ const initGrdMain2 = defineGrid((data, view) => {
     },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '170', styleName: 'text-center' },
-    { fieldName: 'partPdCd', header: t('품목코드'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('상품명'), width: '170', styleName: 'text-left' },
-    { fieldName: 'filtNm', header: t('필터명'), width: '170', styleName: 'text-left' },
-    { fieldName: 'col1', header: t('발주회차'), width: '150', styleName: 'text-center' },
+    { fieldName: 'partPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '170', styleName: 'text-left' },
+    { fieldName: 'filtNm', header: t('MSG_TXT_FLTR_NM'), width: '230', styleName: 'text-left' },
+    { fieldName: 'tn', header: t('MSG_TXT_GO_TN'), width: '80', styleName: 'text-center' },
     { fieldName: 'locaraTno', visible: false }, // [전화번호1]
     { fieldName: 'exnoEncr', visible: false }, // [전화번호2]
     {
       fieldName: 'idvTno', // [전화번호3]
-      header: t('설치전화'),
+      header: t('MSG_TXT_INST_TNO'),
       width: '150',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
@@ -255,7 +256,7 @@ const initGrdMain2 = defineGrid((data, view) => {
     { fieldName: 'cralLocaraTno', visible: false }, // [휴대전화번호1]
     { fieldName: 'mexnoEncr', visible: false }, // [휴대전화번호2]
     { fieldName: 'cralIdvTno', // [휴대전화번호3]
-      header: t('휴대전화'),
+      header: t('MSG_TXT_PHONE'),
       width: '150',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
@@ -266,10 +267,10 @@ const initGrdMain2 = defineGrid((data, view) => {
         }
       },
     }, // [휴대전화번호]
-    { fieldName: 'newAdrZip', header: t('우편번호'), width: '80', styleName: 'text-center' },
+    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '80', styleName: 'text-center' },
     {
       fieldName: 'rnadr',
-      header: t('설치주소'),
+      header: t('MSG_TXT_INST_ADDR'),
       width: '200',
       styleName: 'text-left',
       displayCallback(grid, index) {
@@ -282,7 +283,7 @@ const initGrdMain2 = defineGrid((data, view) => {
     { fieldName: 'rdadr', visible: false },
     {
       fieldName: 'sppBasAdr',
-      header: t('배송주소'),
+      header: t('MSG_TXT_DEL_ADDR'),
       width: '200',
       styleName: 'text-left',
       displayCallback(grid, index) {
@@ -293,12 +294,26 @@ const initGrdMain2 = defineGrid((data, view) => {
       },
     },
     { fieldName: 'sppDtlAdr', visible: false },
-    { fieldName: 'locaraDvNm', header: t('지역'), width: '120', styleName: 'text-center' },
+    { fieldName: 'locaraDvNm', header: t('MSG_TXT_LOCARA'), width: '120', styleName: 'text-center' },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
+    if (column === 'cntrNo') {
+      const cntrNo = grid.getValue(itemIndex, 'cntrNo');
+      const cntrSn = grid.getValue(itemIndex, 'cntrSn');
+
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
+    }
+  };
 });
 </script>
