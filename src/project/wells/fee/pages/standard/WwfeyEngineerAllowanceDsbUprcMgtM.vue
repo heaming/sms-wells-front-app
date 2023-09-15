@@ -73,7 +73,8 @@
         </template>
 
         <kw-btn
-          grid-action
+          dense
+          secondary
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="totalCount.value === 0"
