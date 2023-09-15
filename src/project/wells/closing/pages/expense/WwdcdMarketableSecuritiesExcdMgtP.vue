@@ -233,6 +233,7 @@ watch(() => searchParams.value.dgr2LevlOgId, async () => {
   }
   await ogLevlDvCd0();
 });
+
 async function subject() {
   const view = grdSubRef.value.getView();
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities-excd/subject', { params: cachedParams });
@@ -310,7 +311,6 @@ async function onClickSearchPartner() {
   }
 }
 
-let checkedPrtnrNoList = []; // 현재 체크된 대상자 리스트
 let isCalcData = false;
 let resAmtTotal = 0; // 잔여금액합계
 
@@ -430,11 +430,13 @@ async function onClickObjectPersonAdd() {
     return;
   }
 
+  let dstAmtTotal = 0;
   for (let i = 0; i < checkedRows.length; i += 1) {
-    if (mainValue.adjCnfmAmt < checkedRows[i].dstAmt) {
-      alert('정산금액보다 큽니다.');
-      return;
-    }
+    dstAmtTotal += Number(checkedRows[i].dstAmt);
+  }
+  if (mainValue.adjCnfmAmt < dstAmtTotal || mainValue.amt < 0) {
+    alert('대상자들의 정산금액 합계가 정산대상금액보다 큽니다.');
+    return;
   }
   for (let i = 0; i < checkedRows.length; i += 1) {
     if (checkedRows[i].dstAmt !== 0) {
@@ -621,7 +623,6 @@ const initGrdSub = defineGrid((data, view) => {
   // oldValue - 편집전 셀의 데이터 값
   // newValue - 편집후 셀의 데이터 값
   view.onEditRowChanged = async (subView, itemIndex, rowData, field, oldValue) => { // 직접편집했을때만
-    const mainView = grdMainRef.value.getView();
     const dstAmt = subView.getValue(itemIndex, 'dstAmt');
     const fieldValue = subView.getValue(itemIndex, field);
     if (fieldValue !== dstAmt) {
@@ -630,6 +631,7 @@ const initGrdSub = defineGrid((data, view) => {
     }
 
     if (subView.isCheckedItem(itemIndex)) {
+      const mainView = grdMainRef.value.getView();
       const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
       let mainDstAmt = mainView.getValue(0, 'dstAmt');
 
@@ -639,6 +641,8 @@ const initGrdSub = defineGrid((data, view) => {
       mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
     }
   };
+
+  let checkedPrtnrNoList = []; // 현재 체크된 대상자 리스트
   view.onItemChecked = async (subView, itemIndex) => {
     const dstAmt = subView.getValue(itemIndex, 'dstAmt');
     const mainView = grdMainRef.value.getView();
@@ -655,6 +659,7 @@ const initGrdSub = defineGrid((data, view) => {
     mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
     checkedPrtnrNoList = cloneDeep(gridUtil.getCheckedRowValues(subView)).map((row) => row.prtnrNo);
   };
+
   view.onItemAllChecked = async (subView, checkedYn) => {
     const subViewRows = gridUtil.getAllRowValues(subView);
     const mainView = grdMainRef.value.getView();
