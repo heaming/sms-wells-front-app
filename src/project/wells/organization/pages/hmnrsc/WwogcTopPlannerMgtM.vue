@@ -136,7 +136,7 @@ const codes = await codeUtil.getMultiCodes('EGER_WRK_STAT_CD', 'OG_TP_CD');
 const grdMainRef = ref(getComponentType('KwGrid'));
 const thisYear = dayjs().format('YYYY');
 const thisMonth = dayjs().format('MM');
-const lastMonth = dayjs().add(-1, 'M').format('MM');
+// const lastMonth = dayjs().add(-1, 'M').format('MM');
 // const lastYm = dayjs().add(-1, 'M').format('YYYYMM');
 const thisYm = dayjs().format('YYYYMM');
 const searchParams = ref({
@@ -205,12 +205,13 @@ async function onClickExcelDownload() {
 // 자격생성
 async function onClickSave() {
   // D-1월 순주문마감된 경우 진행 (CNT > 0 이면 순주문마감된 경우)
-  const orderCnt = await dataService.get(`${SMS_WELLS_URI}/partner/order-cnt`, { params: { ...searchParams.value } });
+  /* const orderCnt = await dataService.get(`${SMS_WELLS_URI}/partner/order-cnt`,
+  { params: { ...searchParams.value } }); */
 
-  if (orderCnt.data <= 0) {
-    await alert(t('MSG_TXT_ORDER_AF_DEAD', [thisYear, lastMonth]));
-    return;
-  }
+  // if (orderCnt.data <= 0) {
+  //   await alert(t('MSG_TXT_ORDER_AF_DEAD', [thisYear, lastMonth]));
+  //   return;
+  // }
 
   // D월 신청내역이 생성되지 않은 경우에 진행 (CNT = 0 이면 생성이 진행되지 않은 경우)
   const createdCnt = await dataService.get(`${SMS_WELLS_URI}/partner/created-cnt`, { params: { ...searchParams.value } });
@@ -222,9 +223,9 @@ async function onClickSave() {
 
   if (!await confirm(t('MSG_TXT_QUA_CREATED', [thisYear, thisMonth]))) { return; }
 
-  // await dataService.put(`${SMS_WELLS_URI}/partner`);
+  await dataService.post(`${SMS_WELLS_URI}/partner`, { ...searchParams.value });
 
-  await fetchData();
+  // await fetchData();
 }
 
 // -------------------------------------------------------------------------------------------------
