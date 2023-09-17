@@ -66,9 +66,9 @@
             <!--패키지 -->
             <kw-form-item
               :label="$t('MSG_TXT_PKG')"
-              hint="null"
+              colspan="2"
             >
-              <p>{{ searchDetail.null }}</p>
+              <p>{{ searchDetail.pdNm }}</p>
             </kw-form-item>
           </kw-form-row>
 
