@@ -1061,9 +1061,9 @@ async function onClickDelverInqr(sppOrdNo, pcsvBzsCd) {
   console.log(pcsvBzsCd);
   let url = '';
   if (isEqual(pcsvBzsCd, '01')) {
-    url = `'http://www.hanjinexpress.hanjin.net/customer/hddcw18_ms.tracking?w_num='${sppOrdNo}`;
+    url = `http://www.hanjinexpress.hanjin.net/customer/hddcw18_ms.tracking?w_num=${sppOrdNo}`;
   } else if (isEqual(pcsvBzsCd, '02')) {
-    url = `'http://nexs.cjgls.com/web/info.jsp?slipno='${sppOrdNo}`;
+    url = `'http://nexs.cjgls.com/web/info.jsp?slipno=${sppOrdNo}`;
   }
 
   if (!isEmpty(url)) {
