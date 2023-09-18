@@ -184,6 +184,8 @@
           dense
           primary
           :label="$t('MSG_BTN_LBL_PRNT')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickLabelPrint"
         />
       </kw-action-top>
       <kw-grid
@@ -213,6 +215,7 @@
 import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid, popupUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -457,6 +460,31 @@ async function onClickBulkOstrConfDt() {
 
   // 항목이 일괄변경 되었습니다.
   await callSave(checkedRows, 'MSG_ALT_ATC_BLK_CH_FSH');
+}
+
+const ozParam = ref({
+  height: 1100,
+  width: 1200,
+});
+
+async function onClickLabelPrint() {
+  const { strtDt, endDt, wareDvCd, gbYn, hgrWareNo, wareNo, itmPdCd, itmGrCd } = cachedParams;
+
+  await openReportPopup(
+    '/kyowon_as/asFilterLabel.ozr',
+    '/kyowon_as/asFilterLabel.odi',
+    JSON.stringify({
+      VST_SDT: strtDt,
+      VST_EDT: endDt,
+      WARE_DV_CD: wareDvCd,
+      GB_YN: gbYn,
+      HGR_WARE_NO: hgrWareNo,
+      WARE_NO: wareNo,
+      ITM_PD_CD: itmPdCd,
+      ITM_GR_CD: itmGrCd,
+    }),
+    { width: ozParam.width, height: ozParam.height },
+  );
 }
 
 // -------------------------------------------------------------------------------------------------

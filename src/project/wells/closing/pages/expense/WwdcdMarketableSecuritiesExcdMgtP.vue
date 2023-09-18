@@ -188,7 +188,6 @@ const { t } = useI18n();
 const dataService = useDataService();
 const { modal, confirm, notify, alert } = useGlobal();
 // const { ok } = useModal();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -219,7 +218,6 @@ const searchParams = ref({
   subOgTpCd: '',
   prtnrNo: '',
 });
-
 const buildingCodes = ref([]);
 async function ogLevlDvCd0() {
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities-excd/code', { params: cachedParams });
@@ -241,7 +239,6 @@ async function subject() {
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities-excd/subject', { params: cachedParams });
   subTotalCount.value = res.data.length;
   view.getDataSource().setRows(res.data);
-  view.resetCurrent();
 }
 
 async function marketableSecuritiesExcd() {
@@ -250,7 +247,6 @@ async function marketableSecuritiesExcd() {
 
   thirdTotalCount.value = res.data.length;
   view.getDataSource().setRows(res.data);
-  view.resetCurrent();
 
   let subPerfValTotal = 0;
   res.data.forEach((rowData) => {
@@ -315,12 +311,99 @@ async function onClickSearchPartner() {
   }
 }
 
+let isCalcData = false;
+let resAmtTotal = 0; // 잔여금액합계
+
+// 메인그리드 반영
+const setMainGrid = (subView, dataRowIndex) => {
+  if (subView.isCheckedItem(dataRowIndex)) {
+    const mainView = grdMainRef.value.getView();
+    const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
+    const dstAmtTotal = mainView.getValue(0, 'dstAmt');
+    const dstAmtTotalFinal = dstAmtTotal + resAmtTotal; // 등록금액에 잔여금액합계 더함
+    mainView.setValue(0, 'dstAmt', dstAmtTotalFinal, 0); // 등록금액 세팅
+    mainView.setValue(0, 'amt', adjCnfmAmt - dstAmtTotalFinal, 0); // 미등록 금액 - 잔여금액 만큼 빠지도록 재계산 0이 되어야함
+  }
+};
+async function setCalcData(pdstOpt, rate) {
+  const subView = grdSubRef.value.getView();
+  const subViewRows = gridUtil.getAllRowValues(subView);
+  const mainView = grdMainRef.value.getView();
+  const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
+  await subView.checkAll(false, true, true, true);
+
+  let dstAmtOriginTotal = 0; // 정산금액원본합계(소수점포함)
+  let mainDstAmt = 0; // 정산금액합계(등록금액)
+  await subViewRows.forEach((row, index) => {
+    const itemIndex = subView.getItemIndex(index);
+    const perfRate = Number(pdstOpt === '01' ? rate : row.perfRate);
+    const dstAmtOrigin = Number(perfRate * adjCnfmAmt); // 실적비율 * 정산대상금액 = 정산금액
+    const dstAmt = Math.floor(dstAmtOrigin / 10) * 10; // 절사처리한 정산금액
+    const resAmt = Math.floor(dstAmtOrigin - dstAmt); // 절사된 금액(잔여금액, 출력용)
+    dstAmtOriginTotal += dstAmtOrigin;
+    mainDstAmt += dstAmt;
+    subView.setValue(itemIndex, 'dstAmt', dstAmt);
+    subView.setValue(itemIndex, 'resAmt', resAmt);
+    subView.setValue(itemIndex, 'pdstOpt', pdstOpt);
+  });
+  dstAmtOriginTotal = Math.round(dstAmtOriginTotal);
+  resAmtTotal = dstAmtOriginTotal - mainDstAmt; // 잔액세팅
+  await subView.checkAll(true, true, true, true);
+  isCalcData = true;
+  subView.resetCurrent();
+}
+
+// 균등분배
+async function onClickEquality() {
+  const subView = grdSubRef.value.getView();
+  const subViewDatas = gridUtil.getAllRowValues(subView);
+
+  // 소속별로 비율 구함
+  const rate = (100 / (subViewDatas.length * 100)); // 공통적용 될 비율 구함
+  const pdstOpt = '01';
+  await setCalcData(pdstOpt, rate);
+}
+
+// 실적대비 (실적비율 * 정산대상금액) 후 1의 자리 절사 및 절사된 금액 총합계 구하여 가장 높은실적 사원에게 부여
+async function onClickPerformance() {
+  const pdstOpt = '02';
+  await setCalcData(pdstOpt, null);
+}
+
+// 잔액 클리어
+async function onClickBalanceAmount() {
+  if (!isCalcData) {
+    alert(t('균등분배 또는 실적대비 먼저 진행해주세요.')); // TODO 메세지 처리 해야함
+    return;
+  }
+
+  // 소속별로 잔액처리
+  const subView = grdSubRef.value.getView();
+  const subViewRows = gridUtil.getAllRowValues(subView);
+
+  // 잔액 합계를 최고실적 사원의 정산금액에 더하고 모든 잔여금액 0원 처리 (균등분배의 경우 아무나 몰아주기)
+  let maxPerfVal = 0;
+  let maxPerfIndex = 0;
+  subViewRows.forEach((row, index) => {
+    if (row.perfVal >= maxPerfVal) {
+      maxPerfVal = row.perfVal;
+      maxPerfIndex = index;
+    }
+  });
+
+  // 잔액부여
+  const maxPerfItemIndex = subView.getItemIndex(maxPerfIndex);
+  subView.setValue(maxPerfItemIndex, 'dstAmt', subView.getValue(maxPerfItemIndex, 'dstAmt') + resAmtTotal);
+  setMainGrid(subView, maxPerfItemIndex); // 메인그리드 반영
+  resAmtTotal = 0;
+}
+
 // 대상자 추가
 async function onClickObjectPersonAdd() {
   const mainView = grdMainRef.value.getView();
   const subView = grdSubRef.value.getView();
-  const thirdView = grdThirdRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(subView);
+  const thirdView = grdThirdRef.value.getView();
   const thirdRows = thirdView.getJsonRows();
   if (checkedRows.length === 0) {
     await notify(t('MSG_ALT_NOT_SEL_ITEM'));
@@ -347,11 +430,13 @@ async function onClickObjectPersonAdd() {
     return;
   }
 
+  let dstAmtTotal = 0;
   for (let i = 0; i < checkedRows.length; i += 1) {
-    if (mainValue.adjCnfmAmt < checkedRows[i].dstAmt) {
-      alert('정산금액보다 큽니다.');
-      return;
-    }
+    dstAmtTotal += Number(checkedRows[i].dstAmt);
+  }
+  if (mainValue.adjCnfmAmt < dstAmtTotal || mainValue.amt < 0) {
+    alert('대상자들의 정산금액 합계가 정산대상금액보다 큽니다.');
+    return;
   }
   for (let i = 0; i < checkedRows.length; i += 1) {
     if (checkedRows[i].dstAmt !== 0) {
@@ -372,12 +457,12 @@ async function onClickObjectPersonAdd() {
         checkedRows[i].erntx = 0;
         checkedRows[i].rsdntx = 0;
       }
-      const view = grdThirdRef.value.getView();
-      const dataProvider = view.getDataSource();
-      dataProvider.insertRow(0, checkedRows[i]);
-      subView.checkItem(checkedRows[i].dataRow, false);
+      const dataProvider = thirdView.getDataSource();
+      dataProvider.addRow(checkedRows[i]);
       thirdTotalCount.value += 1;
     }
+    thirdView.resetCurrent();
+    subView.resetCurrent();
   }
 
   if (checkedRows.length === 0) {
@@ -393,6 +478,7 @@ async function onClickObjectPersonAdd() {
   const mainAmt = mainView.getValue(0, 'amt');
   mainView.setValue(0, 'dstAmt', mainDstAmt + dstAmt);
   mainView.setValue(0, 'amt', mainAmt - dstAmt);
+  await subView.checkAll(false, true, true, true);
 }
 
 // 대상자 제외
@@ -499,7 +585,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'dstWhtx', visible: false }, // 원천세
     { fieldName: 'erntx', visible: false }, // 소득세
     { fieldName: 'rsdntx', visible: false }, // 주민세
-    { fieldName: 'mscrYn', visible: false }, // 정산 여부
+    { fieldName: 'mscrYn', visible: false }, // 정산여부
     { fieldName: 'resAmt', visible: false }, // 잔여금액
     { fieldName: 'pdstOpt', visible: false },
 
@@ -536,15 +622,15 @@ const initGrdSub = defineGrid((data, view) => {
   // field - 변경된 필드의 인덱스
   // oldValue - 편집전 셀의 데이터 값
   // newValue - 편집후 셀의 데이터 값
-  view.onEditRowChanged = async (grid, itemIndex, row, field, oldValue) => { // 직접편집했을때만
-    const dstAmt = grid.getValue(itemIndex, 'dstAmt');
-    const fieldValue = grid.getValue(itemIndex, field);
+  view.onEditRowChanged = async (subView, itemIndex, rowData, field, oldValue) => { // 직접편집했을때만
+    const dstAmt = subView.getValue(itemIndex, 'dstAmt');
+    const fieldValue = subView.getValue(itemIndex, field);
     if (fieldValue !== dstAmt) {
       alert(t('MSG_TXT_INVALID_ACCESS')); // 잘못된 접근입니다.
       return;
     }
 
-    if (grid.isCheckedItem(itemIndex)) {
+    if (subView.isCheckedItem(itemIndex)) {
       const mainView = grdMainRef.value.getView();
       const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
       let mainDstAmt = mainView.getValue(0, 'dstAmt');
@@ -556,126 +642,50 @@ const initGrdSub = defineGrid((data, view) => {
     }
   };
 
-  view.onItemAllChecked = async () => {
-    const subView = grdSubRef.value.getView();
-    const subViewDatas = gridUtil.getAllRowValues(subView);
+  let checkedPrtnrNoList = []; // 현재 체크된 대상자 리스트
+  view.onItemChecked = async (subView, itemIndex) => {
+    const dstAmt = subView.getValue(itemIndex, 'dstAmt');
     const mainView = grdMainRef.value.getView();
     const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
     let mainDstAmt = mainView.getValue(0, 'dstAmt');
-    await subViewDatas.forEach((subViewdata, index) => {
-      const dstAmt = subView.getValue(index, 'dstAmt');
-      if (subView.isCheckedItem(index)) {
-        mainDstAmt += dstAmt;
-      } else {
-        mainDstAmt -= dstAmt;
-      }
-    });
-    mainView.setValue(0, 'dstAmt', mainDstAmt); // 등록금액
-    mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
-  };
-  view.onItemChecked = async (grid, itemIndex) => {
-    const dstAmt = grid.getValue(itemIndex, 'dstAmt');
-    const mainView = grdMainRef.value.getView();
-    const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
-    let mainDstAmt = mainView.getValue(0, 'dstAmt');
-    if (grid.isCheckedItem(itemIndex)) {
+    if (subView.isCheckedItem(itemIndex) && !checkedPrtnrNoList.includes(subView.getValue(itemIndex, 'prtnrNo'))) {
       mainDstAmt += dstAmt;
-    } else {
+    }
+    if (!subView.isCheckedItem(itemIndex) && checkedPrtnrNoList.includes(subView.getValue(itemIndex, 'prtnrNo'))) {
       mainDstAmt -= dstAmt;
     }
+
     mainView.setValue(0, 'dstAmt', mainDstAmt); // 등록금액
     mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
+    checkedPrtnrNoList = cloneDeep(gridUtil.getCheckedRowValues(subView)).map((row) => row.prtnrNo);
   };
-});
 
-let isCalcData = false;
-let resAmtTotal = 0; // 잔여금액합계
-
-// 메인그리드 반영
-const setMainGrid = (subView, dataRow) => {
-  if (subView.isCheckedItem(dataRow)) {
+  view.onItemAllChecked = async (subView, checkedYn) => {
+    const subViewRows = gridUtil.getAllRowValues(subView);
     const mainView = grdMainRef.value.getView();
     const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
-    const dstAmtTotal = mainView.getValue(0, 'dstAmt');
-    const dstAmtTotalFinal = dstAmtTotal + resAmtTotal; // 등록금액에 잔여금액합계 더함
-    mainView.setValue(0, 'dstAmt', dstAmtTotalFinal, 0); // 등록금액 세팅
-    mainView.setValue(0, 'amt', adjCnfmAmt - dstAmtTotalFinal, 0); // 미등록 금액 - 잔여금액 만큼 빠지도록 재계산 0이 되어야함
-  }
-};
-async function setCalcData(pdstOpt, rate) {
-  const subView = grdSubRef.value.getView();
-  const subViewDatas = gridUtil.getAllRowValues(subView);
-  const mainView = grdMainRef.value.getView();
-  const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
+    let mainDstAmt = mainView.getValue(0, 'dstAmt');
 
-  let dstAmtOriginTotal = 0; // 정산금액원본합계(소수점포함)
-  let mainDstAmt = 0; // 정산금액합계(등록금액)
-  await subViewDatas.forEach((data, index) => {
-    subView.checkItem(index, false);
-    const perfRate = Number(pdstOpt === '01' ? rate : data.perfRate);
-    const dstAmtOrigin = Number(perfRate * adjCnfmAmt); // 실적비율 * 정산대상금액 = 정산금액
-    const dstAmt = Math.floor(dstAmtOrigin / 10) * 10; // 절사처리한 정산금액
-    const resAmt = Math.floor(dstAmtOrigin - dstAmt); // 절사된 금액(잔여금액, 출력용)
-
-    subView.setValue(index, 'dstAmt', dstAmt);
-    subView.setValue(index, 'resAmt', resAmt);
-    subView.setValue(index, 'pdstOpt', pdstOpt);
-
-    if (dstAmtOrigin !== 0) {
-      dstAmtOriginTotal += dstAmtOrigin;
-      mainDstAmt += dstAmt;
-      subView.checkItem(index);
+    if (checkedYn) { // 전체체크한 경우
+      await subViewRows.forEach((row, index) => {
+        const dstAmt = subView.getValue(subView.getItemIndex(index), 'dstAmt');
+        if (!checkedPrtnrNoList.includes(row.prtnrNo)) { // 체크가 아니었던 경우만
+          mainDstAmt += dstAmt;
+        }
+      });
+    } else { // 전체체크 해제한 경우
+      await subViewRows.forEach((row, index) => {
+        const dstAmt = subView.getValue(subView.getItemIndex(index), 'dstAmt');
+        if (checkedPrtnrNoList.includes(row.prtnrNo)) { // 체크였던 경우만
+          mainDstAmt -= dstAmt;
+        }
+      });
     }
-  });
-  dstAmtOriginTotal = Math.round(dstAmtOriginTotal);
-  resAmtTotal = dstAmtOriginTotal - mainDstAmt;
-  isCalcData = true;
-}
-
-// 균등분배
-async function onClickEquality() {
-  const subView = grdSubRef.value.getView();
-  const subViewDatas = gridUtil.getAllRowValues(subView);
-
-  // 소속별로 비율 구함
-  const rate = (100 / (subViewDatas.length * 100)); // 공통적용 될 비율 구함
-  const pdstOpt = '01';
-  await setCalcData(pdstOpt, rate);
-}
-
-// 실적대비 (실적비율 * 정산대상금액) 후 1의 자리 절사 및 절사된 금액 총합계 구하여 가장 높은실적 사원에게 부여
-async function onClickPerformance() {
-  const pdstOpt = '02';
-  await setCalcData(pdstOpt, null);
-}
-
-// 잔액 클리어
-async function onClickBalanceAmount() {
-  if (!isCalcData) {
-    alert(t('균등분배 또는 실적대비 먼저 진행해주세요.')); // TODO 메세지 처리 해야함
-    return;
-  }
-
-  // 소속별로 잔액처리
-  const subView = grdSubRef.value.getView();
-  const subViewDatas = gridUtil.getAllRowValues(subView);
-
-  // 잔액 합계를 최고실적 사원의 정산금액에 더하고 모든 잔여금액 0원 처리 (균등분배의 경우 아무나 몰아주기)
-  let maxPerfPartnerNo = '';
-  let maxPerfVal = 0;
-  subViewDatas.forEach((data) => {
-    if (data.perfVal >= maxPerfVal) {
-      maxPerfPartnerNo = data.prtnrNo;
-      maxPerfVal = data.perfVal;
-    }
-  });
-  const targetData = subViewDatas.filter((subViewData) => (subViewData.prtnrNo === maxPerfPartnerNo));
-
-  // 잔액부여
-  subView.setValue(targetData[0].dataRow, 'dstAmt', subView.getValue(targetData[0].dataRow, 'dstAmt') + resAmtTotal);
-  setMainGrid(subView, targetData[0].dataRow); // 메인그리드 반영
-  resAmtTotal = 0;
-}
+    mainView.setValue(0, 'dstAmt', mainDstAmt); // 등록금액
+    mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
+    checkedPrtnrNoList = cloneDeep(gridUtil.getCheckedRowValues(subView)).map((row) => row.prtnrNo);
+  };
+});
 
 // 최종 원천세 정산 대상자
 const initGrdThird = defineGrid((data, view) => {

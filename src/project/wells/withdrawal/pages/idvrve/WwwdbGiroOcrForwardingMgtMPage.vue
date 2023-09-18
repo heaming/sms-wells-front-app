@@ -134,6 +134,7 @@
       />
       <!-- label="대상추가" -->
       <kw-date-picker
+        v-if="false"
         v-model="searchParams.giroOcrPblDtm"
         :placeholder="t('MSG_TXT_FW_DT')"
         dense
@@ -178,7 +179,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, modal, notify, useDataService, useGlobal, useMeta, alert } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { confirm } = useGlobal();
@@ -341,11 +342,17 @@ async function onClickSave() {
 
 // 출력관리 생성 버튼
 async function onClickPrintCreate() {
-  if (!searchParams.value.giroOcrPblDtm) {
-    await notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_FW_DT')]));
+  const view = grdLinkRef.value.getView();
+
+  if (gridUtil.isModified(view)) {
+    await notify(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'));
     return;
   }
-  const view = grdLinkRef.value.getView();
+
+  if (!searchParams.value.wkDt) {
+    await notify(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_WK_DAY')]));
+    return;
+  }
   // 그리드 리스트
   const gridData = gridUtil.getAllRowValues(view);
   if (gridData.length === 0) {
@@ -359,7 +366,7 @@ async function onClickPrintCreate() {
   const paramData = {
     state: 'created',
     wkDt: searchParams.value.wkDt,
-    giroOcrPblOjStrtdt: searchParams.value.giroOcrPblDtm,
+    giroOcrPblOjStrtdt: searchParams.value.wkDt,
   };
 
   await dataService.post('/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/print', paramData);
@@ -669,8 +676,12 @@ const initGrid = defineGrid((data, view) => {
   };
 
   view.onCellButtonClicked = async (g, { column, itemIndex }) => {
+    const { wkDt } = await g.getValues(itemIndex);
     if (column === 'cntr') {
-      // console.log(itemIndex);
+      if (isEmpty(wkDt)) {
+        alert(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_CNTR_DTL_NO')]));
+        return;
+      }
 
       const { result, payload } = await modal({
         component: 'WwctaContractNumberListP',
@@ -679,7 +690,7 @@ const initGrid = defineGrid((data, view) => {
       if (result) {
         const cntr = payload.cntrNo + payload.cntrSn;
         // const cntrSn = payload.cntrSn;
-        const res = await dataService.get(`/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects/${cntr}`);
+        const res = await dataService.get(`/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects/${cntr}/${wkDt.substring(0, 6)}`);
 
         // console.log(res.data);
 

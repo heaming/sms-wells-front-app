@@ -275,5 +275,6 @@ onMounted(async () => {
     saveParams.value.prtnrNo = sessionInfo.employeeIDNumber;
     onClickClaimantName();
   }
+  frmSaveRef.value.init();
 });
 </script>

@@ -15,6 +15,7 @@
 <template>
   <kw-search
     :cols="2"
+    one-row
     :modified-targets="['grdMgtMain']"
     @search="onClickSearch"
   >
@@ -166,10 +167,16 @@ async function onClickExcelDownload() {
 async function onClickSave() {
   const view = grdMgtMainRef.value.getView();
 
+  // const rows = gridUtil.getChangedRowValues(view, true);
+  const rows = gridUtil.getCheckedRowValues(view);
+  if (rows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
-  const rows = gridUtil.getChangedRowValues(view, true);
   await dataService.post('/sms/wells/deduction/sole-distributors/management', rows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -211,7 +218,7 @@ function initGrid(data, view) {
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = false;
+  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 

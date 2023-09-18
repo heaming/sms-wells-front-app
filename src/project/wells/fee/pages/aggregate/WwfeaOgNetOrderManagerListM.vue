@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : FEA
-2. 프로그램 ID : WwfeaOgNetOrderManagerListM - M조직 수수료 순주문 관리
+2. 프로그램 ID :  - M조직 수수료 순주문 관리
 3. 작성자 : gs.piit150
 4. 작성일 : 2023.02.24
 ****************************************************************************************************
@@ -484,27 +484,14 @@ let cachedParams;
 
 /*
  *  Event - 조회조건 선택에 변경 param init
-
+*/
 async function initSearchParams() {
   totalCount.value = 0;
-  isExcelDown.value = false;
-  searchParams.value.feeTcntDvCd = '01';
-  searchParams.value.feePerfCd = '';
-  searchParams.value.pdctTpCd = '';
-  searchParams.value.sellTpCd = '0';
-  searchParams.value.strtDt = now.add(-1, 'month').startOf('month').format('YYYYMMDD');
-  searchParams.value.endDt = now.add(-1, 'month').endOf('month').format('YYYYMMDD');
-  searchParams.value.cancStrtDt = '';
-  searchParams.value.cancEndDt = '';
-  searchParams.value.pdStrtCd = '';
-  searchParams.value.pdEndCd = '';
-  searchParams.value.pkgStrtCd = '';
-  searchParams.value.pkgEndCd = '';
-  searchParams.value.prtnrNo = '';
-  searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM');
-  searchParams.value.rsbDvCd = '00';
+  grd1MainRef.value.getData().clearRows();
+  grd2MainRef.value.getData().clearRows();
+  grd3MainRef.value.getData().clearRows();
 }
- */
+
 /*
  *  Event - 번호 검색 아이콘 클릭 이벤트
  */
@@ -612,6 +599,7 @@ async function openFeePerfCrtPopup() {
  *  Event - 수수료 실적 확정 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCnfmPopup() {
+  cachedParams = cloneDeep(searchParams.value);
   /* 테스트를 위한 임시처리
   const param = {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
@@ -633,16 +621,23 @@ async function openFeePerfCnfmPopup() {
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
     perfAgrgCrtDvCd: '201',
   };
-  await modal({
-    component: 'WwfeaOgNetOrderPerfAgrgRegP',
-    componentProps: param,
-  });
+  const response = await dataService.get('/sms/wells/fee/monthly-net/end-of-batch', { params: cachedParams }); /* 이전 배치가 진행중인지 확인 */
+  const batchMsg = response.data;
+  if (batchMsg !== 'Executing') {
+    await modal({
+      component: 'WwfeaOgNetOrderPerfAgrgRegP',
+      componentProps: param,
+    });
+  } else if (response.data === 'Executing') {
+    alert(t('MSG_ALT_ONDEMAND_ALREAY_EXECUTING'));
+  }
 }
 
 /*
  *  Event - 수수료 실적 확정 취소 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCnfmCanPopup() {
+  cachedParams = cloneDeep(searchParams.value);
   /* 테스트를 위한 임시처리
   const param = {
     perfYm: now.add(-1, 'month').format('YYYYMM'),
@@ -664,10 +659,16 @@ async function openFeePerfCnfmCanPopup() {
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
     perfAgrgCrtDvCd: '201',
   };
-  await modal({
-    component: 'WwfeaOgNetOrderPerfAgrgRegP',
-    componentProps: param,
-  });
+  const response = await dataService.get('/sms/wells/fee/monthly-net/end-of-batch', { params: cachedParams }); /* 이전 배치가 진행중인지 확인 */
+  const batchMsg = response.data;
+  if (batchMsg !== 'Executing') {
+    await modal({
+      component: 'WwfeaOgNetOrderPerfAgrgRegP',
+      componentProps: param,
+    });
+  } else if (response.data === 'Executing') {
+    alert(t('MSG_ALT_ONDEMAND_ALREAY_EXECUTING'));
+  }
 }
 
 async function downloadExcelView1(uri) {
@@ -764,21 +765,22 @@ async function onChangeInqrDv() {
       isSelectVisile2.value = true;
       isSelectVisile3.value = false;
       isPerfVisile.value = true;
+      totalCount.value = 0;
     } else {
       isSelectVisile1.value = true;
       isSelectVisile2.value = false;
       isSelectVisile3.value = false;
       isPerfVisile.value = false;
+      totalCount.value = 0;
     }
-    // initSearchParams();
+    initSearchParams();
   } else if (inqrDvCd === '02') {
     isSelectVisile1.value = false;
     isSelectVisile2.value = false;
     isSelectVisile3.value = true;
     isPerfVisile.value = true;
-    // initSearchParams();
+    initSearchParams();
   }
-  onClickSearch();
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

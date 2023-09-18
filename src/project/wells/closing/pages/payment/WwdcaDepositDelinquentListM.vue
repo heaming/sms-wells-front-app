@@ -469,7 +469,7 @@ const initGrdMain = defineGrid((data, view) => {
           return rtTotSum;
         } } },
     { fieldName: 'bilAgg',
-      header: t('MSG_TXT_SL_AGG'),
+      header: t('MSG_TXT_BIL_AGG'),
       width: '130',
       styleName: 'text-right',
       hint: t('MSG_TXT_ACU_BIL_AMT'),

@@ -177,6 +177,7 @@ async function onClickRemove() {
 
   if (removeCreateRows.length) view.getDataSource().removeRows(removeCreateRows);
 
+  // 등록된 기준정보는 삭제할수 없습니다, 적용일자를 변경하십시오
   if (isDbDataRemove) notify(t('MSG_ALT_PD_REL_NO_REMOVE'));
 
   view.setAllCheck(false, true);
@@ -185,7 +186,6 @@ async function onClickRemove() {
 }
 
 async function validateProps() {
-  // console.log('relationMgt validateProps()');
   let isValid = true;
   const view = grdMainRef.value?.getView();
 
@@ -223,7 +223,6 @@ async function isModifiedProps() {
 async function getSaveData() {
   const subList = { };
   subList[pdConst.TBL_PD_REL] = gridUtil.getAllRowValues(grdMainRef.value.getView());
-  // console.log('subList ', subList);
   return subList;
 }
 

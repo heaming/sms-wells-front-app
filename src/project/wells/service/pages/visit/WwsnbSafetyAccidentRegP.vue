@@ -591,9 +591,6 @@ async function onClickAgreementFoward() {
     // 안전사고관리 데이터 조회
     const res = (await dataService.get(`/sms/wells/service/safety-accidents/${props.acdnRcpId}`)).data;
     Object.assign(safetyAccident.value, res);
-    if (res.pdNm.length !== 0) {
-      onChangePdNm();
-    }
   }
 }
 
@@ -626,8 +623,9 @@ async function onClickSave() {
   safetyAccident.value.saveYn1 = (safetyAccident.value.acdnPhoApnFile === null ? 'N' : 'Y');
   safetyAccident.value.saveYn2 = (safetyAccident.value.acdnPictrApnFile === null ? 'N' : 'Y');
   safetyAccident.value.saveYn3 = (safetyAccident.value.causAnaApnFile === null ? 'N' : 'Y');
-  safetyAccident.value.acdnDtm = `${safetyAccident.value.acdnDt}${safetyAccident.value.acdnTm}`;
+  safetyAccident.value.acdnDtm = safetyAccident.value.acdnDt && safetyAccident.value.acdnTm ? `${safetyAccident.value.acdnDt}${safetyAccident.value.acdnTm}` : null;
   await dataService.post('/sms/wells/service/safety-accidents', safetyAccident.value);
+
   ok();
   notify(t('MSG_ALT_SAVE_DATA'));
 }

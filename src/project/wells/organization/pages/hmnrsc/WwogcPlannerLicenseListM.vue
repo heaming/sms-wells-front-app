@@ -150,8 +150,10 @@ import { defineGrid, getComponentType, useDataService, useMeta, useGlobal, gridU
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
+import { SMS_COMMON_URI } from '~sms-common/organization/constants/ogConst';
 import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 import useOgReport from '~sms-common/organization/composables/useOgReport';
+import { getPhoneNumber } from '~sms-common/organization/utils/ogUtil';
 
 const { t } = useI18n();
 const { notify } = useGlobal();
@@ -212,6 +214,12 @@ async function fetchData() {
   const { list, pageInfo: pagingResult } = res.data;
   grdMain1PageInfo.value = pagingResult;
   grdMain1Datas.value = list;
+  grdMain1Datas.value.forEach((item) => {
+    if (item.bizUseIdvTno && item.bizUseExnoEncr && item.bizUseLocaraTno) {
+      item.biztelephone = `${item.bizUseIdvTno}${item.bizUseExnoEncr}${item.bizUseLocaraTno}`;
+    }
+    return item;
+  });
   return grdMain1Datas.value;
 }
 
@@ -250,7 +258,7 @@ async function currentRowDetail(currentRow) {
 
     if (response.length > 0) {
       // 해약 버튼
-      if (response[0].qlfDvCd === '3' && dayjs(response[0].strtdt).format('YYYYMMDD') <= dayjs().format('YYYYMMDD')) {
+      if (response[0].qlfDvCd === '3' && response[0].qlfAplcDvCd !== '2' && dayjs(response[0].enddt).format('YYYYMMDD') >= dayjs().format('YYYYMMDD')) {
         isDisableCancelBtn.value = false;
       } else {
         isDisableCancelBtn.value = true;
@@ -338,9 +346,8 @@ function getTargetQualification(item, details) {
 }
 
 async function onClickUpgrades(type) {
-  const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo } = selectedCurrentRow.value;
+  const { ogId: currentRowOgId, ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo } = selectedCurrentRow.value;
   const strtdt = `${dayjs().add(1, 'M').format('YYYYMM')}01`;
-
   const qualification = getTargetQualification(selectedCurrentRow.value, grdMain2Datas.value);
 
   const params = {
@@ -356,9 +363,10 @@ async function onClickUpgrades(type) {
   let message;
   switch (type) {
     case 'CANCEL':
+      params.ogId = currentRowOgId;
       params.qlfDvCd = grdMain2Datas.value[0].qlfDvCd;
       params.strtdt = grdMain2Datas.value[0].strtdt;
-      params.enddt = dayjs().format('YYYYMMDD');
+      params.enddt = dayjs(params.strtdt).format('YYYYMM').concat(dayjs(params.strtdt).daysInMonth());
 
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]);
       res = await dataService.put('/sms/wells/partner/planner-qualification-cancel', params);
@@ -380,20 +388,41 @@ async function onClickUpgrades(type) {
       res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
       break;
     default:
+      params.enddt = dayjs('99991231').format('YYYYMMDD');
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]);
       res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
   }
 
-  // eslint-disable-next-line no-unsafe-optional-chaining
-  const { processCount } = res?.data;
-  if (processCount > 0) {
-    notify(message);
-    currentRowDetail(selectedRow.value);
+  if (res) {
+    // eslint-disable-next-line no-unsafe-optional-chaining
+    const { processCount } = res?.data;
+    if (processCount > 0) {
+      notify(message);
+      await currentRowDetail(selectedRow.value);
+    }
   }
 }
 
-function onClickSave() {
-  console.log('저장');
+async function onClickSave() {
+  const view = grdMain1Ref.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+  const changedRows = gridUtil.getChangedRowValues(view);
+
+  const params = changedRows.map((obj) => {
+    const data = {
+      ogTpCd: obj.ogTpCd,
+      prtnrNo: obj.prtnrNo,
+      bizUseIdvTno: getPhoneNumber(obj.biztelephone, 1),
+      bizUseExnoEncr: getPhoneNumber(obj.biztelephone, 2),
+      bizUseLocaraTno: getPhoneNumber(obj.biztelephone, 3),
+    };
+    return data;
+  });
+
+  await dataService.put(`${SMS_COMMON_URI}/partners/change-biztelephone`, params);
+  await init();
+  notify(t('MSG_ALT_SAVE_DATA'));
 }
 
 onMounted(() => {
@@ -413,22 +442,11 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '92', styleName: 'text-center', editable: false },
     {
-      fieldName: 'bizUseIdvTno',
+      fieldName: 'biztelephone',
       header: t('MSG_TXT_CP'),
       width: '156',
       styleName: 'text-center',
-      displayCallback(grid, index, value) {
-        const bizUseIdvTno = value;
-        const bizUseExnoEncr = grid.getValue(index.itemIndex, 'bizUseExnoEncr');
-        const bizUseLocaraTno = grid.getValue(index.itemIndex, 'bizUseLocaraTno');
-
-        if (!isEmpty(bizUseIdvTno) && !Number.isNaN(bizUseIdvTno)
-          && !isEmpty(bizUseExnoEncr) && !Number.isNaN(bizUseExnoEncr)
-          && !isEmpty(bizUseLocaraTno) && !Number.isNaN(bizUseLocaraTno)) {
-          return `${bizUseIdvTno}-${bizUseExnoEncr}-${bizUseLocaraTno}`;
-        }
-        return '-';
-      },
+      displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; },
       editable: true,
       editor: {
         maxLength: 11,
@@ -443,6 +461,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'edu96', header: t('MSG_TXT_SRTUP'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
     { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
     { fieldName: 'ogTpCd', visible: false },
+    { fieldName: 'bizUseIdvTno', visible: false },
     { fieldName: 'bizUseExnoEncr', visible: false },
     { fieldName: 'bizUseLocaraTno', visible: false },
     { fieldName: 'qlfDvCd', visible: false },
@@ -466,7 +485,7 @@ const initGrid1 = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_HMNRSC'),
       direction: 'horizontal',
-      items: ['prtnrNo', 'prtnrKnm', 'rsbDvNm', 'bizUseIdvTno', 'rcrtWrteDt', 'bryyMmdd', 'fnlCltnDt'],
+      items: ['prtnrNo', 'prtnrKnm', 'rsbDvNm', 'biztelephone', 'rcrtWrteDt', 'bryyMmdd', 'fnlCltnDt'],
     },
     {
       header: t('MSG_TXT_EDUC_PS'),
@@ -485,7 +504,7 @@ const initGrid1 = defineGrid((data, view) => {
 
   view.onCurrentRowChanged = async (grid, oldRow, newRow) => {
     selectedRow.value = gridUtil.getRowValue(grid, newRow);
-    currentRowDetail(selectedRow.value);
+    await currentRowDetail(selectedRow.value);
   };
 });
 
@@ -506,7 +525,6 @@ const initGrid2 = defineGrid((data, view) => {
       },
       styleCallback(grid, dataCell) {
         const cntrDt = grid.getValue(dataCell.item.dataRow, 'cntrDt');
-        console.log('cntrdt: ', cntrDt);
         return { renderer: { type: 'button', hideWhenEmpty: isEmpty(cntrDt) } };
       },
       displayCallback: () => t('MSG_BTN_CNTRW_BRWS'),
@@ -518,6 +536,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'col4', header: t('MSG_TXT_MDFC_DATE'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
     { fieldName: 'cntrDt', visible: false },
     { fieldName: 'prtnrCntrTpCd', visible: false },
+    { fieldName: 'ogId', visible: false },
   ];
 
   // eslint-disable-next-line max-len

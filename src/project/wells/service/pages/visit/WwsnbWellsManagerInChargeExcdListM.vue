@@ -185,7 +185,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('/sms/wells/service/wells-manager-incharge-excd/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('/sms/wells/service/wells-manager-incharge-excd/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 300000 });
 
   list.forEach((row) => {
     if (row.cralLocaraTno && row.mexnoEncr && row.cralIdvTno) { row.mobileTno = `${row.cralLocaraTno}-${row.mexnoEncr}-${row.cralIdvTno}`; }
@@ -214,7 +214,7 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const { data } = await dataService.get('/sms/wells/service/wells-manager-incharge-excd/excel-download', { params: cachedParams });
+  const { data } = await dataService.get('/sms/wells/service/wells-manager-incharge-excd/excel-download', { params: cachedParams, timeout: 300000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -257,50 +257,33 @@ async function zipToPad() {
 // -------------------------------------------------------------------------------------------------
 async function initGrdMain(data, view) {
   const fields = [
-    { fieldName: 'baseYm' },
+    { fieldName: 'mngtYm' },
     { fieldName: 'dgr1LevlOgCd' },
-    { fieldName: 'ogCd' },
-    { fieldName: 'ogTpCd' },
+    { fieldName: 'dgr2LevlOgCd' },
     { fieldName: 'ogTp' },
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
     { fieldName: 'cntr' },
     { fieldName: 'rcgvpKnm' },
-    { fieldName: 'cstGdCd' },
     { fieldName: 'svpdItemGrNm' },
     { fieldName: 'svpdNmAbbr1' },
     { fieldName: 'sellTpCd' },
-    { fieldName: 'vstNmnN' },
-    { fieldName: 'istNmnN' },
     { fieldName: 'vstDvCd' },
     { fieldName: 'vstPrgsStatCd' },
-    { fieldName: 'svHshdNo' },
-    { fieldName: 'svHshdNoCnt' },
     { fieldName: 'newAdrZip' },
-    { fieldName: 'locaraTno' },
-    { fieldName: 'exnoEncr' },
-    { fieldName: 'idvTno' },
-    { fieldName: 'cralLocaraTno' },
-    { fieldName: 'mexnoEncr' },
-    { fieldName: 'cralIdvTno' },
     { fieldName: 'adr' },
     { fieldName: 'emd' },
-    { fieldName: 'dgr2LevlOgCd' },
-    { fieldName: 'dgr3LevlOgCd' },
+    { fieldName: 'ogNm' },
     { fieldName: 'prtnrKnm' },
-    { fieldName: 'mngerRglvlDvCd' },
     { fieldName: 'clsfCdSrnPrntCn' },
     { fieldName: 'egerWk' },
     { fieldName: 'fix' },
     { fieldName: 'chRsonCn' },
-
-    { fieldName: 'mobileTno' }, // 휴대전화
-    { fieldName: 'homeTno' }, // 전화번호
   ];
 
   const columns = [
     { fieldName: 'dgr1LevlOgCd', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), styleName: 'text-center', width: '90' }, // 총괄단
-    { fieldName: 'ogCd', header: t('MSG_TXT_RGNL_GRP'), styleName: 'text-center', width: '90' }, // 지역단
+    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), styleName: 'text-center', width: '90' }, // 지역단
     { fieldName: 'ogTp', header: t('MSG_TXT_ZIP_PSIC'), styleName: 'text-center', width: '120' }, // 우편번호 담당자
     { fieldName: 'cntr',
       header: t('MSG_TXT_CNTR_NO'),
@@ -309,14 +292,6 @@ async function initGrdMain(data, view) {
       renderer: { type: 'button' },
     }, // 계약번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), styleName: 'text-center', width: '100' }, // 고객명
-    { fieldName: 'cstGdCd',
-      header: t('MSG_TXT_CST_GRD'),
-      styleName: 'text-center',
-      width: '100',
-      options: codes.CST_GD_CD,
-      editor: {
-        type: 'dropdown',
-      } }, // 고객등급
     { fieldName: 'svpdItemGrNm', header: t('MSG_TXT_PD_GRP'), styleName: 'text-left', width: '100' }, // 상품그룹
     { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_PRDT_NM'), styleName: 'text-left', width: '110' }, // 상품명
     { fieldName: 'sellTpCd',
@@ -327,8 +302,6 @@ async function initGrdMain(data, view) {
       editor: {
         type: 'dropdown',
       } }, // 유형
-    { fieldName: 'vstNmnN', header: t('MSG_TXT_NMN'), styleName: 'text-right', width: '50' }, // 차월
-    { fieldName: 'istNmnN', header: t('MSG_TXT_INST_MONTH_CNT'), styleName: 'text-right', width: '90' }, // 설치개월수
     { fieldName: 'vstDvCd',
       header: t('MSG_TXT_DIV'),
       styleName: 'text-center',
@@ -345,24 +318,11 @@ async function initGrdMain(data, view) {
       editor: {
         type: 'dropdown',
       } }, // 진행상태
-    { fieldName: 'svHshdNo', header: t('MSG_TXT_HSHD_CD'), styleName: 'text-center', width: '80' }, // 가구코드
-    { fieldName: 'svHshdNoCnt', header: t('MSG_TXT_HSHD_N'), styleName: 'text-right', width: '80' }, // 가구수
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), styleName: 'text-center', width: '80' }, // 우편번호
-    { fieldName: 'homeTno', header: t('MSG_TXT_IST_TNO'), styleName: 'text-center', width: '120' }, // 설치전화
-    { fieldName: 'mobileTno', header: t('MSG_TXT_CP'), styleName: 'text-center', width: '120' }, // 휴대전화
     { fieldName: 'adr', header: t('MSG_TXT_ADDR'), styleName: 'text-left', width: '400' }, // 주소
     { fieldName: 'emd', header: t('MSG_TXT_EMD'), styleName: 'text-left', width: '200' }, // 읍명동
-    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), styleName: 'text-center', width: '90' }, // 지역단
-    { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), styleName: 'text-center', width: '90' }, // 지점
+    { fieldName: 'ogNm', header: t('센터명'), styleName: 'text-center', width: '90' }, // 지역단
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_PIC'), styleName: 'text-center', width: '80' }, // 담당자
-    { fieldName: 'mngerRglvlDvCd',
-      header: t('MSG_TXT_RGLVL'),
-      styleName: 'text-center',
-      width: '80',
-      options: codes.MNGER_RGLVL_DV_CD,
-      editor: {
-        type: 'dropdown',
-      } }, // 급지
     { fieldName: 'clsfCdSrnPrntCn', header: t('MSG_TXT_TASK_TYPE'), styleName: 'text-center', width: '100' }, // 업무유형
     { fieldName: 'egerWk', header: t('MSG_TXT_CPSN_ASGN'), styleName: 'text-center', width: '80' }, // 강제배정
     { fieldName: 'fix', header: t('MSG_TXT_FXN'), styleName: 'text-center', width: '50' }, // 고정

@@ -367,7 +367,7 @@ async function onClickSave(tempSaveYn) {
       }
     }));
     if (!modifiedOk) {
-      notify(t('MSG_ALT_NO_CHG_CNTN'));
+      notify(t('MSG_ALT_NO_CHG_CNTN', null, '변경된 내용이 없습니다.'));
       return;
     }
   }

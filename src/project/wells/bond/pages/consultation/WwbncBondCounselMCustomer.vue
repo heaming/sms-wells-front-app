@@ -128,7 +128,7 @@
       >
         <kw-select
           v-model="searchParams.schFntDv"
-          :options="codes.DP_TP_CD.filter((v) => ['0203', '0102'].includes(v.codeId))"
+          :options="selectCodes.FNT_DV"
           first-option="all"
         />
         <span>-</span>
@@ -443,17 +443,17 @@ async function onClickSearch() {
   const ojBlamEnd = searchParams.value.schOjBlamEnd;
 
   if (Number(dlqMcntStrt) > Number(dlqMcntEnd)) {
-    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_DLQ_MCNT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_DLQ_MCNT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
     return false;
   }
 
   if (fntDtStrt > fntDtEnd) {
-    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_FNT_DT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_FNT_DT') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
     return false;
   }
 
   if (Number(ojBlamStrt) > Number(ojBlamEnd)) {
-    await notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_OJ_BLAM') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
+    notify(t('MSG_ALT_STRT_YM_END_YM_BIG', [t('MSG_TXT_OJ_BLAM') + t('MSG_TXT_RSV_STRT_DTM'), t('MSG_TXT_RSV_END_DTM')]));
     return false;
   }
 
@@ -630,9 +630,9 @@ const initGrdMain = defineGrid((data, view) => {
   view.layoutByColumn('clctamIchr').summaryUserSpans = [{ colspan: 11 }];
 
   view.onCellDblClicked = async (g, { dataRow }) => {
-    const cstNo = g.getValue(dataRow, 'cstNo');
-    const cntrNo = g.getValue(dataRow, 'cntrNo');
-    const cntrSn = g.getValue(dataRow, 'cntrSn');
+    const cstNo = gridUtil.getCellValue(g, dataRow, 'cstNo');
+    const cntrNo = gridUtil.getCellValue(g, dataRow, 'cntrNo');
+    const cntrSn = gridUtil.getCellValue(g, dataRow, 'cntrSn');
     windowKey.value = `WwbncBondCounselMCustomer_${cstNo}`;
     if (cstNo) {
       await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { 'modal-popup': true, cstNo, cntrNo, cntrSn }, windowKey.value);

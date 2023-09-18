@@ -837,6 +837,44 @@ function isChangedStep() {
   return JSON.stringify(ogStep1.value) !== JSON.stringify(step1.value);
 }
 
+/**
+ * 휴폐업여부 I/F 호출
+ * 휴업상태(02), 폐업상태(03)
+*/
+async function fetchCorpStpaSdfbz() {
+  let isStpaSdfbzYn = true;
+  const bzrno = step1.value.cntrt?.bzrno;
+  const res = await dataService
+    .get('/sms/common/customer/corporate-customer/stpa-sdfbz', { params: { bzrno } });
+
+  if (res.data.statusCode === 'OK') {
+    if (res.data.data.length > 0) {
+      res.data.data.forEach((item) => {
+        item.endDtFormat = !isEmpty(item.endDt)
+          ? `${item.endDt?.substring(0, 4)}-${item.endDt?.substring(4, 6)}-${item.endDt?.substring(6, 8)}` : '';
+      });
+
+      if (res.data.data[0].bSttCd === '02') {
+        // 휴업상태
+        await alert(`${bzrno} 사업자번호는\n현재 휴업상태입니다.\n(휴업일자 : ${res.data?.data[0]?.endDtFormat})`);
+        isStpaSdfbzYn = false;
+      }
+
+      if (res.data.data[0].bSttCd === '03') {
+        // 폐업상태
+        await alert(`${bzrno} 사업자번호는\n현재 폐업상태입니다.\n(폐업일자 : ${res.data?.data[0]?.endDtFormat})`);
+        isStpaSdfbzYn = false;
+      }
+      return isStpaSdfbzYn;
+    }
+  }
+  // 정상 수신했지만 OK리턴이 아닌 경우
+  // status_code : BAD_JSON_REQUEST(JSON 포맷에 적합하지 않는 요청) / REQUEST_DATA_MALFORMED(필수 요청 파라미터 누락)
+  //               TOO_LARGE_REQUEST(요청 사업자번호 100개 초과) / INTERNAL_ERROR
+  await alert('사업자 번호 확인시 오류가 발생하였습니다.');
+  return false;
+}
+
 async function isValidStep() {
   if (cntrTpIs.value.quot) { // 견적서, 계약자명 입력 필수
     if (isEmpty(searchParams.value.cstKnm)) {
@@ -859,6 +897,10 @@ async function isValidStep() {
   if (cntrTpIs.value.msh && !step1.value.mshCntrNo) {
     await alert('멤버십 원계약을 선택해주세요.');
     return false;
+  }
+
+  if (step1.value.cntrt.copnDvCd === '2') {
+    return await fetchCorpStpaSdfbz(); // 법인 계약자의 휴업, 폐업 여부 확인
   }
 
   return true;

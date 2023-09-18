@@ -129,21 +129,25 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'rcgvpKnm' },
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'cntrCnfmDt' },
+    { fieldName: 'cntrDtlNo' }, // 계약상세번호
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약일련번호
+    { fieldName: 'cstKnm' }, // 계약자명
+    { fieldName: 'rcgvpKnm' }, // 설치자명
+    { fieldName: 'pdCd' }, // 상품코드
+    { fieldName: 'pdNm' }, // 상품명
+    { fieldName: 'cntrCnfmDt' }, // 확정일
+    { fieldName: 'cntrPdStrtdt' }, // 가입일
   ];
 
   const columns = [
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: 150, styleName: 'text-center' },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: 100, styleName: 'text-center' },
-    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: 100, styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: 150, styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 200 },
-    { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_DTRM_DATE'), width: 100, styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: '118', styleName: 'text-center' }, // 계약자명
+    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_IST_NM'), width: '118', styleName: 'text-center' }, // 설치자명
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '251', styleName: 'text-left' }, // 상품명
+    { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_DTRM_DATE'), width: '116', styleName: 'text-center', datetimeFormat: 'date' }, // 확정일
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_SUBS_DT'), width: '116', styleName: 'text-center', datetimeFormat: 'date' }, // 가입일
   ];
 
   data.setFields(fields);

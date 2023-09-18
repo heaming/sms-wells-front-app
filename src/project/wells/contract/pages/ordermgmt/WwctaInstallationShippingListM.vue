@@ -752,7 +752,7 @@ async function onClickCntrDtlNo(item) {
 
 // 기타배송조회(설치, 배송)
 async function onClickInstallEtc(dataList) {
-  alert('서비스 파트에서 화면 개발 완료 시, 추가 예정 ([W-SV-U-0053P01] 기타 물품 배송 조회)');
+  alert('추가 예정 ([W-SV-U-0053P01] 기타 물품 배송 조회)');
   await modal({
     component: 'WwsnbEtcGoodsShippingListP',
     componentProps: { dataList },
@@ -1061,9 +1061,9 @@ async function onClickDelverInqr(sppOrdNo, pcsvBzsCd) {
   console.log(pcsvBzsCd);
   let url = '';
   if (isEqual(pcsvBzsCd, '01')) {
-    url = `'http://www.hanjinexpress.hanjin.net/customer/hddcw18_ms.tracking?w_num='${sppOrdNo}`;
+    url = `http://www.hanjinexpress.hanjin.net/customer/hddcw18_ms.tracking?w_num=${sppOrdNo}`;
   } else if (isEqual(pcsvBzsCd, '02')) {
-    url = `'http://nexs.cjgls.com/web/info.jsp?slipno='${sppOrdNo}`;
+    url = `'http://nexs.cjgls.com/web/info.jsp?slipno=${sppOrdNo}`;
   }
 
   if (!isEmpty(url)) {

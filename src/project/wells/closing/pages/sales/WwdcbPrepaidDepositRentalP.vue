@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    size="2xl"
+    size="3xl"
   >
     <kw-search
       one-row
@@ -110,8 +110,12 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const cntr = props.cntrDtlNo.split('-');
+
 const searchParams = ref({
   cntrDtlNo: props.cntrDtlNo,
+  cntrNo: cntr[0],
+  cntrSn: cntr[1],
   slClYmFrom: now.format('YYYYMM'),
   slClYmTo: now.format('YYYYMM'),
 });

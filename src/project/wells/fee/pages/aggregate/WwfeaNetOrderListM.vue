@@ -35,13 +35,11 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_DIV')"
-            required
           >
             <kw-select
               v-model="searchParams.divCd"
               :label="$t('MSG_TXT_DIV')"
               :options="customCodes.div4Cd"
-              rules="required"
               @change="onChangedDvcd"
             />
           </kw-search-item>
@@ -198,6 +196,7 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_FEE_YM')"
+            required
           >
             <kw-date-picker
               v-model="searchParams.perfYm"
@@ -240,13 +239,11 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_DIV')"
-            required
           >
             <kw-select
               v-model="searchParams.divCd"
               :label="$t('MSG_TXT_DIV')"
               :options="customCodes.div4Cd"
-              rules="required"
               @change="onChangedDvcd"
             />
           </kw-search-item>
@@ -277,6 +274,7 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_FEE_YM')"
+            required
           >
             <kw-date-picker
               v-model="searchParams.perfYm"
@@ -681,20 +679,25 @@ async function openNtorAgrgPopup() {
  */
 async function openNtorConfirmPopup() {
   const { feeTcntDvCd, perfYm, tcntDvTxt } = searchParams.value;
+  cachedParams = cloneDeep(searchParams.value);
   const param = {
     // perfYm: now.add(-1, 'month').format('YYYY-MM'),
     perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
     feeTcntDvCd,
     tcntDvTxt,
   };
-
-  const { result: isChanged } = await modal({
-    component: 'WwfeaNetOrderConfirmP',
-    componentProps: param,
-  });
-
-  if (isChanged) {
-    await onClickSearch();
+  const response = await dataService.get('/sms/wells/fee/monthly-net/end-of-batch', { params: cachedParams }); /* 이전 배치가 진행중인지 확인 */
+  const batchMsg = response.data;
+  if (batchMsg !== 'Executing') {
+    const { result: isChanged } = await modal({
+      component: 'WwfeaNetOrderConfirmP',
+      componentProps: param,
+    });
+    if (isChanged) {
+      await onClickSearch();
+    }
+  } else if (response.data === 'Executing') {
+    alert(t('MSG_ALT_ONDEMAND_ALREAY_EXECUTING'));
   }
 }
 

@@ -66,9 +66,9 @@
             <!--패키지 -->
             <kw-form-item
               :label="$t('MSG_TXT_PKG')"
-              hint="null"
+              colspan="2"
             >
-              <p>{{ searchDetail.null }}</p>
+              <p>{{ searchDetail.pdNm }}</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -115,7 +115,10 @@
         <kw-form cols="4">
           <kw-form-row>
             <!--기기정보-->
-            <kw-form-item :label="$t('MSG_TXT_PD_INF')">
+            <kw-form-item
+              :label="$t('MSG_TXT_PD_INF')"
+              colspan="4"
+            >
               <p>{{ searchDetail.machineNm }}</p>
             </kw-form-item>
           </kw-form-row>
@@ -172,7 +175,7 @@
             </kw-form-item>
             <!-- row1 정상매출 -->
             <kw-form-item :label="$t('MSG_TXT_NOM_SL')">
-              <p>{{ stringUtil.getDateFormat(searchDetail.nomSlAmt) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(searchDetail.nomSlAmt??'') }}</p>
             </kw-form-item>
             <!-- row1 정상할인 -->
             <kw-form-item :label="$t('MSG_TXT_NOM_DSC')">

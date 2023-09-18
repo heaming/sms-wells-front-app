@@ -2,17 +2,16 @@
 ****************************************************************************************************
 * 프로그램 개요
 ****************************************************************************************************
-1. 모듈 : SNB (재고관리)
-2. 프로그램 ID : WwsnbProductInstallationPsAgrgM - 제품별 설치/교체/철거 현황 집계 (K-W-SV-U-0055M01)
-3. 작성자 : jungheejin
-4. 작성일 : 2023-08-18
+1. 모듈 : SNB (방문관리)
+2. 프로그램 ID : WwsnbManagerBsServiceStateM - 매니저 BS 서비스 현황(K-W-SV-U-0039M01)
+3. 작성자 : leeminwoo
+4. 작성일 : 2023-09-15
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 제품별 설치/교체/철거 현황 집계 http://localhost:3000/#/service/wwsna-product-installation-ps-agrg
+- 매니저 BS 서비스 현황 http://localhost:3000/#/service/wsnb-manager-bs-service-state
 ****************************************************************************************************
 --->
-
 <template>
   <kw-page>
     <kw-search @search="onClickSearch">
@@ -25,6 +24,25 @@
             :label="$t('MSG_TXT_BASE_YEAR')"
           />
         </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_MNGT_DV')"
+        >
+          <kw-select
+            v-model="searchParams.cnfmPsicDvCd"
+            :options="tempOptions.cnfmPsicDvCd"
+            first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_WK_CLS')"
+        >
+          <kw-select
+            v-model="searchParams.vstPrgsStatCd"
+            :options="tempOptions.vstPrgsStatCd"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item
           class="w500"
           :label="$t('MSG_TXT_PD_GRP')"
@@ -90,24 +108,41 @@ const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const now = dayjs();
+
 const { getPartMaster } = smsCommon();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const baseUrl = '/sms/wells/service/product-installation-ps-agrg';
+const baseUrl = '/sms/wells/service/manager-bs-service-state';
 
 const codes = await codeUtil.getMultiCodes(
   'PD_GRP_CD',
 );
 
+const tempOptions = {
+  cnfmPsicDvCd: [ // 관리구분
+    { codeId: '1', codeName: t('LP') }, // LP
+    { codeId: '2', codeName: t('엔지니어') }, // 엔지니어
+  ],
+  vstPrgsStatCd: [ // 작업구분
+    { codeId: '00', codeName: t('배정') }, // 배정
+    { codeId: '20', codeName: t('완료') }, // 완료
+  ],
+};
+
 const searchParams = ref({
   baseYy: now.format('YYYY'),
   pdGrpCd: '',
   pdCd: '',
+  cnfmPsicDvCd: '',
+  vstPrgsStatCd: '00',
 });
+
 let cachedParams;
 const totalCount = ref(0);
 const pds = ref([]);
+
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
   const list = res.data;
@@ -139,11 +174,13 @@ async function onClickExcelDownload() {
     exportData: gridUtil.getAllRowValues(view),
   });
 }
+
 async function changePdGrpCd() {
   if (searchParams.value.pdGrpCd) {
     pds.value = await getPartMaster('4', searchParams.value.pdGrpCd, 'M');
   } else pds.value = [];
 }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -157,8 +194,8 @@ const initGrdMain = defineGrid((data, view) => {
       mergeRule: { criteria: 'value' },
     },
     {
-      fieldName: 'svBizMclsfCdNm',
-      header: t('MSG_TXT_PD_GRP'),
+      fieldName: 'dgBizTpNm',
+      header: t('MSG_TXT_DIV'),
       width: '80',
       styleName: 'text-center',
     },
@@ -196,10 +233,9 @@ const initGrdMain = defineGrid((data, view) => {
     {
       direction: 'horizontal',
       hideChildHeaders: true,
-      items: ['yyyy', 'svBizMclsfCdNm'],
+      items: ['yyyy', 'dgBizTpNm'],
       header: { text: t('MSG_TXT_DIV') },
     },
-    'tcnt',
     'acol1',
     'acol2',
     'acol3',
@@ -212,6 +248,7 @@ const initGrdMain = defineGrid((data, view) => {
     'acol10',
     'acol11',
     'acol12',
+    'tcnt',
     'per',
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -219,7 +256,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.setColumnLayout(columnLayout);
   view.setFooters({ visible: true, items: [{ height: 30 }] });
-  view.columnByName('svBizMclsfCdNm').setFooters({ text: t('MSG_TXT_SUM'), styleName: 'text-center text-weight-bold' });
+  view.columnByName('dgBizTpNm').setFooters({ text: t('MSG_TXT_SUM'), styleName: 'text-center text-weight-bold' });
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 });

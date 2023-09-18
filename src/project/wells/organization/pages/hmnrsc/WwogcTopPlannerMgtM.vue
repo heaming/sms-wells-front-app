@@ -77,18 +77,6 @@
           />
         </template>
         <kw-btn
-          v-permission:delete
-          grid-action
-          :disable="pageInfo.totalCount === 0"
-          :label="$t('MSG_BTN_DEL')"
-          @click="onClickRemove"
-        />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
-        <kw-btn
           icon="download_on"
           dense
           secondary
@@ -105,13 +93,13 @@
           :label="$t('MSG_BTN_PLAR_REG')"
           secondary
           dense
+          :disable="isShow"
           @click="onClickSave"
         />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :visible-rows="15"
         @init="initGrid"
       />
       <kw-pagination
@@ -137,7 +125,7 @@ import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 
 const { getConfig, getUserInfo } = useMeta();
 const dataService = useDataService();
-const { modal, notify } = useGlobal();
+const { modal, notify, confirm, alert } = useGlobal();
 const { currentRoute } = useRouter();
 const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 // -------------------------------------------------------------------------------------------------
@@ -146,11 +134,15 @@ const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 const { t } = useI18n();
 const codes = await codeUtil.getMultiCodes('EGER_WRK_STAT_CD', 'OG_TP_CD');
 const grdMainRef = ref(getComponentType('KwGrid'));
+const thisYear = dayjs().format('YYYY');
+const thisMonth = dayjs().format('MM');
+// const lastMonth = dayjs().add(-1, 'M').format('MM');
+// const lastYm = dayjs().add(-1, 'M').format('YYYYMM');
 const thisYm = dayjs().format('YYYYMM');
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
   mngtYm: thisYm,
-  mOgYn: 'N',
+  mOgYn: 'Y',
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   ogId: undefined,
   prtnrNo: undefined,
@@ -162,6 +154,8 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+const isShow = ref(true);
+
 let cachedParams;
 async function fetchData() {
   const res = await dataService.get(`${SMS_WELLS_URI}/partner/paging`, { params: { ...cachedParams, ...pageInfo.value } });
@@ -169,7 +163,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
 
-  view.getDataSource().setRows(planners.map((v) => ({ ...v, mngtYm: searchParams.value.mngtYm, ogTpCd })));
+  view.getDataSource().setRows(planners.map((v) => ({ ...v, mngtYm: searchParams.value.mngtYm })));
   view.resetCurrent();
 
   if (searchParams.value.mOgYn === 'Y') {
@@ -188,6 +182,12 @@ async function fetchData() {
     view.columnByName('mTotCnt').visible = false;
   }
 
+  // if (searchParams.value.mngtYm === thisYm) {
+  //   isShow.value = false;
+  // } else {
+  //   isShow.value = true;
+  // }
+
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -196,17 +196,8 @@ async function onClickSearch() {
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+
   await fetchData();
-}
-
-// 삭제
-async function onClickRemove() {
-  const view = grdMainRef.value.getView();
-  // if (!await gridUtil.confirmIfIsModified(view)) { return; }
-  const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
-  if (deletedRows.length === 0) return;
-
-  await dataService.delete(`${SMS_WELLS_URI}/partner`, deletedRows);
 }
 
 // 엑셀 다운로드
@@ -222,14 +213,38 @@ async function onClickExcelDownload() {
 
 // 자격생성
 async function onClickSave() {
-  const view = grdMainRef.value.getView();
-  if (!await gridUtil.validate(view)) { return; }
-  const changedRows = gridUtil.getChangedRowValues(view);
+  // D-1월 순주문마감된 경우 진행 (CNT > 0 이면 순주문마감된 경우)
+  /* const orderCnt = await dataService.get(`${SMS_WELLS_URI}/partner/order-cnt`,
+  { params: { ...searchParams.value } }); */
 
-  await dataService.put(`${SMS_WELLS_URI}/partner`, changedRows);
-  await notify(t('MSG_ALT_SAVE_DATA'));
-  await fetchData();
+  // if (orderCnt.data <= 0) {
+  //   await alert(t('MSG_TXT_ORDER_AF_DEAD', [thisYear, lastMonth]));
+  //   return;
+  // }
+
+  // D월 신청내역이 생성되지 않은 경우에 진행 (CNT = 0 이면 생성이 진행되지 않은 경우)
+  const createdCnt = await dataService.get(`${SMS_WELLS_URI}/partner/created-cnt`, { params: { ...searchParams.value } });
+
+  if (createdCnt.data > 0) {
+    await alert(t('MSG_TXT_ALD_QUA_CREATED', [thisYear, thisMonth]));
+    return;
+  }
+
+  if (!await confirm(t('MSG_TXT_QUA_CREATED', [thisYear, thisMonth]))) { return; }
+
+  await dataService.post(`${SMS_WELLS_URI}/partner`, { ...searchParams.value });
+
+  // await fetchData();
 }
+
+// 계약서 구분에 따른 visible
+watch(() => searchParams.value.mngtYm, async (newVal) => {
+  if (newVal === thisYm) {
+    isShow.value = false;
+  } else {
+    isShow.value = true;
+  }
+}, { immediate: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -242,7 +257,18 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center' },
     { fieldName: 'qlfDvNm', header: t('MSG_TXT_THM_QLF'), width: '100', styleName: 'text-center' },
-    { fieldName: 'detail', header: t('MSG_BTN_PLAR_MGT'), width: '106', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_PLAR_MGT') },
+    { fieldName: 'detail',
+      header: t('MSG_BTN_PLAR_MGT'),
+      width: '106',
+      styleName: 'rg-button-default text-center',
+      styleCallback(grid, dataCell) {
+        const btnYn = grid.getValue(dataCell.item.dataRow, 'btnYn');
+        return { renderer: { type: 'button', hideWhenEmpty: btnYn !== 'Y' } };
+      },
+      displayCallback() {
+        return t('MSG_BTN_PLAR_MGT');
+      },
+    },
     { fieldName: 'rcmdrPrtnrNm', header: t('MSG_TXT_ENGM_FNM'), width: '150', styleName: 'text-center' },
     { fieldName: 'rcmdrPrtnrNo', header: t('MSG_TXT_ENGM_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'cntrDt', header: t('MSG_TXT_BIZ_RGST_MM'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
@@ -264,6 +290,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'enddt', header: t('MSG_TXT_CLTN_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'mQlfDvNm', header: t('MSG_TXT_CLTN_MM_QLF'), width: '120', styleName: 'text-center' },
     { fieldName: 'mTotCnt', header: t('MSG_TXT_ACU_ACKMT_CT'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'btnYn', visible: false },
     { fieldName: 'mngtYm', visible: false },
     { fieldName: 'ogTpCd', visible: false },
   ];
@@ -271,7 +298,7 @@ const initGrid = defineGrid((data, view) => {
   view.setColumns(columns);
   view.setFixedOptions({ colCount: 7 });
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
   view.setColumnLayout([
@@ -303,16 +330,18 @@ const initGrid = defineGrid((data, view) => {
   view.columnByName('mQlfDvNm').visible = false;
   view.columnByName('mTotCnt').visible = false;
 
+  view.columnByName('detail').disable = true;
+
   // 그리드 클릭 이벤트
   view.onCellItemClicked = async (g, { column, dataRow }) => {
-    const { mngtYm } = gridUtil.getRowValue(g, dataRow);
+    const { mngtYm, ogTpCd: cellOgTpCd, prtnrNo } = gridUtil.getRowValue(g, dataRow);
 
     // 상세보기
     // const baseYm = searchBaseYm;
     if (column === 'detail') {
       const { result: isChanged } = await modal({
         component: 'WwogcTopPlannerMgtP',
-        componentProps: { ogTpCd, mngtYm },
+        componentProps: { mngtYm, ogTpCd: cellOgTpCd, prtnrNo },
       });
 
       if (isChanged) {

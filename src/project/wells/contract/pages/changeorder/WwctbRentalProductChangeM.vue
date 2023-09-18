@@ -234,7 +234,9 @@
             >
               <kw-form-row>
                 <!-- 상품검색 -->
-                <kw-form-item :label="$t('MSG_TXT_PRDT') + $t('MSG_TXT_SEARCH')">
+                <kw-form-item
+                  :label="$t('MSG_TXT_PRDT') + $t('MSG_TXT_SEARCH')"
+                >
                   <div class="column col">
                     <div
                       class="row"
@@ -245,6 +247,7 @@
                         icon="search"
                         maxlength="100"
                         grow
+                        :disable="fieldData.slClYn==='Y'"
                         @click-icon="onClickSelectProduct"
                       />
                     </div>
@@ -270,14 +273,14 @@
                             <kw-btn
                               v-permission:update
                               :label="$t('MSG_TXT_MCHN_CH')"
-                              :disable="!isEmpty(orderProduct.plusCntrNo)"
+                              :disable="!isEmpty(orderProduct.plusCntrNo) || fieldData.slClYn==='Y'"
                               dense
                               @click="onClickDeviceChange"
                             />
                             <kw-btn
                               v-permission:update
                               label="1+1"
-                              :disable="!isEmpty(orderProduct.mchChCntrNo)"
+                              :disable="!isEmpty(orderProduct.mchChCntrNo) || fieldData.slClYn==='Y'"
                               class="ml8"
                               dense
                               @click="onClickOnePlusOne"
@@ -323,6 +326,7 @@
                               first-option="select"
                               first-option-value=""
                               :first-option-label="$t('MSG_TXT_CONTRACT_PERI') + ' ' + $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                             <!-- 계약기간 선택 -->
@@ -332,6 +336,7 @@
                               first-option="select"
                               first-option-value=""
                               :first-option-label="$t('MSG_TXT_CNTR_PTRM') + ' ' + $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                             <!-- 등록비 선택 -->
@@ -341,6 +346,7 @@
                               first-option="select"
                               first-option-value="0"
                               :first-option-label="$t('MSG_TXT_RGST_FEE') + ' ' + $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                             <!-- 렌탈할인구분 선택 -->
@@ -350,13 +356,14 @@
                               first-option="select"
                               first-option-value=""
                               :first-option-label="$t('TXT_MSG_RENTAL_DSC_DV_CD') + ' ' + $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                             <!-- 렌탈할인유형 선택 -->
                             <kw-select
                               v-model="orderProduct.sellDscTpCd"
                               :options="rentalDscTpCds"
-                              :disable="!isEmpty(orderProduct.plusCntrNo)"
+                              :disable="!isEmpty(orderProduct.plusCntrNo) || fieldData.slClYn==='Y'"
                               first-option="select"
                               first-option-value=""
                               :first-option-label="$t('MSG_TXT_RENTAL_DSC_TP_CD') + ' ' + $t('MSG_TXT_SELT')"
@@ -376,6 +383,7 @@
                                 $t('MSG_TXT_SERVICE')+
                                   '('+$t('MSG_TXT_USWY')+'/'+$t('MSG_TXT_VST_PRD')+') '+
                                   $t('MSG_TXT_SELT')"
+                              :disable="fieldData.slClYn==='Y'"
                               @change="selectRentalPriceChanges"
                             />
                           <!-- <kw-select
@@ -452,6 +460,7 @@
                               icon="close_24"
                               style="font-size: 24px;"
                               class="w24"
+                              :disable="fieldData.slClYn==='Y'"
                               @click="onClickDeleteDeviceChange"
                             />
                           </div>
@@ -519,6 +528,7 @@
                               icon="close_24"
                               style="font-size: 24px;"
                               class="w24"
+                              :disable="fieldData.slClYn==='Y'"
                               @click="onClickDeleteOneplusone"
                             />
                           </div>
@@ -876,6 +886,7 @@ const fieldData = ref({
   istDt: '', // [계약정보-설치일] 설치일자
   canDt: '', // [계약정보-취소일자] 취소일자
   reqdDt: '', // [계약정보-철거일자] 철거일자
+  slClYn: '', // 전월매출마감여부
   cntrCstKnm: '', // [계약자고객정보-계약자] 계약자명
   cntrCstNo: '', // [계약자고객정보-고객번호] 계약자고객번호
   copnDvCd: '', // 개인/법인구분

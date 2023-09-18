@@ -48,16 +48,16 @@
           :label="$t('MSG_TXT_IST_PCSV_PDCT_DV')"
         >
           <kw-select
-            v-model="searchParams.pdctDv"
-            :options="pdctDv"
+            v-model="searchParams.adrpcTpCd"
+            :options="adrpcTpCd"
             :label="$t('MSG_TXT_IST_PCSV_PDCT_DV')"
             first-option="all"
-            @change="onChangePdctDv"
+            @change="onChangeAdrpcTpCd"
           />
         </kw-search-item>
         <!-- 아웃소싱 선택일때, -->
         <kw-search-item
-          v-if="isPdctDv"
+          v-if="isAdrpcTpCd"
           :label="$t('MSG_TXT_PRTNR_BZS_CD')"
         >
           <kw-select
@@ -130,7 +130,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, defineGrid, getComponentType, gridUtil, codeUtil } from 'kw-lib';
-import { getPdctDv } from '~/modules/sms-common/closing/utils/clUtil';
+import { getAdrpcTpCd } from '~/modules/sms-common/closing/utils/clUtil';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -144,11 +144,11 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
 const totalMainCount = ref(0);
 const totalSubCount = ref(0);
-const isPdctDv = ref(false);
+const isAdrpcTpCd = ref(false);
 const searchParams = ref({ slYm: dayjs().format('YYYYMM'),
   startDt: dayjs().format('YYYYMM').concat('01'),
   endDt: dayjs().format('YYYYMMDD') });
-const pdctDv = await getPdctDv();
+const adrpcTpCd = await getAdrpcTpCd();
 const limitStartDtFrom = computed(() => dayjs(`${searchParams.value.slYm}01`).format('YYYY-MM-DD'));
 const limitEndDtTo = computed(() => {
   const yy = (searchParams.value.slYm).substring(0, 4);
@@ -166,13 +166,8 @@ function onChangeSlYm() {
   searchParams.value.endDt = `${searchParams.value.slYm}${dayjs().format('YYYYMMDD').substring(6, 8)}`;
 }
 
-function onChangePdctDv() {
-  isPdctDv.value = searchParams.value.pdctDv === '1';
-  if (['1', '2', '3'].includes(searchParams.value.pdctDv)) {
-    searchParams.value.adrpcTpCd = searchParams.value.pdctDv === '3' ? '3' : '2';
-  } else {
-    searchParams.value.adrpcTpCd = '';
-  }
+function onChangeAdrpcTpCd() {
+  isAdrpcTpCd.value = searchParams.value.adrpcTpCd === '1';
 }
 
 async function onClickExcelDownload(gridGb) {

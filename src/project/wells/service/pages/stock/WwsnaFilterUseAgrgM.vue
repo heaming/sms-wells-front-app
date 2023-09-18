@@ -357,9 +357,9 @@ fieldsObj = {
     gridView.setColumnLayout([...layoutColumns]);
 
     if (columns.length > 7) {
-      gridView.setFixedOptions({ colCount: 4 });
+      gridView.setFixedOptions({ colCount: 4, resizable: true });
     } else {
-      gridView.setFixedOptions({ colCount: 0 });
+      gridView.setFixedOptions({ colCount: 0, resizable: true });
     }
     gridView.columnByName('prtnrNo').setFooters({ text: t('MSG_TXT_SUM'), styleName: 'text-left text-weight-bold' });
     gridView.setFooters({ visible: true, items: [{ height: 30 }] });

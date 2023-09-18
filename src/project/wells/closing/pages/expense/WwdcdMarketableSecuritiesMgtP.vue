@@ -195,7 +195,6 @@ const searchParams = ref({
   subOgTpCd: '',
   prtnrNo: '',
 });
-
 const buildingCodes = ref([]);
 async function ogLevlDvCd0() {
   const res = await dataService.get('/sms/wells/closing/expense/operating-cost/marketable-securities/code', { params: cachedParams });
@@ -293,8 +292,8 @@ async function onClickSearchPartner() {
 async function onClickObjectPersonAdd() {
   const mainView = grdMainRef.value.getView();
   const subView = grdSubRef.value.getView();
-  const thirdView = grdThirdRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(subView);
+  const thirdView = grdThirdRef.value.getView();
   const thirdRows = thirdView.getJsonRows();
   if (checkedRows.length === 0) {
     await notify(t('MSG_ALT_NOT_SEL_ITEM'));
@@ -321,11 +320,13 @@ async function onClickObjectPersonAdd() {
     return;
   }
 
+  let dstAmtTotal = 0;
   for (let i = 0; i < checkedRows.length; i += 1) {
-    if (mainValue.adjCnfmAmt < checkedRows[i].dstAmt) {
-      alert('정산금액보다 큽니다.');
-      return;
-    }
+    dstAmtTotal += Number(checkedRows[i].dstAmt);
+  }
+  if (mainValue.adjCnfmAmt < dstAmtTotal || mainValue.amt < 0) {
+    alert('대상자들의 정산금액 합계가 정산대상금액보다 큽니다.');
+    return;
   }
   for (let i = 0; i < checkedRows.length; i += 1) {
     if (checkedRows[i].dstAmt !== 0) {
@@ -346,12 +347,12 @@ async function onClickObjectPersonAdd() {
         checkedRows[i].erntx = 0;
         checkedRows[i].rsdntx = 0;
       }
-      const view = grdThirdRef.value.getView();
-      const dataProvider = view.getDataSource();
-      dataProvider.insertRow(0, checkedRows[i]);
-      subView.checkItem(checkedRows[i].dataRow, false);
+      const dataProvider = thirdView.getDataSource();
+      dataProvider.addRow(checkedRows[i]);
       thirdTotalCount.value += 1;
     }
+    thirdView.resetCurrent();
+    subView.resetCurrent();
   }
 
   if (checkedRows.length === 0) {
@@ -367,6 +368,7 @@ async function onClickObjectPersonAdd() {
   const mainAmt = mainView.getValue(0, 'amt');
   mainView.setValue(0, 'dstAmt', mainDstAmt + dstAmt);
   mainView.setValue(0, 'amt', mainAmt - dstAmt);
+  await subView.checkAll(false, true, true, true);
 }
 
 // 대상자 제외
@@ -507,15 +509,15 @@ const initGrdSub = defineGrid((data, view) => {
   // field - 변경된 필드의 인덱스
   // oldValue - 편집전 셀의 데이터 값
   // newValue - 편집후 셀의 데이터 값
-  view.onEditRowChanged = async (grid, itemIndex, row, field, oldValue) => { // 직접편집했을때만
-    const dstAmt = grid.getValue(itemIndex, 'dstAmt');
-    const fieldValue = grid.getValue(itemIndex, field);
+  view.onEditRowChanged = async (subView, itemIndex, rowData, field, oldValue) => { // 직접편집했을때만
+    const dstAmt = subView.getValue(itemIndex, 'dstAmt');
+    const fieldValue = subView.getValue(itemIndex, field);
     if (fieldValue !== dstAmt) {
       alert(t('MSG_TXT_INVALID_ACCESS')); // 잘못된 접근입니다.
       return;
     }
 
-    if (grid.isCheckedItem(itemIndex)) {
+    if (subView.isCheckedItem(itemIndex)) {
       const mainView = grdMainRef.value.getView();
       const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
       let mainDstAmt = mainView.getValue(0, 'dstAmt');
@@ -527,35 +529,48 @@ const initGrdSub = defineGrid((data, view) => {
     }
   };
 
-  view.onItemAllChecked = async () => {
-    const subView = grdSubRef.value.getView();
-    const subViewDatas = gridUtil.getAllRowValues(subView);
+  let checkedPrtnrNoList = []; // 현재 체크된 대상자 리스트
+  view.onItemChecked = async (subView, itemIndex) => {
+    const dstAmt = subView.getValue(itemIndex, 'dstAmt');
     const mainView = grdMainRef.value.getView();
     const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
     let mainDstAmt = mainView.getValue(0, 'dstAmt');
-    await subViewDatas.forEach((subViewdata, index) => {
-      const dstAmt = subView.getValue(index, 'dstAmt');
-      if (subView.isCheckedItem(index)) {
-        mainDstAmt += dstAmt;
-      } else {
-        mainDstAmt -= dstAmt;
-      }
-    });
+    if (subView.isCheckedItem(itemIndex) && !checkedPrtnrNoList.includes(subView.getValue(itemIndex, 'prtnrNo'))) {
+      mainDstAmt += dstAmt;
+    }
+    if (!subView.isCheckedItem(itemIndex) && checkedPrtnrNoList.includes(subView.getValue(itemIndex, 'prtnrNo'))) {
+      mainDstAmt -= dstAmt;
+    }
+
     mainView.setValue(0, 'dstAmt', mainDstAmt); // 등록금액
     mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
+    checkedPrtnrNoList = cloneDeep(gridUtil.getCheckedRowValues(subView)).map((row) => row.prtnrNo);
   };
-  view.onItemChecked = async (grid, itemIndex) => {
-    const dstAmt = grid.getValue(itemIndex, 'dstAmt');
+
+  view.onItemAllChecked = async (subView, checkedYn) => {
+    const subViewRows = gridUtil.getAllRowValues(subView);
     const mainView = grdMainRef.value.getView();
     const adjCnfmAmt = mainView.getValue(0, 'adjCnfmAmt');
     let mainDstAmt = mainView.getValue(0, 'dstAmt');
-    if (grid.isCheckedItem(itemIndex)) {
-      mainDstAmt += dstAmt;
-    } else {
-      mainDstAmt -= dstAmt;
+
+    if (checkedYn) { // 전체체크한 경우
+      await subViewRows.forEach((row, index) => {
+        const dstAmt = subView.getValue(subView.getItemIndex(index), 'dstAmt');
+        if (!checkedPrtnrNoList.includes(row.prtnrNo)) { // 체크가 아니었던 경우만
+          mainDstAmt += dstAmt;
+        }
+      });
+    } else { // 전체체크 해제한 경우
+      await subViewRows.forEach((row, index) => {
+        const dstAmt = subView.getValue(subView.getItemIndex(index), 'dstAmt');
+        if (checkedPrtnrNoList.includes(row.prtnrNo)) { // 체크였던 경우만
+          mainDstAmt -= dstAmt;
+        }
+      });
     }
     mainView.setValue(0, 'dstAmt', mainDstAmt); // 등록금액
     mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
+    checkedPrtnrNoList = cloneDeep(gridUtil.getCheckedRowValues(subView)).map((row) => row.prtnrNo);
   };
 });
 

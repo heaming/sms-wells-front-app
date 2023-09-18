@@ -173,7 +173,7 @@ import { isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
-const { ok, cancel: onClickCancel } = useModal();
+const { cancel: onClickCancel } = useModal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -196,7 +196,6 @@ async function onClickSave() {
   data.value.cstSignCn = signMainRef.value.getSignData('image/jpeg');
   // 저장.
   await dataService.put('/sms/wells/service/safety-accidents/sign', data.value);
-  ok();
   notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
 }
 </script>

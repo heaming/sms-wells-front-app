@@ -298,8 +298,8 @@ fieldsObj = {
   // 그리드 공통컬럼
   defaultFields: [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '170', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '130', styleName: 'text-center' },
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '190', styleName: 'text-left' },
+    { fieldName: 'pdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '130', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '190', styleName: 'text-left' },
     { fieldName: 'itmLctNm', header: t('MSG_TXT_ITM_LOC'), width: '120', styleName: 'text-left' },
     {
       fieldName: 'pitmStocAGdQty',
@@ -365,13 +365,13 @@ fieldsObj = {
     const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
     gridData.setFields(fields);
     gridView.setColumns(columns);
-    gridView.columnByName('pdAbbrNm').setFooters({ text: t('MSG_TXT_TOT_SUM'), styleName: 'text-left text-weight-bold' });
+    gridView.columnByName('pdNm').setFooters({ text: t('MSG_TXT_TOT_SUM'), styleName: 'text-left text-weight-bold' });
     gridView.setColumnLayout([...layoutColumns]);
     gridView.setFooters({ visible: true, items: [{ height: 30 }] });
     if (columns.length > 6) {
-      gridView.setFixedOptions({ colCount: 6 });
+      gridView.setFixedOptions({ colCount: 6, resizable: true });
     } else {
-      gridView.setFixedOptions({ colCount: 0 });
+      gridView.setFixedOptions({ colCount: 0, resizable: true });
     }
   },
   // 리스트에 담겨진 항목중 {fieldName : "" }  만  가져옴

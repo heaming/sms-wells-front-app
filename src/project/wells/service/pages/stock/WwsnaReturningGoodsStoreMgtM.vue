@@ -36,8 +36,8 @@
               <!-- 등급오류 -->
               <kw-checkbox
                 v-bind="field"
+                v-model="searchParams.chkErrorCheck"
                 :label="$t('MSG_TXT_GD_ERR')"
-                val="등급오류"
               />
             </template>
           </kw-field>
@@ -277,7 +277,7 @@ const codes = await codeUtil.getMultiCodes(
 
 // 창고구분코드 필터링
 const strWareDvCd = { WARE_DV_CD: [
-  { codeId: '2', codeName: '서비스센터' },
+  { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
 ] };
 
 const pageInfo = ref({
@@ -312,6 +312,7 @@ const searchParams = ref({
   strWareNoM: '',
   strWareNoD: '',
   barCode: '',
+  chkErrorCheck: 'N',
 
 });
 
@@ -529,7 +530,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'reqdDt' }, // 철거요청일자
     { fieldName: 'vstFshDt' }, // 작업일자
     { fieldName: 'rtngdConfYn' }, // 반품확인여부
-    { fieldName: 'col8' }, // 사용일수
+    { fieldName: 'useDay' }, // 사용일수
     { fieldName: 'useMths' }, // 사용개월
     { fieldName: 'refurbishYn' }, // 리퍼
     { fieldName: 'fnlItmGdCd' }, // 등급
@@ -570,6 +571,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtngdRvpyProcsYn' },
     { fieldName: 'wkWareNo' },
     { fieldName: 'wkOstrSn' },
+    { fieldName: 'errorCheck' },
 
   ];
 
@@ -583,7 +585,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_RQDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'vstFshDt', header: t('MSG_TXT_WK_DT'), width: '170', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'rtngdConfYn', header: t('MSG_TXT_RTNGD_CONF_YN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'col8', header: t('MSG_TXT_USE_DAY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'useDay', header: t('MSG_TXT_USE_DAY'), width: '100', styleName: 'text-right' },
     { fieldName: 'useMths', header: t('MSG_TXT_USE_MCNT'), width: '100', styleName: 'text-right' },
     { fieldName: 'refurbishYn', header: t('MSG_TXT_REFR'), width: '100', styleName: 'text-center' },
     { fieldName: 'fnlItmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center', options: codes.PD_GD_CD },
@@ -654,7 +656,7 @@ const initGrdMain = defineGrid((data, view) => {
     'reqdDt',
     'vstFshDt',
     'rtngdConfYn',
-    'col8',
+    'useDay',
     'useMths',
     'refurbishYn',
     'fnlItmGdCd',

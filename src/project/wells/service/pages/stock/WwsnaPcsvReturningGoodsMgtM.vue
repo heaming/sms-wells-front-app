@@ -326,6 +326,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'wellsReqdDt' },
     { fieldName: 'ostrTpCd' },
     { fieldName: 'ostrDt' },
+    { fieldName: 'itmOstrNo' },
+    { fieldName: 'ostrSn' },
+    { fieldName: 'wareNm' },
+    { fieldName: 'rmkCn' },
+    { fieldName: 'mngrDvCd' },
+    { fieldName: 'dgr1LevlOgId' },
+    { fieldName: 'dgr3LevlOgId' },
   ];
 
   const columns = [ // t('')

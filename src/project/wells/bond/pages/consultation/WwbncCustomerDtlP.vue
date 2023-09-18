@@ -47,9 +47,14 @@
                   <p>{{ customer.cstNm }}</p>
                 </kw-form-item>
                 <kw-form-item
-                  :label="$t('MSG_TXT_BIRTH_DATE')"
+                  :label="customer.copnDvCd === '1' ? $t('MSG_TXT_BIRTH_DATE') : $t('MSG_TXT_ENTRP_NO')"
                 >
-                  <p>({{ customer.sexDvNm }}){{ customer.bryyMmdd }}</p>
+                  <p v-if="customer.copnDvCd === '1'">
+                    ({{ customer.sexDvNm }}){{ customer.bryyMmdd }}
+                  </p>
+                  <p v-if="customer.copnDvCd === '2'">
+                    {{ customer.bzrno }}
+                  </p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
@@ -57,7 +62,7 @@
                   :label="$t('MSG_TXT_MPNO')"
                 >
                   <p class="w100">
-                    {{ customer.cntrCralLocaraTno }}{{ customer.cntrMexnoEncr }}{{ customer.cntrCralIdvTno }}
+                    {{ customer.cntrCralLocaraTno }}-{{ customer.cntrMexnoEncr }}-{{ customer.cntrCralIdvTno }}
                   </p>
                   <kw-btn
                     borderless
@@ -72,14 +77,26 @@
                     class="ml8"
                     @click="onClickMessageSend"
                   />
-                  <kw-btn
-                    :label="$t('MSG_BTN_TEL_REJ')"
-                    dense
-                    secondary
-                    class="kw-font-caption py2 ml4"
-                    style="min-height: 20px;"
-                    @click="onClickTelephoneRej"
-                  />
+                  <template v-if="customer.tnoCnt1 === '0'">
+                    <kw-btn
+                      :label="$t('MSG_BTN_TEL_REJ')"
+                      dense
+                      secondary
+                      class="kw-font-caption py2 ml4"
+                      style="min-height: 20px;"
+                      @click="onClickTelephoneRej"
+                    />
+                  </template>
+                  <template v-if="customer.tnoCnt1 === '1'">
+                    <kw-btn
+                      :label="$t('MSG_BTN_TEL_REJ')"
+                      dense
+                      secondary
+                      class="kw-font-caption py2 ml4"
+                      style="min-height: 20px; background: red;"
+                      @click="onClickTelephoneRej"
+                    />
+                  </template>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_CST_NO')"
@@ -152,7 +169,7 @@
                   :label="$t('MSG_TXT_TEL_NO')"
                 >
                   <p class="w100">
-                    {{ customer.istLocaraTno }}{{ customer.istExnoEncr }}{{ customer.istIdvTno }}
+                    {{ customer.istLocaraTno }}-{{ customer.istExnoEncr }}-{{ customer.istIdvTno }}
                   </p>
                   <kw-btn
                     borderless
@@ -160,20 +177,32 @@
                     icon="cellphone"
                     class="ml12"
                   />
-                  <kw-btn
-                    :label="$t('MSG_BTN_TEL_REJ')"
-                    dense
-                    secondary
-                    class="kw-font-caption py2 ml4"
-                    style="min-height: 20px;"
-                    @click="onClickTelephoneRej"
-                  />
+                  <template v-if="customer.tnoCnt2 === '0'">
+                    <kw-btn
+                      :label="$t('MSG_BTN_TEL_REJ')"
+                      dense
+                      secondary
+                      class="kw-font-caption py2 ml4"
+                      style="min-height: 20px;"
+                      @click="onClickTelephoneRej"
+                    />
+                  </template>
+                  <template v-if="customer.tnoCnt2 === '1'">
+                    <kw-btn
+                      :label="$t('MSG_BTN_TEL_REJ')"
+                      dense
+                      secondary
+                      class="kw-font-caption py2 ml4"
+                      style="min-height: 20px; background: red;"
+                      @click="onClickTelephoneRej"
+                    />
+                  </template>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_MPNO')"
                 >
                   <p class="w100">
-                    {{ customer.istCralLocaraTno }}{{ customer.istMexnoEncr }}{{ customer.istCralIdvTno }}
+                    {{ customer.istCralLocaraTno }}-{{ customer.istMexnoEncr }}-{{ customer.istCralIdvTno }}
                   </p>
                   <kw-btn
                     borderless
@@ -189,14 +218,26 @@
                     style="font-size: 16px;"
                     @click="onClickMessageSend"
                   />
-                  <kw-btn
-                    :label="$t('MSG_BTN_TEL_REJ')"
-                    dense
-                    secondary
-                    class="kw-font-caption py2 ml4"
-                    style="min-height: 20px;"
-                    @click="onClickTelephoneRej"
-                  />
+                  <template v-if="customer.tnoCnt3 === '0'">
+                    <kw-btn
+                      :label="$t('MSG_BTN_TEL_REJ')"
+                      dense
+                      secondary
+                      class="kw-font-caption py2 ml4"
+                      style="min-height: 20px;"
+                      @click="onClickTelephoneRej"
+                    />
+                  </template>
+                  <template v-if="customer.tnoCnt3 === '1'">
+                    <kw-btn
+                      :label="$t('MSG_BTN_TEL_REJ')"
+                      dense
+                      secondary
+                      class="kw-font-caption py2 ml4"
+                      style="min-height: 20px; background: red;"
+                      @click="onClickTelephoneRej"
+                    />
+                  </template>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
@@ -296,7 +337,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_AUTO_FNT')"
                 >
-                  <p>{{ customer.vtAc }}</p>
+                  <p>({{ customer.bnk }}){{ customer.vtAc }}</p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_FNT_DT')"
