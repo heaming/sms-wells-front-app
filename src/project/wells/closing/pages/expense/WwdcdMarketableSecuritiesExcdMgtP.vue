@@ -356,10 +356,9 @@ async function setCalcData(pdstOpt, rate) {
 // 균등분배
 async function onClickEquality() {
   const subView = grdSubRef.value.getView();
-  const subViewDatas = gridUtil.getAllRowValues(subView);
+  const subViewRows = gridUtil.getAllRowValues(subView);
 
-  // 소속별로 비율 구함
-  const rate = (100 / (subViewDatas.length * 100)); // 공통적용 될 비율 구함
+  const rate = (100 / (subViewRows.length * 100)); // 공통적용 될 비율 구함
   const pdstOpt = '01';
   await setCalcData(pdstOpt, rate);
 }
