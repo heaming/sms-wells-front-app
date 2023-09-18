@@ -42,7 +42,7 @@
         <kw-search-item :label="t('MSG_TXT_BAD_DV')">
           <kw-select
             v-model="searchParams.badDivide"
-            :options="codes.BAD_DV_CD"
+            :options="badDvCdList"
             first-option="all"
           />
         </kw-search-item>
@@ -125,6 +125,11 @@ const codes = await codeUtil.getMultiCodes(
   'BAD_DV_CD',
   'PD_GRP_CD',
 );
+
+// 서비스 > 실적..불량구분은 100, 400, 500, 700 만 사용
+const badCdValue = ['100R', '400R', '500R', '700R'];
+const badDvCdList = codes.BAD_DV_CD.filter((v) => badCdValue.includes(v.codeId));
+console.log('badDvCdList >>>>>', badDvCdList);
 
 const { getPartMaster } = smsCommon();
 
