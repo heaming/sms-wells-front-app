@@ -148,9 +148,9 @@ const pageInfo = ref({
 });
 
 const codes = await codeUtil.getMultiCodes(
-  'RSTL_BASE_TP_CD', // WELLS 대상 직급 A,B,C,D
-  'RSTL_SELL_CHNL_DV_CD', // (상품구분)
-  'COD_PAGE_SIZE_OPTIONS', // 전체, 영업부, SalesTM
+  'RSTL_BASE_TP_CD', // 재약정기준유형코드 - [A,B,C,D]
+  'RSTL_SELL_CHNL_DV_CD', // 재약정판매채널구분코드 [전체, 영업부, 방문판매, TM, SalesTM]
+  'COD_PAGE_SIZE_OPTIONS',
 );
 codes.COD_YN = [{ codeId: 'Y', codeName: 'Y' }, { codeId: 'N', codeName: 'N' }];
 

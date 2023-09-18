@@ -50,24 +50,21 @@
       </kw-form-row>
     </kw-form>
 
-    <!-- <kw-separator /> -->
-    <h3>{{ grd3rdTit.codeName ?? t('MSG_TXT_REP_PROD') }}</h3>
+    <h3>{{ grd3rdTit.codeName ?? t('MSG_TXT_REP_PROD', null, '대체품') }}</h3>
     <kw-grid
       ref="grd3rdRef"
       :need-context-menu="false"
       :visible-rows="visibleRowCnt3"
       @init="initGrd3rd"
     />
-    <!-- <kw-separator /> -->
-    <h3>{{ grd2ndTit.codeName ?? t('MSG_TXT_AVOID_EAT_ALONE') }}</h3>
+    <h3>{{ grd2ndTit.codeName ?? t('MSG_TXT_AVOID_EAT_ALONE', null, '혼식불가') }}</h3>
     <kw-grid
       ref="grd2ndRef"
       :need-context-menu="false"
       :visible-rows="visibleRowCnt2"
       @init="initGrd2nd"
     />
-    <!-- <kw-separator /> -->
-    <h3>{{ grd1stTit.codeName ?? t('MSG_TXT_AS_PART') }}</h3>
+    <h3>{{ grd1stTit.codeName ?? t('MSG_TXT_AS_PART', null, 'AS부품') }}</h3>
     <kw-grid
       ref="grd1stRef"
       :need-context-menu="false"
