@@ -42,6 +42,8 @@
           <kw-select
             v-model="searchParams.qlfDvCd"
             :options="codes.QLF_DV_CD"
+            first-option="all"
+            first-option-value=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -78,16 +80,12 @@
 
       <kw-grid
         ref="grdMain1Ref"
-        name="grdMain"
+        name="grdMain1"
         :visible-rows="grdMain1PageInfo.pageSize - 1"
         :page-size="grdMain1PageInfo.pageSize"
         :total-count="grdMain1PageInfo.totalCount"
         @init="initGrid1"
       />
-      <!-- <kw-pagination
-        :model-value="1"
-        :total-count="100"
-      /> -->
 
       <h3>{{ $t('MSG_TXT_DTL_PS') }}</h3>
       <kw-action-top>
@@ -168,10 +166,10 @@ const isDisableCancelBtn = ref(true);
 // 자격보류
 const isDisableHoldingBtn = ref(true);
 
-// 당월승급
+// 당월개시
 const isDisableThisMonthUpgradesBtn = ref(true);
 
-// 승급
+// 개시
 const isDisableUpgradesBtn = ref(true);
 
 // -------------------------------------------------------------------------------------------------
@@ -206,8 +204,6 @@ const searchParams = ref({
   prntrKnm: undefined,
   qlfDvCd: undefined,
 });
-
-const selectedRow = ref({});
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/partner/planner-license/paging', { params: { ...searchParams.value, ...grdMain1PageInfo.value } });
@@ -271,11 +267,13 @@ async function currentRowDetail(currentRow) {
         isDisableHoldingBtn.value = true;
       }
 
-      // 당월승급 버튼, 승급 버튼
-      if ((response[0].qlfDvCd === '2' && edu143)
+      // 당월개시 버튼, 개시 버튼
+      if (
+        (response[0].qlfDvCd === '2' && edu143)
         || (response[0].qlfDvCd === '2' && edu96)
         || (response[0].qlfDvCd === '6' && edu96)
-        || response[0].qlfAplcDvCd === '3') {
+        || response[0].qlfAplcDvCd === '3'
+      ) {
         isDisableThisMonthUpgradesBtn.value = false;
         isDisableUpgradesBtn.value = false;
       } else {
@@ -294,6 +292,7 @@ async function currentRowDetail(currentRow) {
 async function init() {
   const response = await fetchData();
   setGrdMain1(response);
+  grdMain2Ref.value.getView().getDataSource().clearRows();
 }
 
 async function onclickSearch() {
@@ -325,11 +324,13 @@ async function onClickExcelDownload() {
   });
 }
 
-function getTargetQualification(item, details) {
+function getTargetQualification(item, details, type) {
   const result = {
     targetQlfDvCd: undefined,
     targetQlfAplcDvCd: undefined,
+    strtdt: `${dayjs().add(1, 'M').format('YYYYMM')}01`,
     cvdt: undefined,
+    enddt: dayjs('99991231').format('YYYYMMDD'),
   };
 
   result.targetQlfAplcDvCd = '1'; // 승급
@@ -339,22 +340,51 @@ function getTargetQualification(item, details) {
     result.targetQlfDvCd = '3'; // 웰스매니저
   } else if (details[0].qlfDvCd === '6' && item.edu96) {
     result.targetQlfDvCd = '3'; // 웰스매니저
-    result.cvdt = dayjs().format('YYYYMMDD'); // 전환일자
+
+    if (type === 'THIS_OPENING') {
+      result.cvdt = dayjs().format('YYYYMMDD'); // 전환일자
+    } else {
+      result.cvdt = result.strtdt;
+    }
+  }
+
+  switch (type) {
+    case 'CANCEL':
+      // 해약
+      result.ogId = item.ogId;
+      result.targetQlfDvCd = details[0].qlfDvCd;
+      result.strtdt = details[0].strtdt;
+      result.enddt = dayjs(result.strtdt).format('YYYYMM').concat(dayjs(result.strtdt).daysInMonth());
+      break;
+    case 'HOLDING':
+      // 보류
+      result.targetQlfAplcDvCd = '3'; // 보류
+      result.targetQlfDvCd = details[0].qlfDvCd;
+      result.strtdt = details[0].strtdt;
+      break;
+    case 'THIS_OPENING':
+      // 당월개시
+      result.strtdt = dayjs().format('YYYYMMDD');
+      result.enddt = dayjs('99991231').format('YYYYMMDD');
+      break;
+    default:
+      // 차월개시
+      result.enddt = dayjs('99991231').format('YYYYMMDD');
   }
 
   return result;
 }
 
 async function onClickUpgrades(type) {
-  const { ogId: currentRowOgId, ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo } = selectedCurrentRow.value;
-  const strtdt = `${dayjs().add(1, 'M').format('YYYYMM')}01`;
-  const qualification = getTargetQualification(selectedCurrentRow.value, grdMain2Datas.value);
+  const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo } = selectedCurrentRow.value;
+  const qualification = getTargetQualification(selectedCurrentRow.value, grdMain2Datas.value, type);
 
   const params = {
     ogTpCd: currentRowOgTpCd,
     prtnrNo: currentRowPrtnrNo,
     qlfDvCd: qualification.targetQlfDvCd,
-    strtdt,
+    strtdt: qualification.strtdt,
+    enddt: qualification.enddt,
     cvdt: qualification.cvdt,
     qlfAplcDvCd: qualification.targetQlfAplcDvCd,
   };
@@ -363,32 +393,18 @@ async function onClickUpgrades(type) {
   let message;
   switch (type) {
     case 'CANCEL':
-      params.ogId = currentRowOgId;
-      params.qlfDvCd = grdMain2Datas.value[0].qlfDvCd;
-      params.strtdt = grdMain2Datas.value[0].strtdt;
-      params.enddt = dayjs(params.strtdt).format('YYYYMM').concat(dayjs(params.strtdt).daysInMonth());
-
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]);
       res = await dataService.put('/sms/wells/partner/planner-qualification-cancel', params);
       break;
     case 'HOLDING':
-      params.qlfAplcDvCd = '3'; // 보류
-      params.qlfDvCd = grdMain2Datas.value[0].qlfDvCd;
-      params.strtdt = grdMain2Datas.value[0].strtdt;
-
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_QLF_HOLDON')]);
       res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
       break;
     case 'THIS_OPENING':
-      params.strtdt = dayjs().format('YYYYMMDD');
-      params.enddt = dayjs('99991231').format('YYYYMMDD');
-      params.cvdt = undefined;
-
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_THM_OPNG')]);
       res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
       break;
     default:
-      params.enddt = dayjs('99991231').format('YYYYMMDD');
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]);
       res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
   }
@@ -398,7 +414,7 @@ async function onClickUpgrades(type) {
     const { processCount } = res?.data;
     if (processCount > 0) {
       notify(message);
-      await currentRowDetail(selectedRow.value);
+      await currentRowDetail(selectedCurrentRow.value);
     }
   }
 }
@@ -503,8 +519,7 @@ const initGrid1 = defineGrid((data, view) => {
   };
 
   view.onCurrentRowChanged = async (grid, oldRow, newRow) => {
-    selectedRow.value = gridUtil.getRowValue(grid, newRow);
-    await currentRowDetail(selectedRow.value);
+    await currentRowDetail(gridUtil.getRowValue(grid, newRow));
   };
 });
 
