@@ -916,7 +916,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
     { fieldName: 'feePerfTpCd', header: t('MSG_TXT_PD_GRP'), width: '120', styleName: 'text-center', options: codes.FEE_PERF_TP_CD },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '120', styleName: 'text-left' },
-    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right' },
+    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '120', styleName: 'text-right', numberFormat: '#,###,##0' },
     { fieldName: 'bfsvcPrdCd', header: `BS${t('MSG_TXT_CYCL')}`, width: '120', styleName: 'text-right' },
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center', options: codes.MCHN_CH_TP_CD },
 
