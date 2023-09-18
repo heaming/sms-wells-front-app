@@ -185,7 +185,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('/sms/wells/service/wells-manager-incharge-excd/paging', { params: { ...cachedParams, ...pageInfo.value, timeout: 300000 } });
+  const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('/sms/wells/service/wells-manager-incharge-excd/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 300000 });
 
   list.forEach((row) => {
     if (row.cralLocaraTno && row.mexnoEncr && row.cralIdvTno) { row.mobileTno = `${row.cralLocaraTno}-${row.mexnoEncr}-${row.cralIdvTno}`; }
