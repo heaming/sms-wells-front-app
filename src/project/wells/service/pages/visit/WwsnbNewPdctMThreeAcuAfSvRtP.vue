@@ -171,8 +171,10 @@ async function onClickSave() {
 
       // 신규 등록시 상품대분류 코드 셋팅
       v.pdHclsfId = pdGrpDtlList.value.filter((pdListData) => pdListData.svpdItemGr === v.pdGrpCd)[0].pdHclsfId;
+      v.pdCd = v.nmKor;
     }
   });
+  console.log('changedRows >>>>>', changedRows);
 
   await dataService.post('/sms/wells/service/newpd-m-three-acu-af-sv-rt/pd-result-changes', changedRows);
 
