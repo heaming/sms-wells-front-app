@@ -101,7 +101,8 @@
           inset
         />
         <kw-btn
-          grid-action
+          dense
+          primary
           :label="$t('MSG_BTN_OSTR_CTFC_PRNT')"
           :disable="pageInfo.totalCount === 0"
           @click="onClickPrint"
@@ -289,7 +290,7 @@ async function onClickPrint() {
 
   const itmOstrNo = checkedRows.map((v) => (v.itmOstrNo)).join('|');
 
-  openReportPopup(
+  await openReportPopup(
     '/kyowon_as/stckout.ozr',
     '/kyowon_as/stckout.odi',
     JSON.stringify({ ITM_OSTR_NO: itmOstrNo }),
