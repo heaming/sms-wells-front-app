@@ -44,7 +44,7 @@
           required
         >
           <kw-date-picker
-            v-model:from="searchParams.mgtYnm"
+            v-model="searchParams.mgtYnm"
             :label="$t('MSG_TXT_MGT_YNM')"
             type="month"
             rules="required"
@@ -219,8 +219,8 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-left',
       datetimeFormat: 'HH:mm:ss' },
-    // { fieldName: 'bsInMthdCd', header: t('MSG_TXT_TIME_COMP'), width: '80', styleName: 'text-left' },
-    // { fieldName: 'vstFshDt', header: t('MSG_TXT_SCN') + t('MSG_TXT_DT'), width: '160', styleName: 'text-left' },
+    { fieldName: 'vstInTime', header: t('MSG_TXT_TIME_COMP'), width: '80', styleName: 'text-left' },
+    { fieldName: 'scnDtm', header: t('MSG_TXT_SCN') + t('MSG_TXT_DT'), width: '160', styleName: 'text-left', datetimeFormat: 'YYYY-MM-DD HH:mm:ss' },
     { fieldName: 'bsInMthdCd', header: t('MSG_TXT_SCN'), width: '150', styleName: 'text-left' },
     { fieldName: 'vstFshDt',
       header: t('MSG_TXT_VST_DT'),
@@ -260,13 +260,13 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_PROM_DT'),
       direction: 'horizontal',
-      items: ['vstDuedt', 'vstExpHh'],
+      items: ['vstDuedt', 'vstExpHh', 'vstInTime'],
     },
 
     {
       header: t('MSG_TXT_CMPLTD'),
       direction: 'horizontal',
-      items: ['bsInMthdCd', 'vstFshDt', 'vstFshHh', 'vstPrgsStatCd', 'cnfmPsicPrtnrNo', 'prtnrKnm'],
+      items: ['scnDtm', 'bsInMthdCd', 'vstFshDt', 'vstFshHh', 'vstPrgsStatCd', 'cnfmPsicPrtnrNo', 'prtnrKnm'],
     },
     {
       header: t('MSG_TXT_HPCALL'),
