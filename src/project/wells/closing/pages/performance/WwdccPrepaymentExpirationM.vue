@@ -476,6 +476,14 @@ async function onClickSendMessage() {
   await onClickCharacterFwUldSearch();
 }
 
+function isEditable(grid, dataCell) {
+  const ret = {};
+  const prmReAplcYn = grid.getValue(dataCell.index.itemIndex, 'prmReAplcYn');
+  ret.styleName = (prmReAplcYn === 'Y') ? 'rg-button-toggle rg-button-disabled' : 'rg-button-toggle';
+  ret.renderer = (prmReAplcYn === 'Y') ? { editable: false } : { editable: true };
+  return ret;
+}
+
 /*
 async function fetchinqrDvs() {
   const response = await dataService.get('/sms/wells/closing/performance/prepayment-expiration/inqrDvs');
@@ -738,20 +746,9 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
       fieldName: 'prmReAplcYn',
       header: t('MSG_TXT_FW_OJ'),
       width: '100',
-      styleName: 'rg-button-toggle rg-button-disabled',
       options: [{ codeId: 'Y', codeName: t('MSG_TXT_EXCD') }, { codeId: 'N', codeName: t('MSG_TXT_INC') }],
-      styleCallback(grid, dataCell) {
-        const ret = {};
-        const { prmReAplcYn } = grid.getValues(dataCell.index.itemIndex);
-        if (prmReAplcYn === 'Y') {
-          ret.renderer = { type: 'radio', editable: false };
-          ret.styleName = 'rg-button-toggle rg-button-disabled';
-        } else {
-          ret.renderer = { type: 'radio', editable: true };
-          ret.styleName = 'rg-button-toggle';
-        }
-        return ret;
-      },
+      renderer: { type: 'radio' },
+      styleCallback(grid, dataCell) { return isEditable(grid, dataCell); },
     },
     { fieldName: 'prmEndMm', width: '250', styleName: 'text-center', visible: false, editable: false },
     { fieldName: 'pdCd', width: '250', styleName: 'text-center', visible: false, editable: false },
