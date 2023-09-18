@@ -288,7 +288,7 @@ const perfLast201903AndDstrcColumnLayout = [
   {
     header: t('MSG_TXT_BASE_INF'),
     direction: 'horizontal',
-    items: ['perfYm', 'baseYm', 'ogCd', 'prtnrKnm', 'prtnrNo', 'dstrcGd', 'atdcDc', 'perfDvCd', 'brchDec', 'sellAmt', 'ackmtPerfRt', 'oneteamYn'],
+    items: ['perfYm', 'baseYm', 'ogCd', 'prtnrKnm', 'prtnrNo', 'pstnDvCd', 'dstrcGd', 'atdcDc', 'perfDvCd', 'brchDec', 'sellAmt', 'ackmtPerfRt', 'oneteamYn'],
   },
   'homeCare',
   {
