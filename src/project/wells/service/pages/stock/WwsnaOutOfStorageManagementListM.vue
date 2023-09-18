@@ -101,7 +101,8 @@
           inset
         />
         <kw-btn
-          grid-action
+          dense
+          primary
           :label="$t('MSG_BTN_OSTR_CTFC_PRNT')"
           :disable="pageInfo.totalCount === 0"
           @click="onClickPrint"
