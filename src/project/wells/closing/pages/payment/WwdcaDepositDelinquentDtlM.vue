@@ -370,6 +370,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_TOT_ACC_N'),
       width: '120',
       styleName: 'text-right',
+      hint: t('MSG_TXT_THM_NW_NOM_DLQ_ACC_N_SUM'),
       dataType: 'number',
       groupFooter: {
         numberFormat: '#,##0',
@@ -381,6 +382,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_UCAM_TAM'),
       width: '120',
       styleName: 'text-right',
+      hint: t('MSG_TXT_THM_NW_NOM_UC_DLQ_SUM'),
       dataType: 'number',
       groupFooter: {
         numberFormat: '#,##0',
@@ -448,6 +450,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_UC_AMT'),
       width: '110',
       styleName: 'text-right',
+      hint: t('MSG_TXT_DLQ_AMT_EXCD_NOM_BIL_INC'),
       dataType: 'number',
       groupFooter: {
         numberFormat: '#,##0',
@@ -459,6 +462,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_ACC_N'),
       width: '90',
       styleName: 'text-right',
+      hint: t('MSG_TXT_NOM_ACC_N_DLQ_ACC_EXCD'),
       dataType: 'number',
       groupFooter: {
         numberFormat: '#,##0',
@@ -506,6 +510,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_DLQ_AMT'),
       width: '110',
       styleName: 'text-right',
+      hint: t('MSG_TXT_DLQ_ADAMT_EXCD_AMT'),
       dataType: 'number',
       groupFooter: {
         numberFormat: '#,##0',
@@ -539,6 +544,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_UC_CPR_DLQR'),
       width: '170',
       styleName: 'text-right',
+      hint: t('MSG_TXT_DLQ_AMT_DP_UCAM_TAM'),
       dataType: 'number',
       numberFormat: '#,##0.##',
       groupFooter: {
@@ -596,9 +602,10 @@ const initGrdMain = defineGrid((data, view) => {
           return Number.isNaN(rtSum) ? 0 : rtSum;
         } } },
     { fieldName: 'bilAgg',
-      header: t('MSG_TXT_BIL_AGG'),
+      header: t('MSG_TXT_SL_AGG'),
       width: '140',
       styleName: 'text-right',
+      hint: t('MSG_TXT_ACU_BIL_AMT'),
       dataType: 'number',
       groupFooter: {
         numberFormat: '#,##0',
