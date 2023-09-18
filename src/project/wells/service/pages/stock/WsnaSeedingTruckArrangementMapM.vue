@@ -580,5 +580,6 @@ const initLabelGrid = defineGrid((data, view) => {
   const fields = columns.map(({ fieldName, nanText }) => (nanText ? { fieldName, dataType: 'number' } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
+  view.setVisible(false);
 });
 </script>
