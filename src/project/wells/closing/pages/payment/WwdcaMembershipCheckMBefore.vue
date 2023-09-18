@@ -56,7 +56,7 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
-      :visible-rows="pageInfo.pageSize - 1"
+      :visible-rows="10"
       @init="initGrid"
     />
 
@@ -160,7 +160,7 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_ORD_NO'), width: '146', styleName: 'text-left' },
+    { fieldName: 'col1', header: t('MSG_TXT_ORD_NO'), width: '146', styleName: 'text-center' },
     { fieldName: 'col2', header: t('MSG_TXT_CHECK_DV_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'col3', header: t('MSG_TXT_CHECK_DV_NM'), width: '300', styleName: 'text-left' },
     { fieldName: 'col4', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
