@@ -470,7 +470,7 @@ const ozParam = ref({
 async function onClickLabelPrint() {
   const { strtDt, endDt, wareDvCd, gbYn, hgrWareNo, wareNo, itmPdCd, itmGrCd } = cachedParams;
 
-  openReportPopup(
+  await openReportPopup(
     '/kyowon_as/asFilterLabel.ozr',
     '/kyowon_as/asFilterLabel.odi',
     JSON.stringify({

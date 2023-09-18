@@ -290,7 +290,7 @@ async function onClickPrint() {
 
   const itmOstrNo = checkedRows.map((v) => (v.itmOstrNo)).join('|');
 
-  openReportPopup(
+  await openReportPopup(
     '/kyowon_as/stckout.ozr',
     '/kyowon_as/stckout.odi',
     JSON.stringify({ ITM_OSTR_NO: itmOstrNo }),

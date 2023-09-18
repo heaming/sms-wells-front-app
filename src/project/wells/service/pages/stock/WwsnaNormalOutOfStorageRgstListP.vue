@@ -353,7 +353,7 @@ const ozParam = ref({
 
 // 출고증 출력
 async function openReport(itmOstrNo) {
-  openReportPopup(
+  await openReportPopup(
     '/kyowon_as/stckout.ozr',
     '/kyowon_as/stckout.odi',
     JSON.stringify({ ITM_OSTR_NO: itmOstrNo }),
