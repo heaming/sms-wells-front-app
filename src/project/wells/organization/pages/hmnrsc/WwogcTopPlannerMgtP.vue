@@ -58,6 +58,7 @@
           <kw-date-picker
             v-model="planner.rfdt"
             type="month"
+            :disable="true"
           />
         </kw-form-item>
       </kw-form-row>
@@ -91,6 +92,7 @@
         @click="onClickCancel"
       />
       <kw-btn
+        v-if="isShow"
         :label="$t('MSG_BTN_SAVE')"
         primary
         @click="onClickSave"
@@ -104,12 +106,14 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, stringUtil, useDataService, useGlobal, useModal } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 
 const dataService = useDataService();
 const { cancel: onClickCancel, ok } = useModal();
 const { notify } = useGlobal();
 const { t } = useI18n();
+const thisYm = dayjs().format('YYYYMM');
 const frmMainRef = ref();
 
 const props = defineProps({
@@ -127,13 +131,11 @@ const props = defineProps({
   },
 });
 
-console.log(props);
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const pqlfDvCds = await codeUtil.getCodes('PQLF_DV_CD');
-
+const isShow = ref(false);
 const planner = ref({});
 
 async function fetchData() {
@@ -145,6 +147,12 @@ async function fetchData() {
 
   planner.value = res.data;
   frmMainRef.value.init();
+
+  if (res.data.mngtYm === thisYm) {
+    isShow.value = true;
+  } else {
+    isShow.value = false;
+  }
 }
 
 // 저장

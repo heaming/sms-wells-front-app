@@ -93,13 +93,13 @@
           :label="$t('MSG_BTN_PLAR_REG')"
           secondary
           dense
+          :disable="isShow"
           @click="onClickSave"
         />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :visible-rows="15"
         @init="initGrid"
       />
       <kw-pagination
@@ -142,7 +142,7 @@ const thisYm = dayjs().format('YYYYMM');
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
   mngtYm: thisYm,
-  mOgYn: 'N',
+  mOgYn: 'Y',
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   ogId: undefined,
   prtnrNo: undefined,
@@ -153,6 +153,8 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+
+const isShow = ref(true);
 
 let cachedParams;
 async function fetchData() {
@@ -180,6 +182,12 @@ async function fetchData() {
     view.columnByName('mTotCnt').visible = false;
   }
 
+  // if (searchParams.value.mngtYm === thisYm) {
+  //   isShow.value = false;
+  // } else {
+  //   isShow.value = true;
+  // }
+
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
@@ -188,6 +196,7 @@ async function onClickSearch() {
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+
   await fetchData();
 }
 
@@ -227,6 +236,15 @@ async function onClickSave() {
 
   // await fetchData();
 }
+
+// 계약서 구분에 따른 visible
+watch(() => searchParams.value.mngtYm, async (newVal) => {
+  if (newVal === thisYm) {
+    isShow.value = false;
+  } else {
+    isShow.value = true;
+  }
+}, { immediate: true });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
