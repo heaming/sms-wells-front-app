@@ -440,6 +440,20 @@ async function openFeeControlPopup() {
   });
 }
 
+/*
+ *  Event - 이체자료 생성 후 조정 못하게 막음
+ */
+async function getUseYn(perfYm, ogTpCd, prtnrNo) {
+  const type = 'DML';
+  const res = await dataService.get(`sms/common/fee/schedules/use-control/${perfYm}-${ogTpCd}-${prtnrNo}-${type}`);
+
+  if (res.data === 'N') {
+    isBtnClick.value = true;
+  } else {
+    isBtnClick.value = false;
+  }
+}
+
 async function fetchData(type) {
   const response = await dataService.get(`/sms/wells/fee/individual-fee/mnger-${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
@@ -472,11 +486,14 @@ async function fetchData(type) {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('entrepreneur');
-  await fetchData('base-info');
-  await fetchData('before-services');
-  await fetchData('fee');
-  await fetchData('deduction');
-  await fetchData('control');
+  if (isBtnClick.value === true) {
+    await fetchData('base-info');
+    await fetchData('before-services');
+    await fetchData('fee');
+    await fetchData('deduction');
+    await fetchData('control');
+    await getUseYn(searchParams.value.perfYm, 'W02', searchParams.value.no);
+  }
 }
 
 /*
