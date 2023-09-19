@@ -1189,7 +1189,9 @@ async function fetchData() {
   customer.value = response.data;
 
   const res = await dataService.get('/sms/wells/bond/bond-counsel/unusual-articles', { params: cachedParams });
-  customer.value.cnslUnuitmCn = res.data.cnslUnuitmCn;
+  if (res.data.length > 0) {
+    customer.value.cnslUnuitmCn = res.data.cnslUnuitmCn;
+  }
 
   await fetchCustomerDetail();
 }
