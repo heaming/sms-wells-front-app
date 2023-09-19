@@ -26,7 +26,7 @@
             :options="logisticsCenters"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_ITM_NM')">
+        <kw-search-item :label="$t('MSG_TXT_LGST_WK_MTHD_CD')">
           <kw-select
             v-model="searchParams.lgstWkMthdCd"
             :options="products"
@@ -36,7 +36,7 @@
             first-option-value=""
             placeholder="선택"
             rules="required"
-            :label="$t('MSG_TXT_ITM_NM')"
+            :label="$t('MSG_TXT_LGST_WK_MTHD_CD')"
             class="w230"
           />
         </kw-search-item>
@@ -185,7 +185,7 @@ async function fetchLogisticsCenters() {
 
 /* 상품 조회 */
 async function fetchProducts() {
-  const res = await dataService.get(`${baseUrl}/products`, { params: { svBizDclsfCd: '1112' } });
+  const res = await dataService.get(`${baseUrl}/products`, {});
   products.value = res.data;
 }
 
