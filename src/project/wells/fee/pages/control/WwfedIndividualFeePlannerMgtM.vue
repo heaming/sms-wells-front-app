@@ -334,6 +334,20 @@ async function onClickSearchNo() {
   }
 }
 
+/*
+ *  Event - 이체자료 생성 후 조정 못하게 막음
+ */
+async function getUseYn(perfYm, ogTpCd, prtnrNo) {
+  const type = 'DML';
+  const res = await dataService.get(`sms/common/fee/schedules/use-control/${perfYm}-${ogTpCd}-${prtnrNo}-${type}`);
+
+  if (res.data === 'N') {
+    isBtnClick.value = true;
+  } else {
+    isBtnClick.value = false;
+  }
+}
+
 async function fetchData(type) {
   const response = await dataService.get(`/sms/wells/fee/individual-fee/plar-${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
@@ -368,6 +382,7 @@ async function onClickSearch() {
     await fetchData('fee');
     await fetchData('deduction');
     await fetchData('control');
+    await getUseYn(searchParams.value.perfYm, 'W01', searchParams.value.no);
   }
 }
 
