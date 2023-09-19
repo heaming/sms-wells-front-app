@@ -277,6 +277,10 @@ async function fetchData() {
     }
   };
 
+  view.onCellEdited = (grid, itemIndex) => {
+    grid.checkItem(itemIndex, true);
+  };
+
   view.getDataSource().setRows(bldCsmbDeliveries);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
