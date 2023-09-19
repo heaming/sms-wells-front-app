@@ -153,7 +153,6 @@
       <kw-btn
         dense
         secondary
-        icon="upload_on"
         :label="t('MSG_BTN_CAN_MTR_RGST')"
         :disable="!isExpectedConfirm || !isPsic || isNotExpected"
         @click="onClickCancelRgst"
