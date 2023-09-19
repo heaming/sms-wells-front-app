@@ -478,12 +478,10 @@ async function onClickSendMessage() {
 
 function isEditable(grid, dataCell) {
   const ret = {};
-  const prmReAplcYn = grid.getValue(dataCell.index.itemIndex, 'prmReAplcYn');
-  if (prmReAplcYn === 'Y') {
-    ret.renderer = { type: 'radio', editable: false };
+  const orgPrmReAplcYn = grid.getValue(dataCell.index.itemIndex, 'orgPrmReAplcYn');
+  if (orgPrmReAplcYn === 'Y') {
     ret.styleName = 'rg-button-toggle rg-button-disabled';
   } else {
-    ret.renderer = { type: 'radio', editable: true };
     ret.styleName = 'rg-button-toggle';
   }
   return ret;
@@ -713,6 +711,7 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
     { fieldName: 'prmEndYm' },
     { fieldName: 'mmpmYm' },
     { fieldName: 'prmReAplcYn' },
+    { fieldName: 'orgPrmReAplcYn' },
     { fieldName: 'prmEndMm' },
     { fieldName: 'pdCd' },
     { fieldName: 'pdNm' },
@@ -750,10 +749,12 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
     {
       fieldName: 'prmReAplcYn',
       header: t('MSG_TXT_FW_OJ'),
+      renderer: { type: 'radio' },
       width: '100',
       options: [{ codeId: 'Y', codeName: t('MSG_TXT_EXCD') }, { codeId: 'N', codeName: t('MSG_TXT_INC') }],
       styleCallback(grid, dataCell) { return isEditable(grid, dataCell); },
     },
+    { fieldName: 'orgPrmReAplcYn', width: '80', styleName: 'text-center', visible: false, editable: false },
     { fieldName: 'prmEndMm', width: '250', styleName: 'text-center', visible: false, editable: false },
     { fieldName: 'pdCd', width: '250', styleName: 'text-center', visible: false, editable: false },
     { fieldName: 'pdNm', width: '250', styleName: 'text-center', visible: false, editable: false },
@@ -772,6 +773,14 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
   view.editOptions.editable = true;
+
+  view.onCellEditable = (g, cell) => {
+    const orgPrmReAplcYn = g.getValue(cell.itemIndex, 'orgPrmReAplcYn');
+    if (orgPrmReAplcYn === 'N') {
+      return true;
+    }
+    return false;
+  };
 });
 
 </script>
