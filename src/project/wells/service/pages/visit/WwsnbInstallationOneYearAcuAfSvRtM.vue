@@ -13,7 +13,7 @@
  ****************************************************************************************************
 --->
 <template>
-  <kw-page>
+  <kw-page ref="pageRef">
     <template #header>
       <kw-page-header
         :options="['홈', '품질현황', '품질관리', '설치1년누적A/S율']"
@@ -79,7 +79,8 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info :total-count="pageInfo.totalCount" />
-          <span class="ml8">(단위: 원)</span>
+          <!-- (단위:원) -->
+          <span class="ml8">({{ t('MSG_TXT_UNIT') }}: {{ t('MSG_TXT_CUR_WON') }})</span>
         </template>
         <!-- 인쇄 -->
         <kw-btn

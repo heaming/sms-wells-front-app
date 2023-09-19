@@ -13,7 +13,7 @@
  ****************************************************************************************************
 --->
 <template>
-  <kw-page>
+  <kw-page ref="pageRef">
     <template #header>
       <kw-page-header
         :options="['홈', '품질현황', '품질관리', '총A/S율-ODM/OEM']"
@@ -73,7 +73,8 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info :total-count="pageInfo.totalCount" />
-          <span class="ml8">(단위: 원)</span>
+          <!-- (단위:원) -->
+          <span class="ml8">({{ t('MSG_TXT_UNIT') }}: {{ t('MSG_TXT_CUR_WON') }})</span>
         </template>
         <!-- 인쇄 -->
         <kw-btn
@@ -419,28 +420,5 @@ async function initGrdMain(data, view) {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-
-  // data.setRows([
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A/S건', col2: '204,652', col3: '204,652', col4: '204,652', col5: '204,652', col6: '204,652', col7: '204,652', col8: '204,652', col9: '204,652', col10: '204,652', col11: '204,652', col12: '204,652', col13: '204,652', col14: '204,652' },
-  // ]);
 }
 </script>
