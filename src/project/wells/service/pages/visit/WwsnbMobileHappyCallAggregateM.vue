@@ -122,7 +122,7 @@ const svcCode = (await dataService.get('/sms/wells/service/organizations/service
 const engineers = ref([]);
 
 const searchParams = ref({
-  searchDateFrom: dayjs().format('YYYYMMDD'),
+  searchDateFrom: dayjs().date(1).format('YYYYMMDD'),
   searchDateTo: dayjs().format('YYYYMMDD'),
   ogId: '',
   engId: '',

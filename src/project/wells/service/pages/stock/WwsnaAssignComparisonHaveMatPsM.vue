@@ -29,7 +29,7 @@
             v-model:from="searchParams.strtDt"
             v-model:to="searchParams.endDt"
             :label="$t('MSG_TXT_LOOKUP_PERIOD')"
-            rules="required"
+            :rules="schDataValidation"
           />
         </kw-search-item>
 
@@ -61,14 +61,17 @@
         <!-- 품목구분 -->
         <kw-search-item :label="t('MSG_TXT_ITM_DV')">
           <kw-select
-            v-model="searchParams.pdGrpCd"
-            :options="codes.PD_GRP_CD"
+            v-model="searchParams.itmKndCd"
+            :options="itmKndCdList"
             first-option="all"
-            @change="onChangePdGrpCd"
+            @change="onChangeItmKndCd"
           />
           <kw-select
-            v-model="searchParams.pdCd"
-            :options="selectedProductByPdGrpCd"
+            v-model="searchParams.itmPdCds"
+            :options="optionsItmPdCd"
+            :label="$t('MSG_TXT_ITM_DV')"
+            option-value="pdCd"
+            option-label="pdNm"
             first-option="all"
           />
         </kw-search-item>
@@ -154,13 +157,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, useDataService, gridUtil } from 'kw-lib';
+import { codeUtil, getComponentType, useDataService, gridUtil, validate } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const { t } = useI18n();
-// const { currentRoute } = useRouter();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -173,15 +175,21 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'PD_GRP_CD',
   'WARE_DV_CD',
+  'ITM_KND_CD', // 품목코드
 );
 console.log('codes.COD_PAGE_SIZE_OPTIONS >>>', codes.COD_PAGE_SIZE_OPTIONS);
 console.log('codes.PD_GRP_CD >>>', codes.PD_GRP_CD);
+console.log('codes.ITM_KND_CD >>>', codes.ITM_KND_CD);
+
+// 품목코드
+const itmKndCdList = codes.ITM_KND_CD.filter((v) => ['5', '6'].includes(v.codeId));
+
+const optionsItmPdCd = ref();
+const optionsAllItmPdCd = ref();
 
 const searchParams = ref({
   strtDt: dayjs().startOf('month').format('YYYYMMDD'),
   endDt: dayjs().format('YYYYMMDD'),
-  pdGrpCd: '',
-  pdCd: '',
   sapItemCdFrom: '',
   sapItemCdTo: '',
   strtSapCd: '',
@@ -189,6 +197,8 @@ const searchParams = ref({
   wareDvCd: '2',
   wareNoM: '',
   wareNoD: '',
+  itmKndCd: '',
+  itmPdCds: '',
 });
 
 const wareDvCd = { WARE_DV_CD: [
@@ -205,6 +215,11 @@ const pageInfo = ref({
 
 let cachedParams;
 
+// const itmKndCdList = ref([]);
+// eslint-disable-next-line max-len
+// itmKndCdList.value = (await dataService.get('/sms/wells/service/bs-regular-shipping/products', { params: searchParams.value })).data;
+// console.log('itmKndCdList.value >>>', itmKndCdList.value);
+
 function onChangeStdWareDvCd() {
   searchParams.value.wareNoM = '';
   searchParams.value.wareNoD = '';
@@ -214,30 +229,34 @@ function onChagneHgrWareNo() {
   searchParams.value.wareNoD = '';
 }
 
-// Select Component 초기화 - 전체 상품 목록 가져오기
-const products = ref([]);
-const selectedProductByPdGrpCd = ref([]);
+// 품목조회
+const getProductList = async () => {
+  const result = await dataService.get('/sms/wells/service/independence-ware-ostrs/products');
+  optionsItmPdCd.value = result.data;
+  optionsAllItmPdCd.value = result.data;
+};
 
-async function getProductList() {
-  const response = await dataService.get('/sms/wells/service/product-list/by-itmkndcd', { params: { itmKndCd: searchParams.value.itmKndCd } });
-  products.value = response.data;
-  console.log('getProductList products.value >>>', products.value);
+await getProductList();
+
+console.log('optionsItmPdCd.value >>>', optionsItmPdCd.value);
+console.log('optionsAllItmPdCd.value >>>', optionsAllItmPdCd.value);
+
+async function onChangeItmKndCd() {
+  // 품목코드 클리어
+  searchParams.value.itmPdCds = [];
+  const { itmKndCd } = searchParams.value;
+
+  if (isEmpty(itmKndCd)) {
+    optionsItmPdCd.value = optionsAllItmPdCd.value;
+    return;
+  }
+  console.log('itmKndCd >>>', itmKndCd);
+  optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 }
 
-onMounted(async () => {
-  await getProductList();
-  selectedProductByPdGrpCd.value = cloneDeep(products.value);
-  selectedProductByPdGrpCd.value = selectedProductByPdGrpCd.value.map((v) => ({ codeId: v.codeId, codeName: `${v.codeId} - ${v.codeName}` }));
-});
-
-const onChangePdGrpCd = (val) => {
-  console.log('onChangePdGrpCd val >>>', val);
-  if (val.length < 1) {
-    selectedProductByPdGrpCd.value = cloneDeep(products.value);
-  } else {
-    selectedProductByPdGrpCd.value = products.value.filter((v) => v.pdGrpCd === val);
-  }
-};
+// onMounted(async () => {
+//   await getProductList();
+// });
 
 function onChangeStrtSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
@@ -248,9 +267,17 @@ function onChangeStrtSapCd() {
   }
 }
 
+function onChangeEndSapCd() {
+  const { strtSapCd, endSapCd } = searchParams.value;
+
+  if (!isEmpty(strtSapCd) && !isEmpty(endSapCd) && strtSapCd > endSapCd) {
+    searchParams.value.strtSapCd = endSapCd;
+    searchParams.value.endSapCd = endSapCd;
+  }
+}
+
 async function fetchData() {
   console.log('fetchData START');
-  cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/service/assign-cpr-hv-mat-ps/paging', { params: { ...cachedParams, ...pageInfo.value } });
   console.log('fetchData res.data >>>', res.data);
   const { list, pageInfo: pagingResult } = res.data;
@@ -262,7 +289,20 @@ async function fetchData() {
   view.resetCurrent();
 }
 
+const schDataValidation = async (val, options) => {
+  const errors = [];
+  errors.push(
+    ...(await validate(val, 'date_range_required', options)).errors,
+  );
+  const monthDiff = dayjs(searchParams.value.strtDt).startOf('month').diff(dayjs(searchParams.value.endDt).startOf('month'), 'month');
+  if (monthDiff <= -12) {
+    errors.push(t('MSG_ALT_SEARCH_UNDER_MN', [t('12')]));
+  }
+  return errors[0] || true;
+};
+
 async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 

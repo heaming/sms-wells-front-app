@@ -155,17 +155,11 @@ const pageInfo = ref({
 });
 
 // 서비스유형 중분류..공통코드 있을거 같은데...
-// 전체[00], 제품A/S[01], 특별A/S[02], 제품원인[03], 설치원인[04], 고객원인[05], 부품원인[06]
+// 전체, 제품A/S, 특별A/S, 제품원인
 const serviceTypes = [
-  // { codeId: '3112', codeName: '특별A/S' },
-  // { codeId: '3210', codeName: '제품원인' },
-  // { codeId: '3110', codeName: '제품A/S' },
-  { codeId: '01', codeName: '제품A/S' },
-  { codeId: '02', codeName: '특별A/S' },
-  { codeId: '03', codeName: '제품원인' },
-  { codeId: '04', codeName: '설치원인' },
-  { codeId: '05', codeName: '고객원인' },
-  { codeId: '06', codeName: '부품원인' },
+  { codeId: '3110', codeName: '제품A/S' },
+  { codeId: '3112', codeName: '특별A/S' },
+  { codeId: '3210', codeName: '제품원인' },
 ];
 
 // 소분류(불량구분)...일단 공통코드 BAD_DV_CD 사용
