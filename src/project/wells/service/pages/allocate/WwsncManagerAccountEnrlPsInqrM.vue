@@ -42,7 +42,8 @@
           <!-- rev:230420 page-size 제거 -->
           <kw-paging-info :total-count="topGridTotalCount" />
           <!-- rev:230420 page-size 제거 // -->
-          <span class="ml8">(단위 : 명)</span>
+          <!-- (단위 : 명) -->
+          <span class="ml8">({{ t('MSG_TXT_UNIT') }} : {{ t('MSG_TIT_CNT') }})</span>
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
@@ -50,7 +51,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.topGridTotalCount === 0"
+          :disable="topGridTotalCount === 0"
           @click="onClickTopGridExcelDownload"
         />
       </kw-action-top>
@@ -195,9 +196,10 @@ async function onClickTopGridExcelDownload() {
 **========================================= */
 async function onClickBottomGridExcelDownload() {
   console.log('onClickBottomGridExcelDownload START');
+  cachedParams = cloneDeep(searchParams.value);
   const view = grdBottomRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/manager-account-enrl-ps/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/manager-acc-enrl-ps-inqr/manager-account-enrl-ps/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: '매니저 계정 및 재적 현황',
     timePostfix: true,
@@ -301,28 +303,5 @@ function initBottomGrid(data, view) {
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-
-  // data.setRows([
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // ]);
 }
 </script>

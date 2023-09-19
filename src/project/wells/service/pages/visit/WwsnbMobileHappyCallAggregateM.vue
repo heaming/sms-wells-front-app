@@ -13,7 +13,7 @@
  ****************************************************************************************************
 --->
 <template>
-  <kw-page>
+  <kw-page ref="pageRef">
     <template #header>
       <kw-page-header
         :options="['홈','정보관리','서비스종합평가','모바일해피콜 집계']"
@@ -73,8 +73,10 @@
         <kw-btn
           icon="print"
           dense
-          label="인쇄"
           secondary
+          :label="t('MSG_BTN_PRTG')"
+          :disable="totalCount === 0"
+          @click="onClickPrintEl"
         />
         <kw-btn
           icon="download_on"
@@ -101,6 +103,7 @@
 import { codeUtil, useDataService, getComponentType, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import { printElement } from '~common/utils/common';
 
 const { t } = useI18n();
 
@@ -122,7 +125,7 @@ const svcCode = (await dataService.get('/sms/wells/service/organizations/service
 const engineers = ref([]);
 
 const searchParams = ref({
-  searchDateFrom: dayjs().format('YYYYMMDD'),
+  searchDateFrom: dayjs().date(1).format('YYYYMMDD'),
   searchDateTo: dayjs().format('YYYYMMDD'),
   ogId: '',
   engId: '',
@@ -172,6 +175,11 @@ async function fetchData() {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+const pageRef = ref();
+async function onClickPrintEl() {
+  printElement(pageRef);
 }
 
 async function onClickExcelDownload() {
@@ -225,43 +233,6 @@ function initGrid(data, view) {
   view.setColumns(columns);
 
   view.rowIndicator.visible = true;
-
-  // view.setColumnLayout([
-  //   'col1', 'col2', 'col3', 'col4', 'col5',
-  //   {
-  //     header: '평가반영', // colspan title
-  //     direction: 'horizontal', // merge type
-  //     items: ['col6', 'col7', 'col8', 'col9'],
-  //   },
-  //   {
-  //     header: '응답건', // colspan title
-  //     direction: 'horizontal', // merge type
-  //     items: ['col10', 'col11', 'col12', 'col13'],
-  //   },
-  //   'col14',
-  // ]);
-  // data.setRows([
-  // eslint-disable-next-line max-len
-  //   { col1: '북부서비스센터', col2: '북부 4조', col3: '36679', col4: '김동우', col5: '2018-11-24', col6: '76.7', col7: '63.0', col8: '6등급', col9: '75', col10: '28', col11: '58.0', col12: '5등급', col13: '80', col14: '18.2' },
-  // eslint-disable-next-line max-len
-  //   { col1: '북부서비스센터', col2: '북부 4조', col3: '36679', col4: '김동우', col5: '2018-11-24', col6: '76.7', col7: '63.0', col8: '6등급', col9: '75', col10: '28', col11: '58.0', col12: '5등급', col13: '80', col14: '18.2' },
-  // eslint-disable-next-line max-len
-  //   { col1: '북부서비스센터', col2: '북부 4조', col3: '36679', col4: '김동우', col5: '2018-11-24', col6: '76.7', col7: '63.0', col8: '6등급', col9: '75', col10: '28', col11: '58.0', col12: '5등급', col13: '80', col14: '18.2' },
-  // eslint-disable-next-line max-len
-  //   { col1: '북부서비스센터', col2: '북부 4조', col3: '36679', col4: '김동우', col5: '2018-11-24', col6: '76.7', col7: '63.0', col8: '6등급', col9: '75', col10: '28', col11: '58.0', col12: '5등급', col13: '80', col14: '18.2' },
-  // eslint-disable-next-line max-len
-  //   { col1: '북부서비스센터', col2: '북부 4조', col3: '36679', col4: '김동우', col5: '2018-11-24', col6: '76.7', col7: '63.0', col8: '6등급', col9: '75', col10: '28', col11: '58.0', col12: '5등급', col13: '80', col14: '18.2' },
-  // eslint-disable-next-line max-len
-  //   { col1: '북부서비스센터', col2: '북부 4조', col3: '36679', col4: '김동우', col5: '2018-11-24', col6: '76.7', col7: '63.0', col8: '6등급', col9: '75', col10: '28', col11: '58.0', col12: '5등급', col13: '80', col14: '18.2' },
-  // eslint-disable-next-line max-len
-  //   { col1: '북부서비스센터', col2: '북부 4조', col3: '36679', col4: '김동우', col5: '2018-11-24', col6: '76.7', col7: '63.0', col8: '6등급', col9: '75', col10: '28', col11: '58.0', col12: '5등급', col13: '80', col14: '18.2' },
-  // eslint-disable-next-line max-len
-  //   { col1: '북부서비스센터', col2: '북부 4조', col3: '36679', col4: '김동우', col5: '2018-11-24', col6: '76.7', col7: '63.0', col8: '6등급', col9: '75', col10: '28', col11: '58.0', col12: '5등급', col13: '80', col14: '18.2' },
-  // eslint-disable-next-line max-len
-  //   { col1: '북부서비스센터', col2: '북부 4조', col3: '36679', col4: '김동우', col5: '2018-11-24', col6: '76.7', col7: '63.0', col8: '6등급', col9: '75', col10: '28', col11: '58.0', col12: '5등급', col13: '80', col14: '18.2' },
-  // eslint-disable-next-line max-len
-  //   { col1: '북부서비스센터', col2: '북부 4조', col3: '36679', col4: '김동우', col5: '2018-11-24', col6: '76.7', col7: '63.0', col8: '6등급', col9: '75', col10: '28', col11: '58.0', col12: '5등급', col13: '80', col14: '18.2' },
-  // ]);
 }
 </script>
 

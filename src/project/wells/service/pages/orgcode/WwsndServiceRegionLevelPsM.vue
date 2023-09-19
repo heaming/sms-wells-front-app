@@ -473,14 +473,5 @@ const initGrdMain = defineGrid((data, view) => {
     //   ],
     // },
   ]);
-
-  // multi row header setting
-  // view.setColumnLayout([
-  //   {
-  //     header: '배정정보', // colspan title
-  //     direction: 'horizontal', // merge type
-  //     items: ['pdCd', 'hgrPdCd', 'pdTpCd', 'bzHdqDvCd'],
-  //   },
-  // ]);
 });
 </script>

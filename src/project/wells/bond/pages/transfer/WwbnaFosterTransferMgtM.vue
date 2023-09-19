@@ -133,7 +133,7 @@
         />
         <kw-btn
           v-permission:update
-          :label="$t('확정')"
+          :label="$t('MSG_BTN_CONF')"
           primary
           dense
           :disable="isNotActivated"
@@ -263,7 +263,6 @@ const searchDatail = ref({
   clctamPrtnrNo: '',
 });
 
-// TODO: 세션 MSG_TXT_DIV2가 명확하지 않음
 const { tenantId } = getters['meta/getUserInfo'];
 watch(() => tenantId, (val) => {
   if (val === 'TNT_EDU') {
@@ -644,7 +643,7 @@ const initGridDetail = ((data, view) => {
         console.log(payload);
         const { prtnrNo, prtnrKnm, clctamDvCd } = payload;
         if (cachedParams.clctamDvCd !== clctamDvCd) {
-          await alert(t('해당 계약의 집금구분과 맞는 담당자를 선택해 주세요.'));
+          await alert(t('MSG_ALT_CNTR_CLCTAM_DV_PSIC_FIT')); // 해당 계약의 집금구분과 맞는 담당자를 선택해 주세요.
           data.setValue(dataRow, 'clctamPrtnrNm', '');
           data.setValue(dataRow, 'clctamPrtnrNo', '');
           return false;
@@ -659,7 +658,7 @@ const initGridDetail = ((data, view) => {
     if (index.column === 'clctamPrtnrNm') {
       const { clctamPrtnrNo } = g.getValues(index.itemIndex);
       if (!clctamPrtnrNo) {
-        return t('MSG_ALT_PLZ_USE_CLCTAM_PSIC_POPUP');
+        return t('MSG_ALT_PLZ_USE_CLCTAM_PSIC_POPUP'); // 집금담당자 팝업을 이용해 주세요.
       }
     }
   };

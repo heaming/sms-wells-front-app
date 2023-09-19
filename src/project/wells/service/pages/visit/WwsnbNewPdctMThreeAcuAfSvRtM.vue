@@ -13,7 +13,7 @@
  ****************************************************************************************************
 --->
 <template>
-  <kw-page>
+  <kw-page ref="pageRef">
     <template #header>
       <kw-page-header
         :options="['홈', '품질현황', '품질관리', '신제품 M+3 누적 A/S율']"
@@ -73,7 +73,8 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info :total-count="pageInfo.totalCount" />
-          <span class="ml8">(단위: 원)</span>
+          <!-- (단위: 원) -->
+          <span class="ml8">({{ t('MSG_TXT_UNIT') }}: {{ t('MSG_TXT_CUR_WON') }})</span>
         </template>
         <!-- 인쇄 -->
         <kw-btn
@@ -161,15 +162,14 @@ const pageInfo = ref({
 // 서비스유형 중분류..공통코드 있을거 같은데...
 // 전체[00], 제품A/S[01], 특별A/S[02], 제품원인[03], 설치원인[04], 고객원인[05], 부품원인[06]
 const serviceTypes = [
-  // { codeId: '3112', codeName: '특별A/S' },
-  // { codeId: '3210', codeName: '제품원인' },
-  // { codeId: '3110', codeName: '제품A/S' },
-  { codeId: '01', codeName: '제품A/S' },
-  { codeId: '02', codeName: '특별A/S' },
-  { codeId: '03', codeName: '제품원인' },
-  { codeId: '04', codeName: '설치원인' },
-  { codeId: '05', codeName: '고객원인' },
-  { codeId: '06', codeName: '부품원인' },
+  { codeId: '3110', codeName: '제품A/S' },
+  { codeId: '3112', codeName: '특별A/S' },
+  { codeId: '3210', codeName: '제품원인' },
+  // { codeId: '04', codeName: '설치원인' },
+  { codeId: '3440', codeName: '회사설치' },
+  { codeId: '3230', codeName: '고객원인' },
+  // { codeId: '06', codeName: '부품원인' },
+  { codeId: '3121', codeName: '필터B/S' },
 ];
 
 // 소분류(불량구분)...일단 공통코드 BAD_DV_CD 사용
@@ -253,7 +253,7 @@ const divCd = [
 // -------------------------------------------------------------------------------------------------
 function initGrdMain(data, view) {
   const fields = [
-    { fieldName: 'atcNm' }, // 항목명
+    { fieldName: 'itmKndCd' }, // 항목명
     { fieldName: 'totalCnt', dataType: 'number' }, // 합계
     { fieldName: 'm01', dataType: 'number' }, // 1월
     { fieldName: 'm02', dataType: 'number' }, // 2월
@@ -271,12 +271,12 @@ function initGrdMain(data, view) {
 
   const columns = [
     {
-      fieldName: 'atcNm',
+      fieldName: 'itmKndCd',
       header: t('MSG_TXT_DIV'),
       width: '150',
       displayCallback: (g, i) => {
-        const { atcNm } = gridUtil.getRowValue(g, i.itemIndex);
-        return divCd.find((x) => x.codeId === atcNm).codeName;
+        const { itmKndCd } = gridUtil.getRowValue(g, i.itemIndex);
+        return divCd.find((x) => x.codeId === itmKndCd).codeName;
       },
       headerSummary: {
         text: t('MSG_TXT_SUM'),

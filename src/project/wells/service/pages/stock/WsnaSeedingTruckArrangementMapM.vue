@@ -80,6 +80,11 @@
         :total-count="totalCount"
         @init="initGrid"
       />
+      <kw-grid
+        ref="grdLabelRef"
+        name="grdLabel"
+        @init="initLabelGrid"
+      />
     </div>
   </kw-page>
 </template>
@@ -104,6 +109,7 @@ const dataService = useDataService();
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdSubRef = ref(getComponentType('KwGrid'));
+const grdLabelRef = ref(getComponentType('KwGrid'));
 let cachedParams;
 const totalCount = ref(0);
 
@@ -195,38 +201,18 @@ async function onClickExcelDownload() {
 }
 
 async function onClickLabelDownload() {
-  const view = grdMainRef.value.getView();
+  const view = grdLabelRef.value.getView();
 
   // eslint-disable-next-line max-len
-  const res = await dataService.get('/sms/wells/service/seeding-truck-arrangement-map/map', { params: searchParams.value });
-  const exportLayout = [
-    'dgLctNm',
-    'truckNo',
-    'cart1F',
-    'cart1B',
-    'cart2F',
-    'cart2B',
-    'cart3F',
-    'cart3B',
-    'cart4F',
-    'cart4B',
-    'cart5F',
-    'cart5B',
-    'cart6F',
-    'cart6B',
-    'cart7F',
-    'cart7B',
-    'cart8F',
-    'cart8B',
-    'cart9F',
-    'cart9B',
-  ];
+  const res = await dataService.get('/sms/wells/service/seeding-truck-arrangement-map/label', { params: searchParams.value });
+  view.getDataSource().setRows(res.data);
+  view.resetCurrent();
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data.seedAgrgRes,
-    exportLayout,
+    exportData: res.data,
+    searchCondition: false,
   });
 }
 /*
@@ -577,4 +563,23 @@ const initGrid1 = defineGrid((data, view) => {
   // ]);
 });
 
+const initLabelGrid = defineGrid((data, view) => {
+  const columns = [
+    // eslint-disable-next-line max-len
+    { fieldName: 'dgLctNm', header: 'dgLctNm', width: '70', styleName: 'text-center kw-bc--bg-grid text-weight-medium' },
+    { fieldName: 'baseDt', header: 'baseDt', width: '150', styleName: 'text-left multiline' },
+    { fieldName: 'truckNo', header: 'truckNo', width: '70', styleName: 'text-center' },
+    { fieldName: 'cartNo', header: 'cartNo', width: '70', styleName: 'text-center' },
+    { fieldName: 'cartF', header: 'cartF', width: '150', styleName: 'text-left multiline' },
+    { fieldName: 'cartB', header: 'cartB', width: '150', styleName: 'text-left multiline' },
+
+  ];
+
+  // const fields = columns.map(({ fieldName }) => ({ fieldName }));
+  // eslint-disable-next-line max-len
+  const fields = columns.map(({ fieldName, nanText }) => (nanText ? { fieldName, dataType: 'number' } : { fieldName }));
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.setVisible(false);
+});
 </script>
