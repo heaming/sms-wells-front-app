@@ -534,13 +534,16 @@ const initGrid2 = defineGrid((data, view) => {
       fieldName: 'col1',
       header: t('MSG_TXT_CNTRW_BRWS'),
       width: '92',
-      styleName: 'text-center',
       renderer: { type: 'button',
         hideWhenEmpty: false,
       },
       styleCallback(grid, dataCell) {
         const cntrDt = grid.getValue(dataCell.item.dataRow, 'cntrDt');
-        return { renderer: { type: 'button', hideWhenEmpty: isEmpty(cntrDt) } };
+        return {
+
+          styleName: isEmpty(cntrDt) ? 'text-center rg-button-default rg-button-disabled' : 'text-center rg-button-default',
+          renderer: { type: 'button' },
+        };
       },
       displayCallback: () => t('MSG_BTN_CNTRW_BRWS'),
     },
