@@ -54,13 +54,14 @@
           :label="$t('MSG_TXT_PRDT_CODE')/* 상품코드 */"
         >
           <kw-input
-            v-model="pdCdSearch"
+            v-model="searchParams.basePdCd"
             :label="$t('MSG_TXT_PRDT_CODE')/* 상품코드 */"
-            maxlength="10"
             icon="search"
-            :rules="`is:${searchParams.pdCd||''}`"
+            maxlength="10"
+            :rules="{regex:/^WP[0-9]{1,8}/}"
             :custom-messages="{
-              'is': $t('상품코드를 조회 후 선택해주세요.')
+              'regex': $t('상품코드 형식에 맞게 입력해주세요.'),
+              'is': $t('상품코드를 조회 후 선택해주세요.'),
             }"
             @click-icon="onClickSearchIconOfPdCd"
           />
@@ -71,9 +72,10 @@
           <kw-input
             v-model="prtnrNoSearch"
             :label="$t('MSG_TXT_RGST_ICHR')"
-            maxlength="10"
             icon="search"
-            :rules="`is:${searchParams.sellPrtnrKnm||''}`"
+            maxlength="7"
+            mask="#######"
+            :rules="`is:${prtnrNoSearch ? searchParams.sellPrtnrNo||'' : ''}`"
             :custom-messages="{
               'is': $t('파트너 번호를 조회 후 선택해주세요.')
             }"
@@ -97,7 +99,7 @@
           icon="download_on"
           dense
           secondary
-          :label="t('MSG_BTN_EXCEL_DOWN')"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
@@ -107,8 +109,8 @@
           spaced
         />
         <kw-btn
-          :label="$t('MSG_BTN_PRINT')/* 출력 */"
-          primary
+          :label="$t('MSG_TXT_RPT_BRWS')"
+          icon="report"
           dense
           @click="onClickPrint"
         />
@@ -199,28 +201,26 @@ const fetchPage = async (pageIndex = pageInfo.value.pageIndex, pageSize = pageIn
     pageIndex,
     pageSize,
   };
+  // console.log(JSON.stringify(params, null, '\t'));
   const response = await dataService.get('/sms/wells/contract/rental-change-products/paging', { params });
 
   pageInfo.value = response.data.pageInfo;
   grdData.value.setRows(response.data.list);
 };
 
-const pdCdSearch = ref('');
-
 async function onClickSearchIconOfPdCd() {
   const { result, payload } = await modal({
-    component: 'ZwpdcServiceListP',
+    component: 'ZwpdcStandardListP', // ZwpdcServiceListP',
     componentProps: {
       searchType: pdConst.PD_SEARCH_CODE,
-      searchValue: pdCdSearch.value,
+      searchValue: searchParams.basePdCd,
       selectType: pdConst.PD_SEARCH_SINGLE,
     },
   });
   if (result) {
-    searchParams.pdCd = payload[0].pdCd;
-    pdCdSearch.value = payload[0].pdCd;
+    searchParams.basePdCd = payload[0].pdCd;
   } else {
-    pdCdSearch.value = '';
+    searchParams.basePdCd = '';
   }
 }
 
@@ -234,9 +234,10 @@ async function onClickSearchIconOfPrtnrNo() {
     },
   });
   if (result) {
+    // console.log(JSON.stringify(payload, null, '\t'));
     searchParams.sellPrtnrNo = payload.prtnrNo;
     searchParams.sellPrtnrKnm = payload.prtnrKnm;
-    prtnrNoSearch.value = payload.prtnrKnm;
+    prtnrNoSearch.value = payload.prtnrNo;
   } else {
     prtnrNoSearch.value = '';
   }
@@ -273,7 +274,7 @@ const initGrd = defineGrid((data, view) => {
     cntrNo: { displaying: false },
     cntrSn: { type: Number, displaying: false },
     cntrNoSn: {
-      label: t('MSG_TXT_CNTR_NO'), /* 계약번호 */
+      label: t('MSG_TXT_CNTR_DTL_NO'), /* 계약상세번호 */
       width: 167,
       valueExpression: 'values["cntrNo"] + "-" + values["cntrSn"]',
       classes: 'text-center',
