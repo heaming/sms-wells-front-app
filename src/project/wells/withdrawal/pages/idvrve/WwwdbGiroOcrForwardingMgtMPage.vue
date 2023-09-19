@@ -303,7 +303,7 @@ async function onClickExcelDownload() {
 // 대상조회
 async function onClickObjectSearch() {
   if (await confirm('대상추가를 하시겠습니까?')) { /* 추후에 메시지 바뀔 예정이라 추후 채번 예정 */
-    const res = await dataService.get(`/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects/${'no'}`);
+    const res = await dataService.get(`/sms/wells/withdrawal/idvrve/giro-ocr-forwardings/objects/${'no'}/${null}`);
     if (!res.data.length > 0) {
       notify('추가 할 대상이 없습니다.'); /* 추후에 메시지 바뀔 예정이라 추후 채번 예정 */
       return;
