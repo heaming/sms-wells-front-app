@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTA
 2. 프로그램 ID : WwctaInstallationShippingListM - 설치/배송 조회(W-SS-U-0099M01)
-3. 작성자 : gs.piit165
+3. 작성자 : Myoungbin Joo
 4. 작성일 : 2023.05.23
 ****************************************************************************************************
 * 프로그램 설명
@@ -935,10 +935,10 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
     return;
   }
 
-  // if (!isEqual(dataList.profile, 'prd')) {
-  //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
-  //   return;
-  // }
+  if (!isEqual(dataList.profile, 'prd')) {
+    alert('처리되었습니다.(개발환경에선 처리 안됨)');
+    return;
+  }
 
   const saveParams = ref({
     cntrNo: dataList.cntrNo,
@@ -979,10 +979,10 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
   let asIstOjNoParam = '';
   let acpgDivParam = '';
 
-  // if (!isEqual(dataList.profile, 'prd')) {
-  //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
-  //   return;
-  // }
+  if (!isEqual(dataList.profile, 'prd')) {
+    alert('처리되었습니다.(개발환경에선 처리 안됨)');
+    return;
+  }
 
   if (!isEqual(dataList.lcCanyn, 'Y')) {
     if (isEqual(dataList.kaetc1, '7')) {

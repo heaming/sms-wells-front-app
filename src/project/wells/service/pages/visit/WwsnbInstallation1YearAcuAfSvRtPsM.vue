@@ -42,7 +42,7 @@
         <kw-search-item :label="t('MSG_TXT_BAD_DV')">
           <kw-select
             v-model="searchParams.badDivide"
-            :options="codes.BAD_DV_CD"
+            :options="badDvCdList"
             first-option="all"
           />
         </kw-search-item>
@@ -125,6 +125,12 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GRP_CD',
 );
 
+// 전체, 모종불량(900R), 제품불량(100R, 901R), 매니저과실(400R), 엔지니어과실(500R, 904R), 품질개선(리콜) 서비스(700R, 906R)
+// 서비스 > 실적..불량구분은 100, 400, 500, 700 만 사용
+const badCdValue = ['100R', '400R', '500R', '700R'];
+const badDvCdList = codes.BAD_DV_CD.filter((v) => badCdValue.includes(v.codeId));
+console.log('badDvCdList >>>>>', badDvCdList);
+
 const { getPartMaster } = smsCommon();
 
 // -------------------------------------------------------------------------------------------------
@@ -159,15 +165,6 @@ const serviceTypes = [
   { codeId: '05', codeName: '고객원인' },
   { codeId: '06', codeName: '부품원인' },
 ];
-
-// 소분류(불량구분)...일단 공통코드 BAD_DV_CD 사용
-// 전체, 모종불량, 제품불량, 매니저과실, 엔지니어과실, 품질개선(리콜) 서비스
-// const badGbTypes = [
-// { codeId: '100R', codeName: '제품불량' },
-// { codeId: '500R', codeName: '엔지니어과실' },
-// { codeId: '400R', codeName: '매니저과실' },
-// { codeId: '700R', codeName: '품질개선(리콜) 서비스' },
-// ];
 
 const pds = ref([]);
 async function changePdGrpCd() {

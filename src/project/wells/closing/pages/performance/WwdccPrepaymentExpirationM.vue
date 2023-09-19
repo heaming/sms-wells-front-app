@@ -479,8 +479,13 @@ async function onClickSendMessage() {
 function isEditable(grid, dataCell) {
   const ret = {};
   const prmReAplcYn = grid.getValue(dataCell.index.itemIndex, 'prmReAplcYn');
-  ret.styleName = (prmReAplcYn === 'Y') ? 'rg-button-toggle rg-button-disabled' : 'rg-button-toggle';
-  ret.renderer = (prmReAplcYn === 'Y') ? { editable: false } : { editable: true };
+  if (prmReAplcYn === 'Y') {
+    ret.renderer = { type: 'radio', editable: false };
+    ret.styleName = 'rg-button-toggle rg-button-disabled';
+  } else {
+    ret.renderer = { type: 'radio', editable: true };
+    ret.styleName = 'rg-button-toggle';
+  }
   return ret;
 }
 
@@ -747,7 +752,6 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
       header: t('MSG_TXT_FW_OJ'),
       width: '100',
       options: [{ codeId: 'Y', codeName: t('MSG_TXT_EXCD') }, { codeId: 'N', codeName: t('MSG_TXT_INC') }],
-      renderer: { type: 'radio' },
       styleCallback(grid, dataCell) { return isEditable(grid, dataCell); },
     },
     { fieldName: 'prmEndMm', width: '250', styleName: 'text-center', visible: false, editable: false },

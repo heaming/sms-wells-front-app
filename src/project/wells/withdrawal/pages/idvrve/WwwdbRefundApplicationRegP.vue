@@ -525,7 +525,7 @@ async function fetchData() {
   pageInfo1.value = pagingResult;
 
   const view = grdPopRef1.value.getView();
-  console.log(application);
+
   view.getDataSource().setRows(application);
 }
 
@@ -814,12 +814,14 @@ async function onClickRefundAsk(stateCode) {
     return false;
   }
 
-  const changedRows3 = gridUtil.getChangedRowValues(view3); // 전금상세 그리드 체크 데이터
+  // const changedRows3 = gridUtil.getChangedRowValues(view3); // 전금상세 그리드 체크 데이터
+
+  const changedRows3 = gridUtil.getChangedRowValues(view3).map((row) => ({
+    ...row, attachFiles: row.atthDocId ? row.atthDocId.files : [],
+  }));
 
   const rows3 = changedRows3.filter((p1) => (Number(p1.rfndBltfAkAmt)) > 0);
 
-  console.log(changedRows3);
-  console.log(rows3);
   // eslint-disable-next-line no-unused-vars
   const changedRows4 = gridUtil.getAllRowValues(view4); // 환불접수총액
   if (changedRows4[0].totRfndEtAmt === 0) {
@@ -1367,6 +1369,7 @@ const initGrid3 = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
+    { fieldName: 'cstNo' },
     { fieldName: 'cntrDtlNo' },
     { fieldName: 'dpDt', dataType: 'date' }, /* 입금일자(수납일자) */
     { fieldName: 'dpMesCd' }, /* 입금수단 */
@@ -1383,6 +1386,8 @@ const initGrid3 = defineGrid((data, view) => {
     /* 환불 - 전금 공통 */
     { fieldName: 'rveNo' },
     { fieldName: 'rveSn' },
+
+    { fieldName: 'atthDocId', dataType: 'file' },
   ];
 
   const columns = [
@@ -1463,42 +1468,25 @@ const initGrid3 = defineGrid((data, view) => {
       width: '280',
       renderer: {
         type: 'radio',
+        editable: false,
       },
       styleName: 'rg-button-toggle',
       options: codes.BLTF_RFND_MB_DV_CD,
     },
-    { fieldName: 'rfndEvidMtrFileId',
+    { fieldName: 'atthDocId',
     // numberOfFiles : 무조건 fieldName 고정이라하엿지만 그닥큰차이가없어보임
       header: t('MSG_TXT_MTR'),
       // TODO: 자료: 그리드 업로드 문의
       width: '120',
       editor: {
         type: 'file',
-        attachDocumentId: 'rfndEvidMtrFileId',
-        attachGroupId: 'ATG_WDA_ENTRP_FILE',
-        downloadable: true,
-        editable: false,
+        attachDocumentId: 'rfndEvidMtrFileId', // 필드명
+        attachGroupId: 'ATG_WDB_RFND_FILE', // 또는 고정값
+        downloadable: false,
+        editable: true,
       },
       styleName: 'rg-button-excelup',
       renderer: { type: 'button' },
-      // styleCallback(grid, dataCell) {
-      //   const bltfRfndMbDvCd = grid.getValue(dataCell.index.itemIndex, 'bltfRfndMbDvCd');
-      //   return bltfRfndMbDvCd === '02' ? { editor: { editable: true } } : { editor: { editable: false } };
-      //   {
-      //     editor: {
-      //       type: 'file',
-      //       attachDocumentId: 'rfndEvidMtrFileId',
-      //       attachGroupId: 'ATG_WDA_ENTRP_FILE',
-      //       downloadable: true,
-      //       editable: true,
-      //     } } : { editor: {
-      //     type: 'file',
-      //     attachDocumentId: 'rfndEvidMtrFileId',
-      //     attachGroupId: 'ATG_WDA_ENTRP_FILE',
-      //     downloadable: true,
-      //     editable: false,
-      //   } };
-      // },
     },
   ];
 
@@ -1526,16 +1514,31 @@ const initGrid3 = defineGrid((data, view) => {
   // 전금계약상세번호 검색
   view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
     if (column === 'bltfOjCntrDtlNo') {
+      const { cstNo } = grid.getValues(itemIndex);
+
       const { result, payload } = await modal({
         component: 'WwctaContractNumberListP',
       });
       if (result) {
+        const param = {
+          cntrNo: payload.cntrNo,
+          cntrSn: payload.cntrSn,
+        };
+        const res = await dataService.get('/sms/common/common/codes/contract/detail/paging', { params: param });
+
         // eslint-disable-next-line no-unused-vars
         const { cntrNo, cntrSn, sellTpCd, cntrCstKnm, pdNm, pdCd } = payload;
         view.setValue(itemIndex, 'bltfOjCntrNo', cntrNo);
         view.setValue(itemIndex, 'bltfOjCntrSn', cntrSn);
         view.setValue(itemIndex, 'bltfOjCntrDtlNo', cntrNo + cntrSn);
         view.setValue(itemIndex, 'sellTpCd', sellTpCd);
+
+        const resCstNo = res.data.list[0].cstNo;
+        if (cstNo === resCstNo) {
+          view.setValue(itemIndex, 'bltfRfndMbDvCd', '01');
+        } else {
+          view.setValue(itemIndex, 'bltfRfndMbDvCd', '02');
+        }
       }
     }
     // 첨부파일 팝업
