@@ -114,6 +114,14 @@
         inset
       />
       <kw-btn
+        icon="upload_on"
+        dense
+        secondary
+        :label="t('MSG_TXT_EXCEL_UPLOAD')"
+        :disable="!isSearchMonth || isExpectedConfirm"
+        @click="onClickExcelUpload"
+      />
+      <kw-btn
         icon="download_on"
         dense
         secondary
@@ -128,18 +136,6 @@
         inset
       />
 
-      <kw-btn
-        icon="upload_on"
-        dense
-        secondary
-        :label="t('MSG_TXT_EXCEL_UPLOAD')"
-        @click="onClickExcelUpload"
-      />
-      <kw-separator
-        spaced
-        vertical
-        inset
-      />
       <kw-btn
         dense
         secondary
@@ -157,6 +153,7 @@
       <kw-btn
         dense
         secondary
+        icon="upload_on"
         :label="t('MSG_BTN_CAN_MTR_RGST')"
         :disable="!isExpectedConfirm || !isPsic || isNotExpected"
         @click="onClickCancelRgst"
@@ -396,24 +393,32 @@ async function onClickExcelDownload() {
 }
 
 // 엑셀 업로드
-// TODO: 설계 전
 async function onClickExcelUpload() {
-  await alert('설계중');
-  // const apiUrl = `${baseUrl}/excel-upload`;
-  // const templateId = 'T';
-  // const {
-  //   payload,
-  // } = await modal({
-  //   component: 'ZwcmzExcelUploadP',
-  //   componentProps: {
-  //     apiUrl,
-  //     templateId,
-  //   },
-  // });
-  // if (payload.status === 'S') {
-  //   notify(t('MSG_ALT_SAVE_DATA'));
-  //   await onClickSearch();
-  // }
+  const apiUrl = `${baseUrl}/excel-upload`;
+  const templateId = 'FOM_BOND_AUTH_RSG';
+  const {
+    payload,
+  } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: {
+      apiUrl,
+      templateId,
+    },
+  });
+  if (payload.status === 'S') {
+    notify(t('MSG_ALT_SAVE_DATA'));
+    await onClickSearch();
+  }
+}
+
+// 취소자료 등록
+async function onClickCancelRgst() {
+  const params = {
+    baseDt: searchParams.value.baseDt,
+  };
+  await dataService.put(`${baseUrl}/cancel`, params);
+  notify(t('MSG_ALT_COMPLETE_CAN_MTR'));
+  await onClickSearch();
 }
 
 // 예정생성
@@ -437,15 +442,7 @@ async function onClickExpectedConfirm() {
   notify(t('MSG_ALT_COMPLETE_EXP_CREATE'));
   await onClickSearch();
 }
-// 취소자료 등록
-// TODO: 설계 전
-async function onClickCancelRgst() {
-  await alert('설계중');
-  // if (!await confirm(t('MSG_ALT_RGST_CAN_MTR'))) { return; }
-  // await dataService.put(`${baseUrl}/cancel`, { });
-  // notify(t('MSG_ALT_COMPLETE_CAN_MTR'));
-  // await onClickSearch();
-}
+
 // 최종확정
 async function onClickFinalConfirm() {
   if (!await confirm(t('MSG_ALT_FNL_CNFM'))) { return; }
