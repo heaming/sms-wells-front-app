@@ -154,7 +154,7 @@
         dense
         secondary
         :label="t('MSG_BTN_CAN_MTR_RGST')"
-        :disable="!isExpectedConfirm || !isPsic || isNotExpected"
+        :disable="!isSearchMonth || isExpectedConfirm || !isPsic"
         @click="onClickCancelRgst"
       />
       <kw-separator
