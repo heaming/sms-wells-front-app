@@ -234,7 +234,7 @@ async function onClickSave() {
 
   await dataService.post(`${SMS_WELLS_URI}/partner`, { ...searchParams.value });
 
-  // await fetchData();
+  await onClickSearch();
 }
 
 // 계약서 구분에 따른 visible
