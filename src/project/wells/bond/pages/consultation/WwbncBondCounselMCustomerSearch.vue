@@ -152,6 +152,8 @@ const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { alert } = useGlobal();
+const { getters } = useStore();
+const { employeeIDNumber } = getters['meta/getUserInfo'];
 
 const props = defineProps({
   cellphone: {
@@ -173,7 +175,7 @@ const emit = defineEmits([
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const searchParams = reactive({});
+const searchParams = reactive({ clctamPrtnrNo: employeeIDNumber });
 const totalCount = ref(0);
 const subModuleCodes = ref([]);
 const customerParams = ref({});
