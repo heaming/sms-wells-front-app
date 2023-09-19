@@ -81,7 +81,7 @@ const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const baseUrl = '/sms/wells/service/pcsv-spp-bzs-out-of-storage';
+const baseUrl = '/sms/wells/service/pcsv-spp-bzs-ivc';
 
 // const codes =
 await codeUtil.getMultiCodes(
