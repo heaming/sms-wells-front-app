@@ -1485,8 +1485,20 @@ const initGrid3 = defineGrid((data, view) => {
         downloadable: false,
         editable: true,
       },
-      styleName: 'rg-button-excelup',
-      renderer: { type: 'button' },
+      // styleName: 'rg-button-excelup',
+      // renderer: { type: 'button' },
+      styleCallback: (grid, model) => {
+        const bltfRfndMbDvCd = grid.getValue(model.item.dataRow, 'bltfRfndMbDvCd');
+
+        if (bltfRfndMbDvCd !== '01') {
+          return {
+            styleName: 'text-center rg-button-excelup',
+          };
+        }
+        return {
+          styleName: 'text-center rg-file-hide-button',
+        };
+      },
     },
   ];
 
