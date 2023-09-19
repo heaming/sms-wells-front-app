@@ -190,7 +190,21 @@
                 />
               </kw-form-item>
             </kw-form-row>
-
+            <kw-form-row
+              v-if="isExistAlncPd && alncCntrPriceCodes.length > 0"
+            >
+              <kw-form-item label="제휴 계약">
+                <kw-select
+                  v-model="alncCntrNm"
+                  :options="alncCntrPriceCodes"
+                  :model-value="alncCntrNm ? alncCntrNm : []"
+                  :multiple="true"
+                  placeholder="제휴 계약"
+                  dense
+                  @change="onChangeAlncCntr"
+                />
+              </kw-form-item>
+            </kw-form-row>
             <div
               v-if="false"
               class="flex wrap gap-xs scoped-price-form__no-labels"
@@ -336,7 +350,8 @@
 <script setup>
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import { useCtCode } from '~sms-common/contract/composable';
-import { stringUtil, useDataService } from 'kw-lib';
+import { alert, stringUtil, useDataService } from 'kw-lib';
+import { isEmpty } from 'lodash-es';
 import { warn } from 'vue';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 
@@ -365,6 +380,8 @@ const { getCodeName } = await useCtCode(
   'BFSVC_PRD_CD',
 );
 const dataService = useDataService();
+const alncCntrPriceCodes = ref([]);
+const alncCntrNm = ref([]);
 
 const EMPTY_SYM = Symbol('__undef__');
 const EMPTY_ID = ' '; /*  FIXME!!! */
@@ -387,6 +404,26 @@ let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '2'));
 
+const priceDefineVariables = ref({
+  svPdCd: toRef(props.modelValue, 'svPdCd'),
+  stplPrdCd: toRef(props.modelValue, 'stplPtrm'),
+  cntrAmt: toRef(props.modelValue, 'cntrAmt'),
+  cntrPtrm: toRef(props.modelValue, 'cntrPtrm'),
+  asMcn: toRef(props.modelValue, 'asMcn'),
+  rentalDscDvCd: toRef(props.modelValue, 'sellDscDvCd'),
+  rentalCrpDscrCd: toRef(props.modelValue, 'rentalCrpDscrCd'),
+  rentalDscTpCd: toRef(props.modelValue, 'sellDscTpCd'),
+  rentalCombiDvCd: toRef(props.modelValue, 'rentalCombiDvCd'),
+});
+
+const isExistAlncPd = computed(() => !isEmpty(priceDefineVariables.value?.svPdCd)
+  && !isEmpty(priceDefineVariables.value?.stplPrdCd)
+  && finalPriceOptions.value?.findIndex((v) => (
+    v.svPdCd === priceDefineVariables.value?.svPdCd
+    && v.stplPrdCd === priceDefineVariables.value?.stplPrdCd
+    && v.alncPdCnt !== EMPTY_ID
+  )) > -1);
+
 async function fetchFinalPriceOptions() {
   const { data } = await dataService.get('sms/wells/contract/final-price', {
     params: {
@@ -402,21 +439,30 @@ async function fetchFinalPriceOptions() {
   finalPriceOptions.value = data || [];
 }
 
+async function fetchAllianceContracts() {
+  const params = {
+    cstNo: props.bas?.cntrCstNo,
+    sellTpCd: dtl.value?.sellTpCd,
+    pdCd: dtl.value.pdCd,
+    stplPrdCd: priceDefineVariables.value?.stplPrdCd,
+    svPdCd: priceDefineVariables.value?.svPdCd,
+  };
+
+  const { data } = await dataService
+    .get('sms/wells/contract/final-price/alliance-contracts', { params });
+
+  // klpont 가 0인 경우 제외
+  alncCntrPriceCodes.value = data.filter((v) => (v.klpont > 0))
+    .map((v) => ({
+      codeId: `${v.klyear}-${v.klcode}-${v.klpont}-${v.alncmpCd}`,
+      codeName: `${v.klyear}-${v.klcode} ${v.alncmpNm} ${stringUtil.getNumberWithComma(v.klpont || 0)}원`,
+    })) || [];
+  // console.log(JSON.stringify(data, null, '\t'));
+}
+
 if (!finalPriceOptions.value?.length) {
   await fetchFinalPriceOptions();
 }
-
-const priceDefineVariables = ref({
-  svPdCd: toRef(props.modelValue, 'svPdCd'),
-  stplPrdCd: toRef(props.modelValue, 'stplPtrm'),
-  cntrAmt: toRef(props.modelValue, 'cntrAmt'),
-  cntrPtrm: toRef(props.modelValue, 'cntrPtrm'),
-  asMcn: toRef(props.modelValue, 'asMcn'),
-  rentalDscDvCd: toRef(props.modelValue, 'sellDscDvCd'),
-  rentalCrpDscrCd: toRef(props.modelValue, 'rentalCrpDscrCd'),
-  rentalDscTpCd: toRef(props.modelValue, 'sellDscTpCd'),
-  rentalCombiDvCd: toRef(props.modelValue, 'rentalCombiDvCd'),
-});
 
 // const mchnCh = ref({
 //   mchnChYn: true,
@@ -468,7 +514,7 @@ function initPriceDefineVariables() {
     return;
   }
   const selectedFinalPrice = finalPriceOptions.value
-    .find((finalPrice) => (finalPrice.pdPrcFnlDtlId === pdPrcFnlDtlId.value));
+    ?.find((finalPrice) => (finalPrice.pdPrcFnlDtlId === pdPrcFnlDtlId.value));
 
   if (!selectedFinalPrice) {
     warn('저장된 가격이 상이합니다.');
@@ -547,7 +593,7 @@ function reducerFinalPriceToSelectVarDict(varDict, finalPrice, variable) {
 
 const priceDefineVariableOptionDicts = computed(() => variableNames.reduce((options, variableName) => {
   options[variableName] = finalPriceOptions.value
-    .reduce((varDict, finalPrice) => reducerFinalPriceToSelectVarDict(varDict, finalPrice, variableName), {});
+    ?.reduce((varDict, finalPrice) => reducerFinalPriceToSelectVarDict(varDict, finalPrice, variableName), {});
   return options;
 }, {}));
 
@@ -614,7 +660,7 @@ function filterFinalPriceByVariables(finalPrice) {
 
 const selectedFinalPrice = computed(() => {
   const selectedPrice = finalPriceOptions.value
-    .filter(filterFinalPriceByVariables);
+    ?.filter(filterFinalPriceByVariables);
   if (selectedPrice.length > 1) {
     return undefined;
   }
@@ -681,6 +727,10 @@ watch(selectedFinalPrice, (newPrice) => {
   pdPrcFnlDtlId.value = newPrice?.pdPrcFnlDtlId ?? undefined;
   emit('price-changed', newPrice);
   clearPromotions();
+
+  if (isExistAlncPd.value) {
+    fetchAllianceContracts(); // 제휴 계약 정보 가져오기
+  }
 });
 
 function onClickDeviceChange() {
@@ -706,6 +756,15 @@ function onDeleteOnePlusOne() {
   emit('delete-one-plus-one');
 }
 
+async function onChangeAlncCntr(selected) {
+  const tot = selected.reduce((sum, v) => (sum + parseInt(v.split('-')[2], 10)), 0);
+  if (tot > selectedFinalPrice.value.fnlVal) {
+    alert('제휴 지원금이 렌탈료보다 큽니다.');
+    alncCntrNm.value = [];
+    return;
+  }
+  console.log(tot, selectedFinalPrice.value.fnlVal);
+}
 </script>
 
 <style lang="scss" scoped>
