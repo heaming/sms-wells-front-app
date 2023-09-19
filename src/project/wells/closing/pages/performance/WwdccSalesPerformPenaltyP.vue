@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : DCC
-2. 프로그램 ID : WwdccSalesPerformPenaltyP - 매출실적현황 - 위약금예상
+2. 프로그램 ID : WwdccSalesPerformPenaltyP - 매출실적현황 - 위약금 예상
 3. 작성자 : Kicheol Choi
 4. 작성일 : 2023.07.11
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 위약금예상 조회를 위한 팝업화면.
+- 위약금 예상 조회를 위한 팝업화면.
 ****************************************************************************************************
 --->
 <template>
@@ -37,7 +37,7 @@
         <kw-search-row />
       </kw-search-row>
     </kw-search>
-    <kw-action-top>
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_PRM_ARTC')+'('+$t('MSG_TXT_ORDERSELECT_TITLE')+')' }}</h3>
       </template>
@@ -75,7 +75,7 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
-    <kw-action-top>
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_SL_ARTC') }}({{ $t('MSG_TXT_NMN') }})</h3>
       </template>
@@ -130,10 +130,10 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_DSC_AGG_AMT')">
+        <kw-form-item :label="$t('MSG_TXT_DSC_AGG_AMOUNT')">
           <p>{{ info.dscAggAmt }}</p>
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_CTR_AGG_AMT')">
+        <kw-form-item :label="$t('MSG_TXT_CTR_AGG_AMT2')">
           <p>{{ info.ctrAggAmt }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_BLAM')">
@@ -142,7 +142,7 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
-    <kw-action-top>
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_DLQ_ADAMT') }}</h3>
       </template>
@@ -173,7 +173,7 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
-    <kw-action-top>
+    <kw-action-top class="mb20">
       <template #left>
         <h3>
           {{ $t('MSG_TXT_CCAM_ET') }}
@@ -205,6 +205,7 @@
             secondary
             dense
             :label="$t('MSG_BTN_INQR')"
+            padding="12px"
             @click="onClickEstimatedSearch()"
           />
         </kw-form-item>
