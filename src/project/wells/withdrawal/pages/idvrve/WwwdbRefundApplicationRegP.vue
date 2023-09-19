@@ -376,7 +376,7 @@
 // -------------------------------------------------------------------------------------------------
 
 // eslint-disable-next-line no-unused-vars
-import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
+import { codeUtil, useGlobal, useMeta, defineGrid, getComponentType, gridUtil, alert, useDataService, fileUtil, modal, useModal, stringUtil } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { cloneDeep, isEqual, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
@@ -821,6 +821,20 @@ async function onClickRefundAsk(stateCode) {
   }));
 
   const rows3 = changedRows3.filter((p1) => (Number(p1.rfndBltfAkAmt)) > 0);
+
+  let errorCount = 0;
+
+  rows3.forEach((p1) => {
+    if (p1.attachFiles.length < 1 && p1.bltfRfndMbDvCd === '02') {
+      errorCount += 1;
+      return false;
+    }
+  });
+
+  if (errorCount > 0) {
+    alert('제3자 회원의 경우 첨부파일(은) 필수입니다.');
+    return false;
+  }
 
   // eslint-disable-next-line no-unused-vars
   const changedRows4 = gridUtil.getAllRowValues(view4); // 환불접수총액
@@ -1486,17 +1500,17 @@ const initGrid3 = defineGrid((data, view) => {
         editable: true,
       },
       // styleName: 'rg-button-excelup',
-      // renderer: { type: 'button' },
+      renderer: { type: 'button' },
       styleCallback: (grid, model) => {
         const bltfRfndMbDvCd = grid.getValue(model.item.dataRow, 'bltfRfndMbDvCd');
 
         if (bltfRfndMbDvCd !== '01') {
           return {
-            styleName: 'text-center rg-button-excelup',
+            styleName: 'rg-button-excelup',
           };
         }
         return {
-          styleName: 'text-center rg-file-hide-button',
+          styleName: 'rg-file-hide-button',
         };
       },
     },
