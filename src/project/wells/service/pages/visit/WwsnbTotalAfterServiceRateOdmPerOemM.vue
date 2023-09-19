@@ -126,11 +126,6 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GRP_CD',
 );
 
-// 서비스 > 실적..불량구분은 100, 400, 500, 700 만 사용
-const badCdValue = ['100R', '400R', '500R', '700R'];
-const badDvCdList = codes.BAD_DV_CD.filter((v) => badCdValue.includes(v.codeId));
-console.log('badDvCdList >>>>>', badDvCdList);
-
 const { getPartMaster } = smsCommon();
 
 // -------------------------------------------------------------------------------------------------
@@ -152,28 +147,24 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-// 서비스유형 중분류..공통코드 있을거 같은데...
+// TODO : 설치원인, 부품원인 확인 필요..
+// 설치원인 ~> 회사설치, 부품원인 ~> 필터B/S
 // 전체[00], 제품A/S[01], 특별A/S[02], 제품원인[03], 설치원인[04], 고객원인[05], 부품원인[06]
 const serviceTypes = [
-  // { codeId: '3112', codeName: '특별A/S' },
-  // { codeId: '3210', codeName: '제품원인' },
-  // { codeId: '3110', codeName: '제품A/S' },
-  { codeId: '01', codeName: '제품A/S' },
-  { codeId: '02', codeName: '특별A/S' },
-  { codeId: '03', codeName: '제품원인' },
-  { codeId: '04', codeName: '설치원인' },
-  { codeId: '05', codeName: '고객원인' },
-  { codeId: '06', codeName: '부품원인' },
+  { codeId: '3110', codeName: '제품A/S' },
+  { codeId: '3112', codeName: '특별A/S' },
+  { codeId: '3210', codeName: '제품원인' },
+  // { codeId: '04', codeName: '설치원인' },
+  { codeId: '3440', codeName: '회사설치' },
+  { codeId: '3230', codeName: '고객원인' },
+  // { codeId: '06', codeName: '부품원인' },
+  { codeId: '3121', codeName: '필터B/S' },
 ];
 
-// 소분류(불량구분)...일단 공통코드 BAD_DV_CD 사용
-// 전체, 모종불량, 제품불량, 매니저과실, 엔지니어과실, 품질개선(리콜) 서비스
-// const badGbTypes = [
-// { codeId: '100R', codeName: '제품불량' },
-// { codeId: '500R', codeName: '엔지니어과실' },
-// { codeId: '400R', codeName: '매니저과실' },
-// { codeId: '700R', codeName: '품질개선(리콜) 서비스' },
-// ];
+// 서비스 > 실적..불량구분은 100, 400, 500, 700 만 사용
+const badCdValue = ['100R', '400R', '500R', '700R'];
+const badDvCdList = codes.BAD_DV_CD.filter((v) => badCdValue.includes(v.codeId));
+console.log('badDvCdList >>>>>', badDvCdList);
 
 const pds = ref([]);
 async function changePdGrpCd() {
