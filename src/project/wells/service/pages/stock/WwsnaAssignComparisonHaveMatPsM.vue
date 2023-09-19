@@ -123,7 +123,8 @@
             :total-count="pageInfo.totalCount"
             @change="fetchData"
           />
-          <span class="ml8">(단위:원)</span>
+          <!-- (단위:원) -->
+          <span class="ml8">({{ t('MSG_TXT_UNIT') }}: {{ t('MSG_TXT_CUR_WON') }})</span>
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
@@ -355,44 +356,6 @@ function initGrid(data, view) {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-
-  // multi row header setting
-  // view.setColumnLayout([
-  //   'col1', 'col2', 'col3', 'col4', 'col5', 'col6',
-  //   {
-  //     header: '창고정보', // colspan title
-  //     direction: 'horizontal', // merge type
-  //     items: ['col7', 'col8', 'col9', 'col10'],
-  //   },
-  //   {
-  //     header: '개인창고 재고', // colspan title
-  //     direction: 'horizontal', // merge type
-  //     items: ['col11'],
-  //   },
-  // ]);
-
-  // data.setRows([
-  // eslint-disable-next-line max-len
-  //   { col1: '-', col2: '-', col3: '-', col4: '-', col5: '-', col6: '-', col7: '-', col8: '-', col9: '-', col10: '-', col11: '-' },
-  // eslint-disable-next-line max-len
-  //   { col1: '-', col2: '-', col3: '-', col4: '-', col5: '-', col6: '-', col7: '-', col8: '-', col9: '-', col10: '-', col11: '-' },
-  // eslint-disable-next-line max-len
-  //   { col1: '-', col2: '-', col3: '-', col4: '-', col5: '-', col6: '-', col7: '-', col8: '-', col9: '-', col10: '-', col11: '-' },
-  // eslint-disable-next-line max-len
-  //   { col1: '-', col2: '-', col3: '-', col4: '-', col5: '-', col6: '-', col7: '-', col8: '-', col9: '-', col10: '-', col11: '-' },
-  // eslint-disable-next-line max-len
-  //   { col1: '-', col2: '-', col3: '-', col4: '-', col5: '-', col6: '-', col7: '-', col8: '-', col9: '-', col10: '-', col11: '-' },
-  // eslint-disable-next-line max-len
-  //   { col1: '-', col2: '-', col3: '-', col4: '-', col5: '-', col6: '-', col7: '-', col8: '-', col9: '-', col10: '-', col11: '-' },
-  // eslint-disable-next-line max-len
-  //   { col1: '-', col2: '-', col3: '-', col4: '-', col5: '-', col6: '-', col7: '-', col8: '-', col9: '-', col10: '-', col11: '-' },
-  // eslint-disable-next-line max-len
-  //   { col1: '-', col2: '-', col3: '-', col4: '-', col5: '-', col6: '-', col7: '-', col8: '-', col9: '-', col10: '-', col11: '-' },
-  // eslint-disable-next-line max-len
-  //   { col1: '-', col2: '-', col3: '-', col4: '-', col5: '-', col6: '-', col7: '-', col8: '-', col9: '-', col10: '-', col11: '-' },
-  // eslint-disable-next-line max-len
-  //   { col1: '-', col2: '-', col3: '-', col4: '-', col5: '-', col6: '-', col7: '-', col8: '-', col9: '-', col10: '-', col11: '-' },
-  // ]);
 }
 
 </script>
