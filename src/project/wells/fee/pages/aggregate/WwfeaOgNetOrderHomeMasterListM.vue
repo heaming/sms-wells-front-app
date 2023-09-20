@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : FEA
 2. 프로그램 ID : WwfeaOgNetOrderHomeMasterListM - 홈마스터 수수료 순주문 관리
-3. 작성자 : gs.piit150
+3. 작성자 : min-kyu bae
 4. 작성일 : 2023.02.24
 ****************************************************************************************************
 * 프로그램 설명
@@ -233,6 +233,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           dense
           secondary
           icon="download_on"
@@ -248,6 +249,7 @@
         />
         <kw-btn
           v-if="isPerfVisile"
+          v-permission:create
           :label="$t('MSG_BTN_FEE_PERF_CRT')"
           primary
           dense
@@ -256,6 +258,7 @@
         />
         <kw-btn
           v-if="isPerfVisile"
+          v-permission:update
           :label="$t('MSG_BTN_FEE_PERF_DTRM')"
           primary
           dense
@@ -264,6 +267,7 @@
         />
         <kw-btn
           v-if="isPerfVisile"
+          v-permission:update
           :label="$t('MSG_BTN_FEE_PERF_DTRM_CAN')"
           primary
           dense

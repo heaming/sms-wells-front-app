@@ -108,6 +108,7 @@
           <span class="ml8">{{ t('MSG_TXT_MSG_TXT_UNIT_CASE') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           :disable="totalCount === 0"
           dense
@@ -121,6 +122,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           :label="$t('MSG_BTN_DTL_IZ_DLD')"
           :disable="totalCount === 0"
           secondary

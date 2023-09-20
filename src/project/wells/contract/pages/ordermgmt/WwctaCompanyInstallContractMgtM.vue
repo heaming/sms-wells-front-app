@@ -160,17 +160,19 @@
         </template>
 
         <kw-btn
+          v-permission:create
+          :label="$t('MSG_TXT_EXCEL_UPLOAD')"
           icon="upload_on"
           dense
           secondary
-          :label="$t('MSG_TXT_EXCEL_UPLOAD')"
           @click="onClickExcelUpload"
         />
         <kw-btn
+          v-permission:download
+          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
           icon="download_on"
           dense
           secondary
-          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
           :disable="pageInfo.totalCount===0"
           @click="onClickExcelDownload"
         />
@@ -181,6 +183,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="$t('MSG_BTN_RGST')"

@@ -129,6 +129,7 @@
         @click="onClickDelete"
       />
       <kw-btn
+        v-permission:print
         dense
         secondary
         :label="$t('MSG_BTN_PRINT')"
@@ -141,6 +142,7 @@
         inset
       />
       <kw-btn
+        v-permission:download
         dense
         secondary
         icon="excel"
@@ -155,6 +157,7 @@
       />
       <!-- 확정 -->
       <kw-btn
+        v-permission:create
         primary
         dense
         :label="$t('MSG_TXT_DTRM')"
@@ -163,6 +166,7 @@
       />
       <!-- //확정 -->
       <kw-btn
+        v-permission:create
         primary
         dense
         :label="$t('MSG_TXT_CNFM_PRNT')"

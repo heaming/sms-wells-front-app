@@ -54,6 +54,7 @@
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
           icon="download_on"
@@ -85,6 +86,7 @@
               <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
             </template>
             <kw-btn
+              v-permission:download
               :label="$t('MSG_BTN_EXCEL_DOWN')"
               :disable="totalCountDeposit === 0"
               icon="download_on"
@@ -108,6 +110,7 @@
               />
             </template>
             <kw-btn
+              v-permission:download
               :label="$t('MSG_BTN_EXCEL_DOWN')"
               :disable="totalCountCancel === 0"
               icon="download_on"

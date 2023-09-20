@@ -30,6 +30,7 @@
         </span>
       </template>
       <kw-btn
+        v-permission:download
         icon="download_on"
         :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
         :disable="pageInfo.totalCount === 0"

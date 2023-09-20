@@ -391,13 +391,14 @@
 
     <template #action>
       <kw-btn
-        negative
         :label="$t('MSG_BTN_CANCEL')"
+        negative
         @click="onClickCancel"
       />
       <kw-btn
-        primary
+        v-permission:create
         :label="$t('MSG_BTN_SAVE')"
+        primary
         @click="onClickSave"
       />
     </template>

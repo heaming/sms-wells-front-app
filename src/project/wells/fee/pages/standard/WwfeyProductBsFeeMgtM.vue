@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       :cols="3"
       :modified-targets="['grdRef']"
       @search="onClickSearch"
@@ -98,6 +99,7 @@
           <span class="ml8">{{ t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:delete
           :label="$t('MSG_BTN_DEL')"
           grid-action
           @click="onClickRowDelete"
@@ -108,11 +110,13 @@
           inset
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_ROW_ADD')"
           grid-action
           @click="onClickRowAdd"
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_SAVE')"
           grid-action
           @click="onClickSave"
@@ -123,6 +127,7 @@
           inset
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

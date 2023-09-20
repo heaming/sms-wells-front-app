@@ -115,10 +115,11 @@
         <span class="ml6">{{ t('MSG_TXT_UNIT_WON_MCN') }}</span>
       </template>
       <kw-btn
+        v-permission:print
+        :label="$t('MSG_BTN_RPT_BRWS')"
         icon="report"
         dense
         secondary
-        :label="$t('MSG_BTN_RPT_BRWS')"
         :disable="!pageInfo.totalCount"
         @click="onClickReport"
       />

@@ -78,6 +78,7 @@
           />
         </template>
         <kw-btn
+          v-permission:delete
           dense
           grid-action
           :label="$t('MSG_BTN_DEL')"
@@ -89,12 +90,14 @@
           inset
         />
         <kw-btn
+          v-permission:update
           dense
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
         <kw-btn
+          v-permission:create
           dense
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
@@ -106,6 +109,7 @@
           inset
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

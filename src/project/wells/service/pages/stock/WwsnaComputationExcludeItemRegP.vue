@@ -87,6 +87,7 @@
         />
       </template>
       <kw-btn
+        v-permission:delete
         :label="$t('MSG_BTN_DEL')"
         grid-action
         :disable="isSearch"
@@ -98,12 +99,14 @@
         inset
       />
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_ROW_ADD')"
         grid-action
         :disable="isSearch"
         @click="onClickAdd"
       />
       <kw-btn
+        v-permission:update
         :label="$t('MSG_BTN_SAVE')"
         grid-action
         :disable="isSearch"
@@ -115,6 +118,7 @@
         inset
       />
       <kw-btn
+        v-permission:download
         :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
         :disable="pageInfo.totalCount === 0"
         icon="download_on"
@@ -128,6 +132,7 @@
         inset
       />
       <kw-btn
+        v-permission:update
         :label="$t('MSG_BTN_LSTMM_DTA_TF')"
         primary
         dense

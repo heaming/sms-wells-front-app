@@ -89,6 +89,7 @@
               <p>
                 <slot v-if="isShowManualAssignBtn">
                   <kw-btn
+                    v-permission:update
                     :label="$t('MSG_BTN_MANUAL_ASSIGN',null,'수동배정')"
                     secondary
                     dense
@@ -176,6 +177,7 @@
                 @click="onClickCancel"
               />
               <kw-btn
+                v-permission:update
                 :label="$t('MSG_BTN_SAVE')"
                 primary
                 class="ml8"

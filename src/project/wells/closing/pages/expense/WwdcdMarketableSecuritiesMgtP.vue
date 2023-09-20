@@ -316,7 +316,7 @@ async function onClickObjectPersonAdd() {
     }
   }
   if (count > 0) {
-    alert(`선택된 대상은 추가되어 있습니다. \n 파트너 번호 :${selectedTarget}`); // TODO 메세지작업해야함
+    alert(`선택된 대상은 추가되어 있습니다. \n 파트너 번호 :${selectedTarget}`); // TODO 메세지 처리
     return;
   }
 
@@ -512,8 +512,7 @@ const initGrdSub = defineGrid((data, view) => {
   view.onEditRowChanged = async (subView, itemIndex, rowData, field, oldValue) => { // 직접편집했을때만
     const dstAmt = subView.getValue(itemIndex, 'dstAmt');
     const fieldValue = subView.getValue(itemIndex, field);
-    if (fieldValue !== dstAmt) {
-      alert(t('MSG_TXT_INVALID_ACCESS')); // 잘못된 접근입니다.
+    if (fieldValue !== dstAmt || isEmpty(fieldValue)) {
       return;
     }
 
@@ -523,7 +522,6 @@ const initGrdSub = defineGrid((data, view) => {
       let mainDstAmt = mainView.getValue(0, 'dstAmt');
 
       mainDstAmt += dstAmt - oldValue;
-
       mainView.setValue(0, 'dstAmt', mainDstAmt); // 등록금액
       mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
     }

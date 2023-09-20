@@ -91,6 +91,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
           :disable="totalCount === 0"
           icon="download_on"

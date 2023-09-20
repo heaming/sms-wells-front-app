@@ -138,6 +138,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -153,6 +154,7 @@
         />
         <!-- 창고갱신 -->
         <kw-btn
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_TXT_WARE_RNW')"
@@ -160,12 +162,14 @@
         />
         <!-- //창고갱신 -->
         <kw-btn
+          v-permission:create
           dense
           secondary
           :label="$t('MSG_TXT_ASGN_EXLD_ITM_RGST')"
           @click="openAssignExcludeItemP"
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_TXT_RECREATION')"
           dense
           primary

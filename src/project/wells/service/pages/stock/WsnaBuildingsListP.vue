@@ -69,6 +69,7 @@
         @click="onClickCancel"
       />
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_SELT')"
         primary
         @click="onClickSelect"

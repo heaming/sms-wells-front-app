@@ -165,6 +165,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           secondary
           dense
           icon="excel"

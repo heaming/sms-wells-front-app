@@ -402,6 +402,12 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ltpayYn' }, // 후납여부
     { fieldName: 'giroRglrDvCd' }, // 정기구분
     { fieldName: 'rentalTn' }, // 현재차월
+    { fieldName: 'sellTam' },
+    { fieldName: 'subscAmt' },
+    { fieldName: 'tkAmt' },
+    { fieldName: 'cshBlam' },
+    { fieldName: 'giroFeeAmt' },
+    { fieldName: 'cntrTam' },
   ];
 
   const columns = [

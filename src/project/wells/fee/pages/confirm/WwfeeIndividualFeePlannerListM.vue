@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : FEE
 2. 프로그램 ID : WwfeeIndividualFeePlannerMgtM - 수수료 개인별 상세조회 (P조직 수수료 생성관리)
-3. 작성자 : gs.piit150
+3. 작성자 : min-kyu bae
 4. 작성일 : 2023.02.17
 ****************************************************************************************************
 * 프로그램 설명
@@ -60,6 +60,7 @@
           <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:print
           :label="$t('MSG_BTN_DSB_SPCSH_PRNT')"
           icon="report"
           dense

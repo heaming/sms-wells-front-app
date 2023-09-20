@@ -188,6 +188,7 @@
           :label="$t('MSG_BTN_PRTG')"
         /> -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -201,12 +202,14 @@
           inset
         />
         <kw-btn
+          v-permission:print
           dense
           secondary
           :label="$t('MSG_TXT_AGR_PRNT')"
           @click="onClickAgreementPrint"
         />
         <kw-btn
+          v-permission:print
           dense
           secondary
           :label="$t('MSG_TXT_ACDN_RPOT_PRNT')"
@@ -218,6 +221,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           dense
           primary
           :label="$t('MSG_BTN_RGST')"
@@ -227,7 +231,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination

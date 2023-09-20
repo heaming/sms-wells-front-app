@@ -25,6 +25,13 @@
           v-model="pdFilter"
           @keydown.enter="setFilter"
         />
+        <kw-select
+          v-model="searchSellTpCd"
+          class="mt8"
+          :options="codes.SELL_TP_CD"
+          first-option="select"
+          @change="setFilter"
+        />
         <div class="scoped-search-box__action">
           <kw-btn
             secondary
@@ -137,7 +144,7 @@
           v-for="(item, index) in step2.dtls"
         >
           <kw-expansion-item
-            v-if="!['2', '3'].includes(item?.sellTpCd)"
+            v-if="!['1', '2', '3'].includes(item?.sellTpCd)"
             :key="`${item.pdCd} + ${index}`"
             expand-icon-class="hidden"
             default-opened
@@ -614,7 +621,7 @@
             </template>
           </kw-expansion-item>
           <single-pay-price-select
-            v-if="false"
+            v-if="item?.sellTpCd === '1'"
             :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
             :model-value="item"
             :bas="step2.bas"
@@ -670,7 +677,7 @@ defineExpose(exposed);
 const { t } = useI18n();
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
-await useCtCode('CNTR_TP_CD');
+const { codes } = await useCtCode('CNTR_TP_CD', 'SELL_TP_CD');
 const router = useRouter();
 
 const cntrNo = toRef(props.contract, 'cntrNo');
@@ -678,6 +685,8 @@ const cntrTpCd = toRef(props.contract, 'cntrTpCd');
 const step2 = toRef(props.contract, 'step2');
 const ogStep2 = ref({});
 const pdFilter = ref('');
+const cachedSellTpCd = ref('');
+const searchSellTpCd = ref('');
 const cachedPdFilter = ref('');
 const classfiedPds = ref([]);
 const filteredClsfPds = ref([]);
@@ -714,6 +723,7 @@ async function getProducts() {
   classfiedPds.value = data.pdClsf;
   pdFilter.value = '';
   cachedPdFilter.value = '';
+  cachedSellTpCd.value = '';
   filteredClsfPds.value = classfiedPds.value;
   if (classfiedPds.value.length === 0) {
     await alert('판매 가능한 상품이 없습니다.');
@@ -969,6 +979,7 @@ const clsfItemRefs = reactive({});
 
 function setFilter() {
   cachedPdFilter.value = pdFilter.value?.trim() || '';
+  cachedSellTpCd.value = searchSellTpCd.value;
   Object.values(clsfItemRefs).forEach((vm) => {
     vm?.show();
   });
@@ -976,13 +987,14 @@ function setFilter() {
     return [];
   }
   let clsfPds = classfiedPds.value;
-  if (!cachedPdFilter.value) {
+  if (!cachedPdFilter.value && !cachedSellTpCd.value) {
     filteredClsfPds.value = clsfPds;
     return;
   }
   clsfPds = clsfPds.reduce((filtered, clsf) => {
     const filteredPds = clsf.products
-      .filter((pd) => pd.pdNm.includes(cachedPdFilter.value));
+      .filter((pd) => !cachedPdFilter.value || pd.pdNm.includes(cachedPdFilter.value))
+      .filter((pd) => !cachedSellTpCd.value || pd.sellTpCd === cachedSellTpCd.value);
     if (filteredPds.length > 0) {
       filtered.push({
         ...clsf,
@@ -1120,14 +1132,20 @@ function onPriceChanged() {
     flex: none;
     height: 100%;
     padding-bottom: 30px;
+    display: flex;
+    flex-flow: column nowrap;
 
     #{$-root}__search-box {
+      flex: none;
       padding-right: 30px;
-      height: $-search-area-height;
+
+      // height: $-search-area-height;
     }
 
     #{$-root}__product-box {
-      height: calc(100% - #{$-search-area-height});
+      flex: auto;
+
+      // height: calc(100% - #{$-search-area-height});
     }
   }
 

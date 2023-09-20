@@ -80,6 +80,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -94,6 +95,7 @@
         />
         <!-- 출고요청등록 버튼 -->
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="$t('MSG_TXT_OSTR_AK_RGST')"

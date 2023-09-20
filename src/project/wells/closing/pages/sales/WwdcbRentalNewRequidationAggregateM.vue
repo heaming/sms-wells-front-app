@@ -82,6 +82,7 @@
               />
             </template>
             <kw-btn
+              v-permission:download
               :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
               icon="download_on"
               dense
@@ -106,6 +107,7 @@
               />
             </template>
             <kw-btn
+              v-permission:download
               :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
               icon="download_on"
               :disable="totalSubCount === 0"
@@ -217,7 +219,7 @@ const initGrid1 = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         const qty = Number(grid.getValue(dataCell.item.dataRow, 'qty'));
         const divDtlCdNm = grid.getValue(dataCell.item.dataRow, 'divDtlCdNm')?.slice(0, 2);
-        return (qty > 0 && divDtlCdNm !== '합계') ? { styleName: 'rg-button-link text-right', renderer: { type: 'button' }, preventCellItemFocus: true } : { styleName: 'text-right' };
+        return (qty > 0 && divDtlCdNm !== `${t('MSG_TXT_SUM')}`) ? { styleName: 'rg-button-link text-right', renderer: { type: 'button' }, preventCellItemFocus: true } : { styleName: 'text-right' };
       } },
   ];
 
@@ -255,7 +257,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'matPdCd' },
     { fieldName: 'pdNm' },
     { fieldName: 'istDt', dataType: 'date' },
-    { fieldName: 'cntrPdEnddt', dataType: 'date' },
+    { fieldName: 'cntrCanDtm', dataType: 'date' },
     { fieldName: 'reqdDt', dataType: 'date' },
     { fieldName: 'prtnrBzsNm' },
 
@@ -270,7 +272,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'matPdCd', header: t('MSG_TXT_RVPY_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '133', styleName: 'text-left' },
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'prtnrBzsNm', header: t('MSG_TXT_PRTNR_BZS_CD'), width: '120', styleName: 'text-center' },
 

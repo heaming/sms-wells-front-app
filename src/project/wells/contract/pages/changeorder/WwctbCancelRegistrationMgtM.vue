@@ -85,9 +85,10 @@
                   <kw-paging-info :total-count="totalCount" />
                 </template>
                 <kw-btn
+                  v-permission:print
+                  :label="$t('MSG_TXT_TRD_SPCSH')+' '+$t('MSG_BTN_VIEW')"
                   dense
                   secondary
-                  :label="$t('MSG_TXT_TRD_SPCSH')+' '+$t('MSG_BTN_VIEW')"
                   :disable="!totalCount"
                   icon="report"
                   @click="onClickSpcshView"
@@ -99,9 +100,10 @@
                   inset
                 />
                 <kw-btn
+                  v-permission:create
+                  :label="$t('MSG_TXT_SELT')+$t('MSG_TXT_CNT')+' '+$t('MSG_TXT_CANCEL')+$t('MSG_TXT_RGS')"
                   dense
                   negative
-                  :label="$t('MSG_TXT_SELT')+$t('MSG_TXT_CNT')+' '+$t('MSG_TXT_CANCEL')+$t('MSG_TXT_RGS')"
                   :disable="!totalCount"
                   @click="onClickRegistCancel"
                 />
@@ -157,6 +159,7 @@
             </div>
             <div class="row items-center">
               <kw-btn
+                v-permission:print
                 :label="$t('MSG_BTN_VT_AC_CFDC')+' '+$t('MSG_BTN_VIEW')"
                 secondary
                 dense

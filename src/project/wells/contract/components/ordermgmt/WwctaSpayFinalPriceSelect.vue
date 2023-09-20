@@ -34,26 +34,32 @@
               outline
             />
           </div>
+          <div class="row items-center">
+            <kw-item-label class="kw-fc--black3 kw-font-pt14">
+              금액
+            </kw-item-label>
+            <kw-item-label
+              class="text-black1 text-bold ml8"
+              :class="{'text-strike text-black3': promotionAppliedPrice && promotionAppliedPrice.length}"
+            >
+              {{ displayedFinalPrice }}
+            </kw-item-label>
+            <template v-if="promotionAppliedPrice">
+              <kw-separator
+                vertical
+                spaced="8px"
+              />
+              <kw-item-label
+                class="kw-fc--black3 kw-font-pt14"
+              >
+                할인가
+              </kw-item-label>
+              <kw-item-label class="kw-fc--black1 text-bold ml8">
+                {{ promotionAppliedPrice }}
+              </kw-item-label>
+            </template>
+          </div>
         </div>
-      </kw-item-section>
-      <kw-item-section
-        side
-        top
-      >
-        <kw-item-label class="flex gap-xs">
-          <kw-btn
-            :disable="opo?.opoYn"
-            label="기기변경"
-            dense
-            @click="onClickDeviceChange(item)"
-          />
-          <kw-btn
-            :disable="mchnCh?.mchnChYn"
-            label="1+1"
-            dense
-            @click="onClickOnePlusOne(item)"
-          />
-        </kw-item-label>
       </kw-item-section>
       <kw-item-section
         class="scoped-item__section-action"
@@ -63,32 +69,11 @@
           borderless
           icon="close_24"
           class="w24 kw-font-pt24"
-          @click="onClickDelete"
+          @click.stop="onClickDelete"
         />
       </kw-item-section>
     </template>
     <template #default>
-      <kw-item class="scoped-item scoped-item">
-        <kw-item-section>
-          <div class="row items-center">
-            <kw-item-label class="kw-fc--black3 kw-font-pt14">
-              금액
-            </kw-item-label>
-            <kw-item-label class="kw-fc--black1 text-bold ml8">
-              {{ displayedFinalPrice }}
-            </kw-item-label>
-            <kw-item-label class="kw-fc--black1 text-bold ml8">
-              {{ displayedFinalPrice }}
-            </kw-item-label>
-            <kw-item-label
-              v-if="false"
-              class="kw-fc--black1 text-bold ml8"
-            >
-              {{ selectedFinalPrice?.pdPrcFnlDtlId }}
-            </kw-item-label>
-          </div>
-        </kw-item-section>
-      </kw-item>
       <kw-item
         class="scoped-item scoped-item mt12"
       >
@@ -112,23 +97,24 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
-              <kw-form-item :label="'약정기간'">
+              <kw-form-item :label="'일시불할인구분'">
                 <kw-select
-                  v-if="priceDefineVariableOptions.stplPrdCd"
-                  v-model="priceDefineVariables.stplPrdCd"
-                  :options="priceDefineVariableOptions.stplPrdCd"
-                  dense
-                  placeholder="약정기간"
+                  v-if="priceDefineVariableOptions.spayDscDvCd"
+                  v-model="priceDefineVariables.spayDscDvCd"
+                  :options="priceDefineVariableOptions.spayDscDvCd"
+                  placeholder="일시불할인구분"
                   first-option="select"
+                  dense
                   @change="forcedChangeValidVariable"
                 />
               </kw-form-item>
-              <kw-form-item :label="'계약기간'">
+              <kw-form-item :label="'일시불할인율'">
                 <kw-select
-                  v-if="priceDefineVariableOptions.cntrPtrm"
-                  v-model="priceDefineVariables.cntrPtrm"
-                  :options="priceDefineVariableOptions.cntrPtrm"
-                  placeholder="계약기간"
+                  v-if="priceDefineVariableOptions.spayDscrCd"
+                  v-model="priceDefineVariables.spayDscrCd"
+                  :options="priceDefineVariableOptions.spayDscrCd"
+                  placeholder="일시불할인율"
+                  :disable="!!rentalDiscountFixed"
                   first-option="select"
                   dense
                   @change="forcedChangeValidVariable"
@@ -136,24 +122,23 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
-              <kw-form-item :label="'렌탈할인구분'">
+              <kw-form-item :label="'일시불프로모션구분'">
                 <kw-select
-                  v-if="priceDefineVariableOptions.rentalDscDvCd"
-                  v-model="priceDefineVariables.rentalDscDvCd"
-                  :options="priceDefineVariableOptions.rentalDscDvCd"
-                  placeholder="렌탈할인구분"
+                  v-if="priceDefineVariableOptions.spayPmotDvCd"
+                  v-model="priceDefineVariables.spayPmotDvCd"
+                  :options="priceDefineVariableOptions.spayPmotDvCd"
+                  placeholder="일시불프로모션구분"
                   first-option="select"
                   dense
                   @change="forcedChangeValidVariable"
                 />
               </kw-form-item>
-              <kw-form-item :label="'렌탈할인유형'">
+              <kw-form-item :label="'단체할인율'">
                 <kw-select
-                  v-if="priceDefineVariableOptions.rentalDscTpCd"
-                  v-model="priceDefineVariables.rentalDscTpCd"
-                  :options="priceDefineVariableOptions.rentalDscTpCd"
-                  placeholder="렌탈할인유형"
-                  :disable="!!rentalDiscountFixed"
+                  v-if="priceDefineVariableOptions.rentalCrpDscrCd"
+                  v-model="priceDefineVariables.rentalCrpDscrCd"
+                  :options="priceDefineVariableOptions.rentalCrpDscrCd"
+                  placeholder="단체할인율"
                   first-option="select"
                   dense
                   @change="forcedChangeValidVariable"
@@ -263,7 +248,7 @@
 <script setup>
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import { useCtCode } from '~sms-common/contract/composable';
-import { stringUtil, useDataService } from 'kw-lib';
+import { useDataService } from 'kw-lib';
 import { warn } from 'vue';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 
@@ -285,6 +270,7 @@ const { getCodeName } = await useCtCode(
   'SPAY_DSCR_CD',
   'SPAY_PMOT_DV_CD',
   'HCR_DV_CD',
+  'RENTAL_CRP_DSCR_CD',
   'SV_TP_CD',
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
@@ -326,14 +312,20 @@ async function fetchFinalPriceOptions() {
 
 await fetchFinalPriceOptions();
 
+/*
+* SPAY_DSC_DV_CD
+SPAY_DSCR_CD
+SPAY_PMOT_DV_CD
+HCR_DV_CD
+RENTAL_CRP_DSCR_CD
+*  */
+
 const priceDefineVariables = ref({
   svPdCd: toRef(props.modelValue, 'svPdCd'),
-  stplPrdCd: toRef(props.modelValue, 'stplPrdCd'),
-  cntrAmt: toRef(props.modelValue, 'cntrAmt'),
-  cntrPtrm: toRef(props.modelValue, 'cntrPtrm'),
   spayDscDvCd: toRef(props.modelValue, 'spayDscDvCd'),
   spayDscrCd: toRef(props.modelValue, 'spayDscrCd'),
   spayPmotDvCd: toRef(props.modelValue, 'spayPmotDvCd'),
+  rentalCrpDscrCd: toRef(props.modelValue, 'rentalCrpDscrCd'),
   hcrDvCd: toRef(props.modelValue, 'hcrDvCd'),
 });
 
@@ -349,12 +341,10 @@ const labelGenerator = {
     }
     return `${getCodeName('SV_TP_CD', svTpCd)} - ${additional.join('/')}`;
   },
-  stplPrdCd: (val) => `${val}개월`,
-  cntrAmt: (val) => `${stringUtil.getNumberWithComma(val || 0)}원`,
-  cntrPtrm: (val) => `${val}개월`,
   spayDscDvCd: (val) => getCodeName('SPAY_DSC_DV_CD', val),
   spayDscrCd: (val) => getCodeName('SPAY_DSCR_CD', val),
   spayPmotDvCd: (val) => getCodeName('SPAY_PMOT_DV_CD', val),
+  rentalCrpDscrCd: (val) => getCodeName('RENTAL_CRP_DSCR_CD', val),
   hcrDvCd: (val) => getCodeName('HCR_DV_CD', val),
 };
 
@@ -369,7 +359,9 @@ function clearPriceDefineVariables() {
 
 /* 저장된 값이 있다면 가격 결정요소를 맞추어 줍니다. */
 function initPriceDefineVariables() {
-  if (!pdPrcFnlDtlId.value) { return; }
+  if (!pdPrcFnlDtlId.value) {
+    return;
+  }
   const selectedFinalPrice = finalPriceOptions.value
     .find((finalPrice) => (finalPrice.pdPrcFnlDtlId === pdPrcFnlDtlId.value));
 
@@ -521,14 +513,6 @@ watch(selectedFinalPrice, (newPrice) => {
 }, { immediate: true });
 
 const displayedFinalPrice = computed(() => (selectedFinalPrice.value ? `${selectedFinalPrice.value.fnlVal}원` : '미확정'));
-
-function onClickDeviceChange() {
-  emit('device-change', props.modelValue);
-}
-
-function onClickOnePlusOne() {
-  emit('one-plus-one', props.modelValue);
-}
 
 function onClickDelete() {
   emit('delete', props.modelValue);

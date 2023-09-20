@@ -102,6 +102,7 @@
           :label="$t('MSG_BTN_PRTG')"
         /> -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -177,6 +178,7 @@
           spaced
         />
         <kw-btn
+          v-permission:update
           primary
           dense
           :label="$t('MSG_BTN_PSIC_TF')"

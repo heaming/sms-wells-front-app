@@ -88,6 +88,7 @@
               />
             </template>
             <kw-btn
+              v-permission:update
               grid-action
               :label="$t('MSG_BTN_SAVE')"
               @click="onClickMovementSave"
@@ -128,6 +129,7 @@
               />
             </template>
             <kw-btn
+              v-permission:update
               grid-action
               :label="$t('MSG_BTN_SAVE')"
               @click="onClickBizSave"

@@ -256,6 +256,7 @@
     </template>
     <kw-btn
       v-show="searchDetail.cancelStatNm !== '취소등록'"
+      v-permission:read
       :label="$t('MSG_TXT_CAN_ARTC')+' '+$t('MSG_TXT_SRCH')"
       negative
       dense
@@ -497,6 +498,7 @@
       />
       <!--삭제-->
       <kw-btn
+        v-permission:delete
         :label="$t('MSG_BTN_DEL')"
         class="ml8"
         @click="onClickDelete"
@@ -513,6 +515,7 @@
         @click="onClickCancel"
       />
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_SAVE')"
         class="ml8"
         primary

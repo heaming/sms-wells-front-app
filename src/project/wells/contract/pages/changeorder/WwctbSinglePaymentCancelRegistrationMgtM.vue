@@ -250,6 +250,7 @@
       />
       <!--삭제-->
       <kw-btn
+        v-permission:delete
         :label="$t('MSG_BTN_DEL')"
         class="ml8"
         @click="onClickDelete"
@@ -266,6 +267,7 @@
         @click="onClickCancel"
       />
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_SAVE')"
         class="ml8"
         primary
