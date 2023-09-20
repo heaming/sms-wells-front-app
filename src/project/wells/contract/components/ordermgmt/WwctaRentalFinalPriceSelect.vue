@@ -191,13 +191,13 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row
-              v-if="isExistAlncPd && alncCntrPriceCodes.length > 0"
+              v-if="alncCntrNms || (isExistAlncPd && alncCntrPriceCodes.length > 0)"
             >
               <kw-form-item label="제휴 계약">
                 <kw-select
-                  v-model="alncCntrNm"
+                  v-model="alncCntrNms"
                   :options="alncCntrPriceCodes"
-                  :model-value="alncCntrNm ? alncCntrNm : []"
+                  :model-value="alncCntrNms ? alncCntrNms : []"
                   :multiple="true"
                   placeholder="제휴 계약"
                   dense
@@ -378,10 +378,10 @@ const { getCodeName } = await useCtCode(
   'SV_TP_CD',
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
+  'ALNCMP_CD',
 );
 const dataService = useDataService();
 const alncCntrPriceCodes = ref([]);
-const alncCntrNm = ref([]);
 
 const EMPTY_SYM = Symbol('__undef__');
 const EMPTY_ID = ' '; /*  FIXME!!! */
@@ -400,6 +400,7 @@ let bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품
 let appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
 let promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
 let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
+let alncCntrNms = toRef(props.modelValue, 'alncCntrNms', []);
 // appliedPromotions.value ??= [];
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '2'));
@@ -530,6 +531,11 @@ function initPriceDefineVariables() {
   variableNames.forEach((variableName) => {
     priceDefineVariables.value[variableName] = selectedFinalPrice[variableName] ?? EMPTY_ID;
   });
+
+  alncCntrPriceCodes.value = alncCntrNms.value.map((v) => ({
+    codeId: v,
+    codeName: `${v.split('-')[0]}-${v.split('-')[1]} ${getCodeName('ALNCMP_CD', v.split('-')[3])} 15,000원`, // TODO 지원금액 임의설정
+  })) || [];
 }
 
 function reconnectReactivities() {
@@ -544,6 +550,7 @@ function reconnectReactivities() {
   promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
   finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions'); /* 적용된 프로모션 */
+  alncCntrNms = toRef(props.modelValue, 'alncCntrNms');
 }
 
 async function onChangeModelValue(newDtl) {
@@ -760,7 +767,7 @@ async function onChangeAlncCntr(selected) {
   const tot = selected.reduce((sum, v) => (sum + parseInt(v.split('-')[2], 10)), 0);
   if (tot > selectedFinalPrice.value.fnlVal) {
     alert('제휴 지원금이 렌탈료보다 큽니다.');
-    alncCntrNm.value = [];
+    alncCntrNms.value = [];
     return;
   }
   console.log(tot, selectedFinalPrice.value.fnlVal);

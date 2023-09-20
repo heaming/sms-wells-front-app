@@ -1087,8 +1087,21 @@ async function initStep() {
   await getProducts();
 }
 
+// 제휴계약 관련 설정
+function setAllianceInfo() {
+  const { dtls } = step2.value;
+  dtls.forEach((d, i) => {
+    if (!isEmpty(d.alncCntrNms)) { // 제휴계약이 존재하는 경우,
+      const cd = d.alncCntrNms[0].split('-')[3] || ''; // 제휴사코드 추출
+      dtls[i].alncmpCd = cd;
+    }
+  });
+  // console.log(JSON.stringify(step2.value, null, '\t'));
+}
+
 async function saveStep() {
   resetCntrSn();
+  setAllianceInfo();
   const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step2', step2.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   ogStep2.value = cloneDeep(step2.value);
