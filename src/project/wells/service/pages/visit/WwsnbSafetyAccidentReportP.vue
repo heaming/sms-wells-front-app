@@ -20,6 +20,7 @@
   >
     <kw-action-top>
       <kw-btn
+        v-permission:print
         secondary
         dense
         icon="print"

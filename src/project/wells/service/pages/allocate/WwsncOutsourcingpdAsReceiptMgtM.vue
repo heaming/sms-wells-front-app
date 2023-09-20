@@ -53,6 +53,7 @@
           />
         </template>
         <kw-btn
+          v-permission:delete
           :label="$t('MSG_BTN_DEL')"
           grid-action
           @click="onClickDelete"
@@ -63,11 +64,13 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -84,6 +87,7 @@
           :label="$t('MSG_BTN_PRTG')"
         /> -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -97,6 +101,7 @@
           inset
         />
         <kw-btn
+          v-permission:update
           dense
           primary
           :label="$t('MSG_BTN_BIZTALK_SEND')"

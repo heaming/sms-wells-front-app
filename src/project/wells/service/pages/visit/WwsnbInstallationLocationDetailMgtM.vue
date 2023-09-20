@@ -152,6 +152,7 @@
           />
         </template>
         <kw-btn
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_BTN_SAVE')"
@@ -169,6 +170,7 @@
           :label="$t('MSG_BTN_PRTG')"
         /> -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
