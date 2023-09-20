@@ -76,6 +76,7 @@
             @click="cancel"
           />
           <kw-btn
+            v-permission:update
             primary
             :label="$t('MSG_BTN_SAVE')"
             class="ml8"
