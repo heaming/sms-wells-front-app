@@ -82,6 +82,7 @@
               />
             </template>
             <kw-btn
+              v-permission:download
               :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
               icon="download_on"
               dense
@@ -106,6 +107,7 @@
               />
             </template>
             <kw-btn
+              v-permission:download
               :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
               icon="download_on"
               :disable="totalSubCount === 0"

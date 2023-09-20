@@ -91,6 +91,7 @@
         </template>
         <kw-btn
           v-show="isChangeGridMain"
+          v-permission:download
           icon="download_on"
           dense
           :label="$t('MSG_BTN_EXCEL_DOWN')"
@@ -99,6 +100,7 @@
         />
         <kw-btn
           v-show="isChangeGridSub"
+          v-permission:download
           icon="download_on"
           dense
           :label="$t('MSG_BTN_EXCEL_DOWN')"
