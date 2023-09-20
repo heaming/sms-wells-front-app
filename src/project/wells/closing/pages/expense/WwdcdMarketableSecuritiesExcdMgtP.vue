@@ -376,11 +376,11 @@ async function onClickBalanceAmount() {
     return;
   }
 
-  // 소속별로 잔액처리
+  // 잔액처리
   const subView = grdSubRef.value.getView();
   const subViewRows = gridUtil.getAllRowValues(subView);
 
-  // 잔액 합계를 최고실적 사원의 정산금액에 더하고 모든 잔여금액 0원 처리 (균등분배의 경우 아무나 몰아주기)
+  // 잔액 합계를 최고실적 사원의 정산금액에 더하고 모든 잔여금액 0원 처리 (균등분배의 경우 임의로 몰아주기)
   let maxPerfVal = 0;
   let maxPerfIndex = 0;
   subViewRows.forEach((row, index) => {
@@ -425,7 +425,7 @@ async function onClickObjectPersonAdd() {
     }
   }
   if (count > 0) {
-    alert(`선택된 대상은 추가되어 있습니다. \n 파트너 번호 :${selectedTarget}`); // TODO 메세지작업해야함
+    alert(`선택된 대상은 추가되어 있습니다. \n 파트너 번호 :${selectedTarget}`); // TODO 메세지 처리
     return;
   }
 
@@ -624,8 +624,7 @@ const initGrdSub = defineGrid((data, view) => {
   view.onEditRowChanged = async (subView, itemIndex, rowData, field, oldValue) => { // 직접편집했을때만
     const dstAmt = subView.getValue(itemIndex, 'dstAmt');
     const fieldValue = subView.getValue(itemIndex, field);
-    if (fieldValue !== dstAmt) {
-      alert(t('MSG_TXT_INVALID_ACCESS')); // 잘못된 접근입니다.
+    if (fieldValue !== dstAmt || isEmpty(fieldValue)) {
       return;
     }
 
@@ -635,7 +634,6 @@ const initGrdSub = defineGrid((data, view) => {
       let mainDstAmt = mainView.getValue(0, 'dstAmt');
 
       mainDstAmt += dstAmt - oldValue;
-
       mainView.setValue(0, 'dstAmt', mainDstAmt); // 등록금액
       mainView.setValue(0, 'amt', (adjCnfmAmt - mainDstAmt)); // 미등록금액(정산대상금액합계 - 등록금액합계)
     }
