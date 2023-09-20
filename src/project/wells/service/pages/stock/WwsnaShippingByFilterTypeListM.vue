@@ -183,7 +183,7 @@
           inset
         />
         <kw-btn
-          v-permission:read
+          v-permission:print
           dense
           primary
           :label="$t('MSG_BTN_LBL_PRNT')"

@@ -51,7 +51,7 @@
       />
       <!-- 확인 -->
       <kw-btn
-        v-permission:read
+        v-permission:print
         primary
         :label="$t('MSG_BTN_CONFIRM')"
         @click="onClickConfirm"

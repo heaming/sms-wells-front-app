@@ -102,7 +102,7 @@
           inset
         />
         <kw-btn
-          v-permission:read
+          v-permission:print
           dense
           primary
           :label="$t('MSG_BTN_OSTR_CTFC_PRNT')"
