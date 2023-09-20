@@ -88,6 +88,7 @@
       </template>
       <!-- 발송 -->
       <kw-btn
+        v-permission:create
         dense
         primary
         :label="t('MSG_BTN_SEND')"
