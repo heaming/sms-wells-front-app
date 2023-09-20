@@ -116,6 +116,7 @@
         </template>
 
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           :disable="pageInfo.totalCount === 0"
@@ -128,6 +129,7 @@
         />
 
         <kw-btn
+          v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
           :disable="pageInfo.totalCount === 0"
           icon="download_on"
@@ -181,6 +183,7 @@
           inset
         />
         <kw-btn
+          v-permission:read
           dense
           primary
           :label="$t('MSG_BTN_LBL_PRNT')"
