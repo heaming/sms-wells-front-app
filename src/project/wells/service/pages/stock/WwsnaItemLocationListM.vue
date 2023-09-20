@@ -74,6 +74,7 @@
         </template>
         <!-- 저장 -->
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_TXT_SAVE')"
           @click="onClickSave"
@@ -85,6 +86,7 @@
         />
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -134,6 +136,7 @@
         />
         <!-- 품목위치 일괄변경 -->
         <kw-btn
+          v-permission:read
           dense
           secondary
           :label="$t('MSG_BTN_ITM_LCT_BLK_CH')"

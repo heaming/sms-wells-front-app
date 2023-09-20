@@ -111,6 +111,7 @@
       </template>
 
       <kw-btn
+        v-permission:download
         dense
         secondary
         icon="excel"
@@ -124,6 +125,7 @@
         inset
       />
       <kw-btn
+        v-permission:create
         dense
         secondary
         :label="$t('MSG_TXT_NM_TAG_PRNT')"
@@ -135,6 +137,7 @@
         inset
       />
       <kw-btn
+        v-permission:delete
         primary
         dense
         :label="$t('MSG_TXT_DEL')"
@@ -142,6 +145,7 @@
         @click="onClickRemove"
       />
       <kw-btn
+        v-permission:create
         primary
         dense
         :label="$t('MSG_TXT_TF_STR_RGST')"

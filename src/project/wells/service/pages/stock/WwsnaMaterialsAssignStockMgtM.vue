@@ -97,6 +97,7 @@
           />
         </template>
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           dense

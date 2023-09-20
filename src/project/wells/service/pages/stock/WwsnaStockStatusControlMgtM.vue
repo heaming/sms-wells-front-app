@@ -106,6 +106,7 @@
         </template>
         <!-- 삭제 -->
         <kw-btn
+          v-permission:delete
           :label="$t('MSG_TXT_DEL')"
           grid-action
           :disable="isSearch"
@@ -118,6 +119,7 @@
         />
         <!-- 행추가 -->
         <kw-btn
+          v-permission:create
           :label="$t('MSG_TXT_ROW_SPMT')"
           grid-action
           :disable="isSearch"
@@ -125,6 +127,7 @@
         />
         <!-- 저장 -->
         <kw-btn
+          v-permission:update
           :label="$t('MSG_TXT_SAVE')"
           grid-action
           :disable="isSearch"
@@ -137,6 +140,7 @@
         />
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

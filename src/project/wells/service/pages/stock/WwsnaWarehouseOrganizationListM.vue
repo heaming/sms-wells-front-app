@@ -85,6 +85,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -111,6 +112,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           dense
           primary
           :label="$t('MSG_BTN_WARE_INF_RGST')"
