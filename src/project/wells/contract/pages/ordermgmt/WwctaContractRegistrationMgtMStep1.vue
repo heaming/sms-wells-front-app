@@ -672,7 +672,7 @@ async function fetchCntrtByCstNo(cstNo) {
 }
 
 async function selectContractor() {
-  if (!searchParams.value.cntrTpCd === '07' && !searchParams.value.cntrTpCd === '08') {
+  if (searchParams.value.cntrTpCd !== '07' && searchParams.value.cntrTpCd !== '08') {
     if (!await checkExistContractor()) {
       return;
     }
