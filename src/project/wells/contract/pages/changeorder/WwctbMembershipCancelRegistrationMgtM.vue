@@ -40,7 +40,7 @@
             </kw-form-item>
             <!--판매구분-->
             <kw-form-item :label="$t('MSG_TXT_SLS_CAT')">
-              <p>{{ searchDetail.cntrGbn }}</p>
+              <p>wells</p>
             </kw-form-item>
             <!--멤버십구분-->
             <kw-form-item :label="$t('MSG_TXT_MSH_DV')">
@@ -235,7 +235,7 @@
             </kw-form-item>
             <!-- row5 조정누계액 -->
             <kw-form-item :label="$t('MSG_TXT_CTR_AGG_AMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.ctrAggAmt??'') }}</p>
+              <p>0</p>
             </kw-form-item>
             <!-- row5 매출잔액 -->
             <kw-form-item :label="$t('MSG_TXT_SL_BLAM')">
@@ -515,7 +515,7 @@
         @click="onClickCancel"
       />
       <kw-btn
-        v-permission:create
+        v-permission:update
         :label="$t('MSG_BTN_SAVE')"
         class="ml8"
         primary
