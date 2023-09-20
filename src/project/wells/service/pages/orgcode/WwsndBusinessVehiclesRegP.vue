@@ -202,6 +202,7 @@
         @click="onClickCancel"
       />
       <kw-btn
+        v-permission:create
         primary
         :label="$t('MSG_BTN_SAVE')"
         @click="onClickSaveBtn"

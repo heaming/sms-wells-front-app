@@ -63,9 +63,9 @@
             dense
             class="mr8"
           />
-          <!-- TODO: 권한 체크 후 버튼 visible 컨트롤해야함 (wells 영업지원팀 권한만 visible: true) -->
           <kw-btn
             v-if="isBusinessSupportTeam"
+            v-permission:create
             secondary
             dense
             :label="$t('MSG_BTN_RGST_PTRM_SE')"
@@ -84,6 +84,7 @@
           />
         </template>
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           :disable="isDisableSave || pageInfo.totalCount === 0"
@@ -95,6 +96,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -109,6 +111,7 @@
         />
         <kw-btn
           v-if="isBusinessSupportTeam"
+          v-permission:create
           dense
           primary
           :label="$t('MSG_BTN_OSTR_AK')"
