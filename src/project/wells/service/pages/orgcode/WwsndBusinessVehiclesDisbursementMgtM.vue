@@ -58,6 +58,7 @@
           @click="onClickTest"
         /> -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -71,6 +72,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_TXT_VHC_DSB_RGST')"
           dense
           primary

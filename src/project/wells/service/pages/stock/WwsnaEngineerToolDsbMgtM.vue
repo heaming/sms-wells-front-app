@@ -84,6 +84,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -97,6 +98,7 @@
           spaced
         />
         <kw-btn
+          v-permission:delete
           :label="$t('MSG_BTN_RECT_DSB_IZ_DL')"
           secondary
           dense
@@ -108,6 +110,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_TOOL_DSB')"
           primary
           dense

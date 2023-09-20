@@ -69,6 +69,7 @@
           />
           <kw-btn
             v-if="isBusinessSupportTeam"
+            v-permission:create
             secondary
             dense
             :label="$t('MSG_BTN_RGST_PTRM_SE')"
@@ -87,6 +88,7 @@
           />
         </template>
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           :disable="isDisableSave || pageInfo.totalCount === 0"
@@ -98,6 +100,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -113,6 +116,7 @@
         />
         <kw-btn
           v-if="isBusinessSupportTeam"
+          v-permission:create
           dense
           primary
           :label="$t('MSG_BTN_OSTR_AK')"

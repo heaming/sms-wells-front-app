@@ -104,6 +104,7 @@
         </template>
 
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_SAVE')"
           dense
           grid-action
@@ -116,6 +117,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
