@@ -258,7 +258,7 @@ async function onClickSave() {
       obj.products = checkRowProducts;
     });
     console.log(chkRows);
-    await dataService.post(`${baseUrl}/test`, chkRows);
+    await dataService.post(`${baseUrl}`, chkRows);
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
