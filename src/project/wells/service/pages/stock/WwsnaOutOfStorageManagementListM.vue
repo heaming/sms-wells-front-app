@@ -88,6 +88,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -101,6 +102,7 @@
           inset
         />
         <kw-btn
+          v-permission:read
           dense
           primary
           :label="$t('MSG_BTN_OSTR_CTFC_PRNT')"
