@@ -113,10 +113,11 @@
         <span class="ml6">{{ t('MSG_TXT_UNIT_WON_MCN') }}</span>
       </template>
       <kw-btn
+        v-permission:download
+        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
         icon="download_on"
         dense
         secondary
-        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
         :disable="!pageInfo.totalCount"
         @click="onClickExcelDownload"
       />
