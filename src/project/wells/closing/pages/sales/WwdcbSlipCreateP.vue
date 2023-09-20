@@ -52,6 +52,7 @@
 
     <template #action>
       <kw-btn
+        v-permission:create
         primary
         :label="$t('MSG_BTN_CNTN_CREATE')"
         @click="onSlipCreate()"
@@ -64,16 +65,17 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useGlobal, stringUtil } from 'kw-lib';
+import { useDataService, codeUtil, defineGrid, getComponentType, useGlobal, stringUtil } from 'kw-lib';
 import dayjs from 'dayjs';
+import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const store = useStore();
 const { alert } = useGlobal();
 // const { ok } = useModal();
-// const dataService = useDataService();
+const dataService = useDataService();
 const companyCode = ref([{ codeId: store.getters['meta/getUserInfo'].companyCode, codeName: store.getters['meta/getUserInfo'].companyName }]);
-
+const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -106,17 +108,17 @@ onMounted(async () => {
   }
 });
 
+const saveParams = ref({
+  baseYm: now.format('YYYYMM'),
+  sapBzDvCd: '1110',
+});
+
+let cachedParams;
 async function onSlipCreate() {
-  const view = grdDetailRef.value.getView();
-  const rows = gridUtil.getAllRowValues(view);
-  rows.forEach((e) => {
-    e.budat = detailInf.value.budat;
-    e.kwGrpCoCd = detailInf.value.kwGrpCoCd;
-  });
-  alert('Z-CL-S-0008 반제전표 생성 서비스 개발(7월 예정) 후 연동 예정');
-  // await dataService.post('/sms/wells/closing/business-atam-adjusts', rows);
-  // ok();
-  // notify(t('MSG_ALT_SAVE_DATA'));
+  cachedParams = cloneDeep(saveParams.value);
+  console.log('cachedParams:', cachedParams);
+  const response = await dataService.post('/sms/wells/closing/business-atam-adjusts', cachedParams);
+  if (response.data === 'S') await alert(t('MSG_ALT_SAVE_DATA'));
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

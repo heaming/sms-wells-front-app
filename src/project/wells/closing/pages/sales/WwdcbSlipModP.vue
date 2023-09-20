@@ -55,6 +55,7 @@
 
     <template #action>
       <kw-btn
+        v-permission:update
         primary
         :label="$t('MSG_BTN_SELT_SLIP_INTLZ')"
         @click="onClickSeltSlipIntlz()"

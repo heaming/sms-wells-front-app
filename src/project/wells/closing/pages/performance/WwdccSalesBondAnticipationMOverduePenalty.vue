@@ -153,6 +153,8 @@
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
+        v-permission:print
+        :disable="totalCount === 0"
         icon="report"
         dense
         secondary
@@ -165,6 +167,7 @@
         inset
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         :disable="totalCount === 0"
         dense
