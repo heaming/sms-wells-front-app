@@ -53,6 +53,7 @@
       <kw-action-top>
         <!-- 개인별 방문주기 조회 -->
         <kw-btn
+          v-permission:read
           :label="$t('MSG_BTN_INDV_VST_INQR')"
           secondary
           dense
@@ -61,6 +62,7 @@
         />
         <!-- 개인별 방문주기 생성 -->
         <kw-btn
+          v-permission:read
           :label="$t('MSG_BTN_INDV_VST_CRT')"
           secondary
           dense
@@ -139,6 +141,7 @@
             />
             <!-- 저장 -->
             <kw-btn
+              v-permission:update
               secondary
               :label="$t('MSG_BTN_SAVE')"
               padding="12px"
@@ -436,6 +439,7 @@
                 <p class="kw-grow">
                   {{ svHshdNum[0] }}
                 </p> <kw-btn
+                  v-permission:read
                   :label="$t('MSG_TXT_SDING_HIST')"
                   padding="12px"
                   class="ml8"
@@ -514,6 +518,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -1122,8 +1127,6 @@ function initGridDelinquent(data, view) {
     { fieldName: 'gubun' },
     { fieldName: 'suminamt', dataType: 'number' },
     { fieldName: 'dlyamt', dataType: 'number' },
-    { fieldName: 'tsuminamt', dataType: 'number' },
-    { fieldName: 'tdlyamt', dataType: 'number' },
   ];
 
   const columns = [
