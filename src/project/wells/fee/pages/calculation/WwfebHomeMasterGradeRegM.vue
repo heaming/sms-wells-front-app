@@ -64,6 +64,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -72,12 +73,14 @@
           @click="onClickExcelDownload"
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_GD_TF')"
           secondary
           dense
           @click="onClickHmstGradeTransfer"
         />
         <kw-btn
+          v-permission:update
           dense
           primary
           :label="$t('MSG_BTN_GD_SAVE')"

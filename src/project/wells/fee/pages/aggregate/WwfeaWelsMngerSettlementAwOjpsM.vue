@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : FEA
 2. 프로그램 ID : WwfeaWelsMngerSettlementAwOjpsM - WM정착수당 대상자 관리
-3. 작성자 : gs.piit150
+3. 작성자 : min-kyu bae
 4. 작성일 : 2023.06.05
 ****************************************************************************************************
 * 프로그램 설명
@@ -88,6 +88,7 @@
           />
         </template>
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_SAVE')"
           secondary
           dense
@@ -100,6 +101,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           dense
           secondary
           icon="download_on"
@@ -108,18 +110,21 @@
           @click="onClickExcelDownload"
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_CNTN_CREATE')"
           secondary
           dense
           @click="onClickCreate"
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_DTRM')"
           secondary
           dense
           @click="onClickDtrm"
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_OPNG_TP')+$t('MSG_BTN_DTRM')+$t('MSG_BTN_CANCEL')"
           secondary
           dense

@@ -126,6 +126,7 @@
           @click="openFeeReportPopup"
         />
         <kw-btn
+          v-permission:download
           dense
           secondary
           icon="download_on"
@@ -139,6 +140,7 @@
           spaced
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_FEE_INQR_PTRM_SE')"
           dense
           @click="onClickFeeDsbSpcsh"

@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : FEA
 2. 프로그램 ID : WwfeaNetOrderListM - 월 순주문 집계
-3. 작성자 : gs.piit150
+3. 작성자 : min-kyu bae
 4. 작성일 : 2023.02.17
 ****************************************************************************************************
 * 프로그램 설명
@@ -309,6 +309,7 @@
         </template>
         <kw-btn
           v-if="isSelectVisile4"
+          v-permission:download
           dense
           secondary
           icon="download_on"
@@ -318,6 +319,7 @@
         />
         <kw-btn
           v-if="isSelectVisile2"
+          v-permission:download
           dense
           secondary
           icon="download_on"
@@ -333,6 +335,7 @@
         />
         <kw-btn
           v-if="isPerfVisile"
+          v-permission:create
           :label="$t('MSG_BTN_HDQ_PERF')+$t('MSG_BTN_AGRG')"
           secondary
           dense
@@ -347,6 +350,7 @@
         />
         <kw-btn
           v-if="isPerfVisile"
+          v-permission:update
           :label="$t('MSG_BTN_HDQ_PERF')+$t('MSG_BTN_DTRM')"
           secondary
           dense

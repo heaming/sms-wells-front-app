@@ -41,18 +41,21 @@
       />
       <kw-btn
         v-if="params.dv==='CR'"
+        v-permission:create
         primary
         :label="$t('MSG_TXT_CRT')"
         @click="onClickCreate"
       />
       <kw-btn
         v-if="params.dv==='CO'"
+        v-permission:update
         primary
         :label="$t('MSG_TXT_DTRM')"
         @click="onClickConfirm"
       />
       <kw-btn
         v-if="params.dv==='CC'"
+        v-permission:update
         primary
         :label="$t('MSG_TXT_CNFM_CAN')"
         @click="onClickConfirmCancel"
