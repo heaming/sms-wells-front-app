@@ -908,7 +908,6 @@ async function isValidStep() {
 
 async function saveStep() {
   if (cntrTpIs.value.ensm) {
-    step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
     step1.value.cntrt.copnDvCd = searchParams.value.copnDvCd;
     if (!isEmpty(searchParams.value.alncPrtnrDvCd)) {
       step1.value.prtnr.alncPrtnrDrmVal = searchParams.value.alncPrtnrNo;
@@ -918,13 +917,16 @@ async function saveStep() {
   }
   if (cntrTpIs.value.quot) { // 견적서
     step1.value.bas ??= {};
-    step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
-    step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
     step1.value.bas.cntrCstNm = searchParams.value.cstKnm;
   }
   if (cntrTpCd.value === reStipulationCntrTpCd) {
     return rstlCntrNo.value;
   }
+
+  // 최초 계약시 설정해야 summary 에서 계약유형 등 표시 가능
+  step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
+  step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
+
   const { data } = await dataService.post('sms/wells/contract/contracts/save-cntr-step1', step1.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   ogStep1.value = cloneDeep(step1.value);
