@@ -90,7 +90,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="popupRequiredCstInfos"
+          v-if="popupRequiredCstInfos && searchParams.copnDvCd === '1'"
           :label="cstKnmLabel"
           required
         >
@@ -99,6 +99,17 @@
             :label="cstKnmLabel"
             maxlength="50"
             rules="required"
+            :disable="isReadonly"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-if="popupRequiredCstInfos && searchParams.copnDvCd === '2'"
+          :label="cstKnmLabel"
+        >
+          <kw-input
+            v-model="searchParams.cstKnm"
+            :label="cstKnmLabel"
+            maxlength="50"
             :disable="isReadonly"
           />
         </kw-search-item>
