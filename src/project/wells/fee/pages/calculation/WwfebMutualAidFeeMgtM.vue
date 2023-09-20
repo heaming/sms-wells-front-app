@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       :cols="3"
       @search="onClickSearch"
     >
@@ -93,6 +94,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -101,17 +103,20 @@
           @click="onClickExcelDownload"
         />
         <kw-separator
+          v-permission:create
           vertical
           inset
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_FEE_CRT')"
           primary
           dense
           @click="onClickCreate"
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_REDF_FEE_CRT')"
           primary
           dense

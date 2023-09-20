@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       :cols="3"
       @search="onClickSearch"
     >
@@ -118,6 +119,7 @@
           inset
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -140,6 +142,7 @@
         />
         <kw-btn
           v-if="grdType === 'B'"
+          v-permission:update
           :label="$t('MSG_TXT_SAVE')"
           primary
           dense
