@@ -44,7 +44,6 @@
           </kw-form-item>
         </kw-form-row>
       </kw-form>
-      <!-- <kw-separator /> -->
     </kw-observer>
 
     <template #action>
@@ -57,6 +56,7 @@
             @click="cancel"
           />
           <kw-btn
+            v-permission:update
             primary
             :label="$t('MSG_BTN_SAVE')"
             class="ml8"

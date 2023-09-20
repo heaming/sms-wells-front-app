@@ -127,6 +127,7 @@
           @click="onClickExcelUpload"
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           secondary
           dense
@@ -140,6 +141,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_CNTN_COPY')"
           secondary
           dense
@@ -147,6 +149,7 @@
           @click="onClickCopy"
         />
         <kw-btn
+          v-permission:read
           dense
           secondary
           :disable="pageInfo.totalCount === 0"
