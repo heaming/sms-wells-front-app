@@ -126,6 +126,7 @@
 
         <!-- 저장 -->
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -137,6 +138,7 @@
         />
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
