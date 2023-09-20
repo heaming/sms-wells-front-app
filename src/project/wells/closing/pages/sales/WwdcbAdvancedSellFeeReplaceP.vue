@@ -51,6 +51,7 @@
 
     <template #action>
       <kw-btn
+        v-permission:create
         primary
         :label="$t('MSG_BTN_SLIP_CRT')"
         :disable="info.dpSlpno !== null"
