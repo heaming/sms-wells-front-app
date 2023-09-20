@@ -294,6 +294,7 @@
             <!-- 기타배송조회 -->
             <kw-btn
               v-show="item.sppQty > 0"
+              v-permission:read
               :label="t('MSG_BTN_SPP_INQR_ETC')"
               @click="onClickInstallEtc(item)"
             />
@@ -302,18 +303,21 @@
               <kw-btn
                 v-show="(isEqual(item.acpgStat, '1') || isEqual(item.acpgStat, '9'))
                   && isEqual(item.istPcsvSellTpCd, '1')"
+                v-permission:create
                 :label="t('MSG_BTN_RECEIPT')"
                 @click="onClickReceipt(item)"
               />
               <!-- 재접수 -->
               <kw-btn
                 v-show="isEqual(item.kaetc1, '7') && isEqual(item.acpgStat, '2') && isEqual(item.istPcsvSellTpCd, '1')"
+                v-permission:update
                 :label="t('MSG_BTN_RE_REG')"
                 @click="onClickReRegistration(item)"
               />
               <!-- 배정취소 -->
               <kw-btn
                 v-show="isEqual(item.acpgStat, '2') && isEqual(item.istPcsvSellTpCd, '1')"
+                v-permission:delete
                 :label="t('MSG_BTN_CNCL_ASGMT')"
                 @click="onClickCnclAsgmt(item)"
               />
@@ -451,24 +455,28 @@
             <!-- 기타배송조회 -->
             <kw-btn
               v-show="item.sppQty > 0"
+              v-permission:read
               :label="t('MSG_BTN_SPP_INQR_ETC')"
               @click="onClickInstallEtc(item)"
             />
             <!-- 조회 -->
             <kw-btn
               v-show="!isEmpty(item.sppOrdNo) && !isEmpty(item.pcsvBzsCd)"
+              v-permission:read
               :label="t('MSG_BTN_INQR')"
               @click="onClickDelverInqr(item.sppOrdNo, item.pcsvBzsCd)"
             />
             <!-- 예약확정 -->
             <kw-btn
               v-show="isEqual(item.booSellYn, 'Y') && isEqual(item.kaetc1, '4') && isEqual(item.pdMclsfNm, 'C')"
+              v-permission:update
               :label="`${t('MSG_BTN_RSV')}${t('MSG_BTN_DTRM')}`"
               @click="onClickDelverRsvDtrmEtc(item)"
             />
             <!-- 예약확정등록 -->
             <kw-btn
               v-show="!isEqual(item.booSellYn, 'Y') && isEqual(item.kaetc1, '4') && isEqual(item.pdMclsfNm, 'C')"
+              v-permission:create
               :label="`${t('MSG_BTN_RSV')}${t('MSG_BTN_DTRM')}${t('MSG_BTN_RGST')}`"
               @click="onClickDelverRsvDtrmRgstEtc(item.sellTpCd, item.cntrNo)"
             />
