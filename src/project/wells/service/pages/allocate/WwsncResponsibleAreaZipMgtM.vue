@@ -91,6 +91,7 @@
         </template>
         <!-- 저장 -->
         <kw-btn
+          v-permission:update
           dense
           grid-action
           :label="$t('MSG_BTN_SAVE')"
@@ -103,6 +104,7 @@
         />
         <!-- 엑셀 다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

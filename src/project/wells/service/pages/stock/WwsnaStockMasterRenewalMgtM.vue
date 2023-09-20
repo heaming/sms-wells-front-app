@@ -78,6 +78,7 @@
       <div class="button-set--bottom">
         <div class="button-set--bottom-right">
           <kw-btn
+            v-permission:update
             :label="$t('MSG_BTN_RENEW')"
             primary
             @click="onClickRenewal"

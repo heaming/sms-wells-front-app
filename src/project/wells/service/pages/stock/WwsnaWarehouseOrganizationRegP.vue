@@ -157,6 +157,7 @@
           />
           <!-- 빌딩정보 -->
           <kw-btn
+            v-permission:read
             :label="$t('MSG_TXT_BLD_INF')"
             :disable="isNotIndpWarehouse || warehouseInfo.adrUseYn === 'N'"
             @click="onClickOpenBuildingPopup"
@@ -217,6 +218,7 @@
         @click="onClickCancel"
       />
       <kw-btn
+        v-permission:update
         primary
         :label="$t('MSG_BTN_SAVE')"
         @click="onClickSave"

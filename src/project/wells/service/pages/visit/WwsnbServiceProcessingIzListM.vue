@@ -146,6 +146,7 @@
           <span>(단위:원)</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
