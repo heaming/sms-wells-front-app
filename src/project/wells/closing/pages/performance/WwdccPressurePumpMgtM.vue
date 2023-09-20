@@ -351,6 +351,7 @@ async function onClickSave() {
       rcpdt: obj.rcpdt,
       istDuedt: obj.istDuedt,
       istDt: obj.istDt,
+      fnlVstFshDt: obj.fnlVstFshDt,
       svBizHclsfCd: obj.svBizHclsfCd,
     });
   });
