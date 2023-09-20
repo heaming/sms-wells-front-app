@@ -74,11 +74,13 @@
           />
         </template>
         <kw-btn
+          v-permission:delete
           grid-action
           :label="$t('MSG_BTN_DEL')"
           @click="onClickDelete"
         />
         <kw-btn
+          v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           :disable="isDisable"
@@ -90,6 +92,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -103,6 +106,7 @@
           spaced
         />
         <kw-btn
+          v-permissioin:update
           :label="$t('MSG_BTN_SAVE')"
           primary
           dense
@@ -295,11 +299,6 @@ async function onClickSave() {
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
-
-onMounted(async () => {
-  // await onChangePdNm();
-  // await onChangePdGr();
-});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
