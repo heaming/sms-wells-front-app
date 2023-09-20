@@ -14,7 +14,10 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      v-permission:read
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
@@ -96,6 +99,7 @@
         </template>
         <kw-btn
           v-if="isBtnVisible"
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_MOD')"
           @click="onClickMod(true)"
@@ -115,6 +119,7 @@
         />
         <kw-btn
           v-if="!isBtnVisible"
+          v-permission:create
           icon="upload_on"
           dense
           secondary
@@ -122,6 +127,7 @@
           @click="onClickExcelUpload"
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -135,6 +141,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           dense
           secondary
           :label="$t('MSG_BTN_HIS_MGT')"

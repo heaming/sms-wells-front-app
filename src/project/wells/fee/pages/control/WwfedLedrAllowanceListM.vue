@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -80,6 +81,7 @@
         </template>
 
         <kw-btn
+          v-permission:create
           icon="upload_on"
           dense
           secondary
@@ -88,6 +90,7 @@
         />
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           secondary
           dense
