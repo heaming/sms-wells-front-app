@@ -129,7 +129,7 @@
         @click="onClickDelete"
       />
       <kw-btn
-        v-permission:read
+        v-permission:print
         dense
         secondary
         :label="$t('MSG_BTN_PRINT')"
