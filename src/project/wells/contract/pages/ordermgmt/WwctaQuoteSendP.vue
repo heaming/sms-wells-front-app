@@ -96,6 +96,7 @@
       />
       <!--발송-->
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_SEND')"
         primary
         @click="onClickSend"

@@ -50,6 +50,7 @@
       </template>
       <!-- 일괄변경 등록 -->
       <kw-btn
+        v-permission:create
         :label="$t('MSG_TXT_BTCH_CHNG_REG')"
         primary
         dense

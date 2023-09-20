@@ -112,6 +112,7 @@
         />
         <!-- 거래명세서 발송 -->
         <kw-btn
+          v-permission:create
           :label="$t('MSG_TXT_TRD_SPCSH')+' '+$t('MSG_TXT_PSH_SEND')"
           primary
           dense
