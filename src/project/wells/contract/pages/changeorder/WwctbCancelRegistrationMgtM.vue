@@ -628,7 +628,6 @@ function initGrid(data, view) {
     { fieldName: 'sellTpDtlCd', visible: false },
     { fieldName: 'cntrDtlStatCd', visible: false },
     { fieldName: 'basePdCd', visible: false }, // [상품코드]
-    { fieldName: 'cntrGbn', visible: false },
     { fieldName: 'ogCd', visible: false }, // [소속]
     { fieldName: 'hooPrtnrNm', visible: false }, // [본부장명]
     { fieldName: 'hooPrtnrNo', visible: false }, // [본부장사번]
@@ -658,7 +657,6 @@ function initGrid(data, view) {
     { fieldName: 'slSumVat', visible: false }, // [매출VAT]
     { fieldName: 'slAggAmt', visible: false }, // [매출누계]
     { fieldName: 'dscAggAmt', visible: false }, // [할인누계]
-    { fieldName: 'ctrAggAmt', visible: false }, // [조정누계금액]
     { fieldName: 'thmPaiamAmt', visible: false }, // [당월원리금 - 등록때는 없음]
     { fieldName: 'thmSrvAmt', visible: false }, // [당월서비스 - 등록때는 없음]
     { fieldName: 'eotPcamBlam', visible: false }, // [매출잔액]

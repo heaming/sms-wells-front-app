@@ -114,10 +114,10 @@
         </template>
         <kw-btn
           v-permission:download
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
           icon="download_on"
           dense
           secondary
-          :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="!pageInfo.totalCount"
           @click="onClickExcelDownload"
         />
@@ -128,9 +128,9 @@
         />
         <kw-btn
           v-permission:print
+          :label="$t('MSG_BTN_PRINT')"
           icon="report"
           dense
-          :label="$t('MSG_BTN_PRINT')"
           :disable="!pageInfo.totalCount"
           @click="onClickPrint"
         />

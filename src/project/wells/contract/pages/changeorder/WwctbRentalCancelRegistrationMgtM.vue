@@ -36,7 +36,7 @@
           <kw-form-row>
             <!--고객명-->
             <kw-form-item :label="$t('MSG_TXT_CST_NM')">
-              <p>{{ searchDetail.cntrCstKnm }}</p>
+              <p>wells</p>
             </kw-form-item>
             <!--판매구분-->
             <kw-form-item :label="$t('MSG_TXT_SLS_CAT')">
@@ -671,7 +671,7 @@
         @click="onClickCancel"
       />
       <kw-btn
-        v-permission:create
+        v-permission:update
         :label="$t('MSG_BTN_SAVE')"
         class="ml8"
         primary
