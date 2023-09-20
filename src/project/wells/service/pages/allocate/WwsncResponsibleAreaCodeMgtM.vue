@@ -115,6 +115,7 @@
           />
         </template>
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -131,6 +132,7 @@
           :label="$t('MSG_BTN_PRTG')"
         /> -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

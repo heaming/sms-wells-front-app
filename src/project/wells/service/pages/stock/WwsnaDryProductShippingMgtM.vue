@@ -101,6 +101,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -115,6 +116,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           dense
           primary
           :label="$t('MSG_BTN_CONF')"
