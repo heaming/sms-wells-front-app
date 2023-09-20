@@ -307,9 +307,9 @@ async function onClickSearch() {
   await fetchData();
 }
 
-/** ==============================
- * 서비스 급지 현황 엑셀 다운로드
-**============================== */
+/** =======================================
+ * 배정건 대비 보유자재 현황 엑셀 다운로드
+**======================================= */
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const response = await dataService.get('/sms/wells/service/assign-cpr-hv-mat-ps/excel-download', { params: cachedParams });

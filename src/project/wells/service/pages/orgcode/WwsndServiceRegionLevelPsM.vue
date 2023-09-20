@@ -118,6 +118,7 @@ import dayjs from 'dayjs';
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
+const router = useRouter();
 const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
@@ -163,8 +164,6 @@ const pageInfo = ref({
 const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } });
 // 엔지니어 조회
 const { data: engineers } = await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } });
-console.log('serviceCenters >>>>', serviceCenters);
-console.log('engineers >>>>', engineers);
 
 /** ==============================
  * 서비스 급지 현황 엑셀 다운로드
@@ -188,23 +187,17 @@ async function onClickExcelDownload() {
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/service-region-level-ps/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list, pageInfo: pagingResult } = res.data;
-  // if (list.length > 0) {
-  //   list.forEach((data) => {
-  //     data.grdTotAmt = data.wrkGrdAmt + data.mvGrdAmt;
-  //   });
-  // }
-  // console.log('list >>>', list);
   const resData = list;
   pageInfo.value = pagingResult;
+  console.log('resData >>>>', resData);
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(resData);
-  view.clearCurrent();
+  view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
-  console.log('searchParams.value >>>', searchParams.value);
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -216,6 +209,7 @@ const initGrdMain = defineGrid((data, view) => {
   // 51ea
   const fields = [
     { fieldName: 'ogCd' }, // 서비스센터 코드
+    { fieldName: 'sapMatCd' }, // SAP코드
     { fieldName: 'ogNm' }, // 서비스센터명
     { fieldName: 'ichrPrtnrNo' }, // 담당자 사번
     { fieldName: 'prtnrKnm' }, // 담당자 명
@@ -251,6 +245,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mvDistance' }, // 이동합계
     { fieldName: 'wrkGrd' }, // 업무급지 - 등급
     { fieldName: 'wrkGrdAmt' }, // 업무급지 - 급지수당
+    { fieldName: 'regNm' }, // 접수자
+    { fieldName: 'regOgNm' }, // 접수자소속
     { fieldName: 'bsdt' }, // 기준일자
     { fieldName: 'dgr1LevlOgNm' }, // 상위 조직명
     { fieldName: 'dgr1LevlOgCd' }, // 상위 조직코드
@@ -266,7 +262,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dptuPdlvNo' }, // 출장출고지번호
     { fieldName: 'arvPdlvNo' }, // 도착출고지번호
     { fieldName: 'mvSisock' }, // 시속(경로)
-    { fieldName: 'mvTime' }, // 이동시간 (계산시 필요함)
+    { fieldName: 'mvTime' }, // 시속(경로)
+    { fieldName: 'regId' },
   ];
   /**------------------------------------------------------------------
    * 확인필요 컬럼
@@ -286,13 +283,20 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '100', styleName: 'text-center' }, // 파트너번호..담당사번
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: '100' }, // 파트너명..담당성명
     { fieldName: 'ac025EmpOr', header: t('MSG_TXT_RSB'), width: '100' }, // 직책
-    { fieldName: 'custCd', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center' }, // 계약번호+일련번호 화면표시용 ~> 계약번호
+    { // 계약번호+일련번호 화면표시용 ~> 계약번호
+      fieldName: 'custCd',
+      header: t('MSG_TXT_CNTR_NO'),
+      width: '150',
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+    },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' }, // 우편번호
     { fieldName: 'ctpvNm', header: t('MSG_TXT_CTPV_NM'), width: '100', styleName: 'text-center' }, // 시도명
     { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY_NM'), width: '100' }, // 시군구명
     { fieldName: 'amtdNm', header: t('MSG_TXT_AMTD_NM'), width: '100' }, // 행정동명
     { fieldName: 'ac112EmdKorNm', header: t('MSG_TXT_EMD_NM'), width: '150' }, // 읍면동명
     // SAP코드, 품목코드..차후 추가
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '245' }, // SAP코드
     { fieldName: 'itemNm', header: t('MSG_TXT_PRDT_NM'), width: '245' }, // 상품명
     { fieldName: 'co410FeeGb', header: t('수당항목'), width: '150' }, // 수당항목
     { fieldName: 'arrDttm', header: t('작업도착'), width: '150' }, // 작업도착
@@ -348,6 +352,9 @@ const initGrdMain = defineGrid((data, view) => {
     }, // 급지합계
     // 접수자..1dept
     // 2dept..접수자소속, 접수자
+    { fieldName: 'regOgNm', header: t('MSG_TXT_RCST_BLG'), width: '100' }, // 접수자소속
+    { fieldName: 'regNm', header: t('MSG_TXT_RCST'), width: '100' }, // 접수자
+
     { fieldName: 'dgr1LevlOgNm', visible: false }, // 상위 조직명
     { fieldName: 'dgr1LevlOgCd', visible: false }, // 상위 조직코드
     { fieldName: 'dgr1LevlOgId', visible: false }, // 상위 조직 ID
@@ -364,6 +371,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mvTime', visible: false }, // 이동시간 (계산시 필요함)
     { fieldName: 'bsdt', visible: false }, // 기준일자
     { fieldName: 'ogId', visible: false }, // 서비스센터 조직 ID  참조용
+    { fieldName: 'regId', visible: false },
   ];
 
   data.setFields(fields);
@@ -371,6 +379,13 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+
+  view.onCellItemClicked = async (grid, clickData) => {
+    if (clickData.column === 'custCd') {
+      const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
+    }
+  };
 
   view.setColumnLayout([
     { // 배정정보
@@ -412,7 +427,7 @@ const initGrdMain = defineGrid((data, view) => {
       ],
     },
     { // 출발
-      header: { text: `${t('출발')}` },
+      header: { text: `${t('MSG_TXT_DPTMT')}` },
       direction: 'horizontal',
       items: [
         'strShpNm',
@@ -421,7 +436,7 @@ const initGrdMain = defineGrid((data, view) => {
       ],
     },
     { // 도착
-      header: { text: `${t('도착')}` },
+      header: { text: `${t('MSG_TXT_ARV')}` },
       direction: 'horizontal',
       items: [
         'endShpNm',
@@ -430,14 +445,14 @@ const initGrdMain = defineGrid((data, view) => {
       ],
     },
     { // 작업
-      header: { text: `${t('작업')}` },
+      header: { text: `${t('MSG_TXT_OSTR_WK')}` },
       direction: 'horizontal',
       items: [
         'timeStand',
       ],
     },
     { // 경로
-      header: { text: `${t('경로')}` },
+      header: { text: `${t('MSG_TXT_PATH')}` },
       direction: 'horizontal',
       items: [
         'al170MvDistance',
@@ -446,7 +461,7 @@ const initGrdMain = defineGrid((data, view) => {
       ],
     },
     { // 업무급지
-      header: { text: `${t('업무급지')}` },
+      header: { text: `${t('MSG_TXT_BIZ_RGLVL')}` },
       direction: 'horizontal',
       items: [
         'wrkGrd',
@@ -454,7 +469,7 @@ const initGrdMain = defineGrid((data, view) => {
       ],
     },
     { // 이동급지
-      header: { text: `${t('이동급지')}` },
+      header: { text: `${t('MSG_TXT_MMT_RGLVL')}` },
       direction: 'horizontal',
       items: [
         'mvDistance',
@@ -464,14 +479,14 @@ const initGrdMain = defineGrid((data, view) => {
     },
     // 급지합계
     'grdTotAmt',
-    // { // 접수자
-    //   header: { text: `${t('접수자')}` },
-    //   direction: 'horizontal',
-    //   items: [
-    //     'mvDistance',
-    //     'mvGrd',
-    //   ],
-    // },
+    { // 접수자
+      header: { text: `${t('MSG_TXT_RCST')}` },
+      direction: 'horizontal',
+      items: [
+        'regOgNm',
+        'regNm',
+      ],
+    },
   ]);
 });
 </script>
