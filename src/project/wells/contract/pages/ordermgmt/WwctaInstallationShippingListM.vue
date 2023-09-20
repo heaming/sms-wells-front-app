@@ -310,7 +310,7 @@
               <!-- 재접수 -->
               <kw-btn
                 v-show="isEqual(item.kaetc1, '7') && isEqual(item.acpgStat, '2') && isEqual(item.istPcsvSellTpCd, '1')"
-                v-permission:update
+                v-permission:create
                 :label="t('MSG_BTN_RE_REG')"
                 @click="onClickReRegistration(item)"
               />
@@ -936,7 +936,7 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
       cntrSn: dataList.cntrSn,
       ordrNo3: '0',
     });
-    const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings/due-date-cancel', saveCheckParams.value); // 취소
+    const res = await dataService.put('/sms/wells/contract/contracts/installation-shippings/due-date-cancel', saveCheckParams.value); // 취소
     if (!isEmpty(res)) {
       notify(t('MSG_ALT_SPP_CAN_EXP_DT_CANCEL'));
     }
