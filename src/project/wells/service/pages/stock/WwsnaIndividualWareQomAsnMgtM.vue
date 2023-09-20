@@ -139,6 +139,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -152,18 +153,21 @@
           spaced
         />
         <kw-btn
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_TXT_WARE_RNW')"
           @click="onClickWareRenewal"
         />
         <kw-btn
+          v-permission:create
           dense
           secondary
           :label="$t('MSG_TXT_ASGN_EXLD_ITM_RGST')"
           @click="openAssignExcludeItemP"
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_TXT_RECREATION')"
           dense
           primary

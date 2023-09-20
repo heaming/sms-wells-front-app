@@ -126,6 +126,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
           :disable="pageInfo.totalCount === 0"
           icon="download_on"
@@ -139,6 +140,7 @@
           inset
         />
         <kw-btn
+          v-permission:update
           secondary
           dense
           :label="`${t('MSG_TXT_DP_DT')}${t('MSG_TXT_CH')}`"
@@ -146,6 +148,7 @@
           @click="onClickSave"
         />
         <kw-btn
+          v-permission:read
           secondary
           dense
           :label="$t('MSG_BTN_AGRG_CHT_PRNT')"
@@ -170,6 +173,7 @@
           inset
         />
         <kw-btn
+          v-permission:update
           primary
           dense
           :label="`${t('MSG_TXT_OSTR_CNFM_DT')} ${t('MSG_TXT_SAVE')}`"

@@ -160,6 +160,7 @@
         @click="onClickClose"
       />
       <kw-btn
+        v-permission:create
         primary
         :label="$t('MSG_BTN_SELT')"
         @click="onClickSelt"

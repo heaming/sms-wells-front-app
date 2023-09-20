@@ -90,6 +90,7 @@
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
         <kw-btn
+          v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
           :disable="pageInfo.totalCount === 0"
           icon="download_on"
@@ -103,6 +104,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_CMPT_EXCD_ITM_MNGT')"
           primary
           dense

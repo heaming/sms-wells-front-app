@@ -79,6 +79,7 @@
         </template>
         <!-- 저장버튼 -->
         <kw-btn
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_BTN_SAVE')"
@@ -91,6 +92,7 @@
         />
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -110,6 +112,7 @@
         />
         <!-- 신청취소 -->
         <kw-btn
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_BTN_APPL_CNCL')"
@@ -117,6 +120,7 @@
         />
         <!-- 실사취소 -->
         <kw-btn
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_BTN_ACINSP_CAN')"
@@ -124,6 +128,7 @@
         />
         <!-- 재고적용 -->
         <kw-btn
+          v-permission:update
           dense
           secondary
           :label="$t('MSG_BTN_STOC_APY')"
@@ -136,6 +141,7 @@
         />
         <!-- 실사확정 -->
         <kw-btn
+          v-permission:update
           primary
           dense
           :label="$t('MSG_BTN_ACINSP_CNFM')"

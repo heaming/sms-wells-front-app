@@ -151,6 +151,7 @@
         </template>
         <!-- 저장 -->
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickRtnGd"
@@ -162,6 +163,7 @@
         />
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -181,6 +183,7 @@
         />
         <!-- 확인일자 일괄변경 -->
         <kw-btn
+          v-permission:read
           dense
           secondary
           :label="$t('MSG_BTN_CONF_DT_BLK_CH')"
@@ -194,6 +197,7 @@
         />
         <!-- 반품처리유형 일괄변경 -->
         <kw-btn
+          v-permission:read
           dense
           secondary
           :label="$t('MSG_BTN_RTNGD_PROCS_TP_BLK_CH')"
@@ -206,6 +210,7 @@
         />
         <!-- 반품확인저장 -->
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_RTNGD_CONF_SAVE')"
           primary
           dense

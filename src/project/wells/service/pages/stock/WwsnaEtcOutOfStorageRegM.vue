@@ -70,6 +70,7 @@
         </template>
         <!-- 삭제버튼 -->
         <kw-btn
+          v-permission:delete
           dense
           secondary
           :label="$t('MSG_TXT_DEL')"
@@ -118,11 +119,13 @@
         />
         <!-- 일괄변경 -->
         <kw-btn
+          v-permission:read
           dense
           secondary
           :label="$t('MSG_TXT_BLK_CH')"
           class="w100"
           :disable="canEdit()"
+
           @click="onClickAllSet"
         />
         <kw-separator
@@ -132,6 +135,7 @@
         />
         <!-- 품목추가버튼 -->
         <kw-btn
+          v-permission:create
           dense
           secondary
           :disable="canEdit()"
@@ -146,6 +150,7 @@
 
         <!-- 등록버튼 -->
         <kw-btn
+          v-permission:update
           dense
           primary
           :label="$t('MSG_TXT_RGS')"

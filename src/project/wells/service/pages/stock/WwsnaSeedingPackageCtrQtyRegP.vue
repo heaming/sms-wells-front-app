@@ -54,6 +54,7 @@
         </span>
       </template>
       <kw-btn
+        v-permission:update
         :label="$t('MSG_BTN_SAVE')"
         grid-action
         :disable="totalCount === 0"
@@ -65,6 +66,7 @@
         spaced
       />
       <kw-btn
+        v-permission:download
         dense
         secondary
         icon="download_on"

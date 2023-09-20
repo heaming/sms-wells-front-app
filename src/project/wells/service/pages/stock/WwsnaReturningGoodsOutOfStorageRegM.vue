@@ -98,6 +98,7 @@
         </template>
         <!-- 삭제 -->
         <kw-btn
+          v-permission:delete
           dense
           secondary
           :label="$t('MSG_BTN_DEL')"
@@ -110,6 +111,7 @@
         />
         <!-- 품목 추가 -->
         <kw-btn
+          v-permission:create
           dense
           secondary
           :label="$t('MSG_BTN_ITM_SPMT')"
@@ -131,6 +133,7 @@
         />
         <!-- 등급 일괄변경 -->
         <kw-btn
+          v-permission:read
           dense
           secondary
           :label="$t('MSG_BTN_GD_BLK_CH')"
@@ -152,6 +155,7 @@
         />
         <!-- 사유 일괄변경 -->
         <kw-btn
+          v-permission:read
           dense
           secondary
           :label="$t('MSG_BTN_RSON_BLK_CH')"
@@ -165,6 +169,7 @@
         />
         <!-- 반품출고 등록 -->
         <kw-btn
+          v-permission:update
           primary
           dense
           :label="$t('MSG_BTN_RTNGD_OSTR_RGST')"

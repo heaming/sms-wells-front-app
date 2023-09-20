@@ -161,6 +161,7 @@
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

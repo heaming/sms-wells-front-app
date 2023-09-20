@@ -43,6 +43,7 @@
           </span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -56,6 +57,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="`${t('MSG_TXT_CTR')}${t('MSG_TXT_QTY')}${t('MSG_TXT_RGS')}`"
           primary
           dense
@@ -81,6 +83,7 @@
           </span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -94,6 +97,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="`${t('MSG_TXT_CTR')}${t('MSG_TXT_QTY')}${t('MSG_TXT_RGS')}`"
           primary
           dense

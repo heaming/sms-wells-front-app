@@ -193,6 +193,7 @@
         </template>
 
         <kw-btn
+          v-permission:update
           dense
           grid-action
           :label="$t('MSG_TXT_SAVE')"
@@ -205,6 +206,7 @@
           inset
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -213,6 +215,7 @@
           @click="onClickExcelDownload"
         />
         <kw-btn
+          v-permission:update
           :label="`${t('MSG_TXT_LGST')}${t('MSG_TXT_TF')}`"
           dense
           primary
