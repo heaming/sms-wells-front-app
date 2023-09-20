@@ -149,10 +149,11 @@
       </template>
 
       <kw-btn
+        v-permission:download
+        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
         icon="download_on"
         dense
         secondary
-        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
         :disable="!pageInfo.totalCount"
         @click="onClickExcelDownload"
       />
@@ -162,10 +163,11 @@
         inset
       />
       <kw-btn
+        v-permission:print
+        :label="$t('MSG_BTN_RPT_BRWS')"
         icon="report"
         dense
         secondary
-        :label="$t('MSG_BTN_RPT_BRWS')"
         :disable="!pageInfo.totalCount"
         @click="onClickReport"
       />

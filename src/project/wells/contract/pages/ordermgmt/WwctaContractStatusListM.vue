@@ -164,6 +164,8 @@
             :total-count="pageInfo.totalCount"
           />
         </template>
+
+        <!--계약관리-->
         <kw-btn
           :label="$t('MSG_TXT_CNTR_MGT')"
           primary

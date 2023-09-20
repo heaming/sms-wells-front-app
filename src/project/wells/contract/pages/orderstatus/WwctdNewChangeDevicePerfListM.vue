@@ -113,6 +113,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -126,6 +127,7 @@
           spaced
         />
         <kw-btn
+          v-permission:print
           icon="report"
           dense
           :label="$t('MSG_BTN_PRINT')"
