@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       one-row
       @search="onClickSearch"
     >
@@ -52,6 +53,7 @@
         </template>
 
         <kw-btn
+          v-permission:delete
           :label="$t('MSG_BTN_DEL')"
           grid-action
           @click="onClickDelete"
@@ -62,11 +64,13 @@
           inset
         />
         <kw-btn
+          v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
         <kw-btn
+          v-permission:create
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -77,6 +81,7 @@
           inset
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

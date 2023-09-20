@@ -14,7 +14,10 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      v-permission:read
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_CHNL_DV')"
@@ -92,6 +95,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -105,6 +109,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           secondary
           dense
           :label="$t('MSG_BTN_BFSVC_PERF_AGRG')"
