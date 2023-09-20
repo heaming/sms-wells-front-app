@@ -47,6 +47,7 @@
         inset
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -60,6 +61,7 @@
         spaced
       />
       <kw-btn
+        v-permission:update
         dense
         primary
         :label="t('MSG_BTN_P')+t('MSG_BTN_SAVE')"
