@@ -241,7 +241,6 @@ async function onClickConfirm() {
     cntrNo: cachedParams?.cntrNo,
     cntrSn: cachedParams?.cntrSn,
     sellTpCd: cachedParams?.sellTpCd,
-    sellTpDtlCd: cachedParams?.sellTpDtlCd,
     confirmDate: confirmParams.value.confirmDate,
     joinDate: confirmParams.value.joinDate,
   };
