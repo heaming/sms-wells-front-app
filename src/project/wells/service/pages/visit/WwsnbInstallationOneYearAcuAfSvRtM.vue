@@ -223,8 +223,8 @@ const divCd = [
 
 function initGrdMain(data, view) {
   const fields = [
-    { fieldName: 'atcNm' }, // 항목명
-    { fieldName: 'totalCnt', dataType: 'number' }, // 합계
+    { fieldName: 'nm' }, // 항목명
+    { fieldName: 'tcnt', dataType: 'number' }, // 합계
     { fieldName: 'm01', dataType: 'number' }, // 1월
     { fieldName: 'm02', dataType: 'number' }, // 2월
     { fieldName: 'm03', dataType: 'number' }, // 3월
@@ -237,16 +237,19 @@ function initGrdMain(data, view) {
     { fieldName: 'm10', dataType: 'number' }, // 10월
     { fieldName: 'm11', dataType: 'number' }, // 11월
     { fieldName: 'm12', dataType: 'number' }, // 12월
+    { fieldName: 'maxVal', dataType: 'number' },
+    { fieldName: 'minVal', dataType: 'number' },
+    { fieldName: 'avgVal', dataType: 'number' },
   ];
 
   const columns = [
     {
-      fieldName: 'atcNm',
+      fieldName: 'nm',
       header: t('MSG_TXT_DIV'),
       width: '150',
       displayCallback: (g, i) => {
-        const { atcNm } = gridUtil.getRowValue(g, i.itemIndex);
-        return divCd.find((x) => x.codeId === atcNm).codeName;
+        const { nm } = gridUtil.getRowValue(g, i.itemIndex);
+        return divCd.find((x) => x.codeId === nm).codeName;
       },
       headerSummary: {
         text: t('MSG_TXT_SUM'),
@@ -257,7 +260,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'totalCnt',
+      fieldName: 'tcnt',
       header: t('MSG_TXT_SUM'),
       width: '100',
       styleName: 'text-right',
@@ -399,6 +402,9 @@ function initGrdMain(data, view) {
         expression: 'sum',
       },
     },
+    { fieldName: 'maxVal', visible: false },
+    { fieldName: 'minVal', visible: false },
+    { fieldName: 'avgVal', visible: false },
   ];
 
   // 헤더쪽 합계 행고정, summary
