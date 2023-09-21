@@ -210,6 +210,12 @@
       @init="initGrid2"
     />
 
+    <kw-separator />
+
+    <h3 class="mb20">
+      {{ $t('MSG_TXT_RFND_INF') }}
+      <!-- {{ $t('환불정보') }} -->
+    </h3>
     <kw-form
       :cols="2"
       class="mt30"
