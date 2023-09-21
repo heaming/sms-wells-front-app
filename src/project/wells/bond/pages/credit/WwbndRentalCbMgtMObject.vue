@@ -80,6 +80,7 @@
       </template>
 
       <kw-btn
+        v-permission:update
         :label="$t('MSG_TXT_SAVE')"
         grid-action
         @click="onClickSave"
@@ -90,6 +91,7 @@
         spaced
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary

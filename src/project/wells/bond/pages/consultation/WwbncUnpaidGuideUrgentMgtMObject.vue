@@ -177,6 +177,7 @@
       </template>
       <kw-btn
         v-show="isObject"
+        v-permission:update
         :label="t('MSG_BTN_SAVE')"
         grid-action
         @click="onClickSave"
@@ -188,6 +189,7 @@
         spaced
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -201,6 +203,7 @@
         spaced
       />
       <kw-btn
+        v-permission:create
         :label="isObject? t('MSG_TXT_MTR_CRT') : t('MSG_TXT_CST_NO_BASE_CRT')"
         primary
         dense

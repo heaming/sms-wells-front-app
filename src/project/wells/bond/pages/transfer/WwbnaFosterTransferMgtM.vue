@@ -107,6 +107,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -183,6 +184,7 @@
           @click="onClickExcelUpload"
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -445,7 +447,7 @@ watch(() => searchParams.value.baseYm, async (baseYm) => {
 const initGridResult = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'bzHdqDvCd', header: t('MSG_TXT_DIV2'), width: '75', styleName: 'text-center', headerSummaries: { text: t('MSG_TXT_TOT_SUMMARY'), styleName: 'text-center' }, options: codes.BZ_HDQ_DV_CD },
-    { fieldName: 'clctamPrtnrNm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center !important, rg-button-link', renderer: { type: 'button' } },
+    { fieldName: 'clctamPrtnrNm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center' },
 
     { fieldName: 'woCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
     { fieldName: 'woCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
@@ -562,8 +564,8 @@ const initGridResult = defineGrid((data, view) => {
   });
   view.layoutByColumn('bzHdqDvCd').summaryUserSpans = [{ colspan: 2 }];
 
-  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    if (column === 'clctamPrtnrNm') {
+  view.onCellClicked = (grid, { cellType, itemIndex }) => {
+    if (cellType === 'data' || cellType === 'indicator') {
       const { clctamPrtnrNo } = grid.getValues(itemIndex);
       searchDatail.value.clctamPrtnrNo = clctamPrtnrNo;
       onChangeDetailPageInfo();
