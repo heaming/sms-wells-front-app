@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
@@ -82,6 +83,7 @@
         </template>
         <!-- 엑셀 다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -96,6 +98,7 @@
         />
         <!-- 되물림 금액 생성 -->
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_REDF_AMT_CRT')"
           primary
           dense

@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -109,6 +110,7 @@
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -122,6 +124,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="t('MSG_BTN_REDF_AMT_CRT')"

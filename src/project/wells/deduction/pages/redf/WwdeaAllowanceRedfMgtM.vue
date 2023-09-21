@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -140,6 +141,7 @@
         </template>
         <kw-btn
           v-if="searchType.ogTpCdW01AndW02"
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -149,6 +151,7 @@
         />
         <kw-btn
           v-if="searchType.ogTpCdW04AndW05"
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -163,6 +166,7 @@
         />
         <kw-btn
           v-if="btnType.ogTpCdW01AndW02"
+          v-permission:create
           dense
           secondary
           :label="t('MSG_BTN_SLS_REDF_CRT')"
@@ -170,6 +174,7 @@
         />
         <kw-btn
           v-if="btnType.ogTpCdW04AndW05"
+          v-permission:create
           dense
           secondary
           :label="t('MSG_BTN_SODBT_B2B_REDF_CRT')"
@@ -177,6 +182,7 @@
         />
         <kw-btn
           v-if="btnType.ogTpCdW03"
+          v-permission:create
           dense
           secondary
           :label="t('MSG_BTN_HMST_REDF_CRT')"
@@ -184,6 +190,7 @@
         />
         <kw-btn
           v-if="btnType.ogTpCdZ02"
+          v-permission:create
           dense
           secondary
           :label="t('MSG_BTN_MUTU_REDF_CRT')"
@@ -195,6 +202,7 @@
           spaced
         />
         <kw-btn
+          v-permission:read
           primary
           dense
           :label="t('수당/연체 되물림(팝업) 테스트')"
@@ -206,12 +214,14 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="t('MSG_BTN_REDF_OJ_ALL_CRT')"
           @click="onClickRedfObjectCreate('all')"
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="t('MSG_BTN_REDF_OJ_RE_CRT')"

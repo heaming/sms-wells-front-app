@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -98,6 +99,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -127,6 +129,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -136,6 +139,7 @@
         />
         <!-- 되물림 예상액 조회 -->
         <kw-btn
+          v-permission:read
           :label="t('MSG_BTN_REDF_ET_AMT_INQR')"
           secondary
           dense
@@ -160,6 +164,7 @@
         <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

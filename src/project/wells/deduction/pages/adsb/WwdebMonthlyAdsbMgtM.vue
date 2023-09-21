@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -89,13 +90,15 @@
 
         <!-- 테스트용 재지급팝업 연결 -->
         <kw-btn
+          v-permission:read
           primary
           dense
-          :label="t('재지급(팝업)')"
+          :label="t('MSG_BTN_ADSB_POP')"
           @click="onClickTest"
         />
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -109,6 +112,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="t('MSG_BTN_ADSB_OJ_AMT_CRT')"
@@ -129,6 +133,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -142,6 +147,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="t('MSG_BTN_ADSB_OJ_AMT_CRT')"
