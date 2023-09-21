@@ -114,7 +114,6 @@
 import { useDataService, useMeta, getComponentType, defineGrid, codeUtil, gridUtil, stringUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
-import { getItmPdCd } from '~sms-common/closing/utils/clUtil';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
@@ -132,8 +131,6 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'SV_DV_CD', // 서비스유형
 );
-const itmPdCd = await getItmPdCd();
-console.log('itmPdCd >>>>>>>>>', itmPdCd);
 
 // 사용자 정의코드
 const selectCodes = {
