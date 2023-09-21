@@ -128,6 +128,7 @@
     </kw-form>
     <template #action>
       <kw-btn
+        v-permission:create
         primary
         :label="$t('MSG_BTN_APPL')"
         :disable="isApplication"
