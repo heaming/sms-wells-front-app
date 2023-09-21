@@ -43,7 +43,6 @@
                 <div class="datepicker datepicker-inline">
                   <div
                     class="datepicker-days"
-                    style=""
                   >
                     <table class="table-condensed">
                       <thead>
@@ -122,25 +121,6 @@
                           </td>
                         </tr>
                       </tbody>
-                      <!--                      <tfoot>
-                        <tr>
-                          <th
-                            colspan="7"
-                            class="today"
-                            style="display: none;"
-                          >
-                            {{ $t('MSG_TXT_TODAY') /*오늘*/ }}
-                          </th>
-                        </tr><tr>
-                          <th
-                            colspan="7"
-                            class="clear"
-                            style="display: none;"
-                          >
-                            {{ $t('MSG_BTN_DEL') /*삭제*/ }}
-                          </th>
-                        </tr>
-                      </tfoot>-->
                     </table>
                   </div>
                 </div>
@@ -177,24 +157,12 @@
                       {{ data.psic.cralLocaraTno }}-{{ data.psic.mexnoEncr }}-{{
                         data.psic.cralIdvTno }}
                     </p>
-                    <!--                    <kw-btn
-                      borderless
-                      class="ml4"
-                      icon="sms_24"
-                      style="font-size: 24px;"
-                    />-->
                   </div>
                   <div class="row items-center">
                     <p class="kw-font--14">
                       {{ data.psic.locaraTno }}-{{ data.psic.exnoEncr }}-{{
                         data.psic.idvTno }}
                     </p>
-                    <!--                    <kw-btn
-                      borderless
-                      class="ml4"
-                      icon="sms_24"
-                      style="font-size: 24px;"
-                    />-->
                   </div>
                 </div>
               </div>
@@ -227,12 +195,6 @@
                     <p class="kw-font--14">
                       {{ data.psic.sjHp1 }}-{{ data.psic.sjHp2 }}-{{ data.psic.sjHp3 }}
                     </p>
-                    <!-- <kw-btn
-                    icon="sms_24"
-                    borderless
-                    style="font-size: 24px;"
-                    class="ml4"
-                  /> -->
                   </div>
                 </div>
               </div>
@@ -1028,8 +990,6 @@ async function onClickAm() {
                 && data.value.totalAbleCnt >= toInteger(data.value.psic.tWrkCnt)
                 && data.value.totalAbleCnt === toInteger(data.value.psic.tWrkCnt)) {
     time = '0910';
-  } else {
-    time = '';
   }
   data.value.sellTime = time;
 }
@@ -1046,8 +1006,6 @@ async function onClickPm() {
             && data.value.totalAbleCnt >= toInteger(data.value.psic.tWrkCnt)
             && data.value.totalAbleCnt === toInteger(data.value.psic.tWrkCnt)) {
     time = '1410';
-  } else {
-    time = '';
   }
   data.value.sellTime = time;
 }
@@ -1116,16 +1074,17 @@ async function onClickSave() {
     rcpOgTpCd: data.value.rcpOgTpCd, // 로그인한 사용자 조직유형
     cntrNo: searchParams.value.cntrNo,
     cntrSn: data.value.cntrSn,
-    svBizDclsfCd: data.value.svBizDclsfCds.length > 0 ? data.value.svBizDclsfCds[0] : '',
-    asIstOjNo: data.value.asIstOjNos.length > 0 ? data.value.asIstOjNos[0] : '',
+    svBizDclsfCd: searchParams.value.svBizDclsfCd,
+    asIstOjNo: data.value.asIstOjNos,
   };
   const sendDatas = [];
 
-  if (data.value.cntrSn.includes(',') && data.value.svBizDclsfCds.includes(',')
-  && data.value.asIstOjNos.includes(',')) {
-    const cntrSns = data.value.cntrSn.split(',');
-    const svBizDclsfCds = data.value.svBizDclsfCds.split(',');
-    const asIstOjNos = data.value.asIstOjNos.split(',');
+  if (searchParams.value.cntrSn.includes(',') && searchParams.value.svBizDclsfCd.includes(',')
+  // && data.value.asIstOjNos.includes(',')
+  ) {
+    const cntrSns = searchParams.value.cntrSn.split(',');
+    const svBizDclsfCds = searchParams.value.svBizDclsfCd.split(',');
+    const { asIstOjNos } = data.value;
 
     const cloneObj = (obj) => JSON.parse(JSON.stringify(obj));
 
@@ -1133,7 +1092,7 @@ async function onClickSave() {
       const sendData = cloneObj(base);
       sendData.cntrSn = cntrSns[idx];
       sendData.svBizDclsfCd = svBizDclsfCds[idx];
-      sendData.asIstOjNo = asIstOjNos[idx];
+      sendData.asIstOjNo = asIstOjNos.length > 0 ? asIstOjNos[idx] : null;
       sendDatas.push(sendData);
     });
   } else sendDatas.push(base);
