@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-search
+    v-permission:read
     :cols="3"
     :modified-targets="['grdMain']"
     @search="onClickSearch"
@@ -99,6 +100,7 @@
 
       <kw-btn
         v-if="searchType.prtnrAndW05"
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -108,6 +110,7 @@
       />
       <kw-btn
         v-if="searchType.contract"
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -117,6 +120,7 @@
       />
       <kw-btn
         v-if="searchType.prtnrAndW04"
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -131,6 +135,7 @@
         spaced
       />
       <kw-btn
+        v-permission:create
         primary
         dense
         :label="t('MSG_BTN_REDF_AMT_CRT')"

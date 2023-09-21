@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-search
+    v-permission:read
     :cols="2"
     one-row
     :modified-targets="['grdMgtMain']"
@@ -55,6 +56,7 @@
         <span class="ml8">{{ t('MSG_TXT_MSG_TXT_UNIT_CASE') }}</span>
       </template>
       <kw-btn
+        v-permission:update
         grid-action
         :label="t('MSG_BTN_SAVE')"
         @click="onClickSave"
@@ -66,6 +68,7 @@
         inset
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
