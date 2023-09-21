@@ -100,18 +100,21 @@
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
+        v-permission:create
         dense
         secondary
         :label="$t('MSG_TXT_EQLTY_DIVD')"
         @click="onClickEquality"
       />
       <kw-btn
+        v-permission:create
         dense
         secondary
         :label="$t('MSG_TXT_PERF_CPR')"
         @click="onClickPerformance"
       />
       <kw-btn
+        v-permission:create
         dense
         secondary
         :label="$t('MSG_TXT_BAL_CLE')"
@@ -124,6 +127,7 @@
       />
       <!-- 대상자 추가 -->
       <kw-btn
+        v-permission:create
         primary
         dense
         :label="$t('MSG_TXT_OJPS_SPMT')"
@@ -152,6 +156,7 @@
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
+        v-permission:create
         primary
         dense
         :label="$t('MSG_TXT_OJPS_EXCD')"
@@ -167,6 +172,7 @@
     />
     <template #action>
       <kw-btn
+        v-permission:create
         primary
         :label="$t('MSG_BTN_SAVE')"
         @click="onClickSave"

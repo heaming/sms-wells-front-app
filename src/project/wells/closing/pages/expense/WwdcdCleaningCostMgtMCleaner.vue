@@ -54,6 +54,7 @@
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
+        v-permission:delete
         :label="$t('MSG_BTN_DEL')"
         grid-action
         dense
@@ -65,6 +66,7 @@
         spaced
       />
       <kw-btn
+        v-permission:print
         icon="report"
         dense
         secondary
@@ -73,6 +75,7 @@
       />
 
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -86,6 +89,7 @@
         spaced
       />
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_RGST')"
         primary
         dense
