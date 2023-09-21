@@ -102,6 +102,7 @@
         />
       </template>
       <kw-btn
+        v-permission:create
         dense
         grid-action
         :label="t('MSG_BTN_SAVE')"
@@ -114,6 +115,7 @@
         inset
       />
       <kw-btn
+        v-permission:update
         icon="upload_on"
         dense
         secondary
@@ -122,6 +124,7 @@
         @click="onClickExcelUpload"
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -137,6 +140,7 @@
       />
 
       <kw-btn
+        v-permission:create
         dense
         secondary
         :label="t('MSG_BTN_EXP_CRT')"
@@ -144,6 +148,7 @@
         @click="onClickExpectedCreate"
       />
       <kw-btn
+        v-permission:update
         dense
         secondary
         :label="t('MSG_BTN_EXP_CNFM')"
@@ -151,6 +156,7 @@
         @click="onClickExpectedConfirm"
       />
       <kw-btn
+        v-permission:update
         dense
         secondary
         :label="t('MSG_BTN_CAN_MTR_RGST')"
