@@ -61,9 +61,10 @@
           />
         </template>
         <kw-btn
+          v-permission:create
           secondary
           dense
-          :label="t('저장')"
+          :label="t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
         <kw-separator
@@ -88,6 +89,7 @@
         />
         <!-- :label="$t('지로파일 업로드')" -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -103,6 +105,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           secondary
           dense
           :label="t('MSG_TIT_ERR_PROCS')"
@@ -116,6 +119,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="t('MSG_BTN_DP_RGST')"

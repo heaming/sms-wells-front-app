@@ -91,6 +91,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -105,6 +106,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="t('MSG_BTN_VAC_IS')"
           secondary
           dense
@@ -113,6 +115,7 @@
         />
         <!-- label="가상계좌발급" -->
         <kw-btn
+          v-permission:create
           :label="t('MSG_BTN_CRDCD_APR')"
           secondary
           dense
@@ -121,6 +124,7 @@
         />
         <!-- label="신용카드승인" -->
         <kw-btn
+          v-permission:create
           :label="t('MSG_BTN_APLC_RFND')"
           secondary
           dense
@@ -129,6 +133,7 @@
         />
         <!-- label="환불신청" -->
         <kw-btn
+          v-permission:read
           :label="t('MSG_BTN_CARD_SL_SLIP')"
           secondary
           dense
@@ -136,6 +141,7 @@
         />
         <!-- label="카드매출전표" -->
         <kw-btn
+          v-permission:read
           :label="t('MSG_BTN_CASH_RCP')"
           secondary
           dense
@@ -143,6 +149,7 @@
         />
         <!-- label="현금영수증" -->
         <kw-btn
+          v-permission:read
           :label="t('MSG_BTN_TXINV')"
           secondary
           dense

@@ -67,6 +67,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="excel"
           dense
           secondary

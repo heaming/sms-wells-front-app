@@ -79,6 +79,7 @@
           />
         </template>
         <kw-btn
+          v-permission:delete
           :label="t('MSG_BTN_DEL')"
           grid-action
           @click="onClickRemove"
@@ -90,12 +91,14 @@
           inset
         />
         <kw-btn
+          v-permission:create
           :label="t('MSG_BTN_ROW_ADD')"
           grid-action
           @click="onClickAdd"
         />
         <!-- label="행 추가" -->
         <kw-btn
+          v-permission:create
           :label="t('MSG_BTN_SAVE')"
           grid-action
           @click="onClickSave"
@@ -107,6 +110,7 @@
           inset
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

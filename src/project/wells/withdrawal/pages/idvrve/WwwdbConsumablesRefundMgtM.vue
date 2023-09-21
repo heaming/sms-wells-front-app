@@ -81,6 +81,7 @@
         </template>
         <!-- 삭제 -->
         <kw-btn
+          v-permission:delete
           dense
           grid-action
           :label="$t('MSG_BTN_DEL')"
@@ -93,6 +94,7 @@
         />
         <!-- 저장 -->
         <kw-btn
+          v-permission:create
           dense
           grid-action
           :label="$t('MSG_BTN_SAVE')"
@@ -105,6 +107,7 @@
         />
         <!-- 엑셀 다운로드 -->
         <kw-btn
+          v-permission:download
           icon="excel"
           dense
           secondary
@@ -119,6 +122,7 @@
         />
         <!-- 환불등록 -->
         <kw-btn
+          v-permission:create
           secondary
           dense
           :label="$t('MSG_TXT_RFND_RGST')"
