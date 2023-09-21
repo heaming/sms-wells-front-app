@@ -93,6 +93,7 @@
       />
       <kw-btn
         v-if="isShow"
+        v-permission:update
         :label="$t('MSG_BTN_SAVE')"
         primary
         @click="onClickSave"

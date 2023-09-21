@@ -20,7 +20,10 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
+        <kw-search-item
+          :label="$t('MSG_TXT_OG_LEVL')"
+          class="equal_division--1"
+        >
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             :og-tp-cd="searchParams.ogTpCd"
@@ -61,6 +64,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary

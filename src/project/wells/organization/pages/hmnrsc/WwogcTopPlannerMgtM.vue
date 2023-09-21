@@ -29,7 +29,10 @@
             type="month"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
+        <kw-search-item
+          :label="$t('MSG_TXT_OG_LEVL')"
+          class="equal_division--3"
+        >
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
@@ -77,6 +80,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -90,6 +94,7 @@
           spaced
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_PLAR_REG')"
           secondary
           dense
