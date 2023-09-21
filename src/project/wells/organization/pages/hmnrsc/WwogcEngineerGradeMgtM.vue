@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : OGC
 2. 프로그램 ID : WwogcEngineerGradeMgtM - 서비스센터 등급관리
-3. 작성자 : 한용희
+3. 작성자 : yonghee.han
 4. 작성일 : 2023-05-08
 ****************************************************************************************************
 * 프로그램 설명
@@ -94,10 +94,6 @@
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
-      <!-- <kw-pagination
-        :model-value="1"
-        :total-count="100"
-      /> -->
     </div>
   </kw-page>
 </template>
@@ -224,7 +220,7 @@ async function onClickExcelUpload() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BLG'), width: '152', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BLG_CD'), width: '152', styleName: 'text-center' },
     { fieldName: 'prtnrKnm',
       header: t('MSG_TXT_EMPL_NM'),
       width: '166',

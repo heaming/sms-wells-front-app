@@ -339,7 +339,7 @@ watch(() => saveParams.value.chk, async (newVal) => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BLG'), width: '162', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BLG_CD'), width: '162', styleName: 'text-center' },
     // { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '125', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '130', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '92', styleName: 'text-center' },
