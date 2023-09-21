@@ -87,6 +87,7 @@
         </template>
         <!-- 리포트 보기 -->
         <kw-btn
+          v-permission:print
           icon="report"
           dense
           secondary
@@ -96,6 +97,7 @@
         />
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="excel"
           dense
           secondary
