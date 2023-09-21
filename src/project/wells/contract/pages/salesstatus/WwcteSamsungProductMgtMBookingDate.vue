@@ -52,6 +52,7 @@
         />
       </template>
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -62,6 +63,8 @@
     </kw-action-top>
     <kw-grid
       ref="grdRef"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       name="grdBooking"
       @init="initGrid"
     />
@@ -166,7 +169,7 @@ const initGrid = defineGrid((data, view) => {
       valueExpression: 'values["cntrNo"] + "-" + values["cntrSn"]',
       classes: 'text-center',
     },
-    rcgvpKnm: { label: t('MSG_TXT_RCGVP_NM') /* 수령자명 */, width: 136, classes: 'text-center' },
+    rcgvpKnm: { label: t('MSG_TXT_CNTRT') /* 수령자명 -> 계약자 */, width: 136, classes: 'text-center' },
     pdCd: { label: t('TXT_MSG_PD_CD') /* 상품코드 */, width: 136, classes: 'text-center' },
     pdNm: { label: t('MSG_TXT_PRDT_NM') /* 상품명 */, width: 260 },
     sppBzsOrdId: { label: t('MSG_TXT_SM_ORD_NO') /* 삼성 주문번호 */, width: 168, classes: 'text-center' },
