@@ -70,6 +70,7 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
