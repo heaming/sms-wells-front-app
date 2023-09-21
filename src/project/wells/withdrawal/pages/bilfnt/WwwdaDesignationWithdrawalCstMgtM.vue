@@ -68,6 +68,7 @@
         </template>
 
         <kw-btn
+          v-permission:delete
           grid-action
           :label="$t('MSG_TXT_DEL')"
           @click="onClickRemove"
@@ -78,11 +79,13 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
         <kw-btn
+          v-permission:create
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -93,6 +96,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
