@@ -512,6 +512,10 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cstSvAsnNo', dataType: 'text' },
     { fieldName: 'mchnCstNo', dataType: 'text' },
     { fieldName: 'cntrNo', dataType: 'text' },
+    { fieldName: 'vstDuedt', dataType: 'text' },
+    { fieldName: 'cstCralLocaraTno', dataType: 'text' },
+    { fieldName: 'cstMexnoEncr', dataType: 'text' },
+    { fieldName: 'cstCralIdvTno', dataType: 'text' },
   ];
 
   const columns = [
@@ -525,7 +529,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'sppOrdNo', header: `${t('MSG_TXT_DLVRY')}${t('MSG_TXT_SEQUENCE_NUMBER')}`, styleName: 'text-center', width: '154' },
     { fieldName: 'mchnModel', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_MODEL')}`, styleName: 'text-left', width: '220' },
     { fieldName: 'mchnCstDtlNo', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CNTR_DTL_NO')}`, width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
-    { fieldName: 'mchnCstNm', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CST_NM')}`, styleName: 'text-center', width: '100' },
+    { fieldName: 'mchnCstNm', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CST_NM')}`, styleName: 'text-left', width: '100' },
     { fieldName: 'ctrlPkg', header: `${t('MSG_TXT_CURRENT')}${t('MSG_TXT_PKG')}`, styleName: 'text-left', width: '150' },
     { fieldName: 'shipPkg', header: `${t('MSG_TXT_DLVRY')}${t('MSG_TXT_PKG')}`, width: '150', styleName: 'text-left' },
     { fieldName: 'sding1', header: `${t('MSG_TXT_SDING')}1`, styleName: 'text-left', width: '120' },
