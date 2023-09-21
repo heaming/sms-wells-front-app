@@ -58,7 +58,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_CLCTAM_PSIC')"
         >
-          <!-- TODO: 집금담당자 번호 입력시 정상 번호인지 확인 하는 작업 필요(집금담당자 조회 화면 개발 후 추가 작업 필요) -->
           <kw-input
             v-model="searchParams.clctamPrtnrNm"
             icon="search"
@@ -77,7 +76,6 @@
         <kw-search-item
           :label="$t('MSG_TXT_NW_DV')"
         >
-          <!-- TODO: 코드 정의 안되어 있음 정의 되면 코드보게 수정필요 -->
           <kw-select
             v-model="searchParams.bndNwDvCd"
             :options="filteredCodes.BND_NW_DV_CD"
@@ -209,6 +207,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           secondary
@@ -380,7 +379,6 @@ async function fetchDetailsData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
-// TODO: 명세서에 맞춰서 서버 다운로드로 변경 해야 할 수 있음
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -496,7 +494,7 @@ async function onClickConfirm() {
 
     await fetchData();
   } else {
-    notify('집금자배정을 먼저 수행해야 합니다'); // TODO: toast관련 내용 한번더 확인, 확정 후 수정
+    notify(t('MSG_ALT_ASN_EXCN_UCFM'));
   }
 }
 
@@ -729,7 +727,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellDblClicked = async (g, { dataRow }) => {
-    // TODO: 명세서 변경 예정 현재는 임시 소스
     searchDetailsParams.value = cloneDeep(searchParams.value);
     const { clctamPrtnrNo } = gridUtil.getRowValue(g, dataRow);
     searchDetailsParams.value.clctamPrtnrNo = clctamPrtnrNo;
@@ -874,7 +871,7 @@ const initGrdSub = defineGrid((data, view) => {
         grid.setValue(current.itemIndex, 'changeClctamPrtnrKnm', 'N');
       } else {
         grid.setValue(current.itemIndex, 'changeClctamPrtnrKnm', 'Y');
-        notify(t('MSG_ALT_NO_INFO_SRCH')); // TODO: 메시지 정의 되지 않음 이런 부분 한번에 설계 요청 후 갱신 예정
+        notify(t('MSG_ALT_NO_INFO_SRCH'));
       }
     }
   };

@@ -168,6 +168,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           secondary
@@ -393,7 +394,7 @@ async function onClickSave() {
   const { originClctamDvCd } = changedRows[0];
 
   if (!await checkAvailability(originClctamDvCd)) {
-    notify('파트이관을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 파트이관 할 수 없습니다.)');
+    notify(t('MSG_ALT_PA_TF_NOT_PSB'));
     return;
   }
 
@@ -406,7 +407,7 @@ async function onClickSave() {
 async function onClickCreate() {
   cachedParams = cloneDeep(searchParams.value);
   if (!await checkAvailability()) {
-    notify('파트이관을 수행 할 수 없습니다.(배정, 이관 확정 상태의 정보는 파트이관 할 수 없습니다.)');
+    notify(t('MSG_ALT_PA_TF_NOT_PSB'));
     return;
   }
   const response = await dataService.get('/sms/wells/bond/part-transfers/has-part-transfer-detail', { params: cachedParams });
@@ -417,8 +418,7 @@ async function onClickCreate() {
   }
   await dataService.post('/sms/wells/bond/part-transfers', cachedParams);
 
-  // TODO: 통테 임시 작업 메시지 정의 필요
-  await alert('파트이관이 완료 되었습니다.');
+  await alert(t('MSG_ALT_PA_TF_FSH'));
 
   await fetchData();
 }
