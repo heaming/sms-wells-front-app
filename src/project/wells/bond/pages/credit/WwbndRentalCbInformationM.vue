@@ -113,6 +113,7 @@
                 <span class="ml8">{{ $t('MSG_TXT_UNIT_THW') }}</span>
               </template>
               <kw-btn
+                v-permission:download
                 icon="download_on"
                 :label="$t('MSG_BTN_EXCEL_DOWN')"
                 secondary
@@ -140,6 +141,7 @@
                 <span class="ml8">{{ $t('MSG_TXT_UNIT_THW') }}</span>
               </template>
               <kw-btn
+                v-permission:download
                 icon="download_on"
                 :label="$t('MSG_BTN_EXCEL_DOWN')"
                 secondary
@@ -170,6 +172,7 @@
                 <span class="ml8">{{ $t('MSG_TXT_UNIT_THW') }}</span>
               </template>
               <kw-btn
+                v-permission:download
                 icon="download_on"
                 :label="$t('MSG_BTN_EXCEL_DOWN')"
                 secondary
@@ -197,6 +200,7 @@
                 <span class="ml8">{{ $t('MSG_TXT_UNIT_THW') }}</span>
               </template>
               <kw-btn
+                v-permission:download
                 icon="download_on"
                 :label="$t('MSG_BTN_EXCEL_DOWN')"
                 secondary
@@ -226,6 +230,7 @@
             <span class="ml8">{{ $t('MSG_TXT_UNIT_THW') }}</span>
           </template>
           <kw-btn
+            v-permission:download
             icon="download_on"
             :label="$t('MSG_BTN_EXCEL_DOWN')"
             secondary

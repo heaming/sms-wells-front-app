@@ -242,6 +242,7 @@
         <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
+        v-permission:download
         icon="download_on"
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         secondary
@@ -255,6 +256,7 @@
         spaced
       />
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_IST_CHAR_FW')"
         primary
         dense
@@ -262,6 +264,7 @@
         @click="onClickIstMessageSend"
       />
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_CNTR_CHAR_FW')"
         primary
         dense
@@ -311,6 +314,8 @@ const { t } = useI18n();
 
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const { getters } = useStore();
+const { employeeIDNumber } = getters['meta/getUserInfo'];
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -338,7 +343,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // TODO: 계약리스트 검색조건
 let cachedParams;
 const searchParams = ref({
-  schClctamNo: '',
+  schClctamNo: employeeIDNumber,
   schClctamNm: '',
   schCstNm: '',
   schDlqMcntStrt: '',

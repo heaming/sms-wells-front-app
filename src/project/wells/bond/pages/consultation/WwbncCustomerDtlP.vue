@@ -71,6 +71,7 @@
                     class="ml12"
                   />
                   <kw-btn
+                    v-permission:create
                     borderless
                     dense
                     icon="sms"
@@ -79,6 +80,7 @@
                   />
                   <template v-if="customer.tnoCnt1 === '0'">
                     <kw-btn
+                      v-permission:create
                       :label="$t('MSG_BTN_TEL_REJ')"
                       dense
                       secondary
@@ -89,6 +91,7 @@
                   </template>
                   <template v-if="customer.tnoCnt1 === '1'">
                     <kw-btn
+                      v-permission:create
                       :label="$t('MSG_BTN_TEL_REJ')"
                       dense
                       secondary
@@ -117,6 +120,7 @@
                 </kw-form-item>
                 <kw-form-item no-label>
                   <kw-btn
+                    v-permission:read
                     :label="$t('MSG_BTN_BU_NOTI')"
                     dense
                     secondary
@@ -125,6 +129,7 @@
                     @click="onClickBurdenNotice"
                   />
                   <kw-btn
+                    v-permission:create
                     :label="$t('MSG_BTN_CNTRT_INF_CH')"
                     dense
                     secondary
@@ -133,6 +138,7 @@
                     @click="onClickContractorInformationChange"
                   />
                   <kw-btn
+                    v-permission:create
                     :label="$t('MSG_BTN_ISTLC_INF_CH')"
                     dense
                     secondary
@@ -141,6 +147,7 @@
                     @click="onClickContractDetail"
                   />
                   <kw-btn
+                    v-permission:create
                     :label="$t('MSG_BTN_VST_RGST')"
                     dense
                     secondary
@@ -179,6 +186,7 @@
                   />
                   <template v-if="customer.tnoCnt2 === '0'">
                     <kw-btn
+                      v-permission:create
                       :label="$t('MSG_BTN_TEL_REJ')"
                       dense
                       secondary
@@ -189,6 +197,7 @@
                   </template>
                   <template v-if="customer.tnoCnt2 === '1'">
                     <kw-btn
+                      v-permission:create
                       :label="$t('MSG_BTN_TEL_REJ')"
                       dense
                       secondary
@@ -211,6 +220,7 @@
                     class="ml12"
                   />
                   <kw-btn
+                    v-permission:create
                     borderless
                     dense
                     icon="sms"
@@ -220,6 +230,7 @@
                   />
                   <template v-if="customer.tnoCnt3 === '0'">
                     <kw-btn
+                      v-permission:create
                       :label="$t('MSG_BTN_TEL_REJ')"
                       dense
                       secondary
@@ -230,6 +241,7 @@
                   </template>
                   <template v-if="customer.tnoCnt3 === '1'">
                     <kw-btn
+                      v-permission:create
                       :label="$t('MSG_BTN_TEL_REJ')"
                       dense
                       secondary
@@ -308,6 +320,7 @@
                 </kw-form-item>
                 <kw-form-item no-label>
                   <kw-btn
+                    v-permission:read
                     :label="$t('MSG_BTN_FNT_RS')"
                     dense
                     secondary
@@ -316,6 +329,7 @@
                     @click="onClickFundTransferResult"
                   />
                   <kw-btn
+                    v-permission:create
                     :label="$t('MSG_BTN_BIL_EXCD_RGST')"
                     dense
                     secondary
@@ -324,6 +338,7 @@
                     @click="onClickBillingExcdRgst"
                   />
                   <kw-btn
+                    v-permission:print
                     :label="$t('MSG_BTN_CST_CARD_PRNT')"
                     dense
                     secondary
@@ -379,6 +394,7 @@
                     class="ml12"
                   />
                   <kw-btn
+                    v-permission:create
                     borderless
                     dense
                     icon="sms"
@@ -416,6 +432,7 @@
                     class="ml12"
                   />
                   <kw-btn
+                    v-permission:create
                     borderless
                     dense
                     icon="sms"
@@ -509,6 +526,7 @@
                     {{ customer.dfltDt }}
                   </p>
                   <kw-btn
+                    v-permission:create
                     :label="$t('MSG_BTN_CB_INF_INQR_AK')"
                     dense
                     secondary
@@ -526,6 +544,7 @@
                 </kw-form-item>
                 <kw-form-item no-label>
                   <kw-btn
+                    v-permission:create
                     :label="$t('MSG_BTN_PTTN_CRT')"
                     dense
                     secondary
@@ -534,6 +553,7 @@
                     @click="onClickPetitionCreate"
                   />
                   <kw-btn
+                    v-permission:create
                     :label="$t('MSG_BTN_LWM_RGST')"
                     dense
                     secondary
@@ -543,6 +563,7 @@
                   />
 
                   <kw-btn
+                    v-permission:read
                     :label="$t('MSG_BTN_VT_DTL')"
                     dense
                     secondary
@@ -551,6 +572,7 @@
                     @click="onClickVirtualAccount"
                   />
                   <kw-btn
+                    v-permission:create
                     :label="$t('MSG_BTN_DP_RGST')"
                     dense
                     secondary
@@ -571,6 +593,7 @@
                     {{ customer.authRsgExcd }}
                   </p>
                   <kw-btn
+                    v-permission:create
                     :label="$t('MSG_BTN_EXCD_RGST')"
                     dense
                     secondary
@@ -599,6 +622,7 @@
                 </kw-form-item>
                 <kw-form-item no-label>
                   <kw-btn
+                    v-permission:read
                     :label="$t('MSG_BTN_TXINV')"
                     dense
                     secondary
@@ -650,6 +674,7 @@
                 </kw-form-item>
                 <kw-form-item no-label>
                   <kw-btn
+                    v-permission:create
                     :label="$t('MSG_TXT_RSG_RGST')"
                     dense
                     secondary
@@ -657,6 +682,7 @@
                     style="min-height: 20px;"
                   />
                   <kw-btn
+                    v-permission:read
                     :label="$t('MSG_BTN_SV_DTL')"
                     dense
                     secondary
@@ -787,12 +813,14 @@
             />
             <div class="row justify-end full-size mt12">
               <kw-btn
+                v-permission:create
                 :label="$t('MSG_BTN_INTL')"
                 secondary
                 dense
                 @click="onClickUnuitmCnReset"
               />
               <kw-btn
+                v-permission:create
                 :label="$t('MSG_BTN_SAVE')"
                 primary
                 dense
@@ -1022,12 +1050,14 @@
           <kw-separator spaced="20px" />
           <div class="row justify-end full-size ">
             <kw-btn
+              v-permission:create
               :label="$t('MSG_BTN_INTL')"
               secondary
               dense
               @click="onClickCnslRgstReset"
             />
             <kw-btn
+              v-permission:create
               :label="$t('MSG_BTN_SAVE')"
               primary
               dense
