@@ -148,6 +148,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -161,6 +162,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="$t('MSG_BTN_SLP_CRE')"

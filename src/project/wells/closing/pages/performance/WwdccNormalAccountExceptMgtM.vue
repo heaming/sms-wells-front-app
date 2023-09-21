@@ -99,6 +99,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           icon="upload_on"
           dense
           secondary
@@ -106,6 +107,7 @@
           @click="onClickExcelUpload"
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
