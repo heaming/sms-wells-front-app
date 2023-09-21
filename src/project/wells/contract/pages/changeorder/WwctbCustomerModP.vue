@@ -84,6 +84,7 @@
                 v-model:telNo2="fieldParams.cntrCopnIdvTno"
                 :placeholder="t('MSG_TXT_INP')"
                 :label="$t('MSG_TXT_TEL_NO')"
+                :readonly="true"
                 rules="telephone"
                 mask="telephone"
               />
@@ -102,6 +103,7 @@
               v-model:telNo1="fieldParams.cntrMexnoEncr"
               v-model:telNo2="fieldParams.cntrCralIdvTno"
               :label="$t('MSG_TXT_MPNO')"
+              :readonly="true"
               rules="required|telephone"
               mask="telephone"
             />
