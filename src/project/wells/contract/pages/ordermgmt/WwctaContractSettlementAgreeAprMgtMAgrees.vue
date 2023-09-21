@@ -84,6 +84,7 @@
             borderless
             dense
             icon="arrow_stepper"
+            @click="onClickShowTerms(item)"
           />
         </kw-item-section>
       </kw-item>
@@ -98,11 +99,16 @@
 </template>
 
 <script setup>
+// -------------------------------------------------------------------------------------------------
+// Import & Declaration
+// -------------------------------------------------------------------------------------------------
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 
-import { alert } from 'kw-lib';
+import { useGlobal } from 'kw-lib';
 import { useCtCode } from '~sms-common/contract/composable';
+
+const { alert, modal } = useGlobal();
 
 const AG_ATC_DV_CD = 'AG_ATC_DV_CD';
 
@@ -117,6 +123,43 @@ const { getCodeName } = await useCtCode(AG_ATC_DV_CD);
 const AG_STAT_CD_AG = '01';
 const AG_STAT_CD_REJ = '02';
 const AG_STAT_CD_UNDEF = '03';
+
+const codeTerms = [
+  {
+    agAtcDvCd: '114', // [필수] 개인신용정보 수집, 제공, 조회 동의
+    termsId: 'W002',
+  },
+  {
+    agAtcDvCd: '111', // [필수] 개인정보 수집 및 이용동의
+    termsId: 'W003',
+  },
+  {
+    agAtcDvCd: '112', // [선택] 개인정보 제3자 제공동의
+    termsId: 'W004',
+  },
+  {
+    agAtcDvCd: '113', // [선택] 마케팅 목적 처리 동의
+    termsId: 'W005',
+  },
+  {
+    agAtcDvCd: '151', // 포인트 플러스 또는 플래너 429/599 가입 후 캐쉬 보유 고객 필수 동의서
+    termsId: 'W006',
+  },
+];
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
+async function onClickShowTerms(val) {
+  // console.log(JSON.stringify(val, null, '\t'));
+  await modal({
+    component: 'ZmcsxCustomerTermsDtlP',
+    componentProps: {
+      termsGroupTypeCd: 'CT',
+      termsTypeCd: 'CTA',
+      termsId: codeTerms.find((i) => val.agAtcDvCd === i.agAtcDvCd)?.termsId,
+    },
+  });
+}
 
 function initialize(agrees) {
   return agrees.map((item) => ({
