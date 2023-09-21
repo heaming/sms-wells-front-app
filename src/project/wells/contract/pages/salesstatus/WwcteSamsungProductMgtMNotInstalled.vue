@@ -42,6 +42,7 @@
         <kw-input
           v-model="searchParams.cntrCstKnm"
           :label="$t('MSG_TXT_CNTOR_NM')"
+          maxlength="50"
         />
       </kw-search-item>
     </kw-search-row>
@@ -75,6 +76,7 @@
         />
       </template>
       <kw-btn
+        v-permission:update
         icon="upload_on"
         secondary
         dense
@@ -84,6 +86,8 @@
     </kw-action-top>
     <kw-grid
       ref="grdRef"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       name="grdNotInstalled"
       @init="initGrid"
     />
