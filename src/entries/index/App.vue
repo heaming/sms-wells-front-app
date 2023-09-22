@@ -37,17 +37,16 @@ const {
 
 await isReady();
 
-const router = useRouter();
 const { getUserInfo } = useMeta();
 
 const userInfo = computed(() => getUserInfo());
 
 onActivated(() => {
-  if (userInfo?.value?.portalId === 'NO_SESSION' || userInfo?.value?.userId === 'anonymous') router.replace({ name: 'ErrorNotFound' });
+  if (userInfo?.value?.portalId === 'NO_SESSION' || userInfo?.value?.userId === 'anonymous') window.location.replace('/certification/sso/login');
 });
 
 onMounted(() => {
-  if (userInfo?.value?.portalId === 'NO_SESSION' || userInfo?.value?.userId === 'anonymous') router.replace({ name: 'ErrorNotFound' });
+  if (userInfo?.value?.portalId === 'NO_SESSION' || userInfo?.value?.userId === 'anonymous') window.location.replace('/certification/sso/login');
 });
 const { MODE } = import.meta.env;
 </script>
