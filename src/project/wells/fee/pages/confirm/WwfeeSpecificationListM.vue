@@ -94,6 +94,7 @@
         <!-- 지급명세서출력(본사)-->
         <kw-btn
           v-if="sessionUserInfo.ogTpCd?.indexOf('HR') > -1"
+          v-permission:download
           dense
           secondary
           icon="report"
@@ -102,6 +103,7 @@
         />
         <!-- 지급명세서 출력-->
         <kw-btn
+          v-permission:download
           dense
           secondary
           icon="report"
@@ -114,6 +116,7 @@
           inset
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -250,50 +253,51 @@ function onClickOzReport(div) {
 
   if (searchParams.value.rsbDvCd === 'W0105') { // P추진단 - 플래너
     if (div === 'tot') { // 본사 -- 총계
-      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_01.ozr'; //
-      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_01.odi'; //
+      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_01.ozr';
+      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_01.odi';
     } else {
-      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.ozr'; //
-      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.odi'; //
+      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.ozr';
+      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_02.odi';
     }
   } else if (searchParams.value.rsbDvCd === 'W0104') { // P 추진단 - 지점장
     if (div === 'tot') { // 본사 -- 총계
-
+      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_03_03.ozr';
+      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_03_03.odi';
     } else {
-      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_04.ozr'; //
-      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_04.odi'; //
+      _ozrPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_04.ozr';
+      _odiPath = '/ksswells/cmms/svPatSpec/V1.0/cmmsSvPatSpec202204_04.odi';
     }
   } else if (searchParams.value.rsbDvCd === 'W0205') { // M추진단 - 플래너
     if (div === 'tot') { // 본사 -- 총계
-      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_01.ozr'; //
-      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_01.odi'; //
+      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_01.ozr';
+      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_01.odi';
     } else {
-      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.ozr'; //
-      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.odi'; //
+      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.ozr';
+      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.odi';
     }
   } else if (searchParams.value.rsbDvCd === 'W0204') { // M 추진단 - 지점장
     if (div === 'tot') { // 본사 -- 총계
-      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_03.odi'; //
-      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_03.odi'; //
+      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_03.odi';
+      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_03.odi';
     } else {
-      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_04.odi'; //
-      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_04.odi'; //
+      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_04.odi';
+      _odiPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_04.odi';
     }
   } else if (searchParams.value.rsbDvCd === 'W0302') { // 홈마스터
     if (div === 'tot') {
-      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1_sum.ozr'; //
-      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1_sum.odi'; //
+      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1_sum.ozr';
+      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1_sum.odi';
     } else {
-      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.ozr'; //
-      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.odi'; //
+      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.ozr';
+      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.odi';
     }
   } else if (searchParams.value.rsbDvCd === 'W0301') { // 홈마스터 - 지점장
     if (div === 'tot') {
-      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2_sum.ozr'; //
-      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2_sum.odi'; //
+      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2_sum.ozr';
+      _odiPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2_sum.odi';
     } else {
-      _ozrPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2.ozr'; //
-      _odiPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2.odi'; //
+      _ozrPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2.ozr';
+      _odiPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2.odi';
     }
   }
 
