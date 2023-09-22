@@ -333,18 +333,16 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
 
 // 실적집계
 async function onClickAggregate(feeSchdId, code, nextStep) {
-  const { result, payload } = await modal({
+  const { result: isChanged } = await modal({
     component: 'WwfeaEngineerAllowancePerfAgrgRegP',
     componentProps: {
       perfYm: searchParams.value.perfYm,
       rsbTp: 'E',
     },
   });
-  if (result) {
-    if (payload === 'S') {
-      // 수수료 일정 단계 완료
-      await onClickRetry(feeSchdId, code, nextStep);
-    }
+  if (isChanged) {
+    // 수수료 일정 단계 완료
+    await onClickRetry(feeSchdId, code, nextStep);
   }
 }
 
