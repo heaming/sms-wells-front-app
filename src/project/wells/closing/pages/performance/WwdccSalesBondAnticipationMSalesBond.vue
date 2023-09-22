@@ -2,7 +2,7 @@
 ****************************************************************************************************
 1. 모듈 : DCC
 2. 프로그램 ID : WwdccSalesBondAnticipationMSalesBond - 매출채권/선수금 현황 - 매출채권 // W-CL-U-0058M06
-3. 작성자 : gs.piit172 kim juhyun
+3. 작성자 : gs.piit172 kim juhyun -> gugyeongu
 4. 작성일 : 2023.03.09
 ****************************************************************************************************
 * 프로그램 설명
@@ -81,6 +81,7 @@
           {{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
+        v-permission:print
         icon="report"
         :label="$t('MSG_TXT_RPT_BRWS')"
         dense
@@ -93,6 +94,7 @@
         inset
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         :disable="totalCount === 0"
         dense
