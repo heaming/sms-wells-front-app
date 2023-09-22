@@ -254,7 +254,7 @@ async function currentRowDetail(currentRow) {
 
     if (response.length > 0) {
       // 해약 버튼
-      if (response[0].qlfDvCd === '3' && response[0].qlfAplcDvCd !== '2' && dayjs(response[0].enddt).format('YYYYMMDD') >= dayjs().format('YYYYMMDD')) {
+      if (response[0].qlfDvCd === '3' && response[0].qlfAplcDvCd !== '2' && dayjs(response[0].strtdt).format('YYYYMMDD') <= dayjs().format('YYYYMMDD') && dayjs(response[0].enddt).format('YYYYMMDD') >= dayjs().format('YYYYMMDD')) {
         isDisableCancelBtn.value = false;
       } else {
         isDisableCancelBtn.value = true;
