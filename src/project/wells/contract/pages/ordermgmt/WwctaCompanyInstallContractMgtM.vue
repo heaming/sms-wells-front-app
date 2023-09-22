@@ -308,28 +308,6 @@ async function onClickRegist() {
 }
 
 async function onClickExcelUpload() {
-  /*
-  const { result, payload } = await modal({
-    component: 'ZctzExcelUploadP',
-    componentProps: {
-      columns: gridDataModel.dataModelObject,
-      // templateDocId: 'FOM_INSTALLATION_ADDRESS_CHANGE_BATCH_UPLOAD',
-      headerRows: 2,
-      validationBtn: false,
-      addBtn: true,
-      deleteBtn: true,
-      downloadBtn: true,
-      // serverSideValidation: validate,
-      // serverSideValidateOption: { sideEffect: true },
-    },
-  });
-  if (result) {
-    const { list } = payload;
-    pageInfo.value.totalCount = list.length || 0;
-    grdData.value.setRows(list);
-  }
-  */
-
   const apiUrl = '/sms/wells/contract/contracts/company-install/excel-upload';
   const templateId = 'FOM_CTA_0001';
 
