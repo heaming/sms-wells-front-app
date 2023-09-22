@@ -97,7 +97,6 @@
         name="grdMain"
         :page-size="pageInfo.pageSize"
         :visible-rows="(pageInfo.totalCount === 0) ? '10' : pageInfo.pageSize - 1"
-        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
     </div>
@@ -226,7 +225,8 @@ async function onClickExcelUpload() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BLG_CD'), width: '152', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_AFL_CNTR_CD'), width: '152', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '130', styleName: 'text-center' },
     { fieldName: 'prtnrKnm',
       header: t('MSG_TXT_EMPL_NM'),
       width: '166',
