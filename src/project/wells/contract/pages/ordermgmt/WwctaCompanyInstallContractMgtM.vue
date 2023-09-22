@@ -235,10 +235,8 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const searchParams = ref({
-  // cntrCnfmDtFrom: dayjs().add(-3, 'month').startOf('month').format('YYYYMMDD'),
-  // cntrCnfmDtTo: dayjs().format('YYYYMMDD'),
-  cntrCnfmDtFrom: '20230922',
-  cntrCnfmDtTo: '20230922',
+  cntrCnfmDtFrom: dayjs().add(-3, 'month').startOf('month').format('YYYYMMDD'),
+  cntrCnfmDtTo: dayjs().format('YYYYMMDD'),
   insDtFrom: '',
   insDtTo: '',
   cntrNo: '',
@@ -310,28 +308,6 @@ async function onClickRegist() {
 }
 
 async function onClickExcelUpload() {
-  /*
-  const { result, payload } = await modal({
-    component: 'ZctzExcelUploadP',
-    componentProps: {
-      columns: gridDataModel.dataModelObject,
-      // templateDocId: 'FOM_INSTALLATION_ADDRESS_CHANGE_BATCH_UPLOAD',
-      headerRows: 2,
-      validationBtn: false,
-      addBtn: true,
-      deleteBtn: true,
-      downloadBtn: true,
-      // serverSideValidation: validate,
-      // serverSideValidateOption: { sideEffect: true },
-    },
-  });
-  if (result) {
-    const { list } = payload;
-    pageInfo.value.totalCount = list.length || 0;
-    grdData.value.setRows(list);
-  }
-  */
-
   const apiUrl = '/sms/wells/contract/contracts/company-install/excel-upload';
   const templateId = 'FOM_CTA_0001';
 
@@ -533,6 +509,8 @@ const initGrid = defineGrid((data, view) => {
 
   // dbclick row
   view.onCellDblClicked = async (g, { dataRow }) => {
+    if ((dataRow ?? -1) < 0) { return; }
+
     const { result } = await modal({
       component: 'WwctaCompanyInstallContractDtlModP',
       componentProps: { ...gridUtil.getRowValue(g, dataRow) },
