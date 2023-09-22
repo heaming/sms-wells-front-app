@@ -173,7 +173,7 @@
                   {{ $t('MSG_TXT_INSTLATN_RSRVATN_DT') }}
                 </p>
                 <span>
-                  {{ setDateFormat(item.sppDuedt) }}
+                  {{ !isEmpty(item.sppDuedt) ? setDateFormat(item.sppDuedt) : setDateFormat(item.ssSppDuedt) }}
                 </span>
               </li>
               <li v-show="!isEmpty(item.ssStockStrDt) && isEmpty(item.sppDuedt)">
@@ -200,7 +200,7 @@
                   {{ `${t('MSG_TXT_SS')}${t('MSG_TXT_SERIAL_NO')}` }}
                 </p>
                 <span>
-                  {{ item.pdctIdeno }}
+                  {{ item.pdctIdno }}
                 </span>
               </li>
               <li>
