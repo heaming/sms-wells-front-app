@@ -42,6 +42,7 @@
         @click="onClickCancel"
       />
       <kw-btn
+        v-permission:create
         primary
         :label="$t('MSG_TXT_AGRG')"
         @click="onClickSave"
@@ -59,7 +60,7 @@ import dayjs from 'dayjs';
 
 const { cancel, ok } = useModal();
 const { t } = useI18n();
-const { confirm, alert } = useGlobal();
+const { confirm, alert, notify } = useGlobal();
 const dataService = useDataService();
 const props = defineProps({
   perfYm: { // 실적년월
@@ -93,7 +94,9 @@ async function onClickSave() {
   }
 
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
-  const response = await dataService.post('/sms/wells/fee/eger-allowances/aggregates', params.value);
-  if (response.data === 'S') ok(response.data);
+  const response = await dataService.post('/sms/wells/fee/eger-allowances/aggregates', params.value, { timeout: 500000 });
+  ok(true);
+  if (response.data === 'Ended OK') notify(t('MSG_ALT_AGRG_FSH')); // 집계 되었습니다.
+  else if (response.data === 'Ended Not OK') notify(t('MSG_ALT_AGRG_FAIL')); // 집계가 실패 되었습니다.
 }
 </script>
