@@ -42,6 +42,7 @@
         <kw-input
           v-model="searchParams.sppBzsOrdId"
           :label="$t('MSG_TXT_SM_ORD_NO')"
+          maxlength="15"
         />
       </kw-search-item>
     </kw-search-row>

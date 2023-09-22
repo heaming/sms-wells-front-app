@@ -24,12 +24,13 @@
           <kw-input
             v-model="searchParams.cntrCstNo"
             icon="search_24"
-            rules="numeric|max:10"
+            maxlength="10"
+            rules="numeric"
             :label="$t('MSG_TXT_CST_NO')"
             @click-icon="onClickSearchCst"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
+        <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
@@ -37,7 +38,10 @@
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_CST_NM')">
-          <kw-input v-model="searchParams.cstKnm" />
+          <kw-input
+            v-model="searchParams.cstKnm"
+            maxlength="50"
+          />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
@@ -50,6 +54,7 @@
           <kw-input
             v-model="searchParams.adr"
             :placeholder="$t('MSG_TXT_DEFAULT_PLACEHOLDER')"
+            maxlength="200"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_MPNO')">
@@ -58,7 +63,7 @@
             v-model:tel-no1="searchParams.mexnoEncr"
             v-model:tel-no2="searchParams.cralIdvTno"
             mask="telephone"
-            :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
+            :placeholder="$t('MSG_TXT_INP')"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_PRTNR_EMP_NO')">
@@ -67,7 +72,8 @@
             icon="search"
             clearable
             :label="$t('MSG_TXT_PRTNR_EMP_NO')"
-            rules="numeric|max:10"
+            maxlength="10"
+            rules="numeric"
             @click-icon="onClickOpenPartnerListPopup"
           />
         </kw-search-item>
@@ -86,6 +92,7 @@
         </template>
 
         <kw-btn
+          v-permission:delete
           grid-action
           :label="$t('MSG_BTN_DEL')"
           @click="onClickDelete"
@@ -96,11 +103,13 @@
           inset
         />
         <kw-btn
+          v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAdd"
         />
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -112,6 +121,7 @@
         />
 
         <kw-btn
+          v-permission:download
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
           icon="download_on"
