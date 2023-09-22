@@ -250,8 +250,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'vcnStrtDt', header: t('MSG_TXT_STRT_DATE'), width: '130', styleName: 'text-center', rules: 'required', editor: { type: 'btdate' }, editable: true, datetimeFormat: 'date' },
     { fieldName: 'vcnEndDt', header: t('MSG_TXT_END_DT'), width: '130', styleName: 'text-center', rules: 'required', editor: { type: 'btdate' }, editable: true, datetimeFormat: 'date' },
     { fieldName: 'rmkCn', header: t('MSG_TXT_RMK_ARTC'), width: '250', styleName: 'text-left', editable: true, editor: { type: 'text', maxLength: 3500 } },
-    { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '150', styleName: 'text-left, rg-button-icon--search', editor: { type: 'text' }, editable: true, button: 'action' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'bizAgntPrtnrNo', header: t('MSG_TXT_EPNO'), width: '150', styleName: 'text-left, rg-button-icon--search', editor: { type: 'text' }, editable: true, button: 'action' },
     { fieldName: 'prtnrNo', visible: false },
     { fieldName: 'wrkDt', visible: false },
 
