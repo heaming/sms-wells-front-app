@@ -77,6 +77,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -107,6 +108,7 @@
           inset
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_CONF')"
           primary
           dense
