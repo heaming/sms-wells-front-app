@@ -100,7 +100,6 @@
           class="pt20"
           mask="###-##-#####"
           :label="$t('MSG_TXT_CRNO')"
-          :disable="taxInvoiceData.copnDvCd === '2' && !isEmpty(taxInvoiceData.bzrno)"
           rules="required|length:10"
         />
         <!-- 이메일 -->
