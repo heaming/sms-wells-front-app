@@ -178,6 +178,7 @@ const taxInvoiceData = ref({
   billDvMsg: t('MSG_TXT_NTS_PBL_AFT_SV_CS_STLM'),
   copnDvCd: '',
   bzrno: '',
+  dlpnrCd: '',
   emadr: '',
 });
 
@@ -192,11 +193,13 @@ watch(() => taxInvoiceData.value.billDvCd, (val) => {
 async function validateBrzno() {
   const res = await dataService.get('/sms/wells/service/tax-invoices/business-number-check', { params: { bzrno: taxInvoiceData.value.bzrno } });
 
-  if (res.data === 0) {
-    console.log('거래처기본 테이블에 사업자등록번호가 등록되어있지 않음.');
+  if (isEmpty(res.data)) {
+    console.log('세금계산서거래처추가기본 테이블에 사업자등록번호가 등록되어있지 않음.');
     notify(t('MSG_ALT_BZRC_PRR_RGST_NCST'));
     return false;
   }
+
+  taxInvoiceData.value.dlpnrCd = res.data;
   return true;
 }
 
