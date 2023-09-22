@@ -112,7 +112,6 @@
           <div class="row justify-end">
             <!-- 비활성화 시 kw-btn 안에 disable 추가 -->
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TXT_EDUC')"
               dense
               class="call-center-small-btn"
@@ -120,7 +119,6 @@
               @click="onClickSysCALLNotReadyCall(1)"
             />
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TXT_BIZ_NTC')"
               dense
               class="call-center-small-btn ml4"
@@ -128,7 +126,6 @@
               @click="onClickSysCALLNotReadyCall(5)"
             />
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TXT_METG')"
               dense
               class="call-center-small-btn ml4"
@@ -136,7 +133,6 @@
               @click="onClickSysCALLNotReadyCall(3)"
             />
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TXT_MTR_SEA2')"
               dense
               class="call-center-small-btn ml4"
@@ -144,7 +140,6 @@
               @click="onClickSysCALLNotReadyCall(6)"
             />
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TXT_REST2')"
               dense
               class="call-center-small-btn ml4"
@@ -152,7 +147,6 @@
               @click="onClickSysCALLNotReadyCall(4)"
             />
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TXT_MEL')"
               dense
               class="call-center-small-btn ml4"
@@ -164,7 +158,6 @@
           <div class="row mt8">
             <!-- 비활성화 시 kw-btn 안에 disable 추가 -->
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TXT_CUT')"
               icon="cellphone_off"
               dense
@@ -179,7 +172,6 @@
               class="mx20 my3"
             />
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TXT_PENDING')"
               icon="pause"
               dense
@@ -194,7 +186,6 @@
               class="mx20 my3"
             />
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TXT_REST2')"
               icon="break"
               dense
@@ -209,7 +200,6 @@
               class="mx20 my3"
             />
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TXT_CALL')"
               icon="cellphone"
               dense
@@ -224,7 +214,6 @@
               class="mx20 my3"
             />
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TIT_HOLDON')"
               icon="holding"
               dense
@@ -239,7 +228,6 @@
               class="mx20 my3"
             />
             <kw-btn
-              v-permission:create
               :label="$t('MSG_TXT_RSTRCT')"
               icon="release"
               dense
@@ -253,7 +241,6 @@
           <template v-if="searchParams.phoneYn === 'Y'">
             <div class="outgoing-call-box">
               <kw-btn
-                v-permission:create
                 icon="cellphone"
                 borderless
               />
@@ -265,7 +252,6 @@
                 dense
               />
               <kw-btn
-                v-permission:create
                 :label="$t('MSG_TXT_CALL')"
                 class="ml8 kw-btn--bg"
                 dense
@@ -273,7 +259,6 @@
                 @click="onClickSysCALLMakeCall(searchParams.phone)"
               />
               <kw-btn
-                v-permission:create
                 class="ml12"
                 icon="close"
                 borderless
@@ -286,7 +271,6 @@
       </div>
       <div class="row">
         <kw-btn
-          v-permission:create
           outlined
           dense
           :label="$t('MSG_TXT_CALLBK')"
