@@ -222,6 +222,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_INST_PROD')"
           required
+          hint="상품검색을 통해 입력하세요."
         >
           <kw-input
             v-model="installDetail.basePdCd"
@@ -407,6 +408,77 @@
           />
         </kw-form-item>
       </kw-form-row>
+
+      <template v-if="!isEmpty(packages)">
+        <kw-separator />
+        <kw-action-top>
+          <template #left>
+            <!--웰스팜            -->
+            <h3>{{ t('MSG_TXT_WELSF') }}</h3>
+          </template>
+        </kw-action-top>
+        <kw-form-row label-size="100">
+          <!--등록옵션-->
+          <kw-form-item :label="$t('MSG_TXT_RGS') + $t('MSG_TXT_OPT')">
+            <kw-option-group
+              v-model="installDetail.packageYn"
+              type="radio"
+              :options="[{ codeId: 'N', codeName: '기기만 등록' },{ codeId: 'Y', codeName: '모종 패키지 함께 등록' }]"
+            />
+          </kw-form-item>
+        </kw-form-row>
+
+        <template v-if="installDetail.packageYn==='Y'">
+          <kw-form-row
+            label-size="100"
+            cols="5"
+          >
+            <!--모종패키지-->
+            <kw-form-item
+              :label="$t('MSG_TXT_SDING')+$t('MSG_TXT_PRDT')"
+              :required="installDetail.packageYn === 'Y'?'required':null"
+              colspan="2"
+            >
+              <kw-select
+                v-model="installDetail.pkgPdCd"
+                :label="$t('MSG_TXT_CYCL')"
+                :options="packages"
+                first-option="select"
+                :rules="installDetail.packageYn === 'Y'?'required':null"
+                @change="onChnagePackageCd"
+              />
+            </kw-form-item>
+
+            <!--모종계약기간-->
+            <kw-form-item :label="$t('TXT_MSG_CNTR_PTRM_DV_CD')">
+              <kw-input
+                v-model="installDetail.pkgCntrPtrm"
+                maxlength="3"
+                align="right"
+                rules="numeric"
+              />
+            </kw-form-item>
+            <!--무상기간 -->
+            <kw-form-item :label="$t('TXT_MSG_FRISU_PTRM')">
+              <kw-input
+                v-model="installDetail.packageFrisuPtrm"
+                maxlength="3"
+                align="right"
+                rules="numeric"
+              />
+            </kw-form-item>
+            <!--무상금액-->
+            <kw-form-item :label="$t('MSG_TXT_FREE')+$t('MSG_TXT_AMT')">
+              <kw-input
+                v-model="installDetail.packageFreeAmt"
+                align="right"
+                maxlength="10"
+                rules="numeric"
+              />
+            </kw-form-item>
+          </kw-form-row>
+        </template>
+      </template>
     </kw-form>
 
     <template #action>
@@ -444,6 +516,7 @@ const sessionUserInfo = useMeta().getUserInfo();
 const frmMainRef = ref(getComponentType('KwForm'));
 
 const services = ref();
+const packages = ref();
 const codes = await codeUtil.getMultiCodes(
   'CO_IST_DV_CD', // 설치구분
   'CO_IST_USWY_CD', // 설치용도
@@ -459,6 +532,11 @@ const installDetail = reactive({
   coCd: '2000',
   ogCd: sessionUserInfo.ogCd,
   ogNm: sessionUserInfo.ogCdNm,
+  packageYn: 'N',
+  pkgPdCd: '',
+  pkgCntrPtrm: 12,
+  packageFrisuPtrm: 12,
+  packageFreeAmt: 0,
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -523,14 +601,27 @@ async function onClickSearchPd() {
   });
 
   if (result.result) {
-    installDetail.basePdCd = result.payload?.[0].pdCd;
-    installDetail.pdNm = result.payload?.[0].pdNm;
+    const selectedPd = result.payload?.[0];
+    if (selectedPd) {
+      installDetail.basePdCd = selectedPd.pdCd;
+      installDetail.pdNm = selectedPd.pdNm;
+      installDetail.sellTpCd = selectedPd.sellTpCd;
 
-    if (!isEmpty(installDetail.basePdCd)) {
-      const codeRes = await dataService.get('/sms/wells/contract/contracts/company-service', { params: { pdCd: installDetail.basePdCd } });
-      services.value = codeRes.data;
+      if (!isEmpty(installDetail.basePdCd)) {
+        const res = await dataService.get('/sms/wells/contract/contracts/company-service', { params: { pdCd: installDetail.basePdCd } });
+        services.value = res.data.services;
+        packages.value = res.data.packages;
+      }
     }
   }
+}
+
+// 모종 패키지 선택
+async function onChnagePackageCd() {
+  if (isEmpty(installDetail.pkgPdCd)) return;
+
+  const { cntrPtrm } = packages.value.find((v) => v.codeId === installDetail.pkgPdCd);
+  if (!isEmpty(cntrPtrm) && Number(cntrPtrm) > 0) { installDetail.pkgCntrPtrm = cntrPtrm; }
 }
 
 // 저장 버튼 클릭
@@ -542,6 +633,11 @@ async function onClickSave() {
   const { svTpCd, svPrd } = services.value.find((v) => v.codeId === installDetail.ojPdCd);
   installDetail.svPdTpCd = svTpCd;
   installDetail.svPrd = svPrd;
+
+  if (installDetail.packageYn === 'N') {
+    installDetail.pkgPdCd = '';
+    installDetail.pkgCntrPtrm = '';
+  }
 
   // call service
   await dataService.post('/sms/wells/contract/contracts/company-install', [{ ...installDetail }]);

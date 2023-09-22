@@ -235,8 +235,10 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const searchParams = ref({
-  cntrCnfmDtFrom: dayjs().add(-3, 'month').startOf('month').format('YYYYMMDD'),
-  cntrCnfmDtTo: dayjs().format('YYYYMMDD'),
+  // cntrCnfmDtFrom: dayjs().add(-3, 'month').startOf('month').format('YYYYMMDD'),
+  // cntrCnfmDtTo: dayjs().format('YYYYMMDD'),
+  cntrCnfmDtFrom: '20230922',
+  cntrCnfmDtTo: '20230922',
   insDtFrom: '',
   insDtTo: '',
   cntrNo: '',
@@ -424,7 +426,7 @@ const initGrid = defineGrid((data, view) => {
     basePdCd: { label: t('MSG_TXT_INST_PROD_CD'), width: '130', classes: 'text-center' }, // [설치상품코드]
     pdNm: { label: t('MSG_TXT_INST_PROD_NM'), width: '300' }, // [설치상품명]
     pkgPdCd: { label: t('MSG_TXT_SEED_PKG_CD'), width: '130', classes: 'text-center' }, // [모종패키지코드]
-    pkgPdNm: { label: t('MSG_TXT_PKG_NM'), width: '300', classes: 'text-center' }, // [패키지명]
+    pkgPdNm: { label: t('MSG_TXT_PKG_NM'), width: '300' }, // [패키지명]
     bsPrd: { label: t('MSG_TXT_BS_CYC'),
       width: '100',
       classes: 'text-right',
@@ -486,6 +488,8 @@ const initGrid = defineGrid((data, view) => {
     fnlAmt: { displaying: false },
     ojPdCd: { displaying: false },
     cntrDtlStatCd: { displaying: false },
+    pkgCntrPtrm: { displaying: false },
+    pkgCntrSn: { displaying: false },
 
     // wpDvNm: { label: `WP${t('MSG_TXT_DIV')}`, width: '100' }, // [WP구분]
     // filterExp: { label: t('MSG_TXT_FILTER_CST'), width: '110' }, // [필터비용]
