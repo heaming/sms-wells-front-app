@@ -567,8 +567,6 @@ async function initPage() {
   installDetail.value.packageFrisuPtrm = 12;
   installDetail.value.packageFreeAmt = 0;
 
-  console.log(installDetail.value.ojPdCd);
-
   const res = await dataService.get('/sms/wells/contract/contracts/company-service', { params: { pdCd: installDetail.value.basePdCd } });
   services.value = res.data.services;
   packages.value = res.data.packages;

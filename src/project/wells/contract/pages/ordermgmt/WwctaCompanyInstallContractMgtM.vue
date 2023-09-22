@@ -235,10 +235,8 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const searchParams = ref({
-  // cntrCnfmDtFrom: dayjs().add(-3, 'month').startOf('month').format('YYYYMMDD'),
-  // cntrCnfmDtTo: dayjs().format('YYYYMMDD'),
-  cntrCnfmDtFrom: '20230922',
-  cntrCnfmDtTo: '20230922',
+  cntrCnfmDtFrom: dayjs().add(-3, 'month').startOf('month').format('YYYYMMDD'),
+  cntrCnfmDtTo: dayjs().format('YYYYMMDD'),
   insDtFrom: '',
   insDtTo: '',
   cntrNo: '',
@@ -533,6 +531,8 @@ const initGrid = defineGrid((data, view) => {
 
   // dbclick row
   view.onCellDblClicked = async (g, { dataRow }) => {
+    if ((dataRow ?? -1) < 0) { return; }
+
     const { result } = await modal({
       component: 'WwctaCompanyInstallContractDtlModP',
       componentProps: { ...gridUtil.getRowValue(g, dataRow) },

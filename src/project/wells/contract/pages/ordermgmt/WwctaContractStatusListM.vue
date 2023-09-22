@@ -571,15 +571,16 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   resultList.value = details;
 }
-/*
+
 async function fetchDataSummary() {
   if (isEmpty(cachedParams)) return;
 
-  const res = await dataService.get('/sms/wells/contract/contracts/contract-lists/summary',
-  { params: { ...cachedParams } });
+  const res = await dataService.get(
+    '/sms/wells/contract/contracts/contract-lists/summary',
+    { params: { ...cachedParams } },
+  );
   summary.value = res.data;
 }
-*/
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
@@ -588,7 +589,7 @@ async function onClickSearch() {
   await fetchData();
 
   if (resultList.value.length > 0) {
-    /// await fetchDataSummary();
+    await fetchDataSummary();
   } else {
     summary.value.cnfm = '0';
     summary.value.aprv = '0';
