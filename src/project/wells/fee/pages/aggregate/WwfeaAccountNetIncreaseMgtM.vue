@@ -37,6 +37,7 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_FEE_YM')"
+          required
         >
           <kw-date-picker
             v-model="searchParams.perfYm"
