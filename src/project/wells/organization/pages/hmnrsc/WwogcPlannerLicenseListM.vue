@@ -98,6 +98,19 @@
           v-permission:create
           dense
           grid-action
+          :disable="isDisableThisDayUpgradesBtn"
+          :label="$t('MSG_BTN_THD_OPNG')"
+          @click="onClickUpgrades('DAY_OPENING')"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+        <kw-btn
+          v-permission:create
+          dense
+          grid-action
           :disable="isDisableCancelBtn"
           :label="$t('MSG_TXT_CLTN')"
           @click="onClickUpgrades('CANCEL')"
@@ -156,9 +169,12 @@ import { getPhoneNumber } from '~sms-common/organization/utils/ogUtil';
 const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
-const { getUserInfo } = useMeta();
+const { getUserInfo/* , hasRoleNickName */ } = useMeta();
 const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 const { openReport } = useOgReport();
+
+// 당일개시
+const isDisableThisDayUpgradesBtn = ref(true);
 
 // 해약
 const isDisableCancelBtn = ref(true);
@@ -253,6 +269,13 @@ async function currentRowDetail(currentRow) {
     setGrdMain2(response);
 
     if (response.length > 0) {
+      // if (hasRoleNickName('ROL_W1010') && response[0].qlfDvCd !== '3') {
+      if (response[0].qlfDvCd !== '3') {
+        isDisableThisDayUpgradesBtn.value = false;
+      } else {
+        isDisableThisDayUpgradesBtn.value = true;
+      }
+
       // 해약 버튼
       if (response[0].qlfDvCd === '3' && response[0].qlfAplcDvCd !== '2' && dayjs(response[0].strtdt).format('YYYYMMDD') <= dayjs().format('YYYYMMDD') && dayjs(response[0].enddt).format('YYYYMMDD') >= dayjs().format('YYYYMMDD')) {
         isDisableCancelBtn.value = false;
@@ -349,9 +372,21 @@ function getTargetQualification(item, details, type) {
   }
 
   switch (type) {
+    case 'DAY_OPENING':
+      // 당일개시
+      if (details[0].qlfDvCd === '2') {
+        result.targetQlfDvCd = '6'; // BS프리매니저
+      } else if (details[0].qlfDvCd === '6') {
+        result.targetQlfDvCd = '3'; // 웰스매니
+        result.cvdt = dayjs().format('YYYYMMDD'); // 전환일자
+      }
+      result.strtdt = dayjs().format('YYYYMMDD');
+      result.enddt = dayjs('99991231').format('YYYYMMDD');
+      break;
     case 'CANCEL':
       // 해약
       result.ogId = item.ogId;
+      result.targetQlfAplcDvCd = '2';
       result.targetQlfDvCd = details[0].qlfDvCd;
       result.strtdt = details[0].strtdt;
       result.enddt = dayjs(result.strtdt).format('YYYYMM').concat(dayjs(result.strtdt).daysInMonth());
@@ -392,6 +427,9 @@ async function onClickUpgrades(type) {
   let res;
   let message;
   switch (type) {
+    case 'DAY_OPENING':
+      res = await dataService.post('/sms/wells/partner/planner-qualification-change/day-opening', params);
+      break;
     case 'CANCEL':
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]);
       res = await dataService.put('/sms/wells/partner/planner-qualification-cancel', params);
@@ -441,9 +479,9 @@ async function onClickSave() {
   notify(t('MSG_ALT_SAVE_DATA'));
 }
 
-onMounted(() => {
+/* onMounted(() => {
   init();
-});
+}); */
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -452,7 +490,7 @@ const initGrid1 = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '106', styleName: 'text-center', editable: false },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '160', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
