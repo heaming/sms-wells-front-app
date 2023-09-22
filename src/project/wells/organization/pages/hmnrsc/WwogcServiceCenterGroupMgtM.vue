@@ -19,7 +19,10 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
+        <kw-search-item
+          :label="$t('MSG_TXT_OG_LEVL')"
+          class="equal_division--1"
+        >
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
@@ -91,6 +94,7 @@
           dense
         />
         <kw-btn
+          v-permission:create
           :label="t('MSG_BTN_RFLT_DT_BLK_SAVE')"
           dense
           grid-action
@@ -102,6 +106,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="t('MSG_BTN_SAVE')"
           grid-action
           @click="onClickSave"
@@ -112,6 +117,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -342,7 +348,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BLG_CD'), width: '162', styleName: 'text-center' },
     // { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '125', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '130', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '92', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '92', styleName: 'text-center' },
     {
       fieldName: 'wkGrpCd',
       header: t('MSG_TXT_WK_GRP'),
