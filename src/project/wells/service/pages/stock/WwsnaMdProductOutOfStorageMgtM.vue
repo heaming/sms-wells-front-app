@@ -17,12 +17,35 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_SRCH_DT')">
+        <kw-search-item
+          v-if="!isCompStatus"
+          :colspan="1"
+          :label="$t('MSG_TXT_CNTR_DATE')"
+        >
           <kw-date-range-picker
             v-model:from="searchParams.startDt"
             v-model:to="searchParams.endDt"
-            :label="$t('MSG_TXT_SRCH_DT')"
+            :label="$t('MSG_TXT_CNTR_DATE')"
             rules="date_range_required"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-if="isCompStatus"
+          :colspan="1"
+          :label="$t('MSG_TXT_OSTR_CNFM_DT')"
+          class="w315"
+        >
+          <kw-date-picker
+            v-model="searchParams.vstFshDt"
+            :label="$t('MSG_TXT_OSTR_CNFM_DT')"
+            rules="required"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('처리구분')">
+          <kw-select
+            v-model="searchParams.findGb"
+            :options="customCodes.findGb"
+            @change="onChangeCompStatus"
           />
         </kw-search-item>
       </kw-search-row>
@@ -34,14 +57,6 @@
             :total-count="totalCount"
           />
         </template>
-        <kw-btn
-          icon="download_on"
-          dense
-          secondary
-          :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="totalCount === 0"
-          @click="onClickExcelDownload"
-        />
         <!-- 엑셀업로드 -->
         <kw-btn
           icon="upload_on"
@@ -49,6 +64,14 @@
           dense
           :label="$t('MSG_TXT_EXCEL_UPLOAD')"
           @click="onClickExcelUpload"
+        />
+        <kw-btn
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="totalCount === 0"
+          @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
@@ -75,7 +98,7 @@ const dataService = useDataService();
 
 const { t } = useI18n();
 const { currentRoute } = useRouter();
-const { modal, notify } = useGlobal();
+const { modal } = useGlobal();
 const now = dayjs();
 
 // -------------------------------------------------------------------------------------------------
@@ -87,13 +110,43 @@ const baseUrl = '/sms/wells/service/md-product--out-of-storage';
 await codeUtil.getMultiCodes(
   'SV_BIZ_DCLSF_CD',
 );
-
+const customCodes = {
+  findGb: [
+    { codeId: '1', codeName: t('MSG_TXT_WK_FSH') },
+    { codeId: '2', codeName: t('MSG_TXT_WORK_PENDING') },
+  ],
+};
 const searchParams = ref({
-  startDt: now.subtract(30, 'day').format('YYYYMMDD'),
-  endDt: now.format('YYYYMMDD'),
+  startDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
+  endDt: now.format('YYYYMMDD'), // 종료일자
+  vstFshDt: now.format('YYYYMMDD'),
+  findGb: '2', /* 조회 구분 */
+  selCnt: '', /* 조회 제한건수  */
 });
 let cachedParams;
 const totalCount = ref(0);
+
+const isCompStatus = ref(false);
+const isWaitStatus = ref(true);
+async function onChangeCompStatus() {
+  isCompStatus.value = false;
+  isWaitStatus.value = false;
+  const { findGb } = searchParams.value;
+
+  const view = grdMainRef.value.getView();
+  view.checkBar.visible = false;
+
+  /* 작업완료 */
+  if (findGb === '1') {
+    isCompStatus.value = true;
+  }
+
+  /* 작업대기 */
+  if (findGb === '2') {
+    isWaitStatus.value = true;
+    view.checkBar.visible = true;
+  }
+}
 
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
@@ -116,7 +169,7 @@ async function onClickExcelDownload() {
     exportData: gridUtil.getAllRowValues(view),
   });
 }
-
+/* 엑셀 업로드 유효성 체크 */
 async function validate(rows) {
   const { data } = await dataService.put(`${baseUrl}/excel-upload-validate`, rows, {
     alert: false,
@@ -146,18 +199,6 @@ async function onClickExcelUpload() {
   });
   console.log(result);
   console.log(payload);
-  notify(t('MSG_ALT_SAVE_DATA'));
-  // if (result && payload.status === 'S') {
-  //   notify(t('MSG_ALT_SAVE_DATA'));
-  // } else if (result && payload.status === 'E' && payload.excelData.length === 0) {
-  //   notify(t('MSG_ALT_NO_DATA'));
-  // }
-  // const { list } = payload;
-  // if (result) {
-  //   const response = await dataService.post(`${baseUrl}/excel-upload`, list);
-  //   if (response.data?.processCount > 0) {
-  //     fetchPage();
-  //   }
 }
 
 // -------------------------------------------------------------------------------------------------
