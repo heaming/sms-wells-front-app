@@ -257,8 +257,8 @@ watch(() => searchParams.value.mngtYm, async (newVal) => {
 const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BUSINESS_DIVISION'), width: '120', styleName: 'text-center' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center' },
     { fieldName: 'qlfDvNm', header: t('MSG_TXT_THM_QLF'), width: '100', styleName: 'text-center' },
