@@ -166,7 +166,7 @@
                 {{ setIstExptDateFormat(item) }}
               </span>
             </li>
-            <div v-show="isEqual(item.istBzsCd, 'S')">
+            <slot v-if="isEqual(item.istBzsCd, 'S')">
               <li>
                 <!-- 설치예약일시(삼성) -->
                 <p class="w90">
@@ -210,9 +210,16 @@
                 </p>
                 <span>{{ setDateFormat(item.sppDuedt) }}</span>
               </li>
-            </div>
-            <div
-              v-show="!isEqual(item.istPcsvSellTpCd, '2')
+              <li>
+                <!-- 특이사항-->
+                <p class="w90">
+                  {{ $t('MSG_TXT_UNUITM') }}
+                </p>
+                <span>{{ isEmpty(item.cttRsCd) ? '' : `(${item.cttRsCd})${item.cttRsNm}` }}</span>
+              </li>
+            </slot>
+            <slot
+              v-if="!isEqual(item.istPcsvSellTpCd, '2')
                 && !isEqual(item.istBzsCd, 'S')
                 && !isEqual(item.kaetc1, '7')"
             >
@@ -248,8 +255,8 @@
                 </p>
                 <span>{{ isEmpty(item.wkCanMoCn)?'':item.wkCanMoCn }}</span>
               </li>
-            </div>
-            <div v-show="isEqual(item.istPcsvSellTpCd, '2')">
+            </slot>
+            <slot v-if="isEqual(item.istPcsvSellTpCd, '2')">
               <li>
                 <!-- 배송요청일시 -->
                 <p class="w90">
@@ -264,8 +271,8 @@
                 </p>
                 <span>{{ setDateFormat(item.wkApcteDt, item.wkAcpteHh) }}</span>
               </li>
-            </div>
-            <div v-show="isEqual(item.istPcsvSellTpCd, '1') && isEqual(item.kaetc1, '7')">
+            </slot>
+            <slot v-if="isEqual(item.istPcsvSellTpCd, '1') && isEqual(item.kaetc1, '7')">
               <li>
                 <!-- 배송요청일 -->
                 <p class="w90">
@@ -287,7 +294,7 @@
                 </p>
                 <span>{{ isEmpty(item.wkCanMoCn)?'':item.wkCanMoCn }}</span>
               </li>
-            </div>
+            </slot>
           </ul>
           <kw-separator spaced="20px" />
           <kw-card-actions class="button-wrap">
@@ -298,7 +305,7 @@
               :label="t('MSG_BTN_SPP_INQR_ETC')"
               @click="onClickInstallEtc(item)"
             />
-            <div v-show="isEqual(item.lcCanyn, 'N')">
+            <slot v-if="isEqual(item.lcCanyn, 'N')">
               <!-- 접수 -->
               <kw-btn
                 v-show="(isEqual(item.acpgStat, '1') || isEqual(item.acpgStat, '9'))
@@ -321,7 +328,7 @@
                 :label="t('MSG_BTN_CNCL_ASGMT')"
                 @click="onClickCnclAsgmt(item)"
               />
-            </div>
+            </slot>
           </kw-card-actions>
         </kw-card>
         <!-- 배송 카드 -->
@@ -386,7 +393,7 @@
           </ul>
           <kw-separator spaced="20px" />
           <ul class="card-text">
-            <div v-show="!isEqual(item.istBzsCd, 'S')">
+            <slot v-if="!isEqual(item.istBzsCd, 'S')">
               <li>
                 <!-- 배송예정일 -->
                 <p class="w90">
@@ -414,8 +421,8 @@
                   {{ item.booSellYn }}
                 </span>
               </li>
-            </div>
-            <div v-show="isEqual(item.istBzsCd, 'S')">
+            </slot>
+            <slot v-if="isEqual(item.istBzsCd, 'S')">
               <li v-show="!isEmpty(item.ssSppDuedt)">
                 <!-- 배송예정일자 -->
                 <p class="w90">
@@ -442,11 +449,11 @@
               <li>
                 <!-- 특이사항-->
                 <p class="w90">
-                  {{ $t('MSG_TXT_IST_DT') }}
+                  {{ $t('MSG_TXT_UNUITM') }}
                 </p>
                 <span>{{ isEmpty(item.cttRsCd) ? '' : `(${item.cttRsCd})${item.cttRsNm}` }}</span>
               </li>
-            </div>
+            </slot>
           </ul>
           <kw-card-actions
             v-show="!isEqual(item.istBzsCd, 'S')"
