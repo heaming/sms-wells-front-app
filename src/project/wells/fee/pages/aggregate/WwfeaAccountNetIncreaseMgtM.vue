@@ -37,6 +37,7 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_FEE_YM')"
+          required
         >
           <kw-date-picker
             v-model="searchParams.perfYm"
@@ -126,6 +127,7 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_CASES') }}</span>
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -139,6 +141,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           secondary
           dense
           :label="$t('MSG_TXT_ACC_NINC') + $t('MSG_TXT_AGRG')"

@@ -98,6 +98,7 @@
 
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -112,6 +113,7 @@
         />
         <!-- 계약금 환불현황 -->
         <kw-btn
+          v-permission:print
           :label="$t('MSG_TXT_CNTRAM_RFND_PS')"
           secondary
           dense
@@ -119,12 +121,14 @@
         />
         <!-- 기타선수금 환불현황-->
         <kw-btn
+          v-permission:print
           :label="$t('MSG_TXT_ETC_ATAM_RFND_PS')"
           secondary
           dense
           @click="onClickEtcRfnd"
         />
         <kw-btn
+          v-permission:print
           :label="$t('MSG_TXT_TK_AMT_DP_PS')"
           secondary
           dense
@@ -137,6 +141,7 @@
         />
         <!-- 환불신청 -->
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_APLC_RFND')"
           primary
           dense

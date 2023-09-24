@@ -87,6 +87,7 @@
           </template>
 
           <kw-btn
+            v-permission:download
             icon="download_on"
             :label="$t('MSG_BTN_EXCEL_DOWN')"
             secondary
@@ -100,12 +101,14 @@
             inset
           />
           <kw-btn
+            v-permission:create
             :label="$t('MSG_BTN_CONF')"
             secondary
             dense
             @click="onClickSave"
           />
           <kw-btn
+            v-permission:delete
             :label="$t('MSG_BTN_DTRM_CAN')"
             secondary
             dense
@@ -158,6 +161,7 @@
           </template>
 
           <kw-btn
+            v-permission:download
             icon="download_on"
             :label="$t('MSG_BTN_EXCEL_DOWN')"
             secondary
@@ -211,7 +215,7 @@ const radioInqrDv = ref(1);
 
 // TODO: 가압펌프 확정관리 검색조건
 const searchConfirmParams = ref({
-  fstVstFshDtFrom: now.format('YYYYMMDD'),
+  fstVstFshDtFrom: `${now.format('YYYYMM')}01`,
   fstVstFshDtTo: now.format('YYYYMMDD'),
   cnfmYn: '',
   itmPdCd: '',
@@ -351,6 +355,7 @@ async function onClickSave() {
       rcpdt: obj.rcpdt,
       istDuedt: obj.istDuedt,
       istDt: obj.istDt,
+      fnlVstFshDt: obj.fnlVstFshDt,
       svBizHclsfCd: obj.svBizHclsfCd,
     });
   });
@@ -398,6 +403,7 @@ const initGridConfirm = defineGrid((data, view) => {
     { fieldName: 'svMcn' },
     { fieldName: 'dutyUseMcn' },
     { fieldName: 'fnlVstFshDt' },
+    { fieldName: 'rcpdt' },
     { fieldName: 'istDt' },
     { fieldName: 'reqdDt' },
     { fieldName: 'rsgDt' },
@@ -412,7 +418,6 @@ const initGridConfirm = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcUsrId' },
     { fieldName: 'adnSvStrtYm' },
     { fieldName: 'istDuedt' },
-    { fieldName: 'rcpdt' },
 
   ];
 
@@ -447,6 +452,7 @@ const initGridConfirm = defineGrid((data, view) => {
     { fieldName: 'svMcn', header: t('MSG_TXT_SV_PTRM'), width: '80', styleName: 'text-center' },
     { fieldName: 'dutyUseMcn', header: t('MSG_TXT_DUTY_PTRM'), width: '80', styleName: 'text-center' },
     { fieldName: 'fnlVstFshDt', header: t('MSG_TXT_WK_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'rsgDt', header: t('MSG_TXT_CLTN_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
@@ -461,7 +467,6 @@ const initGridConfirm = defineGrid((data, view) => {
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TIT_MDFC_USR'), width: '120', styleName: 'text-left' },
     { fieldName: 'adnSvStrtYm', header: t('MSG_TXT_ADN_SV_STRT_YM'), width: '120', styleName: 'text-center', visible: false },
     { fieldName: 'istDuedt', header: t('MSG_TXT_IST_EXP_DT'), width: '120', styleName: 'text-center', visible: false },
-    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center', visible: false },
 
   ];
 

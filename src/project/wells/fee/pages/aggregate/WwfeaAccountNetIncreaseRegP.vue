@@ -42,6 +42,7 @@
         @click="onClickCancel"
       />
       <kw-btn
+        v-permission:create
         primary
         :label="$t('MSG_TXT_AGRG')"
         @click="onClickSave"

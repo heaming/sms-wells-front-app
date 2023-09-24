@@ -82,6 +82,7 @@
             </template>
 
             <kw-btn
+              v-permission:download
               :disable="pageInfo.totalCount === 0"
               icon="download_on"
               dense
@@ -95,6 +96,7 @@
               spaced
             />
             <kw-btn
+              v-permission:create
               grid-action
               :label="t('MSG_TXT_BNDL_RGST')"
               @click="onClickBundleWithdrawalRgst"
@@ -163,6 +165,7 @@
             </template>
 
             <kw-btn
+              v-permission:download
               :disable="pageInfo2.totalCount === 0"
               icon="download_on"
               dense

@@ -93,6 +93,7 @@
       />
       <kw-btn
         v-if="isShow"
+        v-permission:update
         :label="$t('MSG_BTN_SAVE')"
         primary
         @click="onClickSave"
@@ -105,7 +106,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, stringUtil, useDataService, useGlobal, useModal } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { isUndefined, isNull, isEmpty, toNumber } from 'lodash-es';
 import dayjs from 'dayjs';
 import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 
@@ -138,6 +139,10 @@ const pqlfDvCds = await codeUtil.getCodes('PQLF_DV_CD');
 const isShow = ref(false);
 const planner = ref({});
 
+function isBlank(val) {
+  return isUndefined(val) || isNull(val) || val === '';
+}
+
 async function fetchData() {
   const res = await dataService.get(`${SMS_WELLS_URI}/partner/${props.ogTpCd}/${props.prtnrNo}`, { params: { mngtYm: props.mngtYm } });
 
@@ -145,7 +150,7 @@ async function fetchData() {
     res.data.rfdt = stringUtil.getDateFormat(res.data.rfdt, 'YYYYMM', 'YYYYMM');
   }
 
-  planner.value = res.data;
+  planner.value = { ...res.data, originQlfDvCd: res.data?.qlfDvCd ?? '' };
   frmMainRef.value.init();
 
   if (res.data.mngtYm === thisYm) {
@@ -155,8 +160,32 @@ async function fetchData() {
   }
 }
 
+function setData() {
+  const { originQlfDvCd, qlfDvCd } = planner.value;
+
+  if (isBlank(originQlfDvCd)) {
+    planner.value.upgrDmtnDvCd = '1';
+    return;
+  }
+
+  if (toNumber(qlfDvCd) - toNumber(originQlfDvCd) < 0) { // 변경된 자격구분코드 - 이전 자격구분코드 < 0
+    planner.value.upgrDmtnDvCd = '1'; // 승급
+    planner.value.upgrYm = thisYm;
+    planner.value.dmtnYm = null;
+    planner.value.upgrMcn = 1;
+  } else {
+    planner.value.upgrDmtnDvCd = '2'; // 강등
+    planner.value.dmtnYm = thisYm;
+    planner.value.upgrYm = null;
+    planner.value.upgrMcn = 0;
+  }
+}
+
 // 저장
 async function onClickSave() {
+  if (await frmMainRef.value.alertIfIsNotModified()) { return; }
+  setData();
+
   await dataService.put(`${SMS_WELLS_URI}/partner/${props.ogTpCd}/${props.prtnrNo}`, { ...planner.value, ogTpCd: props.ogTpCd });
 
   ok();

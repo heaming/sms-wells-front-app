@@ -70,10 +70,11 @@
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           :label="t('MSG_BTN_EXCEL_DOWN')"
-          :disabled="pageInfo.totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>

@@ -139,6 +139,7 @@
           />
           <!-- 발송  -->
           <kw-btn
+            v-permission:create
             secondary
             :label="$t('MSG_BTN_SEND')"
             padding="10px"

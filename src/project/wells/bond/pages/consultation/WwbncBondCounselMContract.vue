@@ -242,6 +242,7 @@
         <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
+        v-permission:download
         icon="download_on"
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         secondary
@@ -255,6 +256,7 @@
         spaced
       />
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_IST_CHAR_FW')"
         primary
         dense
@@ -262,6 +264,7 @@
         @click="onClickIstMessageSend"
       />
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_CNTR_CHAR_FW')"
         primary
         dense
@@ -311,6 +314,8 @@ const { t } = useI18n();
 
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const { getters } = useStore();
+const { employeeIDNumber } = getters['meta/getUserInfo'];
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -338,7 +343,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // TODO: 계약리스트 검색조건
 let cachedParams;
 const searchParams = ref({
-  schClctamNo: '',
+  schClctamNo: employeeIDNumber,
   schClctamNm: '',
   schCstNm: '',
   schDlqMcntStrt: '',
@@ -589,11 +594,11 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'ctt', header: t('MSG_TXT_CTT'), width: '52', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } },
     { fieldName: 'bizDv', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '140', styleName: 'text-center' },
-    { fieldName: 'pdctNm', header: t('MSG_TXT_GOODS_NM'), width: '200', styleName: 'text-center' },
+    { fieldName: 'prdf', header: t('MSG_TXT_PRD_GRP'), width: '180', styleName: 'text-center' },
+    { fieldName: 'pdctNm', header: t('MSG_TXT_GOODS_NM'), width: '260', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'text-center' },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'dlqMcnt', header: t('MSG_TXT_DLQ_MCNT'), width: '70', styleName: 'text-center' },
     { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'ojDp', header: t('MSG_TXT_OJ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },

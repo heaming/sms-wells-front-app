@@ -30,7 +30,7 @@
           <!-- 서비스 유형 -->
           <kw-select
             v-model="searchParams.svTpCd"
-            :options="selectCodes.SELECT_SERVICE"
+            :options="codes.SV_DV_CD"
             first-option="all"
             class="w150"
           />
@@ -132,10 +132,16 @@ const codes = await codeUtil.getMultiCodes(
   'SV_DV_CD', // 서비스유형
 );
 
+/** =========================================================================
+ * 화면설계서의 서비스 유형 변경
+ * 화면설계서...전체, 설치, A/S, 홈케어
+ * 변경...전체, 설치, A/S, B/S, 홈케어
+**========================================================================= */
 // 사용자 정의코드
 const selectCodes = {
   // 서비스유형 : all.전체, 1.설치, 3.A/S, 4.홈케어
-  SELECT_SERVICE: codes.SV_DV_CD.filter((v) => v.codeId !== '2').map((rtnData) => ({ codeId: rtnData.codeId, codeName: rtnData.codeName })),
+  // eslint-disable-next-line max-len
+  // SELECT_SERVICE: codes.SV_DV_CD.filter((v) => v.codeId !== '2').map((rtnData) => ({ codeId: rtnData.codeId, codeName: rtnData.codeName })),
   // 조회기준 : 01.접수일자, 02.예정일자, 03.처리일자, 04.방문확정일
   SELECT_DAY: [{ codeId: '01', codeName: t('MSG_TXT_RCPDT') },
     { codeId: '02', codeName: t('MSG_TXT_SCHD_DT') },
@@ -278,11 +284,11 @@ const initGrdMain = defineGrid((data, view) => {
      * , 읍면동, SAP코드, 품목코드, 상품명, 수당항목
      * , 작업도착, 작업완료, 소요시간
      */
-    { fieldName: 'ogCd', header: t('MSG_TXT_SV_CNR'), width: '150' }, // 서비스센터 코드..서비스센터
-    { fieldName: 'ogNm', header: t('MSG_TXT_BRANCH'), width: '150' }, // 서비스센터명..지점
+    { fieldName: 'ogCd', header: t('MSG_TXT_SV_CNR'), width: '150', styleName: 'text-center' }, // 서비스센터 코드..서비스센터
+    { fieldName: 'ogNm', header: t('MSG_TXT_BRANCH'), width: '150', styleName: 'text-center' }, // 서비스센터명..지점
     { fieldName: 'ichrPrtnrNo', header: t('MSG_TXT_PRTNR_NUMBER'), width: '100', styleName: 'text-center' }, // 파트너번호..담당사번
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: '100' }, // 파트너명..담당성명
-    { fieldName: 'ac025EmpOr', header: t('MSG_TXT_RSB'), width: '100' }, // 직책
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: '100', styleName: 'text-center' }, // 파트너명..담당성명
+    { fieldName: 'ac025EmpOr', header: t('MSG_TXT_RSB'), width: '100', styleName: 'text-center' }, // 직책
     { // 계약번호+일련번호 화면표시용 ~> 계약번호
       fieldName: 'custCd',
       header: t('MSG_TXT_CNTR_NO'),
@@ -292,51 +298,50 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' }, // 우편번호
     { fieldName: 'ctpvNm', header: t('MSG_TXT_CTPV_NM'), width: '100', styleName: 'text-center' }, // 시도명
-    { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY_NM'), width: '100' }, // 시군구명
-    { fieldName: 'amtdNm', header: t('MSG_TXT_AMTD_NM'), width: '100' }, // 행정동명
-    { fieldName: 'ac112EmdKorNm', header: t('MSG_TXT_EMD_NM'), width: '150' }, // 읍면동명
-    // SAP코드, 품목코드..차후 추가
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '245' }, // SAP코드
-    { fieldName: 'itemNm', header: t('MSG_TXT_PRDT_NM'), width: '245' }, // 상품명
-    { fieldName: 'co410FeeGb', header: t('수당항목'), width: '150' }, // 수당항목
-    { fieldName: 'arrDttm', header: t('작업도착'), width: '150' }, // 작업도착
-    { fieldName: 'wkFshDt', header: t('MSG_TXT_WK_FSH'), width: '150' }, // 작업완료일자..작업완료
-    { fieldName: 'wkFshHh', header: t('MSG_TXT_LDTM'), width: '150' }, // 작업완료시간..소요시간
+    { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY_NM'), width: '100', styleName: 'text-center' }, // 시군구명
+    { fieldName: 'amtdNm', header: t('MSG_TXT_AMTD_NM'), width: '100', styleName: 'text-center' }, // 행정동명
+    { fieldName: 'ac112EmdKorNm', header: t('MSG_TXT_EMD_NM'), width: '150', styleName: 'text-center' }, // 읍면동명
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '245', styleName: 'text-center' }, // SAP코드
+    { fieldName: 'itemNm', header: t('MSG_TXT_PRDT_NM'), width: '245', styleName: 'text-center' }, // 상품명
+    { fieldName: 'co410FeeGb', header: t('수당항목'), width: '150', styleName: 'text-center' }, // 수당항목
+    { fieldName: 'arrDttm', header: t('작업도착'), width: '150', styleName: 'text-center' }, // 작업도착
+    { fieldName: 'wkFshDt', header: t('MSG_TXT_WK_FSH'), width: '150', styleName: 'text-center' }, // 작업완료일자..작업완료
+    { fieldName: 'wkFshHh', header: t('MSG_TXT_LDTM'), width: '150', styleName: 'text-center' }, // 작업완료시간..소요시간
     // 기본출고지..1dept
     // 2dept..출고지명, 출장출고지주소
-    { fieldName: 'orgShpNm', header: t('MSG_TXT_PDLV_NM'), width: '150' }, // 출고지명
-    { fieldName: 'orgShpAdd', header: t('출장출고지주소'), width: '150' }, // 출장출고지주소
+    { fieldName: 'orgShpNm', header: t('MSG_TXT_PDLV_NM'), width: '150', styleName: 'text-center' }, // 출고지명
+    { fieldName: 'orgShpAdd', header: t('출장출고지주소'), width: '150', styleName: 'text-center' }, // 출장출고지주소
     // 출장출고지..1dept
     // 2dept..출고지명, 출장출고지주소
-    { fieldName: 'chuljangNm', header: t('MSG_TXT_PDLV_NM'), width: '150' }, // 출고지명
-    { fieldName: 'chuljangAdd', header: t('출장출고지주소'), width: '150' }, // 출장출고지주소
+    { fieldName: 'chuljangNm', header: t('MSG_TXT_PDLV_NM'), width: '150', styleName: 'text-center' }, // 출고지명
+    { fieldName: 'chuljangAdd', header: t('출장출고지주소'), width: '150', styleName: 'text-center' }, // 출장출고지주소
     // 출발..1dept
     // 2dept..출고지/주민센터, 출발주소, 섬구분
-    { fieldName: 'strShpNm', header: t('출고지/주민센터'), width: '150' }, // 출고지/주민센터
-    { fieldName: 'strShpAdd', header: t('출발주소'), width: '150' }, // 출발주소
-    { fieldName: 'strIslandYn', header: t('MSG_TXT_ILD_DV'), width: '50' }, // 섬구분
+    { fieldName: 'strShpNm', header: t('출고지/주민센터'), width: '150', styleName: 'text-center' }, // 출고지/주민센터
+    { fieldName: 'strShpAdd', header: t('출발주소'), width: '150', styleName: 'text-center' }, // 출발주소
+    { fieldName: 'strIslandYn', header: t('MSG_TXT_ILD_DV'), width: '50', styleName: 'text-center' }, // 섬구분
     // 도착..1dept
     // 2dept..출고지/주민센터, 출발주소, 섬구분
-    { fieldName: 'endShpNm', header: t('출고지/주민센터'), width: '150' }, // 출고지/주민센터
-    { fieldName: 'endShpAdd', header: t('출발주소'), width: '150' }, // 출발주소
-    { fieldName: 'endIslandYn', header: t('MSG_TXT_ILD_DV'), width: '50' }, // 섬구분
+    { fieldName: 'endShpNm', header: t('출고지/주민센터'), width: '150', styleName: 'text-center' }, // 출고지/주민센터
+    { fieldName: 'endShpAdd', header: t('출발주소'), width: '150', styleName: 'text-center' }, // 출발주소
+    { fieldName: 'endIslandYn', header: t('MSG_TXT_ILD_DV'), width: '50', styleName: 'text-center' }, // 섬구분
     // 작업..1dept
     // 2dept..시간대
-    { fieldName: 'timeStand', header: t('시간대'), width: '100' }, // 시간대
+    { fieldName: 'timeStand', header: t('시간대'), width: '100', styleName: 'text-center' }, // 시간대
     // 경로..1dept
     // 2dept..이동거리, 이동시간, 요금
-    { fieldName: 'al170MvDistance', header: t('이동거리'), width: '100' }, // 이동거리
-    { fieldName: 'al170MvTime', header: t('MSG_TXT_MMT_HH'), width: '100' }, // 이동시간
-    { fieldName: 'al170MvFee', header: t('MSG_TXT_CHARGE'), width: '100', dataType: 'number' }, // 요금
+    { fieldName: 'al170MvDistance', header: t('이동거리'), width: '100', styleName: 'text-center' }, // 이동거리
+    { fieldName: 'al170MvTime', header: t('MSG_TXT_MMT_HH'), width: '100', styleName: 'text-center' }, // 이동시간
+    { fieldName: 'al170MvFee', header: t('MSG_TXT_CHARGE'), width: '100', dataType: 'number', styleName: 'text-right' }, // 요금
     // 업무급지..1dept
     // 2dept..등급, 급지수당
-    { fieldName: 'wrkGrd', header: t('MSG_TXT_GD'), width: '100' }, // 등급
-    { fieldName: 'wrkGrdAmt', header: t('MSG_TXT_RGLVL_AW'), width: '150', dataType: 'number', numberFormat: '#.##' }, // 급지수당
+    { fieldName: 'wrkGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' }, // 등급
+    { fieldName: 'wrkGrdAmt', header: t('MSG_TXT_RGLVL_AW'), width: '150', dataType: 'number', numberFormat: '#.##', styleName: 'text-right' }, // 급지수당
     // 이동급지..1dept
     // 2dept..이동합계, 등급, 급지수당
-    { fieldName: 'mvDistance', header: t('이동합계'), width: '150' }, // 이동합계
-    { fieldName: 'mvGrd', header: t('MSG_TXT_GD'), width: '100' }, // 등급
-    { fieldName: 'mvGrdAmt', header: t('MSG_TXT_RGLVL_AW'), width: '150', dataType: 'number', numberFormat: '#.##' }, // 급지수당
+    { fieldName: 'mvDistance', header: t('이동합계'), width: '150', styleName: 'text-center' }, // 이동합계
+    { fieldName: 'mvGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' }, // 등급
+    { fieldName: 'mvGrdAmt', header: t('MSG_TXT_RGLVL_AW'), width: '150', dataType: 'number', numberFormat: '#.##', styleName: 'text-right' }, // 급지수당
     // 급지합계..하위dept 없음
     // 계산해야 하는듯
     {
@@ -352,8 +357,8 @@ const initGrdMain = defineGrid((data, view) => {
     }, // 급지합계
     // 접수자..1dept
     // 2dept..접수자소속, 접수자
-    { fieldName: 'regOgNm', header: t('MSG_TXT_RCST_BLG'), width: '100' }, // 접수자소속
-    { fieldName: 'regNm', header: t('MSG_TXT_RCST'), width: '100' }, // 접수자
+    { fieldName: 'regOgNm', header: t('MSG_TXT_RCST_BLG'), width: '100', styleName: 'text-center' }, // 접수자소속
+    { fieldName: 'regNm', header: t('MSG_TXT_RCST'), width: '100', styleName: 'text-center' }, // 접수자
 
     { fieldName: 'dgr1LevlOgNm', visible: false }, // 상위 조직명
     { fieldName: 'dgr1LevlOgCd', visible: false }, // 상위 조직코드
@@ -380,7 +385,9 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
+  // 그리드 필드 클릭시
   view.onCellItemClicked = async (grid, clickData) => {
+    // 계약번호 클릭시
     if (clickData.column === 'custCd') {
       const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
       router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });

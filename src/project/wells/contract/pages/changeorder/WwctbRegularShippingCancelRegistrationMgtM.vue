@@ -253,7 +253,7 @@
           <kw-form-row>
             <!-- row4 조정누계 -->
             <kw-form-item :label="$t('MSG_TXT_CTR_AGG_AMT')">
-              <p>{{ stringUtil.getNumberWithComma(searchDetail.ctrAggAmt??'') }}</p>
+              <p>0</p>
             </kw-form-item>
           </kw-form-row>
 
@@ -509,7 +509,7 @@
         @click="onClickCancel"
       />
       <kw-btn
-        v-permission:create
+        v-permission:update
         :label="$t('MSG_BTN_SAVE')"
         class="ml8"
         primary

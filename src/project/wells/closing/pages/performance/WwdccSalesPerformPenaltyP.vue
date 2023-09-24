@@ -202,6 +202,7 @@
             dense
           />
           <kw-btn
+            v-permission:read
             secondary
             dense
             :label="$t('MSG_BTN_INQR')"

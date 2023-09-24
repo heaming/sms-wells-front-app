@@ -83,7 +83,7 @@
           dense
           secondary
           :label="t('MSG_BTN_EXCEL_DOWN')"
-          :disabled="pageInfo.totalCount === 0"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>

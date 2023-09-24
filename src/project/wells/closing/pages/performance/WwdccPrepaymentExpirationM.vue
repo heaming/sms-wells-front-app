@@ -48,6 +48,7 @@
                 v-model="searchParams.slClYm"
                 type="month"
                 rules="required"
+                @change="onChangeSlClYm"
               />
             </kw-search-item>
             <kw-search-item
@@ -90,7 +91,7 @@
               <kw-date-range-picker
                 v-model:from="searchParams.dpStDt"
                 v-model:to="searchParams.dpEdDt"
-                rules="date_range_required|date_range_months:1"
+                rules="date_range_required|date_range_months:3"
                 type="month"
               />
             </kw-search-item>
@@ -167,7 +168,7 @@
             >
               <kw-select
                 v-model="searchParams.upYn"
-                :options="['Y', 'N']"
+                :options="[{codeId:'N', codeName:t('MSG_TXT_BIZD_NOT_ASN')}]"
                 first-option="all"
               />
             </kw-search-item>
@@ -183,6 +184,7 @@
               <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
             </template>
             <kw-btn
+              v-permission:download
               icon="download_on"
               :label="$t('MSG_BTN_EXCEL_DOWN')"
               secondary
@@ -196,6 +198,7 @@
               spaced
             />
             <kw-btn
+              v-permission:create
               :label="$t('MSG_BTN_CHAR_FW_ULD_MMT')"
               primary
               dense
@@ -226,6 +229,7 @@
               inset
             />
             <kw-btn
+              v-permission:download
               icon="download_on"
               :label="$t('MSG_BTN_EXCEL_DOWN')"
               secondary
@@ -251,6 +255,7 @@
               :label="t('MSG_TXT_FW_HH')"
             />
             <kw-btn
+              v-permission:create
               :disable="totalCharacterFwUldCount === 0"
               primary
               dense
@@ -285,8 +290,8 @@ import WwdccPrepaymentExpirationMCharacterFwIz from './WwdccPrepaymentExpiration
 const { notify, alert } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { getUserInfo } = useMeta();
-const userInfo = getUserInfo();
+const userInfo = useMeta().getUserInfo();
+
 const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -321,7 +326,7 @@ const searchParams = ref({
   pdMclsfId: '',
   pdCd: '',
   pdNm: '',
-  dpStDt: dayjs().format('YYYYMM'),
+  dpStDt: dayjs().add(-2, 'month').format('YYYYMM'),
   dpEdDt: dayjs().format('YYYYMM'),
   ogcd1: '',
   ogcd2: '',
@@ -333,7 +338,7 @@ const searchParams = ref({
   rentalEtn: '',
   upYn: '',
   upNo: userInfo.pdCd,
-  ogTpCd: userInfo.ogTpCd, // 조직유형
+  ogTpCd: userInfo.wkOjOgTpCd === null ? userInfo.ogTpCd : userInfo.wkOjOgTpCd, // 조직유형
   baseYm: dayjs().format('YYYYMM'),
 });
 
@@ -341,6 +346,11 @@ const sendParams = ref({
   fwbooDate: dayjs().format('YYYYMMDD'),
   fwbooTime: '0900',
 });
+
+function onChangeSlClYm() {
+  searchParams.value.dpStDt = dayjs(searchParams.value.slClYm).add(-2, 'month').format('YYYYMM');
+  searchParams.value.dpEdDt = searchParams.value.slClYm;
+}
 
 async function onClickObjectPresentStateExcelDownload() {
   const view = grdObjectPresentStateRef.value.getView();
@@ -516,6 +526,7 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
     { fieldName: 'prmDscr', dataType: 'number' },
     { fieldName: 'prmPeriod' },
     { fieldName: 'totPrmAmt', dataType: 'number' },
+    { fieldName: 'prmReAplcYn' },
     { fieldName: 'prmExcpt' },
     { fieldName: 'cntrLocalTno' },
     { fieldName: 'cntrLocalTno1' },
@@ -574,6 +585,7 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
     { fieldName: 'prmDscr', header: t('MSG_TXT_PRM_DSC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'prmPeriod', header: t('MSG_TXT_PRM_PTRM'), width: '200', styleName: 'text-center' },
     { fieldName: 'totPrmAmt', header: t('MSG_TXT_PRM_TAM'), width: '100', styleName: 'text-center', numberFormat: '#,##0' },
+    { fieldName: 'prmReAplcYn', header: t('MSG_TXT_PRM_RE_APLC_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'prmExcpt', header: t('MSG_TXT_PRM_EXCD'), width: '100', styleName: 'text-right' },
     { fieldName: 'cntrLocalTno',
       header: t('MSG_TXT_CNTRT_TNO2'),
@@ -684,7 +696,7 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
   view.setColumnLayout([
     'cntrDtlNo', 'cstKnm', 'rcgvpKnm', 'pdNm', 'rentalTn',
     'mpyBsdt', 'lcsleDt', 'cntrCanDt', 'prmMcn', 'prmDscr',
-    'prmPeriod', 'totPrmAmt', 'prmExcpt', 'cntrLocalTno', 'cntrCralTno',
+    'prmPeriod', 'totPrmAmt', 'prmReAplcYn', 'prmExcpt', 'cntrLocalTno', 'cntrCralTno',
     'rcgvpLocalTno', 'rcgvpCralTno', 'dpClDt', 'dpTpCdNm', 'dpAmt', // single
     {
       header: t('MSG_TXT_PRTNR_INF2'),

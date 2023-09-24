@@ -387,6 +387,79 @@
           />
         </kw-form-item>
       </kw-form-row>
+
+      <template v-if="!isEmpty(packages)">
+        <kw-separator />
+        <kw-action-top>
+          <template #left>
+            <!--웰스팜            -->
+            <h3>{{ t('MSG_TXT_WELSF') }}</h3>
+          </template>
+        </kw-action-top>
+        <kw-form-row label-size="100">
+          <!--등록옵션-->
+          <kw-form-item :label="$t('MSG_TXT_RGS') + $t('MSG_TXT_OPT')">
+            <kw-option-group
+              v-model="installDetail.packageYn"
+              type="radio"
+              :options="[{ codeId: 'N', codeName: '기기만 등록' },{ codeId: 'Y', codeName: '모종 패키지 함께 등록' }]"
+            />
+          </kw-form-item>
+        </kw-form-row>
+
+        <template v-if="installDetail.packageYn==='Y'">
+          <kw-form-row
+            label-size="100"
+            cols="5"
+          >
+            <!--모종패키지-->
+            <kw-form-item
+              :label="$t('MSG_TXT_SDING')+$t('MSG_TXT_PRDT')"
+              :required="installDetail.packageYn === 'Y'?'required':null"
+              colspan="2"
+            >
+              <kw-select
+                ref="isRelChg"
+                v-model="installDetail.pkgPdCd"
+                :label="$t('MSG_TXT_CYCL')"
+                :options="packages"
+                first-option="select"
+                :rules="installDetail.packageYn === 'Y'?'required':null"
+                @change="onChnagePackageCd"
+              />
+            </kw-form-item>
+
+            <!--모종계약기간-->
+            <kw-form-item :label="$t('TXT_MSG_CNTR_PTRM_DV_CD')">
+              <kw-input
+                ref="isRelChg"
+                v-model="installDetail.pkgCntrPtrm"
+                maxlength="3"
+                align="right"
+                rules="numeric"
+              />
+            </kw-form-item>
+            <!--무상기간 -->
+            <kw-form-item :label="$t('TXT_MSG_FRISU_PTRM')">
+              <kw-input
+                v-model="installDetail.packageFrisuPtrm"
+                maxlength="3"
+                align="right"
+                rules="numeric"
+              />
+            </kw-form-item>
+            <!--무상금액-->
+            <kw-form-item :label="$t('MSG_TXT_FREE')+$t('MSG_TXT_AMT')">
+              <kw-input
+                v-model="installDetail.packageFreeAmt"
+                align="right"
+                maxlength="10"
+                rules="numeric"
+              />
+            </kw-form-item>
+          </kw-form-row>
+        </template>
+      </template>
     </kw-form>
 
     <template #action>
@@ -396,7 +469,7 @@
         @click="onClickCancel"
       />
       <kw-btn
-        v-permission:create
+        v-permission:update
         :label="$t('MSG_BTN_SAVE')"
         primary
         @click="onClickSave"
@@ -411,8 +484,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, useDataService, useGlobal, useMeta, useModal } from 'kw-lib';
-import { cloneDeep } from 'lodash';
-// simport { isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash';
 
 const { notify } = useGlobal();
 const { ok, cancel: onClickCancel } = useModal();
@@ -422,6 +494,7 @@ const sessionUserInfo = useMeta().getUserInfo();
 const frmMainRef = ref(getComponentType('KwForm'));
 
 const services = ref();
+const packages = ref();
 const codes = await codeUtil.getMultiCodes(
   'CO_IST_DV_CD', // 설치구분
   'CO_IST_USWY_CD', // 설치용도
@@ -468,12 +541,16 @@ const props = defineProps({
   expnYn: { type: String, default: 'N' },
   ojPdCd: { type: String, default: '' },
   cntrDtlStatCd: { type: String, default: '' },
+  pkgCntrSn: { type: String, default: '' },
+  pkgPdCd: { type: String, default: '' },
+  pkgCntrPtrm: { type: String, default: '' },
 });
 
 const installDetail = ref({});
 const isPdRelChg = ref(false);
 const isCntrDtlChg = ref(false);
 const isWellsDtlChg = ref(false);
+const isRelChg = ref(false);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -485,8 +562,14 @@ async function initPage() {
   installDetail.value.ogCd = sessionUserInfo.ogCd;
   installDetail.value.ogNm = sessionUserInfo.ogCdNm;
 
-  const codeRes = await dataService.get('/sms/wells/contract/contracts/company-service', { params: { pdCd: installDetail.value.basePdCd } });
-  services.value = codeRes.data;
+  // 모종 패키지 관련 설정
+  installDetail.value.packageYn = !isEmpty(props.pkgCntrSn) ? 'Y' : 'N';
+  installDetail.value.packageFrisuPtrm = 12;
+  installDetail.value.packageFreeAmt = 0;
+
+  const res = await dataService.get('/sms/wells/contract/contracts/company-service', { params: { pdCd: installDetail.value.basePdCd } });
+  services.value = res.data.services;
+  packages.value = res.data.packages;
 }
 
 // 저장 버튼 클릭
@@ -499,10 +582,32 @@ async function onClickSave() {
   installDetail.value.isCntrDtlChg = isCntrDtlChg.value.isModified();
   installDetail.value.isWellsDtlChg = isWellsDtlChg.value.isModified();
 
+  if (installDetail.value.packageYn === 'N') {
+    installDetail.value.pkgPdCd = '';
+    installDetail.value.pkgCntrPtrm = '';
+  }
+
+  if (isEmpty(props.pkgCntrSn)) {
+    installDetail.value.relChgDiv = !isEmpty(installDetail.value.pkgPdCd) ? 'NEW' : '';
+  } else if (isEmpty(installDetail.value.pkgPdCd)) {
+    installDetail.value.relChgDiv = 'DEL';
+  } else {
+    installDetail.value.relChgDiv = isRelChg ? 'CHG' : '';
+  }
+
   // call service
   await dataService.put('/sms/wells/contract/contracts/company-install', { ...installDetail.value });
+
   ok();
   await notify(t('MSG_ALT_SAVE_DATA'));
+}
+
+// 모종 패키지 선택
+async function onChnagePackageCd() {
+  if (isEmpty(installDetail.value.pkgPdCd)) return;
+
+  const { cntrPtrm } = packages.value.find((v) => v.codeId === installDetail.value.pkgPdCd);
+  if (!isEmpty(cntrPtrm) && Number(cntrPtrm) > 0) { installDetail.value.pkgCntrPtrm = cntrPtrm; }
 }
 
 await initPage();

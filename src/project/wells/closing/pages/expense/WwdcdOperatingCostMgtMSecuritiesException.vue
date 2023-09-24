@@ -19,6 +19,7 @@
     </template>
     <kw-btn
       v-show="onShowSave"
+      v-permission:create
       :label="$t('MSG_BTN_SAVE')"
       grid-action
       dense
@@ -30,6 +31,7 @@
       inset
     />
     <kw-btn
+      v-permission:download
       icon="download_on"
       dense
       secondary
@@ -52,6 +54,7 @@
       <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
     </template>
     <kw-btn
+      v-permission:download
       icon="download_on"
       dense
       secondary

@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -96,6 +97,7 @@
         </template>
         <kw-btn
           v-if="searchParams.redfAdsbTpCd === '0202' "
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -105,6 +107,7 @@
         />
         <kw-btn
           v-if="searchParams.redfAdsbTpCd === '0203' "
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -118,6 +121,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           :label="t('MSG_BTN_REDF_AMT_CRT')"
           dense
           primary

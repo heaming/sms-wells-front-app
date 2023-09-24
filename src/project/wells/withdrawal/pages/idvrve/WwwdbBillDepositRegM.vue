@@ -82,6 +82,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -96,6 +97,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           dense
           secondary
           :label="t('MSG_BTN_DP_SLIP')"
@@ -103,6 +105,7 @@
         />
         <!-- label="입금전표" -->
         <kw-btn
+          v-permission:create
           dense
           secondary
           :label="t('MSG_BTN_RPLC_SLIP')"
@@ -115,6 +118,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           :label="t('MSG_BTN_RGST_NEW')"
           primary
           dense

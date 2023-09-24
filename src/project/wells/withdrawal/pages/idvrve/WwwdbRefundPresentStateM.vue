@@ -30,13 +30,13 @@
     </kw-tabs>
     <kw-tab-panels v-model="selectedTab">
       <kw-tab-panel name="1">
-        <wmwdb-refund-list-m-current-state />
+        <wwwdb-refund-list-m-current-state />
       </kw-tab-panel>
       <kw-tab-panel name="2">
-        <wmwdb-refund-list-m-contract-amount />
+        <wwwdb-refund-list-m-contract-amount />
       </kw-tab-panel>
       <kw-tab-panel name="3">
-        <wmwdb-refund-list-m-etc-amount />
+        <wwwdb-refund-list-m-etc-amount />
       </kw-tab-panel>
     </kw-tab-panels>
   </kw-page>
@@ -47,9 +47,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import WmwdbRefundListMCurrentState from './WmwdbRefundListMCurrentState.vue';
-import WmwdbRefundListMContractAmount from './WmwdbRefundListMContractAmount.vue';
-import WmwdbRefundListMEtcAmount from './WmwdbRefundListMEtcAmount.vue';
+import WwwdbRefundListMCurrentState from './WwwdbRefundListMCurrentState.vue';
+import WwwdbRefundListMContractAmount from './WwwdbRefundListMContractAmount.vue';
+import WwwdbRefundListMEtcAmount from './WwwdbRefundListMEtcAmount.vue';
 
 const selectedTab = ref('1');
 

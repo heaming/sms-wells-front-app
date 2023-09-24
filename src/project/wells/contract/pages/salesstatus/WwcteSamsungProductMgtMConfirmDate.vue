@@ -42,6 +42,7 @@
         <kw-input
           v-model="searchParams.sppBzsOrdId"
           :label="$t('MSG_TXT_SM_ORD_NO')"
+          maxlength="15"
         />
       </kw-search-item>
     </kw-search-row>
@@ -68,6 +69,7 @@
         />
       </template>
       <kw-btn
+        v-permission:update
         icon="upload_on"
         dense
         secondary
@@ -75,6 +77,7 @@
         @click="onClickExcelUpload"
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -85,6 +88,8 @@
     </kw-action-top>
     <kw-grid
       ref="grdRef"
+      v-model:page-size="pageInfo.pageSize"
+      :total-count="pageInfo.totalCount"
       name="grdConfirm"
       @init="initGrd"
     />

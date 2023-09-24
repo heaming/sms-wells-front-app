@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : OGC
 2. 프로그램 ID : WwogcEngineerGradeMgtM - 서비스센터 등급관리
-3. 작성자 : 한용희
+3. 작성자 : yonghee.han
 4. 작성일 : 2023-05-08
 ****************************************************************************************************
 * 프로그램 설명
@@ -25,7 +25,10 @@
             disable
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
+        <kw-search-item
+          :label="$t('MSG_TXT_OG_LEVL')"
+          class="equal_division--1"
+        >
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
@@ -61,6 +64,7 @@
           <kw-paging-info :total-count="pageInfo.totalCount" />
         </template>
         <kw-btn
+          v-permission:create
           grid-action
           :label="t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -71,6 +75,7 @@
           spaced
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           secondary
           dense
@@ -79,6 +84,7 @@
           @click="onClickExcelDownload"
         />
         <kw-btn
+          v-permission:create
           icon="upload_on"
           secondary
           dense
@@ -91,13 +97,8 @@
         name="grdMain"
         :page-size="pageInfo.pageSize"
         :visible-rows="(pageInfo.totalCount === 0) ? '10' : pageInfo.pageSize - 1"
-        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
-      <!-- <kw-pagination
-        :model-value="1"
-        :total-count="100"
-      /> -->
     </div>
   </kw-page>
 </template>
@@ -224,13 +225,14 @@ async function onClickExcelUpload() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_BLG'), width: '152', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_AFL_CNTR_CD'), width: '152', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '130', styleName: 'text-center' },
     { fieldName: 'prtnrKnm',
       header: t('MSG_TXT_EMPL_NM'),
       width: '166',
       styleName: 'text-center',
     },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '110', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center' },
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.RSB_DV_CD },
     { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '130', styleName: 'text-center' },
     { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },

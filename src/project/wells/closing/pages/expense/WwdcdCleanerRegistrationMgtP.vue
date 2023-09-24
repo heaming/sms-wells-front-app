@@ -271,6 +271,7 @@
             rules="required"
           />
           <kw-btn
+            v-permission:download
             icon="download_off"
             class="ml10"
             secondary
@@ -292,6 +293,7 @@
             :attach-document-id="saveParams.cntrLroreApnFileId"
           />
           <kw-btn
+            v-permission:download
             icon="download_off"
             class="ml10"
             secondary
@@ -303,6 +305,7 @@
     </kw-form>
     <template #action>
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_SAVE')"
         primary
         @click="onClickSave"

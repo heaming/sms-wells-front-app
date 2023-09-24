@@ -121,8 +121,8 @@
         <!-- 서비스센터 -->
         <!-- 입고창고 -->
         <ZwcmWareHouseSearch
-          v-model:start-ym="searchParams.stStrDt"
-          v-model:end-ym="searchParams.edStrDt"
+          v-model:start-ym="searchParams.stFnlVstFshDtFrom"
+          v-model:end-ym="searchParams.edFnlVstFshDtTo"
           v-model:options-ware-dv-cd="strWareDvCd"
           v-model:ware-dv-cd="searchParams.strWareDvCd"
           v-model:ware-no-m="searchParams.strWareNoM"
@@ -301,8 +301,6 @@ filterCodes.value.filterPdGdCd = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R
 filterCodes.value.filterSvBizDclsfCd = codes.SV_BIZ_DCLSF_CD.filter((v) => ['3420', '3410', '3488', '3210', '3230', '3112'].includes(v.codeId));
 
 const searchParams = ref({
-  stStrDt: '',
-  edStrDt: '',
   pdGrpCd: '',
   fnlItmGdCd: '',
   itmPdCd: '',
@@ -371,9 +369,6 @@ function onClickGridBulkChange(val, type) {
 
   notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [inputType]));
 }
-
-searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
-searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
 const itemKndCdD = ref();
 

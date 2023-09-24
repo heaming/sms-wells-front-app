@@ -29,7 +29,10 @@
             type="month"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_OG_LEVL')">
+        <kw-search-item
+          :label="$t('MSG_TXT_OG_LEVL')"
+          class="equal_division--3"
+        >
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.ogLevlDvCd1"
             v-model:og-levl-dv-cd2="searchParams.ogLevlDvCd2"
@@ -77,6 +80,7 @@
           />
         </template>
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -90,6 +94,7 @@
           spaced
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_PLAR_REG')"
           secondary
           dense
@@ -252,8 +257,8 @@ watch(() => searchParams.value.mngtYm, async (newVal) => {
 const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BUSINESS_DIVISION'), width: '120', styleName: 'text-center' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center' },
     { fieldName: 'qlfDvNm', header: t('MSG_TXT_THM_QLF'), width: '100', styleName: 'text-center' },

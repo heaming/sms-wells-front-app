@@ -67,6 +67,7 @@
         </template>
         <!-- 리포트 보기 -->
         <kw-btn
+          v-permission:print
           icon="report"
           dense
           secondary
@@ -75,6 +76,7 @@
           @click="onClickReportView"
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           secondary
           dense

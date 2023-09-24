@@ -55,6 +55,7 @@
         />
       </template>
       <kw-btn
+        v-permission:delete
         grid-action
         :label="t('MSG_BTN_DEL')"
         @click="onClickRemove"
@@ -66,6 +67,7 @@
         inset
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary

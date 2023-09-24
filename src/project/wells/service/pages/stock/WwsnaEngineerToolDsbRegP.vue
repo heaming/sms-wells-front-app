@@ -53,6 +53,7 @@
         />
       </template>
       <kw-btn
+        v-permission:create
         dense
         primary
         :label="$t('MSG_BTN_TOOL_DSB')"

@@ -335,6 +335,11 @@
             class="button-wrap"
           >
             <kw-btn
+              :label="$t('MSG_BTN_MOD')"
+              padding="12px"
+              @click="onClickCDChgandModify(item)"
+            />
+            <kw-btn
               :label="$t('MSG_BTN_INQR')"
               padding="10px"
               @click="onClickModify(item)"
@@ -570,7 +575,10 @@ async function fetchData() {
 async function fetchDataSummary() {
   if (isEmpty(cachedParams)) return;
 
-  const res = await dataService.get('/sms/wells/contract/contracts/contract-lists/summary', { params: { ...cachedParams } });
+  const res = await dataService.get(
+    '/sms/wells/contract/contracts/contract-lists/summary',
+    { params: { ...cachedParams } },
+  );
   summary.value = res.data;
 }
 
@@ -629,6 +637,26 @@ async function onClickManage() {
   );
 }
 
+// 계약상태코드 재조회
+async function getPrgsStatCd(cntrNo) {
+  const res = await dataService.get(`/sms/wells/contract/contracts/contract-lists/${cntrNo}`);
+  return Number(res.data);
+}
+
+// 계약 삭제
+async function deleteContract(msg, item) {
+  if (!await confirm(msg)) { return; } // 삭제 하시겠습니까?
+
+  // 확정이고 당일삭제건에 대해서는 결재승인취소를 취해 파라미터를 설정한다.
+  let stlmTarget = 'N';
+  if (item.viewCntrPrgsStatCd === '60' && item.cntrRcpFshDtm.substring(0, 8) === now.format('YYYYMMDD')) {
+    stlmTarget = 'Y';
+  }
+
+  await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { params: { cntrNo: item.cntrNo, stlmTarget } });
+  onClickSearch();
+}
+
 // CARD > 확정대상자조회 클릭
 async function onClickConfirmTarget(paramCntrNo) {
   await modal({
@@ -637,14 +665,38 @@ async function onClickConfirmTarget(paramCntrNo) {
   });
 }
 
-// 카드 하단 버튼 클릭 전, 계약상태코드 재조회
-async function getPrgsStatCd(cntrNo) {
-  const res = await dataService.get(`/sms/wells/contract/contracts/contract-lists/${cntrNo}`);
+// CARD > BUTTON > 수정
+async function onClickCDChgandModify({ resultDiv, cntrNo, cntrSn, cntrPrgsStatCd }) {
+  let paramPrgsStatCd = cntrPrgsStatCd;
 
-  return Number(res.data);
+  // [결재중] 에서 수정은 계약진행상태코드 변경 후 수정페이지로 링크.
+  if (paramPrgsStatCd === '40') {
+    // 계약진행상태코드 재확인
+    const nowPrgsStatCd = await getPrgsStatCd(cntrNo, cntrPrgsStatCd);
+    if (Number(paramPrgsStatCd) !== nowPrgsStatCd) {
+      await alert(t('MSG_ALT_NOT_SYNC_REFRESH'));
+      await onClickSearch();
+      return;
+    }
+
+    // 계약진행상태코드 수정
+    paramPrgsStatCd = '20';
+    await dataService.put(`/sms/wells/contract/contracts/contract-lists/change-prgs-cd/${cntrNo}`, null, { params: { cntrPrgsStatCd: '20' } });
+    await onClickSearch();
+  }
+
+  router.replace({
+    path: 'wwcta-contract-registration-mgt',
+    query: {
+      resultDiv,
+      cntrNo,
+      cntrSn,
+      cntrPrgsStatCd: paramPrgsStatCd,
+    },
+  });
 }
 
-// CARD > BUTTON > 수정
+// CARD > BUTTON > 수정/조회
 async function onClickModify({ resultDiv, cntrNo, cntrSn, cntrPrgsStatCd }) {
   router.replace({
     path: 'wwcta-contract-registration-mgt',
@@ -755,7 +807,7 @@ async function onClickRequestConfirm(item) {
 async function onClickConfirm({ cntrNo }) {
   if (!await confirm(t('MSG_ALT_IS_DTRM'))) { return; } // 확정하시겠습니까?
 
-  await dataService.post(`/sms/wells/contract/contracts/contract-lists/confirm/${cntrNo}`);
+  await dataService.put(`/sms/wells/contract/contracts/contract-lists/change-prgs-cd/${cntrNo}`, null, { params: { cntrPrgsStatCd: '60' } });
   onClickSearch();
 }
 
@@ -805,11 +857,17 @@ async function onClickAssignContact(item) {
 
 // CARD > BUTTON > 삭제
 async function onClickContractDelete(item) {
-  if (item.viewCntrPrgsStatCd <= '40') {
-    if (!await confirm(t('MSG_ALT_WANT_DEL_WCC'))) { return; } // 삭제 하시겠습니까?
+  // 계약진행상태코드 재확인
+  const nowPrgsStatCd = await getPrgsStatCd(item.cntrNo, item.viewCntrPrgsStatCd);
+  if (Number(item.viewCntrPrgsStatCd) !== nowPrgsStatCd) {
+    await alert(t('MSG_ALT_NOT_SYNC_REFRESH'));
+    await onClickSearch();
+    return;
+  }
 
-    await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { params: { cntrNo: item.cntrNo } });
-    onClickSearch();
+  if (item.viewCntrPrgsStatCd <= '40' || item.viewCntrPrgsStatCd === '60') {
+    // 계약 삭제 호출
+    deleteContract(t('MSG_ALT_WANT_DEL_WCC'), item);
   }
 }
 
@@ -830,18 +888,11 @@ async function onClickReject({ cntrNo }) {
 }
 
 // CARD > BUTTON > 삭제승인
-async function onClickApproval({ cntrNo }) {
-  if (!await confirm(t('MSG_ALT_APPR'))) { return; } // 승인하시겠습니까?
-
-  await dataService.put(`/sms/wells/contract/contracts/contract-lists/delete-approval/${cntrNo}`);
-  onClickSearch();
+async function onClickApproval(item) {
+  // await dataService.put(`/sms/wells/contract/contracts/contract-lists/delete-approval/${cntrNo}`);
+  // 계약 삭제 호출
+  deleteContract(t('MSG_ALT_APPR'), item);// 승인하시겠습니까?
 }
-
-/*
-onActivated(async () => {
-  await onClickSearch();
-});
-*/
 
 watch(props, () => {
   const { srchCstNm } = props;

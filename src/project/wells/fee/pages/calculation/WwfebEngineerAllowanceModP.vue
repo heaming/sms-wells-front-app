@@ -29,6 +29,7 @@
         @click="onclickCancel"
       />
       <kw-btn
+        v-permission:update
         primary
         :label="$t('MSG_TXT_DTRM')"
         :disable="isDisabled"

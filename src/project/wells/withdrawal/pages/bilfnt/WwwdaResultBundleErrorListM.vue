@@ -46,6 +46,7 @@
         />
       </template>
       <kw-btn
+        v-permission:download
         :disable="pageInfo.totalCount === 0"
         icon="download_on"
         dense

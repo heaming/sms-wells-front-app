@@ -336,7 +336,7 @@ const initGridRentalInstallerList = defineGrid((data, view) => {
     { fieldName: 'mshCntrTempSaveDt' }, // 멤버십 정보가입일
     { fieldName: 'mshReqdDt' }, // 멤버십 정보취소일
     { fieldName: 'mshCntrPdEnddt' }, // 멤버십 정보탈퇴일
-    { fieldName: 'lcet13' }, // 타사보상업체
+    { fieldName: 'ocoCpsBzsDvNm' }, // 타사보상업체
     { fieldName: 'svAmt' }, // 서비스료
     { fieldName: 'rentalTn' }, // 렌탈차월
     { fieldName: 'fgpt1PdNm' }, // 사은품정보-사은품명1
@@ -507,7 +507,7 @@ const initGridRentalInstallerList = defineGrid((data, view) => {
     { fieldName: 'mshCntrTempSaveDt', header: t('MSG_TXT_SUBS_DT'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 멤버십 정보가입일
     { fieldName: 'mshReqdDt', header: t('MSG_TXT_CAN_D'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 멤버십 정보취소일
     { fieldName: 'mshCntrPdEnddt', header: t('MSG_TXT_PRDT_NM'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 멤버십 정보탈퇴일
-    { fieldName: 'lcet13', header: t('MSG_TXT_OCO_COMP_CMPNY'), width: '136', styleName: 'text-center' }, // 타사보상업체
+    { fieldName: 'ocoCpsBzsDvNm', header: t('MSG_TXT_OCO_COMP_CMPNY'), width: '136', styleName: 'text-center' }, // 타사보상업체
     { fieldName: 'svAmt', header: t('MSG_TXT_PD_SVC_FEE'), width: '136', styleName: 'text-right' }, // 서비스료
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '136', styleName: 'text-right' }, // 렌탈차월
     { fieldName: 'fgpt1PdNm', header: t('MSG_TXT_FGPT_NM_1'), width: '138', styleName: 'text-center' }, // 사은품정보-사은품명1
@@ -583,7 +583,7 @@ const initGridRentalInstallerList = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: ['mshCntrRcpFshDt', 'mshCntrTempSaveDt', 'mshReqdDt', 'mshCntrPdEnddt'],
     },
-    'lcet13', 'svAmt', 'rentalTn',
+    'ocoCpsBzsDvNm', 'svAmt', 'rentalTn',
     {
       header: `${t('MSG_TXT_GIFT')} ${t('MSG_TXT_INF')}`, // 사은품정보
       direction: 'horizontal', // merge type

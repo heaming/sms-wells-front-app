@@ -54,11 +54,10 @@
           first-option="all"
         />
       </kw-search-item>
-      <kw-search-item :label="$t('MSG_TXT_CNTR_NO')">
+      <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
         <zctz-contract-detail-number
           v-model:cntr-no="searchParams.cntrNo"
           v-model:cntr-sn="searchParams.cntrSn"
-          disable-popup
         />
       </kw-search-item>
     </kw-search-row>
@@ -67,12 +66,16 @@
         <kw-input
           v-model="searchParams.cntrCstKnm"
           :label="$t('MSG_TXT_CNTOR_NM')"
+          maxlength="50"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_PRDT_CODE')">
         <kw-input
           v-model="searchParams.pdCd"
           :label="$t('MSG_TXT_PRDT_CODE')"
+          icon="search"
+          clearable
+          @click-icon="onClickSelectPdCd"
         />
       </kw-search-item>
       <kw-search-item :label="$t('MSG_TXT_PRDT_NM')">
@@ -128,6 +131,7 @@
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON_MCN') }}</span>
       </template>
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -156,10 +160,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, defineGrid, useMeta, codeUtil, useDataService, gridUtil } from 'kw-lib';
+import { getComponentType, defineGrid, useMeta, codeUtil, useDataService, useGlobal, gridUtil } from 'kw-lib';
 import useGridDataModel from '~sms-common/contract/composable/useGridDataModel';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import pdConst from '~sms-common/product/constants/pdConst';
 
 const SERVER_DATE_FORMAT = 'YYYYMMDD';
 const SEARCH_DATE_TYPE_CNTR_CNFM_DT = 'cntrCnfmDt';
@@ -168,6 +173,7 @@ const { getConfig } = useMeta();
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
+const { modal } = useGlobal();
 
 const codes = await codeUtil.getMultiCodes(
   'COD_YN',
@@ -259,6 +265,24 @@ function onChangeSearchDateRangeType(searchDateRangeType) {
   }
 }
 
+// 상품코드 검색아이콘 클릭
+async function onClickSelectPdCd() {
+  const searchPopupParams = {
+    searchType: pdConst.PD_SEARCH_CODE,
+    searchValue: searchParams.pdCd,
+    selectType: '',
+  };
+
+  const returnPdInfo = await modal({
+    component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
+    componentProps: searchPopupParams,
+  });
+
+  if (returnPdInfo.result) {
+    searchParams.pdCd = returnPdInfo.payload?.[0].pdCd;
+    searchParams.pdNm = returnPdInfo.payload?.[0].pdNm;
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

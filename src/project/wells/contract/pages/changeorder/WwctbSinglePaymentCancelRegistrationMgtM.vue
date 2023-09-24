@@ -40,7 +40,7 @@
             </kw-form-item>
             <!--판매구분-->
             <kw-form-item :label="$t('MSG_TXT_SLS_CAT')">
-              <p>{{ searchDetail.cntrGbn }}</p>
+              <p>wells</p>
             </kw-form-item>
             <!--본부장-->
             <kw-form-item :label="$t('MSG_TXT_GNR_MNG')">
@@ -267,7 +267,7 @@
         @click="onClickCancel"
       />
       <kw-btn
-        v-permission:create
+        v-permission:update
         :label="$t('MSG_BTN_SAVE')"
         class="ml8"
         primary

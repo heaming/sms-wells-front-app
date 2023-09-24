@@ -63,12 +63,14 @@
         />
       </template>
       <kw-btn
+        v-permission:create
         :label="t('MSG_BTN_TEMP_GIRO_PLRCV_MNGT_POP')"
         negative
         dense
         @click="onClickPopup()"
       />
       <kw-btn
+        v-permission:create
         :label="t('통합입금번호조회 임시')"
         negative
         dense
@@ -76,6 +78,7 @@
       />
       <!-- label="임시 지로 수신처 관리 팝업" -->
       <kw-btn
+        v-permission:delete
         dense
         :label="t('MSG_BTN_DEL')"
         grid-action
@@ -88,6 +91,7 @@
         spaced
       />
       <kw-btn
+        v-permission:create
         dense
         grid-action
         :label="t('MSG_BTN_ROW_ADD')"
@@ -95,6 +99,7 @@
       />
       <!-- label="행추가" -->
       <kw-btn
+        v-permission:create
         dense
         grid-action
         :label="t('MSG_BTN_SAVE')"
@@ -108,6 +113,7 @@
         spaced
       />
       <kw-btn
+        v-permission:download
         icon="download_on"
         dense
         secondary
@@ -122,6 +128,7 @@
         spaced
       />
       <kw-btn
+        v-permission:create
         dense
         secondary
         :label="t('대상추가')"
@@ -140,6 +147,7 @@
         dense
       />
       <kw-btn
+        v-permission:create
         dense
         primary
         :label="t('MSG_TXT_PRNT_MNGT_CRT')"

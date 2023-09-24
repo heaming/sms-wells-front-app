@@ -70,6 +70,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -83,6 +84,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           dense
           secondary
           :label="$t('MSG_TXT_DDLV_BASE_CRDOVR')"
@@ -94,6 +96,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="$t('MSG_BTN_DDLV_BASE_INF_RGST')"

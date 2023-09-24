@@ -77,6 +77,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -107,6 +108,7 @@
           inset
         />
         <kw-btn
+          v-permission:update
           :label="$t('MSG_BTN_CONF')"
           primary
           dense
@@ -241,7 +243,6 @@ async function onClickConfirm() {
     cntrNo: cachedParams?.cntrNo,
     cntrSn: cachedParams?.cntrSn,
     sellTpCd: cachedParams?.sellTpCd,
-    sellTpDtlCd: cachedParams?.sellTpDtlCd,
     confirmDate: confirmParams.value.confirmDate,
     joinDate: confirmParams.value.joinDate,
   };
@@ -262,18 +263,18 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrwTpCd', header: t('MSG_TXT_SLS_CAT'), width: '120', styleName: 'text-center' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'uswy', header: t('MSG_TXT_USWY'), width: '80', styleName: 'text-center' },
+    { fieldName: 'svPdTpNm', header: t('MSG_TXT_USWY'), width: '80', styleName: 'text-center' },
     { fieldName: 'svPrd', header: t('MSG_TXT_CYCL'), width: '80', styleName: 'text-center' },
     { fieldName: 'frisuYn', header: t('MSG_TXT_FRISU_MSH'), width: '120', styleName: 'text-center' },
     { fieldName: 'hcrDvCd', header: t('MSG_TXT_DV_1'), width: '80', styleName: 'text-center' },
     { fieldName: 'dv', header: t('MSG_TXT_DV_2'), width: '80', styleName: 'text-center' },
-    { fieldName: 'fntDv', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center' },
+    { fieldName: 'dpTpNm', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center' },
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '120', styleName: 'text-center' },
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_RCP_D'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_DT_OF_SALE'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'sellAmt', header: t('MSG_TXT_MSH_SSPCS'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'stlmTpCd', header: t('MSG_TXT_PY_MTHD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'stlmTpNm', header: t('MSG_TXT_PY_MTHD'), width: '120', styleName: 'text-center' },
     { fieldName: 'dscAmt', header: t('MSG_TXT_DSC_AMT'), width: '120', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'cttRsCd', header: t('MSG_TXT_CTT_CD'), width: '120', styleName: 'text-center' },
     { fieldName: 'cttRsNm', header: t('MSG_TXT_CTT_CD_NM'), width: '100', styleName: 'text-center' },

@@ -177,6 +177,7 @@
         <!-- label="양식다운로드" -->
 
         <kw-btn
+          v-permission:create
           icon="upload_on"
           dense
           secondary
@@ -185,6 +186,7 @@
         />
         <!-- label="엑셀업로드" -->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -199,6 +201,7 @@
           inset
         />
         <kw-btn
+          v-permission:create
           primary
           dense
           :label="t('MSG_BTN_CNTN_CREATE')"

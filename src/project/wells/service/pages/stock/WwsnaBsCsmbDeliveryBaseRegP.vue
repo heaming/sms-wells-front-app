@@ -387,11 +387,13 @@
     </kw-form>
     <template #action>
       <kw-btn
+        v-permission:read
         negative
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
       />
       <kw-btn
+        v-permission:create
         primary
         :label="$t('MSG_BTN_RGST')"
         :disable="isDisable"
