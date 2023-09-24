@@ -240,7 +240,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'aplcDt', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' }, // 신청일
     { fieldName: 'aplcnsNm', header: t('MSG_TXT_APPL_USER'), width: '200', styleName: 'text-center' }, // 신청자
     { fieldName: 'aplcPrtnrNo', visible: false }, // 신청자 사번
-    { fieldName: 'cntrwApnFileId',
+    { fieldName: 'cntrwAtthDocId',
       header: t('MSG_TXT_CNTRW'), // 계약서
       width: '200',
       styleName: 'text-center',
@@ -248,7 +248,7 @@ const initGrdSub = defineGrid((data, view) => {
       dataType: 'file',
       editor: {
         type: 'file',
-        attachDocumentId: 'cntrwApnFileId',
+        attachDocumentId: 'cntrwAtthDocId',
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
         multiple: false,
@@ -265,7 +265,7 @@ const initGrdSub = defineGrid((data, view) => {
         };
       },
     },
-    { fieldName: 'cntrLroreApnFileId',
+    { fieldName: 'cntrLroreAtthDocId',
       header: t('MSG_TXT_A_CON_TERM_AGE'), // 계약해지원
       width: '200',
       styleName: 'text-center',
@@ -273,7 +273,7 @@ const initGrdSub = defineGrid((data, view) => {
       dataType: 'file',
       editor: {
         type: 'file',
-        attachDocumentId: 'cntrLroreApnFileId',
+        attachDocumentId: 'cntrLroreAtthDocId',
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
         multiple: false,
@@ -290,7 +290,7 @@ const initGrdSub = defineGrid((data, view) => {
         };
       },
     },
-    { fieldName: 'idfApnFileId',
+    { fieldName: 'idfAtthDocId',
       header: t('MSG_TXT_IDF_CY'), // 신분증사본
       width: '200',
       styleName: 'text-center',
@@ -298,7 +298,7 @@ const initGrdSub = defineGrid((data, view) => {
       dataType: 'file',
       editor: {
         type: 'file',
-        attachDocumentId: 'idfApnFileId',
+        attachDocumentId: 'idfAtthDocId',
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
         multiple: false,
@@ -315,7 +315,7 @@ const initGrdSub = defineGrid((data, view) => {
         };
       },
     },
-    { fieldName: 'bnkbApnFileId',
+    { fieldName: 'bnkbAtthDocId',
       header: t('MSG_TXT_BNKB_CY'), // 통장사본
       width: '200',
       styleName: 'text-center',
@@ -323,7 +323,7 @@ const initGrdSub = defineGrid((data, view) => {
       dataType: 'file',
       editor: {
         type: 'file',
-        attachDocumentId: 'bnkbApnFileId',
+        attachDocumentId: 'bnkbAtthDocId',
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
         multiple: false,
@@ -367,13 +367,13 @@ const initGrdSub = defineGrid((data, view) => {
     // 참고 ZdecRdsAnAccountErrorMgtService > saveAttachFile
     const { clinrRgno, aplcPrtnrNo, result } = grid.getValues(itemIndex);
 
-    if (column === 'cntrwApnFileId') {
+    if (column === 'cntrwAtthDocId') {
       // 계약서
-    } else if (column === 'cntrLroreApnFileId') {
+    } else if (column === 'cntrLroreAtthDocId') {
       // 계약해지원
-    } else if (column === 'idfApnFileId') {
+    } else if (column === 'idfAtthDocId') {
       // 신분증사본
-    } else if (column === 'bnkbApnFileId') {
+    } else if (column === 'bnkbAtthDocId') {
       // 통장사본
     } else if (column === 'clinrNm') {
       modal({

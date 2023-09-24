@@ -226,7 +226,7 @@ const saveParams = ref({
 
 async function saveData(column, opcsCardId, file) {
   if (!isEmpty(file.files)) {
-    if (column === 'mscrWhtxCfdcApnFileId') {
+    if (column === 'atthDocId') {
       saveParams.value.opcsCardId = opcsCardId;
       saveParams.value.attachMscrWhtxCfdcApnFileId = file.files;
     }
@@ -268,14 +268,14 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'opcsCardId', visible: false },
     { fieldName: 'opcsAdjCnt', header: t('MSG_TXT_OPCS_TOT_USE_CT'), width: '477', styleName: 'text-center', dataType: 'number' }, // 운영비 총 사용 건수
     { fieldName: 'opcsSmryNCnt', header: t('MSG_TXT_AES'), width: '450', styleName: 'text-center', dataType: 'number' }, // 미적요
-    { fieldName: 'mscrWhtxCfdcApnFileId',
+    { fieldName: 'atthDocId',
       header: t('MSG_TXT_MSCR_WHTX_CFDC_APN_FILE'),
       width: '300',
       styleName: 'text-center',
       dataType: 'file',
       editor: {
         type: 'file',
-        attachDocumentId: 'mscrWhtxCfdcApnFileId',
+        attachDocumentId: 'atthDocId',
         attachGroupId: 'ATG_DCD_OPCS_WHTX_CFDC',
         downloadable: true,
         multiple: true,
@@ -292,9 +292,9 @@ const initGrdSub = defineGrid((data, view) => {
   view.rowIndicator.visible = false;
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'mscrWhtxCfdcApnFileId') {
-      const { opcsCardId, mscrWhtxCfdcApnFileId } = g.getValues(itemIndex);
-      saveData(column, opcsCardId, mscrWhtxCfdcApnFileId);
+    if (column === 'atthDocId') {
+      const { opcsCardId, atthDocId } = g.getValues(itemIndex);
+      saveData(column, opcsCardId, atthDocId);
     }
   };
 });

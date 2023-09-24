@@ -277,14 +277,14 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '200', styleName: 'text-left' }, // 빌딩
     { fieldName: 'aplcDt', header: t('MSG_TXT_APPL_DATE'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 신청일
     { fieldName: 'bilAmt', header: t('MSG_TXT_AMT_WON'), width: '182', styleName: 'text-right', dataType: 'number' }, // 금액(원)
-    { fieldName: 'clingCostSrcpApnFileId',
+    { fieldName: 'atthDocId',
       header: t('MSG_TXT_SRCP_APN'),
       width: '121',
       styleName: 'text-right',
       dataType: 'file',
       editor: {
         type: 'file',
-        attachDocumentId: 'clingCostSrcpApnFileId',
+        attachDocumentId: 'atthDocId',
         attachGroupId: 'ATG_DCD_CLING_COST',
         downloadable: true,
         multiple: true,
@@ -313,7 +313,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellClicked = async (grid, { column, itemIndex }) => {
-    if (column === 'clingCostSrcpApnFileId') { return; }
+    if (column === 'atthDocId') { return; }
     if (isEmpty(column)) { return; }
 
     if (isEmpty(itemIndex)) {
