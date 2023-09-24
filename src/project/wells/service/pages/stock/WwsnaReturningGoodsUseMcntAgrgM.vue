@@ -41,19 +41,6 @@
             rules="date_range_required"
           />
         </kw-search-item>
-        <!--서비스센터-->
-        <wwsn-engineer-og-search-item-group
-          v-model:dgr1-levl-og-id="searchParams.serviceCenter"
-          v-model:prtnr-no="searchParams.engineerCd"
-          use-og-level="1"
-          use-partner
-          dgr1-levl-og-first-option="all"
-          dgr1-levl-og-label="ogCdNm"
-          partner-first-option="all"
-          partner-label="prtnrNoNm"
-        />
-      </kw-search-row>
-      <kw-search-row>
         <!--업무유형-->
         <kw-search-item
           :label="$t('MSG_TXT_TASK_TYPE')"
@@ -66,6 +53,20 @@
             :first-option-label="$t('MSG_TXT_ALL')"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <!--서비스센터-->
+        <wwsn-engineer-og-search-item-group
+          v-model:dgr1-levl-og-id="searchParams.serviceCenter"
+          v-model:prtnr-no="searchParams.engineerCd"
+          use-og-level="1"
+          use-partner
+          dgr1-levl-og-first-option="all"
+          dgr1-levl-og-label="ogCdNm"
+          partner-first-option="all"
+          partner-label="prtnrNoNm"
+          auth-yn="N"
+        />
       </kw-search-row>
     </kw-search>
     <div class="result-area">
