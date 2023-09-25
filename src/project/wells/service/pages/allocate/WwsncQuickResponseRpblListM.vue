@@ -16,6 +16,7 @@
   <kw-page>
     <template #header />
     <kw-search
+      v-permission:read
       :cols="4"
       @search="onClickSearch"
     >
@@ -197,34 +198,40 @@
         </template>
         <kw-btn
           v-if="false"
+          v-permission:delete
           :label="$t('삭제')"
           grid-action
         />
         <kw-separator
           v-if="false"
+          v-permission:delete
           vertical
           inset
           spaced
         />
         <kw-btn
           v-if="false"
+          v-permission:update
           :label="$t('저장')"
           grid-action
         />
         <kw-separator
           v-if="false"
+          v-permission:update
           vertical
           inset
           spaced
         />
         <kw-btn
           v-if="false"
+          v-permission:print
           icon="print"
           dense
           secondary
           :label="$t('인쇄')"
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           :disable="pageInfo.totalCount === 0"
           :label="$t('엑셀다운로드')"
@@ -233,11 +240,13 @@
           @click="onClickExcelDownload"
         />
         <kw-separator
+          v-permission:download
           vertical
           inset
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="$t('QR재발행')"
           primary
           dense

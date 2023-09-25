@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -81,6 +82,7 @@
           />
         </template>
         <kw-btn
+          v-permission:update
           dense
           grid-action
           secondary
@@ -88,18 +90,21 @@
           @click="onClickSave"
         />
         <kw-separator
+          v-permission:update
           spaced
           vertical
           inset
         />
         <kw-btn
           v-if="false"
+          v-permission:print
           icon="print"
           dense
           secondary
           :label="'인쇄'"
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           :disable="pageInfo.totalCount === 0"
           dense
