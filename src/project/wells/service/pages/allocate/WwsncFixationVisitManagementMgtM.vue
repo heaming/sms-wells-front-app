@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       :cols="4"
       @search="onClickSearch"
     >
@@ -96,12 +97,14 @@
         </template>
         <kw-btn
           v-if="false"
+          v-permission:print
           icon="print"
           dense
           secondary
           :label="'인쇄'"
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           :disable="pageInfo.totalCount === 0"
           dense
@@ -110,11 +113,13 @@
           @click="onClickExcelDownload"
         />
         <kw-separator
+          v-permission:download
           vertical
           inset
           spaced
         />
         <kw-btn
+          v-permission:create
           dense
           primary
           :label="'고정방문등록'"
