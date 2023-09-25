@@ -316,7 +316,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fwSppIvcNo', // 송장번호
       header: t('MSG_TXT_IVC_NO'),
       width: '150',
-      rules: 'required',
+      rules: 'max_value:99999999999999999999',
+      editor: { inputCharacters: '0-9', maxLength: 20 },
       styleName: 'text-left',
       placeHolder: t('MSG_TXT_INP'),
       editable: true,
