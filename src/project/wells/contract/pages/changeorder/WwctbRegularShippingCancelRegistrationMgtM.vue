@@ -393,7 +393,7 @@
       <!-- row4 분실손료 -->
       <kw-form-item :label="$t('MSG_TXT_PD_LENT_LOST_LOG')">
         <kw-input
-          v-model="searchDetail.lsnt"
+          v-model="searchDetail.lsRntf"
           regex="num"
           maxlength="10"
           align="right"
