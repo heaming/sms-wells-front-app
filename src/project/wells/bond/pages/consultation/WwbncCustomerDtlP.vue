@@ -741,6 +741,7 @@
               <kw-tab-panels v-model="selectedTab">
                 <kw-tab-panel name="tab1">
                   <Wwbnc-customer-dtl-p-counsel-history
+                    ref="historyRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -748,6 +749,7 @@
                 </kw-tab-panel>
                 <kw-tab-panel name="tab2">
                   <zwbnc-customer-dtl-p-sms
+                    ref="smsRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -755,6 +757,7 @@
                 </kw-tab-panel>
                 <kw-tab-panel name="tab3">
                   <zwbnc-customer-dtl-p-promise
+                    ref="promiseRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -778,6 +781,7 @@
                 </kw-tab-panel>
                 <kw-tab-panel name="tab6">
                   <zwbnc-customer-dtl-p-foster-counsel
+                    ref="counselRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -785,6 +789,7 @@
                 </kw-tab-panel>
                 <kw-tab-panel name="tab7">
                   <zwbnc-customer-dtl-p-customer-center
+                    ref="centerRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -1131,8 +1136,13 @@ const props = defineProps({
 const grdMainRef = ref(getComponentType('KwGrid'));
 const selectedTab = ref('tab1');
 const selectedGridRow = ref(null);
-const visitRef = ref();
+const historyRef = ref();
+const smsRef = ref();
+const promiseRef = ref();
 const lawMeasureRef = ref();
+const visitRef = ref();
+const counselRef = ref();
+const centerRef = ref();
 const isFlag = ref();
 const isFlag2 = ref('N');
 
@@ -1143,6 +1153,24 @@ watch(selectedGridRow, (newValue) => {
   if (!newValue) {
     const view = grdMainRef.value.getView();
     view.clearCurrent();
+  }
+});
+
+watch(selectedTab, (newTab) => {
+  if (newTab === 'tab1') {
+    historyRef.value.fetchCounselHistory();
+  } else if (newTab === 'tab2') {
+    smsRef.value.fetchData();
+  } else if (newTab === 'tab3') {
+    promiseRef.value.fetchData();
+  } else if (newTab === 'tab4') {
+    lawMeasureRef.value.fetchData();
+  } else if (newTab === 'tab5') {
+    visitRef.value.fetchData();
+  } else if (newTab === 'tab6') {
+    counselRef.value.fetchData();
+  } else if (newTab === 'tab7') {
+    centerRef.value.fetchData();
   }
 });
 
