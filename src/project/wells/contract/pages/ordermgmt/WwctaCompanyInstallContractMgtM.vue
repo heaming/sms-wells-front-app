@@ -308,28 +308,6 @@ async function onClickRegist() {
 }
 
 async function onClickExcelUpload() {
-  /*
-  const { result, payload } = await modal({
-    component: 'ZctzExcelUploadP',
-    componentProps: {
-      columns: gridDataModel.dataModelObject,
-      // templateDocId: 'FOM_INSTALLATION_ADDRESS_CHANGE_BATCH_UPLOAD',
-      headerRows: 2,
-      validationBtn: false,
-      addBtn: true,
-      deleteBtn: true,
-      downloadBtn: true,
-      // serverSideValidation: validate,
-      // serverSideValidateOption: { sideEffect: true },
-    },
-  });
-  if (result) {
-    const { list } = payload;
-    pageInfo.value.totalCount = list.length || 0;
-    grdData.value.setRows(list);
-  }
-  */
-
   const apiUrl = '/sms/wells/contract/contracts/company-install/excel-upload';
   const templateId = 'FOM_CTA_0001';
 
@@ -424,7 +402,7 @@ const initGrid = defineGrid((data, view) => {
     basePdCd: { label: t('MSG_TXT_INST_PROD_CD'), width: '130', classes: 'text-center' }, // [설치상품코드]
     pdNm: { label: t('MSG_TXT_INST_PROD_NM'), width: '300' }, // [설치상품명]
     pkgPdCd: { label: t('MSG_TXT_SEED_PKG_CD'), width: '130', classes: 'text-center' }, // [모종패키지코드]
-    pkgPdNm: { label: t('MSG_TXT_PKG_NM'), width: '300', classes: 'text-center' }, // [패키지명]
+    pkgPdNm: { label: t('MSG_TXT_PKG_NM'), width: '300' }, // [패키지명]
     bsPrd: { label: t('MSG_TXT_BS_CYC'),
       width: '100',
       classes: 'text-right',
@@ -486,6 +464,8 @@ const initGrid = defineGrid((data, view) => {
     fnlAmt: { displaying: false },
     ojPdCd: { displaying: false },
     cntrDtlStatCd: { displaying: false },
+    pkgCntrPtrm: { displaying: false },
+    pkgCntrSn: { displaying: false },
 
     // wpDvNm: { label: `WP${t('MSG_TXT_DIV')}`, width: '100' }, // [WP구분]
     // filterExp: { label: t('MSG_TXT_FILTER_CST'), width: '110' }, // [필터비용]
@@ -529,6 +509,8 @@ const initGrid = defineGrid((data, view) => {
 
   // dbclick row
   view.onCellDblClicked = async (g, { dataRow }) => {
+    if ((dataRow ?? -1) < 0) { return; }
+
     const { result } = await modal({
       component: 'WwctaCompanyInstallContractDtlModP',
       componentProps: { ...gridUtil.getRowValue(g, dataRow) },

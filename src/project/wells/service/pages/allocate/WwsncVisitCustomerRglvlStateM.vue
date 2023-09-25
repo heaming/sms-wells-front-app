@@ -43,7 +43,6 @@
             first-option
             first-option-value="ALL"
             :first-option-label="$t('MSG_TXT_ALL')"
-            readonly
           />
         </kw-search-item>
         <kw-search-item
@@ -76,6 +75,7 @@
           dgr2-levl-og-label="ogCdNm"
           partner-label="prtnrNoNm"
           dgr1-levl-og-readonly
+          auth-yn="N"
         />
       </kw-search-row>
     </kw-search>

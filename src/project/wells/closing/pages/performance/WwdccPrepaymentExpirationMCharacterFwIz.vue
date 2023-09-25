@@ -58,6 +58,7 @@
       </template>
 
       <kw-btn
+        v-permission:download
         icon="download_on"
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         secondary

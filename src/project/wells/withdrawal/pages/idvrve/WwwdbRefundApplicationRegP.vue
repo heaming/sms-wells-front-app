@@ -1400,14 +1400,13 @@ const initGrid3 = defineGrid((data, view) => {
     { fieldName: 'bltfOjCntrSn' }, /* 전금계약일련번호 */
     { fieldName: 'bltfOjCntrDtlNo' }, /* 전금계약상세번호 */
     { fieldName: 'bltfRfndMbDvCd' }, /*  전금회원구분코드 */
-    { fieldName: 'rfndEvidMtrFileId' }, /* rfndEvidMtrFileId-  전금자료 */
     { fieldName: 'rfndEvidMtrFileNm' }, /* rfndEvidMtrFileNm-  전금자료명(업로드시 버튼형식으로나오면 사용) */
     { fieldName: 'rfndAkNo' },
     /* 환불 - 전금 공통 */
     { fieldName: 'rveNo' },
     { fieldName: 'rveSn' },
 
-    { fieldName: 'atthDocId', dataType: 'file' },
+    { fieldName: 'atthDocId', dataType: 'file' }, /* rfndEvidMtrFileId-  전금자료 */
   ];
 
   const columns = [
@@ -1500,7 +1499,7 @@ const initGrid3 = defineGrid((data, view) => {
       width: '120',
       editor: {
         type: 'file',
-        attachDocumentId: 'rfndEvidMtrFileId', // 필드명
+        attachDocumentId: 'atthDocId', // 필드명
         attachGroupId: 'ATG_WDB_RFND_FILE', // 또는 고정값
         downloadable: false,
         editable: true,
@@ -1575,7 +1574,7 @@ const initGrid3 = defineGrid((data, view) => {
     }
     // 첨부파일 팝업
     // TODO: 그리드 엑셀업로드 확인필요
-    if (column === 'rfndEvidMtrFileId') {
+    if (column === 'atthDocId') {
       await modal({
         component: 'ZwcmFileAttacher',
         // componentProps: { cntrNo, sellTpCd },

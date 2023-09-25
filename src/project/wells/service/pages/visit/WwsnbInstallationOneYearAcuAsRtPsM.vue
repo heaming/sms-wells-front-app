@@ -45,7 +45,7 @@
         <kw-search-item :label="t('MSG_TXT_BAD_DV')">
           <kw-select
             v-model="searchParams.badDivide"
-            :options="badDvCdList"
+            :options="codes.BAD_DV_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -57,7 +57,7 @@
         >
           <kw-select
             v-model="searchParams.pdGrp"
-            :options="codes.PD_GRP_CD"
+            :options="pdGrpCdList"
             class="w150"
             first-option="all"
             @change="changePdGrpCd"
@@ -77,7 +77,7 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <kw-paging-info :total-count="pageInfo.totalCount" />
+          <kw-paging-info :total-count="totalCount" />
           <span class="ml8">(단위: 원)</span>
         </template>
         <!-- 인쇄 -->
@@ -86,7 +86,7 @@
           dense
           secondary
           :label="t('MSG_BTN_PRTG')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickPrintEl"
         />
         <!-- 엑셀다운로드 -->
@@ -95,7 +95,7 @@
           dense
           secondary
           :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -111,14 +111,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, useMeta, gridUtil } from 'kw-lib';
+import { useDataService, codeUtil, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 import { printElement } from '~common/utils/common';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
 
 const dataService = useDataService();
 
@@ -126,11 +125,6 @@ const codes = await codeUtil.getMultiCodes(
   'BAD_DV_CD',
   'PD_GRP_CD',
 );
-// 화면설계서 기재내용이..
-// 서비스 > 실적..불량구분은 100, 400, 500, 700 만 사용
-const badCdValue = ['100R', '400R', '500R', '700R'];
-const badDvCdList = codes.BAD_DV_CD.filter((v) => badCdValue.includes(v.codeId));
-console.log('badDvCd >>>>>', badDvCdList);
 
 const { getPartMaster } = smsCommon();
 
@@ -148,11 +142,7 @@ const searchParams = ref({
   pdCd: '', // 상품명
 });
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
+const totalCount = ref(0);
 
 // 서비스유형 중분류..공통코드 있을거 같은데...
 // 전체, 제품A/S, 특별A/S, 제품원인
@@ -162,14 +152,16 @@ const serviceTypes = [
   { codeId: '3210', codeName: '제품원인' },
 ];
 
-// 소분류(불량구분)...일단 공통코드 BAD_DV_CD 사용
-// 전체, 모종불량, 제품불량, 매니저과실, 엔지니어과실, 품질개선(리콜) 서비스
-// const badGbTypes = [
-// { codeId: '100R', codeName: '제품불량' },
-// { codeId: '500R', codeName: '엔지니어과실' },
-// { codeId: '400R', codeName: '매니저과실' },
-// { codeId: '700R', codeName: '품질개선(리콜) 서비스' },
-// ];
+// 화면설계서 기재내용이..
+// 서비스 > 실적..불량구분은 100, 400, 500, 700 만 사용
+// 20230922...불량구분 다 나오도록
+// const badCdValue = ['100R', '400R', '500R', '700R'];
+// const badDvCdList = codes.BAD_DV_CD.filter((v) => badCdValue.includes(v.codeId));
+// console.log('badDvCd >>>>>', badDvCdList);
+
+// 상품그룹 필터링
+const pdGrp = ['4', '5', '6', '7', '8', '9', '11', '91', '92', '93', '95', '96'];
+const pdGrpCdList = codes.PD_GRP_CD.filter((v) => pdGrp.includes(v.codeId));
 
 const pds = ref([]);
 async function changePdGrpCd() {
@@ -208,25 +200,31 @@ async function onClickExcelDownload() {
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/ist-yone-acu-as-rt-ps/get-ist-yone-acu-as-rt-ps', { params: { ...cachedParams } });
-  pageInfo.value.totalCount = res.data.length;
+  totalCount.value = res.data.length;
 
   const view = grdMainRef.value.getView();
+
+  res.data[2].totalCnt = ((res.data[0].totalCnt / res.data[1].totalCnt) * 100).toFixed(2);
+  res.data[2].col01 = ((res.data[0].col01 / res.data[1].col01) * 100).toFixed(2);
+  res.data[2].col02 = ((res.data[0].col02 / res.data[1].col02) * 100).toFixed(2);
+  res.data[2].col03 = ((res.data[0].col03 / res.data[1].col03) * 100).toFixed(2);
+  res.data[2].col04 = ((res.data[0].col04 / res.data[1].col04) * 100).toFixed(2);
+  res.data[2].col05 = ((res.data[0].col05 / res.data[1].col05) * 100).toFixed(2);
+  res.data[2].col06 = ((res.data[0].col06 / res.data[1].col06) * 100).toFixed(2);
+  res.data[2].col07 = ((res.data[0].col07 / res.data[1].col07) * 100).toFixed(2);
+  res.data[2].col08 = ((res.data[0].col08 / res.data[1].col08) * 100).toFixed(2);
+  res.data[2].col09 = ((res.data[0].col09 / res.data[1].col09) * 100).toFixed(2);
+  res.data[2].col10 = ((res.data[0].col10 / res.data[1].col10) * 100).toFixed(2);
+  res.data[2].col11 = ((res.data[0].col11 / res.data[1].col11) * 100).toFixed(2);
+  res.data[2].col12 = ((res.data[0].col12 / res.data[1].col12) * 100).toFixed(2);
+
   view.getDataSource().setRows(res.data);
-  view.resetCurrent();
 }
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
-const divCd = [
-  { codeId: '1', codeName: 'A/S건' },
-  { codeId: '2', codeName: '렌탈 계정(수)' },
-  { codeId: '3', codeName: 'A/S율(%)' },
-  { codeId: '4', codeName: '엔지니어비용' },
-  { codeId: '5', codeName: '부품비용' },
-];
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -254,27 +252,28 @@ function initGrdMain(data, view) {
       fieldName: 'atcNm',
       header: t('MSG_TXT_DIV'),
       width: '150',
-      displayCallback: (g, i) => {
-        const { atcNm } = gridUtil.getRowValue(g, i.itemIndex);
-        return divCd.find((x) => x.codeId === atcNm).codeName;
-      },
-      headerSummary: {
+      footer: {
         text: t('MSG_TXT_SUM'),
-        styleName: 'text-center',
-        type: 'number',
-        numberFormat: '#,##0',
-        expression: 'sum',
+        styleName: 'text-left',
       },
     },
     {
       fieldName: 'totalCnt',
       header: t('MSG_TXT_SUM'),
-      width: '100',
+      width: '110',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      numberFormat: '#,##0.##',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'totalCnt')) + Number(prod.getValue(4, 'totalCnt'));
+          return sum;
+        },
       },
     },
     {
@@ -282,10 +281,17 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_JAN'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
+      footer: {
         type: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm01')) + Number(prod.getValue(4, 'm01'));
+          return sum;
+        },
       },
     },
     {
@@ -293,10 +299,17 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_FEB'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm02')) + Number(prod.getValue(4, 'm02'));
+          return sum;
+        },
       },
     },
     {
@@ -304,10 +317,17 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_MAR'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm03')) + Number(prod.getValue(4, 'm03'));
+          return sum;
+        },
       },
     },
     {
@@ -315,10 +335,17 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_APRI'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm04')) + Number(prod.getValue(4, 'm04'));
+          return sum;
+        },
       },
     },
     {
@@ -326,10 +353,17 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_MAY'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm05')) + Number(prod.getValue(4, 'm05'));
+          return sum;
+        },
       },
     },
     {
@@ -337,10 +371,17 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_JUN'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm06')) + Number(prod.getValue(4, 'm06'));
+          return sum;
+        },
       },
     },
     {
@@ -348,10 +389,17 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_JUL'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm07')) + Number(prod.getValue(4, 'm07'));
+          return sum;
+        },
       },
     },
     {
@@ -359,10 +407,17 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_AUG'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm08')) + Number(prod.getValue(4, 'm08'));
+          return sum;
+        },
       },
     },
     {
@@ -370,10 +425,17 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_SEPT'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm09')) + Number(prod.getValue(4, 'm09'));
+          return sum;
+        },
       },
     },
     {
@@ -381,10 +443,17 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_OCT'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm10')) + Number(prod.getValue(4, 'm10'));
+          return sum;
+        },
       },
     },
     {
@@ -392,10 +461,17 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_NOV'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm11')) + Number(prod.getValue(4, 'm11'));
+          return sum;
+        },
       },
     },
     {
@@ -403,27 +479,42 @@ function initGrdMain(data, view) {
       header: t('MSG_TXT_DECE'),
       width: '100',
       styleName: 'text-right',
-      headerSummary: {
-        type: 'number',
+      footer: {
+        dataType: 'number',
         numberFormat: '#,##0',
-        expression: 'sum',
+        // eslint-disable-next-line no-unused-vars
+        valueCallback(grid, column, footerIndex, columnFooter, value) {
+          let sum = 0;
+          const prod = grid.getDataSource();
+
+          sum = Number(prod.getValue(3, 'm12')) + Number(prod.getValue(4, 'm12'));
+          return sum;
+        },
       },
     },
   ];
 
-  // 헤더쪽 합계 행고정, summary
-  view.setHeaderSummaries({
-    visible: true,
-    items: [
-      {
-        height: 40,
-      },
-    ],
-  });
+  const columnLayout = [
+    'atcNm',
+    'totalCnt',
+    'm01',
+    'm02',
+    'm03',
+    'm04',
+    'm05',
+    'm06',
+    'm07',
+    'm08',
+    'm09',
+    'm10',
+    'm11',
+    'm12',
+  ];
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
+  view.setColumnLayout(columnLayout);
+  view.setFooters({ visible: true });
   view.rowIndicator.visible = true; // create number indicator column
 }
 </script>
