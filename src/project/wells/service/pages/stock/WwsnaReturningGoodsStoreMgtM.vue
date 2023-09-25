@@ -562,10 +562,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'empNm' }, // 담당엔지니어명
     { fieldName: 'rcpIchrPrtnrNo' }, // 철거요청사번
     { fieldName: 'fstRgstUserNm' }, // 철거요청자명
-    { fieldName: 'col11' }, // 접수자구분
-    { fieldName: 'col22' }, // 접수자구분
+    { fieldName: 'rcstDv' }, // 접수자구분
     { fieldName: 'cnslMoCn' }, // 접수내역
-    { fieldName: 'col23' }, // 접수자소속
+    { fieldName: 'ogNm' }, // 접수자소속
     { fieldName: 'prtnrNm' }, // 접수자명
     { fieldName: 'badDvNm' }, // 불량구분
     { fieldName: 'rtngdRvpyProcsYn' },
@@ -635,9 +634,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'empNm', header: t('MSG_TXT_ICHR_EGER_NM'), width: '120', styleName: 'text-center' },
     { fieldName: 'rcpIchrPrtnrNo', header: t('MSG_TXT_REQD_AK_EMPNO'), width: '150', styleName: 'text-center' },
     { fieldName: 'fstRgstUserNm', header: t('MSG_TXT_REQD_AK_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'col22', header: t('MSG_TXT_RCST_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cnslMoCn', header: t('MSG_TXT_RCP_IZ'), width: '100', styleName: 'text-left' },
-    { fieldName: 'col23', header: t('MSG_TXT_RCST_BLG_IST'), width: '150', styleName: 'text-center' },
+    { fieldName: 'rcstDv', header: t('MSG_TXT_RCST_DV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cnslMoCn', header: t('MSG_TXT_RCP_IZ'), width: '397', styleName: 'text-left' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_RCST_BLG_IST'), width: '150', styleName: 'text-center' },
     { fieldName: 'prtnrNm', header: t('MSG_TXT_RCST_NM_IST'), width: '100', styleName: 'text-center' },
     { fieldName: 'badDvNm', header: t('MSG_TXT_BAD_DV'), width: '100', styleName: 'text-center' },
     // { fieldName: 'asLctNm', header: '고장위치', width: '100', styleName: 'text-center' },
@@ -682,10 +681,10 @@ const initGrdMain = defineGrid((data, view) => {
     'empNm',
     // 'empNm',
     { direction: 'horizontal', items: ['rcpIchrPrtnrNo', 'fstRgstUserNm'], header: { text: t('MSG_TXT_REQD_AK_EMPNO_NM') }, hideChildHeaders: true },
-    'col22',
+    'rcstDv',
     // 'fstRgstUserNm',
-    // 'cnslMoCn',
-    'col23',
+    'cnslMoCn',
+    'ogNm',
     'prtnrNm',
     'badDvNm',
   ];
