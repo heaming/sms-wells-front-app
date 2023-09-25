@@ -49,7 +49,11 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <kw-paging-info :total-count="pageInfo.totalCount" />
+          <kw-paging-info
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="onClickChangePage"
+          />
         </template>
         <kw-btn
           v-permission:update
@@ -76,7 +80,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="10"
+        :visible-rows="visibleRows"
         @init="initGrid"
       />
     </div>
@@ -102,7 +106,7 @@ const { wkOjOgTpCd, ogTpCd, baseRleCd } = getUserInfo();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const { t } = useI18n();
-const codes = await codeUtil.getMultiCodes('EGER_WRK_STAT_CD', 'OG_TP_CD');
+const codes = await codeUtil.getMultiCodes('EGER_WRK_STAT_CD', 'OG_TP_CD', 'COD_PAGE_SIZE_OPTIONS');
 const grdMainRef = ref(getComponentType('KwGrid'));
 const now = dayjs().format('YYYYMMDD');
 const searchParams = ref({
@@ -120,6 +124,8 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 
 });
+
+const visibleRows = ref(10);
 
 async function fetchData() {
   return await dataService.get(`${SMS_WELLS_URI}/partner-engineer/attend/paging`, { params: { ...searchParams.value, ...pageInfo.value } });
@@ -167,6 +173,10 @@ async function onClickSave() {
 //   }
 //   return { editable: true };
 // }
+
+function onClickChangePage(val1, val2) {
+  visibleRows.value = val2;
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -239,7 +249,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EGER'),
       direction: 'horizontal',
-      items: ['prtnrNo', 'rsbDvNm', 'pstnDvNm', 'prtnrKnm', 'wkGrpNm'],
+      items: ['rsbDvNm', 'pstnDvNm', 'prtnrKnm', 'prtnrNo', 'wkGrpNm'],
     },
     'bizAgntYn',
     'wrkDt',
