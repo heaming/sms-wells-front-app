@@ -104,7 +104,7 @@ const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const baseUrl = '/sms/wells/service/md-product--out-of-storage';
+const baseUrl = '/sms/wells/service/md-product-out-of-storage';
 
 // const codes =
 await codeUtil.getMultiCodes(
