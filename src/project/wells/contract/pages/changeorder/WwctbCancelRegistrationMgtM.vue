@@ -303,8 +303,8 @@ function setBulkParam(firstOne) {
     element.reqdAkRcvryDvCd = firstOne.reqdAkRcvryDvCd; // [복구]
     // element.borAmt = firstOne.borAmt; // [위약금액] //입력되는 값이지만 조회해오는 값이기도 함
     // element.lsnt = firstOne.lsnt; // [분실손료] //입력되는 값이지만 조회해오는 값이기도 함
-    element.csmbCostBorAmt2 = firstOne.csmbCostBorAmt2; // [소모품비]
-    element.reqdCsBorAmt2 = firstOne.reqdCsBorAmt2; // [철거비]
+    // element.csmbCostBorAmt2 = firstOne.csmbCostBorAmt2; // [소모품비]
+    // element.reqdCsBorAmt2 = firstOne.reqdCsBorAmt2; // [철거비]
     element.dscDdctam = firstOne.dscDdctam; // [할인공제금액]
     element.filtDdctam = firstOne.filtDdctam; // [필터공제(위약금)]
     element.rtngdQty = firstOne.rtngdQty; // [반품수량]
@@ -410,6 +410,44 @@ function onClickVirtualAccountView() {
   notify('TODO : 가상계좌확인서 OZ뷰 호출 ');
 }
 
+// 환불총액 재계산
+// repObj : 대표값
+// targetObj : 적용대상
+// resObj : 조회결과
+function calTotRfndAmt(repObj, targetObj, resObj) {
+  let { totRfndAmt } = resObj;
+  let borAmt = 0;
+  let csmbCostBorAmt2 = 0;
+  let reqdCsBorAmt2 = 0;
+  const lsRntf = targetObj.lsRntf || 0;
+
+  switch (repObj.ccamExmptDvCd) {
+    case '1': borAmt = resObj.borAmt; break;// 위약금 적용
+    case '4': borAmt = targetObj.borAmt; break;// 입력
+    case '6': borAmt = resObj.borAmt * 0.5; break; // 위약금 50#
+  }
+
+  switch (repObj.csmbCsExmptDvCd) {
+    case '1': csmbCostBorAmt2 = resObj.csmbCostBorAmt; break;
+    case '4': csmbCostBorAmt2 = targetObj.csmbCostBorAmt; break;
+    case '6': csmbCostBorAmt2 = resObj.csmbCostBorAmt * 0.5; break;
+  }
+
+  switch (repObj.reqdCsExmptDvCd) {
+    case '1': reqdCsBorAmt2 = resObj.reqdCsBorAmt; break;
+    case '4': reqdCsBorAmt2 = targetObj.reqdCsBorAmt; break;
+    case '6': reqdCsBorAmt2 = resObj.reqdCsBorAmt * 0.5; break;
+  }
+
+  totRfndAmt -= (Number(borAmt) + Number(lsRntf) + Number(csmbCostBorAmt2) + Number(reqdCsBorAmt2));
+
+  resObj.borAmt = borAmt;
+  resObj.lsRntf = lsRntf;
+  resObj.csmbCostBorAmt2 = csmbCostBorAmt2;
+  resObj.reqdCsBorAmt2 = reqdCsBorAmt2;
+  resObj.totRfndAmt = totRfndAmt;
+}
+
 // 5. 취소사항 > 취소사항 조회 클릭
 async function onSearchDetail(subParam) {
   const { bulkApplyYN } = cancelDetailList.value[idx.value];
@@ -445,9 +483,12 @@ async function onSearchDetail(subParam) {
 
       resOne[0].isSearch = 'Y';
       resOne[0].slCtrRqrId = sessionUserInfo.employeeIDNumber;
+      calTotRfndAmt(cancelDetailList.value[idx.value], one, resOne[0]); // 환불총액 재계선
+      console.log(`${resOne[0].reqdCsBorAmt2} / ${one.reqdCsBorAmt2}`);
 
       // 취소 조회 결과 셋팅
       Object.assign(one, resOne[0]);
+      console.log(one.reqdCsBorAmt2);
     });
 
     // 나머지 배열에 입력값 동일화
@@ -457,6 +498,7 @@ async function onSearchDetail(subParam) {
 
     resOne.isSearch = 'Y';
     resOne.slCtrRqrId = sessionUserInfo.employeeIDNumber;
+    calTotRfndAmt(cancelDetailList.value[idx.value], cancelDetailList.value[idx.value], resOne);
 
     Object.assign(cancelDetailList.value[idx.value], resOne);
   }
@@ -665,6 +707,10 @@ function initGrid(data, view) {
     { fieldName: 'recoverAmt', visible: false }, // [정기배송기기 원복 ]
     { fieldName: 'machineNm', visible: false }, // []
     { fieldName: 'lsnt', visible: false }, // [분실손료]
+    { fieldName: 'csmbCostBorAmt2', visible: false }, // [분실손료(입력)]
+    { fieldName: 'reqdCsBorAmt2', visible: false }, // [분실손료(입력)]
+    { fieldName: 'lsRntf', visible: false }, // [분실손료(입력)]
+
     { fieldName: 'sellAmt', visible: false },
     { fieldName: 'pkgYn', visible: false },
     { fieldName: 'cntrRcpDt', visible: false },
