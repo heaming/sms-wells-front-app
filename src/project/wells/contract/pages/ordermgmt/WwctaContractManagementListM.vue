@@ -605,7 +605,8 @@ async function fetchMstData() {
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
-  res = await dataService.get('/sms/wells/contract/contracts/managements', { params: { ...cachedParams } });
+  // res = await dataService.get('/sms/wells/contract/contracts/managements', { params: { ...cachedParams } });
+  res = await dataService.post('/sms/wells/contract/contracts/managements', { ...cachedParams });
 
   if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
     console.log(res.data.searchKssOrdrListResList);
@@ -788,7 +789,7 @@ async function onClickReset() {
 // 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload() {
   if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
-    const res = await dataService.get('/sms/wells/contract/contracts/managements/excel-download1', { params: cachedParams });
+    const res = await dataService.post('/sms/wells/contract/contracts/managements/excel-download1', searchParams.value);
     const view = grdMstList.value.getView();
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
@@ -796,7 +797,7 @@ async function onClickExcelDownload() {
       exportData: res.data,
     });
   } else if (searchParams.value.cntrDv === 'R') {
-    const res = await dataService.get('/sms/wells/contract/contracts/managements/excel-download2', { params: cachedParams });
+    const res = await dataService.post('/sms/wells/contract/contracts/managements/excel-download2', searchParams.value);
     const view = grdMstRstlList.value.getView();
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
@@ -804,7 +805,7 @@ async function onClickExcelDownload() {
       exportData: res.data,
     });
   } else if (searchParams.value.cntrDv === 'S') {
-    const res = await dataService.get('/sms/wells/contract/contracts/managements/excel-download3', { params: cachedParams });
+    const res = await dataService.post('/sms/wells/contract/contracts/managements/excel-download3', searchParams.value);
     const view = grdMstEmpPrchList.value.getView();
     await gridUtil.exportView(view, {
       fileName: currentRoute.value.meta.menuName,
