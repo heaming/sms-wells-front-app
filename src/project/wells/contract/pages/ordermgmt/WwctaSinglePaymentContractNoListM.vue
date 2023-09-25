@@ -113,7 +113,7 @@ async function fetchData() {
   // changing api & cacheparams according to search classification
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
-  res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/singlepayments/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/singlepayments/paging', { ...cachedParams, ...pageInfo.value });
 
   const { list: pages, pageInfo: pagingResult } = res.data;
   if (res.data.length === 0) {
@@ -137,7 +137,7 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdSnglPmntContractNoList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/singlepayments/excel-download', { params: cachedParams });
+  const res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/singlepayments/excel-download', searchParams.value);
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
