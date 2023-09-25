@@ -967,14 +967,16 @@ const initGridState = defineGrid((data, view) => {
       header: t('MSG_TXT_PHO'),
       width: '98',
       styleName: 'text-center',
-      displayCallback(grd, idx, val) {
-        const imgYn = val === 'Y' ? t('MSG_TXT_IMG_BRWS') : '';
-        return `${imgYn}`;
-      },
-      styleCallback(grd, dataCell) {
-        const imgYn = grd.getValue(dataCell.item.dataRow, 'imgYn');
-        return (imgYn === 'Y') ? { renderer: { type: 'button' } } : { renderer: { type: 'text' } };
-      },
+      renderer: { type: 'button', hideWhenEmpty: true },
+      displayCallback: () => t('MSG_TXT_IMG_BRWS'),
+      // displayCallback(grd, idx, val) {
+      //   const imgYn = val === 'Y' ? t('MSG_TXT_IMG_BRWS') : '';
+      //   return `${imgYn}`;
+      // },
+      // styleCallback(grd, dataCell) {
+      //   const imgYn = grd.getValue(dataCell.item.dataRow, 'imgYn');
+      //   return (imgYn === 'Y') ? { renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+      // },
     },
     { fieldName: 'rtngdProcsTp', header: t('MSG_TXT_RTNGD_PCS_INF'), width: '150' },
     { fieldName: 'fstVstFshDt', header: t('MSG_TXT_DSU_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
