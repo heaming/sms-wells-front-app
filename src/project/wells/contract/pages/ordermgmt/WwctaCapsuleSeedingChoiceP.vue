@@ -19,7 +19,7 @@
   >
     <kw-list
       v-model:selected="selected"
-      :items="packageProducts"
+      :items="pdctProducts"
       item-key="pdCd"
       checkbox
       select-align="center"
@@ -29,18 +29,18 @@
       <template #item="{ item: product }">
         <kw-item-section>
           <kw-item-label>
-            {{ product.pdNm ?? '' }}{{ product.prc ? ` (${product.prc}원)` : '' }}
+            {{ product.pdNm ?? '' }}{{ product.sellAmt ? ` (${getNumberWithComma(product.sellAmt)}원)` : '' }}
           </kw-item-label>
         </kw-item-section>
         <kw-item-section
-          v-if="baseProduct.sellTpDtlCd === PKG_TYPE_CAPSULE"
+          v-if="packageBaseProduct.sellTpDtlCd === PKG_TYPE_CAPSULE"
           side
         >
           <zwcm-counter
-            v-model="product.count"
+            v-model="product.itmQty"
             dense
             :min="0"
-            :max="baseProduct.totQty"
+            :max="packageBaseProduct.pdctConsQty"
           />
         </kw-item-section>
       </template>
@@ -48,10 +48,10 @@
     <template #action>
       <div
         class="scoped-summary"
-        :class="{'bg-red-2': selectedCount > baseProduct.totQty }"
+        :class="{'bg-red-2': selectedCount > packageBaseProduct.pdctConsQty }"
       >
         <p>합계</p>
-        <p> {{ selectedCount }} / {{ baseProduct.totQty }}</p>
+        <p> {{ selectedCount }} / {{ packageBaseProduct.pdctConsQty }}</p>
       </div>
       <kw-btn
         :label="$t('MSG_BTN_CANCEL')"
@@ -72,90 +72,117 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
-import { alert, codeUtil, useDataService, useModal } from 'kw-lib';
+import { alert, useDataService, useModal } from 'kw-lib';
+import { getNumberWithComma } from '~sms-common/contract/util';
+import { useCtCode } from '~sms-common/contract/composable';
 
 const props = defineProps({
   basePdCd: { type: String, required: true },
-  rglrSppMchnTpCd: { type: String, default: undefined },
-  rglrSppPrcDvCd: { type: String, default: undefined },
 });
 
 const dataService = useDataService();
 const { t } = useI18n();
 
-const codes = await codeUtil.getMultiCodes(
+const { getCodeName } = await useCtCode(
   'SELL_TP_DTL_CD',
 );
 const { ok, cancel } = useModal();
 
-function getCodeName(codeKey, codeId) {
-  const codeArr = codes[codeKey];
-  if (!codeArr || !codeId) { return ''; }
-  return codeArr.find((code) => code.codeId === codeId)?.codeName || '';
-}
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const baseProduct = ref({});
-// eslint-disable-next-line no-unused-vars
+const packageBaseProduct = ref({});
 const PKG_TYPE_SEEDING = '62';
 const PKG_TYPE_CAPSULE = '63';
+const isSeedingPackage = computed(() => packageBaseProduct.value.sellTpDtlCd === PKG_TYPE_SEEDING);
+const isCapsulePackage = computed(() => packageBaseProduct.value.sellTpDtlCd === PKG_TYPE_CAPSULE);
 
 const title = computed(() => {
-  if (!baseProduct.sellTpDtlCd) {
+  if (!packageBaseProduct.sellTpDtlCd) {
     return '모종선택';
   }
-  return t('MSG_TXT_ANY_SELT', [getCodeName('SELL_TP_DTL_CD', baseProduct.sellTpDtlCd)]); /* {0} 선택 */
+  return t('MSG_TXT_ANY_SELT', [getCodeName('SELL_TP_DTL_CD', packageBaseProduct.sellTpDtlCd)]); /* {0} 선택 */
 });
 
-const packageProducts = ref([]);
+const pdctProducts = ref([]);
 let dict;
 const selected = ref([]);
 const selectedProducts = computed(() => selected.value.map((pdCd) => dict[pdCd]));
-const selectedCount = computed(() => selectedProducts.value.reduce((acc, cur) => acc + cur.count, 0));
+const selectedCount = computed(() => selectedProducts.value.reduce((acc, cur) => acc
+    + (cur.itmQty * (cur.sdingQty || 1)), 0));
+
+function setupPdctProducts() {
+  dict = {};
+  pdctProducts.value.forEach((product) => {
+    const { pdCd } = product;
+    if (!pdCd) {
+      throw new Error('제품 상품 코드가 없습니다.');
+    }
+
+    dict[pdCd] = product;
+
+    if (isCapsulePackage.value) {
+      product.itmQty = 1;
+
+      product.disable = computed(() => {
+        if (selected.value.includes(pdCd)) {
+          return false;
+        }
+        return packageBaseProduct.value.pdctConsQty < selectedCount.value + product.itmQty;
+      });
+    }
+
+    if (isSeedingPackage.value) {
+      product.itmQty = 1;
+      if (!product.sdingQty) {
+        if (packageBaseProduct.value.pdChoQty > 1) {
+          product.sdingQty = packageBaseProduct.value.pdctConsQty / packageBaseProduct.value.pdChoQty;
+        } else {
+          product.sdingQty = 1;
+        }
+      }
+
+      product.disable = computed(() => {
+        if (selected.value.includes(pdCd)) {
+          return false;
+        }
+        const isOverConsQty = packageBaseProduct.value.pdctConsQty
+            < selectedCount.value + (product.sdingQty * product.itmQty);
+        const isOverChoQty = selected.value.length >= (packageBaseProduct.value.pdChoQty || 99999);
+        return isOverConsQty || isOverChoQty;
+      });
+    }
+  });
+}
 
 async function fetchPackageProductsInfo() {
-  const { basePdCd, rglrSppMchnTpCd, rglrSppPrcDvCd } = props;
+  const { basePdCd } = props;
   if (!basePdCd) { return; }
   const { data } = await dataService.get('/sms/wells/contract/seeding/package-products', {
     params: {
       basePdCd,
-      rglrSppMchnTpCd,
-      rglrSppPrcDvCd,
     },
   });
+  const { basePd, pkgPds } = data;
 
-  baseProduct.value = data.basePd;
-
-  if (data.pkgPds?.length) {
-    packageProducts.value = data.pkgPds;
-
-    dict = {};
-    packageProducts.value.forEach((product) => {
-      dict[product.pdCd] = product;
-      product.count = 1;
-      if (baseProduct.value.totKndQty) {
-        product.count = baseProduct.value.totQty / baseProduct.value.totKndQty;
-        product.disable = computed(() => {
-          if (selected.value.includes(product.pdCd)) {
-            return false;
-          }
-          return selected.value.length >= baseProduct.value.totKndQty;
-        });
-      }
-    });
+  if (!data.pkgPds?.length) {
+    await alert('패키지 가능한 대상 제품이 없습니다!');
+    cancel();
   }
+
+  packageBaseProduct.value = basePd;
+  pdctProducts.value = pkgPds;
+  setupPdctProducts();
 }
 
 async function validateSelected() {
-  const { totQty, totKndQty } = baseProduct.value;
-  if (totKndQty && selected.value.length !== totKndQty) {
-    await alert(`상품 종류를 ${totKndQty} 개 선택해주세요.`);
+  const { pdctConsQty, pdChoQty } = packageBaseProduct.value;
+  if (pdChoQty && selected.value.length !== pdChoQty) {
+    await alert(`상품 종류를 ${pdChoQty} 개 선택해주세요.`);
     return false;
   }
-  if (selectedCount.value !== totQty) {
-    await alert(`총 상품 갯수는 ${totQty} 개 여야 합니다.`);
+  if (selectedCount.value !== pdctConsQty) {
+    await alert(`총 상품 갯수는 ${pdctConsQty} 개 여야 합니다.`);
     return false;
   }
   return true;
@@ -168,8 +195,8 @@ async function onClickConfirm() {
     pdNm: product.pdNm,
     pdRelId: product.pdRelId,
     pdRelTpCd: product.pdRelTpCd,
-    prc: product.prc,
-    count: product.count,
+    sellAmt: product.sellAmt,
+    itmQty: product.itmQty,
   }));
   ok(payload);
 }
