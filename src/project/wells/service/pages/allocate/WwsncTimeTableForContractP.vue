@@ -1057,6 +1057,8 @@ async function onClickSave() {
     }
   }
 
+  console.log(searchParams.value);
+
   const base = {
     inChnlDvCd: data.value.inflwChnl,
     svBizHclsfCd: searchParams.value.svDvCd,
@@ -1075,8 +1077,9 @@ async function onClickSave() {
     cntrNo: searchParams.value.cntrNo,
     cntrSn: data.value.cntrSn,
     svBizDclsfCd: searchParams.value.svBizDclsfCd,
-    asIstOjNo: data.value.asIstOjNos,
+    asIstOjNo: data.value.asIstOjNos.length > 0 ? data.value.asIstOjNos[0] : '',
   };
+  console.log(data.value.asIstOjNos);
   const sendDatas = [];
 
   if (searchParams.value.cntrSn.includes(',') && searchParams.value.svBizDclsfCd.includes(',')
