@@ -52,6 +52,8 @@
           <kw-select
             v-model="searchParams.pdCd"
             :options="productCode"
+            option-label="cdNm"
+            option-value="cd"
             first-option="all"
           />
           <kw-field
@@ -136,10 +138,9 @@ const searchParams = ref({
   chkYn: 'N',
 });
 
-const productCode = ref();
-watch(() => [searchParams.value.year, searchParams.value.pdGrpCd], async () => {
-  const tempVal = await getPartMaster(undefined, searchParams.value.pdGrpCd);
-  productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.codeName }));
+const productCode = ref([]);
+watch(() => [searchParams.value.pdGrpCd], async () => {
+  productCode.value = await getPartMaster('4', searchParams.value.pdGrpCd, 'M');
 }, { immediate: true });
 
 async function fetchData() {
@@ -176,38 +177,6 @@ const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'ogNm' },
     { fieldName: 'cntGb' },
-    { fieldName: 'cntTotal' },
-    { fieldName: 'cnt01' },
-    { fieldName: 'cnt02' },
-    { fieldName: 'cnt03' },
-    { fieldName: 'cnt04' },
-    { fieldName: 'cnt05' },
-    { fieldName: 'cnt06' },
-    { fieldName: 'cnt07' },
-    { fieldName: 'cnt08' },
-    { fieldName: 'cnt09' },
-    { fieldName: 'cnt10' },
-    { fieldName: 'cnt11' },
-    { fieldName: 'cnt12' },
-    { fieldName: 'cnt13' },
-    { fieldName: 'cnt14' },
-    { fieldName: 'cnt15' },
-    { fieldName: 'cnt16' },
-    { fieldName: 'cnt17' },
-    { fieldName: 'cnt18' },
-    { fieldName: 'cnt19' },
-    { fieldName: 'cnt20' },
-    { fieldName: 'cnt21' },
-    { fieldName: 'cnt22' },
-    { fieldName: 'cnt23' },
-    { fieldName: 'cnt24' },
-    { fieldName: 'cnt25' },
-    { fieldName: 'cnt26' },
-    { fieldName: 'cnt27' },
-    { fieldName: 'cnt28' },
-    { fieldName: 'cnt29' },
-    { fieldName: 'cnt30' },
-    { fieldName: 'cnt31' },
     { fieldName: 'cntTotal', dataType: 'number' },
     { fieldName: 'cnt01', dataType: 'number' },
     { fieldName: 'cnt02', dataType: 'number' },
