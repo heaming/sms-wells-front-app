@@ -24,7 +24,7 @@
           v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-          @change="fetchData"
+          @change="onClickChangePage"
         />
       </template>
       <kw-btn
@@ -54,7 +54,7 @@
     <kw-grid
       ref="grdMainRef"
       name="grdMain"
-      :visible-rows="10"
+      :visible-rows="visibleRows"
       @init="initGrid"
     />
     <kw-pagination
@@ -82,6 +82,12 @@ const dataService = useDataService();
 const { getConfig, getUserInfo } = useMeta();
 const { t } = useI18n();
 const { wkOjOgTpCd } = getUserInfo();
+
+const codes = await codeUtil.getMultiCodes(
+  'EGER_WRK_STAT_CD',
+  'OG_TP_CD',
+  'COD_PAGE_SIZE_OPTIONS',
+);
 
 const props = defineProps({
   prtnrNo: {
@@ -118,14 +124,11 @@ const pageInfo = ref({
 
 });
 
+const visibleRows = ref(10);
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const codes = await codeUtil.getMultiCodes(
-  'EGER_WRK_STAT_CD',
-  'OG_TP_CD',
-  'COD_PAGE_SIZE_OPTIONS',
-);
 
 const searchParams = ref({
   prtnrNo: props.prtnrNo,
@@ -135,7 +138,6 @@ const searchParams = ref({
 
 // 조회
 async function fetchData() {
-  console.log(props.wrkDt);
   if (props.prtnrNo) {
     const res = await dataService.get(`${SMS_WELLS_URI}/partner-engineer/vacations`, { params: { ...searchParams.value, ...pageInfo.value } });
     const { list, pageInfo: pagingResult } = res.data;
@@ -175,7 +177,7 @@ async function onClickSave() {
       checkCnt += 1;
     }
   });
-  console.log(changedRows);
+
   if (checkCnt > 0) {
     alert(t('MSG_ALT_STRT_DATE_CHK'));
     return;
@@ -231,6 +233,9 @@ onMounted(async () => {
   await fetchData();
 });
 
+function onClickChangePage(val1, val2) {
+  visibleRows.value = val2;
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
