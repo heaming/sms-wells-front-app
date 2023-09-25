@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    size="4xl"
+    size="2xl"
   >
     <kw-search @search="onClickSearch">
       <kw-search-row>
@@ -26,9 +26,13 @@
                        { codeId: '2', codeName: t('MSG_TXT_TRD_SPCSH') },
                        { codeId: '3', codeName: t('MSG_TXT_CARD_SL_SLIP') },
                        { codeId: '4', codeName: t('MSG_TXT_CNTR_ARTC') }]"
+            class="w265"
             @change="onChangeDocDvCd"
           />
         </kw-search-item>
+        <kw-separator
+          spaced
+        />
         <!-- 고객번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_CST_NO')"
@@ -37,9 +41,25 @@
             v-model="searchParams.cntrDvCd"
             type="radio"
             :options="checkOption"
+            class="w300"
             @change="onChangeCntrDvCd"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item
+          :label="t('MSG_TXT_PRD')"
+        >
+          <kw-date-range-picker
+            v-model:from="searchParams.cntrCnfmStrtDt"
+            v-model:to="searchParams.cntrCnfmEndDt"
+            rules="date_range_months:12"
+            class="w265"
+          />
+        </kw-search-item>
+        <kw-separator
+          spaced
+        />
         <!-- 구분 -->
         <kw-search-item
           v-if="isSearchDivVisible"
@@ -53,18 +73,8 @@
                        { codeId: '6', codeName: '정기배송' }]"
             :model-value="searchParams.sellTpCd ? searchParams.sellTpCd : []"
             :multiple="true"
+            class="w300"
             @change="onChangeSellTpCd"
-          />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <kw-search-item
-          :label="t('MSG_TXT_PRD')"
-        >
-          <kw-date-range-picker
-            v-model:from="searchParams.cntrCnfmStrtDt"
-            v-model:to="searchParams.cntrCnfmEndDt"
-            rules="date_range_months:12"
           />
         </kw-search-item>
       </kw-search-row>

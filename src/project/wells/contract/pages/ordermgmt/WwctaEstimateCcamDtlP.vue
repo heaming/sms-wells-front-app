@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    size="3xl"
+    size="2xl"
     ignore-on-modified
     no-action
     title="위약금예상조회"
