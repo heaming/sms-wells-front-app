@@ -355,6 +355,9 @@ async function onClickSave() {
   } else {
     if (await obsMainRef.value.alertIfIsNotModified()) { return; } // 계약자 정보 체크
     if (!await obsMainRef.value.validate()) { return; }
+
+    alert('계약자 정보 변경 추후 추가 예정');
+    return;
   }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 
