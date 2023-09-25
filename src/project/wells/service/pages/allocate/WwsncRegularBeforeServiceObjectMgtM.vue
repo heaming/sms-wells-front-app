@@ -54,6 +54,7 @@
       <div class="button-set--bottom">
         <div class="button-set--bottom-right">
           <kw-btn
+            v-permission:create
             :label="$t('생성')"
             primary
             @click="onClickCreate"
