@@ -80,7 +80,7 @@
         >
           <kw-input
             v-model="frmMainData.rentalAmt"
-            class="w510"
+            class="w410"
             align="right"
             placeholder=""
             readonly
