@@ -23,7 +23,7 @@
       <kw-search-row>
         <!-- 제품코드 -->
         <kw-search-item
-          :label="$t('MSG_TXT_PROD_CD')"
+          :label="$t('MSG_TXT_PRDT_CODE')"
         >
           <kw-input
             v-model="searchParams.basePdCd"
