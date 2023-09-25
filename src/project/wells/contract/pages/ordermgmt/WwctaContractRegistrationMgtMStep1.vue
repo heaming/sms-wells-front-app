@@ -744,6 +744,8 @@ async function selectPartner() {
   step1.value.prtnr = currentPartner;
 
   if (currentPartner.pstnDvCd === '7') {
+    // 지국장 정보 설정 후, 소속 파트너 선택
+    step1.value.prtnr7 = currentPartner;
     await chooseBelongPartner();
   }
 }
