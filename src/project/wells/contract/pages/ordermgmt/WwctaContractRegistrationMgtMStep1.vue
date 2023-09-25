@@ -244,20 +244,34 @@
               </p>
             </kw-form-item>
             <kw-form-item
-              :label="$t('MSG_TXT_IDENT_VERF')"
+              label="본인인증 / 약관동의"
             >
               <p
                 v-if="step1.cntrt?.cikVal"
               >
                 {{ $t('MSG_TXT_IDENT_VERF_COMPL') }}
               </p>
+              <kw-btn
+                v-else
+                dense
+                :label="$t('MSG_TXT_SELF_AUTH_REQUIRED')"
+                @click="onClickSelfAuth"
+              />
+              <p>
+                &nbsp;/&nbsp;
+              </p>
               <p
-                v-if="!step1.cntrt?.cikVal"
+                v-if="step1.cntrt?.itgCstNo"
+              >
+                약관동의완료
+              </p>
+              <p
+                v-else
               >
                 <kw-btn
                   dense
-                  :label="$t('MSG_TXT_SELF_AUTH_REQUIRED')"
-                  @click="onClickSelfAuth"
+                  :label="$t('MSG_BTN_TERMS_AG_URL_TRS')"
+                  @click="onClickPrvAg"
                 />
               </p>
             </kw-form-item>
@@ -613,6 +627,23 @@ async function onClickSelfAuth() {
   }
 }
 
+async function onClickPrvAg() {
+  const checkCount = 1;
+  const checkAg = 'A';
+  const { cstKnm, cstNo, cralLocaraTno, mexnoEncr, cralIdvTno } = step1.value.cntrt;
+  const mpno = `${cralLocaraTno}${mexnoEncr}${cralIdvTno}`;
+  if (!cstKnm || !mpno) {
+    await alert('이름과 휴대전화번호는 필수 입니다.');
+    return;
+  }
+  const destInfo = `${cstKnm}^${mpno}`;
+  const cstNoInfo = `${cstKnm}^${mpno}^${cstNo}`;
+  await modal({
+    component: 'ZwcsaIndvCustomerUrlTransferMgtP',
+    componentProps: { checkCount, destInfo, cstNoInfo, checkAg },
+  });
+}
+
 function isValidAlncPrtnr() {
   // 조회 조건 validate 확인
   const arr = ['alncPrtnrDvCd', 'alncPrtnrNo', 'alncPrtnrNm'];
@@ -900,8 +931,12 @@ async function isValidStep() {
     return false;
   }
 
-  if (!step1.value.cntrt.cikVal && step1.value.cntrt.copnDvCd === '1') {
-    await alert('본인인증을 먼저 진행해주세요.');
+  if (!step1.value.cntrt.cikVal && step1.value.bas.copnDvCd === '1') {
+    await alert('본인인증 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
+    return false;
+  }
+  if (!step1.value.cntrt.itgCstNo && step1.value.bas.copnDvCd === '1') {
+    await alert('통합고객 약관동의 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
     return false;
   }
 
