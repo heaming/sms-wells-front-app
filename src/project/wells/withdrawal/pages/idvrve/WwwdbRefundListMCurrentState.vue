@@ -83,6 +83,7 @@
           <kw-select
             v-model="searchParams.sellTpCd"
             :options="codes.SELL_TP_CD.filter((v) => v.codeId === '2' || v.codeId === '3' || v.codeId === '6')"
+            @change="onChangeSellTpCd"
           />
         </kw-search-item>
         <!-- 판매유형상세 -->
@@ -92,7 +93,7 @@
             v-model="searchParams.sellTpDtlCd"
             first-option="all"
             first-option-value="ALL"
-            :options="codes.SELL_TP_DTL_CD.filter((v) => v.codeId === '11' || v.codeId === '22' || v.codeId ==='25')"
+            :options="optionsCodes"
           />
           <!-- :model-value="[]" -->
           <!-- :options="['일반', '금융리스', '장기할부']" -->
@@ -274,7 +275,10 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD', // 판매유형
   'RVE_DV_CD', // 입금유형
   'SELL_TP_DTL_CD', // 판매유형상세
+  'DP_TP_CD',
 );
+
+const optionsCodes = ref(codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '24', '25', '26'].includes(p1.codeId)));
 
 const customCodes = {
   BLK_CRT_DV: [{ codeId: '-', codeName: '일괄생성제외' }, { codeId: '-', codeName: '멤버쉽환불' }, { codeId: '-', codeName: '기변자동전금' }],
@@ -375,6 +379,26 @@ async function onClickExcelDownload1() {
   });
 }
 
+async function onChangeSellTpCd(param) {
+  let options;
+
+  if (param === '1') {
+    options = codes.SELL_TP_DTL_CD.filter((p1) => ['11', '12', '13'].includes(p1.codeId));
+  } else if (param === '2') {
+    options = codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '24', '25', '26'].includes(p1.codeId));
+    // options = codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '23', '24', '25', '26'].includes(p1.codeId));
+  } else if (param === '3') {
+    options = codes.SELL_TP_DTL_CD.filter((p1) => ['31', '32', '33'].includes(p1.codeId));
+    // options = codes.SELL_TP_DTL_CD.filter((p1) => ['31', '32', '33', '34'].includes(p1.codeId));
+  } else if (param === '6') {
+    // options = codes.SELL_TP_DTL_CD.filter((p1) => ['61', '62', '63'].includes(p1.codeId));
+    options = codes.SELL_TP_DTL_CD.filter((p1) => ['61'].includes(p1.codeId));
+  } else {
+    options = [];
+  }
+  optionsCodes.value = options;
+}
+
 async function onClickExcelDownload2() {
   const response = await dataService.get('/sms/wells/withdrawal/idvrve/refund-status/card/excel-download', { params: cachedParams });
   const view = grdMainRef12.value.getView();
@@ -419,7 +443,7 @@ const initGrdMain1 = defineGrid((data, view) => {
     { fieldName: 'cshRfndAcnoEncr' }, // 계좌/카드번호
     { fieldName: 'cardRfndCrcdnoEncr' }, // 카드번호
     { fieldName: 'cshRfndAcownNm' }, // 예금주, 현금 예금주
-    { fieldName: 'cardRfndCrdcdAprno' }, // 카드 결제자
+    // { fieldName: 'cardRfndCrdcdAprno' }, // 카드 결제자
     { fieldName: 'sellTpDtlCd' }, // 판매유형상세
     { fieldName: 'rveDvCd' }, // 입금유형
     { fieldName: 'cstNo' }, // 전금고객번호
@@ -480,18 +504,9 @@ const initGrdMain1 = defineGrid((data, view) => {
       fieldName: 'cshRfndAcownNm',
       header: t('MSG_TXT_ACHLDR'),
       width: '100',
-      displayCallback(grid, index) {
-        const { cshRfndAcownNm, cardRfndCrdcdAprno } = grid.getValues(index.itemIndex);
-        if (isEmpty(cshRfndAcownNm)) {
-          return `${cardRfndCrdcdAprno}`;
-        }
-        if (isEmpty(cardRfndCrdcdAprno)) {
-          return `${cshRfndAcownNm}`;
-        }
-      },
     },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'rveDvCd', header: t('MSG_TXT_DP_TP'), width: '100', options: codes.RVE_DV_CD },
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'rveDvCd', header: t('MSG_TXT_DP_TP'), width: '100', options: codes.DP_TP_CD },
     { fieldName: 'cstNo', header: t('MSG_TXT_BLTF_CST_NO'), width: '180' },
     { fieldName: 'tmp2', header: t('MSG_TXT_BLTF_CST_NM'), width: '150' },
   ];
@@ -565,7 +580,7 @@ const initGrdMain12 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'refundDivision', header: t('MSG_TXT_CLSF_REFUND'), width: '111', options: codes.SELL_TP_DTL_CD },
+    { fieldName: 'refundDivision', header: t('MSG_TXT_CLSF_REFUND'), width: '111', options: codes.SELL_TP_CD },
     { fieldName: 'rfndDsbAmt', header: t('MSG_TXT_CASH'), width: '111', styleName: 'text-right' },
     { fieldName: 'rfndDdtnAmt', header: t('MSG_TXT_CARD_DDTN'), width: '111', styleName: 'text-right' },
     { fieldName: 'bcRfndDsbAmt', header: t('MSG_TXT_BC2'), width: '111', styleName: 'text-right' },
