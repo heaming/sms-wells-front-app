@@ -144,7 +144,7 @@
           v-for="(item, index) in step2.dtls"
         >
           <kw-expansion-item
-            v-if="!['1', '2', '3'].includes(item?.sellTpCd)"
+            v-if="!['1', '2', '3', '6'].includes(item?.sellTpCd)"
             :key="`${item.pdCd} + ${index}`"
             expand-icon-class="hidden"
             default-opened
@@ -645,6 +645,16 @@
             :bas="step2.bas"
             @delete="onClickDelete(index)"
           />
+          <regular-shipping-price-select
+            v-if="item?.sellTpCd === '6'"
+            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
+            :model-value="item"
+            :bas="step2.bas"
+            @select-machine="onClickSelSdingMchn"
+            @select-seeding="onClickSelSdingCapsl"
+            @select-capsule="onClickSelSdingCapsl"
+            @delete="onClickDelete(index)"
+          />
         </template>
       </kw-list>
     </kw-scroll-area>
@@ -659,6 +669,7 @@ import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import SinglePayPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
 import RentalPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
 import MembershipPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
+import RegularShippingPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaRegularShippingFinalPriceSelect.vue';
 import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isArray, isEmpty } from 'lodash-es';
 import { warn } from 'vue';
@@ -740,19 +751,19 @@ async function getPdAmts(pd) {
   });
 }
 
-async function getPdSels(pd) {
-  const sels = await dataService.get('sms/wells/contract/contracts/product-selects', {
-    params: {
-      copnDvCd: step2.value.bas.copnDvCd,
-      sellInflwChnlDtlCd: step2.value.bas.sellInflwChnlDtlCd,
-      pdCd: pd.pdCd,
-      hgrPdCd: pd.hgrPdCd,
-      sellTpCd: pd.sellTpCd,
-      mshPdCds: pd.mshPdCds,
-    },
-  });
-  return sels.data;
-}
+// async function getPdSels(pd) {
+//   const sels = await dataService.get('sms/wells/contract/contracts/product-selects', {
+//     params: {
+//       copnDvCd: step2.value.bas.copnDvCd,
+//       sellInflwChnlDtlCd: step2.value.bas.sellInflwChnlDtlCd,
+//       pdCd: pd.pdCd,
+//       hgrPdCd: pd.hgrPdCd,
+//       sellTpCd: pd.sellTpCd,
+//       mshPdCds: pd.mshPdCds,
+//     },
+//   });
+//   return sels.data;
+// }
 
 async function resetFilter() {
   pdFilter.value = '';
@@ -765,35 +776,39 @@ function resetCntrSn() {
   });
 }
 
-async function addProduct(pd) {
-  const npd = cloneDeep(pd);
-  const sels = await getPdSels(pd);
-  ['svPdCds', 'sellDscrCds', 'sellDscDvCds', 'alncmpCntrDrmVals',
-    'frisuBfsvcPtrmNs', // 일시불
-    'stplPtrms', 'cntrPtrms', 'rgstCss', 'sellDscTpCds', // 렌탈
-    'qtyDv',
-  ].forEach((col) => {
-    npd[col] = sels[col];
-  });
-  step2.value.dtls.push(npd);
+async function addProduct(newProduct) {
+  // const sels = await getPdSels(newProduct);
+  // ['svPdCds', 'sellDscrCds', 'sellDscDvCds', 'alncmpCntrDrmVals',
+  //   'frisuBfsvcPtrmNs', // 일시불
+  //   'stplPtrms', 'cntrPtrms', 'rgstCss', 'sellDscTpCds', // 렌탈
+  //   'qtyDv',
+  // ].forEach((col) => {
+  //   newProduct[col] = sels[col];
+  // });
+  step2.value.dtls.push(newProduct);
 
-  // 웰스팜추가 가능한 모종조회, list 없으면 push 안하고 있으면 idx 0 표시 push
-  if (isItem.welsf(npd) || isItem.hcf(npd)) {
+  if (isItem.welsf(newProduct) || isItem.hcf(newProduct)) {
     // 정기배송 상품 조회 CASE1: 웰스팜/홈카페 상품을 선택하여 정기배송 패키지가 자동추가되는 경우
-    const pkgs = await dataService.get('sms/wells/contract/contracts/welsf-hcf-pkgs', { params: { pdCd: npd.pdCd } });
-    if (pkgs.data && pkgs.data.length > 0) {
-      const p = pkgs.data[0];
-      pkgs.data.forEach((pkg) => {
-        pkg.cntrRelDtlCd = '216';
-      });
-      p.pkgs = cloneDeep(pkgs.data);
-      p.pkg = p.codeId;
-      step2.value.dtls.push(p);
-    }
+    const { data } = await dataService.get('sms/wells/contract/contracts/welsf-hcf-pkgs', {
+      params: {
+        cntrNo: cntrNo.value,
+        pdCd: newProduct.pdCd,
+      },
+    });
+
+    if (!data?.length) { return; }
+
+    const p = { ...data[0] };
+    data.forEach((pkg) => {
+      pkg.cntrRelDtlCd = '216';
+      pkg.pkgs = [...data];
+    });
+    p.pkg = p.codeId;
+    step2.value.dtls.push(p);
   }
   // 단독정기배송이면서 61(홍삼 등)이 아닌 경우 계약관계상세코드 214 세팅
-  if (npd.sellTpCd === '6' && npd.sellTpDtlCd !== '61') {
-    npd.cntrRelDtlCd = '214';
+  if (newProduct.sellTpCd === '6' && newProduct.sellTpDtlCd !== '61') {
+    newProduct.cntrRelDtlCd = '214';
   }
   resetCntrSn();
   emit('contract-modified');
@@ -815,17 +830,18 @@ async function onClickProduct(pd) {
       return;
     }
     // 하위상품 조회 후 추가
-    const pds = await dataService.get('sms/wells/contract/contracts/reg-cpt-products', {
+    const { data } = await dataService.get('sms/wells/contract/contracts/reg-cpt-products', {
       params: {
         cntrNo: step2.value.bas.cntrNo,
         hgrPdCd: pd.pdCd,
       },
     });
-    pds.data.forEach(async (p) => await addProduct(p));
-  } else {
-    // 기준상품
-    await addProduct(pd);
+    const promises = data.map(addProduct);
+    await Promise.all(promises);
+    return;
   }
+
+  await addProduct(pd);
 }
 
 async function onClickDelete(index) {
@@ -929,25 +945,17 @@ function onClickDeleteRglrSppDevice(pd) {
 }
 
 async function onClickSelSdingCapsl(dtl) {
-  const res = await modal({
+  const { result, payload } = await modal({
     component: 'WwctaCapsuleSeedingChoiceP',
     componentProps: {
       basePdCd: dtl.pdCd,
-      rglrSppMchnTpCd: dtl.rglrSppMchnTpCd,
-      rglrSppPrcDvCd: dtl.rglrSppPrcDvCd,
     },
   });
-  if (res.result && res.payload) {
-    dtl.sdingCapsls = res.payload.map((p) => ({
-      partPdNm: p.pdNm,
-      partPdCd: p.pdCd,
-      pdRelId: p.pdRelId,
-      pdRelTpCd: p.pdRelTpCd,
-      itmQty: p.count,
-      amt: p.prc * p.count,
-    }));
-    dtl.fnlAmt = dtl.sdingCapsls.reduce((acc, cur) => Number(acc) + Number(cur.amt), 0);
+
+  if (!result) {
+    return;
   }
+  dtl.sdingCapsls = payload;
 }
 
 async function onChangePkgs(dtl) {

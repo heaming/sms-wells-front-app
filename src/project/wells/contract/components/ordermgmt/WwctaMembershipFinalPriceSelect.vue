@@ -101,10 +101,6 @@ const emit = defineEmits([
 
 const { getCodeName } = await useCtCode(
   'SELl_TP_CD',
-  'RENTAL_DSC_DV_CD',
-  'RENTAL_CRP_DSCR_CD',
-  'RENTAL_DSC_TP_CD',
-  'RENTAL_COMBI_DV_CD',
   'SV_TP_CD',
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
