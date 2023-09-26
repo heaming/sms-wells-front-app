@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       :modified-targets="['gridMainRef']"
       @search="onClickSearch"
     >
@@ -82,23 +83,27 @@
         </template>
 
         <kw-btn
+          v-permission:update
           secondary
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
         <kw-separator
+          v-permission:update
           spaced
           vertical
           inset
         />
         <kw-btn
           v-if="false"
+          v-permission:print
           icon="print"
           secondary
           :label="$t('인쇄')"
         />
         <kw-btn
+          v-permission:download
           icon="download_on"
           :disable="totalCount === 0"
           secondary
@@ -107,12 +112,14 @@
           @click="onClickExcelDownload"
         />
         <kw-separator
+          v-permission:download
           spaced
           vertical
           inset
         />
         <kw-select
           v-model="gridParams.wareAreaCd"
+          v-permission:update
           class="w200"
           :options="customCodes.DGR_2_LEVL_OG"
           option-value="ogId"
@@ -120,17 +127,20 @@
           :placeholder="$t('이관지역단 선택')"
         />
         <kw-separator
+          v-permission:update
           spaced
           vertical
           inset
         />
         <kw-select
           v-model="gridParams.rsonCd"
+          v-permission:update
           class="w200"
           :options="codes.TF_AK_RSON_CD"
           :placeholder="$t('이관사유 선택')"
         />
         <kw-btn
+          v-permission:update
           secondary
           :label="$t('이관지역단 일괄변경')"
           @click="onClickBatchUpdate"

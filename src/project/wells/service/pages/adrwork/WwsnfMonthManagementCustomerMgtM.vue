@@ -47,12 +47,14 @@
       <div class="button-set--bottom">
         <div class="button-set--bottom-right">
           <kw-btn
+            v-permission:delete
             :label="$t('삭제')"
             secondary
             class="mr8"
             @click="onClickDelete"
           />
           <kw-btn
+            v-permission:create
             :label="$t('생성')"
             primary
             @click="onClickCreate"

@@ -253,7 +253,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '80', styleName: 'text-center', editable: false },
-    { fieldName: 'reWkPrgsStatNm', header: t('작업상태(반품)'), width: '120', styleName: 'text-center', editable: false },
+    { fieldName: 'reWkPrgsStatNm', header: t('MSG_TXT_RE_WK_STS'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'bcNo', header: t('MSG_TXT_SE_NO'), width: '180', styleName: 'text-center', editable: false },
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center', editable: false }, // 계약상세번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center', editable: false },
@@ -316,15 +316,14 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fwSppIvcNo', // 송장번호
       header: t('MSG_TXT_IVC_NO'),
       width: '150',
-      rules: 'required',
+      rules: 'max_value:99999999999999999999',
+      editor: { inputCharacters: '0-9', maxLength: 20 },
       styleName: 'text-left',
       placeHolder: t('MSG_TXT_INP'),
       editable: true,
     },
-    // 택배사 코드
-    { fieldName: 'pscocd', header: t('MSG_TXT_PCSV_CO'), width: '100', rules: 'required', styleName: 'text-center', placeHolder: t('MSG_TXT_INP'), editable: false },
-    // 반품자 or 반품상세
-    { fieldName: 'dtmChRsonDtlCn', header: t('MSG_TXT_RTNGD_USR'), width: '150', rules: 'required', styleName: 'text-center', placeHolder: t('MSG_TXT_INP'), editable: true },
+    // 택배사/반품자
+    { fieldName: 'dtmChRsonDtlCn', header: t('MSG_TXT_PCSV_RTNGD_USR'), width: '150', rules: 'required', styleName: 'text-center', placeHolder: t('MSG_TXT_INP'), editable: true },
     // 취소일자
     { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
     // 철거요청일자
@@ -390,6 +389,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogId', visible: false },
     { fieldName: 'ogTpCd', visible: false },
     { fieldName: 'prtnrNo', visible: false },
+    { fieldName: 'pscocd', visible: false },
+    { fieldName: 'clnSppIvcNo', visible: false },
   ];
   // 상품 동적 필드
   const pdColums = [

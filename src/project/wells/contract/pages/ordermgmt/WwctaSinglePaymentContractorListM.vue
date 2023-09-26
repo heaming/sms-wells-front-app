@@ -203,7 +203,7 @@ const searchParams = ref({
 let cachedParams;
 
 async function fetchData() {
-  const res = await dataService.get('sms/wells/contract/contracts/order-detail-mngt/singlepayments/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/singlepayments/paging', { ...cachedParams, ...pageInfo.value });
   const { list: pages, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
@@ -223,7 +223,7 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdSnglPmntContractorList.value.getView();
-  const res = await dataService.get('sms/wells/contract/contracts/order-detail-mngt/singlepayments/excel-download', { params: cachedParams });
+  const res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/singlepayments/excel-download', cachedParams);
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,

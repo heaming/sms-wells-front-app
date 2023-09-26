@@ -261,6 +261,7 @@
     </kw-form>
     <template #action>
       <kw-btn
+        v-permission:create
         :label="$t('MSG_BTN_SAVE')"
         primary
         @click="onClickSave"

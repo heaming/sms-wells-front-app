@@ -482,7 +482,7 @@
           @click="onClickCalculate"
         />
         <kw-input
-          v-model="searchDetail.lsnt"
+          v-model="searchDetail.lsRntf"
           regex="num"
           maxlength="10"
           align="right"
@@ -768,7 +768,7 @@ function onClickCcamView() {
 // 분실손료 계산
 function onClickCalculate() {
   // 분실손료 : '계산'버튼을 클릭하면 입력란에 계산된 금액이 표시 됩니
-  notify('TODO : 분실손료 계산 ');
+  searchDetail.lsRntf = searchDetail.lsnt;
 }
 
 // 5. 취소사항 > 취소사항 조회 클릭
@@ -781,8 +781,6 @@ async function onClickSearchCancel() {
     cancelDt: searchDetail.rsgFshDt,
     adCtrAmt: searchDetail.adCtrAmt,
     canCtrAmt: searchDetail.canCtrAmt,
-    // lsnt: searchDetail.lsnt ?? 0,
-    // borAmt: (searchDetail.ccamExmptDvCd !== '4') ? 0 : (searchDetail.borAmt ?? 0),
   });
 }
 
@@ -791,10 +789,6 @@ function onClickSave() {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';
   }
-
-  if (searchDetail.ccamExmptDvCd !== '4') searchDetail.borAmt = 0;
-  if (searchDetail.csmbCsExmptDvCd !== '4') searchDetail.csmbCostBorAmt2 = 0;
-  if (searchDetail.reqdCsExmptDvCd !== '4') searchDetail.reqdCsBorAmt2 = 0;
 
   emits('savedetail');
 }

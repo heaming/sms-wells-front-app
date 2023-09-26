@@ -398,7 +398,7 @@ async function fetchData() {
   // 조회 전 필수체크 (페이징사이즈 변경시 필요함.)
   if (!await srchMainRef.value.validate()) { return; }
 
-  const res = await dataService.get('/sms/wells/contract/contracts/renewal-customers/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.post('/sms/wells/contract/contracts/renewal-customers/paging', { ...cachedParams, ...pageInfo.value });
   const { list, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
@@ -432,7 +432,7 @@ const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/contract/contracts/renewal-customers/excel-download', { params: cachedParams });
+  const res = await dataService.post('/sms/wells/contract/contracts/renewal-customers/excel-download', cachedParams);
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName, // 메뉴명으로 다운로드 엑셀 파일명 세팅
