@@ -175,12 +175,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty, toNumber } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const { modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
 const router = useRouter();
 
@@ -452,7 +453,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cashStlm', header: t('MSG_TXT_CASH'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(현금)
     { fieldName: 'cardStlm', header: t('MSG_TXT_CARD'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(카드)
     { fieldName: 'elcStlm', header: t('MSG_TXT_ELC_STLM'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(전자결제)
-    { fieldName: 'cstSignHsYn', header: t('MSG_BTN_CST_SIGN'), width: '145', styleName: 'text-center' }, // 고객서명
+    { fieldName: 'cstSignCn', // 고객서명
+      header: t('MSG_BTN_CST_SIGN'),
+      width: '100',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback: () => t('MSG_BTN_CST_SIGN'),
+    },
   ];
 
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
@@ -543,7 +550,7 @@ const initGrdMain = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['cashStlm', 'cardStlm', 'elcStlm'],
     },
-    'cstSignHsYn',
+    'cstSignCn',
   ]);
 
   view.setFixedOptions({ colCount: 2 });
@@ -551,10 +558,21 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const { cntrNo, cntrSn } = grid.getValues(itemIndex);
+    const { cntrNo, cntrSn, cstSignCn } = grid.getValues(itemIndex);
 
     if (column === 'cntrNoSn') {
       router.push({ path: '/service/wwsnb-individual-service-list', query: { cntrNo, cntrSn } });
+    }
+
+    if (column === 'cstSignCn') {
+      if (isEmpty(cstSignCn)) {
+        notify(t('MSG_ALT_RGST_SIGN_NTHNG'));
+      } else {
+        await modal({
+          component: 'WwsnzSignPreviewP',
+          componentProps: { sign: cstSignCn },
+        });
+      }
     }
   };
 });
