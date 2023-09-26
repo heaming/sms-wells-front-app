@@ -99,8 +99,6 @@ const { departmentId: ogId } = getters['meta/getUserInfo'];
 
 let cachedParams;
 
-// TODO: 부서코드 확정되면 부서별 조회구분 적용 필요
-
 const searchParams = ref({
   searchPeriod: now.format('YYYYMM'),
   deptCd: ogId,
@@ -121,7 +119,6 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
 
   view.getDataSource().setRows(pages);
-  view.resetCurrent();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
