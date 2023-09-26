@@ -55,7 +55,11 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             :total-count="pageInfo.totalCount"
+            @change="fetchData"
           />
         </template>
         <kw-separator
@@ -93,7 +97,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { getComponentType, defineGrid, gridUtil, useDataService } from 'kw-lib';
+import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
@@ -122,6 +126,9 @@ const pageInfo = ref({
   pageSize: 10,
 });
 
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+);
 let cachedParams;
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
@@ -179,7 +186,16 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '170', styleName: 'text-center' },
     { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '140', styleName: 'text-left' },
-    { fieldName: 'npPtrm', header: t('MSG_TXT_NO_PROC_PRD'), width: '120', styleName: 'text-center', datetimeFormat: 'datetime' }, // 미처리기간
+    { fieldName: 'npPtrm',
+      header: t('MSG_TXT_NO_PROC_PRD'),
+      width: '120',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { npPtrm } = grid.getValues(index.itemIndex);
+        if (isEmpty(npPtrm)) return '';
+        return `${npPtrm} ${t('MSG_TXT_MCNT')}`;
+      },
+    },
     { fieldName: 'cntcDt', header: t('MSG_TXT_CTT_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'datetime' }, // 컨택일자
     { fieldName: 'absncRsonNm', header: t('MSG_TXT_CTT_RS'), width: '120', styleName: 'text-center' }, // 컨택결과
     { fieldName: 'vstDueDt', header: t('MSG_TXT_VST_EXP_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'datetime' }, // 방문예정일
