@@ -433,6 +433,7 @@ async function fetchData() {
   } else {
     saveParams.value.flag = '0';
     saveParams.value.aplcnsNm = userInfo.userName;
+    saveParams.value.prtnrNo = userInfo.employeeIDNumber;
     chReg.value = true;
   }
 }
@@ -483,8 +484,8 @@ async function onChangeFlag() {
 }
 
 onMounted(async () => {
-  await buildingCode();
   await fetchData();
+  await buildingCode();
 });
 
 </script>
