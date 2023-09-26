@@ -301,13 +301,21 @@ function setBulkParam(firstOne) {
     element.csmbCsExmptDvCd = firstOne.csmbCsExmptDvCd; // [소모]
     element.reqdCsExmptDvCd = firstOne.reqdCsExmptDvCd; // [철거]
     element.reqdAkRcvryDvCd = firstOne.reqdAkRcvryDvCd; // [복구]
-    // element.borAmt = firstOne.borAmt; // [위약금액] //입력되는 값이지만 조회해오는 값이기도 함
     // element.lsnt = firstOne.lsnt; // [분실손료] //입력되는 값이지만 조회해오는 값이기도 함
-    // element.csmbCostBorAmt2 = firstOne.csmbCostBorAmt2; // [소모품비]
-    // element.reqdCsBorAmt2 = firstOne.reqdCsBorAmt2; // [철거비]
     element.dscDdctam = firstOne.dscDdctam; // [할인공제금액]
     element.filtDdctam = firstOne.filtDdctam; // [필터공제(위약금)]
     element.rtngdQty = firstOne.rtngdQty; // [반품수량]
+
+    // 코드값에 따라서 입력 활성화 되는 항목 설정
+    if (element.ccamExmptDvCd === '4') {
+      element.borAmt = firstOne.borAmt; // [위약금액]
+    }
+    if (element.csmbCsExmptDvCd === '4') {
+      element.csmbCostBorAmt2 = firstOne.csmbCostBorAmt2; // [위약금액]
+    }
+    if (element.reqdCsExmptDvCd === '4') {
+      element.reqdCsBorAmt2 = firstOne.reqdCsBorAmt2; // [위약금액]
+    }
 
     if (firstOne.sellTpCd === '3') {
       element.slCtrAmt = firstOne.slCtrAmt; // [매출조정]
