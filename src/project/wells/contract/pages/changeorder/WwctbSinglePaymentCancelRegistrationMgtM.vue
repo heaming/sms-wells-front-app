@@ -359,7 +359,6 @@ async function onClickTodo(param) {
 }
 
 watch(searchDetail, (val) => {
-  console.log(val);
   emits('update:modelValue', val);
 });
 

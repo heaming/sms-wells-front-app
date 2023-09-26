@@ -270,7 +270,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(mainList);
   if (searchParams.value.inqrDv === '1') {
-    view.groupBy(['dgr1LevlOgNm']);
+    view.groupBy(['ogNm']);
     view.setFooters({ visible: true, items: [{ height: 42 }] });
     view.layoutByColumn('ogCd').groupFooterUserSpans = [{ colspan: 6 }];
     view.layoutByColumn('ogCd').footerUserSpans = [{ colspan: 6 }];

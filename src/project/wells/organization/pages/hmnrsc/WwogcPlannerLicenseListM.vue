@@ -374,10 +374,8 @@ function getTargetQualification(item, details, type) {
   switch (type) {
     case 'DAY_OPENING':
       // 당일개시
-      if (details[0].qlfDvCd === '2') {
-        result.targetQlfDvCd = '6'; // BS프리매니저
-      } else if (details[0].qlfDvCd === '6') {
-        result.targetQlfDvCd = '3'; // 웰스매니
+      result.targetQlfDvCd = '3'; // 웰스매니저
+      if (details[0].qlfDvCd === '6') {
         result.cvdt = dayjs().format('YYYYMMDD'); // 전환일자
       }
       result.strtdt = dayjs().format('YYYYMMDD');

@@ -797,6 +797,7 @@ const wpAndDstrcColumnLayout = [
     direction: 'horizontal',
     items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'wpPrSellEncrgRedf', 'wpMetgRedf', 'wpSettleRedfDstrc', 'wpFxamRedfDstrc', 'sumWpRedfDstrc'],
   },
+  'wpLifRedfAmt',
   'dlqRedfAmt',
 ];
 
@@ -831,8 +832,9 @@ const wpAndBrchColumnLayout = [
   {
     header: t('MSG_TXT_REDF_FEE'),
     direction: 'horizontal',
-    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'sellEncrgRedf', 'wpEnvrOgRedf', 'wpOgSellEncrgRedf', 'wpSettleRedfBrch', 'wpFxamRedfBrch', 'sumWpRedfBrch'],
+    items: ['wpEnvrPrRedf', 'wpEnvrExcpPrRedf', 'sellEncrgRedf', 'wpEnvrOgRedf', 'wpEnvrExcpOgRedf', 'wpOgSellEncrgRedf', 'wpSettleRedfBrch', 'wpFxamRedfBrch', 'sumWpRedfBrch'],
   },
+  'wpLifRedfAmt',
   'dlqRedfAmt',
 ];
 
@@ -1109,6 +1111,7 @@ function initGrid(data, view) {
     { fieldName: 'wpEnvrOgRedf', dataType: 'number' },
     { fieldName: 'wpEnvrExcpOgRedf', dataType: 'number' },
     { fieldName: 'wpFxamRedfDstrc', dataType: 'number' },
+    { fieldName: 'wpLifRedfAmt', dataType: 'number' },
     { fieldName: 'dlqRedfAmt', dataType: 'number' },
     // { fieldName: 'wpEnvrPrRedf' },
     // { fieldName: 'wpEnvrExcpPrRedf' },
@@ -1333,6 +1336,7 @@ function initGrid(data, view) {
     { fieldName: 'wpEnvrOgRedf', header: t('MSG_TXT_ELHM_OG_PRPN'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'wpEnvrExcpOgRedf', header: t('MSG_TXT_ELHM_EXCP_OG_PRPN'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'wpFxamRedfDstrc', header: t('MSG_TXT_FXAM'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하
+    { fieldName: 'wpLifRedfAmt', header: t('MSG_TXT_COEXT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하
     { fieldName: 'dlqRedfAmt', header: t('MSG_TXT_DLQ_REDF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'wpEnvrPrRedf', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하 (가전 개인비례)
     { fieldName: 'wpEnvrExcpPrRedf', header: t('MSG_TXT_ELHM_EXCP_PRPN'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하 (가전 외 개인비례)

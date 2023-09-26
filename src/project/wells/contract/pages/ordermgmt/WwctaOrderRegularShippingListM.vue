@@ -270,7 +270,7 @@ async function fetchData() {
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
   console.log(cachedParams);
-  res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/paging', { ...cachedParams, ...pageInfo.value });
 
   const { list: pages, pageInfo: pagingResult } = res.data;
   if (res.data.length === 0) {
@@ -382,7 +382,7 @@ async function onClickSearch() {
 // CSV다운로드버튼 클릭 이벤트
 async function onClickCsvDownload() {
   const view = grdRglrDlvrContractList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/excel-download', { params: cachedParams });
+  const res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/excel-download', cachedParams);
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -394,7 +394,7 @@ async function onClickCsvDownload() {
 // 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload() {
   const view = grdRglrDlvrContractList.value.getView();
-  const res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/excel-download', { params: cachedParams });
+  const res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/excel-download', cachedParams);
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,

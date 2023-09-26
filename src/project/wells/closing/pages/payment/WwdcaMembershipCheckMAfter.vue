@@ -25,7 +25,6 @@
         <kw-option-group
           v-model="searchParams.deptGubun"
           :options="deptGubunCode"
-          :disable="true"
         />
       </kw-search-item>
     </kw-search-row>
@@ -74,8 +73,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, codeUtil, useDataService, /* useGlobal, */ useMeta, gridUtil, getComponentType } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { defineGrid, codeUtil, useDataService, useMeta, gridUtil, getComponentType } from 'kw-lib';
 import { getDeptGubunCodes } from '~/modules/sms-common/closing/utils/clUtil';
 
 const { t } = useI18n();
@@ -97,8 +95,6 @@ const codes = await codeUtil.getMultiCodes(
 const deptGubunCode = await getDeptGubunCodes();
 const { departmentId: ogId } = getters['meta/getUserInfo'];
 
-let cachedParams;
-
 const searchParams = ref({
   deptGubun: deptGubunCode[0].codeId,
   deptCd: ogId,
@@ -111,7 +107,8 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/membership-check-after/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const { deptGubun } = searchParams.value;
+  const res = await dataService.get('/sms/wells/closing/membership-check-after/paging', { params: { deptGubun, ...pageInfo.value } });
   const { list: pages, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -119,20 +116,18 @@ async function fetchData() {
   const view = grdAfterRef.value.getView();
 
   view.getDataSource().setRows(pages);
-  view.resetCurrent();
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
-  cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
 async function onClickExcelDownload() {
   const view = grdAfterRef.value.getView();
-
-  const res = await dataService.get('/sms/wells/closing/membership-check-after/excel-download', { params: cachedParams });
+  const deptGubun = searchParams.value;
+  const res = await dataService.get('/sms/wells/closing/membership-check-after/excel-download', { params: { deptGubun } });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,

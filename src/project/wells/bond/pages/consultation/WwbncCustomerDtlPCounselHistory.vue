@@ -74,6 +74,10 @@ async function fetchCounselHistory() {
   gridView.getDataSource().setRows(historys);
 }
 
+defineExpose({
+  fetchCounselHistory,
+});
+
 watch(() => props.cstNo, async (newVal) => {
   if (newVal) {
     fetchCounselHistory();

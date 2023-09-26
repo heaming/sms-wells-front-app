@@ -34,8 +34,10 @@
               :label="$t('MSG_TXT_CNTRT')"
             >
               <p>
-                {{ `${step4.cntrt.cstKnm || ''} / ${stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} /
-${step4.cntrt.sexDvNm || ''}` }}
+                {{
+                  `${step4.cntrt.cstKnm || ''} / ${stringUtil.getDateFormat(step4.cntrt.bryyMmdd)} /
+${step4.cntrt.sexDvNm || ''}`
+                }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -492,7 +494,7 @@ ${step4.cntrt.sexDvNm || ''}` }}
                   :colspan="2"
                 >
                   <p>
-                    {{ "" }}
+                    {{ '' }}
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -557,16 +559,20 @@ ${step4.cntrt.sexDvNm || ''}` }}
               label="약정요금"
             >
               <p>
-                {{ restipulationBasInfo.newFnlValue?
-                  stringUtil.getNumberWithComma(restipulationBasInfo.newFnlValue):'' }} 원
+                {{
+                  restipulationBasInfo.newFnlValue ?
+                    stringUtil.getNumberWithComma(restipulationBasInfo.newFnlValue) : ''
+                }} 원
               </p>
             </kw-form-item>
             <kw-form-item
               label="재약정할인"
             >
               <p>
-                {{ restipulationBasInfo.stplDscAmt?
-                  stringUtil.getNumberWithComma(restipulationBasInfo.stplDscAmt):'' }} 원
+                {{
+                  restipulationBasInfo.stplDscAmt ?
+                    stringUtil.getNumberWithComma(restipulationBasInfo.stplDscAmt) : ''
+                }} 원
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -590,6 +596,7 @@ import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 import { codeUtil, defineGrid, getComponentType, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import { warn } from 'vue';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -678,45 +685,57 @@ function setGrid() {
 }
 
 async function calcRestipulation() {
-  stplTpCdOptions.value.forEach((element) => {
-    if (restipulationBasInfo.value.stplTpCd === element.rstlBaseTpCd) {
-      restipulationBasInfo.value.stplDscAmt = element.stplDscAmt;
-      restipulationBasInfo.value.stplPtrm = element.rstlMcn;
-      restipulationBasInfo.value.minRentalAmt = element.minRentalAmt;
-      // 약정요금 재계산
-      // 기존요금
-      step4.value.dtls.forEach((v) => {
-        if (Number(v.cntrSn) === Number(restipulationBasInfo.value.cntrSn)) {
-          const prevRentalAmt = v.fnlAmt;
-          restipulationBasInfo.value.newFnlValue = Number(prevRentalAmt)
-            - Number(restipulationBasInfo.value.stplDscAmt);
-          // 최소금액 이하로 떨어지는 경우 로직 보완
-          if (Number(restipulationBasInfo.value.newFnlValue) < Number(restipulationBasInfo.value.minRentalAmt)) {
-            restipulationBasInfo.value.newFnlValue = restipulationBasInfo.value.minRentalAmt;
-            restipulationBasInfo.value.stplDscAmt = Number(restipulationBasInfo.value.stplDscAmt)
-            - (Number(restipulationBasInfo.value.minRentalAmt) - Number(restipulationBasInfo.value.newFnlValue));
-          }
-        }
-      });
-    }
-  });
-  if (restipulationBasInfo.value.newFnlValue) {
-    const { data } = await dataService.get(
-      'sms/wells/contract/re-stipulation/contract-info',
-      { params: restipulationBasInfo.value },
-    );
-    const stplStrtdt = data.rentalTn >= data.stplPtrm ? now.add(1, 'month').startOf('M').format('YYYYMMDD')
-      : dayjs(data.istDt, 'YYYYMMDD').add(Number(data.stplPtrm), 'month').startOf('M').format('YYYYMMDD');
-    const stplEnddt = dayjs(stplStrtdt, 'YYYYMMDD').add(Number(restipulationBasInfo.value.stplPtrm), 'month').endOf('M').format('YYYYMMDD');
-    restipulationBasInfo.value.cntrNo = data.cntrNo;
-    restipulationBasInfo.value.stplStrtdt = stplStrtdt;
-    restipulationBasInfo.value.stplEnddt = stplEnddt;
-    restipulationBasInfo.value.rstlStatCd = '010'; // 접수
-    restipulationBasInfo.value.stplRcpDtm = now.format('YYYYMMDDHHmmss');
-    restipulationBasInfo.value.rcpOgTpCd = sessionUserId.ogTpCd;
-    restipulationBasInfo.value.rcpPrtnrNo = sessionUserId.employeeIDNumber;
-    restipulationBasInfo.value.stplTn = Number(data.stplTn) + 1;
+  const stplTpCdOption = stplTpCdOptions.value
+    .find((option) => option.rstlBaseTpCd === restipulationBasInfo.value.stplTpCd);
+  const ojCntrDtl = step4.value.dtls.find((dtl) => dtl.cntrSn === restipulationBasInfo.value.cntrSn);
+
+  restipulationBasInfo.value.stplDscAmt = stplTpCdOption.stplDscAmt;
+  restipulationBasInfo.value.stplPtrm = stplTpCdOption.rstlMcn;
+  restipulationBasInfo.value.minRentalAmt = stplTpCdOption.minRentalAmt;
+
+  if (!ojCntrDtl) {
+    warn('재약정 대상 계약 상세가 없습니다.');
+    return;
   }
+  restipulationBasInfo.value.newFnlValue = Number(ojCntrDtl.fnlAmt) - Number(restipulationBasInfo.value.stplDscAmt);
+  // 최소금액 이하로 떨어지는 경우 로직 보완
+  if (Number(restipulationBasInfo.value.newFnlValue) < Number(restipulationBasInfo.value.minRentalAmt)) {
+    restipulationBasInfo.value.newFnlValue = restipulationBasInfo.value.minRentalAmt;
+    restipulationBasInfo.value.stplDscAmt = Number(restipulationBasInfo.value.newFnlValue)
+        - Number(restipulationBasInfo.value.minRentalAmt);
+  }
+
+  if (!restipulationBasInfo.value.newFnlValue) {
+    return;
+  }
+  const { data } = await dataService.get(
+    'sms/wells/contract/re-stipulation/contract-info',
+    { params: restipulationBasInfo.value },
+  );
+
+  const stplExpired = data.rentalTn >= data.stplPtrm;
+  const startDayOfNextMonth = now
+    .add(1, 'month')
+    .startOf('M');
+  const startDayOfStplEndMonth = dayjs(data.istDt, 'YYYYMMDD')
+    .add(Number(data.stplPtrm), 'month')
+    .startOf('M');
+
+  const stplStrtDay = stplExpired ? startDayOfNextMonth : startDayOfStplEndMonth;
+  const stplEndDay = stplStrtDay
+    .add(Number(restipulationBasInfo.value.stplPtrm), 'month')
+    .endOf('M')
+    .format('YYYYMMDD');
+  const stplStrtdt = stplStrtDay.format('YYYYMMDD');
+  const stplEnddt = stplEndDay.format('YYYYMMDD');
+  restipulationBasInfo.value.cntrNo = data.cntrNo;
+  restipulationBasInfo.value.stplStrtdt = stplStrtdt;
+  restipulationBasInfo.value.stplEnddt = stplEnddt;
+  restipulationBasInfo.value.rstlStatCd = '010'; // 접수
+  restipulationBasInfo.value.stplRcpDtm = now.format('YYYYMMDDHHmmss');
+  restipulationBasInfo.value.rcpOgTpCd = sessionUserId.ogTpCd;
+  restipulationBasInfo.value.rcpPrtnrNo = sessionUserId.employeeIDNumber;
+  restipulationBasInfo.value.stplTn = Number(data.stplTn) + 1;
 }
 
 async function getCntrInfo() {
@@ -725,10 +744,12 @@ async function getCntrInfo() {
     router.go(-1);
     return;
   }
-  const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
-    cntrNo: cntrNo.value,
-    step: 4,
-  } });
+  const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', {
+    params: {
+      cntrNo: cntrNo.value,
+      step: 4,
+    },
+  });
 
   step4.value = data.step4;
   ogStep4.value = cloneDeep(step4.value);
@@ -848,7 +869,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dscAmt', dataType: 'number' },
   ];
   const columns = [
-    { fieldName: 'cntrNo',
+    {
+      fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '140',
       styleName: 'text-center',

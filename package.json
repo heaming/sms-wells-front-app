@@ -7,6 +7,7 @@
     "build-dev": "vite build --mode=dev --logLevel=error",
     "build-prd": "vite build --mode=prd --logLevel=error",
     "build-qa": "vite build --mode=qa --logLevel=error",
+    "build-temp": "vite build --mode=temp --logLevel=error",
     "lint": "eslint --ext .js,.jsx,.vue . --fix && stylelint **/*.{css,scss,vue} --fix",
     "lint-staged": "lint-staged",
     "prepare": "husky install",

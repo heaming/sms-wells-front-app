@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : CTB
 2. 프로그램 ID : WwctbCustomerModP - 고객정보 변경(W-SS-U-0101P01)
-3. 작성자 : gs.piit165
+3. 작성자 : Myoungbin Joo
 4. 작성일 : 2023.07.06
 ****************************************************************************************************
 * 프로그램 설명
@@ -355,6 +355,9 @@ async function onClickSave() {
   } else {
     if (await obsMainRef.value.alertIfIsNotModified()) { return; } // 계약자 정보 체크
     if (!await obsMainRef.value.validate()) { return; }
+
+    alert('계약자 정보 변경 추후 추가 예정');
+    return;
   }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
 

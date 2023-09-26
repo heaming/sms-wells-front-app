@@ -39,7 +39,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_CNTR_DTL_NO')"
                 >
-                  <p>{{ customer.cntrNo }}{{ customer.cntrSn }}</p>
+                  <p>{{ customer.cntrNo }}-{{ customer.cntrSn }}</p>
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_CST_NM')"
@@ -741,6 +741,7 @@
               <kw-tab-panels v-model="selectedTab">
                 <kw-tab-panel name="tab1">
                   <Wwbnc-customer-dtl-p-counsel-history
+                    ref="historyRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -748,6 +749,7 @@
                 </kw-tab-panel>
                 <kw-tab-panel name="tab2">
                   <zwbnc-customer-dtl-p-sms
+                    ref="smsRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -755,6 +757,7 @@
                 </kw-tab-panel>
                 <kw-tab-panel name="tab3">
                   <zwbnc-customer-dtl-p-promise
+                    ref="promiseRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -778,6 +781,7 @@
                 </kw-tab-panel>
                 <kw-tab-panel name="tab6">
                   <zwbnc-customer-dtl-p-foster-counsel
+                    ref="counselRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -785,6 +789,7 @@
                 </kw-tab-panel>
                 <kw-tab-panel name="tab7">
                   <zwbnc-customer-dtl-p-customer-center
+                    ref="centerRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -1076,7 +1081,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, codeUtil, getComponentType, useDataService, useMeta, gridUtil, useGlobal, confirm, popupUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import { getCnslTp } from '~sms-common/bond/utils/bnUtil';
 
 import ZwbncCustomerDtlPSms from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPSms.vue';
@@ -1131,8 +1136,13 @@ const props = defineProps({
 const grdMainRef = ref(getComponentType('KwGrid'));
 const selectedTab = ref('tab1');
 const selectedGridRow = ref(null);
-const visitRef = ref();
+const historyRef = ref();
+const smsRef = ref();
+const promiseRef = ref();
 const lawMeasureRef = ref();
+const visitRef = ref();
+const counselRef = ref();
+const centerRef = ref();
 const isFlag = ref();
 const isFlag2 = ref('N');
 
@@ -1146,7 +1156,32 @@ watch(selectedGridRow, (newValue) => {
   }
 });
 
+watch(selectedTab, (newTab) => {
+  if (newTab === 'tab1') {
+    historyRef.value.fetchCounselHistory();
+  }
+  if (newTab === 'tab2') {
+    smsRef.value.fetchData();
+  }
+  if (newTab === 'tab3') {
+    promiseRef.value.fetchData();
+  }
+  if (newTab === 'tab4') {
+    lawMeasureRef.value.fetchData();
+  }
+  if (newTab === 'tab5') {
+    visitRef.value.fetchData();
+  }
+  if (newTab === 'tab6') {
+    counselRef.value.fetchData();
+  }
+  if (newTab === 'tab7') {
+    centerRef.value.fetchData();
+  }
+});
+
 const customer = ref({});
+
 const frmMainRef = ref(getComponentType('KwForm'));
 const frmSubRef = ref(getComponentType('KwForm'));
 
@@ -1205,10 +1240,37 @@ const saveCounselParams = ref({
 async function fetchCustomerDetail() {
   const response = await dataService.get('/sms/wells/bond/bond-counsel/customer-details', { params: cachedParams });
   const details = response.data;
+
   const gridView = grdMainRef.value.getView();
   gridView.getDataSource().setRows(details);
 
   selectedGridRow.value = null;
+
+  const res = await dataService.get('/sms/wells/bond/bond-counsel/counsel_registration', { params: cachedParams });
+  if (!isEmpty(res.data.cnslPh)) {
+    customer.value.cnslPh = res.data.cnslPh;
+  }
+  if (!isEmpty(res.data.crncyRs)) {
+    customer.value.crncyRs = res.data.crncyRs;
+  }
+  if (!isEmpty(res.data.cstPrp)) {
+    customer.value.cstPrp = res.data.cstPrp;
+  }
+  if (!isEmpty(res.data.dprNm)) {
+    customer.value.dprNm = res.data.dprNm;
+  }
+  if (!isEmpty(res.data.cnslTp)) {
+    customer.value.cnslTp = res.data.cnslTp;
+  }
+  if (!isEmpty(res.data.cstStat)) {
+    customer.value.cstStat = res.data.cstStat;
+  }
+  if (!isEmpty(res.data.clnPsbl)) {
+    customer.value.clnPsbl = res.data.clnPsbl;
+  }
+  if (!isEmpty(res.data.clnPrcs)) {
+    customer.value.clnPrcs = res.data.clnPrcs;
+  }
 }
 
 async function fetchData() {
@@ -1219,9 +1281,7 @@ async function fetchData() {
   customer.value = response.data;
 
   const res = await dataService.get('/sms/wells/bond/bond-counsel/unusual-articles', { params: cachedParams });
-  if (res.data.length > 0) {
-    customer.value.cnslUnuitmCn = res.data.cnslUnuitmCn;
-  }
+  customer.value.cnslUnuitmCn = res.data.cnslUnuitmCn;
 
   await fetchCustomerDetail();
 }

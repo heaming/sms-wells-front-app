@@ -104,7 +104,8 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="15"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
       <kw-pagination
@@ -137,7 +138,7 @@ const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const { t } = useI18n();
-const codes = await codeUtil.getMultiCodes('EGER_WRK_STAT_CD', 'OG_TP_CD');
+const codes = await codeUtil.getMultiCodes('EGER_WRK_STAT_CD', 'OG_TP_CD', 'COD_PAGE_SIZE_OPTIONS');
 const grdMainRef = ref(getComponentType('KwGrid'));
 const thisYear = dayjs().format('YYYY');
 const thisMonth = dayjs().format('MM');

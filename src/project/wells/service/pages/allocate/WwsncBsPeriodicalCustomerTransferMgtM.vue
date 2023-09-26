@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       :cols="4"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
@@ -114,12 +115,14 @@
         </template>
         <kw-btn
           v-if="false"
+          v-permission:print
           icon="print"
           dense
           secondary
           :label="$t('MSG_BTN_PRTG')"
         /><!--인쇄-->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -128,23 +131,27 @@
           @click="onClickExcelDownload"
         />
         <kw-separator
+          v-permission:download
           spaced
           vertical
           inset
         />
         <kw-btn
+          v-permission:read
           dense
           secondary
           :label="$t('MSG_BTN_TF_HIST_INQR')"
           @click="onClickTfHistory"
         /><!--이관이력 조회-->
         <kw-btn
+          v-permission:read
           dense
           secondary
           :label="$t('MSG_TXT_CST_CTT_HIS')"
           @click="onClickClientContactHistory"
         /><!--고객 컨택이력-->
         <kw-separator
+          v-permission:read
           spaced
           vertical
           inset
@@ -231,6 +238,7 @@
         />
 
         <kw-btn
+          v-permission:create
           dense
           primary
           :label="$t('MSG_BTN_PSIC_TF')"

@@ -393,7 +393,7 @@
       <!-- row4 분실손료 -->
       <kw-form-item :label="$t('MSG_TXT_PD_LENT_LOST_LOG')">
         <kw-input
-          v-model="searchDetail.lsnt"
+          v-model="searchDetail.lsRntf"
           regex="num"
           maxlength="10"
           align="right"
@@ -594,7 +594,6 @@ function onClickSave() {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';
   }
-  if (searchDetail.ccamExmptDvCd !== '4') searchDetail.borAmt = 0;
 
   emits('savedetail');
 }

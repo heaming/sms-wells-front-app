@@ -15,7 +15,7 @@
 <template>
   <kw-search
     :cols="4"
-    :modified-targets="['grdExpected']"
+    :modified-targets="['grdExpected01','grdExpected02','grdExpected03']"
     @search="onClickSearch"
     @reset="onClickReset"
   >
@@ -98,7 +98,16 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          :total-count="totalCount"
+          v-show="searchParams.authRsgCd=='01'"
+          :total-count="totalCount01"
+        />
+        <kw-paging-info
+          v-show="searchParams.authRsgCd=='02'"
+          :total-count="totalCount02"
+        />
+        <kw-paging-info
+          v-show="searchParams.authRsgCd=='03'"
+          :total-count="totalCount03"
         />
       </template>
       <kw-btn
@@ -106,7 +115,7 @@
         dense
         grid-action
         :label="t('MSG_BTN_SAVE')"
-        :disable="!isSearchMonth || isExpectedConfirm"
+        :disable="!isSearchMonth || isExpectedConfirm || isfinalConfirm"
         @click="onClickSave"
       />
       <kw-separator
@@ -120,16 +129,37 @@
         dense
         secondary
         :label="t('MSG_TXT_EXCEL_UPLOAD')"
-        :disable="!isSearchMonth || isExpectedConfirm"
+        :disable="!isSearchMonth || isExpectedConfirm || isfinalConfirm"
         @click="onClickExcelUpload"
       />
       <kw-btn
+        v-show="searchParams.authRsgCd=='01'"
         v-permission:download
         icon="download_on"
         dense
         secondary
         :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-        :disable="totalCount === 0"
+        :disable="totalCount01 === 0"
+        @click="onClickExcelDownload"
+      />
+      <kw-btn
+        v-show="searchParams.authRsgCd=='02'"
+        v-permission:download
+        icon="download_on"
+        dense
+        secondary
+        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :disable="totalCount02 === 0"
+        @click="onClickExcelDownload"
+      />
+      <kw-btn
+        v-show="searchParams.authRsgCd=='03'"
+        v-permission:download
+        icon="download_on"
+        dense
+        secondary
+        :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+        :disable="totalCount03 === 0"
         @click="onClickExcelDownload"
       />
 
@@ -144,7 +174,7 @@
         dense
         secondary
         :label="t('MSG_BTN_EXP_CRT')"
-        :disable="!isSearchMonth || isExpectedConfirm"
+        :disable="!isSearchMonth || isExpectedConfirm || isfinalConfirm"
         @click="onClickExpectedCreate"
       />
       <kw-btn
@@ -152,7 +182,7 @@
         dense
         secondary
         :label="t('MSG_BTN_EXP_CNFM')"
-        :disable="!isSearchMonth || isExpectedConfirm || !isPsic"
+        :disable="!isSearchMonth || isExpectedConfirm || !isPsic || isfinalConfirm"
         @click="onClickExpectedConfirm"
       />
       <kw-btn
@@ -160,7 +190,7 @@
         dense
         secondary
         :label="t('MSG_BTN_CAN_MTR_RGST')"
-        :disable="!isSearchMonth || isExpectedConfirm || !isPsic"
+        :disable="!isSearchMonth || isExpectedConfirm || !isPsic || isfinalConfirm"
         @click="onClickCancelRgst"
       />
       <kw-separator
@@ -177,10 +207,25 @@
       />
     </kw-action-top>
     <kw-grid
-      ref="grdExpectedRef"
+      v-show="searchParams.authRsgCd=='01'"
+      ref="grdExpected01Ref"
       :visible-rows="10"
-      name="grdExpected"
-      @init="initExpectedGrid"
+      name="grdExpected01"
+      @init="initExpected01Grid"
+    />
+    <kw-grid
+      v-show="searchParams.authRsgCd=='02'"
+      ref="grdExpected02Ref"
+      :visible-rows="10"
+      name="grdExpected02"
+      @init="initExpected02Grid"
+    />
+    <kw-grid
+      v-show="searchParams.authRsgCd=='03'"
+      ref="grdExpected03Ref"
+      :visible-rows="10"
+      name="grdExpected03"
+      @init="initExpected03Grid"
     />
   </div>
 </template>
@@ -215,11 +260,15 @@ const { t } = useI18n();
 const { currentRoute } = useRouter();
 // const { getConfig } = useMeta();
 const dataService = useDataService();
-const grdExpectedRef = ref(getComponentType('KwGrid'));
-const totalCount = ref(0);
+const grdExpected01Ref = ref(getComponentType('KwGrid'));
+const grdExpected02Ref = ref(getComponentType('KwGrid'));
+const grdExpected03Ref = ref(getComponentType('KwGrid'));
+const totalCount01 = ref(0);
+const totalCount02 = ref(0);
+const totalCount03 = ref(0);
 const isSearchMonth = ref(false);
 const { getters } = useStore();
-const { roles } = getters['meta/getUserInfo'];
+const { roles, departmentId } = getters['meta/getUserInfo'];
 console.log(JSON.stringify(roles));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -259,44 +308,33 @@ const searchParams = ref({
   authRsgCd: '01',
 });
 
-// const isNotExpected = computed(() => searchParams.value.authRsgCd === '01');
-// const isExpectedConfirm = computed(() => searchParams.value.authRsgCd === '02');
-// const isfinalConfirm = computed(() => searchParams.value.authRsgCd === '03');
-const isNotExpected = ref(true);
-const isExpectedConfirm = ref(false);
-const isfinalConfirm = ref(false);
+const isbndStrt = computed(() => departmentId === '70202'); // 사용자 === '채권전략팀'
 
 // 검색 조회
 let cachedParams;
+const currentView = ref();
 async function fetchData() {
   const { data } = await dataService.get(baseUrl, { params: { ...cachedParams } });
 
-  totalCount.value = data?.length;
-
-  const view = grdExpectedRef.value.getView();
-
-  view.getDataSource().setRows(data);
-  // 2개월 전 대상 조회시 저장, 예정생성, 예정확정 버튼 disable
-  isSearchMonth.value = dayjs().add(-1, 'month').format('YYYYMM') <= cachedParams.baseDt.substring(0, 6);
-  view.columnByName('excdYn').readOnly = !isSearchMonth.value;
-  view.columnByName('authRsgExcdRsonCd').readOnly = !isSearchMonth.value;
-  view.commit();
-
   if (cachedParams.authRsgCd === '01') {
-    isNotExpected.value = true;
-    isExpectedConfirm.value = false;
-    isfinalConfirm.value = false;
+    totalCount01.value = data?.length;
+    currentView.value = grdExpected01Ref.value.getView();
   }
   if (cachedParams.authRsgCd === '02') {
-    isNotExpected.value = false;
-    isExpectedConfirm.value = true;
-    isfinalConfirm.value = false;
+    totalCount02.value = data?.length;
+    currentView.value = grdExpected02Ref.value.getView();
   }
   if (cachedParams.authRsgCd === '03') {
-    isNotExpected.value = false;
-    isExpectedConfirm.value = false;
-    isfinalConfirm.value = true;
+    totalCount03.value = data?.length;
+    currentView.value = grdExpected03Ref.value.getView();
   }
+
+  currentView.value.getDataSource().setRows(data);
+  // 2개월 전 대상 조회시 저장, 예정생성, 예정확정 버튼 disable
+  isSearchMonth.value = dayjs().add(-1, 'month').format('YYYYMM') <= cachedParams.baseDt.substring(0, 6);
+  currentView.value.columnByName('excdYn').readOnly = !isSearchMonth.value;
+  currentView.value.columnByName('authRsgExcdRsonCd').readOnly = !isSearchMonth.value;
+  currentView.value.commit();
 }
 
 async function onClickSearch() {
@@ -359,14 +397,23 @@ async function onClickReset() {
 }
 // 저장
 async function onClickSave() {
-  const view = grdExpectedRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!await gridUtil.validate(view)) { return; }
+  if (searchParams.value.authRsgCd === '01') {
+    currentView.value = grdExpected01Ref.value.getView();
+  }
+  if (searchParams.value.authRsgCd === '02') {
+    currentView.value = grdExpected02Ref.value.getView();
+  }
+  if (searchParams.value.authRsgCd === '03') {
+    currentView.value = grdExpected03Ref.value.getView();
+  }
 
-  const changedRows = gridUtil.getChangedRowValues(view);
+  if (await gridUtil.alertIfIsNotModified(currentView.value)) { return; }
+  if (!await gridUtil.validate(currentView.value)) { return; }
+
+  const changedRows = gridUtil.getChangedRowValues(currentView.value);
   if (changedRows.every((item) => (
     item.authRsgExpYn === 'Y' && item.authRsgCnfmYn === 'Y')
-    || (item.authRsgExpYn === 'Y' && item.authRsgCnfmYn === 'N')
+    || (item.authRsgExpYn === 'N' && item.authRsgCnfmYn === 'N')
     || (item.authRsgExpYn === 'N' && item.authRsgCnfmYn === 'Y'))) {
     await alert(t('MSG_ALT_NOT_EXP_CNFM_DTA'));
     return false;
@@ -388,12 +435,20 @@ async function onClickSave() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdExpectedRef.value.getView();
+  if (searchParams.value.authRsgCd === '01') {
+    currentView.value = grdExpected01Ref.value.getView();
+  }
+  if (searchParams.value.authRsgCd === '02') {
+    currentView.value = grdExpected02Ref.value.getView();
+  }
+  if (searchParams.value.authRsgCd === '03') {
+    currentView.value = grdExpected03Ref.value.getView();
+  }
 
-  await gridUtil.exportView(view, {
+  await gridUtil.exportView(currentView.value, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: gridUtil.getAllRowValues(view),
+    exportData: gridUtil.getAllRowValues(currentView.value),
   });
 }
 
@@ -444,7 +499,7 @@ async function onClickExpectedConfirm() {
     confirmDvCd: '01',
   };
   await dataService.put(`${baseUrl}/confirm`, params);
-  notify(t('MSG_ALT_COMPLETE_EXP_CREATE'));
+  notify(t('MSG_ALT_COMPLETE_EXP_CNFM'));
   await onClickSearch();
 }
 
@@ -460,12 +515,16 @@ async function onClickFinalConfirm() {
   await onClickSearch();
 }
 
+const isNotExpected = computed(() => searchParams.value.authRsgCd === '01');
+const isExpectedConfirm = computed(() => searchParams.value.authRsgCd === '02');
+const isfinalConfirm = computed(() => searchParams.value.authRsgCd === '03');
+
 // TODO: 룰 추가 예정 ( 현재 시스템 룰, 집금담당자, 'DUMMY' 적용 )
 const isPsic = computed(() => roles.some((v) => ['ROL_00010', 'ROL_G7010', 'ROL_00000'].includes(v.roleId)));
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initExpectedGrid = defineGrid((data, view) => {
+function initCommonGrid(data, view) {
   const columns = [
     { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-center' },
@@ -480,7 +539,10 @@ const initExpectedGrid = defineGrid((data, view) => {
       styleCallback: (grid, dataCell) => {
         const ret = {};
         const { bndStrtYn } = grid.getValues(dataCell.index.itemIndex);
-        if (!isfinalConfirm.value && isSearchMonth.value && bndStrtYn === 'N') {
+        //    최종확정 === false
+        // && 수정가능기간 === true
+        // && 채권전략팀여부 === 'N' || (채권전략팀여부 === 'Y' 면서 사용자 === '채권전략팀')
+        if (!isfinalConfirm.value && isSearchMonth.value && (bndStrtYn === 'N' || (bndStrtYn === 'Y' && isbndStrt.value === true))) {
           ret.editable = true;
         } else {
           ret.editable = false;
@@ -499,7 +561,11 @@ const initExpectedGrid = defineGrid((data, view) => {
         const ret = {};
         const { excdYn, bndStrtYn } = grid.getValues(dataCell.index.itemIndex);
         const rowState = gridUtil.getRowState(grid, dataCell.index.dataRow);
-        if (excdYn === 'Y' && isSearchMonth.value && !isfinalConfirm.value && bndStrtYn === 'N') {
+        //    제외여부 === 'Y'
+        // && 최종확정 === false
+        // && 수정가능기간 === true
+        // && 채권전략팀여부 === 'N' || (채권전략팀여부 === 'Y' 면서 사용자 === '채권전략팀')
+        if (excdYn === 'Y' && isSearchMonth.value && !isfinalConfirm.value && (bndStrtYn === 'N' || (bndStrtYn === 'Y' && isbndStrt.value === true))) {
           ret.editable = true;
         } else {
           ret.editable = false;
@@ -574,7 +640,26 @@ const initExpectedGrid = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
+
+  view.onValidate = async (g, index) => {
+    if (index.column === 'authRsgExcdRsonCd') {
+      const { excdYn, authRsgExcdRsonCd } = g.getValues(index.itemIndex);
+      if (excdYn === 'Y' && !authRsgExcdRsonCd) {
+        return t('MSG_ALT_INPUT_EXCD_RSON'); // 제외 사유를 입력해주세요.
+      }
+    }
+  };
+}
+const initExpected01Grid = defineGrid((data, view) => {
+  initCommonGrid(data, view);
 });
+const initExpected02Grid = defineGrid((data, view) => {
+  initCommonGrid(data, view);
+});
+const initExpected03Grid = defineGrid((data, view) => {
+  initCommonGrid(data, view);
+});
+
 </script>
 
 <style scoped>

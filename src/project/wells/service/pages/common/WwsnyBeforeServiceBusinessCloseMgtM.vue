@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       one-row
       @search="onClickSearch"
     >
@@ -50,6 +51,7 @@
       <kw-action-top>
         <template #default>
           <kw-btn
+            v-permission:update
             :label="t('MSG_BTN_SAVE')"
             grid-action
             dense

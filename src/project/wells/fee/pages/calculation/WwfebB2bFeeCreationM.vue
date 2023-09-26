@@ -108,17 +108,6 @@
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <kw-btn
-          dense
-          secondary
-          :label="$t('MSG_BTN_HIS_MGT')"
-          @click="onClickHistory"
-        />
-        <kw-separator
-          spaced
-          vertical
-          inset
-        />
-        <kw-btn
           v-permission:download
           icon="download_on"
           dense
@@ -126,6 +115,17 @@
           :disable="(totalCount === 0)"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           @click="onClickExcelDownload"
+        />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <kw-btn
+          dense
+          secondary
+          :label="$t('MSG_BTN_HIS_MGT')"
+          @click="onClickHistory"
         />
         <kw-btn
           v-if="false"
