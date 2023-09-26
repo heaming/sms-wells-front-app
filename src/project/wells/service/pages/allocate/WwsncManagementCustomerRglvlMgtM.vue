@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      v-permission:read
       :cols="4"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
@@ -127,23 +128,27 @@
           />
         </template>
         <kw-btn
+          v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         /><!--저장-->
         <kw-separator
+          v-permission:update
           vertical
           inset
           spaced
         />
         <kw-btn
           v-if="false"
+          v-permission:print
           icon="print"
           dense
           secondary
           :label="$t('MSG_BTN_PRTG')"
         /><!--인쇄-->
         <kw-btn
+          v-permission:download
           icon="download_on"
           dense
           secondary
@@ -152,6 +157,7 @@
           @click="onClickExcelDownload"
         /><!--엑셀다운로드-->
         <kw-separator
+          v-permission:download
           vertical
           inset
           spaced
@@ -159,6 +165,7 @@
         <kw-select
           ref="mngtPrtnrOgTpCdRef"
           v-model="mngStd.mngtPrtnrOgTpCd"
+          v-permission:update
           :options="prtnrOgTpOptions"
           dense
           first-option
@@ -173,6 +180,7 @@
         <kw-select
           ref="mngtPrtnrNoRef"
           v-model="mngStd.mngtPrtnrNo"
+          v-permission:update
           :options="mngStdPrtnrNoOptions"
           first-option
           first-option-value=""
@@ -187,6 +195,7 @@
         <kw-select
           ref="mngStdMngerRglvlDvCdRef"
           v-model="mngStd.mngStdMngerRglvlDvCd"
+          v-permission:update
           :options="codes.MNGER_RGLVL_DV_CD"
           first-option
           first-option-value=""
@@ -197,6 +206,7 @@
           :label="$t('MSG_TXT_MNGER_RGLVL_DV')"
         /><!--관리기준급지 선택, 관리기준급지-->
         <kw-btn
+          v-permission:update
           secondary
           dense
           :label="$t('MSG_BTN_MNG_ACC_BK_APPLY')"
@@ -205,6 +215,7 @@
         <kw-select
           ref="asnPsicPrtnrOgTpCdRef"
           v-model="curMnthAlctn.asnPsicPrtnrOgTpCd"
+          v-permission:update
           :options="prtnrOgTpOptions"
           first-option
           first-option-value=""
@@ -219,6 +230,7 @@
         <kw-select
           ref="asnPsicPrtnrNoRef"
           v-model="curMnthAlctn.asnPsicPrtnrNo"
+          v-permission:update
           :options="curMnthAlctnPrtnrNoOptions"
           dense
           first-option
@@ -233,6 +245,7 @@
         <kw-select
           ref="curMnthAlctnMngerRglvlDvCdRef"
           v-model="curMnthAlctn.curMnthAlctnMngerRglvlDvCd"
+          v-permission:update
           :options="codes.MNGER_RGLVL_DV_CD"
           first-option
           first-option-value=""
@@ -243,6 +256,7 @@
           :label="$t('MSG_TXT_MNGER_RGLVL_DV')"
         /><!--관리기준급지 선택, 관리기준급지-->
         <kw-btn
+          v-permission:update
           secondary
           dense
           :label="$t('MSG_BTN_CRT_TRGT_BK_APPLY')"
