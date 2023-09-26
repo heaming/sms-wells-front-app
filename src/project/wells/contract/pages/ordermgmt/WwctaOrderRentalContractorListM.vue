@@ -162,7 +162,7 @@ async function onClickSearchCustomer() {
 // CSV다운로드버튼 클릭 이벤트
 async function onClickCsvDownload() {
   const view = grdRentalContractorList.value.getView();
-  const res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', searchParams.value);
+  const res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', cachedParams);
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -174,7 +174,7 @@ async function onClickCsvDownload() {
 // 엑셀다운로드버튼 클릭 이벤트
 async function onClickExcelDownload() {
   const view = grdRentalContractorList.value.getView();
-  const res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', searchParams.value);
+  const res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/rentals/excel-download', cachedParams);
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,

@@ -223,7 +223,7 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdSnglPmntContractorList.value.getView();
-  const res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/singlepayments/excel-download', searchParams.value);
+  const res = await dataService.post('/sms/wells/contract/contracts/order-detail-mngt/singlepayments/excel-download', cachedParams);
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
