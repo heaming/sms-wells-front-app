@@ -594,7 +594,6 @@ function onClickSave() {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';
   }
-  if (searchDetail.ccamExmptDvCd !== '4') searchDetail.borAmt = 0;
 
   emits('savedetail');
 }

@@ -781,8 +781,6 @@ async function onClickSearchCancel() {
     cancelDt: searchDetail.rsgFshDt,
     adCtrAmt: searchDetail.adCtrAmt,
     canCtrAmt: searchDetail.canCtrAmt,
-    // lsnt: searchDetail.lsnt ?? 0,
-    // borAmt: (searchDetail.ccamExmptDvCd !== '4') ? 0 : (searchDetail.borAmt ?? 0),
   });
 }
 
@@ -791,12 +789,6 @@ function onClickSave() {
     searchDetail.slCtrRqrId = '';
     searchDetail.slCtrRmkCn = '';
   }
-
-  /*
-  if (searchDetail.ccamExmptDvCd !== '4') searchDetail.borAmt = 0;
-  if (searchDetail.csmbCsExmptDvCd !== '4') searchDetail.csmbCostBorAmt2 = 0;
-  if (searchDetail.reqdCsExmptDvCd !== '4') searchDetail.reqdCsBorAmt2 = 0;
-  */
 
   emits('savedetail');
 }
