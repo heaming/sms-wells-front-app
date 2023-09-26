@@ -609,28 +609,31 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
         }
       },
     },
+    { fieldName: 'cntrCralTno3', width: '100', styleName: 'text-right', visible: false },
     { fieldName: 'rcgvpLocalTno',
       header: t('MSG_TXT_ISTLL_TNO'),
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { rcgvpLocalTno1, rcgvpLocalTno2, rcgvpLocalTno3 } = grid.getValues(index.itemIndex);
+        const { rcgvpLocalTno1, rcgvpLocalTno2 } = grid.getValues(index.itemIndex);
         if (rcgvpLocalTno1 != null) {
-          return `${rcgvpLocalTno1}-${rcgvpLocalTno2}-${rcgvpLocalTno3}`;
+          return `${rcgvpLocalTno1}-${rcgvpLocalTno2}-****`;
         }
       },
     },
+    { fieldName: 'rcgvpLocalTno3', width: '100', styleName: 'text-right', visible: false },
     { fieldName: 'rcgvpCralTno',
       header: t('MSG_TXT_ISTLL_MPNO'),
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { rcgvpCralTno1, rcgvpCralTno2, rcgvpCralTno3 } = grid.getValues(index.itemIndex);
+        const { rcgvpCralTno1, rcgvpCralTno2 } = grid.getValues(index.itemIndex);
         if (rcgvpCralTno1 != null) {
-          return `${rcgvpCralTno1}-${rcgvpCralTno2}-${rcgvpCralTno3}`;
+          return `${rcgvpCralTno1}-${rcgvpCralTno2}-****`;
         }
       },
     },
+    { fieldName: 'rcgvpCralTno3', width: '100', styleName: 'text-right', visible: false },
     { fieldName: 'dpClDt', header: t('MSG_TXT_DP_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'dpTpCdNm', header: t('MSG_TXT_DP_TP'), width: '140', styleName: 'text-center' },
     { fieldName: 'dpAmt', header: t('MSG_TXT_DEPOSIT_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0' },
@@ -643,23 +646,25 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { prtnrLocalTno1, prtnrLocalTno2, prtnrLocalTno3 } = grid.getValues(index.itemIndex);
+        const { prtnrLocalTno1, prtnrLocalTno2 } = grid.getValues(index.itemIndex);
         if (prtnrLocalTno1 != null) {
-          return `${prtnrLocalTno1}-${prtnrLocalTno2}-${prtnrLocalTno3}`;
+          return `${prtnrLocalTno1}-${prtnrLocalTno2}-****`;
         }
       },
     },
+    { fieldName: 'prtnrLocalTno3', width: '100', styleName: 'text-right', visible: false },
     { fieldName: 'prtnrCralTno',
       header: t('MSG_TXT_MPNO'),
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { prtnrCralTno1, prtnrCralTno2, prtnrCralTno3 } = grid.getValues(index.itemIndex);
+        const { prtnrCralTno1, prtnrCralTno2 } = grid.getValues(index.itemIndex);
         if (prtnrCralTno1 != null) {
-          return `${prtnrCralTno1}-${prtnrCralTno2}-${prtnrCralTno3}`;
+          return `${prtnrCralTno1}-${prtnrCralTno2}-****`;
         }
       },
     },
+    { fieldName: 'prtnrCralTno3', width: '100', styleName: 'text-right', visible: false },
     { fieldName: 'hooPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'hooPrtnrNo', header: t('MSG_TXT_PRTNR_NUM'), width: '100', styleName: 'text-center' },
     { fieldName: 'hooPrtnrCltnDt', header: t('MSG_TXT_BRMGR_CLTN_D'), width: '100', styleName: 'text-center' },
@@ -668,23 +673,25 @@ const initGrdObjectPresentState = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { ogLocalTno1, ogLocalTno2, ogLocalTno3 } = grid.getValues(index.itemIndex);
+        const { ogLocalTno1, ogLocalTno2 } = grid.getValues(index.itemIndex);
         if (ogLocalTno1 != null) {
-          return `${ogLocalTno1}-${ogLocalTno2}-${ogLocalTno3}`;
+          return `${ogLocalTno1}-${ogLocalTno2}-****`;
         }
       },
     },
+    { fieldName: 'ogLocalTno3', width: '100', styleName: 'text-right', visible: false },
     { fieldName: 'hooPrtnrCralTno',
       header: t('MSG_TXT_MPNO'),
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { hooPrtnrCralTno1, hooPrtnrCralTno2, hooPrtnrCralTno3 } = grid.getValues(index.itemIndex);
+        const { hooPrtnrCralTno1, hooPrtnrCralTno2 } = grid.getValues(index.itemIndex);
         if (hooPrtnrCralTno1 != null) {
-          return `${hooPrtnrCralTno1}-${hooPrtnrCralTno2}-${hooPrtnrCralTno3}`;
+          return `${hooPrtnrCralTno1}-${hooPrtnrCralTno2}-****`;
         }
       },
     },
+    { fieldName: 'hooPrtnrCralTno3', width: '100', styleName: 'text-right', visible: false },
   ];
 
   data.setFields(fields);
