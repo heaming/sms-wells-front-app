@@ -495,11 +495,18 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cashStlm', header: t('MSG_TXT_CASH'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(현금)
     { fieldName: 'cardStlm', header: t('MSG_TXT_CARD'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(카드)
     { fieldName: 'elcStlm', header: t('MSG_TXT_ELC_STLM'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(전자결제)
-    { fieldName: 'cstSignHsYn', header: t('MSG_BTN_CST_SIGN'), width: '100', styleName: 'text-center' }, // 고객서명
+    { fieldName: 'cstSignCn', // 고객서명
+      header: t('MSG_BTN_CST_SIGN'),
+      width: '100',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback: () => t('MSG_BTN_CST_SIGN'),
+    },
+    // { fieldName: 'cstSignCn', header: t('MSG_BTN_CST_SIGN'), width: '100', styleName: 'text-center' }, // 고객서명
     { fieldName: 'istEnvrPhoPhFileUid' }, // 설치환경사진
     { fieldName: 'istKitPhoPhFileUid' }, // 설치키트사진
     { fieldName: 'istCelngPhoPhFileUid' }, // 설치천장사진
-    { fieldName: 'istImg', header: t('MSG_TXT_PHO'), width: '100', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => '+' }, // 설치사진
+    { fieldName: 'istImg', header: t('MSG_TXT_PHO'), width: '110', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_IMG_BRWS') }, // 설치사진
     { fieldName: 'acpnPrtnrKnm', header: t('MSG_TXT_CMPA_NM'), width: '145', styleName: 'text-center' }, // 동행작업자(동행자명)
     { fieldName: 'acpnPrtnrGdNm', header: t('MSG_TXT_PSTN_DV'), width: '145', styleName: 'text-center' }, // 동행작업자(직급구분)
   ];
@@ -597,7 +604,7 @@ const initGrdMain = defineGrid((data, view) => {
       direction: 'horizontal',
       items: ['cashStlm', 'cardStlm', 'elcStlm'],
     },
-    'cstSignHsYn',
+    'cstSignCn',
     'istImg',
     {
       header: t('MSG_TXT_ACPN_WKP'), // 동행작업자
@@ -613,10 +620,22 @@ const initGrdMain = defineGrid((data, view) => {
   view.filteringOptions.enabled = false;
 
   view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    const { cntrNo, cntrSn, istEnvrPhoPhFileUid, istKitPhoPhFileUid, istCelngPhoPhFileUid } = grid.getValues(itemIndex);
+    // eslint-disable-next-line max-len
+    const { cntrNo, cntrSn, cstSignCn, istEnvrPhoPhFileUid, istKitPhoPhFileUid, istCelngPhoPhFileUid } = grid.getValues(itemIndex);
 
     if (column === 'cntrNoSn') {
       router.push({ path: '/service/wwsnb-individual-service-list', query: { cntrNo, cntrSn } });
+    }
+
+    if (column === 'cstSignCn') {
+      if (isEmpty(cstSignCn)) {
+        notify(t('MSG_ALT_RGST_SIGN_NTHNG'));
+      } else {
+        await modal({
+          component: 'WwsnzSignPreviewP',
+          componentProps: { sign: cstSignCn },
+        });
+      }
     }
 
     if (column === 'istImg') {
