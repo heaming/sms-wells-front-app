@@ -854,7 +854,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
       const { result } = await modal({
         component: 'WwsncTimeTableForContractP',
         componentProps: {
-          sellDate: dataList.rcpdt, // 판매일자
+          sellDate: dataList.cntrCnfmDt, // 판매일자(계약확정일시)
           baseYm: now.format('YYYYMM'), // 달력 초기 월
           chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
           svDvCd: svDvCdParam, // 1:설치, 2:BS, 3:AS, 4:홈케어
