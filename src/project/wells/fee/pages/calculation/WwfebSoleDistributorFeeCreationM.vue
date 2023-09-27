@@ -63,7 +63,7 @@
             v-model:from="searchParams.strtYm"
             v-model:to="searchParams.endYm"
             type="month"
-            rules="date_range_required|date_range_months:3"
+            rules="date_range_required"
             :label="t('MSG_TXT_RCP_YM')"
           />
         </kw-search-item>
@@ -186,8 +186,8 @@ let cachedParams;
 const searchParams = ref({
   type: 'A',
   perfYm: now.format('YYYYMM'),
-  strtYm: now.format('YYYYMMDD'),
-  endYm: now.add(1, 'month').format('YYYYMMDD'),
+  strtYm: now.format('YYYYMM'),
+  endYm: now.add(1, 'month').format('YYYYMM'),
   cancelStrtYm: '',
   cancelEndYm: '',
   feeSchdTpCd: '501', // 신채널(총판)
