@@ -116,6 +116,7 @@
           @click="onClickCreate"
         />
         <kw-btn
+          v-if="false"
           v-permission:create
           :label="$t('MSG_BTN_REDF_FEE_CRT')"
           primary
