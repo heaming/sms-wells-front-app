@@ -501,6 +501,12 @@ async function onClickSave() {
     if (!validateOstrQty(dataRow, ostrQty)) return;
   }
 
+  // 파주물류센터일 경우 운송코드 필수체크 추가
+  if (searchParams.value.strWareNo === '100002' && searchParams.value.trnspnCd === '') {
+    notify(t('MSG_ALT_TRNSPN_CD_ATC_VAL_OMSSN_CONF_NCST'));
+    return;
+  }
+
   // searchParams 값 체크
   if (searchParams.value.ostrTpCd === '' || searchParams.value.ostrWareNo === '' || searchParams.value.ostrDt === ''
     || ((searchParams.value.ostrTpCd === RETURN_INSIDE || searchParams.value.ostrTpCd === RETURN_OUTSIDE) && searchParams.value.strWareNo === '')) {
