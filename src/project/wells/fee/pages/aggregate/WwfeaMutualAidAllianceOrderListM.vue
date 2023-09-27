@@ -32,7 +32,6 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_PERF_DV')"
-          required
         >
           <kw-option-group
             v-model="searchParams.cntrStat"
