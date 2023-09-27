@@ -41,8 +41,7 @@
           <kw-select
             v-model="feeStandard.pdGrpDtlCd"
             :label="$t('MSG_TXT_PRDT_TYPE')"
-            :options="codes.PD_GRP_DTL_CD.filter((item) => item.userDfn03 ===
-              (feeStandard.pdGrpCd === '' ? 'DUMMY' : feeStandard.pdGrpCd))"
+            :options="filterdGroupDetailCode"
             :readonly="screenMode !== 'CREATE'"
             first-option="select"
             rules="required"
@@ -313,6 +312,7 @@
       <!-- 취소 -->
       <kw-btn
         v-if="screenMode !== 'VIEW'"
+        v-permission:update
         negative
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
@@ -372,6 +372,7 @@ const codes = await codeUtil.getMultiCodes(
 const { cancel, ok } = useModal();
 const tommorow = dayjs().add(1, 'day').format('YYYYMMDD');
 const tommorowDash = dayjs().add(1, 'day').format('YYYY-MM-DD');
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -402,6 +403,17 @@ const defaultFeeStandard = {
   rmkCn: undefined,
   useYn: 'Y',
 };
+
+const filterdGroupDetailCode = computed(() => {
+  const data = [{ codeId: 'DUMMY', codeName: t('MSG_BTN_PREV') }];
+  data.push(
+    // eslint-disable-next-line no-unsafe-optional-chaining
+    ...(codes?.PD_GRP_DTL_CD.filter((item) => item.userDfn03 === feeStandard.value.pdGrpCd)),
+  );
+
+  return data;
+});
+
 const screenMode = ref();
 
 async function onClickCancel() {

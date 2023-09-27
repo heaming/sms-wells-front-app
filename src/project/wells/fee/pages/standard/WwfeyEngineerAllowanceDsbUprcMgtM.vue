@@ -73,6 +73,7 @@
         </template>
 
         <kw-btn
+          v-permission:download
           dense
           secondary
           icon="download_on"
@@ -86,6 +87,7 @@
           spaced
         />
         <kw-btn
+          v-permission:create
           :label="$t('MSG_TXT_SITE_AW_UPRC_RGST')"
           primary
           dense
