@@ -795,6 +795,10 @@ async function getTimeTables() {
 
   schedules.value = data.value.days;
   scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
+
+  setTimeout(() => {
+    document.querySelectorAll(`tr.calendar-date > td[data-date='${data.value.sellDate}']`)[0].classList.add('active');
+  }, 10);
 }
 
 function getYmdText(dayCnt) {
@@ -1046,7 +1050,7 @@ async function onClickSave() {
 
 async function clickCell(action) {
   data.value.action = action;
-  window.opener?.postMessage(JSON.stringify(data.value.psic));
+  window.opener?.postMessage(JSON.stringify(data.value.psic), searchParams.value.returnUrl);
 }
 
 onMounted(async () => {
