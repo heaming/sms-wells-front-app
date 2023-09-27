@@ -447,7 +447,7 @@ async function getUseYn(perfYm, ogTpCd, prtnrNo) {
   const type = 'DML';
   const res = await dataService.get(`sms/common/fee/schedules/use-control/${perfYm}-${ogTpCd}-${prtnrNo}-${type}`);
 
-  if (res.data === 'N') {
+  if (res.data === 'Y') {
     isBtnClick.value = true;
   } else {
     isBtnClick.value = false;
