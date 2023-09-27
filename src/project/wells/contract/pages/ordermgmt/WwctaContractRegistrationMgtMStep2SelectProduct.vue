@@ -1,19 +1,19 @@
 <template>
-  <div class="scoped-layout__pick-area">
-    <div class="scoped-layout__search-box scoped-search-box">
+  <div class="scoped-product-select">
+    <div class="scoped-product-select__search-box scoped-search-box">
       <h3 class="scoped-search-box__title">
         상품검색
       </h3>
       <kw-input
-        v-model="pdFilter"
-        @keydown.enter="setFilter"
+        v-model="searchParams.filterText"
+        @keydown.enter="onClickSearch"
       />
       <kw-select
-        v-model="searchSellTpCd"
+        v-model="searchParams.sellTpCd"
         class="mt8"
         :options="codes.SELL_TP_CD"
         first-option="select"
-        @change="setFilter"
+        @change="onClickSearch"
       />
       <div class="scoped-search-box__action">
         <kw-btn
@@ -21,7 +21,7 @@
           label="초기화"
           dense
           class="w60"
-          @click="resetFilter"
+          @click="onClickReset"
         />
         <kw-btn
           label="조회"
@@ -30,74 +30,75 @@
           filled
           color="secondary"
           text-color="bg-white"
-          @click="setFilter"
+          @click="onClickSearch"
         />
       </div>
     </div>
-    <kw-scroll-area
-      visible
-      class="scoped-layout__product-box"
-      scroll-width="100%"
-      scroll-style="padding-right: 30px;"
+    <div
+      v-scrollbar
+      class="scoped-product-select__product-box"
     >
-      <kw-separator class="mt20 mb0" />
-      <kw-list
-        class="scoped-product-type-list"
-        separator
-        item-padding="16px 0"
-      >
-        <kw-expansion-item
-          v-for="clsf in filteredClsfPds"
-          :ref="(vm) => clsfItemRefs[clsf.pdClsfId] = vm"
-          :key="`product-type-${clsf.pdClsfId}`"
-          padding-target="header"
-          expansion-icon-align="center"
-          expand-icon="arrow_down"
+      <div class="pr30">
+        <kw-list
+          class="scoped-product-type-list"
+          separator
+          item-padding="16px 0"
         >
-          <template #header>
-            <kw-item-section>
-              <kw-item-label font="body">
-                {{ clsf.pdClsfNm }}
-              </kw-item-label>
-            </kw-item-section>
-          </template>
-          <kw-list
-            class="scoped-product-picker-list"
-            item-class="scoped-product-picker-list__item"
-            :items="clsf.products"
+          <kw-expansion-item
+            v-for="(pdClsfCd) in filteredPdClsfCds"
+            :key="`product-type-${pdClsfCd}`"
+            :ref="(vm) => expansionItemRef[pdClsfCd] = vm"
+            padding-target="header"
+            expansion-icon-align="center"
+            expand-icon="arrow_down"
           >
-            <template #item="{item}">
+            <template #header>
               <kw-item-section>
-                <kw-item-label
-                  font="dense"
-                  font-weight="400"
-                  class="flex no-wrap"
-                >
-                  <div
-                    class="ellipsis grow pr20 cursor-pointer"
-                    @click="onClickProduct(item)"
-                  >
-                    {{ item.pdNm }}
-                    <kw-tooltip show-when-ellipsised>
-                      {{ item.pdNm }}
-                    </kw-tooltip>
-                  </div>
-                </kw-item-label>
-                <kw-item-label
-                  class="mt6 flex gap-xxs"
-                >
-                  <kw-chip
-                    label="pdChip1"
-                    color="primary"
-                    outline
-                  />
+                <kw-item-label font="body">
+                  {{ getCodeName('PD_CLSF_CD', pdClsfCd) }}
                 </kw-item-label>
               </kw-item-section>
             </template>
-          </kw-list>
-        </kw-expansion-item>
-      </kw-list>
-    </kw-scroll-area>
+            <kw-list
+              class="scoped-product-picker-list"
+              item-class="scoped-product-picker-list__item"
+              :items="filteredClassifyingProducts[pdClsfCd]"
+            >
+              <template #item="{item : product}">
+                <kw-item-section>
+                  <kw-item-label
+                    font="dense"
+                    font-weight="400"
+                    class="flex no-wrap"
+                  >
+                    <div
+                      class="ellipsis grow pr20 cursor-pointer"
+                      @click="onClickProduct(product)"
+                    >
+                      {{ product.pdNm }}
+                      <kw-tooltip show-when-ellipsised>
+                        {{ product.pdNm }}
+                      </kw-tooltip>
+                    </div>
+                  </kw-item-label>
+                  <kw-item-label
+                    class="mt6 flex gap-xxs"
+                  >
+                    <kw-chip
+                      v-if="product.sellTpCd"
+                      :label="getCodeName('SELL_TP_CD', product.sellTpCd)"
+                      color="primary"
+                      outline
+                    />
+                  </kw-item-label>
+                </kw-item-section>
+              </template>
+            </kw-list>
+          </kw-expansion-item>
+        </kw-list>
+      </div>
+      <kw-separator class="mt20 mb0" />
+    </div>
   </div>
 </template>
 
@@ -105,8 +106,9 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { alert, useDataService, useGlobal } from 'kw-lib';
+import { alert, useDataService } from 'kw-lib';
 import { useCtCode } from '~sms-common/contract/composable';
+import { vScrollbar } from '~sms-common/contract/util';
 
 const props = defineProps({
   cntrNo: { type: String, required: true },
@@ -118,101 +120,206 @@ const exposed = {};
 defineExpose(exposed);
 
 const dataService = useDataService();
-const { notify } = useGlobal();
-const { codes } = await useCtCode('CNTR_TP_CD', 'SELL_TP_CD');
+const { codes, addCode, getCodeName } = await useCtCode();
+
+await addCode('SELL_TP_CD', (code) => (['1', '2', '3', '6'].includes(code.codeId) && code));
+await addCode('PD_CLSF_CD', [
+  { codeId: '1', codeName: '정수기' },
+  { codeId: '2', codeName: '청정기' },
+  { codeId: '3', codeName: '비데' },
+  { codeId: '4', codeName: '삼성가전' },
+  { codeId: '5', codeName: '정기배송' },
+  { codeId: '6', codeName: '기타' },
+  { codeId: '7', codeName: '복합상품' },
+]);
 
 const cntrNo = ref(props.cntrNo);
 
-const pdFilter = ref('');
-const cachedSellTpCd = ref('');
-const searchSellTpCd = ref('');
-const cachedPdFilter = ref('');
-const classfiedPds = ref([]);
-const filteredClsfPds = ref([]);
+const expansionItemRef = ref({});
+const products = ref([]);
+const classifyingProducts = ref({});
+const selectedProductCode = ref();
 
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
+const cachedParams = ref({});
+const searchParams = ref({
+  filterText: '',
+  sellTpCd: undefined,
+  rentalDscTpCd: undefined,
+});
 
-async function getProducts() {
-  const { data } = await dataService.get('sms/wells/contract/contracts/reg-products', {
-    params: {
-      cntrNo: cntrNo.value,
-      pdFilter: pdFilter.value,
-    },
-  });
-  classfiedPds.value = data.pdClsf;
-  pdFilter.value = '';
-  cachedPdFilter.value = '';
-  cachedSellTpCd.value = '';
-  filteredClsfPds.value = classfiedPds.value;
-  if (classfiedPds.value.length === 0) {
-    await alert('판매 가능한 상품이 없습니다.');
-  }
-}
-
-async function resetFilter() {
-  pdFilter.value = '';
-  await getProducts(props.contract.cntrNo);
-}
-
-async function addProduct() {
-  /* TODO EMIT */
-  emit('select');
-}
-
-async function onClickProduct(pd) {
-  // 상품 추가
-  if (pd.pdClsf === '7') {
-    // 하위상품 조회 후 추가
-    const { data } = await dataService.get('sms/wells/contract/contracts/reg-cpt-products', {
-      params: {
-        cntrNo: cntrNo.value,
-        hgrPdCd: pd.pdCd,
-      },
-    });
-    const promises = data.map(addProduct);
-    await Promise.all(promises);
+function getPdClsfCd(product) {
+  if (!product) {
     return;
   }
-
-  await addProduct(pd);
+  if (product.pdTpCd === 'C') {
+    return '7';
+  }
+  if (product.istBzsCd === 'S') {
+    return '4';
+  }
+  if (product.sellTpCd === '6') {
+    return '5';
+  }
+  if (product.pdMclsfId === 'PDC000000000002') {
+    return '1';
+  }
+  if (product.pdMclsfId === 'PDC000000000026') {
+    return '2';
+  }
+  if (product.pdMclsfId === 'PDC000000000056') {
+    return '3';
+  }
+  return '6';
 }
 
-const clsfItemRefs = reactive({});
+function classifying() {
+  if (!products.value?.length) {
+    classifyingProducts.value = {};
+  }
 
-function setFilter() {
-  cachedPdFilter.value = pdFilter.value?.trim() || '';
-  cachedSellTpCd.value = searchSellTpCd.value;
-  Object.values(clsfItemRefs)
-    .forEach((vm) => {
-      vm?.show();
+  const mappingObj = {
+    1: undefined,
+    2: undefined,
+    3: undefined,
+    4: undefined,
+    5: undefined,
+    6: undefined,
+    7: undefined,
+  };
+
+  const addPdToMapping = (product) => {
+    const pdClsfCd = getPdClsfCd(product);
+    product.pdClsfNm = getCodeName('PD_CLSF_CD', pdClsfCd);
+    if (pdClsfCd) {
+      mappingObj[pdClsfCd] ??= [];
+      mappingObj[pdClsfCd].push(product);
+    }
+  };
+  products.value
+    .forEach(addPdToMapping);
+  Object.getOwnPropertyNames(mappingObj)
+    .forEach((pdClsfCd) => {
+      if (!mappingObj[pdClsfCd]) {
+        delete mappingObj[pdClsfCd];
+      }
     });
-  if (!Array.isArray(classfiedPds.value)) {
-    return [];
+
+  classifyingProducts.value = mappingObj;
+}
+
+const filteredClassifyingProducts = computed(() => {
+  if (!cachedParams.value) {
+    return classifyingProducts.value;
   }
-  let clsfPds = classfiedPds.value;
-  if (!cachedPdFilter.value && !cachedSellTpCd.value) {
-    filteredClsfPds.value = clsfPds;
-    return;
-  }
-  clsfPds = clsfPds.reduce((filtered, clsf) => {
-    const filteredPds = clsf.products
-      .filter((pd) => !cachedPdFilter.value || pd.pdNm.includes(cachedPdFilter.value))
-      .filter((pd) => !cachedSellTpCd.value || pd.sellTpCd === cachedSellTpCd.value);
-    if (filteredPds.length > 0) {
-      filtered.push({
-        ...clsf,
-        products: filteredPds,
-      });
+  const pdClsfCds = Object.keys(classifyingProducts.value);
+  return pdClsfCds.reduce((filtered, pdClsfCd) => {
+    const classified = classifyingProducts.value[pdClsfCd];
+    if (!classified?.length) {
+      return filtered;
+    }
+    const filteredProducts = classified
+      .filter((product) => (!cachedParams.value.filterText || product.pdNm?.includes(cachedParams.value.filterText)))
+      .filter((product) => (!cachedParams.value.sellTpCd || product.sellTpCd === cachedParams.value.sellTpCd));
+    if (filteredProducts.length) {
+      filtered[pdClsfCd] = filteredProducts;
     }
     return filtered;
-  }, []);
-  if (clsfPds.length === 0) {
-    notify('검색 조건에 맞는 상품이 없습니다.');
-    filteredClsfPds.value = classfiedPds.value;
+  }, {});
+});
+
+const filteredPdClsfCds = computed(() => Object.keys(filteredClassifyingProducts.value));
+
+async function fetchProducts() {
+  cntrNo.value = props.cntrNo;
+
+  if (!cntrNo.value) {
+    return;
   }
-  filteredClsfPds.value = clsfPds;
+
+  const { data } = await dataService.get('sms/wells/contract/contracts/products', {
+    params: {
+      cntrNo: cntrNo.value,
+      rentalDscTpCd: cachedParams.value.rentalDscTpCd,
+    },
+  });
+  products.value = data;
+  if (!data?.length) {
+    await alert('판매 가능한 상품이 없습니다.');
+  }
+  classifying();
 }
 
+watch(() => props.cntrNo, fetchProducts, { immediate: true });
+
+async function onClickSearch() {
+  const shouldFetchProduct = cachedParams.value.rentalDscTpCd !== searchParams.value.rentalDscTpCd;
+
+  cachedParams.value = { ...searchParams.value };
+  if (shouldFetchProduct) {
+    await fetchProducts();
+  } else {
+    await nextTick();
+  }
+  const filteredClassifiedGroup = Object.keys(filteredClassifyingProducts.value);
+  console.log('filteredClassifiedGroup', filteredClassifiedGroup);
+  if (filteredClassifiedGroup.length) {
+    expansionItemRef[filteredClassifiedGroup[0]]?.show();
+  }
+}
+
+function onClickReset() {
+  searchParams.value.filterText = '';
+  searchParams.value.sellTpCd = undefined;
+  searchParams.value.rentalDscTpCd = undefined;
+  selectedProductCode.value = undefined;
+  onClickSearch();
+}
+
+async function onClickProduct(product) {
+  await emit('select', product);
+}
 </script>
+
+<style lang="scss" scoped>
+.scoped-product-select {
+  display: flex;
+  flex-flow: column nowrap;
+
+  &__search-box {
+    flex: none;
+    padding-right: 30px;
+
+    // height: $-search-area-height;
+  }
+
+  &__product-box {
+    flex: auto;
+
+    // height: calc(100% - #{$-search-area-height});
+  }
+}
+
+.scoped-search-box {
+  &__title {
+    margin-top: 0;
+  }
+
+  &__action {
+    margin-top: $spacing-sm;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-end;
+    gap: $spacing-xs;
+  }
+}
+
+.scoped-product-picker-list {
+  background-color: $bg-box;
+  padding: $spacing-lg;
+
+  :deep(> .kw-item-type:not(:first-of-type)) {
+    margin-top: $spacing-lg;
+  }
+}
+
+</style>

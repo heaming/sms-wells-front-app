@@ -832,7 +832,6 @@ function onClickNextDtlSn() {
 }
 
 async function initStep() {
-  debugger;
   if (cntrTpCd.value === '08') {
     await getCntrInfoWithRstl();
   } else {

@@ -337,7 +337,7 @@ function onClickGridBulkChange(val, type) {
 }
 
 function getRowData(rowData) {
-  return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0 };
+  return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0, mngtUnitCd: rowData.delUntNm };
 }
 
 async function openItemBasePopup(type, row) {

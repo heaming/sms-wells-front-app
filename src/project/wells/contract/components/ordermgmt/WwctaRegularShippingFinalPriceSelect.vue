@@ -53,20 +53,20 @@
       >
         <kw-item-label class="flex gap-xs">
           <kw-btn
-            :disable="dtl?.sellTpDtlCd !== '62'"
+            v-if="!isLkSding && isSeeding"
             label="기기선택"
             dense
             @click="$emit('select-machine', modelValue)"
           />
           <kw-btn
-            v-if="dtl?.sellTpDtlCd === '62'"
+            v-if="isSeeding"
             :disable="dtl?.pdChoLmYn === 'N'"
             label="모종선택"
             dense
             @click="$emit('select-seeding', modelValue)"
           />
           <kw-btn
-            v-if="dtl?.sellTpDtlCd === '63'"
+            v-if="isCapsule"
             :disable="dtl?.pdChoLmYn === 'N'"
             label="캡슐선택"
             dense
@@ -117,6 +117,38 @@
           </kw-form>
         </kw-item-section>
       </kw-item>
+      <kw-item
+        v-for="(cntrRel) in cntrRels"
+        :key="cntrRel.cntrRelId"
+        class="scoped-item"
+      >
+        <kw-item-section>
+          <kw-item-label class="row no-wrap items-center">
+            <kw-chip
+              :label="getCodeName('CNTR_REL_DTL_CD', cntrRel.cntrRelDtlCd)"
+              outline
+              color="primary"
+            />
+            <div
+              class="grow ellipsis pl8 hp-w1"
+            >
+              {{ cntrRel.ojBasePdBas?.pdNm }}
+              <kw-tooltip show-when-ellipsised>
+                {{ cntrRel.ojBasePdBas?.pdNm }}
+              </kw-tooltip>
+            </div>
+          </kw-item-label>
+        </kw-item-section>
+        <kw-item-section side>
+          <kw-btn
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE"
+            borderless
+            icon="close_24"
+            class="w24 kw-font-pt24"
+            @click="onDeleteCntrRel(cntrRel)"
+          />
+        </kw-item-section>
+      </kw-item>
     </template>
   </kw-expansion-item>
 </template>
@@ -130,12 +162,16 @@ import { getNumberWithComma } from '~sms-common/contract/util';
 const EMPTY_SYM = Symbol('__undef__');
 const EMPTY_ID = ' '; /*  FIXME!!! */
 
+const CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE = '214';
+const CNTR_REL_DTL_CD_LK_SDING = '216';
+
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
   bas: { type: Object, default: undefined },
 });
 const emit = defineEmits([
   'select-machine',
+  'delete:select-machine',
   'select-seeding',
   'select-capsule',
   'one-plus-one',
@@ -148,6 +184,8 @@ const { getCodeName } = await useCtCode(
   'SV_TP_CD',
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
+  'CNTR_REL_DTL_CD',
+  'CNTR_REL_DTL_CD',
 );
 const dataService = useDataService();
 
@@ -157,7 +195,13 @@ const dtl = ref(props.modelValue);
 let pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
 let verSn = toRef(props.modelValue, 'verSn');
 let fnlAmt = toRef(props.modelValue, 'fnlAmt');
+let cntrRels = toRef(props.modelValue, 'cntrRels');
 let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions');
+
+const isLkSding = computed(() => (cntrRels.value || [])
+  .find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_SDING));
+const isSeeding = computed(() => dtl.value?.sellTpDtlCd === '62');
+const isCapsule = computed(() => dtl.value?.sellTpDtlCd === '63');
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '6'));
 
@@ -177,17 +221,30 @@ const labelGenerator = {
     }
     return `${getCodeName('SV_TP_CD', svTpCd)} - ${additional.join('/')}`;
   },
-  stplPrdCd: (val) => `${val}개월`,
+  stplPrdCd: (val) => {
+    if (Number(val) === 0) {
+      return '1회분';
+    }
+    if (Number(val) === 999) {
+      return '무제한';
+    }
+    return `${val}개월`;
+  },
 };
 
 const variableNames = Object.getOwnPropertyNames(priceDefineVariables.value);
 
+function onDeleteCntrRel(cntrRel) {
+  if (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE) {
+    emit('delete:select-machine', props.modelValue);
+  }
+}
+
 async function fetchFinalPriceOptions() {
   const { data } = await dataService.get('sms/wells/contract/final-price', {
     params: {
+      cntrNo: props.bas.cntrNo,
       pdCd: dtl.value.pdCd,
-      sellChnlDtlCd: dtl.value.sellChnlDtlCd,
-      copnDvCd: props.bas?.copnDvCd,
     },
     silent: true,
   });
@@ -205,6 +262,7 @@ function reconnectReactivities() {
   pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
   verSn = toRef(props.modelValue, 'verSn');
   fnlAmt = toRef(props.modelValue, 'fnlAmt');
+  cntrRels = toRef(props.modelValue, 'cntrRels');
   finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions'); /* 적용된 프로모션 */
 }
 
