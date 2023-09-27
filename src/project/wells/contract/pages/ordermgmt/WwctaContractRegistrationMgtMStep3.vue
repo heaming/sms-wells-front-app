@@ -690,8 +690,11 @@ function onChangeSodbtNftfCntr(v) {
   });
 }
 
+const loaded = ref(false);
 async function initStep() {
+  if (loaded.value) { return; }
   await getCntrInfo();
+  loaded.value = true;
 }
 
 exposed.getCntrInfo = getCntrInfo;

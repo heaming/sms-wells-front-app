@@ -831,12 +831,15 @@ function onClickNextDtlSn() {
   if (dtlSn.value < step4.value.dtls.length) dtlSn.value += 1;
 }
 
+const loaded = ref(false);
 async function initStep() {
+  if (loaded.value) { return; }
   if (cntrTpCd.value === '08') {
     await getCntrInfoWithRstl();
   } else {
     await getCntrInfo();
   }
+  loaded.value = true;
 }
 
 exposed.getCntrInfo = getCntrInfo;

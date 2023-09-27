@@ -993,13 +993,16 @@ async function getCounts() {
   }
 }
 
+const loaded = ref(false);
+
 async function initStep() {
-  console.log('initStep 1');
+  if (loaded.value) { return; }
 
   await getCntrInfo();
   if (!cntrNo.value) {
     await getCounts();
   }
+  loaded.value = true;
 }
 
 exposed.getCntrInfo = getCntrInfo;

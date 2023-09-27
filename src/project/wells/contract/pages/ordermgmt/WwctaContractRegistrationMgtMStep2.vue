@@ -510,9 +510,12 @@ async function isValidStep() {
   return !invalid;
 }
 
+const loaded = ref(false);
+
 async function initStep() {
-  console.log('initStep2');
+  if (loaded.value) { return; }
   await getCntrInfo();
+  loaded.value = true;
 }
 
 // 제휴계약 관련 설정
@@ -573,26 +576,11 @@ function onPriceChanged() {
     width: 339px;
     flex: none;
     height: 100%;
-    padding-bottom: 30px;
   }
 
   &__mod-area {
     height: 100%;
     flex: auto;
-  }
-}
-
-.scoped-search-box {
-  &__title {
-    margin-top: 0;
-  }
-
-  &__action {
-    margin-top: $spacing-sm;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: flex-end;
-    gap: $spacing-xs;
   }
 }
 
