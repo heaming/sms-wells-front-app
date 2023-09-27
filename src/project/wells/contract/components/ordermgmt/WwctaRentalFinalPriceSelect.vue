@@ -69,13 +69,14 @@
           <!-- 로그인한 사용자의 채널이 5010(온라인총판) 이면 기기변경 버튼 발생하지 않음 -->
           <kw-btn
             v-if="bas?.sellInflwChnlDtlCd !== '5010'"
-            :disable="opo?.opoYn"
+            :disable="existOnePlusOneRel"
             label="기기변경"
             dense
             @click.stop="onClickDeviceChange(item)"
           />
           <kw-btn
-            :disable="mchnCh?.mchnChYn"
+            v-if="existOnePlusOnePriceOption"
+            :disable="onePlusOneDisable"
             label="1+1"
             dense
             @click.stop="onClickOnePlusOne(item)"
@@ -205,80 +206,27 @@
                 />
               </kw-form-item>
             </kw-form-row>
-            <div
-              v-if="false"
-              class="flex wrap gap-xs scoped-price-form__no-labels"
-            >
-              <kw-select
-                v-if="priceDefineVariableOptions.stplPrdCd"
-                v-model="priceDefineVariables.stplPrdCd"
-                :options="priceDefineVariableOptions.stplPrdCd"
-                placeholder="약정기간"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.cntrPtrm"
-                v-model="priceDefineVariables.cntrPtrm"
-                :options="priceDefineVariableOptions.cntrPtrm"
-                placeholder="계약기간"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.cntrAmt"
-                v-model="priceDefineVariables.cntrAmt"
-                :options="priceDefineVariableOptions.cntrAmt"
-                placeholder="등록비"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.rentalDscDvCd"
-                v-model="priceDefineVariables.rentalDscDvCd"
-                :options="priceDefineVariableOptions.rentalDscDvCd"
-                placeholder="렌탈할인구분"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.rentalDscTpCd"
-                v-model="priceDefineVariables.rentalDscTpCd"
-                :options="priceDefineVariableOptions.rentalDscTpCd"
-                placeholder="렌탈할인유형"
-                :disable="!!rentalDiscountFixed"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.svPdCd"
-                v-model="priceDefineVariables.svPdCd"
-                :options="priceDefineVariableOptions.svPdCd"
-                placeholder="서비스(용도/방문주기)"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-            </div>
           </kw-form>
         </kw-item-section>
       </kw-item>
       <kw-item
-        v-if="opo?.opoYn"
+        v-for="(cntrRel) in cntrRels"
+        :key="cntrRel.cntrRelId"
         class="scoped-item"
       >
         <kw-item-section>
           <kw-item-label class="row no-wrap items-center">
             <kw-chip
-              label="1+1"
-              color="primary"
+              :label="getCodeName('CNTR_REL_DTL_CD', cntrRel.cntrRelDtlCd)"
               outline
+              color="primary"
             />
             <div
               class="grow ellipsis pl8 hp-w1"
             >
-              {{ opo?.pdNm }}
+              {{ cntrRel.ojBasePdBas?.pdNm }}
               <kw-tooltip show-when-ellipsised>
-                {{ opo?.pdNm }}
+                {{ cntrRel.ojBasePdBas?.pdNm }}
               </kw-tooltip>
             </div>
           </kw-item-label>
@@ -363,7 +311,7 @@ const props = defineProps({
 const emit = defineEmits([
   'device-change',
   'one-plus-one',
-  'delete-one-plus-one',
+  'delete:one-plus-one',
   'price-changed',
   'promotion-changed',
   'delete',
@@ -379,12 +327,16 @@ const { getCodeName } = await useCtCode(
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
   'ALNCMP_CD',
+  'CNTR_REL_DTL_CD',
 );
 const dataService = useDataService();
 const alncCntrPriceCodes = ref([]);
 
 const EMPTY_SYM = Symbol('__undef__');
 const EMPTY_ID = ' '; /*  FIXME!!! */
+
+const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
+const RENTAL_DSC_TP_CD_ONE_PLUS_ONE = '03';
 
 const dtl = ref(props.modelValue);
 
@@ -395,13 +347,19 @@ let fnlAmt = toRef(props.modelValue, 'fnlAmt');
 let rentalDiscountFixed = toRef(props.modelValue, 'rentalDiscountFixed');
 let pdQty = toRef(props.modelValue, 'pdQty');
 let mchnCh = toRef(props.modelValue, 'mchnCh');
-let opo = toRef(props.modelValue, 'opo');
+let cntrRels = toRef(props.modelValue, 'cntrRels');
 let bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
 let appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
 let promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
 let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
 let alncCntrNms = toRef(props.modelValue, 'alncCntrNms', []);
 // appliedPromotions.value ??= [];
+
+const existOnePlusOneRel = computed(() => !!(cntrRels.value ?? [])
+  .find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE));
+
+const existOnePlusOnePriceOption = computed(() => !!finalPriceOptions.value
+  .find((price) => price.rentalDscTpCd === RENTAL_DSC_TP_CD_ONE_PLUS_ONE));
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '2'));
 
@@ -428,9 +386,8 @@ const isExistAlncPd = computed(() => !isEmpty(priceDefineVariables.value?.svPdCd
 async function fetchFinalPriceOptions() {
   const { data } = await dataService.get('sms/wells/contract/final-price', {
     params: {
+      cntrNo: props.bas.cntrNo,
       pdCd: dtl.value.pdCd,
-      sellChnlDtlCd: dtl.value.sellChnlDtlCd,
-      copnDvCd: props.bas?.copnDvCd,
     },
     silent: true,
   });
@@ -464,19 +421,6 @@ async function fetchAllianceContracts() {
 if (!finalPriceOptions.value?.length) {
   await fetchFinalPriceOptions();
 }
-
-// const mchnCh = ref({
-//   mchnChYn: true,
-//   ojCntrNo: 'E123213123213',
-//   ojCntrSn: 1,
-//   pdNm: '변경된 가격을 지정합니다.',
-// });
-// const opo = ref({
-//   opoYn: true,
-//   ojCntrNo: 'E123213123213',
-//   ojCntrSn: 1,
-//   pdNm: '길고길고길고길 상품 이름이 있습니다. 길고길고길고길 상품 이름이 있습니다.길고길고길고길 상품 이름이 있습니다.길고길고길고길 상품 이름이 있습니다.',
-// });
 
 const labelGenerator = {
   svPdCd: (val, finalPrice) => {
@@ -545,7 +489,7 @@ function reconnectReactivities() {
   rentalDiscountFixed = toRef(props.modelValue, 'rentalDiscountFixed');
   pdQty = toRef(props.modelValue, 'pdQty');
   mchnCh = toRef(props.modelValue, 'mchnCh');
-  opo = toRef(props.modelValue, 'opo');
+  cntrRels = toRef(props.modelValue, 'cntrRels');
   bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
   promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
@@ -625,6 +569,14 @@ const priceDefineVariableOptions = computed(() => variableNames.reduce((mappingO
   mappingObj[variableName] = options;
   return mappingObj;
 }, {}));
+
+const onePlusOneDisable = computed(() => {
+  const machineChanged = mchnCh.value?.mchnChYn;
+  const priceIsNotSelectable = !(priceDefineVariableOptions.value.rentalDscTpCd || [])
+    .map((code) => code.codeId)
+    .includes(RENTAL_DSC_TP_CD_ONE_PLUS_ONE);
+  return machineChanged || priceIsNotSelectable;
+});
 
 function forcedChangeValidVariable(val) {
   if (!val) {
@@ -745,6 +697,7 @@ function onClickDeviceChange() {
 }
 
 function onClickOnePlusOne() {
+  console.log('onePlusOneDisable', onePlusOneDisable.value);
   emit('one-plus-one', props.modelValue);
 }
 
@@ -759,8 +712,7 @@ function onClickDeleteDeviceChange() {
 function onDeleteOnePlusOne() {
   priceDefineVariables.value.sellDscTpCd = undefined;
   rentalDiscountFixed.value = false;
-  opo.value = {};
-  emit('delete-one-plus-one');
+  emit('delete:one-plus-one', props.modelValue);
 }
 
 async function onChangeAlncCntr(selected) {

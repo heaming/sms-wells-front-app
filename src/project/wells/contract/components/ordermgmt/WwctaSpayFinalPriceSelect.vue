@@ -220,9 +220,8 @@ const finalPriceOptions = ref([]);
 async function fetchFinalPriceOptions() {
   const { data } = await dataService.get('sms/wells/contract/final-price', {
     params: {
+      cntrNo: props.bas.cntrNo,
       pdCd: dtl.value.pdCd,
-      sellChnlDtlCd: dtl.value.sellChnlDtlCd,
-      copnDvCd: props.bas?.copnDvCd,
     },
   });
   finalPriceOptions.value = data || [];
