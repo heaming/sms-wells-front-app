@@ -130,8 +130,7 @@ async function fetchFinalPriceOptions() {
     silent: true,
   });
   finalPriceOptions.value = data || [];
-  selectedFinalPrice.value = finalPriceOptions.value
-    .find((finalPrice) => (finalPrice.pdPrcFnlDtlId === pdPrcFnlDtlId.value));
+  selectedFinalPrice.value = finalPriceOptions.value?.[0];
 }
 
 if (!finalPriceOptions.value?.length) {
