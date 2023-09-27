@@ -437,6 +437,7 @@ async function onClickDeposit() {
 
   let errorCount = 0;
   let duplicateCheck = 0;
+  let resultSum = 0;
 
   changedRows.forEach((p1) => {
     if (changedRows[0].billBndNo !== p1.billBndNo) {
@@ -450,7 +451,10 @@ async function onClickDeposit() {
     }
 
     p1.sort = 'deposit';
+    resultSum += p1.billDpAmt;
   });
+
+  changedRows.forEach((p1) => { p1.resultSum = resultSum; });
 
   if (errorCount > 0) {
     alert('전표 생성의 경우 동일한 채권번호만 가능합니다.');
