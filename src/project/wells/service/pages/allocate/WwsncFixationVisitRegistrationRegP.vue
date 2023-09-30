@@ -23,15 +23,6 @@
     >
       <kw-search-row>
         <kw-search-item :label="$t('계약일련번호')">
-          <!-- 기존 코드
-          <kw-input
-            v-model="searchParams.cntrDtlNo"
-            icon="search"
-            :max-length="50"
-            clearable
-            @click-icon="onClickSearchContract"
-          />
-          -->
           <!-- 계약파트 컴포넌트 변경(2023.06.27 KJ) -->
           <zctz-contract-detail-number
             ref="contractNumberRef"
