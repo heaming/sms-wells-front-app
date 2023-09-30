@@ -181,13 +181,18 @@ const grdType = ref('A');
 const stepNaviRef = ref();
 const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD',
+  'SELL_DSC_DV_CD',
+  'SELL_DSCR_CD',
+  'SELL_DSC_TP_CD',
+  'PMOT_USWY_DV_ACD',
+  'BFSVC_PRD_CD',
 );
 let cachedParams;
 const searchParams = ref({
   type: 'A',
   perfYm: now.format('YYYYMM'),
-  strtYm: now.format('YYYYMM'),
-  endYm: now.add(1, 'month').format('YYYYMM'),
+  strtYm: '201703',
+  endYm: now.add(-1, 'month').format('YYYYMM'),
   cancelStrtYm: '',
   cancelEndYm: '',
   feeSchdTpCd: '501', // 신채널(총판)
@@ -323,13 +328,13 @@ const initGridDetail = defineGrid((data, view) => {
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' },
-    { fieldName: 'sellDscDvCdNm', header: t('MSG_TXT_PD_DC_CLASS'), width: '98' },
-    { fieldName: 'sellDscrCdNm', header: t('MSG_TXT_DISC_CODE'), width: '98' },
-    { fieldName: 'sellDscTpCdNm', header: t('MSG_TXT_DSC_SYST'), width: '98', styleName: 'text-right' },
-    { fieldName: 'relPdCdNm', header: t('MSG_TXT_COMBI_DV'), width: '98' },
-    { fieldName: 'pmotUswyDvCdNm', header: t('MSG_TXT_USWY_DV'), width: '98' },
+    { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '98' },
+    { fieldName: 'sellDscrCd', header: t('MSG_TXT_DISC_CODE'), width: '98' },
+    { fieldName: 'sellDscTpCd', header: t('MSG_TXT_DSC_SYST'), width: '98', styleName: 'text-right' },
+    { fieldName: 'relPdCd', header: t('MSG_TXT_COMBI_DV'), width: '98' },
+    { fieldName: 'pmotUswyDvCd', header: t('MSG_TXT_USWY_DV'), width: '98', options: codes.PMOT_USWY_DV_ACD },
     { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98' },
-    { fieldName: 'bfsvcPrdCdNm', header: t('MSG_TXT_VST_PRD'), width: '98' },
+    { fieldName: 'bfsvcPrdCd', header: t('MSG_TXT_VST_PRD'), width: '98', options: codes.BFSVC_PRD_CD },
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
