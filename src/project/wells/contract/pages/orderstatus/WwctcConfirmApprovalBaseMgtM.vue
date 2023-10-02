@@ -112,6 +112,7 @@
             inset
           />
           <kw-btn
+            v-permission:download
             icon="download_on"
             dense
             secondary
@@ -125,6 +126,7 @@
             inset
           />
           <kw-btn
+            v-permission:read
             primary
             dense
             :label="t('MSG_BTN_CNFM_CRTR_MGT')"
