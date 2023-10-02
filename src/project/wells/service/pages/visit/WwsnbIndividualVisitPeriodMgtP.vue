@@ -164,7 +164,7 @@
           <kw-input
             v-model="processParam.vstNmnN"
             rules="numeric"
-            :custom-messages="{ numeric:$t('방문차월 항목은 숫자만 사용가능 합니다.') }"
+            :custom-messages="{ numeric:$t('방문차월 항목은 숫자만 입력가능 합니다.') }"
           />
         </kw-form-item>
         <kw-form-item :label="$t('주기삭제')">
