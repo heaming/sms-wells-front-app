@@ -23,7 +23,7 @@
           <kw-input
             v-model="searchParams.zipFrom"
             :maxlength="5"
-            :placeholder="'입력해주세요'"
+            :placeholder="'입력'"
             :regex="/^[0-9]*$/i"
             @blur="zipFromPad"
           />
@@ -31,7 +31,7 @@
           <kw-input
             v-model="searchParams.zipTo"
             :maxlength="5"
-            :placeholder="'입력해주세요'"
+            :placeholder="'입력'"
             :regex="/^[0-9]*$/i"
             @blur="zipToPad"
           />
