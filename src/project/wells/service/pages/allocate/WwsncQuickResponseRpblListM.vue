@@ -49,10 +49,11 @@
             first-option="all"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('계약번호')">
+        <kw-search-item :label="$t('계약상세번호')">
           <kw-input
             v-model="searchParams.cntrNo"
-            maxlength="100"
+            :placeholder="'계약번호-계약일련번호'"
+            :maxlength="100"
           />
         </kw-search-item>
       </kw-search-row>
@@ -247,7 +248,7 @@
         />
         <kw-btn
           v-permission:create
-          :label="$t('QR재발행')"
+          :label="$t('S/N 재발행')"
           primary
           dense
           @click="onClickQrRpbl"
