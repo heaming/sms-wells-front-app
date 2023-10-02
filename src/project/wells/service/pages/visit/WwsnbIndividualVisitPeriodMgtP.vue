@@ -21,13 +21,6 @@
       <template #left>
         <h3>{{ $t('고객정보') }}</h3>
       </template>
-
-      <kw-btn
-        icon="print"
-        dense
-        secondary
-        :label="$t('인쇄')"
-      />
     </kw-action-top>
 
     <kw-form>
@@ -170,6 +163,8 @@
         <kw-form-item :label="$t('방문차월')">
           <kw-input
             v-model="processParam.vstNmnN"
+            rules="numeric"
+            :custom-messages="{ numeric:$t('방문차월 항목은 숫자만 사용가능 합니다.') }"
           />
         </kw-form-item>
         <kw-form-item :label="$t('주기삭제')">
