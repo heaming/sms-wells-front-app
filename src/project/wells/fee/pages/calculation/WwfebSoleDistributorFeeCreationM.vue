@@ -328,9 +328,44 @@ const initGridDetail = defineGrid((data, view) => {
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' },
-    { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '98' },
-    { fieldName: 'sellDscrCd', header: t('MSG_TXT_DISC_CODE'), width: '98' },
-    { fieldName: 'sellDscTpCd', header: t('MSG_TXT_DSC_SYST'), width: '98', styleName: 'text-right' },
+    {
+      fieldName: 'sellDscDvCd',
+      header: t('MSG_TXT_PD_DC_CLASS'),
+      width: '98',
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        if (codes.SELL_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
+          retValue = codes.SELL_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+        }
+        return retValue;
+      },
+    },
+    {
+      fieldName: 'sellDscrCd',
+      header: t('MSG_TXT_DISC_CODE'),
+      width: '98',
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        const { sellDscDvCd } = grid.getValues(index.itemIndex);
+        if (sellDscDvCd === '5') {
+          retValue = codes.SELL_DSCR_CD.find((v) => v.codeId === value)?.codeName;
+        }
+        return retValue;
+      },
+    },
+    {
+      fieldName: 'sellDscTpCd',
+      header: t('MSG_TXT_DSC_SYST'),
+      width: '98',
+      styleName: 'text-right',
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        if (codes.SELL_DSC_TP_CD.map((v) => v.codeId).includes(value)) {
+          retValue = codes.SELL_DSC_TP_CD.find((v) => v.codeId === value)?.codeName;
+        }
+        return retValue;
+      },
+    },
     { fieldName: 'relPdCd', header: t('MSG_TXT_COMBI_DV'), width: '98' },
     { fieldName: 'pmotUswyDvCd', header: t('MSG_TXT_USWY_DV'), width: '98', options: codes.PMOT_USWY_DV_ACD },
     { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98' },
