@@ -324,7 +324,7 @@ async function onClickRemove() {
     }
   });
 
-  grdPageRef.value.getData().clearRows();
+  // grdPageRef.value.getData().clearRows();
 
   const mainData = cloneDeep(regMainData.value);
 
@@ -335,6 +335,7 @@ async function onClickRemove() {
 
   if (deletedRows.length > 0) {
     await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/details', cachedParams);
+    grdPageRef.value.getData().clearRows();
     await fetchData();
   }
 
