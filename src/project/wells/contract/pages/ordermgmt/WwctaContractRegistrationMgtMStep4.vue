@@ -723,7 +723,7 @@ async function calcRestipulation() {
 
   const stplStrtDay = stplExpired ? startDayOfNextMonth : startDayOfStplEndMonth;
   const stplEndDay = stplStrtDay
-    .add(Number(restipulationBasInfo.value.stplPtrm), 'month')
+    .add(Number(restipulationBasInfo.value.stplPtrm) - 1, 'month')
     .endOf('M')
     .format('YYYYMMDD');
   const stplStrtdt = stplStrtDay.format('YYYYMMDD');
