@@ -302,9 +302,11 @@ ${step4.cntrt.sexDvNm || ''}`
               dense
             >
               <kw-form-row
-                v-if="step4.bas?.cntrTpCd === '02'"
+                v-if="step4.bas?.copnDvCd === '2'"
               >
-                <kw-form-item label=" 세금계산서발행">
+                <kw-form-item
+                  :label="t('MSG_TXT_TXINV_PBL')"
+                >
                   <p>
                     {{ codes.COD_YN.find((code) => code.codeId === item.txinvPblOjYn)?.codeName }}
                   </p>
