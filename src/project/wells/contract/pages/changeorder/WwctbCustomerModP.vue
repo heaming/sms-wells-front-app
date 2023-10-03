@@ -414,18 +414,11 @@ async function onClickSave() {
   } else {
     if (await obsMainRef.value.alertIfIsNotModified()) { return; } // 계약자 정보 체크
     if (!await obsMainRef.value.validate()) { return; }
-
-    if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
-    await saveCustomerInfo();
-    ok();
-    notify(t('MSG_ALT_SAVE_DATA'));
-    return;
   }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
-
   await saveCustomerInfo();
 
-  await dataService.post('/sms/wells/contract/changeorder/changes/customers', fieldParams.value);
+  if (await obsSubRef.value.isModified()) { await dataService.post('/sms/wells/contract/changeorder/changes/customers', fieldParams.value); }
   ok();
   notify(t('MSG_ALT_SAVE_DATA'));
 }
