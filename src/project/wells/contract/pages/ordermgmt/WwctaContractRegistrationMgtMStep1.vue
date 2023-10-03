@@ -221,6 +221,7 @@
       <h3>
         {{ t('MSG_TXT_CNTRT_INF') }}
         <kw-btn
+          v-if="searchParams.copnDvCd === '1'"
           v-permission:update
           icon-right="write_24"
           dense
