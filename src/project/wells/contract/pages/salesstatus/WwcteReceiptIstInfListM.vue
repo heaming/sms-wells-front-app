@@ -720,7 +720,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_ETC'), // 기타
       direction: 'horizontal', // merge type
-      items: ['pkgCd', 'pkgSn', { header: 'DC', direction: 'horizontal', items: ['dc1', 'dc2', 'dc3'] }, 'ackmtPerfAmt', 'ackmtPerfRt', 'booSellTpCd', 'e2', 'cttRsCd', 'sellEvCd'],
+      items: ['pkgCd', 'pkgSn', { header: 'DC', direction: 'horizontal', items: ['dc1', 'dc2', 'dc3'], hideChildHeaders: true }, 'ackmtPerfAmt', 'ackmtPerfRt', 'booSellTpCd', 'e2', 'cttRsCd', 'sellEvCd'],
     },
     {
       header: t('MSG_TXT_ETC'), // 기타
