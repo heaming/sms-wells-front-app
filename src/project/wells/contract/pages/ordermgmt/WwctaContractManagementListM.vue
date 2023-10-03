@@ -356,7 +356,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
@@ -366,6 +366,7 @@ const { t } = useI18n();
 const { getters } = useStore();
 const { alert, confirm, modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
+const { hasRoleNickName } = useMeta();
 
 let cachedParams;
 const loginInfo = ref({
@@ -445,6 +446,10 @@ const isGrdDtlHcrSvcListVisible = ref(false); // 상세내역-홈케어서비스
 const isGrdDtlSdingSpayListVisible = ref(false); // 상세내역-모종일시불
 const isGrdDtlRglrSppListVisible = ref(false); // 상세내역-정기배송
 const isGrdDtlLtmIstmListVisible = ref(false); // 상세내역-장기할부
+
+// 확정버튼 권한체크
+const isHeadOfficeRole = (hasRoleNickName('ROL_W1010') || hasRoleNickName('ROL_W1020')); // 본사스텝(W1010), 업무담당(W1020)
+console.log(`isHeadOfficeRole :${isHeadOfficeRole}`);
 
 // 조직코드 조회
 const codesDgr2Levl = ref([]);
@@ -1086,12 +1091,12 @@ const initGrdMstList = defineGrid((data, view) => {
       renderer: { type: 'button', hideWhenEmpty: false },
       displayCallback(grid, index) {
         const { cntrPrgsStatCd } = grid.getValues(index.itemIndex);
-        return cntrPrgsStatCd < '60' ? t('MSG_TXT_DTRM') : ''; // 계약진행상태코드(확정)
+        return cntrPrgsStatCd < '60' && isHeadOfficeRole ? t('MSG_TXT_DTRM') : ''; // 계약진행상태코드(확정)
       },
       styleCallback(grid, dataCell) {
         const { cntrPrgsStatCd } = grid.getValues(dataCell.index.itemIndex);
         const retrunValue = cntrPrgsStatCd < '60' ? cntrPrgsStatCd : 0;
-        return retrunValue !== 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
+        return retrunValue !== 0 && isHeadOfficeRole ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
       },
     }, // 확정
     { fieldName: 'rqsIz',
