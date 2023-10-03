@@ -76,9 +76,9 @@
                       class="ellipsis grow pr20 cursor-pointer"
                       @click="onClickProduct(product)"
                     >
-                      {{ product.pdNm }}
+                      {{ product.cstBasePdAbbrNm || product.pdNm }}
                       <kw-tooltip show-when-ellipsised>
-                        {{ product.pdNm }}
+                        {{ product.cstBasePdAbbrNm || product.pdNm }}
                       </kw-tooltip>
                     </div>
                   </kw-item-label>
@@ -218,7 +218,8 @@ const filteredClassifyingProducts = computed(() => {
       return filtered;
     }
     const filteredProducts = classified
-      .filter((product) => (!cachedParams.value.filterText || product.pdNm?.includes(cachedParams.value.filterText)))
+      .filter((product) => (!cachedParams.value.filterText
+        || (product.cstBasePdAbbrNm || product.pdNm)?.includes(cachedParams.value.filterText)))
       .filter((product) => (!cachedParams.value.sellTpCd || product.sellTpCd === cachedParams.value.sellTpCd));
     if (filteredProducts.length) {
       filtered[pdClsfCd] = filteredProducts;
