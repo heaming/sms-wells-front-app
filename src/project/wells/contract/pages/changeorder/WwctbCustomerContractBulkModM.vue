@@ -1059,7 +1059,12 @@ watch(() => fieldParams.value.fntDvCd, (val) => {
   // 증빙원본 선택시, 그리드에서 증빙원본 조회버튼을 보여준다.
   const view = grdCustomerRef.value.getView();
 
-  if (isEqual(val, '1') || isEqual(val, '2')) { view.checkBar.visible = false; } else { view.checkBar.visible = true; }
+  if (isEqual(val, '1') || isEqual(val, '2')) {
+    if (view.checkBar.visible) { view.setAllCheck(false); }
+    view.checkBar.visible = false;
+  } else {
+    view.checkBar.visible = true;
+  }
 });
 
 // -------------------------------------------------------------------------------------------------
