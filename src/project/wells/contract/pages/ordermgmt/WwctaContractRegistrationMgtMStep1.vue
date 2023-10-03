@@ -191,7 +191,6 @@
       v-if="cntrTpIs.quot"
     >
       <h3>{{ $t('MSG_TXT_CNTRT_INF') }} - {{ $t('MSG_TXT_QUOT') }}</h3>
-
       <kw-form
         :cols="2"
       >
@@ -218,8 +217,21 @@
     <template
       v-if="step1.cntrt?.cstNo"
     >
-      <h3>{{ $t('MSG_TXT_CNTRT_INF') }}</h3>
-
+      <!--계약자 정보-->
+      <h3>
+        {{ t('MSG_TXT_CNTRT_INF') }}
+        <kw-btn
+          v-if="searchParams.copnDvCd === '1'"
+          v-permission:update
+          icon-right="write_24"
+          dense
+          borderless
+          label="정보수정"
+          align="right"
+          class="kw-fc--black3 kw-font-pt14 ml60"
+          @click="onClickSendUrlMsg('05')"
+        />
+      </h3>
       <kw-form
         :cols="2"
         dense
@@ -239,7 +251,7 @@
             >
               <p>
                 {{ `${step1.cntrt?.cstKnm} / ${
-                  stringUtil.getDateFormat(step1.cntrt?.bryyMmdd)} /${
+                  stringUtil.getDateFormat(step1.cntrt?.bryyMmdd)} / ${
                   getCodeName('SEX_DV_CD', step1.cntrt?.sexDvCd)}` }}
               </p>
             </kw-form-item>
@@ -255,7 +267,7 @@
                 v-else
                 dense
                 :label="$t('MSG_TXT_SELF_AUTH_REQUIRED')"
-                @click="onClickSelfAuth"
+                @click="onClickSendUrlMsg('01')"
               />
               <p>
                 &nbsp;/&nbsp;
@@ -271,7 +283,7 @@
                 <kw-btn
                   dense
                   :label="$t('MSG_BTN_TERMS_AG_URL_TRS')"
-                  @click="onClickPrvAg"
+                  @click="onClickSendUrlMsg('02')"
                 />
               </p>
             </kw-form-item>
@@ -604,44 +616,41 @@ function clearSelected() {
   step1.value.cntrt = {};
 }
 
-async function onClickSelfAuth() {
-  if (await confirm('본인인증 알림톡을 발송하시겠습니까?')) {
-    // 본인인증 알림톡 어떻게 발송하는지 확인필요
-    // URL을 서비스를 통해 발송한다.
-    const mobileNo = step1.value.cntrt.cralLocaraTno + step1.value.cntrt.mexnoEncr + step1.value.cntrt.cralIdvTno;
+async function onClickSendUrlMsg(templateCd) {
+  const templateOptions = [
+    { codeId: '01', codeName: t('MSG_TXT_HS_CTF') },
+    { codeId: '02', codeName: t('MSG_TXT_PRV_AG') },
+    { codeId: '05', codeName: t('MSG_TXT_CST_INF_MDFC') },
+  ];
+
+  const nm = templateOptions.find((v) => (v.codeId === templateCd))?.codeName;
+  if (!nm) {
+    await alert('잘못된 템플릿 요청입니다.');
+    return;
+  }
+
+  if (await confirm(`${nm} 알림톡을 발송하시겠습니까?`)) {
+    const { cstKnm, cstNo, cralLocaraTno, mexnoEncr, cralIdvTno } = step1.value.cntrt;
+    const mpno = `${cralLocaraTno}${mexnoEncr}${cralIdvTno}`;
+    if (!cstKnm || !mpno) {
+      await alert('이름과 휴대전화번호는 필수 입니다.');
+      return;
+    }
     const data = {
       dispatchMedium: 'A', // 카카오 비즈톡
-      templateCd: '01', // 본인인증
+      templateCd, // 본인인증 01, 약관동의 02, 고객정보수정 05
       subject: '',
       msgContent: '',
       callback: '15776688',
-      destInfo: `${step1.value.cntrt.cstKnm}^${mobileNo}`,
-      cstNoInfo: `${step1.value.cntrt.cstKnm}^${mobileNo}^${step1.value.cntrt.cstNo}`,
+      destInfo: `${cstKnm}^${mpno}`,
+      cstNoInfo: `${cstKnm}^${mpno}^${cstNo}`,
       scheduleType: '0',
       sendDatetime: '',
     };
 
     await dataService.post('/sms/common/customer/url-messages', data);
-    alert('URL 발송이 완료되었습니다.');
-    notify(t('MSG_ALT_URL_TRS_FSH'));
+    await alert(t('MSG_ALT_URL_TRS_FSH'));
   }
-}
-
-async function onClickPrvAg() {
-  const checkCount = 1;
-  const checkAg = 'A';
-  const { cstKnm, cstNo, cralLocaraTno, mexnoEncr, cralIdvTno } = step1.value.cntrt;
-  const mpno = `${cralLocaraTno}${mexnoEncr}${cralIdvTno}`;
-  if (!cstKnm || !mpno) {
-    await alert('이름과 휴대전화번호는 필수 입니다.');
-    return;
-  }
-  const destInfo = `${cstKnm}^${mpno}`;
-  const cstNoInfo = `${cstKnm}^${mpno}^${cstNo}`;
-  await modal({
-    component: 'ZwcsaIndvCustomerUrlTransferMgtP',
-    componentProps: { checkCount, destInfo, cstNoInfo, checkAg },
-  });
 }
 
 function isValidAlncPrtnr() {
