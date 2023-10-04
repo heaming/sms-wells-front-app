@@ -83,9 +83,10 @@
             :cols="0"
             :label-size="150"
           >
-            <kw-form-row>
+            <kw-form-row
+              v-if="multipleQuantityAvailable"
+            >
               <kw-form-item
-                v-if="dtl.sellTpDtlCd === '11'"
                 :label="'수량변경'"
               >
                 <zwcm-counter
@@ -125,7 +126,7 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row
-              v-if="spayDscrCdSelectable || rentalCrpDscrCdSelectable || selectedFinalPrice"
+              v-if="spayDscrCdSelectable || rentalCrpDscrCdSelectable || showSvPtrms"
               :cols="2"
             >
               <kw-form-item
@@ -157,7 +158,7 @@
                 />
               </kw-form-item>
               <kw-form-item
-                v-if="selectedFinalPrice"
+                v-if="showSvPtrms"
                 :label="'무상개월 AS/BS'"
               >
                 {{ `${selectedFinalPrice.frisuPtrm || 0}개월 / ${selectedFinalPrice.recapPtrm || 0}개월` }}
@@ -219,9 +220,17 @@ const { getCodeName } = await useCtCode(
 const dataService = useDataService();
 
 const EMPTY_SYM = Symbol('__undef__');
-const EMPTY_ID = ' '; /*  FIXME!!! */
+const EMPTY_ID = ' '; /*  cause, KW COMPOs does not distinguish between '', undefined and null. */
+
+const SELL_TP_DTL_CD_SPAY_NOM = '11';
+const SELL_TP_DTL_CD_SPAY_ENVR_ELHM = '13';
 
 const dtl = ref(props.modelValue);
+
+const multipleQuantityAvailable = computed(() => {
+  const { bcMngtPdYn, sellTpDtlCd } = dtl.value;
+  return bcMngtPdYn !== 'Y' && sellTpDtlCd === SELL_TP_DTL_CD_SPAY_NOM;
+});
 
 /* 직간접적으로 업데이트 할 값들 */
 let pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
@@ -232,6 +241,7 @@ let pdQty = toRef(props.modelValue, 'pdQty');
 let appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
 
 const promotions = ref(props.modelValue?.promotions); /* 적용가능한 프로모션 목록 */
+
 appliedPromotions.value ??= [];
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '1'));
@@ -249,14 +259,6 @@ async function fetchFinalPriceOptions() {
 }
 
 await fetchFinalPriceOptions();
-
-/*
-* SPAY_DSC_DV_CD
-SPAY_DSCR_CD
-SPAY_PMOT_DV_CD
-HCR_DV_CD
-RENTAL_CRP_DSCR_CD
-*  */
 
 const priceDefineVariables = ref({
   svPdCd: toRef(props.modelValue, 'svPdCd'),
@@ -501,6 +503,8 @@ watch(selectedFinalPrice, (newPrice) => {
   pdPrcFnlDtlId.value = newPrice?.pdPrcFnlDtlId ?? undefined;
   clearPromotions();
 }, { immediate: true });
+
+const showSvPtrms = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD_SPAY_ENVR_ELHM && selectedFinalPrice.value);
 
 function onClickDelete() {
   emit('delete', props.modelValue);
