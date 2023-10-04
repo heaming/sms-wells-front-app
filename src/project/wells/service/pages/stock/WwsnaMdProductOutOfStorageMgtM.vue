@@ -92,18 +92,18 @@
           @click="onClickExcelUpload"
         />
         <kw-btn
+          v-show="!isCompStatus"
+          grid-action
+          :label="$t('MSG_BTN_SAVE')"
+          @click="onClickSave"
+        />
+        <kw-btn
           icon="download_on"
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
           :disable="totalCount === 0"
           @click="onClickExcelDownload"
-        />
-        <kw-btn
-          v-show="!isCompStatus"
-          grid-action
-          :label="$t('MSG_BTN_SAVE')"
-          @click="onClickSave"
         />
       </kw-action-top>
       <kw-grid
