@@ -302,9 +302,11 @@ ${step4.cntrt.sexDvNm || ''}`
               dense
             >
               <kw-form-row
-                v-if="step4.bas?.cntrTpCd === '02'"
+                v-if="step4.bas?.copnDvCd === '2'"
               >
-                <kw-form-item label=" 세금계산서발행">
+                <kw-form-item
+                  :label="t('MSG_TXT_TXINV_PBL')"
+                >
                   <p>
                     {{ codes.COD_YN.find((code) => code.codeId === item.txinvPblOjYn)?.codeName }}
                   </p>
@@ -723,7 +725,7 @@ async function calcRestipulation() {
 
   const stplStrtDay = stplExpired ? startDayOfNextMonth : startDayOfStplEndMonth;
   const stplEndDay = stplStrtDay
-    .add(Number(restipulationBasInfo.value.stplPtrm), 'month')
+    .add(Number(restipulationBasInfo.value.stplPtrm) - 1, 'month')
     .endOf('M')
     .format('YYYYMMDD');
   const stplStrtdt = stplStrtDay.format('YYYYMMDD');
@@ -831,12 +833,15 @@ function onClickNextDtlSn() {
   if (dtlSn.value < step4.value.dtls.length) dtlSn.value += 1;
 }
 
+const loaded = ref(false);
 async function initStep() {
+  if (loaded.value) { return; }
   if (cntrTpCd.value === '08') {
     await getCntrInfoWithRstl();
   } else {
     await getCntrInfo();
   }
+  loaded.value = true;
 }
 
 exposed.getCntrInfo = getCntrInfo;

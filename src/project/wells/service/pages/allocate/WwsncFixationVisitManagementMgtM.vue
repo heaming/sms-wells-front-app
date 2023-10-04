@@ -380,7 +380,7 @@ const initGrid = defineGrid((data, view) => {
         return `${locaraTno}${div}${exnoEncr}${div2}${idvTno}`;
       },
     },
-    { fieldName: 'pdctPdNm', header: '상품명', width: '250', styleName: 'text-center' },
+    { fieldName: 'pdctPdNm', header: '상품명', width: '250', styleName: 'text-left' },
     { fieldName: 'sellTpCd', header: '판매유형', width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'fxnPrtnrDvCd', header: '관리구분', width: '100', styleName: 'text-center', options: codes.MNGR_DV_CD },
     { fieldName: 'ogNm', header: '담당센터', width: '120', styleName: 'text-center' },

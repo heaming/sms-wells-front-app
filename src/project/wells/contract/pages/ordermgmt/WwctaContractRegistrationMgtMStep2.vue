@@ -464,7 +464,6 @@ async function confirmProducts() {
   res.data.forEach((newDtl, index) => {
     step2.value.dtls[index].promotions = newDtl.promotions;
   });
-  // await productPackaging();
   return true;
 }
 
@@ -483,14 +482,15 @@ async function isValidStep() {
       alert('상품 금액을 확인해주세요.');
       return true;
     }
-    const { sellTpDtlCd, cntrRels } = dtl;
+
+    const { sellTpDtlCd, cntrRels = [] } = dtl;
 
     if (sellTpDtlCd === '62') { /* 모종의 경우 */
       const lkSdingRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_SDING);
       const baseMachineRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE);
       if (!lkSdingRel && !baseMachineRel) {
         alert('정기배송 대상 기기를 선택해주세요.');
-        return false;
+        return true;
       }
     }
 
@@ -510,9 +510,12 @@ async function isValidStep() {
   return !invalid;
 }
 
+const loaded = ref(false);
+
 async function initStep() {
-  console.log('initStep2');
+  if (loaded.value) { return; }
   await getCntrInfo();
+  loaded.value = true;
 }
 
 // 제휴계약 관련 설정
@@ -573,26 +576,11 @@ function onPriceChanged() {
     width: 339px;
     flex: none;
     height: 100%;
-    padding-bottom: 30px;
   }
 
   &__mod-area {
     height: 100%;
     flex: auto;
-  }
-}
-
-.scoped-search-box {
-  &__title {
-    margin-top: 0;
-  }
-
-  &__action {
-    margin-top: $spacing-sm;
-    display: flex;
-    flex-flow: row nowrap;
-    justify-content: flex-end;
-    gap: $spacing-xs;
   }
 }
 

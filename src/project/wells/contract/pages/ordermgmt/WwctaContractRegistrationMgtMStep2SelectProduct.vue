@@ -38,7 +38,7 @@
       v-scrollbar
       class="scoped-product-select__product-box"
     >
-      <div class="pr30">
+      <div class="pr30 pb20">
         <kw-list
           class="scoped-product-type-list"
           separator
@@ -63,6 +63,7 @@
               class="scoped-product-picker-list"
               item-class="scoped-product-picker-list__item"
               :items="filteredClassifyingProducts[pdClsfCd]"
+              item-key="pdCd"
             >
               <template #item="{item : product}">
                 <kw-item-section>
@@ -75,9 +76,9 @@
                       class="ellipsis grow pr20 cursor-pointer"
                       @click="onClickProduct(product)"
                     >
-                      {{ product.pdNm }}
+                      {{ product.cstBasePdAbbrNm || product.pdNm }}
                       <kw-tooltip show-when-ellipsised>
-                        {{ product.pdNm }}
+                        {{ product.cstBasePdAbbrNm || product.pdNm }}
                       </kw-tooltip>
                     </div>
                   </kw-item-label>
@@ -97,7 +98,6 @@
           </kw-expansion-item>
         </kw-list>
       </div>
-      <kw-separator class="mt20 mb0" />
     </div>
   </div>
 </template>
@@ -218,7 +218,8 @@ const filteredClassifyingProducts = computed(() => {
       return filtered;
     }
     const filteredProducts = classified
-      .filter((product) => (!cachedParams.value.filterText || product.pdNm?.includes(cachedParams.value.filterText)))
+      .filter((product) => (!cachedParams.value.filterText
+        || (product.cstBasePdAbbrNm || product.pdNm)?.includes(cachedParams.value.filterText)))
       .filter((product) => (!cachedParams.value.sellTpCd || product.sellTpCd === cachedParams.value.sellTpCd));
     if (filteredProducts.length) {
       filtered[pdClsfCd] = filteredProducts;
@@ -254,14 +255,13 @@ watch(() => props.cntrNo, fetchProducts, { immediate: true });
 async function onClickSearch() {
   const shouldFetchProduct = cachedParams.value.rentalDscTpCd !== searchParams.value.rentalDscTpCd;
 
-  cachedParams.value = { ...searchParams.value };
+  cachedParams.value = searchParams.value;
   if (shouldFetchProduct) {
     await fetchProducts();
   } else {
     await nextTick();
   }
   const filteredClassifiedGroup = Object.keys(filteredClassifyingProducts.value);
-  console.log('filteredClassifiedGroup', filteredClassifiedGroup);
   if (filteredClassifiedGroup.length) {
     expansionItemRef[filteredClassifiedGroup[0]]?.show();
   }
@@ -281,25 +281,26 @@ async function onClickProduct(product) {
 </script>
 
 <style lang="scss" scoped>
+@import "~@css/variables";
+
 .scoped-product-select {
   display: flex;
   flex-flow: column nowrap;
 
   &__search-box {
     flex: none;
-    padding-right: 30px;
-
-    // height: $-search-area-height;
   }
 
   &__product-box {
     flex: auto;
-
-    // height: calc(100% - #{$-search-area-height});
   }
 }
 
 .scoped-search-box {
+  padding-bottom: $spacing-lg;
+  border-bottom: 1px solid $line-line;
+  margin-right: 30px;
+
   &__title {
     margin-top: 0;
   }

@@ -309,8 +309,8 @@ const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
     { fieldName: 'cstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
     { fieldName: 'cstNo', header: t('MSG_TXT_ENTRP_NO'), width: '138', styleName: 'text-center' }, // 계약자 정보-사업자번호
     { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 계약자 정보-우편번호
-    { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '388', styleName: 'text-left' }, // 계약자 정보-기준주소
-    { fieldName: 'cntrCstRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '231', styleName: 'text-left' }, // 계약자 정보-상세주소
+    { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 계약자 정보-기준주소
+    { fieldName: 'cntrCstRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자 정보-상세주소
     { fieldName: 'rcgvpKnmEncr', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-center' }, // 설치정보-설치자명
     {
       fieldName: 'shpadrCralTno',
@@ -319,8 +319,8 @@ const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
       styleName: 'text-center',
     }, // 설치정보-휴대전화번호
     { fieldName: 'shpadrAdrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 설치정보-우편번호
-    { fieldName: 'shpadrRnadr', header: t('MSG_TXT_STD_ADDR'), width: '599', styleName: 'text-left' }, // 설치정보-기준주소
-    { fieldName: 'shpadrRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '231', styleName: 'text-left' }, // 설치정보-상세주소
+    { fieldName: 'shpadrRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 설치정보-기준주소
+    { fieldName: 'shpadrRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 설치정보-상세주소
     { fieldName: 'sellInflwChnlDtlNm', header: t('MSG_TXT_SLS_CAT'), width: '136', styleName: 'text-center' }, // 판매구분
     { fieldName: 'empDvVal', header: t('MSG_TXT_EMPL_DV'), width: '138', styleName: 'text-center' }, // 직원구분
     { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '136', styleName: 'text-center' }, // 계약자구분
@@ -381,9 +381,9 @@ const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
     { fieldName: 'reqdDt', header: t('MSG_TXT_CLTN_D'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 해약일
     { fieldName: 'sppFshM', header: t('MSG_TXT_SPP_BASE_YM'), width: '134', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 배송기준년월
     { fieldName: 'cntrCnfmDtm', header: `${t('MSG_TXT_ODER')}${t('MSG_TXT_CNFM_DTM')}`, width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 주문확정일시
-    { fieldName: 'slDtm', header: `${t('MSG_TXT_DY_SL')}${t('MSG_TXT_CNFM_DTM')}`, width: '134', styleName: 'text-center', datetimeFormat: 'datetime' }, // 일매줄확정일시
+    { fieldName: 'slDtm', header: `${t('MSG_TXT_DY_SL')}${t('MSG_TXT_CNFM_DTM')}`, width: '160', styleName: 'text-center', datetimeFormat: 'datetime' }, // 일매줄확정일시
     { fieldName: 'freSppFshD', header: t('MSG_TXT_EXPN_SPP_D'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 체험배송일
-    { fieldName: 'lkCntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '134', styleName: 'text-center' }, // 연계정보-계약번호
+    { fieldName: 'lkCntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '180', styleName: 'text-center' }, // 연계정보-계약번호
     { fieldName: 'lkCstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '134', styleName: 'text-center' }, // 연계정보-계약자명
     { fieldName: 'lkPdCd', header: t('MSG_TXT_PRDT_CODE'), width: '134', styleName: 'text-center' }, // 연계정보-상품코드
     { fieldName: 'lkPdNm', header: t('MSG_TXT_PRDT_NM'), width: '274', styleName: 'text-center' }, // 연계정보-상품명

@@ -367,10 +367,13 @@
           <template
             v-if="item.sodbtNftfCntrYn !== 'Y'"
           >
+            <!-- 법인계약시 세금계산서 발행 선택 가능-->
             <kw-form-row
-              v-if="cntrTpCd === '02'"
+              v-if="step3.bas?.copnDvCd === '2'"
             >
-              <kw-form-item label=" 세금계산서발행">
+              <kw-form-item
+                :label="t('MSG_TXT_TXINV_PBL')"
+              >
                 <kw-option-group
                   v-model="item.txinvPblOjYn"
                   type="radio"
@@ -536,7 +539,6 @@ codes.FMMB_N = [
 ];
 
 const cntrNo = toRef(props.contract, 'cntrNo');
-const cntrTpCd = toRef(props.contract, 'cntrTpCd');
 const step3 = toRef(props.contract, 'step3');
 
 const ogStep3 = ref({});
@@ -690,8 +692,11 @@ function onChangeSodbtNftfCntr(v) {
   });
 }
 
+const loaded = ref(false);
 async function initStep() {
+  if (loaded.value) { return; }
   await getCntrInfo();
+  loaded.value = true;
 }
 
 exposed.getCntrInfo = getCntrInfo;
