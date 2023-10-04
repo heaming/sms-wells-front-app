@@ -551,7 +551,7 @@ async function fetchData2() {
   // eslint-disable-next-line no-use-before-define
   await onCheckTotalData(); // 그리드4 (총액 자동계산)
   // eslint-disable-next-line no-use-before-define
-  await onEditRfnd(props.cntrNo); // 그리드 2(전금 데이터 바인딩)
+  // await onEditRfnd(props.cntrNo); // 그리드 2(전금 데이터 바인딩)
 }
 
 async function onClickSearch() {
