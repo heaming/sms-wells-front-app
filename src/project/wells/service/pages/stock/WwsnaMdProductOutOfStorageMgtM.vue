@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :default-visible-rows="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -30,23 +31,23 @@
         <kw-search-item
           v-if="!isCompStatus"
           :colspan="2"
-          :label="$t('MSG_TXT_CNTR_DATE')"
+          :label="$t('MSG_TXT_OBJ_DT')"
         >
           <kw-date-range-picker
             v-model:from="searchParams.startDt"
             v-model:to="searchParams.endDt"
-            :label="$t('MSG_TXT_CNTR_DATE')"
+            :label="$t('MSG_TXT_OBJ_DT')"
             rules="date_range_required"
           />
         </kw-search-item>
         <kw-search-item
           v-if="isCompStatus"
           :colspan="1"
-          :label="$t('MSG_TXT_OSTR_CNFM_DT')"
+          :label="$t('MSG_TXT_WK_DT')"
         >
           <kw-date-picker
             v-model="searchParams.vstFshDt"
-            :label="$t('MSG_TXT_OSTR_CNFM_DT')"
+            :label="$t('MSG_TXT_WK_DT')"
             rules="required"
           />
         </kw-search-item>
@@ -59,6 +60,63 @@
             :maxlength="3"
             rules="numeric"
             :label="$t('MSG_TXT_SEL_LIMIT_CNT')"
+            clearable
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_FIRST_SPP_YN')"
+        >
+          <kw-option-group
+            v-model="searchParams.firstSppGb"
+            type="radio"
+            :options="customCodes.firstSppGb"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_PRTNR_BZS')">
+          <kw-select
+            v-model="searchParams.prtnrBzsCd"
+            :options="codes.PRTNR_BZS_CD"
+            :label="$t('MSG_TXT_PRTNR_BZS_CD')"
+            first-option="all"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_CNTR_NO')"
+        >
+          <kw-input
+            v-model="searchParams.cntrNo"
+            :label="$t('MSG_TXT_CNTR_NO')"
+            clearable
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_CST_NM')"
+        >
+          <kw-input
+            v-model="searchParams.cstNm"
+            :label="$t('MSG_TXT_CST_NM')"
+            clearable
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_MPNO')"
+        >
+          <kw-input
+            v-model="searchParams.cralIdvTno"
+            :label="$t('MSG_TXT_MPNO')"
+            clearable
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_SERIAL_NO')"
+        >
+          <kw-input
+            v-model="searchParams.serialNo"
+            :label="$t('MSG_TXT_SERIAL_NO')"
             clearable
           />
         </kw-search-item>
@@ -145,14 +203,18 @@ const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/service/md-product-out-of-storage';
 
-// const codes =
-await codeUtil.getMultiCodes(
-  'SV_BIZ_DCLSF_CD',
+const codes = await codeUtil.getMultiCodes(
+  'PRTNR_BZS_CD',
 );
 const customCodes = {
   findGb: [
     { codeId: '1', codeName: t('MSG_TXT_WK_FSH') },
     { codeId: '2', codeName: t('MSG_TXT_WORK_PENDING') },
+  ],
+  firstSppGb: [
+    { codeId: 'all', codeName: t('MSG_TXT_ALL') },
+    { codeId: '1', codeName: t('MSG_TXT_FIRST_SPP_YN') },
+    { codeId: 'N', codeName: t('MSG_TXT_N_NMN') },
   ],
   pcsvCompDv: [
     { codeId: '1', codeName: t('한진') },
@@ -166,6 +228,13 @@ const searchParams = ref({
   vstFshDt: now.format('YYYYMMDD'),
   findGb: '2', /* 조회 구분 */
   selCnt: '', /* 조회 제한건수  */
+  prtnrBzsCd: '', /* 파트너업체 */
+  firstSppGb: '', /* 첫 배송 여부 */
+  cntrNo: '', /* 계약번호 */
+  cstNm: '', /* 고객명 */
+  cralIdvTno: '', /* 휴대폰 번호 */
+  serialNo: '', /* 시리얼 넘버 */
+
 });
 let cachedParams;
 const totalCount = ref(0);
