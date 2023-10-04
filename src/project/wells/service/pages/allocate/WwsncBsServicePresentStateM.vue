@@ -33,20 +33,16 @@
           />
         </kw-search-item>
         <wwsn-manager-og-search-item-group
-          v-model:dgr1-levl-og-id="searchParams.mgtDept"
-          v-model:dgr2-levl-og-id="searchParams.rgnlGrp"
-          v-model:dgr3-levl-og-id="searchParams.branch"
-          v-model:dgr1-levl-og="searchParams.dgr1LevlOg"
-          v-model:dgr2-levl-og="searchParams.dgr2LevlOg"
-          v-model:dgr3-levl-og="searchParams.dgr3LevlOg"
+          ref="ogSearchRef"
+          v-model:dgr1-levl-og-id="searchParams.executiveGroup"
+          v-model:dgr2-levl-og-id="searchParams.localGroup"
+          v-model:dgr3-levl-og-id="searchParams.branchOffice"
           use-og-level="3"
-          :use-partner="false"
-          dgr1-levl-og-first-option="all"
-          dgr2-levl-og-first-option="all"
+          use-partner="false"
           dgr3-levl-og-first-option="all"
-          dgr1-levl-og-label="ogCdNm"
-          dgr2-levl-og-label="ogCdNm"
-          dgr3-levl-og-label="ogCdNm"
+          partner-first-option="all"
+          bzns-psic-auth-yn="N"
+          auth-yn="N"
         />
       </kw-search-row>
       <kw-search-row>
@@ -143,6 +139,7 @@ import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnMana
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 
+const router = useRouter();
 const dataService = useDataService();
 
 const codes = await codeUtil.getMultiCodes(
@@ -156,12 +153,12 @@ const codes = await codeUtil.getMultiCodes(
 let cachedParams;
 const searchParams = ref({
   mgtYnm: dayjs().format('YYYYMM'), // 관리년월
-  mgtDept: '', // 총괄단
-  rgnlGrp: '', // 지역단
-  branch: '', // 지점
-  dgr1LevlOg: {},
-  dgr2LevlOg: {},
-  dgr3LevlOg: {},
+  executiveGroup: '',
+  localGroup: '',
+  localGroupCd: '',
+  branchOffice: 'ALL',
+  branchOfficeCd: '',
+  pstnDvCd: '', // 직급
   prtnrNo: '', // 사번
   prtnrNm: '', // 성명
 });
@@ -274,11 +271,17 @@ const initListGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' }, // 사번
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' }, // 성명
     { fieldName: 'qlfDvCd', header: t('MSG_TXT_CRLV'), width: '100' }, // 직급
-    { fieldName: 'pdctPdCd', header: t('MSG_TXT_MGT'), width: '100', styleName: 'text-right' }, // 관리
+    { fieldName: 'npPtrm', header: t('MSG_TXT_MGT'), width: '100', styleName: 'text-right' }, // 관리
     { fieldName: 'vstDuedt', header: t('MSG_TXT_VST'), width: '100', styleName: 'text-right' }, // 방문
     { fieldName: 'cntcDt', header: t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-right' }, // 완료
     { fieldName: 'compRate', header: `${t('MSG_TXT_PROCS_RT')}(%)`, width: '100', styleName: 'text-center' }, // 처리율(%)
-    { fieldName: 'npPtrm', header: t('B/S 관리일정'), width: '150', styleName: 'text-center' }, // B/S 관리일정
+    { // B/S 관리일정
+      fieldName: 'pdctPdCd',
+      header: t('B/S 관리일정'),
+      width: '150',
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+    },
   ];
 
   data.setFields(fields);
@@ -286,6 +289,17 @@ const initListGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  // 그리드 필드 클릭시
+  view.onCellItemClicked = async (grid, clickData) => {
+    // 계약번호 클릭시
+    if (clickData.column === 'pdctPdCd') {
+      // eslint-disable-next-line max-len
+      // const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
+      // router.push({ path: '/service/wwsnb-bs-manager-schedule-date', state: { stateParam: param } });
+      router.push({ path: '/service/wwsnb-bs-manager-schedule-date' });
+    }
+  };
 });
 
 </script>
