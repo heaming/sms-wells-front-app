@@ -800,7 +800,7 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
       let callComponent = '';
       if (sellTpCd === '2') {
         if (islease === 'N') {
-          callComponent = 'WwdcbRentalSalesDetailP';
+          callComponent = 'WwdccSalesPerformMRentalP';
         } else if (islease === 'Y') {
           callComponent = 'WwdcbLeaseSalesDetailP';
         }
