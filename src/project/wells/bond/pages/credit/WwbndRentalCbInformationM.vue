@@ -371,7 +371,7 @@ async function onClickDelinquentExcelDownload() {
   });
 }
 
-/** 대손집계 조회 */
+/** 렌탈CB 정보 조회 */
 async function fetchContracts() {
   const res = await dataService.get('/sms/common/bond/rental-cb-inf/contract-present-state', { params: cachedParams });
 
