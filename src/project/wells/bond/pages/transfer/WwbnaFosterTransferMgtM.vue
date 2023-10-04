@@ -586,7 +586,8 @@ const initGridDetail = ((data, view) => {
         type: 'line',
         maxLength: 20,
       },
-      editable: true },
+      buttonVisibleCallback: () => { if (cachedParams?.baseYm === dayjs().format('YYYYMM')) { return true; } },
+      editable: false },
     { fieldName: 'clctamDvd', header: t('MSG_TXT_JBF_ICHR_CLCTAM_DV'), styleName: 'text-center', width: '130' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_JBF_PSIC'), styleName: 'text-center', width: '90' },
     { fieldName: 'cntrNoSn',
@@ -662,6 +663,12 @@ const initGridDetail = ((data, view) => {
       if (!clctamPrtnrNo) {
         return t('MSG_ALT_PLZ_USE_CLCTAM_PSIC_POPUP'); // 집금담당자 팝업을 이용해 주세요.
       }
+    }
+  };
+
+  view.onCellEditable = (grid, index) => {
+    if (cachedParams?.baseYm === dayjs().format('YYYYMM') && ['fstrCoNm'].includes(index.column)) {
+      return true;
     }
   };
 });
