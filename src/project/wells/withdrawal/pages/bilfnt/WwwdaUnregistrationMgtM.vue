@@ -36,17 +36,21 @@
         >
           <kw-search-row>
             <kw-search-item
-              :label="t('MSG_TXT_CONT_CLASS')"
+              :label="t('MSG_TXT_RCPDT')"
+              required
             >
-              <kw-select
-                v-model="searchParams.unrgRsCd"
-                :options="codes.BNDL_WDRW_UNRG_OJ_DV_CD"
-                first-option="all"
+              <kw-date-range-picker
+                v-model:from="searchParams.cntrPdStrtdt"
+                v-model:to="searchParams.cntrPdEnddt"
+                :from-placeholder="t('MSG_TXT_STRT_D_CHO')"
+                :to-placeholder="t('MSG_TXT_END_D_CHO')"
+                :label="t('MSG_TXT_VALID_PERIOD')"
+                rules="date_range_months:1"
               />
             </kw-search-item>
-            <!-- 계약번호 -->
+            <!-- 계약상세번호 -->
             <kw-search-item
-              :label="t('MSG_TXT_CNTR_NO')"
+              :label="t('MSG_TXT_CNTR_DTL_NO')"
             >
               <zctz-contract-detail-number
                 v-model:cntr-no="searchParams.cntrNo"
@@ -55,14 +59,12 @@
               />
             </kw-search-item>
             <kw-search-item
-              :label="t('MSG_TXT_RCPDT')"
+              :label="t('MSG_TXT_CONT_CLASS')"
             >
-              <kw-date-range-picker
-                v-model:from="searchParams.cntrPdStrtdt"
-                v-model:to="searchParams.cntrPdEnddt"
-                :from-placeholder="t('MSG_TXT_STRT_D_CHO')"
-                :to-placeholder="t('MSG_TXT_END_D_CHO')"
-                :label="t('MSG_TXT_VALID_PERIOD')"
+              <kw-select
+                v-model="searchParams.unrgRsCd"
+                :options="codes.BNDL_WDRW_UNRG_OJ_DV_CD"
+                first-option="all"
               />
             </kw-search-item>
           </kw-search-row>
@@ -120,17 +122,21 @@
         >
           <kw-search-row>
             <kw-search-item
-              :label="t('MSG_TXT_PROCS_RS')"
+              :label="t('MSG_TXT_PRCSDT')"
+              required
             >
-              <kw-select
-                v-model="searchParams.unrgRsonCd"
-                :options="codes.AFTN_NOM_ERR_DV_CD"
-                first-option="all"
+              <kw-date-range-picker
+                v-model:from="searchParams.cntrPdStrtdt"
+                v-model:to="searchParams.cntrPdEnddt"
+                :from-placeholder="t('MSG_TXT_STRT_D_CHO')"
+                :to-placeholder="t('MSG_TXT_END_D_CHO')"
+                :label="t('MSG_TXT_VALID_PERIOD')"
+                rules="date_range_months:1"
               />
             </kw-search-item>
-            <!-- 계약번호 -->
+            <!-- 계약상세번호 -->
             <kw-search-item
-              :label="t('MSG_TXT_CNTR_NO')"
+              :label="t('MSG_TXT_CNTR_DTL_NO')"
             >
               <zctz-contract-detail-number
                 v-model:cntr-no="searchParams.cntrNoA"
@@ -139,14 +145,12 @@
               />
             </kw-search-item>
             <kw-search-item
-              :label="t('MSG_TXT_PRCSDT')"
+              :label="t('MSG_TXT_PROCS_RS')"
             >
-              <kw-date-range-picker
-                v-model:from="searchParams.cntrPdStrtdt"
-                v-model:to="searchParams.cntrPdEnddt"
-                :from-placeholder="t('MSG_TXT_STRT_D_CHO')"
-                :to-placeholder="t('MSG_TXT_END_D_CHO')"
-                :label="t('MSG_TXT_VALID_PERIOD')"
+              <kw-select
+                v-model="searchParams.unrgRsonCd"
+                :options="codes.AFTN_NOM_ERR_DV_CD"
+                first-option="all"
               />
             </kw-search-item>
           </kw-search-row>
@@ -379,7 +383,7 @@ const initGrid1 = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_RCPDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'unrgRson',
       header: t('MSG_TXT_BNDL_WDRW_UNRG'), // 묶음 출금 미등록
@@ -510,7 +514,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'errCn', header: t('MSG_TXT_ERR_CNTN'), width: '80', styleName: 'text-center' },
 
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_RCPDT'), width: '180', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'aftnItgUnrgRsonCd',
       header: t('MSG_TXT_BNDL_WDRW_UNRG'), // 묶음출금 미등록
@@ -563,7 +567,7 @@ const initGrid2 = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true; // create checkbox column
+  view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
   // multi row header setting
