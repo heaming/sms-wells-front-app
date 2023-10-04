@@ -504,6 +504,7 @@ async function gridReset() {
     totRfndEtAmt: 0,
   }];
   grdPopRef4.value.getView().getDataSource().setRows(data);
+  grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
 }
 async function fetchData() {
   cachedParams = { ...cachedParams };
@@ -552,6 +553,30 @@ async function fetchData2() {
   await onCheckTotalData(); // 그리드4 (총액 자동계산)
   // eslint-disable-next-line no-use-before-define
   // await onEditRfnd(props.cntrNo); // 그리드 2(전금 데이터 바인딩)
+  res2.data.forEach((obj) => {
+    const grdView2 = grdPopRef2.value.getView();
+    const grdView3 = grdPopRef3.value.getView();
+    const grd2 = gridUtil.getAllRowValues(grdView2);
+    const grd3 = gridUtil.getAllRowValues(grdView3);
+    let temp = 0;
+
+    for (let i = 0; i < grd3.length; i += 1) {
+      if (grd3[i].cntrNo === obj.cntrNo
+        && grd3[i].rveNo === obj.rveNo
+        && grd3[i].rveSn === obj.rveSn) {
+        temp += Number(grd3[i].rfndBltfAkAmt);
+      }
+    }
+
+    for (let i = 0; i < grd2.length; i += 1) {
+      if (grd2[i].cntrNo === obj.cntrNo
+        && grd2[i].rveNo === obj.rveNo
+        && grd2[i].rveSn === obj.rveSn) {
+        grdView2.setValue(i, 'rfndBltfAkAmt', Number(temp));
+        grdView2.getDataSource().setRowState(i, 'none');
+      }
+    }// 그리드 2(전금 데이터 바인딩)
+  });
 }
 
 async function onClickSearch() {
@@ -654,6 +679,7 @@ onMounted(async () => {
     totRfndEtAmt: 0,
   }];
   grdPopRef4.value.getView().getDataSource().setRows(data);
+  grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
 
   if (props.rfndAkNo) {
     isDisableCheck.value = false;
@@ -984,6 +1010,7 @@ async function onCheckTotalData() {
   view4.setValue(0, 'totCrdcdFeeAmt', temp4);
   view4.setValue(0, 'totRfndEtAmt', Number(temp1) + Number(temp2) + Number(temp3) + Number(temp4));
 
+  grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
   totRfndAkAmt.value = temp5; // 환불상세 총액
 
   totBltfAkAmt.value = temp3; // 전금상세 총액
@@ -1387,6 +1414,7 @@ const initGrid3 = defineGrid((data, view) => {
     { fieldName: 'rveSn' },
 
     { fieldName: 'atthDocId', dataType: 'file' }, /* rfndEvidMtrFileId-  전금자료 */
+    { fieldName: 'rfndEvidMtrFileId' },
   ];
 
   const columns = [
@@ -1479,9 +1507,9 @@ const initGrid3 = defineGrid((data, view) => {
       width: '120',
       editor: {
         type: 'file',
-        attachDocumentId: 'atthDocId', // 필드명
+        attachDocumentId: 'rfndEvidMtrFileId', // 필드명
         attachGroupId: 'ATG_WDB_RFND_FILE', // 또는 고정값
-        downloadable: false,
+        downloadable: true,
         editable: true,
       },
       // styleName: 'rg-button-excelup',
@@ -1591,45 +1619,35 @@ const initGrid4 = defineGrid((data, view) => {
       // 현금환불금액
       width: 'auto',
       styleName: 'text-right',
-      editor: {
-        type: 'number',
-      },
+      numberFormat: '#,##0',
     },
     { fieldName: 'totRfndCardAkAmt',
       header: t('MSG_TXT_CARD_RFND_AMT'),
       // 카드 환불금액
       width: 'auto',
       styleName: 'text-right',
-      editor: {
-        type: 'number',
-      },
+      numberFormat: '#,##0',
     },
     { fieldName: 'totRfndBltfAkAmt',
       header: t('MSG_TXT_BLTF_AMT'),
       // 전금금액
       width: 'auto',
       styleName: 'text-right',
-      editor: {
-        type: 'number',
-      },
+      numberFormat: '#,##0',
     },
     { fieldName: 'totCrdcdFeeAmt',
       header: t('MSG_TXT_CARD_FEE'),
       // 카드수수료
       width: 'auto',
       styleName: 'text-right',
-      editor: {
-        type: 'number',
-      },
+      numberFormat: '#,##0',
     },
     { fieldName: 'totRfndEtAmt',
       header: t('MSG_TXT_TOT_RFND_ET_AMT'),
       //  '총 환불 예상금액'
       width: 'auto',
       styleName: 'text-right',
-      editor: {
-        type: 'number',
-      },
+      numberFormat: '#,##0',
     },
   ];
 
