@@ -185,17 +185,24 @@ const nextStep = computed(() => (currentStepIndex.value < steps.length
   ? steps[currentStepIndex.value + 1]
   : undefined));
 
-const contract = ref({
-  cntrNo: props.cntrNo ?? '', /* 기존 계약을 불러오는 경우 이를 바탕으로 갑니다. */
-  rstlCntrNo: props.cntrNo ?? '', /* 재계약의 경우 이를 사용하여 기 계약을 불러옵니다. */
-  rstlCntrSn: props.cntrSn ?? '', /* 재계약의 경우 이를 사용하여 기 계약을 불러옵니다. */
-  cntrTpCd: '',
-  step1: {},
-  step2: {},
-  step3: {},
-  step4: {},
-  smr: {},
-});
+const contract = ref({});
+
+function setupContract() {
+  contract.value = {
+    cntrNo: props.cntrNo ?? '', /* 기존 계약을 불러오는 경우 이를 바탕으로 갑니다. */
+    rstlCntrNo: props.cntrNo ?? '', /* 재계약의 경우 이를 사용하여 기 계약을 불러옵니다. */
+    rstlCntrSn: props.cntrSn ?? '', /* 재계약의 경우 이를 사용하여 기 계약을 불러옵니다. */
+    cntrTpCd: '',
+    step1: {},
+    step2: {},
+    step3: {},
+    step4: {},
+    smr: {},
+  };
+}
+
+setupContract();
+
 const isCnfmCntr = ref(false);
 const isRstlCntr = ref(props.resultDiv === '2');
 const isCnfmPds = ref(false); // step2 상품확정여부
@@ -237,7 +244,7 @@ async function getExistedCntr() {
     step = 4;
   }
   showStep(step);
-  await currentStepRef.value?.initStep?.();
+  await currentStepRef.value?.initStep?.(true);
   isCnfmPds.value = false;
 }
 
@@ -312,7 +319,9 @@ async function onChildActivated(step) {
 }
 
 watch(() => props.cntrNo, (newValue, oldValue) => {
+  console.log('props.cntrNo watched', newValue, oldValue);
   if (newValue !== oldValue) {
+    setupContract();
     getExistedCntr();
   }
 });

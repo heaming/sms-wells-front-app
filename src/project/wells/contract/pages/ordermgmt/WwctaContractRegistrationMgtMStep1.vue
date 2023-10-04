@@ -486,12 +486,22 @@ const employeeCntrTpCd = '03';
 const membershipCntrTpCd = '07';
 const reStipulationCntrTpCd = '08';
 
-const cntrNo = toRef(props.contract, 'cntrNo');
-const rstlCntrNo = toRef(props.contract, 'rstlCntrNo');
-const rstlCntrSn = toRef(props.contract, 'rstlCntrSn');
-const cntrTpCd = toRef(props.contract, 'cntrTpCd');
-const step1 = toRef(props.contract, 'step1', { bas: {} });
+let cntrNo;
+let rstlCntrNo;
+let rstlCntrSn;
+let cntrTpCd;
+let step1;
 const ogStep1 = ref({});
+
+function connectReactivity() {
+  cntrNo = toRef(props.contract, 'cntrNo');
+  rstlCntrNo = toRef(props.contract, 'rstlCntrNo');
+  rstlCntrSn = toRef(props.contract, 'rstlCntrSn');
+  cntrTpCd = toRef(props.contract, 'cntrTpCd');
+  step1 = toRef(props.contract, 'step1', { bas: {} });
+}
+
+watch(() => props.contract, connectReactivity, { immediate: true });
 
 const searchParams = ref({
   cntrNo: '',
@@ -557,6 +567,7 @@ const popupRequiredCstInfos = computed(() => searchParams.value.cntrTpCd === '01
       || searchParams.value.cntrTpCd === '02'
       || searchParams.value.cntrTpCd === '03');
 const cstKnmLabel = computed(() => (searchParams.value.copnDvCd === '2' ? t('MSG_TXT_CRP_NM') : t('MSG_TXT_NAME')));
+let initFlag = false;
 
 function setupNewContract() {
   step1.value ??= {};
@@ -589,6 +600,7 @@ async function getCntrInfo() {
     // mshCntrSn
   } = step1.value;
 
+  initFlag = true; /* 계약유형코드 변경 콜백 동작 방지. */
   searchParams.value.cntrTpCd = bas.cntrTpCd;
   searchParams.value.copnDvCd = bas.copnDvCd;
 
@@ -670,7 +682,7 @@ async function checkExistContractor() {
   const { data: exist } = await dataService.get('sms/wells/contract/contracts/is-exist-cntrt-info', { params: searchParams.value });
 
   if (!exist) {
-    step1.value.cntrt = ref({});
+    step1.value.cntrt = {};
     if (await confirm(t('MSG_ALT_NO_CST_REG'))) {
       if (copnDvCd === '1') {
         await modal({ component: 'ZwcsaIndvCustomerRegUrlTrsMgtP' });
@@ -717,7 +729,6 @@ async function fetchCntrtByCstNo(cstNo) {
     } });
     step1.value.cntrt = data;
   } catch (e) {
-    console.log('fetchCntrtByCstNo failed');
     setupSearchParams();
   }
 }
@@ -837,6 +848,10 @@ async function onClickSearch() {
 }
 
 async function onChangeCntrTpCd(value) {
+  if (initFlag) {
+    initFlag = false;
+    return;
+  }
   if (cntrTpCd.value === value) {
     return;
   }
@@ -1004,8 +1019,8 @@ async function getCounts() {
 
 const loaded = ref(false);
 
-async function initStep() {
-  if (loaded.value) { return; }
+async function initStep(forced = false) {
+  if (!forced && loaded.value) { return; }
 
   await getCntrInfo();
   if (!cntrNo.value) {
