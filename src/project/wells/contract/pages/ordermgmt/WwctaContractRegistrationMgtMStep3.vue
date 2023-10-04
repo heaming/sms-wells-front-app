@@ -421,7 +421,7 @@
                   <kw-option-group
                     v-model="item.dpTpCdMsh"
                     type="radio"
-                    :options="codes.DP_TP_CD_AFTN"
+                    :options="step3.bas?.copnDvCd === '2' ? codes.DP_TP_CD_AFTN_CRP : codes.DP_TP_CD_AFTN"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -441,14 +441,17 @@
             <template
               v-else
             >
-              <kw-form-row>
+              <kw-form-row
+                cols="3"
+              >
                 <kw-form-item
                   label="자동이체"
+                  :colspan="2"
                 >
                   <kw-option-group
                     v-model="item.dpTpCdAftn"
                     type="radio"
-                    :options="codes.DP_TP_CD_AFTN"
+                    :options="step3.bas?.copnDvCd === '2' ? codes.DP_TP_CD_AFTN_CRP : codes.DP_TP_CD_AFTN"
                   />
                 </kw-form-item>
                 <kw-form-item no-label>
@@ -457,8 +460,13 @@
                   </p>
                 </kw-form-item>
               </kw-form-row>
-              <kw-form-row>
-                <kw-form-item label="등록비결제유형">
+              <kw-form-row
+                cols="3"
+              >
+                <kw-form-item
+                  label="등록비결제유형"
+                  :colspan="2"
+                >
                   <kw-option-group
                     v-model="item.dpTpCdIdrv"
                     type="radio"
@@ -551,6 +559,11 @@ codes.DP_TP_CD_IDRV = [
 codes.DP_TP_CD_AFTN = [
   { codeId: '0203', codeName: '카드이체' },
   { codeId: '0102', codeName: '계좌이체' },
+];
+codes.DP_TP_CD_AFTN_CRP = [
+  { codeId: '0203', codeName: '카드이체' },
+  { codeId: '0102', codeName: '계좌이체' },
+  { codeId: '0104', codeName: '법인계좌' },
 ];
 const adrs = ref([]);
 const adrsVal = ref('');

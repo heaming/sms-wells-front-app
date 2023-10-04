@@ -636,6 +636,7 @@ codes.DP_TP_CD_IDRV = [
 codes.DP_TP_CD_AFTN = [
   { codeId: '0203', codeName: '카드이체' },
   { codeId: '0102', codeName: '계좌이체' },
+  { codeId: '0104', codeName: '법인계좌' },
 ];
 
 const sessionUserId = getters['meta/getUserInfo'];
