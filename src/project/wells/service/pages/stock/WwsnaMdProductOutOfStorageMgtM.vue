@@ -51,7 +51,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-show="isWaitStatus"
+          v-show="!isCompStatus"
           :label="$t('MSG_TXT_SEL_LIMIT_CNT')"
         >
           <kw-input
@@ -71,12 +71,24 @@
             :total-count="totalCount"
           />
         </template>
+        <!-- 택배송장 -->
+        <kw-btn
+          v-show="isCompStatus"
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_TXT_PCSV_IVC')"
+          :disable="totalCount === 0"
+          @click="onClickExcelDownload2"
+        />
         <!-- 엑셀업로드 -->
         <kw-btn
+          v-show="isCompStatus"
           icon="upload_on"
           secondary
           dense
           :label="$t('MSG_TXT_EXCEL_UPLOAD')"
+          :disable="totalCount === 0"
           @click="onClickExcelUpload"
         />
         <kw-btn
@@ -88,7 +100,7 @@
           @click="onClickExcelDownload"
         />
         <kw-btn
-          v-show="isWaitStatus"
+          v-show="!isCompStatus"
           grid-action
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
@@ -98,6 +110,11 @@
         ref="grdMainRef"
         :total-count="totalCount"
         @init="initGrdMain"
+      />
+      <kw-grid
+        v-show="false"
+        ref="grdSppIvcRef"
+        @init="initGrdSppIvc"
       />
     </div>
   </kw-page>
@@ -114,6 +131,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+const grdSppIvcRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 
 const { notify } = useGlobal();
@@ -153,27 +171,22 @@ let cachedParams;
 const totalCount = ref(0);
 
 const isCompStatus = ref(false);
-const isWaitStatus = ref(true);
 async function onChangeCompStatus() {
-  isCompStatus.value = false;
-  isWaitStatus.value = false;
   const { findGb } = searchParams.value;
-
   const view = grdMainRef.value.getView();
-  view.checkBar.visible = false;
 
   /* 작업완료 */
   if (findGb === '1') {
     isCompStatus.value = true;
+    view.checkBar.visible = false;
   }
 
   /* 작업대기 */
   if (findGb === '2') {
-    isWaitStatus.value = true;
+    isCompStatus.value = false;
     view.checkBar.visible = true;
   }
 }
-
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
   let list = res.data;
@@ -184,7 +197,7 @@ async function fetchData() {
     svBizDclsfCd: '대분류코드',
     svBizDclsfNm: '대분류코드명',
     wkPrgsStatNm: '작업대기',
-    cntrNo: '12345',
+    cntrNo: 'W20226010893',
     cntrSn: '1',
     rcgvpKnm: '테스트이름',
     cralIdvTno: '010-1234-5678',
@@ -199,13 +212,20 @@ async function fetchData() {
     partQty1: '상품1',
     reqdDt: '20230702',
     rsgFshDt: '20230702',
-    cstSvAsnNo: '01234589',
+    cstSvAsnNo: '2202204000000000000',
+    cntrDtlNo: 'W20226010893-1',
+    pcsvCompDv: '1',
+    sppIvcNo: '888888888',
+    sppBzsPdId: 'WFBKB0022',
   });
   // 임시 테스트 데이터 E
   totalCount.value = list.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
   view.resetCurrent();
+  // 택배송장 목록
+  const view2 = grdSppIvcRef.value.getView();
+  view2.getDataSource().setRows(list);
 }
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
@@ -215,6 +235,14 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
+  });
+}
+async function onClickExcelDownload2() {
+  const view = grdSppIvcRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_PCSV_IVC')}`,
     timePostfix: true,
     exportData: gridUtil.getAllRowValues(view),
   });
@@ -247,7 +275,9 @@ async function onClickSave() {
     // await fetchData();
   }
 }
+
 /* 엑셀 업로드 유효성 체크 */
+let excelUploadRows;
 async function validate(rows) {
   rows.forEach((obj) => {
     const cntrDtlNo = obj.cntrDtlNo.split('-');
@@ -256,17 +286,18 @@ async function validate(rows) {
       obj.cntrSn = cntrDtlNo[1];
     }
   });
-  const { data } = await dataService.put(`${baseUrl}/excel-upload-validate`, rows, {
+  excelUploadRows = rows;
+  const { data } = await dataService.put(`${baseUrl}/excel-upload-validate`, excelUploadRows, {
     alert: false,
   });
   return data;
 }
 async function onClickExcelUpload() {
-  const { result, payload } = await modal({
+  const { result } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
-      templateDocId: '택배송장_업로드결과',
-      headerRows: 1,
+      templateDocId: `${t('MSG_TXT_PCSV_IVC')}_${t('MSG_TXT_WK_RS')}`,
+      headerRows: 2,
       validationBtn: true,
       downloadBtn: true,
       serverSideValidation: validate,
@@ -280,10 +311,9 @@ async function onClickExcelUpload() {
       },
     },
   });
-  console.log(payload);
-  const { list } = payload;
+  console.log(excelUploadRows);
   if (result) {
-    await dataService.post(`${baseUrl}/excel-upload`, list);
+    await dataService.post(`${baseUrl}/excel-upload`, excelUploadRows);
   }
 }
 
@@ -416,5 +446,19 @@ const initGrdMain = defineGrid((data, view) => {
   view.setFixedOptions({ colCount: 7, resizable: true });
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+});
+
+// 택배 송장 Grid
+const initGrdSppIvc = defineGrid((data, view) => {
+  const columns = [
+    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: 160 },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: 150 },
+    { fieldName: 'pcsvCompDv', header: `${t('MSG_TXT_PCSV_CO')} \n (1:한진,2:대한통운,3:우체국)`, width: 150 },
+    { fieldName: 'sppIvcNo', header: t('MSG_TXT_IVC_NO'), width: 150 },
+    { fieldName: 'sppBzsPdId', header: t('MSG_TXT_SR_NO'), width: 130 },
+  ];
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  data.setFields(fields);
+  view.setColumns(columns);
 });
 </script>
