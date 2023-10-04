@@ -229,7 +229,7 @@ const searchParams = ref({
   findGb: '2', /* 조회 구분 */
   selCnt: '', /* 조회 제한건수  */
   prtnrBzsCd: '', /* 파트너업체 */
-  firstSppGb: '', /* 첫 배송 여부 */
+  firstSppGb: 'all', /* 첫 배송 여부 */
   cntrNo: '', /* 계약번호 */
   cstNm: '', /* 고객명 */
   cralIdvTno: '', /* 휴대폰 번호 */
