@@ -120,6 +120,7 @@
         <kw-select
           v-model="gridParams.wareAreaCd"
           v-permission:update
+          dense
           class="w200"
           :options="customCodes.DGR_2_LEVL_OG"
           option-value="ogId"
@@ -135,6 +136,7 @@
         <kw-select
           v-model="gridParams.rsonCd"
           v-permission:update
+          dense
           class="w200"
           :options="codes.TF_AK_RSON_CD"
           :placeholder="$t('이관사유 선택')"
@@ -142,6 +144,7 @@
         <kw-btn
           v-permission:update
           secondary
+          dense
           :label="$t('이관지역단 일괄변경')"
           @click="onClickBatchUpdate"
         />
