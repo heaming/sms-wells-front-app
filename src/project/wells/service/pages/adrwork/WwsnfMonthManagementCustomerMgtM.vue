@@ -38,6 +38,7 @@
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
+            colspan="2"
             :label="$t('생성대상 설명')"
           >
             <p>{{ $t('MSG_TXT_CRT_EXP') }}</p>
