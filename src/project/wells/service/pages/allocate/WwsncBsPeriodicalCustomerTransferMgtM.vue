@@ -255,7 +255,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -753,7 +754,7 @@ function initGrdMain(data, view) {
 
   const columns = [
     { fieldName: 'tfStatCd', header: t('MSG_TXT_TF_STAT'), width: '100', styleName: 'text-center', options: transferStatusCodes.value }, // 이관상태
-    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
+    { fieldName: 'cntr', header: t('계약상세번호'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약상세번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'assign', header: t('MSG_TXT_CPSN_FXN'), width: '100', styleName: 'text-center' }, // 강제/고정
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' }, // SAP코드
