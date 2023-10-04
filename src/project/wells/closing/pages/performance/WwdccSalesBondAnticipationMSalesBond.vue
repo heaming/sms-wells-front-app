@@ -179,7 +179,7 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
 
     { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출 - 정상매출
-    { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 취소매출
+    { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 취소매출
     { fieldName: 'feeSlAmt', header: t('MSG_TXT_FEE_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 수수료매출
     { fieldName: 'boutNorSlAmt', header: t('MSG_TXT_GCF_NOM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 상품권정상
     { fieldName: 'boutCanSlAmt', header: t('MSG_TXT_GCF_CAN'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 상품권취소
