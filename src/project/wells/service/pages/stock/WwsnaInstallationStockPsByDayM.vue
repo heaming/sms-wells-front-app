@@ -349,8 +349,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prvMngSum' },
     { fieldName: 'stockTotal' },
     ...stockDateFields,
-    { fieldName: 'istTotal' },
     ...installDateFields,
+    { fieldName: 'istTotal' },
   ];
 
   const columns = [
@@ -359,8 +359,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prvMngSum', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
     { fieldName: 'stockTotal', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
     ...stockDateColumns,
-    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
     ...installDateColumns,
+    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
   ];
 
   data.setFields(fields);
@@ -380,12 +380,13 @@ const initGrid = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: stockDateItems,
     },
-    'istTotal',
+
     {
       header: t('MSG_BTN_CNTCT_ASSGNMNT') + t('MSG_TXT_PS'), // colspan title
       direction: 'horizontal', // merge type
       items: installDateItems,
     },
+    'istTotal',
   ]);
   view.setFixedOptions({ colCount: 1 });
 
