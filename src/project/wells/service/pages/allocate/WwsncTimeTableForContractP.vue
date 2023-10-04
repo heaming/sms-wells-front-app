@@ -315,7 +315,7 @@
         </li>
       </ul>
       <ul
-        v-else-if="data.psic.rsbDvCd === 'W0103' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0103 센터장
+        v-else-if="data.psic.rsbDvCd === 'W6010' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W6010 센터장
         "
       >
         <kw-separator />
@@ -388,7 +388,7 @@
       <div
         v-if="data.psic.udsnUseYn === 'Y' && // 미지정사용여부
           data.psic.vstPos=== '방문가능' &&
-          data.psic.rsbDvCd === 'W0103' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0103 센터장
+          data.psic.rsbDvCd === 'W6010' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W6010 센터장
         "
         class="row reservation-select q-gutter-x-sm"
       >
@@ -816,6 +816,10 @@ async function getTimeTables() {
 
   schedules.value = data.value.days;
   scheduleInfo.value.weekCnt = schedules.value.length / scheduleInfo.value.dayCnt;
+
+  setTimeout(() => {
+    document.querySelectorAll(`tr.calendar-date > td[data-date='${data.value.sellDate}']`)[0].classList.add('active');
+  }, 10);
 }
 
 function getYmdText(dayCnt) {
@@ -981,17 +985,28 @@ async function onClickNextMonth() {
 }
 
 async function onClickAm() {
+  console.log('onClickAm');
+  console.log(`totalMaxAbleCnt=${data.value.totalMaxAbleCnt}`);
+  console.log(`amAlloCnt=${data.value.amAlloCnt}`);
+  console.log(`totalAbleCnt=${data.value.totalAbleCnt}`);
+  console.log(`psic=${data.value.psic}`);
+  console.log(`totalWrkCnt=${data.value.psic.totalWrkCnt}`);
   clickedBtn.value = '0';
   let time = '';
+  // 엔지니어 할당 개수 초과
   if (data.value.totalMaxAbleCnt > 0 && data.value.amAlloCnt > 0
-                && data.value.amAlloCnt >= toInteger(data.value.psic.tWrkCnt)) {
+                && data.value.amAlloCnt >= toInteger(data.value.psic.totalWrkCnt)) {
     time = '0910';
   } else if (data.value.totalMaxAbleCnt > 0 && data.value.amAlloCnt > 0
-                && data.value.totalAbleCnt >= toInteger(data.value.psic.tWrkCnt)
-                && data.value.totalAbleCnt === toInteger(data.value.psic.tWrkCnt)) {
+                && data.value.totalAbleCnt >= toInteger(data.value.psic.totalWrkCnt)
+                && data.value.totalAbleCnt === toInteger(data.value.psic.totalWrkCnt)) {
     time = '0910';
+  } else {
+    // 버튼 비활성화 처리 필요
   }
+  console.log(`time=${time}`);
   data.value.sellTime = time;
+  console.log(`sellTime=${data.value.sellTime}`);
 }
 
 async function onClickPm() {
@@ -999,12 +1014,12 @@ async function onClickPm() {
   let time = '';
   if (data.value.totalMaxAbleCnt > 0
       && data.value.pmAlloCnt > 0
-      && data.value.pmAlloCnt >= toInteger(data.value.psic.tWrkCnt)) {
+      && data.value.pmAlloCnt >= toInteger(data.value.psic.totalWrkCnt)) {
     time = '1410';
   } else if (data.value.totalMaxAbleCnt > 0
             && data.value.pmAlloCnt > 0
-            && data.value.totalAbleCnt >= toInteger(data.value.psic.tWrkCnt)
-            && data.value.totalAbleCnt === toInteger(data.value.psic.tWrkCnt)) {
+            && data.value.totalAbleCnt >= toInteger(data.value.psic.totalWrkCnt)
+            && data.value.totalAbleCnt === toInteger(data.value.psic.totalWrkCnt)) {
     time = '1410';
   }
   data.value.sellTime = time;
@@ -1020,6 +1035,9 @@ async function onClickCancel() {
 }
 
 async function onClickSave() {
+  console.log('onClickSave');
+  console.log(data.value.spayYn);
+  console.log(data.value.sellTime);
   // 일시불 모종
   if (data.value.spayYn === 'Y') {
     data.value.sellTime = '0100';
