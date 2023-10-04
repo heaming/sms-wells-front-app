@@ -16,7 +16,6 @@
 <template>
   <kw-page>
     <kw-search
-      one-row
       :cols="3"
       @search="onClickSearch"
     >
@@ -65,6 +64,7 @@
             :total-count="pageInfo.totalCount"
             @change="fetchData"
           />
+          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
 
         <kw-btn
