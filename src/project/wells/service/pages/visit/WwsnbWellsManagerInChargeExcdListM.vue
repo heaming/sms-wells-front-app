@@ -100,6 +100,7 @@
           />
         </template>
         <kw-btn
+          v-if="false"
           icon="print"
           secondary
           dense
@@ -116,7 +117,8 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
 
@@ -286,7 +288,7 @@ async function initGrdMain(data, view) {
     { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), styleName: 'text-center', width: '90' }, // 지역단
     { fieldName: 'ogTp', header: t('MSG_TXT_ZIP_PSIC'), styleName: 'text-center', width: '120' }, // 우편번호 담당자
     { fieldName: 'cntr',
-      header: t('MSG_TXT_CNTR_NO'),
+      header: t('계약상세번호'),
       styleName: 'rg-button-link text-center',
       width: '150',
       renderer: { type: 'button' },

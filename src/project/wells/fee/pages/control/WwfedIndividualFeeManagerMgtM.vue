@@ -124,7 +124,7 @@
             :label="t('MSG_TXT_OPNG_MM')"
             align-content="center"
           >
-            <p>{{ info1.opngMm }}</p>
+            <p>{{ info1.opngMm ? stringUtil.getDateFormat(info1.opngMm) : '-' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_OPNG_NMN')"
@@ -136,7 +136,7 @@
             :label="t('MSG_TXT_MANAGER')+t('MSG_TXT_CLTN_MM')"
             align-content="center"
           >
-            <p>{{ info1.mngCltnMm }}</p>
+            <p>{{ info1.mngCltnMm ? stringUtil.getDateFormat(info1.mngCltnMm) : '-' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>

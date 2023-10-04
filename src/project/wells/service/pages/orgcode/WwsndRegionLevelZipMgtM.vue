@@ -78,6 +78,12 @@
             option-value="ogId"
           />
         </kw-search-item>
+        <!-- 미등록 중심지 -->
+        <kw-search-item :label="$t('MSG_TXT_UNRG_CEN_LOCARA')">
+          <kw-checkbox
+            v-model="searchParams.unrgCenLocaraYn"
+          />
+        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -169,6 +175,7 @@ const searchParams = ref({
   ctctyNm: '',
   wkGrpCd: '10',
   ogId: '',
+  unrgCenLocaraYn: 'N',
 });
 let cachedParams = cloneDeep(searchParams.value);
 
@@ -242,7 +249,7 @@ async function onClickSave() {
   if (!await gridUtil.alertIfIsNotModified(view)) {
     const changedRows = gridUtil.getChangedRowValues(view).map((v) => ({ ...v, pdlvNo: v.pdlvNo === '' ? '0' : v.pdlvNo }));
 
-    await dataService.put('/sms/wells/service/region-level-zips', changedRows.map((v) => ({ ...v, pdlvNo: v.pdlvNo === '' ? '0' : v.pdlvNo })));
+    await dataService.put('/sms/wells/service/region-level-zips', changedRows);
 
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();

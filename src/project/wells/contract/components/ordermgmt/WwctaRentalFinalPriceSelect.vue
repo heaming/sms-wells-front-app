@@ -278,8 +278,18 @@
               </kw-tooltip>
             </div>
           </kw-item-label>
+          <kw-item-label
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE"
+            class="hp-like-kw-notification-item"
+            lines="2"
+          >
+            (1+1)기존제품 12개월 유지, 미유지 시 할인금액 반환 및 렌탈료 원복
+          </kw-item-label>
         </kw-item-section>
-        <kw-item-section side>
+        <kw-item-section
+          side
+          top
+        >
           <kw-btn
             borderless
             icon="close_24"
@@ -806,6 +816,7 @@ async function onChangeAlncCntr(selected) {
 </script>
 
 <style lang="scss" scoped>
+@import "~@css/variables";
 @import "kw-lib/src/css/mixins";
 
 .scoped-item {
