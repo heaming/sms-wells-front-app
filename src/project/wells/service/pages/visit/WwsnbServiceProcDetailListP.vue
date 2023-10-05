@@ -77,18 +77,11 @@
           <div
             class="border-box col pa10 h90"
           >
-            <!-- <kw-image
-              v-if="!isEmpty(dtlIz.cstSignCn)"
-              src="dtlIz.cstSignCn"
-              class="h60"
-            /> -->
             <img
-              src="node_modules/kw-lib/src/assets/images/example_profile.png"
+              :src="signSrc"
               alt=""
               class="h60"
             >
-            <!-- src="node_modules/kw-lib/src/assets/images/example_profile.png" -->
-            <!-- <p>{{ dtlIz.cstSignCn }}</p> -->
           </div>
         </kw-form-item>
       </kw-form-row>
@@ -288,13 +281,18 @@ const codes = await codeUtil.getMultiCodes(
 
 const dtlIz = ref({}); // 상품기본
 const procDt = ref({});
+const signSrc = ref({});
 
 // 상세내역
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: { ...dtlIzParam.value } });
   dtlIz.value = res.data;
   procDt.value = dtlIz.value.vstFshDt + dtlIz.value.vstFshHh;
-  console.log(res.data);
+  if (isEmpty(dtlIz.value.cstSignCnByte)) {
+    signSrc.value = '';
+  } else {
+    signSrc.value = `data:image/png;base64,${dtlIz.value.cstSignCnByte}`;
+  }
 }
 // 결제내역
 async function fetchData1() {
