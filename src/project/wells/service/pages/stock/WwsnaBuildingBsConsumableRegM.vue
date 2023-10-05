@@ -100,6 +100,8 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickExcelDownload"
         />
         <kw-separator
           v-if="isBusinessSupportTeam"
@@ -126,12 +128,12 @@
         @init="initGrdMain"
       />
 
-      <kw-pagination
+      <!-- <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @change="fetchData"
-      />
+      /> -->
     </div>
   </kw-page>
 </template>
@@ -152,6 +154,7 @@ const {
 } = useMeta();
 const { t } = useI18n();
 const dataService = useDataService();
+const { currentRoute } = useRouter();
 // const session = getUserInfo();
 
 // -------------------------------------------------------------------------------------------------
@@ -179,6 +182,7 @@ const bldCode = ref();
 let items1 = [];
 let items2 = [];
 let saveData = [];
+let requestData = [];
 
 const itemsData = ref({
   bfsvcCsmbDdlvTpCd: '',
@@ -248,17 +252,18 @@ async function reAryGrid() {
     { fieldName: 'reqYn' },
     { fieldName: 'bldCd' },
     { fieldName: 'bldNm' },
-    { fieldName: 'prtnrNmNo' },
-    { fieldName: 'prtnrNo' },
+    { fieldName: 'rsppPrtnrNo' },
+    { fieldName: 'vstCstN' },
     { fieldName: 'blank' },
     { fieldName: 'bfsvcCsmbDdlvStatCd' },
   ];
 
   const columns = [
-    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '80', styleName: 'text-center', editable: false },
+    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-center', editable: false },
-    { fieldName: 'prtnrNmNo', header: t('MSG_TXT_MANAGER'), width: '150', styleName: 'text-center', editable: false },
+    { fieldName: 'rsppPrtnrNo', header: t('MSG_TXT_ADRS'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'vstCstN', header: t('MSG_TXT_VST_CST_N'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'blank', header: '', width: '80', styleName: 'text-center', editable: false }, // 헤더 정상 생성을 위한 필드, 사용은 안함
   ];
 
@@ -273,7 +278,7 @@ async function reAryGrid() {
     columns.push({
       fieldName: `fxnQty${j}`,
       header: fxnItems[i].fxnSapMatCd,
-      width: '180',
+      width: '150',
       styleName: 'text-center',
       editable: isBusinessSupportTeam.value,
     });
@@ -282,7 +287,7 @@ async function reAryGrid() {
     items1.push(
       {
         header: `${fxnItems[i].fxnPdNm}`,
-        width: '180',
+        width: '150',
         direction: 'horizontal',
         items: [
           {
@@ -304,7 +309,7 @@ async function reAryGrid() {
     columns.push({
       fieldName: `aplcQty${k}`,
       header: aplcItems[i].aplcSapMatCd,
-      width: '180',
+      width: '150',
       styleName: 'text-center',
       editable: true,
     });
@@ -313,7 +318,7 @@ async function reAryGrid() {
     items2.push(
       {
         header: `${aplcItems[i].aplcPdNm}`,
-        width: '180',
+        width: '150',
         direction: 'horizontal',
         items: [
           {
@@ -338,7 +343,8 @@ async function reAryGrid() {
         'reqYn',
         'bldCd',
         'bldNm',
-        'prtnrNmNo',
+        'rsppPrtnrNo',
+        'vstCstN',
         {
           header: t('MSG_TXT_ACTI_GDS'),
           direction: 'horizontal',
@@ -384,14 +390,14 @@ async function fetchData() {
   await reAryGrid();
   await getBldCsmbAplcClose();
 
-  const res = await dataService.get('/sms/wells/service/building-bsconsumables/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: bldCsmbDeliveries, pageInfo: pagingResult } = res.data;
+  const res = await dataService.get('/sms/wells/service/building-bsconsumables', { params: { ...cachedParams } });
+  // const { list: bldCsmbDeliveries, pageInfo: pagingResult } = res.data;
 
-  pageInfo.value = pagingResult;
+  pageInfo.value.totalCount = res.data.length;
   const view = grdMainRef.value.getView();
 
-  if (bldCsmbDeliveries.length !== 0) {
-    bldCsmbDeliveries.forEach((bldCsmbDelivery) => {
+  if (res.data.length !== 0) {
+    res.data.forEach((bldCsmbDelivery) => {
       // 리스트 내 고정수량 array 재조합
       for (let i = 0; i < bldCsmbDelivery.fxnQtys.length; i += 1) {
         const j = i + 1;
@@ -426,7 +432,7 @@ async function fetchData() {
 
     // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
     // if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || !editFields.includes(itemIndex.column)) {
-    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || bldCsmbDeliveries[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
+    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || res.data[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
       return false;
     }
   };
@@ -435,7 +441,7 @@ async function fetchData() {
     grid.checkItem(itemIndex, true);
   };
 
-  view.getDataSource().setRows(bldCsmbDeliveries);
+  view.getDataSource().setRows(res.data);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
   view.setCheckableCallback((dataSource, item) => {
@@ -552,10 +558,83 @@ async function onClickSave() {
   }
 }
 
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/service/manager-bsconsumables', { params: { ...cachedParams } });
+  const bldCsmbDeliveries = res.data;
+
+  if (bldCsmbDeliveries.length !== 0) {
+    bldCsmbDeliveries.forEach((bldCsmbDelivery) => {
+      // 리스트 내 고정수량 array 재조합
+      for (let i = 0; i < bldCsmbDelivery.fxnQtys.length; i += 1) {
+        const j = i + 1;
+        const fxnKeyNm = {};
+        fxnKeyNm[`fxnQty${j}`] = bldCsmbDelivery.fxnQtys[i];
+        Object.assign(bldCsmbDelivery, fxnKeyNm);
+      }
+
+      // 리스트 내 신청수량 array 재조합
+      for (let i = 0; i < bldCsmbDelivery.aplcQtys.length; i += 1) {
+        const j = i + 1;
+        const aplcKeyNm = {};
+        aplcKeyNm[`aplcQty${j}`] = bldCsmbDelivery.aplcQtys[i];
+        Object.assign(bldCsmbDelivery, aplcKeyNm);
+      }
+    });
+  }
+
+  view.getDataSource().setRows(bldCsmbDeliveries);
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: bldCsmbDeliveries,
+    checkBar: 'hidden',
+  });
+}
+
 async function onClickOstrAk() {
-  await dataService.post(`/sms/wells/service/building-bsconsumables/${searchParams.value.mngtYm}/request`);
-  notify(t('MSG_ALT_AK_FSH'));
-  await fetchData();
+  // await dataService.post(`/sms/wells/service/building-bsconsumables/${searchParams.value.mngtYm}/request`);
+  // notify(t('MSG_ALT_AK_FSH'));
+  // await fetchData();
+
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
+
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
+  if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
+    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
+    return;
+  }
+
+  let errorYn = false;
+
+  checkedRows.forEach((checkedRow) => {
+    if (checkedRow.bfsvcCsmbDdlvStatCd !== '20') {
+      alert(`${checkedRow.bldNm}(${checkedRow.bldCd})의 신청 상태를 확인해주세요`);
+      errorYn = true;
+      return;
+    }
+
+    requestData.push({
+      mngtYm: searchParams.value.mngtYm,
+      bfsvcCsmbDdlvOjCd: '3',
+      strWareNo: checkedRow.bldCd,
+    });
+  });
+
+  if (!errorYn) {
+    await dataService.post('/sms/wells/service/building-bsconsumables/request', requestData);
+    notify(t('MSG_ALT_AK_FSH'));
+    await fetchData();
+  } else {
+    requestData = [];
+  }
 }
 
 onMounted(async () => {
@@ -578,7 +657,7 @@ const initGrdMain = defineGrid(async (data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'reqYn', header: t('MSG_TXT_APLC'), width: '80', styleName: 'text-center', editable: false },
+    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-center', editable: false },
     { fieldName: 'rsppPrtnrNo', header: t('MSG_TXT_ADRS'), width: '100', styleName: 'text-center', editable: false },

@@ -133,12 +133,12 @@
         @init="initGrdMain"
       />
 
-      <kw-pagination
+      <!-- <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @change="fetchData"
-      />
+      /> -->
     </div>
   </kw-page>
 </template>
@@ -183,6 +183,7 @@ const bldCode = ref();
 let items1 = [];
 let items2 = [];
 let saveData = [];
+let requestData = [];
 
 const itemsData = ref({
   bfsvcCsmbDdlvTpCd: '',
@@ -259,7 +260,7 @@ async function reAryGrid() {
   ];
 
   const columns = [
-    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '80', styleName: 'text-center', editable: false },
+    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNmNo', header: t('MSG_TXT_MANAGER'), width: '150', styleName: 'text-center', editable: false },
@@ -388,14 +389,14 @@ async function fetchData() {
   await reAryGrid();
   await getNewMCsmbAplcClose();
 
-  const res = await dataService.get('/sms/wells/service/newmanager-bsconsumables/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: bldCsmbDeliveries, pageInfo: pagingResult } = res.data;
+  const res = await dataService.get('/sms/wells/service/newmanager-bsconsumables', { params: { ...cachedParams } });
+  // const { list: bldCsmbDeliveries } = res.data;
 
-  pageInfo.value = pagingResult;
+  pageInfo.value.totalCount = res.data.length;
   const view = grdMainRef.value.getView();
 
-  if (bldCsmbDeliveries.length !== 0) {
-    bldCsmbDeliveries.forEach((bldCsmbDelivery) => {
+  if (res.data.length !== 0) {
+    res.data.forEach((bldCsmbDelivery) => {
       // 리스트 내 고정수량 array 재조합
       for (let i = 0; i < bldCsmbDelivery.fxnQtys.length; i += 1) {
         const j = i + 1;
@@ -430,7 +431,7 @@ async function fetchData() {
 
     // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
     // if (!(nowDateTime >= strtDtHh && nowDateTime <= endDtHh) || !editFields.includes(itemIndex.column)) {
-    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || bldCsmbDeliveries[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
+    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || res.data[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
       return false;
     }
   };
@@ -439,7 +440,7 @@ async function fetchData() {
     grid.checkItem(itemIndex, true);
   };
 
-  view.getDataSource().setRows(bldCsmbDeliveries);
+  view.getDataSource().setRows(res.data);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
   view.setCheckableCallback((dataSource, item) => {
@@ -483,7 +484,7 @@ async function onClickRgstPtrmSe() {
 }
 
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
+  // pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
@@ -517,8 +518,8 @@ async function onClickSave() {
           strWareNo: checkedRow.prtnrNo,
           csmbPdCd: itemsData.value[i].fxnPdCd,
           sapMatCd: itemsData.value[i].fxnSapMatCd,
-          bfsvcCsmbDdlvQty: checkedRow[`fxnQty${f}`] === undefined ? '0' : checkedRow[`fxnQty${f}`], // TODO: 테스트용 삼항연산.. 추후 삭제
-          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
+          bfsvcCsmbDdlvQty: checkedRow[`fxnQty${f}`] === undefined ? '0' : checkedRow[`fxnQty${f}`],
+          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
         });
 
         f += 1;
@@ -540,8 +541,8 @@ async function onClickSave() {
           strWareNo: checkedRow.prtnrNo,
           csmbPdCd: itemsData.value[i].aplcPdCd,
           sapMatCd: itemsData.value[i].aplcSapMatCd,
-          bfsvcCsmbDdlvQty: checkedRow[`aplcQty${a}`] === undefined ? '0' : checkedRow[`aplcQty${a}`], // TODO: 테스트용 삼항연산.. 추후 삭제
-          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
+          bfsvcCsmbDdlvQty: checkedRow[`aplcQty${a}`] === undefined ? '0' : checkedRow[`aplcQty${a}`],
+          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
         });
 
         a += 1;
@@ -592,9 +593,43 @@ async function onClickExcelDownload() {
 }
 
 async function onClickOstrAk() {
-  await dataService.post(`/sms/wells/service/newmanager-bsconsumables/${searchParams.value.mngtYm}/request`);
-  notify(t('MSG_ALT_AK_FSH'));
-  await fetchData();
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
+
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
+  if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
+    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
+    return;
+  }
+
+  let errorYn = false;
+
+  checkedRows.forEach((checkedRow) => {
+    if (checkedRow.bfsvcCsmbDdlvStatCd !== '20') {
+      alert(`${checkedRow.prtnrNmNo}님의 신청 상태를 확인해주세요`);
+      errorYn = true;
+      return;
+    }
+
+    requestData.push({
+      mngtYm: searchParams.value.mngtYm,
+      bfsvcCsmbDdlvOjCd: '1',
+      strWareNo: checkedRow.prtnrNo,
+    });
+  });
+
+  if (!errorYn) {
+    await dataService.post('/sms/wells/service/newmanager-bsconsumables/request', requestData);
+    notify(t('MSG_ALT_AK_FSH'));
+    await fetchData();
+  } else {
+    requestData = [];
+  }
 }
 
 onMounted(async () => {
@@ -617,7 +652,7 @@ const initGrdMain = defineGrid(async (data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '80', styleName: 'text-center', editable: false },
+    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNmNo', header: t('MSG_TXT_MANAGER'), width: '150', styleName: 'text-center', editable: false },
