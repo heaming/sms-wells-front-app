@@ -64,13 +64,7 @@
       <h3>매니저 계정 및 재적 현황</h3>
       <kw-action-top>
         <template #left>
-          <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchMngerAccEnrlPsData"
-          />
+          <kw-paging-info :total-count="bottomGridTotalCount" />
 
           <span class="ml8">(단위 : 명)</span>
         </template>
@@ -80,26 +74,26 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="bottomGridTotalCount === 0"
           @click="onClickBottomGridExcelDownload"
         />
       </kw-action-top>
       <kw-grid
         ref="grdBottomRef"
         :visible-rows="10"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
         @init="initBottomGrid"
       />
 
       <!-- rev:230420 추가 -->
-      <kw-pagination
+      <!-- rev:231004 집계화면이기에 페이징 처리 삭제 -->
+      <!-- <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @change="fetchMngerAccEnrlPsData"
-      />
+        /> -->
       <!-- // rev:230420 추가 -->
+      <!-- // rev:231004 집계화면이기에 페이징 처리 삭제 -->
     </div>
   </kw-page>
 </template>
@@ -108,12 +102,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, codeUtil, useDataService, getComponentType, gridUtil } from 'kw-lib';
+import { useDataService, getComponentType, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
 
 const dataService = useDataService();
 
@@ -123,21 +116,16 @@ const dataService = useDataService();
 const grdTopRef = ref(getComponentType('KwGrid'));
 const grdBottomRef = ref(getComponentType('KwGrid'));
 
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
+// const codes = await codeUtil.getMultiCodes(
+//   'COD_PAGE_SIZE_OPTIONS',
+// );
 
 const searchParams = ref({
   metgStartDt: dayjs().format('YYYYMM'), // 관리년월
 });
 
 const topGridTotalCount = ref(0);
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
+const bottomGridTotalCount = ref(0);
 
 let cachedParams;
 
@@ -161,14 +149,13 @@ async function fetchGnrdvAgrgData() {
 **========================================= */
 async function fetchMngerAccEnrlPsData() {
   console.log('fetchMngerAccEnrlPsData START');
-  const res = await dataService.get('/sms/wells/service/manager-acc-enrl-ps-inqr/manager-account-enrl-ps/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list, pageInfo: pagingResult } = res.data;
+  const res = await dataService.get('/sms/wells/service/manager-acc-enrl-ps-inqr/manager-account-enrl-ps', { params: { ...cachedParams } });
 
-  pageInfo.value = pagingResult;
+  bottomGridTotalCount.value = res.data.length;
 
   const view = grdBottomRef.value.getView();
-  view.getDataSource().setRows(list);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  view.getDataSource().setRows(res.data);
+  view.resetCurrent();
 }
 
 async function onClickSearch() {
@@ -196,112 +183,97 @@ async function onClickTopGridExcelDownload() {
 **========================================= */
 async function onClickBottomGridExcelDownload() {
   console.log('onClickBottomGridExcelDownload START');
-  cachedParams = cloneDeep(searchParams.value);
   const view = grdBottomRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/manager-acc-enrl-ps-inqr/manager-account-enrl-ps/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: '매니저 계정 및 재적 현황',
     timePostfix: true,
-    exportData: res.data,
   });
 }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid: Fetch initial Data.
 // -------------------------------------------------------------------------------------------------
+// 총괄단 집계
 function initTopGrid(data, view) {
   const fields = [
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'pdctPdCd' },
-    { fieldName: 'svPdCd' },
-    { fieldName: 'istDt' },
-    { fieldName: 'reqdDt' },
-    { fieldName: 'cpsDt' },
-    { fieldName: 'cntrNmnN' },
-    { fieldName: 'updtPsicDvCd' },
-    { fieldName: 'bcNo' },
-    { fieldName: 'wkPsicDvCd' },
-    { fieldName: 'mngtPrtnrOgTpCd' },
-    { fieldName: 'mngtPrtnrNo' },
+    { fieldName: 'dgr1LevlOgCd' },
+    { fieldName: 'dgr2LevlCnt' },
+    { fieldName: 'hooPrtnrNm' },
+    { fieldName: 'mngCnt' },
+    { fieldName: 'realActMngCnt' },
+    { fieldName: 'realActJijumCnt' },
+    { fieldName: 'actMngCnt' },
+    { fieldName: 'noActMngCnt' },
+    { fieldName: 'cntAverage' },
+    { fieldName: 'recruitCnt' },
+    { fieldName: 'allVisitCnt' },
+    { fieldName: 'visitCompleteCnt' },
+    { fieldName: 'avgAge' },
   ];
   const columns = [
-    { fieldName: 'cntrNo', header: '총괄단', width: '100', styleName: 'text-left' },
-    { fieldName: 'cntrSn', header: '지역단', width: '100', styleName: 'text-center' },
-    { fieldName: 'pdctPdCd', header: '총괄단장', width: '100', styleName: 'text-left' },
-    { fieldName: 'svPdCd', header: '재적계', width: '100', styleName: 'text-right' },
-    { fieldName: 'istDt', header: '실활동 매니저(20계정↑ 완료)', width: '200', styleName: 'text-right' },
-    { fieldName: 'reqdDt', header: '실활동 지점장(20계정↑ 완료)', width: '200', styleName: 'text-right' },
-    { fieldName: 'cpsDt', header: '활동 매니저(20계정↓ 완료)', width: '200', styleName: 'text-right' },
-    { fieldName: 'cntrNmnN', header: '활동 매니저(20계정↓ 완료)', width: '200', styleName: 'text-right' },
-    { fieldName: 'updtPsicDvCd', header: '개인별 평균계정(20계정↑)', width: '200', styleName: 'text-right' },
-    { fieldName: 'bcNo', header: '채용 필요인원(150계정 기준)', width: '200', styleName: 'text-right' },
-    { fieldName: 'wkPsicDvCd', header: '방문계정', width: '100', styleName: 'text-right' },
-    { fieldName: 'mngtPrtnrOgTpCd', header: '방문계정', width: '100', styleName: 'text-right' },
-    { fieldName: 'mngtPrtnrNo', header: '방문계정', width: '100', styleName: 'text-right' },
+    { fieldName: 'dgr1LevlOgCd', header: '총괄단', width: '100', styleName: 'text-left' }, // 총괄단
+    { fieldName: 'dgr2LevlCnt', header: '지역단', width: '100', styleName: 'text-center' }, // 지역단
+    { fieldName: 'hooPrtnrNm', header: '총괄단장', width: '100', styleName: 'text-left' }, // 총괄단장
+    { fieldName: 'mngCnt', header: '재적계', width: '100', styleName: 'text-right' }, // 재적계
+    { fieldName: 'realActMngCnt', header: '실활동 매니저(20계정↑ 완료)', width: '200', styleName: 'text-right' }, // 실활동 매니저(20계정↑ 완료)
+    { fieldName: 'realActJijumCnt', header: '실활동 지점장(20계정↑ 완료)', width: '200', styleName: 'text-right' }, // 실활동 지점장(20계정↑ 완료)
+    { fieldName: 'actMngCnt', header: '활동 매니저(20계정↓ 완료)', width: '200', styleName: 'text-right' }, // 활동 매니저(20계정↓ 완료)
+    { fieldName: 'noActMngCnt', header: '미활동(완료계정 無)', width: '200', styleName: 'text-right' }, // 미활동(완료계정 無)
+    { fieldName: 'cntAverage', header: '개인별 평균계정(20계정↑)', width: '200', styleName: 'text-right' }, // 개인별 평균계정(20계정↑)
+    { fieldName: 'recruitCnt', header: '채용 필요인원(150계정 기준)', width: '200', styleName: 'text-right' }, // 채용 필요인원(150계정 기준)
+    { fieldName: 'allVisitCnt', header: '방문계정', width: '100', styleName: 'text-right' }, // 방문계정
+    { fieldName: 'visitCompleteCnt', header: '완료계정', width: '100', styleName: 'text-right' }, // 완료계정
+    { fieldName: 'avgAge', header: '웰스매니저 평균연령', width: '100', styleName: 'text-right' }, // 웰스매니저 평균연령
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true; // create checkbox column
+  view.header.height += view.header.height + 50;
+  view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-
-  // data.setRows([
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // eslint-disable-next-line max-len
-  //   { col1: 'A000000', col2: '5', col3: '김지숙', col4: '164', col5: '1', col6: '1', col7: '1', col8: '1', col9: '1', col10: '1', col11: '1' },
-  // ]);
 }
+
+// 매니저 계정 및 재적 현황
 function initBottomGrid(data, view) {
   const fields = [
-    { fieldName: 'asIstOjNo' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'cntrCstNo' },
-    { fieldName: 'inChnlDvCd' },
-    { fieldName: 'svBizHclsfCd' },
-    { fieldName: 'svBizDclsfCd' },
-    { fieldName: 'rcpOgTpCd' },
-    { fieldName: 'rcpIchrPrtnrNo' },
-    { fieldName: 'rcpdt' },
-    { fieldName: 'fnlRcpdt' },
+    { fieldName: 'dgr1LevlOgCd' },
+    { fieldName: 'dgr2LevlOgCd' },
+    { fieldName: 'hooPrtnrNm' },
+    { fieldName: 'bldNm' },
+    { fieldName: 'mngCnt' },
+    { fieldName: 'realActMngCnt' },
+    { fieldName: 'realActJijumCnt' },
+    { fieldName: 'actMngCnt' },
+    { fieldName: 'noActMngCnt' },
+    { fieldName: 'cntAverage' },
+    { fieldName: 'recruitCnt' },
+    { fieldName: 'allVisitCnt' },
+    { fieldName: 'visitCompleteCnt' },
+    { fieldName: 'avgAge' },
   ];
 
   const columns = [
-    { fieldName: 'asIstOjNo', header: '총괄단', width: '100', styleName: 'text-left' },
-    { fieldName: 'cntrNo', header: '지역단', width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrSn', header: '총괄단장', width: '100', styleName: 'text-left' },
-    { fieldName: 'cntrCstNo', header: '재적계', width: '100', styleName: 'text-right' },
-    { fieldName: 'inChnlDvCd', header: '실활동 매니저(20계정↑ 완료)', width: '200', styleName: 'text-right' },
-    { fieldName: 'svBizHclsfCd', header: '실활동 지점장(20계정↑ 완료)', width: '200', styleName: 'text-right' },
-    { fieldName: 'svBizDclsfCd', header: '활동 매니저(20계정↓ 완료)', width: '200', styleName: 'text-right' },
-    { fieldName: 'rcpOgTpCd', header: '활동 매니저(20계정↓ 완료)', width: '200', styleName: 'text-right' },
-    { fieldName: 'rcpIchrPrtnrNo', header: '개인별 평균계정(20계정↑)', width: '200', styleName: 'text-right' },
-    { fieldName: 'rcpdt', header: '채용 필요인원(150계정 기준)', width: '200', styleName: 'text-right' },
-    { fieldName: 'fnlRcpdt', header: '방문계정', width: '100', styleName: 'text-right' },
+    { fieldName: 'dgr1LevlOgCd', header: '총괄단', width: '100', styleName: 'text-left' }, // 총괄단
+    { fieldName: 'dgr2LevlOgCd', header: '지역단', width: '100', styleName: 'text-center' }, // 지역단
+    { fieldName: 'hooPrtnrNm', header: '지역단장', width: '100', styleName: 'text-left' }, // 지역단장
+    { fieldName: 'bldNm', header: '사업장', width: '200', styleName: 'text-right' }, //  사업장
+    { fieldName: 'mngCnt', header: '재적계', width: '100', styleName: 'text-right' }, // 재적계
+    { fieldName: 'realActMngCnt', header: '실활동 매니저(20계정↑ 완료)', width: '200', styleName: 'text-right' }, // 실활동 매니저(20계정↑ 완료)
+    { fieldName: 'realActJijumCnt', header: '실활동 지점장(20계정↓ 완료)', width: '200', styleName: 'text-right' }, // 실활동 지점장(20계정↓ 완료)
+    { fieldName: 'actMngCnt', header: '활동 매니저(20계정↓ 완료)', width: '200', styleName: 'text-right' }, // 활동 매니저(20계정↓ 완료)
+    { fieldName: 'noActMngCnt', header: '미활동(완료계정 無)', width: '200', styleName: 'text-right' }, // 미활동(완료계정 無)
+    { fieldName: 'cntAverage', header: '개인별 평균계정(20계정↑)', width: '200', styleName: 'text-right' }, // 개인별 평균계정(20계정↑)
+    { fieldName: 'recruitCnt', header: '채용 필요인원(150계정 기준)', width: '100', styleName: 'text-right' }, // 채용 필요인원(150계정 기준)
+    { fieldName: 'allVisitCnt', header: '방문계정', width: '100', styleName: 'text-right' }, // 방문계정
+    { fieldName: 'visitCompleteCnt', header: '완료계정', width: '100', styleName: 'text-right' }, // 완료계정
+    { fieldName: 'avgAge', header: '웰스매니저 평균연령', width: '100', styleName: 'text-right' }, // 웰스매니저 평균연령
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true; // create checkbox column
+  view.header.height += view.header.height + 50;
+  view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 }
 </script>
