@@ -3,11 +3,11 @@
     v-if="!showHomeCard"
     class="flex flex-center"
   >
-    <!--    <kw-btn-->
-    <!--      label="홈 카드 보기"-->
-    <!--      style="display: flex;"-->
-    <!--      @click="onClickShowHomeCard"-->
-    <!--    />-->
+    <kw-btn
+      label="홈 카드 보기"
+      style="display: flex;"
+      @click="onClickShowHomeCard"
+    />
     <img
       src="~~@assets/images/home.png"
       width="1100"
@@ -26,11 +26,10 @@
 </template>
 
 <script setup>
-import { WebDashboardM,
-  // , consts
-} from 'kw-lib';
+import { WebDashboardM, consts } from 'kw-lib';
 
-// const store = useStore();
+const { push } = useRouter();
+const store = useStore();
 
 const homecards = import.meta.globEager('../modules/common/components/homecard/*.vue');
 const components = shallowRef(
@@ -41,9 +40,9 @@ const components = shallowRef(
 );
 const showHomeCard = ref(false);
 
-// function onClickShowHomeCard() {
-//   push({ name: consts.ROUTE_HOME_NAME });
-//   store.commit('app/setLeftExist', false);
-//   showHomeCard.value = true;
-// }
+function onClickShowHomeCard() {
+  push({ name: consts.ROUTE_HOME_NAME });
+  store.commit('app/setLeftExist', false);
+  showHomeCard.value = true;
+}
 </script>
