@@ -242,6 +242,7 @@ async function onClickSearch() {
 async function onClickCstSearch() {
   const { result, payload } = await modal({
     component: 'ZwcsaCustomerListP',
+    componentProps: { cstNo: searchParams.value.cstNo },
   });
   if (result) {
     searchParams.value.cstNo = payload.cstNo;
