@@ -20,7 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('처리구분')">
+        <kw-search-item :label="$t('MSG_TXT_PROCS_DV')">
           <kw-select
             v-model="searchParams.findGb"
             :options="customCodes.findGb"
