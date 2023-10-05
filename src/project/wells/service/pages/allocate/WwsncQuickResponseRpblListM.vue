@@ -49,10 +49,11 @@
             first-option="all"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('계약번호')">
+        <kw-search-item :label="$t('계약상세번호')">
           <kw-input
             v-model="searchParams.cntrNo"
-            maxlength="100"
+            :placeholder="'계약번호-계약일련번호'"
+            :maxlength="100"
           />
         </kw-search-item>
       </kw-search-row>
@@ -247,7 +248,7 @@
         />
         <kw-btn
           v-permission:create
-          :label="$t('QR재발행')"
+          :label="$t('S/N 재발행')"
           primary
           dense
           @click="onClickQrRpbl"
@@ -437,14 +438,17 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'vstFshDt' },
     { fieldName: 'vstFshHh' },
     { fieldName: 'bcInMthdCd' },
-    { fieldName: 'useMpno' },
+    // { fieldName: 'useMpno' },
     { fieldName: 'cstSignCn' },
     { fieldName: 'dnldPrtnrKnm' },
 
     { fieldName: 'publishInfo' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
+    { fieldName: 'svpdQrType' },
+    { fieldName: 'qrCd' },
+    { fieldName: 'cralLocaraTno' },
+    { fieldName: 'mexnoEncr' },
+    { fieldName: 'cralIdvTno' },
+    { fieldName: 'cstSign' },
   ];
 
   const columns = [
@@ -483,8 +487,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'vstYm', header: '발행월', width: '200', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'bcNo', header: '발행 바코드', width: '200', styleName: 'text-center' },
     { fieldName: 'publishInfo', header: '발행정보', width: '200', styleName: 'text-center' },
-    { fieldName: 'col2', header: 'QR유형', width: '200', styleName: 'text-center' },
-    { fieldName: 'col3', header: 'QR코드', width: '200', styleName: 'text-center' },
+    { fieldName: 'svpdQrType', header: 'QR유형', width: '200', styleName: 'text-center' },
+    { fieldName: 'qrCd', header: 'QR코드', width: '200', styleName: 'text-center' },
     {
       fieldName: 'fnlMdfcDtm',
       header: '다운로드 일자',
@@ -500,9 +504,22 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'vstFshDt', header: '처리 일자', width: '200', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'vstFshHh', header: '처리 시간', width: '200', styleName: 'text-center', datetimeFormat: 'time' },
     { fieldName: 'bcInMthdCd', header: '스캔', width: '200', styleName: 'text-center' },
-    { fieldName: 'useMpno', header: '작업번호', width: '200', styleName: 'text-center' },
+    { fieldName: 'cralIdvTno',
+      header: '작업번호',
+      width: '200',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        const cralLocaraTno = grid.getValue(index.itemIndex, 'cralLocaraTno') ?? '';
+        const mexnoEncr = grid.getValue(index.itemIndex, 'mexnoEncr') ?? '';
+        const cralIdvTno = value ?? '';
+        const div = (!isEmpty(cralLocaraTno) && !isEmpty(mexnoEncr)) ? '-' : '';
+        const div2 = (!isEmpty(mexnoEncr) && !isEmpty(cralIdvTno)) ? '-' : '';
+
+        return `${cralLocaraTno}${div}${mexnoEncr}${div2}${cralIdvTno}`;
+      },
+    },
     {
-      fieldName: 'col4',
+      fieldName: 'cstSign',
       header: '고객서명',
       width: '200',
       styleName: 'text-center',
@@ -521,7 +538,7 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true; // create number indicator column
 
   view.onCellItemClicked = async (grid, clickData) => {
-    if (clickData.column === 'col4') {
+    if (clickData.column === 'cstSign') {
       const cstSignCn = grid.getValue(clickData.itemIndex, 'cstSignCn');
       await modal({
         component: 'WwsnzSignPreviewP',

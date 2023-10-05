@@ -64,7 +64,7 @@
             v-model:from="searchParams.strtYm"
             v-model:to="searchParams.endYm"
             type="month"
-            rules="date_range_required|date_range_months:3"
+            rules="date_range_required"
             :label="t('MSG_TXT_RCP_YM')"
           />
         </kw-search-item>
@@ -190,13 +190,18 @@ const grdType = ref('A');
 const stepNaviRef = ref();
 const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD',
+  'SELL_DSC_DV_CD',
+  'SELL_DSCR_CD',
+  'SELL_DSC_TP_CD',
+  'PMOT_USWY_DV_ACD',
+  'BFSVC_PRD_CD',
 );
 let cachedParams;
 const searchParams = ref({
   type: 'A',
   perfYm: now.format('YYYYMM'),
-  strtYm: now.format('YYYYMMDD'),
-  endYm: now.add(1, 'month').format('YYYYMMDD'),
+  strtYm: '201703',
+  endYm: now.add(-1, 'month').format('YYYYMM'),
   cancelStrtYm: '',
   cancelEndYm: '',
   feeSchdTpCd: '401', // 신채널(B2B)
@@ -350,16 +355,50 @@ const initGridDetail = defineGrid((data, view) => {
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' },
-    { fieldName: 'sellDscDvCdNm', header: t('MSG_TXT_PD_DC_CLASS'), width: '98' },
-    { fieldName: 'sellDscrCdNm', header: t('MSG_TXT_DISC_CODE'), width: '98' },
-    { fieldName: 'sellDscTpCdNm', header: t('MSG_TXT_DSC_SYST'), width: '98' },
-    { fieldName: 'relPdCdNm', header: t('MSG_TXT_COMBI_DV'), width: '98' },
-    { fieldName: 'pmotUswyDvCdNm', header: t('MSG_TXT_USWY_DV'), width: '98' },
+    {
+      fieldName: 'sellDscDvCd',
+      header: t('MSG_TXT_PD_DC_CLASS'),
+      width: '98',
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        if (codes.SELL_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
+          retValue = codes.SELL_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+        }
+        return retValue;
+      },
+    },
+    {
+      fieldName: 'sellDscrCd',
+      header: t('MSG_TXT_DISC_CODE'),
+      width: '98',
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        const { sellDscDvCd } = grid.getValues(index.itemIndex);
+        if (sellDscDvCd === '5') {
+          retValue = codes.SELL_DSCR_CD.find((v) => v.codeId === value)?.codeName;
+        }
+        return retValue;
+      },
+    },
+    {
+      fieldName: 'sellDscTpCd',
+      header: t('MSG_TXT_DSC_SYST'),
+      width: '98',
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        if (codes.SELL_DSC_TP_CD.map((v) => v.codeId).includes(value)) {
+          retValue = codes.SELL_DSC_TP_CD.find((v) => v.codeId === value)?.codeName;
+        }
+        return retValue;
+      },
+    },
+    { fieldName: 'relPdCd', header: t('MSG_TXT_COMBI_DV'), width: '98' },
+    { fieldName: 'pmotUswyDvCd', header: t('MSG_TXT_USWY_DV'), width: '98', options: codes.PMOT_USWY_DV_ACD },
     { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98' },
-    { fieldName: 'bfsvcPrdCdNm', header: t('MSG_TXT_VST_PRD'), width: '98' },
-    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'datetime' },
+    { fieldName: 'bfsvcPrdCd', header: t('MSG_TXT_VST_PRD'), width: '98', options: codes.BFSVC_PRD_CD },
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     { fieldName: 'perfVal', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right', dataType: 'number' },
   ];

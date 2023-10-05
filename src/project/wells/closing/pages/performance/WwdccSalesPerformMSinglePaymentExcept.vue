@@ -226,7 +226,7 @@
               :label="$t('MSG_TXT_UC_AMT')"
             >
               <p>
-                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.thmUcBlam)) }}
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotUcAmt)) }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -376,7 +376,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_UC_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.thmUcBlam)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotUcAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_DLQ_AMT_ADAMT')"
@@ -494,7 +494,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_UC_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.thmUcBlam)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotUcAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_BIL_UC_AMT')"
@@ -747,6 +747,8 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
       header: t('MSG_TXT_SL_YM'),
       width: '100',
       styleName: 'text-center, rg-button-link',
+      dataType: 'date',
+      datetimeFormat: 'yyyy-MM',
       renderer: { type: 'button', hideWhenEmpty: false },
     },
     { fieldName: 'slStpYn', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
@@ -763,8 +765,8 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
       dataType: 'number',
       numberFormat: '#,##0' },
     { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'thmUcBlam', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'thmOcDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '90', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'eotUcAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '90', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '90', styleName: 'text-right' },
     { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_BTD_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_OCCR_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
@@ -783,7 +785,7 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'cntrNo', 'slClYm', 'slStpYn', 'rentalTn', 'slCtrDvCd', 'prmMcn', 'thmSlSumAmt', 'borAmt', 'dpAmt', 'eotAtam', 'thmUcBlam', 'thmOcDlqAmt', 'dlqMcn', // single
+    'cntrNo', 'slClYm', 'slStpYn', 'rentalTn', 'slCtrDvCd', 'prmMcn', 'thmSlSumAmt', 'borAmt', 'dpAmt', 'eotAtam', 'eotUcAmt', 'eotDlqAmt', 'dlqMcn', // single
     {
       header: t('MSG_TXT_ADD_AM'), // colspan title
       direction: 'horizontal', // merge type
@@ -798,7 +800,7 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
       let callComponent = '';
       if (sellTpCd === '2') {
         if (islease === 'N') {
-          callComponent = 'WwdcbRentalSalesDetailP';
+          callComponent = 'WwdccSalesPerformMRentalP';
         } else if (islease === 'Y') {
           callComponent = 'WwdcbLeaseSalesDetailP';
         }

@@ -83,9 +83,10 @@
             :cols="0"
             :label-size="150"
           >
-            <kw-form-row>
+            <kw-form-row
+              v-if="multipleQuantityAvailable"
+            >
               <kw-form-item
-                v-if="dtl.sellTpDtlCd === '11'"
                 :label="'수량변경'"
               >
                 <zwcm-counter
@@ -96,10 +97,12 @@
                 />
               </kw-form-item>
             </kw-form-row>
-            <kw-form-row>
-              <kw-form-item :label="'일시불할인구분'">
+            <kw-form-row :cols="2">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.spayDscDvCd"
+                :label="'일시불할인구분'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.spayDscDvCd"
                   v-model="priceDefineVariables.spayDscDvCd"
                   :options="priceDefineVariableOptions.spayDscDvCd"
                   placeholder="일시불할인구분"
@@ -108,23 +111,11 @@
                   @change="forcedChangeValidVariable"
                 />
               </kw-form-item>
-              <kw-form-item :label="'일시불할인율'">
+              <kw-form-item
+                v-if="priceDefineVariableOptions.spayPmotDvCd"
+                :label="'일시불프로모션구분'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.spayDscrCd"
-                  v-model="priceDefineVariables.spayDscrCd"
-                  :options="priceDefineVariableOptions.spayDscrCd"
-                  placeholder="일시불할인율"
-                  :disable="!!rentalDiscountFixed"
-                  first-option="select"
-                  dense
-                  @change="forcedChangeValidVariable"
-                />
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item :label="'일시불프로모션구분'">
-                <kw-select
-                  v-if="priceDefineVariableOptions.spayPmotDvCd"
                   v-model="priceDefineVariables.spayPmotDvCd"
                   :options="priceDefineVariableOptions.spayPmotDvCd"
                   placeholder="일시불프로모션구분"
@@ -133,16 +124,44 @@
                   @change="forcedChangeValidVariable"
                 />
               </kw-form-item>
-              <kw-form-item :label="'단체할인율'">
+            </kw-form-row>
+            <kw-form-row
+              v-if="spayDscrCdSelectable || rentalCrpDscrCdSelectable || showSvPtrms"
+              :cols="2"
+            >
+              <kw-form-item
+                v-if="spayDscrCdSelectable"
+                :label="'일시불할인율'"
+              >
                 <kw-select
-                  v-if="priceDefineVariableOptions.rentalCrpDscrCd"
-                  v-model="priceDefineVariables.rentalCrpDscrCd"
-                  :options="priceDefineVariableOptions.rentalCrpDscrCd"
-                  placeholder="단체할인율"
+                  v-if="priceDefineVariableOptions.spayDscrCd"
+                  v-model="priceDefineVariables.spayDscrCd"
+                  :options="priceDefineVariableOptions.spayDscrCd"
+                  label="일시불할인율"
+                  :disable="!!rentalDiscountFixed"
                   first-option="select"
                   dense
                   @change="forcedChangeValidVariable"
                 />
+              </kw-form-item>
+              <kw-form-item
+                v-else-if="rentalCrpDscrCdSelectable"
+                :label="'법인할인율'"
+              >
+                <kw-select
+                  v-model="priceDefineVariables.rentalCrpDscrCd"
+                  :options="priceDefineVariableOptions.rentalCrpDscrCd"
+                  first-option="select"
+                  :label="'법인할인율'"
+                  dense
+                  @change="forcedChangeValidVariable"
+                />
+              </kw-form-item>
+              <kw-form-item
+                v-if="showSvPtrms"
+                :label="'무상개월 AS/BS'"
+              >
+                {{ `${selectedFinalPrice.frisuPtrm || 0}개월 / ${selectedFinalPrice.recapPtrm || 0}개월` }}
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
@@ -164,6 +183,7 @@
       <promotion-select
         v-model="appliedPromotions"
         :promotions="promotions"
+        @update:model-value="calcPromotionAppliedPrice"
       />
     </template>
   </kw-expansion-item>
@@ -175,6 +195,7 @@ import { useCtCode } from '~sms-common/contract/composable';
 import { useDataService } from 'kw-lib';
 import { warn } from 'vue';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
+import { getNumberWithComma } from '~sms-common/contract/util';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
@@ -182,6 +203,7 @@ const props = defineProps({
 });
 const emit = defineEmits([
   'delete',
+  'promotion-changed',
 ]);
 
 const { getCodeName } = await useCtCode(
@@ -198,9 +220,17 @@ const { getCodeName } = await useCtCode(
 const dataService = useDataService();
 
 const EMPTY_SYM = Symbol('__undef__');
-const EMPTY_ID = ' '; /*  FIXME!!! */
+const EMPTY_ID = ' '; /*  cause, KW COMPOs does not distinguish between '', undefined and null. */
+
+const SELL_TP_DTL_CD_SPAY_NOM = '11';
+const SELL_TP_DTL_CD_SPAY_ENVR_ELHM = '13';
 
 const dtl = ref(props.modelValue);
+
+const multipleQuantityAvailable = computed(() => {
+  const { bcMngtPdYn, sellTpDtlCd } = dtl.value;
+  return bcMngtPdYn !== 'Y' && sellTpDtlCd === SELL_TP_DTL_CD_SPAY_NOM;
+});
 
 /* 직간접적으로 업데이트 할 값들 */
 let pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
@@ -211,6 +241,7 @@ let pdQty = toRef(props.modelValue, 'pdQty');
 let appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
 
 const promotions = ref(props.modelValue?.promotions); /* 적용가능한 프로모션 목록 */
+
 appliedPromotions.value ??= [];
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '1'));
@@ -220,23 +251,14 @@ const finalPriceOptions = ref([]);
 async function fetchFinalPriceOptions() {
   const { data } = await dataService.get('sms/wells/contract/final-price', {
     params: {
+      cntrNo: props.bas.cntrNo,
       pdCd: dtl.value.pdCd,
-      sellChnlDtlCd: dtl.value.sellChnlDtlCd,
-      copnDvCd: props.bas?.copnDvCd,
     },
   });
   finalPriceOptions.value = data || [];
 }
 
 await fetchFinalPriceOptions();
-
-/*
-* SPAY_DSC_DV_CD
-SPAY_DSCR_CD
-SPAY_PMOT_DV_CD
-HCR_DV_CD
-RENTAL_CRP_DSCR_CD
-*  */
 
 const priceDefineVariables = ref({
   svPdCd: toRef(props.modelValue, 'svPdCd'),
@@ -245,6 +267,24 @@ const priceDefineVariables = ref({
   spayPmotDvCd: toRef(props.modelValue, 'spayPmotDvCd'),
   rentalCrpDscrCd: toRef(props.modelValue, 'rentalCrpDscrCd'),
   hcrDvCd: toRef(props.modelValue, 'hcrDvCd'),
+});
+
+const spayDscrCdSelectable = computed(() => priceDefineVariables.value.spayDscDvCd === '4'
+  || priceDefineVariables.value.spayDscDvCd === 'C'
+  || priceDefineVariables.value.spayDscDvCd === 'D');
+
+watch(spayDscrCdSelectable, (value) => {
+  if (!value) {
+    priceDefineVariables.value.spayDscrCd = undefined;
+  }
+});
+
+const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.spayDscDvCd === '5');
+
+watch(rentalCrpDscrCdSelectable, (value) => {
+  if (!value) {
+    priceDefineVariables.value.rentalCrpDscrCd = undefined;
+  }
 });
 
 const labelGenerator = {
@@ -391,22 +431,12 @@ function forcedChangeValidVariable(val) {
 pdQty.value = 1;
 
 function filterFinalPriceByVariables(finalPrice) {
-  // variableNames.forEach((variableName) => {
-  //   if (!!priceDefineVariables.value[variableName]
-  //     && finalPrice[variableName] !== priceDefineVariables.value[variableName]) {
-  //     return false;
-  //   }
-  // });
   return variableNames.every((variableName) => {
     if (!priceDefineVariableOptions.value[variableName]?.length) {
       return true;
     }
     const selected = priceDefineVariables.value[variableName] === EMPTY_ID ? undefined
       : priceDefineVariables.value[variableName];
-    // if (finalPrice[variableName] !== selected) {
-    //   console.log(variableName, ', finalPrice: ', finalPrice[variableName], ', selected: ', selected);
-    // }
-
     return finalPrice[variableName] === selected;
   });
 }
@@ -423,12 +453,58 @@ const selectedFinalPrice = computed(() => {
   return selectedPrice[0];
 });
 
+const promotionAppliedPrice = ref();
+
+const displayedFinalPrice = computed(() => (selectedFinalPrice.value
+  ? `${getNumberWithComma(selectedFinalPrice.value.fnlVal)}원`
+  : '미확정'));
+
+function clearPromotions() {
+  promotions.value = [];
+  appliedPromotions.value = [];
+  promotionAppliedPrice.value = undefined;
+}
+
+function calcPromotionAppliedPrice(aplyPmots) {
+  if (!aplyPmots?.length) {
+    return;
+  }
+  const fnlVal = selectedFinalPrice.value?.fnlVal;
+  if (!fnlVal) {
+    return;
+  }
+  const minRentalFxam = aplyPmots
+    .reduce(
+      (minVal, promotion) => {
+        if (!promotion.rentalFxam || Number.isNaN(Number(promotion.rentalFxam))) {
+          return minVal;
+        }
+        return Math.min(minVal, Number(promotion.rentalFxam));
+      },
+      fnlVal,
+    );
+  const totalDscApyAmt = aplyPmots
+    .reduce((acc, promotion) => {
+      if (Number.isNaN(Number(promotion.dscApyAmt))) {
+        return acc;
+      }
+      return acc + Number(promotion.dscApyAmt);
+    }, 0);
+  const pmotAplyPrice = Math.max(minRentalFxam - totalDscApyAmt, 0);
+  if (selectedFinalPrice.value?.fnlVal === pmotAplyPrice) {
+    return;
+  }
+  promotionAppliedPrice.value = `${getNumberWithComma(pmotAplyPrice)}원`;
+  emit('promotion-changed', aplyPmots, promotionAppliedPrice.value);
+}
+
 watch(selectedFinalPrice, (newPrice) => {
   fnlAmt.value = newPrice?.fnlVal ?? undefined;
   pdPrcFnlDtlId.value = newPrice?.pdPrcFnlDtlId ?? undefined;
+  clearPromotions();
 }, { immediate: true });
 
-const displayedFinalPrice = computed(() => (selectedFinalPrice.value ? `${selectedFinalPrice.value.fnlVal}원` : '미확정'));
+const showSvPtrms = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD_SPAY_ENVR_ELHM && selectedFinalPrice.value);
 
 function onClickDelete() {
   emit('delete', props.modelValue);

@@ -17,15 +17,15 @@
         separator
       >
         <kw-expansion-item
-          v-for="(step, index) in steps"
-          :ref="(el) => sideStepRefs[step.name] = el"
+          v-for="(curStep, index) in steps"
+          :ref="(el) => sideStepRefs[curStep.name] = el"
           :key="`side-item-${index}`"
           :default-opened="index === 0"
           class="like-vertical-stepper__step"
           header-class="h24"
           :class="{
-            'like-vertical-stepper__step--active': step.name === currentStepName,
-            'like-vertical-stepper__step--checked': step.done.value,
+            'like-vertical-stepper__step--active': curStep.name === currentStepName,
+            'like-vertical-stepper__step--checked': curStep.done.value,
           }"
           expand-icon="none"
         >
@@ -36,14 +36,14 @@
             >
               <kw-avatar
                 class="like-vertical-stepper__step-icon"
-                :icon="step.done.value ? 'checked_stepper' : undefined"
+                :icon="curStep.done.value ? 'checked_stepper' : undefined"
               >
-                {{ step.done.value ? undefined : index + 1 }}
+                {{ curStep.done.value ? undefined : index + 1 }}
               </kw-avatar>
             </kw-item-section>
             <kw-item-section>
               <kw-item-label>
-                {{ step?.title || '' }}
+                {{ curStep?.title || '' }}
               </kw-item-label>
             </kw-item-section>
           </template>
@@ -148,6 +148,7 @@ const summary = ref({});
 const currentStepName = ref('1');
 
 async function fetchSummary() {
+  await nextTick();
   if (!props.cntrNo) { return; }
   const { data } = await dataService.get('sms/wells/contract/contracts/summaries', {
     params: { cntrNo: props.cntrNo },

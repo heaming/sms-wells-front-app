@@ -42,6 +42,7 @@
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
           @change="fetchData"
         />
+        <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
 
       <kw-btn

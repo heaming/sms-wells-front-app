@@ -367,10 +367,13 @@
           <template
             v-if="item.sodbtNftfCntrYn !== 'Y'"
           >
+            <!-- 법인계약시 세금계산서 발행 선택 가능-->
             <kw-form-row
-              v-if="cntrTpCd === '02'"
+              v-if="step3.bas?.copnDvCd === '2'"
             >
-              <kw-form-item label=" 세금계산서발행">
+              <kw-form-item
+                :label="t('MSG_TXT_TXINV_PBL')"
+              >
                 <kw-option-group
                   v-model="item.txinvPblOjYn"
                   type="radio"
@@ -418,7 +421,7 @@
                   <kw-option-group
                     v-model="item.dpTpCdMsh"
                     type="radio"
-                    :options="codes.DP_TP_CD_AFTN"
+                    :options="step3.bas?.copnDvCd === '2' ? codes.DP_TP_CD_AFTN_CRP : codes.DP_TP_CD_AFTN"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -438,14 +441,17 @@
             <template
               v-else
             >
-              <kw-form-row>
+              <kw-form-row
+                cols="3"
+              >
                 <kw-form-item
                   label="자동이체"
+                  :colspan="2"
                 >
                   <kw-option-group
                     v-model="item.dpTpCdAftn"
                     type="radio"
-                    :options="codes.DP_TP_CD_AFTN"
+                    :options="step3.bas?.copnDvCd === '2' ? codes.DP_TP_CD_AFTN_CRP : codes.DP_TP_CD_AFTN"
                   />
                 </kw-form-item>
                 <kw-form-item no-label>
@@ -454,8 +460,13 @@
                   </p>
                 </kw-form-item>
               </kw-form-row>
-              <kw-form-row>
-                <kw-form-item label="등록비결제유형">
+              <kw-form-row
+                cols="3"
+              >
+                <kw-form-item
+                  label="등록비결제유형"
+                  :colspan="2"
+                >
                   <kw-option-group
                     v-model="item.dpTpCdIdrv"
                     type="radio"
@@ -536,7 +547,6 @@ codes.FMMB_N = [
 ];
 
 const cntrNo = toRef(props.contract, 'cntrNo');
-const cntrTpCd = toRef(props.contract, 'cntrTpCd');
 const step3 = toRef(props.contract, 'step3');
 
 const ogStep3 = ref({});
@@ -549,6 +559,11 @@ codes.DP_TP_CD_IDRV = [
 codes.DP_TP_CD_AFTN = [
   { codeId: '0203', codeName: '카드이체' },
   { codeId: '0102', codeName: '계좌이체' },
+];
+codes.DP_TP_CD_AFTN_CRP = [
+  { codeId: '0203', codeName: '카드이체' },
+  { codeId: '0102', codeName: '계좌이체' },
+  { codeId: '0104', codeName: '법인계좌' },
 ];
 const adrs = ref([]);
 const adrsVal = ref('');
@@ -690,8 +705,11 @@ function onChangeSodbtNftfCntr(v) {
   });
 }
 
+const loaded = ref(false);
 async function initStep() {
+  if (loaded.value) { return; }
   await getCntrInfo();
+  loaded.value = true;
 }
 
 exposed.getCntrInfo = getCntrInfo;

@@ -129,8 +129,6 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          v-model:page-index="pageInfo1.pageIndex"
-          v-model:page-size="pageInfo1.pageSize"
           :total-count="pageInfo1.totalCount"
           @change="fetchData"
         />
@@ -150,7 +148,7 @@
     <kw-grid
       ref="grdPopRef1"
       name="grdPop1"
-      :visible-rows="pageInfo1.pageSize"
+      :visible-rows="5"
       @init="initGrid"
     />
 
@@ -171,8 +169,6 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          v-model:page-index="pageInfo2.pageIndex"
-          v-model:page-size="pageInfo2.pageSize"
           :total-count="pageInfo2.totalCount"
           @change="fetchData"
         />
@@ -419,7 +415,6 @@ const grdPopRef2 = ref(); // 그리드 2번 - 환불상세
 const grdPopRef3 = ref(); // 그디르 3번 - 전금상세
 const grdPopRef4 = ref();
 const { ok } = useModal();
-const { getConfig } = useMeta();
 const dataService = useDataService();
 const { notify } = useGlobal();
 // const fnitCdRes = await dataService.get('/sms/common/common/codes/finance-code/fnit-codes/delegate');
@@ -428,23 +423,14 @@ const { notify } = useGlobal();
 
 const pageInfo1 = ref({ // 계약상세 페이지1
   totalCount: 0,
-  pageIndex: 1,
-  pageSize: 5,
-  // pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 const pageInfo2 = ref({ // 환불상세 페이지
   totalCount: 0,
-  pageIndex: 1,
-  // pageSize: 5,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 // eslint-disable-next-line no-unused-vars
 const pageInfo3 = ref({ // 전금상세 페이지
   totalCount: 0,
-  pageIndex: 1,
-  pageSize: 5,
-  // pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const customCode = {
@@ -506,10 +492,6 @@ const totBltfAkAmt = ref(0); // totalCount - 전금
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function gridReset() {
-  pageInfo1.value.totalCount = 0;
-  pageInfo2.value.totalCount = 0;
-  pageInfo3.value.totalCount = 0;
-
   grdPopRef1.value.getView().getDataSource().clearRows();
   grdPopRef2.value.getView().getDataSource().clearRows();
   grdPopRef3.value.getView().getDataSource().clearRows();
@@ -522,17 +504,18 @@ async function gridReset() {
     totRfndEtAmt: 0,
   }];
   grdPopRef4.value.getView().getDataSource().setRows(data);
+  grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
 }
 async function fetchData() {
-  cachedParams = { ...cachedParams, ...pageInfo1.value };
+  cachedParams = { ...cachedParams };
 
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: cachedParams });
-  const { list: application, pageInfo: pagingResult } = res.data;
-  pageInfo1.value = pagingResult;
+  // const { list: application, pageInfo: pagingResult } = res.data;
+  pageInfo1.value.totalCount = res.data.length;
 
   const view = grdPopRef1.value.getView();
 
-  view.getDataSource().setRows(application);
+  view.getDataSource().setRows(res.data);
 }
 
 // 메인에서 선택시 데이터 호출.
@@ -543,13 +526,11 @@ async function fetchData2() {
     // cntrNo: props.cntrNo,
     // cntrSn: props.cntrSn,
   };
-  const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...propsData, ...pageInfo3.value } });
-  const { list: app3, pageInfo: pagingResult3 } = res3.data;
-  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: { ...propsData, ...pageInfo2.value } });
-  const { list: app2, pageInfo: pagingResult2 } = res2.data;
+  const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...propsData } });
 
-  const res1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: { ...propsData, ...pageInfo1.value } });
-  const { list: app1, pageInfo: pagingResult1 } = res1.data;
+  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: { ...propsData } });
+
+  const res1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: { ...propsData } });
 
   // eslint-disable-next-line max-len
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund', { params: { ...propsData } });
@@ -557,21 +538,45 @@ async function fetchData2() {
   saveParams.value.bankCode = res.data.cshRfndFnitCd;
   saveParams.value.acnoEncr = res.data.cshRfndAcnoEncr;
   saveParams.value.cstNm = isEmpty(res.data.cshRfndAcownNm) ? '' : res.data.cshRfndAcownNm;
-  pageInfo3.value = pagingResult3;
-  pageInfo2.value = pagingResult2;
-  pageInfo1.value = pagingResult1;
+  pageInfo3.value.totalCount = res3.data.length;
+  pageInfo2.value.totalCount = res2.data.length;
+  pageInfo1.value.totalCount = res1.data.length;
   const view1 = grdPopRef1.value.getView();
   view1.checkBar.visible = false;
 
-  view1.getDataSource().setRows(app1);
+  view1.getDataSource().setRows(res1.data);
   const view2 = grdPopRef2.value.getView();
-  view2.getDataSource().setRows(app2);
+  view2.getDataSource().setRows(res2.data);
   const view3 = grdPopRef3.value.getView();
-  view3.getDataSource().setRows(app3);
+  view3.getDataSource().setRows(res3.data);
   // eslint-disable-next-line no-use-before-define
   await onCheckTotalData(); // 그리드4 (총액 자동계산)
   // eslint-disable-next-line no-use-before-define
-  await onEditRfnd(props.cntrNo); // 그리드 2(전금 데이터 바인딩)
+  // await onEditRfnd(props.cntrNo); // 그리드 2(전금 데이터 바인딩)
+  res2.data.forEach((obj) => {
+    const grdView2 = grdPopRef2.value.getView();
+    const grdView3 = grdPopRef3.value.getView();
+    const grd2 = gridUtil.getAllRowValues(grdView2);
+    const grd3 = gridUtil.getAllRowValues(grdView3);
+    let temp = 0;
+
+    for (let i = 0; i < grd3.length; i += 1) {
+      if (grd3[i].cntrNo === obj.cntrNo
+        && grd3[i].rveNo === obj.rveNo
+        && grd3[i].rveSn === obj.rveSn) {
+        temp += Number(grd3[i].rfndBltfAkAmt);
+      }
+    }
+
+    for (let i = 0; i < grd2.length; i += 1) {
+      if (grd2[i].cntrNo === obj.cntrNo
+        && grd2[i].rveNo === obj.rveNo
+        && grd2[i].rveSn === obj.rveSn) {
+        grdView2.setValue(i, 'rfndBltfAkAmt', Number(temp));
+        grdView2.getDataSource().setRowState(i, 'none');
+      }
+    }// 그리드 2(전금 데이터 바인딩)
+  });
 }
 
 async function onClickSearch() {
@@ -674,6 +679,7 @@ onMounted(async () => {
     totRfndEtAmt: 0,
   }];
   grdPopRef4.value.getView().getDataSource().setRows(data);
+  grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
 
   if (props.rfndAkNo) {
     isDisableCheck.value = false;
@@ -901,14 +907,14 @@ async function insertMainData(cntrNo, cntrSn) {
     cntrNo,
     cntrSn,
   };
-  dataParams = { ...dataParams, ...pageInfo2.value };
+  dataParams = { ...dataParams };
 
   const rfndRes = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: dataParams });
-  const { list: application, pageInfo: pagingResult } = rfndRes.data;
-  pageInfo2.value = pagingResult;
+
+  pageInfo2.value.totalCount = rfndRes.data.length;
 
   const view2 = grdPopRef2.value.getView();
-  view2.getDataSource().addRows(application);
+  view2.getDataSource().addRows(rfndRes.data);
 }
 
 // 단일행삭제
@@ -1004,6 +1010,7 @@ async function onCheckTotalData() {
   view4.setValue(0, 'totCrdcdFeeAmt', temp4);
   view4.setValue(0, 'totRfndEtAmt', Number(temp1) + Number(temp2) + Number(temp3) + Number(temp4));
 
+  grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
   totRfndAkAmt.value = temp5; // 환불상세 총액
 
   totBltfAkAmt.value = temp3; // 전금상세 총액
@@ -1407,6 +1414,7 @@ const initGrid3 = defineGrid((data, view) => {
     { fieldName: 'rveSn' },
 
     { fieldName: 'atthDocId', dataType: 'file' }, /* rfndEvidMtrFileId-  전금자료 */
+    { fieldName: 'rfndEvidMtrFileId' },
   ];
 
   const columns = [
@@ -1499,9 +1507,9 @@ const initGrid3 = defineGrid((data, view) => {
       width: '120',
       editor: {
         type: 'file',
-        attachDocumentId: 'atthDocId', // 필드명
+        attachDocumentId: 'rfndEvidMtrFileId', // 필드명
         attachGroupId: 'ATG_WDB_RFND_FILE', // 또는 고정값
-        downloadable: false,
+        downloadable: true,
         editable: true,
       },
       // styleName: 'rg-button-excelup',
@@ -1611,45 +1619,35 @@ const initGrid4 = defineGrid((data, view) => {
       // 현금환불금액
       width: 'auto',
       styleName: 'text-right',
-      editor: {
-        type: 'number',
-      },
+      numberFormat: '#,##0',
     },
     { fieldName: 'totRfndCardAkAmt',
       header: t('MSG_TXT_CARD_RFND_AMT'),
       // 카드 환불금액
       width: 'auto',
       styleName: 'text-right',
-      editor: {
-        type: 'number',
-      },
+      numberFormat: '#,##0',
     },
     { fieldName: 'totRfndBltfAkAmt',
       header: t('MSG_TXT_BLTF_AMT'),
       // 전금금액
       width: 'auto',
       styleName: 'text-right',
-      editor: {
-        type: 'number',
-      },
+      numberFormat: '#,##0',
     },
     { fieldName: 'totCrdcdFeeAmt',
       header: t('MSG_TXT_CARD_FEE'),
       // 카드수수료
       width: 'auto',
       styleName: 'text-right',
-      editor: {
-        type: 'number',
-      },
+      numberFormat: '#,##0',
     },
     { fieldName: 'totRfndEtAmt',
       header: t('MSG_TXT_TOT_RFND_ET_AMT'),
       //  '총 환불 예상금액'
       width: 'auto',
       styleName: 'text-right',
-      editor: {
-        type: 'number',
-      },
+      numberFormat: '#,##0',
     },
   ];
 

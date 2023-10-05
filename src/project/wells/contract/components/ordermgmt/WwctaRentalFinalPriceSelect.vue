@@ -69,13 +69,14 @@
           <!-- 로그인한 사용자의 채널이 5010(온라인총판) 이면 기기변경 버튼 발생하지 않음 -->
           <kw-btn
             v-if="bas?.sellInflwChnlDtlCd !== '5010'"
-            :disable="opo?.opoYn"
+            :disable="existOnePlusOneRel"
             label="기기변경"
             dense
             @click.stop="onClickDeviceChange(item)"
           />
           <kw-btn
-            :disable="mchnCh?.mchnChYn"
+            v-if="existOnePlusOnePriceOption"
+            :disable="onePlusOneDisable"
             label="1+1"
             dense
             @click.stop="onClickOnePlusOne(item)"
@@ -152,7 +153,7 @@
                 />
               </kw-form-item>
             </kw-form-row>
-            <kw-form-row>
+            <kw-form-row :cols="2">
               <kw-form-item :label="'렌탈할인구분'">
                 <kw-select
                   v-if="priceDefineVariableOptions.rentalDscDvCd"
@@ -164,17 +165,65 @@
                   @change="forcedChangeValidVariable"
                 />
               </kw-form-item>
-              <kw-form-item :label="'렌탈할인유형'">
+              <kw-form-item
+                v-if="notNullRentalDscTpCdSelected || userSelectableRentalDscTpCd.length"
+                :label="'렌탈할인유형'"
+              >
+                <kw-input
+                  v-if="notNullRentalDscTpCdSelected"
+                  bg-color="bg-white"
+                  :model-value="getCodeName('RENTAL_DSC_TP_CD', priceDefineVariables.rentalDscTpCd)"
+                  borderless
+                  placeholder=""
+                  first-option="select"
+                  dense
+                  readonly
+                  :clearable="false"
+                  @change="forcedChangeValidVariable"
+                >
+                  <template #append>
+                    <kw-btn
+                      v-if="priceDefineVariables.rentalDscTpCd"
+                      borderless
+                      icon="clear"
+                      @click="removeRentalDscTpCd"
+                    />
+                  </template>
+                </kw-input>
                 <kw-select
-                  v-if="priceDefineVariableOptions.rentalDscTpCd"
+                  v-else-if="userSelectableRentalDscTpCd.length"
                   v-model="priceDefineVariables.rentalDscTpCd"
-                  :options="priceDefineVariableOptions.rentalDscTpCd"
+                  :options="userSelectableRentalDscTpCd"
                   placeholder="렌탈할인유형"
-                  :disable="!!rentalDiscountFixed"
+                  clearable
                   first-option="select"
                   dense
                   @change="forcedChangeValidVariable"
                 />
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row
+              v-if="rentalCrpDscrCdSelectable || selectedFinalPrice"
+              :cols="2"
+            >
+              <kw-form-item
+                v-if="rentalCrpDscrCdSelectable"
+                :label="'법인할인율'"
+              >
+                <kw-select
+                  v-model="priceDefineVariables.rentalCrpDscrCd"
+                  :options="priceDefineVariableOptions.rentalCrpDscrCd"
+                  first-option="select"
+                  :label="'법인할인율'"
+                  dense
+                  @change="forcedChangeValidVariable"
+                />
+              </kw-form-item>
+              <kw-form-item
+                v-if="selectedFinalPrice"
+                :label="'무상개월 AS/BS'"
+              >
+                {{ `${selectedFinalPrice.frisuPtrm || 0}개월 / ${selectedFinalPrice.recapPtrm || 0}개월` }}
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
@@ -205,85 +254,42 @@
                 />
               </kw-form-item>
             </kw-form-row>
-            <div
-              v-if="false"
-              class="flex wrap gap-xs scoped-price-form__no-labels"
-            >
-              <kw-select
-                v-if="priceDefineVariableOptions.stplPrdCd"
-                v-model="priceDefineVariables.stplPrdCd"
-                :options="priceDefineVariableOptions.stplPrdCd"
-                placeholder="약정기간"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.cntrPtrm"
-                v-model="priceDefineVariables.cntrPtrm"
-                :options="priceDefineVariableOptions.cntrPtrm"
-                placeholder="계약기간"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.cntrAmt"
-                v-model="priceDefineVariables.cntrAmt"
-                :options="priceDefineVariableOptions.cntrAmt"
-                placeholder="등록비"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.rentalDscDvCd"
-                v-model="priceDefineVariables.rentalDscDvCd"
-                :options="priceDefineVariableOptions.rentalDscDvCd"
-                placeholder="렌탈할인구분"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.rentalDscTpCd"
-                v-model="priceDefineVariables.rentalDscTpCd"
-                :options="priceDefineVariableOptions.rentalDscTpCd"
-                placeholder="렌탈할인유형"
-                :disable="!!rentalDiscountFixed"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-              <kw-select
-                v-if="priceDefineVariableOptions.svPdCd"
-                v-model="priceDefineVariables.svPdCd"
-                :options="priceDefineVariableOptions.svPdCd"
-                placeholder="서비스(용도/방문주기)"
-                first-option="select"
-                @change="forcedChangeValidVariable"
-              />
-            </div>
           </kw-form>
         </kw-item-section>
       </kw-item>
       <kw-item
-        v-if="opo?.opoYn"
+        v-for="(cntrRel) in cntrRels"
+        :key="cntrRel.cntrRelId"
         class="scoped-item"
       >
         <kw-item-section>
           <kw-item-label class="row no-wrap items-center">
             <kw-chip
-              label="1+1"
-              color="primary"
+              :label="getCodeName('CNTR_REL_DTL_CD', cntrRel.cntrRelDtlCd)"
               outline
+              color="primary"
             />
             <div
               class="grow ellipsis pl8 hp-w1"
             >
-              {{ opo?.pdNm }}
+              {{ cntrRel.ojBasePdBas?.pdNm }}
               <kw-tooltip show-when-ellipsised>
-                {{ opo?.pdNm }}
+                {{ cntrRel.ojBasePdBas?.pdNm }}
               </kw-tooltip>
             </div>
           </kw-item-label>
+          <kw-item-label
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE"
+            class="hp-like-kw-notification-item"
+            lines="2"
+          >
+            (1+1)기존제품 12개월 유지, 미유지 시 할인금액 반환 및 렌탈료 원복
+          </kw-item-label>
         </kw-item-section>
-        <kw-item-section side>
+        <kw-item-section
+          side
+          top
+        >
           <kw-btn
             borderless
             icon="close_24"
@@ -354,6 +360,7 @@ import { alert, stringUtil, useDataService } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 import { warn } from 'vue';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
+import { getNumberWithComma } from '~sms-common/contract/util';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
@@ -363,7 +370,7 @@ const props = defineProps({
 const emit = defineEmits([
   'device-change',
   'one-plus-one',
-  'delete-one-plus-one',
+  'delete:one-plus-one',
   'price-changed',
   'promotion-changed',
   'delete',
@@ -379,12 +386,16 @@ const { getCodeName } = await useCtCode(
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
   'ALNCMP_CD',
+  'CNTR_REL_DTL_CD',
 );
 const dataService = useDataService();
 const alncCntrPriceCodes = ref([]);
 
 const EMPTY_SYM = Symbol('__undef__');
-const EMPTY_ID = ' '; /*  FIXME!!! */
+const EMPTY_ID = ''; /*  FIXME!!! */
+
+const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
+const RENTAL_DSC_TP_CD_ONE_PLUS_ONE = '03';
 
 const dtl = ref(props.modelValue);
 
@@ -395,13 +406,19 @@ let fnlAmt = toRef(props.modelValue, 'fnlAmt');
 let rentalDiscountFixed = toRef(props.modelValue, 'rentalDiscountFixed');
 let pdQty = toRef(props.modelValue, 'pdQty');
 let mchnCh = toRef(props.modelValue, 'mchnCh');
-let opo = toRef(props.modelValue, 'opo');
+let cntrRels = toRef(props.modelValue, 'cntrRels');
 let bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
 let appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
 let promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
 let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
 let alncCntrNms = toRef(props.modelValue, 'alncCntrNms', []);
 // appliedPromotions.value ??= [];
+
+const existOnePlusOneRel = computed(() => !!(cntrRels.value ?? [])
+  .find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE));
+
+const existOnePlusOnePriceOption = computed(() => !!finalPriceOptions.value
+  .find((price) => price.rentalDscTpCd === RENTAL_DSC_TP_CD_ONE_PLUS_ONE));
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '2'));
 
@@ -417,6 +434,17 @@ const priceDefineVariables = ref({
   rentalCombiDvCd: toRef(props.modelValue, 'rentalCombiDvCd'),
 });
 
+const notNullRentalDscTpCdSelected = computed(() => priceDefineVariables.value.rentalDscTpCd
+  && priceDefineVariables.value.rentalDscTpCd !== EMPTY_ID);
+
+const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.rentalDscDvCd === '5');
+
+watch(rentalCrpDscrCdSelectable, (value) => {
+  if (!value) {
+    priceDefineVariables.value.rentalCrpDscrCd = undefined;
+  }
+});
+
 const isExistAlncPd = computed(() => !isEmpty(priceDefineVariables.value?.svPdCd)
   && !isEmpty(priceDefineVariables.value?.stplPrdCd)
   && finalPriceOptions.value?.findIndex((v) => (
@@ -428,9 +456,8 @@ const isExistAlncPd = computed(() => !isEmpty(priceDefineVariables.value?.svPdCd
 async function fetchFinalPriceOptions() {
   const { data } = await dataService.get('sms/wells/contract/final-price', {
     params: {
+      cntrNo: props.bas.cntrNo,
       pdCd: dtl.value.pdCd,
-      sellChnlDtlCd: dtl.value.sellChnlDtlCd,
-      copnDvCd: props.bas?.copnDvCd,
     },
     silent: true,
   });
@@ -465,19 +492,6 @@ if (!finalPriceOptions.value?.length) {
   await fetchFinalPriceOptions();
 }
 
-// const mchnCh = ref({
-//   mchnChYn: true,
-//   ojCntrNo: 'E123213123213',
-//   ojCntrSn: 1,
-//   pdNm: '변경된 가격을 지정합니다.',
-// });
-// const opo = ref({
-//   opoYn: true,
-//   ojCntrNo: 'E123213123213',
-//   ojCntrSn: 1,
-//   pdNm: '길고길고길고길 상품 이름이 있습니다. 길고길고길고길 상품 이름이 있습니다.길고길고길고길 상품 이름이 있습니다.길고길고길고길 상품 이름이 있습니다.',
-// });
-
 const labelGenerator = {
   svPdCd: (val, finalPrice) => {
     const { svTpCd, svVstPrdCd, pcsvPrdCd } = finalPrice;
@@ -491,7 +505,13 @@ const labelGenerator = {
     return `${getCodeName('SV_TP_CD', svTpCd)} - ${additional.join('/')}`;
   },
   stplPrdCd: (val) => `${val}개월`,
-  cntrAmt: (val) => `${stringUtil.getNumberWithComma(val || 0)}원`,
+  cntrAmt: (val, finalPrice) => {
+    const { cntrAmt, cntrAmtDscYn } = finalPrice;
+    if (cntrAmtDscYn === 'Y') {
+      return '0원';
+    }
+    return `${getNumberWithComma(cntrAmt || 0)}원`;
+  },
   cntrPtrm: (val) => `${val}개월`,
   asMcn: (val) => `${val}개월`,
   rentalDscDvCd: (val) => getCodeName('RENTAL_DSC_DV_CD', val),
@@ -545,7 +565,7 @@ function reconnectReactivities() {
   rentalDiscountFixed = toRef(props.modelValue, 'rentalDiscountFixed');
   pdQty = toRef(props.modelValue, 'pdQty');
   mchnCh = toRef(props.modelValue, 'mchnCh');
-  opo = toRef(props.modelValue, 'opo');
+  cntrRels = toRef(props.modelValue, 'cntrRels');
   bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
   promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
@@ -625,6 +645,17 @@ const priceDefineVariableOptions = computed(() => variableNames.reduce((mappingO
   mappingObj[variableName] = options;
   return mappingObj;
 }, {}));
+
+const userSelectableRentalDscTpCd = computed(() => (priceDefineVariableOptions.value.rentalDscTpCd || [])
+  .filter((code) => ['81', '82', '83'].includes(code.codeId)));
+
+const onePlusOneDisable = computed(() => {
+  const machineChanged = mchnCh.value?.mchnChYn;
+  const priceIsNotSelectable = !(priceDefineVariableOptions.value.rentalDscTpCd || [])
+    .map((code) => code.codeId)
+    .includes(RENTAL_DSC_TP_CD_ONE_PLUS_ONE);
+  return machineChanged || priceIsNotSelectable;
+});
 
 function forcedChangeValidVariable(val) {
   if (!val) {
@@ -745,6 +776,7 @@ function onClickDeviceChange() {
 }
 
 function onClickOnePlusOne() {
+  console.log('onePlusOneDisable', onePlusOneDisable.value);
   emit('one-plus-one', props.modelValue);
 }
 
@@ -757,10 +789,19 @@ function onClickDeleteDeviceChange() {
 }
 
 function onDeleteOnePlusOne() {
-  priceDefineVariables.value.sellDscTpCd = undefined;
+  priceDefineVariables.value.rentalDscTpCd = undefined;
   rentalDiscountFixed.value = false;
-  opo.value = {};
-  emit('delete-one-plus-one');
+  emit('delete:one-plus-one', props.modelValue);
+}
+
+function removeRentalDscTpCd() {
+  const { rentalDscTpCd } = priceDefineVariables.value;
+
+  /* TODO: 나머지도 처리 */
+  if (rentalDscTpCd === RENTAL_DSC_TP_CD_ONE_PLUS_ONE) {
+    onDeleteOnePlusOne();
+  }
+  priceDefineVariables.value.rentalDscTpCd = undefined;
 }
 
 async function onChangeAlncCntr(selected) {
@@ -775,6 +816,7 @@ async function onChangeAlncCntr(selected) {
 </script>
 
 <style lang="scss" scoped>
+@import "~@css/variables";
 @import "kw-lib/src/css/mixins";
 
 .scoped-item {

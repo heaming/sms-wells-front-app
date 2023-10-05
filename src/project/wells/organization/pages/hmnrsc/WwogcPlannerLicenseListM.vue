@@ -167,9 +167,9 @@ import useOgReport from '~sms-common/organization/composables/useOgReport';
 import { getPhoneNumber } from '~sms-common/organization/utils/ogUtil';
 
 const { t } = useI18n();
-const { notify } = useGlobal();
+const { notify, confirm } = useGlobal();
 const dataService = useDataService();
-const { getUserInfo/* , hasRoleNickName */ } = useMeta();
+const { getUserInfo, hasRoleNickName } = useMeta();
 const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 const { openReport } = useOgReport();
 
@@ -269,15 +269,15 @@ async function currentRowDetail(currentRow) {
     setGrdMain2(response);
 
     if (response.length > 0) {
-      // if (hasRoleNickName('ROL_W1010') && response[0].qlfDvCd !== '3') {
-      if (response[0].qlfDvCd !== '3') {
+      if (hasRoleNickName('ROL_W1010') && response[0].qlfDvCd !== '3') {
+      // if (response[0].qlfDvCd !== '3') {
         isDisableThisDayUpgradesBtn.value = false;
       } else {
         isDisableThisDayUpgradesBtn.value = true;
       }
 
       // 해약 버튼
-      if (response[0].qlfDvCd === '3' && response[0].qlfAplcDvCd !== '2' && dayjs(response[0].strtdt).format('YYYYMMDD') <= dayjs().format('YYYYMMDD') && dayjs(response[0].enddt).format('YYYYMMDD') >= dayjs().format('YYYYMMDD')) {
+      if (response[0].qlfDvCd === '3' && response[0].qlfAplcDvCd !== '2' && dayjs(response[0].enddt).format('YYYYMMDD') > dayjs().format('YYYYMM').concat(dayjs().daysInMonth())) {
         isDisableCancelBtn.value = false;
       } else {
         isDisableCancelBtn.value = true;
@@ -357,9 +357,9 @@ function getTargetQualification(item, details, type) {
   };
 
   result.targetQlfAplcDvCd = '1'; // 승급
-  if (details[0].qlfDvCd === '2' && item.edu143) {
+  if (details[0].qlfDvCd === '2' && item.edu143 && !item.edu96) {
     result.targetQlfDvCd = '6'; // BS프리매니저
-  } else if (details[0].qlfDvCd === '2' && item.edu96) {
+  } else if (details[0].qlfDvCd === '2' && !item.edu143 && item.edu96) {
     result.targetQlfDvCd = '3'; // 웰스매니저
   } else if (details[0].qlfDvCd === '6' && item.edu96) {
     result.targetQlfDvCd = '3'; // 웰스매니저
@@ -384,7 +384,6 @@ function getTargetQualification(item, details, type) {
     case 'CANCEL':
       // 해약
       result.ogId = item.ogId;
-      result.targetQlfAplcDvCd = '2';
       result.targetQlfDvCd = details[0].qlfDvCd;
       result.strtdt = details[0].strtdt;
       result.enddt = dayjs(result.strtdt).format('YYYYMM').concat(dayjs(result.strtdt).daysInMonth());
@@ -429,8 +428,10 @@ async function onClickUpgrades(type) {
       res = await dataService.post('/sms/wells/partner/planner-qualification-change/day-opening', params);
       break;
     case 'CANCEL':
-      message = t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]);
-      res = await dataService.put('/sms/wells/partner/planner-qualification-cancel', params);
+      if (await confirm(t('MSG_ALT_CLTN'))) {
+        message = t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]);
+        res = await dataService.put('/sms/wells/partner/planner-qualification-cancel', params);
+      }
       break;
     case 'HOLDING':
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_QLF_HOLDON')]);
@@ -607,20 +608,27 @@ const initGrid2 = defineGrid((data, view) => {
     }
   };
 
-  view.onCellButtonClicked = async (grid, { dataRow, column }) => {
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo } = selectedCurrentRow.value;
     const {
-      ogTpCd: reportParamOgTpCd,
-      prtnrNo: reportParamPrtnrNo,
+
       cntrDt: reportParamCntrDt,
-      prtnrCntrTpCd: reportParamPrtnrCntrTpCd,
-    } = gridUtil.getRowValue(grid, dataRow);
+      // prtnrCntrTpCd: reportParamPrtnrCntrTpCd,
+    } = g.getValues(itemIndex);
 
     if (column === 'col1') {
+      console.log('계약서');
+      console.log('조직유형코드: ', currentRowOgTpCd);
+      console.log('번호: ', currentRowPrtnrNo);
+      console.log('파트너계약유형코드: ', '14');
+      console.log('계약일자: ', reportParamCntrDt);
+
       const param = {
-        prtnrNo: reportParamPrtnrNo,
-        ogTpCd: reportParamOgTpCd,
+        ogTpCd: currentRowOgTpCd,
+        prtnrNo: currentRowPrtnrNo,
+        prtnrCntrTpCd: '14',
         cntrDt: reportParamCntrDt,
-        prtnrCntrTpCd: reportParamPrtnrCntrTpCd,
+
       };
       openReport(param);
     }

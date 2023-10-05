@@ -89,7 +89,7 @@
         dense
         secondary
         :label="$t('MSG_BTN_EMAIL_SEND')"
-        :disable="searchParams.cntrDvCd === '1'"
+        :disable="searchParams.cntrDvCd === '1' || (searchParams.cntrDvCd === '2' && pageInfo.totalCount1 === 0)"
         @click="onClickEmailSend"
       />
       <kw-separator
@@ -437,8 +437,8 @@ const initGrdContracts = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '131', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, // 상품명
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '135', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '292', styleName: 'text-left' }, // 상품명
     { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TYPE'), width: '131', styleName: 'text-left' }, // 구분(유형)
@@ -480,14 +480,14 @@ const initGrdDepositItemizationSheet = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '135', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'rveNoFull', header: t('MSG_TXT_DP_NO'), width: '131', styleName: 'text-center' }, // 입금번호
+    { fieldName: 'rveNoFull', header: t('MSG_TXT_DP_NO'), width: '200', styleName: 'text-center' }, // 입금번호
     { fieldName: 'rveDt', header: t('MSG_TXT_RVE_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 수납일자
     { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 실적일자
     { fieldName: 'pymDt', header: t('MSG_TXT_RFND_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 환불일자
-    { fieldName: 'rveDvNm', header: t('MSG_TXT_TYPE'), width: '100', styleName: 'text-center' }, // 유형
+    { fieldName: 'rveDvNm', header: t('MSG_TXT_TYPE'), width: '175', styleName: 'text-center' }, // 유형
     { fieldName: 'rveAmt', header: t('MSG_TXT_AMT'), width: '100', styleName: 'text-right' }, // 금액
-    { fieldName: 'dpTpNm', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' }, // 구분
-    { fieldName: 'cdcoNm', header: t('MSG_TXT_CDCO'), width: '110', styleName: 'text-center' }, // 카드사
+    { fieldName: 'dpTpNm', header: t('MSG_TXT_DIV'), width: '150', styleName: 'text-center' }, // 구분
+    { fieldName: 'cdcoNm', header: t('MSG_TXT_CDCO'), width: '150', styleName: 'text-center' }, // 카드사
     {
       fieldName: 'crcdno',
       header: t('MSG_TXT_CARD_NO'),
@@ -532,9 +532,9 @@ const initGrdTradeSpecificationSheet = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '131', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '135', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TYPE'), width: '131', styleName: 'text-center' }, // 유형
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, // 상품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '292', styleName: 'text-left' }, // 상품명
     { fieldName: 'lcrcnt', header: t('MSG_TXT_NMN'), width: '131', styleName: 'text-center' }, // 차월
     { fieldName: 'baseYm', header: t('MSG_TXT_YM'), width: '131', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 년월
     { fieldName: 'lcsleymd', header: `${t('MSG_TXT_SNGL_PMNT')}${t('MSG_TXT_DT_OF_SALE')}`, width: '110', styleName: 'text-center', datetimeFormat: 'date' }, // 일시불매출일
@@ -566,9 +566,9 @@ const initGrdCardSalesSlip = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '131', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '135', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'istmMcn', header: t('MSG_TXT_ISTM_MCNT'), width: '110', styleName: 'text-right' }, // 할부개월
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, // 상품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '292', styleName: 'text-left' }, // 상품명
     { fieldName: 'dpstdt', header: t('MSG_TXT_TRD_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 거래일
     { fieldName: 'dpcndt', header: t('MSG_TXT_CAN_D'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'cardvndr', header: t('MSG_TXT_APRV_CARD'), width: '110', styleName: 'text-center' }, // 결재카드
@@ -603,14 +603,14 @@ const initGrdContractArticles = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '131', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, // 상품명
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '135', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '292', styleName: 'text-left' }, // 상품명
     { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PDCT'), width: '131', styleName: 'text-center' }, // 제품
     { fieldName: 'lcsetymd', header: t('MSG_TXT_INST_DT'), width: '131', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일
     { fieldName: 'lcamt1', header: t('MSG_TXT_RTLFE'), width: '110', styleName: 'text-right' }, // 렌탈료
     { fieldName: 'lcduty', header: t('MSG_TXT_STPL_PTRM_MM'), width: '110', styleName: 'text-right' }, // 약정기간(월)
     { fieldName: 'lcrcnt', header: t('MSG_TXT_USE_NMN'), width: '100', styleName: 'text-right' }, // 사용차월
-    { fieldName: 'rcgvpAdr', header: t('MSG_TXT_INST_ADDR'), width: '110', styleName: 'text-center' }, // 설치주소
+    { fieldName: 'rcgvpAdr', header: t('MSG_TXT_INST_ADDR'), width: '500', styleName: 'text-left' }, // 설치주소
   ];
 
   data.setFields(fields);

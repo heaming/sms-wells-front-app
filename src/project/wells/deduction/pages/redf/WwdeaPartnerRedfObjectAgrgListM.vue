@@ -770,7 +770,7 @@ const wpAndDstrcColumnLayout = [
   {
     header: t('MSG_TXT_BASE_INF'),
     direction: 'horizontal',
-    items: ['perfYm', 'baseYm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'pstnDvCd', 'qlfDvNm', 'wpChYm'],
+    items: ['perfYm', 'baseYm', 'ogCd', 'prtnrNo', 'prtnrKnm', 'pstnDvCd', 'perfDvCd', 'qlfDvNm', 'wpChYm'],
   },
   {
     header: t('MSG_TXT_ENVR_ELHM'),

@@ -73,6 +73,8 @@
             v-model:from="searchParams.apyStrtYm"
             v-model:to="searchParams.apyEndYm"
             type="month"
+            :label="$t(periodValidLabel)"
+            :rules="periodRules"
           />
         </kw-search-item>
         <kw-search-item
@@ -197,6 +199,13 @@ const searchParams = ref({
   svFeePdDvCd: '',
 });
 
+const periodRules = computed(() => {
+  const { apyStrtYm, apyEndYm } = searchParams.value;
+  return (!isEmpty(apyStrtYm) || !isEmpty(apyEndYm)) ? 'date_range_required' : '';
+});
+
+const periodValidLabel = computed(() => (isEmpty(searchParams.value.apyStrtYm) ? 'MSG_TXT_STRT_MM' : 'MSG_TXT_END_MM'));
+
 // 상품코드 검색아이콘 클릭
 async function onClickSelectPdCd() {
   const searchPopupParams = {
@@ -228,6 +237,7 @@ async function fetchPage() {
   const view = grdRef.value.getView();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
+
 // 조회 버튼
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
@@ -317,7 +327,7 @@ const initGrd = defineGrid((data, view) => {
         return g.getDataSource().getRowState(index.dataRow) === 'created';
       },
     },
-    { fieldName: 'basePdNm', header: t('TXT_MSG_MAT_PD_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '150', styleName: 'text-left' },
     { fieldName: 'vstMcn', header: t('MSG_TXT_VISIT_MN'), width: '100', styleName: 'text-right', dataType: 'number', rules: 'required', editable: true, editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 } },
     { fieldName: 'svFeeDvCd', header: t('MSG_TXT_SV_DV'), width: '120', styleName: 'text-center', options: codes.SV_FEE_DV_CD, editor: { type: 'list' }, editable: true, rules: 'required' },
     { fieldName: 'hcrDvCd1', header: `${t('MSG_TXT_PRDT_GUBUN')}1`, width: '100', styleName: 'text-center', editable: true, editor: { maxLength: 2, textCase: 'upper' } }, /* 홈케어구분코드1 */

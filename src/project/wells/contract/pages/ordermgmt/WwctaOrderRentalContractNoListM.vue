@@ -222,8 +222,8 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'copnDvCd' }, // 고객구분코드(1:개인, 2:법인)
     { fieldName: 'copnDvNm' }, // 고객구분명
     { fieldName: 'pdClsfNm' }, // 상품 정보-상품분류
-    { fieldName: 'pdNm' }, // 상품 정보-상품명
     { fieldName: 'basePdCd' }, // 상품 정보-상품코드
+    { fieldName: 'pdNm' }, // 상품 정보-상품명
     { fieldName: 'pdTpNm' }, // 상품 정보-상품유형
     { fieldName: 'svPrd' }, // 상품 정보-주기
     { fieldName: 'svTpCd' }, // 상품 정보-용도구분
@@ -250,6 +250,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'mchnCpsApyr' }, // 기변실적율
     { fieldName: 'ackmtPerfAmt', dataType: 'number' }, // 인정실적액
     { fieldName: 'ackmtPerfRt' }, // 인정실적률(%)
+    { fieldName: 'ackmtPerfCt' }, // 인정건수
     { fieldName: 'feeAckmtBaseAmt', dataType: 'number' }, // 수수료기준금액
     { fieldName: 'feeFxamYn' }, // 수수료정액여부
     { fieldName: 'sellDscDvCd' }, // 할인구분
@@ -364,8 +365,8 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'sexDvNm', header: t('MSG_TXT_GENDER'), width: '138', styleName: 'text-center' }, // 계약자 정보-성별
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '138', styleName: 'text-center' }, // 계약자 정보-고객번호
     { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 계약자 정보-우편번호
-    { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '388', styleName: 'text-left' }, // 계약자 정보-기준주소
-    { fieldName: 'cntrCstRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '231', styleName: 'text-left' }, // 계약자 정보-상세주소
+    { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 계약자 정보-기준주소
+    { fieldName: 'cntrCstRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자 정보-상세주소
     { fieldName: 'rcgvpKnmEncr', header: t('MSG_TXT_IST_NM'), width: '138', styleName: 'text-center' }, // 설치정보-설치자명
     {
       fieldName: 'istCralTno',
@@ -374,16 +375,16 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
       styleName: 'text-center',
     }, // 설치정보-휴대전화번호
     { fieldName: 'istAdrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 설치정보-우편번호
-    { fieldName: 'istRnadr', header: t('MSG_TXT_STD_ADDR'), width: '599', styleName: 'text-left' }, // 설치정보-기준주소
-    { fieldName: 'istRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '231', styleName: 'text-left' }, // 설치정보-상세주소
+    { fieldName: 'istRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 설치정보-기준주소
+    { fieldName: 'istRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 설치정보-상세주소
     { fieldName: 'sppOrdNo', header: t('MSG_TXT_WAYBILL_NO'), width: '138', styleName: 'text-center' }, // 설치정보-운송장 번호
-    { fieldName: 'pdctIdno', header: t('MSG_TXT_SN_NO'), width: '138', styleName: 'text-center' }, // 설치정보-S N 번호
+    { fieldName: 'pdctIdno', header: t('MSG_TXT_SN_NO'), width: '180', styleName: 'text-center' }, // 설치정보-S N 번호
     { fieldName: 'istAkDt', header: `${t('MSG_TXT_INSTALLATION')} ${t('MSG_TXT_REQ_DATE')}`, width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 설치요청일
     { fieldName: 'sellInflwChnlDtlNm', header: t('MSG_TXT_SLS_CAT'), width: '136', styleName: 'text-center' }, // 판매구분
     { fieldName: 'copnDvNm', header: t('MSG_TXT_CST_DV'), width: '136', styleName: 'text-center' }, // 고객구분
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '275', styleName: 'text-left' }, // 상품 정보-상품분류
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '275', styleName: 'text-left' }, // 상품 정보-상품명
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '138', styleName: 'text-center' }, // 상품 정보-상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '275', styleName: 'text-left' }, // 상품 정보-상품명
     { fieldName: 'pdTpNm', header: t('MSG_TXT_PRDT_TYPE'), width: '138', styleName: 'text-center' }, // 상품 정보-상품유형
     { fieldName: 'svPrd', header: t('MSG_TXT_CYCL'), width: '138', styleName: 'text-right' }, // 상품 정보-주기
     { fieldName: 'svTpCd', header: t('MSG_TXT_USWY_DV'), width: '138', styleName: 'text-center' }, // 상품 정보-용도구분
@@ -410,6 +411,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'mchnCpsApyr', header: t('MSG_TXT_CHNG_PFR_RAT'), width: '136', styleName: 'text-right' }, // 기변실적율
     { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_ACKMT_PERF_AMT'), width: '136', styleName: 'text-right' }, // 인정실적액
     { fieldName: 'ackmtPerfRt', header: t('MSG_TXT_ACKMT_PERF_RAT'), width: '136', styleName: 'text-right' }, // 인정실적률(%)
+    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '136', styleName: 'text-right' }, // 인정건수
     { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_FEE_BASE_AMT'), width: '136', styleName: 'text-right' }, // 수수료기준금액
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '136', styleName: 'text-center' }, // 수수료정액여부
     { fieldName: 'sellDscDvNm', header: t('MSG_TXT_PD_DC_CLASS'), width: '136', styleName: 'text-right' }, // 할인구분명
@@ -418,7 +420,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '136', styleName: 'text-right' }, // 기변유형
     { fieldName: 'ojCntrDtlNo', header: t('MSG_TXT_CHNG_PTY_CD'), width: '136', styleName: 'text-center' }, // 기변상대코드
     { fieldName: 'ojBasePdCd', header: t('MSG_TXT_CHNG_PREV_PRDT'), width: '136', styleName: 'text-center' }, // 기변이전상품
-    { fieldName: 'ojPdNm', header: t('MSG_TXT_CHNG_PREV_PRDT_NM'), width: '136', styleName: 'text-center' }, // 기변이전상품명
+    { fieldName: 'ojPdNm', header: t('MSG_TXT_CHNG_PREV_PRDT_NM'), width: '136', styleName: 'text-left' }, // 기변이전상품명
     { fieldName: 'bogoCd', header: t('MSG_TXT_1PLUS1_LK_CD'), width: '136', styleName: 'text-center' }, // １＋１연계코드
     { fieldName: 'bogoPdCd', header: t('MSG_TXT_1PLUS1_CHNG_PREV_PRDT'), width: '136', styleName: 'text-center' }, // １＋１이전상품
     { fieldName: 'bogoPdNm', header: t('MSG_TXT_1PLUS1_CHNG_PREV_PRDT_NM'), width: '136', styleName: 'text-left' }, // １＋１이전상품명
@@ -426,7 +428,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'aftnInf',
       header: t('MSG_TXT_CARD_ACNO'),
       width: '138',
-      styleName: 'text-center',
+      styleName: 'text-left',
       displayCallback(grid, index) {
         const { dpTpCd } = grid.getValues(index.itemIndex);
         const { acnoEncr } = grid.getValues(index.itemIndex);
@@ -447,7 +449,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'alncmpCstCd', header: t('MSG_TXT_ALNC_CST_CD'), width: '136', styleName: 'text-center' }, // 제휴고객코드
     { fieldName: 'alncmpPrtnrNo', header: t('MSG_TXT_ALNC_PRTNR'), width: '136', styleName: 'text-center' }, // 제휴파트너
     { fieldName: 'cttRsCd', header: t('MSG_TXT_CTT_CD'), width: '136', styleName: 'text-center' }, // 컨택코드
-    { fieldName: 'cttRsNm', header: t('MSG_TXT_CTT_CNTN'), width: '270', styleName: 'text-left' }, // 컨택내용
+    { fieldName: 'cttRsNm', header: t('MSG_TXT_CTT_CNTN'), width: '300', styleName: 'text-left' }, // 컨택내용
     { fieldName: 'fstRgstPrgId', header: t('MSG_TXT_FST_RGST_PRG'), width: '136', styleName: 'text-center' }, // 등록프로그램
     { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_BIZ_ICHR'), width: '136', styleName: 'text-center' }, // 업무담당
     { fieldName: 'fstRgstUsrNm', header: t('MSG_TXT_BIZ_ICHR_NM'), width: '136', styleName: 'text-center' }, // 업무담당명
@@ -487,7 +489,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'stplStrtdt', header: t('MSG_TXT_STRT_DT'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 재약정 가입정보-시작일
     { fieldName: 'stplCanDt', header: t('MSG_TXT_CAN_D'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 재약정 가입정보-취소일
     { fieldName: 'stplRcpDt', header: t('MSG_TXT_RCP_D'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 재약정 가입정보-접수일
-    { fieldName: 'stplRentalTn', header: t('MSG_TXT_RSTL_J_NMN'), width: '138', styleName: 'text-right' }, // 재약정 가입정보-재약정 가입차월
+    { fieldName: 'stplRentalTn', header: t('MSG_TXT_RSTL_J_NMN'), width: '138', styleName: 'text-center' }, // 재약정 가입정보-재약정 가입차월
     { fieldName: 'mshCntrRcpFshDt', header: t('MSG_TXT_RCP_D'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 멤버십 정보접수일
     { fieldName: 'mshCntrTempSaveDt', header: t('MSG_TXT_SUBS_DT'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 멤버십 정보가입일
     { fieldName: 'mshReqdDt', header: t('MSG_TXT_CAN_D'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 멤버십 정보취소일
@@ -538,9 +540,9 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     {
       header: `${t('MSG_TXT_PRDT')} ${t('MSG_TXT_INF')}`, // 상품 정보
       direction: 'horizontal', // merge type
-      items: ['pdClsfNm', 'pdNm', 'basePdCd', 'pdTpNm', 'svPrd', 'svTpCd', 'svTpNm'],
+      items: ['pdClsfNm', 'basePdCd', 'pdNm', 'pdTpNm', 'svPrd', 'svTpCd', 'svTpNm'],
     },
-    'cntrRcpFshDt', 'sppDuedt', 'istDt', 'slDt', 'cntrPtrm', 'cntrPdEnddt', 'canDt', 'reqdDt', 'exnReqdDt', 'recapDutyPtrmN', 'cntrAmt', 'cntrCtrAmt', 'rentalAmt1', 'rentalDscAmt1', 'rentalAmt2', 'rentalDscAmt2', 'rentalDscDfam', 'booSellYn', 'mchnChYn', 'mchnCpsApyr', 'ackmtPerfAmt', 'ackmtPerfRt', 'feeAckmtBaseAmt', 'feeFxamYn', 'sellDscDvNm', 'sellDscTpNm', 'dscPmotCd', 'mchnChTpCd', 'ojCntrDtlNo', 'ojBasePdCd', 'ojPdNm', 'bogoCd', 'bogoPdCd', 'bogoPdNm',
+    'cntrRcpFshDt', 'sppDuedt', 'istDt', 'slDt', 'cntrPtrm', 'cntrPdEnddt', 'canDt', 'reqdDt', 'exnReqdDt', 'recapDutyPtrmN', 'cntrAmt', 'cntrCtrAmt', 'rentalAmt1', 'rentalDscAmt1', 'rentalAmt2', 'rentalDscAmt2', 'rentalDscDfam', 'booSellYn', 'mchnChYn', 'mchnCpsApyr', 'ackmtPerfAmt', 'ackmtPerfRt', 'ackmtPerfCt', 'feeAckmtBaseAmt', 'feeFxamYn', 'sellDscDvNm', 'sellDscTpNm', 'dscPmotCd', 'mchnChTpCd', 'ojCntrDtlNo', 'ojBasePdCd', 'ojPdNm', 'bogoCd', 'bogoPdCd', 'bogoPdNm',
     {
       header: `${t('MSG_TXT_AC')}${t('MSG_TXT_INF')}`, // 계좌정보
       direction: 'horizontal', // merge type
@@ -548,7 +550,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     },
     'sellEvCd', 'alncmpCd', 'alncmpNm', 'alncStatTpNm', 'alncmpCstCd', 'alncmpPrtnrNo', 'cttRsCd', 'cttRsNm', 'fstRgstPrgId', 'fstRgstUsrId', 'fstRgstUsrNm', 'fstPerfYm', 'fnlPerfYm', 'fstMngtYm', 'fnlMngtYm',
     {
-      header: t('MSG_TXT_DSC_MCNT'), // 프로모션 정보
+      header: t('MSG_TXT_PMOT_INF'), // 프로모션 정보
       direction: 'horizontal', // merge type
       items: ['pmotCd', 'pmotFvrMcn', 'pmotFvrAmt', 'frisuBfsvcPtrmN'],
     },
@@ -570,7 +572,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     },
     'ocoCpsBzsDvNm', 'svAmt', 'rentalTn',
     {
-      header: `${t('MSG_TXT_GIFT')} ${t('MSG_TXT_INF')}`, // 사은품정보
+      header: t('MSG_TXT_FGPT_INF'), // 사은품정보
       direction: 'horizontal', // merge type
       items: ['fgpt1PdNm', 'fgpt1PdCd', 'fgpt1Qty', 'fgpt2PdNm', 'fgpt2PdCd', 'fgpt2Qty', 'fgpt3PdNm', 'fgpt3PdCd', 'fgpt3Qty', 'fgpt4PdNm', 'fgpt4PdCd', 'fgpt4Qty', 'fgpt5PdNm', 'fgpt5PdCd', 'fgpt5Qty'],
     },

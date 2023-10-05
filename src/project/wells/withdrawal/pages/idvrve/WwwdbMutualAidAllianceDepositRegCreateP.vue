@@ -144,6 +144,7 @@ const searchParams = ref({
   lifSpptYm: '',
   dpTpCd: '', // 입금유형
   kwGrpCoCd: companyCode, // 수납코드
+  dpObjAmtSum: 0,
 });
 
 const obsRef = ref();

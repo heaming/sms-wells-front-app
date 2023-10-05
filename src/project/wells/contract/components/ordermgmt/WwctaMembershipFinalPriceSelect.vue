@@ -124,15 +124,13 @@ const selectedFinalPrice = ref();
 async function fetchFinalPriceOptions() {
   const { data } = await dataService.get('sms/wells/contract/final-price', {
     params: {
+      cntrNo: props.bas.cntrNo,
       pdCd: dtl.value.pdCd,
-      sellChnlDtlCd: dtl.value.sellChnlDtlCd,
-      copnDvCd: props.bas?.copnDvCd,
     },
     silent: true,
   });
   finalPriceOptions.value = data || [];
-  selectedFinalPrice.value = finalPriceOptions.value
-    .find((finalPrice) => (finalPrice.pdPrcFnlDtlId === pdPrcFnlDtlId.value));
+  selectedFinalPrice.value = finalPriceOptions.value?.[0];
 }
 
 if (!finalPriceOptions.value?.length) {

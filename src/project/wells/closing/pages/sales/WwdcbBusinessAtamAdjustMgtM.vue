@@ -199,7 +199,7 @@ async function fetchData() {
   if (searchGubun === '1') { // 집계
     res = await dataService.get('/sms/wells/closing/business-atam-adjusts/total', { params: cachedParams });
   } else if (searchGubun === '2') { // 상세
-    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/detail', { params: cachedParams });
+    res = await dataService.get('/sms/wells/closing/business-atam-adjusts/detail', { params: cachedParams, timeout: 180000 });
   }
 
   console.log(res.data);

@@ -108,10 +108,14 @@
         >
           <kw-input
             v-model="searchParams.stClctamPrtnrNo"
+            :rules="validateComponent"
+            regex="num"
           />
           <span>-</span>
           <kw-input
             v-model="searchParams.enClctamPrtnrNo"
+            regex="num"
+            :rules="validateComponent"
           />
         </kw-search-item>
         <!-- label="입력담당자사번" -->
@@ -120,10 +124,14 @@
         >
           <kw-input
             v-model="searchParams.stFstRgstUsrId"
+            :rules="validateUsrComponent"
+            regex="num"
           />
           <span>-</span>
           <kw-input
             v-model="searchParams.enFstRgstUsrId"
+            :rules="validateUsrComponent"
+            regex="num"
           />
         </kw-search-item>
       </kw-search-row>
@@ -281,6 +289,48 @@ async function onClickSearch() {
 
   await fetchData();
 }
+
+const validateComponent = computed(() => async () => {
+  const errors = [];
+
+  if (!isEmpty(searchParams.value.stClctamPrtnrNo)) {
+    if (isEmpty(searchParams.value.enClctamPrtnrNo)) {
+      errors.push('집금담당자사번 입력 시 종료 집금담당자사번은 필수입니다.');
+    }
+  }
+  if (!isEmpty(searchParams.value.enClctamPrtnrNo)) {
+    if (isEmpty(searchParams.value.stClctamPrtnrNo)) {
+      errors.push('집금담당자사번 입력 시 종료 집금담당자사번은 필수입니다.');
+    }
+  }
+
+  if (searchParams.value.stClctamPrtnrNo > searchParams.value.enClctamPrtnrNo) {
+    errors.push('시작 집금담당자사번이 종료 집금담당자사번 보다 클 수 없습니다.');
+  }
+
+  return errors[0] || true;
+});
+
+const validateUsrComponent = computed(() => async () => {
+  const errors = [];
+
+  if (!isEmpty(searchParams.value.stFstRgstUsrId)) {
+    if (isEmpty(searchParams.value.enFstRgstUsrId)) {
+      errors.push('입력담당자사번 입력 시 종료 입력담당자사번은 필수입니다.');
+    }
+  }
+  if (!isEmpty(searchParams.value.enFstRgstUsrId)) {
+    if (isEmpty(searchParams.value.stFstRgstUsrId)) {
+      errors.push('입력담당자사번 입력 시 시작 입력담당자사번은 필수입니다.');
+    }
+  }
+
+  if (searchParams.value.stFstRgstUsrId > searchParams.value.enFstRgstUsrId) {
+    errors.push('시작 입력담당자사번이 종료 입력담당자사번 보다 클 수 없습니다.');
+  }
+
+  return errors[0] || true;
+});
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();

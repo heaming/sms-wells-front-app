@@ -752,7 +752,7 @@ function initGrdMain(data, view) {
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-  view.fixedOptions.colCount = 5;
+  view.fixedOptions.colCount = 4;
 
   view.setColumnLayout([
     'cntr',

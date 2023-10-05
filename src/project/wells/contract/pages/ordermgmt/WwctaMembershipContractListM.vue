@@ -615,7 +615,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '180', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약상세번호
     { fieldName: 'ordrInfoView', header: t('MSG_TXT_ODER_INF_VIEW'), width: '130', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_ODER_INF_VIEW') }, // 주문정보 보기
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '138', styleName: 'text-center' }, // 계약일련번호
     { fieldName: 'cstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-left' }, // 계약자명
@@ -624,7 +624,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'mshDvNm', header: t('MSG_TXT_MSH_DV'), width: '138' }, // 멤버십구분
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '138' }, // 상품분류
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '138', styleName: 'text-center' }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '292' }, // 상품명
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '292', styleName: 'text-left' }, // 상품명
     { fieldName: 'pdQty', header: t('MSG_TXT_PRODUCT_QTY'), width: '138', styleName: 'text-right' }, // 상품수량
     { fieldName: 'svTpNm', header: t('MSG_TXT_USWY_DV'), width: '138' }, // 용도구분
     { fieldName: 'stplPtrm', header: t('MSG_TXT_STPL_MCNT'), width: '138', styleName: 'text-right' }, // 약정개월
@@ -680,8 +680,8 @@ const initGridMembershipContractList = defineGrid((data, view) => {
       styleName: 'text-center',
     }, // 계약자 휴대폰번호
     { fieldName: 'adrZip', header: `${t('MSG_TXT_CNTRT')}${t('MSG_TXT_ZIP')}`, width: '136', styleName: 'text-center' }, // 계약자우편번호
-    { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '313' }, // 계약자기준주소
-    { fieldName: 'cntrCstRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '259' }, // 계약자상세주소
+    { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 계약자기준주소
+    { fieldName: 'cntrCstRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자상세주소
     {
       fieldName: 'istCralTno',
       header: t('MSG_TXT_MPNO'),
@@ -689,8 +689,8 @@ const initGridMembershipContractList = defineGrid((data, view) => {
       styleName: 'text-center',
     }, // 설치정보-휴대전화번호
     { fieldName: 'istAdrZip', header: `${t('MSG_TXT_INSTR')}${t('MSG_TXT_ZIP')}`, width: '136', styleName: 'text-center' }, // 설치자우편번호
-    { fieldName: 'istRnadr', header: t('MSG_TXT_STD_ADDR'), width: '313' }, // 설치자기준주소
-    { fieldName: 'istRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '259' }, // 설치자상세주소
+    { fieldName: 'istRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 설치자기준주소
+    { fieldName: 'istRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 설치자상세주소
     { fieldName: 'lcck05', header: t('MSG_TXT_SPAY_IMMDT_RECAP_YN'), width: '170', styleName: 'text-center' }, // 일시불즉시유상M여부
     { fieldName: 'combiDv', header: t('MSG_TXT_RNTL_SPAY_COMBI_DV'), width: '191', styleName: 'text-center' }, // 렌탈,일시불결합구분
     { fieldName: 'sdingCntrNo', header: t('MSG_TXT_WELLS_FARM_CNTR_NO'), width: '136', styleName: 'text-center' }, // 웰스팜 계약번호

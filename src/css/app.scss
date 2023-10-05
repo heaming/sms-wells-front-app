@@ -111,3 +111,20 @@ $unit: px;
     height: #{$size} + $unit;
   }
 }
+
+.hp-like-kw-notification-item {
+  @include typo("dense", 400);
+
+  position: relative;
+  padding-left: 8px;
+  color: $black3;
+
+  &::before {
+    content: "\00B7";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    text-align: center;
+  }
+}

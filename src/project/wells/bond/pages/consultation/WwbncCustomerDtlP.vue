@@ -1080,7 +1080,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, codeUtil, getComponentType, useDataService, useMeta, gridUtil, useGlobal, confirm, popupUtil } from 'kw-lib';
+import { defineGrid, codeUtil, getComponentType, useDataService, useMeta, gridUtil, useGlobal, confirm, popupUtil, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { getCnslTp } from '~sms-common/bond/utils/bnUtil';
 
@@ -1279,6 +1279,11 @@ async function fetchData() {
   }
   const response = await dataService.get('/sms/wells/bond/bond-counsel/customer-detail', { params: cachedParams });
   customer.value = response.data;
+
+  customer.value.lwscBilAmt = stringUtil.getNumberWithComma(customer.value.lwscBilAmt);
+  customer.value.lwmDpAmt = stringUtil.getNumberWithComma(customer.value.lwmDpAmt);
+  customer.value.lwscBlam = stringUtil.getNumberWithComma(customer.value.lwscBlam);
+  customer.value.ucAmt = stringUtil.getNumberWithComma(customer.value.ucAmt);
 
   const res = await dataService.get('/sms/wells/bond/bond-counsel/unusual-articles', { params: cachedParams });
   customer.value.cnslUnuitmCn = res.data.cnslUnuitmCn;

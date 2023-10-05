@@ -21,7 +21,7 @@
     <h3>{{ $t('MSG_TXT_CNTRT_INF') }}</h3>
     <kw-observer ref="obsMainRef">
       <kw-form :cols="2">
-        <div v-if="isEqual(props.copnDvCd, '1')">
+        <slot v-if="isEqual(props.copnDvCd, '1')">
           <kw-form-row>
             <!-- 계약자 -->
             <kw-form-item
@@ -50,8 +50,8 @@
               <p>{{ fieldParams.copnDvNm }}</p>
             </kw-form-item>
           </kw-form-row>
-        </div>
-        <div v-if="isEqual(props.copnDvCd, '2')">
+        </slot>
+        <slot v-if="isEqual(props.copnDvCd, '2')">
           <kw-form-row>
             <!-- 계약자 -->
             <kw-form-item
@@ -84,13 +84,12 @@
                 v-model:telNo2="fieldParams.cntrCopnIdvTno"
                 :placeholder="t('MSG_TXT_INP')"
                 :label="$t('MSG_TXT_TEL_NO')"
-                :readonly="true"
                 rules="telephone"
                 mask="telephone"
               />
             </kw-form-item>
           </kw-form-row>
-        </div>
+        </slot>
         <kw-form-row>
           <!-- 휴대전화번호 -->
           <kw-form-item
@@ -103,7 +102,6 @@
               v-model:telNo1="fieldParams.cntrMexnoEncr"
               v-model:telNo2="fieldParams.cntrCralIdvTno"
               :label="$t('MSG_TXT_MPNO')"
-              :readonly="true"
               rules="required|telephone"
               mask="telephone"
             />
@@ -243,19 +241,28 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, stringUtil, useModal, useGlobal, getComponentType } from 'kw-lib';
+import { useDataService, stringUtil, useModal, useMeta, useGlobal, getComponentType } from 'kw-lib';
 import { isEmpty, isEqual } from 'lodash-es';
 
+import dayjs from 'dayjs';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 
 const { t } = useI18n();
 const { cancel, ok } = useModal();
 const { notify, confirm, alert } = useGlobal();
+const { getUserInfo } = useMeta();
 const dataService = useDataService();
+
+const now = dayjs();
+const session = getUserInfo();
 
 const frmMainRef = ref();
 const obsMainRef = ref(getComponentType('KwObserver'));
 const obsSubRef = ref(getComponentType('KwObserver'));
+
+let orgCntrCopnCralTno = '';
+let orgCntrCralTno = '';
+let orgCntrAdrId = '';
 
 const props = defineProps({
   cntrNo: {
@@ -286,6 +293,7 @@ const fieldParams = ref({
   cntrNo: props.cntrNo,
   cntrSn: props.cntrSn,
   cstKnm: '',
+  copnDvCd: props.copnDvCd,
   cntrCstNo: '',
   bryyMmdd: '',
   bzrno: '',
@@ -312,6 +320,7 @@ const fieldParams = ref({
   istRnadr: '',
   istRdadr: '',
   cttRsCd: '',
+  unuitmCn: `계약${props.cntrNo}`,
   check: false,
 });
 
@@ -329,6 +338,10 @@ async function fetchData() {
   fieldParams.value.cntrCopnCralTno = `${fieldParams.value.cntrCopnLocaraTno}${fieldParams.value.cntrCopnExnoEncr}${fieldParams.value.cntrCopnIdvTno}`;
   fieldParams.value.istPhoneNo = `${fieldParams.value.istLocaraTno}${fieldParams.value.istExnoEncr}${fieldParams.value.istIdvTno}`;
 
+  orgCntrCopnCralTno = fieldParams.value.cntrCopnCralTno;
+  orgCntrCralTno = fieldParams.value.cntrCralTno;
+  orgCntrAdrId = fieldParams.value.cntrAdrId;
+
   if (isEmpty(res.data)) {
     alert(t('MSG_ALT_CST_INF_NOT_EXST'));
     cancel();
@@ -339,6 +352,52 @@ async function fetchData() {
   obsSubRef.value.init();
 
   fieldParams.value.check = false;
+}
+
+async function saveCustomerInfo() {
+  if (await obsMainRef.value.validate()) {
+    const { cntrCopnCralTno, cntrCralTno, cntrAdrId } = fieldParams.value;
+    let msg = '';
+    let phone = '';
+    let telephone = '';
+    let adr = '';
+
+    if (!isEqual(orgCntrCopnCralTno, cntrCopnCralTno.replaceAll('-', ''))) {
+      phone = '/전화번호 변경';
+    }
+    if (!isEqual(orgCntrCralTno, cntrCralTno.replaceAll('-', ''))) {
+      telephone = '/휴대전화번호 변경';
+    }
+    if (!isEqual(orgCntrAdrId, cntrAdrId)) {
+      adr = '/주소변경';
+    }
+    msg = `${phone}${telephone}${adr}`;
+
+    fieldParams.value.unuitmCn += msg;
+
+    const params = {
+      CST_NO: fieldParams.value.cntrCstNo,
+      ADR_DV_CD: fieldParams.value.cntrAdrDvCd,
+      ADR_ID: fieldParams.value.cntrAdrId,
+      CALNG_DV_CD: 'U',
+      COPN_DV_CD: fieldParams.value.copnDvCd,
+      CRAL_LOCARA_TNO: fieldParams.value.cntrCralLocaraTno,
+      MEXNO: fieldParams.value.cntrMexnoEncr,
+      CRAL_IDV_TNO: fieldParams.value.cntrCralIdvTno,
+      LOCARA_TNO: fieldParams.value.cntrCopnLocaraTno,
+      EXNO: fieldParams.value.cntrCopnExnoEncr,
+      IDV_TNO: fieldParams.value.cntrCopnIdvTno,
+      RGST_MDFC_USR_ID: session.employeeIDNumber,
+      CH_LTRQ_CONF_DT: now.format('YYYYMM'),
+      CH_LTRQ_CONF_YN: 'Y',
+      UNUITM_CN: fieldParams.value.unuitmCn,
+    };
+    const payload = {
+      body: params,
+      header: {},
+    };
+    await dataService.post('/interface/sms/wells/customers/contract-customers', payload);
+  }
 }
 
 async function onClickSave() {
@@ -355,13 +414,11 @@ async function onClickSave() {
   } else {
     if (await obsMainRef.value.alertIfIsNotModified()) { return; } // 계약자 정보 체크
     if (!await obsMainRef.value.validate()) { return; }
-
-    alert('계약자 정보 변경 추후 추가 예정');
-    return;
   }
   if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+  await saveCustomerInfo();
 
-  await dataService.post('/sms/wells/contract/changeorder/changes/customers', fieldParams.value);
+  if (await obsSubRef.value.isModified()) { await dataService.post('/sms/wells/contract/changeorder/changes/customers', fieldParams.value); }
   ok();
   notify(t('MSG_ALT_SAVE_DATA'));
 }

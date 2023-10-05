@@ -323,6 +323,7 @@ async function fetchData() {
 
   if (agrgDv === '2') { // 일자별
     isGridMain.value = true;
+    mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 5 }];
   } else if (agrgDv === '4') { // 가로계산식
     isGridSub.value = true;
     mainView.columnByName('cntrNo').visible = true;
@@ -334,8 +335,10 @@ async function fetchData() {
     if (inquiryDivide === '2' && (sellTpCd === '2' || sellTpCd === '10')) { // 포인트 선택시
       if (agrgDv === '1') { // 집계
         isGridThird.value = true;
+        mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
       } else if (agrgDv === '3') { // 주문별
         isGridFourth.value = true;
+        mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
       }
     } else { // 포인트 미선택시
       isGridSub.value = true;
@@ -570,7 +573,6 @@ const initGrdMain = defineGrid((data, view) => {
       },
     ],
   });
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 5 }];
 });
 
 // getSalesBondAtamDateList (두번째 그리드)
@@ -737,7 +739,6 @@ const initGrdSub = defineGrid((data, view) => {
       },
     ],
   });
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 8 }];
 });
 
 // getSalesBondAtamOrderList (세번째 그리드)
@@ -860,7 +861,6 @@ const initGrdThird = defineGrid((data, view) => {
       },
     ],
   });
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 4 }];
 });
 
 // getSalesBondAtamMemberList (네번째 그리드)
@@ -1000,7 +1000,6 @@ const initGrdFourth = defineGrid((data, view) => {
       },
     ],
   });
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
 });
 
 const selectInquiryDivide = { // 조회구분

@@ -238,7 +238,7 @@
         />
 
         <kw-btn
-          v-permission:create
+          v-if="isShowPsicTfBtm"
           dense
           primary
           :label="$t('MSG_BTN_PSIC_TF')"
@@ -255,7 +255,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="pageInfo.pageSize"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
       <kw-pagination
@@ -348,86 +349,43 @@ async function onClickSearch() {
   await fetchData();
 }
 
-const organizationOptions = ref([]);
-
-async function fetchOrganizationOptions() {
-  const { ogId, ogTpCd } = getters['meta/getUserInfo'];
-  let dgr1LevlOgId;
-  let dgr2LevlOgId;
-
-  // 유성진 매니저(36682) = 화성서비스센터 소속
-  if (sessionUserInfo.employeeIDNumber === '36682') {
-    organizationOptions.value = [
-      { ogId: 'OG00000154', ogCdNm: '의정부서비스센터' },
-      { ogId: 'OG00000169', ogCdNm: '하남서비스센터' },
-      { ogId: 'OG00000160', ogCdNm: '화성서비스센터' },
-      { ogId: 'OG00000159', ogCdNm: '인천서비스센터' },
-      { ogId: 'OG00000156', ogCdNm: '일산서비스센터' },
-      { ogId: 'OG00086478', ogCdNm: '원주서비스센터' },
-      { ogId: 'OG00108092', ogCdNm: '강릉서비스센터' },
-      { ogId: 'OG00098159', ogCdNm: '(홈)부천/서부지점-사업자' },
-      { ogId: 'OG00098160', ogCdNm: '(홈)성수/동부지점-사업자' },
-    ];
-    return;
-  }
-  // 이호성 매니저(36613) = 광주서비스센터 소속
-  if (sessionUserInfo.employeeIDNumber === '36613') {
-    organizationOptions.value = [
-      { ogId: 'OG00000163', ogCdNm: '청주서비스센터' },
-      { ogId: 'OG00108090', ogCdNm: '아산서비스센터' },
-      { ogId: 'OG00000167', ogCdNm: '전주서비스센터' },
-      { ogId: 'OG00000166', ogCdNm: '광주서비스센터' },
-      { ogId: 'OG00108091', ogCdNm: '목포서비스센터' },
-      { ogId: 'OG00107559', ogCdNm: '광양서비스센터' },
-      { ogId: 'OG00000168', ogCdNm: '제주서비스센터' },
-      { ogId: 'OG00098161', ogCdNm: '(홈)세종/충청지점-사업자' },
-    ];
-    return;
-  }
-  // 정태진 매니저(36610) = 대구서비스센터 소속
-  if (sessionUserInfo.employeeIDNumber === '36610') {
-    organizationOptions.value = [
-      { ogId: 'OG00000164', ogCdNm: '대구서비스센터' },
-      { ogId: 'OG00108288', ogCdNm: '칠곡서비스센터' },
-      { ogId: 'OG00086480', ogCdNm: '포항서비스센터' },
-      { ogId: 'OG00000161', ogCdNm: '부산서비스센터' },
-      { ogId: 'OG00086479', ogCdNm: '김해서비스센터' },
-      { ogId: 'OG00098163', ogCdNm: '(홈)칠곡/경북지점-사업자' },
-    ];
-    return;
-  }
-
-  if (ogTpCd === 'W02') {
-    const { data } = await dataService.get(`/sms/wells/service/manage-customer-rglvl/organization-info/${ogId}`);
-    if (!data.dgr1LevlOgId) {
-      await alert(t('MSG_ALT_NOT_FOUND_OG_INF')); // 조직정보를 찾을 수 없습니다.
-      return;
-    }
-    dgr1LevlOgId = data.dgr1LevlOgId;
-    dgr2LevlOgId = data.dgr2LevlOgId;
-  } else if (['W03', 'W06'].includes(ogTpCd)) {
-    searchParams.value.organizationId = ogId;
-  }
-
-  // W02 : 접속자의 지역단 정보의 하위 지점만 출력
-  // W03, W06 : 접속자의 센터 1개
-  const { data } = await dataService.get('/sms/wells/service/before-service-period-customer/organizations', { params: { ogTpCd, ogId, dgr1LevlOgId, dgr2LevlOgId } });
-
-  organizationOptions.value = data;
-}
-
 const { baseRleCd } = getters['meta/getUserInfo'];
-// const isShowTfConfirmBtm = ref(baseRleCd === '9999');
 const isShowTfConfirmBtm = ref(false);
-function isShowTfConfirmAuth() {
-  // return (baseRleCd === 'W6010' || baseRleCd === 'W6020');
+function isShowTfConfirmAuthEng() {
+  // return (
+  //   (baseRleCd === 'W6010' || baseRleCd === 'W6020')
+  //   // 유성진 매니저(36682) = 화성서비스센터 소속
+  //   // 이호성 매니저(36613) = 광주서비스센터 소속
+  //   // 정태진 매니저(36610) = 대구서비스센터 소속
+  //   || (sessionUserInfo.employeeIDNumber === '36682'
+  // || sessionUserInfo.employeeIDNumber === '36613'
+  // || sessionUserInfo.employeeIDNumber === '36610')
+  // );
+  // W6010 센터장
+  // W6020 매니저
   return (
     (baseRleCd === 'W6010' || baseRleCd === 'W6020')
-    // 유성진 매니저(36682) = 화성서비스센터 소속
-    // 이호성 매니저(36613) = 광주서비스센터 소속
-    // 정태진 매니저(36610) = 대구서비스센터 소속
-    || (sessionUserInfo.employeeIDNumber === '36682' || sessionUserInfo.employeeIDNumber === '36613' || sessionUserInfo.employeeIDNumber === '36610')
+    // (baseRleCd === 'W6010' || baseRleCd === 'W6020' || baseRleCd == null) // cherro ::: test
   );
+}
+function isShowTfConfirmAuthMng() {
+  // return (
+  //   (baseRleCd === 'W6010' || baseRleCd === 'W6020')
+  //   // 유성진 매니저(36682) = 화성서비스센터 소속
+  //   // 이호성 매니저(36613) = 광주서비스센터 소속
+  //   // 정태진 매니저(36610) = 대구서비스센터 소속
+  //   || (sessionUserInfo.employeeIDNumber === '36682'
+  // || sessionUserInfo.employeeIDNumber === '36613'
+  // || sessionUserInfo.employeeIDNumber === '36610')
+  // );
+  // W1560 CS운영팀
+  // W1580 영업지원팀
+  return (
+    (baseRleCd === 'W1560' || baseRleCd === 'W1580')
+  );
+}
+function isShowTfConfirmAuth() {
+  return (isShowTfConfirmAuthEng() || isShowTfConfirmAuthMng());
 }
 async function getManagerAuthYn() {
   const res = await dataService.get('/sms/wells/service/before-service-period-customer/manager-auth-yn');
@@ -435,6 +393,85 @@ async function getManagerAuthYn() {
     isShowTfConfirmBtm.value = true;
   } else {
     isShowTfConfirmBtm.value = false;
+  }
+}
+const isShowPsicTfBtm = ref(false);
+function isShowPsicTfAuth() {
+  if (baseRleCd === 'W6010' // 센터장
+  || baseRleCd === 'W6020' // 매니저
+  || baseRleCd === 'W1020' // 업무지원매니저
+  || baseRleCd === 'W1030' // 영업지원매니저
+  || baseRleCd === 'W1560' // CS운영팀
+  || baseRleCd === 'W1580' // 영업지원팀
+  // || baseRleCd == null // cherro ::: test
+  ) {
+    isShowPsicTfBtm.value = true;
+  } else {
+    isShowPsicTfBtm.value = false;
+  }
+}
+
+const organizationOptions = ref([]);
+
+async function fetchOrganizationOptions() {
+  // const { ogId } = getters['meta/getUserInfo'];
+
+  // // 유성진 매니저(36682) = 화성서비스센터 소속
+  // if (sessionUserInfo.employeeIDNumber === '36682') {
+  //   organizationOptions.value = [
+  //     { ogId: 'OG00000154', ogCdNm: '의정부서비스센터' },
+  //     { ogId: 'OG00000169', ogCdNm: '하남서비스센터' },
+  //     { ogId: 'OG00000160', ogCdNm: '화성서비스센터' },
+  //     { ogId: 'OG00000159', ogCdNm: '인천서비스센터' },
+  //     { ogId: 'OG00000156', ogCdNm: '일산서비스센터' },
+  //     { ogId: 'OG00086478', ogCdNm: '원주서비스센터' },
+  //     { ogId: 'OG00108092', ogCdNm: '강릉서비스센터' },
+  //     { ogId: 'OG00098159', ogCdNm: '(홈)부천/서부지점-사업자' },
+  //     { ogId: 'OG00098160', ogCdNm: '(홈)성수/동부지점-사업자' },
+  //   ];
+  //   return;
+  // }
+  // // 이호성 매니저(36613) = 광주서비스센터 소속
+  // if (sessionUserInfo.employeeIDNumber === '36613') {
+  //   organizationOptions.value = [
+  //     { ogId: 'OG00000163', ogCdNm: '청주서비스센터' },
+  //     { ogId: 'OG00108090', ogCdNm: '아산서비스센터' },
+  //     { ogId: 'OG00000167', ogCdNm: '전주서비스센터' },
+  //     { ogId: 'OG00000166', ogCdNm: '광주서비스센터' },
+  //     { ogId: 'OG00108091', ogCdNm: '목포서비스센터' },
+  //     { ogId: 'OG00107559', ogCdNm: '광양서비스센터' },
+  //     { ogId: 'OG00000168', ogCdNm: '제주서비스센터' },
+  //     { ogId: 'OG00098161', ogCdNm: '(홈)세종/충청지점-사업자' },
+  //   ];
+  //   return;
+  // }
+  // // 정태진 매니저(36610) = 대구서비스센터 소속
+  // if (sessionUserInfo.employeeIDNumber === '36610') {
+  //   organizationOptions.value = [
+  //     { ogId: 'OG00000164', ogCdNm: '대구서비스센터' },
+  //     { ogId: 'OG00108288', ogCdNm: '칠곡서비스센터' },
+  //     { ogId: 'OG00086480', ogCdNm: '포항서비스센터' },
+  //     { ogId: 'OG00000161', ogCdNm: '부산서비스센터' },
+  //     { ogId: 'OG00086479', ogCdNm: '김해서비스센터' },
+  //     { ogId: 'OG00098163', ogCdNm: '(홈)칠곡/경북지점-사업자' },
+  //   ];
+  //   return;
+  // }
+
+  let ogId = '';
+  if (!isShowTfConfirmAuth()) {
+    searchParams.value.organizationId = sessionUserInfo.ogId;
+    ogId = sessionUserInfo.ogId;
+  }
+
+  // W02 : 접속자의 지역단 정보의 하위 지점만 출력
+  // W03, W06 : 접속자의 센터 1개
+  const { data } = await dataService.get('/sms/wells/service/before-service-period-customer/organizations', { params: { ogId } });
+
+  organizationOptions.value = data;
+
+  if (isShowTfConfirmAuthEng()) {
+    searchParams.value.organizationId = sessionUserInfo.ogId;
   }
 }
 
@@ -717,7 +754,7 @@ function initGrdMain(data, view) {
 
   const columns = [
     { fieldName: 'tfStatCd', header: t('MSG_TXT_TF_STAT'), width: '100', styleName: 'text-center', options: transferStatusCodes.value }, // 이관상태
-    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
+    { fieldName: 'cntr', header: t('계약상세번호'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약상세번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'assign', header: t('MSG_TXT_CPSN_FXN'), width: '100', styleName: 'text-center' }, // 강제/고정
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' }, // SAP코드
@@ -841,6 +878,7 @@ function initGrdMain(data, view) {
 }
 
 onMounted(async () => {
+  await isShowPsicTfAuth();
   await getManagerAuthYn();
   await fetchOrganizationOptions();
 });

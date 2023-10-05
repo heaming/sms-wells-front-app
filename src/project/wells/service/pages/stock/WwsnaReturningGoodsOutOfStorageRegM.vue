@@ -337,7 +337,7 @@ function onClickGridBulkChange(val, type) {
 }
 
 function getRowData(rowData) {
-  return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0 };
+  return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0, mngtUnitCd: rowData.delUntNm };
 }
 
 async function openItemBasePopup(type, row) {
@@ -499,6 +499,12 @@ async function onClickSave() {
   for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
     const ostrQty = gridUtil.getCellValue(view, dataRow, 'ostrQty');
     if (!validateOstrQty(dataRow, ostrQty)) return;
+  }
+
+  // 파주물류센터일 경우 운송코드 필수체크 추가
+  if (searchParams.value.strWareNo === '100002' && searchParams.value.trnspnCd === '') {
+    notify(t('MSG_ALT_TRNSPN_CD_ATC_VAL_OMSSN_CONF_NCST'));
+    return;
   }
 
   // searchParams 값 체크
