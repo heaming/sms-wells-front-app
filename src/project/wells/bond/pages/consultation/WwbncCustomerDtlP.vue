@@ -1080,7 +1080,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, codeUtil, getComponentType, useDataService, useMeta, gridUtil, useGlobal, confirm, popupUtil, stringUtil } from 'kw-lib';
+import { defineGrid, codeUtil, getComponentType, useDataService, gridUtil, useGlobal, confirm, popupUtil, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { getCnslTp } from '~sms-common/bond/utils/bnUtil';
 
@@ -1095,8 +1095,6 @@ import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.v
 const { t } = useI18n();
 const dataService = useDataService();
 const { modal } = useGlobal();
-const sessionMeta = useMeta();
-const userInfo = sessionMeta.getUserInfo();
 const obsTabRef = ref();
 
 // -------------------------------------------------------------------------------------------------
@@ -1328,6 +1326,11 @@ async function onClickDepositRegistration() {
 
 // TODO: CB정보 조회요청
 async function onClickCbInformationAsk() {
+  // TODO: ZwbncCreditBureauInformationP 화면은 sfkVal으로 받고 있어서 추가
+  // customer.value 를 통으로 넘기게 되어 있어 임시 소스임 수정 필요
+  if (customer.value.sfk) {
+    customer.value.sfkVal = customer.value.sfk;
+  }
   await modal({
     component: 'ZwbncCreditBureauInformationP',
     componentProps: {
@@ -1347,7 +1350,8 @@ async function onClickBillingExcdRgst() {
 
 // TODO: 이체결과
 async function onClickFundTransferResult() {
-  await popupUtil.open('/popup/#/withdrawal/zwwda-create-itemization-mgt', { width: 1292, height: 1100 }, false);
+  const { cstNo, cntrNo, cntrSn } = customer.value;
+  await popupUtil.open(`/popup/#/withdrawal/zwwda-create-itemization-mgt?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 1292, height: 1100 }, false);
 }
 
 // TODO: 배달처정보변경
@@ -1360,31 +1364,14 @@ async function onClickContractDetail() {
 
 // TODO: 계약자정보변경
 async function onClickContractorInformationChange() {
-  await popupUtil.open('/popup/#/customer/zwcsa-customer-mgt/zwcsa-indv-customer-reg', { width: 1292, height: 1100 }, false);
+  const { cstNo, copnDvCd, bzrno } = customer.value;
+  await popupUtil.open(`/popup/#/customer/zwcsa-customer-mgt/zwcsa-indv-customer-mod?cstNo=${cstNo}&copnDvCd=${copnDvCd}&bzrno=${bzrno}`, { width: 1292, height: 1100 }, { cstNo, copnDvCd, bzrno }, false);
 }
 
 // TODO: 부담통보
 async function onClickBurdenNotice() {
-  if (userInfo.tenantCd === 'E') {
-    await modal({
-      component: 'ZwdeeBurdenDeductionP',
-      componentProps: {
-        prtnrNo: '1744420', // 파트너번호 1703923 1759447  1579443 1725480 1760303  1763833 1754151
-        ogTpCd: 'E01',
-        perfYm: '202211', // 실적년월  201701 202209 202302 202304
-      },
-    });
-  }
-  if (userInfo.tenantCd === 'W') {
-    await modal({
-      component: 'ZwdeeBurdenDeductionP',
-      componentProps: {
-        prtnrNo: '1555464', // 파트너번호 1703923 1759447  1579443 1725480 1760303  1763833 1754151
-        ogTpCd: 'W02',
-        perfYm: '202304', // 실적년월  201701 202209 202302 202304
-      },
-    });
-  }
+  const { cstNo, cntrNo, cntrSn } = customer.value;
+  await popupUtil.open(`/popup/#/fee/zwdee-burden-deduction-notice-reg?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 1292, height: 1100 }, false);
 }
 
 // TODO: 문자발송

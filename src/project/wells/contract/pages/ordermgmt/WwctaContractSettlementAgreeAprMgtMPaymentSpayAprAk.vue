@@ -140,14 +140,14 @@
               v-model="approvalRequest.owrKnm"
               label="계약자"
               rules="required"
-              readonly
+              :readonly="isCooperation ? false : true"
             />
             <kw-input
               v-model="approvalRequest.copnDvCdDrmVal"
               :label="isCooperation ? '사업자번호' : '생년월일'"
               rules="required"
               hint="개인카드의 경우, 생년월일(YYYYMMDD), 법인카드의 경우, 사업자번호 10자리를 입력해주세요."
-              readonly
+              :readonly="isCooperation ? false : true"
             />
             <kw-input
               v-if="!alreadyDone"

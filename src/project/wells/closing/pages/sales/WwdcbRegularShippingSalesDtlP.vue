@@ -5,7 +5,7 @@
 ****************************************************************************************************
 1. 모듈 : DCB
 2. 프로그램 ID : WwdcbRegularShippingSalesDtlP - 매출실적현황-정기배송매출 상세내역 - W-CL-U-0038P05
-3. 작성자 : WOO SEUNGMIN
+3. 작성자 : WOO SEUNGMIN -> gugyeongu
 4. 작성일 : 2023.04.07
 ****************************************************************************************************
 * 프로그램 설명
@@ -15,7 +15,7 @@
 --->
 <template>
   <kw-popup
-    size="3xl"
+    size="xl"
   >
     <h3>{{ $t('MSG_TXT_CST_BAS_INF') }}</h3>
     <kw-form dense>
@@ -31,8 +31,8 @@
         </kw-form-item>
       </kw-form-row>
     </kw-form>
-
-    <kw-action-top class="mb20 mt30">
+    <kw-separator />
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_CNTR_PDCT') }}</h3>
       </template>
@@ -75,7 +75,8 @@
       </kw-form-row>
     </kw-form>
 
-    <kw-action-top class="mt30 mb20">
+    <kw-separator />
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_SL_ARTC') }}</h3>
       </template>
@@ -147,7 +148,8 @@
       </kw-form-row>
     </kw-form>
 
-    <kw-action-top class="mt30 mb20">
+    <kw-separator />
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_PRPD_AMT') }}</h3>
       </template>
@@ -194,7 +196,8 @@
       </kw-form-row>
     </kw-form>
 
-    <kw-action-top class="mt30 mb20">
+    <kw-separator />
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_BIL_UC') }}</h3>
       </template>
@@ -233,7 +236,8 @@
       </kw-form-row>
     </kw-form>
 
-    <kw-action-top class="mt30 mb20">
+    <kw-separator />
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_DLQ_ARTC') }}</h3>
       </template>
@@ -275,7 +279,12 @@ const props = defineProps({
     required: false,
     default: '',
   },
-  cntrDtlNo: {
+  cntrNo: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  cntrSn: {
     type: String,
     required: false,
     default: '',
@@ -288,7 +297,8 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 const searchParams = ref({
   slClYm: props.slClYm,
-  cntrDtlNo: props.cntrDtlNo,
+  cntrNo: props.cntrNo,
+  cntrSn: props.cntrSn,
 });
 
 const regularShippingDetail = ref({});

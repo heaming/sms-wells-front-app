@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : DCB
 2. 프로그램 ID : WwdcbMembershipSalesDetailP - 멤버십매출 상세내역 - W-CL-U-0038P06
-3. 작성자 : WOO SEUNGMIN
+3. 작성자 : WOO SEUNGMIN -> gugyeongu
 4. 작성일 : 2023.03.14
 ****************************************************************************************************
 * 프로그램 설명
@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    size="3xl"
+    size="xl"
   >
     <h3>{{ $t('MSG_TXT_CST_BAS_INF') }}</h3>
     <kw-form dense>
@@ -23,7 +23,7 @@
           <p>{{ membershipDetail.cstKnm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
-          <p>{{ membershipDetail.cntrDtlNo }}</p>
+          <p>{{ membershipDetail.cntrNo }}-{{ membershipDetail.cntrSn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_YM')">
           <p>{{ stringUtil.getDateFormat(membershipDetail.slClYm, 'YYYY-MM') }}</p>
@@ -31,10 +31,13 @@
       </kw-form-row>
     </kw-form>
 
-    <h3>{{ $t('MSG_TXT_CNTR_PDCT') }}</h3>
-    <p class="kw-font--14 kw-fc--black3 text-right mb12">
-      <span>{{ t('MSG_TXT_UNIT_WON') }}</span>
-    </p>
+    <kw-separator />
+    <kw-action-top class="mb20">
+      <template #left>
+        <h3>{{ $t('MSG_TXT_CNTR_PDCT') }}</h3>
+      </template>
+      <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
+    </kw-action-top>
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRDT_CODE')">
@@ -60,10 +63,14 @@
       </kw-form-row>
     </kw-form>
 
-    <h3>{{ $t('MSG_TXT_PRM_ARTC') }}</h3>
-    <p class="kw-font--14 kw-fc--black3 text-right mb12">
-      <span>{{ t('MSG_TXT_UNIT_WON') }}</span>
-    </p>
+    <kw-separator />
+    <kw-action-top class="mb20">
+      <template #left>
+        <h3>{{ $t('MSG_TXT_PRM_ARTC') }}</h3>
+      </template>
+      <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
+    </kw-action-top>
+
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRM_TN')">
@@ -97,10 +104,14 @@
       </kw-form-row>
     </kw-form>
 
-    <h3>{{ $t('MSG_TXT_SL_ARTC') }}</h3>
-    <p class="kw-font--14 kw-fc--black3 text-right mb12">
-      <span>{{ t('MSG_TXT_UNIT_WON') }}</span>
-    </p>
+    <kw-separator />
+    <kw-action-top class="mb20">
+      <template #left>
+        <h3>{{ $t('MSG_TXT_SL_ARTC') }}</h3>
+      </template>
+      <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
+    </kw-action-top>
+
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_J_NMN')">
@@ -159,10 +170,14 @@
       </kw-form-row>
     </kw-form>
 
-    <h3>{{ $t('MSG_TXT_DP_ARTC') }}</h3>
-    <p class="kw-font--14 kw-fc--black3 text-right mb12">
-      <span>{{ t('MSG_TXT_UNIT_WON') }}</span>
-    </p>
+    <kw-separator />
+    <kw-action-top class="mb20">
+      <template #left>
+        <h3>{{ $t('MSG_TXT_DP_ARTC') }}</h3>
+      </template>
+      <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
+    </kw-action-top>
+
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRM_BLAM')">
@@ -221,39 +236,34 @@
       </kw-form-row>
     </kw-form>
 
-    <h3>{{ $t('MSG_TXT_DDTN_ARTC') }}</h3>
-    <p class="kw-font--14 kw-fc--black3 text-right mb12">
-      <span>{{ t('MSG_TXT_UNIT_WON') }}</span>
-    </p>
+    <kw-separator />
+    <kw-action-top class="mb20">
+      <template #left>
+        <h3>{{ t('MSG_TXT_BOR_ARTC') }}</h3>
+      </template>
+      <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
+    </kw-action-top>
     <kw-form dense>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_DSC_DDTN_AMT')">
+        <kw-form-item :label="$t('MSG_TXT_BOR_DDTN_AMT')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dscSlAmt)) }}</p>
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_DSC_DP_AMT')">
+        <kw-form-item :label="$t('MSG_TXT_BOR_DP_AMT2')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dscDpAmt)) }}</p>
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_DSC_UC_AMT')">
+        <kw-form-item :label="$t('MSG_TXT_BOR_UC_AMT')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.dscUcAmt)) }}</p>
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_FILT_DDTN_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.filtDdtnAmt)) }}</p>
-        </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_FILT_DP_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.filtDpAmt)) }}</p>
-        </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_FILT_UC_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.filtUcAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
 
-    <h3>{{ $t('MSG_TXT_DLQ_ADD') }}</h3>
-    <p class="kw-font--14 kw-fc--black3 text-right mb12">
-      <span>{{ t('MSG_TXT_UNIT_WON') }}</span>
-    </p>
+    <kw-separator />
+    <kw-action-top class="mb20">
+      <template #left>
+        <h3>{{ $t('MSG_TXT_DLQ_ADD') }}</h3>
+      </template>
+      <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
+    </kw-action-top>
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_ADAMT_BTD_AMT')">
@@ -279,10 +289,13 @@
       </kw-form-row>
     </kw-form>
 
-    <h3>{{ $t('MSG_TXT_DLQ_ARTC') }}</h3>
-    <p class="kw-font--14 kw-fc--black3 text-right mb12">
-      <span>{{ t('MSG_TXT_UNIT_WON') }}</span>
-    </p>
+    <kw-separator />
+    <kw-action-top class="mb20">
+      <template #left>
+        <h3>{{ $t('MSG_TXT_DLQ_ARTC') }}</h3>
+      </template>
+      <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
+    </kw-action-top>
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_VST_PRD_VST_DT')">
