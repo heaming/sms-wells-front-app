@@ -969,14 +969,6 @@ const initGridState = defineGrid((data, view) => {
       styleName: 'text-center',
       renderer: { type: 'button', hideWhenEmpty: true },
       displayCallback: () => t('MSG_TXT_IMG_BRWS'),
-      // displayCallback(grd, idx, val) {
-      //   const imgYn = val === 'Y' ? t('MSG_TXT_IMG_BRWS') : '';
-      //   return `${imgYn}`;
-      // },
-      // styleCallback(grd, dataCell) {
-      //   const imgYn = grd.getValue(dataCell.item.dataRow, 'imgYn');
-      //   return (imgYn === 'Y') ? { renderer: { type: 'button' } } : { renderer: { type: 'text' } };
-      // },
     },
     { fieldName: 'rtngdProcsTp', header: t('MSG_TXT_RTNGD_PCS_INF'), width: '150' },
     { fieldName: 'fstVstFshDt', header: t('MSG_TXT_DSU_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
@@ -990,14 +982,15 @@ const initGridState = defineGrid((data, view) => {
   view.onCellDblClicked = async (g, cData) => {
     if (cData.fieldName === 'wkPrgsStat' || cData.fieldName === 'imgYn') { return false; }
 
-    notify(' 서비스처리상세 내역 팝업(W-SV-U-0165P01) 호출');
-    //   await modal({
-    //     component: '',
-    //     componentProps: {
-    //       cntrNo: searchParams.value.cntrNo,
-    //       cntrSn: searchParams.value.cntrSn,
-    //     },
-    //   });
+    const { cstSvAsnNo } = g.getValues(cData.itemIndex);
+    await modal({
+      component: 'WwsnbServiceProcDetailListP',
+      componentProps: {
+        cntrNo: searchParams.value.cntrNo,
+        cntrSn: searchParams.value.cntrSn,
+        cstSvAsnNo,
+      },
+    });
   };
 
   view.onCellItemClicked = async (g, cData) => {
