@@ -212,7 +212,7 @@
           />
         </kw-form-item>
         <!-- 계약자 휴대전화번호 -->
-        <kw-form-item :label="$t('MSG_TXT_CNTRT_CPHON_NO')">
+        <kw-form-item :label="$t('MSG_TXT_CNTRR_VAC_PH_NO')">
           <kw-input
             v-model="frmMainData.cntrCralTno"
             placeholder=""
@@ -460,7 +460,7 @@
         <!-- 의무기간 -->
         <kw-form-item :label="$t('MSG_TXT_DUTY_PTRM')">
           <kw-input
-            v-model="frmMainData.recapDutyPtrmN"
+            v-model="frmMainData.stplPtrm"
             align="right"
             placeholder=""
             readonly
@@ -469,7 +469,7 @@
         <!-- 계약기간 -->
         <kw-form-item :label="$t('MSG_TXT_CNTR_PTRM')">
           <kw-input
-            v-model="frmMainData.stplPtrm"
+            v-model="frmMainData.cntrPtrm"
             align="right"
             placeholder=""
             readonly
@@ -495,8 +495,8 @@
             readonly
           />
         </kw-form-item>
-        <!-- 공급가액 -->
-        <kw-form-item :label="$t('MSG_TXT_SUPPLY_AMOUNT')">
+        <!-- 공급가 -->
+        <kw-form-item :label="$t('MSG_TXT_SPLPRC')">
           <kw-input
             v-model="frmMainData.sellAmt"
             align="right"
@@ -558,7 +558,7 @@
           :label="$t('MSG_TXT_DSC_MCNT')"
         >
           <kw-input
-            v-model="frmMainData.pmotFvrMcn"
+            v-model="frmMainData.dscMcn"
             align="right"
             placeholder=""
             readonly
@@ -569,10 +569,9 @@
           :label="$t('MSG_TXT_DSC_AMT')"
         >
           <kw-input
-            v-model="frmMainData.pmotFvrAmt"
+            v-model="frmMainData.ctrAmt"
             align="right"
             placeholder=""
-            type="number"
             readonly
           />
         </kw-form-item>
@@ -973,22 +972,6 @@
             readonly
           />
         </kw-form-item>
-        <!-- 체험센터배송 -->
-        <kw-form-item :label="$t('MSG_TXT_EXPN_CNR_DLVR')">
-          <kw-input
-            v-model="frmMainData.lcecod"
-            placeholder=""
-            readonly
-          />
-        </kw-form-item>
-        <!-- 체험배송일 -->
-        <kw-form-item :label="$t('MSG_TXT_EXPN_SPP_D')">
-          <kw-input
-            v-model="frmMainData.lcexpd"
-            placeholder=""
-            readonly
-          />
-        </kw-form-item>
       </kw-form-row>
     </kw-form>
     <kw-separator />
@@ -1126,8 +1109,8 @@ const frmMainData = ref({
   fnlVal: '', // 단가
   ctrVal: '', // 할인
   pdTpCm: '', // 제품선택유형
-  recapDutyPtrmN: '', // 의무기간
-  stplPtrm: '', // 계약기간
+  stplPtrm: '', // 의무기간
+  cntrPtrm: '', // 계약기간
   mmBilAmt: '', // 월청구액
   fnlAmt: '', // 판매가격
   sellAmt: '', // 공급가액
@@ -1136,8 +1119,8 @@ const frmMainData = ref({
   pdBaseAmt: '', // 제품정상가격
   ackmtPerfRt: '', // 인정실적율(%)
   ackmtPerfAmt: '', // 인정실적액
-  pmotFvrMcn: '', // 할인개월
-  pmotFvrAmt: '', // 할인금액
+  dscMcn: '', // 할인개월
+  ctrAmt: '', // 할인금액
   cntrtRelNm: '', // 계약자 기준배송처 관계
   svTpNm: '', // 용도구분
   spcYn: '', // 스폐셜 구분
@@ -1281,8 +1264,8 @@ async function fetchData() {
     frmMainData.value.fnlVal = pages[0].fnlVal; // 단가
     frmMainData.value.ctrVal = pages[0].ctrVal; // 할인
     frmMainData.value.pdTpCm = pages[0].pdTpCm; // 제품선택유형
-    frmMainData.value.recapDutyPtrmN = pages[0].recapDutyPtrmN; // 의무기간
-    frmMainData.value.stplPtrm = pages[0].stplPtrm; // 계약기간
+    frmMainData.value.stplPtrm = pages[0].stplPtrm; // 의무기간
+    frmMainData.value.cntrPtrm = pages[0].cntrPtrm; // 계약기간
     frmMainData.value.mmBilAmt = stringUtil.getNumberWithComma(Number(pages[0].mmBilAmt), 0); // 월청구액
     frmMainData.value.fnlAmt = stringUtil.getNumberWithComma(Number(pages[0].fnlAmt), 0); // 판매가격
     frmMainData.value.sellAmt = stringUtil.getNumberWithComma(Number(pages[0].sellAmt), 0); // 공급가액
@@ -1291,8 +1274,8 @@ async function fetchData() {
     frmMainData.value.pdBaseAmt = stringUtil.getNumberWithComma(Number(pages[0].pdBaseAmt), 0); // 제품정상가격
     frmMainData.value.ackmtPerfRt = pages[0].ackmtPerfRt; // 인정실적율(%)
     frmMainData.value.ackmtPerfAmt = stringUtil.getNumberWithComma(Number(pages[0].ackmtPerfAmt), 0); // 인정실적액
-    frmMainData.value.pmotFvrMcn = pages[0].pmotFvrMcn; // 할인개월
-    frmMainData.value.pmotFvrAmt = stringUtil.getNumberWithComma(Number(pages[0].pmotFvrAmt), 0); // 할인금액
+    frmMainData.value.dscMcn = pages[0].dscMcn; // 할인개월
+    frmMainData.value.ctrAmt = stringUtil.getNumberWithComma(Number(pages[0].ctrAmt), 0); // 할인금액
     frmMainData.value.cntrtRelNm = pages[0].cntrtRelNm; // 계약자 기준배송처 관계
     frmMainData.value.svTpNm = pages[0].svTpNm; // 용도구분
     frmMainData.value.spcYn = pages[0].spcYn; // 스폐셜 구분

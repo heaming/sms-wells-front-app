@@ -257,7 +257,6 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'sellDscDvNm' }, // 할인구분명
     { fieldName: 'sellDscTpCd' }, // 할인유형
     { fieldName: 'sellDscTpNm' }, // 할인유형명
-    { fieldName: 'dscPmotCd' }, // 할인제도
     { fieldName: 'mchnChTpCd' }, // 기변유형
     { fieldName: 'ojCntrDtlNo' }, // 기변상대코드
     { fieldName: 'ojBasePdCd' }, // 기변이전상품
@@ -349,7 +348,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'dgr3LevlDgPrtnrNo', header: t('MSG_TXT_BRMGR_EPNO'), width: '138', styleName: 'text-center' }, // 파트너정보-지점장 사번
     { fieldName: 'dgr3LevlDgPrtnrNmEncr', header: t('MSG_TXT_BRMGR_FNM'), width: '138', styleName: 'text-center' }, // 파트너정보-지점장명
     { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRCH_CD'), width: '138', styleName: 'text-center' }, // 파트너정보-지점코드
-    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_EPNO'), width: '138', styleName: 'text-center' }, // 파트너정보-파트너사번
+    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_PRTNR_EMP_NO'), width: '138', styleName: 'text-center' }, // 파트너정보-파트너사번
     { fieldName: 'prtnrKnmEncr', header: t('MSG_TXT_PTNR_NAME'), width: '138', styleName: 'text-center' }, // 파트너정보-파트너명
     {
       fieldName: 'sellPrtnrCralTno',
@@ -416,7 +415,6 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_PD_FEE_FIX'), width: '136', styleName: 'text-center' }, // 수수료정액여부
     { fieldName: 'sellDscDvNm', header: t('MSG_TXT_PD_DC_CLASS'), width: '136', styleName: 'text-right' }, // 할인구분명
     { fieldName: 'sellDscTpNm', header: t('MSG_TXT_DISC_CODE'), width: '136', styleName: 'text-right' }, // 할인유형명
-    { fieldName: 'dscPmotCd', header: t('MSG_TXT_DSC_SYST'), width: '136', styleName: 'text-center' }, // 할인제도
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '136', styleName: 'text-right' }, // 기변유형
     { fieldName: 'ojCntrDtlNo', header: t('MSG_TXT_CHNG_PTY_CD'), width: '136', styleName: 'text-center' }, // 기변상대코드
     { fieldName: 'ojBasePdCd', header: t('MSG_TXT_CHNG_PREV_PRDT'), width: '136', styleName: 'text-center' }, // 기변이전상품
@@ -493,7 +491,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
     { fieldName: 'mshCntrRcpFshDt', header: t('MSG_TXT_RCP_D'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 멤버십 정보접수일
     { fieldName: 'mshCntrTempSaveDt', header: t('MSG_TXT_SUBS_DT'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 멤버십 정보가입일
     { fieldName: 'mshReqdDt', header: t('MSG_TXT_CAN_D'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 멤버십 정보취소일
-    { fieldName: 'mshCntrPdEnddt', header: t('MSG_TXT_PRDT_NM'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 멤버십 정보탈퇴일
+    { fieldName: 'mshCntrPdEnddt', header: t('MSG_TXT_WTDR_DT'), width: '138', styleName: 'text-center', datetimeFormat: 'date' }, // 멤버십 정보탈퇴일
     { fieldName: 'ocoCpsBzsDvNm', header: t('MSG_TXT_OCO_COMP_CMPNY'), width: '136', styleName: 'text-center' }, // 타사보상업체
     { fieldName: 'svAmt', header: t('MSG_TXT_PD_SVC_FEE'), width: '136', styleName: 'text-right' }, // 서비스료
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '136', styleName: 'text-right' }, // 렌탈차월
@@ -542,7 +540,7 @@ const initGridRentalContractorNoList = defineGrid((data, view) => {
       direction: 'horizontal', // merge type
       items: ['pdClsfNm', 'basePdCd', 'pdNm', 'pdTpNm', 'svPrd', 'svTpCd', 'svTpNm'],
     },
-    'cntrRcpFshDt', 'sppDuedt', 'istDt', 'slDt', 'cntrPtrm', 'cntrPdEnddt', 'canDt', 'reqdDt', 'exnReqdDt', 'recapDutyPtrmN', 'cntrAmt', 'cntrCtrAmt', 'rentalAmt1', 'rentalDscAmt1', 'rentalAmt2', 'rentalDscAmt2', 'rentalDscDfam', 'booSellYn', 'mchnChYn', 'mchnCpsApyr', 'ackmtPerfAmt', 'ackmtPerfRt', 'ackmtPerfCt', 'feeAckmtBaseAmt', 'feeFxamYn', 'sellDscDvNm', 'sellDscTpNm', 'dscPmotCd', 'mchnChTpCd', 'ojCntrDtlNo', 'ojBasePdCd', 'ojPdNm', 'bogoCd', 'bogoPdCd', 'bogoPdNm',
+    'cntrRcpFshDt', 'sppDuedt', 'istDt', 'slDt', 'cntrPtrm', 'cntrPdEnddt', 'canDt', 'reqdDt', 'exnReqdDt', 'recapDutyPtrmN', 'cntrAmt', 'cntrCtrAmt', 'rentalAmt1', 'rentalDscAmt1', 'rentalAmt2', 'rentalDscAmt2', 'rentalDscDfam', 'booSellYn', 'mchnChYn', 'mchnCpsApyr', 'ackmtPerfAmt', 'ackmtPerfRt', 'ackmtPerfCt', 'feeAckmtBaseAmt', 'feeFxamYn', 'sellDscDvNm', 'sellDscTpNm', 'mchnChTpCd', 'ojCntrDtlNo', 'ojBasePdCd', 'ojPdNm', 'bogoCd', 'bogoPdCd', 'bogoPdNm',
     {
       header: `${t('MSG_TXT_AC')}${t('MSG_TXT_INF')}`, // 계좌정보
       direction: 'horizontal', // merge type
