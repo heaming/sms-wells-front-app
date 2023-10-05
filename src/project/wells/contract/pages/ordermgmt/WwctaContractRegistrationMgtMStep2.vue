@@ -460,7 +460,7 @@ async function confirmProducts() {
     return;
   }
 
-  const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value.dtls);
+  const res = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, step2.value.dtls);
   res.data.forEach((newDtl, index) => {
     step2.value.dtls[index].promotions = newDtl.promotions;
   });
