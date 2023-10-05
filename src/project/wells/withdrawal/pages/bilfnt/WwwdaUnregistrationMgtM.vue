@@ -37,7 +37,6 @@
           <kw-search-row>
             <kw-search-item
               :label="t('MSG_TXT_RCPDT')"
-              required
             >
               <kw-date-range-picker
                 v-model:from="searchParams.cntrPdStrtdt"
@@ -45,7 +44,6 @@
                 :from-placeholder="t('MSG_TXT_STRT_D_CHO')"
                 :to-placeholder="t('MSG_TXT_END_D_CHO')"
                 :label="t('MSG_TXT_VALID_PERIOD')"
-                rules="date_range_months:1"
               />
             </kw-search-item>
             <!-- 계약상세번호 -->
@@ -126,8 +124,8 @@
               required
             >
               <kw-date-range-picker
-                v-model:from="searchParams.cntrPdStrtdt"
-                v-model:to="searchParams.cntrPdEnddt"
+                v-model:from="searchParams.cntrPdStrtdtA"
+                v-model:to="searchParams.cntrPdEnddtA"
                 :from-placeholder="t('MSG_TXT_STRT_D_CHO')"
                 :to-placeholder="t('MSG_TXT_END_D_CHO')"
                 :label="t('MSG_TXT_VALID_PERIOD')"
@@ -200,12 +198,13 @@ import { useDataService, defineGrid, codeUtil, getComponentType, useGlobal, grid
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 // eslint-disable-next-line no-unused-vars
 import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 
 // eslint-disable-next-line no-unused-vars
 const { alert } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
-
+const now = dayjs();
 const { getConfig } = useMeta();
 
 const { getters } = useStore();
@@ -234,6 +233,8 @@ const searchParams = ref({
   cntrSnA: '', // 계약 일련번호
   cntrPdStrtdt: '', // 접수일자 시작일
   cntrPdEnddt: '', // 접수일자 종료일
+  cntrPdStrtdtA: now.format('YYYYMMDD'),
+  cntrPdEnddtA: now.format('YYYYMMDD'),
 });
 
 const pageInfo = ref({
