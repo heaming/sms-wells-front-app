@@ -67,14 +67,14 @@
               :label="$t('MSG_TXT_TASK_DIV')"
             >
               <p>
-                {{ singlePaymentDetail.sellTpCdNm }}
+                {{ singlePaymentDetail.sellTpNm }}
               </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
             >
               <p>
-                {{ singlePaymentDetail.cntrDtlNo }}
+                {{ singlePaymentDetail.cntrNo }}-{{ singlePaymentDetail.cntrSn }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -275,12 +275,12 @@
             <kw-form-item
               :label="$t('MSG_TXT_TASK_DIV')"
             >
-              <p>{{ singlePaymentDetail.sellTpCdNm }}</p>
+              <p>{{ singlePaymentDetail.sellTpNm }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
             >
-              <p>{{ singlePaymentDetail.cntrDtlNo }}</p>
+              <p>{{ singlePaymentDetail.cntrNo }}-{{ singlePaymentDetail.cntrSn }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CST_NM')"
@@ -412,12 +412,12 @@
             <kw-form-item
               :label="$t('MSG_TXT_TASK_DIV')"
             >
-              <p>{{ singlePaymentDetail.sellTpCdNm }}</p>
+              <p>{{ singlePaymentDetail.sellTpNm }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
             >
-              <p>{{ singlePaymentDetail.cntrDtlNo }}</p>
+              <p>{{ singlePaymentDetail.cntrNo }}-{{ singlePaymentDetail.cntrSn }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CST_NM')"
@@ -631,9 +631,6 @@ async function fetchDetailData(slClYm, sellTpCd) {
   cachedParams.slClYm = slClYm;
   cachedParams.cntrDtlNo = `${cachedParams.cntrNo}${cachedParams.cntrSn}`;
   let res = null;
-  isShowRental.value = false;
-  isShowMembership.value = false;
-  isShowRegular.value = false;
   if (sellTpCd === '2') {
     res = await dataService.get('/sms/wells/closing/rental-sales-detail', { params: cachedParams });
     isShowRental.value = true;
@@ -659,6 +656,10 @@ async function fetchDetailData(slClYm, sellTpCd) {
 }
 
 async function fetchData() {
+  isShowRental.value = false;
+  isShowMembership.value = false;
+  isShowRegular.value = false;
+
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/closing/sales-performs/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: singlePayments, pageInfo: pagingResult } = res.data;
@@ -747,7 +748,6 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
       header: t('MSG_TXT_SL_YM'),
       width: '100',
       styleName: 'text-center, rg-button-link',
-      dataType: 'date',
       datetimeFormat: 'yyyy-MM',
       renderer: { type: 'button', hideWhenEmpty: false },
     },
