@@ -61,9 +61,19 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_MPNO')"
                 >
-                  <p class="w100">
-                    {{ customer.cntrCralLocaraTno }}-{{ customer.cntrMexnoEncr }}-{{ customer.cntrCralIdvTno }}
-                  </p>
+                  <template v-if="customer.tnoCnt1 === '0'">
+                    <p class="w100">
+                      {{ customer.cntrCralLocaraTno }}-{{ customer.cntrMexnoEncr }}-{{ customer.cntrCralIdvTno }}
+                    </p>
+                  </template>
+                  <template v-if="customer.tnoCnt1 === '1'">
+                    <p
+                      class="w100"
+                      style="color: red;"
+                    >
+                      {{ customer.cntrCralLocaraTno }}-{{ customer.cntrMexnoEncr }}-{{ customer.cntrCralIdvTno }}
+                    </p>
+                  </template>
                   <kw-btn
                     borderless
                     dense
@@ -78,28 +88,15 @@
                     class="ml8"
                     @click="onClickMessageSend"
                   />
-                  <template v-if="customer.tnoCnt1 === '0'">
-                    <kw-btn
-                      v-permission:create
-                      :label="$t('MSG_BTN_TEL_REJ')"
-                      dense
-                      secondary
-                      class="kw-font-caption py2 ml4"
-                      style="min-height: 20px;"
-                      @click="onClickTelephoneRej"
-                    />
-                  </template>
-                  <template v-if="customer.tnoCnt1 === '1'">
-                    <kw-btn
-                      v-permission:create
-                      :label="$t('MSG_BTN_TEL_REJ')"
-                      dense
-                      secondary
-                      class="kw-font-caption py2 ml4"
-                      style="min-height: 20px; background: red;"
-                      @click="onClickTelephoneRej"
-                    />
-                  </template>
+                  <kw-btn
+                    v-permission:create
+                    :label="$t('MSG_BTN_TEL_REJ')"
+                    dense
+                    secondary
+                    class="kw-font-caption py2 ml4"
+                    style="min-height: 20px;"
+                    @click="onClickTelephoneRej"
+                  />
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_CST_NO')"
@@ -175,44 +172,51 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_TEL_NO')"
                 >
-                  <p class="w100">
-                    {{ customer.istLocaraTno }}-{{ customer.istExnoEncr }}-{{ customer.istIdvTno }}
-                  </p>
+                  <template v-if="customer.tnoCnt2 === '0'">
+                    <p class="w100">
+                      {{ customer.istLocaraTno }}-{{ customer.istExnoEncr }}-{{ customer.istIdvTno }}
+                    </p>
+                  </template>
+                  <template v-if="customer.tnoCnt2 === '1'">
+                    <p
+                      class="w100"
+                      style="color: red;"
+                    >
+                      {{ customer.istLocaraTno }}-{{ customer.istExnoEncr }}-{{ customer.istIdvTno }}
+                    </p>
+                  </template>
                   <kw-btn
                     borderless
                     dense
                     icon="cellphone"
                     class="ml12"
                   />
-                  <template v-if="customer.tnoCnt2 === '0'">
-                    <kw-btn
-                      v-permission:create
-                      :label="$t('MSG_BTN_TEL_REJ')"
-                      dense
-                      secondary
-                      class="kw-font-caption py2 ml4"
-                      style="min-height: 20px;"
-                      @click="onClickTelephoneRej"
-                    />
-                  </template>
-                  <template v-if="customer.tnoCnt2 === '1'">
-                    <kw-btn
-                      v-permission:create
-                      :label="$t('MSG_BTN_TEL_REJ')"
-                      dense
-                      secondary
-                      class="kw-font-caption py2 ml4"
-                      style="min-height: 20px; background: red;"
-                      @click="onClickTelephoneRej"
-                    />
-                  </template>
+                  <kw-btn
+                    v-permission:create
+                    :label="$t('MSG_BTN_TEL_REJ')"
+                    dense
+                    secondary
+                    class="kw-font-caption py2 ml4"
+                    style="min-height: 20px;"
+                    @click="onClickTelephoneRej"
+                  />
                 </kw-form-item>
                 <kw-form-item
                   :label="$t('MSG_TXT_MPNO')"
                 >
-                  <p class="w100">
-                    {{ customer.istCralLocaraTno }}-{{ customer.istMexnoEncr }}-{{ customer.istCralIdvTno }}
-                  </p>
+                  <template v-if="customer.tnoCnt3 === '0'">
+                    <p class="w100">
+                      {{ customer.istCralLocaraTno }}-{{ customer.istMexnoEncr }}-{{ customer.istCralIdvTno }}
+                    </p>
+                  </template>
+                  <template v-if="customer.tnoCnt3 === '1'">
+                    <p
+                      class="w100"
+                      style="color: red;"
+                    >
+                      {{ customer.istCralLocaraTno }}-{{ customer.istMexnoEncr }}-{{ customer.istCralIdvTno }}
+                    </p>
+                  </template>
                   <kw-btn
                     borderless
                     dense
@@ -228,28 +232,15 @@
                     style="font-size: 16px;"
                     @click="onClickMessageSend"
                   />
-                  <template v-if="customer.tnoCnt3 === '0'">
-                    <kw-btn
-                      v-permission:create
-                      :label="$t('MSG_BTN_TEL_REJ')"
-                      dense
-                      secondary
-                      class="kw-font-caption py2 ml4"
-                      style="min-height: 20px;"
-                      @click="onClickTelephoneRej"
-                    />
-                  </template>
-                  <template v-if="customer.tnoCnt3 === '1'">
-                    <kw-btn
-                      v-permission:create
-                      :label="$t('MSG_BTN_TEL_REJ')"
-                      dense
-                      secondary
-                      class="kw-font-caption py2 ml4"
-                      style="min-height: 20px; background: red;"
-                      @click="onClickTelephoneRej"
-                    />
-                  </template>
+                  <kw-btn
+                    v-permission:create
+                    :label="$t('MSG_BTN_TEL_REJ')"
+                    dense
+                    secondary
+                    class="kw-font-caption py2 ml4"
+                    style="min-height: 20px;"
+                    @click="onClickTelephoneRej"
+                  />
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
@@ -1145,7 +1136,6 @@ const isFlag = ref();
 const isFlag2 = ref('N');
 
 popupUtil.registerCloseEvent();
-popupUtil.registerWindowKeyEvent();
 
 watch(selectedGridRow, (newValue) => {
   if (!newValue) {
