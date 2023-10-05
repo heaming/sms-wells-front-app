@@ -17,7 +17,6 @@
   <kw-page>
     <kw-search
       :cols="4"
-      :default-visible-rows="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -26,6 +25,16 @@
             v-model="searchParams.findGb"
             :options="customCodes.findGb"
             @change="onChangeCompStatus"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-show="!isCompStatus"
+          :label="$t('MSG_TXT_FIRST_SPP_YN')"
+        >
+          <kw-option-group
+            v-model="searchParams.firstSppGb"
+            type="radio"
+            :options="customCodes.firstSppGb"
           />
         </kw-search-item>
         <kw-search-item
@@ -42,44 +51,12 @@
         </kw-search-item>
         <kw-search-item
           v-if="isCompStatus"
-          :colspan="1"
           :label="$t('MSG_TXT_WK_DT')"
         >
           <kw-date-picker
             v-model="searchParams.vstFshDt"
             :label="$t('MSG_TXT_WK_DT')"
             rules="required"
-          />
-        </kw-search-item>
-        <kw-search-item
-          v-show="!isCompStatus"
-          :label="$t('MSG_TXT_SEL_LIMIT_CNT')"
-        >
-          <kw-input
-            v-model="searchParams.selCnt"
-            :maxlength="3"
-            rules="numeric"
-            :label="$t('MSG_TXT_SEL_LIMIT_CNT')"
-            clearable
-          />
-        </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
-        <kw-search-item
-          :label="$t('MSG_TXT_FIRST_SPP_YN')"
-        >
-          <kw-option-group
-            v-model="searchParams.firstSppGb"
-            type="radio"
-            :options="customCodes.firstSppGb"
-          />
-        </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_PRTNR_BZS')">
-          <kw-select
-            v-model="searchParams.prtnrBzsCd"
-            :options="codes.PRTNR_BZS_CD"
-            :label="$t('MSG_TXT_PRTNR_BZS_CD')"
-            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -117,6 +94,28 @@
           <kw-input
             v-model="searchParams.serialNo"
             :label="$t('MSG_TXT_SERIAL_NO')"
+            clearable
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item :label="$t('MSG_TXT_PRTNR_BZS')">
+          <kw-select
+            v-model="searchParams.prtnrBzsCd"
+            :options="codes.PRTNR_BZS_CD"
+            :label="$t('MSG_TXT_PRTNR_BZS_CD')"
+            first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item
+          v-show="!isCompStatus"
+          :label="$t('MSG_TXT_SEL_LIMIT_CNT')"
+        >
+          <kw-input
+            v-model="searchParams.selCnt"
+            :maxlength="3"
+            rules="numeric"
+            :label="$t('MSG_TXT_SEL_LIMIT_CNT')"
             clearable
           />
         </kw-search-item>
