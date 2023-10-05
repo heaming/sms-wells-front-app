@@ -346,7 +346,7 @@ const initGridMembershipContractorList = defineGrid((data, view) => {
     { fieldName: 'fstRgstTm', header: t('MSG_TXT_RGST_HH'), width: '136', styleName: 'text-center', datetimeFormat: 'hh:mm:ss' }, // 등록시간
     { fieldName: 'fstRgstUsrId', header: `${t('MSG_TXT_BIZ_ICHR')}${t('MSG_TXT_EPNO')}`, width: '136', styleName: 'text-center' }, // 업무담당사번
     { fieldName: 'fstRgstPrgId', header: t('MSG_TXT_FST_RGST_PRG'), width: '136', styleName: 'text-center' }, // 등록프로그램
-    { fieldName: 'fnlMdfcDt', header: t('MSG_TXT_CH_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 변경일
+    { fieldName: 'fnlMdfcDt', header: t('MSG_TXT_CH_DT2'), width: '136', styleName: 'text-center', datetimeFormat: 'date' }, // 변경일
     { fieldName: 'fnlMdfcTm', header: t('MSG_TXT_CHG_HH'), width: '136', styleName: 'text-center', datetimeFormat: 'hh:mm:ss' }, // 변경시간
     { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFR_EPNO'), width: '136', styleName: 'text-center' }, // 변경자사번
     { fieldName: 'fnlMdfcPrgId', header: t('MSG_TXT_FST_RGST_PRG'), width: '136', styleName: 'text-center' }, // 변경프로그램

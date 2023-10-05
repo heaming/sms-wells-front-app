@@ -697,8 +697,8 @@
             readonly
           />
         </kw-form-item>
-        <!-- 2년정상차액 -->
-        <kw-form-item :label="$t('MSG_TXT_2_YR_NOM_DIFF')">
+        <!-- 정상차액 -->
+        <kw-form-item :label="$t('MSG_TXT_NOM_DIFF')">
           <kw-input
             v-model="frmMainData.rentalDscDfam"
             align="right"
@@ -829,7 +829,7 @@
     <kw-form :cols="4">
       <kw-form-row>
         <!-- 연계주문번호 -->
-        <kw-form-item :label="$t('MSG_TXT_CONN')+$t('MSG_TXT_CNTR_NO')">
+        <kw-form-item :label="$t('MSG_TXT_CONN')+$t('MSG_TXT_ORD_NO')">
           <kw-input
             v-model="frmMainData.alncmpCntrDrmVal"
             placeholder=""
@@ -1023,7 +1023,7 @@
           />
         </kw-form-item>
         <!-- 예금/카드주 명 -->
-        <kw-form-item :label="$t('MSG_TXT_DPO_CDONR')">
+        <kw-form-item :label="$t('MSG_TXT_ACHLDR_CDONR_NM')">
           <kw-input
             v-model="frmMainData.aftnOwrKnm"
             placeholder=""
@@ -1269,7 +1269,7 @@
       <kw-form-row>
         <!-- 참고사항 -->
         <kw-form-item
-          :label="$t('MSG_TXT_PD_FEE_FIX')"
+          :label="$t('MSG_TXT_REFER_ARTC')"
           :colspan="2"
         >
           <kw-input
