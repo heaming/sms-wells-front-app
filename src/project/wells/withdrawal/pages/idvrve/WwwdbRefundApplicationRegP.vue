@@ -1455,7 +1455,7 @@ const initGrid3 = defineGrid((data, view) => {
       header: t('MSG_TXT_BLTF_AK_AMT'),
       // 전금요청금액
       width: '110',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editor: {
         type: 'number',
       },
