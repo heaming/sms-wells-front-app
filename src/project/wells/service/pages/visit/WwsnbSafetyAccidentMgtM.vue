@@ -421,7 +421,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'istReferAdr' },
     { fieldName: 'istDt' }, // 설치일시
     { fieldName: 'acdnDtm' }, // 사고일시
-    { fieldName: 'fstRgstUsrId' }, // 등록자
+    { fieldName: 'cnrldNm' }, // 등록자
     { fieldName: 'fstRgstDtm' },
     { fieldName: 'rcpMoCn' }, // 접수내용
     { fieldName: 'acdnCausCn' }, // 사고원인
@@ -532,7 +532,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     {
-      fieldName: 'fstRgstUsrId',
+      fieldName: 'cnrldNm',
       header: t('MSG_TXT_FST_RGST_USR'),
       width: '100',
       styleName: 'text-center',
@@ -628,7 +628,7 @@ const initGrdMain = defineGrid((data, view) => {
     'istDtlAdr',
     'istDt',
     'svCnrNm',
-    'fstRgstUsrId',
+    'cnrldNm',
     'fstRgstDtm',
     'fnlMdfcDtm',
     'rcpMoCn',
