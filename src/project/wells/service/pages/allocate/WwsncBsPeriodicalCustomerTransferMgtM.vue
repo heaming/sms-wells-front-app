@@ -281,12 +281,13 @@ import { RowState } from 'realgrid';
 const now = dayjs();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const { notify, modal, alert } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const { getters } = useStore();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
+const router = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -869,10 +870,12 @@ function initGrdMain(data, view) {
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'cntr') {
-      const cntrNo = g.getValue(itemIndex, 'cntrNo');
-      console.log(cntrNo);
-      console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
-      alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      // const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      // console.log(cntrNo);
+      // console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      // alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      const param = { cntrNo: g.getValue(itemIndex, 'cntrNo'), cntrSn: g.getValue(itemIndex, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
     }
   };
 }
