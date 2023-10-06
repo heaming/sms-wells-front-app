@@ -188,6 +188,7 @@ const codes = await codeUtil.getMultiCodes(
   'BFSVC_PRD_CD',
   'SPP_DV_CD',
   'SV_PD_TP_CD',
+  'USWY_TP_CD',
 );
 let cachedParams;
 const searchParams = ref({
@@ -389,8 +390,8 @@ const initGridDetail = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         let retValue = value;
-        if (codes.SV_PD_TP_CD.map((v) => v.codeId).includes(value)) {
-          retValue = codes.SV_PD_TP_CD.find((v) => v.codeId === value)?.codeName;
+        if (codes.USWY_TP_CD.map((v) => v.codeId).includes(value)) {
+          retValue = codes.USWY_TP_CD.find((v) => v.codeId === value)?.codeName;
         }
         return retValue;
       },
