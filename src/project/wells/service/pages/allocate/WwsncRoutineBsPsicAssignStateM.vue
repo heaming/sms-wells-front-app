@@ -57,7 +57,6 @@
           <kw-date-range-picker
             v-model:from="searchParams.startDt"
             v-model:to="searchParams.endDt"
-            rules="date_range_months:1"
           />
         </kw-search-item>
       </kw-search-row>
@@ -145,6 +144,7 @@
             dgr2-levl-og-label="ogCdNm"
             dgr3-levl-og-label="ogCdNm"
             partner-label="prtnrNoNm"
+            dgr1-levl-og-readonly
             auth-yn="N"
           />
         </template>
@@ -337,13 +337,13 @@ async function fetchData() {
 
   if (searchParams.value.mngrDvCd === '1') {
     view.columnByName('spcAsTpCd').visible = false; // 특별AS유형
-    view.columnByName('expPart').visible = false; // 예정부품
+    // view.columnByName('expPart').visible = false; // 예정부품
     view.columnByName('pstnDvCd').visible = false; // 직급구분
     view.columnByName('siteAwAtcNm').visible = false; // 현장수당항목
     view.columnByName('awAmt').visible = false; // 현장수당
   } else {
     view.columnByName('spcAsTpCd').visible = true; // 특별AS유형
-    view.columnByName('expPart').visible = true; // 예정부품
+    // view.columnByName('expPart').visible = true; // 예정부품
     view.columnByName('pstnDvCd').visible = true; // 직급구분
     view.columnByName('siteAwAtcNm').visible = true; // 현장수당항목
     view.columnByName('awAmt').visible = true; // 현장수당
@@ -366,10 +366,6 @@ async function onClickExcelDownload() {
     exportData: response,
   });
 }
-async function onClickPrint() {
-  // TODO : 출력 기능 연결
-  notify(t('TODO : 출력기능'));
-}
 
 // 예정부품 팝업 호출
 async function onClickExpPartPs() {
@@ -378,7 +374,6 @@ async function onClickExpPartPs() {
 }
 
 async function onClickOZ() {
-  notify(t('TODO : OZ리포트 개발 중'));
   const ozWkDvCdList = searchParams.value.wkDvCds;
   if (ozWkDvCdList.length !== 0) {
     ozWkDvCdList.forEach((row) => {
@@ -564,18 +559,19 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' }, // 상품명
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'mngerRglvlDvNm', header: t('MSG_TXT_RGLVL'), width: '60', styleName: 'text-center', options: codes.MNGER_RGLVL_DV_CD }, // 급지
-    {
-      fieldName: 'expPart',
-      header: t('MSG_TXT_EXP_PART'),
-      width: '80',
-      styleName: 'text-center',
-      renderer: { type: 'button', hideWhenEmpty: false },
-      displayCallback: () => t('MSG_BTN_EXP_PART'),
-    }, // 예정부품
+    { fieldName: 'expPart', header: t('MSG_TXT_EXP_PART'), width: '80', styleName: 'text-center', options: codes.SV_BIZ_DCLSF_CD, visible: false }, // 예정부품
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '80', styleName: 'text-center' }, // 우편번호
     { fieldName: 'rndadr', header: t('MSG_TXT_ADDR'), width: '450', styleName: 'text-left' }, // 주소
     { fieldName: 'dgr2LevlOgId', header: t('MSG_TXT_RGNL_GRP'), width: '180', styleName: 'text-center' }, // 지역단-엔지니어만 존재
-    { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_WK_CNTN'), width: '200', styleName: 'text-center', options: codes.SV_BIZ_DCLSF_CD }, // 작업내용
+    {
+      fieldName: 'svBizDclsfNm',
+      header: t('MSG_TXT_WK_CNTN'),
+      width: '200',
+      styleName: 'text-center',
+      options: codes.SV_BIZ_DCLSF_CD,
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback: () => t('MSG_TXT_WK_CNTN'),
+    }, // 작업내용
     { fieldName: 'bfVstDuedt', header: t('MSG_TXT_BF_UPCMG_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 이전방문예정일자
     { fieldName: 'vstDuedt', header: t('MSG_TXT_UPCMG_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 방문예정일자
     { fieldName: 'vstCnfmdt', header: t('MSG_TXT_PROM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 약속일자
@@ -631,8 +627,8 @@ const initGrdMain = defineGrid((data, view) => {
           cntrSn,
         },
       });
-      // TO_DO 예정부품현황 팝업
-    } else if (clickData.column === 'expPart') {
+      // TO_DO 작업내용(svBizDclsfNm) 클릭 시, 투입부품 현황 팝업
+    } else if (clickData.column === 'svBizDclsfNm') {
       const cstSignCn = grid.getValue(clickData.itemIndex, 'expPart');
       await modal({
         component: 'WwsnzSignPreviewP',
