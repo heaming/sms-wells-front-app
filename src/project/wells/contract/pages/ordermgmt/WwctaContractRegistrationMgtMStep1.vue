@@ -538,7 +538,6 @@ function setupSearchParams(newParams) {
   searchParams.value.cntrTpCd = newParams?.cntrTpCd || codes.CNTR_TP_CD[0]?.codeId;
   searchParams.value.copnDvCd = newParams?.copnDvCd || '1';
   searchParams.value.cstKnm = newParams?.cstKnm || '';
-  searchParams.value.copnDvCd = newParams.copnDvCd || '';
   searchParams.value.bzrno = newParams.bzrno || '';
   searchParams.value.cntrtTno = newParams.cntrtTno || '';
   searchParams.value.cralLocaraTno = newParams.cralLocaraTno || '';
@@ -686,8 +685,7 @@ async function checkExistContractor() {
     if (await confirm(t('MSG_ALT_NO_CST_REG'))) {
       if (copnDvCd === '1') {
         await modal({ component: 'ZwcsaIndvCustomerRegUrlTrsMgtP' });
-      }
-      if (copnDvCd === '2') {
+      } else if (copnDvCd === '2') {
         // 법인: 법인고객 등록 화면으로 이동
         await router.push({
           path: '/contract/wwcta-contract-registration-mgt/zwcsa-corporate-customer-reg',
@@ -957,11 +955,11 @@ async function isValidStep() {
     return false;
   }
 
-  if (!step1.value.cntrt.cikVal && step1.value.bas.copnDvCd === '1') {
+  if (!step1.value.cntrt.cikVal && step1.value.cntrt.copnDvCd === '1') {
     await alert('본인인증 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
     return false;
   }
-  if (!step1.value.cntrt.itgCstNo && step1.value.bas.copnDvCd === '1') {
+  if (!step1.value.cntrt.itgCstNo && step1.value.cntrt.copnDvCd === '1') {
     await alert('통합고객 약관동의 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
     return false;
   }
