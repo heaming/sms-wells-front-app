@@ -50,6 +50,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
+            v-model:page-size="visibleRows"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="onClickChangePage"
