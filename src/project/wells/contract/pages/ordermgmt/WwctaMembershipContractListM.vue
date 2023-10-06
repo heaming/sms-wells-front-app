@@ -547,7 +547,7 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'ackmtPerfAmt' }, // 인정금액
     { fieldName: 'cntrCtrAmt' }, // 할인금액
     { fieldName: 'stlmTpNm' }, // 납입구분
-    { fieldName: 'prmPtrmMcn' }, // 선납구분
+    { fieldName: 'prmPtrmMcn' }, // 선납구분(선납기간개월수)
     { fieldName: 'adjDvNm' }, // 정상구분
     { fieldName: 'sellEvNm' }, // 약정구분
     { fieldName: 'frisuMshCrtYn' }, // 무상M자동생성
@@ -638,8 +638,8 @@ const initGridMembershipContractList = defineGrid((data, view) => {
     { fieldName: 'feeAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '138', styleName: 'text-right' }, // 인정건수
     { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_RECOG_AMT'), width: '138', styleName: 'text-right' }, // 인정금액
     { fieldName: 'cntrCtrAmt', header: t('MSG_TXT_DSC_AMT'), width: '138', styleName: 'text-right' }, // 할인금액
-    { fieldName: 'stlmTpNm', header: t('MSG_TXT_PY_DV'), width: '138' }, // 납입구분
-    { fieldName: 'prmPtrmMcn', header: t('MSG_TXT_PRM_DV'), width: '138' }, // 선납구분
+    { fieldName: 'stlmTpNm', header: t('MSG_TXT_PY_DV'), width: '138', styleName: 'text-center' }, // 납입구분
+    { fieldName: 'prmPtrmMcn', header: t('MSG_TXT_PRM_DV'), width: '138', styleName: 'text-right' }, // 선납구분(선납기간개월수)
     { fieldName: 'adjDvNm', header: t('MSG_TXT_NOM_DV'), width: '138', styleName: 'text-center' }, // 정상구분
     { fieldName: 'sellEvNm', header: t('MSG_TXT_STL_DV'), width: '138', styleName: 'text-center' }, // 약정구분
     { fieldName: 'frisuMshCrtYn', header: t('MSG_TXT_FRISU_M_AUTO_CRT'), width: '138', styleName: 'text-center' }, // 무상M자동생성
