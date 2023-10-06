@@ -50,17 +50,13 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
         </template>
         <kw-btn
           v-permission:download
           icon="download_on"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
@@ -70,16 +66,8 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -89,13 +77,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, gridUtil, defineGrid, getComponentType, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const now = dayjs();
 const { t } = useI18n();
-const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
@@ -105,28 +92,20 @@ let cachedParams;
 const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes('SELL_TP_DTL_CD', 'COD_PAGE_SIZE_OPTIONS');
 const rental = codes.SELL_TP_DTL_CD.filter((p1) => ['22', '24', '25', '26'].includes(p1.codeId));
+const totalCount = ref(0);
 
 const searchParams = ref({
   sellTpDtlCd: '22',
   perfYm: now.format('YYYYMM'),
 });
 
-/*
- *  Page Info setting
- */
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/cancel-bor-control/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/closing/cancel-bor-control', { params: cachedParams });
   console.log(res.data);
-  const { list: state, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  const mainList = res.data;
+  totalCount.value = mainList.length;
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(state);
+  view.getDataSource().setRows(mainList);
 }
 
 /*
@@ -174,11 +153,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.setHeaderSummaries({
     visible: true,
-    items: [
-      {
-        height: 40,
-      },
-    ],
+    items: [{ height: 42 }],
   });
 
   view.columnByName('perfYm').setHeaderSummaries({ text: t('MSG_TXT_SUM'), styleName: 'text-center' });
