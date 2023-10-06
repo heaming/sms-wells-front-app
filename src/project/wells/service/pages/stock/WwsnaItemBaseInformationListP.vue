@@ -124,11 +124,7 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          v-model:page-index="pageInfo.pageIndex"
-          v-model:page-size="pageInfo.pageSize"
-          :total-count="pageInfo.totalCount"
-          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-          @change="fetchData"
+          :total-count="totalCount"
         />
         <span class="ml8">{{ t('MSG_TXT_UNIT_EA') }}</span>
       </template>
@@ -136,22 +132,14 @@
     <kw-grid
       v-if="isGrid"
       ref="grdMainRef"
-      :page-size="pageInfo.pageSize"
-      :total-count="pageInfo.totalCount"
+      :total-count="totalCount"
       @init="initGrdMain"
     />
     <kw-grid
       v-show="isGrid2"
       ref="grdMainRef2"
-      :page-size="pageInfo.pageSize"
-      :total-count="pageInfo.totalCount"
+      :total-count="totalCount"
       @init="initGrdMain2"
-    />
-    <kw-pagination
-      v-model:page-index="pageInfo.pageIndex"
-      v-model:page-size="pageInfo.pageSize"
-      :total-count="pageInfo.totalCount"
-      @change="fetchData"
     />
     <template #action>
       <kw-btn
@@ -175,13 +163,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-// import { codeUtil, defineGrid, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
-import { codeUtil, useModal, getComponentType, defineGrid, gridUtil, useDataService, useMeta, useGlobal } from 'kw-lib';
+import { codeUtil, useModal, getComponentType, defineGrid, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
-// import { onMounted } from 'vue';
-// import dayjs from 'dayjs';
-// import { alert } from 'lodash-es';
 const { t } = useI18n();
 const dataService = useDataService();
 const { cancel: onClickClose, ok } = useModal();
@@ -193,13 +177,11 @@ const grdMainRef2 = ref(getComponentType('KwGrid'));
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-const { getConfig } = useMeta();
 const isKndCd = ref(false); // 품목종류
 const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'MNGT_UNIT_CD',
   'APLC_DV_ACD',
-  'COD_PAGE_SIZE_OPTIONS',
 );
 
 // 그리드1
@@ -248,12 +230,6 @@ const props = defineProps({
     default: '',
   },
 
-});
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const searchParams = ref({
@@ -330,29 +306,27 @@ async function onUpdateAplcDvAcd(val) {
 
   await fetchAplcLists();
 }
+const totalCount = ref(0);
 let cachedParams;
 async function fetchData() {
   let pages;
   let view;
   if (props.chk === '1') {
-    const res = await dataService.get('/sms/wells/service/item-base-informations/paging', { params: { ...cachedParams, ...pageInfo.value } });
-    const { list: itemBase, pageInfo: pagingResult } = res.data;
-    pageInfo.value = pagingResult;
-    pages = itemBase;
+    const res = await dataService.get('/sms/wells/service/item-base-informations', { params: { ...cachedParams } });
+    pages = res.data;
     view = grdMainRef2.value.getView();
   } else {
-    const res = await dataService.get('/sms/wells/service/item-base-informations/out-of/paging', { params: { ...cachedParams, ...pageInfo.value } });
-    const { list: itemBase, pageInfo: pagingResult } = res.data;
-    pages = itemBase;
-    pageInfo.value = pagingResult;
+    const res = await dataService.get('/sms/wells/service/item-base-informations/out-of', { params: { ...cachedParams } });
+    pages = res.data;
+
     view = grdMainRef.value.getView();
   }
 
+  totalCount.value = pages.length;
   view.getDataSource().setRows(pages);
   validateChangeCode();
 
   list = gridUtil.getAllRowValues(view, false);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
