@@ -61,11 +61,13 @@
             </template>
             <kw-list
               class="scoped-product-picker-list"
-              item-class="scoped-product-picker-list__item"
-              :items="filteredClassifyingProducts[pdClsfCd]"
-              item-key="pdCd"
             >
-              <template #item="{item : product}">
+              <!-- 업보려니...합시다. -->
+              <kw-item
+                v-for="(product, idx) in filteredClassifyingProducts[pdClsfCd]"
+                :key="`product-${idx}`"
+                class="scoped-product-picker-list__item"
+              >
                 <kw-item-section>
                   <kw-item-label
                     font="dense"
@@ -93,7 +95,7 @@
                     />
                   </kw-item-label>
                 </kw-item-section>
-              </template>
+              </kw-item>
             </kw-list>
           </kw-expansion-item>
         </kw-list>
@@ -219,7 +221,10 @@ const filteredClassifyingProducts = computed(() => {
     }
     const filteredProducts = classified
       .filter((product) => (!cachedParams.value.filterText
-        || (product.cstBasePdAbbrNm || product.pdNm)?.includes(cachedParams.value.filterText)))
+        || product.pdCd?.includes(cachedParams.value.filterText)
+        || product.pdNm?.includes(cachedParams.value.filterText)
+        || product.cstBasePdAbbrNm?.includes(cachedParams.value.filterText)
+      ))
       .filter((product) => (!cachedParams.value.sellTpCd || product.sellTpCd === cachedParams.value.sellTpCd));
     if (filteredProducts.length) {
       filtered[pdClsfCd] = filteredProducts;

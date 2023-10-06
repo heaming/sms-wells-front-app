@@ -24,7 +24,7 @@
           <kw-item-label
             class="scoped-item__product-name"
           >
-            {{ dtl.pdNm }}
+            {{ dtl.cstBasePdAbbrNm || dtl.pdNm }}
           </kw-item-label>
           <div class="scoped-item__chips">
             <kw-chip
@@ -161,7 +161,7 @@
                 v-if="showSvPtrms"
                 :label="'무상개월 AS/BS'"
               >
-                {{ `${selectedFinalPrice.frisuPtrm || 0}개월 / ${selectedFinalPrice.recapPtrm || 0}개월` }}
+                {{ `${selectedFinalPrice.frisuAsPtrm || 0}개월 / ${selectedFinalPrice.frisuPtrm || 0}개월` }}
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
@@ -289,6 +289,7 @@ watch(rentalCrpDscrCdSelectable, (value) => {
 
 const labelGenerator = {
   svPdCd: (val, finalPrice) => {
+    if (val === EMPTY_ID) { return '선택안함'; }
     const { svTpCd, svVstPrdCd, pcsvPrdCd } = finalPrice;
     const additional = [];
     if (svVstPrdCd) {
@@ -299,11 +300,26 @@ const labelGenerator = {
     }
     return `${getCodeName('SV_TP_CD', svTpCd)} - ${additional.join('/')}`;
   },
-  spayDscDvCd: (val) => getCodeName('SPAY_DSC_DV_CD', val),
-  spayDscrCd: (val) => getCodeName('SPAY_DSCR_CD', val),
-  spayPmotDvCd: (val) => getCodeName('SPAY_PMOT_DV_CD', val),
-  rentalCrpDscrCd: (val) => getCodeName('RENTAL_CRP_DSCR_CD', val),
-  hcrDvCd: (val) => getCodeName('HCR_DV_CD', val),
+  spayDscDvCd: (val) => {
+    if (val === EMPTY_ID) { return '선택안함'; }
+    return getCodeName('SPAY_DSC_DV_CD', val);
+  },
+  spayDscrCd: (val) => {
+    if (val === EMPTY_ID) { return '선택안함'; }
+    getCodeName('SPAY_DSCR_CD', val);
+  },
+  spayPmotDvCd: (val) => {
+    if (val === EMPTY_ID) { return '미가입'; }
+    return getCodeName('SPAY_PMOT_DV_CD', val);
+  },
+  rentalCrpDscrCd: (val) => {
+    if (val === EMPTY_ID) { return '선택안함'; }
+    return getCodeName('RENTAL_CRP_DSCR_CD', val);
+  },
+  hcrDvCd: (val) => {
+    if (val === EMPTY_ID) { return '선택안함'; }
+    return getCodeName('HCR_DV_CD', val);
+  },
 };
 
 const variableNames = Object.getOwnPropertyNames(priceDefineVariables.value);
@@ -396,7 +412,7 @@ const priceDefineVariableOptions = computed(() => variableNames.reduce((mappingO
   if (dict[EMPTY_SYM]) {
     options.push({
       codeId: EMPTY_ID,
-      codeName: '선택안함',
+      codeName: labelGenerator[variableName](EMPTY_ID),
     });
   }
   Object.getOwnPropertyNames(dict)
@@ -483,14 +499,17 @@ function calcPromotionAppliedPrice(aplyPmots) {
       },
       fnlVal,
     );
+
+  /*
+  TODO: 할인금액
   const totalDscApyAmt = aplyPmots
     .reduce((acc, promotion) => {
       if (Number.isNaN(Number(promotion.dscApyAmt))) {
         return acc;
       }
       return acc + Number(promotion.dscApyAmt);
-    }, 0);
-  const pmotAplyPrice = Math.max(minRentalFxam - totalDscApyAmt, 0);
+    }, 0); */
+  const pmotAplyPrice = Math.max(minRentalFxam, 0);
   if (selectedFinalPrice.value?.fnlVal === pmotAplyPrice) {
     return;
   }

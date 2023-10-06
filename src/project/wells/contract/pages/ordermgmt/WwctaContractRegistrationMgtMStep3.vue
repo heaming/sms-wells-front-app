@@ -41,13 +41,13 @@
               v-if="item.sellTpCd === '1'"
               class="kw-fc--primary kw-font-subtitle"
             >
-              {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
+              {{ getNumberWithComma(item.fnlAmt || 0) }}원
             </p>
             <p
               v-else
               class="kw-fc--primary kw-font-subtitle"
             >
-              월 {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원({{ item.stplPtrm }}개월)
+              월 {{ getNumberWithComma(item.fnlAmt || 0) }}원({{ item.stplPtrm }}개월)
             </p>
 
             <div class="row items-center ml20">
@@ -390,7 +390,7 @@
                   :colspan="2"
                 >
                   <h3 class="my0">
-                    결제금액 : {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
+                    결제금액 : {{ getNumberWithComma(item.fnlAmt || 0) }}원
                   </h3>
                 </kw-form-item>
               </kw-form-row>
@@ -433,7 +433,7 @@
                   :colspan="2"
                 >
                   <h3 class="my0">
-                    멤버십 금액 : {{ stringUtil.getNumberWithComma(item.mshAmt || 0) }}원
+                    멤버십 금액 : {{ getNumberWithComma(item.mshAmt || 0) }}원
                   </h3>
                 </kw-form-item>
               </kw-form-row>
@@ -442,7 +442,7 @@
               v-else
             >
               <kw-form-row
-                cols="3"
+                :cols="3"
               >
                 <kw-form-item
                   label="자동이체"
@@ -456,12 +456,12 @@
                 </kw-form-item>
                 <kw-form-item no-label>
                   <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
-                    월 렌탈료 : {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
+                    월 렌탈료 : {{ getNumberWithComma((item.fnlAmt || 0) / (item.sellTpCd === '6' ? item.svPrd : 1)) }}원
                   </p>
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row
-                cols="3"
+                :cols="3"
               >
                 <kw-form-item
                   label="등록비결제유형"
@@ -476,7 +476,7 @@
                 </kw-form-item>
                 <kw-form-item no-label>
                   <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
-                    등록비 : {{ stringUtil.getNumberWithComma(item.cntrAmt || 0) }}원
+                    등록비 : {{ getNumberWithComma(item.cntrAmt || 0) }}원
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -512,8 +512,9 @@
 // -------------------------------------------------------------------------------------------------
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
-import { codeUtil, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import { getNumberWithComma } from '~sms-common/contract/util';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -706,8 +707,11 @@ function onChangeSodbtNftfCntr(v) {
 }
 
 const loaded = ref(false);
+
 async function initStep() {
-  if (loaded.value) { return; }
+  if (loaded.value) {
+    return;
+  }
   await getCntrInfo();
   loaded.value = true;
 }

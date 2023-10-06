@@ -24,7 +24,7 @@
           <kw-item-label
             class="scoped-item__product-name"
           >
-            {{ dtl.pdNm }}
+            {{ dtl.cstBasePdAbbrNm || dtl.pdNm }}
           </kw-item-label>
           <div class="scoped-item__chips">
             <kw-chip

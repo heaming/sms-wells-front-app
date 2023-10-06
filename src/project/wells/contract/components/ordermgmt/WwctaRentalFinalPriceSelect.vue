@@ -5,8 +5,9 @@
     class="fit"
     header-class="scoped-item scoped-item--header"
     block-inherit-padding
+    expand-icon-toggle
   >
-    <template #header>
+    <template #header="{ toggle }">
       <kw-item-section
         class="scoped-item__section-type"
         side
@@ -21,10 +22,15 @@
         class="scoped-item__section-main"
       >
         <div class="scoped-item__main">
+          <kw-btn
+            class="transparent absolute fit"
+            borderless
+            @click="toggle"
+          />
           <kw-item-label
             class="scoped-item__product-name"
           >
-            {{ dtl.pdNm }}
+            {{ dtl.cstBasePdAbbrNm || dtl.pdNm }}
           </kw-item-label>
           <div class="scoped-item__chips">
             <kw-chip
@@ -66,17 +72,31 @@
         top
       >
         <kw-item-label class="flex gap-xs">
+          <kw-btn-dropdown
+            v-if="showPackageBtn"
+            :disable="disablePackage"
+            label="다건할인"
+            dense
+            auto-close
+          >
+            <kw-btn
+              v-for="(rentalDscTpCd) in packageRentalDscTpCds"
+              :key="`package-btn-${rentalDscTpCd}`"
+              :label="getCodeName('RENTAL_DSC_TP_CD', rentalDscTpCd)"
+              @click.stop="onClickPackage(rentalDscTpCd)"
+            />
+          </kw-btn-dropdown>
           <!-- 로그인한 사용자의 채널이 5010(온라인총판) 이면 기기변경 버튼 발생하지 않음 -->
           <kw-btn
-            v-if="bas?.sellInflwChnlDtlCd !== '5010'"
-            :disable="existOnePlusOneRel"
+            v-if="showMachineChangeBtn"
+            :disable="notNullRentalDscTpCdSelected"
             label="기기변경"
             dense
             @click.stop="onClickDeviceChange(item)"
           />
           <kw-btn
-            v-if="existOnePlusOnePriceOption"
-            :disable="onePlusOneDisable"
+            v-if="showOnePlusOnePrice"
+            :disable="disableOnePlusOne"
             label="1+1"
             dense
             @click.stop="onClickOnePlusOne(item)"
@@ -172,7 +192,7 @@
                 <kw-input
                   v-if="notNullRentalDscTpCdSelected"
                   bg-color="bg-white"
-                  :model-value="getCodeName('RENTAL_DSC_TP_CD', priceDefineVariables.rentalDscTpCd)"
+                  :model-value="labelGenerator.rentalDscTpCd(priceDefineVariables.rentalDscTpCd)"
                   borderless
                   placeholder=""
                   first-option="select"
@@ -183,7 +203,7 @@
                 >
                   <template #append>
                     <kw-btn
-                      v-if="priceDefineVariables.rentalDscTpCd"
+                      v-if="notNullRentalDscTpCdSelected"
                       borderless
                       icon="clear"
                       @click="removeRentalDscTpCd"
@@ -223,7 +243,9 @@
                 v-if="selectedFinalPrice"
                 :label="'무상개월 AS/BS'"
               >
-                {{ `${selectedFinalPrice.frisuPtrm || 0}개월 / ${selectedFinalPrice.recapPtrm || 0}개월` }}
+                {{
+                  `${selectedFinalPrice.frisuPtrm || 0}개월 / ${selectedFinalPrice.recapPtrm || 0}개월`
+                }}
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
@@ -240,12 +262,12 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row
-              v-if="alncCntrNms || (isExistAlncPd && alncCntrPriceCodes.length > 0)"
+              v-if="alncCntrNms?.length || (filteredAlncCntrPriceCodes.length > 0)"
             >
               <kw-form-item label="제휴 계약">
                 <kw-select
                   v-model="alncCntrNms"
-                  :options="alncCntrPriceCodes"
+                  :options="filteredAlncCntrPriceCodes"
                   :model-value="alncCntrNms ? alncCntrNms : []"
                   :multiple="true"
                   placeholder="제휴 계약"
@@ -291,6 +313,7 @@
           top
         >
           <kw-btn
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE"
             borderless
             icon="close_24"
             class="w24 kw-font-pt24"
@@ -357,7 +380,6 @@
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import { useCtCode } from '~sms-common/contract/composable';
 import { alert, stringUtil, useDataService } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
 import { warn } from 'vue';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { getNumberWithComma } from '~sms-common/contract/util';
@@ -370,6 +392,7 @@ const props = defineProps({
 const emit = defineEmits([
   'device-change',
   'one-plus-one',
+  'packaging',
   'delete:one-plus-one',
   'price-changed',
   'promotion-changed',
@@ -389,13 +412,29 @@ const { getCodeName } = await useCtCode(
   'CNTR_REL_DTL_CD',
 );
 const dataService = useDataService();
-const alncCntrPriceCodes = ref([]);
 
 const EMPTY_SYM = Symbol('__undef__');
 const EMPTY_ID = ''; /*  FIXME!!! */
 
 const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
+const CNTR_REL_DTL_CD_LK_MLTCS_PRCHS = '22M';
 const RENTAL_DSC_TP_CD_ONE_PLUS_ONE = '03';
+const RENTAL_DSC_TP_CD_PACKAGE_2 = '14';
+const RENTAL_DSC_TP_CD_PACKAGE_3 = '15';
+const RENTAL_DSC_TP_CD_PACKAGE_OVER_4 = '16';
+const RENTAL_DSC_TP_CD_STCF_SEL = '81';
+const RENTAL_DSC_TP_CD_SPC_DSC_SEL_2 = '82';
+const RENTAL_DSC_TP_CD_SELF_PURCHASE_DSC = '83';
+const RENTAL_DSC_TP_CD_PACKAGE_CODES = [
+  RENTAL_DSC_TP_CD_PACKAGE_2,
+  RENTAL_DSC_TP_CD_PACKAGE_3,
+  RENTAL_DSC_TP_CD_PACKAGE_OVER_4,
+];
+const RENTAL_DSC_TP_CD_USER_SELECTABLE = [
+  RENTAL_DSC_TP_CD_STCF_SEL,
+  RENTAL_DSC_TP_CD_SPC_DSC_SEL_2,
+  RENTAL_DSC_TP_CD_SELF_PURCHASE_DSC,
+];
 
 const dtl = ref(props.modelValue);
 
@@ -403,22 +442,20 @@ const dtl = ref(props.modelValue);
 let pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
 let verSn = toRef(props.modelValue, 'verSn');
 let fnlAmt = toRef(props.modelValue, 'fnlAmt');
-let rentalDiscountFixed = toRef(props.modelValue, 'rentalDiscountFixed');
 let pdQty = toRef(props.modelValue, 'pdQty');
 let mchnCh = toRef(props.modelValue, 'mchnCh');
 let cntrRels = toRef(props.modelValue, 'cntrRels');
 let bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
 let appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
 let promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
-let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
 let alncCntrNms = toRef(props.modelValue, 'alncCntrNms', []);
-// appliedPromotions.value ??= [];
+const packageRentalDscTpCds = toRef(props.modelValue, 'packageRentalDscTpCds');
 
-const existOnePlusOneRel = computed(() => !!(cntrRels.value ?? [])
-  .find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE));
+const finalPriceOptions = ref([]);
+const filteredFinalPriceOptions = ref([]);
 
-const existOnePlusOnePriceOption = computed(() => !!finalPriceOptions.value
-  .find((price) => price.rentalDscTpCd === RENTAL_DSC_TP_CD_ONE_PLUS_ONE));
+const priceOptionFilter = ref({});
+const filteredVariableNames = computed(() => Object.getOwnPropertyNames(priceOptionFilter.value ?? {}));
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '2'));
 
@@ -434,66 +471,20 @@ const priceDefineVariables = ref({
   rentalCombiDvCd: toRef(props.modelValue, 'rentalCombiDvCd'),
 });
 
-const notNullRentalDscTpCdSelected = computed(() => priceDefineVariables.value.rentalDscTpCd
-  && priceDefineVariables.value.rentalDscTpCd !== EMPTY_ID);
-
-const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.rentalDscDvCd === '5');
-
-watch(rentalCrpDscrCdSelectable, (value) => {
-  if (!value) {
-    priceDefineVariables.value.rentalCrpDscrCd = undefined;
-  }
-});
-
-const isExistAlncPd = computed(() => !isEmpty(priceDefineVariables.value?.svPdCd)
-  && !isEmpty(priceDefineVariables.value?.stplPrdCd)
-  && finalPriceOptions.value?.findIndex((v) => (
-    v.svPdCd === priceDefineVariables.value?.svPdCd
-    && v.stplPrdCd === priceDefineVariables.value?.stplPrdCd
-    && v.alncPdCnt !== EMPTY_ID
-  )) > -1);
-
-async function fetchFinalPriceOptions() {
-  const { data } = await dataService.get('sms/wells/contract/final-price', {
-    params: {
-      cntrNo: props.bas.cntrNo,
-      pdCd: dtl.value.pdCd,
-    },
-    silent: true,
-  });
-  if (!data?.length) {
-    alert('선택 가능한 가격 조건이 없습니다.');
-  }
-  finalPriceOptions.value = data || [];
-}
-
-async function fetchAllianceContracts() {
-  const params = {
-    cstNo: props.bas?.cntrCstNo,
-    sellTpCd: dtl.value?.sellTpCd,
-    pdCd: dtl.value.pdCd,
-    stplPrdCd: priceDefineVariables.value?.stplPrdCd,
-    svPdCd: priceDefineVariables.value?.svPdCd,
-  };
-
-  const { data } = await dataService
-    .get('sms/wells/contract/final-price/alliance-contracts', { params });
-
-  // klpont 가 0인 경우 제외
-  alncCntrPriceCodes.value = data.filter((v) => (v.klpont > 0))
-    .map((v) => ({
-      codeId: `${v.klyear}-${v.klcode}-${v.klpont}-${v.alncmpCd}`,
-      codeName: `${v.klyear}-${v.klcode} ${v.alncmpNm} ${stringUtil.getNumberWithComma(v.klpont || 0)}원`,
-    })) || [];
-  // console.log(JSON.stringify(data, null, '\t'));
-}
-
-if (!finalPriceOptions.value?.length) {
-  await fetchFinalPriceOptions();
-}
+const alncCntrs = ref([]);
+const filteredAlncCntrPriceCodes = computed(() => alncCntrs.value
+  .filter((alncCntr) => alncCntr.svPdCd === priceDefineVariables.value.svPdCd
+    && alncCntr.stplPrdCd === priceDefineVariables.value.stplPrdCd)
+  .map((v) => ({
+    codeId: `${v.klyear}-${v.klcode}-${v.klpont}-${v.alncmpCd}`,
+    codeName: `${v.klyear}-${v.klcode} ${v.alncmpNm} ${stringUtil.getNumberWithComma(v.klpont || 0)}원`,
+  })) || []);
 
 const labelGenerator = {
   svPdCd: (val, finalPrice) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
     const { svTpCd, svVstPrdCd, pcsvPrdCd } = finalPrice;
     const additional = [];
     if (svVstPrdCd) {
@@ -504,37 +495,68 @@ const labelGenerator = {
     }
     return `${getCodeName('SV_TP_CD', svTpCd)} - ${additional.join('/')}`;
   },
-  stplPrdCd: (val) => `${val}개월`,
+  stplPrdCd: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return `${val}개월`;
+  },
   cntrAmt: (val, finalPrice) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
     const { cntrAmt, cntrAmtDscYn } = finalPrice;
     if (cntrAmtDscYn === 'Y') {
       return '0원';
     }
     return `${getNumberWithComma(cntrAmt || 0)}원`;
   },
-  cntrPtrm: (val) => `${val}개월`,
-  asMcn: (val) => `${val}개월`,
-  rentalDscDvCd: (val) => getCodeName('RENTAL_DSC_DV_CD', val),
-  rentalCrpDscrCd: (val) => getCodeName('RENTAL_CRP_DSCR_CD', val),
-  rentalDscTpCd: (val) => getCodeName('RENTAL_DSC_TP_CD', val),
-  rentalCombiDvCd: (val) => getCodeName('RENTAL_COMBI_DV_CD', val),
+  cntrPtrm: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return `${val}개월`;
+  },
+  asMcn: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return `${val}개월`;
+  },
+  rentalDscDvCd: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return getCodeName('RENTAL_DSC_DV_CD', val);
+  },
+  rentalCrpDscrCd: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return getCodeName('RENTAL_CRP_DSCR_CD', val);
+  },
+  rentalDscTpCd: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return getCodeName('RENTAL_DSC_TP_CD', val);
+  },
+  rentalCombiDvCd: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return getCodeName('RENTAL_COMBI_DV_CD', val);
+  },
 };
 
 const variableNames = Object.getOwnPropertyNames(priceDefineVariables.value);
-
-// eslint-disable-next-line no-unused-vars
-function clearPriceDefineVariables() {
-  variableNames.forEach((variableName) => {
-    priceDefineVariables.value[variableName] = undefined;
-  });
-}
 
 /* 저장된 값이 있다면 가격 결정요소를 맞추어 줍니다. */
 function initPriceDefineVariables() {
   if (!pdPrcFnlDtlId.value) {
     return;
   }
-  const selectedFinalPrice = finalPriceOptions.value
+  const selectedFinalPrice = filteredFinalPriceOptions.value
     ?.find((finalPrice) => (finalPrice.pdPrcFnlDtlId === pdPrcFnlDtlId.value));
 
   if (!selectedFinalPrice) {
@@ -552,24 +574,98 @@ function initPriceDefineVariables() {
     priceDefineVariables.value[variableName] = selectedFinalPrice[variableName] ?? EMPTY_ID;
   });
 
-  alncCntrPriceCodes.value = alncCntrNms.value.map((v) => ({
+  alncCntrs.value = alncCntrNms.value?.map((v) => ({
     codeId: v,
     codeName: `${v.split('-')[0]}-${v.split('-')[1]} ${getCodeName('ALNCMP_CD', v.split('-')[3])} 15,000원`, // TODO 지원금액 임의설정
   })) || [];
+}
+
+function filteringFinalPriceOptions() {
+  filteredFinalPriceOptions.value = finalPriceOptions.value;
+
+  if (filteredVariableNames.value.length) {
+    filteredFinalPriceOptions.value = finalPriceOptions.value
+      .filter((finalPriceOption) => !filteredVariableNames.value
+        .some((filteredVar) => {
+          const optionsVar = finalPriceOption[filteredVar];
+          const filterVar = priceOptionFilter.value[filteredVar];
+          return (optionsVar || EMPTY_ID) !== (filterVar || EMPTY_ID);
+        }));
+  }
+  if (!filteredFinalPriceOptions.value.length) {
+    alert('필터에 해당하는 가격 조건이 없습니다.');
+    emit('fail-to-fetch-price');
+  }
+
+  initPriceDefineVariables();
+}
+
+const notNullRentalDscTpCdSelected = computed(() => priceDefineVariables.value.rentalDscTpCd === EMPTY_ID
+  || !!priceDefineVariables.value.rentalDscTpCd);
+
+const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.rentalDscDvCd === '5');
+
+watch(rentalCrpDscrCdSelectable, (value) => {
+  if (!value) {
+    priceDefineVariables.value.rentalCrpDscrCd = undefined;
+  }
+});
+
+async function fetchAllianceContracts() {
+  const params = {
+    cstNo: props.bas?.cntrCstNo,
+    sellTpCd: dtl.value?.sellTpCd,
+    pdCd: dtl.value.pdCd,
+    // stplPrdCd: priceDefineVariables.value?.stplPrdCd,
+    // svPdCd: priceDefineVariables.value?.svPdCd,
+  };
+
+  const { data } = await dataService
+    .get('sms/wells/contract/final-price/alliance-contracts', { params });
+
+  // klpont 가 0인 경우 제외
+  alncCntrs.value = data.filter((v) => (v.klpont > 0));
+}
+
+async function fetchFinalPriceOptions() {
+  const { data } = await dataService.get('sms/wells/contract/final-price', {
+    params: {
+      cntrNo: props.bas.cntrNo,
+      pdCd: dtl.value.pdCd,
+    },
+    silent: true,
+  });
+  if (!data?.length) {
+    alert('선택 가능한 가격 조건이 없습니다.');
+  }
+  finalPriceOptions.value = data || [];
+
+  await fetchAllianceContracts();
+
+  filteringFinalPriceOptions();
+}
+
+if (!finalPriceOptions.value?.length) {
+  await fetchFinalPriceOptions();
+}
+
+// eslint-disable-next-line no-unused-vars
+function clearPriceDefineVariables() {
+  variableNames.forEach((variableName) => {
+    priceDefineVariables.value[variableName] = undefined;
+  });
 }
 
 function reconnectReactivities() {
   pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
   verSn = toRef(props.modelValue, 'verSn');
   fnlAmt = toRef(props.modelValue, 'fnlAmt');
-  rentalDiscountFixed = toRef(props.modelValue, 'rentalDiscountFixed');
   pdQty = toRef(props.modelValue, 'pdQty');
   mchnCh = toRef(props.modelValue, 'mchnCh');
   cntrRels = toRef(props.modelValue, 'cntrRels');
   bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
   promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
-  finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions'); /* 적용된 프로모션 */
   alncCntrNms = toRef(props.modelValue, 'alncCntrNms');
 }
 
@@ -581,7 +677,10 @@ async function onChangeModelValue(newDtl) {
     await fetchFinalPriceOptions();
   }
   reconnectReactivities();
-  initPriceDefineVariables();
+
+  if (!pdPrcFnlDtlId.value || newDtl.pdPrcFnlDtlId !== pdPrcFnlDtlId.value) {
+    initPriceDefineVariables();
+  }
 }
 
 watch(() => props.modelValue, onChangeModelValue, { immediate: true });
@@ -619,7 +718,7 @@ function reducerFinalPriceToSelectVarDict(varDict, finalPrice, variable) {
 }
 
 const priceDefineVariableOptionDicts = computed(() => variableNames.reduce((options, variableName) => {
-  options[variableName] = finalPriceOptions.value
+  options[variableName] = filteredFinalPriceOptions.value
     ?.reduce((varDict, finalPrice) => reducerFinalPriceToSelectVarDict(varDict, finalPrice, variableName), {});
   return options;
 }, {}));
@@ -630,7 +729,7 @@ const priceDefineVariableOptions = computed(() => variableNames.reduce((mappingO
   if (dict[EMPTY_SYM]) {
     options.push({
       codeId: EMPTY_ID,
-      codeName: '선택안함',
+      codeName: labelGenerator[variableName](EMPTY_ID),
     });
   }
   Object.getOwnPropertyNames(dict)
@@ -647,14 +746,68 @@ const priceDefineVariableOptions = computed(() => variableNames.reduce((mappingO
 }, {}));
 
 const userSelectableRentalDscTpCd = computed(() => (priceDefineVariableOptions.value.rentalDscTpCd || [])
-  .filter((code) => ['81', '82', '83'].includes(code.codeId)));
+  .filter((code) => RENTAL_DSC_TP_CD_USER_SELECTABLE.includes(code.codeId)));
 
-const onePlusOneDisable = computed(() => {
-  const machineChanged = mchnCh.value?.mchnChYn;
+/*
+계약 관계 버튼 컨트롤
+
+판매유입채널코드가 온라인 총판(5010)일 경우를 제외하고, 기기 변경 버튼은 기본적으로 항상 노출된다.
+
+기기 변경시 할인 유형 재렌탈 혹은 5년약정재렌탈이 걸릴 수 있다.
+할인유형이 선택 되었으면,  기기 변경 버튼을 비활성화 하도록 한다.
+('선택안함' 역시 선택이다. 다건할인 시, 할인 대상 상품이 아닌 경우 '선택안함'으로 강제한다.)
+재렌탈 5년 약정 재렌탈이 아닌, 다른 할인 유형을 적용하면서,
+기기 변경을 하기 위해서는 기기변경을 먼저 지정하고, 할인 유형을 지정한다.
+
+다건 할인과 1+1 버튼의 노출 여부는 해당 할인유형을 가지고 있는 가격 옵션이 존재하는지에 따라 바뀐다.
+
+다건할인(14,15,16), 1+1(03) 과 기기변경(재렌탈 할인 아님)은 상호 배타적이다.
+해당 버튼들은 기기변경건이 있다면 비활성화 된다.
+또한 현재 선택할 수 있는 할인유형에 해당 옵션이 존재하지 않으면 비활성화된다.
+할인유형이 선택 되었으면, 비활성화한다. 재 활성화 하려면 할인유형을 제거하고 진행한다.
+또한 계약 관계에 있어 배타적 할인유형에 따른 계약 관계가 존재하면 비활성화 한다.
+-> '선택안함' 도 선택으로 치면 불필요.
+
+추가로 다건할인의 경의 '팝업' 이 미적용 가를 요구하므로 가격이 정해져야 한다.
+고로 반대로 미선택 혹은 '선택안함' 상태일 때 버튼을 활성화 한다.
+정말이지 복잡하다.
+또한 계약 관계에 있어 배타적 할인유형에 따른 계약 관계가 존재하면 비활성화 한다.
+
+점심은 나가서 먹자.
+
+* */
+
+const showMachineChangeBtn = computed(() => props.bas.sellInflwChnlDtlCd !== '5010');
+
+const showOnePlusOnePrice = computed(() => !!finalPriceOptions.value
+  .find((price) => price.rentalDscTpCd === RENTAL_DSC_TP_CD_ONE_PLUS_ONE));
+
+const disableOnePlusOne = computed(() => {
+  const machineChanged = !!mchnCh.value?.ojCntrNo;
   const priceIsNotSelectable = !(priceDefineVariableOptions.value.rentalDscTpCd || [])
     .map((code) => code.codeId)
     .includes(RENTAL_DSC_TP_CD_ONE_PLUS_ONE);
-  return machineChanged || priceIsNotSelectable;
+  return machineChanged || priceIsNotSelectable || notNullRentalDscTpCdSelected.value;
+});
+
+const showPackageBtn = computed(() => !!finalPriceOptions.value
+  .find((price) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(price.rentalDscTpCd)));
+
+const disablePackage = computed(() => {
+  const machineChanged = !!mchnCh.value?.ojCntrNo;
+  const priceIsNotSelectable = !(priceDefineVariableOptions.value.rentalDscTpCd || [])
+    .map((code) => code.codeId)
+    .some((codeId) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(codeId));
+  return machineChanged
+    || priceIsNotSelectable
+    || (priceDefineVariables.value.rentalDscTpCd !== EMPTY_ID
+      && !!priceDefineVariables.value.rentalDscTpCd)
+    // eslint-disable-next-line no-use-before-define
+    || !selectedFinalPrice.value
+    || cntrRels.value?.some((cntrRel) => [
+      CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE,
+      CNTR_REL_DTL_CD_LK_MLTCS_PRCHS,
+    ].includes(cntrRel.cntrRelDtlCd));
 });
 
 function forcedChangeValidVariable(val) {
@@ -697,7 +850,7 @@ function filterFinalPriceByVariables(finalPrice) {
 }
 
 const selectedFinalPrice = computed(() => {
-  const selectedPrice = finalPriceOptions.value
+  const selectedPrice = filteredFinalPriceOptions.value
     ?.filter(filterFinalPriceByVariables);
   if (selectedPrice.length > 1) {
     return undefined;
@@ -711,6 +864,7 @@ const selectedFinalPrice = computed(() => {
 function initializePrice() {
   fnlAmt.value = selectedFinalPrice.value?.fnlVal ?? undefined;
   pdPrcFnlDtlId.value = selectedFinalPrice.value?.pdPrcFnlDtlId ?? undefined;
+  initPriceDefineVariables();
 }
 
 initializePrice();
@@ -745,6 +899,7 @@ function calcPromotionAppliedPrice(aplyPmots) {
       },
       fnlVal,
     );
+  /* TOOD '할인개월과 같이 표기할것'
   const totalDscApyAmt = aplyPmots
     .reduce((acc, promotion) => {
       if (Number.isNaN(Number(promotion.dscApyAmt))) {
@@ -752,7 +907,8 @@ function calcPromotionAppliedPrice(aplyPmots) {
       }
       return acc + Number(promotion.dscApyAmt);
     }, 0);
-  const pmotAplyPrice = Math.max(minRentalFxam - totalDscApyAmt, 0);
+   */
+  const pmotAplyPrice = Math.max(minRentalFxam, 0);
   if (selectedFinalPrice.value?.fnlVal === pmotAplyPrice) {
     return;
   }
@@ -760,24 +916,61 @@ function calcPromotionAppliedPrice(aplyPmots) {
   emit('promotion-changed', aplyPmots, promotionAppliedPrice.value);
 }
 
+function getPackageRentalDscTpCds() {
+  packageRentalDscTpCds.value = (priceDefineVariableOptions.value.rentalDscTpCd || [])
+    .map((code) => code.codeId)
+    .filter((codeId) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(codeId));
+}
+
 watch(selectedFinalPrice, (newPrice) => {
-  fnlAmt.value = newPrice?.fnlVal ?? undefined;
-  pdPrcFnlDtlId.value = newPrice?.pdPrcFnlDtlId ?? undefined;
+  if (!newPrice) {
+    fnlAmt.value = undefined;
+    pdPrcFnlDtlId.value = undefined;
+    emit('price-changed', newPrice);
+    clearPromotions();
+    return;
+  }
+  fnlAmt.value = newPrice.fnlVal;
+  pdPrcFnlDtlId.value = newPrice.pdPrcFnlDtlId;
+
   emit('price-changed', newPrice);
   clearPromotions();
 
-  if (isExistAlncPd.value) {
-    fetchAllianceContracts(); // 제휴 계약 정보 가져오기
+  getPackageRentalDscTpCds();
+}, { immediate: true });
+
+watch(() => props.modelValue?.priceOptionFilter, async (val) => {
+  if (priceOptionFilter.value === val) {
+    return;
   }
-});
+  priceOptionFilter.value = val;
+
+  if (!finalPriceOptions.value.length) {
+    await fetchFinalPriceOptions();
+  }
+  filteringFinalPriceOptions();
+
+  filteredVariableNames.value.forEach((key) => {
+    if (!Object.hasOwn(priceDefineVariables.value, key)) {
+      warn(`가격 제한 옵션이 상이합니다. ${key}`);
+      return;
+    }
+    priceDefineVariables.value[key] = val[key] || EMPTY_ID;
+  });
+
+  forcedChangeValidVariable(true);
+}, { immediate: true });
 
 function onClickDeviceChange() {
   emit('device-change', props.modelValue);
 }
 
 function onClickOnePlusOne() {
-  console.log('onePlusOneDisable', onePlusOneDisable.value);
   emit('one-plus-one', props.modelValue);
+}
+
+function onClickPackage(rentalDscTpCd) {
+  emit('packaging', props.modelValue, rentalDscTpCd);
 }
 
 function onClickDelete() {
@@ -790,7 +983,6 @@ function onClickDeleteDeviceChange() {
 
 function onDeleteOnePlusOne() {
   priceDefineVariables.value.rentalDscTpCd = undefined;
-  rentalDiscountFixed.value = false;
   emit('delete:one-plus-one', props.modelValue);
 }
 
@@ -809,9 +1001,7 @@ async function onChangeAlncCntr(selected) {
   if (tot > selectedFinalPrice.value.fnlVal) {
     alert('제휴 지원금이 렌탈료보다 큽니다.');
     alncCntrNms.value = [];
-    return;
   }
-  console.log(tot, selectedFinalPrice.value.fnlVal);
 }
 </script>
 
@@ -870,6 +1060,7 @@ async function onChangeAlncCntr(selected) {
     flex-flow: column wrap;
     align-items: flex-start;
     gap: $spacing-xs;
+    position: relative;
   }
 
   &__product-name {
