@@ -560,7 +560,7 @@ async function onClickSave() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/manager-bsconsumables', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/building-bsconsumables', { params: { ...cachedParams } });
   const bldCsmbDeliveries = res.data;
 
   if (bldCsmbDeliveries.length !== 0) {
