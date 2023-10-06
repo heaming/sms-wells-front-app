@@ -168,7 +168,7 @@
               :label="$t('MSG_TXT_FNT_INF_D')"
             >
               <p>
-                {{ singlePaymentDetail.dpTpCd }}
+                {{ singlePaymentDetail.dpTpCdNm }}
                 {{ singlePaymentDetail.mpyBsdt }}/{{ singlePaymentDetail.fnitAprRsCd }}
               </p>
             </kw-form-item>
@@ -302,7 +302,7 @@
               :label="$t('MSG_TXT_FNT_INF')"
             >
               <p>
-                {{ singlePaymentDetail.dpTpCd }}
+                {{ singlePaymentDetail.dpTpCdNm }}
                 {{ singlePaymentDetail.mpyBsdt }}/{{ singlePaymentDetail.fnitAprRsCd }}
               </p>
             </kw-form-item>
@@ -465,7 +465,7 @@
               :label="$t('MSG_TXT_FNT_INF')"
             >
               <p>
-                {{ singlePaymentDetail.dpTpCd }}
+                {{ singlePaymentDetail.dpTpCdNm }}
                 {{ singlePaymentDetail.mpyBsdt }}/{{ singlePaymentDetail.fnitAprRsCd }}
               </p>
             </kw-form-item>
@@ -747,24 +747,27 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
     { fieldName: 'slClYm',
       header: t('MSG_TXT_SL_YM'),
       width: '100',
-      styleName: 'text-center, rg-button-link',
-      datetimeFormat: 'yyyy-MM',
-      renderer: { type: 'button', hideWhenEmpty: false },
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      displayCallback(grid, index) {
+        const { slClYm } = grid.getValues(index.itemIndex);
+        return !isEmpty(slClYm) ? slClYm.replace(/(\d{4})(\d{2})/, '$1-$2') : slClYm;
+      },
     },
     { fieldName: 'slStpYn', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'slCtrDvCd', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-left' },
+    { fieldName: 'slCtrDvCd', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-center' },
     { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_BIL_AMT'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'borAmt', header: t('MSG_TXT_CCAM'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'dpAmt',
       header: t('MSG_TXT_DP'),
       width: '134',
-      styleName: 'text-center, rg-button-link',
-      renderer: { type: 'button', hideWhenEmpty: false },
+      styleName: 'rg-button-link text-right',
+      renderer: { type: 'button' },
       dataType: 'number',
       numberFormat: '#,##0' },
-    { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'eotUcAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '90', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '90', styleName: 'text-right' },
