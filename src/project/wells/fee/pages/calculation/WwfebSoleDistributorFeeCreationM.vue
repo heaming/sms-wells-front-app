@@ -186,6 +186,8 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_DSC_TP_CD',
   'PMOT_USWY_DV_ACD',
   'BFSVC_PRD_CD',
+  'SPP_DV_CD',
+  'SV_PD_TP_CD',
 );
 let cachedParams;
 const searchParams = ref({
@@ -367,8 +369,32 @@ const initGridDetail = defineGrid((data, view) => {
         return retValue;
       },
     },
-    { fieldName: 'relPdCd', header: t('MSG_TXT_COMBI_DV'), width: '98', styleName: 'text-center' },
-    { fieldName: 'pmotUswyDvCd', header: t('MSG_TXT_USWY_DV'), width: '98', options: codes.PMOT_USWY_DV_ACD, styleName: 'text-center' },
+    {
+      fieldName: 'sppDvCd',
+      header: t('MSG_TXT_COMBI_DV'),
+      width: '98',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        if (codes.SPP_DV_CD.map((v) => v.codeId).includes(value)) {
+          retValue = codes.SPP_DV_CD.find((v) => v.codeId === value)?.codeName;
+        }
+        return retValue;
+      },
+    },
+    {
+      fieldName: 'svPdTpCd',
+      header: t('MSG_TXT_USWY_DV'),
+      width: '98',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        if (codes.SV_PD_TP_CD.map((v) => v.codeId).includes(value)) {
+          retValue = codes.SV_PD_TP_CD.find((v) => v.codeId === value)?.codeName;
+        }
+        return retValue;
+      },
+    },
     { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98', styleName: 'text-center' },
     { fieldName: 'bfsvcPrdCd', header: t('MSG_TXT_VST_PRD'), width: '98', options: codes.BFSVC_PRD_CD, styleName: 'text-center' },
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
