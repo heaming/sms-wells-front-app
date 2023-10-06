@@ -81,19 +81,6 @@
           {{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
-        v-permission:print
-        icon="report"
-        :label="$t('MSG_TXT_RPT_BRWS')"
-        dense
-        secondary
-        @click="onClickOpenReport"
-      />
-      <kw-separator
-        spaced
-        vertical
-        inset
-      />
-      <kw-btn
         v-permission:download
         icon="download_on"
         :disable="totalCount === 0"
@@ -514,13 +501,6 @@ async function onClickSearch() {
   await fetchData();
 }
 
-async function onClickOpenReport() {
-  // TODO: 공통 팝업 호출 정보 설계 확인 중
-  /*
-  https://kyowon.atlassian.net/wiki/spaces/ForKUS/pages
-  /69500965/OZ#1.-%EC%97%85%EB%AC%B4-%ED%99%94%EB%A9%B4%EC%97%90%EC%84%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8-%ED%98%B8%EC%B6%9C
-  */
-}
 async function onClickExcelDownload() {
   const view = grdSalesBondRef.value.getView();
   await gridUtil.exportView(view, {
