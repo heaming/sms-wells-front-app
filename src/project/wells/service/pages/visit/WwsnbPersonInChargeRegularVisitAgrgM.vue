@@ -163,6 +163,7 @@ const searchParams = ref({
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
+  ogId: '',
   svcCntrCd: '',
   prtnrNo: '', // 파트너번호(매니저/엔지니어 파트너번호)
   bldCd: '', // 빌딩
