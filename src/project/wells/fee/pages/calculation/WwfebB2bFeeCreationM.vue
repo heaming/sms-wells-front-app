@@ -359,6 +359,7 @@ const initGridDetail = defineGrid((data, view) => {
       fieldName: 'sellDscDvCd',
       header: t('MSG_TXT_PD_DC_CLASS'),
       width: '98',
+      styleName: 'text-center',
       displayCallback(grid, index, value) {
         let retValue = value;
         if (codes.SELL_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
@@ -371,10 +372,10 @@ const initGridDetail = defineGrid((data, view) => {
       fieldName: 'sellDscrCd',
       header: t('MSG_TXT_DISC_CODE'),
       width: '98',
+      styleName: 'text-center',
       displayCallback(grid, index, value) {
         let retValue = value;
-        const { sellDscDvCd } = grid.getValues(index.itemIndex);
-        if (sellDscDvCd === '5') {
+        if (codes.SELL_DSCR_CD.map((v) => v.codeId).includes(value)) {
           retValue = codes.SELL_DSCR_CD.find((v) => v.codeId === value)?.codeName;
         }
         return retValue;
@@ -384,6 +385,7 @@ const initGridDetail = defineGrid((data, view) => {
       fieldName: 'sellDscTpCd',
       header: t('MSG_TXT_DSC_SYST'),
       width: '98',
+      styleName: 'text-center',
       displayCallback(grid, index, value) {
         let retValue = value;
         if (codes.SELL_DSC_TP_CD.map((v) => v.codeId).includes(value)) {
@@ -392,10 +394,10 @@ const initGridDetail = defineGrid((data, view) => {
         return retValue;
       },
     },
-    { fieldName: 'relPdCd', header: t('MSG_TXT_COMBI_DV'), width: '98' },
-    { fieldName: 'pmotUswyDvCd', header: t('MSG_TXT_USWY_DV'), width: '98', options: codes.PMOT_USWY_DV_ACD },
-    { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98' },
-    { fieldName: 'bfsvcPrdCd', header: t('MSG_TXT_VST_PRD'), width: '98', options: codes.BFSVC_PRD_CD },
+    { fieldName: 'relPdCd', header: t('MSG_TXT_COMBI_DV'), width: '98', styleName: 'text-center' },
+    { fieldName: 'pmotUswyDvCd', header: t('MSG_TXT_USWY_DV'), width: '98', options: codes.PMOT_USWY_DV_ACD, styleName: 'text-center' },
+    { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98', styleName: 'text-center' },
+    { fieldName: 'bfsvcPrdCd', header: t('MSG_TXT_VST_PRD'), width: '98', options: codes.BFSVC_PRD_CD, styleName: 'text-center' },
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
     { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
