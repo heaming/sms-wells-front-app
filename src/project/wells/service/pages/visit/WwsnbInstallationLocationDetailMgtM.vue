@@ -145,11 +145,6 @@
             :total-count="pageInfo.totalCount"
             @change="fetchData"
           />
-          <kw-separator
-            vertical
-            inset
-            spaced
-          />
         </template>
         <kw-btn
           v-permission:update
