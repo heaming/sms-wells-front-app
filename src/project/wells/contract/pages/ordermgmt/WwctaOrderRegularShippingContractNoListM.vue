@@ -87,8 +87,8 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, useDataService, gridUtil, useGlobal, defineGrid } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { codeUtil, getComponentType, useDataService, gridUtil, stringUtil, useGlobal, defineGrid } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const dataService = useDataService();
@@ -196,7 +196,7 @@ const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
     { fieldName: 'cralIdvTno' }, // 파트너정보-휴대개별전화번호
     { fieldName: 'cstKnm' }, // 계약자 정보-계약자명
     { fieldName: 'cstKnmEncr' }, // 계약자 정보-계약자명(암호화)
-    { fieldName: 'cstNo' }, // 계약자 정보-사업자번호
+    { fieldName: 'cstNo' }, // 계약자 정보-사업/주민번호
     { fieldName: 'adrZip' }, // 계약자 정보-우편번호
     { fieldName: 'cntrCstRnadr' }, // 계약자 정보-기준주소
     { fieldName: 'cntrCstRdadr' }, // 계약자 정보-상세주소
@@ -316,7 +316,20 @@ const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
       styleName: 'text-center',
     }, // 파트너정보-휴대전화번호
     { fieldName: 'cstKnmEncr', header: t('MSG_TXT_CNTOR_NM'), width: '138', styleName: 'text-center' }, // 계약자 정보-계약자명
-    { fieldName: 'cstNo', header: t('MSG_TXT_BZ_RRNO'), width: '138', styleName: 'text-center' }, // 계약자 정보-사업/주민번호
+    { fieldName: 'cstNo',
+      header: t('MSG_TXT_BZ_RRNO'),
+      width: '160',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        // 사업자번호 3-2-5 형식으로 표시
+        if (!isEmpty(value) && value.length === 10) {
+          return `${value.substr(0, 3)}-${value.substr(3, 2)}-${value.substr(5, 5)}`;
+        }
+        if (!isEmpty(value) && value.length === 8) {
+          return stringUtil.getDateFormat(value);
+        }
+      },
+    }, // 계약자 정보-사업/주민번호
     { fieldName: 'adrZip', header: t('MSG_TXT_ZIP'), width: '138', styleName: 'text-center' }, // 계약자 정보-우편번호
     { fieldName: 'cntrCstRnadr', header: t('MSG_TXT_STD_ADDR'), width: '270', styleName: 'text-left' }, // 계약자 정보-기준주소
     { fieldName: 'cntrCstRdadrEncr', header: t('MSG_TXT_DETAIL_ADDR'), width: '230', styleName: 'text-left' }, // 계약자 정보-상세주소
@@ -401,8 +414,8 @@ const initGridRglrDlvrContractNoList = defineGrid((data, view) => {
     { fieldName: 'lkReqdDt', header: t('MSG_TXT_DEM_DT'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 연계정보-철거일자
     { fieldName: 'connPdView', header: t('MSG_TXT_CONN_PD_VIEW'), width: '197', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_CONN_PD_VIEW') },
     { fieldName: 'pmotNm', header: t('MSG_TXT_PMOT_NM'), width: '295', styleName: 'text-left' }, // 프로모션명
-    { fieldName: 'pmotTpCd', header: t('MSG_TXT_PMOT_TP'), width: '174', styleName: 'text-center' }, // 프로모션유형
-    { fieldName: 'pmotCd', header: t('MSG_TXT_PMOT_CD'), width: '134', styleName: 'text-center' }, // 프로모션 코드
+    { fieldName: 'pmotTpCd', header: t('MSG_TXT_PMOT_TP'), width: '174', styleName: 'text-left' }, // 프로모션유형
+    { fieldName: 'pmotCd', header: t('MSG_TXT_PMOT_CD'), width: '134', styleName: 'text-left' }, // 프로모션 코드
     { fieldName: 'pmotSn', header: t('MSG_TXT_PMOT_SEQN'), width: '134', styleName: 'text-center' }, // 프로모션 순번
     { fieldName: 'fstRgstDt', header: t('MSG_TXT_RGST_DT'), width: '134', styleName: 'text-center', datetimeFormat: 'date' }, // 등록일
     { fieldName: 'fstRgstTm', header: t('MSG_TXT_RGST_HH'), width: '134', styleName: 'text-center', datetimeFormat: 'hh:mm:ss' }, // 등록시간
