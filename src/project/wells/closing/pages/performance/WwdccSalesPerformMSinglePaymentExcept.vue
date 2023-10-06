@@ -605,6 +605,7 @@ const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'SL_CTR_DV_CD',
 );
 const grdSinglePaymentExceptRef = ref(getComponentType('KwGrid'));
 
@@ -756,7 +757,7 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
     },
     { fieldName: 'slStpYn', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' },
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'slCtrDvCd', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'slCtrDvCd', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center', options: codes.SL_CTR_DV_CD },
     { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-center' },
     { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_BIL_AMT'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'borAmt', header: t('MSG_TXT_CCAM'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
