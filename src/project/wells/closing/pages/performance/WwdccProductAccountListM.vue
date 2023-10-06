@@ -135,14 +135,14 @@
         v-if="isShow"
         ref="grdTotalRef"
         name="grdTotal"
-        :visible-rows="10"
+        :total-count="totalCount"
         @init="initGrdTotal"
       />
       <kw-grid
         v-if="!isShow"
         ref="grdProductRef"
         name="grdProduct"
-        :visible-rows="10"
+        :total-count="totalCount"
         @init="initGrdProduct"
       />
       <kw-grid
@@ -240,7 +240,7 @@ async function onClickExportView() {
 /** TODO : 엑셀 다운로드 컬럼 아직 정의가 안됨 */
 async function onClickDetailExportView() {
   const view = grdExcelRef.value.getView();
-  const response = await dataService.get('/sms/wells/closing/product-account/excel-download', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/closing/product-account/excel-download', { params: cachedParams, timeout: 200000 });
   const dataSource = view.getDataSource();
   dataSource.addRows(response.data);
 
