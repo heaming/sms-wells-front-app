@@ -151,6 +151,22 @@ function resetCntrSn() {
 }
 
 async function onSelectProduct(newProduct) {
+  // 상품관계 확인
+  // PD_REL_TP_CD '12' 기계약상품여부
+  const res = await dataService.get('sms/wells/contract/contracts/product-relations', {
+    params: {
+      cntrNo: cntrNo.value, // 현재는 사용하지 않음
+      pdCd: newProduct.pdCd,
+      cstNo: step2.value?.bas.cntrCstNo,
+    },
+  });
+
+  const { preCntrPdRelCnt, preCntrPdCnt } = res.data;
+  if (Number(preCntrPdRelCnt) > 0 && preCntrPdCnt === '0') {
+    alert('해당 상품은 기계약상품의 계약건이 존재해야만 선택 가능합니다.');
+    return;
+  }
+
   const isWellsFarmProduct = newProduct.pdLclsfId === 'PDC000000000120';
 
   const isComposition = newProduct.pdTpCd === 'C';
