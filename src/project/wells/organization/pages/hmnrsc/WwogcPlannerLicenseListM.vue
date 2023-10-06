@@ -95,6 +95,17 @@
           />
         </template>
         <kw-btn
+          dense
+          secondary
+          :label="t('MSG_BTN_SAVE')"
+          @click="onClickPaymentSave"
+        />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <kw-btn
           v-permission:create
           dense
           grid-action
@@ -161,6 +172,7 @@ import { defineGrid, getComponentType, useDataService, useMeta, useGlobal, gridU
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
+import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
 import { SMS_COMMON_URI } from '~sms-common/organization/constants/ogConst';
 import ZwogPartnerSearch from '~sms-common/organization/components/ZwogPartnerSearch.vue';
 import useOgReport from '~sms-common/organization/composables/useOgReport';
@@ -222,7 +234,7 @@ const searchParams = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/partner/planner-license/paging', { params: { ...searchParams.value, ...grdMain1PageInfo.value } });
+  const res = await dataService.get(`${SMS_WELLS_URI}/partner/planner-license/paging`, { params: { ...searchParams.value, ...grdMain1PageInfo.value } });
   const { list, pageInfo: pagingResult } = res.data;
   grdMain1PageInfo.value = pagingResult;
   grdMain1Datas.value = list;
@@ -236,7 +248,7 @@ async function fetchData() {
 }
 
 async function fetchDetailData(prtnrNo) {
-  const res = await dataService.get(`/sms/wells/partner/planner-license/${prtnrNo}/paging`);
+  const res = await dataService.get(`${SMS_WELLS_URI}/partner/planner-license/${prtnrNo}/paging`);
   const { list, pageInfo: pagingResult } = res.data;
   grdMain2PageInfo.value = pagingResult;
   grdMain2Datas.value = list;
@@ -339,7 +351,7 @@ const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdMain1Ref.value.getView();
 
-  const res = await dataService.get('/sms/wells/partner/planner-license/excel-download', { params: searchParams.value });
+  const res = await dataService.get(`${SMS_WELLS_URI}/partner/planner-license/excel-download`, { params: searchParams.value });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -425,25 +437,25 @@ async function onClickUpgrades(type) {
   let message;
   switch (type) {
     case 'DAY_OPENING':
-      res = await dataService.post('/sms/wells/partner/planner-qualification-change/day-opening', params);
+      res = await dataService.post(`${SMS_WELLS_URI}/partner/planner-qualification-change/day-opening`, params);
       break;
     case 'CANCEL':
       if (await confirm(t('MSG_ALT_CLTN'))) {
         message = t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]);
-        res = await dataService.put('/sms/wells/partner/planner-qualification-cancel', params);
+        res = await dataService.put(`${SMS_WELLS_URI}/partner/planner-qualification-cancel`, params);
       }
       break;
     case 'HOLDING':
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_QLF_HOLDON')]);
-      res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
+      res = await dataService.post(`${SMS_WELLS_URI}/partner/planner-qualification-change`, params);
       break;
     case 'THIS_OPENING':
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_THM_OPNG')]);
-      res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
+      res = await dataService.post(`${SMS_WELLS_URI}/partner/planner-qualification-change`, params);
       break;
     default:
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]);
-      res = await dataService.post('/sms/wells/partner/planner-qualification-change', params);
+      res = await dataService.post(`${SMS_WELLS_URI}/partner/planner-qualification-change`, params);
   }
 
   if (res) {
@@ -476,6 +488,29 @@ async function onClickSave() {
   await dataService.put(`${SMS_COMMON_URI}/partners/change-biztelephone`, params);
   await init();
   notify(t('MSG_ALT_SAVE_DATA'));
+}
+
+async function onClickPaymentSave() {
+  const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo } = selectedCurrentRow.value;
+  const view = grdMain2Ref.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+  const changedRows = gridUtil.getChangedRowValues(view);
+
+  const params = changedRows.map((obj) => {
+    const data = {
+      ogTpCd: currentRowOgTpCd,
+      prtnrNo: currentRowPrtnrNo,
+      qlfDvCd: obj.qlfDvCd,
+      strtdt: obj.strtdt,
+      pymdt: obj.pymdt,
+      dsbAmt: obj.dsbAmt,
+    };
+    return data;
+  });
+  await dataService.put(`${SMS_WELLS_URI}/partner/planner-qualification-paymentInfo`, params);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await currentRowDetail(selectedCurrentRow.value);
 }
 
 /* onMounted(() => {
@@ -562,11 +597,11 @@ const initGrid1 = defineGrid((data, view) => {
 
 const initGrid2 = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
-    { fieldName: 'qlfAplcDvNm', header: t('MSG_TXT_QLF_CHA'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
-    { fieldName: 'strtdt', header: t('MSG_TXT_STRT_DATE'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'cvDt', header: t('MSG_TXT_CV_DT'), width: '160', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'enddt', header: t('MSG_TXT_END_DT'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
+    { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
+    { fieldName: 'qlfAplcDvNm', header: t('MSG_TXT_QLF_CHA'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
+    { fieldName: 'strtdt', header: t('MSG_TXT_STRT_DATE'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
+    { fieldName: 'cvDt', header: t('MSG_TXT_CV_DT'), width: '160', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
+    { fieldName: 'enddt', header: t('MSG_TXT_END_DT'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
     {
       fieldName: 'col1',
       header: t('MSG_TXT_CNTRW_BRWS'),
@@ -583,15 +618,49 @@ const initGrid2 = defineGrid((data, view) => {
         };
       },
       displayCallback: () => t('MSG_BTN_CNTRW_BRWS'),
+      editable: false,
     },
-    { fieldName: 'pymdt', header: t('MSG_TXT_DSB_DT'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
-    { fieldName: 'dsbAmt', header: t('MSG_TXT_DSB_AMT'), width: '92', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
-    { fieldName: 'col2', header: t('MSG_TXT_MDFC_USR_NO'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
-    { fieldName: 'col3', header: t('MSG_TXT_MDFC_USR'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; } },
-    { fieldName: 'col4', header: t('MSG_TXT_MDFC_DATE'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); } },
+    {
+      fieldName: 'pymdt',
+      header: t('MSG_TXT_DSB_DT'),
+      width: '92',
+      styleName: 'text-center',
+      dataType: 'date',
+      datetimeFormat: 'yyyy-MM-dd',
+      editor: {
+        type: 'date',
+      },
+      rules: 'required',
+      preventCellItemFocus: true,
+      displayCallback(g, index, value) {
+        return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD');
+      },
+      editable: true,
+    },
+    {
+      fieldName: 'dsbAmt',
+      header: t('MSG_TXT_DSB_AMT'),
+      width: '92',
+      styleName: 'text-right',
+      dataType: 'number',
+      numberFormat: '#,##0',
+      editor: {
+        inputCharacters: '0-9',
+      },
+      rules: 'required',
+      preventCellItemFocus: true,
+      displayCallback(g, index, value) {
+        return isEmpty(value) ? '-' : value;
+      },
+      editable: true,
+    },
+    { fieldName: 'pcpPrtnrNo', header: t('MSG_TXT_MDFC_USR_NO'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
+    { fieldName: 'pcpPrtnrKnm', header: t('MSG_TXT_MDFC_USR'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
+    { fieldName: 'prcsdt', header: t('MSG_TXT_MDFC_DATE'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
     { fieldName: 'cntrDt', visible: false },
     { fieldName: 'prtnrCntrTpCd', visible: false },
     { fieldName: 'ogId', visible: false },
+    { fieldName: 'qlfDvCd', visible: false },
   ];
 
   // eslint-disable-next-line max-len
@@ -600,6 +669,7 @@ const initGrid2 = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 
   /* 스크롤 페이징 */
   view.onScrollToBottom = async (g) => {
