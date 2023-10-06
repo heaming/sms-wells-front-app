@@ -385,7 +385,7 @@ const initGridMembershipContractNoList = defineGrid((data, view) => {
     { fieldName: 'rveCd', header: t('MSG_TXT_RVE_CD'), width: '136', styleName: 'text-center' }, // 수납코드
     { fieldName: 'ichrUsrId', header: `${t('MSG_TXT_BIZ_ICHR')}${t('MSG_TXT_EPNO')}`, width: '136', styleName: 'text-center' }, // 업무담당사번
     { fieldName: 'aftnInf', header: t('MSG_TXT_FNT_AC_CARD'), width: '136', styleName: 'text-center' }, // 이체계좌/카드
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FTD'), width: '136', styleName: 'text-right', datetimeFormat: 'date' }, // 이체일
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FTD'), width: '136', styleName: 'text-center' }, // 이체일
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '136', styleName: 'text-center' }, // 고객번호
     {
       fieldName: 'cntrCralTno',
