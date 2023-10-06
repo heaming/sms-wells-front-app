@@ -24,7 +24,7 @@
           <kw-item-label
             class="scoped-item__product-name"
           >
-            {{ dtl.pdNm }}
+            {{ dtl.cstBasePdAbbrNm || dtl.pdNm }}
           </kw-item-label>
 
           <div class="scoped-item__chips">
@@ -211,6 +211,7 @@ const priceDefineVariables = ref({
 
 const labelGenerator = {
   svPdCd: (val, finalPrice) => {
+    if (val === EMPTY_ID) { return '선택안함'; }
     const { svTpCd, svVstPrdCd, pcsvPrdCd } = finalPrice;
     const additional = [];
     if (svVstPrdCd) {
@@ -222,6 +223,7 @@ const labelGenerator = {
     return `${getCodeName('SV_TP_CD', svTpCd)} - ${additional.join('/')}`;
   },
   stplPrdCd: (val) => {
+    if (val === EMPTY_ID) { return '선택안함'; }
     if (Number(val) === 0) {
       return '1회분';
     }
@@ -322,7 +324,7 @@ const priceDefineVariableOptions = computed(() => variableNames.reduce((mappingO
   if (dict[EMPTY_SYM]) {
     options.push({
       codeId: EMPTY_ID,
-      codeName: '선택안함',
+      codeName: labelGenerator[variableName](EMPTY_ID),
     });
   }
   Object.getOwnPropertyNames(dict)

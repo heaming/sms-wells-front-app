@@ -37,44 +37,45 @@
         item-padding="20px 0"
       >
         <template
-          v-for="(item, index) in step2.dtls"
+          v-for="(item) in step2.dtls"
         >
           <single-pay-price-select
             v-if="item?.sellTpCd === '1'"
-            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
+            :key="`${item.pdCd}-${item.tempKey ?? item.cntrSn}`"
             :model-value="item"
             :bas="step2.bas"
             @price-changed="onPriceChanged"
-            @delete="onClickDelete(index)"
+            @delete="onClickDelete(item)"
           />
           <rental-price-select
             v-if="item?.sellTpCd === '2'"
-            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
+            :key="`${item.pdCd}-${item.tempKey ?? item.cntrSn}`"
             :model-value="item"
             :bas="step2.bas"
             @one-plus-one="onClickOnePlusOne"
             @delete:one-plus-one="onDeleteOnePlusOne"
             @device-change="onClickDeviceChange"
             @price-changed="onPriceChanged"
-            @delete="onClickDelete(index)"
+            @packaging="onPackaging"
+            @delete="onClickDelete(item)"
           />
           <membership-price-select
             v-if="item?.sellTpCd === '3'"
-            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
+            :key="`${item.pdCd}-${item.tempKey ?? item.cntrSn}`"
             :model-value="item"
             :bas="step2.bas"
-            @delete="onClickDelete(index)"
+            @delete="onClickDelete(item)"
           />
           <regular-shipping-price-select
             v-if="item?.sellTpCd === '6'"
-            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
+            :key="`${item.pdCd}-${item.tempKey ?? item.cntrSn}`"
             :model-value="item"
             :bas="step2.bas"
             @select-machine="onClickSelectMachine"
             @delete:select-machine="onDeleteSelectMachine"
             @select-seeding="onClickSelSdingCapsl"
             @select-capsule="onClickSelSdingCapsl"
-            @delete="onClickDelete(index)"
+            @delete="onClickDelete(item)"
           />
         </template>
       </kw-list>
@@ -113,7 +114,7 @@ const { notify, modal } = useGlobal();
 const CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE = '214';
 const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
 const CNTR_REL_DTL_CD_LK_SDING = '216';
-// const CNTR_REL_DTL_CD_LK_MLTCS_PRCHS = '22M'; // 다건 구매
+const CNTR_REL_DTL_CD_LK_MLTCS_PRCHS = '22M'; // 다건 구매
 
 const cntrNo = toRef(props.contract, 'cntrNo');
 const step2 = toRef(props.contract, 'step2');
@@ -123,34 +124,8 @@ const ogStep2 = ref({});
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-// async function getProducts() {
-//   if (!cntrNo.value) {
-//     await alert('잘못된 접근입니다.');
-//     return;
-//   }
-//   const { data } = await dataService.get('sms/wells/contract/contracts/reg-products', {
-//     params: {
-//       cntrNo: cntrNo.value,
-//       pdFilter: pdFilter.value,
-//     },
-//   });
-//   classfiedPds.value = data.pdClsf;
-//   pdFilter.value = '';
-//   cachedPdFilter.value = '';
-//   cachedSellTpCd.value = '';
-//   filteredClsfPds.value = classfiedPds.value;
-//   if (classfiedPds.value.length === 0) {
-//     await alert('판매 가능한 상품이 없습니다.');
-//   }
-// }
-
-function resetCntrSn() {
-  step2.value.dtls.forEach((dtl, index) => {
-    dtl.cntrSn = index + 1;
-  });
-}
-
-async function onSelectProduct(newProduct) {
+async function onSelectProduct(product) {
+  const newProduct = { ...product };
   // 상품관계 확인
   // PD_REL_TP_CD '12' 기계약상품여부
   const res = await dataService.get('sms/wells/contract/contracts/product-relations', {
@@ -181,7 +156,7 @@ async function onSelectProduct(newProduct) {
     // });
   }
 
-  newProduct.tempKey = uniqueId('new-slide');
+  newProduct.tempKey = uniqueId('new-product');
 
   step2.value.dtls.push(newProduct);
 
@@ -200,7 +175,7 @@ async function onSelectProduct(newProduct) {
 
     const defaultPackageProduct = packageProducts[0];
 
-    const packageTempKey = uniqueId('new-slide');
+    const packageTempKey = uniqueId('new-product');
 
     const cntrRel = {
       cntrRelId: undefined,
@@ -229,8 +204,6 @@ async function onSelectProduct(newProduct) {
 
     step2.value.dtls.push(packageProduct);
   }
-
-  resetCntrSn();
   emit('contract-modified');
 }
 
@@ -264,23 +237,34 @@ async function onSelectProduct(newProduct) {
 //   await addProduct(pd);
 // }
 
-async function onClickDelete(index) {
-  const { dtls } = step2.value;
-  const dtl = step2.value.dtls[index];
-
+async function onClickDelete(dtl) {
   const { cntrRels, ojCntrRels, hgrPdCd, tempKey, cntrSn } = dtl;
-  const removeKeys = [tempKey ?? cntrSn];
 
   if (cntrRels) {
+    let parentDeleted = false;
     cntrRels.forEach((cntrRel) => {
       const { ojDtlCntrNo, ojDtlCntrSn, ojTempKey } = cntrRel;
       if (ojDtlCntrNo !== cntrNo.value) {
         return;
       }
-      const removeKey = ojTempKey ?? ojDtlCntrSn;
-      removeKeys.push(removeKey);
+
+      const parentKey = ojTempKey ?? ojDtlCntrSn;
+      const parentDtl = step2.value.dtls.find((checkDtl) => {
+        const dtlKey = checkDtl.tempKey ?? checkDtl.cntrSn;
+
+        return parentKey === dtlKey;
+      });
+      if (!parentDtl) {
+        warn('계약 내 관계 형성이 상이하게 되어있습니다.');
+      }
+      parentDeleted = true;
+      onClickDelete(parentDtl);
     });
+
+    if (parentDeleted) { return; }
   }
+
+  const removeKeys = [tempKey ?? cntrSn];
 
   if (ojCntrRels) {
     ojCntrRels.forEach((cntrRel) => {
@@ -294,31 +278,20 @@ async function onClickDelete(index) {
   }
 
   removeKeys.forEach((key) => {
-    const removeDtlIndex = dtls.findIndex((checkDtl) => {
+    if (!key) {
+      warn(`삭제 키 확인 바랍니다. ${key}`);
+      return;
+    }
+    const removeDtlIndex = step2.value.dtls.findIndex((checkDtl) => {
       const dtlKey = checkDtl.tempKey ?? checkDtl.cntrSn;
       return key === dtlKey;
     });
-    dtls.splice(removeDtlIndex, 1);
+    step2.value.dtls.splice(removeDtlIndex, 1);
   });
 
   if (hgrPdCd) {
     /* TODO */
   }
-
-  // if (isItem.rglrSpp(dtl) && dtl.sellTpDtlCd === '62') return;
-  // if (dtl.hgrPdCd) {
-  //   step2.value.dtls = step2.value.dtls.filter((spd) => dtl.hgrPdCd !== spd.hgrPdCd);
-  // }
-  // if (isItem.welsf(dtl) || isItem.hcf(dtl)) {
-  //   step2.value.dtls = step2.value.dtls
-  //   .filter((spd) => dtl.cntrSn !== spd.cntrSn && (dtl.cntrSn + 1) !== spd.cntrSn);
-  // } else {
-  //   step2.value.dtls.splice(index, 1);
-  // }
-  // if (dtl.packaged) {
-  //   step2.value.dtls = step2.value.dtls.filter((spd) => !spd.packaged);
-  // }
-  // resetCntrSn();
   emit('contract-modified');
 }
 
@@ -343,17 +316,14 @@ async function onClickOnePlusOne(dtl) {
       pdCd: dtl.pdCd,
       pdNm: dtl.pdNm,
     },
-    ojBasePdBas: {
-      pdNm: payload.pdNm,
-      ...payload,
-    }, /* 기기 선택 해야함. */
+    ojBasePdBas: { ...payload }, /* 기기 선택 해야함. */
   });
 
   dtl.sellDscTpCd = '03';
   dtl.rentalDiscountFixed = true;
 }
 
-function onDeleteOnePlusOne(dtl) {
+async function onDeleteOnePlusOne(dtl) {
   const { cntrRels } = dtl;
   if (!cntrRels?.length) {
     warn('계약관계가 상이합니다.');
@@ -425,8 +395,87 @@ async function onClickSelectMachine(dtl) {
       pdCd: dtl.pdCd,
       pdNm: dtl.pdNm,
     },
-    ojBasePdBas: payload, /* 기기 선택 해야함. */
+    ojBasePdBas: { ...payload }, /* 기기 선택 해야함. */
   });
+}
+
+async function onPackaging(dtl, rentalDscTpCd) {
+  /*
+  if (!rentalDscTpCds?.length) {
+    warn('패키지 할인 유형코드가 이상합니다.');
+  }
+
+  const dtlsByRentalDscTpCd = rentalDscTpCds.reduce((mappingObj, rentalDscTpCd) => {
+    mappingObj[rentalDscTpCd] = [];
+    return mappingObj;
+  }, {});
+
+  step2.value.dtls.forEach((rentalDtl) => {
+    const { packageRentalDscTpCds } = rentalDtl;
+    if (!packageRentalDscTpCds?.length) { return; }
+    packageRentalDscTpCds.forEach((rentalDscTpCd) => {
+      if (rentalDscTpCds.includes(rentalDscTpCd)) {
+        dtlsByRentalDscTpCd[rentalDscTpCd].push(dtl);
+      }
+    });
+  }); */
+
+  const packagables = step2.value.dtls.filter((rentalDtl) => {
+    const { packageRentalDscTpCds } = rentalDtl;
+    if (!packageRentalDscTpCds?.length) {
+      return false;
+    }
+    return packageRentalDscTpCds.includes(rentalDscTpCd);
+  });
+
+  // 모바일과는 다르다!! 우선 냅다 선택하고, 패키징을 한다.
+  const { result, payload } = await modal({
+    component: 'WwctaRentalMultiCasePrchsDscChoP',
+    componentProps: {
+      rentalDscTpCd,
+      cntrDtls: packagables,
+    },
+  });
+
+  if (!result) {
+    return;
+  }
+
+  const { selectedCntrDtls, discountedCntrDtl } = payload;
+
+  const ojCntrRels = [];
+
+  selectedCntrDtls.forEach((cntrDtl) => {
+    if (cntrDtl !== discountedCntrDtl) {
+      cntrDtl.priceOptionFilter = {
+        rentalDscDvCd: '8', /* 일반 SORRY FOR HARD CODING. */
+        rentalDscTpCd: undefined,
+      };
+      const cntrRel = {
+        cntrRelId: undefined,
+        cntrRelDtlCd: CNTR_REL_DTL_CD_LK_MLTCS_PRCHS,
+        baseDtlCntrNo: cntrNo.value,
+        baseDtlCntrSn: undefined,
+        ojDtlCntrNo: cntrNo.value,
+        ojDtlCntrSn: undefined,
+        baseTempKey: cntrDtl.tempKey,
+        basePdBas: {
+          pdCd: cntrDtl.pdCd,
+          pdNm: cntrDtl.pdNm,
+        },
+        ojTempKey: discountedCntrDtl.tempKey,
+        ojBasePdBas: { ...discountedCntrDtl },
+      };
+      cntrDtl.cntrRels = [cntrRel];
+      ojCntrRels.push({ ...cntrRel });
+    }
+  });
+
+  discountedCntrDtl.priceOptionFilter = {
+    rentalDscDvCd: '8', /* 일반 SORRY FOR HARD CODING. */
+    rentalDscTpCd,
+  };
+  discountedCntrDtl.ojCntrRels = ojCntrRels;
 }
 
 function onDeleteSelectMachine(dtl) {
@@ -467,6 +516,22 @@ async function getCntrInfo() {
     },
   });
   step2.value = data.step2;
+  const { dtls = [] } = step2.value;
+  dtls.forEach((cntrDtl) => {
+    const { cntrRels = [] } = cntrDtl;
+    cntrRels.forEach((cntrRel) => {
+      if (cntrRel.ojDtlCntrNo === cntrNo.value) {
+        const ojCntrDtl = dtls.find((ojDtl) => ojDtl.cntrSn === cntrRel.ojDtlCntrSn);
+        if (!ojCntrDtl) {
+          warn('계약 관계에 문제가 있습니다.');
+          return;
+        }
+        ojCntrDtl.ojCntrRels ??= [];
+        ojCntrDtl.ojCntrRels.push(cntrRel);
+      }
+    });
+  });
+  step2.value.dtls = dtls;
   ogStep2.value = cloneDeep(step2.value);
 }
 
@@ -529,7 +594,9 @@ async function isValidStep() {
 const loaded = ref(false);
 
 async function initStep() {
-  if (loaded.value) { return; }
+  if (loaded.value) {
+    return;
+  }
   await getCntrInfo();
   loaded.value = true;
 }
@@ -543,15 +610,13 @@ function setAllianceInfo() {
       dtls[i].alncmpCd = cd;
     }
   });
-  // console.log(JSON.stringify(step2.value, null, '\t'));
 }
 
 async function saveStep() {
-  resetCntrSn();
   setAllianceInfo();
   const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step2', step2.value);
   notify(t('MSG_ALT_SAVE_DATA'));
-  ogStep2.value = cloneDeep(step2.value);
+  ogStep2.value = cloneDeep(step2.value); /* TODO REMOVE... */
   return savedCntr?.data?.key;
 }
 
@@ -581,239 +646,43 @@ function onPriceChanged() {
 @import "kw-lib/src/css/mixins";
 
 .scoped-layout {
-  $-root: &;
-
-  width: 100%;
   height: 100%;
   display: flex;
   flex-flow: row nowrap;
+  container-type: inline-size;
 
   &__pick-area {
-    width: 339px;
-    flex: none;
-    height: 100%;
+    flex: 1 0 1px;
+  }
+
+  @container (max-width: 1100px) {
+    &__pick-area {
+      opacity: 0;
+      width: 20px;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      z-index: 20;
+
+      &:hover {
+        width: 339px;
+        background: $bg-white;
+        opacity: 1;
+      }
+    }
+  }
+
+  @container (min-width: 1101px) {
+    &__pick-area {
+      max-width: 339px;
+      height: 100%;
+    }
   }
 
   &__mod-area {
+    min-width: 780px;
+    flex: 1 0 1px;
     height: 100%;
-    flex: auto;
   }
 }
-
-.scoped-item {
-  $-root: &;
-  $-left-side-width: 68px;
-  $-right-side-width: 44px;
-
-  & :deep(> .kw-item__section) {
-    &.q-item__section--side {
-      min-width: $-left-side-width;
-      padding-right: $spacing-xs;
-    }
-
-    &.q-item__section--main ~ .q-item__section--side {
-      min-width: $-right-side-width;
-      padding-right: 0;
-    }
-
-    &.q-item__section:first-of-type {
-      &.q-item__section--main {
-        margin-left: $-left-side-width;
-      }
-    }
-
-    &.q-item__section:last-of-type {
-      &.q-item__section--main {
-        margin-right: $-right-side-width;
-      }
-    }
-  }
-
-  &__section-type {
-    justify-content: flex-start;
-    width: 68px;
-    padding-right: $spacing-xs;
-  }
-
-  &__type {
-    color: $black3;
-    font-size: 14px;
-    line-height: 24px !important; // quasat 부터 시작한 유구한 역사의 important.
-    font-weight: normal;
-    letter-spacing: normal;
-  }
-
-  &__section-main {
-    justify-content: flex-start;
-  }
-
-  &__main {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: flex-start;
-    gap: $spacing-xs;
-  }
-
-  &__product-name {
-    @include typo("body");
-  }
-
-  &__chips {
-    display: flex;
-    gap: $spacing-xxs;
-  }
-
-  &__section-price {
-    justify-content: flex-start;
-    flex: none;
-    padding-left: $spacing-xs;
-  }
-
-  &__price {
-    @include typo("body");
-
-    font-weight: bold;
-  }
-
-  &__price-prev {
-    @include typo("dense");
-
-    color: $black3;
-    text-decoration: line-through;
-    text-align: right;
-  }
-
-  &__section-action {
-    min-width: 44px;
-    justify-content: flex-start;
-
-    > .kw-btn {
-      font-size: 24px;
-    }
-  }
-
-  &--data-modifier {
-    margin-top: 12px;
-
-    :deep(.kw-item__section) {
-      &.q-item__section--main:first-of-type {
-        margin-left: 68px;
-      }
-
-      &.q-item__section--main:last-of-type {
-        margin-right: 44px;
-      }
-    }
-  }
-
-  &__field-row {
-    display: flex;
-    flex-flow: row nowrap;
-    gap: $spacing-xs;
-
-    & > :where(.kw-field, .kw-field-wrap) {
-      width: 1px;
-      flex: 1 1 0;
-    }
-  }
-
-  &--sub-content {
-    margin-top: 16px;
-
-    &.kw-item {
-      min-height: unset;
-    }
-
-    #{$-root}__product-name {
-      font-weight: normal;
-    }
-
-    #{$-root}__price {
-      font-weight: normal;
-    }
-  }
-
-  &__addon {
-    margin-top: 16px;
-    font-size: 14px;
-    color: $black1;
-    font-weight: normal;
-
-    > .scoped-item__type {
-      line-height: 20px !important;
-      padding-right: $spacing-xs;
-    }
-
-    &::before {
-      content: "";
-      display: inline-block;
-      margin-bottom: 5px;
-      margin-right: 4.5px;
-      width: 9px;
-      height: 8.5px;
-      border-left: 1px solid #ccc;
-      border-bottom: 1px solid #ccc;
-    }
-  }
-
-  &-price-list {
-    display: flex;
-    flex-wrap: wrap;
-    max-width: calc(100% - 122px);
-    gap: 4px 25px;
-  }
-
-  &-price-item {
-    display: flex;
-    align-items: center;
-    position: relative;
-
-    &:last-child::after {
-      display: none;
-    }
-
-    &::after {
-      content: "";
-      display: block;
-      position: absolute;
-      width: 1px;
-      height: 16px;
-      background-color: #ddd;
-      top: 50%;
-      right: -12px;
-      transform: translateY(-50%);
-    }
-  }
-
-  &-right-area {
-    padding-left: 68px;
-    width: 100%;
-  }
-}
-
-.dashed-line {
-  border-top: 1px dashed #ddd;
-  height: 0;
-  background: none;
-}
-
-.scoped-child-select {
-  margin-top: 8px !important;
-  display: flex;
-  column-gap: 8px;
-  align-content: center;
-
-  &::before {
-    content: "";
-    display: inline-block;
-    align-self: center;
-    margin: 6px 6px 6px 0;
-    width: 10px;
-    height: 10px;
-    border-left: 2px solid #ccc;
-    border-bottom: 2px solid #ccc;
-  }
-}
-
-// //rev:230623 수정 및 추가
 </style>
