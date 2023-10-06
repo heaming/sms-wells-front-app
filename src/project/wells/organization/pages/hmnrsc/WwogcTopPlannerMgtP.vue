@@ -64,10 +64,10 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CRT_DT')">
-          <p>{{ isEmpty(planner.fstRgstDtm) ? '-' : stringUtil.getDateFormat(planner.fstRgstDtm) }}</p>
+          <p>{{ isEmpty(planner.rgstDt) ? '-' : stringUtil.getDateFormat(planner.rgstDt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CREATE_NO')">
-          <p>{{ planner.fnlMdfcUsrId ?? '-' }}</p>
+          <p>{{ planner.rgrPrtnrNo ?? '-' }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CREATE_NM')">
           <p>{{ planner.rgstPrtnrKnm ?? '-' }}</p>
@@ -75,10 +75,10 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_MDFC_DATE')">
-          <p>{{ isEmpty(planner.fnlMdfcDtm) ? '-' : stringUtil.getDateFormat(planner.fnlMdfcDtm) }}</p>
+          <p>{{ isEmpty(planner.mdfcDt) ? '-' : stringUtil.getDateFormat(planner.mdfcDt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_MDFC_USR_NO')">
-          <p>{{ planner.fnlMdfcUsrId ?? '-' }}</p>
+          <p>{{ planner.udrPrtnrNo ?? '-' }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_MDFC_USR_NM')">
           <p>{{ planner.mdfcPrtnrKnm ?? '-' }}</p>
