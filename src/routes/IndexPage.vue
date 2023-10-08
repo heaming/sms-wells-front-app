@@ -45,4 +45,5 @@ function onClickShowHomeCard() {
   store.commit('app/setLeftExist', false);
   showHomeCard.value = true;
 }
+onClickShowHomeCard();
 </script>
