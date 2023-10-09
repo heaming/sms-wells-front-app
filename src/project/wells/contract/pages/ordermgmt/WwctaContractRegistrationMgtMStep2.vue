@@ -23,7 +23,66 @@
       :spaced="false"
       vertical
     />
+    <div class="scoped-layout__mod-area scoped-mod-area">
+      <span class="scoped-mod-area__title">
+        상품내역
+      </span>
+      <div
+        v-scrollbar
+        class="scoped-mod-area__content"
+      >
+        <kw-list
+          class="pr30"
+          separator
+          item-padding="20px 0"
+        >
+          <template
+            v-for="(item) in step2.dtls"
+          >
+            <single-pay-price-select
+              v-if="item?.sellTpCd === '1'"
+              :key="`price-select-${item.tempKey ?? item.cntrSn}`"
+              :model-value="item"
+              :bas="step2.bas"
+              @price-changed="onPriceChanged"
+              @delete="onClickDelete(item)"
+            />
+            <rental-price-select
+              v-if="item?.sellTpCd === '2'"
+              :key="`price-select-${item.tempKey ?? item.cntrSn}`"
+              :model-value="item"
+              :bas="step2.bas"
+              @one-plus-one="onClickOnePlusOne"
+              @delete:one-plus-one="onDeleteOnePlusOne"
+              @device-change="onClickDeviceChange"
+              @price-changed="onPriceChanged"
+              @packaging="onPackaging"
+              @delete="onClickDelete(item)"
+            />
+            <membership-price-select
+              v-if="item?.sellTpCd === '3'"
+              :key="`price-select-${item.tempKey ?? item.cntrSn}`"
+              :model-value="item"
+              :bas="step2.bas"
+              @delete="onClickDelete(item)"
+            />
+            <regular-shipping-price-select
+              v-if="item?.sellTpCd === '6'"
+              :key="`price-select-${item.tempKey ?? item.cntrSn}`"
+              :model-value="item"
+              :bas="step2.bas"
+              @select-machine="onClickSelectMachine"
+              @delete:select-machine="onDeleteSelectMachine"
+              @select-seeding="onClickSelSdingCapsl"
+              @select-capsule="onClickSelSdingCapsl"
+              @delete="onClickDelete(item)"
+            />
+          </template>
+        </kw-list>
+      </div>
+    </div>
     <kw-scroll-area
+      v-if="false"
       visible
       class="scoped-layout__mod-area"
       scroll-width="100%"
@@ -41,7 +100,7 @@
         >
           <single-pay-price-select
             v-if="item?.sellTpCd === '1'"
-            :key="`${item.pdCd}-${item.tempKey ?? item.cntrSn}`"
+            :key="`price-select-${item.tempKey ?? item.cntrSn}`"
             :model-value="item"
             :bas="step2.bas"
             @price-changed="onPriceChanged"
@@ -49,7 +108,7 @@
           />
           <rental-price-select
             v-if="item?.sellTpCd === '2'"
-            :key="`${item.pdCd}-${item.tempKey ?? item.cntrSn}`"
+            :key="`price-select-${item.tempKey ?? item.cntrSn}`"
             :model-value="item"
             :bas="step2.bas"
             @one-plus-one="onClickOnePlusOne"
@@ -61,14 +120,14 @@
           />
           <membership-price-select
             v-if="item?.sellTpCd === '3'"
-            :key="`${item.pdCd}-${item.tempKey ?? item.cntrSn}`"
+            :key="`price-select-${item.tempKey ?? item.cntrSn}`"
             :model-value="item"
             :bas="step2.bas"
             @delete="onClickDelete(item)"
           />
           <regular-shipping-price-select
             v-if="item?.sellTpCd === '6'"
-            :key="`${item.pdCd}-${item.tempKey ?? item.cntrSn}`"
+            :key="`price-select-${item.tempKey ?? item.cntrSn}`"
             :model-value="item"
             :bas="step2.bas"
             @select-machine="onClickSelectMachine"
@@ -87,15 +146,20 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import ProductSelect from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
-import SinglePayPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
-import RentalPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
-import MembershipPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
+import ProductSelect
+  from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
+import SinglePayPriceSelect
+  from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
+import RentalPriceSelect
+  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
+import MembershipPriceSelect
+  from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
 import RegularShippingPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaRegularShippingFinalPriceSelect.vue';
 import { alert, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqueId } from 'lodash-es';
 import { warn } from 'vue';
+import { vScrollbar } from '~sms-common/contract/util';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -126,6 +190,8 @@ const ogStep2 = ref({});
 
 async function onSelectProduct(product) {
   const newProduct = { ...product };
+  const newProducts = [];
+
   // 상품관계 확인
   // PD_REL_TP_CD '12' 기계약상품여부
   const res = await dataService.get('sms/wells/contract/contracts/product-relations', {
@@ -142,23 +208,39 @@ async function onSelectProduct(product) {
     return;
   }
 
+  const setTempKey = (pd) => {
+    pd.tempKey = uniqueId('new-product');
+  };
+
   const isWellsFarmProduct = newProduct.pdLclsfId === 'PDC000000000120';
 
   const isComposition = newProduct.pdTpCd === 'C';
 
   if (isComposition) {
-    // TODO
-    // const { data } = await dataService.get('sms/wells/contract/contracts/reg-cpt-products', {
-    //   params: {
-    //     cntrNo: step2.value.bas.cntrNo,
-    //     hgrPdCd: pd.pdCd,
-    //   },
-    // });
+    const alreadyExistComposition = !!step2.value.dtls.find((existed) => existed.hgrPdCd === product.pdCd);
+
+    if (alreadyExistComposition) {
+      await alert('동일한 복합상품이 존재합니다.');
+      return;
+    }
+
+    const { data: containedProducts } = await dataService.get('sms/wells/contract/contracts/reg-cpt-products', {
+      params: {
+        cntrNo: step2.value.bas.cntrNo,
+        hgrPdCd: product.pdCd,
+      },
+    });
+
+    containedProducts.forEach((containedProduct) => {
+      // TODO: fix
+      containedProduct.pdClsfNm = '복합상품';
+      setTempKey(containedProduct);
+      newProducts.push(containedProduct);
+    });
+  } else {
+    setTempKey(newProduct);
+    newProducts.push(newProduct);
   }
-
-  newProduct.tempKey = uniqueId('new-product');
-
-  step2.value.dtls.push(newProduct);
 
   if (isWellsFarmProduct) {
     // 정기배송 상품 조회 CASE1: 웰스팜/홈카페 상품을 선택하여 정기배송 패키지가 자동추가되는 경우
@@ -173,9 +255,9 @@ async function onSelectProduct(product) {
       return;
     }
 
-    const defaultPackageProduct = packageProducts[0];
+    packageProducts.forEach(setTempKey);
 
-    const packageTempKey = uniqueId('new-product');
+    const defaultPackageProduct = packageProducts[0];
 
     const cntrRel = {
       cntrRelId: undefined,
@@ -188,22 +270,23 @@ async function onSelectProduct(product) {
         pdCd: defaultPackageProduct.pdCd,
         pdNm: defaultPackageProduct.pdNm,
       },
-      baseTempKey: packageTempKey,
+      baseTempKey: defaultPackageProduct.tempKey,
       ojTempKey: newProduct.tempKey,
       ojBasePdBas: { ...newProduct },
     };
 
     const packageProduct = {
       ...defaultPackageProduct,
-      tempKey: packageTempKey,
       cntrRels: [cntrRel],
       pkgs: packageProducts,
     };
 
     newProduct.ojCntrRels = [cntrRel];
 
-    step2.value.dtls.push(packageProduct);
+    newProducts.push(packageProduct);
   }
+
+  step2.value.dtls.push(...newProducts);
   emit('contract-modified');
 }
 
@@ -261,10 +344,20 @@ async function onClickDelete(dtl) {
       onClickDelete(parentDtl);
     });
 
-    if (parentDeleted) { return; }
+    if (parentDeleted) {
+      return;
+    }
   }
 
-  const removeKeys = [tempKey ?? cntrSn];
+  let removeKeys;
+
+  if (hgrPdCd) {
+    removeKeys = step2.value.dtls
+      .filter((product) => product.hgrPdCd === hgrPdCd)
+      .map((product) => product.tempKey ?? product.cntrSn);
+  } else {
+    removeKeys = [tempKey ?? cntrSn];
+  }
 
   if (ojCntrRels) {
     ojCntrRels.forEach((cntrRel) => {
@@ -289,9 +382,6 @@ async function onClickDelete(dtl) {
     step2.value.dtls.splice(removeDtlIndex, 1);
   });
 
-  if (hgrPdCd) {
-    /* TODO */
-  }
   emit('contract-modified');
 }
 
@@ -682,6 +772,28 @@ function onPriceChanged() {
   &__mod-area {
     min-width: 780px;
     flex: 1 0 1px;
+    height: 100%;
+    padding-left: 30px;
+  }
+}
+
+.scoped-mod-area {
+  position: relative;
+
+  &__title {
+    position: absolute;
+    left: 30px;
+    right: 40px;
+    margin: 0;
+    height: 46px;
+    background: $bg-white;
+    z-index: 1;
+
+    @include typo("subtitle", 500);
+  }
+
+  &__content {
+    padding-top: 46px;
     height: 100%;
   }
 }

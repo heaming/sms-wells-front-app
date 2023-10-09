@@ -253,6 +253,7 @@ async function fetchFinalPriceOptions() {
     params: {
       cntrNo: props.bas.cntrNo,
       pdCd: dtl.value.pdCd,
+      hgrPdCd: dtl.value.hgrPdCd,
     },
   });
   finalPriceOptions.value = data || [];
@@ -261,12 +262,12 @@ async function fetchFinalPriceOptions() {
 await fetchFinalPriceOptions();
 
 const priceDefineVariables = ref({
-  svPdCd: toRef(props.modelValue, 'svPdCd'),
-  spayDscDvCd: toRef(props.modelValue, 'spayDscDvCd'),
-  spayDscrCd: toRef(props.modelValue, 'spayDscrCd'),
-  spayPmotDvCd: toRef(props.modelValue, 'spayPmotDvCd'),
-  rentalCrpDscrCd: toRef(props.modelValue, 'rentalCrpDscrCd'),
-  hcrDvCd: toRef(props.modelValue, 'hcrDvCd'),
+  svPdCd: undefined,
+  spayDscDvCd: undefined,
+  spayDscrCd: undefined,
+  spayPmotDvCd: undefined,
+  rentalCrpDscrCd: undefined,
+  hcrDvCd: undefined,
 });
 
 const spayDscrCdSelectable = computed(() => priceDefineVariables.value.spayDscDvCd === '4'
