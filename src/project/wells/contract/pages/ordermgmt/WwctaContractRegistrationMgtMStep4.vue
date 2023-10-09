@@ -690,7 +690,7 @@ function setGrid() {
 async function calcRestipulation() {
   const stplTpCdOption = stplTpCdOptions.value
     .find((option) => option.rstlBaseTpCd === restipulationBasInfo.value.stplTpCd);
-  const ojCntrDtl = step4.value.dtls.find((dtl) => dtl.cntrSn === restipulationBasInfo.value.cntrSn);
+  const ojCntrDtl = step4.value.dtls.find((dtl) => Number(dtl.cntrSn) === Number(restipulationBasInfo.value.cntrSn));
 
   restipulationBasInfo.value.stplDscAmt = stplTpCdOption.stplDscAmt;
   restipulationBasInfo.value.stplPtrm = stplTpCdOption.rstlMcn;
@@ -716,7 +716,7 @@ async function calcRestipulation() {
     { params: restipulationBasInfo.value },
   );
 
-  const stplExpired = data.rentalTn >= data.stplPtrm;
+  const stplExpired = Number(data.rentalTn) >= Number(data.stplPtrm);
   const startDayOfNextMonth = now
     .add(1, 'month')
     .startOf('M');
@@ -727,15 +727,14 @@ async function calcRestipulation() {
   const stplStrtDay = stplExpired ? startDayOfNextMonth : startDayOfStplEndMonth;
   const stplEndDay = stplStrtDay
     .add(Number(restipulationBasInfo.value.stplPtrm) - 1, 'month')
-    .endOf('M')
-    .format('YYYYMMDD');
-  const stplStrtdt = stplStrtDay.format('YYYYMMDD');
-  const stplEnddt = stplEndDay.format('YYYYMMDD');
+    .endOf('M');
+  const stplStrtdt = stplStrtDay.format('YYYYMMDD').toString();
+  const stplEnddt = stplEndDay.format('YYYYMMDD').toString();
   restipulationBasInfo.value.cntrNo = data.cntrNo;
   restipulationBasInfo.value.stplStrtdt = stplStrtdt;
   restipulationBasInfo.value.stplEnddt = stplEnddt;
   restipulationBasInfo.value.rstlStatCd = '010'; // 접수
-  restipulationBasInfo.value.stplRcpDtm = now.format('YYYYMMDDHHmmss');
+  restipulationBasInfo.value.stplRcpDtm = now.format('YYYYMMDDHHmmss').toString();
   restipulationBasInfo.value.rcpOgTpCd = sessionUserId.ogTpCd;
   restipulationBasInfo.value.rcpPrtnrNo = sessionUserId.employeeIDNumber;
   restipulationBasInfo.value.stplTn = Number(data.stplTn) + 1;

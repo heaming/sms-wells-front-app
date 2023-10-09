@@ -481,7 +481,6 @@ const { codes, getCodeName, addCode, getCode } = await useCtCode(
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 const employeeCntrTpCd = '03';
 const membershipCntrTpCd = '07';
 const reStipulationCntrTpCd = '08';
@@ -538,7 +537,7 @@ function setupSearchParams(newParams) {
   searchParams.value.cntrTpCd = newParams?.cntrTpCd || codes.CNTR_TP_CD[0]?.codeId;
   searchParams.value.copnDvCd = newParams?.copnDvCd || '1';
   searchParams.value.cstKnm = newParams?.cstKnm || '';
-  searchParams.value.bzrno = newParams.bzrno || '';
+  searchParams.value.bzrno = newParams?.bzrno || '';
   searchParams.value.cntrtTno = newParams.cntrtTno || '';
   searchParams.value.cralLocaraTno = newParams.cralLocaraTno || '';
   searchParams.value.mexnoEncr = newParams.mexnoEncr || '';
