@@ -834,8 +834,9 @@ function onClickNextDtlSn() {
 }
 
 const loaded = ref(false);
-async function initStep() {
-  if (loaded.value) { return; }
+async function initStep(forced = false) {
+  if (!forced && loaded.value) { return; }
+
   if (cntrTpCd.value === '08') {
     await getCntrInfoWithRstl();
   } else {
@@ -849,6 +850,7 @@ exposed.getCntrInfoWithRstl = getCntrInfoWithRstl;
 exposed.isChangedStep = isChangedStep;
 exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
+exposed.loaded = loaded;
 exposed.saveStep = saveStep;
 /* exposed.setRestipulation = setRestipulation; */
 

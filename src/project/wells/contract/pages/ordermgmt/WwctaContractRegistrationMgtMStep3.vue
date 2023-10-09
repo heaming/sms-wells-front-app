@@ -708,10 +708,9 @@ function onChangeSodbtNftfCntr(v) {
 
 const loaded = ref(false);
 
-async function initStep() {
-  if (loaded.value) {
-    return;
-  }
+async function initStep(forced = false) {
+  if (!forced && loaded.value) { return; }
+
   await getCntrInfo();
   loaded.value = true;
 }
@@ -720,6 +719,7 @@ exposed.getCntrInfo = getCntrInfo;
 exposed.isChangedStep = isChangedStep;
 exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
+exposed.loaded = loaded;
 exposed.saveStep = saveStep;
 
 onActivated(() => {

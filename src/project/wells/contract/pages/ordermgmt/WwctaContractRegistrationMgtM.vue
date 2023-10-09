@@ -252,6 +252,10 @@ async function onClickPrevious() {
   if (!prevStep.value) {
     return;
   }
+  if (currentStepRef.value?.loaded) {
+    currentStepRef.value.loaded = false;
+  }
+
   currentStepName.value = prevStep.value.name;
 }
 
