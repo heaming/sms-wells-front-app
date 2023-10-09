@@ -281,6 +281,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { getConfig } = useMeta();
 const { alert, modal } = useGlobal();
@@ -325,6 +326,22 @@ const searchCase1 = computed(() => searchParams.value.mngrDvCd === ''); // 전�
 const searchCase2 = computed(() => searchParams.value.mngrDvCd === '1'); // 매니저
 const searchCase3 = computed(() => searchParams.value.mngrDvCd === '2'); // 엔지니어
 
+const ozReportParam = ref({
+  ozrPath: '/kyowon_as/qrlist.ozr',
+  odiPath: '/kyowon_as/qrlist.odi',
+  args:
+    {
+      RES_YR: '', // 조회년도
+      RES_MON: '', // 조회월
+      CNTR_NO: '', // 계약번호
+      CNTR_SN: '', // 계약일련번호
+      OG_ID: '', // 담당자 OG_ID
+      OG_TP_CD: '', // 담당자 조직유형코드
+      PRTNR_NO: '', // 담당자 파트너번호
+    },
+  height: 1100,
+  width: 1200,
+});
 /*
  *  Page Info setting
  */
@@ -390,7 +407,6 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await getQuickResponseRpblPages();
 }
-
 /*
  *  Event - 엑셀 다운로드 버튼 클릭
  */
@@ -410,7 +426,27 @@ async function onClickExcelDownload() {
  * Event - QR재발행 버튼 클릭
  */
 async function onClickQrRpbl() {
-  await alert(t('개발중인 기능입니다.'));
+  const view = gridMainRef.value.getView();
+  const checked = gridUtil.getCheckedRowValues(view);
+  // checked.map()
+  if (checked.length === 0) {
+    alert(t('MSG_ALT_NOT_SEL_ITEM'));
+  } else {
+    ozReportParam.value.args.RES_YR = searchParams.value.baseYm.substring(0, 4);
+    ozReportParam.value.args.RES_MON = searchParams.value.baseYm.substring(4, 6);
+    ozReportParam.value.args.CNTR_NO = checked.map((item) => item.cntrNo).toString();
+    ozReportParam.value.args.CNTR_SN = checked.map((item) => item.cntrSn).toString();
+    ozReportParam.value.args.OG_ID = 'OG00000163';
+    ozReportParam.value.args.OG_TP_CD = 'W06';
+    ozReportParam.value.args.PRTNR_NO = checked.map((item) => item.prtnrNo).toString(); // 36605
+
+    openReportPopup(
+      ozReportParam.value.ozrPath,
+      ozReportParam.value.odiPath,
+      JSON.stringify(ozReportParam.value.args),
+      { width: ozReportParam.value.width, height: ozReportParam.value.height },
+    );
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -529,7 +565,6 @@ const initGrid = defineGrid((data, view) => {
       },
       displayCallback: () => '고객서명',
     },
-
   ];
 
   data.setFields(fields);
