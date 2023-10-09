@@ -77,11 +77,11 @@
             :disable="disablePackage"
             label="다건할인"
             dense
-            auto-close
           >
             <kw-btn
               v-for="(rentalDscTpCd) in packageRentalDscTpCds"
               :key="`package-btn-${rentalDscTpCd}`"
+              v-close-popup
               :label="getCodeName('RENTAL_DSC_TP_CD', rentalDscTpCd)"
               @click.stop="onClickPackage(rentalDscTpCd)"
             />
