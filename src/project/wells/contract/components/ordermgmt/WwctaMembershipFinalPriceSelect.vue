@@ -126,6 +126,7 @@ async function fetchFinalPriceOptions() {
     params: {
       cntrNo: props.bas.cntrNo,
       pdCd: dtl.value.pdCd,
+      hgrPdCd: dtl.value.hgrPdCd,
     },
     silent: true,
   });

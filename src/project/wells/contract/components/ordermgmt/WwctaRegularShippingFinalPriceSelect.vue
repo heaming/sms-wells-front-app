@@ -206,7 +206,7 @@ const isCapsule = computed(() => dtl.value?.sellTpDtlCd === '63');
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '6'));
 
 const priceDefineVariables = ref({
-  stplPrdCd: toRef(props.modelValue, 'stplPtrm'),
+  stplPrdCd: undefined,
 });
 
 const labelGenerator = {
@@ -247,6 +247,7 @@ async function fetchFinalPriceOptions() {
     params: {
       cntrNo: props.bas.cntrNo,
       pdCd: dtl.value.pdCd,
+      hgrPdCd: dtl.value.hgrPdCd,
     },
     silent: true,
   });
