@@ -154,7 +154,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, stringUtil, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
@@ -375,7 +375,18 @@ const initGrid = defineGrid((data, view) => {
     },
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: 120, styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: 100, styleName: 'text-center' },
-    { fieldName: 'bryyMmdd', header: t('MSG_TXT_BRYY_MMDD_ENTRP_NO'), width: 140, styleName: 'text-center' },
+    { fieldName: 'copnDvCd', visible: false },
+    {
+      fieldName: 'bryyMmdd',
+      header: t('MSG_TXT_BRYY_MMDD_ENTRP_NO'),
+      width: 140,
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { copnDvCd, bryyMmdd, bzrno } = grid.getValues(index.itemIndex);
+        return copnDvCd === '1' ? stringUtil.getDateFormat(bryyMmdd) : bzrno;
+      },
+    },
+    { fieldName: 'bzrno', visible: false },
     {
       fieldName: 'cntrMpno',
       header: t('MSG_TXT_MPNO'),
