@@ -275,7 +275,6 @@ async function onClickSearch() {
   cachedParams.subPrtnrNo = searchParams.value.prtnrNo; // 배분대상파트너번호
 
   await subject();
-  await marketableSecuritiesExcd();
 }
 
 async function onClickSearchPartner() {
@@ -435,7 +434,7 @@ async function onClickSave() {
   });
 
   await notify(t('MSG_ALT_SAVE_DATA'));
-  await onClickSearch();
+  await fetchData();
   // await ok();
 }
 // -------------------------------------------------------------------------------------------------
@@ -515,7 +514,7 @@ const initGrdSub = defineGrid((data, view) => {
   view.onEditRowChanged = async (subView, itemIndex, rowData, field, oldValue) => { // 직접편집했을때만
     const dstAmt = subView.getValue(itemIndex, 'dstAmt');
     const fieldValue = subView.getValue(itemIndex, field);
-    if (fieldValue !== dstAmt || isEmpty(fieldValue)) {
+    if (fieldValue !== dstAmt || fieldValue === null || fieldValue === undefined || fieldValue === '') { // lodash 의 isEmpty 는 숫자를 넣으면 비어있는 것으로 판단함.(lodash 버그)
       return;
     }
 
