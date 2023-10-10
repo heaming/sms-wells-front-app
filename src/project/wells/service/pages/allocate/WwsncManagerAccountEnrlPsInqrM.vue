@@ -222,9 +222,9 @@ function initTopGrid(data, view) {
     { fieldName: 'noActMngCnt', header: '미활동(완료계정 無)', width: '200', styleName: 'text-right' }, // 미활동(완료계정 無)
     { fieldName: 'cntAverage', header: '개인별 평균계정(20계정↑)', width: '200', styleName: 'text-right' }, // 개인별 평균계정(20계정↑)
     { fieldName: 'recruitCnt', header: '채용 필요인원(150계정 기준)', width: '200', styleName: 'text-right' }, // 채용 필요인원(150계정 기준)
-    { fieldName: 'allVisitCnt', header: '방문계정', width: '100', styleName: 'text-right' }, // 방문계정
-    { fieldName: 'visitCompleteCnt', header: '완료계정', width: '100', styleName: 'text-right' }, // 완료계정
-    { fieldName: 'avgAge', header: '웰스매니저 평균연령', width: '100', styleName: 'text-right' }, // 웰스매니저 평균연령
+    { fieldName: 'allVisitCnt', header: '방문계정', width: '100', styleName: 'text-center' }, // 방문계정
+    { fieldName: 'visitCompleteCnt', header: '완료계정', width: '100', styleName: 'text-center' }, // 완료계정
+    { fieldName: 'avgAge', header: '웰스매니저 평균연령', width: '200', styleName: 'text-center' }, // 웰스매니저 평균연령
   ];
 
   data.setFields(fields);
@@ -265,9 +265,9 @@ function initBottomGrid(data, view) {
     { fieldName: 'noActMngCnt', header: '미활동(완료계정 無)', width: '200', styleName: 'text-right' }, // 미활동(완료계정 無)
     { fieldName: 'cntAverage', header: '개인별 평균계정(20계정↑)', width: '200', styleName: 'text-right' }, // 개인별 평균계정(20계정↑)
     { fieldName: 'recruitCnt', header: '채용 필요인원(150계정 기준)', width: '100', styleName: 'text-right' }, // 채용 필요인원(150계정 기준)
-    { fieldName: 'allVisitCnt', header: '방문계정', width: '100', styleName: 'text-right' }, // 방문계정
-    { fieldName: 'visitCompleteCnt', header: '완료계정', width: '100', styleName: 'text-right' }, // 완료계정
-    { fieldName: 'avgAge', header: '웰스매니저 평균연령', width: '100', styleName: 'text-right' }, // 웰스매니저 평균연령
+    { fieldName: 'allVisitCnt', header: '방문계정', width: '100', styleName: 'text-center' }, // 방문계정
+    { fieldName: 'visitCompleteCnt', header: '완료계정', width: '100', styleName: 'text-center' }, // 완료계정
+    { fieldName: 'avgAge', header: '웰스매니저 평균연령', width: '200', styleName: 'text-center' }, // 웰스매니저 평균연령
   ];
 
   data.setFields(fields);
