@@ -34,7 +34,7 @@
           <kw-select
             v-model="searchParams.wareDvCd"
             :label="$t('MSG_TXT_WARE_DV')"
-            :options="filterCodes.wareDvCd"
+            :options="codes.WARE_DV_CD"
             rules="required"
             @change="onChangeWareDvCd"
           />
@@ -228,13 +228,11 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const filterCodes = ref({
-  wareDvCd: [],
   wareDtlDvCd: [],
   pdGdCd: [],
 });
 
 function codeFilter() {
-  filterCodes.value.wareDvCd = codes.WARE_DV_CD.filter((v) => ['2', '3'].includes(v.codeId));
   filterCodes.value.pdGdCd = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
 }
 
