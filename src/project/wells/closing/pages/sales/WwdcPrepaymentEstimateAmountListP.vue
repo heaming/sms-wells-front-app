@@ -30,7 +30,7 @@
             :model-value="'12'"
             :disable="true"
             type="radio"
-            :options="codes.ET_PRM_MCNT_CD"
+            :options="codes.ET_PRM_MCNT_CD.filter((p1) => ['12'].includes(p1.codeId))"
           />
         </kw-search-item>
       </kw-search-row>

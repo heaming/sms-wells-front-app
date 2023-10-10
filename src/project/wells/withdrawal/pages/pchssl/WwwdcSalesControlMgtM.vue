@@ -16,7 +16,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="4"
+      :cols="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -28,9 +28,15 @@
             v-model="searchParams.sellTp"
             first-option="all"
             first-option-value="ALL"
-            :options="codes.SELL_TP_CD "
+            :options="codes.SELL_TP_CD"
             rules="required"
             @change="onChangesellTp"
+          />
+          <kw-select
+            v-model="searchParams.sellTpDtlCd"
+            first-option="all"
+            first-option-value="ALL"
+            :options="optionsCodes"
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_DIV')">
@@ -39,7 +45,7 @@
             <template #default="{ field }">
               <kw-checkbox
                 v-bind="field"
-                v-model="searchParams.exmpYn"
+                v-model="searchParams.searchExmpYn"
                 :label="t('MSG_TXT_VAC_EXMP')"
                 :disable="isExmpYnChk"
               />
@@ -49,8 +55,8 @@
         </kw-search-item>
         <kw-search-item
           :label="t('MSG_TXT_PERF_YM')"
-          :colspan="2"
         >
+          <!-- :colspan="2" -->
           <!-- rules="date_range_months:1" -->
           <kw-date-range-picker
             v-model:from="searchParams.perfStrtDtm"
@@ -88,6 +94,8 @@
             :options="codes.SL_CTR_MTR_DV_CD"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 조정구분 -->
         <kw-search-item :label="t('MSG_TXT_CTR_DV')">
           <kw-select
@@ -97,8 +105,6 @@
             :options="codes.SL_CTR_DV_CD"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row>
         <!-- 할인 -->
         <kw-search-item :label="t('MSG_TXT_DSC')">
           <!-- :model-value="['']" -->
@@ -121,15 +127,17 @@
           />
           <!-- :readonly="true" -->
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 등록일자-->
         <kw-search-item
           :label="t('MSG_TXT_FST_RGST_DT')"
-          :colspan="2"
         >
+          <!-- :colspan="2" -->
           <!-- rules="date_range_months:1" -->
           <kw-date-range-picker
             v-model:from="searchParams.slCtrPrcsStrtDt"
-            v-model:to="searchParams.slCtrPrcsEndDt"
+            v-model:to="searchParams.slCtrPrcsFshDt"
           />
         </kw-search-item>
       </kw-search-row>
@@ -154,7 +162,7 @@
         <kw-btn
           dense
           grid-action
-          :label="t('MSG_BTN_ROW_DEL')"
+          :label="t('MSG_BTN_DEL')"
           @click="onClickRemove"
         />
         <kw-separator
@@ -263,17 +271,12 @@ const codes = await codeUtil.getMultiCodes(
 // 판매유형상세코드 필터
 const lump = codes.SELL_TP_DTL_CD.filter((p1) => ['11', '12', '13'].includes(p1.codeId));
 const rental = codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '23', '24', '25', '26'].includes(p1.codeId));
-const membership = codes.SELL_TP_DTL_CD.filter((p1) => ['31', '32', '33', '34'].includes(p1.codeId));
+const membership = codes.SELL_TP_DTL_CD.filter((p1) => ['31', '32', '33'].includes(p1.codeId));
 const delivery = codes.SELL_TP_DTL_CD.filter((p1) => ['61', '62', '63'].includes(p1.codeId));
-let sellDtlCd;
-console.log(sellDtlCd);
-console.log(lump);
-console.log(rental);
-console.log(membership);
-console.log(delivery);
 
 const searchParams = ref({
   sellTp: 'ALL', // 판매유형
+  sellTpDtlCd: 'ALL',
   exmpYn: 'N', // (방학)면제여부
   perfStrtDtm: '', // 실적 To
   perfFshDtm: '', // 실적 From
@@ -287,6 +290,7 @@ const searchParams = ref({
   ogTpCd: '',
   slCtrPrcsStrtDt: '', // 등록일자 From
   slCtrPrcsFshDt: '', // 등록일자 To
+  searchExmpYn: 'N',
 });
 
 const isExmpYnChk = ref(true);
@@ -319,8 +323,14 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+
+  // 방학면제 선택시 그리드 변경X, 조회버튼 클릭시 변경
+  searchParams.value.exmpYn = searchParams.value.searchExmpYn;
+
   await fetchData();
 }
+
+const optionsCodes = ref(codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '24', '25', '26'].includes(p1.codeId)));
 
 // 사용자 조회 팝업 -> 파트너 조회
 async function onClickSelectUser() {
@@ -426,13 +436,26 @@ async function onClickExcelUpload() {
   }
 }
 
-async function onChangesellTp() {
-  if (searchParams.value.sellTp === '2') {
+async function onChangesellTp(param) {
+  let options;
+
+  if (param === '1') {
+    options = lump;
+    isExmpYnChk.value = true;
+  } else if (param === '2') {
+    options = rental;
     isExmpYnChk.value = false;
+  } else if (param === '3') {
+    options = membership;
+    isExmpYnChk.value = true;
+  } else if (param === '6') {
+    options = delivery;
+    isExmpYnChk.value = true;
   } else {
-    searchParams.value.exmpYn = 'N';
+    options = [];
     isExmpYnChk.value = true;
   }
+  optionsCodes.value = options;
 }
 
 async function onClickSave() {
@@ -555,6 +578,7 @@ const initGrid1 = defineGrid((data, view) => {
       editor: { type: 'dropdown' },
       editable: true,
       options: codes.SELL_TP_CD,
+
     },
     {
       fieldName: 'sellTpDtlCd',
@@ -564,12 +588,12 @@ const initGrid1 = defineGrid((data, view) => {
       },
       width: '100',
       rules: 'required',
-      editor: { type: 'dropdown' },
-      editable: true,
+      editor: { type: 'dropdown',
+      },
+      // editable: true,
       options: codes.SELL_TP_DTL_CD,
       styleCallback(grid, dataCell) {
         const sellTpCd = grid.getValue(dataCell.index.itemIndex, 'slCtrSellTpCd');
-
         const lumpCodeId = lump.map((param) => param.codeId);
         const lumpCodeName = lump.map((param) => param.codeName);
 
@@ -589,6 +613,8 @@ const initGrid1 = defineGrid((data, view) => {
               type: 'dropdown',
               values: lumpCodeId,
               labels: lumpCodeName,
+              editable: true,
+              textReadOnly: true,
             };
             break;
           case '2':
@@ -596,6 +622,8 @@ const initGrid1 = defineGrid((data, view) => {
               type: 'dropdown',
               values: rentalCodeId,
               labels: rentalCodeName,
+              editable: true,
+              textReadOnly: true,
             };
             break;
           case '3':
@@ -603,6 +631,8 @@ const initGrid1 = defineGrid((data, view) => {
               type: 'dropdown',
               values: membershipCodeId,
               labels: membershipCodeName,
+              editable: true,
+              textReadOnly: true,
             };
             break;
           case '6':
@@ -610,6 +640,8 @@ const initGrid1 = defineGrid((data, view) => {
               type: 'dropdown',
               values: deliveryCodeId,
               labels: deliveryCodeName,
+              editable: true,
+              textReadOnly: true,
             };
             break;
           case '9':
@@ -624,6 +656,7 @@ const initGrid1 = defineGrid((data, view) => {
               values: Array([]),
               labels: Array([]),
             };
+            ret.editable = false;
             break;
         }
         return ret;
@@ -770,6 +803,15 @@ const initGrid1 = defineGrid((data, view) => {
   view.onCellEditable = (grid, index) => {
     if (!gridUtil.isCreatedRow(grid, index.dataRow) && ['cntrDtlNo', 'slCtrStrtYm', 'slCtrEndYm', 'pdCd', 'pdNm', 'slCtrAmt', 'slCtrWoExmpAmt', 'slCtrPtrmExmpAmt'].includes(index.column)) {
       return false;
+    }
+  };
+
+  view.onCellEdited = async (grid, itemIndex) => {
+    const { fieldName } = grid.getCurrent();
+
+    if (fieldName === 'slCtrSellTpCd') {
+      grid.commit();
+      grid.setValue(itemIndex, 'sellTpDtlCd', '');
     }
   };
 
