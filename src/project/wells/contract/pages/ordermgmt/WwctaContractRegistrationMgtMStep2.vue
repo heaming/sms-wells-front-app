@@ -290,36 +290,6 @@ async function onSelectProduct(product) {
   emit('contract-modified');
 }
 
-// async function onClickProduct(pd) {
-//   if (isMshCntr.value && step2.value.dtls.length > 0) {
-//     // 멤버십인 경우 상품 1개로 제한
-//     await alert('멤버십계약은 1개의 상품만 선택 가능합니다.');
-//     return;
-//   }
-//
-//   // 상품 추가
-//   if (pd.pdClsf === '7') {
-//     // 복합상품
-//     // 중복 불가
-//     if (step2.value.dtls.find((d) => d.hgrPdCd === pd.pdCd)) {
-//       await alert('동일한 복합상품이 존재합니다.');
-//       return;
-//     }
-//     // 하위상품 조회 후 추가
-//     const { data } = await dataService.get('sms/wells/contract/contracts/reg-cpt-products', {
-//       params: {
-//         cntrNo: step2.value.bas.cntrNo,
-//         hgrPdCd: pd.pdCd,
-//       },
-//     });
-//     const promises = data.map(addProduct);
-//     await Promise.all(promises);
-//     return;
-//   }
-//
-//   await addProduct(pd);
-// }
-
 async function onClickDelete(dtl) {
   const { cntrRels, ojCntrRels, hgrPdCd, tempKey, cntrSn } = dtl;
 
@@ -409,8 +379,11 @@ async function onClickOnePlusOne(dtl) {
     ojBasePdBas: { ...payload }, /* 기기 선택 해야함. */
   });
 
-  dtl.sellDscTpCd = '03';
-  dtl.rentalDiscountFixed = true;
+  dtl.priceOptionFilter = {
+    ...dtl.priceOptionFilter,
+    rentalDscDvCd: '8',
+    rentalDscTpCd: '03',
+  };
 }
 
 async function onDeleteOnePlusOne(dtl) {
@@ -458,6 +431,20 @@ async function onClickDeviceChange(dtl) {
     mchnClnOjYn: payload.clnYn,
     ojCntrMmBaseDvCd: payload.resultDvCheck,
   };
+
+  if (payload.workFlag === '19') {
+    dtl.priceOptionFilter = {
+      ...dtl.priceOptionFilter,
+      rentalDscDvCd: '8',
+      rentalDscTpCd: '24',
+    };
+  } else {
+    dtl.priceOptionFilter = {
+      ...dtl.priceOptionFilter,
+      rentalDscDvCd: '8',
+      rentalDscTpCd: '02',
+    };
+  }
 }
 
 async function onClickSelectMachine(dtl) {
