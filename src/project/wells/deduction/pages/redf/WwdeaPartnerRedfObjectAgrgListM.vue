@@ -838,18 +838,33 @@ const wpAndBrchColumnLayout = [
   'dlqRedfAmt',
 ];
 
-// 처리유형 - 연체 선택 시
-const dlqColumnLayout = [
-  'baseYm', 'perfYm', 'prtnrNo', 'prtnrKnm', 'ogTpNm', 'perfDvNm',
+// 처리유형 - 연체(지구장 이하) 선택 시
+const dlqPrColumnLayout = [
+  'baseYm', 'perfYm', 'prtnrNo', 'prtnrKnm', 'ogTpNm', 'perfDvCd',
   {
     header: t('MSG_TXT_REDF_PERF'),
     direction: 'horizontal',
-    items: ['col182', 'col183'],
+    items: ['redfPerfRental', 'redfPerfExcp'],
   },
   {
     header: t('MSG_TXT_DLQ_REDF_PERF'),
     direction: 'horizontal',
-    items: ['col185', 'col186', 'col184'],
+    items: ['dlqRedfPerfExcp', 'dlqRedfPerfTot', 'dlqRedfPerfRental'],
+  },
+];
+
+// 처리유형 - 연체(지국장 이상) 선택 시
+const dlqJoColumnLayout = [
+  'baseYm', 'perfYm', 'prtnrNo', 'prtnrKnm', 'ogTpNm', 'perfDvCd',
+  {
+    header: t('MSG_TXT_REDF_PERF'),
+    direction: 'horizontal',
+    items: ['redfPerfRental', 'redfPerfExcp'],
+  },
+  {
+    header: t('MSG_TXT_DLQ_REDF_PERF'),
+    direction: 'horizontal',
+    items: ['dlqRedfPerfExcp', 'dlqRedfPerfTot', 'dlqRedfPerfRental'],
   },
 ];
 
@@ -916,9 +931,11 @@ watch(() => [searchParams.value.perfYmFrom,
     }
   }
 
-  /* 처리유형이 연체인 경우 */
-  if (searchParams.value.redfAdsbTpCd === '0203') {
-    view.setColumnLayout(dlqColumnLayout);
+  /* 처리유형이 연체(개인)인 경우 */
+  if (searchParams.value.redfAdsbTpCd === '0203' && searchParams.value.rsbDvCd === '01') {
+    view.setColumnLayout(dlqPrColumnLayout);
+  } else if (searchParams.value.redfAdsbTpCd === '0203' && searchParams.value.rsbDvCd === '02') {
+    view.setColumnLayout(dlqJoColumnLayout);
   }
 });
 
@@ -1119,13 +1136,13 @@ function initGrid(data, view) {
     { fieldName: 'wpSettleRedfBrch', dataType: 'number' },
     { fieldName: 'wpSettleRedfDstrc', dataType: 'number' },
     { fieldName: 'wpFxamRedfBrch', dataType: 'number' },
-    { fieldName: 'ogTpNm', dataType: 'number' },
-    { fieldName: 'perfDvNm', dataType: 'number' },
-    { fieldName: 'col182', dataType: 'number' },
-    { fieldName: 'col183', dataType: 'number' },
-    { fieldName: 'col184', dataType: 'number' },
-    { fieldName: 'col185', dataType: 'number' },
-    { fieldName: 'col186', dataType: 'number' },
+    { fieldName: 'ogTpNm' },
+    // { fieldName: 'perfDvNm' },
+    { fieldName: 'redfPerfRental', dataType: 'number' },
+    { fieldName: 'redfPerfExcp', dataType: 'number' },
+    { fieldName: 'dlqRedfPerfRental', dataType: 'number' },
+    { fieldName: 'dlqRedfPerfExcp', dataType: 'number' },
+    { fieldName: 'dlqRedfPerfTot', dataType: 'number' },
     { fieldName: 'sumPerfLast201903RedfDstrc', dataType: 'number' },
     { fieldName: 'sumPerf201904Between202012RedfDstrc', dataType: 'number' },
     { fieldName: 'sumPerf202101RedfDstrc', dataType: 'number' },
@@ -1164,7 +1181,7 @@ function initGrid(data, view) {
     { fieldName: 'oneteamYn', header: t('MSG_TXT_SLTR_DSTRC'), width: '100', styleName: 'text-center' },
     { fieldName: 'wpChYm', header: t('MSG_TXT_UPGR_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM' },
     { fieldName: 'ogTpNm', header: t('MSG_TXT_OG_TP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'perfDvNm', header: t('MSG_TXT_PERF_DV'), width: '100', styleName: 'text-center' },
+    // { fieldName: 'perfDvNm', header: t('MSG_TXT_PERF_DV'), width: '100', styleName: 'text-center' },
 
     { fieldName: 'homeCare', header: t('MSG_TXT_HOME_CARE_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
 
@@ -1344,11 +1361,11 @@ function initGrid(data, view) {
     { fieldName: 'wpSettleRedfBrch', header: t('MSG_TXT_STMNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지점장 이상
     { fieldName: 'wpSettleRedfDstrc', header: t('MSG_TXT_STMNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지구장 이하
     { fieldName: 'wpFxamRedfBrch', header: t('MSG_TXT_FXAM'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 지점장 이상
-    { fieldName: 'col182', header: t('MSG_TXT_RENTAL'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 되물림실적
-    { fieldName: 'col183', header: t('MSG_TXT_ELHM_EXCP_SPAY_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 되물림실적.가전외 일시불 실적
-    { fieldName: 'col184', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.계
-    { fieldName: 'col185', header: t('MSG_TXT_RENTAL'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적
-    { fieldName: 'col186', header: t('MSG_TXT_ELHM_EXCP_SPAY_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.가전외 일시불 실적
+    { fieldName: 'redfPerfRental', header: t('MSG_TXT_RENTAL'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 되물림실적.렌탈
+    { fieldName: 'redfPerfExcp', header: t('MSG_TXT_ELHM_EXCP_SPAY_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 되물림실적.가전외 일시불 실적
+    { fieldName: 'dlqRedfPerfRental', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.렌탈
+    { fieldName: 'dlqRedfPerfExcp', header: t('MSG_TXT_RENTAL'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.가전외일시불
+    { fieldName: 'dlqRedfPerfTot', header: t('MSG_TXT_ELHM_EXCP_SPAY_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 연체되물림실적.계
     { fieldName: 'sumPerfLast201903RedfDstrc', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 2019년 3월 이전 + 지구장 이하 되물림합계
     { fieldName: 'sumPerf201904Between202012RedfDstrc', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2019년 04월 ~ 2020년 12월 + 지구장 이하 되물림합계
     { fieldName: 'sumPerf202101RedfDstrc', header: t('MSG_TXT_REDF_SUM_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' }, // 실적년월 2021년 1월 이후 + 지구장 이하 되물림합계
