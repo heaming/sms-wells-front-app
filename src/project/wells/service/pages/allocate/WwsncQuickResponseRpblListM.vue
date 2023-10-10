@@ -436,8 +436,8 @@ async function onClickQrRpbl() {
     ozReportParam.value.args.RES_MON = searchParams.value.baseYm.substring(4, 6);
     ozReportParam.value.args.CNTR_NO = checked.map((item) => item.cntrNo).toString();
     ozReportParam.value.args.CNTR_SN = checked.map((item) => item.cntrSn).toString();
-    ozReportParam.value.args.OG_ID = 'OG00000163';
-    ozReportParam.value.args.OG_TP_CD = 'W06';
+    ozReportParam.value.args.OG_ID = checked.map((item) => item.ogId).toString();
+    ozReportParam.value.args.OG_TP_CD = checked.map((item) => item.ogTpCd).toString();
     ozReportParam.value.args.PRTNR_NO = checked.map((item) => item.prtnrNo).toString(); // 36605
 
     openReportPopup(
@@ -459,6 +459,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'ogNm' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
+    { fieldName: 'ogId' },
+    { fieldName: 'ogTpCd' },
     { fieldName: 'pdctPdCd' },
     { fieldName: 'pdNm' },
     { fieldName: 'cntrNo' },
