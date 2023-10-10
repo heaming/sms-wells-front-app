@@ -54,38 +54,32 @@
           :label="$t('MSG_TXT_WK_DT')"
         >
           <kw-date-picker
-            v-model="searchParams.vstFshDt"
+            v-model="searchParams.ostrCnfmDt"
             :label="$t('MSG_TXT_WK_DT')"
             rules="required"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item
-          :label="$t('MSG_TXT_CNTR_NO')"
-        >
+        <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
           <kw-input
-            v-model="searchParams.cntrNo"
-            :label="$t('MSG_TXT_CNTR_NO')"
-            clearable
+            v-model.trim="searchParams.cntrDtlNo"
+            :label="$t('MSG_TXT_CNTR_DTL_NO')"
           />
         </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_CST_NM')"
-        >
+        <kw-search-item :label="$t('MSG_TXT_CST_NM')">
           <kw-input
-            v-model="searchParams.cstNm"
+            v-model.trim="searchParams.rcgvpKnm"
             :label="$t('MSG_TXT_CST_NM')"
-            clearable
           />
         </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_MPNO')"
-        >
+        <kw-search-item :label="$t('MSG_TXT_MPNO')">
           <kw-input
-            v-model="searchParams.cralIdvTno"
-            :label="$t('MSG_TXT_MPNO')"
-            clearable
+            v-model:tel-no0="searchParams.cralLocaraTno"
+            v-model:tel-no1="searchParams.mexnoEncr"
+            v-model:tel-no2="searchParams.cralIdvTno"
+            mask="telephone"
+            :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
           />
         </kw-search-item>
         <kw-search-item
@@ -224,16 +218,17 @@ const customCodes = {
 const searchParams = ref({
   startDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
   endDt: now.format('YYYYMMDD'), // 종료일자
-  vstFshDt: now.format('YYYYMMDD'),
+  ostrCnfmDt: now.format('YYYYMMDD'),
+  firstSppGb: 'all', /* 첫 배송 여부 */
   findGb: '2', /* 조회 구분 */
   selCnt: '', /* 조회 제한건수  */
   prtnrBzsCd: '', /* 파트너업체 */
-  firstSppGb: 'all', /* 첫 배송 여부 */
-  cntrNo: '', /* 계약번호 */
-  cstNm: '', /* 고객명 */
-  cralIdvTno: '', /* 휴대폰 번호 */
+  cntrDtlNo: '', /* 계약상세번호 */
+  rcgvpKnm: '', /* 고객명 */
   serialNo: '', /* 시리얼 넘버 */
-
+  cralLocaraTno: '', /* 휴대전화번호1 */
+  mexnoEncr: '', /* 휴대전화번호2 */
+  cralIdvTno: '', /* 휴대전화번호3 */
 });
 let cachedParams;
 const totalCount = ref(0);
@@ -273,7 +268,7 @@ async function fetchData() {
     newAdrZip: '12345',
     rnadr: '기본주소',
     rdadr: '상세주소',
-    vstFshDt: '20230702',
+    ostrCnfmDt: '20230702',
     partCnt: 1,
     partCd1: '상품1',
     partNm1: '상품1',
@@ -282,7 +277,10 @@ async function fetchData() {
     rsgFshDt: '20230702',
     cstSvAsnNo: '2202204000000000000',
     cntrDtlNo: 'W20226010893-1',
-    pcsvCompDv: '1',
+    sellTpNm: '정기배송',
+    pcsvCompDv: '2',
+    pcsvCompNm: '대한통운',
+    prtnrBzsNm: '롯데푸드',
     sppIvcNo: '888888888',
     sppBzsPdId: 'WFBKB0022',
   });
@@ -296,7 +294,21 @@ async function fetchData() {
   view2.getDataSource().setRows(list);
 }
 async function onClickSearch() {
-  cachedParams = cloneDeep(searchParams.value);
+  // 계약상세번호, 고객명, 휴대전화번호, S/N조회 시, 변수 초기화
+  if (!isEmpty(searchParams.value.cntrDtlNo)
+      || !isEmpty(searchParams.value.rcgvpKnm)
+      || !isEmpty(searchParams.value.serialNo)
+      || !isEmpty(searchParams.value.cralLocaraTno + searchParams.value.mexnoEncr + searchParams.value.cralIdvTno)) {
+    const initParams = cloneDeep(searchParams.value);
+    initParams.startDt = '';
+    initParams.endDt = '';
+    initParams.findGb = '';
+    initParams.firstSppGb = '';
+    cachedParams = cloneDeep(initParams);
+  } else {
+    cachedParams = cloneDeep(searchParams.value);
+  }
+  console.log(cachedParams);
   await fetchData();
 }
 async function onClickExcelDownload() {
@@ -340,7 +352,7 @@ async function onClickSave() {
     console.log(chkRows);
     // await dataService.post(`${baseUrl}`, chkRows);
     // notify(t('MSG_ALT_SAVE_DATA'));
-    // await fetchData();
+    await fetchData();
   }
 }
 
@@ -394,8 +406,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '110', styleName: 'text-center' },
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '110', styleName: 'text-center' },
+    { fieldName: 'prtnrBzsNm', header: t('MSG_TXT_PRTNR_BZS_CD'), width: '110', styleName: 'text-center' },
+    { fieldName: 'pcsvCompNm', header: t('MSG_TXT_PCSV_CO'), width: '110', styleName: 'text-center' },
+    { fieldName: 'sppIvcNo', header: t('MSG_TXT_IVC_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'sppBzsPdId', header: t('MSG_TXT_SR_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '80', styleName: 'text-center' },
-    { fieldName: 'vstFshDt', header: t('MSG_TXT_OSTR_CNFM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'ostrCnfmDt', header: t('MSG_TXT_OSTR_CNFM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     {
       fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
@@ -444,7 +461,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rdadr', header: t('MSG_TXT_ADDR_DTL'), width: '380', styleName: 'text-left' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '180', styleName: 'text-center' },
   ];
   // 상품 동적 필드
   const pdColums = [
@@ -493,9 +510,16 @@ const initGrdMain = defineGrid((data, view) => {
       items: ['svBizDclsfCd', 'svBizDclsfNm'],
     },
     'wkPrgsStatNm',
-    'vstFshDt',
-    'cstSvAsnNo',
+    'ostrCnfmDt',
+    'sellTpNm',
+    'prtnrBzsNm',
     'cntrNo',
+    'cstSvAsnNo',
+    {
+      header: t('택배정보'),
+      direction: 'horizontal',
+      items: ['pcsvCompNm', 'sppIvcNo', 'sppBzsPdId'],
+    },
     'rcgvpKnm',
     'cralIdvTno',
     'idvTno',
@@ -511,7 +535,7 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.setColumnLayout(layout);
-  view.setFixedOptions({ colCount: 7, resizable: true });
+  view.setFixedOptions({ colCount: 8, resizable: true });
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
 });
