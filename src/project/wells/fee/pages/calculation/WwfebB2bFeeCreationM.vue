@@ -203,6 +203,10 @@ const codes = await codeUtil.getMultiCodes(
   'RENTAL_DSC_DV_CD',
   'MSH_DSC_DV_CD',
   'SELL_TP_CD',
+  'MSH_PRC_BASE_DSC_TP_ACD',
+  'RENTAL_CRP_DSC_APY_DTL_CD',
+  'RENTAL_MCHD_DSC_APY_DTL_CD',
+  'RENTAL_CRP_DSCR_CD',
 );
 let cachedParams;
 const searchParams = ref({
@@ -398,6 +402,27 @@ const initGridDetail = defineGrid((data, view) => {
         if (codes.SELL_DSCR_CD.map((v) => v.codeId).includes(value)) {
           retValue = codes.SELL_DSCR_CD.find((v) => v.codeId === value)?.codeName;
         }
+        // const { sellTpCd, sellDscDvCd } = grid.getValues(index.itemIndex);
+        // if (sellTpCd === '2' && sellDscDvCd === '5') {
+        //   if (codes.RENTAL_CRP_DSCR_CD.map((v) => v.codeId).includes(value)) {
+        //     retValue = codes.RENTAL_CRP_DSCR_CD.find((v) => v.codeId === value)?.codeName;
+        //   }
+        // }
+        // if (sellTpCd === '2' && sellDscDvCd === '7') {
+        //   if (codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => v.codeId).includes(value)) {
+        //     retValue = codes.RENTAL_MCHD_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
+        //   }
+        // }
+        // if (sellTpCd === '2' && ['1', '8'].includes(sellDscDvCd)) {
+        //   if (codes.RENTAL_CRP_DSC_APY_DTL_CD.map((v) => v.codeId).includes(value)) {
+        //     retValue = codes.RENTAL_CRP_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
+        //   }
+        // }
+        // if (sellTpCd === '4' && sellDscDvCd === '4') {
+        //   if (codes.MSH_PRC_BASE_DSC_TP_ACD.map((v) => v.codeId).includes(value)) {
+        //     retValue = codes.MSH_PRC_BASE_DSC_TP_ACD.find((v) => v.codeId === value)?.codeName;
+        //   }
+        // }
         return retValue;
       },
     },
