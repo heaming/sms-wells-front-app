@@ -93,6 +93,7 @@
           <kw-paging-info
             :total-count="grdMain2PageInfo.totalCount"
           />
+          <span class="ml8">{{ t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
         <kw-btn
           dense
@@ -108,7 +109,7 @@
         <kw-btn
           v-permission:create
           dense
-          grid-action
+          secondary
           :disable="isDisableThisDayUpgradesBtn"
           :label="$t('MSG_BTN_THD_OPNG')"
           @click="onClickUpgrades('DAY_OPENING')"
@@ -121,7 +122,7 @@
         <kw-btn
           v-permission:create
           dense
-          grid-action
+          secondary
           :disable="isDisableCancelBtn"
           :label="$t('MSG_TXT_CLTN')"
           @click="onClickUpgrades('CANCEL')"
@@ -129,7 +130,7 @@
         <kw-btn
           v-permission:create
           dense
-          grid-action
+          secondary
           :disable="isDisableHoldingBtn"
           :label="$t('MSG_BTN_QLF_HOLDON')"
           @click="onClickUpgrades('HOLDING')"
@@ -137,7 +138,7 @@
         <kw-btn
           v-permission:create
           dense
-          grid-action
+          secondary
           :disable="isDisableThisMonthUpgradesBtn"
           :label="$t('MSG_BTN_THM_OPNG')"
           @click="onClickUpgrades('THIS_OPENING')"
@@ -145,7 +146,7 @@
         <kw-btn
           v-permission:create
           dense
-          grid-action
+          secondary
           :disable="isDisableUpgradesBtn"
           :label="$t('MSG_BTN_NMN_OPNG')"
           @click="onClickUpgrades('NEXT_OPENING')"
@@ -526,8 +527,8 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '160', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '92', styleName: 'text-center', editable: false },
     {
       fieldName: 'biztelephone',
@@ -573,7 +574,7 @@ const initGrid1 = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_HMNRSC'),
       direction: 'horizontal',
-      items: ['prtnrNo', 'prtnrKnm', 'rsbDvNm', 'biztelephone', 'rcrtWrteDt', 'bryyMmdd', 'fnlCltnDt'],
+      items: ['prtnrKnm', 'prtnrNo', 'rsbDvNm', 'biztelephone', 'rcrtWrteDt', 'bryyMmdd', 'fnlCltnDt'],
     },
     {
       header: t('MSG_TXT_EDUC_PS'),
@@ -603,7 +604,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'cvDt', header: t('MSG_TXT_CV_DT'), width: '160', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
     { fieldName: 'enddt', header: t('MSG_TXT_END_DT'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
     {
-      fieldName: 'col1',
+      fieldName: 'report',
       header: t('MSG_TXT_CNTRW_BRWS'),
       width: '92',
       renderer: { type: 'button',
@@ -686,7 +687,7 @@ const initGrid2 = defineGrid((data, view) => {
       // prtnrCntrTpCd: reportParamPrtnrCntrTpCd,
     } = g.getValues(itemIndex);
 
-    if (column === 'col1') {
+    if (column === 'report') {
       console.log('계약서');
       console.log('조직유형코드: ', currentRowOgTpCd);
       console.log('번호: ', currentRowPrtnrNo);
