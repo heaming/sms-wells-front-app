@@ -275,7 +275,7 @@ async function onClickAdd() {
   const view = grdLinkRef.value.getView();
 
   gridUtil.insertRowAndFocus(view, 0, {
-    wkDt: now.format('YYYYMMDD'),
+    wkDt: searchParams.value.wkDt,
     giroRglrDvCd: '02',
   });
 }
@@ -323,12 +323,15 @@ async function onClickObjectSearch() {
 
     const objectRes = res.data;
     const view = grdLinkRef.value.getView();
+    const data = view.getDataSource();
 
     objectRes.forEach((param) => {
       param.wkDt = searchParams.value.wkDt;
       param.giroRglrDvCd = '01';
-      gridUtil.insertRowAndFocus(view, 0, param);
+      // gridUtil.insertRowAndFocus(view, 0, param);
     });
+
+    data.addRows(objectRes);
   }
 }
 
