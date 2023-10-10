@@ -191,6 +191,7 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -251,6 +252,7 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/receipts-and-payments/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: payments, pageInfo: pagingResult } = res.data;
 
+  pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(payments);
@@ -274,6 +276,7 @@ async function onClickSearch() {
   const splitSapMatDpct = searchParams.value.sapMatDpct.split(',');
   searchParams.value.sapMatDpcts = splitSapMatDpct;
   cachedParams = cloneDeep(searchParams.value);
+  pageInfo.value.needTotalCount = true;
   await fetchData();
 }
 
