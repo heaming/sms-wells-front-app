@@ -27,7 +27,6 @@
             :label="$t('MSG_TXT_BASE_YM')"
             type="month"
             rules="required"
-            @change="onChangeBaseYm"
           />
         </kw-search-item>
         <kw-search-item
@@ -38,7 +37,6 @@
             :label="$t('MSG_TXT_ORDR')"
             type="radio"
             :options="codes.FEE_TCNT_DV_CD"
-            @change="onChangeBaseYm"
           />
         </kw-search-item>
         <kw-search-item
@@ -162,7 +160,7 @@ const { currentRoute } = useRouter();
 const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
-const codes = await codeUtil.getMultiCodes('FEE_TCNT_DV_CD', 'RSB_DV_CD', 'OPNG_CD');
+const codes = await codeUtil.getMultiCodes('FEE_TCNT_DV_CD', 'RSB_DV_CD', 'OPNG_CD', 'QLF_DV_CD');
 const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0204', 'W0205'].includes(v.codeId));
 const dvCd = [
   { codeId: '01', codeName: '계약일' },
@@ -339,11 +337,6 @@ async function onClickDtrmCan() {
   }
 }
 
-// 기준년월 변경시 조회 이벤트
-async function onChangeBaseYm() {
-  await onClickSearch();
-}
-
 onMounted(async () => {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('etc');
@@ -385,10 +378,25 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '130', styleName: 'text-center', editable: false },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '130', styleName: 'text-center', editable: false },
-    { fieldName: 'qlfDvCd', header: t('MSG_TXT_THM') + t('MSG_TXT_QLF'), width: '130', styleName: 'text-center', editable: false },
-    { fieldName: 'nextQlfDvCd', header: `M+1${t('MSG_TXT_QLF')}`, width: '130', styleName: 'text-center', editable: false },
-    { fieldName: 'procsDtm', header: `WM${t('MSG_TXT_CV')}${t('MSG_TXT_MON')}`, width: '130', styleName: 'text-center', editable: false },
+    { fieldName: 'rsbDvCd',
+      header: t('MSG_TXT_RSB'),
+      width: '130',
+      styleName: 'text-center',
+      editable: false,
+      options: codes.RSB_DV_CD },
+    { fieldName: 'qlfDvCd',
+      header: t('MSG_TXT_THM') + t('MSG_TXT_QLF'),
+      width: '130',
+      styleName: 'text-center',
+      editable: false,
+      options: codes.QLF_DV_CD },
+    { fieldName: 'nextQlfDvCd',
+      header: `M+1${t('MSG_TXT_QLF')}`,
+      width: '130',
+      styleName: 'text-center',
+      editable: false,
+      options: codes.QLF_DV_CD },
+    { fieldName: 'procsDtm', header: `WM${t('MSG_TXT_CV')}${t('MSG_TXT_MON')}`, width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'yyyy-MM' },
     { fieldName: 'srtup', header: t('MSG_TXT_SRTUP'), width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'yyyy-MM' },
     { fieldName: 'freeSrtup', header: t('MSG_TXT_FREE_SRTUP'), width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'yyyy-MM' },
     { fieldName: 'bzStatCd', header: t('MSG_TXT_ACTI') + t('MSG_TXT_YN'), width: '130', styleName: 'text-center', editable: false },
@@ -398,7 +406,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_D'), width: '130', styleName: 'text-center', datetimeFormat: 'date', editable: false },
     { fieldName: 'opngCd',
       header: t('MSG_TXT_OPNG_TP'),
-      width: '130',
+      width: '250',
       rules: 'required',
       options: codes.OPNG_CD,
       styleName: 'text-center',
