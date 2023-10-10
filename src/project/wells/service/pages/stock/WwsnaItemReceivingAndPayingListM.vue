@@ -26,7 +26,6 @@
           :label="t('MSG_TXT_RVPY_DT')"
           required
         >
-          <!--rev:230410 :colspan="2" 추가 -->
           <kw-date-range-picker
             v-model:from="searchParams.stFromYmd"
             v-model:to="searchParams.edToYmd"
@@ -38,7 +37,6 @@
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stFromYmd"
           v-model:end-ym="searchParams.edToYmd"
-          v-model:options-ware-dv-cd="wareDvCd"
           v-model:ware-dv-cd="searchParams.strWareDvCd"
           v-model:ware-no-m="searchParams.strWareNoM"
           v-model:ware-no-d="searchParams.strWareNoD"
@@ -204,11 +202,6 @@ const codes = await codeUtil.getMultiCodes(
 
 // 등급 필터링
 codes.PD_GD_CD = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
-
-const wareDvCd = { WARE_DV_CD: [
-  { codeId: '2', codeName: '서비스센터' },
-  { codeId: '3', codeName: '영업센터' },
-] };
 
 const searchParams = ref({
   strWareDvCd: '2',
