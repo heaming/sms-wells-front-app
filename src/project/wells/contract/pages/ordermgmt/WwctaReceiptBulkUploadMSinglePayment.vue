@@ -68,18 +68,20 @@ const visibleRows = computed(() => Math.min(Math.max(pageInfo.value.totalCount, 
 const uploaded = ref(false);
 let gridDataModel;
 
-const { codes, getCode } = await useCtCode(
-  'ALNCMP_DG_PRTNR_MAPNG_CD',
+const { codes, getCode, addCode } = await useCtCode(
   'COPN_DV_CD',
   'SEX_DV_CD',
   'SPAY_DSC_DV_CD',
   'SPAY_DSCR_CD',
+  'SPAY_PMOT_DV_CD',
   'BFSVC_BZS_DV_CD',
   'SPLY_BZS_DV_CD',
   'HCR_DV_CD',
   'BFSVC_BZS_DV_CD',
   'SPLY_BZS_DV_CD',
 );
+
+await addCode('ALNCMP_DG_PRTNR_MAPNG_CD', (code) => { code.codeName = code.codeId; return code; });
 
 async function onClickConfirm() {
   uploaded.value = true;
@@ -167,13 +169,10 @@ const initGrd = defineGrid((data, view) => {
         return alncmpDgPrtnrMapngCd?.prtsCodeId || '';
       },
     },
-    alncmpDgPrtnrOgTpCd: {
-      displaying: false, /* 코드가 불안정하며 서버에서 조회하도록 변경 */
-    },
     spayDscDvCd: { label: t('일시불할인구분코드'), width: 146, options: codes.SPAY_DSC_DV_CD },
     spayDscrCd: { label: t('일시불할인율코드'), width: 146, options: codes.SPAY_DSCR_CD },
-    sellDscCtrAmt: { label: t('법인특별할인금액'), type: Number, width: 146 }, /* 판매할인조정금액 */
-    frisuBfsvcPtrmN: { label: t('무상멤버십기간'), type: Number, width: 146 }, /* 무상BS기간수 */
+    crpSpcDsprc: { label: t('법인특별할인금액'), type: Number, width: 146 }, /* 법인특별할인가 */
+    spayPmotDvCd: { label: t('일시불프로모션구분'), width: 210, options: codes.SPAY_PMOT_DV_CD }, /* 무상BS기간수 */
     svPdCd: { label: t('서비스상품코드'), width: 146, classes: 'text-center' }, /* 상품코드 긁어올까.. */
     copnDvCd: { label: t('개인법인구분'), width: 146, options: codes.COPN_DV_CD, required: true },
     cstNo: { label: t('고객번호'), width: 146, classes: 'text-center', required: true },
@@ -264,6 +263,10 @@ const initGrd = defineGrid((data, view) => {
     ctrVal: { displaying: false, type: Number },
     fnlVal: { displaying: false, type: Number },
     pdPrcId: { displaying: false },
+    sellDscCtrAmt: { displaying: false, type: Number }, /* 판매할인조정금액 */
+    alncmpDgPrtnrOgTpCd: { displaying: false /* 코드가 불안정하며 서버에서 조회하도록 변경 */ },
+    frisuBfsvcPtrmN: { displaying: false },
+    frisuAsPtrmN: { displaying: false },
   });
 
   view.rowIndicator.visible = true;
