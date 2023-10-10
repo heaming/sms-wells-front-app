@@ -203,7 +203,8 @@
                 >
                   <template #append>
                     <kw-btn
-                      v-if="notNullRentalDscTpCdSelected"
+                      v-if="notNullRentalDscTpCdSelected
+                        && RENTAL_DSC_TP_CD_USER_SELECTABLE.includes(priceDefineVariables.rentalDscTpCd)"
                       borderless
                       icon="clear"
                       @click="onClickRemoveRentalDscTpCd"
@@ -449,12 +450,31 @@ let bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품
 let appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
 let promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
 let alncCntrNms = toRef(props.modelValue, 'alncCntrNms', []);
-const packageRentalDscTpCds = toRef(props.modelValue, 'packageRentalDscTpCds');
 let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
+let priceOptionFilter = toRef(props.modelValue, 'priceOptionFilter', {});
+const packageRentalDscTpCds = toRef(props.modelValue, 'packageRentalDscTpCds');
+
+function connectReactivities() {
+  pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
+  verSn = toRef(props.modelValue, 'verSn');
+  fnlAmt = toRef(props.modelValue, 'fnlAmt');
+  pdQty = toRef(props.modelValue, 'pdQty');
+  mchnCh = toRef(props.modelValue, 'mchnCh');
+  cntrRels = toRef(props.modelValue, 'cntrRels');
+  bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
+  promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
+  appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
+  alncCntrNms = toRef(props.modelValue, 'alncCntrNms');
+  finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
+  priceOptionFilter = toRef(props.modelValue, 'priceOptionFilter', {});
+}
+
+connectReactivities();
+
+console.log('onLoad', props.modelValue);
 
 const filteredFinalPriceOptions = ref([]);
 
-const priceOptionFilter = ref({});
 const filteredVariableNames = computed(() => Object.getOwnPropertyNames(priceOptionFilter.value ?? {}));
 
 const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '2'));
@@ -553,11 +573,13 @@ const variableNames = Object.getOwnPropertyNames(priceDefineVariables.value);
 
 /* 저장된 값이 있다면 가격 결정요소를 맞추어 줍니다. */
 function initPriceDefineVariables() {
+  console.log('initPriceDefineVariables', pdPrcFnlDtlId.value);
   if (!pdPrcFnlDtlId.value) {
     return;
   }
   const selectedFinalPrice = filteredFinalPriceOptions.value
     ?.find((finalPrice) => (finalPrice.pdPrcFnlDtlId === pdPrcFnlDtlId.value));
+  console.log('selectedFinalPrice', selectedFinalPrice);
 
   if (!selectedFinalPrice) {
     warn('저장된 가격이 상이합니다.');
@@ -661,23 +683,6 @@ function clearPriceDefineVariables() {
   variableNames.forEach((variableName) => {
     priceDefineVariables.value[variableName] = undefined;
   });
-}
-
-/* 이전에는 key 가 안정적이지 않아서 변경 가능성이 있었으나,
-modelValue 에 따라 종속되는 tempKey-cntrSn 기반으로 인스턴스와 연결되므로, 발생하지 않을 것 으로 추측 중 */
-function reconnectReactivities() {
-  warn('reconnectReactivities called!');
-  pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
-  verSn = toRef(props.modelValue, 'verSn');
-  fnlAmt = toRef(props.modelValue, 'fnlAmt');
-  pdQty = toRef(props.modelValue, 'pdQty');
-  mchnCh = toRef(props.modelValue, 'mchnCh');
-  cntrRels = toRef(props.modelValue, 'cntrRels');
-  bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
-  promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
-  appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
-  alncCntrNms = toRef(props.modelValue, 'alncCntrNms');
-  finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
 }
 
 function reducerFinalPriceToSelectVarDict(varDict, finalPrice, variable) {
@@ -859,13 +864,6 @@ const selectedFinalPrice = computed(() => {
   return selectedPrice[0];
 });
 
-function initializePrice() {
-  fnlAmt.value = selectedFinalPrice.value?.fnlVal ?? undefined;
-  pdPrcFnlDtlId.value = selectedFinalPrice.value?.pdPrcFnlDtlId ?? undefined;
-}
-
-initializePrice();
-
 const promotionAppliedPrice = ref();
 
 const displayedFinalPrice = computed(() => (selectedFinalPrice.value
@@ -919,23 +917,40 @@ function getPackageRentalDscTpCds() {
     .filter((codeId) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(codeId));
 }
 
+async function onChangePriceOptionFilter() {
+  if (!finalPriceOptions.value.length) {
+    await fetchFinalPriceOptions();
+  }
+
+  filteringFinalPriceOptions();
+
+  filteredVariableNames.value.forEach((key) => {
+    if (!Object.hasOwn(priceDefineVariables.value, key)) {
+      warn(`가격 제한 옵션이 상이합니다. ${key}`);
+      return;
+    }
+    priceDefineVariables.value[key] = priceOptionFilter.value[key] || EMPTY_ID;
+  });
+
+  forcedChangeValidVariable(true);
+}
+
+watch(priceOptionFilter, onChangePriceOptionFilter, { immediate: true });
+
 /* 불의의 사고로, modelValue 객체를 통으로 들어냈을 경우 */
 async function onChangeModelValue(newDtl) {
-  if (newDtl.finalPriceOptions) {
-    finalPriceOptions.value ??= newDtl.finalPriceOptions;
+  if (dtl.value !== newDtl) {
+    /* 이전에는 key 가 안정적이지 않아서 변경 가능성이 있었으나,
+    modelValue 에 따라 종속되는 tempKey-cntrSn 기반으로 인스턴스와 연결되므로, 발생하지 않을 것 으로 추측 중 */
+    dtl.value = newDtl;
+    connectReactivities();
   }
+
   if (!finalPriceOptions.value?.length) {
     await fetchFinalPriceOptions();
   }
 
-  if (dtl.value !== newDtl) {
-    dtl.value = newDtl;
-    reconnectReactivities();
-  }
-
-  if (!pdPrcFnlDtlId.value) {
-    initPriceDefineVariables();
-  }
+  initPriceDefineVariables();
 }
 
 watch(() => props.modelValue, onChangeModelValue, { immediate: true });
@@ -957,32 +972,7 @@ function onChangeSelectedFinalPrice(newPrice) {
   getPackageRentalDscTpCds();
 }
 
-async function onChangePriceOptionFilter(newPriceOptionFilter) {
-  if (priceOptionFilter.value === newPriceOptionFilter) {
-    return;
-  }
-  priceOptionFilter.value = newPriceOptionFilter;
-
-  if (!finalPriceOptions.value.length) {
-    await fetchFinalPriceOptions();
-  }
-
-  filteringFinalPriceOptions();
-
-  filteredVariableNames.value.forEach((key) => {
-    if (!Object.hasOwn(priceDefineVariables.value, key)) {
-      warn(`가격 제한 옵션이 상이합니다. ${key}`);
-      return;
-    }
-    priceDefineVariables.value[key] = priceOptionFilter.value[key] || EMPTY_ID;
-  });
-
-  forcedChangeValidVariable(true);
-}
-
-watch(selectedFinalPrice, onChangeSelectedFinalPrice, { immediate: true });
-
-watch(() => props.modelValue?.priceOptionFilter, onChangePriceOptionFilter, { immediate: true });
+watch(selectedFinalPrice, onChangeSelectedFinalPrice);
 
 function onClickDeviceChange() {
   emit('device-change', props.modelValue);
