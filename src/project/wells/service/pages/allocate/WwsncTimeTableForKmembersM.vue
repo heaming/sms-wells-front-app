@@ -351,7 +351,7 @@
         </li>
       </ul>
       <ul
-        v-else-if="data.psic.rsbDvCd === 'W0103' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0103 센터장
+        v-else-if="data.psic.rsbDvCd === 'W0604' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0604 센터장
         "
       >
         <kw-separator />
@@ -423,7 +423,7 @@
       <div
         v-if="data.psic.udsnUseYn === 'Y' && // 미지정사용여부
           data.psic.vstPos=== '방문가능' &&
-          data.psic.rsbDvCd === 'W0103' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0103 센터장
+          data.psic.rsbDvCd === 'W0604' // 직책(AC025_EMP_OR) = 10 센터장, 직책(RSB_DV_CD) = W0604 센터장
         "
         class="row reservation-select q-gutter-x-sm"
       >

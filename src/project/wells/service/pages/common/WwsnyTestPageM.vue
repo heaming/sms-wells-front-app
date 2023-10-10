@@ -57,6 +57,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useGlobal/* , useMeta */ } from 'kw-lib';
+import dayjs from 'dayjs';
 
 const { modal } = useGlobal();
 const router = useRouter();
@@ -156,18 +157,18 @@ movePages.push({
       type: 'router',
       call: 'wwsnc-time-table-for-kmembers',
       props: {
-        sellDate: '20230616',
-        baseYm: '202307',
+        sellDate: '20231011',
+        baseYm: dayjs().format('YYYYMM'),
+        wrkDt: dayjs().format('YYYYMMDD'),
         chnlDvCd: 'W',
-        svDvCd: '1',
-        svBizDclsfCd: '1110',
-        cntrNo: 'W20231657419',
-        cntrSn: '1',
+        basePdCd: 'WP01130737',
         mtrStatCd: '1',
+        newAdrZip: '05224',
+        svBizDclsfCd: '1110',
+        inflwChnl: '4',
+        svDvCd: '1',
         userId: '1738565',
-        returnUrl: 'http://www.naver.com',
-        seq: '1',
-        wrkDt: '20230609',
+        returnUrl: 'https://www.kyowonwells.com',
       },
     },
   ],
