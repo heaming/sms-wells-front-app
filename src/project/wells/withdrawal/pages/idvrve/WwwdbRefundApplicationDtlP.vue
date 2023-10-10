@@ -45,8 +45,6 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          v-model:page-index="pageInfo1.pageIndex"
-          v-model:page-size="pageInfo1.pageSize"
           :total-count="pageInfo1.totalCount"
           @change="fetchData"
         />
@@ -87,8 +85,6 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          v-model:page-index="pageInfo2.pageIndex"
-          v-model:page-size="pageInfo2.pageSize"
           :total-count="pageInfo2.totalCount"
           @change="fetchData"
         />
@@ -392,23 +388,14 @@ const props = defineProps({
 
 const pageInfo1 = ref({ // 계약상세 페이지1
   totalCount: 0,
-  pageIndex: 1,
-  pageSize: 5,
-  // pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 const pageInfo2 = ref({ // 환불상세 페이지
   totalCount: 0,
-  pageIndex: 1,
-  pageSize: 5,
-  // pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 // eslint-disable-next-line no-unused-vars
 const pageInfo3 = ref({ // 전금상세 페이지
   totalCount: 0,
-  pageIndex: 1,
-  pageSize: 5,
-  // pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const { notify } = useGlobal();
@@ -479,27 +466,46 @@ async function onClickContect() {
 }
 
 async function onValidRfndCheck() {
-  if (saveParams.value.bankCode === '') {
+  if (isEmpty(saveParams.value.bankCode)) {
     notify(t('환불정보:은행정보가 비어있습니다.'));
     return false;
   }
 
-  if (saveParams.value.acnoEncr === '') {
+  if (isEmpty(saveParams.value.acnoEncr)) {
     notify(t('환불정보:계좌번호가 비어있습니다.'));
+    return false;
+  }
+
+  if (isEmpty(saveParams.value.cstNm)) {
+    // 계좌번호를 확인하십시오！
+    notify('환불정보의 계좌 유효성 체크를 해주세요');
     return false;
   }
   return true;
 }
 
+async function onValidRfndEftnCheck() {
+  if (isEmpty(saveParams.value.bankCode)) {
+    // 은행코드를 확인하십시오
+    notify(`환불정보의 ${t('MSG_ALT_BNK_CD_CHECK')}`);
+    return false;
+  }
+
+  if (isEmpty(saveParams.value.acnoEncr)) {
+    // 계좌번호를 확인하십시오！
+    notify(`환불정보의 ${t('MSG_ALT_AC_NO_CHECK')}`);
+    return false;
+  }
+
+  return true;
+}
+
 async function fetchData() {
-  const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...cachedParams, ...pageInfo1.value } });
-  const { list: app3, pageInfo: pagingResult3 } = res3.data;
+  const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...cachedParams } });
 
-  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: { ...cachedParams, ...pageInfo1.value } });
-  const { list: app2, pageInfo: pagingResult2 } = res2.data;
+  const res2 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund-detail', { params: { ...cachedParams } });
 
-  const res1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: { ...cachedParams, ...pageInfo1.value } });
-  const { list: app1, pageInfo: pagingResult1 } = res1.data;
+  const res1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: { ...cachedParams } });
 
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund', { params: { ...cachedParams } });
 
@@ -513,18 +519,18 @@ async function fetchData() {
   saveParams.value.procsDv = isEmpty(res.data.rfndProcsDvCd) ? '03' : res.data.rfndProcsDvCd;
   saveParams.value.procsCn = res.data.rfndProcsCn;
 
-  pageInfo3.value = pagingResult3;
-  pageInfo2.value = pagingResult2;
-  pageInfo1.value = pagingResult1;
+  pageInfo3.value.totalCount = res3.data.length;
+  pageInfo2.value.totalCount = res2.data.length;
+  pageInfo1.value.totalCount = res1.data.length;
 
   const view1 = grdPopRef1.value.getView();
   view1.checkBar.visible = false;
 
-  view1.getDataSource().setRows(app1);
+  view1.getDataSource().setRows(res1.data);
   const view2 = grdPopRef2.value.getView();
-  view2.getDataSource().setRows(app2);
+  view2.getDataSource().setRows(res2.data);
   const view3 = grdPopRef3.value.getView();
-  view3.getDataSource().setRows(app3);
+  view3.getDataSource().setRows(res3.data);
 
   // eslint-disable-next-line no-use-before-define
   await onCheckTotalData(); // 그리드4 (총액 자동계산)
@@ -603,7 +609,7 @@ async function onClickExcel3() {
 
 // 유효성체크 (해당 데이터는 임시데이터)
 async function onClickEftnCheck() {
-  if (!await onValidRfndCheck()) { return false; }
+  if (!await onValidRfndEftnCheck()) { return false; }
   const view = grdPopRef1.value.getView();
 
   const cntrNo = view.getValue(0, 'cntrNo');
@@ -620,8 +626,18 @@ async function onClickEftnCheck() {
     psicId: '',
     deptId: '',
   };
-  const acnoData = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData });
-  saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
+
+  const acnoData = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData }).catch(() => {
+    saveParams.value.cstNm = '테스트예금주';
+  });
+  if (!isEmpty(acnoData.data)) {
+    if (!isEmpty(acnoData.data.BIL_CRT_STAT_CD) && acnoData.data.BIL_CRT_STAT_CD === '1') {
+      saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
+    } else {
+      notify(acnoData.data.ERR_CN);
+      saveParams.value.cstNm = '테스트예금주';
+    }
+  }
 }
 
 // async function onCheckValidate2() {
@@ -734,6 +750,21 @@ async function onClickEftnCheck() {
 
 async function onSaveValidation() {
   if (!await obsRef.value.validate()) { return false; }
+  const view2 = grdPopRef2.value.getView();
+  const changedRows2 = gridUtil.getChangedRowValues(view2); // 환불상세 그리드 데이터
+
+  let cashCount = 0;
+  changedRows2.forEach((p1) => { // 현금요청금액이 있는지 체크
+    if (Number(p1.rfndCshAkAmt) > 0) {
+      cashCount += 1;
+      return false;
+    }
+  });
+
+  /* 해당정보는 환불정보가 비어있을때 validate */
+  if (cashCount > 0 && !await onValidRfndCheck()) {
+    return false;
+  }
 
   return true;
 }
