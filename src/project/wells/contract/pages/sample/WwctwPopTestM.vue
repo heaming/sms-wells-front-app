@@ -264,5 +264,12 @@ const pops = [
       ],
     },
   },
+  {
+    pname: 'WwctaContractStatusInstallationContractSppRegP',
+    title: '계약현황관리 설치/배정리스트',
+    param: {
+      cntrNo: '',
+    },
+  },
 ];
 </script>

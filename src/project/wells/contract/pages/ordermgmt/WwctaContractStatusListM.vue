@@ -820,45 +820,9 @@ async function onClickConfirm({ cntrNo }) {
 
 // CARD > BUTTON > 설치배정
 async function onClickAssignContact(item) {
-  const response = await dataService.get(`/sms/wells/contract/contracts/contract-lists/${item.cntrNo}/installation-order-targets`);
-  const installationOrderTargets = response.data || [];
-
-  if (installationOrderTargets.length === 0) {
-    alert(t('MSG_ALT_NO_IST_TG')); /* '설치 오더 대상 상품이 없습니다.' */
-    return;
-  }
-
-  const targets = installationOrderTargets.reduce((rtn, val) => {
-    let svBizDclsfCd;
-    if (val.sellTpCd === '1' && val.sellTpDtlCd === '12') {
-      svBizDclsfCd = '4110';
-    } else if (val.sellTpCd === '3' && val.sellTpDtlCd === '33') {
-      svBizDclsfCd = '4120';
-    } else if (val.sellTpCd === '6') {
-      svBizDclsfCd = '1120';
-    } else {
-      svBizDclsfCd = '1110';
-    }
-    rtn.push({ cntrSn: val.cntrSn, svBizDclsfCd, basePdCd: val.basePdCd });
-    return rtn;
-  }, []);
-
-  const installProps = {
-    baseYm: now.format('YYYYMM'), // 달력 초기 월
-    chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
-    svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
-    sellDate: item.cntrCnfmDtm.substring(0, 8), // 판매일자
-    svBizDclsfCd: targets.map((v) => v.svBizDclsfCd).join(','),
-    cntrNo: item.cntrNo,
-    cntrSn: targets.map((v) => v.cntrSn).join(','),
-    mtrStatCd: '1',
-  };
-  console.log(installProps);
-
-  // 설치오더 시작
   await modal({
-    component: 'WwsncTimeTableForContractP',
-    componentProps: installProps,
+    component: 'WwctaContractStatusInstallationContractSppRegP',
+    componentProps: { cntrNo: item.cntrNo },
   });
 }
 
