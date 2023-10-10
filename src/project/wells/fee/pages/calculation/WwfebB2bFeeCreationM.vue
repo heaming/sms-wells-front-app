@@ -198,6 +198,11 @@ const codes = await codeUtil.getMultiCodes(
   'SPP_DV_CD',
   'SV_PD_TP_CD',
   'USWY_TP_CD',
+  'RENTAL_COMBI_DV_CD',
+  'SPAY_DSC_DV_CD',
+  'RENTAL_DSC_DV_CD',
+  'MSH_DSC_DV_CD',
+  'SELL_TP_CD',
 );
 let cachedParams;
 const searchParams = ref({
@@ -358,6 +363,7 @@ const initGridDetail = defineGrid((data, view) => {
     { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '150', styleName: 'text-center', options: codes.SELL_TP_CD, visible: false },
     {
       fieldName: 'sellDscDvCd',
       header: t('MSG_TXT_PD_DC_CLASS'),
@@ -365,8 +371,19 @@ const initGridDetail = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         let retValue = value;
-        if (codes.SELL_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
-          retValue = codes.SELL_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+        const { sellTpCd } = grid.getValues(index.itemIndex);
+        if (sellTpCd === '1') {
+          if (codes.SPAY_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
+            retValue = codes.SPAY_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+          }
+        } else if (sellTpCd === '2') {
+          if (codes.RENTAL_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
+            retValue = codes.RENTAL_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+          }
+        } else if (['3', '4'].includes(sellTpCd)) {
+          if (codes.MSH_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
+            retValue = codes.MSH_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+          }
         }
         return retValue;
       },
@@ -404,8 +421,8 @@ const initGridDetail = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         let retValue = value;
-        if (codes.SPP_DV_CD.map((v) => v.codeId).includes(value)) {
-          retValue = codes.SPP_DV_CD.find((v) => v.codeId === value)?.codeName;
+        if (codes.RENTAL_COMBI_DV_CD.map((v) => v.codeId).includes(value)) {
+          retValue = codes.RENTAL_COMBI_DV_CD.find((v) => v.codeId === value)?.codeName;
         }
         return retValue;
       },
