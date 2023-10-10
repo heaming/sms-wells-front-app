@@ -343,7 +343,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, stringUtil, modal, defineGrid } from 'kw-lib';
+import { useDataService, codeUtil, getComponentType, stringUtil, modal, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -368,6 +368,13 @@ const searchParams = ref({
   prtnrKnm: '',
 
 });
+
+const codes = await codeUtil.getMultiCodes(
+  'RSB_DV_CD',
+  'QLF_DV_CD',
+);
+
+console.log(codes);
 
 const info1 = ref({
   emplNm: '',
@@ -464,6 +471,13 @@ async function fetchData(type) {
     } else {
       isBtnClick.value = false;
       searchParams.value.prtnrKnm = '';
+    }
+
+    if (info1.value.rsb !== '') {
+      info1.value.rsb = codes.RSB_DV_CD.find((v) => v.codeId === info1.value.rsb).codeName;
+    }
+    if (info1.value.qlf !== '') {
+      info1.value.qlf = codes.QLF_DV_CD.find((v) => v.codeId === info1.value.qlf).codeName;
     }
   } else if (type === 'base-info') {
     const baseView = grd1MainRef.value.getView();
