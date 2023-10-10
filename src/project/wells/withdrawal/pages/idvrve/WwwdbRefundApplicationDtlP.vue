@@ -161,6 +161,7 @@
           <kw-input
             v-model="saveParams.acnoEncr"
             regex="num"
+            :maxlength="30"
             @change="saveParams.cstNm=''"
           />
           <!-- 호출되는 값이 16자 초과하면안되게 되어있음.-->
@@ -173,7 +174,6 @@
           <kw-input
             v-model="saveParams.cstNm"
             :label="$t('MSG_TXT_ACHLDR')"
-            rules="required"
             readonly
           />
           <!-- 유효성체크 -->
@@ -467,12 +467,14 @@ async function onClickContect() {
 
 async function onValidRfndCheck() {
   if (isEmpty(saveParams.value.bankCode)) {
-    notify(t('환불정보:은행정보가 비어있습니다.'));
+    // 은행코드를 확인하십시오
+    notify(`환불정보의 ${t('MSG_ALT_BNK_CD_CHECK')}`);
     return false;
   }
 
   if (isEmpty(saveParams.value.acnoEncr)) {
-    notify(t('환불정보:계좌번호가 비어있습니다.'));
+    // 계좌번호를 확인하십시오！
+    notify(`환불정보의 ${t('MSG_ALT_AC_NO_CHECK')}`);
     return false;
   }
 
@@ -535,7 +537,31 @@ async function fetchData() {
   // eslint-disable-next-line no-use-before-define
   await onCheckTotalData(); // 그리드4 (총액 자동계산)
   // eslint-disable-next-line no-use-before-define
-  await onEditRfnd(props.cntrNo);
+  // await onEditRfnd(props.cntrNo);
+  res2.data.forEach((obj) => {
+    const grdView2 = grdPopRef2.value.getView();
+    const grdView3 = grdPopRef3.value.getView();
+    const grd2 = gridUtil.getAllRowValues(grdView2);
+    const grd3 = gridUtil.getAllRowValues(grdView3);
+    let temp = 0;
+
+    for (let i = 0; i < grd3.length; i += 1) {
+      if (grd3[i].cntrNo === obj.cntrNo
+        && grd3[i].rveNo === obj.rveNo
+        && grd3[i].rveSn === obj.rveSn) {
+        temp += Number(grd3[i].rfndBltfAkAmt);
+      }
+    }
+
+    for (let i = 0; i < grd2.length; i += 1) {
+      if (grd2[i].cntrNo === obj.cntrNo
+        && grd2[i].rveNo === obj.rveNo
+        && grd2[i].rveSn === obj.rveSn) {
+        grdView2.setValue(i, 'rfndBltfAkAmt', Number(temp));
+        grdView2.getDataSource().setRowState(i, 'none');
+      }
+    }// 그리드 2(전금 데이터 바인딩)
+  });
 }
 
 // 계약상세 엑셀다운로드
@@ -751,7 +777,7 @@ async function onClickEftnCheck() {
 async function onSaveValidation() {
   if (!await obsRef.value.validate()) { return false; }
   const view2 = grdPopRef2.value.getView();
-  const changedRows2 = gridUtil.getChangedRowValues(view2); // 환불상세 그리드 데이터
+  const changedRows2 = gridUtil.getAllRowValues(view2, false); // 환불상세 그리드 데이터
 
   let cashCount = 0;
   changedRows2.forEach((p1) => { // 현금요청금액이 있는지 체크
@@ -911,6 +937,7 @@ async function onCheckTotalData() {
   view4.setValue(0, 'totCrdcdFeeAmt', temp4);
   view4.setValue(0, 'totRfndEtAmt', Number(temp1) + Number(temp2) + Number(temp3) + Number(temp4));
   totRfndAkAmt = temp5;
+  grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
 }
 // eslint-disable-next-line max-len
 // async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo) {
@@ -1347,21 +1374,12 @@ const initGrid3 = defineGrid((data, view) => {
     },
     { fieldName: 'bltfOjCntrDtlNo',
       width: '140',
-      header: {
-        text: t('MSG_TXT_BLTF_CNTR_DTL_NO'),
-        // 전금계약상세번호
-        styleName: 'essential',
-      },
+      header: t('MSG_TXT_BLTF_CNTR_DTL_NO'),
       styleName: 'text-center',
-      editor: {
-        type: 'line',
-      },
-
-      rules: 'required|min:12|max:17',
-      editable: true,
-      valueCallback(grid, index) {
+      editable: false,
+      displayCallback(grid, index) {
         const { bltfOjCntrNo, bltfOjCntrSn } = grid.getValues(index.itemIndex);
-        if (bltfOjCntrNo !== '' && bltfOjCntrNo !== undefined) {
+        if (!isEmpty(bltfOjCntrNo)) {
           return `${bltfOjCntrNo}-${bltfOjCntrSn}`;
         }
       },
@@ -1397,8 +1415,19 @@ const initGrid3 = defineGrid((data, view) => {
         downloadable: true,
         editable: false,
       },
-      styleName: 'rg-button-excelup',
       renderer: { type: 'button' },
+      styleCallback: (grid, model) => {
+        const bltfRfndMbDvCd = grid.getValue(model.item.dataRow, 'bltfRfndMbDvCd');
+
+        if (bltfRfndMbDvCd !== '01') {
+          return {
+            styleName: 'rg-button-excelup',
+          };
+        }
+        return {
+          styleName: 'rg-file-hide-button',
+        };
+      },
       // styleCallback(grid, dataCell) {
       //   const bltfRfndMbDvCd = grid.getValue(dataCell.index.itemIndex, 'bltfRfndMbDvCd');
       //   return bltfRfndMbDvCd === '02' ? { editor: { editable: true } } : { editor: { editable: false } };
