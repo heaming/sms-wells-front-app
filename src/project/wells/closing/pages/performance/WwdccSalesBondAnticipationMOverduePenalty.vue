@@ -408,10 +408,6 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_PERF_DT'),
       styleName: 'text-center',
       width: '130',
-      headerSummary: {
-        text: t('MSG_TXT_SUM'),
-        styleName: 'text-center',
-      },
       datetimeFormat: 'date',
     }, // 실적일자
     { fieldName: 'sellTpCdNm',
