@@ -784,10 +784,10 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
   let sellTpCd = '';
   let kaetc1 = '';
 
-  if (!isEqual(dataList.profile, 'prd')) {
-    alert('처리되었습니다.(개발환경에선 처리 안됨)');
-    return;
-  }
+  // if (!isEqual(dataList.profile, 'prd')) {
+  //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
+  //   return;
+  // }
 
   if (!isEqual(dataList.lcCanyn, 'Y')) {
     if (isEqual(dataList.acpgStat, '1') || isEqual(dataList.acpgStat, '9')) {
@@ -950,10 +950,10 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
     return;
   }
 
-  if (!isEqual(dataList.profile, 'prd')) {
-    alert('처리되었습니다.(개발환경에선 처리 안됨)');
-    return;
-  }
+  // if (!isEqual(dataList.profile, 'prd')) {
+  //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
+  //   return;
+  // }
 
   const saveParams = ref({
     cntrNo: dataList.cntrNo,
@@ -994,10 +994,10 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
   let asIstOjNoParam = '';
   let acpgDivParam = '';
 
-  if (!isEqual(dataList.profile, 'prd')) {
-    alert('처리되었습니다.(개발환경에선 처리 안됨)');
-    return;
-  }
+  // if (!isEqual(dataList.profile, 'prd')) {
+  //   alert('처리되었습니다.(개발환경에선 처리 안됨)');
+  //   return;
+  // }
 
   if (!isEqual(dataList.lcCanyn, 'Y')) {
     if (isEqual(dataList.kaetc1, '7')) {
@@ -1042,7 +1042,7 @@ async function checkKiwiTimeAssign(dataList, prdDiv) {
       }
     }
     const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings/checks', saveParams.value); // 체크
-    if (!isEmpty(res)) {
+    if (isEqual(res.data.checkYn, 'Y')) {
       if (!isEqual(prdDiv, '3')) {
         callKiwiTimeAssign(dataList, prdDiv);
       } else {
