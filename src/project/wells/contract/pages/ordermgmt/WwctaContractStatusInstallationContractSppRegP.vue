@@ -218,8 +218,28 @@ const initGrid = defineGrid((data, view) => {
         isEmpty(gridUtil.getRowValue(grid, index.dataRow).istDt) ? t('MSG_TXT_CNCL_ASGMT') : t('MSG_TXT_CNCL_ASGMT')
       ),
       preventCellItemFocus: true },
-    { fieldName: 'vstSchDt', header: t('MSG_TXT_IST_EXP_DT'), width: '181', styleName: 'text-center' },
-    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '121', styleName: 'text-center' },
+    { fieldName: 'vstSchDt',
+      header: t('MSG_TXT_IST_EXP_DT'),
+      width: '181',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { vstSchDt } = grid.getValues(index.itemIndex);
+        if (!isEmpty(vstSchDt)) {
+          return `${vstSchDt.substring(0, 4)}-${vstSchDt.substring(4, 6)}-${vstSchDt.substring(6, 8)}`;
+        }
+      },
+    },
+    { fieldName: 'istDt',
+      header: t('MSG_TXT_IST_DT'),
+      width: '121',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { istDt } = grid.getValues(index.itemIndex);
+        if (!isEmpty(istDt)) {
+          return `${istDt.substring(0, 4)}-${istDt.substring(4, 6)}-${istDt.substring(6, 8)}`;
+        }
+      },
+    },
   ];
 
   data.setFields(fields);
