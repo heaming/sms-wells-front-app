@@ -202,9 +202,13 @@ const initGrid = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         return isAsgVisible(grid, dataCell);
       },
-      displayCallback: (grid, index) => (
-        isEmpty(gridUtil.getRowValue(grid, index.dataRow).istDt) ? t('MSG_TXT_CNTCT_ASSGNMNT') : t('MSG_TXT_CNTCT_ASSGNMNT')
-      ),
+      displayCallback(grid, index) {
+        const { vstSchDt } = grid.getValues(index.itemIndex);
+
+        if (!isEmpty(vstSchDt)) {
+          return t('MSG_TXT_RE_ASN'); // 재배정
+        } return t('MSG_TXT_CNTCT_ASSGNMNT'); // 설치배정
+      },
       preventCellItemFocus: true },
     { fieldName: 'cnclAsgmt', // 배정취소
       header: t('MSG_TXT_CNCL_ASGMT'),
