@@ -142,11 +142,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
         </template>
         <!-- 저장 -->
@@ -168,7 +164,7 @@
           dense
           secondary
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -235,15 +231,8 @@
       </ul>
       <kw-grid
         ref="grdMainRef"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -253,16 +242,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil, useMeta } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
-// import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
 const { notify } = useGlobal();
 const { currentRoute } = useRouter();
-const { getConfig } = useMeta();
+// const { getConfig } = useMeta();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -270,7 +258,6 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'PD_GD_CD', // 상품등급
   'PD_GRP_CD', // 상품그룹코드
   'ITM_KND_CD', // 품목종류코드
@@ -285,11 +272,7 @@ const strWareDvCd = { WARE_DV_CD: [
   { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
 ] };
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
+const totalCount = ref(0);
 
 const filterCodes = ref({
   filterPdGdCd: [],
@@ -398,12 +381,12 @@ await Promise.all([
 ]);
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/returning-goods-store/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: goods, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/returning-goods-store', { params: { ...cachedParams } });
+  const goods = res.data;
 
   console.log(goods);
 
+  totalCount.value = goods.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(goods);
 
@@ -411,7 +394,6 @@ async function fetchData() {
 
   view.autoFiltersRefresh('itemGr', false);
   view.setColumnFilters('itemGr', filters, true);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickExcelDownload() {
