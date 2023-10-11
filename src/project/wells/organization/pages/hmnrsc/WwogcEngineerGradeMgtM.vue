@@ -75,6 +75,14 @@
           spaced
         />
         <kw-btn
+          v-permission:create
+          icon="upload_on"
+          secondary
+          dense
+          :label="t('MSG_TXT_EXCEL_UPLOAD')"
+          @click="onClickExcelUpload"
+        />
+        <kw-btn
           v-permission:download
           icon="download_on"
           secondary
@@ -82,14 +90,6 @@
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
-        />
-        <kw-btn
-          v-permission:create
-          icon="upload_on"
-          secondary
-          dense
-          :label="t('MSG_TXT_EXCEL_UPLOAD')"
-          @click="onClickExcelUpload"
         />
       </kw-action-top>
       <kw-grid
