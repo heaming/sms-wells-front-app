@@ -117,6 +117,7 @@ const props = defineProps({
 });
 const emit = defineEmits([
   'select',
+  'fetched',
 ]);
 const exposed = {};
 defineExpose(exposed);
@@ -253,6 +254,11 @@ async function fetchProducts() {
     await alert('판매 가능한 상품이 없습니다.');
   }
   classifying();
+
+  // 멤버십 계약 등 1개 상품만 있는 경우, 자동 선택 처리
+  // 세부적인 판단은 Step2.vue 에서
+  // emit 성능이 문제된다면, length=1 인 경우에만 전달 등 추후 정리
+  await emit('fetched', products.value);
 }
 
 watch(() => props.cntrNo, fetchProducts, { immediate: true });
