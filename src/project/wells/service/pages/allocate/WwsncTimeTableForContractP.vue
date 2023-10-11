@@ -989,8 +989,9 @@ async function onClickAm() {
   console.log(`totalMaxAbleCnt=${data.value.totalMaxAbleCnt}`);
   console.log(`amAlloCnt=${data.value.amAlloCnt}`);
   console.log(`totalAbleCnt=${data.value.totalAbleCnt}`);
-  console.log(`psic=${data.value.psic}`);
   console.log(`totalWrkCnt=${data.value.psic.totalWrkCnt}`);
+  console.log(`psic=${JSON.stringify(data.value.psic)}`);
+
   clickedBtn.value = '0';
   let time = '';
   // 엔지니어 할당 개수 초과
