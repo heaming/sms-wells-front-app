@@ -215,6 +215,7 @@ const filterCodes = ref({
   itmKndCd: [],
 });
 
+// 품목종류 필터링
 function itmKndCdFilter() {
   filterCodes.value.itmKndCd = codes.ITM_KND_CD.filter((v) => ['5', '6'].includes(v.codeId));
 }
@@ -222,6 +223,8 @@ function itmKndCdFilter() {
 const optionsItmPdCd = ref();
 const optionsAllItmPdCd = ref();
 const isInqrYm = ref(true);
+
+// 팝업 오픈 시 기본데이터 셋팅
 async function initData() {
   if (isEmpty(props.inqrYm)) {
     isInqrYm.value = false;
@@ -258,6 +261,7 @@ function onChangeItmKndCd() {
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 }
 
+// SAP 시작코드 변경 시
 function onChangeStrtSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -267,6 +271,7 @@ function onChangeStrtSapCd() {
   }
 }
 
+// SAP 종료코드 변경 시
 function onChangeEndSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -292,6 +297,7 @@ async function fetchData() {
 }
 
 const isSearch = ref(true);
+// 조회버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
@@ -332,6 +338,7 @@ async function onClickAdd() {
     usrNm: userName });
 }
 
+// 품목기본정보 팝업 데이터 가져오기
 function getRowData(rowData) {
   return { ...rowData,
     sapCd: rowData.sapCd,
@@ -363,6 +370,7 @@ async function checkDuplication(itmPdCd) {
   return 'N';
 }
 
+// 품목기본정보 팝업 호출
 async function openItemBasePopup(row) {
   const searchItmKndCd = isEmpty(cachedParams.itmKndCd) ? '6' : cachedParams.itmKndCd;
   const { result, payload } = await modal({
@@ -466,16 +474,16 @@ async function onClickExcelDownload() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmPdNm' },
-    { fieldName: 'rmkCn' },
-    { fieldName: 'fstRgstDt' },
-    { fieldName: 'deptNm' },
-    { fieldName: 'usrNm' },
-    { fieldName: 'mngtYm' },
-    { fieldName: 'cmptExcdSn', dataType: 'number' },
-    { fieldName: 'itmKndCd' },
+    { fieldName: 'sapCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'itmPdNm' }, // 상품명
+    { fieldName: 'rmkCn' }, // 비고
+    { fieldName: 'fstRgstDt' }, // 등록일자
+    { fieldName: 'deptNm' }, // 소속
+    { fieldName: 'usrNm' }, // 등록자
+    { fieldName: 'mngtYm' }, // 관리년월
+    { fieldName: 'cmptExcdSn', dataType: 'number' }, // 산출제외순번
+    { fieldName: 'itmKndCd' }, // 품목종류코드
 
   ];
 

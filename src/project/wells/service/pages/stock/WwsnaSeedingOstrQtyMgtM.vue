@@ -152,6 +152,7 @@ const filterCodes = ref({
   svBizHclsfCd: [],
 });
 
+// 업무유형 필터링
 function svBizHclsfCdFilter() {
   filterCodes.value.svBizHclsfCd = codes.SV_BIZ_HCLSF_CD.filter((v) => ['1', '2', '3'].includes(v.codeId));
 }
@@ -176,6 +177,7 @@ async function fetchData() {
 }
 
 const isSearch = ref(true);
+// 조회버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
@@ -235,13 +237,13 @@ async function onClickExcelDownload() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'vstDt' },
-    { fieldName: 'svBizHclsfNm' },
-    { fieldName: 'sdingPkgNm' },
-    { fieldName: 'limQty', dataType: 'number' },
-    { fieldName: 'sdingPkgGrpCd' },
-    { fieldName: 'svBizHclsfCd' },
-    { fieldName: 'limSn', dataType: 'number' },
+    { fieldName: 'vstDt' }, // 고객방문일
+    { fieldName: 'svBizHclsfNm' }, // 업무유형
+    { fieldName: 'sdingPkgNm' }, // 패키지구분
+    { fieldName: 'limQty', dataType: 'number' }, // 한도수량
+    { fieldName: 'sdingPkgGrpCd' }, // 패키지그룹코드
+    { fieldName: 'svBizHclsfCd' }, // 업무유형코드
+    { fieldName: 'limSn', dataType: 'number' }, // 한도일련번호
   ];
 
   const columns = [

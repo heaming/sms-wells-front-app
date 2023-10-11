@@ -308,24 +308,29 @@ watch(() => searchParams.value.ostrWareDvCd, (val) => {
   onChangeOstrWareDvCd();
 });
 
+// 출고창고구분 변경 시
 function onChangeOstrDvCd() {
   searchParams.value.ostrHgrWareNo = '';
   searchParams.value.ostrWareNo = '';
 }
 
+// 출고상위창고 변경 시
 function onChagneOstrWareHgrNo() {
   searchParams.value.ostrWareNo = '';
 }
 
+// 입고창고구분 변경 시
 function onChangeStrDvCd() {
   searchParams.value.strHgrWareNo = '';
   searchParams.value.strWareNo = '';
 }
 
+// 입고상위창고 변경 시
 function onChagneStrWareHgrNo() {
   searchParams.value.strWareNo = '';
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/out-of-storage-iz-dtls/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
@@ -340,6 +345,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
@@ -348,6 +354,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/out-of-storage-iz-dtls/excel-download', { params: cachedParams });
@@ -396,23 +403,23 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'strWareNm' },
-    { fieldName: 'strPrtnrNo' },
-    { fieldName: 'ostrDt' },
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'pdAbbrNm' },
-    { fieldName: 'ostrTpCd' },
-    { fieldName: 'mngtUnitNm' },
-    { fieldName: 'itmGdNm' },
-    { fieldName: 'llshcs' },
-    { fieldName: 'ostrWareNm' },
-    { fieldName: 'strRgstDt' },
-    { fieldName: 'ostrAkDtlNo' },
-    { fieldName: 'strDtlNo' },
-    { fieldName: 'ostrDtlNo' },
-    { fieldName: 'ostrQty', dataType: 'number' },
-    { fieldName: 'boxQty', dataType: 'number' },
+    { fieldName: 'strWareNm' }, // 입고창고
+    { fieldName: 'strPrtnrNo' }, // 입고창고파트너번호
+    { fieldName: 'ostrDt' }, // 출고일자
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'pdAbbrNm' }, // 품목명
+    { fieldName: 'ostrTpCd' }, // 출고유형
+    { fieldName: 'mngtUnitNm' }, // 관리단위
+    { fieldName: 'itmGdNm' }, // 등급
+    { fieldName: 'llshcs' }, // 직배코스
+    { fieldName: 'ostrWareNm' }, // 출고창고
+    { fieldName: 'strRgstDt' }, // 입고일자
+    { fieldName: 'ostrAkDtlNo' }, // 출고요청번호
+    { fieldName: 'strDtlNo' }, // 입고관리번호
+    { fieldName: 'ostrDtlNo' }, // 출고관리번호
+    { fieldName: 'ostrQty', dataType: 'number' }, // 출고수량
+    { fieldName: 'boxQty', dataType: 'number' }, // 박스수량
   ];
 
   const columns = [

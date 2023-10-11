@@ -153,6 +153,7 @@ const filterCodes = ref({
   itmKndCd: [],
 });
 
+// 품목종류 필터링
 function itmKndCdFilter() {
   filterCodes.value.itmKndCd = codes.ITM_KND_CD.filter((v) => ['5', '6'].includes(v.codeId));
 }
@@ -199,6 +200,7 @@ async function fetchData() {
   }
 }
 
+// 체크박스 조건 변환
 function convertCheckBox() {
   const { cntGb, qomAsnGb } = cachedParams;
   const indiYn = isEmpty(qomAsnGb.find((v) => v === 'INDI')) ? 'N' : 'Y';
@@ -214,6 +216,7 @@ function convertCheckBox() {
   cachedParams.cntGb = cntYn1 + cntYn2 + cntYn3;
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   convertCheckBox();
@@ -238,24 +241,28 @@ async function onClickExcelDownload() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'bsQty', dataType: 'number' },
-    { fieldName: 'indiQty1', dataType: 'number' },
-    { fieldName: 'indiQty2', dataType: 'number' },
-    { fieldName: 'indiQty3', dataType: 'number' },
-    { fieldName: 'indeQty1', dataType: 'number' },
-    { fieldName: 'indeQty2', dataType: 'number' },
-    { fieldName: 'indeQty3', dataType: 'number' },
-    { fieldName: 'qomAsnQty', dataType: 'number' },
-    { fieldName: 'qty100002', dataType: 'number' },
-    { fieldName: 'qty100008', dataType: 'number' },
-    { fieldName: 'lgstQty', dataType: 'number' },
-    { fieldName: 'centerQty', dataType: 'number' },
-    { fieldName: 'centerIndiQty', dataType: 'number' },
-    { fieldName: 'lgstLackQty', dataType: 'number' },
-    { fieldName: 'lackQty100008', dataType: 'number' },
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'pdNm' }, // 품목명
+    { fieldName: 'bsQty', dataType: 'number' }, // 당월BS
+    // 개인W/M
+    { fieldName: 'indiQty1', dataType: 'number' }, // 1차
+    { fieldName: 'indiQty2', dataType: 'number' }, // 2차
+    { fieldName: 'indiQty3', dataType: 'number' }, // 3차
+    // 독립W/M
+    { fieldName: 'indeQty1', dataType: 'number' }, // 1차
+    { fieldName: 'indeQty2', dataType: 'number' }, // 2차
+    { fieldName: 'indeQty3', dataType: 'number' }, // 3차
+    { fieldName: 'qomAsnQty', dataType: 'number' }, // 계
+    // 물류재고
+    { fieldName: 'qty100002', dataType: 'number' }, // 파주
+    { fieldName: 'qty100008', dataType: 'number' }, // 성수
+    { fieldName: 'lgstQty', dataType: 'number' }, // 계
+    { fieldName: 'centerQty', dataType: 'number' }, // 영업센터 조직재고
+    { fieldName: 'centerIndiQty', dataType: 'number' }, // 영업센터 개인재고
+    // 물류 부족재고
+    { fieldName: 'lgstLackQty', dataType: 'number' }, // 파주+성수
+    { fieldName: 'lackQty100008', dataType: 'number' }, // 성수
   ];
 
   const columns = [
