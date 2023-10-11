@@ -172,7 +172,7 @@ const codes = await codeUtil.getMultiCodes(
 const now = dayjs();
 const searchParams = ref({
   sellInflwChnlDtlCd: '1',
-  fromCntrRcpFshDtm: now.add(-4, 'month').format('YYYYMM'),
+  fromCntrRcpFshDtm: '',
   toCntrRcpFshDtm: now.format('YYYYMM'),
   cntrNo: '',
   cntrSn: 0,
