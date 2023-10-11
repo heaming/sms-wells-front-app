@@ -549,10 +549,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogNm' }, // 접수자소속
     { fieldName: 'prtnrNm' }, // 접수자명
     { fieldName: 'badDvNm' }, // 불량구분
-    { fieldName: 'rtngdRvpyProcsYn' },
-    { fieldName: 'wkWareNo' },
-    { fieldName: 'wkOstrSn' },
-    { fieldName: 'errorCheck' },
+    { fieldName: 'rtngdRvpyProcsYn' }, // 반품수불처리여부
+    { fieldName: 'wkWareNo' }, // 작업창고번호
+    { fieldName: 'wkOstrSn' }, // 작업출고순번
+    { fieldName: 'errorCheck' }, // 등급오류체크
 
   ];
 
