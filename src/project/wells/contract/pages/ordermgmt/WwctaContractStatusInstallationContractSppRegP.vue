@@ -17,24 +17,17 @@
   <kw-popup
     size="xl"
   >
-    <kw-separator
-      divider
-      :spaced="`false`"
-      size="8px"
+    <kw-action-top>
+      <template #left>
+        <kw-paging-info
+          :total-count="resultList.length"
+        />
+      </template>
+    </kw-action-top>
+    <kw-grid
+      ref="grdMainRef"
+      @init="initGrid"
     />
-    <div class="result-area">
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            :total-count="resultList.length"
-          />
-        </template>
-      </kw-action-top>
-      <kw-grid
-        ref="grdMainRef"
-        @init="initGrid"
-      />
-    </div>
   </kw-popup>
 </template>
 
@@ -49,7 +42,7 @@ import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { alert, modal, notify } = useGlobal();
+const { modal, notify } = useGlobal();
 const now = dayjs();
 const { getUserInfo } = useMeta();
 
@@ -83,32 +76,18 @@ async function fetchData() {
 
 // 설치/배정-재배정 타임테이블 조회
 async function onClickInstallationContractSppReg(item) {
-  console.log(item.cntrNo);
-  console.log(item.cntrCnfmDtm);
+  console.log(item);
 
-  const response = await dataService.get(
-    `/sms/wells/contract/contracts/contract-lists/${item.cntrNo}/installation-order-targets`,
-  );
-  const installationOrderTargets = response.data || [];
-
-  if (installationOrderTargets.length === 0) {
-    alert(t('MSG_ALT_NO_IST_TG')); // '설치 오더 대상 상품이 없습니다.'
-    return;
+  let svBizDclsfCd;
+  if (item.sellTpCd === '1' && item.sellTpDtlCd === '12') {
+    svBizDclsfCd = '4110';
+  } else if (item.sellTpCd === '3' && item.sellTpDtlCd === '33') {
+    svBizDclsfCd = '4120';
+  } else if (item.sellTpCd === '6') {
+    svBizDclsfCd = '1120';
+  } else {
+    svBizDclsfCd = '1110';
   }
-  const targets = installationOrderTargets.reduce((rtn, val) => {
-    let svBizDclsfCd;
-    if (val.sellTpCd === '1' && val.sellTpDtlCd === '12') {
-      svBizDclsfCd = '4110';
-    } else if (val.sellTpCd === '3' && val.sellTpDtlCd === '33') {
-      svBizDclsfCd = '4120';
-    } else if (val.sellTpCd === '6') {
-      svBizDclsfCd = '1120';
-    } else {
-      svBizDclsfCd = '1110';
-    }
-    rtn.push({ cntrSn: val.cntrSn, svBizDclsfCd });
-    return rtn;
-  }, []);
 
   // 설치오더 시작
   const res = await modal({
@@ -118,9 +97,9 @@ async function onClickInstallationContractSppReg(item) {
       chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
       svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
       sellDate: item.cntrCnfmDtm, // 판매일자(계약확정일자)
-      svBizDclsfCd: targets.map((v) => v.svBizDclsfCd).join(','),
+      svBizDclsfCd,
       cntrNo: item.cntrNo,
-      cntrSn: targets.map((v) => v.cntrSn).join(','),
+      cntrSn: item.cntrSn,
       mtrStatCd: '1',
     },
   });
@@ -192,6 +171,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrSn' }, // 계약일련번호
     { fieldName: 'cntrNoDtl' }, // 계약상세번호
     { fieldName: 'cntrCnfmDtm' }, // 계약확정일자
+    { fieldName: 'sellTpCd' }, // 판매유형코드
+    { fieldName: 'sellTpDtlCd' }, // 판매유형상세코드
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'cntctAssgnmnt' }, // 설치배정
     { fieldName: 'cnclAsgmt' }, // 배정취소
