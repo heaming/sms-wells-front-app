@@ -84,6 +84,7 @@ async function fetchData() {
 // 설치/배정-재배정 타임테이블 조회
 async function onClickInstallationContractSppReg(item) {
   console.log(item.cntrNo);
+  console.log(item.cntrCnfmDtm);
 
   const response = await dataService.get(
     `/sms/wells/contract/contracts/contract-lists/${item.cntrNo}/installation-order-targets`,
@@ -190,6 +191,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrNo' }, // 계약번호
     { fieldName: 'cntrSn' }, // 계약일련번호
     { fieldName: 'cntrNoDtl' }, // 계약상세번호
+    { fieldName: 'cntrCnfmDtm' }, // 계약확정일자
     { fieldName: 'pdNm' }, // 상품명
     { fieldName: 'cntctAssgnmnt' }, // 설치배정
     { fieldName: 'cnclAsgmt' }, // 배정취소
