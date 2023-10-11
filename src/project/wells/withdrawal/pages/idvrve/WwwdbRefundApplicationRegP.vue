@@ -834,8 +834,9 @@ async function onClickRefundAsk(stateCode) {
   const rows2 = changedRows2.filter((p1) => (Number(p1.rfndCshAkAmt) + Number(p1.rfndCardAkAmt)
   + Number(p1.crdcdFeeAmt) + Number(p1.rfndBltfAkAmt)) > 0);
 
+  const grdRows2 = gridUtil.getAllRowValues(view2, false); // 환불상세 그리드 데이터
   let cashCount = 0;
-  changedRows2.forEach((p1) => { // 현금요청금액이 있는지 체크
+  grdRows2.forEach((p1) => { // 현금요청금액이 있는지 체크
     if (Number(p1.rfndCshAkAmt) > 0) {
       cashCount += 1;
       return false;
