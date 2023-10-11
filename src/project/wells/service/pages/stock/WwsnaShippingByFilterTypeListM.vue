@@ -270,14 +270,15 @@ const filterCodes = ref({
   svBizHclsfCd: [],
 });
 
+// 업무유형 필터링
 function codeFilter() {
   filterCodes.value.svBizHclsfCd = codes.SV_BIZ_HCLSF_CD.filter((v) => ['1', '2', '3'].includes(v.codeId));
 }
 
-// 창고 조회
 const optionsHgrWareNo = ref();
 const optionsWareNo = ref();
 
+// 방문일자 변경 시 창고 조회
 const onChangeVstDt = async () => {
   searchParams.value.hgrWareNo = '';
   searchParams.value.wareNo = '';
@@ -289,6 +290,7 @@ const onChangeVstDt = async () => {
     return;
   }
 
+  // 창고 조회
   const result = await dataService.get(
     '/sms/wells/common/sms-wells-codes/ware-houses',
     { params: {
@@ -301,6 +303,7 @@ const onChangeVstDt = async () => {
   optionsHgrWareNo.value = result.data;
 };
 
+// 상위창고 변경 시
 const onChangeHgrWareHouse = async () => {
   searchParams.value.wareNo = '';
   const { strtDt, endDt, wareDvCd, hgrWareNo } = searchParams.value;
@@ -369,6 +372,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   const { strtDt, endDt } = searchParams.value;
   if (isEmpty(strtDt) || isEmpty(endDt)) {
@@ -395,6 +399,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 저장
 async function callSave(saveRows, msgId) {
   if (!isEmpty(saveRows)) {
     const res = await dataService.put('/sms/wells/service/shipping-by-filter-types', saveRows);
@@ -407,7 +412,7 @@ async function callSave(saveRows, msgId) {
   }
 }
 
-// 저장
+// 저장버튼 클릭
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -470,6 +475,7 @@ const ozParam = ref({
   width: 1200,
 });
 
+// 라벨출력
 async function onClickLabelPrint() {
   const { strtDt, endDt, wareDvCd, gbYn, hgrWareNo, wareNo, itmPdCd, itmGrCd } = cachedParams;
 
@@ -496,28 +502,28 @@ async function onClickLabelPrint() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cstSvAsnNo' },
-    { fieldName: 'wkOstrSn' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'stkrPrntYn' },
-    { fieldName: 'rmkCn' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'cntrDtlNo' },
-    { fieldName: 'cstKnm' },
-    { fieldName: 'basePdNm' },
-    { fieldName: 'ostrConfDt' },
-    { fieldName: 'fnlVstFshDt' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmPdNm' },
-    { fieldName: 'sellTpNm' },
-    { fieldName: 'svBizHclsfNm' },
-    { fieldName: 'svBizDclsfNm' },
-    { fieldName: 'refriDvNm' },
-    { fieldName: 'adrZip' },
-    { fieldName: 'cstAdr' },
+    { fieldName: 'cstSvAsnNo' }, // 고객서비스배정번호
+    { fieldName: 'wkOstrSn' }, // 작업출고순번
+    { fieldName: 'ogNm' }, // 소속
+    { fieldName: 'prtnrNo' }, // 사번
+    { fieldName: 'prtnrKnm' }, // 성명
+    { fieldName: 'stkrPrntYn' }, // 반납여부
+    { fieldName: 'rmkCn' }, // 특이사항
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약순번
+    { fieldName: 'cntrDtlNo' }, // 계약상세번호
+    { fieldName: 'cstKnm' }, // 고객명
+    { fieldName: 'basePdNm' }, // 상품명
+    { fieldName: 'ostrConfDt' }, // 수거일자
+    { fieldName: 'fnlVstFshDt' }, // 방문일자
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'itmPdNm' }, // 품목명
+    { fieldName: 'sellTpNm' }, // 고객유형
+    { fieldName: 'svBizHclsfNm' }, // 업무유형
+    { fieldName: 'svBizDclsfNm' }, // 유형상세
+    { fieldName: 'refriDvNm' }, // 유무상
+    { fieldName: 'adrZip' }, // 우편번호
+    { fieldName: 'cstAdr' }, // 고객주소
   ];
 
   const columns = [

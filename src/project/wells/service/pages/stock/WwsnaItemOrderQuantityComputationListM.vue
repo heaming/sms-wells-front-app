@@ -178,6 +178,7 @@ const filterCodes = ref({
   itmKndCd: [],
 });
 
+// 품목종류 필터링
 function itmKndCdFilter() {
   filterCodes.value.itmKndCd = codes.ITM_KND_CD.filter((v) => ['5', '6'].includes(v.codeId));
 }
@@ -206,6 +207,7 @@ function onChangeItmKndCd() {
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 }
 
+// SAP 시작코드 변경 시
 function onChangeStrtSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -215,6 +217,7 @@ function onChangeStrtSapCd() {
   }
 }
 
+// SAP 종료코드 변경 시
 function onChangeEndSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -230,6 +233,7 @@ let fieldsObj;
 let tmpFields1;
 let tmpFields2;
 
+// pivot 필드 셋팅
 function setTmpFields() {
   tmpFields1 = [];
   tmpFields2 = [];
@@ -283,6 +287,7 @@ async function fetchData() {
 }
 
 const isSearch = ref(true);
+// 조회버튼 클릭
 async function onClickSearch() {
   const { itmKndCd, itmPdCds, itmPdCd, strtSapCd, endSapCd } = searchParams.value;
 
@@ -337,43 +342,44 @@ fieldsObj = {
 
   // 그리드 공통컬럼
   defaultFields: [
-    { fieldName: 'commGbNm', header: t('MSG_TXT_PRD_GRP'), width: '120', styleName: 'text-left', dataType: 'text' },
-    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '200', styleName: 'text-center', dataType: 'text' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left', dataType: 'text' },
+    { fieldName: 'commGbNm', header: t('MSG_TXT_PRD_GRP'), width: '120', styleName: 'text-left', dataType: 'text' }, // 제품군
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' }, // SAP코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '200', styleName: 'text-center', dataType: 'text' }, // 품목코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left', dataType: 'text' }, // 품목명
   ],
+  // 기초재고 산출 - 재고현황
   stockFields: [
-    { fieldName: 'bznsOgQty',
+    { fieldName: 'bznsOgQty', // 영업부(조직)
       header: `${t('MSG_TXT_SLS')}(${t('MSG_TXT_OG')})`,
       width: '120',
       styleName: 'text-right',
       dataType: 'number',
     },
-    { fieldName: 'bznsIndvQty',
+    { fieldName: 'bznsIndvQty', // 영업부(개인)
       header: `${t('MSG_TXT_SLS')}(${t('MSG_TXT_INDV')})`,
       width: '120',
       styleName: 'text-right',
       dataType: 'number',
     },
-    { fieldName: 'svCnrQty',
+    { fieldName: 'svCnrQty', // 서비스(조직+개인)
       header: `${t('MSG_TXT_SERVICE')}(${t('MSG_TXT_OG')}+${t('MSG_TXT_INDV')})`,
       width: '120',
       styleName: 'text-right',
       dataType: 'number',
     },
-    { fieldName: 'logisticCnrQty',
+    { fieldName: 'logisticCnrQty', // 물류
       header: t('MSG_TXT_LGST'),
       width: '120',
       styleName: 'text-right',
       dataType: 'number',
     },
-    { fieldName: 'thmQomAsnQty',
+    { fieldName: 'thmQomAsnQty', // 당월 물량배정
       header: t('MSG_TXT_THM_QOM_ASN'),
       width: '120',
       styleName: 'text-right',
       dataType: 'number',
     },
-    { fieldName: 'logisticSum',
+    { fieldName: 'logisticSum', // 물류 계
       header: t('MSG_TXT_LGST_SUM'),
       width: '120',
       styleName: 'text-right',
@@ -381,19 +387,19 @@ fieldsObj = {
     },
   ],
   orderFields: [
-    { fieldName: 'totGoQty',
+    { fieldName: 'totGoQty', // 총 발주량
       header: t('MSG_TXT_TOT_GO_QT'),
       width: '120',
       styleName: 'text-right',
       dataType: 'number',
     },
-    { fieldName: 'moq',
+    { fieldName: 'moq', // MOQ
       header: t('MSG_TXT_MOQ'),
       width: '120',
       styleName: 'text-right',
       dataType: 'number',
     },
-    { fieldName: 'leadTime',
+    { fieldName: 'leadTime', // L/T
       header: t('MSG_TXT_LEAD_TIME_SHORT'),
       width: '120',
       styleName: 'text-right',

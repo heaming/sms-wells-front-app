@@ -137,6 +137,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
@@ -144,6 +145,7 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
   const { cntrDtlNo } = cachedParams;
+  // 계약상세번호 유효성 체크
   if (!isEmpty(cntrDtlNo)) {
     const idx = cntrDtlNo.indexOf('-');
     if (idx < 0 || isEmpty(cntrDtlNo.substring(idx + 1))) {
@@ -178,17 +180,20 @@ async function onClickExcelDownload() {
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'baseCntrDtlNo' },
-    { fieldName: 'baseCstNm' },
-    { fieldName: 'basePdNm' },
-    { fieldName: 'connCntrDtlNo' },
-    { fieldName: 'connSdingPkgNm' },
-    { fieldName: 'connSdingPdNm' },
-    { fieldName: 'connQty', dataType: 'number' },
-    { fieldName: 'vstDueDt' },
-    { fieldName: 'sowDt' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
+    // 기준상품
+    { fieldName: 'baseCntrDtlNo' }, // 계약상세번호
+    { fieldName: 'baseCstNm' }, // 고객명
+    { fieldName: 'basePdNm' }, // 상품명
+    // 연결상품
+    { fieldName: 'connCntrDtlNo' }, // 계약상세번호
+    { fieldName: 'connSdingPkgNm' }, // 모종패키지
+    { fieldName: 'connSdingPdNm' }, // 모종명
+    { fieldName: 'connQty', dataType: 'number' }, // 수량
+    // 모종정보
+    { fieldName: 'vstDueDt' }, // 방문예정일
+    { fieldName: 'sowDt' }, // 파종일자
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약일련번호
 
   ];
 

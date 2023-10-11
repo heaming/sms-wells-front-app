@@ -152,8 +152,8 @@ async function getWareHouseList() {
     // 필드 구성
     tmpFields.push(
       ...wareHouses.map((v) => ({
-        fieldName: `gd${v.wareNo}`,
-        header: v.wareNm,
+        fieldName: `gd${v.wareNo}`, // 창고번호
+        header: v.wareNm, // 창고명
         width: '100',
         styleName: 'text-center',
       })),
@@ -179,6 +179,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   const currentMonth = dayjs().format('YYYYMM');
   const searchBaseYm = searchParams.value.baseYm;
@@ -215,10 +216,10 @@ fieldsObj = {
 
   // 그리드 공통컬럼
   defaultFields: [
-    { fieldName: 'mgtTypNm', header: t('MSG_TXT_TYPE'), width: '106', styleName: 'text-center' },
-    { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '124', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '146', styleName: 'text-center' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_PRDT_NM'), width: '500', styleName: 'text-left' },
+    { fieldName: 'mgtTypNm', header: t('MSG_TXT_TYPE'), width: '106', styleName: 'text-center' }, // 유형
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '124', styleName: 'text-center' }, // SAP코드
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '146', styleName: 'text-center' }, // 품목코드
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_PRDT_NM'), width: '500', styleName: 'text-left' }, // 상품명
   ],
 
   // 필드 세팅

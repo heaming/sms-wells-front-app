@@ -702,7 +702,6 @@ async function onClickDelete() {
   ok();
 }
 
-/*
 async function onValidRfndCheck() {
   if (isEmpty(saveParams.value.bankCode)) {
     // 은행코드를 확인하십시오
@@ -740,7 +739,6 @@ async function onValidRfndEftnCheck() {
 
   return true;
 }
-*/
 
 // 유효성체크 (해당 데이터는 임시데이터)
 /* 해당 서비스에 조건은 다음과 같습니다.
@@ -748,7 +746,6 @@ async function onValidRfndEftnCheck() {
  * 계좌번호 O & 계좌번호 12자리 초과 x
  * 예금주명 O
  */
-/*
 async function onClickEftnCheck() {
   if (!await onValidRfndEftnCheck()) { return false; }
   const view = grdPopRef1.value.getView();
@@ -768,9 +765,8 @@ async function onClickEftnCheck() {
     deptId: '',
   };
 
-  const acnoData = await dataService.get(
-    '/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData }
-    ).catch(() => {
+  // eslint-disable-next-line max-len
+  const acnoData = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData }).catch(() => {
     saveParams.value.cstNm = '테스트예금주';
   });
   if (!isEmpty(acnoData.data)) {
@@ -782,7 +778,6 @@ async function onClickEftnCheck() {
     }
   }
 }
-*/
 
 /**
  * 그리드 유효성검사
@@ -838,7 +833,7 @@ async function onClickRefundAsk(stateCode) {
 
   const rows2 = changedRows2.filter((p1) => (Number(p1.rfndCshAkAmt) + Number(p1.rfndCardAkAmt)
   + Number(p1.crdcdFeeAmt) + Number(p1.rfndBltfAkAmt)) > 0);
-  /*
+
   let cashCount = 0;
   changedRows2.forEach((p1) => { // 현금요청금액이 있는지 체크
     if (Number(p1.rfndCshAkAmt) > 0) {
@@ -851,7 +846,6 @@ async function onClickRefundAsk(stateCode) {
   if (cashCount > 0 && !await onValidRfndCheck()) {
     return false;
   }
-  */
 
   if (!await cntrValidateView3()) {
     // 계약번호 - 전금계약번호가 동일하거나 , 전금계약상 데이터에 전금계약번호가 동일한경우.

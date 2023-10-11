@@ -150,10 +150,12 @@ const filterCodes = ref({
   itmKndCd: [],
 });
 
+// 품목종류코드 필터링
 function itmKndCdFilter() {
   filterCodes.value.itmKndCd = codes.ITM_KND_CD.filter((v) => ['4', '5', '6'].includes(v.codeId));
 }
 
+// SAP 시작코드 변경 시
 function onChangeStrtSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -163,6 +165,7 @@ function onChangeStrtSapCd() {
   }
 }
 
+// SAP 종료코드 변경 시
 function onChangeEndSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -172,8 +175,10 @@ function onChangeEndSapCd() {
   }
 }
 
+// B2B관리 변경 시
 function onChangeB2bMngtCd() {
   const { b2bMngtCd } = searchParams.value;
+  // 무조건 마지막으로 체크한 구분으로 셋팅
   if (b2bMngtCd.length === 2) {
     searchParams.value.b2bMngtCd = b2bMngtCd.slice(1, 2);
   }
@@ -200,6 +205,7 @@ async function fetchData() {
   }
 }
 
+// B2B 관리 값 변환
 function convertCheckBox() {
   const { b2bMngtCd } = cachedParams;
   const b2bP47 = b2bMngtCd.find((v) => v === 'P');
@@ -209,6 +215,7 @@ function convertCheckBox() {
   cachedParams.b2bMngtCd = !isEmpty(b2bP47) ? 'P' : tempValue;
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   convertCheckBox();
@@ -232,12 +239,12 @@ async function onClickExcelDownload() {
 fieldsObj = {
   // 그리드 공통컬럼
   defaultFields: [
-    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '130', styleName: 'text-center', dataType: 'text' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center', dataType: 'text' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '220', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '130', styleName: 'text-center', dataType: 'text' }, // SAP코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center', dataType: 'text' }, // 품목코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '220', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // 품목명
   ],
   allFields: [
-    { fieldName: 'vCnt99',
+    { fieldName: 'vCnt99', // 계-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -247,7 +254,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt99',
+    { fieldName: 'pCnt99', // 계-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -257,7 +264,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt01',
+    { fieldName: 'vCnt01', // 1월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -267,7 +274,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt01',
+    { fieldName: 'pCnt01', // 1월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -277,7 +284,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt02',
+    { fieldName: 'vCnt02', // 2월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -287,7 +294,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt02',
+    { fieldName: 'pCnt02', // 2월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -297,7 +304,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt03',
+    { fieldName: 'vCnt03', // 3월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -307,7 +314,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt03',
+    { fieldName: 'pCnt03', // 3월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -317,7 +324,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt04',
+    { fieldName: 'vCnt04', // 4월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -327,7 +334,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt04',
+    { fieldName: 'pCnt04', // 4월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -337,7 +344,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt05',
+    { fieldName: 'vCnt05', // 5월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -347,7 +354,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt05',
+    { fieldName: 'pCnt05', // 5월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -357,7 +364,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt06',
+    { fieldName: 'vCnt06', // 6월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -367,7 +374,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt06',
+    { fieldName: 'pCnt06', // 6월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -377,7 +384,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt07',
+    { fieldName: 'vCnt07', // 7월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -387,7 +394,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt07',
+    { fieldName: 'pCnt07', // 7월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -397,7 +404,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt08',
+    { fieldName: 'vCnt08', // 8월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -407,7 +414,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt08',
+    { fieldName: 'pCnt08', // 8월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -417,7 +424,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt09',
+    { fieldName: 'vCnt09', // 9월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -427,7 +434,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt09',
+    { fieldName: 'pCnt09', // 9월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -437,7 +444,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt10',
+    { fieldName: 'vCnt10', // 10월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -447,7 +454,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt10',
+    { fieldName: 'pCnt10', // 10월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -457,7 +464,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt11',
+    { fieldName: 'vCnt11', // 11월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -467,7 +474,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt11',
+    { fieldName: 'pCnt11', // 11월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -477,7 +484,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt12',
+    { fieldName: 'vCnt12', // 12월-소요수량
       header: t('MSG_TXT_NED_QTY'),
       width: '90',
       styleName: 'text-right',
@@ -487,7 +494,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt12',
+    { fieldName: 'pCnt12', // 12월-배정수량
       header: `${t('MSG_TXT_ASGN')}${t('MSG_TXT_QTY')}`,
       width: '90',
       styleName: 'text-right',
@@ -499,7 +506,7 @@ fieldsObj = {
     },
   ],
   b2bPFields: [
-    { fieldName: 'vCnt99W',
+    { fieldName: 'vCnt99W', // 계-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -509,7 +516,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt99F',
+    { fieldName: 'vCnt99F', // 계-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -519,7 +526,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt99W',
+    { fieldName: 'pCnt99W', // 계-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -529,7 +536,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt99F',
+    { fieldName: 'pCnt99F', // 계-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -539,7 +546,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt01W',
+    { fieldName: 'vCnt01W', // 1월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -549,7 +556,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt01F',
+    { fieldName: 'vCnt01F', // 1월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -559,7 +566,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt01W',
+    { fieldName: 'pCnt01W', // 1월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -569,7 +576,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt01F',
+    { fieldName: 'pCnt01F', // 1월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -579,7 +586,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt02W',
+    { fieldName: 'vCnt02W', // 2월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -589,7 +596,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt02F',
+    { fieldName: 'vCnt02F', // 2월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -599,7 +606,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt02W',
+    { fieldName: 'pCnt02W', // 2월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -609,7 +616,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt02F',
+    { fieldName: 'pCnt02F', // 2월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -619,7 +626,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt03W',
+    { fieldName: 'vCnt03W', // 3월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -629,7 +636,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt03F',
+    { fieldName: 'vCnt03F', // 3월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -639,7 +646,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt03W',
+    { fieldName: 'pCnt03W', // 3월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -649,7 +656,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt03F',
+    { fieldName: 'pCnt03F', // 3월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -659,7 +666,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt04W',
+    { fieldName: 'vCnt04W', // 4월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -669,7 +676,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt04F',
+    { fieldName: 'vCnt04F', // 4월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -679,7 +686,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt04W',
+    { fieldName: 'pCnt04W', // 4월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -689,7 +696,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt04F',
+    { fieldName: 'pCnt04F', // 4월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -699,7 +706,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt05W',
+    { fieldName: 'vCnt05W', // 5월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -709,7 +716,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt05F',
+    { fieldName: 'vCnt05F', // 5월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -719,7 +726,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt05W',
+    { fieldName: 'pCnt05W', // 5월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -729,7 +736,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt05F',
+    { fieldName: 'pCnt05F', // 5월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -739,7 +746,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt06W',
+    { fieldName: 'vCnt06W', // 6월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -749,7 +756,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt06F',
+    { fieldName: 'vCnt06F', // 6월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -759,7 +766,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt06W',
+    { fieldName: 'pCnt06W', // 6월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -769,7 +776,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt06F',
+    { fieldName: 'pCnt06F', // 6월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -779,7 +786,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt07W',
+    { fieldName: 'vCnt07W', // 7월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -789,7 +796,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt07F',
+    { fieldName: 'vCnt07F', // 7월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -799,7 +806,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt07W',
+    { fieldName: 'pCnt07W', // 7월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -809,7 +816,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt07F',
+    { fieldName: 'pCnt07F', // 7월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -819,7 +826,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt08W',
+    { fieldName: 'vCnt08W', // 8월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -829,7 +836,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt08F',
+    { fieldName: 'vCnt08F', // 8월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -839,7 +846,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt08W',
+    { fieldName: 'pCnt08W', // 8월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -849,7 +856,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt08F',
+    { fieldName: 'pCnt08F', // 8월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -859,7 +866,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt09W',
+    { fieldName: 'vCnt09W', // 9월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -869,7 +876,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt09F',
+    { fieldName: 'vCnt09F', // 9월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -879,7 +886,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt09W',
+    { fieldName: 'pCnt09W', // 9월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -889,7 +896,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt09F',
+    { fieldName: 'pCnt09F', // 9월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -899,7 +906,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt10W',
+    { fieldName: 'vCnt10W', // 10월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -909,7 +916,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt10F',
+    { fieldName: 'vCnt10F', // 10월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -919,7 +926,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt10W',
+    { fieldName: 'pCnt10W', // 10월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -929,7 +936,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt10F',
+    { fieldName: 'pCnt10F', // 10월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -939,7 +946,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt11W',
+    { fieldName: 'vCnt11W', // 11월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -949,7 +956,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt11F',
+    { fieldName: 'vCnt11F', // 11월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -959,7 +966,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt11W',
+    { fieldName: 'pCnt11W', // 11월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -969,7 +976,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt11F',
+    { fieldName: 'pCnt11F', // 11월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -979,7 +986,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt12W',
+    { fieldName: 'vCnt12W', // 12월-소요수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -989,7 +996,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt12F',
+    { fieldName: 'vCnt12F', // 12월-소요수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -999,7 +1006,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt12W',
+    { fieldName: 'pCnt12W', // 12월-배정수량-W
       header: 'W',
       width: '90',
       styleName: 'text-right',
@@ -1009,7 +1016,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt12F',
+    { fieldName: 'pCnt12F', // 12월-배정수량-F
       header: 'F',
       width: '90',
       styleName: 'text-right',
@@ -1021,7 +1028,7 @@ fieldsObj = {
     },
   ],
   b2bAFields: [
-    { fieldName: 'vCnt99W',
+    { fieldName: 'vCnt99W', // 계-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1031,7 +1038,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt99F',
+    { fieldName: 'vCnt99F', // 계-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1041,7 +1048,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt99W',
+    { fieldName: 'pCnt99W', // 계-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1051,7 +1058,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt99F',
+    { fieldName: 'pCnt99F', // 계-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1061,7 +1068,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt01W',
+    { fieldName: 'vCnt01W', // 1월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1071,7 +1078,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt01F',
+    { fieldName: 'vCnt01F', // 1월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1081,7 +1088,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt01W',
+    { fieldName: 'pCnt01W', // 1월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1091,7 +1098,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt01F',
+    { fieldName: 'pCnt01F', // 1월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1101,7 +1108,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt02W',
+    { fieldName: 'vCnt02W', // 2월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1111,7 +1118,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt02F',
+    { fieldName: 'vCnt02F', // 2월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1121,7 +1128,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt02W',
+    { fieldName: 'pCnt02W', // 2월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1131,7 +1138,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt02F',
+    { fieldName: 'pCnt02F', // 2월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1141,7 +1148,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt03W',
+    { fieldName: 'vCnt03W', // 3월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1151,7 +1158,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt03F',
+    { fieldName: 'vCnt03F', // 3월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1161,7 +1168,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt03W',
+    { fieldName: 'pCnt03W', // 3월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1171,7 +1178,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt03F',
+    { fieldName: 'pCnt03F', // 3월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1181,7 +1188,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt04W',
+    { fieldName: 'vCnt04W', // 4월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1191,7 +1198,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt04F',
+    { fieldName: 'vCnt04F', // 4월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1201,7 +1208,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt04W',
+    { fieldName: 'pCnt04W', // 4월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1211,7 +1218,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt04F',
+    { fieldName: 'pCnt04F', // 4월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1221,7 +1228,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt05W',
+    { fieldName: 'vCnt05W', // 5월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1231,7 +1238,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt05F',
+    { fieldName: 'vCnt05F', // 5월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1241,7 +1248,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt05W',
+    { fieldName: 'pCnt05W', // 5월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1251,7 +1258,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt05F',
+    { fieldName: 'pCnt05F', // 5월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1261,7 +1268,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt06W',
+    { fieldName: 'vCnt06W', // 6월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1271,7 +1278,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt06F',
+    { fieldName: 'vCnt06F', // 6월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1281,7 +1288,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt06W',
+    { fieldName: 'pCnt06W', // 6월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1291,7 +1298,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt06F',
+    { fieldName: 'pCnt06F', // 6월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1301,7 +1308,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt07W',
+    { fieldName: 'vCnt07W', // 7월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1311,7 +1318,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt07F',
+    { fieldName: 'vCnt07F', // 7월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1321,7 +1328,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt07W',
+    { fieldName: 'pCnt07W', // 7월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1331,7 +1338,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt07F',
+    { fieldName: 'pCnt07F', // 7월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1341,7 +1348,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt08W',
+    { fieldName: 'vCnt08W', // 8월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1351,7 +1358,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt08F',
+    { fieldName: 'vCnt08F', // 8월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1361,7 +1368,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt08W',
+    { fieldName: 'pCnt08W', // 8월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1371,7 +1378,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt08F',
+    { fieldName: 'pCnt08F', // 8월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1381,7 +1388,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt09W',
+    { fieldName: 'vCnt09W', // 9월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1391,7 +1398,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt09F',
+    { fieldName: 'vCnt09F', // 9월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1401,7 +1408,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt09W',
+    { fieldName: 'pCnt09W', // 9월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1411,7 +1418,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt09F',
+    { fieldName: 'pCnt09F', // 9월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1421,7 +1428,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt10W',
+    { fieldName: 'vCnt10W', // 10월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1431,7 +1438,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt10F',
+    { fieldName: 'vCnt10F', // 10월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1441,7 +1448,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt10W',
+    { fieldName: 'pCnt10W', // 10월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1451,7 +1458,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt10F',
+    { fieldName: 'pCnt10F', // 10월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1461,7 +1468,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt11W',
+    { fieldName: 'vCnt11W', // 11월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1471,7 +1478,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt11F',
+    { fieldName: 'vCnt11F', // 11월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1481,7 +1488,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt11W',
+    { fieldName: 'pCnt11W', // 11월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1491,7 +1498,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt11F',
+    { fieldName: 'pCnt11F', // 11월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1501,7 +1508,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt12W',
+    { fieldName: 'vCnt12W', // 12월-소요수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1511,7 +1518,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'vCnt12F',
+    { fieldName: 'vCnt12F', // 12월-소요수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
@@ -1521,7 +1528,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt12W',
+    { fieldName: 'pCnt12W', // 12월-배정수량-A09
       header: 'A09',
       width: '90',
       styleName: 'text-right',
@@ -1531,7 +1538,7 @@ fieldsObj = {
         numberFormat: '#,##0.##',
       },
     },
-    { fieldName: 'pCnt12F',
+    { fieldName: 'pCnt12F', // 12월-배정수량-A12
       header: 'A12',
       width: '90',
       styleName: 'text-right',
