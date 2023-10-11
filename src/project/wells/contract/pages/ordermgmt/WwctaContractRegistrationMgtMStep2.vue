@@ -18,6 +18,7 @@
       class="scoped-layout__pick-area"
       :cntr-no="cntrNo"
       @select="onSelectProduct"
+      @fetched="onFetchedProduct"
     />
     <kw-separator
       :spaced="false"
@@ -288,6 +289,16 @@ async function onSelectProduct(product) {
 
   step2.value.dtls.push(...newProducts);
   emit('contract-modified');
+}
+
+async function onFetchedProduct(products) {
+  // 계약유형 : 멤버십
+  // 이미 선택된 상품이 없는 경우에만, 상품 자동 선택 처리
+  if (step2.value.bas.cntrTpCd === '07'
+    && products.length === 1
+    && step2.value.dtls.length === 0) {
+    onSelectProduct(products[0]);
+  }
 }
 
 async function onClickDelete(dtl) {
