@@ -73,7 +73,6 @@
             v-model="aplcParams.aplcList"
             :options="codes.APLC_DV_ACD"
             first-option="all"
-            @change="onChangeAplcDvAcd"
             @update:model-value="onUpdateAplcDvAcd"
           />
         </kw-search-item>
@@ -277,16 +276,24 @@ function validateChangeCode() {
   }
 }
 
+const totalCount = ref(0);
+
 const aplcLists = ref([]);
-let target = [];
 let list = [];
+let target = [];
 async function fetchAplcLists() {
-  const res = await dataService.get('/sms/wells/service/item-base-informations/aplclists', { params: aplcParams.value });
-  console.log(aplcParams.value);
-  aplcLists.value = res.data;
-  console.log(res.data);
+  const { aplcList: aplcCode } = aplcParams.value;
 
   const view = grdMainRef.value.getView();
+
+  if (isEmpty(aplcCode)) {
+    totalCount.value = list.length;
+    view.getDataSource().setRows(list);
+    return;
+  }
+
+  const res = await dataService.get('/sms/wells/service/item-base-informations/aplclists', { params: aplcParams.value });
+  aplcLists.value = res.data;
 
   target = [];
 
@@ -298,15 +305,14 @@ async function fetchAplcLists() {
     }
     return false;
   });
+  totalCount.value = target.length;
   view.getDataSource().setRows(target);
 }
 
-async function onUpdateAplcDvAcd(val) {
-  console.log(val);
-
+async function onUpdateAplcDvAcd() {
   await fetchAplcLists();
 }
-const totalCount = ref(0);
+
 let cachedParams;
 async function fetchData() {
   let pages;
