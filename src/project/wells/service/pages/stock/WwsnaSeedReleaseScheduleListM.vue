@@ -278,6 +278,7 @@ const filterCodes = ref({
   dtTpCd: [],
 });
 
+// 조회조건 공통코드 필터링
 function codeFilter() {
   filterCodes.value.svBizHclsfCd = codes.SV_BIZ_HCLSF_CD.filter((v) => ['1', '2', '3'].includes(v.codeId));
   filterCodes.value.fshProcsCd = codes.FSH_PROCS_CD.filter((v) => ['00', '20'].includes(v.codeId));
@@ -321,6 +322,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   const { strtDt } = searchParams.value;
   searchParams.value.dayOfWeek = dayjs(strtDt).format('d');
@@ -381,6 +383,7 @@ async function onClickOstrCnfmSave() {
     return;
   }
 
+  // 출고확정일 셋팅
   checkRows.forEach((item) => {
     item.ostrCnfmDt = ostrCnfmDt.value;
   });
@@ -409,14 +412,17 @@ async function onClickExcelDownload() {
 // 집계표 출력
 async function onClickAgrgPrint() {
   const { svBizHclsfCd, strtDt } = cachedParams;
+  // 데이터 조회
   const res = await dataService.get('/sms/wells/service/seed-release-schedules/aggregations', { params: cachedParams });
 
   const date = `${strtDt.substring(0, 4)}-${strtDt.substring(4, 6)}-${strtDt.substring(6, 8)}`;
+  // 엑셀파일명
   let fileName = `${t('MSG_TXT_ALL')}_${date}`;
 
   const view = isEmpty(svBizHclsfCd) ? grdTotalRef.value.getView() : grdSelectRef.value.getView();
   const gridView = grdMainRef.value.getView();
 
+  // 조회구분이 전체가 아닌 경우
   if (!isEmpty(svBizHclsfCd)) {
     let headerNm = t('MSG_TXT_INSTALLATION');
 
@@ -430,9 +436,11 @@ async function onClickAgrgPrint() {
       headerNm = 'AS';
     }
 
+    // 이중헤더명 지정
     view.__originalLayouts__[1].header.text = headerNm;
   }
 
+  // 엑셀파일 조회조건 셋팅
   view.__searchConditionText__ = gridView.__searchConditionText__;
 
   gridUtil.exportView(view, {
@@ -448,75 +456,75 @@ async function onClickAgrgPrint() {
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'dpYn', dataType: 'text' },
-    { fieldName: 'ostrYn', dataType: 'text' },
-    { fieldName: 'refriDiv', dataType: 'text' },
-    { fieldName: 'shipDiv', dataType: 'text' },
-    { fieldName: 'receiptDiv', dataType: 'text' },
-    { fieldName: 'cntrDtlNo', dataType: 'text' },
-    { fieldName: 'cstNm', dataType: 'text' },
-    { fieldName: 'sppOrdNo', dataType: 'text' },
-    { fieldName: 'mchnModel', dataType: 'text' },
-    { fieldName: 'mchnCstDtlNo', dataType: 'text' },
-    { fieldName: 'mchnCstNm', dataType: 'text' },
-    { fieldName: 'ctrlPkg', dataType: 'text' },
-    { fieldName: 'shipPkg', dataType: 'text' },
-    { fieldName: 'sding1', dataType: 'text' },
-    { fieldName: 'qty1', dataType: 'number' },
-    { fieldName: 'sding2', dataType: 'text' },
-    { fieldName: 'qty2', dataType: 'number' },
-    { fieldName: 'sding3', dataType: 'text' },
-    { fieldName: 'qty3', dataType: 'number' },
-    { fieldName: 'sding4', dataType: 'text' },
-    { fieldName: 'qty4', dataType: 'number' },
-    { fieldName: 'sding5', dataType: 'text' },
-    { fieldName: 'qty5', dataType: 'number' },
-    { fieldName: 'todayCnl', dataType: 'text' },
-    { fieldName: 'mchnDemDt', dataType: 'text' },
-    { fieldName: 'receiptDt', dataType: 'text' },
-    { fieldName: 'vstDt', dataType: 'text' },
-    { fieldName: 'ostrScheDt', dataType: 'text' },
-    { fieldName: 'bsFshDt', dataType: 'text' },
-    { fieldName: 'dpDt', dataType: 'text' },
-    { fieldName: 'ostrCnfmDt', dataType: 'text' },
-    { fieldName: 'sdingRcgWareNm', dataType: 'text' },
-    { fieldName: 'vstCenter', dataType: 'text' },
-    { fieldName: 'vstIchr', dataType: 'text' },
-    { fieldName: 'ichrCtnt', dataType: 'text' },
-    { fieldName: 'cstCtnt', dataType: 'text' },
-    { fieldName: 'cstZip', dataType: 'text' },
-    { fieldName: 'cstAdr', dataType: 'text' },
-    { fieldName: 'refriDvCd', dataType: 'text' },
-    { fieldName: 'cntrSn', dataType: 'text' },
-    { fieldName: 'svBizHclsfCd', dataType: 'text' },
-    { fieldName: 'svBizDclsfCd', dataType: 'text' },
-    { fieldName: 'sppPlanSn', dataType: 'number' },
-    { fieldName: 'sdingPdCd1', dataType: 'text' },
-    { fieldName: 'sowDt1', dataType: 'text' },
-    { fieldName: 'sdingPdCd2', dataType: 'text' },
-    { fieldName: 'sowDt2', dataType: 'text' },
-    { fieldName: 'sdingPdCd3', dataType: 'text' },
-    { fieldName: 'sowDt3', dataType: 'text' },
-    { fieldName: 'sdingPdCd4', dataType: 'text' },
-    { fieldName: 'sowDt4', dataType: 'text' },
-    { fieldName: 'sdingPdCd5', dataType: 'text' },
-    { fieldName: 'sowDt5', dataType: 'text' },
-    { fieldName: 'sdingPkgPdCd', dataType: 'text' },
-    { fieldName: 'mngrDvCd', dataType: 'text' },
-    { fieldName: 'dpEpttNm', dataType: 'text' },
-    { fieldName: 'ogTpCd', dataType: 'text' },
-    { fieldName: 'prtnrNo', dataType: 'text' },
-    { fieldName: 'recapCsAmt', dataType: 'number' },
-    { fieldName: 'sppDvCd', dataType: 'text' },
-    { fieldName: 'sdingMcnrPdCd', dataType: 'text' },
-    { fieldName: 'cstSvAsnNo', dataType: 'text' },
-    { fieldName: 'mchnCstNo', dataType: 'text' },
-    { fieldName: 'cntrNo', dataType: 'text' },
-    { fieldName: 'vstDuedt', dataType: 'text' },
-    { fieldName: 'cstCralLocaraTno', dataType: 'text' },
-    { fieldName: 'cstMexnoEncr', dataType: 'text' },
-    { fieldName: 'cstCralIdvTno', dataType: 'text' },
-    { fieldName: 'svPdCd', dataType: 'text' },
+    { fieldName: 'dpYn', dataType: 'text' }, // 입금여부
+    { fieldName: 'ostrYn', dataType: 'text' }, // 출고여부
+    { fieldName: 'refriDiv', dataType: 'text' }, // 유/무상
+    { fieldName: 'shipDiv', dataType: 'text' }, // 배송구분
+    { fieldName: 'receiptDiv', dataType: 'text' }, // 접수구분
+    { fieldName: 'cntrDtlNo', dataType: 'text' }, // 계약상세번호
+    { fieldName: 'cstNm', dataType: 'text' }, // 고객명
+    { fieldName: 'sppOrdNo', dataType: 'text' }, // 배송번호
+    { fieldName: 'mchnModel', dataType: 'text' }, // 기기모델
+    { fieldName: 'mchnCstDtlNo', dataType: 'text' }, // 기기계약상세번호
+    { fieldName: 'mchnCstNm', dataType: 'text' }, // 기기고객명
+    { fieldName: 'ctrlPkg', dataType: 'text' }, // 현재패키지
+    { fieldName: 'shipPkg', dataType: 'text' }, // 배송패키지
+    { fieldName: 'sding1', dataType: 'text' }, // 모종1
+    { fieldName: 'qty1', dataType: 'number' }, // 수량1
+    { fieldName: 'sding2', dataType: 'text' }, // 모종2
+    { fieldName: 'qty2', dataType: 'number' }, // 수량2
+    { fieldName: 'sding3', dataType: 'text' }, // 모종3
+    { fieldName: 'qty3', dataType: 'number' }, // 수량3
+    { fieldName: 'sding4', dataType: 'text' }, // 모종4
+    { fieldName: 'qty4', dataType: 'number' }, // 수량4
+    { fieldName: 'sding5', dataType: 'text' }, // 모종5
+    { fieldName: 'qty5', dataType: 'number' }, // 수량5
+    { fieldName: 'todayCnl', dataType: 'text' }, // 당일취소
+    { fieldName: 'mchnDemDt', dataType: 'text' }, // 기기철거일자
+    { fieldName: 'receiptDt', dataType: 'text' }, // 접수일자
+    { fieldName: 'vstDt', dataType: 'text' }, // 방문일자
+    { fieldName: 'ostrScheDt', dataType: 'text' }, // 출고예정일자
+    { fieldName: 'bsFshDt', dataType: 'text' }, // BS완료일자
+    { fieldName: 'dpDt', dataType: 'text' }, // 입금일자
+    { fieldName: 'ostrCnfmDt', dataType: 'text' }, // 출고확정일자
+    { fieldName: 'sdingRcgWareNm', dataType: 'text' }, // 모종수령창고
+    { fieldName: 'vstCenter', dataType: 'text' }, // 방문센터
+    { fieldName: 'vstIchr', dataType: 'text' }, // 방문담당
+    { fieldName: 'ichrCtnt', dataType: 'text' }, // 담당연락처
+    { fieldName: 'cstCtnt', dataType: 'text' }, // 고객연락처
+    { fieldName: 'cstZip', dataType: 'text' }, // 고객우편번호
+    { fieldName: 'cstAdr', dataType: 'text' }, // 고객주소
+    { fieldName: 'refriDvCd', dataType: 'text' }, // 유무상코드
+    { fieldName: 'cntrSn', dataType: 'text' }, // 계약순번
+    { fieldName: 'svBizHclsfCd', dataType: 'text' }, // 서비스업무대분류코드
+    { fieldName: 'svBizDclsfCd', dataType: 'text' }, // 서비스업무세분류코드
+    { fieldName: 'sppPlanSn', dataType: 'number' }, // 모종배송일련번호
+    { fieldName: 'sdingPdCd1', dataType: 'text' }, // 모종1 상품코드
+    { fieldName: 'sowDt1', dataType: 'text' }, // 모종2 파종일자
+    { fieldName: 'sdingPdCd2', dataType: 'text' }, // 모종2 상품코드
+    { fieldName: 'sowDt2', dataType: 'text' }, // 모종2 파종일자
+    { fieldName: 'sdingPdCd3', dataType: 'text' }, // 모종3 상품코드
+    { fieldName: 'sowDt3', dataType: 'text' }, // 모종3 파종일자
+    { fieldName: 'sdingPdCd4', dataType: 'text' }, // 모종4 상품코드
+    { fieldName: 'sowDt4', dataType: 'text' }, // 모종4 파종일자
+    { fieldName: 'sdingPdCd5', dataType: 'text' }, // 모종5 상품코드
+    { fieldName: 'sowDt5', dataType: 'text' }, // 모종5 파종일자
+    { fieldName: 'sdingPkgPdCd', dataType: 'text' }, // 모종패키지상품코드
+    { fieldName: 'mngrDvCd', dataType: 'text' }, // 관리구분코드
+    { fieldName: 'dpEpttNm', dataType: 'text' }, // 입금예금자명
+    { fieldName: 'ogTpCd', dataType: 'text' }, // 조직유형코드
+    { fieldName: 'prtnrNo', dataType: 'text' }, // 파트너번호
+    { fieldName: 'recapCsAmt', dataType: 'number' }, // 유상비용금액
+    { fieldName: 'sppDvCd', dataType: 'text' }, // 배송구분코드
+    { fieldName: 'sdingMcnrPdCd', dataType: 'text' }, // 모종기계상품코드
+    { fieldName: 'cstSvAsnNo', dataType: 'text' }, // 고객서비스배정번호
+    { fieldName: 'mchnCstNo', dataType: 'text' }, // 기기고객번호
+    { fieldName: 'cntrNo', dataType: 'text' }, // 계약번호
+    { fieldName: 'vstDuedt', dataType: 'text' }, // 방문예정일자
+    { fieldName: 'cstCralLocaraTno', dataType: 'text' }, // 고객휴대지역전화번호
+    { fieldName: 'cstMexnoEncr', dataType: 'text' }, // 고객전화국번호
+    { fieldName: 'cstCralIdvTno', dataType: 'text' }, // 고객휴대개별전화번호
+    { fieldName: 'svPdCd', dataType: 'text' }, // 서비스상품코드
   ];
 
   const columns = [
