@@ -294,11 +294,10 @@ async function onSelectProduct(product) {
 async function onFetchedProduct(products) {
   // 계약유형 : 멤버십
   // 이미 선택된 상품이 없는 경우에만, 상품 자동 선택 처리
-  if (step2.value.bas.cntrTpCd === '07'
-    && products.length === 1
-    && step2.value.dtls.length === 0) {
-    onSelectProduct(products[0]);
+  if (step2.value.bas?.cntrTpCd !== '07') {
+    return;
   }
+  await onSelectProduct(products[0]);
 }
 
 async function onClickDelete(dtl) {
@@ -632,9 +631,11 @@ async function confirmProducts() {
   step2.value.dtls.forEach((dtl) => {
     dtl.basePdCd = dtl.pdCd;
   });
-  const res = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, step2.value.dtls);
-  res.data.forEach((newDtl, index) => {
+  const { data } = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, step2.value.dtls);
+  data.forEach((newDtl, index) => {
+    console.log(newDtl);
     step2.value.dtls[index].promotions = newDtl.promotions;
+    console.log(step2.value.dtls[index]);
   });
   return true;
 }
