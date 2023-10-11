@@ -872,7 +872,7 @@ const initGridHousehold = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { locaraTno, exnoEncr, idvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(locaraTno || exnoEncr || idvTno) ? `${locaraTno}-${exnoEncr}-${idvTno}` : '';
+        return !isEmpty(locaraTno && exnoEncr && idvTno) ? `${locaraTno}-${exnoEncr}-${idvTno}` : '';
       },
     },
     { fieldName: 'idvTelNo',
@@ -881,7 +881,7 @@ const initGridHousehold = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(cralLocaraTno || mexnoEncr || cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
+        return !isEmpty(cralLocaraTno && mexnoEncr && cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
       },
     },
   ];
@@ -957,8 +957,14 @@ const initGridState = defineGrid((data, view) => {
       width: '94',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(cralLocaraTno || mexnoEncr || cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
+        const { cralLocaraTno, mexnoEncr, cralIdvTno, svTp } = grid.getValues(index.itemIndex);
+        let telNo;
+        if (svTp === '2') {
+          telNo = !isEmpty(cralLocaraTno || mexnoEncr || cralIdvTno) ? `${cralLocaraTno}` : '';
+        } else {
+          telNo = !isEmpty(cralLocaraTno && mexnoEncr && cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
+        }
+        return telNo;
       },
     },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLG_BLD'), width: '94', styleName: 'text-center' },
@@ -1225,7 +1231,7 @@ const initGridFarmCode = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index) {
         const { locaraTno, exnoEncr, idvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(locaraTno || exnoEncr || idvTno) ? `${locaraTno}-${exnoEncr}-${idvTno}` : '';
+        return !isEmpty(locaraTno && exnoEncr && idvTno) ? `${locaraTno}-${exnoEncr}-${idvTno}` : '';
       },
     },
     { fieldName: 'idvTellNo',
@@ -1234,7 +1240,7 @@ const initGridFarmCode = defineGrid((data, view) => {
       styleName: 'text-left',
       displayCallback(grid, index) {
         const { cralLocaraTno, mexnoEncr, cralIdvTno } = grid.getValues(index.itemIndex);
-        return !isEmpty(cralLocaraTno || mexnoEncr || cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
+        return !isEmpty(cralLocaraTno && mexnoEncr && cralIdvTno) ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : '';
       },
     },
   ];
