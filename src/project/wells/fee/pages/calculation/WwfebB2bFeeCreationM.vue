@@ -359,7 +359,7 @@ async function onClickOpenReport(baseYm, prtnrNo) {
 // -------------------------------------------------------------------------------------------------
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', visible: false },
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), visible: false },
     { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
