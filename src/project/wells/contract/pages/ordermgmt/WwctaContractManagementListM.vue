@@ -625,11 +625,9 @@ async function fetchMstData() {
     view.resetCurrent();
     view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
-    view.columnByName('cstSignCn').visible = false; // 서명
-    view.columnByName('ocyCntrwBrws').visible = false; // 원본 계약서출력
-
-    // 삭제원복 컬럼 Hide
-    view.columnByName('dlRstr').visible = false;
+    view.columnByName('cstSignCn').visible = false; // 서명 컬럼 Hide
+    view.columnByName('ocyCntrwBrws').visible = false; // 원본 계약서출력 컬럼 Hide
+    view.columnByName('dlRstr').visible = false; // 삭제원복 컬럼 Hide
   } else if (searchParams.value.cntrDv === 'R') {
     console.log(res.data.searchRePromConcListResList);
     if (res.data.searchRePromConcListResList.length === 0) {
@@ -1072,15 +1070,19 @@ const initGrdMstList = defineGrid((data, view) => {
         const { cntrPrgsStatCd } = grid.getValues(index.itemIndex);
         const { cntrwTpCd } = grid.getValues(index.itemIndex);
         const { rgstDv } = grid.getValues(index.itemIndex);
-        return cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
-            && (cntrwTpCd === '3' || cntrwTpCd === '8') && rgstDv === '1' ? t('MSG_TXT_DL_RSTR') : ''; // 계약진행상태코드(확정)
+        // return cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
+        return cntrPrgsStatCd === '99'
+            && (cntrwTpCd === '3' || cntrwTpCd === '8')
+            && rgstDv === '1' ? t('MSG_TXT_DL_RSTR') : ''; // 계약진행상태코드(확정)
       },
       styleCallback(grid, dataCell) {
         const { cntrPrgsStatCd } = grid.getValues(dataCell.index.itemIndex);
         const { cntrwTpCd } = grid.getValues(dataCell.index.itemIndex);
         const { rgstDv } = grid.getValues(dataCell.index.itemIndex);
-        const retrunValue = cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
-            && (cntrwTpCd === '3' || cntrwTpCd === '8') && rgstDv === '1' ? cntrPrgsStatCd : 0;
+        // const retrunValue = cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
+        const retrunValue = cntrPrgsStatCd === '99'
+            && (cntrwTpCd === '3' || cntrwTpCd === '8')
+            && rgstDv === '1' ? cntrPrgsStatCd : 0;
         return retrunValue !== 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
       },
     }, // 삭제원복
