@@ -126,7 +126,8 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdAfterRef.value.getView();
-  const deptGubun = searchParams.value;
+  const { deptGubun } = searchParams.value;
+  console.log('1: ', deptGubun);
   const res = await dataService.get('/sms/wells/closing/membership-check-after/excel-download', { params: { deptGubun } });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
