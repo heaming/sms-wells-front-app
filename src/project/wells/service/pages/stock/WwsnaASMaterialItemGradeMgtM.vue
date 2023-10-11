@@ -312,6 +312,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   const currentMonth = dayjs().format('YYYYMM');
   const searchBaseYm = searchParams.value.baseYm;
@@ -364,16 +365,16 @@ async function onClickExcelDownload() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmPdNm' },
-    { fieldName: 'jbfMms3OstrQty', dataType: 'number' },
-    { fieldName: 'mlmnOstrQty', dataType: 'number' },
-    { fieldName: 'dAvOstrQty', dataType: 'number' },
-    { fieldName: 'itmMngtGdCd' },
-    { fieldName: 'ctrItmMngtGdCd' },
-    { fieldName: 'rmkCn' },
-    { fieldName: 'mngtYm' },
+    { fieldName: 'sapCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'itmPdNm' }, // 상품명
+    { fieldName: 'jbfMms3OstrQty', dataType: 'number' }, // 직전 3개월 출고량 합계
+    { fieldName: 'mlmnOstrQty', dataType: 'number' }, // 월 평균
+    { fieldName: 'dAvOstrQty', dataType: 'number' }, // 일 평균
+    { fieldName: 'itmMngtGdCd' }, // 품목관리등급
+    { fieldName: 'ctrItmMngtGdCd' }, // 조정관리등급
+    { fieldName: 'rmkCn' }, // 조정사유
+    { fieldName: 'mngtYm' }, // 관리년월
   ];
 
   const columns = [
