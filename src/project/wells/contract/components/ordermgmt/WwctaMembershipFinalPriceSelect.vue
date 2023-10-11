@@ -5,8 +5,9 @@
     class="fit"
     header-class="scoped-item scoped-item--header"
     block-inherit-padding
+    expand-icon-toggle
   >
-    <template #header>
+    <template #header="{ toggle }">
       <kw-item-section
         class="scoped-item__section-type"
         side
@@ -21,6 +22,11 @@
         class="scoped-item__section-main"
       >
         <div class="scoped-item__main">
+          <kw-btn
+            class="transparent absolute fit"
+            borderless
+            @click="toggle"
+          />
           <kw-item-label
             class="scoped-item__product-name"
           >
@@ -54,7 +60,7 @@
           borderless
           icon="close_24"
           class="w24 kw-font-pt24"
-          @click.stop="onClickDelete"
+          @click="onClickDelete"
         />
       </kw-item-section>
     </template>

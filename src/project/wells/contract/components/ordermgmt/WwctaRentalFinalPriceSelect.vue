@@ -77,13 +77,14 @@
             :disable="disablePackage"
             label="다건할인"
             dense
+            auto-close
           >
             <kw-btn
               v-for="(rentalDscTpCd) in packageRentalDscTpCds"
               :key="`package-btn-${rentalDscTpCd}`"
               v-close-popup
               :label="getCodeName('RENTAL_DSC_TP_CD', rentalDscTpCd)"
-              @click.stop="onClickPackage(rentalDscTpCd)"
+              @click="onClickPackage(rentalDscTpCd)"
             />
           </kw-btn-dropdown>
           <!-- 로그인한 사용자의 채널이 5010(온라인총판) 이면 기기변경 버튼 발생하지 않음 -->
@@ -92,14 +93,14 @@
             :disable="notNullRentalDscTpCdSelected"
             label="기기변경"
             dense
-            @click.stop="onClickDeviceChange(item)"
+            @click="onClickDeviceChange"
           />
           <kw-btn
             v-if="showOnePlusOnePrice"
             :disable="disableOnePlusOne"
             label="1+1"
             dense
-            @click.stop="onClickOnePlusOne(item)"
+            @click="onClickOnePlusOne"
           />
         </kw-item-label>
       </kw-item-section>
@@ -111,7 +112,7 @@
           borderless
           icon="close_24"
           class="w24 kw-font-pt24"
-          @click.stop="onClickDelete"
+          @click="onClickDelete"
         />
       </kw-item-section>
     </template>
