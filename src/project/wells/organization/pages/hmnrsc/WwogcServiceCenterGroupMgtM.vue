@@ -76,35 +76,6 @@
         <template #left>
           <kw-paging-info :total-count="pageInfo.totalCount" />
         </template>
-        <span>{{ $t('MSG_TXT_CHECK_ATC_MARK') }}</span>
-        <kw-checkbox
-          v-model="saveParams.chk"
-          :true-value="true"
-          :false-value="false"
-          :disable="pageInfo.totalCount === 0"
-        />
-        <span>{{ $t('MSG_TXT_RFLT_APY_D') }}</span>
-        <kw-date-picker
-          v-model="saveParams.rfltAplyDt"
-          dense
-        />
-        <span>{{ $t('MSG_TXT_RFLT_END_D') }}</span>
-        <kw-date-picker
-          v-model="saveParams.rfltEnddt"
-          dense
-        />
-        <kw-btn
-          v-permission:create
-          :label="t('MSG_BTN_RFLT_DT_BLK_SAVE')"
-          dense
-          grid-action
-          @click="onClickAllSave"
-        />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
         <kw-btn
           v-permission:create
           :label="t('MSG_BTN_SAVE')"
@@ -125,7 +96,66 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+        <span>{{ $t('MSG_TXT_RFLT_APY_D') }}</span>
+        <kw-date-picker
+          v-model="saveParams.rfltAplyDt"
+          dense
+        />
+        <span>{{ $t('MSG_TXT_RFLT_END_D') }}</span>
+        <kw-date-picker
+          v-model="saveParams.rfltEnddt"
+          dense
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
+        <kw-btn
+          v-permission:create
+          :label="t('MSG_BTN_BLK_RFLT')"
+          dense
+          grid-action
+          @click="onClickAllSave"
+        />
+        <!--
+        <span>{{ $t('MSG_TXT_CHECK_ATC_MARK') }}</span>
+        <kw-checkbox
+          v-model="saveParams.chk"
+          :true-value="true"
+          :false-value="false"
+          :disable="pageInfo.totalCount === 0"
+        />
+        -->
       </kw-action-top>
+
+      <ul class="filter-box mb12">
+        <li class="filter-box__item">
+          <p class="filter-box__item-label">
+            {{ $t('MSG_TXT_FLTRING') }}
+          </p>
+          <!--
+          <kw-option-group
+            v-model="saveParams.chk"
+            dense
+            type="checkbox"
+            :options="['체크한 항목만 표시']"
+          />
+          -->
+          <kw-checkbox
+            v-model="saveParams.chk"
+            :true-value="true"
+            :false-value="false"
+            :disable="pageInfo.totalCount === 0"
+            :label="t('MSG_TXT_CHECK_ATC_MARK')"
+          />
+        </li>
+      </ul>
 
       <kw-grid
         ref="grdMainRef"
