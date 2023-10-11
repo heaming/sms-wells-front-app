@@ -675,6 +675,7 @@ async function deleteContract(msg, item) {
   cntrSn / resultDiv : 재약정 삭제시 필요
   stlmTarget : 결제승인취소 시 필요
   */
+  if (isEmpty(item.cntrSn)) { item.cntrSn = ''; }
   await dataService.delete('/sms/wells/contract/contracts/contract-lists/', { params: { cntrNo: item.cntrNo, cntrSn: item.cntrSn, resultDiv: item.resultDiv, stlmTarget } });
   onClickSearch();
 }
