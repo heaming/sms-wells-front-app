@@ -77,16 +77,7 @@
             <kw-form-item
               :label="t('MSG_TXT_TEL_NO')"
             >
-              <kw-input
-                v-model:model-value="fieldParams.cntrCopnCralTno"
-                v-model:telNo0="fieldParams.cntrCopnLocaraTno"
-                v-model:telNo1="fieldParams.cntrCopnExnoEncr"
-                v-model:telNo2="fieldParams.cntrCopnIdvTno"
-                :placeholder="t('MSG_TXT_INP')"
-                :label="$t('MSG_TXT_TEL_NO')"
-                rules="telephone"
-                mask="telephone"
-              />
+              <p> {{ fieldParams.cntrCopnCralTno }}</p>
             </kw-form-item>
           </kw-form-row>
         </slot>
@@ -94,17 +85,8 @@
           <!-- 휴대전화번호 -->
           <kw-form-item
             :label="t('MSG_TXT_MPNO')"
-            required
           >
-            <kw-input
-              v-model:model-value="fieldParams.cntrCralTno"
-              v-model:telNo0="fieldParams.cntrCralLocaraTno"
-              v-model:telNo1="fieldParams.cntrMexnoEncr"
-              v-model:telNo2="fieldParams.cntrCralIdvTno"
-              :label="$t('MSG_TXT_MPNO')"
-              rules="required|telephone"
-              mask="telephone"
-            />
+            <p> {{ fieldParams.cntrCralTno }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -260,8 +242,6 @@ const frmMainRef = ref();
 const obsMainRef = ref(getComponentType('KwObserver'));
 const obsSubRef = ref(getComponentType('KwObserver'));
 
-let orgCntrCopnCralTno = '';
-let orgCntrCralTno = '';
 let orgCntrAdrId = '';
 
 const props = defineProps({
@@ -333,13 +313,11 @@ async function fetchData() {
 
   Object.assign(fieldParams.value, res.data);
 
-  fieldParams.value.cntrCralTno = `${fieldParams.value.cntrCralLocaraTno}${fieldParams.value.cntrMexnoEncr}${fieldParams.value.cntrCralIdvTno}`;
+  fieldParams.value.cntrCralTno = `${fieldParams.value.cntrCralLocaraTno}-${fieldParams.value.cntrMexnoEncr}-${fieldParams.value.cntrCralIdvTno}`;
   fieldParams.value.istCralTno = `${fieldParams.value.istCralLocaraTno}${fieldParams.value.istMexnoEncr}${fieldParams.value.istCralIdvTno}`;
-  fieldParams.value.cntrCopnCralTno = `${fieldParams.value.cntrCopnLocaraTno}${fieldParams.value.cntrCopnExnoEncr}${fieldParams.value.cntrCopnIdvTno}`;
+  fieldParams.value.cntrCopnCralTno = `${fieldParams.value.cntrCopnLocaraTno}-${fieldParams.value.cntrCopnExnoEncr}-${fieldParams.value.cntrCopnIdvTno}`;
   fieldParams.value.istPhoneNo = `${fieldParams.value.istLocaraTno}${fieldParams.value.istExnoEncr}${fieldParams.value.istIdvTno}`;
 
-  orgCntrCopnCralTno = fieldParams.value.cntrCopnCralTno;
-  orgCntrCralTno = fieldParams.value.cntrCralTno;
   orgCntrAdrId = fieldParams.value.cntrAdrId;
 
   if (isEmpty(res.data)) {
@@ -356,22 +334,14 @@ async function fetchData() {
 
 async function saveCustomerInfo() {
   if (await obsMainRef.value.validate()) {
-    const { cntrCopnCralTno, cntrCralTno, cntrAdrId } = fieldParams.value;
+    const { cntrAdrId } = fieldParams.value;
     let msg = '';
-    let phone = '';
-    let telephone = '';
     let adr = '';
 
-    if (!isEqual(orgCntrCopnCralTno, cntrCopnCralTno.replaceAll('-', ''))) {
-      phone = '/전화번호 변경';
-    }
-    if (!isEqual(orgCntrCralTno, cntrCralTno.replaceAll('-', ''))) {
-      telephone = '/휴대전화번호 변경';
-    }
     if (!isEqual(orgCntrAdrId, cntrAdrId)) {
       adr = '/주소변경';
     }
-    msg = `${phone}${telephone}${adr}`;
+    msg = `${adr}`;
 
     fieldParams.value.unuitmCn += msg;
 
@@ -381,12 +351,6 @@ async function saveCustomerInfo() {
       ADR_ID: fieldParams.value.cntrAdrId,
       CALNG_DV_CD: 'U',
       COPN_DV_CD: fieldParams.value.copnDvCd,
-      CRAL_LOCARA_TNO: fieldParams.value.cntrCralLocaraTno,
-      MEXNO: fieldParams.value.cntrMexnoEncr,
-      CRAL_IDV_TNO: fieldParams.value.cntrCralIdvTno,
-      LOCARA_TNO: fieldParams.value.cntrCopnLocaraTno,
-      EXNO: fieldParams.value.cntrCopnExnoEncr,
-      IDV_TNO: fieldParams.value.cntrCopnIdvTno,
       RGST_MDFC_USR_ID: session.employeeIDNumber,
       CH_LTRQ_CONF_DT: now.format('YYYYMM'),
       CH_LTRQ_CONF_YN: 'Y',
