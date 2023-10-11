@@ -52,12 +52,13 @@
           :label="$t('MSG_TXT_PRDT')"
           :colspan="2"
         >
-          <kw-input
+          <p>{{ dtlIz.pdNm }} {{ dtlIz.wkBcNo }} {{ dtlIz.flBcNo }}</p>
+          <!-- <kw-input
             v-model="dtlIz.pdNm"
-          />
+          /> -->
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_COMP_WK')">
-          <p>{{ dtlIz.lnfDvCd }}</p>
+          <p>{{ dtlIz.acpnPrtnrNo }} {{ dtlIz.acpnPrtnrKnm }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -66,7 +67,7 @@
           :colspan="2"
         >
           <kw-input
-            v-model="dtlIz.cnslDtlpTpNm"
+            v-model="dtlIz.cnslCn"
             type="textarea"
             :rows="3"
             counter
@@ -110,7 +111,7 @@
           <p>{{ dtlIz.prtnrKnm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PROCS_CN')">
-          <p>{{ dtlIz.asCausCd }}</p>
+          <p>{{ dtlIz.asCausCdNm }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -129,18 +130,21 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_LCT')">
-          <p>{{ dtlIz.asLctCd }}</p>
+          <p>{{ dtlIz.asLctCdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PHN')">
-          <p>{{ dtlIz.asPhnCd }}</p>
+          <p>{{ dtlIz.asPhnCdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CAUS')">
-          <p>{{ dtlIz.tonepIstOptYn }}</p>
+          <p>{{ dtlIz.tonepIstOpt }}</p>
+        </kw-form-item>
+        <kw-form-item :label="$t('MSG_TXT_IMPT')">
+          <p>{{ dtlIz.imptaRsonCdNm }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_IMPT')">
-          <p>{{ dtlIz.imptaRsonCd }}</p>
+        <kw-form-item :label="$t('설치위치상세')">
+          <p>{{ dtlIz.istLctDtlCn }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -156,10 +160,13 @@
           >
             <kw-form-row>
               <kw-form-item :label="$t('MSG_TXT_TXINV_APPL')">
-                <p>{{ dtlIz.txinvPblYn }}</p>
+                <p>{{ dtlIz.aplcYn }}</p>
               </kw-form-item>
               <kw-form-item :label="$t('MSG_TXT_PBL_DT')">
-                <p> {{ dayjs(dtlIz.txinvPblD).format("YYYY-MM-DD") }} </p>
+                <p>
+                  {{ dayjs(dtlIz.pblDt).isValid() ?
+                    dayjs(dtlIz.pblDt).format("YYYY-MM-DD") : '' }}
+                </p>
               </kw-form-item>
             </kw-form-row>
           </kw-form>
