@@ -6,7 +6,7 @@
     header-class="scoped-item scoped-item--header"
     block-inherit-padding
   >
-    <template #header>
+    <template #header="{ toggle }">
       <kw-item-section
         class="scoped-item__section-type"
         side
@@ -21,6 +21,11 @@
         class="scoped-item__section-main"
       >
         <div class="scoped-item__main">
+          <kw-btn
+            class="transparent absolute fit"
+            borderless
+            @click="toggle"
+          />
           <kw-item-label
             class="scoped-item__product-name"
           >
@@ -82,7 +87,7 @@
           borderless
           icon="close_24"
           class="w24 kw-font-pt24"
-          @click.stop="onClickDelete"
+          @click="onClickDelete"
         />
       </kw-item-section>
     </template>
@@ -149,15 +154,21 @@
           />
         </kw-item-section>
       </kw-item>
+      <promotion-select
+        v-model="appliedPromotions"
+        :promotions="promotions"
+        @update:model-value="calcPromotionAppliedPrice"
+      />
     </template>
   </kw-expansion-item>
 </template>
 
 <script setup>
 import { useCtCode } from '~sms-common/contract/composable';
-import { alert, useDataService } from 'kw-lib';
+import { alert, stringUtil, useDataService } from 'kw-lib';
 import { warn } from 'vue';
 import { getNumberWithComma } from '~sms-common/contract/util';
+import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 
 const EMPTY_SYM = Symbol('__undef__');
 const EMPTY_ID = ' '; /*  FIXME!!! */
@@ -197,6 +208,8 @@ let verSn = toRef(props.modelValue, 'verSn');
 let fnlAmt = toRef(props.modelValue, 'fnlAmt');
 let cntrRels = toRef(props.modelValue, 'cntrRels');
 let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions');
+let appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
+let promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
 
 const isLkSding = computed(() => (cntrRels.value || [])
   .find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_SDING));
@@ -267,6 +280,8 @@ function reconnectReactivities() {
   fnlAmt = toRef(props.modelValue, 'fnlAmt');
   cntrRels = toRef(props.modelValue, 'cntrRels');
   finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions'); /* 적용된 프로모션 */
+  appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
+  promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
 }
 
 async function onChangeModelValue(newDtl) {
@@ -380,10 +395,47 @@ const selectedFinalPrice = computed(() => {
   return selectedPrice[0];
 });
 
+const promotionAppliedPrice = ref();
+
 function initializePrice() {
   fnlAmt.value = selectedFinalPrice.value?.fnlVal ?? undefined;
   pdPrcFnlDtlId.value = selectedFinalPrice.value?.pdPrcFnlDtlId ?? undefined;
   verSn.value = selectedFinalPrice.value?.verSn ?? undefined;
+}
+
+function calcPromotionAppliedPrice(aplyPmots) {
+  if (!aplyPmots?.length) {
+    return;
+  }
+  const fnlVal = selectedFinalPrice.value?.fnlVal;
+  if (!fnlVal) {
+    return;
+  }
+  const minRentalFxam = aplyPmots
+    .reduce(
+      (minVal, promotion) => {
+        if (!promotion.rentalFxam || Number.isNaN(Number(promotion.rentalFxam))) {
+          return minVal;
+        }
+        return Math.min(minVal, Number(promotion.rentalFxam));
+      },
+      fnlVal,
+    );
+  /* TODO: '할인개월과 같이 표기할것'
+  const totalDscApyAmt = aplyPmots
+    .reduce((acc, promotion) => {
+      if (Number.isNaN(Number(promotion.dscApyAmt))) {
+        return acc;
+      }
+      return acc + Number(promotion.dscApyAmt);
+    }, 0);
+   */
+  const pmotAplyPrice = Math.max(minRentalFxam, 0);
+  if (selectedFinalPrice.value?.fnlVal === pmotAplyPrice) {
+    return;
+  }
+  promotionAppliedPrice.value = `${stringUtil.getNumberWithComma(pmotAplyPrice)}원`;
+  emit('promotion-changed', aplyPmots, promotionAppliedPrice.value);
 }
 
 initializePrice();

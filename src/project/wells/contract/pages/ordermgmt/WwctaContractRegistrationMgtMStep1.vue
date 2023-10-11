@@ -1033,7 +1033,7 @@ exposed.initStep = initStep;
 exposed.saveStep = saveStep;
 
 onActivated(() => {
-  initStep();
+  initStep(true);
   emit('activated', 1);
 });
 
