@@ -147,9 +147,9 @@ async function onClickExcelDownload() {
   });
 }
 
-function visibleStyleCallback() {
-  return { visible: !(searchParams.value.agrgDv === '1') };
-}
+// function visibleStyleCallback() {
+//   return { visible: !(searchParams.value.agrgDv === '1') };
+// }
 
 watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
   dynamicChangeCodes.value.SELL_TP_DTL_CD = customCodes.value.SELL_TP_DTL_CD.filter(
@@ -173,18 +173,18 @@ const initAdditionalChargeGrid = defineGrid(async (data, view) => {
     { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center' },
     { fieldName: 'sellTpDtlCdNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center' },
     { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
-    { fieldName: 'cntrNo',
-      header: t('MSG_TXT_CNTR_DTL_NO'),
-      width: '130',
-      styleName: 'text-center',
-      styleCallback() { return visibleStyleCallback(); },
-    },
-    { fieldName: 'cstKnm',
-      header: t('MSG_TXT_CST_NM'),
-      width: '130',
-      styleName: 'text-center',
-      styleCallback() { return visibleStyleCallback(); },
-    },
+    // { fieldName: 'cntrNo',
+    //   header: t('MSG_TXT_CNTR_DTL_NO'),
+    //   width: '130',
+    //   styleName: 'text-center',
+    //   styleCallback() { return visibleStyleCallback(); },
+    // },
+    // { fieldName: 'cstKnm',
+    //   header: t('MSG_TXT_CST_NM'),
+    //   width: '130',
+    //   styleName: 'text-center',
+    //   styleCallback() { return visibleStyleCallback(); },
+    // },
     { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_THM_OC'), width: '209', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_THM_DDTN'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
