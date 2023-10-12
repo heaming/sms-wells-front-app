@@ -137,6 +137,7 @@
             :false-value="N"
             :true-value="Y"
             :label="$t('MSG_TXT_PPYM_RFND')"
+            :disable="true"
             @update:model-value="onClickArfndYn"
           />
           <!-- v-model="searchParams.check" -->
@@ -144,11 +145,11 @@
         <!-- 지급은행 -->
         <kw-form-item
           :label="$t('MSG_TXT_DSB_BNK')"
-          required
         >
           <kw-select
             v-model="saveParams.bankCode"
             :options="codes.CSH_RFND_FNIT_CD"
+            :disable="true"
           />
         </kw-form-item>
       </kw-form-row>
@@ -156,15 +157,14 @@
         <!-- 계좌번호 -->
         <kw-form-item
           :label="$t('MSG_TXT_AC_NO')"
-          required
         >
           <kw-input
             v-model="saveParams.acnoEncr"
             regex="num"
             :maxlength="30"
+            :disable="true"
             @change="saveParams.cstNm=''"
           />
-          <!-- 호출되는 값이 16자 초과하면안되게 되어있음.-->
         </kw-form-item>
         <!-- 예금주 -->
         <kw-form-item
@@ -176,14 +176,14 @@
             :label="$t('MSG_TXT_ACHLDR')"
             readonly
           />
-          <!-- 유효성체크 -->
+          <!-- 유효성체크
           <kw-btn
             secondary
             :label="$t('MSG_BTN_EFTN_CHECK')"
             rules="required"
             class="px12"
             @click="onClickEftnCheck"
-          />
+          /> -->
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -213,17 +213,6 @@
           </span>
         </p>
       </template>
-      <!-- 삭제 -->
-      <!-- <kw-btn
-        :label="$t('MSG_BTN_DEL')"
-        grid-action
-        @click="onClickRfndDelete"
-      /> -->
-      <!-- <kw-separator
-        spaced
-        vertical
-        inset
-      /> -->
       <!-- 엑셀다운로드 -->
       <kw-btn
         icon="download_on"
@@ -485,7 +474,7 @@ async function onValidRfndCheck() {
   }
   return true;
 }
-
+/*
 async function onValidRfndEftnCheck() {
   if (isEmpty(saveParams.value.bankCode)) {
     // 은행코드를 확인하십시오
@@ -501,6 +490,7 @@ async function onValidRfndEftnCheck() {
 
   return true;
 }
+*/
 
 async function fetchData() {
   const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...cachedParams } });
@@ -634,6 +624,7 @@ async function onClickExcel3() {
 }
 
 // 유효성체크 (해당 데이터는 임시데이터)
+/*
 async function onClickEftnCheck() {
   if (!await onValidRfndEftnCheck()) { return false; }
   const view = grdPopRef1.value.getView();
@@ -653,126 +644,21 @@ async function onClickEftnCheck() {
     deptId: '',
   };
 
-  const acnoData = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData }).catch(() => {
+  const acnoData =
+  await dataService.get(
+    '/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData }).catch(() => {
     saveParams.value.cstNm = '테스트예금주';
   });
   if (!isEmpty(acnoData.data)) {
-    if (!isEmpty(acnoData.data.BIL_CRT_STAT_CD) && acnoData.data.BIL_CRT_STAT_CD === '1') {
-      saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
-    } else {
+    if (isEmpty(acnoData.data.ACHLDR_NM)) {
       notify(acnoData.data.ERR_CN);
       saveParams.value.cstNm = '테스트예금주';
+    } else {
+      saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
     }
   }
 }
-
-// async function onCheckValidate2() {
-//   const view2 = grdPopRef2.value.getView();
-//   if (!await gridUtil.validate(view2)) { return false; } // 유효성 검사
-//   return view2;
-// }
-// async function onCheckValidate3() {
-//   const view3 = grdPopRef3.value.getView();
-//   if (pageInfo3.value.totalCount > 0) {
-//     if (!await gridUtil.validate(view3)) { return false; } // 유효성 검사
-//   }
-//   return view3;
-// }
-// async function cntrValidateView3() {
-//   let flag = true;
-//   const view3 = grdPopRef3.value.getView();
-//   const allView3 = gridUtil.getAllRowValues(view3);
-
-//   for (let i = 0; i < allView3.length; i += 1) {
-//     for (let j = i + 1; j < allView3.length; j += 1) {
-//       if (allView3[i].bltfOjCntrDtlNo === allView3[j].bltfOjCntrDtlNo
-//            && allView3[i].bltfOjCntrDtlSn === allView3[j].bltfOjCntrDtlSn) {
-//         flag = false;
-//         // 1. 동일한 전금계약번호가 존재하는경우 (토스트 메시지)
-//       }
-//     }
-//   }
-//   return flag;
-// }
-
-// async function onClickRefundAsk(stateCode) {
-//   const view1 = grdPopRef1.value.getView();
-//   const view2 = await onCheckValidate2();
-//   const view3 = await onCheckValidate3();
-//   const view4 = grdPopRef4.value.getView();
-
-//   /* TODO: 로컬테스트시, 여기부터 */
-//   if (!await onValidRfndCheck()) {
-//     return false;
-//   }
-//   if (saveParams.value.cstNm === '' || saveParams.value.cstNm.trim().length === 0) {
-//     notify(t('MSG_ALT_AC_INF_ACHLDR_NM_ERR')); // 입력하신 계좌정보 및 예금주명을 다시 확인해 주세요.(예금주가 없음.)
-//     return false;
-//   }
-
-//   if (!await cntrValidateView3()) {
-//     // 계약번호 - 전금계약번호가 동일하거나 , 전금계약상 데이터에 전금계약번호가 동일한경우.
-//     notify(t('동일한 전금계약번호가 존재합니다.'));
-//     return false;
-//   }
-
-//   if (pageInfo1.value.totalCount < 1) {
-//     notify(t('MSG_TXT_NO_DATA_RM')); // 조회결과가 없습니다. (검색안했을경우 또는 검색결과없는경우);
-//     return false;
-//   }
-
-//   if (saveParams.value.rveDt === ''
-//    || saveParams.value.perfDt === ''
-//    || saveParams.value.procsDv === '') {
-//     await notify(t('MSG_ALT_INPUT_COMMON', [t('MSG_TXT_PCS_INF')])); // 처리정보를 입력하세요
-//     return false;
-//   }
-
-//   const changedRows2 = gridUtil.getChangedRowValues(view2); // 환불상세 그리드 데이터
-//   const changedRows3 = gridUtil.getChangedRowValues(view3); // 전금상세 그리드 체크 데이터
-//   const changedRows4 = gridUtil.getChangedRowValues(view4); // 환불접수총액
-
-//   if (changedRows4[0].totRfndEtAmt === 0) {
-//     notify(t('MSG_TXT_NO_DATA_FOUND')); // 데이터가 없습니다. (환불요청내역이없을때(0원일시))
-//     return false;
-//   }
-
-//   const checkedRows1 = gridUtil.getCheckedRowValues(view1);
-//   checkedRows1.forEach((element) => {
-//     element.rfndAkNo = props.rfndAkNo;
-//   });
-
-//   const params = {
-//     saveBaseReq: {
-//       kwGrpCoCd: '2000',
-//       rfndAkNo: props.rfndAkNo,
-//       arfndYn: saveParams.value.arfndYn,
-//       cshRfndFnitCd: saveParams.value.bankCode,
-//       cshRfndAcnoEncr: saveParams.value.acnoEncr,
-//       cshRfndAcownNm: saveParams.value.cstNm,
-//       rfndCshAkSumAmt: changedRows4[0].rfndCshAkAmt,
-//       rfndCardAkSumAmt: changedRows4[0].rfndCardAkAmt,
-//       rfndBltfAkSumAmt: changedRows4[0].totRfndBltfAkAmt,
-//       crdcdFeeSumAmt: changedRows4[0].totCrdcdFeeAmt,
-//       rfndAkStatCd: stateCode,
-//       rfndAkPrtnrNo: '',
-//       //  rfndProcsDvCd,
-//       /* 환불요청기본 추가 될 테이블  */
-//       rveDt: saveParams.value.rveDt,
-//       perfDt: saveParams.value.perfDt,
-//       dsbDt: saveParams.value.dsbDt,
-//       rfndProcsDvCd: saveParams.value.procsDv,
-//       rfndProcsCn: saveParams.value.procsCn,
-
-//     },
-//     saveCntrReqs: checkedRows1,
-//     saveDtlReqs: changedRows2,
-//     saveBltfReqs: changedRows3,
-//   };
-//   await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/reg/save', params);
-//   notify(t('MSG_ALT_SAVE_DATA'));
-//   ok();
-// }
+  */
 
 async function onSaveValidation() {
   if (!await obsRef.value.validate()) { return false; }
@@ -836,8 +722,6 @@ onMounted(async () => {
   });
   // 자동 조회
   cachedParams = {
-    // cntrNo: props.cntrNo,
-    // cntrSn: props.cntrSn,
     rfndAkNo: props.rfndAkNo,
     rfndAkStatCd: props.rfndAkStatCd,
   };
@@ -906,12 +790,6 @@ async function onEditRfnd(cntrNo, rveNo, rveSn) {
   totBltfAkAmt = temp;
 }
 
-// 그리드3 - 전금상세 행삭제
-// async function onClickRfndDelete() {
-//   const view = grdPopRef3.value.getView();
-//   await gridUtil.confirmDeleteCheckedRows(view);
-//   pageInfo3.value.totalCount = gridUtil.getAllRowValues(view).length;
-// }
 /** *************************************** */
 // 그리드4 (환불접수총액 실시간 계산) - 자동계산 및 기입
 async function onCheckTotalData() {
@@ -939,25 +817,6 @@ async function onCheckTotalData() {
   totRfndAkAmt = temp5;
   grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
 }
-// eslint-disable-next-line max-len
-// async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo) {
-//   const view = grdPopRef3.value.getView();
-//   gridUtil.insertRowAndFocus(view, 0, {
-//     cntrNo,
-//     cntrSn,
-//     cntrDtlNo,
-//     dpDt,
-//     dpMesCd,
-//     dpAmt,
-//     sellTpCd,
-//     rfndBltfAkAmt: Number(0),
-//     cstNo,
-//     rfndEvidMtrFileNm: '파일찾기',
-//     rveNo,
-//     rveSn,
-//     rfndAkNo,
-//   });
-// }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -986,8 +845,7 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = false;
 });
 
-/* TODO: 계약상세 */
-/* TODO: 계약상세 */
+/* 계약상세 */
 const initGrid1 = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNo' }, /* 계약번호 */
@@ -1140,7 +998,7 @@ const initGrid1 = defineGrid((data, view) => {
   };
 });
 
-// TODO: 환불상세 그리드
+// 환불상세 그리드
 const initGrid2 = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'cntrNo' },
@@ -1241,6 +1099,7 @@ const initGrid2 = defineGrid((data, view) => {
       },
       editable: false,
     },
+    /*
     { fieldName: 'bltfAdd',
       header: t('MSG_BTN_BLTF_ADD'),
       // 전금추가
@@ -1249,6 +1108,7 @@ const initGrid2 = defineGrid((data, view) => {
       editable: false,
       renderer: { type: 'button' },
     },
+    */
     { fieldName: 'rfndRsonCd',
       header: t('MSG_TXT_RFND_RSON'),
       // 환불사유
@@ -1277,17 +1137,6 @@ const initGrid2 = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = false;
-
-  // 그리드의 버튼클릭시 이벤트 발생
-  // view.onCellItemClicked = async (g, { column, dataRow }) => {
-  // eslint-disable-next-line max-len
-  //   const { cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo } = gridUtil.getRowValue(g, dataRow);
-  //   if (column === 'bltfAdd') {
-  //     // eslint-disable-next-line max-len
-  //     onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt, sellTpCd, cstNo, rveNo, rveSn, rfndAkNo);
-  //     pageInfo3.value.totalCount = gridUtil.getAllRowValues(grdPopRef3.value.getView()).length;
-  //   }
-  // };
 
   // 2번째 GRID 변경(환불상세)에 따라 4번째 GRID(환불접수총액) 상시변경
   // eslint-disable-next-line no-unused-vars
@@ -1428,31 +1277,13 @@ const initGrid3 = defineGrid((data, view) => {
           styleName: 'rg-file-hide-button',
         };
       },
-      // styleCallback(grid, dataCell) {
-      //   const bltfRfndMbDvCd = grid.getValue(dataCell.index.itemIndex, 'bltfRfndMbDvCd');
-      //   return bltfRfndMbDvCd === '02' ? { editor: { editable: true } } : { editor: { editable: false } };
-      //   {
-      //     editor: {
-      //       type: 'file',
-      //       attachDocumentId: 'rfndEvidMtrFileId',
-      //       attachGroupId: 'ATG_WDA_ENTRP_FILE',
-      //       downloadable: true,
-      //       editable: true,
-      //     } } : { editor: {
-      //     type: 'file',
-      //     attachDocumentId: 'rfndEvidMtrFileId',
-      //     attachGroupId: 'ATG_WDA_ENTRP_FILE',
-      //     downloadable: true,
-      //     editable: false,
-      //   } };
-      // },
     },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = false;
 
@@ -1568,13 +1399,5 @@ const initGrid4 = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-
-  // eslint-disable-next-line no-unused-vars
-  // view.onValidate = (g, index, value) => {
-  //   const { totRfndEtAmt } = g.getValues(index.dataRow);
-  //   if (Number(totRfndEtAmt) === 0) {
-  //     return t('변경된 사항이 없습니다.');
-  //   }
-  // };
 });
 </script>

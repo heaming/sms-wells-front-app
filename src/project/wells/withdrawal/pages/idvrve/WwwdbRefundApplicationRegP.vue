@@ -356,7 +356,7 @@
       <!-- 임시저장-->
       <kw-btn
         v-if="rfndAkStatCd === '00'"
-        secondary
+        primary
         :label="$t('MSG_BTN_TMP_SAVE')"
         @click="onClickTempSave"
       />
@@ -415,9 +415,6 @@ const grdPopRef4 = ref();
 const { ok } = useModal();
 const dataService = useDataService();
 const { notify } = useGlobal();
-// const fnitCdRes = await dataService.get('/sms/common/common/codes/finance-code/fnit-codes/delegate');
-// console.log(fnitCdRes);
-// const optionList = fnitCdRes.data; // 은행코드(은행명)
 
 const pageInfo1 = ref({ // 계약상세 페이지1
   totalCount: 0,
@@ -432,10 +429,7 @@ const pageInfo3 = ref({ // 전금상세 페이지
 });
 
 const customCode = {
-  encr: [
-    { codeId: '01', codeName: t('MSG_TXT_CARD_NO') }, // 카드번호
-    { codeId: '02', codeName: t('MSG_TXT_AC_NO') }, // 계좌번호
-  ],
+  encr: [{ codeId: '01', codeName: '카드번호' }, { codeId: '02', codeName: '계좌번호' }],
 };
 
 const searchParams = ref({
@@ -511,11 +505,12 @@ async function gridReset() {
   pageInfo2.value.totalCount = 0;
   pageInfo3.value.totalCount = 0;
 }
+
+// 환불 신청 팝업 호출(신규)
 async function fetchData() {
   cachedParams = { ...cachedParams };
 
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: cachedParams });
-  // const { list: application, pageInfo: pagingResult } = res.data;
   pageInfo1.value.totalCount = res.data.length;
 
   const view = grdPopRef1.value.getView();
@@ -528,8 +523,6 @@ async function fetchData2() {
   const propsData = {
     rfndAkNo: props.rfndAkNo,
     rfndAkStatCd: props.rfndAkStatCd,
-    // cntrNo: props.cntrNo,
-    // cntrSn: props.cntrSn,
   };
   const res3 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/balance-transfer', { params: { ...propsData } });
 
@@ -556,8 +549,7 @@ async function fetchData2() {
   view3.getDataSource().setRows(res3.data);
   // eslint-disable-next-line no-use-before-define
   await onCheckTotalData(); // 그리드4 (총액 자동계산)
-  // eslint-disable-next-line no-use-before-define
-  // await onEditRfnd(props.cntrNo); // 그리드 2(전금 데이터 바인딩)
+
   res2.data.forEach((obj) => {
     const grdView2 = grdPopRef2.value.getView();
     const grdView3 = grdPopRef3.value.getView();
@@ -585,6 +577,9 @@ async function fetchData2() {
 }
 
 async function onClickSearch() {
+  if (rgstStatCd) {
+    return;
+  }
   await gridReset();
 
   cachedParams = cloneDeep(searchParams.value);
@@ -606,7 +601,7 @@ async function onClickCstSearch() {
 
 // 계약상세 엑셀다운로드
 /**
- * TODO: 계약상세 그리드 외에 그리드는 검색조건에 의한 결과가 아니므로 일반 엑셀다운로드를 사용함.
+ * 계약상세 그리드 외에 그리드는 검색조건에 의한 결과가 아니므로 일반 엑셀다운로드를 사용함.
  * 필요한경우 서비스 생성요함.
  */
 async function onClickExcel1() {
@@ -629,13 +624,6 @@ async function onClickExcel1() {
 // 환불상세 다운로드
 async function onClickExcel2() {
   const view = grdPopRef2.value.getView();
-  // eslint-disable-next-line max-len
-  // const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/excel-download', { params: cachedParams });
-  // await gridUtil.exportView(view, {
-  //   fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_RFND_DTL')}`,
-  //   timePostfix: true,
-  //   exportData: res.data,
-  // });
   await gridUtil.exportView(view, {
     fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_RFND_DTL')}`,
     timePostfix: true,
@@ -648,7 +636,7 @@ const isValidate = computed(() => async () => {
 
   if ((isEmpty(searchParams.value.acnoEncr) && isEmpty(searchParams.value.crdcdNo))
             && (!searchParams.value.cstNo && !searchParams.value.cntrNo)) {
-    errors.push(t('MSG_TXT_SEARCHABLE_2IN1')); // 계약상세번호, 고객번호 중 1가지항목 입력 후 조회 가능합니다
+    errors.push(t('계약상세번호, 고객번호 중 1가지항목 입력 후 조회 가능합니다.'));
   }
 
   return errors[0] || true;
@@ -657,14 +645,6 @@ const isValidate = computed(() => async () => {
 // 전금상세 다운로드
 async function onClickExcel3() {
   const view = grdPopRef3.value.getView();
-  // eslint-disable-next-line max-len
-  // const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/excel-download', { params: cachedParams });
-  // await gridUtil.exportView(view, {
-  //   fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_BLTF_DTL')}`,
-  //   timePostfix: true,
-  //   exportData: res.data,
-  // });
-
   await gridUtil.exportView(view, {
     fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_BLTF_DTL')}`,
     timePostfix: true,
@@ -771,31 +751,14 @@ async function onClickEftnCheck() {
     saveParams.value.cstNm = '테스트예금주';
   });
   if (!isEmpty(acnoData.data)) {
-    if (!isEmpty(acnoData.data.BIL_CRT_STAT_CD) && acnoData.data.BIL_CRT_STAT_CD === '1') {
-      saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
-    } else {
+    if (isEmpty(acnoData.data.ACHLDR_NM)) {
       notify(acnoData.data.ERR_CN);
       saveParams.value.cstNm = '테스트예금주';
+    } else {
+      saveParams.value.cstNm = acnoData.data.ACHLDR_NM;
     }
   }
 }
-
-/**
- * 그리드 유효성검사
-*/
-// async function onCheckValidate2() {
-//   const view2 = grdPopRef2.value.getView();
-//   if (!await gridUtil.validate(view2)) { return false; } // 유효성 검사
-//   // if (await gridUtil.alertIfIsNotModified(view2)) { return false; } // 수정된 행 없음
-//   return view2;
-// }
-// async function onCheckValidate3() {
-//   const view3 = grdPopRef3.value.getView();
-//   if (pageInfo3.value.totalCount > 0) {
-//     if (!await gridUtil.validate(view3)) { return false; } // 유효성 검사
-//   }
-//   return view3;
-// }
 
 async function cntrValidateView3() {
   let flag = true;
@@ -807,7 +770,6 @@ async function cntrValidateView3() {
       if (allView3[i].bltfOjCntrDtlNo === allView3[j].bltfOjCntrDtlNo
            && allView3[i].bltfOjCntrDtlSn === allView3[j].bltfOjCntrDtlSn) {
         flag = false;
-        // 1. 동일한 전금계약번호가 존재하는경우 (토스트 메시지)
       }
     }
   }
@@ -825,8 +787,6 @@ async function onClickRefundAsk(stateCode) {
 
   if (!await gridUtil.validate(view2)) { return false; } // 유효성 검사
   if (!await gridUtil.validate(view3)) { return false; } // 유효성 검사
-  // const view2 = await onCheckValidate2();
-  // const view3 = await onCheckValidate3();
 
   const view4 = grdPopRef4.value.getView();
 
@@ -858,8 +818,6 @@ async function onClickRefundAsk(stateCode) {
     notify(t('MSG_TXT_NO_DATA_RM')); // 조회결과가 없습니다. (검색안했을경우 또는 검색결과없는경우);
     return false;
   }
-
-  // const changedRows3 = gridUtil.getChangedRowValues(view3); // 전금상세 그리드 체크 데이터
 
   const changedRows3 = gridUtil.getChangedRowValues(view3).map((row) => ({
     ...row, attachFiles: row.atthDocId ? row.atthDocId.files : [],
@@ -957,15 +915,6 @@ async function removeMainData(view2, cntrDtlNo, view3) {
   const data2 = view2.getDataSource();
   const data3 = view3.getDataSource();
 
-  // allValues2.forEach((param) => {
-  //   console.log(param);
-  //   if ((isEqual(param.cntrNo, cntrDtlNo.cntrNo))
-  //    && (isEqual(param.cntrSn, cntrDtlNo.cntrSn))
-  //   ) {
-  //     data2.removeRow(param.dataRow);
-  //   }
-  // });
-
   /* forEach로 돌리면 1(계약) 대 다건(환불) 방식에서 삭제가 제대로 되지않음. */
   for (let i = allValues2.length - 1; i >= 0; i -= 1) {
     if ((isEqual(allValues2[i].cntrNo, cntrDtlNo.cntrNo))
@@ -1016,6 +965,7 @@ async function onClickRfndDelete() {
   await gridUtil.confirmDeleteCheckedRows(view);
   pageInfo3.value.totalCount = gridUtil.getAllRowValues(view).length;
 }
+
 /** *************************************** */
 // 그리드4 (환불접수총액 실시간 계산) - 자동계산 및 기입
 async function onCheckTotalData() {
@@ -1028,6 +978,7 @@ async function onCheckTotalData() {
   let temp3 = 0;
   let temp4 = 0;
   let temp5 = 0;
+
   for (let i = 0; i < totalView2.length; i += 1) {
     temp1 += Number(totalView2[i].rfndCshAkAmt);
     temp2 += Number(totalView2[i].rfndCardAkAmt);
@@ -1070,7 +1021,7 @@ async function onClickRfndAddRow(cntrNo, cntrSn, cntrDtlNo, dpDt, dpMesCd, dpAmt
 // -------------------------------------------------------------------------------------------------
 /**
   * 23.08.10
-  * TODO: 신청시에는 fetchData로 검색, 메인에서 팝업진입(수정)시에는 fetchData2로 검색
+  * 신청시에는 fetchData로 검색, 메인에서 팝업진입(수정)시에는 fetchData2로 검색
   * 신청시
      첫째grid(계약)에서 아이템 클릭 시에 서비스를 통해 해당 수납데이터를 둘째 그리드(환불) 보여줌
      둘째grid(환불)에 전금행추가 선택시 셋째grid(전금)데이터를 추가. (임시저장/신청) 가능.
@@ -1261,6 +1212,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'rveSn' },
     { fieldName: 'fnitCd' },
     { fieldName: 'cstNo' },
+    { fieldName: 'dpTpCd' },
   ];
 
   const columns = [
@@ -1321,8 +1273,13 @@ const initGrid2 = defineGrid((data, view) => {
       width: '140',
       styleName: 'text-right',
       styleCallback(grid, dataCell) {
-        const dpMesCd = grid.getValue(dataCell.index.itemIndex, 'dpMesCd');
-        return dpMesCd === '01' ? { editable: false } : { editable: true };
+        let editable = true;
+        const rowValue = grid.getValues(dataCell.index.itemIndex);
+        // 입금구분이 현금 카드 환불 불가
+        if (rowValue.dpMesCd === '01' || rowValue.dpTpCd === '0201') {
+          editable = false;
+        }
+        return { editable };
       },
     },
     { fieldName: 'crdcdFeeAmt',
@@ -1691,13 +1648,5 @@ const initGrid4 = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-
-  // eslint-disable-next-line no-unused-vars
-  // view.onValidate = (g, index, value) => {
-  //   const { totRfndEtAmt } = g.getValues(index.dataRow);
-  //   if (Number(totRfndEtAmt) === 0) {
-  //     return t('변경된 사항이 없습니다.');
-  //   }
-  // };
 });
 </script>
