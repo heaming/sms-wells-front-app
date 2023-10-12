@@ -352,10 +352,10 @@
       dense
     >
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_KEEP_AW_AGG_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.keepAwAmt)) }} / {{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.keepAwTotAmt)) }}</p>
-        </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_DLQ_MCNT_AGG')">
+        <kw-form-item
+          :label="$t('MSG_TXT_DLQ_MCNT_AGG')"
+          :colspan="2"
+        >
           <p>{{ rentalSalesDetail.dlqMcn }} / {{ rentalSalesDetail.dlqAcuMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
