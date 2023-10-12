@@ -78,64 +78,6 @@
         </kw-list>
       </div>
     </div>
-    <kw-scroll-area
-      v-if="false"
-      visible
-      class="scoped-layout__mod-area"
-      scroll-width="100%"
-      scroll-style="padding: 0 40px;"
-    >
-      <h3 class="mt0">
-        상품내역
-      </h3>
-      <kw-list
-        separator
-        item-padding="20px 0"
-      >
-        <template
-          v-for="(item) in step2.dtls"
-        >
-          <single-pay-price-select
-            v-if="item?.sellTpCd === '1'"
-            :key="`price-select-${item.tempKey ?? item.cntrSn}`"
-            :model-value="item"
-            :bas="step2.bas"
-            @price-changed="onPriceChanged"
-            @delete="onClickDelete(item)"
-          />
-          <rental-price-select
-            v-if="item?.sellTpCd === '2'"
-            :key="`price-select-${item.tempKey ?? item.cntrSn}`"
-            :model-value="item"
-            :bas="step2.bas"
-            @one-plus-one="onClickOnePlusOne"
-            @delete:one-plus-one="onDeleteOnePlusOne"
-            @device-change="onClickDeviceChange"
-            @price-changed="onPriceChanged"
-            @packaging="onPackaging"
-            @delete="onClickDelete(item)"
-          />
-          <membership-price-select
-            v-if="item?.sellTpCd === '3'"
-            :key="`price-select-${item.tempKey ?? item.cntrSn}`"
-            :model-value="item"
-            :bas="step2.bas"
-            @delete="onClickDelete(item)"
-          />
-          <regular-shipping-price-select
-            v-if="item?.sellTpCd === '6'"
-            :key="`price-select-${item.tempKey ?? item.cntrSn}`"
-            :model-value="item"
-            :bas="step2.bas"
-            @select-machine="onClickSelectMachine"
-            @delete:select-machine="onDeleteSelectMachine"
-            @select-seeding="onClickSelSdingCapsl"
-            @select-capsule="onClickSelSdingCapsl"
-            @delete="onClickDelete(item)"
-          />
-        </template>
-      </kw-list>
-    </kw-scroll-area>
   </div>
 </template>
 
@@ -401,7 +343,6 @@ async function onDeleteOnePlusOne(dtl) {
     warn('1+1 관계가 없습니다.');
   }
   cntrRels.splice(onePlusOneRelIndex, 1);
-  dtl.rentalDiscountFixed = false;
 }
 
 async function onClickDeviceChange(dtl) {
