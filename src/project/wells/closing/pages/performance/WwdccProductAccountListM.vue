@@ -195,6 +195,7 @@ const searchParams = ref({
 });
 
 let cachedParams;
+// 조회
 async function fetchData() {
   const { inqrDv } = searchParams.value;
   let res;
@@ -217,12 +218,14 @@ async function fetchData() {
   mainView.getDataSource().setRows(productAccountList);
 }
 
+// 조회 버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   console.log(searchParams.value);
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExportView() {
   let view;
   if (isShow.value === true) {
@@ -237,7 +240,7 @@ async function onClickExportView() {
   });
 }
 
-/** TODO : 엑셀 다운로드 컬럼 아직 정의가 안됨 */
+// 상세내역 다운로드
 async function onClickDetailExportView() {
   const view = grdExcelRef.value.getView();
   const response = await dataService.get('/sms/wells/closing/product-account/excel-download', { params: cachedParams, timeout: 200000 });
@@ -262,15 +265,15 @@ watch(() => searchParams.value.sellTpCd, async (val) => {
 // -------------------------------------------------------------------------------------------------
 const initGrdTotal = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'agrgCt2', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'agrgCt3', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'agrgCt4', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'agrgCt5', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'agrgCt6', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기준년월
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 이월
+    { fieldName: 'agrgCt2', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' }, // 유입
+    { fieldName: 'agrgCt3', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지
+    { fieldName: 'agrgCt4', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' }, // 만료
+    { fieldName: 'agrgCt5', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' }, // 순증
+    { fieldName: 'agrgCt6', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' }, // 합계
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -319,19 +322,19 @@ const initGrdTotal = defineGrid((data, view) => {
 
 const initGrdProduct = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '116', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'pdHclsfId', header: t('MSG_TXT_PD_HCLSF'), width: '116', styleName: 'text-center' },
-    { fieldName: 'pdMclsfId', header: t('MSG_TXT_PD_MCLSF'), width: '116', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '239', styleName: 'text-left' },
-    { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'agrgCt2', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'agrgCt3', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'agrgCt4', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'agrgCt5', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'agrgCt6', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기준년월
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '116', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'pdHclsfId', header: t('MSG_TXT_PD_HCLSF'), width: '116', styleName: 'text-center' }, // 상품대분류
+    { fieldName: 'pdMclsfId', header: t('MSG_TXT_PD_MCLSF'), width: '116', styleName: 'text-center' }, // 상품중분류
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '116', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '239', styleName: 'text-left' }, // 상품명
+    { fieldName: 'agrgCt1', header: t('MSG_TXT_CRDOVR'), width: '120', styleName: 'text-right', dataType: 'number' }, // 이월
+    { fieldName: 'agrgCt2', header: t('MSG_TXT_INFLW'), width: '120', styleName: 'text-right', dataType: 'number' }, // 유입
+    { fieldName: 'agrgCt3', header: t('MSG_TXT_EXPIRED'), width: '120', styleName: 'text-right', dataType: 'number' }, // 해지
+    { fieldName: 'agrgCt4', header: t('MSG_TXT_EXN'), width: '120', styleName: 'text-right', dataType: 'number' }, // 만료
+    { fieldName: 'agrgCt5', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', dataType: 'number' }, // 순증
+    { fieldName: 'agrgCt6', header: t('MSG_TXT_SUM'), width: '120', styleName: 'text-right', dataType: 'number' }, // 합계
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -384,105 +387,105 @@ const initGrdProduct = defineGrid((data, view) => {
 
 const initGrdExcel = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'custClsCd', header: t('MSG_TXT_CST_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NAME'), width: '100', styleName: 'text-center' },
-    { fieldName: 'newCustYn', header: t('MSG_TXT_NW_KWK_YN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'bryyMmdd', header: t('MSG_TXT_CST_AGE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sexDvCd', header: t('MSG_TXT_CST_SEX'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogTpNm', header: t('MSG_TXT_BLG_OG'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BRCH_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SELL_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNm', header: t('MSG_TXT_SELLER_NAME'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ctntCstZip', header: t('MSG_TXT_CNTR_ZIP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ojZip', header: t('MSG_TXT_IST_ZIP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'svPrd', header: t('MSG_TXT_SVC_BETWEEN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'vstPrdVal', header: t('MSG_TXT_VST_PRD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dutyUseMcn', header: t('MSG_TXT_DUTY_PTRM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'mmIstmAmt', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrPmotId', header: t('MSG_TXT_PMOT_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rcpdt', header: t('MSG_TXT_RCP_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rsgDt', header: t('MSG_TXT_RSG_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'exnDt', header: t('MSG_TXT_DUTY_EXN_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrExnDt', header: t('MSG_TXT_CNTR_EXN_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dutyUseMcnYn', header: t('MSG_TXT_DUTY_PTRM_ADVT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rentalTn', header: t('MSG_TXT_NMN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'nomAccYn', header: t('MSG_TXT_NOM_ACC'), width: '100', styleName: 'text-center' }, // 여기까지 기준계약
-    { fieldName: 'sellTpDtlCd2', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'custClsCd2', header: t('MSG_TXT_CST_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrNo2', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cstKnm2', header: t('MSG_TXT_CST_NAME'), width: '100', styleName: 'text-center' },
-    { fieldName: 'newCustYn2', header: t('MSG_TXT_NW_KWK_YN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cstNo2', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'bryyMmdd2', header: t('MSG_TXT_CST_AGE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sexDvCd2', header: t('MSG_TXT_CST_SEX'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogTpNm2', header: t('MSG_TXT_BLG_OG'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogCd2', header: t('MSG_TXT_BRCH_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo2', header: t('MSG_TXT_SELL_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNm2', header: t('MSG_TXT_SELLER_NAME'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ctntCstZip2', header: t('MSG_TXT_CNTR_ZIP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ojZip2', header: t('MSG_TXT_IST_ZIP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdHclsfNm2', header: t('MSG_TXT_PD_HCLSF_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdMclsfNm2', header: t('MSG_TXT_PD_MCLSF_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdCd2', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm2', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'svPrd2', header: t('MSG_TXT_SVC_BETWEEN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'vstPrdVal2', header: t('MSG_TXT_VST_PRD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dutyUseMcn2', header: t('MSG_TXT_DUTY_PTRM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrPtrm2', header: t('MSG_TXT_CNTR_PTRM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'mmIstmAmt2', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrPmotId2', header: t('MSG_TXT_PMOT_CN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rcpdt2', header: t('MSG_TXT_RCP_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrDt2', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rsgDt2', header: t('MSG_TXT_RSG_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'reqdDt2', header: t('MSG_TXT_REQD_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'exnDt2', header: t('MSG_TXT_DUTY_EXN_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrExnDt2', header: t('MSG_TXT_CNTR_EXN_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dutyUseMcnYn2', header: t('MSG_TXT_DUTY_PTRM_ADVT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rentalTn2', header: t('MSG_TXT_NMN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'nomAccYn2', header: t('MSG_TXT_NOM_ACC'), width: '100', styleName: 'text-center' }, // 여기까지 이전계약
-    { fieldName: 'sellTpDtlCd3', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'custClsCd3', header: t('MSG_TXT_CST_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrNo3', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cstKnm3', header: t('MSG_TXT_CST_NAME'), width: '100', styleName: 'text-center' },
-    { fieldName: 'newCustYn3', header: t('MSG_TXT_NW_KWK_YN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cstNo3', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'bryyMmdd3', header: t('MSG_TXT_CST_AGE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sexDvCd3', header: t('MSG_TXT_CST_SEX'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogTpNm3', header: t('MSG_TXT_BLG_OG'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogCd3', header: t('MSG_TXT_BRCH_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo3', header: t('MSG_TXT_SELL_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNm3', header: t('MSG_TXT_SELLER_NAME'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ctntCstZip3', header: t('MSG_TXT_CNTR_ZIP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ojZip3', header: t('MSG_TXT_IST_ZIP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdHclsfNm3', header: t('MSG_TXT_PD_HCLSF_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdMclsfNm3', header: t('MSG_TXT_PD_MCLSF_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdCd3', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm3', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'svPrd3', header: t('MSG_TXT_SVC_BETWEEN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'vstPrdVal3', header: t('MSG_TXT_VST_PRD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dutyUseMcn3', header: t('MSG_TXT_DUTY_PTRM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrPtrm3', header: t('MSG_TXT_CNTR_PTRM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'mmIstmAmt3', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrPmotId3', header: t('MSG_TXT_PMOT_CN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rcpdt3', header: t('MSG_TXT_RCP_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrDt3', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rsgDt3', header: t('MSG_TXT_RSG_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'reqdDt3', header: t('MSG_TXT_REQD_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'exnDt3', header: t('MSG_TXT_DUTY_EXN_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrExnDt3', header: t('MSG_TXT_CNTR_EXN_D'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dutyUseMcnYn3', header: t('MSG_TXT_DUTY_PTRM_ADVT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rentalTn3', header: t('MSG_TXT_NMN'), width: '100', styleName: 'text-center' },
-    { fieldName: 'nomAccYn3', header: t('MSG_TXT_NOM_ACC'), width: '100', styleName: 'text-center' }, // 여기까지 이후계약
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'custClsCd', header: t('MSG_TXT_CST_DV'), width: '100', styleName: 'text-center' }, // 고객구분(법인격)
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NAME'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'newCustYn', header: t('MSG_TXT_NW_KWK_YN'), width: '100', styleName: 'text-center' }, // 신규교원키여부
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' }, // 고객번호
+    { fieldName: 'bryyMmdd', header: t('MSG_TXT_CST_AGE'), width: '100', styleName: 'text-center' }, // 고객연령
+    { fieldName: 'sexDvCd', header: t('MSG_TXT_CST_SEX'), width: '100', styleName: 'text-center' }, // 성별
+    { fieldName: 'ogTpNm', header: t('MSG_TXT_BLG_OG'), width: '100', styleName: 'text-center' }, // 소속조직명
+    { fieldName: 'ogCd', header: t('MSG_TXT_BRCH_CD'), width: '100', styleName: 'text-center' }, // 파트너지점코드
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SELL_NO'), width: '100', styleName: 'text-center' }, // 판매자 파트너번호
+    { fieldName: 'prtnrNm', header: t('MSG_TXT_SELLER_NAME'), width: '100', styleName: 'text-center' }, // 파트너명
+    { fieldName: 'ctntCstZip', header: t('MSG_TXT_CNTR_ZIP'), width: '100', styleName: 'text-center' }, // 계약우편번호
+    { fieldName: 'ojZip', header: t('MSG_TXT_IST_ZIP'), width: '100', styleName: 'text-center' }, // 배송주소우편번호
+    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF_NM'), width: '100', styleName: 'text-center' }, // 상품대분류명
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_NM'), width: '100', styleName: 'text-center' }, // 상품중분류명
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center' }, // 상품명
+    { fieldName: 'svPrd', header: t('MSG_TXT_SVC_BETWEEN'), width: '100', styleName: 'text-center' }, // 서비스주기
+    { fieldName: 'vstPrdVal', header: t('MSG_TXT_VST_PRD'), width: '100', styleName: 'text-center' }, // 방문주기
+    { fieldName: 'dutyUseMcn', header: t('MSG_TXT_DUTY_PTRM'), width: '100', styleName: 'text-center' }, // 의무기간
+    { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: '100', styleName: 'text-center' }, // 계약기간
+    { fieldName: 'mmIstmAmt', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-center' }, // 렌탈료
+    { fieldName: 'cntrPmotId', header: t('MSG_TXT_PMOT_CD'), width: '100', styleName: 'text-center' }, // 프로모션코드
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RCP_D'), width: '100', styleName: 'text-center' }, // 접수일자
+    { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center' }, // 계약일자
+    { fieldName: 'rsgDt', header: t('MSG_TXT_RSG_D'), width: '100', styleName: 'text-center' }, // 해지일자
+    { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_D'), width: '100', styleName: 'text-center' }, // 철거일자
+    { fieldName: 'exnDt', header: t('MSG_TXT_DUTY_EXN_D'), width: '100', styleName: 'text-center' }, // 의무만료일
+    { fieldName: 'cntrExnDt', header: t('MSG_TXT_CNTR_EXN_D'), width: '100', styleName: 'text-center' }, // 계약만료일
+    { fieldName: 'dutyUseMcnYn', header: t('MSG_TXT_DUTY_PTRM_ADVT'), width: '100', styleName: 'text-center' }, // 의무기간 도래 여부
+    { fieldName: 'rentalTn', header: t('MSG_TXT_NMN'), width: '100', styleName: 'text-center' }, // 렌탈차월
+    { fieldName: 'nomAccYn', header: t('MSG_TXT_NOM_ACC'), width: '100', styleName: 'text-center' }, // 정상계정여부 여기까지 기준계약
+    { fieldName: 'sellTpDtlCd2', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 판매유형상세
+    { fieldName: 'custClsCd2', header: t('MSG_TXT_CST_DV'), width: '100', styleName: 'text-center' }, // 고객구분(법인격)
+    { fieldName: 'cntrNo2', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cstKnm2', header: t('MSG_TXT_CST_NAME'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'newCustYn2', header: t('MSG_TXT_NW_KWK_YN'), width: '100', styleName: 'text-center' }, // 신규교원키여부
+    { fieldName: 'cstNo2', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' }, // 고객번호
+    { fieldName: 'bryyMmdd2', header: t('MSG_TXT_CST_AGE'), width: '100', styleName: 'text-center' }, // 고객연령
+    { fieldName: 'sexDvCd2', header: t('MSG_TXT_CST_SEX'), width: '100', styleName: 'text-center' }, // 성별
+    { fieldName: 'ogTpNm2', header: t('MSG_TXT_BLG_OG'), width: '100', styleName: 'text-center' }, // 소속조직명
+    { fieldName: 'ogCd2', header: t('MSG_TXT_BRCH_CD'), width: '100', styleName: 'text-center' }, // 파트너지점코드
+    { fieldName: 'prtnrNo2', header: t('MSG_TXT_SELL_NO'), width: '100', styleName: 'text-center' }, // 판매자 파트너번호
+    { fieldName: 'prtnrNm2', header: t('MSG_TXT_SELLER_NAME'), width: '100', styleName: 'text-center' }, // 파트너명
+    { fieldName: 'ctntCstZip2', header: t('MSG_TXT_CNTR_ZIP'), width: '100', styleName: 'text-center' }, // 계약우편번호
+    { fieldName: 'ojZip2', header: t('MSG_TXT_IST_ZIP'), width: '100', styleName: 'text-center' }, // 배송주소우편번호
+    { fieldName: 'pdHclsfNm2', header: t('MSG_TXT_PD_HCLSF_NM'), width: '100', styleName: 'text-center' }, // 상품대분류명
+    { fieldName: 'pdMclsfNm2', header: t('MSG_TXT_PD_MCLSF_NM'), width: '100', styleName: 'text-center' }, // 상품중분류명
+    { fieldName: 'pdCd2', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm2', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center' }, // 상품명
+    { fieldName: 'svPrd2', header: t('MSG_TXT_SVC_BETWEEN'), width: '100', styleName: 'text-center' }, // 서비스주기
+    { fieldName: 'vstPrdVal2', header: t('MSG_TXT_VST_PRD'), width: '100', styleName: 'text-center' }, // 방문주기
+    { fieldName: 'dutyUseMcn2', header: t('MSG_TXT_DUTY_PTRM'), width: '100', styleName: 'text-center' }, // 의무기간
+    { fieldName: 'cntrPtrm2', header: t('MSG_TXT_CNTR_PTRM'), width: '100', styleName: 'text-center' }, // 계약기간
+    { fieldName: 'mmIstmAmt2', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-center' }, // 렌탈료
+    { fieldName: 'cntrPmotId2', header: t('MSG_TXT_PMOT_CN'), width: '100', styleName: 'text-center' }, // 프로모션코드
+    { fieldName: 'rcpdt2', header: t('MSG_TXT_RCP_D'), width: '100', styleName: 'text-center' }, // 접수일자
+    { fieldName: 'cntrDt2', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center' }, // 계약일자
+    { fieldName: 'rsgDt2', header: t('MSG_TXT_RSG_D'), width: '100', styleName: 'text-center' }, // 해지일자
+    { fieldName: 'reqdDt2', header: t('MSG_TXT_REQD_D'), width: '100', styleName: 'text-center' }, // 철거일자
+    { fieldName: 'exnDt2', header: t('MSG_TXT_DUTY_EXN_D'), width: '100', styleName: 'text-center' }, // 의무만료일
+    { fieldName: 'cntrExnDt2', header: t('MSG_TXT_CNTR_EXN_D'), width: '100', styleName: 'text-center' }, // 계약만료일
+    { fieldName: 'dutyUseMcnYn2', header: t('MSG_TXT_DUTY_PTRM_ADVT'), width: '100', styleName: 'text-center' }, // 의무기간 도래 여부
+    { fieldName: 'rentalTn2', header: t('MSG_TXT_NMN'), width: '100', styleName: 'text-center' }, // 렌탈차월
+    { fieldName: 'nomAccYn2', header: t('MSG_TXT_NOM_ACC'), width: '100', styleName: 'text-center' }, // 정상계정여부 여기까지 이전계약
+    { fieldName: 'sellTpDtlCd3', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 판매유형상세
+    { fieldName: 'custClsCd3', header: t('MSG_TXT_CST_DV'), width: '100', styleName: 'text-center' }, // 고객구분(법인격)
+    { fieldName: 'cntrNo3', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cstKnm3', header: t('MSG_TXT_CST_NAME'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'newCustYn3', header: t('MSG_TXT_NW_KWK_YN'), width: '100', styleName: 'text-center' }, // 신규교원키여부
+    { fieldName: 'cstNo3', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' }, // 고객번호
+    { fieldName: 'bryyMmdd3', header: t('MSG_TXT_CST_AGE'), width: '100', styleName: 'text-center' }, // 고객연령
+    { fieldName: 'sexDvCd3', header: t('MSG_TXT_CST_SEX'), width: '100', styleName: 'text-center' }, // 성별
+    { fieldName: 'ogTpNm3', header: t('MSG_TXT_BLG_OG'), width: '100', styleName: 'text-center' }, // 소속조직명
+    { fieldName: 'ogCd3', header: t('MSG_TXT_BRCH_CD'), width: '100', styleName: 'text-center' }, // 파트너지점코드
+    { fieldName: 'prtnrNo3', header: t('MSG_TXT_SELL_NO'), width: '100', styleName: 'text-center' }, // 판매자 파트너번호
+    { fieldName: 'prtnrNm3', header: t('MSG_TXT_SELLER_NAME'), width: '100', styleName: 'text-center' }, // 파트너명
+    { fieldName: 'ctntCstZip3', header: t('MSG_TXT_CNTR_ZIP'), width: '100', styleName: 'text-center' }, // 계약우편번호
+    { fieldName: 'ojZip3', header: t('MSG_TXT_IST_ZIP'), width: '100', styleName: 'text-center' }, // 배송주소우편번호
+    { fieldName: 'pdHclsfNm3', header: t('MSG_TXT_PD_HCLSF_NM'), width: '100', styleName: 'text-center' }, // 상품대분류명
+    { fieldName: 'pdMclsfNm3', header: t('MSG_TXT_PD_MCLSF_NM'), width: '100', styleName: 'text-center' }, // 상품중분류명
+    { fieldName: 'pdCd3', header: t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm3', header: t('MSG_TXT_PRDT_NM'), width: '100', styleName: 'text-center' }, // 상품명
+    { fieldName: 'svPrd3', header: t('MSG_TXT_SVC_BETWEEN'), width: '100', styleName: 'text-center' }, // 서비스주기
+    { fieldName: 'vstPrdVal3', header: t('MSG_TXT_VST_PRD'), width: '100', styleName: 'text-center' }, // 방문주기
+    { fieldName: 'dutyUseMcn3', header: t('MSG_TXT_DUTY_PTRM'), width: '100', styleName: 'text-center' }, // 의무기간
+    { fieldName: 'cntrPtrm3', header: t('MSG_TXT_CNTR_PTRM'), width: '100', styleName: 'text-center' }, // 계약기간
+    { fieldName: 'mmIstmAmt3', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-center' }, // 렌탈료
+    { fieldName: 'cntrPmotId3', header: t('MSG_TXT_PMOT_CN'), width: '100', styleName: 'text-center' }, // 프로모션코드
+    { fieldName: 'rcpdt3', header: t('MSG_TXT_RCP_D'), width: '100', styleName: 'text-center' }, // 접수일자
+    { fieldName: 'cntrDt3', header: t('MSG_TXT_CNTRCT_DT'), width: '100', styleName: 'text-center' }, // 계약일자
+    { fieldName: 'rsgDt3', header: t('MSG_TXT_RSG_D'), width: '100', styleName: 'text-center' }, // 해지일자
+    { fieldName: 'reqdDt3', header: t('MSG_TXT_REQD_D'), width: '100', styleName: 'text-center' }, // 철거일자
+    { fieldName: 'exnDt3', header: t('MSG_TXT_DUTY_EXN_D'), width: '100', styleName: 'text-center' }, // 의무만료일
+    { fieldName: 'cntrExnDt3', header: t('MSG_TXT_CNTR_EXN_D'), width: '100', styleName: 'text-center' }, // 계약만료일
+    { fieldName: 'dutyUseMcnYn3', header: t('MSG_TXT_DUTY_PTRM_ADVT'), width: '100', styleName: 'text-center' }, // 의무기간 도래 여부
+    { fieldName: 'rentalTn3', header: t('MSG_TXT_NMN'), width: '100', styleName: 'text-center' }, // 렌탈차월
+    { fieldName: 'nomAccYn3', header: t('MSG_TXT_NOM_ACC'), width: '100', styleName: 'text-center' }, // 정상계정여부 여기까지 이후계약
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
