@@ -46,6 +46,11 @@
     </kw-form>
     <template #action>
       <kw-btn
+        negative
+        label="닫기"
+        @click="onClickClose"
+      />
+      <kw-btn
         primary
         label="확인"
         @click="onClickConfirm"
@@ -58,7 +63,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { decryptEncryptedParam } from '~sms-common/contract/util';
+import { decryptEncryptedParam, postMessage } from '~sms-common/contract/util';
 import { alert, useDataService } from 'kw-lib';
 
 const props = defineProps({
@@ -103,6 +108,11 @@ async function onClickConfirm() {
   if (response.data.valid) {
     next(response.data.key);
   }
+}
+
+function onClickClose() {
+  postMessage('closed', false);
+  window.close();
 }
 
 async function fetchBasicContractInfo() {

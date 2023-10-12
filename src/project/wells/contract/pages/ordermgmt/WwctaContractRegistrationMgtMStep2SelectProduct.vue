@@ -88,8 +88,8 @@
                     class="mt6 flex gap-xxs"
                   >
                     <kw-chip
-                      v-if="product.sellTpCd"
-                      :label="getCodeName('SELL_TP_CD', product.sellTpCd)"
+                      v-if="labelForSellTpCd(product)"
+                      :label="labelForSellTpCd(product)"
                       color="primary"
                       outline
                     />
@@ -123,7 +123,10 @@ const exposed = {};
 defineExpose(exposed);
 
 const dataService = useDataService();
-const { codes, addCode, getCodeName } = await useCtCode();
+const { codes, addCode, getCodeName } = await useCtCode(
+  'SELL_TP_DTL_CD',
+  'PD_TP_CD',
+);
 
 await addCode('SELL_TP_CD', (code) => (['1', '2', '3', '6'].includes(code.codeId) && code));
 await addCode('PD_CLSF_CD', [
@@ -173,6 +176,21 @@ function getPdClsfCd(product) {
     return '3';
   }
   return '6';
+}
+
+function labelForSellTpCd(product) {
+  if (!product) {
+    return undefined;
+  }
+  if (product.sellTpCd && product.sellTpDtlCd) {
+    return `${getCodeName('SELL_TP_CD', product.sellTpCd)}-${getCodeName('SELL_TP_DTL_CD', product.sellTpDtlCd)}`;
+  }
+  if (product.sellTpCd) {
+    return getCodeName('SELL_TP_CD', product.sellTpCd);
+  }
+  if (product.pdTpCd === 'C') {
+    return getCodeName('PD_TP_CD', product.pdTpCd);
+  }
 }
 
 function classifying() {
@@ -261,7 +279,7 @@ async function fetchProducts() {
   await emit('fetched', products.value);
 }
 
-watch(() => props.cntrNo, fetchProducts, { immediate: true });
+watch(props.cntrNo, fetchProducts, { immediate: true });
 
 async function onClickSearch() {
   const shouldFetchProduct = cachedParams.value.rentalDscTpCd !== searchParams.value.rentalDscTpCd;
@@ -289,6 +307,10 @@ function onClickReset() {
 async function onClickProduct(product) {
   await emit('select', product);
 }
+
+onActivated(() => {
+  fetchProducts();
+});
 </script>
 
 <style lang="scss" scoped>

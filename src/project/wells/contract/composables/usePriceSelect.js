@@ -160,7 +160,7 @@ export default (
   };
 
   const filteringFinalPriceOptions = () => {
-    if (!finalPriceOptions.value.length) {
+    if (!finalPriceOptions.value?.length) {
       return;
     }
 
