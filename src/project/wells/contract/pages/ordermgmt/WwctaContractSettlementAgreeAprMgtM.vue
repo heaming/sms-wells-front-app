@@ -35,7 +35,7 @@
           :prtnr="contract.prtnr"
         />
       </template>
-      <template v-if="agreed">
+      <template v-if="agreed && includeAutoTransfer">
         <wwcta-contract-settlement-sign-item
           :description="'계좌 자동이체 서명을 해주세요.'"
           empty-alert
@@ -102,6 +102,7 @@ async function fetchContract() {
       cntrNo: params.cntrNo,
     });
     contract.value = response.data;
+    debugger;
     includeAutoTransfer.value = contract.value.stlms.some((s) => s.dpTpCd === '0102');
   } catch (e) {
     postMessage('cancelled');
