@@ -728,14 +728,13 @@ async function onClickModify({ resultDiv, cntrNo, cntrSn, cntrPrgsStatCd }) {
 }
 
 //  CARD > BUTTON > 계약변경
-async function onClickChange({ cntrNo, cntrSn, cntrCnfmDtm }) {
+async function onClickChange({ cntrNo, cntrCnfmDtm }) {
   cntrCnfmDtm = cntrCnfmDtm.substring(0, 8);
 
   router.replace({
     path: 'wwctb-contract-change-mgt',
     query: {
       cntrNo,
-      cntrSn,
       cntrCnfmDt: cntrCnfmDtm,
     },
   });
