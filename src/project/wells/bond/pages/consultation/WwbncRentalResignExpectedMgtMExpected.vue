@@ -411,9 +411,22 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(currentView.value)) { return; }
   if (!await gridUtil.validate(currentView.value)) { return; }
 
-  const changedRows = gridUtil.getChangedRowValues(currentView.value);
+  const checkedRows = gridUtil.getCheckedRowValues(currentView.value);
+
+  if (checkedRows.length === 0) {
+    await alert(t('MSG_ALT_NO_CHECK_DATA'));
+    return false;
+  }
+
+  const changedRows = gridUtil.getCheckedRowValues(currentView.value, true);
+
+  if (changedRows.length === 0) {
+    await alert(t('MSG_ALT_NO_CHG_CNTN'));
+    return false;
+  }
+
   if (changedRows.some((item) => item.authRsgCnfmYn === 'Y')) {
-    await alert(t('MSG_ALT_NOT_EXP_CNFM_DTA'));
+    await alert(t('MSG_ALT_ICLD_CNFM_DTA'));
     return false;
   }
 
