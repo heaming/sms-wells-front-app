@@ -115,7 +115,7 @@
         dense
         grid-action
         :label="t('MSG_BTN_SAVE')"
-        :disable="!isSearchMonth || isExpectedConfirm || isfinalConfirm"
+        :disable="!isSearchMonth || isfinalConfirm"
         @click="onClickSave"
       />
       <kw-separator
@@ -412,7 +412,7 @@ async function onClickSave() {
   if (!await gridUtil.validate(currentView.value)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(currentView.value);
-  if (changedRows.some((item) => item.authRsgExpYn === 'Y')) {
+  if (changedRows.some((item) => item.authRsgCnfmYn === 'Y')) {
     await alert(t('MSG_ALT_NOT_EXP_CNFM_DTA'));
     return false;
   }
