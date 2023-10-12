@@ -307,7 +307,7 @@ async function fetchSubData() {
   // data.setValue(0, 'dpBlam', dpBlam.value);
   // data.setValue(0, 'dpDtm', dpDtm.value);
 
-  view.resetCurrent();
+  // view.resetCurrent();
 }
 
 // 조회 버튼
