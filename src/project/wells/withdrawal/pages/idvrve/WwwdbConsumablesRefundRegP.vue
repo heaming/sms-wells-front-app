@@ -69,6 +69,7 @@
         </kw-form-item>
       </kw-form-row>
     </kw-form>
+    <kw-separator />
     <kw-action-top class="mt20">
       <template #left>
         <!-- 환불 정보 -->
@@ -121,8 +122,7 @@
           />
           <kw-btn
             :label="$t('MSG_TXT_ETC_ATAM') + t('MSG_TXT_RGS')"
-
-            class="mr8"
+            padding="12px"
           />
         </kw-form-item>
         <!-- 환불구분 -->
@@ -168,6 +168,7 @@
       <kw-form-row>
         <!-- 카드번호 -->
         <kw-form-item
+          :colspan="2"
           :label="$t('MSG_TXT_CARD_NO')"
           :required="paymentCategory === '02' ? 'required' : null"
         >
@@ -185,9 +186,9 @@
             :rules="paymentCategory === '02' ? 'required' : null"
             :readonly="paymentCategory === '01'"
             :model-value="[]"
-            :options="['선택', '1', '2', '3']"
             :label="$t('MSG_TXT_CARD_NO')"
           />
+          <!-- :options="['선택', '1', '2', '3']" -->
           <kw-input
             v-show="saveParams.cardRfndFnitCd === 'choice' ? false : true"
             v-model="cardInfo.cardRfndCrcdnoEncr1"
@@ -196,6 +197,7 @@
             :rules="paymentCategory === '02' ? 'required' : null"
             :readonly="paymentCategory === '01'"
             :label="$t('MSG_TXT_CARD_NO')"
+            class="w100"
           />
           <span
             id="cardDash1"
@@ -210,6 +212,7 @@
             :rules="paymentCategory === '02' ? 'required' : null"
             :readonly="paymentCategory === '01'"
             :label="$t('MSG_TXT_CARD_NO')"
+            class="w100"
           />
           <span
             id="cardDash2"
@@ -224,6 +227,7 @@
             :rules="paymentCategory === '02' ? 'required' : null"
             :readonly="paymentCategory === '01'"
             :label="$t('MSG_TXT_CARD_NO')"
+            class="w100"
           />
           <span
             id="cardDash3"
@@ -238,8 +242,11 @@
             :rules="paymentCategory === '02' ? 'required' : null"
             :readonly="paymentCategory === '01'"
             :label="$t('MSG_TXT_CARD_NO')"
+            class="w100"
           />
         </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
         <!-- 승인번호 -->
         <kw-form-item
           :label="$t('MSG_TXT_APR_NO')"
@@ -253,8 +260,6 @@
             :label="$t('MSG_TXT_APR_NO')"
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
         <!-- 할부개월 -->
         <kw-form-item
           :label="$t('MSG_TXT_ISTM_MCNT')"
@@ -268,6 +273,8 @@
             :label="$t('MSG_TXT_ISTM_MCNT')"
           />
         </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
         <!-- 카드주명 -->
         <kw-form-item
           :label="$t('MSG_TXT_CDONR_NM')"
@@ -280,8 +287,6 @@
             :label="$t('MSG_TXT_CDONR_NM')"
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
         <!-- 카드공제 -->
         <kw-form-item
           :label="$t('MSG_TXT_CARD_DDTN')"
@@ -294,6 +299,8 @@
             :label="$t('MSG_TXT_CARD_DDTN')"
           />
         </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
         <!-- 카드공제율 -->
         <kw-form-item
           :label="$t('MSG_TXT_CARD_DDTN_RT')"
@@ -306,19 +313,19 @@
             :label="$t('MSG_TXT_CARD_DDTN_RT')"
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
         <!-- 실지급액 -->
         <kw-form-item
+          :label="$t('MSG_TXT_ACL_DSB_AMT')"
           required
-          :label="$t('MSG_TXT_CARD_DDTN_RT')"
         >
           <kw-input
             v-model="saveParams.rfndDsbAmt"
-            :label="$t('MSG_TXT_CARD_DDTN_RT')"
+            :label="$t('MSG_TXT_ACL_DSB_AMT')"
             rules="required"
           />
         </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
         <!-- 지연일수 -->
         <kw-form-item
           :label="$t('MSG_TXT_PSP_DC')"
@@ -327,8 +334,6 @@
             v-model="saveParams.rfndPspDc"
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
         <!-- 지연이자 -->
         <kw-form-item
           :label="$t('MSG_TXT_PSP_INT')"
@@ -337,6 +342,8 @@
             v-model="saveParams.rfndDsbPspInt"
           />
         </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
         <!-- 손료존재 -->
         <kw-form-item
           required
@@ -349,8 +356,6 @@
             rules="required"
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
         <!-- 지급유형 -->
         <kw-form-item
           :label="$t('MSG_TXT_PAY_TYPE')"
@@ -363,6 +368,8 @@
             rules="required"
           />
         </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
         <!-- 환불유형 -->
         <kw-form-item
           required
@@ -375,8 +382,6 @@
             rules="required"
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
         <!-- 은행구분 -->
         <kw-form-item
           :label="$t('MSG_TXT_BNK_DV')"
@@ -390,6 +395,8 @@
             :label="$t('MSG_TXT_BNK_DV')"
           />
         </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
         <!-- 계좌번호 -->
         <kw-form-item
           :label="$t('MSG_TXT_AC_NO')"
@@ -419,8 +426,6 @@
             :label="$t('MSG_TXT_AC_NO')"
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
         <!-- 예금주명 -->
         <kw-form-item
           :label="$t('MSG_TXT_ACHLDR_NM')"
@@ -433,6 +438,8 @@
             :label="$t('MSG_TXT_ACHLDR_NM')"
           />
         </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
         <!-- 전금유형 -->
         <kw-form-item
           :label="$t('MSG_TXT_BLTF_TP')"
@@ -442,8 +449,6 @@
             :options="codes.BLTF_RFND_TP_CD"
           />
         </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
         <!-- 전금고객 -->
         <kw-form-item
           :label="$t('MSG_TXT_BLTF_CST')"

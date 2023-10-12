@@ -185,21 +185,19 @@ async function fetchData() {
 
 async function onClickSearch() {
   // 계약상세번호, 고객명, 휴대전화번호, S/N조회 시, 변수 초기화
-  const hpNober = searchParams.value.cralLocaraTno + searchParams.value.mexnoEncr + searchParams.value.cralIdvTno;
   if (!isEmpty(searchParams.value.cntrDtlNo)
-  || !isEmpty(searchParams.value.rcgvpKnm)
-  || !isEmpty(searchParams.value.bcNo)
-  || !isEmpty(hpNober)) {
-    searchParams.value.startDt = '';
-    searchParams.value.endDt = '';
-    searchParams.value.findGb = '';
+      || !isEmpty(searchParams.value.rcgvpKnm)
+      || !isEmpty(searchParams.value.bcNo)
+      || !isEmpty(searchParams.value.cralLocaraTno + searchParams.value.mexnoEncr + searchParams.value.cralIdvTno)) {
+    const initParams = cloneDeep(searchParams.value);
+    initParams.startDt = '';
+    initParams.endDt = '';
+    initParams.findGb = '';
+    cachedParams = cloneDeep(initParams);
+  } else {
+    cachedParams = cloneDeep(searchParams.value);
   }
-
-  cachedParams = cloneDeep(searchParams.value);
   await fetchData();
-  searchParams.value.startDt = now.set('date', 1).format('YYYYMMDD');
-  searchParams.value.endDt = now.format('YYYYMMDD');
-  searchParams.value.findGb = '00';
 }
 
 async function onClickExcelDownload() {

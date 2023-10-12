@@ -5,6 +5,7 @@
     class="fit"
     header-class="scoped-item scoped-item--header"
     block-inherit-padding
+    expand-icon-toggle
   >
     <template #header="{ toggle }">
       <kw-item-section
@@ -75,7 +76,7 @@
             :disable="dtl?.pdChoLmYn === 'N'"
             label="캡슐선택"
             dense
-            @click="$emit('select-seeding', modelValue)"
+            @click="$emit('select-capsule', modelValue)"
           />
         </kw-item-label>
       </kw-item-section>
@@ -154,6 +155,18 @@
           />
         </kw-item-section>
       </kw-item>
+      <kw-item
+        v-for="(item, idx) in sdingCapsls"
+        :key="`sdingCapsl-${idx}`"
+        class="scoped-item"
+      >
+        <kw-item-section>
+          {{ `${item.chPdctPdNm ? `${item.chPdctPdNm} (${item.pdNm})` : `${item.pdNm}`}` }}
+        </kw-item-section>
+        <kw-item-section side>
+          {{ `${item.itmQty || 1}개` }}
+        </kw-item-section>
+      </kw-item>
       <promotion-select
         v-model="appliedPromotions"
         :promotions="promotions"
@@ -191,7 +204,7 @@ const emit = defineEmits([
 ]);
 
 const { getCodeName } = await useCtCode(
-  'SELl_TP_CD',
+  'SELL_TP_CD',
   'SV_TP_CD',
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
@@ -210,13 +223,29 @@ let cntrRels = toRef(props.modelValue, 'cntrRels');
 let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions');
 let appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
 let promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
+let sdingCapsls = toRef(props.modelValue, 'sdingCapsls', []); /* 적용가능한 프로모션 목록 */
 
 const isLkSding = computed(() => (cntrRels.value || [])
   .find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_SDING));
 const isSeeding = computed(() => dtl.value?.sellTpDtlCd === '62');
 const isCapsule = computed(() => dtl.value?.sellTpDtlCd === '63');
+const isFreePackage = computed(() => dtl.value?.pdChoLmYn === 'Y');
 
-const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '6'));
+/* TODO: FIX */
+async function fetchSdingCapsls() {
+  const { data } = await dataService.get('sms/wells/contract/seeding/package-materials', {
+    params: {
+      basePdCd: dtl.value.pdCd,
+    },
+  });
+  sdingCapsls.value = data;
+}
+
+if (!isFreePackage.value) {
+  fetchSdingCapsls();
+}
+
+const sellTpNm = computed(() => getCodeName('SELL_TP_CD', '6'));
 
 const priceDefineVariables = ref({
   stplPrdCd: undefined,
@@ -282,6 +311,7 @@ function reconnectReactivities() {
   finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions'); /* 적용된 프로모션 */
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
   promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
+  sdingCapsls = toRef(props.modelValue, 'sdingCapsls', []); /* 적용가능한 프로모션 목록 */
 }
 
 async function onChangeModelValue(newDtl) {

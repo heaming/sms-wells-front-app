@@ -213,7 +213,7 @@ const emit = defineEmits([
 ]);
 
 const { getCodeName } = await useCtCode(
-  'SELl_TP_CD',
+  'SELL_TP_CD',
   'SPAY_DSC_DV_CD',
   'SPAY_DSCR_CD',
   'SPAY_PMOT_DV_CD',
@@ -250,7 +250,7 @@ const promotions = ref(props.modelValue?.promotions); /* 적용가능한 프로�
 
 appliedPromotions.value ??= [];
 
-const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '1'));
+const sellTpNm = computed(() => getCodeName('SELL_TP_CD', '1'));
 
 const finalPriceOptions = ref([]);
 
