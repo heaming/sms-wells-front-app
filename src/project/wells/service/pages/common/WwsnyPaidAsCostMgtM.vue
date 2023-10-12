@@ -18,7 +18,6 @@
       :cols="3"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
-      @reset="onClickReset"
     >
       <kw-search-row>
         <kw-search-item
@@ -265,17 +264,13 @@ async function fetchData() {
   const { list: recapitalizationAsSvCs, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
-  // if (pageInfo.value.totalCount === 0) {
-  //   pageInfo.value.pageSize = 10;
-  // } else {
-  //   pageInfo.value.pageSize = Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'));
-  // }
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(recapitalizationAsSvCs);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+/* 조회 버튼 */
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -283,6 +278,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+/* 엑셀다운로드 버튼 */
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
@@ -294,6 +290,7 @@ async function onClickExcelDownload() {
   });
 }
 
+/* 적용일자 일괄적용 버튼 */
 async function onClickApplyDateBulkChange() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
@@ -312,12 +309,7 @@ async function onClickApplyDateBulkChange() {
   }
 }
 
-function searchConditionReset() {
-  searchParams.value.pdGrpCd = '';
-  searchParams.value.cmnPartChk = 'N';
-  searchParams.value.apyMtrChk = 'N';
-}
-
+/* 저장 버튼 */
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
@@ -333,10 +325,6 @@ async function onClickSave() {
   notify(t('MSG_ALT_SAVE_DATA'));
 
   await fetchData();
-}
-
-function onClickReset() {
-  searchConditionReset();
 }
 
 onMounted(async () => {

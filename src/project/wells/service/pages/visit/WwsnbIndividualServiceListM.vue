@@ -781,6 +781,7 @@ async function isValidateIndividualParams() {
   }
 }
 
+/* 조회버튼 */
 async function onClickSearch() {
   if (isEmpty(searchParams.value.cntrNo) && isEmpty(searchParams.value.bcNo)) { notify(t('MSG_ALT_SRCH_CNDT_NEED_ONE_AMONG', [`${t('MSG_TXT_CNTR_DTL_NO')}, ${t('MSG_TXT_BARCODE')}`])); return; }
   if (searchParams.value.cntrNo) { if (searchParams.value.cntrSn.length < 0) { return; } }
@@ -799,6 +800,7 @@ async function onClickExcelDownload() {
   });
 }
 
+/* 고객특이사항 저장버튼 */
 async function onClickSave() {
   saveParams.value.cntrNo = individualParams.value.cntrNoDtl.substring(0, 12);
   saveParams.value.cntrSn = individualParams.value.cntrNoDtl.substring(13, 14);
@@ -811,6 +813,7 @@ async function onClickSave() {
   await isValidateIndividualParams();
 }
 
+/* 계약상세번호 조회아이콘 */
 async function onClickCstSearch() {
   const { payload } = await modal({ component: 'WwsnyCustomerBaseInformationP' });
 
@@ -855,11 +858,11 @@ const initGridHousehold = defineGrid((data, view) => {
     { fieldName: 'locaraTno' }, // 전화번호1
     { fieldName: 'exnoEncr' }, // 전화번호2
     { fieldName: 'idvTno' }, // 전화번호3
-    { fieldName: 'telNo' },
+    { fieldName: 'telNo' }, // 전화번호
     { fieldName: 'cralLocaraTno' }, // 휴대전화번호1
     { fieldName: 'mexnoEncr' }, // 휴대전화번호2
     { fieldName: 'cralIdvTno' }, // 휴대전화번호3
-    { fieldName: 'idvTelNo' },
+    { fieldName: 'idvTelNo' }, // 휴대전화번호
   ];
 
   const columns = [
@@ -896,38 +899,38 @@ const initGridHousehold = defineGrid((data, view) => {
 /* 처리내역조회 */
 const initGridState = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'svTp' },
-    { fieldName: 'rcpDt' },
-    { fieldName: 'svBizDclsf' },
-    { fieldName: 'reqDt' },
-    { fieldName: 'vstFshDt' },
-    { fieldName: 'wkPrgsStat' },
-    { fieldName: 'asCaus' },
-    { fieldName: 'rtngdProcsTp' },
-    { fieldName: 'fstVstFshDt' },
-    { fieldName: 'zipNo' },
-    { fieldName: 'ogTp' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrNm' },
-    { fieldName: 'cralLocaraTno' },
-    { fieldName: 'mexnoEncr' },
-    { fieldName: 'cralIdvTno' },
-    { fieldName: 'prtnrTno' },
-    { fieldName: 'bldNm' },
-    { fieldName: 'bcNo' },
-    { fieldName: 'imgYn' },
-    { fieldName: 'istEnvrFileUid' },
-    { fieldName: 'istKitFileUid' },
-    { fieldName: 'istCelngFileUid' },
-    { fieldName: 'cstSvAsnNo' },
-    { fieldName: 'svHshdNo' },
-    { fieldName: 'svHshdNoCnt' },
-    { fieldName: 'svBizHclsfCd' },
-    { fieldName: 'svBizDclsfCd' },
-    { fieldName: 'procStus' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
+    { fieldName: 'svTp' }, // 유형
+    { fieldName: 'rcpDt' }, // 접수(배정)일자
+    { fieldName: 'svBizDclsf' }, // 접수(배정)내역
+    { fieldName: 'reqDt' }, // 요청약속일자
+    { fieldName: 'vstFshDt' }, // 처리일자
+    { fieldName: 'wkPrgsStat' }, // 처리결과
+    { fieldName: 'asCaus' }, // 처리내역
+    { fieldName: 'rtngdProcsTp' }, // 반품처리정보
+    { fieldName: 'fstVstFshDt' }, // 폐기일자: 출고확인일자
+    { fieldName: 'zipNo' }, // 우편번호
+    { fieldName: 'ogTp' }, // 구분(담당자)
+    { fieldName: 'ogNm' }, // 소속(담당자)
+    { fieldName: 'prtnrNo' }, // 사번(담당자)
+    { fieldName: 'prtnrNm' }, // 성명(담당자)
+    { fieldName: 'cralLocaraTno' }, // 휴대지역전화번호(담당자)
+    { fieldName: 'mexnoEncr' }, // 휴대전화국번호암호화(담당자)
+    { fieldName: 'cralIdvTno' }, // 휴대개별전화번호(담당자)
+    { fieldName: 'prtnrTno' }, // 휴대전화번호(담당자)
+    { fieldName: 'bldNm' }, // 소속빌딩(담당자)
+    { fieldName: 'bcNo' }, // 작업시바코드
+    { fieldName: 'imgYn' }, // 사진
+    { fieldName: 'istEnvrFileUid' }, // 설치환경사진UID
+    { fieldName: 'istKitFileUid' }, // 설치키트사진UID
+    { fieldName: 'istCelngFileUid' }, // 설치천장사진UID
+    { fieldName: 'cstSvAsnNo' }, // 배정번호
+    { fieldName: 'svHshdNo' }, // 가구화번호
+    { fieldName: 'svHshdNoCnt' }, // 가구화번호CNT
+    { fieldName: 'svBizHclsfCd' }, // 서비스대분류코드
+    { fieldName: 'svBizDclsfCd' }, // 서비스소분류코드
+    { fieldName: 'procStus' }, // 작업진행상태코드
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약일련번호
 
   ];
 
@@ -1080,17 +1083,17 @@ const initGridState = defineGrid((data, view) => {
 /* 상담내역 조회 */
 const initGridCounsel = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cselSts' },
-    { fieldName: 'cnslStDt' },
-    { fieldName: 'cnslEdDt' },
-    { fieldName: 'cnslTpHcsfCd' },
-    { fieldName: 'cnslTpMcsfCd' },
-    { fieldName: 'cnslTpLcsfCd' },
-    { fieldName: 'pcpNm' },
-    { fieldName: 'cselRstCd' },
-    { fieldName: 'custResp' },
-    { fieldName: 'clntDvNm' },
-    { fieldName: 'cnslCn' },
+    { fieldName: 'cselSts' }, // 처리상태
+    { fieldName: 'cnslStDt' }, // 접수일자
+    { fieldName: 'cnslEdDt' }, // 처리일자
+    { fieldName: 'cnslTpHcsfCd' }, // 상담분류(대)
+    { fieldName: 'cnslTpMcsfCd' }, // 상담분류(중)
+    { fieldName: 'cnslTpLcsfCd' }, // 상담분류(소)
+    { fieldName: 'pcpNm' }, // 처리자
+    { fieldName: 'cselRstCd' }, // 처리구분
+    { fieldName: 'custResp' }, // 고객반응
+    { fieldName: 'clntDvNm' }, // 의뢰자
+    { fieldName: 'cnslCn' }, // 상담내용
   ];
 
   const columns = [
@@ -1125,9 +1128,9 @@ const initGridCounsel = defineGrid((data, view) => {
 /* 연체정보 조회 */
 function initGridDelinquent(data, view) {
   const fields = [
-    { fieldName: 'gubun' },
-    { fieldName: 'suminamt', dataType: 'number' },
-    { fieldName: 'dlyamt', dataType: 'number' },
+    { fieldName: 'gubun' }, // 구분
+    { fieldName: 'suminamt', dataType: 'number' }, // 입금액(총계)
+    { fieldName: 'dlyamt', dataType: 'number' }, // 연체금액(총계)
   ];
 
   const columns = [
@@ -1172,13 +1175,13 @@ function initGridDelinquent(data, view) {
 /* 컨택현황조회 */
 const initGridContact = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntcDt' },
-    { fieldName: 'absncRsonKind' },
-    { fieldName: 'absncRson' },
-    { fieldName: 'ogTpCd' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrNm' },
-    { fieldName: 'cntcCn' },
+    { fieldName: 'cntcDt' }, // 컨택일자
+    { fieldName: 'absncRsonKind' }, // 컨택그룹
+    { fieldName: 'absncRson' }, // 컨택구분
+    { fieldName: 'ogTpCd' }, // 소속
+    { fieldName: 'prtnrNo' }, // 사번
+    { fieldName: 'prtnrNm' }, // 성명
+    { fieldName: 'cntcCn' }, // 컨택상세
   ];
 
   const columns = [
@@ -1202,20 +1205,20 @@ const initGridContact = defineGrid((data, view) => {
 /* 연계코드조회 */
 const initGridFarmCode = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'gubun' },
-    { fieldName: 'cntrDtl' },
-    { fieldName: 'cstNm' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'sdingCntrDtl' },
-    { fieldName: 'adrZip' },
-    { fieldName: 'locaraTno' },
-    { fieldName: 'exnoEncr' },
-    { fieldName: 'idvTno' },
-    { fieldName: 'tellNo' },
-    { fieldName: 'cralLocaraTno' },
-    { fieldName: 'mexnoEncr' },
-    { fieldName: 'cralIdvTno' },
-    { fieldName: 'idvTellNo' },
+    { fieldName: 'gubun' }, // 구분
+    { fieldName: 'cntrDtl' }, // 계약상세번호
+    { fieldName: 'cstNm' }, // 고객명
+    { fieldName: 'pdNm' }, // 상품명
+    { fieldName: 'sdingCntrDtl' }, // 상대고객
+    { fieldName: 'adrZip' }, // 우편번호
+    { fieldName: 'locaraTno' }, // 전화번호(지역전화번호)
+    { fieldName: 'exnoEncr' }, // 전화번호(전화국번호암호화)
+    { fieldName: 'idvTno' }, // 전화번호(개별전화번호)
+    { fieldName: 'tellNo' }, // 전화번호
+    { fieldName: 'cralLocaraTno' }, // 휴대전화번호(휴대지역전화번호)
+    { fieldName: 'mexnoEncr' }, // 휴대전화번호(휴대전화국번호암호화)
+    { fieldName: 'cralIdvTno' }, // 휴대전화번호(휴대개별전화번호)
+    { fieldName: 'idvTellNo' }, // 휴대전화번호
   ];
 
   const columns = [
