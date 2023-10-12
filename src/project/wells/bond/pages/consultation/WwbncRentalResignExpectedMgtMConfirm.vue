@@ -24,8 +24,8 @@
         required
       >
         <kw-date-range-picker
-          v-model:from="searchParams.fromAuthRsgCnfmdt"
-          v-model:to="searchParams.toAuthRsgCnfmdt"
+          v-model:from="searchParams.authRsgCnfmdtStart"
+          v-model:to="searchParams.authRsgCnfmdtEnd"
           :label="t('MSG_TXT_CNFM_YM')"
           rules="date_range_required"
           type="month"
@@ -83,6 +83,7 @@
         <kw-paging-info
           :total-count="totalCount"
         />
+        <span class="ml8">(단위:원)</span>
       </template>
 
       <kw-btn
@@ -144,8 +145,8 @@ const codes = await codeUtil.getMultiCodes(
 const clctamDvCdOpt = codes.CLCTAM_DV_CD.filter((v) => ['01', '02', '03', '04', '11'].includes(v.codeId));
 
 const searchParams = ref({
-  fromAuthRsgCnfmdt: '202209',
-  toAuthRsgCnfmdt: dayjs().format('YYYYMM'),
+  authRsgCnfmdtStart: '202209',
+  authRsgCnfmdtEnd: dayjs().format('YYYYMM'),
   clctamDvCd: '',
   clctamPrtnrNo: '',
   clctamPrtnrNm: '',

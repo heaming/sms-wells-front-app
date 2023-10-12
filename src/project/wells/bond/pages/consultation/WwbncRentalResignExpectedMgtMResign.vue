@@ -59,6 +59,7 @@
         <kw-paging-info
           :total-count="totalCount"
         />
+        <span class="ml8">(단위:원)</span>
       </template>
 
       <kw-btn
@@ -125,7 +126,7 @@ const grdResignRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const { getters } = useStore();
 const { roles } = getters['meta/getUserInfo'];
-console.log(JSON.stringify(roles));
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -213,7 +214,7 @@ async function onClickFinalConfirm() {
 
   if (!await confirm(t('MSG_ALT_FNL_CNFM'))) { return; } // 최종확정하시겠습니까?
   if (!checkedRows.every((item) => (item.authRsgCnfmYn === 'N'))) {
-    await alert(t('MSG_ALT_ALREADY_FNL_CNFM_AUTH_RSG_DTA'));
+    await alert(t('MSG_ALT_ALREADY_FNL_CNFM_AUTH_RSG_DTA')); // 직권해지 된 건은 이미 최종확정 처리된 건입니다.
     return false;
   }
 
@@ -222,12 +223,13 @@ async function onClickFinalConfirm() {
     cntrNo: row.cntrNo,
     cntrSn: row.cntrSn,
   }));
+
   await dataService.put(baseUrl, saveParams);
   notify(t('MSG_ALT_COMPLETE_FNL_CNFM'));
 
   await onClickSearch();
 }
-// TODO: 룰 추가 예정 ( 현재 시스템 룰, 집금담당자, 'DUMMY' 적용 )
+// TODO: 룰 추가 예정 ( 현재 시스템 룰, 집금담당자, 'DUMMY' 적용 ), wells 단기파트장 role
 const isPsic = computed(() => roles.some((v) => ['ROL_00010', 'ROL_G7010', 'ROL_00000'].includes(v.roleId)));
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -252,7 +254,7 @@ const initResignGrid = defineGrid((data, view) => {
     { fieldName: 'totRveAmt', header: t('MSG_TXT_DP_AGG'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'clctamPrtnrNm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' },
 
-    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR_EMPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'errCn', header: t('MSG_TXT_ERR_CN'), width: '180' },
   ];
 
