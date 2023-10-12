@@ -402,7 +402,7 @@ const emit = defineEmits([
 ]);
 
 const { getCodeName } = await useCtCode(
-  'SELl_TP_CD',
+  'SELL_TP_CD',
   'RENTAL_DSC_DV_CD',
   'RENTAL_CRP_DSCR_CD',
   'RENTAL_DSC_TP_CD',
@@ -476,7 +476,7 @@ const filteredFinalPriceOptions = ref([]);
 
 const filteredVariableNames = computed(() => Object.getOwnPropertyNames(priceOptionFilter.value ?? {}));
 
-const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '2'));
+const sellTpNm = computed(() => getCodeName('SELL_TP_CD', '2'));
 
 const priceDefineVariables = ref({
   svPdCd: undefined,
