@@ -124,42 +124,13 @@ const dynamicChangeCodes = ref({ SELL_TP_DTL_CD: customCodes.value.SELL_TP_DTL_C
 const totalCount = ref(0);
 const grdAdditionalChargeRef = ref(getComponentType('KwGrid'));
 
-async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges', { params: cachedParams, timeout: 240000 });
-  const additionalCharges = res.data;
-
-  totalCount.value = additionalCharges.length;
-
-  const view = grdAdditionalChargeRef.value.getView();
-  view.getDataSource().setRows(additionalCharges);
-}
-async function onClickSearch() {
-  cachedParams = cloneDeep(searchParams.value);
-  fetchData();
-}
-
-async function onClickExcelDownload() {
-  const view = grdAdditionalChargeRef.value.getView();
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-    exportData: gridUtil.getAllRowValues(view),
-  });
-}
-
-// function visibleStyleCallback() {
-//   return { visible: !(searchParams.value.agrgDv === '1') };
-// }
-
-watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
-  dynamicChangeCodes.value.SELL_TP_DTL_CD = customCodes.value.SELL_TP_DTL_CD.filter(
-    (obj) => (obj.userDfn02 === sellTpCd),
-  );
-});
-// -------------------------------------------------------------------------------------------------
-// Initialize Grid
-// -------------------------------------------------------------------------------------------------
-const initAdditionalChargeGrid = defineGrid(async (data, view) => {
+async function setGridColumnLayoutType1(data, view) {
+  if (!view) {
+    view = grdAdditionalChargeRef.value.getView();
+  }
+  if (!data) {
+    data = view.getDataSource();
+  }
   const columns = [
     { fieldName: 'perfYm',
       header: t('MSG_TXT_PERF_YM'),
@@ -173,18 +144,6 @@ const initAdditionalChargeGrid = defineGrid(async (data, view) => {
     { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center' },
     { fieldName: 'sellTpDtlCdNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center' },
     { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
-    // { fieldName: 'cntrNo',
-    //   header: t('MSG_TXT_CNTR_DTL_NO'),
-    //   width: '130',
-    //   styleName: 'text-center',
-    //   styleCallback() { return visibleStyleCallback(); },
-    // },
-    // { fieldName: 'cstKnm',
-    //   header: t('MSG_TXT_CST_NM'),
-    //   width: '130',
-    //   styleName: 'text-center',
-    //   styleCallback() { return visibleStyleCallback(); },
-    // },
     { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_THM_OC'), width: '209', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_THM_DDTN'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
@@ -199,7 +158,7 @@ const initAdditionalChargeGrid = defineGrid(async (data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 4 : 6 }];
+  view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 4 }];
   view.setHeaderSummaries({
     visible: true,
     items: [
@@ -208,6 +167,105 @@ const initAdditionalChargeGrid = defineGrid(async (data, view) => {
       },
     ],
   });
+}
+
+async function setGridColumnLayoutType2(data, view) {
+  if (!view) {
+    view = grdAdditionalChargeRef.value.getView();
+  }
+  if (!data) {
+    data = view.getDataSource();
+  }
+  const columns = [
+    { fieldName: 'perfYm',
+      header: t('MSG_TXT_PERF_YM'),
+      width: '130',
+      styleName: 'text-center',
+      headerSummary: {
+        text: t('MSG_TXT_SUM'),
+        styleName: 'text-center',
+      },
+    },
+    { fieldName: 'sellTpCdNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center' },
+    { fieldName: 'sellTpDtlCdNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center' },
+    { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
+    { fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      width: '130',
+      styleName: 'text-center',
+    },
+    { fieldName: 'cstKnm',
+      header: t('MSG_TXT_CST_NM'),
+      width: '130',
+      styleName: 'text-center',
+    },
+    { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'thmOcDlqAddAmt', header: t('MSG_TXT_THM_OC'), width: '209', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'thmCtrDlqAddAmt', header: t('MSG_TXT_THM_DDTN'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_THM_DP'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'thmDlqAddRfndSumAmt', header: t('MSG_TXT_THM_RFND'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_BLAM'), width: '197', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } },
+  ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
+
+  view.layoutByColumn('perfYm').summaryUserSpans = [{ colspan: 6 }];
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        height: 40,
+      },
+    ],
+  });
+}
+
+async function setGridHeader() {
+  if (searchParams.value.agrgDv === '1') { // 전체
+    await setGridColumnLayoutType1();
+  } else { // 주문별
+    await setGridColumnLayoutType2();
+  }
+}
+
+async function fetchData() {
+  const res = await dataService.get('/sms/wells/closing/performance/delinquent-additional-charges', { params: cachedParams, timeout: 240000 });
+  const additionalCharges = res.data;
+
+  totalCount.value = additionalCharges.length;
+
+  const view = grdAdditionalChargeRef.value.getView();
+  view.getDataSource().setRows(additionalCharges);
+}
+async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
+  await setGridHeader();
+  await fetchData();
+}
+
+async function onClickExcelDownload() {
+  const view = grdAdditionalChargeRef.value.getView();
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
+  });
+}
+
+watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
+  dynamicChangeCodes.value.SELL_TP_DTL_CD = customCodes.value.SELL_TP_DTL_CD.filter(
+    (obj) => (obj.userDfn02 === sellTpCd),
+  );
+});
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
+const initAdditionalChargeGrid = defineGrid(async (data, view) => {
+  await setGridColumnLayoutType1(data, view);
 });
 </script>
 <style scoped>
