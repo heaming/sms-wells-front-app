@@ -20,10 +20,6 @@
       @select="onSelectProduct"
       @fetched="onFetchedProduct"
     />
-    <kw-separator
-      :spaced="false"
-      vertical
-    />
     <div class="scoped-layout__mod-area scoped-mod-area">
       <span class="scoped-mod-area__title">
         상품내역
@@ -152,7 +148,7 @@ import ProductSelect
 import SinglePayPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
 import RentalPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
+  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelectNew.vue';
 import MembershipPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
 import RegularShippingPriceSelect
@@ -188,7 +184,6 @@ const ogStep2 = ref({});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-
 async function onSelectProduct(product) {
   const newProduct = { ...product };
   const newProducts = [];
@@ -745,6 +740,8 @@ function onPriceChanged() {
 
   &__pick-area {
     flex: 1 0 1px;
+    padding-right: 2px; // fixme
+    border-right: 1px solid $line-line;
   }
 
   @container (max-width: 1100px) {
