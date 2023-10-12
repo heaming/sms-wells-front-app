@@ -1222,6 +1222,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil, codeUtil, useGlobal, getComponentType } from 'kw-lib';
 import { isEmpty, toNumber } from 'lodash-es';
+import pdConst from '~sms-common/product/constants/pdConst';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
 
@@ -1568,9 +1569,11 @@ onMounted(async () => {
 // 상품검색 아이콘 클릭
 async function onClickSelectProduct() {
   const { result, payload } = await modal({
-    component: 'ZwpdcStandardPriceListP',
+    component: 'ZwpdcStandardListP', // 상품기준 목록조회 팝업
     componentProps: {
       searchValue: searchParams.value.pdNm,
+      sellTpCd: '2',
+      selectType: pdConst.PD_SEARCH_SINGLE,
     },
   });
 
@@ -1580,14 +1583,14 @@ async function onClickSelectProduct() {
       return;
     }
 
-    if (payload[0].sellChnlCd !== fieldData.value.sellInflwChnlDtlCd) {
+    if (payload[0].channelId.indexOf(fieldData.value.sellInflwChnlDtlCd) === -1) {
       await alert('선택 가능한 상품이 아닙니다. 판매채널을 확인해주세요.');
       return;
     }
 
     searchParams.value.pdCd = payload[0].pdCd;
     searchParams.value.pdNm = payload[0].pdNm;
-    searchParams.value.sellInflwChnlDtlCd = payload[0].sellChnlCd;
+    searchParams.value.sellInflwChnlDtlCd = fieldData.value.sellInflwChnlDtlCd;
 
     await fetchProductAdditionalInfoData();
   }
