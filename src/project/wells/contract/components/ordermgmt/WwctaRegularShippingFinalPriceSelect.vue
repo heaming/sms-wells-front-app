@@ -35,8 +35,8 @@
 
           <div class="scoped-item__chips">
             <kw-chip
-              v-if="sellTpNm"
-              :label="sellTpNm"
+              v-if="labelForSellTpCd"
+              :label="labelForSellTpCd"
               color="primary"
               outline
             />
@@ -205,6 +205,7 @@ const emit = defineEmits([
 
 const { getCodeName } = await useCtCode(
   'SELL_TP_CD',
+  'SELL_TP_DTL_CD',
   'SV_TP_CD',
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
@@ -245,7 +246,18 @@ if (!isFreePackage.value) {
   fetchSdingCapsls();
 }
 
-const sellTpNm = computed(() => getCodeName('SELL_TP_CD', '6'));
+const labelForSellTpCd = computed(() => {
+  const product = dtl.value;
+  if (!product) {
+    return undefined;
+  }
+  if (product.sellTpCd && product.sellTpDtlCd) {
+    return `${getCodeName('SELL_TP_CD', product.sellTpCd)}-${getCodeName('SELL_TP_DTL_CD', product.sellTpDtlCd)}`;
+  }
+  if (product.sellTpCd) {
+    return getCodeName('SELL_TP_CD', product.sellTpCd);
+  }
+});
 
 const priceDefineVariables = ref({
   stplPrdCd: undefined,

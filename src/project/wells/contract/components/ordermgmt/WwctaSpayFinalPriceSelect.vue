@@ -34,8 +34,8 @@
           </kw-item-label>
           <div class="scoped-item__chips">
             <kw-chip
-              v-if="sellTpNm"
-              :label="sellTpNm"
+              v-if="labelForSellTpCd"
+              :label="labelForSellTpCd"
               color="primary"
               outline
             />
@@ -214,6 +214,7 @@ const emit = defineEmits([
 
 const { getCodeName } = await useCtCode(
   'SELL_TP_CD',
+  'SELL_TP_DTL_CD',
   'SPAY_DSC_DV_CD',
   'SPAY_DSCR_CD',
   'SPAY_PMOT_DV_CD',
@@ -250,7 +251,18 @@ const promotions = ref(props.modelValue?.promotions); /* 적용가능한 프로�
 
 appliedPromotions.value ??= [];
 
-const sellTpNm = computed(() => getCodeName('SELL_TP_CD', '1'));
+const labelForSellTpCd = computed(() => {
+  const product = dtl.value;
+  if (!product) {
+    return undefined;
+  }
+  if (product.sellTpCd && product.sellTpDtlCd) {
+    return `${getCodeName('SELL_TP_CD', product.sellTpCd)}-${getCodeName('SELL_TP_DTL_CD', product.sellTpDtlCd)}`;
+  }
+  if (product.sellTpCd) {
+    return getCodeName('SELL_TP_CD', product.sellTpCd);
+  }
+});
 
 const finalPriceOptions = ref([]);
 
