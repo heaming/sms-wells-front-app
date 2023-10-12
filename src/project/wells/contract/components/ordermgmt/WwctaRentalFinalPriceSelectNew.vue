@@ -381,7 +381,7 @@
 <script setup>
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import { useCtCode } from '~sms-common/contract/composable';
-import { alert, stringUtil, useDataService } from 'kw-lib';
+import { alert, useDataService } from 'kw-lib';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { getNumberWithComma } from '~sms-common/contract/util';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
@@ -467,7 +467,7 @@ function connectReactivities() {
   finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
   priceOptionFilter = toRef(props.modelValue, 'priceOptionFilter', {});
   packageRentalDscTpCds = toRef(props.modelValue, 'packageRentalDscTpCds', {});
-  console.log(verSn.value);
+  console.log('verSn', verSn.value);
 }
 
 connectReactivities();
@@ -582,7 +582,7 @@ const filteredAlncCntrPriceCodes = computed(() => alncCntrs.value
         && alncCntr.stplPrdCd === priceDefineVariables.value.stplPrdCd)
   .map((v) => ({
     codeId: `${v.klyear}-${v.klcode}-${v.klpont}-${v.alncmpCd}`,
-    codeName: `${v.klyear}-${v.klcode} ${v.alncmpNm} ${stringUtil.getNumberWithComma(v.klpont || 0)}원`,
+    codeName: `${v.klyear}-${v.klcode} ${v.alncmpNm} ${getNumberWithComma(v.klpont || 0)}원`,
   })) || []);
 
 function initializeAlncCntrs() {
@@ -732,11 +732,13 @@ const promotionAppliedPrice = ref();
 
 function calcDisplayedFinalPrice() {
   displayedFinalPrice.value = selectedFinalPrice.value
-    ? `${stringUtil.getNumberWithComma(selectedFinalPrice.value.fnlVal)}원`
+    ? `${getNumberWithComma(selectedFinalPrice.value.fnlVal)}원`
     : '미확정';
+  promotionAppliedPrice.value = undefined;
 }
 
 function calcPromotionAppliedPrice(aplyPmots) {
+  promotionAppliedPrice.value = undefined;
   if (!aplyPmots?.length) {
     return;
   }
