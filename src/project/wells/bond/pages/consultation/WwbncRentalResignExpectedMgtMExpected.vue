@@ -280,6 +280,7 @@ const codes = await codeUtil.getMultiCodes(
   'CLCTAM_DV_CD',
   'AUTH_RSG_EXCD_RSON_CD',
   'BND_CLCTN_PRP_DV_CD',
+  'BND_CLCTN_PRP_RSON_CD',
 );
 const ynOpt = [
   { codeId: 'Y', codeName: 'Y' },
@@ -411,10 +412,7 @@ async function onClickSave() {
   if (!await gridUtil.validate(currentView.value)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(currentView.value);
-  if (changedRows.every((item) => (
-    item.authRsgExpYn === 'Y' && item.authRsgCnfmYn === 'Y')
-    || (item.authRsgExpYn === 'N' && item.authRsgCnfmYn === 'N')
-    || (item.authRsgExpYn === 'N' && item.authRsgCnfmYn === 'Y'))) {
+  if (changedRows.some((item) => item.authRsgExpYn === 'Y')) {
     await alert(t('MSG_ALT_NOT_EXP_CNFM_DTA'));
     return false;
   }
@@ -595,9 +593,8 @@ function initCommonGrid(data, view) {
     { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'rentalNmnN', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center' },
     { fieldName: 'bndClctnPrpDvCd', header: t('MSG_TXT_BND_PRP'), width: '100', styleName: 'text-center', options: codes.BND_CLCTN_PRP_DV_CD },
-    // rev:230410 header 텍스트 변경
+    { fieldName: 'bndClctnPrpRsonCd', header: t('MSG_TXT_BND_PRP_RSON'), width: '100', styleName: 'text-center', options: codes.BND_CLCTN_PRP_RSON_CD },
     { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR_EMPNO'), width: '100', styleName: 'text-center' },
-    // // rev:230410 header 텍스트 변경
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' },
     { fieldName: 'clctamYn', header: t('MSG_TXT_CLCTAM_PSIC_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'rveAmt', header: t('MSG_TXT_DEPOSIT_AMT'), width: '110', styleName: 'text-right', dataType: 'number' },
