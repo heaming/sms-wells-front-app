@@ -483,7 +483,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrNo' }, // 번호
     { fieldName: 'prtnrNm' }, // 담당자
     { fieldName: 'wareNm' }, // 창고명
-    { fieldName: 'centerQty', dataType: 'number' }, // 센터창고 수
+    { fieldName: 'centerQty', dataType: 'number' }, // 센터창고 수량
     // 배정수량
     { fieldName: 'geQty', dataType: 'number' }, // 일반
     { fieldName: 'crpQty', dataType: 'number' }, // 법인
