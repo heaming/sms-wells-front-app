@@ -27,7 +27,6 @@
           <kw-select
             v-model="searchParams.pdGrpCd"
             :options="codes.PD_GRP_CD"
-            first-option="all"
             @change="changePdGrpCd"
           />
         </kw-search-item>
@@ -180,6 +179,7 @@ const searchParams = ref({
   pdCd: '', /* 상품코드 */
   pdGr: '1',
   apyMtrChk: 'N',
+  pdGrpCd: '1',
 });
 const isDisable = computed(() => (isEmpty(searchParams.value.pdGr)));
 
@@ -227,16 +227,13 @@ async function fetchData() {
   const { list: installSeperationCsMgt, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
-  // if (pageInfo.value.totalCount === 0) {
-  //   pageInfo.value.pageSize = 10;
-  // } else {
-  //   pageInfo.value.pageSize = Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE'));
-  // }
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(installSeperationCsMgt);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
+
+/* 조회 버튼 */
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -244,6 +241,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+/* 행추가 버튼 */
 const now = dayjs();
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
@@ -254,6 +252,7 @@ async function onClickAdd() {
     apyEnddt: '99991231' });
 }
 
+/* 삭제 버튼 */
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
@@ -266,6 +265,7 @@ async function onClickDelete() {
   }
 }
 
+/* 엑셀다운로드 버튼 */
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
@@ -277,6 +277,7 @@ async function onClickExcelDownload() {
   });
 }
 
+/* 저장 버튼 */
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const realChkRows = gridUtil.getCheckedRowValues(view);
@@ -304,16 +305,16 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sellTpCd' },
-    { fieldName: 'pdCd' },
-    { fieldName: 'sepIstCsAtcCd' },
-    { fieldName: 'sepIstCsDtlCd' },
-    { fieldName: 'apyStrtdt' },
-    { fieldName: 'apyEnddt' },
-    { fieldName: 'wkCsAmt', dataType: 'number' },
-    { fieldName: 'recapSvYn' },
-    { fieldName: 'rmkCn' },
-    { fieldName: 'izSn' },
+    { fieldName: 'sellTpCd' }, // 판매유형
+    { fieldName: 'pdCd' }, // 상품명
+    { fieldName: 'sepIstCsAtcCd' }, // 대분류
+    { fieldName: 'sepIstCsDtlCd' }, // 소분류
+    { fieldName: 'apyStrtdt' }, // 적용시작일
+    { fieldName: 'apyEnddt' }, // 적용종료일
+    { fieldName: 'wkCsAmt', dataType: 'number' }, // 단가(원)
+    { fieldName: 'recapSvYn' }, // 항시유상서비스
+    { fieldName: 'rmkCn' }, // 비고
+    { fieldName: 'izSn' }, // 일련번호
   ];
 
   const columns = [
