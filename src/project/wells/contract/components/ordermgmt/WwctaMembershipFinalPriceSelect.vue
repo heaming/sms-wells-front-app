@@ -106,7 +106,7 @@ const emit = defineEmits([
 ]);
 
 const { getCodeName } = await useCtCode(
-  'SELl_TP_CD',
+  'SELL_TP_CD',
   'SV_TP_CD',
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
@@ -123,7 +123,7 @@ let pdQty = toRef(props.modelValue, 'pdQty');
 let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions');
 // appliedPromotions.value ??= [];
 
-const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '3'));
+const sellTpNm = computed(() => getCodeName('SELL_TP_CD', '3'));
 
 const selectedFinalPrice = ref();
 
