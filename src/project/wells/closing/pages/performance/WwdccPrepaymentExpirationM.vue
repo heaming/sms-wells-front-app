@@ -765,7 +765,7 @@ const initGrdCharacterFwUld = defineGrid((data, view) => {
     { fieldName: 'cntrInfo', header: t('MSG_TXT_PD_INF'), width: '300', styleName: 'text-left', editable: false },
     { fieldName: 'prmEndYm', header: t('MSG_TXT_PRM_EXN_YM'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'mmpmYm', header: t('MSG_TXT_MM_PY_STRT_YM'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'orgPrmReAplcYn', header: t('MSG_TXT_PRM_RE_APLC_YN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'orgPrmReAplcYn', header: t('MSG_TXT_PRM_RE_APLC_YN'), width: '100', styleName: 'text-center', editable: false },
     {
       fieldName: 'prmReAplcYn',
       header: t('MSG_TXT_FW_OJ'),
