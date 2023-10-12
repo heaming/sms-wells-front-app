@@ -372,7 +372,7 @@ const baseParams = ref({
   sReasonCd_IPCC: 0,
   sysCALLSetMsg: '',
 
-  sys1100_sREFID: '', // CALL_REF_ID
+  refId: '', // CALL_REF_ID
 
   sys1100_startdate: '', // 최초 인입날짜
   sys1100_starttime: '', // 최초 인입시간
@@ -682,7 +682,7 @@ function onClickSysCALLReadyCall() {
       // alert(JSON.stringify(response));
       return false;
     }
-    cti.top.sys1100_sREFID = '';
+    baseParams.value.refId = '';
   });
   return true;
 }
@@ -880,7 +880,7 @@ function onClickSysCALLMakeCall(sTelNo) {
       // alert(JSON.stringify(response));
       return false;
     }
-    cti.top.sys1100_sREFID = '';
+    baseParams.value.refId = '';
   });
 
   return true;
@@ -934,12 +934,11 @@ function sys1100SetInitValue() {
  */
 async function recId() {
   searchParams.value.inlnNo = baseParams.value.sysCALL_sStation;
-  const res = await dataService.put('/sms/wells/bond/bond-counsel/rec-id', { params: searchParams.value });
-
+  const res = await dataService.get('/sms/wells/bond/bond-counsel/rec-id', { params: searchParams.value });
   if (res.data === 90 || res.data === 91 || res.data === 92 || res.data === 99) {
     alert(t('MSG_ALT_RDG_KEY_VAL_INQR'));
   } else {
-    cti.top.sys1100_sREFID = res.data; // 녹취키값
+    baseParams.value.refId = res.data; // 녹취키값
   }
 }
 
@@ -1035,7 +1034,7 @@ async function startClient() {
             // 전환 정보를 초기화 함 : 인바운드
             baseParams.value.sysCALL_sCTI_INFO1 = 'INBOUND';
             baseParams.value.sysCALL_sCTI_INFO2 = 'INBOUND';
-            // baseParams.value.sys1100_sREFID = json.callrefid; // 녹취 키
+            // baseParams.value.refId = json.callrefid; // 녹취 키
             baseParams.value.sys1100_sCtype = 'I';
 
             baseParams.value.sys1100_startdate = now.format('YYYYMMDDHHmmss').substring(0, 8); // 최초인입일자
@@ -1057,7 +1056,7 @@ async function startClient() {
           baseParams.value.sysCALLSetMsg = 'OnEventDeliveredOut 상대편 벨 울림';
           baseParams.value.sysCALL_sCTI_INFO1 = 'OUTBOUND';
           baseParams.value.sysCALL_sCTI_INFO2 = 'OUTBOUND'; // else if(cidData.charAt(0)=="O") end
-          // baseParams.value.sys1100_sREFID = json.callrefid;// 녹취 RefID
+          // baseParams.value.refId = json.callrefid;// 녹취 RefID
           baseParams.value.sys1100_sCtype = 'O';
 
           const anynum = baseParams.value.sysCALL_sCTI_CID_NO;

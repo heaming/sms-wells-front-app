@@ -885,7 +885,7 @@
                   :label="$t('MSG_TXT_DPR')"
                 >
                   <kw-input
-                    v-model="customer.dprNm"
+                    v-model="customer.dpr"
                     dense
                   />
                 </kw-form-item>
@@ -896,9 +896,9 @@
                   required
                 >
                   <kw-select
-                    v-model="customer.cnslTp"
+                    v-model="customer.bndCnslMtrDvCd"
                     :label="$t('MSG_TXT_CNSL_TP')"
-                    :options="selectCodes.CNSL_TP"
+                    :options="codes.BND_CNSL_MTR_DV_CD"
                     dense
                     rules="required"
                   />
@@ -1073,7 +1073,6 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, codeUtil, getComponentType, useDataService, gridUtil, useGlobal, confirm, popupUtil, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
-import { getCnslTp } from '~sms-common/bond/utils/bnUtil';
 
 import ZwbncCustomerDtlPSms from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPSms.vue';
 import ZwbncCustomerDtlPLawMeasure from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPLawMeasure.vue';
@@ -1099,12 +1098,9 @@ const codes = await codeUtil.getMultiCodes(
   'BND_CLN_PSBL_DV_CD',
   'BND_CLN_PRCS_DV_CD',
   'CLCTAM_PROM_TP_CD',
+  'BND_CNSL_MTR_DV_CD',
 
 );
-
-const selectCodes = ref({
-  CNSL_TP: await getCnslTp(),
-});
 
 const props = defineProps({
   cstNo: {
@@ -1214,7 +1210,7 @@ const saveCounselParams = ref({
   bndClnPsblDvCd: '',
   bndCnslCstStatCd: '',
   bndClnPrcsDvCd: '',
-  dprNm: '',
+  dpr: '',
   rdgId: '',
   promBooId: '',
   promDt: '',
@@ -1245,10 +1241,10 @@ async function fetchCustomerDetail() {
     customer.value.cstPrp = res.data.cstPrp;
   }
   if (!isEmpty(res.data.dprNm)) {
-    customer.value.dprNm = res.data.dprNm;
+    customer.value.dpr = res.data.dprNm;
   }
   if (!isEmpty(res.data.cnslTp)) {
-    customer.value.cnslTp = res.data.cnslTp;
+    customer.value.bndCnslMtrDvCd = res.data.cnslTp;
   }
   if (!isEmpty(res.data.cstStat)) {
     customer.value.cstStat = res.data.cstStat;
@@ -1289,8 +1285,8 @@ async function onClickCnslRgstReset() {
   customer.value.cnslPh = '';
   customer.value.crncyRs = '';
   customer.value.cstPrp = '';
-  customer.value.dprNm = '';
-  customer.value.cnslTp = '';
+  customer.value.dpr = '';
+  customer.value.bndCnslMtrDvCd = '';
   customer.value.cstStat = '';
   customer.value.clnPsbl = '';
   customer.value.clnPrcs = '';
@@ -1465,8 +1461,9 @@ async function onClickCounselSave() {
   saveCounselParams.value.telCnslPhCd = customer.value.cnslPh;
   saveCounselParams.value.telCnslRsCd = customer.value.crncyRs;
   saveCounselParams.value.cnslCstPrpCd = customer.value.cstPrp;
-  saveCounselParams.value.dprNm = customer.value.dprNm;
-  saveCounselParams.value.bndCntrTpCd = customer.value.cnslTp;
+  saveCounselParams.value.dprNm = customer.value.dpr;
+  saveCounselParams.value.bndCntrTpCd = '01';
+  saveCounselParams.value.bndCnslMtrDvCd = customer.value.bndCnslMtrDvCd;
   saveCounselParams.value.bndCnslCstStatCd = customer.value.cstStat;
   saveCounselParams.value.bndClnPsblDvCd = customer.value.clnPsbl;
   saveCounselParams.value.bndClnPrcsDvCd = customer.value.clnPrcs;
