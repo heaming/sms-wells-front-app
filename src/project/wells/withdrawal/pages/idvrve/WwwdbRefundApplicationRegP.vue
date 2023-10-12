@@ -159,8 +159,6 @@
       </li>
     </ul>
 
-    <kw-separator />
-
     <h3 class="mb20">
       <!-- 환불상세 -->
       {{ $t('MSG_TXT_RFND_DTL') }}
@@ -358,7 +356,7 @@
       <!-- 임시저장-->
       <kw-btn
         v-if="rfndAkStatCd === '00'"
-        primary
+        secondary
         :label="$t('MSG_BTN_TMP_SAVE')"
         @click="onClickTempSave"
       />
@@ -434,7 +432,10 @@ const pageInfo3 = ref({ // 전금상세 페이지
 });
 
 const customCode = {
-  encr: [{ codeId: '01', codeName: '카드번호' }, { codeId: '02', codeName: '계좌번호' }],
+  encr: [
+    { codeId: '01', codeName: t('MSG_TXT_CARD_NO') }, // 카드번호
+    { codeId: '02', codeName: t('MSG_TXT_AC_NO') }, // 계좌번호
+  ],
 };
 
 const searchParams = ref({
@@ -647,7 +648,7 @@ const isValidate = computed(() => async () => {
 
   if ((isEmpty(searchParams.value.acnoEncr) && isEmpty(searchParams.value.crdcdNo))
             && (!searchParams.value.cstNo && !searchParams.value.cntrNo)) {
-    errors.push(t('계약상세번호, 고객번호 중 1가지항목 입력 후 조회 가능합니다.'));
+    errors.push(t('MSG_TXT_SEARCHABLE_2IN1')); // 계약상세번호, 고객번호 중 1가지항목 입력 후 조회 가능합니다
   }
 
   return errors[0] || true;
