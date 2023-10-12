@@ -23,7 +23,9 @@
       </template>
     </kw-action-top>
 
-    <kw-form>
+    <kw-form
+      ref="frmMainRef"
+    >
       <kw-form-row>
         <kw-form-item :label="$t('계약번호')">
           <kw-input
@@ -242,6 +244,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 const gridMainRef1 = ref(getComponentType('KwGrid'));
 const gridMainRef2 = ref(getComponentType('KwGrid'));
+const frmMainRef = ref();
 
 /*
  *  Parent Parameter를 가져오기 위한 변수 선언.
@@ -344,6 +347,7 @@ const codes = await codeUtil.getMultiCodes(
 async function getCustomerVisitPeriod() {
   const res = await dataService.get('/sms/wells/service/individual-visit-prds/customer-infos', { params: { ...customerParam.value } });
   customerInfo.value = res.data;
+  await frmMainRef.value.init();
 
   // 방문현황 조회
   const visitRes = await dataService.get('/sms/wells/service/individual-visit-prds/visits', { params: { ...customerParam.value } });
