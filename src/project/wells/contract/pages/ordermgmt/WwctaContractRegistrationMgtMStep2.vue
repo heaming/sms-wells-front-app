@@ -177,7 +177,7 @@ const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
 const CNTR_REL_DTL_CD_LK_SDING = '216';
 const CNTR_REL_DTL_CD_LK_MLTCS_PRCHS = '22M'; // 다건 구매
 
-const cntrNo = toRef(props.contract, 'cntrNo');
+const cntrNo = computed(() => props.contract?.cntrNo);
 const step2 = toRef(props.contract, 'step2');
 const ogStep2 = ref({});
 
@@ -681,10 +681,12 @@ async function isValidStep() {
 const loaded = ref(false);
 
 async function initStep(forced = false) {
+  console.log(loaded.value);
   if (!forced && loaded.value) { return; }
-
-  await getCntrInfo();
-  loaded.value = true;
+  if (cntrNo.value) {
+    await getCntrInfo();
+    loaded.value = true;
+  }
 }
 
 // 제휴계약 관련 설정
@@ -744,35 +746,55 @@ function onPriceChanged() {
     border-right: 1px solid $line-line;
   }
 
+  &__mod-area {
+    min-width: 780px;
+    flex: 1 0 1px;
+    height: 100%;
+    padding-left: 30px;
+  }
+
   @container (max-width: 1100px) {
     &__pick-area {
-      opacity: 0;
-      width: 20px;
+      visibility: hidden;
+      width: 30px;
       position: absolute;
       top: 0;
       bottom: 0;
       z-index: 20;
+      border-right: unset;
+
+      &::after {
+        visibility: visible;
+        content: "";
+        position: absolute;
+        inset: 10px;
+        top: 50%;
+        width: 6px;
+        height: 20px;
+        border-right: 2px solid $line-line;
+        border-left: 2px solid $line-line;
+      }
 
       &:hover {
+        visibility: visible;
         width: 339px;
         background: $bg-white;
-        opacity: 1;
+        border-right: 1px solid $line-line;
+
+        &::after {
+          content: unset;
+        }
       }
     }
   }
 
   @container (min-width: 1101px) {
     &__pick-area {
-      max-width: 339px;
+      visibility: visible;
+      flex: none;
+      width: 339px;
       height: 100%;
     }
-  }
-
-  &__mod-area {
-    min-width: 780px;
-    flex: 1 0 1px;
-    height: 100%;
-    padding-left: 30px;
   }
 }
 

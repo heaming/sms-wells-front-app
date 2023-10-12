@@ -279,7 +279,7 @@ async function fetchProducts() {
   await emit('fetched', products.value);
 }
 
-watch(() => props.cntrNo, fetchProducts, { immediate: true });
+watch(props.cntrNo, fetchProducts, { immediate: true });
 
 async function onClickSearch() {
   const shouldFetchProduct = cachedParams.value.rentalDscTpCd !== searchParams.value.rentalDscTpCd;
@@ -307,6 +307,10 @@ function onClickReset() {
 async function onClickProduct(product) {
   await emit('select', product);
 }
+
+onActivated(() => {
+  fetchProducts();
+});
 </script>
 
 <style lang="scss" scoped>
