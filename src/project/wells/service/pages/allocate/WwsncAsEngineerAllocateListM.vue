@@ -12,6 +12,7 @@
 - 엔지니어 배정현황 (http://localhost:3000/#/service/wwsnc-as-engineer-allocate-list)
  ****************************************************************************************************
 --->
+
 <template>
   <kw-page ref="pageRef">
     <kw-search
@@ -204,7 +205,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, useMeta, getComponentType, gridUtil } from 'kw-lib';
+import { codeUtil, useDataService, useMeta, getComponentType, gridUtil, popupUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { printElement } from '~common/utils/common';
@@ -222,7 +223,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
+const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'Y' } })).data;
 const engineers = ref([]);
 
 const pageInfo = ref({
@@ -271,7 +272,7 @@ async function setEngineers() {
   if (searchParams.value.ogId === '') {
     engineers.value = [];
   } else {
-    const eng = (await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: searchParams.value.ogId, authYn: 'N' } })).data;
+    const eng = (await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: searchParams.value.ogId, authYn: 'Y' } })).data;
     if (searchParams.value.rgsnYn === 'Y') {
       const wrkEngByOdId = eng.filter((v) => v.cltnDt === null || v.cltnDt === '');
       engineers.value = wrkEngByOdId.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNm }));
@@ -364,7 +365,7 @@ function initGrid(data, view) {
     { fieldName: 'newAdrZip' },
     { fieldName: 'adrDtl' },
     { fieldName: 'cnslMoCn' },
-    { fieldName: 'svBizDclsfCd' },
+    { fieldName: 'svBizDclsf' },
     { fieldName: 'asRefriDvCd' },
     { fieldName: 'bsRefriDvCd' },
     { fieldName: 'istDt' },
@@ -376,6 +377,14 @@ function initGrid(data, view) {
     { fieldName: 'dtmChRsonCd' },
     { fieldName: 'dtmChRsonDtlCn' },
     { fieldName: 'prtnrNm' },
+    { fieldName: 'wkPrgsStat' },
+
+    { fieldName: 'cstSvAsnNo' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'svHshdNo' },
+    { fieldName: 'svHshdNoCnt' },
+    { fieldName: 'svBizHclsfCd' },
+    { fieldName: 'svBizDclsfCd' },
     { fieldName: 'wkPrgsStatCd' },
   ];
 
@@ -421,7 +430,7 @@ function initGrid(data, view) {
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' },
     { fieldName: 'adrDtl', header: t('MSG_TXT_ADDR'), width: '350', styleName: 'text-left' },
     { fieldName: 'cnslMoCn', header: t('MSG_TXT_RCP_IZ'), width: '350', styleName: 'text-left' },
-    { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_WK_CNTN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'svBizDclsf', header: t('MSG_TXT_WK_CNTN'), width: '100', styleName: 'text-center' },
     { fieldName: 'asRefriDvCd', header: t('MSG_TXT_AS_DIVIDE'), width: '100', styleName: 'text-center' },
     { fieldName: 'bsRefriDvCd', header: t('MSG_TXT_BS_DIVIDE'), width: '100', styleName: 'text-center' },
     { fieldName: 'istDt', header: t('MSG_TXT_INST_DT'), width: '150', styleName: 'text-center' },
@@ -433,7 +442,13 @@ function initGrid(data, view) {
     { fieldName: 'dtmChRsonCd', header: t('MSG_TXT_CH_RSON'), width: '150', styleName: 'text-center' },
     { fieldName: 'dtmChRsonDtlCn', header: t('MSG_TXT_CH_RSON_DTL'), width: '150', styleName: 'text-left' },
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EGER'), width: '150', styleName: 'text-left' },
-    { fieldName: 'wkPrgsStatCd', header: t('MSG_TXT_PRGS_STATUS'), width: '100', styleName: 'text-center' },
+    { fieldName: 'wkPrgsStat',
+      header: t('MSG_TXT_PRGS_STATUS'),
+      width: '100',
+      styleName: 'text-right rg-button-link',
+      renderer: {
+        type: 'button',
+      } },
   ];
 
   data.setFields(fields);
@@ -444,6 +459,7 @@ function initGrid(data, view) {
     'istllKnm',
     'cstGd',
     'svTp',
+    'wkPrgsStat',
     'tellNo',
     'phoneNo',
     'cntrDt',
@@ -456,7 +472,7 @@ function initGrid(data, view) {
     'newAdrZip',
     'adrDtl',
     'cnslMoCn',
-    'svBizDclsfCd',
+    'svBizDclsf',
     'asRefriDvCd',
     'bsRefriDvCd',
     'istDt',
@@ -468,9 +484,8 @@ function initGrid(data, view) {
     'dtmChRsonCd',
     'dtmChRsonDtlCn',
     'prtnrNm',
-    'wkPrgsStatCd',
   ]);
-  view.checkBar.visible = true; // create checkbox column
+  view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
@@ -485,6 +500,31 @@ function initGrid(data, view) {
           cntrSn,
         },
       });
+    }
+
+    if (column === 'wkPrgsStat') {
+      // 작업완료 모바일 팝업
+      const cstSvAsnNo = g.getValue(itemIndex, 'cstSvAsnNo');
+      const bypassPrtnrNo = g.getValue(itemIndex, 'prtnrNo');
+      const svHshdNo = g.getValue(itemIndex, 'svHshdNo');
+      const svHshdNoCnt = g.getValue(itemIndex, 'svHshdNoCnt');
+      const svBizHclsfCd = g.getValue(itemIndex, 'svBizHclsfCd');
+      const svBizDclsfCd = g.getValue(itemIndex, 'svBizDclsfCd');
+      const wkPrgsStatCd = g.getValue(itemIndex, 'wkPrgsStatCd');
+      const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      const cntrSn = g.getValue(itemIndex, 'cntrSn');
+
+      const param = `cstSvAsnNo=${cstSvAsnNo}&bypassPrtnrNo=${bypassPrtnrNo}&svHshdNo=${svHshdNo}&svHshdNoCnt=${svHshdNoCnt}&svBizHclsfCd=${svBizHclsfCd}&svBizDclsfCd=${svBizDclsfCd}&wkPrgsStatCd=${wkPrgsStatCd}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`;
+      const redirectUrl = encodeURIComponent(`/popup/mobile/wmsnb-as-work-list?${param}`);
+
+      let url = '';
+      if (import.meta.env.MODE === 'qa') {
+        url = 'https://q-m-wpm.kyowon.co.kr';
+      } else {
+        url = 'https://m-wpm.kyowon.co.kr';
+      }
+
+      popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
     }
   };
 }
