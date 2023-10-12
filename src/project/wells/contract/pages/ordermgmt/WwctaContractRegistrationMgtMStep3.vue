@@ -38,17 +38,9 @@
           </div>
           <div class="row items-center">
             <p
-              v-if="item.sellTpCd === '1'"
               class="kw-fc--primary kw-font-subtitle"
             >
-              {{ getNumberWithComma(item.fnlAmt || 0) }}원
-            </p>
-            <p
-              v-else
-              class="kw-fc--primary kw-font-subtitle"
-            >
-              월 {{ getNumberWithComma(item.fnlAmt || 0) }}원
-              {{ item.stplPtrm > 1 && item.stplPtrm < 999 ? `(${item.stplPtrm}개월)` : '' }})
+              {{ getDisplayedFinalPrice(item) }}
             </p>
 
             <div class="row items-center ml20">
@@ -160,6 +152,7 @@
                     </div>
                   </div>
                   <kw-btn
+                    v-if="adrs?.length > 5"
                     :icon-right="showAllAdrs ? 'arrow_up' : 'arrow_down'"
                     dense
                     borderless
@@ -300,43 +293,19 @@
                 />
               </kw-form-item>
             </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="요청사항"
-                :colspan="2"
-              >
-                <kw-input
-                  v-model="item.wellsDtl.istAkArtcMoCn"
-                  type="textarea"
-                  maxlength="333"
-                />
-              </kw-form-item>
-            </kw-form-row>
-            <kw-form-row>
-              <kw-form-item
-                label="참고사항"
-                :colspan="2"
-              >
-                <p>{{ '' }}</p>
-              </kw-form-item>
-            </kw-form-row>
           </template>
-          <template
-            v-else
-          >
-            <kw-form-row>
-              <kw-form-item
-                label="요청사항"
-                :colspan="2"
-              >
-                <kw-input
-                  v-model="item.wellsDtl.istAkArtcMoCn"
-                  type="textarea"
-                  maxlength="333"
-                />
-              </kw-form-item>
-            </kw-form-row>
-          </template>
+          <kw-form-row>
+            <kw-form-item
+              label="요청사항"
+              :colspan="2"
+            >
+              <kw-input
+                v-model="item.wellsDtl.istAkArtcMoCn"
+                type="textarea"
+                maxlength="333"
+              />
+            </kw-form-item>
+          </kw-form-row>
         </kw-form>
 
         <kw-separator />
@@ -457,7 +426,7 @@
                 </kw-form-item>
                 <kw-form-item no-label>
                   <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
-                    월 렌탈료 : {{ getNumberWithComma((item.fnlAmt || 0) / (item.sellTpCd === '6' ? item.svPrd : 1)) }}원
+                    월납부금 : {{ getNumberWithComma((item.fnlAmt || 0) / (item.sellTpCd === '6' ? item.svPrd : 1)) }}원
                   </p>
                 </kw-form-item>
               </kw-form-row>
@@ -576,38 +545,50 @@ const isPsbBlkApy = ref(true);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+function getDisplayedFinalPrice(cntrDtl) {
+  if (!cntrDtl) {
+    return '';
+  }
+  const { fnlAmt, svPrd, sellTpCd, stplPtrm } = cntrDtl;
+
+  if (sellTpCd === '1') {
+    return `${getNumberWithComma(fnlAmt)}원`;
+  }
+  if (sellTpCd === '2') {
+    return `${getNumberWithComma(fnlAmt)}원${stplPtrm ? ` (${stplPtrm}개월)` : ''}`;
+  }
+  if (sellTpCd === '6') {
+    return `${getNumberWithComma(fnlAmt)}원 (월 ${getNumberWithComma(fnlAmt
+        / svPrd)}원)`;
+  }
+  return `월 ${getNumberWithComma(fnlAmt)}원`;
+}
+
 async function getCntrInfo() {
   if (!cntrNo.value) {
     await alert('잘못된 접근입니다.');
     router.go(-1);
     return;
   }
-  const cntr = await dataService.get('sms/wells/contract/contracts/cntr-info', {
+  const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', {
     params: {
       cntrNo: cntrNo.value,
       step: 3,
     },
   });
-  step3.value = cntr.data.step3;
+  step3.value = data.step3;
   adrs.value[0] = step3.value.basAdrpc;
 
   // 일괄적용 여부(렌탈이면서 유상멤버십기간, 판매유형코드, 판매유형상세코드 등이 일치해야 함)
   const baseDtl = step3.value.dtls[0];
-  if (step3.value.dtls.length <= 1) {
-    isPsbBlkApy.value = false;
-  } else {
-    // eslint-disable-next-line no-restricted-syntax, guard-for-in
-    for (const i in step3.value.dtls) {
-      const dtl = step3.value.dtls[i];
-      if (baseDtl.recapMshPtrm !== dtl.recapMshPtrm
+
+  isPsbBlkApy.value = (step3.value.dtls.length > 1)
+      && (!step3.value.dtls.some((dtl) => baseDtl.recapMshPtrm !== dtl.recapMshPtrm
           || baseDtl.sellTpCd !== dtl.sellTpCd
           || baseDtl.sellTpDtlCd !== dtl.sellTpDtlCd
-          || dtl.sellTpCd !== '2') {
-        isPsbBlkApy.value = false;
-        break;
-      }
-    }
-  }
+          || dtl.sellTpCd !== '2'));
+
   if (isPsbBlkApy.value) {
     step3.value.dtls.forEach((dtl) => {
       dtl.blkApy = 'N';
@@ -710,7 +691,9 @@ function onChangeSodbtNftfCntr(v) {
 const loaded = ref(false);
 
 async function initStep(forced = false) {
-  if (!forced && loaded.value) { return; }
+  if (!forced && loaded.value) {
+    return;
+  }
 
   await getCntrInfo();
   loaded.value = true;
