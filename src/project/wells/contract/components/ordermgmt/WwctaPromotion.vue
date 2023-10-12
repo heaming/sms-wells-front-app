@@ -27,7 +27,7 @@
               {{ promotion.pmotNm }}
             </kw-item-label>
             <kw-tooltip show-when-ellipsised>
-              {{ promotion.pmotNm }}
+              {{ promotion.pmotNm }} {{ promotion.pmotCd }}
             </kw-tooltip>
           </div>
           <div
