@@ -545,10 +545,9 @@ async function onClickShowProductChangeHistoryP(item) {
 }
 
 async function getParamaSearch() {
-  const { cntrNo, cntrSn, cntrCnfmDt } = props;
-  if (cntrNo && cntrSn && cntrCnfmDt) {
+  const { cntrNo, cntrCnfmDt } = props;
+  if (cntrNo && cntrCnfmDt) {
     fieldParams.value.cntrNo = cntrNo;
-    fieldParams.value.cntrSn = cntrSn;
     fieldParams.value.cntrCnfmDtmFr = cntrCnfmDt;
     fieldParams.value.cntrCnfmDtmTo = cntrCnfmDt;
 
