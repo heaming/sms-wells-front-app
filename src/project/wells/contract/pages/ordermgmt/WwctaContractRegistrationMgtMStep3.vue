@@ -47,7 +47,8 @@
               v-else
               class="kw-fc--primary kw-font-subtitle"
             >
-              월 {{ getNumberWithComma(item.fnlAmt || 0) }}원({{ item.stplPtrm }}개월)
+              월 {{ getNumberWithComma(item.fnlAmt || 0) }}원
+              {{ item.stplPtrm > 1 && item.stplPtrm < 999 ? `(${item.stplPtrm}개월)` : '' }})
             </p>
 
             <div class="row items-center ml20">
