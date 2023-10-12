@@ -84,10 +84,15 @@ const productCarouselRef = ref();
 const agreed = ref(false);
 
 async function fetchContract() {
-  const response = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
-    cntrNo: params.cntrNo,
-  });
-  contract.value = response.data;
+  try {
+    const response = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
+      cntrNo: params.cntrNo,
+    });
+    contract.value = response.data;
+  } catch (e) {
+    postMessage('cancelled');
+    window.close();
+  }
 }
 
 function onConfirmAgrees(agreedInfos) {
