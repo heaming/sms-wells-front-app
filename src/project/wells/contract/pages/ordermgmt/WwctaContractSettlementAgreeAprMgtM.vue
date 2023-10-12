@@ -97,17 +97,23 @@ const signs = reactive({
 });
 
 async function fetchContract() {
-  const response = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
-    cntrNo: params.cntrNo,
-  });
-  contract.value = response.data;
-  includeAutoTransfer.value = contract.value.stlms.some((s) => s.dpTpCd === '0102');
+  try {
+    const response = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
+      cntrNo: params.cntrNo,
+    });
+    contract.value = response.data;
+    includeAutoTransfer.value = contract.value.stlms.some((s) => s.dpTpCd === '0102');
+  } catch (e) {
+    postMessage('cancelled');
+    window.close();
+  }
 }
 
 function onConfirmAgrees(agreedInfos) {
   agreed.value = true;
   stlmsUpdateRequestBody.agIzs = agreedInfos;
 }
+
 function onCheckAutoTransfer(sign) {
   signs.autoTransferChecked = sign;
 }
