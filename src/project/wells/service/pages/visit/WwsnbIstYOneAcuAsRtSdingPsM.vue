@@ -46,7 +46,7 @@
         <kw-search-item :label="$t('MSG_TXT_BAD_DV')">
           <kw-select
             v-model="searchParams.badDivide"
-            :options="codes.BAD_DV_CD"
+            :options="badDvCdList"
             first-option="all"
           />
         </kw-search-item>
@@ -54,7 +54,7 @@
         <kw-search-item :label="$t('MSG_TXT_PKG')">
           <kw-select
             v-model="searchParams.sdingPkgGrpCd"
-            :options="codes.SDING_PKG_GRP_CD"
+            :options="sdingPkgGrpList"
             first-option="all"
             @change="onChangeSdingPkgGrpCd"
           />
@@ -65,7 +65,6 @@
         <kw-search-item :label="$t('MSG_TXT_SDING')">
           <kw-select
             v-model="searchParams.sdingPkgCd"
-            :options="sdingPkgCd"
             first-option="all"
           />
         </kw-search-item>
@@ -123,8 +122,11 @@ const codes = await codeUtil.getMultiCodes(
   'BAD_DV_CD', // 불량구분
   'SDING_PKG_GRP_CD', // 패키지[모종]
   'SDING_PKG_CD', // 패키지[모종]
+  'SDING_PKGR_ACD',
+  'SDING_PKG_DV_CD',
 );
-console.log('codes.SDING_PKG_GRP_CD ????', codes.SDING_PKG_GRP_CD);
+console.log('codes.SDING_PKGR_ACD ????', codes.SDING_PKGR_ACD);
+console.log('codes.SDING_PKG_DV_CD ????', codes.SDING_PKG_DV_CD);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -144,6 +146,24 @@ const serviceTypes = [
   { codeId: '3110', codeName: '제품A/S' },
   { codeId: '3112', codeName: '특별A/S' },
   { codeId: '3210', codeName: '제품원인' },
+];
+
+// 불량구분
+// '100R', '200R', '300R', '500R', '600R'
+const badCdValue = ['100R', '200R', '300R', '500R', '600R'];
+const badDvCdList = codes.BAD_DV_CD.filter((v) => badCdValue.includes(v.codeId));
+
+// 패키지 리스트 setting
+const sdingPkgGrpList = [
+  { codeId: 'S1', codeName: t('선택모종') },
+  { codeId: 'B1', codeName: t('BASIC W, S') },
+  { codeId: 'H1', codeName: t('HEALTH W, S') },
+  { codeId: 'P1', codeName: t('PREMIUM W, S') },
+  { codeId: 'S2', codeName: t('SPECIAL W') },
+  { codeId: 'M1', codeName: t('미소채 W, S') },
+  { codeId: 'I1', codeName: t('아이쑥쑥 W, S') },
+  { codeId: 'W1', codeName: t('활력채 W, S') },
+  { codeId: 'H2', codeName: t('항암쌈채 W, S') },
 ];
 
 // 모종

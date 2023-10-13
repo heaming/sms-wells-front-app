@@ -52,7 +52,7 @@
         <kw-search-item :label="t('MSG_TXT_PD_GRP')">
           <kw-select
             v-model="searchParams.pdGrp"
-            :options="codes.PD_GRP_CD"
+            :options="optionPdGrpList"
             class="w150"
             first-option="all"
             @change="changePdGrpCd"
@@ -119,6 +119,7 @@ import { printElement } from '~common/utils/common';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const { getPartMaster } = smsCommon();
 
 const dataService = useDataService();
 
@@ -126,8 +127,7 @@ const codes = await codeUtil.getMultiCodes(
   'BAD_DV_CD',
   'PD_GRP_CD',
 );
-
-const { getPartMaster } = smsCommon();
+console.log('codes.PD_GRP_CD >>>>>', codes.PD_GRP_CD);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -155,17 +155,22 @@ const serviceTypes = [
   { codeId: '3110', codeName: '제품A/S' },
   { codeId: '3112', codeName: '특별A/S' },
   { codeId: '3210', codeName: '제품원인' },
-  // { codeId: '04', codeName: '설치원인' },
-  { codeId: '3440', codeName: '회사설치' },
-  { codeId: '3230', codeName: '고객원인' },
-  // { codeId: '06', codeName: '부품원인' },
-  { codeId: '3121', codeName: '필터B/S' },
+  // // { codeId: '04', codeName: '설치원인' },
+  // { codeId: '3440', codeName: '회사설치' },
+  // { codeId: '3230', codeName: '고객원인' },
+  // // { codeId: '06', codeName: '부품원인' },
+  // { codeId: '3121', codeName: '필터B/S' },
 ];
 
+// 홍세기 매니저 확인
 // 서비스 > 실적..불량구분은 100, 400, 500, 700 만 사용
 const badCdValue = ['100R', '400R', '500R', '700R'];
 const badDvCdList = codes.BAD_DV_CD.filter((v) => badCdValue.includes(v.codeId));
-console.log('badDvCdList >>>>>', badDvCdList);
+
+// 상품그룹
+const arrPdGrp = ['1', '2', '3', '4', '6', '9'];
+const optionPdGrpList = ref([]);
+optionPdGrpList.value = codes.PD_GRP_CD.filter((v) => arrPdGrp.includes(v.codeId));
 
 const pds = ref([]);
 async function changePdGrpCd() {
