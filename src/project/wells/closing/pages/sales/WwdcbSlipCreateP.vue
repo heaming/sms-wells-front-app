@@ -114,6 +114,7 @@ const saveParams = ref({
 });
 
 let cachedParams;
+// 전표 생성
 async function onSlipCreate() {
   cachedParams = cloneDeep(saveParams.value);
   console.log('cachedParams:', cachedParams);
@@ -125,14 +126,14 @@ async function onSlipCreate() {
 // -------------------------------------------------------------------------------------------------
 const initGrdDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD, editable: false },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, editable: false },
-    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'dgCstNm', header: t('MSG_TXT_DG_CST_CD_NM'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_ALRPY_AMT') + t('MSG_TXT_WON'), width: '150', styleName: 'text-right', dataType: 'number', editable: false },
-    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '300', styleName: 'text-left', editor: { maxLength: 333 } },
-    { fieldName: 'budat', width: '100', visible: false },
-    { fieldName: 'kwGrpCoCd', width: '100', visible: false },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD, editable: false }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, editable: false }, // 판매유형상세
+    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center', editable: false }, // 대표고객ID
+    { fieldName: 'dgCstNm', header: t('MSG_TXT_DG_CST_CD_NM'), width: '120', styleName: 'text-center', editable: false }, // 대표고객명
+    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_ALRPY_AMT') + t('MSG_TXT_WON'), width: '150', styleName: 'text-right', dataType: 'number', editable: false }, // 채권반제금액
+    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '300', styleName: 'text-left', editor: { maxLength: 333 } }, // 전표적요
+    { fieldName: 'budat', width: '100', visible: false }, // 전기일자
+    { fieldName: 'kwGrpCoCd', width: '100', visible: false }, // 교원그룹회사코드
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
