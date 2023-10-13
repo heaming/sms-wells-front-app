@@ -1084,7 +1084,7 @@ async function onClickSave() {
     rcpdt: data.value.wrkDt,
     mtrStatCd: searchParams.value.mtrStatCd,
     urgtYn: 'N',
-    vstRqdt: searchParams.value.sellDate,
+    vstRqdt: data.value.sellDate,
     vstAkHh: data.value.sellTime,
     smsFwYn: 'N',
     cnslMoCn: data.value.egerMemo,
