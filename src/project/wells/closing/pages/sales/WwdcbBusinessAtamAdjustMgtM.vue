@@ -184,6 +184,7 @@ const searchParams = ref({
 });
 
 let cachedParams;
+// 조회
 async function fetchData() {
   const { searchGubun } = searchParams.value;
   if (searchGubun === '1') { // 집계
@@ -215,10 +216,12 @@ async function fetchData() {
   mainView.getDataSource().setRows(mainList);
 }
 
+// 조회 버튼 클릭
 async function onClickSearch() {
   await fetchData();
 }
 
+// 엑셀 다운로드 버튼 클릭
 async function onClickExportView() {
   let view;
   if (isShowGrd.value === true) {
@@ -294,11 +297,11 @@ async function onClickSlipCrt() {
 // -------------------------------------------------------------------------------------------------
 const initGrdTotal = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '170', styleName: 'text-center' },
-    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형코드
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center' }, // 대표고객ID
+    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '170', styleName: 'text-center' }, // SAP상품구분코드명
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기준년월
     { fieldName: 'slBndAlrpyAmt',
       header: t('MSG_TXT_BND_ALRPY_AMT'),
       width: '120',
@@ -307,9 +310,9 @@ const initGrdTotal = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
-    { fieldName: 'slBndAlrpySlipTrsNo', header: t('MSG_TXT_SLIP_TRS_NO'), width: '120', styleName: 'text-right' },
-    { fieldName: 'sapAlrpySlpno', header: t('MSG_TXT_ALRPY_SLIP_NO'), width: '120', styleName: 'text-right' },
+      } }, // 채권반제금액
+    { fieldName: 'slBndAlrpySlipTrsNo', header: t('MSG_TXT_SLIP_TRS_NO'), width: '120', styleName: 'text-right' }, // 매출채권반제전표전송번호
+    { fieldName: 'sapAlrpySlpno', header: t('MSG_TXT_ALRPY_SLIP_NO'), width: '120', styleName: 'text-right' }, // SAP반제전표번호
     { fieldName: 'dpBlam',
       header: t('MSG_TXT_ALRPY_AFT_DP_BLAM'),
       width: '150',
@@ -318,7 +321,7 @@ const initGrdTotal = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 반제 후 입금잔액
     { fieldName: 'ucAmt',
       header: t('MSG_TXT_ALRPY_AFT_BND_BLAM'),
       width: '150',
@@ -327,7 +330,7 @@ const initGrdTotal = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
+      } }, // 매출채권잔액
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -354,14 +357,14 @@ const initGrdTotal = defineGrid((data, view) => {
 
 const initGrdDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '170', styleName: 'text-center' },
-    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80' },
-    { fieldName: 'slBndAlrpyDt', header: t('MSG_TXT_BND_ALRPY_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형코드
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '170', styleName: 'text-center' }, // SAP상품구분코드명
+    { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center' }, // 대표고객ID
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기준년월
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80' }, // 고객명
+    { fieldName: 'slBndAlrpyDt', header: t('MSG_TXT_BND_ALRPY_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 채권반제일자
     { fieldName: 'slBndAlrpyAmt',
       header: t('MSG_TXT_BND_ALRPY_AMT'),
       width: '120',
@@ -370,14 +373,14 @@ const initGrdDetail = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
-    { fieldName: 'slBndAlrpySlipTrsNo', header: t('MSG_TXT_SLIP_TRS_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'sapAlrpySlpno', header: t('MSG_TXT_ALRPY_SLIP_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'rveNo', header: t('MSG_TXT_RVE_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rveSn', header: t('MSG_TXT_RVE_SN'), width: '120', styleName: 'text-center' },
-    { fieldName: 'dpClDt', header: t('MSG_TXT_RVE_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rveAmt', header: t('MSG_TXT_RVE_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'sapDpSlpno', header: t('MSG_TXT_DP_SLIP_NO'), width: '120', styleName: 'text-center' },
+      } }, // 채권반제금액
+    { fieldName: 'slBndAlrpySlipTrsNo', header: t('MSG_TXT_SLIP_TRS_NO'), width: '120', styleName: 'text-center' }, // 매출채권반제전표전송번호
+    { fieldName: 'sapAlrpySlpno', header: t('MSG_TXT_ALRPY_SLIP_NO'), width: '120', styleName: 'text-center' }, // SAP반제전표번호
+    { fieldName: 'rveNo', header: t('MSG_TXT_RVE_NO'), width: '100', styleName: 'text-center' }, // 수납번호
+    { fieldName: 'rveSn', header: t('MSG_TXT_RVE_SN'), width: '120', styleName: 'text-center' }, // 수납일련번호
+    { fieldName: 'dpClDt', header: t('MSG_TXT_RVE_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 수납일자 - 입금마감일자
+    { fieldName: 'rveAmt', header: t('MSG_TXT_RVE_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 수납금액
+    { fieldName: 'sapDpSlpno', header: t('MSG_TXT_DP_SLIP_NO'), width: '120', styleName: 'text-center' }, // SAP입금전표번호
     { fieldName: 'dpBlam',
       header: t('MSG_TXT_ALRPY_AFT_DP_BLAM'),
       width: '150',
@@ -386,10 +389,10 @@ const initGrdDetail = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_BND_OC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'slBndOcAmt', header: t('MSG_TXT_BND_OC_AMT'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'sapSlSlpno', header: t('MSG_TXT_SL_SLIP_NO'), width: '120', styleName: 'text-center' },
+      } }, // 반제 후 입금잔액
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_BND_OC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 채권발생일자
+    { fieldName: 'slBndOcAmt', header: t('MSG_TXT_BND_OC_AMT'), width: '120', styleName: 'text-right', dataType: 'number' }, // 채권발생금액
+    { fieldName: 'sapSlSlpno', header: t('MSG_TXT_SL_SLIP_NO'), width: '120', styleName: 'text-center' }, // SAP매출전표번호
     { fieldName: 'ucAmt',
       header: t('MSG_TXT_ALRPY_AFT_BND_BLAM'),
       width: '150',
@@ -398,8 +401,7 @@ const initGrdDetail = defineGrid((data, view) => {
       headerSummary: {
         numberFormat: '#,##0',
         expression: 'sum',
-      } },
-
+      } }, // 매출채권잔액
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -424,10 +426,10 @@ const initGrdDetail = defineGrid((data, view) => {
 });
 
 const selectDpKndCd = { // 조회구분
-  options: [{ codeId: '1', codeName: '일시불' }, { codeId: '2', codeName: '일시불외' }, { codeId: '5', codeName: '연체가산금' }],
+  options: [{ codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') }, { codeId: '2', codeName: t('MSG_TXT_SPAY_EXCP') }, { codeId: '5', codeName: t('MSG_TXT_DLQ_ADAMT') }],
 };
 
 const selectAgrgDv = { // 집계구분
-  options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '상세' }],
+  options: [{ codeId: '1', codeName: t('MSG_TXT_AGRG') }, { codeId: '2', codeName: t('MSG_TXT_DTL') }],
 };
 </script>
