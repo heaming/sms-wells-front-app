@@ -277,9 +277,10 @@ async function fetchData() {
   pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
 
-  if (itmGd.length === 0) {
+  if (isEmpty(itmGd)) {
     const { baseYm } = cachedParams;
 
+    // 해당월의 자료가 없습니다. 자료를 생성합니다.
     await alert(t('MSG_ALT_CRSP_MM_NO_DATA_MTR_CRT'));
 
     const validRes = await dataService.get('/sms/wells/service/as-material-item-grades/duplication-check', { params: { ...cachedParams } });
