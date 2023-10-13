@@ -45,67 +45,7 @@
             type="month"
           />
         </kw-search-item>
-        <!-- label="실적일자" -->
-        <!-- <kw-search-item
-          :label="t('MSG_TXT_PERF_DT')"
-          required
-        >
-          <kw-date-picker
-            v-model="searchParams.perfDt"
-            :label="t('MSG_TXT_PERF_DT')"
-            rules="required"
-          />
-        </kw-search-item> -->
       </kw-search-row>
-      <!-- <kw-search-row>
-        label="수납일자"
-        <kw-search-item
-          :label="t('MSG_TXT_RVE_DT')"
-          required
-        >
-          <kw-date-picker
-            v-model="searchParams.rveDt"
-            :label="t('MSG_TXT_RVE_DT')"
-            rules="required"
-          />
-        </kw-search-item>
-        label="수납코드"
-        <kw-form-item
-          :label="t('MSG_TXT_RVE_CD')"
-          required
-        >
-          <kw-input
-            v-model="searchParams.rveCd"
-            icon="search"
-            type="text"
-            :label="$t('MSG_TXT_RVE_CD')"
-            clearable
-            mask="#####"
-            @keydown="onKeyDownSelectRveCd"
-            @click-icon="onClickSelectRveCd"
-            @clear="onClearSelectRveCd"
-          />
-          <kw-input
-            v-model="searchParams.rveNm"
-            :disable="true"
-            placeholder=""
-          />
-        </kw-form-item>
-        label="통합입금번호"
-        <kw-form-item
-          :label="t('MSG_TXT_ITG_DP_NO')"
-        >
-          <kw-input
-            v-model="searchParams.itgDpNo"
-            :readonly="true"
-            icon="search"
-            clearable
-            @click-icon="onClickSelectIntegrationDeposit"
-            @keydown="onKeyDownSelectIntegrationDeposit"
-            @clear="onClearSelectIntegrationDeposit"
-          />
-        </kw-form-item>
-      </kw-search-row> -->
     </kw-search>
 
     <div class="result-area">
@@ -673,19 +613,19 @@ const initGrid2 = defineGrid((data, view) => {
       width: '386',
       styleName: 'text-right',
       numberFormat: '#,##0' },
-    { fieldName: 'dpDtm',
+    // { fieldName: 'dpDtm',
 
-      header: t('MSG_TXT_ITG_DP_D'),
-      datetimeFormat: 'date',
-      // header: '통합입금일',
-      width: '300',
-      styleName: 'text-center' },
-    { fieldName: 'dpBlam',
-      header: `${t('MSG_TXT_ITG_DP_BLAM')}원`,
-      // header: '통합입금잔액(원)',
-      width: '386',
-      styleName: 'text-right',
-      numberFormat: '#,##0' },
+    //   header: t('MSG_TXT_ITG_DP_D'),
+    //   datetimeFormat: 'date',
+    //   // header: '통합입금일',
+    //   width: '300',
+    //   styleName: 'text-center' },
+    // { fieldName: 'dpBlam',
+    //   header: `${t('MSG_TXT_ITG_DP_BLAM')}원`,
+    //   // header: '통합입금잔액(원)',
+    //   width: '386',
+    //   styleName: 'text-right',
+    //   numberFormat: '#,##0' },
   ];
 
   data.setFields(fields);
