@@ -409,7 +409,7 @@
         <!-- 렌탈등록비 -->
         <kw-form-item :label="$t('MSG_TXT_RENT_RGST_FEE')">
           <kw-input
-            v-model="frmMainData.cntrAmt"
+            v-model="frmMainData.cntrCtrAmt"
             align="right"
             placeholder=""
             readonly
@@ -418,7 +418,7 @@
         <!-- 렌탈기간 -->
         <kw-form-item :label="$t('MSG_TXT_RENT_PRD_MN')">
           <kw-input
-            v-model="frmMainData.istmMcn"
+            v-model="frmMainData.cntrPtrm"
             align="right"
             placeholder=""
             readonly
@@ -427,7 +427,7 @@
         <!-- 렌탈 총금액(원) -->
         <kw-form-item :label="$t('MSG_TXT_RNTL_TOT_AMT')">
           <kw-input
-            v-model="frmMainData.rentalAmt"
+            v-model="frmMainData.rentalTam"
             align="right"
             placeholder=""
             readonly
@@ -436,7 +436,7 @@
         <!-- 계약 총금액(원) -->
         <kw-form-item :label="$t('MSG_TXT_CNTL_TOT_AMT')">
           <kw-input
-            v-model="frmMainData.fnlAmt"
+            v-model="frmMainData.cntrTam"
             align="right"
             placeholder=""
             readonly
@@ -554,13 +554,13 @@
         <kw-form-item :label="$t('MSG_TXT_PD_DC_CLASS')">
           <!-- 할인구분코드 -->
           <kw-input
-            v-model="frmMainData.dscApyTpCd"
+            v-model="frmMainData.sellDscDvCd"
             placeholder=""
             readonly
           />
           <!-- 할인구분코드명-->
           <kw-input
-            v-model="frmMainData.dscApyTpCdNm"
+            v-model="frmMainData.sellDscDvNm"
             placeholder=""
             readonly
           />
@@ -569,13 +569,13 @@
         <kw-form-item :label="$t('MSG_TXT_DISC_CODE')">
           <!-- 할인유형코드-->
           <kw-input
-            v-model="frmMainData.dscApyDtlCd"
+            v-model="frmMainData.sellDscTpCd"
             placeholder=""
             readonly
           />
           <!-- 할인유형코드명-->
           <kw-input
-            v-model="frmMainData.dscApyDtlCdNm"
+            v-model="frmMainData.sellDscTpNm"
             placeholder=""
             readonly
           />
@@ -1776,9 +1776,9 @@ const frmMainData = ref({
   pdNm: '', // 상품명
   pdQty: '', // 수량
   cntrAmt: '', // 렌탈 등록비
-  istmMcn: '', // 렌탈기간
-  rentalAmt: '', // 렌탈 총금액(원)
-  fnlAmt: '', // 계약 총금액(원)
+  cntrPtrm: '', // 렌탈기간
+  rentalTam: '', // 렌탈 총금액(원)
+  cntrTam: '', // 계약 총금액(원)
   fnlPdCd: '', // 총판매제품
   fnlPdNm: '', // 최종판매제품 명
   rentalPtrm: '', // 렌탈기간1(개월)
@@ -2010,9 +2010,9 @@ async function fetchData() {
     frmMainData.value.pdNm = pages[0].pdNm; // 상품명
     frmMainData.value.pdQty = pages[0].pdQty; // 수량
     frmMainData.value.cntrAmt = stringUtil.getNumberWithComma(Number(pages[0].cntrAmt), 0); // 렌탈 등록비
-    frmMainData.value.istmMcn = pages[0].istmMcn; // 렌탈기간
-    frmMainData.value.rentalAmt = stringUtil.getNumberWithComma(Number(pages[0].rentalAmt), 0); // 렌탈 총금액(원)
-    frmMainData.value.fnlAmt = stringUtil.getNumberWithComma(Number(pages[0].fnlAmt), 0); // 계약 총금액(원)
+    frmMainData.value.cntrPtrm = pages[0].cntrPtrm; // 렌탈기간
+    frmMainData.value.rentalTam = stringUtil.getNumberWithComma(Number(pages[0].rentalTam), 0); // 렌탈 총금액(원)
+    frmMainData.value.cntrTam = stringUtil.getNumberWithComma(Number(pages[0].cntrTam), 0); // 계약 총금액(원)
     frmMainData.value.fnlPdCd = pages[0].fnlPdCd; // 총판매제품
     frmMainData.value.fnlPdNm = pages[0].fnlPdNm; // 최종판매제품 명
     frmMainData.value.rentalPtrm = pages[0].rentalPtrm; // 렌탈기간1(개월)
