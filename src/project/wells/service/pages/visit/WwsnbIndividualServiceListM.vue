@@ -765,6 +765,8 @@ async function isValidateIndividualParams() {
   if (isEmpty(individualParams.value)) {
     notify(t('MSG_ALT_CST_INF_NOT_EXST'));
     // init tabs & grids
+    searchParams.value.cntrNo = '';
+    searchParams.value.cntrSn = '';
     await fetchData();
     grdIndividualStateRef.value.getData().clearRows();
     grdIndividualCounselRef.value.getData().clearRows();
@@ -894,6 +896,18 @@ const initGridHousehold = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.onCellDblClicked = async (g, cData) => {
+    if (cData.fieldName === 'cntrDtl') {
+      const { cntrDtl } = g.getValues(cData.itemIndex);
+      searchParams.value.bcNo = '';
+      searchParams.value.sppIvcNo = '';
+
+      searchParams.value.cntrNo = cntrDtl.substring(0, 12);
+      searchParams.value.cntrSn = cntrDtl.substring(13, 14);
+      await isValidateIndividualParams();
+    }
+  };
 });
 
 /* 처리내역조회 */
@@ -1253,6 +1267,18 @@ const initGridFarmCode = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.onCellDblClicked = async (g, cData) => {
+    if (cData.fieldName === 'cntrDtl') {
+      const { cntrDtl } = g.getValues(cData.itemIndex);
+      searchParams.value.bcNo = '';
+      searchParams.value.sppIvcNo = '';
+
+      searchParams.value.cntrNo = cntrDtl.substring(0, 12);
+      searchParams.value.cntrSn = cntrDtl.substring(13, 14);
+      await isValidateIndividualParams();
+    }
+  };
 });
 // //rev:230621 tab 2,3,4 내 그리드 추가
 </script>
