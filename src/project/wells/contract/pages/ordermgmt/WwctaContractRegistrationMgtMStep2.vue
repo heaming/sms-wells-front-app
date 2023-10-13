@@ -18,67 +18,66 @@
       class="scoped-layout__pick-area"
       :cntr-no="cntrNo"
       @select="onSelectProduct"
+      @fetched="onFetchedProduct"
     />
-    <kw-separator
-      :spaced="false"
-      vertical
-    />
-    <kw-scroll-area
-      visible
-      class="scoped-layout__mod-area"
-      scroll-width="100%"
-      scroll-style="padding: 0 40px;"
-    >
-      <h3 class="mt0">
+    <div class="scoped-layout__mod-area scoped-mod-area">
+      <span class="scoped-mod-area__title">
         상품내역
-      </h3>
-      <kw-list
-        separator
-        item-padding="20px 0"
+      </span>
+      <div
+        v-scrollbar
+        class="scoped-mod-area__content"
       >
-        <template
-          v-for="(item, index) in step2.dtls"
+        <kw-list
+          class="pr30"
+          separator
+          item-padding="20px 0"
         >
-          <single-pay-price-select
-            v-if="item?.sellTpCd === '1'"
-            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
-            :model-value="item"
-            :bas="step2.bas"
-            @price-changed="onPriceChanged"
-            @delete="onClickDelete(index)"
-          />
-          <rental-price-select
-            v-if="item?.sellTpCd === '2'"
-            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
-            :model-value="item"
-            :bas="step2.bas"
-            @one-plus-one="onClickOnePlusOne"
-            @delete:one-plus-one="onDeleteOnePlusOne"
-            @device-change="onClickDeviceChange"
-            @price-changed="onPriceChanged"
-            @delete="onClickDelete(index)"
-          />
-          <membership-price-select
-            v-if="item?.sellTpCd === '3'"
-            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
-            :model-value="item"
-            :bas="step2.bas"
-            @delete="onClickDelete(index)"
-          />
-          <regular-shipping-price-select
-            v-if="item?.sellTpCd === '6'"
-            :key="`${item.pdCd} + ${item.sellChnlDtlCd}`"
-            :model-value="item"
-            :bas="step2.bas"
-            @select-machine="onClickSelectMachine"
-            @delete:select-machine="onDeleteSelectMachine"
-            @select-seeding="onClickSelSdingCapsl"
-            @select-capsule="onClickSelSdingCapsl"
-            @delete="onClickDelete(index)"
-          />
-        </template>
-      </kw-list>
-    </kw-scroll-area>
+          <template
+            v-for="(item) in step2.dtls"
+          >
+            <single-pay-price-select
+              v-if="item?.sellTpCd === '1'"
+              :key="`price-select-${item.tempKey ?? item.cntrSn}`"
+              :model-value="item"
+              :bas="step2.bas"
+              @price-changed="onPriceChanged"
+              @delete="onClickDelete(item)"
+            />
+            <rental-price-select
+              v-if="item?.sellTpCd === '2'"
+              :key="`price-select-${item.tempKey ?? item.cntrSn}`"
+              :model-value="item"
+              :bas="step2.bas"
+              @one-plus-one="onClickOnePlusOne"
+              @delete:one-plus-one="onDeleteOnePlusOne"
+              @device-change="onClickDeviceChange"
+              @price-changed="onPriceChanged"
+              @packaging="onPackaging"
+              @delete="onClickDelete(item)"
+            />
+            <membership-price-select
+              v-if="item?.sellTpCd === '3'"
+              :key="`price-select-${item.tempKey ?? item.cntrSn}`"
+              :model-value="item"
+              :bas="step2.bas"
+              @delete="onClickDelete(item)"
+            />
+            <regular-shipping-price-select
+              v-if="item?.sellTpCd === '6'"
+              :key="`price-select-${item.tempKey ?? item.cntrSn}`"
+              :model-value="item"
+              :bas="step2.bas"
+              @select-machine="onClickSelectMachine"
+              @delete:select-machine="onDeleteSelectMachine"
+              @select-seeding="onClickSelSdingCapsl"
+              @select-capsule="onClickSelSdingCapsl"
+              @delete="onClickDelete(item)"
+            />
+          </template>
+        </kw-list>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -86,15 +85,20 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import ProductSelect from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
-import SinglePayPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
-import RentalPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
-import MembershipPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
+import ProductSelect
+  from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
+import SinglePayPriceSelect
+  from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
+import RentalPriceSelect
+  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelectNew.vue';
+import MembershipPriceSelect
+  from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
 import RegularShippingPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaRegularShippingFinalPriceSelect.vue';
 import { alert, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqueId } from 'lodash-es';
 import { warn } from 'vue';
+import { vScrollbar } from '~sms-common/contract/util';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -113,61 +117,68 @@ const { notify, modal } = useGlobal();
 const CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE = '214';
 const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
 const CNTR_REL_DTL_CD_LK_SDING = '216';
-// const CNTR_REL_DTL_CD_LK_MLTCS_PRCHS = '22M'; // 다건 구매
+const CNTR_REL_DTL_CD_LK_MLTCS_PRCHS = '22M'; // 다건 구매
 
-const cntrNo = toRef(props.contract, 'cntrNo');
+const cntrNo = computed(() => props.contract?.cntrNo);
 const step2 = toRef(props.contract, 'step2');
 const ogStep2 = ref({});
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+async function onSelectProduct(product) {
+  const newProduct = { ...product };
+  const newProducts = [];
 
-// async function getProducts() {
-//   if (!cntrNo.value) {
-//     await alert('잘못된 접근입니다.');
-//     return;
-//   }
-//   const { data } = await dataService.get('sms/wells/contract/contracts/reg-products', {
-//     params: {
-//       cntrNo: cntrNo.value,
-//       pdFilter: pdFilter.value,
-//     },
-//   });
-//   classfiedPds.value = data.pdClsf;
-//   pdFilter.value = '';
-//   cachedPdFilter.value = '';
-//   cachedSellTpCd.value = '';
-//   filteredClsfPds.value = classfiedPds.value;
-//   if (classfiedPds.value.length === 0) {
-//     await alert('판매 가능한 상품이 없습니다.');
-//   }
-// }
-
-function resetCntrSn() {
-  step2.value.dtls.forEach((dtl, index) => {
-    dtl.cntrSn = index + 1;
+  // 상품관계 확인
+  // PD_REL_TP_CD '12' 기계약상품여부
+  const res = await dataService.get('sms/wells/contract/contracts/product-relations', {
+    params: {
+      cntrNo: cntrNo.value, // 현재는 사용하지 않음
+      pdCd: newProduct.pdCd,
+      cstNo: step2.value?.bas.cntrCstNo || '0', // 견적서 등 고객번호 없을수 있음. 더미 고객번호로 처리
+    },
   });
-}
 
-async function onSelectProduct(newProduct) {
+  const { preCntrPdRelCnt, preCntrPdCnt } = res.data;
+  if (Number(preCntrPdRelCnt) > 0 && preCntrPdCnt === '0') {
+    alert('해당 상품은 기계약상품의 계약건이 존재해야만 선택 가능합니다.');
+    return;
+  }
+
+  const setTempKey = (pd) => {
+    pd.tempKey = uniqueId('new-product');
+  };
+
   const isWellsFarmProduct = newProduct.pdLclsfId === 'PDC000000000120';
 
   const isComposition = newProduct.pdTpCd === 'C';
 
   if (isComposition) {
-    // TODO
-    // const { data } = await dataService.get('sms/wells/contract/contracts/reg-cpt-products', {
-    //   params: {
-    //     cntrNo: step2.value.bas.cntrNo,
-    //     hgrPdCd: pd.pdCd,
-    //   },
-    // });
+    const alreadyExistComposition = !!step2.value.dtls.find((existed) => existed.hgrPdCd === product.pdCd);
+
+    if (alreadyExistComposition) {
+      await alert('동일한 복합상품이 존재합니다.');
+      return;
+    }
+
+    const { data: containedProducts } = await dataService.get('sms/wells/contract/contracts/reg-cpt-products', {
+      params: {
+        cntrNo: step2.value.bas.cntrNo,
+        hgrPdCd: product.pdCd,
+      },
+    });
+
+    containedProducts.forEach((containedProduct) => {
+      // TODO: fix
+      containedProduct.pdClsfNm = '복합상품';
+      setTempKey(containedProduct);
+      newProducts.push(containedProduct);
+    });
+  } else {
+    setTempKey(newProduct);
+    newProducts.push(newProduct);
   }
-
-  newProduct.tempKey = uniqueId('new-slide');
-
-  step2.value.dtls.push(newProduct);
 
   if (isWellsFarmProduct) {
     // 정기배송 상품 조회 CASE1: 웰스팜/홈카페 상품을 선택하여 정기배송 패키지가 자동추가되는 경우
@@ -182,9 +193,9 @@ async function onSelectProduct(newProduct) {
       return;
     }
 
-    const defaultPackageProduct = packageProducts[0];
+    packageProducts.forEach(setTempKey);
 
-    const packageTempKey = uniqueId('new-slide');
+    const defaultPackageProduct = packageProducts[0];
 
     const cntrRel = {
       cntrRelId: undefined,
@@ -197,73 +208,72 @@ async function onSelectProduct(newProduct) {
         pdCd: defaultPackageProduct.pdCd,
         pdNm: defaultPackageProduct.pdNm,
       },
-      baseTempKey: packageTempKey,
+      baseTempKey: defaultPackageProduct.tempKey,
       ojTempKey: newProduct.tempKey,
       ojBasePdBas: { ...newProduct },
     };
 
     const packageProduct = {
       ...defaultPackageProduct,
-      tempKey: packageTempKey,
       cntrRels: [cntrRel],
       pkgs: packageProducts,
     };
 
     newProduct.ojCntrRels = [cntrRel];
 
-    step2.value.dtls.push(packageProduct);
+    newProducts.push(packageProduct);
   }
 
-  resetCntrSn();
+  step2.value.dtls.push(...newProducts);
   emit('contract-modified');
 }
 
-// async function onClickProduct(pd) {
-//   if (isMshCntr.value && step2.value.dtls.length > 0) {
-//     // 멤버십인 경우 상품 1개로 제한
-//     await alert('멤버십계약은 1개의 상품만 선택 가능합니다.');
-//     return;
-//   }
-//
-//   // 상품 추가
-//   if (pd.pdClsf === '7') {
-//     // 복합상품
-//     // 중복 불가
-//     if (step2.value.dtls.find((d) => d.hgrPdCd === pd.pdCd)) {
-//       await alert('동일한 복합상품이 존재합니다.');
-//       return;
-//     }
-//     // 하위상품 조회 후 추가
-//     const { data } = await dataService.get('sms/wells/contract/contracts/reg-cpt-products', {
-//       params: {
-//         cntrNo: step2.value.bas.cntrNo,
-//         hgrPdCd: pd.pdCd,
-//       },
-//     });
-//     const promises = data.map(addProduct);
-//     await Promise.all(promises);
-//     return;
-//   }
-//
-//   await addProduct(pd);
-// }
+async function onFetchedProduct(products) {
+  // 계약유형 : 멤버십
+  // 이미 선택된 상품이 없는 경우에만, 상품 자동 선택 처리
+  if (step2.value.bas?.cntrTpCd !== '07') {
+    return;
+  }
+  await onSelectProduct(products[0]);
+}
 
-async function onClickDelete(index) {
-  const { dtls } = step2.value;
-  const dtl = step2.value.dtls[index];
-
+async function onClickDelete(dtl) {
   const { cntrRels, ojCntrRels, hgrPdCd, tempKey, cntrSn } = dtl;
-  const removeKeys = [tempKey ?? cntrSn];
 
   if (cntrRels) {
+    let parentDeleted = false;
     cntrRels.forEach((cntrRel) => {
       const { ojDtlCntrNo, ojDtlCntrSn, ojTempKey } = cntrRel;
       if (ojDtlCntrNo !== cntrNo.value) {
         return;
       }
-      const removeKey = ojTempKey ?? ojDtlCntrSn;
-      removeKeys.push(removeKey);
+
+      const parentKey = ojTempKey ?? ojDtlCntrSn;
+      const parentDtl = step2.value.dtls.find((checkDtl) => {
+        const dtlKey = checkDtl.tempKey ?? checkDtl.cntrSn;
+
+        return parentKey === dtlKey;
+      });
+      if (!parentDtl) {
+        warn('계약 내 관계 형성이 상이하게 되어있습니다.');
+      }
+      parentDeleted = true;
+      onClickDelete(parentDtl);
     });
+
+    if (parentDeleted) {
+      return;
+    }
+  }
+
+  let removeKeys;
+
+  if (hgrPdCd) {
+    removeKeys = step2.value.dtls
+      .filter((product) => product.hgrPdCd === hgrPdCd)
+      .map((product) => product.tempKey ?? product.cntrSn);
+  } else {
+    removeKeys = [tempKey ?? cntrSn];
   }
 
   if (ojCntrRels) {
@@ -278,31 +288,17 @@ async function onClickDelete(index) {
   }
 
   removeKeys.forEach((key) => {
-    const removeDtlIndex = dtls.findIndex((checkDtl) => {
+    if (!key) {
+      warn(`삭제 키 확인 바랍니다. ${key}`);
+      return;
+    }
+    const removeDtlIndex = step2.value.dtls.findIndex((checkDtl) => {
       const dtlKey = checkDtl.tempKey ?? checkDtl.cntrSn;
       return key === dtlKey;
     });
-    dtls.splice(removeDtlIndex, 1);
+    step2.value.dtls.splice(removeDtlIndex, 1);
   });
 
-  if (hgrPdCd) {
-    /* TODO */
-  }
-
-  // if (isItem.rglrSpp(dtl) && dtl.sellTpDtlCd === '62') return;
-  // if (dtl.hgrPdCd) {
-  //   step2.value.dtls = step2.value.dtls.filter((spd) => dtl.hgrPdCd !== spd.hgrPdCd);
-  // }
-  // if (isItem.welsf(dtl) || isItem.hcf(dtl)) {
-  //   step2.value.dtls = step2.value.dtls
-  //   .filter((spd) => dtl.cntrSn !== spd.cntrSn && (dtl.cntrSn + 1) !== spd.cntrSn);
-  // } else {
-  //   step2.value.dtls.splice(index, 1);
-  // }
-  // if (dtl.packaged) {
-  //   step2.value.dtls = step2.value.dtls.filter((spd) => !spd.packaged);
-  // }
-  // resetCntrSn();
   emit('contract-modified');
 }
 
@@ -327,17 +323,17 @@ async function onClickOnePlusOne(dtl) {
       pdCd: dtl.pdCd,
       pdNm: dtl.pdNm,
     },
-    ojBasePdBas: {
-      pdNm: payload.pdNm,
-      ...payload,
-    }, /* 기기 선택 해야함. */
+    ojBasePdBas: { ...payload }, /* 기기 선택 해야함. */
   });
 
-  dtl.sellDscTpCd = '03';
-  dtl.rentalDiscountFixed = true;
+  dtl.priceOptionFilter = {
+    ...dtl.priceOptionFilter,
+    rentalDscDvCd: '8',
+    rentalDscTpCd: '03',
+  };
 }
 
-function onDeleteOnePlusOne(dtl) {
+async function onDeleteOnePlusOne(dtl) {
   const { cntrRels } = dtl;
   if (!cntrRels?.length) {
     warn('계약관계가 상이합니다.');
@@ -347,7 +343,6 @@ function onDeleteOnePlusOne(dtl) {
     warn('1+1 관계가 없습니다.');
   }
   cntrRels.splice(onePlusOneRelIndex, 1);
-  dtl.rentalDiscountFixed = false;
 }
 
 async function onClickDeviceChange(dtl) {
@@ -382,6 +377,20 @@ async function onClickDeviceChange(dtl) {
     mchnClnOjYn: payload.clnYn,
     ojCntrMmBaseDvCd: payload.resultDvCheck,
   };
+
+  if (payload.workFlag === '19') {
+    dtl.priceOptionFilter = {
+      ...dtl.priceOptionFilter,
+      rentalDscDvCd: '8',
+      rentalDscTpCd: '24',
+    };
+  } else {
+    dtl.priceOptionFilter = {
+      ...dtl.priceOptionFilter,
+      rentalDscDvCd: '8',
+      rentalDscTpCd: '02',
+    };
+  }
 }
 
 async function onClickSelectMachine(dtl) {
@@ -409,8 +418,87 @@ async function onClickSelectMachine(dtl) {
       pdCd: dtl.pdCd,
       pdNm: dtl.pdNm,
     },
-    ojBasePdBas: payload, /* 기기 선택 해야함. */
+    ojBasePdBas: { ...payload }, /* 기기 선택 해야함. */
   });
+}
+
+async function onPackaging(dtl, rentalDscTpCd) {
+  /*
+  if (!rentalDscTpCds?.length) {
+    warn('패키지 할인 유형코드가 이상합니다.');
+  }
+
+  const dtlsByRentalDscTpCd = rentalDscTpCds.reduce((mappingObj, rentalDscTpCd) => {
+    mappingObj[rentalDscTpCd] = [];
+    return mappingObj;
+  }, {});
+
+  step2.value.dtls.forEach((rentalDtl) => {
+    const { packageRentalDscTpCds } = rentalDtl;
+    if (!packageRentalDscTpCds?.length) { return; }
+    packageRentalDscTpCds.forEach((rentalDscTpCd) => {
+      if (rentalDscTpCds.includes(rentalDscTpCd)) {
+        dtlsByRentalDscTpCd[rentalDscTpCd].push(dtl);
+      }
+    });
+  }); */
+
+  const packagables = step2.value.dtls.filter((rentalDtl) => {
+    const { packageRentalDscTpCds } = rentalDtl;
+    if (!packageRentalDscTpCds?.length) {
+      return false;
+    }
+    return packageRentalDscTpCds.includes(rentalDscTpCd);
+  });
+
+  // 모바일과는 다르다!! 우선 냅다 선택하고, 패키징을 한다.
+  const { result, payload } = await modal({
+    component: 'WwctaRentalMultiCasePrchsDscChoP',
+    componentProps: {
+      rentalDscTpCd,
+      cntrDtls: packagables,
+    },
+  });
+
+  if (!result) {
+    return;
+  }
+
+  const { selectedCntrDtls, discountedCntrDtl } = payload;
+
+  const ojCntrRels = [];
+
+  selectedCntrDtls.forEach((cntrDtl) => {
+    if (cntrDtl !== discountedCntrDtl) {
+      cntrDtl.priceOptionFilter = {
+        rentalDscDvCd: '8', /* 일반 SORRY FOR HARD CODING. */
+        rentalDscTpCd: undefined,
+      };
+      const cntrRel = {
+        cntrRelId: undefined,
+        cntrRelDtlCd: CNTR_REL_DTL_CD_LK_MLTCS_PRCHS,
+        baseDtlCntrNo: cntrNo.value,
+        baseDtlCntrSn: undefined,
+        ojDtlCntrNo: cntrNo.value,
+        ojDtlCntrSn: undefined,
+        baseTempKey: cntrDtl.tempKey,
+        basePdBas: {
+          pdCd: cntrDtl.pdCd,
+          pdNm: cntrDtl.pdNm,
+        },
+        ojTempKey: discountedCntrDtl.tempKey,
+        ojBasePdBas: { ...discountedCntrDtl },
+      };
+      cntrDtl.cntrRels = [cntrRel];
+      ojCntrRels.push({ ...cntrRel });
+    }
+  });
+
+  discountedCntrDtl.priceOptionFilter = {
+    rentalDscDvCd: '8', /* 일반 SORRY FOR HARD CODING. */
+    rentalDscTpCd,
+  };
+  discountedCntrDtl.ojCntrRels = ojCntrRels;
 }
 
 function onDeleteSelectMachine(dtl) {
@@ -451,6 +539,22 @@ async function getCntrInfo() {
     },
   });
   step2.value = data.step2;
+  const { dtls = [] } = step2.value;
+  dtls.forEach((cntrDtl) => {
+    const { cntrRels = [] } = cntrDtl;
+    cntrRels.forEach((cntrRel) => {
+      if (cntrRel.ojDtlCntrNo === cntrNo.value) {
+        const ojCntrDtl = dtls.find((ojDtl) => ojDtl.cntrSn === cntrRel.ojDtlCntrSn);
+        if (!ojCntrDtl) {
+          warn('계약 관계에 문제가 있습니다.');
+          return;
+        }
+        ojCntrDtl.ojCntrRels ??= [];
+        ojCntrDtl.ojCntrRels.push(cntrRel);
+      }
+    });
+  });
+  step2.value.dtls = dtls;
   ogStep2.value = cloneDeep(step2.value);
 }
 
@@ -460,9 +564,14 @@ async function confirmProducts() {
     return;
   }
 
-  const res = await dataService.post('sms/wells/contract/contracts/confirm-products', step2.value.dtls);
-  res.data.forEach((newDtl, index) => {
+  step2.value.dtls.forEach((dtl) => {
+    dtl.basePdCd = dtl.pdCd;
+  });
+  const { data } = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, step2.value.dtls);
+  data.forEach((newDtl, index) => {
+    console.log(newDtl);
     step2.value.dtls[index].promotions = newDtl.promotions;
+    console.log(step2.value.dtls[index]);
   });
   return true;
 }
@@ -512,10 +621,13 @@ async function isValidStep() {
 
 const loaded = ref(false);
 
-async function initStep() {
-  if (loaded.value) { return; }
-  await getCntrInfo();
-  loaded.value = true;
+async function initStep(forced = false) {
+  console.log(loaded.value);
+  if (!forced && loaded.value) { return; }
+  if (cntrNo.value) {
+    await getCntrInfo();
+    loaded.value = true;
+  }
 }
 
 // 제휴계약 관련 설정
@@ -527,15 +639,13 @@ function setAllianceInfo() {
       dtls[i].alncmpCd = cd;
     }
   });
-  // console.log(JSON.stringify(step2.value, null, '\t'));
 }
 
 async function saveStep() {
-  resetCntrSn();
   setAllianceInfo();
   const savedCntr = await dataService.post('sms/wells/contract/contracts/save-cntr-step2', step2.value);
   notify(t('MSG_ALT_SAVE_DATA'));
-  ogStep2.value = cloneDeep(step2.value);
+  ogStep2.value = cloneDeep(step2.value); /* TODO REMOVE... */
   return savedCntr?.data?.key;
 }
 
@@ -543,6 +653,7 @@ exposed.getCntrInfo = getCntrInfo;
 exposed.isChangedStep = isChangedStep;
 exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
+exposed.loaded = loaded;
 exposed.saveStep = saveStep;
 exposed.confirmProducts = confirmProducts;
 
@@ -565,239 +676,87 @@ function onPriceChanged() {
 @import "kw-lib/src/css/mixins";
 
 .scoped-layout {
-  $-root: &;
-
-  width: 100%;
   height: 100%;
   display: flex;
   flex-flow: row nowrap;
+  container-type: inline-size;
 
   &__pick-area {
-    width: 339px;
-    flex: none;
-    height: 100%;
+    flex: 1 0 1px;
+    padding-right: 2px; // fixme
+    border-right: 1px solid $line-line;
   }
 
   &__mod-area {
+    min-width: 780px;
+    flex: 1 0 1px;
     height: 100%;
-    flex: auto;
-  }
-}
-
-.scoped-item {
-  $-root: &;
-  $-left-side-width: 68px;
-  $-right-side-width: 44px;
-
-  & :deep(> .kw-item__section) {
-    &.q-item__section--side {
-      min-width: $-left-side-width;
-      padding-right: $spacing-xs;
-    }
-
-    &.q-item__section--main ~ .q-item__section--side {
-      min-width: $-right-side-width;
-      padding-right: 0;
-    }
-
-    &.q-item__section:first-of-type {
-      &.q-item__section--main {
-        margin-left: $-left-side-width;
-      }
-    }
-
-    &.q-item__section:last-of-type {
-      &.q-item__section--main {
-        margin-right: $-right-side-width;
-      }
-    }
+    padding-left: 30px;
   }
 
-  &__section-type {
-    justify-content: flex-start;
-    width: 68px;
-    padding-right: $spacing-xs;
-  }
-
-  &__type {
-    color: $black3;
-    font-size: 14px;
-    line-height: 24px !important; // quasat 부터 시작한 유구한 역사의 important.
-    font-weight: normal;
-    letter-spacing: normal;
-  }
-
-  &__section-main {
-    justify-content: flex-start;
-  }
-
-  &__main {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: flex-start;
-    gap: $spacing-xs;
-  }
-
-  &__product-name {
-    @include typo("body");
-  }
-
-  &__chips {
-    display: flex;
-    gap: $spacing-xxs;
-  }
-
-  &__section-price {
-    justify-content: flex-start;
-    flex: none;
-    padding-left: $spacing-xs;
-  }
-
-  &__price {
-    @include typo("body");
-
-    font-weight: bold;
-  }
-
-  &__price-prev {
-    @include typo("dense");
-
-    color: $black3;
-    text-decoration: line-through;
-    text-align: right;
-  }
-
-  &__section-action {
-    min-width: 44px;
-    justify-content: flex-start;
-
-    > .kw-btn {
-      font-size: 24px;
-    }
-  }
-
-  &--data-modifier {
-    margin-top: 12px;
-
-    :deep(.kw-item__section) {
-      &.q-item__section--main:first-of-type {
-        margin-left: 68px;
-      }
-
-      &.q-item__section--main:last-of-type {
-        margin-right: 44px;
-      }
-    }
-  }
-
-  &__field-row {
-    display: flex;
-    flex-flow: row nowrap;
-    gap: $spacing-xs;
-
-    & > :where(.kw-field, .kw-field-wrap) {
-      width: 1px;
-      flex: 1 1 0;
-    }
-  }
-
-  &--sub-content {
-    margin-top: 16px;
-
-    &.kw-item {
-      min-height: unset;
-    }
-
-    #{$-root}__product-name {
-      font-weight: normal;
-    }
-
-    #{$-root}__price {
-      font-weight: normal;
-    }
-  }
-
-  &__addon {
-    margin-top: 16px;
-    font-size: 14px;
-    color: $black1;
-    font-weight: normal;
-
-    > .scoped-item__type {
-      line-height: 20px !important;
-      padding-right: $spacing-xs;
-    }
-
-    &::before {
-      content: "";
-      display: inline-block;
-      margin-bottom: 5px;
-      margin-right: 4.5px;
-      width: 9px;
-      height: 8.5px;
-      border-left: 1px solid #ccc;
-      border-bottom: 1px solid #ccc;
-    }
-  }
-
-  &-price-list {
-    display: flex;
-    flex-wrap: wrap;
-    max-width: calc(100% - 122px);
-    gap: 4px 25px;
-  }
-
-  &-price-item {
-    display: flex;
-    align-items: center;
-    position: relative;
-
-    &:last-child::after {
-      display: none;
-    }
-
-    &::after {
-      content: "";
-      display: block;
+  @container (max-width: 1100px) {
+    &__pick-area {
+      visibility: hidden;
+      width: 30px;
       position: absolute;
-      width: 1px;
-      height: 16px;
-      background-color: #ddd;
-      top: 50%;
-      right: -12px;
-      transform: translateY(-50%);
+      top: 0;
+      bottom: 0;
+      z-index: 20;
+      border-right: unset;
+
+      &::after {
+        visibility: visible;
+        content: "";
+        position: absolute;
+        inset: 10px;
+        top: 50%;
+        width: 6px;
+        height: 20px;
+        border-right: 2px solid $line-line;
+        border-left: 2px solid $line-line;
+      }
+
+      &:hover {
+        visibility: visible;
+        width: 339px;
+        background: $bg-white;
+        border-right: 1px solid $line-line;
+
+        &::after {
+          content: unset;
+        }
+      }
     }
   }
 
-  &-right-area {
-    padding-left: 68px;
-    width: 100%;
+  @container (min-width: 1101px) {
+    &__pick-area {
+      visibility: visible;
+      flex: none;
+      width: 339px;
+      height: 100%;
+    }
   }
 }
 
-.dashed-line {
-  border-top: 1px dashed #ddd;
-  height: 0;
-  background: none;
-}
+.scoped-mod-area {
+  position: relative;
 
-.scoped-child-select {
-  margin-top: 8px !important;
-  display: flex;
-  column-gap: 8px;
-  align-content: center;
+  &__title {
+    position: absolute;
+    left: 30px;
+    right: 40px;
+    margin: 0;
+    height: 46px;
+    background: $bg-white;
+    z-index: 1;
 
-  &::before {
-    content: "";
-    display: inline-block;
-    align-self: center;
-    margin: 6px 6px 6px 0;
-    width: 10px;
-    height: 10px;
-    border-left: 2px solid #ccc;
-    border-bottom: 2px solid #ccc;
+    @include typo("subtitle", 500);
+  }
+
+  &__content {
+    padding-top: 46px;
+    height: 100%;
   }
 }
-
-// //rev:230623 수정 및 추가
 </style>

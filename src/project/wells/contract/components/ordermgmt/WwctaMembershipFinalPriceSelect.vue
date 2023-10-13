@@ -5,8 +5,9 @@
     class="fit"
     header-class="scoped-item scoped-item--header"
     block-inherit-padding
+    expand-icon-toggle
   >
-    <template #header>
+    <template #header="{ toggle }">
       <kw-item-section
         class="scoped-item__section-type"
         side
@@ -21,15 +22,20 @@
         class="scoped-item__section-main"
       >
         <div class="scoped-item__main">
+          <kw-btn
+            class="transparent absolute fit"
+            borderless
+            @click="toggle"
+          />
           <kw-item-label
             class="scoped-item__product-name"
           >
-            {{ dtl.pdNm }}
+            {{ dtl.cstBasePdAbbrNm || dtl.pdNm }}
           </kw-item-label>
           <div class="scoped-item__chips">
             <kw-chip
-              v-if="sellTpNm"
-              :label="sellTpNm"
+              v-if="labelForSellTpCd"
+              :label="labelForSellTpCd"
               color="primary"
               outline
             />
@@ -54,7 +60,7 @@
           borderless
           icon="close_24"
           class="w24 kw-font-pt24"
-          @click.stop="onClickDelete"
+          @click="onClickDelete"
         />
       </kw-item-section>
     </template>
@@ -100,7 +106,8 @@ const emit = defineEmits([
 ]);
 
 const { getCodeName } = await useCtCode(
-  'SELl_TP_CD',
+  'SELL_TP_CD',
+  'SELL_TP_DTL_CD',
   'SV_TP_CD',
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
@@ -117,7 +124,18 @@ let pdQty = toRef(props.modelValue, 'pdQty');
 let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions');
 // appliedPromotions.value ??= [];
 
-const sellTpNm = computed(() => getCodeName('SELl_TP_CD', '3'));
+const labelForSellTpCd = computed(() => {
+  const product = dtl.value;
+  if (!product) {
+    return undefined;
+  }
+  if (product.sellTpCd && product.sellTpDtlCd) {
+    return `${getCodeName('SELL_TP_CD', product.sellTpCd)}-${getCodeName('SELL_TP_DTL_CD', product.sellTpDtlCd)}`;
+  }
+  if (product.sellTpCd) {
+    return getCodeName('SELL_TP_CD', product.sellTpCd);
+  }
+});
 
 const selectedFinalPrice = ref();
 
@@ -126,6 +144,7 @@ async function fetchFinalPriceOptions() {
     params: {
       cntrNo: props.bas.cntrNo,
       pdCd: dtl.value.pdCd,
+      hgrPdCd: dtl.value.hgrPdCd,
     },
     silent: true,
   });

@@ -313,7 +313,7 @@ function getPhoneNo(locaraTno, exnoEncr, idvTno) {
 function getTime(minutes) {
   if (isEmpty(minutes)) return '';
   const hour = Math.floor(toNumber(minutes) / 60);
-  const minute = toNumber(minutes) % 60;
+  const minute = Math.floor(toNumber(minutes) % 60);
   return `${hour}시간 ${minute}분`;
 }
 

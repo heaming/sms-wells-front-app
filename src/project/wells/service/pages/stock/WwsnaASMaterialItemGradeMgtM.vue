@@ -1,16 +1,16 @@
 <!----
- ****************************************************************************************************
- * 프로그램 개요
- ****************************************************************************************************
- 1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaASMaterialItemGradeMgtM(W-SV-U-0115M01) - AS자재 품목등급관리
- 3. 작성자 : SaeRomI.Kim
- 4. 작성일 : 2023.06.16
- ****************************************************************************************************
- * 프로그램 설명
- ****************************************************************************************************
- - AS자재 품목등급관리 (http://localhost:3000/#/service/wwsna-as-material-item-grade-mgt)
- ****************************************************************************************************
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : SNA (재고관리)
+2. 프로그램 ID : WwsnaASMaterialItemGradeMgtM(W-SV-U-0115M01) - AS자재 품목등급관리
+3. 작성자 : SaeRomI.Kim
+4. 작성일 : 2023.06.16
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 관리자가 AS 자재의 품목등급을 조정하여 관리하는 화면 (http://localhost:3000/#/service/wwsna-as-material-item-grade-mgt)
+****************************************************************************************************
 --->
 <template>
   <kw-page>
@@ -277,9 +277,10 @@ async function fetchData() {
   pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
 
-  if (itmGd.length === 0) {
+  if (isEmpty(itmGd)) {
     const { baseYm } = cachedParams;
 
+    // 해당월의 자료가 없습니다. 자료를 생성합니다.
     await alert(t('MSG_ALT_CRSP_MM_NO_DATA_MTR_CRT'));
 
     const validRes = await dataService.get('/sms/wells/service/as-material-item-grades/duplication-check', { params: { ...cachedParams } });
@@ -312,6 +313,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   const currentMonth = dayjs().format('YYYYMM');
   const searchBaseYm = searchParams.value.baseYm;
@@ -364,16 +366,16 @@ async function onClickExcelDownload() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmPdNm' },
-    { fieldName: 'jbfMms3OstrQty', dataType: 'number' },
-    { fieldName: 'mlmnOstrQty', dataType: 'number' },
-    { fieldName: 'dAvOstrQty', dataType: 'number' },
-    { fieldName: 'itmMngtGdCd' },
-    { fieldName: 'ctrItmMngtGdCd' },
-    { fieldName: 'rmkCn' },
-    { fieldName: 'mngtYm' },
+    { fieldName: 'sapCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'itmPdNm' }, // 상품명
+    { fieldName: 'jbfMms3OstrQty', dataType: 'number' }, // 직전 3개월 출고량 합계
+    { fieldName: 'mlmnOstrQty', dataType: 'number' }, // 월 평균
+    { fieldName: 'dAvOstrQty', dataType: 'number' }, // 일 평균
+    { fieldName: 'itmMngtGdCd' }, // 품목관리등급
+    { fieldName: 'ctrItmMngtGdCd' }, // 조정관리등급
+    { fieldName: 'rmkCn' }, // 조정사유
+    { fieldName: 'mngtYm' }, // 관리년월
   ];
 
   const columns = [

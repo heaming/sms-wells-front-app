@@ -17,7 +17,7 @@
   <kw-popup
     size="xl"
   >
-    <h3 class="mt0">
+    <h3>
       {{ $t('MSG_TXT_CST_BAS_INF') }}
     </h3>
     <kw-form
@@ -29,7 +29,7 @@
           <p>{{ rentalSalesDetail.cstKnm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
-          <p>{{ rentalSalesDetail.cntrDtlNo }}</p>
+          <p>{{ rentalSalesDetail.cntrNo }}-{{ rentalSalesDetail.cntrSn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_YM')">
           <p>{{ stringUtil.getDateFormat(rentalSalesDetail.slClYm, 'YYYY-MM').substring(0,7) }}</p>
@@ -38,7 +38,7 @@
     </kw-form>
 
     <kw-separator />
-    <kw-action-top>
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_CNTR_PDCT') }}</h3>
       </template>
@@ -95,7 +95,7 @@
 
     <kw-separator />
 
-    <kw-action-top>
+    <kw-action-top class="mb20">
       <template #left>
         <h3 class="mb0">
           {{ $t('MSG_TXT_PRM_ARTC') }}
@@ -140,7 +140,7 @@
 
     <kw-separator />
 
-    <kw-action-top>
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_SL_ARTC') }}</h3>
       </template>
@@ -213,7 +213,7 @@
 
     <kw-separator />
 
-    <kw-action-top>
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_PRM_PRPD') }}</h3>
       </template>
@@ -268,7 +268,7 @@
 
     <kw-separator />
 
-    <kw-action-top>
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_CCAM') }}</h3>
       </template>
@@ -305,7 +305,7 @@
 
     <kw-separator />
 
-    <kw-action-top>
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_DLQ_ADD') }}</h3>
       </template>
@@ -341,7 +341,7 @@
 
     <kw-separator />
 
-    <kw-action-top>
+    <kw-action-top class="mb20">
       <template #left>
         <h3>{{ $t('MSG_TXT_DLQ_ARTC') }}</h3>
       </template>
@@ -352,10 +352,10 @@
       dense
     >
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_KEEP_AW_AGG_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.keepAwAmt)) }} / {{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.keepAwTotAmt)) }}</p>
-        </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_DLQ_MCNT_AGG')">
+        <kw-form-item
+          :label="$t('MSG_TXT_DLQ_MCNT_AGG')"
+          :colspan="2"
+        >
           <p>{{ rentalSalesDetail.dlqMcn }} / {{ rentalSalesDetail.dlqAcuMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
@@ -385,7 +385,7 @@
           <p>{{ stringUtil.getDateFormat(rentalSalesDetail.actcsDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CLCTAM_ICHR')">
-          {{ rentalSalesDetail.clctamDvCdNm }}({{ rentalSalesDetail.clctamDvCd }}) {{ rentalSalesDetail.clctamPrtnrNm }}({{ rentalSalesDetail.clctamPrtnrNo }})
+          {{ rentalSalesDetail.clctamDvCd }}{{ rentalSalesDetail.clctamPrtnrNo }}
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FW_YM')">
           <p>{{ rentalSalesDetail.clcoTfDt }}</p>
@@ -409,7 +409,12 @@ const props = defineProps({
     required: false,
     default: '',
   },
-  cntrDtlNo: {
+  cntrNo: {
+    type: String,
+    required: false,
+    default: '',
+  },
+  cntrSn: {
     type: String,
     required: false,
     default: '',
@@ -422,7 +427,8 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 const searchParams = ref({
   slClYm: props.slClYm,
-  cntrDtlNo: props.cntrDtlNo,
+  cntrNo: props.cntrNo,
+  cntrSn: props.cntrSn,
 });
 
 const rentalSalesDetail = ref({});
@@ -430,10 +436,10 @@ const rentalSalesDetail = ref({});
 let cachedParams;
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
-  console.log(searchParams.value);
   const res = await dataService.get('/sms/wells/closing/rental-sales-detail', { params: cachedParams });
-  console.log(res.data);
   rentalSalesDetail.value = res.data;
+  rentalSalesDetail.value.clctamDvCd = rentalSalesDetail.value.clctamDvCd ? `${rentalSalesDetail.value.rcpAoffceCdNm}/${rentalSalesDetail.value.clctamDvCdNm}(${rentalSalesDetail.value.clctamDvCd})` : '';
+  rentalSalesDetail.value.clctamPrtnrNo = rentalSalesDetail.value.clctamPrtnrNo ? `${rentalSalesDetail.value.clctamPrtnrNm}(${rentalSalesDetail.value.clctamPrtnrNo})` : '';
 }
 
 onMounted(async () => {

@@ -135,11 +135,11 @@ import ZwpdcPropGroupsMgt from '~sms-common/product/pages/manage/components/Zwpd
 import WwpdcAsPartDtlMContents from './WwpdcAsPartDtlMContents.vue';
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  newRegYn: { type: String, default: null },
-  reloadYn: { type: String, default: null },
-  copyPdCd: { type: String, default: null },
-  propWatch: { type: Object, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  newRegYn: { type: String, default: null }, // 신규등록 여부
+  reloadYn: { type: String, default: null }, // 새로고침 여부
+  copyPdCd: { type: String, default: null }, // 복사 원본 상품코드
+  propWatch: { type: Object, default: null }, // Props 변경 여부
 });
 
 const { t } = useI18n();
@@ -173,6 +173,7 @@ const isCreate = ref(false);
 const obsMainRef = ref();
 const subTitle = ref();
 
+// 중복검사
 async function duplicationCheck(validationType, sourceData) {
   const validationParams = {};
   validationParams.validationType = validationType;
@@ -189,6 +190,7 @@ async function duplicationCheck(validationType, sourceData) {
   return true;
 }
 
+// 저장 데이터
 async function getSaveData() {
   const subList = { isModifiedProp: false, isOnlyFileModified: false, isModifiedRelation: false };
   await Promise.all(cmpStepRefs.value.map(async (item, idx) => {
@@ -222,6 +224,7 @@ async function getSaveData() {
   return subList;
 }
 
+// 목록으로 이동
 async function goList() {
   await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { searchYn: 'Y' });
 }
@@ -277,12 +280,14 @@ async function onClickCancel() {
   }
 }
 
+// 컴포넌트 초기화
 async function init() {
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.init) await item.value?.init();
   }));
 }
 
+// 상품 데이터 불러오기
 async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`).catch(() => {
@@ -308,6 +313,7 @@ async function fetchProduct() {
   await init();
 }
 
+// 저장
 async function onClickSave(tempSaveYn) {
   // 1. Step별 수정여부 확인
   // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
@@ -409,6 +415,7 @@ async function onClickReset() {
   await fetchProduct();
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, newRegYn, reloadYn, copyPdCd, propWatch } = props;
   currentPdCd.value = pdCd;
@@ -474,6 +481,7 @@ watch(() => props, async ({ pdCd, newRegYn, reloadYn, copyPdCd, propWatch }) => 
   }
 }, { deep: true });
 
+// 팝업 호출 이후
 async function popupCallback(payload) {
   if (payload?.fromUi === 'ZwpdcMaterialsCodeListP') {
     if (isEmpty(prevStepData.value[bas])) {
@@ -515,6 +523,7 @@ async function onKeydownInput(e, field) {
   // console.log(e, field);
 }
 
+// 팝업 호출
 async function openPopup(field) {
   const { payload } = await modal({
     component: field.sourcInfCn,

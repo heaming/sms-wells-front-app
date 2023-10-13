@@ -181,7 +181,7 @@ const initGrid = defineGrid((data, view) => {
     },
     { fieldName: 'bilDt', header: t('MSG_TXT_FNT_DT'), width: '120', styleName: 'text-center', dataType: 'date', datetimeFormat: 'yyyy-MM-dd' },
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'dpAmt', header: t('MSG_TXT_RCV_AMT'), width: '120', styleName: 'text-center', numberFormat: '#,##0' },
+    { fieldName: 'dpAmt', header: t('MSG_TXT_RCV_AMT') + t('MSG_TXT_WON'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
   ];
 
   data.setFields(fields);

@@ -169,7 +169,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import { getCodeNames } from '~sms-common/product/utils/pdUtil';
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
 });
 
 const { cancel } = useModal();
@@ -205,6 +205,7 @@ const codes = await codeUtil.getMultiCodes(
   'CRNCY_DV_CD',
 );
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   if (pdRels.value && pdRels.value.length) {
     const materialView = grdMaterialRef.value?.getView();
@@ -251,18 +252,20 @@ async function initGridRows() {
   }
 }
 
+// 데이터 불러오기
 async function fetchData() {
-  // const resPd = await dataService.get('/sms/common/product/products', {
-  //  params: { pdTpCd: pdConst.PD_TP_CD_STANDARD, pdCd: currentPdCd.value } });
+  // 상품 기본정보
   const resPd = await dataService.get(`/sms/common/product/${currentPdCd.value}`).catch(() => {
     cancel();
   });
   if (!resPd || !resPd.data) return;
   pdInfo.value = resPd.data?.product;
 
+  // 연결상품 정보
   const resRel = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`);
   pdRels.value = resRel.data;
 
+  // 가격 정보
   const resPrc = await dataService.get(`/sms/common/product/prices/products/${currentPdCd.value}`);
   pdPrcs.value = resPrc.data?.prices;
   if (pdPrcs.value) {
@@ -275,10 +278,12 @@ async function fetchData() {
     usedChannelCds.value = codes.SELL_CHNL_DTL_CD.filter((item) => channels.includes(item.codeId));
   }
 
+  // 분류
   const resCls = await dataService.get('/sms/common/product/classifications', { params: { hgrPdClsfId: '', pdTpCd: pdConst.PD_TP_CD_STANDARD } });
   codes.clsfCodes = resCls.data?.map((item) => ({ ...item, codeId: item.pdClsfId, codeName: item.pdClsfNm }), []);
 }
 
+// 판매채널 변경
 async function onUpdateSellChannel() {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('sellChnlCd', false);
@@ -287,6 +292,7 @@ async function onUpdateSellChannel() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;

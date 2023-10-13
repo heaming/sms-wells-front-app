@@ -42,7 +42,7 @@
         <kw-search-item :label="t('MSG_TXT_BAD_DV')">
           <kw-select
             v-model="searchParams.badDivide"
-            :options="codes.BAD_DV_CD"
+            :options="optionBadDvCdList"
             first-option="all"
           />
         </kw-search-item>
@@ -52,7 +52,7 @@
         <kw-search-item :label="t('MSG_TXT_PD_GRP')">
           <kw-select
             v-model="searchParams.pdGrp"
-            :options="codes.PD_GRP_CD"
+            :options="optionPdGrpList"
             class="w150"
             first-option="all"
             @change="changePdGrpCd"
@@ -102,6 +102,7 @@
         />
         <kw-btn
           primary
+          dense
           label="M+3 출시일 등록"
           @click="onClickPopup"
         />
@@ -137,6 +138,7 @@ const codes = await codeUtil.getMultiCodes(
   'BAD_DV_CD',
   'PD_GRP_CD',
 );
+console.log('codes.PD_GRP_CD >>>', codes.PD_GRP_CD);
 
 const { getPartMaster } = smsCommon();
 
@@ -159,27 +161,27 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-// 서비스유형 중분류..공통코드 있을거 같은데...
-// 전체[00], 제품A/S[01], 특별A/S[02], 제품원인[03], 설치원인[04], 고객원인[05], 부품원인[06]
+// 서비스유형
 const serviceTypes = [
   { codeId: '3110', codeName: '제품A/S' },
   { codeId: '3112', codeName: '특별A/S' },
   { codeId: '3210', codeName: '제품원인' },
   // { codeId: '04', codeName: '설치원인' },
-  { codeId: '3440', codeName: '회사설치' },
-  { codeId: '3230', codeName: '고객원인' },
+  // { codeId: '3440', codeName: '회사설치' },
+  // { codeId: '3230', codeName: '고객원인' },
   // { codeId: '06', codeName: '부품원인' },
-  { codeId: '3121', codeName: '필터B/S' },
+  // { codeId: '3121', codeName: '필터B/S' },
 ];
 
-// 소분류(불량구분)...일단 공통코드 BAD_DV_CD 사용
-// 전체, 모종불량, 제품불량, 매니저과실, 엔지니어과실, 품질개선(리콜) 서비스
-// const badGbTypes = [
-// { codeId: '100R', codeName: '제품불량' },
-// { codeId: '500R', codeName: '엔지니어과실' },
-// { codeId: '400R', codeName: '매니저과실' },
-// { codeId: '700R', codeName: '품질개선(리콜) 서비스' },
-// ];
+// 불량구분
+const arrBadDvCd = ['100R', '400R', '500R', '700R'];
+const optionBadDvCdList = ref([]);
+optionBadDvCdList.value = codes.BAD_DV_CD.filter((v) => arrBadDvCd.includes(v.codeId));
+
+// 상품그룹
+const arrPdGrp = ['1', '2', '3', '4', '6', '9'];
+const optionPdGrpList = ref([]);
+optionPdGrpList.value = codes.PD_GRP_CD.filter((v) => arrPdGrp.includes(v.codeId));
 
 const pds = ref([]);
 async function changePdGrpCd() {
@@ -240,6 +242,9 @@ async function onClickPopup() {
   });
 }
 
+// -------------------------------------------------------------------------------------------------
+// Initialize Grid
+// -------------------------------------------------------------------------------------------------
 const divCd = [
   { codeId: '1', codeName: 'A/S건' },
   { codeId: '2', codeName: '렌탈 계정(수)' },
@@ -248,35 +253,35 @@ const divCd = [
   { codeId: '5', codeName: '부품비용' },
 ];
 
-// -------------------------------------------------------------------------------------------------
-// Initialize Grid
-// -------------------------------------------------------------------------------------------------
 function initGrdMain(data, view) {
   const fields = [
-    { fieldName: 'itmKndCd' }, // 항목명
-    { fieldName: 'totalCnt', dataType: 'number' }, // 합계
-    { fieldName: 'm01', dataType: 'number' }, // 1월
-    { fieldName: 'm02', dataType: 'number' }, // 2월
-    { fieldName: 'm03', dataType: 'number' }, // 3월
-    { fieldName: 'm04', dataType: 'number' }, // 4월
-    { fieldName: 'm05', dataType: 'number' }, // 5월
-    { fieldName: 'm06', dataType: 'number' }, // 6월
-    { fieldName: 'm07', dataType: 'number' }, // 7월
-    { fieldName: 'm08', dataType: 'number' }, // 8월
-    { fieldName: 'm09', dataType: 'number' }, // 9월
-    { fieldName: 'm10', dataType: 'number' }, // 10월
-    { fieldName: 'm11', dataType: 'number' }, // 11월
-    { fieldName: 'm12', dataType: 'number' }, // 12월
+    { fieldName: 'nm' }, // 항목명
+    { fieldName: 'tcnt', dataType: 'number' }, // 합계
+    { fieldName: 'acol1', dataType: 'number' }, // 1월
+    { fieldName: 'acol2', dataType: 'number' }, // 2월
+    { fieldName: 'acol3', dataType: 'number' }, // 3월
+    { fieldName: 'acol4', dataType: 'number' }, // 4월
+    { fieldName: 'acol5', dataType: 'number' }, // 5월
+    { fieldName: 'acol6', dataType: 'number' }, // 6월
+    { fieldName: 'acol7', dataType: 'number' }, // 7월
+    { fieldName: 'acol8', dataType: 'number' }, // 8월
+    { fieldName: 'acol9', dataType: 'number' }, // 9월
+    { fieldName: 'acol10', dataType: 'number' }, // 10월
+    { fieldName: 'acol11', dataType: 'number' }, // 11월
+    { fieldName: 'acol12', dataType: 'number' }, // 12월
+    { fieldName: 'maxval', dataType: 'number' },
+    { fieldName: 'minval', dataType: 'number' },
+    { fieldName: 'avg', dataType: 'number' },
   ];
 
   const columns = [
     {
-      fieldName: 'itmKndCd',
+      fieldName: 'nm',
       header: t('MSG_TXT_DIV'),
       width: '150',
       displayCallback: (g, i) => {
-        const { itmKndCd } = gridUtil.getRowValue(g, i.itemIndex);
-        return divCd.find((x) => x.codeId === itmKndCd).codeName;
+        const { nm } = gridUtil.getRowValue(g, i.itemIndex);
+        return divCd.find((x) => x.codeId === nm).codeName;
       },
       headerSummary: {
         text: t('MSG_TXT_SUM'),
@@ -287,7 +292,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'totalCnt',
+      fieldName: 'tcnt',
       header: t('MSG_TXT_SUM'),
       width: '100',
       styleName: 'text-right',
@@ -298,7 +303,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm01',
+      fieldName: 'acol1',
       header: t('MSG_TXT_JAN'),
       width: '100',
       styleName: 'text-right',
@@ -309,7 +314,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm02',
+      fieldName: 'acol2',
       header: t('MSG_TXT_FEB'),
       width: '100',
       styleName: 'text-right',
@@ -320,7 +325,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm03',
+      fieldName: 'acol3',
       header: t('MSG_TXT_MAR'),
       width: '100',
       styleName: 'text-right',
@@ -331,7 +336,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm04',
+      fieldName: 'acol4',
       header: t('MSG_TXT_APRI'),
       width: '100',
       styleName: 'text-right',
@@ -342,7 +347,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm05',
+      fieldName: 'acol5',
       header: t('MSG_TXT_MAY'),
       width: '100',
       styleName: 'text-right',
@@ -353,7 +358,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm06',
+      fieldName: 'acol6',
       header: t('MSG_TXT_JUN'),
       width: '100',
       styleName: 'text-right',
@@ -364,7 +369,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm07',
+      fieldName: 'acol7',
       header: t('MSG_TXT_JUL'),
       width: '100',
       styleName: 'text-right',
@@ -375,7 +380,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm08',
+      fieldName: 'acol8',
       header: t('MSG_TXT_AUG'),
       width: '100',
       styleName: 'text-right',
@@ -386,7 +391,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm09',
+      fieldName: 'acol9',
       header: t('MSG_TXT_SEPT'),
       width: '100',
       styleName: 'text-right',
@@ -397,7 +402,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm10',
+      fieldName: 'acol10',
       header: t('MSG_TXT_OCT'),
       width: '100',
       styleName: 'text-right',
@@ -408,7 +413,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm11',
+      fieldName: 'acol11',
       header: t('MSG_TXT_NOV'),
       width: '100',
       styleName: 'text-right',
@@ -419,7 +424,7 @@ function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm12',
+      fieldName: 'acol12',
       header: t('MSG_TXT_DECE'),
       width: '100',
       styleName: 'text-right',
@@ -429,6 +434,9 @@ function initGrdMain(data, view) {
         expression: 'sum',
       },
     },
+    { fieldName: 'maxval', visible: false },
+    { fieldName: 'minval', visible: false },
+    { fieldName: 'avg', visible: false },
   ];
 
   // 헤더쪽 합계 행고정, summary

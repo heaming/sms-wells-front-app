@@ -48,8 +48,8 @@ import { pageMove } from '~sms-common/product/utils/pdUtil';
 import WwpdcAsPartDtlMContents from './WwpdcAsPartDtlMContents.vue';
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  reloadYn: { type: String, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  reloadYn: { type: String, default: null }, // 새로고침 여부
 });
 
 const dataService = useDataService();
@@ -65,10 +65,12 @@ const currentPdCd = ref();
 const pdBas = ref({});
 const currentInitData = ref({});
 
+// 목록으로 이동
 async function goList() {
   await pageMove(pdConst.ASPART_LIST_PAGE, true, router, { isSearch: true }, { searchYn: 'Y' });
 }
 
+// 상품 데이터 불러오기
 async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`).catch(() => {
@@ -80,6 +82,7 @@ async function fetchProduct() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;

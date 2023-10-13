@@ -47,7 +47,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
+          :label="$t('MSG_TXT_PRTNR_NUM_EMPL_NM')"
         >
           <zwog-partner-search v-model:prtnr-no="searchParams.prtnrNo" />
         </kw-search-item>

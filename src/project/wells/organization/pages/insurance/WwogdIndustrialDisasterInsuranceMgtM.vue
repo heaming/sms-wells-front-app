@@ -29,7 +29,7 @@
             rules="required"
           />
         </kw-search-item>
-        <kw-search-item :label="t('MSG_TXT_SEQUENCE_NUMBER')">
+        <kw-search-item :label="t('MSG_TXT_PRTNR_NUM_EMPL_NM')">
           <zwog-partner-search
             v-model:prtnr-no="searchParams.prtnrNo"
             class="w113"

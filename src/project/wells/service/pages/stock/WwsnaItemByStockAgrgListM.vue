@@ -1,16 +1,16 @@
 <!----
- ****************************************************************************************************
- * 프로그램 개요
- ****************************************************************************************************
- 1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaItemByStockAgrgListM(W-SV-U-0140M01) - 품목별 재고 집계
- 3. 작성자 : SaeRomI.Kim
- 4. 작성일 : 2023.08.08
- ****************************************************************************************************
- * 프로그램 설명
- ****************************************************************************************************
- 기준일자로 품목별 재고집계현황을 조회하는 화면 (http://localhost:3000/#/service/wwsna-item-by-stock-agrg-list)
- ****************************************************************************************************
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : SNA (재고관리)
+2. 프로그램 ID : WwsnaItemByStockAgrgListM(W-SV-U-0140M01) - 품목별 재고 집계
+3. 작성자 : SaeRomI.Kim
+4. 작성일 : 2023.08.08
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 기준일자로 품목별 재고집계현황을 조회하는 화면 (http://localhost:3000/#/service/wwsna-item-by-stock-agrg-list)
+****************************************************************************************************
 --->
 <template>
   <kw-page>
@@ -247,6 +247,7 @@ const filterCodes = ref({
   pdGdCd: [],
 });
 
+// 조회조건 공통코드 필터링
 function codeFilter() {
   filterCodes.value.wareDvCd = codes.WARE_DV_CD.filter((v) => ['2', '3'].includes(v.codeId));
   filterCodes.value.matMngtDvCd = codes.MAT_MNGT_DV_CD.filter((v) => ['1', '2', '3', '4', '5'].includes(v.codeId));
@@ -277,6 +278,7 @@ function onChangeItmKndCd() {
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 }
 
+// SAP 시작코드 변경 시
 function onChangeStrtSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -286,6 +288,7 @@ function onChangeStrtSapCd() {
   }
 }
 
+// SAP 종료코드 변경 시
 function onChangeEndSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -346,6 +349,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
@@ -373,10 +377,10 @@ fieldsObj = {
 
   // 그리드 공통컬럼
   defaultFields: [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
-    { fieldName: 'csmrUprcAmt',
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' }, // SAP코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' }, // 품목코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // 상품명
+    { fieldName: 'csmrUprcAmt', // 소비자가
       header: t('MSG_TXT_CSPRC'),
       width: '100',
       styleName: 'text-right',
@@ -385,9 +389,10 @@ fieldsObj = {
         expression: 'sum',
         numberFormat: '#,##0.##',
       } },
-    { fieldName: 'leadTime', header: t('TXT_MSG_AS_LDTM'), width: '100', styleName: 'text-right' },
-    { fieldName: 'moq', header: t('MSG_TXT_MOQ'), width: '100', styleName: 'text-right' },
-    { fieldName: 'qty100002',
+    { fieldName: 'leadTime', header: t('TXT_MSG_AS_LDTM'), width: '100', styleName: 'text-right' }, // 리드타임
+    { fieldName: 'moq', header: t('MSG_TXT_MOQ'), width: '100', styleName: 'text-right' }, // MOQ
+    // 재고현황
+    { fieldName: 'qty100002', // 교원파주
       header: `${t('MSG_TXT_KW')}${t('MSG_TXT_PAJU')}`,
       width: '100',
       styleName: 'text-right',
@@ -396,7 +401,7 @@ fieldsObj = {
         expression: 'sum',
         numberFormat: '#,##0.##',
       } },
-    { fieldName: 'qty100008',
+    { fieldName: 'qty100008', // 교원성수
       header: `${t('MSG_TXT_KW')}${t('MSG_TXT_SEONG_SU')}`,
       width: '100',
       styleName: 'text-right',
@@ -405,7 +410,7 @@ fieldsObj = {
         expression: 'sum',
         numberFormat: '#,##0.##',
       } },
-    { fieldName: 'qty200000',
+    { fieldName: 'qty200000', // 서비스센터
       header: t('MSG_TXT_SV_CNR'),
       width: '100',
       styleName: 'text-right',
@@ -414,7 +419,7 @@ fieldsObj = {
         expression: 'sum',
         numberFormat: '#,##0.##',
       } },
-    { fieldName: 'qty299999',
+    { fieldName: 'qty299999', // 엔지니어
       header: t('MSG_TXT_EGER'),
       width: '83',
       styleName: 'text-right',
@@ -423,7 +428,7 @@ fieldsObj = {
         expression: 'sum',
         numberFormat: '#,##0.##',
       } },
-    { fieldName: 'qty300000',
+    { fieldName: 'qty300000', // 영업센터
       header: t('MSG_TXT_BSNS_CNTR'),
       width: '93',
       styleName: 'text-right',
@@ -432,7 +437,7 @@ fieldsObj = {
         expression: 'sum',
         numberFormat: '#,##0.##',
       } },
-    { fieldName: 'qty999999',
+    { fieldName: 'qty999999', // 계
       header: t('MSG_TXT_AGG'),
       width: '100',
       styleName: 'text-right',

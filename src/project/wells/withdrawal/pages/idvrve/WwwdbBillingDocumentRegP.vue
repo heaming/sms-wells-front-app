@@ -68,7 +68,8 @@
     <kw-action-top>
       <template #left>
         <h3>
-          {{ t('청구내역') }}
+          <!-- 청구내역 -->
+          {{ t('MSG_TXT_BIL_IZ') }}
         </h3>
         <!-- <kw-paging-info
           v-model:page-index="pageInfo.pageIndex"
@@ -80,8 +81,8 @@
       <kw-btn
         :label="t('MSG_BTN_DEL')"
         dense
+        secondary
         grid-action
-        color="line-bg"
         @click="onClickRemove"
       />
       <!-- label="삭제" -->
@@ -90,12 +91,11 @@
         inset
         spaced
       />
-
       <kw-btn
         :label="t('MSG_TXT_ROW_SPMT')"
         dense
+        secondary
         grid-action
-        color="line-bg"
         @click="onClickAddRow"
       />
       <!-- label="행 추가" -->
@@ -373,8 +373,8 @@ async function initProps() {
     await fetchData();
   } else {
     regMainData.value.state = 'created';
-    const view = grdPageRef.value.getView();
-    gridUtil.insertRowAndFocus(view, 0, {});
+    // const view = grdPageRef.value.getView();
+    // gridUtil.insertRowAndFocus(view, 0, {});
     await obsRef.value.init();
   }
 }

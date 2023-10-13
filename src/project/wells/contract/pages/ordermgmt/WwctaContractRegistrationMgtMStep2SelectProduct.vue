@@ -61,11 +61,13 @@
             </template>
             <kw-list
               class="scoped-product-picker-list"
-              item-class="scoped-product-picker-list__item"
-              :items="filteredClassifyingProducts[pdClsfCd]"
-              item-key="pdCd"
             >
-              <template #item="{item : product}">
+              <!-- 업보려니...합시다. -->
+              <kw-item
+                v-for="(product, idx) in filteredClassifyingProducts[pdClsfCd]"
+                :key="`product-${idx}`"
+                class="scoped-product-picker-list__item"
+              >
                 <kw-item-section>
                   <kw-item-label
                     font="dense"
@@ -86,14 +88,14 @@
                     class="mt6 flex gap-xxs"
                   >
                     <kw-chip
-                      v-if="product.sellTpCd"
-                      :label="getCodeName('SELL_TP_CD', product.sellTpCd)"
+                      v-if="labelForSellTpCd(product)"
+                      :label="labelForSellTpCd(product)"
                       color="primary"
                       outline
                     />
                   </kw-item-label>
                 </kw-item-section>
-              </template>
+              </kw-item>
             </kw-list>
           </kw-expansion-item>
         </kw-list>
@@ -115,12 +117,16 @@ const props = defineProps({
 });
 const emit = defineEmits([
   'select',
+  'fetched',
 ]);
 const exposed = {};
 defineExpose(exposed);
 
 const dataService = useDataService();
-const { codes, addCode, getCodeName } = await useCtCode();
+const { codes, addCode, getCodeName } = await useCtCode(
+  'SELL_TP_DTL_CD',
+  'PD_TP_CD',
+);
 
 await addCode('SELL_TP_CD', (code) => (['1', '2', '3', '6'].includes(code.codeId) && code));
 await addCode('PD_CLSF_CD', [
@@ -172,6 +178,21 @@ function getPdClsfCd(product) {
   return '6';
 }
 
+function labelForSellTpCd(product) {
+  if (!product) {
+    return undefined;
+  }
+  if (product.sellTpCd && product.sellTpDtlCd) {
+    return `${getCodeName('SELL_TP_CD', product.sellTpCd)}-${getCodeName('SELL_TP_DTL_CD', product.sellTpDtlCd)}`;
+  }
+  if (product.sellTpCd) {
+    return getCodeName('SELL_TP_CD', product.sellTpCd);
+  }
+  if (product.pdTpCd === 'C') {
+    return getCodeName('PD_TP_CD', product.pdTpCd);
+  }
+}
+
 function classifying() {
   if (!products.value?.length) {
     classifyingProducts.value = {};
@@ -219,7 +240,10 @@ const filteredClassifyingProducts = computed(() => {
     }
     const filteredProducts = classified
       .filter((product) => (!cachedParams.value.filterText
-        || (product.cstBasePdAbbrNm || product.pdNm)?.includes(cachedParams.value.filterText)))
+        || product.pdCd?.includes(cachedParams.value.filterText)
+        || product.pdNm?.includes(cachedParams.value.filterText)
+        || product.cstBasePdAbbrNm?.includes(cachedParams.value.filterText)
+      ))
       .filter((product) => (!cachedParams.value.sellTpCd || product.sellTpCd === cachedParams.value.sellTpCd));
     if (filteredProducts.length) {
       filtered[pdClsfCd] = filteredProducts;
@@ -248,9 +272,14 @@ async function fetchProducts() {
     await alert('판매 가능한 상품이 없습니다.');
   }
   classifying();
+
+  // 멤버십 계약 등 1개 상품만 있는 경우, 자동 선택 처리
+  // 세부적인 판단은 Step2.vue 에서
+  // emit 성능이 문제된다면, length=1 인 경우에만 전달 등 추후 정리
+  await emit('fetched', products.value);
 }
 
-watch(() => props.cntrNo, fetchProducts, { immediate: true });
+watch(props.cntrNo, fetchProducts, { immediate: true });
 
 async function onClickSearch() {
   const shouldFetchProduct = cachedParams.value.rentalDscTpCd !== searchParams.value.rentalDscTpCd;
@@ -278,6 +307,10 @@ function onClickReset() {
 async function onClickProduct(product) {
   await emit('select', product);
 }
+
+onActivated(() => {
+  fetchProducts();
+});
 </script>
 
 <style lang="scss" scoped>

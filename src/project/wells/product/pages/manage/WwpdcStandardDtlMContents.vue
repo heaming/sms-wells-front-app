@@ -126,11 +126,11 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  codes: { type: Object, default: null },
-  isHistoryTab: { type: Boolean, default: true },
-  isUpdateBtn: { type: Boolean, default: true },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  codes: { type: Object, default: null }, // 공통코드
+  isHistoryTab: { type: Boolean, default: true }, // 변경이력탭 존재 여부
+  isUpdateBtn: { type: Boolean, default: true }, // 수정 버튼 존재 여부
   isRegCheckPage: { type: Boolean, default: false }, /* 화면이 등록정보확인(true)인지, 상세조회인지(false)인지 여부  */
 });
 
@@ -145,6 +145,7 @@ const currentPdCd = ref();
 const currentInitData = ref({});
 const selectedTab = ref(pdConst.STANDARD_STEP_BASIC.name);
 
+// 데이터 초기화
 async function resetData() {
   selectedTab.value = pdConst.STANDARD_STEP_BASIC.name;
   currentPdCd.value = '';
@@ -154,12 +155,14 @@ async function resetData() {
   }));
 }
 
+// 컴포넌트 초기화
 async function init() {
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.init) await item.value?.init();
   }));
 }
 
+// 탭 선택
 async function onClickTab(selTab) {
   if (selTab === pdConst.STANDARD_STEP_PRICE.name) {
     const priceStepIndex = pdConst.STANDARD_STEP_PRICE.step - 1;
@@ -187,6 +190,7 @@ async function fetechSaleRecognitionClassification(slRcogClsfCd) {
   }
 }
 
+// 마운트 데이터 설정
 async function setMountData() {
   const mangeAttrFields = await cmpStepRefs.value[2]?.value.getNameFields();
   if (mangeAttrFields.slRcogClsfCd) {
@@ -196,6 +200,7 @@ async function setMountData() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;

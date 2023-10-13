@@ -17,6 +17,7 @@
     <kw-search
       :cols="4"
       @search="onClickSearch"
+      @reset="onClickResetSearch"
     >
       <kw-search-row>
         <kw-search-item
@@ -82,7 +83,6 @@
             :options="codes.SELL_TP_CD"
             first-option="all"
             first-option-value="ALL"
-            @change="onChangeSellTpCd"
           />
 
           <kw-select
@@ -213,9 +213,29 @@ async function onClickExportView() {
   });
 }
 
-function onChangeSellTpCd() {
-  searchParams.value.sellTpDtlCd = 'ALL';
+let sellChnlDtlCdList = ref([]);
+const initRes = codes.SELL_CHNL_DTL_CD;
+async function onClickResetSearch() {
+  searchParams.value.sellChnl = [];
+  sellChnlDtlCdList = [];
+  initRes?.forEach((item) => {
+    const objKey = item.codeId;
+    sellChnlDtlCdList.push(
+      {
+        codeId: objKey,
+        codeName: item.codeName,
+      },
+    );
+    searchParams.value.sellChnl.push(objKey);
+  });
 }
+onMounted(async () => {
+  await onClickResetSearch();
+});
+
+watch(() => searchParams.value.sellTpCd, () => {
+  searchParams.value.sellTpDtlCd = 'ALL';
+}, { immediate: true });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

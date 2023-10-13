@@ -151,8 +151,8 @@
             readonly
           />
         </kw-form-item>
-        <!-- 사업자등록/주민번호 -->
-        <kw-form-item :label="$t('MSG_TXT_CRNO_RRNO')">
+        <!-- 계약자사업/주민번호 -->
+        <kw-form-item :label="$t('MSG_TXT_CNTRT_BZ_RRNO')">
           <kw-input
             v-model="frmMainData.bryyBzrno"
             placeholder=""
@@ -160,7 +160,7 @@
           />
         </kw-form-item>
         <!-- 계약자 휴대전화번호 -->
-        <kw-form-item :label="$t('MSG_TXT_CNTRT_CPHON_NO')">
+        <kw-form-item :label="$t('MSG_TXT_CNTRR_VAC_PH_NO')">
           <kw-input
             v-model="frmMainData.cntrCralTno"
             placeholder=""
@@ -402,9 +402,9 @@
             readonly
           />
         </kw-form-item>
-        <!-- 컨택내용 -->
+        <!-- 컨택코드 -->
         <kw-form-item
-          :label="$t('MSG_TXT_CTT_CNTN')"
+          :label="$t('MSG_TXT_CTT_CD')"
           :colspan="2"
         >
           <!-- 컨택코드 -->

@@ -103,10 +103,10 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  codes: { type: Object, default: null },
-  readonly: { type: Boolean, default: false },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  codes: { type: Object, default: null }, // 공통코드
+  readonly: { type: Boolean, default: false }, // 읽기전용 여부
 });
 
 const { t } = useI18n();
@@ -141,6 +141,7 @@ const searchParams = ref({
   selectType: pdConst.PD_SEARCH_SINGLE,
 });
 
+// 데이터 초기화
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
@@ -154,11 +155,13 @@ async function resetData() {
   if (view) gridUtil.reset(view);
 }
 
+// 컴포넌트 초기화
 async function init() {
   const view = grdMainRef.value?.getView();
   if (view) gridUtil.init(view);
 }
 
+// 저장 데이터
 async function getSaveData() {
 // 미수정시 초기값 그대로 반환.
   if (!(await isModifiedProps())) {
@@ -193,10 +196,12 @@ async function getSaveData() {
   return rtnValues;
 }
 
+// 수정 여부
 async function isModifiedProps() {
   return gridUtil.isModified(grdMainRef.value.getView());
 }
 
+// 검증
 async function validateProps() {
   const rtn = gridUtil.validate(grdMainRef.value.getView(), {
     isChangedOnly: false,
@@ -208,12 +213,14 @@ async function validateProps() {
   return rtn;
 }
 
+// 데이터 초기화
 async function resetInitData() {
   Object.assign(removeObjects.value, []);
   await setChannels();
   await initGridRows();
 }
 
+// 판매채널 선택
 async function setChannels() {
   // console.log('WwpdcCompositionMgtMPrice - setChannels - currentInitData.value: ', currentInitData.value);
   const channels = currentInitData.value?.[pdConst.TBL_PD_DTL]
@@ -240,6 +247,7 @@ async function setChannels() {
   }
 }
 
+// 행 추가
 async function onClickAdd() {
   if (!(await usedChannelRef.value.validate())) {
     return;
@@ -283,17 +291,21 @@ async function onClickAdd() {
       return;
     }
   }
+  // 연결된 상품이 없습니다.
   notify(t('MSG_ALT_NO_LINK_PDS'));
 }
 
+// 행 복사
 async function onClickRowCopy() {
   const view = grdMainRef.value.getView();
   const checkedRows = cloneDeep(gridUtil.getCheckedRowValues(view));
   if (checkedRows.length < 1) {
+    // 데이터를 선택해주세요.
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
   if (checkedRows.length > 1) {
+    // 한 개만 선택해주세요.
     notify(t('MSG_ALT_SELT_ONE_ITEM'));
     return;
   }
@@ -310,6 +322,7 @@ async function onClickRowCopy() {
   // await data.insertRows(view.getSelectedRows().findLast() + 1, checkedRows);
 }
 
+// 기준상품 검색 팝업 호출
 async function onClickStandardSchPopup(pdCd, rowId) {
   searchParams.value.searchValue = pdCd;
   const rtn = await modal({
@@ -319,6 +332,7 @@ async function onClickStandardSchPopup(pdCd, rowId) {
   await updatePriceRow(rtn, rowId);
 }
 
+// 검색한 기준상품의 가격값 수정
 async function updatePriceRow(rtn, rowId) {
   const view = grdMainRef.value?.getView();
   if (rtn.result && rtn.payload && rtn.payload.length) {
@@ -331,6 +345,7 @@ async function updatePriceRow(rtn, rowId) {
   }
 }
 
+// 행 삭제
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const deletedRowValues = await gridUtil.confirmDeleteCheckedRows(view);
@@ -345,6 +360,7 @@ async function onClickRemove() {
   gridRowCount.value = getGridRowCount(view);
 }
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   // console.log('WwpdcCompositionMgtMPrice - initGridRows - currentInitData.value: ', currentInitData.value);
   const view = grdMainRef.value?.getView();
@@ -383,6 +399,7 @@ async function initGridRows() {
   gridRowCount.value = getGridRowCount(view);
 }
 
+// 데이터 불러오기
 async function fetchData() {
   if (isEmpty(metaInfos.value)) {
   // console.log('WwpdcCompositionMgtMPrice - fetchData - currentCodes.value 1: ', currentCodes.value);
@@ -405,6 +422,7 @@ async function fetchData() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData, codes } = props;
   currentPdCd.value = pdCd;
@@ -418,8 +436,8 @@ async function initProps() {
 
 await initProps();
 
+// 리얼그리드 표시 오류 대응 임시코드
 onActivated(async () => {
-  // TODO 스텝 이동시, 그리드 로우 사라지는 현상
   await initGridRows();
 });
 

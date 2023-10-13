@@ -25,6 +25,7 @@
           :header-nav="!isTempSaveBtn || passedStep > 0"
           @update:model-value="onClickStep()"
         >
+          <!-- 기본속성 등록 -->
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.STANDARD_STEP_BASIC.step"
             :name="pdConst.STANDARD_STEP_BASIC.name"
@@ -33,6 +34,7 @@
             :done="currentStep.step > pdConst.STANDARD_STEP_BASIC.step"
             :sub-text="subTitle"
           />
+          <!-- 연결상품 선택-->
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.STANDARD_STEP_REL_PROD.step"
             :name="pdConst.STANDARD_STEP_REL_PROD.name"
@@ -41,6 +43,7 @@
             :done="currentStep.step > pdConst.STANDARD_STEP_REL_PROD.step"
             :sub-text="subTitle"
           />
+          <!-- 관리속성 등록 -->
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.STANDARD_STEP_MANAGE.step"
             :name="pdConst.STANDARD_STEP_MANAGE.name"
@@ -49,6 +52,7 @@
             :done="currentStep.step > pdConst.STANDARD_STEP_MANAGE.step"
             :sub-text="subTitle"
           />
+          <!-- 가격정보 등록 -->
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.STANDARD_STEP_PRICE.step"
             :name="pdConst.STANDARD_STEP_PRICE.name"
@@ -57,6 +61,7 @@
             :done="currentStep.step > pdConst.STANDARD_STEP_PRICE.step"
             :sub-text="subTitle"
           />
+          <!-- 등록정보확인 -->
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.STANDARD_STEP_CHECK.step"
             :name="pdConst.STANDARD_STEP_CHECK.name"
@@ -189,11 +194,11 @@ import WwpdcStandardMgtMRel from './WwpdcStandardMgtMRel.vue';
 import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  newRegYn: { type: String, default: null },
-  reloadYn: { type: String, default: null },
-  copyPdCd: { type: String, default: null },
-  propWatch: { type: Object, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  newRegYn: { type: String, default: null }, // 신규등록 여부
+  reloadYn: { type: String, default: null }, // 새로고침 여부
+  copyPdCd: { type: String, default: null }, // 복사 상품코드 원본
+  propWatch: { type: Object, default: null }, // Props 변경 여부
 });
 
 const router = useRouter();
@@ -259,6 +264,7 @@ async function isModifiedCheck() {
   return modifiedOk;
 }
 
+// 저장 데이터
 async function getSaveData(isBatchCopy) {
   // 데이터가 많아서 수정여부를 체크하여 미수정시, 텝 데이터 수집을 하지않음.
   // isBatchCopy - Wells - 기준정보 - 가격 - 일괄복사 여부
@@ -345,10 +351,12 @@ async function getSaveData(isBatchCopy) {
   return subList;
 }
 
+// 목록으로 이동
 async function goList() {
   await router.push({ path: '/product/zwpdc-sale-product-list', state: { stateParam: { searchYn: 'Y', pdTpCd: pdConst.PD_TP_CD_STANDARD } } });
 }
 
+// 삭제
 async function onClickDelete() {
   if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
     await dataService.delete(`/sms/wells/product/standards/${currentPdCd.value}`);
@@ -439,12 +447,14 @@ async function onClickCancel() {
   }
 }
 
+// 컴포넌트 초기화
 async function init() {
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.init) await item.value?.init();
   }));
 }
 
+// 상품 데이터 불러오기
 async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`/sms/wells/product/standards/${currentPdCd.value}`).catch(() => {
@@ -658,6 +668,7 @@ async function resetData() {
   }));
 }
 
+// 마운트 데이터 설정
 async function setMountData() {
   // 판매 상세 유형 초기값 설정
   const baseAttrFields = await cmpStepRefs.value[0]?.value.getNameFields();
@@ -681,6 +692,7 @@ async function onClickReset() {
   await setMountData();
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, newRegYn, reloadYn, copyPdCd, propWatch } = props;
   currentPdCd.value = pdCd;

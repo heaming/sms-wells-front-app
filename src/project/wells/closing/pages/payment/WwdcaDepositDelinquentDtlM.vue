@@ -45,15 +45,13 @@
             </kw-search-item>
             <kw-search-item
               :label="$t('MSG_TXT_SEL_TYPE')"
-              required
             >
               <kw-select
                 v-model="searchParams.sellTpCd"
                 :label="$t('MSG_TXT_SEL_TYPE')"
                 :options="codes.SELL_TP_CD"
-                rules="required"
                 first-option="all"
-                @change="onChangeSellTpCd"
+                first-option-value="ALL"
               />
               <kw-select
                 v-if="searchParams.sellTpCd === '1' || searchParams.sellTpCd === '2'
@@ -227,7 +225,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const selectDlqDv = { // 연체구분
-  options: [{ codeId: '1', codeName: '정상' }, { codeId: '2', codeName: '연체' }],
+  options: [{ codeId: '1', codeName: t('MSG_TXT_NOM') }, { codeId: '2', codeName: t('MSG_TXT_DLQ') }],
 };
 
 const selectDlqMcnt = { // 연체개월
@@ -237,7 +235,7 @@ const selectDlqMcnt = { // 연체개월
 };
 
 const selectInqrDv = { // 조회구분
-  options: [{ codeId: '1', codeName: '총괄단' }, { codeId: '2', codeName: '지역단' }, { codeId: '3', codeName: '지점' }],
+  options: [{ codeId: '1', codeName: t('MSG_TXT_MANAGEMENT_DEPARTMENT') }, { codeId: '2', codeName: t('MSG_TXT_RGNL_GRP') }, { codeId: '3', codeName: t('MSG_TXT_BRANCH') }],
 };
 
 const ogTpCd = codes.OG_TP_CD.filter((v) => ['W01', 'W02'].includes(v.codeId));
@@ -246,7 +244,7 @@ const searchParams = ref({
   perfYm: now.format('YYYYMM'), // 실적년월
   dlqDv: 'ALL', // 연체구분
   dlqMcnt: [], // 연체개월
-  sellTpCd: '', // 판매유형
+  sellTpCd: 'ALL', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
   ogTp: 'ALL', // 조직유형
   inqrDv: '1', // 조회구분
@@ -335,9 +333,9 @@ async function onClickExportView() {
   });
 }
 
-function onChangeSellTpCd() {
+watch(() => searchParams.value.sellTpCd, () => {
   searchParams.value.sellTpDtlCd = 'ALL';
-}
+}, { immediate: true });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -365,9 +363,9 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dgr3LevlOgCd', width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'dgr3LevlOgNm', width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '80', styleName: 'text-left' },
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-left' },
-    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-left' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '80', styleName: 'text-center' },
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center' },
     { fieldName: 'totAccN',
       header: t('MSG_TXT_TOT_ACC_N'),
       width: '120',

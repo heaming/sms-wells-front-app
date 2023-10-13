@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-배정에 제외되는 품목을 등록 하는 팝업 화면
+- 배정에 제외되는 품목을 등록 하는 팝업 화면
 ****************************************************************************************************
 --->
 <template>
@@ -172,6 +172,7 @@ const filterCodes = ref({
   itmKndCd: [],
 });
 
+// 품목종류 필터링
 function itmKndCdFilter() {
   filterCodes.value.itmKndCd = codes.ITM_KND_CD.filter((v) => ['4', '5', '6'].includes(v.codeId));
 }
@@ -184,6 +185,7 @@ async function getWareHouse() {
   optionsWareNo.value = result.data;
 }
 
+// 제외유형 변경 시
 function onChangeAsnExcdDvCd() {
   searchParams.value.wareNo = '';
 
@@ -193,6 +195,7 @@ function onChangeAsnExcdDvCd() {
   }
 }
 
+// SAP 시작코드 변경 시
 function onChangeStrtSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -202,6 +205,7 @@ function onChangeStrtSapCd() {
   }
 }
 
+// SAP 종료코드 변경 시
 function onChangeEndSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -211,6 +215,7 @@ function onChangeEndSapCd() {
   }
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/assign-exclude-items/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: excludeItem, pageInfo: pagingResult } = res.data;
@@ -224,6 +229,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭 시
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   pageInfo.value.needTotalCount = true;
@@ -231,6 +237,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 저장
 async function onClickSave() {
   const gridView = grdMainRef.value.getView();
   // 신규 등록할 데이터
@@ -288,16 +295,16 @@ onMounted(async () => {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmPdNm' },
-    { fieldName: 'itmKndCd' },
-    { fieldName: 'itmKndNm' },
-    { fieldName: 'asnExcdDvCd' },
-    { fieldName: 'asnExcdDvNm' },
-    { fieldName: 'strWareNo' },
-    { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
-    { fieldName: 'orgChk' },
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'itmPdNm' }, // 품목명
+    { fieldName: 'itmKndCd' }, // 품목종류코드
+    { fieldName: 'itmKndNm' }, // 품목종류명
+    { fieldName: 'asnExcdDvCd' }, // 제외유형코드
+    { fieldName: 'asnExcdDvNm' }, // 제외유형명
+    { fieldName: 'strWareNo' }, // 입고창고번호
+    { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' }, // 체크선택여부
+    { fieldName: 'orgChk' }, // original 선택여부 - 삭제를 구분하기 위함
   ];
 
   const columns = [

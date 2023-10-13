@@ -189,6 +189,7 @@ const filterCodes = ref({
   wareDtlDvCd: [],
 });
 
+// 창고상세구분 필터링
 function wareDvCdFilter() {
   filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['31', '32'].includes(v.codeId));
 }
@@ -197,10 +198,12 @@ await Promise.all([
   wareDvCdFilter(),
 ]);
 
+// 상위창고 변경 시
 function onChagneWareHgrNo() {
   searchParams.value.wareNo = '';
 }
 
+// 창고 변경 시
 function onChangeWareNo() {
   const { wareNo } = searchParams.value;
   if (wareNo !== '') {
@@ -209,6 +212,7 @@ function onChangeWareNo() {
   }
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/materials-assign-stocks/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: assignStocks, pageInfo: pagingResult } = res.data;
@@ -222,6 +226,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   pageInfo.value.needTotalCount = true;
@@ -230,6 +235,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/materials-assign-stocks/excel-download', { params: cachedParams });
@@ -240,6 +246,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -254,6 +261,7 @@ async function onClickSave() {
   }
 }
 
+// 창고정보등록 팝업 호출
 async function onCellClickedPrtnrNo(baseYm, wareNo) {
   const { result: isChanged } = await modal({
     component: 'WwsnaWarehouseOrganizationRegP',
@@ -275,22 +283,22 @@ async function onCellClickedPrtnrNo(baseYm, wareNo) {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'ogId' },
-    { fieldName: 'ogTpCd' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'bldCd' },
-    { fieldName: 'bldNm' },
-    { fieldName: 'hgrWareNm' },
-    { fieldName: 'qomAsnApyYn' },
-    { fieldName: 'didyDvNm' },
-    { fieldName: 'adrUseYn' },
-    { fieldName: 'adrZip' },
-    { fieldName: 'adr' },
-    { fieldName: 'wareDtlDvNm' },
-    { fieldName: 'baseYm' },
-    { fieldName: 'wareNo' },
+    { fieldName: 'prtnrNo' }, // 사번
+    { fieldName: 'prtnrKnm' }, // 성명
+    { fieldName: 'ogId' }, // 조직ID
+    { fieldName: 'ogTpCd' }, // 조직유형
+    { fieldName: 'ogNm' }, // 소속
+    { fieldName: 'bldCd' }, // 빌딩코드
+    { fieldName: 'bldNm' }, // 빌딩
+    { fieldName: 'hgrWareNm' }, // 상위창고
+    { fieldName: 'qomAsnApyYn' }, // 물량배정적용여부
+    { fieldName: 'didyDvNm' }, // 독립매니저여부
+    { fieldName: 'adrUseYn' }, // 지정주소여부
+    { fieldName: 'adrZip' }, // 우편번호
+    { fieldName: 'adr' }, // 주소
+    { fieldName: 'wareDtlDvNm' }, // 창고상세구분
+    { fieldName: 'baseYm' }, // 기준년월
+    { fieldName: 'wareNo' }, // 창고번호
   ];
 
   const columns = [

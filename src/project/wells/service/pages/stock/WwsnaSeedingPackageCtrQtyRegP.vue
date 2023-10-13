@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-모종패키지 조정 수량을 서비스센터 출고일자, 모종패키지별로 등록하는 화면
+- 모종패키지 조정 수량을 서비스센터 출고일자, 모종패키지별로 등록하는 화면
 ****************************************************************************************************
 --->
 <template>
@@ -135,6 +135,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -187,11 +188,11 @@ async function onClickExcelDownload() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sdingPkgNm' },
-    { fieldName: 'sdingPkgCd' },
-    { fieldName: 'ostrQty', dataType: 'number' },
-    { fieldName: 'excdQty', dataType: 'number' },
-    { fieldName: 'spmtQty', dataType: 'number' },
+    { fieldName: 'sdingPkgNm' }, // 품목명
+    { fieldName: 'sdingPkgCd' }, // 품목코드
+    { fieldName: 'ostrQty', dataType: 'number' }, // 출고수량
+    { fieldName: 'excdQty', dataType: 'number' }, // 제외수량
+    { fieldName: 'spmtQty', dataType: 'number' }, // 추가수량
   ];
 
   const columns = [

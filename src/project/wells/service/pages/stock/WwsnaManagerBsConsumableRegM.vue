@@ -101,6 +101,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -126,12 +127,12 @@
         :total-count="pageInfo.totalCount"
         @init="initGrdMain"
       />
-      <kw-pagination
+      <!-- <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
         @change="fetchData"
-      />
+      /> -->
     </div>
   </kw-page>
 </template>
@@ -171,9 +172,10 @@ const searchParams = ref({
 
 const isBusinessSupportTeam = computed(() => hasRoleNickName('ROL_W1580'));
 const bldCode = ref();
-const items1 = [];
-const items2 = [];
+let items1 = [];
+let items2 = [];
 let saveData = [];
+let requestData = [];
 
 const itemsData = ref({
   bfsvcCsmbDdlvTpCd: '',
@@ -231,17 +233,192 @@ async function getMCsmbAplcClose() {
   aplcCloseData.value = res.data;
 }
 
+async function reAryGrid() {
+  const view = grdMainRef.value.getView();
+  const data = view.getDataSource();
+
+  data.setFields([]);
+  view.setColumns(null);
+  view.setColumnLayout([]);
+  items1 = [];
+  items2 = [];
+
+  const fields = [
+    { fieldName: 'reqYn' },
+    { fieldName: 'bldNm' },
+    { fieldName: 'bldCd' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'ogCd' },
+    { fieldName: 'prtnrKnm' },
+    { fieldName: 'vstCstN' },
+    { fieldName: 'wrfr' },
+    { fieldName: 'bdtIndv' },
+    { fieldName: 'bdtCrp' },
+    { fieldName: 'arcleIndv' },
+    { fieldName: 'arcleCrp' },
+    { fieldName: 'wtrSftnr' },
+    { fieldName: 'cffMchn' },
+    { fieldName: 'msgcr' },
+    { fieldName: 'dryr' },
+    { fieldName: 'wash' },
+    { fieldName: 'ardrssr' },
+    { fieldName: 'sscling' },
+    { fieldName: 'bfsvcCsmbDdlvStatCd' },
+  ];
+
+  const columns = [
+    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '200', styleName: 'text-center', editable: false },
+    { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '101', styleName: 'text-center', editable: false },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'vstCstN', header: t('MSG_TXT_VST_CST'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'wrfr', header: t('MSG_TXT_WRFR'), width: '70', styleName: 'text-right', editable: false },
+    { fieldName: 'bdtIndv', header: t('MSG_TXT_BDT_INDV'), width: '90', styleName: 'text-right', editable: false },
+    { fieldName: 'bdtCrp', header: t('MSG_TXT_BDT_CRP'), width: '90', styleName: 'text-right', editable: false },
+    { fieldName: 'arcleIndv', header: t('MSG_TXT_ARCLE_INDV'), width: '120', styleName: 'text-right', editable: false },
+    { fieldName: 'arcleCrp', header: t('MSG_TXT_ARCLE_INDV'), width: '120', styleName: 'text-right', editable: false },
+    { fieldName: 'wtrSftnr', header: t('MSG_TXT_WTST'), width: '70', styleName: 'text-right', editable: false },
+    { fieldName: 'cffMchn', header: t('MSG_TXT_CFF_MCHN'), width: '80', styleName: 'text-right', editable: false },
+    { fieldName: 'msgcr', header: t('MSG_TXT_MSGCR'), width: '80', styleName: 'text-right', editable: false },
+    { fieldName: 'dryr', header: t('MSG_TXT_DRYER'), width: '70', styleName: 'text-right', editable: false },
+    { fieldName: 'wash', header: t('MSG_TXT_WASHER'), width: '70', styleName: 'text-right', editable: false },
+    { fieldName: 'ardrssr', header: t('MSG_TXT_ARDRSSR'), width: '90', styleName: 'text-right', editable: false },
+    { fieldName: 'sscling', header: t('MSG_TXT_SS_CLING_MCHN'), width: '100', styleName: 'text-right', editable: false },
+  ];
+
+  const gridData = await getItems(); // 고정/신청품목 그리드 헤더를 위해 조회
+  const fxnItems = gridData.filter((v) => v.bfsvcCsmbDdlvTpCd === '1'); // 고정품목
+  const aplcItems = gridData.filter((v) => v.bfsvcCsmbDdlvTpCd === '2'); // 신청품목
+
+  let j = 1;
+  for (let i = 0; i < fxnItems.length; i += 1) {
+    // 고정품목 갯수만큼 field, column 추가
+    fields.push({ fieldName: `fxnQty${j}` });
+    columns.push({
+      fieldName: `fxnQty${j}`,
+      header: fxnItems[i].fxnSapMatCd,
+      width: '180',
+      styleName: 'text-center',
+      editable: isBusinessSupportTeam.value,
+    });
+
+    // 고정품목 column layout 세팅
+    items1.push(
+      {
+        header: `${fxnItems[i].fxnPdNm}`,
+        width: '180',
+        direction: 'horizontal',
+        items: [
+          {
+            header: `${fxnItems[i].fxnPckngUnit}`,
+            direction: 'horizontal',
+            items: [`fxnQty${j}`],
+          },
+        ],
+      },
+    );
+
+    j += 1;
+  }
+
+  let k = 1;
+  for (let i = 0; i < aplcItems.length; i += 1) {
+    // 신청품목 갯수만큼 field, column 추가
+    fields.push({ fieldName: `aplcQty${k}` });
+    columns.push({
+      fieldName: `aplcQty${k}`,
+      header: aplcItems[i].aplcSapMatCd,
+      width: '180',
+      styleName: 'text-center',
+      editable: true,
+    });
+
+    // 신청품목 column layout 세팅
+    items2.push(
+      {
+        header: `${aplcItems[i].aplcPdNm}`,
+        width: '180',
+        direction: 'horizontal',
+        items: [
+          {
+            header: `${aplcItems[i].aplcPckngUnit}`,
+            direction: 'horizontal',
+            items: [`aplcQty${k}`],
+          },
+        ],
+      },
+    );
+
+    k += 1;
+  }
+
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.setFixedOptions({ colCount: 1 });
+
+  view.onCellClicked = (grd, cData) => {
+    if (cData.cellType !== 'check') { return false; }
+  };
+
+  view.setColumnLayout([
+    {
+      header: '소속',
+      direction: 'horizontal',
+      items: [
+        'reqYn',
+        'bldNm',
+        'bldCd',
+        'prtnrNo',
+        'ogCd',
+        'prtnrKnm',
+        'vstCstN',
+      ],
+    },
+    {
+      header: '상품별 방문계정',
+      direction: 'horizontal',
+      items: [
+        'wrfr',
+        'bdtIndv',
+        'bdtCrp',
+        'arcleIndv',
+        'arcleCrp',
+        'wtrSftnr',
+        'cffMchn',
+        'msgcr',
+        'dryr',
+        'wash',
+        'ardrssr',
+        'sscling',
+      ],
+    },
+    {
+      header: t('MSG_TXT_FXN'),
+      direction: 'horizontal',
+      items: items1,
+    },
+    {
+      header: t('MSG_TXT_APLC'),
+      direction: 'horizontal',
+      items: items2,
+    },
+  ]);
+}
+
 async function fetchData() {
+  await reAryGrid();
   await getMCsmbAplcClose();
 
-  const res = await dataService.get('/sms/wells/service/manager-bsconsumables/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: bldCsmbDeliveries, pageInfo: pagingResult } = res.data;
+  const res = await dataService.get('/sms/wells/service/manager-bsconsumables', { params: { ...cachedParams } });
+  // const { list: bldCsmbDeliveries, pageInfo: pagingResult } = res.data;
 
-  pageInfo.value = pagingResult;
+  pageInfo.value.totalCount = res.data.length;
   const view = grdMainRef.value.getView();
 
-  if (bldCsmbDeliveries.length !== 0) {
-    bldCsmbDeliveries.forEach((bldCsmbDelivery) => {
+  if (res.data.length !== 0) {
+    res.data.forEach((bldCsmbDelivery) => {
       // 리스트 내 고정수량 array 재조합
       for (let i = 0; i < bldCsmbDelivery.fxnQtys.length; i += 1) {
         const j = i + 1;
@@ -275,7 +452,7 @@ async function fetchData() {
     const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh);
 
     // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
-    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || bldCsmbDeliveries[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
+    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || res.data[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
       return false;
     }
   };
@@ -284,7 +461,7 @@ async function fetchData() {
     grid.checkItem(itemIndex, true);
   };
 
-  view.getDataSource().setRows(bldCsmbDeliveries);
+  view.getDataSource().setRows(res.data);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
   view.setCheckableCallback((dataSource, item) => {
@@ -328,7 +505,7 @@ async function onClickRgstPtrmSe() {
 }
 
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
+  // pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
@@ -373,8 +550,8 @@ async function onClickSave() {
           strWareNo: checkedRow.prtnrNo,
           csmbPdCd: itemsData.value[i].fxnPdCd,
           sapMatCd: itemsData.value[i].fxnSapMatCd,
-          bfsvcCsmbDdlvQty: checkedRow[`fxnQty${f}`] === undefined ? '0' : checkedRow[`fxnQty${f}`], // TODO: 테스트용 삼항연산.. 추후 삭제
-          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
+          bfsvcCsmbDdlvQty: checkedRow[`fxnQty${f}`] === undefined ? '0' : checkedRow[`fxnQty${f}`],
+          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
         });
 
         f += 1;
@@ -396,8 +573,8 @@ async function onClickSave() {
           strWareNo: checkedRow.prtnrNo,
           csmbPdCd: itemsData.value[i].aplcPdCd,
           sapMatCd: itemsData.value[i].aplcSapMatCd,
-          bfsvcCsmbDdlvQty: checkedRow[`aplcQty${a}`] === undefined ? '0' : checkedRow[`aplcQty${a}`], // TODO: 테스트용 삼항연산.. 추후 삭제
-          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10', // TODO: 권한에 따라 코드값 달라짐(세션) :: 빌딩 업무담당 - '10', wells 영업지원팀 - '20'
+          bfsvcCsmbDdlvQty: checkedRow[`aplcQty${a}`] === undefined ? '0' : checkedRow[`aplcQty${a}`],
+          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
         });
 
         a += 1;
@@ -413,9 +590,48 @@ async function onClickSave() {
 }
 
 async function onClickOstrAk() {
-  await dataService.post(`/sms/wells/service/manager-bsconsumables/${searchParams.value.mngtYm}/request`);
-  notify(t('MSG_ALT_AK_FSH'));
-  await fetchData();
+  // await dataService.post(`/sms/wells/service/manager-bsconsumables/${searchParams.value.mngtYm}/request`);
+  // notify(t('MSG_ALT_AK_FSH'));
+  // await fetchData();
+
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
+  console.log(checkedRows);
+
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
+  if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
+    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
+    return;
+  }
+
+  let errorYn = false;
+
+  checkedRows.forEach((checkedRow) => {
+    if (checkedRow.bfsvcCsmbDdlvStatCd !== '20') {
+      alert(`${checkedRow.prtnrKnm}(${checkedRow.prtnrNo})님의 신청 상태를 확인해주세요`);
+      errorYn = true;
+      return;
+    }
+
+    requestData.push({
+      mngtYm: searchParams.value.mngtYm,
+      bfsvcCsmbDdlvOjCd: '2',
+      strWareNo: checkedRow.prtnrNo,
+    });
+  });
+
+  if (!errorYn) {
+    await dataService.post('/sms/wells/service/manager-bsconsumables/request', requestData);
+    notify(t('MSG_ALT_AK_FSH'));
+    await fetchData();
+  } else {
+    requestData = [];
+  }
 }
 
 onMounted(async () => {
@@ -450,7 +666,7 @@ const initGrdMain = defineGrid(async (data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'reqYn', header: t('MSG_TXT_STT'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '200', styleName: 'text-center', editable: false },
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '101', styleName: 'text-center', editable: false },

@@ -153,13 +153,13 @@
         <!-- 계약자사업/주민번호 -->
         <kw-form-item :label="$t('MSG_TXT_CNTRT_BZ_RRNO')">
           <kw-input
-            v-model="frmMainData.cstNo"
+            v-model="frmMainData.rnmno"
             placeholder=""
             readonly
           />
         </kw-form-item>
         <!-- 계약자 휴대전화번호 -->
-        <kw-form-item :label="$t('MSG_TXT_CNTRT_CPHON_NO')">
+        <kw-form-item :label="$t('MSG_TXT_CNTRR_VAC_PH_NO')">
           <kw-input
             v-model="frmMainData.cntrCralTno"
             placeholder=""
@@ -745,7 +745,7 @@
           />
         </kw-form-item>
         <!-- 무상멤버십 고객여부 -->
-        <kw-form-item :label="$t('MSG_TXT_COMP_D')">
+        <kw-form-item :label="$t('MSG_TXT_FRISU_MSH')+' '+$t('MSG_TXT_CST_YN')">
           <kw-input
             v-model="frmMainData.frisuMshCrtYn"
             align="left"
@@ -808,7 +808,7 @@
       </kw-form-row>
       <kw-form-row>
         <!-- 특약정보 -->
-        <kw-form-item :label="$t('MSG_TXT_STAT_CH_TP')">
+        <kw-form-item :label="$t('MSG_TXT_SPEC_CNTR_INF')">
           <kw-input
             v-model="frmMainData.sconCn"
             placeholder=""
@@ -936,7 +936,7 @@ const frmMainData = ref({
   cntrRcpFshDt: '', // 접수일
   fstRgstDt: '', // 등록일
   cstKnm: '', // 계약자 명
-  cstNo: '', // 계약자사업/주민번호
+  rnmno: '', // 계약자사업/주민번호
   cntrCralTno: '', // 계약자 휴대전화번호
   cralLocaraTno: '', // 계약자 휴대지역전화번호
   mexnoEncr: '', // 계약자 휴대전화국번호암호화
@@ -1058,7 +1058,14 @@ async function fetchData() {
     // 계약자 정보
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.cstKnm = pages[0].cstKnm; // 계약자 명
-    frmMainData.value.cstNo = pages[0].cstNo; // 계약자사업/주민번호
+    if (pages[0].copnDvCd === '1') { // 생년월일
+      frmMainData.value.rnmno = stringUtil.getDateFormat(pages[0].rnmno);
+    } else if (pages[0].copnDvCd === '2') { // 사업자등록번호
+      // 사업자등록번호 3-2-5 형식으로 표시
+      if (!isEmpty(pages[0].rnmno) && pages[0].rnmno.length === 10) {
+        frmMainData.value.rnmno = `${pages[0].rnmno.substr(0, 3)}-${pages[0].rnmno.substr(3, 2)}-${pages[0].rnmno.substr(5, 5)}`;
+      }
+    } // 계약자사업/주민번호
     const { cralLocaraTno } = pages[0];
     const { mexnoEncr } = pages[0];
     const { cralIdvTno } = pages[0];

@@ -1,16 +1,16 @@
 <!----
- ****************************************************************************************************
- * 프로그램 개요
- ****************************************************************************************************
- 1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaWasteFilterCollectionPsListM(W-SV-U-0275M01) - 폐필터 회수 현황
- 3. 작성자 : SaeRomI.Kim
- 4. 작성일 : 2023.08.10
- ****************************************************************************************************
- * 프로그램 설명
- ****************************************************************************************************
- - 월별 창고별 폐필터 회수현황을 조회하는 화면 (http://localhost:3000/#/service/wwsna-waste-filter-collection-ps-list)
- ****************************************************************************************************
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : SNA (재고관리)
+2. 프로그램 ID : WwsnaWasteFilterCollectionPsListM(W-SV-U-0275M01) - 폐필터 회수 현황
+3. 작성자 : SaeRomI.Kim
+4. 작성일 : 2023.08.10
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 월별 창고별 폐필터 회수현황을 조회하는 화면 (http://localhost:3000/#/service/wwsna-waste-filter-collection-ps-list)
+****************************************************************************************************
 --->
 <template>
   <kw-page>
@@ -130,14 +130,15 @@ const filterCodes = ref({
   svBizHclsfCd: [],
 });
 
+// 업무유형 필터링
 function codeFilter() {
   filterCodes.value.svBizHclsfCd = codes.SV_BIZ_HCLSF_CD.filter((v) => ['1', '2', '3'].includes(v.codeId));
 }
 
-// 창고 조회
 const optionsHgrWareNo = ref();
 const optionsWareNo = ref();
 
+// 기준년월 변경시 창고 조회
 const onChangeBaseYm = async () => {
   searchParams.value.hgrWareNo = '';
   searchParams.value.wareNo = '';
@@ -149,6 +150,7 @@ const onChangeBaseYm = async () => {
     return;
   }
 
+  // 창고 조회
   const result = await dataService.get(
     '/sms/wells/common/sms-wells-codes/ware-houses',
     { params: {
@@ -161,6 +163,7 @@ const onChangeBaseYm = async () => {
   optionsHgrWareNo.value = result.data;
 };
 
+// 상위창고 변경 시
 const onChangeHgrWareHouse = async () => {
   searchParams.value.wareNo = '';
   const { baseYm, wareDvCd, hgrWareNo } = searchParams.value;
@@ -193,6 +196,7 @@ const totalCount = ref(0);
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/waste-filter-collections-state', { params: { ...cachedParams } });
   const filters = res.data;
+  // 품목코드로 필터링 하여 총 건수 표기
   const pdCds = filters.map((v) => v.pdCd);
   totalCount.value = pdCds.filter((v, i) => pdCds.indexOf(v) === i).length;
 
@@ -202,6 +206,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -239,43 +244,43 @@ function getQtyFooter(column, gubunCd) {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'gubun' },
-    { fieldName: 'gubunCd' },
-    { fieldName: 'd01Qty', dataType: 'number' },
-    { fieldName: 'd02Qty', dataType: 'number' },
-    { fieldName: 'd03Qty', dataType: 'number' },
-    { fieldName: 'd04Qty', dataType: 'number' },
-    { fieldName: 'd05Qty', dataType: 'number' },
-    { fieldName: 'd06Qty', dataType: 'number' },
-    { fieldName: 'd07Qty', dataType: 'number' },
-    { fieldName: 'd08Qty', dataType: 'number' },
-    { fieldName: 'd09Qty', dataType: 'number' },
-    { fieldName: 'd10Qty', dataType: 'number' },
-    { fieldName: 'd11Qty', dataType: 'number' },
-    { fieldName: 'd12Qty', dataType: 'number' },
-    { fieldName: 'd13Qty', dataType: 'number' },
-    { fieldName: 'd14Qty', dataType: 'number' },
-    { fieldName: 'd15Qty', dataType: 'number' },
-    { fieldName: 'd16Qty', dataType: 'number' },
-    { fieldName: 'd17Qty', dataType: 'number' },
-    { fieldName: 'd18Qty', dataType: 'number' },
-    { fieldName: 'd19Qty', dataType: 'number' },
-    { fieldName: 'd20Qty', dataType: 'number' },
-    { fieldName: 'd21Qty', dataType: 'number' },
-    { fieldName: 'd22Qty', dataType: 'number' },
-    { fieldName: 'd23Qty', dataType: 'number' },
-    { fieldName: 'd24Qty', dataType: 'number' },
-    { fieldName: 'd25Qty', dataType: 'number' },
-    { fieldName: 'd26Qty', dataType: 'number' },
-    { fieldName: 'd27Qty', dataType: 'number' },
-    { fieldName: 'd28Qty', dataType: 'number' },
-    { fieldName: 'd29Qty', dataType: 'number' },
-    { fieldName: 'd30Qty', dataType: 'number' },
-    { fieldName: 'd31Qty', dataType: 'number' },
-    { fieldName: 'totQty', dataType: 'number' },
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'pdCd' }, // 품목코드
+    { fieldName: 'pdNm' }, // 품목명
+    { fieldName: 'gubun' }, // 구분
+    { fieldName: 'gubunCd' }, // 구분 코드
+    { fieldName: 'd01Qty', dataType: 'number' }, // 1일 수량
+    { fieldName: 'd02Qty', dataType: 'number' }, // 2일 수량
+    { fieldName: 'd03Qty', dataType: 'number' }, // 3일 수량
+    { fieldName: 'd04Qty', dataType: 'number' }, // 4일 수량
+    { fieldName: 'd05Qty', dataType: 'number' }, // 5일 수량
+    { fieldName: 'd06Qty', dataType: 'number' }, // 6일 수량
+    { fieldName: 'd07Qty', dataType: 'number' }, // 7일 수량
+    { fieldName: 'd08Qty', dataType: 'number' }, // 8일 수량
+    { fieldName: 'd09Qty', dataType: 'number' }, // 9일 수량
+    { fieldName: 'd10Qty', dataType: 'number' }, // 10일 수량
+    { fieldName: 'd11Qty', dataType: 'number' }, // 11일 수량
+    { fieldName: 'd12Qty', dataType: 'number' }, // 12일 수량
+    { fieldName: 'd13Qty', dataType: 'number' }, // 13일 수량
+    { fieldName: 'd14Qty', dataType: 'number' }, // 14일 수량
+    { fieldName: 'd15Qty', dataType: 'number' }, // 15일 수량
+    { fieldName: 'd16Qty', dataType: 'number' }, // 16일 수량
+    { fieldName: 'd17Qty', dataType: 'number' }, // 17일 수량
+    { fieldName: 'd18Qty', dataType: 'number' }, // 18일 수량
+    { fieldName: 'd19Qty', dataType: 'number' }, // 19일 수량
+    { fieldName: 'd20Qty', dataType: 'number' }, // 20일 수량
+    { fieldName: 'd21Qty', dataType: 'number' }, // 21일 수량
+    { fieldName: 'd22Qty', dataType: 'number' }, // 22일 수량
+    { fieldName: 'd23Qty', dataType: 'number' }, // 23일 수량
+    { fieldName: 'd24Qty', dataType: 'number' }, // 24일 수량
+    { fieldName: 'd25Qty', dataType: 'number' }, // 25일 수량
+    { fieldName: 'd26Qty', dataType: 'number' }, // 26일 수량
+    { fieldName: 'd27Qty', dataType: 'number' }, // 27일 수량
+    { fieldName: 'd28Qty', dataType: 'number' }, // 28일 수량
+    { fieldName: 'd29Qty', dataType: 'number' }, // 29일 수량
+    { fieldName: 'd30Qty', dataType: 'number' }, // 30일 수량
+    { fieldName: 'd31Qty', dataType: 'number' }, // 31일 수량
+    { fieldName: 'totQty', dataType: 'number' }, // 계 수량
   ];
 
   const columns = [

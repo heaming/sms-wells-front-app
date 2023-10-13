@@ -367,11 +367,10 @@ const { getters } = useStore();
 const { alert, confirm, modal, notify } = useGlobal();
 const { currentRoute } = useRouter();
 const { hasRoleNickName } = useMeta();
+const userInfo = getters['meta/getUserInfo'];
+// console.log(userInfo);
 
 let cachedParams;
-const loginInfo = ref({
-  userId: '', // 로그인 UserId(sessionUserId)
-});
 
 const searchParams = ref({
   cntrDv: 'A', // 계약구분
@@ -449,7 +448,7 @@ const isGrdDtlLtmIstmListVisible = ref(false); // 상세내역-장기할부
 
 // 확정버튼 권한체크
 const isHeadOfficeRole = (hasRoleNickName('ROL_W1010') || hasRoleNickName('ROL_W1020')); // 본사스텝(W1010), 업무담당(W1020)
-console.log(`isHeadOfficeRole :${isHeadOfficeRole}`);
+// console.log(`isHeadOfficeRole :${isHeadOfficeRole}`);
 
 // 조직코드 조회
 const codesDgr2Levl = ref([]);
@@ -464,7 +463,6 @@ const selectedDgr3LevlOgCds = ref([]); // 선택한 지점 코드
 async function getDgrOgInfos() {
   let res = [];
   res = await dataService.get('/sms/wells/contract/partners/regional-divisions'); // 지역단
-  console.log(res.data);
   codesDgr2Levl.value = res.data;
   res = await dataService.get('/sms/wells/contract/partners/branch-divisions'); // 지점
   codesDgr3Levl.value = res.data;
@@ -609,12 +607,12 @@ async function fetchMstData() {
   // changing api & cacheparams according to search classification
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
-  console.log(cachedParams);
+  // console.log(cachedParams);
   // res = await dataService.get('/sms/wells/contract/contracts/managements', { params: { ...cachedParams } });
   res = await dataService.post('/sms/wells/contract/contracts/managements', { ...cachedParams });
 
   if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
-    console.log(res.data.searchKssOrdrListResList);
+    // console.log(res.data.searchKssOrdrListResList);
     // if (res.data.searchKssOrdrListResList.length === 0) {
     //   await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     // }
@@ -625,13 +623,19 @@ async function fetchMstData() {
     view.resetCurrent();
     view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
-    view.columnByName('cstSignCn').visible = false; // 서명
-    view.columnByName('ocyCntrwBrws').visible = false; // 원본 계약서출력
-
-    // 삭제원복 컬럼 Hide
-    view.columnByName('dlRstr').visible = false;
+    // 특정사번 '원본 계약서출력' 버튼 활성화 권한 설정
+    if (userInfo.loginId === '36544'
+     || userInfo.loginId === '36805'
+     || userInfo.loginId === '36909'
+     || userInfo.loginId === '36581') {
+      view.columnByName('ocyCntrwBrws').visible = true; // 원본 계약서출력 컬럼 Show
+    } else {
+      view.columnByName('ocyCntrwBrws').visible = false; // 원본 계약서출력 컬럼 Hide
+    }
+    view.columnByName('cstSignCn').visible = false; // 서명 컬럼 Hide
+    view.columnByName('dlRstr').visible = false; // 삭제원복 컬럼 Hide
   } else if (searchParams.value.cntrDv === 'R') {
-    console.log(res.data.searchRePromConcListResList);
+    // console.log(res.data.searchRePromConcListResList);
     if (res.data.searchRePromConcListResList.length === 0) {
       await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     }
@@ -642,7 +646,7 @@ async function fetchMstData() {
     view.resetCurrent();
     view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   } else if (searchParams.value.cntrDv === 'S') {
-    console.log(res.data.searchEmployeePurchaseListResList);
+    // console.log(res.data.searchEmployeePurchaseListResList);
     if (res.data.searchEmployeePurchaseListResList.length === 0) {
       await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     }
@@ -660,12 +664,12 @@ async function fetchDtlData() {
   // changing api & cacheparams according to search classification
   let res = '';
   cachedParams = cloneDeep(searchDtlParams.value);
-  console.log(cachedParams);
+  // console.log(cachedParams);
   res = await dataService.get('/sms/wells/contract/contracts/managements/details', { params: { ...cachedParams } });
 
   switch (searchDtlParams.value.cntrwTpCd) {
     case '1': // 일시불(환경가전)
-      console.log(res.data.searchLspyOrdrDtptListResList);
+      // console.log(res.data.searchLspyOrdrDtptListResList);
       // eslint-disable-next-line no-const-assign, no-case-declarations
       const view1 = grdDtlSpayEnvrElhmList.value.getView();
       view1.getDataSource().setRows(res.data.searchLspyOrdrDtptListResList);
@@ -674,7 +678,7 @@ async function fetchDtlData() {
       view1.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
       break;
     case '2': // 일시불(BH)
-      console.log(res.data.searchBhOrdrDtptListResList);
+      // console.log(res.data.searchBhOrdrDtptListResList);
       // eslint-disable-next-line no-const-assign, no-case-declarations
       const view2 = grdDtlSpayBhList.value.getView();
       view2.getDataSource().setRows(res.data.searchBhOrdrDtptListResList);
@@ -683,7 +687,7 @@ async function fetchDtlData() {
       view2.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
       break;
     case '3': // 렌탈
-      console.log(res.data.searchRentOrdrDtptListResList);
+      // console.log(res.data.searchRentOrdrDtptListResList);
       // eslint-disable-next-line no-const-assign, no-case-declarations
       const view3 = grdDtlRntlList.value.getView();
       view3.getDataSource().setRows(res.data.searchRentOrdrDtptListResList);
@@ -692,7 +696,7 @@ async function fetchDtlData() {
       view3.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
       break;
     case '4': // 멤버십
-      console.log(res.data.searchMbOrdrDtptListResList);
+      // console.log(res.data.searchMbOrdrDtptListResList);
       // eslint-disable-next-line no-const-assign, no-case-declarations
       const view4 = grdDtlMshList.value.getView();
       view4.getDataSource().setRows(res.data.searchMbOrdrDtptListResList);
@@ -701,7 +705,7 @@ async function fetchDtlData() {
       view4.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
       break;
     case '5': // 홈케어서비스
-      console.log(res.data.searchHcsOrdrDtptListResList);
+      // console.log(res.data.searchHcsOrdrDtptListResList);
       // eslint-disable-next-line no-const-assign, no-case-declarations
       const view5 = grdDtlHcrSvcList.value.getView();
       view5.getDataSource().setRows(res.data.searchHcsOrdrDtptListResList);
@@ -710,7 +714,7 @@ async function fetchDtlData() {
       view5.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
       break;
     case '6': // 모종일시불
-      console.log(res.data.searchPlantsOrdrDtptListResList);
+      // console.log(res.data.searchPlantsOrdrDtptListResList);
       // eslint-disable-next-line no-const-assign, no-case-declarations
       const view6 = grdDtlSdingSpayList.value.getView();
       view6.getDataSource().setRows(res.data.searchPlantsOrdrDtptListResList);
@@ -719,7 +723,7 @@ async function fetchDtlData() {
       view6.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
       break;
     case '7': // 정기배송
-      console.log(res.data.searchRglrDlvrOrdrDtptListResList);
+      // console.log(res.data.searchRglrDlvrOrdrDtptListResList);
       // eslint-disable-next-line no-const-assign, no-case-declarations
       const view7 = grdDtlRglrSppList.value.getView();
       view7.getDataSource().setRows(res.data.searchRglrDlvrOrdrDtptListResList);
@@ -728,7 +732,7 @@ async function fetchDtlData() {
       view7.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
       break;
     case '8': // 장기할부
-      console.log(res.data.searchRentOrdrDtptListResList);
+      // console.log(res.data.searchRentOrdrDtptListResList);
       // eslint-disable-next-line no-const-assign, no-case-declarations
       const view8 = grdDtlLtmIstmList.value.getView();
       view8.getDataSource().setRows(res.data.searchRentOrdrDtptListResList);
@@ -875,7 +879,7 @@ async function onClickCntrwMlFw() {
       }
     });
 
-    console.log(rcvrInfo);
+    // console.log(rcvrInfo);
     const res = await modal({
       component: 'WwctaContractDocumentMailForwardingP',
       componentProps: { rcvrInfo },
@@ -951,7 +955,7 @@ async function onClickNotakfW() {
       rowCnt++;
     });
 
-    console.log(saveData);
+    // console.log(saveData);
     if (isEmpty(arrCstKnm)) return;
     if (await confirm(t('MSG_ALT_CNFM_NOTAK_FW', [`[${arrCstKnm}]`]))) {
       res = await dataService.put('/sms/wells/contract/contracts/managements/notification-talk-forwarding', saveData);
@@ -983,8 +987,6 @@ async function onClickSearchCntrCst() {
 }
 
 onMounted(async () => {
-  const { userId: sessionUserId } = getters['meta/getUserInfo'];
-  loginInfo.value.userId = sessionUserId;
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -1072,15 +1074,19 @@ const initGrdMstList = defineGrid((data, view) => {
         const { cntrPrgsStatCd } = grid.getValues(index.itemIndex);
         const { cntrwTpCd } = grid.getValues(index.itemIndex);
         const { rgstDv } = grid.getValues(index.itemIndex);
-        return cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
-            && (cntrwTpCd === '3' || cntrwTpCd === '8') && rgstDv === '1' ? t('MSG_TXT_DL_RSTR') : ''; // 계약진행상태코드(확정)
+        // return cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
+        return cntrPrgsStatCd === '99'
+            && (cntrwTpCd === '3' || cntrwTpCd === '8')
+            && rgstDv === '1' ? t('MSG_TXT_DL_RSTR') : ''; // 계약진행상태코드(확정)
       },
       styleCallback(grid, dataCell) {
         const { cntrPrgsStatCd } = grid.getValues(dataCell.index.itemIndex);
         const { cntrwTpCd } = grid.getValues(dataCell.index.itemIndex);
         const { rgstDv } = grid.getValues(dataCell.index.itemIndex);
-        const retrunValue = cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
-            && (cntrwTpCd === '3' || cntrwTpCd === '8') && rgstDv === '1' ? cntrPrgsStatCd : 0;
+        // const retrunValue = cntrPrgsStatCd >= '90' && cntrPrgsStatCd !== '98'
+        const retrunValue = cntrPrgsStatCd === '99'
+            && (cntrwTpCd === '3' || cntrwTpCd === '8')
+            && rgstDv === '1' ? cntrPrgsStatCd : 0;
         return retrunValue !== 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
       },
     }, // 삭제원복
@@ -1176,11 +1182,11 @@ const initGrdMstList = defineGrid((data, view) => {
         { cntrNo: paramCntrNo, cntrSn: paramCntrSn, cnfmMsgYn: 'Y' },
       ];
 
-      console.log(rows);
+      // console.log(rows);
       res = await dataService.put('/sms/wells/contract/contracts/managements/confirm-approval', rows);
       if (searchCnfmAprvParams.value.cnfmMsgYn === 'Y') {
         // await notify(t('MSG_ALT_PROCS_FSH')); // {0} 처리 되었습니다.
-        console.log(res.data.key);
+        // console.log(res.data.key);
         if (await confirm(res.data.key)) {
           rows.forEach((row) => {
             row.cntrNo = searchCnfmAprvParams.value.cntrNo; // 계약번호
@@ -1188,12 +1194,12 @@ const initGrdMstList = defineGrid((data, view) => {
             row.cnfmMsgYn = ''; // 확정승인메세지
           });
           res = await dataService.put('/sms/wells/contract/contracts/managements/confirm-approval', rows);
-          console.log(res.data.processCount);
+          // console.log(res.data.processCount);
           if (res.data.processCount === 0) {
             await notify(t('MSG_ALT_CNFM_APR_PROCS_FSH')); // 확정 승인 처리가 완료 되었습니다.
             if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
               res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
-              console.log(res.data.processCount);
+              // console.log(res.data.processCount);
               if (res.data.processCount === 0) {
                 await notify(t('MSG_ALT_ORD_CNFM')); // 주문이 확정되었습니다.
                 // 재조회 호출
@@ -1203,7 +1209,7 @@ const initGrdMstList = defineGrid((data, view) => {
           }
         }
       } else {
-        console.log(res.data.processCount);
+        // console.log(res.data.processCount);
       }
     } else if (['cnfm'].includes(column)) { // 확정버튼 클릭
       const rows = [
@@ -1214,11 +1220,11 @@ const initGrdMstList = defineGrid((data, view) => {
       searchCnfmAprvParams.value.cntrNo = paramCntrNo;
       cachedParams = cloneDeep(searchCnfmAprvParams.value);
       res = await dataService.get('/sms/wells/contract/contracts/managements/status', { params: { ...cachedParams } });
-      console.log(res.data[0].cntrPrgsStatCd);
+      // console.log(res.data[0].cntrPrgsStatCd);
       if (res.data[0].cntrPrgsStatCd === '50') {
         if (await confirm(t('MSG_ALT_CNFM_ORD'))) { // 주문을 확정하시겠습니까?
           res = await dataService.put('/sms/wells/contract/contracts/managements/confirm', rows);
-          console.log(res.data.processCount);
+          // console.log(res.data.processCount);
           if (res.data.processCount === 0) {
             await notify(t('MSG_ALT_ORD_CNFM')); // 주문이 확정되었습니다.
             // 재조회 호출

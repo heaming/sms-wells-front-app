@@ -81,19 +81,6 @@
           {{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
-        v-permission:print
-        icon="report"
-        :label="$t('MSG_TXT_RPT_BRWS')"
-        dense
-        secondary
-        @click="onClickOpenReport"
-      />
-      <kw-separator
-        spaced
-        vertical
-        inset
-      />
-      <kw-btn
         v-permission:download
         icon="download_on"
         :disable="totalCount === 0"
@@ -233,12 +220,12 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
     'interContCanSlAmt',
     'interContDpAmt',
   ];
-  if (searchParams.value.agrgDv === '1') {
+  if (!['3', '4'].includes(searchParams.value.agrgDv)) {
     layoutMain.splice(5, 5);
   }
   view.setColumnLayout(layoutMain);
 
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 1 : 10 }];
   view.setHeaderSummaries({
     visible: true,
     items: [
@@ -306,12 +293,12 @@ async function setGridColumnLayoutType2(data, view) { // 렌탈
     'dfaProcsAmt',
     'totUcBlam',
   ];
-  if (searchParams.value.agrgDv === '1') {
+  if (!['3', '4'].includes(searchParams.value.agrgDv)) {
     layoutMain.splice(5, 5);
   }
   view.setColumnLayout(layoutMain);
 
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 1 : 10 }];
   view.setHeaderSummaries({
     visible: true,
     items: [
@@ -363,11 +350,11 @@ async function setGridColumnLayoutType3(data, view) { // 멤버십
     },
     'totDpAmt', 'dfaProcsAmt', 'totUcBlam',
   ];
-  if (searchParams.value.agrgDv === '1') {
+  if (!['3', '4'].includes(searchParams.value.agrgDv)) {
     layoutMain.splice(5, 5);
   }
   view.setColumnLayout(layoutMain);
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 1 : 10 }];
 
   view.setHeaderSummaries({
     visible: true,
@@ -392,11 +379,11 @@ async function setGridColumnLayoutType4(data, view) { // 정기배송
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '130', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
     { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', visible: (searchParams.value.agrgDv !== '1') }, // 계약상세번호
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', visible: (searchParams.value.agrgDv !== '1') }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', visible: (searchParams.value.agrgDv !== '1') }, // 상품코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', visible: (searchParams.value.agrgDv !== '1') }, // 상품명
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: (searchParams.value.agrgDv !== '1') }, // 매출일자
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 매출일자
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
     { fieldName: 'totSlAmt', header: `${t('MSG_TXT_SL')}(+)`, width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출
     { fieldName: 'totDpAmt', header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출대사
@@ -409,7 +396,7 @@ async function setGridColumnLayoutType4(data, view) { // 정기배송
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 1 : 10 }];
 
   view.setHeaderSummaries({
     visible: true,
@@ -467,12 +454,12 @@ async function setGridColumnLayoutType5(data, view) { // 리스/할부
     'dfaProcsAmt',
     'totUcBlam',
   ];
-  if (searchParams.value.agrgDv === '1') {
+  if (!['3', '4'].includes(searchParams.value.agrgDv)) {
     layoutMain.splice(5, 5);
   }
   view.setColumnLayout(layoutMain);
 
-  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (searchParams.value.agrgDv === '1') ? 1 : 10 }];
+  view.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: (!['3', '4'].includes(searchParams.value.agrgDv)) ? 1 : 10 }];
 
   view.setHeaderSummaries({
     visible: true,
@@ -514,13 +501,6 @@ async function onClickSearch() {
   await fetchData();
 }
 
-async function onClickOpenReport() {
-  // TODO: 공통 팝업 호출 정보 설계 확인 중
-  /*
-  https://kyowon.atlassian.net/wiki/spaces/ForKUS/pages
-  /69500965/OZ#1.-%EC%97%85%EB%AC%B4-%ED%99%94%EB%A9%B4%EC%97%90%EC%84%9C-%EB%A6%AC%ED%8F%AC%ED%8A%B8-%ED%98%B8%EC%B6%9C
-  */
-}
 async function onClickExcelDownload() {
   const view = grdSalesBondRef.value.getView();
   await gridUtil.exportView(view, {

@@ -166,17 +166,14 @@ const initGrd = defineGrid((data, view) => {
         return alncmpDgPrtnrMapngCd?.prtsCodeId || '';
       },
     },
-    alncmpDgPrtnrOgTpCd: {
-      displaying: false, /* 코드가 불안정하며 서버에서 조회하도록 변경 */
-    },
     cntrAmt: { label: t('등록비'), type: Number, width: 146 },
     cntrPtrm: { label: t('계약기간'), type: Number, width: 146, required: true },
     svPdCd: { label: t('서비스상품코드'), width: 146, classes: 'text-center', required: true }, /* 상품코드 긁어올까.. */
-    stplPtrm: { label: t('약정기간'), type: Number, width: 146 },
+    stplPtrm: { label: t('약정기간'), type: Number, width: 146, required: true },
     rentalDscTpCd: { label: t('렌탈할인유형코드'), width: 146, options: codes.RENTAL_DSC_TP_CD },
     rentalDscDvCd: { label: t('렌탈할인구분코드'), width: 146, options: codes.RENTAL_DSC_DV_CD },
     rentalCrpDscrCd: { label: t('렌탈법인할인율코드'), width: 146, options: codes.RENTAL_CRP_DSCR_CD },
-    sellDscCtrAmt: { label: t('법인특별할인금액'), type: Number, width: 146 }, /* 판매할인조정금액 */
+    crpSpcDsprc: { label: t('법인특별할인가'), type: Number, width: 146 }, /* 법인특별할인가 */
     cstKnm: { label: t('고객명'), width: 146, classes: 'text-center', required: true },
     bryyMmdd: {
       label: t('MSG_TXT_BIRTH_DATE'),
@@ -270,6 +267,8 @@ const initGrd = defineGrid((data, view) => {
     ctrVal: { displaying: false, type: Number },
     fnlVal: { displaying: false, type: Number },
     pdPrcId: { displaying: false },
+    sellDscCtrAmt: { displaying: false, type: Number },
+    alncmpDgPrtnrOgTpCd: { displaying: false /* 코드가 불안정하며 서버에서 조회하도록 변경 */ },
   });
 
   view.rowIndicator.visible = true;

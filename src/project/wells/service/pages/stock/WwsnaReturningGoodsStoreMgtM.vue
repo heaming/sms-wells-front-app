@@ -142,11 +142,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
         </template>
         <!-- 저장 -->
@@ -168,7 +164,7 @@
           dense
           secondary
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -235,15 +231,8 @@
       </ul>
       <kw-grid
         ref="grdMainRef"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -253,16 +242,15 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil, useMeta } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
-// import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 
 const { t } = useI18n();
-const { notify } = useGlobal();
+const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
-const { getConfig } = useMeta();
+// const { getConfig } = useMeta();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -270,7 +258,6 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'PD_GD_CD', // 상품등급
   'PD_GRP_CD', // 상품그룹코드
   'ITM_KND_CD', // 품목종류코드
@@ -285,11 +272,7 @@ const strWareDvCd = { WARE_DV_CD: [
   { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
 ] };
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
+const totalCount = ref(0);
 
 const filterCodes = ref({
   filterPdGdCd: [],
@@ -297,9 +280,11 @@ const filterCodes = ref({
 
 });
 
+// 코드값 필터링
 filterCodes.value.filterPdGdCd = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
 filterCodes.value.filterSvBizDclsfCd = codes.SV_BIZ_DCLSF_CD.filter((v) => ['3420', '3410', '3488', '3210', '3230', '3112'].includes(v.codeId));
 
+// 조회용 파라미터
 const searchParams = ref({
   pdGrpCd: '',
   fnlItmGdCd: '',
@@ -324,14 +309,17 @@ const baseInfo = ref({
   rtngdProcsTpCd: '',
 });
 
+// 상위창고변경 이벤트
 function onChagneHgrWareNo() {
   searchParams.value.strWareNoD = '';
 }
 
+// null체크
 function isNotEmpty(obj) {
   return (obj !== undefined && obj !== null && obj !== '');
 }
 
+// input에 값이 정상적으로 들어갔는지 체크
 function validateInputValueExists(input, inputType) {
   if (input === '') {
     notify(t('MSG_ALT_SELECT_VAL', [inputType]));
@@ -340,15 +328,18 @@ function validateInputValueExists(input, inputType) {
   return true;
 }
 
+// 체크박스 선택시 체크로직
 function validateIsApplyRowExists() {
   const view = grdMainRef.value.getView();
   if (view.getItemCount() === 0) {
+    // 적용 대상 데이터가 없습니다.
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
     return false;
   }
   return true;
 }
 
+// 확인일자 및 반품처리유형 일괄변경 버튼 클릭 이벤트
 function onClickGridBulkChange(val, type) {
   const inputType = type === 'rtngdProcsTpCd' ? '반품처리유형' : '확인일자';
 
@@ -372,6 +363,7 @@ function onClickGridBulkChange(val, type) {
 
 const itemKndCdD = ref();
 
+// 품목코드 변경이벤트
 const onChangeItmKndCd = async () => {
   const res = await dataService.get('/sms/wells/service/as-consumables-stores/filter-items', { params: searchParams.value });
   itemKndCdD.value = res.data;
@@ -386,6 +378,7 @@ watch(() => searchParams.value.itmKndCd, (val) => {
 
 let cachedParams;
 
+// 상품그룹코드 필터링
 const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
@@ -397,13 +390,14 @@ await Promise.all([
   onChangeItmKndCd(),
 ]);
 
+// 조회 이벤트
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/returning-goods-store/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: goods, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/returning-goods-store', { params: { ...cachedParams } });
+  const goods = res.data;
 
   console.log(goods);
 
+  totalCount.value = goods.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(goods);
 
@@ -411,9 +405,21 @@ async function fetchData() {
 
   view.autoFiltersRefresh('itemGr', false);
   view.setColumnFilters('itemGr', filters, true);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
+  let count = 0;
+  if (searchParams.value.chkErrorCheck === 'N') {
+    for (let i = 0; i < goods.length; i += 1) {
+      const rowErrorCheck = goods[i].errorCheck;
+      if (rowErrorCheck > 0) {
+        count += 1;
+      }
+    }
+    // 등급오류건이 {0}건 존재합니다.
+    await alert(t('MSG_ALT_GD_ERR_CT_EXST', [count]));
+  }
 }
 
+// 엑셀다운로드 버튼 클릭 이벤트
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/returning-goods-store/excel-download', { params: cachedParams });
@@ -425,11 +431,13 @@ async function onClickExcelDownload() {
   });
 }
 
+// 조회버튼 클릭 이벤트
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 반품 확인 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -443,9 +451,11 @@ async function onClickSave() {
 
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
 
+  // 저장시 체크로직
   for (let i = 0; i < checkedRows.length; i += 1) {
     const checkedOstrConfDt = checkedRows[i].ostrConfDt;
     const checkedRtngdProcsTpCd = checkedRows[i].rtngdProcsTpCd;
+    const checkedErrorChecked = checkedRows[i].errorCheck;
 
     if (isNotEmpty(checkedOstrConfDt) && isEmpty(checkedRtngdProcsTpCd)) {
       // 반품처리유형 항목에 값이 누락되었습니다.
@@ -464,7 +474,15 @@ async function onClickSave() {
       return;
     }
 
-    // TODO : 등급오류건 항목이 있는지 체크로직 추가 필요
+    // 등급오류건 항목이 있는지 체크로직
+    if (checkedErrorChecked > 0) {
+      // 10 : 물류폐기, 11 : 리퍼-E급 tt물류폐기 , 20 : 리퍼용, 21 : 품질팀 , 22 리퍼-tt특별자재 일경우
+      if (['10', '11', '20', '21', '22'].includes(checkedRtngdProcsTpCd)) {
+        // 등급 오류 건이 포함되어있습니다. 확인 후 처리해주십시오
+        notify(t('MSG_ALT_GD_ERR_CT_EXST_CONF'));
+        return;
+      }
+    }
   }
   await dataService.post('/sms/wells/service/returning-goods-store', checkedRows);
 
@@ -473,6 +491,7 @@ async function onClickSave() {
   await fetchData();
 }
 
+// 저장버튼 클릭이벤트
 async function onClickRtnGd() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -567,10 +586,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogNm' }, // 접수자소속
     { fieldName: 'prtnrNm' }, // 접수자명
     { fieldName: 'badDvNm' }, // 불량구분
-    { fieldName: 'rtngdRvpyProcsYn' },
-    { fieldName: 'wkWareNo' },
-    { fieldName: 'wkOstrSn' },
-    { fieldName: 'errorCheck' },
+    { fieldName: 'rtngdRvpyProcsYn' }, // 반품수불처리여부
+    { fieldName: 'wkWareNo' }, // 작업창고번호
+    { fieldName: 'wkOstrSn' }, // 작업출고순번
+    { fieldName: 'errorCheck' }, // 등급오류체크
 
   ];
 

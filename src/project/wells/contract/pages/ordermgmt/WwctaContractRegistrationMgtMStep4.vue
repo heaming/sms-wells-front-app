@@ -18,7 +18,7 @@
   >
     <div class="pr20">
       <h3 class="mt0">
-        계약자정보-{{ codes.CNTR_TP_CD.find((code) => code.codeId === step4.bas?.cntrTpCd)?.codeName }}
+        계약자정보-{{ getCodeName('CNTR_TP_CD', step4.bas?.cntrTpCd) }}
       </h3>
 
       <kw-form
@@ -255,16 +255,9 @@ ${step4.cntrt.sexDvNm || ''}`
             </div>
             <div class="row items-center">
               <p
-                v-if="item.sellTpCd === '1'"
                 class="kw-fc--primary kw-font-subtitle"
               >
-                {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
-              </p>
-              <p
-                v-else
-                class="kw-fc--primary kw-font-subtitle"
-              >
-                월 {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원({{ item.stplPtrm }}개월)
+                {{ getDisplayedFinalPrice(item) }}
               </p>
 
               <div class="row items-center ml20">
@@ -362,7 +355,7 @@ ${step4.cntrt.sexDvNm || ''}`
                   </kw-form-item>
                   <kw-form-item no-label>
                     <p class="kw-fc--black2 kw-font-pt14 text-weight-regular">
-                      월 렌탈료 : {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
+                      월 납부금 : {{ stringUtil.getNumberWithComma(item.fnlAmt || 0) }}원
                     </p>
                   </kw-form-item>
                 </kw-form-row>
@@ -541,7 +534,7 @@ ${step4.cntrt.sexDvNm || ''}`
             <kw-form-item
               label="재약정개월"
             >
-              <p>{{ restipulationBasInfo.stplPtrm }} 개월</p>
+              <p>{{ `${restipulationBasInfo.stplPtrm}개월` }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -561,20 +554,14 @@ ${step4.cntrt.sexDvNm || ''}`
               label="약정요금"
             >
               <p>
-                {{
-                  restipulationBasInfo.newFnlValue ?
-                    stringUtil.getNumberWithComma(restipulationBasInfo.newFnlValue) : ''
-                }} 원
+                {{ `${getNumberWithComma(restipulationBasInfo.newFnlValue)}원` }}
               </p>
             </kw-form-item>
             <kw-form-item
               label="재약정할인"
             >
               <p>
-                {{
-                  restipulationBasInfo.stplDscAmt ?
-                    stringUtil.getNumberWithComma(restipulationBasInfo.stplDscAmt) : ''
-                }} 원
+                {{ `${getNumberWithComma(restipulationBasInfo.stplDscAmt)}원` }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -595,10 +582,12 @@ ${step4.cntrt.sexDvNm || ''}`
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
-import { codeUtil, defineGrid, getComponentType, stringUtil, useDataService, useGlobal } from 'kw-lib';
+import { defineGrid, getComponentType, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { warn } from 'vue';
+import { getNumberWithComma } from '~sms-common/contract/util';
+import { useCtCode } from '~sms-common/contract/composable';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -613,7 +602,7 @@ const router = useRouter();
 const dataService = useDataService();
 const { notify, alert } = useGlobal();
 const { getters } = useStore();
-const codes = await codeUtil.getMultiCodes(
+const { codes, getCodeName } = await useCtCode(
   'CNTR_TP_CD',
   'CST_STLM_IN_MTH_CD',
   'IST_PLC_TP_CD',
@@ -690,7 +679,7 @@ function setGrid() {
 async function calcRestipulation() {
   const stplTpCdOption = stplTpCdOptions.value
     .find((option) => option.rstlBaseTpCd === restipulationBasInfo.value.stplTpCd);
-  const ojCntrDtl = step4.value.dtls.find((dtl) => dtl.cntrSn === restipulationBasInfo.value.cntrSn);
+  const ojCntrDtl = step4.value.dtls.find((dtl) => Number(dtl.cntrSn) === Number(restipulationBasInfo.value.cntrSn));
 
   restipulationBasInfo.value.stplDscAmt = stplTpCdOption.stplDscAmt;
   restipulationBasInfo.value.stplPtrm = stplTpCdOption.rstlMcn;
@@ -716,7 +705,7 @@ async function calcRestipulation() {
     { params: restipulationBasInfo.value },
   );
 
-  const stplExpired = data.rentalTn >= data.stplPtrm;
+  const stplExpired = Number(data.rentalTn) >= Number(data.stplPtrm);
   const startDayOfNextMonth = now
     .add(1, 'month')
     .startOf('M');
@@ -727,15 +716,14 @@ async function calcRestipulation() {
   const stplStrtDay = stplExpired ? startDayOfNextMonth : startDayOfStplEndMonth;
   const stplEndDay = stplStrtDay
     .add(Number(restipulationBasInfo.value.stplPtrm) - 1, 'month')
-    .endOf('M')
-    .format('YYYYMMDD');
-  const stplStrtdt = stplStrtDay.format('YYYYMMDD');
-  const stplEnddt = stplEndDay.format('YYYYMMDD');
+    .endOf('M');
+  const stplStrtdt = stplStrtDay.format('YYYYMMDD').toString();
+  const stplEnddt = stplEndDay.format('YYYYMMDD').toString();
   restipulationBasInfo.value.cntrNo = data.cntrNo;
   restipulationBasInfo.value.stplStrtdt = stplStrtdt;
   restipulationBasInfo.value.stplEnddt = stplEnddt;
   restipulationBasInfo.value.rstlStatCd = '010'; // 접수
-  restipulationBasInfo.value.stplRcpDtm = now.format('YYYYMMDDHHmmss');
+  restipulationBasInfo.value.stplRcpDtm = now.format('YYYYMMDDHHmmss').toString();
   restipulationBasInfo.value.rcpOgTpCd = sessionUserId.ogTpCd;
   restipulationBasInfo.value.rcpPrtnrNo = sessionUserId.employeeIDNumber;
   restipulationBasInfo.value.stplTn = Number(data.stplTn) + 1;
@@ -834,9 +822,29 @@ function onClickNextDtlSn() {
   if (dtlSn.value < step4.value.dtls.length) dtlSn.value += 1;
 }
 
+function getDisplayedFinalPrice(cntrDtl) {
+  if (!cntrDtl) {
+    return '';
+  }
+  const { fnlAmt, svPrd, sellTpCd, stplPtrm } = cntrDtl;
+
+  if (sellTpCd === '1') {
+    return `${getNumberWithComma(fnlAmt)}원`;
+  }
+  if (sellTpCd === '2') {
+    return `${getNumberWithComma(fnlAmt)}원${stplPtrm ? ` (${stplPtrm}개월)` : ''}`;
+  }
+  if (sellTpCd === '6') {
+    return `${getNumberWithComma(fnlAmt)}원 (월 ${getNumberWithComma(fnlAmt
+        / svPrd)}원)`;
+  }
+  return `월 ${getNumberWithComma(fnlAmt)}원`;
+}
+
 const loaded = ref(false);
-async function initStep() {
-  if (loaded.value) { return; }
+async function initStep(forced = false) {
+  if (!forced && loaded.value) { return; }
+
   if (cntrTpCd.value === '08') {
     await getCntrInfoWithRstl();
   } else {
@@ -850,6 +858,7 @@ exposed.getCntrInfoWithRstl = getCntrInfoWithRstl;
 exposed.isChangedStep = isChangedStep;
 exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
+exposed.loaded = loaded;
 exposed.saveStep = saveStep;
 /* exposed.setRestipulation = setRestipulation; */
 
@@ -886,8 +895,8 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_CNTR_DV'), width: 70 },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 200 },
-    { fieldName: 'regAmt', header: t('MSG_TXT_RGST_FEE'), width: 90, styleName: 'text-right' },
-    { fieldName: 'rntlAmt', header: t('MSG_TXT_MM_RTLFE'), width: 90, styleName: 'text-right' },
+    { fieldName: 'regAmt', header: '등록비(계약금)', width: 90, styleName: 'text-right' },
+    { fieldName: 'rntlAmt', header: '월납부금', width: 90, styleName: 'text-right' },
     { fieldName: 'pdAmt', header: t('MSG_TXT_PRDT_AMT'), width: 90, styleName: 'text-right' },
     { fieldName: 'stplPtrm', header: t('MSG_TXT_CONTRACT_PERI'), width: 90, styleName: 'text-right' },
     { fieldName: 'cntrPtrm', header: t('MSG_TXT_CNTR_PTRM'), width: 90, styleName: 'text-right' },
@@ -905,9 +914,9 @@ const initGrdStlm = defineGrid((data, view) => {
     { fieldName: 'stlmAmt', dataType: 'number' },
   ];
   const columns = [
-    { fieldName: 'stlmTp', header: t('MSG_TXT_PMT_TYP'), width: 100 },
-    { fieldName: 'stlmMth', header: t('MSG_TXT_STLM_MTHD'), width: 100 },
-    { fieldName: 'stlmAmt', header: t('MSG_TXT_AMT'), width: 100, styleName: 'text-right' },
+    { fieldName: 'stlmTp', header: t('MSG_TXT_PMT_TYP'), width: 200 },
+    { fieldName: 'stlmMth', header: t('MSG_TXT_STLM_MTHD'), width: 200 },
+    { fieldName: 'stlmAmt', header: t('MSG_TXT_AMT'), fillWidth: 1, styleName: 'text-right' },
   ];
   data.setFields(fields);
   view.setColumns(columns);

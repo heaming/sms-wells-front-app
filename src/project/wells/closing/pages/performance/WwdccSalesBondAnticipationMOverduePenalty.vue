@@ -153,20 +153,6 @@
         <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
       </template>
       <kw-btn
-        v-permission:print
-        :disable="totalCount === 0"
-        icon="report"
-        dense
-        secondary
-        :label="$t('MSG_TXT_RPT_BRWS')"
-        @click="onClickOpenReport"
-      />
-      <kw-separator
-        spaced
-        vertical
-        inset
-      />
-      <kw-btn
         v-permission:download
         icon="download_on"
         :disable="totalCount === 0"
@@ -180,28 +166,28 @@
       v-show="isGridMain"
       ref="grdMainRef"
       name="grdMain"
-      :total-count="totalCount"
+      :visible-rows="10"
       @init="initGrdMain"
     />
     <kw-grid
       v-show="isGridSub"
       ref="grdSubRef"
       name="grdSub"
-      :total-count="totalCount"
+      :visible-rows="10"
       @init="initGrdSub"
     />
     <kw-grid
       v-show="isGridThird"
       ref="grdThirdRef"
       name="grdThird"
-      :total-count="totalCount"
+      :visible-rows="10"
       @init="initGrdThird"
     />
     <kw-grid
       v-show="isGridFourth"
       ref="grdFourthRef"
       name="grdFourth"
-      :total-count="totalCount"
+      :visible-rows="10"
       @init="initGrdFourth"
     />
   </div>
@@ -402,10 +388,6 @@ async function onChangeSellTpCd() {
   searchParams.value.sellTpDtlCd = 'ALL';
 }
 
-async function onClickOpenReport() {
-  // 공통 오즈 팝업 가져오면됨
-}
-
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -426,10 +408,6 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_PERF_DT'),
       styleName: 'text-center',
       width: '130',
-      headerSummary: {
-        text: t('MSG_TXT_SUM'),
-        styleName: 'text-center',
-      },
       datetimeFormat: 'date',
     }, // 실적일자
     { fieldName: 'sellTpCdNm',

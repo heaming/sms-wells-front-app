@@ -80,7 +80,7 @@ import { codeUtil, useDataService, stringUtil, useModal } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
 });
 
 const { t } = useI18n();
@@ -100,6 +100,7 @@ codes.COD_YN.map((item) => {
   return item;
 });
 
+// 코드값을 코드명으로 변경
 function getCodeName(codeValue, codeGroupName) {
   if (isEmpty(codeValue)) {
     return null;
@@ -108,6 +109,7 @@ function getCodeName(codeValue, codeGroupName) {
     ?.find((codeItem) => codeItem.codeId === codeValue || codeItem.codeId === codeValue.toUpperCase())?.codeName;
 }
 
+// 상품메타 라벨코드값을 라벨명으로 변경
 function getFieldName(colNm, defaultName) {
   const labelCd = metaInfos.value?.find((field) => field.colNm === colNm)?.uiLblCdv;
   // console.log(labelCd);
@@ -117,6 +119,7 @@ function getFieldName(colNm, defaultName) {
   return defaultName;
 }
 
+// 데이터 불러오기
 async function fetchData() {
   const res = await dataService.get(`/sms/common/product/${currentPdCd.value}`).catch(() => {
     cancel();
@@ -126,6 +129,7 @@ async function fetchData() {
   pdInfo.value = res.data?.product;
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;

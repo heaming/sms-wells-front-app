@@ -63,6 +63,7 @@
         inset
         spaced
       />
+      <!-- 행추가 -->
       <kw-btn
         grid-action
         dense
@@ -83,6 +84,7 @@
         inset
         spaced
       />
+      <!-- 엑셀다운로드 -->
       <kw-btn
         icon="download_on"
         secondary
@@ -109,12 +111,12 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import { getCodeNames, getAlreadyItems, getGridRowCount } from '~sms-common/product/utils/pdUtil';
 
 const props = defineProps({
-  svPdCd: { type: String, required: true },
-  pdctPdCd: { type: String, required: true },
-  partPdCd: { type: String, required: true },
-  svPdNm: { type: String, default: '' },
-  pdctPdNm: { type: String, default: '' },
-  partPdNm: { type: String, default: '' },
+  svPdCd: { type: String, required: true }, // 서비스코드
+  pdctPdCd: { type: String, required: true }, // 제품코드
+  partPdCd: { type: String, required: true }, // 부품코드
+  svPdNm: { type: String, default: '' }, // 서비스명
+  pdctPdNm: { type: String, default: '' }, // 제품명
+  partPdNm: { type: String, default: '' }, // 부품명
 });
 
 const { alert, notify, modal } = useGlobal();
@@ -131,6 +133,7 @@ const filterName = ref();
 
 const codes = await codeUtil.getMultiCodes('MM_CD', 'VST_DV_CD');
 
+// 행 추가
 async function onClickAdd() {
   const { svPdCd, pdctPdCd, partPdCd } = props;
   const view = grdMainRef.value.getView();
@@ -138,6 +141,7 @@ async function onClickAdd() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   // const { svPdNm, pdctPdNm, partPdNm, svPdCd, pdctPdCd, partPdCd } = props;
   const { svPdNm, pdctPdNm, partPdNm } = props;
@@ -150,6 +154,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 데이터 불러오기
 async function fetchData() {
   const { svPdCd, pdctPdCd, partPdCd } = props;
   if (isEmpty(svPdCd) || isEmpty(pdctPdCd) || isEmpty(partPdCd)) {
@@ -162,6 +167,7 @@ async function fetchData() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+// 행 삭제
 async function onClickRemoveRows() {
   const view = grdMainRef.value.getView();
 
@@ -176,9 +182,9 @@ async function onClickRemoveRows() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+// 중복체크
 async function checkDuplication() {
   const view = grdMainRef.value.getView();
-  // if (view) return false;
   const changedRows = gridUtil.getChangedRowValues(view);
   const alreadyItems = getAlreadyItems(view, changedRows, 'vstDvCd', 'prdMmVal', 'chPdctPdCd');
   if (alreadyItems.length > 0) {
@@ -226,6 +232,7 @@ async function checkDuplication() {
   return false;
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) return;
@@ -240,6 +247,7 @@ async function onClickSave() {
   await fetchData();
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { svPdNm, pdctPdNm, partPdNm } = props;
   serviceName.value = svPdNm;

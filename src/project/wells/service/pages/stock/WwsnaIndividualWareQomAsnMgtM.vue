@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-관리자가 물류센터로부터 개인창고로 물량을 일괄배정하는 화면 (http://localhost:3000/#/service/wwsna-individual-ware-qom-asn-mgt)
+- 관리자가 물류센터로부터 개인창고로 물량을 일괄배정하는 화면 (http://localhost:3000/#/service/wwsna-individual-ware-qom-asn-mgt)
 ****************************************************************************************************
 --->
 <template>
@@ -244,6 +244,7 @@ const filterCodes = ref({
   wareDvCd: [],
 });
 
+// 창고구분 필터링
 function wareDvCdFilter() {
   filterCodes.value.wareDvCd = codes.WARE_DV_CD.filter((v) => ['3'].includes(v.codeId));
 }
@@ -264,8 +265,8 @@ const onChangeOstrWareHouse = async () => {
   }
 };
 
-// 입고창고 조회
 const optionsStrWareNo = ref();
+// 입고창고 조회
 const onChangeStrWareHouse = async () => {
   searchParams.value.strWareNo = '';
   const result = await dataService.get(
@@ -281,7 +282,7 @@ const onChangeStrWareHouse = async () => {
 };
 
 // 기준년월, 배정년월이 변경되었을 때 창고번호 재조회
-function onChangeApyYm() {
+async function onChangeApyYm() {
   const { apyYm, asnOjYm } = searchParams.value;
   if (isEmpty(apyYm)) {
     searchParams.value.strWareNo = '';
@@ -291,7 +292,8 @@ function onChangeApyYm() {
     optionsOstrWareNo.value = [];
     return;
   }
-  onChangeOstrWareHouse();
+  // 출고창고 조회
+  await onChangeOstrWareHouse();
 
   if (isEmpty(asnOjYm)) {
     searchParams.value.strWareNo = '';
@@ -299,10 +301,12 @@ function onChangeApyYm() {
     return;
   }
 
-  onChangeStrWareHouse();
+  // 입고창고 조회
+  await onChangeStrWareHouse();
 }
 
-function onChangeAsnOjYm() {
+// 배정년월 변경 시
+async function onChangeAsnOjYm() {
   const { asnOjYm } = searchParams.value;
   if (isEmpty(asnOjYm)) {
     searchParams.value.strWareNo = '';
@@ -310,7 +314,8 @@ function onChangeAsnOjYm() {
     return;
   }
 
-  onChangeStrWareHouse();
+  // 입고창고 조회
+  await onChangeStrWareHouse();
 }
 
 await Promise.all([
@@ -335,6 +340,7 @@ async function fetchData() {
 }
 
 const isSearch = ref(true);
+// 조회버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   const { ostrWareNo } = cachedParams;
@@ -469,31 +475,35 @@ async function onClickRecreation() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmPdNm' },
-    { fieldName: 'wareNo' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrNm' },
-    { fieldName: 'wareNm' },
-    { fieldName: 'centerQty', dataType: 'number' },
-    { fieldName: 'geQty', dataType: 'number' },
-    { fieldName: 'crpQty', dataType: 'number' },
-    { fieldName: 'totalQty', dataType: 'number' },
-    { fieldName: 'apyQty', dataType: 'number' },
-    { fieldName: 'ostrQty', dataType: 'number' },
-    { fieldName: 'bsQty', dataType: 'number' },
-    { fieldName: 'stocQty', dataType: 'number' },
-    { fieldName: 'thwkQty', dataType: 'number' },
-    { fieldName: 'borrQty', dataType: 'number' },
-    { fieldName: 'cnfmQty', dataType: 'number' },
-    { fieldName: 'boxQty', dataType: 'number' },
-    { fieldName: 'bldCd' },
-    { fieldName: 'bldNm' },
-    { fieldName: 'telNo' },
-    { fieldName: 'adrZip' },
-    { fieldName: 'rnadr' },
-    { fieldName: 'rdadr' },
+    { fieldName: 'sapCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'itmPdNm' }, // 품목이름
+    // 입고창고
+    { fieldName: 'wareNo' }, // 창고번호
+    { fieldName: 'prtnrNo' }, // 번호
+    { fieldName: 'prtnrNm' }, // 담당자
+    { fieldName: 'wareNm' }, // 창고명
+    { fieldName: 'centerQty', dataType: 'number' }, // 센터창고 수량
+    // 배정수량
+    { fieldName: 'geQty', dataType: 'number' }, // 일반
+    { fieldName: 'crpQty', dataType: 'number' }, // 법인
+    { fieldName: 'totalQty', dataType: 'number' }, // 총 배정
+    // 수량정보
+    { fieldName: 'apyQty', dataType: 'number' }, // 가중치 적용
+    { fieldName: 'ostrQty', dataType: 'number' }, // 누적출고
+    { fieldName: 'bsQty', dataType: 'number' }, // BS완료
+    { fieldName: 'stocQty', dataType: 'number' }, // 현재재고
+    { fieldName: 'thwkQty', dataType: 'number' }, // 금주예정
+    { fieldName: 'borrQty', dataType: 'number' }, // 차주예정
+    { fieldName: 'cnfmQty', dataType: 'number' }, // 확정수량
+    { fieldName: 'boxQty', dataType: 'number' }, // 박스수량
+    // 창고빌딩정보
+    { fieldName: 'bldCd' }, // 코드
+    { fieldName: 'bldNm' }, // 빌딩명
+    { fieldName: 'telNo' }, // 전화번호
+    { fieldName: 'adrZip' }, // 우편번호
+    { fieldName: 'rnadr' }, // 주소1
+    { fieldName: 'rdadr' }, // 주소2
   ];
 
   const columns = [

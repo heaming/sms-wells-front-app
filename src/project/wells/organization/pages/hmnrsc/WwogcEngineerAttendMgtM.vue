@@ -50,6 +50,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
+            v-model:page-size="visibleRows"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="onClickChangePage"
@@ -59,7 +60,6 @@
           v-permission:update
           grid-action
           :label="$t('MSG_BTN_SAVE')"
-          :disable="pageInfo.totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator
@@ -186,10 +186,10 @@ const initGrid = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'ogCd', header: t('MSG_TXT_CODE'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'ogNm', header: t('MSG_TXT_CNT_NM'), width: '166', styleName: 'text-center', editable: false },
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '110', styleName: 'text-center', editable: false },
-    { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '92', styleName: 'text-center', editable: false },
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '110', styleName: 'text-center', editable: false },
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'wkGrpNm', header: t('MSG_TXT_WK_GRP'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'bizAgntYn', header: t('MSG_TXT_BIZ_AGNT'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'wrkDt', header: t('MSG_TXT_WRK_DT'), width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
@@ -249,7 +249,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EGER'),
       direction: 'horizontal',
-      items: ['rsbDvNm', 'pstnDvNm', 'prtnrKnm', 'prtnrNo', 'wkGrpNm'],
+      items: ['prtnrKnm', 'prtnrNo', 'rsbDvNm', 'pstnDvNm', 'wkGrpNm'],
     },
     'bizAgntYn',
     'wrkDt',
@@ -265,12 +265,12 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_BIZ_AGNT_PRTNR'),
       direction: 'horizontal',
-      items: ['bizAgntPrtnrNo', 'bizAgntNm'],
+      items: ['bizAgntNm', 'bizAgntPrtnrNo'],
     },
     {
       header: t('MSG_TXT_PCP'),
       direction: 'horizontal',
-      items: ['pcpPrtnrNo', 'pcpPrtnrNm'],
+      items: ['pcpPrtnrNm', 'pcpPrtnrNo'],
     },
     'procsDtm',
   ]);

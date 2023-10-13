@@ -32,15 +32,25 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- <wwsn-manager-og-search-item-group
+            ref="ogSearchRef"
+            v-model:dgr1-levl-og-id="searchParams.executiveGroup"
+            v-model:dgr2-levl-og-id="searchParams.localGroup"
+            v-model:dgr3-levl-og-id="searchParams.branchOffice"
+            use-og-level="3"
+            :use-partner="false"
+            dgr3-levl-og-first-option="all"
+            partner-first-option="all"
+            bzns-psic-auth-yn="N"
+            auth-yn="N"
+        /> -->
         <wwsn-manager-og-search-item-group
           ref="ogSearchRef"
-          v-model:dgr1-levl-og-id="searchParams.executiveGroup"
-          v-model:dgr2-levl-og-id="searchParams.localGroup"
-          v-model:dgr3-levl-og-id="searchParams.branchOffice"
+          v-model:dgr1-levl-og-id="searchParams.mgtDept"
+          v-model:dgr2-levl-og-id="searchParams.rgnlGrp"
+          v-model:dgr3-levl-og-id="searchParams.branch"
           use-og-level="3"
           use-partner="false"
-          dgr3-levl-og-first-option="all"
-          partner-first-option="all"
           bzns-psic-auth-yn="N"
           auth-yn="N"
         />
@@ -153,11 +163,9 @@ const codes = await codeUtil.getMultiCodes(
 let cachedParams;
 const searchParams = ref({
   mgtYnm: dayjs().format('YYYYMM'), // 관리년월
-  executiveGroup: '',
-  localGroup: '',
-  localGroupCd: '',
-  branchOffice: 'ALL',
-  branchOfficeCd: '',
+  mgtDept: '',
+  rgnlGrp: '',
+  branch: '',
   pstnDvCd: '', // 직급
   prtnrNo: '', // 사번
   prtnrNm: '', // 성명
@@ -169,6 +177,7 @@ const pageInfo = ref({
   pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
 });
 
+const ogSearchRef = ref();
 const grdInfoRef = ref(getComponentType('KwGrid'));
 const grdListRef = ref(getComponentType('KwGrid'));
 

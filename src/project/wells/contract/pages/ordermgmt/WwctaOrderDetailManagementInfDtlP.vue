@@ -194,9 +194,9 @@
       </kw-form-item>
     </kw-form-row>
     <kw-form-row>
-      <!-- 담당 헬스매니저 -->
+      <!-- 담당 웰스매니저 -->
       <kw-form-item
-        :label="$t('MSG_TXT_PSIC_HEALTH_MANAGER')"
+        :label="$t('MSG_TXT_PSIC_WELLS_MANAGER')"
       >
         <p>{{ frmMainData.ichrWelsMngerNm }}</p>
       </kw-form-item>

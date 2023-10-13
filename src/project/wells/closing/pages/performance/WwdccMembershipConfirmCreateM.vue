@@ -38,6 +38,7 @@
             :label="$t('MSG_TXT_RCP_YM')"
             type="month"
             rules="date_range_required"
+            :from-disable="true"
           />
         </kw-search-item>
         <kw-search-item
@@ -49,9 +50,6 @@
             :name="$t('MSG_TXT_CNTR_DTL_NO')"
           />
         </kw-search-item>
-        <kw-search-item
-          :label="t('MSG_TXT_CST_NO')"
-        />
       </kw-search-row>
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
@@ -174,7 +172,7 @@ const codes = await codeUtil.getMultiCodes(
 const now = dayjs();
 const searchParams = ref({
   sellInflwChnlDtlCd: '1',
-  fromCntrRcpFshDtm: now.add(-5, 'month').format('YYYYMM'),
+  fromCntrRcpFshDtm: '',
   toCntrRcpFshDtm: now.format('YYYYMM'),
   cntrNo: '',
   cntrSn: 0,
@@ -251,6 +249,9 @@ async function onClickConfirm() {
   await alert(t('MSG_ALT_CNFM_COMPLETE'));
 }
 
+watch(() => searchParams.value.toCntrRcpFshDtm, async (val) => {
+  searchParams.value.fromCntrRcpFshDtm = dayjs(val).add(-4, 'month').format('YYYYMM');
+}, { immediate: true });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

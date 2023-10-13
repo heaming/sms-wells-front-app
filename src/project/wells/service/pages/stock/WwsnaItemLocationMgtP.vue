@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-
+- 표준창고 적용 및 품목의 위치를 설정하는 화면
 ****************************************************************************************************
 --->
 <template>
@@ -185,6 +185,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+// 표준미적용 조회
 async function stckStdGbFetchData() {
   const apyYm = propParams.value.apyYm.substring(0, 6);
   const { wareNo } = propParams.value;
@@ -193,6 +194,7 @@ async function stckStdGbFetchData() {
   propParams.value.stdWareUseYn = stckStdGb === 'Y' ? 'N' : 'Y';
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
@@ -209,6 +211,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 표준미적용 체크 시
 async function onCheckedStckNoStdGb() {
   const stckStdGb = propParams.value.stdWareUseYn === 'N' ? 'Y' : 'N';
   const { apyYm, wareNo } = propParams.value;
@@ -220,6 +223,7 @@ async function onCheckedStckNoStdGb() {
   }
 }
 
+// 저장
 async function onClickSave() {
   const dataParams = grdMainRef.value.getView();
   const rows = dataParams.getCheckedItems();
@@ -260,6 +264,7 @@ async function onClickSave() {
   }
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -281,11 +286,11 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '146', styleName: 'text-center' },
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '320' },
-    { fieldName: 'pitmStocAGdQty', header: `${t('MSG_TXT_STOC')}(EA)`, width: '80', styleName: 'text-center' },
-    { fieldName: 'itmLctAngleVal',
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' }, // SAP 코드
+    { fieldName: 'itmPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '146', styleName: 'text-center' }, // 품목코드
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '320' }, // 품목명
+    { fieldName: 'pitmStocAGdQty', header: `${t('MSG_TXT_STOC')}(EA)`, width: '80', styleName: 'text-center' }, // 재고
+    { fieldName: 'itmLctAngleVal', // 앵글
       header: t('MSG_TXT_ANGLE'),
       width: '80',
       styleName: 'text-center',
@@ -294,7 +299,7 @@ const initGrdMain = defineGrid((data, view) => {
       editable: true,
       editOptions: { editable: true },
     },
-    { fieldName: 'itmLctCofVal',
+    { fieldName: 'itmLctCofVal', // 층수
       header: t('MSG_TXT_FLOR_CNT'),
       width: '80',
       styleName: 'text-center',
@@ -302,7 +307,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'list' },
       editable: true,
     },
-    { fieldName: 'itmLctFlorNoVal',
+    { fieldName: 'itmLctFlorNoVal', // 층번호
       header: t('MSG_TXT_FLOR_NO'),
       width: '96',
       styleName: 'text-center',
@@ -310,7 +315,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'list' },
       editable: true,
     },
-    { fieldName: 'itmLctMatGrpCd',
+    { fieldName: 'itmLctMatGrpCd', // 그룹
       header: t('MSG_TXT_SAP_GRP'),
       width: '118',
       styleName: 'text-center',
@@ -318,7 +323,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'list' },
       editable: true,
     },
-    { fieldName: 'itmLctNm', header: t('MSG_TXT_LCT_NM'), width: '283' },
+    { fieldName: 'itmLctNm', header: t('MSG_TXT_LCT_NM'), width: '283' }, // 위치명
   ];
   const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
   const fields = [...gridField,

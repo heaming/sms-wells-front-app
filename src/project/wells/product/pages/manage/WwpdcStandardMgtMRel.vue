@@ -64,9 +64,9 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  codes: { type: Object, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  codes: { type: Object, default: null }, // 공통코드
 });
 
 const emits = defineEmits([
@@ -85,17 +85,20 @@ const currentInitData = ref();
 const cmpPrdRef = ref();
 const cmpChgRef = ref();
 
+// 데이터 초기화
 async function resetData() {
   selectedTab.value = selectedTabs.value[0];
   if (cmpPrdRef.value.resetData) await cmpPrdRef.value.resetData();
   if (cmpChgRef.value.resetData) await cmpChgRef.value.resetData();
 }
 
+// 컴포넌트 초기화
 async function init() {
   if (cmpPrdRef.value.init) await cmpPrdRef.value.init();
   if (cmpChgRef.value.init) await cmpChgRef.value.init();
 }
 
+// 저장 데이터
 async function getSaveData() {
   // 미수정시 초기값 그대로 반환.
   if (!(await isModifiedProps())) {
@@ -118,6 +121,7 @@ async function getSaveData() {
   return subList;
 }
 
+// 수정 여부
 async function isModifiedProps() {
   if (await cmpPrdRef.value.isModifiedProps()) {
     return true;
@@ -128,12 +132,14 @@ async function isModifiedProps() {
   return false;
 }
 
+// 검증
 async function validateProps() {
   let isValidOk = await cmpPrdRef.value.validateProps();
   if (isValidOk) isValidOk = await cmpChgRef.value.validateProps();
   return isValidOk;
 }
 
+// 다음 탭 이동
 async function moveNextStep() {
   const currentTabIndex = selectedTabs.value.indexOf(selectedTab.value);
   if (currentTabIndex < (selectedTabs.value.length - 1)) {
@@ -143,6 +149,7 @@ async function moveNextStep() {
   return false;
 }
 
+// 이전 탭 이동
 async function movePrevStep() {
   const currentTabIndex = selectedTabs.value.indexOf(selectedTab.value);
   if (currentTabIndex > 0) {
@@ -152,14 +159,17 @@ async function movePrevStep() {
   return false;
 }
 
+// 탭 선택
 async function onClickTab(clickedTab) {
   emits('clickTab', clickedTab);
 }
 
+// 초기 탭으로 이동
 async function resetFirstStep() {
   selectedTab.value = selectedTabs.value[0];
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;

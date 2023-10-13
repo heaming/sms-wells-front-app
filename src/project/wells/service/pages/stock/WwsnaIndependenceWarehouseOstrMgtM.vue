@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-관리자가 물류센터로 독립창고에 물량을 일괄요청하는 화면 (http://localhost:3000/#/service/wwsna-independence-warehouse-ostr-mgt)
+- 관리자가 물류센터로 독립창고에 물량을 일괄요청하는 화면 (http://localhost:3000/#/service/wwsna-independence-warehouse-ostr-mgt)
 ****************************************************************************************************
 --->
 <template>
@@ -260,20 +260,19 @@ const searchParams = ref({
   endSapCd: '',
 });
 
-// 품목구분 필터링
 const filterCodes = ref({
   wareDtlDvCd: [],
   itmKndCd: [],
 });
 
+// 창고상세구분, 품목종류 필터링
 function codeFilter() {
   filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['32'].includes(v.codeId));
   filterCodes.value.itmKndCd = codes.ITM_KND_CD.filter((v) => ['4', '5', '6'].includes(v.codeId));
 }
 
-// 입고창고 조회
 const optionsStrWareNo = ref();
-
+// 입고창고 조회
 async function onChangeHgrStrWareNo() {
   searchParams.value.strWareNo = '';
   const result = await dataService.get('/sms/wells/service/independence-ware-ostrs/storage-wares', { params: { ...searchParams.value } });
@@ -300,7 +299,8 @@ const onChangeOstrWareHouse = async () => {
   }
 };
 
-function onChangeApyYm() {
+// 기준년월 변경 시
+async function onChangeApyYm() {
   const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
   if (isEmpty(apyYm)) {
     searchParams.value.ostrWareNo = '';
@@ -311,7 +311,8 @@ function onChangeApyYm() {
 
     return;
   }
-  onChangeOstrWareHouse();
+  // 출고창고 조회
+  await onChangeOstrWareHouse();
 
   if (isEmpty(asnOjYm) || isEmpty(cnt) || isEmpty(ostrWareNo)) {
     searchParams.value.strWareNo = '';
@@ -320,7 +321,7 @@ function onChangeApyYm() {
 }
 
 // 입고창고조회 관련 데이터 변경 시
-function onChangeData() {
+async function onChangeData() {
   const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
 
   if (isEmpty(apyYm) || isEmpty(asnOjYm) || isEmpty(cnt) || isEmpty(ostrWareNo)) {
@@ -330,7 +331,8 @@ function onChangeData() {
     return;
   }
 
-  onChangeHgrStrWareNo();
+  // 입고창고조회
+  await onChangeHgrStrWareNo();
 }
 
 const optionsItmPdCd = ref();
@@ -357,6 +359,7 @@ function onChangeItmKndCd() {
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 }
 
+// SAP 시작코드 변경 시
 function onChangeStrtSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -366,6 +369,7 @@ function onChangeStrtSapCd() {
   }
 }
 
+// SAP 종료코드 변경 시
 function onChangeEndSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -395,6 +399,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
@@ -447,6 +452,7 @@ async function onClickSave() {
     return;
   }
 
+  // 출고일자 셋팅
   checkedRows.forEach((item) => {
     item.ostrDt = ostrDt;
   });
@@ -500,42 +506,42 @@ async function onClickLgstTrs() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'lgstTrsYn' },
-    { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' },
-    { fieldName: 'wareNm' },
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'pdAbbrNm' },
-    { fieldName: 'mngtUnit' },
-    { fieldName: 'mngtUnitNm' },
-    { fieldName: 'matGdCd' },
-    { fieldName: 'logisticStocQty', dataType: 'number' },
-    { fieldName: 'boxUnitQty', dataType: 'number' },
-    { fieldName: 'crtlStocQty', dataType: 'number' },
-    { fieldName: 'useQty', dataType: 'number' },
-    { fieldName: 'cnfmQty', dataType: 'number' },
-    { fieldName: 'cnfmBoxQty', dataType: 'number' },
-    { fieldName: 'mcbyAcuOstrQty', dataType: 'number' },
-    { fieldName: 'mcbyAcuOstrBoxQty', dataType: 'number' },
-    { fieldName: 'filterBoxQty', dataType: 'number' },
-    { fieldName: 'outQty', dataType: 'number' },
-    { fieldName: 'outBoxQty', dataType: 'number' },
-    { fieldName: 'itmQomAsnNo' },
-    { fieldName: 'asnOjYm' },
-    { fieldName: 'ostrWareNo' },
-    { fieldName: 'strWareNo' },
-    { fieldName: 'wareMngtPrtnrNo' },
-    { fieldName: 'ogTpCd' },
-    { fieldName: 'itmKndCd' },
-    { fieldName: 'rmkCn' },
-    { fieldName: 'asnTnN' },
-    { fieldName: 'wareDvCd' },
-    { fieldName: 'ostrAkNo' },
-    { fieldName: 'ostrAkSn' },
-    { fieldName: 'ostrDt' },
-    { fieldName: 'ostrWareDvCd' },
-    { fieldName: 'ostrPrtnrNo' },
-    { fieldName: 'ostrPrtnrOgTpCd' },
+    { fieldName: 'lgstTrsYn' }, // 물류이관여부
+    { fieldName: 'chk', dataType: 'text', booleanFormat: 'N:Y' }, // 체크선택여부
+    { fieldName: 'wareNm' }, // 창고명
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'pdAbbrNm' }, // 품목명
+    { fieldName: 'mngtUnit' }, // 관리단위코드
+    { fieldName: 'mngtUnitNm' }, // 관리단위명
+    { fieldName: 'matGdCd' }, // 등급
+    { fieldName: 'logisticStocQty', dataType: 'number' }, // 상위재고
+    { fieldName: 'boxUnitQty', dataType: 'number' }, // BOX단위수량
+    { fieldName: 'crtlStocQty', dataType: 'number' }, // 재고수량
+    { fieldName: 'useQty', dataType: 'number' }, // 소요수량
+    { fieldName: 'cnfmQty', dataType: 'number' }, // 물량배정확정-수량
+    { fieldName: 'cnfmBoxQty', dataType: 'number' }, // 물량배정확정-BOX
+    { fieldName: 'mcbyAcuOstrQty', dataType: 'number' }, // 물량배정출고-누계
+    { fieldName: 'mcbyAcuOstrBoxQty', dataType: 'number' }, // 물량배정출고-BOX
+    { fieldName: 'filterBoxQty', dataType: 'number' }, // BOX수량
+    { fieldName: 'outQty', dataType: 'number' }, // 출고수량
+    { fieldName: 'outBoxQty', dataType: 'number' }, // 출고BOX수량
+    { fieldName: 'itmQomAsnNo' }, // 품목물량배정번호
+    { fieldName: 'asnOjYm' }, // 배정대상년월
+    { fieldName: 'ostrWareNo' }, // 출고창고번호
+    { fieldName: 'strWareNo' }, // 입고창고번호
+    { fieldName: 'wareMngtPrtnrNo' }, // 창고관리파트너번호
+    { fieldName: 'ogTpCd' }, // 조직유형코드
+    { fieldName: 'itmKndCd' }, // 품목종류코드
+    { fieldName: 'rmkCn' }, // 비고
+    { fieldName: 'asnTnN' }, // 배정회차수
+    { fieldName: 'wareDvCd' }, // 창고구분
+    { fieldName: 'ostrAkNo' }, // 출고요청번호
+    { fieldName: 'ostrAkSn' }, // 출고요청순번
+    { fieldName: 'ostrDt' }, // 출고일자
+    { fieldName: 'ostrWareDvCd' }, // 출고창고구분
+    { fieldName: 'ostrPrtnrNo' }, // 출고창고파트너번호
+    { fieldName: 'ostrPrtnrOgTpCd' }, // 출고창고조직유형코드
   ];
 
   const columns = [

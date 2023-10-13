@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 구분 -->
         <kw-search-item
           :label="t('MSG_TXT_DIV')"
         >
@@ -40,6 +41,7 @@
             :options="codes.FEE_TCNT_DV_CD"
           />
         </kw-search-item>
+        <!-- 실적년월 -->
         <kw-search-item
           :label="t('MSG_TXT_PERF_YM')"
           required
@@ -55,6 +57,7 @@
       <kw-search-row
         v-if="searchParams.type === 'A'"
       >
+        <!-- 접수년월 -->
         <kw-search-item
           :label="t('MSG_TXT_RCP_YM')"
           required
@@ -67,6 +70,7 @@
             :label="t('MSG_TXT_RCP_YM')"
           />
         </kw-search-item>
+        <!-- 취소년월 -->
         <kw-search-item
           :label="t('MSG_TXT_CANCEL_YM')"
         >
@@ -186,6 +190,18 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_DSC_TP_CD',
   'PMOT_USWY_DV_ACD',
   'BFSVC_PRD_CD',
+  'SPP_DV_CD',
+  'SV_PD_TP_CD',
+  'USWY_TP_CD',
+  'RENTAL_COMBI_DV_CD',
+  'SPAY_DSC_DV_CD',
+  'RENTAL_DSC_DV_CD',
+  'MSH_DSC_DV_CD',
+  'SELL_TP_CD',
+  'MSH_PRC_BASE_DSC_TP_ACD',
+  'RENTAL_CRP_DSC_APY_DTL_CD',
+  'RENTAL_MCHD_DSC_APY_DTL_CD',
+  'RENTAL_CRP_DSCR_CD',
 );
 let cachedParams;
 const searchParams = ref({
@@ -320,44 +336,78 @@ async function onclickStep(params) {
 // -------------------------------------------------------------------------------------------------
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', visible: false },
-    { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' },
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' },
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), visible: false }, // 기준년월
+    { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' }, // 업체명
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' }, // 판매자
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' }, // 번호
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' }, // 고객성명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' }, // 상품명
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '150', styleName: 'text-center', options: codes.SELL_TP_CD, visible: false }, // 판매유형
     {
       fieldName: 'sellDscDvCd',
       header: t('MSG_TXT_PD_DC_CLASS'),
       width: '98',
+      styleName: 'text-center',
       displayCallback(grid, index, value) {
         let retValue = value;
-        if (codes.SELL_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
-          retValue = codes.SELL_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+        const { sellTpCd } = grid.getValues(index.itemIndex);
+        if (sellTpCd === '1') {
+          if (codes.SPAY_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
+            retValue = codes.SPAY_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+          }
+        } else if (sellTpCd === '2') {
+          if (codes.RENTAL_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
+            retValue = codes.RENTAL_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+          }
+        } else if (['3', '4'].includes(sellTpCd)) {
+          if (codes.MSH_DSC_DV_CD.map((v) => v.codeId).includes(value)) {
+            retValue = codes.MSH_DSC_DV_CD.find((v) => v.codeId === value)?.codeName;
+          }
         }
         return retValue;
       },
-    },
+    }, // 할인구분
     {
       fieldName: 'sellDscrCd',
       header: t('MSG_TXT_DISC_CODE'),
       width: '98',
+      styleName: 'text-center',
       displayCallback(grid, index, value) {
         let retValue = value;
-        const { sellDscDvCd } = grid.getValues(index.itemIndex);
-        if (sellDscDvCd === '5') {
+        if (codes.SELL_DSCR_CD.map((v) => v.codeId).includes(value)) {
           retValue = codes.SELL_DSCR_CD.find((v) => v.codeId === value)?.codeName;
         }
+        // const { sellTpCd, sellDscDvCd } = grid.getValues(index.itemIndex);
+        // if (sellTpCd === '2' && sellDscDvCd === '5') {
+        //   if (codes.RENTAL_CRP_DSCR_CD.map((v) => v.codeId).includes(value)) {
+        //     retValue = codes.RENTAL_CRP_DSCR_CD.find((v) => v.codeId === value)?.codeName;
+        //   }
+        // }
+        // if (sellTpCd === '2' && sellDscDvCd === '7') {
+        //   if (codes.RENTAL_MCHD_DSC_APY_DTL_CD.map((v) => v.codeId).includes(value)) {
+        //     retValue = codes.RENTAL_MCHD_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
+        //   }
+        // }
+        // if (sellTpCd === '2' && ['1', '8'].includes(sellDscDvCd)) {
+        //   if (codes.RENTAL_CRP_DSC_APY_DTL_CD.map((v) => v.codeId).includes(value)) {
+        //     retValue = codes.RENTAL_CRP_DSC_APY_DTL_CD.find((v) => v.codeId === value)?.codeName;
+        //   }
+        // }
+        // if (sellTpCd === '4' && sellDscDvCd === '4') {
+        //   if (codes.MSH_PRC_BASE_DSC_TP_ACD.map((v) => v.codeId).includes(value)) {
+        //     retValue = codes.MSH_PRC_BASE_DSC_TP_ACD.find((v) => v.codeId === value)?.codeName;
+        //   }
+        // }
         return retValue;
       },
-    },
+    }, // 할인유형
     {
       fieldName: 'sellDscTpCd',
       header: t('MSG_TXT_DSC_SYST'),
       width: '98',
-      styleName: 'text-right',
+      styleName: 'text-center',
       displayCallback(grid, index, value) {
         let retValue = value;
         if (codes.SELL_DSC_TP_CD.map((v) => v.codeId).includes(value)) {
@@ -365,17 +415,41 @@ const initGridDetail = defineGrid((data, view) => {
         }
         return retValue;
       },
-    },
-    { fieldName: 'relPdCd', header: t('MSG_TXT_COMBI_DV'), width: '98' },
-    { fieldName: 'pmotUswyDvCd', header: t('MSG_TXT_USWY_DV'), width: '98', options: codes.PMOT_USWY_DV_ACD },
-    { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98' },
-    { fieldName: 'bfsvcPrdCd', header: t('MSG_TXT_VST_PRD'), width: '98', options: codes.BFSVC_PRD_CD },
-    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-    { fieldName: 'perfVal', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '127', styleName: 'text-right', dataType: 'number' },
+    }, // 할인제도
+    {
+      fieldName: 'sppDvCd',
+      header: t('MSG_TXT_COMBI_DV'),
+      width: '98',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        if (codes.RENTAL_COMBI_DV_CD.map((v) => v.codeId).includes(value)) {
+          retValue = codes.RENTAL_COMBI_DV_CD.find((v) => v.codeId === value)?.codeName;
+        }
+        return retValue;
+      },
+    }, // 결합구분
+    {
+      fieldName: 'svPdTpCd',
+      header: t('MSG_TXT_USWY_DV'),
+      width: '98',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        let retValue = value;
+        if (codes.USWY_TP_CD.map((v) => v.codeId).includes(value)) {
+          retValue = codes.USWY_TP_CD.find((v) => v.codeId === value)?.codeName;
+        }
+        return retValue;
+      },
+    }, // 동도구분
+    { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98', styleName: 'text-center' }, // 관리유형
+    { fieldName: 'bfsvcPrdCd', header: t('MSG_TXT_VST_PRD'), width: '98', options: codes.BFSVC_PRD_CD, styleName: 'text-center' }, // 방문주기
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 접수일자
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 매출일자
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 취소일자
+    { fieldName: 'perfVal', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right', dataType: 'number' }, // 수수료
+    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right', dataType: 'number' }, // 신규건수
+    { fieldName: 'ackmtPerfAmt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '127', styleName: 'text-right', dataType: 'number' }, // 인정실적
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -386,9 +460,9 @@ const initGridDetail = defineGrid((data, view) => {
 
 const initGridBase = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', visible: false },
-    { fieldName: 'coCd', visible: false },
-    { fieldName: 'feeTcntDvCd', visible: false },
+    { fieldName: 'baseYm', visible: false }, // 기준년월
+    { fieldName: 'coCd', visible: false }, // 회사코드
+    { fieldName: 'feeTcntDvCd', visible: false }, // 차수
     {
       fieldName: 'coCdNm',
       header: t('MSG_TXT_CORP_NAME'),
@@ -397,9 +471,9 @@ const initGridBase = defineGrid((data, view) => {
         styleName: 'text-center',
         text: t('MSG_TXT_SUM'),
       },
-    },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
+    }, // 업체명
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98' }, // 소속
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' }, // 번호
     {
       fieldName: 'cnt',
       header: t('MSG_TXT_PERF'),
@@ -410,7 +484,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 실적
     {
       fieldName: 'amtW050001',
       header: t('MSG_TXT_BAS_FEE'),
@@ -421,7 +495,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 기본수수료
     {
       fieldName: 'amtW050002',
       header: t('MSG_TXT_ENRG_FEE'),
@@ -432,7 +506,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 장려수수료
     {
       fieldName: 'amtW050003',
       header: t('MSG_TXT_ICT'),
@@ -443,7 +517,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 인센티브
     {
       fieldName: 'amtW050020',
       header: t('MSG_TXT_ADSB'),
@@ -454,7 +528,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 재지급
     {
       fieldName: 'amtW050004',
       header: t('MSG_TXT_QUARTER_OUTC'),
@@ -465,7 +539,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 분기성과
     {
       fieldName: 'feeSumAmt',
       header: t('MSG_TXT_FEE_SUM'),
@@ -476,7 +550,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 수수료계
     {
       fieldName: 'amt01',
       header: t('MSG_TXT_RDS'),
@@ -487,7 +561,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // RDS
     {
       fieldName: 'amt08',
       header: t('MSG_TXT_RE_REDF'),
@@ -498,7 +572,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 환수되물림
     {
       fieldName: 'ddtnSumAmt',
       header: t('MSG_TXT_DDTN_SUM'),
@@ -509,7 +583,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 송제계
     {
       fieldName: 'acpyAmt',
       header: t('MSG_TXT_ACL_DSB_AMT'),
@@ -520,7 +594,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 실지급액
   ];
   const fields = [
     { fieldName: 'baseYm' },

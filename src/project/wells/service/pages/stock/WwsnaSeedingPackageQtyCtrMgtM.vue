@@ -1,16 +1,16 @@
 <!----
- ****************************************************************************************************
- * 프로그램 개요
- ****************************************************************************************************
- 1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaSeedingPackageQtyCtrMgtM(W-SV-U-0298M01) - 모종패키지 수량 조정 관리
- 3. 작성자 : SaeRomI.Kim
- 4. 작성일 : 2023.07.24
- ****************************************************************************************************
- * 프로그램 설명
- ****************************************************************************************************
- - 모종패키지 수량 조정을 위해 출고일자별 현황을 조회하는 화면 (http://localhost:3000/#/service/wwsna-seeding-package-qty-ctr-mgt)
- ****************************************************************************************************
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : SNA (재고관리)
+2. 프로그램 ID : WwsnaSeedingPackageQtyCtrMgtM(W-SV-U-0298M01) - 모종패키지 수량 조정 관리
+3. 작성자 : SaeRomI.Kim
+4. 작성일 : 2023.07.24
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 모종패키지 수량 조정을 위해 출고일자별 현황을 조회하는 화면 (http://localhost:3000/#/service/wwsna-seeding-package-qty-ctr-mgt)
+****************************************************************************************************
 --->
 <template>
   <kw-page>
@@ -145,7 +145,7 @@ const searchParams = ref({
 
 const totalCount1 = ref(0);
 
-// 조회
+// 제외수량 조회
 async function fetchData1() {
   const res = await dataService.get('/sms/wells/service/seeding-package-qty-ctrs/exclusion-qtys', { params: { ...cachedParams } });
   const exclustionQtys = res.data;
@@ -159,6 +159,7 @@ async function fetchData1() {
 }
 
 const totalCount2 = ref(0);
+// 추가수량 조회
 async function fetchData2() {
   const res = await dataService.get('/sms/wells/service/seeding-package-qty-ctrs/addition-qtys', { params: { ...cachedParams } });
   const addtionQtys = res.data;
@@ -172,6 +173,7 @@ async function fetchData2() {
 }
 
 const isSearch = ref(true);
+// 조회버튼 클릭
 async function onClickSearch() {
   isSearch.value = false;
   cachedParams = cloneDeep(searchParams.value);
@@ -226,49 +228,49 @@ async function openPackageCtrQtyRegP() {
 
 const initGrdMain1 = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'dgGgLctNm' },
-    { fieldName: 'type1', dataType: 'number' },
-    { fieldName: 'type2', dataType: 'number' },
-    { fieldName: 'type3', dataType: 'number' },
-    { fieldName: 'type4', dataType: 'number' },
-    { fieldName: 'type5', dataType: 'number' },
-    { fieldName: 'type6', dataType: 'number' },
-    { fieldName: 'type7', dataType: 'number' },
-    { fieldName: 'type8', dataType: 'number' },
-    { fieldName: 'type9', dataType: 'number' },
-    { fieldName: 'type10', dataType: 'number' },
-    { fieldName: 'type11', dataType: 'number' },
-    { fieldName: 'type12', dataType: 'number' },
-    { fieldName: 'type13', dataType: 'number' },
-    { fieldName: 'type14', dataType: 'number' },
-    { fieldName: 'type15', dataType: 'number' },
-    { fieldName: 'type16', dataType: 'number' },
-    { fieldName: 'type17', dataType: 'number' },
-    { fieldName: 'type18', dataType: 'number' },
-    { fieldName: 'type19', dataType: 'number' },
-    { fieldName: 'type20', dataType: 'number' },
-    { fieldName: 'type21', dataType: 'number' },
-    { fieldName: 'type22', dataType: 'number' },
-    { fieldName: 'type23', dataType: 'number' },
-    { fieldName: 'type24', dataType: 'number' },
-    { fieldName: 'type25', dataType: 'number' },
-    { fieldName: 'type26', dataType: 'number' },
-    { fieldName: 'type27', dataType: 'number' },
-    { fieldName: 'type28', dataType: 'number' },
-    { fieldName: 'type29', dataType: 'number' },
-    { fieldName: 'type30', dataType: 'number' },
-    { fieldName: 'type31', dataType: 'number' },
-    { fieldName: 'type32', dataType: 'number' },
-    { fieldName: 'type33', dataType: 'number' },
-    { fieldName: 'type34', dataType: 'number' },
-    { fieldName: 'type35', dataType: 'number' },
-    { fieldName: 'type36', dataType: 'number' },
-    { fieldName: 'type37', dataType: 'number' },
-    { fieldName: 'type38', dataType: 'number' },
-    { fieldName: 'type39', dataType: 'number' },
-    { fieldName: 'type40', dataType: 'number' },
-    { fieldName: 'type41', dataType: 'number' },
-    { fieldName: 'type42', dataType: 'number' },
+    { fieldName: 'dgGgLctNm' }, // 센터
+    { fieldName: 'type1', dataType: 'number' }, // 건강샐러드/주스SLIM
+    { fieldName: 'type2', dataType: 'number' }, // 건강샐러드/주스WIDE
+    { fieldName: 'type3', dataType: 'number' }, // 우리아이채소식단SLIM
+    { fieldName: 'type4', dataType: 'number' }, // 우리아이채소식단WIDE
+    { fieldName: 'type5', dataType: 'number' }, // 건강밥상SLIM
+    { fieldName: 'type6', dataType: 'number' }, // 건강밥상WIDE
+    { fieldName: 'type7', dataType: 'number' }, // 항암건강SLIM
+    { fieldName: 'type8', dataType: 'number' }, // 항암건강WIDE
+    { fieldName: 'type9', dataType: 'number' }, // 숙면힐링SLIM
+    { fieldName: 'type10', dataType: 'number' }, // 숙면힐링WIDE
+    { fieldName: 'type11', dataType: 'number' }, // 우리아이신선이유식SLIM
+    { fieldName: 'type12', dataType: 'number' }, // 우리아이신선이유식WIDE
+    { fieldName: 'type13', dataType: 'number' }, // 버터헤드SLIME
+    { fieldName: 'type14', dataType: 'number' }, // 버터헤드WIDE
+    { fieldName: 'type15', dataType: 'number' }, // 케일SLIM
+    { fieldName: 'type16', dataType: 'number' }, // 케일WIDE
+    { fieldName: 'type17', dataType: 'number' }, // 비타민다채SLIM
+    { fieldName: 'type18', dataType: 'number' }, // 비타민다채WIDE
+    { fieldName: 'type19', dataType: 'number' }, // 버터헤드+케일WIDE
+    { fieldName: 'type20', dataType: 'number' }, // 버터헤드+비타민다채WIDE
+    { fieldName: 'type21', dataType: 'number' }, // 케일+비타민다채WIDE
+    { fieldName: 'type22', dataType: 'number' }, // 웰스팜미니채소
+    { fieldName: 'type23', dataType: 'number' }, // 아이쑥쑥유엔젤WIDE
+    { fieldName: 'type24', dataType: 'number' }, // 선택모종
+    { fieldName: 'type25', dataType: 'number' }, // 먹치마_미니
+    { fieldName: 'type26', dataType: 'number' }, // 여름청치마_미니
+    { fieldName: 'type27', dataType: 'number' }, // 청경채_미니
+    { fieldName: 'type28', dataType: 'number' }, // 먹치마+여름청치마_미니
+    { fieldName: 'type29', dataType: 'number' }, // 먹치마+청경채_미니
+    { fieldName: 'type30', dataType: 'number' }, // 먹치마+적소렐_미니
+    { fieldName: 'type31', dataType: 'number' }, // 여름청치마+청경채_미니
+    { fieldName: 'type32', dataType: 'number' }, // 여름청치마+적소렐_미니
+    { fieldName: 'type33', dataType: 'number' }, // 선택모종WIDE
+    { fieldName: 'type34', dataType: 'number' }, // 선택모종SLIM
+    { fieldName: 'type35', dataType: 'number' }, // 유러피안샐러드SLIM
+    { fieldName: 'type36', dataType: 'number' }, // 유러피안샐러드WIDE
+    { fieldName: 'type37', dataType: 'number' }, // 우리가족건강채소SLIM
+    { fieldName: 'type38', dataType: 'number' }, // 우리가족건강채소WIDE
+    { fieldName: 'type39', dataType: 'number' }, // 모둠쌈채소WIDE
+    { fieldName: 'type40', dataType: 'number' }, // 모둠쌈채소SLIM
+    { fieldName: 'type41', dataType: 'number' }, // 기능성채소WIDE
+    { fieldName: 'type42', dataType: 'number' }, // 기능성채소SLIM
   ];
 
   const columns = [

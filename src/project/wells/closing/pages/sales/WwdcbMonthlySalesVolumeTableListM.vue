@@ -214,12 +214,12 @@ async function onClickExcelDownload(gridGb) {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_PD_CD'), width: '200', styleName: 'text-center', headerSummaries: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // SAP상품코드
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_PD_CD'), width: '200', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // SAP상품코드
     { fieldName: 'matPdCd', header: t('MSG_TXT_RVPY_CD'), width: '190', styleName: 'text-center' }, // 수불코드
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '190', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' }, // 상품명
     { fieldName: 'svPdTpCd', header: t('MSG_TXT_USWY_DV'), width: '150', styleName: 'text-center' }, // 용도구분
-    { fieldName: 'cnt', header: t('MSG_TXT_CT_CASE'), width: '149', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 건수(건)
+    { fieldName: 'cnt', header: t('MSG_TXT_CT_CASE'), width: '149', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 건수(건)
 
   ];
 
@@ -230,24 +230,24 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.setHeaderSummaries({
+  view.setFooters({
     visible: true,
     items: [
       { height: 42 },
     ],
   });
-  view.layoutByColumn('sapMatCd').summaryUserSpans = [{ colspan: 5 }];
+  view.layoutByColumn('sapMatCd').footerUserSpans = [{ colspan: 5 }];
 });
 
 const initGrdSub = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_PD_CD'), width: '200', styleName: 'text-center', headerSummaries: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // SAP상품코드
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_PD_CD'), width: '200', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // SAP상품코드
     { fieldName: 'matPdCd', header: t('MSG_TXT_RVPY_CD'), width: '190', styleName: 'text-center' }, // 수불코드
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '190', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' }, // 상품명
-    { fieldName: 'tot', header: t('MSG_TXT_ALL'), width: '180', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 전체
-    { fieldName: 'stlmTpCd1', header: t('MSG_TXT_FULPY'), width: '149', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 완불
-    { fieldName: 'stlmTpCd2', header: t('MSG_TXT_ISTM'), width: '149', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 환불
+    { fieldName: 'tot', header: t('MSG_TXT_ALL'), width: '180', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 전체
+    { fieldName: 'stlmTpCd1', header: t('MSG_TXT_FULPY'), width: '149', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 완불
+    { fieldName: 'stlmTpCd2', header: t('MSG_TXT_ISTM'), width: '149', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } }, // 환불
   ];
 
   const layouts = [
@@ -273,13 +273,13 @@ const initGrdSub = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.setHeaderSummaries({
+  view.setFooters({
     visible: true,
     items: [
       { height: 42 },
     ],
   });
-  view.layoutByColumn('sapMatCd').summaryUserSpans = [{ colspan: 4 }];
+  view.layoutByColumn('sapMatCd').footerUserSpans = [{ colspan: 4 }];
 });
 
 </script>

@@ -47,9 +47,9 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  codes: { type: Object, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  codes: { type: Object, default: null }, // 공통코드
 });
 
 const { t } = useI18n();
@@ -75,6 +75,7 @@ const searchParams = ref({
   pdCd: '',
 });
 
+// 데이터 초기화
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
@@ -82,6 +83,7 @@ async function resetData() {
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   const view = grdMainRef.value?.getView();
   if (!view) {
@@ -129,6 +131,7 @@ async function onClickExcelFormDownload() {
   });
 }
 
+// 데이터 불러오기
 async function fetchData() {
   const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_COMPOSITION } });
   if (isEmpty(res.data)) {
@@ -149,10 +152,12 @@ async function fetchData() {
   }
 }
 
+// 조회
 async function onClickSearch() {
   await initGridRows();
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData, codes } = props;
   currentPdCd.value = pdCd;

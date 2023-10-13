@@ -22,6 +22,7 @@
       <kw-search-row>
         <kw-search-item
           :label="t('MSG_TXT_BIL_DT')"
+          required
         >
           <!-- label="청구일자" -->
           <kw-date-range-picker
@@ -87,7 +88,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
-          <span class="ml8">(단위:원)</span>
+          <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
 
         <kw-btn
@@ -285,7 +286,7 @@ async function onClickModalPopup(component) {
   const changedRows = gridUtil.getCheckedRowValues(view); // 선택로우 가져오기
 
   if (changedRows.length === 0) {
-    await alert('선택된 데이터가 없습니다.');
+    await alert(t('MSG_ALT_NO_CHECK_DATA')); // 선택된 데이터가 없습니다.
     return;
   }
 
@@ -527,17 +528,17 @@ const initGrid = defineGrid((data, view) => {
   view.setColumnLayout([
     'vstFshDt', 'dpDtm', // single
     {
-      header: '센터정보', // colspan title
+      header: t('MSG_TXT_CENTER_DIVISION') + t('MSG_TXT_INF'), // colspan title   // 센터정보
       direction: 'horizontal', // merge type
       items: ['ogNm', 'prtnrKnm'],
     },
     {
-      header: '고객정보',
+      header: t('MSG_TXT_CUSTOMER') + t('MSG_TXT_INF'), // 고객정보
       direction: 'horizontal',
       items: ['cntrCstNo', 'cstKnm', 'cralLocaraTno', 'pdNm', 'sellTpCd', 'svBizDclsfCd'],
     },
     {
-      header: '결제정보',
+      header: t('MSG_TXT_STLM') + t('MSG_TXT_INF'), // 결제정보
       direction: 'horizontal',
       items: ['bilAmt', 'dpSumAmt', 'stlmDvCd', 'iscmpCd', 'stlmDvNo', 'cardAprno', 'taxBll'],
     },

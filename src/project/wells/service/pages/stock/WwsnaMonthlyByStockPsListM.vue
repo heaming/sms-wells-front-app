@@ -1,16 +1,16 @@
 <!----
- ****************************************************************************************************
- * 프로그램 개요
- ****************************************************************************************************
- 1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaMonthlyByStockPsListM(W-SV-U-0136M01) - 월별 재고현황
- 3. 작성자 : SaeRomI.Kim
- 4. 작성일 : 2023.08.07
- ****************************************************************************************************
- * 프로그램 설명
- ****************************************************************************************************
- 기준년월의 품목코드의 재고수량 현황을 조회하는 화면 (http://localhost:3000/#/service/wwsna-monthly-by-stock-ps-list)
- ****************************************************************************************************
+****************************************************************************************************
+* 프로그램 개요
+****************************************************************************************************
+1. 모듈 : SNA (재고관리)
+2. 프로그램 ID : WwsnaMonthlyByStockPsListM(W-SV-U-0136M01) - 월별 재고현황
+3. 작성자 : SaeRomI.Kim
+4. 작성일 : 2023.08.07
+****************************************************************************************************
+* 프로그램 설명
+****************************************************************************************************
+- 기준년월의 품목코드의 재고수량 현황을 조회하는 화면 (http://localhost:3000/#/service/wwsna-monthly-by-stock-ps-list)
+****************************************************************************************************
 --->
 <template>
   <kw-page>
@@ -34,7 +34,7 @@
           <kw-select
             v-model="searchParams.wareDvCd"
             :label="$t('MSG_TXT_WARE_DV')"
-            :options="filterCodes.wareDvCd"
+            :options="codes.WARE_DV_CD"
             rules="required"
             @change="onChangeWareDvCd"
           />
@@ -228,17 +228,15 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const filterCodes = ref({
-  wareDvCd: [],
   wareDtlDvCd: [],
   pdGdCd: [],
 });
 
+// 등급코드 필터링
 function codeFilter() {
-  filterCodes.value.wareDvCd = codes.WARE_DV_CD.filter((v) => ['2', '3'].includes(v.codeId));
   filterCodes.value.pdGdCd = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
 }
 
-// 창고조회
 const optionsHgrWareNo = ref([]);
 const optionsWareNo = ref([]);
 
@@ -248,6 +246,7 @@ function wareDtlDvCdFilter() {
   filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => v.codeId.startsWith(wareDvCd));
 }
 
+// 창고조회
 const getHgrWareNos = async () => {
   // 상위창고번호 클리어
   searchParams.value.hgrWareNo = '';
@@ -265,6 +264,7 @@ const getHgrWareNos = async () => {
   optionsHgrWareNo.value = result.data;
 };
 
+// 상위창고 변경 시
 async function onChangeHgrWareNo() {
   // 창고번호 클리어
   searchParams.value.wareNo = '';
@@ -284,6 +284,7 @@ async function onChangeHgrWareNo() {
   optionsWareNo.value = result.data;
 }
 
+// 창고구분 변경 시
 async function onChangeWareDvCd() {
   // 창고세부구분 코드 필터링
   wareDtlDvCdFilter();
@@ -292,7 +293,7 @@ async function onChangeWareDvCd() {
 }
 
 // 기준년월이 변경되었을 때 창고번호 재조회
-function onChangeBaseYm() {
+async function onChangeBaseYm() {
   const searchBaseYm = searchParams.value.baseYm;
   if (isEmpty(searchBaseYm)) {
     searchParams.value.hgrWareNo = '';
@@ -303,7 +304,7 @@ function onChangeBaseYm() {
 
     return;
   }
-  getHgrWareNos();
+  await getHgrWareNos();
 }
 
 const optionsItmPdCd = ref();
@@ -330,6 +331,7 @@ function onChangeItmKndCd() {
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 }
 
+// SAP 시작코드 변경 시
 function onChangeStrtSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -339,6 +341,7 @@ function onChangeStrtSapCd() {
   }
 }
 
+// SAP 종료코드 변경 시
 function onChangeEndSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -371,6 +374,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
@@ -397,41 +401,41 @@ async function onClickExcelDownload() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'pdNm' },
-    // 입고정보
-    { fieldName: 'prchsQty', dataType: 'number' },
-    { fieldName: 'sftStocQty', dataType: 'number' },
-    { fieldName: 'btdStocQty', dataType: 'number' },
-    { fieldName: 'pitmStocQty', dataType: 'number' },
-    { fieldName: 'nomStrQty', dataType: 'number' },
-    { fieldName: 'qomAsnStrQty', dataType: 'number' },
-    { fieldName: 'qomMmtStrQty', dataType: 'number' },
-    { fieldName: 'rtngdStrInsiQty', dataType: 'number' },
-    { fieldName: 'rtngdStrOtsdQty', dataType: 'number' },
-    { fieldName: 'etcStrQty', dataType: 'number' },
-    { fieldName: 'etcStrQty1', dataType: 'number' },
-    { fieldName: 'stocAcinspStrQty', dataType: 'number' },
-    { fieldName: 'strCtrQty', dataType: 'number' },
-    // 출고정보
-    { fieldName: 'nomOstrQty', dataType: 'number' },
-    { fieldName: 'qomAsnOstrQty', dataType: 'number' },
-    { fieldName: 'qomMmtOstrQty', dataType: 'number' },
-    { fieldName: 'rtngdOstrInsiQty', dataType: 'number' },
-    { fieldName: 'rtngdOstrOtsdQty', dataType: 'number' },
-    { fieldName: 'sellOstrQty', dataType: 'number' },
-    { fieldName: 'dsuOstrQty', dataType: 'number' },
-    { fieldName: 'wkOstrQty', dataType: 'number' },
-    { fieldName: 'etcOstrQty', dataType: 'number' },
-    { fieldName: 'etcOstrQty1', dataType: 'number' },
-    { fieldName: 'stocAcinspOstrQty', dataType: 'number' },
-    { fieldName: 'stocStatCtrQty', dataType: 'number' },
-    { fieldName: 'stocAcinspQty', dataType: 'number' },
-    { fieldName: 'mmtStocQty', dataType: 'number' },
-    { fieldName: 'freExpnStocQty', dataType: 'number' },
-    { fieldName: 'refrOstrQty', dataType: 'number' },
-    { fieldName: 'ostrCtrQty', dataType: 'number' },
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'pdNm' }, // 품목명
+    // 입고수량
+    { fieldName: 'prchsQty', dataType: 'number' }, // 구매입고
+    { fieldName: 'sftStocQty', dataType: 'number' }, // 안전재고
+    { fieldName: 'btdStocQty', dataType: 'number' }, // 기초재고
+    { fieldName: 'pitmStocQty', dataType: 'number' }, // 시점재고
+    { fieldName: 'nomStrQty', dataType: 'number' }, // 정상입고
+    { fieldName: 'qomAsnStrQty', dataType: 'number' }, // 물량배정
+    { fieldName: 'qomMmtStrQty', dataType: 'number' }, // 물량이동
+    { fieldName: 'rtngdStrInsiQty', dataType: 'number' }, // 반품내부
+    { fieldName: 'rtngdStrOtsdQty', dataType: 'number' }, // 반품외부
+    { fieldName: 'etcStrQty', dataType: 'number' }, // 기타입고
+    { fieldName: 'etcStrQty1', dataType: 'number' }, // 기타입고1
+    { fieldName: 'stocAcinspStrQty', dataType: 'number' }, // 재고실사
+    { fieldName: 'strCtrQty', dataType: 'number' }, // 등급조정
+    // 출고수량
+    { fieldName: 'nomOstrQty', dataType: 'number' }, // 정상출고
+    { fieldName: 'qomAsnOstrQty', dataType: 'number' }, // 물량배정
+    { fieldName: 'qomMmtOstrQty', dataType: 'number' }, // 물량이동
+    { fieldName: 'rtngdOstrInsiQty', dataType: 'number' }, // 반품내부
+    { fieldName: 'rtngdOstrOtsdQty', dataType: 'number' }, // 반품외부
+    { fieldName: 'sellOstrQty', dataType: 'number' }, // 판매출고
+    { fieldName: 'dsuOstrQty', dataType: 'number' }, // 폐기출고
+    { fieldName: 'wkOstrQty', dataType: 'number' }, // 작업출고
+    { fieldName: 'etcOstrQty', dataType: 'number' }, // 기타출고
+    { fieldName: 'etcOstrQty1', dataType: 'number' }, // 기타출고1
+    { fieldName: 'stocAcinspOstrQty', dataType: 'number' }, // 재고실사출고
+    { fieldName: 'stocStatCtrQty', dataType: 'number' }, // 재고상태조정
+    { fieldName: 'stocAcinspQty', dataType: 'number' }, // 재고실사
+    { fieldName: 'mmtStocQty', dataType: 'number' }, // 이동재고
+    { fieldName: 'freExpnStocQty', dataType: 'number' }, // 무료체험재고
+    { fieldName: 'refrOstrQty', dataType: 'number' }, // 리퍼출고
+    { fieldName: 'ostrCtrQty', dataType: 'number' }, // 등급조정
   ];
 
   const columns = [

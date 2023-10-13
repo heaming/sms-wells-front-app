@@ -361,7 +361,7 @@ async function fetchSummaryData() {
   view.columnByName('objAmt').headerSummary.text = res.data.objAmt;
   view.columnByName('dlqAmt').headerSummary.text = res.data.dlqAmt;
   view.columnByName('thmChramAmt').headerSummary.text = res.data.thmChramAmt;
-  view.columnByName('dlqAddDpAmt').headerSummary.text = res.data.dlqAddDpAmt;
+  view.columnByName('dlqAddAmt').headerSummary.text = res.data.dlqAddAmt;
   view.columnByName('rsgBorAmt').headerSummary.text = res.data.rsgBorAmt;
   view.columnByName('clctamPrtnrKnm').headerSummary.styleName = 'text-center';
 }
@@ -753,7 +753,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'objAmt', dataType: 'number' },
     { fieldName: 'dlqAmt', dataType: 'number' },
     { fieldName: 'thmChramAmt', dataType: 'number' },
-    { fieldName: 'dlqAddDpAmt', dataType: 'number' },
+    { fieldName: 'dlqAddAmt', dataType: 'number' },
     { fieldName: 'rsgBorAmt', dataType: 'number' },
     { fieldName: 'lwmTpCd' },
     { fieldName: 'cujNm' },
@@ -793,7 +793,7 @@ const initGrdSub = defineGrid((data, view) => {
     { fieldName: 'objAmt', header: t('MSG_TXT_THM_OJ'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
-    { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '116', numberFormat: '#,##0', styleName: 'text-right', editable: false },
+    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '116', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', numberFormat: '#,##0', styleName: 'text-right', editable: false },
     { fieldName: 'cujNm', header: t('MSG_TXT_CUJ_NM'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'indno', header: t('MSG_TXT_IND_NO'), width: '110', styleName: 'text-center', editable: false },

@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-자재 출고 요청을 확인 하고 출고 확정을 처리
+- 자재 출고 요청을 확인 하고 출고 확정을 처리 (http://localhost:3000/#/service/wwsna-normal-out-of-storage-mgt)
 ****************************************************************************************************
 --->
 <template>
@@ -171,6 +171,7 @@ const codes = ref(await codeUtil.getMultiCodes(
   'OVIV_TP_CD',
 ));
 
+// 출고요청 필터링
 codes.value.OSTR_AK_TP_CD = codes.value.OSTR_AK_TP_CD.filter((v) => v.codeId === '310' || v.codeId === '320' || v.codeId === '330');
 const toMonth = dayjs().format('YYYYMMDD');
 
@@ -191,6 +192,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+// 조회
 async function fetchData() {
   const res = await dataService.get(`${baseURI}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
@@ -203,12 +205,14 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(`${baseURI}/excel-download`, { params: cachedParams });
@@ -219,6 +223,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 본인창고조회 및 셋팅
 async function fetchDefaultData() {
   codes.value.WARE_HOUSE = [];
   searchParams.value.ostrOjWareNo = '';
@@ -259,19 +264,19 @@ function onChangeOstrAkTpCd() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'ostrAkNo' },
-    { fieldName: 'ostrAkTpCd' },
-    { fieldName: 'ostrOjWareNo' },
-    { fieldName: 'strOjWareNm' },
-    { fieldName: 'strOjWareNo' },
-    { fieldName: 'strHopDt' },
-    { fieldName: 'ovivTpCd' },
-    { fieldName: 'rectOstrDt' },
-    { fieldName: 'ostrDtrnYn' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'ostrAkSn' },
-    { fieldName: 'rmkCn' },
+    { fieldName: 'ostrAkNo' }, // 출고요청번호
+    { fieldName: 'ostrAkTpCd' }, // 출고요청유형
+    { fieldName: 'ostrOjWareNo' }, // 출고창고번호
+    { fieldName: 'strOjWareNm' }, // 입고창고
+    { fieldName: 'strOjWareNo' }, // 입고창고번호
+    { fieldName: 'strHopDt' }, // 입고희망일
+    { fieldName: 'ovivTpCd' }, // 배차형태
+    { fieldName: 'rectOstrDt' }, // 최근출고일자
+    { fieldName: 'ostrDtrnYn' }, // 출고상태
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'pdNm' }, // 출고요청품목
+    { fieldName: 'ostrAkSn' }, // 요청일련번호
+    { fieldName: 'rmkCn' }, // 비고
   ];
 
   const columns = [

@@ -149,6 +149,7 @@ import dayjs from 'dayjs';
 const { modal } = useGlobal();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
+
 const totalCount = ref(0);
 const dataService = useDataService();
 const { t } = useI18n();
@@ -157,6 +158,7 @@ const searchParams = ref({
   perfDt: dayjs().add(-1, 'month').format('YYYYMM'),
   ogTpCd: 'W02',
   rsbDvCd: 'W0205',
+  ogId: '',
   prtnrNo: '',
   feeCalcUnitTpCd: '201', // 수수료계산단위유형코드 (101 : P추진단 플래너, 102 : P추진단 지국장, 201 : M추진단-일반(15등급), 202 : M추진단
   ogLevel1: '',
@@ -306,20 +308,17 @@ function onClickOzReport(div) {
     odiPath: _odiPath,
     args:
       {
-        jsondata: [{
-          userDiv: '',
-          basYear: searchParams.value.perfDt.substring(0, 4),
-          basMonth: searchParams.value.perfDt.substring(4, 6),
-          userId: searchParams.value.prtnrNo,
-          perfYm: searchParams.value.perfDt,
-          rsbDvCd: searchParams.value.rsbDvCd,
-          ogId: searchParams.value.ogId,
-          rsbCd: sessionUserInfo.rsbCd,
-          pstn: '',
-          deptCd: '',
-          basYrmn: searchParams.value.perfDt,
-
-        }],
+        userDiv: '0',
+        basYear: searchParams.value.perfDt.substring(0, 4),
+        basMonth: searchParams.value.perfDt.substring(4, 6),
+        userId: searchParams.value.prtnrNo ?? 0,
+        perfYm: searchParams.value.perfDt,
+        rsbDvCd: searchParams.value.rsbDvCd,
+        ogId: searchParams.value.ogId,
+        rsbCd: sessionUserInfo.rsbCd ?? '0',
+        pstn: '0',
+        deptCd: '0',
+        basYrmn: searchParams.value.perfDt,
       },
     height: 1100,
     width: 1200,

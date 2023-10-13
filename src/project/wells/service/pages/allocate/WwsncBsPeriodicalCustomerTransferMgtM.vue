@@ -281,12 +281,13 @@ import { RowState } from 'realgrid';
 const now = dayjs();
 const dataService = useDataService();
 const { getConfig } = useMeta();
-const { notify, modal, alert } = useGlobal();
+const { notify, modal } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const { getters } = useStore();
 const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
+const router = useRouter();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -385,26 +386,34 @@ function isShowTfConfirmAuthMng() {
   );
 }
 function isShowTfConfirmAuth() {
-  return (isShowTfConfirmAuthEng() || isShowTfConfirmAuthMng());
-}
-async function getManagerAuthYn() {
-  const res = await dataService.get('/sms/wells/service/before-service-period-customer/manager-auth-yn');
-  if ((isShowTfConfirmAuth() || res.data.managerAuthYn === 'Y')) {
+  // return (isShowTfConfirmAuthEng() || isShowTfConfirmAuthMng());
+  if (isShowTfConfirmAuthEng() || isShowTfConfirmAuthMng()) {
     isShowTfConfirmBtm.value = true;
-  } else {
-    isShowTfConfirmBtm.value = false;
+    return true;
   }
+  isShowTfConfirmBtm.value = false;
+  return false;
 }
+// async function getManagerAuthYn() {
+//   const res = await dataService.get('/sms/wells/service/before-service-period-customer/manager-auth-yn');
+//   if ((isShowTfConfirmAuth() || res.data.managerAuthYn === 'Y')) {
+//     isShowTfConfirmBtm.value = true;
+//   } else {
+//     isShowTfConfirmBtm.value = false;
+//   }
+// }
 const isShowPsicTfBtm = ref(false);
 function isShowPsicTfAuth() {
-  if (baseRleCd === 'W6010' // 센터장
-  || baseRleCd === 'W6020' // 매니저
-  || baseRleCd === 'W1020' // 업무지원매니저
-  || baseRleCd === 'W1030' // 영업지원매니저
-  || baseRleCd === 'W1560' // CS운영팀
-  || baseRleCd === 'W1580' // 영업지원팀
-  // || baseRleCd == null // cherro ::: test
-  ) {
+  if (isShowTfConfirmAuthEng() || isShowTfConfirmAuthMng()) {
+    return true;
+  }
+  return false;
+}
+const managerAuthYnInfo = ref({});
+async function getManagerAuthYn() {
+  const res = await dataService.get('/sms/wells/service/before-service-period-customer/manager-auth-yn');
+  managerAuthYnInfo.value = res.data;
+  if ((isShowPsicTfAuth() || res.data.managerAuthYn === 'Y')) {
     isShowPsicTfBtm.value = true;
   } else {
     isShowPsicTfBtm.value = false;
@@ -458,20 +467,23 @@ async function fetchOrganizationOptions() {
   //   return;
   // }
 
-  let ogId = '';
+  // let ogId = '';
   if (!isShowTfConfirmAuth()) {
-    searchParams.value.organizationId = sessionUserInfo.ogId;
-    ogId = sessionUserInfo.ogId;
+    managerAuthYnInfo.value.ogId = sessionUserInfo.ogId;
   }
 
   // W02 : 접속자의 지역단 정보의 하위 지점만 출력
   // W03, W06 : 접속자의 센터 1개
-  const { data } = await dataService.get('/sms/wells/service/before-service-period-customer/organizations', { params: { ogId } });
+  // const { data } = await dataService.get('/sms/wells/service/before-service-period-customer/organizations'
+  // , { params: cloneDeep(managerAuthYnInfo.value) });
+  const { data } = await dataService.get('/sms/wells/service/before-service-period-customer/organizations', { params: { ...managerAuthYnInfo.value } });
 
   organizationOptions.value = data;
 
   if (isShowTfConfirmAuthEng()) {
-    searchParams.value.organizationId = sessionUserInfo.ogId;
+    // searchParams.value.organizationId = sessionUserInfo.ogId;
+    searchParams.value.organizationId = organizationOptions.value
+      ?.find((code) => code.ogId === sessionUserInfo.ogId)?.ogId;
   }
 }
 
@@ -869,16 +881,18 @@ function initGrdMain(data, view) {
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'cntr') {
-      const cntrNo = g.getValue(itemIndex, 'cntrNo');
-      console.log(cntrNo);
-      console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
-      alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      // const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      // console.log(cntrNo);
+      // console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      // alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      const param = { cntrNo: g.getValue(itemIndex, 'cntrNo'), cntrSn: g.getValue(itemIndex, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
     }
   };
 }
 
 onMounted(async () => {
-  await isShowPsicTfAuth();
+  await isShowTfConfirmAuth();
   await getManagerAuthYn();
   await fetchOrganizationOptions();
 });

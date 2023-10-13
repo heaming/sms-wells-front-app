@@ -66,7 +66,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
-          <span class="ml8">(단위: 원)</span>
+          <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
         <!-- 엑셀다운로드 -->
         <kw-btn
@@ -80,7 +80,8 @@
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="6"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
       <kw-pagination

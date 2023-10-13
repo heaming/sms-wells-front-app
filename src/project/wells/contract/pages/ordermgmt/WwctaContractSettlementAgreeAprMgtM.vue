@@ -35,21 +35,29 @@
           :prtnr="contract.prtnr"
         />
       </template>
+      <template v-if="agreed && includeAutoTransfer">
+        <wwcta-contract-settlement-sign-item
+          :description="'계좌 자동이체 서명을 해주세요.'"
+          empty-alert
+          confirm-label="확인 서명"
+          @confirm="onCheckAutoTransfer"
+        />
+      </template>
+      <template v-if="agreed && (!includeAutoTransfer || (includeAutoTransfer && signs.autoTransferChecked))">
+        <wwcta-contract-settlement-sign-item
+          :description="'계약 확정 서명을 해주세요.'"
+          empty-alert
+          confirm-label="계약사항과 계약 약관을 모두 확인하였습니다."
+          @confirm="onSettlementConfirmed"
+        />
+      </template>
     </kw-list>
-
-    <template #action>
-      <kw-btn
-        v-if="agreed"
-        filled
-        primary
-        label="계약서명"
-        @click="onSettlementConfirmed"
-      />
-    </template>
   </kw-page>
 </template>
 
 <script setup>
+import WwctaContractSettlementSignItem
+  from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementSignItem.vue';
 import { alert, useDataService } from 'kw-lib';
 import { decryptEncryptedParam, postMessage } from '~sms-common/contract/util';
 import Agrees from './WwctaContractSettlementAgreeAprMgtMAgrees.vue';
@@ -82,12 +90,24 @@ const stlmsUpdateRequestBody = reactive({
 }); /* out */
 const productCarouselRef = ref();
 const agreed = ref(false);
+const includeAutoTransfer = ref(false);
+const signs = reactive({
+  autoTransferChecked: undefined,
+  settlementConfirmed: undefined,
+});
 
 async function fetchContract() {
-  const response = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
-    cntrNo: params.cntrNo,
-  });
-  contract.value = response.data;
+  try {
+    const response = await dataService.post('/sms/wells/contract/contracts/settlements/contract', {
+      cntrNo: params.cntrNo,
+    });
+    contract.value = response.data;
+    debugger;
+    includeAutoTransfer.value = contract.value.stlms.some((s) => s.dpTpCd === '0102');
+  } catch (e) {
+    postMessage('cancelled');
+    window.close();
+  }
 }
 
 function onConfirmAgrees(agreedInfos) {
@@ -95,12 +115,18 @@ function onConfirmAgrees(agreedInfos) {
   stlmsUpdateRequestBody.agIzs = agreedInfos;
 }
 
-async function onSettlementConfirmed() {
+function onCheckAutoTransfer(sign) {
+  signs.autoTransferChecked = sign;
+}
+
+async function onSettlementConfirmed(sign) {
   const reqData = await productCarouselRef.value.getRequestData();
   if (!reqData) { return; }
+  signs.settlementConfirmed = sign;
   stlmsUpdateRequestBody.stlmBases = reqData.stlmBases;
   stlmsUpdateRequestBody.adrpcs = reqData.adrpcs;
   stlmsUpdateRequestBody.cssrIss = reqData.cssrIss;
+  stlmsUpdateRequestBody.signs = signs;
 
   const res = await dataService.post('/sms/wells/contract/contracts/settlements/confirm', stlmsUpdateRequestBody);
 

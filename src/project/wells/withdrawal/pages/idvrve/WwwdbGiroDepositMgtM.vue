@@ -38,7 +38,7 @@
           <!-- label="실적일자" -->
           <kw-date-picker v-model="searchParams.rveDt" />
         </kw-search-item>
-        <kw-search-item :label="$t('입금오류')">
+        <kw-search-item :label="$t('MSG_TXT_DP') + $t('MSG_TXT_ERR_KR')">
           <!-- 입금오류 -->
           <kw-option-group
             v-model="searchParams.errorChk"
@@ -64,6 +64,7 @@
           v-permission:create
           secondary
           dense
+          grid-action
           :label="t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
@@ -181,13 +182,13 @@ const pageInfo = ref({
 const serachStandardOptionList = [
   {
     codeId: '1',
-    codeName: t('포함'),
+    codeName: t('MSG_TXT_INC'), // 포함
     // codeName: '기준월',
   },
   {
     codeId: '2',
     // codeName: '적용월',
-    codeName: t('미포함'), // 변경 될 수도 있어 채번은 나중에 등록 하겠음
+    codeName: t('MSG_TXT_NO_INC'), // 변경 될 수도 있어 채번은 나중에 등록 하겠음 ( 미포함 )
   },
 ];
 
@@ -449,7 +450,7 @@ async function onClickCreate() {
 // 오류 처리
 async function onClickErrProcs() {
   if (!searchParams.value.fntDt) {
-    await notify(t('입금일자를 입력해주세요.'));
+    await notify(t('MSG_TXT_DP_DT ') + t('MSG_TXT_IS_INP')); // 입금일자를 입력해주세요.
     return;
   }
   await modal({

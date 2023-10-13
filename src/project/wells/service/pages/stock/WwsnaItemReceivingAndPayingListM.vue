@@ -26,7 +26,6 @@
           :label="t('MSG_TXT_RVPY_DT')"
           required
         >
-          <!--rev:230410 :colspan="2" 추가 -->
           <kw-date-range-picker
             v-model:from="searchParams.stFromYmd"
             v-model:to="searchParams.edToYmd"
@@ -38,7 +37,6 @@
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stFromYmd"
           v-model:end-ym="searchParams.edToYmd"
-          v-model:options-ware-dv-cd="wareDvCd"
           v-model:ware-dv-cd="searchParams.strWareDvCd"
           v-model:ware-no-m="searchParams.strWareNoM"
           v-model:ware-no-d="searchParams.strWareNoD"
@@ -193,6 +191,7 @@ const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  needTotalCount: true,
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -204,11 +203,6 @@ const codes = await codeUtil.getMultiCodes(
 
 // 등급 필터링
 codes.PD_GD_CD = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
-
-const wareDvCd = { WARE_DV_CD: [
-  { codeId: '2', codeName: '서비스센터' },
-  { codeId: '3', codeName: '영업센터' },
-] };
 
 const searchParams = ref({
   strWareDvCd: '2',
@@ -258,6 +252,7 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/receipts-and-payments/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: payments, pageInfo: pagingResult } = res.data;
 
+  pagingResult.needTotalCount = false;
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(payments);
@@ -281,6 +276,7 @@ async function onClickSearch() {
   const splitSapMatDpct = searchParams.value.sapMatDpct.split(',');
   searchParams.value.sapMatDpcts = splitSapMatDpct;
   cachedParams = cloneDeep(searchParams.value);
+  pageInfo.value.needTotalCount = true;
   await fetchData();
 }
 
