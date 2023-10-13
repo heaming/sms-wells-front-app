@@ -64,11 +64,11 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  metaInfos: { type: Object, default: null },
-  codes: { type: Object, default: null },
-  readonly: { type: Boolean, default: false },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  metaInfos: { type: Object, default: null }, // 가격 메타정보
+  codes: { type: Object, default: null }, // 공통코드
+  readonly: { type: Boolean, default: false }, // 읽기전용
 });
 
 const dataService = useDataService();
@@ -96,6 +96,7 @@ const usedChannelCds = ref([]);
 const filterChannel = ref();
 const sellChannelFilterCond = ref();
 
+// 데이터 초기화
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
@@ -108,10 +109,12 @@ async function resetData() {
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
+// 컴포넌트 초기화
 async function init() {
   if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
 }
 
+// 저장 데이터
 async function getSaveData() {
   const view = grdMainRef.value.getView();
   const outKeys = view.getColumns().filter((item) => !item.editable).reduce((rtn, item) => {
@@ -133,10 +136,12 @@ async function getSaveData() {
   return rtnValues;
 }
 
+// 수정여부
 async function isModifiedProps() {
   return gridUtil.isModified(grdMainRef.value.getView());
 }
 
+// 검증
 async function validateProps() {
   const rtn = gridUtil.validate(grdMainRef.value.getView(), {
     isChangedOnly: false,
@@ -144,6 +149,7 @@ async function validateProps() {
   return rtn;
 }
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   removeObjects.value = [];
   const view = grdMainRef.value?.getView();
@@ -222,6 +228,7 @@ async function initGridRows() {
   await onUpdateSellChannel();
 }
 
+// 행 삭제
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const deletedRowValues = await gridUtil.confirmDeleteCheckedRows(view);
@@ -267,6 +274,7 @@ async function resetVisibleChannelColumns() {
   });
 }
 
+// 판매채널 변경
 async function onUpdateSellChannel() {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('sellChnlCd', false);
@@ -291,6 +299,7 @@ async function fetchSelectVariableData() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData, metaInfos } = props;
   currentPdCd.value = pdCd;
@@ -300,8 +309,8 @@ async function initProps() {
 
 await initProps();
 
+// 리얼그리드 표시 오류 대응 임시코드
 onActivated(async () => {
-  // TODO 탭사용시 그리드 사라짐 문제로 아래 코드 임시조치
   await initGridRows();
 });
 

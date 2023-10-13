@@ -75,7 +75,7 @@
           <!-- (단위:원) -->
           <span class="ml8">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
         </template>
-
+        <!-- 삭제 -->
         <kw-btn
           v-permission:delete
           grid-action
@@ -88,12 +88,14 @@
           vertical
           inset
         />
+        <!-- 행추가 -->
         <kw-btn
           v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAdd"
         />
+        <!-- 저장 -->
         <kw-btn
           v-permission:update
           grid-action
@@ -105,6 +107,7 @@
           vertical
           inset
         />
+        <!-- 엑셀다운로드 -->
         <kw-btn
           icon="download_on"
           dense
@@ -178,6 +181,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
+// 데이터 불러오기
 async function fetchData() {
   const res = await dataService.get('/sms/wells/product/seedling-price/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: services, pageInfo: pagingResult } = res.data;
@@ -187,6 +191,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 교재/자재 상품 검색 팝업
 async function onClickSearchPdCdPopup() {
   const searchPopupParams = {
     searchType: pdConst.PD_SEARCH_CODE,
@@ -201,6 +206,7 @@ async function onClickSearchPdCdPopup() {
   searchParams.value.pdctPdCd = rtn.payload?.checkedRows?.[0]?.pdCd;
 }
 
+// 조회
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -208,6 +214,7 @@ async function onClickSearch() {
   currentSearchYn.value = 'N';
 }
 
+// 행 삭제
 async function onClickRemoveRows() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -222,6 +229,7 @@ async function onClickRemoveRows() {
   }
 }
 
+// 행 추가
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {
@@ -237,6 +245,7 @@ async function onClickAdd() {
   pageInfo.value.totalCount += 1;
 }
 
+// 중복 검사
 async function checkDuplication() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
@@ -271,6 +280,7 @@ async function checkDuplication() {
             dupItem += `/${item1.basePdNm}`;
           }
           dupItem += `/[${stringUtil.getDateFormat(sourceStartDt)} ~ ${stringUtil.getDateFormat(sourceEnddt)}]`;
+          // {0}이(가) 중복됩니다.
           notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
         }
       });
@@ -313,6 +323,7 @@ async function checkDuplication() {
   return false;
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
@@ -327,6 +338,7 @@ async function onClickSave() {
   await fetchData();
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/product/seedling-price', { params: cachedParams });
@@ -336,10 +348,6 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
-
-onMounted(async () => {
-  console.log('Start');
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

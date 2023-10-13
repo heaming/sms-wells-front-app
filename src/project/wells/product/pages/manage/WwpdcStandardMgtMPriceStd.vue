@@ -27,6 +27,7 @@
     ignore-on-modified
   />
   <kw-action-bottom class="my20">
+    <!-- 추가 -->
     <kw-btn
       v-show="!props.readonly"
       padding="12px"
@@ -35,6 +36,7 @@
     />
   </kw-action-bottom>
   <kw-action-top>
+    <!-- 삭제 -->
     <kw-btn
       :label="$t('MSG_BTN_DEL')"
       grid-action
@@ -47,6 +49,7 @@
       inset
       spaced
     />
+    <!-- 행추가 -->
     <kw-btn
       v-show="!props.readonly"
       :label="$t('MSG_BTN_ROW_ADD')"
@@ -78,11 +81,11 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  metaInfos: { type: Object, default: null },
-  codes: { type: Object, default: null },
-  readonly: { type: Boolean, default: false },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  metaInfos: { type: Object, default: null }, // 가격 메타정보
+  codes: { type: Object, default: null }, // 공통코드
+  readonly: { type: Boolean, default: false }, // 읽기전용 여부
 });
 
 const { t } = useI18n();
@@ -103,6 +106,7 @@ const removeObjects = ref([]);
 const currentCodes = ref({});
 const gridRowCount = ref(0);
 
+// 데이터 초기화
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
@@ -112,10 +116,12 @@ async function resetData() {
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
+// 컴포넌트 초기화
 async function init() {
   if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
 }
 
+// 저장 데이터
 async function getSaveData() {
   const rowValues = gridUtil.getAllRowValues(grdMainRef.value.getView());
   const rtnValues = await getGridRowsToSavePdProps(
@@ -131,16 +137,19 @@ async function getSaveData() {
   return rtnValues;
 }
 
+// 수정여부
 async function isModifiedProps() {
   return gridUtil.isModified(grdMainRef.value.getView());
 }
 
+// 검증
 async function validateProps() {
   const view = grdMainRef.value.getView();
   const rtn = gridUtil.validate(view, {
     isChangedOnly: false,
   });
   if (rtn && !gridRowCount.value) {
+    // {기준가} 항목을 추가하세요.
     notify(t('MSG_ALT_ADD_SOME_ITEM', [t('MSG_TXT_STD_PRICE')]));
     return false;
   }
@@ -155,6 +164,7 @@ async function validateProps() {
   return rtn;
 }
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   removeObjects.value = [];
   const view = grdMainRef.value?.getView();
@@ -216,6 +226,7 @@ async function initGridRows() {
   gridRowCount.value = getGridRowCount(view);
 }
 
+// 채널 추가
 async function onClickAdd(isForm) {
   const view = grdMainRef.value.getView();
   // console.log('priceStdRef.value : ', priceStdRef.value);
@@ -236,17 +247,7 @@ async function onClickAdd(isForm) {
   gridRowCount.value = getGridRowCount(view);
 }
 
-/* async function onClickMidify() {
-  const view = grdMainRef.value.getView();
-  const savFields = await priceStdRef.value.getSaveFields();
-  const rowItem = savFields?.reduce((rtn, item) => {
-    rtn[item.colNm] = item.initValue;
-    return rtn;
-  }, {});
-  const data = view.getDataSource();
-  data.updateRow(view.getSelectedRows()[0], rowItem);
-} */
-
+// 삭제
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const deletedRowValues = await gridUtil.confirmDeleteCheckedRows(view);
@@ -261,6 +262,7 @@ async function onClickRemove() {
   gridRowCount.value = getGridRowCount(view);
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData, metaInfos, codes } = props;
   currentPdCd.value = pdCd;
@@ -276,8 +278,8 @@ async function initProps() {
 
 await initProps();
 
+// 리얼그리드 표시 오류 대응 임시코드
 onActivated(async () => {
-  // TODO 탭사용시 그리드 사라짐 문제로 아래 코드 임시조치
   await initGridRows();
 });
 

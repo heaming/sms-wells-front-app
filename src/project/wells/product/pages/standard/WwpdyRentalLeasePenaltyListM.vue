@@ -161,8 +161,8 @@ const searchParams = ref({
   prdtCateLowDtl: '',
   pdNm: '',
   pdCd: '',
-  svcStartDt: '',
-  svcEndDt: '',
+  svcStartDt: '', // 서비스 시작일
+  svcEndDt: '', // 서비스 종료일
 });
 const searchedProduct = ref();
 
@@ -174,6 +174,7 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes('PD_TP_CD', 'COD_PAGE_SIZE_OPTIONS', 'PD_TEMP_SAVE_CD');
 
+// 데이터 불러오기
 async function fetchData() {
   const res = await dataService.get('/sms/wells/product/cancel-charges/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: services, pageInfo: pagingResult } = res.data;
@@ -183,6 +184,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 기준 상품 검색 팝업
 async function onClickSearchPdCdPopup() {
   const searchPopupParams = {
     searchType: pdConst.PD_SEARCH_CODE,
@@ -197,6 +199,7 @@ async function onClickSearchPdCdPopup() {
   searchedProduct.value = rtn.payload?.[0];
 }
 
+// 조회
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -204,6 +207,7 @@ async function onClickSearch() {
   currentSearchYn.value = 'N';
 }
 
+// 행 삭제
 async function onClickRemoveRows() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -218,6 +222,7 @@ async function onClickRemoveRows() {
   }
 }
 
+// 행 추가
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   if (searchedProduct.value?.pdCd && searchedProduct.value.pdCd !== searchParams.value.pdCd) {
@@ -232,6 +237,7 @@ async function onClickAdd() {
   pageInfo.value.totalCount += 1;
 }
 
+// 중복검사
 async function checkDuplication() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
@@ -251,6 +257,7 @@ async function checkDuplication() {
   return false;
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
@@ -260,11 +267,13 @@ async function onClickSave() {
 
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/product/cancel-charges', { bases: changedRows });
+  // 저장되었습니다.
   notify(t('MSG_ALT_SAVE_DATA'));
 
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/product/cancel-charges', { params: cachedParams });

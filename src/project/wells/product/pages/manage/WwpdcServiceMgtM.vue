@@ -26,6 +26,7 @@
           @update:model-value="onClickStep()"
         >
           <slot>
+            <!-- 속성 등록 -->
             <kw-step
               :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_BASIC.step"
               :name="pdConst.W_SERVICE_STEP_BASIC.name"
@@ -34,6 +35,7 @@
               :done="currentStep.step > pdConst.W_SERVICE_STEP_BASIC.step"
               :sub-text="subTitle"
             />
+            <!-- 상품필터 교체관리 -->
             <kw-step
               :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_FILTER.step"
               :name="pdConst.W_SERVICE_STEP_FILTER.name"
@@ -42,6 +44,7 @@
               :done="currentStep.step > pdConst.W_SERVICE_STEP_FILTER.step"
               :sub-text="subTitle"
             />
+            <!-- 등록정보 확인 -->
             <kw-step
               :header-nav="!isTempSaveBtn || passedStep >= pdConst.W_SERVICE_STEP_CHECK.step"
               :name="pdConst.W_SERVICE_STEP_CHECK.name"
@@ -49,6 +52,7 @@
               :prefix="pdConst.W_SERVICE_STEP_CHECK.step"
               :sub-text="subTitle"
             />
+
             <kw-step-panel :name="pdConst.W_SERVICE_STEP_BASIC.name">
               <zwpdc-prop-groups-mgt
                 :ref="cmpStepRefs[0]"
@@ -150,11 +154,11 @@ import WwpdcServiceMgtMFilter from './WwpdcServiceMgtMFilter.vue';
 import WwpdcServiceDtlMContents from './WwpdcServiceDtlMContents.vue';
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  newRegYn: { type: String, default: null },
-  reloadYn: { type: String, default: null },
-  copyPdCd: { type: String, default: null },
-  propWatch: { type: Object, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  newRegYn: { type: String, default: null }, // 신규등록 여부
+  reloadYn: { type: String, default: null }, // 새로고침 여부
+  copyPdCd: { type: String, default: null }, // 복사 상품코드 원본
+  propWatch: { type: Object, default: null }, // Props 변경 여부
 });
 
 const router = useRouter();
@@ -200,6 +204,7 @@ async function isModifiedCheck() {
   return modifiedOk;
 }
 
+// 저장 데이터
 async function getSaveData() {
   // 데이터가 많아서 수정여부를 체크하여 미수정시, 텝 데이터 수집을 하지않음.
   if (!(await isModifiedCheck())) {
@@ -248,6 +253,7 @@ async function getSaveData() {
   return subList;
 }
 
+// 목록으로 이동
 async function goList() {
   await router.push({ path: '/product/zwpdc-service-list', state: { stateParam: { searchYn: 'Y' } } });
 }
@@ -313,12 +319,14 @@ async function onClickCancel() {
   }
 }
 
+// 컴포넌트 초기화
 async function init() {
   await Promise.all(cmpStepRefs.value.map(async (item) => {
     if (item.value?.init) await item.value?.init();
   }));
 }
 
+// 상품 데이터 불러오기
 async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`/sms/wells/product/services/${currentPdCd.value}`).catch(() => {
@@ -340,6 +348,7 @@ async function fetchProduct() {
   await init();
 }
 
+// 저장
 async function onClickSave(tempSaveYn) {
   // 1. Step별 수정여부 확인
   // '임시저장 ==> 저장' 경우를 제외하고 수정여부 체크
@@ -430,6 +439,7 @@ async function onClickReset() {
   await fetchProduct();
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, newRegYn, reloadYn, copyPdCd, propWatch } = props;
   currentPdCd.value = pdCd;

@@ -38,6 +38,7 @@
         @click-icon="onClickMaterialSchPopup"
       />
     </template>
+    <!-- 삭제 -->
     <kw-btn
       grid-action
       dense
@@ -87,8 +88,8 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
 });
 
 const { t } = useI18n();
@@ -113,10 +114,12 @@ const materialSelectItems = ref([
 ]);
 const codes = await codeUtil.getMultiCodes('PD_TEMP_SAVE_CD');
 
+// 수정 여부
 async function isModifiedProps() {
   return gridUtil.isModified(grdMainRef.value?.getView());
 }
 
+// 검증
 async function validateProps() {
   let isValid = true;
   const view = grdMainRef.value?.getView();
@@ -142,17 +145,20 @@ async function validateProps() {
       }
     }));
     if (!isValid) {
+      // 상품 {0} 에 기간이 중복된 데이터가 있습니다.
       notify(t('MSG_ALT_EXIST_DUP_RANGE_PD', [dupItem]));
     }
   }
   return isValid;
 }
 
+// 컴포넌트 초기화
 async function init() {
   const materialView = grdMainRef.value?.getView();
   if (materialView) gridUtil.init(materialView);
 }
 
+// 데이터 초기화
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
@@ -161,6 +167,7 @@ async function resetData() {
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
+// 저장 데이터
 async function getSaveData() {
   const subList = {};
   subList[pdConst.TBL_PD_REL] = [];
@@ -170,6 +177,7 @@ async function getSaveData() {
   return subList;
 }
 
+// 행 삭제
 async function onClickRemoveRows() {
   const view = grdMainRef.value.getView();
   const checkedRows = view.getCheckedRows();
@@ -186,14 +194,13 @@ async function onClickRemoveRows() {
       removeCreateRows.push(row);
     } else {
       isDbDataRemove = true;
-      // const endSetTime = dayjs().subtract(1, 'second').format('YYYYMMDDHHmmss');
-      // view.setValue(row, 'vlEndDtm', endSetTime);
     }
   }));
   if (removeCreateRows.length) {
     view.getDataSource().removeRows(removeCreateRows);
   }
   if (isDbDataRemove) {
+    // 등록된 기준정보는 삭제할수 없습니다, 적용일자를 변경하십시오
     notify(t('MSG_ALT_PD_REL_NO_REMOVE'));
   }
 
@@ -201,13 +208,16 @@ async function onClickRemoveRows() {
   view.clearCurrent();
 }
 
+// 정기B/S투입 필터/부품 연결
 async function onClickBsConnect() {
   const view = grdMainRef.value.getView();
   if (!view.getCheckedRows().length) {
+    // [정기B/S투입 필터/부품 연결] 하려는 데이터를 선택해주세요.
     notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_TXT_PD_SCH_BS_REL_PART')]));
     return;
   }
   if (view.getCheckedRows().length > 1) {
+    // 한 개만 선택해주세요.
     notify(t('MSG_ALT_SELT_ONE_ITEM'));
     return;
   }
@@ -228,6 +238,7 @@ async function onClickBsConnect() {
   });
 }
 
+// 정기B/S투입정보
 async function onClickBsInfos() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -254,6 +265,7 @@ async function onClickBsInfos() {
   });
 }
 
+// 교재/자재 팝업
 async function onClickMaterialSchPopup() {
   const view = grdMainRef.value.getView();
   const rtn = await modal({
@@ -298,6 +310,7 @@ async function onClickMaterialSchPopup() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   const products = cloneDeep(currentInitData.value?.[pdConst.RELATION_PRODUCTS]);
   // console.log('WwpdcServiceMgtMFlt - initGridRows - products : ', products);
@@ -311,6 +324,7 @@ async function initGridRows() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
@@ -319,6 +333,7 @@ async function initProps() {
 
 await initProps();
 
+// 리얼그리드 표시 오류 대응 임시코드
 onActivated(async () => {
   await initGridRows();
 });

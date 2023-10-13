@@ -85,10 +85,10 @@ import { isEmpty } from 'lodash-es';
 import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
 
 const props = defineProps({
-  svPdCd: { type: String, required: true },
-  pdctPdCd: { type: String, required: true },
-  svPdNm: { type: String, default: '' },
-  pdctPdNm: { type: String, default: '' },
+  svPdCd: { type: String, required: true }, // 서비스 상품 코드
+  pdctPdCd: { type: String, required: true }, // 제품코드
+  svPdNm: { type: String, default: '' }, // 서비스명
+  pdctPdNm: { type: String, default: '' }, // 제품명
 });
 
 const { notify } = useGlobal();
@@ -105,6 +105,7 @@ const grdRowCount = ref(0);
 const codes = await codeUtil.getMultiCodes('SV_BIZ_DCLSF_CD', 'MM_CD', 'SV_PRD_UNIT_CD', 'VST_DV_CD');
 codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
+// 데이터 불러오기
 async function fetchData() {
   const { svPdCd, pdctPdCd } = props;
   if (isEmpty(svPdCd) || isEmpty(pdctPdCd)) {
@@ -118,6 +119,7 @@ async function fetchData() {
   gridUtil.init(view);
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) {
@@ -135,6 +137,7 @@ async function onClickSave() {
   await fetchData();
 }
 
+// 행 삭제
 async function onClickRemoveRows() {
   const view = grdMainRef.value.getView();
 
@@ -149,6 +152,7 @@ async function onClickRemoveRows() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { svPdNm, pdctPdNm } = props;
   serviceName.value = svPdNm;

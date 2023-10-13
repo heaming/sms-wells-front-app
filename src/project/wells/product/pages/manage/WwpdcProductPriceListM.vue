@@ -195,6 +195,7 @@ const grdCmpRef = ref(getComponentType('KwGrid'));
 const priceStdMetaInfos = ref();
 const priceCmpMetaInfos = ref();
 const priceCodes = ref({});
+const priceVariables = ref();
 
 const pageInfo = ref({
   totalCount: 0,
@@ -233,6 +234,7 @@ const searchParams = ref({
   months: '',
 });
 
+// 데이터 불러오기
 async function fetchData() {
   const res = await dataService.get('/sms/common/product/prices/products/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: prices, pageInfo: pagingResult } = res.data;
@@ -245,6 +247,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 상품 메타 데이터 불러오기
 async function fetchMetaData() {
   const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
   if (isEmpty(res.data)) {
@@ -270,6 +273,7 @@ async function fetchMetaData() {
   }
 }
 
+// 조회
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   if (!Number(searchParams.value.months)) {
@@ -279,6 +283,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = searchParams.value.pdTpCd === pdConst.PD_TP_CD_STANDARD
     ? grdStdRef.value.getView() : grdCmpRef.value.getView();
@@ -290,6 +295,23 @@ async function onClickExcelDownload() {
   });
 }
 
+// 변수 데이터 불러오기
+async function fetchVariableData() {
+  // 변수
+  const typeRes = await dataService.get('/sms/common/product/type-variables');
+  if (typeRes.data && typeRes.data.length) {
+    priceVariables.value = cloneDeep(typeRes.data);
+    const view = grdStdRef.value.getView();
+    priceVariables.value.forEach((field) => {
+      const column = view.columnByName(field.codeId);
+      if (column) {
+        column.visible = true;
+      }
+    });
+  }
+}
+
+// 상품구분 변경
 async function onUpdateProductType() {
   grdStdRef.value?.getView().getDataSource().clearRows();
   grdCmpRef.value?.getView().getDataSource().clearRows();
@@ -461,6 +483,9 @@ async function initGrdCmp(data, view) {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = false;
+
+  // 변수 Visible 적용 ( 변수값 = Grid Filed명 )
+  await fetchVariableData();
 }
 </script>
 <style scoped></style>

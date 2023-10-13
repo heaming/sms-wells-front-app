@@ -88,6 +88,7 @@
     v-show="isUpdateBtn"
     class="button-set--bottom"
   >
+    <!-- 수정 -->
     <div class="button-set--bottom-right">
       <kw-btn
         :label="$t('MSG_BTN_MOD')"
@@ -113,12 +114,12 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  tempSaveYn: { type: String, default: 'Y' },
-  initData: { type: Object, default: null },
-  isHistoryTab: { type: Boolean, default: true },
-  isUpdateBtn: { type: Boolean, default: true },
-  codes: { type: Object, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  tempSaveYn: { type: String, default: 'Y' }, // 임시저장 여부
+  initData: { type: Object, default: null }, // 초기데이터
+  isHistoryTab: { type: Boolean, default: true }, // 변경이렵탭 존재 여부
+  isUpdateBtn: { type: Boolean, default: true }, // 수정 버튼 존재 여부
+  codes: { type: Object, default: null }, // 공통코드
   isRegCheckPage: { type: Boolean, default: false }, /* 화면이 등록정보확인(true)인지, 상세조회인지(false)인지 여부  */
 });
 
@@ -134,6 +135,7 @@ const currentPdCd = ref();
 const currentInitData = ref({});
 const selectedTab = ref(pdConst.W_MATERIAL_STEP_BASIC.name);
 
+// 데이터 초기화
 async function resetData() {
   selectedTab.value = pdConst.W_MATERIAL_STEP_BASIC.name;
   currentPdCd.value = '';
@@ -151,6 +153,7 @@ async function onClickUpdate() {
   await pageMove(pdConst.MATERIAL_MNGT_PAGE_W, true, router, query, stateParam);
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;

@@ -100,9 +100,9 @@ import { isEmpty, cloneDeep } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const props = defineProps({
-  searchType: { type: String, default: null },
-  searchValue: { type: String, default: null },
-  selectType: { type: String, default: pdConst.PD_SEARCH_MULTIPLE },
+  searchType: { type: String, default: null }, // 검색타입
+  searchValue: { type: String, default: null }, // 검색값
+  selectType: { type: String, default: pdConst.PD_SEARCH_MULTIPLE }, // 선택타입
 });
 
 const { notify, modal } = useGlobal();
@@ -148,13 +148,16 @@ const materialSelectItems = ref([
   { codeId: pdConst.PD_SEARCH_CODE, codeName: t('MSG_TXT_MATERIAL_CD') },
 ]);
 
+// 선택
 async function onSelect() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (isEmpty(checkedRows) || checkedRows.length < 1) {
+    // [복사] 하려는 데이터를 선택해주세요.
     notify(t('MSG_ALT_SELECT_ONE_ROW', [t('MSG_TXT_COPY')]));
   } else {
     if (props.selectType === pdConst.PD_SEARCH_SINGLE && checkedRows.length !== 1) {
+      // 데이터를 한 개만 선택하세요
       notify(t('MSG_ALT_SELT_ONE_ITEM'));
       return;
     }
@@ -175,6 +178,7 @@ async function onSelect() {
   }
 }
 
+// 데이터 불러오기
 async function fetchData() {
   console.log('WwpdcRoutineBsLoadListP - fetchData - cachedParams : ', cachedParams);
   const res = await dataService.get('/sms/wells/product/bs-works/standards/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -188,6 +192,7 @@ async function fetchData() {
   }
 }
 
+// 서비스상품 검색 팝업
 async function onClickSearchServicePopup() {
   const searchPopupParams = {
     searchType: svcType.value,
@@ -206,10 +211,12 @@ async function onClickSearchServicePopup() {
   }
 }
 
+// 서비스 상품 코드 제거
 async function onClearService() {
   searchParams.value.svPdCd = '';
 }
 
+// 교재/자재 팝업
 async function onClickSearchMaterialPopup() {
   const searchPopupParams = {
     searchType: prdtType.value,
@@ -228,10 +235,12 @@ async function onClickSearchMaterialPopup() {
   }
 }
 
+// 교재/자재 코드 제거
 async function onClearMaterial() {
   searchParams.value.pdctPdCd = '';
 }
 
+// 조회
 async function onClickSearch() {
   if (isEmpty(searchParams.value.svPdCd) && svcValue.value) {
     svcValue.value = '';
@@ -243,10 +252,6 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
-// onMounted(async () => {
-//   await fetchData();
-// });
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

@@ -37,9 +37,9 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  codes: { type: Object, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  codes: { type: Object, default: null }, // 공통코드
 });
 
 const { t } = useI18n();
@@ -52,6 +52,7 @@ const grdStandardRef = ref(getComponentType('KwGrid'));
 const currentPdCd = ref();
 const currentInitData = ref({});
 
+// 데이터 초기화
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
@@ -59,6 +60,7 @@ async function resetData() {
   // console.log('WwpdcCompositionDtlMRel - resetData');
 }
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   // console.log('WwpdcCompositionDtlMRel - initGridRows - currentInitData.value : ', currentInitData.value);
   const products = currentInitData.value[pdConst.RELATION_PRODUCTS];
@@ -74,6 +76,7 @@ async function initGridRows() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
@@ -82,6 +85,7 @@ async function initProps() {
 
 await initProps();
 
+// 리얼그리드 표시 오류 대응 임시코드
 onActivated(async () => {
   await initGridRows();
 });
