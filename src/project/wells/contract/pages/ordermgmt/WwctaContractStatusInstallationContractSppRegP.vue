@@ -42,7 +42,7 @@ import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
-const { modal, notify } = useGlobal();
+const { alert, modal, notify } = useGlobal();
 const now = dayjs();
 const { getUserInfo } = useMeta();
 
@@ -77,6 +77,17 @@ async function fetchData() {
 // 설치/배정-재배정 타임테이블 조회
 async function onClickInstallationContractSppReg(item) {
   console.log(item);
+
+  // 타임테이블 팝업 호출 전,
+  // 렌탈일 경우 수량 다건 체크
+  if (item.sellTpCd === '2') {
+    const res = await dataService.get(`/sms/wells/contract/contracts/contract-lists/product-quantity/${item.cntrNo}/${item.cntrSn}`);
+
+    if (res.data === 'Y') {
+      await alert(t('MSG_ALT_INST_CHECK_PRODUCT_QTY'));
+      return false;
+    }
+  }
 
   let svBizDclsfCd;
   if (item.sellTpCd === '1' && item.sellTpDtlCd === '12') {
