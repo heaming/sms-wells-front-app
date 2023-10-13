@@ -79,6 +79,7 @@
             v-model="searchParams.cstNm"
             icon="search"
             clearable
+            maxlength="30"
             @click-icon="onClickSelectCustomer"
             @keydown="onKeyDownSelectCustomer"
           />

@@ -120,11 +120,6 @@ const dataService = useDataService();
 const codes = await codeUtil.getMultiCodes(
   'BAD_DV_CD', // 불량구분
 );
-// const codes = await codeUtil.getMultiCodes(
-//   'BAD_DV_CD', // 불량구분
-//   'SDING_PKG_GRP_CD', // 패키지[모종]
-//   'SDING_PKG_CD', // 패키지[모종]
-// );
 
 // 패키지 리스트 setting
 const sdingPkgGrpList = [

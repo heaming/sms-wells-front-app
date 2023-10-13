@@ -101,15 +101,15 @@ defineExpose({
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'rveNoSn', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '65', styleName: 'text-center' },
-    { fieldName: 'rveDt', header: t('MSG_TXT_RVE_DT'), width: '171', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '171', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '171', styleName: 'text-center' },
-    { fieldName: 'rveNm', header: t('MSG_TXT_RVE_NM'), width: '171', styleName: 'text-center' },
-    { fieldName: 'dpDvNm', header: t('MSG_TXT_DP_DV'), width: '171', styleName: 'text-center' },
-    { fieldName: 'dpTpNm', header: t('MSG_TXT_DP_TP'), width: '171', styleName: 'text-center' },
-    { fieldName: 'rveAmt', header: t('MSG_TXT_PROCS_AMT_WON'), width: '182', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'dpMesNm', header: t('MSG_TXT_CARD_DV'), width: '171', styleName: 'text-center' },
+    { fieldName: 'rveNoSn', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '65', styleName: 'text-center' }, // 번호
+    { fieldName: 'rveDt', header: t('MSG_TXT_RVE_DT'), width: '171', styleName: 'text-center', datetimeFormat: 'date' }, // 수납일자
+    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '171', styleName: 'text-center', datetimeFormat: 'date' }, // 실적일자
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '171', styleName: 'text-center' }, // 업무구분
+    { fieldName: 'rveNm', header: t('MSG_TXT_RVE_NM'), width: '171', styleName: 'text-center' }, // 수납명
+    { fieldName: 'dpDvNm', header: t('MSG_TXT_DP_DV'), width: '171', styleName: 'text-center' }, // 입금구분
+    { fieldName: 'dpTpNm', header: t('MSG_TXT_DP_TP'), width: '171', styleName: 'text-center' }, // 입금유형
+    { fieldName: 'rveAmt', header: t('MSG_TXT_PROCS_AMT_WON'), width: '182', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 처리금액(원)
+    { fieldName: 'dpMesNm', header: t('MSG_TXT_CARD_DV'), width: '171', styleName: 'text-center' }, // 카드구분
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -125,13 +125,13 @@ const initGrid = defineGrid((data, view) => {
 
 const initSingleGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '200', styleName: 'text-center' },
-    { fieldName: 'rveDt', header: t('MSG_TXT_RVE_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'dpDvNm', header: t('MSG_TXT_DP_DV'), width: '200', styleName: 'text-center' },
-    { fieldName: 'rveDvNm', header: t('MSG_TXT_DP_KND'), width: '200', styleName: 'text-center' },
-    { fieldName: 'dpTpNm', header: t('MSG_TXT_DP_TP'), width: '200', styleName: 'text-center' },
-    { fieldName: 'rveAmt', header: t('MSG_TXT_PROCS_AMT_WON'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '200', styleName: 'text-center' }, // 업무구분
+    { fieldName: 'rveDt', header: t('MSG_TXT_RVE_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' }, // 수납일자
+    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' }, // 실적일자
+    { fieldName: 'dpDvNm', header: t('MSG_TXT_DP_DV'), width: '200', styleName: 'text-center' }, // 입금구분
+    { fieldName: 'rveDvNm', header: t('MSG_TXT_DP_KND'), width: '200', styleName: 'text-center' }, // 입금종류
+    { fieldName: 'dpTpNm', header: t('MSG_TXT_DP_TP'), width: '200', styleName: 'text-center' }, // 입금유형
+    { fieldName: 'rveAmt', header: t('MSG_TXT_PROCS_AMT_WON'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 처리금액(원)
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

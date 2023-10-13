@@ -199,11 +199,11 @@ async function onClickDelete() {
     }
   });
   if (authCount > 0) {
-    alert(t('삭제 권한이 없습니다.'));
+    alert(t('MSG_ALT_NO_AUTH_DEL'));
     return;
   }
   if (checkCount > 0) {
-    alert(t('현재 년월이 아닌 대상이 포함되어있습니다.'));
+    alert(t('TRGT_NOT_INCLUDED_CURR_MONTH'));
     return;
   }
   if (deleteRows.length > 0) {

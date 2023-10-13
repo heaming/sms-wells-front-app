@@ -100,6 +100,13 @@ async function onClickInstallationContractSppReg(item) {
     svBizDclsfCd = '1110';
   }
 
+  let mtrStatCd; // 설치배정 / 재배정 상태코드
+  if (isEmpty(item.vstSchDt)) {
+    mtrStatCd = 1;
+  } else {
+    mtrStatCd = 2;
+  }
+
   // 설치오더 시작
   const res = await modal({
     component: 'WwsncTimeTableForContractP',
@@ -111,7 +118,7 @@ async function onClickInstallationContractSppReg(item) {
       svBizDclsfCd,
       cntrNo: item.cntrNo,
       cntrSn: item.cntrSn,
-      mtrStatCd: '1',
+      mtrStatCd,
     },
   });
 

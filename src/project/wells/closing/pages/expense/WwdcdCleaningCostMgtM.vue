@@ -225,7 +225,7 @@ async function onClickDelete() {
       }
     });
     if (!isCheckCanceled) {
-      notify('당월 등록데이터만 삭제 할 수 있습니다.'); // TODO: 설계자 메시지 확인 후 수정 예정
+      notify(t('MSG_ALT_CURRENT_MONTH_DATA_ONLY')); // TODO: 설계자 메시지 확인 후 수정 예정
       fetchData();
       return;
     }
@@ -263,7 +263,6 @@ async function onClickOpenReport() { // TODO 확인필요
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  // TODO: 삭제 버튼 과 연결 되는 체크박스를 아예 안나오게 하려는 함수 스타일 정의 필요 사용 안하는 경우 삭제
   const checkboxDisplayNone = (grid, type, index) => {
     if (!grid.getValue(index, 'fstRgstDtm').startsWith(defaultDate)) {
       return 'checkbox-dn';

@@ -92,6 +92,7 @@ const searchParams = ref({
 });
 
 let cachedParams;
+// 조회
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
   console.log('searchParams:', searchParams.value);
@@ -104,10 +105,12 @@ async function fetchData() {
   view.getDataSource().setRows(slips);
 }
 
+// 조회 버튼 클릭
 async function onClickSearch() {
   fetchData();
 }
 
+// 전표 초기화
 async function onClickSeltSlipIntlz() {
   const view = grdDetailRef.value.getView();
   const chkDataRows = gridUtil.getCheckedRowValues(view);
@@ -137,11 +140,11 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'sapAlrpySlpno', header: t('MSG_TXT_ALRPY_SLIP_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_BND_ALRPY_AMT'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '400', styleName: 'text-left' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형코드
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'sapAlrpySlpno', header: t('MSG_TXT_ALRPY_SLIP_NO'), width: '120', styleName: 'text-center' }, // SAP반제전표번호
+    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_BND_ALRPY_AMT'), width: '120', styleName: 'text-right', dataType: 'number' }, // 채권반제금액
+    { fieldName: 'bktxt', header: t('MSG_TXT_SMRY'), width: '400', styleName: 'text-left' }, // 전표적요
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

@@ -371,9 +371,9 @@ async function fetchProduct() {
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+  cachedParams = cloneDeep(searchParams.value);
   isSearch.value = false;
   isAddRow.value = false;
-  cachedParams = cloneDeep(searchParams.value);
   await fetchProduct();
   await fetchData();
 }
