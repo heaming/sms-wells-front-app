@@ -158,17 +158,17 @@
                         data.psic.cralIdvTno }}
                     </p>
                     <kw-btn
-                      icon="cellphone"
                       borderless
-                      style="font-size: 24px;"
                       class="ml4"
+                      icon="cellphone"
+                      style="font-size: 24px;"
                       @click="clickCell('clickHp')"
                     />
                     <kw-btn
-                      icon="sms_24"
                       borderless
-                      style="font-size: 24px;"
                       class="ml4"
+                      icon="sms_24"
+                      style="font-size: 24px;"
                       @click="clickCell('clickSms')"
                     />
                   </div>
@@ -180,10 +180,10 @@
                         data.psic.idvTno }}
                     </p>
                     <kw-btn
-                      icon="cellphone"
                       borderless
-                      style="font-size: 24px;"
                       class="ml4"
+                      icon="cellphone"
+                      style="font-size: 24px;"
                       @click="clickCell('clickTel')"
                     />
                   </div>
@@ -221,17 +221,17 @@
                       {{ data.psic.sjHp1 }}-{{ data.psic.sjHp2 }}-{{ data.psic.sjHp3 }}
                     </p>
                     <kw-btn
-                      icon="cellphone"
                       borderless
-                      style="font-size: 24px;"
                       class="ml4"
+                      icon="cellphone"
+                      style="font-size: 24px;"
                       @click="clickCell('clickCenterHp')"
                     />
                     <kw-btn
-                      icon="sms_24"
                       borderless
-                      style="font-size: 24px;"
                       class="ml4"
+                      icon="sms_24"
+                      style="font-size: 24px;"
                       @click="clickCell('clickCenterSms')"
                     />
                   </div>
@@ -484,7 +484,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { notify, useDataService, useModal/* , alert */ } from 'kw-lib';
+import { notify, useDataService, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 
 import { cloneDeep, toInteger } from 'lodash-es';
@@ -512,6 +512,7 @@ const props = defineProps({
   cntrSn: { type: String, default: '' },
   seq: { type: String, default: '' },
   title: { type: String, default: '' },
+  newAdrZip: { type: String, default: '' },
 });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -529,22 +530,9 @@ const clickedBtn = ref(''); // 0:오전, 1:오후
 
 const disableDays = ref([]);
 
-const searchParams = ref({
-  baseYm: props.baseYm,
-  // userId: props.userId,
-  chnlDvCd: props.chnlDvCd,
-  svDvCd: props.svDvCd,
-  sellDate: props.sellDate,
-  svBizDclsfCd: props.svBizDclsfCd,
-  inflwChnl: props.inflwChnl,
-  basePdCd: props.basePdCd,
-  wrkDt: props.wrkDt,
-  mtrStatCd: props.mtrStatCd,
-  returnUrl: props.returnUrl,
-  mkCo: props.mkCo,
-  cntrNo: props.cntrNo,
-  cntrSn: props.cntrSn,
-  seq: props.seq,
+const searchParams = ref({});
+new Map(Object.entries(props)).forEach((item, field) => {
+  searchParams.value[field] = item;
 });
 if (searchParams.value.chnlDvCd === 'K' && searchParams.value.inflwChnl === '') { // KSS
   searchParams.value.inflwChnl = '3';
