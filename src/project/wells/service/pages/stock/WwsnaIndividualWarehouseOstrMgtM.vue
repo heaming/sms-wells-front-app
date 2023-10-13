@@ -219,6 +219,7 @@
           :label="`${t('MSG_TXT_LGST')}${t('MSG_TXT_TF')}`"
           dense
           primary
+          :disable="isSearch"
           @click="onClickLgstTrs"
         />
       </kw-action-top>
@@ -493,9 +494,11 @@ async function fetchData() {
   }
 }
 
+const isSearch = ref(true);
 // 조회버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  isSearch.value = false;
   await fetchData();
 }
 
