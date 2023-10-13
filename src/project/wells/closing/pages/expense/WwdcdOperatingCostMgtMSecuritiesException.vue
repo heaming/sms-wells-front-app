@@ -162,7 +162,7 @@ async function onClickSave() {
         const exceptCarAprnoDatas = checkedRows
           .filter((checkedRow) => checkedRow.cardAprno === exceptDatas[i].cardAprno);
         if (exceptCarAprnoDatas < 2) { // 해당 승인번호가 체크된 내용중 두 건 이상 있는지
-          notify(t('동일한 승인번호 갯수가 2개 이상이어야 가능합니다.')); // TODO 메세지 추가
+          notify(t('MSG_ALT_SAME_APRNO_SEVERAL'));
           return false;
         }
         // 사용금액 합계 체크
@@ -170,7 +170,7 @@ async function onClickSave() {
           .reduce((totalAmt, currentData) => totalAmt + currentData.domTrdAmt, 0);// 사용금액 합계
 
         if (domTrdAmtTotal !== 0) {
-          notify(t('승인번호가 모두 동일하여야 하며 사용금액 합계가 0 이 되어야 합니다.')); // TODO 메세지 추가
+          notify(t('MSG_ALT_SAME_APRNO_SUM_USEAMT'));
           return false;
         }
         checkedCarAprnoList.push(exceptDatas[i].cardAprno); // 같은 승인번호의 사용금액의 합계가 0이면 체크완료
@@ -206,7 +206,7 @@ const initGrdFirst = defineGrid((data, view) => {
       header: t('MSG_TXT_ADJ_EXCD_YN'),
       editable: true,
       width: '131',
-      options: [{ codeId: '정산', codeName: '정산' }, { codeId: '정산제외', codeName: '정산제외' }],
+      options: [{ codeId: '정산', codeName: t('MSG_TXT_ADJ') }, { codeId: '정산제외', codeName: t('MSG_TXT_ADJ_EXCD') }],
       editor: {
         type: 'dropdown',
       },
@@ -290,7 +290,7 @@ const initGrdFirst = defineGrid((data, view) => {
     //     return;
     //   }
       if (opcsAdjExcdYn === '정산제외') {
-        alert(t('정산제외 건은 원천세 정산이 불가능 합니다.'));
+        alert(t('MSG_ALT_WHTX_ADJ_IMPOSSIBLE'));
         return;
       }
       await modal({

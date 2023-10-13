@@ -318,7 +318,7 @@ async function onClickObjectPersonAdd() {
     }
   }
   if (count > 0) {
-    alert(`선택된 대상은 추가되어 있습니다. \n 파트너 번호 :${selectedTarget}`); // TODO 메세지 처리
+    alert(t('MSG_ALT_SEL_TARGET_ADDED_ALREADY', [selectedTarget]));
     return;
   }
 
@@ -327,7 +327,7 @@ async function onClickObjectPersonAdd() {
     dstAmtTotal += Number(checkedRows[i].dstAmt);
   }
   if (mainValue.adjCnfmAmt < dstAmtTotal || mainValue.amt < 0) {
-    alert('대상자들의 정산금액 합계가 정산대상금액보다 큽니다.');
+    alert(t('MSG_ALT_TRGT_ADJ_AMT_MORE'));
     return;
   }
   for (let i = 0; i < checkedRows.length; i += 1) {
@@ -621,9 +621,9 @@ const position = ref();
 let initSearchParams;
 onMounted(async () => {
   if (props.cachedParams.ogTpCd === 'W01') {
-    position.value = [{ codeId: 'W0104', codeName: '지점장' }, { codeId: 'W0105', codeName: '프리매니저' }];
+    position.value = [{ codeId: 'W0104', codeName: t('MSG_TXT_BRMGR') }, { codeId: 'W0105', codeName: t('MSG_TXT_FREE_MGR') }];
   } else if (props.cachedParams.ogTpCd === 'W02') {
-    position.value = [{ codeId: 'W0204', codeName: '지점장' }, { codeId: 'W0205', codeName: '프리매니저' }];
+    position.value = [{ codeId: 'W0204', codeName: t('MSG_TXT_BRMGR') }, { codeId: 'W0205', codeName: t('MSG_TXT_FREE_MGR') }];
   }
 
   searchParams.value.dgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
