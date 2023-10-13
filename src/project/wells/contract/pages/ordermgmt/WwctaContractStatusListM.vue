@@ -250,7 +250,7 @@
             </kw-chip>
             <!-- 확정요청대상조회 -->
             <span
-              v-if="item.viewCntrPrgsStatCd === '50' && searchParams.isBrmgr != 'Y'"
+              v-if="item.viewCntrPrgsStatCd === '50' && searchParams.isBrmgr != 'Y' && item.dfntaprcnt > 0"
               style="float: right;"
               @click="onClickConfirmTarget(item.cntrNo)"
             >
@@ -481,6 +481,7 @@
 import { codeUtil, popupUtil, router, stringUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
+import { buildUrlForNoSession, getSystemOrigin } from '~sms-common/contract/util';
 
 const { alert, modal, confirm } = useGlobal();
 const dataService = useDataService();
@@ -742,23 +743,25 @@ async function onClickChange({ cntrNo, cntrCnfmDtm }) {
 
 // CARD > BUTTON > 비대면결제
 async function onClickNonFcfPayment(item) {
-  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40') {
+  if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '50') {
     // 계약진행상태코드 재확인
     if (!await getPrgsStatCd(item)) { return; }
 
     let message = t('MSG_ALT_STLM_URL_CONFIRM', [item.cstKnm, item.mobileTelNo]);
-    if (item.viewCntrPrgsStatCd === '40') { message = `[${t('MSG_TXT_RESEND')}]${message}`; }
+    if (item.viewCntrPrgsStatCd === '50') { message = `[${t('MSG_TXT_RESEND')}] ${message}`; }
 
     if (!await confirm(message)) { return; }
 
     const telNo = item.mobileTelNo.replaceAll('-', '');
+    const url = await buildUrlForNoSession(getSystemOrigin('wsm'), 'WwctaContractSettlementLoginMgtM', { cntrNo: item.cntrNo }, true, true);
     const params = {
       type: 'SMS',
       receiver: `${item.cstKnm}^${telNo}`,
-      url: `/payment?cntrNo=${item.cntrNo}`,
+      url,
     };
-
-    await dataService.post('/sms/wells/contract/contracts/contract-lists/send-messages', params);
+    console.log(params);
+    /// 곧 발송방식 및 양식 정해지면 전송
+    /// await dataService.post('/sms/wells/contract/contracts/contract-lists/send-messages', params);
   }
 }
 
@@ -767,20 +770,6 @@ async function onClickF2fPayment(item) {
   if (item.viewCntrPrgsStatCd === '20' || item.viewCntrPrgsStatCd === '40') {
     // 계약진행상태코드 재확인
     if (!await getPrgsStatCd(item)) { return; }
-
-    /*
-    // 통테 이후 주석 제거 (암호화 하지 않음)
-    // URL 암호화
-    const res = await dataService.post('/sms/wells/contract/contracts/contract-lists/make-url',
-     { url: `${consts.HTTP_ORIGIN}/payment?cntrNo=${item.cntrNo}` });
-
-    // 신규 윈도우 페이지에서 위 URL을 POST 로 전송
-    if (!isEmpty(res.data)) {
-      // TODO : (확인) - 신규 윈도우 페이지에서 위 URL을 POST 로 전송한다.
-      // await window.open(`${res.data}`);
-      await popupUtil.open(`${res.data}`, { width: 500, height: 700 }, false);
-    }
-    */
 
     const { cntrNo } = item;
     const routeParams = new URLSearchParams({ cntrNo });
