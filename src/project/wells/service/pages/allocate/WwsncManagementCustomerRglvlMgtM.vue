@@ -86,6 +86,8 @@
           partner-first-option="all"
           bzns-psic-auth-yn="N"
           auth-yn="N"
+          :dgr2-levl-og-always-search="false"
+          :dgr3-levl-og-always-search="false"
         />
       </kw-search-row>
       <!-- <kw-search-row>
