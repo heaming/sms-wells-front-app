@@ -244,7 +244,6 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { getConfig } = useMeta();
 
-const { notify } = useGlobal();
 const { modal } = useGlobal();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
@@ -369,8 +368,15 @@ async function onClickExcelDownload() {
 
 // 예정부품 팝업 호출
 async function onClickExpPartPs() {
-  // TODO : 예정부품 팝업 호출
-  notify(t('TODO : 예정부품 팝업 호출'));
+  await modal({
+    component: 'WwsncExpProductStateP',
+    componentProps: {
+      baseYm: searchParams.value.baseYm,
+      ogId: searchParams.value.ogId,
+      pdGrpCd: searchParams.value.pdGrpCd,
+      pdCd: searchParams.value.pdCd,
+    },
+  });
 }
 
 async function onClickOZ() {
