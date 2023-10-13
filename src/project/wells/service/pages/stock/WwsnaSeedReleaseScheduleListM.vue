@@ -511,7 +511,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'sowDt5', dataType: 'text' }, // 모종5 파종일자
     { fieldName: 'sdingPkgPdCd', dataType: 'text' }, // 모종패키지상품코드
     { fieldName: 'mngrDvCd', dataType: 'text' }, // 관리구분코드
-    { fieldName: 'dpEpttNm', dataType: 'text' }, // 입금예금자명
+    { fieldName: 'dpEpttNm', dataType: 'text' }, // 입금예정자명
     { fieldName: 'ogTpCd', dataType: 'text' }, // 조직유형코드
     { fieldName: 'prtnrNo', dataType: 'text' }, // 파트너번호
     { fieldName: 'recapCsAmt', dataType: 'number' }, // 유상비용금액
