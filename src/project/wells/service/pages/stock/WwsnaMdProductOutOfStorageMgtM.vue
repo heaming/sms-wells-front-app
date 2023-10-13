@@ -359,6 +359,30 @@ async function onClickSave() {
 /* 엑셀 업로드 유효성 체크 */
 let excelUploadRows;
 async function validate(rows) {
+  let isValidate = true;
+  const errors = [];
+
+  const sppIvcNos = []; // 송장번호 목록
+  rows.forEach((row, index) => {
+    // 송장번호 중복체크
+    if (sppIvcNos.indexOf(row.sppIvcNo) > -1) {
+      isValidate = false;
+      errors.push({
+        dataRow: index,
+        errors: [t('MSG_ALT_SPP_IVC_NO')], // 중복된 송장번호가 존재합니다.
+      });
+    } else {
+      sppIvcNos.push(row.sppIvcNo);
+    }
+  });
+  // 화면 유효성 체크
+  if (!isValidate) {
+    const data = [];
+    data.result = false;
+    data.errors = errors;
+    return data;
+  }
+  // 서버 유효성 체크
   rows.forEach((obj) => {
     const cntrDtlNo = obj.cntrDtlNo.split('-');
     if (!isEmpty(cntrDtlNo) && cntrDtlNo.length === 2) {
