@@ -301,10 +301,10 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'bndBizDvCd', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bndBizDvCd', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-center', visible: false }, // 채권업무구분코드
+    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-center' }, // 구분
     {
-      fieldName: 'cntrNoSn',
+      fieldName: 'cntrNoSn', // 계약상세번호
       header: t('MSG_TXT_CNTR_DTL_NO'),
       styleName: 'text-center',
       width: '150',
@@ -316,13 +316,13 @@ const initGrid = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false }, // 계약번호
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false }, // 계약일련번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_PRTNR_NO2'), width: '100', styleName: 'text-center', visible: false }, // 집금파트너번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' }, // 집금담당자
     {
-      fieldName: 'cntrTelNo',
+      fieldName: 'cntrTelNo', // 전화번호
       header: t('MSG_TXT_TEL_NO'),
       styleName: 'text-center',
       width: '140',
@@ -335,7 +335,7 @@ const initGrid = defineGrid((data, view) => {
       },
     },
     {
-      fieldName: 'cntrMpNo',
+      fieldName: 'cntrMpNo', // 휴대전화번호
       header: t('MSG_TXT_MPNO'),
       styleName: 'text-center',
       width: '140',
@@ -347,10 +347,10 @@ const initGrid = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '100', styleName: 'text-left' },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' }, // 고객번호
+    { fieldName: 'adr', header: t('MSG_TXT_ADDR'), width: '100', styleName: 'text-left' }, // 주소
     {
-      fieldName: 'istTelNo',
+      fieldName: 'istTelNo', // 설치전화번호
       header: t('MSG_TXT_IST_TNO'),
       styleName: 'text-center',
       width: '140',
@@ -363,7 +363,7 @@ const initGrid = defineGrid((data, view) => {
       },
     },
     {
-      fieldName: 'istMpNo',
+      fieldName: 'istMpNo', // 설치휴대전화번호
       header: t('MSG_TXT_IST_MPNO'),
       styleName: 'text-center',
       width: '140',
@@ -375,23 +375,23 @@ const initGrid = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'bndClctnPrpDvNm', header: t('MSG_TXT_BND_PRP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'bndClctnPrpRsonDvNm', header: t('MSG_TXT_PRP_RSON'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrLocaraTno', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'cntrExnoEncr', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'cntrIdvTno', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'cntrCralLocaraTno', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'cntrMexnoEncr', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'cntrCralIdvTno', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'istLocaraTno', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'istExnoEncr', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'istIdvTno', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'istCralLocaraTno', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'istMexnoEncr', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'istCralIdvTno', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'sfkVal', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'bndClctnPrpDvCd', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'bndClctnPrpRsonCd', header: t('MSG_TXT_BND_BIZ_DV_CD'), width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'bndClctnPrpDvNm', header: t('MSG_TXT_BND_PRP'), width: '100', styleName: 'text-center' }, // 채권속성
+    { fieldName: 'bndClctnPrpRsonDvNm', header: t('MSG_TXT_PRP_RSON'), width: '100', styleName: 'text-center' }, // 속성사유
+    { fieldName: 'cntrLocaraTno', header: t('MSG_TXT_CNTR_LOCARA_TNO'), width: '100', styleName: 'text-left', visible: false }, // 계약처지역전화번호
+    { fieldName: 'cntrExnoEncr', header: t('MSG_TXT_CNTR_EXNO_ENCR'), width: '100', styleName: 'text-left', visible: false }, // 계약처전화국번호암호화
+    { fieldName: 'cntrIdvTno', header: t('MSG_TXT_CNTR_IDV_TNO'), width: '100', styleName: 'text-left', visible: false }, // 계약처개별전화번호
+    { fieldName: 'cntrCralLocaraTno', header: t('MSG_TXT_CNTR_CRAL_LOCARA_TNO'), width: '100', styleName: 'text-left', visible: false }, // 계약처휴대지역전화번호
+    { fieldName: 'cntrMexnoEncr', header: t('MSG_TXT_CNTR_CRAL_EXNO_ENCR'), width: '100', styleName: 'text-left', visible: false }, // 계약처휴대전화국번호암호화
+    { fieldName: 'cntrCralIdvTno', header: t('MSG_TXT_CNTR_CRAL_IDV_TNO'), width: '100', styleName: 'text-left', visible: false }, // 계약처휴대개별전화번호
+    { fieldName: 'istLocaraTno', header: t('MSG_TXT_IST_LOCARA_TNO'), width: '100', styleName: 'text-left', visible: false }, // 설치처지역전화번호
+    { fieldName: 'istExnoEncr', header: t('MSG_TXT_IST_EXNO_ENCR'), width: '100', styleName: 'text-left', visible: false }, // 설치처전화국번호암호화
+    { fieldName: 'istIdvTno', header: t('MSG_TXT_IST_IDV_TNO'), width: '100', styleName: 'text-left', visible: false }, // 설치처개별전화번호
+    { fieldName: 'istCralLocaraTno', header: t('MSG_TXT_IST_CRAL_LOCARA_TNO'), width: '100', styleName: 'text-left', visible: false }, // 설치처휴대지역전화번호
+    { fieldName: 'istMexnoEncr', header: t('MSG_TXT_IST_CRAL_EXNO_ENCR'), width: '100', styleName: 'text-left', visible: false }, // 설치처휴대전화국번호암호화
+    { fieldName: 'istCralIdvTno', header: t('MSG_TXT_IST_CRAL_IDV_TNO'), width: '100', styleName: 'text-left', visible: false }, // 설치처휴대개별전화번호
+    { fieldName: 'sfkVal', header: t('MSG_TXT_SFK_VAL'), width: '100', styleName: 'text-left', visible: false }, // 세이프키값
+    { fieldName: 'bndClctnPrpDvCd', header: t('MSG_TXT_BND_CLCTN_PRP_DV_CD'), width: '100', styleName: 'text-left', visible: false }, // 채권추심속성구분코드
+    { fieldName: 'bndClctnPrpRsonCd', header: t('MSG_TXT_BND_CLCTN_PRP_RSON_CD'), width: '100', styleName: 'text-left', visible: false }, // 채권추심속성사유코드
   ];
 
   data.setFields(fields);

@@ -461,20 +461,20 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initMainGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT'), width: '100', styleName: 'text-center', headerSummaries: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
-    { fieldName: 'bndBizDvCd', header: t('TXT_MSG_SELL_TP_CD'), width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '130', styleName: 'text-left' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), styleName: 'text-center', width: '200' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '50', styleName: 'text-center', visible: false },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'authRsgCnfmdt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '152', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'ojDpAmt', header: t('MSG_TXT_OJ_DP'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'ojBlam', header: t('MSG_TXT_OJ_BLAM'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT'), width: '100', styleName: 'text-center', headerSummaries: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // 이체
+    { fieldName: 'bndBizDvCd', header: t('TXT_MSG_SELL_TP_CD'), width: '100', styleName: 'text-left', visible: false }, // 판매유형
+    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 업무구분
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRD_GRP'), width: '100', styleName: 'text-center' }, // 제품군
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '130', styleName: 'text-left' }, // 제품명
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), styleName: 'text-center', width: '200' }, // 계약상세번호
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '150', styleName: 'text-center', visible: false }, // 계약번호
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '50', styleName: 'text-center', visible: false }, // 계약일련번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-center' }, // 연체개월
+    { fieldName: 'authRsgCnfmdt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '152', styleName: 'text-center', datetimeFormat: 'date' }, // 직권해지일자
+    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 대상금액
+    { fieldName: 'ojDpAmt', header: t('MSG_TXT_OJ_DP'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 대상입금
+    { fieldName: 'ojBlam', header: t('MSG_TXT_OJ_BLAM'), width: '155', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 대상잔액
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -510,12 +510,12 @@ const initMainGrid = defineGrid((data, view) => {
 
 const initLentalGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_MM'), width: '240', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'bilTn', header: t('MSG_TXT_NMN'), width: '240', styleName: 'text-center' },
-    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_SL_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'atamCvAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_MM'), width: '240', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적월
+    { fieldName: 'bilTn', header: t('MSG_TXT_NMN'), width: '240', styleName: 'text-center' }, // 차월
+    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_SL_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출금액
+    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
+    { fieldName: 'atamCvAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 영업선수금액
+    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체금액
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -531,10 +531,10 @@ const initLentalGrid = defineGrid((data, view) => {
 
 const initMembershipGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'perfDt', header: t('MSG_TXT_NMN'), width: '144', styleName: 'text-center', datetimeFormat: 'yyyy-MM', visible: false },
-    { fieldName: 'bilTn', header: t('MSG_TXT_NMN'), width: '144', styleName: 'text-center', visible: false },
+    { fieldName: 'perfDt', header: t('MSG_TXT_NMN'), width: '144', styleName: 'text-center', datetimeFormat: 'yyyy-MM', visible: false }, // 실적월
+    { fieldName: 'bilTn', header: t('MSG_TXT_NMN'), width: '144', styleName: 'text-center', visible: false }, // 차월
     {
-      fieldName: 'nmn',
+      fieldName: 'nmn', // 차월
       header: t('MSG_TXT_NMN'),
       styleName: 'text-center',
       width: '144',
@@ -544,15 +544,15 @@ const initMembershipGrid = defineGrid((data, view) => {
         return `${bilTn} (${dayjs(perfDt).format('YYYY-MM')})`;
       },
     },
-    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_SL_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'atamCvAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '144', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'eotDlqAddAmt', header: t('MSG_BTN_DLQ_ADAMT'), width: '144', styleName: 'text-right' },
-    { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_DLQ_ADD_DP'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'ucAmt', header: t('MSG_TXT_UCAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
+    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_SL_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출금액
+    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
+    { fieldName: 'atamCvAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 영업선수금액
+    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체금액
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '144', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, // 연체개월
+    { fieldName: 'eotDlqAddAmt', header: t('MSG_BTN_DLQ_ADAMT'), width: '144', styleName: 'text-right' }, // 연체가산금
+    { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_DLQ_ADD_DP'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체가산입금
+    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체가산잔액
+    { fieldName: 'ucAmt', header: t('MSG_TXT_UCAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
