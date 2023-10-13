@@ -30,7 +30,7 @@
           <!-- 서비스 유형 -->
           <kw-select
             v-model="searchParams.svTpCd"
-            :options="codes.SV_DV_CD"
+            :options="selectCodes.SELECT_SERVICE"
             first-option="all"
             class="w150"
           />
@@ -141,7 +141,7 @@ const codes = await codeUtil.getMultiCodes(
 const selectCodes = {
   // 서비스유형 : all.전체, 1.설치, 3.A/S, 4.홈케어
   // eslint-disable-next-line max-len
-  // SELECT_SERVICE: codes.SV_DV_CD.filter((v) => v.codeId !== '2').map((rtnData) => ({ codeId: rtnData.codeId, codeName: rtnData.codeName })),
+  SELECT_SERVICE: codes.SV_DV_CD.filter((v) => v.codeId !== '2').map((rtnData) => ({ codeId: rtnData.codeId, codeName: rtnData.codeName })),
   // 조회기준 : 01.접수일자, 02.예정일자, 03.처리일자, 04.방문확정일
   SELECT_DAY: [{ codeId: '01', codeName: t('MSG_TXT_RCPDT') },
     { codeId: '02', codeName: t('MSG_TXT_SCHD_DT') },
