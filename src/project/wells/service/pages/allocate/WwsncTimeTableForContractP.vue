@@ -505,6 +505,7 @@ const props = defineProps({
   cntrSn: { type: String, default: '1,2' },
   seq: { type: String, default: '' },
   title: { type: String, default: '' },
+  newAdrZip: { type: String, default: '' },
   // asIstOjNo: { type: String, default: '' },
   // cstSvAsnNo: { type: String, default: '' },
 });
@@ -543,24 +544,9 @@ const clickedBtn = ref(''); // 0:오전, 1:오후
 const disableDays = ref([]);
 // const timeConstMsg = ref([]);
 
-const searchParams = ref({
-  baseYm: props.baseYm,
-  // userId: props.userId,
-  chnlDvCd: props.chnlDvCd,
-  svDvCd: props.svDvCd,
-  sellDate: props.sellDate,
-  svBizDclsfCd: props.svBizDclsfCd,
-  inflwChnl: props.inflwChnl,
-  basePdCd: props.basePdCd,
-  wrkDt: props.wrkDt,
-  mtrStatCd: props.mtrStatCd,
-  returnUrl: props.returnUrl,
-  mkCo: props.mkCo,
-  cntrNo: props.cntrNo,
-  cntrSn: props.cntrSn,
-  seq: props.seq,
-  // asIstOjNo: props.asIstOjNo,
-  // cstSvAsnNo: props.cstSvAsnNo,
+const searchParams = ref({});
+new Map(Object.entries(props)).forEach((item, field) => {
+  searchParams.value[field] = item;
 });
 if (searchParams.value.chnlDvCd === 'K' && searchParams.value.inflwChnl === '') { // KSS
   searchParams.value.inflwChnl = '3';
