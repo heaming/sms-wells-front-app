@@ -23,6 +23,7 @@
         searchParams.avlChnlId = usedChannelCds?.map(({ codeId }) => codeId);
       }"
     >
+      <!-- 판매채널 -->
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_SEL_CHNL')">
           <kw-select
@@ -35,6 +36,7 @@
     </kw-search>
   </div>
   <kw-action-top class="mt30">
+    <!-- 엑셀다운로드 -->
     <kw-btn
       icon="download_on"
       secondary
@@ -67,11 +69,11 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  metaInfos: { type: Object, default: null },
-  codes: { type: Object, default: null },
-  readonly: { type: Boolean, default: false },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  metaInfos: { type: Object, default: null }, // 가격 메타 정보
+  codes: { type: Object, default: null }, // 공통코드
+  readonly: { type: Boolean, default: false }, // 읽기전용 여부
 });
 
 const dataService = useDataService();
@@ -102,6 +104,7 @@ const searchParams = ref({
   avlChnlId: ['all'],
 });
 
+// 데이터 초기화
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
@@ -109,6 +112,7 @@ async function resetData() {
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   const view = grdMainRef.value.getView();
 
@@ -159,6 +163,7 @@ async function initGridRows() {
   totalCount.value = gridUtil.getAllRowValues(view).length;
 }
 
+// 데이터 초기화
 async function resetInitData() {
   const channels = currentInitData.value?.[pdConst.TBL_PD_DTL]
     ?.reduce((rtn, item) => {
@@ -173,10 +178,12 @@ async function resetInitData() {
   }
 }
 
+// 조회
 async function onClickSearch() {
   await initGridRows();
 }
 
+// 데이터 불러오기
 async function fetchData() {
   const { codes } = props;
   if (isEmpty(currentMetaInfos.value)) {
@@ -252,6 +259,7 @@ async function fetchSelectVariableData() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData, metaInfos, codes } = props;
   currentPdCd.value = pdCd;

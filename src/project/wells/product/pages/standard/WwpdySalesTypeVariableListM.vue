@@ -50,7 +50,7 @@
             @change="fetchData"
           />
         </template>
-
+        <!-- 삭제 -->
         <kw-btn
           v-permission:delete
           primary
@@ -65,6 +65,7 @@
           vertical
           inset
         />
+        <!-- 추가 -->
         <kw-btn
           v-permission:create
           dense
@@ -72,6 +73,7 @@
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAdd"
         />
+        <!-- 저장 -->
         <kw-btn
           v-permission:update
           dense
@@ -84,6 +86,7 @@
           vertical
           inset
         />
+        <!-- 엑셀다운로드 -->
         <kw-btn
           icon="download_on"
           dense
@@ -145,6 +148,7 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes('SELL_TP_CD', 'CHO_FXN_DV_CD', 'COD_PAGE_SIZE_OPTIONS');
 
+// 데이터 불러오기
 async function fetchData() {
   const res = await dataService.get('/sms/wells/product/variables/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: services, pageInfo: pagingResult } = res.data;
@@ -154,6 +158,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -161,6 +166,7 @@ async function onClickSearch() {
   currentSearchYn.value = 'N';
 }
 
+// 행 삭제
 async function onClickRemoveRows() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -174,12 +180,14 @@ async function onClickRemoveRows() {
   }
 }
 
+// 행 추가
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, { });
   pageInfo.value.totalCount += 1;
 }
 
+// 중복 검사
 async function checkDuplication() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
@@ -193,6 +201,7 @@ async function checkDuplication() {
     if (alreadyItems[0].rgltnVarbId) {
       dupItem += `/${getCodeNames(variableCodes.value, alreadyItems[0].rgltnVarbId)}`;
     }
+    // {0}이(가) 중복됩니다.
     notify(t('MSG_ALT_DUP_NCELL', [dupItem]));
     return true;
   }
@@ -224,6 +233,7 @@ async function checkDuplication() {
   return false;
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
@@ -237,6 +247,7 @@ async function onClickSave() {
   await fetchData();
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/product/variables', { params: cachedParams });
@@ -247,6 +258,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 상품메타 데이터 불러오기
 async function fetchVariables() {
   if (isEmpty(variableCodes.value.length)) {
     const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });
@@ -267,10 +279,6 @@ async function fetchVariables() {
 }
 
 await fetchVariables();
-
-onMounted(async () => {
-  console.log('Start');
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

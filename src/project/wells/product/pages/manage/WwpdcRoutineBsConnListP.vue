@@ -119,7 +119,6 @@
       @init="initGridMain"
     />
 
-    <!-- 정기 B/S투입정보 생성 -->
     <template #action>
       <!-- 취소 -->
       <kw-btn
@@ -127,6 +126,7 @@
         negative
         @click="onClickCancel"
       />
+      <!-- 정기 B/S투입정보 생성 -->
       <kw-btn
         primary
         :label="$t('MSG_BTN_REG_ROUTINE_BS_INFO')"
@@ -146,10 +146,10 @@ import { getGridRowCount } from '~/modules/sms-common/product/utils/pdUtil';
 import pdConst from '~sms-common/product/constants/pdConst';
 
 const props = defineProps({
-  svPdCd: { type: String, required: true },
-  pdctPdCd: { type: String, required: true },
-  svPdNm: { type: String, default: '' },
-  pdctPdNm: { type: String, default: '' },
+  svPdCd: { type: String, required: true }, // 서비스 상품 코드
+  pdctPdCd: { type: String, required: true }, // 제품 코드
+  svPdNm: { type: String, default: '' }, // 서비스 상품명
+  pdctPdNm: { type: String, default: '' }, // 제품명
 });
 
 const { cancel: onClickCancel } = useModal();
@@ -178,6 +178,7 @@ const materialSelectItems = ref([
 const codes = await codeUtil.getMultiCodes('SV_BIZ_DCLSF_CD', 'MM_CD', 'VST_DV_CD');
 codes.MM_CD = codes.MM_CD.map((item) => { item.codeId = Number(item.codeId); return item; });
 
+// 투입 상세정보 팝업
 async function onClickBsInfos() {
   const { svPdCd, pdctPdCd } = props;
   await modal({
@@ -191,6 +192,7 @@ async function onClickBsInfos() {
   });
 }
 
+// 생활필터 팝업
 async function onClickLifeFiltMgt() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -229,6 +231,7 @@ async function onClickLifeFiltMgt() {
   }
 }
 
+// 교재/자재 팝업
 async function onClickMaterialSchPopup() {
   const { svPdCd, pdctPdCd } = props;
   const view = grdMainRef.value.getView();
@@ -262,6 +265,7 @@ async function onClickMaterialSchPopup() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+// 정기BS투입 필터/부품 불러오기
 async function onClickLoadRoutineBsFltPart() {
   const { svPdCd, pdctPdCd } = props;
   const view = grdMainRef.value.getView();
@@ -283,12 +287,14 @@ async function onClickLoadRoutineBsFltPart() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+// 행 삭제
 async function onClickRemoveRows() {
   const view = grdMainRef.value.getView();
   await gridUtil.confirmDeleteCheckedRows(view);
   grdRowCount.value = getGridRowCount(view);
 }
 
+// 행 추가
 async function onClickAdd() {
   const { svPdCd, pdctPdCd } = props;
   const view = grdMainRef.value.getView();
@@ -296,6 +302,7 @@ async function onClickAdd() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+// 데이터 불러오기
 async function fetchData() {
   const { svPdCd, pdctPdCd } = props;
   if (isEmpty(svPdCd) || isEmpty(pdctPdCd)) {
@@ -316,6 +323,7 @@ async function fetchData() {
   gridUtil.init(view);
 }
 
+// 정기 B/S투입정보 생성
 async function onClickSave() {
   const { svPdCd, pdctPdCd } = props;
   const view = grdMainRef.value.getView();
@@ -333,6 +341,7 @@ async function onClickSave() {
     return;
   }
 
+  // 정기B/S투입정보를 생성하시겠습니까?
   if (!await confirm(t('MSG_ALT_PD_DO_REG_BS_INFO'))) { return; }
 
   const details = [];
@@ -386,10 +395,12 @@ async function onClickSave() {
   // console.log('WwpdcRoutineBsConnListP - onClickSave - subList : ', subList);
   await dataService.put('/sms/wells/product/bs-works', subList);
 
+  // 저장 되었습니다.
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { svPdNm, pdctPdNm } = props;
   serviceName.value = svPdNm;

@@ -88,7 +88,7 @@
             @change="fetchData"
           />
         </template>
-
+        <!-- 삭제 -->
         <kw-btn
           v-permission:delete
           grid-action
@@ -101,12 +101,14 @@
           vertical
           inset
         />
+        <!-- 행추가 -->
         <kw-btn
           v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAdd"
         />
+        <!-- 저장 -->
         <kw-btn
           v-permission:update
           grid-action
@@ -118,6 +120,7 @@
           vertical
           inset
         />
+        <!-- 엑셀다운로드 -->
         <kw-btn
           icon="download_on"
           dense
@@ -197,6 +200,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
+// 데이터 불러오기
 async function fetchData() {
   const res = await dataService.get('/sms/wells/product/alliances/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: services, pageInfo: pagingResult } = res.data;
@@ -206,6 +210,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 기준상품 검색 팝업
 async function onClickSearchPdCdPopup() {
   const searchPopupParams = {
     searchType: pdConst.PD_SEARCH_CODE,
@@ -219,6 +224,7 @@ async function onClickSearchPdCdPopup() {
   searchParams.value.pdCd = rtn.payload?.[0]?.pdCd;
 }
 
+// 조회
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -226,6 +232,7 @@ async function onClickSearch() {
   currentSearchYn.value = 'N';
 }
 
+// 행 삭제
 async function onClickRemoveRows() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -240,6 +247,7 @@ async function onClickRemoveRows() {
   }
 }
 
+// 행 추가
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {
@@ -252,6 +260,7 @@ async function onClickAdd() {
   pageInfo.value.totalCount += 1;
 }
 
+// 중복 검사
 async function checkDuplication() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
@@ -265,6 +274,7 @@ async function checkDuplication() {
     if (alreadyItems[0].stplPrdCd) {
       dupMessage += `/${getCodeNames(codes, alreadyItems[0].stplPrdCd, 'STPL_PRD_CD')}`;
     }
+    // {0}이(가) 중복됩니다.
     notify(t('MSG_ALT_DUP_NCELL', [dupMessage]));
     return true;
   }
@@ -293,6 +303,7 @@ async function checkDuplication() {
   return false;
 }
 
+// 검증
 async function checkValidation() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
@@ -315,6 +326,7 @@ async function checkValidation() {
   return true;
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; } // 수정된 행 없음
@@ -325,11 +337,13 @@ async function onClickSave() {
 
   const changedRows = gridUtil.getChangedRowValues(view);
   await dataService.post('/sms/wells/product/alliances', { bases: changedRows });
+  // 저장되었습니다.
   notify(t('MSG_ALT_SAVE_DATA'));
 
   await fetchData();
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/product/alliances', { params: cachedParams });
@@ -339,10 +353,6 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
-
-onMounted(async () => {
-  console.log('Start');
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

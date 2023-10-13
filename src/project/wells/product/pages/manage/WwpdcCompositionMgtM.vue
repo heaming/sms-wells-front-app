@@ -26,6 +26,7 @@
           :header-nav="!isTempSaveBtn || passedStep > 0"
           @update:model-value="onClickStep()"
         >
+          <!-- 기본속성 등록 -->
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_BASIC.step"
             :name="pdConst.COMPOSITION_STEP_BASIC.name"
@@ -34,6 +35,7 @@
             :done="currentStep.step > pdConst.COMPOSITION_STEP_BASIC.step"
             :sub-text="subTitle"
           />
+          <!-- 연결상품 선택 -->
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_REL_PROD.step"
             :name="pdConst.COMPOSITION_STEP_REL_PROD.name"
@@ -42,6 +44,7 @@
             :done="currentStep.step > pdConst.COMPOSITION_STEP_REL_PROD.step"
             :sub-text="subTitle"
           />
+          <!-- 가격 정보등록-->
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_PRICE.step"
             :name="pdConst.COMPOSITION_STEP_PRICE.name"
@@ -50,6 +53,7 @@
             :done="currentStep.step > pdConst.COMPOSITION_STEP_PRICE.step"
             :sub-text="subTitle"
           />
+          <!-- 입력정보확인 -->
           <kw-step
             :header-nav="!isTempSaveBtn || passedStep >= pdConst.COMPOSITION_STEP_CHECK.step"
             :name="pdConst.COMPOSITION_STEP_CHECK.name"

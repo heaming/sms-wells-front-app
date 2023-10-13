@@ -47,8 +47,8 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import WwpdcStandardDtlMContents from './WwpdcStandardDtlMContents.vue';
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  reloadYn: { type: String, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  reloadYn: { type: String, default: null }, // 새로고침 여부
 });
 
 const dataService = useDataService();
@@ -74,10 +74,12 @@ const codes = await codeUtil.getMultiCodes(
   'PD_TEMP_SAVE_CD',
 );
 
+// 목록으로 이동
 async function goList() {
   await router.push({ path: '/product/zwpdc-sale-product-list', state: { stateParam: { searchYn: 'Y', pdTpCd: pdConst.PD_TP_CD_STANDARD } } });
 }
 
+// 상품 데이터 불러오기
 async function fetchProduct() {
   if (currentPdCd.value) {
     const res = await dataService.get(`/sms/wells/product/standards/${currentPdCd.value}`).catch(() => {
@@ -89,6 +91,7 @@ async function fetchProduct() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;

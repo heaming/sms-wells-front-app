@@ -47,9 +47,9 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  codes: { type: Object, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  codes: { type: Object, default: null }, // 공통
 });
 
 const { t } = useI18n();
@@ -63,14 +63,17 @@ const currentPdCd = ref();
 const currentInitData = ref({});
 const currentCodes = ref({});
 
+// 수정여부
 async function isModifiedProps() {
   return gridUtil.isModified(grdMainRef.value?.getView());
 }
 
+// 검증
 async function validateProps() {
   return true;
 }
 
+// 정기B/S투입정보 상세/수정
 async function onClickBsInfos() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -97,11 +100,13 @@ async function onClickBsInfos() {
   });
 }
 
+// 컴포넌트 초기화
 async function init() {
   const materialView = grdMainRef.value?.getView();
   if (materialView) gridUtil.init(materialView);
 }
 
+// 데이터 초기화
 async function resetData() {
   currentPdCd.value = '';
   grdRowCount.value = 0;
@@ -110,6 +115,7 @@ async function resetData() {
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
 }
 
+// 저장 데이터
 async function getSaveData() {
   const subList = {};
   subList[pdConst.TBL_PD_REL] = [];
@@ -119,6 +125,7 @@ async function getSaveData() {
   return subList;
 }
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   const products = cloneDeep(currentInitData.value?.[pdConst.RELATION_PRODUCTS]);
   // console.log('WwpdcServiceMgtMFlt - initGridRows - products : ', products);
@@ -131,6 +138,7 @@ async function initGridRows() {
   grdRowCount.value = getGridRowCount(view);
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData, codes } = props;
   currentPdCd.value = pdCd;
@@ -140,6 +148,7 @@ async function initProps() {
 
 await initProps();
 
+// 리얼그리드 표시 오류 대응 임시코드
 onActivated(async () => {
   await initGridRows();
 });

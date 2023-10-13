@@ -109,10 +109,10 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  codes: { type: Object, default: null },
-  readonly: { type: Boolean, default: false },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  codes: { type: Object, default: null }, // 공통코드
+  readonly: { type: Boolean, default: false }, // 읽기전용 여부
 });
 
 const emits = defineEmits([
@@ -140,6 +140,7 @@ const selectedTabs = ref(['std', 'val', 'fnl', 'fee']);
 const selectedTab = ref(selectedTabs.value[0]);
 const currentCodes = ref({});
 
+// 데이터 초기화
 async function resetData() {
   selectedTab.value = selectedTabs.value[0];
   if (cmpStdRef.value?.resetData) await cmpStdRef.value.resetData();
@@ -149,6 +150,7 @@ async function resetData() {
   // if (cmpCopyRef.value?.resetData) await cmpCopyRef.value.resetData();
 }
 
+// 컴포넌트 초기화
 async function init() {
   if (cmpStdRef.value?.init) await cmpStdRef.value.init();
   if (cmpValRef.value?.init) await cmpValRef.value.init();
@@ -157,6 +159,7 @@ async function init() {
   // if (cmpCopyRef.value?.init) await cmpCopyRef.value.init();
 }
 
+// 상품 가격 초기값 및 계산값 적용
 function getInitPriceDefault(prcds, prcfds) {
   if (!prcds || !prcds.length || !prcfds || !prcfds.length) {
     return prcfds;
@@ -181,6 +184,7 @@ function getInitPriceDefault(prcds, prcfds) {
   return prcfds;
 }
 
+// 저장 데이터
 async function getSaveData(isBatchCopy) {
   // console.log('isBatchCopy : ', isBatchCopy);
   // 미수정시 초기값 그대로 반환.
@@ -231,6 +235,7 @@ async function getSaveData(isBatchCopy) {
   return subList;
 }
 
+// 다음 버튼
 async function moveNextStep() {
   const currentTabIndex = selectedTabs.value.indexOf(selectedTab.value);
   if (currentTabIndex < (selectedTabs.value.length - 1)) {
@@ -240,6 +245,7 @@ async function moveNextStep() {
   return false;
 }
 
+// 이전 버튼
 async function movePrevStep() {
   const currentTabIndex = selectedTabs.value.indexOf(selectedTab.value);
   if (currentTabIndex > 0) {
@@ -249,18 +255,22 @@ async function movePrevStep() {
   return false;
 }
 
+// 처음탭으로 이동
 async function resetFirstStep() {
   selectedTab.value = selectedTabs.value[0];
 }
 
+// 탭 선택
 async function onClickTab(clickedTab) {
   emits('clickTab', clickedTab);
 }
 
+// 일괄적용탭 - 적용
 /* async function applyData() {
   emits('applyData');
 } */
 
+// 수정여부
 async function isModifiedProps() {
   if (await cmpStdRef.value.isModifiedProps()) {
     return true;
@@ -280,6 +290,7 @@ async function isModifiedProps() {
   return false;
 }
 
+// 탭 검증
 async function validateStepProps() {
   if (selectedTab.value === selectedTabs.value[0]) {
     return await cmpStdRef.value.validateProps();
@@ -296,6 +307,7 @@ async function validateStepProps() {
   return true;
 }
 
+// 전체탭 검증
 async function validateProps() {
   let isValidOk = true;
   isValidOk = await cmpStdRef.value.validateProps();
@@ -321,6 +333,7 @@ async function validateProps() {
   return isValidOk;
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData, codes } = props;
   currentPdCd.value = pdCd;
@@ -331,6 +344,7 @@ async function initProps() {
   await fetchData();
 }
 
+// 데이터 불러오기
 async function fetchData() {
   if (isEmpty(metaInfos.value)) {
     const res = await dataService.get('/sms/common/product/meta-properties', { params: { pdPrcTpCd: pdConst.PD_PRC_TP_CD_ALL } });

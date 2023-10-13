@@ -162,9 +162,9 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  codes: { type: Object, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  codes: { type: Object, default: null }, // 공통코드
 });
 
 const { notify, modal } = useGlobal();
@@ -223,6 +223,7 @@ const searchParams = ref({
   pdTpCd: '',
 });
 
+// 데이터 초기화
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
@@ -231,6 +232,7 @@ async function resetData() {
   if (grdStandardRef.value?.getView()) gridUtil.reset(grdStandardRef.value.getView());
 }
 
+// 컴포넌트 초기화
 async function init() {
   const materialView = grdMaterialRef.value?.getView();
   if (materialView) gridUtil.init(materialView);
@@ -240,6 +242,7 @@ async function init() {
   if (standardView) gridUtil.init(standardView);
 }
 
+// 저장 데이터
 async function getSaveData() {
   let rowValues = gridUtil.getAllRowValues(grdMaterialRef.value.getView());
   rowValues = pdMergeBy(rowValues, gridUtil.getAllRowValues(grdServiceRef.value.getView()));
@@ -249,12 +252,14 @@ async function getSaveData() {
   return rtnValues;
 }
 
+// 수정 여부
 async function isModifiedProps() {
   return gridUtil.isModified(grdMaterialRef.value?.getView())
           || gridUtil.isModified(grdServiceRef.value?.getView())
           || gridUtil.isModified(grdStandardRef.value?.getView());
 }
 
+// 검증
 async function validateProps() {
   let isValid = true;
   const materialView = grdMaterialRef.value?.getView();
@@ -296,6 +301,7 @@ async function validateProps() {
   return isValid;
 }
 
+// 적용 기간 중복 확인
 async function isOverPeriodCheck(view) {
   let isValid = true;
   const rowValues = gridUtil.getAllRowValues(view);
@@ -312,11 +318,13 @@ async function isOverPeriodCheck(view) {
     }
   }));
   if (!isValid) {
+    // // 상품 {0} 에 기간이 중복된 데이터가 있습니다.
     notify(t('MSG_ALT_EXIST_DUP_RANGE_PD', [dupItem]));
   }
   return isValid;
 }
 
+// 추가 할 연결상품 선택 이후 처리
 async function insertCallbackRows(view, rtn, pdRelTpCd) {
   if (isEmpty(rtn) || !rtn.result || isEmpty(rtn.payload) || rtn.payload.length < 1) {
     return;
@@ -354,6 +362,7 @@ async function insertCallbackRows(view, rtn, pdRelTpCd) {
   });
 }
 
+// 연결상품 삭제
 async function deleteCheckedRows(view) {
   const checkedRows = view.getCheckedRows();
   if (checkedRows.length === 0) {
@@ -369,14 +378,13 @@ async function deleteCheckedRows(view) {
       removeCreateRows.push(row);
     } else {
       isDbDataRemove = true;
-      // const endSetTime = dayjs().subtract(1, 'second').format('YYYYMMDDHHmmss');
-      // view.setValue(row, 'vlEndDtm', endSetTime);
     }
   }));
   if (removeCreateRows.length) {
     view.getDataSource().removeRows(removeCreateRows);
   }
   if (isDbDataRemove) {
+    // 등록된 기준정보는 삭제할수 없습니다, 적용일자를 변경하십시오
     notify(t('MSG_ALT_PD_REL_NO_REMOVE'));
   }
 
@@ -384,6 +392,7 @@ async function deleteCheckedRows(view) {
   view.clearCurrent();
 }
 
+// 교재/자재 상품 검색 팝업
 async function onClickMaterialSchPopup() {
   if (!(await materialRelTypeRef.value.validate())) {
     return;
@@ -400,6 +409,7 @@ async function onClickMaterialSchPopup() {
   grdMaterialRowCount.value = getGridRowCount(view);
 }
 
+// 서비스 상품 검색 팝업
 async function onClickServiceSchPopup() {
   const view = grdServiceRef.value.getView();
   searchParams.value.searchType = serviceSearchType.value;
@@ -417,6 +427,7 @@ async function onClickServiceSchPopup() {
   grdServiceRowCount.value = getGridRowCount(view);
 }
 
+// 기준상품 검색 팝업
 async function onClickStandardSchPopup() {
   if (!(await standardRelTypeRef.value.validate())) {
     return;
@@ -434,24 +445,28 @@ async function onClickStandardSchPopup() {
   grdStandardRowCount.value = getGridRowCount(view);
 }
 
+// 교재/자재 연결상품 삭제
 async function onClickMaterialDelRows() {
   const view = grdMaterialRef.value.getView();
   await deleteCheckedRows(view);
   grdMaterialRowCount.value = getGridRowCount(view);
 }
 
+// 서비스 연결상품 삭제
 async function onClickServiceDelRows() {
   const view = grdServiceRef.value.getView();
   await deleteCheckedRows(view);
   grdServiceRowCount.value = getGridRowCount(view);
 }
 
+// 기준 연결상품 삭제
 async function onClickStandardDelRows() {
   const view = grdStandardRef.value.getView();
   await deleteCheckedRows(view);
   grdStandardRowCount.value = getGridRowCount(view);
 }
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   const products = currentInitData.value[pdConst.RELATION_PRODUCTS];
   // console.log('WwpdcStandardMgtMRelPrd - initGridRows - products : ', products);
@@ -484,6 +499,7 @@ async function initGridRows() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
@@ -492,6 +508,7 @@ async function initProps() {
 
 await initProps();
 
+// 리얼그리드 표시 오류 대응 임시코드
 onActivated(async () => {
   await initGridRows();
 });

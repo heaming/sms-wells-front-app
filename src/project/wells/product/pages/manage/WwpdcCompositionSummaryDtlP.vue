@@ -106,7 +106,7 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import { getCodeNames } from '~sms-common/product/utils/pdUtil';
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
 });
 
 const dataService = useDataService();
@@ -131,20 +131,25 @@ const codes = await codeUtil.getMultiCodes(
   'CRNCY_DV_CD',
 );
 
+// 데이터 불러오기
 async function fetchData() {
+  // 상품 기본정보
   const resPd = await dataService.get(`/sms/common/product/${currentPdCd.value}`).catch(() => {
     cancel();
   });
   if (!resPd || !resPd.data) return;
   pdInfo.value = resPd.data?.product;
 
+  // 연결상품 정보
   const resRel = await dataService.get(`/sms/common/product/relations/products/${currentPdCd.value}`);
   pdRels.value = resRel.data;
 
+  // 가격정보
   const resPrc = await dataService.get(`/sms/common/product/prices/products/${currentPdCd.value}`);
   pdPrcs.value = resPrc.data?.prices;
 }
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   if (pdRels.value && pdRels.value.length) {
     const standardView = grdStandardRef.value?.getView();
@@ -160,6 +165,7 @@ async function initGridRows() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd } = props;
   currentPdCd.value = pdCd;

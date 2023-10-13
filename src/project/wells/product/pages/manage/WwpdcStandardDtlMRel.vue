@@ -65,9 +65,9 @@ defineExpose({
 });
 
 const props = defineProps({
-  pdCd: { type: String, default: null },
-  initData: { type: Object, default: null },
-  codes: { type: Object, default: null },
+  pdCd: { type: String, default: null }, // 상품코드
+  initData: { type: Object, default: null }, // 초기데이터
+  codes: { type: Object, default: null }, // 공통코드
 });
 
 const { t } = useI18n();
@@ -84,6 +84,7 @@ const currentPdCd = ref();
 const currentInitData = ref({});
 const codes = await codeUtil.getMultiCodes('BASE_PD_REL_DV_CD', 'PD_PDCT_REL_DV_CD');
 
+// 데이터 초기화
 async function resetData() {
   currentPdCd.value = '';
   currentInitData.value = {};
@@ -93,10 +94,12 @@ async function resetData() {
   if (grdChangePrdRef.value?.getView()) gridUtil.reset(grdChangePrdRef.value.getView());
 }
 
+// 조회
 async function onClickSearch() {
   await initGridRows();
 }
 
+// 그리드 초기 데이터 설정
 async function initGridRows() {
   const products = currentInitData.value[pdConst.RELATION_PRODUCTS];
   const materialView = grdMaterialRef.value?.getView();
@@ -136,6 +139,7 @@ async function initGridRows() {
   }
 }
 
+// Props 데이터 설정
 async function initProps() {
   const { pdCd, initData } = props;
   currentPdCd.value = pdCd;
@@ -144,6 +148,7 @@ async function initProps() {
 
 await initProps();
 
+// 리얼그리드 표시 오류 대응 임시코드
 onActivated(async () => {
   await initGridRows();
 });
