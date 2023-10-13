@@ -300,8 +300,8 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
-  isSearch.value = false;
   cachedParams = cloneDeep(searchParams.value);
+  isSearch.value = false;
   // 필드 설정
   setTmpFields();
   // 필드 셋팅
