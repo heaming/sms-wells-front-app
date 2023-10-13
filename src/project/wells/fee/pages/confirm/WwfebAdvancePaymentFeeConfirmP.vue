@@ -24,6 +24,7 @@ W0319: 선급판매수수료 확정
   >
     <kw-form :cols="1">
       <kw-form-row>
+        <!-- 실적년월 -->
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
         >
@@ -33,6 +34,7 @@ W0319: 선급판매수수료 확정
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 수수료 일정 유형 -->
         <kw-form-item
           :label="$t('MSG_TXT_RSB_TP')"
         >
@@ -42,6 +44,7 @@ W0319: 선급판매수수료 확정
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 차수-->
         <kw-form-item
           :label="$t('MSG_TXT_ORDR')"
         >

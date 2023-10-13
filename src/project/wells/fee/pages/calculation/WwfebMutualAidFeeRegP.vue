@@ -19,6 +19,7 @@
   >
     <kw-form :cols="1">
       <kw-form-row>
+        <!-- 기준일자 -->
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
           :required="isEmpty(props.baseYm)"

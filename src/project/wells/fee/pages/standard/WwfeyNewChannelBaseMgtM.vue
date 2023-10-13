@@ -313,7 +313,7 @@ const initGrd = defineGrid((data, view) => {
   // { fieldName: 'hcrDvCd', header: `${t('MSG_TXT_PRDT_GUBUN')}2`, width: '150', styleName: 'text-center' },
   // { fieldName: 'hcrDvCd', header: t('MSG_TXT_PRDT_GUBUN'), width: '150', styleName: 'text-center', editable: true },
   const columns = [
-    { fieldName: 'mtrSn', header: t('MSG_TXT_SERIAL_NUMBER'), visible: false },
+    { fieldName: 'mtrSn', header: t('MSG_TXT_SERIAL_NUMBER'), visible: false }, // 일련번호
     {
       fieldName: 'pdCd',
       header: t('MSG_TXT_PRDT_CODE'),
@@ -324,10 +324,10 @@ const initGrd = defineGrid((data, view) => {
       buttonVisibleCallback(g, index) {
         return g.getDataSource().getRowState(index.dataRow) === 'created';
       },
-    },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-left' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.SELL_TP_CD, editor: { type: 'list' } },
-    { fieldName: 'uswyTpCd', header: t('MSG_TXT_USWY_DV'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.USWY_TP_CD, editor: { type: 'list' } },
+    }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-left' }, // 상품명
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.SELL_TP_CD, editor: { type: 'list' } }, // 판매유형
+    { fieldName: 'uswyTpCd', header: t('MSG_TXT_USWY_DV'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.USWY_TP_CD, editor: { type: 'list' } }, // 용도구분
     { fieldName: 'hcrDvCd1', header: `${t('MSG_TXT_PRDT_GUBUN')}1`, width: '100', styleName: 'text-center', editable: true, editor: { maxLength: 2, textCase: 'upper' } }, /* 상품구분1 */
     { fieldName: 'hcrDvCd2', header: `${t('MSG_TXT_PRDT_GUBUN')}2`, width: '100', styleName: 'text-center', editable: true, editor: { maxLength: 2, textCase: 'upper' } }, /* 상품구분2 */
     {
@@ -378,7 +378,7 @@ const initGrd = defineGrid((data, view) => {
         }
         return retValue;
       },
-    },
+    }, // 할인구분
     {
       fieldName: 'sellDscrCd',
       header: t('MSG_TXT_DISC_CODE'),
@@ -438,21 +438,21 @@ const initGrd = defineGrid((data, view) => {
         }
         return retValue;
       },
-    },
-    { fieldName: 'feecDvCd', header: t('MSG_TXT_CHNL_DV'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.FEE_BASE_MNGT_CHNL_ACD, editor: { type: 'list' } },
-    { fieldName: 'pmotCd', header: t('MSG_TXT_DSC_SYST'), width: '150', styleName: 'text-center', editable: true, options: codes.PMOT_CD, editor: { type: 'list' }, firstOption: 'select', firstOptionValue: '', firstOptionLabel: ' ' },
-    { fieldName: 'sppDvCd', header: t('MSG_TXT_FULT_DV'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.RENTAL_COMBI_DV_CD, editor: { type: 'list' } },
-    { fieldName: 'svPrd', header: t('MSG_TXT_BS_CYC'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.MNGT_PRD_ACD, editor: { type: 'list' } },
-    { fieldName: 'hgrPdCd', header: t('MSG_TXT_PKG_PD_NO'), width: '150', styleName: 'text-center', editable: true, editor: { maxLength: 10, textCase: 'upper' } },
-    { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '150', styleName: 'text-center', editable: true, options: codes.YN_CD, editor: { type: 'list' } },
-    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', rules: 'required', editable: true, editor: { type: 'btdate', datetimeFormat: 'date' }, datetimeFormat: 'date' },
-    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', editable: true, editor: { type: 'btdate', datetimeFormat: 'date' }, datetimeFormat: 'date' },
-    { fieldName: 'sellFee', header: t('MSG_TXT_BASE_PRC'), width: '150', styleName: 'text-right', dataType: 'number', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 }, editable: true },
-    { fieldName: 'totStplMcn', header: t('MSG_TXT_STPL_MCNT'), width: '150', styleName: 'text-right', dataType: 'number', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 }, editable: true },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_PSIC'), width: '150', styleName: 'text-center' },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_PSIC'), width: '150', styleName: 'text-center' },
+    }, // 할인유형
+    { fieldName: 'feecDvCd', header: t('MSG_TXT_CHNL_DV'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.FEE_BASE_MNGT_CHNL_ACD, editor: { type: 'list' } }, // 채널구분
+    { fieldName: 'pmotCd', header: t('MSG_TXT_DSC_SYST'), width: '150', styleName: 'text-center', editable: true, options: codes.PMOT_CD, editor: { type: 'list' }, firstOption: 'select', firstOptionValue: '', firstOptionLabel: ' ' }, // 할인제도
+    { fieldName: 'sppDvCd', header: t('MSG_TXT_FULT_DV'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.RENTAL_COMBI_DV_CD, editor: { type: 'list' } }, // 결함구분
+    { fieldName: 'svPrd', header: t('MSG_TXT_BS_CYC'), width: '150', styleName: 'text-center', rules: 'required', editable: true, options: codes.MNGT_PRD_ACD, editor: { type: 'list' } }, // BS주기
+    { fieldName: 'hgrPdCd', header: t('MSG_TXT_PKG_PD_NO'), width: '150', styleName: 'text-center', editable: true, editor: { maxLength: 10, textCase: 'upper' } }, // 페키지상품번호
+    { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN'), width: '150', styleName: 'text-center', editable: true, options: codes.YN_CD, editor: { type: 'list' } }, // 정액여부
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_DAY'), width: '150', styleName: 'text-center', rules: 'required', editable: true, editor: { type: 'btdate', datetimeFormat: 'date' }, datetimeFormat: 'date' }, // 적용시작일
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_DAY'), width: '150', styleName: 'text-center', editable: true, editor: { type: 'btdate', datetimeFormat: 'date' }, datetimeFormat: 'date' }, // 적용종료일
+    { fieldName: 'sellFee', header: t('MSG_TXT_BASE_PRC'), width: '150', styleName: 'text-right', dataType: 'number', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 }, editable: true }, // 기준가격
+    { fieldName: 'totStplMcn', header: t('MSG_TXT_STPL_MCNT'), width: '150', styleName: 'text-right', dataType: 'number', editor: { type: 'number', numberFormat: '#,##0', maxLength: 22 }, editable: true }, // 약정개월
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' }, // 등록일자
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_PSIC'), width: '150', styleName: 'text-center' }, // 등록담당자
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '150', styleName: 'text-center', datetimeFormat: 'date' }, // 수정일자
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_PSIC'), width: '150', styleName: 'text-center' }, // 수정담당자
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);

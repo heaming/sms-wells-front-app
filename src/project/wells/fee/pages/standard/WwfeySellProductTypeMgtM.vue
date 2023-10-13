@@ -297,16 +297,16 @@ const initGrd = defineGrid((data, view) => {
       buttonVisibleCallback(g, index) {
         return g.getDataSource().getRowState(index.dataRow) === 'created';
       },
-    },
-    { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', rules: 'required' },
-    { fieldName: 'feePdctTpCd1', header: `${t('MSG_TXT_PDCT_TP')}(M)`, width: '120', styleName: 'text-center', editor: { type: 'list' }, options: codes.FEE_PDCT_TP_CD, rules: 'required', editable: true },
-    { fieldName: 'feePdctTpCd2', header: `${t('MSG_TXT_PDCT_TP')}(P)`, width: '120', styleName: 'text-center', editor: { type: 'list' }, options: codes.FEE_PDCT_TP_CD, rules: 'required', editable: true },
-    { fieldName: 'apyStrtYm', header: t('MSG_TXT_APY_STRT_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true },
-    { fieldName: 'apyEndYm', header: t('MSG_TXT_APY_END_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '130', styleName: 'text-center' },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '130', styleName: 'text-center' },
+    }, // 상품코드
+    { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', rules: 'required' }, // 상품명
+    { fieldName: 'feePdctTpCd1', header: `${t('MSG_TXT_PDCT_TP')}(M)`, width: '120', styleName: 'text-center', editor: { type: 'list' }, options: codes.FEE_PDCT_TP_CD, rules: 'required', editable: true }, // 제품유형M
+    { fieldName: 'feePdctTpCd2', header: `${t('MSG_TXT_PDCT_TP')}(P)`, width: '120', styleName: 'text-center', editor: { type: 'list' }, options: codes.FEE_PDCT_TP_CD, rules: 'required', editable: true }, // 제품유형P
+    { fieldName: 'apyStrtYm', header: t('MSG_TXT_APY_STRT_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true }, // 적용시작년월
+    { fieldName: 'apyEndYm', header: t('MSG_TXT_APY_END_YM'), width: '130', styleName: 'text-center', editor: { type: 'btdate', datetimeFormat: 'yyyy-MM', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', rules: 'required', editable: true }, // 적용종료년월
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 등록일
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_FST_RGST_USR'), width: '130', styleName: 'text-center' }, // 등록자
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 수정일
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_USR'), width: '130', styleName: 'text-center' }, // 수정자
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);

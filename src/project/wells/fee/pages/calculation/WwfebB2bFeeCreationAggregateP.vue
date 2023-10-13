@@ -19,6 +19,7 @@
   >
     <kw-form :cols="1">
       <kw-form-row>
+        <!-- 실적년월 -->
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
         >

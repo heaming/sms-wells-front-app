@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 실적년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_PERF_YM')"
           required
@@ -30,6 +31,7 @@
             :label="$t('MSG_TXT_PERF_YM')"
           />
         </kw-search-item>
+        <!-- 실적구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_PERF_DV')"
         >
@@ -42,6 +44,7 @@
             :label="$t('MSG_TXT_PERF_DV')"
           />
         </kw-search-item>
+        <!-- 제휴구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ALNC_DV')"
         >
@@ -55,6 +58,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 직책유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_RSB_TP')"
         >
@@ -68,6 +72,7 @@
             :label="$t('MSG_TXT_RSB_TP')"
           />
         </kw-search-item>
+        <!-- 조직레벨 -->
         <kw-search-item
           :label="$t('MSG_TXT_OG_LEVL')"
           :colspan="2"
@@ -84,6 +89,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
@@ -187,21 +193,21 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'alncNm', header: t('MSG_TXT_ALNC_DV'), width: '91', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: `Wells ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
-    { fieldName: 'lifCntrNo', header: `${t('MSG_TXT_MUTU')} ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '111', styleName: 'text-left ' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '104', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '111', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '111', styleName: 'text-left' },
-    { fieldName: 'cdCntn', header: t('MSG_TXT_RSB'), width: '111', styleName: 'text-left' },
-    { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR'), width: '111', styleName: 'text-center' },
-    { fieldName: 'rcpdt', header: t('MSG_TXT_RCP_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'dpDt', header: t('MSG_TXT_DEP_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'wdwlDt', header: t('MSG_TXT_WTH_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date', visible: false },
-    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date', visible: false },
-    { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_MN'), width: '111', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
+    { fieldName: 'alncNm', header: t('MSG_TXT_ALNC_DV'), width: '91', styleName: 'text-center' }, // 제휴구분
+    { fieldName: 'cntrNo', header: `Wells ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'lifCntrNo', header: `${t('MSG_TXT_MUTU')} ${t('MSG_TXT_CNTR_NO')}`, width: '138', styleName: 'text-center' }, // 상조계약번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '111', styleName: 'text-left ' }, // 고객명
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '104', styleName: 'text-center' }, // 소속
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '111', styleName: 'text-center' }, // 번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '111', styleName: 'text-left' }, // 성명
+    { fieldName: 'cdCntn', header: t('MSG_TXT_RSB'), width: '111', styleName: 'text-left' }, // 직책
+    { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR'), width: '111', styleName: 'text-center' }, // 지점장
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RCP_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
+    { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일
+    { fieldName: 'dpDt', header: t('MSG_TXT_DEP_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' }, // 입금일
+    { fieldName: 'wdwlDt', header: t('MSG_TXT_WTH_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date', visible: false }, // 철회일
+    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date', visible: false }, // 취소일
+    { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_MN'), width: '111', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수수료월
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);

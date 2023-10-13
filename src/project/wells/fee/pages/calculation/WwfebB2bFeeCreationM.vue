@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 구분 -->
         <kw-search-item
           :label="t('MSG_TXT_DIV')"
         >
@@ -31,6 +32,7 @@
                        {codeId: 'B', codeName: t('MSG_TXT_DFLT_FEE')}]"
           />
         </kw-search-item>
+        <!-- 실적년월 -->
         <kw-search-item
           :label="t('MSG_TXT_PERF_YM')"
           required
@@ -56,6 +58,7 @@
       <kw-search-row
         v-if="searchParams.type === 'A'"
       >
+        <!-- 접수년월 -->
         <kw-search-item
           :label="t('MSG_TXT_RCP_YM')"
           required
@@ -68,6 +71,7 @@
             :label="t('MSG_TXT_RCP_YM')"
           />
         </kw-search-item>
+        <!-- 취소년월 -->
         <kw-search-item
           :label="t('MSG_TXT_CANCEL_YM')"
         >
@@ -334,6 +338,7 @@ async function onclickStep(params) {
   }
 }
 
+// 리포트호출, 정의서없음, 정의안됨, TO-BE개발안됨
 async function onClickOpenReport(baseYm, prtnrNo) {
   // notify('신규요청기능\n>업무로직 정의안됨\n>해당내용더블클릭으로 변경?\n>AS-IS ksswells/cmms/btobPatSpec/V1.0/cmmsBtobPatSpec.ozr');
   // AS-IS정보
@@ -359,15 +364,15 @@ async function onClickOpenReport(baseYm, prtnrNo) {
 // -------------------------------------------------------------------------------------------------
 const initGridDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), visible: false },
-    { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' },
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '150', styleName: 'text-center', options: codes.SELL_TP_CD, visible: false },
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), visible: false }, // 기준년월
+    { fieldName: 'coCdNm', header: t('MSG_TXT_CORP_NAME'), width: '127' }, // 업체명
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '98' }, // 판매자
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' }, // 번호
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '151', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CUST_STMT'), width: '98' }, // 고객성명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '106', styleName: 'text-center' }, // 상품모드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '210' }, // 상품명
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '150', styleName: 'text-center', options: codes.SELL_TP_CD, visible: false }, // 판매유형
     {
       fieldName: 'sellDscDvCd',
       header: t('MSG_TXT_PD_DC_CLASS'),
@@ -391,7 +396,7 @@ const initGridDetail = defineGrid((data, view) => {
         }
         return retValue;
       },
-    },
+    }, // 할인구분
     {
       fieldName: 'sellDscrCd',
       header: t('MSG_TXT_DISC_CODE'),
@@ -425,7 +430,7 @@ const initGridDetail = defineGrid((data, view) => {
         // }
         return retValue;
       },
-    },
+    }, // 할인유형
     {
       fieldName: 'sellDscTpCd',
       header: t('MSG_TXT_DSC_SYST'),
@@ -438,7 +443,7 @@ const initGridDetail = defineGrid((data, view) => {
         }
         return retValue;
       },
-    },
+    }, // 할인제도
     {
       fieldName: 'sppDvCd',
       header: t('MSG_TXT_COMBI_DV'),
@@ -451,7 +456,7 @@ const initGridDetail = defineGrid((data, view) => {
         }
         return retValue;
       },
-    },
+    }, // 결합구분
     {
       fieldName: 'svPdTpCd',
       header: t('MSG_TXT_USWY_DV'),
@@ -464,14 +469,14 @@ const initGridDetail = defineGrid((data, view) => {
         }
         return retValue;
       },
-    },
-    { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98', styleName: 'text-center' },
-    { fieldName: 'bfsvcPrdCd', header: t('MSG_TXT_VST_PRD'), width: '98', options: codes.BFSVC_PRD_CD, styleName: 'text-center' },
-    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' },
-    { fieldName: 'perfVal', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right', dataType: 'number' },
+    }, // 용도구분
+    { fieldName: 'mgNm', header: t('MSG_TXT_MGT_TYP'), width: '98', styleName: 'text-center' }, // 관리유형
+    { fieldName: 'bfsvcPrdCd', header: t('MSG_TXT_VST_PRD'), width: '98', options: codes.BFSVC_PRD_CD, styleName: 'text-center' }, // 방문주기
+    { fieldName: 'rcpdt', header: t('MSG_TXT_RCPDT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 접수일자
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 매출일자
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '127', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 취소일자
+    { fieldName: 'perfVal', header: t('MSG_TXT_FEE'), width: '127', styleName: 'text-right', dataType: 'number' }, // 수수료
+    { fieldName: 'ackmtPerfCt', header: t('MSG_TXT_NUM_OF_NEW_CASES'), width: '92', styleName: 'text-right', dataType: 'number' }, // 신규건수
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -488,9 +493,9 @@ const initGridDetail = defineGrid((data, view) => {
 
 const initGridBase = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'baseYm', visible: false },
-    { fieldName: 'feeTcntDvCd', visible: false },
-    { fieldName: 'coCd', visible: false },
+    { fieldName: 'baseYm', visible: false }, // 기준년월
+    { fieldName: 'feeTcntDvCd', visible: false }, // 차수
+    { fieldName: 'coCd', visible: false }, // 회사코드
     {
       fieldName: 'coCdNm',
       header: t('MSG_TXT_CORP_NAME'),
@@ -499,9 +504,9 @@ const initGridBase = defineGrid((data, view) => {
         styleName: 'text-center',
         text: t('MSG_TXT_SUM'),
       },
-    },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' },
+    }, // 업체명
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '98' }, // 소속
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '127', styleName: 'text-center' }, // 번호
     {
       fieldName: 'cnt',
       header: t('MSG_TXT_PERF'),
@@ -512,7 +517,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 실적
     {
       fieldName: 'amtW040001',
       header: t('MSG_TXT_BAS_FEE'),
@@ -523,7 +528,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 기본수수료
     {
       fieldName: 'amtW040005',
       header: t('MSG_TXT_MED_FEE'),
@@ -534,7 +539,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 알선수수료
     {
       fieldName: 'amtW040004',
       header: t('MSG_TXT_PMOT'),
@@ -545,7 +550,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 프로모션
     {
       fieldName: 'amtW040020',
       header: t('MSG_TXT_ADSB'),
@@ -556,7 +561,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 재지급
     {
       fieldName: 'amtW040003',
       header: t('MSG_TXT_ICT'),
@@ -567,7 +572,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 인센티브
     {
       fieldName: 'feeSumAmt',
       header: t('MSG_TXT_FEE_SUM'),
@@ -578,7 +583,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 수수료계
     {
       fieldName: 'amt01',
       header: t('MSG_TXT_RDS'),
@@ -589,13 +594,13 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // RDS
     {
       fieldName: 'amt01Cn',
       header: t('MSG_TXT_RDS_MDFC_RSON'),
       width: '150',
       styleName: 'text-left',
-    },
+    }, // 보증예치금 수정사유
     {
       fieldName: 'amt08',
       header: t('MSG_TXT_RE_REDF'),
@@ -606,7 +611,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 환수되물림
     {
       fieldName: 'ddtnSumAmt',
       header: t('MSG_TXT_DDTN_SUM'),
@@ -617,7 +622,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 공제계
     {
       fieldName: 'acpyAmt',
       header: t('MSG_TXT_ACL_DSB_AMT'),
@@ -628,7 +633,7 @@ const initGridBase = defineGrid((data, view) => {
         numberFormat: '#,##0',
         expression: 'sum',
       },
-    },
+    }, // 실지급액
   ];
   const fields = [
     { fieldName: 'baseYm' },
