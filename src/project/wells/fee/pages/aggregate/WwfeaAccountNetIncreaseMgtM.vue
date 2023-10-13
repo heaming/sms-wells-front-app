@@ -425,14 +425,18 @@ const initCheckGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '105', styleName: 'text-center' }, // 성명
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '105', styleName: 'text-center' }, // 번호
     { fieldName: 'rentalCanCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈
-    { fieldName: 'leaseCanCt', header: t('MSG_TXT_LEASE_ISTM'), width: '100', styleName: 'text-center', dataType: 'number' }, // 리스/할부
-    { fieldName: 'mshSprCt', header: t('MSG_TXT_MMBR') + t('MSG_TXT_SEPARATION'), width: '100', styleName: 'text-center', dataType: 'number' }, // 멤버십이탈
+    { fieldName: 'spayCanCt', header: t('MSG_TIT_SPAY'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불
+
+    { fieldName: 'rentalBooCanCt', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_CANCL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈 예약취소
+    { fieldName: 'spayBooCanCt', header: t('MSG_TXT_LEASE_ISTM') + t('MSG_TXT_CANCL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불 예약취소
+
     { fieldName: 'rentalExnCt', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_EXN'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈만료
+    { fieldName: 'mshSprCt', header: t('MSG_TXT_MMBR') + t('MSG_TXT_SEPARATION'), width: '100', styleName: 'text-center', dataType: 'number' }, // 멤버십이탈
     { fieldName: 'canTotCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-center', dataType: 'number' }, // 계
     { fieldName: 'rentalNwCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈
-    { fieldName: 'leaseNwCt', header: t('MSG_TXT_LEASE_ISTM'), width: '100', styleName: 'text-center', dataType: 'number' }, // 리스/할부
+    { fieldName: 'spayNwCt', header: t('MSG_TIT_SPAY'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불
     { fieldName: 'nwTotCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-center', dataType: 'number' }, // 계
-    { fieldName: 'accNincYn', header: t('MSG_TXT_ACC') + t('MSG_TXT_NINC'), width: '100', styleName: 'text-center' }, // 계정순증
+    { fieldName: 'accNincYn', header: t('MSG_TXT_ACC') + t('MSG_TXT_NINC'), width: '100', styleName: 'text-center', dataType: 'number' }, // 계정순증
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -448,12 +452,12 @@ const initCheckGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'), // 전월취소
       direction: 'horizontal',
-      items: ['rentalCanCt', 'leaseCanCt', 'mshSprCt', 'rentalExnCt', 'canTotCt'],
+      items: ['rentalCanCt', 'spayCanCt', 'rentalBooCanCt', 'spayBooCanCt', 'rentalExnCt', 'mshSprCt', 'canTotCt'],
     },
     {
       header: t('MSG_TXT_NW_SELL'), // 신규판매
       direction: 'horizontal',
-      items: ['rentalNwCt', 'leaseNwCt', 'nwTotCt'],
+      items: ['rentalNwCt', 'spayNwCt', 'nwTotCt'],
     },
     'accNincYn',
   ]);
