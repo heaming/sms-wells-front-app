@@ -25,3 +25,8 @@ lerna-debug.log*
 *.sln
 *.sw?
 .gitattributes
+.env
+src/modules/collaboration
+src/modules/common
+src/modules/sms-common
+.env

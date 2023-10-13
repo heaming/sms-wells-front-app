@@ -1253,4 +1253,7 @@ h3 {
   }
 }
 
+body.desktop .web-layout > .q-page-container {
+  min-width: 100px !important;
+}
 </style>
