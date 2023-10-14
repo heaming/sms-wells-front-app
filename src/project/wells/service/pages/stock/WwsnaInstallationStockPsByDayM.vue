@@ -157,7 +157,7 @@ const codes = await codeUtil.getMultiCodes(
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  pageSize: 30,
   needTotalCount: true,
 });
 
@@ -266,12 +266,12 @@ async function fetchData() {
   getDateColumnsFields(cachedParams.baseDt);
   const columns = [
     { fieldName: 'ogNm', header: t('MSG_TXT_DIV'), width: '247' },
-    { fieldName: 'strSum', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
-    { fieldName: 'prvMngSum', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
+    { fieldName: 'prvMng', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
+    { fieldName: 'engQty', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
     { fieldName: 'stockTotal', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
     ...stockDateColumns,
-    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
     ...installDateColumns,
+    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
   ];
 
   view.setColumns(columns);
@@ -281,19 +281,20 @@ async function fetchData() {
     {
       header: t('MSG_TXT_CURRENT') + t('MSG_TXT_STOC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['strSum', 'prvMngSum', 'stockTotal'],
+      items: ['prvMng', 'engQty', 'stockTotal'],
     },
     {
       header: t('MSG_TXT_STOC') + t('MSG_TXT_PS'), // colspan title
       direction: 'horizontal', // merge type
       items: stockDateItems,
     },
-    'istTotal',
+
     {
       header: t('MSG_BTN_CNTCT_ASSGNMNT') + t('MSG_TXT_PS'), // colspan title
       direction: 'horizontal', // merge type
       items: installDateItems,
     },
+    'istTotal',
   ]);
   view.resetCurrent();
 }
@@ -344,23 +345,33 @@ const initGrid = defineGrid((data, view) => {
   getDateColumnsFields(cachedParams.baseDt);
 
   const fields = [
+    { fieldName: 'ogId' },
     { fieldName: 'ogNm' },
-    { fieldName: 'strSum' },
-    { fieldName: 'prvMngSum' },
+    { fieldName: 'ogInfo' },
+    { fieldName: 'prvMng' },
+    { fieldName: 'engQty' },
     { fieldName: 'stockTotal' },
     ...stockDateFields,
-    { fieldName: 'istTotal' },
     ...installDateFields,
+    { fieldName: 'istTotal' },
   ];
 
   const columns = [
-    { fieldName: 'ogNm', header: t('MSG_TXT_DIV'), width: '247' },
-    { fieldName: 'strSum', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
-    { fieldName: 'prvMngSum', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
+    { fieldName: 'ogId', header: t('MSG_TXT_DIV'), width: '247', display: false },
+    { fieldName: 'ogNm', header: t('MSG_TXT_DIV'), width: '247', display: false },
+    { fieldName: 'ogInfo',
+      header: t('MSG_TXT_DIV'),
+      width: '247',
+      displayCallback(grid, index) {
+        const { ogId: no1, ogNm: no2 } = grid.getValues(index.itemIndex);
+        return `${no2} (${no1})`;
+      } },
+    { fieldName: 'prvMng', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right' },
+    { fieldName: 'engQty', header: t('MSG_TXT_EGER'), width: '100', styleName: 'text-right' },
     { fieldName: 'stockTotal', header: t('MSG_TXT_SUM'), width: '100', styleName: 'text-right' },
     ...stockDateColumns,
-    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
     ...installDateColumns,
+    { fieldName: 'istTotal', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right' },
   ];
 
   data.setFields(fields);
@@ -373,19 +384,20 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_CURRENT') + t('MSG_TXT_STOC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['strSum', 'prvMngSum', 'stockTotal'],
+      items: ['prvMng', 'engQty', 'stockTotal'],
     },
     {
       header: t('MSG_TXT_STOC') + t('MSG_TXT_PS'), // colspan title
       direction: 'horizontal', // merge type
       items: stockDateItems,
     },
-    'istTotal',
+
     {
       header: t('MSG_BTN_CNTCT_ASSGNMNT') + t('MSG_TXT_PS'), // colspan title
       direction: 'horizontal', // merge type
       items: installDateItems,
     },
+    'istTotal',
   ]);
   view.setFixedOptions({ colCount: 1 });
 
