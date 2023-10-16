@@ -81,7 +81,7 @@
           dense
           :label="t('MSG_BTN_EXCEL_DOWN')"
           :disable="pageInfo.totalCount === 0"
-          @click="onClickExcelDownload2"
+          @click="onClickExcelDownload"
         />
         <!-- <kw-btn
           icon="download_on"
@@ -120,8 +120,10 @@
         @init="initGrid"
       />
       <kw-pagination
-        :page-index="1"
-        :total-count="100"
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -131,7 +133,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, useMeta, getComponentType, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -142,12 +144,28 @@ const dataService = useDataService();
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS', // 페이지 사이즈 옵션
-  'PDLV_DV_CD',
+  'CNTR_CH_PRGS_STAT_CD',
 );
-console.log('codes.PDLV_DV_CD >>>>>', codes.PDLV_DV_CD);
+console.log('codes.CNTR_CH_PRGS_STAT_CD >>>', codes.CNTR_CH_PRGS_STAT_CD);
 
+// 서비스센터 조회
 const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
-console.log('svcCode >>>>>', svcCode);
+console.log('svcCode >>>', svcCode);
+
+// 출고지 정보 조회
+const pdlvList = (await dataService.get('/sms/wells/service/placeOfDelivery/pdlv-list')).data;
+const pdlvRef = ref([]);
+if (pdlvList) {
+  pdlvList.forEach((data) => {
+    pdlvRef.value.push({
+      pdlvNo: data.pdlvNo,
+      pdlvNm: data.pdlvNm,
+      pdlvAdd: data.pdlvAdd,
+      pdlvKey: data.pdlvKey,
+    });
+  });
+}
+console.log('pdlvRef >>>', pdlvRef);
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -194,44 +212,138 @@ async function onClickAppr() {
   await notify(t('작업 예정'));
 }
 
+async function onClickExcelDownload() {
+  const res = await dataService.get('/sms/wells/service/wsnd-rglvl-eger-pdlv-mngt/excel-download', searchParams.value);
+  console.log('res.data >>>>>>', res.data);
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
+    { fieldName: 'cnrOgId' },
+    { fieldName: 'prtnrNo' },
+    { fieldName: 'prtnrKnm' },
+    { fieldName: 'pdlvNm' },
+    { fieldName: 'pdlvAdr' },
+    { fieldName: 'bstrPdlvNm' },
+    { fieldName: 'bstrPdlvAdr' },
+    { fieldName: 'apyStrtdt', dataType: 'date' },
+    { fieldName: 'apyEnddt', dataType: 'date' },
+    { fieldName: 'apr' },
+    { fieldName: 'aprTeamNm' },
+    { fieldName: 'aprPrtnrNo' },
+    { fieldName: 'aprPrtnrKnm' },
+    { fieldName: 'bstrRson' },
   ];
 
   const columns = [
-    { fieldName: 'col1', header: '서비스센터', width: '130', styleName: 'text-center' }, // 서비스센터
-    { fieldName: 'col2', header: '사번', width: '140', styleName: 'text-center' }, // 사번
-    { fieldName: 'col3', header: '성명', width: '140', styleName: 'text-center' }, // 성명
-    { fieldName: 'col4', header: '기본출고지', width: '140', styleName: 'text-center' }, // 기본출고지
-    { fieldName: 'col5', header: '기본출고지 주소', width: '190', styleName: 'text-left' }, // 기본출고지 주소
-    { // 출장출고지
-      fieldName: 'col6',
-      header: t('출장출고지'),
-      width: '140',
+    { fieldName: 'cnrOgId', header: t('MSG_TXT_SV_CNR'), width: '130', styleName: 'text-center', editable: false }, // 서비스센터..센터조직ID
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '140', styleName: 'text-center', editable: false }, // 사번
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '140', styleName: 'text-center', editable: false }, // 성명
+    {
+      fieldName: 'pdlvNm',
+      header: t('기본출고지'),
+      width: '170',
       styleName: 'text-center',
       editor: {
-        type: 'dropdown',
+        type: 'list',
       },
-      options: codes.PDLV_DV_CD },
-    { fieldName: 'col7', header: '출장출고지 주소', width: '190', styleName: 'text-left' },
+      options: pdlvRef.value,
+      optionValue: 'pdlvKey',
+      optionLabel: 'pdlvNm',
+    }, // 기본출고지
+    { fieldName: 'pdlvAdr', header: t('기본출고지 주소'), width: '190', styleName: 'text-center', editable: false },
+    { // 출장출고지
+      fieldName: 'bstrPdlvNm',
+      header: t('출장출고지'),
+      width: '190',
+      styleName: 'text-center',
+      editor: {
+        type: 'list',
+      },
+      options: pdlvRef.value,
+      optionValue: 'pdlvKey',
+      optionLabel: 'pdlvNm',
+      styleCallback(grid, dataCell) {
+        const ret = {};
+        const checkYn = grid.getValue(dataCell.index.itemIndex, 'apr');
+        const checkAprPrtnrNo = grid.getValue(dataCell.index.itemIndex, 'aprPrtnrNo');
+        console.log('checkYn >>>>>>>>', checkYn);
+        if (checkYn === 'Y' && !isEmpty(checkAprPrtnrNo)) {
+          ret.editable = false;
+        } else {
+          ret.editable = true;
+        }
+        return ret;
+      },
+    },
+    { fieldName: 'bstrPdlvAdr', header: t('출장출고지 주소'), width: '190', styleName: 'text-center', editable: false },
+    { // 적용시작일
+      fieldName: 'apyStrtdt',
+      header: {
+        text: t('MSG_TXT_APY_STRT_DAY'), // 적용시작일
+      },
+      width: '150',
+      editor: {
+        type: 'btdate',
+      },
+      datetimeFormat: 'date',
+      styleName: 'text-center',
+    },
+    { // 적용종료일
+      fieldName: 'apyEnddt',
+      header: {
+        text: t('MSG_TXT_APY_END_DAY'), // 적용종료일
+      },
+      width: '150',
+      editor: {
+        type: 'btdate',
+      },
+      datetimeFormat: 'date',
+      styleName: 'text-center',
+    },
+    { // 승인
+      fieldName: 'apr',
+      header: t('MSG_TXT_APPR'),
+      width: '50',
+      styleName: 'text-center',
+      renderer: { type: 'check', trueValues: 'Y' },
+      editable: false,
+    },
+    { fieldName: 'aprTeamNm', header: '승인팀명', width: '100', styleName: 'text-center', editable: false }, // 승인팀명
+    { fieldName: 'aprPrtnrNo', header: '승인자사번', width: '80', styleName: 'text-center', editable: false }, // 승인자사번
+    { fieldName: 'aprPrtnrKnm', header: '승인자성명', width: '100', styleName: 'text-center', editable: false }, // 승인자성명
+    { fieldName: 'bstrRson', header: '출장사유', width: '200', styleName: 'text-center', editable: false }, // 출장사유
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
 
+  view.editOptions.editable = true;
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+
+  view.onGetEditValue = (grd, idx, editResult) => {
+    if (idx.fieldName === 'apyStrtdt') {
+      console.log('idx >>>', idx);
+      console.log('editResult.value >>>', editResult.value);
+      grd.checkItem(idx.itemIndex, true);
+      grd.setValue(idx.dataRow, 'apyStrtdt', editResult.value);
+    }
+    if (idx.fieldName === 'apyEnddt') {
+      grd.checkItem(idx.itemIndex, true);
+      grd.setValue(idx.dataRow, 'apyEnddt', editResult.value);
+    }
+    if (idx.fieldName === 'pdlvNm') {
+      grd.checkItem(idx.itemIndex, true);
+      grd.setValue(idx.dataRow, 'pdlvAdr', pdlvRef.value.filter((v) => v.pdlvKey === editResult.value)[0].pdlvAdd);
+    }
+    if (idx.fieldName === 'bstrPdlvNm') {
+      grd.checkItem(idx.itemIndex, true);
+      grd.setValue(idx.dataRow, 'bstrPdlvAdr', pdlvRef.value.filter((v) => v.pdlvKey === editResult.value)[0].pdlvAdd);
+    }
+  };
 }
 </script>
