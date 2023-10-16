@@ -2,7 +2,7 @@ import { isRef, warn } from 'vue';
 import { alert } from 'kw-lib';
 
 export const EMPTY_SYM = Symbol.for('__undef__');
-export const EMPTY_ID = '';
+export const EMPTY_ID = ' '; /* TODO: FIXME... */
 
 export default (
   priceDefineVariables,
