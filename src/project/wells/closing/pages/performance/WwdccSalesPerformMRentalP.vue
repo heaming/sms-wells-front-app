@@ -58,16 +58,16 @@
           </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_RCP_D')">
-          <p>{{ stringUtil.getDateFormat(rentalSalesDetail.cntrDt, 'YYYY-MM').substring(0,7) }}</p>
+          <p>{{ stringUtil.getDateFormat(rentalSalesDetail.cntrDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE')">
-          <p>{{ stringUtil.getDateFormat(rentalSalesDetail.lcsleDt, 'YYYY-MM').substring(0,7) }}</p>
+          <p>{{ stringUtil.getDateFormat(rentalSalesDetail.lcsleDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRD_MCNT_USWY')">
-          <p>{{ rentalSalesDetail.svPrd }}{{ $t('MSG_TXT_MCNT') }} / {{ rentalSalesDetail.svTpNm }}</p>
+          <p>{{ rentalSalesDetail.svPrd }}{{ $t('MSG_TXT_MCNT') }} / {{ rentalSalesDetail.svTpCdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_REG_FEE')">
           <p>{{ `${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalRgstCost))}(DC ${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.dscAmt))})` }}</p>

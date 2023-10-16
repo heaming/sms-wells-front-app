@@ -64,7 +64,7 @@
         >
           <kw-form-row>
             <kw-form-item
-              :label="$t('MSG_TXT_TASK_DIV')"
+              :label="$t('MSG_TXT_SEL_TYPE')"
             >
               <p>
                 {{ singlePaymentDetail.sellTpNm }}
