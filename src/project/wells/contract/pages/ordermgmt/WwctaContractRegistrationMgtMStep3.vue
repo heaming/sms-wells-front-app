@@ -260,7 +260,6 @@
                 />
               </kw-form-item>
               <kw-form-item
-                v-if="item.sellTpCd === '2' && item.sellTpDtlCd === '23'"
                 label="가구 구성원 수"
               >
                 <kw-select
