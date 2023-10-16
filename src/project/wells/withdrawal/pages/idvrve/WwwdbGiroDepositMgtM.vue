@@ -267,7 +267,18 @@ async function addRow() {
 
   // console.log(fileData);
 
-  paramData = fileData;
+  // paramData = fileData;
+
+  paramData = fileData.filter((p1) => ['22'].includes(p1.giroDpMtrDvCd));
+
+  // const dupArr = paramData.map((p1) => p1.rveDt);
+
+  // const uniqueArr = dupArr.filter((element, index) => dupArr.indexOf(element) === index);
+
+  const res = await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits/date-chk', paramData);
+
+  paramData = res.data;
+  // console.log(res.data);
 
   let sum1 = 0;
   let sum2 = 0;
@@ -303,7 +314,6 @@ async function addRow() {
         giroFee: data.giroFeeDvCd,
         sellTpCd: '2',
         dpMesCd: '0401',
-
       });
       // });
 
