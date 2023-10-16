@@ -198,6 +198,8 @@ const ctctys = ref([]);
 ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
 
 let cachedZips;
+
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/region-level-zips/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: zips, pageInfo: pagingResult } = res.data;
@@ -210,12 +212,14 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -228,6 +232,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 시도 업데이트 시 군구 리스트 맵핑
 async function onUpdateCtcty(val) {
   searchParams.value.ctctyNm = '';
   if (val) {
@@ -238,6 +243,7 @@ async function onUpdateCtcty(val) {
   }
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
 
@@ -261,26 +267,26 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'newAdrZip' },
-    { fieldName: 'mgtCnt' },
-    { fieldName: 'wrkCnt' },
-    { fieldName: 'ctpvNm' },
-    { fieldName: 'ctctyNm' },
-    { fieldName: 'lawcEmdNm' },
-    { fieldName: 'amtdNm' },
-    { fieldName: 'rpbLocaraCd' },
-    { fieldName: 'rpbLocaraGrpCd' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'vstDowVal' },
-    { fieldName: 'emdSn' },
-    { fieldName: 'fr2pLgldCd' },
-    { fieldName: 'pdlvNo' },
-    { fieldName: 'pdlvNm' },
-    { fieldName: 'pdlvAdr' },
-    { fieldName: 'ildYn' },
-    { fieldName: 'placeOfDeliveries' },
+    { fieldName: 'newAdrZip' }, // 우편번호
+    { fieldName: 'mgtCnt' }, // 서비스계정
+    { fieldName: 'wrkCnt' }, // 월평균수임
+    { fieldName: 'ctpvNm' }, // 시도명
+    { fieldName: 'ctctyNm' }, // 시군구명
+    { fieldName: 'lawcEmdNm' }, // 행정동
+    { fieldName: 'amtdNm' }, // 법정동
+    { fieldName: 'rpbLocaraCd' }, // 지역공통코드
+    { fieldName: 'rpbLocaraGrpCd' }, // 지역그룹코드
+    { fieldName: 'ogNm' }, // 서비스센터
+    { fieldName: 'prtnrNo' }, // 책임사번
+    { fieldName: 'prtnrKnm' }, // 책임담당
+    { fieldName: 'vstDowVal' }, // 방문요일
+    { fieldName: 'emdSn' }, // 읍면동일련번호
+    { fieldName: 'fr2pLgldCd' }, // 앞2자리법정동코드
+    { fieldName: 'pdlvNo' }, // 출고지번호
+    { fieldName: 'pdlvNm' }, // 출고지명
+    { fieldName: 'pdlvAdr' }, // 출고지주소
+    { fieldName: 'ildYn' }, // 섬여부
+    { fieldName: 'placeOfDeliveries' }, // 출고지
   ];
 
   const columns = [
