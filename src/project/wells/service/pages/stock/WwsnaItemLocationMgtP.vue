@@ -122,7 +122,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid, useModal, useMeta, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
 const { confirm, notify } = useGlobal();
@@ -202,8 +202,10 @@ async function fetchData() {
   pageInfo.value = pagingResult;
 
   propParams.value.totalCount = searchData.length;
-  propParams.value.itmPdNm = searchData[0].pdAbbrNm;
-  propParams.value.wareNm = searchData[0].wareNm;
+  if (!isEmpty(searchData)) {
+    propParams.value.itmPdNm = searchData[0].pdAbbrNm;
+    propParams.value.wareNm = searchData[0].wareNm;
+  }
 
   const view = grdMainRef.value.getView();
   const datasSource = view.getDataSource();
@@ -227,7 +229,6 @@ async function onCheckedStckNoStdGb() {
 async function onClickSave() {
   const dataParams = grdMainRef.value.getView();
   const rows = dataParams.getCheckedItems();
-  console.log(rows);
 
   const confirmData = ref([]);
   confirmData.value = rows.map((v) => {
