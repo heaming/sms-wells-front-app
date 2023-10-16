@@ -629,7 +629,7 @@ const isShowMembership = ref(false);
 const isShowRegular = ref(false);
 
 async function fetchDetailData(slClYm, sellTpCd) {
-  cachedParams.slClYm = slClYm;
+  // cachedParams.slClYm = slClYm;
   cachedParams.cntrDtlNo = `${cachedParams.cntrNo}${cachedParams.cntrSn}`;
   let res = null;
   if (sellTpCd === '2') {
@@ -800,7 +800,7 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     if (column === 'slClYm') {
-      const { sellTpCd, islease, slClYm } = gridUtil.getRowValue(g, dataRow);
+      const { sellTpCd, islease } = gridUtil.getRowValue(g, dataRow);
       let callComponent = '';
       if (sellTpCd === '2') {
         if (islease === 'N') {
@@ -815,7 +815,7 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
       }
       await modal({
         component: callComponent,
-        componentProps: { cntrDtlNo: `${cachedParams.cntrNo}${cachedParams.cntrSn}`, cntrNo: cachedParams.cntrNo, cntrSn: cachedParams.cntrSn, slClYm },
+        componentProps: { cntrDtlNo: `${cachedParams.cntrNo}${cachedParams.cntrSn}`, cntrNo: cachedParams.cntrNo, cntrSn: cachedParams.cntrSn },
       });
     } else if (column === 'dpAmt') {
       await modal({
