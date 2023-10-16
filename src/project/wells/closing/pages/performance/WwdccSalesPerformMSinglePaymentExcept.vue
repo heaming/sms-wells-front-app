@@ -110,7 +110,7 @@
               </p>
             </kw-form-item>
             <kw-form-item
-              :label="$t('MSG_TXT_ATT_RCPDT')"
+              :label="$t('MSG_TXT_RCPDT')"
             >
               <p>
                 {{ stringUtil.getDateFormat(singlePaymentDetail.cntrDt) }}
@@ -186,7 +186,7 @@
               <p>
                 {{ singlePaymentDetail.rentalPtrm }}{{ t('MSG_TXT_MCNT') }}/
                 {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalAmt)) }}{{ t('MSG_TXT_CUR_WON') }}
-                {{ singlePaymentDetail.rentalDscAmt }}
+                ({{ singlePaymentDetail.rentalDscAmt }})
               </p>
             </kw-form-item>
           </kw-form-row>
