@@ -312,10 +312,12 @@ const wareDvCdRule = codes.WARE_DV_CD.filter((v) => v.codeId !== '1').map((v) =>
 const wareDtlDvCdRule = ref('');
 const isOrgWarehouse = computed(() => warehouseInfo.value.wareDtlDvCd === '20' || warehouseInfo.value.wareDtlDvCd === '30');
 
+// 파라미터 유무 체크
 function hasProps() {
   return !isEmpty(props.apyYm) && !isEmpty(props.wareNo);
 }
 
+// 창고 정보 초기화
 function resetWarehouseInfo() {
   const { wareDvCd } = warehouseInfo.value;
   warehouseInfo.value = { ...initialWarehouseInfo };
@@ -323,6 +325,7 @@ function resetWarehouseInfo() {
   hgrWarehouses.value = [];
 }
 
+// 상위창고 목록 조회
 async function fetchHigherWarehouses() {
   const params = {
     ogId: hasProps() ? null : warehouseInfo.value.ogId,
@@ -369,6 +372,7 @@ watch(() => warehouseInfo.value.wareDtlDvCd, async (val) => {
   }
 });
 
+// 창고구분코드 변경 시 창고상세구분코드 목록 셋팅
 watch(() => warehouseInfo.value.wareDvCd, async (val) => {
   if (!hasProps()) {
     resetWarehouseInfo();
@@ -386,6 +390,7 @@ watch(() => warehouseInfo.value.wareDvCd, async (val) => {
   wareDtlDvCdRule.value = wareDtlDvCds.value.map((v) => (v.codeId)).join(',');
 });
 
+// 창고구분코드 유효성검사
 function validateWareDvCd() {
   if (warehouseInfo.value.wareDvCd === '') {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_WARE_DV')]));
@@ -400,6 +405,7 @@ function validateWareDvCd() {
   return true;
 }
 
+// 창고명 가져오기
 function getWareNm(payload) {
   let wareNm = '';
   if (isOrgWarehouse.value) {
@@ -412,6 +418,7 @@ function getWareNm(payload) {
   return wareNm;
 }
 
+// 인사기본정보조회 팝업 오픈
 async function onClickOpenHumanResourcesPopup() {
   if (!validateWareDvCd()) return;
 
@@ -451,6 +458,7 @@ async function onClickOpenHumanResourcesPopup() {
   }
 }
 
+// 빌딩조회 팝업 오픈
 async function onClickOpenBuildingPopup() {
   const { result: isChanged, payload } = await modal({
     component: 'WsnaBuildingsListP',
@@ -466,6 +474,7 @@ async function onClickOpenBuildingPopup() {
   }
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get(`/sms/wells/service/warehouse-organizations/${props.apyYm}${props.wareNo}`);
 
@@ -476,6 +485,7 @@ async function fetchData() {
   await fetchHigherWarehouses();
 }
 
+// 저장
 async function onClickSave() {
   if (await frmMainRef.value.alertIfIsNotModified()) return;
   if (!await frmMainRef.value.validate()) return;
@@ -489,6 +499,7 @@ async function onClickSave() {
   ok();
 }
 
+// 마운트 처리
 onMounted(async () => {
   if (hasProps()) {
     await fetchData();

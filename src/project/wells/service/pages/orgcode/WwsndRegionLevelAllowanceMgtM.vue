@@ -197,25 +197,26 @@ const grdBizBaseRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
 const searchParams = ref({
-  applyDate: dayjs().format('YYYYMMDD'),
+  applyDate: dayjs().format('YYYYMMDD'), // 적용일자
 });
 
 const tomorrow = dayjs().add(1, 'day').format('YYYYMMDD');
 const applyDates = ref({
-  movementApplyDate: tomorrow,
-  bizApplyDate: tomorrow,
+  movementApplyDate: tomorrow, // 이동급지적용일자
+  bizApplyDate: tomorrow, // 업무급지적용일자
 });
 
 const originApplyDates = {
-  movementApplyDate: '',
-  bizApplyDate: '',
+  movementApplyDate: '', // 기존 이동급지적용일자
+  bizApplyDate: '', // 기존 업무급지적용일자
 };
 
 const countInfo = ref({
-  movementTotalCount: 0,
-  bizTotalCount: 0,
+  movementTotalCount: 0, // 이동급지 총건수
+  bizTotalCount: 0, // 업무급지 총건수
 });
 
+// 기존 적용일자보다 큰 일자인지 체크
 function validateOriginDate(type, val) {
   const originApplyDate = dayjs(originApplyDates[type]).format('YYYYMMDD');
   if (dayjs(val).isSameOrBefore(originApplyDate)) {
@@ -225,6 +226,7 @@ function validateOriginDate(type, val) {
   return true;
 }
 
+// 오늘일자인지 체크
 function validateToday(val) {
   const today = dayjs().format('YYYYMMDD');
   if (dayjs(val).isSameOrBefore(today)) {
@@ -234,6 +236,7 @@ function validateToday(val) {
   return true;
 }
 
+// 최대적용시작일보다 큰 일자인지 체크
 function validateMaxApplyStartDate(maxApyStrtdt, val) {
   const maxApplyStartDate = dayjs(maxApyStrtdt).format('YYYYMMDD');
   if (dayjs(val).isSameOrBefore(maxApplyStartDate)) {
@@ -243,12 +246,14 @@ function validateMaxApplyStartDate(maxApyStrtdt, val) {
   return true;
 }
 
+// 기준정보 가져오기
 function getBaseInfo(type) {
   const grdBaseRef = type === 'movement' ? grdMovementBaseRef : grdBizBaseRef;
   const view = grdBaseRef.value.getView();
   return view.getJsonRows()[0];
 }
 
+// 이동시간 가져오기
 function getMoveTime(view, row, rglvlGdCd, value) {
   const { movementAverageSpeed } = getBaseInfo('movement');
 
@@ -266,6 +271,7 @@ function getMoveTime(view, row, rglvlGdCd, value) {
   return mmtLdtm;
 }
 
+// 수당 셋팅
 function setAllowance(view, row, mmtLdtm) {
   const { movementManHour, movementFieldWeight } = getBaseInfo('movement');
   const manHour = Number(movementManHour);
@@ -384,6 +390,7 @@ function onClickBizBulkApplyDate() {
   setApplyDates(grdBizLevelRef.value.getView(), 'bizApplyDate');
 }
 
+// 기본 데이터 조회
 async function fetchDefaultData(viewType) {
   const res = await dataService.get('/sms/wells/service/region-level-allowances/base-information');
   const { movementBases, bizBases } = res.data;
@@ -407,6 +414,7 @@ async function fetchDefaultData(viewType) {
   }
 }
 
+// 이동급지, 업무급지 데이터 조회
 async function fetchData(viewType) {
   const res = await dataService.get('/sms/wells/service/region-level-allowances', { params: { ...cachedParams } });
   const { movementAllowances, bizAllowances } = res.data;
@@ -426,6 +434,7 @@ async function fetchData(viewType) {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   const movementView = grdMovementLevelRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(movementView)) return;
@@ -439,6 +448,7 @@ async function onClickSearch() {
   await fetchDefaultData(ALL);
 }
 
+// 적용일자 변경여부 체크
 function validateApplyDate(view) {
   const originApyStrtdt = gridUtil.getOrigCellValue(view, 0, 'apyStrtdt');
   const apyStrtdt = gridUtil.getCellValue(view, 0, 'apyStrtdt');
@@ -450,6 +460,7 @@ function validateApplyDate(view) {
   return true;
 }
 
+// 그리드 변경 데이터 저장
 async function saveData(view, additionalInfo, viewType) {
   if (view.getItemCount() === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
@@ -471,12 +482,14 @@ async function saveData(view, additionalInfo, viewType) {
   await fetchDefaultData(viewType);
 }
 
+// 이동급지 저장
 async function onClickMovementSave() {
   const { movementManHour, movementFieldWeight, movementAverageSpeed } = getBaseInfo('movement');
   const additionalInfo = { minPerManho: movementManHour, rglvlWeit: movementFieldWeight, avVe: movementAverageSpeed };
   await saveData(grdMovementLevelRef.value.getView(), additionalInfo, MOVEMENT);
 }
 
+// 업무급지 저장
 async function onClickBizSave() {
   const { bizManHour, bizFieldWeight } = getBaseInfo('biz');
   const avVe = getFieldAirlift(bizManHour, bizFieldWeight);
@@ -484,6 +497,7 @@ async function onClickBizSave() {
   await saveData(grdBizLevelRef.value.getView(), additionalInfo, BIZ);
 }
 
+// 섬 표시 설정
 function setDisplayCallback(grid, index, value) {
   if (value === '9999') {
     return '섬';
@@ -493,6 +507,7 @@ function setDisplayCallback(grid, index, value) {
   return value;
 }
 
+// 마운트 처리
 onMounted(async () => {
   await fetchDefaultData(ALL);
 });
@@ -502,20 +517,20 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMovementLevel = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'rglvlDvCd' },
-    { fieldName: 'bizRglvlCd' },
-    { fieldName: 'mmtDstn' },
-    { fieldName: 'rglvlGdCd' },
-    { fieldName: 'mmtLdtm' },
-    { fieldName: 'rglvlAwAmt', dataType: 'number' },
-    { fieldName: 'apyStrtdt' },
-    { fieldName: 'apyEnddt' },
-    { fieldName: 'chEmpno' },
-    { fieldName: 'chNm' },
-    { fieldName: 'minPerManho', dataType: 'number' },
-    { fieldName: 'rglvlWeit', dataType: 'number' },
-    { fieldName: 'avVe', dataType: 'number' },
-    { fieldName: 'maxApyStrtdt' },
+    { fieldName: 'rglvlDvCd' }, // 급지구분코드
+    { fieldName: 'bizRglvlCd' }, // 업무급지코드
+    { fieldName: 'mmtDstn' }, // 이동거리
+    { fieldName: 'rglvlGdCd' }, // 급지등급코드
+    { fieldName: 'mmtLdtm' }, // 이동소요시간
+    { fieldName: 'rglvlAwAmt', dataType: 'number' }, // 급지수당금액
+    { fieldName: 'apyStrtdt' }, // 적용시작일
+    { fieldName: 'apyEnddt' }, // 적용종료일
+    { fieldName: 'chEmpno' }, // 변경사번
+    { fieldName: 'chNm' }, // 변경성명
+    { fieldName: 'minPerManho', dataType: 'number' }, // 분당공수
+    { fieldName: 'rglvlWeit', dataType: 'number' }, // 급지비중
+    { fieldName: 'avVe', dataType: 'number' }, // 평균속도
+    { fieldName: 'maxApyStrtdt' }, // 최대 적용시작일
   ];
 
   const columns = [
@@ -593,19 +608,19 @@ const initGrdMovementLevel = defineGrid((data, view) => {
 
 const initGrdBizLevel = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'rglvlDvCd' },
-    { fieldName: 'bizRglvlCd' },
-    { fieldName: 'mmtDstn' },
-    { fieldName: 'mmtLdtm' },
-    { fieldName: 'rglvlGdCd' },
-    { fieldName: 'rglvlAwAmt', dataType: 'number' },
-    { fieldName: 'apyStrtdt' },
-    { fieldName: 'apyEnddt' },
-    { fieldName: 'chEmpno' },
-    { fieldName: 'chNm' },
-    { fieldName: 'minPerManho', dataType: 'number' },
-    { fieldName: 'rglvlWeit', dataType: 'number' },
-    { fieldName: 'maxApyStrtdt' },
+    { fieldName: 'rglvlDvCd' }, // 급지구분코드
+    { fieldName: 'bizRglvlCd' }, // 업무급지코드
+    { fieldName: 'mmtDstn' }, // 이동거리
+    { fieldName: 'mmtLdtm' }, // 이동소요시간
+    { fieldName: 'rglvlGdCd' }, // 급지등급코드
+    { fieldName: 'rglvlAwAmt', dataType: 'number' }, // 급지수당금액
+    { fieldName: 'apyStrtdt' }, // 적용시작일
+    { fieldName: 'apyEnddt' }, // 적용종료일
+    { fieldName: 'chEmpno' }, // 변경사번
+    { fieldName: 'chNm' }, // 변경성명
+    { fieldName: 'minPerManho', dataType: 'number' }, // 분당공수
+    { fieldName: 'rglvlWeit', dataType: 'number' }, // 급지비중
+    { fieldName: 'maxApyStrtdt' }, // 최대 적용시작일
   ];
 
   const columns = [
@@ -659,9 +674,9 @@ const initGrdBizLevel = defineGrid((data, view) => {
 
 function initGrdMovementBase(data, view) {
   const fields = [
-    { fieldName: 'movementManHour', dataType: 'number' },
-    { fieldName: 'movementFieldWeight', dataType: 'number' },
-    { fieldName: 'movementAverageSpeed', dataType: 'number' },
+    { fieldName: 'movementManHour', dataType: 'number' }, // 이동급지 분당공수
+    { fieldName: 'movementFieldWeight', dataType: 'number' }, // 이동급지 급지비중
+    { fieldName: 'movementAverageSpeed', dataType: 'number' }, // 이동급지 평균시속
   ];
 
   const columns = [
@@ -706,9 +721,9 @@ function initGrdMovementBase(data, view) {
 
 function initGrdBizBase(data, view) {
   const fields = [
-    { fieldName: 'bizManHour', dataType: 'number' },
-    { fieldName: 'bizFieldWeight', dataType: 'number' },
-    { fieldName: 'bizFieldAirlift', dataType: 'number' },
+    { fieldName: 'bizManHour', dataType: 'number' }, // 업무급지 분당공수
+    { fieldName: 'bizFieldWeight', dataType: 'number' }, // 업무급지 급지비중
+    { fieldName: 'bizFieldAirlift', dataType: 'number' }, // 업무급지 급지공수
   ];
 
   const columns = [

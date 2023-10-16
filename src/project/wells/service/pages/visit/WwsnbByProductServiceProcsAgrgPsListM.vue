@@ -135,11 +135,11 @@ const { getConfig } = useMeta();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const searchParams = ref({
-  ogId: '',
-  wkExcnDtFrom: dayjs().format('YYYYMM').concat('01'),
-  wkExcnDtTo: dayjs().format('YYYYMMDD'),
-  refriDvCd: '',
-  pdGrpCd: '',
+  ogId: '', // 조직ID
+  wkExcnDtFrom: dayjs().format('YYYYMM').concat('01'), // 작업수행일자 From
+  wkExcnDtTo: dayjs().format('YYYYMMDD'), // 작업수행일자 To
+  refriDvCd: '', // 유무상구분코드
+  pdGrpCd: '', // 상품그룹코드
 });
 let cachedParams = cloneDeep(searchParams.value);
 
@@ -158,6 +158,7 @@ const codes = await codeUtil.getMultiCodes(
 const { data: serviceCenters } = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } });
 const filters = codes.PD_GRP_CD.map((v) => ({ name: v.codeId, criteria: `value = '${v.codeId}'` }));
 
+// 상품군(상품그룹코드) 변경 시 그리드 데이터 필터링
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('svpdItemGr', false);
@@ -171,6 +172,7 @@ function onUpdateProductGroupCode(val) {
   // pageInfo.value.totalCount = view.getItemCount(); // 상품군에 따른 총건수 필터링
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-visit-state/product-services/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: services, pageInfo: pagingResult } = res.data;
@@ -186,12 +188,14 @@ async function fetchData() {
   view.setColumnFilters('svpdItemGr', filters, true);
 }
 
+// 조회 버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -209,36 +213,36 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'cntt', dataType: 'number' },
-    { fieldName: 'svpdItemGr' },
-    { fieldName: 'cnt1110', dataType: 'number' },
-    { fieldName: 'cnt1111', dataType: 'number' },
-    { fieldName: 'cnt1122', dataType: 'number' },
-    { fieldName: 'cnt1121', dataType: 'number' },
-    { fieldName: 'cnt1124', dataType: 'number' },
-    { fieldName: 'cnt1123', dataType: 'number' },
-    { fieldName: 'cnt1125', dataType: 'number' },
-    { fieldName: 'cnt1100', dataType: 'number' },
-    { fieldName: 'cnt3420', dataType: 'number' },
-    { fieldName: 'cnt3410', dataType: 'number' },
-    { fieldName: 'cnt3310', dataType: 'number' },
-    { fieldName: 'cnt3320', dataType: 'number' },
-    { fieldName: 'cnt3210', dataType: 'number' },
-    { fieldName: 'cnt3230', dataType: 'number' },
-    { fieldName: 'cnt3110', dataType: 'number' },
-    { fieldName: 'cnt3112', dataType: 'number' },
-    { fieldName: 'cnt3121', dataType: 'number' },
-    { fieldName: 'cnt3122', dataType: 'number' },
-    { fieldName: 'cnt3130', dataType: 'number' },
-    { fieldName: 'cnt3460', dataType: 'number' },
-    { fieldName: 'cnt3440', dataType: 'number' },
-    { fieldName: 'cnt3199', dataType: 'number' },
-    { fieldName: 'cnt3100', dataType: 'number' },
-    { fieldName: 'cnt1390', dataType: 'number' },
-    { fieldName: 'cnt2100', dataType: 'number' },
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'pdCd' }, // 상품코드
+    { fieldName: 'pdNm' }, // 상품명
+    { fieldName: 'cntt', dataType: 'number' }, // 총계
+    { fieldName: 'svpdItemGr' }, // 상품군
+    { fieldName: 'cnt1110', dataType: 'number' }, // 신규설치
+    { fieldName: 'cnt1111', dataType: 'number' }, // 설치철거
+    { fieldName: 'cnt1122', dataType: 'number' }, // 자사미회수
+    { fieldName: 'cnt1121', dataType: 'number' }, // 자사회수
+    { fieldName: 'cnt1124', dataType: 'number' }, // 타사미회수
+    { fieldName: 'cnt1123', dataType: 'number' }, // 타사회수
+    { fieldName: 'cnt1125', dataType: 'number' }, // 자사분리
+    { fieldName: 'cnt1100', dataType: 'number' }, // 설치소계
+    { fieldName: 'cnt3420', dataType: 'number' }, // 매출취소
+    { fieldName: 'cnt3410', dataType: 'number' }, // 상품취소
+    { fieldName: 'cnt3310', dataType: 'number' }, // 이전분리
+    { fieldName: 'cnt3320', dataType: 'number' }, // 이전재설치
+    { fieldName: 'cnt3210', dataType: 'number' }, // 제품원인
+    { fieldName: 'cnt3230', dataType: 'number' }, // 고객원인
+    { fieldName: 'cnt3110', dataType: 'number' }, // 제품A/S
+    { fieldName: 'cnt3112', dataType: 'number' }, // 특별A/S
+    { fieldName: 'cnt3121', dataType: 'number' }, // 필터B/S
+    { fieldName: 'cnt3122', dataType: 'number' }, // 필터판매
+    { fieldName: 'cnt3130', dataType: 'number' }, // 환경점검
+    { fieldName: 'cnt3460', dataType: 'number' }, // 택배반품
+    { fieldName: 'cnt3440', dataType: 'number' }, // 회사설치
+    { fieldName: 'cnt3199', dataType: 'number' }, // 기타
+    { fieldName: 'cnt3100', dataType: 'number' }, // A/S
+    { fieldName: 'cnt1390', dataType: 'number' }, // 필터판매
+    { fieldName: 'cnt2100', dataType: 'number' }, // B/S 소계
   ];
 
   const columns = [

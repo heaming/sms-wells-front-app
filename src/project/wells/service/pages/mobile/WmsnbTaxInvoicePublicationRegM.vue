@@ -170,17 +170,18 @@ const billDvCd = [
 ];
 
 const taxInvoiceData = ref({
-  csBilNo: props.csBilNo,
+  csBilNo: props.csBilNo, // 비용청구번호
   totalAmt: 0, // 화면에 노출되는 총결제금액으로 렌탈료 합산
   stlmAmt: 0, // 렌탈료 제외한 결제금액 합계
-  billDvCd: '2',
-  billDvMsg: t('MSG_TXT_NTS_PBL_AFT_SV_CS_STLM'),
-  copnDvCd: '',
-  bzrno: '',
-  dlpnrCd: '',
-  emadr: '',
+  billDvCd: '2', // 청구구분코드
+  billDvMsg: t('MSG_TXT_NTS_PBL_AFT_SV_CS_STLM'), // 청구구분메시지
+  copnDvCd: '', // 법인격구분코드
+  bzrno: '', // 사업자번호
+  dlpnrCd: '', // 거래처코드
+  emadr: '', // 이메일
 });
 
+// 청구구분코드에 따른 노출 메시지 셋팅
 watch(() => taxInvoiceData.value.billDvCd, (val) => {
   if (val === '1') {
     taxInvoiceData.value.billDvMsg = t('MSG_TXT_SV_CS_STLM_AFT_NTS_PBL');
@@ -189,8 +190,10 @@ watch(() => taxInvoiceData.value.billDvCd, (val) => {
   }
 });
 
+// 사업자번호 등록여부 검사
 async function validateBrzno() {
   const res = await dataService.get('/sms/wells/service/tax-invoices/business-number-check', { params: { bzrno: taxInvoiceData.value.bzrno } });
+  console.log(res); // 거래처코드 확인
 
   if (isEmpty(res.data)) {
     console.log('세금계산서거래처추가기본 테이블에 사업자등록번호가 등록되어있지 않음.');
@@ -202,6 +205,7 @@ async function validateBrzno() {
   return true;
 }
 
+// 기기 체크
 async function checkMobile() {
   const ua = navigator.userAgent.toLowerCase();
   if (ua.indexOf('kakaotalk') > -1) {
@@ -251,10 +255,12 @@ async function onClickPublication() {
   }
 }
 
+// 계약정보 표출 문구 가져오기
 function getContractInfo(sellTpNm, copnDvNm, pdUswyNm, pdGdNm) {
   return `${sellTpNm ?? '-'} | ${copnDvNm ?? '-'} | ${pdUswyNm ?? '-'} ${pdGdNm ?? '-'}`;
 }
 
+// 총금액 셋팅
 function setTotalAmt() {
   taxInvoiceData.value.totalAmt = services.value.reduce((pre, curr) => {
     pre += curr.stlmAmt ?? 0;
@@ -267,6 +273,7 @@ function setTotalAmt() {
   }, 0);
 }
 
+// 조회
 async function fetchTaxInvoices() {
   const res = await dataService.get('/sms/wells/service/tax-invoices', { params: { ...props, cstSvAsnNo: props.cstSvAsnNos } });
   console.log(res.data);
@@ -279,6 +286,7 @@ async function fetchTaxInvoices() {
   setTotalAmt();
 }
 
+// 암호화된 파라미터 넘어오는 경우 복호화
 const decData = ref();
 if (props.encryptedParam) {
   const paramString = aesDec(props.encryptedParam);
@@ -286,6 +294,7 @@ if (props.encryptedParam) {
   console.log(decData.value);
 }
 
+// 마운트 처리
 onMounted(async () => {
   await fetchTaxInvoices();
 });

@@ -210,12 +210,12 @@ const taxInvoiceData = ref({
   csBilNo: props.csBilNo,
   totalAmt: 0, // 화면에 노출되는 총결제금액으로 렌탈료 합산
   stlmAmt: 0, // 렌탈료 제외한 결제금액 합계
-  billDvCd: '2',
-  billDvMsg: t('MSG_TXT_NTS_PBL_AFT_SV_CS_STLM'),
-  copnDvCd: '',
-  bzrno: '',
-  dlpnrCd: '',
-  emadr: '',
+  billDvCd: '2', // 청구구분코드
+  billDvMsg: t('MSG_TXT_NTS_PBL_AFT_SV_CS_STLM'), // 청구구분메시지
+  copnDvCd: '', // 법인격구분코드
+  bzrno: '', // 사업자번호
+  dlpnrCd: '', // 거래처코드
+  emadr: '', // 이메일
 });
 
 watch(() => taxInvoiceData.value.billDvCd, (val) => {
@@ -226,6 +226,7 @@ watch(() => taxInvoiceData.value.billDvCd, (val) => {
   }
 });
 
+// 사업자번호 등록여부 검사
 async function validateBrzno() {
   const res = await dataService.get('/sms/wells/service/tax-invoices/business-number-check', { params: { bzrno: taxInvoiceData.value.bzrno } });
 
@@ -239,6 +240,7 @@ async function validateBrzno() {
   return true;
 }
 
+// 기기 체크
 async function checkMobile() {
   const ua = navigator.userAgent.toLowerCase();
   if (ua.indexOf('kakaotalk') > -1) {
@@ -288,10 +290,12 @@ async function onClickPublication() {
   }
 }
 
+// 계약정보 표출 문구 가져오기
 function getContractInfo(sellTpNm, copnDvNm, pdUswyNm, pdGdNm) {
   return `${sellTpNm ?? '-'} | ${copnDvNm ?? '-'} | ${pdUswyNm ?? '-'} ${pdGdNm ?? '-'}`;
 }
 
+// 총금액 셋팅
 function setTotalAmt() {
   taxInvoiceData.value.totalAmt = services.value.reduce((pre, curr) => {
     pre += curr.stlmAmt ?? 0;
@@ -304,6 +308,7 @@ function setTotalAmt() {
   }, 0);
 }
 
+// 조회
 async function fetchTaxInvoices() {
   const res = await dataService.get('/sms/wells/service/tax-invoices', { params: { ...props, cstSvAsnNo: props.cstSvAsnNos } });
   console.log(res.data);
@@ -316,6 +321,7 @@ async function fetchTaxInvoices() {
   setTotalAmt();
 }
 
+// 마운트 처리
 onMounted(async () => {
   await fetchTaxInvoices();
 });
