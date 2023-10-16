@@ -521,7 +521,7 @@
               v-model:page-size="pageInfo.pageSize"
               :total-count="pageInfo.totalCount"
               :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-              @change="fetchDetailsData"
+              @change="fetchData"
             />
             <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
           </template>
@@ -578,7 +578,7 @@
           v-model:page-index="pageInfo.pageIndex"
           v-model:page-size="pageInfo.pageSize"
           :total-count="pageInfo.totalCount"
-          @change="fetchDetailsData"
+          @change="fetchData"
         />
       </div>
     </kw-tab-panel>
