@@ -204,6 +204,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 엑셀 다운로드 버튼 클릭
 async function onClickExportView() {
   const view = grdMainRef.value.getView();
   await gridUtil.exportView(view, {
@@ -215,6 +216,7 @@ async function onClickExportView() {
 
 let sellChnlDtlCdList = ref([]);
 const initRes = codes.SELL_CHNL_DTL_CD;
+// 초기화 버튼 클릭
 async function onClickResetSearch() {
   searchParams.value.sellChnl = [];
   sellChnlDtlCdList = [];
@@ -254,10 +256,10 @@ const initGrdMain = defineGrid((data, view) => {
       footer: {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
-      } },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '80', styleName: 'text-center' },
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PDGRP'), width: '100', styleName: 'text-left', visible: false },
+      } }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center' }, // 판매유형상세
+    { fieldName: 'sellInflwChnlDtlCd', header: t('MSG_TXT_SEL_CHNL'), width: '80', styleName: 'text-center' }, // 판매유입채널상세코드
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PDGRP'), width: '100', styleName: 'text-left', visible: false }, // 상품명
     { fieldName: 'totAccN',
       header: t('MSG_TXT_TOT_ACC_N'),
       width: '120',
@@ -269,7 +271,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 총 계정수
     { fieldName: 'ucamTam',
       header: t('MSG_TXT_UCAM_TAM'),
       width: '120',
@@ -281,7 +283,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 미수금 총액
     { fieldName: 'fnlAmt',
       header: t('MSG_TXT_UC_AMT'),
       width: '100',
@@ -292,7 +294,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 미수금액
     { fieldName: 'thmNwAccN',
       header: t('MSG_TXT_ACC_N'),
       width: '80',
@@ -303,7 +305,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 계정수
     { fieldName: 'thmNwDpAmt',
       header: t('MSG_TXT_DP_AMT'),
       width: '100',
@@ -314,7 +316,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 입금금액
     { fieldName: 'thmNwDpRt',
       header: t('MSG_TXT_DP_RT'),
       width: '80',
@@ -337,7 +339,7 @@ const initGrdMain = defineGrid((data, view) => {
             : (grid.getSummary('thmNwDpAmt', 'sum') / grid.getSummary('fnlAmt', 'sum')) * 100;
 
           return rtSum;
-        } } },
+        } } }, // 입금률
     { fieldName: 'nomUcAmt',
       header: t('MSG_TXT_UC_AMT'),
       width: '120',
@@ -349,7 +351,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 미수금액
     { fieldName: 'nomAccN',
       header: t('MSG_TXT_ACC_N'),
       width: '90',
@@ -361,7 +363,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 계정수
     { fieldName: 'nomDpAmt',
       header: t('MSG_TXT_DP_AMT'),
       width: '100',
@@ -372,7 +374,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 입금금액
     { fieldName: 'nomDpRt',
       header: t('MSG_TXT_DP_RT'),
       width: '80',
@@ -395,7 +397,7 @@ const initGrdMain = defineGrid((data, view) => {
             : (grid.getSummary('nomDpAmt', 'sum') / grid.getSummary('nomUcAmt', 'sum')) * 100;
 
           return rtSum;
-        } } },
+        } } }, // 입금률
     { fieldName: 'dlqAmt',
       header: t('MSG_TXT_DLQ_AMT'),
       width: '100',
@@ -407,7 +409,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 연체금액
     { fieldName: 'dlqAccN',
       header: t('MSG_TXT_ACC_N'),
       width: '90',
@@ -418,7 +420,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 계정수
     { fieldName: 'dlqDpAmt',
       header: t('MSG_TXT_DP_AMT'),
       width: '100',
@@ -429,7 +431,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 입금금액
     { fieldName: 'ucCprDlqRt',
       header: t('MSG_TXT_UC_CPR_DLQR'),
       width: '159',
@@ -453,7 +455,7 @@ const initGrdMain = defineGrid((data, view) => {
             : ((grid.getSummary('dlqAmt', 'sum') - grid.getSummary('dlqDpAmt', 'sum')) / (grid.getSummary('fnlAmt', 'sum') + grid.getSummary('nomUcAmt', 'sum'))) * 100;
 
           return rtTotSum;
-        } } },
+        } } }, // 미수대비연체율
     { fieldName: 'totDpAmt',
       header: t('MSG_TXT_TOT_DP_AMT'),
       width: '100',
@@ -464,7 +466,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 총입금액
     { fieldName: 'dpRt',
       header: t('MSG_TXT_DP_RT'),
       width: '80',
@@ -488,7 +490,7 @@ const initGrdMain = defineGrid((data, view) => {
             : ((grid.getSummary('nomDpAmt', 'sum') + grid.getSummary('thmNwDpAmt', 'sum')) / (grid.getSummary('fnlAmt', 'sum') + grid.getSummary('nomUcAmt', 'sum'))) * 100;
 
           return rtTotSum;
-        } } },
+        } } }, // 입금률
     { fieldName: 'bilAgg',
       header: t('MSG_TXT_BIL_AGG'),
       width: '130',
@@ -500,7 +502,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 청구누계
     { fieldName: 'dpAgg',
       header: t('MSG_TXT_DP_AGG'),
       width: '130',
@@ -511,7 +513,7 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         styleName: 'text-right',
       },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 입금누계
     { fieldName: 'dlqRtSum',
       header: t('MSG_TXT_DLQR_SUM'),
       width: '80',
@@ -534,7 +536,7 @@ const initGrdMain = defineGrid((data, view) => {
             : ((grid.getSummary('thmNwDpAmt', 'sum') + grid.getSummary('nomDpAmt', 'sum') + grid.getSummary('dlqDpAmt', 'sum')) / (grid.getSummary('bilAgg', 'sum'))) * 100;
 
           return Number.isNaN(rtSum) ? 0 : rtSum;
-        } } },
+        } } }, // 연체율계
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
