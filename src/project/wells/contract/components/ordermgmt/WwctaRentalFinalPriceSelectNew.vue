@@ -478,11 +478,11 @@ const priceDefineVariables = ref({
   stplPrdCd: undefined,
   cntrAmt: undefined,
   cntrPtrm: undefined,
-  asMcn: undefined,
+  // asMcn: undefined, TODO
   rentalDscDvCd: undefined,
   rentalCrpDscrCd: undefined,
   rentalDscTpCd: undefined,
-  rentalCombiDvCd: undefined,
+  // rentalCombiDvCd: undefined, TODO
 });
 
 const labelGenerator = {
@@ -559,6 +559,8 @@ const {
   setPriceDefineVariablesBy,
   setVariablesIfUniqueSelectable,
   selectedFinalPrice, // computed
+  // eslint-disable-next-line no-unused-vars
+  selectedFinalPrices, // computed
 } = usePriceSelect(
   priceDefineVariables,
   finalPriceOptions,
