@@ -431,6 +431,7 @@ const RENTAL_DSC_TP_CD_PACKAGE_CODES = [
   RENTAL_DSC_TP_CD_PACKAGE_OVER_4,
 ];
 const RENTAL_DSC_TP_CD_USER_SELECTABLE = [
+  EMPTY_ID,
   RENTAL_DSC_TP_CD_STCF_SEL,
   RENTAL_DSC_TP_CD_SPC_DSC_SEL_2,
   RENTAL_DSC_TP_CD_SELF_PURCHASE_DSC,
@@ -541,7 +542,7 @@ const labelGenerator = {
   },
   rentalDscTpCd: (val) => {
     if (val === EMPTY_ID) {
-      return '선택안함';
+      return '미적용';
     }
     return getCodeName('RENTAL_DSC_TP_CD', val);
   },
