@@ -46,7 +46,7 @@
         <kw-select
           v-model="approvalRequest.bnkCd"
           label="은행"
-          :options="banks"
+          :options="codes[BANKS]"
           rules="required"
         />
         <kw-input
@@ -94,6 +94,8 @@ import { alert, confirm, getComponentType, notify, useDataService } from 'kw-lib
 import { scrollIntoView } from '~sms-common/contract/util';
 import { useCtCode } from '~sms-common/contract/composable';
 
+const BANKS = 'BANKS';
+
 const props = defineProps({
   cntrCstInfo: { type: Object, default: undefined },
   stlm: {
@@ -106,13 +108,12 @@ const exposed = {};
 defineExpose(exposed);
 const dataService = useDataService();
 
-const { getCodeName } = await useCtCode('FNIT_APR_RS_CD');
+const { codes, getCodeName, addCode } = await useCtCode('FNIT_APR_RS_CD');
 
 const frmRef = ref(getComponentType('KwForm'));
 const isCooperation = computed(() => props.cntrCstInfo.copnDvCd === '2' /* sorry, haha. */);
 const stlmBas = computed(() => (props.stlm ?? {}));
 const mpyBsdtOptions = ref([]);
-const banks = ref([]);
 
 async function fetchRegularFundTransferDayOptions() {
   if (!stlmBas.value.dpTpCd) { return; }
@@ -122,8 +123,13 @@ async function fetchRegularFundTransferDayOptions() {
 await fetchRegularFundTransferDayOptions();
 
 async function fetchBanks() {
-  const { data } = await dataService.get('/sms/common/common/codes/finance-code/bank-codes');
-  banks.value = data;
+  const { data } = await dataService.get('/sms/common/common/codes/finance-code/bank-codes', {
+    params: {
+      fnitFeeTpCd: '1', /* 금융기관수수료유형코드(1 - 가상계좌, 2 - 신용카드, 3 - 카드자동이체, 4 - 현금자동이체) */
+      vncoDvCd: '003', /* VAN사구분코드(002 - 세틀뱅크, 003 - KICC, 001 - 금결원) */
+    },
+  });
+  await addCode(BANKS, data);
 }
 await fetchBanks();
 
