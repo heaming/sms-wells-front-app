@@ -338,7 +338,7 @@ async function openOzReport(cstSvAsnNo, printYn) {
   };
 
   await openReportPopup(
-    'ksswells/cust/reprt/wellsServConf.ozr',
+    '/kyowon_as/wellsServConf.ozr',
     null,
     JSON.stringify(args),
     null,
