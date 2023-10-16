@@ -196,11 +196,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { alert, codeUtil, useDataService, useMeta, gridUtil } from 'kw-lib';
+import { alert, codeUtil, gridUtil, useDataService, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
+import { isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
@@ -310,6 +311,41 @@ async function fetchData() {
   }
 }
 
+async function fetchOzReport(params) {
+  return await dataService.get('/sms/wells/service/wells-service-cfdc/oz', params);
+}
+
+async function openOzReport(cstSvAsnNo, printYn) {
+  const res = await fetchOzReport({ params: { cstSvAsnNo } });
+  const args = {
+    DataMaster: [{
+      CUSTNM: res.data.rcgvpNm,
+      CHKNAM: 'DDD',
+      REGDAT: dayjs(res.data.cntrCnfmDtm).format('YYYY-MM-DD'),
+      CNT: '100',
+    }],
+    DataList: [{
+      ROWNUM: '1',
+      CUST_CD: `${res.data.cntrNo}-${res.data.cntrSn}`,
+      ITEM_NM: res.data.pdNm,
+      CUST_NM: printYn === 'Y' ? props.nm : res.data.rcgvpNm,
+      ADDR: `${res.data.rnadr}${res.data.rdadr ? '' : ` ${res.data.rdadr}`}`,
+      WRK_DATE: dayjs(res.data.vstFshDt).format('YYYY.MM.DD'),
+      PROC_TXT: res.data.svProcsCn,
+      WRK_EMP_NM: printYn === 'Y' ? props.prtnrKnm : res.data.psicPrtnrNm,
+      CHKVAL: res.data.psicPrtnrNo,
+    }],
+    DataList2: [],
+  };
+
+  await openReportPopup(
+    'ksswells/cust/reprt/wellsServConf.ozr',
+    null,
+    JSON.stringify(args),
+    null,
+  );
+}
+
 async function onClickRefresh() {
   pageInfo.value.pageIndex = 1;
 
@@ -318,20 +354,7 @@ async function onClickRefresh() {
 
 async function onClickPrint() {
   if (!await frmMainRef.value.validate()) { return; }
-
-  await alert('출력물 출력 적용 예정');
-  // const { cntrNo, cntrSn, prtnrKnm, nm } = props;
-  // const { etcSelect, publishDate } = sendInfo.value;
-  // const data = {
-  //   cntrNo,
-  //   cntrSn,
-  //   prtnrKnm,
-  //   nm,
-  //   etcSelect,
-  //   publishDatetime: `${publishDate}000000`,
-  // };
-  // await dataService.post('/sms/wells/service/wells-service-cfdc/report', data);
-  // frmMainRef.value.init();
+  await openOzReport(props.cstSvAsnNo, 'Y');
 }
 
 async function onClickSendKakao() {
@@ -349,6 +372,7 @@ async function onClickSendKakao() {
     publishDatetime: dayjs(publishDate).isAfter(dayjs(), 'day') ? `${publishDate}000000` : dayjs().format('YYYYMMDDHHmmss'),
     callingNumber: callingNumber.replaceAll('-', ''),
     receivingNumber: telNo1 + telNo2 + telNo3,
+    cstSvAsnNo: props.cstSvAsnNo,
   };
 
   await dataService.post('/sms/wells/service/wells-service-cfdc/kakao', data);
@@ -370,6 +394,7 @@ async function onClickSendEmail() {
     publishDatetime: dayjs(publishDate).isAfter(dayjs(), 'day') ? `${publishDate}000000` : dayjs().format('YYYYMMDDHHmmss'),
     caller,
     receiver,
+    cstSvAsnNo: props.cstSvAsnNo,
   };
   await dataService.post('/sms/wells/service/wells-service-cfdc/email', data);
 
@@ -393,7 +418,7 @@ async function initGrdMain(data, view) {
     { fieldName: 'sendDatetime' },
     { fieldName: 'sender' },
     { fieldName: 'report' },
-
+    { fieldName: 'cstSvAsnNo' },
   ];
 
   const columns = [
@@ -413,12 +438,8 @@ async function initGrdMain(data, view) {
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     console.log(itemIndex);
     if (column === 'report') {
-      await openReportPopup(
-        'ksswells/cust/reprt/wellsServConf.ozr',
-        null,
-        null,
-        null,
-      );
+      const cstSvAsnNo = g.getValue(itemIndex, 'cstSvAsnNo');
+      if (!isEmpty(cstSvAsnNo)) await openOzReport(cstSvAsnNo, 'N');
     }
   };
 
