@@ -316,7 +316,7 @@ async function fetchData() {
 
 async function openOzReport(cstSvAsnNo, printYn) {
   const args = {
-    searchApiUrl: '/api/v1/anonymous/sms/wells/service/wells-service-cfdc/oz',
+    searchApiUrl: '/api/v1/sms/wells/service/wells-service-cfdc/oz',
     cstSvAsnNo,
     rcgvpNm: printYn === 'Y' ? props.nm : '',
     prtnrNm: printYn === 'Y' ? props.prtnrKnm : '',
