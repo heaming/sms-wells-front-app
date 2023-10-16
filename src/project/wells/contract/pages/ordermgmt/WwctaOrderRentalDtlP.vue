@@ -583,7 +583,7 @@
         <!-- 할인제도(제렌탈/1+1) -->
         <kw-form-item :label="$t('MSG_TXT_DSC_SYST')+'('+$t('MSG_TXT_RE_RENTAL')+'/1+1)'">
           <kw-input
-            v-model="frmMainData.dscPmotCd"
+            v-model="frmMainData.pmotNm"
             placeholder=""
             readonly
           />
@@ -1794,7 +1794,7 @@ const frmMainData = ref({
   sellDscDvNm: '', // 할인적용구분명
   sellDscTpCd: '', // 할인적용상세
   sellDscTpNm: '', // 할인적용상세명
-  dscPmotCd: '', // 할인제도
+  pmotNm: '', // 할인제도(제렌탈/1+1)
   svPrdInfo: '', // 관리/방문/택배 주기
   lcetc7: '', // 기변 여부
   ojCntrDtlNo: '', // 기변 상대코드
@@ -2028,7 +2028,7 @@ async function fetchData() {
     frmMainData.value.sellDscDvNm = pages[0].sellDscDvNm; // 할인적용구분명
     frmMainData.value.sellDscTpCd = pages[0].sellDscTpCd; // 할인적용상세
     frmMainData.value.sellDscTpNm = pages[0].sellDscTpNm; // 할인적용상세명
-    frmMainData.value.dscPmotCd = pages[0].dscPmotCd; // 할인제도
+    frmMainData.value.pmotNm = pages[0].pmotNm; // 할인제도(제렌탈/1+1)
     frmMainData.value.svPrdInfo = pages[0].svPrdInfo; // 관리/방문/택배 주기
     frmMainData.value.lcetc7 = pages[0].lcetc7; // 기변 여부
     frmMainData.value.ojCntrDtlNo = pages[0].ojCntrDtlNo; // 기변 상대코드
