@@ -207,13 +207,13 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const selectDlqDv = { // 연체구분
-  options: [{ codeId: '1', codeName: '정상' }, { codeId: '2', codeName: '연체' }],
+  options: [{ codeId: '1', codeName: t('MSG_TXT_NOM') }, { codeId: '2', codeName: t('MSG_TXT_DLQ') }],
 };
 
 const selectDlqMcnt = { // 연체개월
-  options: [{ codeId: '0', codeName: '0차월' }, { codeId: '1', codeName: '1차월' }, { codeId: '2', codeName: '2차월' },
-    { codeId: '3', codeName: '3차월' }, { codeId: '4', codeName: '4차월' }, { codeId: '5', codeName: '5차월' },
-    { codeId: '6', codeName: '6차월' }, { codeId: '7', codeName: '7차월이상' }],
+  options: [{ codeId: '0', codeName: t('MSG_TXT_0NMN') }, { codeId: '1', codeName: t('MSG_TXT_1NMN') }, { codeId: '2', codeName: t('MSG_TXT_2NMN') },
+    { codeId: '3', codeName: t('MSG_TXT_3NMN') }, { codeId: '4', codeName: t('MSG_TXT_4NMN') }, { codeId: '5', codeName: t('MSG_TXT_5NMN') },
+    { codeId: '6', codeName: t('MSG_TXT_6NMN') }, { codeId: '7', codeName: t('MSG_TXT_7NMN') + t('MSG_TXT_MRTN') }],
 };
 
 const ogTpCd = codes.OG_TP_CD.filter((v) => ['W01', 'W02'].includes(v.codeId));
@@ -262,6 +262,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 엑셀 다운로드 버튼 클릭
 async function onClickExportView() {
   const view = grdDetailRef.value.getView();
   const response = await dataService.get('/sms/wells/closing/deposit-delinquent-details/contract/excel-download', { params: cachedParams, timeout: 80000 });
@@ -318,39 +319,39 @@ watch(() => searchParams.value.sellTpCd, () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdDetail = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'slClDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '140', styleName: 'text-left' },
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'billingAmount', header: t('MSG_TXT_TOT_BIL_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'depositAmount', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'uncollectedAmount', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'dpTpCd', header: t('MSG_TXT_STLM_MTHD'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD },
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_STPL_D'), width: '120', styleName: 'text-center' },
-    { fieldName: 'approveCode', header: t('MSG_TXT_STLM_CD'), width: '80', styleName: 'text-center' },
-    { fieldName: 'nonPaymentReason', header: t('MSG_TXT_OSTD_RSON'), width: '120', styleName: 'text-left' },
-    { fieldName: 'slAggAmt', header: t('MSG_TXT_SL_AGG_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'depositAggregate', header: t('MSG_TXT_DP_AGG_AMT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'fstCntrDt', header: t('MSG_TXT_SELLER_BIZ_RGST_D'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_SELLER_RSB'), width: '120', styleName: 'text-center' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_SELLER_DV'), width: '120', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'dgr1LevlOgCd', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'insidePurchase', header: t('MSG_TXT_INSI_PRCHS'), width: '120', styleName: 'text-center' },
-    { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '120', styleName: 'text-center' },
-    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '70', styleName: 'text-center' },
-    { fieldName: 'crpMpno', header: t('MSG_TXT_CLCTAM_ICHR_TNO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'mmIstmAmt', header: t('MSG_TXT_MM_MPY_AMT'), width: '120', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형코드명
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세코드명
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' }, // 계약번호+계약일련번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' }, // 고객한글명
+    { fieldName: 'slClDt', header: t('MSG_TXT_SL_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 매출마감일자
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center' }, // 기준상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '140', styleName: 'text-left' }, // 상품명
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 연체개월수
+    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 기말연체금액
+    { fieldName: 'billingAmount', header: t('MSG_TXT_TOT_BIL_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 매출누계금액
+    { fieldName: 'depositAmount', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 입금금액
+    { fieldName: 'uncollectedAmount', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 미수금액
+    { fieldName: 'dpTpCd', header: t('MSG_TXT_STLM_MTHD'), width: '120', styleName: 'text-center', options: codes.DP_TP_CD }, // 입금유형코드
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_STPL_D'), width: '120', styleName: 'text-center' }, // 납부기준일자
+    { fieldName: 'approveCode', header: t('MSG_TXT_STLM_CD'), width: '80', styleName: 'text-center' }, //
+    { fieldName: 'nonPaymentReason', header: t('MSG_TXT_OSTD_RSON'), width: '120', styleName: 'text-left' }, //
+    { fieldName: 'slAggAmt', header: t('MSG_TXT_SL_AGG_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 매출누계금액
+    { fieldName: 'depositAggregate', header: t('MSG_TXT_DP_AGG_AMT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 입금누계액
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '100', styleName: 'text-center' }, // 파트너한글명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' }, // 파트너번호
+    { fieldName: 'fstCntrDt', header: t('MSG_TXT_SELLER_BIZ_RGST_D'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 최초계약일자
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_SELLER_RSB'), width: '120', styleName: 'text-center' }, // 직급구분코드
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_SELLER_DV'), width: '120', styleName: 'text-center', options: codes.RSB_DV_CD }, // 직책구분코드
+    { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: '100', styleName: 'text-center' }, // 3차레벨조직코드
+    { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR_NM'), width: '120', styleName: 'text-center' }, // 3차레벨대표파트너명
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' }, // 빌딩명
+    { fieldName: 'dgr1LevlOgCd', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '100', styleName: 'text-center' }, // 1차레벨조직코드
+    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '100', styleName: 'text-center' }, // 2차레벨조직코드
+    { fieldName: 'insidePurchase', header: t('MSG_TXT_INSI_PRCHS'), width: '120', styleName: 'text-center' }, // 내부구매
+    { fieldName: 'clctamPrtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '120', styleName: 'text-center' }, // 집금파트너번호
+    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '70', styleName: 'text-center' }, // 파트너한글명
+    { fieldName: 'crpMpno', header: t('MSG_TXT_CLCTAM_ICHR_TNO'), width: '140', styleName: 'text-center' }, // 법인휴대전화번호
+    { fieldName: 'mmIstmAmt', header: t('MSG_TXT_MM_MPY_AMT'), width: '120', styleName: 'text-right', dataType: 'number' }, // 월할부금액
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
