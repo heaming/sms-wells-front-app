@@ -81,7 +81,7 @@ import { alert, notify, useDataService, stringUtil, confirm } from 'kw-lib';
 import { scrollIntoView } from '~sms-common/contract/util';
 import { useCtCode } from '~sms-common/contract/composable';
 
-const BANKS = 'banks';
+const BANKS = 'BANKS';
 
 const props = defineProps({
   stlm: {
@@ -139,8 +139,13 @@ async function onClickIssue() {
 }
 
 async function fetchBanks() {
-  const { data } = await dataService.get('/sms/common/common/codes/finance-code/bank-codes');
-  addCode(BANKS, data);
+  const { data } = await dataService.get('/sms/common/common/codes/finance-code/bank-codes', {
+    params: {
+      fnitFeeTpCd: '1', /* 금융기관수수료유형코드(1 - 가상계좌, 2 - 신용카드, 3 - 카드자동이체, 4 - 현금자동이체) */
+      vncoDvCd: '003', /* VAN사구분코드(002 - 세틀뱅크, 003 - KICC, 001 - 금결원) */
+    },
+  });
+  await addCode(BANKS, data);
 }
 
 await fetchBanks();

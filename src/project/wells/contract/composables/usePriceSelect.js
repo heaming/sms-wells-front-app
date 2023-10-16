@@ -191,7 +191,7 @@ export default (
 
   const onChangePriceOptionFilter = () => {
     filteringFinalPriceOptions();
-    setVariablesIfUniqueSelectable();
+    filteredVariableNames.value.forEach(setIfUniqueSelectable); /* 필터링 된 항목만 박도록 수정 */
   };
 
   watch(priceOptionFilter, onChangePriceOptionFilter);
