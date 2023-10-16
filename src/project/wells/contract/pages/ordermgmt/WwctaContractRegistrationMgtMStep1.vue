@@ -104,12 +104,14 @@
         </kw-search-item>
         <kw-search-item
           v-if="popupRequiredCstInfos && searchParams.copnDvCd === '2'"
-          :label="cstKnmLabel"
+          :label="$t('MSG_TXT_CRNO')"
+          required
         >
           <kw-input
-            v-model="searchParams.cstKnm"
-            :label="cstKnmLabel"
-            maxlength="50"
+            v-model="searchParams.bzrno"
+            :label="$t('MSG_TXT_CRNO')"
+            rules="required"
+            maxlength="10"
             :disable="isReadonly"
           />
         </kw-search-item>
@@ -119,14 +121,12 @@
       >
         <kw-search-item
           v-if="popupRequiredCstInfos && searchParams.copnDvCd === '2'"
-          :label="$t('MSG_TXT_CRNO')"
-          required
+          :label="cstKnmLabel"
         >
           <kw-input
-            v-model="searchParams.bzrno"
-            :label="$t('MSG_TXT_CRNO')"
-            rules="required"
-            maxlength="10"
+            v-model="searchParams.cstKnm"
+            :label="cstKnmLabel"
+            maxlength="50"
             :disable="isReadonly"
           />
         </kw-search-item>
