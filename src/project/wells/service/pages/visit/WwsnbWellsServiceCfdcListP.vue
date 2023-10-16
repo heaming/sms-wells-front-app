@@ -292,7 +292,6 @@ async function fetchDataEmail() {
 
   list.forEach((row) => {
     row.sendType = t('MSG_TXT_EMAIL'); // 이메일
-    row.report = t('MSG_TXT_RPT_BRWS'); // 리포트 보기
   });
 
   pageInfo.value = pageInfoObj;
@@ -417,7 +416,6 @@ async function initGrdMain(data, view) {
     { fieldName: 'receiver' },
     { fieldName: 'sendDatetime' },
     { fieldName: 'sender' },
-    { fieldName: 'report' },
     { fieldName: 'cstSvAsnNo' },
   ];
 
@@ -426,7 +424,13 @@ async function initGrdMain(data, view) {
     { fieldName: 'receiver', header: t('MSG_TXT_RECP'), width: '150', styleName: 'text-center' }, // 수신
     { fieldName: 'sendDatetime', header: t('MSG_TXT_FW_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'datetime' }, // 발송일자
     { fieldName: 'sender', header: t('MSG_TXT_DSPTR'), width: '150', styleName: 'text-center' }, // 발신자
-    { fieldName: 'report', header: t('MSG_TXT_RPT'), renderer: { type: 'button' }, width: '150' }, // 리포트
+    {
+      fieldName: 'cstSvAsnNo',
+      header: t('MSG_TXT_RPT'),
+      renderer: { type: 'button', hideWhenEmpty: true },
+      width: '150',
+      displayCallback: () => t('MSG_TXT_RPT_BRWS'),
+    }, // 리포트
   ];
 
   data.setFields(fields);
@@ -437,7 +441,7 @@ async function initGrdMain(data, view) {
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     console.log(itemIndex);
-    if (column === 'report') {
+    if (column === 'cstSvAsnNo') {
       const cstSvAsnNo = g.getValue(itemIndex, 'cstSvAsnNo');
       if (!isEmpty(cstSvAsnNo)) await openOzReport(cstSvAsnNo, 'N');
     }
