@@ -310,31 +310,16 @@ async function fetchData() {
   }
 }
 
-async function fetchOzReport(params) {
-  return await dataService.get('/sms/wells/service/wells-service-cfdc/oz', params);
-}
+// async function fetchOzReport(params) {
+//   return await dataService.get('/sms/wells/service/wells-service-cfdc/oz', params);
+// }
 
 async function openOzReport(cstSvAsnNo, printYn) {
-  const res = await fetchOzReport({ params: { cstSvAsnNo } });
   const args = {
-    DataMaster: [{
-      CUSTNM: res.data.rcgvpNm,
-      CHKNAM: 'DDD',
-      REGDAT: dayjs(res.data.cntrCnfmDtm).format('YYYY-MM-DD'),
-      CNT: '100',
-    }],
-    DataList: [{
-      ROWNUM: '1',
-      CUST_CD: `${res.data.cntrNo}-${res.data.cntrSn}`,
-      ITEM_NM: res.data.pdNm,
-      CUST_NM: printYn === 'Y' ? props.nm : res.data.rcgvpNm,
-      ADDR: `${res.data.rnadr}${res.data.rdadr ? '' : ` ${res.data.rdadr}`}`,
-      WRK_DATE: dayjs(res.data.vstFshDt).format('YYYY.MM.DD'),
-      PROC_TXT: res.data.svProcsCn,
-      WRK_EMP_NM: printYn === 'Y' ? props.prtnrKnm : res.data.psicPrtnrNm,
-      CHKVAL: res.data.psicPrtnrNo,
-    }],
-    DataList2: [],
+    searchApiUrl: '/sms/wells/service/wells-service-cfdc/oz',
+    cstSvAsnNo,
+    rcgvpNm: printYn === 'Y' ? props.nm : '',
+    prtnrNm: printYn === 'Y' ? props.prtnrKnm : '',
   };
 
   await openReportPopup(
