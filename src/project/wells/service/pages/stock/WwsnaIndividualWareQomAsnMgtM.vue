@@ -32,7 +32,6 @@
             @change="onChangeApyYm"
           />
         </kw-search-item>
-        <!-- //기준년월 -->
         <!-- 배정년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_ASN_YM')"
@@ -46,7 +45,6 @@
             @change="onChangeAsnOjYm"
           />
         </kw-search-item>
-        <!-- //배정년월 -->
         <!-- 회차 -->
         <kw-search-item
           :label="$t('MSG_TXT_ORDERSELECT_TITLE')"
@@ -58,7 +56,6 @@
             rules="required|numeric|min_value:1|max_value:999999999999"
           />
         </kw-search-item>
-        <!-- //회차 -->
         <!-- 출고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_WARE')"
@@ -72,7 +69,6 @@
             rules="required"
           />
         </kw-search-item>
-        <!-- //출고창고 -->
       </kw-search-row>
       <kw-search-row>
         <!-- 품목종류 -->
@@ -85,7 +81,6 @@
             :options="codes.ITM_KND_CD"
           />
         </kw-search-item>
-        <!-- //품목종류 -->
         <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
@@ -97,7 +92,6 @@
             rules="alpha_num|max:10"
           />
         </kw-search-item>
-        <!-- //품목코드 -->
         <!-- 입고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_STR_WARE')"
@@ -119,7 +113,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //입고창고 -->
       </kw-search-row>
     </kw-search>
 
@@ -137,7 +130,7 @@
             ({{ t('MSG_TXT_UNIT') }} : EA)
           </span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -152,6 +145,7 @@
           inset
           spaced
         />
+        <!-- 창고갱신 -->
         <kw-btn
           v-permission:update
           dense
@@ -159,6 +153,7 @@
           :label="$t('MSG_TXT_WARE_RNW')"
           @click="onClickWareRenewal"
         />
+        <!-- 배정제외품목등록 -->
         <kw-btn
           v-permission:create
           dense
@@ -166,6 +161,7 @@
           :label="$t('MSG_TXT_ASGN_EXLD_ITM_RGST')"
           @click="openAssignExcludeItemP"
         />
+        <!-- 재생성 -->
         <kw-btn
           v-permission:update
           :label="$t('MSG_TXT_RECREATION')"

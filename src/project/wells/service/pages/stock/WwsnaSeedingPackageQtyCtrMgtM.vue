@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 출고일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_DT')"
           required
@@ -32,6 +33,7 @@
       </kw-search-row>
     </kw-search>
     <div class="result-area">
+      <!-- 제외수량 -->
       <h3>{{ t('MSG_TXT_EXCD') }} {{ t('MSG_TXT_QTY') }}</h3>
       <kw-action-top>
         <template #left>
@@ -42,6 +44,7 @@
             ({{ t('MSG_TXT_UNIT') }} : EA)
           </span>
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -56,6 +59,7 @@
           inset
           spaced
         />
+        <!-- 조정수량등록 -->
         <kw-btn
           v-permission:create
           :label="`${t('MSG_TXT_CTR')}${t('MSG_TXT_QTY')}${t('MSG_TXT_RGS')}`"
@@ -71,7 +75,7 @@
         :total-count="totalCount1"
         @init="initGrdMain1"
       />
-
+      <!-- 추가수량 -->
       <h3>{{ t('MSG_TXT_ADD') }} {{ t('MSG_TXT_QTY') }}</h3>
       <kw-action-top>
         <template #left>
@@ -82,6 +86,7 @@
             ({{ t('MSG_TXT_UNIT') }} : EA)
           </span>
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -96,6 +101,7 @@
           inset
           spaced
         />
+        <!-- 조정수량등록 -->
         <kw-btn
           v-permission:create
           :label="`${t('MSG_TXT_CTR')}${t('MSG_TXT_QTY')}${t('MSG_TXT_RGS')}`"

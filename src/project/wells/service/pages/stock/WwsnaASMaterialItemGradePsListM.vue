@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
@@ -31,6 +32,7 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 사용여부 -->
         <kw-search-item :label="$t('MSG_TXT_USE_YN')">
           <kw-select
             v-model="searchParams.useYn"
@@ -39,6 +41,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 자재구분 -->
         <kw-search-item :label="$t('MSG_TXT_MAT_DV')">
           <kw-select
             v-model="searchParams.matUtlzDvCd"
@@ -63,7 +66,7 @@
             ({{ t('MSG_TXT_UNIT') }} : EA)
           </span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"

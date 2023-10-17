@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
@@ -28,6 +29,7 @@
             @change="onChangeBaseYm"
           />
         </kw-search-item>
+        <!-- 센터 -->
         <kw-search-item
           :label="$t('MSG_TXT_CENTER_DIVISION')"
         >
@@ -40,6 +42,7 @@
             @change="onChangeHgrWareHouse"
           />
         </kw-search-item>
+        <!-- 엔지니어 -->
         <kw-search-item
           :label="$t('MSG_TXT_EGER')"
         >
@@ -53,6 +56,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 업무유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_TASK_TYPE')"
         >
@@ -72,7 +76,7 @@
           />
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
           :disable="totalCount === 0"

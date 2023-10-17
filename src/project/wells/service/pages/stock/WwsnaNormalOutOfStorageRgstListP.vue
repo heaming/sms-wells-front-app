@@ -33,7 +33,6 @@
             :readonly="true"
           />
         </kw-form-item>
-        <!-- //출고요청유형 -->
         <!-- 출고창고 -->
         <kw-form-item
           :label="$t('MSG_TXT_OSTR_WARE')"
@@ -55,9 +54,7 @@
               />
             </template>
           </kw-field>
-          <!-- //표준 미적용 -->
         </kw-form-item>
-        <!-- //출고창고 -->
       </kw-form-row>
       <kw-form-row>
         <!-- 입고희망일 -->
@@ -69,7 +66,6 @@
             :readonly="true"
           />
         </kw-form-item>
-        <!-- //입고희망일 -->
         <!-- 출고요청번호 -->
         <kw-form-item
           :label="$t('MSG_TXT_OSTR_AK_NO')"
@@ -80,7 +76,6 @@
             mask="###-########-#######"
           />
         </kw-form-item>
-        <!-- //출고요청번호 -->
       </kw-form-row>
       <kw-form-row>
         <!-- 등록일자 -->
@@ -96,7 +91,6 @@
             :min-date="minDate"
           />
         </kw-form-item>
-        <!-- //등록일자 -->
         <!-- 입고창고 -->
         <kw-form-item
           :label="$t('MSG_TXT_STR_WARE')"
@@ -106,7 +100,6 @@
             :readonly="true"
           />
         </kw-form-item>
-        <!-- //입고창고 -->
       </kw-form-row>
     </kw-form>
     <kw-separator />
@@ -121,6 +114,7 @@
         />
         <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
       </template>
+      <!-- 삭제 -->
       <kw-btn
         v-permission:delete
         grid-action
@@ -128,6 +122,7 @@
         :disable="props.page !== pageProps.remove"
         @click="onClickDelete"
       />
+      <!-- 출력 -->
       <kw-btn
         v-permission:print
         dense
@@ -141,6 +136,7 @@
         vertical
         inset
       />
+      <!-- 엑셀다운로드 -->
       <kw-btn
         v-permission:download
         dense
@@ -164,7 +160,7 @@
         :disable="props.page !== pageProps.confirm"
         @click="onClickConfirm"
       />
-      <!-- //확정 -->
+      <!-- 확정및출력 -->
       <kw-btn
         v-permission:create
         primary

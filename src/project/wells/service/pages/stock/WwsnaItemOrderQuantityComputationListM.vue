@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
+        <!-- 관리년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_MGT_YNM')"
           required
@@ -27,6 +28,7 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
         >
@@ -46,6 +48,7 @@
             :multiple="true"
           />
         </kw-search-item>
+        <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
         >
@@ -58,6 +61,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- SAP코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_SAPCD')"
         >
@@ -89,6 +93,7 @@
           />
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
@@ -103,6 +108,7 @@
           inset
           spaced
         />
+        <!-- 산출제외품목등록 -->
         <kw-btn
           v-permission:create
           :label="$t('MSG_BTN_CMPT_EXCD_ITM_MNGT')"

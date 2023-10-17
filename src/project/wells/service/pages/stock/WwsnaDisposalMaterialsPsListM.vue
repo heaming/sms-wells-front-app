@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
@@ -31,6 +32,7 @@
             @change="getWareHouses"
           />
         </kw-search-item>
+        <!-- 서비스센터 -->
         <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
           <kw-select
             v-model="searchParams.wareNo"
@@ -54,6 +56,7 @@
             ({{ t('MSG_TXT_UNIT') }} : EA)
           </span>
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
