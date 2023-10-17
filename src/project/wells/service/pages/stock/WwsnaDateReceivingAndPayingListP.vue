@@ -150,7 +150,7 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(view, {
     fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
-    exportData: res.data.list,
+    exportData: res.data,
   });
 }
 
@@ -200,7 +200,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'ymd', header: t('MSG_TXT_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date', footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'ymd', header: t('MSG_TXT_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
     { fieldName: 'basStocQty',
       header: t('MSG_TXT_BTD_STOC_QTY'),
       width: '120',
