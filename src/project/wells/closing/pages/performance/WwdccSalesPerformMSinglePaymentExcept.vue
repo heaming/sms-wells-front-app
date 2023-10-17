@@ -186,7 +186,7 @@
               <p>
                 {{ singlePaymentDetail.rentalPtrm }}{{ t('MSG_TXT_MCNT') }}/
                 {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalAmt)) }}{{ t('MSG_TXT_CUR_WON') }}
-                ({{ singlePaymentDetail.rentalDscAmt }})
+                ({{ singlePaymentDetail.stplDscAmt }})
               </p>
             </kw-form-item>
           </kw-form-row>
