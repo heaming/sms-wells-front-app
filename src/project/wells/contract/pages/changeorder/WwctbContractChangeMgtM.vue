@@ -500,13 +500,13 @@ function onClickCstChange(item) {
 // onClickCntrTpChange: 계약유형변경
 async function onClickCntrTpChange(item) {
   item.inDv = '20';
-  const { alncmpCd, sellInflwChnlDtlCd, vstSchDt } = item;
+  const { alncmpCd, cstStlmInMthCd, vstSchDt } = item;
   if (isEqual(alncmpCd, '70')) {
     alert(t('MSG_ALT_CANT_CONTR_TYPE_WHEN_MUTU_ALNC'));
     return;
   }
   // 총판 비대면 접수 주문 변경 불가 : 계약상세의 판매유입채널상세코드가 '1010'인 건만 계약상품변경 수행 가능
-  if (!isEqual(sellInflwChnlDtlCd, '1010')) { /* TODO: 총판 비대면 체크 로직 변경 가능성 있음 */
+  if (isEqual(cstStlmInMthCd, '30') && isEqual(ogTpCd, 'W05')) { /* AS-IS 방식으로 변경 */
     alert(t('MSG_ALT_SODBT_NFTF_ORD_CANNT_CHANGE'));
     return;
   }
