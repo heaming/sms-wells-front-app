@@ -176,7 +176,7 @@
       <kw-grid
         ref="grd2MainRef"
         name="grd2Main"
-        :visible-rows="5"
+        :visible-rows="7"
         @init="initGrd2Main"
       />
       <kw-action-top class="mt30">
@@ -422,8 +422,20 @@ async function fetchData(type) {
     const feeView = grd2MainRef.value.getView();
     feeView.getDataSource().setRows(resData);
   } else if (type === 'deductions') {
+    // make two columns
+    const half = Math.ceil(resData.length / 2);
+    const data = [];
+    for (let i = 0; i < half; i += 1) {
+      data.push({
+        item1: resData[i].item,
+        amt1: resData[i].amt,
+        item2: resData[i + half]?.item,
+        amt2: resData[i + half]?.amt,
+      });
+    }
+
     const deductionView = grd3MainRef.value.getView();
-    deductionView.getDataSource().setRows(resData);
+    deductionView.getDataSource().setRows(data);
   } else if (type === 'pnpyam') {
     const pnpyamView = grd4MainRef.value.getView();
     pnpyamView.getDataSource().setRows(resData);
@@ -525,7 +537,7 @@ const initGrd2Main = defineGrid((data, view) => {
       hideChildHeaders: true,
     },
     {
-      header: t('MSG_TXT_ETC'),
+      header: t('MSG_TXT_EDUC'),
       direction: 'horizontal',
       items: ['item3', 'fval3'],
       hideChildHeaders: true,
