@@ -615,14 +615,6 @@ async function fetchAllianceContracts() {
 }
 // endregion [제휴계약]
 
-function initPriceDefineVariables() {
-  if (!pdPrcFnlDtlId.value) {
-    return;
-  }
-  setPriceDefineVariablesBy(pdPrcFnlDtlId.value);
-  initializeAlncCntrs();
-}
-
 // region [패키지 다건 할인 유형 적용]
 const notNullRentalDscTpCdSelected = computed(() => priceDefineVariables.value.rentalDscTpCd === EMPTY_ID
     || !!priceDefineVariables.value.rentalDscTpCd);
@@ -637,28 +629,6 @@ watch(rentalCrpDscrCdSelectable, (value) => {
     priceDefineVariables.value.rentalCrpDscrCd = undefined;
   }
 });
-
-let promiseForFetchFinalPriceOptions;
-async function fetchFinalPriceOptions() {
-  if (!promiseForFetchFinalPriceOptions) {
-    promiseForFetchFinalPriceOptions = dataService.get('sms/wells/contract/final-price', {
-      params: {
-        cntrNo: props.bas.cntrNo,
-        pdCd: dtl.value.pdCd,
-        hgrPdCd: dtl.value.hgrPdCd,
-      },
-      silent: true,
-    });
-  }
-  const { data } = await promiseForFetchFinalPriceOptions;
-  promiseForFetchFinalPriceOptions = null;
-  if (!data?.length) {
-    alert('선택 가능한 가격 조건이 없습니다.');
-  }
-  finalPriceOptions.value = data || [];
-
-  await fetchAllianceContracts();
-}
 // endregion [패키지 다건 할인 유형 적용]
 
 // region [계약 관계 버튼]
@@ -776,6 +746,36 @@ function calcPromotionAppliedPrice(aplyPmots) {
   emit('promotion-changed', aplyPmots, promotionAppliedPrice.value);
 }
 // endregion [가격표기]
+
+let promiseForFetchFinalPriceOptions;
+async function fetchFinalPriceOptions() {
+  if (!promiseForFetchFinalPriceOptions) {
+    promiseForFetchFinalPriceOptions = dataService.get('sms/wells/contract/final-price', {
+      params: {
+        cntrNo: props.bas.cntrNo,
+        pdCd: dtl.value.pdCd,
+        hgrPdCd: dtl.value.hgrPdCd,
+      },
+      silent: true,
+    });
+  }
+  const { data } = await promiseForFetchFinalPriceOptions;
+  promiseForFetchFinalPriceOptions = null;
+  if (!data?.length) {
+    alert('선택 가능한 가격 조건이 없습니다.');
+  }
+  finalPriceOptions.value = data || [];
+
+  await fetchAllianceContracts();
+}
+
+function initPriceDefineVariables() {
+  if (!pdPrcFnlDtlId.value) {
+    return;
+  }
+  setPriceDefineVariablesBy(pdPrcFnlDtlId.value);
+  initializeAlncCntrs();
+}
 
 function clearPromotions() {
   promotions.value = [];

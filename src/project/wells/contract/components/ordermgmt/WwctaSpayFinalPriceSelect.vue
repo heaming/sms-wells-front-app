@@ -182,6 +182,21 @@
                 />
               </kw-form-item>
             </kw-form-row>
+            <kw-form-row
+              v-if="isHcr"
+            >
+              <kw-form-item :label="'홈케어구분코드'">
+                <kw-select
+                  v-if="priceDefineVariableOptions.hcrDvCd"
+                  v-model="priceDefineVariables.hcrDvCd"
+                  :options="priceDefineVariableOptions.hcrDvCd"
+                  placeholder="서비스(용도/방문주기)"
+                  first-option="select"
+                  dense
+                  @change="onChangeVariable"
+                />
+              </kw-form-item>
+            </kw-form-row>
           </kw-form>
         </kw-item-section>
       </kw-item>
@@ -227,9 +242,11 @@ const { getCodeName } = await useCtCode(
 const dataService = useDataService();
 
 const SELL_TP_DTL_CD_SPAY_NOM = '11';
+const SELL_TP_DTL_CD_SPAY_HCR = '12';
 const SELL_TP_DTL_CD_SPAY_ENVR_ELHM = '13';
 
 const dtl = ref(props.modelValue);
+const isHcr = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD_SPAY_HCR);
 
 const multipleQuantityAvailable = computed(() => {
   const { bcMngtPdYn, sellTpDtlCd } = dtl.value;
@@ -340,6 +357,8 @@ const {
   setPriceDefineVariablesBy,
   setVariablesIfUniqueSelectable,
   selectedFinalPrice, // computed
+  // eslint-disable-next-line no-unused-vars
+  selectedFinalPrices, // computed
 } = usePriceSelect(
   priceDefineVariables,
   finalPriceOptions,
@@ -365,7 +384,7 @@ const spayDscrCdSelectable = computed(() => priceDefineVariables.value.spayDscDv
 
 watch(spayDscrCdSelectable, (value) => {
   if (!value) {
-    priceDefineVariables.value.spayDscrCd = undefined;
+    priceDefineVariables.value.spayDscrCd = EMPTY_ID;
   }
 });
 
@@ -373,7 +392,7 @@ const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.spay
 
 watch(rentalCrpDscrCdSelectable, (value) => {
   if (!value) {
-    priceDefineVariables.value.rentalCrpDscrCd = undefined;
+    priceDefineVariables.value.rentalCrpDscrCd = EMPTY_ID;
   }
 });
 
@@ -402,7 +421,6 @@ async function onChangeModelValue(newDtl) {
 }
 
 watch(() => props.modelValue, onChangeModelValue, { immediate: true });
-watch(() => props.modelValue, connectReactivities, { immediate: true });
 
 // region [가격표기]
 const displayedFinalPrice = ref('미확정');
@@ -466,6 +484,7 @@ function onChangeSelectedFinalPrice(newPrice) {
     pdPrcFnlDtlId.value = undefined;
     emit('price-changed', newPrice);
     clearPromotions();
+    calcDisplayedFinalPrice();
     return;
   }
   fnlAmt.value = newPrice.fnlVal;
@@ -479,9 +498,11 @@ function onChangeSelectedFinalPrice(newPrice) {
 watch(selectedFinalPrice, onChangeSelectedFinalPrice);
 
 function onChangeVariable() {
-  if (finalPriceOptions.value.length === 1) {
-    setVariablesIfUniqueSelectable();
-  }
+  // FIXME! 가격 안정화 되면 조건 추가할 것..
+  setVariablesIfUniqueSelectable();
+  // if (finalPriceOptions.value.length === 1) {
+  //   setVariablesIfUniqueSelectable();
+  // }
 }
 
 function onClickDelete() {
