@@ -41,17 +41,6 @@
             first-option-value="ALL"
           />
         </kw-search-item>
-        <kw-search-item
-          :label="$t('MSG_TXT_CNTR_DTL_NO')"
-          required
-        >
-          <zctz-contract-detail-number
-            v-model:cntr-no="searchParams.cntrNo"
-            v-model:cntr-sn="searchParams.cntrSn"
-            :name="$t('MSG_TXT_CNTR_DTL_NO')"
-            rules="required"
-          />
-        </kw-search-item>
       </kw-search-row>
     </kw-search>
 
@@ -124,7 +113,6 @@
 import { useGlobal, useDataService, codeUtil, gridUtil, defineGrid, getComponentType, useMeta, modal } from 'kw-lib';
 // eslint-disable-next-line no-unused-vars
 import { cloneDeep, isEmpty } from 'lodash-es';
-import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
 
 const { notify } = useGlobal();
@@ -164,8 +152,6 @@ const pageInfo = ref({
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
   sellTpCd: 'ALL',
-  cntrNo: '',
-  cntrSn: '',
 });
 
 // const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(','); // 가능한 이체일 추후에 수정
