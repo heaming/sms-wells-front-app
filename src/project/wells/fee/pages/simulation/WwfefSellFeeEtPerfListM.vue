@@ -20,7 +20,7 @@
     >
       <kw-search-row>
         <kw-search-item
-          label="실적기간"
+          :label="$t('MSG_TXT_PERF_PRD')"
           required
         >
           <kw-date-range-picker
@@ -30,7 +30,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          label="실적기준"
+          :label="$t('MSG_TXT_PERF_BASE')"
         >
           <kw-option-group
             v-model="searchParams.perfBaseDv"
@@ -42,7 +42,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          label="조회구분"
+          :label="$t('MSG_TXT_INQR_DV')"
         >
           <kw-option-group
             v-model="searchParams.inqrDv"
@@ -54,7 +54,7 @@
         <!--  Variation # 2 : 조회구분 - 순증상세 -- > 순증구분 항목 노출 -->
         <kw-search-item
           v-if="searchParams.inqrDv === '4'"
-          label="순증구분"
+          :label="`${$t('MSG_TXT_NINC')}${$t('MSG_TXT_DIV')}`"
         >
           <kw-option-group
             v-model="searchParams.nincDv"
@@ -67,7 +67,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          label="직책구분"
+          :label="$t('MSG_TXT_RSB_DV')"
         >
           <kw-select
             v-model="searchParams.pstnDvCd"
@@ -75,7 +75,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          label="조직레벨"
+          :label="$t('MSG_TXT_OG_LEVL')"
         >
           <zwog-level-select
             v-model:og-levl-dv-cd1="searchParams.dgr1LevlOgCd"
@@ -89,7 +89,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item label="번호">
+        <kw-search-item :label="$t('MSG_TXT_PRTNR_NO')">
           <kw-input
             v-model="searchParams.prtnrNo"
             icon="search"
@@ -98,7 +98,7 @@
           <kw-input
             v-model="searchParams.prtnrNm"
             :disable="true"
-            placeholder="성명"
+            placeholder=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -113,7 +113,8 @@
           icon="download_on"
           dense
           secondary
-          label="엑셀다운로드"
+          :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
+          @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
@@ -145,11 +146,15 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 // import dayjs from 'dayjs';
-import { codeUtil, getComponentType, modal, useDataService } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, modal, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import ZwogLevelSelect from '~/modules/sms-common/organization/components/ZwogLevelSelect.vue';
+import dayjs from 'dayjs';
+
+import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 
 const dataService = useDataService();
+const { currentRoute } = useRouter();
+const { t } = useI18n();
 
 const codes = await codeUtil.getMultiCodes(
   'MNGER_OG_ACC_NINC_MNGT_INQR_DV_CD',
@@ -160,23 +165,21 @@ const codes = await codeUtil.getMultiCodes(
 
 const ojPstnRankCd = ref(codes.WELS_MNGER_INQR_DV_CD);
 const perfBaseDv = [
-  { codeId: '1', codeName: '접수' },
-  { codeId: '2', codeName: '매출' },
+  { codeId: '1', codeName: t('MSG_TXT_RCP') },
+  { codeId: '2', codeName: t('MSG_TXT_SL') },
 ];
 const inqrDv = [
-  { codeId: '1', codeName: '건수&실적' },
-  { codeId: '2', codeName: '계정순증' },
-  { codeId: '3', codeName: '판매상세' },
-  { codeId: '4', codeName: '순증상세' },
+  { codeId: '1', codeName: `${t('MSG_TXT_COUNT')}&${t('MSG_TXT_PERF')}` },
+  { codeId: '2', codeName: t('MSG_TXT_ACC_NINC') },
+  { codeId: '3', codeName: `${t('MSG_TXT_SELL')}${t('MSG_TXT_DTL')}` },
+  { codeId: '4', codeName: `${t('MSG_TXT_NINC')}${t('MSG_TXT_DTL')}` },
 ];
 const nincDv = codes.MNGER_OG_ACC_NINC_MNGT_INQR_DV_CD.filter((v) => ['01', '02'].includes(v.codeId));
 const mchnChTpCd = codes.PMOT_MCHN_CH_TP_CD.filter((v) => v.codeId !== '0');
 
 const searchParams = ref({
-  // inqrStrtDt: dayjs().startOf('month').format('YYYYMMDD'),
-  // inqrEndDt: dayjs().format('YYYYMMDD'),
-  inqrStrtDt: '20230801',
-  inqrEndDt: '20230801',
+  inqrStrtDt: dayjs().startOf('month').format('YYYYMMDD'),
+  inqrEndDt: dayjs().format('YYYYMMDD'),
   perfBaseDv: '1',
   inqrDv: '1',
   nincDv: '01',
@@ -187,6 +190,18 @@ const searchParams = ref({
   prtnrNo: '',
   prtnrNm: '',
 });
+
+const baseYm = computed(() => searchParams.value.inqrStrtDt.substring(0, 6));
+
+const totalCount = ref(0);
+const grdMain1Ref = ref(getComponentType('KwGrid'));
+const grdMain2Ref = ref(getComponentType('KwGrid'));
+const grdMain3Ref = ref(getComponentType('KwGrid'));
+const grdMain4Ref = ref(getComponentType('KwGrid'));
+
+// -------------------------------------------------------------------------------------------------
+// Function & Event
+// -------------------------------------------------------------------------------------------------
 
 watch(
   () => searchParams.value.inqrDv,
@@ -201,17 +216,6 @@ watch(
   },
 );
 
-const baseYm = computed(() => searchParams.value.inqrStrtDt.substring(0, 6));
-
-const totalCount = ref(0);
-const grdMain1Ref = ref(getComponentType('KwGrid'));
-const grdMain2Ref = ref(getComponentType('KwGrid'));
-const grdMain3Ref = ref(getComponentType('KwGrid'));
-const grdMain4Ref = ref(getComponentType('KwGrid'));
-
-// -------------------------------------------------------------------------------------------------
-// Function & Event
-// -------------------------------------------------------------------------------------------------
 let cachedParams;
 
 async function fetchData() {
@@ -238,11 +242,17 @@ async function fetchData() {
   totalCount.value = dataList.length;
 }
 
+/**
+ * 조회버튼 클릭 이벤트
+ */
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+/**
+ * 파트너 검색 이벤트
+ */
 async function onClickIcon() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP',
@@ -258,6 +268,29 @@ async function onClickIcon() {
   }
 }
 
+/**
+ * 엑셀 다운로드 이벤트
+ */
+function onClickExcelDownload() {
+  let view;
+  if (cachedParams.inqrDv === '1') {
+    view = grdMain1Ref.value.getView();
+  } else if (cachedParams.inqrDv === '2') {
+    view = grdMain2Ref.value.getView();
+  } else if (cachedParams.inqrDv === '3') {
+    view = grdMain3Ref.value.getView();
+  } else if (cachedParams.inqrDv === '4') {
+    view = grdMain4Ref.value.getView();
+  }
+
+  if (view) {
+    gridUtil.exportView(view, {
+      fileName: currentRoute.value.meta.menuName,
+      timePostfix: true,
+    });
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -265,21 +298,21 @@ async function onClickIcon() {
 // 건수&실적 그리드
 function initGrid1(data, view) {
   const columns = [
-    { fieldName: 'ogCd', header: '소속', width: '90', styleName: 'text-center' },
-    { fieldName: 'prtnrNm', header: '성명', width: '80', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: '번호', width: '100', styleName: 'text-center' },
-    { fieldName: 'pstnDvCd', header: '직급', width: '70', styleName: 'text-center' },
-    { fieldName: 'brchCt', header: '지점수', width: '90', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmRentalCt', header: '렌탈', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmSpayCt', header: '일시불', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmRentalAmt', header: '렌탈', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmSpayAmt', header: '할부', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'notElhmSpayAmt', header: '가전외인정실적', width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'vstAsnCt', header: '배정계정', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'vstFshCt', header: '완료계정', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'vstProcsRt', header: '처리율', width: '90', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.0;;;c' },
-    { fieldName: 'nincCt', header: '신규판매', width: '90', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'accNincSum', header: '계정순증', width: '90', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '90', styleName: 'text-center' },
+    { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '80', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center' },
+    { fieldName: 'brchCt', header: t('MSG_TXT_BRCH_N'), width: '90', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'elhmRentalCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'elhmSpayCt', header: t('MSG_TXT_SNGL_PMNT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'elhmRentalAmt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'elhmSpayAmt', header: t('MSG_TXT_ISTM'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'notElhmSpayAmt', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'vstAsnCt', header: t('MSG_TXT_ASN_ACC'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'vstFshCt', header: t('MSG_TXT_FSH_ACC'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'vstProcsRt', header: t('MSG_TXT_PROCS_RT'), width: '90', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.0;;;c' },
+    { fieldName: 'nincCt', header: t('MSG_TXT_NW_SELL'), width: '90', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'accNincSum', header: t('MSG_TXT_ACC_NINC'), width: '90', styleName: 'text-right', dataType: 'number' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -294,12 +327,12 @@ function initGrid1(data, view) {
   view.setColumnLayout([
     'ogCd', 'prtnrNm', 'prtnrNo', 'pstnDvCd', 'brchCt',
     {
-      header: '가전건수',
+      header: `${t('MSG_TXT_ELHM')}${t('MSG_TXT_COUNT')}`,
       direction: 'horizontal',
       items: ['elhmRentalCt', 'elhmSpayCt'],
     },
     {
-      header: '가전기준가',
+      header: `${t('MSG_TXT_ELHM')}${t('TXT_MSG_BAS_VAL')}`,
       direction: 'horizontal',
       items: ['elhmRentalAmt', 'elhmSpayAmt'],
     },
@@ -310,20 +343,20 @@ function initGrid1(data, view) {
 // 계정순증 그리드
 function initGrid2(data, view) {
   const columns = [
-    { fieldName: 'ogCd', header: '소속', width: '90', styleName: 'text-center' },
-    { fieldName: 'prtnrNm', header: '성명', width: '80', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: '번호', width: '100', styleName: 'text-center' },
-    { fieldName: 'pstnDvCd', header: '직급', width: '70', styleName: 'text-center' },
-    { fieldName: 'brchCt', header: '지점수', width: '90', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'rentalNincCt', header: '렌탈', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmSpayNincCt', header: '일시불', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'nincCt', header: '계', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'rentalCanCt', header: '순수해지(렌탈)', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmSpayCanCt', header: '순수해지(일시불)', width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'rentalExnCt', header: '만료', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'mshWdwalCnt', header: '멤버십탈퇴', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'canCt', header: '계', width: '90', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'accNincSum', header: '계정순증', width: '90', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '90', styleName: 'text-center' },
+    { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '80', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center' },
+    { fieldName: 'brchCt', header: t('MSG_TXT_BRCH_N'), width: '90', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'rentalNincCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'elhmSpayNincCt', header: t('MSG_TXT_SNGL_PMNT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'nincCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'rentalCanCt', header: `${t('MSG_TXT_PUR_RSG')}(${t('MSG_TXT_RENTAL')})`, width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'elhmSpayCanCt', header: `${t('MSG_TXT_PUR_RSG')}(${t('MSG_TXT_SNGL_PMNT')})`, width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'rentalExnCt', header: t('MSG_TXT_EXN'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'mshWdwalCnt', header: `${t('MSG_TXT_MMBR')}${t('MSG_TXT_WDWAL')}`, width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'canCt', header: t('MSG_TXT_AGG'), width: '90', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'accNincSum', header: t('MSG_TXT_ACC_NINC'), width: '90', styleName: 'text-right', dataType: 'number' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -338,12 +371,12 @@ function initGrid2(data, view) {
   view.setColumnLayout([
     'ogCd', 'prtnrNm', 'prtnrNo', 'pstnDvCd', 'brchCt',
     {
-      header: '신규',
+      header: t('MSG_TXT_NEW'),
       direction: 'horizontal',
       items: ['rentalNincCt', 'elhmSpayNincCt', 'nincCt'],
     },
     {
-      header: '취소',
+      header: t('MSG_TXT_CANCEL'),
       direction: 'horizontal',
       items: ['rentalCanCt', 'elhmSpayCanCt', 'rentalExnCt', 'mshWdwalCnt', 'canCt'],
     },
@@ -354,22 +387,22 @@ function initGrid2(data, view) {
 // 판매상세 그리드
 function initGrid3(data, view) {
   const columns = [
-    { fieldName: 'ogCd', header: '소속', width: '90', styleName: 'text-center' },
-    { fieldName: 'prtnrNm', header: '성명', width: '80', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: '번호', width: '100', styleName: 'text-center' },
-    { fieldName: 'pstnDvCd', header: '직급', width: '70', styleName: 'text-center' },
-    { fieldName: 'cntrCstNo', header: '고객코드', width: '140', styleName: 'text-center' },
-    { fieldName: 'cntrCstNm', header: '고객명', width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrCnfmDt', header: '접수일자', width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
-    { fieldName: 'cntrPdStrtdt', header: '매출일자', width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
-    { fieldName: 'cntrCanDt', header: '취소일자', width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
-    { fieldName: 'pdClsfNm', header: '상품구분', width: '110', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: '상품코드', width: '120', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: '상품명', width: '200', styleName: 'text-left' },
-    { fieldName: 'mchnChTpCd', header: '기변유형', width: '90', styleName: 'text-center', options: mchnChTpCd },
-    { fieldName: 'elhmRentalAmt', header: '가전기준가(렌탈/할부)', width: '150', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'notElhmSpayAmt', header: '가전외인정실적', width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmRentalCt', header: '가전인정건수', width: '90', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '90', styleName: 'text-center' },
+    { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '80', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center' },
+    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_CD'), width: '140', styleName: 'text-center' },
+    { fieldName: 'cntrCstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
+    { fieldName: 'cntrCanDt', header: t('MSG_TXT_CANC_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '110', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' },
+    { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '90', styleName: 'text-center', options: mchnChTpCd },
+    { fieldName: 'elhmRentalAmt', header: `${t('MSG_TXT_ELHM')}${t('TXT_MSG_BAS_VAL')}(${t('MSG_TXT_RENTAL')}/${t('MSG_TXT_ISTM')})`, width: '150', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'notElhmSpayAmt', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'elhmRentalCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '90', styleName: 'text-right', dataType: 'number' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -403,23 +436,23 @@ function initGrid4(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'ogCd', header: '소속', width: '90', styleName: 'text-center' },
-    { fieldName: 'prtnrNm', header: '성명', width: '80', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: '번호', width: '100', styleName: 'text-center' },
-    { fieldName: 'pstnDvCd', header: '직급', width: '70', styleName: 'text-center' },
-    { fieldName: 'canTpNm', header: '유형', width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrCstNo', header: '고객코드', width: '140', styleName: 'text-center' },
-    { fieldName: 'cntrCstNm', header: '고객명', width: '100', styleName: 'text-center' },
-    { fieldName: 'pdClsfNm', header: '상품구분', width: '110', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: '상품코드', width: '120', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: '상품명', width: '200', styleName: 'text-left' },
-    { fieldName: 'cntrPdStrtdt', header: '매출일자', width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
-    { fieldName: 'cntrCanDt', header: '취소일자', width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
-    { fieldName: 'cntrStatChRsonCd', header: '취소코드', width: '90', styleName: 'text-center' },
-    { name: 'cntrStatChRsonNm', fieldName: 'cntrStatChRsonCd', header: '취소사유', width: '150', styleName: 'text-center', options: codes.CMN_STAT_CH_RSON_CD },
-    { fieldName: 'origOgCd', header: '소속', width: '110', styleName: 'text-center' },
-    { fieldName: 'origPrtnrKnm', header: '성명', width: '90', styleName: 'text-center' },
-    { fieldName: 'origSellPrtnrNo', header: '번호', width: '90', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '90', styleName: 'text-center' },
+    { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '80', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center' },
+    { fieldName: 'canTpNm', header: t('MSG_TXT_TYPE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_CD'), width: '140', styleName: 'text-center' },
+    { fieldName: 'cntrCstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '110', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' },
+    { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
+    { fieldName: 'cntrCanDt', header: t('MSG_TXT_CANC_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
+    { fieldName: 'cntrStatChRsonCd', header: t('MSG_TXT_CAN_CD'), width: '90', styleName: 'text-center' },
+    { name: 'cntrStatChRsonNm', fieldName: 'cntrStatChRsonCd', header: t('MSG_TXT_CAN_RSON'), width: '150', styleName: 'text-center', options: codes.CMN_STAT_CH_RSON_CD },
+    { fieldName: 'origOgCd', header: t('MSG_TXT_BLG'), width: '110', styleName: 'text-center' },
+    { fieldName: 'origPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center' },
+    { fieldName: 'origSellPrtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '90', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
@@ -431,17 +464,17 @@ function initGrid4(data, view) {
   // multi row header setting
   view.setColumnLayout([
     {
-      header: '관리매니저',
+      header: `${t('MSG_TXT_MGT')}${t('MSG_TXT_MANAGER')}`,
       direction: 'horizontal',
       items: ['ogCd', 'prtnrNm', 'prtnrNo', 'pstnDvCd'],
     },
     {
-      header: '고객사항',
+      header: t('MSG_TXT_CST_ARTC'),
       direction: 'horizontal',
       items: ['canTpNm', 'cntrCstNo', 'cntrCstNm', 'pdClsfNm', 'pdCd', 'pdNm', 'cntrPdStrtdt', 'cntrCanDt', 'cntrStatChRsonCd', 'cntrStatChRsonNm'],
     },
     {
-      header: '판매자',
+      header: t('MSG_TXT_SELLER_PERSON'),
       direction: 'horizontal',
       items: ['origOgCd', 'origPrtnrKnm', 'origSellPrtnrNo'],
     },
