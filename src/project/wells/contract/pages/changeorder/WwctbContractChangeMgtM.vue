@@ -500,7 +500,7 @@ function onClickCstChange(item) {
 // onClickCntrTpChange: 계약유형변경
 async function onClickCntrTpChange(item) {
   item.inDv = '20';
-  const { alncmpCd, sellInflwChnlDtlCd, vstCnfmdt } = item;
+  const { alncmpCd, sellInflwChnlDtlCd, vstSchDt } = item;
   if (isEqual(alncmpCd, '70')) {
     alert(t('MSG_ALT_CANT_CONTR_TYPE_WHEN_MUTU_ALNC'));
     return;
@@ -512,7 +512,7 @@ async function onClickCntrTpChange(item) {
   }
 
   // 설치예정일자 존재여부 확인
-  if (!isEmpty(vstCnfmdt)) {
+  if (!isEmpty(vstSchDt)) {
     alert(t('MSG_ALT_ALRDY_HAVE_IST_EXP_DT'));
     return;
   }
