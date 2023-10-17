@@ -65,7 +65,6 @@
         <!-- 사용여부 -->
         <kw-search-item
           :label="$t('MSG_TXT_USE_SEL')"
-          :colspan="1"
         >
           <kw-select
             v-model="searchParams.useYn"
@@ -73,10 +72,17 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 창고상세구분 -->
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
+          <kw-select
+            v-model="searchParams.wareDtlDvCd"
+            :options="filterCodes.wareDtlDvCd"
+            first-option="all"
+          />
+        </kw-search-item>
         <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
-          :colspan="2"
         >
           <kw-select
             v-model="searchParams.itmKnd"
@@ -199,6 +205,7 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GD_CD', // 상품등급
   'USE_YN', // 사용여부
   'ITM_KND_CD', // 품목구분코드
+  'WARE_DTL_DV_CD', // 창고상세구분
 );
 
 // 등급 필터링
@@ -208,6 +215,7 @@ const searchParams = ref({
   strWareDvCd: '2',
   strWareNoM: '',
   strWareNoD: '',
+  wareDtlDvCd: '',
   itmKnd: '',
   itmPdCdFrom: '',
   sapMatCdFrom: '',
@@ -220,15 +228,30 @@ const searchParams = ref({
 
 });
 
+const filterCodes = ref({
+  wareDtlDvCd: [],
+});
+
+// 창고세부구분코드 필터링
+function wareDtlDvCdFilter() {
+  const { strWareDvCd } = searchParams.value;
+  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => v.codeId.startsWith(strWareDvCd));
+}
+
+// 창고구분 변경 시
 function onChangeWareDvCd() {
   searchParams.value.strWareNoM = '';
   searchParams.value.strWareNoD = '';
+  // 창고상세구분 필터링
+  wareDtlDvCdFilter();
 }
 
+// 상위창고 변경 시
 function onChagneHgrWareNo() {
   searchParams.value.strWareNoD = '';
 }
 
+// 시작 SAP코드 변경 시
 function onChangeStrtSapCd() {
   const { sapMatCdFrom, sapMatCdTo } = searchParams.value;
 
@@ -238,6 +261,7 @@ function onChangeStrtSapCd() {
   }
 }
 
+// 종료 SAP코드 변경 시
 function onChangeEndSapCd() {
   const { sapMatCdFrom, sapMatCdTo } = searchParams.value;
 
@@ -248,6 +272,7 @@ function onChangeEndSapCd() {
 }
 
 let cachedParams;
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/receipts-and-payments/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: payments, pageInfo: pagingResult } = res.data;
@@ -260,6 +285,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -272,13 +298,19 @@ async function onClickExcelDownload() {
   });
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   const splitSapMatDpct = searchParams.value.sapMatDpct.split(',');
   searchParams.value.sapMatDpcts = splitSapMatDpct;
   cachedParams = cloneDeep(searchParams.value);
+  pageInfo.value.pageIndex = 1;
   pageInfo.value.needTotalCount = true;
   await fetchData();
 }
+
+onMounted(async () => {
+  wareDtlDvCdFilter();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -303,13 +335,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strQty', dataType: 'number' }, // 합계
     // 출고수량
     { fieldName: 'nomOstrQty', dataType: 'number' }, // 정상출고수량
-    { fieldName: 'svcNomOstrQty', dataType: 'number' }, //
-    { fieldName: 'sellNomOstrQty', dataType: 'number' },
-    { fieldName: 'qomAsnOstrQty', dataType: 'number' }, // 배정
-    { fieldName: 'qomMmtOstrQty', dataType: 'number' }, // 물량
+    { fieldName: 'svcNomOstrQty', dataType: 'number' }, // 입고창고 - 서비스
+    { fieldName: 'sellNomOstrQty', dataType: 'number' }, // 입고창고 - 영업
+    { fieldName: 'qomAsnOstrQty', dataType: 'number' }, // 배정출고수량
+    { fieldName: 'qomMmtOstrQty', dataType: 'number' }, // 물량이동수량
     { fieldName: 'rtngdOstrInsdQty', dataType: 'number' }, // 반품출고내부수량
     { fieldName: 'rtngdOstrOtsdQty', dataType: 'number' }, // 반품출고외부수량
-    { fieldName: 'useQty', dataType: 'number' }, // 작업
+    { fieldName: 'useQty', dataType: 'number' }, // 작업출고수량
     { fieldName: 'yearInUseQty', dataType: 'number' }, // 설치일기준 1년내
     { fieldName: 'yearOutUseQty', dataType: 'number' }, // 설치일기준 1년후
     { fieldName: 'refrOstrQty', dataType: 'number' }, // 리퍼출고수량
@@ -317,7 +349,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dsuOstrQty', dataType: 'number' }, // 폐기출고수량
     { fieldName: 'etcOstrQty', dataType: 'number' }, // 기타출고수량
     { fieldName: 'ostrCtrQty', dataType: 'number' }, // 출고등급수량
-    { fieldName: 'cnfmPitmOstrGapQty', dataType: 'number' }, // 재고실사
+    { fieldName: 'cnfmPitmOstrGapQty', dataType: 'number' }, // 재고실사수량
     { fieldName: 'ostrQty', dataType: 'number' }, // 합계
     { fieldName: 'eotStocQty', dataType: 'number' }, // 기말재고수량
     { fieldName: 'mmtStocQty', dataType: 'number' }, // 이동재고수량

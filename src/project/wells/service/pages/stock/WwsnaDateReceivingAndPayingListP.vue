@@ -14,6 +14,7 @@
 --->
 <template>
   <kw-popup
+    ref="popupRef"
     size="3xl"
   >
     <kw-action-top>
@@ -63,12 +64,13 @@ import { defineGrid, getComponentType, useMeta, codeUtil, useDataService, gridUt
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { currentRoute } = useRouter();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+
+const popupRef = ref();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const props = defineProps({
@@ -111,11 +113,13 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 
+// 파라미터 필수 체크
 function hasProps() {
   // eslint-disable-next-line max-len
   return !isEmpty(props.itmPdCd) && !isEmpty(props.wareNo) && !isEmpty(props.strRgstFrom) && !isEmpty(props.strRgstTo);
 }
 
+// 조회조건 셋팅
 function setSearchParams() {
   const { itmPdCd, wareNo, strRgstFrom, strRgstTo } = props;
   searchParams.value.itmPdCd = itmPdCd;
@@ -126,6 +130,7 @@ function setSearchParams() {
 
 // DateReceivingAndPaying
 let cachedParams;
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/receipts-and-payments/date/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: receiving, pageInfo: pagingResult } = res.data;
@@ -135,13 +140,14 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   const res = await dataService.get('/sms/wells/service/receipts-and-payments/date/excel-download', { params: cachedParams });
 
   await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
     exportData: res.data.list,
   });
@@ -174,21 +180,21 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cnfmPitmStrGapQty', dataType: 'number' }, // 재고실사수량
     // 출고수량
     { fieldName: 'nomOstrQty', dataType: 'number' }, // 정상출고수량
-    { fieldName: 'svcNomOstrQty', dataType: 'number' }, // 서비스
-    { fieldName: 'sellNomOstrQty', dataType: 'number' }, // 영업
+    { fieldName: 'svcNomOstrQty', dataType: 'number' }, // 서비스센터 정상출고수량
+    { fieldName: 'sellNomOstrQty', dataType: 'number' }, // 영업센터 정상출고수량
     { fieldName: 'qomAsnOstrQty', dataType: 'number' }, // 배정출고수량
     { fieldName: 'qomMmtOstrQty', dataType: 'number' }, // 물량출고수량
     { fieldName: 'rtngdOstrInsdQty', dataType: 'number' }, // 반품내부수량
     { fieldName: 'rtngdOstrOtsdQty', dataType: 'number' }, // 반품외부수량
-    { fieldName: 'useQty', dataType: 'number' }, // 작업출고
-    { fieldName: 'refrOstrQty', dataType: 'number' }, // 리퍼출고
-    { fieldName: 'sellOstrQty', dataType: 'number' }, // 판매출고
-    { fieldName: 'dsuOstrQty', dataType: 'number' }, // 폐기출고
-    { fieldName: 'etcOstrQty', dataType: 'number' }, // 기타출고
-    { fieldName: 'ostrCtrQty', dataType: 'number' }, // 등급조정출고
-    { fieldName: 'cnfmPitmOstrGapQty', dataType: 'number' }, // 재고실사출고
+    { fieldName: 'useQty', dataType: 'number' }, // 작업출고수량
+    { fieldName: 'refrOstrQty', dataType: 'number' }, // 리퍼출고수량
+    { fieldName: 'sellOstrQty', dataType: 'number' }, // 판매출고수량
+    { fieldName: 'dsuOstrQty', dataType: 'number' }, // 폐기출고수량
+    { fieldName: 'etcOstrQty', dataType: 'number' }, // 기타출고수량
+    { fieldName: 'ostrCtrQty', dataType: 'number' }, // 등급조정출고수량
+    { fieldName: 'cnfmPitmOstrGapQty', dataType: 'number' }, // 재고실사출고수량
     { fieldName: 'eotStocQty', dataType: 'number' }, // 기말재고수량
-    { fieldName: 'mmtStocQty', dataType: 'number' }, // 이동재고
+    { fieldName: 'mmtStocQty', dataType: 'number' }, // 이동재고수량
 
   ];
 
