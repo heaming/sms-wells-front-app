@@ -80,6 +80,9 @@
           v-model:dgr2-levl-og-id="searchParams.localGroup"
           v-model:dgr3-levl-og-id="searchParams.branchOffice"
           v-model:prtnr-no="searchParams.partnerNo"
+          v-model:dgr2-levl-og="dgr2LevlOgObj"
+          :dgr1-levl-og-required="true"
+          :dgr2-levl-og-required="true"
           use-og-level="3"
           use-partner
           dgr3-levl-og-first-option="all"
@@ -323,11 +326,14 @@ const searchParams = ref({
   executiveGroup: '',
   localGroup: '',
   localGroupCd: '',
+  localGroupOgCd: '',
   branchOffice: 'ALL',
   branchOfficeCd: '',
   partnerNo: 'ALL',
   bizPsicSrnDvCd: '', // 조회구분
 });
+
+const dgr2LevlOgObj = ref({});
 
 let cachedParams;
 
@@ -340,11 +346,10 @@ const pageInfo = ref({
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 async function fetchData() {
-  if (isEmpty(searchParams.value.localGroupCd)) {
-    await alert(t('MSG_ALT_NOT_FOUND_OG_INF')); // 조직정보를 찾을 수 없습니다.
-    return;
-  }
-
+  // if (isEmpty(searchParams.value.localGroupCd)) {
+  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}111`); // 조직정보를 찾을 수 없습니다.
+  //   return;
+  // }
   const res = await dataService.get('/sms/wells/service/manage-customer-rglvl', { params: cachedParams });
   const list = res.data;
 
@@ -361,16 +366,20 @@ async function fetchData() {
 const prtnrOgTpOptions = ref([]);
 
 async function onClickSearch() {
-  if (!searchParams.value.executiveGroup) {
-    await alert(t('MSG_ALT_NOT_FOUND_OG_INF')); // 조직정보를 찾을 수 없습니다.
-    return;
-  }
+  // if (!searchParams.value.executiveGroup) {
+  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}222`); // 조직정보를 찾을 수 없습니다.
+  //   return;
+  // }
   if (searchParams.value.branchOffice === 'ALL' || !searchParams.value.branchOffice) {
     searchParams.value.branchOfficeCd = 'ALL';
   } else {
     const { ogCd } = prtnrOgTpOptions.value.find((option) => searchParams.value.branchOffice === option.ogId);
     searchParams.value.branchOfficeCd = ogCd;
   }
+
+  // 조회조건(지역단) setting(OgId -> OgCd로 변경)
+  searchParams.value.localGroupOgCd = dgr2LevlOgObj.value.ogCd;
+
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -378,37 +387,44 @@ async function onClickSearch() {
 
 const executiveGroup = ref('');
 const localGroup = ref('');
-const localGroupCd = ref('');
+// const localGroupCd = ref('');
 
 const ogSearchRef = ref();
-
-async function fetchDgr2LevlOgs(params) {
-  return await dataService.get('/sms/wells/service/organizations/regional-group', params);
-}
+// async function fetchDgr2LevlOgs(params) {
+//   return await dataService.get('/sms/wells/service/organizations/regional-group', params);
+// }
 
 async function getOrganizationInfo() {
   const userInfo = getters['meta/getUserInfo'];
   const ogId = userInfo.ogId === 'test' ? 'OGO200800000185' : userInfo.ogId;
   const { data: { dgr1LevlOgId, dgr2LevlOgId } } = await dataService.get(`/sms/wells/service/manage-customer-rglvl/organization-info/${ogId}`);
-  if (!dgr1LevlOgId) {
-    await alert(t('MSG_ALT_NOT_FOUND_OG_INF')); // 조직정보를 찾을 수 없습니다.
-    return;
-  }
+  // if (!dgr1LevlOgId) {
+  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}333`); // 조직정보를 찾을 수 없습니다.
+  //   return;
+  // }
 
   executiveGroup.value = dgr1LevlOgId;
   localGroup.value = dgr2LevlOgId;
 
-  searchParams.value.executiveGroup = dgr1LevlOgId;
-  searchParams.value.localGroup = dgr2LevlOgId;
+  // searchParams.value.executiveGroup = dgr1LevlOgId;
+  // searchParams.value.localGroup = dgr2LevlOgId;
+  if (!isEmpty(dgr1LevlOgId)) {
+    searchParams.value.executiveGroup = dgr1LevlOgId;
+  }
+  if (!isEmpty(dgr2LevlOgId)) {
+    searchParams.value.localGroup = dgr2LevlOgId;
+  }
 
-  const res = await fetchDgr2LevlOgs({ params: {
-    ogId: dgr1LevlOgId,
-    bznsPsicAuthYn: 'Y',
-  } });
-  const { ogCd } = res.data.find((option) => dgr2LevlOgId === option.ogId);
+  // const res = await fetchDgr2LevlOgs({ params: {
+  //   ogId: dgr1LevlOgId || '',
+  //   bznsPsicAuthYn: 'Y',
+  // } });
+  // const { ogCd } = res.data?.find((option) => dgr2LevlOgId === option.ogId) ?? '';
 
-  localGroupCd.value = ogCd;
-  searchParams.value.localGroupCd = ogCd;
+  // if (!isEmpty(ogCd)) {
+  //   localGroupCd.value = ogCd;
+  //   searchParams.value.localGroupCd = ogCd;
+  // }
 }
 
 watch(() => searchParams.value.localGroup, (newVal) => {
@@ -467,12 +483,13 @@ async function onClickBulkUpdateMngStd() {
   const { mngtPrtnrOgTpCd, mngtPrtnrNo, mngStdMngerRglvlDvCd } = mngStd.value;
   const { ogCd } = prtnrOgTpOptions.value.find((option) => mngtPrtnrOgTpCd === option.ogId);
   const { prtnrNoNm } = mngStdPrtnrNoOptions.value.find((option) => mngtPrtnrNo === option.prtnrNo);
+  const dgr2LevlOgCd = dgr2LevlOgObj.value.ogCd;
 
   const data = view.getDataSource();
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
     data.updateRow(rowValue.dataRow, {
-      mngStdDgr2LevlOgCd: localGroupCd.value,
+      mngStdDgr2LevlOgCd: dgr2LevlOgCd,
       mngStdDgr3LevlOgCd: ogCd,
       mngStdPrtnrKnm: prtnrNoNm,
       mngtPrtnrOgTpCd: ogCd,
@@ -529,6 +546,7 @@ async function onClickBulkUpdateCurMnthAlctn() {
   const { cnfmPsicPrtnrNo, curMnthAlctnMngerRglvlDvCd } = curMnthAlctn.value;
 
   const { ogCd } = prtnrOgTpOptions.value.find((option) => asnPsicPrtnrOgTpCd === option.ogId);
+  const dgr2LevlOgCd = dgr2LevlOgObj.value.ogCd;
   const {
     prtnrNoNm,
     brnhId,
@@ -539,7 +557,7 @@ async function onClickBulkUpdateCurMnthAlctn() {
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
     data.updateRow(rowValue.dataRow, {
-      curMnthAlctnDgr2LevlOgCd: localGroupCd.value,
+      curMnthAlctnDgr2LevlOgCd: dgr2LevlOgCd,
       curMnthAlctnDgr3LevlOgCd: ogCd,
       curMnthAlctnPrtnrKnm: prtnrNoNm,
       asnPsicPrtnrOgTpCd: ogCd,
@@ -794,7 +812,7 @@ function initGrdMain(data, view) {
 onMounted(async () => {
   await getOrganizationInfo();
   const { data } = await fetchDgr3LevlOgs({ params: {
-    ogId: localGroup.value,
+    ogId: localGroup.value || '',
     bznsPsicAuthYn: 'Y',
   } });
   prtnrOgTpOptions.value = data;
