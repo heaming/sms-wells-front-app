@@ -1339,6 +1339,7 @@ const fieldData = ref({
   prtnrDtlAdr: '', // [플래너정보-상세주소]
   alncmpCd: '', // 제휴사코드
   alncmpCntrDrmVal: '', // 제휴사계약식별값
+  vstSchDt: '', // 설치예정일자
 });
 
 // 주문상품 정보
@@ -1540,6 +1541,11 @@ async function fetchData() {
   Object.assign(fieldData.value, res.data);
 
   isFetched.value = true;
+
+  if (!isEmpty(fieldData.value.vstSchDt)) {
+    isFetched.value = false;
+    alert(t('MSG_ALT_ALRDY_HAVE_IST_EXP_DT')); // 이미 설치 예약된 계약건 입니다.
+  }
 
   // 주문상품선택 추가정보를 가져오기 위한 파라미터 세팅
   searchParams.value.pdCd = fieldData.value.basePdCd;
