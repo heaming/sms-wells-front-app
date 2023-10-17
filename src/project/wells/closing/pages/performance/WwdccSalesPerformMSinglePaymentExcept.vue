@@ -186,7 +186,7 @@
               <p>
                 {{ singlePaymentDetail.rentalPtrm }}{{ t('MSG_TXT_MCNT') }}/
                 {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalAmt)) }}{{ t('MSG_TXT_CUR_WON') }}
-                ({{ singlePaymentDetail.rentalDscAmt }})
+                ({{ singlePaymentDetail.stplDscAmt }})
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -216,7 +216,7 @@
               :label="$t('MSG_TXT_DP_AGG_AMT')"
             >
               <p>
-                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slDpAggAmt)) }}
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumSlDpAggAmt)) }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -371,7 +371,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_DP_AGG_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slDpAggAmt)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumSlDpAggAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_UC_AMT')"
@@ -489,7 +489,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_DP_AGG_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slDpAggAmt)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumSlDpAggAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_UC_AMT')"
