@@ -83,6 +83,8 @@
           v-model:dgr2-levl-og="dgr2LevlOgObj"
           :dgr1-levl-og-required="true"
           :dgr2-levl-og-required="true"
+          :dgr1-levl-og-readonly="managerAuthYn"
+          :dgr2-levl-og-readonly="managerAuthYn"
           use-og-level="3"
           use-partner
           dgr3-levl-og-first-option="all"
@@ -294,6 +296,7 @@ const { getConfig } = useMeta();
 const dataService = useDataService();
 const { t } = useI18n();
 const { alert, notify } = useGlobal();
+const router = useRouter();
 
 const codes = await codeUtil.getMultiCodes(
   'MNGER_RGLVL_DV_CD',
@@ -304,6 +307,7 @@ const codes = await codeUtil.getMultiCodes(
 const { getters } = useStore();
 const { currentRoute } = useRouter();
 const totalCount = ref(0);
+const managerAuthYn = ref(false); // false : Admin, true : not Admin
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -378,7 +382,7 @@ async function onClickSearch() {
   }
 
   // 조회조건(지역단) setting(OgId -> OgCd로 변경)
-  searchParams.value.localGroupOgCd = dgr2LevlOgObj.value.ogCd;
+  searchParams.value.localGroupOgCd = dgr2LevlOgObj.value?.ogCd;
 
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -413,6 +417,7 @@ async function getOrganizationInfo() {
   }
   if (!isEmpty(dgr2LevlOgId)) {
     searchParams.value.localGroup = dgr2LevlOgId;
+    managerAuthYn.value = true;
   }
 
   // const res = await fetchDgr2LevlOgs({ params: {
@@ -427,13 +432,14 @@ async function getOrganizationInfo() {
   // }
 }
 
-watch(() => searchParams.value.localGroup, (newVal) => {
-  if (!newVal) {
-    setTimeout(() => {
-      searchParams.value.localGroup = localGroup.value;
-    });
-  }
-});
+// watch(() => searchParams.value.localGroup, (newVal) => {
+//   console.log(`cherro ::: 111 ::: ${newVal}`);
+//   if (!newVal) {
+//     setTimeout(() => {
+//       searchParams.value.localGroup = localGroup.value;
+//     });
+//   }
+// });
 
 async function fetchDgr3LevlOgs(params) {
   return await dataService.get('/sms/wells/service/organizations/branch', params);
@@ -800,11 +806,19 @@ function initGrdMain(data, view) {
   ]);
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    // if (column === 'cntr') {
+    //   const cntrNo = g.getValue(itemIndex, 'cntrNo');
+    //   console.log(cntrNo);
+    //   console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+    //   alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+    // }
     if (column === 'cntr') {
-      const cntrNo = g.getValue(itemIndex, 'cntrNo');
-      console.log(cntrNo);
-      console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
-      alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      // const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      // console.log(cntrNo);
+      // console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      // alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      const param = { cntrNo: g.getValue(itemIndex, 'cntrNo'), cntrSn: g.getValue(itemIndex, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
     }
   };
 }
@@ -816,6 +830,12 @@ onMounted(async () => {
     bznsPsicAuthYn: 'Y',
   } });
   prtnrOgTpOptions.value = data;
+  // 지역단 기본 setting
+  setTimeout(() => {
+    if (!isEmpty(localGroup.value)) {
+      searchParams.value.localGroup = localGroup.value;
+    }
+  });
 });
 </script>
 
