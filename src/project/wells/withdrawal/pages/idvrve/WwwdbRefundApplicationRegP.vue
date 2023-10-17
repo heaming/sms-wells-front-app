@@ -893,10 +893,12 @@ async function onClickApply() {
 /** ****************환불상세 function *********************** */
 
 // 단일행추가
-async function insertMainData(cntrNo, cntrSn) {
+async function insertMainData(cntrNo, cntrSn, cntrStartDay, cntrEndDay) {
   let dataParams = {
     cntrNo,
     cntrSn,
+    cntrStartDay,
+    cntrEndDay,
   };
   dataParams = { ...dataParams };
 
@@ -1052,6 +1054,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdNm' },
     { fieldName: 'svAmt', dataType: 'number' }, /* 서비스 금액  */
     { fieldName: 'sellAmt', dataType: 'number' },
+    { fieldName: 'cntrStartDay' }, // 검색조건 년월일
+    { fieldName: 'cntrEndDay' }, // 검색조건 년월일
   ];
   const columns = [
     { fieldName: 'cntrDtlNo',
@@ -1145,6 +1149,9 @@ const initGrid = defineGrid((data, view) => {
     // 체크했을때 - Sub 그리드 데이터 전달
     const cntrNo = grid.getValue(itemIndex, 'cntrNo');
     const cntrSn = grid.getValue(itemIndex, 'cntrSn');
+    const cntrStartDay = grid.getValue(itemIndex, 'cntrStartDay');
+    const cntrEndDay = grid.getValue(itemIndex, 'cntrEndDay');
+    const rfndPsbAmt = grid.getValue(itemIndex, 'rfndPsbAmt');
 
     const cntrDtlNo = {
       cntrNo,
@@ -1153,7 +1160,12 @@ const initGrid = defineGrid((data, view) => {
     const grdRef2 = grdPopRef2.value.getView();
     const grdRef3 = grdPopRef3.value.getView();
     if (checkState === true) {
-      insertMainData(cntrNo, cntrSn);
+      if (Number(rfndPsbAmt) < 1) {
+        alert('환불가능금액이 없습니다.');
+        view.checkItem(itemIndex, false);
+        return;
+      }
+      insertMainData(cntrNo, cntrSn, cntrStartDay, cntrEndDay);
     } else {
       removeMainData(grdRef2, cntrDtlNo, grdRef3);
     }
@@ -1170,9 +1182,17 @@ const initGrid = defineGrid((data, view) => {
     if (grid.isAllChecked()) {
       for (let i = 0; i < indexLength; i += 1) {
         // insertMainData(grdRef2, grid, i);
+        const rfndPsbAmt = grid.getValue(i, 'rfndPsbAmt');
         const cntrNo = grid.getValue(i, 'cntrNo');
         const cntrSn = grid.getValue(i, 'cntrSn');
-        insertMainData(cntrNo, cntrSn);
+        const cntrStartDay = grid.getValue(i, 'cntrStartDay');
+        const cntrEndDay = grid.getValue(i, 'cntrEndDay');
+
+        if (Number(rfndPsbAmt) > 0) {
+          insertMainData(cntrNo, cntrSn, cntrStartDay, cntrEndDay);
+        } else {
+          view.checkItem(i, false);
+        }
       }
     }
     pageInfo2.value.totalCount = gridUtil.getAllRowValues(grdRef2).length;
