@@ -67,7 +67,7 @@
               :label="$t('MSG_TXT_SEL_TYPE')"
             >
               <p>
-                {{ singlePaymentDetail.sellTpNm }}
+                {{ singlePaymentDetail.sellTpNm }}/{{ singlePaymentDetail.sellTpDtlCdNm }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -273,9 +273,9 @@
         >
           <kw-form-row>
             <kw-form-item
-              :label="$t('MSG_TXT_TASK_DIV')"
+              :label="$t('MSG_TXT_SEL_TYPE')"
             >
-              <p>{{ singlePaymentDetail.sellTpNm }}</p>
+              <p>{{ singlePaymentDetail.sellTpNm }}/{{ singlePaymentDetail.sellTpDtlCdNm }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
@@ -410,9 +410,9 @@
         >
           <kw-form-row>
             <kw-form-item
-              :label="$t('MSG_TXT_TASK_DIV')"
+              :label="$t('MSG_TXT_SEL_TYPE')"
             >
-              <p>{{ singlePaymentDetail.sellTpNm }}</p>
+              <p>{{ singlePaymentDetail.sellTpNm }}/{{ singlePaymentDetail.sellTpDtlCdNm }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
