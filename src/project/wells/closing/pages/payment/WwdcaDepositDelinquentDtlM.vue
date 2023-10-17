@@ -102,7 +102,7 @@
                 v-model="searchParams.ogTp"
                 first-option="all"
                 first-option-value="ALL"
-                :options="ogTpCd"
+                :options="ogTp"
               />
             </kw-search-item>
             <kw-search-item
@@ -238,7 +238,7 @@ const selectInqrDv = { // 조회구분
   options: [{ codeId: '1', codeName: t('MSG_TXT_MANAGEMENT_DEPARTMENT') }, { codeId: '2', codeName: t('MSG_TXT_RGNL_GRP') }, { codeId: '3', codeName: t('MSG_TXT_BRANCH') }],
 };
 
-const ogTpCd = codes.OG_TP_CD.filter((v) => ['W01', 'W02'].includes(v.codeId));
+const ogTp = codes.OG_TP_CD.filter((v) => ['W01', 'W02'].includes(v.codeId));
 
 const searchParams = ref({
   perfYm: now.format('YYYYMM'), // 실적년월
