@@ -27,33 +27,36 @@
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
-            @change="onChangeBaseYm"
           />
         </kw-search-item>
         <!-- 창고구분 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_WARE_DV')"
+        <ZwcmWareHouseSearch
+          v-model:start-ym="searchParams.baseYm"
+          v-model:end-ym="searchParams.baseYm"
+          v-model:options-ware-dv-cd="wareDvCd"
+          v-model:ware-dv-cd="searchParams.wareDvCd"
+          v-model:ware-no-m="searchParams.hgrWareNo"
+          v-model:ware-no-d="searchParams.wareNo"
+          sub-first-option="all"
           :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.wareDvCd"
-            :options="filterCodes.wareDvCd"
-            @change="onChangeWareDvCd"
-          />
+          :label1="$t('MSG_TXT_WARE_DV')"
+          :label2="$t('MSG_TXT_WARE_DV')"
+          :label3="$t('MSG_TXT_WARE')"
+          :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeWareDvCd"
+          @update:ware-no-m="onChagneHgrWareNo"
+        />
+        <!-- 창고상세구분 -->
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
           <kw-select
             v-model="searchParams.wareDtlDvCd"
             :options="filterCodes.wareDtlDvCd"
             first-option="all"
-            @change="onChangeWareDtlDvCd"
-          />
-          <kw-select
-            v-model="searchParams.searchWareNo"
-            :options="optionsWareNo"
-            option-value="wareNo"
-            option-label="wareNm"
-            first-option="all"
           />
         </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
         <!-- 상태구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_STAT_DV')"
@@ -173,6 +176,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, defineGrid, useMeta, codeUtil, useDataService, gridUtil, useGlobal, fileUtil } from 'kw-lib';
+import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -181,7 +185,6 @@ const { t } = useI18n();
 const { currentRoute } = useRouter();
 const { getConfig } = useMeta();
 const { notify, confirm } = useGlobal();
-const SERVICE_DV_CD = '2';
 const STATUS_VAL = '실사완료';
 const STATUS_FSH = '신청완료';
 const STATUS_APY = '재고반영';
@@ -196,8 +199,9 @@ let cachedParams;
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'), // 기준년월
   wareDvCd: '2',
+  hgrWareNo: '',
   wareDtlDvCd: '',
-  searchWareNo: '',
+  wareNo: '',
   useYn: '',
 });
 
@@ -216,74 +220,41 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'WARE_DV_CD',
   'WARE_DTL_DV_CD',
   'USE_YN_ACD',
 );
 
+const wareDvCd = { WARE_DV_CD: [
+  { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
+  { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
+] };
+
 const filterCodes = ref({
-  wareDvCd: [],
   wareDtlDvCd: [],
 });
 
-function wareDvCdFilter() {
-  filterCodes.value.wareDvCd = codes.WARE_DV_CD.filter((v) => ['2', '3'].includes(v.codeId));
-}
-
+// 창고세부구분코드 필터링
 function wareDtlDvCdFilter() {
-  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21', '30', '31', '32'].includes(v.codeId));
+  const { wareDvCd: searchWareDvCd } = searchParams.value;
+  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => v.codeId.startsWith(searchWareDvCd));
 }
 
+// 창고구분 변경 시
 function onChangeWareDvCd() {
-  if (searchParams.value.wareDvCd === SERVICE_DV_CD) {
-    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
-    searchParams.value.wareDtlDvCd = '';
-    searchParams.value.searchWareNo = '';
-  } else {
-    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
-    searchParams.value.wareDtlDvCd = '';
-    searchParams.value.searchWareNo = '';
-  }
+  searchParams.value.hgrWareNo = '';
+  searchParams.value.wareNo = '';
+  // 창고상세구분 필터링
+  wareDtlDvCdFilter();
 }
 
-const optionsWareNo = ref();
-// 창고번호 조회
-const onChangeWareHouse = async () => {
-  // 창고번호 클리어
-  searchParams.value.searchWareNo = '';
-  const result = await dataService.get(
-    '/sms/wells/service/stock-acinp-rgst/ware-houses',
-    { params: {
-      baseYm: searchParams.value.baseYm,
-      wareDvCd: searchParams.value.wareDvCd,
-      wareDtlDvCd: searchParams.value.wareDtlDvCd,
-    } },
-  );
-  optionsWareNo.value = result.data;
-};
+// 상위창고 변경 시
+function onChagneHgrWareNo() {
+  searchParams.value.wareNo = '';
+}
 
 await Promise.all([
-  wareDvCdFilter(),
   wareDtlDvCdFilter(),
-  onChangeWareDvCd(),
-  onChangeWareHouse(),
 ]);
-
-// 기준년월이 변경되었을 때 창고번호 재조회
-function onChangeBaseYm() {
-  const searchBaseYm = searchParams.value.baseYm;
-  if (isEmpty(searchBaseYm)) {
-    searchParams.value.searchWareNo = '';
-    optionsWareNo.value = [];
-    return;
-  }
-  onChangeWareHouse();
-}
-
-// 창고세부구분이 변경되었을 때 창고번호 재조회
-function onChangeWareDtlDvCd() {
-  onChangeWareHouse();
-}
 
 // 체크된 내역이 없을시 notify로 메세지 출력
 function validateIsApplyRowExists() {
@@ -325,7 +296,7 @@ async function onClickSave() {
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
   if (!validateIsApplyRowExists()) return;
-  debugger;
+
   for (let i = 0; i < checkedRows.length; i += 1) {
     const { statusT, acinspRmkCn, minusQty } = checkedRows[i];
 
