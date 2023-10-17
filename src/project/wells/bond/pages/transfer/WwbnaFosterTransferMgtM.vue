@@ -619,6 +619,9 @@ const initGridDetail = ((data, view) => {
     { fieldName: 'cntrNo' },
     { fieldName: 'cntrSn' },
     { fieldName: 'clctamPrtnrNo' },
+    { fieldName: 'baseYm' }, // 기준년월
+    { fieldName: 'clctamDvCd' }, // 집금구분코드
+    { fieldName: 'fnlMdfcDtm' }, // 최종수정일시
   );
   data.setFields(fields);
   view.setColumns(columns);
