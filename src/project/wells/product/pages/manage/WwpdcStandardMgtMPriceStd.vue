@@ -171,18 +171,19 @@ async function initGridRows() {
   if (isEmpty(view)) {
     return;
   }
-  priceFieldData.value[prcd] = {
+  const currentSellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+  const priceFields = {};
+  priceFields[prcd] = {
     pdExtsPrpGrpCd: 'PRC',
     // 통화명
     crncyDvCd: currentInitData.value[pdConst.TBL_PD_BAS]?.crncyDvCd,
-    // 판매유형
-    sellTpCd: currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd,
-  };
-  const currentSellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
-  priceFieldData.value[pdConst.TBL_PD_BAS] = {
-    // 판매유형
     sellTpCd: currentSellTpCd,
   };
+  priceFields[pdConst.TBL_PD_BAS] = {
+    sellTpCd: currentSellTpCd,
+  };
+  priceFieldData.value = cloneDeep(priceFields);
+
   if (await currentInitData.value?.[prcd]) {
     const rows = cloneDeep(await getPropInfosToGridRows(
       currentInitData.value?.[prcd],
@@ -269,11 +270,6 @@ async function initProps() {
   currentInitData.value = initData;
   currentMetaInfos.value = metaInfos;
   currentCodes.value = cloneDeep(pdMergeBy(currentCodes.value, codes));
-  priceFieldData.value[pdConst.TBL_PD_PRC_DTL] = [];
-  priceFieldData.value[pdConst.TBL_PD_PRC_DTL]
-    .push({ pdExtsPrpGrpCd: pdConst.PD_PRP_GRP_CD_CMN, pdCd: currentPdCd.value });
-  // console.log(`WwpdcStandardMgtMPriceStd - initProps - pdCd : ${currentPdCd.value}
-  // , initData : `, currentInitData.value);
 }
 
 await initProps();
