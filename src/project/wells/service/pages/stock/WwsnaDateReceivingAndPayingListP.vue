@@ -15,7 +15,7 @@
 <template>
   <kw-popup
     ref="popupRef"
-    size="3xl"
+    size="4xl"
   >
     <kw-action-top>
       <template #left>
