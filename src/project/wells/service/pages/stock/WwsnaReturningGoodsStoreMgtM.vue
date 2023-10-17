@@ -518,6 +518,9 @@ async function onClickRtnGd() {
   // if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
+  // 10 : 물류폐기, 11 : 리퍼-E급 tt물류폐기 , 20 : 리퍼용,
+  // 21 : 품질팀 , 22 : 리퍼-tt특별자재
+  // 80 : 리퍼작업완료-A급, 81 : 리퍼작업완료-B-1급, 82 : 리퍼작업완료-B-2급
   const strRtngdProcsTpCd = ['10', '11', '20', '21', '22', '80', '81', '82'];
 
   for (let i = 0; i < checkedRows.length; i += 1) {
