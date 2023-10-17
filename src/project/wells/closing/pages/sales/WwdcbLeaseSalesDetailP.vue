@@ -51,10 +51,10 @@
           </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_RCP_D')">
-          <p>{{ stringUtil.getDateFormat(leaselSalesDetail.cntrDt, 'YYYY-MM').substring(0,7) }}</p>
+          <p>{{ stringUtil.getDateFormat(leaselSalesDetail.cntrDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DT_OF_SALE')">
-          <p>{{ stringUtil.getDateFormat(leaselSalesDetail.lcsleDt, 'YYYY-MM').substring(0,7) }}</p>
+          <p>{{ stringUtil.getDateFormat(leaselSalesDetail.lcsleDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
