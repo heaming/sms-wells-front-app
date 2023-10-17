@@ -221,11 +221,9 @@ async function initGridRows() {
     svPdCds.options = currentCodes.value.svPdCd;
     svPdCds.labels = currentCodes.value.svPdCd?.map((item) => (item.codeName));
     svPdCds.values = currentCodes.value.svPdCd?.map((item) => (item.codeId));
-    svPdCds.lookupDisplay = true;
     svPdCds.editor = { type: 'list', textReadOnly: true, dropDownWhenClick: true };
     svPdCds.labels.unshift('');
     svPdCds.values.unshift('');
-    // console.log('svPdCds.labels : ', svPdCds.labels);
   }
   gridRowCount.value = getGridRowCount(view);
 }
@@ -302,7 +300,7 @@ async function initGrid(data, view) {
   );
   columns.map((item) => {
     if (item.fieldName === 'svPdCd') {
-      item.editor = 'list';
+      item.editor = { type: 'list', textReadOnly: true, dropDownWhenClick: true };
       item.options = currentCodes.value.svPdCd;
       item.styleName = 'text-left';
       item.width = '300';
@@ -339,6 +337,22 @@ async function initGrid(data, view) {
       );
       priceFieldData.value[prcd] = prcdValues[prcd]?.[0];
     }
+  };
+
+  // 붙여넣기 시,  전체 조정
+  view.onPasted = async (grid) => {
+    gridUtil.getAllRowValues(view).forEach((item) => {
+      if (['created', 'updated'].includes(item.rowState)) {
+        const svPdCd = grid.getValue(item.dataRow, 'svPdCd');
+        if (svPdCd) {
+          const fSvPdCd = currentCodes.value.svPdCd?.find((code) => code.codeId === svPdCd);
+          // svPdCd 필드 붙여넣기시, 서비스코드값이 아닌 서비스명이 들어가는 경우 아래와 같이 찾아서 넣음
+          if (isEmpty(fSvPdCd)) {
+            grid.setValue(item.dataRow, 'svPdCd', currentCodes.value.svPdCd?.find((sv) => sv.codeName === svPdCd)?.codeId);
+          }
+        }
+      }
+    });
   };
 
   await initGridRows();
