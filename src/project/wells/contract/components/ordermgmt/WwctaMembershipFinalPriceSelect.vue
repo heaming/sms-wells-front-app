@@ -116,12 +116,12 @@
             <kw-form-row
               v-if="isHcr"
             >
-              <kw-form-item :label="'홈케어 구분코드'">
+              <kw-form-item :label="'홈케어구분코드'">
                 <kw-select
                   v-if="priceDefineVariableOptions.hcrDvCd"
                   v-model="priceDefineVariables.hcrDvCd"
                   :options="priceDefineVariableOptions.hcrDvCd"
-                  placeholder="멤버십할인구분코드"
+                  placeholder="홈케어구분코드"
                   first-option="select"
                   dense
                   @change="onChangeVariable"
@@ -395,7 +395,7 @@ async function fetchFinalPriceOptions() {
 
   console.log('isHcr.value', isHcr.value);
   if (isHcr.value) {
-    priceDefineVariables.value.mshLvStrtMm = '0';
+    priceDefineVariables.value.mshLvStrtMm = '0'; /* TODO: 가격 서버에서 렌탈차월로 필터링 하고 지우자. 멤버십 재가입은? */
   } else {
     pdPrcFnlDtlId.value = finalPriceOptions.value[0].pdPrcFnlDtlId;
     initPriceDefineVariables();
