@@ -78,12 +78,12 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sepIstCsDtlNm', header: t('MSG_TXT_TYPE'), width: '160', styleName: 'text-center' },
-    { fieldName: 'vstFshDtHh', header: t('MSG_TXT_PRCSDT'), width: '235', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'asCausNm', header: t('MSG_TXT_PROCS_CN'), width: '160', styleName: 'text-left' },
-    { fieldName: 'bilOjAmt', header: t('MSG_TXT_SV_CS'), width: '160', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'dpSumAmt', header: t('MSG_TXT_DP'), width: '160', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'blam', header: t('MSG_TXT_BLAM'), width: '160', styleName: 'rg-button-link text-right', dataType: 'number', numberFormat: '#,##0', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'sepIstCsDtlNm', header: t('MSG_TXT_TYPE'), width: '160', styleName: 'text-center' }, // 유형
+    { fieldName: 'vstFshDtHh', header: t('MSG_TXT_PRCSDT'), width: '235', styleName: 'text-center', datetimeFormat: 'datetime' }, // 처리일자
+    { fieldName: 'asCausNm', header: t('MSG_TXT_PROCS_CN'), width: '160', styleName: 'text-left' }, // 처리내용
+    { fieldName: 'bilOjAmt', header: t('MSG_TXT_SV_CS'), width: '160', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 서비스비용
+    { fieldName: 'dpSumAmt', header: t('MSG_TXT_DP'), width: '160', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금
+    { fieldName: 'blam', header: t('MSG_TXT_BLAM'), width: '160', styleName: 'rg-button-link text-right', dataType: 'number', numberFormat: '#,##0', renderer: { type: 'button' }, preventCellItemFocus: true }, // 잔액
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
