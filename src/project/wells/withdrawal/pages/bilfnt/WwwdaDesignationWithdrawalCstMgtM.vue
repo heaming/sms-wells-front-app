@@ -152,8 +152,6 @@ const pageInfo = ref({
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
   sellTpCd: 'ALL',
-  cntrNo: '',
-  cntrSn: '',
 });
 
 // const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(','); // 가능한 이체일 추후에 수정
