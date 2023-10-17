@@ -113,7 +113,6 @@
           <kw-select
             v-model="searchParams.stRtngdProcsTpCd"
             :options="codes.RTNGD_PROCS_TP_CD"
-            first-option=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -250,7 +249,7 @@ import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSe
 const { t } = useI18n();
 const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
-// const { getConfig } = useMeta();
+const store = useStore();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -273,6 +272,7 @@ const strWareDvCd = { WARE_DV_CD: [
 ] };
 
 const totalCount = ref(0);
+const loginWare = ref();
 
 const filterCodes = ref({
   filterPdGdCd: [],
@@ -283,6 +283,9 @@ const filterCodes = ref({
 // 코드값 필터링
 filterCodes.value.filterPdGdCd = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
 filterCodes.value.filterSvBizDclsfCd = codes.SV_BIZ_DCLSF_CD.filter((v) => ['3420', '3410', '3488', '3210', '3230', '3112'].includes(v.codeId));
+
+// 반품처리유형 코드값 첫번째 자리에 빈값추가
+codes.RTNGD_PROCS_TP_CD.unshift({ codeId: '', codeName: '' });
 
 // 조회용 파라미터
 const searchParams = ref({
@@ -301,6 +304,7 @@ const searchParams = ref({
   strWareNoD: '',
   barCode: '',
   chkErrorCheck: 'N',
+  prtnrNo: store.getters['meta/getUserInfo'].employeeIDNumber,
 
 });
 
@@ -361,6 +365,14 @@ function onClickGridBulkChange(val, type) {
   notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [inputType]));
 }
 
+// 로그인한 사용자의 상위창고 조회
+const getWareHouses = async () => {
+  const res = await dataService.get('/sms/wells/service/returning-goods-store/login-warehouse', { params: { prtnrNo: searchParams.value.prtnrNo } });
+  loginWare.value = res.data;
+
+  searchParams.value.strWareNoM = loginWare.value[0].hgrWareNo;
+};
+
 const itemKndCdD = ref();
 
 // 품목코드 변경이벤트
@@ -388,6 +400,8 @@ function onUpdateProductGroupCode(val) {
 
 await Promise.all([
   onChangeItmKndCd(),
+  // 창고조회
+  getWareHouses(),
 ]);
 
 // 조회 이벤트
@@ -504,6 +518,9 @@ async function onClickRtnGd() {
   // if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
+  // 10 : 물류폐기, 11 : 리퍼-E급 tt물류폐기 , 20 : 리퍼용,
+  // 21 : 품질팀 , 22 : 리퍼-tt특별자재
+  // 80 : 리퍼작업완료-A급, 81 : 리퍼작업완료-B-1급, 82 : 리퍼작업완료-B-2급
   const strRtngdProcsTpCd = ['10', '11', '20', '21', '22', '80', '81', '82'];
 
   for (let i = 0; i < checkedRows.length; i += 1) {
@@ -523,7 +540,8 @@ async function onClickRtnGd() {
     }
 
     if (strRtngdProcsTpCd.includes(rtngdProcsTpCd)) {
-      // 처리할 수 없는 유형이 포함되었습니다. \n확인해주십시오.
+      // 처리할 수 없는 유형이 포함되었습니다.
+      // 확인해주십시오.
       notify(t('MSG_ALT_PROCS_IMP_TP_INC_CONF'));
       return;
     }
