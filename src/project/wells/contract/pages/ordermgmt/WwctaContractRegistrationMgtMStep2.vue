@@ -407,6 +407,13 @@ async function onClickSelectMachine(dtl) {
   }
 
   dtl.cntrRels ??= [];
+
+  const existRelIndex = dtl.cntrRels
+    .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE));
+  if (existRelIndex > 0) {
+    dtl.cntrRels.splice(existRelIndex, 1);
+  }
+
   dtl.cntrRels.push({
     cntrRelId: undefined,
     cntrRelDtlCd: CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE, /* 모종결합 */
@@ -623,7 +630,9 @@ const loaded = ref(false);
 
 async function initStep(forced = false) {
   console.log(loaded.value);
-  if (!forced && loaded.value) { return; }
+  if (!forced && loaded.value) {
+    return;
+  }
   if (cntrNo.value) {
     await getCntrInfo();
     loaded.value = true;
