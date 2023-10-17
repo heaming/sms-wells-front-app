@@ -192,10 +192,13 @@
           </kw-form-row>
           <kw-form-row>
             <kw-form-item
-              :label="$t('MSG_TXT_SL_AGG_AMT')"
+              :label="$t('MSG_TXT_SL_AGG_AMT_SUB')"
             >
               <p>
-                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slAggAmt)) }}
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumSlAggAmt)) }}
+                {{ t('MSG_TXT_CUR_WON') }}
+                ({{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slAggAmt)) }}/
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.intAggAmt)) }})
               </p>
             </kw-form-item>
             <kw-form-item
@@ -650,6 +653,9 @@ async function fetchDetailData(slClYm, sellTpCd) {
     singlePaymentDetail.value.rentalDscAmt += t('MSG_TXT_WON_DSC');
   } else {
     singlePaymentDetail.value.rentalDscAmt = '';
+  }
+  if (!isEmpty(singlePaymentDetail.value.stplDscAmt)) {
+    singlePaymentDetail.value.stplDscAmt += t('MSG_TXT_WON_DSC');
   }
   if (!isEmpty(singlePaymentDetail.value.pkgCd)) {
     singlePaymentDetail.value.pkgCd = `(${singlePaymentDetail.value.pkgCd})`;
