@@ -241,7 +241,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil, popupUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
@@ -627,7 +627,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnlItmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center', options: codes.PD_GD_CD },
     { fieldName: 'useQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'refrAsRcpYn', header: t('MSG_TXT_REFR_RCP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MGT_TYP'), width: '100', styleName: 'text-center' },
@@ -736,8 +736,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.columnEditableFirst = true;
   view.filteringOptions.enabled = false;
 
-  // RTNGD_RVPY_PROCS_YN
-
   view.setRowStyleCallback((grid, item) => {
     const ret = {};
     const { ostrConfDt1 } = gridUtil.getRowValue(grid, item.index);
@@ -763,6 +761,15 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.setCheckBar({ checkableCallback: f });
+
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntrDtlNo') {
+      const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      const cntrSn = g.getValue(itemIndex, 'cntrSn');
+
+      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+    }
+  };
 });
 
 </script>
