@@ -73,7 +73,7 @@
           {{ `${leaselSalesDetail.rentalPtrm}/${stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.rentalAmt))}(DC ${stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.rentalDscAmt))})` }}
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PD_SVC_FEE')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.rentalAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.rentalAmtView)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -325,6 +325,11 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/closing/rental-sales-detail', { params: cachedParams });
   console.log(res.data);
   leaselSalesDetail.value = res.data;
+  if (leaselSalesDetail.value.rentalAmt > 0) {
+    leaselSalesDetail.value.rentalAmtView = leaselSalesDetail.value.svAmt;
+  } else {
+    leaselSalesDetail.value.rentalAmtView = 0;
+  }
 }
 
 onMounted(async () => {
