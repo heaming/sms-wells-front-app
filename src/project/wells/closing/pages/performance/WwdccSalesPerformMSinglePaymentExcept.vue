@@ -799,8 +799,8 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
   ]);
 
   view.onCellItemClicked = async (g, { column, dataRow }) => {
+    const { sellTpCd, islease, slClYm } = gridUtil.getRowValue(g, dataRow);
     if (column === 'slClYm') {
-      const { sellTpCd, islease, slClYm } = gridUtil.getRowValue(g, dataRow);
       let callComponent = '';
       if (sellTpCd === '2') {
         if (islease === 'N') {
@@ -820,7 +820,7 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
     } else if (column === 'dpAmt') {
       await modal({
         component: 'ZwwdbDepositPerformanceIzListP',
-        componentProps: { cntrNo: cachedParams.cntrNo },
+        componentProps: { cntrNo: cachedParams.cntrNo, cntrSn: cachedParams.cntrSn, perfDt: slClYm },
       });
     }
   };
