@@ -325,7 +325,7 @@ function isNotEmpty(obj) {
 
 // input에 값이 정상적으로 들어갔는지 체크
 function validateInputValueExists(input, inputType) {
-  if (input === '') {
+  if (input === '' && inputType === '확인일자') {
     notify(t('MSG_ALT_SELECT_VAL', [inputType]));
     return false;
   }
@@ -428,8 +428,10 @@ async function fetchData() {
         count += 1;
       }
     }
-    // 등급오류건이 {0}건 존재합니다.
-    await alert(t('MSG_ALT_GD_ERR_CT_EXST', [count]));
+    if (count > 0) {
+      // 등급오류건이 {0}건 존재합니다.
+      await alert(t('MSG_ALT_GD_ERR_CT_EXST', [count]));
+    }
   }
 }
 
