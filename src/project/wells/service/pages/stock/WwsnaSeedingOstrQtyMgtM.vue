@@ -21,6 +21,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 조회기간 -->
         <kw-search-item
           :label="$t('MSG_TXT_LOOKUP_PERIOD')"
           required
@@ -32,6 +33,7 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 업무유형 -->
         <kw-search-item :label="$t('MSG_TXT_TASK_TYPE')">
           <kw-select
             v-model="searchParams.svBizHclsfCd"
@@ -54,7 +56,7 @@
           />
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
-
+        <!-- 저장 -->
         <kw-btn
           v-permission:update
           :label="$t('MSG_TXT_SAVE')"
@@ -68,6 +70,7 @@
           inset
           spaced
         />
+        <!-- 엑셀업로드 -->
         <kw-btn
           v-permission:create
           icon="upload_on"
@@ -77,6 +80,7 @@
           :disable="isSearch"
           @click="onClickExcelUpload"
         />
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"

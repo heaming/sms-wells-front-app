@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 조회구분 -->
         <kw-search-item
           :label="t('MSG_TXT_INQR_DV')"
           :colspan="2"
@@ -38,6 +39,7 @@
             @change="onChangeDtTpCd"
           />
         </kw-search-item>
+        <!-- 조회기간, 조회일자 -->
         <kw-search-item
           :label="searchParams.dtTpCd !== '4' ? $t('MSG_TXT_LOOKUP_PERIOD') : $t('MSG_TXT_SRCH_DT')"
           :colspan="searchParams.dtTpCd !== '4' ? 2 : 1"
@@ -61,6 +63,7 @@
       </kw-search-row>
 
       <kw-search-row>
+        <!-- 유/무상구분 -->
         <kw-search-item
           :label="`${t('MSG_TXT_REFRI')}${t('MSG_TXT_DIV')}`"
         >
@@ -70,7 +73,7 @@
             first-option="all"
           />
         </kw-search-item>
-
+        <!-- 배송기간 -->
         <kw-search-item
           :label="t('TXT_MSG_SPP_DV_CD')"
         >
@@ -80,7 +83,7 @@
             first-option="all"
           />
         </kw-search-item>
-
+        <!-- 완료처리 -->
         <kw-search-item
           :label="t('MSG_TXT_FSH_PROCS')"
         >
@@ -90,6 +93,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 패키지구분 -->
         <kw-search-item
           :label="t('MSG_TXT_PKG_DV')"
         >
@@ -101,6 +105,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 출고여부 -->
         <kw-search-item
           :label="`${t('MSG_TXT_OSTR')}${t('MSG_TXT_YN')}`"
         >
@@ -124,7 +129,7 @@
             @change="fetchData"
           />
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
@@ -139,6 +144,7 @@
           vertical
           inset
         />
+        <!-- 입금일자변경 -->
         <kw-btn
           v-permission:update
           secondary
@@ -147,6 +153,7 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickSave"
         />
+        <!-- 집계표출력 -->
         <kw-btn
           v-permission:read
           secondary
@@ -160,6 +167,7 @@
           vertical
           inset
         />
+
         <kw-date-picker
           v-model="ostrCnfmDt"
           dense
@@ -172,6 +180,7 @@
           vertical
           inset
         />
+        <!-- 출고확정일저장 -->
         <kw-btn
           v-permission:update
           primary

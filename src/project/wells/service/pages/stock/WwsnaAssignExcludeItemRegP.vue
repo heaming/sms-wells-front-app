@@ -34,7 +34,6 @@
             @change="onChangeAsnExcdDvCd"
           />
         </kw-search-item>
-        <!-- //제외유형 -->
         <!-- 제외품목 -->
         <kw-search-item
           :label="t('MSG_TXT_EXLD_ITM')"
@@ -45,7 +44,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //제외품목 -->
         <!-- 영업센터 -->
         <kw-search-item :label="t('MSG_TXT_BSNS_CNTR')">
           <kw-select
@@ -57,9 +55,9 @@
             placeholder=""
           />
         </kw-search-item>
-        <!-- //영업센터 -->
       </kw-search-row>
       <kw-search-row>
+        <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
         >
@@ -70,6 +68,7 @@
             rules="alpha_num|max:10"
           />
         </kw-search-item>
+        <!-- SAP코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_SAPCD')"
           :colspan="2"
@@ -100,6 +99,7 @@
           @change="fetchData"
         />
       </template>
+      <!-- 저장 -->
       <kw-btn
         v-permission:update
         grid-action

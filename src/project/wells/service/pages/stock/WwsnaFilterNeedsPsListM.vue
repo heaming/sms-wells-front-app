@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
+        <!-- 출고일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_DT')"
           required
@@ -27,6 +28,7 @@
             rules="required|date_range_months:12"
           />
         </kw-search-item>
+        <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
           required
@@ -38,6 +40,7 @@
             :label="$t('MSG_TXT_ITM_DV')"
           />
         </kw-search-item>
+        <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
         >
@@ -50,6 +53,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- SAP코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_SAPCD')"
         >
@@ -67,6 +71,7 @@
             @change="onChangeEndSapCd"
           />
         </kw-search-item>
+        <!-- B2B관리 -->
         <kw-search-item :label="`B2B ${t('MSG_TXT_MGT')}`">
           <kw-option-group
             v-model="searchParams.b2bMngtCd"
@@ -89,7 +94,7 @@
             ({{ t('MSG_TXT_UNIT') }} : EA)
           </span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"

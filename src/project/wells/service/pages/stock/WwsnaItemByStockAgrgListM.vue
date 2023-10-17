@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_DT')"
           required
@@ -30,7 +31,7 @@
             rules="required"
           />
         </kw-search-item>
-
+        <!-- 재고유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_STOC_TYPE')"
         >
@@ -40,7 +41,7 @@
             first-option="all"
           />
         </kw-search-item>
-
+        <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
           :colspan="2"
@@ -62,6 +63,7 @@
       </kw-search-row>
 
       <kw-search-row>
+        <!-- 창고구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_WARE_DV')"
           required
@@ -72,7 +74,7 @@
             rules="required"
           />
         </kw-search-item>
-
+        <!-- 창고유형 -->
         <kw-search-item :label="`${t('MSG_TXT_WARE')}${t('MSG_TXT_TYPE')}`">
           <kw-select
             v-model="searchParams.wareTpCd"
@@ -83,7 +85,7 @@
             first-option="all"
           />
         </kw-search-item>
-
+        <!-- 등급 -->
         <kw-search-item :label="$t('MSG_TXT_GD')">
           <kw-select
             v-model="searchParams.itmGdCd"
@@ -91,7 +93,7 @@
             first-option="all"
           />
         </kw-search-item>
-
+        <!-- 자재구분 -->
         <kw-search-item :label="t('MSG_TXT_MAT_DV')">
           <kw-select
             v-model="searchParams.matUtlzDvCd"
@@ -102,6 +104,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 사용여부 -->
         <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
           <kw-select
             v-model="searchParams.useYn"
@@ -109,6 +112,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
         >
@@ -119,6 +123,7 @@
             rules="alpha_num|max:10"
           />
         </kw-search-item>
+        <!-- SAP코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_SAPCD')"
           :colspan="2"
@@ -154,7 +159,7 @@
             ({{ t('MSG_TXT_UNIT') }} : EA)
           </span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"

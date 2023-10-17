@@ -22,6 +22,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 서비스센터 -->
         <kw-search-item
           :label="$t('MSG_TXT_SV_CNR')"
           required
@@ -33,6 +34,7 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 출고일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_DT')"
           required
@@ -53,6 +55,7 @@
           ({{ t('MSG_TXT_UNIT') }} : EA)
         </span>
       </template>
+      <!-- 저장 -->
       <kw-btn
         v-permission:update
         :label="$t('MSG_BTN_SAVE')"
@@ -65,6 +68,7 @@
         inset
         spaced
       />
+      <!-- 엑셀다운로드 -->
       <kw-btn
         v-permission:download
         dense

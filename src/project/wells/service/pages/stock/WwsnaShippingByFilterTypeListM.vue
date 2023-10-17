@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 방문일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_VST_DT')"
           :colspan="2"
@@ -34,6 +35,7 @@
             @update:to="onChangeVstDt"
           />
         </kw-search-item>
+        <!-- 반납여부 -->
         <kw-search-item
           :label="`${t('MSG_TXT_GB')}${t('MSG_TXT_YN')}`"
         >
@@ -43,6 +45,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 업무유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_TASK_TYPE')"
         >
@@ -54,6 +57,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 서비스센터 -->
         <kw-search-item
           :label="$t('MSG_TXT_SV_CNR')"
         >
@@ -73,6 +77,7 @@
             option-label="wareNm"
           />
         </kw-search-item>
+        <!-- 필터종류 -->
         <kw-search-item
           :label="`${t('MSG_TXT_FLTR')}${t('MSG_TXT_VALUE_SORT')}`"
           :colspan="2"
@@ -92,6 +97,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 수거일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_TKY_DT')"
         >
@@ -114,7 +120,7 @@
             @change="fetchData"
           />
         </template>
-
+        <!-- 저장 -->
         <kw-btn
           v-permission:update
           grid-action
@@ -127,7 +133,7 @@
           vertical
           inset
         />
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
@@ -150,6 +156,7 @@
           :disable="pageInfo.totalCount === 0"
           dense
         />
+        <!-- 반납여부 일괄변경 -->
         <kw-btn
           dense
           secondary
@@ -170,6 +177,7 @@
           :placeholder="$t('MSG_TXT_SELT')"
           :disable="pageInfo.totalCount === 0"
         />
+        <!-- 수거일자 일괄변경 -->
         <kw-btn
           secondary
           dense
@@ -182,6 +190,7 @@
           vertical
           inset
         />
+        <!-- 라벨출력 -->
         <kw-btn
           v-permission:print
           dense

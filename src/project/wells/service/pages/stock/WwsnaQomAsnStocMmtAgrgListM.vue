@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
+        <!-- BS품목구분 -->
         <kw-search-item
           :label="`BS${t('MSG_TXT_ITM_DV')}`"
         >
@@ -25,8 +26,9 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 품목구분 -->
         <kw-search-item
-          :label="$t('MSG_TXT_PD_GRP')"
+          :label="$t('MSG_TXT_ITM_DV')"
         >
           <kw-select
             v-model="searchParams.itmKndCd"
@@ -44,6 +46,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 회차선택 -->
         <kw-search-item :label="`${t('MSG_TXT_ORDERSELECT_TITLE')}${t('MSG_TXT_SELT')}`">
           <kw-option-group
             v-model="searchParams.cntGb"
@@ -58,6 +61,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- BS년월 -->
         <kw-search-item
           :label="`BS${t('MSG_TXT_YM')}`"
           required
@@ -68,6 +72,7 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 배정W/M -->
         <kw-search-item
           :label="`${t('MSG_TXT_ASGN')}W/M`"
         >
@@ -91,7 +96,7 @@
           />
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"

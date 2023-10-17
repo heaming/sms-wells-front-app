@@ -173,7 +173,7 @@
             ({{ t('MSG_TXT_UNIT') }} : EA)
           </span>
         </template>
-
+        <!-- 저장 -->
         <kw-btn
           v-permission:update
           dense
@@ -187,6 +187,7 @@
           vertical
           inset
         />
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -196,6 +197,7 @@
           :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
+        <!-- 물류이관 -->
         <kw-btn
           v-permission:update
           :label="`${t('MSG_TXT_LGST')}${t('MSG_TXT_TF')}`"

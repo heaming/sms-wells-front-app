@@ -32,7 +32,6 @@
             :label="`${t('MSG_TXT_OSTR')}${t('MSG_TXT_PRD')}`"
           />
         </kw-search-item>
-        <!-- //출고기간-->
         <!-- 출고창고 -->
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stOstrDt"
@@ -48,7 +47,6 @@
           @update:ware-dv-cd="onChangeOstrDvCd"
           @update:ware-no-m="onChagneOstrWareHgrNo"
         />
-        <!-- //출고창고 -->
         <!-- 출고창고상세구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_WARE_DTL_DV')"
@@ -73,7 +71,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //출고유형 -->
         <!-- 입고창고-->
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stOstrDt"
@@ -90,7 +87,6 @@
           @update:ware-dv-cd="onChangeStrDvCd"
           @update:ware-no-m="onChagneStrWareHgrNo"
         />
-        <!-- //입고창고-->
         <!-- 입고창고상세구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_STR_WARE_DTL_DV')"
@@ -115,7 +111,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //등급 -->
         <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
@@ -135,7 +130,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //품목코드 -->
         <!-- 사용여부 -->
         <kw-search-item
           :label="$t('MSG_TXT_USE_SEL')"
@@ -147,7 +141,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //사용여부 -->
       </kw-search-row>
     </kw-search>
 
@@ -163,7 +156,7 @@
           />
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           secondary

@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
+        <!-- 방문예정일 -->
         <kw-search-item
           :label="$t('MSG_TXT_VST_EXP_DT')"
           rules="required"
@@ -28,6 +29,7 @@
             rules="required|date_range_months:1"
           />
         </kw-search-item>
+        <!-- 계약상세번호 -->
         <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
           <kw-input
             v-model="searchParams.cntrDtlNo"
@@ -51,7 +53,7 @@
           />
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
