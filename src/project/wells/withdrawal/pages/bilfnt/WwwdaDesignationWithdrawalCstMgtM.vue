@@ -429,7 +429,10 @@ const initGrid = defineGrid((data, view) => {
   // multi row header setting
 
   view.onCellEditable = (grid, { itemIndex, column }) => {
-    if (!gridUtil.isCreatedRow(grid, itemIndex) && ['cntr', 'fntYm'].includes(column)) {
+    const nowDay = now.format('DD');
+    const dsnWdrwFntD = grid.getValue(itemIndex, 'dsnWdrwFntD');
+    if ((!gridUtil.isCreatedRow(grid, itemIndex) && ['cntr', 'fntYm'].includes(column))
+     || (nowDay >= dsnWdrwFntD.substring(0, 2) && ['dsnWdrwFntD', 'dsnWdrwAmt', 'fntYn'].includes(column))) {
       return false;
     }
   };
