@@ -432,7 +432,7 @@ const initGrid = defineGrid((data, view) => {
     const nowDay = now.format('DD');
     const dsnWdrwFntD = grid.getValue(itemIndex, 'dsnWdrwFntD');
     if ((!gridUtil.isCreatedRow(grid, itemIndex) && ['cntr', 'fntYm'].includes(column))
-     || (nowDay >= dsnWdrwFntD.substring(0, 2) && ['dsnWdrwFntD', 'dsnWdrwAmt', 'fntYn'].includes(column))) {
+     || (!isEmpty(dsnWdrwFntD) && nowDay >= dsnWdrwFntD.substring(0, 2) && ['dsnWdrwFntD', 'dsnWdrwAmt', 'fntYn'].includes(column))) {
       return false;
     }
   };
