@@ -222,6 +222,9 @@ async function initGridRows() {
     svPdCds.labels = currentCodes.value.svPdCd?.map((item) => (item.codeName));
     svPdCds.values = currentCodes.value.svPdCd?.map((item) => (item.codeId));
     svPdCds.lookupDisplay = true;
+    svPdCds.editor = { type: 'list', textReadOnly: true, dropDownWhenClick: true };
+    svPdCds.labels.unshift('');
+    svPdCds.values.unshift('');
     // console.log('svPdCds.labels : ', svPdCds.labels);
   }
   gridRowCount.value = getGridRowCount(view);
