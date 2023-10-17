@@ -128,12 +128,6 @@
           />
         </template>
         <kw-btn
-          icon="print"
-          secondary
-          dense
-          :label="t('MSG_BTN_PRTG')"
-        />
-        <kw-btn
           icon="download_on"
           secondary
           dense
