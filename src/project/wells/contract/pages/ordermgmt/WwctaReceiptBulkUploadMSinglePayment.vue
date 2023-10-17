@@ -100,13 +100,13 @@ function onClickCheckCode() {
 }
 
 async function validate(row) {
-  const {
-    adr1,
-    adr2,
-  } = row;
-  if (!adr1 || !adr2) {
-    throw new Error('주소값은 필수 입니다.');
-  }
+  // const {
+  //   adr1,
+  //   adr2,
+  // } = row;
+  // if (!adr1 || !adr2) {
+  //   throw new Error('주소값은 필수 입니다.');
+  // }
 
   const { data } = await dataService.put('/sms/wells/contract/bulk-upload/single-payments/validate', row, {
     alert: false,
@@ -221,7 +221,7 @@ const initGrd = defineGrid((data, view) => {
       rules: validateTel3,
     },
     zip: { label: t('MSG_TXT_ZIP'), width: 128, classes: 'text-center' },
-    adr1: { label: `${t('MSG_TXT_ADDR')}1`, width: 275, classes: 'text-left', required: true },
+    adr1: { label: `${t('MSG_TXT_ADDR')}1`, width: 275, classes: 'text-left' },
     adr2: { label: `${t('MSG_TXT_ADDR')}2`, width: 275, classes: 'text-left' },
     istDt: { label: t('설치일자'), width: 146, datetimeFormat: 'date' },
     bfsvcBzsDvCd: { label: t('BS업체구분코드'), width: 146, options: codes.BFSVC_BZS_DV_CD },
