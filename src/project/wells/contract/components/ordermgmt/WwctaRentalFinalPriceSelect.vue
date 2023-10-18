@@ -372,7 +372,6 @@
       <promotion-select
         v-model="appliedPromotions"
         :promotions="promotions"
-        @update:model-value="calcPromotionAppliedPrice"
       />
     </template>
   </kw-expansion-item>
@@ -385,6 +384,7 @@ import { alert, stringUtil, useDataService } from 'kw-lib';
 import { warn } from 'vue';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { getNumberWithComma } from '~sms-common/contract/util';
+import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
@@ -856,51 +856,15 @@ const selectedFinalPrice = computed(() => {
   return selectedPrice[0];
 });
 
-/* 가격 표기 관련 */
-const displayedFinalPrice = ref('미확정');
+// region [가격표기]
+const displayedFinalPrice = computed(() => (
+  getDisplayedPrice(selectedFinalPrice.value)
+));
 
-const promotionAppliedPrice = ref();
-
-function calcDisplayedFinalPrice() {
-  displayedFinalPrice.value = selectedFinalPrice.value
-    ? `${stringUtil.getNumberWithComma(selectedFinalPrice.value.fnlVal)}원`
-    : '미확정';
-}
-
-function calcPromotionAppliedPrice(aplyPmots) {
-  if (!aplyPmots?.length) {
-    return;
-  }
-  const fnlVal = selectedFinalPrice.value?.fnlVal;
-  if (!fnlVal) {
-    return;
-  }
-  const minRentalFxam = aplyPmots
-    .reduce(
-      (minVal, promotion) => {
-        if (!promotion.rentalFxam || Number.isNaN(Number(promotion.rentalFxam))) {
-          return minVal;
-        }
-        return Math.min(minVal, Number(promotion.rentalFxam));
-      },
-      fnlVal,
-    );
-  /* TODO: '할인개월과 같이 표기할것'
-  const totalDscApyAmt = aplyPmots
-    .reduce((acc, promotion) => {
-      if (Number.isNaN(Number(promotion.dscApyAmt))) {
-        return acc;
-      }
-      return acc + Number(promotion.dscApyAmt);
-    }, 0);
-   */
-  const pmotAplyPrice = Math.max(minRentalFxam, 0);
-  if (selectedFinalPrice.value?.fnlVal === pmotAplyPrice) {
-    return;
-  }
-  promotionAppliedPrice.value = `${getNumberWithComma(pmotAplyPrice)}원`;
-  emit('promotion-changed', aplyPmots, promotionAppliedPrice.value);
-}
+const promotionAppliedPrice = computed(() => (
+  getPromotionAppliedPrice(selectedFinalPrice.value, appliedPromotions.value)
+));
+// endregion [가격표기]
 
 function clearPromotions() {
   promotions.value = [];
@@ -953,8 +917,6 @@ async function onChangeModelValue(newDtl) {
 watch(() => props.modelValue, onChangeModelValue, { immediate: true });
 
 function onChangeSelectedFinalPrice(newPrice) {
-  calcDisplayedFinalPrice();
-
   if (!newPrice) {
     fnlAmt.value = undefined;
     pdPrcFnlDtlId.value = undefined;
