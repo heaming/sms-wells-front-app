@@ -327,8 +327,8 @@ const searchParams = ref({
 //* ** 전역 변수 영역 시작(prefix 프로그램ID) ***
 //= ===========================================================================
 const baseParams = ref({
-  sysCALL_CTI_SERVER_IP: 'ws://10.1.73.10:9800', // IPCC 서버 IP 01
-  sysCALL_CTI_SERVER_PORT: '9800', // IPCC 서버 PORT
+  sysCALL_CTI_SERVER_IP: '', // IPCC 서버 IP 01
+  sysCALL_CTI_SERVER_PORT: '', // IPCC 서버 PORT
   sysCALL_CTI_SERVER_IP_SAL: '', // IPCC 서버 IP 02
 
   // sysCALL_sStation: '5<%=S_KFPBID%>', // 내선번호(관리 되어야 함)) -> 내선번호 = 5 + 내선번호4자리, 인입큐번호 = 7 + 내선번호4자리
@@ -1200,6 +1200,14 @@ async function fetchData() {
 }
 
 onMounted(async () => {
+  if (window.location.href.includes('localhost')) {
+    baseParams.value.sysCALL_CTI_SERVER_IP = 'ws://10.1.73.10:9800';
+    baseParams.value.sysCALL_CTI_SERVER_PORT = '9800';
+  } else {
+    baseParams.value.sysCALL_CTI_SERVER_IP = 'wss://10.1.73.10:9801';
+    baseParams.value.sysCALL_CTI_SERVER_PORT = '9801';
+  }
+
   fetchData();
 });
 
