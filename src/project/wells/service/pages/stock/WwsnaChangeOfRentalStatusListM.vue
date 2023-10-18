@@ -167,6 +167,7 @@ const filterCodes = ref({
   warehouse: [],
 });
 
+// 품목등급코드 필터링
 function pdGdCdFilter() {
   filterCodes.value.pdGdCd = codes.PD_GD_CD.filter((v) => ['E', 'R'].includes(v.codeId));
 }
@@ -190,6 +191,7 @@ await Promise.all([
 
 ]);
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/change-rental-status/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: rentalItem, pageInfo: pagingResult } = res.data;
@@ -203,6 +205,7 @@ async function fetchData() {
   }
 }
 
+// 조회버튼 클릭 이벤트
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -241,12 +244,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ostrDt' }, // 전산반품
     { fieldName: 'rtngdProcsTpCd' }, // 반품처리유형
     { fieldName: 'rmkCn' }, // 특이사항
-    { fieldName: 'rentalAssetStat' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'rtngdRvpyProcsYn' },
-    { fieldName: 'hgrWareNo' },
-    { fieldName: 'factoryDisposalGb' },
-    { fieldName: 'svpdItemGr' },
+    { fieldName: 'rentalAssetStat' }, // 렌탈관련상태
+    { fieldName: 'cntrNo' }, // 고객번호
+    { fieldName: 'rtngdRvpyProcsYn' }, // 반품수불처리여부
+    { fieldName: 'hgrWareNo' }, // 상위창고번호
+    { fieldName: 'factoryDisposalGb' }, // 물류폐기, 공장폐기 임시구분
+    { fieldName: 'svpdItemGr' }, // 품목등급
   ];
 
   const columns = [

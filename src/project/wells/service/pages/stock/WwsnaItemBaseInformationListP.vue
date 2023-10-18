@@ -9,7 +9,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 기타출고등록 관리 (http://localhost:3000/#/service/wwsna-item-base-information-List)
+ - 품목기본정보 조회 (http://localhost:3000/#/service/wwsna-item-base-information-List)
  ****************************************************************************************************
 --->
 
@@ -44,21 +44,21 @@
             v-model="searchParams.itmPdNm"
             class="w200"
           />
-          <kw-field
+          <!-- <kw-field
             :model-value="[]"
           >
             <template
               #default="{ field }"
-            >
-              <!-- /TODO: 안전재고미달품목 체크박스 로직 추후 추가 -->
-              <kw-checkbox
+            > -->
+          <!-- /TODO: 안전재고미달품목 체크박스 로직 추후 추가 -->
+          <!-- <kw-checkbox
                 v-show="checkField"
                 v-bind="field"
                 :label="$t('MSG_TXT_SFT_STOC_SRTFL_ITM')"
                 val=""
               />
             </template>
-          </kw-field>
+          </kw-field> -->
         </kw-search-item>
       </kw-search-row>
       <kw-search-row
@@ -141,11 +141,13 @@
       @init="initGrdMain2"
     />
     <template #action>
+      <!-- 닫기버튼 -->
       <kw-btn
         negative
         :label="$t('MSG_BTN_CLOSE')"
         @click="onClickClose"
       />
+      <!-- 선택 -->
       <kw-btn
         v-permission:create
         primary
@@ -231,6 +233,7 @@ const props = defineProps({
 
 });
 
+// 조회 파라미터
 const searchParams = ref({
   itmKndCd: props.itmKndCd,
   itmPdNm: props.itmPdNm,
@@ -404,15 +407,15 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmPdNm' },
-    { fieldName: 'itmPdNm1' },
+    { fieldName: 'sapCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목상품코드
+    { fieldName: 'itmPdNm' }, // 품목상품명
+    { fieldName: 'itmPdNm1' }, // 품목상품명1
     { fieldName: 'itmPdAbbr1' },
-    { fieldName: 'itemKnd' },
-    { fieldName: 'boxUnitQty' },
-    { fieldName: 'delUnt' },
-    { fieldName: 'imgUrl' },
+    { fieldName: 'itemKnd' }, // 품목구분
+    { fieldName: 'boxUnitQty' }, // 박스단위수량
+    { fieldName: 'delUnt' }, // 관리단위
+    { fieldName: 'imgUrl' }, // IMGURL
     { fieldName: 'warehouseQty', dataType: 'number' },
     { fieldName: 'centerQty', dataType: 'number' },
     { fieldName: 'centerBQty' },

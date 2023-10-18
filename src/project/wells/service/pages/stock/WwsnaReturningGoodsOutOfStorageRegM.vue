@@ -194,6 +194,7 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
+import { isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getters } = useStore();
@@ -315,6 +316,10 @@ function validateInputValueExists(input, inputType) {
   return true;
 }
 
+function isIndexEmpty(obj) {
+  return (obj === undefined || obj === null || obj === '');
+}
+
 // 적용건수 체크
 function validateIsApplyRowExists() {
   const view = grdMainRef.value.getView();
@@ -323,6 +328,22 @@ function validateIsApplyRowExists() {
     return false;
   }
   return true;
+}
+
+// 시점재고 조회
+async function fetchPitmStoc(rows, itmGdCd, index) {
+  const view = grdMainRef.value.getView();
+  const itmPdCds = rows.map((v) => v.itmPdCd);
+  const res = await dataService.get(`/sms/wells/service/returning-goods-out-of-storages/${searchParams.value.ostrWareNo}`, { params: { itmPdCds, itmGdCd } });
+  for (let i = 0; i < rows.length; i += 1) {
+    if (res.data[i].itmPdCd === rows[i].itmPdCd) {
+      if (isIndexEmpty(index)) {
+        view.setValue(i, 'onQty', res.data[i].pitmQty);
+      } else {
+        view.setValue(index, 'onQty', res.data[i].pitmQty);
+      }
+    }
+  }
 }
 
 // 그리드 "사유" 전체 변경
@@ -338,6 +359,7 @@ function onClickGridBulkChange(val, type) {
   for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
     view.setValue(dataRow, type, val);
   }
+
   notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [inputType]));
 }
 
@@ -350,18 +372,31 @@ function getRowData(rowData) {
 async function openItemBasePopup(type, row) {
   const { result, payload } = await modal({
     component: 'WwsnaItemBaseInformationListP',
-    componentProps: { chk: '1', lpGbYn: type === 'U' ? 'Y' : '' },
+    componentProps: { chk: '1', lpGbYn: type === 'U' ? 'Y' : '', wareNo: searchParams.value.ostrWareNo },
   });
 
+  const target = [];
   if (result) {
     const view = grdMainRef.value.getView();
+    const list = gridUtil.getAllRowValues(view, false);
     if (type === 'C') {
-      view.getDataSource().addRows(payload.map((v) => getRowData(v)));
+      payload.forEach((obj) => {
+        if (list.find((i) => i.itmPdCd === obj.itmPdCd)) {
+          return true;
+        }
+        target.push(obj);
+        return false;
+      });
+      view.getDataSource().addRows(target.map((v) => getRowData(v)));
       view.checkAll(false);
       view.resetCurrent();
+      if (!isEmpty(target)) {
+        await fetchPitmStoc(target, 'A'); // 시점재고 조회
+      }
     } else if (type === 'U') {
       const rowData = payload?.[0] || {};
       view.setValues(row, getRowData(rowData), true);
+      await fetchPitmStoc([rowData], 'A');
     }
     setTotalCount();
   }
@@ -445,12 +480,10 @@ async function fetchDefaultData() {
   const { codeId } = res.data[0];
   searchParams.value.ostrWareNo = codeId;
 }
-
 // 대상 Object의 빈값 여부 체크
 function isNotEmpty(obj) {
   return (obj !== undefined && obj !== null && obj !== '');
 }
-
 // 파라미터 체크
 function hasProps() {
   return isNotEmpty(props.ostrTpCd) && isNotEmpty(props.ostrWareNo) && isNotEmpty(props.ostrDt);
@@ -706,6 +739,17 @@ const initGrdMain = defineGrid((data, view) => {
 
     if (index.fieldName === 'ostrQty') {
       validateOstrQty(index.dataRow, editResult.value);
+    }
+  };
+
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const { itmGdCd } = grid.getValues(itemIndex);
+    const dataRow = [grid.getValues(itemIndex)];
+
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+
+    if (changedFieldName === 'itmGdCd') {
+      await fetchPitmStoc(dataRow, itmGdCd, row);
     }
   };
 });

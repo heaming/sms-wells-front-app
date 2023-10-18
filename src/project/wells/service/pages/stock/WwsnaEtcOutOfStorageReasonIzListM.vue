@@ -34,13 +34,6 @@
           />
         </kw-search-item>
         <!-- 서비스센터 -->
-        <!-- <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
-          <kw-select
-            v-model="searchParams.ostrWareNo"
-            :options="center"
-            first-option="all"
-          />
-        </kw-search-item> -->
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.startDt"
           v-model:end-ym="searchParams.endDt"
@@ -204,15 +197,18 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+// 창고구분코드가 변경되었을때
 function onChangeStdWareDvCd() {
   searchParams.value.wareNoM = '';
   searchParams.value.wareNoD = '';
 }
 
+// 상위창고가 변경되었을때
 function onChagneHgrWareNo() {
   searchParams.value.wareNoD = '';
 }
 
+// 조회
 let cachedParams;
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/etc-out-of-storage-resons/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -223,6 +219,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -252,18 +249,18 @@ onMounted(async () => {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itemNm' },
-    { fieldName: 'itmGdCd' },
-    { fieldName: 'ostrDt' },
-    { fieldName: 'ostrQty', dataType: 'number' },
-    { fieldName: 'csmrUprcAmt', dataType: 'number' },
-    { fieldName: 'totalAmt', dataType: 'number' },
-    { fieldName: 'deptNm' },
-    { fieldName: 'ostrRsonCd' },
-    { fieldName: 'wareNm' },
-    { fieldName: 'rmkCn' },
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목상품코드
+    { fieldName: 'itemNm' }, // 품목명
+    { fieldName: 'itmGdCd' }, // 품목등급코드
+    { fieldName: 'ostrDt' }, // 출고일자
+    { fieldName: 'ostrQty', dataType: 'number' }, // 출고수량
+    { fieldName: 'csmrUprcAmt', dataType: 'number' }, // 소비자가
+    { fieldName: 'totalAmt', dataType: 'number' }, // 총금액
+    { fieldName: 'deptNm' }, // 부서명
+    { fieldName: 'ostrRsonCd' }, // 출고사유코드
+    { fieldName: 'wareNm' }, // 창고명
+    { fieldName: 'rmkCn' }, // 비고
   ];
 
   const columns = [
@@ -314,14 +311,14 @@ const initGrdMain = defineGrid((data, view) => {
     'itmPdCd', // 품목코드
     'itemNm', // 품목명
     'itmGdCd', // 등급
-    'ostrDt',
-    'ostrQty',
-    'csmrUprcAmt',
-    'totalAmt',
-    'deptNm',
-    'ostrRsonCd',
-    'wareNm',
-    'rmkCn',
+    'ostrDt', // 출고일자
+    'ostrQty', // 출고수량
+    'csmrUprcAmt', // 소비자가
+    'totalAmt', // 총금액
+    'deptNm', // 부서명
+    'ostrRsonCd', // 출고사유코드
+    'wareNm', // 창고명
+    'rmkCn', // 비고
   ];
 
   data.setFields(fields);
