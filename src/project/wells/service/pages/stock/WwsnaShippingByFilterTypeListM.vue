@@ -224,7 +224,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid, popupUtil } from 'kw-lib';
+import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
@@ -233,6 +233,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 const dataService = useDataService();
 
@@ -594,7 +595,15 @@ const initGrdMain = defineGrid((data, view) => {
     if (column === 'cntrDtlNo') {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       const cntrSn = g.getValue(itemIndex, 'cntrSn');
-      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+
+      // 개인별서비스현황 연결
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
     }
   };
 });
