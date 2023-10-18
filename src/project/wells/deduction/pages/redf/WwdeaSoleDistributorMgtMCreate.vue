@@ -50,10 +50,14 @@
         <kw-input
           v-model="searchParams.ogCdFrom"
           regex="alpha_num"
+          :rules="validateComponent"
+          maxlength="7"
         />
         <span>~</span>
         <kw-input
           v-model="searchParams.ogCdTo"
+          :rules="validateComponent"
+          maxlength="7"
         />
       </kw-search-item>
       <kw-search-item :label="t('MSG_TXT_INQR_BASE')">
@@ -321,6 +325,16 @@ async function onClickSearch() {
     await fetchData2();
   }
 }
+
+const validateComponent = computed(() => async () => {
+  const errors = [];
+
+  if (searchParams.value.ogCdFrom > searchParams.value.ogCdTo) {
+    errors.push(t('MSG_ALT_STRT_CD_END_CD_CMPR')); // 시작코드가 종료코드보다 클 수 없습니다.
+  }
+
+  return errors[0] || true;
+});
 
 /* 되물림 금액 생성 */
 async function onClickRedfAmountCreate() {

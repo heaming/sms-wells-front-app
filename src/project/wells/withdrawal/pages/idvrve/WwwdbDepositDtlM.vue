@@ -109,12 +109,14 @@
           <kw-input
             v-model="searchParams.stClctamPrtnrNo"
             :rules="validateComponent"
+            maxlength="10"
             regex="num"
           />
           <span>-</span>
           <kw-input
             v-model="searchParams.enClctamPrtnrNo"
             regex="num"
+            maxlength="10"
             :rules="validateComponent"
           />
         </kw-search-item>
@@ -126,12 +128,14 @@
             v-model="searchParams.stFstRgstUsrId"
             :rules="validateUsrComponent"
             regex="num"
+            maxlength="100"
           />
           <span>-</span>
           <kw-input
             v-model="searchParams.enFstRgstUsrId"
             :rules="validateUsrComponent"
             regex="num"
+            maxlength="100"
           />
         </kw-search-item>
       </kw-search-row>
@@ -295,17 +299,20 @@ const validateComponent = computed(() => async () => {
 
   if (!isEmpty(searchParams.value.stClctamPrtnrNo)) {
     if (isEmpty(searchParams.value.enClctamPrtnrNo)) {
-      errors.push('집금담당자사번 입력 시 종료 집금담당자사번은 필수입니다.');
+      errors.push(t('MSG_ALT_CLCTAM_PSIC_IN_END_CLCTAM_PSIC'));
+      // 집금담당자사번 입력 시 종료 집금담당자사번은 필수입니다.
     }
   }
   if (!isEmpty(searchParams.value.enClctamPrtnrNo)) {
     if (isEmpty(searchParams.value.stClctamPrtnrNo)) {
-      errors.push('집금담당자사번 입력 시 종료 집금담당자사번은 필수입니다.');
+      errors.push(t('MSG_ALT_CLCTAM_PSIC_IN_STRT_CLCTAM_PSIC'));
+      // 집금담당자사번 입력 시 시작 집금담당자사번은 필수입니다.
     }
   }
 
   if (searchParams.value.stClctamPrtnrNo > searchParams.value.enClctamPrtnrNo) {
-    errors.push('시작 집금담당자사번이 종료 집금담당자사번 보다 클 수 없습니다.');
+    errors.push(t('MSG_ALT_STRT_CLCTAM_END_CLCTAM_CMPR'));
+    // 시작 집금담당자사번이 종료 집금담당자사번보다 클 수 없습니다.
   }
 
   return errors[0] || true;
@@ -316,17 +323,20 @@ const validateUsrComponent = computed(() => async () => {
 
   if (!isEmpty(searchParams.value.stFstRgstUsrId)) {
     if (isEmpty(searchParams.value.enFstRgstUsrId)) {
-      errors.push('입력담당자사번 입력 시 종료 입력담당자사번은 필수입니다.');
+      errors.push(t('MSG_ALT_ICHR_IN_END_ICHR'));
+      // 입력담당자사번 입력 시 종료 입력담당자사번은 필수입니다.
     }
   }
   if (!isEmpty(searchParams.value.enFstRgstUsrId)) {
     if (isEmpty(searchParams.value.stFstRgstUsrId)) {
-      errors.push('입력담당자사번 입력 시 시작 입력담당자사번은 필수입니다.');
+      errors.push(t('MSG_ALT_ICHR_IN_STRT_ICHR'));
+      // 입력담당자사번 입력 시 시작 입력담당자사번은 필수입니다.
     }
   }
 
   if (searchParams.value.stFstRgstUsrId > searchParams.value.enFstRgstUsrId) {
-    errors.push('시작 입력담당자사번이 종료 입력담당자사번 보다 클 수 없습니다.');
+    errors.push(t('MSG_ALT_STRT_ICHR_END_ICHR_CMPR'));
+    // 시작 입력담당자사번이 종료 입력담당자사번보다 클 수 없습니다.
   }
 
   return errors[0] || true;
