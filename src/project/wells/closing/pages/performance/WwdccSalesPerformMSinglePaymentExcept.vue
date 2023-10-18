@@ -633,6 +633,9 @@ const isShowRegular = ref(false);
 
 async function fetchDetailData(slClYm, sellTpCd) {
   // cachedParams.slClYm = slClYm;
+  isShowRental.value = false;
+  isShowMembership.value = false;
+  isShowRegular.value = false;
   cachedParams.cntrDtlNo = `${cachedParams.cntrNo}${cachedParams.cntrSn}`;
   let res = null;
   if (sellTpCd === '2') {
