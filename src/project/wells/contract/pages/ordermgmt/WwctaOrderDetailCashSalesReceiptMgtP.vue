@@ -293,6 +293,7 @@ async function fetchData() {
 
     fieldBaseParams.value.afchCssrIsNo = fieldBaseParams.value.cssrIsNo;
     fieldBaseParams.value.afchCssrIsDvCd = fieldBaseParams.value.cssrIsDvCd;
+    fieldBaseParams.value.chRsonCn = isEmpty(resBaseInfo.data.chRsonCn) ? '' : resBaseInfo.data.chRsonCn;
 
     isInitOpen.value = true;
   } else {
