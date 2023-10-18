@@ -304,7 +304,7 @@
       <kw-grid
         ref="grdControlRef"
         name="grdControl"
-        :visible-rows="3"
+        :visible-rows="10"
         @init="initControlMain"
       />
     </div>
