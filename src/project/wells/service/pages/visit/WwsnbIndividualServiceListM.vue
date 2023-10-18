@@ -960,7 +960,7 @@ const initGridState = defineGrid((data, view) => {
       styleName: 'text-center',
       styleCallback(grd, dataCell) {
         const procStus = grd.getValue(dataCell.item.dataRow, 'procStus');
-        return (procStus === '00') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+        return (procStus === '00' || procStus === '10' || procStus === '20') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
       },
     },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
@@ -1031,7 +1031,7 @@ const initGridState = defineGrid((data, view) => {
         cntrSn,
       } = g.getValues(cData.itemIndex);
 
-      if (procStus === '00') {
+      if (procStus === '00' || procStus === '10' || procStus === '20') {
         const bypassPrtnrNo = prtnrNo;
         const wkPrgsStatCd = procStus;
 
