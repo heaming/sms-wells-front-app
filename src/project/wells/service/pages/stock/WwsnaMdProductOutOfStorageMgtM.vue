@@ -235,6 +235,7 @@ async function onChangeCompStatus() {
   if (findGb === '1') {
     isCompStatus.value = true;
     view.checkBar.visible = false;
+    searchParams.value.firstSppGb = 'all';
   }
 
   /* 작업대기 */
