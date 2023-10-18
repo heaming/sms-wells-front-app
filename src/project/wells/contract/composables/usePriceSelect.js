@@ -194,7 +194,9 @@ export default (
     filteredVariableNames.value.forEach(setIfUniqueSelectable); /* 필터링 된 항목만 박도록 수정 */
   };
 
-  watch(priceOptionFilter, onChangePriceOptionFilter);
+  if (priceOptionFilter) {
+    watch(priceOptionFilter, onChangePriceOptionFilter);
+  }
 
   const onChangeFinalPriceOptions = () => {
     filteringFinalPriceOptions();
@@ -217,37 +219,18 @@ export default (
           : priceDefineVariables.value[variableName]; /* could be undefined */
         const targetValue = generateValueKey(finalPrice[variableName]); /* can not be undefined */
 
-        return targetValue === curValue;
+        // fixme: 안정되면 !curValue 제거
+        return !curValue || targetValue === curValue;
       })));
 
   const selectedFinalPrice = computed(() => {
-    const selectedPrice = filteredFinalPriceOptions.value
-      ?.filter((finalPrice) => variableNames.value
-        .every((variableName) => {
-          // 선택 가능한 값이 없으면 제외. ?? 왜?
-          const selectable = getSelectable(variableName);
-          if (!selectable.length) {
-            return true;
-          }
-
-          const curValue = priceDefineVariables.value[variableName] === EMPTY_ID
-            ? EMPTY_SYM
-            : priceDefineVariables.value[variableName]; /* could be undefined */
-          const targetValue = generateValueKey(finalPrice[variableName]); /* can not be undefined */
-
-          if (targetValue !== curValue) {
-            console.log(variableName, targetValue, curValue);
-          }
-
-          return targetValue === curValue;
-        }));
-    if (selectedPrice.length > 1) {
+    if (selectedFinalPrices.value.length > 1) {
       return undefined;
     }
-    if (selectedPrice.length < 1) {
+    if (selectedFinalPrices.value.length < 1) {
       return undefined;
     }
-    return selectedPrice[0];
+    return selectedFinalPrices.value[0];
   });
 
   return {
