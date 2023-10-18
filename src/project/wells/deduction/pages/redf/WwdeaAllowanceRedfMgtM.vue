@@ -88,17 +88,17 @@
         >
           <kw-input
             v-model="searchParams.prtnrNoFrom"
-            rules="required"
             maxlength="10"
             regex="num"
+            :rules="validateComponent"
             :label="t('MSG_TXT_PRTNR_NUM_FROM')"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.prtnrNoTo"
-            rules="required"
             maxlength="10"
             regex="num"
+            :rules="validateComponent"
             :label="t('MSG_TXT_PRTNR_NUM_TO')"
           />
         </kw-search-item>
@@ -257,7 +257,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
-import { codeUtil, getComponentType, gridUtil, useDataService, router, useMeta, modal } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, router, useMeta, modal, validate } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 
 // -------------------------------------------------------------------------------------------------
@@ -403,6 +403,19 @@ async function onClickSearch() {
     await fetchData2();
   }
 }
+
+const validateComponent = computed(() => async (val, options) => {
+  const errors = [];
+  errors.push(
+    ...(await validate(val, 'required', options)).errors,
+  );
+
+  if (searchParams.value.prtnrNoFrom > searchParams.value.prtnrNoTo) {
+    errors.push(t('MSG_ALT_STRT_NO_END_NO_CMPR')); // 시작번호가 종료번호보다 클 수 없습니다.
+  }
+
+  return errors[0] || true;
+});
 
 async function onClickExcelDownload() {
   let view;
