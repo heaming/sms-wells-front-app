@@ -353,7 +353,7 @@ const labelGenerator = {
 const {
   priceDefineVariableOptions,
   setPriceDefineVariablesBy,
-  setVariablesIfUniqueSelectable,
+  // setVariablesIfUniqueSelectable,
   selectedFinalPrice, // computed
   // eslint-disable-next-line no-unused-vars
   selectedFinalPrices, // computed
@@ -496,9 +496,9 @@ function onChangeSelectedFinalPrice(newPrice) {
 watch(selectedFinalPrice, onChangeSelectedFinalPrice);
 
 function onChangeVariable() {
-  if (finalPriceOptions.value.length === 1) {
-    setVariablesIfUniqueSelectable();
-  }
+  // if (finalPriceOptions.value.length === 1) {
+  //   setVariablesIfUniqueSelectable();
+  // }
 }
 
 function onClickDelete() {

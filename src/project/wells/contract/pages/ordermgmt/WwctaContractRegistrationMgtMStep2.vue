@@ -41,7 +41,7 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
-              @price-changed="onPriceChanged"
+              @price-changed="onPriceChanged(item, $event)"
               @delete="onClickDelete(item)"
             />
             <rental-price-select
@@ -52,7 +52,7 @@
               @one-plus-one="onClickOnePlusOne"
               @delete:one-plus-one="onDeleteOnePlusOne"
               @device-change="onClickDeviceChange"
-              @price-changed="onPriceChanged"
+              @price-changed="onPriceChanged(item, $event)"
               @packaging="onPackaging"
               @delete="onClickDelete(item)"
             />
@@ -61,6 +61,7 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
+              @price-changed="onPriceChanged(item, $event)"
               @delete="onClickDelete(item)"
             />
             <regular-shipping-price-select
@@ -68,6 +69,7 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
+              @price-changed="onPriceChanged(item, $event)"
               @select-machine="onClickSelectMachine"
               @delete:select-machine="onDeleteSelectMachine"
               @select-seeding="onClickSelSdingCapsl"
@@ -566,7 +568,7 @@ async function getCntrInfo() {
 }
 
 async function confirmProducts() {
-  if (step2.value.dtls.find((dtl) => !dtl.fnlAmt)) {
+  if (step2.value.dtls.find((dtl) => !dtl.pdPrcFnlDtlId)) {
     notify('상품 가격을 확인해주세요');
     return;
   }
@@ -629,7 +631,6 @@ async function isValidStep() {
 const loaded = ref(false);
 
 async function initStep(forced = false) {
-  console.log(loaded.value);
   if (!forced && loaded.value) {
     return;
   }
@@ -675,7 +676,9 @@ onActivated(() => {
   emit('activated', 2);
 });
 
-function onPriceChanged() {
+function onPriceChanged(item, price) {
+  console.log('onPriceChanged', item, price);
+  item.finalPrice = price;
   emit('contract-modified');
 }
 
