@@ -192,6 +192,7 @@
           </kw-form-row>
           <kw-form-row>
             <kw-form-item
+              v-show="singlePaymentDetail.islease==='Y'"
               :label="$t('MSG_TXT_SL_AGG_AMT_SUB')"
             >
               <p>
@@ -199,6 +200,15 @@
                 {{ t('MSG_TXT_CUR_WON') }}
                 ({{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slAggAmt)) }}/
                 {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.intAggAmt)) }})
+              </p>
+            </kw-form-item>
+            <kw-form-item
+              v-show="singlePaymentDetail.islease==='N'"
+              :label="$t('MSG_TXT_SL_AGG_SUB')"
+            >
+              <p>
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumSlAggAmt)) }}
+                {{ t('MSG_TXT_CUR_WON') }}
               </p>
             </kw-form-item>
             <kw-form-item
