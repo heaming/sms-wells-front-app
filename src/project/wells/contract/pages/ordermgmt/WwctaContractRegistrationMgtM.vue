@@ -212,6 +212,8 @@ const updateSummary = () => {
   }
   smr.customer = {
     ...step1?.cntrt,
+    ...step2?.cntrt,
+    ...step3?.cntrt,
     ...step4?.cntrt,
   };
   smr.partner = {

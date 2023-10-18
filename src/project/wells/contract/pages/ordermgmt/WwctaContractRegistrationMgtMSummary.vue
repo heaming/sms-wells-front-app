@@ -93,7 +93,7 @@
                 </li>
                 <li>
                   <p>결제방법</p>
-                  <span>{{ summary.dpTpNm }}</span>
+                  <span>{{ dpTpCdNms }}</span>
                 </li>
               </ul>
             </div>
@@ -135,7 +135,12 @@
 // -------------------------------------------------------------------------------------------------
 import { useCtCode } from '~sms-common/contract/composable';
 import { getNumberWithComma } from '~sms-common/contract/util';
-import { getAftnAmt, getSpayAmt, getSpayAmtByCntrDtl } from '~sms-wells/contract/utils/CtPriceUtil';
+import {
+  getAftnAmt,
+  getAftnAmtByCntrDtl,
+  getSpayAmt,
+  getSpayAmtByCntrDtl,
+} from '~sms-wells/contract/utils/CtPriceUtil';
 
 const props = defineProps({
   cntrNo: { type: String, default: undefined },
@@ -148,7 +153,8 @@ const props = defineProps({
 const { getCodeName } = await useCtCode(
   'CNTR_TP_CD',
   'SELL_CHNL_DTL_CD',
-  'RVE_TP_CD',
+  'RVE_DV_CD',
+  'DP_TP_CD',
 );
 
 // const dataService = useDataService();
@@ -176,6 +182,18 @@ watch(() => props.step, () => {
     sideStepRefs[props.step].show();
   }
 });
+
+// function calcSpayAmt(cntrDtl) {
+//   const { finalPrice, rglrSppPrmMcn } = cntrDtl;
+//   let spayAmt;
+//   if (finalPrice) {
+//     const pdBas = { rglrSppPrmMcn };
+//     spayAmt = getSpayAmt(pdBas, finalPrice);
+//   } else {
+//     spayAmt = getSpayAmtByCntrDtl(cntrDtl);
+//   }
+//   return Number(spayAmt) || 0;
+// }
 
 const totalSpayAmt = computed(() => {
   const { cntrDtls } = props.summary;
@@ -206,7 +224,7 @@ const totalAftnAmt = computed(() => {
     if (finalPrice) {
       added = getAftnAmt(finalPrice);
     } else {
-      added = getSpayAmtByCntrDtl(cntrDtl);
+      added = getAftnAmtByCntrDtl(cntrDtl);
     }
     return (sum + (Number(added) || 0));
   }, 0);
@@ -242,7 +260,33 @@ const rveTpCdNms = computed(() => {
   });
   const nms = [];
   codeIdSet.forEach((codeId) => {
-    nms.push(getCodeName('RVE_TP_CD', codeId));
+    nms.push(getCodeName('RVE_DV_CD', codeId));
+  });
+  return nms.join(', ');
+});
+
+const dpTpCdNms = computed(() => {
+  const { cntrDtls } = props.summary;
+  if (!cntrDtls?.length) {
+    return '';
+  }
+  const codeIdSet = new Set();
+  cntrDtls.forEach((cntrDtl) => {
+    const { dpTpCdIdrv, dpTpCdMsh, dpTpCdAftn, stlmRels } = cntrDtl;
+    if (dpTpCdIdrv) { codeIdSet.add(dpTpCdIdrv); }
+    if (dpTpCdMsh) { codeIdSet.add(dpTpCdMsh); }
+    if (dpTpCdAftn) { codeIdSet.add(dpTpCdAftn); }
+
+    if (stlmRels?.length) {
+      stlmRels.forEach((stlmRel) => {
+        const { dpTpCd } = stlmRel;
+        if (dpTpCd) { codeIdSet.add(dpTpCd); }
+      });
+    }
+  });
+  const nms = [];
+  codeIdSet.forEach((codeId) => {
+    nms.push(getCodeName('DP_TP_CD', codeId));
   });
   return nms.join(', ');
 });
