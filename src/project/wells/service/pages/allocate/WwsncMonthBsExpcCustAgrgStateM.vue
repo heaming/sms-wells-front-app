@@ -182,51 +182,52 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogNm' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'pstnDvCd' },
+    { fieldName: 'pstnDvNm' },
     { fieldName: 'bldNm' },
     { fieldName: 'mngrCustCnt', dataType: 'number' },
-    { fieldName: 'g42', dataType: 'number' }, // 정수기
-    { fieldName: 'g42Mini', dataType: 'number' }, // 미니정수기
-    { fieldName: 'g411', dataType: 'number' }, // 비대-개인
-    { fieldName: 'g412', dataType: 'number' }, // 비대-법인
-    { fieldName: 'g43', dataType: 'number' }, // 공기청정기
-    { fieldName: 'g44', dataType: 'number' }, // 연수기
-    { fieldName: 'cof', dataType: 'number' }, // 커피머신
-    { fieldName: 'chr', dataType: 'number' }, // 안마의자
-    { fieldName: 'fWide', dataType: 'number' }, // WIDE
-    { fieldName: 'fSlim', dataType: 'number' }, // SLIM
-    { fieldName: 'farm', dataType: 'number' }, // 계
-    { fieldName: 'dryer', dataType: 'number' }, // 건조기
-    { fieldName: 'aircon', dataType: 'number' }, // 에어컨
-    { fieldName: 'airdresser', dataType: 'number' }, // 에어드레서
-    { fieldName: 'washer', dataType: 'number' }, // 세탁기
-    { fieldName: 'mj', dataType: 'number' }, // 모종
-    { fieldName: 'tot', dataType: 'number' }, // 소계
+    { fieldName: 'wrfr', dataType: 'number' }, // 정수기
+    { fieldName: 'miniWrfr', dataType: 'number' }, // 미니정수기
+    { fieldName: 'bdtIndv', dataType: 'number' }, // 비대-개인
+    { fieldName: 'bdtCrp', dataType: 'number' }, // 비대-법인
+    { fieldName: 'arcl', dataType: 'number' }, // 공기청정기
+    { fieldName: 'wtrSftnr', dataType: 'number' }, // 연수기
+    { fieldName: 'cffMchn', dataType: 'number' }, // 커피머신
+    { fieldName: 'msgcr', dataType: 'number' }, // 안마의자
+    { fieldName: 'wellsFarmWide', dataType: 'number' }, // WIDE
+    { fieldName: 'wellsFarmSlim', dataType: 'number' }, // SLIM
+    { fieldName: 'wellsFarm', dataType: 'number' }, // 계
+    { fieldName: 'dryr', dataType: 'number' }, // 건조기
+    { fieldName: 'arcon', dataType: 'number' }, // 에어컨
+    { fieldName: 'ardrssr', dataType: 'number' }, // 에어드레서
+    { fieldName: 'wash', dataType: 'number' }, // 세탁기
+    { fieldName: 'sding', dataType: 'number' }, // 모종
+    { fieldName: 'fieldSum', dataType: 'number' }, // 소계
   ];
 
   const columns = [
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' }, // 사번
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '180', styleName: 'text-center' }, // 소속
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '90', styleName: 'text-center' }, // 사번
+    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' }, // 성명
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '120', styleName: 'text-center' }, // 직급
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '120', styleName: 'text-center' }, // 빌딩명
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_CRLV'), width: '100', styleName: 'text-center' }, // 직급
+    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '150', styleName: 'text-center' }, // 빌딩명
     { fieldName: 'mngrCustCnt', header: t('MSG_TXT_MNGT_CST_CNT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 관리고객수
-    { fieldName: 'g42', header: t('MSG_TXT_WRFR'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 정수기
-    { fieldName: 'g42Mini', header: t('MSG_TXT_MINI_WRFR'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 미니정수기
-    { fieldName: 'g411', header: t('MSG_TXT_BDT_INDV'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 비대-개인
-    { fieldName: 'g412', header: t('MSG_TXT_BDT_CRP'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 비대-법인
-    { fieldName: 'g43', header: t('MSG_TXT_ARCLE'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 공기청정기
-    { fieldName: 'g44', header: t('MSG_TXT_WTST'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 연수기
-    { fieldName: 'cof', header: t('MSG_TXT_CFF_MCHN'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 커피머신
-    { fieldName: 'chr', header: t('MSG_TXT_MSGCR'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 안마의자
-    { fieldName: 'fWide', header: t('WIDE'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // WIDE
-    { fieldName: 'fSlim', header: t('SLIM'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // SLIM
-    { fieldName: 'farm', header: t('MSG_TXT_AGG'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 계
-    { fieldName: 'dryer', header: t('MSG_TXT_DRYER'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 건조기
-    { fieldName: 'aircon', header: t('MSG_TXT_ARCN'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 에어컨
-    { fieldName: 'airdresser', header: t('MSG_TXT_ARDRSSR'), width: '100', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 에어드레서
-    { fieldName: 'washer', header: t('MSG_TXT_WASHER'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 세탁기
-    { fieldName: 'mj', header: t('MSG_TXT_SDING'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 모종
-    { fieldName: 'tot', header: t('MSG_TXT_SBSUM'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 소계
+    { fieldName: 'wrfr', header: t('MSG_TXT_WRFR'), width: '60', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 정수기
+    { fieldName: 'miniWrfr', header: t('MSG_TXT_MINI_WRFR'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 미니정수기
+    { fieldName: 'bdtIndv', header: t('MSG_TXT_BDT_INDV'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 비대-개인
+    { fieldName: 'bdtCrp', header: t('MSG_TXT_BDT_CRP'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 비대-법인
+    { fieldName: 'arcl', header: t('MSG_TXT_ARCLE'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 공기청정기
+    { fieldName: 'wtrSftnr', header: t('MSG_TXT_WTST'), width: '60', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 연수기
+    { fieldName: 'cffMchn', header: t('MSG_TXT_CFF_MCHN'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 커피머신
+    { fieldName: 'msgcr', header: t('MSG_TXT_MSGCR'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 안마의자
+    { fieldName: 'wellsFarmWide', header: t('WIDE'), width: '60', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // WIDE
+    { fieldName: 'wellsFarmSlim', header: t('SLIM'), width: '60', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // SLIM
+    { fieldName: 'wellsFarm', header: t('MSG_TXT_AGG'), width: '60', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 계
+    { fieldName: 'dryr', header: t('MSG_TXT_DRYER'), width: '60', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 건조기
+    { fieldName: 'arcon', header: t('MSG_TXT_ARCN'), width: '60', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 에어컨
+    { fieldName: 'ardrssr', header: t('MSG_TXT_ARDRSSR'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 에어드레서
+    { fieldName: 'wash', header: t('MSG_TXT_WASHER'), width: '60', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 세탁기
+    { fieldName: 'sding', header: t('MSG_TXT_SDING'), width: '50', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 모종
+    { fieldName: 'fieldSum', header: t('MSG_TXT_SBSUM'), width: '80', styleName: 'text-right', numberFormat: '#,##0', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 소계
   ];
   data.setFields(fields);
   view.setColumns(columns);
@@ -235,7 +236,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_EPNO_FNM'), // 사번 및 성명
       direction: 'horizontal', // merge type
-      items: ['ogNm', 'prtnrKnm', 'pstnDvCd'],
+      items: ['ogNm', 'prtnrKnm', 'pstnDvNm'],
     },
     'bldNm',
     'mngrCustCnt',
@@ -243,25 +244,25 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_VST_ACC'), // 방문계정
       direction: 'horizontal', // merge type
       items: [
-        'g42',
-        'g42Mini',
-        'g411',
-        'g412',
-        'g43',
-        'g44',
-        'cof',
-        'chr',
+        'wrfr',
+        'miniWrfr',
+        'bdtIndv',
+        'bdtCrp',
+        'arcl',
+        'wtrSftnr',
+        'cffMchn',
+        'msgcr',
         {
           header: t('MSG_TXT_WELSF'), // 웰스팜
           direction: 'horizontal', // merge type
-          items: ['fWide', 'fSlim', 'farm'],
+          items: ['wellsFarmWide', 'wellsFarmSlim', 'wellsFarm'],
         },
-        'dryer',
-        'aircon',
-        'airdresser',
-        'washer',
-        'mj',
-        'tot',
+        'dryr',
+        'arcon',
+        'ardrssr',
+        'wash',
+        'sding',
+        'fieldSum',
       ],
     },
   ]);
