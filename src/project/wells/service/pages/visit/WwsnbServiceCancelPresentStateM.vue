@@ -244,7 +244,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, useMeta, getComponentType, gridUtil } from 'kw-lib';
+import { useDataService, codeUtil, useMeta, getComponentType, gridUtil, modal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
@@ -462,6 +462,7 @@ function initGrid(data, view) {
     { fieldName: 'istImpEnvr1stImgFileUid', visible: false }, // 설치불가환경 이미지 1
     { fieldName: 'istImpEnvr2ndImgFileUid', visible: false }, // 설치불가환경 이미지 2
     { fieldName: 'istImpEnvr3rdImgFileUid', visible: false }, // 설치불가환경 이미지 3
+    { fieldName: 'cstSvAsnNo', visible: false }, // 배정번호
   ];
 
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
@@ -480,6 +481,20 @@ function initGrid(data, view) {
     },
     'wkPrgsStatNm', 'wkCanRsonCd', 'wkCanRsonNm', 'wkCanMoCn', 'imgFile', 'unuitm',
   ]);
+
+  view.onCellDblClicked = async (g, cData) => {
+    if (cData.fieldName === 'imgYn') { return false; }
+
+    const { cntrNo, cntrSn, cstSvAsnNo } = g.getValues(cData.itemIndex);
+    await modal({
+      component: 'WwsnbServiceProcDetailListP',
+      componentProps: {
+        cntrNo,
+        cntrSn,
+        cstSvAsnNo,
+      },
+    });
+  };
 
   // data.setRows([
   // eslint-disable-next-line max-len
