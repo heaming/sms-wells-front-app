@@ -105,21 +105,28 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'tfOgTpCd' },
     { fieldName: 'tfPrtnrNo' },
     { fieldName: 'tfOgId' },
+    { fieldName: 'cnfmOgNm' },
+    { fieldName: 'cnfmPsicPrtnrNo' },
+    { fieldName: 'cnfmdt' },
+    { fieldName: 'cnfmPrtnrKnm' },
   ];
 
   const columns = [
     { fieldName: 'fnlMdfcDtm', header: t('이관일시'), width: '200', styleName: 'text-center' },
     { fieldName: 'asnTfDvCd', header: t('이관사유'), width: '150', styleName: 'text-center', options: codes.TF_AK_DV_CD },
-    { fieldName: 'bfOgNm', header: t('소속'), width: '150', styleName: 'text-left' },
+    { fieldName: 'bfOgNm', header: t('소속'), width: '180', styleName: 'text-left' },
     { fieldName: 'bfCnfmPsicPrtnrNo', header: t('사번'), width: '100', styleName: 'text-right' },
     { fieldName: 'bfPrtnrKnm', header: t('성명'), width: '100', styleName: 'text-center' },
-    { fieldName: 'afOgNm', header: t('소속'), width: '150', styleName: 'text-left' },
+    { fieldName: 'afOgNm', header: t('소속'), width: '180', styleName: 'text-left' },
     { fieldName: 'afCnfmPsicPrtnrNo', header: t('사번'), width: '100', styleName: 'text-right' },
     { fieldName: 'afPrtnrKnm', header: t('성명'), width: '100', styleName: 'text-center' },
     { fieldName: 'tfCnfmdt', header: t('이관일자'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
     { fieldName: 'tfAkRsonCd', header: t('이관사유'), width: '170', styleName: 'text-center', options: codes.TF_AK_RSON_CD },
-    { fieldName: 'tfOgNm', header: t('소속'), width: '150', styleName: 'text-left' },
+    { fieldName: 'tfOgNm', header: t('소속'), width: '180', styleName: 'text-left' },
     { fieldName: 'tfPrtnrKnm', header: t('성명'), width: '100', styleName: 'text-center' },
+    { fieldName: 'cnfmdt', header: t('확정일자'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
+    { fieldName: 'cnfmOgNm', header: t('소속'), width: '180', styleName: 'text-left' },
+    { fieldName: 'cnfmPrtnrKnm', header: t('성명'), width: '100', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
@@ -143,6 +150,11 @@ const initGrid = defineGrid((data, view) => {
       header: t('이관요청정보'),
       direction: 'horizontal',
       items: ['tfCnfmdt', 'tfAkRsonCd', 'tfOgNm', 'tfPrtnrKnm'],
+    },
+    {
+      header: t('이관확정정보'),
+      direction: 'horizontal',
+      items: ['cnfmdt', 'cnfmOgNm', 'cnfmPrtnrKnm'],
     },
   ]);
 });
