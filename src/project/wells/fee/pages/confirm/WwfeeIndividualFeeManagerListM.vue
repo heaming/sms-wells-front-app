@@ -326,7 +326,6 @@ const grdSellEtcRef = ref(getComponentType('KwGrid'));
 const grdBsRef = ref(getComponentType('KwGrid'));
 const grdFeeRef = ref(getComponentType('KwGrid'));
 const grdPnpyamRef = ref(getComponentType('KwGrid'));
-const totalCount = ref(0);
 const deductionRowCnt = ref(0);
 const router = useRouter();
 
@@ -507,7 +506,6 @@ async function openRedemptionOfFeePopup() {
 async function fetchData(type) {
   const response = await dataService.get(`/sms/wells/fee/individual-fees/mnger-${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
-  totalCount.value = resData.length;
   if (type === 'basic') {
     basicInfo.value = resData;
   } else if (type === 'selletcs') {
@@ -603,14 +601,14 @@ const initGrdSellEtc = defineGrid((data, view) => {
 
 const initGrdBs = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cdNm', header: t('MSG_TXT_PRDT'), width: '140', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
-    { fieldName: 'geMngtCt', header: t('MSG_TXT_MGT'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'geVstCt', header: t('MSG_TXT_VST'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'geAmt', header: t('MSG_TXT_AMT'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'fxamMngtCt', header: t('MSG_TXT_MGT'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'fxamVstCt', header: t('MSG_TXT_VST'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'fxamAmt', header: t('MSG_TXT_AMT'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'sumAmt', header: t('MSG_TXT_SUM'), width: '114', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'cdNm', header: t('MSG_TXT_PRDT'), width: '140', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // 상품, 합계
+    { fieldName: 'geMngtCt', header: t('MSG_TXT_MGT'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 관리
+    { fieldName: 'geVstCt', header: t('MSG_TXT_VST'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 방문
+    { fieldName: 'geAmt', header: t('MSG_TXT_AMT'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 금액
+    { fieldName: 'fxamMngtCt', header: t('MSG_TXT_MGT'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 관리
+    { fieldName: 'fxamVstCt', header: t('MSG_TXT_VST'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 방문
+    { fieldName: 'fxamAmt', header: t('MSG_TXT_AMT'), width: '90', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 금액
+    { fieldName: 'sumAmt', header: t('MSG_TXT_SUM'), width: '114', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 합계
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -654,25 +652,25 @@ const initGrdFee = defineGrid((data, view) => {
 
   view.setColumnLayout([
     {
-      header: t('MSG_TXT_PRSNL_FEE'), // colspan title
+      header: t('MSG_TXT_PRSNL_FEE'), // 개인수수료
       direction: 'horizontal',
       items: ['feeNm1', 'feeAtcVal1'],
       hideChildHeaders: true,
     },
     {
-      header: t('MSG_TXT_ORGNSTN_FEE'), // colspan title
+      header: t('MSG_TXT_ORGNSTN_FEE'), // 조직수수료
       direction: 'horizontal',
       items: ['feeNm2', 'feeAtcVal2'],
       hideChildHeaders: true,
     },
     {
-      header: `BS${t('MSG_TXT_FEE')}`, // colspan title
+      header: `BS${t('MSG_TXT_FEE')}`, // 수수료
       direction: 'horizontal',
       items: ['feeNm3', 'feeAtcVal3'],
       hideChildHeaders: true,
     },
     {
-      header: t('MSG_TXT_ETC'), // colspan title
+      header: t('MSG_TXT_ETC'), // 기타
       direction: 'horizontal',
       items: ['feeNm4', 'feeAtcVal4'],
       hideChildHeaders: true,
@@ -688,13 +686,12 @@ const initGrdFee = defineGrid((data, view) => {
 
 const initGrdPnpyam = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'pnpyamAtcCdNm', header: t('MSG_TXT_ITEM'), width: '200', styleName: 'text-center', footer: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'bfmnBlnc', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_BLAM'), width: '150', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'thmnOccr', header: t('MSG_TXT_THM_OC'), width: '150', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'thmnSum', header: t('MSG_TXT_THM') + t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'thmnDctn', header: t('MSG_TXT_THM_DDTN'), width: '150', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'thmnBlnc', header: t('MSG_TXT_THM_BLAM'), width: '150', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-
+    { fieldName: 'pnpyamAtcCdNm', header: t('MSG_TXT_ITEM'), width: '200', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // 항목, 합계
+    { fieldName: 'bfmnBlnc', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_BLAM'), width: '150', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 전월 잔액
+    { fieldName: 'thmnOccr', header: t('MSG_TXT_THM_OC'), width: '150', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 당월발생
+    { fieldName: 'thmnSum', header: t('MSG_TXT_THM') + t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 당월 합계
+    { fieldName: 'thmnDctn', header: t('MSG_TXT_THM_DDTN'), width: '150', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 당월공제
+    { fieldName: 'thmnBlnc', header: t('MSG_TXT_THM_BLAM'), width: '150', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 당월잔액
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
