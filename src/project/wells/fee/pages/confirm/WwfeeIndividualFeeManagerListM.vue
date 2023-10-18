@@ -419,7 +419,7 @@ async function openBsConfirmPopup() {
   if (basicInfo.value.prtnrNo !== '' && basicInfo.value.prtnrNo !== undefined) {
     router.push({
       path: url,
-      query: { rsbDvCd, perfYm, prtnrNo, dgr1LevlOgId, dgr2LevlOgId, dgr3LevlOgId },
+      query: { rsbDvCd, perfYm, prtnrNo, ogLv1Id: dgr1LevlOgId, ogLv2Id: dgr2LevlOgId, ogLv3Id: dgr3LevlOgId },
     });
   } else {
     alert(t('MSG_ALT_USE_DT_SRCH_AF'));
