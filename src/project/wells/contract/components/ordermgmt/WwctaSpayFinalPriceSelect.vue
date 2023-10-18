@@ -294,8 +294,6 @@ async function fetchFinalPriceOptions() {
   finalPriceOptions.value = data || [];
 }
 
-await fetchFinalPriceOptions();
-
 const priceDefineVariables = ref({
   svPdCd: undefined,
   spayDscDvCd: undefined,
@@ -386,7 +384,7 @@ watch(spayDscrCdSelectable, (value) => {
   if (!value) {
     priceDefineVariables.value.spayDscrCd = EMPTY_ID;
   }
-});
+}, { immediate: true });
 
 const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.spayDscDvCd === '5');
 
@@ -394,7 +392,7 @@ watch(rentalCrpDscrCdSelectable, (value) => {
   if (!value) {
     priceDefineVariables.value.rentalCrpDscrCd = EMPTY_ID;
   }
-});
+}, { immediate: true });
 
 const showSvPtrms = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD_SPAY_ENVR_ELHM && selectedFinalPrice.value);
 
@@ -498,11 +496,9 @@ function onChangeSelectedFinalPrice(newPrice) {
 watch(selectedFinalPrice, onChangeSelectedFinalPrice);
 
 function onChangeVariable() {
-  // FIXME! 가격 안정화 되면 조건 추가할 것..
-  setVariablesIfUniqueSelectable();
-  // if (finalPriceOptions.value.length === 1) {
-  //   setVariablesIfUniqueSelectable();
-  // }
+  if (finalPriceOptions.value.length === 1) {
+    setVariablesIfUniqueSelectable();
+  }
 }
 
 function onClickDelete() {
