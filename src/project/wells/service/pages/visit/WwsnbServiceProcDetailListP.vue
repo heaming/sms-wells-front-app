@@ -72,6 +72,7 @@
             :rows="3"
             counter
             maxlength="200"
+            readonly
           />
         </kw-form-item>
         <kw-form-item :label="$t('MSG_BTN_CST_SIGN')">
@@ -97,6 +98,7 @@
             :rows="3"
             counter
             maxlength="200"
+            readonly
           />
         </kw-form-item>
       </kw-form-row>
@@ -125,6 +127,7 @@
             :rows="3"
             counter
             maxlength="200"
+            readonly
           />
         </kw-form-item>
       </kw-form-row>
@@ -292,6 +295,7 @@ const signSrc = ref({});
 
 // 상세내역
 async function fetchData() {
+  console.log(dtlIzParam.value);
   const res = await dataService.get(`${baseUrl}`, { params: { ...dtlIzParam.value } });
   dtlIz.value = res.data;
   procDt.value = dtlIz.value.vstFshDt + dtlIz.value.vstFshHh;
