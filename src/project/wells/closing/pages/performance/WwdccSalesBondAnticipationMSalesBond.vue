@@ -160,7 +160,7 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
     { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 매출일자
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
@@ -197,7 +197,7 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
     'sapPdAtcNm',
     'cntrNo',
     'cstKnm',
-    'basePdCd',
+    'pdCd',
     'pdNm',
     'slRcogDt',
     'preTotUcAmt',
@@ -253,7 +253,7 @@ async function setGridColumnLayoutType2(data, view) { // 렌탈
     { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 매출일자
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
@@ -279,7 +279,7 @@ async function setGridColumnLayoutType2(data, view) { // 렌탈
     'sapPdAtcNm',
     'cntrNo',
     'cstKnm',
-    'basePdCd',
+    'pdCd',
     'pdNm',
     'slRcogDt',
     'preTotUcAmt',
@@ -328,7 +328,7 @@ async function setGridColumnLayoutType3(data, view) { // 멤버십
     { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출일자
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
@@ -346,7 +346,7 @@ async function setGridColumnLayoutType3(data, view) { // 멤버십
   view.rowIndicator.visible = true;
 
   const layoutMain = [
-    'slClYm', 'slClDt', 'sellTpCd', 'sellTpDtlCd', 'sapPdAtcNm', 'cntrNo', 'cstKnm', 'basePdCd', 'pdNm', 'slRcogDt', 'preTotUcAmt',
+    'slClYm', 'slClDt', 'sellTpCd', 'sellTpDtlCd', 'sapPdAtcNm', 'cntrNo', 'cstKnm', 'pdCd', 'pdNm', 'slRcogDt', 'preTotUcAmt',
     {
       header: `${t('MSG_TXT_SL')}(+)`, /* 매출(+) */
       direction: 'horizontal',
@@ -387,7 +387,7 @@ async function setGridColumnLayoutType4(data, view) { // 정기배송
     { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 상품코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 상품명
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date', visible: (['3', '4'].includes(searchParams.value.agrgDv)) }, // 매출일자
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
@@ -429,7 +429,7 @@ async function setGridColumnLayoutType5(data, view) { // 리스/할부
     { fieldName: 'sapPdAtcNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-center' }, // 상품명
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '150', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 매출일자
     { fieldName: 'preTotUcAmt', header: t('MSG_TXT_FTRM_CRDOVR'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 전기이월
@@ -449,7 +449,7 @@ async function setGridColumnLayoutType5(data, view) { // 리스/할부
   view.rowIndicator.visible = true;
 
   const layoutMain = [
-    'slClYm', 'slClDt', 'sellTpCd', 'sellTpDtlCd', 'sapPdAtcNm', 'cntrNo', 'cstKnm', 'basePdCd', 'pdNm', 'slRcogDt', 'preTotUcAmt',
+    'slClYm', 'slClDt', 'sellTpCd', 'sellTpDtlCd', 'sapPdAtcNm', 'cntrNo', 'cstKnm', 'pdCd', 'pdNm', 'slRcogDt', 'preTotUcAmt',
     {
       header: `${t('MSG_TXT_SL')}(+)`, /* 매출(+) */
       direction: 'horizontal',
