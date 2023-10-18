@@ -244,133 +244,127 @@ async function onClickExcelDownload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4', dataType: 'number' },
-    { fieldName: 'col5', dataType: 'number' },
-    { fieldName: 'col6', dataType: 'number' },
-    { fieldName: 'col7', dataType: 'number' },
-    { fieldName: 'col8', dataType: 'number' },
-    { fieldName: 'col9', dataType: 'number' },
-    { fieldName: 'col10', dataType: 'number' },
-    { fieldName: 'col11', dataType: 'number' },
-    { fieldName: 'col12', dataType: 'number' },
-  ];
-
   const columns = [
-    {
-      fieldName: 'col1',
-      header: '구분',
+    { // 구분
+      fieldName: 'dddp',
+      header: t('MSG_TXT_DIV'),
       width: '64',
       styleName: 'text-center',
     },
-    {
-      fieldName: 'col2',
-      header: '소속',
+    { // 소속
+      fieldName: 'heldt',
+      header: t('MSG_TXT_BLG'),
       width: '110',
       styleName: 'text-center',
     },
-    {
-      fieldName: 'col3',
-      header: '빌딩명',
+    { // 빌딩명
+      fieldName: 'dbna',
+      header: t('MSG_TXT_BLD_NM'),
       width: '250',
       styleName: 'text-left',
     },
-    {
-      fieldName: 'col4',
-      header: '계정수',
+    { // 계정수
+      fieldName: 'mct1',
+      header: t('MSG_TXT_ACC_N'),
       width: '120',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
         expression: 'sum',
       },
     },
-    {
-      fieldName: 'col5',
-      header: '정상',
+    { // 정상
+      fieldName: 'mct2',
+      header: t('MSG_TXT_NOM'),
       width: '120',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
         expression: 'sum',
       },
     },
-    {
-      fieldName: 'col6',
-      header: 'W1급지',
+    { // W1급지
+      fieldName: 'w1ct',
+      header: `W1${t('MSG_TXT_RGLVL')}`,
       width: '120',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
         expression: 'sum',
       },
     },
-    {
-      fieldName: 'col7',
-      header: 'W1급지',
+    { // W1급지
+      fieldName: 'w2ct',
+      header: `W1${t('MSG_TXT_RGLVL')}`,
       width: '120',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
         expression: 'sum',
       },
     },
-    {
-      fieldName: 'col8',
-      header: '급지계',
+    { // 급지계
+      fieldName: 'wacc',
+      header: `${t('MSG_TXT_RGLVL')} ${t('MSG_TXT_AGG')}`,
       width: '120',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
         expression: 'sum',
       },
     },
-    {
-      fieldName: 'col9',
-      header: '기타',
+    { // 기타
+      fieldName: 'ecnt',
+      header: t('MSG_TXT_ETC'),
       width: '120',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
         expression: 'sum',
       },
     },
-    {
-      fieldName: 'col10',
-      header: '급지(%)',
+    { // 급지(%)
+      fieldName: 'wper',
+      header: `${t('MSG_TXT_RGLVL')}%`,
       width: '120',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
         expression: 'sum',
       },
     },
-    {
-      fieldName: 'col11',
-      header: '환산계',
+    { // 환산계
+      fieldName: 'wrkCnt',
+      header: t('환산계'),
       width: '120',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
         expression: 'sum',
       },
     },
-    {
-      fieldName: 'col12',
-      header: '환산(%)',
+    { // 환산(%)
+      fieldName: 'hper',
+      header: t('환산(%)'),
       width: '120',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -389,45 +383,20 @@ function initGrid(data, view) {
     ],
   });
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
 
   view.setColumnLayout([
-    'col1', 'col2', 'col3', 'col4', // single
+    'dddp', 'heldt', 'dbna', 'mct1', // single
     {
       header: '급지현황', // colspan title
       direction: 'horizontal', // merge type
-      items: ['col5', 'col6', 'col7', 'col8', 'col9', 'col10', 'col11', 'col12'],
+      items: ['mct2', 'w1ct', 'w2ct', 'wacc', 'ecnt', 'wper', 'wrkCnt', 'hper'],
     },
   ]);
-
-  // data.setRows([
-  // eslint-disable-next-line max-len
-  //   { col1: '1', col2: 'A970000', col3: '인천검단/라임3층', col4: '5122', col5: '4,192', col6: '18', col7: '207', col8: '694', col9: '1', col10: '18.4', col11: '1884', col12: '36.8' },
-  // eslint-disable-next-line max-len
-  //   { col1: '1', col2: 'A970000', col3: '인천검단/라임3층', col4: '5122', col5: '4,192', col6: '18', col7: '207', col8: '694', col9: '1', col10: '18.4', col11: '1884', col12: '36.8' },
-  // eslint-disable-next-line max-len
-  //   { col1: '1', col2: 'A970000', col3: '인천검단/라임3층', col4: '5122', col5: '4,192', col6: '18', col7: '207', col8: '694', col9: '1', col10: '18.4', col11: '1884', col12: '36.8' },
-  // eslint-disable-next-line max-len
-  //   { col1: '1', col2: 'A970000', col3: '인천검단/라임3층', col4: '5122', col5: '4,192', col6: '18', col7: '207', col8: '694', col9: '1', col10: '18.4', col11: '1884', col12: '36.8' },
-  // eslint-disable-next-line max-len
-  //   { col1: '1', col2: 'A970000', col3: '인천검단/라임3층', col4: '5122', col5: '4,192', col6: '18', col7: '207', col8: '694', col9: '1', col10: '18.4', col11: '1884', col12: '36.8' },
-  // eslint-disable-next-line max-len
-  //   { col1: '1', col2: 'A970000', col3: '인천검단/라임3층', col4: '5122', col5: '4,192', col6: '18', col7: '207', col8: '694', col9: '1', col10: '18.4', col11: '1884', col12: '36.8' },
-  // eslint-disable-next-line max-len
-  //   { col1: '1', col2: 'A970000', col3: '인천검단/라임3층', col4: '5122', col5: '4,192', col6: '18', col7: '207', col8: '694', col9: '1', col10: '18.4', col11: '1884', col12: '36.8' },
-  // eslint-disable-next-line max-len
-  //   { col1: '1', col2: 'A970000', col3: '인천검단/라임3층', col4: '5122', col5: '4,192', col6: '18', col7: '207', col8: '694', col9: '1', col10: '18.4', col11: '1884', col12: '36.8' },
-  // eslint-disable-next-line max-len
-  //   { col1: '1', col2: 'A970000', col3: '인천검단/라임3층', col4: '5122', col5: '4,192', col6: '18', col7: '207', col8: '694', col9: '1', col10: '18.4', col11: '1884', col12: '36.8' },
-  // eslint-disable-next-line max-len
-  //   { col1: '1', col2: 'A970000', col3: '인천검단/라임3층', col4: '5122', col5: '4,192', col6: '18', col7: '207', col8: '694', col9: '1', col10: '18.4', col11: '1884', col12: '36.8' },
-  // eslint-disable-next-line max-len
-  //   { col1: '1', col2: 'A970000', col3: '인천검단/라임3층', col4: '5122', col5: '4,192', col6: '18', col7: '207', col8: '694', col9: '1', col10: '18.4', col11: '1884', col12: '36.8' },
-  // ]);
 }
 
 </script>
