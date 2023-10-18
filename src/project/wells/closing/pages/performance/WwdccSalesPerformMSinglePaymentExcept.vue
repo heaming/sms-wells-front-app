@@ -663,10 +663,6 @@ async function fetchDetailData(slClYm, sellTpCd) {
 }
 
 async function fetchData() {
-  isShowRental.value = false;
-  isShowMembership.value = false;
-  isShowRegular.value = false;
-
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/closing/sales-performs/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: singlePayments, pageInfo: pagingResult } = res.data;
@@ -677,6 +673,11 @@ async function fetchData() {
   view.getDataSource().setRows(singlePayments);
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+  if (isEmpty(singlePayments)) {
+    isShowRental.value = false;
+    isShowMembership.value = false;
+    isShowRegular.value = false;
+  }
   if (!isEmpty(singlePayments) && pageInfo.value.pageIndex === 1) {
     await fetchDetailData(singlePayments[0].slClYm, singlePayments[0].sellTpCd);
   }
