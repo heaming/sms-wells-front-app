@@ -629,10 +629,10 @@ codes.DP_TP_CD_AFTN = [
 ];
 
 const sessionUserId = getters['meta/getUserInfo'];
-const cntrNo = toRef(props.contract, 'cntrNo');
+const cntrNo = computed(() => props.contract.rstlCntrNo || props.contract.cntrNo);
 const cntrTpCd = toRef(props.contract, 'cntrTpCd');
-const rstlCntrNo = toRef(props.contract, 'rstlCntrNo');
-const rstlCntrSn = toRef(props.contract, 'rstlCntrSn');
+const rstlCntrNo = computed(() => props.contract.rstlCntrNo);
+const rstlCntrSn = computed(() => props.contract.rstlCntrSn);
 const step4 = toRef(props.contract, 'step4');
 step4.value = {
   bas: {},
@@ -773,11 +773,8 @@ async function fetchInitialStplTpCd() {
 async function getCntrInfoWithRstl() {
   if (!rstlCntrNo.value || !rstlCntrSn.value) {
     await alert('잘못된 접근입니다.');
-    router.go(-1);
     return;
   }
-
-  cntrNo.value = rstlCntrNo.value;
 
   await getCntrInfo();
 
@@ -845,12 +842,14 @@ const loaded = ref(false);
 async function initStep(forced = false) {
   if (!forced && loaded.value) { return; }
 
-  if (cntrTpCd.value === '08') {
-    await getCntrInfoWithRstl();
-  } else {
-    await getCntrInfo();
+  if (cntrNo.value) {
+    if (cntrTpCd.value === '08') {
+      await getCntrInfoWithRstl();
+    } else {
+      await getCntrInfo();
+    }
+    loaded.value = true;
   }
-  loaded.value = true;
 }
 
 exposed.getCntrInfo = getCntrInfo;

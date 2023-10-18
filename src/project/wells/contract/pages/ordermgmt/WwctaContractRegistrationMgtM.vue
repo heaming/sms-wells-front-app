@@ -56,6 +56,7 @@
           <wwcta-contract-registration-mgt-m-summary
             class="not-flexible w350"
             :cntr-no="contract?.cntrNo ?? contract?.rstlCntrNo"
+            :summary="summary"
             :steps="steps"
             :step="currentStepName"
           />
@@ -186,7 +187,48 @@ const nextStep = computed(() => (currentStepIndex.value < steps.length
   : undefined));
 
 const contract = ref({});
+const summary = ref({});
 
+const updateSummary = () => {
+  const { step1, step2, step3, step4 } = contract.value;
+  const smr = {};
+  smr.cntrBas = {
+    ...step1?.bas,
+    ...step2?.bas,
+    ...step3?.bas,
+    ...step4?.bas,
+  };
+  if (props.cntrTpCd === '09') {
+    smr.cntrBas.cntrTpCd = '09'; // 이전계약정보 확인 이후 재설정
+  }
+  if (step2?.dtls?.length) {
+    smr.cntrDtls = step2.dtls;
+  }
+  if (step3?.dtls?.length) {
+    smr.cntrDtls = step3.dtls;
+  }
+  if (step4?.dtls?.length) {
+    smr.cntrDtls = step4.dtls;
+  }
+  smr.customer = {
+    ...step1?.cntrt,
+    ...step4?.cntrt,
+  };
+  smr.partner = {
+    ...step1?.prtnr,
+    ...step2?.prtnr,
+    ...step3?.prtnr,
+    ...step4?.prtnr,
+  };
+  smr.branchManager = {
+    ...step1?.prtnr7,
+    ...step4?.prtnr7,
+  };
+  smr.cntrtAdrpc = step3?.basAdrpc;
+  smr.stlmDtls = step4?.stlmDtls;
+  summary.value = smr;
+  console.log('updateSummary', smr);
+};
 function setupContract() {
   contract.value = {
     cntrNo: props.cntrNo ?? '', /* 기존 계약을 불러오는 경우 이를 바탕으로 갑니다. */
@@ -199,7 +241,11 @@ function setupContract() {
     step4: {},
     smr: {},
   };
+  updateSummary();
 }
+
+watch(currentStepName, updateSummary);
+watch(() => contract.value?.step2?.dtls?.length, updateSummary);
 
 setupContract();
 
@@ -232,6 +278,7 @@ async function getExistedCntr() {
   const { cntrNo, cntrPrgsStatCd } = props;
   if (!cntrNo || !cntrPrgsStatCd) {
     await currentStepRef.value?.initStep?.();
+    updateSummary();
     return;
   }
   isCnfmCntr.value = props.cntrPrgsStatCd > 20;
@@ -245,6 +292,7 @@ async function getExistedCntr() {
   }
   showStep(step);
   await currentStepRef.value?.initStep?.(true);
+  updateSummary();
   isCnfmPds.value = false;
 }
 
@@ -254,6 +302,9 @@ async function onClickPrevious() {
   }
   if (currentStepRef.value?.loaded) {
     currentStepRef.value.loaded = false;
+    if (contract.value[currentStepName.value]) {
+      contract.value[currentStepName.value] = {};
+    }
   }
 
   currentStepName.value = prevStep.value.name;
@@ -326,6 +377,7 @@ watch(() => props.cntrNo, (newValue, oldValue) => {
   console.log('props.cntrNo watched', newValue, oldValue);
   if (newValue !== oldValue) {
     setupContract();
+    updateSummary();
     getExistedCntr();
   }
 });
@@ -347,6 +399,7 @@ onMounted(() => {
     getExistedCntr();
   } else {
     currentStepRef.value?.initStep?.();
+    updateSummary();
   }
 });
 </script>
