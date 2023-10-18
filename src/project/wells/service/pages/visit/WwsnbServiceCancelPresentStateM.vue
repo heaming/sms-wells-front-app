@@ -362,6 +362,7 @@ async function fetchData() {
   console.log('fetchData  >>>', cachedParams);
   const res = await dataService.get('/sms/wells/service/service-cancel-ps/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list, pageInfo: pagingResult } = res.data;
+  console.log('list >>>>>>', list);
 
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -419,13 +420,13 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const columns = [
-    { fieldName: 'cntrNoSn', header: '계약상세번호', width: '150', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: '설치자명', width: '80', styleName: 'text-center' },
-    { fieldName: 'pdGrpNm', header: '상품군', width: '140', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: '제품명', width: '200', styleName: 'text-left' },
-    {
+    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_IST_NM'), width: '80', styleName: 'text-center' }, // 설치자명
+    { fieldName: 'pdGrpNm', header: t('MSG_TXT_PDGRP'), width: '140', styleName: 'text-center' }, // 상품군
+    { fieldName: 'pdNm', header: t('TXT_MSG_MAT_PD_NM'), width: '200', styleName: 'text-left' }, // 제품명
+    { // 휴대전화번호
       fieldName: 'cralTno',
-      header: '휴대전화번호',
+      header: t('MSG_TXT_MPNO'),
       width: '120',
       styleName: 'text-center',
       displayCallback(grid, index) {
@@ -436,24 +437,72 @@ function initGrid(data, view) {
         return isEmpty(no1) && isEmpty(no2) && isEmpty(no3) ? '' : `${no1}-${no2}-${no3}`;
       },
     },
-    { fieldName: 'newAdrZip', header: '우편번호', width: '80', styleName: 'text-center' },
-    { fieldName: 'radr', header: '주소', width: '200', styleName: 'text-left' },
-    { fieldName: 'gnrdv', header: '총괄단', width: '120', styleName: 'text-center' },
-    { fieldName: 'rgrp', header: '지역단', width: '120', styleName: 'text-center' },
-    { fieldName: 'alncBzsCd', header: '서비스유형', width: '120', styleName: 'text-center' },
-    { fieldName: 'svBizDclsfNm', header: '서비스유형상세', width: '120', styleName: 'text-center' },
-    { fieldName: 'cnslMoCn', header: '접수내역', width: '250', styleName: 'text-left' },
-    { fieldName: 'svCnrOgId', header: '서비스센터', width: '130', styleName: 'text-center' },
-    { fieldName: 'rpbLocaraCd', header: '책임지역', width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnr', header: '담당엔지니어', width: '130', styleName: 'text-center' },
-    { fieldName: 'arvDtm', header: '도착', width: '170', styleName: 'text-center' },
-    { fieldName: 'vstFshDtm', header: '완료', width: '170', styleName: 'text-center' },
-    { fieldName: 'wkPrgsStatNm', header: '작업상태', width: '120', styleName: 'text-center' },
-    { fieldName: 'wkCanRsonCd', header: '취소원인', width: '120', styleName: 'text-center' },
-    { fieldName: 'wkCanRsonNm', header: '취소사유', width: '150', styleName: 'text-center' },
-    { fieldName: 'wkCanMoCn', header: '상세내역', width: '250', styleName: 'text-left' },
-    { fieldName: 'imgFile', header: '사진', width: '130', styleName: 'text-center rg-button-default', renderer: { type: 'button' } },
-    { fieldName: 'unuitm', header: '특이사항', width: '200', styleName: 'text-left' },
+    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '80', styleName: 'text-center' }, // 우편번호
+    { fieldName: 'radr', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-left' }, // 주소
+    { fieldName: 'gnrdv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '120', styleName: 'text-center' }, // 총괄단
+    { fieldName: 'rgrp', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' }, // 지역단
+    { fieldName: 'alncBzsCd', header: t('MSG_TXT_SV_TP'), width: '120', styleName: 'text-center' }, // 서비스유형
+    { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_SV_TP_DTL'), width: '120', styleName: 'text-center' }, // 서비스유형상세
+    { fieldName: 'cnslMoCn', header: t('MSG_TXT_RCP_IZ'), width: '250', styleName: 'text-left' }, // 접수내역
+    { fieldName: 'svCnrOgId', header: t('MSG_TXT_SV_CNR'), width: '130', styleName: 'text-center' }, // 서비스센터
+    { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_RPB_LOCARA'), width: '120', styleName: 'text-center' }, // 책임지역
+    { fieldName: 'prtnr', header: t('MSG_TXT_ICHR_EGER'), width: '130', styleName: 'text-center' }, // 담당엔지니어
+    { fieldName: 'arvDtm', header: t('MSG_TXT_ARV'), width: '170', styleName: 'text-center' }, // 도착
+    { fieldName: 'vstFshDtm', header: t('MSG_TXT_COMPLETE'), width: '170', styleName: 'text-center' }, // 완료
+    { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '120', styleName: 'text-center' }, // 작업상태
+    { fieldName: 'wkCanRsonCd', header: t('MSG_TXT_CAN_CAUS'), width: '120', styleName: 'text-center' }, // 취소원인
+    { fieldName: 'wkCanRsonNm', header: t('MSG_TXT_CAN_RSON'), width: '150', styleName: 'text-center' }, // 취소사유
+    { fieldName: 'wkCanMoCn', header: t('MSG_TXT_DTL_IZ'), width: '250', styleName: 'text-left' }, // 상세내역
+    { // 사진
+      fieldName: 'imgFile1',
+      header: t('MSG_TXT_PHO'),
+      width: '130',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { istImpEnvr1stImgFileUid } = grid.getValues(index.itemIndex);
+        const returnValue = !istImpEnvr1stImgFileUid ? 1 : 0;
+        return returnValue === 0 ? t('MSG_TXT_IMG_BRWS') : '';
+      },
+      styleCallback(grid, dataCell) {
+        const { istImpEnvr1stImgFileUid } = grid.getValues(dataCell.index.itemIndex);
+        const returnValue = !istImpEnvr1stImgFileUid ? 1 : 0;
+        return returnValue === 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : '';
+      },
+    },
+    { // 사진
+      fieldName: 'imgFile2',
+      header: t('MSG_TXT_PHO'),
+      width: '130',
+      styleName: 'text-center rg-button-default',
+      displayCallback(grid, index) {
+        const { istImpEnvr2ndImgFileUid } = grid.getValues(index.itemIndex);
+        const returnValue = !istImpEnvr2ndImgFileUid ? 1 : 0;
+        return returnValue === 0 ? t('MSG_TXT_IMG_BRWS') : '';
+      },
+      styleCallback(grid, dataCell) {
+        const { istImpEnvr2ndImgFileUid } = grid.getValues(dataCell.index.itemIndex);
+        const returnValue = !istImpEnvr2ndImgFileUid ? 1 : 0;
+        return returnValue === 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : '';
+      },
+    },
+    { // 사진
+      fieldName: 'imgFile3',
+      header: t('MSG_TXT_PHO'),
+      width: '130',
+      styleName: 'text-center rg-button-default',
+      displayCallback(grid, index) {
+        const { istImpEnvr3rdImgFileUid } = grid.getValues(index.itemIndex);
+        const returnValue = !istImpEnvr3rdImgFileUid ? 1 : 0;
+        return returnValue === 0 ? t('MSG_TXT_IMG_BRWS') : '';
+      },
+      styleCallback(grid, dataCell) {
+        const { istImpEnvr3rdImgFileUid } = grid.getValues(dataCell.index.itemIndex);
+        console.log('istImpEnvr3rdImgFileUid >>>', istImpEnvr3rdImgFileUid);
+        const returnValue = !istImpEnvr3rdImgFileUid ? 1 : 0;
+        return returnValue === 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : '';
+      },
+    },
+    { fieldName: 'unuitm', header: t('MSG_TXT_UNUITM'), width: '200', styleName: 'text-left' }, // 특이사항
     { fieldName: 'cntrNo', visible: false }, // 계약번호
     { fieldName: 'cntrSn', visible: false }, // 계약일련번호
     { fieldName: 'cralLocaraTno', visible: false }, // 휴대지역전화번호
@@ -479,12 +528,14 @@ function initGrid(data, view) {
       direction: 'horizontal',
       items: ['arvDtm', 'vstFshDtm'],
     },
-    'wkPrgsStatNm', 'wkCanRsonCd', 'wkCanRsonNm', 'wkCanMoCn', 'imgFile', 'unuitm',
+    'wkPrgsStatNm', 'wkCanRsonCd', 'wkCanRsonNm', 'wkCanMoCn', 'imgFile1', 'imgFile2', 'imgFile3', 'unuitm',
   ]);
 
   view.onCellDblClicked = async (g, cData) => {
-    if (cData.fieldName === 'imgYn') { return false; }
-
+    console.log('cData.fieldName >>>>', cData.fieldName);
+    if (cData.fieldName === 'imgFile1' || cData.fieldName === 'imgFile2' || cData.fieldName === 'imgFile3') {
+      return false;
+    }
     const { cntrNo, cntrSn, cstSvAsnNo } = g.getValues(cData.itemIndex);
     await modal({
       component: 'WwsnbServiceProcDetailListP',
@@ -496,9 +547,24 @@ function initGrid(data, view) {
     });
   };
 
-  // data.setRows([
-  // eslint-disable-next-line max-len
-  //   { col1: 'W20230101708-1', col2: '김교원', col3: '공기청정기', col4: '공기청정기(AP735­CWA)', col5: '010-1234-5678', col6: '04539', col7: '서울특별시 중구 을지로 55(을지', col8: '동부총괄단', col9: '경기', col10: 'A/S', col11: '제품A/S', col12: '마석중학교 1학년9반 전원불량', col13: '하남서비스센터', col14: 'I066', col15: '박웰스(39443)', col16: '', col17: '2023-09-20 13:08:23', col18: '대기취소', col19: '고객취소', col20: '방문거부', col21: '행정실 직원통화.공기청정기 아니', col22: '이미지보기', col23: '고객취소-방문거부' },
-  // ]);
+  view.onCellItemClicked = async (g, cData) => {
+    const {
+      istImpEnvr1stImgFileUid,
+      istImpEnvr2ndImgFileUid,
+      istImpEnvr3rdImgFileUid } = g.getValues(cData.itemIndex);
+
+    let fileUid;
+    if (cData.fieldName === 'imgFile1') {
+      fileUid = istImpEnvr1stImgFileUid;
+    } else if (cData.fieldName === 'imgFile2') {
+      fileUid = istImpEnvr2ndImgFileUid;
+    } else if (cData.fieldName === 'imgFile3') {
+      fileUid = istImpEnvr3rdImgFileUid;
+    }
+    await modal({
+      component: 'ZwcmzImagePreviewP',
+      componentProps: { files: [fileUid] }, // fileUid만 주면 됨
+    });
+  };
 }
 </script>
