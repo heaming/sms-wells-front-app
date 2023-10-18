@@ -253,6 +253,7 @@ const onClickAdd = async () => {
     evlOgTpCd: selectRow.value.evlOgTpCd,
     evlDvNm: selectRow.value.evlDvNm,
     evlDvCd: selectRow.value.evlDvCd,
+    dtaDlYn: 'N',
   };
   gridUtil.insertRowAndFocus(view, 0, defaultData);
 };
