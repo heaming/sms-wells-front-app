@@ -185,14 +185,6 @@
         :disable="!isSearchMonth || isExpectedConfirm || !isPsic || isfinalConfirm"
         @click="onClickExpectedConfirm"
       />
-      <kw-btn
-        v-permission:update
-        dense
-        secondary
-        :label="t('MSG_BTN_CAN_MTR_RGST')"
-        :disable="!isSearchMonth || isExpectedConfirm || !isPsic || isfinalConfirm"
-        @click="onClickCancelRgst"
-      />
       <kw-separator
         spaced
         vertical
@@ -482,16 +474,6 @@ async function onClickExcelUpload() {
   }
 }
 
-// 취소자료 등록
-async function onClickCancelRgst() {
-  const params = {
-    baseDt: searchParams.value.baseDt,
-  };
-  await dataService.put(`${baseUrl}/cancel`, params);
-  notify(t('MSG_ALT_COMPLETE_CAN_MTR'));
-  await onClickSearch();
-}
-
 // 예정생성
 async function onClickExpectedCreate() {
   if (!await confirm(t('MSG_ALT_EXP_CRT'))) { return; }
@@ -517,6 +499,11 @@ async function onClickExpectedConfirm() {
 // 최종확정
 async function onClickFinalConfirm() {
   if (!await confirm(t('MSG_ALT_FNL_CNFM'))) { return; }
+  const { data } = await dataService.get(`${baseUrl}/sms-count`, { params: { baseDt: searchParams.value.baseDt } });
+
+  if (data === 0) {
+    if (!await confirm(t('MSG_ALT_SMS_CHECK_FNL_CNFM'))) { return; }
+  }
   const params = {
     baseDt: searchParams.value.baseDt,
     confirmDvCd: '02',
