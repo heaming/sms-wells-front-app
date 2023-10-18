@@ -161,7 +161,7 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_BOR_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.eotBorAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.borAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PD_LENT_LOST_LOG')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.lsRntf)) }}</p>
