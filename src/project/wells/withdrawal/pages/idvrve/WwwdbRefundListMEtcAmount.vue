@@ -271,7 +271,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { defineGrid, getComponentType, stringUtil, gridUtil, useDataService, useGlobal } from 'kw-lib'; // codeUtil
+import { codeUtil, defineGrid, getComponentType, stringUtil, gridUtil, useDataService, useGlobal } from 'kw-lib'; // codeUtil
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -296,10 +296,15 @@ let cachedParams;
 const grdMainRef3 = ref(getComponentType('KwGrid'));
 const now = dayjs();
 
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS', // 페이징 옵션
+  'CNTRW_TP_CD', // 업무구분
+  'SELL_TP_DTL_CD', // 판매유형상세코드'
+);
+
 const customCodes = {
   // 환불 구분
   RFND_DV_CD: [{ codeId: '1', codeName: t('MSG_TXT_NOM') }, { codeId: '2', codeName: t('MSG_TXT_BLNG') }],
-
   // Y , N 구분값에 따라 불완전판매여부 확인
   ICPT_SELL_CD: [{ codeId: 'Y', codeName: t('MSG_TXT_ICPT_SELL_EXCD') }, { codeId: 'N', codeName: t('MSG_TXT_ICPT_SELL_CHO') }],
   ICPT_SELL_YN: [{ codeId: 'Y', codeName: t('완전판매') }, { codeId: 'N', codeName: t('불완전판매') }],
@@ -340,8 +345,8 @@ async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
   const response = await dataService.get(`${apiUrl}/paging`, { params: cachedParams });
-  const responseSummary = await dataService.get(`${apiUrl}/summary`, { params: cachedParams });
-  totalParams.value = responseSummary.data;
+  // const responseSummary = await dataService.get(`${apiUrl}/summary`, { params: cachedParams });
+  // totalParams.value = responseSummary.data;
 
   const { list: refundCases, pageInfo: pagingResult } = response.data;
   pageInfo.value = pagingResult;
@@ -353,39 +358,39 @@ async function fetchData() {
   dataSource.addRows(refundCases);
   dataSource.checkRowStates(true);
 }
-async function fetchData2() {
-  // aggregationStatus.value = []; // 집계 현황 초기화
+// async function fetchData2() {
+//   // aggregationStatus.value = []; // 집계 현황 초기화
 
-  const response = await dataService.get(`${apiUrl}/aggregate`, { params: searchParams.value });
-  if (!response.data) {
-    return false;
-  }
-  Object.assign(aggregationStatus.value, response.data);
-  console.log(response.data);
-  // console.log('etc aggregationStatus.value', aggregationStatus.value);
-  // 테이블 변경으로 아직 확인되지 않은 값들에 대한 인식을 위해 삭제하지 않고 주석 처리 했습니다.
-  aggregationStatus.value.cashRfndDsbAmtSum = response.data.cashRfndDsbAmtSum;
-  aggregationStatus.value.bcCardRfndDsbAmtSum = response.data.bcCardRfndDsbAmtSum;
-  aggregationStatus.value.kbCardRfndDsbAmtSum = response.data.kbCardRfndDsbAmtSum;
-  aggregationStatus.value.ssCardRfndDsbAmtSum = response.data.ssCardRfndDsbAmtSum;
-  aggregationStatus.value.hnCardRfndDsbAmtSum = response.data.hnCardRfndDsbAmtSum;
-  aggregationStatus.value.shCardRfndDsbAmtSum = response.data.shCardRfndDsbAmtSum;
-  aggregationStatus.value.ltCardRfndDsbAmtSum = response.data.ltCardRfndDsbAmtSum;
-  aggregationStatus.value.hdCardRfndDsbAmtSum = response.data.hdCardRfndDsbAmtSum;
-  aggregationStatus.value.nhCardRfndDsbAmtSum = response.data.nhCardRfndDsbAmtSum;
-  aggregationStatus.value.ydCardRfndDsbAmtSum = response.data.ydCardRfndDsbAmtSum;
-  aggregationStatus.value.cardRfndDdtnAmtSum = response.data.cardRfndDdtnAmtSum;
-  aggregationStatus.value.cashCardRfndDdtnAmtSum = response.data.cashCardRfndDdtnAmtSum;
-  aggregationStatus.value.cardRfndDsbAmtSum = response.data.cardRfndDsbAmtSum;
-  // /* 확인필요 : 웰스 인수 전금 */
-  // /* 확인필요 : 웰스 할부 전금 */
-  // /* 확인필요 : 웰스 렌탈 전금 */
-  // /* 확인필요 : 웰스 멤버 전금 */
-  aggregationStatus.value.rfndDsbPspIntSum = response.data.rfndDsbPspIntSum; // 지연이자 합계
-  // // 확인 필요: k머니 합계
-  // /* 확인 필요: 전금합계 */
-  // /* 확인 필요: 환불 총계 */
-}
+//   const response = await dataService.get(`${apiUrl}/aggregate`, { params: searchParams.value });
+//   if (!response.data) {
+//     return false;
+//   }
+//   Object.assign(aggregationStatus.value, response.data);
+//   console.log(response.data);
+//   // console.log('etc aggregationStatus.value', aggregationStatus.value);
+//   // 테이블 변경으로 아직 확인되지 않은 값들에 대한 인식을 위해 삭제하지 않고 주석 처리 했습니다.
+//   aggregationStatus.value.cashRfndDsbAmtSum = response.data.cashRfndDsbAmtSum;
+//   aggregationStatus.value.bcCardRfndDsbAmtSum = response.data.bcCardRfndDsbAmtSum;
+//   aggregationStatus.value.kbCardRfndDsbAmtSum = response.data.kbCardRfndDsbAmtSum;
+//   aggregationStatus.value.ssCardRfndDsbAmtSum = response.data.ssCardRfndDsbAmtSum;
+//   aggregationStatus.value.hnCardRfndDsbAmtSum = response.data.hnCardRfndDsbAmtSum;
+//   aggregationStatus.value.shCardRfndDsbAmtSum = response.data.shCardRfndDsbAmtSum;
+//   aggregationStatus.value.ltCardRfndDsbAmtSum = response.data.ltCardRfndDsbAmtSum;
+//   aggregationStatus.value.hdCardRfndDsbAmtSum = response.data.hdCardRfndDsbAmtSum;
+//   aggregationStatus.value.nhCardRfndDsbAmtSum = response.data.nhCardRfndDsbAmtSum;
+//   aggregationStatus.value.ydCardRfndDsbAmtSum = response.data.ydCardRfndDsbAmtSum;
+//   aggregationStatus.value.cardRfndDdtnAmtSum = response.data.cardRfndDdtnAmtSum;
+//   aggregationStatus.value.cashCardRfndDdtnAmtSum = response.data.cashCardRfndDdtnAmtSum;
+//   aggregationStatus.value.cardRfndDsbAmtSum = response.data.cardRfndDsbAmtSum;
+//   // /* 확인필요 : 웰스 인수 전금 */
+//   // /* 확인필요 : 웰스 할부 전금 */
+//   // /* 확인필요 : 웰스 렌탈 전금 */
+//   // /* 확인필요 : 웰스 멤버 전금 */
+//   aggregationStatus.value.rfndDsbPspIntSum = response.data.rfndDsbPspIntSum; // 지연이자 합계
+//   // // 확인 필요: k머니 합계
+//   // /* 확인 필요: 전금합계 */
+//   // /* 확인 필요: 환불 총계 */
+// }
 
 async function onClickSearch() {
   grdMainRef3.value.getData().clearRows();
@@ -393,7 +398,7 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
   await fetchData();
-  await fetchData2();
+  // await fetchData2();
 }
 
 async function onClickReportView() {
@@ -468,7 +473,7 @@ const initGrdMain3 = defineGrid((data, view) => {
     { fieldName: 'rfndRveDt', header: t('MSG_TXT_PRCSDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 처리일자
     { fieldName: 'rfndPerfDt', header: t('MSG_TXT_PERF_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 실적일자
     { fieldName: 'bizDv', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 업무구분
-    { fieldName: 'dpDv', header: t('MSG_TXT_DP_KND'), width: '100', styleName: 'text-left' }, // 입금종류 확인필요
+    { fieldName: 'dpDv', header: t('MSG_TXT_DP_KND'), width: '100', styleName: 'text-left', options: codes.RFND_TP_CD }, // 입금종류 확인필요
     { fieldName: 'rfndDv', header: t('MSG_TXT_CLSF_REFUND'), width: '100', styleName: 'text-center', options: customCodes.RFND_DV_CD }, // 환불구분
     { fieldName: 'icptSellDv', header: t('MSG_TXT_ICPT_SELL_DV'), width: '120', styleName: 'text-left', options: customCodes.ICPT_SELL_YN }, // 불완전판매구분
     { fieldName: 'sellAmt',
