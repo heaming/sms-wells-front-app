@@ -526,7 +526,7 @@ async function isCustomer(event, workType = 'type1') {
 }
 
 async function openSearchUserPopup() {
-  await openSearchUserCommonPopup(searchParams, canFeasibleSearch.value);
+  await openSearchUserCommonPopup(searchParams, canFeasibleSearch);
 }
 
 const validateSearchCstNo = async () => {
