@@ -329,7 +329,7 @@ const initGrid = defineGrid((data, view) => {
       editor: {
         maxLength: 12,
       },
-      required: true,
+      rules: 'required',
     },
     {
       fieldName: 'baseCntrSn',
@@ -337,7 +337,7 @@ const initGrid = defineGrid((data, view) => {
       width: 120,
       editable: true,
       styleName: 'text-right',
-      required: true,
+      rules: 'required',
     },
     {
       fieldName: 'ojCntrNo',
@@ -347,7 +347,7 @@ const initGrid = defineGrid((data, view) => {
       editor: {
         maxLength: 12,
       },
-      required: true,
+      rules: 'required',
     },
     {
       fieldName: 'ojCntrSn',
@@ -355,7 +355,7 @@ const initGrid = defineGrid((data, view) => {
       width: 120,
       editable: true,
       styleName: 'text-right',
-      required: true,
+      rules: 'required',
     },
     {
       fieldName: 'icptSellExrDt',
@@ -370,7 +370,7 @@ const initGrid = defineGrid((data, view) => {
           minViewMode: 1,
         },
       },
-      required: true,
+      rules: 'required',
     },
     { fieldName: 'baseUsedCpsYn', header: t('MSG_TXT_CHG_RLS'), width: 120, styleName: 'text-center' },
     { fieldName: 'baseChdvcRerntYn', header: t('MSG_TXT_SEC_HND_COMP'), width: 120, styleName: 'text-center' },
