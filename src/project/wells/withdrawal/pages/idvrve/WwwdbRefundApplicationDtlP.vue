@@ -808,12 +808,12 @@ async function onCheckTotalData() {
     temp3 += Number(totalView2[i].rfndBltfAkAmt);
     temp4 += Number(totalView2[i].crdcdFeeAmt);
   }
-  temp5 = Number(temp1) + Number(temp2) + Number(temp3) + Number(temp4);
+  temp5 = Number(temp1) + Number(temp2) + Number(temp3);
   view4.setValue(0, 'totRfndCshAkAmt', temp1);
   view4.setValue(0, 'totRfndCardAkAmt', temp2);
   view4.setValue(0, 'totRfndBltfAkAmt', temp3);
   view4.setValue(0, 'totCrdcdFeeAmt', temp4);
-  view4.setValue(0, 'totRfndEtAmt', Number(temp1) + Number(temp2) + Number(temp3) + Number(temp4));
+  view4.setValue(0, 'totRfndEtAmt', Number(temp1) + Number(temp2) + Number(temp3));
   totRfndAkAmt = temp5;
   grdPopRef4.value.getView().getDataSource().setRowState(0, 'none');
 }
@@ -1007,6 +1007,7 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'dpDt', dataType: 'date' },
     { fieldName: 'dpMesCd' }, /* 입금수단 */
     { fieldName: 'rveDvCd' }, /* 입금유형 -> 수납유형(사양서기준) */
+    { fieldName: 'dpTpCd' }, /* 입금유형 -> 수납유형(사양서기준) */
     { fieldName: 'dpAmt', dataType: 'number' }, /* 입금액 */
     { fieldName: 'rfndCshAkAmt', dataType: 'number' },
     { fieldName: 'rfndCardAkAmt', dataType: 'number' },
@@ -1050,13 +1051,13 @@ const initGrid2 = defineGrid((data, view) => {
       editable: false,
       options: codes.DP_MES_CD,
     },
-    { fieldName: 'rveDvCd',
+    { fieldName: 'dpTpCd',
       header: t('MSG_TXT_DP_TP'),
       // 입금유형
       width: '120',
       styleName: 'text-center',
       editable: false,
-      options: codes.RVE_DV_CD,
+      options: codes.DP_TP_CD,
     },
     { fieldName: 'dpAmt',
       header: t('MSG_TXT_DEPOSIT_AMT'),
