@@ -423,6 +423,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '110', styleName: 'text-center' },
+    { fieldName: 'sellTpCd', visible: false },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '110', styleName: 'text-center' },
     { fieldName: 'prtnrBzsNm', header: t('MSG_TXT_PRTNR_BZS_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'pcsvCompNm', header: t('MSG_TXT_PCSV_CO'), width: '110', styleName: 'text-center' },
