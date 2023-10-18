@@ -64,10 +64,12 @@
       v-if="isCheckbox"
       #action
     >
+      <!-- 취소버튼 -->
       <kw-btn
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
       />
+      <!-- 선택버튼 -->
       <kw-btn
         v-permission:create
         :label="$t('MSG_BTN_SELT')"
@@ -125,10 +127,12 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+// 조회
 async function fetchBuildingInformPages(params) {
   return await dataService.get('/sms/wells/service/warehouse-organizations/buildings/paging', params);
 }
 
+// 조회이벤트
 async function getBuildingInformPages() {
   const res = await fetchBuildingInformPages({ params: { ...cachedParams, ...pageInfo.value } });
   const { list: BuildingResources, pageInfo: pagingResult } = res.data;
@@ -141,16 +145,19 @@ async function getBuildingInformPages() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회 버튼클릭 이벤트
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await getBuildingInformPages();
 }
 
+// 선택버튼 클릭 이벤트
 async function onClickSelect() {
   const view = grdMainRef.value.getView();
   const checked = gridUtil.getCheckedRowValues(view);
   if (checked.length === 0) {
+    // 데이터를 선택해주세요.
     await alert(t('MSG_ALT_NOT_SEL_ITEM'));
   } else {
     ok(checked);
