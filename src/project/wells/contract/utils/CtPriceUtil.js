@@ -2,12 +2,12 @@ import { getNumberWithComma } from '~sms-common/contract/util';
 
 export function getSpayAmt(pdBas, finalPrice) {
   const { rglrSppPrmMcn } = pdBas;
-  const { fnlVal, cntrAmt, svVstPrdCd, pcsvPrdCd, sellTpCd } = finalPrice;
+  const { fnlVal, cntrAmt, svVstPrdCd, pcsvPrdCd, sellTpCd, cntrAmtDscYn } = finalPrice;
   if (sellTpCd === '1') {
     return fnlVal;
   }
   if (sellTpCd === '2') {
-    return cntrAmt;
+    return cntrAmtDscYn === 'Y' ? 0 : cntrAmt;
   }
   if (sellTpCd === '3') {
     return 0;
@@ -29,6 +29,7 @@ export function getSpayAmt(pdBas, finalPrice) {
 
 export function getSpayAmtByCntrDtl(cntrDtl) {
   const { fnlAmt, cntrAmt, sellTpCd } = cntrDtl;
+  console.log('getSpayAmtByCntrDtl', cntrDtl, fnlAmt, cntrAmt, sellTpCd);
   if (sellTpCd === '1') {
     return Number(fnlAmt) || 0;
   }
