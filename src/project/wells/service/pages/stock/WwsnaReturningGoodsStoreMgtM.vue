@@ -210,7 +210,12 @@
           primary
           dense
           @click="onClickSave"
-        />
+        >
+          <kw-tooltip>
+            <!-- 저장시 수불이 발생합니다. -->
+            {{ $t('MSG_TXT_SAVE_RVPY_OC') }}
+          </kw-tooltip>
+        </kw-btn>
       </kw-action-top>
 
       <ul class="filter-box mb12  ">
@@ -409,8 +414,6 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/service/returning-goods-store', { params: { ...cachedParams } });
   const goods = res.data;
 
-  console.log(goods);
-
   totalCount.value = goods.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(goods);
@@ -457,8 +460,6 @@ async function onClickSearch() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-
-  // const params = searchParams.value;
 
   if (gridUtil.getCheckedRowValues(view).length === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
@@ -610,6 +611,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'wkWareNo' }, // 작업창고번호
     { fieldName: 'wkOstrSn' }, // 작업출고순번
     { fieldName: 'errorCheck' }, // 등급오류체크
+    { fieldName: 'itemKnd' }, // 품목구분코드
+    { fieldName: 'mgtUnt' }, // 관리단위
 
   ];
 
