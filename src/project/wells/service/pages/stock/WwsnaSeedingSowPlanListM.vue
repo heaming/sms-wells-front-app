@@ -217,10 +217,11 @@ const initGrid = defineGrid((data, view) => {
 
   // 헤더 부분 merge
   const layoutColumns = [
+    'temp',
     {
       header: t('MSG_TXT_STND_PRDT'),
       direction: 'horizontal', // merge type
-      items: ['temp', 'baseCntrDtlNo', 'baseCstNm', 'basePdNm'],
+      items: ['baseCntrDtlNo', 'baseCstNm', 'basePdNm'],
     },
     {
       header: t('MSG_TXT_REL_PRDT'),
