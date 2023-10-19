@@ -479,8 +479,8 @@ async function saveData(view, additionalInfo, viewType) {
   if (!validateApplyDate(view)) return;
 
   const changedRows = gridUtil.getChangedRowValues(view).map((v) => {
-    const mmtDstn = isBlank(v.mmtDstn) ? 0 : v.mmtDstn;
-    const mmtLdtm = isBlank(v.mmtLdtm) ? 0 : v.mmtLdtm;
+    const mmtDstn = isBlank(v.mmtDstn) ? '0' : v.mmtDstn;
+    const mmtLdtm = isBlank(v.mmtLdtm) ? '0' : v.mmtLdtm;
     return { ...v, mmtDstn, mmtLdtm, ...additionalInfo };
   });
 
@@ -508,7 +508,7 @@ async function onClickBizSave() {
 
 // 섬 표시 설정
 function setDisplayCallback(grid, index, value) {
-  if (value === 9999) {
+  if (value === '9999') {
     return '섬';
   } if (isBlank(value)) {
     return 0;
@@ -528,7 +528,7 @@ const initGrdMovementLevel = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'rglvlDvCd' }, // 급지구분코드
     { fieldName: 'bizRglvlCd' }, // 업무급지코드
-    { fieldName: 'mmtDstn', dataType: 'number' }, // 이동거리
+    { fieldName: 'mmtDstn' }, // 이동거리
     { fieldName: 'rglvlGdCd', dataType: 'number' }, // 급지등급코드
     { fieldName: 'mmtLdtm', dataType: 'number' }, // 이동소요시간
     { fieldName: 'rglvlAwAmt', dataType: 'number' }, // 급지수당금액
@@ -555,6 +555,7 @@ const initGrdMovementLevel = defineGrid((data, view) => {
         inputCharacters: '0-9',
       },
       styleName: 'text-right',
+      sortable: false,
       displayCallback: setDisplayCallback,
     },
     { fieldName: 'rglvlGdCd', header: t('MSG_TXT_GD'), width: '100', suffix: ' 급지' },
@@ -624,8 +625,8 @@ const initGrdBizLevel = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'rglvlDvCd' }, // 급지구분코드
     { fieldName: 'bizRglvlCd' }, // 업무급지코드
-    { fieldName: 'mmtDstn', dataType: 'number' }, // 이동거리
-    { fieldName: 'mmtLdtm', dataType: 'number' }, // 이동소요시간
+    { fieldName: 'mmtDstn' }, // 이동거리
+    { fieldName: 'mmtLdtm' }, // 이동소요시간
     { fieldName: 'rglvlGdCd', dataType: 'number' }, // 급지등급코드
     { fieldName: 'rglvlAwAmt', dataType: 'number' }, // 급지수당금액
     { fieldName: 'apyStrtdt' }, // 적용시작일
@@ -642,6 +643,7 @@ const initGrdBizLevel = defineGrid((data, view) => {
       header: t('MSG_TXT_MMT_HH_M'),
       width: '100',
       styleName: 'text-right',
+      sortable: false,
       displayCallback: setDisplayCallback,
     },
     { fieldName: 'rglvlGdCd', header: t('MSG_TXT_GD'), width: '100', suffix: ' 급지' },
@@ -684,6 +686,7 @@ const initGrdBizLevel = defineGrid((data, view) => {
 
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
+  view.sortingOptions.commitBeforeSorting = true;
   view.sortingOptions.commitBeforeSorting = true;
 });
 
