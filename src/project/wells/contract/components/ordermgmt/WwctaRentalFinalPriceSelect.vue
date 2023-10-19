@@ -146,7 +146,7 @@
                   placeholder="등록비"
                   first-option="select"
                   dense
-                  @change="forcedChangeValidVariable"
+                  @change="onChangeVariable"
                 />
               </kw-form-item>
             </kw-form-row>
@@ -159,7 +159,7 @@
                   dense
                   placeholder="약정기간"
                   first-option="select"
-                  @change="forcedChangeValidVariable"
+                  @change="onChangeVariable"
                 />
               </kw-form-item>
               <kw-form-item :label="'계약기간'">
@@ -170,7 +170,7 @@
                   placeholder="계약기간"
                   first-option="select"
                   dense
-                  @change="forcedChangeValidVariable"
+                  @change="onChangeVariable"
                 />
               </kw-form-item>
             </kw-form-row>
@@ -183,7 +183,7 @@
                   placeholder="렌탈할인구분"
                   first-option="select"
                   dense
-                  @change="forcedChangeValidVariable"
+                  @change="onChangeVariable"
                 />
               </kw-form-item>
               <kw-form-item
@@ -200,7 +200,7 @@
                   dense
                   readonly
                   :clearable="false"
-                  @change="forcedChangeValidVariable"
+                  @change="onChangeVariable"
                 >
                   <template #append>
                     <kw-btn
@@ -220,7 +220,7 @@
                   clearable
                   first-option="select"
                   dense
-                  @change="forcedChangeValidVariable"
+                  @change="onChangeVariable"
                 />
               </kw-form-item>
             </kw-form-row>
@@ -238,16 +238,21 @@
                   first-option="select"
                   :label="'법인할인율'"
                   dense
-                  @change="forcedChangeValidVariable"
+                  @change="onChangeVariable"
                 />
               </kw-form-item>
               <kw-form-item
                 v-if="selectedFinalPrice"
                 :label="'무상개월 AS/BS'"
               >
-                {{
-                  `${selectedFinalPrice.frisuPtrm || 0}개월 / ${selectedFinalPrice.recapPtrm || 0}개월`
-                }}
+                <kw-select
+                  v-model="priceDefineVariables.asMcn"
+                  :options="priceDefineVariableOptions.asMcn"
+                  first-option="select"
+                  :label="'AS기간'"
+                  dense
+                  @change="onChangeVariable"
+                />
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
@@ -259,7 +264,7 @@
                   placeholder="서비스(용도/방문주기)"
                   first-option="select"
                   dense
-                  @change="forcedChangeValidVariable"
+                  @change="onChangeVariable"
                 />
               </kw-form-item>
             </kw-form-row>
@@ -380,10 +385,10 @@
 <script setup>
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import { useCtCode } from '~sms-common/contract/composable';
-import { alert, stringUtil, useDataService } from 'kw-lib';
-import { warn } from 'vue';
+import { alert, useDataService } from 'kw-lib';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { getNumberWithComma } from '~sms-common/contract/util';
+import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
 
 const props = defineProps({
@@ -416,9 +421,6 @@ const { getCodeName } = await useCtCode(
 );
 const dataService = useDataService();
 
-const EMPTY_SYM = Symbol('__undef__');
-const EMPTY_ID = ''; /*  FIXME!!! */
-
 const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
 const CNTR_REL_DTL_CD_LK_MLTCS_PRCHS = '22M';
 const RENTAL_DSC_TP_CD_ONE_PLUS_ONE = '03';
@@ -434,6 +436,7 @@ const RENTAL_DSC_TP_CD_PACKAGE_CODES = [
   RENTAL_DSC_TP_CD_PACKAGE_OVER_4,
 ];
 const RENTAL_DSC_TP_CD_USER_SELECTABLE = [
+  EMPTY_ID,
   RENTAL_DSC_TP_CD_STCF_SEL,
   RENTAL_DSC_TP_CD_SPC_DSC_SEL_2,
   RENTAL_DSC_TP_CD_SELF_PURCHASE_DSC,
@@ -442,25 +445,25 @@ const RENTAL_DSC_TP_CD_USER_SELECTABLE = [
 const dtl = ref(props.modelValue);
 
 /* 직간접적으로 업데이트 할 값들 */
-let pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
-let verSn = toRef(props.modelValue, 'verSn');
-let fnlAmt = toRef(props.modelValue, 'fnlAmt');
-let pdQty = toRef(props.modelValue, 'pdQty');
-let mchnCh = toRef(props.modelValue, 'mchnCh');
-let cntrRels = toRef(props.modelValue, 'cntrRels');
-let bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
-let appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
-let promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
-let alncCntrNms = toRef(props.modelValue, 'alncCntrNms', []);
-let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
-let priceOptionFilter = toRef(props.modelValue, 'priceOptionFilter', {});
-const packageRentalDscTpCds = toRef(props.modelValue, 'packageRentalDscTpCds');
+let pdPrcFnlDtlId;
+let verSn;
+let fnlAmt;
+let pdQty;
+let mchnCh;
+let cntrRels;
+let bcMngtPdYn;
+let appliedPromotions;
+let promotions;
+let alncCntrNms;
+let finalPriceOptions;
+let priceOptionFilter;
+let packageRentalDscTpCds;
 
 function connectReactivities() {
   pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
   verSn = toRef(props.modelValue, 'verSn');
   fnlAmt = toRef(props.modelValue, 'fnlAmt');
-  pdQty = toRef(props.modelValue, 'pdQty');
+  pdQty = toRef(props.modelValue, 'pdQty', 1);
   mchnCh = toRef(props.modelValue, 'mchnCh');
   cntrRels = toRef(props.modelValue, 'cntrRels');
   bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
@@ -469,26 +472,11 @@ function connectReactivities() {
   alncCntrNms = toRef(props.modelValue, 'alncCntrNms');
   finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
   priceOptionFilter = toRef(props.modelValue, 'priceOptionFilter', {});
+  packageRentalDscTpCds = toRef(props.modelValue, 'packageRentalDscTpCds', {});
+  console.log('verSn', verSn.value);
 }
 
 connectReactivities();
-
-const filteredFinalPriceOptions = ref([]);
-
-const filteredVariableNames = computed(() => Object.getOwnPropertyNames(priceOptionFilter.value ?? {}));
-
-const labelForSellTpCd = computed(() => {
-  const product = dtl.value;
-  if (!product) {
-    return undefined;
-  }
-  if (product.sellTpCd && product.sellTpDtlCd) {
-    return `${getCodeName('SELL_TP_CD', product.sellTpCd)}-${getCodeName('SELL_TP_DTL_CD', product.sellTpDtlCd)}`;
-  }
-  if (product.sellTpCd) {
-    return getCodeName('SELL_TP_CD', product.sellTpCd);
-  }
-});
 
 const priceDefineVariables = ref({
   svPdCd: undefined,
@@ -499,17 +487,8 @@ const priceDefineVariables = ref({
   rentalDscDvCd: undefined,
   rentalCrpDscrCd: undefined,
   rentalDscTpCd: undefined,
-  rentalCombiDvCd: undefined,
+  // rentalCombiDvCd: undefined, TODO
 });
-
-const alncCntrs = ref([]);
-const filteredAlncCntrPriceCodes = computed(() => alncCntrs.value
-  .filter((alncCntr) => alncCntr.svPdCd === priceDefineVariables.value.svPdCd
-    && alncCntr.stplPrdCd === priceDefineVariables.value.stplPrdCd)
-  .map((v) => ({
-    codeId: `${v.klyear}-${v.klcode}-${v.klpont}-${v.alncmpCd}`,
-    codeName: `${v.klyear}-${v.klcode} ${v.alncmpNm} ${stringUtil.getNumberWithComma(v.klpont || 0)}원`,
-  })) || []);
 
 const labelGenerator = {
   svPdCd: (val, finalPrice) => {
@@ -568,7 +547,7 @@ const labelGenerator = {
   },
   rentalDscTpCd: (val) => {
     if (val === EMPTY_ID) {
-      return '선택안함';
+      return '미적용';
     }
     return getCodeName('RENTAL_DSC_TP_CD', val);
   },
@@ -580,69 +559,48 @@ const labelGenerator = {
   },
 };
 
-const variableNames = Object.getOwnPropertyNames(priceDefineVariables.value);
+const {
+  priceDefineVariableOptions,
+  setPriceDefineVariablesBy,
+  // setVariablesIfUniqueSelectable,
+  selectedFinalPrice, // computed
+  // eslint-disable-next-line no-unused-vars
+  selectedFinalPrices, // computed
+} = usePriceSelect(
+  priceDefineVariables,
+  finalPriceOptions,
+  labelGenerator,
+  priceOptionFilter,
+);
 
-function initPriceDefineVariables() {
-  if (!pdPrcFnlDtlId.value) {
-    return;
+const labelForSellTpCd = computed(() => {
+  const product = dtl.value;
+  if (!product) {
+    return undefined;
   }
-  const selectedFinalPrice = filteredFinalPriceOptions.value
-    ?.find((finalPrice) => (finalPrice.pdPrcFnlDtlId === pdPrcFnlDtlId.value));
-
-  if (!selectedFinalPrice) {
-    warn('저장된 가격이 상이합니다.');
-    return;
+  if (product.sellTpCd && product.sellTpDtlCd) {
+    return `${getCodeName('SELL_TP_CD', product.sellTpCd)}-${getCodeName('SELL_TP_DTL_CD', product.sellTpDtlCd)}`;
   }
+});
 
-  if (selectedFinalPrice.verSn !== verSn.value) {
-    warn(`${props.modelValue?.pdNm} 상품의 가격이 변경되었습니다.`);
-    // clearPriceDefineVariables();
-    // return;
-  }
+// region [제휴계약]
+const alncCntrs = ref([]);
+const filteredAlncCntrPriceCodes = computed(() => alncCntrs.value
+  .filter((alncCntr) => alncCntr.svPdCd === priceDefineVariables.value.svPdCd
+        && alncCntr.stplPrdCd === priceDefineVariables.value.stplPrdCd)
+  .map((v) => ({
+    codeId: `${v.klyear}-${v.klcode}-${v.klpont}-${v.alncmpCd}`,
+    codeName: `${v.klyear}-${v.klcode} ${v.alncmpNm} ${getNumberWithComma(v.klpont || 0)}원`,
+  })) || []);
 
-  variableNames.forEach((variableName) => {
-    priceDefineVariables.value[variableName] = selectedFinalPrice[variableName] ?? EMPTY_ID;
-  });
-
+function initializeAlncCntrs() {
   alncCntrs.value = alncCntrNms.value?.map((v) => ({
     codeId: v,
     codeName: `${v.split('-')[0]}-${v.split('-')[1]} ${getCodeName('ALNCMP_CD', v.split('-')[3])} 15,000원`, // TODO 지원금액 임의설정
   })) || [];
 }
 
-function filteringFinalPriceOptions() {
-  filteredFinalPriceOptions.value = finalPriceOptions.value;
-
-  if (filteredVariableNames.value.length) {
-    filteredFinalPriceOptions.value = finalPriceOptions.value
-      .filter((finalPriceOption) => !filteredVariableNames.value
-        .some((filteredVar) => {
-          const optionsVar = finalPriceOption[filteredVar];
-          const filterVar = priceOptionFilter.value[filteredVar];
-          return (optionsVar || EMPTY_ID) !== (filterVar || EMPTY_ID);
-        }));
-  }
-  if (!filteredFinalPriceOptions.value.length) {
-    alert('필터에 해당하는 가격 조건이 없습니다.');
-  }
-
-  initPriceDefineVariables();
-}
-
-const notNullRentalDscTpCdSelected = computed(() => priceDefineVariables.value.rentalDscTpCd === EMPTY_ID
-  || !!priceDefineVariables.value.rentalDscTpCd);
-
-const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.rentalDscDvCd === '5');
-
-watch(rentalCrpDscrCdSelectable, (value) => {
-  if (!value) {
-    priceDefineVariables.value.rentalCrpDscrCd = undefined;
-  }
-});
-
-let promiseForFetchAllianceContracts;
-let promiseForFetchFinalPriceOptions;
-
+let promiseForFetchAllianceContracts; // 여러번 요청 방지용...
 async function fetchAllianceContracts() {
   const params = {
     cstNo: props.bas?.cntrCstNo,
@@ -660,95 +618,25 @@ async function fetchAllianceContracts() {
   // klpont 가 0인 경우 제외
   alncCntrs.value = data.filter((v) => (v.klpont > 0));
 }
+// endregion [제휴계약]
 
-async function fetchFinalPriceOptions() {
-  if (!promiseForFetchFinalPriceOptions) {
-    promiseForFetchFinalPriceOptions = dataService.get('sms/wells/contract/final-price', {
-      params: {
-        cntrNo: props.bas.cntrNo,
-        pdCd: dtl.value.pdCd,
-        hgrPdCd: dtl.value.hgrPdCd,
-      },
-      silent: true,
-    });
-  }
-  const { data } = await promiseForFetchFinalPriceOptions;
-  promiseForFetchFinalPriceOptions = null;
-  if (!data?.length) {
-    alert('선택 가능한 가격 조건이 없습니다.');
-  }
-  finalPriceOptions.value = data || [];
+// region [패키지 다건 할인 유형 적용]
+const notNullRentalDscTpCdSelected = computed(() => priceDefineVariables.value.rentalDscTpCd === EMPTY_ID
+    || !!priceDefineVariables.value.rentalDscTpCd);
 
-  await fetchAllianceContracts();
-
-  filteringFinalPriceOptions();
-}
-
-// eslint-disable-next-line no-unused-vars
-function clearPriceDefineVariables() {
-  variableNames.forEach((variableName) => {
-    priceDefineVariables.value[variableName] = undefined;
-  });
-}
-
-function reducerFinalPriceToSelectVarDict(varDict, finalPrice, variable) {
-  const exceptIdx = variableNames.indexOf(variable);
-  if (exceptIdx < 0) {
-    warn('상품가격 결정요소를 확인해보세요.');
-    return false;
-  }
-  const anotherVariableNames = variableNames.toSpliced(exceptIdx, 1);
-
-  const existUnmatchedOtherVar = anotherVariableNames.some((variableName) => {
-    const selectedAnotherVar = priceDefineVariables.value[variableName];
-    const curPriceAnotherVar = finalPrice[variableName];
-    if (!selectedAnotherVar || selectedAnotherVar === EMPTY_ID) {
-      return false;
-    }
-    return curPriceAnotherVar !== selectedAnotherVar;
-  });
-
-  if (existUnmatchedOtherVar) {
-    return varDict;
-  }
-
-  const key = finalPrice[variable] ? String(finalPrice[variable]) : EMPTY_SYM;
-  varDict[key] = finalPrice;
-
-  return varDict;
-}
-
-const priceDefineVariableOptionDicts = computed(() => variableNames.reduce((options, variableName) => {
-  options[variableName] = filteredFinalPriceOptions.value
-    ?.reduce((varDict, finalPrice) => reducerFinalPriceToSelectVarDict(varDict, finalPrice, variableName), {});
-  return options;
-}, {}));
-
-const priceDefineVariableOptions = computed(() => variableNames.reduce((mappingObj, variableName) => {
-  const dict = priceDefineVariableOptionDicts.value[variableName];
-  const options = [];
-  if (dict[EMPTY_SYM]) {
-    options.push({
-      codeId: EMPTY_ID,
-      codeName: labelGenerator[variableName](EMPTY_ID),
-    });
-  }
-  Object.getOwnPropertyNames(dict)
-    .forEach((key) => {
-      const finalPrice = dict[key];
-      options.push({
-        codeId: finalPrice[variableName],
-        codeName: labelGenerator[variableName]?.(finalPrice[variableName], finalPrice) || finalPrice[variableName],
-      });
-    });
-
-  mappingObj[variableName] = options;
-  return mappingObj;
-}, {}));
+const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.rentalDscDvCd === '5');
 
 const userSelectableRentalDscTpCd = computed(() => (priceDefineVariableOptions.value.rentalDscTpCd || [])
   .filter((code) => RENTAL_DSC_TP_CD_USER_SELECTABLE.includes(code.codeId)));
 
+watch(rentalCrpDscrCdSelectable, (value) => {
+  if (!value) {
+    priceDefineVariables.value.rentalCrpDscrCd = undefined;
+  }
+});
+// endregion [패키지 다건 할인 유형 적용]
+
+// region [계약 관계 버튼]
 /*
 계약 관계 버튼 컨트롤
 
@@ -802,59 +690,18 @@ const disablePackage = computed(() => {
     .map((code) => code.codeId)
     .some((codeId) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(codeId));
   return machineChanged
-    || priceIsNotSelectable
-    || (priceDefineVariables.value.rentalDscTpCd !== EMPTY_ID
-      && !!priceDefineVariables.value.rentalDscTpCd)
-    // eslint-disable-next-line no-use-before-define
-    || !selectedFinalPrice.value
-    || cntrRels.value?.some((cntrRel) => [
-      CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE,
-      CNTR_REL_DTL_CD_LK_MLTCS_PRCHS,
-    ].includes(cntrRel.cntrRelDtlCd));
+      || priceIsNotSelectable
+      || (priceDefineVariables.value.rentalDscTpCd !== EMPTY_ID
+          && !!priceDefineVariables.value.rentalDscTpCd)
+      // eslint-disable-next-line no-use-before-define
+      || !selectedFinalPrice.value
+      || cntrRels.value?.some((cntrRel) => [
+        CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE,
+        CNTR_REL_DTL_CD_LK_MLTCS_PRCHS,
+      ].includes(cntrRel.cntrRelDtlCd));
 });
 
-function forcedChangeValidVariable(val) {
-  if (!val) {
-    return;
-  }
-  variableNames
-    .forEach((variableName) => {
-      const selectable = priceDefineVariableOptions.value[variableName]?.map((code) => code.codeId) ?? [];
-
-      const curValue = priceDefineVariables.value[variableName];
-      if (selectable.length === 1 && curValue === undefined) {
-        priceDefineVariables.value[variableName] = selectable[0];
-      } else if (!selectable.includes(curValue)) {
-        priceDefineVariables.value[variableName] = undefined;
-      }
-    });
-}
-
-pdQty.value = 1;
-
-function filterFinalPriceByVariables(finalPrice) {
-  return variableNames.every((variableName) => {
-    if (!priceDefineVariableOptions.value[variableName]?.length) {
-      return true;
-    }
-    const selected = priceDefineVariables.value[variableName] === EMPTY_ID ? undefined
-      : priceDefineVariables.value[variableName];
-
-    return finalPrice[variableName] === selected;
-  });
-}
-
-const selectedFinalPrice = computed(() => {
-  const selectedPrice = filteredFinalPriceOptions.value
-    ?.filter(filterFinalPriceByVariables);
-  if (selectedPrice.length > 1) {
-    return undefined;
-  }
-  if (selectedPrice.length < 1) {
-    return undefined;
-  }
-  return selectedPrice[0];
-});
+// endregion [계약 관계 버튼]
 
 // region [가격표기]
 const displayedFinalPrice = computed(() => (
@@ -865,6 +712,36 @@ const promotionAppliedPrice = computed(() => (
   getPromotionAppliedPrice(selectedFinalPrice.value, appliedPromotions.value)
 ));
 // endregion [가격표기]
+
+let promiseForFetchFinalPriceOptions;
+async function fetchFinalPriceOptions() {
+  if (!promiseForFetchFinalPriceOptions) {
+    promiseForFetchFinalPriceOptions = dataService.get('sms/wells/contract/final-price', {
+      params: {
+        cntrNo: props.bas.cntrNo,
+        pdCd: dtl.value.pdCd,
+        hgrPdCd: dtl.value.hgrPdCd,
+      },
+      silent: true,
+    });
+  }
+  const { data } = await promiseForFetchFinalPriceOptions;
+  promiseForFetchFinalPriceOptions = null;
+  if (!data?.length) {
+    alert('선택 가능한 가격 조건이 없습니다.');
+  }
+  finalPriceOptions.value = data || [];
+
+  await fetchAllianceContracts();
+}
+
+function initPriceDefineVariables() {
+  if (!pdPrcFnlDtlId.value) {
+    return;
+  }
+  setPriceDefineVariablesBy(pdPrcFnlDtlId.value);
+  initializeAlncCntrs();
+}
 
 function clearPromotions() {
   promotions.value = [];
@@ -878,30 +755,9 @@ function getPackageRentalDscTpCds() {
     .filter((codeId) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(codeId));
 }
 
-async function onChangePriceOptionFilter() {
-  if (!finalPriceOptions.value.length) {
-    await fetchFinalPriceOptions();
-  }
-
-  filteringFinalPriceOptions();
-
-  filteredVariableNames.value.forEach((key) => {
-    if (!Object.hasOwn(priceDefineVariables.value, key)) {
-      warn(`가격 제한 옵션이 상이합니다. ${key}`);
-      return;
-    }
-    priceDefineVariables.value[key] = priceOptionFilter.value[key] || EMPTY_ID;
-  });
-
-  forcedChangeValidVariable(true);
-}
-
-watch(priceOptionFilter, onChangePriceOptionFilter, { immediate: true });
-
-/* 불의의 사고로, modelValue 객체를 통으로 들어냈을 경우 */
 async function onChangeModelValue(newDtl) {
   if (dtl.value !== newDtl) {
-    /* 이전에는 key 가 안정적이지 않아서 변경 가능성이 있었으나,
+    /* 불의의 사고로, modelValue 객체를 통으로 들어냈을 경우, key 가 안정적이지 않아서 변경 가능성이 있었으나,
     modelValue 에 따라 종속되는 tempKey-cntrSn 기반으로 인스턴스와 연결되므로, 발생하지 않을 것 으로 추측 중 */
     dtl.value = newDtl;
     connectReactivities();
@@ -934,6 +790,12 @@ function onChangeSelectedFinalPrice(newPrice) {
 }
 
 watch(selectedFinalPrice, onChangeSelectedFinalPrice);
+
+function onChangeVariable() {
+  // if (finalPriceOptions.value.length === 1) {
+  //   setVariablesIfUniqueSelectable();
+  // }
+}
 
 function onClickDeviceChange() {
   emit('device-change', props.modelValue);
@@ -970,7 +832,7 @@ function onClickRemoveRentalDscTpCd() {
   priceDefineVariables.value.rentalDscTpCd = undefined;
 }
 
-async function onChangeAlncCntr(selected) {
+function onChangeAlncCntr(selected) {
   const tot = selected.reduce((sum, v) => (sum + parseInt(v.split('-')[2], 10)), 0);
   if (tot > selectedFinalPrice.value.fnlVal) {
     alert('제휴 지원금이 렌탈료보다 큽니다.');
