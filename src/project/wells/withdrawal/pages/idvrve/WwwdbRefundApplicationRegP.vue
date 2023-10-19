@@ -749,7 +749,7 @@ async function onClickEftnCheck() {
     saveParams.value.cstNm = '테스트예금주';
   });
   if (!isEmpty(acnoData.data)) {
-    if (isEmpty(acnoData.data.ACHLDR_NM)) {
+    if (isEmpty(acnoData.data.ACHLDR_NM.trim())) {
       notify(acnoData.data.ERR_CN);
       saveParams.value.cstNm = '테스트예금주';
     } else {
@@ -1482,7 +1482,7 @@ const initGrid3 = defineGrid((data, view) => {
       },
     },
     { fieldName: 'bltfOjCntrDtlNo',
-      width: '140',
+      width: '180',
       header: {
         text: t('MSG_TXT_BLTF_CNTR_DTL_NO'),
         // 전금계약상세번호
