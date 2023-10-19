@@ -437,7 +437,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       renderer: {
         type: 'button',
-        hideWhenEmpty: false,
+        hideWhenEmpty: true,
       },
       displayCallback: () => t('MSG_TXT_IMG_BRWS'),
     },

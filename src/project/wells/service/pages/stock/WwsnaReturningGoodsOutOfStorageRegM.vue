@@ -68,7 +68,6 @@
         <kw-search-item :label="$t('MSG_TXT_STR_WARE')">
           <kw-input
             v-model="searchParams.strWareNm"
-            icon="search"
             :disable="searchParams.ostrTpCd !== RETURN_INSIDE"
             readonly
           />
@@ -201,7 +200,7 @@ const { getters } = useStore();
 const dataService = useDataService();
 
 const { getConfig } = useMeta();
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 
 const { getWarehouseCloseCheck } = useSnCode();
 const { employeeIDNumber } = getters['meta/getUserInfo'];
@@ -370,6 +369,12 @@ function getRowData(rowData) {
 
 // 품목기본정보 팝업 오픈
 async function openItemBasePopup(type, row) {
+  if (isEmpty(searchParams.value.ostrWareNo)) {
+    // 해당사용자는 수불관리 창고가 존재하지 않습니다.
+    await alert(t('MSG_ALT_USR_RVPY_WARE_NEX'));
+    return;
+  }
+
   const { result, payload } = await modal({
     component: 'WwsnaItemBaseInformationListP',
     componentProps: { chk: '1', lpGbYn: type === 'U' ? 'Y' : '', wareNo: searchParams.value.ostrWareNo },
@@ -426,7 +431,15 @@ function setStrWareNo() {
 }
 
 // 출고창고 변경 시 입고 창고 셋팅
-function onChangeOstrWareNo() {
+async function onChangeOstrWareNo() {
+  const view = grdMainRef.value.getView();
+  const list = gridUtil.getAllRowValues(view, false);
+
+  // 출고창고 변경시 시점재고 재조회
+  if (list.length > 0) {
+    await fetchPitmStoc(list, 'A'); // 시점재고 조회
+  }
+
   if (searchParams.value.ostrTpCd === RETURN_INSIDE) {
     setStrWareNo();
   }

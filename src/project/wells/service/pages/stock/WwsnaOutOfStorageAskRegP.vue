@@ -253,8 +253,8 @@ function getRowData(rowData) {
   return { ...rowData, sapCd: rowData.sapCd, warehouseQty: rowData.warehouseQty || 0 };
 }
 
+// 품목 추가 버튼 클릭이벤트
 async function onClickItemPop(type, row) {
-  // TODO: 품목코드 던져줘야 됨. 팝업 props 맞게 던져주면됨.
   if (isEmpty(searchParams.value.ostrAkTpCd)) {
     // 출고요청유형 항목이 비어있습니다.
     notify(t('MSG_ALT_OSTR_AK_TP_ATC_IS_NULL'));
@@ -659,7 +659,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       renderer: {
         type: 'button',
-        hideWhenEmpty: false,
+        hideWhenEmpty: true,
       },
       displayCallback: () => t('MSG_TXT_IMG_BRWS'),
     },
