@@ -416,7 +416,7 @@ async function onClickCreate() {
   } else {
     notify(t('MSG_ALT_PA_TF_EXCN'));
   }
-  await dataService.post('/sms/wells/bond/part-transfers', cachedParams, { timeout: 6000000 });
+  await dataService.post('/sms/wells/bond/part-transfers', cachedParams, { timeout: 300000 });
 
   await alert(t('MSG_ALT_PA_TF_FSH'));
 
