@@ -283,8 +283,7 @@
           <!-- 환불 총계 -->
           <kw-form-item :label="$t('MSG_TXT_RFND_TOT')">
             <p>
-              {{stringUtil.getNumberWithComma(toInteger(aggregationStatus.cardRfndDsbAmtSum +
-                aggregationStatus.cashRfndDsbAmtSum)) }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.rfTotalSum)) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
         </kw-form-row>
@@ -341,6 +340,7 @@ const aggregationStatus = ref({
   cardRfndDsbAmtSum: 0,
   rfndDsbPspIntSum: 0,
   rfndBltfSum: 0,
+  rfTotalSum: 0,
 });
 
 const searchParams = ref({
