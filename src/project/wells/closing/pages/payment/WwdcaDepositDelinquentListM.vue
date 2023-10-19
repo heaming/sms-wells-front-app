@@ -284,17 +284,6 @@ const initGrdMain = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 미수금 총액
-    { fieldName: 'fnlAmt',
-      header: t('MSG_TXT_UC_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 미수금액
     { fieldName: 'thmNwAccN',
       header: t('MSG_TXT_ACC_N'),
       width: '80',
@@ -317,29 +306,6 @@ const initGrdMain = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 입금금액
-    { fieldName: 'thmNwDpRt',
-      header: t('MSG_TXT_DP_RT'),
-      width: '80',
-      styleName: 'text-right',
-      dataType: 'number',
-      numberFormat: '#,##0.##',
-      groupFooter: {
-        valueCallback(grid, column, groupFooterIndex, group) {
-          const thmNwDpRtSum = grid.getGroupSummary(group, 'fnlAmt').sum === 0 ? 0
-            : (grid.getGroupSummary(group, 'thmNwDpAmt').sum / grid.getGroupSummary(group, 'fnlAmt').sum) * 100;
-          return thmNwDpRtSum;
-        },
-        numberFormat: '#,##0.##',
-      },
-      footer: { expression: 'sum',
-        numberFormat: '#,##0.##',
-        styleName: 'text-right',
-        valueCallback(grid) {
-          const rtSum = grid.getSummary('fnlAmt', 'sum') === 0 ? 0
-            : (grid.getSummary('thmNwDpAmt', 'sum') / grid.getSummary('fnlAmt', 'sum')) * 100;
-
-          return rtSum;
-        } } }, // 입금률
     { fieldName: 'nomUcAmt',
       header: t('MSG_TXT_UC_AMT'),
       width: '120',
@@ -440,8 +406,8 @@ const initGrdMain = defineGrid((data, view) => {
       dataType: 'number',
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
-          const rtSum = (grid.getGroupSummary(group, 'fnlAmt').sum + grid.getGroupSummary(group, 'nomUcAmt').sum) === 0 ? 0
-            : ((grid.getGroupSummary(group, 'dlqAmt').sum - grid.getGroupSummary(group, 'dlqDpAmt').sum) / (grid.getGroupSummary(group, 'fnlAmt').sum + grid.getGroupSummary(group, 'nomUcAmt').sum)) * 100;
+          const rtSum = grid.getGroupSummary(group, 'ucamTam').sum === 0 ? 0
+            : ((grid.getGroupSummary(group, 'dlqAmt').sum - grid.getGroupSummary(group, 'dlqDpAmt').sum) / (grid.getGroupSummary(group, 'ucamTam').sum)) * 100;
 
           return rtSum;
         },
@@ -451,8 +417,8 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0.##',
         styleName: 'text-right',
         valueCallback(grid) {
-          const rtTotSum = (grid.getSummary('fnlAmt', 'sum') + grid.getSummary('nomUcAmt', 'sum')) === 0 ? 0
-            : ((grid.getSummary('dlqAmt', 'sum') - grid.getSummary('dlqDpAmt', 'sum')) / (grid.getSummary('fnlAmt', 'sum') + grid.getSummary('nomUcAmt', 'sum'))) * 100;
+          const rtTotSum = grid.getSummary('ucamTam', 'sum') === 0 ? 0
+            : ((grid.getSummary('dlqAmt', 'sum') - grid.getSummary('dlqDpAmt', 'sum')) / (grid.getSummary('ucamTam', 'sum'))) * 100;
 
           return rtTotSum;
         } } }, // 미수대비연체율
@@ -475,8 +441,8 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0.##',
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
-          const rtSum = (grid.getGroupSummary(group, 'fnlAmt').sum + grid.getGroupSummary(group, 'nomUcAmt').sum) === 0 ? 0
-            : ((grid.getGroupSummary(group, 'nomDpAmt').sum + grid.getGroupSummary(group, 'thmNwDpAmt').sum) / (grid.getGroupSummary(group, 'fnlAmt').sum + grid.getGroupSummary(group, 'nomUcAmt').sum)) * 100;
+          const rtSum = (grid.getGroupSummary(group, 'ucamTam').sum) === 0 ? 100
+            : (grid.getGroupSummary(group, 'totDpAmt').sum / (grid.getGroupSummary(group, 'ucamTam').sum)) * 100;
 
           return rtSum;
         },
@@ -486,13 +452,13 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0.##',
         styleName: 'text-right',
         valueCallback(grid) {
-          const rtTotSum = (grid.getSummary('fnlAmt', 'sum') + grid.getSummary('nomUcAmt', 'sum')) === 0 ? 0
-            : ((grid.getSummary('nomDpAmt', 'sum') + grid.getSummary('thmNwDpAmt', 'sum')) / (grid.getSummary('fnlAmt', 'sum') + grid.getSummary('nomUcAmt', 'sum'))) * 100;
+          const rtTotSum = grid.getSummary('ucamTam', 'sum') === 0 ? 100
+            : (grid.getSummary('totDpAmt', 'sum') / (grid.getSummary('ucamTam', 'sum'))) * 100;
 
           return rtTotSum;
         } } }, // 입금률
     { fieldName: 'bilAgg',
-      header: t('MSG_TXT_BIL_AGG'),
+      header: t('MSG_TXT_SL_AGG'),
       width: '130',
       styleName: 'text-right',
       hint: t('MSG_TXT_ACU_BIL_AMT'),
@@ -522,7 +488,7 @@ const initGrdMain = defineGrid((data, view) => {
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
           const totDpSum = grid.getGroupSummary(group, 'bilAgg').sum === 0 ? 0
-            : ((grid.getGroupSummary(group, 'thmNwDpAmt').sum + grid.getGroupSummary(group, 'nomDpAmt').sum + grid.getGroupSummary(group, 'dlqDpAmt').sum) / (grid.getGroupSummary(group, 'bilAgg').sum)) * 100;
+            : ((grid.getGroupSummary(group, 'bilAgg').sum - grid.getGroupSummary(group, 'dpAgg').sum) / (grid.getGroupSummary(group, 'bilAgg').sum)) * 100;
 
           return Number.isNaN(totDpSum) ? 0 : totDpSum;
         },
@@ -533,7 +499,7 @@ const initGrdMain = defineGrid((data, view) => {
         styleName: 'text-right',
         valueCallback(grid) {
           const rtSum = grid.getSummary('bilAgg', 'sum') === 0 ? 0
-            : ((grid.getSummary('thmNwDpAmt', 'sum') + grid.getSummary('nomDpAmt', 'sum') + grid.getSummary('dlqDpAmt', 'sum')) / (grid.getSummary('bilAgg', 'sum'))) * 100;
+            : ((grid.getSummary('bilAgg', 'sum') - grid.getSummary('dpAgg', 'sum')) / (grid.getSummary('bilAgg', 'sum'))) * 100;
 
           return Number.isNaN(rtSum) ? 0 : rtSum;
         } } }, // 연체율계
@@ -552,7 +518,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_THM_NW'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['fnlAmt', 'thmNwAccN', 'thmNwDpAmt', 'thmNwDpRt'],
+      items: ['thmNwAccN', 'thmNwDpAmt'],
     },
     {
       header: t('MSG_TXT_NOM_LSTMM_CL'), // colspan title
