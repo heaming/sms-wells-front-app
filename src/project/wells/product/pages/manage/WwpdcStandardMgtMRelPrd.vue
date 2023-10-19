@@ -683,6 +683,7 @@ async function initServiceGrid(data, view) {
       header: t('MSG_TXT_PD_UNIT_PARCEL_PERI'),
       width: '180',
       styleName: 'text-center',
+      editable: false,
       displayCallback(grid, index) {
         const svPrdUnitCd = getCodeNames(props.codes?.SV_PRD_UNIT_CD, grid.getValue(index.itemIndex, 'svPrdUnitCd'));
         const pcsvPrdCd = getCodeNames(props.codes?.SV_VST_PRD_CD, grid.getValue(index.itemIndex, 'pcsvPrdCd'));
