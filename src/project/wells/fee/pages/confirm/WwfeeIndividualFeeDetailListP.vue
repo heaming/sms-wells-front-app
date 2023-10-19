@@ -84,7 +84,7 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  no: { // 번호
+  prtnrNo: { // 번호
     type: String,
     required: true,
   },
@@ -94,7 +94,7 @@ let grdMain;
 const searchParams = ref({
   perfYm: props.perfYm,
   ogTpCd: props.ogTpCd,
-  no: props.no,
+  prtnrNo: props.prtnrNo,
 });
 
 watch(() => searchParams.value.ogTpCd, async (val) => {
