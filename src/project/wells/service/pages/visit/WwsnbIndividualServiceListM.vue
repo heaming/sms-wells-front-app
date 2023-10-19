@@ -41,7 +41,10 @@
         </kw-search-item>
         <!-- 바코드 -->
         <kw-search-item :label="$t('MSG_TXT_BARCODE')">
-          <kw-input v-model="searchParams.bcNo" />
+          <kw-input
+            v-model="searchParams.bcNo"
+            @update:model-value="()=>{searchParams.bcNo=searchParams.bcNo?.toUpperCase()?.replaceAll(' ','')}"
+          />
         </kw-search-item>
         <!-- 송장번호 -->
         <kw-search-item :label="$t('MSG_TXT_IVC_NO')">
@@ -138,6 +141,7 @@
               v-model="individualParams.cstUnuitmCn"
               type="textarea"
               rows="1"
+              :maxlength="1000"
             />
             <!-- 저장 -->
             <kw-btn
