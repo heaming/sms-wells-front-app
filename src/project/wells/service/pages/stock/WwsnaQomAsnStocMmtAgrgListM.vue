@@ -381,7 +381,18 @@ const initGrdMain = defineGrid((data, view) => {
       footer: {
         expression: 'sum',
         numberFormat: '#,##0.##',
-      } },
+      },
+      styleCallback: (grid, dataCell) => {
+        const ret = {};
+        const { lgstLackQty } = grid.getValues(dataCell.index.itemIndex);
+        // 파주+성수 수량이 마이너스인 경우 빨간색 글씨로 표시
+        if (lgstLackQty < 0) {
+          ret.styleName = 'text-right red-column';
+        }
+
+        return ret;
+      },
+    },
     { fieldName: 'lackQty100008',
       header: t('MSG_TXT_SEONG_SU'),
       width: '120',
@@ -448,3 +459,9 @@ const initGrdMain = defineGrid((data, view) => {
 });
 
 </script>
+<style>
+.red-column {
+  color: red !important;
+}
+
+</style>

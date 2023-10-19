@@ -687,6 +687,8 @@ const initGrdMain = defineGrid((data, view) => {
 
       if (outQty === 0) {
         grid.setValue(itemIndex, 'chk', 'N');
+      } else if (outQty > 0) {
+        grid.setValue(itemIndex, 'chk', 'Y');
       }
     }
   };
