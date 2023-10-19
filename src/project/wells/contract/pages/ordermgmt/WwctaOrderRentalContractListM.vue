@@ -122,7 +122,7 @@
       >
         <kw-select
           v-model="searchParams.alncmpCd"
-          :options="codes.ALNCMP_CD"
+          :options="codes.ALNCMP_CD.filter((v)=> v.codeId !== 'A')"
           first-option="all"
           first-option-value=""
         />

@@ -135,7 +135,7 @@
       >
         <kw-select
           v-model="searchParams.alncmpCd"
-          :options="codes.ALNCMP_CD"
+          :options="codes.ALNCMP_CD.filter((v)=> v.codeId !== 'A')"
           first-option="all"
           first-option-value=""
         />
@@ -302,11 +302,11 @@ const searchParams = ref({
   dgr3LevlOgId: [], // 조직코드-지점
   etcDv: [], // 기타
   sellOgTpCd: [], // 조직구분
-  hcsfVal: '', // 상품분류-대분류
-  hcsfMcsfVal: '', // 상품분류-중분류
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
   cntrCstNo: '', // 계약고객번호
+  hcsfVal: '', // 상품분류-대분류
+  hcsfMcsfVal: '', // 상품분류-중분류
 });
 
 const codes = await codeUtil.getMultiCodes(
