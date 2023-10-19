@@ -117,7 +117,6 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    /* { fieldName: 'col1' }, */
     { fieldName: 'cntrAprAkDvCdNm' },
     { fieldName: 'cntrAprFwDvNm' },
     { fieldName: 'rqrNm' },
@@ -129,9 +128,8 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    /* { fieldName: 'col1', header: '요청순번', width: '78', styleName: 'text-center' }, */
     { fieldName: 'cntrAprAkDvCdNm', header: t('MSG_TXT_APR_REQ_CAT'), width: '200', styleName: 'text-center' },
-    { fieldName: 'rqrNm', header: t('MSG_TXT_PIC'), width: '80', styleName: 'text-center' },
+    { fieldName: 'rqrNm', header: t('MSG_TXT_PIC'), width: '200' },
     { fieldName: 'sendDttm', header: t('MSG_TXT_SEND_DTM'), width: '180', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'aprvYn', header: t('MSG_TXT_APPR_STS'), width: '80', styleName: 'text-center' },
     { fieldName: 'aprvNm', header: t('MSG_TXT_APPROVER'), width: '80', styleName: 'text-center' },
@@ -163,7 +161,7 @@ const initSubGrid = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '147', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTR_CST_NM'), width: '135', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTR_CST_NM'), width: '135', class: 'p-pre-line' },
     { fieldName: 'cstGdNm', header: t('MSG_TXT_CST_GRD'), width: '94', styleName: 'text-center' },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_INST_CST_NM'), width: '135', styleName: 'text-center' },
     { fieldName: 'adr', header: t('MSG_TXT_INST_ADDR'), width: '482', styleName: 'text-left' },
@@ -181,3 +179,8 @@ const initSubGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 });
 </script>
+<style lang="scss" scoped>
+.p-pre-line {
+  white-space: pre-line;
+}
+</style>
