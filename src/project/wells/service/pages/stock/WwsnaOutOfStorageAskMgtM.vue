@@ -79,6 +79,7 @@
             @change="fetchData"
           />
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -177,6 +178,7 @@ const filterCodes = ref({
   filterOstrAkTpCd: [],
 });
 
+// 출고요청구분코드 필터링
 codes.OSTR_AK_TP_CD.forEach((e) => {
   if (e.codeId === '310' || e.codeId === '320'
     || e.codeId === '330') {
@@ -187,6 +189,7 @@ codes.OSTR_AK_TP_CD.forEach((e) => {
   }
 });
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/out-of-storage-asks/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: newOutOfStorageAsks, pageInfo: pagingResult } = res.data;
@@ -197,11 +200,13 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회버튼 클릭이벤트
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -214,6 +219,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 출고요청등록 버튼클릭 이벤트
 async function onClickRegistration() {
   const { result: isChanged } = await modal({
     component: 'WwsnaOutOfStorageAskRegP',
@@ -225,6 +231,7 @@ async function onClickRegistration() {
   }
 }
 
+// 화면로드시 조회
 const warehouses = ref();
 async function fetchDefaultData() {
   const { apyYm } = wharehouseParams.value;
@@ -260,17 +267,17 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 function initGrdMain(data, view) {
   const fields = [
-    { fieldName: 'strHopDt' },
-    { fieldName: 'ostrAkTpNm' },
-    { fieldName: 'ostrAkNo' },
-    { fieldName: 'rectOstrDt' },
-    { fieldName: 'lgstOstrAkNo' },
-    { fieldName: 'wareNm' },
-    { fieldName: 'itmNm' },
-    { fieldName: 'ostrAkTpCd' },
-    { fieldName: 'ostrOjWareNo' },
-    { fieldName: 'ostrAkRgstDt' },
-    { fieldName: 'strOjWareNo' },
+    { fieldName: 'strHopDt' }, // 입고희망일자
+    { fieldName: 'ostrAkTpNm' }, // 출고요청구분명
+    { fieldName: 'ostrAkNo' }, // 출고요청번호
+    { fieldName: 'rectOstrDt' }, // 최근출고일자
+    { fieldName: 'lgstOstrAkNo' }, // 물류출고요청번호
+    { fieldName: 'wareNm' }, // 창고명
+    { fieldName: 'itmNm' }, // 품목명
+    { fieldName: 'ostrAkTpCd' }, // 출고요청유형코드
+    { fieldName: 'ostrOjWareNo' }, // 출고대상창고번호
+    { fieldName: 'ostrAkRgstDt' }, // 출고요청등록일자
+    { fieldName: 'strOjWareNo' }, // 입고대상창고번호
   ];
 
   const columns = [

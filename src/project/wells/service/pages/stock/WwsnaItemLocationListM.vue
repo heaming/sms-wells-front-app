@@ -215,6 +215,7 @@ const allWareNoRes = await dataService.get('/sms/wells/service/item-locations/st
 const optionStockList = allWareNoRes.data;
 searchParams.value.wareNo = optionStockList[0].codeId;
 
+// 조회
 let cachedParams;
 
 async function fetchData() {
@@ -231,6 +232,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/item-locations/locations/excel-download', { params: cachedParams });
@@ -242,6 +244,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 조회버튼 클릭이벤트
 async function onClickSearch() {
   grdMainRef.value.getData().clearRows();
 
@@ -250,6 +253,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 일괄변경시 적용대상 체크
 function validateIsApplyRowExists() {
   const view = grdMainRef.value.getView();
   if (view.getItemCount() === 0) {
@@ -259,6 +263,7 @@ function validateIsApplyRowExists() {
   return true;
 }
 
+// 품목위치 일괄변경 클릭 이벤트
 async function onClickGridBulkChange() {
   if (!validateIsApplyRowExists()) return;
 
@@ -292,6 +297,7 @@ async function onClickGridBulkChange() {
   notify(t('MSG_ALT_ATC_BLK_CH_FSH'));
 }
 
+// 저장버튼 클릭 이벤트
 async function onClickSave() {
   if (!validateIsApplyRowExists()) return;
 
@@ -333,16 +339,16 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmPdCd' }, // 품목상품코드
     { fieldName: 'pdAbbrNm' }, // 품목명
     { fieldName: 'pitmStocAGdQty', dataType: 'number' }, // 재고
-    { fieldName: 'wareTpCd' },
-    { fieldName: 'itmLctAngleVal' },
-    { fieldName: 'itmLctCofVal' },
-    { fieldName: 'itmLctFlorNoVal' },
-    { fieldName: 'itmLctMatGrpCd' },
-    { fieldName: 'locationCd' },
-    { fieldName: 'itmLctNm' },
-    { fieldName: 'wareNo' },
-    { fieldName: 'itemKndCd' },
-    { fieldName: 'stdWareUseYn' },
+    { fieldName: 'wareTpCd' }, // 창고유형코드
+    { fieldName: 'itmLctAngleVal' }, // 앵글
+    { fieldName: 'itmLctCofVal' }, // 층수
+    { fieldName: 'itmLctFlorNoVal' }, // 층번호
+    { fieldName: 'itmLctMatGrpCd' }, // 그룹
+    { fieldName: 'locationCd' }, // 위치코드
+    { fieldName: 'itmLctNm' }, // 품목위치명
+    { fieldName: 'wareNo' }, // 창고번호
+    { fieldName: 'itemKndCd' }, // 품목구분코드
+    { fieldName: 'stdWareUseYn' }, // 상고사용여부
   ];
 
   const columns = [

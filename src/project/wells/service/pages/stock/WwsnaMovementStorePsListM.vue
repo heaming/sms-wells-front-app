@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 입고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_STR_WARE')"
           required
@@ -30,6 +31,7 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 입고유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_STR_TP')"
         >
@@ -39,6 +41,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 입고일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_STR_DT')"
           required
@@ -52,6 +55,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 출고창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_WARE')"
         >
@@ -75,7 +79,7 @@
             @change="fetchData"
           />
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -162,6 +166,7 @@ searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
 let cachedParams;
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/movement-stores/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: moveMentItem, pageInfo: pagingResult } = res.data;
@@ -171,6 +176,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -183,6 +189,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 조회버튼 클릭이벤트
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -190,6 +197,7 @@ async function onClickSearch() {
 
 const warehouses = ref();
 
+// 화면로드시 조회
 async function fetchDefaultData() {
   const { userId, apyYm } = wharehouseParams.value;
 
@@ -208,22 +216,22 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'strTpCd' },
-    { fieldName: 'strTpNm' },
-    { fieldName: 'strWareNo' },
-    { fieldName: 'strWareNm' },
-    { fieldName: 'strRgstDt' },
-    { fieldName: 'dlvgDlpnrNo' },
-    { fieldName: 'itmStrNo' },
-    { fieldName: 'strSn' },
-    { fieldName: 'ostrTpCd' },
-    { fieldName: 'ostrWareNo' },
-    { fieldName: 'ostrWareNm' },
-    { fieldName: 'strHopDt' },
-    { fieldName: 'ostrDt' },
-    { fieldName: 'itmOstrNo' },
-    { fieldName: 'ostrSn' },
-    { fieldName: 'strDelButn' },
+    { fieldName: 'strTpCd' }, // 입고유형코드
+    { fieldName: 'strTpNm' }, // 입고유형명
+    { fieldName: 'strWareNo' }, // 입고창고번호
+    { fieldName: 'strWareNm' }, // 입고창고명
+    { fieldName: 'strRgstDt' }, // 입고등록일자
+    { fieldName: 'dlvgDlpnrNo' }, // 납품거래처번호
+    { fieldName: 'itmStrNo' }, // 품목입고번호
+    { fieldName: 'strSn' }, // 입고순번
+    { fieldName: 'ostrTpCd' }, // 출고유형코드
+    { fieldName: 'ostrWareNo' }, // 출고창고번호
+    { fieldName: 'ostrWareNm' }, // 출고창고명
+    { fieldName: 'strHopDt' }, // 입고희망일자
+    { fieldName: 'ostrDt' }, // 출고일자
+    { fieldName: 'itmOstrNo' }, // 품목출고번호
+    { fieldName: 'ostrSn' }, // 출고순번
+    { fieldName: 'strDelButn' }, // 비고
   ];
 
   const columns = [

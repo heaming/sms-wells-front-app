@@ -100,6 +100,7 @@
         />
         <span class="ml8">{{ t('MSG_TXT_UNIT_EA') }}</span>
       </template>
+      <!-- 삭제버튼 -->
       <kw-btn
         v-permission:delete
         :label="$t('MSG_TXT_DEL')"
@@ -112,6 +113,7 @@
         inset
         spaced
       />
+      <!-- 저장 -->
       <kw-btn
         v-permission:update
         :label="$t('MSG_BTN_SAVE')"
@@ -124,6 +126,7 @@
         inset
         spaced
       />
+      <!-- 엑셀다운로드 -->
       <kw-btn
         v-permission:download
         icon="download_on"
@@ -138,6 +141,7 @@
         inset
         spaced
       />
+      <!-- 품목추가 -->
       <kw-btn
         v-permission:create
         :label="$t('MSG_BTN_ITM_SPMT')"
@@ -244,6 +248,7 @@ const filterCodes = ref({
 
 filterCodes.value.filterOstrTpCd = codes.OSTR_AK_TP_CD.filter((v) => ['310', '320', '330'].includes(v.codeId));
 
+// 출고요청수량 변경시
 function changeOstrAkQty(row, val) {
   const view = grdMainRef.value.getView();
   view.setValue(row, 'ostrCnfmQty', val);
@@ -298,9 +303,11 @@ async function onClickItemPop(type, row) {
   }
 }
 
+// 품목추가버튼 클릭이벤트
 async function onClickItem() {
   await onClickItemPop('C');
 }
+// 출고대상창고 조회
 async function fetchOstrOjWare() {
   if (!isEmpty(props.ostrAkNo)) { return; }
 
@@ -330,6 +337,7 @@ async function onChangeCode() {
   }
 }
 
+// 대상창고 변경이벤트
 function onChangeOjWare() {
   onChangeCode();
 }
@@ -347,6 +355,7 @@ function validateChangeCode() {
   }
 }
 
+// 화면로드시 조회
 async function fetchDefaultData() {
   const { apyYm } = loginUserParams.value;
   const { userId } = loginUserParams.value;
@@ -356,6 +365,7 @@ async function fetchDefaultData() {
   validateChangeCode();
 }
 
+// 조회
 async function fetchOstrAkDataItem() {
   await fetchDefaultData();
 
@@ -372,6 +382,7 @@ async function fetchOstrAkDataItem() {
   view.getDataSource().setRows(outOfStorages);
 }
 
+// 엑셀다운르도
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -385,6 +396,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 삭제
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -411,10 +423,12 @@ async function onClickDelete() {
 }
 
 let params;
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length === 0) {
+    // [출고요청]처리를 위해 선택된 건이 없습니다.
     notify(t('MSG_ALT_NOT_SELECT_OSTR'));
     return;
   }
@@ -432,15 +446,18 @@ async function onClickSave() {
     const chkItemKnd = checkedRows[i].itemKnd;
 
     if (chkOstrAkTpCd === '310' && searchParams.value.ostrOjWareNo.substring(0, 1) === '3' && chkWarehouseQty === 0) {
+      //  출고창고재고가 없습니다.
       notify(t('MSG_ALT_NO_OSTR_WARE_STOC'));
       return;
     }
     if (chkOstrAkQty <= 0) {
+      // 출고수량은 0보다 커야합니다.
       notify(t('MSG_ALT_OSTR_QTY_ZERO_BE_BIG'));
       return;
     }
 
     if (!isEmpty(chkRectOstrDt)) {
+      // 이미 출고가 완료되었기 때문에 {0}이(가) 불가합니다.
       notify(t('MSG_ALT_ARDY_OSTR', [t('MSG_TXT_MOD')]));
       return;
     }
@@ -448,7 +465,7 @@ async function onClickSave() {
     if (!isEmpty(chkOstrAkNo)) {
       checkedRows[i].ostrAkNo = chkOstrAkNo;
     }
-
+    // 출고대상창고번호의 첫번째 자리가 물류창고일 경우 물류작업방식코드 분기세팅
     if (searchParams.value.ostrOjWareNo.substring(0, 1) === '1') {
       if (chkStrOjWareNo === '2' && chkItemKnd === '4') {
         checkedRows[i].chkLgstWkMthdCd = 'WE01';
@@ -478,8 +495,10 @@ async function onClickSave() {
   ok();
 }
 
+// 입고희망일 변경
 async function onChangeStrHopDt() {
   if (!searchParams.value.strHopDt) {
+    // {0} 은(는) 필수값 입니다.
     notify(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_STR_HOP_D')]));
     searchParams.value.strHopDt = dayjs().format('YYYYMMDD');
     fetchOstrOjWare();
@@ -537,7 +556,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'useQty', dataType: 'number' }, /* 당월수량 */
     { fieldName: 'baseStocQty', dataType: 'number' }, /* 기준재고수량 */
     { fieldName: 'sftStocQty', dataType: 'number' }, /* 안전재고수량 */
-    { fieldName: 'chkLgstWkMthdCd' },
+    { fieldName: 'chkLgstWkMthdCd' }, // 물류작업방식구분코드
   ];
 
   const columns = [
@@ -708,6 +727,7 @@ const initGrdMain = defineGrid((data, view) => {
   //   }
   // };
 
+  // 조회된 리스트 목록 클릭이벤트
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     const { imgUrl } = g.getValues(itemIndex);
     if (column === 'imgUrl') {

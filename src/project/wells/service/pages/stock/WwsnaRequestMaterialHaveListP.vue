@@ -133,11 +133,9 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, defineGrid, getComponentType, useMeta } from 'kw-lib';
-// import { codeUtil, getComponentType, useDataService, useGlobal, useModal } from 'kw-lib';
 
 import { isEmpty, cloneDeep } from 'lodash-es';
-// const { alert, modal, notify } = useGlobal();
-// const { ok, cancel: onClickCancel } = useModal();
+
 const dataService = useDataService();
 const { getConfig } = useMeta();
 const { t } = useI18n();
@@ -218,6 +216,8 @@ async function fetchInit() {
   isCenter.value = false;
   isPerson.value = true;
 }
+
+// 조회
 let cachedParams;
 async function fetchData() {
   if (searchParams.value.wareClsfCd === '10') {
@@ -239,6 +239,7 @@ async function fetchData() {
   }
 }
 
+// 창고구분코드 변경
 async function onChangeWareClsFCd() {
   const clsFCdVal = searchParams.value.wareClsfCd;
   if (clsFCdVal === '11') {
@@ -259,8 +260,6 @@ async function onClickSearch() {
 }
 
 function isProps() {
-  // TODO : ostrQty 데이터가 정상적이지 않음 추후 정상적일경우 조건 변경
-  // return !isEmpty(props.itmPdCd) && !isEmpty(props.itmPdNm) && !isEmpty(props.ostrQty);
   return !isEmpty(props.itmPdCd) && !isEmpty(props.itmPdNm);
 }
 onMounted(async () => {
@@ -276,9 +275,9 @@ onMounted(async () => {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'wareNm' },
-    { fieldName: 'wareNo' },
-    { fieldName: 'qty' },
+    { fieldName: 'wareNm' }, // 창고명
+    { fieldName: 'wareNo' }, // 창고번호
+    { fieldName: 'qty' }, // 수량
 
   ];
 
