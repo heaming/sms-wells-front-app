@@ -324,9 +324,9 @@ const frmMainData = ref({
   confArtcCn: '', /* 확인사항내용 */
 });
 
-const isTopBtn = ['W1010', 'W1580'].includes(baseRleCd); // 본사스텝
+const isTopBtn = ['W1010', 'W1580', 'W1560'].includes(baseRleCd); // 본사스텝
 
-const isBtn = ['W1010', 'W1020', 'W1580'].includes(baseRleCd); // 본사스텝,업무담당
+const isBtn = ['W1010', 'W1020', 'W1580', 'W1560'].includes(baseRleCd); // 본사스텝,업무담당
 
 const searchParams = ref({
   ogTpCd: userInfo.ogTpCd, /* 조직유형코드 */
@@ -354,10 +354,12 @@ watch(() => searchParams.value.actiStatCd, async (newVal) => {
     view.columnByName('col5').visible = false;
     view.columnByName('startYrmn').visible = false;
     view.columnByName('baseDvNm').visible = false;
+    view.columnByName('thmAmt').visible = true;
   } else {
     view.columnByName('col5').visible = true;
     view.columnByName('startYrmn').visible = true;
     view.columnByName('baseDvNm').visible = true;
+    view.columnByName('thmAmt').visible = false;
   }
 });
 
@@ -433,6 +435,10 @@ async function init() {
 
 watch(() => frmMainData.value.ogTpCd, async () => {
   await init();
+});
+
+watch(() => searchParams.value.actiStatCd, async () => {
+  await onClickSearch();
 });
 
 async function onClickSave() {
@@ -584,6 +590,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'maxFeeDdtnOcDt' },
     { fieldName: 'actiGdsAmt', dataType: 'number' },
     { fieldName: 'sumFeeDdtnDstAmt', dataType: 'number' },
+    { fieldName: 'thmAmt', dataType: 'number' },
     { fieldName: 'patDdtnMcn' },
     { fieldName: 'countMcn', dataType: 'number' },
     { fieldName: 'col17' },
@@ -638,7 +645,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'maxFeeDdtnOcDt', header: t('MSG_TXT_FNL_OC_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'actiGdsAmt', header: t('MSG_TXT_TOT_OJ_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'sumFeeDdtnDstAmt', header: t('MSG_TXT_ACU_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'patDdtnMcn', header: t('MSG_TXT_PAT_N'), width: '50', styleName: 'text-center' },
+    { fieldName: 'thmAmt', header: t('MSG_TXT_THM_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', visible: false },
+    { fieldName: 'patDdtnMcn', header: t('MSG_TXT_PAT_N'), width: '80', styleName: 'text-center' },
     { fieldName: 'countMcn', header: t('MSG_TXT_ORDR'), width: '50', styleName: 'text-center' },
     { fieldName: 'col17',
       header: t('MSG_TXT_CANC_DT'),
@@ -719,7 +727,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_DDTN_INF'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['maxFeeDdtnOcDt', 'actiGdsAmt', 'sumFeeDdtnDstAmt', 'patDdtnMcn', 'countMcn'],
+      items: ['maxFeeDdtnOcDt', 'actiGdsAmt', 'sumFeeDdtnDstAmt', 'thmAmt', 'patDdtnMcn', 'countMcn'],
     },
     'col17', 'col18', 'sppDt', 'sppBzsNm', 'col21', 'sppIvcNo',
   ]);
