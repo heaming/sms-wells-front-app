@@ -1022,6 +1022,8 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'rfndPsbAmt', dataType: 'number' }, /* 환불가능금액 */
     { fieldName: 'rveNo' },
     { fieldName: 'rveSn' },
+    { fieldName: 'fnitNm' },
+    { fieldName: 'acCrNo' },
   ];
 
   const columns = [
@@ -1058,6 +1060,20 @@ const initGrid2 = defineGrid((data, view) => {
       styleName: 'text-center',
       editable: false,
       options: codes.DP_TP_CD,
+    },
+    { fieldName: 'fnitNm',
+      header: t('MSG_TXT_AC_CDCO'),
+      // 계좌/카드사
+      width: '100',
+      styleName: 'text-center',
+      editable: false,
+    },
+    { fieldName: 'acCrNo',
+      header: t('MSG_TXT_AC_CDNO'),
+      // 계좌번호/카드번호
+      width: '150',
+      styleName: 'text-center',
+      editable: false,
     },
     { fieldName: 'dpAmt',
       header: t('MSG_TXT_DEPOSIT_AMT'),
