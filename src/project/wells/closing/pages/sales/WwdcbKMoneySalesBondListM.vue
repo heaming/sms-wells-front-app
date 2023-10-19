@@ -4,7 +4,7 @@
 ****************************************************************************************************
 1. 모듈 : DCB
 2. 프로그램 ID : WwdcbKMoneySalesBondListM - K머니 매출채권 현황 - W-CL-U-0058M08
-3. 작성자 : KIM JUHYUN
+3. 작성자 : KIM JUHYUN -> WOO SEUNGMIN
 4. 작성일 : 2023.03.22
 ****************************************************************************************************
 * 프로그램 설명
@@ -170,6 +170,7 @@ const detailParams = ref({
   baseYm: '',
 });
 
+// 월별 적립취소 상세내역 조회
 async function fetchCancelData() {
   const resType = await dataService.get('/sms/wells/closing/kmoney-sales-bond/cancel-detail', { params: detailParams.value.baseYm });
   console.log(resType.data);
@@ -179,6 +180,7 @@ async function fetchCancelData() {
   viewType.getDataSource().setRows(cancelDetail);
 }
 
+// 월별 입금 상세내역 조회
 async function fetchDepositData() {
   const resType = await dataService.get('/sms/wells/closing/kmoney-sales-bond/deposit-detail', { params: detailParams.value.baseYm });
   console.log(resType.data);
@@ -189,6 +191,7 @@ async function fetchDepositData() {
 }
 
 let cachedParams;
+// 매출채권 현황 조회
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/closing/kmoney-sales-bond/sales-bond', { params: { ...cachedParams, ...pageInfo.value } });
@@ -203,6 +206,7 @@ async function fetchData() {
   gridUtil.reCreateGrid(grdCancelRef.value.getView());
 }
 
+// 매출채권 현황 엑셀 다운로드 버튼 클릭
 async function onClickExportViewMain() {
   const view = grdMainRef.value.getView();
 
@@ -214,6 +218,7 @@ async function onClickExportViewMain() {
   });
 }
 
+// 월별 입금 상세내역,  월별 적립취소 상세내역 엑셀 다운로드 버튼 클릭
 async function onClickExportViewDetail(type) {
   if (type === 'deposit') {
     const view = grdDepositRef.value.getView();
@@ -232,6 +237,7 @@ async function onClickExportViewDetail(type) {
   }
 }
 
+// 조회 버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   await fetchData();
@@ -243,7 +249,7 @@ const initGridMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'baseYm',
       header: t('MSG_TXT_BASE_YM'),
-      width: '180',
+      width: '130',
       styleName: 'rg-button-link text-center',
       datetimeFormat: 'yyyy-MM',
       renderer: { type: 'button' },
@@ -257,14 +263,14 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'acuRveAmt', header: t('MSG_TXT_ACU_DP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 누적 입금액
     { fieldName: 'resAmt', header: t('MSG_TXT_BLAM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 잔액
     { fieldName: 'mlgRvAmt', header: t('MSG_TXT_ITG_RV_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 통합 적립액
-    { fieldName: 'mlgCanAmt', header: t('MSG_TXT_ITG_RV_CAN_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 통합 적림 취소액
+    { fieldName: 'mlgCanAmt', header: t('MSG_TXT_ITG_RV_CAN_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 통합 적립 취소액
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
   view.onCellItemClicked = async (grid, { column, dataRow }) => {
@@ -280,9 +286,9 @@ const initGridDeposit = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '117', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cntrCstNm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-left' }, // 고객명
-    { fieldName: 'rcpYm', header: t('MSG_TXT_RCP_YM'), width: '70', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 접수년월
-    { fieldName: 'istYm', header: t('MSG_TXT_YR_INSTALLATION'), width: '70', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 설치년월
-    { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '85', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 판매금
+    { fieldName: 'rcpYm', header: t('MSG_TXT_RCP_YM'), width: '80', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 접수년월
+    { fieldName: 'istYm', header: t('MSG_TXT_YR_INSTALLATION'), width: '80', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 설치년월
+    { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '85', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 판매금액
     { fieldName: 'rveAmt', header: t('MSG_TXT_THM_DP_AMT_DFA_INC'), width: '80', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 당월입금액(대손포함)
     { fieldName: 'acuRveAmt', header: t('MSG_TXT_ACU_DP_AMT_DFA_INC'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 누적입금액(대손포함)
     { fieldName: 'resAmt', header: t('MSG_TXT_BLAM_SLAMT_DP_AMT'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 잔액(판매금-입금액)
@@ -300,9 +306,9 @@ const initGridDeposit = defineGrid((data, view) => {
 
 const initGridCancel = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'rvCanDt', header: t('MSG_TXT_RV_CAN_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 적립취소일
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '153', styleName: 'text-center' }, // 계약상세번호
-    { fieldName: 'canAmt', header: t('MSG_TXT_CAN_AMT_WON'), width: '133', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 취소금액(원)
+    { fieldName: 'rvCanDt', header: t('MSG_TXT_RV_CAN_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 적립 취소일자
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '145', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'canAmt', header: t('MSG_TXT_CAN_AMT_WON'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 취소금액(원)
     { fieldName: 'ledgCanDt', header: t('MSG_TXT_LEDG_CAN_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 원장취소일자
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
