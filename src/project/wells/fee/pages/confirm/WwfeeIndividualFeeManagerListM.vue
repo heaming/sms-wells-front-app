@@ -139,6 +139,12 @@
           >
             <p>{{ basicInfo.acnoEncr ? basicInfo.acnoEncr : '' }}</p>
           </kw-form-item>
+          <kw-form-item
+            :label="t('MSG_TXT_METG_DC')"
+            align-content="left"
+          >
+            <p>{{ basicInfo.metgDc ? basicInfo.metgDc : '' }}</p>
+          </kw-form-item>
         </kw-form-row>
       </kw-form>
       <kw-separator />
@@ -321,7 +327,7 @@ const router = useRouter();
 const route = useRoute();
 
 const searchParams = ref({
-  perfYm: '',
+  perfYm: now.add(-1, 'month').format('YYYYMM'),
   prtnrNo: '',
   prtnrKnm: '',
 });
@@ -340,6 +346,7 @@ const basicInfo = ref({
   mngtCt: '0',
   vstCt: '0',
   procsRt: '0',
+  metgDc: '',
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
