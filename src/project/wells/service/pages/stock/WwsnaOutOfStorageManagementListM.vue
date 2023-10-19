@@ -289,14 +289,14 @@ async function onClickPrint() {
     notify(t('MSG_ALT_NOT_SELECT_OSTR_PRINT'));
     return;
   }
-
+  const { width, height } = ozParam.value;
   const itmOstrNo = checkedRows.map((v) => (v.itmOstrNo)).join('|');
 
   await openReportPopup(
     '/kyowon_as/stckout.ozr',
     '/kyowon_as/stckout.odi',
     JSON.stringify({ ITM_OSTR_NO: itmOstrNo }),
-    { width: ozParam.width, height: ozParam.height },
+    { width, height },
   );
 }
 

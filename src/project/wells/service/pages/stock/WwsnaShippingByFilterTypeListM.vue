@@ -487,6 +487,7 @@ const ozParam = ref({
 
 // 라벨출력
 async function onClickLabelPrint() {
+  const { width, height } = ozParam.value;
   const { strtDt, endDt, wareDvCd, gbYn, hgrWareNo, wareNo, itmPdCd, itmGrCd } = cachedParams;
 
   await openReportPopup(
@@ -502,7 +503,7 @@ async function onClickLabelPrint() {
       ITM_PD_CD: itmPdCd,
       ITM_GR_CD: itmGrCd,
     }),
-    { width: ozParam.width, height: ozParam.height },
+    { width, height },
   );
 }
 
