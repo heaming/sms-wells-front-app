@@ -330,8 +330,11 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       displayCallback: (g, i, v) => {
-        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
-        return v.replace(regExp, '$1-$2-$3');
+        if (!isEmpty(v)) {
+          const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+          return v.replace(regExp, '$1-$2-$3');
+        }
+        return v;
       } },
     { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-left' },
     { fieldName: 'itmStrNo',
@@ -339,8 +342,11 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       displayCallback: (g, i, v) => {
-        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
-        return v.replace(regExp, '$1-$2-$3');
+        if (!isEmpty(v)) {
+          const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+          return v.replace(regExp, '$1-$2-$3');
+        }
+        return v;
       } },
     { fieldName: 'txtNote',
       header: t('MSG_TXT_NOTE'),

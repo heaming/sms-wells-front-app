@@ -3,7 +3,7 @@
  * 프로그램 개요
  ***************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaWarehouseOrganizationListM - 창고조직 관리
+ 2. 프로그램 ID : WwsnaWarehouseOrganizationListM - 창고조직 관리(W-SV-U-0138M01)
  3. 작성자 : taesung.Song
  4. 작성일 : 2022.12.01
  ***************************************************************************************************
@@ -18,6 +18,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
@@ -30,6 +31,7 @@
             @change="onChangeBaseYm"
           />
         </kw-search-item>
+        <!-- 창고구분,상위창고,개인창고 -->
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.baseYmd"
           v-model:end-ym="searchParams.baseYmd"
@@ -49,6 +51,7 @@
       </kw-search-row>
 
       <kw-search-row>
+        <!-- 창고상세구분 -->
         <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
           <kw-select
             v-model="searchParams.wareDtlDvCd"
@@ -56,6 +59,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 사용여부 -->
         <kw-search-item :label="$t('MSG_TXT_USE_YN')">
           <kw-select
             v-model="searchParams.codeUseYn"
@@ -63,7 +67,7 @@
             first-option="all"
           />
         </kw-search-item>
-
+        <!-- 사번 -->
         <kw-search-item :label="$t('MSG_TXT_EPNO')">
           <kw-input
             v-model="searchParams.wareMngtPrtnrNo"
@@ -84,6 +88,7 @@
             @change="fetchData"
           />
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -98,6 +103,7 @@
           vertical
           inset
         />
+        <!-- 창고조직이월 -->
         <kw-btn
           v-permission:create
           secondary
@@ -111,6 +117,7 @@
           vertical
           inset
         />
+        <!-- 창고정보등록 -->
         <kw-btn
           v-permission:create
           dense
@@ -151,6 +158,7 @@ const { t } = useI18n();
 
 const { modal, alert, notify } = useGlobal();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 const emit = defineEmits([
   'reloadPages',
 ]);
@@ -219,11 +227,13 @@ const onChangeWareDvCd = async () => {
   }
 };
 
+// 창고구분이 변경되었을때
 function onChangeStdWareDvCd() {
   searchParams.value.wareNoM = '';
   searchParams.value.wareNoD = '';
 }
 
+// 상위창고가 변경될때
 function onChagneHgrWareNo() {
   searchParams.value.wareNoD = '';
 }
@@ -235,6 +245,7 @@ watch(() => searchParams.value.wareDvCd, (val) => {
   onChangeWareDvCd();
 });
 
+// 창고조직이월
 async function onClickCarriedOver() {
   const res = await dataService.get('/sms/wells/service/warehouse-organizations/carried-over', { params: { baseYm: searchParams.value.baseYm } });
 
@@ -253,6 +264,7 @@ async function onClickCarriedOver() {
   emit('reloadPages');
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/warehouse-organizations/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: wareOg, pageInfo: pagingResult } = res.data;
@@ -263,23 +275,26 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회버튼클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   const res = await dataService.get('/sms/wells/service/warehouse-organizations/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: 'warehouseOgList',
+    fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
 }
 
+// 창고정보 등록 버튼 클릭이벤트
 async function onClickWareOgCrdovr(apyYm, wareNo) {
   const today = dayjs().format('YYYYMM');
 
@@ -296,6 +311,7 @@ async function onClickWareOgCrdovr(apyYm, wareNo) {
       searchParams.value.wareDvCd = cachedParams.wareDvCd;
     }
   } else {
+    // 당월 이전의 창고정보는 수정이 불가합니다.
     await alert(t('MSG_ALT_THM_BF_WAREINF_MDFC_IMP'));
   }
 }
@@ -310,25 +326,25 @@ onMounted(async () => {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'wareDvCd' },
-    { fieldName: 'wareDtlDvCd' },
-    { fieldName: 'wareNo' },
-    { fieldName: 'wareNm' },
-    { fieldName: 'adrNm' },
-    { fieldName: 'wareMngtPrtnrNo' },
-    { fieldName: 'wareStocMgr' },
-    { fieldName: 'hgrWareNo' },
-    { fieldName: 'hgrWareNm' },
-    { fieldName: 'wareUseYn' },
-    { fieldName: 'adrUseYn' },
-    { fieldName: 'dsnBldNm' },
-    { fieldName: 'bldCd' },
-    { fieldName: 'didyDvCd' },
-    { fieldName: 'wareAdrId' },
-    { fieldName: 'ogCd' },
-    { fieldName: 'bldNm' },
-    { fieldName: 'apyYm' },
-    { fieldName: 'sortDvVal' },
+    { fieldName: 'wareDvCd' }, // 창고구분코드
+    { fieldName: 'wareDtlDvCd' }, // 창고상세구분코드
+    { fieldName: 'wareNo' }, // 창고번호
+    { fieldName: 'wareNm' }, // 창고명
+    { fieldName: 'adrNm' }, // 주소
+    { fieldName: 'wareMngtPrtnrNo' }, // 창고관리파트너번호
+    { fieldName: 'wareStocMgr' }, // 성명
+    { fieldName: 'hgrWareNo' }, // 상위창고번호
+    { fieldName: 'hgrWareNm' }, // 상위창고명
+    { fieldName: 'wareUseYn' }, // 창고사용여부
+    { fieldName: 'adrUseYn' }, // 주소사용여부
+    { fieldName: 'dsnBldNm' }, // 빌딩명
+    { fieldName: 'bldCd' }, // 빌딩코드
+    { fieldName: 'didyDvCd' }, // 직배구분
+    { fieldName: 'wareAdrId' }, // 창고주소ID
+    { fieldName: 'ogCd' }, // 조직코드
+    { fieldName: 'bldNm' }, // 빌딩명
+    { fieldName: 'apyYm' }, // 적용년월
+    { fieldName: 'sortDvVal' }, // 정렬구분
   ];
 
   const columns = [
