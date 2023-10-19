@@ -174,8 +174,6 @@ async function onClickExcelDownload() {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
-    allColumns: false,
-    hideColumns: ['temp'],
   });
 }
 
@@ -199,15 +197,13 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'sowDt', dataType: 'text' }, // 파종일자
     { fieldName: 'cntrNo', dataType: 'text' }, // 계약번호
     { fieldName: 'cntrSn', dataType: 'number' }, // 계약일련번호
-    { fieldName: 'temp' }, // temp
   ];
 
   const columns = [
-    { fieldName: 'temp', header: ' ', width: '1' },
-    { fieldName: 'baseCntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'baseCntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'baseCstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-left' },
-    { fieldName: 'connCntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'connCntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'connSdingPkgNm', header: t('MSG_TXT_SDING_PKG'), width: '150', styleName: 'text-left' },
     { fieldName: 'connSdingPdNm', header: `${t('MSG_TXT_SDING')}${t('MSG_TXT_NM')}`, width: '100', styleName: 'text-left' },
     { fieldName: 'connQty', header: t('MSG_TXT_QTY'), width: '60', styleName: 'text-right' },
@@ -217,7 +213,6 @@ const initGrid = defineGrid((data, view) => {
 
   // 헤더 부분 merge
   const layoutColumns = [
-    'temp',
     {
       header: t('MSG_TXT_STND_PRDT'),
       direction: 'horizontal', // merge type

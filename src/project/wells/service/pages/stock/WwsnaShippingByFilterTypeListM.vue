@@ -554,7 +554,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'text',
         editable: true } },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-left' },
     { fieldName: 'ostrConfDt',
