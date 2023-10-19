@@ -359,8 +359,8 @@ const initGrdMain = defineGrid((data, view) => {
     grid.checkItem(index.itemIndex, true);
 
     if (isEmpty(editResult.value)) {
-      grid.setValue(index.dataRow, 'pdlvNo', '');
-      grid.setValue(index.dataRow, 'pdlvAdr', '');
+      grid.setValue(grid.getItemIndex(index.dataRow), 'pdlvNo', '');
+      grid.setValue(grid.getItemIndex(index.dataRow), 'pdlvAdr', '');
       return;
     }
 
