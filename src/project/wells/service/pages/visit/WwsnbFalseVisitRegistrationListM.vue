@@ -72,7 +72,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, codeUtil, gridUtil } from 'kw-lib';
+import { codeUtil, gridUtil, useDataService, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -134,6 +134,12 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const { data } = await dataService.get('/sms/wells/service/false-visit/excel-download', { params: cachedParams });
+
+  data.forEach((row) => {
+    if (row.cralLocaraTno && row.mexnoEncr && row.cralIdvTno) {
+      row.mobileTno = `${row.cralLocaraTno}-${row.mexnoEncr}-${row.cralIdvTno}`;
+    }
+  });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
