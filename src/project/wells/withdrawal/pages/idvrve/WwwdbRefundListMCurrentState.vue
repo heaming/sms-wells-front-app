@@ -36,13 +36,13 @@
         <!-- 실적일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_PERF_DT')"
-          required
           :colspan="2"
-        >
+          >
+          <!-- required -->
           <kw-date-range-picker
             v-model:from="searchParams.perfDtStart"
             v-model:to="searchParams.perfDtFinish"
-            rules="date_range_required|date_range_months:1"
+            rules="date_range_months:1"
             :label="t('MSG_TXT_PERF_DT')"
           />
         </kw-search-item>
@@ -473,6 +473,9 @@ const initGrdMain1 = defineGrid((data, view) => {
       width: '100',
       displayCallback(grid, index) {
         const { cshFnitNm, cardFnitNm } = grid.getValues(index.itemIndex);
+        if (isEmpty(cardFnitNm) && isEmpty(cshFnitNm)) {
+          return '';
+        }
         if (isEmpty(cshFnitNm)) {
           return `${cardFnitNm}`;
         }
