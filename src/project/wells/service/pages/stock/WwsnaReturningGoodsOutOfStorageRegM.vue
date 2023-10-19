@@ -247,8 +247,8 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'OSTR_TP_CD',
-  'WARE_DV_CD',
+  'OSTR_TP_CD', // 출고구분코드
+  'WARE_DV_CD', // 창고구분코드
   'MNGT_UNIT_CD', // 관리단위코드
   'PD_GD_CD', // 상품등급코드
   'RTNGD_RSON_CD', // 반품사유 (출고사유코드)
@@ -260,6 +260,7 @@ const pdGdCds = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(
 
 const trnspnCds = codes.SPP_MTHD_TP_CD.filter((v) => ['6', '5', '0'].includes(v.codeId));
 
+// 출고유형코드 필터링
 function isReturingCode(codeId) {
   return codeId === RETURN_INSIDE;
 }
@@ -315,6 +316,7 @@ function validateInputValueExists(input, inputType) {
   return true;
 }
 
+// 인덱스가 null 인지 체크
 function isIndexEmpty(obj) {
   return (obj === undefined || obj === null || obj === '');
 }
@@ -358,13 +360,17 @@ function onClickGridBulkChange(val, type) {
   for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
     view.setValue(dataRow, type, val);
   }
-
+  // {0} 항목이 일괄변경 되었습니다.
   notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [inputType]));
 }
 
 // 그리드 row 데이터 가져오기
 function getRowData(rowData) {
-  return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0, mngtUnitCd: rowData.delUntNm };
+  return { ...rowData,
+    sapMatCd: rowData.sapCd,
+    onQty: rowData.myCenterQty || 0,
+    mngtUnitCd: rowData.delUntNm,
+    itmKndCd: rowData.itmKnd };
 }
 
 // 품목기본정보 팝업 오픈
