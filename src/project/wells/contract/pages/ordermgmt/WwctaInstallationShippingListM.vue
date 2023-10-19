@@ -780,8 +780,7 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
   let asIstOjNo = '';
   let acpgDiv = '';
 
-  let pkgYn = '';
-  let sellTpCd = '';
+  let sellTpDtlCd = '';
   let kaetc1 = '';
 
   // if (!isEqual(dataList.profile, 'prd')) {
@@ -830,26 +829,18 @@ async function callKiwiTimeAssign(dataList, prdDiv) {
         fetchData();
       }
     } else {
-      let svBizDclsfCdParam = '';
-      let svDvCdParam = '';
-      pkgYn = dataList.pkgYn;
-      sellTpCd = dataList.sellTpCd;
+      let svDvCdParam = '1';
+      let svBizDclsfCdParam = '1110';
+      sellTpDtlCd = dataList.sellTpDtlCd;
       kaetc1 = dataList.kaetc1;
 
       if (isEqual(kaetc1, '8')) {
         svDvCdParam = '4';
-        if (isEqual(sellTpCd, '1')) {
+        if (isEqual(sellTpDtlCd, '12')) {
           svBizDclsfCdParam = '4110';
-        } else if (isEqual(pkgYn, 'Y')) {
-          if (isEqual(sellTpCd, '1')) {
-            svBizDclsfCdParam = '4130';
-          } else {
-            svBizDclsfCdParam = '4120';
-          }
+        } else if (isEqual(sellTpDtlCd, '33')) {
+          svBizDclsfCdParam = '4120';
         }
-      } else {
-        svDvCdParam = '1';
-        svBizDclsfCdParam = '1110';
       }
       const { result } = await modal({
         component: 'WwsncTimeTableForContractP',
