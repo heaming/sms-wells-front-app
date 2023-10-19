@@ -165,7 +165,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const selectInqrDv = { // 조회구분
-  options: [{ codeId: '1', codeName: '판매채널별' }, { codeId: '2', codeName: '상품군별' }],
+  options: [{ codeId: '1', codeName: t('MSG_TXT_BY_SELL_CHNL') }, { codeId: '2', codeName: t('MSG_TXT_BY_PDGRP') }],
 };
 
 const searchParams = ref({

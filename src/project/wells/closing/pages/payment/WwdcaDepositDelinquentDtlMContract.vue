@@ -246,7 +246,7 @@ let cachedParams;
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
   console.log(searchParams.value);
-  const res = await dataService.get('/sms/wells/closing/deposit-delinquent-details/contract', { params: { ...cachedParams, ...pageInfo.value, timeout: 80000 } });
+  const res = await dataService.get('/sms/wells/closing/deposit-delinquent-details/contract', { params: { ...cachedParams, ...pageInfo.value, timeout: 300000 } });
 
   console.log(res.data);
   const { list: mainList, pageInfo: pagingResult } = res.data;
@@ -265,7 +265,7 @@ async function onClickSearch() {
 // 엑셀 다운로드 버튼 클릭
 async function onClickExportView() {
   const view = grdDetailRef.value.getView();
-  const response = await dataService.get('/sms/wells/closing/deposit-delinquent-details/contract/excel-download', { params: cachedParams, timeout: 80000 });
+  const response = await dataService.get('/sms/wells/closing/deposit-delinquent-details/contract/excel-download', { params: cachedParams, timeout: 300000 });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
