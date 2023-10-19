@@ -465,7 +465,7 @@ async function openAgainDisbursementPopup() {
 }
 
 /*
- *  Event - 부담공제조정 버튼 클릭
+ *  Event - 부담공제상세 버튼 클릭
  */
 async function openZwfedFeeBurdenDeductionRegP() {
   const { perfYm, prtnrNo } = searchParams.value;
