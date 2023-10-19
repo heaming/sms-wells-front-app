@@ -139,6 +139,12 @@
           >
             <p>{{ basicInfo.acnoEncr ? basicInfo.acnoEncr : '' }}</p>
           </kw-form-item>
+          <kw-form-item
+            :label="t('MSG_TXT_METG_DC')"
+            align-content="left"
+          >
+            <p>{{ basicInfo.metgDc ? basicInfo.metgDc : '' }}</p>
+          </kw-form-item>
         </kw-form-row>
       </kw-form>
       <kw-separator />
@@ -300,17 +306,6 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const dataService = useDataService();
 
-const props = defineProps({
-  perfYm: {
-    type: String,
-    required: true,
-  },
-  prtnrNo: {
-    type: String,
-    required: true,
-  },
-});
-
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
 );
@@ -327,14 +322,14 @@ const grdBsRef = ref(getComponentType('KwGrid'));
 const grdFeeRef = ref(getComponentType('KwGrid'));
 const grdPnpyamRef = ref(getComponentType('KwGrid'));
 const deductionRowCnt = ref(0);
+const deductionList = ref([]);
 const router = useRouter();
+const route = useRoute();
 
 const searchParams = ref({
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   prtnrNo: '',
   prtnrKnm: '',
-  prPerfYm: props.perfYm,
-  prprtnrNo: props.prtnrNo,
 });
 
 const basicInfo = ref({
@@ -351,14 +346,11 @@ const basicInfo = ref({
   mngtCt: '0',
   vstCt: '0',
   procsRt: '0',
+  metgDc: '',
   dgr1LevlOgId: '',
   dgr2LevlOgId: '',
   dgr3LevlOgId: '',
 });
-
-const deductionList = ref([]);
-const { prPerfYm } = searchParams.value;
-const { prprtnrNo } = searchParams.value;
 
 let cachedParams;
 
@@ -388,20 +380,19 @@ async function onClickSearchNo() {
  *  Event - 지급명세서 출력 버튼 클릭
  */
 async function openManagerReportPopup() {
-  const { perfYm, prtnrNo } = basicInfo.value;
-  if (prtnrNo !== '' && prtnrNo !== undefined) {
-    const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYYMM');
+  if (basicInfo.value.prtnrNo !== '' && basicInfo.value.prtnrNo !== undefined) {
+    const bfPerfYm = dayjs(basicInfo.value.perfYm).add(-1, 'month').format('YYYYMM');
     openReportPopup(
       '/ksswells/cmms/V5.2/cmmsSpec2023.ozr',
       '/ksswells/cmms/V5.2/cmmsSpec2023.odi',
       JSON.stringify(
         {
-          AKSDYM: perfYm,
-          AKSDTY: perfYm.substring(0, 4),
-          AKSDTM: perfYm.substring(4, 6),
+          AKSDYM: basicInfo.value.perfYm,
+          AKSDTY: basicInfo.value.perfYm.substring(0, 4),
+          AKSDTM: basicInfo.value.perfYm.substring(4, 6),
           AKDDTY: bfPerfYm.substring(0, 4),
           AKDDTM: bfPerfYm.substring(4, 6),
-          AKDCDE: prtnrNo,
+          AKDCDE: basicInfo.value.prtnrNo,
         },
       ),
     );
@@ -527,12 +518,12 @@ async function fetchData(type) {
 }
 
 async function onClickSearch() {
+  cachedParams = cloneDeep(searchParams.value);
   basicInfo.value = {};
   grdSellEtcRef.value.getData().clearRows();
   grdBsRef.value.getData().clearRows();
   grdFeeRef.value.getData().clearRows();
   grdPnpyamRef.value.getData().clearRows();
-  cachedParams = cloneDeep(searchParams.value);
   await fetchData('basic');
   await fetchData('selletcs');
   await fetchData('before-services');
@@ -541,11 +532,21 @@ async function onClickSearch() {
   await fetchData('pnpyam');
 }
 
-if (!isEmpty(prPerfYm) && !isEmpty(prprtnrNo)) {
-  searchParams.value.perfYm = prPerfYm;
-  searchParams.value.prtnrNo = prprtnrNo;
-  onClickSearch();
+function setParams() {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+
+    onClickSearch();
+  }
 }
+
+onActivated(() => {
+  if (!isEmpty(route.params)) { searchParams.value.perfYm = route.params.perfYm; } else { searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM'); }
+  nextTick(() => {
+    setParams();
+  });
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
