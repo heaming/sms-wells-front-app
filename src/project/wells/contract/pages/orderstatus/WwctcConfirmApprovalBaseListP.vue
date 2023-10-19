@@ -67,7 +67,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdConfirmRef"
-      :visible-rows="12"
+      :visible-rows="7"
       @init="initGrid"
     />
     <kw-separator
@@ -88,7 +88,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, getComponentType, useDataService, useModal, useGlobal, useMeta } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty, isEqual } from 'lodash-es';
 
 const dataService = useDataService();
