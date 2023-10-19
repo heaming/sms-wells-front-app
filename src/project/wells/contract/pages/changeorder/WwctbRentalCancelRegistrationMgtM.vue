@@ -853,10 +853,10 @@ async function onClickRequidation() {
     componentProps: {
       baseYm: dayjs().format('YYYYMM'), // 달력 초기 월
       chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
-      svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
-      sellDate: searchDetail.cntrCnfmDt, // // 판매일자
+      svDvCd: '3', // 1:설치, 2:BS, 3:AS, 4:홈케어
       svBizDclsfCd: '3420',
       mtrStatCd: '1',
+      sellDate: searchDetail.cntrCnfmDt,
       cntrNo: searchDetail.cntrNo,
       cntrSn: searchDetail.cntrSn,
     },
