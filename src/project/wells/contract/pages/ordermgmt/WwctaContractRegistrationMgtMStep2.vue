@@ -92,7 +92,7 @@ import ProductSelect
 import SinglePayPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
 import RentalPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelectNew.vue';
+  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
 import MembershipPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
 import RegularShippingPriceSelect
