@@ -487,6 +487,7 @@ const ozParam = ref({
 
 // 라벨출력
 async function onClickLabelPrint() {
+  const { width, height } = ozParam.value;
   const { strtDt, endDt, wareDvCd, gbYn, hgrWareNo, wareNo, itmPdCd, itmGrCd } = cachedParams;
 
   await openReportPopup(
@@ -502,7 +503,7 @@ async function onClickLabelPrint() {
       ITM_PD_CD: itmPdCd,
       ITM_GR_CD: itmGrCd,
     }),
-    { width: ozParam.width, height: ozParam.height },
+    { width, height },
   );
 }
 
@@ -554,7 +555,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'text',
         editable: true } },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-left' },
     { fieldName: 'ostrConfDt',
