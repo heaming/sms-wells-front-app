@@ -183,7 +183,7 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row
-              v-if="isHcr"
+              v-if="isHcr || sellEvCdsBySellChnlDtlCd"
             >
               <kw-form-item :label="'홈케어구분코드'">
                 <kw-select
@@ -197,6 +197,14 @@
                 />
               </kw-form-item>
             </kw-form-row>
+            <kw-form-item label="행사코드">
+              <kw-select
+                v-model="wellsDtl.sellEvCd"
+                :options="sellEvCdsBySellChnlDtlCd"
+                placeholder="행사코드"
+                dense
+              />
+            </kw-form-item>
           </kw-form>
         </kw-item-section>
       </kw-item>
@@ -227,7 +235,7 @@ const emit = defineEmits([
   'promotion-changed',
 ]);
 
-const { getCodeName } = await useCtCode(
+const { codes, getCodeName } = await useCtCode(
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
   'SPAY_DSC_DV_CD',
@@ -238,12 +246,37 @@ const { getCodeName } = await useCtCode(
   'SV_TP_CD',
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
+  'SELL_EV_CD',
 );
 const dataService = useDataService();
 
 const SELL_TP_DTL_CD_SPAY_NOM = '11';
 const SELL_TP_DTL_CD_SPAY_HCR = '12';
 const SELL_TP_DTL_CD_SPAY_ENVR_ELHM = '13';
+
+const sellEvCdsBySellChnlDtlCd = computed(() => {
+  const { sellInflwChnlDtlCd } = props.bas;
+
+  if (!sellInflwChnlDtlCd) {
+    console.error('판매유입채널이 없음?', props.bas);
+    return [];
+  }
+  if (!codes.SELL_EV_CD.length) { return []; }
+  const codeIds = [];
+
+  if (sellInflwChnlDtlCd === '1010') {
+    codeIds.push('5'); /* 라보판매 */
+  }
+  if (sellInflwChnlDtlCd === '5010') {
+    codeIds.push('8'); /* 총판판매 */
+    codeIds.push('9'); /* 이지웰페어 */
+  }
+  if (sellInflwChnlDtlCd === '9020') {
+    codeIds.push('H'); /* 해지방어 */
+    codeIds.push('I'); /* CAPTIVE */
+  }
+  return codes.SELL_EV_CD.filter((code) => codeIds.includes(code.codeId));
+});
 
 const dtl = ref(props.modelValue);
 const isHcr = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD_SPAY_HCR);
@@ -257,6 +290,7 @@ let pdPrcFnlDtlId;
 let verSn;
 let fnlAmt;
 let pdQty;
+let wellsDtl;
 let promotions;
 let appliedPromotions;
 
@@ -267,6 +301,8 @@ function connectReactivities() {
   pdQty = toRef(props.modelValue, 'pdQty', 1);
   promotions = ref(props.modelValue?.promotions, []); /* 적용가능한 프로모션 목록 */
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []);
+  wellsDtl = toRef(props.modelValue, 'wellsDtl');
+  wellsDtl.value ??= {};
   console.log('verSn', verSn.value);
 }
 

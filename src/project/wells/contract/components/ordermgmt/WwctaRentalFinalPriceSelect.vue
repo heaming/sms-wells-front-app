@@ -454,8 +454,6 @@ const RENTAL_DSC_TP_CD_USER_SELECTABLE = [
   RENTAL_DSC_TP_CD_SELF_PURCHASE_DSC,
 ];
 
-console.log('sellInflwChnlDtlCd', props.bas.sellInflwChnlDtlCd);
-
 const sellEvCdsBySellChnlDtlCd = computed(() => {
   const { sellInflwChnlDtlCd } = props.bas;
 
