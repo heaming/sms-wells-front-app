@@ -225,7 +225,6 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row
-              v-if="rentalCrpDscrCdSelectable || selectedFinalPrice"
               :cols="2"
             >
               <kw-form-item
