@@ -448,12 +448,12 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center', dataType: 'text' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center', dataType: 'text' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
     { fieldName: 'btdStocQty',
       header: t('MSG_TXT_BTD_STOC_QTY'),
-      width: '110',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -463,7 +463,7 @@ const initGrdMain = defineGrid((data, view) => {
     // 입고정보
     { fieldName: 'prchsQty',
       header: `${t('MSG_TXT_PRCHS')}${t('MSG_TXT_STR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -472,7 +472,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'nomStrQty',
       header: `${t('MSG_TXT_NOM')}${t('MSG_TXT_STR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -481,7 +481,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'qomAsnStrQty',
       header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_ASGN')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -490,7 +490,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'qomMmtStrQty',
       header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_MOVE')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -499,7 +499,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'rtngdStrInsiQty',
       header: t('MSG_TXT_INSI'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -508,7 +508,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'rtngdStrOtsdQty',
       header: t('MSG_TXT_OTSD'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -517,7 +517,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'etcStrQty',
       header: `${t('MSG_TXT_ETC')}${t('MSG_TXT_STR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -526,7 +526,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'strCtrQty',
       header: `${t('MSG_TXT_GD')}${t('MSG_TXT_CTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -535,7 +535,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'stocAcinspStrQty',
       header: t('MSG_TXT_STOC_ACINSP'),
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -543,18 +543,18 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0.##',
       } },
     // 출고정보
-    { fieldName: 'qomAsnOstrQty',
-      header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_ASGN')}`,
-      width: '100',
+    { fieldName: 'nomOstrQty',
+      header: `${t('MSG_TXT_NOM')}${t('MSG_TXT_OSTR')}`,
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
         numberFormat: '#,##0.##',
       } },
-    { fieldName: 'nomOstrQty',
-      header: `${t('MSG_TXT_NOM')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+    { fieldName: 'qomAsnOstrQty',
+      header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_ASGN')}`,
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -563,7 +563,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'qomMmtOstrQty',
       header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_MOVE')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -572,7 +572,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'rtngdOstrInsiQty',
       header: t('MSG_TXT_INSI'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -581,7 +581,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'rtngdOstrOtsdQty',
       header: t('MSG_TXT_OTSD'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -590,7 +590,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'sellOstrQty',
       header: `${t('MSG_TXT_SELL')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -599,7 +599,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'dsuOstrQty',
       header: `${t('MSG_TXT_DSCD')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -608,7 +608,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'wkOstrQty',
       header: `${t('MSG_TXT_OSTR_WK')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -617,7 +617,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'refrOstrQty',
       header: `${t('MSG_TXT_REFR')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -626,7 +626,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'etcOstrQty',
       header: `${t('MSG_TXT_ETC')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -635,7 +635,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'ostrCtrQty',
       header: `${t('MSG_TXT_GD')}${t('MSG_TXT_CTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -644,7 +644,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'stocAcinspQty',
       header: t('MSG_TXT_STOC_ACINSP'),
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -654,7 +654,7 @@ const initGrdMain = defineGrid((data, view) => {
     // 기말재고
     { fieldName: 'pitmStocQty',
       header: t('MSG_TXT_EOT_STOC_QTY'),
-      width: '110',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
