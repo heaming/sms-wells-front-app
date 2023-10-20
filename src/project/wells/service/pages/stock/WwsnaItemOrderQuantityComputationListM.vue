@@ -295,18 +295,12 @@ async function fetchData() {
 const isSearch = ref(true);
 // 조회버튼 클릭
 async function onClickSearch() {
-  const { itmKndCd, itmPdCds, itmPdCd, strtSapCd, endSapCd } = searchParams.value;
-
-  if (isEmpty(itmKndCd) && isEmpty(itmPdCds) && isEmpty(itmPdCd) && isEmpty(strtSapCd) && isEmpty(endSapCd)) {
-    // 품목구분, 품목코드, SAP코드 중 1개는 필수 입력입니다.
-    await alert(t('MSG_ALT_REQ_INPUT_ITM_SAPCD'));
-    return;
-  }
+  cachedParams = cloneDeep(searchParams.value);
 
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
-  cachedParams = cloneDeep(searchParams.value);
+
   isSearch.value = false;
   // 필드 설정
   setTmpFields();

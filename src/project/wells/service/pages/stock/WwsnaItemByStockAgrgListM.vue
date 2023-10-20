@@ -329,7 +329,7 @@ async function getWareHouseList() {
         dataType: 'number',
         footer: {
           expression: 'sum',
-          numberFormat: '#,##0.##',
+          numberFormat: '#,##0',
         },
       })),
     );
@@ -392,7 +392,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'leadTime', header: t('TXT_MSG_AS_LDTM'), width: '100', styleName: 'text-right' }, // 리드타임
     { fieldName: 'moq', header: t('MSG_TXT_MOQ'), width: '100', styleName: 'text-right' }, // MOQ
@@ -404,7 +404,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qty100008', // 교원성수
       header: `${t('MSG_TXT_KW')}${t('MSG_TXT_SEONG_SU')}`,
@@ -413,7 +413,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qty200000', // 서비스센터
       header: t('MSG_TXT_SV_CNR'),
@@ -422,7 +422,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qty299999', // 엔지니어
       header: t('MSG_TXT_EGER'),
@@ -431,7 +431,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qty300000', // 영업센터
       header: t('MSG_TXT_BSNS_CNTR'),
@@ -440,7 +440,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qty999999', // 계
       header: t('MSG_TXT_AGG'),
@@ -449,7 +449,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
   ],
 
