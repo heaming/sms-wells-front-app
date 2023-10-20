@@ -97,7 +97,7 @@ async function onClickCancel() {
 async function onClickSave() {
   if (!await confirm(t('MSG_ALT_AGRG'))) { return; }
   // params.value.perfAgrgCrtDvCd = params.value.ogTpCd === 'W02' ? '201' : '301';
-  const response = await dataService.post('/sms/wells/fee/bs-fees', params.value, { timeout: 500000 });
+  const response = await dataService.post('/sms/wells/fee/bs-fees', params.value, { timeout: 600000 });
   ok(true);
   if (response.data === 'Ended OK') notify(t('MSG_ALT_AGRG_FSH')); // 집계 되었습니다.
   else if (response.data === 'Ended Not OK') notify(t('MSG_ALT_AGRG_FAIL')); // 집계가 실패 되었습니다.
