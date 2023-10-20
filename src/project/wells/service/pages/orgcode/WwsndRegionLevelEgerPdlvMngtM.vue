@@ -31,11 +31,11 @@
         <!--서비스센터-->
         <kw-search-item :label="$t('MSG_TXT_SV_CNR')">
           <kw-select
-            v-model="searchParams.ogId"
+            v-model="searchParams.ogCd"
             :options="svcCode"
             first-option="all"
             option-label="ogNm"
-            option-value="ogId"
+            option-value="ogCd"
           />
         </kw-search-item>
         <!-- 승인여부 -->
@@ -132,7 +132,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, useMeta, getComponentType, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, useMeta, getComponentType, useGlobal, gridUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -161,7 +161,6 @@ if (pdlvList) {
       pdlvNo: data.pdlvNo,
       pdlvNm: data.pdlvNm,
       pdlvAdd: data.pdlvAdd,
-      pdlvKey: data.pdlvKey,
     });
   });
 }
@@ -173,7 +172,7 @@ console.log('pdlvRef >>>', pdlvRef);
 let cachedParams;
 const searchParams = ref({
   inqrDt: dayjs().format('YYYYMMDD'),
-  ogId: '',
+  ogCd: '',
   fnitAprRsCd: 'Y',
 });
 
@@ -196,54 +195,63 @@ async function fetchData() {
   view.resetCurrent();
 }
 
+// 조회
 async function onClickSearch() {
   console.log('onClickSearch START =========');
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 저장
 async function onClickSave() {
   console.log('onClickSave START =========');
-  await notify(t('작업 예정'));
+  const view = grdRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+
+  const changedRows = gridUtil.getChangedRowValues(view);
+  console.log('onClickSave changedRows >>>', changedRows);
+
+  await dataService.put('/sms/wells/service/wsnd-rglvl-eger-pdlv-mngt/save', changedRows);
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await onClickSearch();
 }
 
+// 승인
 async function onClickAppr() {
   console.log('onClickAppr START =========');
-  await notify(t('작업 예정'));
+  const view = grdRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+
+  const changedRows = gridUtil.getChangedRowValues(view);
+  console.log('onClickAppr changedRows >>>', changedRows);
+
+  await dataService.put('/sms/wells/service/wsnd-rglvl-eger-pdlv-mngt/approval', changedRows);
+  notify(t('MSG_ALT_APPROVED'));
+  await onClickSearch();
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/service/wsnd-rglvl-eger-pdlv-mngt/excel-download', searchParams.value);
   console.log('res.data >>>>>>', res.data);
 }
 
+// async function isEditable(grid, dataCell) {
+
+// }
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
-  const fields = [
-    { fieldName: 'cnrOgId' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'pdlvNm' },
-    { fieldName: 'pdlvAdr' },
-    { fieldName: 'bstrPdlvNm' },
-    { fieldName: 'bstrPdlvAdr' },
-    { fieldName: 'apyStrtdt', dataType: 'date' },
-    { fieldName: 'apyEnddt', dataType: 'date' },
-    { fieldName: 'apr' },
-    { fieldName: 'aprTeamNm' },
-    { fieldName: 'aprPrtnrNo' },
-    { fieldName: 'aprPrtnrKnm' },
-    { fieldName: 'bstrRson' },
-  ];
-
   const columns = [
-    { fieldName: 'cnrOgId', header: t('MSG_TXT_SV_CNR'), width: '130', styleName: 'text-center', editable: false }, // 서비스센터..센터조직ID
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '140', styleName: 'text-center', editable: false }, // 사번
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '140', styleName: 'text-center', editable: false }, // 성명
+    { fieldName: 'deptNm', header: t('MSG_TXT_SV_CNR'), width: '130', styleName: 'text-center', editable: false }, // 서비스센터..센터조직ID
+    { fieldName: 'empId', header: t('MSG_TXT_EPNO'), width: '140', styleName: 'text-center', editable: false }, // 사번
+    { fieldName: 'empNm', header: t('MSG_TXT_EMPL_NM'), width: '140', styleName: 'text-center', editable: false }, // 성명
     {
-      fieldName: 'pdlvNm',
+      fieldName: 'bsNm',
       header: t('기본출고지'),
       width: '170',
       styleName: 'text-center',
@@ -251,12 +259,22 @@ function initGrid(data, view) {
         type: 'list',
       },
       options: pdlvRef.value,
-      optionValue: 'pdlvKey',
+      optionValue: 'pdlvNo',
       optionLabel: 'pdlvNm',
+      styleCallback(grid, dataCell) {
+        const ret = {};
+        const { cfrmYn, aprPrtnrNo } = grid.getValues(dataCell.index.itemIndex);
+        if (cfrmYn === 'Y' && aprPrtnrNo) {
+          ret.editable = false;
+        } else {
+          ret.editable = true;
+        }
+        return ret;
+      },
     }, // 기본출고지
-    { fieldName: 'pdlvAdr', header: t('기본출고지 주소'), width: '190', styleName: 'text-center', editable: false },
+    { fieldName: 'bsAdd', header: t('기본출고지 주소'), width: '190', styleName: 'text-center', editable: false },
     { // 출장출고지
-      fieldName: 'bstrPdlvNm',
+      fieldName: 'mvNm',
       header: t('출장출고지'),
       width: '190',
       styleName: 'text-center',
@@ -264,14 +282,12 @@ function initGrid(data, view) {
         type: 'list',
       },
       options: pdlvRef.value,
-      optionValue: 'pdlvKey',
+      optionValue: 'pdlvNo',
       optionLabel: 'pdlvNm',
       styleCallback(grid, dataCell) {
         const ret = {};
-        const checkYn = grid.getValue(dataCell.index.itemIndex, 'apr');
-        const checkAprPrtnrNo = grid.getValue(dataCell.index.itemIndex, 'aprPrtnrNo');
-        console.log('checkYn >>>>>>>>', checkYn);
-        if (checkYn === 'Y' && !isEmpty(checkAprPrtnrNo)) {
+        const { cfrmYn, aprPrtnrNo } = grid.getValues(dataCell.index.itemIndex);
+        if (cfrmYn === 'Y' && aprPrtnrNo) {
           ret.editable = false;
         } else {
           ret.editable = true;
@@ -279,46 +295,82 @@ function initGrid(data, view) {
         return ret;
       },
     },
-    { fieldName: 'bstrPdlvAdr', header: t('출장출고지 주소'), width: '190', styleName: 'text-center', editable: false },
+    { fieldName: 'mvAdd', header: t('출장출고지 주소'), width: '190', styleName: 'text-center', editable: false },
     { // 적용시작일
-      fieldName: 'apyStrtdt',
+      fieldName: 'apldFr',
       header: {
-        text: t('MSG_TXT_APY_STRT_DAY'), // 적용시작일
+        text: t('MSG_TXT_APY_STRT_DAY'),
       },
       width: '150',
+      dataType: 'date',
       editor: {
         type: 'btdate',
       },
       datetimeFormat: 'date',
       styleName: 'text-center',
+      styleCallback(grid, dataCell) {
+        const ret = {};
+        const { cfrmYn, aprPrtnrNo } = grid.getValues(dataCell.index.itemIndex);
+        if (cfrmYn === 'Y' && aprPrtnrNo) {
+          ret.editable = false;
+        } else {
+          ret.editable = true;
+        }
+        return ret;
+      },
     },
     { // 적용종료일
-      fieldName: 'apyEnddt',
+      fieldName: 'apldTo',
       header: {
-        text: t('MSG_TXT_APY_END_DAY'), // 적용종료일
+        text: t('MSG_TXT_APY_END_DAY'),
       },
       width: '150',
+      dataType: 'date',
       editor: {
         type: 'btdate',
       },
       datetimeFormat: 'date',
       styleName: 'text-center',
+      styleCallback(grid, dataCell) {
+        const ret = {};
+        const { cfrmYn, aprPrtnrNo } = grid.getValues(dataCell.index.itemIndex);
+        if (cfrmYn === 'Y' && aprPrtnrNo) {
+          ret.editable = false;
+        } else {
+          ret.editable = true;
+        }
+        return ret;
+      },
     },
     { // 승인
-      fieldName: 'apr',
+      fieldName: 'cfrmYn',
       header: t('MSG_TXT_APPR'),
       width: '50',
       styleName: 'text-center',
       renderer: { type: 'check', trueValues: 'Y' },
       editable: false,
+      styleCallback(grid, dataCell) {
+        // const ret = {};
+        const { cfrmYn } = grid.getValues(dataCell.index.itemIndex);
+        console.log('cfrmYn >>>', cfrmYn);
+        // return ret;
+      },
     },
-    { fieldName: 'aprTeamNm', header: '승인팀명', width: '100', styleName: 'text-center', editable: false }, // 승인팀명
+    { fieldName: 'cfrmEmpDeptNm', header: '승인팀명', width: '100', styleName: 'text-center', editable: false }, // 승인팀명
     { fieldName: 'aprPrtnrNo', header: '승인자사번', width: '80', styleName: 'text-center', editable: false }, // 승인자사번
-    { fieldName: 'aprPrtnrKnm', header: '승인자성명', width: '100', styleName: 'text-center', editable: false }, // 승인자성명
-    { fieldName: 'bstrRson', header: '출장사유', width: '200', styleName: 'text-center', editable: false }, // 출장사유
+    { fieldName: 'cfrmEmpNm', header: '승인자성명', width: '100', styleName: 'text-center', editable: false }, // 승인자성명
+    { fieldName: 'bstrRsonCn', header: '출장사유', width: '200', styleName: 'text-center', editable: false }, // 출장사유
+    { fieldName: 'chk', visible: false }, // 체크박스
+    { fieldName: 'aprDt', visible: false }, // 승인일자
+    { fieldName: 'aprHh', visible: false }, // 승인시간
+    { fieldName: 'basicShpCd', visible: false }, // 기본출고지번호
+    { fieldName: 'basicShp', visible: false }, // 기본출고지번호
+    { fieldName: 'mvShpCd', visible: false }, // 출장출고지번호
+    { fieldName: 'mngtSn', visible: false }, // 관리일련번호
+    { fieldName: 'egerPrtnrOgTpCd', visible: false }, // 엔지니어파트너조직유형코드
   ];
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
 
   view.editOptions.editable = true;
@@ -326,24 +378,39 @@ function initGrid(data, view) {
   view.rowIndicator.visible = true;
 
   view.onGetEditValue = (grd, idx, editResult) => {
-    if (idx.fieldName === 'apyStrtdt') {
+    // 적용시작일 변경시
+    if (idx.fieldName === 'apldFr') {
       console.log('idx >>>', idx);
       console.log('editResult.value >>>', editResult.value);
       grd.checkItem(idx.itemIndex, true);
-      grd.setValue(idx.dataRow, 'apyStrtdt', editResult.value);
+      grd.setValue(idx.dataRow, 'apldFr', editResult.value);
     }
-    if (idx.fieldName === 'apyEnddt') {
+    // 적용종료일 변경시
+    if (idx.fieldName === 'apldTo') {
       grd.checkItem(idx.itemIndex, true);
-      grd.setValue(idx.dataRow, 'apyEnddt', editResult.value);
+      grd.setValue(idx.dataRow, 'apldTo', editResult.value);
     }
-    if (idx.fieldName === 'pdlvNm') {
+    // 기본출고지
+    if (idx.fieldName === 'bsNm') {
       grd.checkItem(idx.itemIndex, true);
-      grd.setValue(idx.dataRow, 'pdlvAdr', pdlvRef.value.filter((v) => v.pdlvKey === editResult.value)[0].pdlvAdd);
+      grd.setValue(idx.dataRow, 'bsAdd', pdlvRef.value.filter((v) => v.pdlvNo === editResult.value)[0].pdlvAdd);
+      grd.setValue(idx.dataRow, 'basicShpCd', editResult.value);
     }
-    if (idx.fieldName === 'bstrPdlvNm') {
+    // 출장출고지
+    if (idx.fieldName === 'mvNm') {
       grd.checkItem(idx.itemIndex, true);
-      grd.setValue(idx.dataRow, 'bstrPdlvAdr', pdlvRef.value.filter((v) => v.pdlvKey === editResult.value)[0].pdlvAdd);
+      grd.setValue(idx.dataRow, 'mvAdd', pdlvRef.value.filter((v) => v.pdlvNo === editResult.value)[0].pdlvAdd);
+      grd.setValue(idx.dataRow, 'mvShpCd', editResult.value);
     }
+  };
+
+  view.onCellEditable = (g, { column, itemIndex }) => {
+    console.log('cfrmYn >>>>', g.getValues(itemIndex).cfrmYn);
+    console.log('aprPrtnrNo >>>>', g.getValues(itemIndex).aprPrtnrNo);
+    if (column === 'cfrmYn' && g.getValues(itemIndex).cfrmYn === 'Y' && !isEmpty(g.getValues(itemIndex).aprPrtnrNo)) {
+      return false;
+    }
+    return true;
   };
 }
 </script>

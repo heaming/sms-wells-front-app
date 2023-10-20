@@ -245,14 +245,14 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
   const columns = [
-    { // 구분
-      fieldName: 'dddp',
-      header: t('MSG_TXT_DIV'),
-      width: '64',
-      styleName: 'text-center',
-    },
+    // { // 구분
+    //   fieldName: 'dddp',
+    //   header: t('MSG_TXT_DIV'),
+    //   width: '64',
+    //   styleName: 'text-center',
+    // },
     { // 소속
-      fieldName: 'heldt',
+      fieldName: 'dddp',
       header: t('MSG_TXT_BLG'),
       width: '110',
       styleName: 'text-center',
@@ -264,7 +264,7 @@ function initGrid(data, view) {
       styleName: 'text-left',
     },
     { // 계정수
-      fieldName: 'mct1',
+      fieldName: 'wrkCnt',
       header: t('MSG_TXT_ACC_N'),
       width: '120',
       styleName: 'text-right',
@@ -276,7 +276,7 @@ function initGrid(data, view) {
       },
     },
     { // 정상
-      fieldName: 'mct2',
+      fieldName: 'ncnt',
       header: t('MSG_TXT_NOM'),
       width: '120',
       styleName: 'text-right',
@@ -299,9 +299,9 @@ function initGrid(data, view) {
         expression: 'sum',
       },
     },
-    { // W1급지
+    { // W2급지
       fieldName: 'w2ct',
-      header: `W1${t('MSG_TXT_RGLVL')}`,
+      header: `W2${t('MSG_TXT_RGLVL')}`,
       width: '120',
       styleName: 'text-right',
       dataType: 'number',
@@ -348,7 +348,7 @@ function initGrid(data, view) {
       },
     },
     { // 환산계
-      fieldName: 'wrkCnt',
+      fieldName: 'hacc',
       header: t('환산계'),
       width: '120',
       styleName: 'text-right',
@@ -390,11 +390,12 @@ function initGrid(data, view) {
   view.rowIndicator.visible = false;
 
   view.setColumnLayout([
-    'dddp', 'heldt', 'dbna', 'mct1', // single
+    // 'dddp', 'heldt', 'dbna', 'mct1', // single
+    'dddp', 'dbna', 'wrkCnt', // single
     {
       header: '급지현황', // colspan title
       direction: 'horizontal', // merge type
-      items: ['mct2', 'w1ct', 'w2ct', 'wacc', 'ecnt', 'wper', 'wrkCnt', 'hper'],
+      items: ['ncnt', 'w1ct', 'w2ct', 'wacc', 'ecnt', 'wper', 'hacc', 'hper'],
     },
   ]);
 }
