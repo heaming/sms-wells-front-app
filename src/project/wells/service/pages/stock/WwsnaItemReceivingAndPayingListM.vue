@@ -664,6 +664,10 @@ const initGrdMain = defineGrid((data, view) => {
   view.setOptions({ summaryMode: 'aggregate' });
 
   view.rowIndicator.visible = true;
+
+  view.setFixedOptions({
+    colCount: 3,
+  });
 });
 
 </script>
