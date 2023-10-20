@@ -654,6 +654,7 @@ async function getIndividualServicePs() {
   saveParams.value.cstUnuitmCn = '';
 }
 
+/* 개인별 방문주기 조회 버튼 */
 async function onClickVisitPeriodSearch() {
   await modal({
     component: 'WwsnbIndividualVisitPeriodInqrListP',
@@ -666,6 +667,7 @@ async function onClickVisitPeriodSearch() {
     },
   });
 }
+/* 개인별 방문주기 생성 버튼 */
 async function onClickVisitPeriodCreate() {
   await modal({
     component: 'WwsnbIndividualVisitPeriodMgtP',
@@ -675,6 +677,7 @@ async function onClickVisitPeriodCreate() {
     },
   });
 }
+/* 가구화 ==> 모종이력 버튼 */
 async function onClickSearchSeeding() {
   await modal({
     component: 'WwsncSeedingDeliveryListP',
@@ -1044,12 +1047,13 @@ const initGridState = defineGrid((data, view) => {
         // const queryString = new URLSearchParams(param);
 
         let url = '';
-        if (import.meta.env.MODE === 'qa') {
+        if (import.meta.env.MODE === 'dev') {
+          url = 'https://d-m-wpm.kyowon.co.kr';
+        } else if (import.meta.env.MODE === 'qa') {
           url = 'https://q-m-wpm.kyowon.co.kr';
         } else {
           url = 'https://m-wpm.kyowon.co.kr';
         }
-
         // window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
         popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
       }
