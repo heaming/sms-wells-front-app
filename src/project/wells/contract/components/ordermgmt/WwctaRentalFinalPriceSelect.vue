@@ -769,7 +769,9 @@ async function fetchFinalPriceOptions() {
   }
   finalPriceOptions.value = data || [];
 
-  await fetchAllianceContracts();
+  if (props.bas?.cntrTpCd !== '09') { // 견적서 아닐 때
+    await fetchAllianceContracts();
+  }
 }
 
 function initPriceDefineVariables() {
