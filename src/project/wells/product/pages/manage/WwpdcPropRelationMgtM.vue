@@ -58,11 +58,11 @@ import { codeUtil, useGlobal, defineGrid, getComponentType, gridUtil, stringUtil
 import { isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { getOverPeriodByRelProd, getGridRowCount, onCellEditRelProdPeriod } from '~sms-common/product/utils/pdUtil';
+import { getOverPeriodByRelProd, getGridRowCount, onCellEditRelProdPeriod, setPdGridRows } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
-  validateProps, getSaveData, isModifiedProps, resetData,
+  validateProps, getSaveData, isModifiedProps, resetData, init,
 });
 
 const { t } = useI18n();
@@ -94,8 +94,18 @@ async function checkGrdDataCount() {
   totalCount.value = rowValues.length;
 }
 
+// 데이터 초기화
 async function resetData() {
-  // TODO Grid 에서 초기화버튼 기능을 어떻게 정의할지 확인필요.
+  initLoadData.value = {};
+  if (grdMainRef.value?.getView()) {
+    gridUtil.reset(grdMainRef.value.getView());
+  }
+}
+
+// 컴포넌트 초기화
+async function init() {
+  const view = grdMainRef.value?.getView();
+  if (view) await gridUtil.init(view);
 }
 
 async function fetchData() {
@@ -313,8 +323,12 @@ async function setData(newInitData) {
     initLoadData.value = props.initData[pdConst.TBL_PD_REL];
     if (isEmpty(initLoadData.value)) return;
 
-    const grd1DataProvider = grdMainRef.value.getView().getDataSource();
-    grd1DataProvider.fillJsonData(initLoadData.value, { fillMode: 'set' });
+    // const grd1DataProvider = grdMainRef.value.getView().getDataSource();
+    // grd1DataProvider.fillJsonData(initLoadData.value, { fillMode: 'set' });
+    const view = grdMainRef.value?.getView();
+    if (view) {
+      await setPdGridRows(view, initLoadData.value, pdConst.REL_PD_ID, [], true);
+    }
     await checkGrdDataCount();
   }
 }
