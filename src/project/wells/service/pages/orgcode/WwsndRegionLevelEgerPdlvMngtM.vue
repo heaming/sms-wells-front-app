@@ -139,6 +139,7 @@ import dayjs from 'dayjs';
 const { t } = useI18n();
 const { notify } = useGlobal();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 
 const dataService = useDataService();
 
@@ -186,7 +187,6 @@ const grdRef = ref(getComponentType('KwGrid'));
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/wsnd-rglvl-eger-pdlv-mngt/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  console.log('res.data >>>>', res.data);
   const { list, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
@@ -210,7 +210,6 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  console.log('onClickSave changedRows >>>', changedRows);
 
   await dataService.put('/sms/wells/service/wsnd-rglvl-eger-pdlv-mngt/save', changedRows);
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -234,13 +233,15 @@ async function onClickAppr() {
 
 // 엑셀다운로드
 async function onClickExcelDownload() {
-  const res = await dataService.get('/sms/wells/service/wsnd-rglvl-eger-pdlv-mngt/excel-download', searchParams.value);
-  console.log('res.data >>>>>>', res.data);
+  const view = grdRef.value.getView();
+  const res = await dataService.get('/sms/wells/service/wsnd-rglvl-eger-pdlv-mngt/excel-download', { params: cachedParams });
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
-
-// async function isEditable(grid, dataCell) {
-
-// }
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -380,8 +381,6 @@ function initGrid(data, view) {
   view.onGetEditValue = (grd, idx, editResult) => {
     // 적용시작일 변경시
     if (idx.fieldName === 'apldFr') {
-      console.log('idx >>>', idx);
-      console.log('editResult.value >>>', editResult.value);
       grd.checkItem(idx.itemIndex, true);
       grd.setValue(idx.dataRow, 'apldFr', editResult.value);
     }
@@ -405,8 +404,7 @@ function initGrid(data, view) {
   };
 
   view.onCellEditable = (g, { column, itemIndex }) => {
-    console.log('cfrmYn >>>>', g.getValues(itemIndex).cfrmYn);
-    console.log('aprPrtnrNo >>>>', g.getValues(itemIndex).aprPrtnrNo);
+    // 승인여부 Y 이면서 승인자 사번이 있으면 승인 수정 불가
     if (column === 'cfrmYn' && g.getValues(itemIndex).cfrmYn === 'Y' && !isEmpty(g.getValues(itemIndex).aprPrtnrNo)) {
       return false;
     }
