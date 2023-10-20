@@ -22,7 +22,6 @@
           <kw-date-picker
             v-model="searchParams.mngtYm"
             type="month"
-            @change="getBldCode"
           />
         </kw-search-item>
         <kw-search-item
@@ -223,7 +222,7 @@ async function getItems() {
 }
 
 async function getBldCode() {
-  const res = await dataService.get(`/sms/wells/service/newmanager-bsconsumables/building-code/${searchParams.value.mngtYm}`);
+  const res = await dataService.get('/sms/wells/service/newmanager-bsconsumables/building-code');
   const codeData = res.data;
 
   bldCode.value = codeData.map((v) => ({ codeId: v.bldCd, codeName: v.bldNm }));

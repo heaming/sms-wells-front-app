@@ -218,7 +218,7 @@ async function getItems() {
 }
 
 async function getBldCode() {
-  const res = await dataService.get(`/sms/wells/service/building-bsconsumables/building-code/${searchParams.value.mngtYm}`);
+  const res = await dataService.get('/sms/wells/service/building-bsconsumables/building-code');
   const codeData = res.data;
 
   bldCode.value = codeData.map((v) => ({ codeId: v.bldCd, codeName: v.bldNm }));
