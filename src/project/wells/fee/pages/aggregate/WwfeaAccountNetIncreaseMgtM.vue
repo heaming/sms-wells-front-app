@@ -59,6 +59,7 @@
             :options="codes.MNGER_OG_CNTR_CAN_TP_CD"
             first-option
             :first-option-label="$t('MSG_TXT_ALL')"
+            first-option-value="ALL"
           />
         </kw-search-item>
 
@@ -72,6 +73,7 @@
             :options="codes.MNGER_OG_CNTR_CAN_TP_CD.filter((v) => ['01', '02'].includes(v.codeId))"
             first-option
             :first-option-label="$t('MSG_TXT_ALL')"
+            first-option-value="ALL"
           />
         </kw-search-item>
 
