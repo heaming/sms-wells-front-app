@@ -358,7 +358,8 @@ async function goList() {
 
 // 삭제
 async function onClickDelete() {
-  if (await confirm(t('MSG_ALT_WANT_DEL_WCC'))) {
+  const deleteConfirmMsg = `[${t('MSG_TXT_STND_PRDT')}]${t('MSG_ALT_WANT_DEL_WCC')}`;
+  if (await confirm(deleteConfirmMsg)) {
     await dataService.delete(`/sms/wells/product/standards/${currentPdCd.value}`);
     await obsMainRef.value.reset();
     await router.close();
