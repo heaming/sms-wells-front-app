@@ -172,6 +172,7 @@ function onChangeAdrpcTpCd() {
   isAdrpcTpCd.value = searchParams.value.adrpcTpCd === '1';
 }
 
+// 엑셀 다운로드 버튼
 async function onClickExcelDownload(gridGb) {
   const view = gridGb === 'main' ? grdMainRef.value.getView() : grdSubRef.value.getView();
 
@@ -190,6 +191,7 @@ async function fetchData() {
   view.getDataSource().setRows(aggregates);
 }
 
+// 조회 버튼
 async function onClickSearch() {
   await fetchData();
 }
@@ -209,9 +211,9 @@ const initGrid1 = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'divCd', styleName: 'text-left', visible: false },
     { fieldName: 'divDtlCd', styleName: 'text-left', visible: false },
-    { fieldName: 'divCdNm', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-left' },
-    { fieldName: 'divDtlCdNm', header: t('MSG_TXT_DTL_DV'), width: '206', styleName: 'text-left' },
-    { fieldName: 'qty',
+    { fieldName: 'divCdNm', header: t('MSG_TXT_DIV'), width: '100', styleName: 'text-left' }, // 구분
+    { fieldName: 'divDtlCdNm', header: t('MSG_TXT_DTL_DV'), width: '206', styleName: 'text-left' }, // 상세구분
+    { fieldName: 'qty', // 수량
       header: t('MSG_TXT_QTY'),
       width: '80',
       styleName: 'text-right',
@@ -264,17 +266,17 @@ const initGrid2 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'divDtlCdNm', header: t('MSG_TXT_DTL_DV'), width: '144', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sapAssetNo', header: t('MSG_TXT_SAP_ORD_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '85', styleName: 'text-center' },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_ITM_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'matPdCd', header: t('MSG_TXT_RVPY_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '133', styleName: 'text-left' },
-    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'prtnrBzsNm', header: t('MSG_TXT_PRTNR_BZS_CD'), width: '120', styleName: 'text-center' },
+    { fieldName: 'divDtlCdNm', header: t('MSG_TXT_DTL_DV'), width: '144', styleName: 'text-center' }, // 상세구분
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '100', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'sapAssetNo', header: t('MSG_TXT_SAP_ORD_NO'), width: '140', styleName: 'text-center' }, // SAP주문번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '85', styleName: 'text-center' }, // 고객명
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_ITM_NO'), width: '150', styleName: 'text-center' }, // SAP품목번호
+    { fieldName: 'matPdCd', header: t('MSG_TXT_RVPY_CD'), width: '120', styleName: 'text-center' }, // 수불코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '133', styleName: 'text-left' }, // 제품명
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일자
+    { fieldName: 'cntrCanDtm', header: t('MSG_TXT_CANC_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일자
+    { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 철거일자
+    { fieldName: 'prtnrBzsNm', header: t('MSG_TXT_PRTNR_BZS_CD'), width: '120', styleName: 'text-center' }, // 파트너업체
 
   ];
 

@@ -382,6 +382,7 @@ function setBndBizDvCd(bndBizDvCd) {
   }
 }
 
+// 동일고객 계약 입금정보 조회
 async function fetchDeposits() {
   const { bndBizDvCd } = selectedGridRow.value;
   const res = await dataService.get('/sms/wells/bond/same-customer-contracts/deposits', { params: selectedGridRow.value });
@@ -397,6 +398,7 @@ async function fetchDeposits() {
   view.getDataSource().setRows(deposits);
 }
 
+// 동일고객 계약 입금정보 상세조회
 async function fetchDeposit() {
   const res = await dataService.get('/sms/wells/bond/same-customer-contracts/deposit', { params: selectedGridRow.value });
   deposit.value = res.data;
@@ -426,6 +428,7 @@ async function fetchDeposit() {
   await fetchDeposits();
 }
 
+// 동일고객 계약내역 조회
 async function fetchData() {
   setBndBizDvCd(props.bndBizDvCd);
   selectedGridRow.value = props;

@@ -172,16 +172,17 @@ async function fetchData() {
   const { sellTpCd } = searchParams.value;
   const view = sellTpCd === '1' ? grdMainRef.value.getView() : grdSubRef.value.getView();
   let res;
-  if (sellTpCd === '1') {
+  if (sellTpCd === '1') { // 렌탈
     res = await dataService.get('/sms/wells/closing/sales/rental', { params: cachedParams });
     totalMainCount.value = res.data.length;
-  } else if (sellTpCd === '2') {
+  } else if (sellTpCd === '2') { // 일시불/할부
     res = await dataService.get('/sms/wells/closing/sales/payment', { params: cachedParams });
     totalSubCount.value = res.data.length;
   }
   view.getDataSource().setRows(res.data);
 }
 
+// 조회 버튼
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   fetchData();
@@ -199,6 +200,7 @@ async function onChangeBusinessDivide() {
   }
 }
 
+// 엑셀 다운로드 버튼
 async function onClickExcelDownload(gridGb) {
   const view = gridGb === 'main' ? grdMainRef.value.getView() : grdSubRef.value.getView();
 
