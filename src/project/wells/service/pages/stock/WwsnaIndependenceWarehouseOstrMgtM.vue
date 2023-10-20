@@ -620,6 +620,9 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
+  // 셀 클릭시 row check를 막기
+  view.onCellClicked = () => false;
+
   view.onCellEditable = (grid, index) => {
     // 물류전송여부
     const lgstTrsYn = gridUtil.getCellValue(view, index.dataRow, 'lgstTrsYn');
