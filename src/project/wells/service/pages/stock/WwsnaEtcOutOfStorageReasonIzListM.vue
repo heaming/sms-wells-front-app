@@ -280,7 +280,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'csmrUprcAmt',
       header: t('MSG_TXT_CSPRC'),
@@ -288,7 +288,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'totalAmt',
       header: t('MSG_TXT_SUM_AMT'),
@@ -296,7 +296,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'deptNm', header: t('MSG_TXT_BIL_DEPARTMENT'), width: '140' },
     { fieldName: 'ostrRsonCd', header: t('MSG_TXT_BIL_RSON'), width: '140' },

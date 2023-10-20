@@ -499,7 +499,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'acinspQty',
@@ -509,7 +509,7 @@ const initGrdMain = defineGrid((data, view) => {
       editable: true,
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'minusQty',
@@ -518,7 +518,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'acinspRmkCn', header: t('MSG_TXT_NOTE'), width: '150', styleName: 'text-right', editable: true },
     { fieldName: 'cnfmdt', header: t('MSG_TXT_CNFM_DT'), width: '150', styleName: 'text-right', datetimeFormat: 'date' },
