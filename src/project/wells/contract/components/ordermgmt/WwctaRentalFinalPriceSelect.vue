@@ -269,9 +269,12 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row
-              v-if="alncCntrNms?.length || (filteredAlncCntrPriceCodes.length > 0)"
+              v-if="alncCntrNms?.length || (filteredAlncCntrPriceCodes.length > 0) || sellEvCdsBySellChnlDtlCd.length"
             >
-              <kw-form-item label="제휴 계약">
+              <kw-form-item
+                v-if="filteredAlncCntrPriceCodes.length"
+                label="제휴 계약"
+              >
                 <kw-select
                   v-model="alncCntrNms"
                   :options="filteredAlncCntrPriceCodes"
@@ -280,6 +283,14 @@
                   placeholder="제휴 계약"
                   dense
                   @change="onChangeAlncCntr"
+                />
+              </kw-form-item>
+              <kw-form-item label="행사코드">
+                <kw-select
+                  v-model="wellsDtl.sellEvCd"
+                  :options="sellEvCdsBySellChnlDtlCd"
+                  placeholder="행사코드"
+                  dense
                 />
               </kw-form-item>
             </kw-form-row>
@@ -394,7 +405,6 @@ import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
   bas: { type: Object, default: undefined },
-  dtl: { type: Object, default: undefined, validator: (obj) => isReactive(obj) },
 });
 const emit = defineEmits([
   'device-change',
@@ -406,7 +416,7 @@ const emit = defineEmits([
   'delete',
 ]);
 
-const { getCodeName } = await useCtCode(
+const { codes, getCodeName } = await useCtCode(
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
   'RENTAL_DSC_DV_CD',
@@ -418,7 +428,9 @@ const { getCodeName } = await useCtCode(
   'BFSVC_PRD_CD',
   'ALNCMP_CD',
   'CNTR_REL_DTL_CD',
+  'SELL_EV_CD',
 );
+
 const dataService = useDataService();
 
 const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
@@ -442,6 +454,30 @@ const RENTAL_DSC_TP_CD_USER_SELECTABLE = [
   RENTAL_DSC_TP_CD_SELF_PURCHASE_DSC,
 ];
 
+const sellEvCdsBySellChnlDtlCd = computed(() => {
+  const { sellInflwChnlDtlCd } = props.bas;
+
+  if (!sellInflwChnlDtlCd) {
+    console.error('판매유입채널이 없음?', props.bas);
+    return [];
+  }
+  if (!codes.SELL_EV_CD.length) { return []; }
+  const codeIds = [];
+
+  if (sellInflwChnlDtlCd === '1010') {
+    codeIds.push('5'); /* 라보판매 */
+  }
+  if (sellInflwChnlDtlCd === '5010') {
+    codeIds.push('8'); /* 총판판매 */
+    codeIds.push('9'); /* 이지웰페어 */
+  }
+  if (sellInflwChnlDtlCd === '9020') {
+    codeIds.push('H'); /* 해지방어 */
+    codeIds.push('I'); /* CAPTIVE */
+  }
+  return codes.SELL_EV_CD.filter((code) => codeIds.includes(code.codeId));
+});
+
 const dtl = ref(props.modelValue);
 
 /* 직간접적으로 업데이트 할 값들 */
@@ -458,6 +494,7 @@ let alncCntrNms;
 let finalPriceOptions;
 let priceOptionFilter;
 let packageRentalDscTpCds;
+let wellsDtl;
 
 function connectReactivities() {
   pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
@@ -473,6 +510,8 @@ function connectReactivities() {
   finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
   priceOptionFilter = toRef(props.modelValue, 'priceOptionFilter', {});
   packageRentalDscTpCds = toRef(props.modelValue, 'packageRentalDscTpCds', {});
+  wellsDtl = toRef(props.modelValue, 'wellsDtl');
+  wellsDtl.value ??= {};
   console.log('verSn', verSn.value);
 }
 
