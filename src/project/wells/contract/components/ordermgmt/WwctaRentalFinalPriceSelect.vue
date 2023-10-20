@@ -225,7 +225,6 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row
-              v-if="rentalCrpDscrCdSelectable || selectedFinalPrice"
               :cols="2"
             >
               <kw-form-item
@@ -242,8 +241,7 @@
                 />
               </kw-form-item>
               <kw-form-item
-                v-if="selectedFinalPrice"
-                :label="'무상개월 AS/BS'"
+                :label="'AS기간'"
               >
                 <kw-select
                   v-model="priceDefineVariables.asMcn"
