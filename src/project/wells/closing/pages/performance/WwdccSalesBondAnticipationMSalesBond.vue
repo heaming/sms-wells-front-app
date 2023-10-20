@@ -168,8 +168,6 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
     { fieldName: 'nomSlAmt', header: t('MSG_TXT_NOM_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출 - 정상매출
     { fieldName: 'canSlAmt', header: t('MSG_TXT_CAN_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 취소매출
     { fieldName: 'feeSlAmt', header: t('MSG_TXT_FEE_SL'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 수수료매출
-    { fieldName: 'boutNorSlAmt', header: t('MSG_TXT_GCF_NOM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 상품권정상
-    { fieldName: 'boutCanSlAmt', header: t('MSG_TXT_GCF_CAN'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 상품권취소
     { fieldName: 'totSlAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출 - 합계
 
     { fieldName: 'cntrDpAmt', header: t('MSG_TXT_CNTRAM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 매출대사 - 계약금
@@ -179,7 +177,6 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
     { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}(-)`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 대손
     { fieldName: 'totUcBlam', header: t('MSG_TXT_EOT_UC'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 기말미수
     { fieldName: 'crpUcAmt', header: t('MSG_TXT_CRP_UC'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 법인미수
-    { fieldName: 'boutDpAmt', header: t('MSG_TXT_GCF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 상품권
     { fieldName: 'etcDpAmt', header: t('MSG_TXT_ETC_PRPD_RPLC'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  기타선수대체
     { fieldName: 'interContNomSlAmt', header: t('MSG_TXT_IND_TRD_NOM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 사건거래정상
     { fieldName: 'interContCanSlAmt', header: t('MSG_TXT_IND_TRD_CAN'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 사건거래취소
@@ -204,7 +201,7 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
     {
       header: `${t('MSG_TXT_SL')}(+)`, /* 매출(+) */
       direction: 'horizontal',
-      items: ['nomSlAmt', 'canSlAmt', 'feeSlAmt', 'boutNorSlAmt', 'boutCanSlAmt', 'totSlAmt'],
+      items: ['nomSlAmt', 'canSlAmt', 'feeSlAmt', 'totSlAmt'],
     },
     {
       header: `${t('MSG_TXT_SL_CPRCNF')}(-)`, /* 매출대사(-) */
@@ -214,7 +211,6 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
     'dfaProcsAmt',
     'totUcBlam',
     'crpUcAmt',
-    'boutDpAmt',
     'etcDpAmt',
     'interContNomSlAmt',
     'interContCanSlAmt',
