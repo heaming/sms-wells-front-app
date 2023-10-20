@@ -357,8 +357,8 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
     { fieldName: 'basStocQty',
       header: t('MSG_TXT_BTD_STOC_QTY'),
@@ -604,8 +604,8 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columnLayout = [
-    'itmPdCd',
     'sapMatCd',
+    'itmPdCd',
     'itmPdNm',
     'basStocQty',
     { direction: 'horizontal',

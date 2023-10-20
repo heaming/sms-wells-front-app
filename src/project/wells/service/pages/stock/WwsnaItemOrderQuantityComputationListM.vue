@@ -343,9 +343,9 @@ fieldsObj = {
   // 그리드 공통컬럼
   defaultFields: [
     { fieldName: 'commGbNm', header: t('MSG_TXT_PRD_GRP'), width: '120', styleName: 'text-left', dataType: 'text' }, // 제품군
-    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' }, // SAP코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '200', styleName: 'text-center', dataType: 'text' }, // 품목코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left', dataType: 'text' }, // 품목명
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center', dataType: 'text' }, // SAP코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center', dataType: 'text' }, // 품목코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text' }, // 품목명
   ],
   // 기초재고 산출 - 재고현황
   stockFields: [
@@ -389,19 +389,19 @@ fieldsObj = {
   orderFields: [
     { fieldName: 'totGoQty', // 총 발주량
       header: t('MSG_TXT_TOT_GO_QT'),
-      width: '120',
+      width: '110',
       styleName: 'text-right',
       dataType: 'number',
     },
     { fieldName: 'moq', // MOQ
       header: t('MSG_TXT_MOQ'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       dataType: 'number',
     },
     { fieldName: 'leadTime', // L/T
       header: t('MSG_TXT_LEAD_TIME_SHORT'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       dataType: 'number',
     },
