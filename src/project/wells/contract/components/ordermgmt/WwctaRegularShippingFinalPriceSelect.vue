@@ -81,14 +81,14 @@
           />
           <kw-btn
             v-if="isSeeding"
-            :disable="dtl?.pdChoLmYn === 'N'"
+            :disable="!isFreePackage"
             label="모종선택"
             dense
             @click="$emit('select-seeding', modelValue)"
           />
           <kw-btn
             v-if="isCapsule"
-            :disable="dtl?.pdChoLmYn === 'N'"
+            :disable="!isFreePackage"
             label="캡슐선택"
             dense
             @click="$emit('select-capsule', modelValue)"
@@ -260,11 +260,7 @@ const isFreePackage = computed(() => dtl.value?.pdChoLmYn === 'Y'); // TODO FIX.
 
 /* TODO: FIX */
 async function fetchSdingCapsls() {
-  if (!isCapsule.value && !isCapsule.value) {
-    return;
-  }
-
-  if (isFreePackage.value) {
+  if (!isSeeding.value && !isCapsule.value) {
     return;
   }
 
@@ -276,7 +272,9 @@ async function fetchSdingCapsls() {
   sdingCapsls.value = data;
 }
 
-fetchSdingCapsls();
+if (!isFreePackage.value) {
+  fetchSdingCapsls();
+}
 
 const labelForSellTpCd = computed(() => {
   const product = dtl.value;

@@ -528,6 +528,7 @@ async function onClickSelSdingCapsl(dtl) {
     component: 'WwctaCapsuleSeedingChoiceP',
     componentProps: {
       basePdCd: dtl.pdCd,
+      sellTpDtlCd: dtl.sellTpDtlCd,
     },
   });
 
