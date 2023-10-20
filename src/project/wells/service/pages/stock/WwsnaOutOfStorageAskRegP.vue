@@ -353,6 +353,11 @@ function validateChangeCode() {
 
     // onChangeCode(searchParams.value.ostrAkTpCd);
   }
+  // 로그인한 사용자의 창고구분코드가 영업센터(3) 인경우 배차형태를 택배로 고정 후 disable처리
+  if (searchParams.value.strOjWareNo.substring(0, 1) === '3') {
+    searchParams.value.ovivTpCd = '01';
+    isOviv.value = true;
+  }
 }
 
 // 화면로드시 조회
