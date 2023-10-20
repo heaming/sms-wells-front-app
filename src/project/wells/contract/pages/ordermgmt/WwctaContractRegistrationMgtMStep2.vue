@@ -579,9 +579,7 @@ async function confirmProducts() {
   });
   const { data } = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, step2.value.dtls);
   data.forEach((newDtl, index) => {
-    console.log(newDtl);
     step2.value.dtls[index].promotions = newDtl.promotions;
-    console.log(step2.value.dtls[index]);
   });
   return true;
 }
@@ -678,7 +676,6 @@ onActivated(() => {
 });
 
 function onPriceChanged(item, price) {
-  console.log('onPriceChanged', item, price);
   item.finalPrice = price;
   emit('contract-modified');
 }
