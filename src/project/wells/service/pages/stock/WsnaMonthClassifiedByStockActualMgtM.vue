@@ -36,7 +36,7 @@
           v-model:options-ware-dv-cd="wareDvCd"
           v-model:ware-dv-cd="searchParams.wareDvCd"
           v-model:ware-no-m="searchParams.hgrWareNo"
-          v-model:ware-no-d="searchParams.wareNo"
+          v-model:ware-no-d="searchParams.searchWareNo"
           sub-first-option="all"
           :colspan="2"
           :label1="$t('MSG_TXT_WARE_DV')"
@@ -201,7 +201,7 @@ const searchParams = ref({
   wareDvCd: '2',
   hgrWareNo: '',
   wareDtlDvCd: '',
-  wareNo: '',
+  searchWareNo: '',
   useYn: '',
 });
 
@@ -242,14 +242,14 @@ function wareDtlDvCdFilter() {
 // 창고구분 변경 시
 function onChangeWareDvCd() {
   searchParams.value.hgrWareNo = '';
-  searchParams.value.wareNo = '';
+  searchParams.value.searchWareNo = '';
   // 창고상세구분 필터링
   wareDtlDvCdFilter();
 }
 
 // 상위창고 변경 시
 function onChagneHgrWareNo() {
-  searchParams.value.wareNo = '';
+  searchParams.value.searchWareNo = '';
 }
 
 await Promise.all([
@@ -349,7 +349,6 @@ async function onClickAcinspCnfm() {
   const currentMonth = searchParams.value.baseYm;
   if (await confirm(t('MSG_ALT_ACINSP_CNFM_MTR_CNFM', [currentMonth.substring(0, 4), currentMonth.substring(4, 6)]))) {
     params = searchParams.value;
-
     await dataService.post('/sms/wells/service/stock-acinp-rgst/acinsp-cnfm', checkedRows.map((v) => ({ ...v, ...params })));
 
     notify(t('MSG_ALT_SAVE_DATA'));
