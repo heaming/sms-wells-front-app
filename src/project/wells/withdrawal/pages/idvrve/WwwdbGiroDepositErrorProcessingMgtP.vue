@@ -208,7 +208,8 @@ const initGrid = defineGrid((data, view) => {
     },
 
     { fieldName: 'cstKnm',
-      header: '고객명',
+      header: t('MSG_TXT_CST_NM'),
+      // header: '고객명',
       width: '120',
       styleName: 'text-left',
       editable: false },

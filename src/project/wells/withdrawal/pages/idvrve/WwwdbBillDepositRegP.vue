@@ -442,7 +442,7 @@ async function onClickSave() {
   // console.log(dpSubAmt);
 
   if (dpAmt !== dpSubAmt) {
-    await alert('상세정보 입금액과 상세현황 입금액이 다릅니다.');
+    await alert(t('MSG_ALT_DTL_INF_DP_AMT_GAP')); // 상세정보 입금액과 상세현황 입금액이 다릅니다.
     return;
   }
 

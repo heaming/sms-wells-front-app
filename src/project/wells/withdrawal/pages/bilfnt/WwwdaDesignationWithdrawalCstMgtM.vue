@@ -350,7 +350,7 @@ const initGrid = defineGrid((data, view) => {
         },
         datetimeFormat: 'yyyy-MM',
         mask: {
-          placeHolder: '선택',
+          placeHolder: t('MSG_TXT_SELT'), // 선택
         },
       },
       rules: 'required',
