@@ -718,15 +718,21 @@ function onPriceChanged(item, price) {
         visibility: visible;
         content: "";
         position: absolute;
-        inset: 10px;
-        top: 50%;
-        width: 6px;
-        height: 20px;
-        border-right: 2px solid $line-line;
-        border-left: 2px solid $line-line;
+        inset: 0;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 8px 30px;
+        background-image:
+          linear-gradient(
+            90deg,
+            $line-line,
+            transparent,
+            $line-line,
+          );
       }
 
-      &:hover {
+      &:hover,
+      &:focus-within {
         visibility: visible;
         width: 339px;
         background: $bg-white;
