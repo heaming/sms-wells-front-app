@@ -142,11 +142,8 @@
                 {{ stringUtil.getDateFormat(searchDetail.stplEnddt) }}
               </p>
             </kw-form-item>
-            <!--계약총액-->
-            <kw-form-item
-              :label="$t('MSG_TXT_CNTRCT_AMT')"
-              hint="=렌탈총액"
-            >
+            <!--계약총액 (mapping : 렌탈총액)-->
+            <kw-form-item :label="$t('MSG_TXT_CNTRCT_AMT')">
               <p>{{ stringUtil.getNumberWithComma(searchDetail.cntrTam??'') }}</p>
             </kw-form-item>
           </kw-form-row>
@@ -298,11 +295,8 @@
                 {{ stringUtil.getNumberWithComma(searchDetail.thmDlqAddRfndSumAmt??'') }}
               </p>
             </kw-form-item>
-            <!-- row5 가산금조정 -->
-            <kw-form-item
-              :label="$t('MSG_TXT_ADD_AM')+$t('MSG_TXT_CTR')"
-              hint="null"
-            >
+            <!-- row5 가산금조정 (mapping : null) -->
+            <kw-form-item :label="$t('MSG_TXT_ADD_AM')+$t('MSG_TXT_CTR')">
               <kw-input
                 v-model="searchDetail.adCtrAmt"
                 regex="num"
@@ -370,18 +364,12 @@
 
     <kw-separator />
     <kw-form-row>
-      <!-- row2 이월선납잔액 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_CRDOVR')+$t('MSG_TXT_PRM_BLAM')"
-        hint="선납잔액기말금액?prmBtdAmt"
-      >
+      <!-- row2 이월선납잔액 (mapping : 선납잔액기말금액?prmBtdAmt)-->
+      <kw-form-item :label="$t('MSG_TXT_CRDOVR')+$t('MSG_TXT_PRM_BLAM')">
         <p>{{ stringUtil.getNumberWithComma(searchDetail.prmBtdAmt??'') }}</p>
       </kw-form-item>
-      <!-- row2 이월선수잔액 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_CRDOVR')+$t('MSG_TXT_PRPD_BLAM')"
-        hint="기말선수금?eotAtam"
-      >
+      <!-- row2 이월선수잔액 (mapping : 기말선수금?eotAtam)-->
+      <kw-form-item :label="$t('MSG_TXT_CRDOVR')+$t('MSG_TXT_PRPD_BLAM')">
         <p>{{ stringUtil.getNumberWithComma(searchDetail.eotAtam??'') }}</p>
       </kw-form-item>
       <!-- row2 선수총액 -->

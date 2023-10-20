@@ -161,7 +161,7 @@ const initSubGrid = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '147', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTR_CST_NM'), width: '135', class: 'p-pre-line' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTR_CST_NM'), width: '135', styleName: 'text-center' },
     { fieldName: 'cstGdNm', header: t('MSG_TXT_CST_GRD'), width: '94', styleName: 'text-center' },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_INST_CST_NM'), width: '135', styleName: 'text-center' },
     { fieldName: 'adr', header: t('MSG_TXT_INST_ADDR'), width: '482', styleName: 'text-left' },
@@ -179,8 +179,3 @@ const initSubGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
 });
 </script>
-<style lang="scss" scoped>
-.p-pre-line {
-  white-space: pre-line;
-}
-</style>
