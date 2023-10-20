@@ -278,7 +278,7 @@ function initGrid(data, view) {
       styleName: 'text-center',
     },
     { fieldName: 'feeCpsnRedfYn',
-      header: t('강제되물림여부'),
+      header: t('MSG_TXT_CPSN_REDF_YN'), // 강제 되물림 여부
       width: '110',
       styleName: 'text-center',
     },

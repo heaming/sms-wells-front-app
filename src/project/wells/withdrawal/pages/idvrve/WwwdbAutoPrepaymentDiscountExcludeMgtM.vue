@@ -202,7 +202,8 @@ async function onClickSearch() {
 
   if ((searchParams.value.prmDscExcdStrtYm > searchParams.value.prmDscExcdEndYm)
   && (!isEmpty(searchParams.value.prmDscExcdStrtYm) && !isEmpty(searchParams.value.prmDscExcdEndYm))) {
-    await alert(t('제외시작월이 제외종료월보다 클 수 없습니다.')); // TODO: 메시지 자원 변경가능성 있음
+    await alert(t('MSG_ALT_STRT_MM_END_MM_LSTH')); // TODO: 메시지 자원 변경가능성 있음
+    // 제외시작월이 제외종료월보다 클 수 없습니다.
     return;
   }
 
@@ -488,7 +489,9 @@ const initGrid = defineGrid((data, view) => {
         } else {
           // 존재하지 않는 계약상세번호 입니다.
           // alert(t('MSG_ALT_IT_NOT_EXIST', [t('MSG_TXT_CNTR_DTL_NO')]));
-          alert('판매유형이 렌탈 , 맴버십 인 계약상세 정보만 등록 가능합니다.');
+
+          alert(t('MSG_ALT_RENTAL_MSH_RGST_PSB'));
+          // 판매유형이 렌탈, 맴버십인 계약상세정보만 등록 가능합니다.
 
           data.setValue(itemIndex, 'cntrNo', '');
           data.setValue(itemIndex, 'cntrSn', '');
