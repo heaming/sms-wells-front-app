@@ -55,7 +55,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useGlobal, defineGrid, getComponentType, gridUtil, stringUtil } from 'kw-lib';
-import { isEmpty } from 'lodash-es';
+import { isEmpty, cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 import { getOverPeriodByRelProd, getGridRowCount, onCellEditRelProdPeriod, setPdGridRows } from '~sms-common/product/utils/pdUtil';
@@ -312,15 +312,14 @@ const initGrdMain = defineGrid((data, view) => {
   };
 });
 
-onMounted(async () => {
-  if (!isEmpty(props.initData[pdConst.TBL_PD_REL])) {
-    setData(props.initData[pdConst.TBL_PD_REL]);
-  }
+// 리얼그리드 표시 오류 대응 임시코드
+onActivated(async () => {
+  await setData(initLoadData.value);
 });
 
 async function setData(newInitData) {
   if (!isEmpty(newInitData)) {
-    initLoadData.value = props.initData[pdConst.TBL_PD_REL];
+    initLoadData.value = cloneDeep(props.initData[pdConst.TBL_PD_REL]);
     if (isEmpty(initLoadData.value)) return;
 
     // const grd1DataProvider = grdMainRef.value.getView().getDataSource();
@@ -330,10 +329,14 @@ async function setData(newInitData) {
       await setPdGridRows(view, initLoadData.value, pdConst.REL_PD_ID, [], true);
     }
     await checkGrdDataCount();
+  } else {
+    grdMainRef.value?.getView().getDataSource().clearRows();
   }
 }
 
-watch(() => props.initData[pdConst.TBL_PD_REL], setData, { deep: true });
+watch(() => props.initData, (initData) => {
+  setData(initData[pdConst.TBL_PD_REL]);
+}, { deep: true });
 
 </script>
 <style scoped></style>
