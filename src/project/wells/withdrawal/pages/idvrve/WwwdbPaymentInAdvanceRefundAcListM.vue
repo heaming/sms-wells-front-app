@@ -25,8 +25,8 @@
           :label="$t('MSG_TXT_CONT_CLASS')"
         >
           <kw-select
-            v-model="searchParams.stlmTpCd"
-            :options="codes.STLM_TP_CD"
+            v-model="searchParams.sellTpCd"
+            :options="codes.SELL_TP_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -97,7 +97,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, codeUtil, defineGrid, useMeta, getComponentType, useDataService, notify, fileUtil } from 'kw-lib';
+import { gridUtil, codeUtil, defineGrid, useMeta, getComponentType, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
@@ -114,7 +114,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'STLM_TP_CD', // 대상구분 = 결제유형코드
+  'SELL_TP_CD', // 대상구분 = 판매유형코드
   'CSH_RFND_DV_CD', // 업무구분 = 현금환불구분코드
 );
 
@@ -126,7 +126,7 @@ const pageInfo = ref({
 });
 
 const searchParams = ref({
-  stlmTpCd: '', // 대상구분
+  sellTpCd: '', // 대상구분
   startDay: now.format('YYYYMM01'), // 처리일자.시작일
   endDay: now.format('YYYYMMDD'), // 처리일자.종료일
   cshRfndDvCd: '01', // 업무구분 : 선환불만 입력되야함
@@ -174,47 +174,39 @@ async function onClickExcelDownload() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'stlmTpCd' }, // 대상구분
+    { fieldName: 'sellTpCd' }, // 대상구분
     { fieldName: 'cntrNo' }, // 계약번호
     { fieldName: 'cntrSn' }, // 계약일련번호
     { fieldName: 'cntrDtlNo' }, // 계약상세번호
     { fieldName: 'cstKnm' }, // 고객명
-    { fieldName: 'fnlMdfcDtm', dataType: 'date' }, // 처리일자
-    { fieldName: 'rfndDsbAmt', dataType: 'number' }, // 금액(원)
-    { fieldName: 'cshRfndFnitCd' }, // 은행명
+    { fieldName: 'rfndRveDt', dataType: 'date' }, // 처리일자
+    { fieldName: 'totRfndEtAmt', dataType: 'number' }, // 금액(원)
+    { fieldName: 'cshRfndFnitNm' }, // 은행명
     { fieldName: 'cshRfndAcnoEncr' }, // 계좌번호
     { fieldName: 'cshRfndAcownNm' }, // 예금주
-    { fieldName: 'bltfOjCntrSn' }, // 전금코드
-    { fieldName: 'fnlMdfcUsrId' }, // 요청자
+    { fieldName: 'bltfOjCntrDtlNo' }, // 전금코드
+    { fieldName: 'rfndRcpPrtnrNm' }, // 요청자
     { fieldName: 'exRfndRsonCn' }, // 예외환불사유
-    { fieldName: 'rfndEvidMtrFileId' }, // 증빙첨부
+    { fieldName: 'rfndEvidMtrFileYn' }, // 증빙첨부
   ];
 
   const columns = [
-    { fieldName: 'stlmTpCd', header: t('MSG_TXT_CONT_CLASS'), width: '120', styleName: 'text-center', options: codes.STLM_TP_CD }, // 대상구분
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_CONT_CLASS'), width: '130', styleName: 'text-center', options: codes.SELL_TP_CD }, // 대상구분
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL'), width: '150', styleName: 'text-center' }, // 계약상세
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center' }, // 고객명
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_PRCSDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 처리일자
-    { fieldName: 'rfndDsbAmt', header: t('MSG_TXT_AMT_WON'), width: '120', styleName: 'text-right' }, // 금액(원)
-    { fieldName: 'cshRfndFnitCd', header: t('MSG_TXT_BNK_NM'), width: '120', styleName: 'text-left' }, // 은행명
-    { fieldName: 'cshRfndAcnoEncr', header: t('MSG_TXT_AC_NO'), width: '200', styleName: 'text-center' }, // 계좌번호
-    { fieldName: 'cshRfndAcownNm', header: t('MSG_TXT_ACHLDR'), width: '90', styleName: 'text-center' }, // 예금주
-    { fieldName: 'bltfOjCntrSn', header: t('MSG_TXT_BLTF_CD'), width: '110', styleName: 'text-center' }, // 전금코드
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_REQ_USER'), width: '90', styleName: 'text-left' }, // 요청자
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
+    { fieldName: 'rfndRveDt', header: t('MSG_TXT_PRCSDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 처리일자
+    { fieldName: 'totRfndEtAmt', header: t('MSG_TXT_AMT_WON'), width: '120', styleName: 'text-right' }, // 금액(원)
+    { fieldName: 'cshRfndFnitNm', header: t('MSG_TXT_BNK_NM'), width: '120', styleName: 'text-left' }, // 은행명
+    { fieldName: 'cshRfndAcnoEncr', header: t('MSG_TXT_AC_NO'), width: '200', styleName: 'text-left' }, // 계좌번호
+    { fieldName: 'cshRfndAcownNm', header: t('MSG_TXT_ACHLDR'), width: '130', styleName: 'text-center' }, // 예금주
+    { fieldName: 'bltfOjCntrDtlNo', header: t('MSG_TXT_BLTF_CD'), width: '110', styleName: 'text-center' }, // 전금코드
+    { fieldName: 'rfndRcpPrtnrNm', header: t('MSG_TXT_REQ_USER'), width: '90', styleName: 'text-center' }, // 요청자
     { fieldName: 'exRfndRsonCn', header: t('MSG_TXT_EX_RFND_RSON'), width: '240', styleName: 'text-left' }, // 예외환불사유
     // 증빙첨부
-    { fieldName: 'rfndEvidMtrFileId',
+    { fieldName: 'rfndEvidMtrFileYn',
       header: t('MSG_TXT_EVID_APN'),
       width: '96',
       styleName: 'text-center',
-      displayCallback(grid, index, value) {
-        const rfndEvidMtrFileId = value === null ? t('MSG_TXT_NONE') : t('MSG_BTN_DLOAD');
-        return `${rfndEvidMtrFileId}`;
-      },
-      styleCallback(grid, dataCell) {
-        const rfndEvidMtrFileId = grid.getValue(dataCell.index.itemIndex, 'rfndEvidMtrFileId') === null ? t('N') : grid.getValue(dataCell.index.itemIndex, 'rfndEvidMtrFileId');
-        return rfndEvidMtrFileId !== 'N' ? { renderer: { type: 'button' } } : { renderer: { type: 'text', styleName: 'text-center' } };
-      },
     },
 
   ];
@@ -223,18 +215,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
-
-  view.onCellItemClicked = async (grid, { column, dataRow }) => {
-    const { rfndEvidMtrFileId } = gridUtil.getRowValue(grid, dataRow); // 증빙첨부
-
-    // 증빙첨부
-    if (column === 'rfndEvidMtrFileId') {
-      if (rfndEvidMtrFileId !== null) { // 증빙첨부이 있는 경우
-        notify('다운로드 기능 확인 필요. 개발지원 > 상점관리 보고 만듬.');
-        fileUtil.download({ rfndEvidMtrFileId }, 'storage');
-      }
-    }
-  };
 });
 </script>
 <style scoped>
