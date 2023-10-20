@@ -182,7 +182,7 @@ const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { getUserInfo } = useMeta();
+const { getUserInfo, hasRoleNickName } = useMeta();
 const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -220,6 +220,9 @@ const saveParams = ref({
   chk: false,
 });
 
+const headOffice = hasRoleNickName('ROL_W1010') ? 'Y' : 'N'; /* 본사스텝 */
+const siteManager = (hasRoleNickName('ROL_W6010') || hasRoleNickName('ROL_W6020')) ? 'Y' : 'N'; /* 현장관리자(센터장, 매니저) */
+
 // 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/partner-engineer/joe-management/paging', { params: { ...searchParams.value, ...pageInfo.value } });
@@ -228,6 +231,19 @@ async function fetchData() {
   pageInfo.value = pagingResult;
 
   const view = grdMainRef.value.getView();
+
+  if (siteManager === 'Y') {
+    view.columnByName('wkGrpCd').visible = false;
+    view.columnByName('wkcrCd').visible = false;
+    view.columnByName('vlStrtdt').visible = false;
+    view.columnByName('vlEnddt').visible = false;
+  } else {
+    view.columnByName('wkGrpCd').visible = true;
+    view.columnByName('wkcrCd').visible = true;
+    view.columnByName('vlStrtdt').visible = true;
+    view.columnByName('vlEnddt').visible = true;
+  }
+
   const data = view.getDataSource();
   data.checkRowStates(false);
   data.addRows(list);
@@ -246,11 +262,21 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/partner-engineer/joe-management/excel-download', { params: searchParams.value });
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-    exportData: res.data,
-  });
+
+  if (siteManager === 'Y') {
+    await gridUtil.exportView(view, {
+      fileName: currentRoute.value.meta.menuName,
+      timePostfix: true,
+      exportData: res.data,
+      hiddenColumns: ['wkGrpCd', 'wkcrCd', 'vlStrtdt', 'vlEnddt'],
+    });
+  } else {
+    await gridUtil.exportView(view, {
+      fileName: currentRoute.value.meta.menuName,
+      timePostfix: true,
+      exportData: res.data,
+    });
+  }
 }
 
 // 일괄저장
@@ -375,11 +401,11 @@ watch(() => saveParams.value.chk, async (newVal) => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_AFL_CNTR_CD'), width: '162', styleName: 'text-center' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '130', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_AFL_CNTR_CD'), width: '162', styleName: 'text-center' }, // 소속(센터)
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '130', styleName: 'text-center' }, // 소속코드
     // { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '125', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '130', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '92', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '130', styleName: 'text-center' }, // 성명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '92', styleName: 'text-center' }, // 번호
     {
       fieldName: 'wkGrpCd',
       header: t('MSG_TXT_WK_GRP'),
@@ -390,7 +416,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'dropdown',
       },
-    },
+    }, // 작업그룹
     {
       fieldName: 'rsbDvCd',
       header: t('MSG_TXT_RSB'),
@@ -399,8 +425,9 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.RSB_DV_CD,
       editor: {
         type: 'dropdown',
-      } },
-    { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '130', styleName: 'text-center' },
+      },
+    }, // 직책
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '130', styleName: 'text-center' }, // 직무
     {
       fieldName: 'wkcrCd',
       header: t('MSG_TXT_CO'),
@@ -410,8 +437,9 @@ const initGrdMain = defineGrid((data, view) => {
       options: codes.WKCR_CD,
       editor: {
         type: 'dropdown',
-      } },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+      },
+    }, // 조
+    { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 입사일자
     { fieldName: 'vlStrtdt',
       header: t('MSG_TXT_APPLY_DT'),
       width: '130',
@@ -420,7 +448,8 @@ const initGrdMain = defineGrid((data, view) => {
       datetimeFormat: 'date',
       editor: {
         type: 'date',
-      } },
+      },
+    }, // 적용일자
     { fieldName: 'vlEnddt',
       header: t('MSG_TXT_END_DT'),
       width: '130',
@@ -429,7 +458,8 @@ const initGrdMain = defineGrid((data, view) => {
       datetimeFormat: 'date',
       editor: {
         type: 'date',
-      } },
+      },
+    }, // 종료일자
     { fieldName: 'cralLocaraTno',
       header: t('MSG_TXT_BUSINS_PH_NO'),
       width: '156',
@@ -437,7 +467,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'telephone',
       },
-    },
+    }, // 업무용전화번호
     { fieldName: 'mexnoEncr', visible: false },
     { fieldName: 'cralIdvTno', visible: false },
     { fieldName: 'wkGrpCdNm', visible: false },
@@ -451,13 +481,17 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
+  // 편집여부
   view.onCellEditable = (grid, index) => {
-    if (['wkGrpCd', 'wkcrCd', 'vlStrtdt', 'vlEnddt', 'cralLocaraTno'].includes(index.column)) {
+    if (['wkGrpCd', 'wkcrCd', 'vlStrtdt', 'vlEnddt', 'cralLocaraTno'].includes(index.column) && headOffice === 'Y') {
+      return true;
+    } if (['cralLocaraTno'].includes(index.column) && siteManager === 'Y') {
       return true;
     }
     return false;
   };
 
+  // 스크롤 페이징
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
@@ -465,6 +499,7 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
+  // 작업조명 가져오기
   view.onGetEditValue = (grid, index, editResult) => {
     if (index.column === 'wkGrpCd') {
       grid.setValue(index.dataRow, 'wkGrpCdNm', editResult.text);
