@@ -212,7 +212,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'prchsStrQty',
       header: t('MSG_TXT_PRCHS'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -220,7 +220,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'nomStrQty',
       header: t('MSG_TXT_NOM'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -228,7 +228,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'qomAsnStrQty',
       header: t('MSG_TXT_ASGN'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -236,7 +236,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'qomMmtStrQty',
       header: t('MSG_TXT_MOVE'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -244,7 +244,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'rtngdStrInsdQty',
       header: t('MSG_TXT_INSI'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -252,7 +252,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'rtngdStrOtsdQty',
       header: t('MSG_TXT_OTSD'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -260,7 +260,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'etcStrQty',
       header: t('MSG_TXT_ETC'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -268,7 +268,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'strCtrQty',
       header: t('MSG_TXT_GD'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -276,7 +276,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'cnfmPitmStrGapQty',
       header: t('MSG_TXT_STOC_ACINSP'),
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -284,7 +284,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'nomOstrQty',
       header: t('MSG_TXT_NOM'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -292,7 +292,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'svcNomOstrQty',
       header: t('MSG_TXT_SERVICE'),
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -300,7 +300,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'sellNomOstrQty',
       header: t('MSG_TXT_BZNS'),
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -308,7 +308,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'qomAsnOstrQty',
       header: t('MSG_TXT_ASGN'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -316,7 +316,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'qomMmtOstrQty',
       header: t('MSG_TXT_QOM'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -324,7 +324,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'rtngdOstrInsdQty',
       header: t('MSG_TXT_INSI'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -332,7 +332,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'rtngdOstrOtsdQty',
       header: t('MSG_TXT_OTSD'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -340,7 +340,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'useQty',
       header: t('MSG_TXT_OSTR_WK'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -348,7 +348,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'refrOstrQty',
       header: t('MSG_TXT_REFR'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -356,7 +356,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'sellOstrQty',
       header: t('MSG_TXT_SELL'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -364,7 +364,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'dsuOstrQty',
       header: t('MSG_TXT_DSCD'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -372,7 +372,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'etcOstrQty',
       header: t('MSG_TXT_ETC'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -380,7 +380,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'ostrCtrQty',
       header: t('MSG_TXT_GD'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -388,7 +388,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'cnfmPitmOstrGapQty',
       header: t('MSG_TXT_STOC_ACINSP'),
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
