@@ -201,7 +201,6 @@ const fieldParams = ref({
 
 // fetchData: 조회
 async function fetchData() {
-  frmMainRef.value.init();
   orgTxinvPblOjYn.value = '';
 
   const res = await dataService.get('/sms/wells/contract/contract-info/tax-Invoices', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
@@ -214,7 +213,7 @@ async function fetchData() {
   }
   fieldParams.value.cntrNo = searchParams.value.cntrNo;
   fieldParams.value.cntrSn = searchParams.value.cntrSn;
-  console.log(fieldParams);
+  frmMainRef.value.init();
 }
 
 // onClickEdit: 수정버튼 클릭 시

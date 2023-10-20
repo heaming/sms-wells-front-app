@@ -293,7 +293,7 @@ const initGrid = defineGrid(async (data, view) => {
     },
     { fieldName: 'cntrAprAkMsgCn', header: t('MSG_TXT_REQ_MSG'), width: '477', editor: { maxLength: 500 } },
     { fieldName: 'cntrAprCanMsgCn', header: t('MSG_TXT_REQ_CAN_MSG'), width: '477', editor: { maxLength: 500 } },
-    { fieldName: 'cntrAprConfMsgCn', header: t('MSG_TXT_APR_CNFM_MSG'), width: '477', ditor: { maxLength: 500 } },
+    { fieldName: 'cntrAprConfMsgCn', header: t('MSG_TXT_APR_CNFM_MSG'), width: '477', editor: { maxLength: 500 } },
     { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '180', datetimeFormat: 'date', styleName: 'text-center', rules: 'required', editor: { type: 'btdate', datetimeFormat: 'date' } },
     { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '180', datetimeFormat: 'date', styleName: 'text-center', rules: 'required', editor: { type: 'btdate', datetimeFormat: 'date' } },
   ];
