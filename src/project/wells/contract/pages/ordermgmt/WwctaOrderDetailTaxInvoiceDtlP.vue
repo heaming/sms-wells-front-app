@@ -93,6 +93,7 @@
       </kw-form-item>
       <!-- 전화번호 -->
       <kw-form-item
+        ref="testref"
         :label="t('MSG_TXT_TEL_NO')"
         :required="!isReadonly && !isOrgTxinvPblOjYn"
       >
@@ -168,6 +169,8 @@ const isOrgTxinvPblOjYn = ref();
 
 let cachedParams;
 
+const testref = ref(getComponentType('KwForm'));
+
 const searchParams = ref({
   cntrNo: '',
   cntrSn: '',
@@ -202,6 +205,7 @@ const fieldParams = ref({
 // fetchData: 조회
 async function fetchData() {
   orgTxinvPblOjYn.value = '';
+  frmMainRef.value.reset();
 
   const res = await dataService.get('/sms/wells/contract/contract-info/tax-Invoices', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
   if (!isEmpty(res.data)) {
