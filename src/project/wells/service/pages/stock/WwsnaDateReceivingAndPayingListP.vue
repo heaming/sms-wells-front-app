@@ -208,7 +208,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'prchsStrQty',
       header: t('MSG_TXT_PRCHS'),
@@ -216,7 +216,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'nomStrQty',
       header: t('MSG_TXT_NOM'),
@@ -224,7 +224,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomAsnStrQty',
       header: t('MSG_TXT_ASGN'),
@@ -232,7 +232,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomMmtStrQty',
       header: t('MSG_TXT_MOVE'),
@@ -240,7 +240,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdStrInsdQty',
       header: t('MSG_TXT_INSI'),
@@ -248,7 +248,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdStrOtsdQty',
       header: t('MSG_TXT_OTSD'),
@@ -256,7 +256,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'etcStrQty',
       header: t('MSG_TXT_ETC'),
@@ -264,7 +264,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'strCtrQty',
       header: t('MSG_TXT_GD'),
@@ -272,7 +272,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'cnfmPitmStrGapQty',
       header: t('MSG_TXT_STOC_ACINSP'),
@@ -280,7 +280,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'nomOstrQty',
       header: t('MSG_TXT_NOM'),
@@ -288,7 +288,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'svcNomOstrQty',
       header: t('MSG_TXT_SERVICE'),
@@ -296,7 +296,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'sellNomOstrQty',
       header: t('MSG_TXT_BZNS'),
@@ -304,7 +304,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomAsnOstrQty',
       header: t('MSG_TXT_ASGN'),
@@ -312,7 +312,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomMmtOstrQty',
       header: t('MSG_TXT_QOM'),
@@ -320,7 +320,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdOstrInsdQty',
       header: t('MSG_TXT_INSI'),
@@ -328,7 +328,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdOstrOtsdQty',
       header: t('MSG_TXT_OTSD'),
@@ -336,7 +336,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'useQty',
       header: t('MSG_TXT_OSTR_WK'),
@@ -344,7 +344,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'refrOstrQty',
       header: t('MSG_TXT_REFR'),
@@ -352,7 +352,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'sellOstrQty',
       header: t('MSG_TXT_SELL'),
@@ -360,7 +360,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'dsuOstrQty',
       header: t('MSG_TXT_DSCD'),
@@ -368,7 +368,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'etcOstrQty',
       header: t('MSG_TXT_ETC'),
@@ -376,7 +376,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'ostrCtrQty',
       header: t('MSG_TXT_GD'),
@@ -384,7 +384,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'cnfmPitmOstrGapQty',
       header: t('MSG_TXT_STOC_ACINSP'),
@@ -392,7 +392,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'eotStocQty',
       header: t('MSG_TXT_EOT_STOC_QTY'),
@@ -400,7 +400,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'mmtStocQty',
       header: t('MSG_TXT_MMT_STOC_QTY'),
@@ -408,7 +408,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
 
   ];

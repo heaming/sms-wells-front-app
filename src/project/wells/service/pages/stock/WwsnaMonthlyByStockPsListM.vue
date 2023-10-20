@@ -458,7 +458,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     // 입고정보
     { fieldName: 'prchsQty',
@@ -468,7 +468,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'nomStrQty',
       header: `${t('MSG_TXT_NOM')}${t('MSG_TXT_STR')}`,
@@ -477,7 +477,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomAsnStrQty',
       header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_ASGN')}`,
@@ -486,7 +486,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomMmtStrQty',
       header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_MOVE')}`,
@@ -495,7 +495,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdStrInsiQty',
       header: t('MSG_TXT_INSI'),
@@ -504,7 +504,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdStrOtsdQty',
       header: t('MSG_TXT_OTSD'),
@@ -513,7 +513,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'etcStrQty',
       header: `${t('MSG_TXT_ETC')}${t('MSG_TXT_STR')}`,
@@ -522,7 +522,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'strCtrQty',
       header: `${t('MSG_TXT_GD')}${t('MSG_TXT_CTR')}`,
@@ -531,7 +531,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'stocAcinspStrQty',
       header: t('MSG_TXT_STOC_ACINSP'),
@@ -540,7 +540,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     // 출고정보
     { fieldName: 'nomOstrQty',
@@ -550,7 +550,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomAsnOstrQty',
       header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_ASGN')}`,
@@ -559,7 +559,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomMmtOstrQty',
       header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_MOVE')}`,
@@ -568,7 +568,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdOstrInsiQty',
       header: t('MSG_TXT_INSI'),
@@ -577,7 +577,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdOstrOtsdQty',
       header: t('MSG_TXT_OTSD'),
@@ -586,7 +586,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'sellOstrQty',
       header: `${t('MSG_TXT_SELL')}${t('MSG_TXT_OSTR')}`,
@@ -595,7 +595,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'dsuOstrQty',
       header: `${t('MSG_TXT_DSCD')}${t('MSG_TXT_OSTR')}`,
@@ -604,7 +604,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'wkOstrQty',
       header: `${t('MSG_TXT_OSTR_WK')}${t('MSG_TXT_OSTR')}`,
@@ -613,7 +613,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'refrOstrQty',
       header: `${t('MSG_TXT_REFR')}${t('MSG_TXT_OSTR')}`,
@@ -622,7 +622,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'etcOstrQty',
       header: `${t('MSG_TXT_ETC')}${t('MSG_TXT_OSTR')}`,
@@ -631,7 +631,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'ostrCtrQty',
       header: `${t('MSG_TXT_GD')}${t('MSG_TXT_CTR')}`,
@@ -640,7 +640,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'stocAcinspQty',
       header: t('MSG_TXT_STOC_ACINSP'),
@@ -649,7 +649,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     // 기말재고
     { fieldName: 'pitmStocQty',
@@ -659,7 +659,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
   ];
 
@@ -677,7 +677,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { direction: 'horizontal',
       header: { text: t('MSG_TXT_OSTR_QTY') },
-      items: ['qomAsnOstrQty', 'nomOstrQty', 'qomMmtOstrQty',
+      items: ['nomOstrQty', 'qomAsnOstrQty', 'qomMmtOstrQty',
         { direction: 'horizontal',
           header: { text: t('MSG_TXT_RTNGD') },
           items: ['rtngdOstrInsiQty', 'rtngdOstrOtsdQty'],
