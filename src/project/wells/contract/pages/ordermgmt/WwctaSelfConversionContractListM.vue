@@ -72,7 +72,7 @@
           :label="$t('MSG_TXT_PRDT_CODE')/* 상품코드 */"
         >
           <kw-input
-            v-model="searchParams.basePdCd"
+            v-model="searchParams.pdCd"
             :label="$t('MSG_TXT_PRDT_CODE')/* 상품코드 */"
           />
         </kw-search-item>
@@ -236,6 +236,7 @@ const searchParams = reactive({
     .format('YYYYMMDD'),
   pdHclsfId: '',
   pdMclsfId: '',
+  pdCd: '',
   pdNm: '',
   strtOgCd: '',
   endOgCd: '',
