@@ -117,7 +117,7 @@
             <p>{{ basePerf.indvElhmExcp ? stringUtil.getNumberWithComma(basePerf.indvElhmExcp) : '0' }}</p>
           </kw-form-item>
           <kw-form-item :label="t('MSG_TXT_INDV_ADP')">
-            <p>{{ basePerf.indvAdp ? stringUtil.getNumberWithComma(basePerf.indvElhmExcp) : '0' }}</p>
+            <p>{{ basePerf.indvAdp ? stringUtil.getNumberWithComma(basePerf.indvAdp) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -254,7 +254,7 @@
           <kw-form-item
             :label="t('MSG_TXT_INDD_INSR')"
           >
-            <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
+            <p>{{ info2.inddInsr ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -270,7 +270,6 @@
       <kw-grid
         ref="grd3MainRef"
         name="grd3Main"
-        :visible-rows="3"
         @init="initGrd3Main"
       />
     </div>
