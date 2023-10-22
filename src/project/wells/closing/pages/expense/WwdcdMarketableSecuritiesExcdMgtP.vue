@@ -300,6 +300,8 @@ async function onClickSearch() {
   cachedParams.bldCd = searchParams.value.bldCd; // 빌딩 코드
   cachedParams.subPrtnrNo = searchParams.value.prtnrNo; // 배분대상파트너번호
 
+  const subView = grdSubRef.value.getView();
+  await subView.checkAll(false, true, true, true);
   await subject();
 }
 

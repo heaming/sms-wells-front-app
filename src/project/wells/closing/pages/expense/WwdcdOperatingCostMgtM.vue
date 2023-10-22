@@ -225,16 +225,14 @@ const saveParams = ref({
 });
 
 async function saveData(column, opcsCardId, file) {
-  if (!isEmpty(file.files)) {
-    if (column === 'atthDocId') {
-      saveParams.value.opcsCardId = opcsCardId;
-      saveParams.value.attachMscrWhtxCfdcApnFileId = file.files;
-    }
-    const data = saveParams.value;
-    await dataService.post('/sms/wells/closing/expense/operating-cost', data);
-
-    await fetchData();
+  if (column === 'atthDocId') {
+    saveParams.value.opcsCardId = opcsCardId;
+    saveParams.value.attachMscrWhtxCfdcApnFileId = file.files;
   }
+  const data = saveParams.value;
+  await dataService.post('/sms/wells/closing/expense/operating-cost', data);
+
+  await fetchData();
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -293,6 +291,7 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'atthDocId') {
+      console.log('g.getValues(itemIndex) : ', g.getValues(itemIndex));
       const { opcsCardId, atthDocId } = g.getValues(itemIndex);
       saveData(column, opcsCardId, atthDocId);
     }
