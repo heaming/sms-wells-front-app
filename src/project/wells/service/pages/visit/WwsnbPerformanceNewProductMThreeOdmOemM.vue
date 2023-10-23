@@ -120,14 +120,14 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, useGlobal, getComponentType, useMeta, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
-// import { isEmpty, cloneDeep } from 'lodash-es';
 import { cloneDeep } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 import { printElement } from '~common/utils/common';
 
 const { t } = useI18n();
-const { notify, modal } = useGlobal();
+const { modal } = useGlobal();
 const { getConfig } = useMeta();
+const { currentRoute } = useRouter();
 const { getPartMaster } = smsCommon();
 
 const dataService = useDataService();
@@ -220,7 +220,13 @@ async function onClickPrintEl() {
 
 // 엑셀 다운로드
 async function onClickExcelDownload() {
-  await notify('작업예정');
+  const view = grdRef.value.getView();
+
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: gridUtil.getAllRowValues(view),
+  });
 }
 
 async function onClickPopup() {
