@@ -377,7 +377,7 @@ async function onChangeApyYm() {
     searchParams.value.strWareNo = '';
     optionsStrWareNo.value = [];
 
-    searchParams.value.strHgrWareNo = '';
+    searchParams.value.hgrStrWareNo = '';
     optionsHgrStrWareNo.value = [];
     return;
   }
@@ -388,7 +388,7 @@ async function onChangeApyYm() {
     searchParams.value.strWareNo = '';
     optionsStrWareNo.value = [];
 
-    searchParams.value.strHgrWareNo = '';
+    searchParams.value.hgrStrWareNo = '';
     optionsHgrStrWareNo.value = [];
   }
 }
@@ -401,7 +401,7 @@ async function onChangeData() {
     searchParams.value.strWareNo = '';
     optionsStrWareNo.value = [];
 
-    searchParams.value.strHgrWareNo = '';
+    searchParams.value.hgrStrWareNo = '';
     optionsHgrStrWareNo.value = [];
     return;
   }
@@ -461,7 +461,7 @@ await Promise.all([
 
 const totalCount = ref(0);
 const allOstrItms = ref([]);
-// 미출고 수량제외 필터링
+// 체크 항목 필터링
 function onChangeNdlvQty() {
   const { ndlvQtyYn, totOutQty } = searchParams.value;
 
@@ -469,8 +469,8 @@ function onChangeNdlvQty() {
   if (ndlvQtyYn === 'Y') {
     // 필터링 전 데이터 담기
     allOstrItms.value = view.getDataSource().getRows();
-    // 필터링, 출고수량이 0보다 크고, 물류전송여부가 N인 경우
-    const filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.lgstTrsYn === 'N' && (isEmpty(totOutQty) || e.totOutQty <= totOutQty));
+    // 필터링, 출고수량이 0보다 크고, 물류전송여부가 N인 경우, 한번이라도 저장된 항목 제외 추가
+    const filterRows = gridUtil.filter(view, (e) => e.outQty > 0 && e.lgstTrsYn === 'N' && (isEmpty(totOutQty) || e.totOutQty <= totOutQty) && isEmpty(e.ostrAkNo));
     totalCount.value = filterRows.length;
     view.getDataSource().setRows(filterRows);
     return;
@@ -508,11 +508,15 @@ async function onClickSearch() {
 
 // 엑셀 다운로드
 async function onClickExcelDownload() {
+  // 상위창고번호
+  const { hgrStrWareNo } = cachedParams;
+  const hgrWareInfo = optionsHgrStrWareNo.value.find((e) => e.wareNo === hgrStrWareNo);
+
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/excel-download', { params: cachedParams });
 
   gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute.value.meta.menuName}(${hgrWareInfo.wareNm})`,
     timePostfix: true,
     exportData: res.data,
   });
@@ -645,8 +649,8 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'lgstTrsYn', header: `${t('MSG_TXT_LGST')}${t('MSG_TXT_TF_YN')}`, width: '100', styleName: 'text-center' },
     { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '160', styleName: 'text-center' },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
     { fieldName: 'hgrCrtlStocQty', header: t('MSG_TXT_CNR_STOC'), width: '110', styleName: 'text-right' },
     { fieldName: 'outQty',
@@ -693,7 +697,7 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
-  // 셀 클릭시 row check를 막기
+  // 셀 클릭시 row check 막기
   view.onCellClicked = () => false;
 
   view.onCellEditable = (grid, index) => {
