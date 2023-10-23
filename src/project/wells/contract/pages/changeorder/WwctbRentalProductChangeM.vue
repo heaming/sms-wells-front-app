@@ -912,6 +912,7 @@ const fieldData = ref({
   istDtlAdr: '', // [설치자고객정보-상세주소]
   pdMclsfNm: '', // [주문상품선택-분류] 상품중분류명
   basePdCd: '', // [주문상품선택-상품코드]
+  pdCd: '', // 상품코드
   pdNm: '', // [주문상품선택-상품명]
   cntrAmt: '', // [주문상품선택-등록비] 계약금액
   fnlAmt: '', // [주문상품선택-월렌탈료] 최종금액
@@ -1101,6 +1102,7 @@ async function fetchData() {
     } },
   );
   Object.assign(fieldData.value, res.data);
+  fieldData.value.pdCd = fieldData.value.basePdCd;
 
   isFetched.value = true;
 
