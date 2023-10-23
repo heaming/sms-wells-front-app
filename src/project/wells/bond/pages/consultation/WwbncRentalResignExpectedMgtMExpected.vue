@@ -459,6 +459,9 @@ async function onClickExcelDownload() {
 async function onClickExcelUpload() {
   const apiUrl = `${baseUrl}/excel-upload`;
   const templateId = 'FOM_BOND_AUTH_RSG';
+  const extraData = {
+    baseDt: searchParams.value.baseDt,
+  };
   const {
     payload,
   } = await modal({
@@ -466,6 +469,7 @@ async function onClickExcelUpload() {
     componentProps: {
       apiUrl,
       templateId,
+      extraData,
     },
   });
   if (payload.status === 'S') {
