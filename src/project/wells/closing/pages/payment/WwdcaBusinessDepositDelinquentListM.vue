@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="2"
+      :cols="3"
       one-row
       @search="onClickSearch"
     >
@@ -32,6 +32,14 @@
             @change="onChangeBaseYm"
           />
         </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_OG_TP')">
+          <kw-select
+            v-model="searchParams.ogTp"
+            first-option="all"
+            first-option-value="ALL"
+            :options="ogTp"
+          />
+        </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_OG_LEVL')"
           required
@@ -40,7 +48,7 @@
             v-model:og-levl-dv-cd1="searchParams.dgr1LevlOgCd"
             v-model:og-levl-dv-cd2="searchParams.dgr2LevlOgCd"
             v-model:og-levl-dv-cd3="searchParams.dgr3LevlOgCd"
-            :og-tp-cd="searchParams.ogTpCd"
+            :og-tp-cd="searchParams.ogTp"
             :start-level="1"
             :end-level="3"
             :label="$t('MSG_TXT_OG_LEVL')"
@@ -107,11 +115,10 @@ import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect
 
 const now = dayjs();
 const { t } = useI18n();
-const { getConfig, getUserInfo } = useMeta();
+const { getConfig } = useMeta();
 const { alert } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { ogTpCd, wkOjOgTpCd } = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -119,11 +126,14 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'OG_TP_CD',
 );
+
+const ogTp = codes.OG_TP_CD.filter((v) => ['W01', 'W02'].includes(v.codeId));
 
 const searchParams = ref({
   baseYm: now.format('YYYYMM'), // 기준년월
-  ogTpCd: ogTpCd === 'HR1' ? wkOjOgTpCd : ogTpCd, // 조직유형
+  ogTp: 'ALL', // 조직유형
   dgr1LevlOgCd: '',
   dgr2LevlOgCd: '',
   dgr3LevlOgCd: '',
