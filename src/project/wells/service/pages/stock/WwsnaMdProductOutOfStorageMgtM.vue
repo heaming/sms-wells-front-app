@@ -203,7 +203,7 @@ const customCodes = {
     { codeId: '2', codeName: t('MSG_TXT_WORK_PENDING') },
   ],
   firstSppGb: [
-    { codeId: 'all', codeName: t('MSG_TXT_ALL') },
+    { codeId: 'ALL', codeName: t('MSG_TXT_ALL') },
     { codeId: '1', codeName: t('MSG_TXT_FIRST_SPP_YN') },
     { codeId: 'N', codeName: t('MSG_TXT_N_NMN') },
   ],
@@ -212,7 +212,7 @@ const searchParams = ref({
   startDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
   endDt: now.format('YYYYMMDD'), // 종료일자
   ostrCnfmDt: now.format('YYYYMMDD'),
-  firstSppGb: 'all', /* 첫 배송 여부 */
+  firstSppGb: 'ALL', /* 첫 배송 여부 */
   findGb: '2', /* 조회 구분 */
   selCnt: '', /* 조회 제한건수  */
   prtnrBzsCd: '', /* 파트너업체 */
@@ -235,7 +235,7 @@ async function onChangeCompStatus() {
   if (findGb === '1') {
     isCompStatus.value = true;
     view.checkBar.visible = false;
-    searchParams.value.firstSppGb = 'all';
+    searchParams.value.firstSppGb = 'ALL';
   }
 
   /* 작업대기 */
