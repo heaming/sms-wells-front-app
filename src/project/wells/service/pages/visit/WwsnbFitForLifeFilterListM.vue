@@ -107,12 +107,12 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil, getComponentType, useGlobal } from 'kw-lib';
-// import { cloneDeep } from 'lodash-es';
+//  import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
 const { confirm, notify } = useGlobal();
-const router = useRouter();
+// const router = useRouter();
 
 const props = defineProps({
   cntrNo: {
@@ -236,14 +236,14 @@ function initGrid(data, view) {
     { fieldName: 'cntr',
       header: t('MSG_TXT_CNTR_NO'),
       width: '150',
-      styleName: 'rg-button-link text-center',
-      renderer: { type: 'button' },
+      // styleName: 'rg-button-link text-center',
+      // renderer: { type: 'button' },
     }, // 계약번호
     { fieldName: 'vstPromDt', header: t('MSG_TXT_APY_EXP_D'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 적용예정일
     { fieldName: 'request', header: t('MSG_TXT_AK'), width: '50', styleName: 'text-center' }, // 요청
     { fieldName: 'svpdNmKor', header: t('MSG_TXT_RGST_FILT'), width: '200' }, // 등록필터
-    { fieldName: 'usrNm', header: t('MSG_TXT_RGST_USR'), width: '70' }, // 등록자
-    { fieldName: 'channel', header: t('MSG_TXT_CHNL'), width: '70' }, // 채널
+    { fieldName: 'usrNm', header: t('MSG_TXT_RGST_USR'), width: '70', styleName: 'text-center' }, // 등록자
+    { fieldName: 'channel', header: t('MSG_TXT_CHNL'), width: '70', styleName: 'text-center' }, // 채널
     { fieldName: 'status', header: t('MSG_TXT_STT'), width: '50', styleName: 'text-center' }, // 상태
   ];
 
@@ -253,8 +253,10 @@ function initGrid(data, view) {
 
   view.onCellItemClicked = (grid, clickData) => {
     if (clickData.column === 'cntr') {
-      const param = { cntrNo: grid.getDataSource().getValue(clickData.dataRow, 'cntrNo'), cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
-      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
+      // const param = { cntrNo: grid.getDataSource()
+      //   .getValue(clickData.dataRow, 'cntrNo'),
+      // cntrSn: grid.getDataSource().getValue(clickData.dataRow, 'cntrSn') };
+      // router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
     }
   };
 }
