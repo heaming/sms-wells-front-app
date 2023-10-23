@@ -162,7 +162,7 @@ async function getItemCode() {
 }
 
 async function getBldCode() {
-  const res = await dataService.get(`/sms/wells/service/manager-bsconsumables/building-code/${dayjs().format('YYYYMM')}`);
+  const res = await dataService.get('/sms/wells/service/manager-bsconsumables/building-code');
   const codeData = res.data;
 
   bldCodes.value = codeData.map((v) => ({ codeId: v.bldCd, codeName: v.bldNm }));
@@ -171,14 +171,14 @@ async function getBldCode() {
 let cachedParams;
 async function getItemQtys() {
   // cachedParams = cloneDeep(searchParams.value);
-  const res = await dataService.get('/sms/wells/service/delivery-aggregates/item-quantity', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/delivery-aggregates/item-quantity', { params: { ...cachedParams, ...pageInfo.value, timeout: 300000 } });
   itemQtys.value = res.data;
 }
 
 async function fetchData() {
   await getItemQtys();
 
-  const res = await dataService.get('/sms/wells/service/delivery-aggregates/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/delivery-aggregates/paging', { params: { ...cachedParams, ...pageInfo.value, timeout: 300000 } });
   const { list: bsCsmbDdlvAgrgs, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
