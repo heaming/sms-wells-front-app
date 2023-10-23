@@ -143,20 +143,6 @@ async function onClickExcelDownload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-  ];
-
   const columns = [
     { fieldName: 'col1', header: t('MSG_TXT_ORD_NO'), width: '146', styleName: 'text-center' },
     { fieldName: 'col2', header: t('MSG_TXT_CHECK_DV_CD'), width: '100', styleName: 'text-center' },
@@ -170,6 +156,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'col10', header: `${t('MSG_TXT_DIV')}02`, width: '100', styleName: 'text-center' },
     { fieldName: 'col11', header: t('MSG_TXT_NOTE'), width: '120', styleName: 'text-left' },
   ];
+
+  const fields = columns.map(({ x }) => ({ x }));
 
   data.setFields(fields);
   view.setColumns(columns);

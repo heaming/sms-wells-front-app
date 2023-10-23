@@ -333,21 +333,14 @@ async function init() {
 
 // 상품 데이터 불러오기
 async function fetchProduct() {
-  const initData = {};
   if (currentPdCd.value) {
     const res = await dataService.get(`${baseUrl}/${currentPdCd.value}`).catch(() => {
       goList();
     });
     if (!res || !res.data) return;
-    initData[bas] = res.data[bas];
-    initData[dtl] = res.data[dtl];
-    initData[ecom] = res.data[ecom];
-    initData[rel] = res.data[rel];
-    isTempSaveBtn.value = initData[bas].tempSaveYn === 'Y';
-    prevStepData.value = initData;
+    prevStepData.value = res.data;
     fnlMdfcDtm.value = prevStepData.value[bas].fnlMdfcDtm;
-    subTitle.value = initData[bas].pdCd ? `${initData[bas].pdNm} (${initData[bas].pdCd})` : initData[bas].pdNm;
-    await init();
+    isTempSaveBtn.value = prevStepData.value[bas].tempSaveYn === 'Y';
   } else if (currentCopyPdCd.value) {
     const res = await dataService.get(`${baseUrl}/${currentCopyPdCd.value}`).catch(() => {
       goList();

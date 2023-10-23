@@ -431,7 +431,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'boxQty',
       header: t('MSG_TXT_BOX_KOR_QTY'),
@@ -439,7 +439,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-left' },
     { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },

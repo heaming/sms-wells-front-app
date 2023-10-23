@@ -423,11 +423,13 @@ async function fetchData(type) {
     const feeView = grd2MainRef.value.getView();
     feeView.getDataSource().setRows(resData);
   } else if (type === 'deductions') {
+    const totalDeductionAmt = resData.reduce((total, { fval }) => total + Number(fval), 0);
+    const orgData = [...resData, { item: '공제계', fval: totalDeductionAmt }];
     const deductionView = grd3MainRef.value.getView();
-    const len = resData.length;
+    const len = orgData.length;
     const midIdx = (len / 2).toFixed();
     const newData = [];
-    resData.forEach(({ item, fval }, index) => {
+    orgData.forEach(({ item, fval }, index) => {
       if (index < midIdx) {
         newData.push({ item1: item, fval1: fval });
       } else {

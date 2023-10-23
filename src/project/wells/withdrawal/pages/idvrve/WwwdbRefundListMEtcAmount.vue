@@ -128,25 +128,25 @@
           <!-- 현금 -->
           <kw-form-item :label="$t('MSG_TXT_CASH')">
             <p>
-              {{ aggregationStatus.cashRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.cashRfndDsbAmtSum) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 비씨카드 -->
           <kw-form-item :label="$t('MSG_TXT_BC_CARD')">
             <p>
-              {{ aggregationStatus.bcCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.bcCardRfndDsbAmtSum) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 국민카드 -->
           <kw-form-item :label="$t('MSG_TXT_KB_CARD')">
             <p>
-              {{ aggregationStatus.kbCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.kbCardRfndDsbAmtSum) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 삼성카드 -->
           <kw-form-item :label="$t('MSG_TXT_SS_CARD')">
             <p>
-              {{ aggregationStatus.ssCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.ssCardRfndDsbAmtSum) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
         </kw-form-row>
@@ -154,19 +154,19 @@
           <!-- 하나카드 -->
           <kw-form-item :label="$t('MSG_TXT_HN_CARD')">
             <p>
-              {{ aggregationStatus.hnCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.hnCardRfndDsbAmtSum) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 신한카드 -->
           <kw-form-item :label="$t('MSG_TXT_SH_CARD')">
             <p>
-              {{ aggregationStatus.shCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.shCardRfndDsbAmtSum) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 롯데카드 -->
           <kw-form-item :label="$t('MSG_TXT_LT_CARD')">
             <p>
-              {{ aggregationStatus.ltCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.ltCardRfndDsbAmtSum) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 현대카드 -->
@@ -193,9 +193,8 @@
         <kw-form-row>
           <!-- 카드 공제 -->
           <kw-form-item
-            :label="$t('MSG_TXT_CARD_DDTN')"
-            :colspan="2"
-          >
+            :label="$t('MSG_TXT_CARD_DDTN')">
+            <!-- :colspan="2" -->
             <p>
               {{ stringUtil.getNumberWithComma(aggregationStatus.cardRfndDdtnAmtSum) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
@@ -221,17 +220,17 @@
           </kw-form-item>
           <kw-form-item :label="$t('웰스 할부 전금')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.welsIstmBltf) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <kw-form-item :label="$t('웰스 렌탈 전금')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.welsRentalBltf) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <kw-form-item :label="$t('웰스 멤버 전금')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.welsMmbrBltf) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
         </kw-form-row>
@@ -250,13 +249,13 @@
           <!-- 전금 합계 -->
           <kw-form-item :label="$t('MSG_TXT_BLTF_SUM')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.rfndBltfSum) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 환불 총계 -->
           <kw-form-item :label="$t('MSG_TXT_RFND_TOT')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(aggregationStatus.rfTotalSum) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
         </kw-form-row>
@@ -271,7 +270,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { defineGrid, getComponentType, stringUtil, gridUtil, useDataService, useGlobal } from 'kw-lib'; // codeUtil
+import { codeUtil, defineGrid, getComponentType, stringUtil, gridUtil, useDataService, useGlobal } from 'kw-lib'; // codeUtil
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -296,10 +295,16 @@ let cachedParams;
 const grdMainRef3 = ref(getComponentType('KwGrid'));
 const now = dayjs();
 
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS', // 페이징 옵션
+  'CNTRW_TP_CD', // 업무구분
+  'SELL_TP_DTL_CD', // 판매유형상세코드'
+  'RFND_TP_CD',
+);
+
 const customCodes = {
   // 환불 구분
   RFND_DV_CD: [{ codeId: '1', codeName: t('MSG_TXT_NOM') }, { codeId: '2', codeName: t('MSG_TXT_BLNG') }],
-
   // Y , N 구분값에 따라 불완전판매여부 확인
   ICPT_SELL_CD: [{ codeId: 'Y', codeName: t('MSG_TXT_ICPT_SELL_EXCD') }, { codeId: 'N', codeName: t('MSG_TXT_ICPT_SELL_CHO') }],
   ICPT_SELL_YN: [{ codeId: 'Y', codeName: t('완전판매') }, { codeId: 'N', codeName: t('불완전판매') }],
@@ -324,7 +329,12 @@ const aggregationStatus = ref({
   cardRfndDdtnAmtSum: 0,
   cashCardRfndDdtnAmtSum: 0,
   cardRfndDsbAmtSum: 0,
+  welsIstmBltf: 0,
+  welsRentalBltf: 0,
+  welsMmbrBltf: 0,
   rfndDsbPspIntSum: 0,
+  rfndBltfSum: 0,
+  rfTotalSum: 0,
 });
 
 const searchParams = ref({
@@ -361,27 +371,26 @@ async function fetchData2() {
     return false;
   }
   Object.assign(aggregationStatus.value, response.data);
-  console.log(response.data);
   // console.log('etc aggregationStatus.value', aggregationStatus.value);
   // 테이블 변경으로 아직 확인되지 않은 값들에 대한 인식을 위해 삭제하지 않고 주석 처리 했습니다.
-  aggregationStatus.value.cashRfndDsbAmtSum = response.data.cashRfndDsbAmtSum;
-  aggregationStatus.value.bcCardRfndDsbAmtSum = response.data.bcCardRfndDsbAmtSum;
-  aggregationStatus.value.kbCardRfndDsbAmtSum = response.data.kbCardRfndDsbAmtSum;
-  aggregationStatus.value.ssCardRfndDsbAmtSum = response.data.ssCardRfndDsbAmtSum;
-  aggregationStatus.value.hnCardRfndDsbAmtSum = response.data.hnCardRfndDsbAmtSum;
-  aggregationStatus.value.shCardRfndDsbAmtSum = response.data.shCardRfndDsbAmtSum;
-  aggregationStatus.value.ltCardRfndDsbAmtSum = response.data.ltCardRfndDsbAmtSum;
-  aggregationStatus.value.hdCardRfndDsbAmtSum = response.data.hdCardRfndDsbAmtSum;
-  aggregationStatus.value.nhCardRfndDsbAmtSum = response.data.nhCardRfndDsbAmtSum;
-  aggregationStatus.value.ydCardRfndDsbAmtSum = response.data.ydCardRfndDsbAmtSum;
-  aggregationStatus.value.cardRfndDdtnAmtSum = response.data.cardRfndDdtnAmtSum;
-  aggregationStatus.value.cashCardRfndDdtnAmtSum = response.data.cashCardRfndDdtnAmtSum;
-  aggregationStatus.value.cardRfndDsbAmtSum = response.data.cardRfndDsbAmtSum;
+  // aggregationStatus.value.cashRfndDsbAmtSum = response.data.cashRfndDsbAmtSum;
+  // aggregationStatus.value.bcCardRfndDsbAmtSum = response.data.bcCardRfndDsbAmtSum;
+  // aggregationStatus.value.kbCardRfndDsbAmtSum = response.data.kbCardRfndDsbAmtSum;
+  // aggregationStatus.value.ssCardRfndDsbAmtSum = response.data.ssCardRfndDsbAmtSum;
+  // aggregationStatus.value.hnCardRfndDsbAmtSum = response.data.hnCardRfndDsbAmtSum;
+  // aggregationStatus.value.shCardRfndDsbAmtSum = response.data.shCardRfndDsbAmtSum;
+  // aggregationStatus.value.ltCardRfndDsbAmtSum = response.data.ltCardRfndDsbAmtSum;
+  // aggregationStatus.value.hdCardRfndDsbAmtSum = response.data.hdCardRfndDsbAmtSum;
+  // aggregationStatus.value.nhCardRfndDsbAmtSum = response.data.nhCardRfndDsbAmtSum;
+  // aggregationStatus.value.ydCardRfndDsbAmtSum = response.data.ydCardRfndDsbAmtSum;
+  // aggregationStatus.value.cardRfndDdtnAmtSum = response.data.cardRfndDdtnAmtSum;
+  // aggregationStatus.value.cashCardRfndDdtnAmtSum = response.data.cashCardRfndDdtnAmtSum;
+  // aggregationStatus.value.cardRfndDsbAmtSum = response.data.cardRfndDsbAmtSum;
   // /* 확인필요 : 웰스 인수 전금 */
   // /* 확인필요 : 웰스 할부 전금 */
   // /* 확인필요 : 웰스 렌탈 전금 */
   // /* 확인필요 : 웰스 멤버 전금 */
-  aggregationStatus.value.rfndDsbPspIntSum = response.data.rfndDsbPspIntSum; // 지연이자 합계
+  // aggregationStatus.value.rfndDsbPspIntSum = response.data.rfndDsbPspIntSum; // 지연이자 합계
   // // 확인 필요: k머니 합계
   // /* 확인 필요: 전금합계 */
   // /* 확인 필요: 환불 총계 */
@@ -391,6 +400,26 @@ async function onClickSearch() {
   grdMainRef3.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
+
+  aggregationStatus.value.cashRfndDsbAmtSum = 0;
+  aggregationStatus.value.bcCardRfndDsbAmtSum = 0;
+  aggregationStatus.value.kbCardRfndDsbAmtSum = 0;
+  aggregationStatus.value.ssCardRfndDsbAmtSum = 0;
+  aggregationStatus.value.hnCardRfndDsbAmtSum = 0;
+  aggregationStatus.value.shCardRfndDsbAmtSum = 0;
+  aggregationStatus.value.ltCardRfndDsbAmtSum = 0;
+  aggregationStatus.value.hdCardRfndDsbAmtSum = 0;
+  aggregationStatus.value.nhCardRfndDsbAmtSum = 0;
+  aggregationStatus.value.ydCardRfndDsbAmtSum = 0;
+  aggregationStatus.value.cardRfndDdtnAmtSum = 0;
+  aggregationStatus.value.cashCardRfndDdtnAmtSum = 0;
+  aggregationStatus.value.cardRfndDsbAmtSum = 0;
+  aggregationStatus.value.welsIstmBltf = 0;
+  aggregationStatus.value.welsRentalBltf = 0;
+  aggregationStatus.value.welsMmbrBltf = 0;
+  aggregationStatus.value.rfndDsbPspIntSum = 0;
+  aggregationStatus.value.rfndBltfSum = 0;
+  aggregationStatus.value.rfTotalSum = 0;
 
   await fetchData();
   await fetchData2();
@@ -468,7 +497,7 @@ const initGrdMain3 = defineGrid((data, view) => {
     { fieldName: 'rfndRveDt', header: t('MSG_TXT_PRCSDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 처리일자
     { fieldName: 'rfndPerfDt', header: t('MSG_TXT_PERF_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 실적일자
     { fieldName: 'bizDv', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center' }, // 업무구분
-    { fieldName: 'dpDv', header: t('MSG_TXT_DP_KND'), width: '100', styleName: 'text-left' }, // 입금종류 확인필요
+    { fieldName: 'dpDv', header: t('MSG_TXT_DP_KND'), width: '100', styleName: 'text-left', options: codes.RFND_TP_CD }, // 입금종류 확인필요
     { fieldName: 'rfndDv', header: t('MSG_TXT_CLSF_REFUND'), width: '100', styleName: 'text-center', options: customCodes.RFND_DV_CD }, // 환불구분
     { fieldName: 'icptSellDv', header: t('MSG_TXT_ICPT_SELL_DV'), width: '120', styleName: 'text-left', options: customCodes.ICPT_SELL_YN }, // 불완전판매구분
     { fieldName: 'sellAmt',

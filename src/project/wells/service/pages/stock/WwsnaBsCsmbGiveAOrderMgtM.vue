@@ -34,12 +34,14 @@
         >
           <kw-select
             v-model="searchParams.goDvCd"
+            first-option="all"
             :options="codes.GO_DV_CD"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_ITM_KND')">
           <kw-select
             v-model="searchParams.itmKndCd"
+            first-option="all"
             :options="codes.ITM_KND_CD"
             @change="onChangeItmKndCd"
           />
@@ -47,6 +49,7 @@
         <kw-search-item :label="$t('MSG_TXT_ITM_NM')">
           <kw-select
             v-model="searchParams.csmbPdCd"
+            first-option="all"
             :options="productCodes"
           />
         </kw-search-item>
@@ -267,9 +270,13 @@ async function onChangeMngtYm() {
 }
 
 async function onChangeItmKndCd() {
-  const res = await dataService.get(`/sms/wells/service/bs-consumables/${searchParams.value.itmKndCd}/product-codes`);
+  if (searchParams.value.itmKndCd) {
+    const res = await dataService.get(`/sms/wells/service/bs-consumables/${searchParams.value.itmKndCd}/product-codes`);
 
-  productCodes.value = res.data.map((v) => ({ codeId: v.svpdPdCd, codeName: v.svpdNmKor }));
+    productCodes.value = res.data.map((v) => ({ codeId: v.svpdPdCd, codeName: v.svpdNmKor }));
+  } else {
+    productCodes.value = '';
+  }
 }
 
 let cachedParams;

@@ -281,7 +281,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomAsnQty',
       header: t('MSG_TXT_AGG'),
@@ -290,7 +290,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'indiQty1',
       header: t('MSG_TXT_1ST'),
@@ -299,7 +299,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'indiQty2',
       header: t('MSG_TXT_2ST'),
@@ -308,7 +308,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'indiQty3',
       header: t('MSG_TXT_3ST'),
@@ -317,7 +317,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'indeQty1',
       header: t('MSG_TXT_1ST'),
@@ -326,7 +326,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'indeQty2',
       header: t('MSG_TXT_2ST'),
@@ -335,7 +335,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'indeQty3',
       header: t('MSG_TXT_3ST'),
@@ -344,7 +344,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'lgstQty',
       header: t('MSG_TXT_AGG'),
@@ -353,7 +353,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qty100002',
       header: t('MSG_TXT_PAJU'),
@@ -362,7 +362,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qty100008',
       header: t('MSG_TXT_SEONG_SU'),
@@ -371,7 +371,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'lgstLackQty',
       header: t('MSG_TXT_PAJU_SEONG_SU'),
@@ -380,8 +380,19 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
-      } },
+        numberFormat: '#,##0',
+      },
+      styleCallback: (grid, dataCell) => {
+        const ret = {};
+        const { lgstLackQty } = grid.getValues(dataCell.index.itemIndex);
+        // 파주+성수 수량이 마이너스인 경우 빨간색 글씨로 표시
+        if (lgstLackQty < 0) {
+          ret.styleName = 'text-right red-column';
+        }
+
+        return ret;
+      },
+    },
     { fieldName: 'lackQty100008',
       header: t('MSG_TXT_SEONG_SU'),
       width: '120',
@@ -389,7 +400,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'centerQty',
       header: `${t('MSG_TXT_BSNS_CNTR')} ${t('MSG_TXT_OG')}${t('MSG_TXT_STOC')}`,
@@ -398,7 +409,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'centerIndiQty',
       header: `${t('MSG_TXT_BSNS_CNTR')} ${t('MSG_TXT_INDV')}${t('MSG_TXT_STOC')}`,
@@ -407,7 +418,7 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
   ];
 
@@ -445,6 +456,16 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.setFixedOptions({
+    colCount: 3,
+  });
 });
 
 </script>
+<style>
+.red-column {
+  color: red !important;
+}
+
+</style>

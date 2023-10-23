@@ -44,11 +44,8 @@
               <p>{{ searchDetail.hooPrtnrNo }} / {{ searchDetail.hooPrtnrNm }}</p>
             </kw-form-item>
             <kw-form-item />
-            <!--무료-->
-            <kw-form-item
-              :label="$t('MSG_TXT_FRE')"
-              hint="null"
-            >
+            <!--무료 (mapping : null)-->
+            <kw-form-item :label="$t('MSG_TXT_FRE')">
               <p>{{ searchDetail.null }}</p>
             </kw-form-item>
           </kw-form-row>
@@ -78,11 +75,8 @@
             <kw-form-item :label="$t('MSG_TXT_SALE_PRICE')">
               <p>{{ stringUtil.getNumberWithComma(searchDetail.sellAmt??'') }}</p>
             </kw-form-item>
-            <!--추가금액 -->
-            <kw-form-item
-              :label="$t('MSG_TXT_SPMT_AMT')"
-              hint="null"
-            >
+            <!--추가금액 (mapping : null)-->
+            <kw-form-item :label="$t('MSG_TXT_SPMT_AMT')">
               <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
             </kw-form-item>
             <!--할인가-->
@@ -329,11 +323,8 @@
           rules="required"
         />
       </kw-form-item>
-      <!-- row1 사용일수 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_USE_DAY')"
-        hint="렌탈조회시 사용일수 없음."
-      >
+      <!-- row1 사용일수 (mapping : 렌탈조회시 사용일수 없음)-->
+      <kw-form-item :label="$t('MSG_TXT_USE_DAY')">
         <p>{{ stringUtil.getNumberWithComma(searchDetail.useDays??'') }} DAY</p>
       </kw-form-item>
     </kw-form-row>
@@ -344,11 +335,8 @@
       <kw-form-item :label="$t('MSG_TXT_PRPD_BLAM')">
         <p>{{ stringUtil.getNumberWithComma(searchDetail.eotAtam??'') }}</p>
       </kw-form-item>
-      <!-- row2 당월입금 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_THM_DP')"
-        hint="??"
-      >
+      <!-- row2 당월입금 (mapping : ??)-->
+      <kw-form-item :label="$t('MSG_TXT_THM_DP')">
         <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
       </kw-form-item>
       <!-- row2 선수총액 -->

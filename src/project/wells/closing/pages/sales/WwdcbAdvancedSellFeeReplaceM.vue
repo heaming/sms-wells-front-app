@@ -387,22 +387,22 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'ogTpCd', header: t('MSG_TXT_OG_TP'), width: '140', styleName: 'text-center', options: codes.OG_TP_CD },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '150', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_NM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'feeOcAmt', header: `①${t('MSG_TXT_FEE_OC_AMT')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'feeOcYm', header: t('MSG_TXT_FEE_OC_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'piaCsYn', header: t('MSG_TXT_PIA_TARGET_YN'), width: '120', styleName: 'text-center', options: piaCsYnCode },
-    { fieldName: 'piaSellFeeCrdovrResAmt', header: `②${t('MSG_TXT_PIA_SELL_FEE_CRDOVR_BLAM')}`, width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'piaFeeOcAmt', header: `③${t('MSG_TXT_FEE_OC_AMT_THIS_MONTH')}`, width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'csRplcAmt', header: `④${t('MSG_TXT_CS_RPLC_AMT2')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'csRplcAmtCancBlam', header: `⑤${t('MSG_TXT_CS_RPLC_AMT_CANC_BLAM')}`, width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'ttrmCsAmt', header: `⑥${t('MSG_TXT_TTRM_CS_AMT')}`, width: '210', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'piaFeeEotBlam', header: `${t('MSG_TXT_PIA_FEE_EOT_BLAM')}(②+③-⑥)`, width: '220', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'ogTpCd', header: t('MSG_TXT_OG_TP'), width: '140', styleName: 'text-center', options: codes.OG_TP_CD }, // 조직유형
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '150', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'pdHclsfNm', header: t('MSG_TXT_PD_HCLSF_NM'), width: '150', styleName: 'text-center' }, // 상품대분류
+    { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PD_MCLSF_NM'), width: '150', styleName: 'text-center' }, // 상품중분류
+    { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기준년월
+    { fieldName: 'slAmt', header: t('MSG_TXT_SL_AMT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'feeOcAmt', header: `①${t('MSG_TXT_FEE_OC_AMT')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 수수료발생금액
+    { fieldName: 'feeOcYm', header: t('MSG_TXT_FEE_OC_YM'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수수료발생년월
+    { fieldName: 'piaCsYn', header: t('MSG_TXT_PIA_TARGET_YN'), width: '120', styleName: 'text-center', options: piaCsYnCode }, // 선급대상여부
+    { fieldName: 'piaSellFeeCrdovrResAmt', header: `②${t('MSG_TXT_PIA_SELL_FEE_CRDOVR_BLAM')}`, width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 선급판매수수료이월잔액
+    { fieldName: 'piaFeeOcAmt', header: `③${t('MSG_TXT_FEE_OC_AMT_THIS_MONTH')}`, width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 선급판매수수료당월발생
+    { fieldName: 'csRplcAmt', header: `④${t('MSG_TXT_CS_RPLC_AMT2')}`, width: '140', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 비용대체금액 매출
+    { fieldName: 'csRplcAmtCancBlam', header: `⑤${t('MSG_TXT_CS_RPLC_AMT_CANC_BLAM')}`, width: '180', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 비용대체금액 취소분잔액
+    { fieldName: 'ttrmCsAmt', header: `⑥${t('MSG_TXT_TTRM_CS_AMT')}`, width: '210', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 당기비용인식액 기준년월기준
+    { fieldName: 'piaFeeEotBlam', header: `${t('MSG_TXT_PIA_FEE_EOT_BLAM')}(②+③-⑥)`, width: '220', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 선급판매수수료기말잔액
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));

@@ -35,7 +35,7 @@
           <kw-select
             v-model="searchParams.ogTpCd"
             :label="$t('MSG_TXT_OG_TP')"
-            :options="slxOgTpCd"
+            :options="ogTpCd"
             @change="onChangeOgTp"
           />
         </kw-search-item>
@@ -43,25 +43,25 @@
           :label="$t('MSG_TXT_RSB_TP')"
         >
           <kw-option-group
-            v-if="isSelectVisile"
+            v-if="isSelectMrsbDvCdVisile"
             v-model="searchParams.rsbDvCd"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
-            :options="slxRsb1TpCd"
+            :options="mRsbDvCd"
           />
           <kw-option-group
-            v-if="isSelectVisile2"
+            v-if="isSelectPrsbDvCdVisile"
             v-model="searchParams.rsbDvCd"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
-            :options="slxRsb2TpCd"
+            :options="pRsbDvCd"
           />
           <kw-option-group
-            v-if="isSelectVisile3"
+            v-if="isSelectHrsbDvCdVisile"
             v-model="searchParams.rsbDvCd"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
-            :options="slxRsb3TpCd"
+            :options="hRsbDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -85,9 +85,9 @@
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
           <zwog-level-select
-            v-model:og-levl-dv-cd1="searchParams.ogLevl1Id"
-            v-model:og-levl-dv-cd2="searchParams.ogLevl2Id"
-            v-model:og-levl-dv-cd3="searchParams.ogLevl3Id"
+            v-model:og-levl-dv-cd1="searchParams.ogLevl1"
+            v-model:og-levl-dv-cd2="searchParams.ogLevl2"
+            v-model:og-levl-dv-cd3="searchParams.ogLevl3"
             :og-tp-cd="searchParams.ogTpCd"
             :base-ym="searchParams.perfYm"
             :start-level="1"
@@ -131,7 +131,7 @@
           secondary
           icon="download_on"
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="!isExcelDown"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
         <kw-separator
@@ -147,25 +147,9 @@
         />
       </kw-action-top>
       <kw-grid
-        v-if="isSelectVisile"
         ref="grdMainRef"
-        name="grd1Main"
-        :visible-rows="10"
-        @init="initGrd1Main"
-      />
-      <kw-grid
-        v-if="isSelectVisile2"
-        ref="grdMainRef"
-        name="grd2Main"
-        :visible-rows="10"
-        @init="initGrd1Main"
-      />
-      <kw-grid
-        v-if="isSelectVisile3"
-        ref="grdMainRef"
-        name="grd3Main"
-        :visible-rows="10"
-        @init="initGrd2Main"
+        name="grdMain"
+        @init="initGrdMain"
       />
     </div>
   </kw-page>
@@ -175,7 +159,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useMeta, getComponentType, defineGrid, modal, codeUtil, notify, gridUtil } from 'kw-lib';
+import { useDataService, getComponentType, defineGrid, modal, codeUtil, notify, gridUtil } from 'kw-lib';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 import dayjs from 'dayjs';
@@ -185,20 +169,18 @@ import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect
 
 const { t } = useI18n();
 const dataService = useDataService();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
 const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
-const isSelectVisile = ref(true);
-const isSelectVisile2 = ref(false);
-const isSelectVisile3 = ref(false);
-const isExcelDown = ref(false);
-const { currentRoute } = useRouter();
-const { getUserInfo } = useMeta();
-const sessionUserInfo = getUserInfo();
+const isSelectMrsbDvCdVisile = ref(true);
+const isSelectPrsbDvCdVisile = ref(false);
+const isSelectHrsbDvCdVisile = ref(false);
+const currentRoute = useRouter();
+const router = useRouter();
+
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'RSB_DV_CD',
@@ -207,36 +189,23 @@ const codes = await codeUtil.getMultiCodes(
   'BNK_CD',
 );
 
-const slxOgTpCd = codes.OG_TP_CD.filter((e) => ['W02', 'W01', 'W03'].includes(e.codeId));
-const slxRsb1TpCd = codes.RSB_DV_CD.filter((e) => ['W0204', 'W0205'].includes(e.codeId));
-const slxRsb2TpCd = codes.RSB_DV_CD.filter((e) => ['W0104', 'W0105'].includes(e.codeId));
-const slxRsb3TpCd = codes.RSB_DV_CD.filter((e) => ['W0301', 'W0302'].includes(e.codeId));
+const ogTpCd = codes.OG_TP_CD.filter((e) => ['W02', 'W01', 'W03'].includes(e.codeId));
+const mRsbDvCd = codes.RSB_DV_CD.filter((e) => ['W0204', 'W0205'].includes(e.codeId));
+const pRsbDvCd = codes.RSB_DV_CD.filter((e) => ['W0104', 'W0105'].includes(e.codeId));
+const hRsbDvCd = codes.RSB_DV_CD.filter((e) => ['W0301', 'W0302'].includes(e.codeId));
 
 const totalCount = ref(0);
+
 const searchParams = ref({
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   ogTpCd: 'W02',
   rsbDvCd: 'W0205',
-  ogLevl1Id: '',
-  ogLevl2Id: '',
-  ogLevl3Id: '',
+  ogLevl1: '',
+  ogLevl2: '',
+  ogLevl3: '',
   prtnrNo: '',
   prtnrKnm: '',
   feeDsbYn: '',
-  prPerfYm: '',
-  prOgTpCd: '',
-  userHirFomCd: '',
-  userEmpID: sessionUserInfo.employeeIDNumber,
-  userRsbCd: '',
-  userSpptRsbDvCd: '',
-  userPstnDvCd: '',
-});
-
-const info = ref({
-  hirFomCd: '',
-  bznsSpptRsbDvCd: '',
-  rsbDvCd: '',
-  pstnDvCd: '',
 });
 
 const saveParams = ref({
@@ -256,49 +225,67 @@ const ozParam = ref({
 
 let cachedParams;
 
-const router = useRouter();
+function getGridColumns() {
+  const columns = [];
+
+  if (searchParams.value.ogTpCd === 'W01' || searchParams.value.ogTpCd === 'W02') {
+    columns.push(
+      { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '108', styleName: 'text-center' }, // 총괄단
+      { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_BUSINESS_DIVISION'), width: '108', styleName: 'text-center' }, // 사업단
+      { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '108', styleName: 'text-center' }, // 지점
+    );
+  } else if (searchParams.value.ogTpCd === 'W03') {
+    columns.push(
+      { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '108', styleName: 'text-center' }, // 지역단
+      { fieldName: 'dgr3LevlOgNm', header: t('MSG_TXT_BRANCH'), width: '108', styleName: 'text-center' }, // 지점
+    );
+  }
+
+  columns.push(
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center' }, // 성명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '108', styleName: 'text-center' }, // 번호
+    { fieldName: 'rsbDvCd',
+      header: t('MSG_TXT_RSB'), // 직책
+      width: '100',
+      styleName: 'text-center',
+      options: codes.RSB_DV_CD,
+    },
+    { fieldName: 'qlfDvCd',
+      header: t('MSG_TXT_QLF'), // 자격
+      width: '100',
+      styleName: 'text-center',
+      options: codes.QLF_DV_CD,
+    },
+    { fieldName: 'bnkNm', header: t('MSG_TXT_BNK'), width: '150', styleName: 'text-center' }, // 은행
+    { fieldName: 'acnoEncr', header: t('MSG_TXT_AC_NO'), width: '180', styleName: 'text-center' }, // 계좌번호
+    { fieldName: 'intbsAmt', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_AGG'), width: '137', styleName: 'text-right', dataType: 'number' }, // 과표 계
+    { fieldName: 'ddctam', header: t('MSG_TXT_DDTN') + t('MSG_TXT_AGG'), width: '137', styleName: 'text-right', dataType: 'number' }, // 공제 계
+    { fieldName: 'dsbOjAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '191', styleName: 'text-right', dataType: 'number' }, // 실지급액
+    { fieldName: 'awdIntbsAmt', header: t('MSG_TXT_AWD') + t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_AGG'), width: '137', styleName: 'text-right', dataType: 'number' }, // 시상 과표 계
+    { fieldName: 'awdErnWhtx', header: t('MSG_TXT_AWD') + t('MSG_TXT_DDTN') + t('MSG_TXT_AGG'), width: '137', styleName: 'text-right', dataType: 'number' }, // 시상 공제 계
+    { fieldName: 'awdDsbOjAmt', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '191', styleName: 'text-right', dataType: 'number' }, // 시상 실지급액
+  );
+
+  return columns;
+}
 
 /*
  *  Event - 수수료 조회
  */
+async function fetchData() {
+  const response = await dataService.get('/sms/wells/fee/individual-fees/feeLists', { params: cachedParams, timeout: 300000 });
+  const dataList = response.data;
 
-async function fetchData(uri) {
-  const { perfYm, ogTpCd } = searchParams.value;
-  cachedParams = cloneDeep(searchParams.value);
-  const response = await dataService.get(`/sms/wells/fee/individual-fees/${uri}`, { params: cachedParams, timeout: 300000 });
-  const fees = response.data;
-  searchParams.value.prPerfYm = perfYm;
-  searchParams.value.prOgTpCd = ogTpCd;
-  totalCount.value = fees.length;
-  if (totalCount.value > 0) {
-    isExcelDown.value = true;
-  } else {
-    isExcelDown.value = false;
-  }
-  if (uri === 'feeLists') {
-    if (ogTpCd === 'W03') {
-      const homeMasterView = grdMainRef.value.getView();
-      homeMasterView.getDataSource().setRows(fees);
-    } else {
-      const managerView = grdMainRef.value.getView();
-      managerView.getDataSource().setRows(fees);
-    }
-  } else if (uri === 'userInfo') {
-    info.value = fees;
-  }
+  totalCount.value = dataList.length;
+
+  const view = grdMainRef.value.getView();
+  view.getDataSource().setRows(dataList);
 }
 
 /*
  *  Event - 엑셀 다운로드
  */
 async function onClickExcelDownload() {
-  const { hirFomCd, bznsSpptRsbDvCd, rsbDvCd, pstnDvCd } = info.value;
-  searchParams.value.hirFomCd = hirFomCd;
-  searchParams.value.userRsbCd = rsbDvCd;
-  searchParams.value.userSpptRsbDvCd = bznsSpptRsbDvCd;
-  searchParams.value.userPstnDvCd = pstnDvCd;
-  cachedParams = cloneDeep(searchParams.value);
-
   const view = grdMainRef.value.getView();
   const response = await dataService.get('/sms/wells/fee/individual-fees/feeLists', { params: cachedParams });
 
@@ -310,13 +297,9 @@ async function onClickExcelDownload() {
 }
 
 async function onClickSearch() {
-  const { hirFomCd, bznsSpptRsbDvCd, rsbDvCd, pstnDvCd } = info.value;
-  searchParams.value.hirFomCd = hirFomCd;
-  searchParams.value.userRsbCd = rsbDvCd;
-  searchParams.value.userSpptRsbDvCd = bznsSpptRsbDvCd;
-  searchParams.value.userPstnDvCd = pstnDvCd;
-  const uri = 'feeLists';
-  await fetchData(uri);
+  cachedParams = cloneDeep(searchParams.value);
+
+  await fetchData();
 }
 
 /*
@@ -344,22 +327,20 @@ async function onClickSearchNo() {
 /*
  *  Event - 그리드 사번 더블 클릭시 개인상세조회 페이지 이동
 */
-async function movePage(no) {
+async function movePage(prtnrNo) {
   let url = '';
 
-  if (searchParams.value.prOgTpCd === 'W02') {
-    url = '/fee/wwfee-individual-fee-manager-list';
-  } else if (searchParams.value.prOgTpCd === 'W01') {
+  if (cachedParams.ogTpCd === 'W01') {
     url = '/fee/wwfee-individual-fee-planner-list';
-  } else if (searchParams.value.prOgTpCd === 'W03') {
+  } else if (cachedParams.ogTpCd === 'W02') {
+    url = '/fee/wwfee-individual-fee-manager-list';
+  } else if (cachedParams.ogTpCd === 'W03') {
     url = '/fee/wwfee-individual-fee-home-master-list';
   }
 
   router.push({
     path: url,
-    query: {
-      perfYm: searchParams.value.prPerfYm,
-      prtnrNo: no },
+    query: { perfYm: cachedParams.perfYm, prtnrNo },
   });
 }
 
@@ -367,97 +348,114 @@ async function movePage(no) {
  *  Event - 조직유형 선택에 따른 그리드 변경
  */
 async function onChangeOgTp() {
-  const { ogTpCd } = searchParams.value;
-  if (ogTpCd === 'W02') {
-    isSelectVisile.value = true;
-    isSelectVisile2.value = false;
-    isSelectVisile3.value = false;
-    searchParams.value.rsbDvCd = 'W0205';
-  } else if (ogTpCd === 'W01') {
-    isSelectVisile.value = false;
-    isSelectVisile2.value = true;
-    isSelectVisile3.value = false;
+  const data = grdMainRef.value.getData();
+  const view = grdMainRef.value.getView();
+
+  const columns = getGridColumns();
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
+
+  view.onCellDblClicked = async (g, { dataRow, column }) => {
+    if (column === 'prtnrNo') {
+      movePage(g.getValue(dataRow, 'prtnrNo'));
+    }
+  };
+
+  if (searchParams.value.ogTpCd === 'W01') {
+    isSelectMrsbDvCdVisile.value = false;
+    isSelectPrsbDvCdVisile.value = true;
+    isSelectHrsbDvCdVisile.value = false;
     searchParams.value.rsbDvCd = 'W0105';
-  } else if (ogTpCd === 'W03') {
-    isSelectVisile.value = false;
-    isSelectVisile2.value = false;
-    isSelectVisile3.value = true;
+  } else if (searchParams.value.ogTpCd === 'W02') {
+    isSelectMrsbDvCdVisile.value = true;
+    isSelectPrsbDvCdVisile.value = false;
+    isSelectHrsbDvCdVisile.value = false;
+    searchParams.value.rsbDvCd = 'W0205';
+  } else if (searchParams.value.ogTpCd === 'W03') {
+    isSelectMrsbDvCdVisile.value = false;
+    isSelectPrsbDvCdVisile.value = false;
+    isSelectHrsbDvCdVisile.value = true;
     searchParams.value.rsbDvCd = 'W0302';
   }
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchData('userInfo');
 }
 
 /*
  *  Event - 지급명세서 출력 버튼 클릭  ※현재 팝업화면 없음
  */
 async function openFeeReportPopup() {
-  const { perfYm, ogTpCd } = searchParams.value;
   const view = grdMainRef.value.getView();
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-  if (checkedRows.length !== 1) {
-    notify(t('MSG_ALT_ONE_PROCS_PSB'));
+  const checkRows = gridUtil.getCheckedRowValues(view);
+
+  if (checkRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
-  if (ogTpCd === 'W01') {
+
+  if (searchParams.value.ogTpCd === 'W01') {
     ozParam.value.ozrId = '/ksswells/cmms/V6.0/cmmsSpecP2022.ozr';
     ozParam.value.odiId = '/ksswells/cmms/V6.0/cmmsSpecP2022.odi';
-  } else if (ogTpCd === 'W02') {
+  } else if (searchParams.value.ogTpCd === 'W02') {
     ozParam.value.ozrId = '/ksswells/cmms/V5.2/cmmsSpec2023.ozr';
     ozParam.value.odiId = '/ksswells/cmms/V5.2/cmmsSpec2023.odi';
-  } else if (ogTpCd === 'W03') {
+  } else if (searchParams.value.ogTpCd === 'W03') {
     ozParam.value.ozrId = '/ksswells/hmCmms/V3.0/cmmsSpec2022.ozr';
     ozParam.value.odiId = '/ksswells/hmCmms/V3.0/cmmsSpec2022.odi';
   }
 
-  const targetRow = checkedRows[0];
-  const slcPrtnrNo = targetRow.prtnrNo;
-  const slcPstnDvCd = targetRow.pstnDvCd;
-  if (slcPrtnrNo !== '' && slcPstnDvCd !== undefined) {
-    const bfPerfYm = dayjs(perfYm).add(-1, 'month').format('YYYYMM');
-    openReportPopup(
-      ozParam.value.ozrId,
-      ozParam.value.odiId,
-      JSON.stringify(
-        {
-          AKSDYM: perfYm,
-          AKSDTY: perfYm.substring(0, 4),
-          AKSDTM: perfYm.substring(4, 6),
-          AKDDTY: bfPerfYm.substring(0, 4),
-          AKDDTM: bfPerfYm.substring(4, 6),
-          AKDRNK: slcPstnDvCd,
-          AKDCDE: slcPrtnrNo,
-        },
-      ),
-    );
-  } else {
-    alert(t('MSG_ALT_LIST_CHO'));
+  let checkedPrtnrNos = checkRows[0].prtnrNo;
+  let checkedPstnDvCds = checkRows[0].PstnDvCd;
+
+  for (let i = 1; i < checkRows.length; i += 1) {
+    checkedPrtnrNos += `,${checkRows[i].prtnrNo}`;
+    checkedPstnDvCds += `,${checkRows[i].PstnDvCd}`;
   }
+
+  const bfPerfYm = dayjs(searchParams.value.perfYm).add(-1, 'month').format('YYYYMM');
+
+  openReportPopup(
+    ozParam.value.ozrId,
+    ozParam.value.odiId,
+    JSON.stringify(
+      {
+        AKSDYM: searchParams.value.perfYm,
+        AKSDTY: searchParams.value.perfYm.substring(0, 4),
+        AKSDTM: searchParams.value.perfYm.substring(4, 6),
+        AKDDTY: bfPerfYm.substring(0, 4),
+        AKDDTM: bfPerfYm.substring(4, 6),
+        AKDRNK: checkedPstnDvCds,
+        AKDCDE: checkedPrtnrNos,
+      },
+    ),
+  );
 }
 
 /*
  *  Event - 수수료 조회기간 기간설정 버튼 클릭
  */
 async function onClickFeeDsbSpcsh() {
-  const { ogTpCd, rsbDvCd } = searchParams.value;
   const ddlnDvId = 'DLD_FEE_DSB_SPCSH';
   let ddlnId = '';
-  if (ogTpCd === 'W01') { /* P조직 */
-    if (rsbDvCd === 'W0104') {
+  if (searchParams.value.ogTpCd === 'W01') { /* P조직 */
+    if (searchParams.value.rsbDvCd === 'W0104') {
       ddlnId = 'DLN_00012';
-    } else if (rsbDvCd === 'W0105') {
+    } else if (searchParams.value.rsbDvCd === 'W0105') {
       ddlnId = 'DLN_00013';
     }
-  } else if (ogTpCd === 'W02') { /* M조직 */
-    if (rsbDvCd === 'W0204') {
+  } else if (searchParams.value.ogTpCd === 'W02') { /* M조직 */
+    if (searchParams.value.rsbDvCd === 'W0204') {
       ddlnId = 'DLN_00014';
-    } else if (rsbDvCd === 'W0205') {
+    } else if (searchParams.value.rsbDvCd === 'W0205') {
       ddlnId = 'DLN_00015';
     }
-  } else if (ogTpCd === 'W03') { /* 홈마스터 */
-    if (rsbDvCd === 'W0301') {
+  } else if (searchParams.value.ogTpCd === 'W03') { /* 홈마스터 */
+    if (searchParams.value.rsbDvCd === 'W0301') {
       ddlnId = 'DLN_00016';
-    } else if (rsbDvCd === 'W0302') {
+    } else if (searchParams.value.rsbDvCd === 'W0302') {
       ddlnId = 'DLN_00017';
     }
   }
@@ -479,102 +477,13 @@ async function onClickFeeDsbSpcsh() {
     notify(t('MSG_ALT_FEE_BIZTALK_SET'));
   }
 }
-onMounted(async () => {
-  cachedParams = cloneDeep(searchParams.value);
-  await fetchData('userInfo');
-});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrd1Main = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'mngtDiv' },
-    { fieldName: 'renlGrp' },
-    { fieldName: 'branch' },
-    { fieldName: 'emplNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'rsbDvCd' },
-    { fieldName: 'qlfDvCd' },
-    { fieldName: 'fnitCd' },
-    { fieldName: 'acNo' },
-    { fieldName: 'intbsSum', dataType: 'number' },
-    { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDsbAmt', dataType: 'number' },
-    { fieldName: 'awbIntbsSum', dataType: 'number' },
-    { fieldName: 'awbDdtnSum', dataType: 'number' },
-    { fieldName: 'awbAclDsbAmt', dataType: 'number' },
-    { fieldName: 'pstnDvCd' },
-  ];
-
-  const columns = [
-    { fieldName: 'mngtDiv', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '98' },
-    { fieldName: 'renlGrp', header: t('MSG_TXT_BUSINESS_DIVISION'), width: '98' },
-    { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
-    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '71', options: codes.RSB_DV_CD },
-    { fieldName: 'qlfDvCd', header: t('MSG_TXT_QLF'), width: '110', options: codes.QLF_DV_CD },
-    { fieldName: 'fnitCd', header: t('MSG_TXT_BNK'), width: '80', options: codes.BNK_CD },
-    { fieldName: 'acNo', header: t('MSG_TXT_AC_NO'), width: '127' },
-    { fieldName: 'intbsSum', header: t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
-    { fieldName: 'awbIntbsSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'awbDdtnSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'awbAclDsbAmt', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right', visible: false },
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
-
-  view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
-
-  view.onCellDblClicked = async (g, { dataRow, column }) => {
-    if (column === 'prtnrNo') {
-      movePage(g.getValue(dataRow, 'prtnrNo'));
-    }
-  };
-});
-
-const initGrd2Main = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'renlGrp' },
-    { fieldName: 'branch' },
-    { fieldName: 'emplNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'rsbDvCd' },
-    { fieldName: 'qlfDvCd' },
-    { fieldName: 'fnitCd' },
-    { fieldName: 'acNo' },
-    { fieldName: 'intbsSum', dataType: 'number' },
-    { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDsbAmt', dataType: 'number' },
-    { fieldName: 'awbIntbsSum', dataType: 'number' },
-    { fieldName: 'awbDdtnSum', dataType: 'number' },
-    { fieldName: 'awbAclDsbAmt', dataType: 'number' },
-    { fieldName: 'pstnDvCd' },
-  ];
-
-  const columns = [
-    { fieldName: 'renlGrp', header: t('MSG_TXT_RGNL_GRP'), width: '98' },
-    { fieldName: 'branch', header: t('MSG_TXT_BRANCH'), width: '98' },
-    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '95', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '124', styleName: 'text-center' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '71', options: codes.RSB_DV_CD },
-    { fieldName: 'qlfDvCd', header: t('MSG_TXT_QLF'), width: '110', options: codes.QLF_DV_CD },
-    { fieldName: 'fnitCd', header: t('MSG_TXT_BNK'), width: '80', options: codes.BNK_CD },
-    { fieldName: 'acNo', header: t('MSG_TXT_AC_NO'), width: '127' },
-    { fieldName: 'intbsSum', header: t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
-    { fieldName: 'awbIntbsSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_INTBS_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'awbDdtnSum', header: t('MSG_TXT_AWD') + t('MSG_TXT_DDTN_SUM'), width: '111', styleName: 'text-right' },
-    { fieldName: 'awbAclDsbAmt', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right' },
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_AWD') + t('MSG_TXT_ACL_DSB_AMT'), width: '111', styleName: 'text-right', visible: false },
-  ];
+const initGrdMain = defineGrid((data, view) => {
+  const columns = getGridColumns();
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);

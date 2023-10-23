@@ -289,14 +289,14 @@ async function onClickPrint() {
     notify(t('MSG_ALT_NOT_SELECT_OSTR_PRINT'));
     return;
   }
-
+  const { width, height } = ozParam.value;
   const itmOstrNo = checkedRows.map((v) => (v.itmOstrNo)).join('|');
 
   await openReportPopup(
     '/kyowon_as/stckout.ozr',
     '/kyowon_as/stckout.odi',
     JSON.stringify({ ITM_OSTR_NO: itmOstrNo }),
-    { width: ozParam.width, height: ozParam.height },
+    { width, height },
   );
 }
 
@@ -330,8 +330,11 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       displayCallback: (g, i, v) => {
-        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
-        return v.replace(regExp, '$1-$2-$3');
+        if (!isEmpty(v)) {
+          const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+          return v.replace(regExp, '$1-$2-$3');
+        }
+        return v;
       } },
     { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-left' },
     { fieldName: 'itmStrNo',
@@ -339,8 +342,11 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       displayCallback: (g, i, v) => {
-        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
-        return v.replace(regExp, '$1-$2-$3');
+        if (!isEmpty(v)) {
+          const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+          return v.replace(regExp, '$1-$2-$3');
+        }
+        return v;
       } },
     { fieldName: 'txtNote',
       header: t('MSG_TXT_NOTE'),

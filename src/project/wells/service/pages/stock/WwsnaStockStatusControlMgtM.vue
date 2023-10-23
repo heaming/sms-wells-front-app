@@ -239,43 +239,51 @@ codes.WARE_DV_CD.forEach((e) => {
 });
 
 const gItmPdCd = ref([]);
+// 상품조회
 async function fetchAllItmPdCd(params) {
   return await dataService.get('/sms/wells/service/stock-status-control/product', params);
 }
 
+// 전체상품을 조회
 async function getAllItmPdCd() {
   const res = await fetchAllItmPdCd({ params: { itmKnd: '' } });
   gItmPdCd.value = res.data;
 }
 
+// 페이지로드시 전체 상품을 조회
 await getAllItmPdCd();
 
+// 창고번호 조회
 const gWareNo = ref([]);
 async function fetchAllWareNo(params) {
   return await dataService.get('/sms/wells/service/stock-status-control/stocks', params);
 }
 
-// const gWareNo = (await fetchAllWareNo({ params: { wareDvCd: '' } })).data;
-
+// 창고번호 조회
 async function getAllWareNo() {
   const res = await fetchAllWareNo({ params: { wareDvCd: '' } });
   gWareNo.value = res.data;
 }
 
+// 페이지로드시 창고번호를 조회
 await getAllWareNo();
 
+// 상품코드조회
 async function fetchItmPdCd(params) {
   return await dataService.get('/sms/wells/service/stock-status-control/product-warehouse', params);
 }
 
+// 창고번호 변경시 해당하는 상품코드 조회
 async function onChangeFilterWareNo() {
   const res = await fetchItmPdCd({ params: searchParams.value });
   products.value = res.data;
 }
 
+// 페이지 로드시 창고번호에 해당하는 상품코드 조회
 await onChangeFilterWareNo();
 
 const optionOgNm = ref();
+// 창고변경시
 const onChangeWareNo = async () => {
   const res = await dataService.get(`/sms/wells/service/stock-status-control/organization/${searchParams.value.wareNo}`);
   optionOgNm.value = res.data;
@@ -328,6 +336,7 @@ watch(() => searchParams.value.itmKnd, async (val) => {
   }
 });
 
+// 그리드 품목등급조정유형코드 스타일설정
 function setitmGdCtrTpCdsCellStyle() {
   const itmGdCtrTpCd = grdMainRef.value.getView().columnByField('itmGdCtrTpNm');
 
@@ -337,6 +346,7 @@ function setitmGdCtrTpCdsCellStyle() {
   itmGdCtrTpCd.values = itmGdCtrTpCds.value.map((v) => v.codeId);
 }
 
+// 품목구분코드 변경시
 function onChangeItmKndCd(itmKnd) {
   if (itmKnd === PD_ITM_KND_CD) {
     itmGdCtrTpCds.value = codes.ITM_GD_CTR_TP_CD;
@@ -351,6 +361,7 @@ function isBlank(val) {
   return isUndefined(val) || isNull(val) || val === '';
 }
 
+// 조회
 let cachedParams;
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/stock-status-control/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -369,6 +380,7 @@ async function fetchProduct() {
   product.value = res.data;
 }
 
+// 조회버튼 클릭이벤트
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -378,6 +390,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 초기화버튼 클릭시
 function onClickReset() {
   isSearch.value = true;
   isAddRow.value = false;
@@ -396,6 +409,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 행추가
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
   const { itmKnd, wareDvCd, wareNo, ogNm } = cachedParams;
@@ -465,6 +479,7 @@ async function onClickSave() {
   await fetchData();
 }
 
+// 품목수량 조회
 async function fetchItmQty(grid, itemIndex, itmPdCd) {
   cachedParams.itmPdCd = itmPdCd;
   const res = await dataService.get('/sms/wells/service/stock-status-control/product-qty', { params: { ...cachedParams } });
@@ -653,6 +668,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
+  // 그리드의 선택값을 변경하였을때 발생하는 이벤트 정리
   view.onCellEdited = async (grid, itemIndex, row, field) => {
     const { itmGdCtrTpNm } = grid.getValues(itemIndex);
 

@@ -174,6 +174,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+// 조회
 async function fetchData() {
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
@@ -187,6 +188,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 화면로드시 창고조회
 const warehouses = ref();
 async function fetchDefaultData() {
   const { userId, apyYm } = wharehouseParams.value;
@@ -197,11 +199,13 @@ async function fetchDefaultData() {
   }
 }
 
+// 조회버튼 클릭이벤트
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(excelURI, { params: cachedParams });
@@ -220,8 +224,8 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'strTpCd', header: t('MSG_TXT_STR_TP'), width: '150', options: codes.STR_TP_CD, styleName: 'text-center' },
+    { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' }, // 입고등록일자
+    { fieldName: 'strTpCd', header: t('MSG_TXT_STR_TP'), width: '150', options: codes.STR_TP_CD, styleName: 'text-center' }, // 입고유형코드
     { fieldName: 'itmStrNo',
       header: t('MSG_TXT_STR_MNGT_NO'),
       width: '250',
@@ -229,26 +233,26 @@ const initGrdMain = defineGrid((data, view) => {
       displayCallback: (g, i, v) => {
         const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
         return v.replace(regExp, '$1-$2-$3');
-      } },
-    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-left' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_STR_ITM'), width: '250', styleName: 'text-left' },
+      } }, // 품목입고번호
+    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-left' }, // 창고번호
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_STR_ITM'), width: '250', styleName: 'text-left' }, // 품목상품명
     { fieldName: 'strSn',
       header: t('MSG_TXT_NOTE'),
       width: '145',
       styleName: 'text-center',
       renderer: { type: 'button' },
       displayCallback: () => t('MSG_BTN_STR_RGST'),
-    },
+    }, // 입고순번
   ];
 
   const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
   const fields = [...gridField,
-    { fieldName: 'ostrSn' },
-    { fieldName: 'strHopDt' },
-    { fieldName: 'strWareNo' },
-    { fieldName: 'itmPdNo' },
-    { fieldName: 'ostrWareNo' },
-    { fieldName: 'ostrWareNm' },
+    { fieldName: 'ostrSn' }, // 출고순번
+    { fieldName: 'strHopDt' }, // 입고희망일자
+    { fieldName: 'strWareNo' }, // 입고창고번호
+    { fieldName: 'itmPdNo' }, // 품목상품번호
+    { fieldName: 'ostrWareNo' }, // 출고창고번호
+    { fieldName: 'ostrWareNm' }, // 출고창고명
   ];
 
   data.setFields(fields);

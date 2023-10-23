@@ -113,7 +113,7 @@
         icon="download_on"
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         :disable="prdPageInfo.totalCount === 0"
-        @click="onClickPrdExcelDownload"
+        @click="onClickPdExcelDownload"
       />
     </kw-action-top>
     <kw-grid
@@ -146,6 +146,7 @@ const { notify, confirm, modal } = useGlobal();
 const { getConfig, getUserInfo } = useMeta();
 const dataService = useDataService();
 const userInfo = getUserInfo();
+const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -187,6 +188,16 @@ const prdFetchData = async () => {
   excelUploadFlag.value = false;
 };
 
+const onClickPdExcelDownload = async () => {
+  const view = prdGrdMainRef.value.getView();
+  const response = await dataService.get('/sms/wells/competence/excellent-division-base/excel-download', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: response.data,
+  });
+};
+
 const onClickPrdSearch = async () => {
   prdPageInfo.value.pageIndex = 1;
   // 자동완성 검색조건 설정
@@ -196,7 +207,7 @@ const onClickPrdSearch = async () => {
 
 const onClickPrdAdd = async () => {
   const view = prdGrdMainRef.value.getView();
-  gridUtil.insertRowAndFocus(view, 0, { elvOgTpCd: prdSearchParams.value.elvOgTpCd, baseYm: now.format('YYYYMM') });
+  gridUtil.insertRowAndFocus(view, 0, { evlOgTpCd: prdSearchParams.value.evlOgTpCd, baseYm: now.format('YYYYMM') });
 };
 
 const onClickPrdSave = async () => {
@@ -218,7 +229,7 @@ const fetchExcelData = async (list) => {
 
 const onClickPrdExcelUpload = async () => {
   const view = prdGrdMainRef.value.getView();
-  if (isEmpty(prdSearchParams.value.elvOgTpCd)) {
+  if (isEmpty(prdSearchParams.value.evlOgTpCd)) {
     notify(t('MSG_TXT_BEFORE_SELECT_IT', [t('MSG_TXT_OG_TP')]));
     return;
   }

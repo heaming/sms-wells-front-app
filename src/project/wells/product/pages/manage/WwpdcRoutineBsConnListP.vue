@@ -52,6 +52,7 @@
         />
         <kw-input
           v-model="searchParams.searchValue"
+          maxlength="100"
           dense
           clearable
           icon="search"

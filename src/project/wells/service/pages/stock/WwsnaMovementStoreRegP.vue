@@ -109,7 +109,7 @@
           @change="fetchData"
         />
       </template>
-
+      <!-- 엑셀다운로드 -->
       <kw-btn
         v-permission:download
         dense
@@ -124,6 +124,7 @@
         vertical
         inset
       />
+      <!-- 네임텍 출력 -->
       <kw-btn
         v-permission:create
         dense
@@ -136,6 +137,7 @@
         vertical
         inset
       />
+      <!-- 삭제 -->
       <kw-btn
         v-permission:delete
         primary
@@ -144,6 +146,7 @@
         :disable="propsParams.flagChk === 0"
         @click="onClickRemove"
       />
+      <!-- 이관입고 등록 -->
       <kw-btn
         v-permission:create
         primary
@@ -295,6 +298,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+// 표준창고등록 조회
 async function stckStdGbFetchData() {
   const apyYm = searchParams.value.strRgstDt.substring(0, 6);
   const wareNo = searchParams.value.ostrWareNo;
@@ -303,6 +307,7 @@ async function stckStdGbFetchData() {
   searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get(baseURI, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: searchData, pageInfo: pagingResult } = res.data;
@@ -323,6 +328,7 @@ async function fetchData() {
   }
 }
 
+// 표준미적용 클릭이벤트
 async function onCheckedStckNoStdGb() {
   debugger;
   const { stckNoStdGb, baseYm, ostrWareNo } = searchParams.value;
@@ -337,6 +343,7 @@ async function onCheckedStckNoStdGb() {
   }
 }
 
+// 입고창고의 마감여부 체크
 async function strWareMonthlyClosed() {
   const apyYm = searchParams.value.strRgstDt.substring(0, 6);
   const wareNo = searchParams.value.strWareNo;
@@ -350,6 +357,7 @@ async function strWareMonthlyClosed() {
   return res.data > 0;
 }
 
+// 저장시 Validation
 async function saveValidation() {
   const view = grdMainRef.value.getView();
   const rows = view.getCheckedItems();
@@ -409,6 +417,7 @@ async function saveValidation() {
   return true;
 }
 
+// 삭제 Validation
 async function removeValidation() {
   const view = grdMainRef.value.getView();
   const checkedRows = view.getCheckedItems();
@@ -443,6 +452,7 @@ async function removeValidation() {
   return true;
 }
 
+// 저장버튼 클릭이벤트
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const rows = view.getCheckedItems();
@@ -481,6 +491,8 @@ async function onClickSave() {
     notify(t('MSG_ALT_SVE_ERR'));
   }
 }
+
+// 삭제버튼클릭이벤트
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   const rows = view.getCheckedItems();
@@ -516,6 +528,7 @@ async function onClickRemove() {
   }
 }
 
+// 네임텍출력버튼 클릭이벤트
 async function onClickNameTagPrint() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -545,6 +558,7 @@ async function onClickNameTagPrint() {
 }
 
 const popupRef = ref();
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -568,20 +582,35 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
+    // SAP코드
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '124', styleName: 'text-center' },
+    // 품목상품코드
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '130', styleName: 'text-center' },
+    // 품목상품명
     { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '210', styleName: 'text-left' },
+    // 품목위치
     { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '141', styleName: 'text-left' },
+    // 재고수량
     { fieldName: 'onQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right' },
+    // 관리단위코드
     { fieldName: 'mngtUnitCd', header: t('MSG_TXT_MNGT_UNIT'), width: '100', styleName: 'text-center' },
+    // 박스단위수량
     { fieldName: 'boxUnitQty', header: t('MSG_TXT_UNIT_QTY'), width: '100', styleName: 'text-right' },
+    // 출고요청수량
     { fieldName: 'ostrAkQty', header: t('MSG_TXT_OSTR_AK_QTY'), width: '100', styleName: 'text-right' },
+    // 품목등급코드
     { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
+    // 출고수량
     { fieldName: 'ostrQty', header: t('MSG_TXT_OSTR_QTY'), width: '100', styleName: 'text-right' },
+    // 최근입고일자
     { fieldName: 'strRgstDt', header: t('MSG_TXT_RECT_STR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    // 입고누계수량
     { fieldName: 'inSum', header: t('MSG_TXT_STR_AGG_QTY'), width: '100', styleName: 'text-right' },
+    // 입고(대상) 수량
     { fieldName: 'strQty', header: t('MSG_TXT_STR_OJ_QTY'), width: '100', styleName: 'text-right' },
+    // 변경확정사유
     { fieldName: 'ostrCnfmCd', header: t('MSG_TXT_CH_CNFM_RSON'), width: '100', styleName: 'text-right' },
+    // 비고
     { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '100', styleName: 'text-right' },
   ];
 

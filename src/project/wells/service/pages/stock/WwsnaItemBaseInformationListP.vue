@@ -9,7 +9,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
- - 기타출고등록 관리 (http://localhost:3000/#/service/wwsna-item-base-information-List)
+ - 품목기본정보 조회 (http://localhost:3000/#/service/wwsna-item-base-information-List)
  ****************************************************************************************************
 --->
 
@@ -44,21 +44,21 @@
             v-model="searchParams.itmPdNm"
             class="w200"
           />
-          <kw-field
+          <!-- <kw-field
             :model-value="[]"
           >
             <template
               #default="{ field }"
-            >
-              <!-- /TODO: 안전재고미달품목 체크박스 로직 추후 추가 -->
-              <kw-checkbox
+            > -->
+          <!-- /TODO: 안전재고미달품목 체크박스 로직 추후 추가 -->
+          <!-- <kw-checkbox
                 v-show="checkField"
                 v-bind="field"
                 :label="$t('MSG_TXT_SFT_STOC_SRTFL_ITM')"
                 val=""
               />
             </template>
-          </kw-field>
+          </kw-field> -->
         </kw-search-item>
       </kw-search-row>
       <kw-search-row
@@ -141,11 +141,13 @@
       @init="initGrdMain2"
     />
     <template #action>
+      <!-- 닫기버튼 -->
       <kw-btn
         negative
         :label="$t('MSG_BTN_CLOSE')"
         @click="onClickClose"
       />
+      <!-- 선택 -->
       <kw-btn
         v-permission:create
         primary
@@ -231,6 +233,7 @@ const props = defineProps({
 
 });
 
+// 조회 파라미터
 const searchParams = ref({
   itmKndCd: props.itmKndCd,
   itmPdNm: props.itmPdNm,
@@ -278,6 +281,7 @@ function validateChangeCode() {
 
 const totalCount = ref(0);
 
+// 신청리스트 조회
 const aplcLists = ref([]);
 let list = [];
 let target = [];
@@ -309,10 +313,12 @@ async function fetchAplcLists() {
   view.getDataSource().setRows(target);
 }
 
+// 신청리스트 변경이벤트
 async function onUpdateAplcDvAcd() {
   await fetchAplcLists();
 }
 
+// 조회
 let cachedParams;
 async function fetchData() {
   let pages;
@@ -335,11 +341,13 @@ async function fetchData() {
   list = gridUtil.getAllRowValues(view, false);
 }
 
+// 조회버튼 클릭이벤트
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 화면 로드시 Default
 async function initDefault() {
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/service/item-base-informations/checked-code', { params: cachedParams });
@@ -347,6 +355,7 @@ async function initDefault() {
   searchParams.value.wareDtlDvCd = res.data[0].wareDtlDvCd;
 }
 
+// SAP코드 input박스 첫번째 입력시
 function onChangeStrtSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -356,6 +365,7 @@ function onChangeStrtSapCd() {
   }
 }
 
+// SAP코드 input박스 두번째 입력시
 function onChangeEndSapCd() {
   const { strtSapCd, endSapCd } = searchParams.value;
 
@@ -404,24 +414,24 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmPdNm' },
-    { fieldName: 'itmPdNm1' },
-    { fieldName: 'itmPdAbbr1' },
-    { fieldName: 'itemKnd' },
-    { fieldName: 'boxUnitQty' },
-    { fieldName: 'delUnt' },
-    { fieldName: 'imgUrl' },
-    { fieldName: 'warehouseQty', dataType: 'number' },
-    { fieldName: 'centerQty', dataType: 'number' },
-    { fieldName: 'centerBQty' },
-    { fieldName: 'indiQty', dataType: 'number' },
-    { fieldName: 'useQty', dataType: 'number' },
-    { fieldName: 'useQtyY', dataType: 'number' },
-    { fieldName: 'useQtyP', dataType: 'number' },
-    { fieldName: 'shortSupply', dataType: 'number' },
-    { fieldName: 'totalQty', dataType: 'number' },
+    { fieldName: 'sapCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목상품코드
+    { fieldName: 'itmPdNm' }, // 품목상품명
+    { fieldName: 'itmPdNm1' }, // 품목상품명1
+    { fieldName: 'itmPdAbbr1' }, // 품목약어
+    { fieldName: 'itemKnd' }, // 품목구분
+    { fieldName: 'boxUnitQty' }, // 박스단위수량
+    { fieldName: 'delUnt' }, // 관리단위
+    { fieldName: 'imgUrl' }, // IMGURL
+    { fieldName: 'warehouseQty', dataType: 'number' }, // 창고수량
+    { fieldName: 'centerQty', dataType: 'number' }, // 센터수량
+    { fieldName: 'centerBQty' }, // 센터B수량
+    { fieldName: 'indiQty', dataType: 'number' }, // 개인수량
+    { fieldName: 'useQty', dataType: 'number' }, // 사용수량
+    { fieldName: 'useQtyY', dataType: 'number' }, // 전년도
+    { fieldName: 'useQtyP', dataType: 'number' }, // 전월
+    { fieldName: 'shortSupply', dataType: 'number' }, // 신청
+    { fieldName: 'totalQty', dataType: 'number' }, // 총수량
   ];
 
   const columns = [
@@ -434,7 +444,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       renderer: {
         type: 'button',
-        hideWhenEmpty: false,
+        hideWhenEmpty: true,
       },
       displayCallback: () => t('MSG_TXT_IMG_BRWS'),
     },
@@ -455,6 +465,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.filteringOptions.enabled = false;
 
+  // IMG보기 버튼 클릭
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     const { imgUrl } = g.getValues(itemIndex);
     if (column === 'imgUrl') {
@@ -476,25 +487,25 @@ const initGrdMain = defineGrid((data, view) => {
 
 const initGrdMain2 = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapCd' },
-    { fieldName: 'sapGrp' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmPdNm' },
-    { fieldName: 'itmPdAbbr1' },
-    { fieldName: 'lgstQty', dataType: 'number' },
-    { fieldName: 'centerQty', dataType: 'number' },
-    { fieldName: 'myCenterQty', dataType: 'number' },
-    { fieldName: 'indiStckQty', dataType: 'number' },
-    { fieldName: 'lQty', dataType: 'number' },
-    { fieldName: 'itmKnd' },
-    { fieldName: 'itmKndNm' },
-    { fieldName: 'delUnt' },
-    { fieldName: 'delUntNm' },
-    { fieldName: 'imgUrl' },
-    { fieldName: 'apldFr' },
-    { fieldName: 'apldTo' },
-    { fieldName: 'boxQty' },
-    { fieldName: 'leadTime' },
+    { fieldName: 'sapCd' }, // SAP코드
+    { fieldName: 'sapGrp' }, // SAP구분
+    { fieldName: 'itmPdCd' }, // 품목상품코드
+    { fieldName: 'itmPdNm' }, // 품목상품코드
+    { fieldName: 'itmPdAbbr1' }, // 품목상품약어명
+    { fieldName: 'lgstQty', dataType: 'number' }, // 물류수량
+    { fieldName: 'centerQty', dataType: 'number' }, // 센터수량
+    { fieldName: 'myCenterQty', dataType: 'number' }, //
+    { fieldName: 'indiStckQty', dataType: 'number' }, // 개인창고수량
+    { fieldName: 'lQty', dataType: 'number' }, // 수량
+    { fieldName: 'itmKnd' }, // 품목구분
+    { fieldName: 'itmKndNm' }, // 품목구분명
+    { fieldName: 'delUnt' }, // 출고단위
+    { fieldName: 'delUntNm' }, // 출고단위명
+    { fieldName: 'imgUrl' }, // IMGURL
+    { fieldName: 'apldFr' }, // 사용시작일
+    { fieldName: 'apldTo' }, // 사용종료일
+    { fieldName: 'boxQty' }, // 박스수량
+    { fieldName: 'leadTime' }, // leadTime
 
   ];
 

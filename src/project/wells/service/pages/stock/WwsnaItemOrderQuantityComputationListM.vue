@@ -295,18 +295,12 @@ async function fetchData() {
 const isSearch = ref(true);
 // 조회버튼 클릭
 async function onClickSearch() {
-  const { itmKndCd, itmPdCds, itmPdCd, strtSapCd, endSapCd } = searchParams.value;
-
-  if (isEmpty(itmKndCd) && isEmpty(itmPdCds) && isEmpty(itmPdCd) && isEmpty(strtSapCd) && isEmpty(endSapCd)) {
-    // 품목구분, 품목코드, SAP코드 중 1개는 필수 입력입니다.
-    await alert(t('MSG_ALT_REQ_INPUT_ITM_SAPCD'));
-    return;
-  }
+  cachedParams = cloneDeep(searchParams.value);
 
   pageInfo.value.pageIndex = 1;
   // 조회버튼 클릭 시에만 총 건수 조회하도록
   pageInfo.value.needTotalCount = true;
-  cachedParams = cloneDeep(searchParams.value);
+
   isSearch.value = false;
   // 필드 설정
   setTmpFields();
@@ -349,9 +343,9 @@ fieldsObj = {
   // 그리드 공통컬럼
   defaultFields: [
     { fieldName: 'commGbNm', header: t('MSG_TXT_PRD_GRP'), width: '120', styleName: 'text-left', dataType: 'text' }, // 제품군
-    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' }, // SAP코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '200', styleName: 'text-center', dataType: 'text' }, // 품목코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left', dataType: 'text' }, // 품목명
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center', dataType: 'text' }, // SAP코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center', dataType: 'text' }, // 품목코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text' }, // 품목명
   ],
   // 기초재고 산출 - 재고현황
   stockFields: [
@@ -395,19 +389,19 @@ fieldsObj = {
   orderFields: [
     { fieldName: 'totGoQty', // 총 발주량
       header: t('MSG_TXT_TOT_GO_QT'),
-      width: '120',
+      width: '110',
       styleName: 'text-right',
       dataType: 'number',
     },
     { fieldName: 'moq', // MOQ
       header: t('MSG_TXT_MOQ'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       dataType: 'number',
     },
     { fieldName: 'leadTime', // L/T
       header: t('MSG_TXT_LEAD_TIME_SHORT'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       dataType: 'number',
     },

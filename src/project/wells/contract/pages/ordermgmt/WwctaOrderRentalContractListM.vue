@@ -122,7 +122,7 @@
       >
         <kw-select
           v-model="searchParams.alncmpCd"
-          :options="codes.ALNCMP_CD"
+          :options="codes.ALNCMP_CD.filter((v)=> v.codeId !== 'A')"
           first-option="all"
           first-option-value=""
         />
@@ -295,21 +295,21 @@ const searchParams = ref({
   strtDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
   endDt: now.format('YYYYMMDD'), // 종료일자
   rentalNmn: '', // 렌탈차월
-  hcsfVal: '', // 상품분류-대분류
-  hcsfMcsfVal: '', // 상품분류-중분류
   pdCd: '', // 상품코드
-  pdNm: '', // 상품명
   alncmpCd: '', // 제휴코드
   sellEvCd: '', // 행사코드
   sellPrtnrNo: '', // 파트너코드
-  dgr1LevlOgId: [], // 조직코드-총괄단
-  dgr2LevlOgId: [], // 조직코드-지역단
-  dgr3LevlOgId: [], // 조직코드-지점
-  cndtSellTpCd: '', // 판매유형상세
   sellOgTpCd: [], // 조직구분
   booSellYn: '', // 자료구분-예약자료
   canYn: '', // 자료구분-취소제외
   slYn: '', // 자료구분-매출생성
+  pdNm: '', // 상품명
+  dgr1LevlOgId: [], // 조직코드-총괄단
+  dgr2LevlOgId: [], // 조직코드-지역단
+  dgr3LevlOgId: [], // 조직코드-지점
+  cndtSellTpCd: '', // 판매유형상세
+  hcsfVal: '', // 상품분류-대분류
+  hcsfMcsfVal: '', // 상품분류-중분류
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
   cntrCstNo: '', // 계약고객번호

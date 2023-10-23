@@ -705,7 +705,7 @@ const initGrdMain = defineGrid((data, view) => {
       ],
     },
     {
-      header: t('MSG_TXT_STR_QTY'), // 출고수량
+      header: t('MSG_TXT_OSTR_QTY'), // 출고수량
       direction: 'horizontal', // merge type
       items: [
         'nomOstrQty',

@@ -148,10 +148,10 @@
       </h3>
       <kw-action-top>
         <template #left>
+          <!-- v-model:page-index="pageInfoSecond.pageIndex"
+          v-model:page-size="pageInfoSecond.pageSize" -->
           <kw-paging-info
-            v-model:page-index="pageInfoSecond.pageIndex"
-            v-model:page-size="pageInfoSecond.pageSize"
-            :total-count="pageInfoSecond.totalCount"
+            :total-count="gridCount"
             @change="fetchData"
           />
         </template>
@@ -171,9 +171,9 @@
           dense
           secondary
           :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="pageInfoSecond.totalCount === 0"
+          :disable="gridCount === 0"
           @click="onClickExcelSubDownload"
-        />
+          />
         <!-- label="엑셀다운로드" -->
       </kw-action-top>
 
@@ -181,10 +181,10 @@
         ref="grdMainRef2"
         name="grdMain"
         visible-rows="5"
-        :page-size="pageInfoSecond.pageSize"
-        :total-count="pageInfoSecond.totalCount"
         @init="initGrid2"
-      />
+        />
+        <!-- :page-size="pageInfoSecond.pageSize"
+        :total-count="pageInfoSecond.totalCount" -->
     </div>
   </kw-page>
 </template>
@@ -235,12 +235,13 @@ const pageInfo = ref({
   needTotalCount: true,
 });
 
-const pageInfoSecond = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  needTotalCount: true,
-});
+const gridCount = ref(0);
+// const pageInfoSecond = ref({
+//   totalCount: 0,
+//   pageIndex: 1,
+//   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+//   needTotalCount: true,
+// });
 
 let cachedParams;
 
@@ -326,12 +327,16 @@ async function onKeyDownSelectCntr() {
 let cachedSubParams;
 
 async function fetchSubData() {
-  cachedSubParams = { ...cachedSubParams, ...pageInfoSecond.value };
+  // cachedSubParams = { ...cachedSubParams, ...pageInfoSecond.value };
+  cachedSubParams = { ...cachedSubParams };
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic-detail/paging', { params: cachedSubParams });
-  const { list: pages, pageInfo: pagingResult } = res.data;
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic-detail', { params: cachedSubParams });
+  const pages = res.data;
 
-  pageInfoSecond.value = pagingResult;
+  gridCount.value = res.data.length;
+  // const { list: pages, pageInfo: pagingResult } = res.data;
+
+  // pageInfoSecond.value = pagingResult;
 
   const view = grdMainRef2.value.getView();
 
@@ -349,14 +354,19 @@ async function removeData(params) {
   const data = view.getDataSource();
 
   allValues.forEach((param) => {
-    if ((param.cntrNo === params.cntrNo) && (param.itgDpNo === params.itgDpNo)) {
+    if ((param.itgDpNo === params.itgDpNo)) {
       data.removeRow(param.dataRow);
     }
   });
+
+  const view2 = grdMainRef2.value.getView();
+  const allValues2 = gridUtil.getAllRowValues(view2);
+
+  gridCount.value = allValues2.length;
 }
 
 async function onClickSubSearch(data) {
-  pageInfoSecond.value.pageIndex = 1;
+  // pageInfoSecond.value.pageIndex = 1;
 
   const itgDp = data;
 
@@ -542,7 +552,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrNo' }, /* 계약번호 */
     { fieldName: 'cntrSn' }, /* 계약일련번호 */
     { fieldName: 'cntrCstNo' }, /* 고객번호 */
-    { fieldName: 'cntrDtlNo' }, /* 계약상세번호 */
+    // { fieldName: 'cntrDtlNo' }, /* 계약상세번호 */
     { fieldName: 'mconBzsNm' }, /* 거래처명 */
     { fieldName: 'billRmkCn' }, /* 어음구분 */
     { fieldName: 'billDpAmt', dataType: 'number' }, /* 입금액 */
@@ -587,16 +597,16 @@ const initGrid = defineGrid((data, view) => {
       mergeRule: {
         criteria: 'value',
       } },
-    { fieldName: 'cntrDtlNo',
-      header: t('MSG_TXT_CNTR_DTL_NO'),
-      // , header: '계약상세번호'
-      width: '150',
-      styleName: 'text-center',
-      displayCallback(g, index) {
-        const { cntrNo, cntrSn } = g.getValues(index.itemIndex);
-        return `${cntrNo}-${cntrSn}`;
-      },
-    },
+    // { fieldName: 'cntrDtlNo',
+    //   header: t('MSG_TXT_CNTR_DTL_NO'),
+    //   // , header: '계약상세번호'
+    //   width: '150',
+    //   styleName: 'text-center',
+    //   displayCallback(g, index) {
+    //     const { cntrNo, cntrSn } = g.getValues(index.itemIndex);
+    //     return `${cntrNo}-${cntrSn}`;
+    //   },
+    // },
     { fieldName: 'billDpAmt',
     // , header: '입금액'
       header: t('MSG_TXT_DP_AMT'),
@@ -806,11 +816,11 @@ const initGrid2 = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  view.onScrollToBottom = async (g) => {
-    if (pageInfoSecond.value.pageIndex * pageInfoSecond.value.pageSize <= g.getItemCount()) {
-      pageInfoSecond.value.pageIndex += 1;
-      await fetchData();
-    }
-  };
+  // view.onScrollToBottom = async (g) => {
+  //   if (pageInfoSecond.value.pageIndex * pageInfoSecond.value.pageSize <= g.getItemCount()) {
+  //     pageInfoSecond.value.pageIndex += 1;
+  //     await fetchData();
+  //   }
+  // };
 });
 </script>

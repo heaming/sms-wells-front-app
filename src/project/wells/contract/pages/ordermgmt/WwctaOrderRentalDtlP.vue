@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    size="3xl"
+    size="4xl"
     ignore-on-modified
     no-action
   >
@@ -831,7 +831,7 @@
         <!-- 연계주문번호 -->
         <kw-form-item :label="$t('MSG_TXT_CONN')+$t('MSG_TXT_ORD_NO')">
           <kw-input
-            v-model="frmMainData.alncmpCntrDrmVal"
+            v-model="frmMainData.alncmpCstCd"
             placeholder=""
             readonly
           />
@@ -1383,7 +1383,7 @@
         <!-- 사용전력 -->
         <kw-form-item :label="$t('MSG_TXT_USE_ELECT')">
           <kw-input
-            v-model="frmMainData.useElectTpCd"
+            v-model="frmMainData.useElectTpNm"
             placeholder=""
             readonly
           />
@@ -1419,7 +1419,7 @@
         <!-- 설치장소 -->
         <kw-form-item :label="$t('MSG_TXT_INST_PLAC')">
           <kw-input
-            v-model="frmMainData.lcchk8"
+            v-model="frmMainData.istPlcTpNm"
             placeholder=""
             readonly
           />
@@ -1818,7 +1818,7 @@ const frmMainData = ref({
   frisuBfsvcPtrmN: '', // 프로모션 무료개월
   lcflg3: '', // 설치월 면제
   connPdView: '', // 연관상품조회
-  alncmpCntrDrmVal: '', // 연계주문번호
+  alncmpCstCd: '', // 연계주문번호(제휴고객코드)
   alncStatTpNm: '', // 제휴상태
   alncmpPrtnrNo: '', // 제휴 파트너
   lcetc6: '', // 백점이 여부
@@ -1871,11 +1871,11 @@ const frmMainData = ref({
   w22Yn: '', // 제3자동의(피버)
   z11Yn: '', // 정보수집 동의
   sppMthdTpNm: '', // 의뢰구분
-  useElectTpCd: '', // 사용전력
+  useElectTpNm: '', // 사용전력
   wprsItstTpNm: '', // 수압유무
   srcwtTpNm: '', // 수질구분
   wtqltyTstYn: '', // 수질검사
-  lcchk8: '', // 설치장소
+  istPlcTpNm: '', // 설치장소
   wrfrIstMthNm: '', // 설치옵션
   frisuRcvryTpNm: '', // 무상복구사용
   sppOrdNo: '', // 운송장 번호
@@ -2057,7 +2057,8 @@ async function fetchData() {
     // -------------------------------------------------------------------------------------------------
     // 제휴정보
     // -------------------------------------------------------------------------------------------------
-    frmMainData.value.alncmpCntrDrmVal = pages[0].alncmpCntrDrmVal; // 연계주문번호
+    // frmMainData.value.alncmpCstCd = pages[0].alncmpCstCd; // 연계주문번호(제휴고객코드)
+    frmMainData.value.alncmpCstCd = `${pages[0].alncmpCstCd.substr(0, 4)}-${pages[0].alncmpCstCd.substr(4, 7)}`; // 연계주문번호(제휴고객코드)
     frmMainData.value.alncStatTpNm = pages[0].alncStatTpNm; // 제휴상태
     frmMainData.value.alncmpPrtnrNo = pages[0].alncmpPrtnrNo; // 제휴 파트너
     frmMainData.value.lcetc6 = pages[0].lcetc6; // 백점이 여부
@@ -2125,11 +2126,11 @@ async function fetchData() {
     // 설치사항
     // -------------------------------------------------------------------------------------------------
     frmMainData.value.sppMthdTpNm = pages[0].sppMthdTpNm; // 의뢰구분
-    frmMainData.value.useElectTpCd = pages[0].useElectTpCd; // 사용전력
+    frmMainData.value.useElectTpNm = pages[0].useElectTpNm; // 사용전력
     frmMainData.value.wprsItstTpNm = pages[0].wprsItstTpNm; // 수압유무
     frmMainData.value.srcwtTpNm = pages[0].srcwtTpNm; // 수질구분
     frmMainData.value.wtqltyTstYn = pages[0].wtqltyTstYn; // 수질검사
-    frmMainData.value.lcchk8 = pages[0].lcchk8; // 설치장소
+    frmMainData.value.istPlcTpNm = pages[0].istPlcTpNm; // 설치장소
     frmMainData.value.wrfrIstMthNm = pages[0].wrfrIstMthNm; // 설치옵션
     frmMainData.value.frisuRcvryTpNm = pages[0].frisuRcvryTpNm; // 무상복구사용
     frmMainData.value.sppOrdNo = pages[0].sppOrdNo; // 운송장 번호

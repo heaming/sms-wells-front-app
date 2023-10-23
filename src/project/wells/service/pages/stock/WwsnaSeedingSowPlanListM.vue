@@ -88,7 +88,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useGlobal, useMeta, useDataService, getComponentType, gridUtil, defineGrid, popupUtil } from 'kw-lib';
+import { codeUtil, useGlobal, useMeta, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -96,6 +96,7 @@ const { t } = useI18n();
 const { alert } = useGlobal();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 const dataService = useDataService();
 
@@ -183,27 +184,26 @@ async function onClickExcelDownload() {
 const initGrid = defineGrid((data, view) => {
   const fields = [
     // 기준상품
-    { fieldName: 'baseCntrDtlNo' }, // 계약상세번호
-    { fieldName: 'baseCstNm' }, // 고객명
-    { fieldName: 'basePdNm' }, // 상품명
+    { fieldName: 'baseCntrDtlNo', dataType: 'text' }, // 계약상세번호
+    { fieldName: 'baseCstNm', dataType: 'text' }, // 고객명
+    { fieldName: 'basePdNm', dataType: 'text' }, // 상품명
     // 연결상품
-    { fieldName: 'connCntrDtlNo' }, // 계약상세번호
-    { fieldName: 'connSdingPkgNm' }, // 모종패키지
-    { fieldName: 'connSdingPdNm' }, // 모종명
+    { fieldName: 'connCntrDtlNo', dataType: 'text' }, // 계약상세번호
+    { fieldName: 'connSdingPkgNm', dataType: 'text' }, // 모종패키지
+    { fieldName: 'connSdingPdNm', dataType: 'text' }, // 모종명
     { fieldName: 'connQty', dataType: 'number' }, // 수량
     // 모종정보
-    { fieldName: 'vstDueDt' }, // 방문예정일
-    { fieldName: 'sowDt' }, // 파종일자
-    { fieldName: 'cntrNo' }, // 계약번호
-    { fieldName: 'cntrSn' }, // 계약일련번호
-
+    { fieldName: 'vstDueDt', dataType: 'text' }, // 방문예정일
+    { fieldName: 'sowDt', dataType: 'text' }, // 파종일자
+    { fieldName: 'cntrNo', dataType: 'text' }, // 계약번호
+    { fieldName: 'cntrSn', dataType: 'number' }, // 계약일련번호
   ];
 
   const columns = [
-    { fieldName: 'baseCntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'baseCntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'baseCstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '130', styleName: 'text-left' },
-    { fieldName: 'connCntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'connCntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'connSdingPkgNm', header: t('MSG_TXT_SDING_PKG'), width: '150', styleName: 'text-left' },
     { fieldName: 'connSdingPdNm', header: `${t('MSG_TXT_SDING')}${t('MSG_TXT_NM')}`, width: '100', styleName: 'text-left' },
     { fieldName: 'connQty', header: t('MSG_TXT_QTY'), width: '60', styleName: 'text-right' },
@@ -238,14 +238,28 @@ const initGrid = defineGrid((data, view) => {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       const cntrSn = g.getValue(itemIndex, 'cntrSn');
 
-      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+      // 개인별서비스현황 연결
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
     } else if (column === 'connCntrDtlNo') {
       const connCntrDtlNo = g.getValue(itemIndex, 'connCntrDtlNo');
       const idx = connCntrDtlNo.indexOf('-');
       const cntrNo = connCntrDtlNo.substr(0, idx);
       const cntrSn = connCntrDtlNo.substr(idx + 1);
 
-      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+      // 개인별서비스현황 연결
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
     }
   };
 });

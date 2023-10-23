@@ -67,7 +67,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdConfirmRef"
-      :visible-rows="12"
+      :visible-rows="7"
       @init="initGrid"
     />
     <kw-separator
@@ -88,7 +88,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, gridUtil, getComponentType, useDataService, useModal, useGlobal, useMeta } from 'kw-lib';
+import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty, isEqual } from 'lodash-es';
 
 const dataService = useDataService();
@@ -289,10 +289,11 @@ const initGrid = defineGrid(async (data, view) => {
       rules: 'required',
       // editable: false,
       styleCallback(grid, dataCell) { return isEditable(grid, dataCell); },
+      editor: { maxLength: 50 },
     },
-    { fieldName: 'cntrAprAkMsgCn', header: t('MSG_TXT_REQ_MSG'), width: '477', maxLength: 500 },
-    { fieldName: 'cntrAprCanMsgCn', header: t('MSG_TXT_REQ_CAN_MSG'), width: '477', maxLength: 500 },
-    { fieldName: 'cntrAprConfMsgCn', header: t('MSG_TXT_APR_CNFM_MSG'), width: '477', maxLength: 500 },
+    { fieldName: 'cntrAprAkMsgCn', header: t('MSG_TXT_REQ_MSG'), width: '477', editor: { maxLength: 500 } },
+    { fieldName: 'cntrAprCanMsgCn', header: t('MSG_TXT_REQ_CAN_MSG'), width: '477', editor: { maxLength: 500 } },
+    { fieldName: 'cntrAprConfMsgCn', header: t('MSG_TXT_APR_CNFM_MSG'), width: '477', editor: { maxLength: 500 } },
     { fieldName: 'vlStrtDtm', header: t('MSG_TXT_STRT_DT'), width: '180', datetimeFormat: 'date', styleName: 'text-center', rules: 'required', editor: { type: 'btdate', datetimeFormat: 'date' } },
     { fieldName: 'vlEndDtm', header: t('MSG_TXT_END_DT'), width: '180', datetimeFormat: 'date', styleName: 'text-center', rules: 'required', editor: { type: 'btdate', datetimeFormat: 'date' } },
   ];

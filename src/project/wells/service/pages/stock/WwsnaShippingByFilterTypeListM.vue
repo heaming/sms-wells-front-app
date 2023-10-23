@@ -224,7 +224,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid, popupUtil } from 'kw-lib';
+import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
@@ -233,6 +233,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 const dataService = useDataService();
 
@@ -486,6 +487,7 @@ const ozParam = ref({
 
 // 라벨출력
 async function onClickLabelPrint() {
+  const { width, height } = ozParam.value;
   const { strtDt, endDt, wareDvCd, gbYn, hgrWareNo, wareNo, itmPdCd, itmGrCd } = cachedParams;
 
   await openReportPopup(
@@ -501,7 +503,7 @@ async function onClickLabelPrint() {
       ITM_PD_CD: itmPdCd,
       ITM_GR_CD: itmGrCd,
     }),
-    { width: ozParam.width, height: ozParam.height },
+    { width, height },
   );
 }
 
@@ -553,7 +555,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'text',
         editable: true } },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-left' },
     { fieldName: 'ostrConfDt',
@@ -594,7 +596,15 @@ const initGrdMain = defineGrid((data, view) => {
     if (column === 'cntrDtlNo') {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       const cntrSn = g.getValue(itemIndex, 'cntrSn');
-      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+
+      // 개인별서비스현황 연결
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
     }
   };
 });

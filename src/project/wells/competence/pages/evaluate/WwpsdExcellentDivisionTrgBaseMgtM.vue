@@ -47,7 +47,7 @@
       >
         <kw-select
           v-model="trgSearchParams.evlDvCd"
-          :options="codes.EVL_DV_CD"
+          :options="evlDvList"
           first-option="select"
         />
       </kw-search-item>
@@ -111,9 +111,10 @@ const trgGrdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'EVL_OG_TP_CD',
   'EVL_DV_CD',
+  'EVL_RSB_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
-
+const evlDvList = ref([]);
 const trgSearchParams = ref({
   evlOgTpCd: userInfo.ogTpCd, // 조직유형
   evlDvCd: '',
@@ -155,6 +156,17 @@ const onClickTrgSave = async () => {
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
 };
+
+const evaluateResponsibilityCdChang = async () => {
+  evlDvList.value = codes.EVL_DV_CD.filter((v) => [trgSearchParams.value.evlOgTpCd].includes(v.prtsCodeId));
+};
+
+watch(() => [trgSearchParams.value.evlOgTpCd], async () => {
+  await evaluateResponsibilityCdChang();
+});
+onMounted(async () => {
+  await evaluateResponsibilityCdChang();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

@@ -194,7 +194,7 @@
 import { codeUtil, useDataService, getComponentType, useMeta, defineGrid, useGlobal, gridUtil, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
-import { openReportPopup } from '~common/utils/cmPopupUtil';
+import { openReportPopup, openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
 
 const { getConfig } = useMeta();
 const { modal, confirm, notify, alert } = useGlobal();
@@ -359,18 +359,32 @@ const ozParam = ref({
 });
 
 // 출고증 출력
-async function openReport(itmOstrNo) {
-  await openReportPopup(
-    '/kyowon_as/stckout.ozr',
-    '/kyowon_as/stckout.odi',
-    JSON.stringify({ ITM_OSTR_NO: itmOstrNo }),
-    { width: ozParam.width, height: ozParam.height },
-  );
+async function openReport(itmOstrNo, directYn) {
+  const { width, height } = ozParam.value;
+
+  if (directYn === 'Y') {
+    const options = { directPrint: 'Y' };
+
+    await openReportPopupWithOptions(
+      '/kyowon_as/stckout.ozr',
+      '/kyowon_as/stckout.odi',
+      JSON.stringify({ ITM_OSTR_NO: itmOstrNo }),
+      options,
+      { width, height },
+    );
+  } else {
+    await openReportPopup(
+      '/kyowon_as/stckout.ozr',
+      '/kyowon_as/stckout.odi',
+      JSON.stringify({ ITM_OSTR_NO: itmOstrNo }),
+      { width, height },
+    );
+  }
 }
 
 // 출력버튼 클릭 시
 async function onClickPrint() {
-  await openReport(props.itmOstrNo);
+  await openReport(props.itmOstrNo, 'N');
 }
 
 // 확정
@@ -464,7 +478,7 @@ async function callConfirm(isClose) {
     ok();
     if (isClose) return;
 
-    await openReport(newItmOstrNo);
+    await openReport(newItmOstrNo, 'Y');
   }
 }
 
@@ -577,22 +591,22 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'svpdMgtTyp',
       header: t('MSG_TXT_STOC_TYPE'),
-      width: '100',
+      width: '80',
       styleName: 'text-center',
     },
-    { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'svpdNmKor', header: t('MSG_TXT_ITM_NM'), width: '300' },
-    { fieldName: 'ostrTms', header: t('MSG_TXT_OSTR_FREQ'), width: '100', styleName: 'text-center' },
-    { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '150' },
-    { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
+    { fieldName: 'svpdNmKor', header: t('MSG_TXT_ITM_NM'), width: '200' },
+    { fieldName: 'ostrTms', header: t('MSG_TXT_OSTR_FREQ'), width: '85', styleName: 'text-center' },
+    { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '100' },
+    { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '55', styleName: 'text-center' },
     { fieldName: 'qty', header: t('MSG_TXT_OSTR_WARE_STOC'), width: '100', styleName: 'text-right' },
     { fieldName: 'reqStckQty', header: t('MSG_TXT_STR_WARE_STOC'), width: '100', styleName: 'text-right' },
     { fieldName: 'avgOut', header: t('MSG_TXT_CNTR_AV_OSTR_QTY'), width: '100', styleName: 'text-right' },
-    { fieldName: 'ostrAkQty', header: t('MSG_TXT_RQST_QTY'), width: '100', styleName: 'text-right' }, // 신청수량
-    { fieldName: 'ostrCnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '100', styleName: 'text-right' }, // 확정수량
+    { fieldName: 'ostrAkQty', header: t('MSG_TXT_RQST_QTY'), width: '80', styleName: 'text-right' }, // 신청수량
+    { fieldName: 'ostrCnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '80', styleName: 'text-right' }, // 확정수량
     { fieldName: 'strHopDt', header: t('MSG_TXT_STR_HOP_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 입고희망일자
-    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG'), width: '100', styleName: 'text-right' }, // 출고누계
+    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG'), width: '80', styleName: 'text-right' }, // 출고누계
     { fieldName: 'outQty',
       header: t('MSG_TXT_OSTR_QTY'),
       editable: props.page === pageProps.confirm,
@@ -602,19 +616,19 @@ const initGrdMain = defineGrid((data, view) => {
         type: 'number',
         editFormat: '#,##0',
       },
-      width: '100',
+      width: '90',
       styleName: 'text-right',
     },
     { fieldName: 'rmkCn', // 비고
       header: t('MSG_TXT_NOTE'),
-      width: '100',
+      width: '150',
       styleName: 'text-left',
       rules: 'max:4000',
       editor: {
         type: 'text',
         editable: props.page === pageProps.confirm },
       editable: props.page === pageProps.confirm },
-    { fieldName: 'mngtUnitNm', header: t('TXT_MSG_MNGT_UNIT_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'mngtUnitNm', header: t('TXT_MSG_MNGT_UNIT_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'boxUnitQty', header: t('MSG_TXT_BOX_QTY'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_OSTR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
   ];

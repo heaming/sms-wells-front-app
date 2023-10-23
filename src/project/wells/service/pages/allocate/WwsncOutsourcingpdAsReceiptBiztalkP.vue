@@ -21,22 +21,29 @@
       :cols="2"
     >
       <kw-form-row>
+        <!-- 발신번호(알림톡발신번호) -->
         <kw-form-item :label="$t('MSG_TXT_DSPH_NO')">
           <kw-input
             readonly
             model-value="1588-4113"
           />
         </kw-form-item>
+        <!-- 수신번호(알림톡수신번호) -->
         <kw-form-item :label="$t('MSG_TXT_RECP_NO')">
           <kw-input
             v-model="biztalkParams.cstTno"
             :label="$t('MSG_TXT_RECP_NO')"
-            rules="required|telephone"
+            :rules="[
+              { required: true },
+              { regex: /^01([0|1|5|7|8|9])-?([0-9]{3,4}-?([0-9]{4}))$/ },
+            ]"
+            :custom-messages="{ regex:$t('MSG_ALT_CPHON_NO_IN') }"
             mask="telephone"
           />
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 알림톡 발송 내용 -->
         <kw-form-item
           :colspan="2"
           :label="$t('MSG_TXT_BIZTALK_SEND_CN')"
@@ -51,6 +58,7 @@
       </kw-form-row>
     </kw-form>
     <template #action>
+      <!-- 발송버튼 -->
       <kw-btn
         primary
         :label="$t('MSG_BTN_SEND')"
@@ -64,16 +72,10 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import {
-  // codeUtil,
-  // defineGrid,
-  // getComponentType,
   useDataService,
-  // useMeta,
-  // gridUtil,
   useGlobal,
   useModal,
 } from 'kw-lib';
-// import { split } from 'lodash-es';
 
 const {
   notify,
@@ -89,11 +91,11 @@ const frmMainRef = ref();
 const props = defineProps({
   cnrNm: {
     type: String,
-    default: '신일전자',
+    default: '',
   },
   cnrTno: {
     type: String,
-    default: '02-333-5555',
+    default: '',
   },
 });
 
@@ -104,14 +106,14 @@ const biztalkParams = ref({
 });
 
 const templateCn = (await dataService.post('/sflex/common/common/templates/TMP_SNC_WELLS17952/previews', biztalkParams.value)).data;
-
+// 알림톡발송 버튼 클릭
 async function onClicBiztalkSend() {
   if (!await frmMainRef.value.validate()) { return; }
   if (!await confirm(t('MSG_ALT_BIZTALK_CONFIRM'))) { return; }
   biztalkParams.value.cstTno = (biztalkParams.value.cstTno).replaceAll('-', '');
   await dataService.post('/sms/wells/service/outsourcedpd-as-receipts/biztalk', biztalkParams.value);
 
-  notify(t('MSG_ALT_SEND_SUCCESS'));
   ok();
+  notify(t('MSG_ALT_SEND_SUCCESS'));
 }
 </script>

@@ -59,6 +59,7 @@
             :options="codes.MNGER_OG_CNTR_CAN_TP_CD"
             first-option
             :first-option-label="$t('MSG_TXT_ALL')"
+            first-option-value="ALL"
           />
         </kw-search-item>
 
@@ -72,6 +73,7 @@
             :options="codes.MNGER_OG_CNTR_CAN_TP_CD.filter((v) => ['01', '02'].includes(v.codeId))"
             first-option
             :first-option-label="$t('MSG_TXT_ALL')"
+            first-option-value="ALL"
           />
         </kw-search-item>
 
@@ -428,7 +430,7 @@ const initCheckGrid = defineGrid((data, view) => {
     { fieldName: 'spayCanCt', header: t('MSG_TIT_SPAY'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불
 
     { fieldName: 'rentalBooCanCt', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_CANCL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈 예약취소
-    { fieldName: 'spayBooCanCt', header: t('MSG_TXT_LEASE_ISTM') + t('MSG_TXT_CANCL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불 예약취소
+    { fieldName: 'spayBooCanCt', header: t('MSG_TIT_SPAY') + t('MSG_TXT_CANCL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불 예약취소
 
     { fieldName: 'rentalExnCt', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_EXN'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈만료
     { fieldName: 'mshSprCt', header: t('MSG_TXT_MMBR') + t('MSG_TXT_SEPARATION'), width: '100', styleName: 'text-center', dataType: 'number' }, // 멤버십이탈

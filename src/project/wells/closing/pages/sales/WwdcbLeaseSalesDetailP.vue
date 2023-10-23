@@ -99,14 +99,20 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_PCAM_SL_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.nomSlAmt)) }}</p>
+        <kw-form-item :label="$t('MSG_TXT_SL_AMT_PCAM_INT')">
+          <p>
+            {{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.thmSlSumAmt)) }}<br>
+            ({{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.nomSlAmt)) }}/{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.pvdaAmt)) }})
+          </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_FSH_DT')">
           <p>{{ stringUtil.getDateFormat(leaselSalesDetail.fshDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_PCAM_AGG_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.slAggAmt)) }}</p>
+        <kw-form-item :label="$t('MSG_TXT_SL_AGG_AMT_SUB')">
+          <p>
+            {{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.sumSlAggAmt)) }}<br>
+            {{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.slAggAmt)) }}/{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.intAggAmt)) }}
+          </p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -129,24 +135,24 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_BTD_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.bilBtdAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.btdBilUcAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_OCCR_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.bilSlAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.thmBilOcAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DP_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.bilDpAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.thmBilDpAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SPMT_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.bilAddAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.thmBilSpmtAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CTR_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.bilAdjAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.thmBilCtrAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_EOT_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.bilEotAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.eotBilUcAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -161,7 +167,7 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_BOR_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.eotBorAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.borAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PD_LENT_LOST_LOG')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.lsRntf)) }}</p>
@@ -190,10 +196,10 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SL_RPLC_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.atamSlAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.prpdSlAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_RPLC_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.ovrCtrDpAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.atamRplcProcsAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_TAM')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.atamTotAmt)) }}</p>
@@ -250,10 +256,10 @@
     </kw-action-top>
     <kw-form dense>
       <kw-form-row>
-        <kw-form-item :label="$t('MSG_TXT_KEEP_AW_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.keepAwAmt)) }} / {{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.keepAwTotAmt)) }}</p>
-        </kw-form-item>
-        <kw-form-item :label="$t('MSG_TXT_DLQ_MCNT_AGG')">
+        <kw-form-item
+          :colspan="2"
+          :label="$t('MSG_TXT_DLQ_MCNT_AGG')"
+        >
           <p>{{ leaselSalesDetail.dlqMcn }} / {{ leaselSalesDetail.dlqAcuMcn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">

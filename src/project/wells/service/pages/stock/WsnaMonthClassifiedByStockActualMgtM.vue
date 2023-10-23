@@ -36,7 +36,7 @@
           v-model:options-ware-dv-cd="wareDvCd"
           v-model:ware-dv-cd="searchParams.wareDvCd"
           v-model:ware-no-m="searchParams.hgrWareNo"
-          v-model:ware-no-d="searchParams.wareNo"
+          v-model:ware-no-d="searchParams.searchWareNo"
           sub-first-option="all"
           :colspan="2"
           :label1="$t('MSG_TXT_WARE_DV')"
@@ -201,7 +201,7 @@ const searchParams = ref({
   wareDvCd: '2',
   hgrWareNo: '',
   wareDtlDvCd: '',
-  wareNo: '',
+  searchWareNo: '',
   useYn: '',
 });
 
@@ -242,14 +242,14 @@ function wareDtlDvCdFilter() {
 // 창고구분 변경 시
 function onChangeWareDvCd() {
   searchParams.value.hgrWareNo = '';
-  searchParams.value.wareNo = '';
+  searchParams.value.searchWareNo = '';
   // 창고상세구분 필터링
   wareDtlDvCdFilter();
 }
 
 // 상위창고 변경 시
 function onChagneHgrWareNo() {
-  searchParams.value.wareNo = '';
+  searchParams.value.searchWareNo = '';
 }
 
 await Promise.all([
@@ -266,6 +266,7 @@ function validateIsApplyRowExists() {
   return true;
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/stock-acinp-rgst/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
@@ -278,11 +279,13 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const res = await dataService.post('/sms/wells/service/stock-acinp-rgst/excel-download', cachedParams, { responseType: 'blob' });
   fileUtil.downloadBlob(res.data, `${currentRoute.value.meta.menuName}_${now.format('YYYYMMDD_HHmmss')}.xlsx`);
 }
 
+// 조회버튼 클릭이벤트
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -346,7 +349,6 @@ async function onClickAcinspCnfm() {
   const currentMonth = searchParams.value.baseYm;
   if (await confirm(t('MSG_ALT_ACINSP_CNFM_MTR_CNFM', [currentMonth.substring(0, 4), currentMonth.substring(4, 6)]))) {
     params = searchParams.value;
-
     await dataService.post('/sms/wells/service/stock-acinp-rgst/acinsp-cnfm', checkedRows.map((v) => ({ ...v, ...params })));
 
     notify(t('MSG_ALT_SAVE_DATA'));
@@ -461,14 +463,14 @@ async function onClickStocCancel() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'statusT' },
-    { fieldName: 'col2' },
-    { fieldName: 'apyYm' },
-    { fieldName: 'wareNo' },
-    { fieldName: 'wareNm' },
-    { fieldName: 'sapCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'pdAbbrNm' },
+    { fieldName: 'statusT' }, // 상태값
+    { fieldName: 'col2' }, // 확인서관련컬럼
+    { fieldName: 'apyYm' }, // 적용년월
+    { fieldName: 'wareNo' }, // 창고번호
+    { fieldName: 'wareNm' }, // 창고명
+    { fieldName: 'sapCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목상품코드
+    { fieldName: 'pdAbbrNm' }, // 품목상품명
     { fieldName: 'acinspQty', dataType: 'number' }, // 실사재고
     { fieldName: 'eotStoc', dataType: 'number' }, // 기말재고
     { fieldName: 'minusQty', dataType: 'number' }, // 재고차이
@@ -487,7 +489,7 @@ const initGrdMain = defineGrid((data, view) => {
     // TODO: 확인서 관련 확인필요
     { fieldName: 'col2', header: t('MSG_TXT_CFDC'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNo', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'wareNm', header: t('MSG_TXT_BLD_NM'), width: '150' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '150' },
     { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '250', footer: { text: t('MSG_TXT_SUM') } },
@@ -497,7 +499,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'acinspQty',
@@ -507,7 +509,7 @@ const initGrdMain = defineGrid((data, view) => {
       editable: true,
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'minusQty',
@@ -516,7 +518,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'acinspRmkCn', header: t('MSG_TXT_NOTE'), width: '150', styleName: 'text-right', editable: true },
     { fieldName: 'cnfmdt', header: t('MSG_TXT_CNFM_DT'), width: '150', styleName: 'text-right', datetimeFormat: 'date' },

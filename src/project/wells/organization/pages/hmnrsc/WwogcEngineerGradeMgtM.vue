@@ -158,7 +158,7 @@ async function fetchData() {
   data.checkRowStates(true);
 }
 
-// 조회
+// 조회버튼 클릭
 async function onClickSearch() {
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
@@ -225,17 +225,17 @@ async function onClickExcelUpload() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_AFL_CNTR_CD'), width: '152', styleName: 'text-center' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '130', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_AFL_CNTR_CD'), width: '152', styleName: 'text-center' }, // 소속(센터)
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '130', styleName: 'text-center' }, // 소속코드
     { fieldName: 'prtnrKnm',
       header: t('MSG_TXT_EMPL_NM'),
       width: '166',
       styleName: 'text-center',
-    },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '130', styleName: 'text-center' },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    }, // 성명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center' }, // 번호
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '106', styleName: 'text-center', options: codes.RSB_DV_CD }, // 직책
+    { fieldName: 'pstnDvNm', header: t('MSG_TXT_ROLE_1'), width: '130', styleName: 'text-center' }, // 직무
+    { fieldName: 'cntrDt', header: t('MSG_TXT_ENTCO_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 입사일자
     {
       fieldName: 'prtnrGdCd',
       header: t('MSG_TXT_GD'),
@@ -246,7 +246,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'dropdown',
       },
-    },
+    }, // 등급
     { fieldName: 'apyStrtDt',
       header: t('MSG_TXT_APY_STRTDT'),
       width: '178',
@@ -256,7 +256,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'date',
       },
-    },
+    }, // 적용시작일자
     { fieldName: 'apyEnddt',
       header: t('MSG_TXT_APY_ENDDT'),
       width: '178',
@@ -266,8 +266,8 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'date',
       },
-    },
-    { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '499.7', styleName: 'text-left', editor: { maxLength: 4000 } },
+    }, // 적용종료일자
+    { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '499.7', styleName: 'text-left', editor: { maxLength: 4000 } }, // 비고
     { fieldName: 'ogTpCd', visible: false },
     { fieldName: 'dtaDlYn', visible: false },
   ];

@@ -458,7 +458,7 @@ const initGrid = defineGrid((data, view) => {
         // text: '계약상세번호',
         styleName: 'essential',
       },
-      width: '125',
+      width: '140',
       styleName: 'text-left rg-button-icon--search',
       button: 'action',
       editor: {
@@ -552,7 +552,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_RTLFE'),
       // , header: '렌탈료'
       numberFormat: '#,##0',
-      rules: 'required|max:20',
+      // rules: 'required|max:20',
       width: '100',
       styleName: 'text-right',
       editable: false,
@@ -564,7 +564,7 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_RENTAL_DSC'),
       // , header: '렌탈할인'
       width: '100',
-      rules: 'required|max:20',
+      // rules: 'required|max:20',
       numberFormat: '#,##0',
       styleName: 'text-right',
       editable: false,

@@ -191,6 +191,7 @@ watch(() => searchParams.bndClctnPrpDvCd, async (newValue) => {
   subModuleCodes.value = newValue !== '' ? await codeUtil.getSubCodes('BND_CLCTN_PRP_RSON_CD', newValue) : [];
 }, { immediate: true });
 
+// 고객명 변경 시
 async function onChangeCstKnm() {
   searchParams.cstNo = '';
 }
@@ -203,6 +204,7 @@ async function fetchData() {
   view.getDataSource().setRows(customers);
 }
 
+// 휴대전화번호 세팅
 async function setCellphone(val) {
   searchParams.cntrCralLocaraTno = val?.split('-')[0];
   searchParams.cntrMexnoEncr = val?.split('-')[1];
@@ -219,6 +221,7 @@ watch(() => props.searchYn, async () => {
   }
 }, { immediate: true });
 
+// 조회 버튼
 async function onClickSearch() {
   const notEmpty = Object.values(searchParams).some((val) => !isEmpty(val));
   if (!notEmpty) {
@@ -228,6 +231,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 고객명 돋보기 버튼
 async function onClickSelectCustomer() {
   const { result, payload } = await modal({
     component: 'ZwbnyDelinquentCustomerP',
@@ -243,6 +247,7 @@ async function onClickSelectCustomer() {
   }
 }
 
+// 엑셀 다운로드 버튼
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -253,6 +258,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 기준년월 조회
 async function fetchBaseYmData() {
   const response = await dataService.get('/sms/common/bond/promise-customer/base-ym');
   customerParams.value = response.data;

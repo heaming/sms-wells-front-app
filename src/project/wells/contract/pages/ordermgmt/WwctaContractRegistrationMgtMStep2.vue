@@ -41,7 +41,7 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
-              @price-changed="onPriceChanged"
+              @price-changed="onPriceChanged(item, $event)"
               @delete="onClickDelete(item)"
             />
             <rental-price-select
@@ -52,7 +52,7 @@
               @one-plus-one="onClickOnePlusOne"
               @delete:one-plus-one="onDeleteOnePlusOne"
               @device-change="onClickDeviceChange"
-              @price-changed="onPriceChanged"
+              @price-changed="onPriceChanged(item, $event)"
               @packaging="onPackaging"
               @delete="onClickDelete(item)"
             />
@@ -61,6 +61,7 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
+              @price-changed="onPriceChanged(item, $event)"
               @delete="onClickDelete(item)"
             />
             <regular-shipping-price-select
@@ -68,6 +69,7 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
+              @price-changed="onPriceChanged(item, $event)"
               @select-machine="onClickSelectMachine"
               @delete:select-machine="onDeleteSelectMachine"
               @select-seeding="onClickSelSdingCapsl"
@@ -90,7 +92,7 @@ import ProductSelect
 import SinglePayPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
 import RentalPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelectNew.vue';
+  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
 import MembershipPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
 import RegularShippingPriceSelect
@@ -526,6 +528,7 @@ async function onClickSelSdingCapsl(dtl) {
     component: 'WwctaCapsuleSeedingChoiceP',
     componentProps: {
       basePdCd: dtl.pdCd,
+      sellTpDtlCd: dtl.sellTpDtlCd,
     },
   });
 
@@ -566,7 +569,7 @@ async function getCntrInfo() {
 }
 
 async function confirmProducts() {
-  if (step2.value.dtls.find((dtl) => !dtl.fnlAmt)) {
+  if (step2.value.dtls.find((dtl) => !dtl.pdPrcFnlDtlId)) {
     notify('상품 가격을 확인해주세요');
     return;
   }
@@ -576,9 +579,7 @@ async function confirmProducts() {
   });
   const { data } = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, step2.value.dtls);
   data.forEach((newDtl, index) => {
-    console.log(newDtl);
     step2.value.dtls[index].promotions = newDtl.promotions;
-    console.log(step2.value.dtls[index]);
   });
   return true;
 }
@@ -629,7 +630,6 @@ async function isValidStep() {
 const loaded = ref(false);
 
 async function initStep(forced = false) {
-  console.log(loaded.value);
   if (!forced && loaded.value) {
     return;
   }
@@ -675,7 +675,8 @@ onActivated(() => {
   emit('activated', 2);
 });
 
-function onPriceChanged() {
+function onPriceChanged(item, price) {
+  item.finalPrice = price;
   emit('contract-modified');
 }
 
@@ -717,15 +718,21 @@ function onPriceChanged() {
         visibility: visible;
         content: "";
         position: absolute;
-        inset: 10px;
-        top: 50%;
-        width: 6px;
-        height: 20px;
-        border-right: 2px solid $line-line;
-        border-left: 2px solid $line-line;
+        inset: 0;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 8px 30px;
+        background-image:
+          linear-gradient(
+            90deg,
+            $line-line,
+            transparent,
+            $line-line,
+          );
       }
 
-      &:hover {
+      &:hover,
+      &:focus-within {
         visibility: visible;
         width: 339px;
         background: $bg-white;

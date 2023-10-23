@@ -81,6 +81,7 @@
             v-model:page-index="pageInfo.pageIndex"
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
+            @change="fetchData"
           />
           <!-- (단위:원) -->
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
@@ -132,25 +133,29 @@
           <!-- 현금 -->
           <kw-form-item :label="$t('MSG_TXT_CASH')">
             <p>
-              {{ aggregationStatus.cashRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.cashRfndDsbAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 비씨카드 -->
           <kw-form-item :label="$t('MSG_TXT_BC_CARD')">
             <p>
-              {{ aggregationStatus.bcCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.bcCardRfndDsbAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 국민카드 -->
           <kw-form-item :label="$t('MSG_TXT_KB_CARD')">
             <p>
-              {{ aggregationStatus.kbCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.kbCardRfndDsbAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 삼성카드 -->
           <kw-form-item :label="$t('MSG_TXT_SS_CARD')">
             <p>
-              {{ aggregationStatus.ssCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.ssCardRfndDsbAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
         </kw-form-row>
@@ -158,25 +163,29 @@
           <!-- 하나카드 -->
           <kw-form-item :label="$t('MSG_TXT_HN_CARD')">
             <p>
-              {{ aggregationStatus.hnCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.hnCardRfndDsbAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 신한카드 -->
           <kw-form-item :label="$t('MSG_TXT_SH_CARD')">
             <p>
-              {{ aggregationStatus.shCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.shCardRfndDsbAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 롯데카드 -->
           <kw-form-item :label="$t('MSG_TXT_LT_CARD')">
             <p>
-              {{ aggregationStatus.ltCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.ltCardRfndDsbAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 현대카드 -->
           <kw-form-item :label="$t('MSG_TXT_HD_CARD')">
             <p>
-              {{ aggregationStatus.hdCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.hdCardRfndDsbAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
         </kw-form-row>
@@ -184,13 +193,15 @@
           <!-- NH농협 -->
           <kw-form-item :label="$t('MSG_TXT_NH_CARD')">
             <p>
-              {{ aggregationStatus.nhCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.nhCardRfndDsbAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 여민동락 -->
           <kw-form-item :label="$t('MSG_TXT_YD')">
             <p>
-              {{ aggregationStatus.ydCardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.ydCardRfndDsbAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
         </kw-form-row>
@@ -198,7 +209,8 @@
           <!-- 카드 공제 -->
           <kw-form-item :label="$t('MSG_TXT_CARD_DDTN')">
             <p>
-              {{ aggregationStatus.cardRfndDdtnAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.cardRfndDdtnAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 회사 귀속 -->
@@ -210,13 +222,15 @@
           <!-- 현금계(현금+카드공제) -->
           <kw-form-item :label="$t('MSG_TXT_CSH_CARD_DDTN')">
             <p>
-              {{ aggregationStatus.cashCardRfndDdtnAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.cashCardRfndDdtnAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 카드 합계 -->
           <kw-form-item :label="$t('MSG_TXT_CARD_SUM')">
             <p>
-              {{ aggregationStatus.cardRfndDsbAmtSum }}{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.cardRfndDsbAmtSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
         </kw-form-row>
@@ -263,13 +277,13 @@
           <!-- 전금 합계 -->
           <kw-form-item :label="$t('MSG_TXT_BLTF_SUM')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.rfndBltfSum)) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 환불 총계 -->
           <kw-form-item :label="$t('MSG_TXT_RFND_TOT')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.rfTotalSum)) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
         </kw-form-row>
@@ -284,8 +298,8 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, stringUtil } from 'kw-lib';
+import { cloneDeep, toInteger } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
@@ -294,19 +308,21 @@ const dataService = useDataService();
 
 const { currentRoute } = useRouter();
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: 10, // Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-const grdMainRef2 = ref(getComponentType('KwGrid'));
-const now = dayjs();
-const apiUrl = '/sms/wells/withdrawal/idvrve/contract-refunds';
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS', // 페이징 옵션
   'CNTRW_TP_CD', // 업무구분
   'SELL_TP_DTL_CD', // 판매유형상세코드'
 );
+
+const pageInfo = ref({
+  totalCount: 0,
+  pageIndex: 1,
+  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  needTotalCount: true,
+});
+const grdMainRef2 = ref(getComponentType('KwGrid'));
+const now = dayjs();
+const apiUrl = '/sms/wells/withdrawal/idvrve/contract-refunds';
 
 const aggregationStatus = ref({
   cashRfndDsbAmtSum: 0,
@@ -323,6 +339,8 @@ const aggregationStatus = ref({
   cashCardRfndDdtnAmtSum: 0,
   cardRfndDsbAmtSum: 0,
   rfndDsbPspIntSum: 0,
+  rfndBltfSum: 0,
+  rfTotalSum: 0,
 });
 
 const searchParams = ref({
@@ -534,6 +552,13 @@ const initGrdMain2 = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      await fetchData();
+    }
+  };
 
   view.layoutByColumn('cntrDtlNo').summaryUserSpans = [{ colspan: 1 }];
   view.setHeaderSummaries({

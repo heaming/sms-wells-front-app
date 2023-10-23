@@ -184,6 +184,7 @@ const props = defineProps({
   dtl: { type: Object, default: undefined, validator: (obj) => isReactive(obj) },
 });
 const emit = defineEmits([
+  'price-changed',
   'promotion-changed',
   'delete',
 ]);
@@ -223,7 +224,7 @@ function connectReactivities() {
   finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
   promotions = toRef(props.modelValue, 'promotions', []);
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []);
-  priceOptionFilter = toRef(props.modelValue, 'priceOptionFilter', []);
+  priceOptionFilter = toRef(props.modelValue, 'priceOptionFilter', {});
   console.log('verSn', verSn.value, pdQty.value);
 }
 
@@ -295,7 +296,7 @@ const labelGenerator = {
 const {
   priceDefineVariableOptions,
   setPriceDefineVariablesBy,
-  setVariablesIfUniqueSelectable,
+  // setVariablesIfUniqueSelectable,
   selectedFinalPrice, // computed
   // eslint-disable-next-line no-unused-vars
 } = usePriceSelect(
@@ -319,6 +320,7 @@ const labelForSellTpCd = computed(() => {
 });
 
 function initPriceDefineVariables() {
+  console.log('initPriceDefineVariables', pdPrcFnlDtlId.value);
   if (!pdPrcFnlDtlId.value) {
     return;
   }
@@ -393,10 +395,7 @@ async function fetchFinalPriceOptions() {
   }
   finalPriceOptions.value = data || [];
 
-  console.log('isHcr.value', isHcr.value);
-  if (isHcr.value) {
-    priceDefineVariables.value.mshLvStrtMm = '0'; /* TODO: 가격 서버에서 렌탈차월로 필터링 하고 지우자. 멤버십 재가입은? */
-  } else {
+  if (!isHcr.value) {
     pdPrcFnlDtlId.value = finalPriceOptions.value[0].pdPrcFnlDtlId;
     initPriceDefineVariables();
   }
@@ -450,9 +449,9 @@ function onClickDelete() {
 }
 
 function onChangeVariable() {
-  if (finalPriceOptions.value.length === 1) {
-    setVariablesIfUniqueSelectable();
-  }
+  // if (finalPriceOptions.value.length === 1) {
+  //   setVariablesIfUniqueSelectable();
+  // }
 }
 
 </script>

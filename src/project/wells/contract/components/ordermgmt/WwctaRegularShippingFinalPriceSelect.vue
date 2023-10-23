@@ -81,14 +81,14 @@
           />
           <kw-btn
             v-if="isSeeding"
-            :disable="dtl?.pdChoLmYn === 'N'"
+            :disable="!isFreePackage"
             label="모종선택"
             dense
             @click="$emit('select-seeding', modelValue)"
           />
           <kw-btn
             v-if="isCapsule"
-            :disable="dtl?.pdChoLmYn === 'N'"
+            :disable="!isFreePackage"
             label="캡슐선택"
             dense
             @click="$emit('select-capsule', modelValue)"
@@ -126,6 +126,7 @@
                   dense
                   placeholder="약정기간"
                   first-option="select"
+                  @change="onChangeVariable"
                 />
               </kw-form-item>
             </kw-form-row>
@@ -184,7 +185,6 @@
       <promotion-select
         v-model="appliedPromotions"
         :promotions="promotions"
-        @update:model-value="calcPromotionAppliedPrice"
       />
     </template>
   </kw-expansion-item>
@@ -193,9 +193,9 @@
 <script setup>
 import { useCtCode } from '~sms-common/contract/composable';
 import { alert, useDataService } from 'kw-lib';
-import { getNumberWithComma } from '~sms-common/contract/util';
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
+import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
 
 const CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE = '214';
 const CNTR_REL_DTL_CD_LK_SDING = '216';
@@ -260,11 +260,7 @@ const isFreePackage = computed(() => dtl.value?.pdChoLmYn === 'Y'); // TODO FIX.
 
 /* TODO: FIX */
 async function fetchSdingCapsls() {
-  if (!isCapsule.value && !isCapsule.value) {
-    return;
-  }
-
-  if (isFreePackage.value) {
+  if (!isSeeding.value && !isCapsule.value) {
     return;
   }
 
@@ -276,7 +272,9 @@ async function fetchSdingCapsls() {
   sdingCapsls.value = data;
 }
 
-fetchSdingCapsls();
+if (!isFreePackage.value) {
+  fetchSdingCapsls();
+}
 
 const labelForSellTpCd = computed(() => {
   const product = dtl.value;
@@ -322,61 +320,24 @@ const labelGenerator = {
 
 const {
   setPriceDefineVariablesBy,
+  // setVariablesIfUniqueSelectable,
   priceDefineVariableOptions,
   selectedFinalPrice, // computed
 } = usePriceSelect(
   priceDefineVariables,
   finalPriceOptions,
   labelGenerator,
+  undefined,
 );
 
 // region [가격표기]
-const displayedFinalPrice = ref('미확정');
+const displayedFinalPrice = computed(() => (
+  getDisplayedPrice(selectedFinalPrice.value)
+));
 
-const promotionAppliedPrice = ref();
-
-function calcDisplayedFinalPrice() {
-  displayedFinalPrice.value = selectedFinalPrice.value
-    ? `${getNumberWithComma(selectedFinalPrice.value.fnlVal)}원`
-    : '미확정';
-  promotionAppliedPrice.value = undefined;
-}
-
-function calcPromotionAppliedPrice(aplyPmots) {
-  promotionAppliedPrice.value = undefined;
-  if (!aplyPmots?.length) {
-    return;
-  }
-  const fnlVal = selectedFinalPrice.value?.fnlVal;
-  if (!fnlVal) {
-    return;
-  }
-  const minRentalFxam = aplyPmots
-    .reduce(
-      (minVal, promotion) => {
-        if (!promotion.rentalFxam || Number.isNaN(Number(promotion.rentalFxam))) {
-          return minVal;
-        }
-        return Math.min(minVal, Number(promotion.rentalFxam));
-      },
-      fnlVal,
-    );
-  /* TODO: '할인개월과 같이 표기할것'
-  const totalDscApyAmt = aplyPmots
-    .reduce((acc, promotion) => {
-      if (Number.isNaN(Number(promotion.dscApyAmt))) {
-        return acc;
-      }
-      return acc + Number(promotion.dscApyAmt);
-    }, 0);
-   */
-  const pmotAplyPrice = Math.max(minRentalFxam, 0);
-  if (selectedFinalPrice.value?.fnlVal === pmotAplyPrice) {
-    return;
-  }
-  promotionAppliedPrice.value = `${getNumberWithComma(pmotAplyPrice)}원`;
-  emit('promotion-changed', aplyPmots, promotionAppliedPrice.value);
-}
+const promotionAppliedPrice = computed(() => (
+  getPromotionAppliedPrice(selectedFinalPrice.value, appliedPromotions.value)
+));
 // endregion [가격표기]
 
 let promiseForFetchFinalPriceOptions;
@@ -399,8 +360,18 @@ async function fetchFinalPriceOptions() {
   finalPriceOptions.value = data || [];
 }
 
-if (!finalPriceOptions.value?.length) {
-  await fetchFinalPriceOptions();
+function emitPriceChanged() {
+  console.log('emitPriceChanged', selectedFinalPrice.value);
+  if (!selectedFinalPrice.value) {
+    fnlAmt.value = undefined;
+    pdPrcFnlDtlId.value = undefined;
+    emit('price-changed', undefined);
+    return;
+  }
+  fnlAmt.value = selectedFinalPrice.value.fnlVal;
+  pdPrcFnlDtlId.value = selectedFinalPrice.value.pdPrcFnlDtlId;
+
+  emit('price-changed', selectedFinalPrice.value);
 }
 
 function initPriceDefineVariables() {
@@ -433,24 +404,17 @@ async function onChangeModelValue(newDtl) {
 
 watch(() => props.modelValue, onChangeModelValue, { immediate: true });
 
-function onChangeSelectedFinalPrice(newPrice) {
-  if (!newPrice) {
-    fnlAmt.value = undefined;
-    pdPrcFnlDtlId.value = undefined;
-    emit('price-changed', newPrice);
+watch(pdPrcFnlDtlId, (value, oldValue) => {
+  if (value !== oldValue && !!oldValue) {
     clearPromotions();
-    return;
   }
-  fnlAmt.value = newPrice.fnlVal;
-  pdPrcFnlDtlId.value = newPrice.pdPrcFnlDtlId;
+});
 
-  emit('price-changed', newPrice);
-  clearPromotions();
-
-  calcDisplayedFinalPrice();
+function onChangeSelectedFinalPrice() {
+  emitPriceChanged();
 }
 
-watch(selectedFinalPrice, onChangeSelectedFinalPrice);
+watch(selectedFinalPrice, onChangeSelectedFinalPrice, { immediate: true });
 
 function onDeleteCntrRel(cntrRel) {
   if (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE) {
@@ -460,6 +424,12 @@ function onDeleteCntrRel(cntrRel) {
 
 function onClickDelete() {
   emit('delete');
+}
+
+function onChangeVariable() {
+  // if (finalPriceOptions.value.length === 1) {
+  //   setVariablesIfUniqueSelectable();
+  // }
 }
 
 </script>

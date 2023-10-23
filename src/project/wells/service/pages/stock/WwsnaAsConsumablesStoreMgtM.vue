@@ -175,6 +175,7 @@ async function fetchItmData() {
   itemKndCdD.value = res.data;
 }
 
+// 조회
 let cachedParams;
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-consumables-stores/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -187,6 +188,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회버튼 클릭 이벤트
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -196,12 +198,14 @@ async function onClickSearch() {
 function validateIsApplyRowExists() {
   const view = grdMainRef.value.getView();
   if (view.getCheckedItems().length === 0) {
+    // 적용 대상 데이터가 없습니다.
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
     return false;
   }
   return true;
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -217,11 +221,13 @@ async function onClickSave() {
   await fetchData();
 }
 
+// 행 삭제
 async function onClickDeleteRow() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
   if (checkedRows.length === 0) {
+    // 적용 대상 데이터가 없습니다.
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
   }
 
@@ -237,6 +243,7 @@ async function onClickDeleteRow() {
   }
 }
 
+// 행 추가
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
   await gridUtil.insertRowAndFocus(view, 0, {
@@ -244,6 +251,7 @@ async function onClickAddRow() {
   });
 }
 
+// 엑셀업로드 버튼클릭 이벤트
 const onClickExcelUpload = async () => {
   const apiUrl = '/sms/wells/service/as-consumables-stores/excel-upload';
   const templateId = 'FOM_AS_CSMB_UPLOAD';
@@ -259,6 +267,7 @@ const onClickExcelUpload = async () => {
   }
 };
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/as-consumables-stores/excel-download', { params: cachedParams });
@@ -280,18 +289,18 @@ onMounted(async () => {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'strWareNo' },
-    { fieldName: 'wareNm' },
-    { fieldName: 'strRgstDt' },
-    { fieldName: 'sapCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmPdNm' },
-    { fieldName: 'itmGdCd' },
-    { fieldName: 'strQty' },
-    { fieldName: 'rmkCn' },
-    { fieldName: 'itmStrNo' },
-    { fieldName: 'itmStrSn' },
-    { fieldName: 'mngtUnitCd' },
+    { fieldName: 'strWareNo' }, // 입고창고번호
+    { fieldName: 'wareNm' }, // 창고명
+    { fieldName: 'strRgstDt' }, // 입고등록일자
+    { fieldName: 'sapCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목상품코드
+    { fieldName: 'itmPdNm' }, // 품목상품명
+    { fieldName: 'itmGdCd' }, // 품목등급코드
+    { fieldName: 'strQty' }, // 입고수량
+    { fieldName: 'rmkCn' }, // 비고
+    { fieldName: 'itmStrNo' }, // 품목입고번호
+    { fieldName: 'itmStrSn' }, // 품목입고순번
+    { fieldName: 'mngtUnitCd' }, // 관리단위코드
 
   ];
 

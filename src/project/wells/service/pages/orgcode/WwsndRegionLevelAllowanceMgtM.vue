@@ -171,7 +171,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep, isNumber, isEmpty } from 'lodash-es';
+import { cloneDeep, isNumber, isUndefined, isNull } from 'lodash-es';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
@@ -216,6 +216,11 @@ const countInfo = ref({
   bizTotalCount: 0, // 업무급지 총건수
 });
 
+// 빈값 여부 체크
+function isBlank(val) {
+  return isUndefined(val) || isNull(val) || val === '';
+}
+
 // 기존 적용일자보다 큰 일자인지 체크
 function validateOriginDate(type, val) {
   const originApplyDate = dayjs(originApplyDates[type]).format('YYYYMMDD');
@@ -259,15 +264,16 @@ function getMoveTime(view, row, rglvlGdCd, value) {
 
   let mmtLdtm = 360; // [이동급지] 급지등급 25등급은 '섬'으로 이동시간 360 고정
 
-  if (rglvlGdCd !== '25') {
-    view.setValue(row, 'mmtDstn', value);
+  if (rglvlGdCd !== 25) {
+    view.setValue(view.getItemIndex(row), 'mmtDstn', value);
 
-    const mmtDstn = isEmpty(value) ? 0 : Number(value);
+    const mmtDstn = isBlank(value) ? 0 : Number(value);
     const averageSpeed = Number(movementAverageSpeed);
     mmtLdtm = (mmtDstn * 60) / averageSpeed;
 
-    view.setValue(row, 'mmtLdtm', mmtLdtm);
+    view.setValue(view.getItemIndex(row), 'mmtLdtm', mmtLdtm);
   }
+  view.commit();
   return mmtLdtm;
 }
 
@@ -278,7 +284,7 @@ function setAllowance(view, row, mmtLdtm) {
   const fieldWeight = Number(movementFieldWeight);
   const rglvlAwAmt = Math.round((mmtLdtm * manHour * (fieldWeight / 100)) / 100) * 100;
 
-  view.setValue(row, 'rglvlAwAmt', rglvlAwAmt);
+  view.setValue(view.getItemIndex(row), 'rglvlAwAmt', rglvlAwAmt);
 }
 
 let isMovementChanged = false;
@@ -311,6 +317,7 @@ function onClickMovementBulkApply() {
 
     setAllowance(view, dataRow, mmtLdtm);
   }
+  view.commit();
 }
 
 // 적용일자 일괄적용
@@ -323,9 +330,10 @@ function setApplyDates(view, type) {
   const rowCount = view.getItemCount();
 
   for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
-    view.setValue(dataRow, 'apyStrtdt', applyDate);
-    view.setValue(dataRow, 'apyEnddt', '99991231');
+    view.setValue(view.getItemIndex(dataRow), 'apyStrtdt', applyDate);
+    view.setValue(view.getItemIndex(dataRow), 'apyEnddt', '99991231');
   }
+  view.commit();
 }
 
 // 이동급지 - 적용일자 일괄적용
@@ -368,13 +376,14 @@ function onClickBizBulkApply() {
     const rglvlGdCd = gridUtil.getCellValue(view, dataRow, 'rglvlGdCd'); // 급지등급코드
     let mmtLdtm = gridUtil.getCellValue(view, dataRow, 'mmtLdtm'); // 이동시간
 
-    if (rglvlGdCd === '24') {
-      mmtLdtm = '260'; // [업무급지] 급지등급 24등급은 "섬"으로 이동시간 260으로 계산
+    if (rglvlGdCd === 24) {
+      mmtLdtm = 260; // [업무급지] 급지등급 24등급은 "섬"으로 이동시간 260으로 계산
     }
 
     const rglvlAwAmt = Number(mmtLdtm) * getFieldAirlift(bizManHour, bizFieldWeight);
-    view.setValue(dataRow, 'rglvlAwAmt', rglvlAwAmt);
+    view.setValue(view.getItemIndex(dataRow), 'rglvlAwAmt', rglvlAwAmt);
   }
+  view.commit();
 }
 
 // 업무급지 - 적용일자 일괄적용
@@ -470,8 +479,8 @@ async function saveData(view, additionalInfo, viewType) {
   if (!validateApplyDate(view)) return;
 
   const changedRows = gridUtil.getChangedRowValues(view).map((v) => {
-    const mmtDstn = isEmpty(v.mmtDstn) ? '0' : v.mmtDstn;
-    const mmtLdtm = isEmpty(v.mmtLdtm) ? '0' : v.mmtLdtm;
+    const mmtDstn = isBlank(v.mmtDstn) ? '0' : v.mmtDstn;
+    const mmtLdtm = isBlank(v.mmtLdtm) ? '0' : v.mmtLdtm;
     return { ...v, mmtDstn, mmtLdtm, ...additionalInfo };
   });
 
@@ -501,8 +510,8 @@ async function onClickBizSave() {
 function setDisplayCallback(grid, index, value) {
   if (value === '9999') {
     return '섬';
-  } if (isEmpty(value)) {
-    return '0';
+  } if (isBlank(value)) {
+    return 0;
   }
   return value;
 }
@@ -520,8 +529,8 @@ const initGrdMovementLevel = defineGrid((data, view) => {
     { fieldName: 'rglvlDvCd' }, // 급지구분코드
     { fieldName: 'bizRglvlCd' }, // 업무급지코드
     { fieldName: 'mmtDstn' }, // 이동거리
-    { fieldName: 'rglvlGdCd' }, // 급지등급코드
-    { fieldName: 'mmtLdtm' }, // 이동소요시간
+    { fieldName: 'rglvlGdCd', dataType: 'number' }, // 급지등급코드
+    { fieldName: 'mmtLdtm', dataType: 'number' }, // 이동소요시간
     { fieldName: 'rglvlAwAmt', dataType: 'number' }, // 급지수당금액
     { fieldName: 'apyStrtdt' }, // 적용시작일
     { fieldName: 'apyEnddt' }, // 적용종료일
@@ -546,6 +555,7 @@ const initGrdMovementLevel = defineGrid((data, view) => {
         inputCharacters: '0-9',
       },
       styleName: 'text-right',
+      sortable: false,
       displayCallback: setDisplayCallback,
     },
     { fieldName: 'rglvlGdCd', header: t('MSG_TXT_GD'), width: '100', suffix: ' 급지' },
@@ -596,12 +606,17 @@ const initGrdMovementLevel = defineGrid((data, view) => {
 
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
+  view.sortingOptions.commitBeforeSorting = true;
 
-  view.onGetEditValue = async (grid, index, editResult) => {
-    const rglvlGdCd = gridUtil.getCellValue(view, index.itemIndex, 'rglvlGdCd'); // 급지등급코드
-    const mmtLdtm = getMoveTime(view, index.itemIndex, rglvlGdCd, editResult.value); // 이동시간
+  // view.onGetEditValue = async (grid, index, editResult) => {
+  view.onCellEdited = (grid, itemIndex) => {
+    grid.commit();
+    const { mmtDstn } = grid.getValues(itemIndex);
+    const rglvlGdCd = gridUtil.getCellValue(view, itemIndex, 'rglvlGdCd'); // 급지등급코드
+    const mmtLdtm = getMoveTime(view, itemIndex, rglvlGdCd, mmtDstn); // 이동시간
 
-    setAllowance(view, index.itemIndex, mmtLdtm);
+    setAllowance(view, itemIndex, mmtLdtm);
+    grid.commit();
     isMovementChanged = true;
   };
 });
@@ -612,7 +627,7 @@ const initGrdBizLevel = defineGrid((data, view) => {
     { fieldName: 'bizRglvlCd' }, // 업무급지코드
     { fieldName: 'mmtDstn' }, // 이동거리
     { fieldName: 'mmtLdtm' }, // 이동소요시간
-    { fieldName: 'rglvlGdCd' }, // 급지등급코드
+    { fieldName: 'rglvlGdCd', dataType: 'number' }, // 급지등급코드
     { fieldName: 'rglvlAwAmt', dataType: 'number' }, // 급지수당금액
     { fieldName: 'apyStrtdt' }, // 적용시작일
     { fieldName: 'apyEnddt' }, // 적용종료일
@@ -628,6 +643,7 @@ const initGrdBizLevel = defineGrid((data, view) => {
       header: t('MSG_TXT_MMT_HH_M'),
       width: '100',
       styleName: 'text-right',
+      sortable: false,
       displayCallback: setDisplayCallback,
     },
     { fieldName: 'rglvlGdCd', header: t('MSG_TXT_GD'), width: '100', suffix: ' 급지' },
@@ -670,6 +686,8 @@ const initGrdBizLevel = defineGrid((data, view) => {
 
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
+  view.sortingOptions.commitBeforeSorting = true;
+  view.sortingOptions.commitBeforeSorting = true;
 });
 
 function initGrdMovementBase(data, view) {
@@ -757,16 +775,19 @@ function initGrdBizBase(data, view) {
   view.rowIndicator.visible = false;
   view.editOptions.columnEditableFirst = true;
 
-  view.onGetEditValue = async (grid, index, editResult) => {
+  view.onCellEdited = (grid, itemIndex) => {
+    grid.commit();
+    const { fieldName } = grid.getCurrent();
+    const { bizManHour, bizFieldWeight } = grid.getValues(itemIndex);
     let bizFieldAirlift = 0;
-    if (index.fieldName === 'bizManHour') {
-      bizFieldAirlift = getFieldAirlift(editResult.value, grid.getValue(index.dataRow, 'bizFieldWeight'));
-    } else if (index.fieldName === 'bizFieldWeight') {
-      bizFieldAirlift = getFieldAirlift(grid.getValue(index.dataRow, 'bizManHour'), editResult.value);
+    if (fieldName === 'bizManHour') {
+      bizFieldAirlift = getFieldAirlift(bizManHour, grid.getValue(itemIndex, 'bizFieldWeight'));
+    } else if (fieldName === 'bizFieldWeight') {
+      bizFieldAirlift = getFieldAirlift(grid.getValue(itemIndex, 'bizManHour'), bizFieldWeight);
     }
 
-    grid.setValue(index.dataRow, index.fieldName, editResult.value);
-    grid.setValue(index.dataRow, 'bizFieldAirlift', bizFieldAirlift);
+    grid.setValue(itemIndex, 'bizFieldAirlift', bizFieldAirlift);
+    grid.commit();
   };
 }
 </script>

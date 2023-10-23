@@ -117,7 +117,6 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    /* { fieldName: 'col1' }, */
     { fieldName: 'cntrAprAkDvCdNm' },
     { fieldName: 'cntrAprFwDvNm' },
     { fieldName: 'rqrNm' },
@@ -129,9 +128,8 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    /* { fieldName: 'col1', header: '요청순번', width: '78', styleName: 'text-center' }, */
     { fieldName: 'cntrAprAkDvCdNm', header: t('MSG_TXT_APR_REQ_CAT'), width: '200', styleName: 'text-center' },
-    { fieldName: 'rqrNm', header: t('MSG_TXT_PIC'), width: '80', styleName: 'text-center' },
+    { fieldName: 'rqrNm', header: t('MSG_TXT_PIC'), width: '200' },
     { fieldName: 'sendDttm', header: t('MSG_TXT_SEND_DTM'), width: '180', styleName: 'text-center', datetimeFormat: 'datetime' },
     { fieldName: 'aprvYn', header: t('MSG_TXT_APPR_STS'), width: '80', styleName: 'text-center' },
     { fieldName: 'aprvNm', header: t('MSG_TXT_APPROVER'), width: '80', styleName: 'text-center' },
