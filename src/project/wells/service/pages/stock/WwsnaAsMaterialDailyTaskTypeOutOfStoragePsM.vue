@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
@@ -31,6 +32,7 @@
             :label="$t('MSG_TXT_BASE_YM')"
           />
         </kw-search-item>
+        <!-- 창고구분 -->
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.baseYm"
           v-model:end-ym="searchParams.baseYm"
@@ -51,6 +53,7 @@
         />
       </kw-search-row>
       <kw-search-row>
+        <!-- 업무유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_TASK_TYPE')"
         >
@@ -60,6 +63,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 사용여부 -->
         <kw-search-item
           :label="$t('MSG_TXT_USE_SEL')"
           :colspan="1"
@@ -70,6 +74,7 @@
             :options="codes.USE_YN"
           />
         </kw-search-item>
+        <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
           :colspan="2"
@@ -159,6 +164,7 @@ const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { t } = useI18n();
 const now = dayjs();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -246,33 +252,50 @@ async function onChangeItmKndCd() {
   productCodes.value = res.data.map((v) => ({ codeId: v.svpdPdCd, codeName: v.svpdNmKor }));
 }
 
-// 기초자재, 중수리자재, 기준월 필터링, 일별 필터링)필터 처리
-const filter1 = [{ name: 'cmnPartFilter', criteria: "value = '01'" }]; // 중수리 자재
-const filter2 = [{ name: 'ordnyHvMatFilter', criteria: "value = 'Y'" }]; // 기초 자재
-const filter4 = [{ name: 'baseMonthFilter', criteria: "value = 'Y'" }]; // 기준월 필터링
-
 // 필터링 처리
 async function onChangefilteringCd(val) {
   const view = grdMainRef.value.getView();
+
+  // 기초자재, 중수리자재, 기준월 필터링, 일별 필터링)필터 처리
+  const filter1 = [{ name: 'cmnPartFilter', criteria: "value = '01'" }]; // 중수리 자재
+  const filter2 = [{ name: 'ordnyHvMatFilter', criteria: "value = 'Y'" }]; // 기초 자재
+  // const filter3 = [{ name: 'trnoverFilter', criteria: 'value="Y"' }]; // 회전율
+  const filter4 = [{ name: 'baseMonthFilter', criteria: "value = 'Y'" }]; // 기준월 필터링
+
   // 필터 등록
   view.setColumnFilters('asMatCmnClsfCd', filter1); // 중수리 자재
   view.setColumnFilters('ordnyHvMatYn', filter2); // 기준월 필터링
-  view.setColumnFilters('col4', filter4); // 기준월 필터링
+  view.setColumnFilters('qtyMm', filter4); // 기준월 필터링
   // 필터 초기화
-  view.activateAllColumnFilters('asMatCmnClsfCd', false);
-  view.activateAllColumnFilters('ordnyHvMatYn', false);
-  view.activateAllColumnFilters('col4', false);
+  // view.activateAllColumnFilters('asMatCmnClsfCd', false);
+  // view.activateAllColumnFilters('ordnyHvMatYn', false);
+  // view.activateAllColumnFilters('qtyMm', false);
+
   // 필터 처리
   if (val.includes('01')) {
-    view.activateColumnFilters('asMatCmnClsfCd', 'cmnPartFilter', true);
-  } else if (val.includes('02')) {
-    view.activateColumnFilters('ordnyHvMatYn', 'ordnyHvMatFilter', true);
-  } else if (val.includes('04')) {
-    view.activateColumnFilters('col4', 'baseMonthFilter', true);
+    view.activateAllColumnFilters('asMatCmnClsfCd', false);
+    view.activateColumnFilters('asMatCmnClsfCd', ['cmnPartFilter'], true);
+  } else {
+    view.activateColumnFilters('asMatCmnClsfCd', ['cmnPartFilter'], false);
+  }
+
+  if (val.includes('02')) {
+    view.activateAllColumnFilters('ordnyHvMatYn', false);
+    view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], true);
+  } else {
+    view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], false);
+  }
+
+  if (val.includes('04')) {
+    view.activateAllColumnFilters('qtyMm', false);
+    view.activateColumnFilters('qtyMm', ['baseMonthFilter'], true);
+  } else {
+    view.activateColumnFilters('ordnyHvMatYn', ['baseMonthFilter'], false);
   }
 }
 
 async function fetchData() {
+  // wareDtlDvCd : 창고구분
   const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: result, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
@@ -289,6 +312,10 @@ async function fetchData() {
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+
+  searchParams.value.baseYear = searchParams.value.baseYm.substring(0, 4);
+  searchParams.value.baseMonth = searchParams.value.baseYm.substring(4, 6);
+
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -307,16 +334,47 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 
 fieldsObj = {
-
   // 그리드 공통컬럼
   defaultFields: [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '124', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '146', styleName: 'text-center' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '500', styleName: 'text-left' },
-    { fieldName: 'asMatCmnClsfCd', width: '150', styleName: 'text-center', visible: true, autoFilter: false },
-    { fieldName: 'ordnyHvMatYn', width: '150', styleName: 'text-center', visible: true, autoFilter: false },
-    { fieldName: 'col4', width: '150', styleName: 'text-center', visible: true, autoFilter: false },
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-left' },
+    {
+      fieldName: 'asMatCmnClsfCd',
+      header: t(''),
+      width: '150',
+      styleName: 'text-center',
+      visible: false,
+      autoFilter: false,
+    },
+    {
+      fieldName: 'ordnyHvMatYn',
+      header: t(''),
+      width: '150',
+      styleName: 'text-center',
+      visible: false,
+      autoFilter: false,
+    },
+    {
+      fieldName: 'qtyMm',
+      header: t(''),
+      width: '150',
+      styleName: 'text-center',
+      visible: false,
+      autoFilter: false,
+    },
   ],
+  // defaultFields: [
+  //   { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '124', styleName: 'text-center' },
+  //   { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
+  //   { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-left' },
+  // eslint-disable-next-line max-len
+  //   { fieldName: 'asMatCmnClsfCd', header: t('MSG_TXT_MDIM_RPR'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
+  // eslint-disable-next-line max-len
+  //   { fieldName: 'ordnyHvMatYn', header: t('MSG_TXT_BTD_MAT'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
+  // eslint-disable-next-line max-len
+  //   { fieldName: 'qtyMm', header: t('MSG_TXT_BASE_MM'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
+  // ],
 
   // 필드 세팅
   setFields(result) {
@@ -341,7 +399,7 @@ fieldsObj = {
     for (let cnt = 1; cnt <= lastDay; cnt += 1) {
       columnDailyTotals.push(
         {
-          fieldName: `day${cnt}`,
+          fieldName: `qty${cnt}`,
           header: `${cnt}${t('MSG_TXT_D')}`,
           width: 80,
           styleName: existDays.indexOf(`day${String(cnt)}`) > -1 ? 'text-right text-blue' : 'text-right', // 존재하는 데이터만 색상표시

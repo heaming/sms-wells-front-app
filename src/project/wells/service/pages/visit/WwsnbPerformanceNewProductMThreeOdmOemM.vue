@@ -245,26 +245,6 @@ const divCd = [
 ];
 
 function initGrid(data, view) {
-  const fields = [
-    { fieldName: 'nm' }, // 항목명
-    { fieldName: 'tcnt', dataType: 'number' }, // 합계
-    { fieldName: 'acol1', dataType: 'number' }, // 1월
-    { fieldName: 'acol2', dataType: 'number' }, // 2월
-    { fieldName: 'acol3', dataType: 'number' }, // 3월
-    { fieldName: 'acol4', dataType: 'number' }, // 4월
-    { fieldName: 'acol5', dataType: 'number' }, // 5월
-    { fieldName: 'acol6', dataType: 'number' }, // 6월
-    { fieldName: 'acol7', dataType: 'number' }, // 7월
-    { fieldName: 'acol8', dataType: 'number' }, // 8월
-    { fieldName: 'acol9', dataType: 'number' }, // 9월
-    { fieldName: 'acol10', dataType: 'number' }, // 10월
-    { fieldName: 'acol11', dataType: 'number' }, // 11월
-    { fieldName: 'acol12', dataType: 'number' }, // 12월
-    { fieldName: 'maxval', dataType: 'number' },
-    { fieldName: 'minval', dataType: 'number' },
-    { fieldName: 'avg', dataType: 'number' },
-  ];
-
   const columns = [
     {
       fieldName: 'nm',
@@ -287,6 +267,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_SUM'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -298,6 +279,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_JAN'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -309,6 +291,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_FEB'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -320,6 +303,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_MAR'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -331,6 +315,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_APRI'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -342,6 +327,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_MAY'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -353,6 +339,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_JUN'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -375,6 +362,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_AUG'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -386,6 +374,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_SEPT'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -397,6 +386,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_OCT'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -408,6 +398,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_NOV'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -419,6 +410,7 @@ function initGrid(data, view) {
       header: t('MSG_TXT_DECE'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -440,7 +432,7 @@ function initGrid(data, view) {
     ],
   });
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
 
   view.checkBar.visible = false;
