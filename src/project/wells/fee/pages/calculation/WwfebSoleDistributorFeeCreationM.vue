@@ -319,7 +319,7 @@ async function onClickW313P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
   //   notify(t('MSG_ALT_SELECT_RSB_TP'));
   // } else {
   const param = {
-    ogTpCd: 'W03',
+    ogTpCd: 'W05',
     perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
     ocYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
     // rsbDvCd: rsbTpCd,
