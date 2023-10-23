@@ -54,7 +54,6 @@
           <kw-date-range-picker
             v-model:from="searchParams.regDtFrom"
             v-model:to="searchParams.regDtTo"
-            rules="date_range_months:1"
           />
         </kw-search-item>
       </kw-search-row>
