@@ -65,6 +65,7 @@
           <kw-input
             v-model.trim="searchParams.cntrDtlNo"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
+            :placeholder="`${$t('MSG_TXT_CNTR_NO')}-${$t('MSG_TXT_CNTR_SN')}`"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_CST_NM')">
@@ -203,7 +204,7 @@ const customCodes = {
     { codeId: '2', codeName: t('MSG_TXT_WORK_PENDING') },
   ],
   firstSppGb: [
-    { codeId: 'all', codeName: t('MSG_TXT_ALL') },
+    { codeId: 'ALL', codeName: t('MSG_TXT_ALL') },
     { codeId: '1', codeName: t('MSG_TXT_FIRST_SPP_YN') },
     { codeId: 'N', codeName: t('MSG_TXT_N_NMN') },
   ],
@@ -212,7 +213,7 @@ const searchParams = ref({
   startDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
   endDt: now.format('YYYYMMDD'), // 종료일자
   ostrCnfmDt: now.format('YYYYMMDD'),
-  firstSppGb: 'all', /* 첫 배송 여부 */
+  firstSppGb: 'ALL', /* 첫 배송 여부 */
   findGb: '2', /* 조회 구분 */
   selCnt: '', /* 조회 제한건수  */
   prtnrBzsCd: '', /* 파트너업체 */
@@ -235,6 +236,7 @@ async function onChangeCompStatus() {
   if (findGb === '1') {
     isCompStatus.value = true;
     view.checkBar.visible = false;
+    searchParams.value.firstSppGb = 'ALL';
   }
 
   /* 작업대기 */
@@ -423,6 +425,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '110', styleName: 'text-center' },
+    { fieldName: 'sellTpCd', visible: false },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '110', styleName: 'text-center' },
     { fieldName: 'prtnrBzsNm', header: t('MSG_TXT_PRTNR_BZS_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'pcsvCompNm', header: t('MSG_TXT_PCSV_CO'), width: '110', styleName: 'text-center' },
