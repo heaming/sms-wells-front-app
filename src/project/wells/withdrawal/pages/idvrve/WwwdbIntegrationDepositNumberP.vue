@@ -68,6 +68,7 @@
         >
           <kw-input
             v-model="searchParams.acnoEncr"
+            :maxlength="14"
           />
         </kw-search-item>
         <!-- label="판매자번호" -->
@@ -88,6 +89,7 @@
         >
           <kw-input
             v-model="searchParams.crcdnoEncr"
+            :maxlength="14"
           />
         </kw-form-item>
       </kw-search-row>
