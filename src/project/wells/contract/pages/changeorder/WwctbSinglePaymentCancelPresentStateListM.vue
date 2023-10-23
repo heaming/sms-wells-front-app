@@ -222,7 +222,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' }, // [상품코드]
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300' }, // [상품명]
     { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [계약일자]
-    { fieldName: 'istDt', header: t('MSG_TXT_RNTF_RATE'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [설치일자]
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [설치일자]
     //------------------------------------------------------------------------------------------
     { fieldName: 'cntrPdEnddt', header: t('MSG_TXT_LEDG'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [원장]
     { fieldName: 'pdChDt', header: t('MSG_TXT_PD_CH'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // [상변]

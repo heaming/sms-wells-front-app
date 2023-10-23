@@ -148,6 +148,7 @@ const codes = await codeUtil.getMultiCodes(
   'SELL_CHNL_DTL_CD',
 );
 
+// 조회시 그리드 변경 구분
 const gridControl = ref({
   gubun: '1',
 });
@@ -164,12 +165,14 @@ const searchParams = ref({
 
 let cachedParams;
 
+// 코드 가져오기
 async function getCodes() {
   cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/common/closing/income-slip/product-divide-code', { params: { ...cachedParams } });
   return res.data;
 }
 
+// 조회구분 선택
 async function onSelectInqrDv() {
   const { sellTpCd, inqrDv } = searchParams.value;
   const view = grdMainRef.value.getView();
@@ -184,6 +187,7 @@ async function onSelectInqrDv() {
   ];
 }
 
+// 합계 조회
 async function fetchSummaryData(apiParam) {
   const res = await dataService.get(`/sms/wells/closing/product-sales/${apiParam}/summary`, { params: cachedParams });
   const view = grdMainRef.value.getView();
@@ -274,41 +278,41 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdBasic = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', visible: false },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false },
-    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', visible: false }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-center', visible: false }, // 상품명
+    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false }, // SAP상품구분코드
+    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
 
     // 정상매출
-    { fieldName: 'sellQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'sellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'sellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'sellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'pvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'sellQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 판매수량
+    { fieldName: 'sellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'sellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
+    { fieldName: 'sellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
+    { fieldName: 'pvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 현할차
 
     // 매출변경
-    { fieldName: 'chQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'slChAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'chSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'chVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'chPvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'chQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 판매수량
+    { fieldName: 'slChAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'chSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
+    { fieldName: 'chVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
+    { fieldName: 'chPvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 현할차
 
     // 매출취소
-    { fieldName: 'canQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'slCanAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'canSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'canVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'canPvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'canQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 판매수량
+    { fieldName: 'slCanAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'canSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
+    { fieldName: 'canVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
+    { fieldName: 'canPvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 현할차
 
     // 매출합계
-    { fieldName: 'totQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'totAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'totSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'totVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'totPvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totQty', header: t('MSG_TXT_SELL_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 판매수량
+    { fieldName: 'totAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'totSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
+    { fieldName: 'totVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
+    { fieldName: 'totPvdaAmt', header: t('MSG_TXT_PVDA_SUB'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 현할차
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -404,28 +408,28 @@ const initGrdBasic = defineGrid((data, view) => {
 
 const initGrdRental = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', visible: false },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-center', visible: false },
-    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false },
-    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '130', styleName: 'text-center', visible: false }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-center', visible: false }, // 상품코드명
+    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false }, // SAP상품구분코드
+    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
 
-    { fieldName: 'rentalRgstCostCnt', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'rentalRgstCost', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'rentalRgstCostSpl', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'rentalRgstCostVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'rentalRgstCostCnt', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
+    { fieldName: 'rentalRgstCost', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'rentalRgstCostSpl', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
+    { fieldName: 'rentalRgstCostVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
 
-    { fieldName: 'slQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'nomSlAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'splAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'vat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'slQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
+    { fieldName: 'nomSlAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'splAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
+    { fieldName: 'vat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
 
-    { fieldName: 'totQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'totSlAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'totSpl', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'totVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
+    { fieldName: 'totSlAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'totSpl', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
+    { fieldName: 'totVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
@@ -493,26 +497,26 @@ const initGrdRental = defineGrid((data, view) => {
 
 const initGrdMembership = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD },
-    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false },
-    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' },
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일자
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '100', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
+    { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false }, // SAP상품구분코드
+    { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
 
-    { fieldName: 'sellQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'sellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'sellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'sellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'sellQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
+    { fieldName: 'sellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'sellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
+    { fieldName: 'sellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
 
-    { fieldName: 'filSellQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'filSellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'filSellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'filSellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'filSellQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
+    { fieldName: 'filSellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'filSellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
+    { fieldName: 'filSellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
 
-    { fieldName: 'totSelQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'totSellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'totSellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
-    { fieldName: 'totSellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' },
+    { fieldName: 'totSelQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
+    { fieldName: 'totSellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
+    { fieldName: 'totSellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
+    { fieldName: 'totSellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);

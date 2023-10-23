@@ -32,7 +32,7 @@
           v-if="searchParams.searchGbn===1"
           v-model="searchParams.bryyMmdd"
           :label="$t('MSG_TXT_BIRTH_DATE')"
-          :placeholder="t('900101')"
+          :placeholder="t('19900101')"
           rules="required|max:8|numeric"
           type="date"
         />

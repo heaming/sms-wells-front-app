@@ -391,17 +391,6 @@ const initGrdMain = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 미수금 총액
-    { fieldName: 'thmNwUcAmt',
-      header: t('MSG_TXT_UC_AMT'),
-      width: '100',
-      styleName: 'text-right',
-      dataType: 'number',
-      groupFooter: {
-        numberFormat: '#,##0',
-        expression: 'sum',
-        styleName: 'text-right',
-      },
-      footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 미수금액
     { fieldName: 'thmNwAccN',
       header: t('MSG_TXT_ACC_N'),
       width: '80',
@@ -424,29 +413,6 @@ const initGrdMain = defineGrid((data, view) => {
         styleName: 'text-right',
       },
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } }, // 입금금액
-    { fieldName: 'thmNwDpRt',
-      header: t('MSG_TXT_DP_RT'),
-      width: '80',
-      styleName: 'text-right',
-      dataType: 'number',
-      numberFormat: '#,##0.##',
-      groupFooter: {
-        valueCallback(grid, column, groupFooterIndex, group) {
-          const thmNwDpRtSum = grid.getGroupSummary(group, 'thmNwUcAmt').sum === 0 ? 0
-            : (grid.getGroupSummary(group, 'thmNwDpAmt').sum / grid.getGroupSummary(group, 'thmNwUcAmt').sum) * 100;
-          return thmNwDpRtSum;
-        },
-        numberFormat: '#,##0.##',
-      },
-      footer: { expression: 'sum',
-        numberFormat: '#,##0.##',
-        styleName: 'text-right',
-        valueCallback(grid) {
-          const rtSum = grid.getSummary('thmNwUcAmt', 'sum') === 0 ? 0
-            : (grid.getSummary('thmNwDpAmt', 'sum') / grid.getSummary('thmNwUcAmt', 'sum')) * 100;
-
-          return rtSum;
-        } } }, // 입금률
     { fieldName: 'nomUcAmt',
       header: t('MSG_TXT_UC_AMT'),
       width: '110',
@@ -664,7 +630,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_THM_NW'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['thmNwUcAmt', 'thmNwAccN', 'thmNwDpAmt', 'thmNwDpRt'],
+      items: ['thmNwAccN', 'thmNwDpAmt'],
     },
     {
       header: t('MSG_TXT_NOM_LSTMM_CL'), // colspan title
