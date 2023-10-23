@@ -109,7 +109,7 @@
       >
         <kw-select
           v-model="searchParams.cntrwTpCd"
-          :options="codes.CNTRW_TP_CD.filter((v) => v.codeId === '1' || v.codeId === '2' || v.codeId === '5')"
+          :options="codes.CNTRW_TP_CD.filter((v) => v.codeId === '4' || v.codeId === '5')"
           first-option="all"
           first-option-value=""
         />
