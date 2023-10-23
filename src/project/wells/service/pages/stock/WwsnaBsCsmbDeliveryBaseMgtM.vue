@@ -83,6 +83,12 @@
           vertical
           inset
         />
+        <kw-date-range-picker
+          v-model:from="carriedOverParams.carriedOverFrom"
+          v-model:to="carriedOverParams.carriedOverTo"
+          class="w275"
+          type="month"
+        />
         <kw-btn
           v-permission:create
           dense
@@ -129,11 +135,11 @@
 // -------------------------------------------------------------------------------------------------
 
 import { useGlobal, getComponentType, useMeta, defineGrid, codeUtil, useDataService, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { currentRoute } = useRouter();
-const { modal, confirm } = useGlobal();
+const { modal, confirm, alert, notify } = useGlobal();
 const { getConfig } = useMeta();
 const { t } = useI18n();
 const dataService = useDataService();
@@ -163,6 +169,11 @@ const searchParams = ref({
   sapMatCdStrt: '',
   sapMatCdEnd: '',
   itmKnms: [],
+});
+
+const carriedOverParams = ref({
+  carriedOverFrom: '',
+  carriedOverTo: '',
 });
 
 async function fetchAllItems() {
@@ -211,10 +222,23 @@ async function onClickSearch() {
 }
 
 async function onClickDdlvBaseCrdovr() {
-  if (!await confirm(t('MSG_ALT_DDLV_BASE_CRDOVR'))) { return; }
+  // if (!await confirm(t('MSG_ALT_DDLV_BASE_CRDOVR'))) { return; }
+  if ((isEmpty(carriedOverParams.value.carriedOverFrom) || isEmpty(carriedOverParams.value.carriedOverTo))
+      || (Number(carriedOverParams.value.carriedOverFrom) === Number(carriedOverParams.value.carriedOverTo))) {
+    await alert('배부기준 이월대상 날짜를 확인해주세요.');
+    return;
+  }
 
-  await dataService.post('/sms/wells/service/delivery-bases/next-month');
+  const fromYear = dayjs(carriedOverParams.value.carriedOverFrom).format('YYYY');
+  const fromMonth = dayjs(carriedOverParams.value.carriedOverFrom).format('MM');
+  const toYear = dayjs(carriedOverParams.value.carriedOverTo).format('YYYY');
+  const toMonth = dayjs(carriedOverParams.value.carriedOverTo).format('MM');
+
+  if (!await confirm(`${fromYear}년 ${fromMonth}월 배부기준 데이터를\n${toYear}년 ${toMonth}월로 이월하시겠습니까?`)) { return; }
+
+  await dataService.post('/sms/wells/service/delivery-bases/next-month', carriedOverParams.value);
   await fetchData();
+  notify('MSG_ALT_CRDOVR_WK_FSH');
 }
 
 async function onClickDdlvBaseInfGrst() {
