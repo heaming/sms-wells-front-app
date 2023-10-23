@@ -43,6 +43,7 @@
           :label="$t('MSG_TXT_MPNO')"
         >
           <kw-input
+            v-model:model-value="searchParams.mpno"
             v-model:telNo0="searchParams.cralLocaraTno"
             v-model:telNo1="searchParams.mexnoEncr"
             v-model:telNo2="searchParams.cralIdvTno"
@@ -212,6 +213,7 @@ async function onClickReset() {
   // 아예 다른 동작을 하는 버튼을 만드는 것이 정답일 것 같습니다.
   searchParams.value.cntrCstKnm = '';
   searchParams.value.lrnnCstKnm = '';
+  searchParams.value.mpno = '';
   searchParams.value.cralLocaraTno = '';
   searchParams.value.mexnoEncr = '';
   searchParams.value.cralIdvTno = '';
