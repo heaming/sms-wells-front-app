@@ -372,8 +372,12 @@ let cachedParams;
 */
 async function initSearchParams() {
   totalCount.value = 0;
-  grd1MainRef.value.getData().clearRows();
-  grd2MainRef.value.getData().clearRows();
+  if (grd1MainRef.value) {
+    grd1MainRef.value.getData().clearRows();
+  }
+  if (grd2MainRef.value) {
+    grd2MainRef.value.getData().clearRows();
+  }
 }
 
 /*
@@ -579,9 +583,9 @@ async function onClickExcelDownload() {
   cachedParams = cloneDeep(searchParams.value);
 
   if (divCd === '04') {
-    await downloadExcelView1('hmst-fees');
+    await downloadExcelView2('hmst-fees');
   } else {
-    await downloadExcelView2('hmsts');
+    await downloadExcelView1('hmsts');
   }
 }
 
@@ -687,46 +691,46 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'og2Lv', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
     { fieldName: 'og3Lv', header: t('MSG_TXT_BRANCH'), width: '120', styleName: 'text-center' },
     { fieldName: 'sequenceNumber', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '98' },
-    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '98', styleName: 'text-center' },
-    { fieldName: 'selType', header: t('MSG_TXT_SEL_TYPE'), width: '111.9', styleName: 'text-center', options: codes.SELL_TP_CD },
-    { fieldName: 'pdctTp', header: t('MSG_TXT_PDCT_TP'), width: '72', styleName: 'text-center', options: codes.FEE_PERF_TP_CD },
+    { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'selType', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD },
+    { fieldName: 'pdctTp', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PERF_TP_CD },
     { fieldName: 'prcTp', header: t('MSG_TXT_PRC_TP'), width: '110', styleName: 'text-center', options: codes.RGLR_SPP_PRC_DV_CD },
     { fieldName: 'chdvcTp', header: t('MSG_TXT_CHDVC_TP'), width: '110', styleName: 'text-center', options: codes.MCHN_CH_TP_CD },
     { fieldName: 'fee', header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF') + t('MSG_TXT_TYPE'), width: '110', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '110' },
-    { fieldName: 'cstDv', header: t('MSG_TXT_CST_DV'), width: '188', styleName: 'text-center' },
-    { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '226.5', styleName: 'text-left' },
-    { fieldName: 'prdtCode', header: t('MSG_TXT_PRDT_CODE'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'pdDcClass', header: t('MSG_TXT_PD_DC_CLASS'), width: '83.5', styleName: 'text-center', options: codes.SELL_DSC_DV_CD },
-    { fieldName: 'discCode', header: t('MSG_TXT_DISC_CODE'), width: '83.5', styleName: 'text-center', options: codes.SELL_DSC_TP_CD },
-    { fieldName: 'dscSyst', header: t('MSG_TXT_DSC_SYST'), width: '83.5', styleName: 'text-center', options: codes.PMOT_TP_CD },
-    { fieldName: 'combiDv', header: t('MSG_TXT_COMBI_DV'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'istm', header: t('MSG_TXT_ISTM'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '84', styleName: 'text-right' },
-    { fieldName: 'mngtPrd', header: t('MSG_TXT_MNGT_PRD'), width: '84', styleName: 'text-right' },
-    { fieldName: 'pdAccRslt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '142', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'basePrc', header: t('MSG_TXT_BASE_PRC'), width: '123.8', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'homeCare', header: t('MSG_TXT_HOME_CARE'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'hcrMshY3', header: t('MSG_TXT_HCR_MSH_Y3'), width: '141.2', styleName: 'text-center' },
-    { fieldName: 'fxamYn', header: t('MSG_TXT_FXAM_YN'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'fnnLease', header: t('MSG_TXT_FNN_LEASE'), width: '83.5', styleName: 'text-center' },
-    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'nwSellCt', header: t('MSG_TXT_NW_SELL_CT'), width: '83.5', styleName: 'text-right' },
-    { fieldName: 'obj', header: `BS${t('MSG_TXT_OBJ')}`, width: '83.5', styleName: 'text-right' },
-    { fieldName: 'recommitment', header: t('MSG_TXT_RECOMMITMENT'), width: '113.2', styleName: 'text-center' },
-    { fieldName: 'cntrDate', header: t('MSG_TXT_CNTR_DATE'), width: '113.2', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '113.2', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cancDt', header: t('MSG_TXT_CANC_DT'), width: '113.2', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'demDt', header: t('MSG_TXT_DEM_DT'), width: '113.2', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'brmgrNo', header: t('MSG_TXT_BRMGR_NO'), width: '113', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130' },
+    { fieldName: 'cstDv', header: t('MSG_TXT_CST_DV'), width: '80', styleName: 'text-center' },
+    { fieldName: 'prdtNm', header: t('MSG_TXT_PRDT_NM'), width: '230', styleName: 'text-left' },
+    { fieldName: 'prdtCode', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'pdDcClass', header: t('MSG_TXT_PD_DC_CLASS'), width: '90', styleName: 'text-center', options: codes.SELL_DSC_DV_CD },
+    { fieldName: 'discCode', header: t('MSG_TXT_DISC_CODE'), width: '90', styleName: 'text-center', options: codes.SELL_DSC_TP_CD },
+    { fieldName: 'dscSyst', header: t('MSG_TXT_DSC_SYST'), width: '90', styleName: 'text-center' },
+    { fieldName: 'combiDv', header: t('MSG_TXT_COMBI_DV'), width: '90', styleName: 'text-center' },
+    { fieldName: 'istm', header: t('MSG_TXT_ISTM'), width: '90', styleName: 'text-right' },
+    { fieldName: 'stplMcnt', header: t('MSG_TXT_STPL_MCNT'), width: '90', styleName: 'text-right' },
+    { fieldName: 'mngtPrd', header: t('MSG_TXT_MNGT_PRD'), width: '90', styleName: 'text-right' },
+    { fieldName: 'pdAccRslt', header: t('MSG_TXT_PD_ACC_RSLT'), width: '140', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'basePrc', header: t('MSG_TXT_BASE_PRC'), width: '140', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'homeCare', header: t('MSG_TXT_HOME_CARE'), width: '90', styleName: 'text-right' },
+    { fieldName: 'hcrMshY3', header: t('MSG_TXT_HCR_MSH_Y3'), width: '140', styleName: 'text-center' },
+    { fieldName: 'fxamYn', header: t('MSG_TXT_FXAM_YN'), width: '90', styleName: 'text-center' },
+    { fieldName: 'fnnLease', header: t('MSG_TXT_FNN_LEASE'), width: '90', styleName: 'text-center' },
+    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '100', styleName: 'text-right' },
+    { fieldName: 'nwSellCt', header: t('MSG_TXT_NW_SELL_CT'), width: '90', styleName: 'text-right' },
+    { fieldName: 'obj', header: `BS${t('MSG_TXT_OBJ')}`, width: '90', styleName: 'text-right' },
+    { fieldName: 'recommitment', header: t('MSG_TXT_RECOMMITMENT'), width: '110', styleName: 'text-center' },
+    { fieldName: 'cntrDate', header: t('MSG_TXT_CNTR_DATE'), width: '110', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cancDt', header: t('MSG_TXT_CANC_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'demDt', header: t('MSG_TXT_DEM_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'brmgrNo', header: t('MSG_TXT_BRMGR_NO'), width: '110', styleName: 'text-center' },
     { fieldName: 'brmgrFnm', header: t('MSG_TXT_BRMGR_FNM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rtlfe', header: t('MSG_TXT_RTLFE'), width: '104.3', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
-    { fieldName: 'pkgPdNo', header: t('MSG_TXT_PKG_PD_NO'), width: '135.1', styleName: 'text-center' },
-    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-center' },
-    { fieldName: 'mchnPrtnr', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '113', styleName: 'text-center' },
-    { fieldName: 'mchnPd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '113', styleName: 'text-center' },
-    { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
+    { fieldName: 'rtlfe', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-right', numberFormat: '#,###,##0' },
+    { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '100', styleName: 'text-right' },
+    { fieldName: 'pkgPdNo', header: t('MSG_TXT_PKG_PD_NO'), width: '140', styleName: 'text-center' },
+    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '140', styleName: 'text-center' },
+    { fieldName: 'mchnPrtnr', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CST_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'mchnPd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_PRDT_CODE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '120', styleName: 'text-center' },
 
   ];
 
