@@ -601,7 +601,7 @@
         <!-- 기변 여부 -->
         <kw-form-item :label="$t('MSG_TXT_CHDVC_YN')">
           <kw-input
-            v-model="frmMainData.lcetc7"
+            v-model="frmMainData.mchnChYn"
             align="left"
             placeholder=""
             readonly
@@ -1796,7 +1796,6 @@ const frmMainData = ref({
   sellDscTpNm: '', // 할인적용상세명
   pmotNm: '', // 할인제도(제렌탈/1+1)
   svPrdInfo: '', // 관리/방문/택배 주기
-  lcetc7: '', // 기변 여부
   ojCntrDtlNo: '', // 기변 상대코드
   bogoCd: '', // 1+1 연계코드
   bogoPdCd: '', // 1+1 이전상품
@@ -1827,7 +1826,7 @@ const frmMainData = ref({
   alncmpCd: '', // 제휴업체코드
   alncmpNm: '', // 제휴업체코드명
   cntrChDtlRsonCd: '', // 명의변경구분
-  mchnChYn: '', // 기기변경여부
+  mchnChYn: '', // 기변여부/기기변경여부
   rstlYn: '', // 재약정 여부
   pdChBfNmnN: '', // 제품교체이전 차월
   adnSvYn: '', // 부가서비스 여부
@@ -2030,7 +2029,7 @@ async function fetchData() {
     frmMainData.value.sellDscTpNm = pages[0].sellDscTpNm; // 할인적용상세명
     frmMainData.value.pmotNm = pages[0].pmotNm; // 할인제도(제렌탈/1+1)
     frmMainData.value.svPrdInfo = pages[0].svPrdInfo; // 관리/방문/택배 주기
-    frmMainData.value.lcetc7 = pages[0].lcetc7; // 기변 여부
+    // frmMainData.value.lcetc7 = pages[0].lcetc7; // 기변 여부
     frmMainData.value.ojCntrDtlNo = pages[0].ojCntrDtlNo; // 기변 상대코드
     frmMainData.value.bogoCd = pages[0].bogoCd; // 1+1 연계코드
     frmMainData.value.bogoPdCd = pages[0].bogoPdCd; // 1+1 이전상품
@@ -2057,8 +2056,8 @@ async function fetchData() {
     // -------------------------------------------------------------------------------------------------
     // 제휴정보
     // -------------------------------------------------------------------------------------------------
-    // frmMainData.value.alncmpCstCd = pages[0].alncmpCstCd; // 연계주문번호(제휴고객코드)
-    frmMainData.value.alncmpCstCd = `${pages[0].alncmpCstCd.substr(0, 4)}-${pages[0].alncmpCstCd.substr(4, 7)}`; // 연계주문번호(제휴고객코드)
+    frmMainData.value.alncmpCstCd = pages[0].alncmpCstCd; // 연계주문번호(제휴고객코드)
+    // frmMainData.value.alncmpCstCd = `${pages[0].alncmpCstCd.substr(0, 4)}-${pages[0].alncmpCstCd.substr(4, 7)}`;
     frmMainData.value.alncStatTpNm = pages[0].alncStatTpNm; // 제휴상태
     frmMainData.value.alncmpPrtnrNo = pages[0].alncmpPrtnrNo; // 제휴 파트너
     frmMainData.value.lcetc6 = pages[0].lcetc6; // 백점이 여부

@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    size="3xl"
+    size="4xl"
     ignore-on-modified
     no-action
   >
