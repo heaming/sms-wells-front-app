@@ -383,8 +383,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRD_GRP'), width: 120, styleName: 'text-center' },
     { fieldName: 'baseAdr', header: t('MSG_TXT_INST_ADDR'), width: 250 },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: 120, styleName: 'text-center' },
-    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_LOCARA_CD'), width: 120, styleName: 'text-center' },
-    { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRCH_CD'), width: 120, styleName: 'text-center' },
+    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: 120, styleName: 'text-center' }, // 지역단
+    { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: 120, styleName: 'text-center' }, // 지점
     { fieldName: 'ojChdvcRerntYn', header: t('MSG_TXT_CHG_RLS'), width: 120, styleName: 'text-center' },
     { fieldName: 'ojRcgvpKnm', header: t('MSG_TXT_IST_NM'), width: 120, styleName: 'text-center' },
     { fieldName: 'ojIstDt', header: t('MSG_TXT_IST_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'datetime' },
