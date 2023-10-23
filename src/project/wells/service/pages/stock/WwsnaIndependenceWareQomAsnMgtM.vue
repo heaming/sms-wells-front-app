@@ -124,6 +124,7 @@
             v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
           <span class="ml8">
             ({{ t('MSG_TXT_UNIT') }} : EA)
@@ -181,6 +182,7 @@
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
         :total-count="pageInfo.totalCount"
+        @change="fetchData"
       />
     </div>
   </kw-page>
