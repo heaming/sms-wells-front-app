@@ -31,6 +31,7 @@
           />
           <kw-input
             v-model="svcValue"
+            maxlength="100"
             icon="search"
             clearable
             @click-icon="onClickSearchServicePopup"
@@ -49,6 +50,7 @@
           />
           <kw-input
             v-model="prdtValue"
+            maxlength="100"
             icon="search"
             clearable
             @click-icon="onClickSearchMaterialPopup"
