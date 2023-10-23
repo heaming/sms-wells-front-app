@@ -65,6 +65,7 @@
           <kw-input
             v-model.trim="searchParams.cntrDtlNo"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
+            :placeholder="`${$t('MSG_TXT_CNTR_NO')}-${$t('MSG_TXT_CNTR_SN')}`"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_CST_NM')">
