@@ -36,7 +36,7 @@
         <kw-date-picker
           v-if="isSearchBryyMmddVisible"
           v-model="searchParams.bryyMmdd"
-          placeholder="900101"
+          placeholder="19900101"
           rules="required|max:8|numeric"
           :label="$t('MSG_TXT_BIRTH_DATE')"
           type="date"
