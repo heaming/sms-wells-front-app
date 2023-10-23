@@ -50,10 +50,10 @@
           />
         </kw-search-item>
         <kw-search-item :label="$t('계약상세번호')">
-          <kw-input
-            v-model="searchParams.cntrNo"
-            :placeholder="'계약번호-계약일련번호'"
-            :maxlength="100"
+          <zctz-contract-detail-number
+            ref="contractNumberRef"
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
           />
         </kw-search-item>
       </kw-search-row>
@@ -109,6 +109,7 @@
           v-model:dgr2-levl-og-id="searchParams.rgnlGrpCd"
           v-model:dgr3-levl-og-id="searchParams.branchCd"
           v-model:prtnr-no="searchParams.mngrCd"
+          v-model:partner="mngrPartnerObj"
           use-og-level="3"
           use-partner
           dgr1-levl-og-first-option="all"
@@ -155,6 +156,7 @@
         <wwsn-engineer-og-search-item-group
           v-model:dgr1-levl-og-id="searchParams.svcCntrCd"
           v-model:prtnr-no="searchParams.engineerCd"
+          v-model:partner="engPartnerObj"
           use-og-level="1"
           use-partner
           dgr1-levl-og-first-option="all"
@@ -172,10 +174,11 @@
             :options="codes.PD_GRP_CD"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('계약번호')">
-          <kw-input
-            v-model="searchParams.cntrNo"
-            maxlength="100"
+        <kw-search-item :label="$t('계약상세번호')">
+          <zctz-contract-detail-number
+            ref="contractNumberRef"
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
           />
         </kw-search-item>
         <kw-search-item :label="$t('사번')">
@@ -281,6 +284,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
+import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { getConfig } = useMeta();
@@ -300,6 +304,7 @@ const searchParams = ref({
   mngrDvCd: '', // 관리구분
   pdPrpVal20: '', // 상품그룹
   cntrNo: '', // 계약번호
+  cntrSn: '', // 계약순번
   prtnrNo: '', // 사번
   // Case2 (관리구분 - 매니저)
   mngtDptmtCd: '', // 총괄단
@@ -309,6 +314,8 @@ const searchParams = ref({
   // Case3 (관리구분 - 엔지니어)
   svcCntrCd: '', // 서비스센터
   engineerCd: '', // 엔지니어
+
+  ogTpCd: '',
 });
 
 /*
@@ -318,6 +325,9 @@ const codes = await codeUtil.getMultiCodes(
   'LOCARA_MNGT_DV_CD',
   'PD_GRP_CD',
 );
+
+const mngrPartnerObj = ref({});
+const engPartnerObj = ref({});
 
 /*
  *  관리구분 조회조건에 따른 조회조건 Setting을 위한 computed
@@ -404,6 +414,13 @@ async function onChangeMngrDvCd() {
  */
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+
+  if (searchCase2) {
+    searchParams.value.ogTpCd = mngrPartnerObj.value?.ogTpCd;
+  } else if (searchCase3) {
+    searchParams.value.ogTpCd = engPartnerObj.value?.ogTpCd;
+  }
+
   cachedParams = cloneDeep(searchParams.value);
   await getQuickResponseRpblPages();
 }
@@ -423,30 +440,56 @@ async function onClickExcelDownload() {
 }
 
 /*
+ *  NVL
+ */
+function getNvl(str1, str2) {
+  if (isEmpty(str1)) {
+    return str2;
+  }
+  return str1;
+}
+
+/*
  * Event - QR재발행 버튼 클릭
  */
 async function onClickQrRpbl() {
-  const view = gridMainRef.value.getView();
-  const checked = gridUtil.getCheckedRowValues(view);
-  // checked.map()
-  if (checked.length === 0) {
-    alert(t('MSG_ALT_NOT_SEL_ITEM'));
-  } else {
-    ozReportParam.value.args.RES_YR = searchParams.value.baseYm.substring(0, 4);
-    ozReportParam.value.args.RES_MON = searchParams.value.baseYm.substring(4, 6);
-    ozReportParam.value.args.CNTR_NO = checked.map((item) => item.cntrNo).toString();
-    ozReportParam.value.args.CNTR_SN = checked.map((item) => item.cntrSn).toString();
-    ozReportParam.value.args.OG_ID = checked.map((item) => item.ogId).toString();
-    ozReportParam.value.args.OG_TP_CD = checked.map((item) => item.ogTpCd).toString();
-    ozReportParam.value.args.PRTNR_NO = checked.map((item) => item.prtnrNo).toString(); // 36605
-
-    openReportPopup(
-      ozReportParam.value.ozrPath,
-      ozReportParam.value.odiPath,
-      JSON.stringify(ozReportParam.value.args),
-      { width: ozReportParam.value.width, height: ozReportParam.value.height },
-    );
+  if (isEmpty(cachedParams?.baseYm)) {
+    alert(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
+    return;
   }
+  // Initialize
+  ozReportParam.value.args = {
+    RES_YR: '', // 조회년도
+    RES_MON: '', // 조회월
+    CNTR_NO: '', // 계약번호
+    CNTR_SN: '', // 계약일련번호
+    OG_ID: '', // 담당자 OG_ID
+    OG_TP_CD: '', // 담당자 조직유형코드
+    PRTNR_NO: '', // 담당자 파트너번호
+  };
+  ozReportParam.value.args.RES_YR = cachedParams.baseYm.substring(0, 4);
+  ozReportParam.value.args.RES_MON = cachedParams.baseYm.substring(4, 6);
+  ozReportParam.value.args.CNTR_NO = cachedParams.cntrNo;
+  ozReportParam.value.args.CNTR_SN = cachedParams.cntrSn;
+
+  if (!isEmpty(cachedParams.mngrDvCd)) {
+    if (cachedParams.mngrDvCd === '1') {
+      ozReportParam.value.args.OG_ID = getNvl(cachedParams.branchCd, getNvl(cachedParams.rgnlGrpCd, getNvl(cachedParams.mngtDptmtCd, '')));
+      ozReportParam.value.args.OG_TP_CD = getNvl(cachedParams.ogTpCd, '');
+      ozReportParam.value.args.PRTNR_NO = getNvl(cachedParams.mngrCd, '');
+    } else if (cachedParams.mngrDvCd === '2') {
+      ozReportParam.value.args.OG_ID = getNvl(cachedParams.svcCntrCd, '');
+      ozReportParam.value.args.OG_TP_CD = getNvl(cachedParams.ogTpCd, '');
+      ozReportParam.value.args.PRTNR_NO = getNvl(cachedParams.engineerCd, '');
+    }
+  }
+
+  openReportPopup(
+    ozReportParam.value.ozrPath,
+    ozReportParam.value.odiPath,
+    JSON.stringify(ozReportParam.value.args),
+    { width: ozReportParam.value.width, height: ozReportParam.value.height },
+  );
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -571,7 +614,7 @@ const initGrid = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true; // create checkbox column
+  // view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
   view.onCellItemClicked = async (grid, clickData) => {
