@@ -117,7 +117,6 @@
           :label="t('MSG_TXT_RENTAL_NW_REQD_AGRG_PS')"
           secondary
           dense
-          :disable="true"
           @click="onClickMoveToPage"
         />
         <!-- 매출인식취소 -->
@@ -165,6 +164,7 @@ import { getComponentType, defineGrid, useGlobal, useMeta, gridUtil, codeUtil, u
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
+const router = useRouter();
 const { currentRoute } = useRouter();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
@@ -243,11 +243,9 @@ async function onClickExcelDownload() {
 // 페이지 미완성으로 임시주석
 async function onClickMoveToPage() {
   // 렌탈 신규 및 철거 집계현황 이동
-  /* TODO: 렌탈 신규/철거 집계현황 페이지 미완성으로 주석 : 확인必 */
-  // await currentRoute.push({
-  //   path: '페-이-지-path',
-  //   query: {},
-  // });
+  await router.push({
+    path: '/closing/wwdcb-rental-new-requidation-aggregate',
+  });
 }
 async function validationCheck() {
   const view = grdMainRef.value.getView();
