@@ -258,6 +258,8 @@ async function onClickRowAdd() {
   data.setValue(row, 'copnDvCd', ''); // 개인/법인구분 default 세팅 - 전체
   data.setValue(row, 'sellBaseSellTp', ''); // 판매유형 default 세팅 - 전체
   data.setValue(row, 'sellPrmitDvCd', ''); // 판매제한 default 세팅 - 선택
+
+  view.setFocus();
 }
 
 // 저장 버튼 클릭
