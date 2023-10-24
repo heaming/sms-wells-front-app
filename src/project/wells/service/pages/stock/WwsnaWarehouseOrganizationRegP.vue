@@ -125,9 +125,11 @@
         <!-- 창고명 -->
         <kw-form-item
           :label="$t('MSG_TXT_WARE_NM')"
+          required
         >
           <kw-input
             v-model="warehouseInfo.wareNm"
+            rules="required"
             :label="$t('MSG_TXT_WARE_NM')"
             :readonly="(hasProps() && !['20', '30'].includes(warehouseInfo.wareDtlDvCd))
               || (!hasProps() && !['20', '21', '30'].includes(warehouseInfo.wareDtlDvCd))"
