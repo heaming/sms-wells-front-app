@@ -271,6 +271,8 @@ async function addRow() {
 
   paramData = fileData.filter((p1) => ['22'].includes(p1.giroDpMtrDvCd));
 
+  console.log(paramData);
+
   // const dupArr = paramData.map((p1) => p1.rveDt);
 
   // const uniqueArr = dupArr.filter((element, index) => dupArr.indexOf(element) === index);
@@ -278,7 +280,7 @@ async function addRow() {
   const res = await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits/date-chk', paramData);
 
   paramData = res.data;
-  // console.log(res.data);
+  console.log(res.data);
 
   let sum1 = 0;
   let sum2 = 0;
@@ -307,8 +309,9 @@ async function addRow() {
         giroRveDvCd: data.giroRveDvCd, // 수납구분      1
         giroFeeDvCd: data.giroFeeDvCd, // 지로수수료    4
         rmkCn: data.rmkCn, // 비고          31
-
-        cntrNo: `W${data.giroInqNo.substring(2, 13)}`,
+        cstKnm: data.cstKnm, // 고객명
+        // cntrNo: `W${data.giroInqNo.substring(2, 13)}`,
+        cntrNo: data.cntr,
         perfDt: data.rveDt, // 실적일
         rveAmt: data.pyAmt, // 납입금액
         giroFee: data.giroFeeDvCd,
@@ -366,22 +369,48 @@ async function onUpdateFileUpload() {
       // console.log(array[i].substring(85, 89)); // 지로수수료    4
       // console.log(array[i].substring(89, 120)); // 비고          31
       if (array[i].trim()) {
-        fileData[i] = {
-          giroDpMtrDvCd: nullDefaultValue(array[i].substring(0, 2).trim(), null), // 구분코드      2
-          dpSn: nullDefaultValue(array[i].substring(2, 9).trim(), null), // 일련번호      7
-          rveDt: nullDefaultValue(array[i].substring(9, 17).trim(), null), // 수납년        8
-          fntDt: nullDefaultValue(array[i].substring(17, 25).trim(), null), // 이체년        8
-          bnkCd: nullDefaultValue(array[i].substring(25, 32).trim(), null), // 은행코드      7
-          bnkBrncCd: nullDefaultValue(array[i].substring(32, 39).trim(), null), // 정보작성점    7
-          giroIndxNo: nullDefaultValue(array[i].substring(39, 51).trim(), null), // 색인번호      12
-          giroInqNo: nullDefaultValue(array[i].substring(51, 71).trim(), null), // 조회번호      20
-          pyAmt: nullDefaultValue(array[i].substring(71, 84).trim(), null), // 납입금액      13
-          giroRveDvCd: nullDefaultValue(array[i].substring(84, 85).trim(), null), // 수납구분      1
-          giroFeeDvCd: nullDefaultValue(array[i].substring(85, 89).trim(), null), // 지로수수료    4
-          rmkCn: nullDefaultValue(array[i].substring(89, 120).trim(), null), // 비고          31
-        };
+        // console.log(array[i].trim().length);
+        // if(array[i].substring(52, 2).trim() ){
+
+        // }
+        console.log(array[i].substring(51, 53).trim());
+
+        if (array[i].substring(51, 53).trim() === '00') {
+          fileData[i] = { // AS-IS 기준
+            giroDpMtrDvCd: nullDefaultValue(array[i].substring(0, 2).trim(), null), // 구분코드      2
+            dpSn: nullDefaultValue(array[i].substring(2, 9).trim(), null), // 일련번호      7
+            rveDt: nullDefaultValue(array[i].substring(9, 17).trim(), null), // 수납년        8
+            fntDt: nullDefaultValue(array[i].substring(17, 25).trim(), null), // 이체년        8
+            bnkCd: nullDefaultValue(array[i].substring(25, 32).trim(), null), // 은행코드      7
+            bnkBrncCd: nullDefaultValue(array[i].substring(32, 39).trim(), null), // 정보작성점    7
+            giroIndxNo: nullDefaultValue(array[i].substring(39, 51).trim(), null), // 색인번호      12
+            giroInqNo: nullDefaultValue(array[i].substring(53, 71).trim(), null), // 조회번호      18
+            pyAmt: nullDefaultValue(array[i].substring(71, 84).trim(), null), // 납입금액      13
+            giroRveDvCd: nullDefaultValue(array[i].substring(84, 85).trim(), null), // 수납구분      1
+            giroFeeDvCd: nullDefaultValue(array[i].substring(85, 89).trim(), null), // 지로수수료    4
+            rmkCn: nullDefaultValue(array[i].substring(89, 120).trim(), null), // 비고          31
+          };
+        } else {
+          fileData[i] = { // TO-BE 기준
+            giroDpMtrDvCd: nullDefaultValue(array[i].substring(0, 2).trim(), null), // 구분코드      2
+            dpSn: nullDefaultValue(array[i].substring(2, 9).trim(), null), // 일련번호      7
+            rveDt: nullDefaultValue(array[i].substring(9, 17).trim(), null), // 수납년        8
+            fntDt: nullDefaultValue(array[i].substring(17, 25).trim(), null), // 이체년        8
+            bnkCd: nullDefaultValue(array[i].substring(25, 32).trim(), null), // 은행코드      7
+            bnkBrncCd: nullDefaultValue(array[i].substring(32, 39).trim(), null), // 정보작성점    7
+            giroIndxNo: nullDefaultValue(array[i].substring(39, 51).trim(), null), // 색인번호      12
+            giroInqNo: nullDefaultValue(array[i].substring(51, 71).trim(), null), // 조회번호      20
+            pyAmt: nullDefaultValue(array[i].substring(71, 84).trim(), null), // 납입금액      13
+            giroRveDvCd: nullDefaultValue(array[i].substring(84, 85).trim(), null), // 수납구분      1
+            giroFeeDvCd: nullDefaultValue(array[i].substring(85, 89).trim(), null), // 지로수수료    4
+            rmkCn: nullDefaultValue(array[i].substring(89, 120).trim(), null), // 비고          31
+
+          };
+        }
       }
     }
+    console.log(fileData);
+
     // giroSaveUpload();
     addRow();
   };
@@ -491,9 +520,9 @@ function initGrid(data, view) {
 
   const columns = [
     { fieldName: 'cntrNo',
-      header: t('MSG_TXT_CNTR_NO'),
-      // header: '계약번호',
-      width: '121',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      // header: '계약상세번호',
+      width: '150',
       styleName: 'text-left',
       headerSummary: {
         styleName: 'text-center',
