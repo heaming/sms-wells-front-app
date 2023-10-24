@@ -54,6 +54,7 @@
             option-value="wareNo"
             option-label="wareNm"
             first-option="all"
+            @change="onChangeWareNo"
           />
         </kw-search-item>
         <!-- 창고상세구분 -->
@@ -62,6 +63,7 @@
             v-model="searchParams.wareDtlDvCd"
             :options="filterCodes.wareDtlDvCd"
             first-option="all"
+            @change="onChangeWareDtlDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -299,6 +301,26 @@ async function onChangeWareDvCd() {
   wareDtlDvCdFilter();
 
   await getHgrWareNos();
+}
+
+// 창고 변경 시
+function onChangeWareNo() {
+  const { wareDtlDvCd, wareNo } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(wareNo) && (wareDtlDvCd === '20' || wareDtlDvCd === '30')) {
+    searchParams.value.wareDtlDvCd = '';
+  }
+}
+
+// 창고상세구분 변경시
+function onChangeWareDtlDvCd() {
+  const { wareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (wareDtlDvCd === '20' || wareDtlDvCd === '30') {
+    searchParams.value.wareNo = '';
+  }
 }
 
 // 기준년월이 변경되었을 때 창고번호 재조회
