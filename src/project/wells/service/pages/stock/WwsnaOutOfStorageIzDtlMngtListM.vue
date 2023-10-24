@@ -46,6 +46,7 @@
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeOstrDvCd"
           @update:ware-no-m="onChagneOstrWareHgrNo"
+          @update:ware-no-d="onChagneOstrWareNo"
         />
         <!-- 출고창고상세구분 -->
         <kw-search-item
@@ -56,6 +57,7 @@
             v-model="searchParams.ostrWareDtlDvCd"
             :options="filterCodes.ostrWareDtlDvCd"
             first-option="all"
+            @change="onChangeOstrWareDtlDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -86,6 +88,7 @@
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeStrDvCd"
           @update:ware-no-m="onChagneStrWareHgrNo"
+          @update:ware-no-d="onChagneStrWareNo"
         />
         <!-- 입고창고상세구분 -->
         <kw-search-item
@@ -96,6 +99,7 @@
             v-model="searchParams.strWareDtlDvCd"
             :options="filterCodes.strWareDtlDvCd"
             first-option="all"
+            @change="onChangeStrWareDtlDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -312,6 +316,26 @@ function onChagneOstrWareHgrNo() {
   searchParams.value.ostrWareNo = '';
 }
 
+// 출고창고 변경 시
+function onChagneOstrWareNo() {
+  const { ostrWareDtlDvCd, ostrWareNo } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(ostrWareNo) && (ostrWareDtlDvCd === '20' || ostrWareDtlDvCd === '30')) {
+    searchParams.value.ostrWareDtlDvCd = '';
+  }
+}
+
+// 출고창고상세구분 변경 시
+function onChangeOstrWareDtlDvCd() {
+  const { ostrWareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (ostrWareDtlDvCd === '20' || ostrWareDtlDvCd === '30') {
+    searchParams.value.ostrWareNo = '';
+  }
+}
+
 // 입고창고구분 변경 시
 function onChangeStrDvCd() {
   searchParams.value.strHgrWareNo = '';
@@ -321,6 +345,26 @@ function onChangeStrDvCd() {
 // 입고상위창고 변경 시
 function onChagneStrWareHgrNo() {
   searchParams.value.strWareNo = '';
+}
+
+// 입고창고 변경 시
+function onChagneStrWareNo() {
+  const { strWareDtlDvCd, strWareNo } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(strWareNo) && (strWareDtlDvCd === '20' || strWareDtlDvCd === '30')) {
+    searchParams.value.strWareDtlDvCd = '';
+  }
+}
+
+// 입고창고상세구분 변경시
+function onChangeStrWareDtlDvCd() {
+  const { strWareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (strWareDtlDvCd === '20' || strWareDtlDvCd === '30') {
+    searchParams.value.strWareNo = '';
+  }
 }
 
 // 조회
