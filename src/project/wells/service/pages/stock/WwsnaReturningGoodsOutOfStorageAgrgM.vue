@@ -185,7 +185,12 @@ async function onClickPrintSlipPopup() {
   console.log(codes.SV_CNR_CD);
   const { result } = await modal({
     component: 'WwsnaReturningGoodsOstrSlipPrintP',
-    componentProps: { mgtStrNo: cachedParams.svCnrCd },
+    componentProps: {
+      mgtStrNo: cachedParams.svCnrCd, // 관리창고
+      rtngdProcsTpCd: cachedParams.rtngdProcsTpCd, // 반품처리유형
+      startDate: cachedParams.startDate, // 확인일자 from
+      endDate: cachedParams.endDate, // 확인일자 to
+    },
   });
 
   if (result) {
