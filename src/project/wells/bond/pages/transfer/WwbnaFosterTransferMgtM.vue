@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
@@ -31,6 +32,7 @@
             type="month"
           />
         </kw-search-item>
+        <!-- 사업부 -->
         <kw-search-item :label="t('MSG_TXT_DIV2')">
           <kw-select
             v-model="searchParams.bzHdqDvCd"
@@ -38,6 +40,7 @@
             disable
           />
         </kw-search-item>
+        <!-- 집금구분 -->
         <kw-search-item
           :label="t('MSG_TXT_CLCTAM_DV')"
           required
@@ -50,6 +53,7 @@
             :label="t('MSG_TXT_CLCTAM_DV')"
           />
         </kw-search-item>
+        <!-- 신규구분 -->
         <kw-search-item :label="t('MSG_TXT_NW_DV')">
           <kw-select
             v-model="searchParams.bndNwDvCd"
@@ -59,6 +63,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 고객명 -->
         <kw-search-item
           :label="t('MSG_TXT_CST_NM')"
         >
@@ -70,6 +75,7 @@
             @click-icon="onClickCustomer"
           />
         </kw-search-item>
+        <!-- 고객번호 -->
         <kw-search-item
           :label="t('MSG_TXT_CST_NO')"
         >
@@ -82,6 +88,7 @@
             @click-icon="onClickCustomer"
           />
         </kw-search-item>
+        <!-- 휴대전화번호 -->
         <kw-search-item
           :label="t('MSG_TXT_MPNO')"
         >
@@ -96,6 +103,7 @@
     </kw-search>
 
     <div class="result-area">
+      <!-- 집계 결과 -->
       <h3>
         {{ t('MSG_TXT_AGRG_RS') }}
       </h3>
@@ -105,7 +113,7 @@
           <kw-paging-info :total-count="totalCount" />
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -120,6 +128,7 @@
           inset
           spaced
         />
+        <!-- 채권속성변경 -->
         <kw-btn
           v-permission:update
           :label="$t('MSG_BTN_BND_PRP_CH')"
@@ -132,6 +141,7 @@
           inset
           spaced
         />
+        <!-- 확정 -->
         <kw-btn
           v-permission:update
           :label="$t('MSG_BTN_CONF')"
@@ -148,6 +158,7 @@
         name="grdResult"
         @init="initGridResult"
       />
+      <!-- 집계 결과 상세 -->
       <h3>
         {{ t('MSG_TXT_AGRG_RS_DTL') }}
       </h3>
@@ -162,6 +173,7 @@
           />
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
+        <!-- 저장 -->
         <kw-btn
           v-permission:update
           :label="$t('MSG_TXT_SAVE')"
@@ -174,6 +186,7 @@
           inset
           spaced
         />
+        <!-- 엑셀 업로드 -->
         <kw-btn
           v-permission:update
           icon="upload_on"
@@ -183,6 +196,7 @@
           :disable="(cachedParams?.baseYm !== now.format('YYYYMM')) || pageDetailInfo.totalCount === 0"
           @click="onClickExcelUpload"
         />
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -249,6 +263,8 @@ const codes = await codeUtil.getMultiCodes(
   'BND_BIZ_DV_CD',
 );
 const clctamDvOpt = codes.CLCTAM_DV_CD?.filter((v) => ['09', '11']?.includes(v.codeId));
+// clctamDvOpt.push({ codeId: '100', codeName: '대손확정' });
+
 const now = dayjs();
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
@@ -275,6 +291,7 @@ watch(() => tenantId, (val) => {
   }
 }, { immediate: true });
 
+// 집계 결과 조회
 let cachedParams;
 async function fetchData() {
   const { data } = await dataService.get(baseUrl, { params: { ...cachedParams } });
@@ -293,6 +310,7 @@ async function fetchData() {
   // view.resetCurrent();
 }
 
+// 집계 결과 상세 조회
 async function fetchSummaryData() {
   const res = await dataService.get(`${baseUrl}/detail/summary`, { params: { ...cachedParams, ...searchDatail.value } });
   const view = grdDetailRef.value.getView();
@@ -329,6 +347,7 @@ async function onChangeDetailPageInfo() {
   }
 }
 
+// 고객팝업 오픈
 const onClickCustomer = async () => {
   const { result, payload } = await modal({
     component: 'ZwbnyDelinquentCustomerP',
@@ -434,6 +453,7 @@ const onClickExcelUpload = async () => {
   }
 };
 
+// 현재년월 제외 수정 불가
 watch(() => searchParams.value.baseYm, async (baseYm) => {
   if (baseYm !== now.format('YYYYMM')) {
     isNotActivated.value = true;
@@ -446,70 +466,124 @@ watch(() => searchParams.value.baseYm, async (baseYm) => {
 // -------------------------------------------------------------------------------------------------
 const initGridResult = defineGrid((data, view) => {
   const columns = [
+    // 사업부
     { fieldName: 'bzHdqDvCd', header: t('MSG_TXT_DIV2'), width: '75', styleName: 'text-center', headerSummaries: { text: t('MSG_TXT_TOT_SUMMARY'), styleName: 'text-center' }, options: codes.BZ_HDQ_DV_CD },
+    // 담당자명
     { fieldName: 'clctamPrtnrNm', header: t('MSG_TXT_PIC_NM'), width: '98', styleName: 'text-center' },
 
+    // 전체 - 고객수
     { fieldName: 'woCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 전체 - 계약수
     { fieldName: 'woCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 전체 - 당월대상
     { fieldName: 'woObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 전체 - 연체금액
     { fieldName: 'woDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 전체 - 당월요금
     { fieldName: 'woThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 전체 - 연체가산금액
     { fieldName: 'woDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 전체 - 위약금액
     { fieldName: 'woRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
+    // 렌탈 - 고객수
     { fieldName: 'rentalCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 렌탈 - 계약수
     { fieldName: 'rentalCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 렌탈 - 당월대상
     { fieldName: 'rentalObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 렌탈 - 연체금액
     { fieldName: 'rentalDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 렌탈 - 당월요금
     { fieldName: 'rentalThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 렌탈 - 연체가산금액
     { fieldName: 'rentalDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 렌탈 - 위약금액
     { fieldName: 'rentalRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
+    // 금융리스 - 고객수
     { fieldName: 'leaseCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 금융리스 - 계약수
     { fieldName: 'leaseCntrCt', header: t('MSG_TXT_CNTR_N'), dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 금융리스 - 당월대상
     { fieldName: 'leaseObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 금융리스 - 연체금액
     { fieldName: 'leaseDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 금융리스 - 당월요금
     { fieldName: 'leaseThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 금융리스 - 연체가산금액
     { fieldName: 'leaseDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 금융리스 - 위약금액
     { fieldName: 'leaseRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
+    // 일반멤버십 - 고객수
     { fieldName: 'mshCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 일반멤버십 - 계약수
     { fieldName: 'mshCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 일반멤버십 - 당월대상
     { fieldName: 'mshObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 일반멤버십 - 연체금액
     { fieldName: 'mshDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 일반멤버십 - 당월요금
     { fieldName: 'mshThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 일반멤버십 - 연체가산금액
     { fieldName: 'mshDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 일반멤버십 - 위약금액
     { fieldName: 'mshRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
+    // 홈케어멤버십 - 고객수
     { fieldName: 'rglrSppCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 홈케어멤버십 - 계약수
     { fieldName: 'rglrSppCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 홈케어멤버십 - 당월대상
     { fieldName: 'rglrSppObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 홈케어멤버십 - 연체금액
     { fieldName: 'rglrSppDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 홈케어멤버십 - 당월요금
     { fieldName: 'rglrSppThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 홈케어멤버십 - 연체가산금액
     { fieldName: 'rglrSppDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 홈케어멤버십 - 위약금액
     { fieldName: 'rglrSppRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
+    // 일시불 - 고객수
     { fieldName: 'hcrCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 일시불 - 계약수
     { fieldName: 'hcrCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 일시불 - 당월대상
     { fieldName: 'hcrObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 일시불 - 연체금액
     { fieldName: 'hcrDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 일시불 - 당월요금
     { fieldName: 'hcrThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 일시불 - 연체가산금액
     { fieldName: 'hcrDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 일시불 - 위약금액
     { fieldName: 'hcrRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
+    // 정기배송 - 고객수
     { fieldName: 'spayCstCt', header: t('MSG_TXT_CST_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 정기배송 - 계약수
     { fieldName: 'spayCntrCt', header: t('MSG_TXT_CNTR_N'), width: '65', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' }, styleName: 'text-right' },
+    // 정기배송 - 당월대상
     { fieldName: 'spayObjAmt', header: t('MSG_TXT_THM_OJ'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 정기배송 - 연체금액
     { fieldName: 'spayDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 정기배송 - 당월요금
     { fieldName: 'spayThmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 정기배송 - 연체가산금액
     { fieldName: 'spayDlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
+    // 정기배송 - 위약금액
     { fieldName: 'spayRsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' }, styleName: 'text-right' },
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push(
+    // 기준년월
     { fieldName: 'baseYm' },
+    // 집금담당자번호
     { fieldName: 'clctamPrtnrNo' },
+    // 최종수정일시
     { fieldName: 'fnlMdfcDtm' },
   );
   data.setFields(fields);
@@ -564,6 +638,7 @@ const initGridResult = defineGrid((data, view) => {
   });
   view.layoutByColumn('bzHdqDvCd').summaryUserSpans = [{ colspan: 2 }];
 
+  // 셀 클릭 시 집계 결과 상세 function 호출
   view.onCellClicked = (grid, { cellType, itemIndex }) => {
     if (cellType === 'data' || cellType === 'indicator') {
       const { clctamPrtnrNo } = grid.getValues(itemIndex);
@@ -575,7 +650,9 @@ const initGridResult = defineGrid((data, view) => {
 
 const initGridDetail = ((data, view) => {
   const columns = [
+    // 위탁사
     { fieldName: 'fstrCoNm', header: t('MSG_TXT_FSTRCM'), styleName: 'text-center', width: '98', headerSummaries: { text: t('MSG_TXT_SUM'), styleName: 'text-center' }, options: codes.CLCO_CD },
+    // 담당자명
     { fieldName: 'clctamPrtnrNm',
       header: t('MSG_TXT_PIC_NM'),
       width: '98',
@@ -588,8 +665,11 @@ const initGridDetail = ((data, view) => {
       },
       buttonVisibleCallback: () => { if (cachedParams?.baseYm === dayjs().format('YYYYMM')) { return true; } },
       editable: false },
+    // 직전담당집금구분
     { fieldName: 'clctamDvd', header: t('MSG_TXT_JBF_ICHR_CLCTAM_DV'), styleName: 'text-center', width: '130' },
+    // 직전담당자
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_JBF_PSIC'), styleName: 'text-center', width: '90' },
+    // 계약번호
     { fieldName: 'cntrNoSn',
       header: t('MSG_TXT_CNTR_NO'),
       width: '160',
@@ -598,30 +678,50 @@ const initGridDetail = ((data, view) => {
         const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
         return `${cntrNo}-${cntrSn}`;
       } },
+    // 고객명
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-center' },
+    // 고객번호
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center' },
+    // 상품구분
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '90', styleName: 'text-center', options: codes.BND_BIZ_DV_CD },
+    // 연체개월
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '86', styleName: 'text-center' },
+    // 당월대상
     { fieldName: 'trgAmt', header: t('MSG_TXT_THM_OJ'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
+    // 연체금액
     { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
+    // 당월요금
     { fieldName: 'thmChramAmt', header: t('MSG_TXT_THM_CHRAM'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
+    // 연체가산금액
     { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
+    // 위약금액
     { fieldName: 'rsgBorAmt', header: t('MSG_TXT_BOR_AMT'), width: '110', styleName: 'text-right', dataType: 'number', headerSummaries: { numberFormat: '#,##0' }, numberFormat: '#,##0' },
+    // 법조치유형
     { fieldName: 'lwmTp', header: t('MSG_TXT_LWM_TP'), width: '110', styleName: 'text-center' },
+    // 법조치상세
     { fieldName: 'lwmDtlTpCd', header: t('MSG_TXT_LWM_DTL'), width: '110', styleName: 'text-center' },
+    // 법조치일자
     { fieldName: 'lwmDt', header: t('MSG_TXT_LWM_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date' },
+    // 채불등록일자
     { fieldName: 'dfltDt', header: t('MSG_TXT_DE_RGST_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date' },
+    // 주소
     { fieldName: 'addr', header: t('MSG_TXT_ADDR'), width: '200' },
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push(
+    // 계약번호
     { fieldName: 'cntrNo' },
+    // 계약일련번호
     { fieldName: 'cntrSn' },
+    // 집금담당자번호
     { fieldName: 'clctamPrtnrNo' },
-    { fieldName: 'baseYm' }, // 기준년월
-    { fieldName: 'clctamDvCd' }, // 집금구분코드
-    { fieldName: 'fnlMdfcDtm' }, // 최종수정일시
+    // 기준년월
+    { fieldName: 'baseYm' },
+    // 집금구분코드
+    { fieldName: 'clctamDvCd' },
+    // 최종수정일시
+    { fieldName: 'fnlMdfcDtm' },
   );
   data.setFields(fields);
   view.setColumns(columns);
@@ -636,6 +736,7 @@ const initGridDetail = ((data, view) => {
   view.checkBar.visible = true;
   view.editOptions.columnEditableFirst = true;
 
+  // 집금담당자 팝업 오픈
   view.onCellButtonClicked = async (grid, { dataRow, column, itemIndex }) => {
     if (column === 'clctamPrtnrNm') {
       const { clctamPrtnrNm } = grid.getValues(itemIndex);
@@ -643,15 +744,13 @@ const initGridDetail = ((data, view) => {
         component: 'ZwbnyCollectorListP',
         componentProps: {
           clctamPrtnrNm,
+          is1RowClose: false,
         },
       });
       if (result) {
-        console.log(payload);
         const { prtnrNo, prtnrKnm, clctamDvCd } = payload;
-        if (cachedParams.clctamDvCd !== clctamDvCd) {
+        if (cachedParams.clctamDvCd !== clctamDvCd && !isEmpty(prtnrNo)) {
           await alert(t('MSG_ALT_CNTR_CLCTAM_DV_PSIC_FIT')); // 해당 계약의 집금구분과 맞는 담당자를 선택해 주세요.
-          data.setValue(dataRow, 'clctamPrtnrNm', '');
-          data.setValue(dataRow, 'clctamPrtnrNo', '');
           return false;
         }
         data.setValue(dataRow, 'clctamPrtnrNo', prtnrNo);
@@ -660,6 +759,7 @@ const initGridDetail = ((data, view) => {
     }
   };
 
+  // 저장 시 validate
   view.onValidate = async (g, index) => {
     if (index.column === 'clctamPrtnrNm') {
       const { clctamPrtnrNo } = g.getValues(index.itemIndex);
@@ -669,6 +769,7 @@ const initGridDetail = ((data, view) => {
     }
   };
 
+  // 현재년월 제외 수정 불가
   view.onCellEditable = (grid, index) => {
     if (cachedParams?.baseYm === dayjs().format('YYYYMM') && ['fstrCoNm'].includes(index.column)) {
       return true;
