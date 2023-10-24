@@ -114,6 +114,7 @@
             :total-count="pageInfo.totalCount"
           />
         </template>
+        <!-- 저장버튼 -->
         <kw-btn
           v-permission:update
           grid-action
@@ -131,6 +132,7 @@
           secondary
           :label="$t('MSG_BTN_PRTG')"
         /> -->
+        <!-- 엑셀다운로드버튼 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -215,7 +217,9 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
+const locaraCds = (await dataService.get('/sms/wells/service/responsible-area-codes/locaraCds')).data;
 
+// 광역시/도 변경시 시군구 정보 조회
 async function changeSido() {
   searchParams.value.ctctyNm = '';
   if (searchParams.value.fr2pLgldCd === '') {
@@ -225,22 +229,21 @@ async function changeSido() {
   }
 }
 
-let cachedCodes;
+// 그리드데이터 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-codes', { params: cachedParams });
   const products = res.data;
-  cachedCodes = cloneDeep(products);
   pageInfo.value.totalCount = res.data.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
 }
-
+// 조회 버튼 클릭 이벤트
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
+// 엑셀 다운로드 이벤트
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -259,13 +262,13 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
   if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
 
   if (await gridUtil.validate(view, { isCheckedOnly: true })) {
     await dataService.post('/sms/wells/service/responsible-area-codes', chkRows.filter((v) => v.rowState === 'updated'));
-    notify(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
     await fetchData();
   }
 }
@@ -275,28 +278,28 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'fr2pLgldCd' },
-    { fieldName: 'zipList' },
+    { fieldName: 'fr2pLgldCd' }, /* 법정동코드 앞2자리 */
+    { fieldName: 'zipList' }, /* 우편번호 List */
     // { fieldName: 'mgtCnt' },
     // { fieldName: 'wrkCnt' },
-    { fieldName: 'ctpvNm' },
-    { fieldName: 'ctctyNm' },
-    { fieldName: 'lawcEmdNm' },
-    { fieldName: 'amtdNm' },
-    { fieldName: 'rpbLocaraCd' },
-    { fieldName: 'changeCodes' },
-    { fieldName: 'chLocaraCd' },
-    { fieldName: 'apyStrtdt' },
-    { fieldName: 'apyEnddt' },
-    { fieldName: 'rpbLocaraGrpCd' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'ichrPrtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'vstDowNm' },
-    { fieldName: 'mmtAvLdtm' },
+    { fieldName: 'ctpvNm' }, /* 시도명 */
+    { fieldName: 'ctctyNm' }, /* 시군구명 */
+    { fieldName: 'lawcEmdNm' }, /* 법정읍면동명 */
+    { fieldName: 'amtdNm' }, /* 행정동명 */
+    { fieldName: 'rpbLocaraCd' }, /* 책임지역코드 */
+    { fieldName: 'changeCodes' }, /* 책임지역변경코드 list(콤보박스생성용) */
+    { fieldName: 'chLocaraCd' }, /* 변경 책임지역코드 */
+    { fieldName: 'apyStrtdt' }, /* 적용시작일자 */
+    { fieldName: 'apyEnddt' }, /* 적용종료일자 */
+    { fieldName: 'rpbLocaraGrpCd' }, /* 책임지역그룹코드 */
+    { fieldName: 'ogNm' }, /* 조직명 */
+    { fieldName: 'ichrPrtnrNo' }, /* 담당파트너번호 */
+    { fieldName: 'prtnrKnm' }, /* 파트너한글명 */
+    { fieldName: 'vstDowNm' }, /* 방문요일명 */
+    { fieldName: 'mmtAvLdtm' }, /* 이동평균소요시간 */
     { fieldName: 'locaraCenStruAdr' }, // 화면표시
-    { fieldName: 'vstDowVal' },
-    { fieldName: 'locaraSn' },
+    { fieldName: 'vstDowVal' }, /* 방문요일코드 */
+    { fieldName: 'locaraSn' }, /* 정렬순번 */
   ];
 
   const columns = [
@@ -352,9 +355,8 @@ const initGrdMain = defineGrid((data, view) => {
       editable: true,
       editor: { type: 'list' },
       styleCallback: (grid, dataCell) => {
-        const { changeCodes } = cachedCodes[dataCell.index.itemIndex];
-        const rpbLocaraCd = changeCodes.map((v) => v.rpbLocaraCd);
-
+        const { ctpvNm } = grid.getValues(dataCell.index.itemIndex);
+        const rpbLocaraCd = locaraCds.filter((v) => v.ctpvNm === ctpvNm).map((v) => v.rpbLocaraCd);
         return { editor: { type: 'list', labels: rpbLocaraCd, values: rpbLocaraCd }, editable: true };
       },
       rules: 'required',
