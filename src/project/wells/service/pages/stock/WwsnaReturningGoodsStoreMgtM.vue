@@ -269,6 +269,7 @@ const codes = await codeUtil.getMultiCodes(
   'STR_CONF_YN_CD', // 입고확인여부코드
   'RTNGD_PROCS_TP_CD', // 반품처리유형
   'WARE_DV_CD', // 창고구분코드
+  'YN_CD', // 여부코드
 );
 
 // 창고구분코드 필터링
@@ -529,13 +530,6 @@ async function onClickRtnGd() {
   for (let i = 0; i < checkedRows.length; i += 1) {
     const { rtngdRvpyProcsYn, rtngdProcsTpCd } = checkedRows[i];
 
-    const checkedRtngdProcsTpCd = checkedRows[i].rtngdProcsTpCd;
-
-    if (isEmpty(checkedRtngdProcsTpCd)) {
-      // 반품처리유형 항목에 값이 누락되었습니다.
-      notify(t('MSG_ALT_RTNGD_PROCS_TP_ATC'));
-      return;
-    }
     if (rtngdRvpyProcsYn === 'Y') {
       // 이미 반품 완료된 건이 포함되었습니다. \n확인해주십시오.
       notify(t('MSG_ALT_RTNGD_FSH_INC_CONF'));
@@ -625,7 +619,14 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_RQDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'vstFshDt', header: t('MSG_TXT_WK_DT'), width: '170', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rtngdConfYn', header: t('MSG_TXT_RTNGD_CONF_YN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rtngdConfYn',
+      header: t('MSG_TXT_RTNGD_CONF_YN'),
+      width: '100',
+      styleName: 'text-center',
+      editable: true,
+      editor: {
+        type: 'dropdown' },
+      options: codes.YN_CD },
     { fieldName: 'useDay', header: t('MSG_TXT_USE_DAY'), width: '100', styleName: 'text-right' },
     { fieldName: 'useMths', header: t('MSG_TXT_USE_MCNT'), width: '100', styleName: 'text-right' },
     { fieldName: 'refurbishYn', header: t('MSG_TXT_REFR'), width: '100', styleName: 'text-center' },
