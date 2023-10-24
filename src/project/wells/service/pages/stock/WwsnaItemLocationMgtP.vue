@@ -29,7 +29,7 @@
         >
           <kw-input
             v-model="propParams.itmPdCd"
-            :disable="true"
+            :readonly="true"
           />
         </kw-form-item>
         <!-- 품목명 -->
@@ -38,7 +38,7 @@
         >
           <kw-input
             v-model="propParams.itmPdNm"
-            :disable="true"
+            :readonly="true"
           />
         </kw-form-item>
       </kw-form-row>
@@ -49,7 +49,7 @@
         >
           <kw-input
             v-model="propParams.wareNm"
-            :disable="true"
+            :readonly="true"
           />
           <!-- 표준 미적용 -->
           <kw-checkbox

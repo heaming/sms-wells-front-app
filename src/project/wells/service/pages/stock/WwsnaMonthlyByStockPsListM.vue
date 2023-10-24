@@ -14,7 +14,10 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      :cols="4"
+      @search="onClickSearch"
+    >
       <kw-search-row>
         <!-- 기준년월 -->
         <kw-search-item
@@ -32,6 +35,7 @@
         <!-- 창고구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_WARE_DV')"
+          :colspan="2"
         >
           <kw-select
             v-model="searchParams.wareDvCd"
@@ -76,17 +80,10 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- 사용여부 -->
-        <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
-          <kw-select
-            v-model="searchParams.useYn"
-            :options="codes.USE_YN"
-            first-option="all"
-          />
-        </kw-search-item>
         <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
+          :colspan="2"
         >
           <kw-select
             v-model="searchParams.itmKndCd"
@@ -102,6 +99,14 @@
             :multiple="true"
           />
         </kw-search-item>
+        <!-- 사용여부 -->
+        <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
+          <kw-select
+            v-model="searchParams.useYn"
+            :options="codes.USE_YN"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <!-- 품목코드 -->
@@ -114,7 +119,10 @@
           />
         </kw-search-item>
         <!-- SAP코드 -->
-        <kw-search-item :label="$t('MSG_TXT_SAPCD')">
+        <kw-search-item
+          :label="$t('MSG_TXT_SAPCD')"
+          :colspan="2"
+        >
           <kw-input
             v-model="searchParams.strtSapCd"
             :label="$t('MSG_TXT_STRT_SAP_CD')"
