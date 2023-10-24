@@ -352,7 +352,6 @@ const onClickPrtnrKnm = async () => {
     componentProps: {
       clctamPrtnrNm: searchParams.value.clctamPrtnrNm,
     },
-
   });
   if (result) {
     searchParams.value.clctamPrtnrNm = payload.prtnrKnm;
@@ -460,7 +459,7 @@ async function onClickExcelUpload() {
   const apiUrl = `${baseUrl}/excel-upload`;
   const templateId = 'FOM_BOND_AUTH_RSG';
   const extraData = {
-    baseDt: searchParams.value.baseDt,
+    baseDt: cachedParams.baseDt,
   };
   const {
     payload,
@@ -482,7 +481,7 @@ async function onClickExcelUpload() {
 async function onClickExpectedCreate() {
   if (!await confirm(t('MSG_ALT_EXP_CRT'))) { return; }
   const params = {
-    baseDt: searchParams.value.baseDt,
+    baseDt: cachedParams.baseDt,
   };
   await dataService.post(baseUrl, params);
   notify(t('MSG_ALT_COMPLETE_EXP_CREATE'));
@@ -492,7 +491,7 @@ async function onClickExpectedCreate() {
 async function onClickExpectedConfirm() {
   if (!await confirm(t('MSG_ALT_EXP_CNFM'))) { return; }
   const params = {
-    baseDt: searchParams.value.baseDt,
+    baseDt: cachedParams.baseDt,
     confirmDvCd: '01',
   };
   await dataService.put(`${baseUrl}/confirm`, params);
@@ -503,13 +502,13 @@ async function onClickExpectedConfirm() {
 // 최종확정
 async function onClickFinalConfirm() {
   if (!await confirm(t('MSG_ALT_FNL_CNFM'))) { return; }
-  const { data } = await dataService.get(`${baseUrl}/sms-count`, { params: { baseDt: searchParams.value.baseDt } });
+  const { data } = await dataService.get(`${baseUrl}/sms-count`, { params: { baseDt: cachedParams.baseDt } });
 
   if (data === 0) {
     if (!await confirm(t('MSG_ALT_SMS_CHECK_FNL_CNFM'))) { return; }
   }
   const params = {
-    baseDt: searchParams.value.baseDt,
+    baseDt: cachedParams.baseDt,
     confirmDvCd: '02',
   };
   await dataService.put(`${baseUrl}/confirm`, params);
