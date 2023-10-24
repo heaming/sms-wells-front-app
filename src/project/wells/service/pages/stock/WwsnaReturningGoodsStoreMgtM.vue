@@ -374,9 +374,11 @@ function onClickGridBulkChange(val, type) {
 // 로그인한 사용자의 상위창고 조회
 const getWareHouses = async () => {
   const res = await dataService.get('/sms/wells/service/returning-goods-store/login-warehouse', { params: { prtnrNo: searchParams.value.prtnrNo } });
-  loginWare.value = res.data;
 
-  searchParams.value.strWareNoM = loginWare.value[0].hgrWareNo;
+  if (!isEmpty(res.data)) {
+    loginWare.value = res.data;
+    searchParams.value.strWareNoM = loginWare.value[0].hgrWareNo;
+  }
 };
 
 const itemKndCdD = ref();
