@@ -356,7 +356,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, fileUtil, useGlobal, useMeta } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
@@ -1021,6 +1021,9 @@ const initGrdMstList = defineGrid((data, view) => {
     { fieldName: 'dlRstr' }, // 삭제원복
     { fieldName: 'cnFm' }, // 확정
     { fieldName: 'rqsIz' }, // 요청내역
+    { fieldName: 'dcevdnDocId' }, // 증빙서류문서ID
+    { fieldName: 'fileNm' }, // 증빙서류문서파일명
+    { fieldName: 'fileUid' }, // 증빙서류문서파일UID
     { fieldName: 'cntrwBrws' }, // 계약서출력
     { fieldName: 'cntrAprCn' }, // 확정승인요청건수
     { fieldName: 'cstSignCn' }, // 고객서명내용
@@ -1120,6 +1123,20 @@ const initGrdMstList = defineGrid((data, view) => {
         return retrunValue !== 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : { renderer: { type: 'text', styleName: 'text-center' } };
       },
     }, // 요청내역
+    { fieldName: 'fileUid',
+      header: t('MSG_TXT_ATTH_FILE'),
+      width: '127',
+      styleName: 'text-center',
+      renderer: { type: 'button', hideWhenEmpty: false },
+      displayCallback(grid, index) {
+        const { fileUid } = grid.getValues(index.itemIndex);
+        return isEmpty(fileUid) ? '' : t('MSG_TXT_ATTH_FILE'); // 증빙서류문서ID
+      },
+      styleCallback(grid, dataCell) {
+        const { fileUid } = grid.getValues(dataCell.index.itemIndex);
+        return isEmpty(fileUid) ? { renderer: { type: 'text', styleName: 'text-center' } } : { renderer: { type: 'button', hideWhenEmpty: false } };
+      },
+    }, // 첨부파일
     { fieldName: 'cntrwBrws',
       header: t('MSG_TXT_CNTRW_PRNT'),
       width: '130',
@@ -1172,6 +1189,7 @@ const initGrdMstList = defineGrid((data, view) => {
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
     const { cntrPrgsStatCd } = g.getValues(dataRow);
     const { cntrwTpCd } = g.getValues(dataRow);
+    const fileRow = gridUtil.getRowValue(g, dataRow);
 
     if (['cnfmApr'].includes(column)) { // 확정승인 버튼 클릭
       searchCnfmAprvParams.value.cntrNo = paramCntrNo;
@@ -1323,6 +1341,8 @@ const initGrdMstList = defineGrid((data, view) => {
       searchDtlParams.value.cntrPrgsStatCd = cntrPrgsStatCd;
 
       await fetchDtlData();
+    } else if (['fileUid'].includes(column)) { /* 파일UID인 경우 */
+      fileUtil.download({ fileUid: fileRow.fileUid, originalFileName: fileRow.fileNm }, 'storage'); /* kw-lib에서 fileUtil을 불러옴  */
     } else if (['cntrwBrws'].includes(column)) { // 계약서보기 버튼 클릭
       await alert('계약서보기 팝업은 작업예정입니다.');
     } else if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
