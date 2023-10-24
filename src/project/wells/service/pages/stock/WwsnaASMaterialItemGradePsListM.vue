@@ -157,7 +157,7 @@ async function getWareHouseList() {
       ...wareHouses.map((v) => ({
         fieldName: `gd${v.wareNo}`, // 창고번호
         header: v.wareNm, // 창고명
-        width: '100',
+        width: '125',
         styleName: 'text-center',
       })),
     );
@@ -219,10 +219,10 @@ fieldsObj = {
 
   // 그리드 공통컬럼
   defaultFields: [
-    { fieldName: 'mgtTypNm', header: t('MSG_TXT_TYPE'), width: '106', styleName: 'text-center' }, // 유형
-    { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '124', styleName: 'text-center' }, // SAP코드
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '146', styleName: 'text-center' }, // 품목코드
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_PRDT_NM'), width: '500', styleName: 'text-left' }, // 상품명
+    { fieldName: 'mgtTypNm', header: t('MSG_TXT_TYPE'), width: '80', styleName: 'text-center' }, // 유형
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '95', styleName: 'text-center' }, // SAP코드
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' }, // 품목코드
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-left' }, // 상품명
   ],
 
   // 필드 세팅
