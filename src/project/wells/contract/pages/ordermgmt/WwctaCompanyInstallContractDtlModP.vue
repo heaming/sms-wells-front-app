@@ -336,11 +336,8 @@
       </kw-form-row>
 
       <kw-form-row label-size="100">
-        <!--체험단여부-->
-        <kw-form-item
-          :label="$t('MSG_TXT_EXPN_GRP')+$t('MSG_TXT_YN')"
-          hint="null"
-        >
+        <!--체험단여부 (mapping:null)-->
+        <kw-form-item :label="$t('MSG_TXT_EXPN_GRP')+$t('MSG_TXT_YN')">
           <kw-checkbox
             v-model="installDetail.expnYn"
             label="체크 시, 일시불 멤버십비용 적용"
@@ -348,11 +345,8 @@
             :false-value="N"
           />
         </kw-form-item>
-        <!--시리얼넘버-->
-        <kw-form-item
-          :label="$t('MSG_TXT_SR_NUM')"
-          hint="null"
-        >
+        <!--시리얼넘버 (mapping:null)-->
+        <kw-form-item :label="$t('MSG_TXT_SR_NUM')">
           <kw-input
             v-model="installDetail.null"
             maxlength=""
