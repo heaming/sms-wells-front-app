@@ -168,8 +168,7 @@
               :label="$t('MSG_TXT_FNT_INF_D')"
             >
               <p>
-                {{ singlePaymentDetail.dpTpCdNm }}
-                {{ singlePaymentDetail.mpyBsdt }}/{{ singlePaymentDetail.fnitAprRsCd }}
+                {{ singlePaymentDetail.fntInfView }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -315,8 +314,7 @@
               :label="$t('MSG_TXT_FNT_INF')"
             >
               <p>
-                {{ singlePaymentDetail.dpTpCdNm }}
-                {{ singlePaymentDetail.mpyBsdt }}/{{ singlePaymentDetail.fnitAprRsCd }}
+                {{ singlePaymentDetail.fntInfView }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -478,8 +476,7 @@
               :label="$t('MSG_TXT_FNT_INF')"
             >
               <p>
-                {{ singlePaymentDetail.dpTpCdNm }}
-                {{ singlePaymentDetail.mpyBsdt }}/{{ singlePaymentDetail.fnitAprRsCd }}
+                {{ singlePaymentDetail.fntInfView }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -618,7 +615,6 @@ const router = useRouter();
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'SL_CTR_DV_CD',
 );
 const grdSinglePaymentExceptRef = ref(getComponentType('KwGrid'));
 
@@ -640,6 +636,13 @@ const singlePaymentDetail = ref({});
 const isShowRental = ref(false);
 const isShowMembership = ref(false);
 const isShowRegular = ref(false);
+
+function replaceNull(val) {
+  if (!val) {
+    return '';
+  }
+  return val;
+}
 
 async function fetchDetailData(slClYm, sellTpCd) {
   // cachedParams.slClYm = slClYm;
@@ -673,6 +676,8 @@ async function fetchDetailData(slClYm, sellTpCd) {
   if (!isEmpty(singlePaymentDetail.value.pkgCd)) {
     singlePaymentDetail.value.pkgCd = `(${singlePaymentDetail.value.pkgCd})`;
   }
+  singlePaymentDetail.value.fntInfView = (singlePaymentDetail.value.mpyBsdt) ? `${singlePaymentDetail.value.dpTpCdNm}/${singlePaymentDetail.value.mpyBsdt}${t('MSG_TXT_D')}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`
+    : `${singlePaymentDetail.value.dpTpCdNm}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`;
 }
 
 async function fetchData() {
@@ -777,10 +782,8 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
     }, // 매출년월
     { fieldName: 'slStpYn', header: t('MSG_TXT_SL_STP'), width: '100', styleName: 'text-center' }, // 매출중지
     { fieldName: 'rentalTn', header: t('MSG_TXT_RENTAL_NMN'), width: '100', styleName: 'text-center' }, // 렌탈차월
-    { fieldName: 'slCtrDvCd', header: t('MSG_TXT_MNGT_DV'), width: '100', styleName: 'text-center', options: codes.SL_CTR_DV_CD }, // 관리구분
     { fieldName: 'prmMcn', header: t('MSG_TXT_PRM_MCNT'), width: '100', styleName: 'text-center' }, // 선납개월
     { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_BIL_AMT'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 청구금액
-    { fieldName: 'borAmt', header: t('MSG_TXT_CCAM'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약금
     { fieldName: 'dpAmt',
       header: t('MSG_TXT_DP'),
       width: '134',
@@ -789,7 +792,6 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
       dataType: 'number',
       numberFormat: '#,##0' }, // 입금
     { fieldName: 'eotAtam', header: t('MSG_TXT_PRPD_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 선수금액
-    { fieldName: 'eotUcAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
     { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '90', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체금액
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '90', styleName: 'text-right' }, // 연체개월
     { fieldName: 'btdDlqAddAmt', header: t('MSG_TXT_BTD_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기초금액
@@ -798,6 +800,8 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
     { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
     { fieldName: 'thmDlqAddRfndSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 환불금액
     { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기말금액
+    { fieldName: 'eotUcAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
+    { fieldName: 'borAmt', header: t('MSG_TXT_CCAM'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약금
     { fieldName: 'slStpAmt', header: t('MSG_TXT_SL_STP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출중지금액
   ];
 
@@ -809,12 +813,13 @@ const initGrdSinglePaymentExcept = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'cntrNo', 'slClYm', 'slStpYn', 'rentalTn', 'slCtrDvCd', 'prmMcn', 'thmSlSumAmt', 'borAmt', 'dpAmt', 'eotAtam', 'eotUcAmt', 'eotDlqAmt', 'dlqMcn', // single
+    'cntrNo', 'slClYm', 'slStpYn', 'rentalTn', 'prmMcn', 'thmSlSumAmt', 'dpAmt', 'eotAtam', 'eotDlqAmt', 'dlqMcn', // single
     {
-      header: t('MSG_TXT_ADD_AM'), // colspan title
+      header: t('MSG_TXT_ADD_AM'), // 가산금
       direction: 'horizontal', // merge type
-      items: ['btdDlqAddAmt', 'thmOcDlqAddAmt', 'thmCtrDlqAddAmt', 'thmDlqAddDpSumAmt', 'thmDlqAddRfndSumAmt', 'eotDlqAddAmt'],
+      items: ['btdDlqAddAmt', 'thmOcDlqAddAmt', 'thmCtrDlqAddAmt', 'thmDlqAddDpSumAmt', 'thmDlqAddRfndSumAmt', 'eotDlqAddAmt', 'eotUcAmt'],
     },
+    'borAmt',
     'slStpAmt',
   ]);
 
