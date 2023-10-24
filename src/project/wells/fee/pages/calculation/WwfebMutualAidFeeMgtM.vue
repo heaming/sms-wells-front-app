@@ -299,14 +299,14 @@ const initGrdMainA = defineGrid((data, view) => {
 const initGrdMainB = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cnfmYn', header: t('MSG_TXT_DTRM_YN'), visible: false }, // 확정여부
-    { fieldName: 'baseYm', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '103.8', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 발생월
+    { fieldName: 'baseYm', header: t('MSG_TXT_MNTH_OCCURENCE'), width: '103.8', styleName: 'text-center', datetimeFormat: 'yyyy-MM', headerSummary: { styleName: 'text-center', text: t('MSG_TXT_SUM') } }, // 발생월
     { fieldName: 'cntrStat', header: t('MSG_TXT_CLASFCTN_FEE'), width: '110.8', styleName: 'text-center' }, // 수수료구분
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '110.8', styleName: 'text-center' }, // 소속
     { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_BRMGR_NO'), width: '110.8', styleName: 'text-center' }, // 지점장번호
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '110.8', styleName: 'text-center' }, // 성명
     { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '110.8', styleName: 'text-center', options: codes.RSB_DV_CD }, // 직책
-    { fieldName: 'brchCt', header: t('MSG_TXT_COUNT'), width: '110.8', styleName: 'text-right', dataType: 'number' }, // 건수
-    { fieldName: 'brchAmt', header: t('MSG_TXT_AMT'), width: '126.7', styleName: 'text-right', dataType: 'number' }, // 금액
+    { fieldName: 'brchCt', header: t('MSG_TXT_COUNT'), width: '110.8', styleName: 'text-right', dataType: 'number', headerSummary: { numberFormat: '#,##0', expression: 'sum' } }, // 건수
+    { fieldName: 'brchAmt', header: t('MSG_TXT_AMT'), width: '126.7', styleName: 'text-right', dataType: 'number', headerSummary: { numberFormat: '#,##0', expression: 'sum' } }, // 금액
     { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_PYMNT_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수수료지급월
     { fieldName: 'feeRedfYm', header: t('MSG_TXT_FEE_BCK_MNTH'), width: '186', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수수료되물림월
   ];
@@ -316,6 +316,12 @@ const initGrdMainB = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      { height: 42 },
+    ],
+  });
 });
 
 </script>
