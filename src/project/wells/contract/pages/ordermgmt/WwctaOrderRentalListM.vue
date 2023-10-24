@@ -58,7 +58,11 @@
           <kw-tab
             name="rntlInstrInfo"
             :label="$t('MSG_TXT_INSTR_INFO')+' '+$t('MSG_TXT_SRCH')"
-          />
+          >
+            <kw-tooltip>
+              {{ $t('MSG_TXT_INSTR_INFO')+' '+$t('MSG_TXT_SRCH') }}
+            </kw-tooltip>
+          </kw-tab>
         </kw-tabs>
         <kw-tab-panels v-model="selectedRntlTab">
           <!-- 일반 조회 -->

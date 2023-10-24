@@ -69,7 +69,7 @@
     <kw-grid
       ref="grdPopRef"
       name="grdPop"
-      :visible-rows="getVisibleRows"
+      :visible-rows="10"
       :page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
       @init="initGrid"
@@ -134,13 +134,13 @@ const pageInfo = ref({
   needTotalCount: true,
 });
 
-const getVisibleRows = computed(() => {
-  let rtnVal = pageInfo.value.pageSize;
-  if (pageInfo.value.totalCount < rtnVal) {
-    rtnVal = pageInfo.value.totalCount;
-  }
-  return rtnVal < 10 ? 10 : rtnVal;
-});
+// const getVisibleRows = computed(() => {
+//   let rtnVal = pageInfo.value.pageSize;
+//   if (pageInfo.value.totalCount < rtnVal) {
+//     rtnVal = pageInfo.value.totalCount;
+//   }
+//   return rtnVal < 10 ? 10 : rtnVal;
+// });
 
 onMounted(() => {
   searchParams.value.prtnrNo = props.prtnrNo;

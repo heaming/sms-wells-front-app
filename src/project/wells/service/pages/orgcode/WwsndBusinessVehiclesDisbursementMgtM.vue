@@ -160,7 +160,7 @@ async function onClickVhcDsbRegBtn() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/business-vehicles', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/business-vehicles', { params: cachedParams, timeout: 300000 });
   await gridUtil.exportView(view, {
     fileName: '업무차량 지급목록',
     timePostfix: true,

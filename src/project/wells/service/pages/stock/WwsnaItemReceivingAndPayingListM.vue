@@ -48,6 +48,7 @@
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeWareDvCd"
           @update:ware-no-m="onChagneHgrWareNo"
+          @update:ware-no-d="onChagneWareNo"
         />
       </kw-search-row>
       <kw-search-row>
@@ -78,6 +79,7 @@
             v-model="searchParams.wareDtlDvCd"
             :options="filterCodes.wareDtlDvCd"
             first-option="all"
+            @change="onChangeWareDtlDvCd"
           />
         </kw-search-item>
         <!-- 품목구분 -->
@@ -249,6 +251,26 @@ function onChangeWareDvCd() {
 // 상위창고 변경 시
 function onChagneHgrWareNo() {
   searchParams.value.strWareNoD = '';
+}
+
+// 창고 변경 시
+function onChagneWareNo() {
+  const { wareDtlDvCd, strWareNoD } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(strWareNoD) && (wareDtlDvCd === '20' || wareDtlDvCd === '30')) {
+    searchParams.value.wareDtlDvCd = '';
+  }
+}
+
+// 창고상세구분 변경시
+function onChangeWareDtlDvCd() {
+  const { wareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (wareDtlDvCd === '20' || wareDtlDvCd === '30') {
+    searchParams.value.strWareNoD = '';
+  }
 }
 
 // 시작 SAP코드 변경 시

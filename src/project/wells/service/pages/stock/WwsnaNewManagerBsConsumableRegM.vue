@@ -385,7 +385,7 @@ async function fetchData() {
   await reAryGrid();
   await getNewMCsmbAplcClose();
 
-  const res = await dataService.get('/sms/wells/service/newmanager-bsconsumables', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/newmanager-bsconsumables', { params: { ...cachedParams, timeout: 300000 } });
   // const { list: bldCsmbDeliveries } = res.data;
 
   pageInfo.value.totalCount = res.data.length;

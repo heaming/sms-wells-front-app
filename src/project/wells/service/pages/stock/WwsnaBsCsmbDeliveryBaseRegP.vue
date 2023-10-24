@@ -70,6 +70,7 @@
           <kw-input
             v-model="basData.boxUnitQty"
             type="number"
+            maxlength="10"
             :disable="isDisable"
           />
         </kw-form-item>
@@ -84,6 +85,7 @@
           <kw-input
             v-model="basData.goUprc"
             type="number"
+            maxlength="10"
             :disable="isDisable"
           />
         </kw-form-item>
@@ -163,6 +165,7 @@
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvUnitAccN"
             :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')"
             type="number"
+            maxlength="10"
             :disable="isDisableYn1 || isDisable"
             :rules="isRequiredAccPrpnYn1"
           />
@@ -172,6 +175,7 @@
             v-model="ddlvOjCd1Data.bfsvcCsmbDdlvUnitQty"
             :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')"
             type="number"
+            maxlength="10"
             :disable="isDisableYn1 || isDisable"
             :rules="isRequiredUnitQty1 || isRequiredAccPrpnYn1"
           />
@@ -183,6 +187,7 @@
             v-model="ddlvOjCd1Data.bfsvcCsmbAplcLmQty"
             :label="$t('MSG_TXT_APLC_LM_QTY')"
             type="number"
+            maxlength="10"
             :disable="isDisableYn1 || isDisable"
             :rules="isRequiredLmQty1"
           />
@@ -191,6 +196,7 @@
           <kw-input
             v-model="ddlvOjCd1Data.sortOdr"
             type="number"
+            maxlength="10"
             :disable="isDisableYn1 || isDisable"
           />
         </kw-form-item>
@@ -257,6 +263,7 @@
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvUnitAccN"
             :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')"
             type="number"
+            maxlength="10"
             :disable="isDisableYn2 || isDisable"
             :rules="isRequiredAccPrpnYn2"
           />
@@ -266,6 +273,7 @@
             v-model="ddlvOjCd2Data.bfsvcCsmbDdlvUnitQty"
             :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')"
             type="number"
+            maxlength="10"
             :disable="isDisableYn2 || isDisable"
             :rules="isRequiredUnitQty2 || isRequiredAccPrpnYn2"
           />
@@ -277,6 +285,7 @@
             v-model="ddlvOjCd2Data.bfsvcCsmbAplcLmQty"
             :label="$t('MSG_TXT_APLC_LM_QTY')"
             type="number"
+            maxlength="10"
             :disable="isDisableYn2 || isDisable"
             :rules="isRequiredLmQty2"
           />
@@ -286,6 +295,7 @@
             v-model="ddlvOjCd2Data.sortOdr"
             :label="$t('MSG_TXT_SORT_ORDER')"
             type="number"
+            maxlength="10"
             :disable="isDisableYn2 || isDisable"
           />
         </kw-form-item>
@@ -352,6 +362,7 @@
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvUnitAccN"
             :label="$t('MSG_TXT_DDLV_UNIT_ACC_N')"
             type="number"
+            maxlength="10"
             :disable="isDisableYn3 || isDisable"
             :rules="isRequiredAccPrpnYn3"
           />
@@ -361,6 +372,7 @@
             v-model="ddlvOjCd3Data.bfsvcCsmbDdlvUnitQty"
             :label="$t('MSG_TXT_DDLV_UNIT_QTY_EA')"
             type="number"
+            maxlength="10"
             :disable="isDisableYn3 || isDisable"
             :rules="isRequiredUnitQty3 || isRequiredAccPrpnYn3"
           />
@@ -372,6 +384,7 @@
             v-model="ddlvOjCd3Data.bfsvcCsmbAplcLmQty"
             :label="$t('MSG_TXT_APLC_LM_QTY')"
             type="number"
+            maxlength="10"
             :disable="isDisableYn3 || isDisable"
             :rules="isRequiredLmQty3"
           />
@@ -380,6 +393,7 @@
           <kw-input
             v-model="ddlvOjCd3Data.sortOdr"
             type="number"
+            maxlength="10"
             :disable="isDisableYn3 || isDisable"
           />
         </kw-form-item>

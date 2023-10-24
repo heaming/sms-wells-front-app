@@ -234,11 +234,11 @@ async function initGrdMain(data, view) {
 
   const columns = [
     { fieldName: 'cntr',
-      header: t('MSG_TXT_CNTR_NO'),
+      header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '150',
       styleName: 'rg-button-link text-center',
       renderer: { type: 'button' },
-    }, // 계약번호
+    }, // 계약상세번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-left' }, // 고객명
     { fieldName: 'mobileTno', header: t('MSG_TXT_CONTACT'), width: '120', styleName: 'text-center' }, // 연락처
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAPCD'), width: '200', styleName: 'text-center' }, // SAP코드

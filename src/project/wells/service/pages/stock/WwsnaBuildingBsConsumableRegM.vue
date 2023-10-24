@@ -383,7 +383,7 @@ async function fetchData() {
   await reAryGrid();
   await getBldCsmbAplcClose();
 
-  const res = await dataService.get('/sms/wells/service/building-bsconsumables', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/building-bsconsumables', { params: { ...cachedParams, timeout: 300000 } });
   // const { list: bldCsmbDeliveries, pageInfo: pagingResult } = res.data;
 
   pageInfo.value.totalCount = res.data.length;

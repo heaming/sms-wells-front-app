@@ -25,11 +25,14 @@
         <!-- 품목종류 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_KND')"
+          required
         >
           <kw-select
             v-model="searchParams.itmKndCd"
             :readonly="isKndCd"
             :options="codes.ITM_KND_CD"
+            :label="$t('MSG_TXT_ITM_KND')"
+            rules="required"
           />
         </kw-search-item>
         <!-- 품목코드 -->
@@ -44,21 +47,6 @@
             v-model="searchParams.itmPdNm"
             class="w200"
           />
-          <!-- <kw-field
-            :model-value="[]"
-          >
-            <template
-              #default="{ field }"
-            > -->
-          <!-- /TODO: 안전재고미달품목 체크박스 로직 추후 추가 -->
-          <!-- <kw-checkbox
-                v-show="checkField"
-                v-bind="field"
-                :label="$t('MSG_TXT_SFT_STOC_SRTFL_ITM')"
-                val=""
-              />
-            </template>
-          </kw-field> -->
         </kw-search-item>
       </kw-search-row>
       <kw-search-row
