@@ -23,7 +23,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
         >
-          <p>{{ data.baseYm }}</p>
+          <p>{{ stringUtil.getDateFormat(data.perfYm, 'yyyy-MM').substring(0,7) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -54,12 +54,16 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal } from 'kw-lib';
+import { useDataService, useGlobal, useModal, codeUtil, stringUtil } from 'kw-lib';
 
 const { cancel, ok } = useModal();
 const { confirm } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
+
+const codes = await codeUtil.getMultiCodes(
+  'FEE_TCNT_DV_CD',
+);
 
 const props = defineProps({
   perfYm: {
@@ -70,17 +74,12 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  tcntDvTxt: {
-    type: String,
-    default: '',
-  },
 });
 
 const data = ref({
-  baseYm: props.perfYm,
-  perfYm: props.perfYm.replaceAll(/[^0-9]/g, ''),
+  perfYm: props.perfYm,
   feeTcntDvCd: props.feeTcntDvCd,
-  tcntDvTxt: props.tcntDvTxt,
+  tcntDvTxt: codes.FEE_TCNT_DV_CD.find((v) => v.codeId === props.feeTcntDvCd).codeName,
 });
 
 // -------------------------------------------------------------------------------------------------

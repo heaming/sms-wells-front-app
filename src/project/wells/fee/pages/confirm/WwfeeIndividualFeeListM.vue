@@ -178,7 +178,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const isSelectMrsbDvCdVisile = ref(true);
 const isSelectPrsbDvCdVisile = ref(false);
 const isSelectHrsbDvCdVisile = ref(false);
-const currentRoute = useRouter();
+const { currentRoute } = useRouter();
 const router = useRouter();
 
 const codes = await codeUtil.getMultiCodes(
@@ -186,6 +186,7 @@ const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
   'YN_CD',
   'QLF_DV_CD',
+  'PQLF_DV_CD',
   'BNK_CD',
 );
 
@@ -250,12 +251,29 @@ function getGridColumns() {
       styleName: 'text-center',
       options: codes.RSB_DV_CD,
     },
-    { fieldName: 'qlfDvCd',
-      header: t('MSG_TXT_QLF'), // 자격
-      width: '100',
-      styleName: 'text-center',
-      options: codes.QLF_DV_CD,
-    },
+  );
+
+  if (searchParams.value.ogTpCd === 'W01') {
+    columns.push(
+      { fieldName: 'qlfDvCd',
+        header: t('MSG_TXT_QLF'), // 자격
+        width: '100',
+        styleName: 'text-center',
+        options: codes.PQLF_DV_CD,
+      },
+    );
+  } else if (searchParams.value.ogTpCd === 'W02') {
+    columns.push(
+      { fieldName: 'qlfDvCd',
+        header: t('MSG_TXT_QLF'), // 자격
+        width: '100',
+        styleName: 'text-center',
+        options: codes.QLF_DV_CD,
+      },
+    );
+  }
+
+  columns.push(
     { fieldName: 'bnkNm', header: t('MSG_TXT_BNK'), width: '150', styleName: 'text-center' }, // 은행
     { fieldName: 'acnoEncr', header: t('MSG_TXT_AC_NO'), width: '180', styleName: 'text-center' }, // 계좌번호
     { fieldName: 'intbsAmt', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_AGG'), width: '137', styleName: 'text-right', dataType: 'number' }, // 과표 계
@@ -273,7 +291,7 @@ function getGridColumns() {
  *  Event - 수수료 조회
  */
 async function fetchData() {
-  const response = await dataService.get('/sms/wells/fee/individual-fees/feeLists', { params: cachedParams, timeout: 300000 });
+  const response = await dataService.get('/sms/wells/fee/individual-fees/feeLists', { params: cachedParams });
   const dataList = response.data;
 
   totalCount.value = dataList.length;
