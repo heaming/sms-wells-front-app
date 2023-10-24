@@ -24,7 +24,7 @@
           <p>{{ regularShippingDetail.cstKnm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
-          <p>{{ regularShippingDetail.cntrDtlNo }}</p>
+          <p>{{ regularShippingDetail.cntrNo }}-{{ regularShippingDetail.cntrSn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_YM')">
           <p>{{ stringUtil.getDateFormat(regularShippingDetail.slClYm, 'YYYY-MM').substring(0,7) }}</p>
@@ -42,7 +42,7 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PKG_INF')">
-          <p>({{ regularShippingDetail.pkgCd }}) {{ regularShippingDetail.pkgNm }}</p>
+          <p>{{ regularShippingDetail.pkgView }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_MCHN_INF')">
           <p>({{ regularShippingDetail.mchnCntrNo }}-{{ mchnCntrSn }}) {{ regularShippingDetail.mchnRcgvpKnm }}</p>
@@ -306,10 +306,10 @@ const regularShippingDetail = ref({});
 let cachedParams;
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
-  console.log(searchParams.value);
   const res = await dataService.get('/sms/wells/closing/regular-shipping-detail', { params: cachedParams });
-  console.log(res.data);
   regularShippingDetail.value = res.data;
+  regularShippingDetail.value.pkgView = regularShippingDetail.value.pkgYn + (regularShippingDetail.value.rcpPkgCd) ? `(${regularShippingDetail.value.pkgCd})${regularShippingDetail.value.pkgNm}`
+    : `/${regularShippingDetail.value.pkgNm}`;
 }
 
 onMounted(async () => {

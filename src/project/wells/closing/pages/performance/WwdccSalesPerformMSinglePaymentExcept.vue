@@ -445,7 +445,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_SL_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.slRcogDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.lcsleDt) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_PKG_INF')"
@@ -509,7 +509,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_BIL_UC_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.mmIstmPcamAmt)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotUcAmt)) }}</p>
             </kw-form-item>
           </kw-form-row><kw-form-row>
             <kw-form-item
@@ -683,7 +683,7 @@ async function fetchDetailData(slClYm, sellTpCd) {
   if (!isEmpty(singlePaymentDetail.value.pkgCd)) {
     singlePaymentDetail.value.pkgCd = `(${singlePaymentDetail.value.pkgCd})`;
   }
-  singlePaymentDetail.value.fntInfView = (singlePaymentDetail.value.mpyBsdt) ? `${singlePaymentDetail.value.dpTpCdNm}/${singlePaymentDetail.value.mpyBsdt}${t('MSG_TXT_D')}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`
+  singlePaymentDetail.value.fntInfView = (singlePaymentDetail.value.mpyBsdt) ? `${singlePaymentDetail.value.dpTpCdNm}/${singlePaymentDetail.value.mpyBsdt}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`
     : `${singlePaymentDetail.value.dpTpCdNm}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`;
 }
 // 그리드 항목명 변경을 위한 계약 정보 조회
@@ -760,8 +760,9 @@ async function setGridColumnLayout(data, view) { // 일시불
     {
       header: t('MSG_TXT_ADD_AM'), // 가산금
       direction: 'horizontal', // merge type
-      items: ['btdDlqAddAmt', 'thmOcDlqAddAmt', 'thmCtrDlqAddAmt', 'thmDlqAddDpSumAmt', 'thmDlqAddRfndSumAmt', 'eotDlqAddAmt', 'eotUcAmt'],
+      items: ['btdDlqAddAmt', 'thmOcDlqAddAmt', 'thmCtrDlqAddAmt', 'thmDlqAddDpSumAmt', 'thmDlqAddRfndSumAmt', 'eotDlqAddAmt'],
     },
+    'eotUcAmt',
     'borAmt',
     'slStpAmt',
   ]);
