@@ -267,6 +267,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'vstDowVal' }, // 방문요일값
     { fieldName: 'emdSn' }, // 읍면동일련번호
     { fieldName: 'fr2pLgldCd' }, // 앞2자리법정동코드
+    { fieldName: 'kynorLocaraYn' }, // 경북지역여부
     { fieldName: 'ildYn' }, // 섬여부
     { fieldName: 'pdlvNo' }, // 출고지번호
     { fieldName: 'dtaDlYn' }, // 데이터삭제여부
