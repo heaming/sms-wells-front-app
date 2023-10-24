@@ -697,9 +697,9 @@ const cntrTpIs = ref({
 });
 const isReadonly = computed(() => step4.value.bas?.cntrPrgsStatCd > 20);
 const fileParams = ref({
-  kidsDocs: {},
+  kidsDocs: [],
   kidsDocId: '', // 다자녀
-  dcevdnDocs: {},
+  dcevdnDocs: [],
   dcevdnDocId: '', // 법인할인고객 주소변경
 });
 // -------------------------------------------------------------------------------------------------
