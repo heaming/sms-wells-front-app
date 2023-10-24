@@ -416,7 +416,7 @@
       >
         <kw-select
           v-model="searchDetail.cntrStatChRsonCd"
-          :options="codes.CMN_STAT_CH_RSON_CD"
+          :options="codes.RGLR_SPP_STAT_CH_RSON_CD"
           first-option="select"
         />
         <kw-input
@@ -520,7 +520,7 @@ const { modal, notify } = useGlobal();
 
 const codes = await codeUtil.getMultiCodes(
   'CCAM_EXMPT_DV_CD', // 위약금면책구분코드
-  'CMN_STAT_CH_RSON_CD', // 공통상태변경사유코드
+  'RGLR_SPP_STAT_CH_RSON_CD', // 공통상태변경사유코드
 );
 
 const emits = defineEmits([
@@ -543,7 +543,7 @@ const inputDetail = ref({
 });
 
 codes.CCAM_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
-codes.CMN_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
+codes.RGLR_SPP_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -557,7 +557,7 @@ function onChangeTextforSelect(div) {
       searchDetail.ccamExmptDvCd = '';
     }
   } else if (div === 'sel2') {
-    if (codes.CMN_STAT_CH_RSON_CD.findIndex((v) => v.codeId === inputDetail.value.sel2Text) >= 0) {
+    if (codes.RGLR_SPP_STAT_CH_RSON_CD.findIndex((v) => v.codeId === inputDetail.value.sel2Text) >= 0) {
       searchDetail.cntrStatChRsonCd = inputDetail.value.sel2Text;
     } else {
       searchDetail.cntrStatChRsonCd = '';
