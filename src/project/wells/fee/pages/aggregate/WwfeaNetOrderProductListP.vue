@@ -113,10 +113,10 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdPlar = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'ogTpCd', header: t('MSG_TXT_OG_TP'), width: '121', styleName: 'text-center', options: codes.OG_TP_CD },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '200', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' },
-    { fieldName: 'pdCnt', header: t('MSG_TXT_COUNT'), width: '100', dataType: 'number', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'ogTpCd', header: t('MSG_TXT_OG_TP'), width: '121', styleName: 'text-center', options: codes.OG_TP_CD }, // 조직유형코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '200', styleName: 'text-center' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, // 상품명
+    { fieldName: 'pdCnt', header: t('MSG_TXT_COUNT'), width: '100', dataType: 'number', styleName: 'text-right', numberFormat: '#,##0' }, // 건수
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
