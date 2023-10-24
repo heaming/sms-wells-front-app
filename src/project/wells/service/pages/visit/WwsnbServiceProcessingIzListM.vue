@@ -425,8 +425,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrPstnDv', header: t('MSG_TXT_PSTN_DV'), width: '145', styleName: 'text-center' }, // 직급구분
     { fieldName: 'siteAwDvNm', header: t('MSG_TXT_ITEM_NM'), width: '145', styleName: 'text-center' }, // 현장수당(항목명)
     { fieldName: 'siteAwAmt', header: t('MSG_TXT_AMT'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 현장수당(금액)
-    { fieldName: 'rglvlGdCd', header: t('MSG_TXT_RGLVL'), width: '145', styleName: 'text-center', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 현장수당(급지)
-    { fieldName: 'awAmt', header: t('MSG_TXT_AMT'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 현장수당(금액)
+    { fieldName: 'rglvlGdCd', header: t('MSG_TXT_RGLVL'), width: '145', styleName: 'text-center' }, // 현장수당(급지)
     { fieldName: 'contactCralLocaraTno' }, // 연락처(핸드폰)1
     { fieldName: 'contactMexnoEncr' }, // 연락처(핸드폰)2
     { fieldName: 'contactCralIdvTno' }, // 연락처(핸드폰)3
@@ -565,7 +564,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_SITE_AW'), // 현장수당
       direction: 'horizontal',
-      items: ['siteAwDvNm', 'siteAwAmt', 'rglvlGdCd', 'awAmt'],
+      items: ['siteAwDvNm', 'siteAwAmt', 'rglvlGdCd'],
     },
     'contactCralTno',
     'fnlRcpdt',
