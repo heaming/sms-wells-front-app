@@ -45,6 +45,7 @@
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeWareDvCd"
           @update:ware-no-m="onChagneHgrWareNo"
+          @update:ware-no-d="onChagneWareNo"
         />
         <!-- 창고상세구분 -->
         <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
@@ -52,6 +53,7 @@
             v-model="searchParams.wareDtlDvCd"
             :options="filterCodes.wareDtlDvCd"
             first-option="all"
+            @change="onChangeWareDtlDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -250,6 +252,26 @@ function onChangeWareDvCd() {
 // 상위창고 변경 시
 function onChagneHgrWareNo() {
   searchParams.value.searchWareNo = '';
+}
+
+// 창고 변경시
+function onChagneWareNo() {
+  const { wareDtlDvCd, searchWareNo } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(searchWareNo) && (wareDtlDvCd === '20' || wareDtlDvCd === '30')) {
+    searchParams.value.wareDtlDvCd = '';
+  }
+}
+
+// 창고상세구분 변경시
+function onChangeWareDtlDvCd() {
+  const { wareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (wareDtlDvCd === '20' || wareDtlDvCd === '30') {
+    searchParams.value.searchWareNo = '';
+  }
 }
 
 await Promise.all([

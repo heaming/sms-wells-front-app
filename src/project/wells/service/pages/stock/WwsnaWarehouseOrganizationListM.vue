@@ -47,6 +47,7 @@
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeStdWareDvCd"
           @update:ware-no-m="onChagneHgrWareNo"
+          @update:ware-no-d="onChagneWareNo"
         />
       </kw-search-row>
 
@@ -57,6 +58,7 @@
             v-model="searchParams.wareDtlDvCd"
             :options="filterCodes.filterWareDtlDvCd"
             first-option="all"
+            @change="onChangeWareDtlDvCd"
           />
         </kw-search-item>
         <!-- 사용여부 -->
@@ -151,7 +153,7 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useGlobal, useDataService, getComponentType, gridUtil, defineGrid, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const { t } = useI18n();
@@ -204,9 +206,9 @@ const searchParams = ref({
 });
 
 const wareDvCd = { WARE_DV_CD: [
-  { codeId: '1', codeName: '물류센터' },
-  { codeId: '2', codeName: '서비스센터' },
-  { codeId: '3', codeName: '영업센터' },
+  { codeId: '1', codeName: t('MSG_TXT_LGST_CNR') },
+  { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
+  { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
 ] };
 
 // 기준년월이 변경되었을때
@@ -236,6 +238,26 @@ function onChangeStdWareDvCd() {
 // 상위창고가 변경될때
 function onChagneHgrWareNo() {
   searchParams.value.wareNoD = '';
+}
+
+// 창고 변경시
+function onChagneWareNo() {
+  const { wareDtlDvCd, wareNoD } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(wareNoD) && (wareDtlDvCd === '20' || wareDtlDvCd === '30')) {
+    searchParams.value.wareDtlDvCd = '';
+  }
+}
+
+// 창고상세구분 변경시
+function onChangeWareDtlDvCd() {
+  const { wareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (wareDtlDvCd === '20' || wareDtlDvCd === '30') {
+    searchParams.value.wareNoD = '';
+  }
 }
 
 watch(() => searchParams.value.wareDvCd, (val) => {
