@@ -414,7 +414,7 @@ async function onClickExcelSubDownload() {
 // 저장버튼
 async function onClickSave() {
   const view = grdMainRef2.value.getView();
-  const changedRows = gridUtil.getAllRowValues(view);
+  const changedRows = gridUtil.getCheckedRowValues(view);
 
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
