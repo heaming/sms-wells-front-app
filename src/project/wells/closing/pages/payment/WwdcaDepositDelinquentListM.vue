@@ -346,17 +346,17 @@ const initGrdMain = defineGrid((data, view) => {
       width: '80',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0.##',
+      numberFormat: '#,##0.#',
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
           const dpRt = grid.getGroupSummary(group, 'nomUcAmt').sum === 0 ? 0
             : (grid.getGroupSummary(group, 'nomDpAmt').sum / grid.getGroupSummary(group, 'nomUcAmt').sum) * 100;
           return dpRt;
         },
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0.#',
       },
       footer: { expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0.#',
         styleName: 'text-right',
         valueCallback(grid) {
           const rtSum = grid.getSummary('nomUcAmt', 'sum') === 0 ? 0
@@ -404,6 +404,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       hint: t('MSG_TXT_DLQ_AMT_DP_UCAM_TAM'),
       dataType: 'number',
+      numberFormat: '#,##0.#',
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
           const rtSum = grid.getGroupSummary(group, 'ucamTam').sum === 0 ? 0
@@ -411,10 +412,10 @@ const initGrdMain = defineGrid((data, view) => {
 
           return rtSum;
         },
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0.#',
       },
       footer: { expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0.#',
         styleName: 'text-right',
         valueCallback(grid) {
           const rtTotSum = grid.getSummary('ucamTam', 'sum') === 0 ? 0
@@ -438,7 +439,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '80',
       styleName: 'text-right',
       dataType: 'number',
-      numberFormat: '#,##0.##',
+      numberFormat: '#,##0.#',
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
           const rtSum = (grid.getGroupSummary(group, 'ucamTam').sum) === 0 ? 100
@@ -446,10 +447,10 @@ const initGrdMain = defineGrid((data, view) => {
 
           return rtSum;
         },
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0.#',
       },
       footer: { expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0.#',
         styleName: 'text-right',
         valueCallback(grid) {
           const rtTotSum = grid.getSummary('ucamTam', 'sum') === 0 ? 100
@@ -485,6 +486,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '80',
       styleName: 'text-right',
       dataType: 'number',
+      numberFormat: '#,##0.#',
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
           const totDpSum = grid.getGroupSummary(group, 'bilAgg').sum === 0 ? 0
@@ -492,10 +494,10 @@ const initGrdMain = defineGrid((data, view) => {
 
           return Number.isNaN(totDpSum) ? 0 : totDpSum;
         },
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0.#',
       },
       footer: { expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0.#',
         styleName: 'text-right',
         valueCallback(grid) {
           const rtSum = grid.getSummary('bilAgg', 'sum') === 0 ? 0
