@@ -66,8 +66,8 @@
       @init="initGrdMain"
     />
     <kw-pagination
-      :page-index="pageInfo.pageIndex"
-      :page-size="pageInfo.pageSize"
+      v-model:page-index="pageInfo.pageIndex"
+      v-model:page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
       @change="fetchData"
     />
@@ -145,13 +145,14 @@ function onChangeSvcCenters() {
 }
 
 async function fetchData() {
+  console.log(pageInfo.value);
   const res = await dataService.get('/sms/wells/service/engineer-tools/parts/paging', { params: pageInfo.value });
   const { list: toolParts, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(toolParts);
-  view.resetCurrent();
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickToolDsb() {
