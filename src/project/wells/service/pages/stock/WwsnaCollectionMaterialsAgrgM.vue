@@ -5,7 +5,7 @@
 1. 모듈 : SNA (재고관리)
 2. 프로그램 ID : WwsnaCollectionMaterialsAgrgM - 회수자재집계현황(K-W-SV-U-0259M01)
 3. 작성자 : jungheejin
-4. 작성일 : 2023-10-19
+4. 작성일 : 2023-10-24
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
@@ -114,7 +114,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil } from 'kw-lib';
+import { getComponentType, defineGrid, gridUtil, useDataService, codeUtil, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
@@ -125,6 +125,7 @@ const dataService = useDataService();
 
 const { t } = useI18n();
 const { currentRoute } = useRouter();
+const { alert } = useGlobal();
 const now = dayjs();
 
 // -------------------------------------------------------------------------------------------------
@@ -188,15 +189,18 @@ async function onClickExcelDownload() {
   });
 }
 async function onClickOZ() {
+  if (searchParams.value.wareNoM === '') {
+    await alert(t('MSG_ALT_SV_CNR_SELCT'));
+    return;
+  }
   const ozParam = ref({
-    ozrPath: '/kyowon_as/sellmtrl.ozr', // OZ 개발 중 ozp://kyowon_as/monthbs.ozr
+    ozrPath: '/kyowon_as/sellmtrl.ozr',
     odiPath: '',
     args:
       {
         START_DT: searchParams.value.startDt,
         END_DT: searchParams.value.endDt,
-        WARE_NO: '100002',
-        WARE_NM: '파주물류센터',
+        WARE_NO: searchParams.value.wareNoM,
       },
     height: 1300,
     width: 1400,
@@ -262,10 +266,21 @@ const initGrdMain = defineGrid((data, view) => {
       footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' },
     },
   ];
+
+  const layout = [
+    'wareNm',
+    {
+      header: t('MSG_TXT_CLN_MAT_CHECK'),
+      items: ['qtySum', 'qtyWm07101720', 'qtyWm07101721', 'qtyWm07101722', 'qtyWm07101723'],
+    },
+  ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
+  view.setColumnLayout(layout);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.columnByName('wareNm').setFooters({ text: t('MSG_TXT_SUM'), styleName: 'text-center text-weight-bold' });
+  view.setFooters({ visible: true, items: [{ height: 30 }] });
 });
 </script>
