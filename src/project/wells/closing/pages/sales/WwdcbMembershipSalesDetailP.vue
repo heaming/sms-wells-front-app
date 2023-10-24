@@ -26,7 +26,7 @@
           <p>{{ membershipDetail.cntrNo }}-{{ membershipDetail.cntrSn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_YM')">
-          <p>{{ stringUtil.getDateFormat(membershipDetail.slClYm, 'YYYY-MM') }}</p>
+          <p>{{ membershipDetail.slClYm }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -115,7 +115,7 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_J_NMN')">
-          <p>{{ membershipDetail.rentalTn }}/{{ membershipDetail.vstNmnN }}</p>
+          <p>{{ membershipDetail.rentalTn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_J_DC')">
           <p>{{ membershipDetail.rentalDc }}/{{ membershipDetail.slDc }}</p>

@@ -79,12 +79,15 @@
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_MM_RTLFE1_MCNT_WON')">
           <p v-if="Number(rentalSalesDetail.rentalAmt) > 0">
-            {{ `${rentalSalesDetail.rentalPtrm}/${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalAmt))}(DC ${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalDscAmt))})` }}
+            {{ `${rentalSalesDetail.rentalPtrm}${$t('MSG_TXT_MCNT')}${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalAmt))}(DC ${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalDscAmt))})` }}
+          </p>
+          <p v-if="Number(rentalSalesDetail.stplDscAmt) > 0">
+            {{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.stplDscAmt)) }}
           </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_MM_RTLFE2')">
           <p v-if="Number(rentalSalesDetail.rentalAmt2) > 0">
-            {{ `${rentalSalesDetail.rentalPtrm2}/${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalAmt2))}(DC ${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalDscAmt2))})` }}
+            {{ `${rentalSalesDetail.rentalPtrm2}${$t('MSG_TXT_MCNT')}${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalAmt2))}(DC ${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalDscAmt2))})` }}
           </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_RSTL_DSC_AMT')">
@@ -200,10 +203,10 @@
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DSC_AGG')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.sumDscAggAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.dscAggAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CTR_AGG')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.sumCtrAggAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.ctrAggAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_BLAM')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.slBlam)) }}</p>
