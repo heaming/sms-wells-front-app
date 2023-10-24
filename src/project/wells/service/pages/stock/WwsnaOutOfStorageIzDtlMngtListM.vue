@@ -32,7 +32,6 @@
             :label="`${t('MSG_TXT_OSTR')}${t('MSG_TXT_PRD')}`"
           />
         </kw-search-item>
-        <!-- //출고기간-->
         <!-- 출고창고 -->
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stOstrDt"
@@ -47,8 +46,8 @@
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeOstrDvCd"
           @update:ware-no-m="onChagneOstrWareHgrNo"
+          @update:ware-no-d="onChagneOstrWareNo"
         />
-        <!-- //출고창고 -->
         <!-- 출고창고상세구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_WARE_DTL_DV')"
@@ -58,6 +57,7 @@
             v-model="searchParams.ostrWareDtlDvCd"
             :options="filterCodes.ostrWareDtlDvCd"
             first-option="all"
+            @change="onChangeOstrWareDtlDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -73,7 +73,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //출고유형 -->
         <!-- 입고창고-->
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.stOstrDt"
@@ -89,8 +88,8 @@
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeStrDvCd"
           @update:ware-no-m="onChagneStrWareHgrNo"
+          @update:ware-no-d="onChagneStrWareNo"
         />
-        <!-- //입고창고-->
         <!-- 입고창고상세구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_STR_WARE_DTL_DV')"
@@ -100,6 +99,7 @@
             v-model="searchParams.strWareDtlDvCd"
             :options="filterCodes.strWareDtlDvCd"
             first-option="all"
+            @change="onChangeStrWareDtlDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -115,7 +115,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //등급 -->
         <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
@@ -135,7 +134,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //품목코드 -->
         <!-- 사용여부 -->
         <kw-search-item
           :label="$t('MSG_TXT_USE_SEL')"
@@ -147,7 +145,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //사용여부 -->
       </kw-search-row>
     </kw-search>
 
@@ -163,7 +160,7 @@
           />
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           secondary
@@ -319,6 +316,26 @@ function onChagneOstrWareHgrNo() {
   searchParams.value.ostrWareNo = '';
 }
 
+// 출고창고 변경 시
+function onChagneOstrWareNo() {
+  const { ostrWareDtlDvCd, ostrWareNo } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(ostrWareNo) && (ostrWareDtlDvCd === '20' || ostrWareDtlDvCd === '30')) {
+    searchParams.value.ostrWareDtlDvCd = '';
+  }
+}
+
+// 출고창고상세구분 변경 시
+function onChangeOstrWareDtlDvCd() {
+  const { ostrWareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (ostrWareDtlDvCd === '20' || ostrWareDtlDvCd === '30') {
+    searchParams.value.ostrWareNo = '';
+  }
+}
+
 // 입고창고구분 변경 시
 function onChangeStrDvCd() {
   searchParams.value.strHgrWareNo = '';
@@ -328,6 +345,26 @@ function onChangeStrDvCd() {
 // 입고상위창고 변경 시
 function onChagneStrWareHgrNo() {
   searchParams.value.strWareNo = '';
+}
+
+// 입고창고 변경 시
+function onChagneStrWareNo() {
+  const { strWareDtlDvCd, strWareNo } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(strWareNo) && (strWareDtlDvCd === '20' || strWareDtlDvCd === '30')) {
+    searchParams.value.strWareDtlDvCd = '';
+  }
+}
+
+// 입고창고상세구분 변경시
+function onChangeStrWareDtlDvCd() {
+  const { strWareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (strWareDtlDvCd === '20' || strWareDtlDvCd === '30') {
+    searchParams.value.strWareNo = '';
+  }
 }
 
 // 조회
@@ -426,33 +463,33 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strWareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-left' },
     { fieldName: 'strPrtnrNo', header: t('MSG_TXT_STR_WARE_MNGT_PRTNR_NO'), width: '180', styleName: 'text-center' },
     { fieldName: 'ostrDt', header: t('MSG_TXT_OSTR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'ostrTpCd', header: t('MSG_TXT_OSTR_TP'), options: codes.OSTR_TP_CD, width: '100', styleName: 'text-center' },
-    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'itmGdNm', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '250', styleName: 'text-left' },
+    { fieldName: 'ostrTpCd', header: t('MSG_TXT_OSTR_TP'), options: codes.OSTR_TP_CD, width: '120', styleName: 'text-left' },
+    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '80', styleName: 'text-center' },
+    { fieldName: 'itmGdNm', header: t('MSG_TXT_GD'), width: '60', styleName: 'text-center', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
     { fieldName: 'ostrQty',
       header: t('MSG_TXT_QTY'),
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'boxQty',
       header: t('MSG_TXT_BOX_KOR_QTY'),
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '150', styleName: 'text-left' },
     { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'ostrAkDtlNo', header: t('MSG_TXT_OSTR_AK_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'ostrDtlNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'strDtlNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'ostrAkDtlNo', header: t('MSG_TXT_OSTR_AK_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'ostrDtlNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'strDtlNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '150', styleName: 'text-center' },
   ];
 
   data.setFields(fields);

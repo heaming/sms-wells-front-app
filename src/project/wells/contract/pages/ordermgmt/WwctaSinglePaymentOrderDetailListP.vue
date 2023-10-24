@@ -14,7 +14,7 @@
 --->
 <template>
   <kw-popup
-    size="3xl"
+    size="4xl"
     ignore-on-modified
     no-action
   >
@@ -118,7 +118,7 @@
         <!-- 접수일 -->
         <kw-form-item :label="$t('MSG_TXT_RCP_D')">
           <kw-input
-            v-model="frmMainData.cntrRcpFshDt"
+            v-model="frmMainData.cntrRcpFshDtm"
             mask="####-##-##"
             placeholder=""
             readonly
@@ -673,7 +673,7 @@
         <!-- 접수일 -->
         <kw-form-item :label="$t('MSG_TXT_RCP_D')">
           <kw-input
-            v-model="frmMainData.cntrRcpFshDt"
+            v-model="frmMainData.cntrRcpFshDtm"
             mask="####-##-##"
             placeholder=""
             readonly
@@ -933,7 +933,7 @@ const frmMainData = ref({
   sellInflwChnlDtlCd: '', // 파트너 유형
   sellPrtnrNo: '', // 파트너-번호
   prtnrKnm: '', // 파트너-이름
-  cntrRcpFshDt: '', // 접수일
+  cntrRcpFshDtm: '', // 접수일
   fstRgstDt: '', // 등록일
   cstKnm: '', // 계약자 명
   rnmno: '', // 계약자사업/주민번호
@@ -991,7 +991,6 @@ const frmMainData = ref({
   frisuAsPtrmN: '', // 무상 A/S
   recapDutyYn: '', // 유상멤버십 여부
   mshFntDv: '', // 멤버십 이체
-  // cntrRcpFshDt: '', // 접수일
   vstRqdt: '', // 의뢰일
   sppDuedt: '', // 예정일
   istDt: '', // 설치일
@@ -1052,7 +1051,7 @@ async function fetchData() {
     frmMainData.value.sellInflwChnlDtlCd = pages[0].sellInflwChnlDtlCd; // 파트너 유형
     frmMainData.value.sellPrtnrNo = pages[0].sellPrtnrNo; // 파트너-번호
     frmMainData.value.prtnrKnm = pages[0].prtnrKnm; // 파트너-이름
-    frmMainData.value.cntrRcpFshDt = pages[0].cntrRcpFshDt; // 접수일
+    frmMainData.value.cntrRcpFshDtm = pages[0].cntrRcpFshDtm; // 접수일
     frmMainData.value.fstRgstDt = pages[0].fstRgstDt; // 등록일
     // -------------------------------------------------------------------------------------------------
     // 계약자 정보
@@ -1140,7 +1139,7 @@ async function fetchData() {
     // -------------------------------------------------------------------------------------------------
     // 처리일
     // -------------------------------------------------------------------------------------------------
-    frmMainData.value.cntrRcpFshDt = pages[0].cntrRcpFshDt; // 접수일
+    frmMainData.value.cntrRcpFshDtm = pages[0].cntrRcpFshDtm; // 접수일
     frmMainData.value.vstRqdt = pages[0].vstRqdt; // 의뢰일
     frmMainData.value.sppDuedt = pages[0].sppDuedt; // 예정일
     frmMainData.value.istDt = pages[0].istDt; // 설치일

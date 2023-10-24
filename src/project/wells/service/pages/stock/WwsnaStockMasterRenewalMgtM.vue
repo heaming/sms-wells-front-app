@@ -111,9 +111,9 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const searchParams = ref({
-  mngtYm: dayjs().format('YYYYMM'),
-  rnwOjAcd: '1',
-  wareDvCd: '1',
+  mngtYm: dayjs().format('YYYYMM'), // 관리년월
+  rnwOjAcd: '1', // 갱신대상앱코드
+  wareDvCd: '1', // 창고구분코드
 });
 
 async function onClickRenewal() {

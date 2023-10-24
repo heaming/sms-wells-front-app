@@ -173,7 +173,7 @@
             ({{ t('MSG_TXT_UNIT') }} : EA)
           </span>
         </template>
-
+        <!-- 저장 -->
         <kw-btn
           v-permission:update
           dense
@@ -187,6 +187,7 @@
           vertical
           inset
         />
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -196,6 +197,7 @@
           :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
+        <!-- 물류이관 -->
         <kw-btn
           v-permission:update
           :label="`${t('MSG_TXT_LGST')}${t('MSG_TXT_TF')}`"
@@ -410,11 +412,15 @@ async function onClickSearch() {
 
 // 엑셀 다운로드
 async function onClickExcelDownload() {
+  // 입고창고번호
+  const { strWareNo } = cachedParams;
+  const strWareInfo = optionsStrWareNo.value.find((e) => e.wareNo === strWareNo);
+
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/service/independence-ware-ostrs/excel-download', { params: cachedParams });
 
   gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
+    fileName: `${currentRoute.value.meta.menuName}(${strWareInfo.wareNm})`,
     timePostfix: true,
     exportData: res.data,
   });
@@ -548,11 +554,11 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'lgstTrsYn', header: `${t('MSG_TXT_LGST')}${t('MSG_TXT_TF_YN')}`, width: '100', styleName: 'text-center' },
-    { fieldName: 'strWareNo', header: t('MSG_TXT_WARE_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '210', styleName: 'text-left' },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '130', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
+    { fieldName: 'strWareNo', header: t('MSG_TXT_WARE_NO'), width: '80', styleName: 'text-center' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '80', styleName: 'text-center' },
     { fieldName: 'matGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-center' },
     { fieldName: 'logisticStocQty', header: t('MSG_TXT_HGR_STOC'), width: '100', styleName: 'text-right' },
@@ -612,9 +618,14 @@ const initGrdMain = defineGrid((data, view) => {
 
       if (outQty === 0) {
         grid.setValue(itemIndex, 'chk', 'N');
+      } else if (outQty > 0) {
+        grid.setValue(itemIndex, 'chk', 'Y');
       }
     }
   };
+
+  // 셀 클릭시 row check 막기
+  view.onCellClicked = () => false;
 
   view.onCellEditable = (grid, index) => {
     // 물류전송여부
@@ -627,5 +638,9 @@ const initGrdMain = defineGrid((data, view) => {
 
     return false;
   };
+
+  view.setFixedOptions({
+    colCount: 6,
+  });
 });
 </script>

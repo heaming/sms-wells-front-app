@@ -45,5 +45,9 @@ function onClickShowHomeCard() {
   store.commit('app/setLeftExist', false);
   showHomeCard.value = true;
 }
-onClickShowHomeCard();
+const user = store.getters['meta/getUserInfo'];
+if (user.userId !== 'anonymous' && user.portalId !== 'NO_SESSION') {
+  onClickShowHomeCard();
+}
+
 </script>

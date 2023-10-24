@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 방문일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_VST_DT')"
           :colspan="2"
@@ -34,6 +35,7 @@
             @update:to="onChangeVstDt"
           />
         </kw-search-item>
+        <!-- 반납여부 -->
         <kw-search-item
           :label="`${t('MSG_TXT_GB')}${t('MSG_TXT_YN')}`"
         >
@@ -43,6 +45,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 업무유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_TASK_TYPE')"
         >
@@ -54,6 +57,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 서비스센터 -->
         <kw-search-item
           :label="$t('MSG_TXT_SV_CNR')"
         >
@@ -73,6 +77,7 @@
             option-label="wareNm"
           />
         </kw-search-item>
+        <!-- 필터종류 -->
         <kw-search-item
           :label="`${t('MSG_TXT_FLTR')}${t('MSG_TXT_VALUE_SORT')}`"
           :colspan="2"
@@ -92,6 +97,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 수거일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_TKY_DT')"
         >
@@ -114,7 +120,7 @@
             @change="fetchData"
           />
         </template>
-
+        <!-- 저장 -->
         <kw-btn
           v-permission:update
           grid-action
@@ -127,7 +133,7 @@
           vertical
           inset
         />
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
@@ -150,6 +156,7 @@
           :disable="pageInfo.totalCount === 0"
           dense
         />
+        <!-- 반납여부 일괄변경 -->
         <kw-btn
           dense
           secondary
@@ -170,6 +177,7 @@
           :placeholder="$t('MSG_TXT_SELT')"
           :disable="pageInfo.totalCount === 0"
         />
+        <!-- 수거일자 일괄변경 -->
         <kw-btn
           secondary
           dense
@@ -182,6 +190,7 @@
           vertical
           inset
         />
+        <!-- 라벨출력 -->
         <kw-btn
           v-permission:print
           dense
@@ -215,7 +224,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid, popupUtil } from 'kw-lib';
+import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
@@ -224,6 +233,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 const dataService = useDataService();
 
@@ -477,6 +487,7 @@ const ozParam = ref({
 
 // 라벨출력
 async function onClickLabelPrint() {
+  const { width, height } = ozParam.value;
   const { strtDt, endDt, wareDvCd, gbYn, hgrWareNo, wareNo, itmPdCd, itmGrCd } = cachedParams;
 
   await openReportPopup(
@@ -492,7 +503,7 @@ async function onClickLabelPrint() {
       ITM_PD_CD: itmPdCd,
       ITM_GR_CD: itmGrCd,
     }),
-    { width: ozParam.width, height: ozParam.height },
+    { width, height },
   );
 }
 
@@ -544,7 +555,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: {
         type: 'text',
         editable: true } },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-left' },
     { fieldName: 'basePdNm', header: t('MSG_TXT_PRDT_NM'), width: '250', styleName: 'text-left' },
     { fieldName: 'ostrConfDt',
@@ -585,7 +596,15 @@ const initGrdMain = defineGrid((data, view) => {
     if (column === 'cntrDtlNo') {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       const cntrSn = g.getValue(itemIndex, 'cntrSn');
-      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+
+      // 개인별서비스현황 연결
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
     }
   };
 });

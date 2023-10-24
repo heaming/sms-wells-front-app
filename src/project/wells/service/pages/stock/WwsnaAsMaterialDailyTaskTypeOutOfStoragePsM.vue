@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
@@ -29,6 +30,66 @@
             type="month"
             rules="required"
             :label="$t('MSG_TXT_BASE_YM')"
+          />
+        </kw-search-item>
+        <!-- 창고구분 -->
+        <ZwcmWareHouseSearch
+          v-model:start-ym="searchParams.baseYm"
+          v-model:end-ym="searchParams.baseYm"
+          v-model:ware-dv-cd="searchParams.wareDvCd"
+          v-model:ware-no-m="searchParams.wareNoM"
+          v-model:ware-no-d="searchParams.wareNoD"
+          :label1="$t('MSG_TXT_WARE')"
+          :label2="$t('MSG_TXT_WARE_DV')"
+          :label3="$t('MSG_TXT_HGR_WARE')"
+          :label4="$t('MSG_TXT_WARE')"
+          first-option-value=""
+          first-option="all"
+          sub-first-option-value=""
+          sub-first-option="all"
+          :colspan="3"
+          @update:ware-dv-cd="onChangeStdWareDvCd"
+          @update:ware-no-m="onChagneHgrWareNo"
+        />
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 업무유형 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_TASK_TYPE')"
+        >
+          <kw-select
+            v-model="searchParams.svBizHclsfCd"
+            :options="customCodes.svBizHclsfCd"
+            first-option="all"
+          />
+        </kw-search-item>
+        <!-- 사용여부 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_USE_SEL')"
+          :colspan="1"
+        >
+          <kw-select
+            v-model="searchParams.useYn"
+            first-option="all"
+            :options="codes.USE_YN"
+          />
+        </kw-search-item>
+        <!-- 품목구분 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_ITM_DV')"
+          :colspan="2"
+        >
+          <kw-select
+            v-model="searchParams.itmKndCd"
+            :colspan="2"
+            first-option="all"
+            :options="codes.ITM_KND_CD.filter((v) => ['4', '5', '6','7','9'].includes(v.codeId))"
+            @change="onChangeItmKndCd"
+          />
+          <kw-select
+            v-model="searchParams.itmPdCd"
+            :options="productCodes"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -58,6 +119,20 @@
           @click="onClickExcelDownload"
         />
       </kw-action-top>
+      <ul class="filter-box mb12">
+        <li class="filter-box__item">
+          <p class="filter-box__item-label">
+            {{ $t('MSG_TXT_DIV') }}
+          </p>
+          <kw-option-group
+            dense
+            :model-value="filteringOptions"
+            type="checkbox"
+            :options="customCodes.filteringCd"
+            @change="onChangefilteringCd"
+          />
+        </li>
+      </ul>
       <kw-grid
         ref="grdMainRef"
         :total-count="pageInfo.totalCount"
@@ -82,20 +157,46 @@
 import { codeUtil, getComponentType, defineGrid, gridUtil, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { t } = useI18n();
 const now = dayjs();
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/service/as-material-daily-task-type-out-of-storage-ps';
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'ITM_KND_CD',
+  'WARE_DTL_DV_CD',
+  'USE_YN',
+  'SV_BIZ_HCLSF_CD',
 );
+const customCodes = {
+  svBizHclsfCd: [
+    { codeId: '1', codeName: t('MSG_TXT_INSTALLATION') },
+    { codeId: '2', codeName: t('MSG_TXT_BEFORE_SERVICE') },
+    { codeId: '3', codeName: t('MSG_TXT_AS_PAY') },
+    { codeId: '4', codeName: t('MSG_TXT_FRISU_AFTER_SERVICE') },
+    { codeId: '5', codeName: t('MSG_TXT_ETC') },
+  ],
+  filteringCd: [
+    { codeId: '01', codeName: t('MSG_TXT_BTD_MAT') },
+    { codeId: '02', codeName: t('MSG_TXT_MDIM_RPR_MAT') },
+    { codeId: '03', codeName: t('MSG_TXT_TURNOVER_TRGT') },
+    { codeId: '04', codeName: t('기준월 필터링') },
+  ],
+};
 
+const filterCodes = ref({
+  wareDtlDvCd: [],
+});
+
+let cachedParams;
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
 });
@@ -106,12 +207,95 @@ const pageInfo = ref({
   pageSize: 10,
 });
 
-let cachedParams;
 let gridView;
 let gridData;
 let fieldsObj;
 
+const productCodes = ref();
+const filteringOptions = ref([]);
+// 창고구분 변경 시, 창고상세구분 세팅
+const onChangeWareDvCd = async () => {
+  searchParams.value.wareDtlDvCd = '';
+  filterCodes.value.wareDtlDvCd = '';
+  const filterWareDvCd = searchParams.value.wareDvCd;
+  if (filterWareDvCd === '1') { // 물류센터
+    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10'].includes(v.codeId));
+  } else if (filterWareDvCd === '2') { // 서비스센터
+    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+  } else if (filterWareDvCd === '3') { // 영업센터
+    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31'].includes(v.codeId));
+  } else {
+    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10', '20', '21', '30', '31'].includes(v.codeId));
+  }
+};
+
+function onChangeStdWareDvCd() {
+  searchParams.value.wareNoM = '';
+  searchParams.value.wareNoD = '';
+}
+
+function onChagneHgrWareNo() {
+  searchParams.value.wareNoD = '';
+}
+
+watch(() => searchParams.value.wareDvCd, (val) => {
+  if (searchParams.value.wareDvCd !== val) {
+    searchParams.value.wareDvCd = val;
+  }
+  onChangeWareDvCd();
+});
+// 창고구분 변경시, 창고상세구분 세팅 END
+
+// 품목구분 변경시, 품목 목록 조회 셋팅
+async function onChangeItmKndCd() {
+  const res = await dataService.get(`/sms/wells/service/bs-consumables/${searchParams.value.itmKndCd}/product-codes`);
+  productCodes.value = res.data.map((v) => ({ codeId: v.svpdPdCd, codeName: v.svpdNmKor }));
+}
+
+// 필터링 처리
+async function onChangefilteringCd(val) {
+  const view = grdMainRef.value.getView();
+
+  // 기초자재, 중수리자재, 기준월 필터링, 일별 필터링)필터 처리
+  const filter1 = [{ name: 'cmnPartFilter', criteria: "value = '01'" }]; // 중수리 자재
+  const filter2 = [{ name: 'ordnyHvMatFilter', criteria: "value = 'Y'" }]; // 기초 자재
+  // const filter3 = [{ name: 'trnoverFilter', criteria: 'value="Y"' }]; // 회전율
+  const filter4 = [{ name: 'baseMonthFilter', criteria: "value = 'Y'" }]; // 기준월 필터링
+
+  // 필터 등록
+  view.setColumnFilters('asMatCmnClsfCd', filter1); // 중수리 자재
+  view.setColumnFilters('ordnyHvMatYn', filter2); // 기준월 필터링
+  view.setColumnFilters('qtyMm', filter4); // 기준월 필터링
+  // 필터 초기화
+  // view.activateAllColumnFilters('asMatCmnClsfCd', false);
+  // view.activateAllColumnFilters('ordnyHvMatYn', false);
+  // view.activateAllColumnFilters('qtyMm', false);
+
+  // 필터 처리
+  if (val.includes('01')) {
+    view.activateAllColumnFilters('asMatCmnClsfCd', false);
+    view.activateColumnFilters('asMatCmnClsfCd', ['cmnPartFilter'], true);
+  } else {
+    view.activateColumnFilters('asMatCmnClsfCd', ['cmnPartFilter'], false);
+  }
+
+  if (val.includes('02')) {
+    view.activateAllColumnFilters('ordnyHvMatYn', false);
+    view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], true);
+  } else {
+    view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], false);
+  }
+
+  if (val.includes('04')) {
+    view.activateAllColumnFilters('qtyMm', false);
+    view.activateColumnFilters('qtyMm', ['baseMonthFilter'], true);
+  } else {
+    view.activateColumnFilters('ordnyHvMatYn', ['baseMonthFilter'], false);
+  }
+}
+
 async function fetchData() {
+  // wareDtlDvCd : 창고구분
   const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: result, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
@@ -122,10 +306,16 @@ async function fetchData() {
   view.getDataSource().setRows(result);
   view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
+
+  filteringOptions.value = []; // (중수리자재,기초자재) 체크박스 초기화
 }
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
+
+  searchParams.value.baseYear = searchParams.value.baseYm.substring(0, 4);
+  searchParams.value.baseMonth = searchParams.value.baseYm.substring(4, 6);
+
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
@@ -144,13 +334,47 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 
 fieldsObj = {
-
   // 그리드 공통컬럼
   defaultFields: [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '124', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '146', styleName: 'text-center' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '500', styleName: 'text-left' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-left' },
+    {
+      fieldName: 'asMatCmnClsfCd',
+      header: t(''),
+      width: '150',
+      styleName: 'text-center',
+      visible: false,
+      autoFilter: false,
+    },
+    {
+      fieldName: 'ordnyHvMatYn',
+      header: t(''),
+      width: '150',
+      styleName: 'text-center',
+      visible: false,
+      autoFilter: false,
+    },
+    {
+      fieldName: 'qtyMm',
+      header: t(''),
+      width: '150',
+      styleName: 'text-center',
+      visible: false,
+      autoFilter: false,
+    },
   ],
+  // defaultFields: [
+  //   { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '124', styleName: 'text-center' },
+  //   { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
+  //   { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-left' },
+  // eslint-disable-next-line max-len
+  //   { fieldName: 'asMatCmnClsfCd', header: t('MSG_TXT_MDIM_RPR'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
+  // eslint-disable-next-line max-len
+  //   { fieldName: 'ordnyHvMatYn', header: t('MSG_TXT_BTD_MAT'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
+  // eslint-disable-next-line max-len
+  //   { fieldName: 'qtyMm', header: t('MSG_TXT_BASE_MM'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
+  // ],
 
   // 필드 세팅
   setFields(result) {
@@ -175,7 +399,7 @@ fieldsObj = {
     for (let cnt = 1; cnt <= lastDay; cnt += 1) {
       columnDailyTotals.push(
         {
-          fieldName: `day${cnt}`,
+          fieldName: `qty${cnt}`,
           header: `${cnt}${t('MSG_TXT_D')}`,
           width: 80,
           styleName: existDays.indexOf(`day${String(cnt)}`) > -1 ? 'text-right text-blue' : 'text-right', // 존재하는 데이터만 색상표시

@@ -171,18 +171,19 @@ async function initGridRows() {
   if (isEmpty(view)) {
     return;
   }
-  priceFieldData.value[prcd] = {
+  const currentSellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
+  const priceFields = {};
+  priceFields[prcd] = {
     pdExtsPrpGrpCd: 'PRC',
     // 통화명
     crncyDvCd: currentInitData.value[pdConst.TBL_PD_BAS]?.crncyDvCd,
-    // 판매유형
-    sellTpCd: currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd,
-  };
-  const currentSellTpCd = currentInitData.value[pdConst.TBL_PD_BAS]?.sellTpCd;
-  priceFieldData.value[pdConst.TBL_PD_BAS] = {
-    // 판매유형
     sellTpCd: currentSellTpCd,
   };
+  priceFields[pdConst.TBL_PD_BAS] = {
+    sellTpCd: currentSellTpCd,
+  };
+  priceFieldData.value = cloneDeep(priceFields);
+
   if (await currentInitData.value?.[prcd]) {
     const rows = cloneDeep(await getPropInfosToGridRows(
       currentInitData.value?.[prcd],
@@ -220,8 +221,9 @@ async function initGridRows() {
     svPdCds.options = currentCodes.value.svPdCd;
     svPdCds.labels = currentCodes.value.svPdCd?.map((item) => (item.codeName));
     svPdCds.values = currentCodes.value.svPdCd?.map((item) => (item.codeId));
-    svPdCds.lookupDisplay = true;
-    // console.log('svPdCds.labels : ', svPdCds.labels);
+    svPdCds.editor = { type: 'list', textReadOnly: true, dropDownWhenClick: true };
+    svPdCds.labels.unshift('');
+    svPdCds.values.unshift('');
   }
   gridRowCount.value = getGridRowCount(view);
 }
@@ -269,11 +271,6 @@ async function initProps() {
   currentInitData.value = initData;
   currentMetaInfos.value = metaInfos;
   currentCodes.value = cloneDeep(pdMergeBy(currentCodes.value, codes));
-  priceFieldData.value[pdConst.TBL_PD_PRC_DTL] = [];
-  priceFieldData.value[pdConst.TBL_PD_PRC_DTL]
-    .push({ pdExtsPrpGrpCd: pdConst.PD_PRP_GRP_CD_CMN, pdCd: currentPdCd.value });
-  // console.log(`WwpdcStandardMgtMPriceStd - initProps - pdCd : ${currentPdCd.value}
-  // , initData : `, currentInitData.value);
 }
 
 await initProps();
@@ -303,7 +300,7 @@ async function initGrid(data, view) {
   );
   columns.map((item) => {
     if (item.fieldName === 'svPdCd') {
-      item.editor = 'list';
+      item.editor = { type: 'list', textReadOnly: true, dropDownWhenClick: true };
       item.options = currentCodes.value.svPdCd;
       item.styleName = 'text-left';
       item.width = '300';
@@ -340,6 +337,22 @@ async function initGrid(data, view) {
       );
       priceFieldData.value[prcd] = prcdValues[prcd]?.[0];
     }
+  };
+
+  // 붙여넣기 시,  전체 조정
+  view.onPasted = async (grid) => {
+    gridUtil.getAllRowValues(view).forEach((item) => {
+      if (['created', 'updated'].includes(item.rowState)) {
+        const svPdCd = grid.getValue(item.dataRow, 'svPdCd');
+        if (svPdCd) {
+          const fSvPdCd = currentCodes.value.svPdCd?.find((code) => code.codeId === svPdCd);
+          // svPdCd 필드 붙여넣기시, 서비스코드값이 아닌 서비스명이 들어가는 경우 아래와 같이 찾아서 넣음
+          if (isEmpty(fSvPdCd)) {
+            grid.setValue(item.dataRow, 'svPdCd', currentCodes.value.svPdCd?.find((sv) => sv.codeName === svPdCd)?.codeId);
+          }
+        }
+      }
+    });
   };
 
   await initGridRows();

@@ -9,7 +9,7 @@
  ****************************************************************************************************
  * 프로그램 설명
  ****************************************************************************************************
-  -
+  - http://localhost:3000/#/service/wwsnb-total-after-service-rate-odm-per-oem
  ****************************************************************************************************
 --->
 <template>
@@ -113,6 +113,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, useMeta, gridUtil } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
 import { printElement } from '~common/utils/common';
@@ -134,11 +135,13 @@ console.log('codes.PD_GRP_CD >>>>>', codes.PD_GRP_CD);
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref();
 
+let cachedParams;
 const searchParams = ref({
   baseY: dayjs().format('YYYY'), // 기준년도
   svType: '', // 서비스유형
   badDivide: '', // 불량구분
   pdGrp: '', // 상품그룹
+  pdGrpGubun: '',
   pdCd: '', // 상품명
 });
 
@@ -208,7 +211,8 @@ async function onClickExcelDownload() {
 }
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/total-afterservice-rate-odmperoem', { params: searchParams.value });
+  console.log('fetchData cachedParams >>>>', cachedParams);
+  const res = await dataService.get('/sms/wells/service/total-afterservice-rate-odmperoem', { params: cachedParams });
   pageInfo.value.totalCount = res.data.length;
 
   const view = grdMainRef.value.getView();
@@ -217,6 +221,12 @@ async function fetchData() {
 }
 
 async function onClickSearch() {
+  /**-------------------------------------------------
+   * 상품그룹이 정수기(2) 나 커피머신(99) 일경우 === '1'
+   * default === '0'
+  **-------------------------------------------------*/
+  searchParams.value.pdGrpGubun = (searchParams.value.pdGrp === '2' || searchParams.value.pdGrp === '99') ? '1' : '0';
+  cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
@@ -232,31 +242,14 @@ const divCd = [
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 async function initGrdMain(data, view) {
-  const fields = [
-    { fieldName: 'atcNm' }, // 항목명
-    { fieldName: 'totalCnt', dataType: 'number' }, // 합계
-    { fieldName: 'm01', dataType: 'number' }, // 1월
-    { fieldName: 'm02', dataType: 'number' }, // 2월
-    { fieldName: 'm03', dataType: 'number' }, // 3월
-    { fieldName: 'm04', dataType: 'number' }, // 4월
-    { fieldName: 'm05', dataType: 'number' }, // 5월
-    { fieldName: 'm06', dataType: 'number' }, // 6월
-    { fieldName: 'm07', dataType: 'number' }, // 7월
-    { fieldName: 'm08', dataType: 'number' }, // 8월
-    { fieldName: 'm09', dataType: 'number' }, // 9월
-    { fieldName: 'm10', dataType: 'number' }, // 10월
-    { fieldName: 'm11', dataType: 'number' }, // 11월
-    { fieldName: 'm12', dataType: 'number' }, // 12월
-  ];
-
   const columns = [
     {
-      fieldName: 'atcNm',
+      fieldName: 'nm',
       header: t('MSG_TXT_DIV'),
       width: '150',
       displayCallback: (g, i) => {
-        const { atcNm } = gridUtil.getRowValue(g, i.itemIndex);
-        return divCd.find((x) => x.codeId === atcNm).codeName;
+        const { nm } = gridUtil.getRowValue(g, i.itemIndex);
+        return divCd.find((x) => x.codeId === nm).codeName;
       },
       headerSummary: {
         text: t('MSG_TXT_SUM'),
@@ -267,10 +260,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'totalCnt',
+      fieldName: 'tcnt',
       header: t('MSG_TXT_SUM'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -278,10 +272,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm01',
+      fieldName: 'acol1',
       header: t('MSG_TXT_JAN'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -289,10 +284,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm02',
+      fieldName: 'acol2',
       header: t('MSG_TXT_FEB'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -300,10 +296,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm03',
+      fieldName: 'acol3',
       header: t('MSG_TXT_MAR'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -311,10 +308,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm04',
+      fieldName: 'acol4',
       header: t('MSG_TXT_APRI'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -322,10 +320,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm05',
+      fieldName: 'acol5',
       header: t('MSG_TXT_MAY'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -333,10 +332,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm06',
+      fieldName: 'acol6',
       header: t('MSG_TXT_JUN'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -344,10 +344,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm07',
+      fieldName: 'acol7',
       header: t('MSG_TXT_JUL'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -355,10 +356,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm08',
+      fieldName: 'acol8',
       header: t('MSG_TXT_AUG'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -366,10 +368,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm09',
+      fieldName: 'acol9',
       header: t('MSG_TXT_SEPT'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -377,10 +380,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm10',
+      fieldName: 'acol10',
       header: t('MSG_TXT_OCT'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -388,10 +392,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm11',
+      fieldName: 'acol11',
       header: t('MSG_TXT_NOV'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -399,10 +404,11 @@ async function initGrdMain(data, view) {
       },
     },
     {
-      fieldName: 'm12',
+      fieldName: 'acol12',
       header: t('MSG_TXT_DECE'),
       width: '100',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         type: 'number',
         numberFormat: '#,##0',
@@ -421,7 +427,7 @@ async function initGrdMain(data, view) {
     ],
   });
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column

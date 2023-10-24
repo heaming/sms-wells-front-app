@@ -41,7 +41,10 @@
         </kw-search-item>
         <!-- 바코드 -->
         <kw-search-item :label="$t('MSG_TXT_BARCODE')">
-          <kw-input v-model="searchParams.bcNo" />
+          <kw-input
+            v-model="searchParams.bcNo"
+            @update:model-value="()=>{searchParams.bcNo=searchParams.bcNo?.toUpperCase()?.replaceAll(' ','')}"
+          />
         </kw-search-item>
         <!-- 송장번호 -->
         <kw-search-item :label="$t('MSG_TXT_IVC_NO')">
@@ -138,6 +141,7 @@
               v-model="individualParams.cstUnuitmCn"
               type="textarea"
               rows="1"
+              :maxlength="1000"
             />
             <!-- 저장 -->
             <kw-btn
@@ -650,6 +654,7 @@ async function getIndividualServicePs() {
   saveParams.value.cstUnuitmCn = '';
 }
 
+/* 개인별 방문주기 조회 버튼 */
 async function onClickVisitPeriodSearch() {
   await modal({
     component: 'WwsnbIndividualVisitPeriodInqrListP',
@@ -662,6 +667,7 @@ async function onClickVisitPeriodSearch() {
     },
   });
 }
+/* 개인별 방문주기 생성 버튼 */
 async function onClickVisitPeriodCreate() {
   await modal({
     component: 'WwsnbIndividualVisitPeriodMgtP',
@@ -671,6 +677,7 @@ async function onClickVisitPeriodCreate() {
     },
   });
 }
+/* 가구화 ==> 모종이력 버튼 */
 async function onClickSearchSeeding() {
   await modal({
     component: 'WwsncSeedingDeliveryListP',
@@ -960,7 +967,7 @@ const initGridState = defineGrid((data, view) => {
       styleName: 'text-center',
       styleCallback(grd, dataCell) {
         const procStus = grd.getValue(dataCell.item.dataRow, 'procStus');
-        return (procStus === '00') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
+        return (procStus === '00' || procStus === '10' || procStus === '20') ? { styleName: 'rg-button-link', renderer: { type: 'button' } } : { renderer: { type: 'text' } };
       },
     },
     { fieldName: 'asCaus', header: t('MSG_TXT_PROCS_IZ'), width: '100' },
@@ -1031,7 +1038,7 @@ const initGridState = defineGrid((data, view) => {
         cntrSn,
       } = g.getValues(cData.itemIndex);
 
-      if (procStus === '00') {
+      if (procStus === '00' || procStus === '10' || procStus === '20') {
         const bypassPrtnrNo = prtnrNo;
         const wkPrgsStatCd = procStus;
 
@@ -1040,12 +1047,13 @@ const initGridState = defineGrid((data, view) => {
         // const queryString = new URLSearchParams(param);
 
         let url = '';
-        if (import.meta.env.MODE === 'qa') {
+        if (import.meta.env.MODE === 'dev') {
+          url = 'https://d-m-wpm.kyowon.co.kr';
+        } else if (import.meta.env.MODE === 'qa') {
           url = 'https://q-m-wpm.kyowon.co.kr';
         } else {
           url = 'https://m-wpm.kyowon.co.kr';
         }
-
         // window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
         popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
       }

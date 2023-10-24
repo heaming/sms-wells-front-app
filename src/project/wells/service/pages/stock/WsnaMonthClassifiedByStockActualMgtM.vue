@@ -27,33 +27,38 @@
           <kw-date-picker
             v-model="searchParams.baseYm"
             type="month"
-            @change="onChangeBaseYm"
           />
         </kw-search-item>
         <!-- 창고구분 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_WARE_DV')"
+        <ZwcmWareHouseSearch
+          v-model:start-ym="searchParams.baseYm"
+          v-model:end-ym="searchParams.baseYm"
+          v-model:options-ware-dv-cd="wareDvCd"
+          v-model:ware-dv-cd="searchParams.wareDvCd"
+          v-model:ware-no-m="searchParams.hgrWareNo"
+          v-model:ware-no-d="searchParams.searchWareNo"
+          sub-first-option="all"
           :colspan="2"
-        >
-          <kw-select
-            v-model="searchParams.wareDvCd"
-            :options="filterCodes.wareDvCd"
-            @change="onChangeWareDvCd"
-          />
+          :label1="$t('MSG_TXT_WARE_DV')"
+          :label2="$t('MSG_TXT_WARE_DV')"
+          :label3="$t('MSG_TXT_WARE')"
+          :label4="$t('MSG_TXT_WARE')"
+          @update:ware-dv-cd="onChangeWareDvCd"
+          @update:ware-no-m="onChagneHgrWareNo"
+          @update:ware-no-d="onChagneWareNo"
+        />
+        <!-- 창고상세구분 -->
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
           <kw-select
             v-model="searchParams.wareDtlDvCd"
             :options="filterCodes.wareDtlDvCd"
             first-option="all"
             @change="onChangeWareDtlDvCd"
           />
-          <kw-select
-            v-model="searchParams.searchWareNo"
-            :options="optionsWareNo"
-            option-value="wareNo"
-            option-label="wareNm"
-            first-option="all"
-          />
         </kw-search-item>
+      </kw-search-row>
+
+      <kw-search-row>
         <!-- 상태구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_STAT_DV')"
@@ -173,6 +178,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { getComponentType, defineGrid, useMeta, codeUtil, useDataService, gridUtil, useGlobal, fileUtil } from 'kw-lib';
+import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -181,7 +187,6 @@ const { t } = useI18n();
 const { currentRoute } = useRouter();
 const { getConfig } = useMeta();
 const { notify, confirm } = useGlobal();
-const SERVICE_DV_CD = '2';
 const STATUS_VAL = '실사완료';
 const STATUS_FSH = '신청완료';
 const STATUS_APY = '재고반영';
@@ -196,6 +201,7 @@ let cachedParams;
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'), // 기준년월
   wareDvCd: '2',
+  hgrWareNo: '',
   wareDtlDvCd: '',
   searchWareNo: '',
   useYn: '',
@@ -216,74 +222,61 @@ const pageInfo = ref({
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'WARE_DV_CD',
   'WARE_DTL_DV_CD',
   'USE_YN_ACD',
 );
 
+const wareDvCd = { WARE_DV_CD: [
+  { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
+  { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
+] };
+
 const filterCodes = ref({
-  wareDvCd: [],
   wareDtlDvCd: [],
 });
 
-function wareDvCdFilter() {
-  filterCodes.value.wareDvCd = codes.WARE_DV_CD.filter((v) => ['2', '3'].includes(v.codeId));
-}
-
+// 창고세부구분코드 필터링
 function wareDtlDvCdFilter() {
-  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21', '30', '31', '32'].includes(v.codeId));
+  const { wareDvCd: searchWareDvCd } = searchParams.value;
+  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => v.codeId.startsWith(searchWareDvCd));
 }
 
+// 창고구분 변경 시
 function onChangeWareDvCd() {
-  if (searchParams.value.wareDvCd === SERVICE_DV_CD) {
-    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
+  searchParams.value.hgrWareNo = '';
+  searchParams.value.searchWareNo = '';
+  // 창고상세구분 필터링
+  wareDtlDvCdFilter();
+}
+
+// 상위창고 변경 시
+function onChagneHgrWareNo() {
+  searchParams.value.searchWareNo = '';
+}
+
+// 창고 변경시
+function onChagneWareNo() {
+  const { wareDtlDvCd, searchWareNo } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(searchWareNo) && (wareDtlDvCd === '20' || wareDtlDvCd === '30')) {
     searchParams.value.wareDtlDvCd = '';
-    searchParams.value.searchWareNo = '';
-  } else {
-    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31', '32'].includes(v.codeId));
-    searchParams.value.wareDtlDvCd = '';
-    searchParams.value.searchWareNo = '';
   }
 }
 
-const optionsWareNo = ref();
-// 창고번호 조회
-const onChangeWareHouse = async () => {
-  // 창고번호 클리어
-  searchParams.value.searchWareNo = '';
-  const result = await dataService.get(
-    '/sms/wells/service/stock-acinp-rgst/ware-houses',
-    { params: {
-      baseYm: searchParams.value.baseYm,
-      wareDvCd: searchParams.value.wareDvCd,
-      wareDtlDvCd: searchParams.value.wareDtlDvCd,
-    } },
-  );
-  optionsWareNo.value = result.data;
-};
+// 창고상세구분 변경시
+function onChangeWareDtlDvCd() {
+  const { wareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (wareDtlDvCd === '20' || wareDtlDvCd === '30') {
+    searchParams.value.searchWareNo = '';
+  }
+}
 
 await Promise.all([
-  wareDvCdFilter(),
   wareDtlDvCdFilter(),
-  onChangeWareDvCd(),
-  onChangeWareHouse(),
 ]);
-
-// 기준년월이 변경되었을 때 창고번호 재조회
-function onChangeBaseYm() {
-  const searchBaseYm = searchParams.value.baseYm;
-  if (isEmpty(searchBaseYm)) {
-    searchParams.value.searchWareNo = '';
-    optionsWareNo.value = [];
-    return;
-  }
-  onChangeWareHouse();
-}
-
-// 창고세부구분이 변경되었을 때 창고번호 재조회
-function onChangeWareDtlDvCd() {
-  onChangeWareHouse();
-}
 
 // 체크된 내역이 없을시 notify로 메세지 출력
 function validateIsApplyRowExists() {
@@ -295,6 +288,7 @@ function validateIsApplyRowExists() {
   return true;
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/stock-acinp-rgst/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
@@ -307,11 +301,13 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const res = await dataService.post('/sms/wells/service/stock-acinp-rgst/excel-download', cachedParams, { responseType: 'blob' });
   fileUtil.downloadBlob(res.data, `${currentRoute.value.meta.menuName}_${now.format('YYYYMMDD_HHmmss')}.xlsx`);
 }
 
+// 조회버튼 클릭이벤트
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -325,7 +321,7 @@ async function onClickSave() {
   const checkedRows = gridUtil.getCheckedRowValues(view);
 
   if (!validateIsApplyRowExists()) return;
-  debugger;
+
   for (let i = 0; i < checkedRows.length; i += 1) {
     const { statusT, acinspRmkCn, minusQty } = checkedRows[i];
 
@@ -375,7 +371,6 @@ async function onClickAcinspCnfm() {
   const currentMonth = searchParams.value.baseYm;
   if (await confirm(t('MSG_ALT_ACINSP_CNFM_MTR_CNFM', [currentMonth.substring(0, 4), currentMonth.substring(4, 6)]))) {
     params = searchParams.value;
-
     await dataService.post('/sms/wells/service/stock-acinp-rgst/acinsp-cnfm', checkedRows.map((v) => ({ ...v, ...params })));
 
     notify(t('MSG_ALT_SAVE_DATA'));
@@ -490,14 +485,14 @@ async function onClickStocCancel() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'statusT' },
-    { fieldName: 'col2' },
-    { fieldName: 'apyYm' },
-    { fieldName: 'wareNo' },
-    { fieldName: 'wareNm' },
-    { fieldName: 'sapCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'pdAbbrNm' },
+    { fieldName: 'statusT' }, // 상태값
+    { fieldName: 'col2' }, // 확인서관련컬럼
+    { fieldName: 'apyYm' }, // 적용년월
+    { fieldName: 'wareNo' }, // 창고번호
+    { fieldName: 'wareNm' }, // 창고명
+    { fieldName: 'sapCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목상품코드
+    { fieldName: 'pdAbbrNm' }, // 품목상품명
     { fieldName: 'acinspQty', dataType: 'number' }, // 실사재고
     { fieldName: 'eotStoc', dataType: 'number' }, // 기말재고
     { fieldName: 'minusQty', dataType: 'number' }, // 재고차이
@@ -516,7 +511,7 @@ const initGrdMain = defineGrid((data, view) => {
     // TODO: 확인서 관련 확인필요
     { fieldName: 'col2', header: t('MSG_TXT_CFDC'), width: '100', styleName: 'text-center' },
     { fieldName: 'wareNo', header: t('MSG_TXT_WARE_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'wareNm', header: t('MSG_TXT_BLD_NM'), width: '150' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '150' },
     { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '250', footer: { text: t('MSG_TXT_SUM') } },
@@ -526,7 +521,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'acinspQty',
@@ -536,7 +531,7 @@ const initGrdMain = defineGrid((data, view) => {
       editable: true,
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'minusQty',
@@ -545,7 +540,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'acinspRmkCn', header: t('MSG_TXT_NOTE'), width: '150', styleName: 'text-right', editable: true },
     { fieldName: 'cnfmdt', header: t('MSG_TXT_CNFM_DT'), width: '150', styleName: 'text-right', datetimeFormat: 'date' },

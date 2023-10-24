@@ -16,6 +16,7 @@
   <kw-page>
     <kw-search @search="onClickSearch">
       <kw-search-row>
+        <!-- 출고일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_DT')"
           required
@@ -27,6 +28,7 @@
             rules="required|date_range_months:12"
           />
         </kw-search-item>
+        <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
           required
@@ -38,6 +40,7 @@
             :label="$t('MSG_TXT_ITM_DV')"
           />
         </kw-search-item>
+        <!-- 품목코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_CD')"
         >
@@ -50,6 +53,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- SAP코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_SAPCD')"
         >
@@ -67,6 +71,7 @@
             @change="onChangeEndSapCd"
           />
         </kw-search-item>
+        <!-- B2B관리 -->
         <kw-search-item :label="`B2B ${t('MSG_TXT_MGT')}`">
           <kw-option-group
             v-model="searchParams.b2bMngtCd"
@@ -89,7 +94,7 @@
             ({{ t('MSG_TXT_UNIT') }} : EA)
           </span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
@@ -251,7 +256,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt99', // 계-배정수량
@@ -261,7 +266,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt01', // 1월-소요수량
@@ -271,7 +276,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt01', // 1월-배정수량
@@ -281,7 +286,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt02', // 2월-소요수량
@@ -291,7 +296,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt02', // 2월-배정수량
@@ -301,7 +306,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt03', // 3월-소요수량
@@ -311,7 +316,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt03', // 3월-배정수량
@@ -321,7 +326,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt04', // 4월-소요수량
@@ -331,7 +336,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt04', // 4월-배정수량
@@ -341,7 +346,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt05', // 5월-소요수량
@@ -351,7 +356,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt05', // 5월-배정수량
@@ -361,7 +366,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt06', // 6월-소요수량
@@ -371,7 +376,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt06', // 6월-배정수량
@@ -381,7 +386,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt07', // 7월-소요수량
@@ -391,7 +396,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt07', // 7월-배정수량
@@ -401,7 +406,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt08', // 8월-소요수량
@@ -411,7 +416,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt08', // 8월-배정수량
@@ -421,7 +426,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt09', // 9월-소요수량
@@ -431,7 +436,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt09', // 9월-배정수량
@@ -441,7 +446,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt10', // 10월-소요수량
@@ -451,7 +456,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt10', // 10월-배정수량
@@ -461,7 +466,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt11', // 11월-소요수량
@@ -471,7 +476,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt11', // 11월-배정수량
@@ -481,7 +486,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt12', // 12월-소요수량
@@ -491,7 +496,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt12', // 12월-배정수량
@@ -501,7 +506,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
   ],
@@ -513,7 +518,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt99F', // 계-소요수량-F
@@ -523,7 +528,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt99W', // 계-배정수량-W
@@ -533,7 +538,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt99F', // 계-배정수량-F
@@ -543,7 +548,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt01W', // 1월-소요수량-W
@@ -553,7 +558,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt01F', // 1월-소요수량-F
@@ -563,7 +568,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt01W', // 1월-배정수량-W
@@ -573,7 +578,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt01F', // 1월-배정수량-F
@@ -583,7 +588,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt02W', // 2월-소요수량-W
@@ -593,7 +598,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt02F', // 2월-소요수량-F
@@ -603,7 +608,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt02W', // 2월-배정수량-W
@@ -613,7 +618,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt02F', // 2월-배정수량-F
@@ -623,7 +628,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt03W', // 3월-소요수량-W
@@ -633,7 +638,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt03F', // 3월-소요수량-F
@@ -643,7 +648,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt03W', // 3월-배정수량-W
@@ -653,7 +658,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt03F', // 3월-배정수량-F
@@ -663,7 +668,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt04W', // 4월-소요수량-W
@@ -673,7 +678,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt04F', // 4월-소요수량-F
@@ -683,7 +688,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt04W', // 4월-배정수량-W
@@ -693,7 +698,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt04F', // 4월-배정수량-F
@@ -703,7 +708,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt05W', // 5월-소요수량-W
@@ -713,7 +718,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt05F', // 5월-소요수량-F
@@ -723,7 +728,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt05W', // 5월-배정수량-W
@@ -733,7 +738,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt05F', // 5월-배정수량-F
@@ -743,7 +748,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt06W', // 6월-소요수량-W
@@ -753,7 +758,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt06F', // 6월-소요수량-F
@@ -763,7 +768,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt06W', // 6월-배정수량-W
@@ -773,7 +778,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt06F', // 6월-배정수량-F
@@ -783,7 +788,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt07W', // 7월-소요수량-W
@@ -793,7 +798,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt07F', // 7월-소요수량-F
@@ -803,7 +808,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt07W', // 7월-배정수량-W
@@ -813,7 +818,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt07F', // 7월-배정수량-F
@@ -823,7 +828,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt08W', // 8월-소요수량-W
@@ -833,7 +838,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt08F', // 8월-소요수량-F
@@ -843,7 +848,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt08W', // 8월-배정수량-W
@@ -853,7 +858,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt08F', // 8월-배정수량-F
@@ -863,7 +868,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt09W', // 9월-소요수량-W
@@ -873,7 +878,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt09F', // 9월-소요수량-F
@@ -883,7 +888,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt09W', // 9월-배정수량-W
@@ -893,7 +898,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt09F', // 9월-배정수량-F
@@ -903,7 +908,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt10W', // 10월-소요수량-W
@@ -913,7 +918,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt10F', // 10월-소요수량-F
@@ -923,7 +928,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt10W', // 10월-배정수량-W
@@ -933,7 +938,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt10F', // 10월-배정수량-F
@@ -943,7 +948,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt11W', // 11월-소요수량-W
@@ -953,7 +958,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt11F', // 11월-소요수량-F
@@ -963,7 +968,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt11W', // 11월-배정수량-W
@@ -973,7 +978,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt11F', // 11월-배정수량-F
@@ -983,7 +988,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt12W', // 12월-소요수량-W
@@ -993,7 +998,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt12F', // 12월-소요수량-F
@@ -1003,7 +1008,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt12W', // 12월-배정수량-W
@@ -1013,7 +1018,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt12F', // 12월-배정수량-F
@@ -1023,7 +1028,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
   ],
@@ -1035,7 +1040,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt99F', // 계-소요수량-A12
@@ -1045,7 +1050,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt99W', // 계-배정수량-A09
@@ -1055,7 +1060,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt99F', // 계-배정수량-A12
@@ -1065,7 +1070,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt01W', // 1월-소요수량-A09
@@ -1075,7 +1080,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt01F', // 1월-소요수량-A12
@@ -1085,7 +1090,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt01W', // 1월-배정수량-A09
@@ -1095,7 +1100,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt01F', // 1월-배정수량-A12
@@ -1105,7 +1110,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt02W', // 2월-소요수량-A09
@@ -1115,7 +1120,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt02F', // 2월-소요수량-A12
@@ -1125,7 +1130,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt02W', // 2월-배정수량-A09
@@ -1135,7 +1140,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt02F', // 2월-배정수량-A12
@@ -1145,7 +1150,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt03W', // 3월-소요수량-A09
@@ -1155,7 +1160,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt03F', // 3월-소요수량-A12
@@ -1165,7 +1170,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt03W', // 3월-배정수량-A09
@@ -1175,7 +1180,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt03F', // 3월-배정수량-A12
@@ -1185,7 +1190,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt04W', // 4월-소요수량-A09
@@ -1195,7 +1200,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt04F', // 4월-소요수량-A12
@@ -1205,7 +1210,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt04W', // 4월-배정수량-A09
@@ -1215,7 +1220,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt04F', // 4월-배정수량-A12
@@ -1225,7 +1230,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt05W', // 5월-소요수량-A09
@@ -1235,7 +1240,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt05F', // 5월-소요수량-A12
@@ -1245,7 +1250,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt05W', // 5월-배정수량-A09
@@ -1255,7 +1260,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt05F', // 5월-배정수량-A12
@@ -1265,7 +1270,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt06W', // 6월-소요수량-A09
@@ -1275,7 +1280,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt06F', // 6월-소요수량-A12
@@ -1285,7 +1290,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt06W', // 6월-배정수량-A09
@@ -1295,7 +1300,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt06F', // 6월-배정수량-A12
@@ -1305,7 +1310,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt07W', // 7월-소요수량-A09
@@ -1315,7 +1320,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt07F', // 7월-소요수량-A12
@@ -1325,7 +1330,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt07W', // 7월-배정수량-A09
@@ -1335,7 +1340,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt07F', // 7월-배정수량-A12
@@ -1345,7 +1350,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt08W', // 8월-소요수량-A09
@@ -1355,7 +1360,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt08F', // 8월-소요수량-A12
@@ -1365,7 +1370,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt08W', // 8월-배정수량-A09
@@ -1375,7 +1380,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt08F', // 8월-배정수량-A12
@@ -1385,7 +1390,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt09W', // 9월-소요수량-A09
@@ -1395,7 +1400,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt09F', // 9월-소요수량-A12
@@ -1405,7 +1410,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt09W', // 9월-배정수량-A09
@@ -1415,7 +1420,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt09F', // 9월-배정수량-A12
@@ -1425,7 +1430,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt10W', // 10월-소요수량-A09
@@ -1435,7 +1440,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt10F', // 10월-소요수량-A12
@@ -1445,7 +1450,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt10W', // 10월-배정수량-A09
@@ -1455,7 +1460,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt10F', // 10월-배정수량-A12
@@ -1465,7 +1470,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt11W', // 11월-소요수량-A09
@@ -1475,7 +1480,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt11F', // 11월-소요수량-A12
@@ -1485,7 +1490,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt11W', // 11월-배정수량-A09
@@ -1495,7 +1500,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt11F', // 11월-배정수량-A12
@@ -1505,7 +1510,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt12W', // 12월-소요수량-A09
@@ -1515,7 +1520,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'vCnt12F', // 12월-소요수량-A12
@@ -1525,7 +1530,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt12W', // 12월-배정수량-A09
@@ -1535,7 +1540,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
     { fieldName: 'pCnt12F', // 12월-배정수량-A12
@@ -1545,7 +1550,7 @@ fieldsObj = {
       dataType: 'number',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       },
     },
   ],

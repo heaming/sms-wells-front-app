@@ -192,63 +192,12 @@
           @click="openZwfedFeeBurdenDeductionRegP"
         />
       </kw-action-top>
-      <kw-form
-        :cols="4"
-        dense
-      >
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_RDS')"
-            align-content="center"
-          >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.rds) : '0' }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_ERNTX')"
-            align-content="center"
-          >
-            <p>{{ info2.erntx ? stringUtil.getNumberWithComma(info2.erntx) : '0' }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_RSDNTX')"
-            align-content="center"
-          >
-            <p>{{ info2.rsdntx ? stringUtil.getNumberWithComma(info2.rsdntx) : '0' }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_PNPYAM')"
-            align-content="center"
-          >
-            <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.pnpyam) : '0' }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_HIR_INSR')"
-            align-content="center"
-          >
-            <p>{{ info2.hirInsr ? stringUtil.getNumberWithComma(info2.hirInsr) : '0' }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_INDD_INSR')"
-            align-content="center"
-          >
-            <p>{{ info2.inddInsr ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_BU_DDTN')"
-            align-content="center"
-          >
-            <p>{{ info2.buDdtn ? stringUtil.getNumberWithComma(info2.buDdtn) : '0' }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_DDTN_SUM')"
-            align-content="center"
-          >
-            <p>{{ info2.ddtnSum ? stringUtil.getNumberWithComma(info2.ddtnSum) : '0' }}</p>
-          </kw-form-item>
-        </kw-form-row>
-      </kw-form>
+      <kw-grid
+        ref="grd3MainRef"
+        name="grd3Main"
+        :visible-rows="3"
+        @init="initGrd3Main"
+      />
       <kw-separator />
       <kw-action-top>
         <template #left>
@@ -263,10 +212,10 @@
         />
       </kw-action-top>
       <kw-grid
-        ref="grd3MainRef"
-        name="grd3Main"
+        ref="grd4MainRef"
+        name="grd4Main"
         :visible-rows="4"
-        @init="initGrd3Main"
+        @init="initGrd4Main"
       />
     </div>
   </kw-page>
@@ -303,6 +252,7 @@ const now = dayjs();
 const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
 const grd3MainRef = ref(getComponentType('KwGrid'));
+const grd4MainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const searchParams = ref({
 
@@ -326,17 +276,6 @@ const info = ref({
   dsbBnk: '',
   dsbAc: '',
   pstnDvCd: '',
-});
-
-const info2 = ref({
-  rds: '',
-  erntx: '',
-  rsdntx: '',
-  pnpyam: '',
-  hirInsr: '',
-  inddInsr: '',
-  buDdtn: '',
-  ddtnSum: '',
 });
 
 const { prPerfYm } = searchParams.value;
@@ -484,9 +423,22 @@ async function fetchData(type) {
     const feeView = grd2MainRef.value.getView();
     feeView.getDataSource().setRows(resData);
   } else if (type === 'deductions') {
-    info2.value = resData;
+    const totalDeductionAmt = resData.reduce((total, { fval }) => total + Number(fval), 0);
+    const orgData = [...resData, { item: '공제계', fval: totalDeductionAmt }];
+    const deductionView = grd3MainRef.value.getView();
+    const len = orgData.length;
+    const midIdx = (len / 2).toFixed();
+    const newData = [];
+    orgData.forEach(({ item, fval }, index) => {
+      if (index < midIdx) {
+        newData.push({ item1: item, fval1: fval });
+      } else {
+        newData[index - midIdx] = { ...newData[index - midIdx], item2: item, fval2: fval };
+      }
+    });
+    deductionView.getDataSource().setRows(newData);
   } else if (type === 'pnpyam') {
-    const pnpyamView = grd3MainRef.value.getView();
+    const pnpyamView = grd4MainRef.value.getView();
     pnpyamView.getDataSource().setRows(resData);
   }
 }
@@ -496,6 +448,7 @@ async function onClickSearch() {
   grd1MainRef.value.getData().clearRows();
   grd2MainRef.value.getData().clearRows();
   grd3MainRef.value.getData().clearRows();
+  grd4MainRef.value.getData().clearRows();
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('informations');
   await fetchData('etcs');
@@ -515,21 +468,21 @@ if (!isEmpty(prPerfYm) && !isEmpty(prpartnerNo)) {
 // -------------------------------------------------------------------------------------------------
 const initGrd1Main = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'item1' },
-    { fieldName: 'fval1', dataType: 'number' },
-    { fieldName: 'item2' },
-    { fieldName: 'fval2', dataType: 'number' },
-    { fieldName: 'item3' },
-    { fieldName: 'fval3', dataType: 'number' },
+    { fieldName: 'div' },
+    { fieldName: 'elhm', dataType: 'number' },
+    { fieldName: 'elhmExcp', dataType: 'number' },
+    { fieldName: 'elhmChdvc', dataType: 'number' },
+    { fieldName: 'mutu', dataType: 'number' },
+    { fieldName: 'metgN', dataType: 'number' },
   ];
 
   const columns = [
-    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '개인합계', styleName: 'text-left' } },
-    { fieldName: 'fval1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '조직합계', styleName: 'text-left' } },
-    { fieldName: 'fval2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'item3', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '기타합계', styleName: 'text-left' } },
-    { fieldName: 'fval3', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'div', header: t('MSG_TXT_DIV'), width: '194', styleName: 'text-center' },
+    { fieldName: 'elhm', header: t('MSG_TXT_ELHM'), width: '203', styleName: 'text-right' },
+    { fieldName: 'elhmExcp', header: t('MSG_TXT_EXCEPT_HOUSEHOLD_APPLIANCES'), width: '194', styleName: 'text-right' },
+    { fieldName: 'elhmChdvc', header: t('MSG_TXT_ELHM_CHDVC'), width: '203', styleName: 'text-right' },
+    { fieldName: 'mutu', header: t('MSG_TXT_MUTU'), width: '194', styleName: 'text-right' },
+    { fieldName: 'metgN', header: t('MSG_TXT_METG_PRSC_D'), width: '203', styleName: 'text-right' },
 
   ];
 
@@ -538,32 +491,6 @@ const initGrd1Main = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = false;
-
-  view.setFooters({ visible: true, items: [{ height: 42 }] });
-
-  // multi row header setting
-  view.setColumnLayout([
-
-    {
-      header: t('MSG_TXT_INDV') + t('MSG_TXT_FEE'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['item1', 'fval1'],
-      hideChildHeaders: true,
-    },
-    {
-      header: t('MSG_TXT_OG') + t('MSG_TXT_FEE'),
-      direction: 'horizontal',
-      items: ['item2', 'fval2'],
-      hideChildHeaders: true,
-    },
-    {
-      header: t('MSG_TXT_ETC') + t('MSG_TXT_FEE'),
-      direction: 'horizontal',
-      items: ['item3', 'fval3'],
-      hideChildHeaders: true,
-    },
-
-  ]);
 });
 
 const initGrd2Main = defineGrid((data, view) => {
@@ -577,7 +504,7 @@ const initGrd2Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '개인합계', styleName: 'text-left' } },
+    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '167', styleName: 'text-left', footer: { text: '개인합계', styleName: 'text-left' } },
     { fieldName: 'fval1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
     { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '조직합계', styleName: 'text-left' } },
     { fieldName: 'fval2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
@@ -620,6 +547,28 @@ const initGrd2Main = defineGrid((data, view) => {
 });
 
 const initGrd3Main = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'item1' },
+    { fieldName: 'fval1', dataType: 'number' },
+    { fieldName: 'item2' },
+    { fieldName: 'fval2', dataType: 'number' },
+  ];
+
+  const columns = [
+    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left' },
+    { fieldName: 'fval1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right' },
+    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left' },
+    { fieldName: 'fval2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right' },
+  ];
+
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.checkBar.visible = false; // create checkbox column
+  view.rowIndicator.visible = false; // create number indicator column
+});
+
+const initGrd4Main = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'item' },
     { fieldName: 'lstmm', dataType: 'number' },

@@ -396,10 +396,14 @@ function getTargetQualification(item, details, type) {
       break;
     case 'CANCEL':
       // 해약
-      result.ogId = item.ogId;
+      result.ogId = details[0].ogId;
       result.targetQlfDvCd = details[0].qlfDvCd;
       result.strtdt = details[0].strtdt;
-      result.enddt = dayjs(result.strtdt).format('YYYYMM').concat(dayjs(result.strtdt).daysInMonth());
+      if (dayjs(result.strtdt).diff(dayjs().format('YYYY-MM-DD')) < 0) {
+        result.enddt = dayjs(result.strtdt).format('YYYYMM').concat(dayjs(result.strtdt).daysInMonth());
+      } else {
+        result.enddt = dayjs().format('YYYYMM').concat(dayjs().daysInMonth());
+      }
       break;
     case 'HOLDING':
       // 보류
@@ -421,7 +425,7 @@ function getTargetQualification(item, details, type) {
 }
 
 async function onClickUpgrades(type) {
-  const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo } = selectedCurrentRow.value;
+  const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo, ogId: currentRowOgId } = selectedCurrentRow.value;
   const qualification = getTargetQualification(selectedCurrentRow.value, grdMain2Datas.value, type);
 
   const params = {
@@ -442,6 +446,7 @@ async function onClickUpgrades(type) {
       break;
     case 'CANCEL':
       if (await confirm(t('MSG_ALT_CLTN'))) {
+        params.ogId = currentRowOgId;
         message = t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]);
         res = await dataService.put(`${SMS_WELLS_URI}/partner/planner-qualification-cancel`, params);
       }
@@ -555,6 +560,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'bizUseLocaraTno', visible: false },
     { fieldName: 'qlfDvCd', visible: false },
     { fieldName: 'qlfAplcDvCd', visible: false },
+    { fieldName: 'ogId', visible: false },
   ];
 
   // eslint-disable-next-line max-len
@@ -631,7 +637,6 @@ const initGrid2 = defineGrid((data, view) => {
       editor: {
         type: 'date',
       },
-      rules: 'required',
       preventCellItemFocus: true,
       displayCallback(g, index, value) {
         return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD');
@@ -648,7 +653,6 @@ const initGrid2 = defineGrid((data, view) => {
       editor: {
         inputCharacters: '0-9',
       },
-      rules: 'required',
       preventCellItemFocus: true,
       displayCallback(g, index, value) {
         return isEmpty(value) ? '-' : value;
@@ -680,24 +684,27 @@ const initGrid2 = defineGrid((data, view) => {
   };
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo } = selectedCurrentRow.value;
     const {
+      ogTpCd: currentRowOgTpCd,
+      prtnrNo: currentRowPrtnrNo,
+    } = selectedCurrentRow.value;
 
+    const {
       cntrDt: reportParamCntrDt,
-      // prtnrCntrTpCd: reportParamPrtnrCntrTpCd,
+      prtnrCntrTpCd: currentPrtnrCntrTpCd,
     } = g.getValues(itemIndex);
 
     if (column === 'report') {
       console.log('계약서');
       console.log('조직유형코드: ', currentRowOgTpCd);
       console.log('번호: ', currentRowPrtnrNo);
-      console.log('파트너계약유형코드: ', '14');
+      console.log('파트너계약유형코드: ', currentPrtnrCntrTpCd);
       console.log('계약일자: ', reportParamCntrDt);
 
       const param = {
         ogTpCd: currentRowOgTpCd,
         prtnrNo: currentRowPrtnrNo,
-        prtnrCntrTpCd: '14',
+        prtnrCntrTpCd: currentPrtnrCntrTpCd,
         cntrDt: reportParamCntrDt,
 
       };

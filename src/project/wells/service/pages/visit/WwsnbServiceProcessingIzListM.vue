@@ -238,19 +238,19 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
 const searchParams = ref({
-  serviceType: '',
-  ogId: '',
-  prtnrNo: '',
-  refriType: '',
-  pdGrpCd: '',
-  pdCd: '',
-  svBizDclsfCd: '',
-  inquiryBase: '2',
-  baseDateFrom: dayjs().format('YYYYMMDD'),
-  baseDateTo: dayjs().format('YYYYMMDD'),
-  wkPrgsStatCd: '',
-  installBase: '',
-  pdGb: '',
+  serviceType: '', // 서비스유형
+  ogId: '', // 조직ID
+  prtnrNo: '', // 파트너번호
+  refriType: '', // 유무상구분
+  pdGrpCd: '', // 상품군(상품그룹코드)
+  pdCd: '', // 상품코드
+  svBizDclsfCd: '', // 서비스업무세분류코드
+  inquiryBase: '2', // 조회조건
+  baseDateFrom: dayjs().format('YYYYMMDD'), // 기준일자 From
+  baseDateTo: dayjs().format('YYYYMMDD'), // 기준일자 To
+  wkPrgsStatCd: '', // 작업진행상태코드
+  installBase: '', // 설치기준
+  pdGb: '', // 상품구분
 });
 
 const pageInfo = ref({
@@ -280,6 +280,7 @@ watch(() => searchParams.value.ogId, async (val) => {
 });
 
 const products = ref([]);
+// 상품 조회
 async function fetchProducts() {
   const res = await dataService.get('/sms/wells/service/service-processing/products', { params: { pdGrpCd: searchParams.value.pdGrpCd } });
   products.value = res.data;
@@ -294,6 +295,7 @@ watch(() => searchParams.value.pdGrpCd, async (val) => {
   await fetchProducts();
 });
 
+// 상품군(상품그룹) 변경 시 그리드 데이터 필터링
 function onUpdateProductGroupCode(val) {
   const view = grdMainRef.value.getView();
   view.activateAllColumnFilters('pdGrpCd', false);
@@ -305,11 +307,13 @@ function onUpdateProductGroupCode(val) {
   view.activateColumnFilters('pdGrpCd', [val], true);
 }
 
+// 전화번호 가져오기
 function getPhoneNo(locaraTno, exnoEncr, idvTno) {
   if (isEmpty(locaraTno) || isEmpty(exnoEncr) || isEmpty(idvTno)) return '';
   return `${locaraTno}-${exnoEncr}-${idvTno}`;
 }
 
+// 시간 계산
 function getTime(minutes) {
   if (isEmpty(minutes)) return '';
   const hour = Math.floor(toNumber(minutes) / 60);
@@ -317,6 +321,7 @@ function getTime(minutes) {
   return `${hour}시간 ${minute}분`;
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/service-processing/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: itemizations, pageInfo: pagingResult } = res.data;
@@ -332,12 +337,14 @@ async function fetchData() {
   view.setColumnFilters('pdGrpCd', filters, true);
 }
 
+// 조회 버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -355,9 +362,9 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'cntrNoSn',
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약일련번호
+    { fieldName: 'cntrNoSn', // 계약상세번호
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '150',
       styleName: 'text-center rg-button-link',
@@ -418,8 +425,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrPstnDv', header: t('MSG_TXT_PSTN_DV'), width: '145', styleName: 'text-center' }, // 직급구분
     { fieldName: 'siteAwDvNm', header: t('MSG_TXT_ITEM_NM'), width: '145', styleName: 'text-center' }, // 현장수당(항목명)
     { fieldName: 'siteAwAmt', header: t('MSG_TXT_AMT'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 현장수당(금액)
-    { fieldName: 'rglvlGdCd', header: t('MSG_TXT_RGLVL'), width: '145', styleName: 'text-center', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 현장수당(급지)
-    { fieldName: 'awAmt', header: t('MSG_TXT_AMT'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 현장수당(금액)
+    { fieldName: 'rglvlGdCd', header: t('MSG_TXT_RGLVL'), width: '145', styleName: 'text-center' }, // 현장수당(급지)
     { fieldName: 'contactCralLocaraTno' }, // 연락처(핸드폰)1
     { fieldName: 'contactMexnoEncr' }, // 연락처(핸드폰)2
     { fieldName: 'contactCralIdvTno' }, // 연락처(핸드폰)3
@@ -558,7 +564,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_SITE_AW'), // 현장수당
       direction: 'horizontal',
-      items: ['siteAwDvNm', 'siteAwAmt', 'rglvlGdCd', 'awAmt'],
+      items: ['siteAwDvNm', 'siteAwAmt', 'rglvlGdCd'],
     },
     'contactCralTno',
     'fnlRcpdt',

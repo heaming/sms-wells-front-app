@@ -101,7 +101,7 @@ defineExpose({
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'rveNoSn', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '65', styleName: 'text-center' }, // 번호
+    { fieldName: 'rveNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '65', styleName: 'text-center' }, // 번호
     { fieldName: 'rveDt', header: t('MSG_TXT_RVE_DT'), width: '171', styleName: 'text-center', datetimeFormat: 'date' }, // 수납일자
     { fieldName: 'perfDt', header: t('MSG_TXT_PERF_DT'), width: '171', styleName: 'text-center', datetimeFormat: 'date' }, // 실적일자
     { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '171', styleName: 'text-center' }, // 업무구분

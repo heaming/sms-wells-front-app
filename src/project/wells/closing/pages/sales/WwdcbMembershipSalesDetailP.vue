@@ -115,10 +115,10 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_J_NMN')">
-          <p>{{ membershipDetail.rentalTn }}</p>
+          <p>{{ membershipDetail.rentalTn }}/{{ membershipDetail.vstNmnN }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_J_DC')">
-          <p>{{ membershipDetail.rentalDc }}</p>
+          <p>{{ membershipDetail.rentalDc }}/{{ membershipDetail.slDc }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_J_DT')">
           <p>{{ stringUtil.getDateFormat(membershipDetail.jDt) }}</p>
@@ -214,7 +214,7 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRPD_RPLC_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.ovrCtrDpAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.atamRplcProcsAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_SL_AMT')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.prpdSlAmt)) }}</p>
@@ -231,7 +231,7 @@
           <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.slDpAggAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_UC_TAM')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.thmUcBlam)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(membershipDetail.eotUcAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>

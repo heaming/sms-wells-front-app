@@ -135,7 +135,7 @@
       >
         <kw-select
           v-model="searchParams.alncmpCd"
-          :options="codes.ALNCMP_CD"
+          :options="codes.ALNCMP_CD.filter((v)=> v.codeId !== 'A')"
           first-option="all"
           first-option-value=""
         />
@@ -292,8 +292,6 @@ const searchParams = ref({
   prdEnqry: '1', // 기간조회
   strtDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
   endDt: now.format('YYYYMMDD'), // 종료일자
-  hcsfVal: '', // 상품분류-대분류
-  hcsfMcsfVal: '', // 상품분류-중분류
   pdCd: '', // 상품코드
   pdNm: '', // 상품명
   alncmpCd: '', // 제휴코드
@@ -307,6 +305,8 @@ const searchParams = ref({
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
   cntrCstNo: '', // 계약고객번호
+  hcsfVal: '', // 상품분류-대분류
+  hcsfMcsfVal: '', // 상품분류-중분류
 });
 
 const codes = await codeUtil.getMultiCodes(

@@ -80,6 +80,11 @@
           v-model:dgr2-levl-og-id="searchParams.localGroup"
           v-model:dgr3-levl-og-id="searchParams.branchOffice"
           v-model:prtnr-no="searchParams.partnerNo"
+          v-model:dgr2-levl-og="dgr2LevlOgObj"
+          :dgr1-levl-og-required="true"
+          :dgr2-levl-og-required="true"
+          :dgr1-levl-og-readonly="managerAuthYn"
+          :dgr2-levl-og-readonly="managerAuthYn"
           use-og-level="3"
           use-partner
           dgr3-levl-og-first-option="all"
@@ -291,6 +296,7 @@ const { getConfig } = useMeta();
 const dataService = useDataService();
 const { t } = useI18n();
 const { alert, notify } = useGlobal();
+const router = useRouter();
 
 const codes = await codeUtil.getMultiCodes(
   'MNGER_RGLVL_DV_CD',
@@ -301,6 +307,7 @@ const codes = await codeUtil.getMultiCodes(
 const { getters } = useStore();
 const { currentRoute } = useRouter();
 const totalCount = ref(0);
+const managerAuthYn = ref(false); // false : Admin, true : not Admin
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -323,11 +330,14 @@ const searchParams = ref({
   executiveGroup: '',
   localGroup: '',
   localGroupCd: '',
+  localGroupOgCd: '',
   branchOffice: 'ALL',
   branchOfficeCd: '',
   partnerNo: 'ALL',
   bizPsicSrnDvCd: '', // 조회구분
 });
+
+const dgr2LevlOgObj = ref({});
 
 let cachedParams;
 
@@ -340,13 +350,13 @@ const pageInfo = ref({
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 async function fetchData() {
-  if (isEmpty(searchParams.value.localGroupCd)) {
-    await alert(t('MSG_ALT_NOT_FOUND_OG_INF')); // 조직정보를 찾을 수 없습니다.
-    return;
-  }
-
+  // if (isEmpty(searchParams.value.localGroupCd)) {
+  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}111`); // 조직정보를 찾을 수 없습니다.
+  //   return;
+  // }
   const res = await dataService.get('/sms/wells/service/manage-customer-rglvl', { params: cachedParams });
   const list = res.data;
+  pageInfo.value.totalCount = list.length;
 
   list.forEach((row) => {
     row.cntr = `${row.cntrNo}-${row.cntrSn}`;
@@ -361,16 +371,20 @@ async function fetchData() {
 const prtnrOgTpOptions = ref([]);
 
 async function onClickSearch() {
-  if (!searchParams.value.executiveGroup) {
-    await alert(t('MSG_ALT_NOT_FOUND_OG_INF')); // 조직정보를 찾을 수 없습니다.
-    return;
-  }
+  // if (!searchParams.value.executiveGroup) {
+  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}222`); // 조직정보를 찾을 수 없습니다.
+  //   return;
+  // }
   if (searchParams.value.branchOffice === 'ALL' || !searchParams.value.branchOffice) {
     searchParams.value.branchOfficeCd = 'ALL';
   } else {
     const { ogCd } = prtnrOgTpOptions.value.find((option) => searchParams.value.branchOffice === option.ogId);
     searchParams.value.branchOfficeCd = ogCd;
   }
+
+  // 조회조건(지역단) setting(OgId -> OgCd로 변경)
+  searchParams.value.localGroupOgCd = dgr2LevlOgObj.value?.ogCd;
+
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -378,46 +392,55 @@ async function onClickSearch() {
 
 const executiveGroup = ref('');
 const localGroup = ref('');
-const localGroupCd = ref('');
+// const localGroupCd = ref('');
 
 const ogSearchRef = ref();
-
-async function fetchDgr2LevlOgs(params) {
-  return await dataService.get('/sms/wells/service/organizations/regional-group', params);
-}
+// async function fetchDgr2LevlOgs(params) {
+//   return await dataService.get('/sms/wells/service/organizations/regional-group', params);
+// }
 
 async function getOrganizationInfo() {
   const userInfo = getters['meta/getUserInfo'];
   const ogId = userInfo.ogId === 'test' ? 'OGO200800000185' : userInfo.ogId;
   const { data: { dgr1LevlOgId, dgr2LevlOgId } } = await dataService.get(`/sms/wells/service/manage-customer-rglvl/organization-info/${ogId}`);
-  if (!dgr1LevlOgId) {
-    await alert(t('MSG_ALT_NOT_FOUND_OG_INF')); // 조직정보를 찾을 수 없습니다.
-    return;
-  }
+  // if (!dgr1LevlOgId) {
+  //   await alert(`${t('MSG_ALT_NOT_FOUND_OG_INF')}333`); // 조직정보를 찾을 수 없습니다.
+  //   return;
+  // }
 
   executiveGroup.value = dgr1LevlOgId;
   localGroup.value = dgr2LevlOgId;
 
-  searchParams.value.executiveGroup = dgr1LevlOgId;
-  searchParams.value.localGroup = dgr2LevlOgId;
+  // searchParams.value.executiveGroup = dgr1LevlOgId;
+  // searchParams.value.localGroup = dgr2LevlOgId;
+  if (!isEmpty(dgr1LevlOgId)) {
+    searchParams.value.executiveGroup = dgr1LevlOgId;
+  }
+  if (!isEmpty(dgr2LevlOgId)) {
+    searchParams.value.localGroup = dgr2LevlOgId;
+    managerAuthYn.value = true;
+  }
 
-  const res = await fetchDgr2LevlOgs({ params: {
-    ogId: dgr1LevlOgId,
-    bznsPsicAuthYn: 'Y',
-  } });
-  const { ogCd } = res.data.find((option) => dgr2LevlOgId === option.ogId);
+  // const res = await fetchDgr2LevlOgs({ params: {
+  //   ogId: dgr1LevlOgId || '',
+  //   bznsPsicAuthYn: 'Y',
+  // } });
+  // const { ogCd } = res.data?.find((option) => dgr2LevlOgId === option.ogId) ?? '';
 
-  localGroupCd.value = ogCd;
-  searchParams.value.localGroupCd = ogCd;
+  // if (!isEmpty(ogCd)) {
+  //   localGroupCd.value = ogCd;
+  //   searchParams.value.localGroupCd = ogCd;
+  // }
 }
 
-watch(() => searchParams.value.localGroup, (newVal) => {
-  if (!newVal) {
-    setTimeout(() => {
-      searchParams.value.localGroup = localGroup.value;
-    });
-  }
-});
+// watch(() => searchParams.value.localGroup, (newVal) => {
+//   console.log(`cherro ::: 111 ::: ${newVal}`);
+//   if (!newVal) {
+//     setTimeout(() => {
+//       searchParams.value.localGroup = localGroup.value;
+//     });
+//   }
+// });
 
 async function fetchDgr3LevlOgs(params) {
   return await dataService.get('/sms/wells/service/organizations/branch', params);
@@ -467,12 +490,13 @@ async function onClickBulkUpdateMngStd() {
   const { mngtPrtnrOgTpCd, mngtPrtnrNo, mngStdMngerRglvlDvCd } = mngStd.value;
   const { ogCd } = prtnrOgTpOptions.value.find((option) => mngtPrtnrOgTpCd === option.ogId);
   const { prtnrNoNm } = mngStdPrtnrNoOptions.value.find((option) => mngtPrtnrNo === option.prtnrNo);
+  const dgr2LevlOgCd = dgr2LevlOgObj.value.ogCd;
 
   const data = view.getDataSource();
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
     data.updateRow(rowValue.dataRow, {
-      mngStdDgr2LevlOgCd: localGroupCd.value,
+      mngStdDgr2LevlOgCd: dgr2LevlOgCd,
       mngStdDgr3LevlOgCd: ogCd,
       mngStdPrtnrKnm: prtnrNoNm,
       mngtPrtnrOgTpCd: ogCd,
@@ -529,6 +553,7 @@ async function onClickBulkUpdateCurMnthAlctn() {
   const { cnfmPsicPrtnrNo, curMnthAlctnMngerRglvlDvCd } = curMnthAlctn.value;
 
   const { ogCd } = prtnrOgTpOptions.value.find((option) => asnPsicPrtnrOgTpCd === option.ogId);
+  const dgr2LevlOgCd = dgr2LevlOgObj.value.ogCd;
   const {
     prtnrNoNm,
     brnhId,
@@ -539,7 +564,7 @@ async function onClickBulkUpdateCurMnthAlctn() {
   data.beginUpdate();
   checkedRows.forEach((rowValue) => {
     data.updateRow(rowValue.dataRow, {
-      curMnthAlctnDgr2LevlOgCd: localGroupCd.value,
+      curMnthAlctnDgr2LevlOgCd: dgr2LevlOgCd,
       curMnthAlctnDgr3LevlOgCd: ogCd,
       curMnthAlctnPrtnrKnm: prtnrNoNm,
       asnPsicPrtnrOgTpCd: ogCd,
@@ -706,7 +731,7 @@ function initGrdMain(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약번호
+    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_NO'), width: '140', styleName: 'rg-button-link text-center', renderer: { type: 'button' } }, // 계약번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' }, // SAP 코드
     { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' }, // 품목코드
@@ -782,11 +807,19 @@ function initGrdMain(data, view) {
   ]);
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    // if (column === 'cntr') {
+    //   const cntrNo = g.getValue(itemIndex, 'cntrNo');
+    //   console.log(cntrNo);
+    //   console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+    //   alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+    // }
     if (column === 'cntr') {
-      const cntrNo = g.getValue(itemIndex, 'cntrNo');
-      console.log(cntrNo);
-      console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
-      alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      // const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      // console.log(cntrNo);
+      // console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      // alert('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
+      const param = { cntrNo: g.getValue(itemIndex, 'cntrNo'), cntrSn: g.getValue(itemIndex, 'cntrSn') };
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
     }
   };
 }
@@ -794,10 +827,16 @@ function initGrdMain(data, view) {
 onMounted(async () => {
   await getOrganizationInfo();
   const { data } = await fetchDgr3LevlOgs({ params: {
-    ogId: localGroup.value,
+    ogId: localGroup.value || '',
     bznsPsicAuthYn: 'Y',
   } });
   prtnrOgTpOptions.value = data;
+  // 지역단 기본 setting
+  setTimeout(() => {
+    if (!isEmpty(localGroup.value)) {
+      searchParams.value.localGroup = localGroup.value;
+    }
+  });
 });
 </script>
 

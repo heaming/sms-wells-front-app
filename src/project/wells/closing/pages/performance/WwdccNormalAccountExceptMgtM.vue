@@ -54,7 +54,6 @@
           <kw-date-range-picker
             v-model:from="searchParams.regDtFrom"
             v-model:to="searchParams.regDtTo"
-            rules="date_range_months:1"
           />
         </kw-search-item>
       </kw-search-row>
@@ -256,6 +255,7 @@ async function onClickExcelUpload() {
 }
 
 const isChecked = ref(true);
+
 onMounted(async () => {
   isChecked.value = true;
 });
@@ -265,24 +265,24 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGridMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'nomAccExcdId', visible: false },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD, editor: { type: 'dropdown' } },
-    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, editor: { type: 'dropdown' } },
-    { fieldName: 'pdHclsfId', header: t('MSG_TXT_PD_HCLSF'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'pdMclsfId', header: t('MSG_TXT_PD_MCLSF'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '120', editable: false },
-    { fieldName: 'pmotCd', header: t('MSG_TXT_PMOT_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pmotNm', header: t('MSG_TXT_PMOT_NM'), width: '120', options: codes.PMOT_CD, editable: false },
-    { fieldName: 'cntrStrtdt', header: `${t('MSG_TXT_CNTRCT_DT')}(${t('MSG_TXT_STRT')})`, width: '130', styleName: 'text-center', editor: { type: 'btdate' }, datetimeFormat: 'date' },
-    { fieldName: 'cntrEnddt', header: `${t('MSG_TXT_CNTRCT_DT')}(${t('MSG_TXT_SHUTDOWN')})`, width: '130', styleName: 'text-center', editor: { type: 'btdate' }, datetimeFormat: 'date' },
-    { fieldName: 'nomAccExcdRsonCn', header: t('MSG_TXT_EXCD_RSON'), width: '200' },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date', editable: false },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_ICHR_NO'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'fstUserNm', header: t('MSG_TXT_RGST_PSIC'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'date', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_ICHR_NO'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlUserNm', header: t('MSG_TXT_MDFC_PSIC'), width: '120', styleName: 'text-center', editable: false },
+    { fieldName: 'nomAccExcdId', visible: false }, // 정상계정제외ID
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD, editor: { type: 'dropdown' } }, // 판매유형
+    { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD, editor: { type: 'dropdown' } }, // 판매유형상세
+    { fieldName: 'pdHclsfId', header: t('MSG_TXT_PD_HCLSF'), width: '120', styleName: 'text-center', editable: false }, // 상품대분류
+    { fieldName: 'pdMclsfId', header: t('MSG_TXT_PD_MCLSF'), width: '120', styleName: 'text-center', editable: false }, // 상품중분류
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center', rules: 'required' }, // 상품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '120', editable: false }, // 상품명
+    { fieldName: 'pmotCd', header: t('MSG_TXT_PMOT_CD'), width: '120', styleName: 'text-center' }, // 프로모션코드
+    { fieldName: 'pmotNm', header: t('MSG_TXT_PMOT_NM'), width: '120', options: codes.PMOT_CD, editable: false }, // 프로모션명
+    { fieldName: 'cntrStrtdt', header: `${t('MSG_TXT_CNTRCT_DT')}(${t('MSG_TXT_STRT')})`, width: '130', styleName: 'text-center', editor: { type: 'btdate' }, datetimeFormat: 'date' }, // 계약시작일
+    { fieldName: 'cntrEnddt', header: `${t('MSG_TXT_CNTRCT_DT')}(${t('MSG_TXT_SHUTDOWN')})`, width: '130', styleName: 'text-center', editor: { type: 'btdate' }, datetimeFormat: 'date' }, // 계약종료일
+    { fieldName: 'nomAccExcdRsonCn', header: t('MSG_TXT_EXCD_RSON'), width: '200' }, // 제외사유
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 등록일자
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_ICHR_NO'), width: '120', styleName: 'text-center', editable: false }, // 등록담당자
+    { fieldName: 'fstUserNm', header: t('MSG_TXT_RGST_PSIC'), width: '120', styleName: 'text-center', editable: false }, // 등록담당자명
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 수정일자
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_ICHR_NO'), width: '120', styleName: 'text-center', editable: false }, // 수정담당자
+    { fieldName: 'fnlUserNm', header: t('MSG_TXT_MDFC_PSIC'), width: '120', styleName: 'text-center', editable: false }, // 수정담당자명
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -296,18 +296,18 @@ const initGridMain = defineGrid((data, view) => {
 
 const initGridCntr = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'nomAccExcdId', visible: false },
-    { fieldName: 'cntrNo', visible: false },
-    { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'cntrDtl', header: t('MSG_TXT_CNTR_DTL'), width: '120', styleName: 'text-center rg-button-icon--search', button: 'action' },
-    { fieldName: 'cntrExcdRsonCn', header: t('MSG_TXT_CNTN'), width: '180' },
-    { fieldName: 'nomAccExcdRsonCn', header: t('MSG_TXT_EXCD_RSON'), width: '200' },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date', editable: false },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_ICHR_NO'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'fstUserNm', header: t('MSG_TXT_RGST_PSIC'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'date', editable: false },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_ICHR_NO'), width: '120', styleName: 'text-center', editable: false },
-    { fieldName: 'fnlUserNm', header: t('MSG_TXT_MDFC_PSIC'), width: '120', styleName: 'text-center', editable: false },
+    { fieldName: 'nomAccExcdId', visible: false }, // 정상계정제외ID
+    { fieldName: 'cntrNo', visible: false }, // 계약번호
+    { fieldName: 'cntrSn', visible: false }, // 계약일련번호
+    { fieldName: 'cntrDtl', header: t('MSG_TXT_CNTR_DTL'), width: '120', styleName: 'text-center rg-button-icon--search', button: 'action', rules: 'required' }, // 계약상세
+    { fieldName: 'cntrExcdRsonCn', header: t('MSG_TXT_CNTN'), width: '180' }, // 계약제외사유
+    { fieldName: 'nomAccExcdRsonCn', header: t('MSG_TXT_EXCD_RSON'), width: '200' }, // 제외사유
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 등록일자
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_ICHR_NO'), width: '120', styleName: 'text-center', editable: false }, // 등록담당자
+    { fieldName: 'fstUserNm', header: t('MSG_TXT_RGST_PSIC'), width: '120', styleName: 'text-center', editable: false }, // 등록담당자명
+    { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_MDFC_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 수정일자
+    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_MDFC_ICHR_NO'), width: '120', styleName: 'text-center', editable: false }, // 수정담당자
+    { fieldName: 'fnlUserNm', header: t('MSG_TXT_MDFC_PSIC'), width: '120', styleName: 'text-center', editable: false }, // 수정담당자명
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -318,11 +318,9 @@ const initGridCntr = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
 
-  view.onCellButtonClicked = async (grid/* , { itemIndex } */) => {
+  view.onCellButtonClicked = async (grid) => {
     grid.commit();
     const current = view.getCurrent();
-    // const dataProvider = view.getDataSource();
-    // const cntrDtl = dataProvider.getValue(current.dataRow, 'cntrDtl');
     const { result, payload } = await modal({
       component: 'WwctaContractNumberListP',
     });

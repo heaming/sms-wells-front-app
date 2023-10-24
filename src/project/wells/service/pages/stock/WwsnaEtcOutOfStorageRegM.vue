@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : W-SV-U-0143M01 - 기타출고 등록
+ 2. 프로그램 ID : WwsnaEtcOutOfStorageRegM[W-SV-U-0143M01] - 기타출고 등록
  3. 작성자 : songTaeSung
  4. 작성일 : 2023.02.10
  ****************************************************************************************************
@@ -230,6 +230,7 @@ const codes = await codeUtil.getMultiCodes(
   'BIL_RSON_CD',
   'MNGT_UNIT_CD',
 );
+// 조회파라미터
 const searchParams = ref({
   ostrDt: '',
   ostrWareNo: '',
@@ -258,6 +259,7 @@ const filterCodes = ref({
   pdGdCd: [],
 });
 
+// 코드값 필터링
 function codeFilter() {
   filterCodes.value.pdGdCd = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R'].includes(v.codeId));
 }
@@ -266,6 +268,7 @@ const strDept = ref();
 
 const totalCount = ref(0);
 
+// 출고수량 validate
 function validateOstrQty(row, val) {
   const grid = grdMainRef.value.getView();
   const onQty = gridUtil.getCellValue(grid, row, 'onQty');
@@ -277,6 +280,7 @@ function validateOstrQty(row, val) {
   return true;
 }
 
+// 파라미터 설정
 function setSearchParams() {
   const { ostrTpCd, ostrDt, ostrWareNo, bilDept, itmOstrNo } = props;
 
@@ -287,6 +291,7 @@ function setSearchParams() {
   searchParams.value.itmOstrNo = itmOstrNo;
 }
 
+// 총건수 설정
 function setTotalCount() {
   totalCount.value = grdMainRef.value.getView().getItemCount();
 }
@@ -349,15 +354,18 @@ function validateSaveRowData() {
 
 let cachedParams;
 
+// null 체크
 function isNullChk(obj) {
   return (obj !== undefined && obj !== null && obj !== '');
 }
 
+// 부모창에서 넘어온 데이터 null 체크
 function isPropsNullChk() {
   // eslint-disable-next-line max-len
   return isNullChk(props.ostrTpCd) && isNullChk(props.ostrWareNo) && isNullChk(props.ostrDt) && isNullChk(props.bilDept);
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/etc-out-of-storages', { params: cachedParams });
 
@@ -370,6 +378,7 @@ async function fetchData() {
 
 const warehouses = ref();
 
+// 영업센터 창고 조회
 async function fetchBsDefaultData() {
   const { apyYm } = wharehouseParams.value;
   const res = await dataService.get(`/sms/wells/service/etc-out-of-storages/wells-business/${apyYm}`);
@@ -381,6 +390,7 @@ async function fetchBsDefaultData() {
   strDept.value = res2.data;
 }
 
+// 서비스센터 창고 조회
 async function fetchDefaultData() {
   const { apyYm } = wharehouseParams.value;
   const { userId } = wharehouseParams.value;
@@ -394,6 +404,7 @@ async function fetchDefaultData() {
   strDept.value = res.data;
 }
 
+// 저장
 async function onClickSave() {
   if (!validateIsApplyRowExists()) return;
 
@@ -412,6 +423,7 @@ async function onClickSave() {
   await fetchData();
 }
 
+// 삭제
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
@@ -423,6 +435,7 @@ async function onClickDelete() {
 
   for (let i = 0; i < chkRows.length; i += 1) {
     if (chkRows[i].ostrQty === '0') {
+      // 출고수량은 0보다 커야합니다.
       alert(t('MSG_ALT_OSTR_QTY_ZERO_BE_BIG'));
       return;
     }
@@ -433,6 +446,7 @@ async function onClickDelete() {
   const checkWarehouse = await getWarehouseCloseCheck(chkOstrDt, chkOjWareNo);
 
   if (!checkWarehouse) {
+    // 해당 출고일자는 이미 마감이 완료되어, 출고수정작업이 불가합니다.
     await alert(t('MSG_ALT_DATE_EDIT_OUT_PUT'));
     return;
   }
@@ -447,14 +461,18 @@ async function onClickDelete() {
   }
 }
 
+// 그리드 데이터 체크
 function setCheckedGridValue(view, row, value, column) {
   view.setValue(row, column, value);
 }
+
+// 품목기본정보에서 넘어온 데이터 설정
 function getRowData(rowData) {
   // eslint-disable-next-line max-len
   return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0, pdabbrNm: rowData.itmPdNm };
 }
 
+// 품목기본정보 팝업 호출
 const chk = '1';
 async function openItemBasePopup(type, row) {
   const { result, payload } = await modal({
@@ -476,6 +494,7 @@ async function openItemBasePopup(type, row) {
   }
 }
 
+// 품목추가 버튼클릭 이벤트
 async function onClickItemAdd() {
   await openItemBasePopup('C');
 }

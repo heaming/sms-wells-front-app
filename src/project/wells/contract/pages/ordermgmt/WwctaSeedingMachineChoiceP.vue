@@ -59,12 +59,12 @@ const machineOptions = computed(() => {
   if (!machinery.value) return [];
 
   return machinery.value.map((machine) => ({
-    codeId: machine.pdCd,
+    codeId: `${machine.cntrNo}-${machine.cntrSn}`,
     codeName: `${machine.pdNm
     } / ${
       machine.cntrNo}-${machine.cntrSn
-    } / ${`${t('설치일')}:${dayjs(machine.istDt).format('YYYY-MM-DD')}`
-    } / ${machine.posQty}`,
+    } / ${t('설치일')}:${dayjs(machine.istDt)
+      .format('YYYY-MM-DD')} / ${machine.posQty}`,
   }));
 });
 const selected = ref(undefined);
@@ -86,7 +86,7 @@ async function fetchMachines() {
 }
 
 function onClickConfirm() {
-  const seletedMachine = machinery.value.find((machine) => machine.pdCd === selected.value);
+  const seletedMachine = machinery.value.find((machine) => `${machine.cntrNo}-${machine.cntrSn}` === selected.value);
   ok(seletedMachine);
 }
 

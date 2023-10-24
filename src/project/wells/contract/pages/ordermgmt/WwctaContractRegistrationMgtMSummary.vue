@@ -54,11 +54,15 @@
               <ul class="card-text">
                 <li>
                   <p>계약유형</p>
-                  <span>{{ summary.cntrTpNm }}</span>
+                  <span>{{ getCodeName('CNTR_TP_CD', summary.cntrBas?.cntrTpCd) }}</span>
                 </li>
                 <li>
                   <p>계약자</p>
-                  <span>{{ summary.cntrtKnm }}</span>
+                  <span>{{ summary.customer?.cstKnm }}</span>
+                </li>
+                <li>
+                  <p>판매유입채널</p>
+                  <span>{{ getCodeName('SELL_CHNL_DTL_CD', summary.cntrBas?.sellInflwChnlDtlCd) }}</span>
                 </li>
               </ul>
             </div>
@@ -69,10 +73,11 @@
             <div class="like-vertical-stepper__step-content">
               <ul class="card-text">
                 <li
-                  v-for="(pd, i) in summary.products"
+                  v-for="(pd, i) in summary.cntrDtls"
                   :key="i"
                 >
-                  <p>{{ pd }}</p>
+                  <p>{{ pd.pdNm }}</p>
+                  <p>{{ pd.fnlAmt ?? '0' }}</p>
                 </li>
               </ul>
             </div>
@@ -84,11 +89,11 @@
               <ul class="card-text">
                 <li>
                   <p>결제유형</p>
-                  <span>{{ summary.stlmTpNm }}</span>
+                  <span>{{ rveTpCdNms }}</span>
                 </li>
                 <li>
                   <p>결제방법</p>
-                  <span>{{ summary.dpTpNm }}</span>
+                  <span>{{ dpTpCdNms }}</span>
                 </li>
               </ul>
             </div>
@@ -103,7 +108,7 @@
                 등록금(계약금)
               </p>
               <span class="text-bold kw-font-pt20">
-                {{ stringUtil.getNumberWithComma(summary.rcAmt || 0) }}
+                {{ getNumberWithComma(totalSpayAmt) }}
               </span>
             </li>
           </ul>
@@ -114,7 +119,7 @@
                 월납부금
               </p>
               <span class="text-bold kw-font-pt20">
-                {{ stringUtil.getNumberWithComma(summary.mpAmt || 0) }}
+                {{ getNumberWithComma(totalAftnAmt) }}
               </span>
             </li>
           </ul>
@@ -128,42 +133,163 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { stringUtil, useDataService } from 'kw-lib';
+import { useCtCode } from '~sms-common/contract/composable';
+import { getNumberWithComma } from '~sms-common/contract/util';
+import {
+  getAftnAmt,
+  getAftnAmtByCntrDtl,
+  getSpayAmt,
+  getSpayAmtByCntrDtl,
+} from '~sms-wells/contract/utils/CtPriceUtil';
 
 const props = defineProps({
   cntrNo: { type: String, default: undefined },
   steps: { type: Array, default: () => [] },
   step: { type: String, default: undefined },
+  bas: { type: Object, default: undefined },
+  summary: { type: Object, default: undefined },
 });
 
-const dataService = useDataService();
+const { getCodeName } = await useCtCode(
+  'CNTR_TP_CD',
+  'SELL_CHNL_DTL_CD',
+  'RVE_DV_CD',
+  'DP_TP_CD',
+);
+
+// const dataService = useDataService();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
 const sideStepRefs = reactive({});
-const summary = ref({});
+// const summary = ref({});
 
 const currentStepName = ref('1');
 
-async function fetchSummary() {
-  await nextTick();
-  if (!props.cntrNo) { return; }
-  const { data } = await dataService.get('sms/wells/contract/contracts/summaries', {
-    params: { cntrNo: props.cntrNo },
-  });
-  summary.value = data;
-}
+// async function fetchSummary() {
+//   await nextTick();
+//   if (!props.cntrNo) { return; }
+//   const { data } = await dataService.get('sms/wells/contract/contracts/summaries', {
+//     params: { cntrNo: props.cntrNo },
+//   });
+//   summary.value = data;
+// }
 
 watch(() => props.step, () => {
-  fetchSummary();
   if (sideStepRefs[props.step]) {
     sideStepRefs[props.step].show();
   }
 });
 
-fetchSummary();
+// function calcSpayAmt(cntrDtl) {
+//   const { finalPrice, rglrSppPrmMcn } = cntrDtl;
+//   let spayAmt;
+//   if (finalPrice) {
+//     const pdBas = { rglrSppPrmMcn };
+//     spayAmt = getSpayAmt(pdBas, finalPrice);
+//   } else {
+//     spayAmt = getSpayAmtByCntrDtl(cntrDtl);
+//   }
+//   return Number(spayAmt) || 0;
+// }
+
+const totalSpayAmt = computed(() => {
+  const { cntrDtls } = props.summary;
+  if (!cntrDtls?.length) {
+    return 0;
+  }
+  return cntrDtls.reduce((sum, cntrDtl) => {
+    const { finalPrice, rglrSppPrmMcn } = cntrDtl;
+    let added;
+    if (finalPrice) {
+      const pdBas = { rglrSppPrmMcn };
+      added = getSpayAmt(pdBas, finalPrice);
+    } else {
+      added = getSpayAmtByCntrDtl(cntrDtl);
+    }
+    return (sum + (Number(added) || 0));
+  }, 0);
+});
+
+const totalAftnAmt = computed(() => {
+  const { cntrDtls } = props.summary;
+  if (!cntrDtls?.length) {
+    return 0;
+  }
+  return cntrDtls.reduce((sum, cntrDtl) => {
+    const { finalPrice } = cntrDtl;
+    let added;
+    if (finalPrice) {
+      added = getAftnAmt(finalPrice);
+    } else {
+      added = getAftnAmtByCntrDtl(cntrDtl);
+    }
+    return (sum + (Number(added) || 0));
+  }, 0);
+});
+
+const rveTpCdNms = computed(() => {
+  const { cntrDtls } = props.summary;
+  if (!cntrDtls?.length) {
+    return '';
+  }
+  const codeIdSet = new Set();
+  cntrDtls.forEach((cntrDtl) => {
+    const { sellTpCd, cntrAmt, fnlAmt } = cntrDtl;
+    if (sellTpCd === '1' && fnlAmt > 0) {
+      codeIdSet.add('01');
+      /* TODO 멤버십 회비 추가 후 추가할 것 */
+    }
+    if (sellTpCd === '2' && cntrAmt > 0) {
+      codeIdSet.add('01');
+    }
+    if (sellTpCd === '2' && fnlAmt > 0) {
+      codeIdSet.add('03');
+    }
+    if (sellTpCd === '3' && fnlAmt > 0) {
+      codeIdSet.add('03');
+    }
+    if (sellTpCd === '6' && cntrAmt > 0) {
+      codeIdSet.add('01');
+    }
+    if (sellTpCd === '6' && fnlAmt > 0) {
+      codeIdSet.add('03');
+    }
+  });
+  const nms = [];
+  codeIdSet.forEach((codeId) => {
+    nms.push(getCodeName('RVE_DV_CD', codeId));
+  });
+  return nms.join(', ');
+});
+
+const dpTpCdNms = computed(() => {
+  const { cntrDtls } = props.summary;
+  if (!cntrDtls?.length) {
+    return '';
+  }
+  const codeIdSet = new Set();
+  cntrDtls.forEach((cntrDtl) => {
+    const { dpTpCdIdrv, dpTpCdMsh, dpTpCdAftn, stlmRels } = cntrDtl;
+    if (dpTpCdIdrv) { codeIdSet.add(dpTpCdIdrv); }
+    if (dpTpCdMsh) { codeIdSet.add(dpTpCdMsh); }
+    if (dpTpCdAftn) { codeIdSet.add(dpTpCdAftn); }
+
+    if (stlmRels?.length) {
+      stlmRels.forEach((stlmRel) => {
+        const { dpTpCd } = stlmRel;
+        if (dpTpCd) { codeIdSet.add(dpTpCd); }
+      });
+    }
+  });
+  const nms = [];
+  codeIdSet.forEach((codeId) => {
+    nms.push(getCodeName('DP_TP_CD', codeId));
+  });
+  return nms.join(', ');
+});
 
 </script>
 

@@ -211,7 +211,7 @@ const initGrdMain = defineGrid((data, view) => {
         return isEmpty(cntrNo) || isEmpty(cntrSn) ? '' : `${cntrNo}-${cntrSn}`;
       },
     },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 100 },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CNTOR_NM'), width: 100, styleName: 'text-center' },
     { fieldName: 'pdClsf', header: t('MSG_TXT_PRDT_CATE'), width: 180 },
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: 140, styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: 250 },

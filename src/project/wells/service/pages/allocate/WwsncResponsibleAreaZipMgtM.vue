@@ -148,12 +148,12 @@ const dataService = useDataService();
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 const searchParams = ref({
-  zipFrom: '',
-  zipTo: '',
-  ctpvNm: '',
-  ctctyNm: '',
-  wkGrpCd: '10',
-  applyDate: dayjs().format('YYYYMMDD'),
+  zipFrom: '', // 우편번호 From
+  zipTo: '', // 우편번호 To
+  ctpvNm: '', // 시도명
+  ctctyNm: '', // 시군구명
+  wkGrpCd: '10', // 작업그룹코드
+  applyDate: dayjs().format('YYYYMMDD'), // 적용일자
 });
 let cachedParams = cloneDeep(searchParams.value);
 
@@ -172,6 +172,7 @@ const ctpvs = ref([]);
 const ctctys = ref([]);
 ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-zips', { params: { ...cachedParams } });
   const zips = res.data;
@@ -181,11 +182,13 @@ async function fetchData() {
   view.getDataSource().setRows(zips);
 }
 
+// 조회 버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -198,6 +201,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 시도명 변경 시 시군구 목록 셋팅
 async function onUpdateCtcty(val) {
   searchParams.value.ctctyNm = '';
   if (val) {
@@ -208,6 +212,7 @@ async function onUpdateCtcty(val) {
   }
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
 
@@ -229,12 +234,14 @@ async function onClickSave() {
   }
 }
 
+// 기본 정보 조회
 let districts;
 async function fetchBaseData() {
   const res = await dataService.get('sms/wells/service/responsible-area-zips/districts');
   districts = res.data;
 }
 
+// 마운트 처리
 onMounted(async () => {
   await fetchBaseData();
 });
@@ -244,26 +251,26 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'newAdrZip' },
+    { fieldName: 'newAdrZip' }, // 우편번호
     // { fieldName: 'mgtCnt' },
     // { fieldName: 'wrkCnt' },
-    { fieldName: 'ctpvNm' },
-    { fieldName: 'ctctyNm' },
-    { fieldName: 'lawcEmdNm' },
-    { fieldName: 'amtdNm' },
-    { fieldName: 'mngtAmtd' },
-    { fieldName: 'rpbLocaraCd' },
-    { fieldName: 'rpbLocaraGrpCd' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'ichrPrtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'vstDowVal' },
-    { fieldName: 'emdSn' },
-    { fieldName: 'fr2pLgldCd' },
-    { fieldName: 'kynorLocaraYn' },
-    { fieldName: 'ildYn' },
-    { fieldName: 'pdlvNo' },
-    { fieldName: 'dtaDlYn' },
+    { fieldName: 'ctpvNm' }, // 시도명
+    { fieldName: 'ctctyNm' }, // 시군구명
+    { fieldName: 'lawcEmdNm' }, // 법정동명
+    { fieldName: 'amtdNm' }, // 행정동명
+    { fieldName: 'mngtAmtd' }, // 관리행정동
+    { fieldName: 'rpbLocaraCd' }, // 책임지역코드
+    { fieldName: 'rpbLocaraGrpCd' }, // 책임지역그룹코드
+    { fieldName: 'ogNm' }, // 조직명
+    { fieldName: 'ichrPrtnrNo' }, // 파트너번호
+    { fieldName: 'prtnrKnm' }, // 파트너한글명
+    { fieldName: 'vstDowVal' }, // 방문요일값
+    { fieldName: 'emdSn' }, // 읍면동일련번호
+    { fieldName: 'fr2pLgldCd' }, // 앞2자리법정동코드
+    { fieldName: 'kynorLocaraYn' }, // 경북지역여부
+    { fieldName: 'ildYn' }, // 섬여부
+    { fieldName: 'pdlvNo' }, // 출고지번호
+    { fieldName: 'dtaDlYn' }, // 데이터삭제여부
   ];
 
   const columns = [

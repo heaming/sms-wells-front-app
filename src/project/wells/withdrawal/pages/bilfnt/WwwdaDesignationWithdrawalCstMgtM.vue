@@ -43,13 +43,11 @@
         </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
-          required
         >
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
             :name="$t('MSG_TXT_CNTR_DTL_NO')"
-            rules="required"
           />
         </kw-search-item>
       </kw-search-row>
@@ -352,7 +350,7 @@ const initGrid = defineGrid((data, view) => {
         },
         datetimeFormat: 'yyyy-MM',
         mask: {
-          placeHolder: '선택',
+          placeHolder: t('MSG_TXT_SELT'), // 선택
         },
       },
       rules: 'required',
@@ -431,7 +429,10 @@ const initGrid = defineGrid((data, view) => {
   // multi row header setting
 
   view.onCellEditable = (grid, { itemIndex, column }) => {
-    if (!gridUtil.isCreatedRow(grid, itemIndex) && ['cntr', 'fntYm'].includes(column)) {
+    const nowDay = now.format('DD');
+    const dsnWdrwFntD = grid.getValue(itemIndex, 'dsnWdrwFntD');
+    if ((!gridUtil.isCreatedRow(grid, itemIndex) && ['cntr', 'fntYm'].includes(column))
+     || (!isEmpty(dsnWdrwFntD) && nowDay >= dsnWdrwFntD.substring(0, 2) && ['dsnWdrwFntD', 'dsnWdrwAmt', 'fntYn'].includes(column))) {
       return false;
     }
   };

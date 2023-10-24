@@ -74,7 +74,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_RTLFE1_MCNT')"
         >
-          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.rentalPtrm)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(salesRentalInf.cntrPtrm)) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_DISC_CODE')"
@@ -154,7 +154,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_WDWAL_DT')"
         >
-          <p>{{ stringUtil.getDateFormat(salesMembershipInf.mshWdwalDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(salesMembershipInf.canDt) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_VST_PRD')"
@@ -188,7 +188,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_J_DT')"
         >
-          <p>{{ stringUtil.getDateFormat(salesMembershipInf.jDt) }}</p>
+          <p>{{ stringUtil.getDateFormat(salesMembershipInf.cntrPdStrtdt) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_VST_NMN')"

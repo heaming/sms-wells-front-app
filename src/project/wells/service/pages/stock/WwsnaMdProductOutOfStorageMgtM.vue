@@ -65,6 +65,7 @@
           <kw-input
             v-model.trim="searchParams.cntrDtlNo"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
+            :placeholder="`${$t('MSG_TXT_CNTR_NO')}-${$t('MSG_TXT_CNTR_SN')}`"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_CST_NM')">
@@ -129,17 +130,14 @@
           dense
           secondary
           :label="$t('MSG_TXT_PCSV_IVC')"
-          :disable="totalCount === 0"
           @click="onClickExcelDownload2"
         />
         <!-- 엑셀업로드 -->
         <kw-btn
-          v-show="isCompStatus"
           icon="upload_on"
           secondary
           dense
           :label="$t('MSG_TXT_EXCEL_UPLOAD')"
-          :disable="totalCount === 0"
           @click="onClickExcelUpload"
         />
         <kw-btn
@@ -198,6 +196,7 @@ const baseUrl = '/sms/wells/service/md-product-out-of-storage';
 
 const codes = await codeUtil.getMultiCodes(
   'PRTNR_BZS_CD',
+  'PCSV_BZS_CD',
 );
 const customCodes = {
   findGb: [
@@ -205,21 +204,16 @@ const customCodes = {
     { codeId: '2', codeName: t('MSG_TXT_WORK_PENDING') },
   ],
   firstSppGb: [
-    { codeId: 'all', codeName: t('MSG_TXT_ALL') },
+    { codeId: 'ALL', codeName: t('MSG_TXT_ALL') },
     { codeId: '1', codeName: t('MSG_TXT_FIRST_SPP_YN') },
     { codeId: 'N', codeName: t('MSG_TXT_N_NMN') },
-  ],
-  pcsvCompDv: [
-    { codeId: '1', codeName: t('한진') },
-    { codeId: '2', codeName: t('대한통운') },
-    { codeId: '3', codeName: t('우체국') },
   ],
 };
 const searchParams = ref({
   startDt: now.startOf('month').format('YYYYMMDD'), // 시작일자
   endDt: now.format('YYYYMMDD'), // 종료일자
   ostrCnfmDt: now.format('YYYYMMDD'),
-  firstSppGb: 'all', /* 첫 배송 여부 */
+  firstSppGb: 'ALL', /* 첫 배송 여부 */
   findGb: '2', /* 조회 구분 */
   selCnt: '', /* 조회 제한건수  */
   prtnrBzsCd: '', /* 파트너업체 */
@@ -242,6 +236,7 @@ async function onChangeCompStatus() {
   if (findGb === '1') {
     isCompStatus.value = true;
     view.checkBar.visible = false;
+    searchParams.value.firstSppGb = 'ALL';
   }
 
   /* 작업대기 */
@@ -257,9 +252,9 @@ async function fetchData() {
   list = [];
   list.push({
     cntrRcpFshDtm: '20230702',
-    svBizDclsfCd: '대분류코드',
-    svBizDclsfNm: '대분류코드명',
-    wkPrgsStatNm: '작업대기',
+    svBizDclsfCd: '1112',
+    svBizDclsfNm: '제품배송',
+    wkPrgsStatNm: '작업완료',
     cntrNo: 'W20226010893',
     cntrSn: '1',
     rcgvpKnm: '테스트이름',
@@ -322,7 +317,7 @@ async function onClickExcelDownload() {
 async function onClickExcelDownload2() {
   const view = grdSppIvcRef.value.getView();
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_PCSV_IVC')}`,
+    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_PCSV_IVC')}_${t('MSG_BTN_ULD_SMP')}`,
     timePostfix: true,
     exportData: gridUtil.getAllRowValues(view),
   });
@@ -400,7 +395,7 @@ async function onClickExcelUpload() {
   const { result } = await modal({
     component: 'ZctzExcelUploadP',
     componentProps: {
-      templateDocId: `${t('MSG_TXT_PCSV_IVC')}_${t('MSG_TXT_WK_RS')}`,
+      templateDocId: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_PCSV_IVC')}_${t('MSG_TXT_WK_RS')}`,
       headerRows: 2,
       validationBtn: true,
       downloadBtn: true,
@@ -409,7 +404,7 @@ async function onClickExcelUpload() {
       columns: {
         cstSvAsnNo: { label: t('MSG_TXT_ASGN_NO'), width: 180, rules: 'max:19|regex:[0-9]', required: true },
         cntrDtlNo: { label: t('MSG_TXT_CNTR_DTL_NO'), width: 160, rules: 'max:17|regex:W\\d{11}-[0-9]', required: true },
-        pcsvCompDv: { label: t('MSG_TXT_PCSV_CO'), width: 90, options: customCodes.pcsvCompDv, rules: 'max:2|regex:[0-9]', required: true },
+        pcsvCompDv: { label: t('MSG_TXT_PCSV_CO'), width: 130, options: codes.PCSV_BZS_CD, rules: 'max:2|regex:[0-9]', required: true },
         sppIvcNo: { label: t('MSG_TXT_IVC_NO'), width: 150, rules: 'max:15|regex:[0-9]', required: true },
         sppBzsPdId: { label: t('MSG_TXT_SR_NO'), width: 130, rules: 'max:20', required: true },
       },
@@ -430,6 +425,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_TASK_TYPE_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_TASK_TYPE'), width: '110', styleName: 'text-center' },
+    { fieldName: 'sellTpCd', visible: false },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '110', styleName: 'text-center' },
     { fieldName: 'prtnrBzsNm', header: t('MSG_TXT_PRTNR_BZS_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'pcsvCompNm', header: t('MSG_TXT_PCSV_CO'), width: '110', styleName: 'text-center' },
@@ -569,7 +565,7 @@ const initGrdSppIvc = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: 160 },
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: 150 },
-    { fieldName: 'pcsvCompDv', header: `${t('MSG_TXT_PCSV_CO')} \n (1:한진,2:대한통운,3:우체국)`, width: 150 },
+    { fieldName: 'pcsvCompDv', header: `${t('MSG_TXT_PCSV_CO')}`, width: 120 },
     { fieldName: 'sppIvcNo', header: t('MSG_TXT_IVC_NO'), width: 150 },
     { fieldName: 'sppBzsPdId', header: t('MSG_TXT_SR_NO'), width: 130 },
   ];

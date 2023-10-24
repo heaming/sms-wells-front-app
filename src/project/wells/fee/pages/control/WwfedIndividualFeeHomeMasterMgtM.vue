@@ -92,7 +92,7 @@
             :label="t('MSG_TXT_NMN')"
             align-content="right"
           >
-            <p>{{ info1.akdcha }}</p>
+            <p>{{ info1.cwMm }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -106,19 +106,19 @@
             :label="t('MSG_TXT_ASET')+ t('MSG_TXT_EDUC')+t('MSG_TXT_PTCP_DC')"
             align-content="right"
           >
-            <p>{{ info1.atcnt1 }}</p>
+            <p>{{ info1.asetEducPtcpDc }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ACPN')+ t('MSG_TXT_EDUC')+t('MSG_TXT_PTCP_DC')"
             align-content="right"
           >
-            <p>{{ info1.atcnt2 }}</p>
+            <p>{{ info1.acpnEducPtcpDc }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_BIZ_RGST_MM')"
             align-content="center"
           >
-            <p>{{ info1.akdsym }}</p>
+            <p>{{ info1.cntrYm }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -140,44 +140,44 @@
           <kw-form-item
             :label="t('MSG_TXT_COM_TOT')+ t('MSG_TXT_SELL')+ t('MSG_TXT_COUNT')"
           >
-            <p>{{ info1.akdeq0 ? stringUtil.getNumberWithComma(info1.akdeq0) : '0' }}</p>
+            <p>{{ info1.sellAckmtCt ? stringUtil.getNumberWithComma(info1.sellAckmtCt) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_SERVICE')+ t('MSG_TXT_COUNT')"
           >
-            <p>{{ info1.sercnt ? stringUtil.getNumberWithComma(info1.sercnt) : '0' }}</p>
+            <p>{{ info1.svCt ? stringUtil.getNumberWithComma(info1.svCt) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_SERVICE')+ t('MSG_TXT_PROCS_RT')"
           >
-            <p>{{ info1.serryl ? stringUtil.getNumberWithComma(info1.serryl) : '0' }}%</p>
+            <p>{{ info1.svProcRt ? stringUtil.getNumberWithComma(info1.svProcRt) : '0' }}%</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_HCR_MSH')"
           >
-            <p>{{ info1.akcda19 ? stringUtil.getNumberWithComma(info1.akcda19) : '0' }}</p>
+            <p>{{ info1.hcrMsh ? stringUtil.getNumberWithComma(info1.hcrMsh) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <kw-form-item
             :label="t('MSG_TXT_MTRRS')+ t('MSG_TXT_RTLFE')"
           >
-            <p>{{ info1.akcda10 ? stringUtil.getNumberWithComma(info1.akcda10) : '0' }}</p>
+            <p>{{ info1.mattRtlfe ? stringUtil.getNumberWithComma(info1.mattRtlfe) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_MTRRS')+t('MSG_TXT_EXCP') +t('MSG_TXT_RTLFE')"
           >
-            <p>{{ info1.akcda12 ? stringUtil.getNumberWithComma(info1.akcda12) : '0' }}</p>
+            <p>{{ info1.mattExcpRtlfe ? stringUtil.getNumberWithComma(info1.mattExcpRtlfe) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ENVR_ELHM') +t('MSG_TXT_SNGL_PMNT')"
           >
-            <p>{{ info1.akcda13 ? stringUtil.getNumberWithComma(info1.akcda13) : '0' }}</p>
+            <p>{{ info1.envrElhmPerfAmt ? stringUtil.getNumberWithComma(info1.envrElhmPerfAmt) : '0' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_ENVR_ELHM')+t('MSG_TXT_EXCP') +t('MSG_TXT_SNGL_PMNT')"
           >
-            <p>{{ info1.akcda15 ? stringUtil.getNumberWithComma(info1.akcda15) : '0' }}</p>
+            <p>{{ info1.envrElhmExcpPerfAmt ? stringUtil.getNumberWithComma(info1.envrElhmExcpPerfAmt) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -195,13 +195,13 @@
       >
         <kw-form-row>
           <kw-form-item :label="t('MSG_TXT_INTBS_SUM')">
-            <p>{{ info1.intbsSum ? stringUtil.getNumberWithComma(info1.intbsSum) : '0' }}</p>
+            <p>{{ info1.intbsAmt ? stringUtil.getNumberWithComma(info1.intbsAmt) : '0' }}</p>
           </kw-form-item>
           <kw-form-item :label="t('MSG_TXT_DDTN_SUM')">
-            <p>{{ info1.ddtnSum ? stringUtil.getNumberWithComma(info1.ddtnSum) : '0' }}</p>
+            <p>{{ info1.ddctam ? stringUtil.getNumberWithComma(info1.ddctam) : '0' }}</p>
           </kw-form-item>
           <kw-form-item :label="t('MSG_TXT_ACL_DSB_AMT')">
-            <p>{{ info1.aclDsbAmt ? stringUtil.getNumberWithComma(info1.aclDsbAmt) : '0' }}</p>
+            <p>{{ info1.dsbOjAmt ? stringUtil.getNumberWithComma(info1.dsbOjAmt) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -222,7 +222,7 @@
       <kw-grid
         ref="grd2MainRef"
         name="grd2Main"
-        :visible-rows="6"
+        :visible-rows="7"
         @init="initGrd2Main"
       />
       <kw-separator class="mb30" />
@@ -445,7 +445,7 @@ async function fetchData(type) {
       isBtnClick.value = false;
       searchParams.value.prtnrKnm = '';
     }
-  } else if (type === 'fee') {
+  } else if (type === 'fees') {
     const feeView = grd2MainRef.value.getView();
     feeView.getDataSource().setRows(resData);
   } else if (type === 'deduction') {
@@ -460,7 +460,7 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('entrepreneurs');
   if (isBtnClick.value === true) {
-    await fetchData('fee');
+    await fetchData('fees');
     await fetchData('deduction');
     await fetchData('control');
     await getUseYn(searchParams.value.perfYm, 'W03', searchParams.value.no);
@@ -547,14 +547,14 @@ const initGrd2Main = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '판매합계', styleName: 'text-left' } },
-    { fieldName: 'fval1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '서비스합계', styleName: 'text-left' } },
-    { fieldName: 'fval2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'item3', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '기타합계', styleName: 'text-left' } },
-    { fieldName: 'fval3', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'item4', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '조직합계', styleName: 'text-left' } },
-    { fieldName: 'fval4', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '170', styleName: 'text-left', footer: { text: '판매합계', styleName: 'text-left' } },
+    { fieldName: 'fval1', header: t('MSG_TXT_AMT'), width: '170', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '170', styleName: 'text-left', footer: { text: '서비스합계', styleName: 'text-left' } },
+    { fieldName: 'fval2', header: t('MSG_TXT_AMT'), width: '170', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item3', header: t('MSG_TXT_ITEM'), width: '170', styleName: 'text-left', footer: { text: '교육합계', styleName: 'text-left' } },
+    { fieldName: 'fval3', header: t('MSG_TXT_AMT'), width: '170', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
+    { fieldName: 'item4', header: t('MSG_TXT_ITEM'), width: '170', styleName: 'text-left', footer: { text: '조직합계', styleName: 'text-left' } },
+    { fieldName: 'fval4', header: t('MSG_TXT_AMT'), width: '170', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
 
   ];
 

@@ -320,12 +320,6 @@ const totalPaymentCount = ref(0);
 const totalEtcCount = ref(0);
 const totalDelinquentCount = ref(0);
 
-const contracts = [];
-const payments = [];
-const recentContracts = [];
-const etcs = [];
-const delinquents = [];
-
 async function onClickContractExcelDownload() {
   const view = grdContractRef.value.getView();
   await gridUtil.exportView(view, {
@@ -371,8 +365,19 @@ async function onClickDelinquentExcelDownload() {
   });
 }
 
+let contracts;
+let payments;
+let recentContracts;
+let etcs;
+let delinquents;
 /** 렌탈CB 정보 조회 */
 async function fetchContracts() {
+  contracts = [];
+  payments = [];
+  recentContracts = [];
+  etcs = [];
+  delinquents = [];
+
   const res = await dataService.get('/sms/common/bond/rental-cb-inf/contract-present-state', { params: cachedParams });
 
   res.data.forEach(async (element) => {

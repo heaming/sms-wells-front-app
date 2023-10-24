@@ -14,8 +14,12 @@
 --->
 <template>
   <kw-page>
-    <kw-search @search="onClickSearch">
+    <kw-search
+      :cols="4"
+      @search="onClickSearch"
+    >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
@@ -28,8 +32,10 @@
             @change="onChangeBaseYm"
           />
         </kw-search-item>
+        <!-- 창고구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_WARE_DV')"
+          :colspan="2"
         >
           <kw-select
             v-model="searchParams.wareDvCd"
@@ -52,17 +58,21 @@
             option-value="wareNo"
             option-label="wareNm"
             first-option="all"
+            @change="onChangeWareNo"
           />
         </kw-search-item>
+        <!-- 창고상세구분 -->
         <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
           <kw-select
             v-model="searchParams.wareDtlDvCd"
             :options="filterCodes.wareDtlDvCd"
             first-option="all"
+            @change="onChangeWareDtlDvCd"
           />
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 상품등급 -->
         <kw-search-item :label="$t('MSG_TXT_PD_GRD')">
           <kw-select
             v-model="searchParams.itmGdCd"
@@ -70,15 +80,10 @@
             first-option="all"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
-          <kw-select
-            v-model="searchParams.useYn"
-            :options="codes.USE_YN"
-            first-option="all"
-          />
-        </kw-search-item>
+        <!-- 품목구분 -->
         <kw-search-item
-          :label="$t('MSG_TXT_ITM_GRP')"
+          :label="$t('MSG_TXT_ITM_DV')"
+          :colspan="2"
         >
           <kw-select
             v-model="searchParams.itmKndCd"
@@ -94,8 +99,17 @@
             :multiple="true"
           />
         </kw-search-item>
+        <!-- 사용여부 -->
+        <kw-search-item :label="$t('MSG_TXT_USE_SEL')">
+          <kw-select
+            v-model="searchParams.useYn"
+            :options="codes.USE_YN"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 품목코드 -->
         <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
           <kw-input
             v-model="searchParams.itmPdCd"
@@ -104,7 +118,11 @@
             rules="alpha_num|max:10"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('MSG_TXT_SAPCD')">
+        <!-- SAP코드 -->
+        <kw-search-item
+          :label="$t('MSG_TXT_SAPCD')"
+          :colspan="2"
+        >
           <kw-input
             v-model="searchParams.strtSapCd"
             :label="$t('MSG_TXT_STRT_SAP_CD')"
@@ -119,6 +137,7 @@
             @change="onChangeEndSapCd"
           />
         </kw-search-item>
+        <!-- 자재구분 -->
         <kw-search-item :label="t('MSG_TXT_MAT_DV')">
           <kw-select
             v-model="searchParams.matUtlzDvCd"
@@ -142,7 +161,7 @@
           />
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -292,6 +311,26 @@ async function onChangeWareDvCd() {
   await getHgrWareNos();
 }
 
+// 창고 변경 시
+function onChangeWareNo() {
+  const { wareDtlDvCd, wareNo } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(wareNo) && (wareDtlDvCd === '20' || wareDtlDvCd === '30')) {
+    searchParams.value.wareDtlDvCd = '';
+  }
+}
+
+// 창고상세구분 변경시
+function onChangeWareDtlDvCd() {
+  const { wareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (wareDtlDvCd === '20' || wareDtlDvCd === '30') {
+    searchParams.value.wareNo = '';
+  }
+}
+
 // 기준년월이 변경되었을 때 창고번호 재조회
 async function onChangeBaseYm() {
   const searchBaseYm = searchParams.value.baseYm;
@@ -439,218 +478,218 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center', dataType: 'text' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center', dataType: 'text' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
     { fieldName: 'btdStocQty',
       header: t('MSG_TXT_BTD_STOC_QTY'),
-      width: '110',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     // 입고정보
     { fieldName: 'prchsQty',
       header: `${t('MSG_TXT_PRCHS')}${t('MSG_TXT_STR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'nomStrQty',
       header: `${t('MSG_TXT_NOM')}${t('MSG_TXT_STR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomAsnStrQty',
       header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_ASGN')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomMmtStrQty',
       header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_MOVE')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdStrInsiQty',
       header: t('MSG_TXT_INSI'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdStrOtsdQty',
       header: t('MSG_TXT_OTSD'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'etcStrQty',
       header: `${t('MSG_TXT_ETC')}${t('MSG_TXT_STR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'strCtrQty',
       header: `${t('MSG_TXT_GD')}${t('MSG_TXT_CTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'stocAcinspStrQty',
       header: t('MSG_TXT_STOC_ACINSP'),
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     // 출고정보
-    { fieldName: 'qomAsnOstrQty',
-      header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_ASGN')}`,
-      width: '100',
-      styleName: 'text-right',
-      numberFormat: '#,##0',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0.##',
-      } },
     { fieldName: 'nomOstrQty',
       header: `${t('MSG_TXT_NOM')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
+      } },
+    { fieldName: 'qomAsnOstrQty',
+      header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_ASGN')}`,
+      width: '80',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomMmtOstrQty',
       header: `${t('MSG_TXT_QOM')}${t('MSG_TXT_MOVE')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdOstrInsiQty',
       header: t('MSG_TXT_INSI'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdOstrOtsdQty',
       header: t('MSG_TXT_OTSD'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'sellOstrQty',
       header: `${t('MSG_TXT_SELL')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'dsuOstrQty',
       header: `${t('MSG_TXT_DSCD')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'wkOstrQty',
       header: `${t('MSG_TXT_OSTR_WK')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'refrOstrQty',
       header: `${t('MSG_TXT_REFR')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'etcOstrQty',
       header: `${t('MSG_TXT_ETC')}${t('MSG_TXT_OSTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'ostrCtrQty',
       header: `${t('MSG_TXT_GD')}${t('MSG_TXT_CTR')}`,
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'stocAcinspQty',
       header: t('MSG_TXT_STOC_ACINSP'),
-      width: '100',
+      width: '80',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     // 기말재고
     { fieldName: 'pitmStocQty',
       header: t('MSG_TXT_EOT_STOC_QTY'),
-      width: '110',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
   ];
 
@@ -668,7 +707,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { direction: 'horizontal',
       header: { text: t('MSG_TXT_OSTR_QTY') },
-      items: ['qomAsnOstrQty', 'nomOstrQty', 'qomMmtOstrQty',
+      items: ['nomOstrQty', 'qomAsnOstrQty', 'qomMmtOstrQty',
         { direction: 'horizontal',
           header: { text: t('MSG_TXT_RTNGD') },
           items: ['rtngdOstrInsiQty', 'rtngdOstrOtsdQty'],

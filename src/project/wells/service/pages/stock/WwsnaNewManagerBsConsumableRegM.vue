@@ -22,7 +22,6 @@
           <kw-date-picker
             v-model="searchParams.mngtYm"
             type="month"
-            @change="getBldCode"
           />
         </kw-search-item>
         <kw-search-item
@@ -80,11 +79,8 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :page-size-options="pageInfo.totalCount"
           />
         </template>
         <kw-btn
@@ -149,7 +145,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useMeta, getComponentType, codeUtil, useDataService, defineGrid, gridUtil, notify, alert } from 'kw-lib';
+import { useMeta, getComponentType, useDataService, defineGrid, gridUtil, notify, alert } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -169,9 +165,9 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
+// const codes = await codeUtil.getMultiCodes(
+//   'COD_PAGE_SIZE_OPTIONS',
+// );
 
 const searchParams = ref({
   mngtYm: dayjs().format('YYYYMM'),
@@ -226,7 +222,7 @@ async function getItems() {
 }
 
 async function getBldCode() {
-  const res = await dataService.get(`/sms/wells/service/newmanager-bsconsumables/building-code/${searchParams.value.mngtYm}`);
+  const res = await dataService.get('/sms/wells/service/newmanager-bsconsumables/building-code');
   const codeData = res.data;
 
   bldCode.value = codeData.map((v) => ({ codeId: v.bldCd, codeName: v.bldNm }));
@@ -389,7 +385,7 @@ async function fetchData() {
   await reAryGrid();
   await getNewMCsmbAplcClose();
 
-  const res = await dataService.get('/sms/wells/service/newmanager-bsconsumables', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/newmanager-bsconsumables', { params: { ...cachedParams, timeout: 300000 } });
   // const { list: bldCsmbDeliveries } = res.data;
 
   pageInfo.value.totalCount = res.data.length;

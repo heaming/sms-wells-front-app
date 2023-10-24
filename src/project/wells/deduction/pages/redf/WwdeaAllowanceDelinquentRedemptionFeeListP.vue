@@ -69,7 +69,7 @@
     <kw-grid
       ref="grdPopRef"
       name="grdPop"
-      :visible-rows="getVisibleRows"
+      :visible-rows="10"
       :page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
       @init="initGrid"
@@ -134,13 +134,13 @@ const pageInfo = ref({
   needTotalCount: true,
 });
 
-const getVisibleRows = computed(() => {
-  let rtnVal = pageInfo.value.pageSize;
-  if (pageInfo.value.totalCount < rtnVal) {
-    rtnVal = pageInfo.value.totalCount;
-  }
-  return rtnVal < 10 ? 10 : rtnVal;
-});
+// const getVisibleRows = computed(() => {
+//   let rtnVal = pageInfo.value.pageSize;
+//   if (pageInfo.value.totalCount < rtnVal) {
+//     rtnVal = pageInfo.value.totalCount;
+//   }
+//   return rtnVal < 10 ? 10 : rtnVal;
+// });
 
 onMounted(() => {
   searchParams.value.prtnrNo = props.prtnrNo;
@@ -278,7 +278,7 @@ function initGrid(data, view) {
       styleName: 'text-center',
     },
     { fieldName: 'feeCpsnRedfYn',
-      header: t('강제되물림여부'),
+      header: t('MSG_TXT_CPSN_REDF_YN'), // 강제 되물림 여부
       width: '110',
       styleName: 'text-center',
     },

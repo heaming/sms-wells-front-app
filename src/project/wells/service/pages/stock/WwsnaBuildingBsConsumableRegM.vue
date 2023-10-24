@@ -75,11 +75,8 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :page-size-options="pageInfo.totalCount"
           />
         </template>
         <kw-btn
@@ -143,7 +140,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useMeta, codeUtil, defineGrid, useDataService, getComponentType, gridUtil, notify, alert } from 'kw-lib';
+import { useMeta, defineGrid, useDataService, getComponentType, gridUtil, notify, alert } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -167,10 +164,6 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
 
 const searchParams = ref({
   mngtYm: dayjs().format('YYYYMM'),
@@ -225,7 +218,7 @@ async function getItems() {
 }
 
 async function getBldCode() {
-  const res = await dataService.get(`/sms/wells/service/building-bsconsumables/building-code/${searchParams.value.mngtYm}`);
+  const res = await dataService.get('/sms/wells/service/building-bsconsumables/building-code');
   const codeData = res.data;
 
   bldCode.value = codeData.map((v) => ({ codeId: v.bldCd, codeName: v.bldNm }));
@@ -390,7 +383,7 @@ async function fetchData() {
   await reAryGrid();
   await getBldCsmbAplcClose();
 
-  const res = await dataService.get('/sms/wells/service/building-bsconsumables', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/building-bsconsumables', { params: { ...cachedParams, timeout: 300000 } });
   // const { list: bldCsmbDeliveries, pageInfo: pagingResult } = res.data;
 
   pageInfo.value.totalCount = res.data.length;

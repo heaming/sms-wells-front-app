@@ -1292,6 +1292,7 @@ const fieldData = ref({
   istDtlAdr: '', // [설치자고객정보-상세주소]
   pdMclsfNm: '', // [주문상품선택-분류] 상품중분류명
   basePdCd: '', // [주문상품선택-상품코드]
+  pdCd: '',
   pdNm: '', // [주문상품선택-상품명]
   sellEvCd: '', /* 판매행사코드 */
   frisuAsPtrmN: '', /* 무상AS기간수 */
@@ -1339,6 +1340,7 @@ const fieldData = ref({
   prtnrDtlAdr: '', // [플래너정보-상세주소]
   alncmpCd: '', // 제휴사코드
   alncmpCntrDrmVal: '', // 제휴사계약식별값
+  vstSchDt: '', // 설치예정일자
 });
 
 // 주문상품 정보
@@ -1538,8 +1540,14 @@ async function fetchData() {
     },
   );
   Object.assign(fieldData.value, res.data);
+  fieldData.value.pdCd = fieldData.value.basePdCd;
 
   isFetched.value = true;
+
+  if (!isEmpty(fieldData.value.vstSchDt)) {
+    isFetched.value = false;
+    alert(t('MSG_ALT_ALRDY_HAVE_IST_EXP_DT')); // 이미 설치 예약된 계약건 입니다.
+  }
 
   // 주문상품선택 추가정보를 가져오기 위한 파라미터 세팅
   searchParams.value.pdCd = fieldData.value.basePdCd;
@@ -1623,20 +1631,6 @@ async function selectRentalPriceChanges() {
 
 // 기기변경 버튼 클릭
 async function onClickDeviceChange() {
-  const componentProps = {
-    baseCntrNo: fieldData.value.cntrNo,
-    baseCntrSn: fieldData.value.cntrSn,
-    cstNo: fieldData.value.cntrCstNo,
-    indvCrpDv: fieldData.value.copnDvCd,
-    pdCd: orderProduct.value.pdCd,
-    dscDv: orderProduct.value.sellDscDvCd,
-    dscTp: orderProduct.value.sellDscTpCd,
-    sellTpCd: '2',
-    alncmpCd: fieldData.value.alncmpCntrDrmVal,
-    rgstMdfcDv: '1', // FIXME: 등록, 수정 구분 필요
-  };
-  console.log(componentProps);
-
   const res = await modal({
     component: 'WwctaMachineChangeCustomerDtlP',
     componentProps: {
@@ -1652,6 +1646,7 @@ async function onClickDeviceChange() {
       rgstMdfcDv: '1', // FIXME: 등록, 수정 구분 필요
     },
   });
+
   if (res.result && res.payload) {
     // console.log(res.payload);
     orderProduct.value.mchChCntrNo = res.payload.cntrNo;

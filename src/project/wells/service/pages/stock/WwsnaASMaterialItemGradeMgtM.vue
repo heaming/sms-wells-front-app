@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
@@ -32,6 +33,7 @@
             @change="onChangeBaseYm"
           />
         </kw-search-item>
+        <!-- 관리창고번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_MNGT_WARE_NO')"
           :colspan="3"
@@ -61,6 +63,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 품목관리등급 -->
         <kw-search-item :label="$t('MSG_TXT_ITM_MNGT_GD')">
           <kw-select
             v-model="searchParams.itmMngtGdCd"
@@ -69,6 +72,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 사용여부 -->
         <kw-search-item :label="$t('MSG_TXT_USE_YN')">
           <kw-select
             v-model="searchParams.useYn"
@@ -77,6 +81,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
           required
@@ -91,6 +96,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 품목코드 -->
         <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
           <kw-input
             v-model="searchParams.itmPdCd"
@@ -99,6 +105,7 @@
             rules="alpha_num|max:10"
           />
         </kw-search-item>
+        <!-- 자재구분 -->
         <kw-search-item :label="t('MSG_TXT_MAT_DV')">
           <kw-select
             v-model="searchParams.matUtlzDvCd"
@@ -124,6 +131,7 @@
             ({{ t('MSG_TXT_UNIT') }} : EA)
           </span>
         </template>
+        <!-- 저장 -->
         <kw-btn
           v-permission:update
           :label="$t('MSG_TXT_SAVE')"
@@ -136,6 +144,7 @@
           inset
           spaced
         />
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -379,10 +388,10 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAPCD'), width: '95', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'itmPdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' },
-    { fieldName: 'jbfMms3OstrQty', header: t('MSG_TXT_JBF_MMS3_OSTR_SUM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'jbfMms3OstrQty', header: t('MSG_TXT_JBF_MMS3_OSTR_SUM'), width: '120', styleName: 'text-right' },
     { fieldName: 'mlmnOstrQty', header: t('MSG_TXT_MM_AV'), width: '100', styleName: 'text-right' },
     { fieldName: 'dAvOstrQty', header: t('MSG_TXT_D_AV'), width: '100', styleName: 'text-right' },
     { fieldName: 'itmMngtGdCd', header: t('MSG_TXT_ITM_MNGT_GD'), width: '100', styleName: 'text-center' },
@@ -406,9 +415,6 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-
-  const headerHeight = view.header.height;
-  view.header.height = headerHeight + 50;
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;

@@ -114,7 +114,7 @@
             <p>{{ stringUtil.getNumberWithComma(toInteger(baseInformation.istmPcamAmt)) }}</p>
           </kw-form-item>
           <kw-form-item :label="$t('MSG_TXT_ISTM_INF_MCNT_WON')">
-            <p>{{ baseInformation.istmInfo }}</p>
+            <p>{{ baseInformation.istmMcn }}*{{ stringUtil.getNumberWithComma(toInteger(baseInformation.mmIstmAmt)) }}</p>
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>

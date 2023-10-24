@@ -1084,7 +1084,7 @@ import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.v
 
 const { t } = useI18n();
 const dataService = useDataService();
-const { modal } = useGlobal();
+const { modal, notify } = useGlobal();
 const obsTabRef = ref();
 
 // -------------------------------------------------------------------------------------------------
@@ -1432,9 +1432,26 @@ async function onClickVisit() {
 
 // TODO: 소장 생성 팝업
 async function onClickPetitionCreate() {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  const dataParams = [];
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+  checkedRows.forEach((obj) => {
+    dataParams.push({
+      baseYm: obj.baseYm,
+      cntrDtlNo: obj.dtlCntrNo,
+    });
+  });
+
+  const userObjects = ref(dataParams);
   await modal({
     component: 'ZwbncPetitionCreateP',
-    componentProps: customer.value,
+    componentProps: {
+      userObjects: userObjects.value,
+    },
   });
 }
 
@@ -1625,6 +1642,7 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
 
+  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.header.minRowHeight = 30;
   view.displayOptions.minTableRowHeight = 34;

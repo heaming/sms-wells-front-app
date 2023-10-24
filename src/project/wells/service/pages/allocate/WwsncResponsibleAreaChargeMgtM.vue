@@ -196,21 +196,21 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
 const searchParams = ref({
-  zipFrom: '',
-  zipTo: '',
-  ctpvNm: '',
-  ctctyNm: '',
-  ogCd: '',
-  wkGrpCd: '10',
-  applyDate: dayjs().format('YYYYMMDD'),
-  rpbLocaraCdFrom: '',
-  rpbLocaraCdTo: '',
+  zipFrom: '', // 우편번호 From
+  zipTo: '', // 우편번호 To
+  ctpvNm: '', // 시도명
+  ctctyNm: '', // 시군구명
+  ogCd: '', // 조직코드
+  wkGrpCd: '10', // 작업그룹코드
+  applyDate: dayjs().format('YYYYMMDD'), // 적용일자
+  rpbLocaraCdFrom: '', // 책임지역코드 From
+  rpbLocaraCdTo: '', // 책임지역코드 To
 });
 
 const baseInfo = ref({
-  ichrPrtnrNo: '',
-  applyDateFrom: '',
-  applyDateTo: '99991231',
+  ichrPrtnrNo: '', // 담당파트너번호
+  applyDateFrom: '', // 적용시작일자
+  applyDateTo: '99991231', // 적용종료일자
 });
 
 const pageInfo = ref({
@@ -232,6 +232,7 @@ const ctpvs = ref([]);
 const ctctys = ref([]);
 ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/responsible-area-charges', { params: { ...cachedParams } });
   const personInCharges = res.data;
@@ -245,11 +246,13 @@ async function fetchData() {
   baseInfo.value.applyDateTo = '99991231';
 }
 
+// 조회 버튼 클릭
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -262,6 +265,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 시도 변경 시 시군구 목록 셋팅
 async function onUpdateCtcty(val) {
   searchParams.value.ctctyNm = '';
   if (val) {
@@ -272,6 +276,7 @@ async function onUpdateCtcty(val) {
   }
 }
 
+// 적용건수 체크
 function validateIsApplyRowExists() {
   const view = grdMainRef.value.getView();
   if (view.getCheckedItems().length === 0) {
@@ -281,6 +286,7 @@ function validateIsApplyRowExists() {
   return true;
 }
 
+// 적용일자 체크
 function validateApplyDate() {
   if (baseInfo.value.applyDateFrom === '') {
     notify(t('MSG_TXT_APY_DT_CONF'));
@@ -295,6 +301,7 @@ function validateApplyDate() {
   return true;
 }
 
+// 오늘일자보다 크거나 같은 일자인지 체크
 function validateToday(val) {
   const applyDate = isEmpty(searchParams.value.applyDate) ? dayjs().format('YYYYMMDD') : dayjs(searchParams.value.applyDate).format('YYYYMMDD');
 
@@ -326,6 +333,7 @@ function validateGridApplyDate() {
 }
 */
 
+// 그리드 담당사번 입력 시 담당자 정보 셋팅
 function setPersonInChargeCellData(view, row, value, column) {
   const matchedEngineer = engineers.find((v) => v.prtnrNo === value);
   if (matchedEngineer) {
@@ -359,6 +367,7 @@ async function onClickApplyDateBulkApply() {
   view.commit();
 }
 
+// 저장
 async function onClickSave() {
   if (!validateIsApplyRowExists()) return;
   // if (!validateGridApplyDate()) return;
@@ -386,42 +395,42 @@ async function onClickSave() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'zipList' },
-    { fieldName: 'hemdList' },
+    { fieldName: 'zipList' }, // 우편번호 리스트
+    { fieldName: 'hemdList' }, // 행정동 리스트
     // { fieldName: 'mgtCnt', dataType: 'number' },
     // { fieldName: 'wrkCnt', dataType: 'number' },
-    { fieldName: 'rpbLocaraCd' },
-    { fieldName: 'satWrkYn' },
-    { fieldName: 'apyStrtdt', dataType: 'datetime' },
-    { fieldName: 'apyEnddt', dataType: 'datetime' },
-    { fieldName: 'wkGrpCd' },
-    { fieldName: 'ogTpCd' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'ichrPrtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'pprnIchrPrtnrOgTpCd' },
-    { fieldName: 'ogNm1' },
-    { fieldName: 'pprnIchrPrtnrNo1' },
-    { fieldName: 'pprnIchrPrtnrKnm1' },
-    { fieldName: 'ogNm2' },
-    { fieldName: 'pprnIchrPrtnrNo2' },
-    { fieldName: 'pprnIchrPrtnrKnm2' },
-    { fieldName: 'ogNm3' },
-    { fieldName: 'pprnIchrPrtnrNo3' },
-    { fieldName: 'pprnIchrPrtnrKnm3' },
-    { fieldName: 'ogNm4' },
-    { fieldName: 'pprnIchrPrtnrNo4' },
-    { fieldName: 'pprnIchrPrtnrKnm4' },
-    { fieldName: 'ogNm5' },
-    { fieldName: 'pprnIchrPrtnrNo5' },
-    { fieldName: 'pprnIchrPrtnrKnm5' },
-    { fieldName: 'rpbLocaraGrpCd' },
-    { fieldName: 'vstDowVal' },
-    { fieldName: 'izSn', dataType: 'number' },
-    { fieldName: 'rstrCndtUseYn' },
-    { fieldName: 'udsnUseYn' },
-    { fieldName: 'mmtAvLdtm', dataType: 'number' },
-    { fieldName: 'locaraCenStruAdr' },
+    { fieldName: 'rpbLocaraCd' }, // 책임지역코드
+    { fieldName: 'satWrkYn' }, // 토요일근무여부
+    { fieldName: 'apyStrtdt', dataType: 'datetime' }, // 적용시작일자
+    { fieldName: 'apyEnddt', dataType: 'datetime' }, // 적용종료일자
+    { fieldName: 'wkGrpCd' }, // 작업그룹코드
+    { fieldName: 'ogTpCd' }, // 조직유형코드
+    { fieldName: 'ogNm' }, // 조직명
+    { fieldName: 'ichrPrtnrNo' }, // 담당파트너번호
+    { fieldName: 'prtnrKnm' }, // 파트너한글명
+    { fieldName: 'pprnIchrPrtnrOgTpCd' }, // 예비담당파트너 조직유형코드
+    { fieldName: 'ogNm1' }, // 예비담당파트너1 조직명
+    { fieldName: 'pprnIchrPrtnrNo1' }, // 예비담당파트너1 파트너번호
+    { fieldName: 'pprnIchrPrtnrKnm1' }, // 예비담당파트너1 한글명
+    { fieldName: 'ogNm2' }, // 예비담당파트너2 조직명
+    { fieldName: 'pprnIchrPrtnrNo2' }, // 예비담당파트너2 파트너번호
+    { fieldName: 'pprnIchrPrtnrKnm2' }, // 예비담당파트너2 파트너한글명
+    { fieldName: 'ogNm3' }, // 예비담당파트너3 조직명
+    { fieldName: 'pprnIchrPrtnrNo3' }, // 예비담당파트너3 파트너번호
+    { fieldName: 'pprnIchrPrtnrKnm3' }, // 예비담당파트너3 파트너한글명
+    { fieldName: 'ogNm4' }, // 예비담당파트너4 조직명
+    { fieldName: 'pprnIchrPrtnrNo4' }, // 예비담당파트너4 파트너번호
+    { fieldName: 'pprnIchrPrtnrKnm4' }, // 예비담당파트너4 파트너한글명
+    { fieldName: 'ogNm5' }, // 예비담당파트너5 조직명
+    { fieldName: 'pprnIchrPrtnrNo5' }, // 예비담당파트너5 파트너번호
+    { fieldName: 'pprnIchrPrtnrKnm5' }, // 예비담당파트너5 파트너한글명
+    { fieldName: 'rpbLocaraGrpCd' }, // 책임지역그룹코드
+    { fieldName: 'vstDowVal' }, // 방문요일값
+    { fieldName: 'izSn', dataType: 'number' }, // 내역일련번호
+    { fieldName: 'rstrCndtUseYn' }, // 제약조건사용여부
+    { fieldName: 'udsnUseYn' }, // 미지정사용여부
+    { fieldName: 'mmtAvLdtm', dataType: 'number' }, // 이동평균시간
+    { fieldName: 'locaraCenStruAdr' }, // 지역중심건물주소
   ];
 
   const codeYn = codes.COD_YN.map((v) => v.codeId);

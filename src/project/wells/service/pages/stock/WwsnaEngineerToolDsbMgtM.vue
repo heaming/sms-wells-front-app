@@ -274,7 +274,6 @@ function initGrid() {
 }
 
 async function fetchData() {
-  console.log(cachedParams);
   initGrid();
 
   const res = await dataService.get('/sms/wells/service/engineer-tools/paging', { params: { ...cachedParams, ...pageInfo.value } });
@@ -356,8 +355,8 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'hgrOgNm', header: t('MSG_TXT_SV_CNR'), width: '150', styleName: 'text-center' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_BRANCH'), width: '150', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_SV_CNR'), width: '150', styleName: 'text-center' },
+    // { fieldName: 'ogNm', header: t('MSG_TXT_BRANCH'), width: '150', styleName: 'text-center' },
     { fieldName: 'egerPrtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },

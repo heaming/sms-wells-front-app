@@ -536,6 +536,7 @@ function onCellDblClickedGrid1(grid, clickData) {
   }
   processParam.value.baseYmd = `${dummyDate.substr(0, 6)}01`;
   processParam.value.asnOjYm = dummyDate.substr(0, 6);
+  processParam.value.periodDeleteYmd = `${dummyDate.substr(0, 6)}01`;
 }
 
 // -------------------------------------------------------------------------------------------------

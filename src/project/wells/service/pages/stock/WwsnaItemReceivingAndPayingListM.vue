@@ -48,6 +48,7 @@
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeWareDvCd"
           @update:ware-no-m="onChagneHgrWareNo"
+          @update:ware-no-d="onChagneWareNo"
         />
       </kw-search-row>
       <kw-search-row>
@@ -65,7 +66,6 @@
         <!-- 사용여부 -->
         <kw-search-item
           :label="$t('MSG_TXT_USE_SEL')"
-          :colspan="1"
         >
           <kw-select
             v-model="searchParams.useYn"
@@ -73,10 +73,18 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 창고상세구분 -->
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
+          <kw-select
+            v-model="searchParams.wareDtlDvCd"
+            :options="filterCodes.wareDtlDvCd"
+            first-option="all"
+            @change="onChangeWareDtlDvCd"
+          />
+        </kw-search-item>
         <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
-          :colspan="2"
         >
           <kw-select
             v-model="searchParams.itmKnd"
@@ -199,6 +207,7 @@ const codes = await codeUtil.getMultiCodes(
   'PD_GD_CD', // 상품등급
   'USE_YN', // 사용여부
   'ITM_KND_CD', // 품목구분코드
+  'WARE_DTL_DV_CD', // 창고상세구분
 );
 
 // 등급 필터링
@@ -208,6 +217,7 @@ const searchParams = ref({
   strWareDvCd: '2',
   strWareNoM: '',
   strWareNoD: '',
+  wareDtlDvCd: '',
   itmKnd: '',
   itmPdCdFrom: '',
   sapMatCdFrom: '',
@@ -220,15 +230,50 @@ const searchParams = ref({
 
 });
 
+const filterCodes = ref({
+  wareDtlDvCd: [],
+});
+
+// 창고세부구분코드 필터링
+function wareDtlDvCdFilter() {
+  const { strWareDvCd } = searchParams.value;
+  filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => v.codeId.startsWith(strWareDvCd));
+}
+
+// 창고구분 변경 시
 function onChangeWareDvCd() {
   searchParams.value.strWareNoM = '';
   searchParams.value.strWareNoD = '';
+  // 창고상세구분 필터링
+  wareDtlDvCdFilter();
 }
 
+// 상위창고 변경 시
 function onChagneHgrWareNo() {
   searchParams.value.strWareNoD = '';
 }
 
+// 창고 변경 시
+function onChagneWareNo() {
+  const { wareDtlDvCd, strWareNoD } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(strWareNoD) && (wareDtlDvCd === '20' || wareDtlDvCd === '30')) {
+    searchParams.value.wareDtlDvCd = '';
+  }
+}
+
+// 창고상세구분 변경시
+function onChangeWareDtlDvCd() {
+  const { wareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (wareDtlDvCd === '20' || wareDtlDvCd === '30') {
+    searchParams.value.strWareNoD = '';
+  }
+}
+
+// 시작 SAP코드 변경 시
 function onChangeStrtSapCd() {
   const { sapMatCdFrom, sapMatCdTo } = searchParams.value;
 
@@ -238,6 +283,7 @@ function onChangeStrtSapCd() {
   }
 }
 
+// 종료 SAP코드 변경 시
 function onChangeEndSapCd() {
   const { sapMatCdFrom, sapMatCdTo } = searchParams.value;
 
@@ -248,6 +294,7 @@ function onChangeEndSapCd() {
 }
 
 let cachedParams;
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/receipts-and-payments/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: payments, pageInfo: pagingResult } = res.data;
@@ -260,6 +307,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -272,13 +320,19 @@ async function onClickExcelDownload() {
   });
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   const splitSapMatDpct = searchParams.value.sapMatDpct.split(',');
   searchParams.value.sapMatDpcts = splitSapMatDpct;
   cachedParams = cloneDeep(searchParams.value);
+  pageInfo.value.pageIndex = 1;
   pageInfo.value.needTotalCount = true;
   await fetchData();
 }
+
+onMounted(async () => {
+  wareDtlDvCdFilter();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -303,13 +357,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strQty', dataType: 'number' }, // 합계
     // 출고수량
     { fieldName: 'nomOstrQty', dataType: 'number' }, // 정상출고수량
-    { fieldName: 'svcNomOstrQty', dataType: 'number' }, //
-    { fieldName: 'sellNomOstrQty', dataType: 'number' },
-    { fieldName: 'qomAsnOstrQty', dataType: 'number' }, // 배정
-    { fieldName: 'qomMmtOstrQty', dataType: 'number' }, // 물량
+    { fieldName: 'svcNomOstrQty', dataType: 'number' }, // 입고창고 - 서비스
+    { fieldName: 'sellNomOstrQty', dataType: 'number' }, // 입고창고 - 영업
+    { fieldName: 'qomAsnOstrQty', dataType: 'number' }, // 배정출고수량
+    { fieldName: 'qomMmtOstrQty', dataType: 'number' }, // 물량이동수량
     { fieldName: 'rtngdOstrInsdQty', dataType: 'number' }, // 반품출고내부수량
     { fieldName: 'rtngdOstrOtsdQty', dataType: 'number' }, // 반품출고외부수량
-    { fieldName: 'useQty', dataType: 'number' }, // 작업
+    { fieldName: 'useQty', dataType: 'number' }, // 작업출고수량
     { fieldName: 'yearInUseQty', dataType: 'number' }, // 설치일기준 1년내
     { fieldName: 'yearOutUseQty', dataType: 'number' }, // 설치일기준 1년후
     { fieldName: 'refrOstrQty', dataType: 'number' }, // 리퍼출고수량
@@ -317,7 +371,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dsuOstrQty', dataType: 'number' }, // 폐기출고수량
     { fieldName: 'etcOstrQty', dataType: 'number' }, // 기타출고수량
     { fieldName: 'ostrCtrQty', dataType: 'number' }, // 출고등급수량
-    { fieldName: 'cnfmPitmOstrGapQty', dataType: 'number' }, // 재고실사
+    { fieldName: 'cnfmPitmOstrGapQty', dataType: 'number' }, // 재고실사수량
     { fieldName: 'ostrQty', dataType: 'number' }, // 합계
     { fieldName: 'eotStocQty', dataType: 'number' }, // 기말재고수량
     { fieldName: 'mmtStocQty', dataType: 'number' }, // 이동재고수량
@@ -325,255 +379,255 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left', footer: { text: t('MSG_TXT_SUM') } },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
     { fieldName: 'basStocQty',
       header: t('MSG_TXT_BTD_STOC_QTY'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'prchsStrQty',
       header: t('MSG_TXT_PRCHS'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'nomStrQty',
       header: t('MSG_TXT_NOM'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomAsnStrQty',
       header: t('MSG_TXT_ASGN'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomMmtStrQty',
       header: t('MSG_TXT_MOVE'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdStrInsdQty',
       header: t('MSG_TXT_INSI'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdStrOtsdQty',
       header: t('MSG_TXT_OTSD'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'etcStrQty',
       header: t('MSG_TXT_ETC'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'strCtrQty',
       header: t('MSG_TXT_GD'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'cnfmPitmStrGapQty',
       header: t('MSG_TXT_STOC_ACINSP'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'strQty',
       header: t('MSG_TXT_SUM'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'nomOstrQty',
       header: t('MSG_TXT_NOM'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'svcNomOstrQty',
       header: t('MSG_TXT_SERVICE'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'sellNomOstrQty',
       header: t('MSG_TXT_BZNS'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomAsnOstrQty',
       header: t('MSG_TXT_ASGN'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'qomMmtOstrQty',
       header: t('MSG_TXT_QOM'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdOstrInsdQty',
       header: t('MSG_TXT_INSI'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'rtngdOstrOtsdQty',
       header: t('MSG_TXT_OTSD'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'useQty',
       header: t('MSG_TXT_OSTR_WK'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'yearInUseQty',
       header: t('MSG_TXT_Y1_WTHN'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'yearOutUseQty',
       header: t('MSG_TXT_Y1_AF'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'refrOstrQty',
       header: t('MSG_TXT_REFR'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'sellOstrQty',
       header: t('MSG_TXT_SELL'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'dsuOstrQty',
       header: t('MSG_TXT_DSCD'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'etcOstrQty',
       header: t('MSG_TXT_ETC'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'ostrCtrQty',
       header: t('MSG_TXT_GD'),
-      width: '120',
+      width: '70',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'cnfmPitmOstrGapQty',
       header: t('MSG_TXT_STOC_ACINSP'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'ostrQty',
       header: t('MSG_TXT_SUM'),
-      width: '120',
+      width: '80',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'eotStocQty',
       header: t('MSG_TXT_EOT_STOC_QTY'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
     { fieldName: 'mmtStocQty',
       header: t('MSG_TXT_MMT_STOC_QTY'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
-        numberFormat: '#,##0.##',
+        numberFormat: '#,##0',
       } },
 
   ];
 
   const columnLayout = [
-    'itmPdCd',
     'sapMatCd',
+    'itmPdCd',
     'itmPdNm',
     'basStocQty',
     { direction: 'horizontal',
@@ -632,6 +686,10 @@ const initGrdMain = defineGrid((data, view) => {
   view.setOptions({ summaryMode: 'aggregate' });
 
   view.rowIndicator.visible = true;
+
+  view.setFixedOptions({
+    colCount: 3,
+  });
 });
 
 </script>

@@ -3,8 +3,9 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WwsnaReturningGoodsOutOfStorageRegM - 반품출고 등록
- 3. 작성자 : hyewon.kim
+ 2. 프로그램 ID : WwsnaReturningGoodsOutOfStorageRegM - 반품출고 등록(W-SV-U-0001M01)
+ 3. 작성자 : hyewon.kim ,
+             SongTaeSung
  4. 작성일 : 2023.02.13
  ****************************************************************************************************
  * 프로그램 설명
@@ -68,7 +69,6 @@
         <kw-search-item :label="$t('MSG_TXT_STR_WARE')">
           <kw-input
             v-model="searchParams.strWareNm"
-            icon="search"
             :disable="searchParams.ostrTpCd !== RETURN_INSIDE"
             readonly
           />
@@ -194,13 +194,14 @@
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
+import { isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
 const { getters } = useStore();
 const dataService = useDataService();
 
 const { getConfig } = useMeta();
-const { modal, notify } = useGlobal();
+const { modal, notify, alert } = useGlobal();
 
 const { getWarehouseCloseCheck } = useSnCode();
 const { employeeIDNumber } = getters['meta/getUserInfo'];
@@ -247,8 +248,8 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'OSTR_TP_CD',
-  'WARE_DV_CD',
+  'OSTR_TP_CD', // 출고구분코드
+  'WARE_DV_CD', // 창고구분코드
   'MNGT_UNIT_CD', // 관리단위코드
   'PD_GD_CD', // 상품등급코드
   'RTNGD_RSON_CD', // 반품사유 (출고사유코드)
@@ -260,6 +261,7 @@ const pdGdCds = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(
 
 const trnspnCds = codes.SPP_MTHD_TP_CD.filter((v) => ['6', '5', '0'].includes(v.codeId));
 
+// 출고유형코드 필터링
 function isReturingCode(codeId) {
   return codeId === RETURN_INSIDE;
 }
@@ -277,7 +279,7 @@ const searchParams = ref({
   strWareNo: '', // 입고창고
   strWareNm: '', // 입고창고명
   itmOstrNo: '', // 품목출고번호
-  strWareDvCd: '',
+  strWareDvCd: '', // 입고창고구분코드
   trnspnCd: '', // 운송코드
 });
 
@@ -289,10 +291,12 @@ const pageInfo = ref({
 const warehouses = ref([]);
 const ostrRsonCds = ref(codes.DSU_RSON_CD);
 
+// 전체건수 셋팅
 function setTotalCount() {
   pageInfo.value.totalCount = grdMainRef.value.getView().getItemCount();
 }
 
+// 출고수량 체크
 function validateOstrQty(row, val) {
   const grid = grdMainRef.value.getView();
   const onQty = gridUtil.getCellValue(grid, row, 'onQty');
@@ -304,6 +308,7 @@ function validateOstrQty(row, val) {
   return true;
 }
 
+// 입력 값 체크
 function validateInputValueExists(input, inputType) {
   if (input === '') {
     notify(t('MSG_ALT_SELECT_VAL', [inputType]));
@@ -312,6 +317,12 @@ function validateInputValueExists(input, inputType) {
   return true;
 }
 
+// 인덱스가 null 인지 체크
+function isIndexEmpty(obj) {
+  return (obj === undefined || obj === null || obj === '');
+}
+
+// 적용건수 체크
 function validateIsApplyRowExists() {
   const view = grdMainRef.value.getView();
   if (view.getItemCount() === 0) {
@@ -321,6 +332,23 @@ function validateIsApplyRowExists() {
   return true;
 }
 
+// 시점재고 조회
+async function fetchPitmStoc(rows, itmGdCd, index) {
+  const view = grdMainRef.value.getView();
+  const itmPdCds = rows.map((v) => v.itmPdCd);
+  const res = await dataService.get(`/sms/wells/service/returning-goods-out-of-storages/${searchParams.value.ostrWareNo}`, { params: { itmPdCds, itmGdCd } });
+  for (let i = 0; i < rows.length; i += 1) {
+    if (res.data[i].itmPdCd === rows[i].itmPdCd) {
+      if (isIndexEmpty(index)) {
+        view.setValue(i, 'onQty', res.data[i].pitmQty);
+      } else {
+        view.setValue(index, 'onQty', res.data[i].pitmQty);
+      }
+    }
+  }
+}
+
+// 그리드 "사유" 전체 변경
 function onClickGridBulkChange(val, type) {
   const inputType = type === 'itmGdCd' ? '등급' : '사유';
 
@@ -333,37 +361,65 @@ function onClickGridBulkChange(val, type) {
   for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
     view.setValue(dataRow, type, val);
   }
+  // {0} 항목이 일괄변경 되었습니다.
   notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [inputType]));
 }
 
+// 그리드 row 데이터 가져오기
 function getRowData(rowData) {
-  return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0, mngtUnitCd: rowData.delUntNm };
+  return { ...rowData,
+    sapMatCd: rowData.sapCd,
+    onQty: rowData.myCenterQty || 0,
+    mngtUnitCd: rowData.delUntNm,
+    itmKndCd: rowData.itmKnd };
 }
 
+// 품목기본정보 팝업 오픈
 async function openItemBasePopup(type, row) {
+  if (isEmpty(searchParams.value.ostrWareNo)) {
+    // 해당사용자는 수불관리 창고가 존재하지 않습니다.
+    await alert(t('MSG_ALT_USR_RVPY_WARE_NEX'));
+    return;
+  }
+
   const { result, payload } = await modal({
     component: 'WwsnaItemBaseInformationListP',
-    componentProps: { chk: '1', lpGbYn: type === 'U' ? 'Y' : '' },
+    componentProps: { chk: '1', lpGbYn: type === 'U' ? 'Y' : '', wareNo: searchParams.value.ostrWareNo },
   });
 
+  const target = [];
   if (result) {
     const view = grdMainRef.value.getView();
+    const list = gridUtil.getAllRowValues(view, false);
     if (type === 'C') {
-      view.getDataSource().addRows(payload.map((v) => getRowData(v)));
+      payload.forEach((obj) => {
+        if (list.find((i) => i.itmPdCd === obj.itmPdCd)) {
+          return true;
+        }
+        target.push(obj);
+        return false;
+      });
+      view.getDataSource().addRows(target.map((v) => getRowData(v)));
       view.checkAll(false);
       view.resetCurrent();
+      if (!isEmpty(target)) {
+        await fetchPitmStoc(target, 'A'); // 시점재고 조회
+      }
     } else if (type === 'U') {
       const rowData = payload?.[0] || {};
       view.setValues(row, getRowData(rowData), true);
+      await fetchPitmStoc([rowData], 'A');
     }
     setTotalCount();
   }
 }
 
+// 품목 추가 버튼 클릭
 async function onClickAddItems() {
   await openItemBasePopup('C');
 }
 
+// 그리드 "사유" 드롭다운 데이터 셋팅
 function setReasonCellStyle() {
   const ostrRsonCd = grdMainRef.value.getView().columnByField('ostrRsonCd');
 
@@ -373,6 +429,7 @@ function setReasonCellStyle() {
   ostrRsonCd.values = ostrRsonCds.value.map((v) => v.codeId);
 }
 
+// 입고창고 셋팅
 function setStrWareNo() {
   const { codeIdUp, codeNameUp, wareDvCdUp } = warehouses.value.find((v) => v.codeId === searchParams.value.ostrWareNo);
   searchParams.value.strWareNo = codeIdUp;
@@ -380,12 +437,22 @@ function setStrWareNo() {
   searchParams.value.strWareDvCd = wareDvCdUp;
 }
 
-function onChangeOstrWareNo() {
+// 출고창고 변경 시 입고 창고 셋팅
+async function onChangeOstrWareNo() {
+  const view = grdMainRef.value.getView();
+  const list = gridUtil.getAllRowValues(view, false);
+
+  // 출고창고 변경시 시점재고 재조회
+  if (list.length > 0) {
+    await fetchPitmStoc(list, 'A'); // 시점재고 조회
+  }
+
   if (searchParams.value.ostrTpCd === RETURN_INSIDE) {
     setStrWareNo();
   }
 }
 
+// 출고유형 변경 시 사유 데이터 변경
 function onChangeOstrTp() {
   const { ostrTpCd } = searchParams.value;
 
@@ -402,6 +469,7 @@ function onChangeOstrTp() {
   setReasonCellStyle();
 }
 
+// 파라미터로 받은 값을 조회조건에 셋팅
 function setSearchParams() {
   const { ostrTpCd, ostrWareNo, ostrDt, strWareNo, itmOstrNo } = props;
   searchParams.value.ostrTpCd = ostrTpCd;
@@ -412,6 +480,7 @@ function setSearchParams() {
 }
 
 const itemOutOfStorage = ref();
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages', { params: searchParams.value });
   const { itemOutOfStorage: itemOstr, returningGoods } = res.data;
@@ -422,6 +491,7 @@ async function fetchData() {
   view.getDataSource().setRows(returningGoods);
 }
 
+// 기본정보 조회
 async function fetchDefaultData() {
   const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages/warehouses', { params: { userId: employeeIDNumber, apyYm: dayjs().format('YYYYMM') } });
   warehouses.value = res.data;
@@ -430,11 +500,11 @@ async function fetchDefaultData() {
   const { codeId } = res.data[0];
   searchParams.value.ostrWareNo = codeId;
 }
-
+// 대상 Object의 빈값 여부 체크
 function isNotEmpty(obj) {
   return (obj !== undefined && obj !== null && obj !== '');
 }
-
+// 파라미터 체크
 function hasProps() {
   return isNotEmpty(props.ostrTpCd) && isNotEmpty(props.ostrWareNo) && isNotEmpty(props.ostrDt);
 }
@@ -448,6 +518,7 @@ async function isWarehouseClosed() {
   return false;
 }
 
+// 삭제
 async function onClickDelete() {
   if (await isWarehouseClosed()) return;
 
@@ -485,6 +556,7 @@ async function validateClosed(itmOstrNo) {
   return true;
 }
 
+// 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
 
@@ -536,6 +608,7 @@ async function onClickSave() {
   view.setAllCheck(false);
 }
 
+// 마운트 처리
 onMounted(async () => {
   await fetchDefaultData();
   onChangeOstrTp();
@@ -545,10 +618,12 @@ onMounted(async () => {
   }
 });
 
+// 수정 가능 여부 판별
 function canEdit() {
   return hasProps() && props.strWareDvCd !== '1';
 }
 
+// 수정 불가 셀 셋팅
 function setCellEditableFalse() {
   if (canEdit()) {
     return { editable: false };
@@ -560,24 +635,24 @@ function setCellEditableFalse() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'itmPdNm' },
-    { fieldName: 'itmGdCd' },
-    { fieldName: 'onQty', dataType: 'number' },
-    { fieldName: 'mngtUnitCd' },
-    { fieldName: 'ostrRsonCd' },
-    { fieldName: 'ostrQty', dataType: 'number' },
-    { fieldName: 'rmkCn' },
-    { fieldName: 'strConfDt' },
-    { fieldName: 'itmOstrNo' },
-    { fieldName: 'ostrSn' },
-    { fieldName: 'itmStrNo' },
-    { fieldName: 'strSn' },
-    { fieldName: 'itmKndCd' },
-    { fieldName: 'acbDt' },
-    { fieldName: 'evidDvCd' },
-    { fieldName: 'strTpCd' },
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 상품코드
+    { fieldName: 'itmPdNm' }, // 상품명
+    { fieldName: 'itmGdCd' }, // 등급코드
+    { fieldName: 'onQty', dataType: 'number' }, // 재고수량
+    { fieldName: 'mngtUnitCd' }, // 관리단위
+    { fieldName: 'ostrRsonCd' }, // 출고사유코드
+    { fieldName: 'ostrQty', dataType: 'number' }, // 출고수량
+    { fieldName: 'rmkCn' }, // 비고
+    { fieldName: 'strConfDt' }, // 입고확인일자
+    { fieldName: 'itmOstrNo' }, // 품목춟고번호
+    { fieldName: 'ostrSn' }, // 출고일련번호
+    { fieldName: 'itmStrNo' }, // 품목입고번호
+    { fieldName: 'strSn' }, // 입고일련번호
+    { fieldName: 'itmKndCd' }, // 품목종류코드
+    { fieldName: 'acbDt' }, // 회계일자
+    { fieldName: 'evidDvCd' }, // 증빙구분코드
+    { fieldName: 'strTpCd' }, // 입고유형코드
   ];
 
   const columns = [
@@ -684,6 +759,17 @@ const initGrdMain = defineGrid((data, view) => {
 
     if (index.fieldName === 'ostrQty') {
       validateOstrQty(index.dataRow, editResult.value);
+    }
+  };
+
+  view.onCellEdited = async (grid, itemIndex, row, field) => {
+    const { itmGdCd } = grid.getValues(itemIndex);
+    const dataRow = [grid.getValues(itemIndex)];
+
+    const changedFieldName = grid.getDataSource().getOrgFieldName(field);
+
+    if (changedFieldName === 'itmGdCd') {
+      await fetchPitmStoc(dataRow, itmGdCd, row);
     }
   };
 });

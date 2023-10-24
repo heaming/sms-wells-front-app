@@ -105,12 +105,44 @@
         </template>
         <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
       </kw-action-top>
-      <kw-grid
-        ref="grd1MainRef"
-        name="grd1Main"
-        :visible-rows="2"
-        @init="initGrd1Main"
-      />
+      <kw-form
+        dense
+        align-content="right"
+      >
+        <kw-form-row>
+          <kw-form-item :label="t('MSG_TXT_ELHM_INDV_PRPN')">
+            <p>{{ basePerf.indvElhm ? stringUtil.getNumberWithComma(basePerf.indvElhm) : '0' }}</p>
+          </kw-form-item>
+          <kw-form-item :label="t('MSG_TXT_ELHM_EXCP_INDV_PRPN')">
+            <p>{{ basePerf.indvElhmExcp ? stringUtil.getNumberWithComma(basePerf.indvElhmExcp) : '0' }}</p>
+          </kw-form-item>
+          <kw-form-item :label="t('MSG_TXT_INDV_ADP')">
+            <p>{{ basePerf.indvAdp ? stringUtil.getNumberWithComma(basePerf.indvAdp) : '0' }}</p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <kw-form-item :label="t('MSG_TXT_ELHM_OG_PRPN')">
+            <p>{{ basePerf.ogElhm ? stringUtil.getNumberWithComma(basePerf.ogElhm) : '0' }}</p>
+          </kw-form-item>
+          <kw-form-item :label="t('MSG_TXT_ELHM_OG_EXCP_PRPN')">
+            <p>{{ basePerf.ogElhmExcp ? stringUtil.getNumberWithComma(basePerf.ogElhmExcp) : '0' }}</p>
+          </kw-form-item>
+          <kw-form-item :label="t('MSG_TXT_OG_ADP')">
+            <p>{{ basePerf.ogAdp ? stringUtil.getNumberWithComma(basePerf.ogAdp) : '0' }}</p>
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <kw-form-item :label="t('MSG_TXT_CHNG')">
+            <p>{{ basePerf.indvElhmChdvc ? stringUtil.getNumberWithComma(basePerf.indvElhmChdvc) : '0' }}</p>
+          </kw-form-item>
+          <kw-form-item :label="t('MSG_TXT_INDV_MUTU')">
+            <p>{{ basePerf.indvMutu ? stringUtil.getNumberWithComma(basePerf.indvMutu) : '0' }}</p>
+          </kw-form-item>
+          <kw-form-item :label="t('MSG_TXT_OG_MUTU')">
+            <p>{{ basePerf.ogMutu ? stringUtil.getNumberWithComma(basePerf.ogMutu) : '0' }}</p>
+          </kw-form-item>
+        </kw-form-row>
+      </kw-form>
       <kw-separator />
       <kw-action-top class="mb20">
         <template #left>
@@ -222,7 +254,7 @@
           <kw-form-item
             :label="t('MSG_TXT_INDD_INSR')"
           >
-            <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
+            <p>{{ info2.inddInsr ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
@@ -238,7 +270,6 @@
       <kw-grid
         ref="grd3MainRef"
         name="grd3Main"
-        :visible-rows="3"
         @init="initGrd3Main"
       />
     </div>
@@ -261,7 +292,6 @@ const isBtnClick = ref(false);
 // -------------------------------------------------------------------------------------------------
 
 const now = dayjs();
-const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
 const grd3MainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
@@ -292,6 +322,18 @@ const info2 = ref({
   buDdtn: '',
   pnpyam: '',
   inddInsr: '',
+});
+
+const basePerf = ref({
+  indvElhm: '',
+  indvElhmExcp: '',
+  indvAdp: '',
+  indvElhmChdvc: '',
+  indvMutu: '',
+  ogElhm: '',
+  ogElhmExcp: '',
+  ogAdp: '',
+  ogMutu: '',
 });
 
 let cachedParams;
@@ -361,8 +403,7 @@ async function fetchData(type) {
       searchParams.value.prtnrKnm = '';
     }
   } else if (type === 'basic') {
-    const basicView = grd1MainRef.value.getView();
-    basicView.getDataSource().setRows(resData);
+    basePerf.value = resData;
   } else if (type === 'fee') {
     const feeView = grd2MainRef.value.getView();
     feeView.getDataSource().setRows(resData);
@@ -424,58 +465,6 @@ async function openZwfedFeePnpyamDeductionRegP() {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrd1Main = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'item1' },
-    { fieldName: 'fval1', dataType: 'number' },
-    { fieldName: 'item2' },
-    { fieldName: 'fval2', dataType: 'number' },
-    { fieldName: 'item3' },
-    { fieldName: 'fval3', dataType: 'number' },
-  ];
-
-  const columns = [
-    { fieldName: 'item1', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '개인합계', styleName: 'text-left' } },
-    { fieldName: 'fval1', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'item2', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '조직합계', styleName: 'text-left' } },
-    { fieldName: 'fval2', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-    { fieldName: 'item3', header: t('MSG_TXT_ITEM'), width: '194', styleName: 'text-left', footer: { text: '기타합계', styleName: 'text-left' } },
-    { fieldName: 'fval3', header: t('MSG_TXT_AMT'), width: '203', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-right' } },
-
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
-
-  view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
-
-  view.setFooters({ visible: true, items: [{ height: 42 }] });
-
-  // multi row header setting
-  view.setColumnLayout([
-
-    {
-      header: t('MSG_TXT_INDV') + t('MSG_TXT_FEE'), // colspan title
-      direction: 'horizontal', // merge type
-      items: ['item1', 'fval1'],
-      hideChildHeaders: true,
-    },
-    {
-      header: t('MSG_TXT_OG') + t('MSG_TXT_FEE'),
-      direction: 'horizontal',
-      items: ['item2', 'fval2'],
-      hideChildHeaders: true,
-    },
-    {
-      header: t('MSG_TXT_ETC') + t('MSG_TXT_FEE'),
-      direction: 'horizontal',
-      items: ['item3', 'fval3'],
-      hideChildHeaders: true,
-    },
-
-  ]);
-});
 
 const initGrd2Main = defineGrid((data, view) => {
   const fields = [

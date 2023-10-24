@@ -39,7 +39,7 @@
     </kw-search>
     <kw-action-top class="mb20">
       <template #left>
-        <h3>{{ $t('MSG_TXT_PRM_ARTC')+'('+$t('MSG_TXT_ORDERSELECT_TITLE')+')' }}</h3>
+        <h3>{{ $t('MSG_TXT_PRM_ARTC') }}({{ info.prmTn ?? '' }}{{ $t('MSG_TXT_ORDERSELECT_TITLE') }})</h3>
       </template>
       <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
     </kw-action-top>
@@ -60,24 +60,24 @@
           :label="$t('MSG_TXT_MM_RTLFE')+'/'+$t('MSG_TXT_DSC_AMT')"
           :hint="$t('MSG_TXT_MM_RTLFE_MCNT_AMT')"
         >
-          <p>{{ info.rentalAmt }}/{{ info.rentalDscAmt }}</p>
+          <p>{{ textToNumberFormatter(info.rentalAmt) }}/{{ textToNumberFormatter(info.rentalDscAmt) }}</p>
         </kw-form-item>
         <kw-form-item
           :label="$t('MSG_TXT_DSC_TOT_AMT')+'('+$t('MSG_TXT_PRM_PTRM_BASE')+')'"
         >
-          <p>{{ info.prmDscAmt }}</p>
+          <p>{{ textToNumberFormatter(info.prmDscAmt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRM_ET_TOT_AMT')">
-          <p>{{ info.totPrmAmt }}</p>
+          <p>{{ textToNumberFormatter(info.totPrmAmt) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
     <kw-separator />
     <kw-action-top class="mb20">
       <template #left>
-        <h3>{{ $t('MSG_TXT_SL_ARTC') }}({{ $t('MSG_TXT_NMN') }})</h3>
+        <h3>{{ $t('MSG_TXT_SL_ARTC') }}({{ info.rentalTn ?? '' }}{{ $t('MSG_TXT_NMN') }})</h3>
       </template>
       <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_COLON_WON') }}</span>
     </kw-action-top>
@@ -87,7 +87,7 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_NOM_SL_AMT')">
-          <p>{{ info.nomSlAmt }}</p>
+          <p>{{ textToNumberFormatter(info.nomSlAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_RENTAL_DC')">
           <p>{{ info.rentalDc }}/{{ info.slDc }}</p>
@@ -98,13 +98,13 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SPMT_SL_AMT')">
-          <p>{{ info.spmtSlAmt }}</p>
+          <p>{{ textToNumberFormatter(info.spmtSlAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_NOM_DSC_AMT')">
-          <p>{{ info.nomDscAmt }}</p>
+          <p>{{ textToNumberFormatter(info.nomDscAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CAN_CTR_AMT')">
-          <p>{{ info.canCtrAmt }}</p>
+          <p>{{ textToNumberFormatter(info.canCtrAmt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -112,32 +112,32 @@
           <p>{{ info.adnSv }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SPMT_DSC_AMT')">
-          <p>{{ info.spmtDscAmt }}</p>
+          <p>{{ textToNumberFormatter(info.spmtDscAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_CTR_AMT')">
-          <p>{{ info.slCtrAmt }}</p>
+          <p>{{ textToNumberFormatter(info.slCtrAmt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SL_AMT')">
-          <p>{{ info.thmSlSumAmt }}</p>
+          <p>{{ textToNumberFormatter(info.thmSlSumAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_VAT')">
-          <p>{{ info.slSumVat }}</p>
+          <p>{{ textToNumberFormatter(info.slSumVat) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_AGG_AMT')">
-          <p>{{ info.slAggAmt }}</p>
+          <p>{{ textToNumberFormatter(info.slAggAmt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DSC_AGG_AMOUNT')">
-          <p>{{ info.dscAggAmt }}</p>
+          <p>{{ textToNumberFormatter(info.dscAggAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CTR_AGG_AMT2')">
-          <p>{{ info.ctrAggAmt }}</p>
+          <p>{{ textToNumberFormatter(info.ctrAggAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_BLAM')">
-          <p>{{ info.ucAmt }}</p>
+          <p>{{ textToNumberFormatter(info.ucAmt) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -154,21 +154,21 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DLQ_ADAMT')">
-          <p>{{ info.btdDlqAddAmt }}</p>
+          <p>{{ textToNumberFormatter(info.btdDlqAddAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DEPOSIT_AMT')">
-          <p>{{ info.thmDlqAddDpSumAmt }}</p>
+          <p>{{ textToNumberFormatter(info.thmDlqAddDpSumAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_WDRAM')">
-          <p>{{ info.thmDlqAddRfndSumAmt }}</p>
+          <p>{{ textToNumberFormatter(info.thmDlqAddRfndSumAmt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CTR_AMT')">
-          <p>{{ info.thmCtrDlqAddAmt }}</p>
+          <p>{{ textToNumberFormatter(info.thmCtrDlqAddAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_UCAM_FLPYM_AMT')">
-          <p>{{ info.eotDlqAddAmt }}</p>
+          <p>{{ textToNumberFormatter(info.eotDlqAddAmt) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -213,32 +213,32 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_RES_RENTAL_AMT')">
-          <p>{{ estimatedInfo.resRtlfeBorAmt }}</p>
+          <p>{{ textToNumberFormatter(estimatedInfo.resRtlfeBorAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_RGST_COST_DSC_AMT')">
-          <p>{{ estimatedInfo.rgstCostDscBorAmt }}</p>
+          <p>{{ textToNumberFormatter(estimatedInfo.rgstCostDscBorAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DSC_AMT')">
-          <p>{{ estimatedInfo.rentalDscBorAmt }}</p>
+          <p>{{ textToNumberFormatter(estimatedInfo.rentalDscBorAmt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CSMB_CS')">
-          <p>{{ estimatedInfo.csmbCostBorAmt }}</p>
+          <p>{{ textToNumberFormatter(estimatedInfo.csmbCostBorAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_RSTL_AMT')">
-          <p>{{ estimatedInfo.rstlBorAmt }}</p>
+          <p>{{ textToNumberFormatter(estimatedInfo.rstlBorAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_USE_P')">
-          <p>{{ estimatedInfo.pBorAmt }}</p>
+          <p>{{ textToNumberFormatter(estimatedInfo.pBorAmt) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CCAM_REQD_CS')">
-          <p>{{ estimatedInfo.reqdCsBorAmt }}</p>
+          <p>{{ textToNumberFormatter(estimatedInfo.reqdCsBorAmt) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CCAM_TOT_AMT')">
-          <p>{{ estimatedInfo.borAmt }}</p>
+          <p>{{ textToNumberFormatter(estimatedInfo.borAmt) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -249,9 +249,12 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService } from 'kw-lib';
+import { alert, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import { textToNumberFormatter } from '~sms-common/closing/utils/clUtil';
+
+const { t } = useI18n();
 
 const dataService = useDataService();
 
@@ -288,6 +291,7 @@ const searchEstimatedParams = ref({
 async function fetchData() {
   const res = await dataService.get('/sms/wells/closing/sales-perf', { params: { ...cachedParams } });
   info.value = res.data;
+  if (!res.data) alert(t('MSG_ALT_RENTAL_INFO'));
 }
 
 async function fetchEstimatedData() {

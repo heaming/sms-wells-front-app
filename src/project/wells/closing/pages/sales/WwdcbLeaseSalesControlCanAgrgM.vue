@@ -138,8 +138,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'slCtrAmt', header: t('MSG_TXT_SL_CTR'), width: '150', styleName: 'text-right', dataType: 'number' }, // 매출조정
     { fieldName: 'slCanAmt', header: `${t('MSG_TXT_CAN_CTR')}(${t('MSG_TXT_CAN_RES_SLPRC_INC')})`, width: '230', styleName: 'text-right', dataType: 'number' }, // 취소조정(취소 잔여 매출액 포함)
     { fieldName: 'leaseSlCtrAmt', header: t('MSG_TXT_CTR_PCAM'), width: '150', styleName: 'text-right', dataType: 'number' }, // 조정원금
-    { fieldName: 'leaseSlCanAmt', header: t('MSG_TXT_CTR_INT'), width: '230', styleName: 'text-right', dataType: 'number' }, // 조정이자
-    { fieldName: 'ctrPvdaAmt', header: t('MSG_TXT_RSG_PCAM'), width: '150', styleName: 'text-right', dataType: 'number' }, // 해지원금
+    { fieldName: 'ctrPvdaAmt', header: t('MSG_TXT_CTR_INT'), width: '230', styleName: 'text-right', dataType: 'number' }, // 조정이자
+    { fieldName: 'leaseSlCanAmt', header: t('MSG_TXT_RSG_PCAM'), width: '150', styleName: 'text-right', dataType: 'number' }, // 해지원금
     { fieldName: 'canPvdaAmt', header: t('MSG_TXT_RSG_INT'), width: '230', styleName: 'text-right', dataType: 'number' }, // 해지이자
     { fieldName: 'ctrTp', styleName: 'text-center', header: t('MSG_TXT_CTR_TP'), width: '150' }, // 조정유형
     { fieldName: 'slCtrRmkCn', styleName: 'text-left', header: t('MSG_TXT_CAN_CTR_RSON'), width: '300' }, // 취소조정사유

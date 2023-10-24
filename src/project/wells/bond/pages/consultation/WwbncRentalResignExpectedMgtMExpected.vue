@@ -185,14 +185,6 @@
         :disable="!isSearchMonth || isExpectedConfirm || !isPsic || isfinalConfirm"
         @click="onClickExpectedConfirm"
       />
-      <kw-btn
-        v-permission:update
-        dense
-        secondary
-        :label="t('MSG_BTN_CAN_MTR_RGST')"
-        :disable="!isSearchMonth || isExpectedConfirm || !isPsic || isfinalConfirm"
-        @click="onClickCancelRgst"
-      />
       <kw-separator
         spaced
         vertical
@@ -360,7 +352,6 @@ const onClickPrtnrKnm = async () => {
     componentProps: {
       clctamPrtnrNm: searchParams.value.clctamPrtnrNm,
     },
-
   });
   if (result) {
     searchParams.value.clctamPrtnrNm = payload.prtnrKnm;
@@ -467,6 +458,9 @@ async function onClickExcelDownload() {
 async function onClickExcelUpload() {
   const apiUrl = `${baseUrl}/excel-upload`;
   const templateId = 'FOM_BOND_AUTH_RSG';
+  const extraData = {
+    baseDt: cachedParams.baseDt,
+  };
   const {
     payload,
   } = await modal({
@@ -474,6 +468,7 @@ async function onClickExcelUpload() {
     componentProps: {
       apiUrl,
       templateId,
+      extraData,
     },
   });
   if (payload.status === 'S') {
@@ -482,21 +477,11 @@ async function onClickExcelUpload() {
   }
 }
 
-// 취소자료 등록
-async function onClickCancelRgst() {
-  const params = {
-    baseDt: searchParams.value.baseDt,
-  };
-  await dataService.put(`${baseUrl}/cancel`, params);
-  notify(t('MSG_ALT_COMPLETE_CAN_MTR'));
-  await onClickSearch();
-}
-
 // 예정생성
 async function onClickExpectedCreate() {
   if (!await confirm(t('MSG_ALT_EXP_CRT'))) { return; }
   const params = {
-    baseDt: searchParams.value.baseDt,
+    baseDt: cachedParams.baseDt,
   };
   await dataService.post(baseUrl, params);
   notify(t('MSG_ALT_COMPLETE_EXP_CREATE'));
@@ -506,7 +491,7 @@ async function onClickExpectedCreate() {
 async function onClickExpectedConfirm() {
   if (!await confirm(t('MSG_ALT_EXP_CNFM'))) { return; }
   const params = {
-    baseDt: searchParams.value.baseDt,
+    baseDt: cachedParams.baseDt,
     confirmDvCd: '01',
   };
   await dataService.put(`${baseUrl}/confirm`, params);
@@ -517,8 +502,13 @@ async function onClickExpectedConfirm() {
 // 최종확정
 async function onClickFinalConfirm() {
   if (!await confirm(t('MSG_ALT_FNL_CNFM'))) { return; }
+  const { data } = await dataService.get(`${baseUrl}/sms-count`, { params: { baseDt: cachedParams.baseDt } });
+
+  if (data === 0) {
+    if (!await confirm(t('MSG_ALT_SMS_CHECK_FNL_CNFM'))) { return; }
+  }
   const params = {
-    baseDt: searchParams.value.baseDt,
+    baseDt: cachedParams.baseDt,
     confirmDvCd: '02',
   };
   await dataService.put(`${baseUrl}/confirm`, params);

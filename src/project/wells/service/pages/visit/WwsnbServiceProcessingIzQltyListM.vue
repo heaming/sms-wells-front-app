@@ -258,6 +258,7 @@ watch(() => searchParams.value.ogId, async (val) => {
 });
 
 const products = ref([]);
+// 상품 조회
 async function fetchProducts() {
   const res = await dataService.get('/sms/wells/service/service-processing/products', { params: { pdGrpCd: searchParams.value.pdGrpCd } });
   products.value = res.data;
@@ -272,11 +273,13 @@ watch(() => searchParams.value.pdGrpCd, async (val) => {
   await fetchProducts();
 });
 
+// 전화번호 가져오기
 function getPhoneNo(locaraTno, exnoEncr, idvTno) {
   if (isEmpty(locaraTno) || isEmpty(exnoEncr) || isEmpty(idvTno)) return '';
   return `${locaraTno}-${exnoEncr}-${idvTno}`;
 }
 
+// 시간 계산
 function getTime(minutes) {
   if (isEmpty(minutes)) return '';
   const hour = Math.floor(toNumber(minutes) / 60);
@@ -284,6 +287,7 @@ function getTime(minutes) {
   return `${hour}시간 ${minute}분`;
 }
 
+// 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/service-processing-quality/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: itemizations, pageInfo: pagingResult } = res.data;
@@ -294,12 +298,14 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회 버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -317,9 +323,9 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'cntrNoSn',
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약일련번호
+    { fieldName: 'cntrNoSn', // 계약상세번호
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '150',
       styleName: 'text-center rg-button-link',

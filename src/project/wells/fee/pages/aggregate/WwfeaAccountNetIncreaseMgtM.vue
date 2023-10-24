@@ -59,6 +59,7 @@
             :options="codes.MNGER_OG_CNTR_CAN_TP_CD"
             first-option
             :first-option-label="$t('MSG_TXT_ALL')"
+            first-option-value="ALL"
           />
         </kw-search-item>
 
@@ -72,6 +73,7 @@
             :options="codes.MNGER_OG_CNTR_CAN_TP_CD.filter((v) => ['01', '02'].includes(v.codeId))"
             first-option
             :first-option-label="$t('MSG_TXT_ALL')"
+            first-option-value="ALL"
           />
         </kw-search-item>
 
@@ -424,17 +426,17 @@ const initCheckGrid = defineGrid((data, view) => {
     { fieldName: 'inqrDvCd', header: t('MSG_TXT_OG'), width: '100', styleName: 'text-center' }, // 조직
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '105', styleName: 'text-center' }, // 성명
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '105', styleName: 'text-center' }, // 번호
-    { fieldName: 'rentalCanCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈
-    { fieldName: 'spayCanCt', header: t('MSG_TIT_SPAY'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불
+    { fieldName: 'rentalCanCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈 취소
+    { fieldName: 'spayRsgCt', header: t('MSG_TIT_SPAY'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불 해지
 
     { fieldName: 'rentalBooCanCt', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_CANCL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈 예약취소
-    { fieldName: 'spayBooCanCt', header: t('MSG_TXT_LEASE_ISTM') + t('MSG_TXT_CANCL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불 예약취소
+    { fieldName: 'spayBooCanCt', header: t('MSG_TIT_SPAY') + t('MSG_TXT_CANCL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불 예약취소
 
     { fieldName: 'rentalExnCt', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_EXN'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈만료
     { fieldName: 'mshSprCt', header: t('MSG_TXT_MMBR') + t('MSG_TXT_SEPARATION'), width: '100', styleName: 'text-center', dataType: 'number' }, // 멤버십이탈
     { fieldName: 'canTotCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-center', dataType: 'number' }, // 계
-    { fieldName: 'rentalNwCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈
-    { fieldName: 'spayNwCt', header: t('MSG_TIT_SPAY'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불
+    { fieldName: 'rentalNwCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-center', dataType: 'number' }, // 렌탈 신규판매
+    { fieldName: 'spayNwCt', header: t('MSG_TIT_SPAY'), width: '100', styleName: 'text-center', dataType: 'number' }, // 일시불 신규판매
     { fieldName: 'nwTotCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-center', dataType: 'number' }, // 계
     { fieldName: 'accNincYn', header: t('MSG_TXT_ACC') + t('MSG_TXT_NINC'), width: '100', styleName: 'text-center', dataType: 'number' }, // 계정순증
   ];
@@ -452,7 +454,7 @@ const initCheckGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'), // 전월취소
       direction: 'horizontal',
-      items: ['rentalCanCt', 'spayCanCt', 'rentalBooCanCt', 'spayBooCanCt', 'rentalExnCt', 'mshSprCt', 'canTotCt'],
+      items: ['rentalCanCt', 'spayRsgCt', 'rentalBooCanCt', 'spayBooCanCt', 'rentalExnCt', 'mshSprCt', 'canTotCt'],
     },
     {
       header: t('MSG_TXT_NW_SELL'), // 신규판매

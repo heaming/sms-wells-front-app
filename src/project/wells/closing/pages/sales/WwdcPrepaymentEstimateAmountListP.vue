@@ -205,7 +205,9 @@ const returnData = ref({
 */
 async function fetchData() {
   const res = await dataService.get('/sms/wells/withdrawal/pchssl/prepayment-et-amt', { params: cachedParams });
-  returnData.value = res.data[0];
+  if (!isEmpty(res.data[0])) {
+    returnData.value = res.data[0];
+  }
 }
 
 async function onClickSearch() {

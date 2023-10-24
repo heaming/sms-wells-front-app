@@ -46,9 +46,24 @@
             </kw-item-label>
             <kw-item-label
               class="text-black1 text-bold ml8"
+              :class="{'text-strike text-black3': promotionAppliedPrice && promotionAppliedPrice.length}"
             >
               {{ displayedFinalPrice }}
             </kw-item-label>
+            <template v-if="promotionAppliedPrice">
+              <kw-separator
+                vertical
+                spaced="8px"
+              />
+              <kw-item-label
+                class="kw-fc--black3 kw-font-pt14"
+              >
+                할인가
+              </kw-item-label>
+              <kw-item-label class="kw-fc--black1 text-bold ml8">
+                {{ promotionAppliedPrice }}
+              </kw-item-label>
+            </template>
           </div>
         </div>
       </kw-item-section>
@@ -66,7 +81,71 @@
     </template>
     <template #default>
       <kw-item
-        v-if="selectedFinalPrice"
+        class="scoped-item scoped-item mt12"
+      >
+        <kw-item-section>
+          <kw-form
+            class="scoped-price-form"
+            :cols="0"
+            :label-size="150"
+          >
+            <kw-form-row>
+              <kw-form-item :label="'멤버십할인구분코드'">
+                <kw-select
+                  v-if="priceDefineVariableOptions.mshDscDvCd"
+                  v-model="priceDefineVariables.mshDscDvCd"
+                  :options="priceDefineVariableOptions.mshDscDvCd"
+                  placeholder="멤버십할인구분코드"
+                  first-option="select"
+                  dense
+                  @change="onChangeVariable"
+                />
+              </kw-form-item>
+              <kw-form-item :label="'멤버십할인유형코드'">
+                <kw-select
+                  v-if="priceDefineVariableOptions.mshDscTpCd"
+                  v-model="priceDefineVariables.mshDscTpCd"
+                  :options="priceDefineVariableOptions.mshDscTpCd"
+                  placeholder="멤버십할인유형코드"
+                  first-option="select"
+                  dense
+                  @change="onChangeVariable"
+                />
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row
+              v-if="isHcr"
+            >
+              <kw-form-item :label="'홈케어구분코드'">
+                <kw-select
+                  v-if="priceDefineVariableOptions.hcrDvCd"
+                  v-model="priceDefineVariables.hcrDvCd"
+                  :options="priceDefineVariableOptions.hcrDvCd"
+                  placeholder="홈케어구분코드"
+                  first-option="select"
+                  dense
+                  @change="onChangeVariable"
+                />
+              </kw-form-item>
+            </kw-form-row>
+            <kw-form-row>
+              <kw-form-item :label="'서비스(용도/방문주기)'">
+                <kw-select
+                  v-if="priceDefineVariableOptions.svPdCd"
+                  v-model="priceDefineVariables.svPdCd"
+                  :options="priceDefineVariableOptions.svPdCd"
+                  placeholder="서비스(용도/방문주기)"
+                  first-option="select"
+                  dense
+                  @change="onChangeVariable"
+                />
+              </kw-form-item>
+            </kw-form-row>
+          </kw-form>
+        </kw-item-section>
+      </kw-item>
+      <kw-item
+        v-if="false"
         class="scoped-item scoped-item mt12"
       >
         <kw-item-section>
@@ -77,19 +156,27 @@
           >
             <kw-form-row>
               <kw-form-item :label="'서비스(용도/방문주기)'">
-                {{ labelingForSvPdCd(selectedFinalPrice.svPdCd, selectedFinalPrice) }}
+                {{ labelGenerator.svPdCd(selectedFinalPrice.svPdCd, selectedFinalPrice) }}
               </kw-form-item>
             </kw-form-row>
           </kw-form>
         </kw-item-section>
       </kw-item>
+      <promotion-select
+        v-model="appliedPromotions"
+        :promotions="promotions"
+        @update:model-value="calcPromotionAppliedPrice"
+      />
     </template>
   </kw-expansion-item>
 </template>
 
 <script setup>
 import { useCtCode } from '~sms-common/contract/composable';
-import { stringUtil, useDataService } from 'kw-lib';
+import { alert, useDataService } from 'kw-lib';
+import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
+import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
+import { getNumberWithComma } from '~sms-common/contract/util';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
@@ -97,17 +184,19 @@ const props = defineProps({
   dtl: { type: Object, default: undefined, validator: (obj) => isReactive(obj) },
 });
 const emit = defineEmits([
-  'device-change',
-  'one-plus-one',
-  'delete-one-plus-one',
   'price-changed',
   'promotion-changed',
   'delete',
 ]);
 
+const SELL_TP_DTL_CD_MSH_HCR = '33';
+
 const { getCodeName } = await useCtCode(
   'SELL_TP_CD',
   'SELL_TP_DTL_CD',
+  'MSH_DSC_DV_CD',
+  'MSH_DSC_TP_CD',
+  'HCR_DV_CD',
   'SV_TP_CD',
   'SV_VST_PRD_CD',
   'BFSVC_PRD_CD',
@@ -115,14 +204,107 @@ const { getCodeName } = await useCtCode(
 const dataService = useDataService();
 
 const dtl = ref(props.modelValue);
+const isHcr = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD_MSH_HCR);
 
 /* 직간접적으로 업데이트 할 값들 */
-let pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
-let verSn = toRef(props.modelValue, 'verSn');
-let fnlAmt = toRef(props.modelValue, 'fnlAmt');
-let pdQty = toRef(props.modelValue, 'pdQty');
-let finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions');
-// appliedPromotions.value ??= [];
+let pdPrcFnlDtlId;
+let verSn;
+let fnlAmt;
+let pdQty;
+let finalPriceOptions;
+let promotions;
+let appliedPromotions;
+let priceOptionFilter;
+
+function connectReactivities() {
+  pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
+  verSn = toRef(props.modelValue, 'verSn');
+  fnlAmt = toRef(props.modelValue, 'fnlAmt');
+  pdQty = toRef(props.modelValue, 'pdQty', 1);
+  finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
+  promotions = toRef(props.modelValue, 'promotions', []);
+  appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []);
+  priceOptionFilter = toRef(props.modelValue, 'priceOptionFilter', {});
+  console.log('verSn', verSn.value, pdQty.value);
+}
+
+connectReactivities();
+
+const priceDefineVariables = ref({
+  svPdCd: undefined,
+  stplPrdCd: undefined,
+  mshDscDvCd: undefined,
+  mshDscTpCd: undefined,
+  mshLvStrtMm: undefined,
+  // mshLvEndMm: undefined,
+  hcrDvCd: undefined,
+});
+
+const labelGenerator = {
+  svPdCd: (val, finalPrice) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    const { svTpCd, svVstPrdCd, pcsvPrdCd } = finalPrice;
+    const additional = [];
+    if (svVstPrdCd) {
+      additional.push(`방문(${getCodeName('SV_VST_PRD_CD', svVstPrdCd)})`);
+    }
+    if (pcsvPrdCd) {
+      additional.push(`택배(${getCodeName('BFSVC_PRD_CD', pcsvPrdCd)})`);
+    }
+    return `${getCodeName('SV_TP_CD', svTpCd)} - ${additional.join('/')}`;
+  },
+  stplPrdCd: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return `${val}개월`;
+  },
+  mshDscDvCd: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return getCodeName('MSH_DSC_DV_CD', val);
+  },
+  mshDscTpCd: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return getCodeName('MSH_DSC_TP_CD', val);
+  },
+  mshLvStrtMm: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return `${val}개월`;
+  },
+  mshLvEndMm: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return `${val}개월`;
+  },
+  hcrDvCd: (val) => {
+    if (val === EMPTY_ID) {
+      return '선택안함';
+    }
+    return getCodeName('HCR_DV_CD', val);
+  },
+};
+
+const {
+  priceDefineVariableOptions,
+  setPriceDefineVariablesBy,
+  // setVariablesIfUniqueSelectable,
+  selectedFinalPrice, // computed
+  // eslint-disable-next-line no-unused-vars
+} = usePriceSelect(
+  priceDefineVariables,
+  finalPriceOptions,
+  labelGenerator,
+  priceOptionFilter,
+);
 
 const labelForSellTpCd = computed(() => {
   const product = dtl.value;
@@ -137,80 +319,140 @@ const labelForSellTpCd = computed(() => {
   }
 });
 
-const selectedFinalPrice = ref();
+function initPriceDefineVariables() {
+  console.log('initPriceDefineVariables', pdPrcFnlDtlId.value);
+  if (!pdPrcFnlDtlId.value) {
+    return;
+  }
+  setPriceDefineVariablesBy(pdPrcFnlDtlId.value);
+}
 
+// region [가격표기]
+const displayedFinalPrice = ref('미확정');
+
+const promotionAppliedPrice = ref();
+
+function calcDisplayedFinalPrice() {
+  displayedFinalPrice.value = selectedFinalPrice.value
+    ? `${getNumberWithComma(selectedFinalPrice.value.fnlVal)}원`
+    : '미확정';
+  promotionAppliedPrice.value = undefined;
+}
+
+function calcPromotionAppliedPrice(aplyPmots) {
+  promotionAppliedPrice.value = undefined;
+  if (!aplyPmots?.length) {
+    return;
+  }
+  const fnlVal = selectedFinalPrice.value?.fnlVal;
+  if (!fnlVal) {
+    return;
+  }
+  const minRentalFxam = aplyPmots
+    .reduce(
+      (minVal, promotion) => {
+        if (!promotion.rentalFxam || Number.isNaN(Number(promotion.rentalFxam))) {
+          return minVal;
+        }
+        return Math.min(minVal, Number(promotion.rentalFxam));
+      },
+      fnlVal,
+    );
+  /* TODO: '할인개월과 같이 표기할것'
+  const totalDscApyAmt = aplyPmots
+    .reduce((acc, promotion) => {
+      if (Number.isNaN(Number(promotion.dscApyAmt))) {
+        return acc;
+      }
+      return acc + Number(promotion.dscApyAmt);
+    }, 0);
+   */
+  const pmotAplyPrice = Math.max(minRentalFxam, 0);
+  if (selectedFinalPrice.value?.fnlVal === pmotAplyPrice) {
+    return;
+  }
+  promotionAppliedPrice.value = `${getNumberWithComma(pmotAplyPrice)}원`;
+  emit('promotion-changed', aplyPmots, promotionAppliedPrice.value);
+}
+// endregion [가격표기]
+
+let promiseForFetchFinalPriceOptions;
 async function fetchFinalPriceOptions() {
-  const { data } = await dataService.get('sms/wells/contract/final-price', {
-    params: {
-      cntrNo: props.bas.cntrNo,
-      pdCd: dtl.value.pdCd,
-      hgrPdCd: dtl.value.hgrPdCd,
-    },
-    silent: true,
-  });
+  if (!promiseForFetchFinalPriceOptions) {
+    promiseForFetchFinalPriceOptions = dataService.get('sms/wells/contract/final-price', {
+      params: {
+        cntrNo: props.bas.cntrNo,
+        pdCd: dtl.value.pdCd,
+        hgrPdCd: dtl.value.hgrPdCd,
+      },
+      silent: true,
+    });
+  }
+  const { data } = await promiseForFetchFinalPriceOptions;
+  promiseForFetchFinalPriceOptions = null;
+  if (!data?.length) {
+    alert('선택 가능한 가격 조건이 없습니다.');
+  }
   finalPriceOptions.value = data || [];
-  selectedFinalPrice.value = finalPriceOptions.value?.[0];
+
+  if (!isHcr.value) {
+    pdPrcFnlDtlId.value = finalPriceOptions.value[0].pdPrcFnlDtlId;
+    initPriceDefineVariables();
+  }
 }
 
-if (!finalPriceOptions.value?.length) {
-  await fetchFinalPriceOptions();
-}
-
-function reconnectReactivities() {
-  pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
-  verSn = toRef(props.modelValue, 'verSn');
-  fnlAmt = toRef(props.modelValue, 'fnlAmt');
-  pdQty = toRef(props.modelValue, 'pdQty');
-  finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions'); /* 적용된 프로모션 */
+function clearPromotions() {
+  promotions.value = [];
+  appliedPromotions.value = [];
+  promotionAppliedPrice.value = undefined;
 }
 
 async function onChangeModelValue(newDtl) {
-  if (newDtl.finalPriceOptions) {
-    finalPriceOptions.value = newDtl.finalPriceOptions;
+  if (dtl.value !== newDtl) {
+    /* 불의의 사고로, modelValue 객체를 통으로 들어냈을 경우, key 가 안정적이지 않아서 변경 가능성이 있었으나,
+    modelValue 에 따라 종속되는 tempKey-cntrSn 기반으로 인스턴스와 연결되므로, 발생하지 않을 것 으로 추측 중 */
+    dtl.value = newDtl;
+    connectReactivities();
   }
+
   if (!finalPriceOptions.value?.length) {
     await fetchFinalPriceOptions();
   }
-  reconnectReactivities();
+
+  initPriceDefineVariables();
 }
 
 watch(() => props.modelValue, onChangeModelValue, { immediate: true });
 
-pdQty.value = 1;
+function onChangeSelectedFinalPrice(newPrice) {
+  if (!newPrice) {
+    fnlAmt.value = undefined;
+    pdPrcFnlDtlId.value = undefined;
+    emit('price-changed', newPrice);
+    clearPromotions();
+    calcDisplayedFinalPrice();
+    return;
+  }
+  fnlAmt.value = newPrice.fnlVal;
+  pdPrcFnlDtlId.value = newPrice.pdPrcFnlDtlId;
 
-function initializePrice() {
-  fnlAmt.value = selectedFinalPrice.value?.fnlVal ?? undefined;
-  pdPrcFnlDtlId.value = selectedFinalPrice.value?.pdPrcFnlDtlId ?? undefined;
-  verSn.value = selectedFinalPrice.value?.verSn ?? undefined;
+  emit('price-changed', newPrice);
+  clearPromotions();
+
+  calcDisplayedFinalPrice();
 }
 
-initializePrice();
-
-const displayedFinalPrice = computed(() => (selectedFinalPrice.value
-  ? `${stringUtil.getNumberWithComma(selectedFinalPrice.value.fnlVal)}원`
-  : '미확정'));
-
-watch(selectedFinalPrice, (newPrice) => {
-  fnlAmt.value = newPrice?.fnlVal ?? undefined;
-  pdPrcFnlDtlId.value = newPrice?.pdPrcFnlDtlId ?? undefined;
-  verSn.value = newPrice?.verSn ?? undefined;
-});
+watch(selectedFinalPrice, onChangeSelectedFinalPrice);
 
 function onClickDelete() {
   emit('delete');
 }
 
-const labelingForSvPdCd = (val, finalPrice) => {
-  const { svTpCd, svVstPrdCd, pcsvPrdCd } = finalPrice;
-  const additional = [];
-  if (svVstPrdCd) {
-    additional.push(`방문(${getCodeName('SV_VST_PRD_CD', svVstPrdCd)})`);
-  }
-  if (pcsvPrdCd) {
-    additional.push(`택배(${getCodeName('BFSVC_PRD_CD', pcsvPrdCd)})`);
-  }
-  return `${getCodeName('SV_TP_CD', svTpCd)} - ${additional.join('/')}`;
-};
+function onChangeVariable() {
+  // if (finalPriceOptions.value.length === 1) {
+  //   setVariablesIfUniqueSelectable();
+  // }
+}
 
 </script>
 

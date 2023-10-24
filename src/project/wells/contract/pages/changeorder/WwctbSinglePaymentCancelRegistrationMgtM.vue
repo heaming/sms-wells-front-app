@@ -79,18 +79,12 @@
             <kw-form-item :label="$t('MSG_TXT_PRDT_NM')">
               <p>{{ searchDetail.pdNm }}</p>
             </kw-form-item>
-            <!--할인구분-->
-            <kw-form-item
-              :label="$t('MSG_TXT_PD_DC_CLASS')"
-              hint="null"
-            >
+            <!--할인구분 (mapping : null)-->
+            <kw-form-item :label="$t('MSG_TXT_PD_DC_CLASS')">
               <p>{{ stringUtil.getDateFormat(searchDetail.null) }}</p>
             </kw-form-item>
-            <!--수량-->
-            <kw-form-item
-              :label="$t('MSG_TXT_QTY')"
-              hint="null"
-            >
+            <!--수량 (mapping : null)-->
+            <kw-form-item :label="$t('MSG_TXT_QTY')">
               <p>{{ stringUtil.getDateFormat(searchDetail.null) }}</p>
             </kw-form-item>
           </kw-form-row>
@@ -101,25 +95,16 @@
             <kw-form-item :label="$t('MSG_TXT_SALE_PRICE')">
               <p>{{ stringUtil.getNumberWithComma(searchDetail.sellAmt??'') }}</p>
             </kw-form-item>
-            <!--정상가-->
-            <kw-form-item
-              :label="$t('MSG_TXT_PD_NOM_PRC')"
-              hint="null"
-            >
+            <!--정상가 (mapping : null)-->
+            <kw-form-item :label="$t('MSG_TXT_PD_NOM_PRC')">
               <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
             </kw-form-item>
-            <!--할인가-->
-            <kw-form-item
-              :label="$t('MSG_TXT_DSPRC')"
-              hint="null"
-            >
+            <!--할인가 (mapping : null)-->
+            <kw-form-item :label="$t('MSG_TXT_DSPRC')">
               <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
             </kw-form-item>
-            <!--판매가-->
-            <kw-form-item
-              :label="$t('TXT_MSG_SELL_PRC')"
-              hint="null"
-            >
+            <!--판매가 (mapping : null)-->
+            <kw-form-item :label="$t('TXT_MSG_SELL_PRC')">
               <p>({{ stringUtil.getNumberWithComma(searchDetail.null??'') }})</p>
             </kw-form-item>
           </kw-form-row>

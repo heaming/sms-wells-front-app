@@ -109,7 +109,7 @@
           :label="$t('MSG_TXT_CST_DV')"
         >
           <kw-select
-            v-model="searchParams.cstDv"
+            v-model="searchParams.cstDvCd"
             :options="codes.CRP_DSC_ANA_CST_DV_CD.filter((v) => v.codeId < 10)"
             first-option="all"
           />
@@ -258,6 +258,7 @@ const searchParams = ref({
   ogId: '',
   istDtFrom: now.subtract(7, 'days').format('YYYYMMDD'),
   istDtTo: now.format('YYYYMMDD'),
+  cstDvCd: '',
   cstNm: '',
   cntrDtlNo: '',
   cntrNo: '',

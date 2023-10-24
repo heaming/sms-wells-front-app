@@ -35,7 +35,6 @@
             rules="required"
           />
         </kw-search-item>
-        <!-- //출고요청접수 -->
         <!-- 출고품목 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_ITM')"
@@ -47,7 +46,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //출고품목 -->
         <!-- 출고요청유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_OSTR_AK_TP')"
@@ -59,7 +57,6 @@
             @change="onChangeOstrAkTpCd"
           />
         </kw-search-item>
-        <!-- //출고요청유형 -->
       </kw-search-row>
       <kw-search-row>
         <!-- 입고희망일자 -->
@@ -74,9 +71,8 @@
             rules="date_range_months:1|required"
             @update:from="fetchDefaultData"
           />
-          <!-- //입고희망일자 -->
         </kw-search-item>
-
+        <!-- 출고상태 -->
         <kw-search-item
           :label="`${t('MSG_TXT_OSTR')}${t('MSG_TXT_STT')}`"
           :colspan="2"
@@ -104,7 +100,6 @@
             rules="required"
           />
         </kw-search-item>
-        <!-- //출고요청창고 -->
       </kw-search-row>
     </kw-search>
 
@@ -119,6 +114,7 @@
             @change="fetchData"
           />
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           dense

@@ -31,7 +31,7 @@
             rules="required"
           />
         </kw-search-item>
-        <!-- //기준년월 -->
+        <!-- 창고구분 -->
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.baseYm"
           v-model:end-ym="searchParams.baseYm"
@@ -59,7 +59,6 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- //창고상세구분 -->
         <!-- 담당자명 -->
         <kw-search-item
           :label="$t('MSG_TXT_PIC_NM')"
@@ -70,7 +69,6 @@
             rules="max:50"
           />
         </kw-search-item>
-        <!-- //담당자명 -->
         <!-- 사번 -->
         <kw-search-item
           :label="$t('MSG_TXT_EPNO')"
@@ -81,7 +79,6 @@
             rules="numeric|max:10"
           />
         </kw-search-item>
-        <!-- //사번 -->
       </kw-search-row>
     </kw-search>
 
@@ -96,6 +93,7 @@
             @change="fetchData"
           />
         </template>
+        <!-- 저장 -->
         <kw-btn
           v-permission:update
           grid-action
@@ -109,6 +107,7 @@
           vertical
           inset
         />
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           dense
@@ -307,7 +306,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '70', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BUILDING'), width: '120', styleName: 'text-left' },
-    { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'hgrWareNm', header: t('MSG_TXT_HGR_WARE'), width: '120', styleName: 'text-left' },
     { fieldName: 'qomAsnApyYn',
       header: t('MSG_TXT_QOM_ASN_APY_YN'),
       width: '70',

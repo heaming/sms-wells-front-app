@@ -260,7 +260,6 @@
                 />
               </kw-form-item>
               <kw-form-item
-                v-if="item.sellTpCd === '2' && item.sellTpDtlCd === '23'"
                 label="가구 구성원 수"
               >
                 <kw-select
@@ -517,7 +516,7 @@ codes.FMMB_N = [
   { codeId: 4, codeName: '4인 이상 가구' },
 ];
 
-const cntrNo = toRef(props.contract, 'cntrNo');
+const cntrNo = computed(() => props.contract.cntrNo);
 const step3 = toRef(props.contract, 'step3');
 
 const ogStep3 = ref({});
@@ -694,9 +693,12 @@ async function initStep(forced = false) {
   if (!forced && loaded.value) {
     return;
   }
-
-  await getCntrInfo();
-  loaded.value = true;
+  if (cntrNo.value) {
+    await getCntrInfo();
+    loaded.value = true;
+  }
+  // await getCntrInfo();
+  // loaded.value = true;
 }
 
 exposed.getCntrInfo = getCntrInfo;

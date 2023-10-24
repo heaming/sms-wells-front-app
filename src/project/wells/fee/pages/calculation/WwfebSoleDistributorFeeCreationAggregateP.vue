@@ -79,8 +79,8 @@ async function onClickCreate() {
   if (!await popupRef.value.validate()) { return; }
 
   await dataService.post('/sms/wells/fee/sole-distributor/aggregate', { perfYm: regData.value.perfYm, feeTcntDvCd: regData.value.feeTcntDvCd });
-  notify(t('MSG_ALT_AGRG_FSH')); // 집계되었습니다.
   ok(true);
+  notify(t('MSG_ALT_AGRG_FSH')); // 집계되었습니다.
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

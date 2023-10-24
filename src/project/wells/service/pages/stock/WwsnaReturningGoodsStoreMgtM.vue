@@ -113,7 +113,6 @@
           <kw-select
             v-model="searchParams.stRtngdProcsTpCd"
             :options="codes.RTNGD_PROCS_TP_CD"
-            first-option=""
           />
         </kw-search-item>
       </kw-search-row>
@@ -211,7 +210,12 @@
           primary
           dense
           @click="onClickSave"
-        />
+        >
+          <kw-tooltip>
+            <!-- 저장시 수불이 발생합니다. -->
+            {{ $t('MSG_TXT_SAVE_RVPY_OC') }}
+          </kw-tooltip>
+        </kw-btn>
       </kw-action-top>
 
       <ul class="filter-box mb12  ">
@@ -242,7 +246,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, gridUtil, popupUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
@@ -250,7 +254,7 @@ import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSe
 const { t } = useI18n();
 const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
-// const { getConfig } = useMeta();
+const store = useStore();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -265,6 +269,7 @@ const codes = await codeUtil.getMultiCodes(
   'STR_CONF_YN_CD', // 입고확인여부코드
   'RTNGD_PROCS_TP_CD', // 반품처리유형
   'WARE_DV_CD', // 창고구분코드
+  'YN_CD', // 여부코드
 );
 
 // 창고구분코드 필터링
@@ -273,6 +278,7 @@ const strWareDvCd = { WARE_DV_CD: [
 ] };
 
 const totalCount = ref(0);
+const loginWare = ref();
 
 const filterCodes = ref({
   filterPdGdCd: [],
@@ -283,6 +289,9 @@ const filterCodes = ref({
 // 코드값 필터링
 filterCodes.value.filterPdGdCd = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
 filterCodes.value.filterSvBizDclsfCd = codes.SV_BIZ_DCLSF_CD.filter((v) => ['3420', '3410', '3488', '3210', '3230', '3112'].includes(v.codeId));
+
+// 반품처리유형 코드값 첫번째 자리에 빈값추가
+codes.RTNGD_PROCS_TP_CD.unshift({ codeId: '', codeName: '' });
 
 // 조회용 파라미터
 const searchParams = ref({
@@ -301,6 +310,7 @@ const searchParams = ref({
   strWareNoD: '',
   barCode: '',
   chkErrorCheck: 'N',
+  prtnrNo: store.getters['meta/getUserInfo'].employeeIDNumber,
 
 });
 
@@ -321,7 +331,7 @@ function isNotEmpty(obj) {
 
 // input에 값이 정상적으로 들어갔는지 체크
 function validateInputValueExists(input, inputType) {
-  if (input === '') {
+  if (input === '' && inputType === '확인일자') {
     notify(t('MSG_ALT_SELECT_VAL', [inputType]));
     return false;
   }
@@ -361,6 +371,16 @@ function onClickGridBulkChange(val, type) {
   notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [inputType]));
 }
 
+// 로그인한 사용자의 상위창고 조회
+const getWareHouses = async () => {
+  const res = await dataService.get('/sms/wells/service/returning-goods-store/login-warehouse', { params: { prtnrNo: searchParams.value.prtnrNo } });
+
+  if (!isEmpty(res.data)) {
+    loginWare.value = res.data;
+    searchParams.value.strWareNoM = loginWare.value[0].hgrWareNo;
+  }
+};
+
 const itemKndCdD = ref();
 
 // 품목코드 변경이벤트
@@ -388,14 +408,14 @@ function onUpdateProductGroupCode(val) {
 
 await Promise.all([
   onChangeItmKndCd(),
+  // 창고조회
+  getWareHouses(),
 ]);
 
 // 조회 이벤트
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/returning-goods-store', { params: { ...cachedParams } });
   const goods = res.data;
-
-  console.log(goods);
 
   totalCount.value = goods.length;
   const view = grdMainRef.value.getView();
@@ -414,8 +434,10 @@ async function fetchData() {
         count += 1;
       }
     }
-    // 등급오류건이 {0}건 존재합니다.
-    await alert(t('MSG_ALT_GD_ERR_CT_EXST', [count]));
+    if (count > 0) {
+      // 등급오류건이 {0}건 존재합니다.
+      await alert(t('MSG_ALT_GD_ERR_CT_EXST', [count]));
+    }
   }
 }
 
@@ -441,8 +463,6 @@ async function onClickSearch() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-
-  // const params = searchParams.value;
 
   if (gridUtil.getCheckedRowValues(view).length === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
@@ -504,18 +524,14 @@ async function onClickRtnGd() {
   // if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
 
+  // 10 : 물류폐기, 11 : 리퍼-E급 tt물류폐기 , 20 : 리퍼용,
+  // 21 : 품질팀 , 22 : 리퍼-tt특별자재
+  // 80 : 리퍼작업완료-A급, 81 : 리퍼작업완료-B-1급, 82 : 리퍼작업완료-B-2급
   const strRtngdProcsTpCd = ['10', '11', '20', '21', '22', '80', '81', '82'];
 
   for (let i = 0; i < checkedRows.length; i += 1) {
     const { rtngdRvpyProcsYn, rtngdProcsTpCd } = checkedRows[i];
 
-    const checkedRtngdProcsTpCd = checkedRows[i].rtngdProcsTpCd;
-
-    if (isEmpty(checkedRtngdProcsTpCd)) {
-      // 반품처리유형 항목에 값이 누락되었습니다.
-      notify(t('MSG_ALT_RTNGD_PROCS_TP_ATC'));
-      return;
-    }
     if (rtngdRvpyProcsYn === 'Y') {
       // 이미 반품 완료된 건이 포함되었습니다. \n확인해주십시오.
       notify(t('MSG_ALT_RTNGD_FSH_INC_CONF'));
@@ -523,7 +539,8 @@ async function onClickRtnGd() {
     }
 
     if (strRtngdProcsTpCd.includes(rtngdProcsTpCd)) {
-      // 처리할 수 없는 유형이 포함되었습니다. \n확인해주십시오.
+      // 처리할 수 없는 유형이 포함되었습니다.
+      // 확인해주십시오.
       notify(t('MSG_ALT_PROCS_IMP_TP_INC_CONF'));
       return;
     }
@@ -590,6 +607,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'wkWareNo' }, // 작업창고번호
     { fieldName: 'wkOstrSn' }, // 작업출고순번
     { fieldName: 'errorCheck' }, // 등급오류체크
+    { fieldName: 'itemKnd' }, // 품목구분코드
+    { fieldName: 'mgtUnt' }, // 관리단위
 
   ];
 
@@ -602,14 +621,21 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_REQD_RQDT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'vstFshDt', header: t('MSG_TXT_WK_DT'), width: '170', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rtngdConfYn', header: t('MSG_TXT_RTNGD_CONF_YN'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rtngdConfYn',
+      header: t('MSG_TXT_RTNGD_CONF_YN'),
+      width: '100',
+      styleName: 'text-center',
+      editable: true,
+      editor: {
+        type: 'dropdown' },
+      options: codes.YN_CD },
     { fieldName: 'useDay', header: t('MSG_TXT_USE_DAY'), width: '100', styleName: 'text-right' },
     { fieldName: 'useMths', header: t('MSG_TXT_USE_MCNT'), width: '100', styleName: 'text-right' },
     { fieldName: 'refurbishYn', header: t('MSG_TXT_REFR'), width: '100', styleName: 'text-center' },
     { fieldName: 'fnlItmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center', options: codes.PD_GD_CD },
     { fieldName: 'useQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'refrAsRcpYn', header: t('MSG_TXT_REFR_RCP'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MGT_TYP'), width: '100', styleName: 'text-center' },
@@ -718,8 +744,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.columnEditableFirst = true;
   view.filteringOptions.enabled = false;
 
-  // RTNGD_RVPY_PROCS_YN
-
   view.setRowStyleCallback((grid, item) => {
     const ret = {};
     const { ostrConfDt1 } = gridUtil.getRowValue(grid, item.index);
@@ -745,6 +769,15 @@ const initGrdMain = defineGrid((data, view) => {
   };
 
   view.setCheckBar({ checkableCallback: f });
+
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntrDtlNo') {
+      const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      const cntrSn = g.getValue(itemIndex, 'cntrSn');
+
+      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+    }
+  };
 });
 
 </script>

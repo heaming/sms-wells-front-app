@@ -80,20 +80,22 @@
       <!-- 담당자명 -->
       <kw-form-item
         :label="t('MSG_TXT_PIC_NM')"
-        required
+        :required="!isReadonly && !isOrgTxinvPblOjYn"
       >
         <kw-input
           v-model="fieldParams.dlpnrPsicNm"
           maxlength="500"
-          :readonly="isReadonly"
+          :readonly="isReadonly || isOrgTxinvPblOjYn"
+          :required="!isReadonly && !isOrgTxinvPblOjYn"
           :label="t('MSG_TXT_PIC_NM')"
           :rules="setComnponetRule('required')"
         />
       </kw-form-item>
       <!-- 전화번호 -->
       <kw-form-item
+        ref="testref"
         :label="t('MSG_TXT_TEL_NO')"
-        required
+        :required="!isReadonly && !isOrgTxinvPblOjYn"
       >
         <zwcm-telephone-number
           v-model:tel-no0="fieldParams.telNo"
@@ -101,8 +103,8 @@
           v-model:tel-no2="fieldParams.mexno"
           v-model:tel-no3="fieldParams.cralIdvTno"
           mask="telephone"
-          :required="!isReadonly"
-          :readonly="isReadonly"
+          :required="!isReadonly && !isOrgTxinvPblOjYn"
+          :readonly="isReadonly || isOrgTxinvPblOjYn"
           :label="t('MSG_TXT_TEL_NO')"
         />
       </kw-form-item>
@@ -112,12 +114,12 @@
       <!-- 전자메일 -->
       <kw-form-item
         :label="t('MSG_TXT_EMAIL')"
-        required
+        :required="!isReadonly && !isOrgTxinvPblOjYn"
       >
         <zwcm-email-address
           v-model="fieldParams.emadr"
-          :required="!isReadonly"
-          :readonly="isReadonly"
+          :required="!isReadonly && !isOrgTxinvPblOjYn"
+          :readonly="isReadonly || isOrgTxinvPblOjYn"
           :label="t('MSG_TXT_EMAIL')"
           rules="required"
         />
@@ -125,7 +127,7 @@
       <!-- 발행일자 -->
       <kw-form-item
         :label="t('MSG_TXT_PBL_DT')"
-        required
+        :required="!isReadonly && !isOrgTxinvPblOjYn"
       >
         <p class="ml8">
           <kw-option-group
@@ -139,7 +141,8 @@
               {'codeName':t('MSG_TXT_DAY', [25]), 'codeId':'25'},
               {'codeName':t('MSG_TXT_LST_DAYS'), 'codeId':'99'}
             ]"
-            :disable="isReadonly"
+            :required="!isReadonly && !isOrgTxinvPblOjYn"
+            :disable="isReadonly || isOrgTxinvPblOjYn"
           />
         </p>
       </kw-form-item>
@@ -162,8 +165,11 @@ const dataService = useDataService();
 const isReadonly = ref(true);
 const frmMainRef = ref(getComponentType('KwForm'));
 const orgTxinvPblOjYn = ref();
+const isOrgTxinvPblOjYn = ref();
 
 let cachedParams;
+
+const testref = ref(getComponentType('KwForm'));
 
 const searchParams = ref({
   cntrNo: '',
@@ -198,8 +204,8 @@ const fieldParams = ref({
 
 // fetchData: 조회
 async function fetchData() {
-  frmMainRef.value.init();
   orgTxinvPblOjYn.value = '';
+  frmMainRef.value.reset();
 
   const res = await dataService.get('/sms/wells/contract/contract-info/tax-Invoices', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
   if (!isEmpty(res.data)) {
@@ -211,7 +217,7 @@ async function fetchData() {
   }
   fieldParams.value.cntrNo = searchParams.value.cntrNo;
   fieldParams.value.cntrSn = searchParams.value.cntrSn;
-  console.log(fieldParams);
+  frmMainRef.value.init();
 }
 
 // onClickEdit: 수정버튼 클릭 시
@@ -251,6 +257,9 @@ async function onClickSave() {
   }
 
   await alert(returnMsg);
+
+  isOrgTxinvPblOjYn.value = true;
+  isReadonly.value = true;
   fetchData();
 }
 
@@ -265,6 +274,14 @@ async function setDatas(cntrNo, cntrSn) {
 // 외부에서 사용할 수 있도록 노출 선언
 defineExpose({
   setDatas,
+});
+
+watch(() => fieldParams.value.txinvPblOjYn, (val) => {
+  if (orgTxinvPblOjYn.value === val || val === 'N') {
+    isOrgTxinvPblOjYn.value = true;
+  } else {
+    isOrgTxinvPblOjYn.value = false;
+  }
 });
 
 // 읽기전용인지 아닌지 감시하기

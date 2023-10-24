@@ -32,11 +32,16 @@
           :label="$t('MSG_TXT_SL_YM')"
           required
         >
-          <kw-date-range-picker
-            v-model:from="searchParams.slClYmFrom"
-            v-model:to="searchParams.slClYmTo"
-            :label="$t('MSG_TXT_SL_YM')"
+          <kw-date-picker
+            v-model="searchParams.slClYmFrom"
             type="month"
+            :label="$t('MSG_TXT_SL_YM')"
+            rules="required"
+          />
+          <kw-date-picker
+            v-model="searchParams.slClYmTo"
+            type="date"
+            :label="$t('MSG_TXT_SL_YM')"
             rules="required"
           />
         </kw-search-item>
@@ -55,33 +60,44 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_RENTAL_NMN')">
+          <!-- 렌탈차월 -->
           <p>{{ prepaidDepositRental.rentalTn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRDPT_MCNT')">
-          <p>{{ prepaidDepositRental.prmMcn }}</p>
+          <!-- 선입금개월(개월) -->
+          <p>{{ searchParams.prmMcn }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRDPT_AMT')">
+          <!-- 선입금금액 -->
           <p>{{ stringUtil.getNumberWithComma(toInteger(prepaidDepositRental.prmDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRDPT_PTRM')">
-          <p>{{ prepaidDepositRental.prmPrd }}</p>
+          <!-- 선입금기간 -->
+          <p>{{ searchParams.prmPrd }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_MM_RTLFE')">
+          <!-- 월렌탈료 -->
           <p>{{ stringUtil.getNumberWithComma(toInteger(prepaidDepositRental.rentalAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRPD_AMT')">
+          <!-- 선수금액 -->
           <p>{{ stringUtil.getNumberWithComma(toInteger(prepaidDepositRental.thmAtamDpAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRDPT_TAM')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(prepaidDepositRental.col7)) }}</p>
+          <!-- 선입금총액 -->
+          <p>
+            {{ stringUtil.getNumberWithComma(toInteger(prepaidDepositRental.prmDpAmt -
+              toInteger(prepaidDepositRental.thmAtamDpAmt) + toInteger(prepaidDepositRental.prmBlamEotAmt))) }}
+          </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_UC_AMT')">
+          <!-- 미수금액 -->
           <p>{{ stringUtil.getNumberWithComma(toInteger(prepaidDepositRental.prmBlamEotAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
@@ -117,22 +133,36 @@ const searchParams = ref({
   cntrNo: cntr[0],
   cntrSn: cntr[1],
   slClYmFrom: now.format('YYYYMM'),
-  slClYmTo: now.format('YYYYMM'),
+  slClYmTo: now.format('YYYYMMDD'),
+  prmMcn: '',
+  prmPrd: '',
 });
 
 const prepaidDepositRental = ref({});
 
 let cachedParams;
 async function fetchData() {
-  console.log(searchParams.value);
   const res = await dataService.get('/sms/wells/closing/prepaid-deposit-rental', { params: cachedParams });
-  console.log(res.data);
   prepaidDepositRental.value = res.data;
+}
+
+function countMonth() {
+  const { slClYmFrom, slClYmTo } = searchParams.value;
+  const fromDt = new Date(slClYmFrom.substring(0, 4), slClYmFrom.substring(4, 6) - 1, '01');
+  const toDt = new Date(slClYmTo.substring(0, 4), slClYmTo.substring(4, 6) - 1, slClYmTo.substring(6, 8));
+
+  const interval = toDt - fromDt;
+  const day = 1000 * 60 * 60 * 24;
+  const month = day * 30;
+  const intervalMonth = parseInt(interval / month, 10);
+  searchParams.value.prmMcn = intervalMonth;
+  searchParams.value.prmPrd = `${slClYmFrom.substring(0, 4)}-${slClYmFrom.substring(4, 6)} ~ ${slClYmTo.substring(0, 4)}-${slClYmTo.substring(4, 6)}`;
 }
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+  countMonth();
 }
 
 </script>

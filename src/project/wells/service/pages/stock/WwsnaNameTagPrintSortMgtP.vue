@@ -109,7 +109,7 @@ const ozParam = ref({
   width: 1200,
 });
 
-// TODO : nametec.ozr 붙여야하고 nametec에서 필요한 정렬값들 넘겨줘야함.
+// 확인버튼 클릭시 OZ리포트 출력
 async function onClickConfirm() {
   const { itmStrNo, itmPdCds, strTpCd, strRgstDt } = props;
   openReportPopup(

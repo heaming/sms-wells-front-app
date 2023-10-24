@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : SNA (재고관리)
-2. 프로그램 ID : WwsnaStoreDetailItemizationListM - 입고상세내역 조회
+2. 프로그램 ID : WwsnaStoreDetailItemizationListM - 입고상세내역 조회(W-SV-U-0133M01)
 3. 작성자 : songTaeSung
 4. 작성일 : 2023.01.25
 ****************************************************************************************************
@@ -160,6 +160,7 @@
           />
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -424,18 +425,18 @@ onMounted(async () => {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'strRgstDt' },
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'itmPdCd' },
-    { fieldName: 'pdAbbrNm' },
-    { fieldName: 'strTpNm' },
-    { fieldName: 'mngtUnitNm' },
-    { fieldName: 'itmGdNm' },
-    { fieldName: 'strQty', dataType: 'number' },
-    { fieldName: 'ostrWareNm' },
-    { fieldName: 'strWareNm' },
-    { fieldName: 'itmStrNo' },
-    { fieldName: 'itmOstrNo' },
+    { fieldName: 'strRgstDt' }, // 입고등록일자
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목상품코드
+    { fieldName: 'pdAbbrNm' }, // 상품약어명
+    { fieldName: 'strTpNm' }, // 입고유형명
+    { fieldName: 'mngtUnitNm' }, // 관리단위명
+    { fieldName: 'itmGdNm' }, // 상품등급명
+    { fieldName: 'strQty', dataType: 'number' }, // 입고수량
+    { fieldName: 'ostrWareNm' }, // 출고창고명
+    { fieldName: 'strWareNm' }, // 입고창고명
+    { fieldName: 'itmStrNo' }, // 품목입고번호
+    { fieldName: 'itmOstrNo' }, // 품목출고번호
   ];
 
   const columns = [

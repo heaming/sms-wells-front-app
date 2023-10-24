@@ -23,13 +23,11 @@
           :label="$t('MSG_TXT_BASE_YM')"
           required
         >
-          <kw-date-range-picker
-            v-model:from="searchParams.baseYmFrom"
-            v-model:to="searchParams.baseYmTo"
+          <kw-date-picker
+            v-model="searchParams.baseYm"
             :label="$t('MSG_TXT_BASE_YM')"
-            :model-value="searchParams.baseYmTo"
             type="month"
-            rules="date_range_required"
+            rules="required"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
@@ -184,8 +182,7 @@ const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
 );
 const searchParams = ref({
-  baseYmFrom: now.format('YYYYMM'),
-  baseYmTo: now.format('YYYYMM'),
+  baseYm: now.format('YYYYMM'),
   sellTpCd: 'ALL', // 판매유형
   sellTpDtlCd: 'ALL', // 판매유형상세
   inqrDv: '1', // 조회구분

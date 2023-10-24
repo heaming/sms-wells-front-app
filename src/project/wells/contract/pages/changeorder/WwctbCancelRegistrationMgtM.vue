@@ -40,6 +40,7 @@
               v-model="searchParams.cstNo"
               icon="search"
               regex="num"
+              maxlength="10"
               @click-icon="onClickSearchCst"
             />
           </kw-search-item>

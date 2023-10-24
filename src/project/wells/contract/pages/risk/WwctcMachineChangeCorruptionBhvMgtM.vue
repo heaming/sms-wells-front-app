@@ -329,7 +329,7 @@ const initGrid = defineGrid((data, view) => {
       editor: {
         maxLength: 12,
       },
-      required: true,
+      rules: 'required',
     },
     {
       fieldName: 'baseCntrSn',
@@ -337,7 +337,7 @@ const initGrid = defineGrid((data, view) => {
       width: 120,
       editable: true,
       styleName: 'text-right',
-      required: true,
+      rules: 'required',
     },
     {
       fieldName: 'ojCntrNo',
@@ -347,7 +347,7 @@ const initGrid = defineGrid((data, view) => {
       editor: {
         maxLength: 12,
       },
-      required: true,
+      rules: 'required',
     },
     {
       fieldName: 'ojCntrSn',
@@ -355,7 +355,7 @@ const initGrid = defineGrid((data, view) => {
       width: 120,
       editable: true,
       styleName: 'text-right',
-      required: true,
+      rules: 'required',
     },
     {
       fieldName: 'icptSellExrDt',
@@ -370,7 +370,7 @@ const initGrid = defineGrid((data, view) => {
           minViewMode: 1,
         },
       },
-      required: true,
+      rules: 'required',
     },
     { fieldName: 'baseUsedCpsYn', header: t('MSG_TXT_CHG_RLS'), width: 120, styleName: 'text-center' },
     { fieldName: 'baseChdvcRerntYn', header: t('MSG_TXT_SEC_HND_COMP'), width: 120, styleName: 'text-center' },
@@ -383,8 +383,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRD_GRP'), width: 120, styleName: 'text-center' },
     { fieldName: 'baseAdr', header: t('MSG_TXT_INST_ADDR'), width: 250 },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_PTNR_NAME'), width: 120, styleName: 'text-center' },
-    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_LOCARA_CD'), width: 120, styleName: 'text-center' },
-    { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRCH_CD'), width: 120, styleName: 'text-center' },
+    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGNL_GRP'), width: 120, styleName: 'text-center' }, // 지역단
+    { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRANCH'), width: 120, styleName: 'text-center' }, // 지점
     { fieldName: 'ojChdvcRerntYn', header: t('MSG_TXT_CHG_RLS'), width: 120, styleName: 'text-center' },
     { fieldName: 'ojRcgvpKnm', header: t('MSG_TXT_IST_NM'), width: 120, styleName: 'text-center' },
     { fieldName: 'ojIstDt', header: t('MSG_TXT_IST_DT'), width: 120, styleName: 'text-center', datetimeFormat: 'datetime' },

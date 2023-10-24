@@ -311,10 +311,10 @@ const initGrdMain = defineGrid((data, view) => {
       placeHolder: t('MSG_TXT_SELT'),
       editable: true,
     },
-    { fieldName: 'fwSppIvcNo', // 송장번호
+    { fieldName: 'fwSppIvcNo', // 송장번호 required 추가
       header: t('MSG_TXT_IVC_NO'),
       width: '150',
-      rules: 'max_value:99999999999999999999',
+      rules: 'max_value:99999999999999999999||required',
       editor: { inputCharacters: '0-9', maxLength: 20 },
       styleName: 'text-left',
       placeHolder: t('MSG_TXT_INP'),

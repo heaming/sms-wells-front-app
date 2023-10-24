@@ -191,7 +191,7 @@ let cachedParams;
 
 // 판매유형 목록
 const sellTpCdGrids = ref([
-  { codeId: 'A', codeName: t('MSG_TXT_ALL') }, // 전체
+  { codeId: '', codeName: t('MSG_TXT_ALL') }, // 전체
   { codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') }, // 일시불
   { codeId: '2', codeName: t('MSG_TXT_RENTAL') }, // 렌탈
   { codeId: '5', codeName: t('MSG_TXT_HOME_CARE') }, // 홈케어
@@ -252,6 +252,14 @@ async function onClickRowAdd() {
   const view = gridMainRef.value.getView();
   const row = view.getCurrent().dataRow < 0 ? '0' : view.getCurrent().dataRow;
   await gridUtil.insertRowAndFocus(view, row, {});
+
+  const data = view.getDataSource();
+  data.setValue(row, 'sellBaseTpCd', 'A'); // 판매구분 default 세팅 - 전체
+  data.setValue(row, 'copnDvCd', ''); // 개인/법인구분 default 세팅 - 전체
+  data.setValue(row, 'sellBaseSellTp', ''); // 판매유형 default 세팅 - 전체
+  data.setValue(row, 'sellPrmitDvCd', ''); // 판매제한 default 세팅 - 선택
+
+  view.setFocus();
 }
 
 // 저장 버튼 클릭
@@ -343,9 +351,8 @@ function initGrid(data, view) {
       header: t('MSG_TXT_INDI_CORP'),
       width: '142',
       styleName: 'text-center',
-      rules: 'required',
       options: [
-        { codeId: 'A', codeName: `A-${t('MSG_TXT_ALL')}` },
+        { codeId: '', codeName: `A-${t('MSG_TXT_ALL')}` },
         ...codes.COPN_DV_CD,
       ],
       editor: { type: 'list' } }, // 개인/법인
@@ -362,7 +369,7 @@ function initGrid(data, view) {
     { fieldName: 'pdMclsfNm', header: t('MSG_TXT_PRDT_CATE'), width: '142', styleName: 'text-center', editable: false }, // 상품분류
     { fieldName: 'pdLclsfNm', header: t('MSG_TXT_PRDT_TYPE'), width: '142', styleName: 'text-center', editable: false }, // 상품유형
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '220', editable: false }, // 상품명
-    { fieldName: 'sellBasePrd', header: t('MSG_TXT_CYCL'), width: '131', styleName: 'text-center', placeHolder: 'ALL', editor: { maxLength: 100 } }, // 주기
+    { fieldName: 'sellBasePrd', header: `${t('MSG_TXT_CYCL')}(월)`, width: '131', styleName: 'text-center', placeHolder: 'ALL', editor: { maxLength: 100 } }, // 주기
     { fieldName: 'sellBaseSellTp',
       header: t('MSG_TXT_SEL_TYPE'),
       width: '142',
@@ -373,7 +380,11 @@ function initGrid(data, view) {
       header: t('MSG_TXT_SLS_RSTR'),
       width: '142',
       styleName: 'text-center',
-      options: salesTypeOptions.value,
+      options: [
+        { codeId: '', codeName: t('MSG_TXT_SELT') },
+        ...salesTypeOptions.value,
+      ],
+      rules: 'required',
       editor: { type: 'list' } }, // 판매제한
     { fieldName: 'vlStrtDtm',
       header: t('MSG_TXT_STRT_DT'),

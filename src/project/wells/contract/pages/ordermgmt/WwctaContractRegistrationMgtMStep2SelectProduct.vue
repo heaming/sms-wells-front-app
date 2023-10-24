@@ -279,7 +279,7 @@ async function fetchProducts() {
   await emit('fetched', products.value);
 }
 
-watch(props.cntrNo, fetchProducts, { immediate: true });
+watch(() => props.cntrNo, fetchProducts);
 
 async function onClickSearch() {
   const shouldFetchProduct = cachedParams.value.rentalDscTpCd !== searchParams.value.rentalDscTpCd;
@@ -308,8 +308,17 @@ async function onClickProduct(product) {
   await emit('select', product);
 }
 
+onMounted(() => {
+  // step2 로 바로 접근하는 경우...
+  if (!products.value?.length) {
+    fetchProducts();
+  }
+});
+
 onActivated(() => {
-  fetchProducts();
+  if (!products.value?.length) {
+    fetchProducts();
+  }
 });
 </script>
 

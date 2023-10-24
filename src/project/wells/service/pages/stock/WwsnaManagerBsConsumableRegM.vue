@@ -76,11 +76,8 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
             :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :page-size-options="pageInfo.totalCount"
           />
         </template>
         <kw-btn
@@ -142,7 +139,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { defineGrid, useMeta, getComponentType, codeUtil, useDataService, gridUtil, notify, alert } from 'kw-lib';
+import { defineGrid, useMeta, getComponentType, useDataService, gridUtil, notify, alert } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
@@ -160,10 +157,6 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
 
 const searchParams = ref({
   mngtYm: dayjs().format('YYYYMM'),
@@ -220,7 +213,7 @@ async function getItems() {
 }
 
 async function getBldCode() {
-  const res = await dataService.get(`/sms/wells/service/manager-bsconsumables/building-code/${searchParams.value.mngtYm}`);
+  const res = await dataService.get('/sms/wells/service/manager-bsconsumables/building-code');
   const codeData = res.data;
 
   bldCode.value = codeData.map((v) => ({ codeId: v.bldCd, codeName: v.bldNm }));
@@ -411,7 +404,7 @@ async function fetchData() {
   await reAryGrid();
   await getMCsmbAplcClose();
 
-  const res = await dataService.get('/sms/wells/service/manager-bsconsumables', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/manager-bsconsumables', { params: { ...cachedParams, timeout: 300000 } });
   // const { list: bldCsmbDeliveries, pageInfo: pagingResult } = res.data;
 
   pageInfo.value.totalCount = res.data.length;

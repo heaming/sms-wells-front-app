@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="2"
+      :cols="3"
       one-row
       @search="onClickSearch"
     >
@@ -32,6 +32,14 @@
             @change="onChangeBaseYm"
           />
         </kw-search-item>
+        <kw-search-item :label="$t('MSG_TXT_OG_TP')">
+          <kw-select
+            v-model="searchParams.ogTp"
+            first-option="all"
+            first-option-value="ALL"
+            :options="ogTp"
+          />
+        </kw-search-item>
         <kw-search-item
           :label="$t('MSG_TXT_OG_LEVL')"
           required
@@ -40,7 +48,7 @@
             v-model:og-levl-dv-cd1="searchParams.dgr1LevlOgCd"
             v-model:og-levl-dv-cd2="searchParams.dgr2LevlOgCd"
             v-model:og-levl-dv-cd3="searchParams.dgr3LevlOgCd"
-            :og-tp-cd="searchParams.ogTpCd"
+            :og-tp-cd="searchParams.ogTp"
             :start-level="1"
             :end-level="3"
             :label="$t('MSG_TXT_OG_LEVL')"
@@ -107,11 +115,10 @@ import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect
 
 const now = dayjs();
 const { t } = useI18n();
-const { getConfig, getUserInfo } = useMeta();
+const { getConfig } = useMeta();
 const { alert } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { ogTpCd } = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -119,11 +126,14 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'OG_TP_CD',
 );
+
+const ogTp = codes.OG_TP_CD.filter((v) => ['W01', 'W02'].includes(v.codeId));
 
 const searchParams = ref({
   baseYm: now.format('YYYYMM'), // 기준년월
-  ogTpCd, // 조직유형
+  ogTp: 'ALL', // 조직유형
   dgr1LevlOgCd: '',
   dgr2LevlOgCd: '',
   dgr3LevlOgCd: '',
@@ -164,6 +174,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 기준년월 변경시
 function onChangeBaseYm() {
   const view = grdMainRef.value.getView();
   view.setColumnProperty('billing3', 'header', dayjs(searchParams.value.baseYm).add(-3, 'month').format('MM') + t('MSG_TXT_MON'));
@@ -179,6 +190,7 @@ function onChangeBaseYm() {
   view.setColumnProperty('delinquent1', 'header', dayjs(searchParams.value.baseYm).add(-1, 'month').format('MM') + t('MSG_TXT_MON'));
 }
 
+// 엑셀 다운로드 버튼 클릭
 async function onClickExportView() {
   const view = grdMainRef.value.getView();
   const response = await dataService.get('/sms/wells/closing/business-deposit-delinquents/excel-download', { params: cachedParams, timeout: 80000 });
@@ -204,42 +216,42 @@ watch(() => searchParams.value.baseYm, async (val) => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGRP_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dgr2LevlDgPrtnrNm', header: t('MSG_TXT_REG_DIR'), width: '100' },
-    { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRCH_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR'), width: '100' },
-    { fieldName: 'dgr3LevlDgPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '100' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cltnDt', header: t('MSG_TXT_CLTN_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'nowDgr3LevlOgCd', header: t('MSG_TXT_BRCH_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'nowDgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR'), width: '100' },
-    { fieldName: 'nowDgr3LevlDgPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'nowPrtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '100' },
-    { fieldName: 'nowPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'nowCltnDt', header: t('MSG_TXT_CLTN_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '140' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '140', styleName: 'text-center' },
-    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: '140', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'istDtm', header: t('MSG_TXT_IST_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rentalAmt', header: t('MSG_TXT_MM_RTLFE'), width: '140', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'istmMcn', header: t('MSG_TXT_DUTY_STPL'), width: '140', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'billing3', header: '', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'billing2', header: '', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'billing1', header: '', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'billingSum', header: t('MSG_TXT_BIL_SUM'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'deposit3', header: '', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'deposit2', header: '', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'deposit1', header: '', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'depositSum', header: t('MSG_TXT_BIL_SUM'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'delinquent3', header: '', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'delinquent2', header: '', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'delinquent1', header: '', width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'thisMonth', header: t('MSG_TXT_THM_DP'), width: '120', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'delinquentYn', header: t('MSG_TXT_OVERDUE'), width: '120', styleName: 'text-center' },
+    { fieldName: 'dgr2LevlOgCd', header: t('MSG_TXT_RGRP_CD'), width: '100', styleName: 'text-center' }, // 접수당시 지역단 코드
+    { fieldName: 'dgr2LevlDgPrtnrNm', header: t('MSG_TXT_REG_DIR'), width: '100' }, // 접수당시 지역단장
+    { fieldName: 'dgr3LevlOgCd', header: t('MSG_TXT_BRCH_CD'), width: '100', styleName: 'text-center' }, // 접수당시 지점코드
+    { fieldName: 'dgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR'), width: '100' }, // 접수당시 지점장
+    { fieldName: 'dgr3LevlDgPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' }, // 접수당시 번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '100' }, // 접수당시 판매자명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' }, // 접수당시 번호
+    { fieldName: 'cltnDt', header: t('MSG_TXT_CLTN_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 접수당시 해약일자
+    { fieldName: 'nowDgr3LevlOgCd', header: t('MSG_TXT_BRCH_CD'), width: '100', styleName: 'text-center' }, // 현재소속 지점코드
+    { fieldName: 'nowDgr3LevlDgPrtnrNm', header: t('MSG_TXT_BRMGR'), width: '100' }, // 현재소속 지점장
+    { fieldName: 'nowDgr3LevlDgPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' }, // 현재소속 번호
+    { fieldName: 'nowPrtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '100' }, // 현재소속 판매자명
+    { fieldName: 'nowPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' }, // 현재소속 번호
+    { fieldName: 'nowCltnDt', header: t('MSG_TXT_CLTN_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 현재소속 해약일자
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_DIV'), width: '140' }, // 업무구분
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '140', styleName: 'text-center' }, // 고객번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130' }, // 고객명
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '140', styleName: 'text-center' }, // 제품명
+    { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: '140', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일자
+    { fieldName: 'istDtm', header: t('MSG_TXT_IST_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' }, // 설치일자
+    { fieldName: 'rentalAmt', header: t('MSG_TXT_MM_RTLFE'), width: '140', styleName: 'text-right', dataType: 'number' }, // 월 렌탈료
+    { fieldName: 'istmMcn', header: t('MSG_TXT_DUTY_STPL'), width: '140', styleName: 'text-right', dataType: 'number' }, // 의무약정
+    { fieldName: 'billing3', header: '', width: '100', styleName: 'text-right', dataType: 'number' }, // 3개월전 청구금액
+    { fieldName: 'billing2', header: '', width: '100', styleName: 'text-right', dataType: 'number' }, // 2개월전 청구금액
+    { fieldName: 'billing1', header: '', width: '100', styleName: 'text-right', dataType: 'number' }, // 1개월전 청구금액
+    { fieldName: 'billingSum', header: t('MSG_TXT_BIL_SUM'), width: '100', styleName: 'text-right', dataType: 'number' }, // 청구합계
+    { fieldName: 'deposit3', header: '', width: '100', styleName: 'text-right', dataType: 'number' }, // 3개월전 입금액
+    { fieldName: 'deposit2', header: '', width: '100', styleName: 'text-right', dataType: 'number' }, // 2개월전 입금액
+    { fieldName: 'deposit1', header: '', width: '100', styleName: 'text-right', dataType: 'number' }, // 1개월전 입금액
+    { fieldName: 'depositSum', header: t('MSG_TXT_BIL_SUM'), width: '100', styleName: 'text-right', dataType: 'number' }, // 입금합계
+    { fieldName: 'delinquent3', header: '', width: '100', styleName: 'text-right', dataType: 'number' }, // 3개월전 연체금액
+    { fieldName: 'delinquent2', header: '', width: '100', styleName: 'text-right', dataType: 'number' }, // 2개월전 연체금액
+    { fieldName: 'delinquent1', header: '', width: '100', styleName: 'text-right', dataType: 'number' }, // 1개월전 연체금액
+    { fieldName: 'thisMonth', header: t('MSG_TXT_THM_DP'), width: '120', styleName: 'text-right', dataType: 'number' }, // 당월입금
+    { fieldName: 'delinquentYn', header: t('MSG_TXT_OVERDUE'), width: '120', styleName: 'text-center' }, // 연체여부
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);

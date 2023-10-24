@@ -3,7 +3,7 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : CTA
-2. 프로그램 ID : WwctaContractStatusInstallationContractSppRegP - wells 계약현황 설치/배정 리스트 (모바일)
+2. 프로그램 ID : WwctaContractStatusInstallationContractSppRegP - wells 계약현황 설치/배정 리스트
 3. 작성자 : gs.piit258
 4. 작성일 : 2023.10.10
 ****************************************************************************************************
@@ -89,15 +89,18 @@ async function onClickInstallationContractSppReg(item) {
     }
   }
 
-  let svBizDclsfCd;
+  let svDvCd = '1'; // 1:설치, 2:BS, 3:AS, 4:홈케어
+  let svBizDclsfCd = '1110'; // 고객 제품/설치정보 최초 생성
+
+  // 예외설정
   if (item.sellTpCd === '1' && item.sellTpDtlCd === '12') {
     svBizDclsfCd = '4110';
+    svDvCd = '4';
   } else if (item.sellTpCd === '3' && item.sellTpDtlCd === '33') {
     svBizDclsfCd = '4120';
+    svDvCd = '4';
   } else if (item.sellTpCd === '6') {
-    svBizDclsfCd = '1120';
-  } else {
-    svBizDclsfCd = '1110';
+    svBizDclsfCd = '1112';
   }
 
   let mtrStatCd; // 설치배정 / 재배정 상태코드
@@ -113,12 +116,12 @@ async function onClickInstallationContractSppReg(item) {
     componentProps: {
       baseYm: now.format('YYYYMM'), // 달력 초기 월
       chnlDvCd: 'K', // W: 웰스, K: KSS, C: CubicCC, P: K-MEMBERS, I || E: 엔지니어, M: 매니저
-      svDvCd: '1', // 1:설치, 2:BS, 3:AS, 4:홈케어
-      sellDate: item.cntrCnfmDtm, // 판매일자(계약확정일자)
+      svDvCd,
       svBizDclsfCd,
+      mtrStatCd,
+      sellDate: item.cntrCnfmDtm, // 판매일자(계약확정일자)
       cntrNo: item.cntrNo,
       cntrSn: item.cntrSn,
-      mtrStatCd,
     },
   });
 

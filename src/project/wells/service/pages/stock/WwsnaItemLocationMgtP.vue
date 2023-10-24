@@ -29,30 +29,27 @@
         >
           <kw-input
             v-model="propParams.itmPdCd"
-            :disable="true"
+            :readonly="true"
           />
         </kw-form-item>
-        <!-- //품목코드 -->
         <!-- 품목명 -->
         <kw-form-item
           :label="$t('MSG_TXT_ITM_NM')"
         >
           <kw-input
             v-model="propParams.itmPdNm"
-            :disable="true"
+            :readonly="true"
           />
         </kw-form-item>
-        <!-- //품목명 -->
       </kw-form-row>
       <kw-form-row>
         <!-- 관리창고 -->
         <kw-form-item
-
           :label="$t('MSG_TXT_MNGT_WARE')"
         >
           <kw-input
             v-model="propParams.wareNm"
-            :disable="true"
+            :readonly="true"
           />
           <!-- 표준 미적용 -->
           <kw-checkbox
@@ -61,9 +58,7 @@
             :label="$t('MSG_TXT_STD_NO_APY')"
             @update:model-value="onCheckedStckNoStdGb"
           />
-          <!-- //표준 미적용 -->
         </kw-form-item>
-        <!-- //관리창고 -->
       </kw-form-row>
     </kw-form>
 
@@ -79,6 +74,7 @@
           @change="fetchData"
         />
       </template>
+      <!-- 저장 -->
       <kw-btn
         v-permission:update
         grid-action
@@ -90,6 +86,7 @@
         inset
         spaced
       />
+      <!-- 엑셀다운로드 -->
       <kw-btn
         v-permission:download
         dense

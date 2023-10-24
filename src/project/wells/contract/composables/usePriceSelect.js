@@ -86,7 +86,7 @@ export default (
     .reduce((varNameToOptionsMap, variableName) => {
       const varToSelectables = varNameToSelectablesDictMap.value[variableName];
       const options = [];
-      if (varToSelectables[EMPTY_SYM] > 0) {
+      if (varToSelectables[EMPTY_SYM]?.length > 0) {
         options.push({
           codeId: EMPTY_ID,
           codeName: labelGenerator[variableName]?.(EMPTY_ID) || '선택안함',
@@ -168,8 +168,6 @@ export default (
 
     let filtered = finalPriceOptions.value;
 
-    console.log(filteredVariableNames.value);
-
     if (filteredVariableNames.value.length) {
       filtered = finalPriceOptions.value
         .filter((finalPriceOption) => !filteredVariableNames.value
@@ -193,10 +191,12 @@ export default (
 
   const onChangePriceOptionFilter = () => {
     filteringFinalPriceOptions();
-    setVariablesIfUniqueSelectable();
+    filteredVariableNames.value.forEach(setIfUniqueSelectable); /* 필터링 된 항목만 박도록 수정 */
   };
 
-  watch(priceOptionFilter, onChangePriceOptionFilter);
+  if (priceOptionFilter) {
+    watch(priceOptionFilter, onChangePriceOptionFilter);
+  }
 
   const onChangeFinalPriceOptions = () => {
     filteringFinalPriceOptions();
@@ -205,30 +205,32 @@ export default (
 
   watch(finalPriceOptions, onChangeFinalPriceOptions);
 
+  const selectedFinalPrices = computed(() => filteredFinalPriceOptions.value
+    ?.filter((finalPrice) => variableNames.value
+      .every((variableName) => {
+        // FIXME: 가격 안정되면 해당 기능 제거. 선택 가능한 값이 없으면 제외. ?? 왜?
+        const selectable = getSelectable(variableName);
+        if (!selectable.length) {
+          return true;
+        }
+
+        const curValue = priceDefineVariables.value[variableName] === EMPTY_ID
+          ? EMPTY_SYM
+          : priceDefineVariables.value[variableName]; /* could be undefined */
+        const targetValue = generateValueKey(finalPrice[variableName]); /* can not be undefined */
+
+        // fixme: 안정되면 !curValue 제거
+        return !curValue || targetValue === curValue;
+      })));
+
   const selectedFinalPrice = computed(() => {
-    const selectedPrice = filteredFinalPriceOptions.value
-      ?.filter((finalPrice) => variableNames.value
-        .every((variableName) => {
-          // 선택 가능한 값이 없으면 제외. ?? 왜?
-          const selectable = getSelectable(variableName);
-          if (!selectable.length) {
-            return true;
-          }
-
-          const curValue = priceDefineVariables.value[variableName] === EMPTY_ID
-            ? EMPTY_SYM
-            : priceDefineVariables.value[variableName]; /* could be undefined */
-          const targetValue = generateValueKey(finalPrice[variableName]); /* can not be undefined */
-
-          return targetValue === curValue;
-        }));
-    if (selectedPrice.length > 1) {
+    if (selectedFinalPrices.value.length > 1) {
       return undefined;
     }
-    if (selectedPrice.length < 1) {
+    if (selectedFinalPrices.value.length < 1) {
       return undefined;
     }
-    return selectedPrice[0];
+    return selectedFinalPrices.value[0];
   });
 
   return {
@@ -240,5 +242,6 @@ export default (
     unsetIfNotSelectable,
     setVariablesIfUniqueSelectable,
     selectedFinalPrice,
+    selectedFinalPrices,
   };
 };

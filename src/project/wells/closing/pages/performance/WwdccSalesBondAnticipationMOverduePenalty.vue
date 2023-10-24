@@ -205,6 +205,7 @@ import { getAggregateDivide, getSellTpCd, getSellTpDtlCd } from '~/modules/sms-c
 
 const dataService = useDataService();
 const { t } = useI18n();
+const now = dayjs();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -229,7 +230,7 @@ const isGridFourth = ref(false);
 const isInquiryDivide = ref(false);
 
 const searchParams = ref({
-  slClYm: dayjs().add(-1, 'M').format('YYYYMM'),
+  slClYm: now.format('YYYYMM'),
   agrgDv: '1', // 집계구분
   sapPdDvCd: '', // SAP상품구분코드
   sellTpCd: '1', // 판매유형

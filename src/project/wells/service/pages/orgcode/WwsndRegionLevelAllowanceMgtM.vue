@@ -171,7 +171,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep, isNumber, isEmpty } from 'lodash-es';
+import { cloneDeep, isNumber, isUndefined, isNull } from 'lodash-es';
 import dayjs from 'dayjs';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 
@@ -197,25 +197,31 @@ const grdBizBaseRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
 const searchParams = ref({
-  applyDate: dayjs().format('YYYYMMDD'),
+  applyDate: dayjs().format('YYYYMMDD'), // 적용일자
 });
 
 const tomorrow = dayjs().add(1, 'day').format('YYYYMMDD');
 const applyDates = ref({
-  movementApplyDate: tomorrow,
-  bizApplyDate: tomorrow,
+  movementApplyDate: tomorrow, // 이동급지적용일자
+  bizApplyDate: tomorrow, // 업무급지적용일자
 });
 
 const originApplyDates = {
-  movementApplyDate: '',
-  bizApplyDate: '',
+  movementApplyDate: '', // 기존 이동급지적용일자
+  bizApplyDate: '', // 기존 업무급지적용일자
 };
 
 const countInfo = ref({
-  movementTotalCount: 0,
-  bizTotalCount: 0,
+  movementTotalCount: 0, // 이동급지 총건수
+  bizTotalCount: 0, // 업무급지 총건수
 });
 
+// 빈값 여부 체크
+function isBlank(val) {
+  return isUndefined(val) || isNull(val) || val === '';
+}
+
+// 기존 적용일자보다 큰 일자인지 체크
 function validateOriginDate(type, val) {
   const originApplyDate = dayjs(originApplyDates[type]).format('YYYYMMDD');
   if (dayjs(val).isSameOrBefore(originApplyDate)) {
@@ -225,6 +231,7 @@ function validateOriginDate(type, val) {
   return true;
 }
 
+// 오늘일자인지 체크
 function validateToday(val) {
   const today = dayjs().format('YYYYMMDD');
   if (dayjs(val).isSameOrBefore(today)) {
@@ -234,6 +241,7 @@ function validateToday(val) {
   return true;
 }
 
+// 최대적용시작일보다 큰 일자인지 체크
 function validateMaxApplyStartDate(maxApyStrtdt, val) {
   const maxApplyStartDate = dayjs(maxApyStrtdt).format('YYYYMMDD');
   if (dayjs(val).isSameOrBefore(maxApplyStartDate)) {
@@ -243,36 +251,40 @@ function validateMaxApplyStartDate(maxApyStrtdt, val) {
   return true;
 }
 
+// 기준정보 가져오기
 function getBaseInfo(type) {
   const grdBaseRef = type === 'movement' ? grdMovementBaseRef : grdBizBaseRef;
   const view = grdBaseRef.value.getView();
   return view.getJsonRows()[0];
 }
 
+// 이동시간 가져오기
 function getMoveTime(view, row, rglvlGdCd, value) {
   const { movementAverageSpeed } = getBaseInfo('movement');
 
   let mmtLdtm = 360; // [이동급지] 급지등급 25등급은 '섬'으로 이동시간 360 고정
 
-  if (rglvlGdCd !== '25') {
-    view.setValue(row, 'mmtDstn', value);
+  if (rglvlGdCd !== 25) {
+    view.setValue(view.getItemIndex(row), 'mmtDstn', value);
 
-    const mmtDstn = isEmpty(value) ? 0 : Number(value);
+    const mmtDstn = isBlank(value) ? 0 : Number(value);
     const averageSpeed = Number(movementAverageSpeed);
     mmtLdtm = (mmtDstn * 60) / averageSpeed;
 
-    view.setValue(row, 'mmtLdtm', mmtLdtm);
+    view.setValue(view.getItemIndex(row), 'mmtLdtm', mmtLdtm);
   }
+  view.commit();
   return mmtLdtm;
 }
 
+// 수당 셋팅
 function setAllowance(view, row, mmtLdtm) {
   const { movementManHour, movementFieldWeight } = getBaseInfo('movement');
   const manHour = Number(movementManHour);
   const fieldWeight = Number(movementFieldWeight);
   const rglvlAwAmt = Math.round((mmtLdtm * manHour * (fieldWeight / 100)) / 100) * 100;
 
-  view.setValue(row, 'rglvlAwAmt', rglvlAwAmt);
+  view.setValue(view.getItemIndex(row), 'rglvlAwAmt', rglvlAwAmt);
 }
 
 let isMovementChanged = false;
@@ -305,6 +317,7 @@ function onClickMovementBulkApply() {
 
     setAllowance(view, dataRow, mmtLdtm);
   }
+  view.commit();
 }
 
 // 적용일자 일괄적용
@@ -317,9 +330,10 @@ function setApplyDates(view, type) {
   const rowCount = view.getItemCount();
 
   for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
-    view.setValue(dataRow, 'apyStrtdt', applyDate);
-    view.setValue(dataRow, 'apyEnddt', '99991231');
+    view.setValue(view.getItemIndex(dataRow), 'apyStrtdt', applyDate);
+    view.setValue(view.getItemIndex(dataRow), 'apyEnddt', '99991231');
   }
+  view.commit();
 }
 
 // 이동급지 - 적용일자 일괄적용
@@ -362,13 +376,14 @@ function onClickBizBulkApply() {
     const rglvlGdCd = gridUtil.getCellValue(view, dataRow, 'rglvlGdCd'); // 급지등급코드
     let mmtLdtm = gridUtil.getCellValue(view, dataRow, 'mmtLdtm'); // 이동시간
 
-    if (rglvlGdCd === '24') {
-      mmtLdtm = '260'; // [업무급지] 급지등급 24등급은 "섬"으로 이동시간 260으로 계산
+    if (rglvlGdCd === 24) {
+      mmtLdtm = 260; // [업무급지] 급지등급 24등급은 "섬"으로 이동시간 260으로 계산
     }
 
     const rglvlAwAmt = Number(mmtLdtm) * getFieldAirlift(bizManHour, bizFieldWeight);
-    view.setValue(dataRow, 'rglvlAwAmt', rglvlAwAmt);
+    view.setValue(view.getItemIndex(dataRow), 'rglvlAwAmt', rglvlAwAmt);
   }
+  view.commit();
 }
 
 // 업무급지 - 적용일자 일괄적용
@@ -384,6 +399,7 @@ function onClickBizBulkApplyDate() {
   setApplyDates(grdBizLevelRef.value.getView(), 'bizApplyDate');
 }
 
+// 기본 데이터 조회
 async function fetchDefaultData(viewType) {
   const res = await dataService.get('/sms/wells/service/region-level-allowances/base-information');
   const { movementBases, bizBases } = res.data;
@@ -407,6 +423,7 @@ async function fetchDefaultData(viewType) {
   }
 }
 
+// 이동급지, 업무급지 데이터 조회
 async function fetchData(viewType) {
   const res = await dataService.get('/sms/wells/service/region-level-allowances', { params: { ...cachedParams } });
   const { movementAllowances, bizAllowances } = res.data;
@@ -426,6 +443,7 @@ async function fetchData(viewType) {
   }
 }
 
+// 조회버튼 클릭
 async function onClickSearch() {
   const movementView = grdMovementLevelRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(movementView)) return;
@@ -439,6 +457,7 @@ async function onClickSearch() {
   await fetchDefaultData(ALL);
 }
 
+// 적용일자 변경여부 체크
 function validateApplyDate(view) {
   const originApyStrtdt = gridUtil.getOrigCellValue(view, 0, 'apyStrtdt');
   const apyStrtdt = gridUtil.getCellValue(view, 0, 'apyStrtdt');
@@ -450,6 +469,7 @@ function validateApplyDate(view) {
   return true;
 }
 
+// 그리드 변경 데이터 저장
 async function saveData(view, additionalInfo, viewType) {
   if (view.getItemCount() === 0) {
     notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
@@ -459,8 +479,8 @@ async function saveData(view, additionalInfo, viewType) {
   if (!validateApplyDate(view)) return;
 
   const changedRows = gridUtil.getChangedRowValues(view).map((v) => {
-    const mmtDstn = isEmpty(v.mmtDstn) ? '0' : v.mmtDstn;
-    const mmtLdtm = isEmpty(v.mmtLdtm) ? '0' : v.mmtLdtm;
+    const mmtDstn = isBlank(v.mmtDstn) ? '0' : v.mmtDstn;
+    const mmtLdtm = isBlank(v.mmtLdtm) ? '0' : v.mmtLdtm;
     return { ...v, mmtDstn, mmtLdtm, ...additionalInfo };
   });
 
@@ -471,12 +491,14 @@ async function saveData(view, additionalInfo, viewType) {
   await fetchDefaultData(viewType);
 }
 
+// 이동급지 저장
 async function onClickMovementSave() {
   const { movementManHour, movementFieldWeight, movementAverageSpeed } = getBaseInfo('movement');
   const additionalInfo = { minPerManho: movementManHour, rglvlWeit: movementFieldWeight, avVe: movementAverageSpeed };
   await saveData(grdMovementLevelRef.value.getView(), additionalInfo, MOVEMENT);
 }
 
+// 업무급지 저장
 async function onClickBizSave() {
   const { bizManHour, bizFieldWeight } = getBaseInfo('biz');
   const avVe = getFieldAirlift(bizManHour, bizFieldWeight);
@@ -484,15 +506,17 @@ async function onClickBizSave() {
   await saveData(grdBizLevelRef.value.getView(), additionalInfo, BIZ);
 }
 
+// 섬 표시 설정
 function setDisplayCallback(grid, index, value) {
   if (value === '9999') {
     return '섬';
-  } if (isEmpty(value)) {
-    return '0';
+  } if (isBlank(value)) {
+    return 0;
   }
   return value;
 }
 
+// 마운트 처리
 onMounted(async () => {
   await fetchDefaultData(ALL);
 });
@@ -502,20 +526,20 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMovementLevel = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'rglvlDvCd' },
-    { fieldName: 'bizRglvlCd' },
-    { fieldName: 'mmtDstn' },
-    { fieldName: 'rglvlGdCd' },
-    { fieldName: 'mmtLdtm' },
-    { fieldName: 'rglvlAwAmt', dataType: 'number' },
-    { fieldName: 'apyStrtdt' },
-    { fieldName: 'apyEnddt' },
-    { fieldName: 'chEmpno' },
-    { fieldName: 'chNm' },
-    { fieldName: 'minPerManho', dataType: 'number' },
-    { fieldName: 'rglvlWeit', dataType: 'number' },
-    { fieldName: 'avVe', dataType: 'number' },
-    { fieldName: 'maxApyStrtdt' },
+    { fieldName: 'rglvlDvCd' }, // 급지구분코드
+    { fieldName: 'bizRglvlCd' }, // 업무급지코드
+    { fieldName: 'mmtDstn' }, // 이동거리
+    { fieldName: 'rglvlGdCd', dataType: 'number' }, // 급지등급코드
+    { fieldName: 'mmtLdtm', dataType: 'number' }, // 이동소요시간
+    { fieldName: 'rglvlAwAmt', dataType: 'number' }, // 급지수당금액
+    { fieldName: 'apyStrtdt' }, // 적용시작일
+    { fieldName: 'apyEnddt' }, // 적용종료일
+    { fieldName: 'chEmpno' }, // 변경사번
+    { fieldName: 'chNm' }, // 변경성명
+    { fieldName: 'minPerManho', dataType: 'number' }, // 분당공수
+    { fieldName: 'rglvlWeit', dataType: 'number' }, // 급지비중
+    { fieldName: 'avVe', dataType: 'number' }, // 평균속도
+    { fieldName: 'maxApyStrtdt' }, // 최대 적용시작일
   ];
 
   const columns = [
@@ -531,6 +555,7 @@ const initGrdMovementLevel = defineGrid((data, view) => {
         inputCharacters: '0-9',
       },
       styleName: 'text-right',
+      sortable: false,
       displayCallback: setDisplayCallback,
     },
     { fieldName: 'rglvlGdCd', header: t('MSG_TXT_GD'), width: '100', suffix: ' 급지' },
@@ -581,31 +606,36 @@ const initGrdMovementLevel = defineGrid((data, view) => {
 
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
+  view.sortingOptions.commitBeforeSorting = true;
 
-  view.onGetEditValue = async (grid, index, editResult) => {
-    const rglvlGdCd = gridUtil.getCellValue(view, index.itemIndex, 'rglvlGdCd'); // 급지등급코드
-    const mmtLdtm = getMoveTime(view, index.itemIndex, rglvlGdCd, editResult.value); // 이동시간
+  // view.onGetEditValue = async (grid, index, editResult) => {
+  view.onCellEdited = (grid, itemIndex) => {
+    grid.commit();
+    const { mmtDstn } = grid.getValues(itemIndex);
+    const rglvlGdCd = gridUtil.getCellValue(view, itemIndex, 'rglvlGdCd'); // 급지등급코드
+    const mmtLdtm = getMoveTime(view, itemIndex, rglvlGdCd, mmtDstn); // 이동시간
 
-    setAllowance(view, index.itemIndex, mmtLdtm);
+    setAllowance(view, itemIndex, mmtLdtm);
+    grid.commit();
     isMovementChanged = true;
   };
 });
 
 const initGrdBizLevel = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'rglvlDvCd' },
-    { fieldName: 'bizRglvlCd' },
-    { fieldName: 'mmtDstn' },
-    { fieldName: 'mmtLdtm' },
-    { fieldName: 'rglvlGdCd' },
-    { fieldName: 'rglvlAwAmt', dataType: 'number' },
-    { fieldName: 'apyStrtdt' },
-    { fieldName: 'apyEnddt' },
-    { fieldName: 'chEmpno' },
-    { fieldName: 'chNm' },
-    { fieldName: 'minPerManho', dataType: 'number' },
-    { fieldName: 'rglvlWeit', dataType: 'number' },
-    { fieldName: 'maxApyStrtdt' },
+    { fieldName: 'rglvlDvCd' }, // 급지구분코드
+    { fieldName: 'bizRglvlCd' }, // 업무급지코드
+    { fieldName: 'mmtDstn' }, // 이동거리
+    { fieldName: 'mmtLdtm' }, // 이동소요시간
+    { fieldName: 'rglvlGdCd', dataType: 'number' }, // 급지등급코드
+    { fieldName: 'rglvlAwAmt', dataType: 'number' }, // 급지수당금액
+    { fieldName: 'apyStrtdt' }, // 적용시작일
+    { fieldName: 'apyEnddt' }, // 적용종료일
+    { fieldName: 'chEmpno' }, // 변경사번
+    { fieldName: 'chNm' }, // 변경성명
+    { fieldName: 'minPerManho', dataType: 'number' }, // 분당공수
+    { fieldName: 'rglvlWeit', dataType: 'number' }, // 급지비중
+    { fieldName: 'maxApyStrtdt' }, // 최대 적용시작일
   ];
 
   const columns = [
@@ -613,6 +643,7 @@ const initGrdBizLevel = defineGrid((data, view) => {
       header: t('MSG_TXT_MMT_HH_M'),
       width: '100',
       styleName: 'text-right',
+      sortable: false,
       displayCallback: setDisplayCallback,
     },
     { fieldName: 'rglvlGdCd', header: t('MSG_TXT_GD'), width: '100', suffix: ' 급지' },
@@ -655,13 +686,15 @@ const initGrdBizLevel = defineGrid((data, view) => {
 
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
+  view.sortingOptions.commitBeforeSorting = true;
+  view.sortingOptions.commitBeforeSorting = true;
 });
 
 function initGrdMovementBase(data, view) {
   const fields = [
-    { fieldName: 'movementManHour', dataType: 'number' },
-    { fieldName: 'movementFieldWeight', dataType: 'number' },
-    { fieldName: 'movementAverageSpeed', dataType: 'number' },
+    { fieldName: 'movementManHour', dataType: 'number' }, // 이동급지 분당공수
+    { fieldName: 'movementFieldWeight', dataType: 'number' }, // 이동급지 급지비중
+    { fieldName: 'movementAverageSpeed', dataType: 'number' }, // 이동급지 평균시속
   ];
 
   const columns = [
@@ -706,9 +739,9 @@ function initGrdMovementBase(data, view) {
 
 function initGrdBizBase(data, view) {
   const fields = [
-    { fieldName: 'bizManHour', dataType: 'number' },
-    { fieldName: 'bizFieldWeight', dataType: 'number' },
-    { fieldName: 'bizFieldAirlift', dataType: 'number' },
+    { fieldName: 'bizManHour', dataType: 'number' }, // 업무급지 분당공수
+    { fieldName: 'bizFieldWeight', dataType: 'number' }, // 업무급지 급지비중
+    { fieldName: 'bizFieldAirlift', dataType: 'number' }, // 업무급지 급지공수
   ];
 
   const columns = [
@@ -742,16 +775,19 @@ function initGrdBizBase(data, view) {
   view.rowIndicator.visible = false;
   view.editOptions.columnEditableFirst = true;
 
-  view.onGetEditValue = async (grid, index, editResult) => {
+  view.onCellEdited = (grid, itemIndex) => {
+    grid.commit();
+    const { fieldName } = grid.getCurrent();
+    const { bizManHour, bizFieldWeight } = grid.getValues(itemIndex);
     let bizFieldAirlift = 0;
-    if (index.fieldName === 'bizManHour') {
-      bizFieldAirlift = getFieldAirlift(editResult.value, grid.getValue(index.dataRow, 'bizFieldWeight'));
-    } else if (index.fieldName === 'bizFieldWeight') {
-      bizFieldAirlift = getFieldAirlift(grid.getValue(index.dataRow, 'bizManHour'), editResult.value);
+    if (fieldName === 'bizManHour') {
+      bizFieldAirlift = getFieldAirlift(bizManHour, grid.getValue(itemIndex, 'bizFieldWeight'));
+    } else if (fieldName === 'bizFieldWeight') {
+      bizFieldAirlift = getFieldAirlift(grid.getValue(itemIndex, 'bizManHour'), bizFieldWeight);
     }
 
-    grid.setValue(index.dataRow, index.fieldName, editResult.value);
-    grid.setValue(index.dataRow, 'bizFieldAirlift', bizFieldAirlift);
+    grid.setValue(itemIndex, 'bizFieldAirlift', bizFieldAirlift);
+    grid.commit();
   };
 }
 </script>

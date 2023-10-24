@@ -315,6 +315,32 @@ async function onClickAggregate(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
     fetchData();
   }
 }
+
+/*
+ *  Event - 보증예치금 적립 클릭 ※
+ */
+async function onClickW313P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
+  const { perfYm } = searchParams.value;
+  // if (rsbTpCd === '') {
+  //   notify(t('MSG_ALT_SELECT_RSB_TP'));
+  // } else {
+  const param = {
+    ogTpCd: 'W04',
+    perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+    ocYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
+    // rsbDvCd: rsbTpCd,
+  };
+  const { result: isChanged } = await modal({
+    component: 'ZwfecFeeRdsReservingRegP',
+    componentProps: param,
+  });
+  if (isChanged) {
+    await dataService.put(`/sms/common/fee/schedules/steps/${feeSchdId}/status/levels`, null, { params: { feeSchdLvCd, feeSchdLvStatCd } });
+    onClickSearch();
+  }
+  // }
+}
+
 /**
  * 스텝퍼 클릭시
  * WELLS B2B수수료 단계코드[FEE_SCHD_LV_CD] W04** 에 있는 코드 단계별 모든 로직을 정리한다.
@@ -333,7 +359,7 @@ async function onclickStep(params) {
       await onClickCreate(params.feeSchdId, params.code, '03');
     }
     if (params.code === 'W0403') { // 보증예치금 적립
-      // 미정의
+      await onClickW313P(params.feeSchdId, params.code, '03');
     }
   }
 }

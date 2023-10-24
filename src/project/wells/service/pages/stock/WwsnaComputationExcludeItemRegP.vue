@@ -24,6 +24,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 관리년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_MGT_YNM')"
           required
@@ -36,6 +37,7 @@
             :disable="isInqrYm"
           />
         </kw-search-item>
+        <!-- 품목구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_DV')"
         >
@@ -57,6 +59,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- SAP코드 -->
         <kw-search-item
           :label="$t('MSG_TXT_SAPCD')"
         >
@@ -86,6 +89,7 @@
           @change="fetchData"
         />
       </template>
+      <!-- 삭제 -->
       <kw-btn
         v-permission:delete
         :label="$t('MSG_BTN_DEL')"
@@ -98,6 +102,7 @@
         vertical
         inset
       />
+      <!-- 행추가 -->
       <kw-btn
         v-permission:create
         :label="$t('MSG_BTN_ROW_ADD')"
@@ -105,6 +110,7 @@
         :disable="isSearch"
         @click="onClickAdd"
       />
+      <!-- 저장 -->
       <kw-btn
         v-permission:update
         :label="$t('MSG_BTN_SAVE')"
@@ -117,6 +123,7 @@
         vertical
         inset
       />
+      <!-- 엑셀다운로드 -->
       <kw-btn
         v-permission:download
         :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
@@ -131,6 +138,7 @@
         vertical
         inset
       />
+      <!-- 전월데이터이관 -->
       <kw-btn
         v-permission:update
         :label="$t('MSG_BTN_LSTMM_DTA_TF')"

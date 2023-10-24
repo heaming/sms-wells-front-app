@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 조회구분 -->
         <kw-search-item
           :label="t('MSG_TXT_INQR_DV')"
           :colspan="2"
@@ -38,6 +39,7 @@
             @change="onChangeDtTpCd"
           />
         </kw-search-item>
+        <!-- 조회기간, 조회일자 -->
         <kw-search-item
           :label="searchParams.dtTpCd !== '4' ? $t('MSG_TXT_LOOKUP_PERIOD') : $t('MSG_TXT_SRCH_DT')"
           :colspan="searchParams.dtTpCd !== '4' ? 2 : 1"
@@ -61,6 +63,7 @@
       </kw-search-row>
 
       <kw-search-row>
+        <!-- 유/무상구분 -->
         <kw-search-item
           :label="`${t('MSG_TXT_REFRI')}${t('MSG_TXT_DIV')}`"
         >
@@ -70,7 +73,7 @@
             first-option="all"
           />
         </kw-search-item>
-
+        <!-- 배송기간 -->
         <kw-search-item
           :label="t('TXT_MSG_SPP_DV_CD')"
         >
@@ -80,7 +83,7 @@
             first-option="all"
           />
         </kw-search-item>
-
+        <!-- 완료처리 -->
         <kw-search-item
           :label="t('MSG_TXT_FSH_PROCS')"
         >
@@ -90,6 +93,7 @@
             first-option="all"
           />
         </kw-search-item>
+        <!-- 패키지구분 -->
         <kw-search-item
           :label="t('MSG_TXT_PKG_DV')"
         >
@@ -101,6 +105,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 출고여부 -->
         <kw-search-item
           :label="`${t('MSG_TXT_OSTR')}${t('MSG_TXT_YN')}`"
         >
@@ -124,7 +129,7 @@
             @change="fetchData"
           />
         </template>
-
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
@@ -139,6 +144,7 @@
           vertical
           inset
         />
+        <!-- 입금일자변경 -->
         <kw-btn
           v-permission:update
           secondary
@@ -147,6 +153,7 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickSave"
         />
+        <!-- 집계표출력 -->
         <kw-btn
           v-permission:read
           secondary
@@ -160,6 +167,7 @@
           vertical
           inset
         />
+
         <kw-date-picker
           v-model="ostrCnfmDt"
           dense
@@ -172,6 +180,7 @@
           vertical
           inset
         />
+        <!-- 출고확정일저장 -->
         <kw-btn
           v-permission:update
           primary
@@ -216,7 +225,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid, popupUtil } from 'kw-lib';
+import { codeUtil, useMeta, useGlobal, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -224,6 +233,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const { notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
+const router = useRouter();
 
 const dataService = useDataService();
 
@@ -533,11 +543,11 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'refriDiv', header: t('MSG_TXT_REFRI'), width: '90', styleName: 'text-center' },
     { fieldName: 'shipDiv', header: t('TXT_MSG_SPP_DV_CD'), width: '90', styleName: 'text-center' },
     { fieldName: 'receiptDiv', header: t('MSG_TXT_RCP_DV'), styleName: 'text-center', width: '90' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '146', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '146', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), styleName: 'text-left', width: '90' },
     { fieldName: 'sppOrdNo', header: `${t('MSG_TXT_DLVRY')}${t('MSG_TXT_SEQUENCE_NUMBER')}`, styleName: 'text-center', width: '154' },
     { fieldName: 'mchnModel', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_MODEL')}`, styleName: 'text-left', width: '220' },
-    { fieldName: 'mchnCstDtlNo', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CNTR_DTL_NO')}`, width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true },
+    { fieldName: 'mchnCstDtlNo', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CNTR_DTL_NO')}`, width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: false },
     { fieldName: 'mchnCstNm', header: `${t('MSG_TXT_MCHN')}${t('MSG_TXT_CST_NM')}`, styleName: 'text-left', width: '100' },
     { fieldName: 'ctrlPkg', header: `${t('MSG_TXT_CURRENT')}${t('MSG_TXT_PKG')}`, styleName: 'text-left', width: '150' },
     { fieldName: 'shipPkg', header: `${t('MSG_TXT_DLVRY')}${t('MSG_TXT_PKG')}`, width: '150', styleName: 'text-left' },
@@ -597,50 +607,64 @@ const initGrid = defineGrid((data, view) => {
       const cntrNo = g.getValue(itemIndex, 'cntrNo');
       const cntrSn = g.getValue(itemIndex, 'cntrSn');
 
-      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+      // 개인별서비스현황 연결
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
     } else if (column === 'mchnCstDtlNo') {
       const mchnCstDtlNo = g.getValue(itemIndex, 'mchnCstDtlNo');
       const idx = mchnCstDtlNo.indexOf('-');
       const cntrNo = mchnCstDtlNo.substr(0, idx);
       const cntrSn = mchnCstDtlNo.substr(idx + 1);
 
-      await popupUtil.open(`/popup#/service/wwsnb-individual-service-list?cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, false);
+      // 개인별서비스현황 연결
+      router.push({
+        path: '/service/wwsnb-individual-service-list',
+        query: {
+          cntrNo,
+          cntrSn,
+        },
+      });
     }
   };
 });
 
 const initGridTotal = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'deptNm' },
-    { fieldName: 'pak01', dataType: 'number' },
-    { fieldName: 'pak02', dataType: 'number' },
-    { fieldName: 'pak03', dataType: 'number' },
-    { fieldName: 'pak04', dataType: 'number' },
-    { fieldName: 'pak05', dataType: 'number' },
-    { fieldName: 'pak13', dataType: 'number' },
-    { fieldName: 'pak23', dataType: 'number' },
-    { fieldName: 'pak50', dataType: 'number' },
-    { fieldName: 'pak24', dataType: 'number' },
-    { fieldName: 'pak08', dataType: 'number' },
-    { fieldName: 'pak09', dataType: 'number' },
-    { fieldName: 'pak12', dataType: 'number' },
-    { fieldName: 'pak51', dataType: 'number' },
-    { fieldName: 'pak52', dataType: 'number' },
-    { fieldName: 'pak53', dataType: 'number' },
-    { fieldName: 'pak54', dataType: 'number' },
-    { fieldName: 'pak55', dataType: 'number' },
-    { fieldName: 'pak56', dataType: 'number' },
-    { fieldName: 'pak57', dataType: 'number' },
-    { fieldName: 'pak58', dataType: 'number' },
-    { fieldName: 'pak61', dataType: 'number' },
-    { fieldName: 'pak62', dataType: 'number' },
-    { fieldName: 'pak63', dataType: 'number' },
-    { fieldName: 'pak64', dataType: 'number' },
-    { fieldName: 'pak28', dataType: 'number' },
-    { fieldName: 'pak29', dataType: 'number' },
-    { fieldName: 'pak30', dataType: 'number' },
-    { fieldName: 'pak31', dataType: 'number' },
-    { fieldName: 'totSum', dataType: 'number' },
+    { fieldName: 'deptNm' }, // 센터명
+    { fieldName: 'pak01', dataType: 'number' }, // 샐러드
+    { fieldName: 'pak02', dataType: 'number' }, // 채소식단
+    { fieldName: 'pak03', dataType: 'number' }, // 건강밥상
+    { fieldName: 'pak04', dataType: 'number' }, // 항암건강
+    { fieldName: 'pak05', dataType: 'number' }, // 숙면힐링
+    { fieldName: 'pak13', dataType: 'number' }, // 이유식
+    { fieldName: 'pak23', dataType: 'number' }, // 미니
+    { fieldName: 'pak50', dataType: 'number' }, // 아이쑥쑥유엔젤
+    { fieldName: 'pak24', dataType: 'number' }, // 선택모종
+    { fieldName: 'pak08', dataType: 'number' }, // 버터헤드
+    { fieldName: 'pak09', dataType: 'number' }, // 케일
+    { fieldName: 'pak12', dataType: 'number' }, // 비타민다채
+    { fieldName: 'pak51', dataType: 'number' }, // 먹치마
+    { fieldName: 'pak52', dataType: 'number' }, // 여름청치마
+    { fieldName: 'pak53', dataType: 'number' }, // 청경채
+    { fieldName: 'pak54', dataType: 'number' }, // 먹치마+여름청치마
+    { fieldName: 'pak55', dataType: 'number' }, // 먹치마+청경채
+    { fieldName: 'pak56', dataType: 'number' }, // 먹치마+적소렐
+    { fieldName: 'pak57', dataType: 'number' }, // 여름청치마+청경채
+    { fieldName: 'pak58', dataType: 'number' }, // 여름청치마+적소렐
+    { fieldName: 'pak61', dataType: 'number' }, // 설치_자유WIDE
+    { fieldName: 'pak62', dataType: 'number' }, // BS/AS_자유WIDE
+    { fieldName: 'pak63', dataType: 'number' }, // 설치_자유SLIM
+    { fieldName: 'pak64', dataType: 'number' }, // BS/AS_자유SLIM
+    { fieldName: 'pak28', dataType: 'number' }, // 유러피안
+    { fieldName: 'pak29', dataType: 'number' }, // 우리가족
+    { fieldName: 'pak30', dataType: 'number' }, // 모둠쌈
+    { fieldName: 'pak31', dataType: 'number' }, // 기능청채소
+    { fieldName: 'totSum', dataType: 'number' }, // 소계
   ];
 
   const columns = [
@@ -905,49 +929,49 @@ const initGridTotal = defineGrid((data, view) => {
 
 const initGridSelect = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'deptNm' },
-    { fieldName: 'pak01001', dataType: 'number' },
-    { fieldName: 'pak01002', dataType: 'number' },
-    { fieldName: 'pak02001', dataType: 'number' },
-    { fieldName: 'pak02002', dataType: 'number' },
-    { fieldName: 'pak03001', dataType: 'number' },
-    { fieldName: 'pak03002', dataType: 'number' },
-    { fieldName: 'pak04001', dataType: 'number' },
-    { fieldName: 'pak04002', dataType: 'number' },
-    { fieldName: 'pak05001', dataType: 'number' },
-    { fieldName: 'pak05002', dataType: 'number' },
-    { fieldName: 'pak13001', dataType: 'number' },
-    { fieldName: 'pak13002', dataType: 'number' },
-    { fieldName: 'pak08003', dataType: 'number' },
-    { fieldName: 'pak08004', dataType: 'number' },
-    { fieldName: 'pak09003', dataType: 'number' },
-    { fieldName: 'pak09004', dataType: 'number' },
-    { fieldName: 'pak12003', dataType: 'number' },
-    { fieldName: 'pak12004', dataType: 'number' },
-    { fieldName: 'pak08002', dataType: 'number' },
-    { fieldName: 'pak08001', dataType: 'number' },
-    { fieldName: 'pak09002', dataType: 'number' },
-    { fieldName: 'pak23001', dataType: 'number' },
-    { fieldName: 'pak50001', dataType: 'number' },
-    { fieldName: 'pak24001', dataType: 'number' },
-    { fieldName: 'pak51001', dataType: 'number' },
-    { fieldName: 'pak52001', dataType: 'number' },
-    { fieldName: 'pak53001', dataType: 'number' },
-    { fieldName: 'pak54001', dataType: 'number' },
-    { fieldName: 'pak55001', dataType: 'number' },
-    { fieldName: 'pak56001', dataType: 'number' },
-    { fieldName: 'pak57001', dataType: 'number' },
-    { fieldName: 'pak58001', dataType: 'number' },
-    { fieldName: 'pak59001', dataType: 'number' },
-    { fieldName: 'pak60001', dataType: 'number' },
-    { fieldName: 'pak28001', dataType: 'number' },
-    { fieldName: 'pak28002', dataType: 'number' },
-    { fieldName: 'pak29001', dataType: 'number' },
-    { fieldName: 'pak29002', dataType: 'number' },
-    { fieldName: 'pak30002', dataType: 'number' },
-    { fieldName: 'pak30001', dataType: 'number' },
-    { fieldName: 'pak31002', dataType: 'number' },
-    { fieldName: 'pak31001', dataType: 'number' },
+    { fieldName: 'deptNm' }, // 센터명
+    { fieldName: 'pak01001', dataType: 'number' }, // 건강샐러드/주스SLIM
+    { fieldName: 'pak01002', dataType: 'number' }, // 건강샐러드/주스WIDE
+    { fieldName: 'pak02001', dataType: 'number' }, // 우리아이채소식단SLIM
+    { fieldName: 'pak02002', dataType: 'number' }, // 우리아이채소식단WIDE
+    { fieldName: 'pak03001', dataType: 'number' }, // 건강밥상SLIM
+    { fieldName: 'pak03002', dataType: 'number' }, // 건강밥상WIDE
+    { fieldName: 'pak04001', dataType: 'number' }, // 항암건강SLIM
+    { fieldName: 'pak04002', dataType: 'number' }, // 항암건강WIDE
+    { fieldName: 'pak05001', dataType: 'number' }, // 숙면힐링SLIM
+    { fieldName: 'pak05002', dataType: 'number' }, // 숙면힐링WIDE
+    { fieldName: 'pak13001', dataType: 'number' }, // 우리아이신선이유식SLIM
+    { fieldName: 'pak13002', dataType: 'number' }, // 우리아이신선이유식WIDE
+    { fieldName: 'pak08003', dataType: 'number' }, // 버터헤드SLIME
+    { fieldName: 'pak08004', dataType: 'number' }, // 버터헤드WIDE
+    { fieldName: 'pak09003', dataType: 'number' }, // 케일SLIM
+    { fieldName: 'pak09004', dataType: 'number' }, // 케일WIDE
+    { fieldName: 'pak12003', dataType: 'number' }, // 비타민다채SLIM
+    { fieldName: 'pak12004', dataType: 'number' }, // 비타민다채WIDE
+    { fieldName: 'pak08002', dataType: 'number' }, // 버터헤드+케일WIDE
+    { fieldName: 'pak08001', dataType: 'number' }, // 버터헤드+비타민다채WIDE
+    { fieldName: 'pak09002', dataType: 'number' }, // 케일+비타민다채WIDE
+    { fieldName: 'pak23001', dataType: 'number' }, // 웰스팜미니채소
+    { fieldName: 'pak50001', dataType: 'number' }, // 아이쑥쑥유엔젤WIDE
+    { fieldName: 'pak24001', dataType: 'number' }, // 선택모종
+    { fieldName: 'pak51001', dataType: 'number' }, // 먹치마_미니
+    { fieldName: 'pak52001', dataType: 'number' }, // 여름청치마_미니
+    { fieldName: 'pak53001', dataType: 'number' }, // 청경채_미니
+    { fieldName: 'pak54001', dataType: 'number' }, // 먹치마+여름청치마_미니
+    { fieldName: 'pak55001', dataType: 'number' }, // 먹치마+청경채_미니
+    { fieldName: 'pak56001', dataType: 'number' }, // 먹치마+적소렐_미니
+    { fieldName: 'pak57001', dataType: 'number' }, // 여름청치마+청경채_미니
+    { fieldName: 'pak58001', dataType: 'number' }, // 여름청치마+적소렐_미니
+    { fieldName: 'pak59001', dataType: 'number' }, // 선택모종WIDE
+    { fieldName: 'pak60001', dataType: 'number' }, // 선택모종SLIM
+    { fieldName: 'pak28001', dataType: 'number' }, // 유러피안샐러드SLIM
+    { fieldName: 'pak28002', dataType: 'number' }, // 유러피안샐러드WIDE
+    { fieldName: 'pak29001', dataType: 'number' }, // 우리가족건강채소SLIM
+    { fieldName: 'pak29002', dataType: 'number' }, // 우리가족건강채소WIDE
+    { fieldName: 'pak30002', dataType: 'number' }, // 모둠쌈채소WIDE
+    { fieldName: 'pak30001', dataType: 'number' }, // 모둠쌈채소SLIM
+    { fieldName: 'pak31002', dataType: 'number' }, // 기능성채소WIDE
+    { fieldName: 'pak31001', dataType: 'number' }, // 기능성채소SLIM
   ];
 
   const columns = [

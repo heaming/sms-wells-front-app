@@ -58,11 +58,8 @@
             <kw-form-item :label="$t('MSG_TXT_GNR_MNG')">
               <p>{{ searchDetail.hooPrtnrNm }}({{ searchDetail.hooPrtnrNo }})</p>
             </kw-form-item>
-            <!--MSG_TXT_HDQ-->
-            <kw-form-item
-              :label="$t('본부')"
-              hint="null"
-            >
+            <!--MSG_TXT_HDQ (mapping : null)-->
+            <kw-form-item :label="$t('본부')">
               <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
             </kw-form-item>
           </kw-form-row>
@@ -110,11 +107,8 @@
             <kw-form-item :label="$t('MSG_TXT_J_TP')">
               <p>{{ searchDetail.stlmTpNm }}</p>
             </kw-form-item>
-            <!--멤버십월회비-->
-            <kw-form-item
-              :label="$t('MSG_TXT_MEMBERSHIP')+t('MSG_TXT_MM_SSPCS')"
-              hint="null"
-            >
+            <!--멤버십월회비(mapping : null)-->
+            <kw-form-item :label="$t('MSG_TXT_MEMBERSHIP')+t('MSG_TXT_MM_SSPCS')">
               <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
             </kw-form-item>
             <!--할인금액-->
@@ -298,18 +292,12 @@
 
     <kw-separator />
     <kw-form-row>
-      <!-- row2 선납잔액 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_PRM_BLAM')"
-        hint="선납기초금액?prmBtdAmt"
-      >
+      <!-- row2 선납잔액 (mapping : 선납기초금액?prmBtdAmt)-->
+      <kw-form-item :label="$t('MSG_TXT_PRM_BLAM')">
         <p>{{ stringUtil.getNumberWithComma(searchDetail.prmBtdAmt??'') }}</p>
       </kw-form-item>
-      <!-- row2 선수잔액 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_PRPD_BLAM')"
-        hint="기말선수금?eotAtam"
-      >
+      <!-- row2 선수잔액 (mapping : 기말선수금?eotAtam)-->
+      <kw-form-item :label="$t('MSG_TXT_PRPD_BLAM')">
         <p>{{ stringUtil.getNumberWithComma(searchDetail.eotAtam??'') }}</p>
       </kw-form-item>
       <!-- row2 선수총액 -->
@@ -332,25 +320,16 @@
 
     <kw-separator />
     <kw-form-row>
-      <!-- row5 연체가산금 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_DLQ_ADAMT')"
-        hint="기말연체가산금액?eotDlqAddAmt"
-      >
+      <!-- row5 연체가산금 (mapping : 기말연체가산금액?eotDlqAddAmt)-->
+      <kw-form-item :label="$t('MSG_TXT_DLQ_ADAMT')">
         <p>{{ stringUtil.getNumberWithComma(searchDetail.eotDlqAddAmt??'') }}</p>
       </kw-form-item>
-      <!-- row3 가산입금 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_ADD_DP_AMT')"
-        hint="null"
-      >
+      <!-- row3 가산입금 (mapping : null)-->
+      <kw-form-item :label="$t('MSG_TXT_ADD_DP_AMT')">
         <p>{{ stringUtil.getNumberWithComma(searchDetail.null??'') }}</p>
       </kw-form-item>
-      <!-- row3 가산조정 -->
-      <kw-form-item
-        :label="$t('MSG_TXT_ADD_CTR')"
-        hint="null"
-      >
+      <!-- row3 가산조정 (mapping : null)-->
+      <kw-form-item :label="$t('MSG_TXT_ADD_CTR')">
         <kw-input
           v-model="searchDetail.null"
           regex="num"
