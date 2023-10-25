@@ -15,7 +15,7 @@
 <template>
   <kw-popup
     ref="popupRef"
-    size="3xl"
+    size="4xl"
     :modified-targets="['grdMain']"
   >
     <kw-form
@@ -597,12 +597,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'svpdNmKor', header: t('MSG_TXT_ITM_NM'), width: '200' },
-    { fieldName: 'ostrTms', header: t('MSG_TXT_OSTR_FREQ'), width: '85', styleName: 'text-center' },
     { fieldName: 'itemLoc', header: t('MSG_TXT_ITM_LOC'), width: '100' },
     { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '55', styleName: 'text-center' },
-    { fieldName: 'qty', header: t('MSG_TXT_OSTR_WARE_STOC'), width: '100', styleName: 'text-right' },
-    { fieldName: 'reqStckQty', header: t('MSG_TXT_STR_WARE_STOC'), width: '100', styleName: 'text-right' },
-    { fieldName: 'avgOut', header: t('MSG_TXT_CNTR_AV_OSTR_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'qty', header: t('MSG_TXT_OSTR_WARE_STOC'), width: '70', styleName: 'text-right' },
+    { fieldName: 'reqStckQty', header: t('MSG_TXT_STR_WARE_STOC'), width: '70', styleName: 'text-right' },
     { fieldName: 'ostrAkQty', header: t('MSG_TXT_RQST_QTY'), width: '80', styleName: 'text-right' }, // 신청수량
     { fieldName: 'ostrCnfmQty', header: t('MSG_TXT_CNFM_QTY'), width: '80', styleName: 'text-right' }, // 확정수량
     { fieldName: 'strHopDt', header: t('MSG_TXT_STR_HOP_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 입고희망일자
@@ -628,8 +626,6 @@ const initGrdMain = defineGrid((data, view) => {
         type: 'text',
         editable: props.page === pageProps.confirm },
       editable: props.page === pageProps.confirm },
-    { fieldName: 'mngtUnitNm', header: t('TXT_MSG_MNGT_UNIT_CD'), width: '90', styleName: 'text-center' },
-    { fieldName: 'boxUnitQty', header: t('MSG_TXT_BOX_QTY'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_OSTR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
   ];
 
@@ -640,6 +636,9 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = props.page === pageProps.confirm;
+
+  const headerHeight = view.header.height;
+  view.header.height = headerHeight + 50;
 
   view.onCellEdited = async (grid, itemIndex, row, field) => {
     const { qty, outQty, outQtyOrg } = grid.getValues(itemIndex);
