@@ -16,7 +16,7 @@
 <template>
   <kw-popup
     ref="popupRef"
-    size="3xl"
+    size="4xl"
   >
     <kw-form
       ignore-on-modified
@@ -568,63 +568,33 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'sapCd',
       header: t('MSG_TXT_SAP_CD'),
-      width: '150',
+      width: '100',
       styleName: 'text-center',
       footer: { text: t('MSG_TXT_SUM') },
     },
     {
       fieldName: 'itmPdCd',
       header: t('MSG_TXT_ITM_CD'),
-      width: '200',
+      width: '100',
       styleName: 'text-center',
     },
     {
       fieldName: 'itmPdNm',
       header: t('MSG_TXT_ITM_NM'),
-      width: '250',
+      width: '150',
       styleName: 'text-left',
     },
     {
       fieldName: 'itmGdCd',
       header: t('MSG_TXT_GD'),
-      width: '100',
+      width: '50',
       options: codes.PD_GD_CD,
       styleName: 'text-center',
     },
     {
       fieldName: 'warehouseQty',
       header: t('MSG_TXT_STOC'),
-      width: '100',
-      styleName: 'text-right',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      },
-    },
-    {
-      fieldName: 'baseStocQty',
-      header: t('MSG_TXT_BASE'),
-      width: '100',
-      styleName: 'text-right',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      },
-    },
-    {
-      fieldName: 'sftStocQty',
-      header: t('MSG_TXT_SFT'),
-      width: '100',
-      styleName: 'text-right',
-      footer: {
-        expression: 'sum',
-        numberFormat: '#,##0',
-      },
-    },
-    {
-      fieldName: 'useQty',
-      header: t('MSG_TXT_THM'),
-      width: '100',
+      width: '75',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -634,7 +604,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'centerQty',
       header: t('MSG_TXT_CENTER_DIVISION'),
-      width: '100',
+      width: '75',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -644,7 +614,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'indiQty',
       header: t('MSG_TXT_INDV'),
-      width: '100',
+      width: '75',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -652,9 +622,9 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     {
-      fieldName: 'ostrCnfmQty',
-      header: t('MSG_TXT_VST_CNFM_QTY'),
-      width: '100',
+      fieldName: 'baseStocQty',
+      header: t('MSG_TXT_BASE'),
+      width: '75',
       styleName: 'text-right',
       footer: {
         expression: 'sum',
@@ -662,9 +632,39 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     {
-      fieldName: 'ostrAkQty',
-      header: t('MSG_TXT_OSTR_AK_QTY'),
-      width: '100',
+      fieldName: 'sftStocQty',
+      header: t('MSG_TXT_SFT'),
+      width: '75',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      },
+    },
+    {
+      fieldName: 'useQty',
+      header: t('MSG_TXT_THM'),
+      width: '75',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      },
+    },
+    {
+      fieldName: 'ostrCnfmQty', // 방문확정수량
+      header: t('MSG_TXT_DTRM'),
+      width: '75',
+      styleName: 'text-right',
+      footer: {
+        expression: 'sum',
+        numberFormat: '#,##0',
+      },
+    },
+    {
+      fieldName: 'ostrAkQty', // 출고요청수량
+      header: t('MSG_TXT_AK'),
+      width: '75',
       styleName: 'text-right',
       editable: true,
       rules: 'required|min_value:1',
@@ -679,13 +679,13 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'imgUrl',
       header: t('MSG_TXT_PHO'),
-      width: '130',
+      width: '100',
       styleName: 'text-center',
       renderer: {
         type: 'button',
         hideWhenEmpty: true,
       },
-      displayCallback: () => t('MSG_TXT_IMG_BRWS'),
+      displayCallback: () => t('MSG_TXT_IMG'),
     },
     {
       fieldName: 'rmkCn',
@@ -705,11 +705,11 @@ const initGrdMain = defineGrid((data, view) => {
     'itmPdNm', // 품목명
     'itmGdCd', // 등급
     'warehouseQty', // 재고
+    'centerQty', // 센터
+    'indiQty', // 개인
     'baseStocQty', // 기준
     'sftStocQty', // 안전
     'useQty', // 당월
-    'centerQty', // 센터
-    'indiQty', // 개인
     'ostrCnfmQty', // 방문확정수량
     'ostrAkQty', // 출고요청수량
     'imgUrl', // 사진
