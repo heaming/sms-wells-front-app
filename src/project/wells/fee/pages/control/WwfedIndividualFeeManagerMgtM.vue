@@ -118,7 +118,16 @@
             :label="t('MSG_TXT_QLF')"
             align-content="left"
           >
-            <p>{{ basicInfo.qlfDvCd ? codes.QLF_DV_CD.find((v) => v.codeId === basicInfo.qlfDvCd).codeName : '' }}</p>
+            <p
+              v-if="basicInfo.rsbDvCd === 'W0205'"
+            >
+              {{ basicInfo.qlfDvCd ? codes.QLF_DV_CD.find((v) => v.codeId === basicInfo.qlfDvCd).codeName : '' }}
+            </p>
+            <p
+              v-if="basicInfo.rsbDvCd !== 'W0205'"
+            >
+              {{ basicInfo.brmgrDvCd ? basicInfo.brmgrDvCd : '' }}
+            </p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_OPNG_MM')"
@@ -314,7 +323,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, codeUtil, getComponentType, stringUtil, modal, defineGrid } from 'kw-lib';
+import { useDataService, codeUtil, getComponentType, stringUtil, modal, defineGrid, alert } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
@@ -351,6 +360,7 @@ const basicInfo = ref({
   prtnrKnm: '',
   rsbDvCd: '',
   qlfDvCd: '',
+  brmgrDvCd: '',
   cntrDt: '',
   prfmtDt: '',
   cltnDt: '',
@@ -425,6 +435,10 @@ async function fetchData(type) {
   const response = await dataService.get(`/sms/wells/fee/individual-fee/mnger-${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
   if (type === 'basic') {
+    if (isEmpty(resData)) {
+      await alert(t('MSG_ALT_CRSP_MM_PRTNR_NO_INF_NEX')); // 해당 월에 파트너 정보가 없습니다.
+      return false;
+    }
     basicInfo.value = resData;
     if (basicInfo.value.prtnrKnm !== undefined) {
       isBtnClick.value = true;
@@ -453,13 +467,15 @@ async function fetchData(type) {
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData('basic');
-  if (isBtnClick.value === true) {
-    await fetchData('selletcs');
-    await fetchData('before-services');
-    await fetchData('fees');
-    await fetchData('deductions');
-    await fetchData('control');
-    await getUseYn(searchParams.value.perfYm, 'W02', searchParams.value.prtnrNo);
+  if (!isEmpty(basicInfo.value)) {
+    if (isBtnClick.value === true) {
+      await fetchData('selletcs');
+      await fetchData('before-services');
+      await fetchData('fees');
+      await fetchData('deductions');
+      await fetchData('control');
+      await getUseYn(searchParams.value.perfYm, 'W02', searchParams.value.prtnrNo);
+    }
   }
 }
 
