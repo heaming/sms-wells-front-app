@@ -142,7 +142,7 @@ async function fetchData() {
   // changing api & cacheparams according to search classification
   let res = '';
   cachedParams = cloneDeep(searchParams.value);
-  // console.log(cachedParams);
+  console.log(cachedParams);
   res = await dataService.get('/sms/wells/contract/contracts/employee-purchase-gcfs', { params: cachedParams });
 
   // const { list: accounts } = res.data;
@@ -158,7 +158,15 @@ async function fetchData() {
 
 // 사번 검색 버튼 클릭
 async function onClickSearchUserId() {
-  const { result, payload } = await modal({ component: 'ZwcmzSingleSelectUserListP' });
+  const { empNo } = searchParams.value;
+
+  const { result, payload } = await modal({
+    component: 'ZwcmzSingleSelectUserListP',
+    componentProps: {
+      searchEmplCond: '3',
+      searchCodEmplText: empNo,
+    },
+  });
   if (result) {
     searchParams.value.empNo = payload.employeeIDNumber;
   }
