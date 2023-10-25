@@ -33,8 +33,8 @@
         >
           <kw-select
             v-model="searchParams.svCnrCd"
-            :options="codes.SV_CNR_CD"
             first-option="all"
+            :options="codes.SV_CNR_CD"
           />
         </kw-search-item>
         <kw-search-item
@@ -117,13 +117,16 @@ const { modal } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 let cachedParams;
 const grdMainRef = ref(getComponentType('KwGrid'));
+const { getters } = useStore();
+const userInfo = getters['meta/getUserInfo'];
+console.log(userInfo);
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
-  'SV_CNR_CD',
   'RTNGD_PROCS_TP_CD',
+  'SV_CNR_CD',
 );
-
+console.log(codes.SV_CNR_CD);
 const searchParams = ref({
   startDate: `${now.format('YYYYMM')}01`,
   endDate: now.format('YYYYMMDD'),
@@ -139,6 +142,20 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
   needTotalCount: true,
+});
+
+/*
+ *  창고 선택 초기 설정
+ */
+onMounted(async () => {
+  const param = { ogTpCd: userInfo.ogTpCd, ogId: userInfo.ogId };
+  console.log(param);
+  const res = await dataService.get('/sms/wells/service/returning-goods-out-of-storages-agrg/user-og-ware', { params: param });
+
+  console.log(res);
+  if (res.data.length === 1) {
+    searchParams.value.svCnrCd = res.data[0].wareNo;
+  }
 });
 
 async function fetchData() {
@@ -182,7 +199,6 @@ async function onClickExcelDownload() {
  *  Event - 반품출고전표출력 팝업창
  */
 async function onClickPrintSlipPopup() {
-  console.log(codes.SV_CNR_CD);
   const { result } = await modal({
     component: 'WwsnaReturningGoodsOstrSlipPrintP',
     componentProps: {
