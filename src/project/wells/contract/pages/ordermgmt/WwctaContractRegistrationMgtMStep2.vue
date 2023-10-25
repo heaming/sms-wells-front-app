@@ -74,6 +74,7 @@
               @delete:select-machine="onDeleteSelectMachine"
               @select-seeding="onClickSelSdingCapsl"
               @select-capsule="onClickSelSdingCapsl"
+              @select-precontract="onClickSelectPrecontract"
               @delete="onClickDelete(item)"
             />
           </template>
@@ -132,6 +133,8 @@ async function onSelectProduct(product) {
   const newProduct = { ...product };
   const newProducts = [];
 
+  console.log('onSelectProduct', product);
+
   // 상품관계 확인
   // PD_REL_TP_CD '12' 기계약상품여부
   const res = await dataService.get('sms/wells/contract/contracts/product-relations', {
@@ -146,6 +149,10 @@ async function onSelectProduct(product) {
   if (Number(preCntrPdRelCnt) > 0 && preCntrPdCnt === '0') {
     alert('해당 상품은 기계약상품의 계약건이 존재해야만 선택 가능합니다.');
     return;
+  }
+
+  if (Number(preCntrPdRelCnt) > 0 && newProduct.sellTpCd === '6') {
+    newProduct.precontractRequired = true; // sorrrrrrryyyyy... this is shit.
   }
 
   const setTempKey = (pd) => {
@@ -412,7 +419,7 @@ async function onClickSelectMachine(dtl) {
 
   const existRelIndex = dtl.cntrRels
     .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE));
-  if (existRelIndex > 0) {
+  if (existRelIndex > -1) {
     dtl.cntrRels.splice(existRelIndex, 1);
   }
 
@@ -536,6 +543,41 @@ async function onClickSelSdingCapsl(dtl) {
     return;
   }
   dtl.sdingCapsls = payload;
+}
+
+async function onClickSelectPrecontract(dtl) {
+  const { pdCd } = dtl;
+  const { payload, result } = await modal({
+    component: 'WwctaLkCntrDtlChioceP',
+    componentProps: {
+      cntrNo: cntrNo.value,
+      pdCd,
+    },
+  });
+
+  if (!result) { return; }
+
+  dtl.cntrRels ??= [];
+
+  const existRelIndex = dtl.cntrRels
+    .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE));
+  if (existRelIndex > -1) {
+    dtl.cntrRels.splice(existRelIndex, 1);
+  }
+
+  dtl.cntrRels.push({
+    cntrRelId: undefined,
+    cntrRelDtlCd: CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE, /* 모종결합 */
+    baseDtlCntrNo: cntrNo.value,
+    baseDtlCntrSn: undefined,
+    ojDtlCntrNo: payload.cntrNo,
+    ojDtlCntrSn: payload.cntrSn,
+    basePdBas: {
+      pdCd: dtl.pdCd,
+      pdNm: dtl.pdNm,
+    },
+    ojBasePdBas: { ...payload }, /* 기기 선택 해야함. */
+  });
 }
 
 async function getCntrInfo() {
