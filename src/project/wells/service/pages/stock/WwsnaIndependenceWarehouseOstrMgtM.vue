@@ -524,6 +524,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mngtUnitNm' }, // 관리단위명
     { fieldName: 'matGdCd' }, // 등급
     { fieldName: 'logisticStocQty', dataType: 'number' }, // 상위재고
+    { fieldName: 'ostrAggQty', dataType: 'number' }, // 출고누계수량
     { fieldName: 'boxUnitQty', dataType: 'number' }, // BOX단위수량
     { fieldName: 'crtlStocQty', dataType: 'number' }, // 재고수량
     { fieldName: 'useQty', dataType: 'number' }, // 소요수량
@@ -562,6 +563,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '80', styleName: 'text-center' },
     { fieldName: 'matGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-center' },
     { fieldName: 'logisticStocQty', header: t('MSG_TXT_HGR_STOC'), width: '100', styleName: 'text-right' },
+    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'boxUnitQty', header: t('MSG_TXT_UNIT_QTY'), width: '130', styleName: 'text-right' },
     { fieldName: 'crtlStocQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'useQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right' },
@@ -591,8 +593,8 @@ const initGrdMain = defineGrid((data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.setColumnLayout([
-    'lgstTrsYn', 'strWareNo', 'wareNm', 'sapMatCd', 'itmPdCd', 'pdAbbrNm', 'mngtUnitNm', 'matGdCd', 'logisticStocQty',
-    'boxUnitQty', 'crtlStocQty', 'useQty',
+    'lgstTrsYn', 'strWareNo', 'wareNm', 'sapMatCd', 'itmPdCd', 'pdAbbrNm', 'mngtUnitNm', 'matGdCd',
+    'logisticStocQty', 'ostrAggQty', 'boxUnitQty', 'crtlStocQty', 'useQty',
     {
       header: t('MSG_TXT_QOM_ASN_CNFM'), // 물량배정확정 // colspan title
       direction: 'horizontal', // merge type
