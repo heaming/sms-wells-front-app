@@ -639,7 +639,7 @@ const initGrdMain13 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'refundDivision', header: t('MSG_TXT_BLTF_DV'), width: '176', options: codes.SELL_TP_DTL_CD },
+    { fieldName: 'refundDivision', header: t('MSG_TXT_BLTF_DV'), width: '176' },
     { fieldName: 'rtRfndDsbAmt', header: t('MSG_TXT_RENTAL'), width: '111', styleName: 'text-right' },
     { fieldName: 'lsRfndDsbAmt', header: t('MSG_TXT_LEASE'), width: '111', styleName: 'text-right' },
     { fieldName: 'elRfndDsbAmt', header: t('MSG_TXT_ENVR_LEASE'), width: '111', styleName: 'text-right' },
