@@ -150,6 +150,7 @@
           v-model="searchParams.wkDt"
           :label="t('MSG_TXT_WK_DT')"
           :rules="!isState ? 'required' : ''"
+          :disable="searchParams.stateDvCd === '02'"
         />
       </kw-search-item>
       <kw-search-item
@@ -160,6 +161,7 @@
           v-model="searchParams.pyTmlmDt"
           :rules="!isState ? 'required' : ''"
           :label="t('MSG_TXT_PY_TMLM')"
+          :disable="searchParams.stateDvCd === '02'"
         />
       </kw-search-item>
     </kw-search-row>
