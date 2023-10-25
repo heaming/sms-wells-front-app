@@ -190,6 +190,7 @@ const contract = ref({});
 const summary = ref({});
 
 const updateSummary = () => {
+  console.log('updateSummary');
   const { step1, step2, step3, step4 } = contract.value;
   const smr = {};
   smr.cntrBas = {
