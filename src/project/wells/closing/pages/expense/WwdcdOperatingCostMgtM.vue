@@ -291,7 +291,6 @@ const initGrdSub = defineGrid((data, view) => {
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     if (column === 'atthDocId') {
-      console.log('g.getValues(itemIndex) : ', g.getValues(itemIndex));
       const { opcsCardId, atthDocId } = g.getValues(itemIndex);
       saveData(column, opcsCardId, atthDocId);
     }
