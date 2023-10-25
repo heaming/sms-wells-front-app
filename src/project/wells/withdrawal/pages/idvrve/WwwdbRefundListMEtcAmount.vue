@@ -340,8 +340,8 @@ const aggregationStatus = ref({
 const searchParams = ref({
   startDay: now.format('YYYYMM01'), // 처리일자.시작일
   endDay: now.format('YYYYMMDD'), // 처리일자.종료일
-  perfDtStartDay: now.format('YYYYMM01'), // 실적일자.시작일
-  perfDtEndDay: now.format('YYYYMMDD'), // 실적일자.종료일
+  perfDtStartDay: '', // 실적일자.시작일
+  perfDtEndDay: '', // 실적일자.종료일
   rfndDv: '1', // 환불구분 (정상:1, 귀속:2)
   icptSellYn: 'ALL', // 불완전판매여부
 });
