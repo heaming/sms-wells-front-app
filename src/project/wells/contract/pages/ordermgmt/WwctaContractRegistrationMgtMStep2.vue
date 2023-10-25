@@ -41,6 +41,7 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
+              @change:package="onChangeWellsFarmPackage"
               @price-changed="onPriceChanged(item, $event)"
               @delete="onClickDelete(item)"
             />
@@ -49,11 +50,12 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
-              @one-plus-one="onClickOnePlusOne"
+              @select:one-plus-one="onClickOnePlusOne"
               @delete:one-plus-one="onDeleteOnePlusOne"
-              @device-change="onClickDeviceChange"
-              @price-changed="onPriceChanged(item, $event)"
+              @change:device="onClickDeviceChange"
+              @change:package="onChangeWellsFarmPackage"
               @packaging="onPackaging"
+              @price-changed="onPriceChanged(item, $event)"
               @delete="onClickDelete(item)"
             />
             <membership-price-select
@@ -69,11 +71,12 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
+              @select:machine="onClickSelectMachine"
+              @delete:machine="onDeleteSelectMachine"
+              @select:seeding="onClickSelSdingCapsl"
+              @select:capsule="onClickSelSdingCapsl"
+              @select:precontract="onClickSelectPrecontract"
               @price-changed="onPriceChanged(item, $event)"
-              @select-machine="onClickSelectMachine"
-              @delete:select-machine="onDeleteSelectMachine"
-              @select-seeding="onClickSelSdingCapsl"
-              @select-capsule="onClickSelSdingCapsl"
               @delete="onClickDelete(item)"
             />
           </template>
@@ -128,6 +131,10 @@ const ogStep2 = ref({});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const setTempKey = (pd) => {
+  pd.tempKey = uniqueId('new-product');
+};
+
 async function onSelectProduct(product) {
   const newProduct = { ...product };
   const newProducts = [];
@@ -148,9 +155,9 @@ async function onSelectProduct(product) {
     return;
   }
 
-  const setTempKey = (pd) => {
-    pd.tempKey = uniqueId('new-product');
-  };
+  if (Number(preCntrPdRelCnt) > 0 && newProduct.sellTpCd === '6') {
+    newProduct.precontractRequired = true; // sorrrrrrryyyyy... this is shit.
+  }
 
   const isWellsFarmProduct = newProduct.pdLclsfId === 'PDC000000000120';
 
@@ -239,6 +246,18 @@ async function onFetchedProduct(products) {
   await onSelectProduct(products[0]);
 }
 
+function deleteDtlByKey(key) {
+  if (!key) {
+    warn(`삭제 키 확인 바랍니다. ${key}`);
+    return;
+  }
+  const removeDtlIndex = step2.value.dtls.findIndex((checkDtl) => {
+    const dtlKey = checkDtl.tempKey ?? checkDtl.cntrSn;
+    return key === dtlKey;
+  });
+  step2.value.dtls.splice(removeDtlIndex, 1);
+}
+
 async function onClickDelete(dtl) {
   const { cntrRels, ojCntrRels, hgrPdCd, tempKey, cntrSn } = dtl;
 
@@ -289,17 +308,7 @@ async function onClickDelete(dtl) {
     });
   }
 
-  removeKeys.forEach((key) => {
-    if (!key) {
-      warn(`삭제 키 확인 바랍니다. ${key}`);
-      return;
-    }
-    const removeDtlIndex = step2.value.dtls.findIndex((checkDtl) => {
-      const dtlKey = checkDtl.tempKey ?? checkDtl.cntrSn;
-      return key === dtlKey;
-    });
-    step2.value.dtls.splice(removeDtlIndex, 1);
-  });
+  removeKeys.forEach(deleteDtlByKey);
 
   emit('contract-modified');
 }
@@ -412,7 +421,7 @@ async function onClickSelectMachine(dtl) {
 
   const existRelIndex = dtl.cntrRels
     .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE));
-  if (existRelIndex > 0) {
+  if (existRelIndex > -1) {
     dtl.cntrRels.splice(existRelIndex, 1);
   }
 
@@ -538,6 +547,96 @@ async function onClickSelSdingCapsl(dtl) {
   dtl.sdingCapsls = payload;
 }
 
+async function onClickSelectPrecontract(dtl) {
+  const { pdCd } = dtl;
+  const { payload, result } = await modal({
+    component: 'WwctaLkCntrDtlChioceP',
+    componentProps: {
+      cntrNo: cntrNo.value,
+      pdCd,
+    },
+  });
+
+  if (!result) { return; }
+
+  dtl.cntrRels ??= [];
+
+  const existRelIndex = dtl.cntrRels
+    .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE));
+  if (existRelIndex > -1) {
+    dtl.cntrRels.splice(existRelIndex, 1);
+  }
+
+  dtl.cntrRels.push({
+    cntrRelId: undefined,
+    cntrRelDtlCd: CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE, /* 모종결합 */
+    baseDtlCntrNo: cntrNo.value,
+    baseDtlCntrSn: undefined,
+    ojDtlCntrNo: payload.cntrNo,
+    ojDtlCntrSn: payload.cntrSn,
+    basePdBas: {
+      pdCd: dtl.pdCd,
+      pdNm: dtl.pdNm,
+    },
+    ojBasePdBas: { ...payload }, /* 기기 선택 해야함. */
+  });
+}
+
+async function onChangeWellsFarmPackage(dtl) {
+  const { ojCntrRels } = dtl;
+
+  if (!ojCntrRels.length) {
+    warn('대상 계약 관계가 없는 웰스팜 기기 계약은 있을 수 없습니다.');
+    return;
+  }
+  const { result, payload: newPackageProduct } = await modal({
+    component: () => import('./WwctaWellsFarmPackageProductSelectP.vue'),
+    componentProps: {
+      cntrNo: cntrNo.value,
+      pdCd: dtl.pdCd,
+    },
+  });
+
+  if (!result) { return; }
+
+  setTempKey(newPackageProduct);
+
+  console.log(newPackageProduct);
+
+  ojCntrRels.forEach((cntrRel) => {
+    const { baseDtlCntrNo, baseDtlCntrSn, baseTempKey } = cntrRel;
+    if (baseDtlCntrNo !== cntrNo.value) {
+      return;
+    }
+    const removeKey = baseTempKey ?? baseDtlCntrSn;
+    deleteDtlByKey(removeKey);
+  });
+
+  const cntrRel = {
+    cntrRelId: undefined,
+    cntrRelDtlCd: CNTR_REL_DTL_CD_LK_SDING, /* 모종결합 */
+    baseDtlCntrNo: cntrNo.value,
+    baseDtlCntrSn: undefined,
+    ojDtlCntrNo: cntrNo.value,
+    ojDtlCntrSn: undefined,
+    basePdBas: {
+      pdCd: newPackageProduct.pdCd,
+      pdNm: newPackageProduct.pdNm,
+    },
+    baseTempKey: newPackageProduct.tempKey,
+    ojTempKey: dtl.tempKey,
+    ojBasePdBas: { ...dtl },
+  };
+
+  newPackageProduct.cntrRels = [cntrRel];
+  dtl.ojCntrRels = [cntrRel];
+  const dtlIndex = step2.value.dtls.indexOf(dtl);
+  step2.value.dtls.splice(dtlIndex + 1, 0, newPackageProduct);
+  console.log(step2.value.dtls);
+
+  emit('contract-modified');
+}
+
 async function getCntrInfo() {
   if (!cntrNo.value) {
     return;
@@ -600,7 +699,7 @@ async function isValidStep() {
       return true;
     }
 
-    const { sellTpDtlCd, cntrRels = [] } = dtl;
+    const { sellTpDtlCd, cntrRels = [], precontractRequired } = dtl;
 
     if (sellTpDtlCd === '62') { /* 모종의 경우 */
       const lkSdingRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_SDING);
@@ -617,6 +716,14 @@ async function isValidStep() {
       const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE);
       if (!onePlusOneRel) {
         alert('1+1 대상 계약을 선택해주세요.');
+        return true;
+      }
+    }
+
+    if (precontractRequired) {
+      const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE);
+      if (!onePlusOneRel) {
+        alert('연계 계약을 선택해주세요.');
         return true;
       }
     }

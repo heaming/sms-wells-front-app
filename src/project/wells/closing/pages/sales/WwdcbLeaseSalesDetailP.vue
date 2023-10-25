@@ -70,7 +70,9 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_LEASFE_MCNT_WON')">
-          {{ `${leaselSalesDetail.rentalPtrm}/${stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.rentalAmt))}(DC ${stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.rentalDscAmt))})` }}
+          <p v-if="Number(leaselSalesDetail.rentalAmt) > 0">
+            {{ `${leaselSalesDetail.rentalPtrm}/${stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.rentalAmt))}(DC ${stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.rentalDscAmt))})` }}
+          </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PD_SVC_FEE')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.rentalAmtView)) }}</p>
@@ -95,7 +97,7 @@
           <p>{{ leaselSalesDetail.useDc }}{{ $t('MSG_TXT_D') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
-          <p>{{ stringUtil.getDateFormat(leaselSalesDetail.canDt, 'YYYY-MM-DD') }}</p>
+          <p>{{ stringUtil.getDateFormat(leaselSalesDetail.cntrCanDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -117,10 +119,10 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DSC_AGG_AMOUNT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.sumDscAggAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.dscAggAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CTR_AGG_AMT2')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.sumCtrAggAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(leaselSalesDetail.ctrAggAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -260,7 +262,7 @@
           :colspan="2"
           :label="$t('MSG_TXT_DLQ_MCNT_AGG')"
         >
-          <p>{{ leaselSalesDetail.dlqMcn }} / {{ leaselSalesDetail.dlqAcuMcn }}</p>
+          <p>{{ leaselSalesDetail.dlqMcnView }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
           <p v-if="leaselSalesDetail.slStpYn === 'Y'">
@@ -327,14 +329,15 @@ const leaselSalesDetail = ref({});
 let cachedParams;
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
-  console.log(searchParams.value);
   const res = await dataService.get('/sms/wells/closing/rental-sales-detail', { params: cachedParams });
-  console.log(res.data);
   leaselSalesDetail.value = res.data;
   if (leaselSalesDetail.value.rentalAmt > 0) {
     leaselSalesDetail.value.rentalAmtView = leaselSalesDetail.value.svAmt;
   } else {
     leaselSalesDetail.value.rentalAmtView = 0;
+  }
+  if (leaselSalesDetail.value.dlqMcn > 0 || !isEmpty(leaselSalesDetail.value.dlqAcuMcn)) {
+    leaselSalesDetail.value.dlqMcnView = `${leaselSalesDetail.value.dlqMcn}/${leaselSalesDetail.value.dlqAcuMcn}`;
   }
 }
 

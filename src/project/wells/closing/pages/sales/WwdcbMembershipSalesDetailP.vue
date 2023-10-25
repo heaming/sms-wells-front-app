@@ -26,7 +26,7 @@
           <p>{{ membershipDetail.cntrNo }}-{{ membershipDetail.cntrSn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_YM')">
-          <p>{{ stringUtil.getDateFormat(membershipDetail.slClYm, 'YYYY-MM') }}</p>
+          <p>{{ membershipDetail.slClYm }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -41,7 +41,7 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRDT_CODE')">
-          <p>{{ membershipDetail.pdCd }} {{ membershipDetail.pdNm }} {{ membershipDetail.svTpCdNm }}</p>
+          <p>{{ membershipDetail.pdCd }} {{ membershipDetail.pdNm }} {{ membershipDetail.adnSv }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNTR_DATE')">
           <p>{{ stringUtil.getDateFormat(membershipDetail.cntrDt) }}</p>
@@ -115,10 +115,10 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_J_NMN')">
-          <p>{{ membershipDetail.rentalTn }}/{{ membershipDetail.vstNmnN }}</p>
+          <p>{{ membershipDetail.rentalTn }} / {{ membershipDetail.vstNmnN }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_J_DC')">
-          <p>{{ membershipDetail.rentalDc }}/{{ membershipDetail.slDc }}</p>
+          <p>{{ membershipDetail.rentalDc }} / {{ membershipDetail.slDc }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_J_DT')">
           <p>{{ stringUtil.getDateFormat(membershipDetail.jDt) }}</p>
@@ -376,7 +376,7 @@ async function fetchData() {
   const res = await dataService.get('/sms/wells/closing/membership-sales-detail', { params: cachedParams });
   console.log(res.data);
   membershipDetail.value = res.data;
-  membershipDetail.value.svTpCdNm = !isEmpty(membershipDetail.value.svTpCdNm) ? ` (${membershipDetail.value.svTpCdNm})` : '';
+  membershipDetail.value.adnSv = !isEmpty(membershipDetail.value.adnSv) ? ` (${membershipDetail.value.adnSv})` : '';
   membershipDetail.value.prmMcn = Number(membershipDetail.value.prmMcn) > 0 ? ` ${membershipDetail.value.prmMcn}${t('MSG_TXT_MCNT')}` : '';
   membershipDetail.value.prmMcn1 = Number(membershipDetail.value.prmMcn1) > 0 ? `${membershipDetail.value.prmMcn1}${t('MSG_TXT_MCNT')} ${stringUtil.getNumberWithComma(toInteger(membershipDetail.prmAmt1))}` : '';
   membershipDetail.value.prmMcn2 = Number(membershipDetail.value.prmMcn2) > 0 ? ` ${membershipDetail.value.prmMcn2}${t('MSG_TXT_MCNT')} ${stringUtil.getNumberWithComma(toInteger(membershipDetail.prmAmt2))}` : '';

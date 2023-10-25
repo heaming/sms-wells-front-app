@@ -102,6 +102,13 @@
             dense
             @click="onClickOnePlusOne"
           />
+          <kw-btn
+            v-if="showChangeWellsFarmPackageBtn"
+            :disable="!!promotions?.length"
+            label="패키지변경"
+            dense
+            @click="onClickChangeWellsFarmPackage"
+          />
         </kw-item-label>
       </kw-item-section>
       <kw-item-section
@@ -405,9 +412,10 @@ const props = defineProps({
   bas: { type: Object, default: undefined },
 });
 const emit = defineEmits([
-  'device-change',
-  'one-plus-one',
+  'change:device',
+  'select:one-plus-one',
   'packaging',
+  'change:package',
   'delete:one-plus-one',
   'price-changed',
   'promotion-changed',
@@ -738,6 +746,15 @@ const disablePackage = computed(() => {
       ].includes(cntrRel.cntrRelDtlCd));
 });
 
+const showChangeWellsFarmPackageBtn = computed(() => {
+  const { pdLclsfId } = dtl.value;
+  if (!pdLclsfId) {
+    return false;
+  }
+  const isWellsFarmProduct = pdLclsfId === 'PDC000000000120';
+  return isWellsFarmProduct;
+});
+
 // endregion [계약 관계 버튼]
 
 // region [가격표기]
@@ -837,11 +854,11 @@ function onChangeVariable() {
 }
 
 function onClickDeviceChange() {
-  emit('device-change', props.modelValue);
+  emit('change:device', props.modelValue);
 }
 
 function onClickOnePlusOne() {
-  emit('one-plus-one', props.modelValue);
+  emit('select:one-plus-one', props.modelValue);
 }
 
 function onClickPackage(rentalDscTpCd) {
@@ -878,6 +895,11 @@ function onChangeAlncCntr(selected) {
     alncCntrNms.value = [];
   }
 }
+
+function onClickChangeWellsFarmPackage() {
+  emit('change:package', props.modelValue);
+}
+
 </script>
 
 <style lang="scss" scoped>

@@ -68,6 +68,20 @@
         </div>
       </kw-item-section>
       <kw-item-section
+        side
+        top
+      >
+        <kw-item-label class="flex gap-xs">
+          <kw-btn
+            v-if="showChangeWellsFarmPackageBtn"
+            :disable="!!promotions?.length"
+            label="패키지변경"
+            dense
+            @click="onClickChangeWellsFarmPackage"
+          />
+        </kw-item-label>
+      </kw-item-section>
+      <kw-item-section
         class="scoped-item__section-action"
         side
       >
@@ -230,6 +244,7 @@ const props = defineProps({
   bas: { type: Object, default: undefined },
 });
 const emit = defineEmits([
+  'change:package',
   'delete',
   'price-changed',
   'promotion-changed',
@@ -456,6 +471,17 @@ async function onChangeModelValue(newDtl) {
 
 watch(() => props.modelValue, onChangeModelValue, { immediate: true });
 
+// region [계약 관계 버튼]
+const showChangeWellsFarmPackageBtn = computed(() => {
+  const { pdLclsfId } = dtl.value;
+  if (!pdLclsfId) {
+    return false;
+  }
+  const isWellsFarmProduct = pdLclsfId === 'PDC000000000120';
+  return isWellsFarmProduct;
+});
+// endregion [계약 관계 버튼]
+
 // region [가격표기]
 const displayedFinalPrice = ref('미확정');
 
@@ -535,6 +561,10 @@ function onChangeVariable() {
   // if (finalPriceOptions.value.length === 1) {
   //   setVariablesIfUniqueSelectable();
   // }
+}
+
+function onClickChangeWellsFarmPackage() {
+  emit('change:package', props.modelValue);
 }
 
 function onClickDelete() {

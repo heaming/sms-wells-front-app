@@ -244,8 +244,8 @@ async function onClickExcelDownload() {
 fieldsObj = {
   // 그리드 공통컬럼
   defaultFields: [
-    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '130', styleName: 'text-center', dataType: 'text' }, // SAP코드
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center', dataType: 'text' }, // 품목코드
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center', dataType: 'text' }, // SAP코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center', dataType: 'text' }, // 품목코드
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '220', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // 품목명
   ],
   allFields: [
@@ -1819,6 +1819,10 @@ fieldsObj = {
 
     gridView.setFooters({ visible: true });
     gridView.setOptions({ summaryMode: 'aggregate' });
+
+    gridView.setFixedOptions({
+      colCount: 3,
+    });
   },
   // 리스트에 담겨진 항목 중 fieldName 배열로 가져옴
   getColumnNameArr(objList) {
@@ -1912,6 +1916,10 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.setFixedOptions({
+    colCount: 3,
+  });
 
   gridView = view;
   gridData = data;

@@ -77,21 +77,27 @@
             v-if="!isLkSding && isSeeding"
             label="기기선택"
             dense
-            @click="$emit('select-machine', modelValue)"
+            @click="onSelectMachineCntrDtl"
           />
           <kw-btn
             v-if="isSeeding"
             :disable="!isFreePackage"
             label="모종선택"
             dense
-            @click="$emit('select-seeding', modelValue)"
+            @click="onClickSelectSeeding"
           />
           <kw-btn
             v-if="isCapsule"
             :disable="!isFreePackage"
             label="캡슐선택"
             dense
-            @click="$emit('select-capsule', modelValue)"
+            @click="onClickSelectCapsule"
+          />
+          <kw-btn
+            v-if="precontractRequired"
+            label="연계상품"
+            dense
+            @click="onSelectPrecontract"
           />
         </kw-item-label>
       </kw-item-section>
@@ -205,11 +211,11 @@ const props = defineProps({
   bas: { type: Object, default: undefined },
 });
 const emit = defineEmits([
-  'select-machine',
-  'delete:select-machine',
-  'select-seeding',
-  'select-capsule',
-  'one-plus-one',
+  'select:machine',
+  'delete:machine',
+  'select:seeding',
+  'select:capsule',
+  'select:precontract',
   'price-changed',
   'promotion-changed',
   'delete',
@@ -238,6 +244,22 @@ let promotions;
 let appliedPromotions;
 let sdingCapsls;
 
+function onSelectMachineCntrDtl() {
+  emit('select:machine', props.modelValue);
+}
+
+function onClickSelectSeeding() {
+  emit('select:seeding', props.modelValue);
+}
+
+function onClickSelectCapsule() {
+  emit('select:capsule', props.modelValue);
+}
+
+function onSelectPrecontract() {
+  emit('select:precontract', props.modelValue);
+}
+
 function connectReactivities() {
   pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
   verSn = toRef(props.modelValue, 'verSn');
@@ -257,6 +279,7 @@ const isLkSding = computed(() => (cntrRels.value || [])
 const isSeeding = computed(() => dtl.value?.sellTpDtlCd === '62');
 const isCapsule = computed(() => dtl.value?.sellTpDtlCd === '63');
 const isFreePackage = computed(() => dtl.value?.pdChoLmYn === 'Y'); // TODO FIX... dtl 에 없음..
+const precontractRequired = computed(() => dtl.value?.precontractRequired);
 
 /* TODO: FIX */
 async function fetchSdingCapsls() {
@@ -418,7 +441,7 @@ watch(selectedFinalPrice, onChangeSelectedFinalPrice, { immediate: true });
 
 function onDeleteCntrRel(cntrRel) {
   if (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE) {
-    emit('delete:select-machine', props.modelValue);
+    emit('delete:machine', props.modelValue);
   }
 }
 
