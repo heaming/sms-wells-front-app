@@ -1819,6 +1819,10 @@ fieldsObj = {
 
     gridView.setFooters({ visible: true });
     gridView.setOptions({ summaryMode: 'aggregate' });
+
+    gridView.setFixedOptions({
+      colCount: 3,
+    });
   },
   // 리스트에 담겨진 항목 중 fieldName 배열로 가져옴
   getColumnNameArr(objList) {
@@ -1912,6 +1916,10 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  view.setFixedOptions({
+    colCount: 3,
+  });
 
   gridView = view;
   gridData = data;
