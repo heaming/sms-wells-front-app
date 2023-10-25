@@ -411,6 +411,16 @@ const initGrid = defineGrid((data, view) => {
       // '엔지니어',
       width: '80',
       styleName: 'text-center' },
+    { fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_DTL_NO'),
+      // '계약상세번호',
+      width: '150',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrNo, cntrSn } = grid.getValues(index.itemIndex);
+        return `${cntrNo}-${cntrSn}`;
+      },
+    },
     { fieldName: 'cntrCstNo',
       header: t('MSG_TXT_CST_NO'),
       // '고객번호',
@@ -535,7 +545,7 @@ const initGrid = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_CUSTOMER') + t('MSG_TXT_INF'), // 고객정보
       direction: 'horizontal',
-      items: ['cntrCstNo', 'cstKnm', 'cralLocaraTno', 'pdNm', 'sellTpCd', 'svBizDclsfCd'],
+      items: ['cntrNo', 'cntrCstNo', 'cstKnm', 'cralLocaraTno', 'pdNm', 'sellTpCd', 'svBizDclsfCd'],
     },
     {
       header: t('MSG_TXT_STLM') + t('MSG_TXT_INF'), // 결제정보
