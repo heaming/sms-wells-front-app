@@ -685,6 +685,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mngtUnit' }, // 관리단위
     { fieldName: 'matGdCd' }, // 등급
     { fieldName: 'logisticStocQty', dataType: 'number' }, // 물류센터(파주)
+    { fieldName: 'ostrAggQty', dataType: 'number' }, // 출고누계수량
     { fieldName: 'boxUnitQty', dataType: 'number' }, // 박스단위수량
     { fieldName: 'crtlStocQty', dataType: 'number' }, // 재고수량(개인)
     { fieldName: 'cnfmQty', dataType: 'number' }, // 최초생성수량
@@ -725,6 +726,7 @@ const initGrdMain = defineGrid((data, view) => {
         editable: true } },
     { fieldName: 'totOutQty', header: `${t('MSG_TXT_DTRM')} ${t('MSG_TXT_AF')} ${t('MSG_TXT_STOC')}`, width: '100', styleName: 'text-right' },
     { fieldName: 'logisticStocQty', header: `${t('MSG_TXT_LGST_CNR')}(${t('MSG_TXT_PAJU')})`, width: '100', styleName: 'text-right' },
+    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG_QTY'), width: '100', styleName: 'text-right' },
     { fieldName: 'crtlStocQty', header: `${t('MSG_TXT_STOC_QTY')}(${t('MSG_TXT_INDV')})`, width: '100', styleName: 'text-right' },
     { fieldName: 'cnfmQty', header: `${t('MSG_TXT_FST')} ${t('MSG_TXT_CRT')}${t('MSG_TXT_QTY')}`, width: '84', styleName: 'text-right' },
     { fieldName: 'aclOstrQty', header: t('MSG_TXT_CNFM_QTY'), width: '84', styleName: 'text-right' },
