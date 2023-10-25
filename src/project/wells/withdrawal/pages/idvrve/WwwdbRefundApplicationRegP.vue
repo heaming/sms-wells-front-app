@@ -1309,8 +1309,10 @@ const initGrid2 = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         let editable = true;
         const rowValue = grid.getValues(dataCell.index.itemIndex);
-        // 입금구분이 현금 카드 환불 불가
-        if (rowValue.dpMesCd === '01' || rowValue.dpTpCd === '0201') {
+        // 입금구분이 현금인 경우 카드 환불 불가
+        // 입금유형코드가 청구이체의 카드자동이체인 경우 카드환불 불가
+        // (오직 현금으로만 환불-why->청구이체의 경우 EDI를 통하지 않음. 카드취소만 해야함.)
+        if (rowValue.dpMesCd === '01' || rowValue.dpTpCd === '0203') {
           editable = false;
         }
         return { editable };
