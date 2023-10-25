@@ -282,7 +282,7 @@ async function currentRowDetail(currentRow) {
     setGrdMain2(response);
 
     if (response.length > 0) {
-      if (hasRoleNickName('ROL_W1010') && response[0].qlfDvCd !== '3') {
+      if (hasRoleNickName('ROL_W1620') && response[0].qlfDvCd !== '3') {
       // if (response[0].qlfDvCd !== '3') {
         isDisableThisDayUpgradesBtn.value = false;
       } else {
