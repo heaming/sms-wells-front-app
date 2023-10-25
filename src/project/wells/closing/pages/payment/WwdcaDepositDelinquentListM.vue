@@ -349,8 +349,8 @@ const initGrdMain = defineGrid((data, view) => {
       numberFormat: '#,##0.#',
       groupFooter: {
         valueCallback(grid, column, groupFooterIndex, group) {
-          const dpRt = grid.getGroupSummary(group, 'nomUcAmt').sum === 0 ? 0
-            : (grid.getGroupSummary(group, 'nomDpAmt').sum / grid.getGroupSummary(group, 'nomUcAmt').sum) * 100;
+          const dpRt = (grid.getGroupSummary(group, 'ucamTam').sum - grid.getGroupSummary(group, 'dlqAmt').sum) === 0 ? 100
+            : ((grid.getGroupSummary(group, 'totDpAmt').sum - grid.getGroupSummary(group, 'dlqDpAmt').sum) / (grid.getGroupSummary(group, 'ucamTam').sum - grid.getGroupSummary(group, 'dlqAmt').sum)) * 100;
           return dpRt;
         },
         numberFormat: '#,##0.#',
@@ -359,8 +359,8 @@ const initGrdMain = defineGrid((data, view) => {
         numberFormat: '#,##0.#',
         styleName: 'text-right',
         valueCallback(grid) {
-          const rtSum = grid.getSummary('nomUcAmt', 'sum') === 0 ? 0
-            : (grid.getSummary('nomDpAmt', 'sum') / grid.getSummary('nomUcAmt', 'sum')) * 100;
+          const rtSum = (grid.getSummary('ucamTam', 'sum') - grid.getSummary('dlqAmt', 'sum')) === 0 ? 100
+            : ((grid.getSummary('totDpAmt', 'sum') - grid.getSummary('dlqDpAmt', 'sum')) / (grid.getSummary('ucamTam', 'sum') - grid.getSummary('dlqAmt', 'sum'))) * 100;
 
           return rtSum;
         } } }, // 입금률
