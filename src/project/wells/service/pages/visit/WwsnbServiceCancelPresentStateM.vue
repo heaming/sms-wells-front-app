@@ -39,7 +39,7 @@
           <kw-select
             v-model="searchParams.serviceCenter"
             :options="serviceCenterList"
-            option-value="ogCd"
+            option-value="ogId"
             option-label="ogCdNm"
             first-option="all"
             first-option-value=""
@@ -450,8 +450,8 @@ function initGrid(data, view) {
     { fieldName: 'arvDtm', header: t('MSG_TXT_ARV'), width: '170', styleName: 'text-center' }, // 도착
     { fieldName: 'vstFshDtm', header: t('MSG_TXT_COMPLETE'), width: '170', styleName: 'text-center' }, // 완료
     { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '120', styleName: 'text-center' }, // 작업상태
-    { fieldName: 'wkCanRsonCd', header: t('MSG_TXT_CAN_CAUS'), width: '120', styleName: 'text-center' }, // 취소원인
-    { fieldName: 'wkCanRsonNm', header: t('MSG_TXT_CAN_RSON'), width: '150', styleName: 'text-center' }, // 취소사유
+    { fieldName: 'wkCanCaus', header: t('MSG_TXT_CAN_CAUS'), width: '120', styleName: 'text-center' }, // 취소원인
+    { fieldName: 'rcpCanRson', header: t('MSG_TXT_CAN_RSON'), width: '150', styleName: 'text-center' }, // 취소사유
     { fieldName: 'wkCanMoCn', header: t('MSG_TXT_DTL_IZ'), width: '250', styleName: 'text-left' }, // 상세내역
     { // 사진
       fieldName: 'imgFile1',
@@ -459,13 +459,13 @@ function initGrid(data, view) {
       width: '130',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { istImpEnvr1stImgFileUid } = grid.getValues(index.itemIndex);
-        const returnValue = !istImpEnvr1stImgFileUid ? 1 : 0;
+        const { istImpPhoApnFileUid1 } = grid.getValues(index.itemIndex);
+        const returnValue = !istImpPhoApnFileUid1 ? 1 : 0;
         return returnValue === 0 ? t('MSG_TXT_IMG_BRWS') : '';
       },
       styleCallback(grid, dataCell) {
-        const { istImpEnvr1stImgFileUid } = grid.getValues(dataCell.index.itemIndex);
-        const returnValue = !istImpEnvr1stImgFileUid ? 1 : 0;
+        const { istImpPhoApnFileUid1 } = grid.getValues(dataCell.index.itemIndex);
+        const returnValue = !istImpPhoApnFileUid1 ? 1 : 0;
         return returnValue === 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : '';
       },
     },
@@ -475,13 +475,13 @@ function initGrid(data, view) {
       width: '130',
       styleName: 'text-center rg-button-default',
       displayCallback(grid, index) {
-        const { istImpEnvr2ndImgFileUid } = grid.getValues(index.itemIndex);
-        const returnValue = !istImpEnvr2ndImgFileUid ? 1 : 0;
+        const { istImpPhoApnFileUid2 } = grid.getValues(index.itemIndex);
+        const returnValue = !istImpPhoApnFileUid2 ? 1 : 0;
         return returnValue === 0 ? t('MSG_TXT_IMG_BRWS') : '';
       },
       styleCallback(grid, dataCell) {
-        const { istImpEnvr2ndImgFileUid } = grid.getValues(dataCell.index.itemIndex);
-        const returnValue = !istImpEnvr2ndImgFileUid ? 1 : 0;
+        const { istImpPhoApnFileUid2 } = grid.getValues(dataCell.index.itemIndex);
+        const returnValue = !istImpPhoApnFileUid2 ? 1 : 0;
         return returnValue === 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : '';
       },
     },
@@ -491,14 +491,14 @@ function initGrid(data, view) {
       width: '130',
       styleName: 'text-center rg-button-default',
       displayCallback(grid, index) {
-        const { istImpEnvr3rdImgFileUid } = grid.getValues(index.itemIndex);
-        const returnValue = !istImpEnvr3rdImgFileUid ? 1 : 0;
+        const { istImpPhoApnFileUid3 } = grid.getValues(index.itemIndex);
+        const returnValue = !istImpPhoApnFileUid3 ? 1 : 0;
         return returnValue === 0 ? t('MSG_TXT_IMG_BRWS') : '';
       },
       styleCallback(grid, dataCell) {
-        const { istImpEnvr3rdImgFileUid } = grid.getValues(dataCell.index.itemIndex);
-        console.log('istImpEnvr3rdImgFileUid >>>', istImpEnvr3rdImgFileUid);
-        const returnValue = !istImpEnvr3rdImgFileUid ? 1 : 0;
+        const { istImpPhoApnFileUid3 } = grid.getValues(dataCell.index.itemIndex);
+        console.log('istImpPhoApnFileUid3 >>>', istImpPhoApnFileUid3);
+        const returnValue = !istImpPhoApnFileUid3 ? 1 : 0;
         return returnValue === 0 ? { renderer: { type: 'button', hideWhenEmpty: false } } : '';
       },
     },
@@ -508,9 +508,9 @@ function initGrid(data, view) {
     { fieldName: 'cralLocaraTno', visible: false }, // 휴대지역전화번호
     { fieldName: 'mexnoEncr', visible: false }, // 휴대전화국번호암호화
     { fieldName: 'cralIdvTno', visible: false }, // 휴대개별전화번호
-    { fieldName: 'istImpEnvr1stImgFileUid', visible: false }, // 설치불가환경 이미지 1
-    { fieldName: 'istImpEnvr2ndImgFileUid', visible: false }, // 설치불가환경 이미지 2
-    { fieldName: 'istImpEnvr3rdImgFileUid', visible: false }, // 설치불가환경 이미지 3
+    { fieldName: 'istImpPhoApnFileUid1', visible: false }, // 설치불가환경 이미지 1
+    { fieldName: 'istImpPhoApnFileUid2', visible: false }, // 설치불가환경 이미지 2
+    { fieldName: 'istImpPhoApnFileUid3', visible: false }, // 설치불가환경 이미지 3
     { fieldName: 'cstSvAsnNo', visible: false }, // 배정번호
   ];
 
@@ -522,13 +522,34 @@ function initGrid(data, view) {
   view.setFixedOptions({ colCount: 4 });
 
   view.setColumnLayout([
-    'cntrNoSn', 'cstKnm', 'pdGrpNm', 'pdNm', 'cralTno', 'newAdrZip', 'radr', 'gnrdv', 'rgrp', 'alncBzsCd', 'svBizDclsfNm', 'cnslMoCn', 'svCnrOgId', 'rpbLocaraCd', 'prtnr',
+    'cntrNoSn',
+    'cstKnm',
+    'pdGrpNm',
+    'pdNm',
+    'cralTno',
+    'newAdrZip',
+    'radr',
+    'gnrdv',
+    'rgrp',
+    'alncBzsCd',
+    'svBizDclsfNm',
+    'cnslMoCn',
+    'svCnrOgId',
+    'rpbLocaraCd',
+    'prtnr',
     {
       header: '작업일시',
       direction: 'horizontal',
       items: ['arvDtm', 'vstFshDtm'],
     },
-    'wkPrgsStatNm', 'wkCanRsonCd', 'wkCanRsonNm', 'wkCanMoCn', 'imgFile1', 'imgFile2', 'imgFile3', 'unuitm',
+    'wkPrgsStatNm',
+    'wkCanCaus',
+    'rcpCanRson',
+    'wkCanMoCn',
+    'imgFile1',
+    'imgFile2',
+    'imgFile3',
+    'unuitm',
   ]);
 
   view.onCellDblClicked = async (g, cData) => {
@@ -549,17 +570,17 @@ function initGrid(data, view) {
 
   view.onCellItemClicked = async (g, cData) => {
     const {
-      istImpEnvr1stImgFileUid,
-      istImpEnvr2ndImgFileUid,
-      istImpEnvr3rdImgFileUid } = g.getValues(cData.itemIndex);
+      istImpPhoApnFileUid1,
+      istImpPhoApnFileUid2,
+      istImpPhoApnFileUid3 } = g.getValues(cData.itemIndex);
 
     let fileUid;
     if (cData.fieldName === 'imgFile1') {
-      fileUid = istImpEnvr1stImgFileUid;
+      fileUid = istImpPhoApnFileUid1;
     } else if (cData.fieldName === 'imgFile2') {
-      fileUid = istImpEnvr2ndImgFileUid;
+      fileUid = istImpPhoApnFileUid2;
     } else if (cData.fieldName === 'imgFile3') {
-      fileUid = istImpEnvr3rdImgFileUid;
+      fileUid = istImpPhoApnFileUid3;
     }
     await modal({
       component: 'ZwcmzImagePreviewP',
