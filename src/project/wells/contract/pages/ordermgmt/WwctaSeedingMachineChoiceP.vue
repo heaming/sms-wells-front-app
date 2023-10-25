@@ -9,8 +9,8 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- props 로 계약 고객 번호와 모종기기 종류 코드를 받아서 계약자가 모종기기 결합 관계가 형성되지 않은 모종기기목록을
-조회하고, 단건을 선택하여 반환할 수 있다.
+- props 로 계약 고객 번호와 모종기기 종류 코드를 받아서 계약자가 모종기기 결합 관계가 형성되지 않은 모종기기 계약 상세
+목록을 조회하고, 단건을 선택하여 반환할 수 있다.
 ****************************************************************************************************
 --->
 <template>
@@ -80,14 +80,14 @@ async function fetchMachines() {
   };
   const response = await dataService.get('/sms/wells/contract/seeding/machinery', { params });
   machinery.value = response.data;
-  if (machinery.value.length > 0) {
-    selected.value = machinery.value[0].pdCd;
+  if (machinery.value.length > 0 && machinery.value[0]) {
+    selected.value = `${machinery.value[0].cntrNo}-${machinery.value[0].cntrSn}`;
   }
 }
 
 function onClickConfirm() {
-  const seletedMachine = machinery.value.find((machine) => `${machine.cntrNo}-${machine.cntrSn}` === selected.value);
-  ok(seletedMachine);
+  const selectedMachine = machinery.value.find((machine) => `${machine.cntrNo}-${machine.cntrSn}` === selected.value);
+  ok(selectedMachine);
 }
 
 function onClickCancel() {
@@ -96,8 +96,9 @@ function onClickCancel() {
 
 await fetchMachines();
 </script>
+
 <style scoped lang="scss">
-::v-deep(.kw-option-group) {
+:deep(.kw-option-group) {
   .kw-option-group__control {
     gap: $spacing-lg;
   }

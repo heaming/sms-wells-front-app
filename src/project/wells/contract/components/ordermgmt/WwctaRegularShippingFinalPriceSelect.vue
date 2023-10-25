@@ -77,27 +77,27 @@
             v-if="!isLkSding && isSeeding"
             label="기기선택"
             dense
-            @click="$emit('select-machine', modelValue)"
+            @click="onSelectMachineCntrDtl"
           />
           <kw-btn
             v-if="isSeeding"
             :disable="!isFreePackage"
             label="모종선택"
             dense
-            @click="$emit('select-seeding', modelValue)"
+            @click="onClickSelectSeeding"
           />
           <kw-btn
             v-if="isCapsule"
             :disable="!isFreePackage"
             label="캡슐선택"
             dense
-            @click="$emit('select-capsule', modelValue)"
+            @click="onClickSelectCapsule"
           />
           <kw-btn
             v-if="precontractRequired"
             label="연계상품"
             dense
-            @click="$emit('select-precontract', modelValue)"
+            @click="onSelectPrecontract"
           />
         </kw-item-label>
       </kw-item-section>
@@ -211,11 +211,11 @@ const props = defineProps({
   bas: { type: Object, default: undefined },
 });
 const emit = defineEmits([
-  'select-machine',
-  'delete:select-machine',
-  'select-seeding',
-  'select-capsule',
-  'select-precontract',
+  'select:machine',
+  'delete:machine',
+  'select:seeding',
+  'select:capsule',
+  'select:precontract',
   'price-changed',
   'promotion-changed',
   'delete',
@@ -243,7 +243,22 @@ let finalPriceOptions;
 let promotions;
 let appliedPromotions;
 let sdingCapsls;
-let pkgs;
+
+function onSelectMachineCntrDtl() {
+  emit('select:machine', props.modelValue);
+}
+
+function onClickSelectSeeding() {
+  emit('select:seeding', props.modelValue);
+}
+
+function onClickSelectCapsule() {
+  emit('select:capsule', props.modelValue);
+}
+
+function onSelectPrecontract() {
+  emit('select:precontract', props.modelValue);
+}
 
 function connectReactivities() {
   pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
@@ -254,8 +269,7 @@ function connectReactivities() {
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
   promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
   sdingCapsls = toRef(props.modelValue, 'sdingCapsls', []); /* 적용가능한 프로모션 목록 */
-  pkgs = toRef(props.modelValue, 'pkgs'); /* 웰스팜의 경우 변경가능한 패키지 제품 목록 */
-  console.log('verSn', verSn.value, pkgs);
+  console.log('verSn', verSn.value);
 }
 
 connectReactivities();
@@ -427,7 +441,7 @@ watch(selectedFinalPrice, onChangeSelectedFinalPrice, { immediate: true });
 
 function onDeleteCntrRel(cntrRel) {
   if (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE) {
-    emit('delete:select-machine', props.modelValue);
+    emit('delete:machine', props.modelValue);
   }
 }
 
