@@ -1,10 +1,26 @@
 import { getNumberWithComma } from '~sms-common/contract/util';
 
-export function getSpayAmt(pdBas, finalPrice) {
+function getPromotionsAppliedFnlVal(fnlVal, appliedPromotions) {
+  const minRentalFxam = appliedPromotions
+    .reduce(
+      (minVal, promotion) => {
+        if (!promotion.rentalFxam || Number.isNaN(Number(promotion.rentalFxam))) {
+          return minVal;
+        }
+        return Math.min(minVal, Number(promotion.rentalFxam));
+      },
+      fnlVal,
+    );
+  return Math.max(minRentalFxam, 0);
+}
+
+export function getSpayAmt(pdBas, finalPrice, appliedPromotions = []) {
   const { rglrSppPrmMcn } = pdBas;
   const { fnlVal, cntrAmt, svVstPrdCd, pcsvPrdCd, sellTpCd, cntrAmtDscYn } = finalPrice;
+  const pmotAplyVal = getPromotionsAppliedFnlVal(fnlVal, appliedPromotions);
+
   if (sellTpCd === '1') {
-    return fnlVal;
+    return pmotAplyVal;
   }
   if (sellTpCd === '2') {
     return cntrAmtDscYn === 'Y' ? 0 : cntrAmt;
@@ -17,7 +33,7 @@ export function getSpayAmt(pdBas, finalPrice) {
       return 0;
     }
     if (rglrSppPrmMcn > 0) {
-      let spayAmt = fnlVal * rglrSppPrmMcn;
+      let spayAmt = pmotAplyVal * rglrSppPrmMcn;
       const svPrd = Math.max(Number(svVstPrdCd) || 0, Number(pcsvPrdCd) || 0);
       if (svPrd) {
         spayAmt /= svPrd;
@@ -29,7 +45,6 @@ export function getSpayAmt(pdBas, finalPrice) {
 
 export function getSpayAmtByCntrDtl(cntrDtl) {
   const { fnlAmt, cntrAmt, sellTpCd } = cntrDtl;
-  console.log('getSpayAmtByCntrDtl', cntrDtl, fnlAmt, cntrAmt, sellTpCd);
   if (sellTpCd === '1') {
     return Number(fnlAmt) || 0;
   }
@@ -44,19 +59,20 @@ export function getSpayAmtByCntrDtl(cntrDtl) {
   }
 }
 
-export function getAftnAmt(finalPrice) {
+export function getAftnAmt(finalPrice, appliedPromotions = []) {
   const { fnlVal, svVstPrdCd, pcsvPrdCd, sellTpCd } = finalPrice;
+  const pmotAplyVal = getPromotionsAppliedFnlVal(fnlVal, appliedPromotions);
   if (sellTpCd === '1') {
     return 0;
   }
   if (sellTpCd === '2') {
-    return fnlVal;
+    return pmotAplyVal;
   }
   if (sellTpCd === '3') {
-    return fnlVal;
+    return pmotAplyVal;
   }
   if (sellTpCd === '6') {
-    let aftnAmt = fnlVal;
+    let aftnAmt = pmotAplyVal;
     const svPrd = Math.max(Number(svVstPrdCd) || 0, Number(pcsvPrdCd) || 0);
     if (svPrd) {
       aftnAmt /= svPrd;
@@ -115,23 +131,13 @@ export function getPromotionAppliedPrice(finalPrice, appliedPromotions) {
   if (!fnlVal) {
     return;
   }
-  const minRentalFxam = appliedPromotions
-    .reduce(
-      (minVal, promotion) => {
-        if (!promotion.rentalFxam || Number.isNaN(Number(promotion.rentalFxam))) {
-          return minVal;
-        }
-        return Math.min(minVal, Number(promotion.rentalFxam));
-      },
-      fnlVal,
-    );
-  const pmotAplyPrice = Math.max(minRentalFxam, 0);
-  if (fnlVal === pmotAplyPrice) {
+  const pmotAplyFnlVal = getPromotionsAppliedFnlVal(fnlVal, appliedPromotions);
+  if (fnlVal === pmotAplyFnlVal) {
     return;
   }
   const promotionApplied = {
     ...finalPrice,
-    fnlVal: pmotAplyPrice,
+    fnlVal: pmotAplyFnlVal,
   };
   return getDisplayedPrice(promotionApplied);
 }
