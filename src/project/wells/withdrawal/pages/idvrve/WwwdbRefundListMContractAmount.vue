@@ -35,14 +35,14 @@
         <!-- 실적일자 -->
         <kw-search-item
           :label="t('MSG_TXT_PERF_DT')"
-          required
         >
+          <!-- required -->
           <kw-date-range-picker
             v-model:from="searchParams.perfDtStartDay"
             v-model:to="searchParams.perfDtEndDay"
-            rules="date_range_required|date_range_months:1"
             :label="t('MSG_TXT_PERF_DT')"
           />
+          <!-- rules="date_range_required|date_range_months:1" -->
         </kw-search-item>
         <!-- 업무구분 -->
         <kw-search-item
@@ -51,9 +51,8 @@
           <!-- wells 계약서유형코드 1.일시불(환경가전), 2.일시불(BH), 3.렌탈, 4.멤버십, 5.홈케어서비, 6.모종일시불, 7.정기배송, 8.장기할부, 9.리스 -->
           <kw-select
             v-model="searchParams.cntrwTpCd"
-            :options="codes.CNTRW_TP_CD.filter(v => v.codeId==='3' || v.codeId ==='5')"
+            :options="optionsSort"
             first-option="all"
-            first-option-value="ALL"
           />
         </kw-search-item>
       </kw-search-row>
@@ -216,7 +215,7 @@
           <!-- 회사 귀속 -->
           <kw-form-item :label="$t('MSG_TXT_CO_BLNG')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.blngAmt)) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 현금계(현금+카드공제) -->
@@ -239,25 +238,29 @@
           <kw-form-item :label="$t('MSG_TXT_TK_BLTF')">
             <!-- 웰스:0, 홈케어:0 -->
             <p>
-              {{ t('MSG_TXT_WELS') }}: {{ }}, {{ t('MSG_TXT_HOME_CARE') }}: {{ }}
+              {{ t('MSG_TXT_WELS') }}: {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.tkMrntBltfSum)) }},
+              {{ t('MSG_TXT_HOME_CARE') }}: {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.tkHcrBltfSum))
+              }}
             </p>
           </kw-form-item>
           <!-- 인수전금 계 -->
           <kw-form-item :label="$t('MSG_TXT_TK_BLTF_SUM')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.tkBltfResultSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 할부전금(웰스) -->
           <kw-form-item :label="$t('MSG_TXT_ISTM_BLTF_WELS')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.istmBltfSum)) }}{{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 할부전금 계 -->
           <kw-form-item :label="$t('MSG_TXT_ISTM_BLTF_SUM')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.istmBltfResultSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
         </kw-form-row>
@@ -265,13 +268,15 @@
           <!-- 지연 이자 -->
           <kw-form-item :label="$t('MSG_TXT_PSP_INT')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.rfndDsbPspIntSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- K 포인트 -->
           <kw-form-item :label="$t('MSG_TXT_K_PNT')">
             <p>
-              0{{ t('MSG_TXT_CUR_WON') }}
+              {{ stringUtil.getNumberWithComma(toInteger(aggregationStatus.pointSum)) }}
+              {{ t('MSG_TXT_CUR_WON') }}
             </p>
           </kw-form-item>
           <!-- 전금 합계 -->
@@ -324,31 +329,60 @@ const grdMainRef2 = ref(getComponentType('KwGrid'));
 const now = dayjs();
 const apiUrl = '/sms/wells/withdrawal/idvrve/contract-refunds';
 
+const optionsSort = [
+  { codeId: '1', codeName: '웰스' },
+  { codeId: '2', codeName: '홈케어' },
+];
+
 const aggregationStatus = ref({
-  cashRfndDsbAmtSum: 0,
-  bcCardRfndDsbAmtSum: 0,
-  kbCardRfndDsbAmtSum: 0,
-  ssCardRfndDsbAmtSum: 0,
-  hnCardRfndDsbAmtSum: 0,
-  shCardRfndDsbAmtSum: 0,
-  ltCardRfndDsbAmtSum: 0,
-  hdCardRfndDsbAmtSum: 0,
-  nhCardRfndDsbAmtSum: 0,
-  ydCardRfndDsbAmtSum: 0,
-  cardRfndDdtnAmtSum: 0,
-  cashCardRfndDdtnAmtSum: 0,
-  cardRfndDsbAmtSum: 0,
-  rfndDsbPspIntSum: 0,
-  rfndBltfSum: 0,
-  rfTotalSum: 0,
+  // cashRfndDsbAmtSum: 0,
+  // bcCardRfndDsbAmtSum: 0,
+  // kbCardRfndDsbAmtSum: 0,
+  // ssCardRfndDsbAmtSum: 0,
+  // hnCardRfndDsbAmtSum: 0,
+  // shCardRfndDsbAmtSum: 0,
+  // ltCardRfndDsbAmtSum: 0,
+  // hdCardRfndDsbAmtSum: 0,
+  // nhCardRfndDsbAmtSum: 0,
+  // ydCardRfndDsbAmtSum: 0,
+  // cardRfndDdtnAmtSum: 0,
+  // cashCardRfndDdtnAmtSum: 0,
+  // cardRfndDsbAmtSum: 0,
+  // rfndDsbPspIntSum: 0,
+  // rfndBltfSum: 0,
+  // rfTotalSum: 0,
+
+  cashRfndDsbAmtSum: 0, // 현금 환불지급금액 합
+  bcCardRfndDsbAmtSum: 0, // BC 환불지급금액 합계
+  kbCardRfndDsbAmtSum: 0, // KB 환불지급금액 합계
+  ssCardRfndDsbAmtSum: 0, // 삼성 환불지급금액 합계
+  hnCardRfndDsbAmtSum: 0, // 하나 환불지급금액 합계
+  shCardRfndDsbAmtSum: 0, // 신한 환불지급금액 합계
+  ltCardRfndDsbAmtSum: 0, // 롯데 환불지급금액 합계
+  hdCardRfndDsbAmtSum: 0, // 현대 환불지급금액 합계
+  nhCardRfndDsbAmtSum: 0, // 농협 환불지급금액 합계
+  ydCardRfndDsbAmtSum: 0, // 여민동락 환불지급금액 합계
+  cardRfndDdtnAmtSum: 0, // 카드 공제(환불공제금액 합계)
+  blngAmt: 0, /* 확인 필요: 회사귀속 */
+  cashCardRfndDdtnAmtSum: 0, // 현금계(현금 환불공제금액 합계 + 카드 공제(환불공제금액 합계))
+  cardRfndDsbAmtSum: 0, // 카드 (환불지급금액) 합계
+  tkMrntBltfSum: 0, /* 확인 필요: 인수 전금 웰스: 홈케어: */
+  tkHcrBltfSum: 0,
+  tkBltfResultSum: 0, /* 확인 필요: 인수 전금 계 */
+  istmBltfSum: 0, /* 확인 필요: 할부전금(웰스)  */
+  istmBltfResultSum: 0, /* 확인 필요: 할부전금계 = 인수전금 합계 + 할부전금 합계  */
+  rfndDsbPspIntSum: 0, // 지연이자 합계
+  pointSum: 0, /* 확인 필요:K 포인트 */
+  rfndBltfSum: 0, /* 확인 필요:전금합계 */
+  rfTotalSum: 0, /* 확인 필요:환불 총계 */
 });
 
 const searchParams = ref({
   startDay: now.format('YYYYMM01'), // 처리일자.시작일
   endDay: now.format('YYYYMMDD'), // 처리일자.종료일
-  perfDtStartDay: now.format('YYYYMM01'), // 실적일자.시작일
-  perfDtEndDay: now.format('YYYYMMDD'), // 실적일자.종료일
-  cntrwTpCd: 'ALL', // 업무구분
+  perfDtStartDay: '', // 실적일자.시작일
+  perfDtEndDay: '', // 실적일자.종료일
+  cntrwTpCd: '', // 업무구분
   prntDv: '', // 출력구분. table column 확인필요.
 });
 

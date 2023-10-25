@@ -35,14 +35,14 @@
         <!-- 실적일자 -->
         <kw-search-item
           :label="t('MSG_TXT_PERF_DT')"
-          required
-        >
+          >
+          <!-- required -->
           <kw-date-range-picker
             v-model:from="searchParams.perfDtStartDay"
             v-model:to="searchParams.perfDtEndDay"
-            rules="date_range_required|date_range_months:1"
             :label="t('MSG_TXT_PERF_DT')"
-          />
+            />
+            <!-- rules="date_range_required|date_range_months:1" -->
         </kw-search-item>
         <!-- 환불구분 -->
         <!-- 코드 확인 필요 -->
