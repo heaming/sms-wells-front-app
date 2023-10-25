@@ -195,6 +195,9 @@ ${step4.cntrt.sexDvNm || ''}`
             <kw-form-item label="첨부파일">
               <zwcm-file-attacher
                 ref="attachFileRef"
+                v-model="fileParams.kidsDocs"
+                attach-group-id="ATG_CTA_CNTR_FILE"
+                :attach-document-id="fileParams.kidsDocId"
                 class="mb10"
                 :name="$t('MSG_TXT_ATTH_FILE')"
                 downloadable
@@ -567,6 +570,34 @@ ${step4.cntrt.sexDvNm || ''}`
           </kw-form-row>
         </kw-form>
       </template>
+
+      <template v-if="isCorpDscAdrChg">
+        <kw-separator />
+        <h3>법인할인고객 주소변경</h3>
+
+        <kw-form
+          :cols="1"
+          class="mt20"
+        >
+          <kw-form-row>
+            <kw-form-item
+              label="첨부파일"
+              required
+            >
+              <zwcm-file-attacher
+                ref="attachFileRef"
+                v-model="fileParams.dcevdnDocs"
+                attach-group-id="ATG_CTA_CNTR_FILE"
+                :attach-document-id="fileParams.dcevdnDocId"
+                class="mb20"
+                :name="$t('MSG_TXT_ATTH_FILE')"
+                downloadable
+                required
+              />
+            </kw-form-item>
+          </kw-form-row>
+        </kw-form>
+      </template>
     </div>
   </kw-scroll-area>
   <kw-separator
@@ -583,7 +614,7 @@ ${step4.cntrt.sexDvNm || ''}`
 // -------------------------------------------------------------------------------------------------
 import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 import { defineGrid, getComponentType, stringUtil, useDataService, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import { warn } from 'vue';
 import { getNumberWithComma } from '~sms-common/contract/util';
@@ -644,6 +675,7 @@ step4.value = {
 };
 const ogStep4 = ref({});
 const isRestipulation = ref(false);
+const isCorpDscAdrChg = ref(false);
 // const restipulationCntrSn = ref(0);
 const stplTpCdOptions = ref([]);
 const restipulationBasInfo = ref({});
@@ -664,6 +696,12 @@ const cntrTpIs = ref({
   quot: computed(() => step4.value.bas?.cntrTpCd === '09'), // 견적서
 });
 const isReadonly = computed(() => step4.value.bas?.cntrPrgsStatCd > 20);
+const fileParams = ref({
+  kidsDocs: [],
+  kidsDocId: '', // 다자녀
+  dcevdnDocs: [],
+  dcevdnDocId: '', // 법인할인고객 주소변경
+});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -747,6 +785,8 @@ async function getCntrInfo() {
   // 총판채널인 경우 고객센터 이관만 보이도록
   codes.CST_STLM_IN_MTH_CD = codes.CST_STLM_IN_MTH_CD.filter((code) => (step4.value.bas.cstStlmInMthCd === '30' ? code.codeId === '30' : code.codeId !== '30'));
 
+  // 법인할인고객 주소변경 관련 첨부파일ID
+  fileParams.value.dcevdnDocId = step4.value.bas.dcevdnDocId;
   setGrid();
 }
 
@@ -790,6 +830,15 @@ function isChangedStep() {
 }
 
 async function isValidStep() {
+  // 법인할인고객 주소변경 첨부파일 확인
+  if (isCorpDscAdrChg.value) {
+    // console.log(JSON.stringify(fileParams.value, null, '\t'));
+    if (isEmpty(fileParams.value.dcevdnDocs)) {
+      await alert('법인할인고객주소변경의 경우 첨부파일은 필수입니다.');
+      return false;
+    }
+  }
+
   if (step4.value.isRestipulation) {
     if (!restipulationBasInfo.value.stplTpCd) {
       await alert('재약정유형을 선택해주세요.');
@@ -804,6 +853,13 @@ async function saveStep(isTemp) {
     const savedCntr = await dataService.post('sms/wells/contract/re-stipulation/save-contract', restipulationBasInfo.value);
     return savedCntr?.data?.key;
   }
+
+  // 법인할인고객 주소변경 첨부파일이 존재하는 경우,
+  if (!isEmpty(fileParams.value.dcevdnDocs)) {
+    step4.value.bas.dcevdnDocs = fileParams.value.dcevdnDocs;
+    // step4.value.bas.dcevdnDocId = fileParams.value.dcevdnDocId;
+  }
+  console.log(JSON.stringify(step4.value, null, '\t'));
   const api = isTemp ? 'save-cntr-step4-temp' : 'save-cntr-step4';
   const savedCntr = await dataService.post(`sms/wells/contract/contracts/${api}`, step4.value);
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -849,6 +905,17 @@ async function initStep(forced = false) {
       await getCntrInfo();
     }
     loaded.value = true;
+  }
+
+  // 법인할인고객 주소변경 확인
+  if (step4.value?.bas.copnDvCd === '2') {
+    const { data } = await dataService.get('sms/wells/contract/contracts/is-change-corp-address', {
+      params: {
+        cntrNo: cntrNo.value,
+      },
+    });
+    isCorpDscAdrChg.value = data;
+    // console.log(JSON.stringify(data, null, '\t'));
   }
 }
 

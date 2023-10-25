@@ -93,6 +93,12 @@
             dense
             @click="$emit('select-capsule', modelValue)"
           />
+          <kw-btn
+            v-if="precontractRequired"
+            label="연계상품"
+            dense
+            @click="$emit('select-precontract', modelValue)"
+          />
         </kw-item-label>
       </kw-item-section>
       <kw-item-section
@@ -209,7 +215,7 @@ const emit = defineEmits([
   'delete:select-machine',
   'select-seeding',
   'select-capsule',
-  'one-plus-one',
+  'select-precontract',
   'price-changed',
   'promotion-changed',
   'delete',
@@ -237,6 +243,7 @@ let finalPriceOptions;
 let promotions;
 let appliedPromotions;
 let sdingCapsls;
+let pkgs;
 
 function connectReactivities() {
   pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
@@ -247,7 +254,8 @@ function connectReactivities() {
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
   promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
   sdingCapsls = toRef(props.modelValue, 'sdingCapsls', []); /* 적용가능한 프로모션 목록 */
-  console.log('verSn', verSn.value);
+  pkgs = toRef(props.modelValue, 'pkgs'); /* 웰스팜의 경우 변경가능한 패키지 제품 목록 */
+  console.log('verSn', verSn.value, pkgs);
 }
 
 connectReactivities();
@@ -257,6 +265,7 @@ const isLkSding = computed(() => (cntrRels.value || [])
 const isSeeding = computed(() => dtl.value?.sellTpDtlCd === '62');
 const isCapsule = computed(() => dtl.value?.sellTpDtlCd === '63');
 const isFreePackage = computed(() => dtl.value?.pdChoLmYn === 'Y'); // TODO FIX... dtl 에 없음..
+const precontractRequired = computed(() => dtl.value?.precontractRequired);
 
 /* TODO: FIX */
 async function fetchSdingCapsls() {

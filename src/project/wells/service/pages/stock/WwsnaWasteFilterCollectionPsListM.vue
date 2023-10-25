@@ -290,14 +290,14 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapMatCd',
       header: t('MSG_TXT_SAPCD'),
-      width: '160',
+      width: '95',
       styleName: 'text-center',
       mergeRule: {
         criteria: 'value',
       } },
     { fieldName: 'pdCd',
       header: t('MSG_TXT_ITM_CD'),
-      width: '160',
+      width: '120',
       styleName: 'text-center',
       mergeRule: {
         criteria: 'value',
@@ -314,7 +314,7 @@ const initGrdMain = defineGrid((data, view) => {
       ] },
     { fieldName: 'gubun',
       header: t('MSG_TXT_DIV'),
-      width: '140',
+      width: '120',
       styleName: 'text-center',
       footers: [
         { text: t('MSG_TXT_WK_FSH_CT'), styleName: 'text-center' },

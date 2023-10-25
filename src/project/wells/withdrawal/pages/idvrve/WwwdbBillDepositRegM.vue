@@ -173,7 +173,7 @@
           :label="t('MSG_TXT_EXCEL_DOWNLOAD')"
           :disable="gridCount === 0"
           @click="onClickExcelSubDownload"
-          />
+        />
         <!-- label="엑셀다운로드" -->
       </kw-action-top>
 
@@ -182,8 +182,8 @@
         name="grdMain"
         visible-rows="5"
         @init="initGrid2"
-        />
-        <!-- :page-size="pageInfoSecond.pageSize"
+      />
+      <!-- :page-size="pageInfoSecond.pageSize"
         :total-count="pageInfoSecond.totalCount" -->
     </div>
   </kw-page>
@@ -245,6 +245,7 @@ const gridCount = ref(0);
 
 let cachedParams;
 
+// 조회
 async function fetchData() {
   grdMainRef2.value.getData().clearRows();
 
@@ -268,6 +269,7 @@ async function fetchData() {
   data.checkRowStates(true);
 }
 
+// 조회 이벤트
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
 
@@ -441,7 +443,7 @@ async function onClickDeposit() {
   const changedRows = gridUtil.getCheckedRowValues(view);
 
   if (changedRows.length === 0) {
-    await alert('데이터를 선택해주세요.');
+    await alert(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return false;
   }
 
@@ -467,16 +469,16 @@ async function onClickDeposit() {
   changedRows.forEach((p1) => { p1.resultSum = resultSum; });
 
   if (errorCount > 0) {
-    alert('전표 생성의 경우 동일한 채권번호만 가능합니다.');
+    alert(t('MSG_ALT_SLIP_CRT_SMD_BND_NO_PSB')); // 전표 생성의 경우 동일한 채권번호만 가능합니다.
     return false;
   }
 
   if (duplicateCheck > 0) {
-    alert('이미 전표처리가 된 데이터가 존재합니다.');
+    alert(t('MSG_ALT_SLIP_PROCS_DTA_EXST')); // 이미 전표처리가 된 데이터가 존재합니다.
     return false;
   }
 
-  if (!await confirm('입금전표 생성 하시겠습니까?')) {
+  if (!await confirm(t('MSG_ALT_CREATED') + t(' ') + t('MSG_ALT_CREATED'))) { // 입금전표 생성 하시겠습니까?
     return false;
   }
 
@@ -493,7 +495,7 @@ async function onClickReplacementSlipProcessing() {
   const changedRows = gridUtil.getCheckedRowValues(view);
 
   if (changedRows.length === 0) {
-    await alert('데이터를 선택해주세요.');
+    await alert(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return false;
   }
 
@@ -516,19 +518,19 @@ async function onClickReplacementSlipProcessing() {
   });
 
   if (errorCount > 0) {
-    alert('전표 생성의 경우 동일한 채권번호만 가능합니다.');
+    alert(t('MSG_ALT_SLIP_CRT_SMD_BND_NO_PSB')); // 전표 생성의 경우 동일한 채권번호만 가능합니다.
     return false;
   }
   if (duplicateCheck > 0) {
-    alert('입금전표 생성이 안된 데이터 입니다.');
+    alert(t('MSG_ALT_SLIP_CRT_EXST_DTA')); // 입금전표 생성이 안된 데이터입니다.
     return false;
   }
   if (duplicateCheck2 > 0) {
-    alert('이미 전표처리가 된 데이터가 존재합니다.');
+    alert(t('MSG_ALT_SLIP_PROCS_DTA_EXST')); // 이미 전표처리가 된 데이터가 존재합니다.
     return false;
   }
 
-  if (!await confirm('대체전표 생성 하시겠습니까?')) {
+  if (!await confirm(t('MSG_TXT_RPLC_SLIP') + t(' ') + t('MSG_ALT_CREATED'))) { // 대체전표 생성 하시겠습니까?
     return false;
   }
 
@@ -563,8 +565,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'billExprDt' }, /* 만기일자 */
     { fieldName: 'cntrCount' }, /* 계약수 */
     { fieldName: 'itgDpNo' }, /* 통합입금번호 */
-    { fieldName: 'billDpSapSlpno' },
-    { fieldName: 'billRplcSapSlpno' },
+    { fieldName: 'billDpSapSlpno' }, /* 입금전표번호 */
+    { fieldName: 'billRplcSapSlpno' }, /* 대체전표번호 */
     { fieldName: 'sellBzsBzrno' }, /* 판매업체사업자번호 */
     { fieldName: 'pblBzsBzrno' }, /* 발행업체사업자번호 */
     { fieldName: 'sort' }, /* 종류 */
@@ -583,7 +585,8 @@ const initGrid = defineGrid((data, view) => {
       },
     },
     { fieldName: 'mconBzsNm',
-      header: '거래처명',
+      header: t('MSG_TXT_CLNT_NM'),
+      // header: '거래처명'
       width: '125',
       styleName: 'text-center',
       mergeRule: {

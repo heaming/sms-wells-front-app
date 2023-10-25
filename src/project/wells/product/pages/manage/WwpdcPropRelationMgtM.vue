@@ -204,6 +204,7 @@ async function validateProps() {
     isChangedOnly: false,
   });
 
+  console.log('isValid : ', isValid);
   // 적용일자 중복 체크
   if (isValid) {
     const rowValues = gridUtil.getAllRowValues(view);
@@ -212,8 +213,10 @@ async function validateProps() {
     }
     let dupItem;
     await Promise.all(rowValues.map(async (item1) => {
-      if (isValid) {
-        dupItem = (await getOverPeriodByRelProd(view, item1));
+      // 비동기방식 설정 조건문
+      if (isValid && await getOverPeriodByRelProd(view, item1, 'pdRelTpCd')) {
+        dupItem = (await getOverPeriodByRelProd(view, item1, 'pdRelTpCd'));
+        console.log('dupItem : ', dupItem);
         if (dupItem) {
           isValid = false;
         }
@@ -285,6 +288,7 @@ const columns = [
 const initGrdMain = defineGrid((data, view) => {
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }))
     .filter((visible) => visible);
+  fields.push({ fieldName: 'pdCd' });
   data.setFields(fields);
   view.setColumns(columns);
   view.rowIndicator.visible = true;

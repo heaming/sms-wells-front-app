@@ -147,7 +147,7 @@ async function isOverPeriodCheck(view) {
   }
   let dupItem;
   await Promise.all(rowValues.map(async (item1) => {
-    if (isValid) {
+    if (isValid && await getOverPeriodByRelProd(view, item1)) {
       dupItem = (await getOverPeriodByRelProd(view, item1));
       if (dupItem) {
         isValid = false;
