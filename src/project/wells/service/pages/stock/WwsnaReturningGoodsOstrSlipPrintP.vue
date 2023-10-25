@@ -143,7 +143,7 @@ async function onClickReportView() {
     FROM_DT: props.endDate, // 종료일
     ST163_RET_PRO_TYP: props.rtngdProcsTpCd, // 반품처리유형코드
     DEG_GB: '', // 최종품목등급코드
-    OVIV_TP_CD: searchParams.value.ovivFomCd, // 배차형태
+    DISPATCH_TYPE: searchParams.value.ovivFomCd, // 배차형태
     MEMO: searchParams.value.unuitm, // 메모
   };
 
@@ -151,7 +151,7 @@ async function onClickReportView() {
 
   await openReportPopup(
     '/kyowon_as/stckreturnout.ozr',
-    'kyowon_as/stckreturnout.ozi',
+    '',
     JSON.stringify(reportParams),
   );
 }
