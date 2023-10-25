@@ -669,6 +669,10 @@ onMounted(async () => {
     rgstStatCd = true;
     await fetchData2();
   }
+
+  if (!isEmpty(props.cntrNo) && !isEmpty(props.cntrSn)) {
+    await onClickSearch();
+  }
 });
 
 // 하단 삭제

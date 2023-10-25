@@ -36,14 +36,15 @@
         <!-- 실적일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_PERF_DT')"
-          :colspan="2">
+          :colspan="2"
+        >
           <!-- required -->
           <kw-date-range-picker
             v-model:from="searchParams.perfDtStart"
             v-model:to="searchParams.perfDtFinish"
-            rules="date_range_months:1"
             :label="t('MSG_TXT_PERF_DT')"
           />
+          <!-- rules="date_range_months:1" -->
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
@@ -276,21 +277,21 @@ const optionsCodes = ref(codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '24', 
 
 const customCodes = {
   BLK_CRT_DV: [{ codeId: '-', codeName: '일괄생성제외' }, { codeId: '-', codeName: '멤버쉽환불' }, { codeId: '-', codeName: '기변자동전금' }],
-  RVE_DV_CD: [{ codeId: '-', codeName: '일반' }, { codeId: '09', codeName: '대손이관' }],
+  RVE_DV_CD: [{ codeId: '01', codeName: '일반' }, { codeId: '09', codeName: '대손이관' }],
   DP_MES_CD: [{ codeId: '06', codeName: '포인트만' }, { codeId: '-', codeName: '포인트 제외' }],
 };
 
 const searchParams = ref({
   rveDtStart: now.format('YYYYMM01'), // 환불일자 시작일
   rveDtFinish: now.format('YYYYMMDD'), // 환불일자 종료일
-  perfDtStart: now.format('YYYYMM01'), // 실적일자.시작일
-  perfDtFinish: now.format('YYYYMMDD'), // 실적일자.종료일
+  perfDtStart: '', // 실적일자.시작일
+  perfDtFinish: '', // 실적일자.종료일
   // 일괄생성구분 은 설계자가 테이블 컬럼 매핑하지 못함. 알 수 없음이라고 작성되어 있음.
   rfndDsbDvCd: '', // 귀속환불구분
   sellTpCd: '2', // 판매유형
   sellTpDtlCd: '', // 판매유형상세
   // 판매유형상세 은 설계자가 테이블 컬럼 매핑하지 못함. 알 수 없음이라고 작성되어 있음.
-  rveDvCd: '', // 대손구분
+  rveDvCd: '01', // 대손구분
   dpMesCd: '', // 포인트구분
   blkCrtDv: '', // 일괄생성구분
 });

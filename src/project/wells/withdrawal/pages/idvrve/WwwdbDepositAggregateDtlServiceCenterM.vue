@@ -283,6 +283,8 @@ async function onClickSearch() {
 async function onClickModalPopup(component) {
   const view = grdMainRef.value.getView();
 
+  let componentProps;
+
   const changedRows = gridUtil.getCheckedRowValues(view); // 선택로우 가져오기
 
   if (changedRows.length === 0) {
@@ -290,25 +292,16 @@ async function onClickModalPopup(component) {
     return;
   }
 
-  // const paramData = {
-  //     /* 수납요청기본 */
-
-  //     saveApprovalStandardReq: {
-  //       kwGrpCoCd: companyCode, /* 교원그룹회사코드 */
-  //       cstNo: changedRows[0].cntrCstNo, /* 고객번호 */
-  //       rveAkMthdCd: "01", /* 수납요청방식코드 01 대면 02비대면 */
-  //       rveAkAmt: changedRows[0].bilAmt, /* 수납요청금액 */
-  //       rveRqdt: now.format('YYYYMMDD'), /* 수납요청일자 */
-  //     },
-  //     saveApprovalDtlReq:[{
-  //       cntrNo:
-  //     }],
-  //   };
-
-  // const res2 = await dataService.post('/sms/common/withdrawal/idvrve/deposit/approval', paramData);
+  if (component === 'WwwdbRefundApplicationRegP') {
+    componentProps = {
+      cntrNo: changedRows[0].cntrNo,
+      cntrSn: changedRows[0].cntrSn,
+    };
+  }
 
   await modal({
     component,
+    componentProps,
   });
 }
 
@@ -532,6 +525,7 @@ const initGrid = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+  view.checkBar.exclusive = true;
 
   view.setFooters({ visible: true, items: [{ height: 40 }] });
 
