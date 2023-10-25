@@ -185,7 +185,7 @@
               <p>
                 {{ singlePaymentDetail.rentalPtrm }}{{ t('MSG_TXT_MCNT') }}/
                 {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalAmt)) }}{{ t('MSG_TXT_CUR_WON') }}
-                ({{ singlePaymentDetail.stplDscAmt }})
+                ({{ singlePaymentDetail.rentalDscAmt }})
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -214,14 +214,16 @@
               :label="$t('MSG_TXT_DSC_AGG_AMT')"
             >
               <p>
-                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumDscAggAmt)) }}
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumDscAggAmt)
+                  + toInteger(singlePaymentDetail.intDscAggAmt)) }}
               </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CTR_AGG_AMT')"
             >
               <p>
-                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumCtrAggAmt)) }}
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumCtrAggAmt)
+                  + toInteger(singlePaymentDetail.intCtrAggAmt)) }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -287,7 +289,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_SEL_TYPE')"
             >
-              <p>{{ singlePaymentDetail.sellTpNm }}/{{ singlePaymentDetail.sellTpDtlCdNm }}</p>
+              <p>{{ singlePaymentDetail.sellTpNm }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
@@ -382,7 +384,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_DP_AGG_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumSlDpAggAmt)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slDpAggAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_UC_AMT')"
@@ -423,7 +425,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_SEL_TYPE')"
             >
-              <p>{{ singlePaymentDetail.sellTpNm }}/{{ singlePaymentDetail.sellTpDtlCdNm }}</p>
+              <p>{{ singlePaymentDetail.sellTpNm }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
@@ -458,7 +460,11 @@
             <kw-form-item
               :label="$t('MSG_TXT_MCHN_INF')"
             >
-              <p>{{ singlePaymentDetail.lcJcnam }}</p>
+              <p>
+                ({{ singlePaymentDetail.mchnCntrNo }}-{{ singlePaymentDetail.mchnCntrSn }})
+                {{ singlePaymentDetail.mchnRcgvpKnm }}/{{ singlePaymentDetail.mchnSellTpNm }}
+                /({{ singlePaymentDetail.mchnPdCd }}){{ singlePaymentDetail.mchnPdNm }}
+              </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CANC_DT')"
@@ -470,7 +476,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_SPP_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.sppDtm) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.sppDt) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_FNT_INF')"
@@ -499,7 +505,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_DP_AGG_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumSlDpAggAmt)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slDpAggAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_UC_AMT')"
@@ -515,7 +521,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_DLQ_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.thmOcDlqAmt)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotDlqAmt)) }}</p>
             </kw-form-item>
           </kw-form-row>
         </kw-form>
@@ -683,7 +689,7 @@ async function fetchDetailData(slClYm, sellTpCd) {
   if (!isEmpty(singlePaymentDetail.value.pkgCd)) {
     singlePaymentDetail.value.pkgCd = `(${singlePaymentDetail.value.pkgCd})`;
   }
-  singlePaymentDetail.value.fntInfView = (singlePaymentDetail.value.mpyBsdt) ? `${singlePaymentDetail.value.dpTpCdNm}/${singlePaymentDetail.value.mpyBsdt}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`
+  singlePaymentDetail.value.fntInfView = (singlePaymentDetail.value.mpyBsdt) ? `${singlePaymentDetail.value.dpTpCdNm}${singlePaymentDetail.value.mpyBsdt}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`
     : `${singlePaymentDetail.value.dpTpCdNm}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`;
 }
 // 그리드 항목명 변경을 위한 계약 정보 조회
@@ -744,7 +750,7 @@ async function setGridColumnLayout(data, view) { // 일시불
     { fieldName: 'thmDlqAddRfndSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 환불금액
     { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기말금액
     { fieldName: 'eotUcAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
-    { fieldName: 'borAmt', header: t('MSG_TXT_CCAM'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약금
+    { fieldName: 'sumBorAmt', header: t('MSG_TXT_CCAM'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약금
     { fieldName: 'slStpAmt', header: t('MSG_TXT_SL_STP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출중지금액
   ];
 
@@ -763,7 +769,7 @@ async function setGridColumnLayout(data, view) { // 일시불
       items: ['btdDlqAddAmt', 'thmOcDlqAddAmt', 'thmCtrDlqAddAmt', 'thmDlqAddDpSumAmt', 'thmDlqAddRfndSumAmt', 'eotDlqAddAmt'],
     },
     'eotUcAmt',
-    'borAmt',
+    'sumBorAmt',
     'slStpAmt',
   ]);
 }
