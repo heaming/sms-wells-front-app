@@ -655,7 +655,13 @@ async function onClickSave() {
 
 // 이관 데이터 다운
 async function onClickTfDataDown() {
-  const { asnOjYm, cnt, ostrWareNo } = searchParams.value;
+  const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
+
+  if (isEmpty(apyYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_BASE_YM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
 
   if (isEmpty(asnOjYm)) {
     // {0}은(는) 필수 항목입니다.
@@ -869,6 +875,7 @@ const initGrdTf = defineGrid((data, view) => {
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
     { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
     { fieldName: 'hgrCrtlStocQty', header: t('MSG_TXT_CNR_STOC'), width: '110', styleName: 'text-right' },
+    { fieldName: 'outQty', header: `${t('MSG_TXT_CRT')}${t('MSG_TXT_QTY')}`, width: '110', styleName: 'text-right' },
     { fieldName: 'totOutQty', header: `${t('MSG_TXT_DTRM')} ${t('MSG_TXT_AF')} ${t('MSG_TXT_STOC')}`, width: '100', styleName: 'text-right' },
     { fieldName: 'logisticStocQty', header: `${t('MSG_TXT_LGST_CNR')}(${t('MSG_TXT_PAJU')})`, width: '100', styleName: 'text-right' },
     { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG_QTY'), width: '100', styleName: 'text-right' },
