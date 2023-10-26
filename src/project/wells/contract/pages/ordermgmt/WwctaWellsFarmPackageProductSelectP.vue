@@ -97,10 +97,14 @@ await onClickSearch();
 // -------------------------------------------------------------------------------------------------
 const initGrd = defineGrid((data, view) => {
   useGridDataModel(view, {
-    pdCd: { width: 100 },
+    pdCd: {
+      label: '상품코드',
+      width: 100,
+    },
     pdNm: { displaying: false },
     cstBasePdAbbrNm: { displaying: false },
     name: {
+      label: '상품명',
       type: String,
       width: 100,
       valueCallback: (gridBase, rowId, fieldName, fields, values) => {
