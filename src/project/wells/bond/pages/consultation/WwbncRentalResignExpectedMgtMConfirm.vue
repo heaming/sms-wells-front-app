@@ -145,7 +145,7 @@ const codes = await codeUtil.getMultiCodes(
 const clctamDvCdOpt = codes.CLCTAM_DV_CD.filter((v) => ['01', '02', '03', '04', '11'].includes(v.codeId));
 
 const searchParams = ref({
-  authRsgCnfmdtStart: '202209',
+  authRsgCnfmdtStart: dayjs().format('YYYYMM'),
   authRsgCnfmdtEnd: dayjs().format('YYYYMM'),
   clctamDvCd: '',
   clctamPrtnrNo: '',
