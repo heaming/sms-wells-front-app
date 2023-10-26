@@ -160,9 +160,9 @@ async function onClickSave() {
       if (!checkedCarAprnoList.includes(exceptDatas[i].cardAprno)) { // 체크하지 않은 승인번호만 진행
         // 승인번호 체크
         const exceptCarAprnoDatas = checkedRows
-          .filter((checkedRow) => checkedRow.cardAprno === exceptDatas[i].cardAprno);
+          .filter((checkedRow) => (checkedRow.opcsAdjExcdYn === '정산제외' && checkedRow.cardAprno === exceptDatas[i].cardAprno));
         if (exceptCarAprnoDatas < 2) { // 해당 승인번호가 체크된 내용중 두 건 이상 있는지
-          notify(t('MSG_ALT_SAME_APRNO_SEVERAL'));
+          notify(t('MSG_ALT_SAME_APRNO_SEVERAL')); // "동일한 승인번호 개수가 2개 이상이어야 가능합니다."
           return false;
         }
         // 사용금액 합계 체크
@@ -170,7 +170,7 @@ async function onClickSave() {
           .reduce((totalAmt, currentData) => totalAmt + currentData.domTrdAmt, 0);// 사용금액 합계
 
         if (domTrdAmtTotal !== 0) {
-          notify(t('MSG_ALT_SAME_APRNO_SUM_USEAMT'));
+          notify(t('MSG_ALT_SAME_APRNO_SUM_USEAMT')); // 승인번호가 모두 동일하면서 사용금액 합계가 0이 되어야 합니다.
           return false;
         }
         checkedCarAprnoList.push(exceptDatas[i].cardAprno); // 같은 승인번호의 사용금액의 합계가 0이면 체크완료
