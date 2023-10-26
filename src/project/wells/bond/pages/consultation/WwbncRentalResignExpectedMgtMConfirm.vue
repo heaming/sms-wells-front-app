@@ -256,7 +256,7 @@ const initConfirmGrid = defineGrid((data, view) => {
       datetimeFormat: 'YYYY-MM' },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'rtrnDbtFnlAmt', header: t('MSG_TXT_RTRN_H_ARRS_AMT'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'nrtrnDbtFnlAmt', header: t('MSG_TXT_N_RTRN_H_ARRS_AMT'), width: '140', styleName: 'text-right', dataType: 'number' },
