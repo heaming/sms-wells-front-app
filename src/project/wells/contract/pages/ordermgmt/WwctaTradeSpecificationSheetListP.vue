@@ -16,7 +16,10 @@
   <kw-popup
     size="2xl"
   >
-    <kw-search @search="onClickSearch">
+    <kw-search
+      @search="onClickSearch"
+      @reset="onClickReset"
+    >
       <kw-search-row>
         <!-- 증빙서류 종류 -->
         <kw-search-item :label="$t('MSG_TXT_DCEVDN_KND')">
@@ -74,7 +77,6 @@
             :model-value="searchParams.sellTpCd ? searchParams.sellTpCd : []"
             :multiple="true"
             class="w300"
-            @change="onChangeSellTpCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -112,6 +114,8 @@
       ref="grdContracts"
       name="grdContracts"
       :visible-rows="5"
+      :page-size="pageInfoContracts.pageSize -1"
+      :total-count="pageInfoContracts.totalCount"
       @init="initGrdContracts"
     />
     <kw-separator v-if="isGrdContractsVisible" />
@@ -127,6 +131,8 @@
       ref="grdDepositItemizationSheet"
       name="grdDepositItemizationSheet"
       :visible-rows="5"
+      :page-size="pageInfo.pageSize -1"
+      :total-count="pageInfo.totalCount"
       @init="initGrdDepositItemizationSheet"
     />
     <!-- 거래명세서 -->
@@ -135,6 +141,8 @@
       ref="grdTradeSpecificationSheet"
       name="grdTradeSpecificationSheet"
       :visible-rows="5"
+      :page-size="pageInfo.pageSize -1"
+      :total-count="pageInfo.totalCount"
       @init="initGrdTradeSpecificationSheet"
     />
     <!-- 카드매출전표 -->
@@ -143,6 +151,8 @@
       ref="grdCardSalesSlipSheet"
       name="grdCardSalesSlipSheet"
       :visible-rows="5"
+      :page-size="pageInfo.pageSize -1"
+      :total-count="pageInfo.totalCount"
       @init="initGrdCardSalesSlip"
     />
     <!-- 계약사항 -->
@@ -151,6 +161,8 @@
       ref="grdContractArticlesSheet"
       name="grdContractArticlesSheet"
       :visible-rows="5"
+      :page-size="pageInfo.pageSize -1"
+      :total-count="pageInfo.totalCount"
       @init="initGrdContractArticles"
     />
   </kw-popup>
@@ -160,12 +172,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useGlobal, gridUtil } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, useGlobal, useMeta, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
+const { getConfig } = useMeta();
 const { alert, modal, notify } = useGlobal();
 const props = defineProps({
   cntrNo: { type: String, required: false, default: '' },
@@ -188,13 +201,26 @@ const searchParams = ref({
 });
 
 const pageInfo = ref({
+  totalCount: 0,
   totalCount1: 0,
   totalCount2: 0,
   pageIndex: 1,
   // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
-  // pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  pageSize: 10,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')) - 1,
+  needTotalCount: true,
 });
+
+const pageInfoContracts = ref({
+  totalCount: 0,
+  totalCount1: 0,
+  totalCount2: 0,
+  pageIndex: 1,
+  // 환경변수에서 기본설정값 받아오는 코드 현재 CFG_CMZ_DEFAULT_PAGE_SIZE 기본값:10
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')) - 1,
+  needTotalCount: true,
+});
+
+let isOnly = false;
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -219,8 +245,6 @@ const checkOption = ref([
   { codeId: '1', codeName: `${t('MSG_TXT_CNTR_NO')}(${`${props.cntrNo}-${props.cntrSn}`})` }, // 계약번호
   { codeId: '2', codeName: `${t('MSG_TXT_CST_NO')}(${props.cntrCstNo})` }, // 고객번호
 ]);
-
-const grdContractsItems = ref([]);
 
 async function onChangeDocDvCd() {
   if (searchParams.value.docDvCd === '1') { // 입금내역서
@@ -251,12 +275,23 @@ async function onChangeDocDvCd() {
 
   if (searchParams.value.cntrDvCd === '1') { // 계약번호
     pageInfo.value.totalCount1 = 0;
+
+    // grdRef.value.getData().clearRows();
+    pageInfo.value.pageIndex = 1;
+    pageInfo.value.totalCount = 0;
     // eslint-disable-next-line no-use-before-define
     await fetchTrdSpcData(); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') { // 고객번호
     pageInfo.value.totalCount2 = 0;
+
+    grdContracts.value.getData().clearRows();
+    pageInfo.value.pageIndex = 1;
+    pageInfo.value.totalCount = 0;
+    pageInfoContracts.value.pageIndex = 1;
+    pageInfoContracts.value.totalCount = 0;
+
     // eslint-disable-next-line no-use-before-define
-    await fetchCtnrLstData(); // 계약목록
+    await fetchCtnrLstData(isOnly); // 계약목록
   }
 }
 
@@ -265,7 +300,11 @@ async function onChangeCntrDvCd() {
   if (searchParams.value.cntrDvCd === '1') { // 계약번호
     isGrdContractsVisible.value = false;
     isSearchDivVisible.value = false;
-    pageInfo.value.totalCount1 = pageInfo.value.totalCount2;
+
+    grdRef.value.getData().clearRows();
+    pageInfo.value.pageIndex = 1;
+    pageInfo.value.totalCount = 0;
+    // pageInfo.value.totalCount1 = pageInfo.value.totalCount;
 
     // eslint-disable-next-line no-use-before-define
     await fetchTrdSpcData(); // 증빙서류 종류
@@ -275,21 +314,55 @@ async function onChangeCntrDvCd() {
     pageInfo.value.totalCount2 = pageInfo.value.totalCount1;
     pageInfo.value.totalCount1 = 0;
 
+    grdRef.value.getData().clearRows();
+    pageInfo.value.pageIndex = 1;
+    pageInfo.value.totalCount = 0;
+    pageInfoContracts.value.pageIndex = 1;
+    pageInfoContracts.value.totalCount = 0;
+
     // eslint-disable-next-line no-use-before-define
-    await fetchCtnrLstData(); // 계약목록
+    await fetchCtnrLstData(isOnly); // 계약목록
   }
 }
 
-async function onChangeSellTpCd() {
-  // console.log(`sellTpCd : ${searchParams.value.sellTpCd}`);
-  const serviceView = grdContracts.value?.getView();
-  // const gridData = gridUtil.getAllRowValues(serviceView, false);
-  const gridData = grdContractsItems.value;
-  if (serviceView) {
-    serviceView.getDataSource().setRows(gridData
-      .filter((item) => searchParams.value.sellTpCd.includes(item.sellTpCd)));
-    serviceView.resetCurrent();
+// 계약목록
+async function fetchCtnrLstData(bOnly) {
+  // changing api & cacheparams according to search classification
+  let res = '';
+
+  searchParams.value.cntrCstNo = props.cntrCstNo;
+
+  cachedParams = cloneDeep(searchParams.value);
+  console.log(cachedParams);
+  console.log(pageInfoContracts.value);
+
+  res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/contracts', { params: { ...cachedParams, ...pageInfoContracts.value } });
+  if (res.data.length === 0) {
+    await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
+    return;
   }
+
+  console.log(res.data);
+
+  const { list: pages, pageInfo: pagingResult } = res.data;
+  pageInfoContracts.value = pagingResult;
+  const view = grdContracts.value.getView();
+  const dataSource = view.getDataSource();
+
+  // Row 변경상태감지를 풀고 데이터 교체후, 다시 변경감지 On
+  dataSource.checkRowStates(false);
+  dataSource.addRows(pages);
+  dataSource.checkRowStates(true);
+
+  console.log(pageInfo.value.totalCount);
+  pageInfo.value.totalCount1 = pageInfoContracts.value.totalCount;
+  view.resetCurrent();
+
+  if (bOnly === false) {
+    // eslint-disable-next-line no-use-before-define
+    await fetchTrdSpcData(); // 증빙서류 종류
+  }
+  isOnly = false;
 }
 
 // 증빙서류종류
@@ -308,69 +381,71 @@ async function fetchTrdSpcData() {
   }
 
   cachedParams = cloneDeep(searchParams.value);
-  // console.log(cachedParams);
+  console.log(cachedParams);
+  console.log(pageInfo.value);
 
   if (searchParams.value.docDvCd === '1') { // 입금내역서
-    res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/deposit-itemizations', { params: { ...cachedParams } });
+    res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/deposit-itemizations', { params: { ...cachedParams, ...pageInfo.value } });
   } else if (searchParams.value.docDvCd === '2') { // 거래명세서
-    res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/trade-specification', { params: { ...cachedParams } });
+    res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/trade-specification', { params: { ...cachedParams, ...pageInfo.value } });
   } else if (searchParams.value.docDvCd === '3') { // 카드매출전표
-    res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/card-sales-slips', { params: { ...cachedParams } });
+    res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/card-sales-slips', { params: { ...cachedParams, ...pageInfo.value } });
   } else if (searchParams.value.docDvCd === '4') { // 계약사항
-    res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/contract-articles', { params: { ...cachedParams } });
-  }
-
-  // const { list: details } = res.data;
-  if (res.data.length === 0) {
-    await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
-    return;
+    res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/contract-articles', { params: { ...cachedParams, ...pageInfo.value } });
   }
 
   console.log(res.data);
-
-  const view = grdRef.value.getView();
-  view.getDataSource().setRows(res.data);
-  if (searchParams.value.cntrDvCd === '1') { // 계약번호
-    pageInfo.value.totalCount1 = view.getItemCount();
-  } else if (searchParams.value.cntrDvCd === '2') { // 고객번호
-    pageInfo.value.totalCount2 = view.getItemCount();
-  }
-  view.resetCurrent();
-}
-
-// 계약목록
-async function fetchCtnrLstData() {
-  // changing api & cacheparams according to search classification
-  let res = '';
-
-  searchParams.value.cntrCstNo = props.cntrCstNo;
-
-  cachedParams = cloneDeep(searchParams.value);
-  console.log(cachedParams);
-
-  res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/contracts', { params: { ...cachedParams } });
   if (res.data.length === 0) {
     await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     return;
   }
 
-  // console.log(res.data);
+  const view = grdRef.value.getView();
+  const { list: pages, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+  const dataSource = view.getDataSource();
+  // Row 변경상태감지를 풀고 데이터 교체후, 다시 변경감지 On
+  dataSource.checkRowStates(false);
+  dataSource.addRows(pages);
+  dataSource.checkRowStates(true);
 
-  const view = grdContracts.value.getView();
-  view.getDataSource().setRows(res.data);
-  pageInfo.value.totalCount1 = view.getItemCount();
+  if (searchParams.value.cntrDvCd === '1') { // 계약번호
+    pageInfo.value.totalCount1 = pageInfo.value.totalCount;
+  } else if (searchParams.value.cntrDvCd === '2') { // 고객번호
+    pageInfo.value.totalCount1 = pageInfoContracts.value.totalCount;
+    pageInfo.value.totalCount2 = pageInfo.value.totalCount;
+  }
   view.resetCurrent();
-
-  grdContractsItems.value = res.data;
-
-  await fetchTrdSpcData(); // 증빙서류 종류
 }
 
+// 초기화버튼 클릭 이벤트
+async function onClickReset() {
+  isGrdContractsVisible.value = false;
+  isSearchDivVisible.value = false;
+
+  grdRef.value.getData().clearRows();
+  pageInfo.value.pageIndex = 1;
+  pageInfo.value.totalCount = 0;
+  pageInfo.value.totalCount1 = 0;
+}
+
+// 조회버튼 클릭 이벤트
 async function onClickSearch() {
   if (searchParams.value.cntrDvCd === '1') {
+    grdRef.value.getData().clearRows();
+    pageInfo.value.pageIndex = 1;
+    pageInfo.value.totalCount = 0;
+
     await fetchTrdSpcData(); // 증빙서류 종류
   } else if (searchParams.value.cntrDvCd === '2') {
-    await fetchCtnrLstData(); // 계약목록
+    grdRef.value.getData().clearRows();
+    grdContracts.value.getData().clearRows();
+    pageInfo.value.pageIndex = 1;
+    pageInfo.value.totalCount = 0;
+    pageInfoContracts.value.pageIndex = 1;
+    pageInfoContracts.value.totalCount = 0;
+
+    await fetchCtnrLstData(isOnly); // 계약목록
   }
 }
 
@@ -455,6 +530,19 @@ const initGrdContracts = defineGrid((data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.filteringOptions.enabled = true;
+
+  /**
+   * Infinite Scroll
+   *
+   */
+  view.onScrollToBottom = async (g) => {
+    if (pageInfoContracts.value.pageIndex * pageInfoContracts.value.pageSize <= g.getItemCount()) {
+      pageInfoContracts.value.pageIndex += 1;
+      isOnly = true;
+      console.log(`isOnly : ${isOnly}`);
+      await fetchCtnrLstData(isOnly);
+    }
+  };
 });
 
 // 증빙서류종류(입금내역서)
@@ -514,6 +602,17 @@ const initGrdDepositItemizationSheet = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  /**
+   * Infinite Scroll
+   *
+   */
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      await fetchTrdSpcData();
+    }
+  };
 });
 
 // 증빙서류종류(거래명세서)
@@ -549,6 +648,17 @@ const initGrdTradeSpecificationSheet = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  /**
+   * Infinite Scroll
+   *
+   */
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      await fetchTrdSpcData();
+    }
+  };
 });
 
 // 증빙서류종류(카드매출전표)
@@ -587,6 +697,17 @@ const initGrdCardSalesSlip = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  /**
+   * Infinite Scroll
+   *
+   */
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      await fetchTrdSpcData();
+    }
+  };
 });
 
 // 증빙서류종류(계약사항)
@@ -618,6 +739,17 @@ const initGrdContractArticles = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  /**
+   * Infinite Scroll
+   *
+   */
+  view.onScrollToBottom = async (g) => {
+    if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
+      pageInfo.value.pageIndex += 1;
+      await fetchTrdSpcData();
+    }
+  };
 });
 </script>
 <style scoped>
