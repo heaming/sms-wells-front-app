@@ -701,7 +701,14 @@ async function isValidStep() {
       return true;
     }
 
-    const { sellTpDtlCd, cntrRels = [], precontractRequired } = dtl;
+    const { sellTpDtlCd, cntrRels = [], precontractRequired, appliedPromotions, finalPrice, hgrPdCd } = dtl;
+    const { alncPmotEuYn } = finalPrice; // 제휴프로모션적용여부
+
+    // 복합상품이 아니고, 제휴프로모션적용여부가 'Y' 이며 적용된 프로모션이 없을 경우 + TODO: 상조제휴?
+    if (!hgrPdCd && alncPmotEuYn === 'Y' && !appliedPromotions?.length) {
+      alert('제휴 프로모션 전용가격입니다.');
+      return true;
+    }
 
     if (sellTpDtlCd === SELL_TP_DTL_CD.RGLR_SPP_SDING) { /* 모종의 경우 */
       const lkSdingRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING);

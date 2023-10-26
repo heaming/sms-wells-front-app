@@ -243,13 +243,15 @@ const filteredClassifyingProducts = computed(() => {
     if (!classified?.length) {
       return filtered;
     }
+    const filterText = cachedParams.value.filterText?.toUpperCase() || '';
+    const { sellTpCd } = cachedParams.value;
     const filteredProducts = classified
-      .filter((product) => (!cachedParams.value.filterText
-        || product.pdCd?.includes(cachedParams.value.filterText)
-        || product.pdNm?.includes(cachedParams.value.filterText)
-        || product.cstBasePdAbbrNm?.includes(cachedParams.value.filterText)
+      .filter((product) => (!filterText
+        || product.pdCd?.includes(filterText)
+        || product.pdNm?.toUpperCase().includes(filterText)
+        || product.cstBasePdAbbrNm?.toUpperCase().includes(filterText)
       ))
-      .filter((product) => (!cachedParams.value.sellTpCd || product.sellTpCd === cachedParams.value.sellTpCd));
+      .filter((product) => (!sellTpCd || product.sellTpCd === sellTpCd));
     if (filteredProducts.length) {
       filtered[pdClsfCd] = filteredProducts;
     }
