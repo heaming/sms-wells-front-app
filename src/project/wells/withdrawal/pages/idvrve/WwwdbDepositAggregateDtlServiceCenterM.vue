@@ -106,6 +106,7 @@
           inset
           spaced
         />
+        <!--
         <kw-btn
           v-permission:create
           :label="t('MSG_BTN_VAC_IS')"
@@ -114,7 +115,7 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickModalPopup('ZwwdbIndvVirtualAccountIssueMgtP')"
         />
-        <!-- label="가상계좌발급" -->
+         label="가상계좌발급"
         <kw-btn
           v-permission:create
           :label="t('MSG_BTN_CRDCD_APR')"
@@ -123,7 +124,8 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickModalPopup('ZwwdbCreditCardApprovalFaceToFaceP')"
         />
-        <!-- label="신용카드승인" -->
+        label="신용카드승인"
+      -->
         <kw-btn
           v-permission:create
           :label="t('MSG_BTN_APLC_RFND')"

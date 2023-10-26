@@ -215,47 +215,23 @@
       <kw-form
         dense
         align-content="right"
+        :cols="3"
       >
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_RDS')"
+        <kw-form-row
+          v-for="row in deduction.rowCnt"
+          :key="row"
+        >
+          <template
+            v-for="(item, inex) in deduction.list"
+            :key="inex"
           >
-            <p>{{ info2.rds ? stringUtil.getNumberWithComma(info2.rds) : '0' }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_ERNTX')"
-          >
-            <p>{{ info2.erntx ? stringUtil.getNumberWithComma(info2.erntx) : '0' }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_RSDNTX')"
-          >
-            <p>{{ info2.rsdntx ? stringUtil.getNumberWithComma(info2.rsdntx) : '0' }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_HIR_INSR')"
-          >
-            <p>{{ info2.hirInsr ? stringUtil.getNumberWithComma(info2.hirInsr) : '0' }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_BU_DDTN')"
-          >
-            <p>{{ info2.buDdtn ? stringUtil.getNumberWithComma(info2.buDdtn) : '0' }}</p>
-          </kw-form-item>
-          <kw-form-item
-            :label="t('MSG_TXT_PNPYAM')"
-          >
-            <p>{{ info2.pnpyam ? stringUtil.getNumberWithComma(info2.pnpyam) : '0' }}</p>
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <kw-form-item
-            :label="t('MSG_TXT_INDD_INSR')"
-          >
-            <p>{{ info2.inddInsr ? stringUtil.getNumberWithComma(info2.inddInsr) : '0' }}</p>
-          </kw-form-item>
+            <kw-form-item
+              v-if="inex >= row*3-3 && inex <= row*3-1"
+              :label="item.feeAtcItem"
+            >
+              <p>{{ stringUtil.getNumberWithComma(item.feeAtcVal) }}</p>
+            </kw-form-item>
+          </template>
         </kw-form-row>
       </kw-form>
 
@@ -314,14 +290,9 @@ const info1 = ref({
   aclDsbAmt: '',
 });
 
-const info2 = ref({
-  rds: '',
-  erntx: '',
-  rsdntx: '',
-  hirInsr: '',
-  buDdtn: '',
-  pnpyam: '',
-  inddInsr: '',
+const deduction = ref({
+  rowCnt: 0,
+  list: [],
 });
 
 const basePerf = ref({
@@ -408,7 +379,8 @@ async function fetchData(type) {
     const feeView = grd2MainRef.value.getView();
     feeView.getDataSource().setRows(resData);
   } else if (type === 'deduction') {
-    info2.value = resData;
+    deduction.value.list = resData;
+    deduction.value.rowCnt = Math.ceil(resData.length / 3);
   } else if (type === 'control') {
     const controlView = grd3MainRef.value.getView();
     controlView.getDataSource().setRows(resData);

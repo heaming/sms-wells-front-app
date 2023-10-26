@@ -151,14 +151,14 @@
       :visible-rows="5"
       @init="initGrid"
     />
-
+    <!--
     <ul class="kw-notification mt20">
       <li>
-        <!-- 환불가능금액 = 입금액-월납입금-연체가산금-위약금-서비스금액 -->
+        환불가능금액 = 입금액-월납입금-연체가산금-위약금-서비스금액
         {{ $t('MSG_TXT_NOTI_REFUND_AMT') }}
       </li>
     </ul>
-
+    -->
     <h3 class="mb20">
       <!-- 환불상세 -->
       {{ $t('MSG_TXT_RFND_DTL') }}

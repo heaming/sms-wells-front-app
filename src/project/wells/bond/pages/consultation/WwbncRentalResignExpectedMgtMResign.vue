@@ -20,12 +20,12 @@
   >
     <kw-search-row>
       <kw-search-item
-        :label="t('MSG_TXT_AUTH_AUTH_RSG_D')"
+        :label="t('MSG_TXT_BASE_YM')"
         required
       >
         <kw-date-picker
           v-model="searchParams.authRsgDt"
-          :label="t('MSG_TXT_AUTH_AUTH_RSG_D')"
+          :label="t('MSG_TXT_BASE_YM')"
           type="month"
           rules="required"
         />
