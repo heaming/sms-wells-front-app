@@ -370,6 +370,7 @@
                     type="number"
                     align="right"
                     maxlength="10"
+                    :disable="item.crpUcAmt > 0"
                     @blur="onChangeCntram1(item)"
                   />
                 </kw-form-item>
@@ -379,7 +380,22 @@
                     type="number"
                     align="right"
                     maxlength="10"
+                    :disable="item.crpUcAmt > 0"
                     @blur="onChangeCntram2(item)"
+                  />
+                </kw-form-item>
+              </kw-form-row>
+              <!-- 법인 환경가전 일시불계약시, 법인미수금 선택 가능-->
+              <kw-form-row
+                v-if="step3.bas?.copnDvCd === '2' && item.sellTpDtlCd === '13'"
+              >
+                <kw-form-item label="법인미수금">
+                  <kw-input
+                    v-model="item.crpUcAmt"
+                    type="number"
+                    align="right"
+                    maxlength="10"
+                    @blur="onChangeCrpUcAmt(item)"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -671,6 +687,7 @@ function onChangeCntram1(dtl) {
     dtl.cntrAmtCrd = dtl.fnlAmt;
   }
   dtl.cntrAmtVac = Number(dtl.fnlAmt || 0) - Number(dtl.cntrAmtCrd || 0);
+  dtl.crpUcAmt = 0;
 }
 
 function onChangeCntram2(dtl) {
@@ -679,6 +696,18 @@ function onChangeCntram2(dtl) {
     dtl.cntrAmtVac = dtl.fnlAmt;
   }
   dtl.cntrAmtCrd = Number(dtl.fnlAmt || 0) - Number(dtl.cntrAmtVac || 0);
+  dtl.crpUcAmt = 0;
+}
+
+function onChangeCrpUcAmt(dtl) {
+  if (Number(dtl.crpUcAmt || 0) > 0) {
+    if (Number(dtl.fnlAmt || 0) > Number(dtl.crpUcAmt || 0)) {
+      alert('법인미수금은 결제금액과 같아야 합니다.');
+    }
+    dtl.crpUcAmt = dtl.fnlAmt;
+    dtl.cntrAmtVac = 0;
+    dtl.cntrAmtCrd = 0;
+  }
 }
 
 function onChangeSodbtNftfCntr(v) {
