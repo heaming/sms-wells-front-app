@@ -531,7 +531,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfeIstm2', dataType: 'number' },
     { fieldName: 'clctamIchr' },
     { fieldName: 'cntrMpno' },
+    { fieldName: 'cralLocaraTno' },
+    { fieldName: 'mexnoEncr' },
+    { fieldName: 'cralIdvTno' },
     { fieldName: 'istMpno' },
+    { fieldName: 'istCralLocaraTno' },
+    { fieldName: 'istMexnoEncr' },
+    { fieldName: 'istCralIdvTno' },
     { fieldName: 'vtAcBnk' },
     { fieldName: 'vtAcNo' },
     { fieldName: 'sfk' },
@@ -591,12 +597,14 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     },
+    { fieldName: 'cralLocaraTno', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'mexnoEncr', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'cralIdvTno', width: '100', styleName: 'text-left', visible: false },
     {
       fieldName: 'istMpno',
       header: t('MSG_TXT_IST_MPNO'),
       styleName: 'text-center',
       width: '120',
-
       displayCallback(grid, index) {
         const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
         if (no1 != null) {
@@ -604,7 +612,9 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     },
-
+    { fieldName: 'istCralLocaraTno', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'istMexnoEncr', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'istCralIdvTno', width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '100', styleName: 'text-center' },
     { fieldName: 'vtAcNo', header: t('MSG_TXT_VT_AC_NO'), width: '160', styleName: 'text-center' },
     { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '160', styleName: 'text-center' },

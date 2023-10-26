@@ -450,7 +450,7 @@
                   :label="$t('MSG_TXT_STORE_TNO')"
                 >
                   <p class="w100">
-                    {{ customer.storeTno }}
+                    {{ customer.bldLocaraTno }}-{{ customer.bldMexnoEncr }}-{{ customer.bldIdvTno }}
                   </p>
                   <kw-btn
                     borderless
@@ -590,6 +590,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickExcdRgst"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -1310,6 +1311,12 @@ async function onClickDepositRegistration() {
   });
 }
 
+// TODO: 제외등록
+async function onClickExcdRgst() {
+  const { cstNo, cntrNo, cntrSn } = customer.value;
+  await popupUtil.open(`/popup/#/bond/wwbnc-rental-resign-expected-mgt?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&cntrDtlNo=${cntrNo}-${cntrSn}`, { width: 1292, height: 1100 }, false);
+}
+
 // TODO: CB정보 조회요청
 async function onClickCbInformationAsk() {
   // TODO: ZwbncCreditBureauInformationP 화면은 sfkVal으로 받고 있어서 추가
@@ -1340,12 +1347,10 @@ async function onClickFundTransferResult() {
   await popupUtil.open(`/popup/#/withdrawal/zwwda-create-itemization-mgt?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 1292, height: 1100 }, false);
 }
 
-// TODO: 배달처정보변경
+// TODO: 설치처정보변경
 async function onClickContractDetail() {
-  await modal({
-    component: 'EwctaShippingAddressChangeMgtP',
-    componentProps: customer.value,
-  });
+  const { cstNo, cntrNo, cntrSn } = customer.value;
+  await popupUtil.open(`/popup/#/service/wwsnb-installation-location-detail-mgt?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&cntrDtlNo=${cntrNo}-${cntrSn}`, { width: 1292, height: 1100 }, false);
 }
 
 // TODO: 계약자정보변경
