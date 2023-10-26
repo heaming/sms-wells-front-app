@@ -248,7 +248,7 @@
           <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.slBndAlrpyAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DP_AGG_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.sumSlDpAggAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.slDpAggAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>

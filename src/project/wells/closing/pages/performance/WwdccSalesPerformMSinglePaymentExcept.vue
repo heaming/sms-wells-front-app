@@ -130,7 +130,7 @@
               :label="$t('MSG_TXT_CANC_DT')"
             >
               <p>
-                {{ stringUtil.getDateFormat(singlePaymentDetail.canDt) }}
+                {{ stringUtil.getDateFormat(singlePaymentDetail.cntrCanDt) }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -206,31 +206,25 @@
               :label="$t('MSG_TXT_SL_AGG_SUB')"
             >
               <p>
-                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumSlAggAmt)) }}
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slAggAmt)) }}
                 {{ t('MSG_TXT_CUR_WON') }}
               </p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_DSC_AGG_AMT')"
             >
-              <p>
-                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumDscAggAmt)
-                  + toInteger(singlePaymentDetail.intDscAggAmt)) }}
-              </p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.dscAggAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CTR_AGG_AMT')"
             >
-              <p>
-                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumCtrAggAmt)
-                  + toInteger(singlePaymentDetail.intCtrAggAmt)) }}
-              </p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.ctrAggAmt)) }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_DP_AGG_AMT')"
             >
               <p>
-                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.sumSlDpAggAmt)) }}
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.slDpAggAmt)) }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -289,7 +283,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_SEL_TYPE')"
             >
-              <p>{{ singlePaymentDetail.sellTpNm }}</p>
+              <p>{{ singlePaymentDetail.sellTpNm }}/{{ singlePaymentDetail.sellTpDtlCdNm }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
@@ -425,7 +419,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_SEL_TYPE')"
             >
-              <p>{{ singlePaymentDetail.sellTpNm }}</p>
+              <p>{{ singlePaymentDetail.sellTpNm }}/{{ singlePaymentDetail.sellTpDtlCdNm }}</p>
             </kw-form-item>
             <kw-form-item
               :label="$t('MSG_TXT_CNTR_DTL_NO')"
@@ -469,7 +463,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_CANC_DT')"
             >
-              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.canDt) }}</p>
+              <p>{{ stringUtil.getDateFormat(singlePaymentDetail.cntrCanDt) }}</p>
             </kw-form-item>
           </kw-form-row>
           <kw-form-row>
@@ -515,7 +509,7 @@
             <kw-form-item
               :label="$t('MSG_TXT_BIL_UC_AMT')"
             >
-              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotUcAmt)) }}</p>
+              <p>{{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.eotBilUcAmt)) }}</p>
             </kw-form-item>
           </kw-form-row><kw-form-row>
             <kw-form-item
@@ -750,7 +744,7 @@ async function setGridColumnLayout(data, view) { // 일시불
     { fieldName: 'thmDlqAddRfndSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 환불금액
     { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기말금액
     { fieldName: 'eotUcAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
-    { fieldName: 'sumBorAmt', header: t('MSG_TXT_CCAM'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약금
+    { fieldName: 'borAmt', header: t('MSG_TXT_CCAM'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약금
     { fieldName: 'slStpAmt', header: t('MSG_TXT_SL_STP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출중지금액
   ];
 
@@ -769,7 +763,7 @@ async function setGridColumnLayout(data, view) { // 일시불
       items: ['btdDlqAddAmt', 'thmOcDlqAddAmt', 'thmCtrDlqAddAmt', 'thmDlqAddDpSumAmt', 'thmDlqAddRfndSumAmt', 'eotDlqAddAmt'],
     },
     'eotUcAmt',
-    'sumBorAmt',
+    'borAmt',
     'slStpAmt',
   ]);
 }
