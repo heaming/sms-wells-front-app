@@ -53,6 +53,7 @@
             <kw-input
               v-model="fieldParam.template"
               type="textarea"
+              maxlength="4000"
               :rows="10"
             />
           </kw-form-item>
