@@ -177,6 +177,7 @@ import { alert, useDataService } from 'kw-lib';
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 import { getNumberWithComma } from '~sms-common/contract/util';
+import { SELL_TP_DTL_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
@@ -188,8 +189,6 @@ const emit = defineEmits([
   'promotion-changed',
   'delete',
 ]);
-
-const SELL_TP_DTL_CD_MSH_HCR = '33';
 
 const { getCodeName } = await useCtCode(
   'SELL_TP_CD',
@@ -204,7 +203,7 @@ const { getCodeName } = await useCtCode(
 const dataService = useDataService();
 
 const dtl = ref(props.modelValue);
-const isHcr = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD_MSH_HCR);
+const isHcr = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD.MSH_HCR);
 
 /* 직간접적으로 업데이트 할 값들 */
 let pdPrcFnlDtlId;

@@ -324,7 +324,7 @@
             </div>
           </kw-item-label>
           <kw-item-label
-            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE"
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE"
             class="hp-like-kw-notification-item"
             lines="2"
           >
@@ -336,7 +336,7 @@
           top
         >
           <kw-btn
-            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE"
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE"
             borderless
             icon="close_24"
             class="w24 kw-font-pt24"
@@ -406,6 +406,7 @@ import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { getNumberWithComma } from '~sms-common/contract/util';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
+import { RENTAL_DSC_TP_CD, CNTR_REL_DTL_CD, CNTR_TP_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
@@ -439,25 +440,16 @@ const { codes, getCodeName } = await useCtCode(
 
 const dataService = useDataService();
 
-const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
-const CNTR_REL_DTL_CD_LK_MLTCS_PRCHS = '22M';
-const RENTAL_DSC_TP_CD_ONE_PLUS_ONE = '03';
-const RENTAL_DSC_TP_CD_PACKAGE_2 = '14';
-const RENTAL_DSC_TP_CD_PACKAGE_3 = '15';
-const RENTAL_DSC_TP_CD_PACKAGE_OVER_4 = '16';
-const RENTAL_DSC_TP_CD_STCF_SEL = '81';
-const RENTAL_DSC_TP_CD_SPC_DSC_SEL_2 = '82';
-const RENTAL_DSC_TP_CD_SELF_PURCHASE_DSC = '83';
 const RENTAL_DSC_TP_CD_PACKAGE_CODES = [
-  RENTAL_DSC_TP_CD_PACKAGE_2,
-  RENTAL_DSC_TP_CD_PACKAGE_3,
-  RENTAL_DSC_TP_CD_PACKAGE_OVER_4,
+  RENTAL_DSC_TP_CD.PACKAGE_2,
+  RENTAL_DSC_TP_CD.PACKAGE_3,
+  RENTAL_DSC_TP_CD.PACKAGE_OVER_4,
 ];
 const RENTAL_DSC_TP_CD_USER_SELECTABLE = [
   EMPTY_ID,
-  RENTAL_DSC_TP_CD_STCF_SEL,
-  RENTAL_DSC_TP_CD_SPC_DSC_SEL_2,
-  RENTAL_DSC_TP_CD_SELF_PURCHASE_DSC,
+  RENTAL_DSC_TP_CD.STCF_SEL,
+  RENTAL_DSC_TP_CD.SPC_DSC_SEL_2,
+  RENTAL_DSC_TP_CD.SELF_PURCHASE_DSC,
 ];
 
 const sellEvCdsBySellChnlDtlCd = computed(() => {
@@ -716,13 +708,13 @@ TODO 계약관계 잡히면 가격 수정 못하게 처리. pk 박아버리자.
 const showMachineChangeBtn = computed(() => props.bas.sellInflwChnlDtlCd !== '5010');
 
 const showOnePlusOnePrice = computed(() => !!finalPriceOptions.value
-  .find((price) => price.rentalDscTpCd === RENTAL_DSC_TP_CD_ONE_PLUS_ONE));
+  .find((price) => price.rentalDscTpCd === RENTAL_DSC_TP_CD.ONE_PLUS_ONE));
 
 const disableOnePlusOne = computed(() => {
   const machineChanged = !!mchnCh.value?.ojCntrNo;
   const priceIsNotSelectable = !(priceDefineVariableOptions.value.rentalDscTpCd || [])
     .map((code) => code.codeId)
-    .includes(RENTAL_DSC_TP_CD_ONE_PLUS_ONE);
+    .includes(RENTAL_DSC_TP_CD.ONE_PLUS_ONE);
   return machineChanged || priceIsNotSelectable || notNullRentalDscTpCdSelected.value;
 });
 
@@ -741,8 +733,8 @@ const disablePackage = computed(() => {
       // eslint-disable-next-line no-use-before-define
       || !selectedFinalPrice.value
       || cntrRels.value?.some((cntrRel) => [
-        CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE,
-        CNTR_REL_DTL_CD_LK_MLTCS_PRCHS,
+        CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE,
+        CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
       ].includes(cntrRel.cntrRelDtlCd));
 });
 
@@ -786,7 +778,7 @@ async function fetchFinalPriceOptions() {
   }
   finalPriceOptions.value = data || [];
 
-  if (props.bas?.cntrTpCd !== '09') { // 견적서 아닐 때
+  if (props.bas?.cntrTpCd !== CNTR_TP_CD.QUOTE) { // 견적서 아닐 때
     await fetchAllianceContracts();
   }
 }
@@ -882,7 +874,7 @@ function onClickRemoveRentalDscTpCd() {
   const { rentalDscTpCd } = priceDefineVariables.value;
 
   /* TODO: 나머지도 처리 */
-  if (rentalDscTpCd === RENTAL_DSC_TP_CD_ONE_PLUS_ONE) {
+  if (rentalDscTpCd === RENTAL_DSC_TP_CD.ONE_PLUS_ONE) {
     onDeleteOnePlusOne();
   }
   priceDefineVariables.value.rentalDscTpCd = undefined;

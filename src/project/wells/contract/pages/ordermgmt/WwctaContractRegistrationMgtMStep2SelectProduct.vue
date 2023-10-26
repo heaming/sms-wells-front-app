@@ -111,6 +111,7 @@
 import { alert, useDataService } from 'kw-lib';
 import { useCtCode } from '~sms-common/contract/composable';
 import { vScrollbar } from '~sms-common/contract/util';
+import { PD_TP_CD, SELL_TP_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   cntrNo: { type: String, required: true },
@@ -127,8 +128,12 @@ const { codes, addCode, getCodeName } = await useCtCode(
   'SELL_TP_DTL_CD',
   'PD_TP_CD',
 );
-
-await addCode('SELL_TP_CD', (code) => (['1', '2', '3', '6'].includes(code.codeId) && code));
+await addCode('SELL_TP_CD', (code) => ([
+  SELL_TP_CD.SPAY,
+  SELL_TP_CD.RENTAL,
+  SELL_TP_CD.MSH,
+  SELL_TP_CD.RGLR_SPP,
+].includes(code.codeId) && code));
 await addCode('PD_CLSF_CD', [
   { codeId: '1', codeName: '정수기' },
   { codeId: '2', codeName: '청정기' },
@@ -157,13 +162,13 @@ function getPdClsfCd(product) {
   if (!product) {
     return;
   }
-  if (product.pdTpCd === 'C') {
+  if (product.pdTpCd === PD_TP_CD.COMPOSITION) {
     return '7';
   }
   if (product.istBzsCd === 'S') {
     return '4';
   }
-  if (product.sellTpCd === '6') {
+  if (product.sellTpCd === SELL_TP_CD.RGLR_SPP) {
     return '5';
   }
   if (product.pdMclsfId === 'PDC000000000002') {
