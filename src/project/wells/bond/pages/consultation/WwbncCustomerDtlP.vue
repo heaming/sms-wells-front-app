@@ -404,14 +404,14 @@
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item
-                  :label="$t('MSG_TXT_DSMN')"
+                  :label="$t('MSG_TXT_BRMGR')"
                 >
                   <p>
                     {{ customer.dsmn }}
                   </p>
                 </kw-form-item>
                 <kw-form-item
-                  :label="$t('MSG_TXT_DSMN_CTPLC')"
+                  :label="$t('MSG_TXT_BRMGR_CTPLC')"
                 >
                   <p class="w100">
                     {{ customer.dsmnCralLocaraTno }}-{{ customer.dsmnMexnoEncr }}-{{ customer.dsmnCralIdvTno }}
@@ -1585,9 +1585,9 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'ctt', header: t('MSG_TXT_FNT'), width: '60', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } },
     { fieldName: 'bndBizDvCd', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center', visible: false },
-    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '140', styleName: 'text-center' },
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRD_GRP'), width: '180', styleName: 'text-left' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '260', styleName: 'text-left' },
+    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRD_GRP'), width: '160', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '300', styleName: 'text-left' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
     {
@@ -1603,7 +1603,7 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-center' },
     { fieldName: 'authRsgCnfmdt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
