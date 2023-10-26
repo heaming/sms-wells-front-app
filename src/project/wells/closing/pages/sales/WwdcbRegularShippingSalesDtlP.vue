@@ -85,7 +85,7 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SL_OC_MM')">
-          <p>{{ regularShippingDetail.slOccYm }}</p>
+          <p>{{ regularShippingDetail.slOccYn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SPP_YN')">
           <p>{{ regularShippingDetail.sppYn }}</p>
@@ -99,7 +99,7 @@
           <p>{{ regularShippingDetail.rentalDc }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
-          <p>{{ stringUtil.getDateFormat(regularShippingDetail.canDt,'YYYY-MM-DD') }}</p>
+          <p>{{ stringUtil.getDateFormat(regularShippingDetail.cntrCanDt,'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_NOM_SL_AMT')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.nomSlAmt)) }}</p>
