@@ -104,7 +104,7 @@
 import { useDataService, stringUtil, gridUtil, getComponentType, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import pdConst from '~sms-common/product/constants/pdConst';
-import { resetVisibleGridColumns, getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos } from '~sms-common/product/utils/pdUtil';
+import { resetVisibleGridColumns, getGridRowCount, setPdGridRows, pdMergeBy, getGridRowsToSavePdProps, getPropInfosToGridRows, getPdMetaToGridInfos, setInitDefaultValueRow } from '~sms-common/product/utils/pdUtil';
 
 /* eslint-disable no-use-before-define */
 defineExpose({
@@ -176,6 +176,14 @@ async function getSaveData() {
     return rtn;
   }, []); /* 그리드에서 수정항목이 아닌 경우 제외 */
   const rowValues = gridUtil.getAllRowValues(view);
+  rowValues.forEach((item) => {
+    if (item.rowState === 'created') {
+      // 신규추가라인에 최종가격, 수수료탭 - 초기값 저장
+      setInitDefaultValueRow(item, currentMetaInfos.value, [
+        pdConst.PD_PRC_TP_CD_FINAL,
+        pdConst.PD_PRC_TP_CD_FEE]);
+    }
+  });
   // console.log('WwpdcStandardMgtMPriceVal - getSaveData - rowValues 1  : ', rowValues);
   const rtnValues = await getGridRowsToSavePdProps(
     rowValues,
@@ -190,6 +198,7 @@ async function getSaveData() {
   }
 
   // console.log('WwpdcStandardMgtMPriceVal - getSaveData - checkedSelVals.value : ', checkedSelVals.value);
+  // 선택변수 저장
   rtnValues[prumd] = checkedSelVals.value?.reduce((rtn, item) => {
     if (item) {
       rtn.push({ pdCd: currentPdCd.value, pdDscPrumPrpVal01: item });
@@ -321,6 +330,9 @@ async function onClickAdd() {
     let channelIndex = rowValues.findIndex((gridRow) => addChannelId.value === gridRow.sellChnlCd);
     if (stdRows && stdRows.length) {
       stdRows.forEach((row, idx) => {
+        // 초기값 설정
+        setInitDefaultValueRow(row, currentMetaInfos.value, [pdConst.PD_PRC_TP_CD_VARIABLE]);
+
         row.sellChnlCd = addChannelId.value;
         row[pdConst.PRC_STD_ROW_ID] = row[pdConst.PRC_STD_ROW_ID] ?? row.pdPrcDtlId;
         row[pdConst.PRC_FNL_ROW_ID] = stringUtil.getUid('FNL');
