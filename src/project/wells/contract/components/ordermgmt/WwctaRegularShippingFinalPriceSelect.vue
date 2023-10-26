@@ -168,7 +168,7 @@
         </kw-item-section>
         <kw-item-section side>
           <kw-btn
-            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE"
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE"
             borderless
             icon="close_24"
             class="w24 kw-font-pt24"
@@ -202,9 +202,7 @@ import { alert, useDataService } from 'kw-lib';
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
-
-const CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE = '214';
-const CNTR_REL_DTL_CD_LK_SDING = '216';
+import { CNTR_REL_DTL_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
@@ -275,7 +273,7 @@ function connectReactivities() {
 connectReactivities();
 
 const isLkSding = computed(() => (cntrRels.value || [])
-  .find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_SDING));
+  .find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING));
 const isSeeding = computed(() => dtl.value?.sellTpDtlCd === '62');
 const isCapsule = computed(() => dtl.value?.sellTpDtlCd === '63');
 const isFreePackage = computed(() => dtl.value?.pdChoLmYn === 'Y'); // TODO FIX... dtl 에 없음..
@@ -440,7 +438,7 @@ function onChangeSelectedFinalPrice() {
 watch(selectedFinalPrice, onChangeSelectedFinalPrice, { immediate: true });
 
 function onDeleteCntrRel(cntrRel) {
-  if (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE) {
+  if (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE) {
     emit('delete:machine', props.modelValue);
   }
 }

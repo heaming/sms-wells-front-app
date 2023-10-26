@@ -104,6 +104,13 @@ import { alert, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqueId } from 'lodash-es';
 import { warn } from 'vue';
 import { vScrollbar } from '~sms-common/contract/util';
+import {
+  CNTR_REL_DTL_CD,
+  CNTR_TP_CD, PD_TP_CD,
+  RENTAL_DSC_DV_CD,
+  RENTAL_DSC_TP_CD,
+  SELL_TP_CD, SELL_TP_DTL_CD,
+} from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -118,11 +125,6 @@ defineExpose(exposed);
 const { t } = useI18n();
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
-
-const CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE = '214';
-const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
-const CNTR_REL_DTL_CD_LK_SDING = '216';
-const CNTR_REL_DTL_CD_LK_MLTCS_PRCHS = '22M'; // 다건 구매
 
 const cntrNo = computed(() => props.contract?.cntrNo);
 const step2 = toRef(props.contract, 'step2');
@@ -155,13 +157,13 @@ async function onSelectProduct(product) {
     return;
   }
 
-  if (Number(preCntrPdRelCnt) > 0 && newProduct.sellTpCd === '6') {
+  if (Number(preCntrPdRelCnt) > 0 && newProduct.sellTpCd === SELL_TP_CD.RGLR_SPP) {
     newProduct.precontractRequired = true; // sorrrrrrryyyyy... this is shit.
   }
 
   const isWellsFarmProduct = newProduct.pdLclsfId === 'PDC000000000120';
 
-  const isComposition = newProduct.pdTpCd === 'C';
+  const isComposition = newProduct.pdTpCd === PD_TP_CD.COMPOSITION;
 
   if (isComposition) {
     const alreadyExistComposition = !!step2.value.dtls.find((existed) => existed.hgrPdCd === product.pdCd);
@@ -208,7 +210,7 @@ async function onSelectProduct(product) {
 
     const cntrRel = {
       cntrRelId: undefined,
-      cntrRelDtlCd: CNTR_REL_DTL_CD_LK_SDING, /* 모종결합 */
+      cntrRelDtlCd: CNTR_REL_DTL_CD.LK_SDING, /* 모종결합 */
       baseDtlCntrNo: cntrNo.value,
       baseDtlCntrSn: undefined,
       ojDtlCntrNo: cntrNo.value,
@@ -240,7 +242,7 @@ async function onSelectProduct(product) {
 async function onFetchedProduct(products) {
   // 계약유형 : 멤버십
   // 이미 선택된 상품이 없는 경우에만, 상품 자동 선택 처리
-  if (step2.value.bas?.cntrTpCd !== '07') {
+  if (step2.value.bas?.cntrTpCd !== CNTR_TP_CD.MEMBERSHIP) {
     return;
   }
   await onSelectProduct(products[0]);
@@ -325,7 +327,7 @@ async function onClickOnePlusOne(dtl) {
   dtl.cntrRels ??= [];
   dtl.cntrRels.push({
     cntrRelId: undefined,
-    cntrRelDtlCd: CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE,
+    cntrRelDtlCd: CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE,
     baseDtlCntrNo: cntrNo.value,
     baseDtlCntrSn: undefined,
     ojDtlCntrNo: payload.cntrNo,
@@ -339,8 +341,8 @@ async function onClickOnePlusOne(dtl) {
 
   dtl.priceOptionFilter = {
     ...dtl.priceOptionFilter,
-    rentalDscDvCd: '8',
-    rentalDscTpCd: '03',
+    rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+    rentalDscTpCd: RENTAL_DSC_TP_CD.ONE_PLUS_ONE,
   };
 }
 
@@ -349,7 +351,7 @@ async function onDeleteOnePlusOne(dtl) {
   if (!cntrRels?.length) {
     warn('계약관계가 상이합니다.');
   }
-  const onePlusOneRelIndex = cntrRels.findIndex((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE);
+  const onePlusOneRelIndex = cntrRels.findIndex((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);
   if (onePlusOneRelIndex < 0) {
     warn('1+1 관계가 없습니다.');
   }
@@ -392,14 +394,14 @@ async function onClickDeviceChange(dtl) {
   if (payload.workFlag === '19') {
     dtl.priceOptionFilter = {
       ...dtl.priceOptionFilter,
-      rentalDscDvCd: '8',
-      rentalDscTpCd: '24',
+      rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+      rentalDscTpCd: RENTAL_DSC_TP_CD.STPL_5_YEAR_RE_RENTAL,
     };
   } else {
     dtl.priceOptionFilter = {
       ...dtl.priceOptionFilter,
       rentalDscDvCd: '8',
-      rentalDscTpCd: '02',
+      rentalDscTpCd: RENTAL_DSC_TP_CD.RE_RENTAL,
     };
   }
 }
@@ -420,14 +422,14 @@ async function onClickSelectMachine(dtl) {
   dtl.cntrRels ??= [];
 
   const existRelIndex = dtl.cntrRels
-    .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE));
+    .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE));
   if (existRelIndex > -1) {
     dtl.cntrRels.splice(existRelIndex, 1);
   }
 
   dtl.cntrRels.push({
     cntrRelId: undefined,
-    cntrRelDtlCd: CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE, /* 모종결합 */
+    cntrRelDtlCd: CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE, /* 모종결합 */
     baseDtlCntrNo: cntrNo.value,
     baseDtlCntrSn: undefined,
     ojDtlCntrNo: payload.cntrNo,
@@ -489,12 +491,12 @@ async function onPackaging(dtl, rentalDscTpCd) {
   selectedCntrDtls.forEach((cntrDtl) => {
     if (cntrDtl !== discountedCntrDtl) {
       cntrDtl.priceOptionFilter = {
-        rentalDscDvCd: '8', /* 일반 SORRY FOR HARD CODING. */
+        rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
         rentalDscTpCd: undefined,
       };
       const cntrRel = {
         cntrRelId: undefined,
-        cntrRelDtlCd: CNTR_REL_DTL_CD_LK_MLTCS_PRCHS,
+        cntrRelDtlCd: CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
         baseDtlCntrNo: cntrNo.value,
         baseDtlCntrSn: undefined,
         ojDtlCntrNo: cntrNo.value,
@@ -513,7 +515,7 @@ async function onPackaging(dtl, rentalDscTpCd) {
   });
 
   discountedCntrDtl.priceOptionFilter = {
-    rentalDscDvCd: '8', /* 일반 SORRY FOR HARD CODING. */
+    rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
     rentalDscTpCd,
   };
   discountedCntrDtl.ojCntrRels = ojCntrRels;
@@ -525,7 +527,7 @@ function onDeleteSelectMachine(dtl) {
     warn('계약관계가 상이합니다.');
   }
   const rglrShpBaseRelIndex = cntrRels
-    .findIndex((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE);
+    .findIndex((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE);
   if (rglrShpBaseRelIndex < 0) {
     warn('정기배송-원주문 관계가 없습니다.');
   }
@@ -562,14 +564,14 @@ async function onClickSelectPrecontract(dtl) {
   dtl.cntrRels ??= [];
 
   const existRelIndex = dtl.cntrRels
-    .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE));
+    .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE));
   if (existRelIndex > -1) {
     dtl.cntrRels.splice(existRelIndex, 1);
   }
 
   dtl.cntrRels.push({
     cntrRelId: undefined,
-    cntrRelDtlCd: CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE, /* 모종결합 */
+    cntrRelDtlCd: CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE, /* 모종결합 */
     baseDtlCntrNo: cntrNo.value,
     baseDtlCntrSn: undefined,
     ojDtlCntrNo: payload.cntrNo,
@@ -614,7 +616,7 @@ async function onChangeWellsFarmPackage(dtl) {
 
   const cntrRel = {
     cntrRelId: undefined,
-    cntrRelDtlCd: CNTR_REL_DTL_CD_LK_SDING, /* 모종결합 */
+    cntrRelDtlCd: CNTR_REL_DTL_CD.LK_SDING, /* 모종결합 */
     baseDtlCntrNo: cntrNo.value,
     baseDtlCntrSn: undefined,
     ojDtlCntrNo: cntrNo.value,
@@ -701,27 +703,27 @@ async function isValidStep() {
 
     const { sellTpDtlCd, cntrRels = [], precontractRequired } = dtl;
 
-    if (sellTpDtlCd === '62') { /* 모종의 경우 */
-      const lkSdingRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_SDING);
-      const baseMachineRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE);
+    if (sellTpDtlCd === SELL_TP_DTL_CD.RGLR_SPP_SDING) { /* 모종의 경우 */
+      const lkSdingRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING);
+      const baseMachineRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE);
       if (!lkSdingRel && !baseMachineRel) {
         alert('정기배송 대상 기기를 선택해주세요.');
         return true;
       }
     }
 
-    const { sellDscTpCd } = dtl;
+    /*     const { sellDscTpCd } = dtl;
 
     if (sellDscTpCd === '03') {
-      const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE);
+      const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);
       if (!onePlusOneRel) {
         alert('1+1 대상 계약을 선택해주세요.');
         return true;
       }
-    }
+    } */
 
     if (precontractRequired) {
-      const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE);
+      const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);
       if (!onePlusOneRel) {
         alert('연계 계약을 선택해주세요.');
         return true;

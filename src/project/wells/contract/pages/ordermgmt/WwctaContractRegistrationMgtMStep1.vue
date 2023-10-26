@@ -148,7 +148,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="popupRequiredCstInfos && searchParams.cntrTpCd === employeeCntrTpCd"
+          v-if="popupRequiredCstInfos && searchParams.cntrTpCd === CNTR_TP_CD.EMPLOYEE"
           :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
         >
           <kw-select
@@ -160,7 +160,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="popupRequiredCstInfos && searchParams.cntrTpCd === employeeCntrTpCd"
+          v-if="popupRequiredCstInfos && searchParams.cntrTpCd === CNTR_TP_CD.EMPLOYEE"
           :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
         >
           <kw-input
@@ -172,7 +172,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row
-        v-if="popupRequiredCstInfos && searchParams.cntrTpCd === employeeCntrTpCd"
+        v-if="popupRequiredCstInfos && searchParams.cntrTpCd === CNTR_TP_CD.EMPLOYEE"
       >
         <kw-search-item
           :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
@@ -250,9 +250,11 @@
               :label="$t('MSG_TXT_CNTRT')"
             >
               <p>
-                {{ `${step1.cntrt?.cstKnm} / ${
-                  stringUtil.getDateFormat(step1.cntrt?.bryyMmdd)} / ${
-                  getCodeName('SEX_DV_CD', step1.cntrt?.sexDvCd)}` }}
+                {{
+                  `${step1.cntrt?.cstKnm} / ${
+                    stringUtil.getDateFormat(step1.cntrt?.bryyMmdd)} / ${
+                    getCodeName('SEX_DV_CD', step1.cntrt?.sexDvCd)}`
+                }}
               </p>
             </kw-form-item>
             <kw-form-item
@@ -449,6 +451,7 @@
 import { alert, stringUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { useCtCode } from '~sms-common/contract/composable';
+import { CNTR_TP_CD, COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   contract: { type: Object, default: undefined },
@@ -481,7 +484,6 @@ const { codes, getCodeName, addCode, getCode } = await useCtCode(
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const employeeCntrTpCd = '03';
 const membershipCntrTpCd = '07';
 const reStipulationCntrTpCd = '08';
 
@@ -520,15 +522,25 @@ const searchParams = ref({
 async function setupAvailableCntrTpCd() {
   await addCode('CNTR_TP_CD', (code) => {
     if (currentPartner.ogTpCd === 'HR1') {
-      return code.codeId === '03' && code;
+      return code.codeId === CNTR_TP_CD.EMPLOYEE && code;
     }
     if (currentPartner.pstnDvCd === '7') {
-      return ['01', '02'].includes(code.codeId) && code;
+      return [
+        CNTR_TP_CD.INDIVIDUAL,
+        CNTR_TP_CD.COOPERATION,
+      ].includes(code.codeId) && code;
     }
-    return ['01', '02', '07', '08', '09'].includes(code.codeId) && code;
+    return [
+      CNTR_TP_CD.INDIVIDUAL,
+      CNTR_TP_CD.COOPERATION,
+      CNTR_TP_CD.MEMBERSHIP,
+      CNTR_TP_CD.RE_STIPULATION,
+      CNTR_TP_CD.QUOTE,
+    ].includes(code.codeId) && code;
   });
   searchParams.value.cntrTpCd = codes.CNTR_TP_CD[0]?.codeId;
 }
+
 await setupAvailableCntrTpCd();
 const ableToReStipulation = !!await getCode('CNTR_TP_CD', '07');
 const ableToMembership = !!await getCode('CNTR_TP_CD', '08');
@@ -561,10 +573,12 @@ const dashboardCounts = ref({
   membershipCnt: 0,
 });
 const isReadonly = computed(() => !!step1.value.bas?.cntrPrgsStatCd);
-const popupRequiredCstInfos = computed(() => searchParams.value.cntrTpCd === '01'
-      || searchParams.value.cntrTpCd === '02'
-      || searchParams.value.cntrTpCd === '03');
-const cstKnmLabel = computed(() => (searchParams.value.copnDvCd === '2' ? t('MSG_TXT_CRP_NM') : t('MSG_TXT_NAME')));
+const popupRequiredCstInfos = computed(() => [
+  CNTR_TP_CD.INDIVIDUAL,
+  CNTR_TP_CD.COOPERATION,
+  CNTR_TP_CD.MEMBERSHIP,
+].includes(searchParams.value.cntrTpCd));
+const cstKnmLabel = computed(() => (searchParams.value.copnDvCd === COPN_DV_CD.COOPERATION ? t('MSG_TXT_CRP_NM') : t('MSG_TXT_NAME')));
 let initFlag = false;
 
 function setupNewContract() {
@@ -581,10 +595,12 @@ async function getCntrInfo() {
   }
 
   searchParams.cntrNo = cntrNo.value;
-  const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', { params: {
-    cntrNo: cntrNo.value,
-    step: 1,
-  } });
+  const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', {
+    params: {
+      cntrNo: cntrNo.value,
+      step: 1,
+    },
+  });
 
   step1.value = data.step1;
   ogStep1.value = cloneDeep(step1.value);
@@ -682,9 +698,9 @@ async function checkExistContractor() {
   if (!exist) {
     step1.value.cntrt = {};
     if (await confirm(t('MSG_ALT_NO_CST_REG'))) {
-      if (copnDvCd === '1') {
+      if (copnDvCd === COPN_DV_CD.INDIVIDUAL) {
         await modal({ component: 'ZwcsaIndvCustomerRegUrlTrsMgtP' });
-      } else if (copnDvCd === '2') {
+      } else if (copnDvCd === COPN_DV_CD.COOPERATION) {
         // 법인: 법인고객 등록 화면으로 이동
         await router.push({
           path: '/contract/wwcta-contract-registration-mgt/zwcsa-corporate-customer-reg',
@@ -721,9 +737,11 @@ async function openCustomerSelectPopup() {
 
 async function fetchCntrtByCstNo(cstNo) {
   try {
-    const { data } = await dataService.get('sms/wells/contract/contracts/cntrt', { params: {
-      cstNo,
-    } });
+    const { data } = await dataService.get('sms/wells/contract/contracts/cntrt', {
+      params: {
+        cstNo,
+      },
+    });
     step1.value.cntrt = data;
   } catch (e) {
     setupSearchParams();
@@ -731,15 +749,17 @@ async function fetchCntrtByCstNo(cstNo) {
 }
 
 async function selectContractor() {
-  if (searchParams.value.cntrTpCd !== '07' && searchParams.value.cntrTpCd !== '08') {
-    if (!await checkExistContractor()) {
-      return;
-    }
+  if (searchParams.value.cntrTpCd !== CNTR_TP_CD.MEMBERSHIP
+      && searchParams.value.cntrTpCd !== CNTR_TP_CD.RE_STIPULATION
+      && !await checkExistContractor()) {
+    return;
   }
 
   const { result, payload } = await openCustomerSelectPopup();
 
-  if (!result) { return; }
+  if (!result) {
+    return;
+  }
 
   await fetchCntrtByCstNo(payload.cstNo);
 }
@@ -753,7 +773,9 @@ async function chooseBelongPartner() {
       ogTpCd: currentPartner.ogTpCd,
     },
   });
-  if (!result) { return; }
+  if (!result) {
+    return;
+  }
   step1.value.prtnr = payload;
 }
 
@@ -827,7 +849,7 @@ async function onClickReStipulation() {
 }
 
 async function onClickSearch() {
-  if (searchParams.value.cntrTpCd === employeeCntrTpCd) {
+  if (searchParams.value.cntrTpCd === CNTR_TP_CD.EMPLOYEE) {
     if (!isValidAlncPrtnr()) {
       return;
     }
@@ -853,23 +875,23 @@ async function onChangeCntrTpCd(value) {
     return;
   }
   clearSelected();
-  if (value === '01') {
+  if (value === CNTR_TP_CD.INDIVIDUAL) {
     setupSearchParams({
       ...searchParams.value,
-      copnDvCd: '1',
+      copnDvCd: COPN_DV_CD.INDIVIDUAL,
     });
   }
-  if (value === '02') {
+  if (value === CNTR_TP_CD.COOPERATION) {
     setupSearchParams({
       ...searchParams.value,
-      copnDvCd: '2',
+      copnDvCd: COPN_DV_CD.COOPERATION,
     });
   }
-  if (value === '07') {
+  if (value === CNTR_TP_CD.MEMBERSHIP) {
     await onClickMembership();
     return;
   }
-  if (value === '08') {
+  if (value === CNTR_TP_CD.RE_STIPULATION) {
     await onClickReStipulation();
     return;
   }
@@ -905,7 +927,7 @@ function isChangedStep() {
 /**
  * 휴폐업여부 I/F 호출
  * 휴업상태(02), 폐업상태(03)
-*/
+ */
 async function fetchCorpStpaSdfbz() {
   let isStpaSdfbzYn = true;
   const bzrno = step1.value.cntrt?.bzrno;
@@ -954,22 +976,26 @@ async function isValidStep() {
     return false;
   }
 
-  if (!step1.value.cntrt.cikVal && step1.value.cntrt.copnDvCd === '1') {
-    await alert('본인인증 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
-    return false;
+  const { cikVal, itgCstNo, copnDvCd } = step1.value.cntrt;
+
+  if (copnDvCd === COPN_DV_CD.INDIVIDUAL) {
+    if (!cikVal) {
+      await alert('본인인증 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
+      return false;
+    }
+    if (!itgCstNo) {
+      await alert('통합고객 약관동의 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
+      return false;
+    }
   }
-  if (!step1.value.cntrt.itgCstNo && step1.value.cntrt.copnDvCd === '1') {
-    await alert('통합고객 약관동의 미완료 상태입니다.\n완료 후 계약자를 재 조회해 주세요.');
-    return false;
+
+  if (copnDvCd === COPN_DV_CD.COOPERATION) {
+    return await fetchCorpStpaSdfbz(); // 법인 계약자의 휴업, 폐업 여부 확인
   }
 
   if (cntrTpIs.value.msh && !step1.value.mshCntrNo) {
     await alert('멤버십 원계약을 선택해주세요.');
     return false;
-  }
-
-  if (step1.value.cntrt.copnDvCd === '2') {
-    return await fetchCorpStpaSdfbz(); // 법인 계약자의 휴업, 폐업 여부 확인
   }
 
   return true;
@@ -1017,7 +1043,9 @@ async function getCounts() {
 const loaded = ref(false);
 
 async function initStep(forced = false) {
-  if (!forced && loaded.value) { return; }
+  if (!forced && loaded.value) {
+    return;
+  }
 
   await getCntrInfo();
   if (!cntrNo.value) {

@@ -45,58 +45,58 @@
       </kw-form-item>
       <kw-form-item :label="$t('MSG_TXT_ACU_DP')">
         <p>
-          {{ breachOfPromise.ucAmt }}
+          {{ breachOfPromise.acuDpAmt }}
         </p>
       </kw-form-item>
       <kw-form-item :label="$t('MSG_TXT_BND_NPD')">
         <p>
-          {{ breachOfPromise.rsgBorAmt }}
+          {{ breachOfPromise.ucAmt }}
         </p>
       </kw-form-item>
     </kw-form-row>
     <kw-form-row>
       <kw-form-item :label="$t('MSG_TXT_RSG_CCAM')">
         <p>
-          {{ breachOfPromise.rgstCostDscBorAmt }}
+          {{ breachOfPromise.rsgBorAmt }}
         </p>
       </kw-form-item>
       <kw-form-item :label="$t('MSG_TXT_RGST_COST_DSC')">
         <p>
-          {{ breachOfPromise.rentalDscBorAmt }}
+          {{ breachOfPromise.rgstCostDscBorAmt }}
         </p>
       </kw-form-item>
       <kw-form-item :label="$t('MSG_TXT_RENTAL_DSC')">
         <p>
-          {{ breachOfPromise.csmbCostBorAmt }}
+          {{ breachOfPromise.rentalDscBorAmt }}
         </p>
       </kw-form-item>
     </kw-form-row>
     <kw-form-row>
       <kw-form-item :label="$t('MSG_TXT_CSMB_CS')">
         <p>
-          {{ breachOfPromise.pBorAmt }}
+          {{ breachOfPromise.csmbCostBorAmt }}
         </p>
       </kw-form-item>
       <kw-form-item :label="$t('MSG_TXT_P_USE')">
         <p>
-          {{ breachOfPromise.reqdCsBorAmt }}
+          {{ breachOfPromise.pBorAmt }}
         </p>
       </kw-form-item>
       <kw-form-item :label="$t('MSG_TXT_REQD_CS_AMT')">
         <p>
-          {{ breachOfPromise.lsRntf }}
+          {{ breachOfPromise.reqdCsBorAmt }}
         </p>
       </kw-form-item>
     </kw-form-row>
     <kw-form-row>
       <kw-form-item :label="$t('TXT_MSG_LOST_RNTF')">
         <p>
-          {{ breachOfPromise.rstlBorAmt }}
+          {{ breachOfPromise.lsRntf }}
         </p>
       </kw-form-item>
       <kw-form-item :label="$t('MSG_TXT_RSTL_CCAM')">
         <p>
-          {{ breachOfPromise.acuDpAmt }}
+          {{ breachOfPromise.rstlBorAmt }}
         </p>
       </kw-form-item>
     </kw-form-row>
