@@ -866,7 +866,7 @@ function onClickDeleteDeviceChange() {
 }
 
 function onDeleteOnePlusOne() {
-  priceDefineVariables.value.rentalDscTpCd = undefined;
+  priceDefineVariables.value.rentalDscTpCd = EMPTY_ID;
   emit('delete:one-plus-one', props.modelValue);
 }
 
