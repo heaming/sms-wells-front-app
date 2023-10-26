@@ -484,6 +484,7 @@ import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
 import { codeUtil, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { getNumberWithComma } from '~sms-common/contract/util';
+import { SELL_TP_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -586,7 +587,7 @@ async function getCntrInfo() {
       && (!step3.value.dtls.some((dtl) => baseDtl.recapMshPtrm !== dtl.recapMshPtrm
           || baseDtl.sellTpCd !== dtl.sellTpCd
           || baseDtl.sellTpDtlCd !== dtl.sellTpDtlCd
-          || dtl.sellTpCd !== '2'));
+          || dtl.sellTpCd !== SELL_TP_CD.RENTAL));
 
   if (isPsbBlkApy.value) {
     step3.value.dtls.forEach((dtl) => {
