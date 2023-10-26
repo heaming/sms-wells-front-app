@@ -273,10 +273,6 @@ async function marketableSecuritiesExcd() {
 }
 
 async function fetchData() {
-  cachedParams = cloneDeep(props.cachedParams);
-  cachedParams.subOgTpCd = props.cachedParams.ogTpCd; // 배분대상조직유형코드
-  cachedParams.rsbDvCd = searchParams.value.rsbDvCd; // 직책 구분코드
-
   if (!isEmpty(cachedParams.dgr3LevlOgId)) {
     cachedParams.mainDgr3LevlOgId = cachedParams.dgr3LevlOgId;
     cachedParams.mainDgr1LevlOgId = null;
@@ -751,6 +747,10 @@ onMounted(async () => {
 
   searchParams.value.dgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
   initSearchParams = cloneDeep(searchParams.value);
+  cachedParams = cloneDeep(props.cachedParams);
+  cachedParams.subOgTpCd = props.cachedParams.ogTpCd; // 배분대상조직유형코드
+  cachedParams.rsbDvCd = searchParams.value.rsbDvCd; // 직책 구분코드
+
   await fetchData();
 });
 

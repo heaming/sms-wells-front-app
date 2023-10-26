@@ -528,7 +528,7 @@ const isPsic = computed(() => roles.some((v) => ['ROL_00010', 'ROL_G7010', 'ROL_
 function initCommonGrid(data, view) {
   const columns = [
     { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'excdYn',
       header: t('MSG_TXT_EXCD'),
