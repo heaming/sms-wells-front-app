@@ -140,8 +140,9 @@ const totalCount = ref(0);
 const baseUrl = '/sms/wells/bond/rental-rsg-cnfms';
 
 const codes = await codeUtil.getMultiCodes(
-  'CLCTAM_DV_CD',
+  'CLCTAM_DV_CD', // 집금구분코드
 );
+// 01:단기, 02:중기, 03:소송, 04:집행, 11:TF
 const clctamDvCdOpt = codes.CLCTAM_DV_CD.filter((v) => ['01', '02', '03', '04', '11'].includes(v.codeId));
 
 const searchParams = ref({
@@ -253,26 +254,26 @@ const initConfirmGrid = defineGrid((data, view) => {
       },
       width: '100',
       styleName: 'text-center',
-      datetimeFormat: 'YYYY-MM' },
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rsgMmUcAmt', header: t('MSG_TXT_RSG_MM_UC_AMT'), width: '140', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'rsgMmStpCs', header: t('MSG_TXT_RSG_MM_STP_AMT'), width: '140', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'ccam', header: t('MSG_TXT_CCAM'), width: '140', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'csmbCsBorAmt', header: t('MSG_TXT_CSMB_CS'), width: '140', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'reqdCsBorAmt', header: t('MSG_TXT_REQD_CS'), width: '140', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '140', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'rtrnDbtFnlAmt', header: `(확정)${t('MSG_TXT_RTRN_H_ARRS_AMT')}`, width: '160', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'nrtrnDbtFnlAmt', header: `(확정)${t('MSG_TXT_N_RTRN_H_ARRS_AMT')}`, width: '180', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'exmptYn', header: t('MSG_TXT_CNTR_DV'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '180' },
+      datetimeFormat: 'YYYY-MM' }, // 확정년월
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' }, // 고객번호
+    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_TASK_TYPE'), width: '100', styleName: 'text-center' }, // 업무유형
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'rsgMmUcAmt', header: t('MSG_TXT_RSG_MM_UC_AMT'), width: '140', styleName: 'text-right', dataType: 'number' }, // 해지월미수금
+    { fieldName: 'rsgMmStpCs', header: t('MSG_TXT_RSG_MM_STP_AMT'), width: '140', styleName: 'text-right', dataType: 'number' }, // 해지월중지액
+    { fieldName: 'ccam', header: t('MSG_TXT_CCAM'), width: '140', styleName: 'text-right', dataType: 'number' }, // 위약금
+    { fieldName: 'csmbCsBorAmt', header: t('MSG_TXT_CSMB_CS'), width: '140', styleName: 'text-right', dataType: 'number' }, // 소모품비
+    { fieldName: 'reqdCsBorAmt', header: t('MSG_TXT_REQD_CS'), width: '140', styleName: 'text-right', dataType: 'number' }, // 철거비
+    { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '140', styleName: 'text-right', dataType: 'number' }, // 분실손료
+    { fieldName: 'rtrnDbtFnlAmt', header: `(${t('MSG_TXT_DTRM')})${t('MSG_TXT_RTRN_H_ARRS_AMT')}`, width: '160', styleName: 'text-right', dataType: 'number' }, // 반환시체납액
+    { fieldName: 'nrtrnDbtFnlAmt', header: `(${t('MSG_TXT_DTRM')})${t('MSG_TXT_N_RTRN_H_ARRS_AMT')}`, width: '180', styleName: 'text-right', dataType: 'number' }, // 미반환시체납액
+    { fieldName: 'exmptYn', header: t('MSG_TXT_CNTR_DV'), width: '100', styleName: 'text-center' }, // 계약구분
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '100', styleName: 'text-center' }, // 제품코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '180' }, // 제품명
     // rev:230410 header 텍스트 변경
-    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR_EMPNO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR_EMPNO'), width: '100', styleName: 'text-center' }, // 집금담당사번
     // // rev:230410 header 텍스트 변경
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' }, // 집금담당자
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
