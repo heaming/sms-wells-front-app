@@ -715,7 +715,7 @@ const initGrid1 = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_HMNRSC'), // 인사
       direction: 'horizontal',
-      items: ['prtnrKnm', 'prtnrNo', 'rsbDvNm', 'biztelephone', 'rcrtWrteDt', 'bryyMmdd', 'fnlCltnDt'],
+      items: ['prtnrKnm', 'prtnrNo', 'rsbDvNm', 'biztelephone', 'cntrDt', 'bryyMmdd', 'fnlCltnDt'],
     },
     {
       header: t('MSG_TXT_EDUC_PS'), // 교육현황
