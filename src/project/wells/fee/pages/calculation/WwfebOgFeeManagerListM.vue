@@ -45,7 +45,7 @@
           :label="$t('MSG_TXT_RSB_TP')"
         >
           <kw-option-group
-            v-model="searchParams.rsbTpCd"
+            v-model="searchParams.rsbDvCd"
             :label="$t('MSG_TXT_RSB_TP')"
             type="radio"
             :options="filterRsbDvCd"
@@ -88,7 +88,11 @@
       </kw-search-row>
     </kw-search>
     <div class="result-area">
-      <h3>{{ searchParams.statTitleText }}</h3>
+      <h3>
+        {{ searchParams.perfYm.substring(0,4) }}년 {{ searchParams.perfYm.substring(5) }}월
+        {{ searchParams.rsbDvCd==='W0204'?'지점장':'플래너' }}
+        {{ searchParams.feeTcntDvCd==='01'?'1차':'2차' }} {{ $t('MSG_TXT_PRGS_STE') }}
+      </h3>
       <!-- STEPER -->
       <zwfey-fee-step
         ref="stepNaviRef"
@@ -128,46 +132,10 @@
         />
       </kw-action-top>
       <kw-grid
-        v-if="isGrid1Visile"
         ref="grdMainRef"
-        name="grd1Main"
+        name="grdMain"
         :visible-rows="10"
-        @init="initGrd1Main"
-      />
-      <kw-grid
-        v-if="isGrid2Visile"
-        ref="grdMainRef"
-        name="grd2Main"
-        :visible-rows="10"
-        @init="initGrd2Main"
-      />
-      <kw-grid
-        v-if="isGrid3Visile"
-        ref="grdMainRef"
-        name="grd3Main"
-        :visible-rows="10"
-        @init="initGrd3Main"
-      />
-      <kw-grid
-        v-if="isGrid4Visile"
-        ref="grdMainRef"
-        name="grd4Main"
-        :visible-rows="10"
-        @init="initGrd4Main"
-      />
-      <kw-grid
-        v-if="isGrid5Visile"
-        ref="grdMainRef"
-        name="grd5Main"
-        :visible-rows="10"
-        @init="initGrd5Main"
-      />
-      <kw-grid
-        v-if="isGrid6Visile"
-        ref="grdMainRef"
-        name="grd6Main"
-        :visible-rows="10"
-        @init="initGrd6Main"
+        @init="initGrdMain"
       />
     </div>
   </kw-page>
@@ -188,16 +156,16 @@ import { openApprovalPopup } from '~common/utils/cmPopupUtil';
 const { t } = useI18n();
 const dataService = useDataService();
 const { notify, modal, confirm } = useGlobal();
-const isGrid1Visile = ref(false);
-const isGrid2Visile = ref(false);
-const isGrid3Visile = ref(true);
-const isGrid4Visile = ref(false);
-const isGrid5Visile = ref(false);
-const isGrid6Visile = ref(false);
 const { currentRoute } = useRouter();
 const router = useRouter();
 const isExcelDown = ref(false);
 const stepNaviRef = ref();
+let feeHeaderIndvList = []; // 개인수수료 리스트
+let feeHeaderOgList = []; // 조직수수료 리스트
+let feeHeaderEtcList = []; // 조직기타수수료 리스트
+let feeHeaderIndvColumnList = []; // 개인수수료 컬럼레이아웃
+let feeHeaderOgColumnList = []; // 조직수수료 컬럼레이아웃
+let feeHeaderEtcColumnList = []; // 조직기타수수료 컬럼레이아웃
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -217,10 +185,9 @@ const { getUserInfo } = useMeta();
 const sessionUserInfo = getUserInfo();
 const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0205', 'W0204'].includes(v.codeId));
 const searchParams = ref({
-
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   feeTcntDvCd: '01',
-  rsbTpCd: '',
+  rsbDvCd: '',
   rsbTpTxt: '',
   prtnrNo: '',
   prtnrKnm: '',
@@ -232,6 +199,7 @@ const searchParams = ref({
   feeSchdTpCd: '',
   coCd: '2000',
   unitCd: '',
+  feeCalcUnitTpCd: '',
 
 });
 
@@ -252,90 +220,2529 @@ const saveInfo = ref({
 let cachedParams;
 
 /*
- *  Event - 조회 후 상단 title 변경
- */
-async function setTitle() {
-  const { perfYm, rsbTpCd } = searchParams.value;
-  searchParams.value.statTitleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
-  if (rsbTpCd !== '') {
-    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTpCd);
-    searchParams.value.rsbTpTxt = codeName;
-    searchParams.value.statTitleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
-  } else {
-    searchParams.value.rsbTpTxt = '';
-    searchParams.value.statTitleText += ` ${t('MSG_TXT_PRGS_STE')}`;
-  }
-}
-
-/*
  *  Event - 그리드 내역 초기화
  */
-
 async function initData() {
   const view = grdMainRef.value.getData();
   view.clearRows();
   totalCount.value = 0;
   stepNaviRef.value.initProps();
-  await setTitle();
+}
+
+// 그리드 컬럼 세팅
+function getGridColumns() {
+  const { perfYm, rsbDvCd } = searchParams.value;
+  const columns = [
+    // 전체 공통 컬럼
+    { fieldName: 'ogNm',
+      header: t('MSG_TXT_BLG'),
+      width: '88.7',
+      styleName: 'text-center',
+      headerSummary: {
+        text: t('MSG_TXT_SUM'),
+      } }, // 소속
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7', styleName: 'text-center' }, // 파트너번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' }, // 성명
+    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD }, // 직책
+  ];
+  if (perfYm >= '202304') { // 2023년04월 이후
+    // 업무등록사항
+    columns.push(
+      { fieldName: 'fstBizRgst', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 업무등록사항-최초업무등록월
+      { fieldName: 'bizRgst', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 업무등록사항-재등록월
+      { fieldName: 'bizFnlCltn', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 업무등록사항-최종해약월
+      { fieldName: 'bizCltn', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 업무등록사항-업무해약월
+    );
+
+    if (rsbDvCd === 'W0205') { // 플래너
+      columns.push(
+        { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미팅일수
+        { fieldName: 'qlfDvCd', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD }, // 자격-수수료월
+        { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
+        { fieldName: 'strtup', header: t('MSG_TXT_SRTUP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-스타트업
+        { fieldName: 'preStrtup', header: t('MSG_TXT_PRE_SRTUP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-pre스타트업
+        { fieldName: 'eduCmpf', header: t('MSG_TXT_CMPF'), width: '91.4', styleName: 'text-center' }, // 교육-보수
+        { fieldName: 'eduMngerSettle1', header: `${t('MSG_TXT_STMNT')}1`, width: '91.4', styleName: 'text-center' }, // 교육-정착1
+        { fieldName: 'eduMngerSettle2', header: `${t('MSG_TXT_STMNT')}2`, width: '91.4', styleName: 'text-center' }, // 교육-정착2
+        { fieldName: 'eduMngerSettle345', header: `${t('MSG_TXT_STMNT')}3,4,5`, width: '91.4', styleName: 'text-center' }, // 교육-정착3,4,5
+        { fieldName: 'edu2Pre', header: `Pre${t('MSG_TXT_ACML')}${t('MSG_TXT_EDUC')}`, width: '91.4', styleName: 'text-center' }, // pre누적교육
+        { fieldName: 'topmrSettle', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_STMNT'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석정착
+        { fieldName: 'topmrNmn', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_NMN'), width: '91.4', styleName: 'text-right' }, // 수석차월
+        { fieldName: 'mngerFstOpng', header: t('MSG_TXT_FST') + t('MSG_TXT_OPNG_MM'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 매니저개시사항-최초개시월
+        { fieldName: 'mngerOpng', header: t('MSG_TXT_RE_OPNG') + t('MSG_TXT_MON'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 매니저개시사항-재개시월
+        { fieldName: 'mngerFnlCltn', header: t('MSG_TXT_FNL_CLTN_MM'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 매니저개시사항-최종해약월
+        { fieldName: 'mngerBizCltn', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 매니저개시사항-업무해약월
+        { fieldName: 'mngerBltnNmn', header: t('MSG_TXT_OPNG_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매니저개시사항-개시차월
+        { fieldName: 'mngerSettleDsbTp', header: t('MSG_TXT_STMNT') + t('MSG_TXT_PAY_TYPE'), width: '91.4', styleName: 'text-center', options: codes.OPNG_CD }, // 매니저개시사항-정착지급유형
+        { fieldName: 'indvD5AsnCnt', header: `5${t('MSG_TXT_D')}${t('MSG_TXT_ASN_N')}`, width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매니저개시사항-5일배정수
+        { fieldName: 'indvAsnCnt',
+          header: t('MSG_TXT_ASGN_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-배정건수
+        { fieldName: 'indvFshCnt',
+          header: t('MSG_TXT_FHS_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-완료건수
+        { fieldName: 'indvProcsRat',
+          header: t('MSG_TXT_PROCS_RT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '###0.##',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-처리율
+        { fieldName: 'indvDbsRat',
+          header: t('MSG_TXT_PYT_RT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-지급률
+        { fieldName: 'indvW1Cnt',
+          header: `W1${t('MSG_TXT_COUNT')}`,
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-W1건수
+        { fieldName: 'indvW2Cnt',
+          header: `W2${t('MSG_TXT_COUNT')}`,
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-W2건수
+        { fieldName: 'indvElhmAckmtCnt',
+          header: t('MSG_TXT_ELHM_ACKMT_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-가전인정건수
+        { fieldName: 'indvRentalBasePrc',
+          header: t('MSG_TXT_RENTAL_BASE_PRC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-렌탈기준가
+        { fieldName: 'indvSpayBasePrc',
+          header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-일시불기준가
+        { fieldName: 'indvChdvcCnt',
+          header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-기변건수
+        { fieldName: 'indvElhmExcpAckmtPerf',
+          header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'),
+          width: '100',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-가전외인정실적
+        { fieldName: 'indvFxamCt',
+          header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인기타판매-정액건수
+        { fieldName: 'indvLivePakgCnt',
+          header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인기타판매-라이브팩건수
+        { fieldName: 'indvHcrMshCnt',
+          header: t('MSG_TXT_HCR_MSH') + t('MSG_TXT_COUNT'),
+          width: '120',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인기타판매-홈케어멤버십건수
+        { fieldName: 'indvCanCnt',
+          header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인계정순증-전월취소
+        { fieldName: 'indvNwCnt',
+          header: t('MSG_TXT_THM_NW'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인계정순증-당월신규
+        { fieldName: 'indvNinc',
+          header: t('MSG_TXT_NINC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인계정순증-순증
+      );
+    } else if (rsbDvCd === 'W0204') { // 지점장
+      columns.push(
+        { fieldName: 'prfmtMm', header: t('MSG_TXT_PRFMT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 승진월
+        { fieldName: 'prfmtNmn', header: t('MSG_TXT_PRFMT_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 승진차월
+        { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' }, // 미팅일수
+        { fieldName: 'qlfDvCd', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD }, // 자격-수수료월
+        { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
+        { fieldName: 'strtup', header: t('MSG_TXT_BRANCH') + t('MSG_TXT_ONL'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-지점온라인
+        { fieldName: 'indvAsnCnt',
+          header: t('MSG_TXT_ASGN_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-배정건수
+        { fieldName: 'indvFshCnt',
+          header: t('MSG_TXT_FHS_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-완료건수
+        { fieldName: 'indvProcsRat',
+          header: t('MSG_TXT_PROCS_RT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '###0.##',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-처리율
+        { fieldName: 'indvDbsRat',
+          header: t('MSG_TXT_PYT_RT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-지급률
+        { fieldName: 'indvW1Cnt',
+          header: `W1${t('MSG_TXT_COUNT')}`,
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-W1건수
+        { fieldName: 'indvW2Cnt',
+          header: `W2${t('MSG_TXT_COUNT')}`,
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-W2건수
+        { fieldName: 'ogAsnCnt',
+          header: t('MSG_TXT_ASGN_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직BS-배정건수
+        { fieldName: 'ogFshCnt',
+          header: t('MSG_TXT_FHS_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직BS-완료건수
+        { fieldName: 'ogProcsRat',
+          header: t('MSG_TXT_PROCS_RT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '###0.##',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직BS-처리율
+        { fieldName: 'ogDbsRat',
+          header: t('MSG_TXT_PYT_RT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '###0.##',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직BS-지급률
+        { fieldName: 'indvElhmAckmtCnt',
+          header: t('MSG_TXT_ELHM_ACKMT_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-가전인정건수
+        { fieldName: 'indvRentalBasePrc',
+          header: t('MSG_TXT_RENTAL_BASE_PRC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-렌탈기준가
+        { fieldName: 'indvSpayBasePrc',
+          header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-일시불기준가
+        { fieldName: 'indvChdvcCnt',
+          header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-기변건수
+        { fieldName: 'indvElhmExcpAckmtPerf',
+          header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'),
+          width: '100',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-가전외인정실적
+        { fieldName: 'indvFxamCt',
+          header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인기타판매-정액건수
+        { fieldName: 'indvLivePakgCnt',
+          header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인기타판매-라이브팩건수
+        { fieldName: 'indvHcrMshCnt',
+          header: t('MSG_TXT_HCR_MSH') + t('MSG_TXT_COUNT'),
+          width: '120',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인기타판매-홈케어멤버십건수
+        { fieldName: 'indvCanCnt',
+          header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인계정순증-전월취소
+        { fieldName: 'indvNwCnt',
+          header: t('MSG_TXT_THM_NW'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인계정순증-당월신규
+        { fieldName: 'indvNinc',
+          header: t('MSG_TXT_NINC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인계정순증-순증
+        { fieldName: 'ogElhmAckmtCnt',
+          header: t('MSG_TXT_ELHM_ACKMT_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-가전인정건수
+        { fieldName: 'ogRentalBasePrc',
+          header: t('MSG_TXT_RENTAL_BASE_PRC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-렌탈기준가
+        { fieldName: 'ogSpayBasePrc',
+          header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-일시불기준가
+        { fieldName: 'ogChdvcCnt',
+          header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-기변건수
+        { fieldName: 'ogPerfSum',
+          header: t('MSG_TXT_AGG'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-계
+        { fieldName: 'ogCanCnt',
+          header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직계정순증-전월취소
+        { fieldName: 'ogNwCnt',
+          header: t('MSG_TXT_THM_NW'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직계정순증-당월신규
+        { fieldName: 'ogNinc',
+          header: t('MSG_TXT_NINC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직계정순증-순증
+      );
+    } else if (isEmpty(rsbDvCd)) { // 전체
+      columns.push(
+        { fieldName: 'prfmtMm', header: t('MSG_TXT_PRFMT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 승진월
+        { fieldName: 'prfmtNmn', header: t('MSG_TXT_PRFMT_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 승진차월
+        { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미팅일수
+        { fieldName: 'qlfDvCd', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD }, // 자격-수수료월
+        { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
+        { fieldName: 'strtup', header: t('MSG_TXT_SRTUP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-스타트업
+        { fieldName: 'preStrtup', header: t('MSG_TXT_PRE_START_UP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-PRE스타트업
+        { fieldName: 'eduCmpf', header: t('MSG_TXT_CMPF'), width: '91.4', styleName: 'text-center' }, // 교육-보수
+        { fieldName: 'eduMngerSettle1', header: `${t('MSG_TXT_STMNT')}1`, width: '91.4', styleName: 'text-center' }, // 교육-정착1
+        { fieldName: 'eduMngerSettle2', header: `${t('MSG_TXT_STMNT')}2`, width: '91.4', styleName: 'text-center' }, // 교육-정착2
+        { fieldName: 'eduMngerSettle345', header: `${t('MSG_TXT_STMNT')}3,4,5`, width: '91.4', styleName: 'text-center' }, // 교육-정착3,4,5
+        { fieldName: 'edu2Pre', header: `Pre${t('MSG_TXT_ACML')}${t('MSG_TXT_EDUC')}`, width: '91.4', styleName: 'text-center' }, // 교육-지점온라인
+        { fieldName: 'eduBrmgrOnl', header: t('MSG_TXT_BRANCH') + t('MSG_TXT_ONL'), width: '91.4', styleName: 'text-center' }, // 교육-PRE누적교육
+        { fieldName: 'topmrSettle', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_STMNT'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-수석정착
+        { fieldName: 'topmrNmn', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 교육-수석차월
+        { fieldName: 'mngerFstOpng', header: t('MSG_TXT_FST') + t('MSG_TXT_OPNG_MM'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 매니저개시사항-최초개시월
+        { fieldName: 'mngerOpng', header: t('MSG_TXT_RE_OPNG') + t('MSG_TXT_MON'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 매니저개시사항-재개시월
+        { fieldName: 'mngerFnlCltn', header: t('MSG_TXT_FNL_CLTN_MM'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 매니저개시사항-최종해약월
+        { fieldName: 'mngerBizCltn', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 매니저개시사항-업무해약월
+        { fieldName: 'mngerBltnNmn', header: t('MSG_TXT_OPNG_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매니저개시사항-개시차월
+        { fieldName: 'mngerSettleDsbTp', header: t('MSG_TXT_STMNT') + t('MSG_TXT_PAY_TYPE'), width: '91.4', styleName: 'text-center', options: codes.OPNG_CD }, // 매니저개시사항-정착지급유형
+        { fieldName: 'indvD5AsnCnt',
+          header: `5${t('MSG_TXT_D')}${t('MSG_TXT_ASN_N')}`,
+          width: '91.4',
+          styleName: 'text-center',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 매니저개시사항-5일배정수
+        { fieldName: 'indvAsnCnt',
+          header: t('MSG_TXT_ASGN_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-배정건수
+        { fieldName: 'indvFshCnt',
+          header: t('MSG_TXT_FHS_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-완료건수
+        { fieldName: 'indvProcsRat',
+          header: t('MSG_TXT_PROCS_RT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '###0.##',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-처리율
+        { fieldName: 'indvDbsRat',
+          header: t('MSG_TXT_PYT_RT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '###0.##',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-지급률
+        { fieldName: 'indvW1Cnt',
+          header: `W1${t('MSG_TXT_COUNT')}`,
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-W1건수
+        { fieldName: 'indvW2Cnt',
+          header: `W2${t('MSG_TXT_COUNT')}`,
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인BS-W2건수
+        { fieldName: 'ogAsnCnt',
+          header: t('MSG_TXT_ASGN_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직BS-배정건수
+        { fieldName: 'ogFshCnt',
+          header: t('MSG_TXT_FHS_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직BS-완료건수
+        { fieldName: 'ogProcsRat',
+          header: t('MSG_TXT_PROCS_RT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '###0.##',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직BS-처리율
+        { fieldName: 'ogDbsRat',
+          header: t('MSG_TXT_PYT_RT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '###0.##',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직BS-지급률
+        { fieldName: 'indvElhmAckmtCnt',
+          header: t('MSG_TXT_ELHM_ACKMT_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-가전인정건수
+        { fieldName: 'indvRentalBasePrc',
+          header: t('MSG_TXT_RENTAL_BASE_PRC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-렌탈기준가
+        { fieldName: 'indvSpayBasePrc',
+          header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-일시불기준가
+        { fieldName: 'indvChdvcCnt',
+          header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-기변건수
+        { fieldName: 'indvElhmExcpAckmtPerf',
+          header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'),
+          width: '100',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인실적-가전외인정실적
+        { fieldName: 'indvFxamCt',
+          header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인기타판매-정액건수
+        { fieldName: 'indvLivePakgCnt',
+          header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인기타판매-라이브팩건수
+        { fieldName: 'indvHcrMshCnt',
+          header: t('MSG_TXT_HCR_MSH') + t('MSG_TXT_COUNT'),
+          width: '120',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인기타판매-홈케어멤버십건수
+        { fieldName: 'indvCanCnt',
+          header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인계정순증-전월취소
+        { fieldName: 'indvNwCnt',
+          header: t('MSG_TXT_THM_NW'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인계정순증-당월신규
+        { fieldName: 'indvNinc',
+          header: t('MSG_TXT_NINC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 개인계정순증-순증
+        { fieldName: 'ogElhmAckmtCnt',
+          header: t('MSG_TXT_ELHM_ACKMT_CT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-가전인정건수
+        { fieldName: 'ogRentalBasePrc',
+          header: t('MSG_TXT_RENTAL_BASE_PRC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-렌탈기준가
+        { fieldName: 'ogSpayBasePrc',
+          header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-일시불기준가
+        { fieldName: 'ogChdvcCnt',
+          header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-기변건수
+        { fieldName: 'ogPerfSum',
+          header: t('MSG_TXT_AGG'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직실적-계
+        { fieldName: 'ogCanCnt',
+          header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직계정순증-전월취소
+        { fieldName: 'ogNwCnt',
+          header: t('MSG_TXT_THM_NW'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직계정순증-당월신규
+        { fieldName: 'ogNinc',
+          header: t('MSG_TXT_NINC'),
+          width: '91.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 조직계정순증-순증
+        { fieldName: 'homeCare',
+          header: t('MSG_TXT_HOME_CARE'),
+          width: '129',
+          styleName: 'text-right',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'rstl',
+          header: t('MSG_TXT_RSTL'),
+          width: '129',
+          styleName: 'text-right',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'livePakg',
+          header: t('MSG_TXT_LIVE_PAKG'),
+          width: '129',
+          styleName: 'text-right',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv1Fee',
+          header: t('MSG_TXT_ELHM_PRPN'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv2Fee',
+          header: t('MSG_TXT_ELHM_EXCP_PRPN'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv3Fee',
+          header: t('MSG_TXT_ELHM') + t('MSG_TXT_SAL_INTV'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv4Fee',
+          header: t('MSG_TXT_METG'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv5Fee',
+          header: t('MSG_TXT_EDUC'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv6Fee',
+          header: t('MSG_TXT_STMNT'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv7Fee',
+          header: t('MSG_TXT_MCHN_CH'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv8Fee',
+          header: `BS${t('MSG_TXT_MGT')}`,
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv9Fee',
+          header: `BS${t('MSG_TXT_ENRG')}`,
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv10Fee',
+          header: t('MSG_TXT_RGLVL'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv11Fee',
+          header: `WM${t('MSG_TXT_CMNC')}`,
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv12Fee',
+          header: `WM${t('MSG_TXT_ETC')}`,
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv13Fee',
+          header: t('MSG_TXT_PRR_VST'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv14Fee',
+          header: t('MSG_TXT_UNIFORM'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv15Fee',
+          header: t('MSG_TXT_MAT_HODT'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'indv16Fee',
+          header: t('MSG_TXT_ADD') + t('MSG_TXT_ENRG'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'og1Fee',
+          header: t('MSG_TXT_ELHM_OG_PRPN'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'og2Fee',
+          header: t('MSG_TXT_ELHM_EXCP_OG_PRPN'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'og3Fee',
+          header: t('MSG_TXT_OG_SELL_ENCRG'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'og4Fee',
+          header: t('MSG_TXT_EDUC'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'og5Fee',
+          header: t('MSG_TXT_NINC_MGT'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'og6Fee',
+          header: `${t('MSG_TXT_OG_EJT')}1`,
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'og7Fee',
+          header: `${t('MSG_TXT_OG_EJT')}2`,
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'og8Fee',
+          header: t('MSG_TXT_NB_BRCH'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'etc1Atc',
+          header: t('MSG_TXT_ADSB'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'etc2Atc',
+          header: t('MSG_TXT_MEMBERSHIP'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+        { fieldName: 'etc3Atc',
+          header: t('MSG_TXT_ETC_SPPT'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } },
+      );
+    }
+
+    // 직책유형을 선택했을 때만 수수료를 가변으로 가져옴.
+    if (!isEmpty(rsbDvCd)) {
+      // 개인수수료 항목
+      if (!isEmpty(feeHeaderIndvList)) {
+        feeHeaderIndvList.forEach((e) => {
+          columns.push({
+            fieldName: `fee${e.dtaCrtFeeCd}`,
+            header: `${e.srnMarkFeeNm}`,
+            width: '140',
+            styleName: 'text-right',
+            dataType: 'number',
+            numberFormat: '#,##0',
+            headerSummary: {
+              numberFormat: '#,##0',
+              expression: 'sum',
+            },
+          });
+        });
+      }
+
+      // 조직수수료 항목
+      if (!isEmpty(feeHeaderOgList)) {
+        feeHeaderOgList.forEach((e) => {
+          columns.push({
+            fieldName: `fee${e.dtaCrtFeeCd}`,
+            header: `${e.srnMarkFeeNm}`,
+            width: '140',
+            styleName: 'text-right',
+            dataType: 'number',
+            numberFormat: '#,##0',
+            headerSummary: {
+              numberFormat: '#,##0',
+              expression: 'sum',
+            },
+          });
+        });
+      }
+
+      // 기타수수료 항목
+      if (!isEmpty(feeHeaderEtcList)) {
+        feeHeaderEtcList.forEach((e) => {
+          columns.push({
+            fieldName: `fee${e.dtaCrtFeeCd}`,
+            header: `${e.srnMarkFeeNm}`,
+            width: '140',
+            styleName: 'text-right',
+            dataType: 'number',
+            numberFormat: '#,##0',
+            headerSummary: {
+              numberFormat: '#,##0',
+              expression: 'sum',
+            },
+          });
+        });
+      }
+    }
+
+    // 수수료계
+    columns.push(
+      { fieldName: 'intbsAmt',
+        header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 과표계
+      { fieldName: 'ddctam',
+        header: t('MSG_TXT_DDTN_SUM'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 공제계
+      { fieldName: 'dsbOjAmt',
+        header: t('MSG_TXT_ACL_DSB_AMT'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 실지급액
+    );
+  } else if (perfYm < '202304') {
+    // 2023년04월 이전
+    columns.push(
+      { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미팅일수
+      { fieldName: 'qlfDvCd', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD }, // 자격-수수료월
+      { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
+    );
+
+    if (rsbDvCd === 'W0205') { // 플래너
+      columns.push(
+        { fieldName: 'strtup', header: t('MSG_TXT_MANAGER'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 스타트업-매니저
+        { fieldName: 'plarStrtup', header: t('MSG_TXT_PLAR'), width: '88.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 스타트업-플래너
+        { fieldName: 'eduCmpfYn', header: t('MSG_TXT_CMPF') + t('MSG_TXT_EDUC'), width: '88.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 보수교육
+        { fieldName: 'topmrSettle', header: t('MSG_TXT_STMNT'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석플래너교육-정착
+        { fieldName: 'topmrNmn', header: t('MSG_TXT_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 수석플래너교육-차월
+        { fieldName: 'topmrPrtic', header: t('MSG_TXT_PRTIC'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석플래너교육-실전
+        { fieldName: 'ojt', header: `OJT${t('MSG_TXT_DC')}`, width: '122.7', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // OJT일수
+        { fieldName: 'bizRgst', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 등록기준월
+        { fieldName: 'fstBizRgst', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 최초업무등록월
+        { fieldName: 'reBizRgst', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 재등록월
+        { fieldName: 'bizFnlCltn', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 최종해약월
+        { fieldName: 'bizCltn', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 업무해약월
+        { fieldName: 'prfmtMm', header: t('MSG_TXT_PRFMT_MON'), width: '89.3', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 승진월-지점장은 승진월, 플래너는 강등월
+        { fieldName: 'plarRgstMm', header: t('MSG_TXT_RGS') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석플래너-등록월
+        { fieldName: 'plarCltnMm', header: t('MSG_TXT_CLTN') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석플래너-해약월
+        { fieldName: 'wmRestrtDt', header: `WM${t('MSG_TXT_OPNG')}`, width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // WM개시
+        { fieldName: 'wmCltnDt', header: `WM${t('MSG_TXT_CLTN')}`, width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // WM해약
+        { fieldName: 'aclActiAchv', header: t('MSG_TXT_ACL_ACTI') + t('MSG_TXT_ACHV'), width: '122.7', styleName: 'text-center' }, // 실활동달성
+      );
+    } else if (rsbDvCd === 'W0204') { // 지점장
+      columns.push(
+        { fieldName: 'topmrSettle', header: t('MSG_TXT_STMNT'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석플래너교육-정착
+        { fieldName: 'topmrNmn', header: t('MSG_TXT_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 수석플래너교육-차월
+        { fieldName: 'eduBrmgrOnl', header: t('MSG_TXT_BRMGR') + t('MSG_TXT_ONL'), width: '88.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 지점장온라인
+        { fieldName: 'bizRgst', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 등록기준월
+        { fieldName: 'fstBizRgst', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 최초업무등록월
+        { fieldName: 'reBizRgst', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 재등록월
+        { fieldName: 'bizFnlCltn', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 최종해약월
+        { fieldName: 'bizCltn', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 업무해약월
+        { fieldName: 'prfmtMm', header: t('MSG_TXT_PRFMT_MON'), width: '89.3', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 승진월-지점장은 승진월, 플래너는 강등월
+        { fieldName: 'plarRgstMm', header: t('MSG_TXT_RGS') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석플래너-등록월
+        { fieldName: 'plarCltnMm', header: t('MSG_TXT_CLTN') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석플래너-해약월
+        { fieldName: 'wmRestrtDt', header: `WM${t('MSG_TXT_OPNG')}`, width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // WM개시
+        { fieldName: 'wmCltnDt', header: `WM${t('MSG_TXT_CLTN')}`, width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // WM해약
+        { fieldName: 'aclActiMinBaseAchv', header: t('MSG_TXT_MIN') + t('MSG_TXT_BASE') + t('MSG_TXT_ACHV'), width: '110.4', styleName: 'text-center' }, // 실활동인원-최소기준달성
+        { fieldName: 'lstmmCprDv', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CPR') + t('MSG_TXT_DIV'), width: '110.4', styleName: 'text-center' }, // 실활동인원-전월대비구분
+        { fieldName: 'wpcnt',
+          header: 'WP',
+          width: '110.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 실활동인원-WP
+        { fieldName: 'wmcnt',
+          header: 'WM',
+          width: '122.7',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 실활동인원-WM
+        { fieldName: 'spcnt',
+          header: 'SP',
+          width: '122.7',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 실활동인원-SP
+        { fieldName: 'totPpl',
+          header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_PERSONS'),
+          width: '110.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 실활동인원-총인원
+      );
+    } else if (isEmpty(rsbDvCd)) { // 전체
+      columns.push(
+        { fieldName: 'strtup', header: t('MSG_TXT_MANAGER'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 스타트업-매니저
+        { fieldName: 'plarStrtup', header: t('MSG_TXT_PLAR'), width: '88.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 스타트업-플래너
+        { fieldName: 'eduCmpfYn', header: t('MSG_TXT_CMPF') + t('MSG_TXT_EDUC'), width: '88.7', styleName: 'text-center' }, // 보수교육
+        { fieldName: 'topmrSettle', header: t('MSG_TXT_STMNT'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석플래너교육-정착
+        { fieldName: 'topmrNmn', header: t('MSG_TXT_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 수석플래너교육-차월
+        { fieldName: 'topmrPrtic', header: t('MSG_TXT_PRTIC'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석플래너교육-실전
+        { fieldName: 'eduBrmgrOnl', header: t('MSG_TXT_BRMGR') + t('MSG_TXT_ONL'), width: '88.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 지점장온라인
+        { fieldName: 'ojt', header: `OJT${t('MSG_TXT_DC')}`, width: '122.7', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // OJT일수
+        { fieldName: 'bizRgst', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 등록기준월
+        { fieldName: 'fstBizRgst', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 최초업무등록월
+        { fieldName: 'reBizRgst', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 재등록월
+        { fieldName: 'bizFnlCltn', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 최종해약월
+        { fieldName: 'bizCltn', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 업무해약월
+        { fieldName: 'prfmtMm', header: t('MSG_TXT_PRFMT_MON'), width: '89.3', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 승진월
+        { fieldName: 'plarRgstMm', header: t('MSG_TXT_RGS') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석플래너-등록월
+        { fieldName: 'plarCltnMm', header: t('MSG_TXT_CLTN') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수석플래너-해약월
+        { fieldName: 'wmRestrtDt', header: `WM${t('MSG_TXT_OPNG')}`, width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // WM개시
+        { fieldName: 'wmCltnDt', header: `WM${t('MSG_TXT_CLTN')}`, width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // WM해약
+        { fieldName: 'aclActiAchv', header: t('MSG_TXT_ACL_ACTI') + t('MSG_TXT_ACHV'), width: '122.7', styleName: 'text-center' }, // 실활동달성
+        { fieldName: 'aclActiMinBaseAchv', header: t('MSG_TXT_MIN') + t('MSG_TXT_BASE') + t('MSG_TXT_ACHV'), width: '110.4', styleName: 'text-center' }, // 실활동인원-최소기준달성
+        { fieldName: 'lstmmCprDv', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CPR') + t('MSG_TXT_DIV'), width: '110.4', styleName: 'text-center' }, // 실활동인원-전월대비구분
+        { fieldName: 'wpcnt',
+          header: 'WP',
+          width: '110.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 실활동인원-WP
+        { fieldName: 'wmcnt',
+          header: 'WM',
+          width: '122.7',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 실활동인원-WM
+        { fieldName: 'spcnt',
+          header: 'SP',
+          width: '122.7',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 실활동인원-SP
+        { fieldName: 'totPpl',
+          header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_PERSONS'),
+          width: '110.4',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 실활동인원-총인원
+      );
+    }
+
+    // 중간에 공통된 항목
+    columns.push(
+      { fieldName: 'indvRental',
+        header: t('MSG_TXT_RENTAL'),
+        width: '110.4',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 인정실적-렌탈
+      { fieldName: 'indvSpay',
+        header: t('MSG_TXT_SNGL_PMNT'),
+        width: '110.4',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 인정실적-일시불
+      { fieldName: 'indvEnvrElhmExcp',
+        header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'),
+        width: '110.4',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 인정실적-환경가전외
+      { fieldName: 'indvElhmNtor',
+        header: t('MSG_TXT_ELHM') + t('MSG_TXT_NTOR') + t('MSG_TXT_COUNT'),
+        width: '110.4',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 가전순주문건수
+      { fieldName: 'indvElhmAckmt',
+        header: t('MSG_TXT_INDV') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 개인가전인정건수
+      { fieldName: 'indvBsAckmt',
+        header: `${t('MSG_TXT_INDV')}BS${t('MSG_TXT_ACKMT')}${t('MSG_TXT_COUNT')}`,
+        width: '110.4',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 개인BS인정건수
+      { fieldName: 'indvElhmChdvcCnt',
+        header: t('MSG_TXT_COUNT'),
+        width: '110.4',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 가전기변-건수
+      { fieldName: 'indvElhmChdvcAmt',
+        header: t('MSG_TXT_AMT'),
+        width: '110.4',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 가전기변-금액
+      { fieldName: 'indvEnvrElhmRental',
+        header: t('MSG_TXT_RENTAL'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 환경가전(기준금액)-렌탈
+      { fieldName: 'indvEnvrElhmSpay',
+        header: t('MSG_TXT_SNGL_PMNT'),
+        width: '139.2',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 환경가전(기준금액)-일시불
+      { fieldName: 'indvEnvrElhmFxam',
+        header: t('MSG_TXT_FXAM'),
+        width: '176',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 환경가전(기준금액)-정액
+      { fieldName: 'indvEnvrElhmExcpSpay',
+        header: t('MSG_TXT_SNGL_PMNT'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 환경가전외(기준금액)-일시불
+      { fieldName: 'indvEnvrElhmExcpFxam',
+        header: t('MSG_TXT_FXAM'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 환경가전외(기준금액)-정액
+      { fieldName: 'indvLivePakgCnt',
+        header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'),
+        width: '110.4',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 라이브팩건수
+      { fieldName: 'indvNwSellCnt',
+        header: t('MSG_TXT_INDV') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 개인신규판매 건수
+      { fieldName: 'indvHcrSellCnt',
+        header: t('MSG_TXT_HOME_CARE') + t('TXT_MSG_SELL_PRC'),
+        width: '128.1',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 홈케어판매가
+      { fieldName: 'ogElhmAckmt',
+        header: t('MSG_TXT_OG') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 조직가전인정건수
+      { fieldName: 'ogNwSellCnt',
+        header: t('MSG_TXT_OG') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 조직신규판매건수
+      { fieldName: 'ogEnvrElhmRental',
+        header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_RENTAL'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 조직(기준금액)-환경가전렌탈
+      { fieldName: 'ogEnvrElhmSpay',
+        header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_SNGL_PMNT'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 조직(기준금액)-환경가전일시불
+      { fieldName: 'ogEnvrElhmExcpSpay',
+        header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_SNGL_PMNT'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 조직(기준금액)-환경가전외 일시불
+      { fieldName: 'feeHcr',
+        header: t('MSG_TXT_HOME_CARE'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 홈케어
+      { fieldName: 'feeLivePakg',
+        header: t('MSG_TXT_LIVE_PAKG'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 라이브팩
+      { fieldName: 'feeElhmPrpn',
+        header: t('MSG_TXT_ELHM') + t('MSG_TXT_PRPN'),
+        width: '122.7',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 가전비례
+      { fieldName: 'feeElhmExcpPrpn',
+        header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_PRPN'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 가전외 비례
+    );
+
+    if (rsbDvCd === 'W0205') { // 플래너
+      columns.push(
+        { fieldName: 'elhmMetg',
+          header: t('MSG_TXT_ELHM') + t('MSG_TXT_METG'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 가전미팅
+        { fieldName: 'spayMetg',
+          header: t('MSG_TXT_SNGL_PMNT') + t('MSG_TXT_METG'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 일시불미팅
+        { fieldName: 'elhmExcpMetg',
+          header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_METG'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 가전외미팅
+      );
+    } else if (isEmpty(rsbDvCd)) { // 전체
+      columns.push(
+        { fieldName: 'elhmMetg',
+          header: t('MSG_TXT_ELHM') + t('MSG_TXT_METG'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 가전미팅
+        { fieldName: 'spayMetg',
+          header: t('MSG_TXT_SNGL_PMNT') + t('MSG_TXT_METG'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 일시불미팅
+        { fieldName: 'elhmExcpMetg',
+          header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_METG'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 가전외미팅
+      );
+    }
+
+    // 중간에 공통된 항목
+    columns.push(
+      { fieldName: 'feeSellEncrg',
+        header: t('MSG_TXT_SELL') + t('MSG_TXT_ENRG'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 판매장려
+      { fieldName: 'feeEdu',
+        header: t('MSG_TXT_EDUC'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 교육
+      { fieldName: 'feeSettle',
+        header: t('MSG_TXT_STMNT'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 정착
+      { fieldName: 'feeMchnCh',
+        header: t('MSG_TXT_MCHN_CH'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 기기변경
+      { fieldName: 'feeBsMngt',
+        header: `BS${t('MSG_TXT_MGT')}`,
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // BS관리
+      { fieldName: 'feeRglvl',
+        header: t('MSG_TXT_RGLVL'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 급지
+      { fieldName: 'feeSellEncrgRett',
+        header: t('MSG_TXT_SELL') + t('MSG_TXT_ENRG') + t('MSG_TXT_RETT'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 판매장려 소급
+      { fieldName: 'feeElhmOgPrpn',
+        header: t('MSG_TXT_ELHM') + t('MSG_TXT_OG') + t('MSG_TXT_PRPN'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 가전조직비례
+      { fieldName: 'feeElhmOgExcpPrpn',
+        header: t('MSG_TXT_ELHM') + t('MSG_TXT_OG') + t('MSG_TXT_EXCP') + t('MSG_TXT_PRPN'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 가전조직외비례
+      { fieldName: 'feeOgSellEncrg',
+        header: t('MSG_TXT_OG') + t('MSG_TXT_SELL') + t('MSG_TXT_ENRG'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 조직판매장려
+      { fieldName: 'feeNwSell',
+        header: t('MSG_TXT_NEW') + t('MSG_TXT_SELL'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 신규판매
+      { fieldName: 'feeOgMngt',
+        header: t('MSG_TXT_OG') + t('MSG_TXT_MGT'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 조직관리
+    );
+
+    if (rsbDvCd === 'W0204') { // 지점장
+      columns.push(
+        { fieldName: 'feeSpmtEncrg',
+          header: t('MSG_TXT_ADD') + t('MSG_TXT_ENRG'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 추가장려
+      );
+    } else if (isEmpty(rsbDvCd)) { // 전체
+      columns.push(
+        { fieldName: 'feeSpmtEncrg',
+          header: t('MSG_TXT_ADD') + t('MSG_TXT_ENRG'),
+          width: '129',
+          styleName: 'text-right',
+          dataType: 'number',
+          numberFormat: '#,###,##0',
+          headerSummary: {
+            numberFormat: '#,##0',
+            expression: 'sum',
+          } }, // 추가장려
+      );
+    }
+
+    // 공통 항목
+    columns.push(
+      { fieldName: 'feeOgEjt1',
+        header: `${t('MSG_TXT_OG') + t('MSG_TXT_EJT')}1`,
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 조직배출1
+      { fieldName: 'feeOgEjt2',
+        header: `${t('MSG_TXT_OG') + t('MSG_TXT_EJT')}2`,
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 조직배출2
+      { fieldName: 'feeNbBrch',
+        header: t('MSG_TXT_NB') + t('MSG_TXT_BRANCH'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 신설지점
+      { fieldName: 'feeMsh',
+        header: t('MSG_TXT_MEMBERSHIP'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 멤버십
+      { fieldName: 'feeAdsb',
+        header: t('MSG_TXT_ADSB'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 재지급
+      { fieldName: 'feeEtcSppt',
+        header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 기타지원
+      { fieldName: 'feeWmTelc',
+        header: `WM${t('MSG_TXT_CMNC')}`,
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // WM통신
+      { fieldName: 'feeWmEtc',
+        header: `WM${t('MSG_TXT_ETC')}`,
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // WM기타
+      { fieldName: 'feePrrVst',
+        header: t('MSG_TXT_PRR_VST'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 사전방문
+      { fieldName: 'feeUniform',
+        header: t('MSG_TXT_UNIFORM'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 유니폼
+      { fieldName: 'feeMatGrmg',
+        header: t('MSG_TXT_MAT_HODT'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 자재실장
+      { fieldName: 'indvBsFshCt',
+        header: `BS${t('MSG_TXT_COMPLETE')}${t('MSG_TXT_ACC')}`,
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // BS완료계정
+      { fieldName: 'intbsAmt',
+        header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 과표합계
+      { fieldName: 'ddctam',
+        header: t('MSG_TXT_DDTN_SUM'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 공제계
+      { fieldName: 'dsbOjAmt',
+        header: t('MSG_TXT_ACL_DSB_AMT'),
+        width: '129',
+        styleName: 'text-right',
+        dataType: 'number',
+        numberFormat: '#,###,##0',
+        headerSummary: {
+          numberFormat: '#,##0',
+          expression: 'sum',
+        } }, // 실지급액
+    );
+  }
+
+  return columns;
+}
+
+// 그리드 컬럼레이아웃 세팅
+function setGridColumnLayout(view) {
+  const { perfYm, rsbDvCd } = searchParams.value;
+
+  // 컬럼레이아웃 세팅을 위한 배열 생성
+  // 2023년 4월이후, 직책유형이 전체가 아닐 때만 수수료 항목을 가변으로 가져옴
+  if (!isEmpty(rsbDvCd) && perfYm >= '202304') {
+    if (!isEmpty(feeHeaderIndvList)) {
+      feeHeaderIndvList.forEach((e) => {
+        feeHeaderIndvColumnList.push(`fee${e.dtaCrtFeeCd}`);
+      });
+    }
+
+    if (!isEmpty(feeHeaderOgList)) {
+      feeHeaderOgList.forEach((e) => {
+        feeHeaderOgColumnList.push(`fee${e.dtaCrtFeeCd}`);
+      });
+    }
+
+    if (!isEmpty(feeHeaderEtcList)) {
+      feeHeaderEtcList.forEach((e) => {
+        feeHeaderEtcColumnList.push(`fee${e.dtaCrtFeeCd}`);
+      });
+    }
+  }
+
+  if (perfYm >= '202304') { // 2023년04월 이후
+    if (rsbDvCd === 'W0205') { // 플래너
+      view.setColumnLayout([
+        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd',
+        {
+          header: t('MSG_TXT_BIZ_RGST_ARTC'), // 업무등록사항
+          direction: 'horizontal',
+          items: ['fstBizRgst', 'bizRgst', 'bizFnlCltn', 'bizCltn'],
+        },
+        'metgPrscDc',
+        {
+          header: t('MSG_TXT_QLF'), // 자격
+          direction: 'horizontal',
+          items: ['qlfDvCd', 'nmnQlfDvNm'],
+        },
+        {
+          header: t('MSG_TXT_EDUC'), // 교육
+          direction: 'horizontal',
+          items: ['strtup', 'preStrtup', 'eduCmpf', 'eduMngerSettle1', 'eduMngerSettle2', 'eduMngerSettle345', 'edu2Pre', 'topmrSettle', 'topmrNmn'],
+        },
+        {
+          header: t('MSG_TXT_MANAGER') + t('MSG_TXT_OPNG_ARTC'), // 매니저개시사항
+          direction: 'horizontal',
+          items: ['mngerFstOpng', 'mngerOpng', 'mngerFnlCltn', 'mngerBizCltn', 'mngerBltnNmn', 'mngerSettleDsbTp', 'indvD5AsnCnt'],
+        },
+        {
+          header: `${t('MSG_TXT_INDV')}BS`, // 개인BS
+          direction: 'horizontal',
+          items: ['indvAsnCnt', 'indvFshCnt', 'indvProcsRat', 'indvDbsRat', 'indvW1Cnt', 'indvW2Cnt'],
+        },
+        {
+          header: t('MSG_TXT_INDV_PERF'), // 개인실적
+          direction: 'horizontal',
+          items: ['indvElhmAckmtCnt', 'indvRentalBasePrc', 'indvSpayBasePrc', 'indvChdvcCnt', 'indvElhmExcpAckmtPerf'],
+        },
+        {
+          header: t('MSG_TXT_INDV') + t('MSG_TXT_ETC') + t('MSG_TXT_SELL'), // 개인기타판매
+          direction: 'horizontal',
+          items: ['indvFxamCt', 'indvLivePakgCnt', 'indvHcrMshCnt'],
+        },
+        {
+          header: t('MSG_TXT_INDV') + t('MSG_TXT_ACC_NINC'), // 개인계정순증
+          direction: 'horizontal',
+          items: ['indvCanCnt', 'indvNwCnt', 'indvNinc'],
+        },
+        {
+          header: t('MSG_TXT_PRSNL_FEE'), // 개인수수료
+          direction: 'horizontal',
+          items: feeHeaderIndvColumnList,
+        },
+        {
+          header: t('MSG_TXT_ETC') + t('MSG_TXT_FEE'), // 기타수수료
+          direction: 'horizontal',
+          items: feeHeaderEtcColumnList,
+        },
+        {
+          header: t('MSG_TXT_FEE_SUM'),
+          direction: 'horizontal',
+          items: ['intbsAmt', 'ddctam', 'dsbOjAmt'],
+        },
+      ]);
+    } else if (rsbDvCd === 'W0204') { // 지점장
+      view.setColumnLayout([
+        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd',
+        {
+          header: t('MSG_TXT_BIZ_RGST_ARTC'), // 업무등록사항
+          direction: 'horizontal',
+          items: ['fstBizRgst', 'bizRgst', 'bizFnlCltn', 'bizCltn'],
+        },
+        'prfmtMm', 'prfmtNmn', 'metgPrscDc',
+        {
+          header: t('MSG_TXT_QLF'), // 자격
+          direction: 'horizontal',
+          items: ['qlfDvCd', 'nmnQlfDvNm'],
+        },
+        {
+          header: t('MSG_TXT_EDUC'), // 교육
+          direction: 'horizontal',
+          items: ['strtup'],
+        },
+        {
+          header: `${t('MSG_TXT_INDV')}BS`, // 개인BS
+          direction: 'horizontal',
+          items: ['indvAsnCnt', 'indvFshCnt', 'indvProcsRat', 'indvDbsRat', 'indvW1Cnt', 'indvW2Cnt'],
+        },
+        {
+          header: `${t('MSG_TXT_OG')}BS`, // 조직BS
+          direction: 'horizontal',
+          items: ['ogAsnCnt', 'ogFshCnt', 'ogProcsRat', 'ogDbsRat'],
+        },
+        {
+          header: t('MSG_TXT_INDV_PERF'), // 개인실적
+          direction: 'horizontal',
+          items: ['indvElhmAckmtCnt', 'indvRentalBasePrc', 'indvSpayBasePrc', 'indvChdvcCnt', 'indvElhmExcpAckmtPerf'],
+        },
+        {
+          header: t('MSG_TXT_INDV') + t('MSG_TXT_ETC') + t('MSG_TXT_SELL'), // 개인기타판매
+          direction: 'horizontal',
+          items: ['indvFxamCt', 'indvLivePakgCnt', 'indvHcrMshCnt'],
+        },
+        {
+          header: t('MSG_TXT_INDV') + t('MSG_TXT_ACC_NINC'), // 개인계정순증
+          direction: 'horizontal',
+          items: ['indvCanCnt', 'indvNwCnt', 'indvNinc'],
+        },
+        {
+          header: t('MSG_TXT_OG_PERF'), // 조직실적
+          direction: 'horizontal',
+          items: ['ogElhmAckmtCnt', 'ogRentalBasePrc', 'ogSpayBasePrc', 'ogChdvcCnt', 'ogPerfSum'],
+        },
+        {
+          header: t('MSG_TXT_OG') + t('MSG_TXT_ACC_NINC'), // 조직계정순증
+          direction: 'horizontal',
+          items: ['ogCanCnt', 'ogNwCnt', 'ogNinc'],
+        },
+        {
+          header: t('MSG_TXT_PRSNL_FEE'), // 개인수수료
+          direction: 'horizontal',
+          items: feeHeaderIndvColumnList,
+        },
+        {
+          header: t('MSG_TXT_ORGNSTN_FEE'), // 조직수수료
+          direction: 'horizontal',
+          items: feeHeaderOgColumnList,
+        },
+        {
+          header: t('MSG_TXT_ETC') + t('MSG_TXT_FEE'), // 기타수수료
+          direction: 'horizontal',
+          items: feeHeaderEtcColumnList,
+        },
+        {
+          header: t('MSG_TXT_FEE_SUM'),
+          direction: 'horizontal',
+          items: ['intbsAmt', 'ddctam', 'dsbOjAmt'],
+        },
+      ]);
+    } else if (isEmpty(rsbDvCd)) { // 전체
+      view.setColumnLayout([
+        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd',
+        {
+          header: t('MSG_TXT_BIZ_RGST_ARTC'), // 업무등록사항
+          direction: 'horizontal',
+          items: ['fstBizRgst', 'bizRgst', 'bizFnlCltn', 'bizCltn'],
+        },
+        'prfmtMm', 'prfmtNmn', 'metgPrscDc',
+        {
+          header: t('MSG_TXT_QLF'), // 자격
+          direction: 'horizontal',
+          items: ['qlfDvCd', 'nmnQlfDvNm'],
+        },
+        {
+          header: t('MSG_TXT_EDUC'), // 교육
+          direction: 'horizontal',
+          items: ['strtup', 'preStrtup', 'eduCmpf', 'eduMngerSettle1', 'eduMngerSettle2', 'eduMngerSettle345', 'edu2Pre', 'eduBrmgrOnl', 'topmrSettle', 'topmrNmn'],
+        },
+        {
+          header: t('MSG_TXT_MANAGER') + t('MSG_TXT_OPNG_ARTC'), // 매니저개시사항
+          direction: 'horizontal',
+          items: ['mngerFstOpng', 'mngerOpng', 'mngerFnlCltn', 'mngerBizCltn', 'mngerBltnNmn', 'mngerSettleDsbTp', 'indvD5AsnCnt'],
+        },
+        {
+          header: `${t('MSG_TXT_INDV')}BS`, // 개인BS
+          direction: 'horizontal',
+          items: ['indvAsnCnt', 'indvFshCnt', 'indvProcsRat', 'indvDbsRat', 'indvW1Cnt', 'indvW2Cnt'],
+        },
+        {
+          header: `${t('MSG_TXT_OG')}BS`, // 조직BS
+          direction: 'horizontal',
+          items: ['ogAsnCnt', 'ogFshCnt', 'ogProcsRat', 'ogDbsRat'],
+        },
+        {
+          header: t('MSG_TXT_INDV_PERF'), // 개인실적
+          direction: 'horizontal',
+          items: ['indvElhmAckmtCnt', 'indvRentalBasePrc', 'indvSpayBasePrc', 'indvChdvcCnt', 'indvElhmExcpAckmtPerf'],
+        },
+        {
+          header: t('MSG_TXT_INDV') + t('MSG_TXT_ETC') + t('MSG_TXT_SELL'), // 개인기타판매
+          direction: 'horizontal',
+          items: ['indvFxamCt', 'indvLivePakgCnt', 'indvHcrMshCnt'],
+        },
+        {
+          header: t('MSG_TXT_INDV') + t('MSG_TXT_ACC_NINC'), // 개인계정순증
+          direction: 'horizontal',
+          items: ['indvCanCnt', 'indvNwCnt', 'indvNinc'],
+        },
+        {
+          header: t('MSG_TXT_OG_PERF'), // 조직실적
+          direction: 'horizontal',
+          items: ['ogElhmAckmtCnt', 'ogRentalBasePrc', 'ogSpayBasePrc', 'ogChdvcCnt', 'ogPerfSum'],
+        },
+        {
+          header: t('MSG_TXT_OG') + t('MSG_TXT_ACC_NINC'), // 조직계정순증
+          direction: 'horizontal',
+          items: ['ogCanCnt', 'ogNwCnt', 'ogNinc'],
+        },
+        {
+          header: t('MSG_TXT_PRSNL_FEE'), // 개인수수료
+          direction: 'horizontal',
+          items: ['homeCare', 'rstl', 'livePakg', 'indv1Fee', 'indv2Fee', 'indv3Fee', 'indv4Fee', 'indv5Fee', 'indv6Fee', 'indv7Fee', 'indv8Fee', 'indv9Fee', 'indv10Fee', 'indv11Fee', 'indv12Fee', 'indv13Fee', 'indv14Fee', 'indv15Fee', 'indv16Fee'],
+        },
+        {
+          header: t('MSG_TXT_ORGNSTN_FEE'), // 조직수수료
+          direction: 'horizontal',
+          items: ['og1Fee', 'og2Fee', 'og3Fee', 'og4Fee', 'og5Fee', 'og6Fee', 'og7Fee', 'og8Fee'],
+        },
+        {
+          header: t('MSG_TXT_ETC') + t('MSG_TXT_FEE'), // 기타수수료
+          direction: 'horizontal',
+          items: ['etc1Atc', 'etc2Atc', 'etc3Atc'],
+        },
+        {
+          header: t('MSG_TXT_FEE_SUM'),
+          direction: 'horizontal',
+          items: ['intbsAmt', 'ddctam', 'dsbOjAmt'],
+        },
+      ]);
+    }
+  } else if (perfYm < '202304') { // 2023년04월 이전
+    if (rsbDvCd === 'W0205') { // 플래너
+      view.setColumnLayout([
+        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'metgPrscDc',
+        {
+          header: t('MSG_TXT_QLF'),
+          direction: 'horizontal',
+          items: ['qlfDvCd', 'nmnQlfDvNm'],
+        },
+        {
+          header: t('MSG_TXT_SRTUP'),
+          direction: 'horizontal',
+          items: ['strtup', 'plarStrtup'],
+        },
+        'eduCmpfYn',
+        {
+          header: t('MSG_TXT_TOPMR_PLAR') + t('MSG_TXT_EDUC'),
+          direction: 'horizontal',
+          items: ['topmrSettle', 'topmrNmn', 'topmrPrtic'],
+        },
+        'ojt', 'bizRgst', 'fstBizRgst', 'reBizRgst', 'bizFnlCltn', 'bizCltn', 'prfmtMm',
+
+        {
+          header: t('MSG_TXT_TOPMR_PLAR'),
+          direction: 'horizontal',
+          items: ['plarRgstMm', 'plarCltnMm'],
+        },
+        'wmRestrtDt', 'wmCltnDt', 'aclActiAchv',
+        {
+          header: t('TXT_MSG_ACKMT_PERF'),
+          direction: 'horizontal',
+          items: ['indvRental', 'indvSpay', 'indvEnvrElhmExcp'],
+        },
+        'indvElhmNtor', 'indvElhmAckmt', 'indvBsAckmt',
+        {
+          header: t('MSG_TXT_ELHM') + t('MSG_TXT_CHNG'),
+          direction: 'horizontal',
+          items: ['indvElhmChdvcCnt', 'indvElhmChdvcAmt'],
+        },
+        {
+          header: `${t('MSG_TXT_ENVR_ELHM')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+          direction: 'horizontal',
+          items: ['indvEnvrElhmRental', 'indvEnvrElhmSpay', 'indvEnvrElhmFxam'],
+        },
+        {
+          header: `${t('MSG_TXT_ENVR_ELHM') + t('MSG_TXT_EXCP')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+          direction: 'horizontal',
+          items: ['indvEnvrElhmExcpSpay', 'indvEnvrElhmExcpFxam'],
+        },
+        'indvLivePakgCnt', 'indvNwSellCnt', 'indvHcrSellCnt', 'ogElhmAckmt', 'ogNwSellCnt',
+        {
+          header: `${t('MSG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+          direction: 'horizontal',
+          items: ['ogEnvrElhmRental', 'ogEnvrElhmSpay', 'ogEnvrElhmExcpSpay'],
+        },
+        'feeHcr', 'feeLivePakg', 'feeElhmPrpn', 'feeElhmExcpPrpn',
+        'elhmMetg', 'spayMetg', 'elhmExcpMetg', 'feeSellEncrg', 'feeEdu', 'feeSettle', 'feeMchnCh', 'feeBsMngt', 'feeRglvl',
+        'feeSellEncrgRett', 'feeElhmOgPrpn', 'feeElhmOgExcpPrpn', 'feeOgSellEncrg', 'feeNwSell', 'feeOgMngt', 'feeOgEjt1', 'feeOgEjt2', 'feeNbBrch',
+        'feeMsh', 'feeAdsb', 'feeEtcSppt', 'feeWmTelc', 'feeWmEtc', 'feePrrVst', 'feeUniform', 'feeMatGrmg', 'indvBsFshCt',
+        'intbsAmt', 'ddctam', 'dsbOjAmt',
+      ]);
+    } else if (rsbDvCd === 'W0204') { // 지점장
+      view.setColumnLayout([
+        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'metgPrscDc',
+        {
+          header: t('MSG_TXT_QLF'),
+          direction: 'horizontal',
+          items: ['qlfDvCd', 'nmnQlfDvNm'],
+        },
+        {
+          header: t('MSG_TXT_TOPMR_PLAR') + t('MSG_TXT_EDUC'),
+          direction: 'horizontal',
+          items: ['topmrSettle', 'topmrNmn'],
+        },
+        'eduBrmgrOnl', 'bizRgst', 'fstBizRgst', 'reBizRgst', 'bizFnlCltn', 'bizCltn', 'prfmtMm',
+        {
+          header: t('MSG_TXT_TOPMR_PLAR'),
+          direction: 'horizontal',
+          items: ['plarRgstMm', 'plarCltnMm'],
+        },
+        'wmRestrtDt', 'wmCltnDt',
+        {
+          header: t('MSG_TXT_ACL_ACTI_PPL'),
+          direction: 'horizontal',
+          items: ['aclActiMinBaseAchv', 'lstmmCprDv', 'wpcnt', 'wmcnt', 'spcnt', 'totPpl'],
+        },
+        {
+          header: t('TXT_MSG_ACKMT_PERF'),
+          direction: 'horizontal',
+          items: ['indvRental', 'indvSpay', 'indvEnvrElhmExcp'],
+        },
+        'indvElhmNtor', 'indvElhmAckmt', 'indvBsAckmt',
+        {
+          header: t('MSG_TXT_ELHM') + t('MSG_TXT_CHNG'),
+          direction: 'horizontal',
+          items: ['indvElhmChdvcCnt', 'indvElhmChdvcAmt'],
+        },
+        {
+          header: `${t('MSG_TXT_ENVR_ELHM')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+          direction: 'horizontal',
+          items: ['indvEnvrElhmRental', 'indvEnvrElhmSpay', 'indvEnvrElhmFxam'],
+        },
+        {
+          header: `${t('MSG_TXT_ENVR_ELHM') + t('MSG_TXT_EXCP')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+          direction: 'horizontal',
+          items: ['indvEnvrElhmExcpSpay', 'indvEnvrElhmExcpFxam'],
+        },
+        'indvLivePakgCnt', 'indvNwSellCnt', 'indvHcrSellCnt', 'ogElhmAckmt', 'ogNwSellCnt',
+        {
+          header: `${t('MSG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+          direction: 'horizontal',
+          items: ['ogEnvrElhmRental', 'ogEnvrElhmSpay', 'ogEnvrElhmExcpSpay'],
+        },
+        'feeHcr', 'feeLivePakg', 'feeElhmPrpn', 'feeElhmExcpPrpn', 'feeSellEncrg', 'feeEdu', 'feeSettle', 'feeMchnCh',
+        'feeBsMngt', 'feeRglvl', 'feeSellEncrgRett', 'feeElhmOgPrpn', 'feeElhmOgExcpPrpn', 'feeOgSellEncrg', 'feeNwSell', 'feeOgMngt',
+        'feeSpmtEncrg', 'feeOgEjt1', 'feeOgEjt2', 'feeNbBrch', 'feeMsh', 'feeAdsb', 'feeEtcSppt', 'feeWmTelc',
+        'feeWmEtc', 'feePrrVst', 'feeUniform', 'feeMatGrmg', 'indvBsFshCt', 'intbsAmt', 'ddctam', 'dsbOjAmt',
+
+      ]);
+    } else {
+      view.setColumnLayout([
+        'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'metgPrscDc',
+        {
+          header: t('MSG_TXT_QLF'),
+          direction: 'horizontal',
+          items: ['qlfDvCd', 'nmnQlfDvNm'],
+        },
+        {
+          header: t('MSG_TXT_SRTUP'),
+          direction: 'horizontal',
+          items: ['strtup', 'plarStrtup'],
+        },
+        'eduCmpfYn',
+        {
+          header: t('MSG_TXT_TOPMR_PLAR') + t('MSG_TXT_EDUC'),
+          direction: 'horizontal',
+          items: ['topmrSettle', 'topmrNmn', 'topmrPrtic'],
+        },
+        'eduBrmgrOnl', 'ojt', 'bizRgst', 'fstBizRgst', 'reBizRgst', 'bizFnlCltn', 'bizCltn', 'prfmtMm',
+        {
+          header: t('MSG_TXT_TOPMR_PLAR'),
+          direction: 'horizontal',
+          items: ['plarRgstMm', 'plarCltnMm'],
+        },
+        'wmRestrtDt', 'wmCltnDt', 'aclActiAchv',
+        {
+          header: t('MSG_TXT_ACL_ACTI_PPL'),
+          direction: 'horizontal',
+          items: ['aclActiMinBaseAchv', 'lstmmCprDv', 'wpcnt', 'wmcnt', 'spcnt', 'totPpl'],
+        },
+        {
+          header: t('TXT_MSG_ACKMT_PERF'),
+          direction: 'horizontal',
+          items: ['indvRental', 'indvSpay', 'indvEnvrElhmExcp'],
+        },
+        'indvElhmNtor', 'indvElhmAckmt', 'indvBsAckmt',
+        {
+          header: t('MSG_TXT_ELHM') + t('MSG_TXT_CHNG'),
+          direction: 'horizontal',
+          items: ['indvElhmChdvcCnt', 'indvElhmChdvcAmt'],
+        },
+        {
+          header: `${t('MSG_TXT_ENVR_ELHM')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+          direction: 'horizontal',
+          items: ['indvEnvrElhmRental', 'indvEnvrElhmSpay', 'indvEnvrElhmFxam'],
+        },
+        {
+          header: `${t('MSG_TXT_ENVR_ELHM') + t('MSG_TXT_EXCP')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+          direction: 'horizontal',
+          items: ['indvEnvrElhmExcpSpay', 'indvEnvrElhmExcpFxam'],
+        },
+        'indvLivePakgCnt', 'indvNwSellCnt', 'indvHcrSellCnt', 'ogElhmAckmt', 'ogNwSellCnt',
+        {
+          header: `${t('MSG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
+          direction: 'horizontal',
+          items: ['ogEnvrElhmRental', 'ogEnvrElhmSpay', 'ogEnvrElhmExcpSpay'],
+        },
+        'feeHcr', 'feeLivePakg', 'feeElhmPrpn', 'feeElhmExcpPrpn', 'elhmMetg', 'spayMetg', 'elhmExcpMetg', 'feeSellEncrg',
+        'feeEdu', 'feeSettle', 'feeMchnCh', 'feeBsMngt', 'feeRglvl', 'feeSellEncrgRett', 'feeElhmOgPrpn', 'feeElhmOgExcpPrpn',
+        'feeOgSellEncrg', 'feeNwSell', 'feeOgMngt', 'feeSpmtEncrg', 'feeOgEjt1', 'feeOgEjt2', 'feeNbBrch', 'feeMsh',
+        'feeAdsb', 'feeEtcSppt', 'feeWmTelc', 'feeWmEtc', 'feePrrVst', 'feeUniform', 'feeMatGrmg', 'indvBsFshCt',
+        'intbsAmt', 'ddctam', 'dsbOjAmt',
+
+      ]);
+    }
+  }
+}
+
+// 그리드 헤더
+async function fetchDataHeader() {
+  searchParams.value.baseYm = searchParams.value.perfYm;
+
+  if (searchParams.value.rsbDvCd === 'W0205') searchParams.value.feeCalcUnitTpCd = '201'; // 플래너
+  else if (searchParams.value.rsbDvCd === 'W0204') searchParams.value.feeCalcUnitTpCd = '202'; // 지점장
+  else searchParams.value.feeCalcUnitTpCd = '201,202'; // 전체
+
+  // 수수료 항목 배열 초기화
+  feeHeaderIndvList = []; // 개인수수료 리스트
+  feeHeaderOgList = []; // 조직수수료 리스트
+  feeHeaderEtcList = []; // 기타수수료 리스트
+  feeHeaderIndvColumnList = []; // 개인수수료 컬럼레이아웃
+  feeHeaderOgColumnList = []; // 조직수수료 컬럼레이아웃
+  feeHeaderEtcColumnList = []; // 기타수수료 컬럼레이아웃
+
+  // 202304 이후, 직책유형이 전체가 아닌 경우에만 수수료항목 동적 구성
+  if (searchParams.value.perfYm >= '202304' && !isEmpty(searchParams.value.rsbDvCd)) {
+    const res = await dataService.get('/sms/common/fee/fee-articles', { params: searchParams.value });
+    res.data.forEach((e) => {
+      if (searchParams.value.rsbDvCd === 'W0204') { // 직책유형 지점장
+        if (e.feeAtcTpCd === '03') { // 조직수수료
+          feeHeaderOgList.push(e);
+        } else if (e.feeAtcTpCd === '07') { // 기타수수료
+          feeHeaderEtcList.push(e);
+        } else if (e.feeAtcTpCd === '02') { // 개인수수료
+          feeHeaderIndvList.push(e);
+        } else if (e.feeAtcTpCd === '01') { // BS수수료는 개인t수수료로
+          feeHeaderIndvList.push(e);
+        }
+      } else if (searchParams.value.rsbDvCd === 'W0205') { // 직책유형 플래너
+        if (e.feeAtcTpCd === '07') { // 기타수수료
+          feeHeaderEtcList.push(e);
+        } else if (e.feeAtcTpCd === '02') { // 개인수수료
+          feeHeaderIndvList.push(e);
+        } else if (e.feeAtcTpCd === '01') { // BS수수료는 개인t수수료로
+          feeHeaderIndvList.push(e);
+        }
+      }
+    });
+  }
+
+  const data = grdMainRef.value.getData();
+  const view = grdMainRef.value.getView();
+
+  // 그리드 세팅
+  const columns = getGridColumns();
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  // 그리드 컬럼 레이아웃 세팅
+  setGridColumnLayout(view);
 }
 
 /*
  *  Event - 직책유형 선택 시 하단 그리드 변경※
  */
 async function onChangedRsbTp() {
-  const { rsbTpCd, perfYm } = searchParams.value;
-  if (rsbTpCd === 'W0205') {
-    if (perfYm > 202304) {
-      isGrid1Visile.value = true;
-      isGrid2Visile.value = false;
-      isGrid3Visile.value = false;
-      isGrid4Visile.value = false;
-      isGrid5Visile.value = false;
-      isGrid6Visile.value = false;
-    } else {
-      isGrid1Visile.value = false;
-      isGrid2Visile.value = false;
-      isGrid3Visile.value = false;
-      isGrid4Visile.value = true;
-      isGrid5Visile.value = false;
-      isGrid6Visile.value = false;
-    }
+  // 그리드 헤더 세팅
+  fetchDataHeader();
+
+  const { rsbDvCd } = searchParams.value;
+  if (rsbDvCd === 'W0205') { // 플래너
     searchParams.value.feeSchdTpCd = '201';
     searchParams.value.unitCd = 'W101';
-  } else if (rsbTpCd === 'W0204') {
-    if (perfYm > 202304) {
-      isGrid1Visile.value = false;
-      isGrid2Visile.value = true;
-      isGrid3Visile.value = false;
-      isGrid4Visile.value = false;
-      isGrid5Visile.value = false;
-      isGrid6Visile.value = false;
-    } else {
-      isGrid1Visile.value = false;
-      isGrid2Visile.value = false;
-      isGrid3Visile.value = false;
-      isGrid4Visile.value = false;
-      isGrid5Visile.value = true;
-      isGrid6Visile.value = false;
-    }
+  } else if (rsbDvCd === 'W0204') { // 지점장
     searchParams.value.feeSchdTpCd = '202';
     searchParams.value.unitCd = 'W102';
-  } else {
-    if (perfYm > 202304) {
-      isGrid1Visile.value = false;
-      isGrid2Visile.value = false;
-      isGrid3Visile.value = true;
-      isGrid4Visile.value = false;
-      isGrid5Visile.value = false;
-      isGrid6Visile.value = false;
-    } else {
-      isGrid1Visile.value = false;
-      isGrid2Visile.value = false;
-      isGrid3Visile.value = false;
-      isGrid4Visile.value = false;
-      isGrid5Visile.value = false;
-      isGrid6Visile.value = true;
-    }
+  } else { // 전체
     searchParams.value.feeSchdTpCd = '';
   }
   await initData();
@@ -347,17 +2754,15 @@ async function onChangedRsbTp() {
 
 async function fetchData() {
   let uri = '';
-  const { prtnrNo, perfYm } = searchParams.value;
+  const { prtnrNo, perfYm, rsbDvCd } = searchParams.value;
   stepNaviRef.value.initProps();
 
-  if (isGrid2Visile.value === true || isGrid5Visile.value === true) {
-    uri = '-brmgr';
-  } else if (isGrid3Visile.value === true || isGrid6Visile.value === true) {
+  if (perfYm < '202304') {
+    uri = '-total-bf';
+  } else if (perfYm >= '202304' && isEmpty(rsbDvCd)) {
     uri = '-total';
   }
-  if (perfYm <= '202304') {
-    uri += '-bf';
-  }
+
   const response = await dataService.get(`/sms/wells/fee/organization-fees/mngers${uri}`, { params: cachedParams, timeout: 300000 });
   const mngerFees = response.data;
   totalCount.value = mngerFees.length;
@@ -407,9 +2812,9 @@ async function onClickRetry(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 미팅집계 클릭 ※
  */
 async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  const { feeTcntDvCd, perfYm, rsbDvCd } = searchParams.value;
   const { codeName } = codes.FEE_TCNT_DV_CD.find((v) => v.codeId === searchParams.value.feeTcntDvCd);
-  if (rsbTpCd === '') {
+  if (rsbDvCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
@@ -419,7 +2824,7 @@ async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       perfYmTxt: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
       feeTcntDvCd,
       feeTcntDvCdTxt: codeName,
-      rsbTpCd,
+      rsbDvCd,
     };
     const { result: isChanged } = await modal({
       component: 'WwfeaFeeMeetingAttendanceRegP',
@@ -436,9 +2841,9 @@ async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 수수료생성 클릭
  */
 async function onClickW202P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
+  const { feeTcntDvCd, perfYm, rsbDvCd } = searchParams.value;
   let feeCalcUnitTpCd;
-  if (rsbTpCd === 'W0205') {
+  if (rsbDvCd === 'W0205') {
     feeCalcUnitTpCd = '201';
   } else {
     feeCalcUnitTpCd = '202';
@@ -460,14 +2865,14 @@ async function onClickW202P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 기타지원 업로드 클릭 ※업무개발에서 별도개발
  */
 async function onClickW205P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { rsbTpCd } = searchParams.value;
+  const { rsbDvCd } = searchParams.value;
   const { result: isUploadSuccess, payload } = await modal({
     component: 'ZwfezXlsUpP',
     componentProps: {
       formatId: 'FOM_FEZ_0023',
       baseYm: searchParams.value.perfYm,
       ogTpCd: 'W02',
-      type: rsbTpCd,
+      type: rsbDvCd,
     },
   });
   if (isUploadSuccess) {
@@ -481,15 +2886,15 @@ async function onClickW205P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 세금공제 클릭 ※
  */
 async function onClickW206P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
-  if (rsbTpCd === '') {
+  const { feeTcntDvCd, perfYm, rsbDvCd } = searchParams.value;
+  if (rsbDvCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
       ogTpCd: 'W02',
       ddtnYm: perfYm,
       feeTcntDvCd,
-      rsbDvCd: rsbTpCd,
+      rsbDvCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeTaxDeductionRegP',
@@ -506,13 +2911,13 @@ async function onClickW206P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 원천세등록 클릭
  */
 async function onClickW207P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { ogTpCd, perfYm, rsbTpCd } = searchParams.value;
+  const { ogTpCd, perfYm, rsbDvCd } = searchParams.value;
   const { result: isUploadSuccess } = await modal({
     component: 'ZwfebFeeCreationWhtxRegP',
     componentProps: {
       perfYm,
       ogTpCd,
-      rsbDvCd: rsbTpCd,
+      rsbDvCd,
     },
   });
 
@@ -533,15 +2938,15 @@ async function onClickW208P() {
  *  Event - 고용보험 공제 클릭 ※
  */
 async function onClickW209P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
-  if (rsbTpCd === '') {
+  const { feeTcntDvCd, perfYm, rsbDvCd } = searchParams.value;
+  if (rsbDvCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
       ogTpCd: 'W02',
       ddtnYm: perfYm,
       feeTcntDvCd,
-      rsbDvCd: rsbTpCd,
+      rsbDvCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeEmpInsuranceRegP',
@@ -558,15 +2963,15 @@ async function onClickW209P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 가지급금 공제 클릭 ※
  */
 async function onClickW210P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { feeTcntDvCd, perfYm, rsbTpCd } = searchParams.value;
-  if (rsbTpCd === '') {
+  const { feeTcntDvCd, perfYm, rsbDvCd } = searchParams.value;
+  if (rsbDvCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
       ogTpCd: 'W02',
       ddtnYm: perfYm,
       feeTcntDvCd,
-      rsbDvCd: rsbTpCd,
+      rsbDvCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeePnpyamDeductionRegP',
@@ -583,14 +2988,14 @@ async function onClickW210P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 부담공제 클릭 ※
  */
 async function onClickW214P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { perfYm, rsbTpCd } = searchParams.value;
-  if (rsbTpCd === '') {
+  const { perfYm, rsbDvCd } = searchParams.value;
+  if (rsbDvCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
       ogTpCd: 'W02',
       perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      rsbDvCd: rsbTpCd,
+      rsbDvCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeBurdenDeductionRegP',
@@ -607,15 +3012,15 @@ async function onClickW214P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 보증예치금 적립 클릭 ※
  */
 async function onClickW216P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { perfYm, rsbTpCd } = searchParams.value;
-  if (rsbTpCd === '') {
+  const { perfYm, rsbDvCd } = searchParams.value;
+  if (rsbDvCd === '') {
     await alert(t('MSG_ALT_SELECT_RSB_TP'));
   } else {
     const param = {
       ogTpCd: 'W02',
       perfYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
       ocYm: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
-      rsbDvCd: rsbTpCd,
+      rsbDvCd,
     };
     const { result: isChanged } = await modal({
       component: 'ZwfecFeeRdsReservingRegP',
@@ -632,13 +3037,13 @@ async function onClickW216P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 이체자료 생성 클릭
  */
 async function onClickW217P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
-  const { perfYm, rsbTpCd, ogTpCd } = searchParams.value;
+  const { perfYm, rsbDvCd, ogTpCd } = searchParams.value;
   const { result: isUploadSuccess } = await modal({
     component: 'ZwfeeFeeCreationFntIzRegP',
     componentProps: {
       perfYm,
       ogTpCd,
-      rsbDvCd: rsbTpCd,
+      rsbDvCd,
     },
   });
   if (isUploadSuccess) {
@@ -681,13 +3086,13 @@ async function onClickW219P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
  *  Event - 전표생성 클릭 ※TBD
  */
 async function onClickW220P() {
-  const { perfYm, ogTpCd, rsbTpCd } = searchParams.value;
+  const { perfYm, ogTpCd, rsbDvCd } = searchParams.value;
   router.push({
     path: '/fee/zwfee-fee-slip-publication-list',
     query: {
       baseYm: perfYm,
       ogTpCd,
-      rsbDvCd: rsbTpCd,
+      rsbDvCd,
     },
   });
 }
@@ -751,23 +3156,24 @@ async function onclickStep(params) {
  *  Event - 엑셀 다운로드 버튼 클릭 ※
  */
 async function onClickExcelDownload() {
-  const { perfYm } = searchParams.value;
+  const { perfYm, rsbDvCd } = searchParams.value;
   let uri = '';
-  if (isGrid2Visile.value === true) {
-    uri = '-brmgr';
-  } else if (isGrid3Visile.value === true) {
+
+  if (perfYm < '202304') {
+    uri = '-total-bf';
+  } else if (perfYm >= '202304' && isEmpty(rsbDvCd)) {
     uri = '-total';
   }
-  if (perfYm <= '202304') {
-    uri += '-bf';
-  }
+
   cachedParams = cloneDeep(searchParams.value);
   const view = grdMainRef.value.getView();
   const response = await dataService.get(`/sms/wells/fee/organization-fees/mngers${uri}`, { params: cachedParams });
+  const exportLayout = view.getColumnNames();
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
+    exportLayout,
   });
 }
 
@@ -801,1468 +3207,27 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrd1Main = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'rsbDvCd' },
-    { fieldName: 'bizRgst1Artc' },
-    { fieldName: 'bizRgst2Artc' },
-    { fieldName: 'bizRgst3Artc' },
-    { fieldName: 'bizRgst4Artc' },
-    { fieldName: 'metgDc' },
-    { fieldName: 'qlf1Atc' },
-    { fieldName: 'qlf2Atc' },
-    { fieldName: 'edu1Atc' },
-    { fieldName: 'edu2Atc' },
-    { fieldName: 'edu3Atc' },
-    { fieldName: 'edu4Atc' },
-    { fieldName: 'edu5Atc' },
-    { fieldName: 'edu6Atc' },
-    { fieldName: 'edu7Atc' },
-    { fieldName: 'edu8Atc' },
-    { fieldName: 'edu9Atc' },
-    { fieldName: 'mngr1Atc' },
-    { fieldName: 'mngr2Atc' },
-    { fieldName: 'mngr3Atc' },
-    { fieldName: 'mngr4Atc' },
-    { fieldName: 'mngr5Atc' },
-    { fieldName: 'mngr6Atc' },
-    { fieldName: 'mngr7Atc' },
-    { fieldName: 'indv1BsAtc', dataType: 'number' },
-    { fieldName: 'indv2BsAtc', dataType: 'number' },
-    { fieldName: 'indv3BsAtc', dataType: 'number' },
-    { fieldName: 'indv4BsAtc', dataType: 'number' },
-    { fieldName: 'indv5BsAtc', dataType: 'number' },
-    { fieldName: 'indv6BsAtc', dataType: 'number' },
-    { fieldName: 'indv1Perf', dataType: 'number' },
-    { fieldName: 'indv2Perf', dataType: 'number' },
-    { fieldName: 'indv3Perf', dataType: 'number' },
-    { fieldName: 'indv4Perf', dataType: 'number' },
-    { fieldName: 'indv5Perf', dataType: 'number' },
-    { fieldName: 'indv1Sell', dataType: 'number' },
-    { fieldName: 'indv2Sell', dataType: 'number' },
-    { fieldName: 'indv3Sell', dataType: 'number' },
-    { fieldName: 'indvAcc1Ninc', dataType: 'number' },
-    { fieldName: 'indvAcc2Ninc', dataType: 'number' },
-    { fieldName: 'indvAcc3Ninc', dataType: 'number' },
-    { fieldName: 'homeCare', dataType: 'number' },
-    { fieldName: 'rstl', dataType: 'number' },
-    { fieldName: 'livePakg', dataType: 'number' },
-    { fieldName: 'indv1Fee', dataType: 'number' },
-    { fieldName: 'indv2Fee', dataType: 'number' },
-    { fieldName: 'indv3Fee', dataType: 'number' },
-    { fieldName: 'indv4Fee', dataType: 'number' },
-    { fieldName: 'indv5Fee', dataType: 'number' },
-    { fieldName: 'indv6Fee', dataType: 'number' },
-    { fieldName: 'indv7Fee', dataType: 'number' },
-    { fieldName: 'indv8Fee', dataType: 'number' },
-    { fieldName: 'indv9Fee', dataType: 'number' },
-    { fieldName: 'indv10Fee', dataType: 'number' },
-    { fieldName: 'indv11Fee', dataType: 'number' },
-    { fieldName: 'indv12Fee', dataType: 'number' },
-    { fieldName: 'indv13Fee', dataType: 'number' },
-    { fieldName: 'indv14Fee', dataType: 'number' },
-    { fieldName: 'indv15Fee', dataType: 'number' },
-    { fieldName: 'indv16Fee', dataType: 'number' },
-    { fieldName: 'etc1Atc', dataType: 'number' },
-    { fieldName: 'etc2Atc', dataType: 'number' },
-    { fieldName: 'etc3Atc', dataType: 'number' },
-    { fieldName: 'intbsSum', dataType: 'number' },
-    { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDsbAmt', dataType: 'number' },
-
-  ];
-
-  const columns = [
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'bizRgst1Artc', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'bizRgst2Artc', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'bizRgst3Artc', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'bizRgst4Artc', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'metgDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' },
-    { fieldName: 'qlf1Atc', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'qlf2Atc', header: 'M+1', width: '140', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'edu1Atc', header: t('MSG_TXT_SRTUP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'edu2Atc', header: t('MSG_TXT_PRE_SRTUP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'edu3Atc', header: t('MSG_TXT_CMPF'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu4Atc', header: `${t('MSG_TXT_STMNT')}1`, width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu5Atc', header: `${t('MSG_TXT_STMNT')}2`, width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu6Atc', header: `${t('MSG_TXT_STMNT')}3,4,5`, width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu7Atc', header: `Pre'${t('MSG_TXT_ACML')}${t('MSG_TXT_EDUC')}`, width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu8Atc', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_STMNT'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'edu9Atc', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_NMN'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'mngr1Atc', header: t('MSG_TXT_FST') + t('MSG_TXT_OPNG_MM'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'mngr2Atc', header: t('MSG_TXT_RE_OPNG') + t('MSG_TXT_MON'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'mngr3Atc', header: t('MSG_TXT_FNL_CLTN_MM'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'mngr4Atc', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'mngr5Atc', header: t('MSG_TXT_OPNG_NMN'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'mngr6Atc', header: t('MSG_TXT_STMNT') + t('MSG_TXT_PAY_TYPE'), width: '91.4', styleName: 'text-center', options: codes.OPNG_CD },
-    { fieldName: 'mngr7Atc', header: `5${t('MSG_TXT_D')}${t('MSG_TXT_ASN_N')}`, width: '91.4', styleName: 'text-center' },
-    { fieldName: 'indv1BsAtc', header: t('MSG_TXT_ASGN_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2BsAtc', header: t('MSG_TXT_FHS_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3BsAtc', header: t('MSG_TXT_PROCS_RT'), width: '91.4', styleName: 'text-right', numberFormat: '###0.##' },
-    { fieldName: 'indv4BsAtc', header: t('MSG_TXT_PYT_RT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv5BsAtc', header: `W1${t('MSG_TXT_COUNT')}`, width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv6BsAtc', header: `W2${t('MSG_TXT_COUNT')}`, width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv1Perf', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2Perf', header: t('MSG_TXT_RENTAL_BASE_PRC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Perf', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv4Perf', header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv5Perf', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv1Sell', header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2Sell', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Sell', header: t('MSG_TXT_HCR_MSH') + t('MSG_TXT_COUNT'), width: '110', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indvAcc1Ninc', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indvAcc2Ninc', header: t('MSG_TXT_THM_NW'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indvAcc3Ninc', header: t('MSG_TXT_NINC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'homeCare', header: t('MSG_TXT_HOME_CARE'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'rstl', header: t('MSG_TXT_RSTL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv1Fee', header: t('MSG_TXT_ELHM_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2Fee', header: t('MSG_TXT_ELHM_EXCP') + t('MSG_TXT_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Fee', header: t('MSG_TXT_ELHM') + t('MSG_TXT_SAL_INTV'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv4Fee', header: t('MSG_TXT_METG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv5Fee', header: t('MSG_TXT_EDUC'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv6Fee', header: t('MSG_TXT_STMNT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv7Fee', header: t('MSG_TXT_MCHN_CH'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv8Fee', header: t('MSG_TXT_BS_MGMT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv9Fee', header: t('MSG_TXT_BS_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv10Fee', header: t('MSG_TXT_RGLVL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv11Fee', header: `WM${t('MSG_TXT_CMNC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv12Fee', header: `WM${t('MSG_TXT_ETC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv13Fee', header: t('MSG_TXT_PRR_VST'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv14Fee', header: t('MSG_TXT_UNIFORM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv15Fee', header: t('MSG_TXT_MAT_HODT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv16Fee', header: t('MSG_TXT_ADD') + t('MSG_TXT_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'etc1Atc', header: t('MSG_TXT_ADSB'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'etc2Atc', header: t('MSG_TXT_MEMBERSHIP'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'etc3Atc', header: t('MSG_TXT_ETC_SPPT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-
-  ];
+const initGrdMain = defineGrid((data, view) => {
+  const columns = getGridColumns();
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
 
-  // multi row header setting
-  view.setColumnLayout([
-    'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd',
-    {
-      header: t('MSG_TXT_BIZ_RGST_ARTC'),
-      direction: 'horizontal',
-      items: ['bizRgst1Artc', 'bizRgst2Artc', 'bizRgst3Artc', 'bizRgst4Artc'],
-    },
-    'metgDc',
-    {
-      header: t('MSG_TXT_QLF'),
-      direction: 'horizontal',
-      items: ['qlf1Atc', 'qlf2Atc'],
-    },
-    {
-      header: t('MSG_TXT_EDUC'),
-      direction: 'horizontal',
-      items: ['edu1Atc', 'edu2Atc', 'edu3Atc', 'edu4Atc', 'edu5Atc', 'edu6Atc', 'edu7Atc', 'edu8Atc', 'edu9Atc'],
-    },
-    {
-      header: t('MSG_TXT_MANAGER') + t('MSG_TXT_OPNG_ARTC'),
-      direction: 'horizontal',
-      items: ['mngr1Atc', 'mngr2Atc', 'mngr3Atc', 'mngr4Atc', 'mngr5Atc', 'mngr6Atc', 'mngr7Atc'],
-    },
-    {
-      header: `${t('MSG_TXT_INDV')}BS`,
-      direction: 'horizontal',
-      items: ['indv1BsAtc', 'indv2BsAtc', 'indv3BsAtc', 'indv4BsAtc', 'indv5BsAtc', 'indv6BsAtc'],
-    },
-    {
-      header: t('MSG_TXT_INDV_PERF'),
-      direction: 'horizontal',
-      items: ['indv1Perf', 'indv2Perf', 'indv3Perf', 'indv4Perf', 'indv5Perf'],
-    },
-    {
-      header: t('MSG_TXT_INDV') + t('MSG_TXT_ETC') + t('MSG_TXT_SELL'),
-      direction: 'horizontal',
-      items: ['indv1Sell', 'indv2Sell', 'indv3Sell'],
-    },
-    {
-      header: t('MSG_TXT_INDV') + t('MSG_TXT_ACC_NINC'),
-      direction: 'horizontal',
-      items: ['indvAcc1Ninc', 'indvAcc2Ninc', 'indvAcc3Ninc'],
-    },
-    {
-      header: t('MSG_TXT_PRSNL_FEE'),
-      direction: 'horizontal',
-      items: ['homeCare', 'rstl', 'livePakg', 'indv1Fee', 'indv2Fee', 'indv3Fee', 'indv4Fee', 'indv5Fee', 'indv6Fee', 'indv7Fee', 'indv8Fee', 'indv9Fee', 'indv10Fee', 'indv11Fee', 'indv12Fee', 'indv13Fee', 'indv14Fee', 'indv15Fee', 'indv16Fee'],
-    },
-    {
-      header: t('MSG_TXT_ETC'),
-      direction: 'horizontal',
-      items: ['etc1Atc', 'etc2Atc', 'etc3Atc'],
-    },
-    {
-      header: t('MSG_TXT_FEE_SUM'),
-      direction: 'horizontal',
-      items: ['intbsSum', 'ddtnSum', 'aclDsbAmt'],
-    },
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
 
-  ]);
-});
+  // 헤더쪽 합계 행고정, summary
+  view.setHeaderSummaries({
+    visible: true,
+    items: [
+      {
+        height: 42,
+      },
+    ],
+  });
 
-const initGrd2Main = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'rsbDvCd' },
-    { fieldName: 'bizRgst1Artc' },
-    { fieldName: 'bizRgst2Artc' },
-    { fieldName: 'bizRgst3Artc' },
-    { fieldName: 'bizRgst4Artc' },
-    { fieldName: 'prfmtMm' },
-    { fieldName: 'prfmtNmn' },
-    { fieldName: 'metgDc' },
-    { fieldName: 'qlf1Atc' },
-    { fieldName: 'qlf2Atc' },
-    { fieldName: 'edu1Atc' },
-    { fieldName: 'indv1BsAtc', dataType: 'number' },
-    { fieldName: 'indv2BsAtc', dataType: 'number' },
-    { fieldName: 'indv3BsAtc', dataType: 'number' },
-    { fieldName: 'indv4BsAtc', dataType: 'number' },
-    { fieldName: 'indv5BsAtc', dataType: 'number' },
-    { fieldName: 'indv6BsAtc', dataType: 'number' },
-    { fieldName: 'og1BsAtc', dataType: 'number' },
-    { fieldName: 'og2BsAtc', dataType: 'number' },
-    { fieldName: 'og3BsAtc', dataType: 'number' },
-    { fieldName: 'og4BsAtc', dataType: 'number' },
-    { fieldName: 'indv1Perf', dataType: 'number' },
-    { fieldName: 'indv2Perf', dataType: 'number' },
-    { fieldName: 'indv3Perf', dataType: 'number' },
-    { fieldName: 'indv4Perf', dataType: 'number' },
-    { fieldName: 'indv5Perf', dataType: 'number' },
-    { fieldName: 'indv1Sell', dataType: 'number' },
-    { fieldName: 'indv2Sell', dataType: 'number' },
-    { fieldName: 'indv3Sell', dataType: 'number' },
-    { fieldName: 'indvAcc1Ninc', dataType: 'number' },
-    { fieldName: 'indvAcc2Ninc', dataType: 'number' },
-    { fieldName: 'indvAcc3Ninc', dataType: 'number' },
-    { fieldName: 'og1Perf', dataType: 'number' },
-    { fieldName: 'og2Perf', dataType: 'number' },
-    { fieldName: 'og3Perf', dataType: 'number' },
-    { fieldName: 'og4Perf', dataType: 'number' },
-    { fieldName: 'ogPerfSum', dataType: 'number' },
-    { fieldName: 'ogAcc1Ninc', dataType: 'number' },
-    { fieldName: 'ogAcc2Ninc', dataType: 'number' },
-    { fieldName: 'ogAcc3Ninc', dataType: 'number' },
-    { fieldName: 'homeCare', dataType: 'number' },
-    { fieldName: 'rstl', dataType: 'number' },
-    { fieldName: 'livePakg', dataType: 'number' },
-    { fieldName: 'indv1Fee', dataType: 'number' },
-    { fieldName: 'indv2Fee', dataType: 'number' },
-    { fieldName: 'indv3Fee', dataType: 'number' },
-    { fieldName: 'indv4Fee', dataType: 'number' },
-    { fieldName: 'indv5Fee', dataType: 'number' },
-    { fieldName: 'indv6Fee', dataType: 'number' },
-    { fieldName: 'indv7Fee', dataType: 'number' },
-    { fieldName: 'indv8Fee', dataType: 'number' },
-    { fieldName: 'indv9Fee', dataType: 'number' },
-    { fieldName: 'indv10Fee', dataType: 'number' },
-    { fieldName: 'indv11Fee', dataType: 'number' },
-    { fieldName: 'indv12Fee', dataType: 'number' },
-    { fieldName: 'indv13Fee', dataType: 'number' },
-    { fieldName: 'indv14Fee', dataType: 'number' },
-    { fieldName: 'indv15Fee', dataType: 'number' },
-    { fieldName: 'indv16Fee', dataType: 'number' },
-    { fieldName: 'og1Fee', dataType: 'number' },
-    { fieldName: 'og2Fee', dataType: 'number' },
-    { fieldName: 'og3Fee', dataType: 'number' },
-    { fieldName: 'og4Fee', dataType: 'number' },
-    { fieldName: 'og5Fee', dataType: 'number' },
-    { fieldName: 'og6Fee', dataType: 'number' },
-    { fieldName: 'og7Fee', dataType: 'number' },
-    { fieldName: 'og8Fee', dataType: 'number' },
-    { fieldName: 'etc1Atc', dataType: 'number' },
-    { fieldName: 'etc2Atc', dataType: 'number' },
-    { fieldName: 'etc3Atc', dataType: 'number' },
-    { fieldName: 'intbsSum', dataType: 'number' },
-    { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDsbAmt', dataType: 'number' },
-
-  ];
-
-  const columns = [
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'bizRgst1Artc', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'bizRgst2Artc', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'bizRgst3Artc', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'bizRgst4Artc', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'prfmtMm', header: t('MSG_TXT_PRFMT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'prfmtNmn', header: t('MSG_TXT_PRFMT_NMN'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'metgDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' },
-    { fieldName: 'qlf1Atc', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'qlf2Atc', header: 'M+1', width: '140', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'edu1Atc', header: t('MSG_TXT_BRANCH') + t('MSG_TXT_ONL'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'indv1BsAtc', header: t('MSG_TXT_ASGN_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2BsAtc', header: t('MSG_TXT_FHS_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3BsAtc', header: t('MSG_TXT_PROCS_RT'), width: '91.4', styleName: 'text-right', numberFormat: '###0.##' },
-    { fieldName: 'indv4BsAtc', header: t('MSG_TXT_PYT_RT'), width: '91.4', styleName: 'text-right', numberFormat: '###0.##' },
-    { fieldName: 'indv5BsAtc', header: `W1${t('MSG_TXT_COUNT')}`, width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv6BsAtc', header: `W2${t('MSG_TXT_COUNT')}`, width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og1BsAtc', header: t('MSG_TXT_ASGN_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og2BsAtc', header: t('MSG_TXT_FHS_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og3BsAtc', header: t('MSG_TXT_PROCS_RT'), width: '91.4', styleName: 'text-right', numberFormat: '###0.##' },
-    { fieldName: 'og4BsAtc', header: t('MSG_TXT_PYT_RT'), width: '91.4', styleName: 'text-right', numberFormat: '###0.##' },
-    { fieldName: 'indv1Perf', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2Perf', header: t('MSG_TXT_RENTAL_BASE_PRC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Perf', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv4Perf', header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv5Perf', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv1Sell', header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2Sell', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Sell', header: t('MSG_TXT_HCR_MSH') + t('MSG_TXT_COUNT'), width: '110', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indvAcc1Ninc', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indvAcc2Ninc', header: t('MSG_TXT_THM_NW'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indvAcc3Ninc', header: t('MSG_TXT_NINC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og1Perf', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og2Perf', header: t('MSG_TXT_RENTAL_BASE_PRC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og3Perf', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og4Perf', header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ogPerfSum', header: t('MSG_TXT_AGG'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ogAcc1Ninc', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ogAcc2Ninc', header: t('MSG_TXT_THM_NW'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ogAcc3Ninc', header: t('MSG_TXT_NINC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'homeCare', header: t('MSG_TXT_HOME_CARE'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'rstl', header: t('MSG_TXT_RSTL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv1Fee', header: t('MSG_TXT_ELHM_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2Fee', header: t('MSG_TXT_ELHM_EXCP') + t('MSG_TXT_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Fee', header: t('MSG_TXT_ELHM') + t('MSG_TXT_SAL_INTV'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv4Fee', header: t('MSG_TXT_METG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv5Fee', header: t('MSG_TXT_EDUC'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv6Fee', header: t('MSG_TXT_STMNT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv7Fee', header: t('MSG_TXT_MCHN_CH'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv8Fee', header: t('MSG_TXT_BS_MGMT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv9Fee', header: t('MSG_TXT_BS_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv10Fee', header: t('MSG_TXT_RGLVL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv11Fee', header: `WM${t('MSG_TXT_CMNC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv12Fee', header: `WM${t('MSG_TXT_ETC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv13Fee', header: t('MSG_TXT_PRR_VST'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv14Fee', header: t('MSG_TXT_UNIFORM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv15Fee', header: t('MSG_TXT_MAT_HODT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv16Fee', header: t('MSG_TXT_ADD') + t('MSG_TXT_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og1Fee', header: t('MSG_TXT_ELHM_OG_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og2Fee', header: t('MSG_TXT_ELHM_EXCP_OG_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og3Fee', header: t('MSG_TXT_OG_SELL_ENCRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og4Fee', header: t('MSG_TXT_EDUC'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og5Fee', header: t('MSG_TXT_NINC_MGT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og6Fee', header: `${t('MSG_TXT_OG_EJT')}1`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og7Fee', header: `${t('MSG_TXT_OG_EJT')}2`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og8Fee', header: t('MSG_TXT_NB_BRCH'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'etc1Atc', header: t('MSG_TXT_ADSB'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'etc2Atc', header: t('MSG_TXT_MEMBERSHIP'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'etc3Atc', header: t('MSG_TXT_ETC_SPPT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
-
-  // multi row header setting
-  view.setColumnLayout([
-    'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd',
-    {
-      header: t('MSG_TXT_BIZ_RGST_ARTC'),
-      direction: 'horizontal',
-      items: ['bizRgst1Artc', 'bizRgst2Artc', 'bizRgst3Artc', 'bizRgst4Artc'],
-    },
-    'prfmtMm', 'prfmtNmn', 'metgDc',
-    {
-      header: t('MSG_TXT_QLF'),
-      direction: 'horizontal',
-      items: ['qlf1Atc', 'qlf2Atc'],
-    },
-    {
-      header: t('MSG_TXT_EDUC'),
-      direction: 'horizontal',
-      items: ['edu1Atc'],
-    },
-    {
-      header: `${t('MSG_TXT_INDV')}BS`,
-      direction: 'horizontal',
-      items: ['indv1BsAtc', 'indv2BsAtc', 'indv3BsAtc', 'indv4BsAtc', 'indv5BsAtc', 'indv6BsAtc'],
-    },
-    {
-      header: `${t('MSG_TXT_OG')}BS`,
-      direction: 'horizontal',
-      items: ['og1BsAtc', 'og2BsAtc', 'og3BsAtc', 'og4BsAtc'],
-    },
-    {
-      header: t('MSG_TXT_INDV_PERF'),
-      direction: 'horizontal',
-      items: ['indv1Perf', 'indv2Perf', 'indv3Perf', 'indv4Perf', 'indv5Perf'],
-    },
-    {
-      header: t('MSG_TXT_INDV') + t('MSG_TXT_ETC') + t('MSG_TXT_SELL'),
-      direction: 'horizontal',
-      items: ['indv1Sell', 'indv2Sell', 'indv3Sell'],
-    },
-    {
-      header: t('MSG_TXT_INDV') + t('MSG_TXT_ACC_NINC'),
-      direction: 'horizontal',
-      items: ['indvAcc1Ninc', 'indvAcc2Ninc', 'indvAcc3Ninc'],
-    },
-    {
-      header: t('MSG_TXT_OG_PERF'),
-      direction: 'horizontal',
-      items: ['og1Perf', 'og2Perf', 'og3Perf', 'og4Perf', 'ogPerfSum'],
-    },
-    {
-      header: t('MSG_TXT_OG') + t('MSG_TXT_ACC_NINC'),
-      direction: 'horizontal',
-      items: ['ogAcc1Ninc', 'ogAcc2Ninc', 'ogAcc3Ninc'],
-    },
-    {
-      header: t('MSG_TXT_PRSNL_FEE'),
-      direction: 'horizontal',
-      items: ['homeCare', 'rstl', 'livePakg', 'indv1Fee', 'indv2Fee', 'indv3Fee', 'indv4Fee', 'indv5Fee', 'indv6Fee', 'indv7Fee', 'indv8Fee', 'indv9Fee', 'indv10Fee', 'indv11Fee', 'indv12Fee', 'indv13Fee', 'indv14Fee', 'indv15Fee', 'indv16Fee'],
-    },
-    {
-      header: t('MSG_TXT_ORGNSTN_FEE'),
-      direction: 'horizontal',
-      items: ['og1Fee', 'og2Fee', 'og3Fee', 'og4Fee', 'og5Fee', 'og6Fee', 'og7Fee', 'og8Fee'],
-    },
-    {
-      header: t('MSG_TXT_ETC'),
-      direction: 'horizontal',
-      items: ['etc1Atc', 'etc2Atc', 'etc3Atc'],
-    },
-    {
-      header: t('MSG_TXT_FEE_SUM'),
-      direction: 'horizontal',
-      items: ['intbsSum', 'ddtnSum', 'aclDsbAmt'],
-    },
-
-  ]);
-});
-
-const initGrd3Main = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'rsbDvCd' },
-    { fieldName: 'bizRgst1Artc' },
-    { fieldName: 'bizRgst2Artc' },
-    { fieldName: 'bizRgst3Artc' },
-    { fieldName: 'bizRgst4Artc' },
-    { fieldName: 'prfmtMm' },
-    { fieldName: 'prfmtNmn' },
-    { fieldName: 'metgDc' },
-    { fieldName: 'qlf1Atc' },
-    { fieldName: 'qlf2Atc' },
-    { fieldName: 'edu1Atc' },
-    { fieldName: 'edu2Atc' },
-    { fieldName: 'edu3Atc' },
-    { fieldName: 'edu4Atc' },
-    { fieldName: 'edu5Atc' },
-    { fieldName: 'edu6Atc' },
-    { fieldName: 'edu10Atc' },
-    { fieldName: 'edu7Atc' },
-    { fieldName: 'edu8Atc' },
-    { fieldName: 'edu9Atc' },
-    { fieldName: 'mngr1Atc' },
-    { fieldName: 'mngr2Atc' },
-    { fieldName: 'mngr3Atc' },
-    { fieldName: 'mngr4Atc' },
-    { fieldName: 'mngr5Atc' },
-    { fieldName: 'mngr6Atc' },
-    { fieldName: 'mngr7Atc' },
-    { fieldName: 'indv1BsAtc', dataType: 'number' },
-    { fieldName: 'indv2BsAtc', dataType: 'number' },
-    { fieldName: 'indv3BsAtc', dataType: 'number' },
-    { fieldName: 'indv4BsAtc', dataType: 'number' },
-    { fieldName: 'indv5BsAtc', dataType: 'number' },
-    { fieldName: 'indv6BsAtc', dataType: 'number' },
-    { fieldName: 'og1BsAtc', dataType: 'number' },
-    { fieldName: 'og2BsAtc', dataType: 'number' },
-    { fieldName: 'og3BsAtc', dataType: 'number' },
-    { fieldName: 'og4BsAtc', dataType: 'number' },
-    { fieldName: 'indv1Perf', dataType: 'number' },
-    { fieldName: 'indv2Perf', dataType: 'number' },
-    { fieldName: 'indv3Perf', dataType: 'number' },
-    { fieldName: 'indv4Perf', dataType: 'number' },
-    { fieldName: 'indv5Perf', dataType: 'number' },
-    { fieldName: 'indv1Sell', dataType: 'number' },
-    { fieldName: 'indv2Sell', dataType: 'number' },
-    { fieldName: 'indv3Sell', dataType: 'number' },
-    { fieldName: 'indvAcc1Ninc', dataType: 'number' },
-    { fieldName: 'indvAcc2Ninc', dataType: 'number' },
-    { fieldName: 'indvAcc3Ninc', dataType: 'number' },
-    { fieldName: 'og1Perf', dataType: 'number' },
-    { fieldName: 'og2Perf', dataType: 'number' },
-    { fieldName: 'og3Perf', dataType: 'number' },
-    { fieldName: 'og4Perf', dataType: 'number' },
-    { fieldName: 'ogPerfSum', dataType: 'number' },
-    { fieldName: 'ogAcc1Ninc', dataType: 'number' },
-    { fieldName: 'ogAcc2Ninc', dataType: 'number' },
-    { fieldName: 'ogAcc3Ninc', dataType: 'number' },
-    { fieldName: 'homeCare', dataType: 'number' },
-    { fieldName: 'rstl', dataType: 'number' },
-    { fieldName: 'livePakg', dataType: 'number' },
-    { fieldName: 'indv1Fee', dataType: 'number' },
-    { fieldName: 'indv2Fee', dataType: 'number' },
-    { fieldName: 'indv3Fee', dataType: 'number' },
-    { fieldName: 'indv4Fee', dataType: 'number' },
-    { fieldName: 'indv5Fee', dataType: 'number' },
-    { fieldName: 'indv6Fee', dataType: 'number' },
-    { fieldName: 'indv7Fee', dataType: 'number' },
-    { fieldName: 'indv8Fee', dataType: 'number' },
-    { fieldName: 'indv9Fee', dataType: 'number' },
-    { fieldName: 'indv10Fee', dataType: 'number' },
-    { fieldName: 'indv11Fee', dataType: 'number' },
-    { fieldName: 'indv12Fee', dataType: 'number' },
-    { fieldName: 'indv13Fee', dataType: 'number' },
-    { fieldName: 'indv14Fee', dataType: 'number' },
-    { fieldName: 'indv15Fee', dataType: 'number' },
-    { fieldName: 'indv16Fee', dataType: 'number' },
-    { fieldName: 'og1Fee', dataType: 'number' },
-    { fieldName: 'og2Fee', dataType: 'number' },
-    { fieldName: 'og3Fee', dataType: 'number' },
-    { fieldName: 'og4Fee', dataType: 'number' },
-    { fieldName: 'og5Fee', dataType: 'number' },
-    { fieldName: 'og6Fee', dataType: 'number' },
-    { fieldName: 'og7Fee', dataType: 'number' },
-    { fieldName: 'og8Fee', dataType: 'number' },
-    { fieldName: 'etc1Atc', dataType: 'number' },
-    { fieldName: 'etc2Atc', dataType: 'number' },
-    { fieldName: 'etc3Atc', dataType: 'number' },
-    { fieldName: 'intbsSum', dataType: 'number' },
-    { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDsbAmt', dataType: 'number' },
-  ];
-
-  const columns = [
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'bizRgst1Artc', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'bizRgst2Artc', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'bizRgst3Artc', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'bizRgst4Artc', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'prfmtMm', header: t('MSG_TXT_PRFMT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'prfmtNmn', header: t('MSG_TXT_PRFMT_NMN'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'metgDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' },
-    { fieldName: 'qlf1Atc', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'qlf2Atc', header: 'M+1', width: '140', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'edu1Atc', header: t('MSG_TXT_SRTUP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'edu2Atc', header: t('MSG_TXT_PRE_START_UP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'edu3Atc', header: t('MSG_TXT_CMPF'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu4Atc', header: `${t('MSG_TXT_STMNT')}1`, width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu5Atc', header: `${t('MSG_TXT_STMNT')}2`, width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu6Atc', header: `${t('MSG_TXT_STMNT')}3,4,5`, width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu7Atc', header: `Pre${t('MSG_TXT_ACML')}${t('MSG_TXT_EDUC')}`, width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu10Atc', header: t('MSG_TXT_BRANCH') + t('MSG_TXT_ONL'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'edu8Atc', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_STMNT'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'edu9Atc', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_NMN'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'mngr1Atc', header: t('MSG_TXT_FST') + t('MSG_TXT_OPNG_MM'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'mngr2Atc', header: t('MSG_TXT_RE_OPNG') + t('MSG_TXT_MON'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'mngr3Atc', header: t('MSG_TXT_FNL_CLTN_MM'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'mngr4Atc', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' },
-    { fieldName: 'mngr5Atc', header: t('MSG_TXT_OPNG_NMN'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'mngr6Atc', header: t('MSG_TXT_STMNT') + t('MSG_TXT_PAY_TYPE'), width: '91.4', styleName: 'text-center', options: codes.OPNG_CD },
-    { fieldName: 'mngr7Atc', header: `5${t('MSG_TXT_D')}${t('MSG_TXT_ASN_N')}`, width: '91.4', styleName: 'text-center' },
-    { fieldName: 'indv1BsAtc', header: t('MSG_TXT_ASGN_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2BsAtc', header: t('MSG_TXT_FHS_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3BsAtc', header: t('MSG_TXT_PROCS_RT'), width: '91.4', styleName: 'text-right', numberFormat: '###0.##' },
-    { fieldName: 'indv4BsAtc', header: t('MSG_TXT_PYT_RT'), width: '91.4', styleName: 'text-right', numberFormat: '###0.##' },
-    { fieldName: 'indv5BsAtc', header: `W1${t('MSG_TXT_COUNT')}`, width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv6BsAtc', header: `W2${t('MSG_TXT_COUNT')}`, width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og1BsAtc', header: t('MSG_TXT_ASGN_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og2BsAtc', header: t('MSG_TXT_FHS_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og3BsAtc', header: t('MSG_TXT_PROCS_RT'), width: '91.4', styleName: 'text-right', numberFormat: '###0.##' },
-    { fieldName: 'og4BsAtc', header: t('MSG_TXT_PYT_RT'), width: '91.4', styleName: 'text-right', numberFormat: '###0.##' },
-    { fieldName: 'indv1Perf', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2Perf', header: t('MSG_TXT_RENTAL_BASE_PRC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Perf', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv4Perf', header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv5Perf', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '100', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv1Sell', header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2Sell', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Sell', header: t('MSG_TXT_HCR_MSH') + t('MSG_TXT_COUNT'), width: '110', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indvAcc1Ninc', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indvAcc2Ninc', header: t('MSG_TXT_THM_NW'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indvAcc3Ninc', header: t('MSG_TXT_NINC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og1Perf', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og2Perf', header: t('MSG_TXT_RENTAL_BASE_PRC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og3Perf', header: t('MSG_TXT_SNGL_PMNT_BASE_PRC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og4Perf', header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ogPerfSum', header: t('MSG_TXT_AGG'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ogAcc1Ninc', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CANCEL'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ogAcc2Ninc', header: t('MSG_TXT_THM_NW'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ogAcc3Ninc', header: t('MSG_TXT_NINC'), width: '91.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'homeCare', header: t('MSG_TXT_HOME_CARE'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'rstl', header: t('MSG_TXT_RSTL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv1Fee', header: t('MSG_TXT_ELHM_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv2Fee', header: t('MSG_TXT_ELHM_EXCP_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv3Fee', header: t('MSG_TXT_ELHM') + t('MSG_TXT_SAL_INTV'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv4Fee', header: t('MSG_TXT_METG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv5Fee', header: t('MSG_TXT_EDUC'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv6Fee', header: t('MSG_TXT_STMNT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv7Fee', header: t('MSG_TXT_MCHN_CH'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv8Fee', header: `BS${t('MSG_TXT_MGT')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv9Fee', header: `BS${t('MSG_TXT_ENRG')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv10Fee', header: t('MSG_TXT_RGLVL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv11Fee', header: `WM${t('MSG_TXT_CMNC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv12Fee', header: `WM${t('MSG_TXT_ETC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv13Fee', header: t('MSG_TXT_PRR_VST'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv14Fee', header: t('MSG_TXT_UNIFORM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv15Fee', header: t('MSG_TXT_MAT_HODT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'indv16Fee', header: t('MSG_TXT_ADD') + t('MSG_TXT_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og1Fee', header: t('MSG_TXT_ELHM_OG_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og2Fee', header: t('MSG_TXT_ELHM_EXCP_OG_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og3Fee', header: t('MSG_TXT_OG_SELL_ENCRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og4Fee', header: t('MSG_TXT_EDUC'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og5Fee', header: t('MSG_TXT_NINC_MGT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og6Fee', header: `${t('MSG_TXT_OG_EJT')}1`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og7Fee', header: `${t('MSG_TXT_OG_EJT')}2`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'og8Fee', header: t('MSG_TXT_NB_BRCH'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'etc1Atc', header: t('MSG_TXT_ADSB'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'etc2Atc', header: t('MSG_TXT_MEMBERSHIP'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'etc3Atc', header: t('MSG_TXT_ETC_SPPT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
-
-  // multi row header setting
-  view.setColumnLayout([
-    'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd',
-    {
-      header: t('MSG_TXT_BIZ_RGST_ARTC'),
-      direction: 'horizontal',
-      items: ['bizRgst1Artc', 'bizRgst2Artc', 'bizRgst3Artc', 'bizRgst4Artc'],
-    },
-    'prfmtMm', 'prfmtNmn', 'metgDc',
-    {
-      header: t('MSG_TXT_QLF'),
-      direction: 'horizontal',
-      items: ['qlf1Atc', 'qlf2Atc'],
-    },
-    {
-      header: t('MSG_TXT_EDUC'),
-      direction: 'horizontal',
-      items: ['edu1Atc', 'edu2Atc', 'edu3Atc', 'edu4Atc', 'edu5Atc', 'edu6Atc', 'edu10Atc', 'edu7Atc', 'edu8Atc', 'edu9Atc'],
-    },
-    {
-      header: t('MSG_TXT_MANAGER') + t('MSG_TXT_OPNG_ARTC'),
-      direction: 'horizontal',
-      items: ['mngr1Atc', 'mngr2Atc', 'mngr3Atc', 'mngr4Atc', 'mngr5Atc', 'mngr6Atc', 'mngr7Atc'],
-    },
-    {
-      header: `${t('MSG_TXT_INDV')}BS`,
-      direction: 'horizontal',
-      items: ['indv1BsAtc', 'indv2BsAtc', 'indv3BsAtc', 'indv4BsAtc', 'indv5BsAtc', 'indv6BsAtc'],
-    },
-    {
-      header: `${t('MSG_TXT_OG')}BS`,
-      direction: 'horizontal',
-      items: ['og1BsAtc', 'og2BsAtc', 'og3BsAtc', 'og4BsAtc'],
-    },
-    {
-      header: t('MSG_TXT_INDV_PERF'),
-      direction: 'horizontal',
-      items: ['indv1Perf', 'indv2Perf', 'indv3Perf', 'indv4Perf', 'indv5Perf'],
-    },
-    {
-      header: t('MSG_TXT_INDV') + t('MSG_TXT_ETC') + t('MSG_TXT_SELL'),
-      direction: 'horizontal',
-      items: ['indv1Sell', 'indv2Sell', 'indv3Sell'],
-    },
-    {
-      header: t('MSG_TXT_INDV') + t('MSG_TXT_ACC_NINC'),
-      direction: 'horizontal',
-      items: ['indvAcc1Ninc', 'indvAcc2Ninc', 'indvAcc3Ninc'],
-    },
-    {
-      header: t('MSG_TXT_OG_PERF'),
-      direction: 'horizontal',
-      items: ['og1Perf', 'og2Perf', 'og3Perf', 'og4Perf', 'ogPerfSum'],
-    },
-    {
-      header: t('MSG_TXT_OG') + t('MSG_TXT_ACC_NINC'),
-      direction: 'horizontal',
-      items: ['ogAcc1Ninc', 'ogAcc2Ninc', 'ogAcc3Ninc'],
-    },
-    {
-      header: t('MSG_TXT_PRSNL_FEE'),
-      direction: 'horizontal',
-      items: ['homeCare', 'rstl', 'livePakg', 'indv1Fee', 'indv2Fee', 'indv3Fee', 'indv4Fee', 'indv5Fee', 'indv6Fee', 'indv7Fee', 'indv8Fee', 'indv9Fee', 'indv10Fee', 'indv11Fee', 'indv12Fee', 'indv13Fee', 'indv14Fee', 'indv15Fee', 'indv16Fee'],
-    },
-    {
-      header: t('MSG_TXT_ORGNSTN_FEE'),
-      direction: 'horizontal',
-      items: ['og1Fee', 'og2Fee', 'og3Fee', 'og4Fee', 'og5Fee', 'og6Fee', 'og7Fee', 'og8Fee'],
-    },
-    {
-      header: t('MSG_TXT_ETC'),
-      direction: 'horizontal',
-      items: ['etc1Atc', 'etc2Atc', 'etc3Atc'],
-    },
-    {
-      header: t('MSG_TXT_FEE_SUM'),
-      direction: 'horizontal',
-      items: ['intbsSum', 'ddtnSum', 'aclDsbAmt'],
-    },
-
-  ]);
-});
-
-const initGrd4Main = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'ogCd' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'rsbDvCd' },
-    { fieldName: 'akcuil' },
-    { fieldName: 'akdmi3' },
-    { fieldName: 'akdmi32' },
-    { fieldName: 'edustr' },
-    { fieldName: 'edu011' },
-    { fieldName: 'edu129' },
-    { fieldName: 'edu106' },
-    { fieldName: 'akdcha' },
-    { fieldName: 'edu017' },
-    { fieldName: 'ojtCnt' },
-    { fieldName: 'akdsym' },
-    { fieldName: 'akdenm' },
-    { fieldName: 'akdjem' },
-    { fieldName: 'akdlym' },
-    { fieldName: 'akdcym' },
-    { fieldName: 'akdrym' },
-    { fieldName: 'sustym' },
-    { fieldName: 'suscym' },
-    { fieldName: 'lccoym' },
-    { fieldName: 'lcccym' },
-    { fieldName: 'dalsyn' },
-    { fieldName: 'akcda17', dataType: 'number' },
-    { fieldName: 'akcda18', dataType: 'number' },
-    { fieldName: 'akcda1', dataType: 'number' },
-    { fieldName: 'akcdq1', dataType: 'number' },
-    { fieldName: 'akcdq0', dataType: 'number' },
-    { fieldName: 'akcdq7', dataType: 'number' },
-    { fieldName: 'akdet3', dataType: 'number' },
-    { fieldName: 'jasamt', dataType: 'number' },
-    { fieldName: 'akcda12', dataType: 'number' },
-    { fieldName: 'akcda13', dataType: 'number' },
-    { fieldName: 'akcda14', dataType: 'number' },
-    { fieldName: 'akcda15', dataType: 'number' },
-    { fieldName: 'akcda16', dataType: 'number' },
-    { fieldName: 'akcdq5', dataType: 'number' },
-    { fieldName: 'akcdq6', dataType: 'number' },
-    { fieldName: 'akcda19', dataType: 'number' },
-    { fieldName: 'jakcdq0', dataType: 'number' },
-    { fieldName: 'jakcdq6', dataType: 'number' },
-    { fieldName: 'jakcda12', dataType: 'number' },
-    { fieldName: 'jakcda13', dataType: 'number' },
-    { fieldName: 'jakcda15', dataType: 'number' },
-    { fieldName: 'aksd49', dataType: 'number' },
-    { fieldName: 'aksd43', dataType: 'number' },
-    { fieldName: 'aksd26', dataType: 'number' },
-    { fieldName: 'aksd29', dataType: 'number' },
-    { fieldName: 'sd26m1', dataType: 'number' },
-    { fieldName: 'sd26m2', dataType: 'number' },
-    { fieldName: 'sd26mt', dataType: 'number' },
-    { fieldName: 'aksd17', dataType: 'number' },
-    { fieldName: 'aksd50', dataType: 'number' },
-    { fieldName: 'aksd48', dataType: 'number' },
-    { fieldName: 'aksd04', dataType: 'number' },
-    { fieldName: 'aksd15', dataType: 'number' },
-    { fieldName: 'aksd23', dataType: 'number' },
-    { fieldName: 'aksd42', dataType: 'number' },
-    { fieldName: 'aksd31', dataType: 'number' },
-    { fieldName: 'aksd34', dataType: 'number' },
-    { fieldName: 'aksd11', dataType: 'number' },
-    { fieldName: 'aksd08', dataType: 'number' },
-    { fieldName: 'aksd22', dataType: 'number' },
-    { fieldName: 'aksd13', dataType: 'number' },
-    { fieldName: 'aksd09', dataType: 'number' },
-    { fieldName: 'aksd36', dataType: 'number' },
-    { fieldName: 'aksd05', dataType: 'number' },
-    { fieldName: 'aksd14', dataType: 'number' },
-    { fieldName: 'aksd39', dataType: 'number' },
-    { fieldName: 'aksd18', dataType: 'number' },
-    { fieldName: 'aksd19', dataType: 'number' },
-    { fieldName: 'aksd40', dataType: 'number' },
-    { fieldName: 'aksd16', dataType: 'number' },
-    { fieldName: 'aksd10', dataType: 'number' },
-    { fieldName: 'lccntt', dataType: 'number' },
-    { fieldName: 'intbsSum', dataType: 'number' },
-    { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDsbAmt', dataType: 'number' },
-
-  ];
-
-  const columns = [
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4' },
-    { fieldName: 'akdmi3', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', options: codes.QLF_DV_CD },
-    { fieldName: 'akdmi32', header: 'M+1', width: '140', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'edustr', header: t('MSG_TXT_MANAGER'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu011', header: t('MSG_TXT_PLAR'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'edu129', header: t('MSG_TXT_CMPF') + t('MSG_TXT_EDUC'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'edu106', header: t('MSG_TXT_STMNT'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'akdcha', header: t('MSG_TXT_NMN'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu017', header: t('MSG_TXT_PRTIC'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'ojtCnt', header: `OJT${t('MSG_TXT_DC')}`, width: '91.4', styleName: 'text-center' },
-    { fieldName: 'akdsym', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdenm', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdjem', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdlym', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdcym', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdrym', header: t('MSG_TXT_PRFMT_MON'), width: '89.3', styleName: 'text-center' },
-    { fieldName: 'sustym', header: t('MSG_TXT_RGS') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'suscym', header: t('MSG_TXT_CLTN') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'lccoym', header: `WM${t('MSG_TXT_OPNG')}`, width: '122.7', styleName: 'text-center' },
-    { fieldName: 'lcccym', header: `WM${t('MSG_TXT_CLTN')}`, width: '122.7', styleName: 'text-center' },
-    { fieldName: 'dalsyn', header: t('MSG_TXT_ACL_ACTI') + t('MSG_TXT_ACHV'), width: '110.4', styleName: 'text-center' },
-    { fieldName: 'akcda17', header: t('MSG_TXT_RENTAL'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda18', header: t('MSG_TXT_SNGL_PMNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda1', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq1', header: t('MSG_TXT_ELHM') + t('MSG_TXT_NTOR') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq0', header: t('MSG_TXT_INDV') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq7', header: `${t('MSG_TXT_INDV')}BS${t('MSG_TXT_ACKMT')}${t('MSG_TXT_COUNT')}`, width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akdet3', header: t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jasamt', header: t('MSG_TXT_AMT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda12', header: t('MSG_TXT_RENTAL'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda13', header: t('MSG_TXT_SNGL_PMNT'), width: '139.2', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda14', header: t('MSG_TXT_FXAM'), width: '176', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda15', header: t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda16', header: t('MSG_TXT_FXAM'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq5', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq6', header: t('MSG_TXT_INDV') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('TXT_MSG_SELL_PRC'), width: '128.1', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcdq0', header: t('MSG_TXT_OG') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcdq6', header: t('MSG_TXT_OG') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcda12', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_RENTAL'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcda13', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcda15', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd49', header: t('MSG_TXT_HOME_CARE'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd43', header: t('MSG_TXT_LIVE_PAKG'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd26', header: t('MSG_TXT_ELHM_PRPN'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd29', header: t('MSG_TXT_ELHM_EXCP_PRPN'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'sd26m1', header: t('MSG_TXT_ELHM_METG'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'sd26m2', header: t('MSG_TXT_SPAY_METG'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'sd26mt', header: t('MSG_TXT_ELHM_EXCP_METG'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd17', header: t('MSG_TXT_SELL') + t('MSG_TXT_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd50', header: t('MSG_TXT_EDUC'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd48', header: t('MSG_TXT_STMNT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd04', header: t('MSG_TXT_MCHN_CH'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd15', header: `BS${t('MSG_TXT_MGT')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd23', header: t('MSG_TXT_RGLVL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd42', header: t('MSG_TXT_SELL') + t('MSG_TXT_ENRG') + t('MSG_TXT_RETT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd31', header: t('MSG_TXT_ELHM') + t('MSG_TXT_OG') + t('MSG_TXT_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd34', header: t('MSG_TXT_ELHM') + t('MSG_TXT_OG') + t('MSG_TXT_EXCP') + t('MSG_TXT_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd11', header: t('MSG_TXT_OG') + t('MSG_TXT_SELL') + t('MSG_TXT_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd08', header: t('MSG_TXT_NEW') + t('MSG_TXT_SELL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd22', header: t('MSG_TXT_OG') + t('MSG_TXT_MGT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd13', header: `${t('MSG_TXT_OG') + t('MSG_TXT_EJT')}1`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd09', header: `${t('MSG_TXT_OG') + t('MSG_TXT_EJT')}2`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd36', header: t('MSG_TXT_NB') + t('MSG_TXT_BRANCH'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd05', header: t('MSG_TXT_MEMBERSHIP'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd39', header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd18', header: `WM${t('MSG_TXT_CMNC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd19', header: `WM${t('MSG_TXT_ETC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd40', header: t('MSG_TXT_PRR_VST'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd16', header: t('MSG_TXT_UNIFORM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd10', header: t('MSG_TXT_MAT_HODT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'lccntt', header: `BS${t('MSG_TXT_COMPLETE')}${t('MSG_TXT_ACC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
-
-  // multi row header setting
-  view.setColumnLayout([
-    'ogCd', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'akcuil',
-    {
-      header: t('MSG_TXT_QLF'),
-      direction: 'horizontal',
-      items: ['akdmi3', 'akdmi32'],
-    },
-    {
-      header: t('MSG_TXT_SRTUP'),
-      direction: 'horizontal',
-      items: ['edustr', 'edu011'],
-    },
-    'edu129',
-    {
-      header: t('MSG_TXT_TOPMR_PLAR') + t('MSG_TXT_EDUC'),
-      direction: 'horizontal',
-      items: ['edu106', 'akdcha', 'edu017'],
-    },
-    'ojtCnt', 'akdsym', 'akdenm', 'akdjem', 'akdlym', 'akdcym', 'akdrym',
-
-    {
-      header: t('MSG_TXT_TOPMR_PLAR'),
-      direction: 'horizontal',
-      items: ['sustym', 'suscym'],
-    },
-    'lccoym', 'lcccym', 'dalsyn',
-    {
-      header: t('TXT_MSG_ACKMT_PERF'),
-      direction: 'horizontal',
-      items: ['akcda17', 'akcda18', 'akcda1'],
-    },
-    'akcdq1', 'akcdq0', 'akcdq7',
-    {
-      header: t('MSG_TXT_ELHM') + t('MSG_TXT_CHNG'),
-      direction: 'horizontal',
-      items: ['akdet3', 'jasamt'],
-    },
-    {
-      header: `${t('MSG_TXT_ENVR_ELHM')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
-      direction: 'horizontal',
-      items: ['akcda12', 'akcda13', 'akcda14'],
-    },
-    {
-      header: `${t('MSG_TXT_ENVR_ELHM') + t('MSG_TXT_EXCP')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
-      direction: 'horizontal',
-      items: ['akcda15', 'akcda16'],
-    },
-    'akcdq5', 'akcdq6', 'akcda19', 'jakcdq0', 'jakcdq6',
-    {
-      header: `${t('MSG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
-      direction: 'horizontal',
-      items: ['jakcda12', 'jakcda13', 'jakcda15'],
-    },
-    'aksd49', 'aksd43', 'aksd26', 'aksd29',
-    'sd26m1', 'sd26m2', 'sd26mt', 'aksd17', 'aksd50', 'aksd48', 'aksd04', 'aksd15', 'aksd23',
-    'aksd42', 'aksd31', 'aksd34', 'aksd11', 'aksd08', 'aksd22', 'aksd13', 'aksd09', 'aksd36',
-    'aksd05', 'aksd14', 'aksd39', 'aksd18', 'aksd19', 'aksd40', 'aksd16', 'aksd10', 'lccntt',
-    'intbsSum', 'ddtnSum', 'aclDsbAmt',
-  ]);
-});
-
-const initGrd5Main = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'rsbDvCd' },
-    { fieldName: 'akcuil' },
-    { fieldName: 'akdmi3' },
-    { fieldName: 'akdmi32' },
-    { fieldName: 'edu106' },
-    { fieldName: 'akdcha' },
-    { fieldName: 'edu135' },
-    { fieldName: 'akdsym' },
-    { fieldName: 'akdenm' },
-    { fieldName: 'akdjem' },
-    { fieldName: 'akdlym' },
-    { fieldName: 'akdcym' },
-    { fieldName: 'akdrym' },
-    { fieldName: 'sustym' },
-    { fieldName: 'suscym' },
-    { fieldName: 'lccoym' },
-    { fieldName: 'lcccym' },
-    { fieldName: 'bondalsyn' },
-    { fieldName: 'sungnm' },
-    { fieldName: 'wpscnt' },
-    { fieldName: 'wmscnt' },
-    { fieldName: 'spscnt', dataType: 'number' },
-    { fieldName: 'dancnt', dataType: 'number' },
-    { fieldName: 'akcda17', dataType: 'number' },
-    { fieldName: 'akcda18', dataType: 'number' },
-    { fieldName: 'akcda1', dataType: 'number' },
-    { fieldName: 'akcdq1', dataType: 'number' },
-    { fieldName: 'akcdq0', dataType: 'number' },
-    { fieldName: 'akcdq7', dataType: 'number' },
-    { fieldName: 'akdet3', dataType: 'number' },
-    { fieldName: 'jasamt', dataType: 'number' },
-    { fieldName: 'akcda12', dataType: 'number' },
-    { fieldName: 'akcda13', dataType: 'number' },
-    { fieldName: 'akcda14', dataType: 'number' },
-    { fieldName: 'akcda15', dataType: 'number' },
-    { fieldName: 'akcda16', dataType: 'number' },
-    { fieldName: 'akcdq5', dataType: 'number' },
-    { fieldName: 'akcdq6', dataType: 'number' },
-    { fieldName: 'akcda19', dataType: 'number' },
-    { fieldName: 'jakcdq0', dataType: 'number' },
-    { fieldName: 'jakcdq6', dataType: 'number' },
-    { fieldName: 'jakcda12', dataType: 'number' },
-    { fieldName: 'jakcda13', dataType: 'number' },
-    { fieldName: 'jakcda15', dataType: 'number' },
-    { fieldName: 'aksd49', dataType: 'number' },
-    { fieldName: 'aksd43', dataType: 'number' },
-    { fieldName: 'aksd26', dataType: 'number' },
-    { fieldName: 'aksd29', dataType: 'number' },
-    { fieldName: 'aksd17', dataType: 'number' },
-    { fieldName: 'aksd50', dataType: 'number' },
-    { fieldName: 'aksd48', dataType: 'number' },
-    { fieldName: 'aksd04', dataType: 'number' },
-    { fieldName: 'aksd15', dataType: 'number' },
-    { fieldName: 'aksd23', dataType: 'number' },
-    { fieldName: 'aksd42', dataType: 'number' },
-    { fieldName: 'aksd31', dataType: 'number' },
-    { fieldName: 'aksd34', dataType: 'number' },
-    { fieldName: 'aksd11', dataType: 'number' },
-    { fieldName: 'aksd08', dataType: 'number' },
-    { fieldName: 'aksd22', dataType: 'number' },
-    { fieldName: 'aksd06', dataType: 'number' },
-    { fieldName: 'aksd13', dataType: 'number' },
-    { fieldName: 'aksd09', dataType: 'number' },
-    { fieldName: 'aksd36', dataType: 'number' },
-    { fieldName: 'aksd05', dataType: 'number' },
-    { fieldName: 'aksd14', dataType: 'number' },
-    { fieldName: 'aksd39', dataType: 'number' },
-    { fieldName: 'aksd18', dataType: 'number' },
-    { fieldName: 'aksd19', dataType: 'number' },
-    { fieldName: 'aksd40', dataType: 'number' },
-    { fieldName: 'aksd16', dataType: 'number' },
-    { fieldName: 'aksd10', dataType: 'number' },
-    { fieldName: 'lccntt', dataType: 'number' },
-    { fieldName: 'intbsSum', dataType: 'number' },
-    { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDsbAmt', dataType: 'number' },
-
-  ];
-
-  const columns = [
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' },
-    { fieldName: 'akdmi3', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', options: codes.QLF_DV_CD },
-    { fieldName: 'akdmi32', header: 'M+1', width: '140', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'edu106', header: t('MSG_TXT_STMNT'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'akdcha', header: t('MSG_TXT_NMN'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu135', header: t('MSG_TXT_BRMGR') + t('MSG_TXT_ONL'), width: '88.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'akdsym', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdenm', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdjem', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdlym', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdcym', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdrym', header: t('MSG_TXT_PRFMT_MON'), width: '89.3', styleName: 'text-center' },
-    { fieldName: 'sustym', header: t('MSG_TXT_RGS') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'suscym', header: t('MSG_TXT_CLTN') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'lccoym', header: `WM${t('MSG_TXT_OPNG')}`, width: '122.7', styleName: 'text-center' },
-    { fieldName: 'lcccym', header: `WM${t('MSG_TXT_CLTN')}`, width: '122.7', styleName: 'text-center' },
-    { fieldName: 'bondalsyn', header: t('MSG_TXT_MIN') + t('MSG_TXT_BASE') + t('MSG_TXT_ACHV'), width: '110.4', styleName: 'text-center' },
-    { fieldName: 'sungnm', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CPR') + t('MSG_TXT_DIV'), width: '110.4', styleName: 'text-center' },
-    { fieldName: 'wpscnt', header: 'WP', width: '110.4', styleName: 'text-center' },
-    { fieldName: 'wmscnt', header: 'WM', width: '122.7', styleName: 'text-right' },
-    { fieldName: 'spscnt', header: 'SP', width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'dancnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_PERSONS'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda17', header: t('MSG_TXT_RENTAL'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda18', header: t('MSG_TXT_SNGL_PMNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda1', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq1', header: t('MSG_TXT_ELHM') + t('MSG_TXT_NTOR') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq0', header: t('MSG_TXT_INDV') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq7', header: `${t('MSG_TXT_INDV')}BS${t('MSG_TXT_ACKMT')}${t('MSG_TXT_COUNT')}`, width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akdet3', header: t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jasamt', header: t('MSG_TXT_AMT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda12', header: t('MSG_TXT_RENTAL'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda13', header: t('MSG_TXT_SNGL_PMNT'), width: '139.2', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda14', header: t('MSG_TXT_FXAM'), width: '176', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda15', header: t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda16', header: t('MSG_TXT_FXAM'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq5', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq6', header: t('MSG_TXT_INDV') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('TXT_MSG_SELL_PRC'), width: '128.1', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcdq0', header: t('MSG_TXT_OG') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcdq6', header: t('MSG_TXT_OG') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcda12', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_RENTAL'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcda13', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcda15', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd49', header: t('MSG_TXT_HOME_CARE'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd43', header: t('MSG_TXT_LIVE_PAKG'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd26', header: t('MSG_TXT_ELHM') + t('MSG_TXT_PRPN'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd29', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd17', header: t('MSG_TXT_SELL') + t('MSG_TXT_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd50', header: t('MSG_TXT_EDUC'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd48', header: t('MSG_TXT_STMNT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd04', header: t('MSG_TXT_MCHN_CH'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd15', header: `BS${t('MSG_TXT_MGT')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd23', header: t('MSG_TXT_RGLVL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd42', header: t('MSG_TXT_SELL') + t('MSG_TXT_ENRG') + t('MSG_TXT_RETT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd31', header: t('MSG_TXT_ELHM') + t('MSG_TXT_OG') + t('MSG_TXT_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd34', header: t('MSG_TXT_ELHM') + t('MSG_TXT_OG') + t('MSG_TXT_EXCP') + t('MSG_TXT_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd11', header: t('MSG_TXT_OG') + t('MSG_TXT_SELL') + t('MSG_TXT_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd08', header: t('MSG_TXT_NEW') + t('MSG_TXT_SELL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd22', header: t('MSG_TXT_OG') + t('MSG_TXT_MGT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd06', header: t('MSG_TXT_ADD') + t('MSG_TXT_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd13', header: `${t('MSG_TXT_OG') + t('MSG_TXT_EJT')}1`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd09', header: `${t('MSG_TXT_OG') + t('MSG_TXT_EJT')}2`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd36', header: t('MSG_TXT_NB') + t('MSG_TXT_BRANCH'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd05', header: t('MSG_TXT_MEMBERSHIP'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd39', header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd18', header: `WM${t('MSG_TXT_CMNC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd19', header: `WM${t('MSG_TXT_ETC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd40', header: t('MSG_TXT_PRR_VST'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd16', header: t('MSG_TXT_UNIFORM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd10', header: t('MSG_TXT_MAT_HODT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'lccntt', header: `BS${t('MSG_TXT_COMPLETE')}${t('MSG_TXT_ACC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ddtnSum', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_DDTN_AMT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
-
-  // multi row header setting
-  view.setColumnLayout([
-    'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'akcuil',
-    {
-      header: t('MSG_TXT_QLF'),
-      direction: 'horizontal',
-      items: ['akdmi3', 'akdmi32'],
-    },
-    {
-      header: t('MSG_TXT_TOPMR_PLAR') + t('MSG_TXT_EDUC'),
-      direction: 'horizontal',
-      items: ['edu106', 'akdcha'],
-    },
-    'edu135', 'akdsym', 'akdenm', 'akdjem', 'akdlym', 'akdcym', 'akdrym',
-    {
-      header: t('MSG_TXT_TOPMR_PLAR'),
-      direction: 'horizontal',
-      items: ['sustym', 'suscym'],
-    },
-    'lccoym', 'lcccym',
-    {
-      header: t('MSG_TXT_ACL_ACTI_PPL'),
-      direction: 'horizontal',
-      items: ['bondalsyn', 'sungnm', 'wpscnt', 'wmscnt', 'spscnt', 'dancnt'],
-    },
-    {
-      header: t('TXT_MSG_ACKMT_PERF'),
-      direction: 'horizontal',
-      items: ['akcda17', 'akcda18', 'akcda1'],
-    },
-    'akcdq1', 'akcdq0', 'akcdq7',
-    {
-      header: t('MSG_TXT_ELHM') + t('MSG_TXT_CHNG'),
-      direction: 'horizontal',
-      items: ['akdet3', 'jasamt'],
-    },
-    {
-      header: `${t('MSG_TXT_ENVR_ELHM')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
-      direction: 'horizontal',
-      items: ['akcda12', 'akcda13', 'akcda14'],
-    },
-    {
-      header: `${t('MSG_TXT_ENVR_ELHM') + t('MSG_TXT_EXCP')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
-      direction: 'horizontal',
-      items: ['akcda15', 'akcda16'],
-    },
-    'akcdq5', 'akcdq6', 'akcda19', 'jakcdq0', 'jakcdq6',
-    {
-      header: `${t('MSG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
-      direction: 'horizontal',
-      items: ['jakcda12', 'jakcda13', 'jakcda15'],
-    },
-    'aksd49', 'aksd43', 'aksd26', 'aksd29', 'aksd17', 'aksd50', 'aksd48', 'aksd04',
-    'aksd15', 'aksd23', 'aksd42', 'aksd31', 'aksd34', 'aksd11', 'aksd08', 'aksd22',
-    'aksd06', 'aksd13', 'aksd09', 'aksd36', 'aksd05', 'aksd14', 'aksd39', 'aksd18',
-    'aksd19', 'aksd40', 'aksd16', 'aksd10', 'lccntt', 'intbsSum', 'ddtnSum', 'aclDsbAmt',
-
-  ]);
-});
-
-const initGrd6Main = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'rsbDvCd' },
-    { fieldName: 'akcuil' },
-    { fieldName: 'akdmi3' },
-    { fieldName: 'akdmi32' },
-    { fieldName: 'edustr' },
-    { fieldName: 'edu011' },
-    { fieldName: 'edu129' },
-    { fieldName: 'edu106' },
-    { fieldName: 'akdcha' },
-    { fieldName: 'edu017' },
-    { fieldName: 'edu135' },
-    { fieldName: 'ojtcnt' },
-    { fieldName: 'akdsym' },
-    { fieldName: 'akdenm' },
-    { fieldName: 'akdjem' },
-    { fieldName: 'akdlym' },
-    { fieldName: 'akdcym' },
-    { fieldName: 'akdrym' },
-    { fieldName: 'sustym' },
-    { fieldName: 'suscym' },
-    { fieldName: 'lccoym' },
-    { fieldName: 'lcccym' },
-    { fieldName: 'dalsyn' },
-    { fieldName: 'bondalsyn' },
-    { fieldName: 'sungnm' },
-    { fieldName: 'wpscnt' },
-    { fieldName: 'wmscnt' },
-    { fieldName: 'spscnt', dataType: 'number' },
-    { fieldName: 'dancnt', dataType: 'number' },
-    { fieldName: 'akcda17', dataType: 'number' },
-    { fieldName: 'akcda18', dataType: 'number' },
-    { fieldName: 'akcda1', dataType: 'number' },
-    { fieldName: 'akcdq1', dataType: 'number' },
-    { fieldName: 'akcdq0', dataType: 'number' },
-    { fieldName: 'akcdq7', dataType: 'number' },
-    { fieldName: 'akdet3', dataType: 'number' },
-    { fieldName: 'jasamt', dataType: 'number' },
-    { fieldName: 'akcda12', dataType: 'number' },
-    { fieldName: 'akcda13', dataType: 'number' },
-    { fieldName: 'akcda14', dataType: 'number' },
-    { fieldName: 'akcda15', dataType: 'number' },
-    { fieldName: 'akcda16', dataType: 'number' },
-    { fieldName: 'akcdq5', dataType: 'number' },
-    { fieldName: 'akcdq6', dataType: 'number' },
-    { fieldName: 'akcda19', dataType: 'number' },
-    { fieldName: 'jakcdq0', dataType: 'number' },
-    { fieldName: 'jakcdq6', dataType: 'number' },
-    { fieldName: 'jakcda12', dataType: 'number' },
-    { fieldName: 'jakcda13', dataType: 'number' },
-    { fieldName: 'jakcda15', dataType: 'number' },
-    { fieldName: 'aksd49', dataType: 'number' },
-    { fieldName: 'aksd43', dataType: 'number' },
-    { fieldName: 'aksd26', dataType: 'number' },
-    { fieldName: 'aksd29', dataType: 'number' },
-    { fieldName: 'sd26m1', dataType: 'number' },
-    { fieldName: 'sd26m2', dataType: 'number' },
-    { fieldName: 'sd26mt', dataType: 'number' },
-    { fieldName: 'aksd17', dataType: 'number' },
-    { fieldName: 'aksd50', dataType: 'number' },
-    { fieldName: 'aksd48', dataType: 'number' },
-    { fieldName: 'aksd04', dataType: 'number' },
-    { fieldName: 'aksd15', dataType: 'number' },
-    { fieldName: 'aksd23', dataType: 'number' },
-    { fieldName: 'aksd42', dataType: 'number' },
-    { fieldName: 'aksd31', dataType: 'number' },
-    { fieldName: 'aksd34', dataType: 'number' },
-    { fieldName: 'aksd11', dataType: 'number' },
-    { fieldName: 'aksd08', dataType: 'number' },
-    { fieldName: 'aksd22', dataType: 'number' },
-    { fieldName: 'aksd06', dataType: 'number' },
-    { fieldName: 'aksd13', dataType: 'number' },
-    { fieldName: 'aksd09', dataType: 'number' },
-    { fieldName: 'aksd36', dataType: 'number' },
-    { fieldName: 'aksd05', dataType: 'number' },
-    { fieldName: 'aksd14', dataType: 'number' },
-    { fieldName: 'aksd39', dataType: 'number' },
-    { fieldName: 'aksd18', dataType: 'number' },
-    { fieldName: 'aksd19', dataType: 'number' },
-    { fieldName: 'aksd40', dataType: 'number' },
-    { fieldName: 'aksd16', dataType: 'number' },
-    { fieldName: 'aksd10', dataType: 'number' },
-    { fieldName: 'lccntt', dataType: 'number' },
-    { fieldName: 'intbsSum', dataType: 'number' },
-    { fieldName: 'ddtnSum', dataType: 'number' },
-    { fieldName: 'aclDsbAmt', dataType: 'number' },
-
-  ];
-
-  const columns = [
-    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'rsbDvCd', header: t('MSG_TXT_RSB'), width: '88.7', styleName: 'text-center', options: codes.RSB_DV_CD },
-    { fieldName: 'akcuil', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' },
-    { fieldName: 'akdmi3', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', options: codes.QLF_DV_CD },
-    { fieldName: 'akdmi32', header: 'M+1', width: '140', styleName: 'text-center', options: codes.QLF_DV_CD },
-    { fieldName: 'edustr', header: t('MSG_TXT_MANAGER'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu011', header: t('MSG_TXT_PLAR'), width: '88.7', styleName: 'text-center' },
-    { fieldName: 'edu129', header: t('MSG_TXT_CMPF') + t('MSG_TXT_EDUC'), width: '88.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'edu106', header: t('MSG_TXT_STMNT'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'akdcha', header: t('MSG_TXT_NMN'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'edu017', header: t('MSG_TXT_PRTIC'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'edu135', header: t('MSG_TXT_BRMGR') + t('MSG_TXT_ONL'), width: '88.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'ojtcnt', header: `OJT${t('MSG_TXT_DC')}`, width: '122.7', styleName: 'text-right' },
-    { fieldName: 'akdsym', header: t('MSG_TXT_RGS') + t('MSG_TXT_BASE_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdenm', header: t('MSG_TXT_FST') + t('MSG_TXT_BIZ_RGST_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdjem', header: t('MSG_TXT_RETR') + t('MSG_TXT_MON'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdlym', header: t('MSG_TXT_FNL_CLTN_MM'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdcym', header: t('MSG_TXT_BIZ_CLTN_MON'), width: '122.7', styleName: 'text-center' },
-    { fieldName: 'akdrym', header: t('MSG_TXT_PRFMT_MON'), width: '89.3', styleName: 'text-center' },
-    { fieldName: 'sustym', header: t('MSG_TXT_RGS') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'suscym', header: t('MSG_TXT_CLTN') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' },
-    { fieldName: 'lccoym', header: `WM${t('MSG_TXT_OPNG')}`, width: '122.7', styleName: 'text-center' },
-    { fieldName: 'lcccym', header: `WM${t('MSG_TXT_CLTN')}`, width: '122.7', styleName: 'text-center' },
-    { fieldName: 'dalsyn', header: t('MSG_TXT_ACL_ACTI') + t('MSG_TXT_ACHV'), width: '122.7', styleName: 'text-right' },
-    { fieldName: 'bondalsyn', header: t('MSG_TXT_MIN') + t('MSG_TXT_BASE') + t('MSG_TXT_ACHV'), width: '110.4', styleName: 'text-center' },
-    { fieldName: 'sungnm', header: t('MSG_TXT_LSTMM') + t('MSG_TXT_CPR') + t('MSG_TXT_DIV'), width: '110.4', styleName: 'text-center' },
-    { fieldName: 'wpscnt', header: 'WP', width: '110.4', styleName: 'text-center' },
-    { fieldName: 'wmscnt', header: 'WM', width: '122.7', styleName: 'text-right' },
-    { fieldName: 'spscnt', header: 'SP', width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'dancnt', header: t('MSG_TXT_COM_TOT') + t('MSG_TXT_PERSONS'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda17', header: t('MSG_TXT_RENTAL'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda18', header: t('MSG_TXT_SNGL_PMNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda1', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq1', header: t('MSG_TXT_ELHM') + t('MSG_TXT_NTOR') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq0', header: t('MSG_TXT_INDV') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq7', header: `${t('MSG_TXT_INDV')}BS${t('MSG_TXT_ACKMT')}${t('MSG_TXT_COUNT')}`, width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akdet3', header: t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jasamt', header: t('MSG_TXT_AMT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda12', header: t('MSG_TXT_RENTAL'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda13', header: t('MSG_TXT_SNGL_PMNT'), width: '139.2', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda14', header: t('MSG_TXT_FXAM'), width: '176', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda15', header: t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda16', header: t('MSG_TXT_FXAM'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq5', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '110.4', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcdq6', header: t('MSG_TXT_INDV') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'akcda19', header: t('MSG_TXT_HOME_CARE') + t('TXT_MSG_SELL_PRC'), width: '128.1', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcdq0', header: t('MSG_TXT_OG') + t('MSG_TXT_ELHM') + t('MSG_TXT_ACKMT') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcdq6', header: t('MSG_TXT_OG') + t('MSG_TXT_NEW') + t('MSG_TXT_SELL') + t('MSG_TXT_COUNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcda12', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_RENTAL'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcda13', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'jakcda15', header: t('MSG_TXT_ENVR') + t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_SNGL_PMNT'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd49', header: t('MSG_TXT_HOME_CARE'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd43', header: t('MSG_TXT_LIVE_PAKG'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd26', header: t('MSG_TXT_ELHM') + t('MSG_TXT_PRPN'), width: '122.7', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd29', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'sd26m1', header: t('MSG_TXT_ELHM') + t('MSG_TXT_METG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'sd26m2', header: t('MSG_TXT_SNGL_PMNT') + t('MSG_TXT_METG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'sd26mt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP') + t('MSG_TXT_METG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd17', header: t('MSG_TXT_SELL') + t('MSG_TXT_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd50', header: t('MSG_TXT_EDUC'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd48', header: t('MSG_TXT_STMNT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd04', header: t('MSG_TXT_MCHN_CH'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd15', header: `BS${t('MSG_TXT_MGT')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd23', header: t('MSG_TXT_RGLVL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd42', header: t('MSG_TXT_SELL') + t('MSG_TXT_ENRG') + t('MSG_TXT_RETT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd31', header: t('MSG_TXT_ELHM') + t('MSG_TXT_OG') + t('MSG_TXT_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd34', header: t('MSG_TXT_ELHM') + t('MSG_TXT_OG') + t('MSG_TXT_EXCP') + t('MSG_TXT_PRPN'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd11', header: t('MSG_TXT_OG') + t('MSG_TXT_SELL') + t('MSG_TXT_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd08', header: t('MSG_TXT_NEW') + t('MSG_TXT_SELL'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd22', header: t('MSG_TXT_OG') + t('MSG_TXT_MGT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd06', header: t('MSG_TXT_ADD') + t('MSG_TXT_ENRG'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd13', header: `${t('MSG_TXT_OG') + t('MSG_TXT_EJT')}1`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd09', header: `${t('MSG_TXT_OG') + t('MSG_TXT_EJT')}2`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd36', header: t('MSG_TXT_NB') + t('MSG_TXT_BRANCH'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd05', header: t('MSG_TXT_MEMBERSHIP'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd14', header: t('MSG_TXT_ADSB'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd39', header: t('MSG_TXT_ETC') + t('MSG_TXT_SUPPORT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd18', header: `WM${t('MSG_TXT_CMNC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd19', header: `WM${t('MSG_TXT_ETC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd40', header: t('MSG_TXT_PRR_VST'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd16', header: t('MSG_TXT_UNIFORM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aksd10', header: t('MSG_TXT_MAT_HODT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'lccntt', header: `BS${t('MSG_TXT_COMPLETE')}${t('MSG_TXT_ACC')}`, width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'intbsSum', header: t('MSG_TXT_ASESS_STD_TX_BASE') + t('MSG_TXT_SUM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'ddtnSum', header: t('MSG_TXT_DDTN_SUM'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-    { fieldName: 'aclDsbAmt', header: t('MSG_TXT_ACL_DSB_AMT'), width: '129', styleName: 'text-right', numberFormat: '#,###,##0' },
-
-  ];
-
-  data.setFields(fields);
-  view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
-
-  // multi row header setting
-  view.setColumnLayout([
-    'ogNm', 'prtnrNo', 'prtnrKnm', 'rsbDvCd', 'akcuil',
-    {
-      header: t('MSG_TXT_QLF'),
-      direction: 'horizontal',
-      items: ['akdmi3', 'akdmi32'],
-    },
-    {
-      header: t('MSG_TXT_SRTUP'),
-      direction: 'horizontal',
-      items: ['edustr', 'edu011'],
-    },
-    'edu129',
-    {
-      header: t('MSG_TXT_TOPMR_PLAR') + t('MSG_TXT_EDUC'),
-      direction: 'horizontal',
-      items: ['edu106', 'akdcha', 'edu017'],
-    },
-    'edu135', 'ojtcnt', 'akdsym', 'akdenm', 'akdjem', 'akdlym', 'akdcym', 'akdrym',
-    {
-      header: t('MSG_TXT_TOPMR_PLAR'),
-      direction: 'horizontal',
-      items: ['sustym', 'suscym'],
-    },
-    'lccoym', 'lcccym', 'dalsyn',
-    {
-      header: t('MSG_TXT_ACL_ACTI_PPL'),
-      direction: 'horizontal',
-      items: ['bondalsyn', 'sungnm', 'wpscnt', 'wmscnt', 'spscnt', 'dancnt'],
-    },
-    {
-      header: t('TXT_MSG_ACKMT_PERF'),
-      direction: 'horizontal',
-      items: ['akcda17', 'akcda18', 'akcda1'],
-    },
-    'akcdq1', 'akcdq0', 'akcdq7',
-    {
-      header: t('MSG_TXT_ELHM') + t('MSG_TXT_CHNG'),
-      direction: 'horizontal',
-      items: ['akdet3', 'jasamt'],
-    },
-    {
-      header: `${t('MSG_TXT_ENVR_ELHM')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
-      direction: 'horizontal',
-      items: ['akcda12', 'akcda13', 'akcda14'],
-    },
-    {
-      header: `${t('MSG_TXT_ENVR_ELHM') + t('MSG_TXT_EXCP')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
-      direction: 'horizontal',
-      items: ['akcda15', 'akcda16'],
-    },
-    'akcdq5', 'akcdq6', 'akcda19', 'jakcdq0', 'jakcdq6',
-    {
-      header: `${t('MSG_TXT_OG')}(${t('MSG_TXT_BASE') + t('MSG_TXT_AMT')})`,
-      direction: 'horizontal',
-      items: ['jakcda12', 'jakcda13', 'jakcda15'],
-    },
-    'aksd49', 'aksd43', 'aksd26', 'aksd29', 'sd26m1', 'sd26m2', 'sd26mt', 'aksd17',
-    'aksd50', 'aksd48', 'aksd04', 'aksd15', 'aksd23', 'aksd42', 'aksd31', 'aksd34',
-    'aksd11', 'aksd08', 'aksd22', 'aksd06', 'aksd13', 'aksd09', 'aksd36', 'aksd05',
-    'aksd14', 'aksd39', 'aksd18', 'aksd19', 'aksd40', 'aksd16', 'aksd10', 'lccntt',
-    'intbsSum', 'ddtnSum', 'aclDsbAmt',
-
-  ]);
+  setGridColumnLayout(view);
 });
 
 </script>
