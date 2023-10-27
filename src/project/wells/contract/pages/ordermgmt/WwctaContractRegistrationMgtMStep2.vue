@@ -356,6 +356,13 @@ async function onDeleteOnePlusOne(dtl) {
     warn('1+1 관계가 없습니다.');
   }
   cntrRels.splice(onePlusOneRelIndex, 1);
+
+  if (dtl.priceOptionFilter?.rentalDscTpCd) {
+    dtl.priceOptionFilter.rentalDscTpCd = undefined;
+  }
+  if (dtl.priceOptionFilter.rentalDscDvCd) {
+    dtl.priceOptionFilter.rentalDscDvCd = undefined;
+  }
 }
 
 async function onClickDeviceChange(dtl) {
@@ -701,11 +708,21 @@ async function isValidStep() {
       return true;
     }
 
-    const { sellTpDtlCd, cntrRels = [], precontractRequired, appliedPromotions, finalPrice, hgrPdCd } = dtl;
+    const {
+      sellTpDtlCd,
+      cntrRels = [],
+      finalPrice,
+      precontractRequired,
+      hgrPdCd,
+      appliedPromotions,
+      alncCntrNms } = dtl;
     const { alncPmotEuYn } = finalPrice; // 제휴프로모션적용여부
 
-    // 복합상품이 아니고, 제휴프로모션적용여부가 'Y' 이며 적용된 프로모션이 없을 경우 + TODO: 상조제휴?
-    if (!hgrPdCd && alncPmotEuYn === 'Y' && !appliedPromotions?.length) {
+    if (alncPmotEuYn === 'Y' // 제휴프로모션적용여부가 'Y' 인데,
+      && !hgrPdCd // 복합상품이 아니고
+      && !appliedPromotions?.length // 프로모션도 없고,
+      && !alncCntrNms?.length // 라이프(상조)제휴도 없는경우
+    ) {
       alert('제휴 프로모션 전용가격입니다.');
       return true;
     }
@@ -718,16 +735,6 @@ async function isValidStep() {
         return true;
       }
     }
-
-    /*     const { sellDscTpCd } = dtl;
-
-    if (sellDscTpCd === '03') {
-      const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);
-      if (!onePlusOneRel) {
-        alert('1+1 대상 계약을 선택해주세요.');
-        return true;
-      }
-    } */
 
     if (precontractRequired) {
       const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);
