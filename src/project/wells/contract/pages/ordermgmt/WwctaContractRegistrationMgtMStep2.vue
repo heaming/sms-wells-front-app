@@ -599,7 +599,7 @@ async function onChangeWellsFarmPackage(dtl) {
     return;
   }
   const { result, payload: newPackageProduct } = await modal({
-    component: () => import('./WwctaWellsFarmPackageProductSelectP.vue'),
+    component: 'WwctaWellsFarmPackageProductSelectP',
     componentProps: {
       cntrNo: cntrNo.value,
       pdCd: dtl.pdCd,
