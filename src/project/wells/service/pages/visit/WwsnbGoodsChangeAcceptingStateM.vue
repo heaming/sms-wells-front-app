@@ -186,6 +186,7 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'SV_DV_CD',
+  'SELL_TP_CD',
 );
 
 const tempOptions = {
@@ -206,11 +207,6 @@ const tempOptions = {
     { codeId: 'A04', codeName: t('고객클레임') }, // 고객클레임
     { codeId: 'A05', codeName: t('부품수급안됨') }, // 부품수급안됨
     { codeId: 'A06', codeName: t('기타(협조전)') }, // 기타(협조전)
-  ],
-  custDivCd: [
-    { codeId: '1', codeName: t('MSG_TXT_SNGL_PMNT') }, // 일시불
-    { codeId: '2', codeName: t('MSG_TXT_RENT_LEAS') }, // 렌탈/리스
-    { codeId: '4', codeName: t('MSG_TXT_CO_IST') }, // 회사설치
   ],
   recapOrFreeYnCd: [
     { codeId: '1', codeName: t('MSG_TXT_RECAP') }, // 유상
@@ -349,7 +345,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'tpChYn', header: t('MSG_TXT_TYPE_CH_YN'), width: '100', styleName: 'text-center', editable: false }, // 유형변경여부
     { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center rg-button-link', renderer: { type: 'button' }, editable: false }, // 계약상세번호
     { fieldName: 'custNm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center', editable: false },
-    { fieldName: 'custDiv', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center', options: tempOptions.custDivCd, editable: false },
+    { fieldName: 'custDiv', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD, editable: false },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '180', styleName: 'text-center', editable: false },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '180', styleName: 'text-center', editable: false },
