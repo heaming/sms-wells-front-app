@@ -331,20 +331,41 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'col27', header: t('MSG_TXT_CAUS'), width: '200', styleName: 'text-center' },
     { fieldName: 'col28', header: t('MSG_TXT_DTL_IZ'), width: '200', styleName: 'text-left' },
   ];
-  // const columnLayout = [
-  //   'asMatItmGrpNm', 'sapMatCd', 'pdCd', 'pdNm', 'asSplUnitAmt', // single
-  //   {
-  //     header: t('MSG_TXT_EGD'), // colspan title
-  //     direction: 'horizontal', // merge type
-  //     items: ['itemGdESum', 'itemGdECostSum'],
-  //   },
-  // ];
+  const columnLayout = [
+    'sapMatCd',
+    'pdCd',
+    'pdNm',
+    'bcNo',
+    'col5',
+    'col6',
+    'col7',
+    'col8',
+    'col10',
+    'col11',
+    'col12',
+    'col13',
+    'col14',
+    'col15',
+    'col16',
+    'col17',
+    'col18',
+    'col19',
+    'col20',
+    'col21',
+    'col22',
+    'col23',
+    'col24',
+    {
+      header: t('결과입력'),
+      items: ['col25', 'col26', 'col27', 'col28'],
+    },
+  ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);
   view.setColumns(columns);
-  // view.setColumnLayout(columnLayout);
+  view.setColumnLayout(columnLayout);
   view.setFixedOptions({ colCount: 3, resizable: true });
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.onCellItemClicked = async (grid, index) => {
     if (index.column === 'cntrNo') {
