@@ -169,6 +169,7 @@ async function fetchData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
+// 조회 이벤트
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
 
@@ -228,8 +229,8 @@ async function onClickSearchUser() {
 const initGrid = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'bildcFwDtm' }, // 발송일자
-    { fieldName: 'bildcPblNo' },
-    { fieldName: 'bildcPblSn' },
+    { fieldName: 'bildcPblNo' }, // 청구서발행번호
+    { fieldName: 'bildcPblSn' }, // 청구서발행일련번호
     { fieldName: 'cstFnm' }, // --고객성명
     { fieldName: 'pdNm' }, // --상품명
     { fieldName: 'pdQty' }, // 수량
@@ -240,7 +241,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bildcWrteDt' }, // --작성일자
     { fieldName: 'dummyText' }, // --발송
     { fieldName: 'sellPrtnrNo' }, /* 파트너번호 */
-    { fieldName: 'sellPrtnrNm' }, /* 파트너번호 */
+    { fieldName: 'sellPrtnrNm' }, /* 판매파트너명 */
 
   ];
 
