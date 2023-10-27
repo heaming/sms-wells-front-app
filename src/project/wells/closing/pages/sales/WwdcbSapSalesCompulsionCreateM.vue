@@ -256,8 +256,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'lgmgub', header: t('MSG_TXT_SL_DV'), width: '140', styleName: 'text-center', editable: false }, // 매출구분
     { fieldName: 'lgjdte', header: t('MSG_TXT_IN_D'), width: '140', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 입력일
     { fieldName: 'transYn', header: t('MSG_TXT_TRS_YN'), width: '140', styleName: 'text-center', editable: false }, // 전송여부
-    { fieldName: 'zsifdt', header: t('MSG_TXT_IF_TRS_D'), width: '140', styleName: 'text-center', editable: false }, // IF전송일
-    { fieldName: 'zssadt', header: t('MSG_TXT_SAP_RFLT_D'), width: '100', styleName: 'text-center', editable: false }, // SAP반영일
+    { fieldName: 'zsifdt', header: t('MSG_TXT_IF_TRS_D'), width: '140', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // IF전송일
+    { fieldName: 'zssadt', header: t('MSG_TXT_SAP_RFLT_D'), width: '100', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // SAP반영일
     { fieldName: 'zsslhq', header: t('MSG_TXT_BZ_DEPT'), width: '100', styleName: 'text-center', editable: false }, // 사업부서
     { fieldName: 'zsdept', header: t('MSG_TXT_OG_INF'), width: '100', styleName: 'text-center', editable: false }, // 조직정보
     { fieldName: 'zscust', header: t('MSG_TXT_CST_INF_ID'), width: '120', styleName: 'text-center', editable: false }, // 고객정보ID
