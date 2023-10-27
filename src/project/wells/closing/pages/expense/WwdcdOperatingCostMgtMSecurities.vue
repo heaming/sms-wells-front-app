@@ -195,15 +195,19 @@ async function onClickSave() {
 async function onClickExcelDownload(flag) {
   if (flag === 'adjustObject') {
     const view = grdThirdRef.value.getView();
+    const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/adjust-object', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: t('MSG_TXT_ADJ_OJ'),
       timePostfix: true,
+      exportData: res.data,
     });
   } else if (flag === 'withholdingTaxAdjust') {
     const view = grdFourthRef.value.getView();
+    const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/withholding-tax-adjust', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: t('MSG_TXT_WHTX_ADJ_IZ'),
       timePostfix: true,
+      exportData: res.data,
     });
   }
 }
