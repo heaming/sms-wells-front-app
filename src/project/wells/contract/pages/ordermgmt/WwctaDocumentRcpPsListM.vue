@@ -232,7 +232,7 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'reCntrChRcpId', header: t('MSG_TXT_RCPT_NO'), width: '166', styleName: 'text-center' }, // 접수번호
+    { fieldName: 'reCntrChRcpId', header: t('MSG_TXT_RCPT_NO'), width: '166', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 접수번호
     { fieldName: 'cntrChRcpD', header: t('MSG_TXT_RCP_D'), width: '166', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'cntrChRcpTm', header: t('MSG_TXT_RCPT_HH'), width: '166', styleName: 'text-center', datetimeFormat: 'hh:mm:ss' }, // 접수시간
     { fieldName: 'cntrChPrgsStatNm', header: t('MSG_TXT_RCP_PS'), width: '166', styleName: 'text-center' }, // 접수현황
@@ -253,14 +253,32 @@ const initGrid = defineGrid((data, view) => {
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
 
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
+    const paramCntrChRcpId = gridUtil.getCellValue(g, dataRow, 'cntrChRcpId'); // 접수번호
+    const paramCntrChTpCd = gridUtil.getCellValue(g, dataRow, 'cntrChTpCd'); // 접수유형
+    const paramCntrChTpNm = gridUtil.getCellValue(g, dataRow, 'cntrChTpNm'); // 접수유형명
+
+    if (['reCntrChRcpId'].includes(column)) {
+      const res = await modal({
+        component: 'WwctaDocumentRcpDtlMgtP',
+        componentProps: { cntrChRcpId: paramCntrChRcpId,
+          cntrChTpCd: paramCntrChTpCd,
+          cntrChTpNm: paramCntrChTpNm },
+      });
+      if (res.result) fetchData();
+    }
+  };
+
   view.onCellDblClicked = async (g, { dataRow }) => {
     const paramCntrChRcpId = gridUtil.getCellValue(g, dataRow, 'cntrChRcpId'); // 접수번호
     const paramCntrChTpCd = gridUtil.getCellValue(g, dataRow, 'cntrChTpCd'); // 접수유형
+    const paramCntrChTpNm = gridUtil.getCellValue(g, dataRow, 'cntrChTpNm'); // 접수유형명
 
     const res = await modal({
       component: 'WwctaDocumentRcpDtlMgtP',
       componentProps: { cntrChRcpId: paramCntrChRcpId,
-        cntrChTpCd: paramCntrChTpCd },
+        cntrChTpCd: paramCntrChTpCd,
+        cntrChTpNm: paramCntrChTpNm },
     });
     if (res.result) fetchData();
   };
