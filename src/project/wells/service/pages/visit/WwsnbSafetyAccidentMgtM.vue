@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 조회구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_INQR_DV')"
           colspan="2"
@@ -136,38 +137,6 @@
           />
         </kw-search-item>
       </kw-search-row>
-      <!-- <kw-search-row> -->
-      <!-- 등록일자 -->
-      <!-- <kw-search-item
-          :label="$t('MSG_TXT_FST_RGST_DT')"
-        >
-          <kw-date-range-picker
-            v-model:from="searchParams.rgstDtmFrom"
-            v-model:to="searchParams.rgstDtmTo"
-          />
-        </kw-search-item> -->
-      <!-- 완료일자 -->
-      <!-- <kw-search-item
-          :label="$t('MSG_TXT_FSH_DT')"
-          :colspan="2"
-        >
-          <kw-date-range-picker
-            v-model:from="searchParams.fshDtFrom"
-            v-model:to="searchParams.fshDtTo"
-          />
-          <kw-field
-            v-model="searchParams.fshDtYn"
-          >
-            <template #default="{ field }">
-              <kw-checkbox
-                v-bind="field"
-                :label="$t('MSG_TXT_FSH_EXCD')"
-                val=""
-              />
-            </template>
-          </kw-field>
-        </kw-search-item> -->
-      <!-- </kw-search-row> -->
     </kw-search>
     <div class="result-area">
       <kw-action-top>
@@ -187,6 +156,7 @@
           secondary
           :label="$t('MSG_BTN_PRTG')"
         /> -->
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -201,6 +171,7 @@
           vertical
           inset
         />
+        <!-- 합의서 출력 -->
         <kw-btn
           v-permission:print
           dense
@@ -208,6 +179,7 @@
           :label="$t('MSG_TXT_AGR_PRNT')"
           @click="onClickAgreementPrint"
         />
+        <!-- 사고경위서 출력 -->
         <kw-btn
           v-permission:print
           dense
@@ -220,6 +192,7 @@
           vertical
           inset
         />
+        <!-- 등록 -->
         <kw-btn
           v-permission:create
           dense
@@ -317,7 +290,7 @@ const searchParams = ref({
   searchOption: '1',
 });
 let cachedParams;
-
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -330,6 +303,7 @@ async function onClickExcelDownload() {
     checkBar: 'hidden',
   });
 }
+// 그리드 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/safety-accidents/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: places, pageInfo: pagingResult } = res.data;
@@ -340,7 +314,7 @@ async function fetchData() {
   view.getDataSource().setRows(places);
   view.clearCurrent();
 }
-
+// 조회버튼 클릭
 async function onClickSearch() {
   const splited = (searchParams.value.cntrDtlNo).split('-');
   searchParams.value.cntrNo = splited[0];
@@ -350,10 +324,14 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
+// 합의서 출력 버튼 클릭(오즈리포트)
 async function onClickAgreementPrint() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
+  if (chkRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
+    return;
+  }
   const { acdnRcpId } = chkRows[0];
   const ozParam = ref({
     args: {
@@ -371,12 +349,12 @@ async function onClickAgreementPrint() {
     { width: ozParam.width, height: ozParam.height },
   );
 }
-
+// 사고경위서 출력 버튼 클릭
 async function onClickAccidentReportPrint() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
   if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
   const acdnRcpId = (chkRows.length === 0 ? '' : chkRows[0].acdnRcpId);
@@ -387,7 +365,7 @@ async function onClickAccidentReportPrint() {
     },
   });
 }
-
+// 등록 버튼 클릭(팝업호출)
 async function onClickRegist() {
   await modal({
     component: 'WwsnbSafetyAccidentRegP',
@@ -403,33 +381,34 @@ async function onClickRegist() {
 
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'fshDt' },
+    { fieldName: 'fshDt' }, // 완료일자
     { fieldName: 'finishYn' }, // 완료여부
-    { fieldName: 'agrDocRcvYn' }, // 합의서수신여부
-    { fieldName: 'rcpdt' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'cstNm' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'cntrDtlNo' },
-    { fieldName: 'acdnRcpId' },
-    { fieldName: 'acdnRcpNm' },
-    { fieldName: 'tno' },
-    { fieldName: 'mpno' },
-    { fieldName: 'istAdr' },
-    { fieldName: 'istDtlAdr' },
-    { fieldName: 'istReferAdr' },
+    { fieldName: 'agrDocRcvYn' }, // 합의서서명여부
+    { fieldName: 'rcpdt' }, // A/S접수일
+    { fieldName: 'pdNm' }, // 제품명
+    { fieldName: 'cstNm' }, // 고객명
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약상세번호
+    { fieldName: 'cntrDtlNo' }, // 계약번호-계약상세번호
+    { fieldName: 'acdnRcpId' }, // 안전사고ID
+    { fieldName: 'acdnRcpNm' }, // 안전사고제목
+    { fieldName: 'tno' }, // 전화번호tot
+    { fieldName: 'mpno' }, // 휴대전화번호tot
+    { fieldName: 'istAdr' }, // 주소
+    { fieldName: 'istDtlAdr' }, // 상세주소
+    { fieldName: 'istReferAdr' }, // 참조주소
     { fieldName: 'istDt' }, // 설치일시
     { fieldName: 'acdnDtm' }, // 사고일시
-    { fieldName: 'cnrldNm' }, // 등록자
-    { fieldName: 'fstRgstDtm' },
+    { fieldName: 'cnrldNo' }, // 센터장사번(등록자사번)
+    { fieldName: 'cnrldNm' }, // 센터장(등록자)
+    { fieldName: 'fstRgstDtm' }, // 등록일시
     { fieldName: 'rcpMoCn' }, // 접수내용
     { fieldName: 'acdnCausCn' }, // 사고원인
     { fieldName: 'cstDmdCn' }, // 고객요구
     { fieldName: 'acdnRsCn' }, // 결과
     { fieldName: 'fnlMdfcDtm' }, // 수정일자
-    { fieldName: 'rptrNm' }, // 보고자명
-    { fieldName: 'svCnrNm' },
+    { fieldName: 'psicNo' }, // 담당자사번(센터장사번)
+    { fieldName: 'svCnrNm' }, // 서비스센터명
     { fieldName: 'imptaRsonNm' },
     { fieldName: 'cpsPrgsNm' },
     { fieldName: 'totCpsAmt', dataType: 'number' },
@@ -451,25 +430,25 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'agrDocRcvYn',
       header: t('MSG_TXT_AGR_SIGN_YN'),
-      width: '150',
+      width: '140',
       styleName: 'text-center',
     },
     {
       fieldName: 'rcpdt',
       header: t('MSG_TXT_AS_RCP_DT'),
-      width: '100',
+      width: '120',
       datetimeFormat: 'date',
+      styleName: 'text-right',
     },
     {
       fieldName: 'pdNm',
       header: t('MSG_TXT_GOODS_NM'),
-      width: '200',
+      width: '150',
     },
     {
       fieldName: 'cstNm',
       header: t('MSG_TXT_CST_NM'),
       width: '100',
-      styleName: 'text-center',
     },
     {
       fieldName: 'cntrNo',
@@ -519,29 +498,37 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'istDt',
       header: t('MSG_TXT_IST_DT'),
-      width: '100',
+      width: '120',
       datetimeFormat: 'date',
+      styleName: 'text-right',
     },
     {
       fieldName: 'acdnDtm',
       header: t('MSG_TXT_ACDN_DTM'),
       width: '150',
+      styleName: 'text-right',
       displayCallback: (grid, index) => {
         const { acdnDtm } = grid.getValues(index.itemIndex);
         return stringUtil.getDatetimeFormat(acdnDtm);
       },
     },
     {
+      fieldName: 'cnrldNo',
+      header: t('MSG_TXT_RGR_EMPNO'),
+      width: '100',
+      styleName: 'text-right',
+    },
+    {
       fieldName: 'cnrldNm',
       header: t('MSG_TXT_FST_RGST_USR'),
       width: '100',
-      styleName: 'text-center',
     },
     {
       fieldName: 'fstRgstDtm',
       header: t('MSG_TXT_RGST_DTM'),
-      width: '150',
+      width: '120',
       datetimeFormat: 'date',
+      styleName: 'text-right',
     },
     {
       fieldName: 'rcpMoCn',
@@ -555,7 +542,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'cstDmdCn',
-      header: t('MSG_TXT_CST_DMD'),
+      header: t('MSG_TXT_CST_DMD_ARTC'),
       width: '150',
     },
     {
@@ -566,19 +553,20 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'fnlMdfcDtm',
       header: t('MSG_TXT_MDFC_DATE'),
-      width: '150',
+      width: '120',
       datetimeFormat: 'date',
+      styleName: 'text-right',
     },
     {
-      fieldName: 'rptrNm',
-      header: t('MSG_TXT_RPTR'),
+      fieldName: 'psicNo',
+      header: t('MSG_TXT_PIC'),
       width: '100',
       styleName: 'text-center',
     },
     {
       fieldName: 'svCnrNm',
-      header: t('MSG_TXT_CNT_NM'),
-      width: '100',
+      header: t('MSG_TXT_SV_CNR'),
+      width: '150',
     },
     {
       fieldName: 'imptaRsonNm',
@@ -628,13 +616,14 @@ const initGrdMain = defineGrid((data, view) => {
     'istDtlAdr',
     'istDt',
     'svCnrNm',
+    'cnrldNo',
     'cnrldNm',
     'fstRgstDtm',
     'fnlMdfcDtm',
     'rcpMoCn',
     'acdnCausCn',
     'cstDmdCn',
-    'rptrNm',
+    'psicNo',
     'imptaRsonNm',
     'cpsPrgsNm',
     'totCpsAmt',
