@@ -56,7 +56,7 @@
     <kw-grid
       ref="grdAfterRef"
       name="grdAter"
-      :visible-rows="pageInfo.pageSize - 1"
+      :visible-rows="10"
       @init="initGrid"
     />
 
