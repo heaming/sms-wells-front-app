@@ -127,11 +127,6 @@ export default (
   });
 
   /**
-   * 가격 옵션에 제한을 걸 경우, 제한이 해당되는 필드의 이름들.
-   */
-  const filteredVariableNames = computed(() => Object.getOwnPropertyNames(normalizedOptionFilter.value));
-
-  /**
    * 필터링 된 가격 옵션 제한으로 필터링 된 선택가능한 가격입니다.
    */
   const filteredFinalPriceOptions = ref(unref(finalPriceOptions));
@@ -181,8 +176,6 @@ export default (
   /**
    * 가격 옵션 객체 (finalPrice)의 가격 결정 요소 (variableName)의 값 으로 부터 생성된 키를 필드 이름, (eg. '82', EMPTY_SYM)
    * 해당 가격 결정 요소를 해당 값으로 가지며, '현재 선택 가능한' 가격 옵션 객체의 배열을 필드 값 으로 가지는 객체의 계산 값.
-   *
-   * @type {ComputedRef<*>}
    */
   const varNameToSelectablesDictMap = computed(() => variableNames.value
     .reduce((varNameToSelectablesDict, variableName) => {
@@ -294,10 +287,12 @@ export default (
 
     let filtered = finalPriceOptions.value;
 
-    if (filteredVariableNames.value.length) {
+    const filteredVariableNames = Object.getOwnPropertyNames(normalizedOptionFilter.value);
+
+    if (filteredVariableNames.length) {
       filtered = finalPriceOptions.value
         /* 가격 제한 옵션의 가격 결정 요소들 중 하나라도 일치하지 않으면 밴한다. */
-        .filter((finalPriceOption) => !filteredVariableNames.value
+        .filter((finalPriceOption) => !filteredVariableNames
           .some((filteredVarName) => {
             const optionsVar = generateValueKey(finalPriceOption[filteredVarName]);
             const {
@@ -328,12 +323,19 @@ export default (
 
   filteringFinalPriceOptions();
 
-  const onChangePriceOptionFilter = () => {
+  const onChangePriceOptionFilter = (value, oldValue) => {
     filteringFinalPriceOptions();
-    filteredVariableNames.value.forEach(setIfUniqueSelectable); /* 필터링 된 항목만 박도록 수정 */
+
+    const oldFilteredVariableNames = Object.getOwnPropertyNames(oldValue ?? {}); // 제한이 해제됨.
+    const filteredVariableNames = Object.getOwnPropertyNames(value ?? {}); // 새로 제한이 걸림
+
+    oldFilteredVariableNames.forEach((variableName) => {
+      priceDefineVariables.value[variableName] = undefined;
+    });
+    filteredVariableNames.forEach(setIfUniqueSelectable);
   };
 
-  watch(priceOptionFilter, onChangePriceOptionFilter, { deep: true });
+  watch(normalizedOptionFilter, onChangePriceOptionFilter, { deep: true, onTrigger: (event) => console.log(event) });
 
   const onChangeFinalPriceOptions = () => {
     filteringFinalPriceOptions();

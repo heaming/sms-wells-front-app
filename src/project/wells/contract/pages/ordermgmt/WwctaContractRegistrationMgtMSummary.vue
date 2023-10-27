@@ -72,14 +72,20 @@
           >
             <div class="like-vertical-stepper__step-content">
               <ul class="card-text">
-                <li
+                <template
                   v-for="(pd, i) in summary.cntrDtls"
                   :key="i"
                 >
-                  <span>{{ pd.cstBasePdAbbrNm || pd.pdNm || '' }}</span>
-                  <span v-if="pd.sellTpCd">{{ getCodeName('SELL_TP_CD', pd.sellTpCd) }}</span>
-                  <span v-if="pd.sellTpDtlCd">{{ getCodeName('SELL_TP_DTL_CD', pd.sellTpDtlCd) }}</span>
-                </li>
+                  <li>
+                    <p>상품영</p>
+                    <span>{{ pd.cstBasePdAbbrNm || pd.pdNm || '' }}</span>
+                  </li>
+                  <li>
+                    <p>판매유형</p>
+                    <span v-if="pd.sellTpCd">{{ getCodeName('SELL_TP_CD', pd.sellTpCd) }}</span>
+                    <span v-if="pd.sellTpDtlCd"> - {{ getCodeName('SELL_TP_DTL_CD', pd.sellTpDtlCd) }}</span>
+                  </li>
+                </template>
               </ul>
             </div>
           </template>
