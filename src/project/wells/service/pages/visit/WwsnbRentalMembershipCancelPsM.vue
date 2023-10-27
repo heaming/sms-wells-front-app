@@ -223,14 +223,14 @@ async function onClickExcelDownload() {
 
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col10', header: t('소속'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('소속명'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col12', header: t('판매자사번'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col13', header: t('판매자명'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col14', header: t('관리센터'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col15', header: t('소속'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col16', header: t('관리자사번'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col17', header: t('관리자명'), width: '200', styleName: 'text-center' },
+    { fieldName: 'col10', header: t('MSG_TXT_BLG'), width: '200', styleName: 'text-center' }, /* 소속(판매자) */
+    { fieldName: 'col11', header: t('MSG_TXT_BLG_NM'), width: '200', styleName: 'text-center' }, /* 소속명 */
+    { fieldName: 'col12', header: t('MSG_TXT_SELLER_ID'), width: '200', styleName: 'text-center' }, /* 판매자사번 */
+    { fieldName: 'col13', header: t('MSG_TXT_SELL_NM'), width: '200', styleName: 'text-center' }, /* 판매자명 */
+    { fieldName: 'col14', header: t('MSG_TXT_MNGT_CENTER'), width: '200', styleName: 'text-center' }, /* 관리센터 */
+    { fieldName: 'col15', header: t('MSG_TXT_BLG'), width: '200', styleName: 'text-center' }, /* 소속(관리자) */
+    { fieldName: 'col16', header: t('MSG_TXT_ADMIN_SBN'), width: '200', styleName: 'text-center' }, /* 관리자사번 */
+    { fieldName: 'col17', header: t('MSG_TXT_ADMIN_NM'), width: '200', styleName: 'text-center' }, /* 관리자명 */
     {
       fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
@@ -244,40 +244,39 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'col19', header: t('고객명'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col20', header: t('SAP코드'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col21', header: t('상품코드'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col22', header: t('상품명'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col23', header: t('전화번호'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col24', header: t('우편번호'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col25', header: t('주소'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col26', header: t('취소구분'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col27', header: t('취소내역'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col28', header: t('설치일자'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col29', header: t('취소일자'), width: '200', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col30', header: t('사용기간'), width: '200', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'col31', header: t('약정기간'), width: '200', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'col32', header: t('취소조정'), width: '200', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'col33', header: t('위약금액'), width: '200', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'col34', header: t('분손실료'), width: '200', styleName: 'text-right', dataType: 'number' },
-
+    { fieldName: 'col19', header: t('MSG_TXT_CST_NM'), width: '200', styleName: 'text-center' }, /* 고객명 */
+    { fieldName: 'col20', header: t('MSG_TXT_SAPCD'), width: '200', styleName: 'text-center' }, /* SAP코드 */
+    { fieldName: 'col21', header: t('MSG_TXT_PRDT_CODE'), width: '200', styleName: 'text-center' }, /* 상품코드 */
+    { fieldName: 'col22', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, /* 상품명 */
+    { fieldName: 'col23', header: t('MSG_TXT_TEL_NO'), width: '200', styleName: 'text-center' }, /* 전화번호 */
+    { fieldName: 'col24', header: t('MSG_TXT_ZIP'), width: '200', styleName: 'text-center' }, /* 우편번호 */
+    { fieldName: 'col25', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-center' }, /* 주소 */
+    { fieldName: 'col26', header: t('MSG_TXT_CNCL_DV'), width: '200', styleName: 'text-center' }, /* 취소구분 */
+    { fieldName: 'col27', header: t('MSG_TXT_CANC_IZ'), width: '200', styleName: 'text-center' }, /* 취소내역 */
+    { fieldName: 'col28', header: t('MSG_TXT_IST_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' }, /* 설치일자 */
+    { fieldName: 'col29', header: t('MSG_TXT_CANC_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' }, /* 취소일자 */
+    { fieldName: 'col30', header: t('MSG_TXT_USE_PTRM'), width: '200', styleName: 'text-right', dataType: 'number' }, /* 사용기간 */
+    { fieldName: 'col31', header: t('MSG_TXT_CONTRACT_PERI'), width: '200', styleName: 'text-right', dataType: 'number' }, /* 약정기간 */
+    { fieldName: 'col32', header: t('MSG_TXT_CAN_CTR'), width: '200', styleName: 'text-right', dataType: 'number' }, /* 취소조정 */
+    { fieldName: 'col33', header: t('MSG_TXT_BOR_AMT'), width: '200', styleName: 'text-right', dataType: 'number' }, /* 위약금액 */
+    { fieldName: 'col34', header: t('MSG_TXT_CST_PS'), width: '200', styleName: 'text-right', dataType: 'number' }, /* 분손실료 */
   ];
   const columnLayout = [
     {
-      header: t('판매자 인적사항'),
+      header: t('MSG_TXT_SELLER_PERSON_PESL_ARTC'),
       items: ['col10', 'col11', 'col12', 'col13'],
     },
     'col14',
     {
-      header: t('관리자 인적사항'),
+      header: t('MSG_TXT_MNGT_PERSON_PESL_ARTC'),
       items: ['col15', 'col16', 'col17'],
     },
     {
-      header: t('고객현황'),
+      header: t('MSG_TXT_CST_PS'),
       items: ['cntrNo', 'col19', 'col20', 'col21', 'col22', 'col23', 'col24', 'col25'],
     },
     {
-      header: t('취소내역'),
+      header: t('MSG_TXT_CANC_IZ'),
       items: ['col26', 'col27', 'col28', 'col29', 'col30', 'col31', 'col32', 'col33', 'col34'],
     },
   ];

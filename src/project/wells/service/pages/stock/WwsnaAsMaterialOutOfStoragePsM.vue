@@ -290,14 +290,14 @@ async function onClickOZ() {
 
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '180', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '180', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
-    { fieldName: 'bcNo', header: t('MSG_TXT_BARCODE'), width: '180', styleName: 'text-center' },
-    { fieldName: 'col5', header: t('MSG_TXT_PRCSDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'col6', header: t('MSG_TXT_GD'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col7', header: `${t('MSG_TXT_QTY')}(EA)`, width: '200', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'col8', header: `${t('MSG_TXT_RECAP_OR_FREE')}+${t('MSG_TXT_DIV')}`, width: '200', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '180', styleName: 'text-center' }, /* SAP코드 */
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '180', styleName: 'text-center' }, /* 품목코드 */
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '140', styleName: 'text-left' }, /* 품목명 */
+    { fieldName: 'bcNo', header: t('MSG_TXT_BARCODE'), width: '180', styleName: 'text-center' }, /* 바코드 */
+    { fieldName: 'col5', header: t('MSG_TXT_PRCSDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, /* 처리일자 */
+    { fieldName: 'col6', header: t('MSG_TXT_GD'), width: '140', styleName: 'text-center' }, /* 등급 */
+    { fieldName: 'useQty', header: `${t('MSG_TXT_QTY')}(EA)`, width: '140', styleName: 'text-right', dataType: 'number' }, /* 수량 */
+    { fieldName: 'col8', header: `${t('MSG_TXT_RECAP_OR_FREE')}+${t('MSG_TXT_DIV')}`, width: '140', styleName: 'text-center' }, /* 유무상 구분 */
     {
       fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
@@ -311,25 +311,25 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'col10', header: t('MSG_TXT_CST_NM'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col11', header: t('MSG_TXT_CNTR_DATE'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col12', header: t('MSG_TXT_TEL_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col13', header: t('MSG_TXT_ZIP'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col14', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-left' },
-    { fieldName: 'col15', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col16', header: t('MSG_TXT_MDL_NM'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col17', header: t('MSG_TXT_MNFT_NO'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col18', header: t('MSG_TXT_RCP_IZ'), width: '200', styleName: 'text-left' },
-    { fieldName: 'col19', header: t('MSG_TXT_IST_DT'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col20', header: t('MSG_TXT_SV_TP'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col21', header: t('MSG_TXT_ICHR_CNR'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col22', header: t('MSG_TXT_ICHR_EGER'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col23', header: t('MSG_TXT_VST_CNFM_D'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col24', header: t('MSG_TXT_WK_STS'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col25', header: t('MSG_TXT_LCT'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col26', header: t('MSG_TXT_PHN'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col27', header: t('MSG_TXT_CAUS'), width: '200', styleName: 'text-center' },
-    { fieldName: 'col28', header: t('MSG_TXT_DTL_IZ'), width: '200', styleName: 'text-left' },
+    { fieldName: 'col10', header: t('MSG_TXT_CST_NM'), width: '140', styleName: 'text-center' }, /* 고객명 */
+    { fieldName: 'col11', header: t('MSG_TXT_CNTR_DATE'), width: '140', styleName: 'text-center' }, /* 계약일자 */
+    { fieldName: 'col12', header: t('MSG_TXT_TEL_NO'), width: '140', styleName: 'text-center' }, /* 전화번호 */
+    { fieldName: 'col13', header: t('MSG_TXT_ZIP'), width: '140', styleName: 'text-center' }, /* 우편번호 */
+    { fieldName: 'col14', header: t('MSG_TXT_ADDR'), width: '140', styleName: 'text-left' }, /* 주소 */
+    { fieldName: 'col15', header: t('MSG_TXT_PRDT_NM'), width: '140', styleName: 'text-center' }, /* 상품명 */
+    { fieldName: 'col16', header: t('MSG_TXT_MDL_NM'), width: '140', styleName: 'text-center' }, /* 모델명 */
+    { fieldName: 'col17', header: t('MSG_TXT_MNFT_NO'), width: '140', styleName: 'text-center' }, /* 제조번호 */
+    { fieldName: 'col18', header: t('MSG_TXT_RCP_IZ'), width: '140', styleName: 'text-left' }, /* 접수내역 */
+    { fieldName: 'col19', header: t('MSG_TXT_IST_DT'), width: '140', styleName: 'text-center' }, /* 설치일자 */
+    { fieldName: 'col20', header: t('MSG_TXT_SV_TP'), width: '140', styleName: 'text-center' }, /* 서비스유형  */
+    { fieldName: 'col21', header: t('MSG_TXT_ICHR_CNR'), width: '140', styleName: 'text-center' }, /* 담당센터 */
+    { fieldName: 'col22', header: t('MSG_TXT_ICHR_EGER'), width: '140', styleName: 'text-center' }, /* 담당엔지니어 */
+    { fieldName: 'col23', header: t('MSG_TXT_VST_CNFM_D'), width: '140', styleName: 'text-center' }, /* 방문확정일 */
+    { fieldName: 'col24', header: t('MSG_TXT_WK_STS'), width: '140', styleName: 'text-center' }, /* 작업상태 */
+    { fieldName: 'col25', header: t('MSG_TXT_LCT'), width: '140', styleName: 'text-center' }, /* 위치 */
+    { fieldName: 'col26', header: t('MSG_TXT_PHN'), width: '140', styleName: 'text-center' }, /* 현상 */
+    { fieldName: 'col27', header: t('MSG_TXT_CAUS'), width: '140', styleName: 'text-center' }, /* 원인 */
+    { fieldName: 'col28', header: t('MSG_TXT_DTL_IZ'), width: '140', styleName: 'text-left' }, /* 상세내역 */
   ];
   const columnLayout = [
     'sapMatCd',
@@ -338,7 +338,7 @@ const initGrdMain = defineGrid((data, view) => {
     'bcNo',
     'col5',
     'col6',
-    'col7',
+    'useQty',
     'col8',
     'col10',
     'col11',
