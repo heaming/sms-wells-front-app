@@ -1445,13 +1445,15 @@ async function onClickPetitionCreate() {
     return;
   }
   checkedRows.forEach((obj) => {
+    const cntrDtlNo = `${obj.cntrNo}-${obj.cntrSn}`;
     dataParams.push({
       baseYm: obj.baseYm,
-      cntrDtlNo: obj.dtlCntrNo,
+      cntrDtlNo,
     });
   });
 
   const userObjects = ref(dataParams);
+
   await modal({
     component: 'ZwbncPetitionCreateP',
     componentProps: {
@@ -1580,6 +1582,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bndTfDt' },
     { fieldName: 'sfkVal' },
     { fieldName: 'cstNo' },
+    { fieldName: 'baseYm' },
   ];
 
   const columns = [
@@ -1642,6 +1645,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bndTfDt', header: t('MSG_TXT_TF_DT'), styleName: 'text-center', width: '120', datetimeFormat: 'date' },
     { fieldName: 'sfkVal', header: t('MSG_TXT_SFK'), styleName: 'text-center', width: '150' },
     { fieldName: 'cstNo', header: '', width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'baseYm', header: '', width: '100', styleName: 'text-center', visible: false },
   ];
 
   data.setFields(fields);
