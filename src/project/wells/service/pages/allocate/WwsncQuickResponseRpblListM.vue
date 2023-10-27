@@ -93,7 +93,7 @@
             :options="codes.PD_GRP_CD"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('계약번호')">
+        <kw-search-item :label="$t('계약상세번호')">
           <zctz-contract-detail-number
             ref="contractNumberRef"
             v-model:cntr-no="searchParams.cntrNo"
@@ -547,7 +547,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: '상품', width: '400', styleName: 'text-left' },
     {
       fieldName: 'cntrNo',
-      header: '계약번호',
+      header: '계약상세번호',
       width: '150',
       styleName: 'rg-button-link text-center',
       renderer: { type: 'button' },
