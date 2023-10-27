@@ -274,10 +274,10 @@ const initGridTalk = defineGrid((data, view) => {
         inputCharacters: ['0-9'],
         maxLength: 10,
         positiveOnly: true,
-      },
+      }, // 고객번호
       numberFormat: '###0' },
-    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' },
-    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' },
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' }, // 적용시작년월
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' }, // 적용종료년월
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push(

@@ -59,7 +59,7 @@
         <kw-paging-info
           :total-count="totalCount"
         />
-        <span class="ml8">(단위:원)</span>
+        <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
       </template>
 
       <kw-btn
@@ -236,26 +236,26 @@ const isPsic = computed(() => roles.some((v) => ['ROL_00010', 'ROL_G7010', 'ROL_
 // -------------------------------------------------------------------------------------------------
 const initResignGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'authRsgSts', header: t('MSG_TXT_RSG_STAT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'basePdCd', header: t('MSG_TXT_PKG_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PKG_NM'), width: '180' },
+    { fieldName: 'authRsgSts', header: t('MSG_TXT_RSG_STAT'), width: '100', styleName: 'text-center' }, // 해지상태
+    { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
+    { fieldName: 'basePdCd', header: t('MSG_TXT_PKG_NO'), width: '100', styleName: 'text-center' }, // 패키지번호
+    { fieldName: 'pdNm', header: t('MSG_TXT_PKG_NM'), width: '180' }, // 패키지명
 
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PLAR'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PLAR'), width: '100', styleName: 'text-center' }, // 플래너
+    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center' }, // 플래너(판매자)번호
+    { fieldName: 'ogCd', header: t('MSG_TXT_OG_CD'), width: '100', styleName: 'text-center' }, // 조직코드
+    { fieldName: 'slDt', header: t('MSG_TXT_SL_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일자
+    { fieldName: 'sellAmt', header: t('MSG_TXT_SALE_PRICE'), width: '110', styleName: 'text-right', dataType: 'number' }, // 판매금액
 
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCN'), width: '100', dataType: 'number' },
-    { fieldName: 'ucAmt', header: t('MSG_TXT_UC_AMT'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'totRveAmt', header: t('MSG_TXT_DP_AGG'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'clctamPrtnrNm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' },
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCN'), width: '100', dataType: 'number' }, // 연체개월수
+    { fieldName: 'ucAmt', header: t('MSG_TXT_UC_AMT'), width: '110', styleName: 'text-right', dataType: 'number' }, // 미수금액
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '110', styleName: 'text-right', dataType: 'number' }, // 연체금액
+    { fieldName: 'totRveAmt', header: t('MSG_TXT_DP_AGG'), width: '110', styleName: 'text-right', dataType: 'number' }, // 입금 누계
+    { fieldName: 'clctamPrtnrNm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' }, // 집금담당자
 
-    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR_EMPNO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'errCn', header: t('MSG_TXT_ERR_CN'), width: '180' },
+    { fieldName: 'clctamPrtnrNo', header: t('MSG_TXT_CLCTAM_ICHR_EMPNO'), width: '100', styleName: 'text-center' }, // 집금담당사번
+    { fieldName: 'errCn', header: t('MSG_TXT_ERR_CN'), width: '180' }, // 에러내용
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
