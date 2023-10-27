@@ -407,7 +407,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cstDmdCn' }, // 고객요구
     { fieldName: 'acdnRsCn' }, // 결과
     { fieldName: 'fnlMdfcDtm' }, // 수정일자
-    { fieldName: 'psicNo' }, // 담당자사번(센터장사번)
+    // { fieldName: 'psicNo' }, // 담당자사번(센터장사번)
     { fieldName: 'svCnrNm' }, // 서비스센터명
     { fieldName: 'imptaRsonNm' },
     { fieldName: 'cpsPrgsNm' },
@@ -557,12 +557,12 @@ const initGrdMain = defineGrid((data, view) => {
       datetimeFormat: 'date',
       styleName: 'text-right',
     },
-    {
-      fieldName: 'psicNo',
-      header: t('MSG_TXT_PIC'),
-      width: '100',
-      styleName: 'text-center',
-    },
+    // {
+    //   fieldName: 'psicNo',
+    //   header: t('MSG_TXT_PIC'),
+    //   width: '100',
+    //   styleName: 'text-center',
+    // },
     {
       fieldName: 'svCnrNm',
       header: t('MSG_TXT_SV_CNR'),
@@ -623,7 +623,7 @@ const initGrdMain = defineGrid((data, view) => {
     'rcpMoCn',
     'acdnCausCn',
     'cstDmdCn',
-    'psicNo',
+    // 'psicNo',
     'imptaRsonNm',
     'cpsPrgsNm',
     'totCpsAmt',
