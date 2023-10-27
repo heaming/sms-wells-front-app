@@ -516,7 +516,7 @@ function onChangeNdlvQty() {
     totalCount.value = beforeOstrItms.value.length;
     view.getDataSource().setRows(beforeOstrItms.value);
   } else if (cnrStocQtyYn === 'Y') {
-    const filterRows = allOstrItms.value.filter((e) => e.hgrCrtlStocQty !== 0);
+    const filterRows = allOstrItms.value.filter((e) => e.hgrCrtlStocQty > 0);
     totalCount.value = filterRows.length;
     view.getDataSource().setRows(filterRows);
   } else {
@@ -535,8 +535,8 @@ function onCnrStocQtyQty() {
     beforeNdlvYn = ndlvQtyYn;
     // 필터링 전 데이터 담기
     beforeOstrItms.value = view.getDataSource().getRows();
-    // 센터재고가 0인 경우 제외
-    const filterRows = gridUtil.filter(view, (e) => e.hgrCrtlStocQty !== 0);
+    // 센터재고가 0이하인 경우 제외
+    const filterRows = gridUtil.filter(view, (e) => e.hgrCrtlStocQty > 0);
     totalCount.value = filterRows.length;
     view.getDataSource().setRows(filterRows);
     return;

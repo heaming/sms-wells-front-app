@@ -345,7 +345,7 @@ fieldsObj = {
     { fieldName: 'commGbNm', header: t('MSG_TXT_PRD_GRP'), width: '120', styleName: 'text-left', dataType: 'text' }, // 제품군
     { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center', dataType: 'text' }, // SAP코드
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center', dataType: 'text' }, // 품목코드
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text' }, // 품목명
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left', dataType: 'text' }, // 품목명
   ],
   // 기초재고 산출 - 재고현황
   stockFields: [
@@ -369,13 +369,19 @@ fieldsObj = {
     },
     { fieldName: 'logisticCnrQty', // 물류
       header: t('MSG_TXT_LGST'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       dataType: 'number',
     },
     { fieldName: 'thmQomAsnQty', // 당월 물량배정
       header: t('MSG_TXT_THM_QOM_ASN'),
       width: '120',
+      styleName: 'text-right',
+      dataType: 'number',
+    },
+    { fieldName: 'pcsvQty', // 택배
+      header: t('MSG_TXT_PCSV'),
+      width: '100',
       styleName: 'text-right',
       dataType: 'number',
     },
@@ -389,19 +395,19 @@ fieldsObj = {
   orderFields: [
     { fieldName: 'totGoQty', // 총 발주량
       header: t('MSG_TXT_TOT_GO_QT'),
-      width: '110',
+      width: '80',
       styleName: 'text-right',
       dataType: 'number',
     },
     { fieldName: 'moq', // MOQ
       header: t('MSG_TXT_MOQ'),
-      width: '100',
+      width: '70',
       styleName: 'text-right',
       dataType: 'number',
     },
     { fieldName: 'leadTime', // L/T
       header: t('MSG_TXT_LEAD_TIME_SHORT'),
-      width: '80',
+      width: '70',
       styleName: 'text-right',
       dataType: 'number',
     },
@@ -440,6 +446,10 @@ fieldsObj = {
     gridData.setFields(fields);
     gridView.setColumns(columns);
     gridView.setColumnLayout(layoutColumns);
+
+    gridView.setFixedOptions({
+      colCount: 4,
+    });
   },
   // 리스트에 담겨진 항목 중 fieldName 배열로 가져옴
   getColumnNameArr(objList) {
