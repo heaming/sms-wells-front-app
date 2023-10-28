@@ -71,6 +71,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, codeUtil, useMeta, defineGrid, getComponentType, gridUtil, useGlobal } from 'kw-lib';
 import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
+import { SMS_COMMON_URI } from '~sms-common/organization/constants/ogConst';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 
@@ -81,6 +82,7 @@ const { modal, notify, alert } = useGlobal();
 const dataService = useDataService();
 const { getConfig, getUserInfo } = useMeta();
 const { t } = useI18n();
+const now = dayjs();
 const { wkOjOgTpCd } = getUserInfo();
 
 const codes = await codeUtil.getMultiCodes(
@@ -88,6 +90,7 @@ const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
+const grdDatas = ref([]);
 
 const props = defineProps({
   prtnrNo: {
@@ -285,9 +288,11 @@ const initGrid = defineGrid((data, view) => {
   view.onCellButtonClicked = async (grid, { dataRow, column }) => {
     // 파트너조회
     if (column === 'bizAgntPrtnrNo') {
+      const { bizAgntPrtnrNo } = gridUtil.getRowValue(grid, dataRow);
       const { result, payload } = await modal({
         component: 'ZwogzPartnerListP',
         componentProps: {
+          prtnrNo: bizAgntPrtnrNo,
           ogTpCd: wkOjOgTpCd === null ? 'W06' : wkOjOgTpCd,
         },
       });
@@ -297,7 +302,54 @@ const initGrid = defineGrid((data, view) => {
       }
     }
   };
+
+  view.onKeyDown = async (grid, event) => {
+    const current = view.getCurrent();
+    if (current.itemIndex > -1) {
+      const dataProvider = view.getDataSource();
+      const currentColumn = current.column;
+      const key = event.key || event.keyCode;
+      let { bizAgntPrtnrNo } = gridUtil.getRowValue(grid, current.itemIndex);
+      if (currentColumn === 'bizAgntPrtnrNo' && (key === 'Enter' || key === 13)) {
+        grid.commit();
+        bizAgntPrtnrNo = dataProvider.getValue(current.dataRow, 'bizAgntPrtnrNo');
+        const { result, payload } = await modal({
+          component: 'ZwogzPartnerListP',
+          componentProps: {
+            prtnrNo: bizAgntPrtnrNo,
+            ogTpCd: wkOjOgTpCd === null ? 'W06' : wkOjOgTpCd,
+          },
+        });
+        if (result) {
+          // eslint-disable-next-line max-len
+          const check = grdDatas.value.filter((obj) => obj.bizAgntPrtnrNo === payload.prtnrNo && obj.ogTpCd === payload.ogTpCd).length;
+          if (check > 0) {
+            data.setValue(current.itemIndex, 'bizAgntPrtnrNo', undefined);
+            notify(t('MSG_ALT_ALREADY_RGST_PARTNER'));
+          } else if (payload.bzStatCd === '1') {
+            data.setValue(current.itemIndex, 'bizAgntPrtnrNo', payload.prtnrNo);
+            data.setValue(current.itemIndex, 'prtnrKnm', payload.prtnrKnm);
+            data.setValue(current.itemIndex, 'ogTpCd', payload.ogTpCd);
+
+            const res = await dataService.get(`${SMS_COMMON_URI}/partners/${payload.prtnrNo}-${payload.ogTpCd}/month/${now.format('YYYYMM')}`);
+            const { ogId, ogCd, pstnDvCd, pstnDvNm, hirFomNm, bzStatNm, prtnrGdCd, prtnrGdNm } = await res.data;
+            data.setValue(current.itemIndex, 'ogId', ogId);
+            data.setValue(current.itemIndex, 'ogCd', ogCd);
+            data.setValue(current.itemIndex, 'pstnDvCd', pstnDvCd);
+            data.setValue(current.itemIndex, 'pstnDvNm', pstnDvNm);
+            data.setValue(current.itemIndex, 'hirFomNm', hirFomNm);
+            data.setValue(current.itemIndex, 'bzStatNm', bzStatNm);
+            data.setValue(current.itemIndex, 'prtnrGdCd', prtnrGdCd);
+            data.setValue(current.itemIndex, 'prtnrGdNm', prtnrGdNm);
+          } else {
+            notify(t('MSG_ALT_ALREADY_PARTNER'));
+          }
+        }
+      }
+    }
+  };
 });
+
 </script>
 <style scoped>
 </style>
