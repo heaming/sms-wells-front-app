@@ -358,7 +358,7 @@ async function openPerformancePopup() {
 async function openAgainDisbursementPopup() {
   if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     const param = {
-      prtnrNo: cachedParams.no,
+      prtnrNo: cachedParams.prtnrNo,
       ogTpCd: 'W03',
     };
 
@@ -459,7 +459,7 @@ async function onClickSearch() {
 
 if (!isEmpty(prPerfYm) && !isEmpty(prpartnerNo)) {
   searchParams.value.perfYm = prPerfYm;
-  searchParams.value.no = prpartnerNo;
+  searchParams.value.prtnrNo = prpartnerNo;
   onClickSearch();
 }
 
