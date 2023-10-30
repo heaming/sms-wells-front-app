@@ -354,7 +354,8 @@ function onChangeItmGrCd() {
   const { itmGrCd } = searchParams.value;
 
   if (isEmpty(itmGrCd)) {
-    optionsItmPdCd.value = optionsAllItmPdCd.value;
+    const pdCds = optionsAllItmPdCd.value.map((v) => v.pdCd);
+    optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
     return;
   }
 
