@@ -237,8 +237,18 @@
       <kw-btn
         v-permission:delete
         :label="$t('MSG_BTN_DEL')"
+        :disable="searchDetail.clYn ==='Y'"
         class="ml8"
         @click="onClickDelete"
+      />
+      <!--삭제-->
+      <kw-btn
+        v-permission:update
+        :label="$t('MSG_BTN_MOD')"
+        :disable="searchDetail.clYn ==='Y'"
+        class="ml8"
+        primary
+        @click="onClickSave"
       />
     </div>
     <!-- // BTN Variation #1 : 취소등록 이전 버튼 배열  -->
