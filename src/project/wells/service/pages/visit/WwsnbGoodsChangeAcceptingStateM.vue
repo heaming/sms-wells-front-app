@@ -9,7 +9,7 @@
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-- 출고집계현황 http://localhost:3000/#/service/wsnb-goods-change-accepting-state
+- 제품교체 접수 현황 http://localhost:3000/#/service/wsnb-goods-change-accepting-state
 ****************************************************************************************************
 --->
 <template>
@@ -67,7 +67,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          :label="$t('상태')"
+          :label="$t('MSG_TXT_STT')"
           :colspan="1"
         >
           <kw-select
@@ -77,7 +77,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          :label="$t('유형변경여부')"
+          :label="$t('MSG_TXT_TYPE_CH_YN')"
           :colspan="1"
         >
           <kw-select
@@ -187,6 +187,7 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'SV_DV_CD',
   'SELL_TP_CD',
+  'PDCT_CHNG_AK_RSON_CD ', // 제품교체요청사유코드
 );
 
 const tempOptions = {
@@ -199,14 +200,6 @@ const tempOptions = {
   tpChYn: [
     { codeId: 'Y', codeName: t('Y') }, // 사용
     { codeId: 'N', codeName: t('N') }, // 미사용
-  ],
-  pdctChngAkRsonCd: [ // 제품교체요청사유코드
-    { codeId: 'A01', codeName: t('14일이내') }, // 14일이내
-    { codeId: 'A02', codeName: t('잦은AS') }, // 잦은AS
-    { codeId: 'A03', codeName: t('수리불가') }, // 수리불가
-    { codeId: 'A04', codeName: t('고객클레임') }, // 고객클레임
-    { codeId: 'A05', codeName: t('부품수급안됨') }, // 부품수급안됨
-    { codeId: 'A06', codeName: t('기타(협조전)') }, // 기타(협조전)
   ],
   recapOrFreeYnCd: [
     { codeId: '1', codeName: t('MSG_TXT_RECAP') }, // 유상
@@ -352,7 +345,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
     { fieldName: 'changeRqstDt', header: t('MSG_TXT_CHANGE_AK_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false }, // 교체요청일자
     { fieldName: 'useDt', header: t('MSG_TXT_USE_DAY'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'pdctChngAkRsonCd', header: t('MSG_TXT_CHANGE_AK_RSN'), width: '100', styleName: 'text-center', options: tempOptions.pdctChngAkRsonCd, editable: false }, // 교체요청사유
+    { fieldName: 'pdctChngAkRsonCd', header: t('MSG_TXT_CHANGE_AK_RSN'), width: '160', styleName: 'text-center', options: codes.PDCT_CHNG_AK_RSON_CD, editable: false }, // 교체요청사유
     { fieldName: 'schdDt', header: t('MSG_TXT_SCHD_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
     { fieldName: 'recapOrFreeYn', header: t('MSG_TXT_RECAP_OR_FREE'), width: '60', styleName: 'text-center', options: tempOptions.recapOrFreeYnCd, editable: false }, // 유무상
     { fieldName: 'loc', header: t('MSG_TXT_LCT'), width: '100', styleName: 'text-center', editable: false },
