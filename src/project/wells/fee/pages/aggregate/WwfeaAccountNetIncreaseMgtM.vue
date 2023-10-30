@@ -204,8 +204,8 @@ const isCheckVisible = ref(false);
 const searchParams = ref({
   perfYm: date.add(-1, 'month').format('YYYYMM'),
   inqrDvCd: '01',
-  cnclTpCd: '',
-  sellTpCd: '',
+  cnclTpCd: 'ALL',
+  sellTpCd: 'ALL',
   aggregateTpCd: '01',
   feeTcntDvCd: '01',
   ogTpCd: 'W02',

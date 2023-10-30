@@ -220,7 +220,7 @@ const saveParams = ref({
   chk: false,
 });
 
-const headOffice = hasRoleNickName('ROL_W1010') ? 'Y' : 'N'; /* 본사스텝 */
+const headOffice = (ogTpCd === 'HR1') ? 'Y' : 'N'; /* 본사스텝 */
 const siteManager = (hasRoleNickName('ROL_W6010') || hasRoleNickName('ROL_W6020')) ? 'Y' : 'N'; /* 현장관리자(센터장, 매니저) */
 
 // 조회

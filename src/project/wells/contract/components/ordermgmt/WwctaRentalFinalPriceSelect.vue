@@ -406,7 +406,12 @@ import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { getNumberWithComma } from '~sms-common/contract/util';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
-import { RENTAL_DSC_TP_CD, CNTR_REL_DTL_CD, CNTR_TP_CD } from '~sms-wells/contract/constants/ctConst';
+import {
+  RENTAL_DSC_TP_CD,
+  CNTR_REL_DTL_CD,
+  CNTR_TP_CD,
+  RENTAL_DSC_DV_CD,
+} from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
@@ -666,6 +671,18 @@ const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.rent
 const userSelectableRentalDscTpCd = computed(() => (priceDefineVariableOptions.value.rentalDscTpCd || [])
   .filter((code) => RENTAL_DSC_TP_CD_USER_SELECTABLE.includes(code.codeId)));
 
+const isSelectableRentalCrpDscrCd = computed(() => {
+  if (!priceDefineVariableOptions.value.rentalCrpDscrCd?.length) {
+    return false;
+  }
+  return (priceDefineVariables.value.rentalDscDvCd === RENTAL_DSC_DV_CD.CRP_GROUP_BUYING);
+});
+watch(isSelectableRentalCrpDscrCd, (value) => {
+  if (!value) {
+    priceDefineVariables.value.rentalCrpDscrCd = undefined;
+  }
+});
+
 watch(rentalCrpDscrCdSelectable, (value) => {
   if (!value) {
     priceDefineVariables.value.rentalCrpDscrCd = undefined;
@@ -866,7 +883,7 @@ function onClickDeleteDeviceChange() {
 }
 
 function onDeleteOnePlusOne() {
-  priceDefineVariables.value.rentalDscTpCd = undefined;
+  priceDefineVariables.value.rentalDscTpCd = EMPTY_ID;
   emit('delete:one-plus-one', props.modelValue);
 }
 

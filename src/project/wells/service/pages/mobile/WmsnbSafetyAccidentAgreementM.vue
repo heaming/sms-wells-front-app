@@ -25,7 +25,7 @@
           <p>{{ data.cstNm }}</p>
         </kw-form-item>
         <!-- 합의자명 -->
-        <kw-form-item :label="$t('MSG_TXT_CONS_PER')">
+        <kw-form-item :label="$t('MSG_TXT_MAAS_NM')">
           <p>{{ data.maasFnm }}</p>
         </kw-form-item>
         <!-- 관계 -->
@@ -39,15 +39,16 @@
           </p>
         </kw-form-item>
         <!-- 제품명 -->
-        <kw-form-item :label="$t('MSG_TXT_MDL_NM')">
+        <kw-form-item :label="$t('MSG_TXT_GOODS_NM')">
           <p>{{ data.pdNm }}</p>
         </kw-form-item>
       </kw-form>
       <div class="my20">
         <kw-separator spaced="0" />
       </div>
+      <!-- 계좌정보 -->
       <h3 class="mb20">
-        {{ t('MSG_TXT_CPS_INF') }}
+        {{ t('MSG_TXT_AC_INF') }}
       </h3>
       <kw-form>
         <!-- 계좌번호 -->
@@ -58,8 +59,8 @@
         <kw-form-item :label="$t('MSG_TXT_ACOWN')">
           <p>{{ data.rfndAcownNm }}</p>
         </kw-form-item>
-        <!-- 은행 -->
-        <kw-form-item :label="$t('MSG_TXT_BNK')">
+        <!-- 은행명 -->
+        <kw-form-item :label="$t('MSG_TXT_BNK_NM')">
           <p>{{ data.rfndBnkNm }}</p>
         </kw-form-item>
         <!-- 관계 -->
@@ -70,6 +71,7 @@
       <div class="my20">
         <kw-separator spaced="0" />
       </div>
+      <!-- 보상인 -->
       <h3 class="mb20">
         {{ t('MSG_TXT_CPSR') }}
       </h3>
@@ -107,7 +109,7 @@
             <span
               class="kw-fc--black1 text-weight-bold"
             >{{ stringUtil.getNumberWithComma(data.totCpsAmt) }}원</span>을 상기 계좌로 지금하며, 고객은 (주)교원프라퍼티에게 추가로 법률상,
-            사실상 이의를 제기하지 않을 것을 약속하고, 합의 후 타인으로부터 추가 책임 요청이 있을 경우 고객({{ data.rfndAcownNm }})이 책임짐을 약속합니다.
+            사실상 이의를 제기하지 않을 것을 약속하고, 합의 후 타인으로부터 추가 책임 요청이 있을 경우 <span class="kw-fc--black1 text-weight-bold">고객({{ data.rfndAcownNm }})</span>이 책임짐을 약속합니다.
           </li>
           <li class="pb16">
             고객은 위 사고 및 합의 내용을 공개·유포·누설하지 않을 것을 약속하며 공개·유포·누설 시 이에 대한 책임을 지고 (주)교원프라퍼티에게 일체의 손해를 배상할 것을 약속합니다.
@@ -123,6 +125,7 @@
       divider
     />
     <div class="pa20">
+      <!-- 고객서명 -->
       <h3 class="essential mb20">
         {{ t('MSG_BTN_CST_SIGN') }}
       </h3>

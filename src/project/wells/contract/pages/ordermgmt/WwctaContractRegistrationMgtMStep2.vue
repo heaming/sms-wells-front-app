@@ -356,6 +356,13 @@ async function onDeleteOnePlusOne(dtl) {
     warn('1+1 관계가 없습니다.');
   }
   cntrRels.splice(onePlusOneRelIndex, 1);
+
+  if (dtl.priceOptionFilter?.rentalDscTpCd) {
+    dtl.priceOptionFilter.rentalDscTpCd = undefined;
+  }
+  if (dtl.priceOptionFilter.rentalDscDvCd) {
+    dtl.priceOptionFilter.rentalDscDvCd = undefined;
+  }
 }
 
 async function onClickDeviceChange(dtl) {
@@ -592,7 +599,7 @@ async function onChangeWellsFarmPackage(dtl) {
     return;
   }
   const { result, payload: newPackageProduct } = await modal({
-    component: () => import('./WwctaWellsFarmPackageProductSelectP.vue'),
+    component: 'WwctaWellsFarmPackageProductSelectP',
     componentProps: {
       cntrNo: cntrNo.value,
       pdCd: dtl.pdCd,
@@ -701,7 +708,24 @@ async function isValidStep() {
       return true;
     }
 
-    const { sellTpDtlCd, cntrRels = [], precontractRequired } = dtl;
+    const {
+      sellTpDtlCd,
+      cntrRels = [],
+      finalPrice,
+      precontractRequired,
+      hgrPdCd,
+      appliedPromotions,
+      alncCntrNms } = dtl;
+    const { alncPmotEuYn } = finalPrice; // 제휴프로모션적용여부
+
+    if (alncPmotEuYn === 'Y' // 제휴프로모션적용여부가 'Y' 인데,
+      && !hgrPdCd // 복합상품이 아니고
+      && !appliedPromotions?.length // 프로모션도 없고,
+      && !alncCntrNms?.length // 라이프(상조)제휴도 없는경우
+    ) {
+      alert('제휴 프로모션 전용가격입니다.');
+      return true;
+    }
 
     if (sellTpDtlCd === SELL_TP_DTL_CD.RGLR_SPP_SDING) { /* 모종의 경우 */
       const lkSdingRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING);
@@ -711,16 +735,6 @@ async function isValidStep() {
         return true;
       }
     }
-
-    /*     const { sellDscTpCd } = dtl;
-
-    if (sellDscTpCd === '03') {
-      const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);
-      if (!onePlusOneRel) {
-        alert('1+1 대상 계약을 선택해주세요.');
-        return true;
-      }
-    } */
 
     if (precontractRequired) {
       const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);

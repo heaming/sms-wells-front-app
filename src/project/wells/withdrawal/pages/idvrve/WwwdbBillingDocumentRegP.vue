@@ -180,7 +180,7 @@ const regMainData = ref({
   cstFnm: '', // 고객명
   bildcWrteDt: now.format('YYYYMMDD'), // 작성일자
   sellPrtnrNo: employeeIDNumber, // 이건 나중에 사번으로 바꿔야함
-  sellPrtnrNm: userName,
+  sellPrtnrNm: userName, // 판매파트너명
   state: '',
   isSearchChk: false,
   cstNo: '',
@@ -247,7 +247,7 @@ async function onClickSave() {
   // console.log(!gridUtil.isModified(view));
 
   if (await !obsRef.value.isModified() && await !gridUtil.isModified(view)) {
-    await alert(t('MSG_ALT_NO_CHG_CNTN'));
+    await alert(t('MSG_ALT_NO_CHG_CNTN')); // 변경된 내용이 없습니다.
     return;
   }
 
@@ -271,7 +271,7 @@ async function onClickSave() {
 
   await dataService.post('/sms/wells/withdrawal/idvrve/billing-document-orders/details', cachedParams);
 
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
 
   ok({
     cstFnm: regMainData.value.cstFnm,
@@ -388,15 +388,15 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'bildcPblSn' },
-    { fieldName: 'bildcPblNo' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'pdQty' },
-    { fieldName: 'pdUprc' },
-    { fieldName: 'pdSellAmt', dataType: 'number' },
-    { fieldName: 'pdSplAmt' },
-    { fieldName: 'pdVat' },
-    { fieldName: 'rmkCn' },
+    { fieldName: 'bildcPblSn' }, // 청구서발행일련번호
+    { fieldName: 'bildcPblNo' }, // 청구서발행번호
+    { fieldName: 'pdNm' }, // 상품명
+    { fieldName: 'pdQty' }, // 수량
+    { fieldName: 'pdUprc' }, // 상품단가
+    { fieldName: 'pdSellAmt', dataType: 'number' }, // 판매금액 (단가)
+    { fieldName: 'pdSplAmt' }, // 상품공급금액
+    { fieldName: 'pdVat' }, // 상품부가가치세
+    { fieldName: 'rmkCn' }, // 비고
   ];
 
   const columns = [

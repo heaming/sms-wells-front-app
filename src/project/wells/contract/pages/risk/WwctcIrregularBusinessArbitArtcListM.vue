@@ -61,11 +61,12 @@
         <kw-search-item
           :label="$t('MSG_TXT_POSIT')+$t('MSG_TXT_DIV')"
         >
-          <!-- 직위 직급구분코드 공통코드 사용 (2: 총괄단장, 4: 지역단장: 5:BM, 7:지점장) -->
+          <!-- 직위 직급구분코드(2: 총괄단장, 4: 지역단장: 5:BM, 7:지점장) -->
+          <!-- rev:231027 구분코드 한글화 -->
           <kw-select
             v-model="searchParams.dangMngtPrtnrNo"
             first-option="all"
-            :options="codes.PSTN_DV_CD.filter((v) => ['2', '4', '5', '7'].includes(v.codeId))"
+            :options="posDivOpt"
           />
         </kw-search-item>
       </kw-search-row>
@@ -167,6 +168,18 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 let cachedParams;
+const posDivOpt = codes.PSTN_DV_CD.filter((v) => ['2', '4', '5', '7'].includes(v.codeId));
+codes.PSTN_DV_CD.forEach((e) => {
+  if (e.codeName === '2') { // 2: 총괄단장
+    e.codeName = t('MSG_TXT_GNLR_LEDR');
+  } if (e.codeName === '4') { // 4: 지역단장
+    e.codeName = t('MSG_TXT_REG_DIR');
+  } if (e.codeName === '5') { // 5:BM
+    e.codeName = t('MSG_TXT_BM');
+  } if (e.codeName === '7') { // 7:지점장
+    e.codeName = t('MSG_TXT_BRMGR');
+  }
+});
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
@@ -193,6 +206,7 @@ async function onClickSearchPartnerId() {
 async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
 
+  console.log(cachedParams);
   const res = await dataService.get('sms/wells/contract/risk-audits/irregular-sales-actions', { params: cachedParams });
   const view = grdMainRef.value.getView();
   const dataSource = view.getDataSource();
@@ -273,7 +287,24 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'wellsOjPstnRankNm', header: t('MSG_TXT_POSIT'), width: '129', styleName: 'text-center' },
+    {
+      fieldName: 'wellsOjPstnRankNm',
+      header: t('MSG_TXT_POSIT'),
+      width: '129',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { wellsOjPstnRankNm: posit } = grid.getValues(index.itemIndex);
+        if (posit === '2') {
+          return `${t('MSG_TXT_GNLR_LEDR')}`; // 2: 총괄단장
+        } if (posit === '4') {
+          return `${t('MSG_TXT_REG_DIR')}`; // 4: 지역단장
+        } if (posit === '5') {
+          return `${t('MSG_TXT_BM')}`; // 5:BM
+        } if (posit === '7') {
+          return `${t('MSG_TXT_BRMGR')}`; // 7:지점장
+        }
+      },
+    },
     { fieldName: 'dangMngtPntnrOgNm', header: t('MSG_TXT_BLG_NM'), width: '129', styleName: 'text-center' },
     { fieldName: 'dangMngtPntnrOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '129', styleName: 'text-center' },
     { fieldName: 'dangMngtPntnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-center' },
@@ -284,7 +315,12 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'dangOcStrtmm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'dangArbitOgNm', header: t('MSG_TXT_ACTN_DPT'), width: '306', styleName: 'text-left' },
     { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', styleName: 'text-left' },
-    { fieldName: 'dangArbitCdNm', header: t('MSG_TXT_ACTN_ITM'), width: '306', styleName: 'text-left' },
+    {
+      fieldName: 'dangArbitCdNm',
+      header: t('MSG_TXT_ACTN_ITM'),
+      width: '306',
+      styleName: 'text-left',
+    },
     { fieldName: 'dangUncvrCt', header: t('MSG_TXT_DUE_TRGT_NO'), width: '129', styleName: 'text-right' },
     { fieldName: 'dangArbitLvyPc', header: t('MSG_TXT_ACTN_TM_PNLTY_PNT'), width: '190', styleName: 'text-right' },
     { fieldName: 'dangArbitLvyPcSum', header: t('MSG_TXT_TTL_PT'), width: '129', styleName: 'text-right' },

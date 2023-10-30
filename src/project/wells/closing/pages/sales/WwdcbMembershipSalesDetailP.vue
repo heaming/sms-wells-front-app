@@ -41,7 +41,10 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRDT_CODE')">
-          <p>{{ membershipDetail.pdCd }} {{ membershipDetail.pdNm }} {{ membershipDetail.adnSv }}</p>
+          <p>
+            {{ membershipDetail.pdCd }} {{ membershipDetail.pdNm }} {{ membershipDetail.svPrd }}
+            {{ t('MSG_TXT_MCNT') }}/{{ membershipDetail.svTpCdNm }}
+          </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CNTR_DATE')">
           <p>{{ stringUtil.getDateFormat(membershipDetail.cntrDt) }}</p>
@@ -115,7 +118,7 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_J_NMN')">
-          <p>{{ membershipDetail.rentalTn }} / {{ membershipDetail.vstNmnN }}</p>
+          <p>{{ membershipDetail.rentalTn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_J_DC')">
           <p>{{ membershipDetail.rentalDc }} / {{ membershipDetail.slDc }}</p>

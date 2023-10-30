@@ -1137,7 +1137,7 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'gadcnt', header: t('MSG_TXT_OPTN_PPL'), width: '122.7', styleName: 'text-right' },
     { fieldName: 'is17edu', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_PRTIC'), width: '97.3', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'akdriy', header: t('MSG_TXT_PRFMT_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
-    { fieldName: 'akstym', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_UPGR_DT'), width: '122.7', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'akstym', header: t('MSG_TXT_UPGR_MON'), width: '122.7', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'lcecaymd', header: t('MSG_TXT_WELS_MNGER') + t('MSG_TXT_OPNG_DT'), width: '122.7', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'bAksd05',
       header: t('MSG_TXT_STMNT') + t('MSG_TXT_FEE'),

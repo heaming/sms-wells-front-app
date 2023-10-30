@@ -94,7 +94,6 @@
             @click="onClickSelectCapsule"
           />
           <kw-btn
-            v-if="precontractRequired"
             label="연계상품"
             dense
             @click="onSelectPrecontract"
@@ -277,7 +276,6 @@ const isLkSding = computed(() => (cntrRels.value || [])
 const isSeeding = computed(() => dtl.value?.sellTpDtlCd === '62');
 const isCapsule = computed(() => dtl.value?.sellTpDtlCd === '63');
 const isFreePackage = computed(() => dtl.value?.pdChoLmYn === 'Y'); // TODO FIX... dtl 에 없음..
-const precontractRequired = computed(() => dtl.value?.precontractRequired);
 
 /* TODO: FIX */
 async function fetchSdingCapsls() {

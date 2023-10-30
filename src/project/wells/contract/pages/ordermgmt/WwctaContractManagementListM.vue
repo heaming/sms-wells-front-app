@@ -371,6 +371,7 @@ const userInfo = getters['meta/getUserInfo'];
 // console.log(userInfo);
 
 let cachedParams;
+let isCntrPrgsStatCnfm = true;
 
 const searchParams = ref({
   cntrDv: 'A', // 계약구분
@@ -856,7 +857,7 @@ async function onClickCntrwMlFw() {
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)
         && cntrs[0].cntrPrgsStatCd !== '60') {
         notify(t('MSG_ALT_CNTR_PRGS_STAT_CD_NOT_CNFM')); // 계약진행상태가 확정이 아닙니다.
-        return;
+        isCntrPrgsStatCnfm = false;
       }
 
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
@@ -879,6 +880,12 @@ async function onClickCntrwMlFw() {
         });
       }
     });
+
+    // 계약진행상태가 확정(60)이 아닐 경우 return 처리
+    if (isCntrPrgsStatCnfm === false) {
+      isCntrPrgsStatCnfm = true;
+      return false;
+    }
 
     // console.log(rcvrInfo);
     const res = await modal({

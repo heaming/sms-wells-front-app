@@ -184,6 +184,26 @@ async function onClickSave() {
   await fetchData();
 }
 
+// 엑셀 다운로드 버튼
+async function onClickExcelDownload(flag) {
+  if (flag === 'adjustObject') {
+    const view = grdFirstRef.value.getView();
+    const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/adjust-object', { params: cachedParams });
+    await gridUtil.exportView(view, {
+      fileName: currentRoute.value.meta.menuName,
+      timePostfix: true,
+      exportData: res.data,
+    });
+  } else if (flag === 'withholdingTaxAdjust') {
+    const view = grdSecondRef.value.getView();
+    const res = await dataService.get('/sms/wells/closing/expense/marketable-securities-exclude/withholding-tax', { params: cachedParams });
+    await gridUtil.exportView(view, {
+      fileName: currentRoute.value.meta.menuName,
+      timePostfix: true,
+      exportData: res.data,
+    });
+  }
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -335,15 +355,6 @@ const initGrdSecond = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 });
-
-// 엑셀 다운로드 버튼
-async function onClickExcelDownload(type) {
-  const view = type === 'adjustObject' ? grdFirstRef.value.getView() : grdSecondRef.value.getView();
-  await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName} ${type === 'adjustObject' ? t('MSG_TXT_ADJ_OJ') : t('MSG_TXT_WHTX_ADJ_IZ')}`,
-    timePostfix: true,
-  });
-}
 
 defineExpose({
   setData,

@@ -16,6 +16,7 @@
 <template>
   <kw-popup
     size="md"
+    :title="title"
   >
     <kw-action-top>
       <template #left>
@@ -26,7 +27,7 @@
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
-      name="grdMain"
+      name="grdMainLkCntrDtl"
       :visible-rows="10"
       @init="initGrid"
     />
@@ -57,6 +58,9 @@ const { ok, cancel } = useModal();
 const totalCount = ref(0);
 const grdMainRef = ref(getComponentType('KwGrid'));
 const lkCntrDtls = ref();
+const required = ref();
+const title = computed(() => (required.value ? '연계 계약 선택 - 필수' : '연계 계약 선택'));
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -66,10 +70,26 @@ async function fetchData() {
     await alert('기계약 조회에 필요한 요소가 빈값입니다.');
     cancel();
   }
-  const { data } = await dataService.get('/sms/wells/contract/contracts/precontracts', { params: { cntrNo, pdCd } });
-  totalCount.value = data.length;
+  const { data } = await dataService.get('/sms/wells/contract/contracts/precontracts', { params: {
+    cntrNo,
+    pdCd,
+  } });
+  const { required: _req, pcntrDtls } = data;
 
-  lkCntrDtls.value = data;
+  if (!pcntrDtls?.length) {
+    if (_req) {
+      await alert('상품 선택 전에 막혀야 합니다.');
+      throw Error('상품 선택 전에 막혀야 합니다.');
+    }
+
+    await alert('선택가능한 연계 계약이 없습니다.');
+    cancel();
+  }
+
+  required.value = _req;
+  totalCount.value = pcntrDtls.length;
+
+  lkCntrDtls.value = pcntrDtls;
 }
 
 await fetchData();
