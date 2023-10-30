@@ -342,7 +342,8 @@ const optionsAllItmPdCd = ref();
 // 품목조회
 const getProducts = async () => {
   const result = await dataService.get('/sms/wells/service/shipping-by-filter-types/products');
-  optionsItmPdCd.value = result.data;
+  const pdCds = result.data.map((v) => v.pdCd);
+  optionsItmPdCd.value = result.data.filter((v, i) => pdCds.indexOf(v.pdCd) === i);
   optionsAllItmPdCd.value = result.data;
 };
 
