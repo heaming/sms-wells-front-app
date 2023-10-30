@@ -731,7 +731,7 @@ function initGrdMain(data, view) {
   ];
 
   const columns = [
-    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'rg-button-link text-center', renderer: { type: 'button' } }, // 계약상세번호
+    { fieldName: 'cntr', header: t('MSG_TXT_CNTR_DTL_NO'), width: '140', styleName: 'rg-button-link text-center', renderer: { type: 'button' } }, // 계약번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' }, // SAP 코드
     { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' }, // 품목코드
