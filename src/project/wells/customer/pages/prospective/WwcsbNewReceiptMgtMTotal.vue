@@ -150,6 +150,7 @@ const initgrdTotal = defineGrid((data, view) => {
       header: t('MSG_TXT_RCP', null, '접수'),
       width: '130',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         numberFormat: '#,##0',
         valueCallback() {
@@ -161,6 +162,7 @@ const initgrdTotal = defineGrid((data, view) => {
       header: t('MSG_TXT_CONTRACT_CONCLUSION', null, '계약체결'),
       width: '130',
       styleName: 'text-right',
+      dataType: 'number',
       headerSummary: {
         numberFormat: '#,##0',
         valueCallback() {

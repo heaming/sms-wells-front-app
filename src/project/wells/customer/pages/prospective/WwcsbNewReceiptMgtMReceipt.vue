@@ -237,7 +237,7 @@ watch(() => route.query, async (query) => {
 const initgrdReceipt = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'pspcCstInflwDt', header: t('MSG_TXT_RCP_D', null, '접수일'), width: '120', styleName: 'text-center' },
-    { fieldName: 'aplcSn', header: t('MSG_TXT_RCPT_NO', null, '접수번호'), width: '76', styleName: 'text-center' },
+    { fieldName: 'aplcSn', header: t('MSG_TXT_RCPT_NO', null, '접수번호'), width: '76', styleName: 'text-center', dataType: 'number' },
     { fieldName: 'recvTpNm', header: t('MSG_TXT_RCP_DV', null, '접수구분'), width: '120', styleName: 'text-center' },
     { fieldName: 'inrtPdDvNm', header: t('TXT_MSG_SELL_PD_DV_CD', null, '상품구분'), width: '198', styleName: 'text-left' },
     { fieldName: 'pspcCstKnm', header: t('MSG_TXT_CST_NAME', null, '고객이름'), width: '120', styleName: 'text-center' },
