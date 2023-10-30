@@ -499,7 +499,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'etcCs', header: t('MSG_TXT_ETC_CS'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 수납(기타비용)
     { fieldName: 'rveCsTot', header: t('MSG_TXT_AGG'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 수납(계)
     { fieldName: 'adpBilAmt', header: t('MSG_TXT_ADP_BIL'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(합산청구)
-    { fieldName: 'cardStlm', header: t('MSG_TXT_CARD'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(카드)
+    { fieldName: 'cardStlm', header: t('MSG_TXT_CRDCD'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(신용카드)
     { fieldName: 'vacStlmAmt', header: t('MSG_TXT_VT_AC'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(가상계좌)
     { fieldName: 'cstSignCn', // 고객서명
       header: t('MSG_BTN_CST_SIGN'),
@@ -606,7 +606,7 @@ const initGrdMain = defineGrid((data, view) => {
       items: ['partCs', 'tcfee', 'bstrCs', 'etcCs', 'rveCsTot'],
     },
     {
-      header: t('MSG_TXT_STLM'), // 결제
+      header: t('MSG_TXT_STLM_IZ'), // 결제내역
       direction: 'horizontal',
       items: ['adpBilAmt', 'cardStlm', 'vacStlmAmt'],
     },
