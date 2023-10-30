@@ -57,7 +57,7 @@
         <kw-search-item :label="t('MSG_TXT_NW_DV')">
           <kw-select
             v-model="searchParams.bndNwDvCd"
-            :options="codes.BND_NW_DV_CD"
+            :options="filteredCodes.BND_NW_DV_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -262,6 +262,7 @@ const codes = await codeUtil.getMultiCodes(
   'LWM_DTL_TP_CD',
   'BND_BIZ_DV_CD',
 );
+const filteredCodes = ref({ BND_NW_DV_CD: codes.BND_NW_DV_CD.filter((obj) => (obj.codeId !== '01')) });
 const clctamDvOpt = codes.CLCTAM_DV_CD?.filter((v) => ['09', '11']?.includes(v.codeId));
 // clctamDvOpt.push({ codeId: '100', codeName: '대손확정' });
 
