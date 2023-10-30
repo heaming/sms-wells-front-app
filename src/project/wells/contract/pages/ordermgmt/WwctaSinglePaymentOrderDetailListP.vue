@@ -1088,9 +1088,9 @@ async function fetchData() {
     // -------------------------------------------------------------------------------------------------
     // 상품 정보
     // -------------------------------------------------------------------------------------------------
-    frmMainData.value.pdQty = pages[0].pdQty; // 수량
-    frmMainData.value.fnlVal = pages[0].fnlVal; // 단가
-    frmMainData.value.ctrVal = pages[0].ctrVal; // 할인
+    // frmMainData.value.pdQty = pages[0].pdQty; // 수량
+    // frmMainData.value.fnlVal = pages[0].fnlVal; // 단가
+    // frmMainData.value.ctrVal = pages[0].ctrVal; // 할인
     // -------------------------------------------------------------------------------------------------
     // 금액정보
     // -------------------------------------------------------------------------------------------------
@@ -1169,6 +1169,20 @@ async function fetchData() {
   // 주문상세조회/관리 -복합상품목록
   res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/composition-products', { params: { ...cachedParams } });
 
+  let totPdQty = 0;
+  let totFnlVal = 0;
+  let totCtrVal = 0;
+
+  res.data.forEach((rowData) => {
+    totPdQty += Number(rowData.pdQty);
+    totFnlVal += Number(rowData.fnlVal);
+    totCtrVal += Number(rowData.ctrVal);
+  });
+
+  frmMainData.value.pdQty = stringUtil.getNumberWithComma(Number(totPdQty), 0);
+  frmMainData.value.fnlVal = stringUtil.getNumberWithComma(Number(totFnlVal), 0);
+  frmMainData.value.ctrVal = stringUtil.getNumberWithComma(Number(totCtrVal), 0);
+
   const viewCompositionProducts = grdCompositionProducts.value.getView();
   // view.getDataSource().setRows(accounts);
   viewCompositionProducts.getDataSource().setRows(res.data);
@@ -1200,8 +1214,8 @@ const initGridCompositionProducts = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'pdNm' }, // 상품정보
     { fieldName: 'pdQty' }, // 상품수량
-    { fieldName: 'fnlVal' }, // 단가
-    { fieldName: 'ctrVal' }, // 할인
+    { fieldName: 'fnlVal', dataType: 'number' }, // 단가
+    { fieldName: 'ctrVal', dataType: 'number' }, // 할인
     { fieldName: 'pdClsfNm' }, // 상품분류명
   ];
   const columns = [
