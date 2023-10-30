@@ -576,7 +576,7 @@ const isReadonly = computed(() => !!step1.value.bas?.cntrPrgsStatCd);
 const popupRequiredCstInfos = computed(() => [
   CNTR_TP_CD.INDIVIDUAL,
   CNTR_TP_CD.COOPERATION,
-  CNTR_TP_CD.MEMBERSHIP,
+  CNTR_TP_CD.EMPLOYEE,
 ].includes(searchParams.value.cntrTpCd));
 const cstKnmLabel = computed(() => (searchParams.value.copnDvCd === COPN_DV_CD.COOPERATION ? t('MSG_TXT_CRP_NM') : t('MSG_TXT_NAME')));
 let initFlag = false;
