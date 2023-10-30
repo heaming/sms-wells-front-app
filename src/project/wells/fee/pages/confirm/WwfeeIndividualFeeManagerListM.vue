@@ -559,9 +559,23 @@ function setParams() {
   }
 }
 
+onBeforeMount(() => {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+  }
+});
+
+onMounted(() => {
+  nextTick(() => {
+    setParams();
+  });
+});
+
 onActivated(() => {
   if (!isEmpty(route.params)) {
     searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
 
     nextTick(() => {
       setParams();
