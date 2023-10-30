@@ -19,8 +19,8 @@
       <template #left>
         <kw-paging-info :total-count="services.length" />
       </template>
-      <!-- 총 결제예정금액 -->
-      <span class="w108 mr16">{{ $t('MSG_TXT_TOT_STLM_EXP_AMT') }}</span>
+      <!-- 발행금액 -->
+      <span class="w108 mr16">{{ $t('MSG_TXT_PBL_AMT') }}</span>
       <span class="accent kw-font-pt18">{{ stringUtil.getNumberWithComma(taxInvoiceData.totalAmt) ?? 0 }}원</span>
     </kw-action-top>
     <kw-separator
@@ -70,10 +70,6 @@
               <!-- 계약일자 -->
               <kw-form-item :label="$t('MSG_TXT_CNTR_DATE')">
                 <p>{{ stringUtil.getDateFormat(item.cntrCnfmDtm ?? '') ?? '-' }}</p>
-              </kw-form-item>
-              <!-- 렌탈료 -->
-              <kw-form-item :label="$t('MSG_TXT_RTLFE')">
-                <p>{{ stringUtil.getNumberWithComma(item.fnlAmt ?? 0) ?? 0 }}원</p>
               </kw-form-item>
             </kw-form-row>
             <kw-form-row>
@@ -295,11 +291,10 @@ function getContractInfo(sellTpNm, copnDvNm, pdUswyNm, pdGdNm) {
   return `${sellTpNm ?? '-'} | ${copnDvNm ?? '-'} | ${pdUswyNm ?? '-'} ${pdGdNm ?? '-'}`;
 }
 
-// 총금액 셋팅
+// 발행금액 셋팅
 function setTotalAmt() {
   taxInvoiceData.value.totalAmt = services.value.reduce((pre, curr) => {
     pre += curr.stlmAmt ?? 0;
-    pre += curr.fnlAmt ?? 0;
     return pre;
   }, 0);
   taxInvoiceData.value.stlmAmt = services.value.reduce((pre, curr) => {
