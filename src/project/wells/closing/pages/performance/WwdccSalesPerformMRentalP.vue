@@ -131,8 +131,11 @@
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRM_AMT')">
-          <p>
+          <p v-if="Number(rentalSalesDetail.prmMcn1) > 0">
             {{ rentalSalesDetail.prmMcn1 }}{{ $t('MSG_TXT_MCNT') }} {{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.prmAmt1)) }}
+          </p>
+          <p v-if="Number(rentalSalesDetail.prmMcn1) == 0">
+            {{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.prmAmt1)) }}
           </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_TAM')">
@@ -161,7 +164,7 @@
           <p>{{ rentalSalesDetail.useDc }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
-          <p>{{ stringUtil.getDateFormat(rentalSalesDetail.canDt, 'YYYY-MM-DD') }}</p>
+          <p>{{ stringUtil.getDateFormat(rentalSalesDetail.cntrCanDt, 'YYYY-MM-DD') }}</p>
         </kw-form-item>
       </kw-form-row>
 
@@ -245,7 +248,7 @@
           <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.slBndAlrpyAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DP_AGG_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.sumSlDpAggAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.slDpAggAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -359,7 +362,7 @@
           :label="$t('MSG_TXT_DLQ_MCNT_AGG')"
           :colspan="2"
         >
-          <p>{{ rentalSalesDetail.dlqMcn }} / {{ rentalSalesDetail.dlqAcuMcn }}</p>
+          <p>{{ rentalSalesDetail.dlqMcnView }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
           <p v-if="rentalSalesDetail.slStpYn === 'Y'">
@@ -446,6 +449,9 @@ async function fetchData() {
 
   if (!isEmpty(rentalSalesDetail.value.rentalPtrm)) {
     rentalSalesDetail.value.rentalPtrm += t('MSG_TXT_MCNT');
+  }
+  if (rentalSalesDetail.value.dlqMcn > 0 || !isEmpty(rentalSalesDetail.value.dlqAcuMcn)) {
+    rentalSalesDetail.value.dlqMcnView = `${rentalSalesDetail.value.dlqMcn}/${rentalSalesDetail.value.dlqAcuMcn}`;
   }
 }
 

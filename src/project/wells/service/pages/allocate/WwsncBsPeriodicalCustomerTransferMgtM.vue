@@ -669,6 +669,16 @@ async function onClickTfConfirm() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const { data } = await dataService.get('/sms/wells/service/before-service-period-customer/excel-download', { params: cachedParams });
+
+  data.forEach((row) => { // 전화번호, 휴대전화번호 조합
+    const { locaraTno, exnoEncr, idvTno } = row;
+    row.tno = locaraTno ? `${locaraTno}-${exnoEncr}-${idvTno}` : ''; // 전화번호
+
+    const { cralLocaraTno, mexnoEncr, cralIdvTno, cntrNo, cntrSn } = row;
+    row.cntr = `${cntrNo}-${cntrSn}`;
+    row.mobileTno = cralLocaraTno ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : ''; // 휴대전화번호
+  });
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,

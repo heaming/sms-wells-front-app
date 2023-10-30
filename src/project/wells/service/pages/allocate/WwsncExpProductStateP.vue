@@ -101,6 +101,11 @@ const props = defineProps({
     required: false,
     default: '',
   },
+  cstSvAsnNo: {
+    type: String,
+    required: false,
+    default: '',
+  },
 });
 
 const searchParams = ref({
@@ -108,6 +113,7 @@ const searchParams = ref({
   ogId: props.ogId,
   pdGrpCd: props.pdGrpCd,
   pdCd: props.pdCd,
+  cstSvAsnNo: props.cstSvAsnNo,
 });
 
 const pageInfo = ref({

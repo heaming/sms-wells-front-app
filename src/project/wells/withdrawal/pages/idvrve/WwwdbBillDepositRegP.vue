@@ -39,8 +39,8 @@
             :readonly="isCheckReadonly"
             :rules="validateChk"
             @click-icon="onClickDealingPartner"
-            @keydown="onKeyDownSelect"
             @clear="onClearSelect"
+            @keydown="onKeyDownSelect"
           />
           <!-- :custom-messages="{ required:$t('MSG_ALT_USE_DT_SRCH_AF') }" -->
         </kw-search-item>
@@ -63,6 +63,14 @@
       </template>
 
       <kw-btn
+        icon="upload_on"
+        dense
+        secondary
+        :label="t('MSG_BTN_EXCEL_UP')"
+        @click="onClickExcelUpload"
+      />
+      <!-- label="엑셀업로드" -->
+      <kw-btn
         icon="download_on"
         dense
         secondary
@@ -70,6 +78,7 @@
         :disable="mainCount === 0"
         @click="onClickExcelMainDownload"
       />
+      <!-- 엑셀 다운로드 -->
     </kw-action-top>
     <kw-grid
       ref="grdMainRef"
@@ -125,6 +134,7 @@
         :disable="subCount === 0"
         @click="onClickExcelSubDownload"
       />
+      <!-- 엑셀 다운로드 -->
     </kw-action-top>
     <kw-grid
       ref="grdMainRef3"
@@ -223,6 +233,10 @@ const subCount = ref(0);
 
 const popupRef = ref();
 
+// 조회 버튼 클릭 여부
+const isUseYn = ref(false);
+const isUploadYn = ref(false);
+
 const searchParams = ref({
   bzrno: '',
   dlpnrNm: '',
@@ -260,6 +274,7 @@ const validateChk = computed(() => async (val, options) => {
   return errors[0] || true;
 });
 
+// 조회
 async function fetchData() {
   // cachedParams = { ...cachedParams, ...pageInfo.value };
 
@@ -275,6 +290,8 @@ async function fetchData() {
 
   const data = view.getDataSource();
 
+  view.setCheckableExpression("value['errorCode'] is empty", true);
+
   data.checkRowStates(false);
   data.setRows(pages);
   data.checkRowStates(true);
@@ -287,6 +304,9 @@ async function onClickSearch() {
   // pageInfo.value.pageIndex = 1;
 
   cachedParams = cloneDeep(searchParams.value);
+
+  isUseYn.value = true;
+  isUploadYn.value = false;
 
   await fetchData();
 }
@@ -314,6 +334,7 @@ async function fetchSubData() {
   data.checkRowStates(true);
 }
 
+// 상세 조회
 async function onClickSubSearch() {
   grdMainRef3.value.getData().clearRows();
 
@@ -326,6 +347,7 @@ async function onClickSubSearch() {
   await fetchSubData();
 }
 
+// 초기화 버튼
 async function onClickReset() {
   searchParams.value.bzrno = '';
   searchParams.value.dlpnrNm = '';
@@ -341,6 +363,67 @@ async function onClickDealingPartner() {
   if (result) {
     searchParams.value.bzrno = payload.crpBzrno;
     searchParams.value.dlpnrNm = payload.crpDlpnrNm;
+    // await grdMainRef.value.getData().clearRows();
+
+    // const view = grdMainRef.value.getView();
+
+    // await gridUtil.insertRowAndFocus(view, 0, {
+    //   dlpnrNm: searchParams.value.dlpnrNm,
+    //   bzrno: searchParams.value.bzrno,
+    // });
+  }
+}
+
+// 엑셀업로드
+async function onClickExcelUpload() {
+  if (!isUseYn.value) {
+    return notify(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
+  }
+  const apiUrl = '/sms/wells/withdrawal/idvrve/bill-deposits/electronic/excel-upload';
+
+  const templateId = 'FOM_WDB_0004';
+
+  const { result, payload } = await modal({
+    component: 'ZwcmzExcelUploadP',
+    componentProps: { apiUrl, templateId },
+  });
+  if (result) {
+    isUploadYn.value = true;
+
+    const resData = cloneDeep(payload.excelData);
+
+    // 중복체크
+    for (let i = 0; i < resData.length; i += 1) {
+      resData[i].bzrno = searchParams.value.bzrno;
+      resData[i].dlpnrNm = searchParams.value.dlpnrNm;
+      resData[i].cntrNo = resData[i].cntr.substring(0, 12);
+      resData[i].cntrSn = resData[i].cntr.substring(12);
+
+      for (let j = 0; j < resData.length; j += 1) {
+        if (i !== j) {
+          if (resData[i].cntr === resData[j].cntr) {
+            resData[i].errorCode = '2';
+          }
+        }
+      }
+    }
+
+    // 총 데이터 갯수
+    mainCount.value = resData.length;
+
+    const view = grdMainRef.value.getView();
+    const data = view.getDataSource();
+    data.setRows(resData);
+
+    const changedRows = gridUtil.getAllRowValues(view);
+
+    console.log(changedRows);
+    changedRows.forEach((p1) => {
+      if (p1.errorCode === '1') {
+        view.checkItem(p1.dataRow, true);
+      }
+    });
+    view.setCheckableExpression("values['errorCode'] = '1'", true);
   }
 }
 
@@ -354,7 +437,7 @@ async function onClickCreate() {
   const rowItem = gridUtil.getRowValue(view2, 0);
 
   if (!checkItem.length) {
-    alert(t('MSG_ALT_CHK_SELECT', [t('MSG_TXT_ELC_BILL_DP_OJ')]));
+    alert(t('MSG_ALT_CHK_SELECT', [t('MSG_TXT_ELC_BILL_DP_OJ')])); // 전자어음 입금대상을(를) 선택하세요.
     return;
   }
 
@@ -363,7 +446,7 @@ async function onClickCreate() {
   // console.log(searchParams.value.dlpnrNm);
   // console.log(checkItem);
 
-  if (!await confirm(t('MSG_TXT_MTR') + t('MSG_ALT_CREATED'))) { return; }
+  if (!await confirm(t('MSG_TXT_MTR') + t('MSG_ALT_CREATED'))) { return; } // 자료 생성하시겠습니까?
 
   await grdMainRef3.value.getData().clearRows();
 
@@ -446,6 +529,7 @@ async function onClickSave() {
     return;
   }
 
+  // 만약 통합입금번호 없으면 채번
   if (!itgDpNo.value) {
     const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic');
     console.log(res.data.itgDpNo);
@@ -468,7 +552,7 @@ async function onClickSave() {
 
   await dataService.post('/sms/wells/withdrawal/idvrve/bill-deposits/electronic', cachedParam);
 
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
 
   ok();
   // await onClickSubSearch();
@@ -479,7 +563,7 @@ async function onClickExcelMainDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic/execl-download', { params: cachedParams });
   await gridUtil.exportView(view, {
-    fileName: `${popupRef.value.pageCtxTitle}_${t('MSG_TXT_ELC_BILL_DP_OJ_CHO')}`,
+    fileName: `${popupRef.value.pageCtxTitle}_${t('MSG_TXT_ELC_BILL_DP_OJ_CHO')}`, // 전자어음 입금대상 선택
     timePostfix: true,
     exportData: res.data,
   });
@@ -490,7 +574,7 @@ async function onClickExcelSubDownload() {
   const view = grdMainRef3.value.getView();
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic-detail/excel-download', { params: cachedSubParams });
   await gridUtil.exportView(view, {
-    fileName: `${popupRef.value.pageCtxTitle}_${t('MSG_TXT_ELC_BILL_DP_TRD_DTL_PS')}`,
+    fileName: `${popupRef.value.pageCtxTitle}_${t('MSG_TXT_ELC_BILL_DP_TRD_DTL_PS')}`, // 전자어음 입금거래 상세현황
     timePostfix: true,
     exportData: res.data,
   });
@@ -499,10 +583,12 @@ async function onClickExcelSubDownload() {
 async function onClearSelect() {
   searchParams.value.bzrno = '';
   searchParams.value.dlpnrNm = '';
+  isUseYn.value = false;
 }
 
 async function onKeyDownSelect() {
-  searchParams.value.dlpnrNm = '';
+  searchParams.value.bzrno = '';
+  isUseYn.value = false;
 }
 
 async function initProps() {
@@ -547,6 +633,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'cntrNo' }, /* 계약번호 */
     { fieldName: 'cntrSn' }, /* 일련번호 */
     { fieldName: 'sellAmt', dataType: 'number' }, /* 금액 */
+    { fieldName: 'errorCode' }, /* 에러코드 1. 정상 2. 오류 */
   ];
 
   const columns = [
@@ -554,7 +641,16 @@ const initGrid1 = defineGrid((data, view) => {
       header: t('MSG_TXT_CLNT_NM'),
       // , header: '거래처명'
       width: '280',
-      styleName: 'text-center' },
+      styleName: 'text-center',
+      styleCallback: (grid, dataCell) => {
+        const ret = {};
+        const { errorCode } = grid.getValues(dataCell.index.itemIndex);
+        if (errorCode !== '1' && isUploadYn.value === true) {
+          ret.styleName = 'red-column';
+        }
+        return ret;
+      },
+    },
     { fieldName: 'bzrno',
       header: t('MSG_TXT_CRNO'),
       // header: '사업자등록번호',
@@ -562,7 +658,16 @@ const initGrid1 = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         return !isEmpty(value) ? `${value.substring(0, 3)}-${value.substring(3, 5)}-${value.substring(5, 10)}` : value;
-      } },
+      },
+      styleCallback: (grid, dataCell) => {
+        const ret = {};
+        const { errorCode } = grid.getValues(dataCell.index.itemIndex);
+        if (errorCode !== '1' && isUploadYn.value === true) {
+          ret.styleName = 'red-column';
+        }
+        return ret;
+      },
+    },
     { fieldName: 'cntr',
       header: t('MSG_TXT_CNTR_DTL_NO'),
       // , header: '계약상세번호'
@@ -570,7 +675,19 @@ const initGrid1 = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(g, index) {
         const param = g.getValues(index.itemIndex);
+
+        if (isEmpty(param.cntrSn)) {
+          return `${param.cntrNo}-`;
+        }
         return `${param.cntrNo}-${param.cntrSn}`;
+      },
+      styleCallback: (grid, dataCell) => {
+        const ret = {};
+        const { errorCode } = grid.getValues(dataCell.index.itemIndex);
+        if (errorCode !== '1' && isUploadYn.value === true) {
+          ret.styleName = 'red-column';
+        }
+        return ret;
       },
     },
     { fieldName: 'sellAmt',
@@ -578,15 +695,24 @@ const initGrid1 = defineGrid((data, view) => {
       // , header: '금액(원)'
       width: '200',
       styleName: 'text-right',
-      numberFormat: '#,##0' },
-
+      numberFormat: '#,##0',
+      styleCallback: (grid, dataCell) => {
+        const ret = {};
+        const { errorCode } = grid.getValues(dataCell.index.itemIndex);
+        if (errorCode !== '1' && isUploadYn.value === true) {
+          ret.styleName = 'text-right red-column';
+        }
+        return ret;
+      },
+    },
   ];
 
   data.setFields(fields);
   view.setColumns(columns);
 
-  view.checkBar.visible = true;
   view.rowIndicator.visible = true;
+  view.checkBar.visible = true;
+  view.checkBar.showAll = false; // 헤더 체크바 선택
 
   // 체크박스 설정
   // view.onCellClicked = (grid, clickData) => {
@@ -609,10 +735,10 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'billRmkCn' }, // 어음구분
     { fieldName: 'billRcpDt' }, // 접수일자
     { fieldName: 'billExprDt' }, // 만기일
-    { fieldName: 'billDpAmt', dataType: 'number' }, // 입금금액
-    { fieldName: 'billBndAmt', dataType: 'number' }, // 입금금액
-    { fieldName: 'sellBzsBzrno' },
-    { fieldName: 'pblBzsBzrno' },
+    { fieldName: 'billDpAmt', dataType: 'number' }, // 어음입금금액
+    { fieldName: 'billBndAmt', dataType: 'number' }, // 어음채권금액
+    { fieldName: 'sellBzsBzrno' }, // 판매업체사업자등록번호
+    { fieldName: 'pblBzsBzrno' }, // 발행업체사업자등록번호
 
   ];
 
@@ -667,6 +793,7 @@ const initGrid2 = defineGrid((data, view) => {
       fieldName: 'billExprDt',
       header: {
         text: t('MSG_TXT_EXPR_DT'),
+        // text: '만기일자',
         styleName: 'essential',
       },
       rules: 'required',
@@ -681,6 +808,7 @@ const initGrid2 = defineGrid((data, view) => {
       fieldName: 'billBndAmt',
       header: {
         text: t('MSG_TXT_WON_DP_AMT'),
+        // text: '입금액(원)',
         styleName: 'essential',
       },
       rules: 'required',
@@ -759,8 +887,8 @@ const initGrid3 = defineGrid((data, view) => {
     { fieldName: 'billDpAmt', dataType: 'number' }, /* 입금금액 */
     { fieldName: 'billDlpnrNm' }, /* 거래처명 */
 
-    { fieldName: 'sellBzsBzrno' },
-    { fieldName: 'pblBzsBzrno' },
+    { fieldName: 'sellBzsBzrno' }, /* 판매업체사업자등록번호 */
+    { fieldName: 'pblBzsBzrno' }, /* 발행업체사업자등록번호 */
 
   ];
 
@@ -866,3 +994,8 @@ const initGrid3 = defineGrid((data, view) => {
 });
 
 </script>
+<style>
+.red-column {
+  color: red !important;
+}
+</style>

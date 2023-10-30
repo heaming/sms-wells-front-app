@@ -204,8 +204,8 @@ const isCheckVisible = ref(false);
 const searchParams = ref({
   perfYm: date.add(-1, 'month').format('YYYYMM'),
   inqrDvCd: '01',
-  cnclTpCd: '',
-  sellTpCd: '',
+  cnclTpCd: 'ALL',
+  sellTpCd: 'ALL',
   aggregateTpCd: '01',
   feeTcntDvCd: '01',
   ogTpCd: 'W02',
@@ -285,8 +285,17 @@ async function onClickSearchNo() {
   }
 }
 
-async function onClickExcelDownload(gridId) {
+async function onClickExcelDownload() {
+  let gridId = grdCancelRef;
   let url;
+
+  if (searchParams.value.inqrDvCd === '01') {
+    gridId = grdCancelRef;
+  } else if (searchParams.value.inqrDvCd === '02') {
+    gridId = grdSellRef;
+  } else if (searchParams.value.inqrDvCd === '03') {
+    gridId = grdCheckRef;
+  }
 
   if (searchParams.value.inqrDvCd === '01') {
     url = '/sms/wells/fee/account-net-increase/cancels';

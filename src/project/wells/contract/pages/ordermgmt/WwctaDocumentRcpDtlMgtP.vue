@@ -124,7 +124,7 @@
           :label="$t('MSG_TXT_PROCS_TASK')"
           :colspan="2"
         >
-          <p>{{ frmMainData.cntrChRsonNm }}</p>
+          <p>{{ props.cntrChTpNm }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -1460,6 +1460,7 @@ const { alert, confirm, notify, modal } = useGlobal();
 const props = defineProps({
   cntrChRcpId: { type: String, required: true, default: '' },
   cntrChTpCd: { type: String, required: true, default: '' },
+  cntrChTpNm: { type: String, required: true, default: '' },
 });
 const { ok } = useModal();
 
@@ -1472,6 +1473,8 @@ const saveParams = ref({
   cntrChRcpId: props.cntrChRcpId, // 접수번호
   cntrChPrgsStatCd: '50', // 계약변경진행상태코드(처리완료)
   cntrChAkCn: '', // 재접수 사유
+  cntrChTpCd: props.cntrChTpCd, // 접수유형코드
+  cntrChTpNm: props.cntrChTpNm, // 접수유형코드명
   cstKnm: '', // 고객명
   cralLocaraTno: '', // 휴대지역전화번호
   mexnoEncr: '', // 휴대전화국번호암호화
@@ -2081,6 +2084,7 @@ async function onClickReRegRson() {
 
   if (isOk) {
     console.log(isOk);
+    saveParams.value.cntrChPrgsStatCd = '10'; // 접수대기
     await saveData();
   }
 }

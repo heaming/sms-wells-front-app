@@ -171,12 +171,12 @@ const initGridExclude = defineGrid((data, view) => {
     todayHighlight: true,
   };
   const columns = [
-    { fieldName: 'fwDvNm', header: t('MSG_TXT_FW_DV'), width: '240', styleName: 'text-center', editable: false },
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '240', styleName: 'text-center', editable: false },
-    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_YM'), width: '240', styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', editable: false },
-    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_YM'), width: '240', styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', editable: true, rules: 'required' },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '248', styleName: 'text-center', datetimeFormat: 'date', editable: false },
-    { fieldName: 'usrNm', header: t('MSG_TXT_RGST_USR'), width: '240', styleName: 'text-center', editable: false },
+    { fieldName: 'fwDvNm', header: t('MSG_TXT_FW_DV'), width: '240', styleName: 'text-center', editable: false }, // 발송구분
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '240', styleName: 'text-center', editable: false }, // 고객번호
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_YM'), width: '240', styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', editable: false }, // 적용시작년월
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_YM'), width: '240', styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'yyyy-MM', editable: true, rules: 'required' }, // 적용종료년월
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_FST_RGST_DT'), width: '248', styleName: 'text-center', datetimeFormat: 'date', editable: false }, // 등록일자
+    { fieldName: 'usrNm', header: t('MSG_TXT_RGST_USR'), width: '240', styleName: 'text-center', editable: false }, // 등록자
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push({ fieldName: 'bndCntcExcdOjId' });

@@ -294,6 +294,9 @@ const causCdList = codes.WK_CAN_CAUS_CD.filter((v) => ['M1', 'M3', 'N1', 'O1', '
 // 취소사유
 const causRsonList = ref(codes.RCP_CAN_RSON_CD);
 
+// 책임지역
+const locaraCds = ref((await dataService.get('/sms/wells/service/responsible-area-codes/locaraCds')).data);
+
 // 조회_체크구분
 const checkType = ref([]); // 조회_체크구분
 const checkOption = ref([
@@ -445,7 +448,16 @@ function initGrid(data, view) {
     { fieldName: 'svBizDclsfNm', header: t('MSG_TXT_SV_TP_DTL'), width: '120', styleName: 'text-center' }, // 서비스유형상세
     { fieldName: 'cnslMoCn', header: t('MSG_TXT_RCP_IZ'), width: '250', styleName: 'text-left' }, // 접수내역
     { fieldName: 'svCnrOgId', header: t('MSG_TXT_SV_CNR'), width: '130', styleName: 'text-center' }, // 서비스센터
-    { fieldName: 'rpbLocaraCd', header: t('MSG_TXT_RPB_LOCARA'), width: '120', styleName: 'text-center' }, // 책임지역
+    { // 책임지역
+      fieldName: 'rpbLocaraCd',
+      header: t('MSG_TXT_RPB_LOCARA'),
+      width: '120',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { rpbLocaraCd } = grid.getValues(index.itemIndex);
+        return locaraCds.value.filter((v) => v.rpbLocaraCd === rpbLocaraCd)[0].ctpvNm;
+      },
+    },
     { fieldName: 'prtnr', header: t('MSG_TXT_ICHR_EGER'), width: '130', styleName: 'text-center' }, // 담당엔지니어
     { fieldName: 'arvDtm', header: t('MSG_TXT_ARV'), width: '170', styleName: 'text-center' }, // 도착
     { fieldName: 'vstFshDtm', header: t('MSG_TXT_COMPLETE'), width: '170', styleName: 'text-center' }, // 완료

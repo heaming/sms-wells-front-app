@@ -1204,7 +1204,7 @@ onMounted(async () => {
     baseParams.value.sysCALL_CTI_SERVER_IP = 'ws://10.1.73.10:9800';
     baseParams.value.sysCALL_CTI_SERVER_PORT = '9800';
   } else {
-    baseParams.value.sysCALL_CTI_SERVER_IP = 'wss://10.1.73.10:9801';
+    baseParams.value.sysCALL_CTI_SERVER_IP = 'wss://ipccp.kyowon.co.kr:9801';
     baseParams.value.sysCALL_CTI_SERVER_PORT = '9801';
   }
 

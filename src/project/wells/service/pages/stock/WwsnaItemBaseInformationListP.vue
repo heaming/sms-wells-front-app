@@ -423,9 +423,9 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center', autoFilter: false },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '250' },
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center', autoFilter: false },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '200' },
     { fieldName: 'imgUrl',
       header: t('MSG_TXT_PHO'),
       width: '100',
@@ -434,16 +434,16 @@ const initGrdMain = defineGrid((data, view) => {
         type: 'button',
         hideWhenEmpty: true,
       },
-      displayCallback: () => t('MSG_TXT_IMG_BRWS'),
+      displayCallback: () => t('MSG_TXT_IMG'),
     },
-    { fieldName: 'warehouseQty', header: t('MSG_TXT_LGST'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'useQtyY', header: t('MSG_TXT_PVO_Y'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'useQtyP', header: t('MSG_TXT_LSTMM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'useQty', header: t('MSG_TXT_THM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'centerQty', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'indiQty', header: t('MSG_TXT_INDV'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'shortSupply', header: t('MSG_TXT_APLC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'totalQty', header: t('MSG_TXT_TOT_STOC'), width: '175', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'warehouseQty', header: t('MSG_TXT_LGST'), width: '75', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'useQtyY', header: t('MSG_TXT_PVO_Y'), width: '75', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'useQtyP', header: t('MSG_TXT_LSTMM'), width: '75', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'useQty', header: t('MSG_TXT_THM'), width: '75', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'centerQty', header: t('MSG_TXT_CENTER_DIVISION'), width: '75', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'indiQty', header: t('MSG_TXT_INDV'), width: '75', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'shortSupply', header: t('MSG_TXT_APLC'), width: '75', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'totalQty', header: t('MSG_TXT_TOT_STOC'), width: '130', styleName: 'text-right', numberFormat: '#,##0' },
   ];
 
   data.setFields(fields);
@@ -498,18 +498,18 @@ const initGrdMain2 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '250', styleName: 'text-left' },
-    { fieldName: 'lgstQty', header: t('MSG_TXT_LGST'), width: '100', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'centerQty', header: t('MSG_TXT_CENTER_DIVISION'), width: '100', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'myCenterQty', header: t('MSG_TXT_OG_WARE'), width: '100', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'indiStckQty', header: t('MSG_TXT_INDV_WARE'), width: '100', numberFormat: '#,##0', styleName: 'text-right' },
-    { fieldName: 'sapGrp', header: t('TXT_MSG_SAP_MAT_GRP_VAL'), width: '100', styleName: 'text-center' },
-    { fieldName: 'leadTime', header: t('MSG_TXT_LEAD_TIME'), width: '100', styleName: 'text-center' },
-    { fieldName: 'delUntNm', header: t('TXT_MSG_OSTR_UNIT_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'apldFr', header: t('MSG_TXT_USE_STRTDT'), width: '100', datetimeFormat: 'date', styleName: 'text-center' },
-    { fieldName: 'apldTo', header: t('MSG_TXT_USE_ENDDT'), width: '100', datetimeFormat: 'date', styleName: 'text-center' },
+    { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '75', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'lgstQty', header: t('MSG_TXT_LGST'), width: '75', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'centerQty', header: t('MSG_TXT_CENTER_DIVISION'), width: '75', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'myCenterQty', header: t('MSG_TXT_OG_WARE'), width: '75', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'indiStckQty', header: t('MSG_TXT_INDV_WARE'), width: '75', numberFormat: '#,##0', styleName: 'text-right' },
+    { fieldName: 'sapGrp', header: t('TXT_MSG_SAP_MAT_GRP_VAL'), width: '75', styleName: 'text-center' },
+    { fieldName: 'leadTime', header: t('MSG_TXT_LEAD_TIME'), width: '75', styleName: 'text-center' },
+    { fieldName: 'delUntNm', header: t('TXT_MSG_OSTR_UNIT_CD'), width: '75', styleName: 'text-center' },
+    { fieldName: 'apldFr', header: t('MSG_TXT_USE_STRTDT'), width: '75', datetimeFormat: 'date', styleName: 'text-center' },
+    { fieldName: 'apldTo', header: t('MSG_TXT_USE_ENDDT'), width: '75', datetimeFormat: 'date', styleName: 'text-center' },
 
   ];
 

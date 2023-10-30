@@ -273,7 +273,7 @@ async function onChangeDpTpCd() {
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/deposit-detail/paging', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/deposit-detail/paging', { params: cachedParams, timeout: 600000 });
   const { list: pages, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
 
@@ -345,7 +345,7 @@ const validateUsrComponent = computed(() => async () => {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/withdrawal/idvrve/deposit-detail/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/idvrve/deposit-detail/excel-download', { params: cachedParams, timeout: 600000 });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,

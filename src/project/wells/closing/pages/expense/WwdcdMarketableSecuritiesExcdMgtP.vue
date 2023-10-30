@@ -273,10 +273,6 @@ async function marketableSecuritiesExcd() {
 }
 
 async function fetchData() {
-  cachedParams = cloneDeep(props.cachedParams);
-  cachedParams.subOgTpCd = props.cachedParams.ogTpCd; // 배분대상조직유형코드
-  cachedParams.rsbDvCd = searchParams.value.rsbDvCd; // 직책 구분코드
-
   if (!isEmpty(cachedParams.dgr3LevlOgId)) {
     cachedParams.mainDgr3LevlOgId = cachedParams.dgr3LevlOgId;
     cachedParams.mainDgr1LevlOgId = null;
@@ -293,17 +289,6 @@ async function fetchData() {
   await subject();
   await marketableSecuritiesExcd();
 }
-async function onClickSearch() {
-  // 검색조건 4개
-  cachedParams.rsbDvCd = searchParams.value.rsbDvCd; // 직책 구분코드
-  cachedParams.dgr2levlogid = searchParams.value.dgr2LevlOgId; // 지역단 조직ID
-  cachedParams.bldCd = searchParams.value.bldCd; // 빌딩 코드
-  cachedParams.subPrtnrNo = searchParams.value.prtnrNo; // 배분대상파트너번호
-
-  const subView = grdSubRef.value.getView();
-  await subView.checkAll(false, true, true, true);
-  await subject();
-}
 
 async function onClickSearchPartner() {
   const { result, payload } = await modal({
@@ -316,6 +301,23 @@ async function onClickSearchPartner() {
     searchParams.value.prtnrNo = payload.prtnrNo;
     searchParams.value.dstOjpsNm = payload.prtnrNo;
   }
+}
+
+async function onClickSearch() {
+  if (!isEmpty(searchParams.value.dstOjpsNm)) {
+    await onClickSearchPartner();
+  } else {
+    searchParams.value.prtnrNo = '';
+  }
+  // 검색조건 4개
+  cachedParams.rsbDvCd = searchParams.value.rsbDvCd; // 직책 구분코드
+  cachedParams.dgr2levlogid = searchParams.value.dgr2LevlOgId; // 지역단 조직ID
+  cachedParams.bldCd = searchParams.value.bldCd; // 빌딩 코드
+  cachedParams.subPrtnrNo = searchParams.value.prtnrNo; // 배분대상파트너번호
+
+  const subView = grdSubRef.value.getView();
+  await subView.checkAll(false, true, true, true);
+  await subject();
 }
 
 let isCalcData = false;
@@ -745,6 +747,10 @@ onMounted(async () => {
 
   searchParams.value.dgr2LevlOgId = props.cachedParams.dgr2LevlOgId;
   initSearchParams = cloneDeep(searchParams.value);
+  cachedParams = cloneDeep(props.cachedParams);
+  cachedParams.subOgTpCd = props.cachedParams.ogTpCd; // 배분대상조직유형코드
+  cachedParams.rsbDvCd = searchParams.value.rsbDvCd; // 직책 구분코드
+
   await fetchData();
 });
 

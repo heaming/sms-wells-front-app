@@ -68,6 +68,20 @@
         </div>
       </kw-item-section>
       <kw-item-section
+        side
+        top
+      >
+        <kw-item-label class="flex gap-xs">
+          <kw-btn
+            v-if="showChangeWellsFarmPackageBtn"
+            :disable="!!promotions?.length"
+            label="패키지변경"
+            dense
+            @click="onClickChangeWellsFarmPackage"
+          />
+        </kw-item-label>
+      </kw-item-section>
+      <kw-item-section
         class="scoped-item__section-action"
         side
       >
@@ -132,11 +146,11 @@
               </kw-form-item>
             </kw-form-row>
             <kw-form-row
-              v-if="spayDscrCdSelectable || rentalCrpDscrCdSelectable || showSvPtrms"
+              v-if="isSelectableSpayDscrCd || isSelectableRentalCrpDscrCd || showSvPtrms"
               :cols="2"
             >
               <kw-form-item
-                v-if="spayDscrCdSelectable"
+                v-if="isSelectableSpayDscrCd"
                 :label="'일시불할인율'"
               >
                 <kw-select
@@ -150,7 +164,7 @@
                 />
               </kw-form-item>
               <kw-form-item
-                v-else-if="rentalCrpDscrCdSelectable"
+                v-else-if="isSelectableRentalCrpDscrCd"
                 :label="'법인할인율'"
               >
                 <kw-select
@@ -224,12 +238,14 @@ import { alert, useDataService } from 'kw-lib';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { getNumberWithComma } from '~sms-common/contract/util';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
+import { SELL_TP_DTL_CD, SPAY_DSC_DV_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
   bas: { type: Object, default: undefined },
 });
 const emit = defineEmits([
+  'change:package',
   'delete',
   'price-changed',
   'promotion-changed',
@@ -249,10 +265,6 @@ const { codes, getCodeName } = await useCtCode(
   'SELL_EV_CD',
 );
 const dataService = useDataService();
-
-const SELL_TP_DTL_CD_SPAY_NOM = '11';
-const SELL_TP_DTL_CD_SPAY_HCR = '12';
-const SELL_TP_DTL_CD_SPAY_ENVR_ELHM = '13';
 
 const sellEvCdsBySellChnlDtlCd = computed(() => {
   const { sellInflwChnlDtlCd } = props.bas;
@@ -279,11 +291,11 @@ const sellEvCdsBySellChnlDtlCd = computed(() => {
 });
 
 const dtl = ref(props.modelValue);
-const isHcr = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD_SPAY_HCR);
+const isHcr = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD.SPAY_HCR);
 
 const multipleQuantityAvailable = computed(() => {
   const { bcMngtPdYn, sellTpDtlCd } = dtl.value;
-  return bcMngtPdYn !== 'Y' && sellTpDtlCd === SELL_TP_DTL_CD_SPAY_NOM;
+  return bcMngtPdYn !== 'Y' && sellTpDtlCd === SELL_TP_DTL_CD.SPAY_NOM;
 });
 
 let pdPrcFnlDtlId;
@@ -412,25 +424,34 @@ const labelForSellTpCd = computed(() => {
   }
 });
 
-const spayDscrCdSelectable = computed(() => priceDefineVariables.value.spayDscDvCd === '4'
-    || priceDefineVariables.value.spayDscDvCd === 'C'
-    || priceDefineVariables.value.spayDscDvCd === 'D');
-
-watch(spayDscrCdSelectable, (value) => {
-  if (!value) {
-    priceDefineVariables.value.spayDscrCd = EMPTY_ID;
+const isSelectableSpayDscrCd = computed(() => {
+  if (!priceDefineVariableOptions.value.spayDscrCd?.length) {
+    return false;
   }
-}, { immediate: true });
-
-const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.spayDscDvCd === '5');
-
-watch(rentalCrpDscrCdSelectable, (value) => {
+  return (priceDefineVariables.value.spayDscDvCd === SPAY_DSC_DV_CD.DISCOUNT_PRICE
+      || priceDefineVariables.value.spayDscDvCd === SPAY_DSC_DV_CD.COUPON
+      || priceDefineVariables.value.spayDscDvCd === SPAY_DSC_DV_CD.COUPON_DISCOUNT
+  );
+});
+watch(isSelectableSpayDscrCd, (value) => {
   if (!value) {
-    priceDefineVariables.value.rentalCrpDscrCd = EMPTY_ID;
+    priceDefineVariables.value.spayDscrCd = undefined;
   }
-}, { immediate: true });
+});
 
-const showSvPtrms = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD_SPAY_ENVR_ELHM && selectedFinalPrice.value);
+const isSelectableRentalCrpDscrCd = computed(() => {
+  if (!priceDefineVariableOptions.value.rentalCrpDscrCd?.length) {
+    return false;
+  }
+  return (priceDefineVariables.value.spayDscDvCd === SPAY_DSC_DV_CD.GROUP_BUYING);
+});
+watch(isSelectableRentalCrpDscrCd, (value) => {
+  if (!value) {
+    priceDefineVariables.value.rentalCrpDscrCd = undefined;
+  }
+});
+
+const showSvPtrms = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD.SPAY_ENVR_ELHM && selectedFinalPrice.value);
 
 function initPriceDefineVariables() {
   if (!pdPrcFnlDtlId.value) {
@@ -455,6 +476,17 @@ async function onChangeModelValue(newDtl) {
 }
 
 watch(() => props.modelValue, onChangeModelValue, { immediate: true });
+
+// region [계약 관계 버튼]
+const showChangeWellsFarmPackageBtn = computed(() => {
+  const { pdLclsfId } = dtl.value;
+  if (!pdLclsfId) {
+    return false;
+  }
+  const isWellsFarmProduct = pdLclsfId === 'PDC000000000120';
+  return isWellsFarmProduct;
+});
+// endregion [계약 관계 버튼]
 
 // region [가격표기]
 const displayedFinalPrice = ref('미확정');
@@ -535,6 +567,10 @@ function onChangeVariable() {
   // if (finalPriceOptions.value.length === 1) {
   //   setVariablesIfUniqueSelectable();
   // }
+}
+
+function onClickChangeWellsFarmPackage() {
+  emit('change:package', props.modelValue);
 }
 
 function onClickDelete() {

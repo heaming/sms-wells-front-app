@@ -93,10 +93,11 @@
             :options="codes.PD_GRP_CD"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('계약번호')">
-          <kw-input
-            v-model="searchParams.cntrNo"
-            maxlength="100"
+        <kw-search-item :label="$t('계약상세번호')">
+          <zctz-contract-detail-number
+            ref="contractNumberRef"
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
           />
         </kw-search-item>
       </kw-search-row>
@@ -457,6 +458,11 @@ async function onClickQrRpbl() {
     alert(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
     return;
   }
+
+  // 바코드 재발행 저장
+  await dataService.post('/sms/wells/service/quick-response-rpbls', cachedParams);
+  // await notify(t('MSG_ALT_SAVE_DATA'));
+
   // Initialize
   ozReportParam.value.args = {
     RES_YR: '', // 조회년도
@@ -514,7 +520,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rdadr' },
     { fieldName: 'vstYm' },
     { fieldName: 'bcNo' },
-    { fieldName: 'fnlMdfcDtm' },
+    { fieldName: 'dldDt' },
     // { fieldName: 'prtnrKnm' },
     { fieldName: 'vstFshDt' },
     { fieldName: 'vstFshHh' },
@@ -530,6 +536,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'mexnoEncr' },
     { fieldName: 'cralIdvTno' },
     { fieldName: 'cstSign' },
+    { fieldName: 'bcRpblId' },
   ];
 
   const columns = [
@@ -540,7 +547,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: '상품', width: '400', styleName: 'text-left' },
     {
       fieldName: 'cntrNo',
-      header: '계약번호',
+      header: '계약상세번호',
       width: '150',
       styleName: 'rg-button-link text-center',
       renderer: { type: 'button' },
@@ -571,7 +578,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'svpdQrType', header: 'QR유형', width: '200', styleName: 'text-center' },
     { fieldName: 'qrCd', header: 'QR코드', width: '200', styleName: 'text-center' },
     {
-      fieldName: 'fnlMdfcDtm',
+      fieldName: 'dldDt',
       header: '다운로드 일자',
       width: '200',
       styleName: 'text-center',

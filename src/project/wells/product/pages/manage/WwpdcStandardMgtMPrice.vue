@@ -160,7 +160,7 @@ async function init() {
 }
 
 // 상품 가격 초기값 및 계산값 적용
-function getInitPriceDefault(prcds, prcfds) {
+function getCountPriceDefault(prcds, prcfds) {
   if (!prcds || !prcds.length || !prcfds || !prcfds.length) {
     return prcfds;
   }
@@ -216,7 +216,7 @@ async function getSaveData(isBatchCopy) {
   subList[prcfd] = pdMergeBy(subList[prcfd], fnls?.[prcfd], pdConst.PRC_FNL_ROW_ID);
   // console.log('WwpdcStandardMgtMPrice - getSaveData - subList[prcfd] : ', subList[prcfd]);
   // 저장전 할인적용가격, 최종가 재계산
-  subList[prcfd] = getInitPriceDefault(subList[prcd], subList[prcfd]);
+  subList[prcfd] = getCountPriceDefault(subList[prcd], subList[prcfd]);
 
   // console.log('WwpdcStandardMgtMPrice - getSaveData - 3 - subList[prcfd] : ', subList[prcfd]);
   const fees = await cmpFeeRef.value?.getSaveData();
@@ -338,7 +338,7 @@ async function initProps() {
   const { pdCd, initData, codes } = props;
   currentPdCd.value = pdCd;
   const priceDatas = cloneDeep(initData);
-  priceDatas[prcfd] = await getInitPriceDefault(priceDatas[prcd], priceDatas[prcfd]);
+  priceDatas[prcfd] = await getCountPriceDefault(priceDatas[prcd], priceDatas[prcfd]);
   currentInitData.value = priceDatas;
   currentCodes.value = cloneDeep(codes);
   await fetchData();
@@ -371,7 +371,7 @@ watch(() => props.pdCd, (pdCd) => { currentPdCd.value = pdCd; });
 watch(() => props.initData, (initData) => {
   if (!isEqual(currentInitData.value, initData)) {
     const priceDatas = cloneDeep(initData);
-    priceDatas[prcfd] = getInitPriceDefault(priceDatas[prcd], priceDatas[prcfd]);
+    priceDatas[prcfd] = getCountPriceDefault(priceDatas[prcd], priceDatas[prcfd]);
     currentInitData.value = priceDatas;
   }
 }, { deep: true });

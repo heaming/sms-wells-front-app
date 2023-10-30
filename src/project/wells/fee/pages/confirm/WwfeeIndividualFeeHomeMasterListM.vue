@@ -36,7 +36,7 @@
           required
         >
           <kw-input
-            v-model="searchParams.no"
+            v-model="searchParams.prtnrNo"
             :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
             icon="search"
             clearable
@@ -256,7 +256,7 @@ const totalCount = ref(0);
 const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
-  no: '',
+  prtnrNo: '',
   prtnrKnm: '',
   prPerfYm: props.perfYm,
   prpartnerNo: props.partnerNo,
@@ -290,7 +290,7 @@ async function onClickSearchNo() {
     component: 'ZwogzMonthPartnerListP',
     componentProps: {
       baseYm: searchParams.value.perfYm,
-      prtnrNo: searchParams.value.no,
+      prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W03',
       prtnrKnm: undefined,
     },
@@ -298,7 +298,7 @@ async function onClickSearchNo() {
 
   if (result) {
     if (!isEmpty(payload)) {
-      searchParams.value.no = payload.prtnrNo;
+      searchParams.value.prtnrNo = payload.prtnrNo;
       searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
@@ -335,13 +335,14 @@ async function openHmstReportPopup() {
  *  Event - 실적상세 버튼 클릭
  */
 async function openPerformancePopup() {
-  const { perfYm, no } = searchParams.value;
+  const { perfYm, prtnrNo } = cachedParams;
   if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     const param = {
       perfYm,
-      no,
+      prtnrNo,
       ogTpCd: 'W03',
     };
+    console.log(param);
     await modal({
       component: 'WwfeeIndividualFeeDetailListP',
       componentProps: param,
@@ -357,7 +358,7 @@ async function openPerformancePopup() {
 async function openAgainDisbursementPopup() {
   if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     const param = {
-      prtnrNo: searchParams.value.no,
+      prtnrNo: cachedParams.no,
       ogTpCd: 'W03',
     };
 
@@ -374,12 +375,12 @@ async function openAgainDisbursementPopup() {
  *  Event - 부담공제조정 버튼 클릭
  */
 async function openZwfedFeeBurdenDeductionRegP() {
-  const { perfYm, no } = searchParams.value;
+  const { perfYm, prtnrNo } = cachedParams;
   if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     const param = {
       perfYm,
       ogTpCd: 'W03',
-      prtnrNo: no,
+      prtnrNo,
     };
     await modal({
       component: 'ZwdeeBurdenDeductionP',
@@ -396,7 +397,7 @@ async function openZwfedFeeBurdenDeductionRegP() {
 async function openRedemptionOfFeePopup() {
   if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     const param = {
-      prtnrNo: searchParams.value.no,
+      prtnrNo: cachedParams.prtnrNo,
       ogTpCd: 'W03',
     };
 

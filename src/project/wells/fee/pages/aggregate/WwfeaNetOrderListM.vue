@@ -392,7 +392,6 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid, codeUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
-// const { t } = useI18n();
 const { modal, alert } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
@@ -511,10 +510,10 @@ async function onClickExcelDownload() {
   }
 }
 
-async function fetchData(apiUrl) {
-  const response = await dataService.get(`/sms/wells/fee/monthly-net/${apiUrl}`, { params: { ...cachedParams }, timeout: 5000000 });
+async function fetchData(uri) {
+  const response = await dataService.get(`/sms/wells/fee/monthly-net/${uri}`, { params: { ...cachedParams }, timeout: 5000000 });
   const dataList = response.data;
-  if (apiUrl === 'status-orders') {
+  if (uri === 'status-orders') {
     const view = grdAggrRef.value.getView();
     view.getDataSource().setRows(dataList);
     totalCount.value = dataList.length;
@@ -751,7 +750,7 @@ const initGrdDtl = defineGrid((data, view) => {
     { fieldName: 'copnDvCd', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center', options: codes.COPN_DV_CD }, // 고객구분
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' }, // 상품명
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' }, // 상품코드
-    { fieldName: 'pkgCd', header: t('MSG_TXT_PKG_CD'), width: '120', styleName: 'text-center' }, // 패키지코드
+    { fieldName: 'pkgCd', header: t('MSG_TXT_PKG_CD'), width: '120', styleName: 'text-center' }, // 패키지상품번호
     { fieldName: 'cntrPtrm', header: t('MSG_TXT_ISTM'), width: '120', styleName: 'text-right' }, // 할부
     { fieldName: 'stplPtrm', header: t('MSG_TXT_STPL_MCNT'), width: '120', styleName: 'text-right' }, // 약정개월
     { fieldName: 'cntrCnfmDtm', header: t('MSG_TXT_CNTR_DATE'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd' }, // 계약일자

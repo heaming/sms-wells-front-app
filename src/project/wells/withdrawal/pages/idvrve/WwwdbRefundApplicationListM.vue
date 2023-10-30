@@ -373,8 +373,8 @@ const initGrid = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-right' },
     { fieldName: 'rfndAkAmt',
-      header: t('MSG_TXT_RFND_RQST_AMT'),
-      /* header: '환불요청금액' */
+      header: t('MSG_TXT_RFND_APLC_AMT'),
+      /* header: '환불신청금액' */
       // mergeRule: {
       //   criteria: 'value',
       // },

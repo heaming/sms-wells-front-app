@@ -230,6 +230,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm' },
     { fieldName: 'recapAmt', dataType: 'number' },
     { fieldName: 'ctrAmt', dataType: 'number' },
+    { fieldName: 'cshBilSlAmt', dataType: 'number' },
+    { fieldName: 'cshBilDpAmt', dataType: 'number' },
     { fieldName: 'adpBilSlAmt', dataType: 'number' },
     { fieldName: 'adpBilDpAmt', dataType: 'number' },
     { fieldName: 'vacSlAmt', dataType: 'number' },
@@ -279,6 +281,38 @@ const initGrid = defineGrid((data, view) => {
         styleName: 'text-right',
         valueCallback() {
           return Number(totalParams.value.ctrAmtTt);
+        },
+      } },
+    { fieldName: 'cshBilSlAmt',
+      header: t('MSG_TXT_SL_AMT'),
+      width: '120',
+      styleName: 'text-right',
+      groupFooter: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+        styleName: 'text-right',
+      },
+      footer: {
+        numberFormat: '#,##0',
+        styleName: 'text-right',
+        valueCallback() {
+          return Number(totalParams.value.adpBilSlAmtTt);
+        },
+      } },
+    { fieldName: 'cshBilDpAmt',
+      header: t('MSG_TXT_DEPOSIT_AMT'),
+      width: '120',
+      styleName: 'text-right',
+      groupFooter: {
+        numberFormat: '#,##0',
+        expression: 'sum',
+        styleName: 'text-right',
+      },
+      footer: {
+        numberFormat: '#,##0',
+        styleName: 'text-right',
+        valueCallback() {
+          return Number(totalParams.value.adpBilDpAmtTt);
         },
       } },
     { fieldName: 'adpBilSlAmt',
@@ -420,6 +454,11 @@ const initGrid = defineGrid((data, view) => {
 
   view.setColumnLayout([
     'ogNm', 'prtnrNo', 'prtnrKnm', 'recapAmt', 'ctrAmt', // single
+    {
+      header: t('현금'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['cshBilSlAmt', 'cshBilDpAmt'],
+    },
     {
       header: t('MSG_TXT_ADP_BIL'), // colspan title
       direction: 'horizontal', // merge type

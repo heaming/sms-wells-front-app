@@ -401,6 +401,56 @@
         </kw-form-row>
       </kw-form>
 
+      <!-- 처리내역 -->
+      <h3>{{ t('MSG_TXT_PROCS_IZ') }}</h3>
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            @change="getIndividualState"
+          />
+        </template>
+        <kw-btn
+          v-permission:download
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickExcelDownload"
+        />
+      </kw-action-top>
+      <kw-grid
+        ref="grdIndividualStateRef"
+        :visible-rows="10"
+        :page-size="pageInfo.pageSize - 1"
+        :total-count="pageInfo.totalCount"
+        @init="initGridState"
+      />
+      <!-- 상담내역 -->
+      <h3>{{ $t('MSG_TXT_CNSL_IZ') }}</h3>
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info
+            v-model:page-index="secondPageInfo.pageIndex"
+            v-model:page-size="secondPageInfo.pageSize"
+            :total-count="secondPageInfo.totalCount"
+            @change="getIndividualCounsel"
+          />
+        </template>
+      </kw-action-top>
+      <kw-grid
+        ref="grdIndividualCounselRef"
+        :page-size="secondPageInfo.pageSize - 1"
+        :total-count="secondPageInfo.totalCount"
+        :visible-rows="10"
+        @init="initGridCounsel"
+      />
+
+      <br>
+
       <kw-tabs
         v-model="selectedTab"
       >
@@ -510,53 +560,6 @@
           />
         </kw-tab-panel>
       </kw-tab-panels>
-      <!-- 처리내역 -->
-      <h3>{{ t('MSG_TXT_PROCS_IZ') }}</h3>
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            @change="getIndividualState"
-          />
-        </template>
-        <kw-btn
-          v-permission:download
-          icon="download_on"
-          dense
-          secondary
-          :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
-          @click="onClickExcelDownload"
-        />
-      </kw-action-top>
-      <kw-grid
-        ref="grdIndividualStateRef"
-        :visible-rows="10"
-        :page-size="pageInfo.pageSize - 1"
-        :total-count="pageInfo.totalCount"
-        @init="initGridState"
-      />
-      <!-- 상담내역 -->
-      <h3>{{ $t('MSG_TXT_CNSL_IZ') }}</h3>
-      <kw-action-top>
-        <template #left>
-          <kw-paging-info
-            v-model:page-index="secondPageInfo.pageIndex"
-            v-model:page-size="secondPageInfo.pageSize"
-            :total-count="secondPageInfo.totalCount"
-            @change="getIndividualCounsel"
-          />
-        </template>
-      </kw-action-top>
-      <kw-grid
-        ref="grdIndividualCounselRef"
-        :page-size="secondPageInfo.pageSize - 1"
-        :total-count="secondPageInfo.totalCount"
-        :visible-rows="10"
-        @init="initGridCounsel"
-      />
     </div>
   </kw-page>
 </template>
@@ -1055,7 +1058,7 @@ const initGridState = defineGrid((data, view) => {
           url = 'https://m-wpm.kyowon.co.kr';
         }
         // window.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
-        popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`);
+        popupUtil.open(`${url}/certification/sso/login?redirectUrl=${redirectUrl}`, { width: 400, height: 844 });
       }
     }
 

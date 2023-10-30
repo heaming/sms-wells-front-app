@@ -284,9 +284,9 @@ watch(() => fieldParams.value.txinvPblOjYn, (val) => {
   }
 });
 
-// 읽기전용인지 아닌지 감시하기
+// 읽기전용이면 필수처리 제외
 function setComnponetRule(msg) {
-  if (!isReadonly.value) {
+  if (!isReadonly.value && !isOrgTxinvPblOjYn.value) {
     return msg;
   }
 }

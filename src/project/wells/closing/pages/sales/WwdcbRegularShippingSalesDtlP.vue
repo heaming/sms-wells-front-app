@@ -45,7 +45,7 @@
           <p>{{ regularShippingDetail.pkgView }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_MCHN_INF')">
-          <p>({{ regularShippingDetail.mchnCntrNo }}-{{ mchnCntrSn }}) {{ regularShippingDetail.mchnRcgvpKnm }}</p>
+          <p>({{ regularShippingDetail.mchnCntrNo }}-{{ regularShippingDetail.mchnCntrSn }}) {{ regularShippingDetail.mchnRcgvpKnm }}/{{ regularShippingDetail.mchnSellTpNm }}/({{ regularShippingDetail.mchnPdCd }}){{ regularShippingDetail.mchnPdNm }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SALE_PRICE')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.sellAmt)) }}</p>
@@ -59,7 +59,7 @@
           <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.dscAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_MM_BIL_AMT')">
-          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.fnlBilAmt)) }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.mmIstmAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -85,7 +85,7 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_SL_OC_MM')">
-          <p>{{ regularShippingDetail.slOccYm }}</p>
+          <p>{{ regularShippingDetail.slOccYn }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SPP_YN')">
           <p>{{ regularShippingDetail.sppYn }}</p>
@@ -99,7 +99,7 @@
           <p>{{ regularShippingDetail.rentalDc }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CANC_DT')">
-          <p>{{ stringUtil.getDateFormat(regularShippingDetail.canDt,'YYYY-MM-DD') }}</p>
+          <p>{{ stringUtil.getDateFormat(regularShippingDetail.cntrCanDt,'YYYY-MM-DD') }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_NOM_SL_AMT')">
           <p>{{ stringUtil.getNumberWithComma(toInteger(regularShippingDetail.nomSlAmt)) }}</p>
@@ -246,7 +246,7 @@
     <kw-form dense>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_DLQ_MCNT_AGG')">
-          <p>{{ regularShippingDetail.dlqMcn }} / {{ regularShippingDetail.dlqAcuMcn }}</p>
+          <p>{{ regularShippingDetail.dlqMcnView }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_SL_STP')">
           <p>{{ regularShippingDetail.slStpYn }}</p>
@@ -258,7 +258,7 @@
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CLCTAM_ICHR')">
           <p>
-            {{ regularShippingDetail.rcpAoffceCdNm }} / {{ regularShippingDetail.clctamDvCdNm }}({{ regularShippingDetail.clctamDvCd }}) {{ regularShippingDetail.clctamPrtnrNm }}({{ regularShippingDetail.clctamPrtnrNo }})
+            {{ regularShippingDetail.clctamDvCd }}{{ regularShippingDetail.clctamPrtnrNo }}
           </p>
         </kw-form-item>
       </kw-form-row>
@@ -270,7 +270,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil } from 'kw-lib';
-import { cloneDeep, toInteger } from 'lodash-es';
+import { cloneDeep, toInteger, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const props = defineProps({
@@ -310,6 +310,11 @@ async function fetchData() {
   regularShippingDetail.value = res.data;
   regularShippingDetail.value.pkgView = regularShippingDetail.value.pkgYn + (regularShippingDetail.value.rcpPkgCd) ? `(${regularShippingDetail.value.pkgCd})${regularShippingDetail.value.pkgNm}`
     : `/${regularShippingDetail.value.pkgNm}`;
+  regularShippingDetail.value.clctamDvCd = regularShippingDetail.value.clctamDvCd ? `${regularShippingDetail.value.rcpAoffceCdNm}/${regularShippingDetail.value.clctamDvCdNm}(${regularShippingDetail.value.clctamDvCd})` : '';
+  regularShippingDetail.value.clctamPrtnrNo = regularShippingDetail.value.clctamPrtnrNo ? `${regularShippingDetail.value.clctamPrtnrNm}(${regularShippingDetail.value.clctamPrtnrNo})` : '';
+  if (regularShippingDetail.value.dlqMcn > 0 || !isEmpty(regularShippingDetail.value.dlqAcuMcn)) {
+    regularShippingDetail.value.dlqMcnView = `${regularShippingDetail.value.dlqMcn}/${regularShippingDetail.value.dlqAcuMcn}`;
+  }
 }
 
 onMounted(async () => {

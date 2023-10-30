@@ -77,27 +77,26 @@
             v-if="!isLkSding && isSeeding"
             label="기기선택"
             dense
-            @click="$emit('select-machine', modelValue)"
+            @click="onSelectMachineCntrDtl"
           />
           <kw-btn
             v-if="isSeeding"
             :disable="!isFreePackage"
             label="모종선택"
             dense
-            @click="$emit('select-seeding', modelValue)"
+            @click="onClickSelectSeeding"
           />
           <kw-btn
             v-if="isCapsule"
             :disable="!isFreePackage"
             label="캡슐선택"
             dense
-            @click="$emit('select-capsule', modelValue)"
+            @click="onClickSelectCapsule"
           />
           <kw-btn
-            v-if="precontractRequired"
             label="연계상품"
             dense
-            @click="$emit('select-precontract', modelValue)"
+            @click="onSelectPrecontract"
           />
         </kw-item-label>
       </kw-item-section>
@@ -168,7 +167,7 @@
         </kw-item-section>
         <kw-item-section side>
           <kw-btn
-            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE"
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE"
             borderless
             icon="close_24"
             class="w24 kw-font-pt24"
@@ -202,20 +201,18 @@ import { alert, useDataService } from 'kw-lib';
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
-
-const CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE = '214';
-const CNTR_REL_DTL_CD_LK_SDING = '216';
+import { CNTR_REL_DTL_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
   bas: { type: Object, default: undefined },
 });
 const emit = defineEmits([
-  'select-machine',
-  'delete:select-machine',
-  'select-seeding',
-  'select-capsule',
-  'select-precontract',
+  'select:machine',
+  'delete:machine',
+  'select:seeding',
+  'select:capsule',
+  'select:precontract',
   'price-changed',
   'promotion-changed',
   'delete',
@@ -243,7 +240,22 @@ let finalPriceOptions;
 let promotions;
 let appliedPromotions;
 let sdingCapsls;
-let pkgs;
+
+function onSelectMachineCntrDtl() {
+  emit('select:machine', props.modelValue);
+}
+
+function onClickSelectSeeding() {
+  emit('select:seeding', props.modelValue);
+}
+
+function onClickSelectCapsule() {
+  emit('select:capsule', props.modelValue);
+}
+
+function onSelectPrecontract() {
+  emit('select:precontract', props.modelValue);
+}
 
 function connectReactivities() {
   pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
@@ -254,18 +266,16 @@ function connectReactivities() {
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []); /* 적용된 프로모션 */
   promotions = toRef(props.modelValue, 'promotions', []); /* 적용가능한 프로모션 목록 */
   sdingCapsls = toRef(props.modelValue, 'sdingCapsls', []); /* 적용가능한 프로모션 목록 */
-  pkgs = toRef(props.modelValue, 'pkgs'); /* 웰스팜의 경우 변경가능한 패키지 제품 목록 */
-  console.log('verSn', verSn.value, pkgs);
+  console.log('verSn', verSn.value);
 }
 
 connectReactivities();
 
 const isLkSding = computed(() => (cntrRels.value || [])
-  .find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_SDING));
+  .find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING));
 const isSeeding = computed(() => dtl.value?.sellTpDtlCd === '62');
 const isCapsule = computed(() => dtl.value?.sellTpDtlCd === '63');
 const isFreePackage = computed(() => dtl.value?.pdChoLmYn === 'Y'); // TODO FIX... dtl 에 없음..
-const precontractRequired = computed(() => dtl.value?.precontractRequired);
 
 /* TODO: FIX */
 async function fetchSdingCapsls() {
@@ -426,8 +436,8 @@ function onChangeSelectedFinalPrice() {
 watch(selectedFinalPrice, onChangeSelectedFinalPrice, { immediate: true });
 
 function onDeleteCntrRel(cntrRel) {
-  if (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE) {
-    emit('delete:select-machine', props.modelValue);
+  if (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE) {
+    emit('delete:machine', props.modelValue);
   }
 }
 

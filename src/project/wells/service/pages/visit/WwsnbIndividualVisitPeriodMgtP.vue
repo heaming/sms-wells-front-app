@@ -539,6 +539,20 @@ function onCellDblClickedGrid1(grid, clickData) {
   processParam.value.periodDeleteYmd = `${dummyDate.substr(0, 6)}01`;
 }
 
+/*
+ * Event - Grid2 Cell Double Click Event
+ */
+function onCellDblClickedGrid2(grid, clickData) {
+  if (clickData.column !== 'vstNmnN') {
+    return;
+  }
+  const dummyVstNmnN = grid.getDataSource().getValue(clickData.dataRow, clickData.column);
+  if (isEmpty(dummyVstNmnN)) {
+    return;
+  }
+  processParam.value.vstNmnN = dummyVstNmnN;
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
@@ -611,6 +625,11 @@ const initGrid2 = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+
+  // Grid Double Click Event
+  view.onCellDblClicked = ((grid, clickData) => {
+    onCellDblClickedGrid2(grid, clickData);
+  });
 });
 
 </script>

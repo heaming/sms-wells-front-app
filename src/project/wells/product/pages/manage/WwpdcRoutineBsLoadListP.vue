@@ -18,6 +18,7 @@
     <kw-search
       one-row
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 서비스 선택 -->
@@ -253,6 +254,14 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+// 초기화
+async function onClickReset() {
+  searchParams.value.svPdCd = '';
+  svcValue.value = '';
+  searchParams.value.pdctPdCd = '';
+  prdtValue.value = '';
 }
 
 // -------------------------------------------------------------------------------------------------

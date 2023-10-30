@@ -404,14 +404,14 @@
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item
-                  :label="$t('MSG_TXT_DSMN')"
+                  :label="$t('MSG_TXT_BRMGR')"
                 >
                   <p>
                     {{ customer.dsmn }}
                   </p>
                 </kw-form-item>
                 <kw-form-item
-                  :label="$t('MSG_TXT_DSMN_CTPLC')"
+                  :label="$t('MSG_TXT_BRMGR_CTPLC')"
                 >
                   <p class="w100">
                     {{ customer.dsmnCralLocaraTno }}-{{ customer.dsmnMexnoEncr }}-{{ customer.dsmnCralIdvTno }}
@@ -450,7 +450,7 @@
                   :label="$t('MSG_TXT_STORE_TNO')"
                 >
                   <p class="w100">
-                    {{ customer.storeTno }}
+                    {{ customer.bldLocaraTno }}-{{ customer.bldMexnoEncr }}-{{ customer.bldIdvTno }}
                   </p>
                   <kw-btn
                     borderless
@@ -590,6 +590,7 @@
                     secondary
                     class="kw-font-caption py2 ml4"
                     style="min-height: 20px;"
+                    @click="onClickExcdRgst"
                   />
                 </kw-form-item>
                 <kw-form-item
@@ -1310,6 +1311,12 @@ async function onClickDepositRegistration() {
   });
 }
 
+// TODO: 제외등록
+async function onClickExcdRgst() {
+  const { cstNo, cntrNo, cntrSn } = customer.value;
+  await popupUtil.open(`/popup/#/bond/wwbnc-rental-resign-expected-mgt?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&cntrDtlNo=${cntrNo}-${cntrSn}`, { width: 1292, height: 1100 }, false);
+}
+
 // TODO: CB정보 조회요청
 async function onClickCbInformationAsk() {
   // TODO: ZwbncCreditBureauInformationP 화면은 sfkVal으로 받고 있어서 추가
@@ -1340,12 +1347,10 @@ async function onClickFundTransferResult() {
   await popupUtil.open(`/popup/#/withdrawal/zwwda-create-itemization-mgt?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 1292, height: 1100 }, false);
 }
 
-// TODO: 배달처정보변경
+// TODO: 설치처정보변경
 async function onClickContractDetail() {
-  await modal({
-    component: 'EwctaShippingAddressChangeMgtP',
-    componentProps: customer.value,
-  });
+  const { cstNo, cntrNo, cntrSn } = customer.value;
+  await popupUtil.open(`/popup/#/service/wwsnb-installation-location-detail-mgt?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&cntrDtlNo=${cntrNo}-${cntrSn}`, { width: 1292, height: 1100 }, false);
 }
 
 // TODO: 계약자정보변경
@@ -1440,13 +1445,15 @@ async function onClickPetitionCreate() {
     return;
   }
   checkedRows.forEach((obj) => {
+    const cntrDtlNo = `${obj.cntrNo}-${obj.cntrSn}`;
     dataParams.push({
       baseYm: obj.baseYm,
-      cntrDtlNo: obj.dtlCntrNo,
+      cntrDtlNo,
     });
   });
 
   const userObjects = ref(dataParams);
+
   await modal({
     component: 'ZwbncPetitionCreateP',
     componentProps: {
@@ -1575,14 +1582,15 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bndTfDt' },
     { fieldName: 'sfkVal' },
     { fieldName: 'cstNo' },
+    { fieldName: 'baseYm' },
   ];
 
   const columns = [
     { fieldName: 'ctt', header: t('MSG_TXT_FNT'), width: '60', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } },
     { fieldName: 'bndBizDvCd', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center', visible: false },
-    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '140', styleName: 'text-center' },
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRD_GRP'), width: '180', styleName: 'text-left' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '260', styleName: 'text-left' },
+    { fieldName: 'bndBizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center' },
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRD_GRP'), width: '160', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '300', styleName: 'text-left' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
     {
@@ -1598,7 +1606,7 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '120', styleName: 'text-center' },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-center' },
     { fieldName: 'authRsgCnfmdt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
@@ -1637,6 +1645,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bndTfDt', header: t('MSG_TXT_TF_DT'), styleName: 'text-center', width: '120', datetimeFormat: 'date' },
     { fieldName: 'sfkVal', header: t('MSG_TXT_SFK'), styleName: 'text-center', width: '150' },
     { fieldName: 'cstNo', header: '', width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'baseYm', header: '', width: '100', styleName: 'text-center', visible: false },
   ];
 
   data.setFields(fields);
