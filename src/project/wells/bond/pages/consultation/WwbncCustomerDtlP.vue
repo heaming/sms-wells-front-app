@@ -353,7 +353,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_FNT_STAT')"
                 >
-                  <p>{{ customer.mpyMthdTpNm }}</p>
+                  <p>{{ customer.rsNm }}</p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
