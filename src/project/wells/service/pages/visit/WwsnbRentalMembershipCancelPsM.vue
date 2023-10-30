@@ -245,12 +245,38 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'cntrSn', visible: false },
     { fieldName: 'col19', header: t('MSG_TXT_CST_NM'), width: '200', styleName: 'text-center' }, /* 고객명 */
-    { fieldName: 'col20', header: t('MSG_TXT_SAPCD'), width: '200', styleName: 'text-center' }, /* SAP코드 */
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '200', styleName: 'text-center' }, /* SAP코드 */
     { fieldName: 'col21', header: t('MSG_TXT_PRDT_CODE'), width: '200', styleName: 'text-center' }, /* 상품코드 */
     { fieldName: 'col22', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, /* 상품명 */
-    { fieldName: 'col23', header: t('MSG_TXT_TEL_NO'), width: '200', styleName: 'text-center' }, /* 전화번호 */
-    { fieldName: 'col24', header: t('MSG_TXT_ZIP'), width: '200', styleName: 'text-center' }, /* 우편번호 */
-    { fieldName: 'col25', header: t('MSG_TXT_ADDR'), width: '200', styleName: 'text-center' }, /* 주소 */
+    { fieldName: 'locaraTno', visible: false }, // [전화번호1]
+    { fieldName: 'exnoEncr', visible: false }, // [전화번호2]
+    {
+      fieldName: 'idvTno', // [전화번호3]
+      header: t('MSG_TXT_TEL_NO'),
+      width: '150',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        // 휴대전화번호 3-4-4 형식으로 표시
+        if (!isEmpty(value) && value.length === 4) {
+          const values = grid.getValues(index.itemIndex);
+          return `${values.locaraTno}-${values.exnoEncr}-${value}`;
+        }
+      },
+    },
+    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '200', styleName: 'text-center' }, /* 우편번호 */
+    {
+      fieldName: 'rnadr',
+      header: t('MSG_TXT_INST_ADDR'),
+      width: '200',
+      styleName: 'text-left',
+      displayCallback(grid, index) {
+        const { rnadr, rdadr } = grid.getValues(index.itemIndex);
+        if (!isEmpty(rnadr)) {
+          return `${rnadr}, ${rdadr}`;
+        }
+      },
+    },
+    { fieldName: 'rdadr', visible: false },
     { fieldName: 'col26', header: t('MSG_TXT_CNCL_DV'), width: '200', styleName: 'text-center' }, /* 취소구분 */
     { fieldName: 'col27', header: t('MSG_TXT_CANC_IZ'), width: '200', styleName: 'text-center' }, /* 취소내역 */
     { fieldName: 'col28', header: t('MSG_TXT_IST_DT'), width: '200', styleName: 'text-center', datetimeFormat: 'date' }, /* 설치일자 */
@@ -273,7 +299,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       header: t('MSG_TXT_CST_PS'),
-      items: ['cntrNo', 'col19', 'col20', 'col21', 'col22', 'col23', 'col24', 'col25'],
+      items: ['cntrNo', 'col19', 'sapMatCd', 'col21', 'col22', 'idvTno', 'newAdrZip', 'rnadr'],
     },
     {
       header: t('MSG_TXT_CANC_IZ'),
