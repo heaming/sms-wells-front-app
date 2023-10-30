@@ -25,7 +25,7 @@ BM보고서 관리 조회 화면
           <kw-select
             v-model="searchParams.ogCd"
             :label="$t('MSG_TXT_DEPT_INC')"
-            first-option="select"
+            first-option="all"
             :options="inChargeDepartmentList"
           />
         </kw-search-item>
@@ -35,7 +35,7 @@ BM보고서 관리 조회 화면
           <kw-select
             v-model="searchParams.rpotBizTpId"
             :label="$t('MSG_TXT_TASK_TYPE')"
-            first-option="select"
+            first-option="all"
             :options="businessTypeList"
           />
         </kw-search-item>
