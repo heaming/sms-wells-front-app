@@ -54,7 +54,13 @@
         <kw-search-item
           :label="$t('MSG_TXT_M_OG_INF')"
         >
-          <kw-field
+          <kw-checkbox
+            v-model="searchParams.mOgYn"
+            :label="$t('MSG_TXT_INC')"
+            :true-value="Y"
+            :false-value="N"
+          />
+          <!-- <kw-field
             v-model="searchParams.mOgYn"
             v-bind="checkItem"
           >
@@ -63,7 +69,7 @@
                 v-bind="field"
               />
             </template>
-          </kw-field>
+          </kw-field> -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
