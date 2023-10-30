@@ -88,11 +88,7 @@
       </kw-search-row>
     </kw-search>
     <div class="result-area">
-      <h3>
-        {{ searchParams.perfYm.substring(0,4) }}년 {{ searchParams.perfYm.substring(5) }}월
-        {{ searchParams.rsbDvCd==='W0204'?'지점장':'플래너' }}
-        {{ searchParams.feeTcntDvCd==='01'?'1차':'2차' }} {{ $t('MSG_TXT_PRGS_STE') }}
-      </h3>
+      <h3>{{ searchParams.statTitleText }}</h3>
       <!-- STEPER -->
       <zwfey-fee-step
         ref="stepNaviRef"
@@ -220,6 +216,22 @@ const saveInfo = ref({
 let cachedParams;
 
 /*
+ *  Event - 조회 후 상단 title 변경
+ */
+async function setTitle() {
+  const { perfYm, rsbDvCd } = searchParams.value;
+  searchParams.value.statTitleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
+  if (!isEmpty(rsbDvCd)) {
+    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbDvCd);
+    searchParams.value.rsbTpTxt = codeName;
+    searchParams.value.statTitleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
+  } else {
+    searchParams.value.rsbTpTxt = '';
+    searchParams.value.statTitleText += ` ${t('MSG_TXT_PRGS_STE')}`;
+  }
+}
+
+/*
  *  Event - 그리드 내역 초기화
  */
 async function initData() {
@@ -227,6 +239,7 @@ async function initData() {
   view.clearRows();
   totalCount.value = 0;
   stepNaviRef.value.initProps();
+  await setTitle();
 }
 
 // 그리드 컬럼 세팅
@@ -3168,12 +3181,12 @@ async function onClickExcelDownload() {
   cachedParams = cloneDeep(searchParams.value);
   const view = grdMainRef.value.getView();
   const response = await dataService.get(`/sms/wells/fee/organization-fees/mngers${uri}`, { params: cachedParams });
-  const exportLayout = view.getColumnNames();
+  // const exportLayout = view.getColumnNames();
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
-    exportLayout,
+    // exportLayout,
   });
 }
 

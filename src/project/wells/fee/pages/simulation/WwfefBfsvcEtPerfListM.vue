@@ -241,7 +241,7 @@ const initGridMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_ASGN') + t('MSG_TXT_ACC'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['wrfr1MgtCnt', 'wrfr2MgtCnt', 'wrfr3MgtCnt', 'wrfr4MgtCnt', 'unWrfrMgtCnt', 'puf1MgtCnt', 'puf2MgtCnt', 'otscMgtCnt', 'bdtMgtCnt', 'etcMgtCnt'],
+      items: ['wrfr1MgtCnt', 'wrfr2MgtCnt', 'wrfr3MgtCnt', 'wrfr4MgtCnt', 'unWrfrMgtCnt', 'puf1MgtCnt', 'puf2MgtCnt', 'otscMgtCnt', 'bdtMgtCnt', 'etcMgtCnt', 'sumMgtCnt'],
     },
     {
       header: t('MSG_TXT_COMPLETE') + t('MSG_TXT_ACC'), // colspan title
