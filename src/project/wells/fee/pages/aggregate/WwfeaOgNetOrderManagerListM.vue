@@ -465,7 +465,6 @@ const codes = await codeUtil.getMultiCodes(
   'FEE_PERF_TP_CD',
   'RSB_DV_CD',
   'FEE_TCNT_DV_CD',
-  'SELL_DSC_DV_CD',
   'SELL_DSCR_CD',
   'SELL_DSC_TP_CD',
   'AGRG_DV_CD',
@@ -863,7 +862,7 @@ const initGrdDtl = defineGrid((data, view) => {
     { fieldName: 'copnDvCd', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center', options: codes.COPN_DV_CD }, // 고객구분
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' }, // 상품명
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' }, // 상품코드
-    { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '140', styleName: 'text-center', options: codes.SELL_DSC_DV_CD }, // 할인구분
+    { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '140', styleName: 'text-center' }, // 할인구분
     { fieldName: 'sellDscrCd', header: t('MSG_TXT_DISC_CODE'), width: '140', styleName: 'text-center', options: codes.SELL_DSCR_CD }, // 할인유형
     { fieldName: 'sellDscTpCd', header: t('MSG_TXT_DSC_SYST'), width: '140', styleName: 'text-center', options: codes.SELL_DSC_TP_CD }, // 할인제도
     { fieldName: 'combiDv', header: t('MSG_TXT_COMBI_DV'), width: '100', styleName: 'text-center' }, // 결합구분
