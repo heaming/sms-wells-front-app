@@ -384,7 +384,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fshDt' }, // 완료일자
     { fieldName: 'finishYn' }, // 완료여부
     { fieldName: 'agrDocRcvYn' }, // 합의서서명여부
-    { fieldName: 'rcpdt' }, // A/S접수일
+    { fieldName: 'rcpdt' }, // A/S접수일자
     { fieldName: 'pdNm' }, // 제품명
     { fieldName: 'cstNm' }, // 고객명
     { fieldName: 'cntrNo' }, // 계약번호
@@ -392,8 +392,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'cntrDtlNo' }, // 계약번호-계약상세번호
     { fieldName: 'acdnRcpId' }, // 안전사고ID
     { fieldName: 'acdnRcpNm' }, // 안전사고제목
-    { fieldName: 'tno' }, // 전화번호tot
-    { fieldName: 'mpno' }, // 휴대전화번호tot
+    { fieldName: 'tno' }, // 전화번호
+    { fieldName: 'mpno' }, // 휴대번호
     { fieldName: 'istAdr' }, // 주소
     { fieldName: 'istDtlAdr' }, // 상세주소
     { fieldName: 'istReferAdr' }, // 참조주소
@@ -404,16 +404,18 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fstRgstDtm' }, // 등록일시
     { fieldName: 'rcpMoCn' }, // 접수내용
     { fieldName: 'acdnCausCn' }, // 사고원인
-    { fieldName: 'cstDmdCn' }, // 고객요구
+    { fieldName: 'cstDmdCn' }, // 고객요구사항
     { fieldName: 'acdnRsCn' }, // 결과
     { fieldName: 'fnlMdfcDtm' }, // 수정일자
-    // { fieldName: 'psicNo' }, // 담당자사번(센터장사번)
+    { fieldName: 'ichrPrtnrNo' }, // 담당파트너번호(AS)
+    { fieldName: 'ichrPrtnrOgTpCd' }, // 담당파트너조직유형코드(센터장사번)
+    { fieldName: 'psicNm' }, // 담당자명(AS)
     { fieldName: 'svCnrNm' }, // 서비스센터명
-    { fieldName: 'imptaRsonNm' },
-    { fieldName: 'cpsPrgsNm' },
-    { fieldName: 'totCpsAmt', dataType: 'number' },
-    { fieldName: 'kwCpsAmt', dataType: 'number' },
-    { fieldName: 'insrcoCpsAmt', dataType: 'number' },
+    { fieldName: 'imptaRsonNm' }, // 귀책여부
+    { fieldName: 'cpsPrgsNm' }, // 보상진행
+    { fieldName: 'totCpsAmt', dataType: 'number' }, // 총보상액
+    { fieldName: 'kwCpsAmt', dataType: 'number' }, // 교원부담
+    { fieldName: 'insrcoCpsAmt', dataType: 'number' }, // 보험사부담
   ];
 
   const columns = [
@@ -435,7 +437,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'rcpdt',
-      header: t('MSG_TXT_AS_RCP_DT'),
+      header: t('MSG_TXT_AS_RCP_DATE'),
       width: '120',
       datetimeFormat: 'date',
       styleName: 'text-right',
@@ -476,7 +478,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'mpno',
-      header: t('MSG_TXT_MPNO'),
+      header: t('MSG_TXT_CRAL_NO'),
       width: '150',
       styleName: 'text-center',
     },
@@ -513,12 +515,6 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     {
-      fieldName: 'cnrldNo',
-      header: t('MSG_TXT_RGR_EMPNO'),
-      width: '100',
-      styleName: 'text-right',
-    },
-    {
       fieldName: 'cnrldNm',
       header: t('MSG_TXT_FST_RGST_USR'),
       width: '100',
@@ -544,6 +540,18 @@ const initGrdMain = defineGrid((data, view) => {
       fieldName: 'cstDmdCn',
       header: t('MSG_TXT_CST_DMD_ARTC'),
       width: '150',
+    },
+    {
+      fieldName: 'ichrPrtnrNo',
+      header: t('MSG_TXT_PSIC_EMPNO'),
+      width: '100',
+      styleName: 'text-right',
+    },
+    {
+      fieldName: 'psicNm',
+      header: t('MSG_TXT_PIC_NM'),
+      width: '100',
+      styleName: 'text-left',
     },
     {
       fieldName: 'acdnRsCn',
@@ -616,14 +624,14 @@ const initGrdMain = defineGrid((data, view) => {
     'istDtlAdr',
     'istDt',
     'svCnrNm',
-    'cnrldNo',
     'cnrldNm',
     'fstRgstDtm',
     'fnlMdfcDtm',
     'rcpMoCn',
     'acdnCausCn',
     'cstDmdCn',
-    // 'psicNo',
+    'ichrPrtnrNo',
+    'psicNm',
     'imptaRsonNm',
     'cpsPrgsNm',
     'totCpsAmt',
@@ -653,7 +661,7 @@ const initGrdMain = defineGrid((data, view) => {
       });
     }
   };
-
+  // row 더블 클릭 시 안전사고 등록(수정)화면으로 이동
   view.onCellDblClicked = async (g, clickData) => {
     const { acdnRcpId } = g.getValues(clickData.itemIndex);
     await modal({
