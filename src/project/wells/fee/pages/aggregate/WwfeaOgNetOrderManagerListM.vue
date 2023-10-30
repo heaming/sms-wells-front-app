@@ -616,7 +616,7 @@ async function onClickExcelDownload() {
 async function fetchData(uri) {
   const response = await dataService.get(`/sms/wells/fee/organization-netorders/${uri}`, { params: { ...cachedParams }, timeout: 5000000 });
   const dataList = response.data;
-  if (uri === 'status-orders') {
+  if (uri === 'mnger-status-orders') {
     const view = grdAggrRef.value.getView();
     view.getDataSource().setRows(dataList);
     totalCount.value = dataList.length;
@@ -905,58 +905,61 @@ const initGrdDtl = defineGrid((data, view) => {
 
 const initGrdAggr = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'ogId', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'ehCnt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'exCnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'etCnt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'upCnt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'totCnt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'ehAmt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'exAmt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'etAmt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'upAmt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'totAmt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'ehPerfCnt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'ehAmt1', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_PD_STD_FEE'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'ehAmt2', header: t('MSG_TXT_SNGL_PMNT') + t('MSG_TXT_PD_STD_FEE'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'ehMcCnt', header: t('MSG_TXT_CHNG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'fxamCnt', header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'lpkCnt', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'hmbCnt', header: t('MSG_TXT_HCR_MSH') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0' },
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' }, // 번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' }, // 성명
+    { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '120', styleName: 'text-center', numberFormat: '#,##0', dataType: 'number' }, // 직급
+    { fieldName: 'ehCnt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전
+    { fieldName: 'exCnt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전 외
+    { fieldName: 'etCnt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기타
+    { fieldName: 'upCnt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 미지급
+    { fieldName: 'totCnt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계
+    { fieldName: 'ehAmt', header: t('MSG_TXT_ELHM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전
+    { fieldName: 'exAmt', header: t('MSG_TXT_ELHM') + t('MSG_TXT_EXCP'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전 외
+    { fieldName: 'etAmt', header: t('MSG_TXT_ETC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기타
+    { fieldName: 'upAmt', header: t('MSG_TXT_NPAID'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 미지급
+    { fieldName: 'totAmt', header: t('MSG_TXT_AGG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계
+    { fieldName: 'elhmAckmtCt', header: t('MSG_TXT_PD_ACC_CNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 인정건수
+    { fieldName: 'rentalBasePrc', header: t('MSG_TXT_RENTAL') + t('MSG_TXT_PD_STD_FEE'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 렌탈 기준수수료
+    { fieldName: 'snglPmntBasePrc', header: t('MSG_TXT_SNGL_PMNT') + t('MSG_TXT_PD_STD_FEE'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 일시불 기준수수료
+    { fieldName: 'elhmExcpAckmtPerf', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전외인정실적
+    { fieldName: 'chng', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기변
+    { fieldName: 'ninc', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 순증
+    { fieldName: 'fxamCt', header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 정액 건수
+    { fieldName: 'rstlCt', header: t('MSG_TXT_RSTL') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 재약정 건수
+    { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 라이브팩
+    { fieldName: 'mmbr', header: t('MSG_TXT_MMBR'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 멤버십
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = false; // create checkbox column
-  view.rowIndicator.visible = true; // create number indicator column
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
 
   // multi row header setting
   view.setColumnLayout([
-    'ogId', 'prtnrNo', 'prtnrKnm', 'pstnDvCd',
+    'ogCd', 'prtnrNo', 'prtnrKnm', 'pstnDvCd',
     {
-      header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'),
+      header: t('MSG_TXT_FEE') + t('MSG_TXT_PERF_CT'), // 수수료 실적건수
       direction: 'horizontal',
       items: ['ehCnt', 'exCnt', 'etCnt', 'upCnt', 'totCnt'],
     },
     {
-      header: t('MSG_TXT_PD_ACC_RSLT'),
+      header: t('MSG_TXT_PD_ACC_RSLT'), // 인정실적
       direction: 'horizontal',
       items: ['ehAmt', 'exAmt', 'etAmt', 'upAmt', 'totAmt'],
     },
     {
-      header: t('MSG_TXT_ELHM'),
+      header: t('MSG_TXT_ELHM'), // 가전
       direction: 'horizontal',
-      items: ['ehPerfCnt', 'ehAmt1', 'ehAmt2', 'ehMcCnt'],
+      items: ['elhmAckmtCt', 'rentalBasePrc', 'snglPmntBasePrc', 'elhmExcpAckmtPerf', 'chng', 'ninc'],
     },
     {
-      header: t('MSG_TXT_ETC'),
+      header: t('MSG_TXT_ETC'), // 기타
       direction: 'horizontal',
-      items: ['fxamCnt', 'lpkCnt', 'hmbCnt'],
+      items: ['fxamCt', 'rstlCt', 'livePakg', 'mmbr'],
     },
   ]);
 });
