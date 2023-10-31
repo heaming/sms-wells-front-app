@@ -1590,22 +1590,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bndBizDvCd', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center', visible: false },
     { fieldName: 'bndBizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center' },
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRD_GRP'), width: '160', styleName: 'text-left' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '300', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
-    {
-      fieldName: 'cntrDtlNo',
-      header: t('MSG_TXT_CNTR_DTL_NO'),
-      styleName: 'text-center',
-      width: '160',
-
-      displayCallback(grid, index) {
-        const { cntrNo: no1, cntrSn: no2 } = grid.getValues(index.itemIndex);
-        if (no1 != null) {
-          return `${no1}-${no2}`;
-        }
-      },
-    },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '160', styleName: 'text-center' },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-center' },
     { fieldName: 'authRsgCnfmdt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
