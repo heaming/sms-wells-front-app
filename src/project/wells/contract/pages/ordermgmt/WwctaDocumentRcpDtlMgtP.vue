@@ -72,7 +72,12 @@
         </kw-form-item>
         <!-- 업무단계 -->
         <kw-form-item :label="$t('MSG_TXT_TASK_LV')">
-          <p>{{ frmMainData.cntrChPrgsStatNm }}</p>
+          <slot v-if="frmMainData.cntrChPrgsStatCd !== '99'">
+            <p>{{ frmMainData.cntrChPrgsStatNm }}</p>
+          </slot>
+          <slot v-if="frmMainData.cntrChPrgsStatCd === '99'">
+            <p>{{ frmMainData.cntrChPrgsStatNmEnd }}</p>
+          </slot>
         </kw-form-item>
       </kw-form-row>
       <!-- 재접수 버튼 선택시-->
@@ -102,6 +107,21 @@
       <!-- //재접수 버튼 선택시-->
     </kw-form>
     <kw-separator />
+    <kw-form-row
+      v-if="isSearchCntrChAkCnVisible"
+    >
+      <!-- 재접수 사유 -->
+      <h3 class="mb20">
+        {{ $t('MSG_TXT_RE_REG_RSON') }}
+      </h3>
+      <kw-form :cols="1">
+        <!-- 내용 -->
+        <kw-form-item :label="$t('MSG_TXT_CNTN')">
+          <p>{{ frmMainData.cntrChAkCn }}</p>
+        </kw-form-item>
+      </kw-form>
+      <kw-separator />
+    </kw-form-row>
     <!-- 상담사 메모 -->
     <h3 class="mb20">
       {{ $t('MSG_TXT_CNSLOR_MEMO') }}
@@ -130,11 +150,11 @@
       <kw-form-row>
         <!-- 계약번호 -->
         <kw-form-item :label="$t('MSG_TXT_CNTR_NO')">
-          <p>{{ frmMainData.cntrDtlNo }}</p>
+          <p>{{ frmMainData.cntrDtlNoLst }}</p>
         </kw-form-item>
         <!-- 계약구분 -->
         <kw-form-item :label="$t('MSG_TXT_CNTR_DV')">
-          <p>{{ frmMainData.sellTpNm }}</p>
+          <p>{{ frmMainData.sellTpNmLst }}</p>
         </kw-form-item>
       </kw-form-row>
       <!-- 개명신청 -->
@@ -1482,30 +1502,28 @@ const saveParams = ref({
 });
 
 const frmMainData = ref({
-  cntrChRcpId: '', // 접수번호
+  cntrChRcpId: '', // 접수번호(수정용) 시퀀스
+  reCntrChRcpId: '', // 접수번호(표시용) 시퀀스
   cstKnm: '', // 고객명
   cralTno: '', // 휴대전화번호
   cralLocaraTno: '', // 휴대지역전화번호
   mexnoEncr: '', // 휴대전화국번호암호화
   cralIdvTno: '', // 휴대개별전화번호
   bryyMmdd: '', // 생년월일
-  cntrChPrgsMoCn: '', // 상담사 메모
   cntrChPrgsStatCd: '', // 계약변경진행상태코드
   cntrChPrgsStatNm: '', // 계약변경진행상태코드명
-  dtlCntrNo: '', // 계약번호
-  dtlCntrSn: '', // 계약일련번호
-  cntrDtlNo: '', // 계약상세번호
-  sellTpCd: '', // 판매유형코드(계약구분)
-  sellTpNm: '', // 판매유형코드명(계약구분명)
+  cntrChPrgsStatNmEnd: '', // 계약변경진행상태코드명(기타종료 상세)
+  cntrChAkCn: '', // 재접수 사유
+  cntrChPrgsMoCn: '', // 상담사 메모
+  cntrChTpCd: '', // 계약변경유형코드
+  cntrChTpNm: '', // 계약변경유형코드명
   cntrChRcpD: '', // 접수일자
   cntrChRcpTm: '', // 접수시간
   fnlMdfcDtm: '', // 수정일자
-  cntrChAkCn: '', // 재접수 사유
-  cntrChRsonCd: '', // 처리업무(계약변경사유코드)
-  cntrChRsonNm: '', // 처리업무(계약변경사유코드명)
+  cntrDtlNoLst: '', // 계약상세번호 리스트
+  sellTpNmLst: '', // 판매유형코드명(계약구분 리스트)
   cntrChDocDvNm: '', // 첨부파일종류 문서분류명
   cntrChDocSeq: '', // 첨부파일종류 문서순번
-  cntrChTpCd: '', // 계약변경유형코드
 
   // nmchgIdfCyFileNm: '166730259072721428.jpg', // (개명신청)신분증사본 파일명
   nmchgIdfCyFileNm: '', // (개명신청)신분증사본 파일명
@@ -1688,7 +1706,8 @@ const isSearchReRegVisible = ref(false); // 재접수
 const isSearchTaskRegVisible = ref(false); // 업무접수
 const isSearchTaskProcsFshVisible = ref(false); // 업무처리완료
 const isSearchEtcEndVisible = ref(false); // 기타종료
-const isSearchReReRsonVisible = ref(false); // 재접수 사유
+const isSearchReReRsonVisible = ref(false); // 재접수 사유(재접수버튼 입력)
+const isSearchCntrChAkCnVisible = ref(false); // 재접수 사유(조회)
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
@@ -1711,20 +1730,24 @@ async function fetchData() {
     frmMainData.value.cralIdvTno = res.data.searchDocumentRcpDtlInqrsResList[0].cralIdvTno; // 휴대개별전화번호
     frmMainData.value.cralTno = !isEmpty(frmMainData.value.cralLocaraTno) && !isEmpty(frmMainData.value.mexnoEncr) && !isEmpty(frmMainData.value.cralIdvTno) ? `${frmMainData.value.cralLocaraTno}-${frmMainData.value.mexnoEncr}-${frmMainData.value.cralIdvTno}` : ''; // 휴대전화번호
     frmMainData.value.bryyMmdd = res.data.searchDocumentRcpDtlInqrsResList[0].bryyMmdd; // 생년월일
-    frmMainData.value.cntrChPrgsMoCn = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChPrgsMoCn; // 상담사 메모
     frmMainData.value.cntrChPrgsStatCd = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChPrgsStatCd; // 계약변경진행상태코드
     frmMainData.value.cntrChPrgsStatNm = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChPrgsStatNm; // 계약변경진행상태코드명
-    frmMainData.value.dtlCntrNo = res.data.searchDocumentRcpDtlInqrsResList[0].dtlCntrNo; // 계약번호
-    frmMainData.value.dtlCntrSn = res.data.searchDocumentRcpDtlInqrsResList[0].dtlCntrSn; // 계약일련번호
-    frmMainData.value.cntrDtlNo = res.data.searchDocumentRcpDtlInqrsResList[0].cntrDtlNo; // 계약상세번호
-    frmMainData.value.sellTpCd = res.data.searchDocumentRcpDtlInqrsResList[0].sellTpCd; // 판매유형코드(계약구분)
-    frmMainData.value.sellTpNm = res.data.searchDocumentRcpDtlInqrsResList[0].sellTpNm; // 판매유형코드명(계약구분명)
+    if (frmMainData.value.cntrChPrgsStatCd === '99') {
+      frmMainData.value.cntrChPrgsStatNmEnd = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChPrgsStatNmEnd; // 기타종료
+    }
+    frmMainData.value.cntrChAkCn = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChAkCn; // 재접수 사유
+    if (!isEmpty(frmMainData.value.cntrChAkCn)) {
+      if (frmMainData.value.cntrChPrgsStatCd !== '19'
+       && frmMainData.value.cntrChPrgsStatCd !== '29') { // 제접수/재접수완료가 아닐 경우
+        isSearchCntrChAkCnVisible.value = true;
+      }
+    }
+    frmMainData.value.cntrChPrgsMoCn = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChPrgsMoCn; // 상담사 메모
     frmMainData.value.cntrChRcpD = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChRcpD; // 접수일자
     frmMainData.value.cntrChRcpTm = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChRcpTm; // 접수시간
     frmMainData.value.fnlMdfcDtm = res.data.searchDocumentRcpDtlInqrsResList[0].fnlMdfcDtm; // 수정일자
-    frmMainData.value.cntrChAkCn = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChAkCn; // 재접수 사유
-    frmMainData.value.cntrChRsonCd = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChRsonCd; // 처리업무(계약변경사유코드)
-    frmMainData.value.cntrChRsonNm = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChRsonNm; // 처리업무(계약변경사유코드명)
+    frmMainData.value.cntrDtlNoLst = res.data.searchDocumentRcpDtlInqrsResList[0].cntrDtlNoLst; // 계약상세번호리스트
+    frmMainData.value.sellTpNmLst = res.data.searchDocumentRcpDtlInqrsResList[0].sellTpNmLst; // 판매유형코드명(계약구분리스트)
   }
 
   if (res.data.searchDocumentRcpDtlFileInfoResList.length > 0) {
