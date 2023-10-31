@@ -427,15 +427,15 @@ function onChangeSelectedFinalPrice(newPrice) {
   if (!newPrice) {
     fnlAmt.value = undefined;
     pdPrcFnlDtlId.value = undefined;
-    emit('price-changed', newPrice);
     clearPromotions();
+    emit('price-changed', newPrice);
     calcDisplayedFinalPrice();
     return;
   }
   fnlAmt.value = newPrice.fnlVal;
   pdPrcFnlDtlId.value = newPrice.pdPrcFnlDtlId;
-
   emit('price-changed', newPrice);
+
   clearPromotions();
 
   calcDisplayedFinalPrice();
