@@ -211,7 +211,7 @@ const initgrdAssign = defineGrid((data, view) => {
     { fieldName: 'pspcCstCnslRsNm', header: t('MSG_TXT_ASSIGN_CONTACT', null, '배정컨택'), width: '120', styleName: 'text-center' },
     { fieldName: 'cnslMoCn', header: t('MSG_TXT_NOTE', null, '비고'), width: '177', styleName: 'text-left' },
     { fieldName: 'pspcCstInflwDt', header: t('MSG_TIT_RECPETN_DT', null, '접수일'), width: '120', styleName: 'text-center' },
-    { fieldName: 'aplcSn', header: t('MSG_TXT_RCPT_NO', null, '접수번호'), width: '76', styleName: 'text-center' },
+    { fieldName: 'aplcSn', header: t('MSG_TXT_RCPT_NO', null, '접수번호'), width: '76', styleName: 'text-center', dataType: 'number' },
     { fieldName: 'recvTpNm', header: t('MSG_TXT_RCP_DV', null, '접수구분'), width: '120', styleName: 'text-center' },
     { fieldName: 'inrtPdDvNm', header: t('TXT_MSG_SELL_PD_DV_CD', null, '상품구분'), width: '198', styleName: 'text-left' },
     { fieldName: 'contactDate', header: t('MSG_TXT_CONTACT_REQ_DT', null, '컨택요청일'), width: '120', styleName: 'text-center' },

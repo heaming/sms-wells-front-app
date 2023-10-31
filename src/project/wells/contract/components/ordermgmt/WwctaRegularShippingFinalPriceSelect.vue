@@ -379,20 +379,6 @@ async function fetchFinalPriceOptions() {
   finalPriceOptions.value = data || [];
 }
 
-function emitPriceChanged() {
-  console.log('emitPriceChanged', selectedFinalPrice.value);
-  if (!selectedFinalPrice.value) {
-    fnlAmt.value = undefined;
-    pdPrcFnlDtlId.value = undefined;
-    emit('price-changed', undefined);
-    return;
-  }
-  fnlAmt.value = selectedFinalPrice.value.fnlVal;
-  pdPrcFnlDtlId.value = selectedFinalPrice.value.pdPrcFnlDtlId;
-
-  emit('price-changed', selectedFinalPrice.value);
-}
-
 function initPriceDefineVariables() {
   if (!pdPrcFnlDtlId.value) {
     return;
@@ -430,7 +416,18 @@ watch(pdPrcFnlDtlId, (value, oldValue) => {
 });
 
 function onChangeSelectedFinalPrice() {
-  emitPriceChanged();
+  if (!selectedFinalPrice.value) {
+    fnlAmt.value = undefined;
+    pdPrcFnlDtlId.value = undefined;
+    emit('price-changed', undefined);
+    clearPromotions();
+    return;
+  }
+  fnlAmt.value = selectedFinalPrice.value.fnlVal;
+  pdPrcFnlDtlId.value = selectedFinalPrice.value.pdPrcFnlDtlId;
+
+  emit('price-changed', selectedFinalPrice.value);
+  clearPromotions();
 }
 
 watch(selectedFinalPrice, onChangeSelectedFinalPrice, { immediate: true });

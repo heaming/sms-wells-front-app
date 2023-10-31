@@ -224,8 +224,8 @@ async function fetchData() {
   cachedParams = cloneDeep(searchParams.value);
   console.log('searchParams.value:', searchParams.value);
 
-  const { sellTpCd, sellTpDtlCd } = searchParams.value;
-  if (sellTpCd === '2' && (sellTpDtlCd === '21' || sellTpDtlCd === '23')) { // 렌탈 중 일반렌탈, 공유렌탈인 경우
+  const { sellTpCd } = searchParams.value;
+  if (sellTpCd === '2') { // 렌탈 중 일반렌탈, 공유렌탈인 경우
     isShow1.value = false;
     isShow2.value = true;
     isShow3.value = false;
@@ -263,8 +263,8 @@ async function onClickSearch() {
 
 // 엑셀 다운로드 클릭
 async function onClickExportView() {
-  const { sellTpCd, sellTpDtlCd } = searchParams.value;
-  if (sellTpCd === '2' && (sellTpDtlCd === '21' || sellTpDtlCd === '23')) { // 렌탈 중 일반렌탈, 공유렌탈인 경우
+  const { sellTpCd } = searchParams.value;
+  if (sellTpCd === '2') { // 렌탈 중 일반렌탈, 공유렌탈인 경우
     const view = grdDetailRentalRef.value.getView();
     const response = await dataService.get('/sms/wells/closing/product-sales-detail/rental/excel-download', { params: cachedParams, timeout: 300000 });
     await gridUtil.exportView(view, {

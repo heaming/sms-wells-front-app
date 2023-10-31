@@ -34,6 +34,7 @@
         <kw-search-item :label="t('MSG_TXT_PRTNR_NUM_EMPL_NM')">
           <zwog-partner-search
             v-model:prtnr-no="searchParams.prtnrNo"
+            v-model:prtnr-knm="searchParams.prtnrKnm"
             v-model:og-tp-cd="searchParams.ogTpCd"
           />
         </kw-search-item>
@@ -229,8 +230,8 @@ const grdMain2PageInfo = ref({
 const searchParams = ref({
   ogDvAcd: '7',
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
-  prntrNo: undefined,
-  prntrKnm: undefined,
+  prtnrNo: undefined,
+  prtnrKnm: undefined,
   qlfDvCd: undefined,
 });
 
@@ -436,7 +437,12 @@ function getTargetQualification(item, details, type) {
 
 // 상세현황 - 버튼(당일개시, 해약, 개시보류, 당월개시, 차월개시) 클릭
 async function onClickUpgrades(type) {
-  const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo, ogId: currentRowOgId } = selectedCurrentRow.value;
+  const {
+    ogTpCd: currentRowOgTpCd,
+    prtnrNo: currentRowPrtnrNo,
+    prtnrKnm: currentRowPrtnrKnm,
+    ogId: currentRowOgId,
+  } = selectedCurrentRow.value;
   const qualification = getTargetQualification(selectedCurrentRow.value, grdMain2Datas.value, type);
 
   const params = {
@@ -485,7 +491,14 @@ async function onClickUpgrades(type) {
     const { processCount } = res?.data;
     if (processCount > 0) {
       notify(message);
-      await currentRowDetail(selectedCurrentRow.value);
+      // await currentRowDetail(selectedCurrentRow.value);
+
+      const view = grdMain1Ref.value.getView();
+      searchParams.value.prtnrNo = currentRowPrtnrNo;
+      searchParams.value.prtnrKnm = currentRowPrtnrKnm;
+      searchParams.value.qlfDvCd = qualification.targetQlfDvCd;
+      await init();
+      gridUtil.focusCellInput(view, 0);
     }
   }
 }

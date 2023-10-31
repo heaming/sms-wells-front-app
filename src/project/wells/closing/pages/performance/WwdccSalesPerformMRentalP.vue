@@ -286,25 +286,25 @@
     >
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CCAM_BTD_AMT')">
-          <p>{{ rentalSalesDetail.btdBorAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.btdBorAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CCAM_OC_AMT')">
-          <p>{{ rentalSalesDetail.ocBorAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.ocBorAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PD_LENT_LOST_LOG')">
-          <p>{{ rentalSalesDetail.lsRntf }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.lsRntf)) }}</p>
         </kw-form-item>
       </kw-form-row>
 
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CCAM_DP_AMT')">
-          <p>{{ rentalSalesDetail.borDpAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.borDpAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CCAM_DDTN_AMT')">
-          <p>{{ rentalSalesDetail.borAdjAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.borAdjAmt)) }}</p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_CCAM_EOT_AMT')">
-          <p>{{ rentalSalesDetail.eotBorAmt }}</p>
+          <p>{{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.eotBorAmt)) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>

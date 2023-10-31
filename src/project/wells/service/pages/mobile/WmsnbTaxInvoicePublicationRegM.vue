@@ -53,10 +53,6 @@
                 <kw-form-item :label="$t('MSG_TXT_CNTR_DATE')">
                   <p>{{ stringUtil.getDateFormat(item.cntrCnfmDtm ?? '') ?? '-' }}</p>
                 </kw-form-item>
-                <!-- 렌탈료 -->
-                <kw-form-item :label="$t('MSG_TXT_RTLFE')">
-                  <p>{{ stringUtil.getNumberWithComma(item.fnlAmt ?? 0) ?? 0 }}원</p>
-                </kw-form-item>
                 <!-- 결제금액 -->
                 <kw-form-item :label="$t('MSG_TXT_STLM_AMT')">
                   <p>{{ stringUtil.getNumberWithComma(item.stlmAmt) ?? 0 }}원</p>
@@ -72,9 +68,9 @@
         class="mb12"
       />
       <div class="row items-center justify-between">
-        <!-- 총 결제예정금액 -->
+        <!-- 발행금액 -->
         <p class="kw-fc--black1 kw-font-pt14 w110 pr12">
-          {{ $t('MSG_TXT_TOT_STLM_EXP_AMT') }}
+          {{ $t('MSG_TXT_PBL_AMT') }}
         </p>
         <p class="kw-font-body text-weight-bold">
           <span>{{ stringUtil.getNumberWithComma(taxInvoiceData.totalAmt) ?? 0 }}</span>원
@@ -260,11 +256,10 @@ function getContractInfo(sellTpNm, copnDvNm, pdUswyNm, pdGdNm) {
   return `${sellTpNm ?? '-'} | ${copnDvNm ?? '-'} | ${pdUswyNm ?? '-'} ${pdGdNm ?? '-'}`;
 }
 
-// 총금액 셋팅
+// 발행금액 셋팅
 function setTotalAmt() {
   taxInvoiceData.value.totalAmt = services.value.reduce((pre, curr) => {
     pre += curr.stlmAmt ?? 0;
-    pre += curr.fnlAmt ?? 0;
     return pre;
   }, 0);
   taxInvoiceData.value.stlmAmt = services.value.reduce((pre, curr) => {

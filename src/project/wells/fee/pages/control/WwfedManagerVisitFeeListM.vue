@@ -130,7 +130,7 @@ const inqrDv = [
   { codeId: '04', codeName: t('MSG_TXT_INDV') },
 ];
 const searchParams = ref({
-  baseYm: '',
+  baseYm: dayjs().subtract(1, 'month').format('YYYYMM'),
   inqrDv: '01',
   ogTpCd: 'W02',
   ogLevlDvCd1: undefined,
@@ -192,7 +192,7 @@ function setParams() {
 }
 
 onBeforeMount(() => {
-  if (!isEmpty(route.params)) { searchParams.value.baseYm = route.params.perfYm; } else { searchParams.value.baseYm = dayjs().subtract(1, 'month').format('YYYYMM'); }
+  if (!isEmpty(route.params)) { searchParams.value.baseYm = route.params.perfYm; }
 });
 
 onMounted(() => {
@@ -202,10 +202,12 @@ onMounted(() => {
 });
 
 onActivated(() => {
-  if (!isEmpty(route.params)) { searchParams.value.baseYm = route.params.perfYm; } else { searchParams.value.baseYm = dayjs().subtract(1, 'month').format('YYYYMM'); }
-  nextTick(() => {
-    setParams();
-  });
+  if (!isEmpty(route.params)) {
+    searchParams.value.baseYm = route.params.perfYm;
+    nextTick(() => {
+      setParams();
+    });
+  }
 });
 
 // -------------------------------------------------------------------------------------------------

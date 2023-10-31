@@ -585,7 +585,7 @@ const initGrid = defineGrid((data, view) => {
       // datetimeFormat: 'yyyy-MM-dd',
       displayCallback(grid, index, value) {
         const strDate = value ?? '';
-        return dayjs(strDate.substr(0, 8)).format('YYYY-MM-DD');
+        return dayjs(strDate.substr(0, 8)).isValid() ? dayjs(strDate.substr(0, 8)).format('YYYY-MM-DD') : '';
       },
     },
     { fieldName: 'dnldPrtnrKnm', header: '다운로드 담당자', width: '200', styleName: 'text-center' },

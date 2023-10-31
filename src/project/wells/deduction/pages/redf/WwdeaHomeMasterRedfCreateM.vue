@@ -281,7 +281,7 @@ async function onClickSearchPartner() {
     component: 'ZwogzPartnerListP',
     componentProps: {
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: userInfo.ogTpCd,
+      // ogTpCd: userInfo.ogTpCd,
     },
   });
   if (result) {

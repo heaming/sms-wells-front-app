@@ -61,7 +61,12 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <kw-paging-info :total-count="pageInfo.totalCount" />
+          <kw-paging-info
+            v-model:page-size="visibleRows"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="onClickChangePage"
+          />
         </template>
         <kw-btn
           v-permission:create
@@ -95,8 +100,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="pageInfo.pageSize"
-        :visible-rows="(pageInfo.totalCount === 0) ? '10' : pageInfo.pageSize - 1"
+        :visible-rows="visibleRows"
         @init="initGrdMain"
       />
     </div>
@@ -114,7 +118,7 @@ const { t } = useI18n();
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
 const { currentRoute } = useRouter();
-const { getUserInfo } = useMeta();
+const { getConfig, getUserInfo } = useMeta();
 const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 
 // -------------------------------------------------------------------------------------------------
@@ -124,13 +128,14 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: 20,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const codes = await codeUtil.getMultiCodes(
   'OG_TP_CD',
   'RSB_DV_CD',
   'PRTNR_GD_CD',
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const searchParams = ref({
@@ -144,25 +149,28 @@ const searchParams = ref({
 
 const now = dayjs().format('YYYYMM');
 
+const visibleRows = ref(10);
+
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/partner-engineer/engineer-grade/paging', { params: { ...searchParams.value, ...pageInfo.value } });
-  const { list, pageInfo: pagingResult } = res.data;
-
-  pageInfo.value = pagingResult;
-
-  const view = grdMainRef.value.getView();
-  const data = view.getDataSource();
-  data.checkRowStates(false);
-  data.addRows(list);
-  data.checkRowStates(true);
+  return await dataService.get('/sms/wells/partner-engineer/engineer-grade/paging', { params: { ...searchParams.value, ...pageInfo.value } });
 }
 
 // 조회버튼 클릭
 async function onClickSearch() {
   grdMainRef.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
-  await fetchData();
+  pageInfo.value.pageSize = visibleRows.value;
+  pageInfo.value.pageSize += 1;
+  const res = await fetchData();
+  const { list, pageInfo: pagingResult } = res.data;
+  pageInfo.value = pagingResult;
+  visibleRows.value = pageInfo.value.pageSize - 1;
+  const view = grdMainRef.value.getView();
+  const data = view.getDataSource();
+  data.checkRowStates(false);
+  data.setRows(list);
+  data.checkRowStates(true);
 }
 
 // 엑셀다운로드
@@ -218,6 +226,12 @@ async function onClickExcelUpload() {
     notify(t('MSG_ALT_SAVE_DATA'));
     await onClickSearch();
   }
+}
+
+function onClickChangePage(val1, val2) {
+  visibleRows.value = val2;
+  pageInfo.value.pageSize = visibleRows.value;
+  onClickSearch();
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -288,7 +302,15 @@ const initGrdMain = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      await fetchData();
+      pageInfo.value.pageSize = visibleRows.value;
+      pageInfo.value.pageSize += 1;
+      const res = await fetchData();
+      const { pageInfo: pagingResult } = res.data;
+      pageInfo.value = pagingResult;
+      visibleRows.value = pageInfo.value.pageSize - 1;
+      data.checkRowStates(false);
+      data.addRows(res.data.list);
+      data.checkRowStates(true);
     }
   };
 });

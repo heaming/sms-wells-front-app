@@ -742,7 +742,7 @@ const initGridRglrDlvrContractList = defineGrid((data, view) => {
         windowFeatures: { width: 1300, height: 1080 },
       });
     } else if (['ordrInfoView'].includes(column)) { // 정기배송 주문정보 상세
-      await modal({ component: 'WwctaOrderRegularShippingDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn } });
+      await modal({ component: 'WwctaOrderRegularShippingDtlP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, sellTpCd } });
     } else if (['connPdView'].includes(column)) { // 연계상품 리스트 조회
       await modal({
         component: 'WwctaLinkProductListP',

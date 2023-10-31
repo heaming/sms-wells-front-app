@@ -1035,12 +1035,14 @@ const { cancel } = useModal();
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: false, default: '' },
+  sellTpCd: { type: String, required: false, default: '' },
 });
 
 let cachedParams;
 const searchParams = ref({
   cntrNo: props.cntrNo,
   cntrSn: props.cntrSn,
+  sellTpCd: props.sellTpCd,
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -1260,9 +1262,9 @@ async function fetchData() {
     // -------------------------------------------------------------------------------------------------
     // 상품 정보
     // -------------------------------------------------------------------------------------------------
-    frmMainData.value.pdQty = pages[0].pdQty; // 수량
-    frmMainData.value.fnlVal = pages[0].fnlVal; // 단가
-    frmMainData.value.ctrVal = pages[0].ctrVal; // 할인
+    // frmMainData.value.pdQty = pages[0].pdQty; // 수량
+    // frmMainData.value.fnlVal = pages[0].fnlVal; // 단가
+    // frmMainData.value.ctrVal = pages[0].ctrVal; // 할인
     frmMainData.value.pdTpCm = pages[0].pdTpCm; // 제품선택유형
     frmMainData.value.stplPtrm = pages[0].stplPtrm; // 의무기간
     frmMainData.value.cntrPtrm = pages[0].cntrPtrm; // 계약기간
@@ -1340,9 +1342,24 @@ async function fetchData() {
   }
 
   res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/composition-products', { params: { ...cachedParams, ...pageInfo.value } });
+  console.log(res.data);
 
-  const view = grdMainRef.value.getView();
+  let totPdQty = 0;
+  let totFnlVal = 0;
+  let totCtrVal = 0;
+
+  res.data.forEach((rowData) => {
+    totPdQty += Number(rowData.pdQty);
+    totFnlVal = Number(rowData.totAmt);
+    totCtrVal = Number(rowData.totDscAmt);
+  });
+
+  frmMainData.value.pdQty = stringUtil.getNumberWithComma(Number(totPdQty), 0);
+  frmMainData.value.fnlVal = stringUtil.getNumberWithComma(Number(totFnlVal), 0);
+  frmMainData.value.ctrVal = stringUtil.getNumberWithComma(Number(totCtrVal), 0);
+
   // view.getDataSource().setRows(accounts);
+  const view = grdMainRef.value.getView();
   view.getDataSource().setRows(res.data);
   pageInfo.value.totalCount = view.getItemCount();
   view.resetCurrent();
@@ -1362,13 +1379,13 @@ async function onClickConfirm() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'basePdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'pdQty' },
-    { fieldName: 'fnlVal' },
-    { fieldName: 'ctrVal' },
-    { fieldName: 'ojPdCd' },
-    { fieldName: 'verSn' },
+    { fieldName: 'basePdCd' }, // 상품코드
+    { fieldName: 'pdNm' }, // 상품명
+    { fieldName: 'pdQty' }, // 수량
+    { fieldName: 'fnlVal', dataType: 'number' }, // 단가
+    { fieldName: 'ctrVal', dataType: 'number' }, // 할인
+    { fieldName: 'hgrPdCd' }, // 패키지 코드
+    { fieldName: 'verSn' }, // 패키지 가격 차수
   ];
 
   const columns = [
@@ -1377,8 +1394,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdQty', header: t('MSG_TXT_QTY'), width: '76', styleName: 'text-right' }, // 수량
     { fieldName: 'fnlVal', header: t('MSG_TXT_UPRC'), width: '158', styleName: 'text-right' }, // 단가
     { fieldName: 'ctrVal', header: t('MSG_TXT_DSC'), width: '158', styleName: 'text-right' }, // 할인
-    { fieldName: 'ojPdCd', header: t('MSG_TXT_PKG_CD'), width: '158', styleName: 'text-center' }, // 패키지 코드
-    { fieldName: 'verSn', header: t('MSG_TXT_RCPT_NO'), width: '158', styleName: 'text-right' }, // 패키지 가격 차수
+    { fieldName: 'hgrPdCd', header: t('MSG_TXT_PKG_CD'), width: '158', styleName: 'text-center' }, // 패키지 코드
+    { fieldName: 'verSn', header: `${t('MSG_TXT_PKG_PRC')} ${t('MSG_TXT_ORDR')}`, width: '158', styleName: 'text-right' }, // 패키지가격 차수
   ];
 
   data.setFields(fields);

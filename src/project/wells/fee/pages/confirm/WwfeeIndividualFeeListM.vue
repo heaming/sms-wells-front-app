@@ -306,11 +306,13 @@ async function fetchData() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const response = await dataService.get('/sms/wells/fee/individual-fees/feeLists', { params: cachedParams });
+  const exportLayout = view.getColumnNames();
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
+    exportLayout,
   });
 }
 

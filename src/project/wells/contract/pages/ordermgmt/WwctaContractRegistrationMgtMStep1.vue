@@ -120,7 +120,7 @@
         v-if="popupRequiredCstInfos"
       >
         <kw-search-item
-          v-if="popupRequiredCstInfos && searchParams.copnDvCd === '2'"
+          v-if="searchParams.copnDvCd === '2'"
           :label="cstKnmLabel"
         >
           <kw-input
@@ -131,7 +131,7 @@
           />
         </kw-search-item>
         <kw-search-item
-          v-if="popupRequiredCstInfos && searchParams.copnDvCd === '1'"
+          v-if="searchParams.copnDvCd === '1'"
           :label="$t('MSG_TXT_MPNO')"
           required
         >
@@ -147,20 +147,37 @@
             :disable="isReadonly"
           />
         </kw-search-item>
+        <!-- 제휴파트너구분 -->
         <kw-search-item
-          v-if="popupRequiredCstInfos && searchParams.cntrTpCd === CNTR_TP_CD.EMPLOYEE"
+          v-if="cntrTpIs.ensm"
           :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
         >
           <kw-select
             v-model="searchParams.alncPrtnrDvCd"
             :label="$t('MSG_TXT_ALNC_PRTNR_DV')"
-            :options="codes.ALNC_PRTNR_DRM_DV_CD"
+            :options="codes.BYR_DV_CD"
             first-option=""
             :disable="isReadonly"
+            @change="onChangeAlncPrtnrDv"
           />
         </kw-search-item>
+        <!-- 제휴사 -->
         <kw-search-item
-          v-if="popupRequiredCstInfos && searchParams.cntrTpCd === CNTR_TP_CD.EMPLOYEE"
+          v-if="searchParams.alncPrtnrDvCd === '90' && cntrTpIs.ensm"
+          :label="$t('MSG_TXT_ALLIANCE_COMP')"
+        >
+          <kw-select
+            v-model="searchParams.alncPrtnrComp"
+            :label="$t('MSG_TXT_ALLIANCE_COMP')"
+            :options="codes.ALNCMP_EMP_PRCHS_ALNC_BZS_ACD"
+            first-option=""
+            :disable="isReadonly"
+            @change="onChangeAlncPrtnrComp"
+          />
+        </kw-search-item>
+        <!-- 제휴파트너사번 -->
+        <kw-search-item
+          v-if="searchParams.alncPrtnrDvCd !== '90' && cntrTpIs.ensm"
           :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
         >
           <kw-input
@@ -172,8 +189,21 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row
-        v-if="popupRequiredCstInfos && searchParams.cntrTpCd === CNTR_TP_CD.EMPLOYEE"
+        v-if="popupRequiredCstInfos && cntrTpIs.ensm"
       >
+        <!-- 제휴파트너사번 : 제휴사 -->
+        <kw-search-item
+          v-if="searchParams.alncPrtnrDvCd === '90' && cntrTpIs.ensm"
+          :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
+        >
+          <kw-input
+            v-model="searchParams.alncPrtnrNo"
+            :label="$t('MSG_TXT_ALNC_PRTNR_NO')"
+            maxlength="10"
+            :disable="isReadonly"
+          />
+        </kw-search-item>
+        <!-- 제휴파트너명 -->
         <kw-search-item
           :label="$t('MSG_TXT_ALNC_PRTNR_NM')"
         >
@@ -470,13 +500,21 @@ const currentPartner = {
   prtnrNo: userInfo.employeeIDNumber,
   ogTpCd: userInfo.ogTpCd,
   pstnDvCd: userInfo.careerLevelCode,
+  prtnrKnm: userInfo.userName,
 };
+const alncPartner = ref({
+  prtnrNo: '',
+  ogTpCd: '',
+  prtnrKnm: '',
+});
 const dataService = useDataService();
 const { notify, confirm, modal } = useGlobal();
 const router = useRouter();
 
 const { codes, getCodeName, addCode, getCode } = await useCtCode(
   'ALNC_PRTNR_DRM_DV_CD',
+  'BYR_DV_CD',
+  'ALNCMP_EMP_PRCHS_ALNC_BZS_ACD', // 제휴사 직원 구매 제휴 업체 앱코드
   'COPN_DV_CD',
   'SEX_DV_CD',
 );
@@ -514,9 +552,11 @@ const searchParams = ref({
   cralLocaraTno: '',
   mexnoEncr: '',
   cralIdvTno: '',
-  alncPrtnrDvCd: '', // 임직원
-  alncPrtnrNo: '',
-  alncPrtnrNm: '',
+  alncPrtnrDvCd: '', // 제퓨파트너구분코드 for 임직원
+  alncPrtnrNo: '', // 제퓨파트너번호
+  alncPrtnrNm: '', // 제퓨파트너이름
+  alncPrtnrOgTpCd: '', // 제퓨파트너 조직유형코드
+  alncPrtnrComp: '', // 제퓨파트너 회사
 });
 
 async function setupAvailableCntrTpCd() {
@@ -539,6 +579,12 @@ async function setupAvailableCntrTpCd() {
     ].includes(code.codeId) && code;
   });
   searchParams.value.cntrTpCd = codes.CNTR_TP_CD[0]?.codeId;
+
+  if (searchParams.value.cntrTpCd === CNTR_TP_CD.EMPLOYEE) {
+    const { data } = await dataService.get('sms/wells/contract/contracts/aliance-partner-codes');
+    // console.log(JSON.stringify(data, null, '\t'));
+    codes.BYR_DV_CD = data;
+  }
 }
 
 await setupAvailableCntrTpCd();
@@ -576,7 +622,7 @@ const isReadonly = computed(() => !!step1.value.bas?.cntrPrgsStatCd);
 const popupRequiredCstInfos = computed(() => [
   CNTR_TP_CD.INDIVIDUAL,
   CNTR_TP_CD.COOPERATION,
-  CNTR_TP_CD.MEMBERSHIP,
+  CNTR_TP_CD.EMPLOYEE,
 ].includes(searchParams.value.cntrTpCd));
 const cstKnmLabel = computed(() => (searchParams.value.copnDvCd === COPN_DV_CD.COOPERATION ? t('MSG_TXT_CRP_NM') : t('MSG_TXT_NAME')));
 let initFlag = false;
@@ -680,6 +726,7 @@ async function onClickSendUrlMsg(templateCd) {
 }
 
 function isValidAlncPrtnr() {
+  /*
   // 조회 조건 validate 확인
   const arr = ['alncPrtnrDvCd', 'alncPrtnrNo', 'alncPrtnrNm'];
   const isAllEmpty = arr.every((key) => (isEmpty(searchParams.value[key])));
@@ -688,6 +735,7 @@ function isValidAlncPrtnr() {
     alert('제휴파트너 정보입력시, 모든 값을 입력해야 합니다.');
     return false;
   }
+  */
   return true;
 }
 
@@ -779,7 +827,25 @@ async function chooseBelongPartner() {
   step1.value.prtnr = payload;
 }
 
+async function setAlncPrtnr() {
+  if (!isEmpty(alncPartner.value.prtnrNo) && !isEmpty(alncPartner.value.ogTpCd)) {
+    // 파트너 재설정
+    step1.value.prtnr = alncPartner.value;
+  } else {
+    console.log('제휴파트너 정보가 비어있습니다.');
+  }
+  // console.log(JSON.stringify(step1.value.prtnr, null, '\t'));
+}
+
 async function selectPartner() {
+  if (cntrTpIs.value.ensm) { // 임직원 계약
+    // 이미 isValidAlncPrtnr 확인 이후, 값 하나만 확인
+    if (!isEmpty(searchParams.value.alncPrtnrDvCd)) {
+      await setAlncPrtnr();
+      return;
+    }
+  }
+
   step1.value.prtnr = currentPartner;
 
   if (currentPartner.pstnDvCd === '7') {
@@ -899,9 +965,34 @@ async function onChangeCntrTpCd(value) {
   cntrTpCd.value = value;
 }
 
+// 임직원 계약, 제휴파트너구분 변경시 처리
+async function onChangeAlncPrtnrDv(value) {
+  if (value === '10') { // 직원
+    alncPartner.value = currentPartner;
+  } else if (value === '90') { // 제휴사직원
+    // 별도 처리 : onChangeAlncPrtnrComp
+    alncPartner.value.prtnrNo = '';
+    alncPartner.value.prtnrKnm = '';
+    alncPartner.value.ogTpCd = '';
+  } else {
+    const buyer = codes.BYR_DV_CD.find((v) => (v.codeId === value));
+    alncPartner.value.prtnrNo = buyer?.prtnrNo;
+    alncPartner.value.prtnrKnm = buyer?.prtnrNm;
+    alncPartner.value.ogTpCd = buyer?.prtnrOgTpCd;
+  }
+}
+
+// 임직원 계약, 제휴사 변경시 처리
+async function onChangeAlncPrtnrComp(value) {
+  const company = codes.ALNCMP_EMP_PRCHS_ALNC_BZS_ACD.find((v) => (v.codeId === value));
+  alncPartner.value.prtnrNo = company?.codeId || '';
+  alncPartner.value.prtnrKnm = company?.codeName || '';
+  alncPartner.value.ogTpCd = 'ALC'; // 고정
+}
+
 async function onClickReset() {
   ['cstKnm', 'bzrno', 'cntrtTno', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno',
-    'alncPrtnrDvCd', 'alncPrtnrNo', 'alncPrtnrNm'].forEach((key) => {
+    'alncPrtnrDvCd', 'alncPrtnrNo', 'alncPrtnrNm', 'alncPrtnrComp'].forEach((key) => {
     searchParams.value[key] = '';
   });
   searchParams.value.copnDvCd = '1';
@@ -1002,13 +1093,11 @@ async function isValidStep() {
 }
 
 async function saveStep() {
-  if (cntrTpIs.value.ensm) {
+  if (cntrTpIs.value.ensm) { // 임직원
     step1.value.cntrt.copnDvCd = searchParams.value.copnDvCd;
-    if (!isEmpty(searchParams.value.alncPrtnrDvCd)) {
-      step1.value.prtnr.alncPrtnrDrmVal = searchParams.value.alncPrtnrNo;
-      step1.value.prtnr.alncPrtnrIdnrNm = searchParams.value.alncPrtnrNm;
-      step1.value.prtnr.alncPrtnrDrmDvCd = searchParams.value.alncPrtnrDvCd;
-    }
+    step1.value.prtnr.alncPrtnrDrmVal = searchParams.value.alncPrtnrNo;
+    step1.value.prtnr.alncPrtnrIdnrNm = searchParams.value.alncPrtnrNm;
+    step1.value.prtnr.alncPrtnrDrmDvCd = searchParams.value.alncPrtnrDvCd;
   }
   if (cntrTpIs.value.quot) { // 견적서
     step1.value.bas ??= {};
@@ -1022,6 +1111,7 @@ async function saveStep() {
   step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
   step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
 
+  // console.log(JSON.stringify(step1.value, null, '\t'));
   const { data } = await dataService.post('sms/wells/contract/contracts/save-cntr-step1', step1.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   ogStep1.value = cloneDeep(step1.value);

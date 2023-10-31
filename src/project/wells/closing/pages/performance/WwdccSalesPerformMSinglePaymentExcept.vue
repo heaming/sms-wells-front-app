@@ -743,7 +743,7 @@ async function setGridColumnLayout(data, view) { // 일시불
     { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_DP_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
     { fieldName: 'thmDlqAddRfndSumAmt', header: t('MSG_TXT_RFND_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 환불금액
     { fieldName: 'eotDlqAddAmt', header: t('MSG_TXT_EOT_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 기말금액
-    { fieldName: 'eotUcAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
+    { fieldName: 'eotUcAmt', header: ((contractInfo.value.sellTpCd === '2' && contractInfo.value.islease === 'N') || contractInfo.value.sellTpCd === '3') ? t('MSG_TXT_UC_AMT') : t('MSG_TXT_BIL_UC_AMT'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금액
     { fieldName: 'borAmt', header: t('MSG_TXT_CCAM'), width: '134', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 위약금
     { fieldName: 'slStpAmt', header: t('MSG_TXT_SL_STP_AMT'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출중지금액
   ];

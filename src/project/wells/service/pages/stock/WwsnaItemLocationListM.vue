@@ -26,6 +26,7 @@
           <kw-select
             v-model="searchParams.wareNo"
             :options="optionStockList"
+            @change="onChangeWareNo"
           />
           <kw-field
             :model-value="['Y', 'N']"
@@ -47,6 +48,28 @@
           <kw-select
             v-model="searchParams.itmKnd"
             :options="codes.ITM_KND_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+        <!-- 품목그룹 -->
+        <kw-search-item
+          :label="t('MSG_TXT_ITM_GRP')"
+        >
+          <kw-select
+            v-model="searchParams.itmGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
+        <!-- 자재그룹 -->
+        <kw-search-item
+          :label="t('TXT_MSG_SAP_MAT_GRP_VAL')"
+        >
+          <kw-select
+            v-model="searchParams.svMatGrpCd"
+            :options="codes.SV_MAT_GRP_CD"
             first-option="all"
           />
         </kw-search-item>
@@ -168,12 +191,14 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, codeUtil, useMeta, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { notify } = useGlobal();
+const stdWareUri = '/sms/wells/service/normal-out-of-storages/standard-ware';
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -182,6 +207,8 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'ITM_KND_CD', // 품목구분코드
+  'PD_GRP_CD', // 품목그룹
+  'SV_MAT_GRP_CD', // 자재그룹
   'WARE_TP_CD', // 창고유형코드
   'LCT_ANGLE_CD', // 위치앵글
   'LCT_COF_CD', // 위치 층수
@@ -193,8 +220,14 @@ const searchParams = ref({
   wareNo: '',
   itmKnd: '',
   itmPdCd: '',
-  stckStdGb: 'Y',
+  stckStdGb: 'N',
+  itmGrpCd: '',
+  svMatGrpCd: '',
 
+});
+
+const stckStdGbChkParams = ref({
+  apyYm: dayjs().format('YYYYMM'),
 });
 
 const baseInfo = ref({
@@ -214,6 +247,17 @@ const pageInfo = ref({
 const allWareNoRes = await dataService.get('/sms/wells/service/item-locations/stock');
 const optionStockList = allWareNoRes.data;
 searchParams.value.wareNo = optionStockList[0].codeId;
+
+// 표준미적용 조회
+async function stckStdGbFetchData() {
+  console.log(searchParams.value.stckStdGb);
+  const apyYm = stckStdGbChkParams.value.apyYm.substring(0, 6);
+  const { wareNo } = searchParams.value;
+  const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
+  const { stckStdGb } = res.data;
+  searchParams.value.stckStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
+  console.log(stckStdGb);
+}
 
 // 조회
 let cachedParams;
@@ -311,7 +355,7 @@ async function onClickSave() {
 
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
 
-  await dataService.put('/sms/wells/service/item-locations/locations', checkedRows);
+  await dataService.put('/sms/wells/service/item-locations/locations', checkedRows.map((v) => ({ ...v, ...{ stckStdGb: searchParams.value.stckStdGb } })));
 
   notify(t('MSG_ALT_SAVE_DATA'));
 
@@ -320,7 +364,8 @@ async function onClickSave() {
 
 // 표준미적용 버튼 클릭시
 async function onCheckedStckNoStdGb() {
-  const { wareNo, stckStdGb } = searchParams.value;
+  const stckStdGb = searchParams.value.stckStdGb === 'N' ? 'Y' : 'N';
+  const { wareNo } = searchParams.value;
   const res = await dataService.put('/sms/wells/service/item-locations/standard/locations', { stckStdGb, wareNo });
   const count = res.data;
   if (count > 0) {
@@ -328,6 +373,15 @@ async function onCheckedStckNoStdGb() {
     await fetchData();
   }
 }
+
+async function onChangeWareNo() {
+  await stckStdGbFetchData();
+}
+
+onMounted(async () => {
+  cachedParams = cloneDeep(searchParams.value);
+  await stckStdGbFetchData();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -347,7 +401,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'locationCd' }, // 위치코드
     { fieldName: 'itmLctNm' }, // 품목위치명
     { fieldName: 'wareNo' }, // 창고번호
-    { fieldName: 'itemKndCd' }, // 품목구분코드
+    { fieldName: 'itmKndCd' }, // 품목구분코드
     { fieldName: 'stdWareUseYn' }, // 상고사용여부
   ];
 
