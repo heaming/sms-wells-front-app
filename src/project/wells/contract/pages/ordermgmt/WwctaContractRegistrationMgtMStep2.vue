@@ -137,7 +137,7 @@ const setTempKey = (pd) => {
 
 const pcntrReq = ref(false); /* fixme */
 
-async function checkProductSellLimitation(pdCd) {
+async function validatePreconditions(pdCd) {
   const { data } = await dataService.get('sms/wells/contract/contracts/product-limit', {
     params: {
       cntrNo: cntrNo.value, // 현재는 사용하지 않음
@@ -159,19 +159,22 @@ async function checkProductSellLimitation(pdCd) {
 
   pcntrReq.value = pcntrMncnYn === 'Y';
 
-  const bizStartTime = dayjs(`${bznsClHhBas.strtdt}${bznsClHhBas.strtHh}`, 'YYYYMMDDHHmm');
-  const bizEndTime = dayjs(`${bznsClHhBas.enddt}${bznsClHhBas.endHh}`, 'YYYYMMDDHHmm');
-  const now = dayjs();
+  if (bznsClHhBas) {
+    const bizStartTime = dayjs(`${bznsClHhBas.strtdt}${bznsClHhBas.strtHh}`, 'YYYYMMDDHHmm');
+    const bizEndTime = dayjs(`${bznsClHhBas.enddt}${bznsClHhBas.endHh}`, 'YYYYMMDDHHmm');
+    const now = dayjs();
 
-  if (bznsClYn === 'Y') {
-    await alert('영업 시간 내 계약해 주세요.');
-    return false;
+    if (bznsClYn === 'Y') {
+      await alert('영업 시간 내 계약해 주세요.');
+      return false;
+    }
+
+    if (now.isBefore(bizStartTime) || now.isAfter(bizEndTime)) {
+      await alert(`영업 시간 내 계약해 주세요. ${bznsClHhBas.strtHh} ~ ${bznsClHhBas.endHh}`);
+      return false;
+    }
   }
 
-  if (now.isBefore(bizStartTime) || now.isAfter(bizEndTime)) {
-    await alert(`영업 시간 내 계약해 주세요. ${bznsClHhBas.strtHh} ~ ${bznsClHhBas.endHh}`);
-    return false;
-  }
   return true;
 }
 
@@ -179,7 +182,7 @@ async function onSelectProduct(product) {
   const newProduct = { ...product };
   const newProducts = [];
 
-  if (!await checkProductSellLimitation(newProduct.pdCd)) {
+  if (!await validatePreconditions(newProduct.pdCd)) {
     return;
   }
 
