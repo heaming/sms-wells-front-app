@@ -319,7 +319,7 @@
       <kw-btn
         secondary
         :label="$t('MSG_TXT_AGR_FW')"
-        :disable="sessionUserInfo.employeeIDNumber !== safetyAccident.cnrldNo || safetyAccident.agrDocFwYn === 'Y'"
+        :disable="sessionUserInfo.employeeIDNumber !== safetyAccident.cnrldNo || !isDisable"
         dense
         @click="onClickAgreementFoward"
       />
@@ -460,7 +460,7 @@ import { isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const { modal, notify } = useGlobal();
 const dataService = useDataService();
-const { ok, cancel: onClickCancel } = useModal();
+const { cancel: onClickCancel } = useModal();
 const { getUserInfo } = useMeta();
 const props = defineProps({
   acdnRcpId: {
@@ -481,6 +481,7 @@ const sessionUserInfo = getUserInfo();
 const acdnPhoApnFile = ref([]); // 사고사진
 const acdnPictrApnFile = ref([]); // 사고영상
 const causAnaApnFile = ref([]); // 원인분석
+const isDisable = ref(true);
 // 보상결과 기본 형식
 const tempText = ref(`1. 담당자:
 2. 방문내역:
@@ -629,6 +630,17 @@ async function onClickAgreementFoward() {
     Object.assign(safetyAccident.value, res);
   }
 }
+async function fetchData() {
+  const res = await dataService.get(`/sms/wells/service/safety-accidents/${props.acdnRcpId}`);
+  Object.assign(safetyAccident.value, res.data);
+  isDisable.value = (res.data.cpsDvCd === '5' && res.data.agrDocFwYn === 'N'); // 보상완료 && 합의서발송여부 'N'
+  await frmMainRef1.value.init();
+  await frmMainRef2.value.init();
+  await frmMainRef3.value.init();
+  await frmMainRef4.value.init();
+  await frmMainRef5.value.init();
+}
+
 // 저장버튼 클릭
 async function onClickSave() {
   if (!await frmMainRef1.value.validate() || !await frmMainRef2.value.validate()
@@ -662,8 +674,8 @@ async function onClickSave() {
   safetyAccident.value.acdnDtm = safetyAccident.value.acdnDt && safetyAccident.value.acdnTm ? `${safetyAccident.value.acdnDt}${safetyAccident.value.acdnTm}` : null;
   await dataService.post('/sms/wells/service/safety-accidents', safetyAccident.value);
 
-  ok();
   notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
+  await fetchData();
 }
 // 교원부담액 변경 시 총합 변경 + 보상진행값 변경
 function onChangeKwCpsAmt() {
@@ -692,6 +704,7 @@ onMounted(async () => {
   if (props.acdnRcpId !== '') {
     const res = await dataService.get(`/sms/wells/service/safety-accidents/${props.acdnRcpId}`);
     Object.assign(safetyAccident.value, res.data);
+    isDisable.value = (res.data.cpsDvCd === '5' && res.data.agrDocFwYn === 'N'); // 보상완료 && 합의서발송여부 'N'
   }
   await frmMainRef1.value.init();
   await frmMainRef2.value.init();
