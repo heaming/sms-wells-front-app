@@ -148,12 +148,11 @@ const pageInfo = ref({
 
 let cachedParams;
 
-// TODO: 부서 코드 정해지면 수정 필요
 const deptMngrDvCd = computed(() => {
-  if (userInfo.departmentId === '영업지원팀') {
+  if (userInfo.departmentId === 'Y') { // 영업지원팀
     return '1';
   }
-  if (userInfo.departmentId === '서비스운영팀') {
+  if (userInfo.departmentId === 'S') { // 서비스운영팀
     return '2';
   }
   return '';
