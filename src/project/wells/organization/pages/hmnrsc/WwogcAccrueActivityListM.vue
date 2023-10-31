@@ -15,8 +15,8 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="3"
-      two-row
+      :cols="2"
+      :default-visible-rows="3"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -39,6 +39,8 @@
             :options="ogTp"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_QLF_DV')"
           required
@@ -51,17 +53,15 @@
             :options="codes.QLF_DV_CD"
           />
         </kw-search-item>
-      </kw-search-row>
-
-      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_PERF_DV')">
           <kw-option-group
             v-model="searchParams.perfDv"
-            :model-value="'전체'"
             type="radio"
             :options="perfDv"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_PRTNR_NUM_EMPL_NM')">
           <zwog-partner-search
             v-model:prtnrNo="searchParams.prtnrNo"
@@ -172,9 +172,9 @@ const searchParams = ref({
   ogLevlDvCd1: undefined,
   ogLevlDvCd2: undefined,
   ogLevlDvCd3: undefined,
-  qlfDvCd: '2',
+  rsbDvCd: '2',
   prtnrNo: undefined,
-  perfDv: 'A',
+  perfDv: '',
 });
 
 function setGrid(response) {
