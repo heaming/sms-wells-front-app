@@ -140,7 +140,7 @@ function setupPdctProducts() {
       }
 
       product.disable = computed(() => {
-        if (selected.value.includes(pdCd)) {
+        if (selected.value?.includes(pdCd)) {
           return false;
         }
         const isOverConsQty = packageBaseProduct.value.pdctConsQty
