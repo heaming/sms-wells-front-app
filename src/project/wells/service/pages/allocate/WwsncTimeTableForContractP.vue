@@ -775,7 +775,7 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
     return;
   }
 
-  if (selectedDay < dayjs().format('YYYYMMDD')) {
+  if (selectedDay <= dayjs().format('YYYYMMDD')) {
     notify('날짜를 오늘 이후로 선택하여 주십시오');
     return;
   }
