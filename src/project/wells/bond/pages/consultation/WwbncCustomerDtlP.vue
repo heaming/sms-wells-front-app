@@ -1593,7 +1593,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '160', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '160', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-center' },
     { fieldName: 'authRsgCnfmdt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
@@ -1669,6 +1669,21 @@ const initGrdMain = defineGrid((data, view) => {
     const bndBizDvCd = g.getValue(dataRow, 'bndBizDvCd');
     if (cstNo) {
       await popupUtil.open(`/popup/#/wwbnc-same-customer-contract?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&bndBizDvCd=${bndBizDvCd}`, { width: 1292, height: 1100 }, false);
+    }
+  };
+
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntrDtlNo') {
+      const cstNo = g.getValue(itemIndex, 'cstNo');
+      const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      const cntrSn = g.getValue(itemIndex, 'cntrSn');
+
+      searchParams.value.schCstNo = cstNo;
+      searchParams.value.schCntrNo = cntrNo;
+      searchParams.value.schCntrSn = cntrSn;
+
+      cachedParams = cloneDeep(searchParams.value);
+      await fetchData();
     }
   };
 });
