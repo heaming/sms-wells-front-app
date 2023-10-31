@@ -89,6 +89,7 @@
             @change="fetchData"
           />
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+          <!-- (단위 : 원) -->
         </template>
 
         <kw-btn
@@ -231,6 +232,7 @@ const pageInfo = ref({
 
 let cachedParams;
 
+// 조회
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
 
@@ -263,6 +265,7 @@ async function fetchData() {
   view.rowGroup.expandedAdornments = 'footer';
 }
 
+// 합계
 let bilAmtTot = 0;
 let dpSumAmtTot = 0;
 async function fetchSumData() {
@@ -272,6 +275,7 @@ async function fetchSumData() {
   dpSumAmtTot = Number(res.data.dpSumAmtTot);
 }
 
+// 조회 버튼
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
 
@@ -314,6 +318,7 @@ async function onClickPageMove(component) {
   });
 }
 
+// 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -326,6 +331,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 조직 내역 조회
 async function onChangeEngineer() {
   const res = await dataService.get(
     '/sms/wells/withdrawal/idvrve/deposit-aggregate-service/center-code',
@@ -378,7 +384,7 @@ const initGrid = defineGrid((data, view) => {
       datetimeFormat: 'date',
       groupFooter: {
         styleName: 'text-center',
-        text: t('MSG_TXT_SBSUM'),
+        text: t('MSG_TXT_SBSUM'), // 소계
       },
       footer: {
         text: t('MSG_TXT_SUM'),
@@ -499,7 +505,7 @@ const initGrid = defineGrid((data, view) => {
       options: codes.STLM_DV_CD,
       styleName: 'text-left' },
     { fieldName: 'iscmpCd',
-      header: '결제처',
+      header: t('MSG_TXT_PYPLC'),
       // '결제처',
       options: codes.ISCMP_CD,
       width: '100',

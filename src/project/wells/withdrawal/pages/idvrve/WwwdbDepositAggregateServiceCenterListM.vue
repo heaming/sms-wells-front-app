@@ -24,6 +24,7 @@
           :label="t('MSG_TXT_SV_DT')"
           required
         >
+          <!-- 서비스일자 -->
           <kw-date-range-picker
             v-model:from="searchParams.strtSvDt"
             v-model:to="searchParams.endSvDt"
@@ -34,6 +35,7 @@
         <kw-search-item
           :label="t('MSG_TXT_SV_CNR')"
         >
+          <!-- 서비스센터 -->
           <kw-select
             v-model="searchParams.svCnr"
             :options="svCnrList"
@@ -46,6 +48,7 @@
         <kw-search-item
           :label="t('MSG_TXT_EGER')"
         >
+          <!-- 엔지니어 -->
           <kw-input
             v-model="searchParams.prtnrKnm"
             icon="search"
@@ -67,8 +70,8 @@
             @change="fetchData"
           />
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
+          <!-- (단위 : 원) -->
         </template>
-        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -77,6 +80,7 @@
           :disable="pageInfo.totalCount === 0"
           @click="onClickExcelDownload"
         />
+        <!-- 엑셀다운로드 -->
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
@@ -145,6 +149,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
+// 조회
 async function fetchData() {
   cachedParams = { ...cachedParams, ...pageInfo.value };
   const res = await dataService.get(`${apiUri}/paging`, { params: cachedParams });
@@ -225,34 +230,34 @@ watch(() => [searchParams.value.strtSvDt, searchParams.value.endSvDt], (val) => 
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'recapAmt', dataType: 'number' },
-    { fieldName: 'ctrAmt', dataType: 'number' },
-    { fieldName: 'cshBilSlAmt', dataType: 'number' },
-    { fieldName: 'cshBilDpAmt', dataType: 'number' },
-    { fieldName: 'adpBilSlAmt', dataType: 'number' },
-    { fieldName: 'adpBilDpAmt', dataType: 'number' },
-    { fieldName: 'vacSlAmt', dataType: 'number' },
-    { fieldName: 'vacDpAmt', dataType: 'number' },
-    { fieldName: 'cardSlAmt', dataType: 'number' },
-    { fieldName: 'cardDpAmt', dataType: 'number' },
-    { fieldName: 'slAmtSum', dataType: 'number' },
-    { fieldName: 'dpAmtSum', dataType: 'number' },
+    { fieldName: 'ogNm' }, // 센터
+    { fieldName: 'prtnrNo' }, // 번호
+    { fieldName: 'prtnrKnm' }, // 엔지니어
+    { fieldName: 'recapAmt', dataType: 'number' }, //  유상금액
+    { fieldName: 'ctrAmt', dataType: 'number' }, // 조정금액
+    { fieldName: 'cshBilSlAmt', dataType: 'number' }, // 현금 - 매출금액
+    { fieldName: 'cshBilDpAmt', dataType: 'number' }, // 현금 - 입금액
+    { fieldName: 'adpBilSlAmt', dataType: 'number' }, // 합산청구 - 매출금액
+    { fieldName: 'adpBilDpAmt', dataType: 'number' }, // 합산청구 - 입금액
+    { fieldName: 'vacSlAmt', dataType: 'number' }, // 가상계좌 - 매출금액
+    { fieldName: 'vacDpAmt', dataType: 'number' }, // 가상계좌 - 입금액
+    { fieldName: 'cardSlAmt', dataType: 'number' }, // 카드 - 매출금액
+    { fieldName: 'cardDpAmt', dataType: 'number' }, // 카드 - 입금액
+    { fieldName: 'slAmtSum', dataType: 'number' }, // 합계 - 매출금액
+    { fieldName: 'dpAmtSum', dataType: 'number' }, // 합계 - 입금액
   ];
 
   const columns = [
     { fieldName: 'ogNm',
-      header: t('MSG_TXT_CENTER_DIVISION'),
+      header: t('MSG_TXT_CENTER_DIVISION'), // 센터
       width: '150',
       styleName: 'text-center',
-      groupFooter: { text: t('MSG_TXT_SBSUM'), styleName: 'text-center' },
-      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PARTNER_NO'), width: '74.5', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EGER'), width: '74.5', styleName: 'text-left' },
+      groupFooter: { text: t('MSG_TXT_SBSUM'), styleName: 'text-center' }, // 소계
+      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } }, // 합계
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PARTNER_NO'), width: '74.5', styleName: 'text-center' }, // 번호
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EGER'), width: '74.5', styleName: 'text-left' }, // 엔지니어
     { fieldName: 'recapAmt',
-      header: t('MSG_TXT_RECAP_AMT'),
+      header: t('MSG_TXT_RECAP_AMT'), //  유상금액
       width: '89',
       styleName: 'text-right',
       groupFooter: {
@@ -268,7 +273,7 @@ const initGrid = defineGrid((data, view) => {
         },
       } },
     { fieldName: 'ctrAmt',
-      header: t('MSG_TXT_CTR_AMT'),
+      header: t('MSG_TXT_CTR_AMT'), // 조정금액
       width: '89',
       styleName: 'text-right',
       groupFooter: {
@@ -284,7 +289,7 @@ const initGrid = defineGrid((data, view) => {
         },
       } },
     { fieldName: 'cshBilSlAmt',
-      header: t('MSG_TXT_SL_AMT'),
+      header: t('MSG_TXT_SL_AMT'), // 매출금액
       width: '120',
       styleName: 'text-right',
       groupFooter: {
@@ -300,7 +305,7 @@ const initGrid = defineGrid((data, view) => {
         },
       } },
     { fieldName: 'cshBilDpAmt',
-      header: t('MSG_TXT_DEPOSIT_AMT'),
+      header: t('MSG_TXT_DEPOSIT_AMT'), // 입금액
       width: '120',
       styleName: 'text-right',
       groupFooter: {
@@ -316,7 +321,7 @@ const initGrid = defineGrid((data, view) => {
         },
       } },
     { fieldName: 'adpBilSlAmt',
-      header: t('MSG_TXT_SL_AMT'),
+      header: t('MSG_TXT_SL_AMT'), // 매출금액
       width: '120',
       styleName: 'text-right',
       groupFooter: {
@@ -332,7 +337,7 @@ const initGrid = defineGrid((data, view) => {
         },
       } },
     { fieldName: 'adpBilDpAmt',
-      header: t('MSG_TXT_DEPOSIT_AMT'),
+      header: t('MSG_TXT_DEPOSIT_AMT'), // 입금액
       width: '120',
       styleName: 'text-right',
       groupFooter: {
@@ -348,7 +353,7 @@ const initGrid = defineGrid((data, view) => {
         },
       } },
     { fieldName: 'vacSlAmt',
-      header: t('MSG_TXT_SL_AMT'),
+      header: t('MSG_TXT_SL_AMT'), // 매출금액
       width: '120',
       styleName: 'text-right',
       groupFooter: {
@@ -364,7 +369,7 @@ const initGrid = defineGrid((data, view) => {
         },
       } },
     { fieldName: 'vacDpAmt',
-      header: t('MSG_TXT_DEPOSIT_AMT'),
+      header: t('MSG_TXT_DEPOSIT_AMT'), // 입금액
       width: '120',
       styleName: 'text-right',
       groupFooter: {
@@ -380,7 +385,7 @@ const initGrid = defineGrid((data, view) => {
         },
       } },
     { fieldName: 'cardSlAmt',
-      header: t('MSG_TXT_SL_AMT'),
+      header: t('MSG_TXT_SL_AMT'), // 매출금액
       width: '120',
       styleName: 'text-right',
       groupFooter: {
@@ -396,7 +401,7 @@ const initGrid = defineGrid((data, view) => {
         },
       } },
     { fieldName: 'cardDpAmt',
-      header: t('MSG_TXT_DEPOSIT_AMT'),
+      header: t('MSG_TXT_DEPOSIT_AMT'), // 입금액
       width: '120',
       styleName: 'text-right',
       groupFooter: {
@@ -412,7 +417,7 @@ const initGrid = defineGrid((data, view) => {
         },
       } },
     { fieldName: 'slAmtSum',
-      header: t('MSG_TXT_SL_AMT'),
+      header: t('MSG_TXT_SL_AMT'), // 매출금액
       width: '120',
       styleName: 'text-right',
       groupFooter: {
@@ -428,7 +433,7 @@ const initGrid = defineGrid((data, view) => {
         },
       } },
     { fieldName: 'dpAmtSum',
-      header: t('MSG_TXT_DEPOSIT_AMT'),
+      header: t('MSG_TXT_DEPOSIT_AMT'), // 입금액
       width: '120',
       styleName: 'text-right',
       groupFooter: {
@@ -455,27 +460,27 @@ const initGrid = defineGrid((data, view) => {
   view.setColumnLayout([
     'ogNm', 'prtnrNo', 'prtnrKnm', 'recapAmt', 'ctrAmt', // single
     {
-      header: t('현금'), // colspan title
+      header: t('MSG_TXT_CASH'), // 현금
       direction: 'horizontal', // merge type
       items: ['cshBilSlAmt', 'cshBilDpAmt'],
     },
     {
-      header: t('MSG_TXT_ADP_BIL'), // colspan title
+      header: t('MSG_TXT_ADP_BIL'), // 합산청구
       direction: 'horizontal', // merge type
       items: ['adpBilSlAmt', 'adpBilDpAmt'],
     },
     {
-      header: t('MSG_TXT_VT_AC'),
+      header: t('MSG_TXT_VT_AC'), // 가상계좌
       direction: 'horizontal',
       items: ['vacSlAmt', 'vacDpAmt'],
     },
     {
-      header: t('MSG_TXT_CARD'),
+      header: t('MSG_TXT_CARD'), // 카드
       direction: 'horizontal',
       items: ['cardSlAmt', 'cardDpAmt'],
     },
     {
-      header: t('MSG_TXT_SUM'),
+      header: t('MSG_TXT_SUM'), // 합계
       direction: 'horizontal',
       items: ['slAmtSum', 'dpAmtSum'],
     },
