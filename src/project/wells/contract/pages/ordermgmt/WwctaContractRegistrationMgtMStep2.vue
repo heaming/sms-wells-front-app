@@ -316,9 +316,14 @@ async function onClickDelete(dtl) {
 }
 
 async function onClickOnePlusOne(dtl) {
+  const { pdCd, basePdCd /* 안전장치 */ } = dtl;
+
   const { result, payload } = await modal({
     component: 'WwctaOnePlusOneContractListP',
-    componentProps: { baseDtlCntrNo: step2.value.bas.cntrNo },
+    componentProps: {
+      cntrNo: step2.value.bas.cntrNo,
+      pdCd: pdCd || basePdCd,
+    },
   });
   if (!result) {
     return;

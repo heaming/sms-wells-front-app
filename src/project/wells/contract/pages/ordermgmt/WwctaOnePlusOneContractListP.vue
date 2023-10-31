@@ -49,7 +49,8 @@ const { t } = useI18n();
 const { ok, cancel: onClickClose } = useModal();
 const totalCount = ref(0);
 const props = defineProps({
-  baseDtlCntrNo: { type: String, default: '' },
+  cntrNo: { type: String, required: true },
+  pdCd: { type: String, required: true },
 });
 const grdMainRef = ref(getComponentType('KwGrid'));
 
@@ -57,20 +58,18 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function fetchData() {
-  console.log(props);
-  const res = await dataService.get('/sms/wells/contract/contracts/oneplusone-contracts', { params: props });
-  const cntrs = res.data;
-  totalCount.value = cntrs.length;
+  const { data } = await dataService.get('/sms/wells/contract/contracts/oneplusone-contracts', { params: props });
+  totalCount.value = data.length;
 
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(cntrs);
+  view.getDataSource().setRows(data);
   view.resetCurrent();
 }
 
-async function isAvailableOneplusone(row) {
-  const res = await dataService.get('/sms/wells/contract/contracts/oneplusone-contracts/check', { params: row });
-  return res.data;
-}
+/* async function isAvailableOneplusone(row) {
+  const { data } = await dataService.get('/sms/wells/contract/contracts/oneplusone-contracts/check', { params: row });
+  return data;
+} */
 
 onMounted(async () => {
   await fetchData();
@@ -107,9 +106,10 @@ const initGrid = defineGrid((data, view) => {
   view.onCellDblClicked = async (grid, { dataRow, cellType }) => {
     const row = gridUtil.getRowValue(grid, dataRow);
     if (cellType === 'data') {
-      if (await isAvailableOneplusone(row)) {
+      ok(row);
+      /* if (await isAvailableOneplusone(row)) {
         ok(row);
-      }
+      } */
     }
   };
 });
