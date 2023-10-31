@@ -90,14 +90,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import ProductSelect
-  from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
-import SinglePayPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
-import RentalPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
-import MembershipPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
+import ProductSelect from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
+import SinglePayPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
+import RentalPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
+import MembershipPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
 import RegularShippingPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaRegularShippingFinalPriceSelect.vue';
 import { alert, useDataService, useGlobal } from 'kw-lib';
@@ -106,11 +102,13 @@ import { warn } from 'vue';
 import { vScrollbar } from '~sms-common/contract/util';
 import {
   CNTR_REL_DTL_CD,
-  CNTR_TP_CD, PD_TP_CD,
+  CNTR_TP_CD,
+  PD_TP_CD,
   RENTAL_DSC_DV_CD,
   RENTAL_DSC_TP_CD,
-  SELL_TP_CD, SELL_TP_DTL_CD,
+  SELL_TP_DTL_CD,
 } from '~sms-wells/contract/constants/ctConst';
+import dayjs from 'dayjs';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -137,13 +135,59 @@ const setTempKey = (pd) => {
   pd.tempKey = uniqueId('new-product');
 };
 
+const pcntrReq = ref(false); /* fixme */
+
+async function checkProductSellLimitation(pdCd) {
+  const { data } = await dataService.get('sms/wells/contract/contracts/product-limit', {
+    params: {
+      cntrNo: cntrNo.value, // 현재는 사용하지 않음
+      pdCd,
+    },
+  });
+
+  const {
+    bznsClHhBas,
+    bznsClYn,
+    pcntrMncnYn,
+    pcntrExistYn,
+  } = data;
+
+  if (pcntrMncnYn === 'Y' && pcntrExistYn === 'N') {
+    await alert('해당 상품은 기계약상품의 계약건이 존재해야만 선택 가능합니다.');
+    return false;
+  }
+
+  pcntrReq.value = pcntrMncnYn === 'Y';
+
+  const bizStartTime = dayjs(`${bznsClHhBas.strtdt}${bznsClHhBas.strtHh}`, 'YYYYMMDDHHmm');
+  const bizEndTime = dayjs(`${bznsClHhBas.enddt}${bznsClHhBas.endHh}`, 'YYYYMMDDHHmm');
+  const now = dayjs();
+
+  if (bznsClYn === 'Y') {
+    await alert('영업 시간 내 계약해 주세요.');
+    return false;
+  }
+
+  if (now.isBefore(bizStartTime) || now.isAfter(bizEndTime)) {
+    await alert(`영업 시간 내 계약해 주세요. ${bznsClHhBas.strtHh} ~ ${bznsClHhBas.endHh}`);
+    return false;
+  }
+  return true;
+}
+
 async function onSelectProduct(product) {
   const newProduct = { ...product };
   const newProducts = [];
 
+  if (!await checkProductSellLimitation(newProduct.pdCd)) {
+    return;
+  }
+
+  newProduct.precontractRequired = pcntrReq.value;
+
   // 상품관계 확인
   // PD_REL_TP_CD '12' 기계약상품여부
-  const res = await dataService.get('sms/wells/contract/contracts/product-relations', {
+  /*   const res = await dataService.get('sms/wells/contract/contracts/product-relations', {
     params: {
       cntrNo: cntrNo.value, // 현재는 사용하지 않음
       pdCd: newProduct.pdCd,
@@ -159,7 +203,7 @@ async function onSelectProduct(product) {
 
   if (Number(preCntrPdRelCnt) > 0 && newProduct.sellTpCd === SELL_TP_CD.RGLR_SPP) {
     newProduct.precontractRequired = true; // sorrrrrrryyyyy... this is shit.
-  }
+  } */
 
   const isWellsFarmProduct = newProduct.pdLclsfId === 'PDC000000000120';
 
