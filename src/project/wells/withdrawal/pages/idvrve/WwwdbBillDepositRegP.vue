@@ -519,6 +519,8 @@ async function onClickSave() {
     // data.itgDpNo = itgDpNo.value;
     dpSubAmt += Number(data.billDpAmt);
     data.billBndAmt = changedRows2[0].billBndAmt;
+    data.sellBzsBzrno = changedRows2[0].sellBzsBzrno;
+    data.pblBzsBzrno = changedRows2[0].pblBzsBzrno;
   });
 
   // console.log(dpAmt);
@@ -532,7 +534,6 @@ async function onClickSave() {
   // 만약 통합입금번호 없으면 채번
   if (!itgDpNo.value) {
     const res = await dataService.get('/sms/wells/withdrawal/idvrve/bill-deposits/electronic');
-    console.log(res.data.itgDpNo);
     itgDpNo.value = res.data.itgDpNo;
     changedRows[0].state = 'created';
   } else {
@@ -542,6 +543,10 @@ async function onClickSave() {
   changedRows.forEach((data) => {
     data.itgDpNo = itgDpNo.value;
   });
+
+  console.log(changedRows2);
+  console.log(changedRows[0]);
+  console.log(changedRows);
 
   const cachedParam = {
     saveMainReq: changedRows[0],
