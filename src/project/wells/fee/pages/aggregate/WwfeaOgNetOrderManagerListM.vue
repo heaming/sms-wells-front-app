@@ -924,7 +924,7 @@ const initGrdAggr = defineGrid((data, view) => {
     { fieldName: 'elhmExcpAckmtPerf', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전외인정실적
     { fieldName: 'chng', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기변
     { fieldName: 'ninc', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 순증
-    { fieldName: 'fxamCt', header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 정액 건수
+    { fieldName: 'fxamCt', header: t('MSG_TXT_FXAM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 정액
     { fieldName: 'rstlCt', header: t('MSG_TXT_RSTL') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 재약정 건수
     { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 라이브팩
     { fieldName: 'mmbr', header: t('MSG_TXT_MMBR'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 멤버십
