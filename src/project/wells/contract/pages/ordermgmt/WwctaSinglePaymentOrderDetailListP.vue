@@ -901,12 +901,14 @@ const { cancel } = useModal();
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: false, default: '' },
+  sellTpCd: { type: String, required: false, default: '' },
 });
 
 let cachedParams;
 const searchParams = ref({
   cntrNo: props.cntrNo,
   cntrSn: props.cntrSn,
+  sellTpCd: props.sellTpCd,
 });
 
 const codes = await codeUtil.getMultiCodes(

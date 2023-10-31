@@ -1035,12 +1035,14 @@ const { cancel } = useModal();
 const props = defineProps({
   cntrNo: { type: String, required: true, default: '' },
   cntrSn: { type: String, required: false, default: '' },
+  sellTpCd: { type: String, required: false, default: '' },
 });
 
 let cachedParams;
 const searchParams = ref({
   cntrNo: props.cntrNo,
   cntrSn: props.cntrSn,
+  sellTpCd: props.sellTpCd,
 });
 
 const codes = await codeUtil.getMultiCodes(
@@ -1340,6 +1342,7 @@ async function fetchData() {
   }
 
   res = await dataService.get('/sms/wells/contract/contracts/order-detail-mngt/regular-shippings/composition-products', { params: { ...cachedParams, ...pageInfo.value } });
+  console.log(res.data);
 
   let totPdQty = 0;
   let totFnlVal = 0;
@@ -1347,8 +1350,8 @@ async function fetchData() {
 
   res.data.forEach((rowData) => {
     totPdQty += Number(rowData.pdQty);
-    totFnlVal += Number(rowData.fnlVal);
-    totCtrVal += Number(rowData.ctrVal);
+    totFnlVal = Number(rowData.totAmt);
+    totCtrVal = Number(rowData.totDscAmt);
   });
 
   frmMainData.value.pdQty = stringUtil.getNumberWithComma(Number(totPdQty), 0);
@@ -1381,7 +1384,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdQty' }, // 수량
     { fieldName: 'fnlVal', dataType: 'number' }, // 단가
     { fieldName: 'ctrVal', dataType: 'number' }, // 할인
-    { fieldName: 'ojPdCd' }, // 패키지 코드
+    { fieldName: 'hgrPdCd' }, // 패키지 코드
     { fieldName: 'verSn' }, // 패키지 가격 차수
   ];
 
@@ -1391,8 +1394,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdQty', header: t('MSG_TXT_QTY'), width: '76', styleName: 'text-right' }, // 수량
     { fieldName: 'fnlVal', header: t('MSG_TXT_UPRC'), width: '158', styleName: 'text-right' }, // 단가
     { fieldName: 'ctrVal', header: t('MSG_TXT_DSC'), width: '158', styleName: 'text-right' }, // 할인
-    { fieldName: 'ojPdCd', header: t('MSG_TXT_PKG_CD'), width: '158', styleName: 'text-center' }, // 패키지 코드
-    { fieldName: 'verSn', header: t('MSG_TXT_RCPT_NO'), width: '158', styleName: 'text-right' }, // 패키지 가격 차수
+    { fieldName: 'hgrPdCd', header: t('MSG_TXT_PKG_CD'), width: '158', styleName: 'text-center' }, // 패키지 코드
+    { fieldName: 'verSn', header: `${t('MSG_TXT_PKG_PRC')} ${t('MSG_TXT_ORDR')}`, width: '158', styleName: 'text-right' }, // 패키지가격 차수
   ];
 
   data.setFields(fields);
