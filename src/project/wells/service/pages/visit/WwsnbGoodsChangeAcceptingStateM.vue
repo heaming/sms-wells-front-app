@@ -251,7 +251,7 @@ async function onClickExcelDownload() {
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: response.list,
+    exportData: response.data,
   });
 }
 // 반려
