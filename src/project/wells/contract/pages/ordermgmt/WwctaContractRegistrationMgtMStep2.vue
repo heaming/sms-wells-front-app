@@ -152,7 +152,7 @@ async function onSelectProduct(product) {
   });
 
   const { preCntrPdRelCnt, preCntrPdCnt } = res.data;
-  if (Number(preCntrPdRelCnt) > 0 && preCntrPdCnt === '0') {
+  if (Number(preCntrPdRelCnt) > 0 && Number(preCntrPdCnt) === 0) {
     alert('해당 상품은 기계약상품의 계약건이 존재해야만 선택 가능합니다.');
     return;
   }
