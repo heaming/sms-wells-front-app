@@ -194,21 +194,23 @@ const codes = await codeUtil.getMultiCodes(
 
 const customCodes = {
   serviceTypes: [
-    { codeId: '1', codeName: t('설치') },
-    { codeId: '2', codeName: t('B/S') },
-    { codeId: '3', codeName: t('A/S') },
-    { codeId: '4', codeName: t('A/S+설치') },
-    { codeId: '5', codeName: t('A/S+B/S') },
-    { codeId: '6', codeName: t('B/S+설치') },
+    { codeId: '1', codeName: t('MSG_TXT_INSTALLATION') }, /* 설치 */
+    { codeId: '2', codeName: t('MSG_TXT_BEFORE_SERVICE') }, /* B/S */
+    { codeId: '3', codeName: t('MSG_TXT_AFTER_SERVICE') }, /* A/S */
+    { codeId: '4', codeName: `${t('MSG_TXT_AFTER_SERVICE')} + ${t('MSG_TXT_INSTALLATION')}` }, /* A/S+설치 */
+    { codeId: '5', codeName: `${t('MSG_TXT_AFTER_SERVICE')} + ${t('MSG_TXT_BEFORE_SERVICE')}` }, /* A/S+B/S */
+    { codeId: '6', codeName: `${t('MSG_TXT_BEFORE_SERVICE')} + ${t('MSG_TXT_INSTALLATION')}` }, /* B/S+설치 */
   ],
   installBases: [
-    { codeId: '1', codeName: '1년 이내' },
+    { codeId: '1', codeName: t('MSG_TXT_1YEAR_WHITHIN') },
   ],
 };
 const searchParams = ref({
-  testDt: now.format('YYYYMMDD'),
-  startDt: '20230701',
-  endDt: '20230701',
+  // testDt: now.format('YYYYMMDD'),
+  // startDt: '20230701',
+  // endDt: '20230701',
+  startDt: now.format('YYYYMMDD'),
+  endDt: now.format('YYYYMMDD'),
   serviceType: '',
   prtnrNo: '',
   refriType: '0',
@@ -292,12 +294,12 @@ async function onClickOZ() {
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '180', styleName: 'text-center' }, /* SAP코드 */
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' }, /* 품목코드 */
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '250', styleName: 'text-left' }, /* 품목명 */
-    { fieldName: 'bcNo', header: t('MSG_TXT_BARCODE'), width: '120', styleName: 'text-center' }, /* 바코드 */
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' }, /* 품목코드 */
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '250', styleName: 'text-left' }, /* 품목명 */
+    { fieldName: 'fnlBcNo', header: t('MSG_TXT_BARCODE'), width: '120', styleName: 'text-center' }, /* 바코드 */
     { fieldName: 'vstFshDt', header: t('MSG_TXT_PRCSDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, /* 처리일자 */
-    { fieldName: 'pdGdCd', header: t('MSG_TXT_GD'), width: '140', styleName: 'text-center' }, /* 등급 */
-    { fieldName: 'useQty', header: `${t('MSG_TXT_QTY')}(EA)`, width: '140', styleName: 'text-right', dataType: 'number' }, /* 수량 */
+    { fieldName: 'pdGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-center' }, /* 등급 */
+    { fieldName: 'useQty', header: `${t('MSG_TXT_QTY')}(EA)`, width: '80', styleName: 'text-right', dataType: 'number' }, /* 수량 */
     { fieldName: 'refriDvNm', header: `${t('MSG_TXT_RECAP_OR_FREE')}+${t('MSG_TXT_DIV')}`, width: '140', styleName: 'text-center' }, /* 유무상 구분 */
     {
       fieldName: 'cntrNo',
@@ -312,7 +314,7 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '140', styleName: 'text-center' }, /* 고객명 */
+    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, /* 고객명 */
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, /* 계약일자 */
     { fieldName: 'locaraTno', visible: false }, // [전화번호1]
     { fieldName: 'exnoEncr', visible: false }, // [전화번호2]
@@ -329,7 +331,7 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     },
-    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '140', styleName: 'text-center' }, /* 우편번호 */
+    { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' }, /* 우편번호 */
     {
       fieldName: 'rnadr',
       header: t('MSG_TXT_INST_ADDR'),
@@ -343,26 +345,26 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     { fieldName: 'rdadr', visible: false },
-    { fieldName: 'col15', header: t('MSG_TXT_PRDT_NM'), width: '140', styleName: 'text-center' }, /* 상품명 */
-    { fieldName: 'col16', header: t('MSG_TXT_MDL_NM'), width: '140', styleName: 'text-center' }, /* 모델명 */
-    { fieldName: 'col17', header: t('MSG_TXT_MNFT_NO'), width: '140', styleName: 'text-center' }, /* 제조번호 */
-    { fieldName: 'col18', header: t('MSG_TXT_RCP_IZ'), width: '140', styleName: 'text-left' }, /* 접수내역 */
-    { fieldName: 'col19', header: t('MSG_TXT_IST_DT'), width: '140', styleName: 'text-center' }, /* 설치일자 */
-    { fieldName: 'col20', header: t('MSG_TXT_SV_TP'), width: '140', styleName: 'text-center' }, /* 서비스유형  */
-    { fieldName: 'col21', header: t('MSG_TXT_ICHR_CNR'), width: '140', styleName: 'text-center' }, /* 담당센터 */
-    { fieldName: 'col22', header: t('MSG_TXT_ICHR_EGER'), width: '140', styleName: 'text-center' }, /* 담당엔지니어 */
-    { fieldName: 'col23', header: t('MSG_TXT_VST_CNFM_D'), width: '140', styleName: 'text-center' }, /* 방문확정일 */
-    { fieldName: 'col24', header: t('MSG_TXT_WK_STS'), width: '140', styleName: 'text-center' }, /* 작업상태 */
-    { fieldName: 'col25', header: t('MSG_TXT_LCT'), width: '140', styleName: 'text-center' }, /* 위치 */
-    { fieldName: 'col26', header: t('MSG_TXT_PHN'), width: '140', styleName: 'text-center' }, /* 현상 */
-    { fieldName: 'col27', header: t('MSG_TXT_CAUS'), width: '140', styleName: 'text-center' }, /* 원인 */
-    { fieldName: 'col28', header: t('MSG_TXT_DTL_IZ'), width: '140', styleName: 'text-left' }, /* 상세내역 */
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '140', styleName: 'text-center' }, /* 상품명 */
+    { fieldName: 'modelNm', header: t('MSG_TXT_MDL_NM'), width: '140', styleName: 'text-center' }, /* 모델명 */
+    { fieldName: 'bcNo', header: t('MSG_TXT_MNFT_NO'), width: '180', styleName: 'text-center' }, /* 제조번호 */
+    { fieldName: 'cnslMoCn', header: t('MSG_TXT_RCP_IZ'), width: '250', styleName: 'text-left' }, /* 접수내역 */
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' }, /* 설치일자 */
+    { fieldName: 'svBizHclsfNm', header: t('MSG_TXT_SV_TP'), width: '140', styleName: 'text-center' }, /* 서비스유형  */
+    { fieldName: 'egerCnrNm', header: t('MSG_TXT_ICHR_CNR'), width: '140', styleName: 'text-center' }, /* 담당센터 */
+    { fieldName: 'prtnrNm', header: t('MSG_TXT_ICHR_EGER'), width: '170', styleName: 'text-center' }, /* 담당엔지니어 */
+    { fieldName: 'vstCnfmDt', header: t('MSG_TXT_VST_CNFM_D'), width: '140', styleName: 'text-center', datetimeFormat: 'date' }, /* 방문확정일 */
+    { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '140', styleName: 'text-center' }, /* 작업상태 */
+    { fieldName: 'asLctNm', header: t('MSG_TXT_LCT'), width: '140', styleName: 'text-center' }, /* 위치 */
+    { fieldName: 'asphnNm', header: t('MSG_TXT_PHN'), width: '140', styleName: 'text-left' }, /* 현상 */
+    { fieldName: 'asCausNm', header: t('MSG_TXT_CAUS'), width: '140', styleName: 'text-left' }, /* 원인 */
+    { fieldName: 'svProcsCn', header: t('MSG_TXT_DTL_IZ'), width: '300', styleName: 'text-left' }, /* 상세내역 */
   ];
   const columnLayout = [
     'sapMatCd',
-    'pdCd',
-    'pdNm',
-    'bcNo',
+    'itmPdCd',
+    'itmPdNm',
+    'fnlBcNo',
     'vstFshDt',
     'pdGdCd',
     'useQty',
@@ -373,19 +375,19 @@ const initGrdMain = defineGrid((data, view) => {
     'idvTno',
     'newAdrZip',
     'rnadr',
-    'col15',
-    'col16',
-    'col17',
-    'col18',
-    'col19',
-    'col20',
-    'col21',
-    'col22',
-    'col23',
-    'col24',
+    'pdNm',
+    'modelNm',
+    'bcNo',
+    'cnslMoCn',
+    'istDt',
+    'svBizHclsfNm',
+    'egerCnrNm',
+    'prtnrNm',
+    'vstCnfmDt',
+    'wkPrgsStatNm',
     {
-      header: t('결과입력'),
-      items: ['col25', 'col26', 'col27', 'col28'],
+      header: t('MSG_TXT_RS_IN'),
+      items: ['asLctNm', 'asphnNm', 'asCausNm', 'svProcsCn'],
     },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
