@@ -360,6 +360,7 @@ import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, fileU
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -1389,6 +1390,7 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm' }, // 판매자
     { fieldName: 'rcpPrtnrNo' }, // 판매자 사번
     { fieldName: 'ogCd' }, // 판매자 지점코드
+    { fieldName: 'ocyCntrwBrws' }, // 리포트 보기
     { fieldName: 'notakFwIz' }, // 알림톡 발송내역
     { fieldName: 'talkRcvYn' }, // 알림톡 수신여부
     { fieldName: 'notakFwDt' }, // 알림톡 발송일자
@@ -1417,6 +1419,7 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '127', styleName: 'text-center' }, // 판매자
     { fieldName: 'rcpPrtnrNo', header: t('MSG_TXT_PTNR_NO'), width: '127', styleName: 'text-center' }, // 판매자 사번
     { fieldName: 'ogCd', header: t('MSG_TXT_PTNR_BRCH_CD'), width: '127', styleName: 'text-center' }, // 판매자 지점코드
+    { fieldName: 'ocyCntrwBrws', header: t('MSG_BTN_CNTRW_BRWS'), width: '127', styleName: 'rg-button-icon--x', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_CNTRW_BRWS') }, // 리포트 보기
     { fieldName: 'notakFwIz', header: t('MSG_TXT_NOTAK_FW_IZ'), width: '127', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_NOTAK_FW_IZ') }, // 알림톡 발송내역
     { fieldName: 'talkRcvYn', header: t('MSG_TXT_NOTAK_RCV_YN'), width: '127', styleName: 'text-center' }, // 알림톡 수신여부
     { fieldName: 'notakFwDt', header: t('MSG_TXT_NOTAK_FW_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 알림톡 발송일자
@@ -1431,8 +1434,24 @@ const initGrdMstRstlList = defineGrid((data, view) => {
   // view.displayOptions.selectionStyle = 'singleRow';
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     const paramCntrDtlNo = `${gridUtil.getCellValue(g, dataRow, 'cntrNo')}-${gridUtil.getCellValue(g, dataRow, 'cntrSn')}`;
+    const paramCntrNo = `${gridUtil.getCellValue(g, dataRow, 'cntrNo')}`;
+    const paramCntrSn = `${gridUtil.getCellValue(g, dataRow, 'cntrSn')}`;
+
     if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrDtlNo: paramCntrDtlNo, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
+    }
+
+    if (['ocyCntrwBrws'].includes(column)) { // 리포트 보기 버튼 클릭
+      await openReportPopup(
+        '/kstation-w/ord/rp/V1.0/contractRPView.ozr',
+        null,
+        JSON.stringify(
+          {
+            cntrNo: paramCntrNo,
+            cntrSn: paramCntrSn,
+          },
+        ),
+      );
     }
   };
 
