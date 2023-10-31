@@ -71,6 +71,7 @@
             dgr2-levl-og-label="ogCdNm"
             dgr3-levl-og-label="ogCdNm"
             partner-label="prtnrNoNm"
+            auth-yn="N"
           />
         </template>
         <template v-if="isEngineerSelected">
@@ -84,6 +85,7 @@
             dgr1-levl-og-label="ogCdNm"
             partner-first-option="all"
             partner-label="prtnrNoNm"
+            auth-yn="N"
           />
         </template>
       </kw-search-row>
@@ -156,8 +158,8 @@ const codes = await codeUtil.getMultiCodes(
 );
 const customCodes = {
   sellTpCd: [
-    { codeId: '1', codeName: t('멤버십') },
-    { codeId: '2', codeName: t('렌탈') },
+    { codeId: '1', codeName: t('MSG_TXT_MEMBERSHIP') },
+    { codeId: '2', codeName: t('MSG_TXT_RENTAL') },
   ],
 };
 const searchParams = ref({
@@ -223,14 +225,14 @@ async function onClickExcelDownload() {
 
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col10', header: t('MSG_TXT_BLG'), width: '200', styleName: 'text-center' }, /* 소속(판매자) */
-    { fieldName: 'col11', header: t('MSG_TXT_BLG_NM'), width: '200', styleName: 'text-center' }, /* 소속명 */
-    { fieldName: 'col12', header: t('MSG_TXT_SELLER_ID'), width: '200', styleName: 'text-center' }, /* 판매자사번 */
-    { fieldName: 'col13', header: t('MSG_TXT_SELL_NM'), width: '200', styleName: 'text-center' }, /* 판매자명 */
-    { fieldName: 'col14', header: t('MSG_TXT_MNGT_CENTER'), width: '200', styleName: 'text-center' }, /* 관리센터 */
-    { fieldName: 'col15', header: t('MSG_TXT_BLG'), width: '200', styleName: 'text-center' }, /* 소속(관리자) */
-    { fieldName: 'col16', header: t('MSG_TXT_ADMIN_SBN'), width: '200', styleName: 'text-center' }, /* 관리자사번 */
-    { fieldName: 'col17', header: t('MSG_TXT_ADMIN_NM'), width: '200', styleName: 'text-center' }, /* 관리자명 */
+    { fieldName: 'sellOgCd', header: t('MSG_TXT_BLG'), width: '200', styleName: 'text-center' }, /* 소속(판매자) */
+    { fieldName: 'sellOgNm', header: t('MSG_TXT_BLG_NM'), width: '200', styleName: 'text-center' }, /* 소속명 */
+    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_SELLER_ID'), width: '200', styleName: 'text-center' }, /* 판매자사번 */
+    { fieldName: 'sellPrtnrKnm', header: t('MSG_TXT_SELL_NM'), width: '200', styleName: 'text-center' }, /* 판매자명 */
+    { fieldName: 'ogId', header: t('MSG_TXT_MNGT_CENTER'), width: '200', styleName: 'text-center' }, /* 관리센터 */
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '200', styleName: 'text-center' }, /* 소속(관리자) */
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_ADMIN_SBN'), width: '200', styleName: 'text-center' }, /* 관리자사번 */
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_ADMIN_NM'), width: '200', styleName: 'text-center' }, /* 관리자명 */
     {
       fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
@@ -244,10 +246,10 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     { fieldName: 'cntrSn', visible: false },
-    { fieldName: 'col19', header: t('MSG_TXT_CST_NM'), width: '200', styleName: 'text-center' }, /* 고객명 */
+    { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '200', styleName: 'text-center' }, /* 고객명 */
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '200', styleName: 'text-center' }, /* SAP코드 */
-    { fieldName: 'col21', header: t('MSG_TXT_PRDT_CODE'), width: '200', styleName: 'text-center' }, /* 상품코드 */
-    { fieldName: 'col22', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, /* 상품명 */
+    { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '200', styleName: 'text-center' }, /* 상품코드 */
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-center' }, /* 상품명 */
     { fieldName: 'locaraTno', visible: false }, // [전화번호1]
     { fieldName: 'exnoEncr', visible: false }, // [전화번호2]
     {
@@ -290,16 +292,16 @@ const initGrdMain = defineGrid((data, view) => {
   const columnLayout = [
     {
       header: t('MSG_TXT_SELLER_PERSON_PESL_ARTC'),
-      items: ['col10', 'col11', 'col12', 'col13'],
+      items: ['sellOgCd', 'sellOgNm', 'sellPrtnrNo', 'sellPrtnrKnm'],
     },
-    'col14',
+    'ogId',
     {
       header: t('MSG_TXT_MNGT_PERSON_PESL_ARTC'),
-      items: ['col15', 'col16', 'col17'],
+      items: ['ogCd', 'prtnrNo', 'prtnrKnm'],
     },
     {
       header: t('MSG_TXT_CST_PS'),
-      items: ['cntrNo', 'col19', 'sapMatCd', 'col21', 'col22', 'idvTno', 'newAdrZip', 'rnadr'],
+      items: ['cntrNo', 'rcgvpKnm', 'sapMatCd', 'pdCd', 'pdNm', 'idvTno', 'newAdrZip', 'rnadr'],
     },
     {
       header: t('MSG_TXT_CANC_IZ'),
