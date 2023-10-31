@@ -856,7 +856,7 @@ async function onClickCntrwMlFw() {
     cntrs.forEach((row) => {
       // 확정인 계약에 한해서만 가능, 계약진행상태코드 == 60 (확정)
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)
-        && cntrs[0].cntrPrgsStatCd !== '60') {
+        && row.cntrPrgsStatCd !== '60') {
         notify(t('MSG_ALT_CNTR_PRGS_STAT_CD_NOT_CNFM')); // 계약진행상태가 확정이 아닙니다.
         isCntrPrgsStatCnfm = false;
       }
