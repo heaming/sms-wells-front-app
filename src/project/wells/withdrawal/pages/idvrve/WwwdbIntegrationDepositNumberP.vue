@@ -76,8 +76,8 @@
           :label="t('MSG_TXT_SELLER_NO')"
         >
           <kw-input
-            v-model="searchParams.sellPrtnrNo
-            "
+            v-model="searchParams.sellPrtnrNo"
+            :maxlength="30"
             icon="search"
             clearable
             @click-icon="onClickSearchPrtnrNoPopup"
@@ -100,6 +100,7 @@
         >
           <kw-input
             v-model="searchParams.crdcdAprno"
+            :maxlength="30"
           />
         </kw-search-item>
       </kw-search-row>
@@ -112,7 +113,7 @@
           :total-count="pageInfo.totalCount"
           @change="fetchData"
         />
-        <span class="ml8">(단위:원)</span>
+        <span class="ml8">({{ $t('MSG_TXT_UNIT_CUR_WON') }})</span>
       </template>
       <kw-btn
         icon="download_on"
