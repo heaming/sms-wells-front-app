@@ -383,6 +383,7 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'fshDt' }, // 완료일자
     { fieldName: 'finishYn' }, // 완료여부
+    { fieldName: 'agrDocFwYn' }, // 합의서발송여부
     { fieldName: 'agrDocRcvYn' }, // 합의서서명여부
     { fieldName: 'rcpdt' }, // A/S접수일자
     { fieldName: 'pdNm' }, // 제품명
@@ -422,7 +423,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'finishYn',
       header: t('MSG_TXT_FSH_YN'),
-      width: '100',
+      width: '80',
       styleName: 'text-center',
       displayCallback: (grid, index) => {
         const { fshDt } = grid.getValues(index.itemIndex, 'fshDt');
@@ -430,9 +431,15 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     {
+      fieldName: 'agrDocFWYn',
+      header: t('MSG_TXT_AGR_FW_YN2'),
+      width: '120',
+      styleName: 'text-center',
+    },
+    {
       fieldName: 'agrDocRcvYn',
-      header: t('MSG_TXT_AGR_SIGN_YN'),
-      width: '140',
+      header: t('MSG_TXT_AGR_SIGN_YN3'),
+      width: '120',
       styleName: 'text-center',
     },
     {
@@ -455,7 +462,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       fieldName: 'cntrNo',
       header: t('MSG_TXT_CNTR_DTL_NO'),
-      width: '200',
+      width: '150',
       styleName: 'text-center rg-button-link',
       renderer: {
         type: 'button',
@@ -611,6 +618,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columnLayout = [
     'finishYn',
+    'agrDocFWYn',
     'agrDocRcvYn',
     'rcpdt',
     'acdnDtm',
