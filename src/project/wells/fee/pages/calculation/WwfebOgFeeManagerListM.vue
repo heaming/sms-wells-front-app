@@ -270,7 +270,7 @@ function getGridColumns() {
     if (rsbDvCd === 'W0205') { // 플래너
       columns.push(
         { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미팅일수
-        { fieldName: 'qlfDvCd', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD }, // 자격-수수료월
+        { fieldName: 'qlfDvNm', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' }, // 자격-수수료월
         { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
         { fieldName: 'strtup', header: t('MSG_TXT_SRTUP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-스타트업
         { fieldName: 'preStrtup', header: t('MSG_TXT_PRE_SRTUP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-pre스타트업
@@ -399,7 +399,7 @@ function getGridColumns() {
             expression: 'sum',
           } }, // 개인실적-가전외인정실적
         { fieldName: 'indvFxamCt',
-          header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'),
+          header: t('MSG_TXT_FXAM'),
           width: '91.4',
           styleName: 'text-right',
           dataType: 'number',
@@ -419,7 +419,7 @@ function getGridColumns() {
             expression: 'sum',
           } }, // 개인기타판매-라이브팩건수
         { fieldName: 'indvHcrMshCnt',
-          header: t('MSG_TXT_HCR_MSH') + t('MSG_TXT_COUNT'),
+          header: t('MSG_TXT_MEMBERSHIP') + t('MSG_TXT_COUNT'),
           width: '120',
           styleName: 'text-right',
           dataType: 'number',
@@ -464,7 +464,7 @@ function getGridColumns() {
         { fieldName: 'prfmtMm', header: t('MSG_TXT_PRFMT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 승진월
         { fieldName: 'prfmtNmn', header: t('MSG_TXT_PRFMT_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 승진차월
         { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right' }, // 미팅일수
-        { fieldName: 'qlfDvCd', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD }, // 자격-수수료월
+        { fieldName: 'qlfDvNm', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' }, // 자격-수수료월
         { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
         { fieldName: 'strtup', header: t('MSG_TXT_BRANCH') + t('MSG_TXT_ONL'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-지점온라인
         { fieldName: 'indvAsnCnt',
@@ -618,7 +618,7 @@ function getGridColumns() {
             expression: 'sum',
           } }, // 개인실적-가전외인정실적
         { fieldName: 'indvFxamCt',
-          header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'),
+          header: t('MSG_TXT_FXAM'),
           width: '91.4',
           styleName: 'text-right',
           dataType: 'number',
@@ -638,7 +638,7 @@ function getGridColumns() {
             expression: 'sum',
           } }, // 개인기타판매-라이브팩건수
         { fieldName: 'indvHcrMshCnt',
-          header: t('MSG_TXT_HCR_MSH') + t('MSG_TXT_COUNT'),
+          header: t('MSG_TXT_MEMBERSHIP') + t('MSG_TXT_COUNT'),
           width: '120',
           styleName: 'text-right',
           dataType: 'number',
@@ -763,7 +763,7 @@ function getGridColumns() {
         { fieldName: 'prfmtMm', header: t('MSG_TXT_PRFMT_MON'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 승진월
         { fieldName: 'prfmtNmn', header: t('MSG_TXT_PRFMT_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 승진차월
         { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미팅일수
-        { fieldName: 'qlfDvCd', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD }, // 자격-수수료월
+        { fieldName: 'qlfDvNm', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center' }, // 자격-수수료월
         { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
         { fieldName: 'strtup', header: t('MSG_TXT_SRTUP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-스타트업
         { fieldName: 'preStrtup', header: t('MSG_TXT_PRE_START_UP'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-PRE스타트업
@@ -940,7 +940,7 @@ function getGridColumns() {
             expression: 'sum',
           } }, // 개인실적-가전외인정실적
         { fieldName: 'indvFxamCt',
-          header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'),
+          header: t('MSG_TXT_FXAM'),
           width: '91.4',
           styleName: 'text-right',
           dataType: 'number',
@@ -960,7 +960,7 @@ function getGridColumns() {
             expression: 'sum',
           } }, // 개인기타판매-라이브팩건수
         { fieldName: 'indvHcrMshCnt',
-          header: t('MSG_TXT_HCR_MSH') + t('MSG_TXT_COUNT'),
+          header: t('MSG_TXT_MEMBERSHIP') + t('MSG_TXT_COUNT'),
           width: '120',
           styleName: 'text-right',
           dataType: 'number',
@@ -2293,7 +2293,7 @@ function setGridColumnLayout(view) {
         {
           header: t('MSG_TXT_QLF'), // 자격
           direction: 'horizontal',
-          items: ['qlfDvCd', 'nmnQlfDvNm'],
+          items: ['qlfDvNm', 'nmnQlfDvNm'],
         },
         {
           header: t('MSG_TXT_EDUC'), // 교육
@@ -2353,7 +2353,7 @@ function setGridColumnLayout(view) {
         {
           header: t('MSG_TXT_QLF'), // 자격
           direction: 'horizontal',
-          items: ['qlfDvCd', 'nmnQlfDvNm'],
+          items: ['qlfDvNm', 'nmnQlfDvNm'],
         },
         {
           header: t('MSG_TXT_EDUC'), // 교육
@@ -2428,7 +2428,7 @@ function setGridColumnLayout(view) {
         {
           header: t('MSG_TXT_QLF'), // 자격
           direction: 'horizontal',
-          items: ['qlfDvCd', 'nmnQlfDvNm'],
+          items: ['qlfDvNm', 'nmnQlfDvNm'],
         },
         {
           header: t('MSG_TXT_EDUC'), // 교육
