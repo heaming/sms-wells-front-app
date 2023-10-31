@@ -122,6 +122,7 @@ import {
   cloneDeep,
   isEmpty,
 } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const {
   modal,
@@ -142,6 +143,7 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
+const now = dayjs().format('YYYYMM');
 const baseUrl = '/sms/wells/bond/rental-cb-mgt/message-excludes';
 const searchParams = ref({
   cstNo: '',
@@ -207,6 +209,8 @@ function onClickAdd() {
     ctntExcdBndBizCd: '02', // 렌탈CB
     ctntExcdOjTpCd: '01', // 고객번호
     ctntExcdMediTpCd: '03', // 알림톡
+    apyStrtdt: now, // 적용시작년월
+    apyEnddt: now, // 적용종료년월
   });
   view.checkItem(0, true);
 
