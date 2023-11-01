@@ -604,12 +604,12 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_BILL_IZ'), // 청구내역
       direction: 'horizontal',
-      items: ['partCs', 'tcfee', 'bstrCs', 'etcCs', 'rveCsTot'],
+      items: ['partCs', 'tcfee', 'bstrCs', 'etcCs', 'rveCsTot', 'csBilNo'],
     },
     {
       header: t('MSG_TXT_STLM_IZ'), // 결제내역
       direction: 'horizontal',
-      items: ['csBilNo', 'adpBilAmt', 'cardStlm', 'vacStlmAmt'],
+      items: ['adpBilAmt', 'cardStlm', 'vacStlmAmt'],
     },
     'cstSignCn',
     'istImg',
