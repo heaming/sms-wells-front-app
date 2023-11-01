@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PSG
-2. 프로그램 ID : WwpsgRentManagementP - 임차관리 팝업 (K-W-GM-U-0041P01)
+2. 프로그램 ID : WwpsgBusinessCellPhoneChMgtP - 업무폰변경 관리 팝업 (K-W-GM-U-0043P01)
 3. 작성자 : jungsu.kim
 4. 작성일 : 2023.05.16
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-임차관리 팝업 화면
+업무폰변경 관리 팝업 화면
 ****************************************************************************************************
 --->
 <template>
@@ -25,10 +25,11 @@
         <kw-form-item
           :label="t('MSG_TXT_TASK_TYPE')"
         >
-          <p>{{ t('MSG_TXT_ENTRPRNR') }} {{ t('MSG_TXT_RNT') }}</p>
+          <p>{{ t('MSG_TXT_BIZ_CPHON_CH') }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 담당자 -->
         <kw-form-item
           :label="t('MSG_TXT_PIC') + ' ' + t('MSG_TXT_EMPL_NM')"
         >
@@ -42,10 +43,11 @@
         <kw-form-item
           :label="t('MSG_TXT_CONTACT')"
         >
-          <p>{{ searchParams.phoneNo }}</p>
+          <p>{{ searchParams.cralLocaraTno +"-"+ searchParams.mexnoEncr +"-"+searchParams.cralIdvTno }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 접수자 -->
         <kw-form-item
           :label="t('MSG_TXT_RCST') + ' ' + t('MSG_TXT_EMPL_NM')"
         >
@@ -63,15 +65,50 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 판매자 -->
         <kw-form-item
-          :label="t('MSG_TXT_BLD_NM')"
+          :label="t('MSG_TXT_SELLER_PERSON') + ' ' + t('MSG_TXT_EMPL_NM')"
         >
-          <p>{{ searchParams.bldNm }}</p>
+          <p>{{ searchParams.sellPrtnrNm }}</p>
+        </kw-form-item>
+        <kw-form-item
+          :label="t('MSG_TXT_PRTNR_NO')"
+        >
+          <p>{{ searchParams.sellPrtnrNo }}</p>
+        </kw-form-item>
+        <kw-form-item
+          :label="t('MSG_TXT_BLG')"
+        >
+          <p>{{ searchParams.ogNm }}</p>
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="t('MSG_TXT_RSB')"
+        >
+          <p>{{ searchParams.rsbDvNm }}</p>
         </kw-form-item>
         <kw-form-item
           :label="t('MSG_TXT_TYPE')"
         >
-          <p>{{ searchParams.rntAplcTpNm }}</p>
+          <p>{{ searchParams.bizCralTelChTpNm }}</p>
+        </kw-form-item>
+        <kw-form-item
+          :label="t('MSG_TXT_CH_AK')+t('MSG_TXT_DTM')"
+        >
+          <p>{{ searchParams.chRqdt }}</p>
+        </kw-form-item>
+      </kw-form-row>
+      <kw-form-row>
+        <kw-form-item
+          :label="t('MSG_TXT_BFCH')"
+        >
+          <p>{{ searchParams.bfchNo }}</p>
+        </kw-form-item>
+        <kw-form-item
+          :label="t('MSG_TXT_AFCH')"
+        >
+          <p>{{ searchParams.afchNo }}</p>
         </kw-form-item>
         <kw-form-item
           :label="t('MSG_TXT_RCP_DTM')"
@@ -85,22 +122,6 @@
           colspan="3"
         >
           <p>{{ searchParams.bizAkCn }}</p>
-        </kw-form-item>
-      </kw-form-row>
-      <kw-form-row>
-        <kw-form-item
-          :label="t('MSG_TXT_ATTH_FILE')"
-          colspan="3"
-        >
-          <zwcm-file-attacher
-            v-model="searchParams.attachFiles"
-            multiple
-            readonly
-            downloadable
-            attach-group-id="ATG_PSG_RPOT_MNGT"
-            :attach-document-id="searchParams.attachDocId"
-            :label="$t('MSG_TXT_ATTH_FILE')"
-          />
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -205,11 +226,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
+
 import { codeUtil, getComponentType, useDataService, useMeta, useModal } from 'kw-lib';
-import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 
 const { t } = useI18n();
-
 const dataService = useDataService();
 const { getUserInfo } = useMeta();
 const userInfo = getUserInfo();
@@ -235,9 +255,11 @@ const frmMainRef = ref(getComponentType('KwForm'));
 const searchParams = ref({
   prtnrKnm: '',
   prtnrNo: '',
-  phoneNo: '',
-  bldNm: '',
-  rntAplcTpNm: '',
+  cralLocaraTno: '',
+  mexnoEncr: '',
+  cralIdvTno: '',
+  rsbDvNm: '',
+  bizCralTelChTpNm: '',
   aplcDtm: '',
   bizAkCn: '',
   rpotBizAplcId: '',
@@ -255,7 +277,13 @@ const searchParams = ref({
   rcstPrtnrNo: '',
   rcstPrtnrNm: '',
   rcstPhoneNo: '',
-  attachFiles: [],
+  chRqdt: '',
+  sellPrtnrNm: '',
+  sellPrtnrNo: '',
+  ogCd: '',
+  ogNm: '',
+  bfchNo: '',
+  afchNo: '',
 });
 
 const saveParams = ref({
@@ -272,17 +300,10 @@ const colParams = ref({
   dtm: '',
 });
 
-async function setRentInfo() {
-  searchParams.value.prtnrKnm = props.rowData.prtnrKnm;
+async function setBusiPhoneInfo() {
+  searchParams.value = props.rowData;
+
   searchParams.value.prtnrNo = props.rowData.aplcnsPrtnrNo;
-  searchParams.value.phoneNo = props.rowData.phoneNo;
-  searchParams.value.bldNm = props.rowData.bizAkBldNm;
-  searchParams.value.rntAplcTpNm = props.rowData.rntAplcTpNm;
-  searchParams.value.aplcDtm = props.rowData.aplcDtm;
-  searchParams.value.attachDocId = props.rowData.rpotBizAplcId;
-  searchParams.value.rcstPrtnrNo = props.rowData.rcstPrtnrNo;
-  searchParams.value.rcstPrtnrNm = props.rowData.rcstPrtnrNm;
-  searchParams.value.rcstPhoneNo = props.rowData.rcstPhoneNo;
 
   saveParams.value.rpotBizAplcId = props.rowData.rpotBizAplcId;
   saveParams.value.procsSn = props.rowData.procsSn;
@@ -292,13 +313,15 @@ async function onClickSave() {
   if (!await frmMainRef.value.validate()) { return; }
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
 
-  await dataService.put('/sms/wells/competence/rent-management/rent-procs', saveParams.value);
+  await dataService.put('/sms/wells/competence/rent-management/business-phone-procs', saveParams.value);
   ok();
 }
 
 async function setColName() {
   colParams.value.procsTerritory = false;
   colParams.value.finishTerritory = false;
+
+  console.log(userInfo.baseRleCd);
 
   if (saveParams.value.rpotBizProcsStatCd === '30') {
     colParams.value.name = t('MSG_TXT_FSH_FNM');
@@ -308,13 +331,14 @@ async function setColName() {
     colParams.value.name = t('MSG_TXT_SB_FNM');
     colParams.value.dtm = `${t('MSG_TXT_SB')} ${t('MSG_TXT_DTM')}`;
     colParams.value.finishTerritory = true;
-  } else if (userInfo.baseRleCd === 'W1580') {
+  } else if (userInfo.baseRleCd === 'W1580' || userInfo.baseRleCd === null) {
     colParams.value.procsTerritory = true;
   }
 }
 
 // eslint-disable-next-line no-unused-vars
 async function getBaseInfo() {
+  console.log(saveParams.value);
   const baseInfoRes = await dataService.get('/sms/wells/competence/rent-management/rent-popup', { params: saveParams.value });
 
   saveParams.value.rpotBizProcsStatCd = baseInfoRes.data.rpotBizProcsStatCd;
@@ -333,7 +357,7 @@ async function getBaseInfo() {
 
 onMounted(() => {
   console.log(props.rowData);
-  setRentInfo();
+  setBusiPhoneInfo();
   getBaseInfo();
 });
 </script>
