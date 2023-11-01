@@ -729,17 +729,23 @@ async function getCntrInfo() {
 }
 
 async function confirmProducts() {
-  if (step2.value.dtls.find((dtl) => !dtl.pdPrcFnlDtlId)) {
+  const { dtls } = step2.value;
+  if (dtls.length === 0) {
+    await alert('상품을 선택해주세요.');
+    return false;
+  }
+
+  if (dtls.find((dtl) => !dtl.pdPrcFnlDtlId)) {
     notify('상품 가격을 확인해주세요');
     return;
   }
 
-  step2.value.dtls.forEach((dtl) => {
+  dtls.forEach((dtl) => {
     dtl.basePdCd = dtl.pdCd;
   });
   const { data } = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, step2.value.dtls);
   data.forEach((newDtl, index) => {
-    step2.value.dtls[index].promotions = newDtl.promotions;
+    dtls[index].promotions = newDtl.promotions;
   });
   return true;
 }
