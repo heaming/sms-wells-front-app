@@ -74,7 +74,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, gridUtil, getComponentType, stringUtil, useMeta, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, defineGrid, gridUtil, stringUtil, getComponentType, useMeta, useDataService, useGlobal } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
@@ -136,41 +136,49 @@ async function ozPrint() {
     return;
   }
 
-  const res = await dataService.get('/sms/wells/contract/contracts/soledistributor-cancel-contracts/ozReporting', { params: { ...cachedParams, ...pageInfo.value } });
+  // const res = await dataService.get
+  // ('/sms/wells/contract/contracts/soledistributor-cancel-contracts/oz', { params: { ...cachedParams } });
   // console.log(res.data);
 
-  const mapRes = res.data.map((v) => ({ // data naming 수정(ozReport(AS-IS)기준으로)
-    hdqr: v.ogCd, // 소속
-    hqldNm: v.hooPrtnrNm, // 본부장명
-    custCd: v.cntrNo, // 계약번호
-    LCCNAM: v.cstKnm, // 고객명
-    LCW_HPNO: !isEmpty(v.telNo) ? `${v.istCralLocaraTno}${v.istMexnoEncr}${v.istCralIdvTno}` : '', // 설치자 휴대번호
-    LCW_ADDR: `${v.istRnadr} ${v.istRdadr}`, // 설치자 주소
-    prdtNm: v.pdAbbrNm, // 상품명
-    setDt: !isEmpty(v.canDt) ? stringUtil.getDateFormat(v.istDt, '-') : '', // 설치일자
-    cancelDt: !isEmpty(v.canDt) ? stringUtil.getDateFormat(v.canDt, '-') : '', // 취소일자
-    contDesc: !isEmpty(v.canCn) ? v.canCn : '', // 취소내용
-  }));
+  // const mapRes = res.data.map((v) => ({ // data naming 수정(ozReport(AS-IS)기준으로)
+  //   hdqr: v.ogCd, // 소속
+  //   hqldNm: v.hooPrtnrNm, // 본부장명
+  //   custCd: v.cntrNo, // 계약번호
+  //   LCCNAM: v.cstKnm, // 고객명
+  //   LCW_HPNO: !isEmpty(v.telNo) ? `${v.istCralLocaraTno}${v.istMexnoEncr}${v.istCralIdvTno}` : '', // 설치자 휴대번호
+  //   LCW_ADDR: `${v.istRnadr} ${v.istRdadr}`, // 설치자 주소
+  //   prdtNm: v.pdAbbrNm, // 상품명
+  //   setDt: !isEmpty(v.canDt) ? stringUtil.getDateFormat(v.istDt, '-') : '', // 설치일자
+  //   cancelDt: !isEmpty(v.canDt) ? stringUtil.getDateFormat(v.canDt, '-') : '', // 취소일자
+  //   contDesc: !isEmpty(v.canCn) ? v.canCn : '', // 취소내용
+  // }));
 
   // console.log(cachedParams);
   const pritChpr = `${userInfo.userName}(${userInfo.employeeIDNumber})`; // 조회계정정보
-  const srchPerd = `${stringUtil.getDateFormat(cachedParams.canStrtDt, 'YYYY.MM.DD')}  ~ ${stringUtil.getDateFormat(cachedParams.canEndDt, 'YYYY.MM.DD')}`; // 취소일자
+  // eslint-disable-next-line max-len
+  const srchPerd = `${stringUtil.getDateFormat(cachedParams.canStrtDt, 'YYYY.MM.DD')} ~ ${stringUtil.getDateFormat(cachedParams.canEndDt, 'YYYY.MM.DD')}`; // 취소일자
   const codeNm = codes.PDGRP_ACD.filter((x) => cachedParams.pdGbn.includes(x.codeId)); // 조회상품구분
   const srchDiv = !isEmpty(codeNm) ? codeNm[0].codeName : t('MSG_TXT_ALL');
 
-  console.log(codeNm);
-  console.log(srchDiv);
+  console.log(pritChpr, srchPerd, srchDiv);
+
+  // eslint-disable-next-line max-len
+  // const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/soledistributor-cancel-contracts/oz', ...cachedParams };
+
+  const args = {
+    searchApiUrl: '/api/v1/sms/wells/contract/contracts/soledistributor-cancel-contracts/oz',
+    ...cachedParams,
+    pritChpr,
+    srchPerd,
+    srchDiv,
+  };
+
+  console.log(args);
+
   await openReportPopup(
     '/kstation-w/acrs/cancelCust.ozr',
     null,
-    JSON.stringify(
-      {
-        jsondata: JSON.stringify(mapRes),
-        pritChpr,
-        srchPerd,
-        srchDiv,
-      },
-    ),
+    JSON.stringify(args),
   );
 }
 
