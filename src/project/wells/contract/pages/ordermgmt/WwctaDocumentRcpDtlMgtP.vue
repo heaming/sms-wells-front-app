@@ -191,35 +191,37 @@
             </div>
           </kw-form-item>
           <!-- 기타1 -->
-          <kw-form-item :label="$t('MSG_TXT_ETC')">
-            <div class="preview-attach">
-              <div class="preview-attach__top">
-                {{ $t('MSG_TXT_ETC') }}
-              </div>
-              <div class="preview-attach__bottom">
-                <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <kw-image
-                  :file-uid="frmMainData.nmchgEtcFileUid1"
-                  alt=""
-                />
-              </div>
-              <ul class="preview-attach__infos">
-                <!-- 166730259072721428.jpg -->
-                <li class="text-underline cursor-pointer">
-                  <kw-btn
-                    dense
-                    underline
-                    :label="frmMainData.nmchgEtcFileNm1"
-                    @click="onClickOpenImageViewer('nmchgEtcFileUid1')"
+          <slot v-if="frmMainData.nmchgEtcFileUid1 !== ''">
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.nmchgEtcFileUid1"
+                    alt=""
                   />
-                </li>
-                <!-- 등록일시 : 2022.11.01 20:36:43 -->
-                <li class="kw-fc--black3 mt2 text-weight-regular">
-                  <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm1 }}</p>
-                </li>
-              </ul>
-            </div>
-          </kw-form-item>
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.nmchgEtcFileNm1"
+                      @click="onClickOpenImageViewer('nmchgEtcFileUid1')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm1 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+          </slot>
         </kw-form-row>
         <slot v-if="frmMainData.nmchgEtcFileUid2 !== ''">
           <kw-form-row>
@@ -2548,10 +2550,13 @@ async function onClickOpenImageViewer(fileUid) {
     return;
   }
 
-  const imgFileUid = ref(cpProps);
+  // const imgFileUid = ref(cpProps);
+  const { imgUrl } = cpProps;
   await modal({
     component: 'ZwcmzImagePreviewP',
-    componentProps: { files: [imgFileUid.value] }, // fileUid만 주면 됨
+    componentProps: { files: [
+      { fileUid: imgUrl },
+    ] }, // fileUid만 주면 됨
     // componentProps: { files: [{ fileUid: imgFileUid.value }] }, // fileUid만 주면 됨
     // componentProps: { files: ['FIL-E9E84666-BFC3-44E2-9EC1-D3AFD05BF77B'] }, // fileUid만 주면 됨
   });
