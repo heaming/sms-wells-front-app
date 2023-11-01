@@ -76,7 +76,7 @@
             <kw-select
               v-model="searchParams.sellTpCd"
               :label="$t('MSG_TXT_SEL_TYPE')"
-              :options="codes.AGRG_SELL_TP_CD"
+              :options="codes.AGRG_SELL_TP_CD.filter((v) => ['01', '02', '04', '05', '06'].includes(v.codeId))"
               first-option
               first-option-value=""
               :first-option-label="$t('MSG_TXT_ALL')"
@@ -744,7 +744,7 @@ const initGrdDtl = defineGrid((data, view) => {
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' }, // 번호
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' }, // 성명
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.AGRG_SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.AGRG_SELL_TP_CD.filter((v) => ['01', '02', '04', '05', '06'].includes(v.codeId)) }, // 판매유형
     { fieldName: 'feePdctTpCd', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD }, // 제품유형
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '200', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'copnDvCd', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center', options: codes.COPN_DV_CD }, // 고객구분
