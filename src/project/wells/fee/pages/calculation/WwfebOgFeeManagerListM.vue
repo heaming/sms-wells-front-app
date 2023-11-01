@@ -1466,7 +1466,7 @@ function getGridColumns() {
     // 2023년04월 이전
     columns.push(
       { fieldName: 'metgPrscDc', header: t('MSG_TXT_METG') + t('MSG_TXT_DC'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미팅일수
-      { fieldName: 'qlfDvCd', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD }, // 자격-수수료월
+      { fieldName: 'qlfDvNm', header: t('MSG_TXT_FEE') + t('MSG_TXT_MON'), width: '91.4', styleName: 'text-center', options: codes.QLF_DV_CD }, // 자격-수수료월
       { fieldName: 'nmnQlfDvNm', header: 'M+1', width: '140', styleName: 'text-center' }, // 자격-M+1
     );
 
@@ -2497,7 +2497,7 @@ function setGridColumnLayout(view) {
         {
           header: t('MSG_TXT_QLF'),
           direction: 'horizontal',
-          items: ['qlfDvCd', 'nmnQlfDvNm'],
+          items: ['qlfDvNm', 'nmnQlfDvNm'],
         },
         {
           header: t('MSG_TXT_SRTUP'),
@@ -2557,7 +2557,7 @@ function setGridColumnLayout(view) {
         {
           header: t('MSG_TXT_QLF'),
           direction: 'horizontal',
-          items: ['qlfDvCd', 'nmnQlfDvNm'],
+          items: ['qlfDvNm', 'nmnQlfDvNm'],
         },
         {
           header: t('MSG_TXT_TOPMR_PLAR') + t('MSG_TXT_EDUC'),
@@ -2615,7 +2615,7 @@ function setGridColumnLayout(view) {
         {
           header: t('MSG_TXT_QLF'),
           direction: 'horizontal',
-          items: ['qlfDvCd', 'nmnQlfDvNm'],
+          items: ['qlfDvNm', 'nmnQlfDvNm'],
         },
         {
           header: t('MSG_TXT_SRTUP'),
