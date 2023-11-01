@@ -82,7 +82,8 @@
           <kw-btn
             v-if="isSeeding"
             :disable="!isFreePackage"
-            label="모종선택"
+            :primary="!sdingCapsls?.length"
+            :label="sdingCapsls?.length ? '모종변경' : '모종선택'"
             dense
             @click="onClickSelectSeeding"
           />
@@ -339,9 +340,10 @@ const labelGenerator = {
 
 const {
   setPriceDefineVariablesBy,
-  // setVariablesIfUniqueSelectable,
+  setVariablesIfUniqueSelectable,
   priceDefineVariableOptions,
   selectedFinalPrice, // computed
+  initializePriceDefineVariable,
 } = usePriceSelect(
   priceDefineVariables,
   finalPriceOptions,
@@ -381,6 +383,8 @@ async function fetchFinalPriceOptions() {
 
 function initPriceDefineVariables() {
   if (!pdPrcFnlDtlId.value) {
+    initializePriceDefineVariable();
+    setVariablesIfUniqueSelectable();
     return;
   }
   setPriceDefineVariablesBy(pdPrcFnlDtlId.value);

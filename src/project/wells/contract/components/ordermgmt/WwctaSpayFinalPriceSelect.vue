@@ -75,7 +75,8 @@
           <kw-btn
             v-if="showChangeWellsFarmPackageBtn"
             :disable="!!promotions?.length"
-            label="패키지변경"
+            :primary="!lkSdingCntrRel"
+            :label="lkSdingCntrRel ? '패키지변경' : '패키지선택'"
             dense
             @click="onClickChangeWellsFarmPackage"
           />
@@ -223,6 +224,7 @@
         </kw-item-section>
       </kw-item>
       <promotion-select
+        :key="`promotion-select-${modelValue?.pdCd ?? ''}`"
         v-model="appliedPromotions"
         :promotions="promotions"
       />
@@ -236,7 +238,11 @@ import { useCtCode } from '~sms-common/contract/composable';
 import { alert, useDataService } from 'kw-lib';
 import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
-import { SELL_TP_DTL_CD, SPAY_DSC_DV_CD } from '~sms-wells/contract/constants/ctConst';
+import {
+  CNTR_REL_DTL_CD,
+  SELL_TP_DTL_CD,
+  SPAY_DSC_DV_CD,
+} from '~sms-wells/contract/constants/ctConst';
 import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
 
 const props = defineProps({
@@ -301,6 +307,7 @@ let pdPrcFnlDtlId;
 let verSn;
 let fnlAmt;
 let pdQty;
+let ojCntrRels;
 let wellsDtl;
 let promotions;
 let appliedPromotions;
@@ -310,6 +317,7 @@ function connectReactivities() {
   verSn = toRef(props.modelValue, 'verSn');
   fnlAmt = toRef(props.modelValue, 'fnlAmt');
   pdQty = toRef(props.modelValue, 'pdQty', 1);
+  ojCntrRels = toRef(props.modelValue, 'ojCntrRels');
   promotions = ref(props.modelValue?.promotions, []); /* 적용가능한 프로모션 목록 */
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions', []);
   wellsDtl = toRef(props.modelValue, 'wellsDtl');
@@ -400,10 +408,11 @@ const labelGenerator = {
 const {
   priceDefineVariableOptions,
   setPriceDefineVariablesBy,
-  // setVariablesIfUniqueSelectable,
+  setVariablesIfUniqueSelectable,
   selectedFinalPrice, // computed
   // eslint-disable-next-line no-unused-vars
   // selectedFinalPrices, // computed
+  initializePriceDefineVariable,
 } = usePriceSelect(
   priceDefineVariables,
   finalPriceOptions,
@@ -454,6 +463,8 @@ const showSvPtrms = computed(() => dtl.value.sellTpDtlCd === SELL_TP_DTL_CD.SPAY
 
 function initPriceDefineVariables() {
   if (!pdPrcFnlDtlId.value) {
+    initializePriceDefineVariable();
+    setVariablesIfUniqueSelectable([]);
     return;
   }
   setPriceDefineVariablesBy(pdPrcFnlDtlId.value);
@@ -485,6 +496,9 @@ const showChangeWellsFarmPackageBtn = computed(() => {
   const isWellsFarmProduct = pdLclsfId === 'PDC000000000120';
   return isWellsFarmProduct;
 });
+
+const lkSdingCntrRel = computed(() => (
+  ojCntrRels.value?.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING)));
 // endregion [계약 관계 버튼]
 
 // region [가격표기]
