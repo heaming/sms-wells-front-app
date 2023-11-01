@@ -88,7 +88,7 @@
       </kw-search-row>
     </kw-search>
     <div class="result-area">
-      <h3>{{ searchParams.statTitleText }}</h3>
+      <h3>{{ statTitleText }}</h3>
       <!-- STEPER -->
       <zwfey-fee-step
         ref="stepNaviRef"
@@ -184,13 +184,11 @@ const searchParams = ref({
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   feeTcntDvCd: '01',
   rsbDvCd: '',
-  rsbTpTxt: '',
   prtnrNo: '',
   prtnrKnm: '',
   ogLevl1Id: '',
   ogLevl2Id: '',
   ogLevl3Id: '',
-  statTitleText: t('MSG_TXT_PRGS_STE'),
   ogTpCd: 'W02',
   feeSchdTpCd: '',
   coCd: '2000',
@@ -213,23 +211,19 @@ const saveInfo = ref({
   unitCd: '',
 });
 
-let cachedParams;
-
-/*
- *  Event - 조회 후 상단 title 변경
- */
-async function setTitle() {
+const statTitleText = computed(() => {
   const { perfYm, rsbDvCd } = searchParams.value;
-  searchParams.value.statTitleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
+  let titleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
   if (!isEmpty(rsbDvCd)) {
     const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbDvCd);
-    searchParams.value.rsbTpTxt = codeName;
-    searchParams.value.statTitleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
+    titleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
   } else {
-    searchParams.value.rsbTpTxt = '';
-    searchParams.value.statTitleText += ` ${t('MSG_TXT_PRGS_STE')}`;
+    titleText += ` ${t('MSG_TXT_PRGS_STE')}`;
   }
-}
+  return titleText;
+});
+
+let cachedParams;
 
 /*
  *  Event - 그리드 내역 초기화
@@ -239,7 +233,6 @@ async function initData() {
   view.clearRows();
   totalCount.value = 0;
   stepNaviRef.value.initProps();
-  await setTitle();
 }
 
 // 그리드 컬럼 세팅
