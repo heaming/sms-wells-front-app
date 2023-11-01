@@ -498,7 +498,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bstrCs', header: t('MSG_TXT_BSTR_CS'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 청구내역(출장료)
     { fieldName: 'etcCs', header: t('MSG_TXT_ETC_CS'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 청구내역(기타비용)
     { fieldName: 'rveCsTot', header: t('MSG_TXT_AGG'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 청구내역(계)
-    { fieldName: 'csBilNo', header: t('MSG_TXT_BIL_NO'), width: '180' }, // 결제내역(청구번호)
+    { fieldName: 'csBilNo', header: t('MSG_TXT_BIL_NO'), width: '200' }, // 결제내역(청구번호)
     { fieldName: 'adpBilAmt', header: t('MSG_TXT_ADP_BIL'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제내역(합산청구)
     { fieldName: 'cardStlm', header: t('MSG_TXT_CRDCD'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제내역(신용카드)
     { fieldName: 'vacStlmAmt', header: t('MSG_TXT_VT_AC'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제내역(가상계좌)
