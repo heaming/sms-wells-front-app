@@ -400,6 +400,7 @@ const isDtlExcelDown = ref(false);
 const isAggrExcelDown = ref(false);
 const isOrderCreateVisile = ref(false);
 const isOrderModifyVisile = ref(false);
+const { confirm } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -648,6 +649,17 @@ async function onClickSearchNo() {
  *  Event - 순주문 집계 버튼 클릭
  */
 async function openNtorAgrgPopup() {
+  const statusParams = {
+    baseYm: searchParams.value.baseYm,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+  };
+
+  const res = await dataService.get('/sms/common/fee/net-order-status/cntr', { params: statusParams });
+
+  if (!isEmpty(res)) {
+    if (!await confirm(t('MSG_ALT_AGRG_PERF_ALREADY_DATA'))) { return; }
+  }
+
   const param = {
     perfYm: searchParams.value.perfYm,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
@@ -684,6 +696,17 @@ async function openNtorAgrgPopup() {
  *  Event - 순주문 확정 버튼 클릭
  */
 async function openNtorConfirmPopup() {
+  const statusParams = {
+    baseYm: searchParams.value.baseYm,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+  };
+
+  const res = await dataService.get('/sms/common/fee/net-order-status/cntr', { params: statusParams });
+
+  if (!isEmpty(res)) {
+    if (!await confirm(t('MSG_ALT_MSG_ALT_CNFM_PERF_ALREADY_DATA'))) { return; }
+  }
+
   const param = {
     perfYm: searchParams.value.perfYm,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,

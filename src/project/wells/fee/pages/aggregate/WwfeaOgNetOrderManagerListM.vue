@@ -442,6 +442,8 @@ const isDtlExcelDown = ref(false);
 const isAggrExcelDown = ref(false);
 const isOrderCreateVisile = ref(false);
 const isOrderModifyVisile = ref(false);
+const isOrderDeleteVisile = ref(false);
+const { confirm } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -567,13 +569,16 @@ async function fetchNetOrderStatus() {
     if (resStat.data.schStartCd === 'NOTSTART') { // 해당 일정이 시작 하였는지 확인
       isOrderCreateVisile.value = true;
       isOrderModifyVisile.value = true;
+      isOrderDeleteVisile.value = true;
     } else {
       isOrderCreateVisile.value = false;
       isOrderModifyVisile.value = false;
+      isOrderDeleteVisile.value = false;
     }
   } else {
     isOrderCreateVisile.value = false;
     isOrderModifyVisile.value = false;
+    isOrderDeleteVisile.value = false;
   }
 }
 
@@ -724,6 +729,19 @@ async function onClickSearchPdCdPopup(arg) {
  *  Event - 수수료 실적 생성 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCrtPopup() {
+  const statusParams = {
+    baseYm: searchParams.value.baseYm,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    perfAgrgCrtDvCd: '201',
+    ntorCnfmStatCd: '01',
+  };
+
+  const res = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: statusParams });
+
+  if (!isEmpty(res)) {
+    if (!await confirm(t('MSG_ALT_AGRG_PERF_ALREADY_DATA'))) { return; }
+  }
+
   const param = {
     perfYm: searchParams.value.perfYm,
     ogTp: 'W02',
@@ -764,6 +782,19 @@ async function openFeePerfCrtPopup() {
  *  Event - 수수료 실적 확정 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCnfmPopup() {
+  const statusParams = {
+    baseYm: searchParams.value.baseYm,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    perfAgrgCrtDvCd: '201',
+    ntorCnfmStatCd: '02',
+  };
+
+  const res = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: statusParams });
+
+  if (!isEmpty(res)) {
+    if (!await confirm(t('MSG_ALT_MSG_ALT_CNFM_PERF_ALREADY_DATA'))) { return; }
+  }
+
   const param = {
     perfYm: searchParams.value.perfYm,
     ogTp: 'W02',
