@@ -295,9 +295,9 @@ const labelGenerator = {
 const {
   priceDefineVariableOptions,
   setPriceDefineVariablesBy,
-  // setVariablesIfUniqueSelectable,
+  setVariablesIfUniqueSelectable,
   selectedFinalPrice, // computed
-  // eslint-disable-next-line no-unused-vars
+  initializePriceDefineVariable,
 } = usePriceSelect(
   priceDefineVariables,
   finalPriceOptions,
@@ -319,7 +319,8 @@ const labelForSellTpCd = computed(() => {
 });
 
 function initPriceDefineVariables() {
-  console.log('initPriceDefineVariables', pdPrcFnlDtlId.value);
+  initializePriceDefineVariable();
+  setVariablesIfUniqueSelectable(['rentalDscTpCd']);
   if (!pdPrcFnlDtlId.value) {
     return;
   }
