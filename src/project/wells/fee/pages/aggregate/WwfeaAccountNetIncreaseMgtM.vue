@@ -221,6 +221,7 @@ const codes = await codeUtil.getMultiCodes(
   'MNGER_OG_ACC_NINC_MNGT_INQR_DV_CD',
   'MNGER_OG_CNTR_CAN_TP_CD',
   'MNGER_OG_AGRG_TP_CD',
+  'CMN_STAT_CH_RSON_CD',
 );
 
 let cachedParams;
@@ -347,7 +348,7 @@ const initCancelGrid = defineGrid((data, view) => {
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_USE_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 사용일
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_MEMBERSHIP') + t('MSG_TXT_RCP_D'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 멤버십접수일
     { fieldName: 'cntrCnfmAprDtm', header: t('MSG_TXT_MEMBERSHIP') + t('MSG_TXT_SUBS_DT'), width: '100', styleName: 'text-center', dataType: 'date', datetimeFormat: 'date' }, // 멤버십가입일
-    { fieldName: 'cntrCanRsonCd', header: t('MSG_TXT_CAN_RSON'), width: '100', styleName: 'text-left' }, // 취소사유
+    { fieldName: 'cntrCanRsonCd', header: t('MSG_TXT_CAN_RSON'), width: '100', styleName: 'text-left', options: codes.CMN_STAT_CH_RSON_CD }, // 취소사유
     { fieldName: 'bzrno', header: t('MSG_TXT_ENTRP_NO'), width: '150', styleName: 'text-center' }, // 사업자번호
     { fieldName: 'b2bYn', header: `B2B${t('MSG_TXT_OJ_YN')}`, width: '100', styleName: 'text-center' }, // B2B대상여부
     { fieldName: 'sellOgYn', header: t('MSG_TXT_SELL_OG'), width: '100', styleName: 'text-center' }, // 판매조직
