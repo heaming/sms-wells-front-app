@@ -2554,11 +2554,7 @@ async function onClickOpenImageViewer(fileUid) {
   const { imgUrl } = cpProps;
   await modal({
     component: 'ZwcmzImagePreviewP',
-    componentProps: { files: [
-      { fileUid: imgUrl },
-    ] }, // fileUid만 주면 됨
-    // componentProps: { files: [{ fileUid: imgFileUid.value }] }, // fileUid만 주면 됨
-    // componentProps: { files: ['FIL-E9E84666-BFC3-44E2-9EC1-D3AFD05BF77B'] }, // fileUid만 주면 됨
+    componentProps: { files: [imgUrl] }, // fileUid만 주면 됨
   });
 }
 
