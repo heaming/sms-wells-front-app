@@ -129,7 +129,7 @@
         dense
         secondary
         :label="t('MSG_TXT_EXCEL_UPLOAD')"
-        :disable="!isSearchMonth || isExpectedConfirm || isfinalConfirm"
+        :disable="!isSearchMonth || isfinalConfirm"
         @click="onClickExcelUpload"
       />
       <kw-btn
@@ -460,6 +460,7 @@ async function onClickExcelUpload() {
   const templateId = 'FOM_BOND_AUTH_RSG';
   const extraData = {
     baseDt: cachedParams.baseDt,
+    authRsgCd: cachedParams.authRsgCd,
   };
   const {
     payload,
