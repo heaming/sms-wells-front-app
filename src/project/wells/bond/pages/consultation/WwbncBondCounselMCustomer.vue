@@ -131,7 +131,6 @@
           :options="selectCodes.FNT_DV"
           first-option="all"
         />
-        <span>-</span>
         <kw-select
           v-model="searchParams.schFntDtStrt"
           :options="selectCodes.FNT_DT"
