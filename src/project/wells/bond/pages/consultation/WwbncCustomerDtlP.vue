@@ -672,6 +672,7 @@
                     secondary
                     class="kw-font-caption py2"
                     style="min-height: 20px;"
+                    @click="onClickRsgRgst"
                   />
                   <kw-btn
                     v-permission:read
@@ -1399,6 +1400,12 @@ async function onClickService() {
     component: 'WwbncServiceDtlP',
     componentProps: customer.value,
   });
+}
+
+// TODO: 해지등록 상세
+async function onClickRsgRgst() {
+  const { cstNo, cntrNo, cntrSn } = customer.value;
+  await popupUtil.open(`/popup/#/contract/wwctb-cancel-registration-mgt?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&cntrDtlNo=${cntrNo}-${cntrSn}`, { width: 1292, height: 1100 }, false);
 }
 
 // TODO: 법조치등록
