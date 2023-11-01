@@ -3,13 +3,13 @@
 * 프로그램 개요
 ****************************************************************************************************
 1. 모듈 : PSG
-2. 프로그램 ID : WwpsgRentManagementM - 임차관리 (K-W-GM-U-0041M01)
+2. 프로그램 ID : WwpsgBusinessCellPhoneChMgtM - 업무폰변경 관리 (K-W-GM-U-0043M01)
 3. 작성자 : jungsu.kim
 4. 작성일 : 2023.05.16
 ****************************************************************************************************
 * 프로그램 설명
 ****************************************************************************************************
-임차관리 조회 화면
+업무폰변경 관리 화면
 ****************************************************************************************************
 --->
 <template>
@@ -30,19 +30,6 @@
             <kw-item-section>
               <kw-item-label>
                 <span class="text-bold kw-font-pt18">{{ t('MSG_TXT_RGS') }}</span>
-                <div class="float-right">
-                  <kw-btn
-                    :label="t('MSG_TXT_ADVNC_PLAN_DOC') + ' ' + t('MSG_TXT_EXPL2')"
-                    dense
-                    class="mr8"
-                    @click="onClickTemplateDownload"
-                  />
-                  <kw-btn
-                    :label="t('MSG_TXT_ADVNC_PLAN_DOC') + ' ' + t('MSG_TXT_FORM')"
-                    dense
-                    @click="onClickTemplateDownload2"
-                  />
-                </div>
               </kw-item-label>
             </kw-item-section>
           </template>
@@ -55,30 +42,26 @@
                 <kw-form-item
                   :label="t('MSG_TXT_TASK_TYPE')"
                 >
-                  <p>{{ t('MSG_TXT_ENTRPRNR') }} {{ t('MSG_TXT_RNT') }}</p>
+                  <p>{{ t('MSG_TXT_BIZ_CPHON_CH') }}</p>
                 </kw-form-item>
                 <kw-form-item
-                  :label="t('MSG_TXT_BLD_NM')"
+                  :label="t('MSG_TXT_TYPE')"
                   required
                 >
-                  <kw-select
-                    v-model="saveParams.bizAkBldCd"
-                    :label="saveParams.bizAkBldNm"
+                  <kw-option-group
+                    v-model="saveParams.bizCralTelChTpCd"
+                    type="radio"
+                    :options="codes.BIZ_CRAL_TEL_CH_TP_CD"
                     rules="required"
-                    first-option="select"
-                    :options="bldInfoList"
                   />
                 </kw-form-item>
                 <kw-form-item
-                  :label="t('MSG_TXT_RNT_APLC_TP')"
+                  :label="t('MSG_TXT_CH_AK') + t('MSG_TXT_DT')"
                   required
                 >
-                  <kw-select
-                    v-model="saveParams.rntAplcTpCd"
-                    :label="$t('MSG_TXT_RNT_APLC_TP')"
+                  <kw-date-picker
+                    v-model="saveParams.chRqdt"
                     rules="required"
-                    first-option="select"
-                    :options="codes.RNT_APLC_TP_CD"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -101,28 +84,92 @@
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item
-                  :label="t('MSG_TXT_CNTN')"
-                  colspan="3"
+                  :label="t('MSG_TXT_SELLER_FNM')"
+                  required
                 >
                   <kw-input
-                    v-model="saveParams.bizAkCn"
-                    type="textarea"
-                    :rows="5"
-                    placeholder="※ 신규/분리, 플래너 사업장, 단기사업장의 경우는 반드시 첨부된 '사업장진출계획서' 작성 후 별도 첨부 바랍니다. (파일 미첨부시 반송됩니다.)"
+                    v-model="saveParams.sellPrtnrNo"
+                    clearable
+                    rules="required"
+                    readonly
+                  />
+                  <kw-btn
+                    icon="search"
+                    secondary
+                    @click="onClickPartner"
+                  />
+                </kw-form-item>
+                <kw-form-item
+                  :label="t('MSG_TXT_EMPL_NM')"
+                >
+                  <p>{{ saveParams.sellPrtnrKnm }}</p>
+                </kw-form-item>
+                <kw-form-item
+                  :label="t('MSG_TXT_PRTNR_NO')"
+                >
+                  <p>{{ saveParams.sellPrtnrNo }}</p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <kw-form-item
+                  :label="t('MSG_TXT_BLG')"
+                >
+                  <p>{{ saveParams.ogCd }}</p>
+                </kw-form-item>
+                <kw-form-item
+                  :label="t('MSG_TXT_RSB')"
+                >
+                  <p>{{ saveParams.rsbDvNm }}</p>
+                </kw-form-item>
+                <kw-form-item
+                  :label="t('MSG_TXT_BLD_NM')"
+                >
+                  <p>{{ saveParams.bldNm }}</p>
+                </kw-form-item>
+              </kw-form-row>
+              <kw-form-row>
+                <kw-form-item
+                  :label="t('MSG_TXT_CONTACT')"
+                >
+                  <p>
+                    {{ saveParams.sellPhoneNo }}
+                  </p>
+                </kw-form-item>
+                <kw-form-item
+                  :label="t('MSG_TXT_BFCH')"
+                  required
+                >
+                  <zwcm-telephone-number
+                    v-model:tel-no1="saveParams.bfchCralLocaraTno"
+                    v-model:tel-no2="saveParams.bfchMexnoEncr"
+                    v-model:tel-no3="saveParams.bfchCralIdvTno"
+                    required
+                  />
+                </kw-form-item>
+                <kw-form-item
+                  :label="t('MSG_TXT_AFCH')"
+                  required
+                >
+                  <zwcm-telephone-number
+                    v-model:tel-no1="saveParams.afchCralLocaraTno"
+                    v-model:tel-no2="saveParams.afchMexnoEncr"
+                    v-model:tel-no3="saveParams.afchCralIdvTno"
+                    required
                   />
                 </kw-form-item>
               </kw-form-row>
               <kw-form-row>
                 <kw-form-item
-                  :label="t('MSG_TXT_ATTH_FILE')"
+                  :label="t('MSG_TXT_CH_RSON')"
                   colspan="3"
+                  required
                 >
-                  <zwcm-file-attacher
-                    v-model="saveParams.attachFiles"
-                    multiple
-                    attach-group-id="ATG_PSG_RPOT_MNGT"
-                    :attach-document-id="saveParams.attachFileId"
-                    :label="$t('MSG_TXT_ATTH_FILE')"
+                  <kw-input
+                    v-model="saveParams.bizAkCn"
+                    type="textarea"
+                    :rows="5"
+                    :placeholder="t('MSG_TXT_CH_RSON')"
+                    rules="required"
                   />
                 </kw-form-item>
               </kw-form-row>
@@ -233,19 +280,15 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, getComponentType, gridUtil, useDataService, useGlobal, useMeta, modal } from 'kw-lib';
-import ZwcmFileAttacher from '~common/components/ZwcmFileAttacher.vue';
 import { cloneDeep } from 'lodash-es';
+import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import dayjs from 'dayjs';
-import useCmFile from '~common/composables/useCmFile';
 
-const { getStandardFormFile } = useCmFile();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
 const { getConfig, getUserInfo } = useMeta();
-// eslint-disable-next-line no-unused-vars
-const { notify, alert } = useGlobal();
-// eslint-disable-next-line no-unused-vars
+const { notify } = useGlobal();
 const userInfo = getUserInfo();
 const now = dayjs();
 
@@ -254,6 +297,7 @@ const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'BIZ_CRAL_TEL_CH_TP_CD',
   'RNT_APLC_TP_CD',
   'RPOT_BIZ_PROCS_STAT_CD',
 );
@@ -271,52 +315,51 @@ const pageInfo = ref({
 const searchParams = ref({
   rcpStartDtm: now.date(1).format('YYYYMMDD'),
   rcpEndDtm: now.format('YYYYMMDD'),
-  rpotBizTpId: '30',
+  rpotBizTpId: '1400',
   rntAplcTpCd: '',
   rpotBizProcsStatCd: '',
 });
 
 const saveParams = ref({
   rntAplcTpCd: '',
-  rpotBizTpId: '30',
+  rpotBizTpId: '1400',
+  bizCralTelChTpCd: '10',
+  chRqdt: '',
   ogTpCd: '',
   prtnrNo: '',
-  bizAkCn: '',
-  bizAkBldCd: '',
-  bizAkBldNm: '',
   prtnrKnm: '',
-  cralIdvTno: '',
-  mexnoEncr: '',
   cralLocaraTno: '',
-  attachFileId: '',
-  apnFileDocId: '',
-  attachFiles: [],
+  mexnoEncr: '',
+  cralIdvTno: '',
+  bfchCralLocaraTno: '',
+  bfchMexnoEncr: '',
+  bfchCralIdvTno: '',
+  afchCralLocaraTno: '',
+  afchMexnoEncr: '',
+  afchCralIdvTno: '',
+  bizAkCn: '',
+  sellPrtnrNo: '',
+  sellPrtnrKnm: '',
+  rsbDvNm: '',
+  ogNm: '',
+  ogCd: '',
+  sellPhoneNo: '',
+  bldNm: '',
 });
 
-let cachedParams;
+let cachedParams = null;
 
 const businessTypeList = ref([]);
-const bldInfoList = ref([]);
 
-function onClickTemplateDownload() {
-  getStandardFormFile('FOM_PSG_W_0001');
-}
-
-function onClickTemplateDownload2() {
-  getStandardFormFile('FOM_PSG_W_0002');
-}
-
+// eslint-disable-next-line no-unused-vars
 async function getBaseInfo() {
-  const baseInfoParams = { rpotBizTpDvCd: '01', rpotBizTpId: '30', ogTpCd: '' };
-  const baseInfoRes = await dataService.get('/sms/wells/competence/rent-management/base-information', { params: baseInfoParams });
-  const { businessType, bldInfo, BaseSearchInfo } = baseInfoRes.data;
+  const baseInfoParams = { rpotBizTpDvCd: '02', rpotBizTpId: '1400', ogTpCd: '' };
+  const baseInfoRes = await dataService.get('/sms/wells/competence/business-cell-phone/base-information', { params: baseInfoParams });
+  const { businessType, BaseSearchInfo } = baseInfoRes.data;
 
   console.log(baseInfoRes.data);
 
-  const bldList = bldInfo.map(({ bldCd, bldNm }) => ({ codeId: bldCd, codeName: bldNm }));
-
   businessTypeList.value = businessType;
-  bldInfoList.value = bldList;
 
   saveParams.value.prtnrNo = BaseSearchInfo[0].prtnrNo;
   saveParams.value.prtnrKnm = BaseSearchInfo[0].prtnrKnm;
@@ -326,8 +369,29 @@ async function getBaseInfo() {
   saveParams.value.ogTpCd = BaseSearchInfo[0].ogTpCd;
 }
 
+async function onClickPartner() {
+  const { payload } = await modal({
+    component: 'ZwogzPartnerListP',
+    componentProps: {
+      prtnrNo: searchParams.value.prtnrNo,
+    },
+  });
+
+  saveParams.value.sellPrtnrNo = payload.prtnrNo;
+  saveParams.value.sellPrtnrKnm = payload.prtnrKnm;
+  saveParams.value.ogNm = payload.ogNm;
+  saveParams.value.ogCd = payload.ogCd;
+  saveParams.value.rsbDvNm = payload.rsbDvNm;
+
+  const res = await dataService.get('/sms/wells/competence/business-cell-phone/prtnr-info', { params: { prtnrNo: payload.prtnrNo, ogTpCd: payload.ogTpCd } });
+  console.log(res.data);
+
+  saveParams.value.bldNm = res.data.bldNm;
+  saveParams.value.sellPhoneNo = `${res.data.sellCralLocaraTno}-${res.data.sellMexnoEncr}-${res.data.sellCralIdvTno}`;
+}
+
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/competence/rent-management/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/competence/business-cell-phone/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: pages, pageInfo: pageResult } = res.data;
   pageInfo.value = pageResult;
 
@@ -337,8 +401,8 @@ async function fetchData() {
   const data = view.getDataSource();
 
   pages.forEach((param) => {
-    param.phoneNo = `${param.cralLocaraTno}-${param.mexnoEncr}-${param.cralIdvTno}`;
-    param.rcstPhoneNo = `${param.rcstCralLocaraTno}-${param.rcstMexnoEncr}-${param.rcstCralIdvTno}`;
+    param.bfchNo = `${param.bfchCralLocaraTno}-${param.bfchMexnoEncr}-${param.bfchCralIdvTno}`;
+    param.afchNo = `${param.afchCralLocaraTno}-${param.afchMexnoEncr}-${param.afchCralIdvTno}`;
   });
 
   data.checkRowStates(false);
@@ -359,7 +423,7 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
   /* 백단(서비스) 엑셀 다운로드 */
-  const res = await dataService.get('/sms/wells/competence/rent-management/excel-download', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/competence/business-cell-phone/excel-download', { params: searchParams.value });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -371,9 +435,9 @@ async function onClickSave() {
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
   if (!await frmMainRef.value.validate()) { return; }
 
-  saveParams.value.bizAkBldNm = bldInfoList.value.find((e) => e.codeId === saveParams.value.bizAkBldCd).codeName;
+  console.log(saveParams.value);
 
-  await dataService.post('/sms/wells/competence/rent-management/rent-management', saveParams.value);
+  await dataService.post('/sms/wells/competence/business-cell-phone/', saveParams.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
 }
@@ -391,10 +455,12 @@ function initGrid(data, view) {
         hideWhenEmpty: true,
       } },
     { fieldName: 'aplcDtm', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_REQ_USER'), width: '100', styleName: 'text-center' },
-    { fieldName: 'bizAkBldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'rntAplcTpNm', header: t('MSG_TXT_RNT') + t('MSG_TXT_TYPE'), width: '100', styleName: 'text-left' },
-    { fieldName: 'bizAkCn', header: t('MSG_TXT_CNTN'), width: '250', styleName: 'text-left' },
+    { fieldName: 'sellPrtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sellPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
+    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '100', styleName: 'text-left' },
+    { fieldName: 'bizCralTelChTpNm', header: t('MSG_TXT_TYPE') + t('MSG_TXT_TYPE'), width: '100', styleName: 'text-left' },
+    { fieldName: 'bfchNo', header: t('MSG_TXT_BFCH'), width: '120', styleName: 'text-left' },
+    { fieldName: 'afchNo', header: t('MSG_TXT_AFCH'), width: '120', styleName: 'text-center' },
     { fieldName: 'fnlMdfcDtm',
       header: `${t('MSG_TXT_COMPLETE')}(${t('MSG_TXT_SB')})${t('MSG_TXT_DT')}`,
       width: '100',
@@ -404,13 +470,19 @@ function initGrid(data, view) {
     { fieldName: 'aplcnsPrtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'rpotBizTpId', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'rpotBizAplcId', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'phoneNo', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'cralLocaraTno', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'mexnoEncr', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'cralIdvTno', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'rpotBizProcsStatCd', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'procsSn', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'procsCn', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'rcstPrtnrNo', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'rcstPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'rcstPhoneNo', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'chRqdt', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'ogCd', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
+    { fieldName: 'ogNm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center', visible: false },
 
   ];
 
@@ -423,20 +495,25 @@ function initGrid(data, view) {
 
   // multi row header setting
   view.setColumnLayout([
-    'rpotBizProcsStatNm', 'aplcDtm', 'prtnrKnm', 'bizAkBldNm', 'rntAplcTpNm', 'bizAkCn', 'fnlMdfcDtm',
+    'rpotBizProcsStatNm', 'aplcDtm',
+    {
+      header: t('MSG_TXT_SELLER_PERSON'), // colspan title
+      direction: 'horizontal', // merge type
+      items: ['sellPrtnrNo', 'sellPrtnrNm', 'rsbDvNm'],
+    }, 'bizCralTelChTpNm', 'bfchNo', 'afchNo', 'fnlMdfcDtm',
     {
       header: t('MSG_TXT_FSH_SB_EMPLOYEE'), // colspan title
       direction: 'horizontal', // merge type
       items: ['fnlMdfcUsrId', 'fnlMdfcUsrNm'],
-    }, 'aplcnsPrtnrNo', 'rpotBizTpId', 'rpotBizAplcId', 'phoneNo', 'rpotBizProcsStatCd', 'procsSn', 'procsCn',
-    'rcstPrtnrNo', 'rcstPrtnrNm', 'rcstPhoneNo',
+    }, 'aplcnsPrtnrNo', 'rpotBizTpId', 'rpotBizAplcId', 'cralLocaraTno', 'mexnoEncr', 'cralIdvTno', 'rpotBizProcsStatCd', 'procsSn', 'procsCn',
+    'prtnrKnm', 'rcstPrtnrNo', 'rcstPrtnrNm', 'rcstPhoneNo', 'chRqdt', 'ogCd', 'ogNm',
   ]);
 
   view.onCellItemClicked = async (grid, { itemIndex, column }) => {
     if (column === 'rpotBizProcsStatNm') {
       // eslint-disable-next-line no-unused-vars
       const { result, payload } = await modal({
-        component: 'WwpsgRentManagementP',
+        component: 'WwpsgBusinessCellPhoneChMgtP',
         componentProps: {
           rowData: grid.getValues(itemIndex),
         },
