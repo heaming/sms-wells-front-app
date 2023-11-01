@@ -315,6 +315,11 @@
         <!-- 결과입력 -->
         <h3>{{ t('MSG_TXT_RS_IN') }}</h3>
       </template>
+      <kw-icon
+        name="info"
+        :tooltip="t('MSG_TXT_AGR_FW_INFO')"
+        class="ml4"
+      />
       <!-- 합의서발송 버튼 -->
       <kw-btn
         secondary
