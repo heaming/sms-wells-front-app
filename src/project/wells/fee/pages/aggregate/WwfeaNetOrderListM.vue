@@ -652,6 +652,7 @@ async function openNtorAgrgPopup() {
   const statusParams = {
     baseYm: searchParams.value.baseYm,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    ntorCnfmStatCd: '01',
   };
 
   const res = await dataService.get('/sms/common/fee/net-order-status/cntr', { params: statusParams });
@@ -699,6 +700,7 @@ async function openNtorConfirmPopup() {
   const statusParams = {
     baseYm: searchParams.value.baseYm,
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    ntorCnfmStatCd: '02',
   };
 
   const res = await dataService.get('/sms/common/fee/net-order-status/cntr', { params: statusParams });
