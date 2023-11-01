@@ -114,11 +114,13 @@ async function resetData() {
   gridRowCount.value = 0;
   grdMainRef.value?.getView().getDataSource().clearRows();
   if (grdMainRef.value?.getView()) gridUtil.reset(grdMainRef.value.getView());
+  if (priceStdRef.value?.resetData) priceStdRef.value?.resetData();
 }
 
 // 컴포넌트 초기화
 async function init() {
   if (grdMainRef.value?.getView()) gridUtil.init(grdMainRef.value.getView());
+  if (priceStdRef.value?.init) priceStdRef.value?.init();
 }
 
 // 저장 데이터
