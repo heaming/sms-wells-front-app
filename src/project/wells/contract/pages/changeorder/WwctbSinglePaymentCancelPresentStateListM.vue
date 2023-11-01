@@ -138,18 +138,22 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta, stringUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { alert, modal, notify } = useGlobal();
+const { alert, modal /* , notify */ } = useGlobal();
+const { getters } = useStore();
 const dataService = useDataService();
 const router = useRouter();
 const now = dayjs();
 const grdMainSPay = ref(getComponentType('KwGrid'));
+const ozParamsList = ref({});
+const { userName } = getters['meta/getUserInfo'];
 
 // const codes = await codeUtil.getMultiCodes(
 //   'COD_PAGE_SIZE_OPTIONS',
@@ -185,13 +189,76 @@ async function fetchData() {
 
   const res = await dataService.get('/sms/wells/contract/changeorder/single-payment-cancels', { params: { ...cachedParams } });
 
+  ozParamsList.value = res.data;
   pageInfo.value.totalCount = res.data.length;
   const view = grdMainSPay.value.getView();
   view.getDataSource().setRows(res.data);
 }
 
 async function onClickReport() {
-  notify('TODO :  OZ리포트 팝업으로 호출');
+  // 조회된 내역이 없으면 return
+  if (isEmpty(ozParamsList.value)) { return; }
+
+  // OZ 리포트 팝법 파라미터 설정
+  const ozParams = {
+    ozrPath: '/kstation-w/hdof/lgst/lspyCancPsct.ozr',
+    odiPath: '',
+    args: {},
+  };
+
+  const dtDiv = searchParams.value.dtDiv === '1' ? t('MSG_TXT_IST_DT') : t('MSG_TXT_CANC_DT'); // 조회기간 (설치일자, 취소일자 구분)
+  const partDiv = searchParams.value.partDiv === '1' ? t('MSG_TXT_PD_CH') : t('MSG_TXT_MSG_TXT_SL_CH'); // 부분조회
+  let omssnDiv = ''; // 누락건
+  const { cancelFromDt, cancelToDt } = searchParams.value; // 조회기간
+
+  switch (searchParams.value.omssnDiv) { // 누락건 분기처리
+    case '1':
+      omssnDiv = t('MSG_TXT_SEARCH_SEARCH');
+      break;
+    case '2':
+      omssnDiv = '설치 후 취소건 중 상변/매변 누락 건 조회';
+      break;
+    case '3':
+      omssnDiv = '매출일자 확인대상 조회';
+      break;
+    default:
+      break;
+  }
+
+  // 조회조건 및 리스트 파라미터 설정
+  ozParams.args = { jsondata:
+    ozParamsList.value.map((v) => ({
+      LCODES: `${v.cntrNo}-${v.cntrSn}`, // 주문번호
+      LCCNAM: v.cntrCstKnm, // 고객명
+      LCIC01: v.basePdCd, // 상품코드
+      KAINAM: v.pdNm, // 상품명
+      LCCRTT: stringUtil.getDateFormat(v.cntrCnfmDt, '-'), // 계약일자
+      LCSLET: stringUtil.getDateFormat(v.istDt, '-'), // 설치일자
+      LCCANT: stringUtil.getDateFormat(v.cntrPdEnddt, '-'), // 취소일자
+      ST40: stringUtil.getDateFormat(v.pdChDt, '-'), // 상변취소일자
+      CADT: stringUtil.getDateFormat(v.slChDt, '-'), // 매변취소일자
+      LCICGB: v.prsGbn, // 처리구분
+      LCTAMT: v.cntrTam, // 총판매금액
+      LCSAMT: v.cntrAmt, // 청약금액
+      LCGAMT: v.crpUcAmt, // 법인미수금
+      CWAMT1: v.cntrDpAmt, // 청약/인수 총금액
+      CWAMT2: v.cntrRfAmt, // 청약/인수 총환불
+      CWAMT3: v.cntrInsAmt, // 할부총임금
+    })),
+
+  srchParm01: `${dtDiv} ${stringUtil.getDateFormat(cancelFromDt)} ~ ${stringUtil.getDateFormat(cancelToDt)}`, // 조회기간
+  srchParm02: omssnDiv, // 누락건
+  srchParm03: partDiv, // 부분조회
+  srchParm04: userName, // 출력담당
+  reportHeaderTitle: '일시불 취소 현황', // 레포트 제목
+  };
+
+  // OZ 레포트 팝업호출
+  openReportPopup(
+    ozParams.ozrPath,
+    ozParams.odiPath,
+    JSON.stringify(ozParams.args),
+  );
 }
 
 async function onClickSearch() {
