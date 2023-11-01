@@ -676,10 +676,11 @@ async function getCntrInfo() {
     }
   }
 
-  if (prtnr && bas.cntrTpCd === '03') {
-    searchParams.value.alncPrtnrDrmDvCd = prtnr.alncPrtnrDrmDvCd;
-    searchParams.value.alncPrtnrIdnrNm = prtnr.alncPrtnrIdnrNm;
-    searchParams.value.alncPrtnrDrmVal = prtnr.alncPrtnrDrmVal;
+  if (prtnr && bas.cntrTpCd === CNTR_TP_CD.EMPLOYEE) {
+    searchParams.value.alncPrtnrDvCd = prtnr.alncPrtnrDrmDvCd;
+    searchParams.value.alncPrtnrNm = prtnr.alncPrtnrIdnrNm;
+    searchParams.value.alncPrtnrNo = prtnr.alncPrtnrDrmVal;
+    searchParams.value.alncPrtnrComp = prtnr.prtnrNo; // 제휴사
   }
 }
 
