@@ -76,7 +76,7 @@
             <kw-select
               v-model="searchParams.sellTpCd"
               :label="$t('MSG_TXT_SEL_TYPE')"
-              :options="codes.AGRG_SELL_TP_CD"
+              :options="codes.AGRG_SELL_TP_CD.filter((v) => ['01', '02', '03', '04', '05'].includes(v.codeId))"
               first-option
               first-option-value=""
               :first-option-label="$t('MSG_TXT_ALL')"
@@ -442,6 +442,8 @@ const isDtlExcelDown = ref(false);
 const isAggrExcelDown = ref(false);
 const isOrderCreateVisile = ref(false);
 const isOrderModifyVisile = ref(false);
+const isOrderDeleteVisile = ref(false);
+const { confirm } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -567,13 +569,16 @@ async function fetchNetOrderStatus() {
     if (resStat.data.schStartCd === 'NOTSTART') { // 해당 일정이 시작 하였는지 확인
       isOrderCreateVisile.value = true;
       isOrderModifyVisile.value = true;
+      isOrderDeleteVisile.value = true;
     } else {
       isOrderCreateVisile.value = false;
       isOrderModifyVisile.value = false;
+      isOrderDeleteVisile.value = false;
     }
   } else {
     isOrderCreateVisile.value = false;
     isOrderModifyVisile.value = false;
+    isOrderDeleteVisile.value = false;
   }
 }
 
@@ -724,6 +729,19 @@ async function onClickSearchPdCdPopup(arg) {
  *  Event - 수수료 실적 생성 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCrtPopup() {
+  const statusParams = {
+    baseYm: searchParams.value.baseYm,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    perfAgrgCrtDvCd: '201',
+    ntorCnfmStatCd: '01',
+  };
+
+  const res = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: statusParams });
+
+  if (!isEmpty(res)) {
+    if (!await confirm(t('MSG_ALT_AGRG_PERF_ALREADY_DATA'))) { return; }
+  }
+
   const param = {
     perfYm: searchParams.value.perfYm,
     ogTp: 'W02',
@@ -764,6 +782,19 @@ async function openFeePerfCrtPopup() {
  *  Event - 수수료 실적 확정 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCnfmPopup() {
+  const statusParams = {
+    baseYm: searchParams.value.baseYm,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    perfAgrgCrtDvCd: '201',
+    ntorCnfmStatCd: '02',
+  };
+
+  const res = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: statusParams });
+
+  if (!isEmpty(res)) {
+    if (!await confirm(t('MSG_ALT_MSG_ALT_CNFM_PERF_ALREADY_DATA'))) { return; }
+  }
+
   const param = {
     perfYm: searchParams.value.perfYm,
     ogTp: 'W02',
@@ -853,7 +884,7 @@ const initGrdDtl = defineGrid((data, view) => {
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' }, // 번호
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' }, // 성명
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.AGRG_SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.AGRG_SELL_TP_CD.filter((v) => ['01', '02', '03', '04', '05'].includes(v.codeId)) }, // 판매유형
     { fieldName: 'feePdctTpCd', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD }, // 제품유형
     { fieldName: 'rglrSppPrcDvCd', header: t('MSG_TXT_PRC_TP'), width: '120', styleName: 'text-center', options: codes.RGLR_SPP_PRC_DV_CD }, // 가격유형
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center', options: codes.MCHN_CH_TP_CD }, // 기변유형
