@@ -222,6 +222,7 @@ async function onClickReport() {
   cachedParams.omssnDivNm = omssnDiv; // 누락건
   cachedParams.partDivNm = partDiv; // 부분조회
   cachedParams.userNm = userName; // 출력자명
+  cachedParams.reportHeaderTitle = '일시불 취소 현황'; // 레포트 제목
 
   // OZ 리포트 팝업 파라미터 설정
   const ozParams = {
