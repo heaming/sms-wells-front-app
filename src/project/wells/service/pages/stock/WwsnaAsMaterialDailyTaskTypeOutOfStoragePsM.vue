@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :default-visible-rows="4"
       @search="onClickSearch"
     >
       <kw-search-row>
