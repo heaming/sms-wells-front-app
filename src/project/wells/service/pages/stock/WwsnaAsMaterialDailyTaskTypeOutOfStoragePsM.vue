@@ -32,6 +32,8 @@
             :label="$t('MSG_TXT_BASE_YM')"
           />
         </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 창고구분 -->
         <ZwcmWareHouseSearch
           v-model:start-ym="searchParams.baseYm"
@@ -39,18 +41,21 @@
           v-model:ware-dv-cd="searchParams.wareDvCd"
           v-model:ware-no-m="searchParams.wareNoM"
           v-model:ware-no-d="searchParams.wareNoD"
+          v-model:options-ware-dv-cd="customwareDvCd.wareDvCd"
           :label1="$t('MSG_TXT_WARE')"
           :label2="$t('MSG_TXT_WARE_DV')"
           :label3="$t('MSG_TXT_HGR_WARE')"
           :label4="$t('MSG_TXT_WARE')"
-          first-option-value=""
-          first-option="all"
-          sub-first-option-value=""
           sub-first-option="all"
           :colspan="3"
-          @update:ware-dv-cd="onChangeStdWareDvCd"
-          @update:ware-no-m="onChagneHgrWareNo"
         />
+        <kw-search-item :label="$t('MSG_TXT_WARE_DTL_DV')">
+          <kw-select
+            v-model="searchParams.wareDtlDvCd"
+            :options="filterWareDtlDvCd"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
       <kw-search-row>
         <!-- 업무유형 -->
@@ -93,6 +98,26 @@
           />
         </kw-search-item>
       </kw-search-row>
+      <kw-search-row>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_CODE')"
+          :colspan="2"
+        >
+          <kw-input
+            v-model="searchParams.itmPdCdFrom"
+            maxlength="10"
+            clearable
+            icon="search"
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.itmPdCdTo"
+            maxlength="10"
+            clearable
+            icon="search"
+          />
+        </kw-search-item>
+      </kw-search-row>
     </kw-search>
     <div class="result-area">
       <kw-action-top>
@@ -130,6 +155,15 @@
             type="checkbox"
             :options="customCodes.filteringCd"
             @change="onChangefilteringCd"
+          />
+        </li>
+        <li class="filter-box__item">
+          <p class="filter-box__item-label">
+            {{ $t('일별 필터링') }}
+          </p>
+          <kw-input
+            v-model="searchParams.schOjBlamStrt"
+            mask="number"
           />
         </li>
       </ul>
@@ -175,6 +209,7 @@ const codes = await codeUtil.getMultiCodes(
   'WARE_DTL_DV_CD',
   'USE_YN',
   'SV_BIZ_HCLSF_CD',
+  'WARE_DV_CD',
 );
 const customCodes = {
   svBizHclsfCd: [
@@ -188,63 +223,60 @@ const customCodes = {
     { codeId: '01', codeName: t('MSG_TXT_BTD_MAT') },
     { codeId: '02', codeName: t('MSG_TXT_MDIM_RPR_MAT') },
     { codeId: '03', codeName: t('MSG_TXT_TURNOVER_TRGT') },
-    { codeId: '04', codeName: t('기준월 필터링') },
+    { codeId: '04', codeName: t('MSG_TXT_BASE_MM') },
+    { codeId: '05', codeName: t('MSG_TXT_BY_DAY') + t('MSG_TXT_FLTRING') },
   ],
 };
-
-const filterCodes = ref({
-  wareDtlDvCd: [],
-});
 
 let cachedParams;
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
+  baseYear: now.format('YYYY'),
+  baseMonth: now.format('MM'),
+  wareDtlDvCd: '',
+  wareNoM: '',
+  wareNoD: '',
+  itmKndCd: '',
+  svBizHclsfCd: '',
+  useYn: '',
+  itmPdCdFrom: '',
+  itmPdCdTo: '',
+  wareDvCd: '2',
 });
 
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: 10,
+  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
 });
 
 let gridView;
 let gridData;
 let fieldsObj;
 
+/* 서비스센터 조회 고정 */
+const customwareDvCd = {
+  wareDvCd: {
+    WARE_DV_CD: [
+      { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
+    ],
+  },
+};
 const productCodes = ref();
 const filteringOptions = ref([]);
-// 창고구분 변경 시, 창고상세구분 세팅
-const onChangeWareDvCd = async () => {
-  searchParams.value.wareDtlDvCd = '';
-  filterCodes.value.wareDtlDvCd = '';
-  const filterWareDvCd = searchParams.value.wareDvCd;
-  if (filterWareDvCd === '1') { // 물류센터
-    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10'].includes(v.codeId));
-  } else if (filterWareDvCd === '2') { // 서비스센터
-    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['20', '21'].includes(v.codeId));
-  } else if (filterWareDvCd === '3') { // 영업센터
-    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['30', '31'].includes(v.codeId));
-  } else {
-    filterCodes.value.wareDtlDvCd = codes.WARE_DTL_DV_CD.filter((v) => ['10', '20', '21', '30', '31'].includes(v.codeId));
-  }
-};
-
-function onChangeStdWareDvCd() {
-  searchParams.value.wareNoM = '';
-  searchParams.value.wareNoD = '';
-}
-
-function onChagneHgrWareNo() {
-  searchParams.value.wareNoD = '';
-}
-
-watch(() => searchParams.value.wareDvCd, (val) => {
-  if (searchParams.value.wareDvCd !== val) {
-    searchParams.value.wareDvCd = val;
-  }
-  onChangeWareDvCd();
-});
-// 창고구분 변경시, 창고상세구분 세팅 END
+const filterWareDtlDvCd = [
+  // { codeId: '10', codeName: '물류센터창고', wareDvCd: '1' },
+  { codeId: '20', codeName: '조직창고(서비스센터)', wareDvCd: '2' },
+  { codeId: '21', codeName: '개인창고(서비스센터)', wareDvCd: '2' },
+  // { codeId: '30', codeName: '조직창고(영업센터)', wareDvCd: '3' },
+  // { codeId: '31', codeName: '개인창고(영업센터)', wareDvCd: '3' },
+  // { codeId: '32', codeName: '독립창고(영업센터)', wareDvCd: '3' },
+];
+// const filterWareDtlDvCd = ref([]);
+// const onChangeWareDvCd = () => {
+//   filterWareDtlDvCd.value = wareDtlDvCd;
+//   filterWareDtlDvCd.value = wareDtlDvCd.filter((v) => v.wareDvCd === searchParams.value.wareDvCd);
+// };
 
 // 품목구분 변경시, 품목 목록 조회 셋팅
 async function onChangeItmKndCd() {
@@ -254,17 +286,21 @@ async function onChangeItmKndCd() {
 
 // 필터링 처리
 async function onChangefilteringCd(val) {
+  // console.log(val);
+
   const view = grdMainRef.value.getView();
 
   // 기초자재, 중수리자재, 기준월 필터링, 일별 필터링)필터 처리
   const filter1 = [{ name: 'cmnPartFilter', criteria: "value = '01'" }]; // 중수리 자재
   const filter2 = [{ name: 'ordnyHvMatFilter', criteria: "value = 'Y'" }]; // 기초 자재
-  // const filter3 = [{ name: 'trnoverFilter', criteria: 'value="Y"' }]; // 회전율
-  const filter4 = [{ name: 'baseMonthFilter', criteria: "value = 'Y'" }]; // 기준월 필터링
+  const filter3 = [{ name: 'trnoverFilter', criteria: 'value="Y"' }]; // 회전율
+  const filter4 = [{ name: 'qtyMmFilter', criteria: 'value > mmAgrg' }]; // 기준월 필터링
+  // const filter5 = [{ name: 'baseMonthFilter', criteria: "value = 'Y'" }]; // 기준월 필터링
 
   // 필터 등록
-  view.setColumnFilters('asMatCmnClsfCd', filter1); // 중수리 자재
-  view.setColumnFilters('ordnyHvMatYn', filter2); // 기준월 필터링
+  view.setColumnFilters('cmnPartDvCd', filter1); // 중수리 자재
+  view.setColumnFilters('ordnyHvMatYn', filter2); // 기초자재
+  view.setColumnFilters('trnovrRtOjYn', filter3); // 회전율
   view.setColumnFilters('qtyMm', filter4); // 기준월 필터링
   // 필터 초기화
   // view.activateAllColumnFilters('asMatCmnClsfCd', false);
@@ -273,10 +309,10 @@ async function onChangefilteringCd(val) {
 
   // 필터 처리
   if (val.includes('01')) {
-    view.activateAllColumnFilters('asMatCmnClsfCd', false);
-    view.activateColumnFilters('asMatCmnClsfCd', ['cmnPartFilter'], true);
+    view.activateAllColumnFilters('cmnPartDvCd', false);
+    view.activateColumnFilters('cmnPartDvCd', ['cmnPartFilter'], true);
   } else {
-    view.activateColumnFilters('asMatCmnClsfCd', ['cmnPartFilter'], false);
+    view.activateColumnFilters('cmnPartDvCd', ['cmnPartFilter'], false);
   }
 
   if (val.includes('02')) {
@@ -286,15 +322,23 @@ async function onChangefilteringCd(val) {
     view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], false);
   }
 
+  if (val.includes('03')) {
+    view.activateAllColumnFilters('trnoverYn', false);
+    view.activateColumnFilters('trnoverYn', ['trnoverFilter'], true);
+  } else {
+    view.activateColumnFilters('trnoverYn', ['trnoverFilter'], false);
+  }
+
   if (val.includes('04')) {
     view.activateAllColumnFilters('qtyMm', false);
-    view.activateColumnFilters('qtyMm', ['baseMonthFilter'], true);
+    view.activateColumnFilters('qtyMm', ['qtyMmFilter'], true);
   } else {
-    view.activateColumnFilters('ordnyHvMatYn', ['baseMonthFilter'], false);
+    view.activateColumnFilters('qtyMm', ['qtyMmFilter'], false);
   }
 }
 
 async function fetchData() {
+  console.log(searchParams.filteringCd);
   // wareDtlDvCd : 창고구분
   const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: result, pageInfo: pagingResult } = res.data;
@@ -319,6 +363,7 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
+
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
@@ -339,8 +384,35 @@ fieldsObj = {
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '124', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-left' },
+    { fieldName: 'asLdtm', header: t('TXT_MSG_AS_LDTM'), width: '100', styleName: 'text-left' },
+    { fieldName: 'minGoQty', header: t('MSG_TXT_MOQ'), width: '100', styleName: 'text-left' },
+    { fieldName: 'last1yPrev3m', header: t('MSG_TXT_PVO_Y') + t('MSG_TXT_JBF_MMS3_OSTR_SUM'), dataType: 'number', width: '100', styleName: 'text-left' },
+    { fieldName: 'last1y', header: t('MSG_TXT_PVO_Y') + t('MSG_TXT_BASE_MM') + t('MSG_TXT_SUM'), dataType: 'number', width: '100', styleName: 'text-left' },
+    { fieldName: 'last1yNext2m', header: t('MSG_TXT_PVO_Y') + t('MSG_TXT_BASMM_S2M_OSTR_SUM'), dataType: 'number', width: '100', styleName: 'text-left' },
+    { fieldName: 'last3m', header: t('MSG_TXT_BEFORE') + t('MSG_TXT_JBF_MMS3_OSTR_SUM'), dataType: 'number', width: '100', styleName: 'text-left' },
+    { fieldName: 'mmAgrg', header: t('MSG_TXT_MM_AV'), width: '100', dataType: 'number', styleName: 'text-left' },
+    { fieldName: 'ddAgrg', header: t('MSG_TXT_D_AV'), width: '100', dataType: 'number', styleName: 'text-left' },
+    { fieldName: 'lastPrev1m', header: t('MSG_TXT_LSTMM_OSTR'), width: '100', dataType: 'number', styleName: 'text-left' },
+    { fieldName: 'qtyPajuSum', header: `${t('MSG_TXT_PAJU_LGST')}\n${t('MSG_TXT_STOC')}`, width: '100', dataType: 'number', styleName: 'text-left' },
+    { fieldName: 'qtyCenterSum', header: `${t('MSG_TXT_CENTER_DIVISION')} ${t('MSG_TXT_OG')}\n${t('MSG_TXT_STOC')}`, width: '100', dataType: 'number', styleName: 'text-left' },
+    { fieldName: 'qtyEngSum', header: `${t('MSG_TXT_EGER')}\n${t('MSG_TXT_STOC')}`, width: '100', dataType: 'number', styleName: 'text-left' },
+    { fieldName: 'qtyMm',
+      header: t('MSG_TXT_BASE_MM') + t('MSG_TXT_SUM'),
+      width: '100',
+      dataType: 'number',
+      styleName: 'text-left',
+      autoFilter: false,
+    },
     {
-      fieldName: 'asMatCmnClsfCd',
+      fieldName: 'trnoverYn',
+      header: t(''),
+      width: '150',
+      styleName: 'text-center',
+      visible: false,
+      autoFilter: false,
+    },
+    {
+      fieldName: 'cmnPartDvCd',
       header: t(''),
       width: '150',
       styleName: 'text-center',
@@ -355,26 +427,7 @@ fieldsObj = {
       visible: false,
       autoFilter: false,
     },
-    {
-      fieldName: 'qtyMm',
-      header: t(''),
-      width: '150',
-      styleName: 'text-center',
-      visible: false,
-      autoFilter: false,
-    },
   ],
-  // defaultFields: [
-  //   { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '124', styleName: 'text-center' },
-  //   { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
-  //   { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-left' },
-  // eslint-disable-next-line max-len
-  //   { fieldName: 'asMatCmnClsfCd', header: t('MSG_TXT_MDIM_RPR'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
-  // eslint-disable-next-line max-len
-  //   { fieldName: 'ordnyHvMatYn', header: t('MSG_TXT_BTD_MAT'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
-  // eslint-disable-next-line max-len
-  //   { fieldName: 'qtyMm', header: t('MSG_TXT_BASE_MM'), width: '150', styleName: 'text-center', visible: true, autoFilter: false },
-  // ],
 
   // 필드 세팅
   setFields(result) {
@@ -440,6 +493,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.header.height += view.header.height + 50;
 
   gridView = view;
   gridData = data;
