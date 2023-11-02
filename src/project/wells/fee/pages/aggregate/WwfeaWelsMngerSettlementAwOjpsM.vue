@@ -346,8 +346,6 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'dgr1LevlOgNm' },
-    { fieldName: 'dgr2LevlOgNm' },
     { fieldName: 'ogCd' },
     { fieldName: 'bldNm' },
     { fieldName: 'prtnrNo' },
@@ -371,8 +369,6 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '130', styleName: 'text-center', editable: false },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '130', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '130', styleName: 'text-center', editable: false },
