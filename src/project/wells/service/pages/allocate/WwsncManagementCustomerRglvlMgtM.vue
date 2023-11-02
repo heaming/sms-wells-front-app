@@ -416,11 +416,13 @@ async function getOrganizationInfo() {
   // searchParams.value.executiveGroup = dgr1LevlOgId;
   // searchParams.value.localGroup = dgr2LevlOgId;
   if (!isEmpty(dgr1LevlOgId)) {
-    searchParams.value.executiveGroup = dgr1LevlOgId;
+    // searchParams.value.executiveGroup = dgr1LevlOgId;
+    await ogSearchRef.value.onChangeDgr1LevlOgId(dgr1LevlOgId);
   }
   if (!isEmpty(dgr2LevlOgId)) {
-    searchParams.value.localGroup = dgr2LevlOgId;
+    // searchParams.value.localGroup = dgr2LevlOgId;
     managerAuthYn.value = true;
+    await ogSearchRef.value.onChangeDgr2LevlOgId(dgr2LevlOgId);
   }
 
   // const res = await fetchDgr2LevlOgs({ params: {
@@ -492,7 +494,7 @@ async function onClickBulkUpdateMngStd() {
   const { mngtPrtnrOgTpCd, mngtPrtnrNo, mngStdMngerRglvlDvCd } = mngStd.value;
   const { ogCd } = prtnrOgTpOptions.value.find((option) => mngtPrtnrOgTpCd === option.ogId);
   const { prtnrNoNm } = mngStdPrtnrNoOptions.value.find((option) => mngtPrtnrNo === option.prtnrNo);
-  const dgr2LevlOgCd = dgr2LevlOgObj.value.ogCd;
+  const dgr2LevlOgCd = dgr2LevlOgObj.value?.ogCd;
 
   const data = view.getDataSource();
   data.beginUpdate();
@@ -835,8 +837,9 @@ onMounted(async () => {
   prtnrOgTpOptions.value = data;
   // 지역단 기본 setting
   setTimeout(() => {
-    if (!isEmpty(localGroup.value)) {
-      searchParams.value.localGroup = localGroup.value;
+    if (!isEmpty(localGroup.value) && !managerAuthYn) {
+      // searchParams.value.localGroup = localGroup.value;
+      ogSearchRef.value.onChangeDgr2LevlOgId(localGroup.value);
     }
   });
 });
