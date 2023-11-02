@@ -31,30 +31,40 @@
             rules="required"
           />
         </kw-search-item>
-        <!--구분1-->
+        <!--조직구분-->
         <kw-search-item
-          :label="$t('MSG_TXT_DV_1')"
+          :label="$t('MSG_TXT_OG_DV')"
           required
         >
           <kw-option-group
-            v-model="searchParams.leaderDiv"
-            model-value="W0102"
+            v-model="searchParams.ogDv"
+            type="radio"
+            :options="codes.EVL_OG_TP_CD"
+            rules="required"
+          />
+        </kw-search-item>
+        <!--직책-->
+        <kw-search-item
+          :label="$t('MSG_TXT_RSB')"
+          required
+        >
+          <kw-option-group
+            v-model="searchParams.rsbDvCd"
             type="radio"
             :options="codes.RSB_DV_CD"
             rules="required"
           />
         </kw-search-item>
-        <!--구분2-->
+      </kw-search-row>
+      <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_DV_2')"
-          required
+          :label="$t('MSG_TXT_SEQUENCE_NUMBER')"
         >
-          <kw-option-group
-            v-model="searchParams.levelDiv"
-            model-value="전체"
-            type="radio"
-            :options="[ '전체','메이저', '마이너']"
-            rules="required"
+          <kw-input
+            v-model="searchParams.prtnrNo"
+            clearable
+            icon="search"
+            @click-icon="onClickSearchNo"
           />
         </kw-search-item>
       </kw-search-row>
@@ -76,10 +86,18 @@
         />
       </kw-action-top>
       <kw-grid
-        ref="grdMainRef"
-        name="grdMain"
-        :visible-rows="3"
-        @init="initGrid"
+        v-if="searchParams.ogDv ==='W01'"
+        ref="grdMainRef1"
+        name="grdMain1"
+        :visible-rows="15"
+        @init="initGrid1"
+      />
+      <kw-grid
+        v-if="searchParams.ogDv ==='W02'"
+        ref="grdMainRef2"
+        name="grdMain2"
+        :visible-rows="15"
+        @init="initGrid2"
       />
     </div>
   </kw-page>
@@ -90,37 +108,45 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, getComponentType, codeUtil, defineGrid, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { useDataService, useGlobal, getComponentType, codeUtil, defineGrid, gridUtil } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
+
+const { modal } = useGlobal();
 
 const totalCount = ref(0);
 const dataService = useDataService();
 const { t } = useI18n();
 
-const grdMainRef = ref(getComponentType('KwGrid'));
-const codes = await codeUtil.getMultiCodes(
-  'RSB_DV_CD',
-);
+const grdMainRef1 = ref(getComponentType('KwGrid'));
+const grdMainRef2 = ref(getComponentType('KwGrid'));
+const codes = ref(await codeUtil.getMultiCodes('RSB_DV_CD', 'EVL_OG_TP_CD'));
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+codes.value.RSB_DV_CD = codes.value.RSB_DV_CD.filter((v) => (v.codeId === 'W0202' || v.codeId === 'W0203'));
 
-codes.RSB_DV_CD = codes.RSB_DV_CD.filter((v) => (v.codeId === 'W0102' || v.codeId === 'W0203'));
 const searchParams = ref({
-  perfDt: '',
-  leaderDiv: '',
-  levelDiv: '',
+  perfDt: dayjs().add(-1, 'month').format('YYYYMM'),
+  ogDv: 'W01',
+  rsbDvCd: 'W0102',
+  prtnrNo: '',
 });
 
 let cachedParams;
+
+// 조직구분 변경시 그리드 변경
+watch(() => searchParams.value.ogDv, async (newVal) => {
+  codes.value.RSB_DV_CD = (await codeUtil.getSubCodes('RSB_DV_CD', newVal)).filter((v) => ['W0102', 'W0103', 'W0202', 'W0203'].includes(v.codeId));
+});
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/fee/outcome-allowances', { params: cachedParams });
   const datas = res.data;
   totalCount.value = datas.length;
 
-  const view = grdMainRef.value.getView();
+  const view = grdMainRef1.value.getView();
   view.getDataSource().setRows(datas);
 }
 
@@ -130,7 +156,7 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
+  const view = grdMainRef2.value.getView();
 
   gridUtil.exportView(view, {
     fileName: '성과수당 현황',
@@ -138,66 +164,63 @@ async function onClickExcelDownload() {
   });
 }
 
+// 번호 검색 아이콘 클릭 이벤트
+async function onClickSearchNo() {
+  const { result, payload } = await modal({
+    component: 'ZwogzMonthPartnerListP',
+    componentProps: {
+      ogTpCd: searchParams.value.ogTpCd,
+      prtnrNo: searchParams.value.prtnrNo,
+      baseYm: searchParams.value.perfDt,
+    },
+  });
+
+  if (result) {
+    if (!isEmpty(payload)) {
+      searchParams.value.prtnrNo = payload.prtnrNo;
+    }
+  }
+}
+
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-const initGrid = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'col1' },
-    { fieldName: 'col2' },
-    { fieldName: 'col3' },
-    { fieldName: 'col4' },
-    { fieldName: 'col5' },
-    { fieldName: 'col6' },
-    { fieldName: 'col7' },
-    { fieldName: 'col8' },
-    { fieldName: 'col9' },
-    { fieldName: 'col10' },
-    { fieldName: 'col11' },
-    { fieldName: 'col12' },
-    { fieldName: 'col13' },
-    { fieldName: 'col14' },
-    { fieldName: 'col15' },
-    { fieldName: 'col16' },
-    { fieldName: 'col17' },
-    { fieldName: 'col18' },
-    { fieldName: 'col19' },
-    { fieldName: 'col20' },
-    { fieldName: 'col21' },
-    { fieldName: 'col22' },
-    { fieldName: 'col23' },
-    { fieldName: 'col24' },
-  ];
-
+const initGrid1 = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'col1', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '124.1' }, //  총괄단
-    { fieldName: 'col2', header: t('MSG_TXT_RGNL_GRP'), width: '125.1', styleName: 'text-center' }, // 지역단
-    { fieldName: 'col3', header: t('MSG_TXT_EMPL_NM'), width: '102' }, // 성명
-    { fieldName: 'col4', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '92', styleName: 'text-center' }, // 번호
-    { fieldName: 'col5', header: t('MSG_TXT_SAP_GRP'), width: '110.8', styleName: 'text-right' }, // 그룹
-    { fieldName: 'col6', header: t('MSG_TXT_LSTMM'), width: '82.1', styleName: 'text-right' }, // 전월
-    { fieldName: 'col7', header: t('MSG_TXT_THM'), width: '82.1', styleName: 'text-right' }, // 당월
-    { fieldName: 'col8', header: t('MSG_TXT_AGGS'), width: '82.1', styleName: 'text-right' }, // 누계
-    { fieldName: 'col9', header: t('MSG_TXT_BRNCH_OFFC_AVG'), width: '82.1', styleName: 'text-right' }, // 지평
-    { fieldName: 'col10', header: t('MSG_TXT_NEW'), width: '82.1', styleName: 'text-right' }, // 신규
-    { fieldName: 'col11', header: t('MSG_TXT_BRNCH_OFFC_AVG'), width: '82.1', styleName: 'text-right' }, // 지평
-    { fieldName: 'col12', header: t('MSG_TXT_CVT_DSTRC_AV'), width: '82.1', styleName: 'text-right' }, // 환산지평
-    { fieldName: 'col13', header: `${t('MSG_TXT_CVT_PC')}(1)`, width: '110.8', styleName: 'text-right' }, // 환산점수(1)
-    { fieldName: 'col14', header: t('MSG_TXT_PRFMT'), width: '82.1', styleName: 'text-right' }, // 승진
-    { fieldName: 'col15', header: t('MSG_TXT_GB'), width: '82.1', styleName: 'text-right' }, // 반납
-    { fieldName: 'col16', header: `${t('MSG_TXT_CVT_PC')}(2)`, width: '110.8', styleName: 'text-right' }, // 환산점수(2)
-    { fieldName: 'col17', header: t('MSG_TXT_LSTMM'), width: '82.1', styleName: 'text-right' }, // 전월
-    { fieldName: 'col18', header: t('MSG_TXT_THM'), width: '82.1', styleName: 'text-right' }, // 당월
-    { fieldName: 'col19', header: t('MSG_TXT_NINC'), width: '82.1', styleName: 'text-right' }, // 순증
-    { fieldName: 'col20', header: `${t('MSG_TXT_CVT_PC')}(3)`, width: '110.8', styleName: 'text-right' }, // 환산점수(3)
-    { fieldName: 'col21', header: `SQI${t('MSG_TXT_PC')}`, width: '82.1', styleName: 'text-right' }, // SQI점수
-    { fieldName: 'col22', header: `${t('MSG_TXT_LOCARA_PC')}-${t('MSG_TXT_AV')}`, width: '113.8', styleName: 'text-right' }, // 지역점수-평균
-    { fieldName: 'col23', header: `${t('MSG_TXT_CVT_PC')}(5)`, width: '110.8', styleName: 'text-right' }, // 환산점수(5)
-    { fieldName: 'col24', header: t('MSG_TXT_TOT_PC'), width: '110.8', styleName: 'text-right' }, // 총점
+    { fieldName: 'sosok', header: t('MSG_TXT_BLG'), width: '124.1' }, //  소속
+    { fieldName: 'sosokName', header: t('MSG_TXT_BLG_NM'), width: '124.1' }, //  소속명
+    { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '102' }, // 성명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '92', styleName: 'text-center' }, // 번호
+    { fieldName: 'dtrcN', header: `${t('MSG_TXT_BRCH_N')}(${t('MSG_TXT_THM')})`, width: '92', styleName: 'text-right' }, // 지점수(당월)
+    { fieldName: 'target', header: t('MSG_TXT_TRG'), width: '92', styleName: 'text-right' }, // 목표
+    { fieldName: 'dtrcNFix', header: t('MSG_TXT_BRCH_N') + t('MSG_TXT_FXN'), width: '124.1' }, //  지점수고정
+    { fieldName: 'perfAmt', header: `${t('MSG_TXT_PERF')}(${t('MSG_TXT_MCHN_CH_INC')})`, width: '125.1', styleName: 'text-right' }, // 실적(기변포함)
+    { fieldName: 'achiveRate', header: t('MSG_TXT_ACHV_RT'), width: '110.8', styleName: 'text-right' }, // 달성률
+
+    { fieldName: 'newSell', header: t('MSG_TXT_NW_SELL'), width: '110.8', styleName: 'text-right' }, // 신규판매
+    { fieldName: 'purSpr', header: t('MSG_TXT_PUR_SPR'), width: '82.1', styleName: 'text-right' }, // 순수이탈
+    { fieldName: 'accNinc', header: t('MSG_TXT_ACC_NINC'), width: '82.1', styleName: 'text-right' }, // 계정순증
+
+    { fieldName: 'accCnt', header: t('MSG_TXT_PD_ACC_CNT'), width: '82.1', styleName: 'text-right' }, // 인정건수
+
+    { fieldName: 'exceptPerfAmt', header: t('MSG_TXT_PERF'), width: '82.1', styleName: 'text-right' }, // 실적  -- 가전외
+    { fieldName: 'exceptCnt', header: t('MSG_TXT_COUNT'), width: '82.1', styleName: 'text-right' }, // 건수   --가전외
+
+    { fieldName: 'redfCnt', header: t('MSG_TXT_REDF_CT'), width: '82.1', styleName: 'text-right' }, // 되물림건수
+    { fieldName: 'aggsAmt', header: t('MSG_TXT_AGGS'), width: '82.1', styleName: 'text-right' }, // 누계
+    { fieldName: 'tgtAchvAmt', header: '$t(\'MSG_TXT_TRG_ACHV_AW\')<br/>$t(\'TXT_MSG_ACKMT_CT\')', width: '82.1', styleName: 'text-right' }, // 목표달성수당(인정건수)
+    { fieldName: 'brchNinc', header: t('MSG_TXT_BRCH_NINC'), width: '110.8', styleName: 'text-right' }, // 지점순증
+
+    { fieldName: 'wm', header: 'WM', width: '82.1', styleName: 'text-right' }, // WM
+    { fieldName: 'preM', header: 'Pre-M(BS)', width: '82.1', styleName: 'text-right' }, // Pre-M(BS)
+
+    { fieldName: 'aclAvgAmt', header: '$t(\'MSG_TXT_ACL_ACTI\')<br/>$t(\'MSG_TXT_BRNCH_OFFC_AVG\')', width: '82.1', styleName: 'text-right' }, // 실활동(지평)
+    { fieldName: 'actvBrch', header: t('MSG_TXT_ACTV_BRCH'), width: '82.1', styleName: 'text-right' }, // 활성지점
+    { fieldName: 'ogAw', header: t('MSG_TXT_OG_AW'), width: '82.1', styleName: 'text-right' }, // 조직수당
+    { fieldName: 'dsbAmt', header: t('MSG_TXT_DSB_SUM'), width: '82.1', styleName: 'text-right' }, // 지급계
 
   ];
-
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
 
   view.checkBar.visible = false;
@@ -205,46 +228,74 @@ const initGrid = defineGrid((data, view) => {
 
   // multi row header setting
   view.setColumnLayout([
-    'col1',
-    'col2',
-    'col3',
-    'col4',
-    'col5',
+    'sosok', 'sosokName', 'prtnrNm', 'prtnrNo', 'dtrcN', 'target', 'dtrcNFix', 'perfAmt', 'achiveRate',
     {
-      header: t('MSG_TXT_BRCH_N'), // colspan title //지점수
+      header: t('MSG_TXT_ACC_NINC'), // 계정순증
       direction: 'horizontal', // merge type
-      items: ['col6', 'col7'],
+      items: ['newSell', 'purSpr', 'accNinc'],
     },
+    'accCnt',
     {
-      header: t('MSG_TXT_ENVR_ELHM'), // colspan title //'환경가전'
+      header: t('MSG_TXT_ELHM_EXCP'), // 가전외
       direction: 'horizontal', // merge type
-      items: ['col8', 'col9', 'col10', 'col11', 'col12'],
+      items: ['exceptPerfAmt', 'exceptCnt'],
     },
-    'col13',
+    'redfCnt', 'aggsAmt', 'tgtAchvAmt', 'brchNinc',
     {
       header: t('MSG_TXT_BRCH_NINC'), // 지점순증
       direction: 'horizontal',
-      items: ['col14', 'col15'],
+      items: ['wm', 'preM'],
     },
-    'col16',
-    {
-      header: t('MSG_TXT_MNGER_NINC'), // 매니저순증
-      direction: 'horizontal',
-      items: ['col17', 'col18', 'col19'],
-    },
-    'col20',
-    {
-      header: `Wells-SQI ${t('MSG_TXT_PC')}`, // Wells-SQI점수
-      direction: 'horizontal',
-      items: ['col21', 'col22'],
-    },
-    'col23',
-    'col24',
+    'aclAvgAmt', 'actvBrch', 'ogAw', 'dsbAmt',
   ]);
-  data.setRows([
-    { col1: 'OO총괄단', col2: '-', col3: '김교원', col4: '1234567', col5: '5', col6: '0', col7: '0', col8: '1,234', col9: '0', col10: '123.50', col11: '0', col12: '0', col13: '0', col14: '0', col15: '0', col16: '0', col17: '0', col18: '123', col19: '123', col20: '123', col21: '0', col22: '0', col23: '0', col24: '123' },
-    { col1: 'OO총괄단', col2: '-', col3: '김교원', col4: '1234567', col5: '5', col6: '0', col7: '0', col8: '1,234', col9: '0', col10: '123.50', col11: '0', col12: '0', col13: '0', col14: '0', col15: '0', col16: '0', col17: '0', col18: '123', col19: '123', col20: '123', col21: '0', col22: '0', col23: '0', col24: '123' },
-    { col1: 'OO총괄단', col2: '-', col3: '김교원', col4: '1234567', col5: '5', col6: '0', col7: '0', col8: '1,234', col9: '0', col10: '123.50', col11: '0', col12: '0', col13: '0', col14: '0', col15: '0', col16: '0', col17: '0', col18: '123', col19: '123', col20: '123', col21: '0', col22: '0', col23: '0', col24: '123' },
+});
+
+const initGrid2 = defineGrid((data, view) => {
+  const columns = [
+    { fieldName: 'sosok', header: t('MSG_TXT_BLG'), width: '124.1' }, //  소속
+    { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '102' }, // 성명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '92', styleName: 'text-center' }, // 번호
+
+    { fieldName: 'tgtCt', header: t('MSG_TXT_TRG_CT'), width: '92', styleName: 'text-right' }, // 목표건수
+    { fieldName: 'achvCt', header: t('MSG_TXT_ACHV_CT'), width: '92', styleName: 'text-right' }, // 달성건수
+    { fieldName: 'achiveRate', header: t('MSG_TXT_ACHV_RT'), width: '124.1' }, //  달성률
+
+    { fieldName: 'trgAchvAwSum', header: t('MSG_TXT_TRG_ACHV_AW_SUM'), width: '125.1', styleName: 'text-right' }, // 목표달성수당계
+
+    { fieldName: '1stOptnTrg', header: t('MSG_TXT_1ST_M_OPTN_TRG'), width: '110.8', styleName: 'text-right' }, // 1차월가동목표
+    { fieldName: '1stOptnAchv', header: t('MSG_TXT_1M_OPTN_ACHV'), width: '110.8', styleName: 'text-right' }, // 1차월가동달성
+    { fieldName: '1stOptnAchvRt', header: t('MSG_TXT_1M_OPTN_ACHV_RT'), width: '110.8', styleName: 'text-right' }, // 1차월가동달성률
+    { fieldName: '1stOptnAchvAw', header: t('MSG_TXT_1M_OPTN_ACHV_AW'), width: '110.8', styleName: 'text-right' }, // 1차월가동달성수당
+    { fieldName: 'aclActiTrg', header: t('MSG_TXT_ACL_ACTI_TRG'), width: '110.8', styleName: 'text-right' }, // 실활동목표
+    { fieldName: 'aclActiAchv', header: t('MSG_TXT_ACL_ACTI_ACHV'), width: '110.8', styleName: 'text-right' }, // 실활동달성
+    { fieldName: 'aclActiAchvRt', header: t('MSG_TXT_ACL_ACTI_ACHV_RAT'), width: '110.8', styleName: 'text-right' }, // 실활동달성률
+    { fieldName: 'aclActiAw', header: t('MSG_TXT_ACL_ACTI_AW'), width: '110.8', styleName: 'text-right' }, // 실활동수당
+
+    { fieldName: 'ogAchvAwSum', header: t('MSG_TXT_OG_ACHV_AW_SUM'), width: '82.1', styleName: 'text-right' }, // 조직달성수당계
+    { fieldName: 'achvAwSum', header: t('MSG_TXT_OUTC_AW_TOT_SUM'), width: '110.8', styleName: 'text-right' }, // 성과수당총계
+
+  ];
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
+  view.setColumns(columns);
+
+  view.checkBar.visible = false;
+  view.rowIndicator.visible = true;
+
+  // multi row header setting
+  view.setColumnLayout([
+    'sosok', 'prtnrNm', 'prtnrNo',
+    {
+      header: t('MSG_TXT_TRG_ACHV_AW'), // 목표달성수당
+      direction: 'horizontal', // merge type
+      items: ['tgtCt', 'achvCt', 'achiveRate'],
+    }, 'trgAchvAwSum',
+    {
+      header: t('MSG_TXT_OG_ACHV_AW'), // 조직달성수당
+      direction: 'horizontal', // merge type
+      items: ['1stOptnTrg', '1stOptnAchv', '1stOptnAchvRt', '1stOptnAchvAw', 'aclActiTrg', 'aclActiAchv', 'aclActiAchvRt', 'aclActiAw'],
+    },
+    'ogAchvAwSum', 'achvAwSum',
+
   ]);
 });
 
