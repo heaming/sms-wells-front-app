@@ -42,7 +42,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { useDataService, useModal } from 'kw-lib';
+import { alert, useDataService, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
 
 const props = defineProps({
@@ -72,6 +72,14 @@ const selected = ref(undefined);
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+async function validateProps() {
+  if (!props.cntrCstNo) {
+    await alert('기존 계약을 조회하기 위해 고객 정보가 필요합니다.');
+    cancel();
+  }
+}
+
+await validateProps();
 
 async function fetchMachines() {
   const params = {
