@@ -1,3 +1,4 @@
+<!-- eslint-disable no-unused-vars -->
 <!----
 ****************************************************************************************************
 * 프로그램 개요
@@ -70,10 +71,10 @@
         >
           <kw-select
             v-model="searchParams.sellTpCd"
-            :options="[{ codeId: '1', codeName: '할부' },
-                       { codeId: '2', codeName: '렌탈/리스' },
-                       { codeId: '3', codeName: '멤버십' },
-                       { codeId: '6', codeName: '정기배송' }]"
+            :options="[{ codeId: '1', codeName: t('MSG_TXT_ISTM') },
+                       { codeId: '2', codeName: t('MSG_TXT_RENT_LEAS') },
+                       { codeId: '3', codeName: t('MSG_TXT_MEMBERSHIP') },
+                       { codeId: '6', codeName: t('MSG_TXT_REG_DLVR') }]"
             :model-value="searchParams.sellTpCd ? searchParams.sellTpCd : []"
             :multiple="true"
             class="w300"
@@ -172,18 +173,21 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useGlobal, useMeta, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { defineGrid, getComponentType, useDataService, useGlobal, useMeta, gridUtil, stringUtil } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { alert, modal, notify } = useGlobal();
+const { modal, notify } = useGlobal();
+const ozParamsList = ref({});
 const props = defineProps({
   cntrNo: { type: String, required: false, default: '' },
   cntrSn: { type: String, required: false, default: '' },
   cntrCstNo: { type: String, required: false, default: '' },
+  cntrCstKnm: { type: String, required: false, default: '' },
 });
 
 let cachedParams;
@@ -402,6 +406,7 @@ async function fetchTrdSpcData() {
 
   const view = grdRef.value.getView();
   const { list: pages, pageInfo: pagingResult } = res.data;
+  ozParamsList.value = pages;
   pageInfo.value = pagingResult;
   const dataSource = view.getDataSource();
   // Row 변경상태감지를 풀고 데이터 교체후, 다시 변경감지 On
@@ -485,7 +490,49 @@ async function onClickEmailSend() {
 
 // 발행(출력)
 async function onClickPblPrnt() {
-  await alert('발행(출력) 팝업은 작업예정입니다.');
+  // 조회된 내역이 없으면 return
+  if (isEmpty(ozParamsList.value)) { return; }
+
+  switch (searchParams.value.docDvCd) { // 증빙서류종류
+    case '1': // 입금내역서
+      break;
+    case '2': // 거래명세서
+      break;
+    case '3': // 카드매출전표(카드내역서 조회)
+      // OZ 리포트 팝법 파라미터 설정
+      cachedParams.reportHeaderTitle = '카드내역서 조회'; // 레포트 제목
+
+      // OZ 리포트 호출 Api 설정
+      // eslint-disable-next-line no-case-declarations
+      const args3 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/oz', ...cachedParams };
+
+      // OZ 레포트 팝업호출
+      openReportPopup(
+        '/kstation-w/dpst/cardSttm.ozr',
+        '',
+        JSON.stringify(args3),
+      );
+      break;
+    case '4': // 계약사항
+      // OZ 리포트 팝법 파라미터 설정
+      cachedParams.pblcSearchSttDt = stringUtil.getDateFormat(now.format('YYYYMMDD'), '-'); // 발행년월시
+      cachedParams.custNm = props.cntrCstKnm; // 고객명
+      cachedParams.reportHeaderTitle = '계약사항 조회'; // 레포트 제목
+
+      // OZ 리포트 호출 Api 설정
+      // eslint-disable-next-line no-case-declarations
+      const args4 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/oz', ...cachedParams };
+
+      // OZ 레포트 팝업호출
+      openReportPopup(
+        '/kstation-w/dpst/concMtr.ozr',
+        '',
+        JSON.stringify(args4),
+      );
+      break;
+    default:
+      break;
+  }
 }
 
 onMounted(async () => {
