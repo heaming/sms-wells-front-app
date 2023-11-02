@@ -332,30 +332,214 @@ async function onClickExcelDownload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
-  const fields = [
-    { fieldName: 'apyYm' },
-    { fieldName: 'wareNo' },
-    { fieldName: 'wareDvCd' },
-    { fieldName: 'wareDtlDvCd' },
-    { fieldName: 'wareLocaraCd' },
-    { fieldName: 'wareLocaraSn' },
-    { fieldName: 'hgrWareNo' },
-  ];
-
   const columns = [
-    { fieldName: 'apyYm', header: '품목구분', width: '120', styleName: 'text-left' },
-    { fieldName: 'wareNo', header: 'SAP코드', width: '140', styleName: 'text-center' },
-    { fieldName: 'wareDvCd', header: '품목코드', width: '250', styleName: 'text-center' },
-    { fieldName: 'wareDtlDvCd', header: '품목명', width: '100', styleName: 'text-left' },
-    { fieldName: 'wareLocaraCd', header: '영업센터명', width: '100', styleName: 'text-left' },
-    { fieldName: 'wareLocaraSn', header: '자재실 재고', width: '100', styleName: 'text-right' },
-    { fieldName: 'hgrWareNo', header: '소속코드', width: '100', styleName: 'text-left' },
+    { fieldName: 'itmKnd', header: t('MSG_TXT_ITM_DV'), width: '120', styleName: 'text-center' }, // 품목구분
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '250', styleName: 'text-center' }, // SAP코드
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '140', styleName: 'text-center' }, // 품목코드
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-center' }, // 품목명
+    { fieldName: 'wareNmUp', header: t('MSG_TXT_BSNS_CNTR') + t('MSG_TXT_NM'), width: '100', styleName: 'text-center' }, // 영업센터명
+    { fieldName: 'onQtyUp', header: t('자재실 재고'), width: '100', styleName: 'text-center' }, // 자재실 재고
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '100', styleName: 'text-center' }, // 소속코드
+    { fieldName: 'wareMngtPrtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' }, // 사번
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_PIC'), width: '100', styleName: 'text-center' }, // 담당자
+    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '100', styleName: 'text-center' }, // 창고명
+    { fieldName: 'approvedQty', header: t('가용재고'), width: '100', styleName: 'text-left', dataType: 'number' }, // 가용재고
+    { fieldName: 'nonApprovedQty', header: t('MSG_TXT_UNAPPR') + t('MSG_TXT_STOC'), width: '100', styleName: 'text-left', dataType: 'number' }, // 미승인재고
+    { fieldName: 'onQty', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-left', dataType: 'number' }, // 계
+    { fieldName: 'remain', header: t('MSG_TXT_AMORM'), width: '100', styleName: 'text-left', dataType: 'number' }, // 잔량
+    { fieldName: 'lack', header: t('MSG_TXT_STG'), width: '100', styleName: 'text-left', dataType: 'number' }, // 부족
+    { fieldName: 'partUseTotalQty', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty01', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp01', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp01', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty02', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp02', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp02', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty03', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp03', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp03', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty04', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp04', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp04', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty05', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp05', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp05', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty06', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp06', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp06', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty07', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp07', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp07', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty08', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp08', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp08', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty09', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp09', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp09', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty10', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp10', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp10', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty11', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp11', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp11', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
+    { fieldName: 'partUseQty12', header: t('MSG_TXT_TOTAL_ASGN'), width: '100', styleName: 'text-left', dataType: 'number' }, // 총 배정
+    { fieldName: 'qtyBsComp12', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_COMPLETE'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 완료
+    { fieldName: 'qtyBsNonComp12', header: t('MSG_TXT_BEFORE_SERVICE') + t('MSG_TXT_PENDING'), width: '100', styleName: 'text-left', dataType: 'number' }, // B/S 대기
   ];
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
   view.checkBar.visible = false; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
+
+  view.setColumnLayout([
+    'itmKnd',
+    'sapMatCd',
+    'pdCd',
+    'pdNm',
+    'wareNmUp',
+    'onQtyUp',
+    { // 창고정보
+      header: { text: t('MSG_TXT_WARE_INF') },
+      direction: 'horizontal',
+      items: [
+        'ogCd',
+        'wareMngtPrtnrNo',
+        'prtnrKnm',
+        'wareNm',
+      ],
+    },
+    { // 개인창고 재고
+      header: { text: `${t('MSG_TXT_INDV_WARE')} ${t('MSG_TXT_STOC')}` },
+      direction: 'horizontal',
+      items: [
+        'approvedQty',
+        'nonApprovedQty',
+        'onQty',
+      ],
+    },
+    'remain',
+    'lack',
+    { // 배정계
+      header: { text: `${t('MSG_TXT_ASGN')} ${t('MSG_TXT_AGG')}` },
+      direction: 'horizontal',
+      items: [
+        'partUseTotalQty',
+        'qtyBsComp',
+        'qtyBsNonComp',
+      ],
+    },
+    { // 1월
+      header: { text: t('MSG_TXT_JAN') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty01',
+        'qtyBsComp01',
+        'qtyBsNonComp01',
+      ],
+    },
+    { // 2월
+      header: { text: t('MSG_TXT_FEB') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty02',
+        'qtyBsComp02',
+        'qtyBsNonComp02',
+      ],
+    },
+    { // 3월
+      header: { text: t('MSG_TXT_MAR') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty03',
+        'qtyBsComp03',
+        'qtyBsNonComp03',
+      ],
+    },
+    { // 4월
+      header: { text: t('MSG_TXT_APRI') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty04',
+        'qtyBsComp04',
+        'qtyBsNonComp04',
+      ],
+    },
+    { // 5월
+      header: { text: t('MSG_TXT_MAY') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty05',
+        'qtyBsComp05',
+        'qtyBsNonComp05',
+      ],
+    },
+    { // 6월
+      header: { text: t('MSG_TXT_JUN') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty06',
+        'qtyBsComp06',
+        'qtyBsNonComp06',
+      ],
+    },
+    { // 7월
+      header: { text: t('MSG_TXT_JUL') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty07',
+        'qtyBsComp07',
+        'qtyBsNonComp07',
+      ],
+    },
+    { // 8월
+      header: { text: t('MSG_TXT_AUG') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty08',
+        'qtyBsComp08',
+        'qtyBsNonComp08',
+      ],
+    },
+    { // 9월
+      header: { text: t('MSG_TXT_SEPT') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty09',
+        'qtyBsComp09',
+        'qtyBsNonComp09',
+      ],
+    },
+    { // 10월
+      header: { text: t('MSG_TXT_OCT') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty10',
+        'qtyBsComp10',
+        'qtyBsNonComp10',
+      ],
+    },
+    { // 11월
+      header: { text: t('MSG_TXT_NOV') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty11',
+        'qtyBsComp11',
+        'qtyBsNonComp11',
+      ],
+    },
+    { // 12월
+      header: { text: t('MSG_TXT_DECE') },
+      direction: 'horizontal',
+      items: [
+        'partUseQty12',
+        'qtyBsComp12',
+        'qtyBsNonComp12',
+      ],
+    },
+  ]);
 }
 
 </script>
