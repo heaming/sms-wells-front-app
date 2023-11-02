@@ -16,18 +16,21 @@
   <kw-popup
     size="lg"
   >
+    <!-- 계약정보 -->
     <h3>{{ t('MSG_TXT_CNTR_INF') }}</h3>
     <kw-form
       ref="frmMainRef"
       cols="2"
     >
       <kw-form-row>
+        <!-- 고객과의관계 -->
         <kw-form-item :label="$t('MSG_TXT_REL_WITH_CST')">
           <kw-select
             v-model="biztalkParams.fmlRelDvCd1"
             :options="codes.CST_REL_CD"
           />
         </kw-form-item>
+        <!-- 직접입력(기타선택시) -->
         <kw-form-item :label="$t('MSG_TXT_DRT_IN')">
           <kw-input
             v-model="biztalkParams.etcCn1"
@@ -36,6 +39,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 합의자명 -->
         <kw-form-item :label="$t('MSG_TXT_MAAS_NM')">
           <kw-input
             v-model="biztalkParams.maasFnm"
@@ -43,6 +47,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 수신번호 -->
         <kw-form-item
           :label="$t('MSG_TXT_RECP_NO')"
           required
@@ -59,16 +64,18 @@
     </kw-form>
 
     <kw-separator />
-
+    <!-- 계좌정보 -->
     <h3>{{ t('MSG_TXT_AC_INF') }}</h3>
     <kw-form cols="2">
       <kw-form-row>
+        <!-- 고객과의 관계 -->
         <kw-form-item :label="$t('MSG_TXT_REL_WITH_CST')">
           <kw-select
             v-model="biztalkParams.fmlRelDvCd2"
             :options="codes.CST_REL_CD"
           />
         </kw-form-item>
+        <!-- 직접입력 -->
         <kw-form-item :label="$t('MSG_TXT_DRT_IN')">
           <kw-input
             v-model="biztalkParams.etcCn2"
@@ -77,11 +84,13 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 계좌번호 -->
         <kw-form-item :label="$t('MSG_TXT_AC_NO')">
           <kw-input
             v-model="biztalkParams.rfndAcnoEncr"
           />
         </kw-form-item>
+        <!-- 은행명 -->
         <kw-form-item :label="$t('MSG_TXT_BNK_NM')">
           <kw-select
             v-model="biztalkParams.rfndBnkCd"
@@ -90,6 +99,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 계좌주 -->
         <kw-form-item
           :label="$t('MSG_TXT_ACOWN')"
         >
@@ -112,6 +122,7 @@
       <!-- <div class="kw-font-body mt10">
         {{ templateCn }}
       </div> -->
+      <!-- 템플리내용미리보기 -->
       <div
         v-for="(cn,idx) in templateCn"
         :key="idx"
@@ -122,11 +133,13 @@
     </div>
 
     <template #action>
+      <!-- 취소 버튼 -->
       <kw-btn
         negative
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
       />
+      <!-- 발송 버튼 -->
       <kw-btn
         primary
         :label="$t('MSG_BTN_SEND')"
@@ -199,7 +212,7 @@ const biztalkParams = ref({
   rfndBnkCd: '',
   rfndAcownNm: '',
   rcpdt: props.rcpdt,
-  url: 'https://wsm.kyowon.co.kr/s1/Uw5ccg',
+  url: 'https://wsm.kyowon.co.kr/s1/Uw5ccg', // 예시 url
   mpno: '',
   cstNm: props.cstNm, // 설치자명
   pdNm: props.pdNm, // 제품명
@@ -213,11 +226,12 @@ const telNos = ref({
   telNo3: '',
 });
 const templateCn = ref([]);
+// 템플릿 내용 조회
 async function getTemplateContent() {
   const res = await dataService.post('/sflex/common/common/templates/TMP_SNB_WELLS18387/previews', biztalkParams.value);
   templateCn.value = split(res.data, '\n');
 }
-
+// 발송버튼 클릭시
 async function onClickSend() {
   if (!await frmMainRef.value.validate()) { return; }
   biztalkParams.value.rcpdt = (props.rcpdt).replaceAll('-', '');
@@ -232,7 +246,7 @@ async function onClickSend() {
     successYn: 'Y',
   };
   ok(payload);
-  notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS'));
+  notify(t('MSG_ALT_BIZTALK_SEND_SUCCESS')); // 알림톡이 발송되었습니다.
 }
 
 onMounted(async () => {

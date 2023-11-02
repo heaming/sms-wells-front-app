@@ -66,15 +66,6 @@
         spaced
       />
       <kw-btn
-        v-permission:print
-        icon="report"
-        dense
-        secondary
-        :label="$t('MSG_TXT_RPT_BRWS')"
-        @click="onClickOpenReport"
-      />
-
-      <kw-btn
         v-permission:download
         icon="download_on"
         dense
@@ -223,10 +214,6 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: response.data,
   });
-}
-
-async function onClickOpenReport() {
-  // TODO. 오즈 개발완료되면 수정할 예정
 }
 
 // -------------------------------------------------------------------------------------------------

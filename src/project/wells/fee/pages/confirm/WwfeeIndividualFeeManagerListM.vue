@@ -559,11 +559,28 @@ function setParams() {
   }
 }
 
-onActivated(() => {
-  if (!isEmpty(route.params)) { searchParams.value.perfYm = route.params.perfYm; } else { searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM'); }
+onBeforeMount(() => {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+  }
+});
+
+onMounted(() => {
   nextTick(() => {
     setParams();
   });
+});
+
+onActivated(() => {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+
+    nextTick(() => {
+      setParams();
+    });
+  }
 });
 
 // -------------------------------------------------------------------------------------------------

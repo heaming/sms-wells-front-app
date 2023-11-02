@@ -599,7 +599,6 @@ async function onClickSearchPd() {
     if (selectedPd) {
       installDetail.basePdCd = selectedPd.pdCd;
       installDetail.pdNm = selectedPd.pdNm;
-      installDetail.sellTpCd = selectedPd.sellTpCd;
 
       if (!isEmpty(installDetail.basePdCd)) {
         const res = await dataService.get('/sms/wells/contract/contracts/company-service', { params: { pdCd: installDetail.basePdCd } });

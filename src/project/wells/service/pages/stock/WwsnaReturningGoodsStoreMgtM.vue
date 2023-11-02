@@ -203,6 +203,19 @@
           inset
           spaced
         />
+        <!-- 스티커출력 -->
+        <kw-btn
+          v-permission:read
+          dense
+          secondary
+          :label="$t('MSG_BTN_STKR_PRNT')"
+          @click="onClickPrint"
+        />
+        <kw-separator
+          vertical
+          inset
+          spaced
+        />
         <!-- 반품확인저장 -->
         <kw-btn
           v-permission:update
@@ -250,6 +263,7 @@ import { codeUtil, useDataService, getComponentType, defineGrid, useGlobal, grid
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { t } = useI18n();
 const { notify, alert } = useGlobal();
@@ -550,6 +564,70 @@ async function onClickRtnGd() {
   await fetchData();
 }
 
+const ozParam = ref({
+  height: 1100,
+  width: 1200,
+});
+
+// 반품내역서 출력
+async function openReport() {
+  const { fnlItmGdCd, itmKndCd, itmPdCd, stFnlVstFshDtFrom, edFnlVstFshDtTo, strWareNoM } = searchParams.value;
+  const { width, height } = ozParam.value;
+
+  console.log(fnlItmGdCd, itmKndCd, itmPdCd, stFnlVstFshDtFrom, edFnlVstFshDtTo, strWareNoM);
+  console.log(width, height);
+
+  if (isEmpty(fnlItmGdCd)) {
+    // 상품등급을 선택해주세요.
+    await alert(t('MSG_ALT_PD_GD_CHO'));
+    return;
+  }
+  if (isEmpty(itmKndCd)) {
+    // 상품구분을 선택해주세요.
+    await alert(t('MSG_ALT_PD_DV_CHO'));
+    return;
+  }
+  if (isEmpty(itmPdCd)) {
+    // 상품코드를 선택해주세요.
+    await alert(t('MSG_ALT_PD_CD_CHO'));
+    return;
+  }
+  if (isEmpty(stFnlVstFshDtFrom)) {
+    // 처리일자를 선택해주세요.
+    await alert(t('MSG_ALT_PROCS_DT_CHO'));
+    return;
+  }
+  if (isEmpty(edFnlVstFshDtTo)) {
+    // 처리일자를 선택해주세요.
+    await alert(t('MSG_ALT_PROCS_DT_CHO'));
+    return;
+  }
+  if (isEmpty(strWareNoM)) {
+    // 상위창고를 선택해주세요.
+    await alert(t('MSG_ALT_HGR_WARE_CHO'));
+    return;
+  }
+  openReportPopup(
+    '/kyowon_as/returndeg.ozr',
+    '/kyowon_as/returndeg.odi',
+    JSON.stringify(
+      {
+        GRADE: fnlItmGdCd,
+        ITEM_KND: itmKndCd,
+        ITEM_CD: itmPdCd,
+        SDTE: stFnlVstFshDtFrom,
+        EDTE: edFnlVstFshDtTo,
+        SVC_CD: strWareNoM,
+      },
+    ),
+    { width: ozParam.width, height: ozParam.height },
+  );
+}
+
+// 오즈리포트 호출
+async function onClickPrint() {
+  await openReport();
+}
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

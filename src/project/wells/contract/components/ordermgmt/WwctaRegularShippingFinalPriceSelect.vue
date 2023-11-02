@@ -82,7 +82,8 @@
           <kw-btn
             v-if="isSeeding"
             :disable="!isFreePackage"
-            label="모종선택"
+            :primary="!sdingCapsls?.length"
+            :label="sdingCapsls?.length ? '모종변경' : '모종선택'"
             dense
             @click="onClickSelectSeeding"
           />
@@ -339,9 +340,10 @@ const labelGenerator = {
 
 const {
   setPriceDefineVariablesBy,
-  // setVariablesIfUniqueSelectable,
+  setVariablesIfUniqueSelectable,
   priceDefineVariableOptions,
   selectedFinalPrice, // computed
+  initializePriceDefineVariable,
 } = usePriceSelect(
   priceDefineVariables,
   finalPriceOptions,
@@ -379,22 +381,10 @@ async function fetchFinalPriceOptions() {
   finalPriceOptions.value = data || [];
 }
 
-function emitPriceChanged() {
-  console.log('emitPriceChanged', selectedFinalPrice.value);
-  if (!selectedFinalPrice.value) {
-    fnlAmt.value = undefined;
-    pdPrcFnlDtlId.value = undefined;
-    emit('price-changed', undefined);
-    return;
-  }
-  fnlAmt.value = selectedFinalPrice.value.fnlVal;
-  pdPrcFnlDtlId.value = selectedFinalPrice.value.pdPrcFnlDtlId;
-
-  emit('price-changed', selectedFinalPrice.value);
-}
-
 function initPriceDefineVariables() {
   if (!pdPrcFnlDtlId.value) {
+    initializePriceDefineVariable();
+    setVariablesIfUniqueSelectable();
     return;
   }
   setPriceDefineVariablesBy(pdPrcFnlDtlId.value);
@@ -430,7 +420,18 @@ watch(pdPrcFnlDtlId, (value, oldValue) => {
 });
 
 function onChangeSelectedFinalPrice() {
-  emitPriceChanged();
+  if (!selectedFinalPrice.value) {
+    fnlAmt.value = undefined;
+    pdPrcFnlDtlId.value = undefined;
+    emit('price-changed', undefined);
+    clearPromotions();
+    return;
+  }
+  fnlAmt.value = selectedFinalPrice.value.fnlVal;
+  pdPrcFnlDtlId.value = selectedFinalPrice.value.pdPrcFnlDtlId;
+
+  emit('price-changed', selectedFinalPrice.value);
+  clearPromotions();
 }
 
 watch(selectedFinalPrice, onChangeSelectedFinalPrice, { immediate: true });

@@ -249,9 +249,9 @@
       <h3>5. {{ t('MSG_TXT_CAN_ARTC') }}</h3>
     </template>
     <kw-btn
-      v-show="searchDetail.cancelStatNm !== '취소등록'"
       v-permission:read
       :label="$t('MSG_TXT_CAN_ARTC')+' '+$t('MSG_TXT_SRCH')"
+      :disable="searchDetail.clYn ==='Y'"
       negative
       dense
       @click="onClickSearchCancel"
@@ -455,16 +455,9 @@
   <div class="button-set--bottom">
     <!-- BTN Variation #2 : 취소등록 이후 or 이미 취소가 등록된 버튼 배열-->
     <div
-      v-if="searchDetail.cancelStatNm === '취소등록'"
+      v-if="searchDetail.cancelStatNm === '취소등록' && isReSearch==='N'"
       class="button-set--bottom-right"
     >
-      <!--
-      <kw-btn
-        :label="$t('MSG_BTN_VAC')+$t('MSG_BTN_IS')"
-        class="ml8"
-        @click="onClickVacIssue"
-      />
-      -->
       <kw-btn
         :label="$t('MSG_TXT_CARD')+$t('MSG_BTN_APPR')"
         class="ml8"
@@ -479,6 +472,7 @@
       <kw-btn
         v-permission:delete
         :label="$t('MSG_BTN_DEL')"
+        :disable="searchDetail.clYn ==='Y'"
         class="ml8"
         @click="onClickDelete"
       />
@@ -495,7 +489,7 @@
       />
       <kw-btn
         v-permission:update
-        :label="$t('MSG_BTN_SAVE')"
+        :label="isReSearch==='Y'?t('MSG_BTN_MOD'): t('MSG_BTN_SAVE')"
         class="ml8"
         primary
         @click="onClickSave"
@@ -538,6 +532,7 @@ const inputDetail = ref({
   reqDt: now.format('YYYYMMDD'),
   cancelDt: '',
 });
+const isReSearch = ref('N');
 
 codes.CCAM_EXMPT_DV_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
 codes.CMN_STAT_CH_RSON_CD.forEach((e) => { e.codeName = `(${e.codeId})${e.codeName}`; });
@@ -572,6 +567,8 @@ async function onClickSearchCancel() {
     filtDdctam: searchDetail.filtDdctam,
     slCtrAmt: searchDetail.slCtrAmt,
   });
+
+  isReSearch.value = searchDetail.cancelStatNm === '취소등록' ? 'Y' : 'N';
 }
 
 function onClickSave() {

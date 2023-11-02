@@ -353,7 +353,7 @@
                 <kw-form-item
                   :label="$t('MSG_TXT_FNT_STAT')"
                 >
-                  <p>{{ customer.mpyMthdTpNm }}</p>
+                  <p>{{ customer.rsNm }}</p>
                 </kw-form-item>
               </kw-form-row>
             </kw-form>
@@ -672,6 +672,7 @@
                     secondary
                     class="kw-font-caption py2"
                     style="min-height: 20px;"
+                    @click="onClickRsgRgst"
                   />
                   <kw-btn
                     v-permission:read
@@ -1401,6 +1402,12 @@ async function onClickService() {
   });
 }
 
+// TODO: 해지등록 상세
+async function onClickRsgRgst() {
+  const { cstNo, cntrNo, cntrSn } = customer.value;
+  await popupUtil.open(`/popup/#/contract/wwctb-cancel-registration-mgt?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&cntrDtlNo=${cntrNo}-${cntrSn}`, { width: 1292, height: 1100 }, false);
+}
+
 // TODO: 법조치등록
 async function onClickLawMeasure() {
   const { result: isChanged } = await modal({
@@ -1590,22 +1597,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'bndBizDvCd', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center', visible: false },
     { fieldName: 'bndBizDvNm', header: t('MSG_TXT_TASK_DIV'), width: '80', styleName: 'text-center' },
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRD_GRP'), width: '160', styleName: 'text-left' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '300', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
     { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
-    {
-      fieldName: 'cntrDtlNo',
-      header: t('MSG_TXT_CNTR_DTL_NO'),
-      styleName: 'text-center',
-      width: '160',
-
-      displayCallback(grid, index) {
-        const { cntrNo: no1, cntrSn: no2 } = grid.getValues(index.itemIndex);
-        if (no1 != null) {
-          return `${no1}-${no2}`;
-        }
-      },
-    },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '160', styleName: 'rg-button-link text-center', renderer: { type: 'button' } },
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
     { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '80', styleName: 'text-center' },
     { fieldName: 'authRsgCnfmdt', header: t('MSG_TXT_AUTH_RSG_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
@@ -1681,6 +1676,21 @@ const initGrdMain = defineGrid((data, view) => {
     const bndBizDvCd = g.getValue(dataRow, 'bndBizDvCd');
     if (cstNo) {
       await popupUtil.open(`/popup/#/wwbnc-same-customer-contract?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}&bndBizDvCd=${bndBizDvCd}`, { width: 1292, height: 1100 }, false);
+    }
+  };
+
+  view.onCellItemClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntrDtlNo') {
+      const cstNo = g.getValue(itemIndex, 'cstNo');
+      const cntrNo = g.getValue(itemIndex, 'cntrNo');
+      const cntrSn = g.getValue(itemIndex, 'cntrSn');
+
+      searchParams.value.schCstNo = cstNo;
+      searchParams.value.schCntrNo = cntrNo;
+      searchParams.value.schCntrSn = cntrSn;
+
+      cachedParams = cloneDeep(searchParams.value);
+      await fetchData();
     }
   };
 });

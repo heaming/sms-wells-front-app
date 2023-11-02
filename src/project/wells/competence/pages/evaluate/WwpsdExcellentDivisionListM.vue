@@ -67,7 +67,7 @@
           <kw-option-group
             v-model="searchParams.cntrPerfDvCd"
             type="radio"
-            :options="codes.PERF_INQR_BASE_CD"
+            :options="codes.CNTR_PERF_DV_CD"
             required
             :label="t('MSG_TXT_PERF_DV')"
           />
@@ -127,6 +127,7 @@
           :label="`${t('MSG_TXT_CTST_GRP')} ${t('MSG_BTN_RGST')}`"
           primary
           dense
+          @click="onclickContestGroupReg"
         />
       </kw-action-top>
       <kw-grid
@@ -151,12 +152,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { getComponentType, useMeta, useDataService, defineGrid, codeUtil, gridUtil } from 'kw-lib';
+import { getComponentType, useMeta, useDataService, useGlobal, defineGrid, codeUtil, gridUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
+const { modal } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
@@ -168,7 +170,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const codes = await codeUtil.getMultiCodes(
   'EVL_OG_TP_CD',
   'EVL_DV_CD',
-  'PERF_INQR_BASE_CD',
+  'CNTR_PERF_DV_CD',
   'EVL_RSB_DV_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
@@ -178,7 +180,7 @@ const ctstGrpCdList = ref([]);
 const searchParams = ref({
   baseYm: now.format('YYYYMM'),
   evlOgTpCd: 'W02', // 조직유형
-  cntrPerfDvCd: '01',
+  cntrPerfDvCd: '1',
   evlDvCd: '',
   ctstGrpCd: '',
 });
@@ -272,20 +274,34 @@ const getContestGroupFetchData = async () => {
   ctstGrpCdList.value = res.data;
 };
 
+const onclickContestGroupReg = async () => {
+  const { result: isChanged } = await modal({
+    component: 'WwpsdContestGroupRegP',
+    componentProps: {
+      evlOgTpCd: searchParams.value.evlOgTpCd,
+      evlDvCd: searchParams.value.evlDvCd,
+      baseYm: searchParams.value.baseYm,
+    },
+  });
+  if (isChanged) {
+    await fetchData();
+  }
+};
+
 watch(() => [searchParams.value.evlOgTpCd], async () => {
   await evaluateResponsibilityCdChang();
-  await getContestGroupFetchData();
 });
 
 watch(() => [searchParams.value.evlDvCd], async () => {
   if (!isEmpty(searchParams.value.evlDvCd) && (searchParams.value.evlDvCd === 'M01' || searchParams.value.evlDvCd === 'M02')) {
     searchParams.value.ctstGrpCd = '';
+  } else if (!isEmpty(searchParams.value.evlDvCd)) {
+    await getContestGroupFetchData();
   }
 });
 
 onMounted(async () => {
   await evaluateResponsibilityCdChang();
-  await getContestGroupFetchData();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -299,9 +315,9 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'ogNm', header: '소속', width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: '번호', width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: '성명', width: '100', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_BLG'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
   ];
 
   data.setFields(fields);

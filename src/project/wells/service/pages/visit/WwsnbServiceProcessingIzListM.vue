@@ -493,14 +493,15 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pu8Part', header: t('MSG_TXT_PART08'), width: '145', styleName: 'text-center' }, // 투입부품(부품08)
     { fieldName: 'pu9Part', header: t('MSG_TXT_PART09'), width: '145', styleName: 'text-center' }, // 투입부품(부품09)
     { fieldName: 'pu10Part', header: t('MSG_TXT_PART10'), width: '145', styleName: 'text-center' }, // 투입부품(부품10)
-    { fieldName: 'partCs', header: t('MSG_TXT_PART_COST'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 수납(부품비)
-    { fieldName: 'tcfee', header: t('MSG_TXT_TCFEE'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 수납(기술료)
-    { fieldName: 'bstrCs', header: t('MSG_TXT_BSTR_CS'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 수납(출장료)
-    { fieldName: 'etcCs', header: t('MSG_TXT_ETC_CS'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 수납(기타비용)
-    { fieldName: 'rveCsTot', header: t('MSG_TXT_AGG'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 수납(계)
-    { fieldName: 'adpBilAmt', header: t('MSG_TXT_ADP_BIL'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(합산청구)
-    { fieldName: 'cardStlm', header: t('MSG_TXT_CARD'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(카드)
-    { fieldName: 'vacStlmAmt', header: t('MSG_TXT_VT_AC'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제(가상계좌)
+    { fieldName: 'partCs', header: t('MSG_TXT_PART_COST'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 청구내역(부품비)
+    { fieldName: 'tcfee', header: t('MSG_TXT_TCFEE'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 청구내역(기술료)
+    { fieldName: 'bstrCs', header: t('MSG_TXT_BSTR_CS'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 청구내역(출장료)
+    { fieldName: 'etcCs', header: t('MSG_TXT_ETC_CS'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 청구내역(기타비용)
+    { fieldName: 'rveCsTot', header: t('MSG_TXT_AGG'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 청구내역(계)
+    { fieldName: 'csBilNo', header: t('MSG_TXT_BIL_NO'), width: '200' }, // 결제내역(청구번호)
+    { fieldName: 'adpBilAmt', header: t('MSG_TXT_ADP_BIL'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제내역(합산청구)
+    { fieldName: 'cardStlm', header: t('MSG_TXT_CRDCD'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제내역(신용카드)
+    { fieldName: 'vacStlmAmt', header: t('MSG_TXT_VT_AC'), width: '145', styleName: 'text-right', dataType: 'number', footer: { expression: 'sum', numberFormat: '#,##0' } }, // 결제내역(가상계좌)
     { fieldName: 'cstSignCn', // 고객서명
       header: t('MSG_BTN_CST_SIGN'),
       width: '100',
@@ -601,12 +602,12 @@ const initGrdMain = defineGrid((data, view) => {
       items: ['pu1Part', 'pu2Part', 'pu3Part', 'pu4Part', 'pu5Part', 'pu6Part', 'pu7Part', 'pu8Part', 'pu9Part', 'pu10Part'],
     },
     {
-      header: t('MSG_TXT_RVE'), // 수납
+      header: t('MSG_TXT_BILL_IZ'), // 청구내역
       direction: 'horizontal',
-      items: ['partCs', 'tcfee', 'bstrCs', 'etcCs', 'rveCsTot'],
+      items: ['partCs', 'tcfee', 'bstrCs', 'etcCs', 'rveCsTot', 'csBilNo'],
     },
     {
-      header: t('MSG_TXT_STLM'), // 결제
+      header: t('MSG_TXT_STLM_IZ'), // 결제내역
       direction: 'horizontal',
       items: ['adpBilAmt', 'cardStlm', 'vacStlmAmt'],
     },

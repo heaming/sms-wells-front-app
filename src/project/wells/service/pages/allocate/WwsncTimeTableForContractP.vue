@@ -183,7 +183,7 @@
                     {{ data.psic.prtnrKnm2 }}
                   </h3>
                   <kw-chip
-                    :label="$t('MSG_TXT_MANAGER')"
+                    :label="data.psic.rolDvNm2"
                     class="ml8"
                     color="primary"
                     square
@@ -775,7 +775,7 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
     return;
   }
 
-  if (selectedDay < dayjs().format('YYYYMMDD')) {
+  if (selectedDay <= dayjs().format('YYYYMMDD')) {
     notify('날짜를 오늘 이후로 선택하여 주십시오');
     return;
   }

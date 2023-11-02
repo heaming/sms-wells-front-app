@@ -182,6 +182,7 @@ const props = defineProps({
 });
 const grdMainRef = ref(getComponentType('KwGrid'));
 const grdData = computed(() => grdMainRef.value?.getData());
+const grdView = computed(() => grdMainRef.value?.getView());
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
   'SELL_TP_CD',
@@ -240,6 +241,7 @@ async function fetchData() {
 
   if (grdData.value) {
     grdData.value.setRows(cntrs);
+    grdView.value.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   } else {
     initGridData = cntrs;
   }

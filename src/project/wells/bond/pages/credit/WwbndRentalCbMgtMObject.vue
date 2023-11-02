@@ -104,14 +104,12 @@
       v-show="isCustomer"
       ref="grdCustomerRef"
       name="grdCustomer"
-      :visible-rows="10"
       @init="initCustomerGrid"
     />
     <kw-grid
       v-show="!isCustomer"
       ref="grdContractRef"
       name="grdContract"
-      :visible-rows="10"
       @init="initContractGrid"
     />
   </div>
@@ -286,7 +284,7 @@ const initContractGrid = defineGrid((data, view) => {
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
     { fieldName: 'copnDvNm', header: t('MSG_TXT_INDI_CORP'), width: '130', styleName: 'text-center' }, // 개인/법인
     { fieldName: 'sellTpNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '130', styleName: 'text-center' }, // 상품구분
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PDCT'), width: '130' }, // 제품
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_NM'), width: '130' }, // 상품명
     { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일자
     { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '130', styleName: 'text-center' }, // 휴대전화번호
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_AUTO_FNT_STPL_DT'), width: '150', styleName: 'text-center' }, // 자동이체 약정일자

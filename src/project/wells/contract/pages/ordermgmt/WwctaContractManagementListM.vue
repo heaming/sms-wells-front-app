@@ -360,6 +360,7 @@ import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, fileU
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -855,7 +856,7 @@ async function onClickCntrwMlFw() {
     cntrs.forEach((row) => {
       // 확정인 계약에 한해서만 가능, 계약진행상태코드 == 60 (확정)
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)
-        && cntrs[0].cntrPrgsStatCd !== '60') {
+        && row.cntrPrgsStatCd !== '60') {
         notify(t('MSG_ALT_CNTR_PRGS_STAT_CD_NOT_CNFM')); // 계약진행상태가 확정이 아닙니다.
         isCntrPrgsStatCnfm = false;
       }
@@ -1042,6 +1043,7 @@ const initGrdMstList = defineGrid((data, view) => {
     { fieldName: 'talkRcvYn' }, // 알림톡 수신여부
     { fieldName: 'notakRcvDt' }, // 알림톡 수신일자
     { fieldName: 'cntrAprYn' }, // 확정승인여부
+    { fieldName: 'histStrtDtm' }, // 계약이력시작일시
   ];
 
   const columns = [
@@ -1194,6 +1196,7 @@ const initGrdMstList = defineGrid((data, view) => {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
+    const paramHistStrtDtm = `${gridUtil.getCellValue(g, dataRow, 'histStrtDtm')}`;
     const { cntrPrgsStatCd } = g.getValues(dataRow);
     const { cntrwTpCd } = g.getValues(dataRow);
     const fileRow = gridUtil.getRowValue(g, dataRow);
@@ -1351,7 +1354,43 @@ const initGrdMstList = defineGrid((data, view) => {
     } else if (['fileUid'].includes(column)) { /* 파일UID인 경우 */
       fileUtil.download({ fileUid: fileRow.fileUid, originalFileName: fileRow.fileNm }, 'storage'); /* kw-lib에서 fileUtil을 불러옴  */
     } else if (['cntrwBrws'].includes(column)) { // 계약서보기 버튼 클릭
-      await alert('계약서보기 팝업은 작업예정입니다.');
+      // TODO: 231031 기준 개발중인 oz리포트 - args받아서 정상적으로 넘기는 것 까지 완료 [버전등 개발이 완료되면 다시 확인]
+      console.log(paramHistStrtDtm);
+      let paramOzrPath; // ozrPath
+
+      switch (cntrwTpCd) {
+        case '1': // 일시불(환경가전) {
+          paramOzrPath = '/kstation-w/ord/ef/Ver1.0/contractL11.ozr';
+          break;
+        case '2': // 일시불(BH) {
+          paramOzrPath = '/kstation-w/ord/bh/Ver1.0/contractBH.ozr';
+          break;
+        case '3': // 렌탈
+          paramOzrPath = '/kstation-w/ord/er/Ver1.0/contractL23.ozr';
+          break;
+        case '4': // 멤버십
+          paramOzrPath = '/kstation-w/ord/mb/Ver1.0/contractL30.ozr';
+          break;
+        case '5': // 홈케어서비스
+          paramOzrPath = '/전자청약서 ksswells/ord/hcs/Ver1.0/hcsCndc.ozr';
+          break;
+        case '6': // 모종일시불
+          paramOzrPath = '/kstation-w/ord/plnt/Ver1.0/contractPLNT.ozr';
+          break;
+        case '7': // 정기배송
+          paramOzrPath = '/kstation-w/ord/ef/Ver1.0/contractL11.ozr';
+          break;
+      }
+      await openReportPopup(
+        paramOzrPath,
+        null,
+        JSON.stringify(
+          {
+            histStrDtm: paramHistStrtDtm,
+            cntrNo: paramCntrNo,
+          },
+        ),
+      );
     } else if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
@@ -1389,6 +1428,7 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm' }, // 판매자
     { fieldName: 'rcpPrtnrNo' }, // 판매자 사번
     { fieldName: 'ogCd' }, // 판매자 지점코드
+    { fieldName: 'cntrwBrws' }, // 리포트 보기
     { fieldName: 'notakFwIz' }, // 알림톡 발송내역
     { fieldName: 'talkRcvYn' }, // 알림톡 수신여부
     { fieldName: 'notakFwDt' }, // 알림톡 발송일자
@@ -1417,6 +1457,7 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_SELLER_PERSON'), width: '127', styleName: 'text-center' }, // 판매자
     { fieldName: 'rcpPrtnrNo', header: t('MSG_TXT_PTNR_NO'), width: '127', styleName: 'text-center' }, // 판매자 사번
     { fieldName: 'ogCd', header: t('MSG_TXT_PTNR_BRCH_CD'), width: '127', styleName: 'text-center' }, // 판매자 지점코드
+    { fieldName: 'cntrwBrws', header: t('MSG_BTN_CNTRW_BRWS'), width: '127', styleName: 'rg-button-icon--x', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_BTN_CNTRW_BRWS') }, // 리포트 보기
     { fieldName: 'notakFwIz', header: t('MSG_TXT_NOTAK_FW_IZ'), width: '127', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_NOTAK_FW_IZ') }, // 알림톡 발송내역
     { fieldName: 'talkRcvYn', header: t('MSG_TXT_NOTAK_RCV_YN'), width: '127', styleName: 'text-center' }, // 알림톡 수신여부
     { fieldName: 'notakFwDt', header: t('MSG_TXT_NOTAK_FW_DT'), width: '127', styleName: 'text-center', datetimeFormat: 'date' }, // 알림톡 발송일자
@@ -1431,8 +1472,24 @@ const initGrdMstRstlList = defineGrid((data, view) => {
   // view.displayOptions.selectionStyle = 'singleRow';
   view.onCellItemClicked = async (g, { column, dataRow }) => {
     const paramCntrDtlNo = `${gridUtil.getCellValue(g, dataRow, 'cntrNo')}-${gridUtil.getCellValue(g, dataRow, 'cntrSn')}`;
+    const paramCntrNo = `${gridUtil.getCellValue(g, dataRow, 'cntrNo')}`;
+    const paramCntrSn = `${gridUtil.getCellValue(g, dataRow, 'cntrSn')}`;
+
     if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrDtlNo: paramCntrDtlNo, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
+    }
+
+    if (['cntrwBrws'].includes(column)) { // 리포트 보기 버튼 클릭
+      await openReportPopup(
+        '/kstation-w/ord/rp/V1.0/contractRPView.ozr',
+        null,
+        JSON.stringify(
+          {
+            cntrNo: paramCntrNo,
+            cntrSn: paramCntrSn,
+          },
+        ),
+      );
     }
   };
 

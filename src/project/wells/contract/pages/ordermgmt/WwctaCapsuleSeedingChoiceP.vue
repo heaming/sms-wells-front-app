@@ -33,7 +33,7 @@
           </kw-item-label>
         </kw-item-section>
         <kw-item-section
-          v-if="packageBaseProduct.sellTpDtlCd === PKG_TYPE_CAPSULE"
+          v-if="isCapsulePackage"
           side
         >
           <zwcm-counter
@@ -75,6 +75,7 @@ import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { alert, useDataService, useModal } from 'kw-lib';
 import { getNumberWithComma } from '~sms-common/contract/util';
 import { useCtCode } from '~sms-common/contract/composable';
+import { SELL_TP_DTL_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   basePdCd: { type: String, required: true },
@@ -92,10 +93,9 @@ const { ok, cancel } = useModal();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const packageBaseProduct = ref({});
-const PKG_TYPE_SEEDING = '62';
-const PKG_TYPE_CAPSULE = '63';
-const isSeedingPackage = computed(() => packageBaseProduct.value.sellTpDtlCd === PKG_TYPE_SEEDING);
-const isCapsulePackage = computed(() => packageBaseProduct.value.sellTpDtlCd === PKG_TYPE_CAPSULE);
+
+const isSeedingPackage = computed(() => packageBaseProduct.value.sellTpDtlCd === SELL_TP_DTL_CD.RGLR_SPP_SDING);
+const isCapsulePackage = computed(() => packageBaseProduct.value.sellTpDtlCd === SELL_TP_DTL_CD.RGLR_SPP_CAPSL);
 
 const title = computed(() => {
   if (!packageBaseProduct.sellTpDtlCd) {
@@ -133,17 +133,14 @@ function setupPdctProducts() {
     }
 
     if (isSeedingPackage.value) {
-      product.itmQty = 1;
-      if (!product.sdingQty) {
-        if (packageBaseProduct.value.pdChoQty > 1) {
-          product.sdingQty = packageBaseProduct.value.pdctConsQty / packageBaseProduct.value.pdChoQty;
-        } else {
-          product.sdingQty = 1;
-        }
+      if (packageBaseProduct.value.pdChoQty > 1) {
+        product.itmQty = packageBaseProduct.value.pdctConsQty / packageBaseProduct.value.pdChoQty;
+      } else {
+        product.itmQty = 1;
       }
 
       product.disable = computed(() => {
-        if (selected.value.includes(pdCd)) {
+        if (selected.value?.includes(pdCd)) {
           return false;
         }
         const isOverConsQty = packageBaseProduct.value.pdctConsQty

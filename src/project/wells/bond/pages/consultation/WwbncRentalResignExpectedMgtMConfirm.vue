@@ -265,8 +265,8 @@ const initConfirmGrid = defineGrid((data, view) => {
     { fieldName: 'csmbCsBorAmt', header: t('MSG_TXT_CSMB_CS'), width: '140', styleName: 'text-right', dataType: 'number' }, // 소모품비
     { fieldName: 'reqdCsBorAmt', header: t('MSG_TXT_REQD_CS'), width: '140', styleName: 'text-right', dataType: 'number' }, // 철거비
     { fieldName: 'lsRntf', header: t('MSG_TXT_PD_LENT_LOST_LOG'), width: '140', styleName: 'text-right', dataType: 'number' }, // 분실손료
-    { fieldName: 'rtrnDbtFnlAmt', header: `(${t('MSG_TXT_DTRM')})${t('MSG_TXT_RTRN_H_ARRS_AMT')}`, width: '160', styleName: 'text-right', dataType: 'number' }, // 반환시체납액
-    { fieldName: 'nrtrnDbtFnlAmt', header: `(${t('MSG_TXT_DTRM')})${t('MSG_TXT_N_RTRN_H_ARRS_AMT')}`, width: '180', styleName: 'text-right', dataType: 'number' }, // 미반환시체납액
+    { fieldName: 'rtrnDbtTotAmt', header: `(${t('MSG_TXT_DTRM')})${t('MSG_TXT_RTRN_H_ARRS_AMT')}`, width: '160', styleName: 'text-right', dataType: 'number' }, // 반환시체납액
+    { fieldName: 'nrtrnDbtTotAmt', header: `(${t('MSG_TXT_DTRM')})${t('MSG_TXT_N_RTRN_H_ARRS_AMT')}`, width: '180', styleName: 'text-right', dataType: 'number' }, // 미반환시체납액
     { fieldName: 'exmptYn', header: t('MSG_TXT_CNTR_DV'), width: '100', styleName: 'text-center' }, // 계약구분
     { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '100', styleName: 'text-center' }, // 제품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '180' }, // 제품명

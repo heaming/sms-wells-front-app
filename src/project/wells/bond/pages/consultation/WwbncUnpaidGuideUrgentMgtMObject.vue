@@ -150,7 +150,7 @@
           v-model="searchParams.wkDt"
           :label="t('MSG_TXT_WK_DT')"
           :rules="!isState ? 'required' : ''"
-          :disable="searchParams.stateDvCd === '02'"
+          :disable="searchParams.stateDvCd === '01'"
         />
       </kw-search-item>
       <kw-search-item
@@ -161,7 +161,7 @@
           v-model="searchParams.pyTmlmDt"
           :rules="!isState ? 'required' : ''"
           :label="t('MSG_TXT_PY_TMLM')"
-          :disable="searchParams.stateDvCd === '02'"
+          :disable="searchParams.stateDvCd === '01'"
         />
       </kw-search-item>
     </kw-search-row>
@@ -287,8 +287,8 @@ const searchParams = ref({
   toTotNpdAmt: '',
   ojWkDt: dayjs().format('YYYYMMDD'),
   ojPyTmlmDt: dayjs().format('YYYYMMDD'),
-  wkDt: dayjs().format('YYYYMMDD'),
-  pyTmlmDt: dayjs().format('YYYYMMDD'),
+  wkDt: '',
+  pyTmlmDt: '',
 });
 const stateOpt = [
   { codeId: '01', codeName: t('MSG_TXT_MTR_CRT') },
@@ -400,6 +400,13 @@ async function onClickCreate() {
   } else { // 고객번호기준생성 버튼 클릭일 경우
     const cstNoParams = {
       ucAmtFwTpCd: searchParams.value.ucAmtFwTpCd,
+      copnDvCd: searchParams.value.copnDvCd,
+      bndBizDvCd: searchParams.value.bndBizDvCd,
+      fromDlqMcn: searchParams.value.fromDlqMcn,
+      toDlqMcn: searchParams.value.toDlqMcn,
+      clctamDvCd: searchParams.value.clctamDvCd,
+      fromTotNpdAmt: searchParams.value.fromTotNpdAmt,
+      toTotNpdAmt: searchParams.value.toTotNpdAmt,
       wkDt: searchParams.value.wkDt,
       ojWkDt: searchParams.value.ojWkDt,
       pyTmlmDt: searchParams.value.pyTmlmDt,
@@ -439,9 +446,13 @@ watch(() => searchParams.value.stateDvCd, async (val) => {
   if (val === '01') {
     isState.value = true;
     searchParams.value.ojPyTmlmDt = dayjs().format('YYYYMMDD');
+    searchParams.value.wkDt = dayjs().format('YYYYMMDD');
+    searchParams.value.pyTmlmDt = dayjs().format('YYYYMMDD');
   } else {
     isState.value = false;
     searchParams.value.ojPyTmlmDt = '';
+    searchParams.value.wkDt = dayjs().format('YYYYMMDD');
+    searchParams.value.pyTmlmDt = dayjs().format('YYYYMMDD');
   }
 }, { immediate: true });
 // -------------------------------------------------------------------------------------------------

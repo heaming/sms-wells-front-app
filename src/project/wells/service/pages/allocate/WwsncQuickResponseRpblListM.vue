@@ -66,6 +66,13 @@
             maxlength="100"
           />
         </kw-search-item>
+        <kw-search-item :label="$t('재발행 여부')">
+          <kw-select
+            v-model="searchParams.rpblYn"
+            :options="codes.YN_CD"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
 
       <kw-search-row
@@ -132,6 +139,13 @@
             maxlength="100"
           />
         </kw-search-item>
+        <kw-search-item :label="$t('재발행 여부')">
+          <kw-select
+            v-model="searchParams.rpblYn"
+            :options="codes.YN_CD"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
 
       <kw-search-row
@@ -186,6 +200,13 @@
           <kw-input
             v-model="searchParams.prtnrNo"
             maxlength="100"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('재발행 여부')">
+          <kw-select
+            v-model="searchParams.rpblYn"
+            :options="codes.YN_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -317,6 +338,7 @@ const searchParams = ref({
   engineerCd: '', // 엔지니어
 
   ogTpCd: '',
+  rpblYn: '',
 });
 
 /*
@@ -325,6 +347,7 @@ const searchParams = ref({
 const codes = await codeUtil.getMultiCodes(
   'LOCARA_MNGT_DV_CD',
   'PD_GRP_CD',
+  'YN_CD',
 );
 
 const mngrPartnerObj = ref({});

@@ -115,7 +115,7 @@
         dense
         grid-action
         :label="t('MSG_BTN_SAVE')"
-        :disable="!isSearchMonth || isfinalConfirm"
+        :disable="!isSearchMonth || isfinalConfirm || !canSave"
         @click="onClickSave"
       />
       <kw-separator
@@ -129,7 +129,7 @@
         dense
         secondary
         :label="t('MSG_TXT_EXCEL_UPLOAD')"
-        :disable="!isSearchMonth || isExpectedConfirm || isfinalConfirm"
+        :disable="!isSearchMonth || isfinalConfirm || !canSave"
         @click="onClickExcelUpload"
       />
       <kw-btn
@@ -174,7 +174,7 @@
         dense
         secondary
         :label="t('MSG_BTN_EXP_CRT')"
-        :disable="!isSearchMonth || isExpectedConfirm || isfinalConfirm"
+        :disable="!isSearchMonth || isExpectedConfirm || isfinalConfirm || !canCreate"
         @click="onClickExpectedCreate"
       />
       <kw-btn
@@ -182,7 +182,7 @@
         dense
         secondary
         :label="t('MSG_BTN_EXP_CNFM')"
-        :disable="!isSearchMonth || isExpectedConfirm || !isPsic || isfinalConfirm"
+        :disable="!isSearchMonth || isExpectedConfirm || !isPsic || isfinalConfirm || !canExpectedConfirm"
         @click="onClickExpectedConfirm"
       />
       <kw-separator
@@ -194,7 +194,7 @@
         dense
         primary
         :label="t('MSG_TXT_FNL_CNFM')"
-        :disable="isfinalConfirm || !isPsic || isNotExpected"
+        :disable="isfinalConfirm || !isPsic || isNotExpected || !canFinalConfirm"
         @click="onClickFinalConfirm"
       />
     </kw-action-top>
@@ -261,7 +261,6 @@ const totalCount03 = ref(0);
 const isSearchMonth = ref(false);
 const { getters } = useStore();
 const { roles, departmentId } = getters['meta/getUserInfo'];
-console.log(JSON.stringify(roles));
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -301,7 +300,13 @@ const searchParams = ref({
   authRsgCd: '01',
 });
 
+const authRsgState = ref('00'); // 00 : 예정생성 전, 01 : 미확정, 02: 예정확정, 03: 최정확정
+
 const isbndStrt = computed(() => departmentId === '70202'); // 사용자 === '채권전략팀'
+const canCreate = computed(() => authRsgState.value === '00');
+const canSave = computed(() => authRsgState.value === '01' || authRsgState.value === '02');
+const canExpectedConfirm = computed(() => authRsgState.value === '01');
+const canFinalConfirm = computed(() => authRsgState.value === '02');
 
 // 검색 조회
 let cachedParams;
@@ -310,19 +315,21 @@ async function fetchData() {
   const { data } = await dataService.get(baseUrl, { params: { ...cachedParams } });
 
   if (cachedParams.authRsgCd === '01') {
-    totalCount01.value = data?.length;
+    totalCount01.value = data?.list?.length;
     currentView.value = grdExpected01Ref.value.getView();
   }
   if (cachedParams.authRsgCd === '02') {
-    totalCount02.value = data?.length;
+    totalCount02.value = data?.list?.length;
     currentView.value = grdExpected02Ref.value.getView();
   }
   if (cachedParams.authRsgCd === '03') {
-    totalCount03.value = data?.length;
+    totalCount03.value = data?.list?.length;
     currentView.value = grdExpected03Ref.value.getView();
   }
 
-  currentView.value.getDataSource().setRows(data);
+  authRsgState.value = data?.authRsgState || '00';
+
+  currentView.value.getDataSource().setRows(data?.list);
   // 2개월 전 대상 조회시 저장, 예정생성, 예정확정 버튼 disable
   isSearchMonth.value = dayjs().add(-1, 'month').format('YYYYMM') <= cachedParams.baseDt.substring(0, 6);
   currentView.value.columnByName('excdYn').readOnly = !isSearchMonth.value;
@@ -460,6 +467,7 @@ async function onClickExcelUpload() {
   const templateId = 'FOM_BOND_AUTH_RSG';
   const extraData = {
     baseDt: cachedParams.baseDt,
+    authRsgCd: cachedParams.authRsgCd,
   };
   const {
     payload,

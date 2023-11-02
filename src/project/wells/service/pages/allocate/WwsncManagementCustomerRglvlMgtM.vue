@@ -81,6 +81,7 @@
           v-model:dgr3-levl-og-id="searchParams.branchOffice"
           v-model:prtnr-no="searchParams.partnerNo"
           v-model:dgr2-levl-og="dgr2LevlOgObj"
+          v-model:dgr3-levl-og="dgr3LevlOgObj"
           :dgr1-levl-og-required="true"
           :dgr2-levl-og-required="true"
           :dgr1-levl-og-readonly="managerAuthYn"
@@ -338,6 +339,7 @@ const searchParams = ref({
 });
 
 const dgr2LevlOgObj = ref({});
+const dgr3LevlOgObj = ref({});
 
 let cachedParams;
 
@@ -378,8 +380,8 @@ async function onClickSearch() {
   if (searchParams.value.branchOffice === 'ALL' || !searchParams.value.branchOffice) {
     searchParams.value.branchOfficeCd = 'ALL';
   } else {
-    const { ogCd } = prtnrOgTpOptions.value.find((option) => searchParams.value.branchOffice === option.ogId);
-    searchParams.value.branchOfficeCd = ogCd;
+    // const { ogCd } = prtnrOgTpOptions.value.find((option) => searchParams.value.branchOffice === option.ogId);
+    searchParams.value.branchOfficeCd = dgr3LevlOgObj.value?.ogCd;
   }
 
   // 조회조건(지역단) setting(OgId -> OgCd로 변경)

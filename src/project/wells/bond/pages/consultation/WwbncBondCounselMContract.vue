@@ -76,11 +76,14 @@
 
     <kw-search-row>
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_NO')"
+        :label="$t('MSG_TXT_CNTR_DTL_NO')"
       >
         <kw-input
-          v-model="searchParams.schCntrNo"
+          v-model="searchParams.schCntrDtlNo"
           :maxlength="14"
+          :placeholder="$t('MSG_TIT_CNTR_NO_CNTR_SN')"
+          icon="search"
+          @click-icon="onClickCntrDtlNo"
         />
       </kw-search-item>
       <kw-search-item
@@ -349,7 +352,7 @@ const searchParams = ref({
   schDlqMcntStrt: '',
   schDlqMcntEnd: '',
   schIstTno: '',
-  schCntrNo: '',
+  schCntrDtlNo: '',
   schCstNo: '',
   schBizDv: '',
   schIstMpno: '',
@@ -378,6 +381,21 @@ const frmMainRef = ref(getComponentType('KwForm'));
 const customerParams = ref({});
 const totalCount = ref(0);
 const windowKey = ref('');
+
+// TODO: 계약상세번호 조회
+async function onClickCntrDtlNo() {
+  const { result, payload } = await modal({
+    component: 'WwctaContractNumberListP',
+    componentProps: {
+      cntrNo: searchParams.value.schCntrDtlNo,
+    },
+  });
+  if (result) {
+    searchParams.value.cntrNo = payload.cntrNo;
+    searchParams.value.cntrSn = payload.cntrSn;
+    searchParams.value.schCntrDtlNo = `${searchParams.value.cntrNo}-${searchParams.value.cntrSn}`;
+  }
+}
 
 /** 계약리스트 조회 */
 async function fetchContracts() {

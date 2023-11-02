@@ -82,10 +82,11 @@
 // -------------------------------------------------------------------------------------------------
 // Initialize Component
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType, useDataService, useGlobal, defineGrid, codeUtil } from 'kw-lib';
+import { gridUtil, getComponentType, useDataService, useGlobal, defineGrid, codeUtil, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
+const userInfo = useMeta().getUserInfo();
 const dataService = useDataService();
 const { modal, notify, alert } = useGlobal();
 const { t } = useI18n();
@@ -364,13 +365,14 @@ const initGrdFourth = defineGrid((data, view) => {
 });
 
 async function onClickOpenReport() {
-  // params.userId = store.getters['meta/getUserInfo'].userId;
-  // TODO.oz 리포트 W-CL-R-0009 띄워야함 하직 화면 없음
-  openReportPopup(
-    '/ksswells/ord/er/V4.90/contractL23.ozr',
-    '/ksswells/ord/er/V4.90/contractL23',
-    // { wpnSeq: params },
-    { wpnSeq: '202206671335' },
+  await openReportPopup(
+    '/kstation-w/opcs/opcsRgsnMrsc.ozr',
+    '/kstation-w/opcs/opcsRgsnMrsc.odi',
+    {
+      AKDRNK: userInfo.careerLevelCode,
+      AKDDYM: cachedParams.baseYm,
+      AKDCDE: userInfo.employeeIDNumber,
+    },
   );
 }
 

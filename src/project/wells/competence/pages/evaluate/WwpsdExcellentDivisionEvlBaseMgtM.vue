@@ -88,19 +88,9 @@
           v-model:page-size="evlPageInfo2.pageSize"
           :total-count="evlPageInfo2.totalCount"
           :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+          @change="evlDetailFetchData"
         />
       </template>
-      <kw-btn
-        :label="$t('MSG_BTN_DEL')"
-        dense
-        grid-action
-        @click="onClickEvldRemove"
-      />
-      <kw-separator
-        vertical
-        inset
-        spaced
-      />
       <kw-btn
         v-permission:create
         :label="$t('MSG_BTN_ROW_ADD')"
@@ -128,6 +118,7 @@
       v-model:page-index="evlPageInfo2.pageIndex"
       v-model:page-size="evlPageInfo2.pageSize"
       :total-count="evlPageInfo2.totalCount"
+      @change="evlDetailFetchData"
     />
   </div>
 </template>

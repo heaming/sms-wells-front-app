@@ -90,14 +90,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import ProductSelect
-  from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
-import SinglePayPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
-import RentalPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
-import MembershipPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
+import ProductSelect from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
+import SinglePayPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
+import RentalPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
+import MembershipPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
 import RegularShippingPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaRegularShippingFinalPriceSelect.vue';
 import { alert, useDataService, useGlobal } from 'kw-lib';
@@ -106,11 +102,13 @@ import { warn } from 'vue';
 import { vScrollbar } from '~sms-common/contract/util';
 import {
   CNTR_REL_DTL_CD,
-  CNTR_TP_CD, PD_TP_CD,
+  CNTR_TP_CD,
+  PD_TP_CD,
   RENTAL_DSC_DV_CD,
   RENTAL_DSC_TP_CD,
-  SELL_TP_CD, SELL_TP_DTL_CD,
+  SELL_TP_DTL_CD,
 } from '~sms-wells/contract/constants/ctConst';
+import dayjs from 'dayjs';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -137,13 +135,62 @@ const setTempKey = (pd) => {
   pd.tempKey = uniqueId('new-product');
 };
 
+const pcntrReq = ref(false); /* fixme */
+
+async function validatePreconditions(pdCd) {
+  const { data } = await dataService.get('sms/wells/contract/contracts/product-limit', {
+    params: {
+      cntrNo: cntrNo.value, // 현재는 사용하지 않음
+      pdCd,
+    },
+  });
+
+  const {
+    bznsClHhBas,
+    bznsClYn,
+    pcntrMncnYn,
+    pcntrExistYn,
+  } = data;
+
+  if (pcntrMncnYn === 'Y' && pcntrExistYn === 'N') {
+    await alert('해당 상품은 기계약상품의 계약건이 존재해야만 선택 가능합니다.');
+    return false;
+  }
+
+  pcntrReq.value = pcntrMncnYn === 'Y';
+
+  if (bznsClHhBas) {
+    const bizStartTime = dayjs(`${bznsClHhBas.strtdt}${bznsClHhBas.strtHh}`, 'YYYYMMDDHHmm');
+    const bizEndTime = dayjs(`${bznsClHhBas.enddt}${bznsClHhBas.endHh}`, 'YYYYMMDDHHmm');
+    const now = dayjs();
+
+    if (bznsClYn === 'Y') {
+      await alert('영업 시간 내 계약해 주세요.');
+      return false;
+    }
+
+    if (now.isBefore(bizStartTime) || now.isAfter(bizEndTime)) {
+      await alert(`영업 시간 내 계약해 주세요. ${bznsClHhBas.strtHh} ~ ${bznsClHhBas.endHh}`);
+      return false;
+    }
+  }
+
+  return true;
+}
+
 async function onSelectProduct(product) {
   const newProduct = { ...product };
   const newProducts = [];
 
+  if (!await validatePreconditions(newProduct.pdCd)) {
+    return;
+  }
+
+  newProduct.precontractRequired = pcntrReq.value;
+
   // 상품관계 확인
   // PD_REL_TP_CD '12' 기계약상품여부
-  const res = await dataService.get('sms/wells/contract/contracts/product-relations', {
+  /*   const res = await dataService.get('sms/wells/contract/contracts/product-relations', {
     params: {
       cntrNo: cntrNo.value, // 현재는 사용하지 않음
       pdCd: newProduct.pdCd,
@@ -152,16 +199,18 @@ async function onSelectProduct(product) {
   });
 
   const { preCntrPdRelCnt, preCntrPdCnt } = res.data;
-  if (Number(preCntrPdRelCnt) > 0 && preCntrPdCnt === '0') {
+  if (Number(preCntrPdRelCnt) > 0 && Number(preCntrPdCnt) === 0) {
     alert('해당 상품은 기계약상품의 계약건이 존재해야만 선택 가능합니다.');
     return;
   }
 
   if (Number(preCntrPdRelCnt) > 0 && newProduct.sellTpCd === SELL_TP_CD.RGLR_SPP) {
     newProduct.precontractRequired = true; // sorrrrrrryyyyy... this is shit.
-  }
+  } */
 
   const isWellsFarmProduct = newProduct.pdLclsfId === 'PDC000000000120';
+
+  newProduct.lkSdingOjCntrRelRequired = isWellsFarmProduct;
 
   const isComposition = newProduct.pdTpCd === PD_TP_CD.COMPOSITION;
 
@@ -191,7 +240,7 @@ async function onSelectProduct(product) {
     newProducts.push(newProduct);
   }
 
-  if (isWellsFarmProduct) {
+  if (isWellsFarmProduct && false) {
     // 정기배송 상품 조회 CASE1: 웰스팜/홈카페 상품을 선택하여 정기배송 패키지가 자동추가되는 경우
     const { data: packageProducts } = await dataService.get('sms/wells/contract/contracts/welsf-hcf-pkgs', {
       params: {
@@ -316,9 +365,14 @@ async function onClickDelete(dtl) {
 }
 
 async function onClickOnePlusOne(dtl) {
+  const { pdCd, basePdCd /* 안전장치 */ } = dtl;
+
   const { result, payload } = await modal({
     component: 'WwctaOnePlusOneContractListP',
-    componentProps: { baseDtlCntrNo: step2.value.bas.cntrNo },
+    componentProps: {
+      cntrNo: step2.value.bas.cntrNo,
+      pdCd: pdCd || basePdCd,
+    },
   });
   if (!result) {
     return;
@@ -592,12 +646,6 @@ async function onClickSelectPrecontract(dtl) {
 }
 
 async function onChangeWellsFarmPackage(dtl) {
-  const { ojCntrRels } = dtl;
-
-  if (!ojCntrRels.length) {
-    warn('대상 계약 관계가 없는 웰스팜 기기 계약은 있을 수 없습니다.');
-    return;
-  }
   const { result, payload: newPackageProduct } = await modal({
     component: 'WwctaWellsFarmPackageProductSelectP',
     componentProps: {
@@ -610,16 +658,16 @@ async function onChangeWellsFarmPackage(dtl) {
 
   setTempKey(newPackageProduct);
 
-  console.log(newPackageProduct);
-
-  ojCntrRels.forEach((cntrRel) => {
-    const { baseDtlCntrNo, baseDtlCntrSn, baseTempKey } = cntrRel;
-    if (baseDtlCntrNo !== cntrNo.value) {
-      return;
-    }
-    const removeKey = baseTempKey ?? baseDtlCntrSn;
-    deleteDtlByKey(removeKey);
-  });
+  if (dtl.ojCntrRels?.length) {
+    dtl.ojCntrRels.forEach((cntrRel) => {
+      const { baseDtlCntrNo, baseDtlCntrSn, baseTempKey } = cntrRel;
+      if (baseDtlCntrNo !== cntrNo.value) {
+        return;
+      }
+      const removeKey = baseTempKey ?? baseDtlCntrSn;
+      deleteDtlByKey(removeKey);
+    });
+  }
 
   const cntrRel = {
     cntrRelId: undefined,
@@ -638,10 +686,10 @@ async function onChangeWellsFarmPackage(dtl) {
   };
 
   newPackageProduct.cntrRels = [cntrRel];
-  dtl.ojCntrRels = [cntrRel];
+  dtl.ojCntrRels ??= [];
+  dtl.ojCntrRels.push(cntrRel);
   const dtlIndex = step2.value.dtls.indexOf(dtl);
   step2.value.dtls.splice(dtlIndex + 1, 0, newPackageProduct);
-  console.log(step2.value.dtls);
 
   emit('contract-modified');
 }
@@ -677,17 +725,23 @@ async function getCntrInfo() {
 }
 
 async function confirmProducts() {
-  if (step2.value.dtls.find((dtl) => !dtl.pdPrcFnlDtlId)) {
+  const { dtls } = step2.value;
+  if (dtls.length === 0) {
+    await alert('상품을 선택해주세요.');
+    return false;
+  }
+
+  if (dtls.find((dtl) => !dtl.pdPrcFnlDtlId)) {
     notify('상품 가격을 확인해주세요');
     return;
   }
 
-  step2.value.dtls.forEach((dtl) => {
+  dtls.forEach((dtl) => {
     dtl.basePdCd = dtl.pdCd;
   });
-  const { data } = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, step2.value.dtls);
+  const { data } = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, dtls);
   data.forEach((newDtl, index) => {
-    step2.value.dtls[index].promotions = newDtl.promotions;
+    dtls[index].promotions = newDtl.promotions;
   });
   return true;
 }
@@ -696,56 +750,81 @@ async function isChangedStep() {
   return step2.value.bas.cntrPrgsStatCd < 12 || JSON.stringify(ogStep2.value) !== JSON.stringify(step2.value);
 }
 
+function validateCntrDtl(dtl) {
+  if (!dtl.pdPrcFnlDtlId) {
+    alert('상품 금액을 확인해주세요.');
+    return false;
+  }
+
+  const {
+    sellTpDtlCd,
+    cntrRels = [],
+    ojCntrRels = [],
+    finalPrice,
+    precontractRequired,
+    lkSdingOjCntrRelRequired,
+    hgrPdCd,
+    appliedPromotions,
+    alncCntrNms,
+    sdingCapsls,
+  } = dtl;
+  const { alncPmotEuYn } = finalPrice; // 제휴프로모션적용여부
+
+  if (alncPmotEuYn === 'Y' // 제휴프로모션적용여부가 'Y' 인데,
+    && !hgrPdCd // 복합상품이 아니고
+    && !appliedPromotions?.length // 프로모션도 없고,
+    && !alncCntrNms?.length // 라이프(상조)제휴도 없는경우
+  ) {
+    alert('제휴 프로모션 전용가격입니다.');
+    return false;
+  }
+  if (sellTpDtlCd === SELL_TP_DTL_CD.RGLR_SPP_SDING) { /* 모종의 경우 */
+    const lkSdingRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING);
+    const baseMachineRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE);
+    if (!lkSdingRel && !baseMachineRel) {
+      alert('정기배송 대상 기기를 선택해주세요.');
+      return false;
+    }
+
+    if (!sdingCapsls?.length) {
+      alert('구성 제품을 선택해주세요.');
+      return false;
+    }
+  }
+
+  if (sellTpDtlCd === SELL_TP_DTL_CD.RGLR_SPP_CAPSL) {
+    if (!sdingCapsls?.length) {
+      alert('구성 제품을 선택해주세요.');
+      return false;
+    }
+  }
+
+  if (precontractRequired) {
+    const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);
+    if (!onePlusOneRel) {
+      alert('연계 계약을 선택해주세요.');
+      return false;
+    }
+  }
+
+  if (lkSdingOjCntrRelRequired) {
+    const lkSdingOjCntrRel = ojCntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING);
+    if (!lkSdingOjCntrRel) {
+      alert('패키지 모종 상품을 선택해주세요.');
+      return false;
+    }
+  }
+
+  return true;
+}
+
 async function isValidStep() {
   const { dtls } = step2.value;
   if (dtls.length === 0) {
     await alert('상품을 선택해주세요.');
     return false;
   }
-  const invalid = dtls.find((dtl) => {
-    if (!dtl.pdPrcFnlDtlId) {
-      alert('상품 금액을 확인해주세요.');
-      return true;
-    }
-
-    const {
-      sellTpDtlCd,
-      cntrRels = [],
-      finalPrice,
-      precontractRequired,
-      hgrPdCd,
-      appliedPromotions,
-      alncCntrNms } = dtl;
-    const { alncPmotEuYn } = finalPrice; // 제휴프로모션적용여부
-
-    if (alncPmotEuYn === 'Y' // 제휴프로모션적용여부가 'Y' 인데,
-      && !hgrPdCd // 복합상품이 아니고
-      && !appliedPromotions?.length // 프로모션도 없고,
-      && !alncCntrNms?.length // 라이프(상조)제휴도 없는경우
-    ) {
-      alert('제휴 프로모션 전용가격입니다.');
-      return true;
-    }
-
-    if (sellTpDtlCd === SELL_TP_DTL_CD.RGLR_SPP_SDING) { /* 모종의 경우 */
-      const lkSdingRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING);
-      const baseMachineRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE);
-      if (!lkSdingRel && !baseMachineRel) {
-        alert('정기배송 대상 기기를 선택해주세요.');
-        return true;
-      }
-    }
-
-    if (precontractRequired) {
-      const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);
-      if (!onePlusOneRel) {
-        alert('연계 계약을 선택해주세요.');
-        return true;
-      }
-    }
-
-    return false;
-  });
+  const invalid = dtls.find((dtl) => !validateCntrDtl(dtl));
 
   return !invalid;
 }

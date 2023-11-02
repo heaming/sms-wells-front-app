@@ -76,7 +76,7 @@
             <kw-select
               v-model="searchParams.sellTpCd"
               :label="$t('MSG_TXT_SEL_TYPE')"
-              :options="codes.AGRG_SELL_TP_CD"
+              :options="codes.AGRG_SELL_TP_CD.filter((v) => ['01', '02', '03', '04', '05'].includes(v.codeId))"
               first-option
               first-option-value=""
               :first-option-label="$t('MSG_TXT_ALL')"
@@ -442,6 +442,8 @@ const isDtlExcelDown = ref(false);
 const isAggrExcelDown = ref(false);
 const isOrderCreateVisile = ref(false);
 const isOrderModifyVisile = ref(false);
+const isOrderDeleteVisile = ref(false);
+const { confirm } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -465,7 +467,6 @@ const codes = await codeUtil.getMultiCodes(
   'FEE_PERF_TP_CD',
   'RSB_DV_CD',
   'FEE_TCNT_DV_CD',
-  'SELL_DSC_DV_CD',
   'SELL_DSCR_CD',
   'SELL_DSC_TP_CD',
   'AGRG_DV_CD',
@@ -568,13 +569,16 @@ async function fetchNetOrderStatus() {
     if (resStat.data.schStartCd === 'NOTSTART') { // 해당 일정이 시작 하였는지 확인
       isOrderCreateVisile.value = true;
       isOrderModifyVisile.value = true;
+      isOrderDeleteVisile.value = true;
     } else {
       isOrderCreateVisile.value = false;
       isOrderModifyVisile.value = false;
+      isOrderDeleteVisile.value = false;
     }
   } else {
     isOrderCreateVisile.value = false;
     isOrderModifyVisile.value = false;
+    isOrderDeleteVisile.value = false;
   }
 }
 
@@ -725,6 +729,19 @@ async function onClickSearchPdCdPopup(arg) {
  *  Event - 수수료 실적 생성 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCrtPopup() {
+  const statusParams = {
+    baseYm: searchParams.value.baseYm,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    perfAgrgCrtDvCd: '201',
+    ntorCnfmStatCd: '01',
+  };
+
+  const res = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: statusParams });
+
+  if (!isEmpty(res)) {
+    if (!await confirm(t('MSG_ALT_AGRG_PERF_ALREADY_DATA'))) { return; }
+  }
+
   const param = {
     perfYm: searchParams.value.perfYm,
     ogTp: 'W02',
@@ -765,6 +782,19 @@ async function openFeePerfCrtPopup() {
  *  Event - 수수료 실적 확정 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCnfmPopup() {
+  const statusParams = {
+    baseYm: searchParams.value.baseYm,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    perfAgrgCrtDvCd: '201',
+    ntorCnfmStatCd: '02',
+  };
+
+  const res = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: statusParams });
+
+  if (!isEmpty(res)) {
+    if (!await confirm(t('MSG_ALT_MSG_ALT_CNFM_PERF_ALREADY_DATA'))) { return; }
+  }
+
   const param = {
     perfYm: searchParams.value.perfYm,
     ogTp: 'W02',
@@ -854,7 +884,7 @@ const initGrdDtl = defineGrid((data, view) => {
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '120', styleName: 'text-center' }, // 소속
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '120', styleName: 'text-center' }, // 번호
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' }, // 성명
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.AGRG_SELL_TP_CD }, // 판매유형
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center', options: codes.AGRG_SELL_TP_CD.filter((v) => ['01', '02', '03', '04', '05'].includes(v.codeId)) }, // 판매유형
     { fieldName: 'feePdctTpCd', header: t('MSG_TXT_PDCT_TP'), width: '120', styleName: 'text-center', options: codes.FEE_PDCT_TP_CD }, // 제품유형
     { fieldName: 'rglrSppPrcDvCd', header: t('MSG_TXT_PRC_TP'), width: '120', styleName: 'text-center', options: codes.RGLR_SPP_PRC_DV_CD }, // 가격유형
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '120', styleName: 'text-center', options: codes.MCHN_CH_TP_CD }, // 기변유형
@@ -863,7 +893,7 @@ const initGrdDtl = defineGrid((data, view) => {
     { fieldName: 'copnDvCd', header: t('MSG_TXT_CST_DV'), width: '120', styleName: 'text-center', options: codes.COPN_DV_CD }, // 고객구분
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '180', styleName: 'text-left' }, // 상품명
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '140', styleName: 'text-center' }, // 상품코드
-    { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '140', styleName: 'text-center', options: codes.SELL_DSC_DV_CD }, // 할인구분
+    { fieldName: 'sellDscDvCd', header: t('MSG_TXT_PD_DC_CLASS'), width: '140', styleName: 'text-center' }, // 할인구분
     { fieldName: 'sellDscrCd', header: t('MSG_TXT_DISC_CODE'), width: '140', styleName: 'text-center', options: codes.SELL_DSCR_CD }, // 할인유형
     { fieldName: 'sellDscTpCd', header: t('MSG_TXT_DSC_SYST'), width: '140', styleName: 'text-center', options: codes.SELL_DSC_TP_CD }, // 할인제도
     { fieldName: 'combiDv', header: t('MSG_TXT_COMBI_DV'), width: '100', styleName: 'text-center' }, // 결합구분
@@ -925,7 +955,7 @@ const initGrdAggr = defineGrid((data, view) => {
     { fieldName: 'elhmExcpAckmtPerf', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 가전외인정실적
     { fieldName: 'chng', header: t('MSG_TXT_CHNG'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 기변
     { fieldName: 'ninc', header: t('MSG_TXT_NINC'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 순증
-    { fieldName: 'fxamCt', header: t('MSG_TXT_FXAM') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 정액 건수
+    { fieldName: 'fxamCt', header: t('MSG_TXT_FXAM'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 정액
     { fieldName: 'rstlCt', header: t('MSG_TXT_RSTL') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 재약정 건수
     { fieldName: 'livePakg', header: t('MSG_TXT_LIVE_PAKG') + t('MSG_TXT_COUNT'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 라이브팩
     { fieldName: 'mmbr', header: t('MSG_TXT_MMBR'), width: '120', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 멤버십

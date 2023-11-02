@@ -35,6 +35,28 @@
             rules="required"
           />
         </kw-search-item>
+        <!-- 품목그룹 -->
+        <kw-search-item
+          :label="t('MSG_TXT_ITM_GRP')"
+        >
+          <kw-select
+            v-model="searchParams.itmGrpCd"
+            :options="codes.PD_GRP_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+        <!-- 자재그룹 -->
+        <kw-search-item
+          :label="t('TXT_MSG_SAP_MAT_GRP_VAL')"
+        >
+          <kw-select
+            v-model="searchParams.svMatGrpCd"
+            :options="codes.SV_MAT_GRP_CD"
+            first-option="all"
+          />
+        </kw-search-item>
+      </kw-search-row>
+      <kw-search-row>
         <!-- 품목코드 -->
         <kw-search-item :label="$t('MSG_TXT_ITM_CD')">
           <kw-input
@@ -48,22 +70,7 @@
             class="w200"
           />
         </kw-search-item>
-      </kw-search-row>
-      <kw-search-row
-        v-if="aplcList"
-      >
-        <!-- 신청리스트 -->
-        <kw-search-item
-          :label="$t('MSG_TXT_APLC_LIST')"
-        >
-          <kw-select
-            v-if="aplcList"
-            v-model="aplcParams.aplcList"
-            :options="codes.APLC_DV_ACD"
-            first-option="all"
-            @update:model-value="onUpdateAplcDvAcd"
-          />
-        </kw-search-item>
+        <!-- SAP코드 FROM ~ TO -->
         <kw-search-item :label="$t('MSG_TXT_SAPCD')">
           <kw-input
             v-model="searchParams.strtSapCd"
@@ -83,26 +90,18 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row
-        v-if="sapCombo"
+        v-if="aplcList"
       >
+        <!-- 신청리스트 -->
         <kw-search-item
-          v-if="sapCombo"
-          :label="$t('MSG_TXT_SAPCD')"
+          :label="$t('MSG_TXT_APLC_LIST')"
         >
-          <kw-input
-            v-model="searchParams.strtSapCd"
-            :label="$t('MSG_TXT_STRT_SAP_CD')"
-            :regex="/^[0-9]*$/i"
-            rules="numeric|max:18"
-            @change="onChangeStrtSapCd"
-          />
-          <span>~</span>
-          <kw-input
-            v-model="searchParams.endSapCd"
-            :label="$t('MSG_TXT_END_SAP_CD')"
-            :regex="/^[0-9]*$/i"
-            rules="numeric|max:18"
-            @change="onChangeEndSapCd"
+          <kw-select
+            v-if="aplcList"
+            v-model="aplcParams.aplcList"
+            :options="codes.APLC_DV_ACD"
+            first-option="all"
+            @update:model-value="onUpdateAplcDvAcd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -171,6 +170,8 @@ const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
   'MNGT_UNIT_CD',
   'APLC_DV_ACD',
+  'PD_GRP_CD',
+  'SV_MAT_GRP_CD',
 );
 
 // 그리드1
@@ -179,8 +180,6 @@ const isGrid = ref();
 const isGrid2 = ref();
 // 신청리스트
 const aplcList = ref();
-// SAP코드 FROM~TO
-const sapCombo = ref();
 // 안전재고체크박스
 const checkField = ref();
 
@@ -233,6 +232,8 @@ const searchParams = ref({
   wareDtlDvCd: '',
   strtSapCd: '',
   endSapCd: '',
+  itmGrpCd: '',
+  svMatGrpCd: '',
 
 });
 
@@ -370,13 +371,11 @@ async function initData() {
     aplcList.value = false;
     checkField.value = false;
     isGrid2.value = true;
-    sapCombo.value = true;
   } else {
     isGrid2.value = false;
     isGrid.value = true;
     aplcList.value = true;
     checkField.value = true;
-    sapCombo.value = false;
   }
   await onClickSearch();
 }

@@ -20,7 +20,7 @@
     <kw-form :cols="1">
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_COB_CD')">
-          <p>{{ info.kwGrpCoCd + "(" + info.kwGrpCoNm + ")" }}</p>
+          <p>{{ companyCode.codeId + "(" + companyCode.codeName + ")" }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -30,12 +30,12 @@
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PIA_FEE_EOT_TOT')">
-          <p>총 {{ info.feeOcAmt }}원</p>
+          <p>총 {{ textToNumberFormatter(info.feeOcAmt ?? 0) }}원</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_CS_RPLC_TOT')">
-          <p>총 {{ info.csRplcAmt }}원</p>
+          <p>총 {{ textToNumberFormatter(info.csRplcAmt ?? 0) }}원</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
@@ -66,6 +66,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil } from 'kw-lib';
+import { textToNumberFormatter } from '~sms-common/closing/utils/clUtil';
 
 const dataService = useDataService();
 const store = useStore();
@@ -73,13 +74,15 @@ const store = useStore();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const companyCode = ref([{ codeId: store.getters['meta/getUserInfo'].companyCode, codeName: store.getters['meta/getUserInfo'].companyName }]);
+const companyCode = ref({});
 const info = ref({});
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/closing/advanced-fee-replace/info-pop', { params: { kwGrpCoCd: companyCode.value[0].codeId } });
+  companyCode.value.codeId = store.getters['meta/getUserInfo'].companyCode;
+  companyCode.value.codeName = store.getters['meta/getUserInfo'].companyName;
+
+  const res = await dataService.get('/sms/wells/closing/advanced-fee-replace/info-pop', { params: { kwGrpCoCd: companyCode.value.codeId } });
   info.value = res.data;
-  info.value.kwGrpCoNm = companyCode.value[0].codeName;
 }
 
 async function onSlipCreate() {

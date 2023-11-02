@@ -327,6 +327,7 @@ function setBulkParam(firstOne) {
 async function fetchData() {
   if (isEmpty(cachedParams.value)) return;
 
+  // 목록 조회
   const res = await dataService.get('/sms/wells/contract/changeorder/cancel-base-infos', { params: { ...cachedParams.value } });
 
   totalCount.value = res.data.length;
@@ -588,9 +589,15 @@ async function onSave() {
       return;
     }
 
-    const inValidIdx = cancelDetailList.value.findIndex((v) => v.sellTpCd !== '1' && v.isSearch !== 'Y');
+    let inValidIdx = cancelDetailList.value.findIndex((v) => v.sellTpCd !== '1' && v.isSearch !== 'Y');
     if (inValidIdx >= 0) {
       await notify(`[${inValidIdx + 1}]번째 - 취소사항 조회를 해주세요.`);
+      return;
+    }
+
+    inValidIdx = cancelDetailList.value.findIndex((v) => v.clYn === 'Y');
+    if (inValidIdx >= 0) {
+      await notify(`[${inValidIdx + 1}]번째 - 이미 매출마감 되었습니다.`);
       return;
     }
 
@@ -602,6 +609,11 @@ async function onSave() {
   } else {
     if (param.sellTpCd !== '1' && param.isSearch !== 'Y') {
       await notify('취소사항 조회를 해주세요.');
+      return;
+    }
+
+    if (param.clYn === 'Y') {
+      await notify('이미 매출마감 되었습니다.');
       return;
     }
 
@@ -733,6 +745,7 @@ function initGrid(data, view) {
     { fieldName: 'bulkApplyYN', visible: false },
     { fieldName: 'cntrCstKnm', visible: false },
     { fieldName: 'disableChk', visible: false },
+    { fieldName: 'clYn', visible: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 

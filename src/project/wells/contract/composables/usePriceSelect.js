@@ -254,9 +254,12 @@ export default (
     }
   };
 
-  const setVariablesIfUniqueSelectable = () => {
+  const setVariablesIfUniqueSelectable = (excepts = []) => {
     variableNames.value
       .forEach((variableName) => {
+        if (excepts.includes(variableName)) {
+          return;
+        }
         setIfUniqueSelectable(variableName);
       });
   };
