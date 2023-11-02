@@ -923,6 +923,7 @@ const initGridHousehold = defineGrid((data, view) => {
 /* 처리내역조회 */
 const initGridState = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'gubun' }, // 작업구분
     { fieldName: 'svTp' }, // 유형
     { fieldName: 'rcpDt' }, // 접수(배정)일자
     { fieldName: 'svBizDclsf' }, // 접수(배정)내역
@@ -1015,13 +1016,14 @@ const initGridState = defineGrid((data, view) => {
   view.onCellDblClicked = async (g, cData) => {
     if (cData.fieldName === 'wkPrgsStat' || cData.fieldName === 'imgYn') { return false; }
 
-    const { cstSvAsnNo } = g.getValues(cData.itemIndex);
+    const { cstSvAsnNo, gubun } = g.getValues(cData.itemIndex);
     await modal({
       component: 'WwsnbServiceProcDetailListP',
       componentProps: {
         cntrNo: searchParams.value.cntrNo,
         cntrSn: searchParams.value.cntrSn,
         cstSvAsnNo,
+        gubun,
       },
     });
   };
