@@ -22,10 +22,13 @@
         <!-- 관리창고 -->
         <kw-search-item
           :label="$t('MSG_TXT_MNGT_WARE')"
+          required
         >
           <kw-select
             v-model="searchParams.wareNo"
             :options="optionStockList"
+            rules="required"
+            :label="$t('MSG_TXT_MNGT_WARE')"
             @change="onChangeWareNo"
           />
           <kw-field
@@ -198,11 +201,15 @@ const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 const { notify } = useGlobal();
+const store = useStore();
 const stdWareUri = '/sms/wells/service/normal-out-of-storages/standard-ware';
+const loginWareUri = 'sms/wells/service/returning-goods-store/login-warehouse';
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
+
+const loginWare = ref();
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
@@ -223,6 +230,7 @@ const searchParams = ref({
   stckStdGb: 'N',
   itmGrpCd: '',
   svMatGrpCd: '',
+  prtnrNo: store.getters['meta/getUserInfo'].employeeIDNumber,
 
 });
 
@@ -258,6 +266,16 @@ async function stckStdGbFetchData() {
   searchParams.value.stckStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
   console.log(stckStdGb);
 }
+
+// 로그인한 사용자의 상위창고 조회
+const getWareHouses = async () => {
+  const res = await dataService.get(loginWareUri, { params: { prtnrNo: searchParams.value.prtnrNo } });
+
+  if (!isEmpty(res.data)) {
+    loginWare.value = res.data;
+    searchParams.value.wareNo = loginWare.value[0].hgrWareNo;
+  }
+};
 
 // 조회
 let cachedParams;
@@ -374,13 +392,17 @@ async function onCheckedStckNoStdGb() {
   }
 }
 
+// 창고변경 이벤트
 async function onChangeWareNo() {
   await stckStdGbFetchData();
 }
 
 onMounted(async () => {
   cachedParams = cloneDeep(searchParams.value);
+  // 표준창고여부 조회
   await stckStdGbFetchData();
+  // 창고조회
+  await getWareHouses();
 });
 
 // -------------------------------------------------------------------------------------------------
