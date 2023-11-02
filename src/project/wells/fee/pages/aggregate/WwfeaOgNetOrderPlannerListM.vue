@@ -568,7 +568,6 @@ async function openFeePerfCrtPopup() {
   };
 
   const res = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: statusParams });
-  console.log(res);
 
   if (!isEmpty(res.data)) {
     if (!await confirm(t('MSG_ALT_AGRG_PERF_ALREADY_DATA'))) { return; }
