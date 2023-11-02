@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       :cols="4"
+      :default-visible-rows="4"
       @search="onClickSearch"
     >
       <kw-search-row>
@@ -123,11 +124,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
         </template>
         <kw-separator
@@ -140,7 +137,7 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
@@ -159,24 +156,19 @@
         </li>
         <li class="filter-box__item">
           <p class="filter-box__item-label">
-            {{ $t('일별 필터링') }}
+            {{ $t('MSG_TXT_DAY_FILTERING') }}
           </p>
           <kw-input
-            v-model="searchParams.schOjBlamStrt"
+            v-model="searchParams.inputDaily"
             mask="number"
+            @change="onChangeDayfilteringCd"
           />
         </li>
       </ul>
       <kw-grid
         ref="grdMainRef"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -189,7 +181,7 @@
 // -------------------------------------------------------------------------------------------------
 
 import { codeUtil, getComponentType, defineGrid, gridUtil, useDataService } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 
@@ -204,7 +196,6 @@ const now = dayjs();
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/service/as-material-daily-task-type-out-of-storage-ps';
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'ITM_KND_CD',
   'WARE_DTL_DV_CD',
   'USE_YN',
@@ -224,7 +215,6 @@ const customCodes = {
     { codeId: '02', codeName: t('MSG_TXT_MDIM_RPR_MAT') },
     { codeId: '03', codeName: t('MSG_TXT_TURNOVER_TRGT') },
     { codeId: '04', codeName: t('MSG_TXT_BASE_MM') },
-    { codeId: '05', codeName: t('MSG_TXT_BY_DAY') + t('MSG_TXT_FLTRING') },
   ],
 };
 
@@ -242,12 +232,7 @@ const searchParams = ref({
   itmPdCdFrom: '',
   itmPdCdTo: '',
   wareDvCd: '2',
-});
-
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  inputDaily: '',
 });
 
 let gridView;
@@ -294,8 +279,7 @@ async function onChangefilteringCd(val) {
   const filter1 = [{ name: 'cmnPartFilter', criteria: "value = '01'" }]; // 중수리 자재
   const filter2 = [{ name: 'ordnyHvMatFilter', criteria: "value = 'Y'" }]; // 기초 자재
   const filter3 = [{ name: 'trnoverFilter', criteria: 'value="Y"' }]; // 회전율
-  const filter4 = [{ name: 'qtyMmFilter', criteria: 'value > mmAgrg' }]; // 기준월 필터링
-  // const filter5 = [{ name: 'baseMonthFilter', criteria: "value = 'Y'" }]; // 기준월 필터링
+  const filter4 = [{ name: 'qtyMmFilter', criteria: "value > values['mmAgrg']" }]; // 기준월 필터링
 
   // 필터 등록
   view.setColumnFilters('cmnPartDvCd', filter1); // 중수리 자재
@@ -303,60 +287,57 @@ async function onChangefilteringCd(val) {
   view.setColumnFilters('trnovrRtOjYn', filter3); // 회전율
   view.setColumnFilters('qtyMm', filter4); // 기준월 필터링
   // 필터 초기화
-  // view.activateAllColumnFilters('asMatCmnClsfCd', false);
-  // view.activateAllColumnFilters('ordnyHvMatYn', false);
-  // view.activateAllColumnFilters('qtyMm', false);
+  view.activateAllColumnFilters('cmnPartDvCd', false);
+  view.activateAllColumnFilters('ordnyHvMatYn', false);
+  view.activateAllColumnFilters('trnovrRtOjYn', false);
+  view.activateAllColumnFilters('qtyMm', false);
 
   // 필터 처리
   if (val.includes('01')) {
-    view.activateAllColumnFilters('cmnPartDvCd', false);
     view.activateColumnFilters('cmnPartDvCd', ['cmnPartFilter'], true);
-  } else {
-    view.activateColumnFilters('cmnPartDvCd', ['cmnPartFilter'], false);
   }
-
   if (val.includes('02')) {
-    view.activateAllColumnFilters('ordnyHvMatYn', false);
     view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], true);
-  } else {
-    view.activateColumnFilters('ordnyHvMatYn', ['ordnyHvMatFilter'], false);
   }
-
   if (val.includes('03')) {
-    view.activateAllColumnFilters('trnoverYn', false);
-    view.activateColumnFilters('trnoverYn', ['trnoverFilter'], true);
-  } else {
-    view.activateColumnFilters('trnoverYn', ['trnoverFilter'], false);
+    view.activateColumnFilters('trnovrRtOjYn', ['trnoverFilter'], true);
   }
-
   if (val.includes('04')) {
-    view.activateAllColumnFilters('qtyMm', false);
     view.activateColumnFilters('qtyMm', ['qtyMmFilter'], true);
-  } else {
-    view.activateColumnFilters('qtyMm', ['qtyMmFilter'], false);
   }
 }
+// 일별필터링 처리
+async function onChangeDayfilteringCd(val) {
+  const view = grdMainRef.value.getView();
+  view.activateAllColumnFilters('ddAgrg', false);
+  if (!isEmpty(val)) {
+    const filter5 = [{ name: 'ddAgrgFilter', criteria: `value > "${val}"` }]; // 일별 필터링
+    view.setColumnFilters('ddAgrg', filter5); // 일별 필터링
+    view.activateColumnFilters('ddAgrg', ['ddAgrgFilter'], true);
+  }
+}
+const totalCount = ref(0);
 
 async function fetchData() {
-  console.log(searchParams.filteringCd);
-  // wareDtlDvCd : 창고구분
-  const res = await dataService.get(`${baseUrl}/paging`, { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: result, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
+  const list = res.data;
+  totalCount.value = list.length;
 
-  fieldsObj.setFields(result);
-  await nextTick();
   const view = grdMainRef.value.getView();
-  view.getDataSource().setRows(result);
+  view.getDataSource().setRows(list);
   view.resetCurrent();
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
-  filteringOptions.value = []; // (중수리자재,기초자재) 체크박스 초기화
+  fieldsObj.setFields();
+  await nextTick();
+  view.getDataSource().setRows(list);
+  view.resetCurrent();
+
+  // 필터 부분 초기화
+  filteringOptions.value = [];
+  searchParams.value.inputDaily = '';
 }
 
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
-
   searchParams.value.baseYear = searchParams.value.baseYm.substring(0, 4);
   searchParams.value.baseMonth = searchParams.value.baseYm.substring(4, 6);
 
@@ -366,11 +347,10 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get(`${baseUrl}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
   });
 }
 
@@ -381,31 +361,30 @@ async function onClickExcelDownload() {
 fieldsObj = {
   // 그리드 공통컬럼
   defaultFields: [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '124', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'asLdtm', header: t('TXT_MSG_AS_LDTM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'minGoQty', header: t('MSG_TXT_MOQ'), width: '100', styleName: 'text-left' },
-    { fieldName: 'last1yPrev3m', header: t('MSG_TXT_PVO_Y') + t('MSG_TXT_JBF_MMS3_OSTR_SUM'), dataType: 'number', width: '100', styleName: 'text-left' },
-    { fieldName: 'last1y', header: t('MSG_TXT_PVO_Y') + t('MSG_TXT_BASE_MM') + t('MSG_TXT_SUM'), dataType: 'number', width: '100', styleName: 'text-left' },
-    { fieldName: 'last1yNext2m', header: t('MSG_TXT_PVO_Y') + t('MSG_TXT_BASMM_S2M_OSTR_SUM'), dataType: 'number', width: '100', styleName: 'text-left' },
-    { fieldName: 'last3m', header: t('MSG_TXT_BEFORE') + t('MSG_TXT_JBF_MMS3_OSTR_SUM'), dataType: 'number', width: '100', styleName: 'text-left' },
-    { fieldName: 'mmAgrg', header: t('MSG_TXT_MM_AV'), width: '100', dataType: 'number', styleName: 'text-left' },
-    { fieldName: 'ddAgrg', header: t('MSG_TXT_D_AV'), width: '100', dataType: 'number', styleName: 'text-left' },
-    { fieldName: 'lastPrev1m', header: t('MSG_TXT_LSTMM_OSTR'), width: '100', dataType: 'number', styleName: 'text-left' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '170', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '180', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
+    { fieldName: 'asLdtm', header: t('TXT_MSG_AS_LDTM'), width: '100', styleName: 'text-right' },
+    { fieldName: 'minGoQty', header: t('MSG_TXT_MOQ'), width: '100', styleName: 'text-right' },
+    { fieldName: 'last1yPrev3m', header: t('MSG_TXT_PVO_Y') + t('MSG_TXT_JBF_MMS3_OSTR_SUM'), dataType: 'number', width: '100', styleName: 'text-right' },
+    { fieldName: 'last1y', header: t('MSG_TXT_PVO_Y') + t('MSG_TXT_BASE_MM') + t('MSG_TXT_SUM'), dataType: 'number', width: '100', styleName: 'text-right' },
+    { fieldName: 'last1yNext2m', header: t('MSG_TXT_PVO_Y') + t('MSG_TXT_BASMM_S2M_OSTR_SUM'), dataType: 'number', width: '100', styleName: 'text-right' },
+    { fieldName: 'last3m', header: t('MSG_TXT_BEFORE') + t('MSG_TXT_JBF_MMS3_OSTR_SUM'), dataType: 'number', width: '100', styleName: 'text-right' },
+    { fieldName: 'mmAgrg', header: t('MSG_TXT_MM_AV'), width: '100', dataType: 'number', styleName: 'text-right', numberFormat: '#,##0.#' },
+    { fieldName: 'ddAgrg', header: t('MSG_TXT_D_AV'), width: '100', dataType: 'number', styleName: 'text-right', numberFormat: '#,##0.#', autoFilter: false },
+    { fieldName: 'lastPrev1m', header: t('MSG_TXT_LSTMM_OSTR'), width: '100', dataType: 'number', styleName: 'text-right' },
     { fieldName: 'qtyPajuSum', header: `${t('MSG_TXT_PAJU_LGST')}\n${t('MSG_TXT_STOC')}`, width: '100', dataType: 'number', styleName: 'text-left' },
     { fieldName: 'qtyCenterSum', header: `${t('MSG_TXT_CENTER_DIVISION')} ${t('MSG_TXT_OG')}\n${t('MSG_TXT_STOC')}`, width: '100', dataType: 'number', styleName: 'text-left' },
-    { fieldName: 'qtyEngSum', header: `${t('MSG_TXT_EGER')}\n${t('MSG_TXT_STOC')}`, width: '100', dataType: 'number', styleName: 'text-left' },
+    { fieldName: 'qtyEngSum', header: `${t('MSG_TXT_EGER')}\n${t('MSG_TXT_STOC')}`, width: '100', dataType: 'number', styleName: 'text-right' },
     { fieldName: 'qtyMm',
       header: t('MSG_TXT_BASE_MM') + t('MSG_TXT_SUM'),
       width: '100',
       dataType: 'number',
-      styleName: 'text-left',
+      styleName: 'text-right',
       autoFilter: false,
     },
     {
-      fieldName: 'trnoverYn',
-      header: t(''),
+      fieldName: 'trnovrRtOjYn',
       width: '150',
       styleName: 'text-center',
       visible: false,
@@ -413,7 +392,6 @@ fieldsObj = {
     },
     {
       fieldName: 'cmnPartDvCd',
-      header: t(''),
       width: '150',
       styleName: 'text-center',
       visible: false,
@@ -421,7 +399,6 @@ fieldsObj = {
     },
     {
       fieldName: 'ordnyHvMatYn',
-      header: t(''),
       width: '150',
       styleName: 'text-center',
       visible: false,
@@ -430,20 +407,8 @@ fieldsObj = {
   ],
 
   // 필드 세팅
-  setFields(result) {
+  setFields() {
     const columns = [...fieldsObj.defaultFields];
-
-    // 검색시 (일자별)조회된 데이터가 0 보다 큰 경우 데이터 추출
-    const existDays = [];
-    result.forEach((data) => {
-      Object.keys(data).forEach((keys) => {
-        if (keys.match(/day/gi)) {
-          if (data[keys] > 0) {
-            existDays.push(keys);
-          }
-        }
-      });
-    });
 
     // 검색월 기준의 마지막일자까지 그리드 표시
     const { baseYm } = searchParams.value;
@@ -455,9 +420,15 @@ fieldsObj = {
           fieldName: `qty${cnt}`,
           header: `${cnt}${t('MSG_TXT_D')}`,
           width: 80,
-          styleName: existDays.indexOf(`day${String(cnt)}`) > -1 ? 'text-right text-blue' : 'text-right', // 존재하는 데이터만 색상표시
           dataType: 'number',
           numberFormat: '#,###',
+          styleCallback: (grid, dataCell) => {
+            const ret = {};
+            if (dataCell.value > 0) {
+              ret.styleName = 'text-right text-blue';
+            }
+            return ret;
+          },
         },
       );
     }
@@ -467,6 +438,7 @@ fieldsObj = {
     gridData.setFields(fields);
     gridView.setColumns(columns);
     gridView.setFixedOptions({ colCount: 3, resizable: true });
+    gridView.filteringOptions.enabled = false;
   },
   // 리스트에 담겨진 항목중 {fieldName : "" }  만  가져옴
   getColumnNameList(objList) {
