@@ -446,8 +446,8 @@ watch(() => searchParams.value.stateDvCd, async (val) => {
   if (val === '01') {
     isState.value = true;
     searchParams.value.ojPyTmlmDt = dayjs().format('YYYYMMDD');
-    searchParams.value.wkDt = dayjs().format('YYYYMMDD');
-    searchParams.value.pyTmlmDt = dayjs().format('YYYYMMDD');
+    searchParams.value.wkDt = '';
+    searchParams.value.pyTmlmDt = '';
   } else {
     isState.value = false;
     searchParams.value.ojPyTmlmDt = '';
