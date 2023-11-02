@@ -26,11 +26,14 @@
             :label="$t('MSG_TXT_PD_GRP')"
             :options="codes.PD_GRP_CD"
             first-option="all"
+            class="w150"
           />
           <kw-select
             v-model="searchParams.pdCd"
             :options="productCode"
             first-option="all"
+            :disable="searchParams.pdGrpCd === ''"
+            class="w200"
           />
         </kw-search-item>
       </kw-search-row>
@@ -107,11 +110,9 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useMeta, useDataService, getComponentType, defineGrid, gridUtil, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
-import smsCommon from '~sms-wells/service/composables/useSnCode';
 import { printElement } from '~common/utils/common';
 
 const { t } = useI18n();
-const { getPartMaster } = smsCommon();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
@@ -138,12 +139,19 @@ const codes = await codeUtil.getMultiCodes(
   'COD_YN',
 );
 
-const productCode = ref();
-watch(() => [searchParams.value.year, searchParams.value.pdGrpCd], async () => {
-  // productCode.value = await getMcbyCstSvOjIz(searchParams.value.year, searchParams.value.pdGrpCd);
-  const tempVal = await getPartMaster(undefined, searchParams.value.pdGrpCd);
-  productCode.value = tempVal.map((v) => ({ codeId: v.cd, codeName: v.codeName }));
-}, { immediate: true });
+const productCode = ref([]);
+async function fetchProducts() {
+  const res = await dataService.get('/sms/wells/service/service-processing/products', { params: { pdGrpCd: searchParams.value.pdGrpCd } });
+  productCode.value = res.data;
+}
+watch(() => searchParams.value.pdGrpCd, async (val) => {
+  if (val === '') {
+    productCode.value = [];
+    searchParams.value.pdCd = '';
+    return;
+  }
+  await fetchProducts();
+});
 
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/error-code/paging', { params: { ...cachedParams, ...pageInfo.value } });
