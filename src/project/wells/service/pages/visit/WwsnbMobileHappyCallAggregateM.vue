@@ -47,6 +47,8 @@
           <kw-select
             v-model="searchParams.engId"
             :options="engineers"
+            option-label="prtnrNoNm"
+            option-value="prtnrNo"
             first-option="all"
           />
           <kw-field
@@ -101,7 +103,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, getComponentType, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import { printElement } from '~common/utils/common';
 
@@ -121,8 +123,17 @@ let cachedParams;
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 // 서비스센터 조회
-const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
-const engineers = ref([]);
+// eslint-disable-next-line max-len
+// const svcCode = (await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data;
+// const engineers = ref([]);
+
+// 서비스센터
+const svcCode = ref((await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } })).data);
+console.log('svcCode.value >>>', svcCode.value);
+// 엔지니어
+const engineerList = await dataService.get('/sms/wells/service/organizations/engineer', { params: { authYn: 'N' } });
+const engineers = ref(engineerList.data);
+console.log('engineers.value >>>', engineers.value);
 
 const searchParams = ref({
   searchDateFrom: dayjs().date(1).format('YYYYMMDD'),
@@ -136,26 +147,27 @@ const searchParams = ref({
 const totalCount = ref(0);
 
 async function setEngineers() {
-  if (searchParams.value.ogId === '') {
-    engineers.value = [];
-  } else {
-    const eng = (await dataService.get('/sms/wells/service/organizations/engineer', { params: { dgr1LevlOgId: searchParams.value.ogId, authYn: 'N' } })).data;
-    if (searchParams.value.rgsnYn === 'Y') {
-      const wrkEngByOdId = eng.filter((v) => v.cltnDt === null || v.cltnDt === '');
-      engineers.value = wrkEngByOdId.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNm }));
-      return;
-    }
-    engineers.value = eng.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNm }));
+  engineers.value = cloneDeep(engineerList.data);
+
+  if (!isEmpty(searchParams.value.ogId)) {
+    console.log('setEngineers 0001');
+    engineers.value = engineers.value.filter((v) => v.ogId === searchParams.value.ogId);
   }
+
+  if (searchParams.value.rgsnYn === 'Y') {
+    console.log('setEngineers 0002');
+    engineers.value = engineers.value.filter((v) => v.cltnDt === null || v.cltnDt === '');
+  }
+  console.log('engineers.value >>>>', engineers.value);
 }
 
 async function onUpdateSvcCode() {
-  searchParams.value.egerId = '';
+  searchParams.value.engId = '';
   setEngineers();
 }
 
 async function onUpdateRgsnYn() {
-  searchParams.value.egerId = '';
+  searchParams.value.engId = '';
   setEngineers();
 }
 
@@ -195,41 +207,48 @@ async function onClickExcelDownload() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 function initGrid(data, view) {
-  const fields = [
-    { fieldName: 'cntrSn' },
-    { fieldName: 'cstKnm' },
-    { fieldName: 'svBizDclsfCd' },
-    { fieldName: 'sapCd' },
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'cralLocaraTno' },
-    { fieldName: 'mexnoEncr' },
-    { fieldName: 'cralIdvTno' },
-    { fieldName: 'copnDv' },
-    { fieldName: 'ogNm' },
-    { fieldName: 'prtnrKnm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'svDv' },
-  ];
-
   const columns = [
-    { fieldName: 'cntrSn', header: '서비스센터', width: '150' },
-    { fieldName: 'cstKnm', header: '조', width: '100' },
-    { fieldName: 'svBizDclsfCd', header: '사번', width: '100', styleName: 'text-center' },
-    { fieldName: 'sapCd', header: '성명', width: '100' },
-    { fieldName: 'pdCd', header: '입사일', width: '100', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: '평균(점)', width: '100', styleName: 'text-right' },
-    { fieldName: 'cralLocaraTno', header: '상위(%)', width: '100', styleName: 'text-right' },
-    { fieldName: 'mexnoEncr', header: '등급', width: '100', styleName: 'text-right' },
-    { fieldName: 'cralIdvTno', header: '점수(점)', width: '100', styleName: 'text-right' },
-    { fieldName: 'copnDv', header: '응답건', width: '100', styleName: 'text-right' },
-    { fieldName: 'ogNm', header: '상위(%)', width: '100', styleName: 'text-right' },
-    { fieldName: 'prtnrKnm', header: '등급', width: '100', styleName: 'text-right' },
-    { fieldName: 'prtnrNo', header: '점수(점)', width: '100', styleName: 'text-right' },
-    { fieldName: 'svDv', header: '응답율(%)', width: '100', styleName: 'text-right' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_SV_CNR'), width: '150', styleName: 'text-center' }, // 서비스센터
+    { fieldName: 'wkcr', header: t('MSG_TXT_CO'), width: '100', styleName: 'text-center' }, // 조
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' }, // 사번
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' }, // 성명
+    { // 입사일
+      fieldName: 'cntrDt',
+      header: t('MSG_TXT_ENTCO_D'),
+      width: '100',
+      styleName: 'text-center',
+      displayCallback(grid, index) {
+        const { cntrDt } = grid.getValues(index.itemIndex);
+        return isEmpty(cntrDt) ? '' : dayjs(cntrDt).format('YYYY-MM-DD');
+      },
+    },
+    { fieldName: 'synthAvg', header: `${t('MSG_TXT_AV')}(${t('점')})`, width: '100', styleName: 'text-right', dataType: 'number' }, // 평균(점)
+    { fieldName: 'synthAvgRank', header: `${t('MSG_TXT_HGR')}(%)`, width: '100', styleName: 'text-right', dataType: 'number' }, // 상위(%)
+    { fieldName: 'synthAvgGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-right' }, // 등급
+    { fieldName: 'synthAvgGrdScore', header: `${t('MSG_TXT_PC')}(${t('점')})`, width: '100', styleName: 'text-right', dataType: 'number' }, // 점수(점)
+    { fieldName: 'rplyCnt', header: t('MSG_TXT_RSP_CT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 응답건
+    { fieldName: 'Integer', header: `${t('MSG_TXT_HGR')}(%)`, width: '100', styleName: 'text-right', dataType: 'number' }, // 상위(%)
+    { fieldName: 'rplyCntGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-right' }, // 등급
+    { fieldName: 'rplyCntGrdScore', header: `${t('MSG_TXT_PC')}(${t('점')})`, width: '100', styleName: 'text-right', dataType: 'number' }, // 점수(점)
+    { fieldName: 'rplyPer', header: `${t('MSG_TXT_RSP_RT')}(%)`, width: '100', styleName: 'text-right', dataType: 'number' }, // 응답율(%)
+    { fieldName: 'rplyPerRank', header: t('MSG_TXT_HGR'), width: '100', styleName: 'text-right', dataType: 'number' }, // [응답율]상위
+    { fieldName: 'rplyPerGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-right' }, // [응답율]등급
+    { fieldName: 'rplyPerGrdScore', header: t('MSG_TXT_PC'), width: '100', styleName: 'text-right', dataType: 'number' }, // [응답율]점수
+    { fieldName: 'hpcallAvg', header: t('MSG_TXT_HPCALL'), width: '100', styleName: 'text-right', dataType: 'number' }, // 해피콜
+    { fieldName: 'hpcallAvgRank', header: t('MSG_TXT_HGR'), width: '100', styleName: 'text-right', dataType: 'number' }, // [해피콜] 상위
+    { fieldName: 'hpcallAvgGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-right' }, // [해피콜] 등급
+    { fieldName: 'hpcallAvgGrdScore', header: t('MSG_TXT_PC'), width: '100', styleName: 'text-right', dataType: 'number' }, // [해피콜] 점수
+    { fieldName: 'trsCnt', header: t('MSG_TXT_PSH_SEND') + t('MSG_TXT_CNT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 발송건
+    { fieldName: 'compCnt', header: t('MSG_TXT_PROC') + t('MSG_TXT_CNT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 처리건
+    { fieldName: 'envrElhmCnt', header: t('MSG_TXT_ENVR_ELHM'), width: '100', styleName: 'text-right', dataType: 'number' }, // 환경가전 건수
+    { fieldName: 'sdingSpcltCnt', header: t('MSG_TXT_SDING') + t('전문'), width: '100', styleName: 'text-right', dataType: 'number' }, // 모종전문 건수
+    { fieldName: 'hcrCnt', header: t('MSG_TXT_HOME_CARE'), width: '100', styleName: 'text-right', dataType: 'number' }, // 홈케어 건수
+    { fieldName: 'lgszElhmCnt', header: t('MSG_TXT_LGSZ_ELHM'), width: '100', styleName: 'text-right', dataType: 'number' }, // 대형가전 건수
+    { fieldName: 'mdimRprCnt', header: t('MSG_TXT_MDIM_RPR'), width: '100', styleName: 'text-right', dataType: 'number' }, // 중수리 건수
+    { fieldName: 'acpnCnt', header: t('MSG_TXT_ACPN'), width: '100', styleName: 'text-right', dataType: 'number' }, // 동행 건수
   ];
 
-  data.setFields(fields);
+  data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
 
   view.rowIndicator.visible = true;
