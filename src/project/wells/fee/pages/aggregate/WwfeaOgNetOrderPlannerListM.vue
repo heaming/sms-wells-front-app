@@ -419,7 +419,7 @@ import { useDataService, getComponentType, useGlobal, gridUtil, defineGrid, code
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { modal, alert } = useGlobal();
+const { modal, confirm } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 
@@ -560,54 +560,51 @@ async function onChangeDt() {
  *  Event - 수수료 실적 생성 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCrtPopup() {
-  cachedParams = cloneDeep(searchParams.value);
-  /* 테스트를 위한 임시처리
-  const param = {
-    perfYm: now.add(-1, 'month').format('YYYYMM'),
+  const statusParams = {
+    baseYm: searchParams.value.perfYm,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    perfAgrgCrtDvCd: '101',
+    ntorCnrfmStatCd: '01',
+  };
+
+  const res = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: statusParams });
+
+  if (!isEmpty(res.data)) {
+    if (!await confirm(t('MSG_ALT_AGRG_PERF_ALREADY_DATA'))) { return; }
+  }
+
+  const params = {
+    perfYm: searchParams.value.perfYm,
     ogTp: 'W01',
     dv: 'CR',
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
     perfAgrgCrtDvCd: '101',
   };
-  const response = await dataService.get('/sms/wells/fee/monthly-net/end-of-batch', { params: cachedParams });
-  const batchMsg = response.data;
-  if (batchMsg !== 'Executing') {
-    await modal({
-      component: 'WwfeaOgNetOrderPerfAgrgRegP',
-      componentProps: param,
-    });
-  } else if (response.data === 'Executing') {
-    alert(t('MSG_ALT_ONDEMAND_ALREAY_EXECUTING'));
-  }
-  */
-  const { perfYm } = searchParams.value;
-  const param = {
-    perfYm,
-    ogTp: 'W01',
-    dv: 'CR',
-    feeTcntDvCd: searchParams.value.feeTcntDvCd,
-    perfAgrgCrtDvCd: '101',
-  };
-  const response = await dataService.get('/sms/wells/fee/monthly-net/end-of-batch', { params: cachedParams }); /* 이전 배치가 진행중인지 확인 */
-  const batchMsg = response.data;
-  if (batchMsg !== 'Executing') {
-    await modal({
-      component: 'WwfeaOgNetOrderPerfAgrgRegP',
-      componentProps: param,
-    });
-  } else if (response.data === 'Executing') {
-    alert(t('MSG_ALT_ONDEMAND_ALREAY_EXECUTING'));
-  }
+  await modal({
+    component: 'WwfeaOgNetOrderPerfAgrgRegP',
+    componentProps: params,
+  });
 }
 
 /*
  *  Event - 수수료 실적 확정 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCnfmPopup() {
-  cachedParams = cloneDeep(searchParams.value);
-  /* 테스트를 위한 임시처리
+  const statusParams = {
+    baseYm: searchParams.value.perfYm,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    perfAgrgCrtDvCd: '101',
+    ntorCnfmStatCd: '02',
+  };
+
+  const res = await dataService.get('/sms/common/fee/net-order-status/prtnr', { params: statusParams });
+
+  if (!isEmpty(res.data)) {
+    if (!await confirm(t('MSG_ALT_MSG_ALT_CNFM_PERF_ALREADY_DATA'))) { return; }
+  }
+
   const param = {
-    perfYm: now.add(-1, 'month').format('YYYYMM'),
+    perfYm: searchParams.value.perfYm,
     ogTp: 'W01',
     dv: 'CO',
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
@@ -617,35 +614,14 @@ async function openFeePerfCnfmPopup() {
     component: 'WwfeaOgNetOrderPerfAgrgRegP',
     componentProps: param,
   });
-  */
-  const { perfYm } = searchParams.value;
-  const param = {
-    perfYm,
-    ogTp: 'W01',
-    dv: 'CO',
-    feeTcntDvCd: searchParams.value.feeTcntDvCd,
-    perfAgrgCrtDvCd: '101',
-  };
-  const response = await dataService.get('/sms/wells/fee/monthly-net/end-of-batch', { params: cachedParams }); /* 이전 배치가 진행중인지 확인 */
-  const batchMsg = response.data;
-  if (batchMsg !== 'Executing') {
-    await modal({
-      component: 'WwfeaOgNetOrderPerfAgrgRegP',
-      componentProps: param,
-    });
-  } else if (response.data === 'Executing') {
-    alert(t('MSG_ALT_ONDEMAND_ALREAY_EXECUTING'));
-  }
 }
 
 /*
  *  Event - 수수료 실적 확정 취소 버튼 클릭 (CR/CO)
  */
 async function openFeePerfCnfmCanPopup() {
-  cachedParams = cloneDeep(searchParams.value);
-  /* 테스트를 위한 임시처리
   const param = {
-    perfYm: now.add(-1, 'month').format('YYYYMM'),
+    perfYm: searchParams.value.perfYm,
     ogTp: 'W01',
     dv: 'CC',
     feeTcntDvCd: searchParams.value.feeTcntDvCd,
@@ -655,25 +631,6 @@ async function openFeePerfCnfmCanPopup() {
     component: 'WwfeaOgNetOrderPerfAgrgRegP',
     componentProps: param,
   });
-  */
-  const { perfYm } = searchParams.value;
-  const param = {
-    perfYm,
-    ogTp: 'W01',
-    dv: 'CC',
-    feeTcntDvCd: searchParams.value.feeTcntDvCd,
-    perfAgrgCrtDvCd: '101',
-  };
-  const response = await dataService.get('/sms/wells/fee/monthly-net/end-of-batch', { params: cachedParams }); /* 이전 배치가 진행중인지 확인 */
-  const batchMsg = response.data;
-  if (batchMsg !== 'Executing') {
-    await modal({
-      component: 'WwfeaOgNetOrderPerfAgrgRegP',
-      componentProps: param,
-    });
-  } else if (response.data === 'Executing') {
-    alert(t('MSG_ALT_ONDEMAND_ALREAY_EXECUTING'));
-  }
 }
 
 async function downloadExcelView1(uri) {
