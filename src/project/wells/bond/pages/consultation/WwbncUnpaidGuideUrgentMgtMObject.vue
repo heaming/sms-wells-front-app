@@ -400,6 +400,13 @@ async function onClickCreate() {
   } else { // 고객번호기준생성 버튼 클릭일 경우
     const cstNoParams = {
       ucAmtFwTpCd: searchParams.value.ucAmtFwTpCd,
+      copnDvCd: searchParams.value.copnDvCd,
+      bndBizDvCd: searchParams.value.bndBizDvCd,
+      fromDlqMcn: searchParams.value.fromDlqMcn,
+      toDlqMcn: searchParams.value.toDlqMcn,
+      clctamDvCd: searchParams.value.clctamDvCd,
+      fromTotNpdAmt: searchParams.value.clctamDvCd,
+      toTotNpdAmt: searchParams.value.clctamDvCd,
       wkDt: searchParams.value.wkDt,
       ojWkDt: searchParams.value.ojWkDt,
       pyTmlmDt: searchParams.value.pyTmlmDt,
