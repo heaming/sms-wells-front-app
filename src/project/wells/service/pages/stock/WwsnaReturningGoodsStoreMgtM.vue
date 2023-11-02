@@ -569,7 +569,7 @@ const ozParam = ref({
   width: 1200,
 });
 
-// 출고증 출력
+// 반품내역서 출력
 async function openReport() {
   const { fnlItmGdCd, itmKndCd, itmPdCd, stFnlVstFshDtFrom, edFnlVstFshDtTo, strWareNoM } = searchParams.value;
   const { width, height } = ozParam.value;
