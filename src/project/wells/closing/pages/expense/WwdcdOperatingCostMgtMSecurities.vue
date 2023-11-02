@@ -82,11 +82,10 @@
 // -------------------------------------------------------------------------------------------------
 // Initialize Component
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType, useDataService, useGlobal, defineGrid, codeUtil, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { gridUtil, getComponentType, useDataService, useGlobal, defineGrid, codeUtil } from 'kw-lib';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
-const userInfo = useMeta().getUserInfo();
 const dataService = useDataService();
 const { modal, notify, alert } = useGlobal();
 const { t } = useI18n();
@@ -365,14 +364,21 @@ const initGrdFourth = defineGrid((data, view) => {
 });
 
 async function onClickOpenReport() {
+  const view = grdThirdRef.value.getView();
+  const { adjPrtnrNo } = view.getValues(0);
+
+  if (isEmpty(adjPrtnrNo)) {
+    alert(t('MSG_ALT_NO_INFO_SRCH'));
+    return;
+  }
   await openReportPopup(
     '/kstation-w/opcs/opcsRgsnMrsc.ozr',
-    '/kstation-w/opcs/opcsRgsnMrsc.odi',
-    {
-      AKDRNK: userInfo.careerLevelCode,
+    '',
+    JSON.stringify({
+      AKDRNK: '2',
       AKDDYM: cachedParams.baseYm,
-      AKDCDE: userInfo.employeeIDNumber,
-    },
+      AKDCDE: adjPrtnrNo,
+    }),
   );
 }
 
