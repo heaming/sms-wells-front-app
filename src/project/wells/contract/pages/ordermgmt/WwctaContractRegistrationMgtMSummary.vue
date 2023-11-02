@@ -77,7 +77,7 @@
                   :key="i"
                 >
                   <li>
-                    <p>상품영</p>
+                    <p>상품명</p>
                     <span>{{ pd.cstBasePdAbbrNm || pd.pdNm || '' }}</span>
                   </li>
                   <li>
