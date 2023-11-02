@@ -292,7 +292,7 @@ const searchParams = ref({
   baseYm: now.format('YYYYMMDD'),
   startDt: now.subtract(30, 'day').format('YYYYMMDD'),
   endDt: now.format('YYYYMMDD'),
-  mngrDvCd: '2',
+  mngrDvCd: '1',
   pdGrpDtlCd: '',
   pdCd: '',
   ogId: '',
@@ -446,7 +446,7 @@ watch(() => [searchParams.value.year, searchParams.value.pdGrpCd], async () => {
 }, { immediate: true });
 
 onMounted(async () => {
-  searchParams.value.mngrDvCd = '2';
+  searchParams.value.mngrDvCd = '1';
   searchParams.value.rgsnExcdYn = 'N';
   searchParams.value.vacManaYn = 'N';
 });
