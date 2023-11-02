@@ -227,7 +227,7 @@ function initGrid(data, view) {
     { fieldName: 'synthAvgGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-right' }, // 등급
     { fieldName: 'synthAvgGrdScore', header: `${t('MSG_TXT_PC')}(${t('점')})`, width: '100', styleName: 'text-right', dataType: 'number' }, // 점수(점)
     { fieldName: 'rplyCnt', header: t('MSG_TXT_RSP_CT'), width: '100', styleName: 'text-right', dataType: 'number' }, // 응답건
-    { fieldName: 'Integer', header: `${t('MSG_TXT_HGR')}(%)`, width: '100', styleName: 'text-right', dataType: 'number' }, // 상위(%)
+    { fieldName: 'rplyCntRank', header: `${t('MSG_TXT_HGR')}(%)`, width: '100', styleName: 'text-right', dataType: 'number' }, // 상위(%)
     { fieldName: 'rplyCntGrd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-right' }, // 등급
     { fieldName: 'rplyCntGrdScore', header: `${t('MSG_TXT_PC')}(${t('점')})`, width: '100', styleName: 'text-right', dataType: 'number' }, // 점수(점)
     { fieldName: 'rplyPer', header: `${t('MSG_TXT_RSP_RT')}(%)`, width: '100', styleName: 'text-right', dataType: 'number' }, // 응답율(%)
