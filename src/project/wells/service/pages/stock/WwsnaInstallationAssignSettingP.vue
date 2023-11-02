@@ -160,10 +160,13 @@ const selectCodes = ref([]);
 // 품목조회
 const getProducts = async () => {
   const result = await dataService.get('/sms/wells/service/independence-ware-ostrs/products');
-  optionsItmPdCd.value = result.data;
-  optionsAllItmPdCd.value = result.data;
+  // optionsItmPdCd.value = result.data;
+  // optionsAllItmPdCd.value = result.data;
+  optionsItmPdCd.value = result.data.filter((v) => v.itmKndCd === filterCodes.value.itmKndCd[0].codeId);
+  optionsAllItmPdCd.value = result.data.filter((v) => v.itmKndCd === filterCodes.value.itmKndCd[0].codeId);
 
-  result.data.forEach((e) => {
+  // result.data.forEach((e) => {
+  optionsItmPdCd.value.forEach((e) => {
     selectCodes.value.push({
       codeId: e.pdCd,
       codeName: e.pdNm,
