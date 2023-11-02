@@ -291,16 +291,16 @@ async function onClickSendMessage() {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '160', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '160', styleName: 'text-center' },
-    { fieldName: 'copnDvNm', header: t('MSG_TXT_INDI_CORP'), width: '160', styleName: 'text-center' },
-    { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '160', styleName: 'text-center' },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '160', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '160', styleName: 'text-right !important, rg-button-link', renderer: { type: 'button' }, dataType: 'number' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '160', styleName: 'text-center' },
-    { fieldName: 'dsphTno', header: t('MSG_TXT_DSPH_NO'), width: '160', styleName: 'text-center' },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '160', styleName: 'text-center' }, // 고객번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '160', styleName: 'text-center' }, // 고객명
+    { fieldName: 'copnDvNm', header: t('MSG_TXT_INDI_CORP'), width: '160', styleName: 'text-center' }, // 개인/법인
+    { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '160', styleName: 'text-center' }, // 휴대전화번호
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '160', styleName: 'text-right', dataType: 'number' }, // 연체금액
+    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '160', styleName: 'text-right !important, rg-button-link', renderer: { type: 'button' }, dataType: 'number' }, // 연체잔액
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '160', styleName: 'text-center' }, // 집금담당자
+    { fieldName: 'dsphTno', header: t('MSG_TXT_DSPH_NO'), width: '160', styleName: 'text-center' }, // 발신번호
     // rev:230410 header 텍스트 수정
-    { fieldName: 'rgstSchDt', header: t('MSG_TXT_RGST_SCHD_DT'), width: '172', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'rgstSchDt', header: t('MSG_TXT_RGST_SCHD_DT'), width: '172', styleName: 'text-center', datetimeFormat: 'date' }, // 등록예정일자
     // //rev:230410 header 텍스트 수정
     { fieldName: 'niceFwExcdYn',
       header: t('MSG_TXT_NICE_EXCD_YN'),
@@ -317,14 +317,14 @@ const initGrid = defineGrid((data, view) => {
         return {
           editable: true,
         };
-      } },
-    { fieldName: 'fntStplDt', header: t('MSG_TXT_PY_TMLM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+      } }, // NICE 제외여부
+    { fieldName: 'fntStplDt', header: t('MSG_TXT_PY_TMLM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 납입기한일자
     // rev:230410 header 텍스트 수정
-    { fieldName: 'msgFwDt', header: t('MSG_TXT_NOTAK_FW_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'msgFwDt', header: t('MSG_TXT_NOTAK_FW_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 알림톡 발송일자
     // //rev:230410 header 텍스트 수정
-    { fieldName: 'resultYn', header: t('MSG_TXT_SCS_YN'), width: '130', styleName: 'text-center' },
+    { fieldName: 'resultYn', header: t('MSG_TXT_SCS_YN'), width: '130', styleName: 'text-center' }, // 성공여부
     // rev:230410 header 텍스트 수정
-    { fieldName: 'niceFwDt', header: t('MSG_TXT_NICE_FW_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'niceFwDt', header: t('MSG_TXT_NICE_FW_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // NICE 발송일자
     // // rev:230410 header 텍스트 수정
   ];
 

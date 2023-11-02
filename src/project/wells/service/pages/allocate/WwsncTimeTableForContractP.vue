@@ -183,7 +183,7 @@
                     {{ data.psic.prtnrKnm2 }}
                   </h3>
                   <kw-chip
-                    :label="$t('MSG_TXT_MANAGER')"
+                    :label="data.psic.rolDvNm2"
                     class="ml8"
                     color="primary"
                     square
@@ -480,13 +480,13 @@ const DATE_FORMAT_YMD = 'YYYYMMDD';
 *
 *  예시)
 *      설치: svDvCd=1(설치), mtrStatCd=1(신규),  svBizDclSfCd = 1110(신규설치)
- *     설치(수정): svDvCd=1(설치), mtrStatCd=2(수정),  svBizDclSfCd = 1110(신규설치)
- *     설치(삭제): svDvCd=1(설치), mtrStatCd=3(삭제),  svBizDclSfCd = 1110(신규설치)
- *
- *     철거: svDvCd = 3(A/S), mtrStatCd = 1(신규), svBizDclSfCd = 3420(철거)
- *     철거수정: svDvCd = 3(A/S), mtrStatCd = 2(수정), svBizDclSfCd = 3420(철거), cstSvAsnNo=고객서비스배정보
- *     철거삭제: svDvCd = 3(A/S), mtrStatCd = 3(삭제), svBizDclSfCd = 3420(철거), cstSvAsnNo=고객서비스배정보
- * */
+*     설치(수정): svDvCd=1(설치), mtrStatCd=2(수정),  svBizDclSfCd = 1110(신규설치)
+*     설치(삭제): svDvCd=1(설치), mtrStatCd=3(삭제),  svBizDclSfCd = 1110(신규설치)
+*
+*     철거: svDvCd = 3(A/S), mtrStatCd = 1(신규), svBizDclSfCd = 3420(철거)
+*     철거수정: svDvCd = 3(A/S), mtrStatCd = 2(수정), svBizDclSfCd = 3420(철거), cstSvAsnNo=고객서비스배정보
+*     철거삭제: svDvCd = 3(A/S), mtrStatCd = 3(삭제), svBizDclSfCd = 3420(철거), cstSvAsnNo=고객서비스배정보
+* */
 
 const props = defineProps({
   baseYm: { type: String, default: '' },
@@ -512,26 +512,9 @@ const props = defineProps({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-// if (props.baseYm === '') alert('baseYm');
-// if (props.chnlDvCd === '') alert('chnlDvCd');
-// if (props.svDvCd === '') alert('svDvCd');
-// if (props.sellDate === '') alert('sellDate');
-// if (props.svBizDclsfCd === '') alert('svBizDclsfCd');
-// if (props.inflwChnl === '') alert('inflwChnl');
-// if (props.basePdCd === '') alert('basePdCd');
-// if (props.wrkDt === '') alert('wrkDt');
-// if (props.mtrStatCd === '') alert('mtrStatCd');
-// if (props.returnUrl === '') alert('returnUrl');
-// if (props.mkCo === '') alert('mkCo');
-// if (props.cntrNo === '') alert('cntrNo');
-// if (props.cntrSn === '') alert('cntrSn');
-// if (props.seq === '') alert('seq');
-
-// const currentDay = dayjs().format('YYYYMMDD');
 const currentTime = dayjs().format('HHmm');
 const nextDay = dayjs().add(1, 'day').format('YYYYMMDD');
 
-// const selectedDay = ref('');
 const schedules = ref([]);
 const scheduleInfo = ref({
   weekCnt: 0,
@@ -619,132 +602,8 @@ async function getTimeTables() {
   clickedBtn.value = '';
   data.value.sellTime = '';
 
-  //---------------------------------------------------------------
-  // test
-  // data.value.lcst09 = '09';
-  // data.value.spayYn = 'N';
-  // data.value.sowDay = '20230621';
-  // data.value.offDays = [{ hsOffDays: '20230628621303' }];
-  // data.value.sidingYn = 'N';
-  // data.value.sidingDays = [
-  //   { ablDays: '2023-06-17', sumCnt: '500', w3th: '20230617', sowDay: '20230617' },
-  //   { ablDays: '2023-06-19', sumCnt: '500', w3th: '20230619', sowDay: '20230619' },
-  //   { ablDays: '2023-06-20', sumCnt: '500', w3th: '20230620', sowDay: '20230620' },
-  //   { ablDays: '2023-06-22', sumCnt: '500', w3th: '20230622', sowDay: '20230622' },
-  //   { ablDays: '2023-06-23', sumCnt: '500', w3th: '20230623', sowDay: '20230623' },
-  //   { ablDays: '2023-06-24', sumCnt: '500', w3th: '20230624', sowDay: '20230624' },
-  // ];
-  // data.value.disableDays = [
-  //   { disableFuldays: '2023-06-23', tcMsg: '111법정휴무일 또는 회사휴무' },
-  //   { disableFuldays: '2023-06-29', tcMsg: '222법정휴무일 또는 회사휴무' },
-  // ];
-  // data.value.psic = {
-  //   prtnrNo: '36870',
-  //   sellDate: '20230616',
-  //   iscgubNm: '2급 중',
-  //   rolDvNm: '엔지니어',
-  //   sjHp1: '010',
-  //   sjHp2: '5774',
-  //   sjHp3: '7039',
-  //   rpbLocaraCd: '243',
-  //   ogNm: '하남서비스센터',
-  //   ogId: 'OGO198500002397',
-  //   prtnrKnm2: '정민수',
-  //   vstDowVal: '월화수목금토',
-  //   instCnt: '3',
-  //   bsCnt: '0',
-  //   asCnt: '0',
-  //   satWrkYn: 'N',
-  //   dfYn: 'N',
-  //   dowDvCd: '6',
-  //   fr2pLgldCd: '41',
-  //   rstrCndtUseYn: 'Y',
-  //   udsnUseYn: 'Y',
-  //   vstPos: '방문가능',
-  //   rsbDvCd: 'W0602',
-  //   empPic: 'http://kiwi-m.kyowon.co.kr/KIWI-M/upload_file/upload_file/36870.jpg',
-  //   locaraTno: '031',
-  //   exnoEncr: '793',
-  //   idvTno: '9351',
-  //   cralLocaraTno: '010',
-  //   mexnoEncr: '5774',
-  //   cralIdvTno: '0110',
-  //   twrkCnt: '1',
-  // };
-  // data.value.psic.rsbDvCd = '0';
-  // data.value.amTimes = [
-  //   { time: '09:00', cnt: '1', enableYn: 'N' },
-  //   { time: '09:10', cnt: '0', enableYn: 'N' },
-  //   { time: '09:20', cnt: '0', enableYn: 'N' },
-  //   { time: '09:30', cnt: '0', enableYn: 'N' },
-  //   { time: '09:40', cnt: '0', enableYn: 'N' },
-  //   { time: '09:50', cnt: '0', enableYn: 'N' },
-  //   { time: '10:00', cnt: '0', enableYn: 'N' },
-  //   { time: '10:10', cnt: '0', enableYn: 'N' },
-  //   { time: '10:20', cnt: '0', enableYn: 'N' },
-  //   { time: '10:30', cnt: '0', enableYn: 'N' },
-  //   { time: '10:40', cnt: '0', enableYn: 'N' },
-  //   { time: '10:50', cnt: '0', enableYn: 'N' },
-  //   { time: '11:00', cnt: '0', enableYn: 'N' },
-  //   { time: '11:10', cnt: '0', enableYn: 'N' },
-  //   { time: '11:20', cnt: '0', enableYn: 'N' },
-  //   { time: '11:30', cnt: '0', enableYn: 'N' },
-  //   { time: '11:40', cnt: '0', enableYn: 'N' },
-  //   { time: '11:50', cnt: '0', enableYn: 'N' },
-  //   { time: '12:00', cnt: '1', enableYn: 'N' },
-  //   { time: '12:10', cnt: '0', enableYn: 'N' },
-  //   { time: '12:20', cnt: '0', enableYn: 'N' },
-  //   { time: '12:30', cnt: '0', enableYn: 'N' },
-  //   { time: '12:40', cnt: '0', enableYn: 'N' },
-  //   { time: '12:50', cnt: '0', enableYn: 'N' },
-  //   { time: '13:00', cnt: '0', enableYn: 'N' },
-  //   { time: '13:10', cnt: '0', enableYn: 'N' },
-  //   { time: '13:20', cnt: '0', enableYn: 'N' },
-  //   { time: '13:30', cnt: '0', enableYn: 'N' },
-  //   { time: '13:40', cnt: '0', enableYn: 'N' },
-  //   { time: '13:50', cnt: '0', enableYn: 'N' },
-  // ];
-  // data.value.pmTimes1 = [
-  //   { time: '14:00', cnt: '0', enableYn: 'N' },
-  //   { time: '14:10', cnt: '0', enableYn: 'N' },
-  //   { time: '14:20', cnt: '0', enableYn: 'N' },
-  //   { time: '14:30', cnt: '0', enableYn: 'N' },
-  //   { time: '14:40', cnt: '1', enableYn: 'N' },
-  //   { time: '14:50', cnt: '0', enableYn: 'N' },
-  //   { time: '15:00', cnt: '0', enableYn: 'N' },
-  //   { time: '15:10', cnt: '0', enableYn: 'N' },
-  //   { time: '15:20', cnt: '0', enableYn: 'N' },
-  //   { time: '15:30', cnt: '0', enableYn: 'N' },
-  //   { time: '15:40', cnt: '0', enableYn: 'N' },
-  //   { time: '15:50', cnt: '0', enableYn: 'N' },
-  //   { time: '16:00', cnt: '0', enableYn: 'N' },
-  //   { time: '16:10', cnt: '0', enableYn: 'N' },
-  //   { time: '16:20', cnt: '0', enableYn: 'N' },
-  //   { time: '16:30', cnt: '0', enableYn: 'N' },
-  //   { time: '16:40', cnt: '3', enableYn: 'N' },
-  //   { time: '16:50', cnt: '0', enableYn: 'N' },
-  //   { time: '17:00', cnt: '0', enableYn: 'N' },
-  //   { time: '17:10', cnt: '0', enableYn: 'N' },
-  //   { time: '17:20', cnt: '0', enableYn: 'N' },
-  //   { time: '17:30', cnt: '0', enableYn: 'N' },
-  //   { time: '17:40', cnt: '0', enableYn: 'N' },
-  //   { time: '17:50', cnt: '0', enableYn: 'N' }];
-  // data.value.pmTimes2 = [{ time: '18:00', cnt: '1', enableYn: 'N' }];
-  // data.value.psic.rstrCndtUseYn = 'N';
-  // data.value.psic.udsnUseYn = 'Y';
-  // data.value.psic.vstPos = '방문가능';
-  // data.value.psic.rsbDvCd = '10';
-
-  // test
-  //---------------------------------------------------------------
-
   // 모종이라면
   if (data.value.sidingYn === 'Y') {
-    // abledDays
-    // data.value.sidingDays.forEach((item) => {
-    //  enableDays.value.push(item.ablDays);
-    // });
-
     // ddd_abledays
     if (data.value.disableDays.length > 0) {
       data.value.disableDays.forEach((item) => {
@@ -758,7 +617,7 @@ async function getTimeTables() {
     });
   }
 
-  console.log(data.value);
+  // console.log(data.value);
 
   data.value.amWrkCnt = 0; // am_wrk_cnt
   data.value.pmWrkCnt = 0; // pm_wrk_cnt
@@ -916,24 +775,12 @@ async function onClickCalendar($event, weekIdx, dayIdx) {
     return;
   }
 
-  if (selectedDay < dayjs().format('YYYYMMDD')) {
+  if (selectedDay <= dayjs().format('YYYYMMDD')) {
     notify('날짜를 오늘 이후로 선택하여 주십시오');
     return;
   }
 
-  // 의미없음
-  // if (searchParams.value.chnlDvCd === 'C' // CubicCC
-  //   || searchParams.value.chnlDvCd === 'W' // 웰스
-  //   || searchParams.value.chnlDvCd === 'P' //  K-MEMBERS
-  // )  {
-  //
-  // }
-
   const enable = isEnable(dayCnt, true);
-
-  // if (enable === 'N') {
-  //   notify('당일날짜는 선택불가 합니다');
-  // }
 
   // 선택 불가 확인
   if (enable === 'Y') {
@@ -971,12 +818,12 @@ async function onClickNextMonth() {
 }
 
 async function onClickAm() {
-  console.log('onClickAm');
-  console.log(`totalMaxAbleCnt=${data.value.totalMaxAbleCnt}`);
-  console.log(`amAlloCnt=${data.value.amAlloCnt}`);
-  console.log(`totalAbleCnt=${data.value.totalAbleCnt}`);
-  console.log(`totalWrkCnt=${data.value.psic.totalWrkCnt}`);
-  console.log(`psic=${JSON.stringify(data.value.psic)}`);
+  // console.log('onClickAm');
+  // console.log(`totalMaxAbleCnt=${data.value.totalMaxAbleCnt}`);
+  // console.log(`amAlloCnt=${data.value.amAlloCnt}`);
+  // console.log(`totalAbleCnt=${data.value.totalAbleCnt}`);
+  // console.log(`totalWrkCnt=${data.value.psic.totalWrkCnt}`);
+  // console.log(`psic=${JSON.stringify(data.value.psic)}`);
 
   clickedBtn.value = '0';
   let time = '';
@@ -991,9 +838,9 @@ async function onClickAm() {
   } else {
     // 버튼 비활성화 처리 필요
   }
-  console.log(`time=${time}`);
+  // console.log(`time=${time}`);
   data.value.sellTime = time;
-  console.log(`sellTime=${data.value.sellTime}`);
+  // console.log(`sellTime=${data.value.sellTime}`);
 }
 
 async function onClickPm() {
@@ -1022,9 +869,9 @@ async function onClickCancel() {
 }
 
 async function onClickSave() {
-  console.log('onClickSave');
-  console.log(data.value.spayYn);
-  console.log(data.value.sellTime);
+  // console.log('onClickSave');
+  // console.log(data.value.spayYn);
+  // console.log(data.value.sellTime);
   // 일시불 모종
   if (data.value.spayYn === 'Y') {
     data.value.sellTime = '0100';
@@ -1062,7 +909,7 @@ async function onClickSave() {
     }
   }
 
-  console.log(searchParams.value);
+  // console.log(searchParams.value);
 
   const base = {
     inChnlDvCd: data.value.inflwChnl,
@@ -1084,7 +931,7 @@ async function onClickSave() {
     svBizDclsfCd: searchParams.value.svBizDclsfCd,
     asIstOjNo: data.value.asIstOjNos.length > 0 ? data.value.asIstOjNos[0] : '',
   };
-  console.log(data.value.asIstOjNos);
+  // console.log(data.value.asIstOjNos);
   const sendDatas = [];
 
   if (searchParams.value.cntrSn.includes(',') && searchParams.value.svBizDclsfCd.includes(',')
@@ -1105,7 +952,7 @@ async function onClickSave() {
     });
   } else sendDatas.push(base);
 
-  console.log(sendDatas);
+  // console.log(sendDatas);
   await dataService.post('/sms/wells/service/installation-works', sendDatas);
   notify(t('MSG_ALT_SAVE_DATA'));
   ok(sendDatas);

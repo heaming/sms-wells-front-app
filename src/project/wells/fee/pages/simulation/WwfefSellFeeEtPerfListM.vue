@@ -219,22 +219,36 @@ watch(
 let cachedParams;
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/fee/sell-fee-et-perf', { params: cachedParams, timeout: 300000 });
-
-  let view;
-  const dataList = res.data.map((row) => ({
-    ...row,
-    nincCt: row.rentalNincCt + row.elhmSpayNincCt,
-    canCt: row.rentalCanCt + row.elhmSpayCanCt + row.rentalExnCt + row.mshWdwalCnt,
-  }));
-
+  let dataList; let
+    view;
   if (cachedParams.inqrDv === '1') {
+    const res = await dataService.get('/sms/wells/fee/sell-fee-et-perf/cts', { params: cachedParams, timeout: 300000 });
+
+    dataList = res.data.map((row) => ({
+      ...row,
+      nwSellCt: row.spayNincNwCt + row.rentalNincNwCt,
+      accNincSum: row.spayNincNwCt + row.rentalNincNwCt - row.rentalCanCt
+        - row.rentalExnCt - row.mshSprCt - row.spayRsgCt,
+    }));
+
     view = grdMain1Ref.value.getView();
   } else if (cachedParams.inqrDv === '2') {
+    const res = await dataService.get('/sms/wells/fee/sell-fee-et-perf/cts', { params: cachedParams, timeout: 300000 });
+    dataList = res.data.map((row) => ({
+      ...row,
+      nwSellCt: row.spayNincNwCt + row.rentalNincNwCt,
+      canCt: row.rentalCanCt + row.rentalExnCt + row.mshSprCt + row.spayRsgCt,
+      accNincSum: row.spayNincNwCt + row.rentalNincNwCt - row.rentalCanCt
+        - row.rentalExnCt - row.mshSprCt - row.spayRsgCt,
+    }));
     view = grdMain2Ref.value.getView();
   } else if (cachedParams.inqrDv === '3') {
+    const res = await dataService.get('/sms/wells/fee/sell-fee-et-perf/details', { params: cachedParams, timeout: 300000 });
+    dataList = res.data;
     view = grdMain3Ref.value.getView();
   } else if (cachedParams.inqrDv === '4') {
+    const res = await dataService.get('/sms/wells/fee/sell-fee-et-perf/can-nincs', { params: cachedParams, timeout: 300000 });
+    dataList = res.data;
     view = grdMain4Ref.value.getView();
   }
 
@@ -303,15 +317,15 @@ function initGrid1(data, view) {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center' },
     { fieldName: 'brchCt', header: t('MSG_TXT_BRCH_N'), width: '90', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmRentalCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmSpayCt', header: t('MSG_TXT_SNGL_PMNT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmRentalAmt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmSpayAmt', header: t('MSG_TXT_ISTM'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'notElhmSpayAmt', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'rentalElhmCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'spayElhmCt', header: t('MSG_TXT_SNGL_PMNT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'rentalElhmBaseAmt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'spayElhmBaseAmt', header: t('MSG_TXT_ISTM'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'notElhmAmt', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'vstAsnCt', header: t('MSG_TXT_ASN_ACC'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'vstFshCt', header: t('MSG_TXT_FSH_ACC'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'vstProcsRt', header: t('MSG_TXT_PROCS_RT'), width: '90', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0.0;;;c' },
-    { fieldName: 'nincCt', header: t('MSG_TXT_NW_SELL'), width: '90', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'nwSellCt', header: t('MSG_TXT_NW_SELL'), width: '90', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'accNincSum', header: t('MSG_TXT_ACC_NINC'), width: '90', styleName: 'text-right', dataType: 'number' },
   ];
 
@@ -329,14 +343,14 @@ function initGrid1(data, view) {
     {
       header: `${t('MSG_TXT_ELHM')}${t('MSG_TXT_COUNT')}`,
       direction: 'horizontal',
-      items: ['elhmRentalCt', 'elhmSpayCt'],
+      items: ['rentalElhmCt', 'spayElhmCt'],
     },
     {
       header: `${t('MSG_TXT_ELHM')}${t('TXT_MSG_BAS_VAL')}`,
       direction: 'horizontal',
-      items: ['elhmRentalAmt', 'elhmSpayAmt'],
+      items: ['rentalElhmBaseAmt', 'spayElhmBaseAmt'],
     },
-    'notElhmSpayAmt', 'vstAsnCt', 'vstFshCt', 'vstProcsRt', 'nincCt', 'accNincSum',
+    'notElhmAmt', 'vstAsnCt', 'vstFshCt', 'vstProcsRt', 'nwSellCt', 'accNincSum',
   ]);
 }
 
@@ -348,13 +362,13 @@ function initGrid2(data, view) {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center' },
     { fieldName: 'brchCt', header: t('MSG_TXT_BRCH_N'), width: '90', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'rentalNincCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmSpayNincCt', header: t('MSG_TXT_SNGL_PMNT'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'nincCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'rentalNincNwCt', header: t('MSG_TXT_RENTAL'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'spayNincNwCt', header: t('MSG_TXT_SNGL_PMNT'), width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'nwSellCt', header: t('MSG_TXT_AGG'), width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'rentalCanCt', header: `${t('MSG_TXT_PUR_RSG')}(${t('MSG_TXT_RENTAL')})`, width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmSpayCanCt', header: `${t('MSG_TXT_PUR_RSG')}(${t('MSG_TXT_SNGL_PMNT')})`, width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'spayRsgCt', header: `${t('MSG_TXT_PUR_RSG')}(${t('MSG_TXT_SNGL_PMNT')})`, width: '110', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'rentalExnCt', header: t('MSG_TXT_EXN'), width: '100', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'mshWdwalCnt', header: `${t('MSG_TXT_MMBR')}${t('MSG_TXT_WDWAL')}`, width: '100', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'mshSprCt', header: `${t('MSG_TXT_MMBR')}${t('MSG_TXT_WDWAL')}`, width: '100', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'canCt', header: t('MSG_TXT_AGG'), width: '90', styleName: 'text-right', dataType: 'number' },
     { fieldName: 'accNincSum', header: t('MSG_TXT_ACC_NINC'), width: '90', styleName: 'text-right', dataType: 'number' },
   ];
@@ -373,12 +387,12 @@ function initGrid2(data, view) {
     {
       header: t('MSG_TXT_NEW'),
       direction: 'horizontal',
-      items: ['rentalNincCt', 'elhmSpayNincCt', 'nincCt'],
+      items: ['rentalNincNwCt', 'spayNincNwCt', 'nwSellCt'],
     },
     {
       header: t('MSG_TXT_CANCEL'),
       direction: 'horizontal',
-      items: ['rentalCanCt', 'elhmSpayCanCt', 'rentalExnCt', 'mshWdwalCnt', 'canCt'],
+      items: ['rentalCanCt', 'spayRsgCt', 'rentalExnCt', 'mshSprCt', 'canCt'],
     },
     'accNincSum',
   ]);
@@ -391,7 +405,7 @@ function initGrid3(data, view) {
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '80', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center' },
-    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_CD'), width: '140', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CST_CD'), width: '140', styleName: 'text-center' },
     { fieldName: 'cntrCstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'cntrCnfmDt', header: t('MSG_TXT_RCPDT'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
@@ -400,9 +414,9 @@ function initGrid3(data, view) {
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'mchnChTpCd', header: t('MSG_TXT_CHDVC_TP'), width: '90', styleName: 'text-center', options: mchnChTpCd },
-    { fieldName: 'elhmRentalAmt', header: `${t('MSG_TXT_ELHM')}${t('TXT_MSG_BAS_VAL')}(${t('MSG_TXT_RENTAL')}/${t('MSG_TXT_ISTM')})`, width: '150', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'notElhmSpayAmt', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '110', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'elhmRentalCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '90', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'elhmBaseAmt', header: `${t('MSG_TXT_ELHM')}${t('TXT_MSG_BAS_VAL')}(${t('MSG_TXT_RENTAL')}/${t('MSG_TXT_ISTM')})`, width: '150', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'notElhmAmt', header: t('MSG_TXT_ELHM_EXCP_ACKMT_PERF'), width: '110', styleName: 'text-right', dataType: 'number' },
+    { fieldName: 'elhmPerfCt', header: t('MSG_TXT_ELHM_ACKMT_CT'), width: '90', styleName: 'text-right', dataType: 'number' },
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -422,7 +436,7 @@ function initGrid4(data, view) {
     { fieldName: 'prtnrNo' },
     { fieldName: 'pstnDvCd' },
     { fieldName: 'canTpNm' },
-    { fieldName: 'cntrCstNo' },
+    { fieldName: 'cntrNo' },
     { fieldName: 'cntrCstNm' },
     { fieldName: 'pdClsfNm' },
     { fieldName: 'pdCd' },
@@ -431,7 +445,7 @@ function initGrid4(data, view) {
     { fieldName: 'cntrCanDt' },
     { fieldName: 'cntrStatChRsonCd' },
     { fieldName: 'origOgCd' },
-    { fieldName: 'origPrtnrKnm' },
+    { fieldName: 'origPrtnrNm' },
     { fieldName: 'origSellPrtnrNo' },
   ];
 
@@ -441,7 +455,7 @@ function initGrid4(data, view) {
     { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center' },
     { fieldName: 'canTpNm', header: t('MSG_TXT_TYPE'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_CD'), width: '140', styleName: 'text-center' },
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CST_CD'), width: '140', styleName: 'text-center' },
     { fieldName: 'cntrCstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '110', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' },
@@ -449,9 +463,9 @@ function initGrid4(data, view) {
     { fieldName: 'cntrPdStrtdt', header: t('MSG_TXT_SL_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
     { fieldName: 'cntrCanDt', header: t('MSG_TXT_CANC_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'YYYY-MM-DD' },
     { fieldName: 'cntrStatChRsonCd', header: t('MSG_TXT_CAN_CD'), width: '90', styleName: 'text-center' },
-    { name: 'cntrStatChRsonNm', fieldName: 'cntrStatChRsonCd', header: t('MSG_TXT_CAN_RSON'), width: '150', styleName: 'text-center', options: codes.CMN_STAT_CH_RSON_CD },
+    { name: 'cntrStatChRsonNm', fieldName: 'cntrStatChRsonCd', header: t('MSG_TXT_CAN_RSON'), width: '250', options: codes.CMN_STAT_CH_RSON_CD },
     { fieldName: 'origOgCd', header: t('MSG_TXT_BLG'), width: '110', styleName: 'text-center' },
-    { fieldName: 'origPrtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center' },
+    { fieldName: 'origPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '90', styleName: 'text-center' },
     { fieldName: 'origSellPrtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '90', styleName: 'text-center' },
   ];
 
@@ -471,12 +485,12 @@ function initGrid4(data, view) {
     {
       header: t('MSG_TXT_CST_ARTC'),
       direction: 'horizontal',
-      items: ['canTpNm', 'cntrCstNo', 'cntrCstNm', 'pdClsfNm', 'pdCd', 'pdNm', 'cntrPdStrtdt', 'cntrCanDt', 'cntrStatChRsonCd', 'cntrStatChRsonNm'],
+      items: ['canTpNm', 'cntrNo', 'cntrCstNm', 'pdClsfNm', 'pdCd', 'pdNm', 'cntrPdStrtdt', 'cntrCanDt', 'cntrStatChRsonCd', 'cntrStatChRsonNm'],
     },
     {
       header: t('MSG_TXT_SELLER_PERSON'),
       direction: 'horizontal',
-      items: ['origOgCd', 'origPrtnrKnm', 'origSellPrtnrNo'],
+      items: ['origOgCd', 'origPrtnrNm', 'origSellPrtnrNo'],
     },
   ]);
 }

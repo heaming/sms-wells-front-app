@@ -205,6 +205,7 @@
         >
           <kw-input
             v-model="warehouseInfo.rmkCn"
+            :maxlength="4000"
             type="textarea"
             :rows="3"
             :label="$t('MSG_TXT_RMK_ARTC')"

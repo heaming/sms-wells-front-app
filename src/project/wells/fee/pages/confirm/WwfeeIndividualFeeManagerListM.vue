@@ -100,10 +100,19 @@
             <p>{{ basicInfo.ogCd ? basicInfo.ogCd : '' }}</p>
           </kw-form-item>
           <kw-form-item
-            :label="t('MSG_TXT_RSB')"
+            :label="t('MSG_TXT_QLF')"
             align-content="left"
           >
-            <p>{{ basicInfo.rsbDvCd ? codes.RSB_DV_CD.find((v) => v.codeId === basicInfo.rsbDvCd).codeName : '' }}</p>
+            <p
+              v-if="basicInfo.rsbDvCd === 'W0205'"
+            >
+              {{ basicInfo.qlfDvCd ? codes.QLF_DV_CD.find((v) => v.codeId === basicInfo.qlfDvCd).codeName : '' }}
+            </p>
+            <p
+              v-if="basicInfo.rsbDvCd !== 'W0205'"
+            >
+              {{ basicInfo.brmgrDvCd ? basicInfo.brmgrDvCd : '' }}
+            </p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_DDTN_SUM')"
@@ -140,6 +149,7 @@
             <p>{{ basicInfo.acnoEncr ? basicInfo.acnoEncr : '' }}</p>
           </kw-form-item>
           <kw-form-item
+            v-if="basicInfo.rsbDvCd === 'W0205'"
             :label="t('MSG_TXT_METG_DC')"
             align-content="left"
           >
@@ -308,10 +318,9 @@ const dataService = useDataService();
 
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD',
+  'QLF_DV_CD',
 );
 
-// 실적구분
-// const rsbDvCdCodes = codes.RSB_DV_CD;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -338,6 +347,8 @@ const basicInfo = ref({
   prtnrNo: '',
   prtnrKnm: '',
   rsbDvCd: '',
+  qlfDvCd: '',
+  brmgrDvCd: '',
   intbsAmt: '0',
   ddctam: '0',
   dsbOjAmt: '0',
@@ -498,6 +509,10 @@ async function fetchData(type) {
   const response = await dataService.get(`/sms/wells/fee/individual-fees/mnger-${type}`, { params: cachedParams, timeout: 300000 });
   const resData = response.data;
   if (type === 'basic') {
+    if (isEmpty(resData)) {
+      await alert(t('MSG_ALT_CRSP_MM_PRTNR_NO_INF_NEX')); // 해당 월에 파트너 정보가 없습니다.
+      return false;
+    }
     basicInfo.value = resData;
   } else if (type === 'selletcs') {
     const sellEtcView = grdSellEtcRef.value.getView();
@@ -524,12 +539,15 @@ async function onClickSearch() {
   grdBsRef.value.getData().clearRows();
   grdFeeRef.value.getData().clearRows();
   grdPnpyamRef.value.getData().clearRows();
+
   await fetchData('basic');
-  await fetchData('selletcs');
-  await fetchData('before-services');
-  await fetchData('fees');
-  await fetchData('deductions');
-  await fetchData('pnpyam');
+  if (!isEmpty(basicInfo.value)) {
+    await fetchData('selletcs');
+    await fetchData('before-services');
+    await fetchData('fees');
+    await fetchData('deductions');
+    await fetchData('pnpyam');
+  }
 }
 
 function setParams() {
@@ -541,11 +559,28 @@ function setParams() {
   }
 }
 
-onActivated(() => {
-  if (!isEmpty(route.params)) { searchParams.value.perfYm = route.params.perfYm; } else { searchParams.value.perfYm = now.add(-1, 'month').format('YYYYMM'); }
+onBeforeMount(() => {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+  }
+});
+
+onMounted(() => {
   nextTick(() => {
     setParams();
   });
+});
+
+onActivated(() => {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+
+    nextTick(() => {
+      setParams();
+    });
+  }
 });
 
 // -------------------------------------------------------------------------------------------------

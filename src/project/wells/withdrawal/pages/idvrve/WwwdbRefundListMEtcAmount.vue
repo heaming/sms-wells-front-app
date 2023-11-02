@@ -35,14 +35,14 @@
         <!-- 실적일자 -->
         <kw-search-item
           :label="t('MSG_TXT_PERF_DT')"
-          required
-        >
+          >
+          <!-- required -->
           <kw-date-range-picker
             v-model:from="searchParams.perfDtStartDay"
             v-model:to="searchParams.perfDtEndDay"
-            rules="date_range_required|date_range_months:1"
             :label="t('MSG_TXT_PERF_DT')"
-          />
+            />
+            <!-- rules="date_range_required|date_range_months:1" -->
         </kw-search-item>
         <!-- 환불구분 -->
         <!-- 코드 확인 필요 -->
@@ -340,8 +340,8 @@ const aggregationStatus = ref({
 const searchParams = ref({
   startDay: now.format('YYYYMM01'), // 처리일자.시작일
   endDay: now.format('YYYYMMDD'), // 처리일자.종료일
-  perfDtStartDay: now.format('YYYYMM01'), // 실적일자.시작일
-  perfDtEndDay: now.format('YYYYMMDD'), // 실적일자.종료일
+  perfDtStartDay: '', // 실적일자.시작일
+  perfDtEndDay: '', // 실적일자.종료일
   rfndDv: '1', // 환불구분 (정상:1, 귀속:2)
   icptSellYn: 'ALL', // 불완전판매여부
 });

@@ -122,6 +122,7 @@ import {
   cloneDeep,
   isEmpty,
 } from 'lodash-es';
+import dayjs from 'dayjs';
 
 const {
   modal,
@@ -142,6 +143,7 @@ const pageInfo = ref({
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
+const now = dayjs().format('YYYYMM');
 const baseUrl = '/sms/wells/bond/rental-cb-mgt/message-excludes';
 const searchParams = ref({
   cstNo: '',
@@ -207,6 +209,8 @@ function onClickAdd() {
     ctntExcdBndBizCd: '02', // 렌탈CB
     ctntExcdOjTpCd: '01', // 고객번호
     ctntExcdMediTpCd: '03', // 알림톡
+    apyStrtdt: now, // 적용시작년월
+    apyEnddt: now, // 적용종료년월
   });
   view.checkItem(0, true);
 
@@ -274,10 +278,10 @@ const initGridTalk = defineGrid((data, view) => {
         inputCharacters: ['0-9'],
         maxLength: 10,
         positiveOnly: true,
-      },
+      }, // 고객번호
       numberFormat: '###0' },
-    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' },
-    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' },
+    { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRT_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' }, // 적용시작년월
+    { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_END_YM'), styleName: 'text-center', editor: { type: 'btdate', btOptions: btOpt }, datetimeFormat: 'YYYY-MM', rules: 'required' }, // 적용종료년월
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   fields.push(

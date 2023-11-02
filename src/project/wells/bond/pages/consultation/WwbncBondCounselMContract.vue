@@ -76,11 +76,14 @@
 
     <kw-search-row>
       <kw-search-item
-        :label="$t('MSG_TXT_CNTR_NO')"
+        :label="$t('MSG_TXT_CNTR_DTL_NO')"
       >
         <kw-input
-          v-model="searchParams.schCntrNo"
+          v-model="searchParams.schCntrDtlNo"
           :maxlength="14"
+          :placeholder="$t('MSG_TIT_CNTR_NO_CNTR_SN')"
+          icon="search"
+          @click-icon="onClickCntrDtlNo"
         />
       </kw-search-item>
       <kw-search-item
@@ -349,7 +352,7 @@ const searchParams = ref({
   schDlqMcntStrt: '',
   schDlqMcntEnd: '',
   schIstTno: '',
-  schCntrNo: '',
+  schCntrDtlNo: '',
   schCstNo: '',
   schBizDv: '',
   schIstMpno: '',
@@ -378,6 +381,21 @@ const frmMainRef = ref(getComponentType('KwForm'));
 const customerParams = ref({});
 const totalCount = ref(0);
 const windowKey = ref('');
+
+// TODO: 계약상세번호 조회
+async function onClickCntrDtlNo() {
+  const { result, payload } = await modal({
+    component: 'WwctaContractNumberListP',
+    componentProps: {
+      cntrNo: searchParams.value.schCntrDtlNo,
+    },
+  });
+  if (result) {
+    searchParams.value.cntrNo = payload.cntrNo;
+    searchParams.value.cntrSn = payload.cntrSn;
+    searchParams.value.schCntrDtlNo = `${searchParams.value.cntrNo}-${searchParams.value.cntrSn}`;
+  }
+}
 
 /** 계약리스트 조회 */
 async function fetchContracts() {
@@ -560,12 +578,23 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfeIstm2', dataType: 'number' },
     { fieldName: 'promDt' },
     { fieldName: 'dprNm' },
-    { fieldName: 'cvcpInf' },
     { fieldName: 'clctamIchr' },
     { fieldName: 'cntrMpno' },
+    { fieldName: 'cntrCralLocaraTno' },
+    { fieldName: 'cntrMexnoEncr' },
+    { fieldName: 'cntrCralIdvTno' },
     { fieldName: 'cntrTno' },
+    { fieldName: 'cntrLocaraTno' },
+    { fieldName: 'cntrExnoEncr' },
+    { fieldName: 'cntrIdvTno' },
     { fieldName: 'istMpno' },
+    { fieldName: 'istCralLocaraTno' },
+    { fieldName: 'istMexnoEncr' },
+    { fieldName: 'istCralIdvTno' },
     { fieldName: 'istTno' },
+    { fieldName: 'istLocaraTno' },
+    { fieldName: 'istExnoEncr' },
+    { fieldName: 'istIdvTno' },
     { fieldName: 'cstNo' },
     { fieldName: 'tfDt' },
     { fieldName: 'buNotiDt' },
@@ -627,16 +656,42 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
     { fieldName: 'promDt', header: t('MSG_TXT_PROM_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'dprNm', header: t('MSG_TXT_DPR_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cvcpInf', header: t('MSG_TXT_CVCP_INF'), width: '120', styleName: 'text-center' },
     { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_ICHR'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cntrMpno', header: t('MSG_TXT_CNTR_MPNO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'cntrTno', header: t('MSG_TXT_CNTR_TNO'), width: '130', styleName: 'text-center' },
+    {
+      fieldName: 'cntrMpno',
+      header: t('MSG_TXT_MPNO'),
+      styleName: 'text-center',
+      width: '130',
+      displayCallback(grid, index) {
+        const { cntrCralLocaraTno: no1, cntrMexnoEncr: no2, cntrCralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (no1 != null) {
+          return `${no1}-${no2}-${no3}`;
+        }
+      },
+    },
+    { fieldName: 'cntrCralLocaraTno', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'cntrMexnoEncr', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'cntrCralIdvTno', width: '100', styleName: 'text-left', visible: false },
+    {
+      fieldName: 'cntrTno',
+      header: t('MSG_TXT_CNTR_TNO'),
+      styleName: 'text-center',
+      width: '130',
+      displayCallback(grid, index) {
+        const { cntrLocaraTno: no1, cntrExnoEncr: no2, cntrIdvTno: no3 } = grid.getValues(index.itemIndex);
+        if (no1 != null) {
+          return `${no1}-${no2}-${no3}`;
+        }
+      },
+    },
+    { fieldName: 'cntrLocaraTno', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'cntrExnoEncr', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'cntrIdvTno', width: '100', styleName: 'text-left', visible: false },
     {
       fieldName: 'istMpno',
       header: t('MSG_TXT_IST_MPNO'),
       styleName: 'text-center',
       width: '130',
-
       displayCallback(grid, index) {
         const { istCralLocaraTno: no1, istMexnoEncr: no2, istCralIdvTno: no3 } = grid.getValues(index.itemIndex);
         if (no1 != null) {
@@ -644,12 +699,14 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     },
+    { fieldName: 'istCralLocaraTno', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'istMexnoEncr', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'istCralIdvTno', width: '100', styleName: 'text-left', visible: false },
     {
       fieldName: 'istTno',
       header: t('MSG_TXT_IST_TNO'),
       styleName: 'text-center',
       width: '130',
-
       displayCallback(grid, index) {
         const { istLocaraTno: no1, istExnoEncr: no2, istIdvTno: no3 } = grid.getValues(index.itemIndex);
         if (no1 != null) {
@@ -657,6 +714,9 @@ const initGrdMain = defineGrid((data, view) => {
         }
       },
     },
+    { fieldName: 'istLocaraTno', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'istExnoEncr', width: '100', styleName: 'text-left', visible: false },
+    { fieldName: 'istIdvTno', width: '100', styleName: 'text-left', visible: false },
     { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
     { fieldName: 'tfDt', header: t('MSG_TXT_TF_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'buNotiDt', header: t('MSG_TXT_BU_NOTI_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },

@@ -18,6 +18,7 @@
   >
     <kw-form ref="frmMainRef1">
       <kw-form-row>
+        <!-- 제목 -->
         <kw-form-item
           :label="$t('MSG_TXT_TTL')"
           required
@@ -32,9 +33,11 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
+    <!-- 계약정보 -->
     <h3>{{ t('MSG_TXT_CNTR_INF') }}</h3>
     <kw-form ref="frmMainRef2">
       <kw-form-row>
+        <!-- 사고사진 -->
         <kw-form-item :label="$t('MSG_TXT_ACDN_PHO')">
           <zwcm-file-attacher
             ref="acdnPhoApnFileRef"
@@ -44,6 +47,7 @@
             downloadable
           />
         </kw-form-item>
+        <!-- 사고영상 -->
         <kw-form-item :label="$t('MSG_TXT_ACDN_PICTR')">
           <zwcm-file-attacher
             ref="acdnPictrApnFileRef"
@@ -53,6 +57,7 @@
             downloadable
           />
         </kw-form-item>
+        <!-- 원인분석 -->
         <kw-form-item :label="$t('MSG_TXT_CAUS_ANA')">
           <zwcm-file-attacher
             ref="causAnaApnFileRef"
@@ -64,6 +69,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 계약상세번호 -->
         <kw-form-item
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
           required
@@ -83,6 +89,7 @@
             </template>
           </zctz-contract-detail-number>
         </kw-form-item>
+        <!-- 고객명 -->
         <kw-form-item
           :label="$t('MSG_TXT_CST_NM')"
           required
@@ -93,6 +100,7 @@
             rules="required"
           />
         </kw-form-item>
+        <!-- 제품명 -->
         <kw-form-item
           :label="$t('MSG_TXT_GOODS_NM')"
           required
@@ -106,6 +114,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 전화번호 -->
         <kw-form-item
           :label="$t('MSG_TXT_TEL_NO')"
           required
@@ -117,6 +126,7 @@
             mask="telephone"
           />
         </kw-form-item>
+        <!-- 휴대전화번호 -->
         <kw-form-item
           :label="$t('MSG_TXT_MPNO')"
           required
@@ -128,6 +138,7 @@
             :label="$t('MSG_TXT_MPNO')"
           />
         </kw-form-item>
+        <!-- 설치일자 -->
         <kw-form-item
           :label="$t('MSG_TXT_IST_DT')"
           required
@@ -140,6 +151,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 주소 -->
         <kw-form-item
           :label="$t('MSG_TXT_ADDR')"
           :colspan="2"
@@ -159,11 +171,12 @@
     </kw-form>
 
     <kw-separator />
-
+    <!-- A/S정보 -->
     <h3>{{ t('MSG_TXT_AS_INF') }}</h3>
     <!-- rev:230710 변경 및 추가 -->
     <kw-form ref="frmMainRef3">
       <kw-form-row>
+        <!-- A/S접수일 -->
         <kw-form-item
           :label="$t('MSG_TXT_AS_RCP_DT')"
           required
@@ -175,6 +188,7 @@
             class="w330"
           />
         </kw-form-item>
+        <!-- 사고일시 -->
         <kw-form-item :label="$t('MSG_TXT_ACDN_DTM')">
           <kw-date-picker
             v-model="safetyAccident.acdnDt"
@@ -183,6 +197,7 @@
             v-model="safetyAccident.acdnTm"
           />
         </kw-form-item>
+        <!-- 위치 -->
         <kw-form-item
           :label="$t('MSG_TXT_LCT')"
           required
@@ -195,6 +210,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 센터 -->
         <kw-form-item
           :label="$t('MSG_TXT_CENTER_DIVISION')"
           required
@@ -209,6 +225,7 @@
             @update:model-value="onChangeSvCnrOgId"
           />
         </kw-form-item>
+        <!-- 센터장성명(등록자) -->
         <kw-form-item
           :label="`${$t('MSG_TXT_CNRLD_FNM')}(${$t('MSG_TXT_RGST_USR')})`"
           required
@@ -219,6 +236,7 @@
             rules="required"
           />
         </kw-form-item>
+        <!-- 귀책사유 -->
         <kw-form-item
           :label="$t('MSG_TXT_IMPTA_RSON')"
           required
@@ -232,6 +250,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 접수내용 -->
         <kw-form-item
           :label="$t('MSG_TXT_RCP_CN')"
           :colspan="3"
@@ -249,12 +268,12 @@
         </kw-form-item>
       </kw-form-row>
     </kw-form>
-    <!-- // rev:230710 변경 및 추가 -->
     <kw-separator />
+    <!-- 사고정보 -->
     <h3>{{ t('MSG_TXT_ACDN_INF') }}</h3>
     <kw-form ref="frmMainRef4">
-      <!-- rev:230710 변경 및 추가 -->
       <kw-form-row>
+        <!-- 사고원인 -->
         <kw-form-item
           :label="$t('MSG_TXT_ACDN_CAUS')"
           :colspan="3"
@@ -272,6 +291,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 고객요구사항 -->
         <kw-form-item
           :label="$t('MSG_TXT_CST_DMD_ARTC')"
           :colspan="3"
@@ -287,18 +307,24 @@
       </kw-form-row>
     </kw-form>
     <kw-separator />
-    <!-- // rev:230710 변경 및 추가 -->
     <!-- <div v-if="props.acdnRcpId !== ''"> -->
     <kw-action-top
       class="mb20"
     >
       <template #left>
+        <!-- 결과입력 -->
         <h3>{{ t('MSG_TXT_RS_IN') }}</h3>
       </template>
+      <kw-icon
+        name="info"
+        :tooltip="t('MSG_TXT_AGR_FW_INFO')"
+        class="ml4"
+      />
+      <!-- 합의서발송 버튼 -->
       <kw-btn
         secondary
         :label="$t('MSG_TXT_AGR_FW')"
-        :disable="sessionUserInfo.employeeIDNumber !== safetyAccident.cnrldNo || safetyAccident.agrDocFwYn === 'Y'"
+        :disable="sessionUserInfo.employeeIDNumber !== safetyAccident.cnrldNo || !isDisable"
         dense
         @click="onClickAgreementFoward"
       />
@@ -307,6 +333,7 @@
       ref="frmMainRef5"
     >
       <kw-form-row>
+        <!-- 진행상태 -->
         <kw-form-item
           :label="$t('MSG_TXT_PRGS_STATUS')"
           required
@@ -320,6 +347,7 @@
             :disable="sessionUserInfo.employeeIDNumber !== safetyAccident.cnrldNo"
           />
         </kw-form-item>
+        <!-- 완료일자 -->
         <kw-form-item :label="$t('MSG_TXT_FSH_DT')">
           <kw-date-picker
             v-model="safetyAccident.fshDt"
@@ -327,6 +355,7 @@
             class="w330"
           />
         </kw-form-item>
+        <!-- 보상진행 -->
         <kw-form-item :label="$t('MSG_TXT_CPS_PRGS')">
           <kw-input
             v-model="safetyAccident.cpsPrgsNm"
@@ -335,12 +364,14 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 총보상액(원) -->
         <kw-form-item :label="$t('MSG_TXT_TOT_CPS_AMT_WON')">
           <kw-input
             v-model="safetyAccident.totCpsAmt"
             readonly
           />
         </kw-form-item>
+        <!-- 교원부담(원) -->
         <kw-form-item :label="$t('MSG_TXT_KW_BU_WON')">
           <kw-input
             v-model="safetyAccident.kwCpsAmt"
@@ -350,6 +381,7 @@
             @onClear="onChangeKwCpsAmt"
           />
         </kw-form-item>
+        <!-- 보험사부담(원) -->
         <kw-form-item :label="$t('MSG_TXT_INSRCO_BU_WON')">
           <kw-input
             v-model="safetyAccident.insrcoCpsAmt"
@@ -361,12 +393,14 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 합의서 발송여부 -->
         <kw-form-item :label="$t('MSG_TXT_AGR_FW_YN')">
           <kw-input
             v-model="safetyAccident.agrDocFwYn"
             readonly
           />
         </kw-form-item>
+        <!-- 합의서서명여부 -->
         <kw-form-item :label="$t('MSG_TXT_AGR_SIGN_YN')">
           <kw-input
             v-model="safetyAccident.agrDocRcvYn"
@@ -375,6 +409,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 보상결과 -->
         <kw-form-item
           :label="$t('MSG_TXT_CPS_RS')"
           :colspan="3"
@@ -390,15 +425,16 @@
         </kw-form-item>
       </kw-form-row>
     </kw-form>
-    <!-- // rev:230710 변경 및 추가 -->
     <template
       #action
     >
+      <!-- 취소버튼 -->
       <kw-btn
         negative
         :label="$t('MSG_BTN_CANCEL')"
         @click="onClickCancel"
       />
+      <!-- 저장버튼 -->
       <kw-btn
         v-permission:update
         primary
@@ -429,7 +465,7 @@ import { isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const { modal, notify } = useGlobal();
 const dataService = useDataService();
-const { ok, cancel: onClickCancel } = useModal();
+const { cancel: onClickCancel } = useModal();
 const { getUserInfo } = useMeta();
 const props = defineProps({
   acdnRcpId: {
@@ -450,6 +486,8 @@ const sessionUserInfo = getUserInfo();
 const acdnPhoApnFile = ref([]); // 사고사진
 const acdnPictrApnFile = ref([]); // 사고영상
 const causAnaApnFile = ref([]); // 원인분석
+const isDisable = ref(true);
+// 보상결과 기본 형식
 const tempText = ref(`1. 담당자:
 2. 방문내역:
 3. 피해면적:
@@ -504,13 +542,16 @@ const safetyAccident = ref({
   saveYn1: '',
   saveYn2: '',
   saveYn3: '',
+  ichrPrtnrOgTpCd: '',
+  ichrPrtnrNo: '',
+  psicNm: '',
 });
 const frmMainRef1 = ref();
 const frmMainRef2 = ref();
 const frmMainRef3 = ref();
 const frmMainRef4 = ref();
 const frmMainRef5 = ref();
-
+// 상품명 변경시 제목에 자동세팅
 function onChangePdNm() {
   safetyAccident.value.acdnRcpNm = `[${safetyAccident.value.pdNm}] 제목을 입력해주세요.`;
 }
@@ -542,7 +583,7 @@ function convertToKoreanNumber(val) {
   }
   return kor;
 }
-
+// 계약 조회 팝업 오픈
 async function onClickSearchContract() {
   const { result, payload } = await modal({
     component: 'WwsnyCustomerBaseInformationP',
@@ -594,13 +635,24 @@ async function onClickAgreementFoward() {
     Object.assign(safetyAccident.value, res);
   }
 }
+async function fetchData() {
+  const res = await dataService.get(`/sms/wells/service/safety-accidents/${props.acdnRcpId}`);
+  Object.assign(safetyAccident.value, res.data);
+  isDisable.value = (res.data.cpsDvCd === '5' && res.data.agrDocFwYn === 'N'); // 보상완료 && 합의서발송여부 'N'
+  await frmMainRef1.value.init();
+  await frmMainRef2.value.init();
+  await frmMainRef3.value.init();
+  await frmMainRef4.value.init();
+  await frmMainRef5.value.init();
+}
 
+// 저장버튼 클릭
 async function onClickSave() {
   if (!await frmMainRef1.value.validate() || !await frmMainRef2.value.validate()
   || !await frmMainRef3.value.validate() || !await frmMainRef4.value.validate()
   || (sessionUserInfo.employeeIDNumber === safetyAccident.cnrldNo && !await frmMainRef5.value.validate())
   ) {
-    notify(t('MSG_ALT_CHK_REQ_VAL'));
+    notify(t('MSG_ALT_CHK_REQ_VAL')); // "필수 입력값이 입력되지 않았습니다.필수입력값을 확인하시길 바랍니다."
     return;
   }
 
@@ -627,17 +679,17 @@ async function onClickSave() {
   safetyAccident.value.acdnDtm = safetyAccident.value.acdnDt && safetyAccident.value.acdnTm ? `${safetyAccident.value.acdnDt}${safetyAccident.value.acdnTm}` : null;
   await dataService.post('/sms/wells/service/safety-accidents', safetyAccident.value);
 
-  ok();
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
+  await fetchData();
 }
-
+// 교원부담액 변경 시 총합 변경 + 보상진행값 변경
 function onChangeKwCpsAmt() {
   safetyAccident.value.totCpsAmt = Number(safetyAccident.value.insrcoCpsAmt) + Number(safetyAccident.value.kwCpsAmt);
   if (safetyAccident.value.kwCpsAmt > 0) {
     safetyAccident.value.cpsPrgsNm = '(주)교원프라퍼티(101-81-39767)';
   }
 }
-
+// 보험사 부담액 변경 시 총합 변경 + 보상진행값 변경
 function onChangeInsrcoCpsAmt() {
   safetyAccident.value.totCpsAmt = Number(safetyAccident.value.insrcoCpsAmt) + Number(safetyAccident.value.kwCpsAmt);
   if (safetyAccident.value.insrcoCpsAmt > 0) {
@@ -646,17 +698,18 @@ function onChangeInsrcoCpsAmt() {
     safetyAccident.value.cpsPrgsNm = '(주)교원프라퍼티(101-81-39767)';
   }
 }
-
+// 서비스센터값 변경 시 센터장 정보 조회
 async function onChangeSvCnrOgId() {
   const ogId = safetyAccident.value.svCnrOgId;
   const cnrldNm = (await dataService.get(`/sms/wells/service/safety-accidents/cnrldNm/${ogId}`)).data;
   safetyAccident.value.cnrldNm = cnrldNm;
 }
-
+// 사고접수번호 존재하면 조회
 onMounted(async () => {
   if (props.acdnRcpId !== '') {
     const res = await dataService.get(`/sms/wells/service/safety-accidents/${props.acdnRcpId}`);
     Object.assign(safetyAccident.value, res.data);
+    isDisable.value = (res.data.cpsDvCd === '5' && res.data.agrDocFwYn === 'N'); // 보상완료 && 합의서발송여부 'N'
   }
   await frmMainRef1.value.init();
   await frmMainRef2.value.init();

@@ -165,7 +165,7 @@ const dataService = useDataService();
 const { getConfig } = useMeta();
 const router = useRouter();
 const { t } = useI18n();
-const { modal, alert } = useGlobal();
+const { modal } = useGlobal();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -474,6 +474,7 @@ function initGrid4(data, view) {
     { fieldName: 'svProcsCn' },
     { fieldName: 'cstSignCn' },
     { fieldName: 'chngs' },
+    { fieldName: 'cstSvAsnNo' },
   ];
 
   const columns = [
@@ -612,14 +613,24 @@ function initGrid4(data, view) {
           cntrSn,
         },
       });
+    } else if (column === 'expPart') {
+      const cstSvAsnNo = g.getValue(itemIndex, 'cstSvAsnNo');
+      await modal({
+        component: 'WwsncExpProductStateP',
+        componentProps: {
+          baseYm: searchParams.value.baseYm,
+          ogId: searchParams.value.ogId,
+          pdGrpCd: '',
+          pdCd: '',
+          cstSvAsnNo,
+        },
+      });
     } else if (column === 'cstSignCn') {
       const cstSignCn = g.getValue(itemIndex, 'cstSignCn');
       await modal({
         component: 'WwsnzSignPreviewP',
         componentProps: { sign: cstSignCn },
       });
-    } else if (column === 'expPart') {
-      alert('예정부품 팝업 개발 완료 시 적용 예정');
     }
   };
 }

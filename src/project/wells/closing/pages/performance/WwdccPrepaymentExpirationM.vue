@@ -91,7 +91,7 @@
               <kw-date-range-picker
                 v-model:from="searchParams.dpStDt"
                 v-model:to="searchParams.dpEdDt"
-                rules="date_range_required|date_range_months:3"
+                rules="date_range_required|date_range_months:12"
                 type="month"
               />
             </kw-search-item>

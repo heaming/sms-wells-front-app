@@ -41,6 +41,7 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
+              @change:package="onChangeWellsFarmPackage"
               @price-changed="onPriceChanged(item, $event)"
               @delete="onClickDelete(item)"
             />
@@ -49,11 +50,12 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
-              @one-plus-one="onClickOnePlusOne"
+              @select:one-plus-one="onClickOnePlusOne"
               @delete:one-plus-one="onDeleteOnePlusOne"
-              @device-change="onClickDeviceChange"
-              @price-changed="onPriceChanged(item, $event)"
+              @change:device="onClickDeviceChange"
+              @change:package="onChangeWellsFarmPackage"
               @packaging="onPackaging"
+              @price-changed="onPriceChanged(item, $event)"
               @delete="onClickDelete(item)"
             />
             <membership-price-select
@@ -69,12 +71,12 @@
               :key="`price-select-${item.tempKey ?? item.cntrSn}`"
               :model-value="item"
               :bas="step2.bas"
+              @select:machine="onClickSelectMachine"
+              @delete:machine="onDeleteSelectMachine"
+              @select:seeding="onClickSelSdingCapsl"
+              @select:capsule="onClickSelSdingCapsl"
+              @select:precontract="onClickSelectPrecontract"
               @price-changed="onPriceChanged(item, $event)"
-              @select-machine="onClickSelectMachine"
-              @delete:select-machine="onDeleteSelectMachine"
-              @select-seeding="onClickSelSdingCapsl"
-              @select-capsule="onClickSelSdingCapsl"
-              @select-precontract="onClickSelectPrecontract"
               @delete="onClickDelete(item)"
             />
           </template>
@@ -88,20 +90,25 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import ProductSelect
-  from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
-import SinglePayPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
-import RentalPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
-import MembershipPriceSelect
-  from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
+import ProductSelect from '~sms-wells/contract/pages/ordermgmt/WwctaContractRegistrationMgtMStep2SelectProduct.vue';
+import SinglePayPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaSpayFinalPriceSelect.vue';
+import RentalPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
+import MembershipPriceSelect from '~sms-wells/contract/components/ordermgmt/WwctaMembershipFinalPriceSelect.vue';
 import RegularShippingPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaRegularShippingFinalPriceSelect.vue';
 import { alert, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty, uniqueId } from 'lodash-es';
 import { warn } from 'vue';
 import { vScrollbar } from '~sms-common/contract/util';
+import {
+  CNTR_REL_DTL_CD,
+  CNTR_TP_CD,
+  PD_TP_CD,
+  RENTAL_DSC_DV_CD,
+  RENTAL_DSC_TP_CD,
+  SELL_TP_DTL_CD,
+} from '~sms-wells/contract/constants/ctConst';
+import dayjs from 'dayjs';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -117,11 +124,6 @@ const { t } = useI18n();
 const dataService = useDataService();
 const { notify, modal } = useGlobal();
 
-const CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE = '214';
-const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
-const CNTR_REL_DTL_CD_LK_SDING = '216';
-const CNTR_REL_DTL_CD_LK_MLTCS_PRCHS = '22M'; // 다건 구매
-
 const cntrNo = computed(() => props.contract?.cntrNo);
 const step2 = toRef(props.contract, 'step2');
 const ogStep2 = ref({});
@@ -129,15 +131,66 @@ const ogStep2 = ref({});
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const setTempKey = (pd) => {
+  pd.tempKey = uniqueId('new-product');
+};
+
+const pcntrReq = ref(false); /* fixme */
+
+async function validatePreconditions(pdCd) {
+  const { data } = await dataService.get('sms/wells/contract/contracts/product-limit', {
+    params: {
+      cntrNo: cntrNo.value, // 현재는 사용하지 않음
+      pdCd,
+    },
+  });
+
+  const {
+    bznsClHhBas,
+    bznsClYn,
+    pcntrMncnYn,
+    pcntrExistYn,
+  } = data;
+
+  if (pcntrMncnYn === 'Y' && pcntrExistYn === 'N') {
+    await alert('해당 상품은 기계약상품의 계약건이 존재해야만 선택 가능합니다.');
+    return false;
+  }
+
+  pcntrReq.value = pcntrMncnYn === 'Y';
+
+  if (bznsClHhBas) {
+    const bizStartTime = dayjs(`${bznsClHhBas.strtdt}${bznsClHhBas.strtHh}`, 'YYYYMMDDHHmm');
+    const bizEndTime = dayjs(`${bznsClHhBas.enddt}${bznsClHhBas.endHh}`, 'YYYYMMDDHHmm');
+    const now = dayjs();
+
+    if (bznsClYn === 'Y') {
+      await alert('영업 시간 내 계약해 주세요.');
+      return false;
+    }
+
+    if (now.isBefore(bizStartTime) || now.isAfter(bizEndTime)) {
+      await alert(`영업 시간 내 계약해 주세요. ${bznsClHhBas.strtHh} ~ ${bznsClHhBas.endHh}`);
+      return false;
+    }
+  }
+
+  return true;
+}
+
 async function onSelectProduct(product) {
   const newProduct = { ...product };
   const newProducts = [];
 
-  console.log('onSelectProduct', product);
+  if (!await validatePreconditions(newProduct.pdCd)) {
+    return;
+  }
+
+  newProduct.precontractRequired = pcntrReq.value;
 
   // 상품관계 확인
   // PD_REL_TP_CD '12' 기계약상품여부
-  const res = await dataService.get('sms/wells/contract/contracts/product-relations', {
+  /*   const res = await dataService.get('sms/wells/contract/contracts/product-relations', {
     params: {
       cntrNo: cntrNo.value, // 현재는 사용하지 않음
       pdCd: newProduct.pdCd,
@@ -146,22 +199,20 @@ async function onSelectProduct(product) {
   });
 
   const { preCntrPdRelCnt, preCntrPdCnt } = res.data;
-  if (Number(preCntrPdRelCnt) > 0 && preCntrPdCnt === '0') {
+  if (Number(preCntrPdRelCnt) > 0 && Number(preCntrPdCnt) === 0) {
     alert('해당 상품은 기계약상품의 계약건이 존재해야만 선택 가능합니다.');
     return;
   }
 
-  if (Number(preCntrPdRelCnt) > 0 && newProduct.sellTpCd === '6') {
+  if (Number(preCntrPdRelCnt) > 0 && newProduct.sellTpCd === SELL_TP_CD.RGLR_SPP) {
     newProduct.precontractRequired = true; // sorrrrrrryyyyy... this is shit.
-  }
-
-  const setTempKey = (pd) => {
-    pd.tempKey = uniqueId('new-product');
-  };
+  } */
 
   const isWellsFarmProduct = newProduct.pdLclsfId === 'PDC000000000120';
 
-  const isComposition = newProduct.pdTpCd === 'C';
+  newProduct.lkSdingOjCntrRelRequired = isWellsFarmProduct;
+
+  const isComposition = newProduct.pdTpCd === PD_TP_CD.COMPOSITION;
 
   if (isComposition) {
     const alreadyExistComposition = !!step2.value.dtls.find((existed) => existed.hgrPdCd === product.pdCd);
@@ -189,7 +240,7 @@ async function onSelectProduct(product) {
     newProducts.push(newProduct);
   }
 
-  if (isWellsFarmProduct) {
+  if (isWellsFarmProduct && false) {
     // 정기배송 상품 조회 CASE1: 웰스팜/홈카페 상품을 선택하여 정기배송 패키지가 자동추가되는 경우
     const { data: packageProducts } = await dataService.get('sms/wells/contract/contracts/welsf-hcf-pkgs', {
       params: {
@@ -208,7 +259,7 @@ async function onSelectProduct(product) {
 
     const cntrRel = {
       cntrRelId: undefined,
-      cntrRelDtlCd: CNTR_REL_DTL_CD_LK_SDING, /* 모종결합 */
+      cntrRelDtlCd: CNTR_REL_DTL_CD.LK_SDING, /* 모종결합 */
       baseDtlCntrNo: cntrNo.value,
       baseDtlCntrSn: undefined,
       ojDtlCntrNo: cntrNo.value,
@@ -240,10 +291,22 @@ async function onSelectProduct(product) {
 async function onFetchedProduct(products) {
   // 계약유형 : 멤버십
   // 이미 선택된 상품이 없는 경우에만, 상품 자동 선택 처리
-  if (step2.value.bas?.cntrTpCd !== '07') {
+  if (step2.value.bas?.cntrTpCd !== CNTR_TP_CD.MEMBERSHIP) {
     return;
   }
   await onSelectProduct(products[0]);
+}
+
+function deleteDtlByKey(key) {
+  if (!key) {
+    warn(`삭제 키 확인 바랍니다. ${key}`);
+    return;
+  }
+  const removeDtlIndex = step2.value.dtls.findIndex((checkDtl) => {
+    const dtlKey = checkDtl.tempKey ?? checkDtl.cntrSn;
+    return key === dtlKey;
+  });
+  step2.value.dtls.splice(removeDtlIndex, 1);
 }
 
 async function onClickDelete(dtl) {
@@ -296,25 +359,20 @@ async function onClickDelete(dtl) {
     });
   }
 
-  removeKeys.forEach((key) => {
-    if (!key) {
-      warn(`삭제 키 확인 바랍니다. ${key}`);
-      return;
-    }
-    const removeDtlIndex = step2.value.dtls.findIndex((checkDtl) => {
-      const dtlKey = checkDtl.tempKey ?? checkDtl.cntrSn;
-      return key === dtlKey;
-    });
-    step2.value.dtls.splice(removeDtlIndex, 1);
-  });
+  removeKeys.forEach(deleteDtlByKey);
 
   emit('contract-modified');
 }
 
 async function onClickOnePlusOne(dtl) {
+  const { pdCd, basePdCd /* 안전장치 */ } = dtl;
+
   const { result, payload } = await modal({
     component: 'WwctaOnePlusOneContractListP',
-    componentProps: { baseDtlCntrNo: step2.value.bas.cntrNo },
+    componentProps: {
+      cntrNo: step2.value.bas.cntrNo,
+      pdCd: pdCd || basePdCd,
+    },
   });
   if (!result) {
     return;
@@ -323,7 +381,7 @@ async function onClickOnePlusOne(dtl) {
   dtl.cntrRels ??= [];
   dtl.cntrRels.push({
     cntrRelId: undefined,
-    cntrRelDtlCd: CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE,
+    cntrRelDtlCd: CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE,
     baseDtlCntrNo: cntrNo.value,
     baseDtlCntrSn: undefined,
     ojDtlCntrNo: payload.cntrNo,
@@ -337,8 +395,8 @@ async function onClickOnePlusOne(dtl) {
 
   dtl.priceOptionFilter = {
     ...dtl.priceOptionFilter,
-    rentalDscDvCd: '8',
-    rentalDscTpCd: '03',
+    rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+    rentalDscTpCd: RENTAL_DSC_TP_CD.ONE_PLUS_ONE,
   };
 }
 
@@ -347,11 +405,18 @@ async function onDeleteOnePlusOne(dtl) {
   if (!cntrRels?.length) {
     warn('계약관계가 상이합니다.');
   }
-  const onePlusOneRelIndex = cntrRels.findIndex((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE);
+  const onePlusOneRelIndex = cntrRels.findIndex((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);
   if (onePlusOneRelIndex < 0) {
     warn('1+1 관계가 없습니다.');
   }
   cntrRels.splice(onePlusOneRelIndex, 1);
+
+  if (dtl.priceOptionFilter?.rentalDscTpCd) {
+    dtl.priceOptionFilter.rentalDscTpCd = undefined;
+  }
+  if (dtl.priceOptionFilter.rentalDscDvCd) {
+    dtl.priceOptionFilter.rentalDscDvCd = undefined;
+  }
 }
 
 async function onClickDeviceChange(dtl) {
@@ -390,14 +455,14 @@ async function onClickDeviceChange(dtl) {
   if (payload.workFlag === '19') {
     dtl.priceOptionFilter = {
       ...dtl.priceOptionFilter,
-      rentalDscDvCd: '8',
-      rentalDscTpCd: '24',
+      rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+      rentalDscTpCd: RENTAL_DSC_TP_CD.STPL_5_YEAR_RE_RENTAL,
     };
   } else {
     dtl.priceOptionFilter = {
       ...dtl.priceOptionFilter,
       rentalDscDvCd: '8',
-      rentalDscTpCd: '02',
+      rentalDscTpCd: RENTAL_DSC_TP_CD.RE_RENTAL,
     };
   }
 }
@@ -418,14 +483,14 @@ async function onClickSelectMachine(dtl) {
   dtl.cntrRels ??= [];
 
   const existRelIndex = dtl.cntrRels
-    .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE));
+    .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE));
   if (existRelIndex > -1) {
     dtl.cntrRels.splice(existRelIndex, 1);
   }
 
   dtl.cntrRels.push({
     cntrRelId: undefined,
-    cntrRelDtlCd: CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE, /* 모종결합 */
+    cntrRelDtlCd: CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE, /* 모종결합 */
     baseDtlCntrNo: cntrNo.value,
     baseDtlCntrSn: undefined,
     ojDtlCntrNo: payload.cntrNo,
@@ -487,12 +552,12 @@ async function onPackaging(dtl, rentalDscTpCd) {
   selectedCntrDtls.forEach((cntrDtl) => {
     if (cntrDtl !== discountedCntrDtl) {
       cntrDtl.priceOptionFilter = {
-        rentalDscDvCd: '8', /* 일반 SORRY FOR HARD CODING. */
+        rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
         rentalDscTpCd: undefined,
       };
       const cntrRel = {
         cntrRelId: undefined,
-        cntrRelDtlCd: CNTR_REL_DTL_CD_LK_MLTCS_PRCHS,
+        cntrRelDtlCd: CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
         baseDtlCntrNo: cntrNo.value,
         baseDtlCntrSn: undefined,
         ojDtlCntrNo: cntrNo.value,
@@ -511,7 +576,7 @@ async function onPackaging(dtl, rentalDscTpCd) {
   });
 
   discountedCntrDtl.priceOptionFilter = {
-    rentalDscDvCd: '8', /* 일반 SORRY FOR HARD CODING. */
+    rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
     rentalDscTpCd,
   };
   discountedCntrDtl.ojCntrRels = ojCntrRels;
@@ -523,7 +588,7 @@ function onDeleteSelectMachine(dtl) {
     warn('계약관계가 상이합니다.');
   }
   const rglrShpBaseRelIndex = cntrRels
-    .findIndex((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE);
+    .findIndex((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE);
   if (rglrShpBaseRelIndex < 0) {
     warn('정기배송-원주문 관계가 없습니다.');
   }
@@ -560,14 +625,14 @@ async function onClickSelectPrecontract(dtl) {
   dtl.cntrRels ??= [];
 
   const existRelIndex = dtl.cntrRels
-    .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE));
+    .findIndex((cntrRel) => (cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE));
   if (existRelIndex > -1) {
     dtl.cntrRels.splice(existRelIndex, 1);
   }
 
   dtl.cntrRels.push({
     cntrRelId: undefined,
-    cntrRelDtlCd: CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE, /* 모종결합 */
+    cntrRelDtlCd: CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE, /* 모종결합 */
     baseDtlCntrNo: cntrNo.value,
     baseDtlCntrSn: undefined,
     ojDtlCntrNo: payload.cntrNo,
@@ -578,6 +643,55 @@ async function onClickSelectPrecontract(dtl) {
     },
     ojBasePdBas: { ...payload }, /* 기기 선택 해야함. */
   });
+}
+
+async function onChangeWellsFarmPackage(dtl) {
+  const { result, payload: newPackageProduct } = await modal({
+    component: 'WwctaWellsFarmPackageProductSelectP',
+    componentProps: {
+      cntrNo: cntrNo.value,
+      pdCd: dtl.pdCd,
+    },
+  });
+
+  if (!result) { return; }
+
+  setTempKey(newPackageProduct);
+
+  if (dtl.ojCntrRels?.length) {
+    dtl.ojCntrRels.forEach((cntrRel) => {
+      const { baseDtlCntrNo, baseDtlCntrSn, baseTempKey } = cntrRel;
+      if (baseDtlCntrNo !== cntrNo.value) {
+        return;
+      }
+      const removeKey = baseTempKey ?? baseDtlCntrSn;
+      deleteDtlByKey(removeKey);
+    });
+  }
+
+  const cntrRel = {
+    cntrRelId: undefined,
+    cntrRelDtlCd: CNTR_REL_DTL_CD.LK_SDING, /* 모종결합 */
+    baseDtlCntrNo: cntrNo.value,
+    baseDtlCntrSn: undefined,
+    ojDtlCntrNo: cntrNo.value,
+    ojDtlCntrSn: undefined,
+    basePdBas: {
+      pdCd: newPackageProduct.pdCd,
+      pdNm: newPackageProduct.pdNm,
+    },
+    baseTempKey: newPackageProduct.tempKey,
+    ojTempKey: dtl.tempKey,
+    ojBasePdBas: { ...dtl },
+  };
+
+  newPackageProduct.cntrRels = [cntrRel];
+  dtl.ojCntrRels ??= [];
+  dtl.ojCntrRels.push(cntrRel);
+  const dtlIndex = step2.value.dtls.indexOf(dtl);
+  step2.value.dtls.splice(dtlIndex + 1, 0, newPackageProduct);
+
+  emit('contract-modified');
 }
 
 async function getCntrInfo() {
@@ -611,17 +725,23 @@ async function getCntrInfo() {
 }
 
 async function confirmProducts() {
-  if (step2.value.dtls.find((dtl) => !dtl.pdPrcFnlDtlId)) {
+  const { dtls } = step2.value;
+  if (dtls.length === 0) {
+    await alert('상품을 선택해주세요.');
+    return false;
+  }
+
+  if (dtls.find((dtl) => !dtl.pdPrcFnlDtlId)) {
     notify('상품 가격을 확인해주세요');
     return;
   }
 
-  step2.value.dtls.forEach((dtl) => {
+  dtls.forEach((dtl) => {
     dtl.basePdCd = dtl.pdCd;
   });
-  const { data } = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, step2.value.dtls);
+  const { data } = await dataService.post(`sms/wells/contract/contracts/confirm-products/${cntrNo.value}`, dtls);
   data.forEach((newDtl, index) => {
-    step2.value.dtls[index].promotions = newDtl.promotions;
+    dtls[index].promotions = newDtl.promotions;
   });
   return true;
 }
@@ -630,41 +750,81 @@ async function isChangedStep() {
   return step2.value.bas.cntrPrgsStatCd < 12 || JSON.stringify(ogStep2.value) !== JSON.stringify(step2.value);
 }
 
+function validateCntrDtl(dtl) {
+  if (!dtl.pdPrcFnlDtlId) {
+    alert('상품 금액을 확인해주세요.');
+    return false;
+  }
+
+  const {
+    sellTpDtlCd,
+    cntrRels = [],
+    ojCntrRels = [],
+    finalPrice,
+    precontractRequired,
+    lkSdingOjCntrRelRequired,
+    hgrPdCd,
+    appliedPromotions,
+    alncCntrNms,
+    sdingCapsls,
+  } = dtl;
+  const { alncPmotEuYn } = finalPrice; // 제휴프로모션적용여부
+
+  if (alncPmotEuYn === 'Y' // 제휴프로모션적용여부가 'Y' 인데,
+    && !hgrPdCd // 복합상품이 아니고
+    && !appliedPromotions?.length // 프로모션도 없고,
+    && !alncCntrNms?.length // 라이프(상조)제휴도 없는경우
+  ) {
+    alert('제휴 프로모션 전용가격입니다.');
+    return false;
+  }
+  if (sellTpDtlCd === SELL_TP_DTL_CD.RGLR_SPP_SDING) { /* 모종의 경우 */
+    const lkSdingRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING);
+    const baseMachineRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE);
+    if (!lkSdingRel && !baseMachineRel) {
+      alert('정기배송 대상 기기를 선택해주세요.');
+      return false;
+    }
+
+    if (!sdingCapsls?.length) {
+      alert('구성 제품을 선택해주세요.');
+      return false;
+    }
+  }
+
+  if (sellTpDtlCd === SELL_TP_DTL_CD.RGLR_SPP_CAPSL) {
+    if (!sdingCapsls?.length) {
+      alert('구성 제품을 선택해주세요.');
+      return false;
+    }
+  }
+
+  if (precontractRequired) {
+    const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);
+    if (!onePlusOneRel) {
+      alert('연계 계약을 선택해주세요.');
+      return false;
+    }
+  }
+
+  if (lkSdingOjCntrRelRequired) {
+    const lkSdingOjCntrRel = ojCntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING);
+    if (!lkSdingOjCntrRel) {
+      alert('패키지 모종 상품을 선택해주세요.');
+      return false;
+    }
+  }
+
+  return true;
+}
+
 async function isValidStep() {
   const { dtls } = step2.value;
   if (dtls.length === 0) {
     await alert('상품을 선택해주세요.');
     return false;
   }
-  const invalid = dtls.find((dtl) => {
-    if (!dtl.pdPrcFnlDtlId) {
-      alert('상품 금액을 확인해주세요.');
-      return true;
-    }
-
-    const { sellTpDtlCd, cntrRels = [] } = dtl;
-
-    if (sellTpDtlCd === '62') { /* 모종의 경우 */
-      const lkSdingRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_SDING);
-      const baseMachineRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_RGLR_SHP_BASE);
-      if (!lkSdingRel && !baseMachineRel) {
-        alert('정기배송 대상 기기를 선택해주세요.');
-        return true;
-      }
-    }
-
-    const { sellDscTpCd } = dtl;
-
-    if (sellDscTpCd === '03') {
-      const onePlusOneRel = cntrRels.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE);
-      if (!onePlusOneRel) {
-        alert('1+1 대상 계약을 선택해주세요.');
-        return true;
-      }
-    }
-
-    return false;
-  });
+  const invalid = dtls.find((dtl) => !validateCntrDtl(dtl));
 
   return !invalid;
 }

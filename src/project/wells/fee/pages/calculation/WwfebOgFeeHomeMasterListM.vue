@@ -86,7 +86,7 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <h3>{{ searchParams.statTitleText }}</h3>
+          <h3>{{ statTitleText }}</h3>
         </template>
       </kw-action-top>
       <!-- STEPER -->
@@ -186,13 +186,11 @@ const searchParams = ref({
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   feeTcntDvCd: '01',
   rsbTpCd: 'W0302',
-  rsbTpTxt: '',
   prtnrNo: '',
   ogLevl2Id: '',
   ogLevl3Id: '',
   prtnrKnm: '',
   ogTpCd: 'W03',
-  statTitleText: t('MSG_TXT_PRGS_STE'),
   feeSchdTpCd: '301',
   coCd: '2000',
   unitCd: 'W301',
@@ -211,6 +209,18 @@ const saveInfo = ref({
   ogTpCd: 'W03',
   appKey: '',
   unitCd: 'W301',
+});
+
+const statTitleText = computed(() => {
+  const { perfYm, rsbTpCd } = searchParams.value;
+  let titleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
+  if (rsbTpCd !== '') {
+    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTpCd);
+    titleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
+  } else {
+    titleText += ` ${t('MSG_TXT_PRGS_STE')}`;
+  }
+  return titleText;
 });
 
 let cachedParams;
@@ -239,22 +249,6 @@ async function onClickSearchNo() {
 }
 
 /*
- *  Event - 조회 후 상단 title 변경
- */
-async function setTitle() {
-  const { perfYm, rsbTpCd } = searchParams.value;
-  searchParams.value.statTitleText = `${perfYm.substring(0, 4) + t('MSG_TXT_YEAR')} ${perfYm.substring(4, 6)}${t('MSG_TXT_MON')}`;
-  if (rsbTpCd !== '') {
-    const { codeName } = codes.RSB_DV_CD.find((v) => v.codeId === rsbTpCd);
-    searchParams.value.rsbTpTxt = codeName;
-    searchParams.value.statTitleText += ` ${codeName} ${t('MSG_TXT_PRGS_STE')}`;
-  } else {
-    searchParams.value.rsbTpTxt = '';
-    searchParams.value.statTitleText += ` ${t('MSG_TXT_PRGS_STE')}`;
-  }
-}
-
-/*
  *  Event - 그리드 내역 초기화
  */
 
@@ -263,7 +257,6 @@ async function initData() {
   view.clearRows();
   totalCount.value = 0;
   stepNaviRef.value.initProps();
-  await setTitle();
 }
 
 /*

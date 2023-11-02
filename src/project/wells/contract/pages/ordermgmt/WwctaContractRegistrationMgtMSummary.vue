@@ -61,7 +61,7 @@
                   <span>{{ summary.customer?.cstKnm }}</span>
                 </li>
                 <li>
-                  <p>판매유입채널</p>
+                  <p>판매채널</p>
                   <span>{{ getCodeName('SELL_CHNL_DTL_CD', summary.cntrBas?.sellInflwChnlDtlCd) }}</span>
                 </li>
               </ul>
@@ -72,13 +72,20 @@
           >
             <div class="like-vertical-stepper__step-content">
               <ul class="card-text">
-                <li
+                <template
                   v-for="(pd, i) in summary.cntrDtls"
                   :key="i"
                 >
-                  <p>{{ pd.pdNm }}</p>
-                  <p>{{ pd.fnlAmt ?? '0' }}</p>
-                </li>
+                  <li>
+                    <p>상품영</p>
+                    <span>{{ pd.cstBasePdAbbrNm || pd.pdNm || '' }}</span>
+                  </li>
+                  <li>
+                    <p>판매유형</p>
+                    <span v-if="pd.sellTpCd">{{ getCodeName('SELL_TP_CD', pd.sellTpCd) }}</span>
+                    <span v-if="pd.sellTpDtlCd"> - {{ getCodeName('SELL_TP_DTL_CD', pd.sellTpDtlCd) }}</span>
+                  </li>
+                </template>
               </ul>
             </div>
           </template>
@@ -152,6 +159,8 @@ const props = defineProps({
 
 const { getCodeName } = await useCtCode(
   'CNTR_TP_CD',
+  'SELL_TP_CD',
+  'SELL_TP_DTL_CD',
   'SELL_CHNL_DTL_CD',
   'RVE_DV_CD',
   'DP_TP_CD',
@@ -201,11 +210,11 @@ const totalSpayAmt = computed(() => {
     return 0;
   }
   return cntrDtls.reduce((sum, cntrDtl) => {
-    const { finalPrice, rglrSppPrmMcn } = cntrDtl;
+    const { finalPrice, rglrSppPrmMcn, appliedPromotions } = cntrDtl;
     let added;
     if (finalPrice) {
       const pdBas = { rglrSppPrmMcn };
-      added = getSpayAmt(pdBas, finalPrice);
+      added = getSpayAmt(pdBas, finalPrice, appliedPromotions);
     } else {
       added = getSpayAmtByCntrDtl(cntrDtl);
     }
@@ -219,10 +228,10 @@ const totalAftnAmt = computed(() => {
     return 0;
   }
   return cntrDtls.reduce((sum, cntrDtl) => {
-    const { finalPrice } = cntrDtl;
+    const { finalPrice, appliedPromotions } = cntrDtl;
     let added;
     if (finalPrice) {
-      added = getAftnAmt(finalPrice);
+      added = getAftnAmt(finalPrice, appliedPromotions);
     } else {
       added = getAftnAmtByCntrDtl(cntrDtl);
     }

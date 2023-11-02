@@ -74,7 +74,12 @@
     <div class="result-area">
       <kw-action-top>
         <template #left>
-          <kw-paging-info :total-count="pageInfo.totalCount" />
+          <kw-paging-info
+            v-model:page-size="visibleRows"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="onClickChangePage"
+          />
         </template>
         <kw-btn
           v-permission:create
@@ -160,7 +165,7 @@
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :visible-rows="(pageInfo.totalCount === 0) ? '10' : pageInfo.pageSize - 1"
+        :visible-rows="visibleRows"
         @init="initGrdMain"
       />
     </div>
@@ -182,7 +187,7 @@ const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
-const { getUserInfo, hasRoleNickName } = useMeta();
+const { getConfig, getUserInfo, hasRoleNickName } = useMeta();
 const { wkOjOgTpCd, ogTpCd } = getUserInfo();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -191,13 +196,14 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: 20,
+  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 const codes = await codeUtil.getMultiCodes(
   'RSB_DV_CD', // 직책
   'WK_GRP_CD', // 작업그룹
   'WKCR_CD', // 조
+  'COD_PAGE_SIZE_OPTIONS',
 );
 
 const searchParams = ref({
@@ -220,16 +226,27 @@ const saveParams = ref({
   chk: false,
 });
 
-const headOffice = hasRoleNickName('ROL_W1010') ? 'Y' : 'N'; /* 본사스텝 */
+const visibleRows = ref(10);
+
+const headOffice = (ogTpCd === 'HR1') ? 'Y' : 'N'; /* 본사스텝 */
 const siteManager = (hasRoleNickName('ROL_W6010') || hasRoleNickName('ROL_W6020')) ? 'Y' : 'N'; /* 현장관리자(센터장, 매니저) */
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/partner-engineer/joe-management/paging', { params: { ...searchParams.value, ...pageInfo.value } });
+  return await dataService.get('/sms/wells/partner-engineer/joe-management/paging', { params: { ...searchParams.value, ...pageInfo.value } });
+}
+
+// 조회
+async function onClickSearch() {
+  grdMainRef.value.getData().clearRows();
+  pageInfo.value.pageIndex = 1;
+  pageInfo.value.pageSize = visibleRows.value;
+  pageInfo.value.pageSize += 1;
+  saveParams.value.chk = false;
+  const res = await fetchData();
   const { list, pageInfo: pagingResult } = res.data;
-
   pageInfo.value = pagingResult;
-
+  visibleRows.value = pageInfo.value.pageSize - 1;
   const view = grdMainRef.value.getView();
 
   if (siteManager === 'Y') {
@@ -246,16 +263,8 @@ async function fetchData() {
 
   const data = view.getDataSource();
   data.checkRowStates(false);
-  data.addRows(list);
+  data.setRows(list);
   data.checkRowStates(true);
-}
-
-// 조회
-async function onClickSearch() {
-  grdMainRef.value.getData().clearRows();
-  pageInfo.value.pageIndex = 1;
-  saveParams.value.chk = false;
-  await fetchData();
 }
 
 // 엑셀다운로드
@@ -382,6 +391,12 @@ async function onClickSave() {
   await onClickSearch();
 }
 
+function onClickChangePage(val1, val2) {
+  visibleRows.value = val2;
+  pageInfo.value.pageSize = visibleRows.value;
+  onClickSearch();
+}
+
 watch(() => saveParams.value.chk, async (newVal) => {
   if (newVal) {
     const view = grdMainRef.value.getView();
@@ -495,7 +510,15 @@ const initGrdMain = defineGrid((data, view) => {
   view.onScrollToBottom = async (g) => {
     if (pageInfo.value.pageIndex * pageInfo.value.pageSize <= g.getItemCount()) {
       pageInfo.value.pageIndex += 1;
-      await fetchData();
+      pageInfo.value.pageSize = visibleRows.value;
+      pageInfo.value.pageSize += 1;
+      const res = await fetchData();
+      const { pageInfo: pagingResult } = res.data;
+      pageInfo.value = pagingResult;
+      visibleRows.value = pageInfo.value.pageSize - 1;
+      data.checkRowStates(false);
+      data.addRows(res.data.list);
+      data.checkRowStates(true);
     }
   };
 

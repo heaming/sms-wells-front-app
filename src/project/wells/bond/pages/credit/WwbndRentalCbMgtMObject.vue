@@ -104,14 +104,12 @@
       v-show="isCustomer"
       ref="grdCustomerRef"
       name="grdCustomer"
-      :visible-rows="10"
       @init="initCustomerGrid"
     />
     <kw-grid
       v-show="!isCustomer"
       ref="grdContractRef"
       name="grdContract"
-      :visible-rows="10"
       @init="initContractGrid"
     />
   </div>
@@ -246,16 +244,16 @@ async function onClickExcelDownload() {
 // -------------------------------------------------------------------------------------------------
 const initCustomerGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '160', styleName: 'text-center' },
-    { fieldName: 'notyRcvYn', header: t('MSG_TXT_NOTAK_SEND_REG_YN'), width: '160', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '160', styleName: 'text-center' },
-    { fieldName: 'copnDvNm', header: t('MSG_TXT_INDI_CORP'), width: '160', styleName: 'text-center' },
-    { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '160', styleName: 'text-center' },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '160', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '160', styleName: 'text-right !important, rg-button-link', renderer: { type: 'button' }, dataType: 'number' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '160', styleName: 'text-center' },
-    { fieldName: 'dsphTno', header: t('MSG_TXT_DSPH_NO'), width: '160', styleName: 'text-center' },
-    { fieldName: 'rgstSchDt', header: t('MSG_TXT_RGST_SCHD_DT'), width: '172', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '160', styleName: 'text-center' }, // 고객번호
+    { fieldName: 'notyRcvYn', header: t('MSG_TXT_NOTAK_SEND_REG_YN'), width: '160', styleName: 'text-center' }, // 알림톡수신등록여부
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '160', styleName: 'text-center' }, // 고객명
+    { fieldName: 'copnDvNm', header: t('MSG_TXT_INDI_CORP'), width: '160', styleName: 'text-center' }, // 개인/법인
+    { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '160', styleName: 'text-center' }, // 휴대전화번호
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '160', styleName: 'text-right', dataType: 'number' }, // 연체금액
+    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '160', styleName: 'text-right !important, rg-button-link', renderer: { type: 'button' }, dataType: 'number' }, // 연체잔액
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '160', styleName: 'text-center' }, // 집금담당자
+    { fieldName: 'dsphTno', header: t('MSG_TXT_DSPH_NO'), width: '160', styleName: 'text-center' }, // 발신번호
+    { fieldName: 'rgstSchDt', header: t('MSG_TXT_RGST_SCHD_DT'), width: '172', styleName: 'text-center', datetimeFormat: 'date' }, // 등록예정일자
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -281,21 +279,21 @@ const initCustomerGrid = defineGrid((data, view) => {
 
 const initContractGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '145', styleName: 'text-center' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' },
-    { fieldName: 'copnDvNm', header: t('MSG_TXT_INDI_CORP'), width: '130', styleName: 'text-center' },
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '130', styleName: 'text-center' },
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PDCT'), width: '130' },
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_AUTO_FNT_STPL_DT'), width: '150', styleName: 'text-center' },
-    { fieldName: 'fntDvNm', header: t('MSG_TXT_STLM_MES'), width: '130', styleName: 'text-center' },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '130', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '130', styleName: 'text-center' },
-    { fieldName: 'dsphTno', header: t('MSG_TXT_DSPH_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'rgstSchDt', header: t('MSG_TXT_RGST_SCHD_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '145', styleName: 'text-center' }, // 고객번호
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' }, // 계약번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
+    { fieldName: 'copnDvNm', header: t('MSG_TXT_INDI_CORP'), width: '130', styleName: 'text-center' }, // 개인/법인
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '130', styleName: 'text-center' }, // 상품구분
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PRDT_NM'), width: '130' }, // 상품명
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일자
+    { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '130', styleName: 'text-center' }, // 휴대전화번호
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_AUTO_FNT_STPL_DT'), width: '150', styleName: 'text-center' }, // 자동이체 약정일자
+    { fieldName: 'fntDvNm', header: t('MSG_TXT_STLM_MES'), width: '130', styleName: 'text-center' }, // 결제수단
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', styleName: 'text-right', dataType: 'number' }, // 연체금액
+    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '130', styleName: 'text-right', dataType: 'number' }, // 연체잔액
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '130', styleName: 'text-center' }, // 집금담당자
+    { fieldName: 'dsphTno', header: t('MSG_TXT_DSPH_NO'), width: '130', styleName: 'text-center' }, // 발신번호
+    { fieldName: 'rgstSchDt', header: t('MSG_TXT_RGST_SCHD_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 등록예정일자
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   data.setFields(fields);

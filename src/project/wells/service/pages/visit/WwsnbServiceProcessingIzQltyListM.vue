@@ -189,8 +189,8 @@ const dataService = useDataService();
 
 const serviceTypes = [
   { codeId: '1', codeName: '설치' },
-  { codeId: '2', codeName: 'A/S' },
-  { codeId: '3', codeName: '홈케어' },
+  { codeId: '3', codeName: 'A/S' },
+  { codeId: '4', codeName: '홈케어' },
   { codeId: '9', codeName: '홈쇼핑설치만' },
 ];
 

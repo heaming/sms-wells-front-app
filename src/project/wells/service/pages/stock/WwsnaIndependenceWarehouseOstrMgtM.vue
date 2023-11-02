@@ -197,6 +197,21 @@
           :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <!-- 이관 데이터 다운 -->
+        <kw-btn
+          v-permission:download
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_TF_DTA_DOWN')"
+          :disable="isSearch"
+          @click="onClickTfDataDown"
+        />
         <!-- 물류이관 -->
         <kw-btn
           v-permission:update
@@ -214,6 +229,12 @@
         :visible-rows="30"
         :total-count="totalCount"
         @init="initGrdMain"
+      />
+      <kw-grid
+        ref="grdTfRef"
+        name="grdTf"
+        hidden="true"
+        @init="initGrdTf"
       />
     </div>
   </kw-page>
@@ -237,6 +258,7 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+const grdTfRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
@@ -473,6 +495,59 @@ async function onClickSave() {
   }
 }
 
+// 이관 데이터 다운
+async function onClickTfDataDown() {
+  const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
+
+  if (isEmpty(apyYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_BASE_YM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(asnOjYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ASN_YM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(cnt)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(ostrWareNo)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_OSTR_WARE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  // 데이터 조회
+  const res = await dataService.get('/sms/wells/service/independence-ware-ostrs/transfer-data-download', { params: searchParams.value, timeout: 300000 });
+
+  // 데이터가 없는 경우 메시지 처리
+  if (isEmpty(res.data)) {
+    // 적용 대상 데이터가 없습니다.
+    notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
+    return;
+  }
+
+  const view = grdTfRef.value.getView();
+
+  // 엑셀파일명
+  const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
+  // 파일명, {배정년월} {회차} 독립창고 물류 이관
+  const fileName = `${msg}${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_TXT_INDP_WARE')} ${t('MSG_TXT_LGST')} ${t('MSG_TXT_TF')}`;
+
+  gridUtil.exportView(view, {
+    fileName,
+    timePostfix: true,
+    searchCondition: false,
+    exportData: res.data,
+  });
+}
+
 // 물류이관
 async function onClickLgstTrs() {
   const { asnOjYm, cnt, ostrWareNo } = searchParams.value;
@@ -574,6 +649,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'outBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
     { fieldName: 'outQty',
       header: t('MSG_TXT_OSTR_QTY'),
+      width: '110',
       rules: 'required|min_value:0|max_value:999999999999',
       styleName: 'text-right',
       editor: {
@@ -582,6 +658,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_NOTE'),
+      width: '240',
       styleName: 'text-left',
       rules: 'max:4000',
       editor: {
@@ -645,4 +722,71 @@ const initGrdMain = defineGrid((data, view) => {
     colCount: 6,
   });
 });
+
+const initGrdTf = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'strWareNo' }, // 입고창고번호
+    { fieldName: 'wareNm' }, // 창고명
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'pdAbbrNm' }, // 품목명
+    { fieldName: 'mngtUnitNm' }, // 관리단위명
+    { fieldName: 'matGdCd' }, // 등급
+    { fieldName: 'logisticStocQty', dataType: 'number' }, // 상위재고
+    { fieldName: 'ostrAggQty', dataType: 'number' }, // 출고누계수량
+    { fieldName: 'boxUnitQty', dataType: 'number' }, // BOX단위수량
+    { fieldName: 'crtlStocQty', dataType: 'number' }, // 재고수량
+    { fieldName: 'useQty', dataType: 'number' }, // 소요수량
+    { fieldName: 'cnfmQty', dataType: 'number' }, // 물량배정확정-수량
+    { fieldName: 'cnfmBoxQty', dataType: 'number' }, // 물량배정확정-BOX
+    { fieldName: 'mcbyAcuOstrQty', dataType: 'number' }, // 물량배정출고-누계
+    { fieldName: 'mcbyAcuOstrBoxQty', dataType: 'number' }, // 물량배정출고-BOX
+    { fieldName: 'outQty', dataType: 'number' }, // 출고수량
+    { fieldName: 'outBoxQty', dataType: 'number' }, // 출고BOX수량
+    { fieldName: 'rmkCn' }, // 비고
+  ];
+
+  const columns = [
+    { fieldName: 'strWareNo', header: t('MSG_TXT_WARE_NO'), width: '80', styleName: 'text-center' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left' },
+    { fieldName: 'mngtUnitNm', header: t('MSG_TXT_MNGT_UNIT'), width: '80', styleName: 'text-center' },
+    { fieldName: 'matGdCd', header: t('MSG_TXT_GD'), width: '80', styleName: 'text-center' },
+    { fieldName: 'logisticStocQty', header: t('MSG_TXT_HGR_STOC'), width: '100', styleName: 'text-right' },
+    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'boxUnitQty', header: t('MSG_TXT_UNIT_QTY'), width: '130', styleName: 'text-right' },
+    { fieldName: 'crtlStocQty', header: t('MSG_TXT_STOC_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'useQty', header: t('MSG_TXT_NED_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'cnfmQty', header: t('MSG_TXT_QTY'), width: '84', styleName: 'text-right' },
+    { fieldName: 'cnfmBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
+    { fieldName: 'mcbyAcuOstrQty', header: t('MSG_TXT_AGGS'), width: '84', styleName: 'text-right' },
+    { fieldName: 'mcbyAcuOstrBoxQty', header: t('MSG_TXT_BOX'), width: '84', styleName: 'text-right' },
+    { fieldName: 'outBoxQty', header: t('MSG_TXT_FILT_BOX_QTY'), width: '130', styleName: 'text-right' },
+    { fieldName: 'outQty', header: t('MSG_TXT_OSTR_QTY'), width: '110', styleName: 'text-right' },
+    { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '240', styleName: 'text-left' },
+  ];
+
+  data.setFields(fields);
+  view.setColumns(columns);
+  view.setColumnLayout([
+    'strWareNo', 'wareNm', 'sapMatCd', 'itmPdCd', 'pdAbbrNm', 'mngtUnitNm', 'matGdCd',
+    'logisticStocQty', 'ostrAggQty', 'boxUnitQty', 'crtlStocQty', 'useQty',
+    {
+      header: t('MSG_TXT_QOM_ASN_CNFM'), // 물량배정확정 // colspan title
+      direction: 'horizontal', // merge type
+      items: ['cnfmQty', 'cnfmBoxQty'],
+    },
+    {
+      header: t('MSG_TXT_QOM_ASN_OSTR'), // 물량배정출고
+      direction: 'horizontal',
+      items: ['mcbyAcuOstrQty', 'mcbyAcuOstrBoxQty'],
+    },
+    'outBoxQty', 'outQty', 'rmkCn',
+  ]);
+
+  view.rowIndicator.visible = true;
+});
+
 </script>

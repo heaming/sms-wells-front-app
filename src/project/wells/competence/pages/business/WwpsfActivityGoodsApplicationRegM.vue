@@ -311,7 +311,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mpno' },
     { fieldName: 'col7' },
     { fieldName: 'actiGdsSn' },
-    { fieldName: 'actiGdsNm' },
+    { fieldName: 'actiGdsSetCd' },
     { fieldName: 'aplcQty' },
     { fieldName: 'actiGdsAplcStatCd' },
     { fieldName: 'maxFeeDdtnOcDt' },
@@ -394,7 +394,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'startYrmn', header: t('MSG_TXT_OPNG_YM'), width: '80', styleName: 'text-center', editable: false },
     { fieldName: 'baseDvNm', header: t('MSG_TXT_DIV'), width: '80', styleName: 'text-center', editable: false },
-    { fieldName: 'actiGdsSn',
+    { fieldName: 'actiGdsSetCd',
       header: t('MSG_TXT_CODE'),
       width: '150',
       styleName: 'text-center',
@@ -543,7 +543,7 @@ const initGrdMain = defineGrid((data, view) => {
     {
       header: t('MSG_TXT_APLC_INF'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['actiGdsSn', 'aplcQty', 'actiGdsStddCd'],
+      items: ['actiGdsSetCd', 'aplcQty', 'actiGdsStddCd'],
     },
     {
       header: t('MSG_TXT_DDTN_INF'), // colspan title
@@ -555,10 +555,13 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.onCellEdited = (grid, itemIndex) => {
     const { fieldName } = grid.getCurrent();
-    if (fieldName === 'actiGdsSn') {
-      const { actiGdsSn } = grid.getValues(itemIndex);
-      const codeData = actiGdsSns.value.filter((v) => [actiGdsSn].includes(v.codeId));
-      grid.setValue(itemIndex, 'actiGdsCd', codeData[0].prtsCodeId);
+    if (fieldName === 'actiGdsSetCd') {
+      const { actiGdsSetCd } = grid.getValues(itemIndex);
+      const codeData = actiGdsSns.value.filter((v) => [actiGdsSetCd].includes(v.codeId));
+      const actiGdsSetCdData = codeData[0].codeId.split('-');
+      grid.setValue(itemIndex, 'ogTpCd', actiGdsSetCdData[0]);
+      grid.setValue(itemIndex, 'actiGdsCd', actiGdsSetCdData[1]);
+      grid.setValue(itemIndex, 'actiGdsSn', actiGdsSetCdData[2]);
       grid.setValue(itemIndex, 'actiGdsStddDvId', codeData[0].actiGdsStddDvId);
     }
   };

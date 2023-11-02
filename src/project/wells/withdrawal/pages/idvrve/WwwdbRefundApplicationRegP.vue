@@ -108,6 +108,7 @@
             :rules="isValidate"
             @click-icon="onClickCstSearch"
           />
+          <!-- 고객번호 -->
           <!-- :rules="(isEmpty(searchParams.acnoEncr) && isEmpty(searchParams.crdcdNo))
               && !searchParams.cntrNo ? 'date_range_required':''"
             :custom-messages="t('계약번호 또는 고객번호를 입력 후 조회해 주시기 바랍니다.')" -->
@@ -151,14 +152,14 @@
       :visible-rows="5"
       @init="initGrid"
     />
-
+    <!--
     <ul class="kw-notification mt20">
       <li>
-        <!-- 환불가능금액 = 입금액-월납입금-연체가산금-위약금-서비스금액 -->
+        환불가능금액 = 입금액-월납입금-연체가산금-위약금-서비스금액
         {{ $t('MSG_TXT_NOTI_REFUND_AMT') }}
       </li>
     </ul>
-
+    -->
     <h3 class="mb20">
       <!-- 환불상세 -->
       {{ $t('MSG_TXT_RFND_DTL') }}
@@ -427,7 +428,10 @@ const pageInfo3 = ref({ // 전금상세 페이지
 });
 
 const customCode = {
-  encr: [{ codeId: '01', codeName: '카드번호' }, { codeId: '02', codeName: '계좌번호' }],
+  encr: [
+    { codeId: '01', codeName: t('MSG_TXT_CARD_NO') }, // 카드번호
+    { codeId: '02', codeName: t('MSG_TXT_AC_NO') }, // 계좌번호
+  ],
 };
 
 const searchParams = ref({
@@ -476,9 +480,7 @@ let cachedParams;
 let rgstStatCd = false; // 검색조건용 disable 처리
 const isDisableCheck = ref(true); // 버튼용 disable 처리
 
-// eslint-disable-next-line no-unused-vars
 const totRfndAkAmt = ref(0); // totalCount - 환불
-// eslint-disable-next-line no-unused-vars
 const totBltfAkAmt = ref(0); // totalCount - 전금
 
 // -------------------------------------------------------------------------------------------------
@@ -528,7 +530,6 @@ async function fetchData2() {
 
   const res1 = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/paging', { params: { ...propsData } });
 
-  // eslint-disable-next-line max-len
   const res = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/reg/refund', { params: { ...propsData } });
   saveParams.value.arfndYn = res.data.arfndYn;
   saveParams.value.bankCode = res.data.cshRfndFnitCd;
@@ -574,6 +575,7 @@ async function fetchData2() {
   });
 }
 
+// 조회 버튼
 async function onClickSearch() {
   if (rgstStatCd) {
     return;
@@ -634,7 +636,8 @@ const isValidate = computed(() => async () => {
 
   if ((isEmpty(searchParams.value.acnoEncr) && isEmpty(searchParams.value.crdcdNo))
             && (!searchParams.value.cstNo && !searchParams.value.cntrNo)) {
-    errors.push(t('계약상세번호, 고객번호 중 1가지항목 입력 후 조회 가능합니다.'));
+    errors.push(t('MSG_TXT_SEARCHABLE_2IN1'));
+    // 계약상세번호, 고객번호 중 1가지항목 입력 후 조회 가능합니다.
   }
 
   return errors[0] || true;
@@ -644,7 +647,7 @@ const isValidate = computed(() => async () => {
 async function onClickExcel3() {
   const view = grdPopRef3.value.getView();
   await gridUtil.exportView(view, {
-    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_BLTF_DTL')}`,
+    fileName: `${currentRoute.value.meta.menuName}_${t('MSG_TXT_BLTF_DTL')}`, // _전금 상세
     timePostfix: true,
   });
 }
@@ -669,6 +672,10 @@ onMounted(async () => {
     rgstStatCd = true;
     await fetchData2();
   }
+
+  if (!isEmpty(props.cntrNo) && !isEmpty(props.cntrSn)) {
+    await onClickSearch();
+  }
 });
 
 // 하단 삭제
@@ -677,7 +684,7 @@ async function onClickDelete() {
     rfndAkNo: props.rfndAkNo,
   };
   await dataService.delete('/sms/wells/withdrawal/idvrve/refund-applications/reg/delete', { params: removeReq });
-  notify(t('MSG_ALT_DELETED'));
+  notify(t('MSG_ALT_DELETED')); // 삭제 되었습니다.
   ok();
 }
 
@@ -809,7 +816,7 @@ async function onClickRefundAsk(stateCode) {
 
   if (!await cntrValidateView3()) {
     // 계약번호 - 전금계약번호가 동일하거나 , 전금계약상 데이터에 전금계약번호가 동일한경우.
-    notify(t('동일한 전금계약번호가 존재합니다.'));
+    notify(t('MSG_ALT_DUPLICATE_VALUE_EXISTS', [t('MSG_TXT_BLTF') + t('MSG_TXT_CNTR_NO')])); // 동일한 전금계약번호가 존재합니다.
     return false;
   }
   if (pageInfo1.value.totalCount < 1) {
@@ -833,7 +840,7 @@ async function onClickRefundAsk(stateCode) {
   });
 
   if (errorCount > 0) {
-    alert('제3자 회원의 경우 첨부파일(은) 필수입니다.');
+    alert(t('MSG_ALT_CHR3_MB_APN_FILE_MNDT')); // 제3자 회원의 경우 첨부파일은 필수입니다.
     return false;
   }
 
@@ -872,7 +879,7 @@ async function onClickRefundAsk(stateCode) {
   };
 
   await dataService.post('/sms/wells/withdrawal/idvrve/refund-applications/reg/save', params);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
   ok();
 }
 
@@ -1048,8 +1055,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'mmIstmAmt', dataType: 'number' }, /* 월납입금 */
     { fieldName: 'dlqAddAmt', dataType: 'number' }, /* 연체가산금 */
     { fieldName: 'borAmt', dataType: 'number' }, /* 위약금액(지불액) */
-    { fieldName: 'pdCd' },
-    { fieldName: 'pdNm' },
+    { fieldName: 'pdCd' }, /* 상품코드 */
+    { fieldName: 'pdNm' }, /* 상품명 */
     { fieldName: 'svAmt', dataType: 'number' }, /* 서비스 금액  */
     { fieldName: 'sellAmt', dataType: 'number' },
     { fieldName: 'cntrStartDay' }, // 검색조건 년월일
@@ -1159,7 +1166,7 @@ const initGrid = defineGrid((data, view) => {
     const grdRef3 = grdPopRef3.value.getView();
     if (checkState === true) {
       if (Number(rfndPsbAmt) < 1) {
-        alert('환불가능금액이 없습니다.');
+        alert(t('MSG_ALT_RFND_PSB_AMT_NEX')); // 환불가능금액이 없습니다.
         view.checkItem(itemIndex, false);
         return;
       }
@@ -1208,10 +1215,10 @@ const initGrid = defineGrid((data, view) => {
 /* 환불상세 그리드 */
 const initGrid2 = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'cntrDtlNo' },
-    { fieldName: 'dpDt', dataType: 'date' },
+    { fieldName: 'cntrNo' }, /* 계약번호 */
+    { fieldName: 'cntrSn' }, /* 계약일련번호 */
+    { fieldName: 'cntrDtlNo' }, /* 계약상세번호 */
+    { fieldName: 'dpDt', dataType: 'date' }, /* 입금일자 */
     { fieldName: 'dpMesCd' }, /* 입금수단 */
     { fieldName: 'rveDvCd' }, /* 입금유형 -> 수납유형(사양서기준) */
     { fieldName: 'dpAmt', dataType: 'number' }, /* 입금액 */
@@ -1220,19 +1227,19 @@ const initGrid2 = defineGrid((data, view) => {
     { fieldName: 'crdcdFeeAmt', dataType: 'number' }, /* 카드수수료 */
     { fieldName: 'crdcdFer', dataType: 'number' }, /* 카드수수료율  */
     { fieldName: 'rfndBltfAkAmt', dataType: 'number' }, /* 전금요청금액(전체)  */
-    { fieldName: 'rfndRsonCd' },
-    { fieldName: 'rfndRsonCn' },
-    { fieldName: 'bltfAdd' }, // 전금추가
-    { fieldName: 'rfndAkNo' },
+    { fieldName: 'rfndRsonCd' }, /* 환불사유 */
+    { fieldName: 'rfndRsonCn' }, /* 환불내용 */
+    { fieldName: 'bltfAdd' }, /* 전금추가 */
+    { fieldName: 'rfndAkNo' }, /* 환불번호 */
     /* 추가데이터 */
     { fieldName: 'rfndPsbAmt', dataType: 'number' }, /* 환불가능금액 */
-    { fieldName: 'rveNo' },
-    { fieldName: 'rveSn' },
-    { fieldName: 'fnitCd' },
-    { fieldName: 'fnitNm' },
-    { fieldName: 'acCrNo' },
-    { fieldName: 'cstNo' },
-    { fieldName: 'dpTpCd' },
+    { fieldName: 'rveNo' }, /* 수납번호 */
+    { fieldName: 'rveSn' }, /* 수납일련번호 */
+    { fieldName: 'fnitCd' }, /* 금융기관코드 */
+    { fieldName: 'fnitNm' }, /* 금융기관명 */
+    { fieldName: 'acCrNo' }, /* 계좌번호/카드번호 */
+    { fieldName: 'cstNo' }, /* 고객번호 */
+    { fieldName: 'dpTpCd' }, /* 입금유형코드 */
   ];
 
   const columns = [
@@ -1418,25 +1425,27 @@ const initGrid2 = defineGrid((data, view) => {
     const { rfndPsbAmt, rfndCshAkAmt, rfndCardAkAmt, rfndBltfAkAmt, crdcdFeeAmt, rfndRsonCd, rfndRsonCn } = g.getValues(index.dataRow);
     // eslint-disable-next-line max-len
     if (Number(rfndPsbAmt) < (Number(rfndCshAkAmt) + Number(rfndCardAkAmt) + Number(rfndBltfAkAmt) + Number(crdcdFeeAmt))) {
-      // t('환불금액은 환불가능금액을 초과할수 없습니다.');
       return t('MSG_ALT_IMP_OVER', [t('MSG_TXT_RFND_AMT'), t('MSG_TXT_REFUND_AMT')]);
+      // t('환불금액은 환불가능금액을 초과할수 없습니다.');
     }
     if ((Number(rfndCshAkAmt) + Number(rfndCardAkAmt) + Number(rfndBltfAkAmt)) > 0 && isEmpty(rfndRsonCd)) {
       return t('MSG_ALT_NCSR_CD', [t('MSG_TXT_RFND_RSON')]);
+      // 환불사유 은(는) 필수 입력 항목입니다.
     }
     if ((Number(rfndCshAkAmt) + Number(rfndCardAkAmt) + Number(rfndBltfAkAmt)) > 0
     && (rfndRsonCd === '56' && isEmpty(rfndRsonCn))) {
       return t('MSG_ALT_NCSR_CD', [t('MSG_TXT_RFND_CN')]);
+      // 환불내용 은(는) 필수 입력 항목입니다.
     }
   };
 });
 
 const initGrid3 = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'cstNo' },
-    { fieldName: 'cntrDtlNo' },
+    { fieldName: 'cntrNo' }, /* 계약번호 */
+    { fieldName: 'cntrSn' }, /* 계약일련번호 */
+    { fieldName: 'cstNo' }, /* 고객번호 */
+    { fieldName: 'cntrDtlNo' }, /* 계약상세번호 */
     { fieldName: 'dpDt', dataType: 'date' }, /* 입금일자(수납일자) */
     { fieldName: 'dpMesCd' }, /* 입금수단 */
     { fieldName: 'dpAmt', dataType: 'number' }, /* 입금액 */
@@ -1447,10 +1456,10 @@ const initGrid3 = defineGrid((data, view) => {
     { fieldName: 'bltfOjCntrDtlNo' }, /* 전금계약상세번호 */
     { fieldName: 'bltfRfndMbDvCd' }, /*  전금회원구분코드 */
     { fieldName: 'rfndEvidMtrFileNm' }, /* rfndEvidMtrFileNm-  전금자료명(업로드시 버튼형식으로나오면 사용) */
-    { fieldName: 'rfndAkNo' },
+    { fieldName: 'rfndAkNo' }, /* 환불 번호 */
     /* 환불 - 전금 공통 */
-    { fieldName: 'rveNo' },
-    { fieldName: 'rveSn' },
+    { fieldName: 'rveNo' }, /* 수납번호 */
+    { fieldName: 'rveSn' }, /* 수납일련번호 */
 
     { fieldName: 'atthDocId', dataType: 'file' }, /* rfndEvidMtrFileId-  전금자료 */
     { fieldName: 'rfndEvidMtrFileId' },
@@ -1635,21 +1644,23 @@ const initGrid3 = defineGrid((data, view) => {
     if (cntrDtlNo === bltfOjCntrDtlNo) {
       // g.setValue(index.dataRow, 'bltfRfndMbDvCd', '01');
       // g.setValue(index.dataRow, 'bltfRfndMbDvCd', '02');
-      return t('계약번호와 전금계약번호가 동일합니다.');
+      return t('MSG_ALT_BLTF_CNTR_NO_SMD');
+      // 계약번호와 전금계약번호가 동일합니다.
     }
     if (Number(rfndBltfAkAmt) <= 0) {
-      return t('전금금액은 0이하일 수 없습니다.');
+      return t('MSG_ALT_BLTF_AMT_LETZ_IMP');
+      // 전금금액은 0 이하일 수 없습니다.
     }
   };
 });
 
 const initGrid4 = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'totRfndCshAkAmt', dataType: 'number' },
-    { fieldName: 'totRfndCardAkAmt', dataType: 'number' },
-    { fieldName: 'totRfndBltfAkAmt', dataType: 'number' },
-    { fieldName: 'totCrdcdFeeAmt', dataType: 'number' },
-    { fieldName: 'totRfndEtAmt', dataType: 'number' },
+    { fieldName: 'totRfndCshAkAmt', dataType: 'number' }, // 현금환불금액
+    { fieldName: 'totRfndCardAkAmt', dataType: 'number' }, // 카드 환불금액
+    { fieldName: 'totRfndBltfAkAmt', dataType: 'number' }, // 전금금액
+    { fieldName: 'totCrdcdFeeAmt', dataType: 'number' }, // 카드수수료
+    { fieldName: 'totRfndEtAmt', dataType: 'number' }, // 총 환불 예상금액
   ];
 
   const columns = [

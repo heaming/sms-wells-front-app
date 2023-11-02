@@ -102,6 +102,14 @@
             dense
             @click="onClickOnePlusOne"
           />
+          <kw-btn
+            v-if="showChangeWellsFarmPackageBtn"
+            :disable="!!promotions?.length"
+            :primary="!lkSdingCntrRel"
+            :label="lkSdingCntrRel ? '패키지변경' : '패키지선택'"
+            dense
+            @click="onClickChangeWellsFarmPackage"
+          />
         </kw-item-label>
       </kw-item-section>
       <kw-item-section
@@ -317,7 +325,7 @@
             </div>
           </kw-item-label>
           <kw-item-label
-            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE"
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE"
             class="hp-like-kw-notification-item"
             lines="2"
           >
@@ -329,7 +337,7 @@
           top
         >
           <kw-btn
-            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE"
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE"
             borderless
             icon="close_24"
             class="w24 kw-font-pt24"
@@ -384,6 +392,7 @@
         </kw-item-section>
       </kw-item>
       <promotion-select
+        :key="`promotion-select-${modelValue?.pdCd ?? ''}`"
         v-model="appliedPromotions"
         :promotions="promotions"
       />
@@ -399,15 +408,22 @@ import ZwcmCounter from '~common/components/ZwcmCounter.vue';
 import { getNumberWithComma } from '~sms-common/contract/util';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
+import {
+  RENTAL_DSC_TP_CD,
+  CNTR_REL_DTL_CD,
+  CNTR_TP_CD,
+  RENTAL_DSC_DV_CD,
+} from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
   bas: { type: Object, default: undefined },
 });
 const emit = defineEmits([
-  'device-change',
-  'one-plus-one',
+  'change:device',
+  'select:one-plus-one',
   'packaging',
+  'change:package',
   'delete:one-plus-one',
   'price-changed',
   'promotion-changed',
@@ -431,25 +447,16 @@ const { codes, getCodeName } = await useCtCode(
 
 const dataService = useDataService();
 
-const CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE = '215';
-const CNTR_REL_DTL_CD_LK_MLTCS_PRCHS = '22M';
-const RENTAL_DSC_TP_CD_ONE_PLUS_ONE = '03';
-const RENTAL_DSC_TP_CD_PACKAGE_2 = '14';
-const RENTAL_DSC_TP_CD_PACKAGE_3 = '15';
-const RENTAL_DSC_TP_CD_PACKAGE_OVER_4 = '16';
-const RENTAL_DSC_TP_CD_STCF_SEL = '81';
-const RENTAL_DSC_TP_CD_SPC_DSC_SEL_2 = '82';
-const RENTAL_DSC_TP_CD_SELF_PURCHASE_DSC = '83';
 const RENTAL_DSC_TP_CD_PACKAGE_CODES = [
-  RENTAL_DSC_TP_CD_PACKAGE_2,
-  RENTAL_DSC_TP_CD_PACKAGE_3,
-  RENTAL_DSC_TP_CD_PACKAGE_OVER_4,
+  RENTAL_DSC_TP_CD.PACKAGE_2,
+  RENTAL_DSC_TP_CD.PACKAGE_3,
+  RENTAL_DSC_TP_CD.PACKAGE_OVER_4,
 ];
 const RENTAL_DSC_TP_CD_USER_SELECTABLE = [
   EMPTY_ID,
-  RENTAL_DSC_TP_CD_STCF_SEL,
-  RENTAL_DSC_TP_CD_SPC_DSC_SEL_2,
-  RENTAL_DSC_TP_CD_SELF_PURCHASE_DSC,
+  RENTAL_DSC_TP_CD.STCF_SEL,
+  RENTAL_DSC_TP_CD.SPC_DSC_SEL_2,
+  RENTAL_DSC_TP_CD.SELF_PURCHASE_DSC,
 ];
 
 const sellEvCdsBySellChnlDtlCd = computed(() => {
@@ -459,7 +466,9 @@ const sellEvCdsBySellChnlDtlCd = computed(() => {
     console.error('판매유입채널이 없음?', props.bas);
     return [];
   }
-  if (!codes.SELL_EV_CD.length) { return []; }
+  if (!codes.SELL_EV_CD.length) {
+    return [];
+  }
   const codeIds = [];
 
   if (sellInflwChnlDtlCd === '1010') {
@@ -485,6 +494,7 @@ let fnlAmt;
 let pdQty;
 let mchnCh;
 let cntrRels;
+let ojCntrRels;
 let bcMngtPdYn;
 let appliedPromotions;
 let promotions;
@@ -501,6 +511,7 @@ function connectReactivities() {
   pdQty = toRef(props.modelValue, 'pdQty', 1);
   mchnCh = toRef(props.modelValue, 'mchnCh');
   cntrRels = toRef(props.modelValue, 'cntrRels');
+  ojCntrRels = toRef(props.modelValue, 'ojCntrRels');
   bcMngtPdYn = toRef(props.modelValue, 'bcMngtPdYn'); /* 바코드관리상품여부 */
   promotions = toRef(props.modelValue, 'promotions'); /* 적용가능한 프로모션 목록 */
   appliedPromotions = toRef(props.modelValue, 'appliedPromotions'); /* 적용된 프로모션 */
@@ -599,10 +610,11 @@ const labelGenerator = {
 const {
   priceDefineVariableOptions,
   setPriceDefineVariablesBy,
-  // setVariablesIfUniqueSelectable,
+  setVariablesIfUniqueSelectable,
   selectedFinalPrice, // computed
   // eslint-disable-next-line no-unused-vars
   selectedFinalPrices, // computed
+  initializePriceDefineVariable,
 } = usePriceSelect(
   priceDefineVariables,
   finalPriceOptions,
@@ -624,7 +636,7 @@ const labelForSellTpCd = computed(() => {
 const alncCntrs = ref([]);
 const filteredAlncCntrPriceCodes = computed(() => alncCntrs.value
   .filter((alncCntr) => alncCntr.svPdCd === priceDefineVariables.value.svPdCd
-        && alncCntr.stplPrdCd === priceDefineVariables.value.stplPrdCd)
+    && alncCntr.stplPrdCd === priceDefineVariables.value.stplPrdCd)
   .map((v) => ({
     codeId: `${v.klyear}-${v.klcode}-${v.klpont}-${v.alncmpCd}`,
     codeName: `${v.klyear}-${v.klcode} ${v.alncmpNm} ${getNumberWithComma(v.klpont || 0)}원`,
@@ -655,16 +667,29 @@ async function fetchAllianceContracts() {
   // klpont 가 0인 경우 제외
   alncCntrs.value = data.filter((v) => (v.klpont > 0));
 }
+
 // endregion [제휴계약]
 
 // region [패키지 다건 할인 유형 적용]
 const notNullRentalDscTpCdSelected = computed(() => priceDefineVariables.value.rentalDscTpCd === EMPTY_ID
-    || !!priceDefineVariables.value.rentalDscTpCd);
+  || !!priceDefineVariables.value.rentalDscTpCd);
 
 const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.rentalDscDvCd === '5');
 
 const userSelectableRentalDscTpCd = computed(() => (priceDefineVariableOptions.value.rentalDscTpCd || [])
   .filter((code) => RENTAL_DSC_TP_CD_USER_SELECTABLE.includes(code.codeId)));
+
+const isSelectableRentalCrpDscrCd = computed(() => {
+  if (!priceDefineVariableOptions.value.rentalCrpDscrCd?.length) {
+    return false;
+  }
+  return (priceDefineVariables.value.rentalDscDvCd === RENTAL_DSC_DV_CD.CRP_GROUP_BUYING);
+});
+watch(isSelectableRentalCrpDscrCd, (value) => {
+  if (!value) {
+    priceDefineVariables.value.rentalCrpDscrCd = undefined;
+  }
+});
 
 watch(rentalCrpDscrCdSelectable, (value) => {
   if (!value) {
@@ -708,13 +733,13 @@ TODO 계약관계 잡히면 가격 수정 못하게 처리. pk 박아버리자.
 const showMachineChangeBtn = computed(() => props.bas.sellInflwChnlDtlCd !== '5010');
 
 const showOnePlusOnePrice = computed(() => !!finalPriceOptions.value
-  .find((price) => price.rentalDscTpCd === RENTAL_DSC_TP_CD_ONE_PLUS_ONE));
+  .find((price) => price.rentalDscTpCd === RENTAL_DSC_TP_CD.ONE_PLUS_ONE));
 
 const disableOnePlusOne = computed(() => {
   const machineChanged = !!mchnCh.value?.ojCntrNo;
   const priceIsNotSelectable = !(priceDefineVariableOptions.value.rentalDscTpCd || [])
     .map((code) => code.codeId)
-    .includes(RENTAL_DSC_TP_CD_ONE_PLUS_ONE);
+    .includes(RENTAL_DSC_TP_CD.ONE_PLUS_ONE);
   return machineChanged || priceIsNotSelectable || notNullRentalDscTpCdSelected.value;
 });
 
@@ -727,15 +752,27 @@ const disablePackage = computed(() => {
     .map((code) => code.codeId)
     .some((codeId) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(codeId));
   return machineChanged
-      || priceIsNotSelectable
-      || (priceDefineVariables.value.rentalDscTpCd !== EMPTY_ID
-          && !!priceDefineVariables.value.rentalDscTpCd)
-      // eslint-disable-next-line no-use-before-define
-      || !selectedFinalPrice.value
-      || cntrRels.value?.some((cntrRel) => [
-        CNTR_REL_DTL_CD_LK_ONE_PLUS_ONE,
-        CNTR_REL_DTL_CD_LK_MLTCS_PRCHS,
-      ].includes(cntrRel.cntrRelDtlCd));
+    || priceIsNotSelectable
+    || (priceDefineVariables.value.rentalDscTpCd !== EMPTY_ID
+      && !!priceDefineVariables.value.rentalDscTpCd)
+    // eslint-disable-next-line no-use-before-define
+    || !selectedFinalPrice.value
+    || cntrRels.value?.some((cntrRel) => [
+      CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE,
+      CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
+    ].includes(cntrRel.cntrRelDtlCd));
+});
+
+const lkSdingCntrRel = computed(() => (
+  ojCntrRels.value?.find((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_SDING)));
+
+const showChangeWellsFarmPackageBtn = computed(() => {
+  const { pdLclsfId } = dtl.value;
+  if (!pdLclsfId) {
+    return false;
+  }
+  const isWellsFarmProduct = pdLclsfId === 'PDC000000000120';
+  return isWellsFarmProduct;
 });
 
 // endregion [계약 관계 버튼]
@@ -751,6 +788,7 @@ const promotionAppliedPrice = computed(() => (
 // endregion [가격표기]
 
 let promiseForFetchFinalPriceOptions;
+
 async function fetchFinalPriceOptions() {
   if (!promiseForFetchFinalPriceOptions) {
     promiseForFetchFinalPriceOptions = dataService.get('sms/wells/contract/final-price', {
@@ -769,13 +807,15 @@ async function fetchFinalPriceOptions() {
   }
   finalPriceOptions.value = data || [];
 
-  if (props.bas?.cntrTpCd !== '09') { // 견적서 아닐 때
+  if (props.bas?.cntrTpCd !== CNTR_TP_CD.QUOTE) { // 견적서 아닐 때
     await fetchAllianceContracts();
   }
 }
 
 function initPriceDefineVariables() {
   if (!pdPrcFnlDtlId.value) {
+    initializePriceDefineVariable();
+    setVariablesIfUniqueSelectable(['rentalDscTpCd']);
     return;
   }
   setPriceDefineVariablesBy(pdPrcFnlDtlId.value);
@@ -815,15 +855,15 @@ function onChangeSelectedFinalPrice(newPrice) {
   if (!newPrice) {
     fnlAmt.value = undefined;
     pdPrcFnlDtlId.value = undefined;
-    emit('price-changed', newPrice);
     clearPromotions();
+    emit('price-changed', newPrice);
     return;
   }
   fnlAmt.value = newPrice.fnlVal;
   pdPrcFnlDtlId.value = newPrice.pdPrcFnlDtlId;
 
-  emit('price-changed', newPrice);
   clearPromotions();
+  emit('price-changed', newPrice);
 
   getPackageRentalDscTpCds();
 }
@@ -837,11 +877,11 @@ function onChangeVariable() {
 }
 
 function onClickDeviceChange() {
-  emit('device-change', props.modelValue);
+  emit('change:device', props.modelValue);
 }
 
 function onClickOnePlusOne() {
-  emit('one-plus-one', props.modelValue);
+  emit('select:one-plus-one', props.modelValue);
 }
 
 function onClickPackage(rentalDscTpCd) {
@@ -857,7 +897,7 @@ function onClickDeleteDeviceChange() {
 }
 
 function onDeleteOnePlusOne() {
-  priceDefineVariables.value.rentalDscTpCd = undefined;
+  priceDefineVariables.value.rentalDscTpCd = EMPTY_ID;
   emit('delete:one-plus-one', props.modelValue);
 }
 
@@ -865,7 +905,7 @@ function onClickRemoveRentalDscTpCd() {
   const { rentalDscTpCd } = priceDefineVariables.value;
 
   /* TODO: 나머지도 처리 */
-  if (rentalDscTpCd === RENTAL_DSC_TP_CD_ONE_PLUS_ONE) {
+  if (rentalDscTpCd === RENTAL_DSC_TP_CD.ONE_PLUS_ONE) {
     onDeleteOnePlusOne();
   }
   priceDefineVariables.value.rentalDscTpCd = undefined;
@@ -878,6 +918,11 @@ function onChangeAlncCntr(selected) {
     alncCntrNms.value = [];
   }
 }
+
+function onClickChangeWellsFarmPackage() {
+  emit('change:package', props.modelValue);
+}
+
 </script>
 
 <style lang="scss" scoped>

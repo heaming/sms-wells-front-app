@@ -72,7 +72,12 @@
         </kw-form-item>
         <!-- 업무단계 -->
         <kw-form-item :label="$t('MSG_TXT_TASK_LV')">
-          <p>{{ frmMainData.cntrChPrgsStatNm }}</p>
+          <slot v-if="frmMainData.cntrChPrgsStatCd !== '99'">
+            <p>{{ frmMainData.cntrChPrgsStatNm }}</p>
+          </slot>
+          <slot v-if="frmMainData.cntrChPrgsStatCd === '99'">
+            <p>{{ frmMainData.cntrChPrgsStatNmEnd }}</p>
+          </slot>
         </kw-form-item>
       </kw-form-row>
       <!-- 재접수 버튼 선택시-->
@@ -102,6 +107,21 @@
       <!-- //재접수 버튼 선택시-->
     </kw-form>
     <kw-separator />
+    <kw-form-row
+      v-if="isSearchCntrChAkCnVisible"
+    >
+      <!-- 재접수 사유 -->
+      <h3 class="mb20">
+        {{ $t('MSG_TXT_RE_REG_RSON') }}
+      </h3>
+      <kw-form :cols="1">
+        <!-- 내용 -->
+        <kw-form-item :label="$t('MSG_TXT_CNTN')">
+          <p>{{ frmMainData.cntrChAkCn }}</p>
+        </kw-form-item>
+      </kw-form>
+      <kw-separator />
+    </kw-form-row>
     <!-- 상담사 메모 -->
     <h3 class="mb20">
       {{ $t('MSG_TXT_CNSLOR_MEMO') }}
@@ -124,17 +144,17 @@
           :label="$t('MSG_TXT_PROCS_TASK')"
           :colspan="2"
         >
-          <p>{{ frmMainData.cntrChRsonNm }}</p>
+          <p>{{ props.cntrChTpNm }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
         <!-- 계약번호 -->
         <kw-form-item :label="$t('MSG_TXT_CNTR_NO')">
-          <p>{{ frmMainData.cntrDtlNo }}</p>
+          <p>{{ frmMainData.cntrDtlNoLst }}</p>
         </kw-form-item>
         <!-- 계약구분 -->
         <kw-form-item :label="$t('MSG_TXT_CNTR_DV')">
-          <p>{{ frmMainData.sellTpNm }}</p>
+          <p>{{ frmMainData.sellTpNmLst }}</p>
         </kw-form-item>
       </kw-form-row>
       <!-- 개명신청 -->
@@ -171,35 +191,37 @@
             </div>
           </kw-form-item>
           <!-- 기타1 -->
-          <kw-form-item :label="$t('MSG_TXT_ETC')">
-            <div class="preview-attach">
-              <div class="preview-attach__top">
-                {{ $t('MSG_TXT_ETC') }}
-              </div>
-              <div class="preview-attach__bottom">
-                <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
-                <kw-image
-                  :file-uid="frmMainData.nmchgEtcFileUid1"
-                  alt=""
-                />
-              </div>
-              <ul class="preview-attach__infos">
-                <!-- 166730259072721428.jpg -->
-                <li class="text-underline cursor-pointer">
-                  <kw-btn
-                    dense
-                    underline
-                    :label="frmMainData.nmchgEtcFileNm1"
-                    @click="onClickOpenImageViewer('nmchgEtcFileUid1')"
+          <slot v-if="frmMainData.nmchgEtcFileUid1 !== ''">
+            <kw-form-item :label="$t('MSG_TXT_ETC')">
+              <div class="preview-attach">
+                <div class="preview-attach__top">
+                  {{ $t('MSG_TXT_ETC') }}
+                </div>
+                <div class="preview-attach__bottom">
+                  <!-- node_modules/kw-lib/src/assets/images/example_profile.png -->
+                  <kw-image
+                    :file-uid="frmMainData.nmchgEtcFileUid1"
+                    alt=""
                   />
-                </li>
-                <!-- 등록일시 : 2022.11.01 20:36:43 -->
-                <li class="kw-fc--black3 mt2 text-weight-regular">
-                  <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm1 }}</p>
-                </li>
-              </ul>
-            </div>
-          </kw-form-item>
+                </div>
+                <ul class="preview-attach__infos">
+                  <!-- 166730259072721428.jpg -->
+                  <li class="text-underline cursor-pointer">
+                    <kw-btn
+                      dense
+                      underline
+                      :label="frmMainData.nmchgEtcFileNm1"
+                      @click="onClickOpenImageViewer('nmchgEtcFileUid1')"
+                    />
+                  </li>
+                  <!-- 등록일시 : 2022.11.01 20:36:43 -->
+                  <li class="kw-fc--black3 mt2 text-weight-regular">
+                    <p>{{ $t('MSG_TXT_RGST_DTM')+' : '+frmMainData.nmchgEtcFnlMdfcDtm1 }}</p>
+                  </li>
+                </ul>
+              </div>
+            </kw-form-item>
+          </slot>
         </kw-form-row>
         <slot v-if="frmMainData.nmchgEtcFileUid2 !== ''">
           <kw-form-row>
@@ -1451,7 +1473,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useModal, useGlobal, stringUtil } from 'kw-lib';
+import { useDataService, useModal, useGlobal, stringUtil, fileUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
@@ -1460,6 +1482,7 @@ const { alert, confirm, notify, modal } = useGlobal();
 const props = defineProps({
   cntrChRcpId: { type: String, required: true, default: '' },
   cntrChTpCd: { type: String, required: true, default: '' },
+  cntrChTpNm: { type: String, required: true, default: '' },
 });
 const { ok } = useModal();
 
@@ -1472,6 +1495,8 @@ const saveParams = ref({
   cntrChRcpId: props.cntrChRcpId, // 접수번호
   cntrChPrgsStatCd: '50', // 계약변경진행상태코드(처리완료)
   cntrChAkCn: '', // 재접수 사유
+  cntrChTpCd: props.cntrChTpCd, // 접수유형코드
+  cntrChTpNm: props.cntrChTpNm, // 접수유형코드명
   cstKnm: '', // 고객명
   cralLocaraTno: '', // 휴대지역전화번호
   mexnoEncr: '', // 휴대전화국번호암호화
@@ -1479,30 +1504,28 @@ const saveParams = ref({
 });
 
 const frmMainData = ref({
-  cntrChRcpId: '', // 접수번호
+  cntrChRcpId: '', // 접수번호(수정용) 시퀀스
+  reCntrChRcpId: '', // 접수번호(표시용) 시퀀스
   cstKnm: '', // 고객명
   cralTno: '', // 휴대전화번호
   cralLocaraTno: '', // 휴대지역전화번호
   mexnoEncr: '', // 휴대전화국번호암호화
   cralIdvTno: '', // 휴대개별전화번호
   bryyMmdd: '', // 생년월일
-  cntrChPrgsMoCn: '', // 상담사 메모
   cntrChPrgsStatCd: '', // 계약변경진행상태코드
   cntrChPrgsStatNm: '', // 계약변경진행상태코드명
-  dtlCntrNo: '', // 계약번호
-  dtlCntrSn: '', // 계약일련번호
-  cntrDtlNo: '', // 계약상세번호
-  sellTpCd: '', // 판매유형코드(계약구분)
-  sellTpNm: '', // 판매유형코드명(계약구분명)
+  cntrChPrgsStatNmEnd: '', // 계약변경진행상태코드명(기타종료 상세)
+  cntrChAkCn: '', // 재접수 사유
+  cntrChPrgsMoCn: '', // 상담사 메모
+  cntrChTpCd: '', // 계약변경유형코드
+  cntrChTpNm: '', // 계약변경유형코드명
   cntrChRcpD: '', // 접수일자
   cntrChRcpTm: '', // 접수시간
   fnlMdfcDtm: '', // 수정일자
-  cntrChAkCn: '', // 재접수 사유
-  cntrChRsonCd: '', // 처리업무(계약변경사유코드)
-  cntrChRsonNm: '', // 처리업무(계약변경사유코드명)
+  cntrDtlNoLst: '', // 계약상세번호 리스트
+  sellTpNmLst: '', // 판매유형코드명(계약구분 리스트)
   cntrChDocDvNm: '', // 첨부파일종류 문서분류명
   cntrChDocSeq: '', // 첨부파일종류 문서순번
-  cntrChTpCd: '', // 계약변경유형코드
 
   // nmchgIdfCyFileNm: '166730259072721428.jpg', // (개명신청)신분증사본 파일명
   nmchgIdfCyFileNm: '', // (개명신청)신분증사본 파일명
@@ -1685,7 +1708,8 @@ const isSearchReRegVisible = ref(false); // 재접수
 const isSearchTaskRegVisible = ref(false); // 업무접수
 const isSearchTaskProcsFshVisible = ref(false); // 업무처리완료
 const isSearchEtcEndVisible = ref(false); // 기타종료
-const isSearchReReRsonVisible = ref(false); // 재접수 사유
+const isSearchReReRsonVisible = ref(false); // 재접수 사유(재접수버튼 입력)
+const isSearchCntrChAkCnVisible = ref(false); // 재접수 사유(조회)
 
 async function fetchData() {
   // changing api & cacheparams according to search classification
@@ -1708,20 +1732,24 @@ async function fetchData() {
     frmMainData.value.cralIdvTno = res.data.searchDocumentRcpDtlInqrsResList[0].cralIdvTno; // 휴대개별전화번호
     frmMainData.value.cralTno = !isEmpty(frmMainData.value.cralLocaraTno) && !isEmpty(frmMainData.value.mexnoEncr) && !isEmpty(frmMainData.value.cralIdvTno) ? `${frmMainData.value.cralLocaraTno}-${frmMainData.value.mexnoEncr}-${frmMainData.value.cralIdvTno}` : ''; // 휴대전화번호
     frmMainData.value.bryyMmdd = res.data.searchDocumentRcpDtlInqrsResList[0].bryyMmdd; // 생년월일
-    frmMainData.value.cntrChPrgsMoCn = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChPrgsMoCn; // 상담사 메모
     frmMainData.value.cntrChPrgsStatCd = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChPrgsStatCd; // 계약변경진행상태코드
     frmMainData.value.cntrChPrgsStatNm = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChPrgsStatNm; // 계약변경진행상태코드명
-    frmMainData.value.dtlCntrNo = res.data.searchDocumentRcpDtlInqrsResList[0].dtlCntrNo; // 계약번호
-    frmMainData.value.dtlCntrSn = res.data.searchDocumentRcpDtlInqrsResList[0].dtlCntrSn; // 계약일련번호
-    frmMainData.value.cntrDtlNo = res.data.searchDocumentRcpDtlInqrsResList[0].cntrDtlNo; // 계약상세번호
-    frmMainData.value.sellTpCd = res.data.searchDocumentRcpDtlInqrsResList[0].sellTpCd; // 판매유형코드(계약구분)
-    frmMainData.value.sellTpNm = res.data.searchDocumentRcpDtlInqrsResList[0].sellTpNm; // 판매유형코드명(계약구분명)
+    if (frmMainData.value.cntrChPrgsStatCd === '99') {
+      frmMainData.value.cntrChPrgsStatNmEnd = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChPrgsStatNmEnd; // 기타종료
+    }
+    frmMainData.value.cntrChAkCn = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChAkCn; // 재접수 사유
+    if (!isEmpty(frmMainData.value.cntrChAkCn)) {
+      if (frmMainData.value.cntrChPrgsStatCd !== '19'
+       && frmMainData.value.cntrChPrgsStatCd !== '29') { // 제접수/재접수완료가 아닐 경우
+        isSearchCntrChAkCnVisible.value = true;
+      }
+    }
+    frmMainData.value.cntrChPrgsMoCn = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChPrgsMoCn; // 상담사 메모
     frmMainData.value.cntrChRcpD = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChRcpD; // 접수일자
     frmMainData.value.cntrChRcpTm = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChRcpTm; // 접수시간
     frmMainData.value.fnlMdfcDtm = res.data.searchDocumentRcpDtlInqrsResList[0].fnlMdfcDtm; // 수정일자
-    frmMainData.value.cntrChAkCn = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChAkCn; // 재접수 사유
-    frmMainData.value.cntrChRsonCd = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChRsonCd; // 처리업무(계약변경사유코드)
-    frmMainData.value.cntrChRsonNm = res.data.searchDocumentRcpDtlInqrsResList[0].cntrChRsonNm; // 처리업무(계약변경사유코드명)
+    frmMainData.value.cntrDtlNoLst = res.data.searchDocumentRcpDtlInqrsResList[0].cntrDtlNoLst; // 계약상세번호리스트
+    frmMainData.value.sellTpNmLst = res.data.searchDocumentRcpDtlInqrsResList[0].sellTpNmLst; // 판매유형코드명(계약구분리스트)
   }
 
   if (res.data.searchDocumentRcpDtlFileInfoResList.length > 0) {
@@ -2081,6 +2109,7 @@ async function onClickReRegRson() {
 
   if (isOk) {
     console.log(isOk);
+    saveParams.value.cntrChPrgsStatCd = '10'; // 접수대기
     await saveData();
   }
 }
@@ -2125,61 +2154,407 @@ async function onClickEtcEnd() {
 // 이미지 뷰어 호출 이벤트
 async function onClickOpenImageViewer(fileUid) {
   let cpProps;
+  const getFileExtension = (fileNm) => {
+    const lastDotIndex = fileNm.lastIndexOf('.');
+    const extension = fileNm.substring(lastDotIndex).toLowerCase();
+    return extension;
+  };
 
-  if (fileUid === 'nmchgIdfCyFileUid') cpProps = frmMainData.value.nmchgIdfCyFileUid;
-  if (fileUid === 'nmchgEtcFileUid1') cpProps = frmMainData.value.nmchgEtcFileUid1;
-  if (fileUid === 'nmchgEtcFileUid2') cpProps = frmMainData.value.nmchgEtcFileUid2;
-  if (fileUid === 'nmchgEtcFileUid3') cpProps = frmMainData.value.nmchgEtcFileUid3;
-  if (fileUid === 'nmchgEtcFileUid4') cpProps = frmMainData.value.nmchgEtcFileUid4;
-  if (fileUid === 'nmchgEtcFileUid5') cpProps = frmMainData.value.nmchgEtcFileUid5;
-  if (fileUid === 'nmchgEtcFileUid6') cpProps = frmMainData.value.nmchgEtcFileUid6;
-  if (fileUid === 'nmchgEtcFileUid7') cpProps = frmMainData.value.nmchgEtcFileUid7;
-  if (fileUid === 'nmchgEtcFileUid8') cpProps = frmMainData.value.nmchgEtcFileUid8;
-  if (fileUid === 'nmchgEtcFileUid9') cpProps = frmMainData.value.nmchgEtcFileUid9;
-  if (fileUid === 'nmchgEtcFileUid10') cpProps = frmMainData.value.nmchgEtcFileUid10;
-  if (fileUid === 'cmsApfFileUid') cpProps = frmMainData.value.cmsApfFileUid;
-  if (fileUid === 'aftnIdfCyFileUid') cpProps = frmMainData.value.aftnIdfCyFileUid;
-  if (fileUid === 'aftnBnkbCyFileUid') cpProps = frmMainData.value.aftnBnkbCyFileUid;
-  if (fileUid === 'aftnFmlCrtfDcmtFileUid') cpProps = frmMainData.value.aftnFmlCrtfDcmtFileUid;
-  if (fileUid === 'aftnBzrcCrpFileUid') cpProps = frmMainData.value.aftnBzrcCrpFileUid;
-  if (fileUid === 'aftnEtcFileUid1') cpProps = frmMainData.value.aftnEtcFileUid1;
-  if (fileUid === 'aftnEtcFileUid2') cpProps = frmMainData.value.aftnEtcFileUid2;
-  if (fileUid === 'aftnEtcFileUid3') cpProps = frmMainData.value.aftnEtcFileUid3;
-  if (fileUid === 'aftnEtcFileUid4') cpProps = frmMainData.value.aftnEtcFileUid4;
-  if (fileUid === 'aftnEtcFileUid5') cpProps = frmMainData.value.aftnEtcFileUid5;
-  if (fileUid === 'tftlApfFileUid') cpProps = frmMainData.value.tftlApfFileUid;
-  if (fileUid === 'agrmntFileUid') cpProps = frmMainData.value.agrmntFileUid;
-  if (fileUid === 'tftlIdfCyFileUid') cpProps = frmMainData.value.tftlIdfCyFileUid;
-  if (fileUid === 'tftlBnkbCyFileUid') cpProps = frmMainData.value.tftlBnkbCyFileUid;
-  if (fileUid === 'tftlBzrcCrpFileUid') cpProps = frmMainData.value.tftlBzrcCrpFileUid;
-  if (fileUid === 'tftlEtcFileUid1') cpProps = frmMainData.value.tftlEtcFileUid1;
-  if (fileUid === 'tftlEtcFileUid2') cpProps = frmMainData.value.tftlEtcFileUid2;
-  if (fileUid === 'tftlEtcFileUid3') cpProps = frmMainData.value.tftlEtcFileUid3;
-  if (fileUid === 'tftlEtcFileUid4') cpProps = frmMainData.value.tftlEtcFileUid4;
-  if (fileUid === 'tftlEtcFileUid5') cpProps = frmMainData.value.tftlEtcFileUid5;
-  if (fileUid === 'cnclEvdcDcmtFileUid') cpProps = frmMainData.value.cnclEvdcDcmtFileUid;
-  if (fileUid === 'cnclEtcFileUid1') cpProps = frmMainData.value.cnclEtcFileUid1;
-  if (fileUid === 'cnclEtcFileUid2') cpProps = frmMainData.value.cnclEtcFileUid2;
-  if (fileUid === 'cnclEtcFileUid3') cpProps = frmMainData.value.cnclEtcFileUid3;
-  if (fileUid === 'cnclEtcFileUid4') cpProps = frmMainData.value.cnclEtcFileUid4;
-  if (fileUid === 'cnclEtcFileUid5') cpProps = frmMainData.value.cnclEtcFileUid5;
-  if (fileUid === 'cnclEtcFileUid6') cpProps = frmMainData.value.cnclEtcFileUid6;
-  if (fileUid === 'cnclEtcFileUid7') cpProps = frmMainData.value.cnclEtcFileUid7;
-  if (fileUid === 'cnclEtcFileUid8') cpProps = frmMainData.value.cnclEtcFileUid8;
-  if (fileUid === 'cnclEtcFileUid9') cpProps = frmMainData.value.cnclEtcFileUid9;
-  if (fileUid === 'cnclEtcFileUid10') cpProps = frmMainData.value.cnclEtcFileUid10;
+  switch (fileUid) {
+    case 'nmchgIdfCyFileUid': // 개명신청(신분증사본)
+      // console.log(`fileUid : ${frmMainData.value.nmchgIdfCyFileUid}`);
+      // console.log(`fileNm : ${frmMainData.value.nmchgIdfCyFileNm}`);
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.nmchgIdfCyFileNm)}`);
+      if (getFileExtension(frmMainData.value.nmchgIdfCyFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.nmchgIdfCyFileUid,
+          originalFileName: frmMainData.value.nmchgIdfCyFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.nmchgIdfCyFileUid;
+      }
+      break;
+    case 'nmchgEtcFileUid1': // 개명신청(기타1)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.nmchgEtcFileNm1)}`);
+      if (getFileExtension(frmMainData.value.nmchgEtcFileNm1) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.nmchgEtcFileUid1,
+          originalFileName: frmMainData.value.nmchgEtcFileNm1 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.nmchgEtcFileUid1;
+      }
+      break;
+    case 'nmchgEtcFileUid2': // 개명신청(기타2)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.nmchgEtcFileNm2)}`);
+      if (getFileExtension(frmMainData.value.nmchgEtcFileNm2) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.nmchgEtcFileUid2,
+          originalFileName: frmMainData.value.nmchgEtcFileNm2 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.nmchgEtcFileUid2;
+      }
+      break;
+    case 'nmchgEtcFileUid3': // 개명신청(기타3)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.nmchgEtcFileNm3)}`);
+      if (getFileExtension(frmMainData.value.nmchgEtcFileNm3) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.nmchgEtcFileUid3,
+          originalFileName: frmMainData.value.nmchgEtcFileNm3 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.nmchgEtcFileUid3;
+      }
+      break;
+    case 'nmchgEtcFileUid4': // 개명신청(기타4)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.nmchgEtcFileNm4)}`);
+      if (getFileExtension(frmMainData.value.nmchgEtcFileNm4) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.nmchgEtcFileUid4,
+          originalFileName: frmMainData.value.nmchgEtcFileNm4 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.nmchgEtcFileUid4;
+      }
+      break;
+    case 'nmchgEtcFileUid5': // 개명신청(기타5)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.nmchgEtcFileNm5)}`);
+      if (getFileExtension(frmMainData.value.nmchgEtcFileNm5) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.nmchgEtcFileUid5,
+          originalFileName: frmMainData.value.nmchgEtcFileNm5 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.nmchgEtcFileUid5;
+      }
+      break;
+    case 'nmchgEtcFileUid6': // 개명신청(기타6)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.nmchgEtcFileNm6)}`);
+      if (getFileExtension(frmMainData.value.nmchgEtcFileNm6) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.nmchgEtcFileUid6,
+          originalFileName: frmMainData.value.nmchgEtcFileNm6 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.nmchgEtcFileUid6;
+      }
+      break;
+    case 'nmchgEtcFileUid7': // 개명신청(기타7)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.nmchgEtcFileNm7)}`);
+      if (getFileExtension(frmMainData.value.nmchgEtcFileNm7) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.nmchgEtcFileUid7,
+          originalFileName: frmMainData.value.nmchgEtcFileNm7 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.nmchgEtcFileUid7;
+      }
+      break;
+    case 'nmchgEtcFileUid8': // 개명신청(기타8)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.nmchgEtcFileNm8)}`);
+      if (getFileExtension(frmMainData.value.nmchgEtcFileNm8) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.nmchgEtcFileUid8,
+          originalFileName: frmMainData.value.nmchgEtcFileNm8 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.nmchgEtcFileUid8;
+      }
+      break;
+    case 'nmchgEtcFileUid9': // 개명신청(기타9)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.nmchgEtcFileNm9)}`);
+      if (getFileExtension(frmMainData.value.nmchgEtcFileNm9) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.nmchgEtcFileUid9,
+          originalFileName: frmMainData.value.nmchgEtcFileNm9 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.nmchgEtcFileUid9;
+      }
+      break;
+    case 'nmchgEtcFileUid10': // 개명신청(기타10)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.nmchgEtcFileNm10)}`);
+      if (getFileExtension(frmMainData.value.nmchgEtcFileNm10) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.nmchgEtcFileUid10,
+          originalFileName: frmMainData.value.nmchgEtcFileNm10 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.nmchgEtcFileUid10;
+      }
+      break;
+    case 'cmsApfFileUid': // 자동이체 변경(CMS변경신청서)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cmsApfFileNm)}`);
+      if (getFileExtension(frmMainData.value.cmsApfFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cmsApfFileUid,
+          originalFileName: frmMainData.value.cmsApfFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cmsApfFileUid;
+      }
+      break;
+    case 'aftnIdfCyFileUid': // 자동이체 변경(신분증사본)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.aftnIdfCyFileNm)}`);
+      if (getFileExtension(frmMainData.value.aftnIdfCyFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.aftnIdfCyFileUid,
+          originalFileName: frmMainData.value.aftnIdfCyFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.aftnIdfCyFileUid;
+      }
+      break;
+    case 'aftnBnkbCyFileUid': // 자동이체 변경(통장사본)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.aftnBnkbCyFileNm)}`);
+      if (getFileExtension(frmMainData.value.aftnBnkbCyFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.aftnBnkbCyFileUid,
+          originalFileName: frmMainData.value.aftnBnkbCyFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.aftnBnkbCyFileUid;
+      }
+      break;
+    case 'aftnFmlCrtfDcmtFileUid': // 자동이체 변경(가족관계증명서류)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.aftnFmlCrtfDcmtFileNm)}`);
+      if (getFileExtension(frmMainData.value.aftnFmlCrtfDcmtFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.aftnFmlCrtfDcmtFileUid,
+          originalFileName: frmMainData.value.aftnFmlCrtfDcmtFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.aftnFmlCrtfDcmtFileUid;
+      }
+      break;
+    case 'aftnBzrcCrpFileUid': // 자동이체 변경(사업자등록증(법인))
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.aftnBzrcCrpFileNm)}`);
+      if (getFileExtension(frmMainData.value.aftnBzrcCrpFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.aftnBzrcCrpFileUid,
+          originalFileName: frmMainData.value.aftnBzrcCrpFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.aftnBzrcCrpFileUid;
+      }
+      break;
+    case 'aftnEtcFileUid1': // 자동이체 변경(기타1)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.aftnEtcFileNm1)}`);
+      if (getFileExtension(frmMainData.value.aftnEtcFileNm1) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.aftnEtcFileUid1,
+          originalFileName: frmMainData.value.aftnEtcFileNm1 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.aftnEtcFileUid1;
+      }
+      break;
+    case 'aftnEtcFileUid2': // 자동이체 변경(기타2)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.aftnEtcFileNm2)}`);
+      if (getFileExtension(frmMainData.value.aftnEtcFileNm2) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.aftnEtcFileUid2,
+          originalFileName: frmMainData.value.aftnEtcFileNm2 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.aftnEtcFileUid2;
+      }
+      break;
+    case 'aftnEtcFileUid3': // 자동이체 변경(기타3)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.aftnEtcFileNm3)}`);
+      if (getFileExtension(frmMainData.value.aftnEtcFileNm3) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.aftnEtcFileUid3,
+          originalFileName: frmMainData.value.aftnEtcFileNm3 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.aftnEtcFileUid3;
+      }
+      break;
+    case 'aftnEtcFileUid4': // 자동이체 변경(기타4)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.aftnEtcFileNm4)}`);
+      if (getFileExtension(frmMainData.value.aftnEtcFileNm4) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.aftnEtcFileUid4,
+          originalFileName: frmMainData.value.aftnEtcFileNm4 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.aftnEtcFileUid4;
+      }
+      break;
+    case 'aftnEtcFileUid5': // 자동이체 변경(기타5)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.aftnEtcFileNm5)}`);
+      if (getFileExtension(frmMainData.value.aftnEtcFileNm5) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.aftnEtcFileUid5,
+          originalFileName: frmMainData.value.aftnEtcFileNm5 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.aftnEtcFileUid5;
+      }
+      break;
+    case 'tftlApfFileUid': // 명의 변경(명의변경신청서)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.tftlApfFileNm)}`);
+      if (getFileExtension(frmMainData.value.tftlApfFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.tftlApfFileUid,
+          originalFileName: frmMainData.value.tftlApfFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.tftlApfFileUid;
+      }
+      break;
+    case 'agrmntFileUid': // 명의 변경(동의서)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.agrmntFileNm)}`);
+      if (getFileExtension(frmMainData.value.agrmntFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.agrmntFileUid,
+          originalFileName: frmMainData.value.agrmntFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.agrmntFileUid;
+      }
+      break;
+    case 'tftlIdfCyFileUid': // 명의 변경(신분증사본)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.tftlIdfCyFileNm)}`);
+      if (getFileExtension(frmMainData.value.tftlIdfCyFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.tftlIdfCyFileUid,
+          originalFileName: frmMainData.value.tftlIdfCyFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.tftlIdfCyFileUid;
+      }
+      break;
+    case 'tftlBnkbCyFileUid': // 명의 변경(통장사본)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.tftlBnkbCyFileNm)}`);
+      if (getFileExtension(frmMainData.value.tftlBnkbCyFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.tftlBnkbCyFileUid,
+          originalFileName: frmMainData.value.tftlBnkbCyFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.tftlBnkbCyFileUid;
+      }
+      break;
+    case 'tftlBzrcCrpFileUid': // 명의 변경(사업자등록증(법인))
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.tftlBzrcCrpFileNm)}`);
+      if (getFileExtension(frmMainData.value.tftlBzrcCrpFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.tftlBzrcCrpFileUid,
+          originalFileName: frmMainData.value.tftlBzrcCrpFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.tftlBzrcCrpFileUid;
+      }
+      break;
+    case 'tftlEtcFileUid1': // 명의 변경(기타1)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.tftlEtcFileNm1)}`);
+      if (getFileExtension(frmMainData.value.tftlEtcFileNm1) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.tftlEtcFileUid1,
+          originalFileName: frmMainData.value.tftlEtcFileNm1 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.tftlEtcFileUid1;
+      }
+      break;
+    case 'tftlEtcFileUid2': // 명의 변경(기타2)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.tftlEtcFileNm2)}`);
+      if (getFileExtension(frmMainData.value.tftlEtcFileNm2) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.tftlEtcFileUid2,
+          originalFileName: frmMainData.value.tftlEtcFileNm2 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.tftlEtcFileUid2;
+      }
+      break;
+    case 'tftlEtcFileUid3': // 명의 변경(기타3)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.tftlEtcFileNm3)}`);
+      if (getFileExtension(frmMainData.value.tftlEtcFileNm3) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.tftlEtcFileUid3,
+          originalFileName: frmMainData.value.tftlEtcFileNm3 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.tftlEtcFileUid3;
+      }
+      break;
+    case 'tftlEtcFileUid4': // 명의 변경(기타4)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.tftlEtcFileNm4)}`);
+      if (getFileExtension(frmMainData.value.tftlEtcFileNm4) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.tftlEtcFileUid4,
+          originalFileName: frmMainData.value.tftlEtcFileNm4 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.tftlEtcFileUid4;
+      }
+      break;
+    case 'tftlEtcFileUid5': // 명의 변경(기타5)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.tftlEtcFileNm5)}`);
+      if (getFileExtension(frmMainData.value.tftlEtcFileNm5) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.tftlEtcFileUid5,
+          originalFileName: frmMainData.value.tftlEtcFileNm5 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.tftlEtcFileUid5;
+      }
+      break;
+    case 'cnclEvdcDcmtFileUid': // 해지/철회신청(증빙서류)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cnclEvdcDcmtFileNm)}`);
+      if (getFileExtension(frmMainData.value.cnclEvdcDcmtFileNm) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cnclEvdcDcmtFileUid,
+          originalFileName: frmMainData.value.cnclEvdcDcmtFileNm }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cnclEvdcDcmtFileUid;
+      }
+      break;
+    case 'cnclEtcFileUid1': // 해지/철회신청(기타1)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cnclEtcFileNm1)}`);
+      if (getFileExtension(frmMainData.value.cnclEtcFileNm1) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cnclEtcFileUid1,
+          originalFileName: frmMainData.value.cnclEtcFileNm1 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cnclEtcFileUid1;
+      }
+      break;
+    case 'cnclEtcFileUid2': // 해지/철회신청(기타2)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cnclEtcFileNm2)}`);
+      if (getFileExtension(frmMainData.value.cnclEtcFileNm2) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cnclEtcFileUid2,
+          originalFileName: frmMainData.value.cnclEtcFileNm2 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cnclEtcFileUid2;
+      }
+      break;
+    case 'cnclEtcFileUid3': // 해지/철회신청(기타3)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cnclEtcFileNm3)}`);
+      if (getFileExtension(frmMainData.value.cnclEtcFileNm3) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cnclEtcFileUid3,
+          originalFileName: frmMainData.value.cnclEtcFileNm3 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cnclEtcFileUid3;
+      }
+      break;
+    case 'cnclEtcFileUid4': // 해지/철회신청(기타4)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cnclEtcFileNm4)}`);
+      if (getFileExtension(frmMainData.value.cnclEtcFileNm4) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cnclEtcFileUid4,
+          originalFileName: frmMainData.value.cnclEtcFileNm4 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cnclEtcFileUid4;
+      }
+      break;
+    case 'cnclEtcFileUid5': // 해지/철회신청(기타5)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cnclEtcFileNm5)}`);
+      if (getFileExtension(frmMainData.value.cnclEtcFileNm5) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cnclEtcFileUid5,
+          originalFileName: frmMainData.value.cnclEtcFileNm5 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cnclEtcFileUid5;
+      }
+      break;
+    case 'cnclEtcFileUid6': // 해지/철회신청(기타6)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cnclEtcFileNm6)}`);
+      if (getFileExtension(frmMainData.value.cnclEtcFileNm6) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cnclEtcFileUid6,
+          originalFileName: frmMainData.value.cnclEtcFileNm6 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cnclEtcFileUid6;
+      }
+      break;
+    case 'cnclEtcFileUid7': // 해지/철회신청(기타7)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cnclEtcFileNm7)}`);
+      if (getFileExtension(frmMainData.value.cnclEtcFileNm7) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cnclEtcFileUid7,
+          originalFileName: frmMainData.value.cnclEtcFileNm7 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cnclEtcFileUid7;
+      }
+      break;
+    case 'cnclEtcFileUid8': // 해지/철회신청(기타8)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cnclEtcFileNm8)}`);
+      if (getFileExtension(frmMainData.value.cnclEtcFileNm8) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cnclEtcFileUid8,
+          originalFileName: frmMainData.value.cnclEtcFileNm8 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cnclEtcFileUid8;
+      }
+      break;
+    case 'cnclEtcFileUid9': // 해지/철회신청(기타9)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cnclEtcFileNm9)}`);
+      if (getFileExtension(frmMainData.value.cnclEtcFileNm9) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cnclEtcFileUid9,
+          originalFileName: frmMainData.value.cnclEtcFileNm9 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cnclEtcFileUid9;
+      }
+      break;
+    case 'cnclEtcFileUid10': // 해지/철회신청(기타10)
+      // console.log(`file extension : ${getFileExtension(frmMainData.value.cnclEtcFileNm10)}`);
+      if (getFileExtension(frmMainData.value.cnclEtcFileNm10) === '.pdf') {
+        fileUtil.download({ fileUid: frmMainData.value.cnclEtcFileUid10,
+          originalFileName: frmMainData.value.cnclEtcFileNm10 }, 'storage');
+      } else {
+        cpProps = frmMainData.value.cnclEtcFileUid10;
+      }
+      break;
+    default:
+      break;
+  }
 
   console.log(`fileUid : ${cpProps}`);
   if (isEmpty(cpProps)) {
     return;
   }
 
-  const imgFileUid = ref(cpProps);
+  // const imgFileUid = ref(cpProps);
+  const { imgUrl } = cpProps;
   await modal({
     component: 'ZwcmzImagePreviewP',
-    componentProps: { files: [imgFileUid.value] }, // fileUid만 주면 됨
-    // componentProps: { files: [{ fileUid: imgFileUid.value }] }, // fileUid만 주면 됨
-    // componentProps: { files: ['FIL-E9E84666-BFC3-44E2-9EC1-D3AFD05BF77B'] }, // fileUid만 주면 됨
+    componentProps: { files: [imgUrl] }, // fileUid만 주면 됨
   });
 }
 

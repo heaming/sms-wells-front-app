@@ -619,6 +619,7 @@ import dayjs from 'dayjs';
 import { warn } from 'vue';
 import { getNumberWithComma } from '~sms-common/contract/util';
 import { useCtCode } from '~sms-common/contract/composable';
+import { CNTR_TP_CD, COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -628,7 +629,6 @@ const emit = defineEmits([
 ]);
 const exposed = {};
 defineExpose(exposed);
-const router = useRouter();
 
 const dataService = useDataService();
 const { notify, alert } = useGlobal();
@@ -770,7 +770,6 @@ async function calcRestipulation() {
 async function getCntrInfo() {
   if (!cntrNo.value) {
     await alert('잘못된 접근입니다.');
-    router.go(-1);
     return;
   }
   const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', {
@@ -899,7 +898,7 @@ async function initStep(forced = false) {
   if (!forced && loaded.value) { return; }
 
   if (cntrNo.value) {
-    if (cntrTpCd.value === '08') {
+    if (cntrTpCd.value === CNTR_TP_CD.RE_STIPULATION) {
       await getCntrInfoWithRstl();
     } else {
       await getCntrInfo();
@@ -908,7 +907,7 @@ async function initStep(forced = false) {
   }
 
   // 법인할인고객 주소변경 확인
-  if (step4.value?.bas.copnDvCd === '2') {
+  if (step4.value?.bas.copnDvCd === COPN_DV_CD.COOPERATION) {
     const { data } = await dataService.get('sms/wells/contract/contracts/is-change-corp-address', {
       params: {
         cntrNo: cntrNo.value,

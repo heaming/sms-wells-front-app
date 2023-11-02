@@ -553,120 +553,7 @@
               </kw-form-row>
             </kw-form>
           </kw-expansion-item>
-          <kw-expansion-item
-            padding-target="header"
-            expansion-icon-align="center"
-            expand-icon-class="kw-font-pt24"
-            default-opened
-          >
-            <template #header>
-              <kw-item-section>
-                <kw-item-label>
-                  <h3>{{ $t('MSG_TXT_PMOT') }}</h3><!-- 프로모션 -->
-                </kw-item-label>
-              </kw-item-section>
-            </template>
 
-            <kw-form
-              class="pb20"
-              dense
-            >
-              <kw-form-row>
-                <!-- 유형 -->
-                <kw-form-item :label="$t('MSG_TXT_TYPE')">
-                  <p>{{ $t('MSG_TXT_FGPT') }}</p><!-- 사은품 -->
-                </kw-form-item>
-              </kw-form-row>
-            </kw-form>
-          </kw-expansion-item>
-          <kw-expansion-item
-            padding-target="header"
-            expansion-icon-align="center"
-            expand-icon-class="kw-font-pt24"
-            default-opened
-          >
-            <template #header>
-              <kw-item-section>
-                <kw-item-label>
-                  <!-- 사은품 선택 -->
-                  <h3>{{ $t('MSG_TXT_FGPT')+' '+$t('MSG_TXT_SELT') }}</h3>
-                </kw-item-label>
-              </kw-item-section>
-            </template>
-            <kw-form
-              class="pb20"
-              :cols="1"
-            >
-              <kw-form-row>
-                <!-- 사은품 -->
-                <kw-form-item :label="$t('MSG_TXT_FGPT')">
-                  <kw-option-group
-                    :model-value="'사은품 선택안함'"
-                    type="radio"
-                    :options="['(6422)라이브팩(1)', '(6422)라이브팩(2)','사은품 선택안함']"
-                    @change="alert('준비중입니다.')"
-                  />
-                </kw-form-item>
-              </kw-form-row>
-            <!-- <kw-form-row>
-              <kw-form-item
-                label="사은품검색"
-              >
-                <div class="column col">
-                  <kw-input
-                    icon="search"
-                    clearable
-                    style="max-width: 40%;"
-                  />
-                  <div class="border-box mt12 col">
-                    <kw-form
-                      :cols="1"
-                      dense
-                    >
-                      <kw-form-row>
-                        <kw-form-item
-                          label="선택사은품"
-                        >
-                          <p class="kw-grow mr8">
-                            (4064) 웰스팜/그린/슬림/공유S
-                          </p>
-                          <zwcm-counter />
-                        </kw-form-item>
-                      </kw-form-row>
-                    </kw-form>
-                    <kw-separator spaced="20px" />
-                    <kw-btn
-                      padding="12px"
-                      label="삭제"
-                    />
-                  </div>
-                  <div class="border-box mt12">
-                    <kw-form
-                      :cols="1"
-                      dense
-                    >
-                      <kw-form-row>
-                        <kw-form-item
-                          label="선택사은품"
-                        >
-                          <p class="kw-grow mr8">
-                            (4064) 웰스팜/그린/슬림/공유S
-                          </p>
-                          <zwcm-counter />
-                        </kw-form-item>
-                      </kw-form-row>
-                    </kw-form>
-                    <kw-separator spaced="20px" />
-                    <kw-btn
-                      padding="12px"
-                      label="삭제"
-                    />
-                  </div>
-                </div>
-              </kw-form-item>
-            </kw-form-row> -->
-            </kw-form>
-          </kw-expansion-item>
           <kw-expansion-item
             padding-target="header"
             expansion-icon-align="center"
@@ -1087,7 +974,6 @@ async function fetchProductAdditionalInfoData() {
   // 주문상품을 바꾼 경우, 선택 옵션 초기화
   await initProduct();
 }
-
 const isFetched = ref(false);
 // 기본정보 조회
 async function fetchData() {

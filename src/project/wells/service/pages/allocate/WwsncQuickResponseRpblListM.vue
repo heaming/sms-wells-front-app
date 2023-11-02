@@ -66,6 +66,13 @@
             maxlength="100"
           />
         </kw-search-item>
+        <kw-search-item :label="$t('재발행 여부')">
+          <kw-select
+            v-model="searchParams.rpblYn"
+            :options="codes.YN_CD"
+            first-option="all"
+          />
+        </kw-search-item>
       </kw-search-row>
 
       <kw-search-row
@@ -93,10 +100,11 @@
             :options="codes.PD_GRP_CD"
           />
         </kw-search-item>
-        <kw-search-item :label="$t('계약번호')">
-          <kw-input
-            v-model="searchParams.cntrNo"
-            maxlength="100"
+        <kw-search-item :label="$t('계약상세번호')">
+          <zctz-contract-detail-number
+            ref="contractNumberRef"
+            v-model:cntr-no="searchParams.cntrNo"
+            v-model:cntr-sn="searchParams.cntrSn"
           />
         </kw-search-item>
       </kw-search-row>
@@ -129,6 +137,13 @@
           <kw-input
             v-model="searchParams.prtnrNo"
             maxlength="100"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('재발행 여부')">
+          <kw-select
+            v-model="searchParams.rpblYn"
+            :options="codes.YN_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -185,6 +200,13 @@
           <kw-input
             v-model="searchParams.prtnrNo"
             maxlength="100"
+          />
+        </kw-search-item>
+        <kw-search-item :label="$t('재발행 여부')">
+          <kw-select
+            v-model="searchParams.rpblYn"
+            :options="codes.YN_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -316,6 +338,7 @@ const searchParams = ref({
   engineerCd: '', // 엔지니어
 
   ogTpCd: '',
+  rpblYn: '',
 });
 
 /*
@@ -324,6 +347,7 @@ const searchParams = ref({
 const codes = await codeUtil.getMultiCodes(
   'LOCARA_MNGT_DV_CD',
   'PD_GRP_CD',
+  'YN_CD',
 );
 
 const mngrPartnerObj = ref({});
@@ -457,6 +481,11 @@ async function onClickQrRpbl() {
     alert(t('MSG_ALT_USE_DT_SRCH_AF')); // 데이터 조회 후 사용해주세요.
     return;
   }
+
+  // 바코드 재발행 저장
+  await dataService.post('/sms/wells/service/quick-response-rpbls', cachedParams);
+  // await notify(t('MSG_ALT_SAVE_DATA'));
+
   // Initialize
   ozReportParam.value.args = {
     RES_YR: '', // 조회년도
@@ -514,7 +543,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'rdadr' },
     { fieldName: 'vstYm' },
     { fieldName: 'bcNo' },
-    { fieldName: 'fnlMdfcDtm' },
+    { fieldName: 'dldDt' },
     // { fieldName: 'prtnrKnm' },
     { fieldName: 'vstFshDt' },
     { fieldName: 'vstFshHh' },
@@ -530,6 +559,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'mexnoEncr' },
     { fieldName: 'cralIdvTno' },
     { fieldName: 'cstSign' },
+    { fieldName: 'bcRpblId' },
   ];
 
   const columns = [
@@ -540,7 +570,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: '상품', width: '400', styleName: 'text-left' },
     {
       fieldName: 'cntrNo',
-      header: '계약번호',
+      header: '계약상세번호',
       width: '150',
       styleName: 'rg-button-link text-center',
       renderer: { type: 'button' },
@@ -571,14 +601,14 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'svpdQrType', header: 'QR유형', width: '200', styleName: 'text-center' },
     { fieldName: 'qrCd', header: 'QR코드', width: '200', styleName: 'text-center' },
     {
-      fieldName: 'fnlMdfcDtm',
+      fieldName: 'dldDt',
       header: '다운로드 일자',
       width: '200',
       styleName: 'text-center',
       // datetimeFormat: 'yyyy-MM-dd',
       displayCallback(grid, index, value) {
         const strDate = value ?? '';
-        return dayjs(strDate.substr(0, 8)).format('YYYY-MM-DD');
+        return dayjs(strDate.substr(0, 8)).isValid() ? dayjs(strDate.substr(0, 8)).format('YYYY-MM-DD') : '';
       },
     },
     { fieldName: 'dnldPrtnrKnm', header: '다운로드 담당자', width: '200', styleName: 'text-center' },

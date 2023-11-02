@@ -216,6 +216,21 @@
           :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
+        <kw-separator
+          spaced
+          vertical
+          inset
+        />
+        <!-- 이관 데이터 다운 -->
+        <kw-btn
+          v-permission:download
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_TF_DTA_DOWN')"
+          :disable="isSearch"
+          @click="onClickTfDataDown"
+        />
         <!-- 물류이관 -->
         <kw-btn
           v-permission:update
@@ -264,6 +279,12 @@
         :total-count="totalCount"
         @init="initGrdMain"
       />
+      <kw-grid
+        ref="grdTfRef"
+        name="grdTf"
+        hidden="true"
+        @init="initGrdTf"
+      />
     </div>
   </kw-page>
 </template>
@@ -289,6 +310,7 @@ const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+const grdTfRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
   'ITM_KND_CD',
@@ -494,7 +516,7 @@ function onChangeNdlvQty() {
     totalCount.value = beforeOstrItms.value.length;
     view.getDataSource().setRows(beforeOstrItms.value);
   } else if (cnrStocQtyYn === 'Y') {
-    const filterRows = allOstrItms.value.filter((e) => e.hgrCrtlStocQty !== 0);
+    const filterRows = allOstrItms.value.filter((e) => e.hgrCrtlStocQty > 0);
     totalCount.value = filterRows.length;
     view.getDataSource().setRows(filterRows);
   } else {
@@ -513,8 +535,8 @@ function onCnrStocQtyQty() {
     beforeNdlvYn = ndlvQtyYn;
     // 필터링 전 데이터 담기
     beforeOstrItms.value = view.getDataSource().getRows();
-    // 센터재고가 0인 경우 제외
-    const filterRows = gridUtil.filter(view, (e) => e.hgrCrtlStocQty !== 0);
+    // 센터재고가 0이하인 경우 제외
+    const filterRows = gridUtil.filter(view, (e) => e.hgrCrtlStocQty > 0);
     totalCount.value = filterRows.length;
     view.getDataSource().setRows(filterRows);
     return;
@@ -629,6 +651,59 @@ async function onClickSave() {
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchData();
   }
+}
+
+// 이관 데이터 다운
+async function onClickTfDataDown() {
+  const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
+
+  if (isEmpty(apyYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_BASE_YM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(asnOjYm)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ASN_YM')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(cnt)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  if (isEmpty(ostrWareNo)) {
+    // {0}은(는) 필수 항목입니다.
+    await alert(`${t('MSG_TXT_OSTR_WARE')} ${t('MSG_ALT_NCELL_REQUIRED_ITEM')}`);
+    return;
+  }
+
+  // 데이터 조회
+  const res = await dataService.get('/sms/wells/service/individual-ware-ostrs/transfer-data-download', { params: searchParams.value, timeout: 300000 });
+
+  // 데이터가 없는 경우 메시지 처리
+  if (isEmpty(res.data)) {
+    // 적용 대상 데이터가 없습니다.
+    notify(t('MSG_ALT_NO_APPY_OBJ_DT'));
+    return;
+  }
+
+  const view = grdTfRef.value.getView();
+
+  // 엑셀파일명
+  const msg = `${asnOjYm.substring(0, 4)}-${asnOjYm.substring(4, 6)} ${cnt}`;
+  // 파일명, {배정년월} {회차} 개인창고 물류 이관
+  const fileName = `${msg}${t('MSG_TXT_ORDERSELECT_TITLE')} ${t('MSG_TXT_INDV_WARE')} ${t('MSG_TXT_LGST')} ${t('MSG_TXT_TF')}`;
+
+  gridUtil.exportView(view, {
+    fileName,
+    timePostfix: true,
+    searchCondition: false,
+    exportData: res.data,
+  });
 }
 
 // 물류이관
@@ -775,6 +850,45 @@ const initGrdMain = defineGrid((data, view) => {
 
     return false;
   };
+});
+
+const initGrdTf = defineGrid((data, view) => {
+  const fields = [
+    { fieldName: 'wareNm' }, // 입고창고
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'itmPdCd' }, // 품목코드
+    { fieldName: 'pdAbbrNm' }, // 품목명
+    { fieldName: 'hgrCrtlStocQty', dataType: 'number' }, // 센터재고
+    { fieldName: 'outQty', dataType: 'number' }, // 생성수량
+    { fieldName: 'totOutQty', dataType: 'number' }, // 확정 후 재고
+    { fieldName: 'logisticStocQty', dataType: 'number' }, // 물류센터(파주)
+    { fieldName: 'ostrAggQty', dataType: 'number' }, // 출고누계수량
+    { fieldName: 'crtlStocQty', dataType: 'number' }, // 재고수량(개인)
+    { fieldName: 'cnfmQty', dataType: 'number' }, // 최초생성수량
+    { fieldName: 'aclOstrQty', dataType: 'number' }, // 확정수량
+    { fieldName: 'rmkCn' }, // 비고
+  ];
+
+  const columns = [
+    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '160', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '95', styleName: 'text-center' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center' },
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '230', styleName: 'text-left' },
+    { fieldName: 'hgrCrtlStocQty', header: t('MSG_TXT_CNR_STOC'), width: '110', styleName: 'text-right' },
+    { fieldName: 'outQty', header: `${t('MSG_TXT_CRT')}${t('MSG_TXT_QTY')}`, width: '110', styleName: 'text-right' },
+    { fieldName: 'totOutQty', header: `${t('MSG_TXT_DTRM')} ${t('MSG_TXT_AF')} ${t('MSG_TXT_STOC')}`, width: '100', styleName: 'text-right' },
+    { fieldName: 'logisticStocQty', header: `${t('MSG_TXT_LGST_CNR')}(${t('MSG_TXT_PAJU')})`, width: '100', styleName: 'text-right' },
+    { fieldName: 'ostrAggQty', header: t('MSG_TXT_OSTR_AGG_QTY'), width: '100', styleName: 'text-right' },
+    { fieldName: 'crtlStocQty', header: `${t('MSG_TXT_STOC_QTY')}(${t('MSG_TXT_INDV')})`, width: '100', styleName: 'text-right' },
+    { fieldName: 'cnfmQty', header: `${t('MSG_TXT_FST')} ${t('MSG_TXT_CRT')}${t('MSG_TXT_QTY')}`, width: '84', styleName: 'text-right' },
+    { fieldName: 'aclOstrQty', header: t('MSG_TXT_CNFM_QTY'), width: '84', styleName: 'text-right' },
+    { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '240', styleName: 'text-left' },
+  ];
+
+  data.setFields(fields);
+  view.setColumns(columns);
+
+  view.rowIndicator.visible = true;
 });
 
 </script>

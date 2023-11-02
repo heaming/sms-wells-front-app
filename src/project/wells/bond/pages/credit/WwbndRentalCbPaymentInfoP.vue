@@ -41,7 +41,7 @@
 
     <kw-grid
       ref="grdMainRef"
-      :visible-rows="pageInfo.pageSize"
+      :visible-rows="10"
       @init="initGrid"
     />
 
@@ -124,30 +124,30 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' },
-    { fieldName: 'copnDvNm', header: t('MSG_TXT_INDI_CORP'), width: '130', styleName: 'text-center' },
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '130', styleName: 'text-center' },
-    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PDCT'), width: '130', styleName: 'text-left' },
-    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '130', styleName: 'text-center' },
-    { fieldName: 'mpyBsdt', header: t('MSG_TXT_STPL_DT'), width: '130', styleName: 'text-center ' },
-    { fieldName: 'fntDvNm', header: t('MSG_TXT_STLM_MES'), width: '130', styleName: 'text-center ' },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '130', styleName: 'text-right', dataType: 'number' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '130', styleName: 'text-center' },
-    { fieldName: 'dsphTno', header: t('MSG_TXT_DSPH_NO'), width: '130', styleName: 'text-center' },
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '130', styleName: 'text-center' }, // 고객번호
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '130', styleName: 'text-center' }, // 계약상세번호
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '130', styleName: 'text-center' }, // 고객명
+    { fieldName: 'copnDvNm', header: t('MSG_TXT_INDI_CORP'), width: '130', styleName: 'text-center' }, // 개인/법인
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '130', styleName: 'text-center' }, // 상품구분
+    { fieldName: 'pdClsfNm', header: t('MSG_TXT_PDCT'), width: '130', styleName: 'text-left' }, // 제품
+    { fieldName: 'slRcogDt', header: t('MSG_TXT_SL_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 매출일자
+    { fieldName: 'cralTno', header: t('MSG_TXT_MPNO'), width: '130', styleName: 'text-center' }, // 휴대전화번호
+    { fieldName: 'mpyBsdt', header: t('MSG_TXT_STPL_DT'), width: '130', styleName: 'text-center ' }, // 약정일자
+    { fieldName: 'fntDvNm', header: t('MSG_TXT_STLM_MES'), width: '130', styleName: 'text-center ' }, // 결제수단
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_DP_TOT'), width: '130', styleName: 'text-right', dataType: 'number' }, // 연체입금액
+    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '130', styleName: 'text-right', dataType: 'number' }, // 연체잔액
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_CLCTAM_PSIC'), width: '130', styleName: 'text-center' }, // 집금담당자
+    { fieldName: 'dsphTno', header: t('MSG_TXT_DSPH_NO'), width: '130', styleName: 'text-center' }, //
     // rev:230410 header 텍스트 수정
-    { fieldName: 'rgstSchDt', header: t('MSG_TXT_RGST_SCHD_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'rgstSchDt', header: t('MSG_TXT_RGST_SCHD_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 발신번호
     // // rev:230410 header 텍스트 수정
-    { fieldName: 'niceFwExcdYn', header: t('MSG_TXT_EXCD_YN'), width: '130', styleName: 'text-center' },
+    { fieldName: 'niceFwExcdYn', header: t('MSG_TXT_EXCD_YN'), width: '130', styleName: 'text-center' }, // 제외여부
     // rev:230410 header 텍스트 수정
-    { fieldName: 'fwbooDtm', header: t('MSG_TXT_NOTAK_FW_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'fwbooDtm', header: t('MSG_TXT_NOTAK_FW_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 알림톡 발송일자
     // // rev:230410 header 텍스트 수정
-    { fieldName: 'resultYn', header: t('MSG_TXT_SCS_YN'), width: '130', styleName: 'text-center' },
+    { fieldName: 'resultYn', header: t('MSG_TXT_SCS_YN'), width: '130', styleName: 'text-center' }, // 성공여부
     // rev:230410 header 텍스트 수정
-    { fieldName: 'notyFwOjDt', header: t('MSG_TXT_DL_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'notyFwOjDt', header: t('MSG_TXT_DL_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' }, // 삭제일자
     // // rev:230410 header 텍스트 수정
   ];
 

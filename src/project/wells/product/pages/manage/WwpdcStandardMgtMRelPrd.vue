@@ -311,8 +311,8 @@ async function isOverPeriodCheck(view) {
   let dupItem;
   await Promise.all(rowValues.map(async (item1) => {
     // 비동기방식 설정 조건문
-    if (isValid && await getOverPeriodByRelProd(view, item1)) {
-      dupItem = (await getOverPeriodByRelProd(view, item1));
+    if (isValid && await getOverPeriodByRelProd(view, item1, 'pdRelTpCd')) {
+      dupItem = (await getOverPeriodByRelProd(view, item1, 'pdRelTpCd'));
       if (dupItem) {
         isValid = false;
       }
@@ -434,7 +434,7 @@ async function onClickStandardSchPopup() {
     return;
   }
   const view = grdStandardRef.value.getView();
-  searchParams.value.searchType = pdConst.PD_SEARCH_NAME;
+  searchParams.value.searchType = standardSearchType.value;
   searchParams.value.searchValue = standardSearchValue.value;
   searchParams.value.pdTpCd = pdConst.PD_TP_CD_STANDARD;
   searchParams.value.exceptPdCd = currentPdCd.value;

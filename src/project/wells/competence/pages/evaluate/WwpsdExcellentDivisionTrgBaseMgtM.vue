@@ -99,7 +99,7 @@ import { cloneDeep } from 'lodash-es';
 
 const { t } = useI18n();
 const { notify } = useGlobal();
-const { getConfig, getUserInfo } = useMeta();
+const { getUserInfo } = useMeta();
 const dataService = useDataService();
 const userInfo = getUserInfo();
 // -------------------------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ const trgSearchParams = ref({
 const trgPageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
 });
 
 let trgCachedParams;
@@ -194,15 +194,6 @@ const initTrgGrdMain = defineGrid((data, view) => {
       styleCallback(grid, dataCell) {
         const trgUseYn = grid.getValue(dataCell.item.dataRow, 'trgUseYn');
         return trgUseYn && trgUseYn === 'Y' ? { editable: true } : { editable: false };
-      },
-    },
-    { fieldName: 'ctstGrpCd',
-      header: t('MSG_TXT_CTST_GRP'),
-      width: '100',
-      styleName: 'text-right',
-      styleCallback(grid, dataCell) {
-        const evlDvCd = grid.getValue(dataCell.item.dataRow, 'evlDvCd');
-        return (evlDvCd && (evlDvCd.indexOf('M04') >= 0 || evlDvCd.indexOf('M06') >= 0)) ? { editable: true } : { editable: false };
       },
     },
   ];

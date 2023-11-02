@@ -82,10 +82,11 @@
 // -------------------------------------------------------------------------------------------------
 // Initialize Component
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, getComponentType, useDataService, useGlobal, defineGrid, codeUtil } from 'kw-lib';
+import { gridUtil, getComponentType, useDataService, useGlobal, defineGrid, codeUtil, useMeta } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 
+const userInfo = useMeta().getUserInfo();
 const dataService = useDataService();
 const { modal, notify, alert } = useGlobal();
 const { t } = useI18n();
@@ -168,9 +169,9 @@ async function onClickSave() {
       if (!checkedCarAprnoList.includes(exceptDatas[i].cardAprno)) { // 체크하지 않은 승인번호만 진행
         // 승인번호 체크
         const exceptCarAprnoDatas = checkedRows
-          .filter((checkedRow) => checkedRow.cardAprno === exceptDatas[i].cardAprno);
+          .filter((checkedRow) => (checkedRow.opcsAdjExcdYn === '정산제외' && checkedRow.cardAprno === exceptDatas[i].cardAprno));
         if (exceptCarAprnoDatas < 2) { // 해당 승인번호가 체크된 내용중 두 건 이상 있는지
-          notify(t('MSG_ALT_SAME_APRNO_SEVERAL'));
+          notify(t('MSG_ALT_SAME_APRNO_SEVERAL')); // "동일한 승인번호 개수가 2개 이상이어야 가능합니다."
           return false;
         }
         // 사용금액 합계 체크
@@ -178,7 +179,7 @@ async function onClickSave() {
           .reduce((totalAmt, currentData) => totalAmt + currentData.domTrdAmt, 0);// 사용금액 합계
 
         if (domTrdAmtTotal !== 0) {
-          notify(t('MSG_ALT_SAME_APRNO_SUM_USEAMT'));
+          notify(t('MSG_ALT_SAME_APRNO_SUM_USEAMT')); // 승인번호가 모두 동일하면서 사용금액 합계가 0이 되어야 합니다.
           return false;
         }
         checkedCarAprnoList.push(exceptDatas[i].cardAprno); // 같은 승인번호의 사용금액의 합계가 0이면 체크완료
@@ -195,15 +196,19 @@ async function onClickSave() {
 async function onClickExcelDownload(flag) {
   if (flag === 'adjustObject') {
     const view = grdThirdRef.value.getView();
+    const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/adjust-object', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: t('MSG_TXT_ADJ_OJ'),
       timePostfix: true,
+      exportData: res.data,
     });
   } else if (flag === 'withholdingTaxAdjust') {
     const view = grdFourthRef.value.getView();
+    const res = await dataService.get('/sms/wells/closing/expense/marketable-securities/withholding-tax-adjust', { params: cachedParams });
     await gridUtil.exportView(view, {
       fileName: t('MSG_TXT_WHTX_ADJ_IZ'),
       timePostfix: true,
+      exportData: res.data,
     });
   }
 }
@@ -360,13 +365,14 @@ const initGrdFourth = defineGrid((data, view) => {
 });
 
 async function onClickOpenReport() {
-  // params.userId = store.getters['meta/getUserInfo'].userId;
-  // TODO.oz 리포트 W-CL-R-0009 띄워야함 하직 화면 없음
-  openReportPopup(
-    '/ksswells/ord/er/V4.90/contractL23.ozr',
-    '/ksswells/ord/er/V4.90/contractL23',
-    // { wpnSeq: params },
-    { wpnSeq: '202206671335' },
+  await openReportPopup(
+    '/kstation-w/opcs/opcsRgsnMrsc.ozr',
+    '/kstation-w/opcs/opcsRgsnMrsc.odi',
+    {
+      AKDRNK: userInfo.careerLevelCode,
+      AKDDYM: cachedParams.baseYm,
+      AKDCDE: userInfo.employeeIDNumber,
+    },
   );
 }
 

@@ -499,7 +499,6 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const props = defineProps({
-  cntrNoSn: { type: String, default: '' },
   cntrNo: { type: String, default: '' },
   cntrSn: { type: String, default: '' },
   cstKnm: { type: String, default: '' }, // [계약자명]
@@ -538,6 +537,7 @@ const props = defineProps({
   pkgCntrSn: { type: String, default: '' },
   pkgPdCd: { type: String, default: '' },
   pkgCntrPtrm: { type: String, default: '' },
+  packageFrisuPtrm: { type: String, default: '' },
 });
 
 const installDetail = ref({});
@@ -555,11 +555,16 @@ async function initPage() {
   installDetail.value = cloneDeep(props);
   installDetail.value.ogCd = sessionUserInfo.ogCd;
   installDetail.value.ogNm = sessionUserInfo.ogCdNm;
+  installDetail.value.cntrNoSn = `${installDetail.value.cntrNo}-${installDetail.value.cntrSn}`;
 
   // 모종 패키지 관련 설정
-  installDetail.value.packageYn = !isEmpty(props.pkgCntrSn) ? 'Y' : 'N';
-  installDetail.value.packageFrisuPtrm = 12;
-  installDetail.value.packageFreeAmt = 0;
+  installDetail.value.packageYn = 'Y';
+  if (isEmpty(props.pkgCntrSn)) {
+    installDetail.value.packageYn = 'N';
+    installDetail.value.pkgCntrPtrm = 12;
+    installDetail.value.packageFrisuPtrm = 12;
+    installDetail.value.packageFreeAmt = 0;
+  }
 
   const res = await dataService.get('/sms/wells/contract/contracts/company-service', { params: { pdCd: installDetail.value.basePdCd } });
   services.value = res.data.services;

@@ -56,7 +56,7 @@
                   required
                 >
                   <kw-select
-                    v-model="frmMainData.actiGdsSn"
+                    v-model="frmMainData.actiGdsSetCd"
                     :options="actiGdsSns"
                     first-option="select"
                     :label="t('MSG_TXT_ITM')"
@@ -231,12 +231,14 @@ const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
 );
 const frmMainData = ref({
+  actiGdsSetCd: '',
   actiGdsSn: '',
   actiGdsStddCd: '',
   aplcQty: '',
   ogTpCd: userInfo.ogTpCd,
   actiGdsCd: '',
   actiGdsStddDvId: '',
+  aplcYn: 'Y',
 
 });
 const searchParams = ref({
@@ -275,16 +277,20 @@ async function optionDataDtl() {
 
   return data;
 }
-watch(() => frmMainData.value.actiGdsSn, async (newVal) => {
+watch(() => frmMainData.value.actiGdsSetCd, async (newVal) => {
   if (newVal) {
     const eactiGdsSnsData = actiGdsSns.value.filter((v) => [newVal].includes(v.codeId));
+    const actiGdsSetCdData = eactiGdsSnsData[0].codeId.split('-');
+    frmMainData.value.ogTpCd = actiGdsSetCdData[0];
+    frmMainData.value.actiGdsCd = actiGdsSetCdData[1];
+    frmMainData.value.actiGdsSn = actiGdsSetCdData[2];
     frmMainData.value.actiGdsStddDvId = eactiGdsSnsData[0].actiGdsStddDvId;
-    frmMainData.value.actiGdsCd = eactiGdsSnsData[0].prtsCodeId;
     actiGdsStddCds.value = await optionDataDtl();
   }
 });
 
 async function fetchPages() {
+  cachedParams = cloneDeep(frmMainData.value);
   const res = await dataService.get('/sms/wells/competence/business/activity/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
 

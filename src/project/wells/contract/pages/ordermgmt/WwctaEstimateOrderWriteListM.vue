@@ -126,7 +126,7 @@
             :label="$t('MSG_BTN_INQR')"
             padding="10px"
             class="ml8"
-            @click="onClickSearchPopup"
+            @click="onClickSearchPopup(item)"
           />
           <!-- 수정  -->
           <kw-btn
@@ -170,9 +170,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, notify, useDataService, useGlobal } from 'kw-lib';
+import { codeUtil, useDataService, useGlobal } from 'kw-lib'; // notify,
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const { confirm, modal } = useGlobal();
 const now = dayjs();
@@ -251,8 +252,20 @@ async function onClickCntr(item) {
   });
 }
 
-async function onClickSearchPopup() {
-  notify('견적서 리포트 완료 후 연결됩니다.'); // TODO : 추후 확인 후 팝업 추가
+async function onClickSearchPopup(item) {
+  // notify('견적서 리포트 완료 후 연결됩니다.'); // TODO : 추후 확인 후 팝업 추가
+  // const { paramCntrNo } = item.value.cntrNo;
+  // console.log(paramCntrNo);
+
+  await openReportPopup(
+    '/kstation-w/ord/esdc/V1.0/esdcOrdr.ozr',
+    null,
+    JSON.stringify(
+      {
+        cntrNo: item.cntrNo,
+      },
+    ),
+  );
 }
 
 async function onClickUpdate(item) {

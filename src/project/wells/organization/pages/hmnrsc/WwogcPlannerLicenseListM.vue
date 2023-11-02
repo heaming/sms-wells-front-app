@@ -34,6 +34,7 @@
         <kw-search-item :label="t('MSG_TXT_PRTNR_NUM_EMPL_NM')">
           <zwog-partner-search
             v-model:prtnr-no="searchParams.prtnrNo"
+            v-model:prtnr-knm="searchParams.prtnrKnm"
             v-model:og-tp-cd="searchParams.ogTpCd"
           />
         </kw-search-item>
@@ -229,11 +230,12 @@ const grdMain2PageInfo = ref({
 const searchParams = ref({
   ogDvAcd: '7',
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
-  prntrNo: undefined,
-  prntrKnm: undefined,
+  prtnrNo: undefined,
+  prtnrKnm: undefined,
   qlfDvCd: undefined,
 });
 
+// 인사정보 목록 데이터 조회
 async function fetchData() {
   const res = await dataService.get(`${SMS_WELLS_URI}/partner/planner-license/paging`, { params: { ...searchParams.value, ...grdMain1PageInfo.value } });
   const { list, pageInfo: pagingResult } = res.data;
@@ -248,6 +250,7 @@ async function fetchData() {
   return grdMain1Datas.value;
 }
 
+// 인사정보 목록에서 선택된 데이터의 상세현황 데이터 조회
 async function fetchDetailData(prtnrNo) {
   const res = await dataService.get(`${SMS_WELLS_URI}/partner/planner-license/${prtnrNo}/paging`);
   const { list, pageInfo: pagingResult } = res.data;
@@ -256,6 +259,7 @@ async function fetchDetailData(prtnrNo) {
   return grdMain2Datas.value;
 }
 
+// 인사정보 그리드 데이터 설정
 function setGrdMain1(response) {
   const data = grdMain1Ref.value.getData();
   if (grdMain1PageInfo.value.pageIndex > 1) {
@@ -265,6 +269,7 @@ function setGrdMain1(response) {
   }
 }
 
+// 상세현황 그리드 데이터 설정
 function setGrdMain2(response) {
   const data = grdMain2Ref.value.getData();
   if (grdMain2PageInfo.value.pageIndex > 1) {
@@ -274,6 +279,7 @@ function setGrdMain2(response) {
   }
 }
 
+// 인사정보 그리드의 행을 선택했을 때 상세데이터 조회
 async function currentRowDetail(currentRow) {
   if (currentRow) {
     const { prtnrNo, edu143, edu96 } = currentRow;
@@ -325,22 +331,26 @@ async function currentRowDetail(currentRow) {
   }
 }
 
+// 초기 데이터 호출
 async function init() {
   const response = await fetchData();
   setGrdMain1(response);
   grdMain2Ref.value.getView().getDataSource().clearRows();
 }
 
+// 조회
 async function onclickSearch() {
   grdMain1PageInfo.value.pageIndex = 1;
   await init();
 }
 
+// 인사정보 - 그리드 스크롤 페이징(스크롤을 끝까지 내렸을 때)
 async function onGrdMain1ScrollToBottom() {
   grdMain1PageInfo.value.pageIndex += 1;
   await init();
 }
 
+// 상세현황 - 그리드 스크롤 페이징(스크롤을 끝까지 내렸을 때)
 async function onGrdMain2ScrollToBottom() {
   grdMain2PageInfo.value.pageIndex += 1;
   const { prtnrNo } = selectedCurrentRow.value;
@@ -348,6 +358,7 @@ async function onGrdMain2ScrollToBottom() {
   setGrdMain2(response);
 }
 
+// 엑셀 다운로드
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdMain1Ref.value.getView();
@@ -424,8 +435,14 @@ function getTargetQualification(item, details, type) {
   return result;
 }
 
+// 상세현황 - 버튼(당일개시, 해약, 개시보류, 당월개시, 차월개시) 클릭
 async function onClickUpgrades(type) {
-  const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo, ogId: currentRowOgId } = selectedCurrentRow.value;
+  const {
+    ogTpCd: currentRowOgTpCd,
+    prtnrNo: currentRowPrtnrNo,
+    prtnrKnm: currentRowPrtnrKnm,
+    ogId: currentRowOgId,
+  } = selectedCurrentRow.value;
   const qualification = getTargetQualification(selectedCurrentRow.value, grdMain2Datas.value, type);
 
   const params = {
@@ -442,9 +459,11 @@ async function onClickUpgrades(type) {
   let message;
   switch (type) {
     case 'DAY_OPENING':
+      // 당일개시
       res = await dataService.post(`${SMS_WELLS_URI}/partner/planner-qualification-change/day-opening`, params);
       break;
     case 'CANCEL':
+      // 해약
       if (await confirm(t('MSG_ALT_CLTN'))) {
         params.ogId = currentRowOgId;
         message = t('MSG_ALT_PROCS_FSH', [t('MSG_TXT_CLTN')]);
@@ -452,14 +471,17 @@ async function onClickUpgrades(type) {
       }
       break;
     case 'HOLDING':
+      // 개시보류
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_QLF_HOLDON')]);
       res = await dataService.post(`${SMS_WELLS_URI}/partner/planner-qualification-change`, params);
       break;
     case 'THIS_OPENING':
+      // 당월개시
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_THM_OPNG')]);
       res = await dataService.post(`${SMS_WELLS_URI}/partner/planner-qualification-change`, params);
       break;
     default:
+      // 차월개시
       message = t('MSG_ALT_PROCS_FSH', [t('MSG_BTN_NMN_OPNG')]);
       res = await dataService.post(`${SMS_WELLS_URI}/partner/planner-qualification-change`, params);
   }
@@ -469,11 +491,19 @@ async function onClickUpgrades(type) {
     const { processCount } = res?.data;
     if (processCount > 0) {
       notify(message);
-      await currentRowDetail(selectedCurrentRow.value);
+      // await currentRowDetail(selectedCurrentRow.value);
+
+      const view = grdMain1Ref.value.getView();
+      searchParams.value.prtnrNo = currentRowPrtnrNo;
+      searchParams.value.prtnrKnm = currentRowPrtnrKnm;
+      searchParams.value.qlfDvCd = qualification.targetQlfDvCd;
+      await init();
+      gridUtil.focusCellInput(view, 0);
     }
   }
 }
 
+// 인사정보 - 그리드 저장
 async function onClickSave() {
   const view = grdMain1Ref.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -496,6 +526,7 @@ async function onClickSave() {
   notify(t('MSG_ALT_SAVE_DATA'));
 }
 
+// 상세현황 - 그리드 저장
 async function onClickPaymentSave() {
   const { ogTpCd: currentRowOgTpCd, prtnrNo: currentRowPrtnrNo } = selectedCurrentRow.value;
   const view = grdMain2Ref.value.getView();
@@ -528,15 +559,57 @@ async function onClickPaymentSave() {
 // -------------------------------------------------------------------------------------------------
 const initGrid1 = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '106', styleName: 'text-center', editable: false },
-    { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '160', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '106', styleName: 'text-center', editable: false },
-    { fieldName: 'rsbDvNm', header: t('MSG_TXT_RSB'), width: '92', styleName: 'text-center', editable: false },
     {
-      fieldName: 'biztelephone',
+      fieldName: 'dgr1LevlOgNm', // 총괄단
+      header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'),
+      width: '92',
+      styleName: 'text-center',
+      displayCallback(g, index, value) {
+        return isEmpty(value) ? '-' : value;
+      },
+      editable: false,
+    },
+    {
+      fieldName: 'dgr2LevlOgNm', // 지역단
+      header: t('MSG_TXT_RGNL_GRP'),
+      width: '106',
+      styleName: 'text-center',
+      displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; },
+      editable: false,
+    },
+    {
+      fieldName: 'ogCd', // 소속코드
+      header: t('MSG_TXT_BLG_CD'),
+      width: '106',
+      styleName: 'text-center',
+      editable: false },
+    {
+      fieldName: 'bldNm', // 빌딩명
+      header: t('MSG_TXT_BLD_NM'),
+      width: '160',
+      styleName: 'text-center',
+      displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; },
+      editable: false },
+    {
+      fieldName: 'prtnrKnm', // 성명
+      header: t('MSG_TXT_EMPL_NM'),
+      width: '92',
+      styleName: 'text-center',
+      editable: false },
+    {
+      fieldName: 'prtnrNo', // 번호
+      header: t('MSG_TXT_SEQUENCE_NUMBER'),
+      width: '106',
+      styleName: 'text-center',
+      editable: false },
+    {
+      fieldName: 'rsbDvNm', // 직책
+      header: t('MSG_TXT_RSB'),
+      width: '92',
+      styleName: 'text-center',
+      editable: false },
+    {
+      fieldName: 'biztelephone', // 휴대전화
       header: t('MSG_TXT_CP'),
       width: '156',
       styleName: 'text-center',
@@ -548,19 +621,94 @@ const initGrid1 = defineGrid((data, view) => {
       },
       textFormat: '([0-9]{3})([0-9]{3,4})([0-9]{4});$1-$2-$3',
     },
-    { fieldName: 'bryyMmdd', header: t('MSG_TXT_RRNO'), width: '136', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYMMDD'); }, editable: false },
-    { fieldName: 'rcrtWrteDt', header: t('MSG_TIT_RCRT_DT'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
-    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_DT'), width: '168', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
-    { fieldName: 'edu143', header: t('MSG_TXT_PRE_SRTUP'), width: '168', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
-    { fieldName: 'edu96', header: t('MSG_TXT_SRTUP'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
-    { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '122', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
-    { fieldName: 'ogTpCd', visible: false },
-    { fieldName: 'bizUseIdvTno', visible: false },
-    { fieldName: 'bizUseExnoEncr', visible: false },
-    { fieldName: 'bizUseLocaraTno', visible: false },
-    { fieldName: 'qlfDvCd', visible: false },
-    { fieldName: 'qlfAplcDvCd', visible: false },
-    { fieldName: 'ogId', visible: false },
+    {
+      fieldName: 'bryyMmdd', // 주민등록번호
+      header: t('MSG_TXT_RRNO'),
+      width: '136',
+      styleName: 'text-center',
+      displayCallback(g, index, value) {
+        return isEmpty(value) ? '-' : dayjs(value).format('YYMMDD');
+      },
+      editable: false,
+    },
+    {
+      fieldName: 'cntrDt', // 리쿠르팅 일자
+      header: t('MSG_TIT_RCRT_DT'),
+      width: '122',
+      styleName: 'text-center',
+      displayCallback(g, index, value) {
+        return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD');
+      },
+      editable: false,
+    },
+    {
+      fieldName: 'fnlCltnDt', // 최종해약일자
+      header: t('MSG_TXT_FNL_CLTN_DT'),
+      width: '168',
+      styleName: 'text-center',
+      displayCallback(g, index, value) {
+        return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD');
+      },
+      editable: false,
+    },
+    {
+      fieldName: 'edu143', // Pre 스타트업
+      header: t('MSG_TXT_PRE_SRTUP'),
+      width: '168',
+      styleName: 'text-center',
+      displayCallback(g, index, value) {
+        return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD');
+      },
+      editable: false,
+    },
+    {
+      fieldName: 'edu96', // 스타트업
+      header: t('MSG_TXT_SRTUP'),
+      width: '122',
+      styleName: 'text-center',
+      displayCallback(g, index, value) {
+        return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD');
+      },
+      editable: false,
+    },
+    {
+      fieldName: 'qlfDvNm', // 자격
+      header: t('MSG_TXT_QLF'),
+      width: '122',
+      styleName: 'text-center',
+      displayCallback(g, index, value) {
+        return isEmpty(value) ? '-' : value;
+      },
+      editable: false,
+    },
+    {
+      fieldName: 'ogTpCd', // 조직유형코드
+      visible: false,
+    },
+    {
+      fieldName: 'bizUseIdvTno', // 업무사용개별전화번호
+      visible: false,
+    },
+    {
+      fieldName: 'bizUseExnoEncr', // 업무사용전화국번호암호화
+      visible: false,
+    },
+    {
+      fieldName: 'bizUseLocaraTno', // 업무사용지역전화번호
+      visible: false,
+    },
+    {
+      fieldName: 'qlfDvCd', // 자격구분코드
+      visible: false,
+    },
+    {
+      fieldName: 'qlfAplcDvCd', // 자격신청구분코드
+      visible: false,
+    },
+    {
+      fieldName: 'ogId', // 조직ID
+      visible: false,
+    },
   ];
 
   // eslint-disable-next-line max-len
@@ -573,17 +721,17 @@ const initGrid1 = defineGrid((data, view) => {
 
   view.setColumnLayout([
     {
-      header: t('MSG_TXT_BLG'),
+      header: t('MSG_TXT_BLG'), // 소속
       direction: 'horizontal',
       items: ['dgr1LevlOgNm', 'dgr2LevlOgNm', 'ogCd', 'bldNm'],
     },
     {
-      header: t('MSG_TXT_HMNRSC'),
+      header: t('MSG_TXT_HMNRSC'), // 인사
       direction: 'horizontal',
-      items: ['prtnrKnm', 'prtnrNo', 'rsbDvNm', 'biztelephone', 'rcrtWrteDt', 'bryyMmdd', 'fnlCltnDt'],
+      items: ['prtnrKnm', 'prtnrNo', 'rsbDvNm', 'biztelephone', 'cntrDt', 'bryyMmdd', 'fnlCltnDt'],
     },
     {
-      header: t('MSG_TXT_EDUC_PS'),
+      header: t('MSG_TXT_EDUC_PS'), // 교육현황
       direction: 'horizontal',
       items: ['edu143', 'edu96'],
     },
@@ -597,6 +745,7 @@ const initGrid1 = defineGrid((data, view) => {
     }
   };
 
+  /* 인사정보 그리드의 행을 클릭했을때 */
   view.onCurrentRowChanged = async (grid, oldRow, newRow) => {
     await currentRowDetail(gridUtil.getRowValue(grid, newRow));
   };
@@ -604,13 +753,48 @@ const initGrid1 = defineGrid((data, view) => {
 
 const initGrid2 = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'qlfDvNm', header: t('MSG_TXT_QLF'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
-    { fieldName: 'qlfAplcDvNm', header: t('MSG_TXT_QLF_CHA'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
-    { fieldName: 'strtdt', header: t('MSG_TXT_STRT_DATE'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
-    { fieldName: 'cvDt', header: t('MSG_TXT_CV_DT'), width: '160', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
-    { fieldName: 'enddt', header: t('MSG_TXT_END_DT'), width: '106', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
     {
-      fieldName: 'report',
+      fieldName: 'qlfDvNm', // 자격
+      header: t('MSG_TXT_QLF'),
+      width: '92',
+      styleName: 'text-center',
+      displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; },
+      editable: false,
+    },
+    {
+      fieldName: 'qlfAplcDvNm', // 자격변경
+      header: t('MSG_TXT_QLF_CHA'),
+      width: '106',
+      styleName: 'text-center',
+      displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; },
+      editable: false,
+    },
+    {
+      fieldName: 'strtdt', // 시작일자
+      header: t('MSG_TXT_STRT_DATE'),
+      width: '106',
+      styleName: 'text-center',
+      displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); },
+      editable: false,
+    },
+    {
+      fieldName: 'cvDt', // 전환일자
+      header: t('MSG_TXT_CV_DT'),
+      width: '160',
+      styleName: 'text-center',
+      displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); },
+      editable: false,
+    },
+    {
+      fieldName: 'enddt', // 종료일자
+      header: t('MSG_TXT_END_DT'),
+      width: '106',
+      styleName: 'text-center',
+      displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); },
+      editable: false,
+    },
+    {
+      fieldName: 'report', // 계약서보기
       header: t('MSG_TXT_CNTRW_BRWS'),
       width: '92',
       renderer: { type: 'button',
@@ -628,7 +812,7 @@ const initGrid2 = defineGrid((data, view) => {
       editable: false,
     },
     {
-      fieldName: 'pymdt',
+      fieldName: 'pymdt', // 지급일자
       header: t('MSG_TXT_DSB_DT'),
       width: '92',
       styleName: 'text-center',
@@ -644,7 +828,7 @@ const initGrid2 = defineGrid((data, view) => {
       editable: true,
     },
     {
-      fieldName: 'dsbAmt',
+      fieldName: 'dsbAmt', // 지급금액
       header: t('MSG_TXT_DSB_AMT'),
       width: '92',
       styleName: 'text-right',
@@ -659,13 +843,46 @@ const initGrid2 = defineGrid((data, view) => {
       },
       editable: true,
     },
-    { fieldName: 'pcpPrtnrNo', header: t('MSG_TXT_MDFC_USR_NO'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
-    { fieldName: 'pcpPrtnrKnm', header: t('MSG_TXT_MDFC_USR'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; }, editable: false },
-    { fieldName: 'prcsdt', header: t('MSG_TXT_MDFC_DATE'), width: '92', styleName: 'text-center', displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); }, editable: false },
-    { fieldName: 'cntrDt', visible: false },
-    { fieldName: 'prtnrCntrTpCd', visible: false },
-    { fieldName: 'ogId', visible: false },
-    { fieldName: 'qlfDvCd', visible: false },
+    {
+      fieldName: 'pcpPrtnrNo', // 수정자번호
+      header: t('MSG_TXT_MDFC_USR_NO'),
+      width: '92',
+      styleName: 'text-center',
+      displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; },
+      editable: false,
+    },
+    {
+      fieldName: 'pcpPrtnrKnm', // 수정자
+      header: t('MSG_TXT_MDFC_USR'),
+      width: '92',
+      styleName: 'text-center',
+      displayCallback(g, index, value) { return isEmpty(value) ? '-' : value; },
+      editable: false,
+    },
+    {
+      fieldName: 'prcsdt', // 수정일자
+      header: t('MSG_TXT_MDFC_DATE'),
+      width: '92',
+      styleName: 'text-center',
+      displayCallback(g, index, value) { return isEmpty(value) ? '-' : dayjs(value).format('YYYY-MM-DD'); },
+      editable: false,
+    },
+    {
+      fieldName: 'cntrDt', // 계약일자
+      visible: false,
+    },
+    {
+      fieldName: 'prtnrCntrTpCd', // 파트너계약유형코드
+      visible: false,
+    },
+    {
+      fieldName: 'ogId', // 조직ID
+      visible: false,
+    },
+    {
+      fieldName: 'qlfDvCd', // 자격구분코드
+      visible: false,
+    },
   ];
 
   // eslint-disable-next-line max-len
@@ -683,6 +900,7 @@ const initGrid2 = defineGrid((data, view) => {
     }
   };
 
+  /* 그리드 클릭 */
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
     const {
       ogTpCd: currentRowOgTpCd,
@@ -695,6 +913,7 @@ const initGrid2 = defineGrid((data, view) => {
     } = g.getValues(itemIndex);
 
     if (column === 'report') {
+      // 계약서 보기
       console.log('계약서');
       console.log('조직유형코드: ', currentRowOgTpCd);
       console.log('번호: ', currentRowPrtnrNo);
