@@ -380,4 +380,10 @@ async function onChangePrtnrNo(val) {
   emit('update:prtnrNo', val);
   emit('update:partner', partners.value.find((partner) => partner.prtnrNo === val));
 }
+
+defineExpose({
+  onChangeDgr1LevlOgId,
+  onChangeDgr2LevlOgId,
+  onChangeDgr3LevlOgId,
+});
 </script>
