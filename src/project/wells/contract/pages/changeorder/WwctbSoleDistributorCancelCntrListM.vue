@@ -160,20 +160,13 @@ async function ozPrint() {
   const codeNm = codes.PDGRP_ACD.filter((x) => cachedParams.pdGbn.includes(x.codeId)); // 조회상품구분
   const srchDiv = !isEmpty(codeNm) ? codeNm[0].codeName : t('MSG_TXT_ALL');
 
-  console.log(pritChpr, srchPerd, srchDiv);
+  cachedParams.pritChpr = pritChpr;
+  cachedParams.srchPerd = srchPerd;
+  cachedParams.srchDiv = srchDiv;
 
-  // eslint-disable-next-line max-len
-  // const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/soledistributor-cancel-contracts/oz', ...cachedParams };
+  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/soledistributor-cancel-contracts/oz', ...cachedParams };
 
-  const args = {
-    searchApiUrl: '/api/v1/sms/wells/contract/contracts/soledistributor-cancel-contracts/oz',
-    ...cachedParams,
-    pritChpr,
-    srchPerd,
-    srchDiv,
-  };
-
-  console.log(args);
+  // console.log(args);
 
   await openReportPopup(
     '/kstation-w/acrs/cancelCust.ozr',
