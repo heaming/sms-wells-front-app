@@ -172,17 +172,6 @@
           dense
           :label="$t('MSG_BTN_INSTL') + $t('MSG_BTN_PRINT_LABEL')"
         />
-        <kw-separator
-          vertical
-          inset
-          spaced
-        />
-
-        <kw-btn
-          :label="$t('MSG_TXT_PROCS_RS') + $t('MSG_TXT_INP')"
-          primary
-          dense
-        />
       </kw-action-top>
 
       <kw-grid
@@ -518,7 +507,9 @@ function initGrid(data, view) {
       const redirectUrl = encodeURIComponent(`/popup/mobile/wmsnb-as-work-list?${param}`);
 
       let url = '';
-      if (import.meta.env.MODE === 'qa') {
+      if (import.meta.env.MODE === 'dev') {
+        url = 'https://d-m-wpm.kyowon.co.kr';
+      } else if (import.meta.env.MODE === 'qa') {
         url = 'https://q-m-wpm.kyowon.co.kr';
       } else {
         url = 'https://m-wpm.kyowon.co.kr';
