@@ -158,14 +158,17 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useMeta, notify } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, useMeta, stringUtil /* , notify */ } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 import dayjs from 'dayjs';
 
 const dataService = useDataService();
 const { t } = useI18n();
 const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
+const { getters } = useStore();
+const { userName, employeeIDNumber } = getters['meta/getUserInfo'];
 const grdMainRef = ref(getComponentType('KwGrid'));
 
 let cachedParams;
@@ -315,8 +318,94 @@ async function onClickExcelDownload() {
 }
 
 async function onClickPrint() {
-  // TODO : 출력 기능 연결
-  notify('TODO : OZ레포트 준비중입니다.');
+  // OZ 리포트 팝업 파라미터 설정
+  const ozParams = {
+    ozrPath: '/kstation-w/acrs/newIntmChngAcrsReport.ozr', // 레포트 파일 경로
+    odiPath: '',
+    args: {},
+  };
+
+  // 조회조건 파라미터 추출
+  const { perfStrtDt, perfEndDt, dgr1LevlOgCd, dgr2LevlOgCd, optnDv } = cachedParams;
+  const dgr1Levl = (codesDgr1Levl.value.filter((v) => v.dgr1LevlOgCd === dgr1LevlOgCd))[0]; // 총괄단
+  const dgr2Levl = (codesDgr2Levl.value.filter((v) => v.dgr2LevlOgCd === dgr2LevlOgCd))[0]; // 지역단
+  const optnDvFilter = (codes.OPTN_DV.filter((v) => v.codeId === optnDv))[0]; // 가동구분
+
+  const srchOco = isEmpty(dgr1Levl) ? '' : dgr1Levl.dgr1LevlOgNm; // 총괄단
+  const srchRgnDan = isEmpty(dgr2Levl) ? '' : dgr2Levl.dgr2LevlOgNm; // 지역단
+  const srchOprtDiv = isEmpty(optnDvFilter) ? '' : optnDvFilter.codeName; // 가동구분
+
+  let inqrDv = ''; // 조회구분
+  let perfDv = ''; // 실적구분
+
+  switch (cachedParams.inqrDv) { // 조회구분 분기처리
+    case '4': // 개인
+      ozParams.ozrPath = '/kstation-w/acrs/newIntmChngAcrsPlanerReport.ozr'; // 플래너 레포트 파일
+      inqrDv = t('MSG_TXT_INDV');
+      break;
+    case '3': // 지점
+      inqrDv = t('MSG_TXT_BRANCH');
+      break;
+    case '2': // 지역단
+      inqrDv = t('MSG_TXT_RGNL_GRP');
+      break;
+    default: // 총괄단
+      inqrDv = t('MSG_TXT_MANAGEMENT_DEPARTMENT');
+      break;
+  }
+
+  switch (cachedParams.perfDv) { // 실적구분 분기처리
+    case 'T': // 총주문
+      perfDv = t('MSG_TXT_TOT_ORD');
+      break;
+    default: // 순주문
+      perfDv = t('MSG_TXT_NTOR');
+      break;
+  }
+
+  cachedParams.pritChpr = `${userName}(${employeeIDNumber})`; // 출력담당자
+  cachedParams.srchAcrsPerd = `${stringUtil.getDateFormat(perfStrtDt)} ~ ${stringUtil.getDateFormat(perfEndDt)}`; // 실적기간
+  cachedParams.srchAcrsBas = perfDv; // 실적구분
+  cachedParams.srchDiv = inqrDv; // 조회구분
+  cachedParams.srchOco = srchOco; // 총괄단
+  cachedParams.srchRgnDan = srchRgnDan; // 지역단
+  cachedParams.srchOprtDiv = srchOprtDiv; // 가동구분
+
+  // 조회조건 및 리스트 파라미터 설정 (샘플데이터)
+  // ozParams.args = { jsondata: {
+  //   deptCd: 'B941010', // 소속
+  //   bzopNm: 'KimGwonJu', // 성명
+  //   bzopNo: '1033699', // 사번
+  //   newCnt: 1, // 신규 신규
+  //   reRntlCnt: 5, // 신규 재렌탈
+  //   rePromLcpCnt: 0, // 신규 팜재렌탈
+  //   intmChngCnt1: 0, // 신규 기변1
+  //   intmChngCnt2: 5, // 신규 기변2
+  //   rcgnCnt: 38, // 신규 인정
+  //   lspyTotCnt: 0, // 일시불 총건수
+  //   lspyRcgnCnt: 0, // 일시불 인정
+  //   sumTotCnt: 0, // 합계 총건수
+  //   sumRcgnCnt: 0, // 헙걔 안종
+  //   pstnNm: 'asdf', // 직급
+  // },
+
+  // pritChpr: `${userName}(${employeeIDNumber})`, // 출력담당자
+  // srchAcrsPerd: `${stringUtil.getDateFormat(perfStrtDt)} ~ ${stringUtil.getDateFormat(perfEndDt)}`, // 실적기간
+  // srchAcrsBas: perfDv, // 실적구분
+  // srchDiv: inqrDv, // 조회구분
+  // srchOco, // 총괄단
+  // srchRgnDan, // 지역단
+  // srchOprtDiv, // 가동구분
+  // };
+
+  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/new-machine-changes/oz', ...cachedParams };
+
+  // OZ 레포트 팝업호출
+  openReportPopup(
+    ozParams.ozrPath,
+    ozParams.odiPath,
+    JSON.stringify(args),
+  );
 }
 
 onMounted(async () => {
