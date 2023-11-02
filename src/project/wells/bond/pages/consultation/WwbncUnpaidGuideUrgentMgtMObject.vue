@@ -287,8 +287,8 @@ const searchParams = ref({
   toTotNpdAmt: '',
   ojWkDt: dayjs().format('YYYYMMDD'),
   ojPyTmlmDt: dayjs().format('YYYYMMDD'),
-  wkDt: dayjs().format('YYYYMMDD'),
-  pyTmlmDt: dayjs().format('YYYYMMDD'),
+  wkDt: '',
+  pyTmlmDt: '',
 });
 const stateOpt = [
   { codeId: '01', codeName: t('MSG_TXT_MTR_CRT') },
@@ -446,9 +446,13 @@ watch(() => searchParams.value.stateDvCd, async (val) => {
   if (val === '01') {
     isState.value = true;
     searchParams.value.ojPyTmlmDt = dayjs().format('YYYYMMDD');
+    searchParams.value.wkDt = dayjs().format('YYYYMMDD');
+    searchParams.value.pyTmlmDt = dayjs().format('YYYYMMDD');
   } else {
     isState.value = false;
     searchParams.value.ojPyTmlmDt = '';
+    searchParams.value.wkDt = dayjs().format('YYYYMMDD');
+    searchParams.value.pyTmlmDt = dayjs().format('YYYYMMDD');
   }
 }, { immediate: true });
 // -------------------------------------------------------------------------------------------------
