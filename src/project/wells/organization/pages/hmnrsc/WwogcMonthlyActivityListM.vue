@@ -183,77 +183,6 @@ async function fetchData() {
 
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
-  if (cacheParams.rsbDvCd === 'S') { // 판매자
-    view.setColumnProperty('cntrDt', 'visible', true);
-    view.setColumnProperty('fnlCltnDt', 'visible', true);
-    view.setColumnProperty('hooPrtnrNo', 'visible', true);
-    view.setColumnProperty('akcdq0Sunju', 'visible', true);
-    view.setColumnProperty('akcdq0Sulchi', 'visible', true);
-    view.setColumnProperty('akcdq1Sunju', 'visible', true);
-    view.setColumnProperty('akcdq1Sulchi', 'visible', true);
-    view.setColumnProperty('lccnt0', 'visible', true);
-    view.setColumnProperty('lccnt1', 'visible', true);
-    view.setColumnProperty('metgPrscDc', 'visible', true);
-    view.setColumnProperty('metgPrscDcYn', 'visible', true);
-    view.setColumnProperty('edu11Yn', 'visible', true);
-    view.setColumnProperty('edu17Yn', 'visible', true);
-    view.setColumnProperty('lcvcnt', 'visible', true);
-    view.setColumnProperty('fnlCltnDtYn', 'visible', true);
-    view.setColumnProperty('chgBaseYm', 'visible', false);
-    view.setColumnProperty('lccn47', 'visible', true);
-    view.setColumnProperty('prtnrEjtCnt', 'visible', false);
-    view.setColumnProperty('akcdq0Pr', 'visible', false);
-    view.setColumnProperty('akcdq1Pr', 'visible', false);
-    view.setColumnProperty('gadcnt', 'visible', false);
-    view.setColumnProperty('silcnt', 'visible', false);
-  } else if (cacheParams.rsbDvCd === 'E') { // 지구장
-    view.setColumnProperty('cntrDt', 'visible', false);
-    view.setColumnProperty('fnlCltnDt', 'visible', false);
-    view.setColumnProperty('hooPrtnrNo', 'visible', true);
-    view.setColumnProperty('akcdq0Sunju', 'visible', false);
-    view.setColumnProperty('akcdq0Sulchi', 'visible', false);
-    view.setColumnProperty('akcdq1Sunju', 'visible', false);
-    view.setColumnProperty('akcdq1Sulchi', 'visible', false);
-    view.setColumnProperty('lccnt0', 'visible', true);
-    view.setColumnProperty('lccnt1', 'visible', true);
-    view.setColumnProperty('metgPrscDc', 'visible', false);
-    view.setColumnProperty('metgPrscDcYn', 'visible', false);
-    view.setColumnProperty('edu11Yn', 'visible', false);
-    view.setColumnProperty('edu17Yn', 'visible', true);
-    view.setColumnProperty('lcvcnt', 'visible', true);
-    view.setColumnProperty('fnlCltnDtYn', 'visible', false);
-    view.setColumnProperty('chgBaseYm', 'visible', false);
-    view.setColumnProperty('lccn47', 'visible', false);
-    view.setColumnProperty('prtnrEjtCnt', 'visible', false);
-    view.setColumnProperty('akcdq0Pr', 'visible', false);
-    view.setColumnProperty('akcdq1Pr', 'visible', false);
-    view.setColumnProperty('gadcnt', 'visible', false);
-    view.setColumnProperty('silcnt', 'visible', false);
-  } else { // 지점장
-    view.setColumnProperty('cntrDt', 'visible', true);
-    view.setColumnProperty('fnlCltnDt', 'visible', false);
-    view.setColumnProperty('hooPrtnrNo', 'visible', false);
-    view.setColumnProperty('akcdq0Sunju', 'visible', true);
-    view.setColumnProperty('akcdq0Sulchi', 'visible', true);
-    view.setColumnProperty('akcdq1Sunju', 'visible', true);
-    view.setColumnProperty('akcdq1Sulchi', 'visible', true);
-    view.setColumnProperty('lccnt0', 'visible', false);
-    view.setColumnProperty('lccnt1', 'visible', false);
-    view.setColumnProperty('metgPrscDc', 'visible', true);
-    view.setColumnProperty('metgPrscDcYn', 'visible', false);
-    view.setColumnProperty('edu11Yn', 'visible', false);
-    view.setColumnProperty('edu17Yn', 'visible', false);
-    view.setColumnProperty('lcvcnt', 'visible', false);
-    view.setColumnProperty('fnlCltnDtYn', 'visible', false);
-    view.setColumnProperty('chgBaseYm', 'visible', true);
-    view.setColumnProperty('lccn47', 'visible', true);
-    view.setColumnProperty('prtnrEjtCnt', 'visible', true);
-    view.setColumnProperty('akcdq0Pr', 'visible', true);
-    view.setColumnProperty('akcdq1Pr', 'visible', true);
-    view.setColumnProperty('gadcnt', 'visible', true);
-    view.setColumnProperty('silcnt', 'visible', true);
-  }
-
   setGrid(list);
 }
 
@@ -289,30 +218,24 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '148', styleName: 'text-center' },
     { fieldName: 'cntrDt', header: t('MSG_TXT_RCRT_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'prfmtDt', header: t('MSG_TXT_APNTMT_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'chgBaseYm', header: t('MSG_TXT_RSB_CHG_YM'), width: '160', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_DT'), width: '136', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'hooPrtnrNo', header: t('MSG_TXT_BRN_MGR_NUM'), width: '122', styleName: 'text-center' },
     { fieldName: 'qlfDvCd', header: t('MSG_TXT_QLF'), width: '122', styleName: 'text-center' },
     { fieldName: 'akcdq0Sunju', header: t('MSG_TXT_NTOR'), width: '92', styleName: 'text-center', numberFormat: '#,##0' },
     { fieldName: 'akcdq0', header: t('MSG_TXT_RCP_WO'), width: '106', styleName: 'text-center', numberFormat: '#,##0' },
     { fieldName: 'akcdq0Sulchi', header: t('MSG_TXT_RCP_IST'), width: '106', styleName: 'text-center', numberFormat: '#,##0' },
-    { fieldName: 'akcdq0Pr', header: t('MSG_TXT_INDV') + t('MSG_TXT_RCP_WO'), width: '160', styleName: 'text-center', numberFormat: '#,##0' },
-    { fieldName: 'prtnrEjtCnt', header: t('MSG_TXT_EJT_CT'), width: '160', styleName: 'text-center', numberFormat: '#,##0' },
     { fieldName: 'akcdq1Sunju', header: t('MSG_TXT_NTOR'), width: '92', styleName: 'text-center', numberFormat: '#,##0' },
     { fieldName: 'akcdq1', header: t('MSG_TXT_RCP_WO'), width: '106', styleName: 'text-center', numberFormat: '#,##0' },
     { fieldName: 'akcdq1Sulchi', header: t('MSG_TXT_RCP_IST'), width: '106', styleName: 'text-center', numberFormat: '#,##0' },
-    { fieldName: 'akcdq1Pr', header: t('MSG_TXT_INDV') + t('MSG_TXT_RCP_WO'), width: '160', styleName: 'text-center', numberFormat: '#,##0' },
     { fieldName: 'lccnt0', header: t('MSG_TXT_PD_ACC_CNT'), width: '106', styleName: 'text-center', numberFormat: '#,##0' },
-    { fieldName: 'lccnt1', header: t('MSG_TXT_WO_CT'), width: '106', styleName: 'text-center', numberFormat: '#,##0' },
+    { fieldName: 'lccnt1', header: t('MSG_TXT_WO_CT'), width: '106', styleName: 'text-center', numberFormat: '#,##0' }, // 당월설치 전체건수
     { fieldName: 'lccn47', header: t('MSG_TXT_WELSF') + t('MSG_TXT_RSTL'), width: '160', styleName: 'text-center', numberFormat: '#,##0' },
-    { fieldName: 'gadcnt', header: t('MSG_TXT_OPTN') + t('MSG_TXT_PERSONS'), width: '160', styleName: 'text-center', numberFormat: '#,##0' },
-    { fieldName: 'silcnt', header: t('MSG_TXT_SILDONG') + t('MSG_TXT_PERSONS'), width: '160', styleName: 'text-center', numberFormat: '#,##0' },
     { fieldName: 'metgPrscDc', header: t('MSG_TXT_DC'), width: '106', styleName: 'text-center', numberFormat: '#,##0' },
     { fieldName: 'metgPrscDcYn', header: t('MSG_TXT_ACKMT_YN'), width: '106', styleName: 'text-center' },
     { fieldName: 'edu11Yn', header: t('MSG_TXT_PLANNER_STRTUP'), width: '152', styleName: 'text-center' },
     { fieldName: 'edu17Yn', header: t('MSG_TXT_TOPMR_PLAR_PRTIC'), width: '152', styleName: 'text-center' },
     { fieldName: 'lcvcnt', header: t('MSG_TXT_BF_SV_ACC'), width: '104', styleName: 'text-center', numberFormat: '#,##0' },
-    { fieldName: 'fnlCltnDtYn', header: t('MSG_TXT_REG_IN_MN'), width: '160', styleName: 'text-center' },
+    { fieldName: 'fnlCltnDtYn', header: `3${t('MSG_TXT_REG_IN_MN')}`, width: '160', styleName: 'text-center' },
   ];
 
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
@@ -335,19 +258,18 @@ const initGrid = defineGrid((data, view) => {
     },
     'cntrDt',
     'prfmtDt',
-    'chgBaseYm',
     'fnlCltnDt',
     'hooPrtnrNo',
     'qlfDvCd',
     {
       header: t('MSG_TXT_PD_ACC_CNT'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['akcdq0Sunju', 'akcdq0', 'akcdq0Sulchi', 'akcdq0Pr', 'prtnrEjtCnt'],
+      items: ['akcdq0Sunju', 'akcdq0', 'akcdq0Sulchi'],
     },
     {
       header: t('MSG_TXT_WO_CT'), // colspan title
       direction: 'horizontal', // merge type
-      items: ['akcdq1Sunju', 'akcdq1', 'akcdq1Sulchi', 'akcdq1Pr'],
+      items: ['akcdq1Sunju', 'akcdq1', 'akcdq1Sulchi'],
     },
     {
       header: t('MSG_TXT_THM_IST'), // colspan title
@@ -355,8 +277,6 @@ const initGrid = defineGrid((data, view) => {
       items: ['lccnt0', 'lccnt1'],
     },
     'lccn47',
-    'gadcnt',
-    'silcnt',
     {
       header: t('MSG_TXT_METG_PS'), // colspan title
       direction: 'horizontal', // merge type
