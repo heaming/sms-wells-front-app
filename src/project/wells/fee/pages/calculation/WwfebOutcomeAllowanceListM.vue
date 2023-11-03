@@ -384,7 +384,7 @@ const initGridMOg = defineGrid((data, view) => {
         numberFormat: '#,##0>#',
         expression: 'sum',
       } }, // 실활동(지평)
-    { fieldName: 'actiBrchN',
+    { fieldName: 'actvBrchN',
       header: t('MSG_TXT_ACTV_BRCH'),
       width: '106',
       styleName: 'text-right',
@@ -470,7 +470,7 @@ const initGridMOg = defineGrid((data, view) => {
       items: ['wmAclActiCt', 'bfsvcAclActiCt'],
     },
     'aclActiBrchAvCt',
-    'actiBrchN',
+    'actvBrchN',
     'ogAwAmt',
     'dsbAmt',
   ]);
