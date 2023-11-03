@@ -139,13 +139,13 @@
             :label="t('MSG_TXT_OPNG_NMN')"
             align-content="center"
           >
-            <p>{{ basicInfo.mngerBizCltnMm ? stringUtil.getDateFormat(basicInfo.mngerBizCltnMm) : '' }}</p>
+            <p>{{ basicInfo.mngerBltnNmn ? basicInfo.mngerBltnNmn : '' }}</p>
           </kw-form-item>
           <kw-form-item
             :label="t('MSG_TXT_MANAGER')+t('MSG_TXT_CLTN_MM')"
             align-content="center"
           >
-            <p>{{ basicInfo.mngerBltnNmn ? stringUtil.getDateFormat(basicInfo.mngerBltnNmn) : '' }}</p>
+            <p>{{ basicInfo.mngerBizCltnMm ? stringUtil.getDateFormat(basicInfo.mngerBizCltnMm) : '' }}</p>
           </kw-form-item>
         </kw-form-row>
       </kw-form>
