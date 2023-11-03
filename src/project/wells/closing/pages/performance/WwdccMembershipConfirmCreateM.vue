@@ -52,7 +52,7 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_SEL_TYPE')">
+        <kw-search-item :label="$t('MSG_TXT_SELL_TP_DTL')">
           <kw-select
             v-model="searchParams.sellTpCd"
             :options="sellTpOpt"
@@ -260,15 +260,13 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrNoSn', header: t('MSG_TXT_CNTR_DTL_NO'), width: '146', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center' }, // 판매유형
-    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_MSH_DV'), width: '120', styleName: 'text-center' }, // 멤버십구분
+    { fieldName: 'sellTpDtlNm', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center' }, // 판매유형상세
     { fieldName: 'cntrwTpCd', header: t('MSG_TXT_SLS_CAT'), width: '120', styleName: 'text-center' }, // 판매구분
     { fieldName: 'basePdCd', header: t('MSG_TXT_PRDT_CODE'), width: '120', styleName: 'text-center' }, // 상품코드
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '300', styleName: 'text-left' }, // 상품명
     { fieldName: 'svPdTpNm', header: t('MSG_TXT_USWY'), width: '80', styleName: 'text-center' }, // 용도
     { fieldName: 'svPrd', header: t('MSG_TXT_CYCL'), width: '80', styleName: 'text-center' }, // 주기
     { fieldName: 'frisuYn', header: t('MSG_TXT_FRISU_MSH'), width: '120', styleName: 'text-center' }, // 무상멤버십
-    { fieldName: 'hcrDvCd', header: t('MSG_TXT_DV_1'), width: '80', styleName: 'text-center' }, // 구분1
-    { fieldName: 'dv', header: t('MSG_TXT_DV_2'), width: '80', styleName: 'text-center' }, // 구분2
     { fieldName: 'dpTpNm', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center' }, // 이체구분
     { fieldName: 'cntrCstNo', header: t('MSG_TXT_CST_NO'), width: '120', styleName: 'text-center' }, // 고객번호
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_RCP_D'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
