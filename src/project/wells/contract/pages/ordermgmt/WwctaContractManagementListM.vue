@@ -360,7 +360,7 @@ import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, fileU
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import { openReportPopup } from '~common/utils/cmPopupUtil';
+import { openReportPopup, openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -995,6 +995,131 @@ async function onClickSearchCntrCst() {
   }
 }
 
+// oz리포트 이벤트
+async function onClickOzReport(cntrNo) {
+  // TODO: 231031 기준 개발중인 oz리포트 - args받아서 정상적으로 넘기는 것 까지 완료 [버전등 개발이 완료되면 다시 확인]
+
+  const res = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
+
+  if (res.data.length < 2) { // 단건 처리
+    console.log(res.data[0]);
+
+    await openReportPopup(
+      res.data[0].ozrPath,
+      res.data[0].odiPath,
+      JSON.stringify(res.data[0].args),
+    );
+  }
+
+  if (res.data.length > 1) { // 다건 처리
+    const children = []; // 자식트리의 리스트
+
+    for (let i = 1; i < res.data.length; i += 1) { // 부모가 될 단건을 제외한 나머지 다건을 children args로
+      const childParams = {
+        ozrPath: res.data[i].ozrPath, // childParamOzrPath,
+        odiPath: res.data[i].odiPath, // childParamOdiPath,
+        args: JSON.stringify(res.data[i].args), // { ctnrNo: res.data[i].args.cntrNo, histStrtDtm: paramHistStrtDtm,}),
+        displayName: res.data[i].displayName,
+      };
+
+      children.push(childParams);
+    }
+    console.log(children); // 자식리스트
+    console.log(res.data[0]);
+
+    // 부모트리의 파라미터
+    await openReportPopupWithOptions(
+      res.data[0].ozrPath, // ozrPath
+      res.data[0].odiPath, // odiPath
+      JSON.stringify(res.data[0].args), /* parantParamArgs), // args */
+      { // options
+        treeViewTitle: '청약서목록',
+        displayName: res.data[0].displayName,
+        children,
+      },
+    );
+  }
+
+  /*  -------------------------------- 임시 -------------------------------------
+  // if (res.data.length > 1) { // 다건 처리
+  //   const children = []; // 자식트리의 리스트
+
+  //   for (let i = 1; i < res.data.length; i += 1) { // 부모가 될 단건을 제외한 나머지 다건을 children args로
+  //     const childParamOzrPath = `${res.data[i].ozrPath}`;
+  //     let childParamOdiPath = '';
+
+  //     if (!isEmpty(res.data[i].odiPath)) {
+  //       childParamOdiPath = `${res.data[i].odiPath}`;
+  //     }
+
+  //     const paramHistStrtDtm = isEmpty(res.data[i].args.histStrtDtm) ? '' : res.data[i].args.histStrtDtm;
+  //     console.log(paramHistStrtDtm);
+  //     const childParams = {
+  //       ozrPath: childParamOzrPath,
+  //       odiPath: childParamOdiPath,
+  //       args: JSON.stringify({
+  //         ctnrNo: res.data[i].args.cntrNo,
+  //         histStrtDtm: paramHistStrtDtm,
+  //       }),
+  //       displayName: res.data[i].displayName,
+  //     };
+
+  //     children.push(childParams);
+  //   }
+  //   console.log(children);
+
+  //   // 부모트리의 파라미터
+  //   const parantParamOzrPath = `/${res.data[0].ozrPath}.ozr`;
+  //   let parantParamOdiPath = '';
+  //   if (!isEmpty(res.data[0].odiPath)) {
+  //     parantParamOdiPath = `/${res.data[0].odiPath}.odi`;
+  //   }
+
+  //   const parantParamHistStrtDtm = isEmpty(res.data[0].args.histStrtDtm) ? '' : res.data[0].args.histStrtDtm;
+  //   const parantParamArgs = [{
+  //     cntrNo: res.data[0].args.cntrNo,
+  //     histStrtDtm: parantParamHistStrtDtm,
+  //   }];
+
+  //   await openReportPopupWithOptions(
+  //     parantParamOzrPath, // ozrPath
+  //     parantParamOdiPath, // odiPath
+  //     JSON.stringify(parantParamArgs), // args
+  //     { // options
+  //       treeViewTitle: '청약서목록',
+  //       displayName: res.data[0].displayName,
+  //       children,
+  //     },
+  //   );
+  */
+
+  // --------------- 임시 ---------------
+  /*
+      // switch (cntrwTpCd[0]) { // 단건의 계약유형코드에 따라 path
+      //     paramOzrPath = '/kstation-w/ord/ef/Ver1.0/contractL11.ozr';
+      //     break;
+      //   case '2': // 일시불(BH) {
+      //     paramOzrPath = '/kstation-w/ord/bh/Ver1.0/contractBH.ozr';
+      //     break;
+      //   case '3': // 렌탈
+      //     paramOzrPath = '/kstation-w/ord/er/Ver1.0/contractL23.ozr';
+      //     break;
+      //   case '4': // 멤버십
+      //     paramOzrPath = '/kstation-w/ord/mb/Ver1.0/contractL30.ozr';
+      //     break;
+      //   case '5': // 홈케어서비스
+      //     paramOzrPath = '/ksswells/ord/hcs/Ver1.0/hcsCndc.ozr';
+      //     break;
+      //   case '6': // 모종일시불
+      //     paramOzrPath = '/kstation-w/ord/plnt/Ver1.0/contractPLNT.ozr';
+      //     break;
+      //   case '7': // 정기배송
+      //     paramOzrPath = '/kstation-w/ord/ef/Ver1.0/contractL11.ozr';
+      //     break;
+      // }
+    */
+  //--------------------------------
+}
 onMounted(async () => {
 });
 
@@ -1196,7 +1321,7 @@ const initGrdMstList = defineGrid((data, view) => {
     const paramCntrDtlNo = gridUtil.getCellValue(g, dataRow, 'cntrDtlNo');
     const paramCntrNo = String(paramCntrDtlNo).split('-')[0];
     const paramCntrSn = String(paramCntrDtlNo).split('-')[1];
-    const paramHistStrtDtm = `${gridUtil.getCellValue(g, dataRow, 'histStrtDtm')}`;
+    // const paramHistStrtDtm = `${gridUtil.getCellValue(g, dataRow, 'histStrtDtm')}`;
     const { cntrPrgsStatCd } = g.getValues(dataRow);
     const { cntrwTpCd } = g.getValues(dataRow);
     const fileRow = gridUtil.getRowValue(g, dataRow);
@@ -1354,43 +1479,7 @@ const initGrdMstList = defineGrid((data, view) => {
     } else if (['fileUid'].includes(column)) { /* 파일UID인 경우 */
       fileUtil.download({ fileUid: fileRow.fileUid, originalFileName: fileRow.fileNm }, 'storage'); /* kw-lib에서 fileUtil을 불러옴  */
     } else if (['cntrwBrws'].includes(column)) { // 계약서보기 버튼 클릭
-      // TODO: 231031 기준 개발중인 oz리포트 - args받아서 정상적으로 넘기는 것 까지 완료 [버전등 개발이 완료되면 다시 확인]
-      console.log(paramHistStrtDtm);
-      let paramOzrPath; // ozrPath
-
-      switch (cntrwTpCd) {
-        case '1': // 일시불(환경가전) {
-          paramOzrPath = '/kstation-w/ord/ef/Ver1.0/contractL11.ozr';
-          break;
-        case '2': // 일시불(BH) {
-          paramOzrPath = '/kstation-w/ord/bh/Ver1.0/contractBH.ozr';
-          break;
-        case '3': // 렌탈
-          paramOzrPath = '/kstation-w/ord/er/Ver1.0/contractL23.ozr';
-          break;
-        case '4': // 멤버십
-          paramOzrPath = '/kstation-w/ord/mb/Ver1.0/contractL30.ozr';
-          break;
-        case '5': // 홈케어서비스
-          paramOzrPath = '/전자청약서 ksswells/ord/hcs/Ver1.0/hcsCndc.ozr';
-          break;
-        case '6': // 모종일시불
-          paramOzrPath = '/kstation-w/ord/plnt/Ver1.0/contractPLNT.ozr';
-          break;
-        case '7': // 정기배송
-          paramOzrPath = '/kstation-w/ord/ef/Ver1.0/contractL11.ozr';
-          break;
-      }
-      await openReportPopup(
-        paramOzrPath,
-        null,
-        JSON.stringify(
-          {
-            histStrDtm: paramHistStrtDtm,
-            cntrNo: paramCntrNo,
-          },
-        ),
-      );
+      await onClickOzReport(paramCntrNo);
     } else if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
