@@ -79,6 +79,7 @@
         /> -->
         <!-- 저장 -->
         <kw-btn
+          v-permission:create
           :label="$t('MSG_BTN_SAVE')"
           @click="onClickSave"
         />
@@ -87,6 +88,7 @@
       <kw-btn
         v-show="isDefault"
         v-model="defaultCheck"
+        v-permission:create
         :label="`${$t('MSG_TXT_BASIC_INFO')} ${$t('MSG_TXT_CH')}`"
         @click="onclickDefault"
       />
@@ -153,6 +155,7 @@
             class="px5"
             :label="t('MSG_TXT_CH_RSON')"
             :placeholder="t('MSG_TXT_MORE_INP_CHARS', [10])"
+            :readonly="isCssrRpblEmpty"
             rules="required|min:10"
             maxlength="2000"
           />
@@ -168,7 +171,9 @@
     /> -->
     <!-- 재발행 -->
     <kw-btn
+      v-permission:create
       :label="t('MSG_BTN_RPBL')"
+      :disable="checkedTxinvList <= 0"
       @click="onClickRpbl"
     />
   </kw-action-bottom>
@@ -201,6 +206,8 @@ const searchParams = ref({
   cntrSn: props.cntrSn,
   cstNo: props.cstNo,
 });
+
+const checkedTxinvList = ref(0);
 
 const cachedParams = ref({
   chRsonCn: '', // 변경사유
@@ -564,5 +571,15 @@ const initGrid = defineGrid((data, view) => {
     }
     return false;
   }, true);
+
+  view.onItemChecked = () => {
+    const checkCount = view.getCheckedRows().length;
+    checkedTxinvList.value = checkCount;
+  };
+
+  view.onItemAllChecked = () => {
+    const checkCount = view.getCheckedRows().length;
+    checkedTxinvList.value = checkCount;
+  };
 });
 </script>
