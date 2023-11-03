@@ -205,8 +205,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCP_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
     { fieldName: 'cntrDt', header: t('MSG_TXT_CNTRCT_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일
     { fieldName: 'dpDt', header: t('MSG_TXT_DEP_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' }, // 입금일
-    { fieldName: 'wdwlDt', header: t('MSG_TXT_WTH_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date', visible: false }, // 철회일
-    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date', visible: false }, // 취소일
+    { fieldName: 'wdwlDt', header: t('MSG_TXT_WTH_DT'), width: '111', styleName: 'text-center', datetimeFormat: 'date' }, // 철회일
+    { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '111', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'feeDsbYm', header: t('MSG_TXT_FEE_MN'), width: '111', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 수수료월
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
