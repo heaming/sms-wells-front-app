@@ -300,6 +300,7 @@ const initGrdTotal = defineGrid((data, view) => {
     { fieldName: 'sellTpCd', header: t('MSG_TXT_SEL_TYPE'), width: '120', styleName: 'text-center', options: codes.SELL_TP_CD }, // 판매유형코드
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
     { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center' }, // 대표고객ID
+    { fieldName: 'dgCstNm', header: t('MSG_TXT_DG_CST_CD_NM'), width: '120', styleName: 'text-center' }, /* 대표고객명 */
     { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '170', styleName: 'text-center' }, // SAP상품구분코드명
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기준년월
     { fieldName: 'slBndAlrpyAmt',
@@ -361,6 +362,7 @@ const initGrdDetail = defineGrid((data, view) => {
     { fieldName: 'sellTpDtlCd', header: t('MSG_TXT_SELL_TP_DTL'), width: '120', styleName: 'text-center', options: codes.SELL_TP_DTL_CD }, // 판매유형상세
     { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '170', styleName: 'text-center' }, // SAP상품구분코드명
     { fieldName: 'dgCstId', header: t('MSG_TXT_RPRS_CUST_NO'), width: '120', styleName: 'text-center' }, // 대표고객ID
+    { fieldName: 'dgCstNm', header: t('MSG_TXT_DG_CST_CD_NM'), width: '120', styleName: 'text-center' }, /* 대표고객명 */
     { fieldName: 'baseYm', header: t('MSG_TXT_BASE_YM'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 기준년월
     { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '120', styleName: 'text-center' }, // 계약상세번호
     { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80' }, // 고객명
