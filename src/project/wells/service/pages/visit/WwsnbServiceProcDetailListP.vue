@@ -53,9 +53,6 @@
           :colspan="2"
         >
           <p>{{ dtlIz.pdNm }} {{ dtlIz.wkBcNo }} {{ dtlIz.flBcNo }}</p>
-          <!-- <kw-input
-            v-model="dtlIz.pdNm"
-          /> -->
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_COMP_WK')">
           <p>{{ dtlIz.acpnPrtnrNo }} {{ dtlIz.acpnPrtnrKnm }}</p>
@@ -105,8 +102,8 @@
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_PRCSDT')">
           <p>
-            {{ dayjs(procDt).isValid() ?
-              dayjs(procDt).format("YYYY-MM-DD HH:mm:ss") : dayjs(dtlIz.vstFshDt).format("YYYY-MM-DD") }}
+            {{ dayjs(dtlIz.vstFshDt).isValid() ?
+              dayjs(dtlIz.vstFshDt).format("YYYY-MM-DD HH:mm:ss") : '' }}
           </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_PRCS_ICHR')">
@@ -146,7 +143,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <kw-form-item :label="$t('설치위치상세')">
+        <kw-form-item :label="$t('MSG_TXT_IST_LCT_DTL')">
           <p>{{ dtlIz.istLctDtlCn }}</p>
         </kw-form-item>
       </kw-form-row>
@@ -257,12 +254,18 @@ const props = defineProps({
     required: true,
     default: '',
   },
+  gubun: {
+    type: String,
+    required: true,
+    default: '',
+  },
 });
 
 const dtlIzParam = ref({
   cntrNo: '',
   cntrSn: '',
   cstSvAsnNo: '',
+  gubun: '',
 });
 
 const totalCountForStlmIz = ref({
@@ -290,15 +293,12 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const dtlIz = ref({}); // 상품기본
-const procDt = ref({});
 const signSrc = ref({});
 
 // 상세내역
 async function fetchData() {
-  console.log(dtlIzParam.value);
   const res = await dataService.get(`${baseUrl}`, { params: { ...dtlIzParam.value } });
   dtlIz.value = res.data;
-  procDt.value = dtlIz.value.vstFshDt + dtlIz.value.vstFshHh;
   if (isEmpty(dtlIz.value.cstSignCnByte)) {
     signSrc.value = '';
   } else {
@@ -347,11 +347,13 @@ async function onClickIstCfdc() {
 }
 
 async function initProps() {
-  const { cntrNo, cntrSn, cstSvAsnNo } = props;
+  const { cntrNo, cntrSn, cstSvAsnNo, gubun } = props;
   dtlIzParam.value.cntrNo = cntrNo;
   dtlIzParam.value.cntrSn = cntrSn;
   dtlIzParam.value.cstSvAsnNo = cstSvAsnNo;
-  if (!isEmpty(dtlIzParam.value.cntrNo) && !isEmpty(dtlIzParam.value.cntrSn) && !isEmpty(dtlIzParam.value.cstSvAsnNo)) {
+  dtlIzParam.value.gubun = gubun;
+  if (!isEmpty(dtlIzParam.value.cntrNo) && !isEmpty(dtlIzParam.value.cntrSn)
+  && !isEmpty(dtlIzParam.value.cstSvAsnNo) && !isEmpty(dtlIzParam.value.gubun)) {
     await Promise.all([
       await fetchData(),
       await fetchData1(),
