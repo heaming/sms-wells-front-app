@@ -66,7 +66,7 @@
           <kw-select
             v-model="searchParams.dangMngtPrtnrNo"
             first-option="all"
-            :options="posDivOpt"
+            :options="searchParamsPosDivOpt"
           />
         </kw-search-item>
       </kw-search-row>
@@ -125,7 +125,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { gridUtil, defineGrid, getComponentType, useDataService, useGlobal, codeUtil } from 'kw-lib';
+import { gridUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import dayjs from 'dayjs';
@@ -162,24 +162,17 @@ const pageInfo = ref({
   pageSize: 10,
 });
 
-const codes = await codeUtil.getMultiCodes(
-  'GNRDV_ACD',
-  'PSTN_DV_CD',
-);
-
 let cachedParams;
-const posDivOpt = codes.PSTN_DV_CD.filter((v) => ['2', '4', '5', '7'].includes(v.codeId));
-codes.PSTN_DV_CD.forEach((e) => {
-  if (e.codeName === '2') { // 2: 총괄단장
-    e.codeName = t('MSG_TXT_GNLR_LEDR');
-  } if (e.codeName === '4') { // 4: 지역단장
-    e.codeName = t('MSG_TXT_REG_DIR');
-  } if (e.codeName === '5') { // 5:BM
-    e.codeName = t('MSG_TXT_BM');
-  } if (e.codeName === '7') { // 7:지점장
-    e.codeName = t('MSG_TXT_BRMGR');
-  }
-});
+
+const searchParamsPosDivOpt = ref([ // 직위구분검색코드 rev:231103: 공통코드 일부 미사용으로 인한 리스트작성
+  { codeId: '2', codeName: t('MSG_TXT_GNLR_LEDR') },
+  { codeId: '4', codeName: t('MSG_TXT_REG_DIR') },
+  { codeId: '5', codeName: t('MSG_TXT_BM') },
+  { codeId: '7', codeName: t('MSG_TXT_BRMGR') },
+]);
+
+const gridPosDivOpt = cloneDeep(searchParamsPosDivOpt); // 그리드직위(직급)코드 rev:231103: 공통코드 일부 미사용으로 인한 리스트추가
+gridPosDivOpt.value.push({ codeId: '15', codeName: t('MSG_TXT_WELS') + t('MSG_TXT_PLAR') });
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
@@ -287,31 +280,14 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    {
-      fieldName: 'wellsOjPstnRankNm',
-      header: t('MSG_TXT_POSIT'),
-      width: '129',
-      styleName: 'text-center',
-      displayCallback(grid, index) {
-        const { wellsOjPstnRankNm: posit } = grid.getValues(index.itemIndex);
-        if (posit === '2') {
-          return `${t('MSG_TXT_GNLR_LEDR')}`; // 2: 총괄단장
-        } if (posit === '4') {
-          return `${t('MSG_TXT_REG_DIR')}`; // 4: 지역단장
-        } if (posit === '5') {
-          return `${t('MSG_TXT_BM')}`; // 5:BM
-        } if (posit === '7') {
-          return `${t('MSG_TXT_BRMGR')}`; // 7:지점장
-        }
-      },
-    },
+    { fieldName: 'wellsOjPstnRankNm', header: t('MSG_TXT_POSIT'), width: '129', styleName: 'text-center', options: gridPosDivOpt.value },
     { fieldName: 'dangMngtPntnrOgNm', header: t('MSG_TXT_BLG_NM'), width: '129', styleName: 'text-center' },
     { fieldName: 'dangMngtPntnrOgCd', header: t('MSG_TXT_RGNL_GRP'), width: '129', styleName: 'text-center' },
     { fieldName: 'dangMngtPntnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-center' },
     { fieldName: 'dangMngtPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129', styleName: 'text-center' },
     { fieldName: 'dangOjPrtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '129', styleName: 'text-center' },
     { fieldName: 'dangOjPrtnrNo', header: t('MSG_TXT_EPNO'), width: '129', styleName: 'text-center' },
-    { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', styleName: 'text-center' },
+    { fieldName: 'dangOjPrtnrPstnDvNm', header: t('MSG_TXT_CRLV'), width: '129', styleName: 'text-center', options: gridPosDivOpt.value },
     { fieldName: 'dangOcStrtmm', header: t('MSG_TXT_YEAR_OCCURNCE'), width: '129', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'dangArbitOgNm', header: t('MSG_TXT_ACTN_DPT'), width: '306', styleName: 'text-left' },
     { fieldName: 'dangChkNm', header: t('MSG_TXT_CHRGS'), width: '306', styleName: 'text-left' },

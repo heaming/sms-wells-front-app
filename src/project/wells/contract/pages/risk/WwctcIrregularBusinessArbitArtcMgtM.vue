@@ -179,6 +179,14 @@ const pageInfo = ref({
   pageSize: 10,
 });
 
+const gridPosDivOpt = ref([ // 직위구분검색코드 rev:231103: 공통코드 일부 미사용으로 인한 리스트작성
+  { codeId: '2', codeName: t('MSG_TXT_GNLR_LEDR') },
+  { codeId: '4', codeName: t('MSG_TXT_REG_DIR') },
+  { codeId: '5', codeName: t('MSG_TXT_BM') },
+  { codeId: '7', codeName: t('MSG_TXT_BRMGR') },
+  { codeId: '15', codeName: t('MSG_TXT_WELS') + t('MSG_TXT_PLAR') },
+]);
+
 async function calChange() {
   searchParams.value.dangOcStrtdt = '';
   searchParams.value.dangOcEnddt = '';
@@ -395,7 +403,7 @@ const initGrid = defineGrid((data, view) => {
     }, // 발생년월
     { fieldName: 'dangOjOgId', styleName: 'text-center', header: t('MSG_TXT_BLG'), width: '129', editable: false }, // 소속
     { fieldName: 'dangOjPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_EMPL_NM'), width: '129', editable: false }, // 성명
-    { fieldName: 'dangOjPstnDvCd', header: t('MSG_TXT_CRLV'), styleName: 'text-center', width: '129', editable: false }, // 직급
+    { fieldName: 'dangOjPstnDvCd', header: t('MSG_TXT_CRLV'), styleName: 'text-center', width: '129', editable: false, options: gridPosDivOpt.value }, // 직급
     { fieldName: 'dgr1LevlDgPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '129', editable: false }, // 총괄단
     { fieldName: 'dgr2LevlDgPrtnrNm', styleName: 'text-center', header: t('MSG_TXT_RGNL_GRP'), width: '129', editable: false }, // 지역단
     { fieldName: 'bznsSpptPrtnrNm', styleName: 'text-center', header: 'BM', width: '129', editable: false }, // BM
