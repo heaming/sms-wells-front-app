@@ -167,10 +167,6 @@ async function onSettlementConfirmed() {
   if (!isSigned.value) {
     return;
   }
-  const { result } = await openCntrOZReport();
-  if (!result) {
-    return;
-  }
 
   const reqData = await productCarouselRef.value.getRequestData();
   if (!reqData) { return; }
