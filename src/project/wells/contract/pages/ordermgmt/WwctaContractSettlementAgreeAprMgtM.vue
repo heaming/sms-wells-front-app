@@ -55,7 +55,7 @@
         v-if="isSigned"
         filled
         primary
-        label="계약서명"
+        label="계약확정"
         @click="onSettlementConfirmed"
       />
     </template>
