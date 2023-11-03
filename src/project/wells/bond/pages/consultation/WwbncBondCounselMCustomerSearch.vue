@@ -287,7 +287,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'istTelNo' },
     { fieldName: 'istMpNo' },
     { fieldName: 'bndClctnPrpDvNm' },
-    { fieldName: 'bndClctnPrpRsonDvNm' },
+    { fieldName: 'bndClctnPrpRsonNm' },
     { fieldName: 'adr' },
     { fieldName: 'cntrLocaraTno' },
     { fieldName: 'cntrExnoEncr' },
@@ -382,7 +382,7 @@ const initGrid = defineGrid((data, view) => {
       },
     },
     { fieldName: 'bndClctnPrpDvNm', header: t('MSG_TXT_BND_PRP'), width: '100', styleName: 'text-center' }, // 채권속성
-    { fieldName: 'bndClctnPrpRsonDvNm', header: t('MSG_TXT_PRP_RSON'), width: '100', styleName: 'text-center' }, // 속성사유
+    { fieldName: 'bndClctnPrpRsonNm', header: t('MSG_TXT_PRP_RSON'), width: '100', styleName: 'text-center' }, // 속성사유
     { fieldName: 'cntrLocaraTno', header: t('MSG_TXT_CNTR_LOCARA_TNO'), width: '100', styleName: 'text-left', visible: false }, // 계약처지역전화번호
     { fieldName: 'cntrExnoEncr', header: t('MSG_TXT_CNTR_EXNO_ENCR'), width: '100', styleName: 'text-left', visible: false }, // 계약처전화국번호암호화
     { fieldName: 'cntrIdvTno', header: t('MSG_TXT_CNTR_IDV_TNO'), width: '100', styleName: 'text-left', visible: false }, // 계약처개별전화번호
