@@ -105,7 +105,9 @@
 
       <kw-grid
         ref="grdMainRef"
-        :visible-rows="10"
+        name="grdMain"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
         @init="initGrid"
       />
       <kw-pagination
