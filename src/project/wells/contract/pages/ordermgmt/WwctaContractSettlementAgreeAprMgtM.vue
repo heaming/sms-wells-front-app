@@ -47,12 +47,21 @@
           confirm-label="계약사항과 계약 약관을 모두 확인하였습니다."
           @confirm="onSignSettlementConfirmed"
         />
+        <Report
+          v-if="isSigned && reportChecked"
+          :cntr-no="params.cntrNo"
+          @checked="onReportChecked"
+        />
       </template>
     </kw-list>
-
     <template #action>
       <kw-btn
-        v-if="isSigned"
+        v-if="isSigned && !reportChecked"
+        label="계약서 확인"
+        @click="openCntrOZReport"
+      />
+      <kw-btn
+        v-if="reportChecked"
         filled
         primary
         label="계약확정"
@@ -68,11 +77,12 @@ import WwctaContractSettlementSignItem
 import { alert, useDataService } from 'kw-lib';
 import { decryptEncryptedParam, postMessage } from '~sms-common/contract/util';
 import { DP_TP_CD } from '~sms-wells/contract/constants/ctConst';
-import { openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
 import { warn } from 'vue';
+import { openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
 import Agrees from './WwctaContractSettlementAgreeAprMgtMAgrees.vue';
 import PartnerInfo from './WwctaContractSettlementAgreeAprMgtMPartnerInfo.vue';
 import ProductCarouselItem from './WwctaContractSettlementAgreeAprMgtMProductCarouselItem.vue';
+import Report from './WwctaContractSettlementAgreeAprMgtMReport.vue';
 
 const dataService = useDataService();
 
@@ -113,6 +123,7 @@ const isSigned = computed(() => {
   }
   return !!signs.settlementConfirmed;
 });
+const reportChecked = ref(false);
 
 async function fetchContract() {
   try {
@@ -132,29 +143,32 @@ function onConfirmAgrees(agreedInfos) {
   stlmsUpdateRequestBody.agIzs = agreedInfos;
 }
 
-function onCheckAutoTransfer(sign) {
+async function onCheckAutoTransfer(sign) {
+  await productCarouselRef.value.validate();
   signs.autoTransferChecked = sign;
 }
 
-function onSignSettlementConfirmed(sign) {
+async function onSignSettlementConfirmed(sign) {
+  await productCarouselRef.value.validate();
   signs.settlementConfirmed = sign;
 }
 
 async function openCntrOZReport() {
-  const { data: reports } = await dataService.get('/sms/wells/contract/report/contract', { params: { cntrNo: params.cntrNo } });
+  reportChecked.value = true;
+  const { data: reports } = await dataService.get('/sms/wells/contract/report/contract', { params: { cntrNo: props.cntrNo } });
   if (!reports?.length) {
     warn('계약서가 없는데?');
     return;
   }
   const firstReport = reports.shift();
   const options = {
-    treeViewTitle: params.cntrNo,
+    treeViewTitle: props.cntrNo,
     displayName: firstReport.displayName,
   };
   if (reports.length) {
     options.children = reports;
   }
-  return await openReportPopupWithOptions(
+  return openReportPopupWithOptions(
     firstReport.ozrPath,
     '',
     firstReport.args,
@@ -162,9 +176,17 @@ async function openCntrOZReport() {
   );
 }
 
+function onReportChecked() {
+  reportChecked.value = true;
+}
+
 async function onSettlementConfirmed() {
   // check signs
   if (!isSigned.value) {
+    return;
+  }
+  if (!reportChecked.value) {
+    await alert('계약서를 확인해주세요.');
     return;
   }
 
@@ -179,8 +201,6 @@ async function onSettlementConfirmed() {
 
   if (res.data.result === true) {
     await alert('계약이 확정되었습니다');
-
-    await openCntrOZReport();
 
     postMessage('confirmed');
 
