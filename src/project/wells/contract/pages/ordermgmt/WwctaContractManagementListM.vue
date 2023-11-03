@@ -361,6 +361,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import { openReportPopup, openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
+import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -996,6 +997,12 @@ async function onClickSearchCntrCst() {
 }
 
 // oz리포트 이벤트
+// eslint-disable-next-line no-unused-vars
+async function onClickOzReportHello(cntrNo) {
+  const { data: reports } = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
+  return openOzReport(...reports);
+} /* FIXME: 확인 부탁드립니다.  */
+
 async function onClickOzReport(cntrNo) {
   // TODO: 231031 기준 개발중인 oz리포트 - args받아서 정상적으로 넘기는 것 까지 완료 [버전등 개발이 완료되면 다시 확인]
 

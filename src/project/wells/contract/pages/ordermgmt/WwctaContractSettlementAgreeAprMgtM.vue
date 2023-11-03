@@ -78,7 +78,7 @@ import { alert, useDataService } from 'kw-lib';
 import { decryptEncryptedParam, postMessage } from '~sms-common/contract/util';
 import { DP_TP_CD } from '~sms-wells/contract/constants/ctConst';
 import { warn } from 'vue';
-import { openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
+import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
 import Agrees from './WwctaContractSettlementAgreeAprMgtMAgrees.vue';
 import PartnerInfo from './WwctaContractSettlementAgreeAprMgtMPartnerInfo.vue';
 import ProductCarouselItem from './WwctaContractSettlementAgreeAprMgtMProductCarouselItem.vue';
@@ -155,25 +155,12 @@ async function onSignSettlementConfirmed(sign) {
 
 async function openCntrOZReport() {
   reportChecked.value = true;
-  const { data: reports } = await dataService.get('/sms/wells/contract/report/contract', { params: { cntrNo: props.cntrNo } });
+  const { data: reports } = await dataService.get('/sms/wells/contract/report/contract', { params: { cntrNo: params.cntrNo } });
   if (!reports?.length) {
     warn('계약서가 없는데?');
     return;
   }
-  const firstReport = reports.shift();
-  const options = {
-    treeViewTitle: props.cntrNo,
-    displayName: firstReport.displayName,
-  };
-  if (reports.length) {
-    options.children = reports;
-  }
-  return openReportPopupWithOptions(
-    firstReport.ozrPath,
-    '',
-    firstReport.args,
-    options,
-  );
+  await openOzReport(...reports);
 }
 
 function onReportChecked() {
