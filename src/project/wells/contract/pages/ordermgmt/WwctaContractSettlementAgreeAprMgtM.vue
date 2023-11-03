@@ -34,24 +34,31 @@
         <partner-info
           :prtnr="contract.prtnr"
         />
-      </template>
-      <template v-if="agreed && includeAutoTransfer">
         <wwcta-contract-settlement-sign-item
+          v-if="includeAccountAutoTransfer"
           :description="'계좌 자동이체 서명을 해주세요.'"
           empty-alert
           confirm-label="확인 서명"
           @confirm="onCheckAutoTransfer"
         />
-      </template>
-      <template v-if="agreed && (!includeAutoTransfer || (includeAutoTransfer && signs.autoTransferChecked))">
         <wwcta-contract-settlement-sign-item
           :description="'계약 확정 서명을 해주세요.'"
           empty-alert
           confirm-label="계약사항과 계약 약관을 모두 확인하였습니다."
-          @confirm="onSettlementConfirmed"
+          @confirm="onSignSettlementConfirmed"
         />
       </template>
     </kw-list>
+
+    <template #action>
+      <kw-btn
+        v-if="isSigned"
+        filled
+        primary
+        label="계약확정"
+        @click="onSettlementConfirmed"
+      />
+    </template>
   </kw-page>
 </template>
 
@@ -60,6 +67,9 @@ import WwctaContractSettlementSignItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementSignItem.vue';
 import { alert, useDataService } from 'kw-lib';
 import { decryptEncryptedParam, postMessage } from '~sms-common/contract/util';
+import { DP_TP_CD } from '~sms-wells/contract/constants/ctConst';
+import { openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
+import { warn } from 'vue';
 import Agrees from './WwctaContractSettlementAgreeAprMgtMAgrees.vue';
 import PartnerInfo from './WwctaContractSettlementAgreeAprMgtMPartnerInfo.vue';
 import ProductCarouselItem from './WwctaContractSettlementAgreeAprMgtMProductCarouselItem.vue';
@@ -90,10 +100,18 @@ const stlmsUpdateRequestBody = reactive({
 }); /* out */
 const productCarouselRef = ref();
 const agreed = ref(false);
-const includeAutoTransfer = ref(false);
+const includeAccountAutoTransfer = ref(false);
 const signs = reactive({
   autoTransferChecked: undefined,
   settlementConfirmed: undefined,
+});
+const isSigned = computed(() => {
+  if (includeAccountAutoTransfer.value) {
+    if (!signs.autoTransferChecked) {
+      return false;
+    }
+  }
+  return !!signs.settlementConfirmed;
 });
 
 async function fetchContract() {
@@ -102,8 +120,7 @@ async function fetchContract() {
       cntrNo: params.cntrNo,
     });
     contract.value = response.data;
-    debugger;
-    includeAutoTransfer.value = contract.value.stlms.some((s) => s.dpTpCd === '0102');
+    includeAccountAutoTransfer.value = contract.value.stlms.some((s) => s.dpTpCd === DP_TP_CD.AC_AFTN);
   } catch (e) {
     postMessage('cancelled');
     window.close();
@@ -119,10 +136,40 @@ function onCheckAutoTransfer(sign) {
   signs.autoTransferChecked = sign;
 }
 
-async function onSettlementConfirmed(sign) {
+function onSignSettlementConfirmed(sign) {
+  signs.settlementConfirmed = sign;
+}
+
+async function openCntrOZReport() {
+  const { data: reports } = await dataService.get('/sms/wells/contract/report/contract', { params: { cntrNo: params.cntrNo } });
+  if (!reports?.length) {
+    warn('계약서가 없는데?');
+    return;
+  }
+  const firstReport = reports.shift();
+  const options = {
+    treeViewTitle: params.cntrNo,
+    displayName: firstReport.displayName,
+  };
+  if (reports.length) {
+    options.children = reports;
+  }
+  return await openReportPopupWithOptions(
+    firstReport.ozrPath,
+    '',
+    firstReport.args,
+    options,
+  );
+}
+
+async function onSettlementConfirmed() {
+  // check signs
+  if (!isSigned.value) {
+    return;
+  }
+
   const reqData = await productCarouselRef.value.getRequestData();
   if (!reqData) { return; }
-  signs.settlementConfirmed = sign;
   stlmsUpdateRequestBody.stlmBases = reqData.stlmBases;
   stlmsUpdateRequestBody.adrpcs = reqData.adrpcs;
   stlmsUpdateRequestBody.cssrIss = reqData.cssrIss;
@@ -132,6 +179,8 @@ async function onSettlementConfirmed(sign) {
 
   if (res.data.result === true) {
     await alert('계약이 확정되었습니다');
+
+    await openCntrOZReport();
 
     postMessage('confirmed');
 
