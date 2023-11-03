@@ -473,19 +473,16 @@ async function fetchDetailData() {
     insertParams.value.vocProcsStatCd = res.data.vocProcsStatCd;
     evalParams.value.stfdEvlVal = res.data.stfdEvlVal;
   }
-  console.log(props.vocBizTpCd);
   if (props.vocBizTpCd === '10') {
     let resCntr = '';
     cachedParams = cloneDeep(cntrParams.value);
     resCntr = await dataService.get('/sms/wells/contract/contracts/order-details/customer-bases', { params: cachedParams });
 
-    console.log(resCntr);
     cntrParams.value.cntrCstNo = resCntr.data[0].cntrCstNo;
     cntrParams.value.sellTpCd = resCntr.data[0].sellTpCd;
     cntrParams.value.cstKnm = resCntr.data[0].cstKnm;
     cachedParams = cloneDeep(cntrParams.value);
     resCntr = await dataService.get('/sms/wells/contract/contracts/order-details/management-information', { params: cachedParams });
-    console.log(resCntr);
 
     cntrParams.value.istDt = resCntr.data[0].istDt;
     cntrParams.value.cntrDt = resCntr.data[0].cntrDt;
@@ -504,20 +501,17 @@ async function fetchDetailData() {
   }
 }
 async function onClickRcpAdd() {
-  console.log(receiptParams.value);
   cachedParams = cloneDeep(receiptParams.value);
   await dataService.post('/sms/wells/competence/voc/rcp', cachedParams);
   await fetchDetailData();
 }
 async function onClickRlyAdd() {
   insertParams.value.attachFilesRly = attachFilesRly.value;
-  console.log(insertParams.value);
   cachedParams = cloneDeep(insertParams.value);
   await dataService.post('/sms/wells/competence/voc/rly', cachedParams);
   await fetchDetailData();
 }
 async function onClickProcsFsh() {
-  console.log(procsParams.value);
   cachedParams = cloneDeep(procsParams.value);
   await dataService.post('/sms/wells/competence/voc/procs', cachedParams);
   await fetchDetailData();
@@ -531,8 +525,6 @@ async function onClickEvalSave() {
   await fetchDetailData();
 }
 onMounted(async () => {
-  console.log(receiptParams.value);
-  console.log(insertParams.value);
   await fetchDetailData();
 });
 

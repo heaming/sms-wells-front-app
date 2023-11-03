@@ -405,13 +405,11 @@ async function onClickCustomerSearch() {
     cachedParams = cloneDeep(cntrParams.value);
     res = await dataService.get('/sms/wells/contract/contracts/order-details/customer-bases', { params: cachedParams });
 
-    console.log(res);
     cntrParams.value.cntrCstNo = res.data[0].cntrCstNo;
     cntrParams.value.sellTpCd = res.data[0].sellTpCd;
     cntrParams.value.cstKnm = res.data[0].cstKnm;
     cachedParams = cloneDeep(cntrParams.value);
     res = await dataService.get('/sms/wells/contract/contracts/order-details/management-information', { params: cachedParams });
-    console.log(res);
 
     cntrParams.value.istDt = res.data[0].istDt;
     cntrParams.value.cntrDt = res.data[0].cntrDt;
@@ -422,8 +420,7 @@ async function onClickCustomerSearch() {
   }
 }
 async function openVocReceiptPopup(item) {
-  console.log(item);
-  const { result, payload } = await modal({
+  const { result } = await modal({
     component: 'WpshVocReceiptMngtDetailP',
     componentProps: {
       vocRcpId: item.vocRcpId,
@@ -440,7 +437,6 @@ async function openVocReceiptPopup(item) {
     },
   });
   console.log(result);
-  console.log(payload);
 }
 async function onClickSave() {
   if (insertParams.value.vocBizTpCd === '10') {
