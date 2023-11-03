@@ -83,6 +83,15 @@
       <kw-btn
         v-permission:download
         icon="download_on"
+        :disable="totalCount === 0 || searchParams.agrgDv !== '3' "
+        dense
+        secondary
+        :label="$t('MSG_BTN_WO_DLD')"
+        @click="onClickBulkExcelDownload"
+      />
+      <kw-btn
+        v-permission:download
+        icon="download_on"
         :disable="totalCount === 0"
         dense
         secondary
@@ -490,10 +499,11 @@ async function setGridHeader() {
 }
 
 async function fetchData() {
-  console.log('fetchData');
   const res = await dataService.get('/sms/wells/closing/performance/sales-bond', { params: cachedParams, timeout: 300000 });
   const salesBonds = res.data;
   totalCount.value = salesBonds.length;
+
+  console.log(totalCount.value);
 
   const view = grdSalesBondRef.value.getView();
   view.getDataSource().setRows(salesBonds);
@@ -504,7 +514,7 @@ async function onClickSearch() {
   totalCount.value = 0;
   await fetchData();
 }
-
+// 엑셀다운로드(그리드 기능사용)
 async function onClickExcelDownload() {
   const view = grdSalesBondRef.value.getView();
   await gridUtil.exportView(view, {
@@ -512,6 +522,19 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: gridUtil.getAllRowValues(view),
   });
+}
+// 엑셀다운로드(주문별의 경우 서버 다운로드 사용)
+async function onClickBulkExcelDownload() {
+  const view = grdSalesBondRef.value.getView();
+  if (cachedParams.agrgDv === '3') {
+    // 주문별의 경우 대용량 엑셀 다운로드 형식 사용
+    gridUtil.exportBulkView(view, {
+      url: '/sms/wells/closing/performance/sales-bond/bulk-excel-download',
+      parameter: {
+        ...cachedParams,
+      },
+    });
+  }
 }
 
 watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
