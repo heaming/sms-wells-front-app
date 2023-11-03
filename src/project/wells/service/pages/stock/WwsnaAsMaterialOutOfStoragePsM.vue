@@ -74,12 +74,28 @@
         <!-- 품목종류 -->
         <kw-search-item
           :label="$t('MSG_TXT_ITM_KND')"
-          :colspan="2"
+          :colspan="1"
         >
           <kw-select
             v-model="searchParams.itmKndCd"
             :options="codes.ITM_KND_CD"
             first-option="all"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_PRDT_CODE')"
+          :colspan="2"
+        >
+          <kw-input
+            v-model="searchParams.itmPdCdFrom"
+            maxlength="10"
+            clearable
+          />
+          <span>~</span>
+          <kw-input
+            v-model="searchParams.itmPdCdTo"
+            maxlength="10"
+            clearable
           />
         </kw-search-item>
         <!-- 설치기준 -->
@@ -219,6 +235,8 @@ const searchParams = ref({
   installBase: '',
   itmKndCd: '',
   svBizDclsfCd: '',
+  itmPdCdFrom: '',
+  itmPdCdTo: '',
 });
 
 const pageInfo = ref({
