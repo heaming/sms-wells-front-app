@@ -26,10 +26,16 @@
         </kw-item-label>
       </slot>
 
-      <zctz-sign
-        ref="signRef"
-        :empty-alert="emptyAlert"
-      />
+      <kw-item-label
+        ref="signWrapRef"
+        class="fit"
+      >
+        <zctz-sign
+          ref="signRef"
+          :width="signWidth"
+          :empty-alert="emptyAlert"
+        />
+      </kw-item-label>
 
       <slot name="bottom">
         <kw-btn
@@ -73,8 +79,15 @@ function onClickConfirm() {
     emit('confirm', data);
   }
 }
-
 exposed.signRef = signRef;
 exposed.getSignData = getSignData;
+
+const signWidth = ref();
+const signWrapRef = ref();
+
+onMounted(() => {
+  const cssStyleDeclaration = window.getComputedStyle(signWrapRef.value.$el);
+  signWidth.value = Number(cssStyleDeclaration.width.replaceAll(/[^\d.]/g, '')) - 1;
+});
 
 </script>
