@@ -32,8 +32,8 @@
 import WwctaContractSettlementAgreeItem
   from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementAgreeItem.vue';
 import { warn } from 'vue';
-import { openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
 import { useDataService } from 'kw-lib';
+import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
 
 const props = defineProps({
   cntrNo: { type: String, required: true },
@@ -47,19 +47,6 @@ async function openCntrOZReport() {
     warn('계약서가 없는데?');
     return;
   }
-  const firstReport = reports.shift();
-  const options = {
-    treeViewTitle: props.cntrNo,
-    displayName: firstReport.displayName,
-  };
-  if (reports.length) {
-    options.children = reports;
-  }
-  return openReportPopupWithOptions(
-    firstReport.ozrPath,
-    '',
-    firstReport.args,
-    options,
-  );
+  await openOzReport(...reports);
 }
 </script>
