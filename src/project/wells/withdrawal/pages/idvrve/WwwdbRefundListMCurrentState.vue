@@ -69,7 +69,7 @@
           <kw-select
             v-model="searchParams.rfndDsbDvCd"
             first-option="all"
-            :options="codes.RFND_DSB_DV_CD.filter((v) => v.codeId === '01' || v.codeId === '02')"
+            :options="customCodes.RFND_DSB_DV_CD"
           />
         </kw-search-item>
         <!-- 판매유형 -->
@@ -277,6 +277,7 @@ const optionsCodes = ref(codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '24', 
 
 const customCodes = {
   BLK_CRT_DV: [{ codeId: '-', codeName: '일괄생성제외' }, { codeId: '-', codeName: '멤버쉽환불' }, { codeId: '-', codeName: '기변자동전금' }],
+  RFND_DSB_DV_CD: [{ codeId: '01', codeName: '귀속환불제외' }, { codeId: '04', codeName: '귀속환불제외만' }],
   RVE_DV_CD: [{ codeId: '01', codeName: '일반' }, { codeId: '09', codeName: '대손이관' }],
   DP_MES_CD: [{ codeId: '06', codeName: '포인트만' }, { codeId: '-', codeName: '포인트 제외' }],
 };
@@ -377,13 +378,15 @@ async function onClickExcelDownload1() {
 async function onChangeSellTpCd(param) {
   let options;
 
-  if (param === '1') {
-    options = codes.SELL_TP_DTL_CD.filter((p1) => ['11', '12', '13'].includes(p1.codeId));
-  } else if (param === '2') {
+  // if (param === '1') {
+  //   options = codes.SELL_TP_DTL_CD.filter((p1) => ['11', '12', '13'].includes(p1.codeId));
+  // } else
+
+  if (param === '2') {
     options = codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '24', '25', '26'].includes(p1.codeId));
     // options = codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '23', '24', '25', '26'].includes(p1.codeId));
   } else if (param === '3') {
-    options = codes.SELL_TP_DTL_CD.filter((p1) => ['31', '32', '33'].includes(p1.codeId));
+    options = codes.SELL_TP_DTL_CD.filter((p1) => ['31', '33'].includes(p1.codeId));
     // options = codes.SELL_TP_DTL_CD.filter((p1) => ['31', '32', '33', '34'].includes(p1.codeId));
   } else if (param === '6') {
     // options = codes.SELL_TP_DTL_CD.filter((p1) => ['61', '62', '63'].includes(p1.codeId));
@@ -626,17 +629,20 @@ const initGrdMain12 = defineGrid((data, view) => {
 
 const initGrdMain13 = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'refundDivision' }, // 전금구분
-    { fieldName: 'rtRfndDsbAmt', dataType: 'number' }, // 렌탈
-    { fieldName: 'lsRfndDsbAmt', dataType: 'number' }, // 리스
-    { fieldName: 'elRfndDsbAmt', dataType: 'number' }, // 환경리스
-    { fieldName: 'mbRfndDsbAmt', dataType: 'number' }, // 멤버십
-    { fieldName: 'hcRfndDsbAmt', dataType: 'number' }, // 홈케어멤버십
-    { fieldName: 'lnRfndDsbAmt', dataType: 'number' }, // 장기할부
-    { fieldName: 'lmRfndDsbAmt', dataType: 'number' }, // 할부금
-    { fieldName: 'kmRfndDsbAmt', dataType: 'number' }, // K머니
-    { fieldName: 'rgRfndDsbAmt', dataType: 'number' }, // 정기배송
+
+    { fieldName: 'refundDivision' },
+    { fieldName: 'rtRfndDsbAmt', dataType: 'number' }, /* 렌탈 */
+    { fieldName: 'lsRfndDsbAmt', dataType: 'number' }, /* 리스 */
+    { fieldName: 'elRfndDsbAmt', dataType: 'number' }, /* 환경리스 */
+    { fieldName: 'lnRfndDsbAmt', dataType: 'number' }, /* 장기할부 */
+    { fieldName: 'evRfndDsbAmt', dataType: 'number' }, /* 환경할부 */
+    { fieldName: 'mbRfndDsbAmt', dataType: 'number' }, /* 맴버십 */
+    { fieldName: 'hcRfndDsbAmt', dataType: 'number' }, /* 홈케어맴버십 */
+    { fieldName: 'lmRfndDsbAmt', dataType: 'number' }, /* 할부금 */
+    { fieldName: 'kmRfndDsbAmt', dataType: 'number' }, /* K머니 */
+    { fieldName: 'rgRfndDsbAmt', dataType: 'number' }, /* 정기배송 */
     { fieldName: 'sumRfndDsbAmt', dataType: 'number' }, // 전금합계
+
   ];
 
   const columns = [
