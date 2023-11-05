@@ -250,6 +250,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'clingCostAdjRcpNo', visible: false }, // 청소비정산접수번호
+    { fieldName: 'bldCd', visible: false }, // 빌딩코드
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '174', styleName: 'text-center', datetimeFormat: 'datetime' }, // 등록일시
     { fieldName: 'fnlMdfcDtm', header: t('MSG_TXT_CH_DTM'), width: '174', styleName: 'text-center', datetimeFormat: 'datetime' }, // 변경일시
     { fieldName: 'clingCostDvNm', header: t('MSG_TXT_DIV'), width: '200', styleName: 'text-left' }, // 구분
@@ -297,10 +298,10 @@ const initGrdMain = defineGrid((data, view) => {
     if (isEmpty(column)) { return; }
 
     if (isEmpty(itemIndex)) {
-      const { clingCostAdjRcpNo, result } = gridUtil.getRowValue(grid, itemIndex);
+      const { clingCostAdjRcpNo, aplcDt, bldCd, result } = gridUtil.getRowValue(grid, itemIndex);
       await modal({
         component: 'WwdcdRequestCleaningSuppliesMgtP', // W-CL-U-0093P01
-        componentProps: { clingCostAdjRcpNo },
+        componentProps: { clingCostAdjRcpNo, applYm: aplcDt, bldCd },
       });
       if (result) {
         notify(t('MSG_ALT_SAVE_DATA'));

@@ -163,6 +163,17 @@ const props = defineProps({
   clingCostAdjRcpNo: {
     type: String,
     default: null,
+    required: true,
+  },
+  bldCd: {
+    type: String,
+    default: null,
+    required: false,
+  },
+  applYm: {
+    type: String,
+    default: null,
+    required: false,
   },
 });
 
@@ -200,7 +211,8 @@ async function buildingCode() {
     sessionParams = { ogTpCd, prtnrNo: employeeIDNumber };
   } else {
     sessionParams.ogTpCd = saveParams.value.ogTpCd;
-    sessionParams.prtnrNo = saveParams.value.prtnrNo;
+    sessionParams.aplcDt = props.aplcDt;
+    sessionParams.bldCd = props.bldCd;
   }
   const res = await dataService.get('/sms/wells/closing/expense/cleaning-cost/request-cleaning-supplies/code', { params: sessionParams });
   buildingCodes.value = res.data;
