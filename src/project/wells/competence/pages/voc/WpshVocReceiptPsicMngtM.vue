@@ -164,7 +164,6 @@ await getCode();
 async function fetchData() {
   const res = await dataService.get('/sms/wells/competence/vocPsic/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: products, pageInfo: pagingResult } = res.data;
-  console.log(products);
 
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
@@ -175,7 +174,6 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
-  console.log(cachedParams);
   await fetchData();
 }
 
