@@ -161,6 +161,15 @@
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         @click="onClickExcelDownload"
       />
+      <kw-btn
+        v-permission:download
+        icon="download_on"
+        :disable="searchParams.agrgDv !== '3' || totalCount === 0"
+        dense
+        secondary
+        :label="$t('MSG_BTN_WO_DLD')"
+        @click="onClickWholeExcelDownload"
+      />
     </kw-action-top>
     <kw-grid
       v-show="isGridMain"
@@ -367,6 +376,47 @@ async function onClickExcelDownload() {
     fileName: `${t('MSG_TIT_SL_BND_ATAM_PS')} - ${t('MSG_TIT_BZNS_ATAM')}`,
     timePostfix: true,
     exportData: gridUtil.getAllRowValues(view),
+  });
+}
+
+async function onClickWholeExcelDownload() {
+  const { agrgDv, inquiryDivide, sellTpCd } = searchParams.value;
+
+  let res;
+  let mainView;
+  if (agrgDv === '3') { // 주문별
+    if (inquiryDivide === '2' && (sellTpCd === '2' || sellTpCd === '10')) { // 포인트 선택시
+      mainView = grdFourthRef.value.getView();
+      res = 'pointOrders';
+      isGridFourth.value = true;
+      mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 7 }];
+    } else {
+      mainView = grdSubRef.value.getView();
+      isGridSub.value = true; // 주문별
+      mainView.columnByName('cntrNo').visible = true;
+      mainView.columnByName('cstKnm').visible = true;
+      mainView.columnByName('pdCd').visible = true;
+      mainView.columnByName('pdNm').visible = true;
+      mainView.layoutByColumn('slClYm').summaryUserSpans = [{ colspan: 8 }];
+      if (sellTpCd === '1') { // 일시불 선택시
+        res = 'anticipationSinglePayments';
+      } else if (sellTpCd === '2') { // 렌탈 선택시
+        res = 'anticipationRentals';
+      } else if (sellTpCd === '10') { // 리스 선택시
+        res = 'anticipationLeases';
+      } else if (sellTpCd === '3') { // 멤버십 선택시
+        res = 'anticipationMemberships';
+      } else if (sellTpCd === '6') { // 정기배송 선택시
+        res = 'anticipationRegularShippings';
+      }
+    }
+  }
+
+  gridUtil.exportBulkView(mainView, {
+    url: `/sms/wells/closing/performance/overdue-penalty/${res}/bulk-excel-download`, // url 지정
+    parameter: { // 검색 조건을 그대로 넣어준다. 없을 경우 추가하지 않아도 됨
+      ...cachedParams,
+    },
   });
 }
 
