@@ -95,19 +95,22 @@ import { codeUtil, useMeta, useDataService, getComponentType, gridUtil, useGloba
 import dayjs from 'dayjs';
 import ZwogLevelSelect from '~sms-common/organization/components/ZwogLevelSelect.vue';
 import { SMS_WELLS_URI } from '~sms-wells/organization/constants/ogConst';
+import { cloneDeep } from 'lodash-es';
 
 const { getConfig, getUserInfo } = useMeta();
 const dataService = useDataService();
 const { modal, notify, alert } = useGlobal();
 const { currentRoute } = useRouter();
 const { wkOjOgTpCd, ogTpCd, baseRleCd } = getUserInfo();
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const { t } = useI18n();
 const codes = await codeUtil.getMultiCodes('EGER_WRK_STAT_CD', 'OG_TP_CD', 'COD_PAGE_SIZE_OPTIONS');
 const grdMainRef = ref(getComponentType('KwGrid'));
+const cloneWrkStatCds = cloneDeep(codes.EGER_WRK_STAT_CD);
+const egerWrkStatCds = ref([]);
+const holiday = ref(['공휴일', '토', '일']);
 const now = dayjs().format('YYYYMMDD');
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
@@ -194,19 +197,40 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bizAgntYn', header: t('MSG_TXT_BIZ_AGNT'), width: '106', styleName: 'text-center', editable: false },
     { fieldName: 'wrkDt', header: t('MSG_TXT_WRK_DT'), width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     { fieldName: 'dowDv', header: t('MSG_TXT_WRK_DOW'), width: '106', styleName: 'text-center', editable: false },
-    { fieldName: 'egerWrkStatCd',
+    {
+      fieldName: 'egerWrkStatCd',
       header: t('MSG_TXT_WRK_STAT'),
-      options: codes.EGER_WRK_STAT_CD,
       editor: { type: 'dropdown' },
-      styleCallback() {
+      styleCallback(g, dataCell) {
         const ret = {};
-        if ((baseRleCd === 'W6010' || baseRleCd === 'W6020' || baseRleCd === 'W6040' || baseRleCd === 'W4020') && searchParams.value.baseDt < now) {
-          ret.editable = false;
+        const { dowDv } = g.getValues(dataCell.index.itemIndex);
+        if (holiday.value.map((obj) => dowDv.includes(obj)).filter((o) => o).length > 0) {
+          egerWrkStatCds.value = codes.EGER_WRK_STAT_CD.map((item) => { if (item.codeId === '000') item.codeName = ''; return item; });
         } else {
-          ret.editable = true;
+          egerWrkStatCds.value = cloneWrkStatCds;
         }
+        ret.editor = {
+          type: 'list',
+          values: egerWrkStatCds.value.map((item) => item.codeId),
+          labels: egerWrkStatCds.value.map((item) => item.codeName),
+          textReadOnly: true,
+          displayLabels: 'label',
+          editable: !(((baseRleCd === 'W6010' || baseRleCd === 'W6020' || baseRleCd === 'W6040' || baseRleCd === 'W4020'))),
+        };
         return ret;
-      } },
+      },
+      displayCallback(g, index, val) {
+        const { dowDv } = g.getValues(index.itemIndex);
+        if (holiday.value.map((obj) => dowDv.includes(obj)).filter((o) => o).length > 0) {
+          egerWrkStatCds.value = codes.EGER_WRK_STAT_CD.map((item) => { if (item.codeId === '000') item.codeName = ''; return item; });
+        } else {
+          egerWrkStatCds.value = cloneWrkStatCds;
+        }
+        const option = egerWrkStatCds.value.filter((item) => item.codeId === val);
+        if (option.length > 0) return option[0].codeName;
+        return '';
+      },
+    },
     { fieldName: 'rmkCn',
       header: t('MSG_TXT_RMK_ARTC'),
       width: '146',
@@ -214,14 +238,9 @@ const initGrid = defineGrid((data, view) => {
       editable: true,
       editor: { type: 'text', maxLength: 3500 },
       styleCallback() {
-        const ret = {};
-        if ((baseRleCd === 'W6010' || baseRleCd === 'W6020' || baseRleCd === 'W6040' || baseRleCd === 'W4020') && searchParams.value.baseDt < now) {
-          ret.editable = false;
-        } else {
-          ret.editable = true;
-        }
-        return ret;
-      } },
+
+      },
+    },
     { fieldName: 'vcnInfo', header: t('MSG_TXT_VCN_INFO'), width: '107', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_VCN_INFO') },
     { fieldName: 'vcnStrtDt', header: t('MSG_TXT_STRT_DATE'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
     { fieldName: 'vcnEndDt', header: t('MSG_TXT_END_DT'), width: '178', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
@@ -325,6 +344,13 @@ const initGrid = defineGrid((data, view) => {
 
       alert(t('MSG_TXT_VCN_INFO_REG'));
     }
+  };
+
+  view.onCellEditable = (grid, index) => {
+    if ((['egerWrkStatCd', 'rmkCn'].includes(index.column) && ((baseRleCd === 'W6010' || baseRleCd === 'W6020' || baseRleCd === 'W6040' || baseRleCd === 'W4020') && searchParams.value.baseDt < now))) {
+      return false;
+    }
+    return true;
   };
 });
 </script>
