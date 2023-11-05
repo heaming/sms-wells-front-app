@@ -54,7 +54,7 @@
       <kw-search-row>
         <kw-search-item :label="$t('MSG_TXT_SELL_TP_DTL')">
           <kw-select
-            v-model="searchParams.sellTpCd"
+            v-model="searchParams.sellTpDtlCd"
             :options="sellTpOpt"
             first-option="all"
           />
@@ -165,7 +165,6 @@ const pageInfo = ref({
 // -------------------------------------------------------------------------------------------------
 const baseUrl = '/sms/wells/closing/membership-confirms';
 const codes = await codeUtil.getMultiCodes(
-  'SELL_TP_CD',
   'SELL_TP_DTL_CD',
   'COD_PAGE_SIZE_OPTIONS',
 );
@@ -176,7 +175,7 @@ const searchParams = ref({
   toCntrRcpFshDtm: now.format('YYYYMM'),
   cntrNo: '',
   cntrSn: 0,
-  sellTpCd: '',
+  sellTpDtlCd: '',
 });
 
 const confirmParams = ref({
@@ -187,7 +186,7 @@ const ogOpt = [
   { codeId: '1', codeName: t('MSG_TXT_SERVICE_CENTER') },
   { codeId: '2', codeName: t('MSG_TXT_SLS') },
 ];
-const sellTpOpt = codes.SELL_TP_CD.filter((v) => ['1', '2', '4', '5'].includes(v.codeId));
+const sellTpOpt = codes.SELL_TP_DTL_CD.filter((v) => ['31', '32', '33', '34'].includes(v.codeId));
 
 let cachedParams;
 async function fetchData() {
@@ -240,7 +239,7 @@ async function onClickConfirm() {
     toCntrRcpFshDtm: cachedParams?.toCntrRcpFshDtm,
     cntrNo: cachedParams?.cntrNo,
     cntrSn: cachedParams?.cntrSn,
-    sellTpCd: cachedParams?.sellTpCd,
+    sellTpDtlCd: cachedParams?.sellTpDtlCd,
     confirmDate: confirmParams.value.confirmDate,
     joinDate: confirmParams.value.joinDate,
   };
