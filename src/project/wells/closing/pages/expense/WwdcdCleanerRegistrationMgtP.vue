@@ -486,6 +486,7 @@ async function onChangeFlag() {
 onMounted(async () => {
   await fetchData();
   await buildingCode();
+  await saveRef.value.init();
 });
 
 </script>
