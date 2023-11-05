@@ -112,7 +112,7 @@
           :label="$t('MSG_TXT_RPT_BRWS')"
           icon="report"
           dense
-          @click="onClickPrint"
+          @click="onClickOzReport"
         />
       </kw-action-top>
 
@@ -149,7 +149,11 @@ import {
 } from 'kw-lib';
 import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
+import { warn } from 'vue';
 
+const { getUserInfo } = useMeta();
+const userInfo = getUserInfo();
 const { t } = useI18n();
 const dataService = useDataService();
 const { getConfig } = useMeta();
@@ -253,8 +257,34 @@ async function onClickExcelDownload() {
   });
 }
 
-function onClickPrint() {
-  // TODO: 레포트 양식이 있는지 확인 해볼것.
+async function onClickOzReport() {
+  const params = {
+    ...cachedParams,
+    ...pageInfo.value,
+  };
+  console.log(JSON.stringify(params, null, '\t'));
+  const { data } = await dataService.get('/sms/wells/contract/rental-change-products/report', { params });
+  console.log(JSON.stringify(data?.list, null, '\t'));
+  if (!data?.list.length) {
+    warn('OZ 리포트 정보가 존재하지 않습니다.');
+    return;
+  }
+
+  const options = {
+    pritChpr: userInfo.userName, // 출력담당자
+    reportHeaderTitle: '렌탈제품 교체 현황',
+    srchWellsSetDt: `${params.strtdt}~${params.enddt}`, // 설치일자
+    srchProdCd: params.basePdCd, // 상품코드
+    wellsSaleCdNm: params.sellOgTpCd, // 판매구분
+    srchEmpCd: params.sellOgTpCd, // 등록담당
+  };
+  console.log(JSON.stringify(options, null, '\t'));
+  return openReportPopup(
+    '/kstation-w/hdof/sls/slsRntlReplaceProdReport.ozr',
+    '',
+    data.list,
+    options,
+  );
 }
 
 async function onClickSearch() {
@@ -262,11 +292,9 @@ async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   await fetchPage();
 }
-
 /// ------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
-
 const initGrd = defineGrid((data, view) => {
   useGridDataModel(view, {
     sellTpDtlCd: { label: t('MSG_TXT_TASK_DIV') /* 업무구분' */, width: 87, options: codes.SELL_TP_DTL_CD },
