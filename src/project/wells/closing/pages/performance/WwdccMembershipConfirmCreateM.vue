@@ -287,10 +287,6 @@ const initGrid = defineGrid((data, view) => {
 
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
-  fields.push(
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-  );
   data.setFields(fields);
   view.setColumns(columns);
 
