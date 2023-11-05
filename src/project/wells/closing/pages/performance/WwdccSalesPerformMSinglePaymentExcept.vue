@@ -683,8 +683,8 @@ async function fetchDetailData(slClYm, sellTpCd) {
   if (!isEmpty(singlePaymentDetail.value.pkgCd)) {
     singlePaymentDetail.value.pkgCd = `(${singlePaymentDetail.value.pkgCd})`;
   }
-  singlePaymentDetail.value.fntInfView = (singlePaymentDetail.value.mpyBsdt) ? `${singlePaymentDetail.value.dpTpCdNm}${singlePaymentDetail.value.mpyBsdt}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`
-    : `${singlePaymentDetail.value.dpTpCdNm}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`;
+  singlePaymentDetail.value.fntInfView = (singlePaymentDetail.value.mpyBsdt) ? `${replaceNull(singlePaymentDetail.value.dpTpCdNm)}/${singlePaymentDetail.value.mpyBsdt}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`
+    : `${replaceNull(singlePaymentDetail.value.dpTpCdNm)}/${replaceNull(singlePaymentDetail.value.fnitAprRsCd)}`;
 }
 // 그리드 항목명 변경을 위한 계약 정보 조회
 async function fetchContractData() {
