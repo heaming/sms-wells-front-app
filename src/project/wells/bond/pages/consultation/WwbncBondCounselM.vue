@@ -67,9 +67,11 @@
           <div class="q-space" />
           <!-- // rev:230802 추가 -->
           <kw-option-group
+            v-show="tnoInfo.tno1 || tnoInfo.tno2 || tnoInfo.tno3"
             v-model="searchParams.tno"
             type="radio"
-            :options="[tnoInfo.tno1, tnoInfo.tno2, tnoInfo.tno3]"
+            :options="[(tnoInfo.tno1) ? tnoInfo.tno1 : '', (tnoInfo.tno2) ? tnoInfo.tno2 : ''
+                       , (tnoInfo.tno3) ? tnoInfo.tno3 : '']"
             class="call-center-radio"
           />
         </div>
@@ -1192,9 +1194,24 @@ async function startClient() {
 
 async function fetchData() {
   const response = await dataService.get('/sms/wells/bond/bond-counsel/user-info', { params: searchParams.value });
-  tnoInfo.value = response.data;
-  searchParams.value.tno = tnoInfo.value.tno1;
-  // onClickSysCALLOnLogoutCall();
+
+  if (!window.location.href.includes('localhost')) {
+    response.data.forEach((obj, idx) => {
+      if (idx === 0) {
+        searchParams.value.tno = `${obj.tno1}-${obj.tno2}-${obj.tno3}`;
+        tnoInfo.value.tno1 = `${obj.tno1}-${obj.tno2}-${obj.tno3}`;
+        searchParams.value.callbackData0101 = obj.tno3;
+      }
+      if (idx === 1) {
+        tnoInfo.value.tno2 = `${obj.tno1}-${obj.tno2}-${obj.tno3}`;
+        searchParams.value.callbackData0102 = obj.tno3;
+      }
+      if (idx === 2) {
+        tnoInfo.value.tno3 = `${obj.tno1}-${obj.tno2}-${obj.tno3}`;
+        searchParams.value.callbackData0103 = obj.tno3;
+      }
+    });
+  }
   startClient();
   ctiConnect();
 }
