@@ -264,13 +264,13 @@ async function onClickOzReport() {
   };
   console.log(JSON.stringify(params, null, '\t'));
   const { data } = await dataService.get('/sms/wells/contract/rental-change-products/report', { params });
-  console.log(JSON.stringify(data?.list, null, '\t'));
   if (!data?.list.length) {
     warn('OZ 리포트 정보가 존재하지 않습니다.');
     return;
   }
 
-  const options = {
+  const args = {
+    jsondata: data.list,
     pritChpr: userInfo.userName, // 출력담당자
     reportHeaderTitle: '렌탈제품 교체 현황',
     srchWellsSetDt: `${params.strtdt}~${params.enddt}`, // 설치일자
@@ -278,11 +278,19 @@ async function onClickOzReport() {
     wellsSaleCdNm: params.sellOgTpCd, // 판매구분
     srchEmpCd: params.sellOgTpCd, // 등록담당
   };
+
+  const options = {
+    displayName: '렌탈제품 교체 현황',
+    treeViewTitle: '렌탈제품 교체 현황',
+    width: 1100,
+    height: 1200,
+  };
+  console.log(JSON.stringify(args, null, '\t'));
   console.log(JSON.stringify(options, null, '\t'));
   return openReportPopup(
     '/kstation-w/hdof/sls/slsRntlReplaceProdReport.ozr',
     '',
-    data.list,
+    JSON.stringify(args),
     options,
   );
 }
