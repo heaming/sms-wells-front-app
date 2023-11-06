@@ -24,6 +24,7 @@
           :label="t('MSG_TXT_SEL_TYPE')"
           required
         >
+          <!-- 판매유형 -->
           <kw-select
             v-model="searchParams.sellTp"
             first-option="all"
@@ -56,6 +57,7 @@
         <kw-search-item
           :label="t('MSG_TXT_PERF_YM')"
         >
+          <!-- 실적년월 -->
           <!-- :colspan="2" -->
           <!-- rules="date_range_months:1" -->
           <kw-date-range-picker
@@ -67,6 +69,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item :label="t('MSG_TXT_CNTR_DTL_NO')">
+          <!-- 계약상세번호 -->
           <zctz-contract-detail-number
             v-model:cntr-no="searchParams.cntrNo"
             v-model:cntr-sn="searchParams.cntrSn"
@@ -146,6 +149,7 @@
       <ul class="kw-notification">
         <li>
           {{ $t('MSG_TXT_SRN_MAX_INQR_PSB') }}
+          <!-- 화면에는 최대 1000건만 조회 가능합니다. 전체 자료는 엑셀다운로드를 이용하세요. -->
         </li>
       </ul>
       <kw-action-top>
@@ -157,6 +161,7 @@
           />
           <!-- :page-size-options="[30,60,90,120]" -->
           <span class="ml8">{{ $t('MSG_TXT_UNIT_WON') }}</span>
+          <!-- (단위 : 원) -->
         </template>
         <!-- 행삭제 -->
         <kw-btn
@@ -321,6 +326,7 @@ async function fetchData() {
   data.checkRowStates(true);
 }
 
+// 조회 버튼 이벤트
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
 
@@ -349,6 +355,7 @@ async function onClickSelectUser() {
     searchParams.value.ogTpCd = payload.ogTpCd;
   }
 }
+
 async function onClearSelectUser() {
   searchParams.value.prtnrNo = '';
   searchParams.value.userName = '';
@@ -360,6 +367,7 @@ async function onKeydownSelectUser() {
   searchParams.value.ogTpCd = '';
 }
 
+// 행 추가 버튼
 async function onClickAdd() {
   const view = grdMainRef.value.getView();
   if (searchParams.value.exmpYn === 'N') {
@@ -380,6 +388,8 @@ async function onClickAdd() {
     });
   }
 }
+
+// 행 삭제 버튼
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
 
@@ -409,6 +419,7 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
 // 엑셀업로드
 async function onClickExcelUpload() {
   const apiUrl = `${apiUri}/${searchParams.value.exmpYn}/excel-upload`;
@@ -431,11 +442,12 @@ async function onClickExcelUpload() {
     // if (result && payload.status === 'S') {
   if (resultData) {
     console.log(payload);
-    notify(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
     await fetchData();
   }
 }
 
+// 판매유형 선택
 async function onChangesellTp(param) {
   let options;
 
@@ -458,6 +470,7 @@ async function onChangesellTp(param) {
   optionsCodes.value = options;
 }
 
+// 저장 버튼
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const changedRows = gridUtil.getChangedRowValues(view);
@@ -494,7 +507,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'slCtrMtrDvCd' }, /* 조정자료구분코드 */
     { fieldName: 'slCtrDvCd' },
     { fieldName: 'slCtrMtrTpCd' }, /* 조정유형 */
-    { fieldName: 'slCtrDscTpCd' }, /* 할인 */
+    { fieldName: 'slCtrDscTpCd' }, /* 매출조정유형코드 */
     { fieldName: 'slCtrTpCd' }, /* 할인 */
 
     { fieldName: 'canAfOjYn' }, /* 취소후적용 */
@@ -511,7 +524,7 @@ const initGrid1 = defineGrid((data, view) => {
     {
       fieldName: 'cntrDtlNo',
       header: {
-        text: t('MSG_TXT_CNTR_DTL_NO'),
+        text: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
         styleName: 'essential',
       },
       width: '130',
@@ -526,11 +539,11 @@ const initGrid1 = defineGrid((data, view) => {
         return grid.getDataSource().getRowState(index.dataRow) === 'created';
       },
     },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', editable: false },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', editable: false }, // 고객명
     {
       fieldName: 'slCtrStrtYm',
       header: {
-        text: t('MSG_TXT_STRT_YM'),
+        text: t('MSG_TXT_STRT_YM'), // 시작년월
         styleName: 'essential',
       },
       rules: 'required',
@@ -544,7 +557,7 @@ const initGrid1 = defineGrid((data, view) => {
       editable: true,
     },
     { fieldName: 'slCtrEndYm',
-      header: t('MSG_TXT_END_YM'),
+      header: t('MSG_TXT_END_YM'), // 종료년월
       width: '100',
       styleName: 'text-center',
       editor: { type: 'btdate',
@@ -556,7 +569,7 @@ const initGrid1 = defineGrid((data, view) => {
     {
       fieldName: 'slCtrMtrDvCd',
       header: {
-        text: t('MSG_TXT_MTR_DV'),
+        text: t('MSG_TXT_MTR_DV'), // 자료구분
         styleName: 'essential',
         // 자료구분
       },
@@ -568,8 +581,7 @@ const initGrid1 = defineGrid((data, view) => {
     {
       fieldName: 'slCtrSellTpCd',
       header: {
-        text: t('MSG_TXT_SEL_TYPE'),
-        // 판매유형
+        text: t('MSG_TXT_SEL_TYPE'), // 판매유형
         styleName: 'essential',
       },
       lookupDisplay: true,
@@ -583,7 +595,7 @@ const initGrid1 = defineGrid((data, view) => {
     {
       fieldName: 'sellTpDtlCd',
       header: {
-        text: t('MSG_TXT_SELL_TP_DTL'),
+        text: t('MSG_TXT_SELL_TP_DTL'), // 판매유형상세
         styleName: 'essential',
       },
       width: '100',
@@ -727,12 +739,22 @@ const initGrid1 = defineGrid((data, view) => {
       // return retValue;
       // },
     },
-    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '160', styleName: 'text-center', editable: false },
+    { fieldName: 'pdCd',
+      header: t('MSG_TXT_PROD_CD'), // 제품코드
+      width: '100',
+      styleName: 'text-center',
+      editable: false,
+    },
+    { fieldName: 'pdNm',
+      header: t('MSG_TXT_GOODS_NM'), // 제품명
+      width: '160',
+      tyleName: 'text-center',
+      editable: false,
+    },
     {
       fieldName: 'slCtrDvCd',
       header: {
-        text: t('MSG_TXT_CTR_DV'),
+        text: t('MSG_TXT_CTR_DV'), // 조정구분
         styleName: 'essential',
       },
       width: '100',
@@ -743,9 +765,8 @@ const initGrid1 = defineGrid((data, view) => {
     {
       fieldName: 'slCtrMtrTpCd',
       header: {
-        text: t('MSG_TXT_DATA_TP'),
+        text: t('MSG_TXT_DATA_TP'), // 자료유형
         styleName: 'essential',
-        // 자료유형코드
       },
       width: '100',
       rules: 'required',
@@ -755,7 +776,7 @@ const initGrid1 = defineGrid((data, view) => {
     {
       fieldName: 'slCtrDscTpCd',
       header: {
-        text: t('MSG_TXT_CTR_TP'),
+        text: t('MSG_TXT_CTR_TP'), // 조정유형
         styleName: 'essential',
       },
       width: '208',
@@ -766,7 +787,7 @@ const initGrid1 = defineGrid((data, view) => {
     {
       fieldName: 'slCtrTpCd',
       header: {
-        text: t('MSG_TXT_DSC'),
+        text: t('MSG_TXT_DSC'), // 할인
         styleName: 'essential',
       },
       rules: 'required',
@@ -775,22 +796,63 @@ const initGrid1 = defineGrid((data, view) => {
       editable: true,
       options: codes.SL_CTR_TP_CD,
     },
-    { fieldName: 'canAfOjYn', header: t('MSG_TXT_CAN_AFT_APY'), width: '100', editor: { type: 'dropdown' }, editable: true, options: [{ codeId: 'Y', codeName: 'Y' }, { codeId: 'N', codeName: 'N' }] },
-    { fieldName: 'slCtrAmt', header: t('MSG_TXT_CTR_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', editable: true },
-    { fieldName: 'slCtrWoExmpAmt', header: t('MSG_TXT_FULL_EXMP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', editable: true },
-    { fieldName: 'slCtrPtrmExmpAmt', header: t('MSG_TXT_INQR_PTRM_EXMP_AMT'), width: '140', styleName: 'text-right', numberFormat: '#,##0', editable: true },
+    { fieldName: 'canAfOjYn',
+      header: t('MSG_TXT_CAN_AFT_APY'), // 취소 후 적용
+      width: '100',
+      editor: { type: 'dropdown' },
+      editable: true,
+      options: [{ codeId: 'Y', codeName: 'Y' },
+        { codeId: 'N', codeName: 'N' }],
+    },
+    { fieldName: 'slCtrAmt',
+      header: t('MSG_TXT_CTR_AMT'), // 조정금액
+      width: '100',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      editable: true,
+    },
+    { fieldName: 'slCtrWoExmpAmt',
+      header: t('MSG_TXT_FULL_EXMP_AMT'), // 전액면제금액
+      width: '100',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      editable: true,
+    },
+    { fieldName: 'slCtrPtrmExmpAmt',
+      header: t('MSG_TXT_INQR_PTRM_EXMP_AMT'), // 조회 기간 면제 금액
+      width: '140',
+      styleName: 'text-right',
+      numberFormat: '#,##0',
+      editable: true,
+    },
     {
       fieldName: 'slCtrRmkCn',
       header: {
-        text: t('MSG_TXT_RSN_FR_ADJ'),
+        text: t('MSG_TXT_RSN_FR_ADJ'), // 조정 사유
         styleName: 'essential',
       },
       rules: 'required',
       width: '208',
     },
-    { fieldName: 'slCtrPrcsdt', header: t('MSG_TXT_FST_RGST_DT'), width: '100', styleName: 'text-center', editable: false, datetimeFormat: 'date' },
-    { fieldName: 'usrNm', header: t('MSG_TXT_RGST_USR'), width: '100', editable: false, styleName: 'text-center' },
-    { fieldName: 'fnlMdfcUsrId', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'slCtrPrcsdt',
+      header: t('MSG_TXT_FST_RGST_DT'), // 등록일자
+      width: '100',
+      styleName: 'text-center',
+      editable: false,
+      datetimeFormat: 'date',
+    },
+    { fieldName: 'usrNm',
+      header: t('MSG_TXT_RGST_USR'), // 등록자
+      width: '100',
+      editable: false,
+      styleName: 'text-center',
+    },
+    { fieldName: 'fnlMdfcUsrId',
+      header: t('MSG_TXT_SEQUENCE_NUMBER'), // 번호
+      width: '100',
+      styleName: 'text-center',
+      editable: false,
+    },
   ];
 
   data.setFields(fields);
@@ -871,7 +933,7 @@ const initGrid2 = defineGrid((data, view) => {
     {
       fieldName: 'cntrDtlNo',
       header: {
-        text: t('MSG_TXT_CNTR_DTL_NO'),
+        text: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
         styleName: 'essential',
       },
       rules: 'required',
@@ -886,11 +948,11 @@ const initGrid2 = defineGrid((data, view) => {
         return grid.getDataSource().getRowState(index.dataRow) === 'created';
       },
     },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', editable: false },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '100', editable: false }, // 고객명
     {
       fieldName: 'slCtrStrtYm',
       header: {
-        text: t('MSG_TXT_SL_DT'),
+        text: t('MSG_TXT_SL_DT'), // 매출일자
         styleName: 'essential',
       },
       rules: 'required',
@@ -905,7 +967,7 @@ const initGrid2 = defineGrid((data, view) => {
     },
     { fieldName: 'slCtrEndYm',
       header: {
-        text: t('MSG_TXT_EXP_DT_1'),
+        text: t('MSG_TXT_EXP_DT_1'), // 만료일자
         styleName: 'essential',
       },
       rules: 'required',
@@ -920,8 +982,7 @@ const initGrid2 = defineGrid((data, view) => {
     {
       fieldName: 'canDt',
       header: {
-        text: t('MSG_TXT_CANC_DT'),
-        // 취소일자
+        text: t('MSG_TXT_CANC_DT'), // 취소일자
       },
       editor: { type: 'btdate',
         btOptions: {
@@ -933,19 +994,16 @@ const initGrid2 = defineGrid((data, view) => {
     {
       fieldName: 'apyY',
       header: {
-        text: t('MSG_TXT_APY_Y'),
-        // 적용년도
+        text: t('MSG_TXT_APY_Y'), // 적용년도
       },
       width: '100',
       editor: { type: 'input' },
       editable: true,
-
     },
     {
       fieldName: 'jan',
       header: {
-        text: t('MSG_TXT_JAN'),
-        // 1월
+        text: t('MSG_TXT_JAN'), // 1월
       },
       width: '45',
       renderer: {
@@ -957,8 +1015,7 @@ const initGrid2 = defineGrid((data, view) => {
     {
       fieldName: 'feb',
       header: {
-        text: t('MSG_TXT_FEB'),
-        // 2월
+        text: t('MSG_TXT_FEB'), // 2월
       },
       width: '45',
       renderer: {
@@ -970,8 +1027,7 @@ const initGrid2 = defineGrid((data, view) => {
     {
       fieldName: 'jul',
       header: {
-        text: t('MSG_TXT_JUL'),
-        // 7월
+        text: t('MSG_TXT_JUL'), // 7월
       },
       width: '45',
       renderer: {
@@ -983,8 +1039,7 @@ const initGrid2 = defineGrid((data, view) => {
     {
       fieldName: 'aug',
       header: {
-        text: t('MSG_TXT_AUG'),
-        // 적용년도
+        text: t('MSG_TXT_AUG'), // 8월
       },
       width: '45',
       renderer: { // 그리드 체크박스
@@ -993,9 +1048,15 @@ const initGrid2 = defineGrid((data, view) => {
         falseValues: 'N', // default value, 생략 가능
       },
     },
-    { fieldName: 'slCtrMtrDvCd', header: t('MSG_TXT_MTR_DV'), width: '100', styleName: 'text-center', editable: false, options: codes.SL_CTR_MTR_DV_CD },
+    { fieldName: 'slCtrMtrDvCd',
+      header: t('MSG_TXT_MTR_DV'), // 자료구분
+      width: '100',
+      styleName: 'text-center',
+      editable: false,
+      options: codes.SL_CTR_MTR_DV_CD,
+    },
     { fieldName: 'slCtrSellTpCd',
-      header: t('TXT_MSG_SELL_TP_CD'),
+      header: t('TXT_MSG_SELL_TP_CD'), // 판매유형
       editor: { type: 'dropdown' },
       width: '160',
       styleName: 'text-center',
@@ -1005,7 +1066,7 @@ const initGrid2 = defineGrid((data, view) => {
     {
       fieldName: 'sellTpDtlCd',
       header: {
-        text: t('MSG_TXT_SELL_TP_DTL'),
+        text: t('MSG_TXT_SELL_TP_DTL'), // 판매유형상세
       },
       width: '100',
       editor: { type: 'dropdown' },
@@ -1072,7 +1133,7 @@ const initGrid2 = defineGrid((data, view) => {
     {
       fieldName: 'slCtrWoExmpAmt',
       header: {
-        text: t('MSG_TXT_FULL_EXMP_AMT'),
+        text: t('MSG_TXT_FULL_EXMP_AMT'), // 전액면제금액
       },
       width: '208',
       rules: 'max:20|min:1|numeric',
@@ -1082,7 +1143,7 @@ const initGrid2 = defineGrid((data, view) => {
     {
       fieldName: 'slCtrDvCd',
       header: {
-        text: t('MSG_TXT_CTR_DV'),
+        text: t('MSG_TXT_CTR_DV'), // 조정구분
       },
       styleName: 'text-center',
       width: '100',
@@ -1092,8 +1153,7 @@ const initGrid2 = defineGrid((data, view) => {
     {
       fieldName: 'slCtrDscTpCd',
       header: {
-        text: t('MSG_TXT_CTR_TP'),
-        // 조정유형
+        text: t('MSG_TXT_CTR_TP'), // 조정유형
       },
       width: '160',
       editable: false,
@@ -1102,13 +1162,11 @@ const initGrid2 = defineGrid((data, view) => {
     {
       fieldName: 'slCtrMtrTpCd',
       header: {
-        text: t('MSG_TXT_CTR'),
-        // 조정
+        text: t('MSG_TXT_CTR'), // 조정
       },
       width: '100',
       editable: false,
       options: codes.SL_CTR_MTR_TP_CD,
-
     },
 
   ];
