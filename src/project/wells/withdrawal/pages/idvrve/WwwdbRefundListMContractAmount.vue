@@ -56,9 +56,9 @@
           />
         </kw-search-item>
       </kw-search-row>
+      <!-- 출력구분 -->
+      <!--
       <kw-search-row>
-        <!-- 출력구분 -->
-        <!-- 코드값 확인 필요. 추후 코드로 변경 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRNT_DV')"
         >
@@ -70,6 +70,7 @@
           />
         </kw-search-item>
       </kw-search-row>
+    -->
     </kw-search>
     <div class="result-area">
       <!-- 환불내역 -->
