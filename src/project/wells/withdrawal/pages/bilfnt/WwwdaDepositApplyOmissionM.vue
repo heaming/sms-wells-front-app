@@ -115,7 +115,7 @@ const pageInfo = ref({
 });
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/sales-perf-checks', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/sales-perf-checks', { params: { ...cachedParams, ...pageInfo.value, timeout: 3000000 } });
   const { list, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -131,7 +131,7 @@ async function onClickSearch() {
 }
 
 async function onClickExcelDownload() {
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/sales-perf-checks/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/sales-perf-checks/excel-download', { params: cachedParams, timeout: 3000000 });
   const view = grdMainRef.value.getView();
 
   await gridUtil.exportView(view, {
