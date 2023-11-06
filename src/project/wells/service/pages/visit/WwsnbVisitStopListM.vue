@@ -179,6 +179,8 @@ import dayjs from 'dayjs';
 const { t } = useI18n();
 const dataService = useDataService();
 const { confirm } = useGlobal();
+const router = useRouter();
+
 const props = defineProps({
   cntrNo: { type: String, default: 'W20230007679', required: true }, // 테스트를 위한 default값
   cntrSn: { type: String, default: '1', required: true },
@@ -367,6 +369,8 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'akDt' },
     { fieldName: 'cntrDtlNo' },
+    { fieldName: 'cntrNo' },
+    { fieldName: 'cntrSn' },
     { fieldName: 'sppStpDvNm' },
     { fieldName: 'sppStpDvCd' },
     { fieldName: 'prtnrKnm' },
@@ -412,6 +416,25 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
+  view.onCellClicked = async (g, { column, itemIndex }) => {
+    if (column === 'cntrDtlNo') {
+      const param = { cntrNo: g.getValue(itemIndex, 'cntrNo'), cntrSn: g.getValue(itemIndex, 'cntrSn') };
+
+      router.push({ path: '/service/wwsnb-individual-service-list', state: { stateParam: param } });
+    }
+  };
+
+  // view.onCellDblClicked = async (g, cData) => {
+  //   if (cData.fieldName === 'cntrDtl') {
+  //     const { cntrDtl } = g.getValues(cData.itemIndex);
+  //     searchParams.value.bcNo = '';
+  //     searchParams.value.sppIvcNo = '';
+
+  //     searchParams.value.cntrNo = cntrDtl.substring(0, 12);
+  //     searchParams.value.cntrSn = cntrDtl.substring(13, 14);
+  //     await isValidateIndividualParams();
+  //   }
+  // };
 
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
