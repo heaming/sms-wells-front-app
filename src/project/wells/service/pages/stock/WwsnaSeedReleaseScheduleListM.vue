@@ -319,7 +319,7 @@ function onChangeStrtDt() {
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/seed-release-schedules/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/seed-release-schedules/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 300000 });
   const { list, pageInfo: pagingResult } = res.data;
   // fetch시에는 총 건수 조회하지 않도록 변경
   pagingResult.needTotalCount = false;
@@ -535,6 +535,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cstMexnoEncr', dataType: 'text' }, // 고객전화국번호
     { fieldName: 'cstCralIdvTno', dataType: 'text' }, // 고객휴대개별전화번호
     { fieldName: 'svPdCd', dataType: 'text' }, // 서비스상품코드
+    { fieldName: 'cntrAdrpcId', dataType: 'text' }, // 계약주소지ID
   ];
 
   const columns = [
