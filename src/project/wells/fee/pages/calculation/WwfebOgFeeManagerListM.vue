@@ -229,8 +229,8 @@ let cachedParams;
  *  Event - 그리드 내역 초기화
  */
 async function initData() {
-  const view = grdMainRef.value.getData();
-  view.clearRows();
+  // const view = grdMainRef.value.getData();
+  // view.clearRows();
   totalCount.value = 0;
   stepNaviRef.value.initProps();
 
