@@ -163,6 +163,7 @@ const codes = await codeUtil.getMultiCodes(
   'DP_TP_CD', // 입금유형
   'CARD_KND_CD', // 카드구분
   'VNCO_DV_CD', // 제휴사
+  'SELL_TP_CD',
 );
 
 const popupRef = ref();
@@ -331,7 +332,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'sellTpCd',
       header: t('TXT_MSG_SELL_TP_CD'),
       // header: '판매유형',
-      width: '110' },
+      width: '110',
+      options: codes.SELL_TP_CD },
     { fieldName: 'sellPrtnrNo',
       header: t('MSG_TXT_SELLER_NO'),
       // header: '판매자번호',

@@ -240,6 +240,7 @@ const isUploadYn = ref(false);
 const searchParams = ref({
   bzrno: '',
   dlpnrNm: '',
+  itgDpNo: '',
 });
 
 // const pageInfo = ref({
@@ -363,6 +364,11 @@ async function onClickDealingPartner() {
   if (result) {
     searchParams.value.bzrno = payload.crpBzrno;
     searchParams.value.dlpnrNm = payload.crpDlpnrNm;
+
+    const view = grdMainRef2.value.getView();
+    const data = view.getDataSource();
+    data.setValue(0, 'pblBzsBzrno', payload.crpBzrno);
+
     // await grdMainRef.value.getData().clearRows();
 
     // const view = grdMainRef.value.getView();
@@ -605,6 +611,7 @@ async function initProps() {
     params.value.cntrNo = props.cntrNo;
     searchParams.value.bzrno = props.bzrno;
     searchParams.value.dlpnrNm = props.mconBzsNm;
+    searchParams.value.itgDpNo = props.itgDpNo;
     itgDpNo.value = props.itgDpNo;
     cntrNo.value = props.cntrNo;
     billBndNo.value = props.billBndNo;
@@ -866,6 +873,7 @@ const initGrid2 = defineGrid((data, view) => {
       },
       width: '200',
       styleName: 'text-left',
+      editable: false,
     },
   ];
 
