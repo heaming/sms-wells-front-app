@@ -13,9 +13,7 @@
  ****************************************************************************************************
 --->
 <template>
-  <kw-popup
-    size="2xl"
-  >
+  <kw-page>
     <h3>{{ $t('MSG_TXT_CRTL_BFSVC_PCSV_PS') }}</h3>
     <kw-form :cols="1">
       <kw-form-row>
@@ -172,7 +170,7 @@
         @click="onClickSave"
       />
     </template>
-  </kw-popup>
+  </kw-page>
 </template>
 <script setup>
 
