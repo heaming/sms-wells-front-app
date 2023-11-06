@@ -404,7 +404,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       options: code,
     },
-    { fieldName: 'pdNm', header: t('MSG_TXT_RGST_FILT'), width: '200', styleName: 'text-center' },
+    // { fieldName: 'pdNm', header: t('MSG_TXT_RGST_FILT'), width: '200', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_USR'), width: '100', styleName: 'text-center' },
     { fieldName: 'ogNm', header: t('MSG_TXT_CHNL'), width: '100', styleName: 'text-center' },
     { fieldName: 'stat', header: t('MSG_TXT_STT'), width: '100', styleName: 'text-center' },
