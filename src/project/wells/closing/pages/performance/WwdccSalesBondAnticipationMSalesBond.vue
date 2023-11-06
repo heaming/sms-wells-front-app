@@ -93,7 +93,7 @@
       <kw-btn
         v-permission:download
         icon="download_on"
-        :disable="totalCount === 0 || searchParams.agrgDv !== '3' "
+        :disable="searchParams.agrgDv !== '3'"
         dense
         secondary
         :label="$t('MSG_BTN_WO_DLD')"
