@@ -261,7 +261,7 @@ async function fetchData() {
   if (res.data.resultCnt > 0) {
     /* 이미 설문 참여가 완료 됐습니다 */
     router.push({
-      path: '/mobile/wmsnb-happy-call-reg-dup',
+      path: '/wmsnb-happy-call-reg-dup',
       query: {
         // svBizDclsfCd: props.svBizDclsfCd,
         // sellTpCd: props.sellTpCd,
@@ -284,7 +284,7 @@ async function fetchData() {
   if (res.data.rejectCnt > 0) {
     alert('이미 설문 거부 의사를 반영 했습니다.');
     router.push({
-      path: '/mobile/wmsnb-happy-call-reg-choise',
+      path: '/wmsnb-happy-call-reg-choise',
       query: { },
     });
     return;
@@ -362,7 +362,7 @@ async function onSubmit() {
   if (res.data.resultCnt > 0) {
     /* 이미 설문 참여가 완료 됐습니다 */
     router.push({
-      path: '/mobile/wmsnb-happy-call-reg-dup',
+      path: '/wmsnb-happy-call-reg-dup',
       query: {
         // svBizDclsfCd: props.svBizDclsfCd,
         // sellTpCd: props.sellTpCd,
@@ -393,7 +393,7 @@ async function onSubmit() {
     });
 
     router.push({
-      path: '/mobile/wmsnb-happy-call-reg-finish',
+      path: '/wmsnb-happy-call-reg-finish',
       query: {
         // svBizDclsfCd: props.svBizDclsfCd,
         // sellTpCd: props.sellTpCd,
