@@ -23,7 +23,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_PERF_YM')"
         >
-          <p>{{ params.perfYm.substring(0,4)+'-'+params.perfYm.substring(4) }}</p>
+          <p>{{ regData.perfYm.substring(0,4) + '-' + regData.perfYm.substring(4) }}</p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
