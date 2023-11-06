@@ -15,7 +15,7 @@
 <template>
   <kw-page>
     <kw-search
-      :cols="3"
+      :cols="2"
       @search="onclickSearch"
     >
       <kw-search-row>
@@ -38,13 +38,25 @@
             v-model:og-tp-cd="searchParams.ogTpCd"
           />
         </kw-search-item>
-
-        <kw-search-item :label="t('MSG_TXT_QLF')">
-          <kw-select
+      </kw-search-row>
+      <kw-search-row>
+        <kw-search-item
+          :label="t('MSG_TXT_QLF')"
+          required
+        >
+          <!-- <kw-select
             v-model="searchParams.qlfDvCd"
             :options="codes.QLF_DV_CD"
             first-option="all"
             first-option-value=""
+          /> -->
+
+          <kw-option-group
+            v-model="searchParams.qlfDvCd"
+            rules="required"
+            type="checkbox"
+            :label="t('MSG_TXT_QLF')"
+            :options="codes.QLF_DV_CD"
           />
         </kw-search-item>
       </kw-search-row>
@@ -232,7 +244,7 @@ const searchParams = ref({
   ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
   prtnrNo: undefined,
   prtnrKnm: undefined,
-  qlfDvCd: undefined,
+  qlfDvCd: codes.QLF_DV_CD.map((item) => item.codeId),
 });
 
 // 인사정보 목록 데이터 조회
@@ -496,7 +508,7 @@ async function onClickUpgrades(type) {
       const view = grdMain1Ref.value.getView();
       searchParams.value.prtnrNo = currentRowPrtnrNo;
       searchParams.value.prtnrKnm = currentRowPrtnrKnm;
-      searchParams.value.qlfDvCd = qualification.targetQlfDvCd;
+      searchParams.value.qlfDvCd = [qualification.targetQlfDvCd];
       await init();
       gridUtil.focusCellInput(view, 0);
     }
