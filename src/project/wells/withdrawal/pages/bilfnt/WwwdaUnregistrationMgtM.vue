@@ -201,7 +201,7 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 // eslint-disable-next-line no-unused-vars
-const { alert } = useGlobal();
+const { alert, notify } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const now = dayjs();
@@ -320,6 +320,7 @@ async function onClickBundleWithdrawalRgst() {
   }));
 
   await dataService.post('/sms/wells/withdrawal/bilfnt/bundle-registration', data);
+  notify('묶음 등록이 완료되었습니다.');
   await onClickSearch();
 }
 
