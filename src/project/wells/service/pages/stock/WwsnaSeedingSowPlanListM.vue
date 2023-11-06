@@ -33,9 +33,11 @@
         <kw-search-item :label="$t('MSG_TXT_CNTR_DTL_NO')">
           <kw-input
             v-model="searchParams.cntrDtlNo"
+            mask="A###########-#"
+            upper-case
             type="text"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
-            rules="alpha_dash|max:14"
+            rules="alpha_num|min:13|max:13"
             :placeholder="`${$t('MSG_TXT_CNTR_NO')}-${t('MSG_TXT_CNTR_SN')}`"
           />
         </kw-search-item>
@@ -150,14 +152,15 @@ async function onClickSearch() {
   const { cntrDtlNo } = cachedParams;
   // 계약상세번호 유효성 체크
   if (!isEmpty(cntrDtlNo)) {
-    const idx = cntrDtlNo.indexOf('-');
-    if (idx < 0 || isEmpty(cntrDtlNo.substring(idx + 1))) {
+    const regex = /^(W|w)\d{12}$/;
+    const isRegex = regex.test(cntrDtlNo);
+    if (!isRegex) {
       // 올바른 계약상세번호로 조회 하세요.
       await alert(t('MSG_ALT_CNTR_DTL_NO_CONF'));
       return;
     }
-    const cntrNo = cntrDtlNo.substring(0, idx);
-    const cntrSn = cntrDtlNo.substring(idx + 1);
+    const cntrNo = cntrDtlNo.substring(0, 12);
+    const cntrSn = cntrDtlNo.substring(12);
     cachedParams.cntrNo = cntrNo;
     cachedParams.cntrSn = cntrSn;
   }
