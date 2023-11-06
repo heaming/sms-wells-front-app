@@ -149,6 +149,13 @@
       <template #left>
         <kw-paging-info :total-count="pageInfo.totalCount" />
       </template>
+
+      <kw-btn
+        primary
+        dense
+        :label="$t('MSG_TXT_SAVE')"
+        @click="onClickSave"
+      />
     </kw-action-top>
 
     <kw-grid
@@ -157,19 +164,6 @@
       class="mt20"
       @init="initGrdMain"
     />
-
-    <template #action>
-      <kw-btn
-        negative
-        :label="$t('MSG_BTN_CANCEL')"
-        @click="onClickCancel"
-      />
-      <kw-btn
-        primary
-        :label="$t('MSG_BTN_SAVE')"
-        @click="onClickSave"
-      />
-    </template>
   </kw-page>
 </template>
 <script setup>
@@ -178,17 +172,17 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { defineGrid, getComponentType, useDataService, codeUtil, useModal, useGlobal, validate, notify } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, codeUtil, useGlobal, validate, notify } from 'kw-lib';
 import { isEmpty, cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const dataService = useDataService();
 const { confirm } = useGlobal();
-const { cancel: onClickCancel } = useModal();
 const props = defineProps({
-  cntrNo: { type: String, default: 'W20230007679' }, // 테스트를 위한 default값
-  cntrSn: { type: String, default: '1' },
+  cntrNo: { type: String, default: 'W20230007679', required: true }, // 테스트를 위한 default값
+  cntrSn: { type: String, default: '1', required: true },
+  prtnrNo: { type: String, default: '36834', required: true },
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -241,7 +235,7 @@ const dataParam = ref({
   tn4StpYm: '',
   sppAkSpfDt: '',
   ogTpCd: '',
-  prtnrNo: '',
+  prtnrNo: props.prtnrNo,
 });
 
 const isDisableSppAkSpfDt = computed(() => dataParam.value.sppStpDvCd === 'D');
@@ -372,7 +366,7 @@ onMounted(async () => {
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'akDt' },
-    { fieldName: 'cntrNo' },
+    { fieldName: 'cntrDtlNo' },
     { fieldName: 'sppStpDvNm' },
     { fieldName: 'sppStpDvCd' },
     { fieldName: 'prtnrKnm' },
@@ -401,7 +395,7 @@ const initGrdMain = defineGrid((data, view) => {
         return isEmpty(value) ? akDtReg : value;
       },
     },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CST_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'cntrDtlNo', header: t('MSG_TXT_CNTR_DTL_NO'), width: '150', styleName: 'text-center' },
     { fieldName: 'apyDt', header: t('MSG_TXT_APPLY_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     {
       fieldName: 'sppStpDvCd',
@@ -410,9 +404,9 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
       options: code,
     },
-    { fieldName: 'pdNm', header: t('MSG_TXT_RGST_FILT'), width: '200', styleName: 'text-left' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_USR'), width: '100', styleName: 'text-left' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_CHNL'), width: '100', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_RGST_FILT'), width: '200', styleName: 'text-center' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_USR'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_CHNL'), width: '100', styleName: 'text-center' },
     { fieldName: 'stat', header: t('MSG_TXT_STT'), width: '100', styleName: 'text-center' },
   ];
 
