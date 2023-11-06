@@ -645,7 +645,7 @@ async function onClickSave() {
     item.ostrDt = ostrDt;
   });
 
-  const res = await dataService.post('/sms/wells/service/individual-ware-ostrs', checkedRows);
+  const res = await dataService.post('/sms/wells/service/individual-ware-ostrs', checkedRows, { timeout: 300000 });
   const { processCount } = res.data;
   if (processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
