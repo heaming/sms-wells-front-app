@@ -122,7 +122,7 @@ console.log(props);
 const router = useRouter();
 async function onClick(num) {
   router.push({
-    path: '/mobile/wmsnb-happy-call-reg-choise',
+    path: '/wmsnb-happy-call-reg-choise',
     query: {
       selectedStar: num,
       // svBizDclsfCd: props.svBizDclsfCd,

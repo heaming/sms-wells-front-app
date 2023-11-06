@@ -53,7 +53,7 @@ async function onClear() {
     data: { cstSvAsnNo },
   });
   router.push({
-    path: '/mobile/wmsnb-happy-call-reg-entry',
+    path: '/wmsnb-happy-call-reg-entry',
     query: {
       cntrNo: props.cntrNo,
       cstSvAsnNo: props.cstSvAsnNo,
