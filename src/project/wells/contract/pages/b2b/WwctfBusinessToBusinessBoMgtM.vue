@@ -383,8 +383,11 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       header: `${t('MSG_TXT_COMP')}${t('MSG_TXT_CONTACT')}1`,
       width: '150',
       styleName: 'text-center',
-      editor: { type: 'telephone' },
-    },
+      editor: {
+        type: 'telephone',
+        maxLength: 11,
+      },
+    }, // 업체연락처1
     { fieldName: 'cralLocaraTno', visible: false },
     { fieldName: 'mexnoEncr', visible: false },
     { fieldName: 'cralIdvTno', visible: false },
@@ -392,14 +395,17 @@ const initBusinessToBusinessBoList = defineGrid((data, view) => {
       header: `${t('MSG_TXT_COMP')}${t('MSG_TXT_CONTACT')}2`,
       width: '150',
       styleName: 'text-center',
-      editor: { type: 'telephone' },
-    },
+      editor: {
+        type: 'telephone',
+        maxLength: 11,
+      },
+    }, // 업체연락처2
     { fieldName: 'emadrCn',
       header: t('MSG_TXT_EMAIL'),
       width: '193',
       styleName: 'text-center',
       editor: {
-        maxLength: 1000,
+        maxLength: 500,
       },
     }, // 이메일
     { fieldName: 'crdrVal',
