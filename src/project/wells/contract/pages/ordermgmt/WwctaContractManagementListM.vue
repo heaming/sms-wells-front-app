@@ -996,16 +996,14 @@ async function onClickSearchCntrCst() {
   }
 }
 
-// oz리포트 이벤트
+// oz리포트 이벤트(공통유틸) - 현재 미사용중이나, 공통사용에 참고
 // eslint-disable-next-line no-unused-vars
 async function onClickOzReportHello(cntrNo) {
   const { data: reports } = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
   return openOzReport(...reports);
-} /* FIXME: 확인 부탁드립니다.  */
+} /* 231106 공통유틸 확인완료 */
 
 async function onClickOzReport(cntrNo) {
-  // TODO: 231031 기준 개발중인 oz리포트 - args받아서 정상적으로 넘기는 것 까지 완료 [버전등 개발이 완료되면 다시 확인]
-
   const res = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
 
   if (res.data.length < 2) { // 단건 처리
@@ -1025,7 +1023,7 @@ async function onClickOzReport(cntrNo) {
       const childParams = {
         ozrPath: res.data[i].ozrPath, // childParamOzrPath,
         odiPath: res.data[i].odiPath, // childParamOdiPath,
-        args: JSON.stringify(res.data[i].args), // { ctnrNo: res.data[i].args.cntrNo, histStrtDtm: paramHistStrtDtm,}),
+        args: JSON.stringify(res.data[i].args), // { ctnrNo: childParamCntrNo, histStrtDtm: childParamHistStrtDtm }
         displayName: res.data[i].displayName,
       };
 
@@ -1486,7 +1484,8 @@ const initGrdMstList = defineGrid((data, view) => {
     } else if (['fileUid'].includes(column)) { /* 파일UID인 경우 */
       fileUtil.download({ fileUid: fileRow.fileUid, originalFileName: fileRow.fileNm }, 'storage'); /* kw-lib에서 fileUtil을 불러옴  */
     } else if (['cntrwBrws'].includes(column)) { // 계약서보기 버튼 클릭
-      await onClickOzReport(paramCntrNo);
+      onClickOzReport(paramCntrNo);
+      // onClickOzReportHello(paramCntrNo);
     } else if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrNo: paramCntrNo, cntrSn: paramCntrSn, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
