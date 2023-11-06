@@ -29,7 +29,7 @@
       <kw-form-row>
         <kw-form-item :label="$t('계약번호')">
           <kw-input
-            v-model="customerInfo.cntrNo"
+            v-model="customerInfo.cntrNoSn"
             readonly
             placeholder=""
           />
@@ -289,7 +289,9 @@ const totalCountForRight = ref({
 });
 
 const customerInfo = ref({
+  cntrNoSn: '',
   cntrNo: '',
+  cntrSn: '',
   rcgvpKnm: '',
   basePdCd: '',
   pdNm: '',
@@ -347,6 +349,7 @@ const codes = await codeUtil.getMultiCodes(
 async function getCustomerVisitPeriod() {
   const res = await dataService.get('/sms/wells/service/individual-visit-prds/customer-infos', { params: { ...customerParam.value } });
   customerInfo.value = res.data;
+  customerInfo.value.cntrNoSn = `${customerInfo.value?.cntrNo}-${customerInfo.value?.cntrSn}`;
   await frmMainRef.value.init();
 
   // 방문현황 조회
