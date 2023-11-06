@@ -413,13 +413,13 @@ async function onClickExcelDownload() {
 async function onClickExcelUpload() {
   const apiUrl = `${apiUri}/${searchParams.value.exmpYn}/excel-upload`;
   // const templateId = 'FOM_WDC_0001';
-  let templateId;
+  const templateId = 'FOM_WDC_0001';
 
-  if (searchParams.value.exmpYn === 'N') {
-    templateId = 'FOM_WDC_0001';
-  } else {
-    templateId = 'FOM_WDC_0002';
-  }
+  // if (searchParams.value.exmpYn === 'N') {
+  //   templateId = 'FOM_WDC_0001';
+  // } else {
+  //   templateId = 'FOM_WDC_0002';
+  // }
 
   const {
     resultData,
