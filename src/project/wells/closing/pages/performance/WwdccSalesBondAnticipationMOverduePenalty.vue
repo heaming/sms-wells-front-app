@@ -164,7 +164,7 @@
       <kw-btn
         v-permission:download
         icon="download_on"
-        :disable="searchParams.agrgDv !== '3' || totalCount === 0"
+        :disable="searchParams.agrgDv !== '3'"
         dense
         secondary
         :label="$t('MSG_BTN_WO_DLD')"
@@ -206,12 +206,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, defineGrid, gridUtil, useDataService } from 'kw-lib';
+import { codeUtil, getComponentType, defineGrid, gridUtil, useDataService, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import { getAggregateDivide, getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
 
+const { alert } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const now = dayjs();
@@ -262,9 +263,11 @@ async function fetchData() {
   let res;
   let mainView;
 
-  console.log('agrgDv:', agrgDv);
-  console.log('inquiryDivide:', inquiryDivide);
-  console.log('sellTpCd:', sellTpCd);
+  if (agrgDv === '3' && isEmpty(searchParams.value.cntrNo)) {
+    // 계약상세번호는 필수 입력항목입니다.
+    await alert(t('MSG_ALT_NCSR_CD', [t('MSG_TXT_CNTR_DTL_NO')]));
+    return;
+  }
 
   if (agrgDv === '2') { // 일자별
     mainView = grdMainRef.value.getView();
