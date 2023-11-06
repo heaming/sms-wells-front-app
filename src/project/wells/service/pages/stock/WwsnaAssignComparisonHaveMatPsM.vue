@@ -195,7 +195,7 @@ const searchParams = ref({
   sapItemCdTo: '',
   strtSapCd: '',
   endSapCd: '',
-  wareDvCd: '2',
+  wareDvCd: '3',
   wareNoM: '',
   wareNoD: '',
   itmKndCd: '',
@@ -203,15 +203,15 @@ const searchParams = ref({
 });
 
 const wareDvCd = { WARE_DV_CD: [
-  { codeId: '1', codeName: '물류센터' },
-  { codeId: '2', codeName: '서비스센터' },
+  // { codeId: '1', codeName: '물류센터' },
+  // { codeId: '2', codeName: '서비스센터' },
   { codeId: '3', codeName: '영업센터' },
 ] };
 
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[0].codeName),
+  pageSize: Number(codes.COD_PAGE_SIZE_OPTIONS[2].codeName),
 });
 
 let cachedParams;
