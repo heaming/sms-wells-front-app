@@ -52,7 +52,8 @@
               :bas="step2.bas"
               @select:one-plus-one="onClickOnePlusOne"
               @delete:one-plus-one="onDeleteOnePlusOne"
-              @change:device="onClickDeviceChange"
+              @select:device="onClickDeviceChange"
+              @delete:device="onClickDeleteDeviceChange"
               @change:package="onChangeWellsFarmPackage"
               @packaging="onPackaging"
               @price-changed="onPriceChanged(item, $event)"
@@ -240,50 +241,6 @@ async function onSelectProduct(product) {
     newProducts.push(newProduct);
   }
 
-  if (isWellsFarmProduct && false) {
-    // 정기배송 상품 조회 CASE1: 웰스팜/홈카페 상품을 선택하여 정기배송 패키지가 자동추가되는 경우
-    const { data: packageProducts } = await dataService.get('sms/wells/contract/contracts/welsf-hcf-pkgs', {
-      params: {
-        cntrNo: cntrNo.value,
-        pdCd: newProduct.pdCd,
-      },
-    });
-
-    if (!packageProducts?.length) {
-      return;
-    }
-
-    packageProducts.forEach(setTempKey);
-
-    const defaultPackageProduct = packageProducts[0];
-
-    const cntrRel = {
-      cntrRelId: undefined,
-      cntrRelDtlCd: CNTR_REL_DTL_CD.LK_SDING, /* 모종결합 */
-      baseDtlCntrNo: cntrNo.value,
-      baseDtlCntrSn: undefined,
-      ojDtlCntrNo: cntrNo.value,
-      ojDtlCntrSn: undefined,
-      basePdBas: {
-        pdCd: defaultPackageProduct.pdCd,
-        pdNm: defaultPackageProduct.pdNm,
-      },
-      baseTempKey: defaultPackageProduct.tempKey,
-      ojTempKey: newProduct.tempKey,
-      ojBasePdBas: { ...newProduct },
-    };
-
-    const packageProduct = {
-      ...defaultPackageProduct,
-      cntrRels: [cntrRel],
-      pkgs: packageProducts,
-    };
-
-    newProduct.ojCntrRels = [cntrRel];
-
-    newProducts.push(packageProduct);
-  }
-
   step2.value.dtls.push(...newProducts);
   emit('contract-modified');
 }
@@ -464,6 +421,17 @@ async function onClickDeviceChange(dtl) {
       rentalDscDvCd: '8',
       rentalDscTpCd: RENTAL_DSC_TP_CD.RE_RENTAL,
     };
+  }
+}
+
+async function onClickDeleteDeviceChange(dtl) {
+  dtl.mchnCh = {};
+
+  if (dtl.priceOptionFilter?.rentalDscTpCd) {
+    dtl.priceOptionFilter.rentalDscTpCd = undefined;
+  }
+  if (dtl.priceOptionFilter.rentalDscDvCd) {
+    dtl.priceOptionFilter.rentalDscDvCd = undefined;
   }
 }
 

@@ -318,9 +318,9 @@
             <div
               class="grow ellipsis pl8 hp-w1"
             >
-              {{ cntrRel.ojBasePdBas?.pdNm }}
+              {{ labelForCntrRel(cntrRel) }}
               <kw-tooltip show-when-ellipsised>
-                {{ cntrRel.ojBasePdBas?.pdNm }}
+                {{ labelForCntrRel(cntrRel) }}
               </kw-tooltip>
             </div>
           </kw-item-label>
@@ -420,11 +420,12 @@ const props = defineProps({
   bas: { type: Object, default: undefined },
 });
 const emit = defineEmits([
-  'change:device',
+  'select:device',
+  'delete:device',
   'select:one-plus-one',
-  'packaging',
-  'change:package',
   'delete:one-plus-one',
+  'change:package',
+  'packaging',
   'price-changed',
   'promotion-changed',
   'delete',
@@ -503,6 +504,17 @@ let finalPriceOptions;
 let priceOptionFilter;
 let packageRentalDscTpCds;
 let wellsDtl;
+
+function labelForCntrRel(cntrRel) {
+  if (!cntrRel) {
+    return '';
+  }
+
+  const { ojBasePdBas, ojDtlCntrNo, ojDtlCntrSn } = cntrRel;
+  const { cstBasePdAbbrNm, pdNm } = ojBasePdBas ?? {};
+
+  return `${cstBasePdAbbrNm || pdNm || ''} ${ojDtlCntrSn ? `${ojDtlCntrNo}-${ojDtlCntrSn}` : ''}`;
+}
 
 function connectReactivities() {
   pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
@@ -877,7 +889,11 @@ function onChangeVariable() {
 }
 
 function onClickDeviceChange() {
-  emit('change:device', props.modelValue);
+  emit('select:device', props.modelValue);
+}
+
+function onClickDeleteDeviceChange() {
+  emit('delete:device', props.modelValue);
 }
 
 function onClickOnePlusOne() {
@@ -890,10 +906,6 @@ function onClickPackage(rentalDscTpCd) {
 
 function onClickDelete() {
   emit('delete');
-}
-
-function onClickDeleteDeviceChange() {
-  mchnCh.value = {};
 }
 
 function onDeleteOnePlusOne() {
