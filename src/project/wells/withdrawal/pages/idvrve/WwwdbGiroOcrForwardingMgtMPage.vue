@@ -174,6 +174,7 @@
       @init="initGrid"
     />
     <kw-pagination
+      v-if="isCheckGrid"
       v-model:page-index="pageInfo.pageIndex"
       v-model:page-size="pageInfo.pageSize"
       :total-count="pageInfo.totalCount"
@@ -207,6 +208,7 @@ const props = defineProps({
   },
 });
 
+const isCheckGrid = ref(true);
 const grdLinkRef = ref(getComponentType('KwGrid'));
 
 const codes = await codeUtil.getMultiCodes(
@@ -258,6 +260,8 @@ async function fetchData() {
   data.setRows(pages);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   data.checkRowStates(true);
+
+  isCheckGrid.value = true;
 }
 
 async function onClickSearch() {
@@ -330,6 +334,8 @@ async function onClickObjectSearch() {
       param.giroRglrDvCd = '01';
       // gridUtil.insertRowAndFocus(view, 0, param);
     });
+
+    isCheckGrid.value = false;
 
     data.addRows(objectRes);
   }
