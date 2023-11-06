@@ -312,6 +312,9 @@ async function onClickCcamEt() {
   await modal({
     component: 'WwctaEstimateCcamDtlP', // 위약금예상 조회
     componentProps: searchPopupParams,
+    draggable: true,
+    window: true,
+    windowFeatures: { width: 1300, height: 1080 },
   });
 }
 
