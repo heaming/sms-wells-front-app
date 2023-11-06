@@ -187,7 +187,7 @@ const dataService = useDataService();
 const { confirm } = useGlobal();
 const { cancel: onClickCancel } = useModal();
 const props = defineProps({
-  cntrNo: { type: String, default: 'W20206917043' }, // 테스트를 위한 default값
+  cntrNo: { type: String, default: 'W20230007679' }, // 테스트를 위한 default값
   cntrSn: { type: String, default: '1' },
 });
 
@@ -344,7 +344,7 @@ async function onClickBlkPls() {
     dataParam.value.tn4StpYm = '';
     dataParam.value.sppAkSpfDt = '';
 
-    await dataService.post('/sms/wells/service/visit-stop-inquiry', dataParam.value);
+    await dataService.post('/sms/wells/service/visit-stops', dataParam.value);
     notify(t('MSG_ALT_SAVE_DATA'));
     await fetchVisitStopCodes(props.cntrNo, props.cntrSn);
   }
@@ -356,7 +356,7 @@ async function onClickSave() {
 
   dataParam.value.apyDt = dayjs().format('YYYYMMDD');
 
-  await dataService.post('/sms/wells/service/visit-stop-inquiry', dataParam.value);
+  await dataService.post('/sms/wells/service/visit-stops', dataParam.value);
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchVisitStopCodes(props.cntrNo, props.cntrSn);
 }
