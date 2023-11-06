@@ -57,6 +57,7 @@
         <zctz-contract-detail-number
           v-model:cntr-no="searchParams.cntrNo"
           v-model:cntr-sn="searchParams.cntrSn"
+          :disable="searchParams.agrgDv !== '3'"
           :name="$t('MSG_TXT_CNTR_DTL_NO')"
         />
       </kw-search-item>
@@ -83,20 +84,20 @@
       <kw-btn
         v-permission:download
         icon="download_on"
-        :disable="totalCount === 0 || searchParams.agrgDv !== '3' "
-        dense
-        secondary
-        :label="$t('MSG_BTN_WO_DLD')"
-        @click="onClickBulkExcelDownload"
-      />
-      <kw-btn
-        v-permission:download
-        icon="download_on"
         :disable="totalCount === 0"
         dense
         secondary
         :label="$t('MSG_BTN_EXCEL_DOWN')"
         @click="onClickExcelDownload"
+      />
+      <kw-btn
+        v-permission:download
+        icon="download_on"
+        :disable="totalCount === 0 || searchParams.agrgDv !== '3' "
+        dense
+        secondary
+        :label="$t('MSG_BTN_WO_DLD')"
+        @click="onClickBulkExcelDownload"
       />
     </kw-action-top>
     <kw-grid
@@ -112,13 +113,14 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid } from 'kw-lib';
+import { codeUtil, getComponentType, gridUtil, useDataService, defineGrid, useGlobal } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { getAggregateDivide, getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
+const { notify } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
@@ -503,13 +505,16 @@ async function fetchData() {
   const salesBonds = res.data;
   totalCount.value = salesBonds.length;
 
-  console.log(totalCount.value);
-
   const view = grdSalesBondRef.value.getView();
   view.getDataSource().setRows(salesBonds);
 }
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  // 집계구분 "주문별" 선택시 계약번호 필수입력 체크
+  if (cachedParams.agrgDv === '3' && !cachedParams.cntrNo) {
+    notify(t('MSG_ALT_NCSR_CD', [t('MSG_TXT_CNTR_DTL_NO')]));
+    return;
+  }
   setGridHeader();
   totalCount.value = 0;
   await fetchData();
