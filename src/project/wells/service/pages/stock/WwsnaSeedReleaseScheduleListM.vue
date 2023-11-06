@@ -535,6 +535,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cstMexnoEncr', dataType: 'text' }, // 고객전화국번호
     { fieldName: 'cstCralIdvTno', dataType: 'text' }, // 고객휴대개별전화번호
     { fieldName: 'svPdCd', dataType: 'text' }, // 서비스상품코드
+    { fieldName: 'cntrAdrpcId', dataType: 'text' }, // 계약주소지ID
   ];
 
   const columns = [
