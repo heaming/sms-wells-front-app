@@ -41,7 +41,7 @@
             first-option="all"
             option-label="ogNm"
             option-value="ogId"
-            class="w240"
+            class="w200"
             @update:model-value="onUpdateSvcCode"
           />
           <kw-select
@@ -50,6 +50,7 @@
             option-label="prtnrNoNm"
             option-value="prtnrNo"
             first-option="all"
+            class="w200"
           />
           <kw-field
             v-model="searchParams.rgsnYn"
