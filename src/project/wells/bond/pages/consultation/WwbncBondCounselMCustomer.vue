@@ -250,6 +250,10 @@ import { defineGrid, gridUtil, codeUtil, getComponentType, modal, useDataService
 import { cloneDeep } from 'lodash-es';
 import { getDlqMcnt, getFntDt, getWellsCstListDv, getAuthAuthRsgYn, getFntDv } from '~sms-common/bond/utils/bnUtil';
 
+const emits = defineEmits([
+  'update',
+]);
+
 const { t } = useI18n();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
@@ -259,6 +263,13 @@ const { employeeIDNumber } = getters['meta/getUserInfo'];
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const props = defineProps({
+  refId: {
+    type: String,
+    default: null,
+  },
+});
+
 const isRadioDisable = ref(true);
 
 const codes = await codeUtil.getMultiCodes(
@@ -304,6 +315,7 @@ const searchParams = ref({
   dv1: '',
   dv2: '',
   schSfKYn: 'N',
+  refId: props.refId,
 });
 
 const frmMainRef = ref(getComponentType('KwForm'));
@@ -550,39 +562,39 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'ctt', header: t('MSG_TXT_CTT'), width: '52', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } },
-    { fieldName: 'fnt', header: t('MSG_TXT_FNT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' },
-    { fieldName: 'dlqMcnt', header: t('MSG_TXT_DLQ_MCNT'), width: '70', styleName: 'text-center' },
-    { fieldName: 'fnlCnslD', header: t('MSG_TXT_FNL_CNSL_D'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'ojDp', header: t('MSG_TXT_OJ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'ojBlam', header: t('MSG_TXT_OJ_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'totDlqAmt', header: t('MSG_TXT_TOT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'totDlqDp', header: t('MSG_TXT_TOT_DLQ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'totDlqBlam', header: t('MSG_TXT_TOT_DLQ_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dlqDp', header: t('MSG_TXT_DLQ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'mmChramAmt', header: t('MSG_TXT_MM_CHRAM_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'mmChramDp', header: t('MSG_TXT_MM_CHRAM_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'mmChramBlam', header: t('MSG_TXT_MM_CHRAM_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'dlqAdamtBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'ucAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'ucDp', header: t('MSG_TXT_UC_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'ucBlam', header: t('MSG_TXT_UC_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'totDpAmt', header: t('MSG_TXT_TOT_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'spmtSl', header: t('MSG_TXT_SPMT_SL'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'ccam', header: t('MSG_TXT_CCAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'lsfe', header: t('MSG_TXT_LSFE'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'rtlfe1', header: t('MSG_TXT_RTLFE1'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'rtlfeIstm1', header: t('MSG_TXT_RTLFE_1_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } },
-    { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' },
+    { fieldName: 'ctt', header: t('MSG_TXT_CTT'), width: '52', styleName: 'text-center', headerSummaries: { text: '합계', styleName: 'text-center' } }, // 컨택
+    { fieldName: 'fnt', header: t('MSG_TXT_FNT'), width: '120', styleName: 'text-center' }, // 이체
+    { fieldName: 'cstNo', header: t('MSG_TXT_CST_NO'), width: '100', styleName: 'text-center' }, // 고객번호
+    { fieldName: 'cstNm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center' }, // 고객명
+    { fieldName: 'dlqMcnt', header: t('MSG_TXT_DLQ_MCNT'), width: '70', styleName: 'text-center' }, // 연체개월
+    { fieldName: 'fnlCnslD', header: t('MSG_TXT_FNL_CNSL_D'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 최종상담일
+    { fieldName: 'ojAmt', header: t('MSG_TXT_OJ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 대상금액
+    { fieldName: 'ojDp', header: t('MSG_TXT_OJ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 대상입금
+    { fieldName: 'ojBlam', header: t('MSG_TXT_OJ_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 대상잔액
+    { fieldName: 'totDlqAmt', header: t('MSG_TXT_TOT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 총연체금
+    { fieldName: 'totDlqDp', header: t('MSG_TXT_TOT_DLQ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 총연체입금
+    { fieldName: 'totDlqBlam', header: t('MSG_TXT_TOT_DLQ_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 총연체잔액
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 연체금액
+    { fieldName: 'dlqDp', header: t('MSG_TXT_DLQ_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 연체입금
+    { fieldName: 'dlqBlam', header: t('MSG_TXT_DLQ_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 연체잔액
+    { fieldName: 'mmChramAmt', header: t('MSG_TXT_MM_CHRAM_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 월요금액
+    { fieldName: 'mmChramDp', header: t('MSG_TXT_MM_CHRAM_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 월요금입금
+    { fieldName: 'mmChramBlam', header: t('MSG_TXT_MM_CHRAM_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 월요금잔액
+    { fieldName: 'dlqAddAmt', header: t('MSG_TXT_DLQ_ADD_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 연체가산금액
+    { fieldName: 'dlqAddDp', header: t('MSG_TXT_DLQ_ADD_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 연체가산입금
+    { fieldName: 'dlqAdamtBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 연체가산금잔액
+    { fieldName: 'ucAmt', header: t('MSG_TXT_UC_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 미수금액
+    { fieldName: 'ucDp', header: t('MSG_TXT_UC_DP'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 미수입금
+    { fieldName: 'ucBlam', header: t('MSG_TXT_UC_BLAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 미수잔액
+    { fieldName: 'totDpAmt', header: t('MSG_TXT_TOT_DP_AMT'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 총입금액
+    { fieldName: 'spmtSl', header: t('MSG_TXT_SPMT_SL'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 추가매출
+    { fieldName: 'ccam', header: t('MSG_TXT_CCAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 위약금
+    { fieldName: 'lsfe', header: t('MSG_TXT_LSFE'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 분실료
+    { fieldName: 'rtlfe1', header: t('MSG_TXT_RTLFE1'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 렌탈료1
+    { fieldName: 'rtlfeIstm1', header: t('MSG_TXT_RTLFE_1_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 렌탈료1할
+    { fieldName: 'rtlfe2', header: t('MSG_TXT_RTLFE2'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 렌탈료2
+    { fieldName: 'rtlfeIstm2', header: t('MSG_TXT_RTLFE_2_ISTM'), width: '100', styleName: 'text-right', numberFormat: '#,##0', headerSummaries: { expression: 'sum', numberFormat: '#,##0' } }, // 렌탈료2할
+    { fieldName: 'clctamIchr', header: t('MSG_TXT_CLCTAM_PSIC'), width: '100', styleName: 'text-center' }, // 집급담당
     {
       fieldName: 'cntrMpno',
       header: t('MSG_TXT_CNTR_MPNO'),
@@ -595,10 +607,10 @@ const initGrdMain = defineGrid((data, view) => {
           return `${no1}-${no2}-${no3}`;
         }
       },
-    },
-    { fieldName: 'cralLocaraTno', width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'mexnoEncr', width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'cralIdvTno', width: '100', styleName: 'text-left', visible: false },
+    }, // 계약휴대전화번호
+    { fieldName: 'cralLocaraTno', width: '100', styleName: 'text-left', visible: false }, // 계약휴대전화번호1
+    { fieldName: 'mexnoEncr', width: '100', styleName: 'text-left', visible: false }, // 계약휴대전화번호2
+    { fieldName: 'cralIdvTno', width: '100', styleName: 'text-left', visible: false }, // 계약휴대전화번호3
     {
       fieldName: 'istMpno',
       header: t('MSG_TXT_IST_MPNO'),
@@ -610,20 +622,20 @@ const initGrdMain = defineGrid((data, view) => {
           return `${no1}-${no2}-${no3}`;
         }
       },
-    },
-    { fieldName: 'istCralLocaraTno', width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'istMexnoEncr', width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'istCralIdvTno', width: '100', styleName: 'text-left', visible: false },
-    { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '100', styleName: 'text-center' },
-    { fieldName: 'vtAcNo', header: t('MSG_TXT_VT_AC_NO'), width: '160', styleName: 'text-center' },
-    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '160', styleName: 'text-center' },
-    { fieldName: 'clnPsbl', header: t('MSG_TXT_CLN_PSBL'), width: '100', styleName: 'text-center' },
-    { fieldName: 'clnPrcs', header: t('MSG_TXT_CLN_PRCS'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cstStat', header: t('MSG_TXT_CST_STAT'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cvcpInf', header: t('MSG_TXT_CVCP_INF'), width: '120', styleName: 'text-center' },
-    { fieldName: 'unuslArtc', header: t('MSG_TXT_UNUITM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false },
+    }, // 설치휴대전화번호
+    { fieldName: 'istCralLocaraTno', width: '100', styleName: 'text-left', visible: false }, // 설치휴대전화번호1
+    { fieldName: 'istMexnoEncr', width: '100', styleName: 'text-left', visible: false }, // 설치휴대전화번호2
+    { fieldName: 'istCralIdvTno', width: '100', styleName: 'text-left', visible: false }, // 설치휴대전화번호3
+    { fieldName: 'vtAcBnk', header: t('MSG_TXT_VT_AC_BNK'), width: '100', styleName: 'text-center' }, // 가상계좌은행
+    { fieldName: 'vtAcNo', header: t('MSG_TXT_VT_AC_NO'), width: '160', styleName: 'text-center' }, // 가상계좌번호
+    { fieldName: 'sfk', header: t('MSG_TXT_SFK'), width: '160', styleName: 'text-center' }, // 세이프키
+    { fieldName: 'clnPsbl', header: t('MSG_TXT_CLN_PSBL'), width: '100', styleName: 'text-center' }, // 회수가능성
+    { fieldName: 'clnPrcs', header: t('MSG_TXT_CLN_PRCS'), width: '100', styleName: 'text-center' }, // 회수절차
+    { fieldName: 'cstStat', header: t('MSG_TXT_CST_STAT'), width: '100', styleName: 'text-center' }, // 고객상태
+    { fieldName: 'cvcpInf', header: t('MSG_TXT_CVCP_INF'), width: '120', styleName: 'text-center' }, // 민원정보
+    { fieldName: 'unuslArtc', header: t('MSG_TXT_UNUITM'), width: '120', styleName: 'text-center' }, // 특이사항
+    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '100', styleName: 'text-center', visible: false }, // 계약번호
+    { fieldName: 'cntrSn', header: t('MSG_TXT_CNTR_SN'), width: '100', styleName: 'text-center', visible: false }, // 계약일련번호
   ];
 
   data.setFields(fields);
@@ -648,8 +660,19 @@ const initGrdMain = defineGrid((data, view) => {
     const cntrNo = gridUtil.getCellValue(g, dataRow, 'cntrNo');
     const cntrSn = gridUtil.getCellValue(g, dataRow, 'cntrSn');
     windowKey.value = `WwbncBondCounselMCustomer_${cstNo}`;
+
+    const getMessageEvent = (e) => {
+      emits('update', e.data.data);
+    };
+
+    window.addEventListener('message', getMessageEvent, false);
+
     if (cstNo) {
-      await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { 'modal-popup': true, cstNo, cntrNo, cntrSn }, windowKey.value);
+      const res = await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { 'modal-popup': true, cstNo, cntrNo, cntrSn }, windowKey.value);
+
+      if (res.result) {
+        window.removeEventListener('message', getMessageEvent, false);
+      }
     }
   };
 });

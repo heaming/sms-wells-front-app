@@ -165,10 +165,15 @@ const props = defineProps({
     type: String,
     default: 'N',
   },
+  refId: {
+    type: String,
+    default: null,
+  },
 });
 
 const emit = defineEmits([
   'update:searchYn',
+  'update',
 ]);
 
 // -------------------------------------------------------------------------------------------------
@@ -265,6 +270,7 @@ async function fetchBaseYmData() {
 }
 
 onMounted(async () => {
+  searchParams.refId = props.refId;
   await fetchBaseYmData();
 });
 
@@ -410,8 +416,19 @@ const initGrid = defineGrid((data, view) => {
     const { cstNo, cntrNo, cntrSn } = gridUtil.getRowValue(g, dataRow);
 
     windowKey.value = `WwbncBondCounselMCustomerSearch_${cstNo}`;
+
+    const getMessageEvent = (e) => {
+      emit('update', e.data.data);
+    };
+
+    window.addEventListener('message', getMessageEvent, false);
+
     if (cstNo) {
-      await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { 'modal-popup': true, cstNo, cntrNo, cntrSn }, windowKey.value);
+      const res = await popupUtil.open(`/popup/#/wwbnc-customer-dtl?cstNo=${cstNo}&cntrNo=${cntrNo}&cntrSn=${cntrSn}`, { width: 2000, height: 1100 }, { 'modal-popup': true, cstNo, cntrNo, cntrSn }, windowKey.value);
+
+      if (res.result) {
+        window.removeEventListener('message', getMessageEvent, false);
+      }
     }
   };
 });
