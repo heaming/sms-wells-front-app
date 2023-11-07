@@ -61,7 +61,7 @@
         <kw-search-item :label="$t('MSG_TXT_DIV')">
           <kw-select
             v-model="searchParams.divCd"
-            :options="dvCd"
+            :options="customCodes.dvCd"
             first-option
             first-option-value=""
             :first-option-label="$t('MSG_TXT_ALL')"
@@ -70,7 +70,7 @@
         <kw-search-item :label="$t('MSG_TXT_RSB_DV')">
           <kw-select
             v-model="searchParams.rsbDvCd"
-            :options="filterRsbDvCd"
+            :options="customCodes.filterRsbDvCd"
             first-option
             first-option-value=""
             :first-option-label="$t('MSG_TXT_ALL')"
@@ -160,12 +160,18 @@ const now = dayjs();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const totalCount = ref(0);
 const codes = await codeUtil.getMultiCodes('FEE_TCNT_DV_CD', 'RSB_DV_CD', 'OPNG_CD', 'QLF_DV_CD');
-const filterRsbDvCd = codes.RSB_DV_CD.filter((v) => ['W0202', 'W0203', 'W0204', 'W0205'].includes(v.codeId));
-const dvCd = [
-  { codeId: '01', codeName: '계약일' },
-  { codeId: '02', codeName: '해약일' },
-  { codeId: '03', codeName: '해약제외' },
-];
+const customCodes = {
+  filterRsbDvCd: codes.RSB_DV_CD.filter((v) => ['W0202', 'W0203', 'W0204', 'W0205'].includes(v.codeId)),
+  dvCd: [
+    { codeId: '01', codeName: '계약일' },
+    { codeId: '02', codeName: '해약일' },
+    { codeId: '03', codeName: '해약제외' },
+  ],
+  qlfDvCd: [
+    { codeId: undefined, codeName: '해약' },
+    ...codes.QLF_DV_CD,
+  ],
+};
 
 const searchParams = ref({
   baseYm: now.add(-1, 'month').format('YYYYMM'),
@@ -269,7 +275,6 @@ async function onClickSave() {
 
 // 개시구분 생성 버튼 클릭 이벤트
 async function onClickCreate() {
-  /*
   const { baseYm } = searchParams.value;
   const { feeCnfmYn, opngCnfmYn, opngCnfmCnt } = info.value;
   if (bfMonth !== baseYm) {
@@ -291,13 +296,6 @@ async function onClickCreate() {
     notify(t('MSG_ALT_CRT_FSH'));
     await onClickSearch();
   }
-  test를 위한 임시처리
-  */
-  searchParams.value.reCrtYn = 'Y';
-  await dataService.post('/sms/wells/fee/wm-settlement-allowances/insert', searchParams.value);
-  searchParams.value.reCrtYn = 'N';
-  notify(t('MSG_ALT_CRT_FSH'));
-  await onClickSearch();
 }
 
 // 개시구분 확정 버튼 클릭 이벤트
@@ -392,7 +390,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '130',
       styleName: 'text-center',
       editable: false,
-      options: codes.QLF_DV_CD,
+      options: customCodes.qlfDvCd,
     },
     { fieldName: 'cvDt', header: `WM${t('MSG_TXT_CV')}${t('MSG_TXT_MON')}`, width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'yyyy-MM' },
     { fieldName: 'strtupDt', header: t('MSG_TXT_SRTUP'), width: '130', styleName: 'text-center', editable: false, datetimeFormat: 'yyyy-MM' },
