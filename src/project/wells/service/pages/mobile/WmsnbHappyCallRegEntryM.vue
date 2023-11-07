@@ -131,7 +131,7 @@ async function onClick(num) {
       // sellTpCd: props.sellTpCd,
       // wkExcnDt: props.wkExcnDt,
       cntrNo: props.cntrNo ? props.cntrNo : props.para.split('|')[0],
-      cntrSn: props.cntrSn ? props.cntrSn : (props.para.split('|')[1] ? props.para.split('|')[1] : '1'),
+      cntrSn: props.cntrSn ? props.cntrSn : props.para.split('|')[1],
       cstSvAsnNo: props.cstSvAsnNo ? props.cstSvAsnNo : props.para.split('|')[2],
     },
   });
