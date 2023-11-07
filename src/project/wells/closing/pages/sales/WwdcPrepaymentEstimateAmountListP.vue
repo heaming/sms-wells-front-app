@@ -127,10 +127,15 @@
         <kw-form-item
           :label="t('MSG_TXT_PRM_IMP_CHECK')"
         >
-          <kw-input
+          <!--
+        <kw-input
             v-model="returnData.cntrChDtlAkCn"
             @keydown.enter="onClickPressSave"
           />
+          -->
+          <p class="kw-fc--black1 text-right ml16">
+            {{ returnData.cntrChDtlAkCn }}
+          </p>
         </kw-form-item>
       </kw-form-row>
     </kw-form>
@@ -145,7 +150,9 @@ import { useGlobal, useModal, useDataService, codeUtil } from 'kw-lib'; // defin
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
+// eslint-disable-next-line no-unused-vars
 const { modal, notify } = useGlobal();
+// eslint-disable-next-line no-unused-vars
 const { ok } = useModal();
 const dataService = useDataService();
 const props = defineProps({
@@ -224,7 +231,7 @@ async function onClickFirstDepositRentalSearch() {
     componentProps: { cntrDtlNo },
   });
 }
-
+/*
 async function onClickPressSave() {
   if (!isEmpty(returnData.value.cntrChDtlAkCn)) {
     await ok();
@@ -233,6 +240,7 @@ async function onClickPressSave() {
     await notify(t('MSG_ALT_IMP_RSON_IN')); // 사유를 입력하세요
   }
 }
+*/
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
