@@ -45,13 +45,13 @@
         </kw-search-item>
         <!-- 계약일자 -->
         <kw-search-item
-          :label="$t('MSG_TXT_CNTR_DATE')"
+          :label="$t('MSG_TXT_CNTRCT_DT')"
         >
           <kw-date-range-picker
             v-model:from="searchParams.strtDt"
             v-model:to="searchParams.endDt"
             type="date"
-            :label="$t('MSG_TXT_CNTR_DATE')"
+            :label="$t('MSG_TXT_CNTRCT_DT')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -274,7 +274,7 @@ const initGrdMainA = defineGrid((data, view) => {
     { fieldName: 'lifCntrNo', header: `${t('MSG_TXT_MUTU')} ${t('MSG_TXT_CNTR_NO')}`, width: '137.6', styleName: 'text-center' }, // 상조계약번호
     { fieldName: 'lifPdNm', header: `${t('MSG_TXT_MUTU')} ${t('MSG_TXT_PRDT_NM')}`, width: '110.8', styleName: 'text-center' }, // 상조상품명
     { fieldName: 'rcpdt', header: t('MSG_TXT_RCP_D'), width: '110.8', styleName: 'text-center', datetimeFormat: 'date' }, // 접수일
-    { fieldName: 'cntrDt', header: `${t('MSG_TXT_CNTRCT_DT')} ${t('MSG_TXT_1ST_WTHDRWL_DT')}`, width: '162.4', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일1회출금일
+    { fieldName: 'cntrDt', header: `${t('MSG_TXT_CNTRCT_DT')}(${t('MSG_TXT_1ST_WTHDRWL_DT')})`, width: '162.4', styleName: 'text-center', datetimeFormat: 'date' }, // 계약일1회출금일
     { fieldName: 'canDt', header: t('MSG_TXT_CAN_D'), width: '110.8', styleName: 'text-center', datetimeFormat: 'date' }, // 취소일
     { fieldName: 'sellFee', header: t('MSG_TXT_SELLER_FEE'), width: '156.6', styleName: 'text-right', dataType: 'number' }, // 판매자수수료
     { fieldName: 'totDsbOjDvCd', header: t('MSG_TXT_TOTAL_PYMNT_TRGT'), width: '112.3', styleName: 'text-right', dataType: 'number' }, // 총지급대상
