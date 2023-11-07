@@ -95,6 +95,7 @@
         >
           <kw-select
             v-model="searchParams.wareDvCd"
+            :label="$t('MSG_TXT_OSTR_AK_WARE')"
             :options="codes.WARE_DV_CD"
             first-option="select"
             rules="required"

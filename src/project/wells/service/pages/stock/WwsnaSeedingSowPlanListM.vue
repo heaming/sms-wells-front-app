@@ -37,7 +37,7 @@
             upper-case
             type="text"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
-            rules="alpha_num|min:13|max:13"
+            rules="alpha_num|min:13|max:17"
             :placeholder="`${$t('MSG_TXT_CNTR_NO')}-${t('MSG_TXT_CNTR_SN')}`"
           />
         </kw-search-item>

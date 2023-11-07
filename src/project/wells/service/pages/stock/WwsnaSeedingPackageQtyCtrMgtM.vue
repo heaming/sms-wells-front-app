@@ -26,6 +26,7 @@
         >
           <kw-date-picker
             v-model="searchParams.ostrDt"
+            :label="$t('MSG_TXT_OSTR_DT')"
             type="date"
             rules="required"
           />

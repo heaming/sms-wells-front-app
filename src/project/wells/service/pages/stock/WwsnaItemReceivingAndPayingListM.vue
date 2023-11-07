@@ -102,6 +102,7 @@
         >
           <kw-input
             v-model="searchParams.itmPdCdFrom"
+            upper-case
             :label="$t('MSG_TXT_ITM_CD')"
             rules="alpha_num|max:10"
           />
