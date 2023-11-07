@@ -537,6 +537,7 @@ async function currentTabFetchData() {
         searchParams.value.cntrSn,
         frmMainData.value.sellTpCd,
         props.cntrCstNo,
+        frmMainData.value.cstKnm,
       );
       break;
     case 'cashRcp': // 현금영수증

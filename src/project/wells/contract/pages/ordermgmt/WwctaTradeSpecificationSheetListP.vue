@@ -71,10 +71,8 @@
         >
           <kw-select
             v-model="searchParams.sellTpCd"
-            :options="[{ codeId: '1', codeName: t('MSG_TXT_ISTM') },
-                       { codeId: '2', codeName: t('MSG_TXT_RENT_LEAS') },
-                       { codeId: '3', codeName: t('MSG_TXT_MEMBERSHIP') },
-                       { codeId: '6', codeName: t('MSG_TXT_REG_DLVR') }]"
+            :options="codes.SELL_TP_CD.filter((v)=> v.codeId === '1'
+              || v.codeId === '2' || v.codeId === '3' || v.codeId === '6')"
             :model-value="searchParams.sellTpCd ? searchParams.sellTpCd : []"
             :multiple="true"
             class="w300"
@@ -173,7 +171,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useDataService, useGlobal, useMeta, gridUtil, stringUtil } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, useGlobal, useMeta, gridUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { openReportPopup } from '~common/utils/cmPopupUtil';
 import dayjs from 'dayjs';
@@ -181,7 +179,7 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { modal, notify } = useGlobal();
+const { alert, modal, notify } = useGlobal();
 const ozParamsList = ref({});
 const props = defineProps({
   cntrNo: { type: String, required: false, default: '' },
@@ -191,6 +189,7 @@ const props = defineProps({
 });
 
 let cachedParams;
+
 const now = dayjs();
 const searchParams = ref({
   docDvCd: '1', // 증빙서류종류(입금내역서)
@@ -200,9 +199,15 @@ const searchParams = ref({
   cntrSn: props.cntrSn, // 계약일련번호
   cntrCstNo: props.cntrCstNo, // 고객번호
   sellTpCd: [], // 구분(판매유형)
+  cntrDtlNoList: [], // 계약번호리스트
   cntrCnfmStrtDt: now.startOf('year').format('YYYYMMDD'),
   cntrCnfmEndDt: now.endOf('year').format('YYYYMMDD'),
 });
+
+const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
+  'SELL_TP_CD',
+);
 
 const pageInfo = ref({
   totalCount: 0,
@@ -385,6 +390,11 @@ async function fetchTrdSpcData() {
   }
 
   cachedParams = cloneDeep(searchParams.value);
+
+  // 증빙서류종류 조회 시 기간제외
+  cachedParams.cntrCnfmStrtDt = '';
+  cachedParams.cntrCnfmEndDt = '';
+
   console.log(cachedParams);
   console.log(pageInfo.value);
 
@@ -479,6 +489,8 @@ async function onClickEmailSend() {
       cntrList,
       firstDt: searchParams.value.cntrCnfmStrtDt, // 기간(시작일자)
       lastDt: searchParams.value.cntrCnfmEndDt, // 기간(종료일자)
+      isPrntYn: 'N',
+      cntrCstKnm: props.cntrCstKnm, // 고객명
     };
 
     await modal({
@@ -490,48 +502,206 @@ async function onClickEmailSend() {
 
 // 발행(출력)
 async function onClickPblPrnt() {
+  let outputDataYN;
+  let rfndYn = false; // 거래명세서(일시불패키지 상품)
+
+  const view = grdContracts.value.getView();
+  const checkedItems = view.getCheckedItems();
+  const cntrList = [];
+
   // 조회된 내역이 없으면 return
-  if (isEmpty(ozParamsList.value)) { return; }
+  if (isEmpty(ozParamsList.value)) {
+    outputDataYN = false;
+    return;
+  }
 
-  switch (searchParams.value.docDvCd) { // 증빙서류종류
-    case '1': // 입금내역서
-      break;
-    case '2': // 거래명세서
-      break;
-    case '3': // 카드매출전표(카드내역서 조회)
-      // OZ 리포트 팝법 파라미터 설정
-      cachedParams.reportHeaderTitle = '카드내역서 조회'; // 레포트 제목
+  if (checkedItems.length === 0) {
+    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
+  } else {
+    const cntrs = gridUtil.getCheckedRowValues(view);
+    cntrs.forEach((row) => {
+      cntrList.push({
+        cntrNoFull: row.cntrDtlNo,
+      });
+    });
 
-      // OZ 리포트 호출 Api 설정
+    const searchPopupParams = {
+      docDvCd: searchParams.value.docDvCd, // 증빙서류종류
+      cntrList,
+      firstDt: searchParams.value.cntrCnfmStrtDt, // 기간(시작일자)
+      lastDt: searchParams.value.cntrCnfmEndDt, // 기간(종료일자)
+      isPrntYn: 'Y',
+      cntrCstKnm: props.cntrCstKnm, // 고객명
+    };
+
+    const { result, payload } = await modal({
+      component: 'WwctaDocumentaryEvidenceMailForwardingP', // 증빙서류 메일발송
+      componentProps: searchPopupParams,
+    });
+
+    if (result) {
+      cachedParams.pblcSearchSttDt = payload.pblcSearchSttDt; // 발행년월시(현재일자)
+      cachedParams.custNm = payload.custNm; // 고객명
+    } else {
+      return;
+    }
+  }
+
+  switch (searchParams.value.cntrDvCd) { // 계약/고객번호 구분
+    case '1': // 계약번호
+      if (searchParams.value.docDvCd === '1') { // 입금내역서
+        console.log(`ozParamsList : ${ozParamsList.value}`);
+        if (isEmpty(ozParamsList.value.cntrDtlNo)) {
+          outputDataYN = false;
+          return;
+        }
+        // 수납일자가 시작일자가 종료일자 사이에 있는거로 Filter
+        if (ozParamsList.value.rveDt >= searchParams.value.cntrCnfmStrtDt
+        && ozParamsList.value.rveDt <= searchParams.value.cntrCnfmEndDt) {
+          // 수납일자가 발행일자가 이전인것만 Filter
+          if (ozParamsList.value.rveDt <= cachedParams.pblcSearchSttDt) {
+            // 계약상세번호와 수납일자가 있는것만 Filter
+            if (!isEmpty(ozParamsList.value.cntrDtlNo)
+            && !isEmpty(ozParamsList.value.rveDt)) {
+              outputDataYN = true;
+            } else {
+              outputDataYN = false;
+            }
+          }
+        }
+      } else if (searchParams.value.docDvCd === '2') { // 거래명세서
+        // 판매유형코드(일시불) && 판매할인율코드(6:패키지)일 경우
+        if (ozParamsList.value.sellTpCd === '1'
+        && ozParamsList.value.sellDscrCd === '6') {
+          outputDataYN = true;
+          rfndYn = true;
+        }
+      }
+      break;
+    case '2': // 고객번호
       // eslint-disable-next-line no-case-declarations
-      const args3 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/oz', ...cachedParams };
-
-      // OZ 레포트 팝업호출
-      openReportPopup(
-        '/kstation-w/dpst/cardSttm.ozr',
-        '',
-        JSON.stringify(args3),
-      );
-      break;
-    case '4': // 계약사항
-      // OZ 리포트 팝법 파라미터 설정
-      cachedParams.pblcSearchSttDt = stringUtil.getDateFormat(now.format('YYYYMMDD'), '-'); // 발행년월시
-      cachedParams.custNm = props.cntrCstKnm; // 고객명
-      cachedParams.reportHeaderTitle = '계약사항 조회'; // 레포트 제목
-
-      // OZ 리포트 호출 Api 설정
-      // eslint-disable-next-line no-case-declarations
-      const args4 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/oz', ...cachedParams };
-
-      // OZ 레포트 팝업호출
-      openReportPopup(
-        '/kstation-w/dpst/concMtr.ozr',
-        '',
-        JSON.stringify(args4),
-      );
+      const cntrs = gridUtil.getCheckedRowValues(view);
+      searchParams.value.cntrDtlNoList = [];
+      cntrs.forEach((row) => {
+        cntrList.push({
+          cntrNoFull: row.cntrDtlNo,
+        });
+        if (searchParams.value.docDvCd === '1') { // 입금내역서
+          console.log(`ozParamsList : ${ozParamsList.value}`);
+          ozParamsList.value.forEach((item) => {
+            console.log(`cntrDtlNo : ${item.cntrDtlNo}`);
+            console.log(`rveDt : ${item.rveDt}`);
+            // 수납일자가 시작일자가 종료일자 사이에 있는거로 filter
+            if (item.rveDt >= searchParams.value.cntrCnfmStrtDt
+              && item.rveDt <= searchParams.value.cntrCnfmEndDt) {
+              // 수납일자가 발행일자가 이전인것만 filter
+              if (item.rveDt <= cachedParams.pblcSearchSttDt) {
+                // 계약상세번호와 수납일자가 있는것만 filter
+                if (!isEmpty(item.cntrDtlNo) && !isEmpty(item.rveDt)) {
+                  outputDataYN = true;
+                  searchParams.value.cntrDtlNoList.push(row.cntrDtlNo);
+                }
+              }
+            }
+          });
+        } else if (searchParams.value.docDvCd === '2') { // 거래명세서
+          // 판매유형코드(일시불) && 판매할인율코드(6:패키지)일 경우
+          if (row.sellTpCd === '1' && row.dscApyDtlCd === '6') {
+            outputDataYN = true;
+            rfndYn = true;
+          } else {
+            outputDataYN = true;
+            searchParams.value.cntrDtlNoList.push(row.cntrDtlNo);
+          }
+        } else { // 입금내역서/거래명세서 이외
+          outputDataYN = true;
+          searchParams.value.cntrDtlNoList.push(row.cntrDtlNo);
+        }
+      });
       break;
     default:
       break;
+  }
+
+  // filter링 data만 처리
+  if (outputDataYN) {
+    // 선택한 계약번호 리스트 cachedParams에 적용
+    cachedParams = cloneDeep(searchParams.value);
+
+    switch (searchParams.value.docDvCd) { // 증빙서류종류
+      case '1': // 입금내역서
+        // OZ 리포트 팝업 파라미터 설정
+        cachedParams.reportHeaderTitle = '입금내역서 조회'; // 레포트 제목
+
+        // OZ 리포트 호출 Api 설정
+        // eslint-disable-next-line no-case-declarations
+        const args1 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/oz', ...cachedParams };
+        // console.log(args1);
+
+        // OZ 레포트 팝업호출
+        openReportPopup(
+          '/kstation-w/dpst/dpstDtlMail.ozr',
+          '',
+          JSON.stringify(args1),
+        );
+        break;
+      case '2': // 거래명세서
+        if (rfndYn) {
+          alert('일시불 패키지 상품이 포함되어  출력하실 수 없습니다. [문의 : Wells마케팅전략팀 고의엽매니저(02-397-9312)]');
+          return;
+        }
+        // OZ 리포트 팝업 파라미터 설정
+        cachedParams.reportHeaderTitle = '거래명세서 조회'; // 레포트 제목
+
+        // OZ 리포트 호출 Api 설정
+        // eslint-disable-next-line no-case-declarations
+        const args2 = await dataService.get('/sms/wells/contract/contracts/order-details/specification/trade-specification/oz', { params: { ...cachedParams } });
+        console.log(args2);
+
+        // OZ 레포트 팝업호출
+        openReportPopup(
+          '/kstation-w/dpst/dealSpec.ozr',
+          '',
+          JSON.stringify(args2),
+        );
+        break;
+      case '3': // 카드매출전표(카드내역서 조회)
+        // OZ 리포트 팝업 파라미터 설정
+        cachedParams.reportHeaderTitle = '카드내역서 조회'; // 레포트 제목
+
+        // OZ 리포트 호출 Api 설정
+        // eslint-disable-next-line no-case-declarations
+        const args3 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/oz', ...cachedParams };
+        // console.log(args3);
+
+        // OZ 레포트 팝업호출
+        openReportPopup(
+          '/kstation-w/dpst/cardSttm.ozr',
+          '',
+          JSON.stringify(args3),
+        );
+        break;
+      case '4': // 계약사항
+        // OZ 리포트 팝업 파라미터 설정
+        // cachedParams.pblcSearchSttDt = now.format('YYYYMMDD'); // 발행년월시(현재일자)
+        // cachedParams.custNm = props.cntrCstKnm; // 고객명
+        cachedParams.reportHeaderTitle = '계약사항 조회'; // 레포트 제목
+
+        // OZ 리포트 호출 Api 설정
+        // eslint-disable-next-line no-case-declarations
+        const args4 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/oz', ...cachedParams };
+        // console.log(args4);
+
+        // OZ 레포트 팝업호출
+        openReportPopup(
+          '/kstation-w/dpst/concMtr.ozr',
+          '',
+          JSON.stringify(args4),
+        );
+        break;
+      default:
+        break;
+    }
   }
 }
 
@@ -556,6 +726,7 @@ const initGrdContracts = defineGrid((data, view) => {
     { fieldName: 'rentalAmt2', dataType: 'number' }, // 렌탈료2
     { fieldName: 'mshAmt', dataType: 'number' }, // 멤버십료
     { fieldName: 'rglrSppAmt', dataType: 'number' }, // 정기배송료
+    { fieldName: 'dscApyDtlCd', dataType: 'number' }, // 판매할인율코드(일시불)
   ];
 
   const columns = [
