@@ -18,6 +18,7 @@
       :cols="4"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 조회구분 -->
@@ -57,6 +58,7 @@
             v-model="searchParams.strtDt"
             rules="required"
             type="date"
+            :label="$t('MSG_TXT_SRCH_DT')"
             @change="onChangeStrtDt"
           />
         </kw-search-item>
@@ -342,6 +344,11 @@ async function onClickSearch() {
   pageInfo.value.needTotalCount = true;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+// 초기화버튼 클릭
+function onClickReset() {
+  searchParams.value.strtDt = now.format('YYYYMMDD');
 }
 
 // 저장
