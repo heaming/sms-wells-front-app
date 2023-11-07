@@ -233,6 +233,7 @@ watch(() => [searchParams.value.evlDvCd], async () => {
 });
 onMounted(async () => {
   await evaluateResponsibilityCdChang();
+  await getEvaluationResponsibility();
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
