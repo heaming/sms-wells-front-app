@@ -33,8 +33,8 @@
         <kw-search-item
           :label="$t('MSG_TXT_PRDT_NM')"
           :colspan="2"
+          required
         >
-          <!--            rules="required"-->
           <kw-select
             v-model="searchParams.pdCd"
             :options="pds"
@@ -241,6 +241,11 @@ async function onClickSearch() {
   await fetchData();
 }
 
+function getBaseInfo() {
+  const view = grdMainRef.value.getView();
+  return view.getJsonRows()[0];
+}
+
 /* 행추가 버튼 */
 const now = dayjs();
 async function onClickAdd() {
@@ -282,6 +287,10 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   const realChkRows = gridUtil.getCheckedRowValues(view);
   const chkRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
+
+  const { wkCsAmt } = getBaseInfo();
+
+  if ((wkCsAmt < 0) === true) { notify(t('MSG_ALT_PSBL_INP_TRSF_DIGT')); return; }
 
   if (chkRows.length === 0 && realChkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
