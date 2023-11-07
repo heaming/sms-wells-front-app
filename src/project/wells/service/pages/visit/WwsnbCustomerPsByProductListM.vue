@@ -61,6 +61,7 @@
           <kw-select
             v-model="searchParams.prdMngtTpCd"
             :options="codes.PRD_MNGT_TP_CD"
+            first-option="all"
           />
           <kw-field
             :model-value="cancelOrReqdOptions"
@@ -78,7 +79,8 @@
         >
           <kw-select
             v-model="searchParams.bfsvcPrdCd"
-            :options="codes.BFSVC_PRD_CD"
+            :options="CUST_BFSVC_PRD_CD"
+            first-option="all"
           />
         </kw-search-item>
       </kw-search-row>
@@ -172,6 +174,9 @@ const searchParams = ref({
   cancelOrReqd: '',
 });
 
+/* 점검주기 option 재설정 */
+const CUST_BFSVC_PRD_CD = codes.BFSVC_PRD_CD.filter((v) => (v.codeId !== 'A'));
+
 /*
  *  Select Component 초기화 - 전체 상품 목록 가져오기
  */
@@ -264,14 +269,15 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' },
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '90', styleName: 'text-center' },
     { fieldName: 'brchOgCd', header: t('MSG_TXT_BSNS_CNTR'), width: '110', styleName: 'text-center' },
-    { fieldName: 'ogNm', header: t('MSG_TXT_SV_CNR'), width: '110', styleName: 'text-center' },
+    { fieldName: 'svcOgNm', header: t('MSG_TXT_SV_CNR'), width: '110', styleName: 'text-center' },
     { fieldName: 'addr', header: t('MSG_TXT_INST_ADDR'), width: '260', styleName: 'text-left' },
     { fieldName: 'cphoneNo',
       header: t('MSG_TXT_CPHON_NO'),
       width: '140',
       styleName: 'text-center',
       displayCallback(grid, index) {
-        const { locaraTno: no1, exnoEncr: no2, idvTno: no3 } = grid.getValues(index.itemIndex);
+        const { cralLocaraTno: no1, mexnoEncr: no2, cralIdvTno: no3 } = grid.getValues(index.itemIndex);
+
         if (!isEmpty(no1)) {
           return `${no1}-${no2}-${no3}`;
         }
@@ -286,7 +292,7 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       width: '140',
       displayCallback(grid, index) {
-        const { cralLocaraTno: no1, mexnoEncr: no2, cralIdvTno: no3 } = grid.getValues(index.itemIndex);
+        const { locaraTno: no1, exnoEncr: no2, idvTno: no3 } = grid.getValues(index.itemIndex);
         if (!isEmpty(no1)) {
           return `${no1}-${no2}-${no3}`;
         }
@@ -295,8 +301,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cralLocaraTno', header: t('MSG_TXT_TEL_NO'), width: '130', styleName: 'text-center', visible: false },
     { fieldName: 'mexnoEncr', header: t('MSG_TXT_TEL_NO'), width: '130', styleName: 'text-center', visible: false },
     { fieldName: 'cralIdvTno', header: t('MSG_TXT_TEL_NO'), width: '130', styleName: 'text-center', visible: false },
-    { fieldName: 'istDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center' },
-    { fieldName: 'canDt', header: t('MSG_TXT_IST_DT'), width: '130', styleName: 'text-center' },
+    { fieldName: 'canDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center' },
+    { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '130', styleName: 'text-center' },
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '130', styleName: 'text-center' },
     { fieldName: 'sellTpNm', header: t('MSG_TXT_SEL_TYPE'), width: '130', styleName: 'text-center' },
     { fieldName: 'pdUswyCd', header: t('MSG_TXT_USWY'), width: '130', styleName: 'text-center' },
@@ -305,7 +311,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'cntrPtrm', header: t('MSG_TXT_DUTY_USE_MCNT_N'), width: '130', styleName: 'text-center' },
     { fieldName: 'extFrisuAsMcn', header: t('MSG_TXT_FRISU_AS_PTRM_N'), width: '130', styleName: 'text-center' },
     { fieldName: 'dlqAcuMcn', header: t('MSG_TXT_OVERDUE'), width: '130', styleName: 'text-center' },
-    { fieldName: 'hmnrscDeptCd', header: t('MSG_TXT_MNGER_AFFILITN_CD'), width: '130', styleName: 'text-center' },
+    { fieldName: 'ogNm', header: t('MSG_TXT_MNGER_AFFILITN_CD'), width: '130', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_MNGER_NM'), width: '130', styleName: 'text-center' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_MNGER_EPNO'), width: '130', styleName: 'text-center' },
     { fieldName: 'trnovrRtOjYn', header: t('MSG_TXT_TURNOVER_TRGT'), width: '130', styleName: 'text-center', autoFilter: false, visible: false }, // 회전율
