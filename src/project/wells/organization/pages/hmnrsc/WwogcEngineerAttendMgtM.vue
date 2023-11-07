@@ -162,10 +162,9 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
 
   const changedRows = gridUtil.getChangedRowValues(view);
-  const { prtnrNo } = changedRows[0];
 
   console.log(changedRows);
-  await dataService.post(`${SMS_WELLS_URI}/partner-engineer/${prtnrNo}`, changedRows);
+  await dataService.post(`${SMS_WELLS_URI}/partner-engineer/attend`, changedRows);
   await notify(t('MSG_ALT_SAVE_DATA'));
   await onClickSearch();
 }
