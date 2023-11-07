@@ -66,6 +66,7 @@
           <kw-input
             v-model="searchParams.prtnrKnm"
             :disable="searchParams.wareNo.length > 0"
+            :label="$t('MSG_TXT_PIC_NM')"
             rules="max:50"
           />
         </kw-search-item>
@@ -76,6 +77,7 @@
           <kw-input
             v-model="searchParams.prtnrNo"
             :disable="searchParams.wareNo.length > 0"
+            :label="$t('MSG_TXT_EPNO')"
             rules="numeric|max:10"
           />
         </kw-search-item>

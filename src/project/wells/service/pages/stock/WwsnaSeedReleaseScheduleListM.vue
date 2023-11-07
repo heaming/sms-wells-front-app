@@ -18,6 +18,7 @@
       :cols="4"
       :modified-targets="['grdMain']"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 조회구분 -->
@@ -57,6 +58,7 @@
             v-model="searchParams.strtDt"
             rules="required"
             type="date"
+            :label="$t('MSG_TXT_SRCH_DT')"
             @change="onChangeStrtDt"
           />
         </kw-search-item>
@@ -344,6 +346,11 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 초기화버튼 클릭
+function onClickReset() {
+  searchParams.value.strtDt = now.format('YYYYMMDD');
+}
+
 // 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
@@ -410,7 +417,7 @@ async function onClickOstrCnfmSave() {
 // 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/seed-release-schedules/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/seed-release-schedules/excel-download', { params: cachedParams, timeout: 300000 });
 
   gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,

@@ -37,7 +37,7 @@
             upper-case
             type="text"
             :label="$t('MSG_TXT_CNTR_DTL_NO')"
-            rules="alpha_num|min:13|max:13"
+            rules="alpha_num|min:13|max:17"
             :placeholder="`${$t('MSG_TXT_CNTR_NO')}-${t('MSG_TXT_CNTR_SN')}`"
           />
         </kw-search-item>
@@ -129,7 +129,7 @@ const optionPages = await codeUtil.getCodes('COD_PAGE_SIZE_OPTIONS');
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/seeding-sow-plans/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/seeding-sow-plans/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 300000 });
   const { list, pageInfo: pagingResult } = res.data;
   // fetch시에는 총 건수 조회하지 않도록 변경
   pagingResult.needTotalCount = false;
@@ -171,7 +171,7 @@ async function onClickSearch() {
 // 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/seeding-sow-plans/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/seeding-sow-plans/excel-download', { params: cachedParams, timeout: 300000 });
 
   gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
