@@ -84,7 +84,7 @@
       >
         <kw-input
           v-model="fieldParams.dlpnrPsicNm"
-          maxlength="500"
+          maxlength="50"
           :readonly="isReadonly || isOrgTxinvPblOjYn"
           :required="!isReadonly && !isOrgTxinvPblOjYn"
           :label="t('MSG_TXT_PIC_NM')"
