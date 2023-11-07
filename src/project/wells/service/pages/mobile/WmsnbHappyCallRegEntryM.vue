@@ -79,6 +79,10 @@ const props = defineProps({
   cntrNo: { type: String, default: '' },
   cntrSn: { type: String, default: '' },
   cstSvAsnNo: { type: String, default: '' },
+  para: {
+    type: String,
+    default: '',
+  },
   /* para: {
     type: String,
     default: '',
@@ -128,9 +132,9 @@ async function onClick(num) {
       // svBizDclsfCd: props.svBizDclsfCd,
       // sellTpCd: props.sellTpCd,
       // wkExcnDt: props.wkExcnDt,
-      cntrNo: props.cntrNo,
-      cntrSn: props.cntrSn ? props.cntrSn : '1',
-      cstSvAsnNo: props.cstSvAsnNo,
+      cntrNo: props.cntrNo ? props.cntrNo : props.para.split('|')[0],
+      cntrSn: props.cntrSn ? props.cntrSn : (props.para.split('|')[1] ? props.para.split('|')[1] : '1'),
+      cstSvAsnNo: props.cstSvAsnNo ? props.cstSvAsnNo : props.para.split('|')[2],
     },
   });
 }
