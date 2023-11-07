@@ -124,10 +124,10 @@
         </kw-search-row>
         <kw-search-row>
           <kw-search-item
-            :label="$t('MSG_TXT_PKG_CD')"
+            :label="$t('MSG_TXT_PKG_PD_NO')"
           >
             <kw-input
-              v-model="searchParams.pdEndCd"
+              v-model="searchParams.pkgStrtCd"
             />
             <span>~</span>
             <kw-input
@@ -157,6 +157,7 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+              @update:model-value="onClickPrtnrNoClear()"
             />
             <kw-input
               v-model="searchParams.prtnrKnm"
@@ -239,6 +240,7 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+              @update:model-value="onClickPrtnrNoClear()"
             />
             <kw-input
               v-model="searchParams.prtnrKnm"
@@ -319,6 +321,7 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+              @update:model-value="onClickPrtnrNoClear()"
             />
             <kw-input
               v-model="searchParams.prtnrKnm"
@@ -515,6 +518,11 @@ async function onClickSearchNo() {
       searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
+}
+
+async function onClickPrtnrNoClear() {
+  searchParams.value.prtnrNo = '';
+  searchParams.value.prtnrKnm = '';
 }
 
 /*
@@ -826,9 +834,8 @@ const initGrd1Main = defineGrid((data, view) => {
     { fieldName: 'mngtPrd', header: t('MSG_TXT_MNGT_PRD'), width: '84', styleName: 'text-right' },
     { fieldName: 'pdAccRslt', header: `${t('MSG_TXT_PD_ACC_RSLT')}(P)`, width: '142', numberFormat: '#,###,##0', styleName: 'text-right' },
     { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
-    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-center' },
-    { fieldName: 'pkgNo', header: t('MSG_TXT_PKG') + t('MSG_TXT_SEQUENCE_NUMBER'), width: '113', styleName: 'text-center' },
-    { fieldName: 'ntorMm', header: t('MSG_TXT_NTOR_MM'), width: '113', styleName: 'text-center' },
+    { fieldName: 'pkgNo', header: t('MSG_TXT_PKG_PD_NO'), width: '113', styleName: 'text-center' },
+    { fieldName: 'ntorMm', header: t('MSG_TXT_NTOR_MM'), width: '113', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'mchnPd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CODE'), width: '113', styleName: 'text-center' },
     { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
     { fieldName: 'bizRgstMm', header: t('MSG_TXT_BIZ_RGST_MM'), width: '113', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
@@ -925,9 +932,8 @@ const initGrd2Main = defineGrid((data, view) => {
     { fieldName: 'mngtPrd', header: t('MSG_TXT_MNGT_PRD'), width: '84', styleName: 'text-right' },
     { fieldName: 'pdAccRslt', header: `${t('MSG_TXT_PD_ACC_RSLT')}(P)`, width: '142', numberFormat: '#,###,##0', styleName: 'text-right' },
     { fieldName: 'pmotNo', header: t('MSG_TXT_PMOT_NO'), width: '104.3', styleName: 'text-right' },
-    { fieldName: 'pkgSn', header: t('MSG_TXT_PKG_SN'), width: '135.1', styleName: 'text-center' },
-    { fieldName: 'pkgNo', header: t('MSG_TXT_PKG') + t('MSG_TXT_SEQUENCE_NUMBER'), width: '113', styleName: 'text-center' },
-    { fieldName: 'ntorMm', header: t('MSG_TXT_NTOR_MM'), width: '113', styleName: 'text-center' },
+    { fieldName: 'pkgNo', header: t('MSG_TXT_PKG_PD_NO'), width: '113', styleName: 'text-center' },
+    { fieldName: 'ntorMm', header: t('MSG_TXT_NTOR_MM'), width: '113', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'mchnPd', header: t('MSG_TXT_MCHN') + t('MSG_TXT_CODE'), width: '113', styleName: 'text-center' },
     { fieldName: 'perfExcd', header: t('MSG_TXT_PERF_EXCD') + t('MSG_TXT_RGST_YN'), width: '113', styleName: 'text-center' },
     { fieldName: 'bizRgstMm', header: t('MSG_TXT_BIZ_RGST_MM'), width: '113', styleName: 'text-center', datetimeFormat: 'yyyy-MM' },

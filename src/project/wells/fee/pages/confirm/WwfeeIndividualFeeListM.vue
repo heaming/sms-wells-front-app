@@ -215,7 +215,7 @@ const saveParams = ref({
   rsbDvCd: searchParams.value.rsbDvCd,
   ddlnDvId: '',
   ddlnId: '',
-  templateCode: 'TMP_FEA_FEE_INQR_PTRM_E01',
+  templateCode: 'FEE_DSB_SPCSH_W01',
   feeMessagePk: '',
 });
 
@@ -462,22 +462,25 @@ async function onClickFeeDsbSpcsh() {
   let ddlnId = '';
   if (searchParams.value.ogTpCd === 'W01') { /* P조직 */
     if (searchParams.value.rsbDvCd === 'W0104') {
-      ddlnId = 'DLN_00012';
+      ddlnId = 'DLN_00009';
     } else if (searchParams.value.rsbDvCd === 'W0105') {
-      ddlnId = 'DLN_00013';
+      ddlnId = 'DLN_00010';
     }
+    saveParams.value.templateCode = 'FEE_DSB_SPCSH_W01';
   } else if (searchParams.value.ogTpCd === 'W02') { /* M조직 */
     if (searchParams.value.rsbDvCd === 'W0204') {
-      ddlnId = 'DLN_00014';
+      ddlnId = 'DLN_00011';
     } else if (searchParams.value.rsbDvCd === 'W0205') {
-      ddlnId = 'DLN_00015';
+      ddlnId = 'DLN_00012';
     }
+    saveParams.value.templateCode = 'FEE_DSB_SPCSH_W02';
   } else if (searchParams.value.ogTpCd === 'W03') { /* 홈마스터 */
     if (searchParams.value.rsbDvCd === 'W0301') {
-      ddlnId = 'DLN_00016';
+      ddlnId = 'DLN_00013';
     } else if (searchParams.value.rsbDvCd === 'W0302') {
-      ddlnId = 'DLN_00017';
+      ddlnId = 'DLN_00014';
     }
+    saveParams.value.templateCode = 'FEE_DSB_SPCSH_W03';
   }
   const { result } = await modal({
     component: 'ZwcmsDeadlineMgtP',
