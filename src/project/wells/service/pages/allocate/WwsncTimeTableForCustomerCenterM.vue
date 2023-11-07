@@ -349,7 +349,7 @@
         <kw-separator />
         <li>
           <font size="4px">
-            {{ $t('MSG_TXT_ASN_FSH_PSB_DT_CONF'
+            {{ $t('ASN_FSH_PSB_DT_CONF'
             /*해당 일자는
              타임테이블 스케쥴 배정 완료되어
              배정 가능일자 확인 후 배정 바랍니다.감사합니다.*/) }}
@@ -362,7 +362,7 @@
       >
         <kw-separator />
         <li>
-          {{ $t('MSG_TXT_STNB_RCP_PRGS') }}
+          {{ $t('STNB_RCP_PRGS') }}
           <!--          <font size="4px">
             방문시간 예약접수는 마감되었습니다.<br><br>
             단, 방문시간 미확정 접수는 가능하오니, 접수를<br><br>
