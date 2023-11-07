@@ -655,8 +655,8 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args2 = await dataService.get('/sms/wells/contract/contracts/order-details/specification/trade-specification/oz', { params: { ...cachedParams } });
-        console.log(args2);
+        const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz', ...cachedParams };
+        // console.log(args2);
 
         // OZ 레포트 팝업호출
         openReportPopup(
