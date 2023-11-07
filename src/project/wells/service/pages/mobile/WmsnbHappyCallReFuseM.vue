@@ -50,13 +50,16 @@ const props = defineProps({
   cntrNo: { type: String, default: '' },
   cntrSn: { type: String, default: '' },
   cstSvAsnNo: { type: String, default: '' },
+  // 변경된 URL 관련 props 추가
+  para: { type: String, default: '' },
 });
 
 async function doRefuse() {
   if (await confirm('설문 수신거부를\n신청하시겠습니까?')) {
-    const { cntrNo } = props;
-    const { cntrSn } = props;
-    const { cstSvAsnNo } = props;
+    const cntrNo = 'W'.concat(props.para ? props.para.split('|')[3] + props.para.split('|')[4] : '');
+    const cntrSn = props.para ? props.para.split('|')[8] : '1';
+    const cstSvAsnNo = props.para ? props.para.split('|')[5] + props.para.split('|')[6] + props.para.split('|')[7] : '';
+
     const res = await dataService.post('/sms/wells/service/happy-call/refuse', {
       cntrNo,
       cntrSn,
