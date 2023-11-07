@@ -491,6 +491,7 @@ async function fetchData() {
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(returningGoods);
+  setTotalCount();
 }
 
 // 기본정보 조회
@@ -502,10 +503,12 @@ async function fetchDefaultData() {
   const { codeId } = res.data[0];
   searchParams.value.ostrWareNo = codeId;
 }
+
 // 대상 Object의 빈값 여부 체크
 function isNotEmpty(obj) {
   return (obj !== undefined && obj !== null && obj !== '');
 }
+
 // 파라미터 체크
 function hasProps() {
   return isNotEmpty(props.ostrTpCd) && isNotEmpty(props.ostrWareNo) && isNotEmpty(props.ostrDt);
