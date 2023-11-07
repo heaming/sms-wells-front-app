@@ -95,6 +95,7 @@
       </kw-item-section>
     </template>
     <template #default>
+      <!-- 가격결정요소 -->
       <kw-item
         class="scoped-item scoped-item mt12"
       >
@@ -278,7 +279,9 @@ const sellEvCdsBySellChnlDtlCd = computed(() => {
     console.error('판매유입채널이 없음?', props.bas);
     return [];
   }
-  if (!codes.SELL_EV_CD.length) { return []; }
+  if (!codes.SELL_EV_CD.length) {
+    return [];
+  }
   const codeIds = [];
 
   if (sellInflwChnlDtlCd === '1010') {
@@ -509,6 +512,7 @@ const displayedFinalPrice = computed(() => (
 const promotionAppliedPrice = computed(() => (
   getPromotionAppliedPrice(selectedFinalPrice.value, appliedPromotions.value)
 ));
+
 // endregion [가격표기]
 
 function clearPromotions() {

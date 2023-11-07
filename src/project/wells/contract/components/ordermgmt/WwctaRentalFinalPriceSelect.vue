@@ -125,6 +125,7 @@
       </kw-item-section>
     </template>
     <template #default>
+      <!-- 가격결정요소 -->
       <kw-item
         class="scoped-item scoped-item mt12"
       >
@@ -303,6 +304,7 @@
           </kw-form>
         </kw-item-section>
       </kw-item>
+      <!-- 계약관계 -->
       <kw-item
         v-for="(cntrRel) in cntrRels"
         :key="cntrRel.cntrRelId"
@@ -345,6 +347,7 @@
           />
         </kw-item-section>
       </kw-item>
+      <!-- 기기변경 -->
       <kw-item
         v-if="mchnCh?.mchnChYn"
         class="scoped-item"
@@ -504,17 +507,6 @@ let finalPriceOptions;
 let priceOptionFilter;
 let packageRentalDscTpCds;
 let wellsDtl;
-
-function labelForCntrRel(cntrRel) {
-  if (!cntrRel) {
-    return '';
-  }
-
-  const { ojBasePdBas, ojDtlCntrNo, ojDtlCntrSn } = cntrRel;
-  const { cstBasePdAbbrNm, pdNm } = ojBasePdBas ?? {};
-
-  return `${cstBasePdAbbrNm || pdNm || ''} ${ojDtlCntrSn ? `${ojDtlCntrNo}-${ojDtlCntrSn}` : ''}`;
-}
 
 function connectReactivities() {
   pdPrcFnlDtlId = toRef(props.modelValue, 'pdPrcFnlDtlId');
@@ -933,6 +925,17 @@ function onChangeAlncCntr(selected) {
 
 function onClickChangeWellsFarmPackage() {
   emit('change:package', props.modelValue);
+}
+
+function labelForCntrRel(cntrRel) {
+  if (!cntrRel) {
+    return '';
+  }
+
+  const { ojBasePdBas, ojDtlCntrNo, ojDtlCntrSn } = cntrRel;
+  const { cstBasePdAbbrNm, pdNm } = ojBasePdBas ?? {};
+
+  return `${cstBasePdAbbrNm || pdNm || ''} ${ojDtlCntrSn ? `${ojDtlCntrNo}-${ojDtlCntrSn}` : ''}`;
 }
 
 </script>
