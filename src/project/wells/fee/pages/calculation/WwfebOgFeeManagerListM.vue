@@ -767,7 +767,7 @@ function getGridColumns() {
         { fieldName: 'eduMngerSettle2', header: `${t('MSG_TXT_STMNT')}2`, width: '91.4', styleName: 'text-center' }, // 교육-정착2
         { fieldName: 'eduMngerSettle345', header: `${t('MSG_TXT_STMNT')}3,4,5`, width: '91.4', styleName: 'text-center' }, // 교육-정착3,4,5
         { fieldName: 'edu2Pre', header: `Pre${t('MSG_TXT_ACML')}${t('MSG_TXT_EDUC')}`, width: '91.4', styleName: 'text-center' }, // 교육-지점온라인
-        { fieldName: 'eduBrmgrOnl', header: t('MSG_TXT_BRANCH') + t('MSG_TXT_ONL'), width: '91.4', styleName: 'text-center' }, // 교육-PRE누적교육
+        { fieldName: 'eduBrmgrOnl', header: t('MSG_TXT_BRANCH') + t('MSG_TXT_ONL'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-PRE누적교육
         { fieldName: 'topmrSettle', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_STMNT'), width: '91.4', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 교육-수석정착
         { fieldName: 'topmrNmn', header: t('MSG_TXT_TOPMR') + t('MSG_TXT_NMN'), width: '91.4', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 교육-수석차월
         { fieldName: 'mngerFstOpng', header: t('MSG_TXT_FST') + t('MSG_TXT_OPNG_MM'), width: '110', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 매니저개시사항-최초개시월
