@@ -36,19 +36,26 @@
     </kw-tabs>
     <kw-tab-panels v-model="selectedTab">
       <kw-tab-panel name="tab1">
-        <wwbnc-bond-counsel-m-customer />
+        <wwbnc-bond-counsel-m-customer
+          @update="onUpdateMgtValue"
+        />
       </kw-tab-panel>
       <kw-tab-panel name="tab2">
-        <wwbnc-bond-counsel-m-contract />
+        <wwbnc-bond-counsel-m-contract
+          @update="onUpdateMgtValue"
+        />
       </kw-tab-panel>
       <kw-tab-panel name="tab3">
         <wwbnc-bond-counsel-m-customer-search
           v-model:cellphone="params.cellphone"
           v-model:search-yn="params.searchYn"
+          @update="onUpdateMgtValue"
         />
       </kw-tab-panel>
       <kw-tab-panel name="tab4">
-        <zwbnc-bond-counsel-m-promise-customer />
+        <zwbnc-bond-counsel-m-promise-customer
+          @update="onUpdateMgtValue"
+        />
       </kw-tab-panel>
     </kw-tab-panels>
   </kw-page>
@@ -461,6 +468,11 @@ function timerStart() {
 function onClickPhoneYn(type) {
   searchParams.value.phone = searchParams.value.tno;
   searchParams.value.phoneYn = type;
+}
+
+async function onUpdateMgtValue(tNo) {
+  searchParams.value.tno = tNo.replaceAll('-', '');
+  onClickPhoneYn('Y');
 }
 
 // TODO: 콜백 조회 팝업
@@ -1201,6 +1213,8 @@ async function fetchData() {
         searchParams.value.tno = `${obj.tno1}-${obj.tno2}-${obj.tno3}`;
         tnoInfo.value.tno1 = `${obj.tno1}-${obj.tno2}-${obj.tno3}`;
         searchParams.value.callbackData0101 = obj.tno3;
+        baseParams.value.sysCALL_sStation = `5${obj.tno3}`;
+        baseParams.value.sysCALL_sAgent = `k${obj.tno3}`;
       }
       if (idx === 1) {
         tnoInfo.value.tno2 = `${obj.tno1}-${obj.tno2}-${obj.tno3}`;

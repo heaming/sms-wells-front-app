@@ -490,8 +490,8 @@ const initGridDetail = defineGrid((data, view) => {
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         let retValue = value;
-        if (codes.USWY_TP_CD.map((v) => v.codeId).includes(value)) {
-          retValue = codes.USWY_TP_CD.find((v) => v.codeId === value)?.codeName;
+        if (codes.SV_TP_CD.map((v) => v.codeId).includes(value)) {
+          retValue = codes.SV_TP_CD.find((v) => v.codeId === value)?.codeName;
         }
         return retValue;
       },

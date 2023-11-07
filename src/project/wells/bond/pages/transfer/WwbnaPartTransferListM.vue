@@ -335,7 +335,6 @@ async function fetchDetailsData() {
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
-// TODO: 명세서에 맞춰서 서버 다운로드로 변경 해야 할 수 있음
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 

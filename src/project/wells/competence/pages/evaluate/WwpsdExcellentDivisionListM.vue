@@ -74,7 +74,6 @@
         </kw-search-item>
         <kw-search-item
           label="당월그룹"
-          required
         >
           <kw-select
             v-model="searchParams.ctstGrpCd"
@@ -103,6 +102,7 @@
           :label="t('MSG_BTN_SAVE')"
           dense
           grid-action
+          @click="onClickSave"
         />
         <kw-separator
           vertical
@@ -158,7 +158,7 @@ import dayjs from 'dayjs';
 
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { modal } = useGlobal();
+const { modal, notify } = useGlobal();
 const dataService = useDataService();
 const { currentRoute } = useRouter();
 // -------------------------------------------------------------------------------------------------
@@ -206,25 +206,31 @@ const configGrid = async (config) => {
   const view = grdMainRef.value.getView();
   const data = grdMainRef.value.getData();
   const fields = [
+    { fieldName: 'baseYm' },
+    { fieldName: 'evlOgTpCd' },
     { fieldName: 'ogCd' },
     { fieldName: 'ogNm' },
+    { fieldName: 'ogId' },
     { fieldName: 'prtnrNo' },
     { fieldName: 'prtnrKnm' },
+    { fieldName: 'evlDvCd' },
   ];
 
   const columns = [
-    { fieldName: 'ogCd', header: '소속코드', width: '100', styleName: 'text-center' },
-    { fieldName: 'ogNm', header: '소속', width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: '번호', width: '100', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: '성명', width: '100', styleName: 'text-center' },
+    { fieldName: 'ogCd', header: '소속코드', width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'ogNm', header: '소속', width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'prtnrNo', header: '번호', width: '100', styleName: 'text-center', editable: false },
+    { fieldName: 'prtnrKnm', header: '성명', width: '100', styleName: 'text-center', editable: false },
   ];
 
   config.forEach((k) => {
     fields.push({ fieldName: k.fieldName, dataType: 'number' });
     if (k.dataType === 'rate') {
-      columns.push({ fieldName: k.fieldName, header: k.colHeader, width: '100', styleName: 'text-right', suffix: ' %' });
+      columns.push({ fieldName: k.fieldName, header: k.colHeader, width: '100', styleName: 'text-right', suffix: ' %', editable: false });
+    } else if (k.dataType === 'trg') {
+      columns.push({ fieldName: k.fieldName, header: k.colHeader, width: '100', styleName: 'text-right', editable: true });
     } else {
-      columns.push({ fieldName: k.fieldName, header: k.colHeader, width: '100', styleName: 'text-right' });
+      columns.push({ fieldName: k.fieldName, header: k.colHeader, width: '100', styleName: 'text-right', editable: false });
     }
   });
 
@@ -238,7 +244,7 @@ const configGrid = async (config) => {
       header.push({
         header: k.evlAtcDvNm,
         direction: 'horizontal', // merge type
-        items: [`${k.LEvlAtcDvCd}1`, `${k.LEvlAtcDvCd}2`, `${k.LEvlAtcDvCd}3`],
+        items: [`${k.LEvlAtcDvCd}Trg`, `${k.LEvlAtcDvCd}Score`, `${k.LEvlAtcDvCd}Rate`],
       });
     } else if (k.dvCd === '1') {
       header.push(k.fieldName);
@@ -288,6 +294,33 @@ const onclickContestGroupReg = async () => {
   }
 };
 
+const onClickSave = async () => {
+  const view = grdMainRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+  const changedRows = gridUtil.getChangedRowValues(view);
+  const saveList = [];
+  changedRows.forEach((row) => {
+    // 그리드 컬럼중 목표 점수인 컬럼 추출
+    const targets = Object.keys(row).filter((v) => v.indexOf('Trg') > -1);
+    targets.forEach((col) => {
+      saveList.push({
+        baseYm: row.baseYm,
+        ogId: row.ogId,
+        evlOgTpCd: row.evlOgTpCd,
+        prtnrNo: row.prtnrNo,
+        evlDvCd: row.evlDvCd,
+        evlAtcDvCd: col.substring(0, 3),
+        trgBasePc: row[col],
+      });
+    });
+  });
+  await dataService.post('/sms/wells/competence/excellent-division', saveList);
+
+  notify(t('MSG_ALT_SAVE_DATA'));
+  await fetchData();
+};
+
 watch(() => [searchParams.value.evlOgTpCd], async () => {
   await evaluateResponsibilityCdChang();
 });
@@ -324,5 +357,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.setColumns(columns);
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 });
 </script>

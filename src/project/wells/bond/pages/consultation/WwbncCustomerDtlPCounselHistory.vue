@@ -100,14 +100,14 @@ function initGrdMain(data, view) {
 
   ];
   const columns = [
-    { fieldName: 'telCnslId', width: '100', styleName: 'text-center', visible: false },
-    { fieldName: 'inDt', header: t('MSG_TXT_IN_DTM'), width: '100', styleName: 'text-center', datetimeFormat: 'datetime' },
-    { fieldName: 'inIchr', header: t('MSG_TXT_RGST_ICHR_EPNO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'inIchrNm', header: t('MSG_TXT_RGST_PSIC'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cnslPh', header: t('MSG_TXT_CNSL_PH'), width: '100', styleName: 'text-center' },
-    { fieldName: 'crncyRs', header: t('MSG_TXT_CRNCY_RS'), width: '100', styleName: 'text-center' },
-    { fieldName: 'dprNm', header: t('MSG_TXT_DPR_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'cnslCn', header: t('MSG_TXT_CNSL_CN'), width: '400', styleName: 'text-left' },
+    { fieldName: 'telCnslId', width: '100', styleName: 'text-center', visible: false }, // 전화상담ID
+    { fieldName: 'inDt', header: t('MSG_TXT_IN_DTM'), width: '100', styleName: 'text-center', datetimeFormat: 'datetime' }, // 입력일시
+    { fieldName: 'inIchr', header: t('MSG_TXT_RGST_ICHR_EPNO'), width: '100', styleName: 'text-center' }, // 등록담당사번
+    { fieldName: 'inIchrNm', header: t('MSG_TXT_RGST_PSIC'), width: '100', styleName: 'text-center' }, // 등록담당자
+    { fieldName: 'cnslPh', header: t('MSG_TXT_CNSL_PH'), width: '100', styleName: 'text-center' }, // 상담경로
+    { fieldName: 'crncyRs', header: t('MSG_TXT_CRNCY_RS'), width: '100', styleName: 'text-center' }, // 통화결과
+    { fieldName: 'dprNm', header: t('MSG_TXT_DPR_NM'), width: '100', styleName: 'text-center' }, // 입금자명
+    { fieldName: 'cnslCn', header: t('MSG_TXT_CNSL_CN'), width: '400', styleName: 'text-left' }, // 전화상담내용
 
   ];
 

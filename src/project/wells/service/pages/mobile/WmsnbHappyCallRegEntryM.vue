@@ -79,10 +79,12 @@ const props = defineProps({
   cntrNo: { type: String, default: '' },
   cntrSn: { type: String, default: '' },
   cstSvAsnNo: { type: String, default: '' },
+  // 변경된 URL 관련 props 추가
+  para: { type: String, default: '' },
   /* para: {
     type: String,
     default: '',
-    // default: '1|1|20230101|2021|6873504|2|2021|01010000000033',
+    // default: '1|1|20230101|2021|6873504|2|2021|01010000000033|1',
     /!*
       --신규설치,설치+철거,자사회수,자사미회수,타사회수,타사미회수,자사분리,이종간설치,
       --필터판매(방문),필터판매(자가)
@@ -112,6 +114,8 @@ const props = defineProps({
       ORD_DT   (CST_SV_ASN_NO)
       |
       ORD_SEQ  (CST_SV_ASN_NO)
+      |
+      CNTR_SN
       *!/
   }, */
 });
@@ -121,6 +125,10 @@ console.log(props);
 // -------------------------------------------------------------------------------------------------
 const router = useRouter();
 async function onClick(num) {
+  const sCntrNo = props.para ? props.para.split('|')[3] + props.para.split('|')[4] : '';
+  const sCntrSn = props.para ? props.para.split('|')[8] : '1';
+  const sCstSvAsnNo = props.para ? props.para.split('|')[5] + props.para.split('|')[6] + props.para.split('|')[7] : '';
+
   router.push({
     path: '/wmsnb-happy-call-reg-choise',
     query: {
@@ -128,9 +136,9 @@ async function onClick(num) {
       // svBizDclsfCd: props.svBizDclsfCd,
       // sellTpCd: props.sellTpCd,
       // wkExcnDt: props.wkExcnDt,
-      cntrNo: props.cntrNo,
-      cntrSn: props.cntrSn ? props.cntrSn : '1',
-      cstSvAsnNo: props.cstSvAsnNo,
+      cntrNo: 'W'.concat(sCntrNo),
+      cntrSn: sCntrSn,
+      cstSvAsnNo: sCstSvAsnNo,
     },
   });
 }

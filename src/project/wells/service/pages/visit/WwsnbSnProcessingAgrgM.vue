@@ -46,81 +46,85 @@
       </kw-search-row>
     </kw-search>
 
-    <template v-if="!isDgr2">
-      <div class="result-area">
-        <h3>{{ $t('MSG_TXT_SN_PROCESS_AGRG_RGRP') }}</h3>
+    <div
+      v-if="isShowRgrp"
+      class="result-area"
+    >
+      <!-- 지역단별집계표 -->
+      <h3>{{ $t('MSG_TXT_SN_PROCESS_AGRG_RGRP') }}</h3>
 
-        <kw-action-top>
-          <template #left>
-            <kw-paging-info
-              v-model:page-index="pageInfo.pageIndex"
-              v-model:page-size="pageInfo.pageSize"
-              :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-              :total-count="pageInfo.totalCount"
-              @change="fetchData"
-            />
-          </template>
-          <kw-btn
-            icon="download_on"
-            dense
-            secondary
-            :label="$t('MSG_BTN_EXCEL_DOWN')"
-            :disable="pageInfo.totalCount === 0"
-            @click="onClickExcelDownload"
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            :total-count="pageInfo.totalCount"
+            @change="fetchData"
           />
-        </kw-action-top>
-        <kw-grid
-          ref="grdRgrpRef"
-          name="grdRgrp"
-          :page-size="pageInfo.pageSize"
-          :total-count="pageInfo.totalCount"
-          @init="initRgrpGrid"
+        </template>
+        <kw-btn
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickExcelDownload"
         />
-        <kw-pagination
-          v-model:page-index="pageInfo.pageIndex"
-          v-model:page-size="pageInfo.pageSize"
-          :total-count="pageInfo.totalCount"
-          @change="fetchData"
-        />
-      </div>
-    </template>
-    <template v-else>
-      <div class="result-area">
-        <h3>{{ $t('MSG_TXT_SN_PROCESSING_AGRG') }}</h3>
-        <kw-action-top>
-          <template #left>
-            <kw-paging-info
-              v-model:page-index="pageInfo.pageIndex"
-              v-model:page-size="pageInfo.pageSize"
-              :total-count="pageInfo.totalCount"
-              :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-              @change="fetchData"
-            />
-          </template>
-          <kw-btn
-            icon="download_on"
-            dense
-            secondary
-            :label="$t('MSG_BTN_EXCEL_DOWN')"
-            :disable="pageInfo.totalCount === 0"
-            @click="onClickExcelDownload"
+      </kw-action-top>
+      <kw-grid
+        ref="grdRgrpRef"
+        name="grdRgrp"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @init="initRgrpGrid"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
+      />
+    </div>
+    <div
+      v-if="isShowSn"
+      class="result-area"
+    >
+      <!-- S/N처리집계표 -->
+      <h3>{{ $t('MSG_TXT_SN_PROCESSING_AGRG') }}</h3>
+      <kw-action-top>
+        <template #left>
+          <kw-paging-info
+            v-model:page-index="pageInfo.pageIndex"
+            v-model:page-size="pageInfo.pageSize"
+            :total-count="pageInfo.totalCount"
+            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
+            @change="fetchData"
           />
-        </kw-action-top>
-        <kw-grid
-          ref="grdSnRef"
-          name="grdSn"
-          :page-size="pageInfo.pageSize"
-          :total-count="pageInfo.totalCount"
-          @init="initSnGrid"
+        </template>
+        <kw-btn
+          icon="download_on"
+          dense
+          secondary
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          :disable="pageInfo.totalCount === 0"
+          @click="onClickExcelDownload"
         />
-        <kw-pagination
-          v-model:page-index="pageInfo.pageIndex"
-          v-model:page-size="pageInfo.pageSize"
-          :total-count="pageInfo.totalCount"
-          @change="fetchData"
-        />
-      </div>
-    </template>
+      </kw-action-top>
+      <kw-grid
+        ref="grdSnRef"
+        name="grdSn"
+        :page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @init="initSnGrid"
+      />
+      <kw-pagination
+        v-model:page-index="pageInfo.pageIndex"
+        v-model:page-size="pageInfo.pageSize"
+        :total-count="pageInfo.totalCount"
+        @change="fetchData"
+      />
+    </div>
   </kw-page>
 </template>
 
@@ -129,7 +133,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, getComponentType, defineGrid, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
 
@@ -167,8 +171,11 @@ const pageInfo = ref({
   needTotalCount: true,
 });
 
-const isDgr2 = computed(() => searchParams.value.dgr2LevlOgId.length > 0);
+const isDgr2 = computed(() => !isEmpty(searchParams.value.dgr2LevlOgId));
 // const curView = isDgr2.value === false ? grdRgrgRef.value : grdSnRef.value;
+
+const isShowRgrp = ref(false);
+const isShowSn = ref(false);
 
 function getSearchUrl() {
   return isDgr2.value === false ? '/sms/wells/service/sn-processing-agrg/by-rgrp/paging' : '/sms/wells/service/sn-processing-agrg/by-sn/paging';
@@ -179,9 +186,7 @@ function getCurrentViewRef() {
 }
 
 async function fetchData() {
-  // eslint-disable-next-line max-len
   const searchUrl = getSearchUrl();
-  // eslint-disable-next-line max-len
   const res = await dataService.get(searchUrl, { params: { ...cachedParams, ...pageInfo.value } });
   const { list: state, pageInfo: pagingResult } = res.data;
   pageInfo.value = pagingResult;
@@ -208,6 +213,27 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
+onMounted(async () => {
+  isDgr2.value = computed(() => searchParams.value.dgr2LevlOgId.length > 0);
+  if (isEmpty(searchParams.value.dgr2LevlOgId)) {
+    isShowRgrp.value = true;
+    isShowSn.value = false;
+  } else {
+    isShowRgrp.value = false;
+    isShowSn.value = true;
+  }
+});
+watch(() => searchParams.value.dgr2LevlOgId, async (val) => {
+  isDgr2.value = computed(() => val.length > 0);
+  if (isEmpty(searchParams.value.dgr2LevlOgId)) {
+    isShowRgrp.value = true;
+    isShowSn.value = false;
+  } else {
+    isShowRgrp.value = false;
+    isShowSn.value = true;
+  }
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
