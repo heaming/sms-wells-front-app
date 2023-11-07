@@ -49,10 +49,11 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, useGlobal, useModal } from 'kw-lib';
+import { useGlobal, useDataService, useModal } from 'kw-lib';
 import ZwcmEmailAddress from '~common/components/ZwcmEmailAddress.vue';
+import { buildUrlForNoSession } from '~sms-common/contract/util';
 
-const { confirm, notify, alert } = useGlobal();
+const { notify, confirm, alert } = useGlobal();
 const { t } = useI18n();
 const { ok, cancel: onClickClose } = useModal();
 const dataService = useDataService();
@@ -77,10 +78,25 @@ async function onClickSend() {
     rcvrInfoCntrNm = params.value.rcvrInfo[0].cntrNm;
   }
 
+  // 체크된 계약별 URL 생성 및 param 추가
+  const promises = props.rcvrInfo.map((index) => (
+    buildUrlForNoSession(
+      undefined,
+      'WwctaContractDocumentM',
+      { cntrNo: index.cntrNo },
+      false,
+      false,
+    )).then((paramUrl) => {
+    index.pdfUrl = paramUrl;
+  }));
+  await Promise.all(promises);
+
+  console.log(params);
   if (await confirm(t('MSG_ALT_EML_FW_CONF', [rcvrInfoCntrNm, params.value.emadr]))) {
     params.value.rcvrInfo.forEach((n) => {
       n.emadr = params.value.emadr;
     });
+    console.log(params.value.rcvrInfo);
     await dataService.post('/sms/wells/contract/contracts/send-emails', params.value.rcvrInfo);
     ok();
     await notify(t('MSG_ALT_EML_FW_FSH'));
