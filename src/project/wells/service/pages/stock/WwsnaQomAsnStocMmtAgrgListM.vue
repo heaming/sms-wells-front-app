@@ -271,12 +271,12 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '110', styleName: 'text-center', dataType: 'text' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center', dataType: 'text' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
+    { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '200', styleName: 'text-left', dataType: 'text', footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' } },
     { fieldName: 'bsQty',
       header: `${t('MSG_TXT_THM')}${t('MSG_TXT_BS')}`,
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -285,7 +285,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'qomAsnQty',
       header: t('MSG_TXT_AGG'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -294,7 +294,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'indiQty1',
       header: t('MSG_TXT_1ST'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -303,7 +303,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'indiQty2',
       header: t('MSG_TXT_2ST'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -312,7 +312,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'indiQty3',
       header: t('MSG_TXT_3ST'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -321,7 +321,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'indeQty1',
       header: t('MSG_TXT_1ST'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -330,7 +330,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'indeQty2',
       header: t('MSG_TXT_2ST'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -339,7 +339,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'indeQty3',
       header: t('MSG_TXT_3ST'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -348,7 +348,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'lgstQty',
       header: t('MSG_TXT_AGG'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -357,7 +357,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'qty100002',
       header: t('MSG_TXT_PAJU'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -366,7 +366,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'qty100008',
       header: t('MSG_TXT_SEONG_SU'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -375,7 +375,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'lgstLackQty',
       header: t('MSG_TXT_PAJU_SEONG_SU'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -395,7 +395,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'lackQty100008',
       header: t('MSG_TXT_SEONG_SU'),
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -404,7 +404,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'centerQty',
       header: `${t('MSG_TXT_BSNS_CNTR')} ${t('MSG_TXT_OG')}${t('MSG_TXT_STOC')}`,
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
@@ -413,7 +413,7 @@ const initGrdMain = defineGrid((data, view) => {
       } },
     { fieldName: 'centerIndiQty',
       header: `${t('MSG_TXT_BSNS_CNTR')} ${t('MSG_TXT_INDV')}${t('MSG_TXT_STOC')}`,
-      width: '120',
+      width: '100',
       styleName: 'text-right',
       numberFormat: '#,##0',
       footer: {
