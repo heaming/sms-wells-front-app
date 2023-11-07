@@ -293,12 +293,12 @@ async function onClickSearch() {
   if (!isEmpty(searchParams.value.cntrDtlNo)
       || !isEmpty(searchParams.value.rcgvpKnm)
       || !isEmpty(searchParams.value.serialNo)
-      || !isEmpty(searchParams.value.cralLocaraTno + searchParams.value.mexnoEncr + searchParams.value.cralIdvTno)) {
+      || !isEmpty(searchParams.value.cralLocaraTno)) {
     const initParams = cloneDeep(searchParams.value);
     initParams.startDt = '';
     initParams.endDt = '';
     initParams.findGb = '';
-    initParams.firstSppGb = '';
+    initParams.firstSppGb = 'ALL';
     cachedParams = cloneDeep(initParams);
   } else {
     cachedParams = cloneDeep(searchParams.value);
