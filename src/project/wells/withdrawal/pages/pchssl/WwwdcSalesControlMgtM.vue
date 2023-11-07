@@ -245,7 +245,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useMeta, defineGrid, codeUtil, useDataService, getComponentType, gridUtil, modal, notify } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const apiUri = '/sms/wells/withdrawal/pchssl/sales-control';
@@ -328,6 +328,9 @@ async function fetchData() {
 
 // 조회 버튼 이벤트
 async function onClickSearch() {
+  if (!isEmpty(searchParams.value.userName) && isEmpty(searchParams.value.prtnrNo)) {
+    return notify(t('MSG_ALT_SRCH_AFTER', [`${t('MSG_TXT_RGST_USR')} 조회 `]));
+  }
   cachedParams = cloneDeep(searchParams.value);
 
   // 방학면제 선택시 그리드 변경X, 조회버튼 클릭시 변경
@@ -343,7 +346,7 @@ async function onClickSelectUser() {
   const { result, payload } = await modal({
     component: 'ZwogzPartnerListP', // Z-OG-U-0050P01
     componentProps: {
-      prtnrNo: searchParams.value.prtnrNo,
+      prtnrNo: searchParams.value.userName,
       ogTpCd: searchParams.value.ogTpCd,
     },
   });
