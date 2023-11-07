@@ -79,10 +79,8 @@ const props = defineProps({
   cntrNo: { type: String, default: '' },
   cntrSn: { type: String, default: '' },
   cstSvAsnNo: { type: String, default: '' },
-  para: {
-    type: String,
-    default: '',
-  },
+  // 변경된 URL 관련 props 추가
+  para: { type: String, default: '' },
   /* para: {
     type: String,
     default: '',
