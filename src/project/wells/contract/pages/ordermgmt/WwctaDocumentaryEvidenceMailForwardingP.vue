@@ -60,20 +60,22 @@
             />
           </kw-form-item>
         </kw-form-row>
-        <kw-form-row>
-          <!-- 이메일 -->
-          <kw-form-item
-            :colspan="2"
-            :label="t('MSG_TXT_EMAIL')"
-            required
-          >
-            <zwcm-email-address
-              v-model="fieldParams.recpMail"
+        <slot v-if="props.isPrntYn === 'N'">
+          <kw-form-row>
+            <!-- 이메일 -->
+            <kw-form-item
+              :colspan="2"
               :label="t('MSG_TXT_EMAIL')"
               required
-            />
-          </kw-form-item>
-        </kw-form-row>
+            >
+              <zwcm-email-address
+                v-model="fieldParams.recpMail"
+                :label="t('MSG_TXT_EMAIL')"
+                required
+              />
+            </kw-form-item>
+          </kw-form-row>
+        </slot>
       </kw-form>
     </kw-observer>
     <template #action>
@@ -104,7 +106,7 @@ const dataService = useDataService();
 const now = dayjs();
 
 const { t } = useI18n();
-const { cancel } = useModal();
+const { ok, cancel } = useModal();
 const { alert, notify, confirm } = useGlobal();
 
 const obsMainRef = ref(getComponentType('KwObserver'));
@@ -113,6 +115,8 @@ const props = defineProps({
   docDvCd: { type: String, required: false, default: '' },
   cstList: { type: Array, default: () => [] },
   cntrList: { type: Array, default: () => [] },
+  isPrntYn: { type: String, required: false, default: '' },
+  cntrCstKnm: { type: String, required: false, default: '' },
 });
 
 const fieldParams = ref({
@@ -165,31 +169,43 @@ async function fetchCstNm() {
 }
 
 async function onClickSendEmail() {
-  const { docDvCd } = fieldParams.value;
+  if (props.isPrntYn === 'Y') {
+    // 발행일시와 고객명을 반환한다.
+    const payload = { pblcSearchSttDt: fieldParams.value.pblDt,
+      custNm: fieldParams.value.cstKnm };
+    ok(payload);
+  } else if (props.isPrntYn === 'N') {
+    const { docDvCd } = fieldParams.value;
 
-  cachedFieldParams = cloneDeep(fieldParams.value);
+    cachedFieldParams = cloneDeep(fieldParams.value);
 
-  if (await obsMainRef.value.alertIfIsNotModified()) { return; }
-  if (!await obsMainRef.value.validate()) { return; }
+    if (await obsMainRef.value.alertIfIsNotModified()) { return; }
+    if (!await obsMainRef.value.validate()) { return; }
 
-  // 리스트 체크
-  if (isEmpty(fieldParams.value.cstList)) {
-    alert(t('MSG_ALT_INVAILD_ORD_LIST'));
-    return;
+    // 리스트 체크
+    if (isEmpty(fieldParams.value.cstList)) {
+      alert(t('MSG_ALT_INVAILD_ORD_LIST'));
+      return;
+    }
+    // 발송구분 체크
+    if (isEmpty(docDvCd) || (docDvCd !== '1' && docDvCd !== '2' && docDvCd !== '3' && docDvCd !== '4')) {
+      alert(t('MSG_ALT_INVAILD_FW_DV'));
+      return;
+    }
+
+    if (!await confirm(t('MSG_ALT_WANT_SEND'))) { return; }
+
+    await dataService.post('/sms/wells/contract/contracts/order-details/documentary-evidence-mails', cachedFieldParams);
+    notify(t('MSG_ALT_EML_FW_FSH'));
   }
-  // 발송구분 체크
-  if (isEmpty(docDvCd) || (docDvCd !== '1' && docDvCd !== '2' && docDvCd !== '3' && docDvCd !== '4')) {
-    alert(t('MSG_ALT_INVAILD_FW_DV'));
-    return;
-  }
-
-  if (!await confirm(t('MSG_ALT_WANT_SEND'))) { return; }
-
-  await dataService.post('/sms/wells/contract/contracts/order-details/documentary-evidence-mails', cachedFieldParams);
-  notify(t('MSG_ALT_EML_FW_FSH'));
 }
 
 onMounted(async () => {
-  fetchCstNm();
+  if (!isEmpty(props.cntrCstKnm)) {
+    fieldParams.value.cstKnm = props.cntrCstKnm;
+    obsMainRef.value.init();
+  } else {
+    fetchCstNm();
+  }
 });
 </script>

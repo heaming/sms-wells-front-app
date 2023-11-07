@@ -287,6 +287,7 @@ const props = defineProps({
   cntrSn: { type: String, required: true, default: '' },
   sellTpCd: { type: String, required: true, default: '' },
   cntrCstNo: { type: String, required: false, default: '' },
+  cstKnm: { type: String, required: false, default: '' },
 });
 
 let cachedParams;
@@ -330,6 +331,7 @@ const frmMainData = ref({
   bilUc: '', // 기말미수금액(청구미수)
   pcsvSpmt: '', // 택배추가
   prtnrKnm: '', // 판매자성명
+  cstKnm: '', // 계약자성명
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -375,6 +377,7 @@ async function onClickDpDtlInf() {
     cntrNo: searchParams.value.cntrNo,
     cntrSn: searchParams.value.cntrSn,
     cntrCstNo: searchParams.value.cntrCstNo,
+    cntrCstKnm: frmMainData.value.cstKnm,
   };
 
   await modal({
@@ -564,16 +567,18 @@ async function fetchData() {
 }
 
 // 계약번호, 계약일련번호 세팅 (부모창에서 호출)
-async function setDatas(cntrNo, cntrSn, sellTpCd, cntrCstNo) {
+async function setDatas(cntrNo, cntrSn, sellTpCd, cntrCstNo, cstKnm) {
   searchParams.value.cntrNo = cntrNo;
   searchParams.value.cntrSn = cntrSn;
   searchParams.value.sellTpCd = sellTpCd;
   searchParams.value.cntrCstNo = cntrCstNo;
+  frmMainData.value.cstKnm = cstKnm;
 
   console.log(`cntrNo : ${cntrNo}`);
   console.log(`cntrSn : ${cntrSn}`);
   console.log(`sellTpCd : ${sellTpCd}`);
   console.log(`cntrCstNo : ${cntrCstNo}`);
+  console.log(`cstKnm : ${cstKnm}`);
 
   // 정기배송(판매유형코드: '6')일 경우 선납버튼 Visible false
   if (sellTpCd === '6') {

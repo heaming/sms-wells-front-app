@@ -69,6 +69,7 @@
             v-model:from="frmMainData.prmStrtYymm"
             v-model:to="frmMainData.prmEndYymm"
             placeholder=""
+            readonly
           />
         </kw-form-item>
       </kw-form-row>
