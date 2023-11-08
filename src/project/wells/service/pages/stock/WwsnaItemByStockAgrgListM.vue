@@ -151,11 +151,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
           <span class="ml8">
             ({{ t('MSG_TXT_UNIT') }} : EA)
@@ -168,22 +164,15 @@
           dense
           secondary
           :label="$t('MSG_BTN_EXCEL_DOWN')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
 
       <kw-grid
         ref="grdMainRef"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -195,12 +184,11 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 
-import { codeUtil, useMeta, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
+import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
 
@@ -226,20 +214,12 @@ const searchParams = ref({
   endSapCd: '',
 });
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  needTotalCount: true,
-});
-
 let gridView;
 let gridData;
 let fieldsObj;
 let tmpFields = [];
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'WARE_DV_CD',
   'MAT_MNGT_DV_CD',
   'ITM_KND_CD',
@@ -341,26 +321,22 @@ async function getWareHouseList() {
   }
 }
 
+const totalCount = ref(0);
+
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/item-by-stock-aggs/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: itmGd, pageInfo: pagingResult } = res.data;
-  // fetch시에는 총 건수 조회하지 않도록 변경
-  pagingResult.needTotalCount = false;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/item-by-stock-aggs', { params: { ...cachedParams }, timeout: 300000 });
+  const itmGd = res.data;
+  totalCount.value = itmGd.length;
 
   if (grdMainRef.value != null) {
     const view = grdMainRef.value.getView();
     view.getDataSource().setRows(itmGd);
-    view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
   }
 }
 
 // 조회버튼 클릭
 async function onClickSearch() {
-  pageInfo.value.pageIndex = 1;
-  // 조회버튼 클릭 시에만 총 건수 조회하도록
-  pageInfo.value.needTotalCount = true;
   cachedParams = cloneDeep(searchParams.value);
   tmpFields = [];
   // 창고조회
