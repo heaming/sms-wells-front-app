@@ -20,11 +20,7 @@
     <kw-action-top>
       <template #left>
         <kw-paging-info
-          v-model:page-index="pageInfo.pageIndex"
-          v-model:page-size="pageInfo.pageSize"
-          :total-count="pageInfo.totalCount"
-          :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-          @change="fetchData"
+          :total-count="totalCount"
         />
         <span class="ml8">
           ({{ t('MSG_TXT_UNIT') }} : EA)
@@ -35,7 +31,7 @@
         v-permission:download
         icon="download_on"
         :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-        :disable="pageInfo.totalCount === 0"
+        :disable="totalCount === 0"
         dense
         secondary
         @click="onClickExcelDownload"
@@ -45,15 +41,8 @@
       ref="grdMainRef"
       name="grdMain"
       :visible-rows="10"
-      :page-size="pageInfo.pageSize"
-      :total-count="pageInfo.totalCount"
+      :total-count="totalCount"
       @init="initGrdMain"
-    />
-    <kw-pagination
-      v-model:page-index="pageInfo.pageIndex"
-      v-model:page-size="pageInfo.pageSize"
-      :total-count="pageInfo.totalCount"
-      @change="fetchData"
     />
   </kw-popup>
 </template>
@@ -62,11 +51,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, getComponentType, useMeta, codeUtil, useDataService, gridUtil } from 'kw-lib';
+import { defineGrid, getComponentType, useDataService, gridUtil } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -105,16 +93,6 @@ const searchParams = ref({
 
 });
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-});
-
-const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
-);
-
 // 파라미터 필수 체크
 function hasProps() {
   // eslint-disable-next-line max-len
@@ -130,16 +108,18 @@ function setSearchParams() {
   searchParams.value.strRgstTo = strRgstTo;
 }
 
+const totalCount = ref(0);
+
 // DateReceivingAndPaying
 let cachedParams;
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/receipts-and-payments/date/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: receiving, pageInfo: pagingResult } = res.data;
-  pageInfo.value = pagingResult;
+  const res = await dataService.get('/sms/wells/service/receipts-and-payments/date', { params: { ...cachedParams } });
+  const receiving = res.data;
+
+  totalCount.value = receiving.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(receiving);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 // 엑셀다운로드
