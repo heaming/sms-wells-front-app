@@ -503,6 +503,8 @@ async function onClickEmailSend() {
 // 발행(출력)
 async function onClickPblPrnt() {
   let outputDataYN;
+  let pblcSearchSttDt; // 발행년월시
+  let custNm; // 고객명
   let rfndYn = false; // 거래명세서(일시불패키지 상품)
 
   const view = grdContracts.value.getView();
@@ -540,8 +542,8 @@ async function onClickPblPrnt() {
     });
 
     if (result) {
-      cachedParams.pblcSearchSttDt = payload.pblcSearchSttDt; // 발행년월시(현재일자)
-      cachedParams.custNm = payload.custNm; // 고객명
+      pblcSearchSttDt = payload.pblcSearchSttDt; // 발행년월시(현재일자)
+      custNm = payload.custNm; // 고객명
     } else {
       return;
     }
@@ -627,6 +629,8 @@ async function onClickPblPrnt() {
   if (outputDataYN) {
     // 선택한 계약번호 리스트 cachedParams에 적용
     cachedParams = cloneDeep(searchParams.value);
+    cachedParams.pblcSearchSttDt = pblcSearchSttDt; // 발행년월시(현재일자)
+    cachedParams.custNm = custNm; // 고객명
 
     switch (searchParams.value.docDvCd) { // 증빙서류종류
       case '1': // 입금내역서
@@ -683,8 +687,6 @@ async function onClickPblPrnt() {
         break;
       case '4': // 계약사항
         // OZ 리포트 팝업 파라미터 설정
-        // cachedParams.pblcSearchSttDt = now.format('YYYYMMDD'); // 발행년월시(현재일자)
-        // cachedParams.custNm = props.cntrCstKnm; // 고객명
         cachedParams.reportHeaderTitle = '계약사항 조회'; // 레포트 제목
 
         // OZ 리포트 호출 Api 설정
