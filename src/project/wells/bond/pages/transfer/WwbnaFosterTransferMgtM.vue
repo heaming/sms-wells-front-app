@@ -147,7 +147,8 @@
           :label="$t('MSG_BTN_CONF')"
           primary
           dense
-          :disable="isNotActivated"
+          :disable="isNotActivated
+            || totalCount === 0"
           @click="onClickConfirm"
         />
       </kw-action-top>
@@ -178,7 +179,8 @@
           v-permission:update
           :label="$t('MSG_TXT_SAVE')"
           grid-action
-          :disable="(cachedParams?.baseYm !== now.format('YYYYMM')) || pageDetailInfo.totalCount === 0"
+          :disable="(cachedParams?.baseYm !== now.format('YYYYMM'))
+            || pageDetailInfo.totalCount === 0"
           @click="onClickSave"
         />
         <kw-separator
@@ -193,7 +195,8 @@
           secondary
           dense
           :label="$t('MSG_BTN_EXCEL_UP')"
-          :disable="(cachedParams?.baseYm !== now.format('YYYYMM')) || pageDetailInfo.totalCount === 0"
+          :disable="(cachedParams?.baseYm !== now.format('YYYYMM'))
+            || pageDetailInfo.totalCount === 0"
           @click="onClickExcelUpload"
         />
         <!-- 엑셀다운로드 -->
@@ -455,7 +458,7 @@ const onClickExcelUpload = async () => {
 };
 
 // 현재년월 제외 수정 불가
-watch(() => searchParams.value.baseYm, async (baseYm) => {
+watch(() => cachedParams?.baseYm, async (baseYm) => {
   if (baseYm !== now.format('YYYYMM')) {
     isNotActivated.value = true;
   } else {
