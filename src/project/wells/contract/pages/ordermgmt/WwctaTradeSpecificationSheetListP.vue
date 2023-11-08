@@ -502,22 +502,38 @@ async function onClickEmailSend() {
 
 // 발행(출력)
 async function onClickPblPrnt() {
+  let view;
   let outputDataYN;
   let pblcSearchSttDt; // 발행년월시
   let custNm; // 고객명
   let rfndYn = false; // 거래명세서(일시불패키지 상품)
 
-  const view = grdContracts.value.getView();
+  if (searchParams.value.cntrDvCd === '1') {
+    if (searchParams.value.docDvCd === '1') {
+      view = grdDepositItemizationSheet.value.getView();
+    } else if (searchParams.value.docDvCd === '2') {
+      view = grdTradeSpecificationSheet.value.getView();
+    } else if (searchParams.value.docDvCd === '3') {
+      view = grdCardSalesSlipSheet.value.getView();
+    } else if (searchParams.value.docDvCd === '4') {
+      view = grdContractArticlesSheet.value.getView();
+    }
+  } else if (searchParams.value.cntrDvCd === '2') {
+    view = grdContracts.value.getView();
+  }
+
   const checkedItems = view.getCheckedItems();
   const cntrList = [];
 
   // 조회된 내역이 없으면 return
   if (isEmpty(ozParamsList.value)) {
+    alert(t('MSG_ALT_NO_PRINT_LIST')); // 출력 내역이 없습니다.
     outputDataYN = false;
     return;
   }
 
-  if (checkedItems.length === 0) {
+  if (searchParams.value.cntrDvCd === '2'
+   && checkedItems.length === 0) {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
   } else {
     const cntrs = gridUtil.getCheckedRowValues(view);
@@ -550,13 +566,21 @@ async function onClickPblPrnt() {
   }
 
   switch (searchParams.value.cntrDvCd) { // 계약/고객번호 구분
-    case '1': // 계약번호
+    case '1': // 계약상세번호
       if (searchParams.value.docDvCd === '1') { // 입금내역서
         console.log(`ozParamsList : ${ozParamsList.value}`);
+        // 계약상세번호 체크
         if (isEmpty(ozParamsList.value.cntrDtlNo)) {
           outputDataYN = false;
           return;
         }
+
+        // 수납일 체크
+        if (isEmpty(ozParamsList.value.rveDt)) {
+          outputDataYN = false;
+          return;
+        }
+
         // 수납일자가 시작일자가 종료일자 사이에 있는거로 Filter
         if (ozParamsList.value.rveDt >= searchParams.value.cntrCnfmStrtDt
         && ozParamsList.value.rveDt <= searchParams.value.cntrCnfmEndDt) {
@@ -578,6 +602,8 @@ async function onClickPblPrnt() {
           outputDataYN = true;
           rfndYn = true;
         }
+      } else { // 카드매출전표/계약사항
+        outputDataYN = true;
       }
       break;
     case '2': // 고객번호
@@ -704,6 +730,8 @@ async function onClickPblPrnt() {
       default:
         break;
     }
+  } else {
+    alert(t('MSG_ALT_NO_DATA_PRTN')); // 출력할 데이터가 없습니다.
   }
 }
 
