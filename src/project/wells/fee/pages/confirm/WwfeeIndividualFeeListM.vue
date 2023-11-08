@@ -76,6 +76,7 @@
             :maxlength="10"
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            @update:model-value="onClickPrtnrNoClear()"
           />
           <kw-input
             v-model="searchParams.prtnrKnm"
@@ -342,6 +343,10 @@ async function onClickSearchNo() {
       searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
+}
+
+async function onClickPrtnrNoClear() {
+  searchParams.value.prtnrKnm = '';
 }
 
 /*
