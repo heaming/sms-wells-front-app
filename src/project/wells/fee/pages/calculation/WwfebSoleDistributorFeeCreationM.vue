@@ -192,6 +192,7 @@ const codes = await codeUtil.getMultiCodes(
   'BFSVC_PRD_CD',
   'SPP_DV_CD',
   'SV_PD_TP_CD',
+  'SV_TP_CD',
   'USWY_TP_CD',
   'RENTAL_COMBI_DV_CD',
   'SPAY_DSC_DV_CD',
