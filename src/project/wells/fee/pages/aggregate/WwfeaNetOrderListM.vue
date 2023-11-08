@@ -163,6 +163,7 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+              @update:model-value="onClickPrtnrNoClear()"
             />
             <kw-input
               v-model="searchParams.prtnrKnm"
@@ -363,6 +364,12 @@
           :disable="!isOrderModifyVisile"
           @click="openNtorConfirmPopup"
         />
+        <kw-btn
+          v-if="isTestVisile"
+          dense
+          label="세금공제"
+          @click="TEST1()"
+        />
       </kw-action-top>
       <kw-grid
         v-if="isGridDtlVisible"
@@ -400,6 +407,7 @@ const isDtlExcelDown = ref(false);
 const isAggrExcelDown = ref(false);
 const isOrderCreateVisile = ref(false);
 const isOrderModifyVisile = ref(false);
+const isTestVisile = ref(false);
 const { confirm } = useGlobal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -645,6 +653,10 @@ async function onClickSearchNo() {
   }
 }
 
+async function onClickPrtnrNoClear() {
+  searchParams.value.prtnrKnm = '';
+}
+
 /*
  *  Event - 순주문 집계 버튼 클릭
  */
@@ -759,6 +771,19 @@ onMounted(async () => {
   cachedParams = cloneDeep(searchParams.value);
   await fetchNetOrderStatus();
 });
+
+async function TEST1() {
+  const param = {
+    ogTpCd: 'W01',
+    ddtnYm: '202307',
+    feeTcntDvCd: '02',
+    rsbDvCd: 'W0105',
+  };
+  await modal({
+    component: 'ZwfecFeeTaxDeductionRegP',
+    componentProps: param,
+  });
+}
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid

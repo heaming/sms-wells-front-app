@@ -37,6 +37,7 @@
         <kw-select
           v-model="searchParams.sellTpDtlCd"
           :options="dynamicChangeCodes.SELL_TP_DTL_CD"
+          first-option="all"
         />
       </kw-search-item>
     </kw-search-row>
@@ -257,6 +258,7 @@ async function onClickExcelDownload() {
 }
 
 watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
+  searchParams.value.sellTpDtlCd = '';
   dynamicChangeCodes.value.SELL_TP_DTL_CD = customCodes.value.SELL_TP_DTL_CD.filter(
     (obj) => (obj.userDfn02 === sellTpCd),
   );

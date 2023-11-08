@@ -76,6 +76,7 @@
             :maxlength="10"
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
+            @update:model-value="onClickPrtnrNoClear()"
           />
           <kw-input
             v-model="searchParams.prtnrKnm"
@@ -344,6 +345,10 @@ async function onClickSearchNo() {
   }
 }
 
+async function onClickPrtnrNoClear() {
+  searchParams.value.prtnrKnm = '';
+}
+
 /*
  *  Event - 그리드 사번 더블 클릭시 개인상세조회 페이지 이동
 */
@@ -471,14 +476,14 @@ async function onClickFeeDsbSpcsh() {
     if (searchParams.value.rsbDvCd === 'W0204') {
       ddlnId = 'DLN_00011';
     } else if (searchParams.value.rsbDvCd === 'W0205') {
-      ddlnId = 'DLN_00012';
+      ddlnId = 'DLN_00069';
     }
     saveParams.value.templateCode = 'FEE_DSB_SPCSH_W02';
   } else if (searchParams.value.ogTpCd === 'W03') { /* 홈마스터 */
     if (searchParams.value.rsbDvCd === 'W0301') {
-      ddlnId = 'DLN_00013';
+      ddlnId = 'DLN_00070';
     } else if (searchParams.value.rsbDvCd === 'W0302') {
-      ddlnId = 'DLN_00014';
+      ddlnId = 'DLN_00071';
     }
     saveParams.value.templateCode = 'FEE_DSB_SPCSH_W03';
   }

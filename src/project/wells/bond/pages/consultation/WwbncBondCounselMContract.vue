@@ -264,7 +264,7 @@
         primary
         dense
         :disable="totalCount === 0"
-        @click="onClickIstMessageSend"
+        @click="onClickMessageSend('i')"
       />
       <kw-btn
         v-permission:create
@@ -272,7 +272,7 @@
         primary
         dense
         :disable="totalCount === 0"
-        @click="onClickCntrMessageSend"
+        @click="onClickMessageSend('C')"
       />
     </kw-action-top>
     <ul class="filter-box mb12">
@@ -465,6 +465,25 @@ async function onClickSelectCustomer() {
     searchParams.value.schSfKYn = 'Y';
   }
 }
+
+// TODO: 문자발송
+const onClickMessageSend = async (type) => {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
+  await modal({
+    component: 'ZwbncMessageSendP',
+    componentProps: {
+      listType: 'contract',
+      dataList: checkedRows,
+      cntrType: type,
+    },
+  });
+};
 
 // TODO: 집금담당자 검색 팝업 호출
 const onClickClctamPsic = async () => {

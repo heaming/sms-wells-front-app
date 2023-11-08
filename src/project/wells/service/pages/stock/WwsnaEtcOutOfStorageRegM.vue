@@ -469,7 +469,7 @@ function setCheckedGridValue(view, row, value, column) {
 // 품목기본정보에서 넘어온 데이터 설정
 function getRowData(rowData) {
   // eslint-disable-next-line max-len
-  return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0, pdabbrNm: rowData.itmPdNm };
+  return { ...rowData, sapMatCd: rowData.sapCd, onQty: rowData.myCenterQty || 0, pdabbrNm: rowData.itmPdAbbr1 };
 }
 
 // 품목기본정보 팝업 호출

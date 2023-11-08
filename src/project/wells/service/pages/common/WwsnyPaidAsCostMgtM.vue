@@ -219,6 +219,8 @@ const searchParams = ref({
   applyDate: now.format('YYYYMMDD'),
 });
 
+// const isDisableEBtn = watch(() => searchParams.value.hgrPdCd || searchParams.value.pdCd);
+
 let cachedParams;
 
 const pds = ref([]);
@@ -320,6 +322,8 @@ async function onClickSave() {
   }
 
   await gridUtil.validate(view, { isCheckedOnly: true });
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
 
   await dataService.post('sms/wells/service/paid-as-costs', chkRows);
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -364,40 +368,45 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'csmrUprcAmt',
       header: t('MSG_TXT_CSPRC'),
       width: '100',
+      rules: 'min_value:0',
       editor: {
         type: 'number',
         maxLength: 8,
-        inputCharacters: '0-9',
+        // textFormat: '/^[0-9]*$/i',
+        inputCharacters: ['0-9'],
       },
       styleName: 'text-right',
     }, // 소비자가
     { fieldName: 'whlsUprcAmt',
       header: t('MSG_TXT_WHLS_UPRC'),
       width: '100',
+      rules: 'min_value:0',
       editor: {
         type: 'number',
         maxLength: 8,
-        inputCharacters: '0-9',
+        inputCharacters: ['0-9'],
       },
       styleName: 'text-right',
     }, // 도매단가
     { fieldName: 'insiUprcAmt',
       header: t('MSG_TXT_INSI_UPRC'),
       width: '100',
+      rules: 'min_value:0',
       editor: {
         type: 'number',
         maxLength: 8,
-        inputCharacters: '0-9',
+        inputCharacters: ['0-9'],
       },
       styleName: 'text-right',
     }, // 내부단가
     { fieldName: 'tcfeeAmt',
       header: t('MSG_TXT_TCFEE'),
       width: '100',
+      rules: 'min_value:0',
       editor: {
         type: 'number',
         maxLength: 8,
-        inputCharacters: '0-9',
+        inputCharacters: ['0-9'],
       },
       styleName: 'text-right',
     }, // 기술료

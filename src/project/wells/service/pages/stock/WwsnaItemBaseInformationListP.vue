@@ -424,7 +424,7 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '110', styleName: 'text-center', autoFilter: false },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '200' },
+    { fieldName: 'itmPdNm1', header: t('MSG_TXT_ITM_NM'), width: '200' },
     { fieldName: 'imgUrl',
       header: t('MSG_TXT_PHO'),
       width: '100',
@@ -477,11 +477,11 @@ const initGrdMain2 = defineGrid((data, view) => {
     { fieldName: 'sapCd' }, // SAP코드
     { fieldName: 'sapGrp' }, // SAP구분
     { fieldName: 'itmPdCd' }, // 품목상품코드
-    { fieldName: 'itmPdNm' }, // 품목상품코드
+    { fieldName: 'itmPdNm' }, // 품목명
     { fieldName: 'itmPdAbbr1' }, // 품목상품약어명
     { fieldName: 'lgstQty', dataType: 'number' }, // 물류수량
     { fieldName: 'centerQty', dataType: 'number' }, // 센터수량
-    { fieldName: 'myCenterQty', dataType: 'number' }, //
+    { fieldName: 'myCenterQty', dataType: 'number' }, // 조직창고
     { fieldName: 'indiStckQty', dataType: 'number' }, // 개인창고수량
     { fieldName: 'lQty', dataType: 'number' }, // 수량
     { fieldName: 'itmKnd' }, // 품목구분
@@ -499,7 +499,7 @@ const initGrdMain2 = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'sapCd', header: t('MSG_TXT_SAP_CD'), width: '75', styleName: 'text-center' },
     { fieldName: 'itmPdCd', header: t('MSG_TXT_ITM_CD'), width: '100', styleName: 'text-center' },
-    { fieldName: 'itmPdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
+    { fieldName: 'itmPdAbbr1', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
     { fieldName: 'lgstQty', header: t('MSG_TXT_LGST'), width: '75', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'centerQty', header: t('MSG_TXT_CENTER_DIVISION'), width: '75', numberFormat: '#,##0', styleName: 'text-right' },
     { fieldName: 'myCenterQty', header: t('MSG_TXT_OG_WARE'), width: '75', numberFormat: '#,##0', styleName: 'text-right' },

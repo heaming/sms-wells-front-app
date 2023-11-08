@@ -62,6 +62,7 @@
             v-model="searchParams.itmGrpCd"
             :options="codes.PD_GRP_CD"
             first-option="all"
+            :label="t('MSG_TXT_ITM_GRP')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -82,6 +83,8 @@
         >
           <kw-input
             v-model="searchParams.itmPdCd"
+            upper-case
+            :label="$t('TXT_MSG_AS_ITM_CD')"
           />
         </kw-search-item>
       </kw-search-row>

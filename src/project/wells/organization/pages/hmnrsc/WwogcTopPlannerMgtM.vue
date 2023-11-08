@@ -18,6 +18,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 관리년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_MGT_YNM')"
           required
@@ -29,6 +30,7 @@
             type="month"
           />
         </kw-search-item>
+        <!-- 조직레벨 -->
         <kw-search-item
           :label="$t('MSG_TXT_OG_LEVL')"
           class="equal_division--3"
@@ -46,11 +48,13 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 번호/성명 -->
         <kw-search-item
           :label="$t('MSG_TXT_PRTNR_NUM_EMPL_NM')"
         >
           <zwog-partner-search v-model:prtnr-no="searchParams.prtnrNo" />
         </kw-search-item>
+        <!-- M조직정보 -->
         <kw-search-item
           :label="$t('MSG_TXT_M_OG_INF')"
         >
@@ -60,16 +64,6 @@
             :true-value="Y"
             :false-value="N"
           />
-          <!-- <kw-field
-            v-model="searchParams.mOgYn"
-            v-bind="checkItem"
-          >
-            <template #default="{ field }">
-              <kw-checkbox
-                v-bind="field"
-              />
-            </template>
-          </kw-field> -->
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -85,6 +79,7 @@
             @change="fetchData"
           />
         </template>
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -99,6 +94,7 @@
           inset
           spaced
         />
+        <!-- 자격생성 -->
         <kw-btn
           v-permission:update
           :label="$t('MSG_BTN_PLAR_REG')"
@@ -153,11 +149,11 @@ const thisMonth = dayjs().format('MM');
 const thisYm = dayjs().format('YYYYMM');
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
-  mngtYm: thisYm,
-  mOgYn: 'Y',
-  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd,
-  ogId: undefined,
-  prtnrNo: undefined,
+  mngtYm: thisYm, // 관리년월
+  mOgYn: 'Y', // M조직정보
+  ogTpCd: wkOjOgTpCd === null ? ogTpCd : wkOjOgTpCd, // 조직유형코드
+  ogId: undefined, // 조직ID
+  prtnrNo: undefined, // 번호
 });
 
 const pageInfo = ref({
@@ -166,7 +162,7 @@ const pageInfo = ref({
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
-const isShow = ref(true);
+const isShow = ref(true); // 자격생성 버튼 제어
 
 let cachedParams;
 async function fetchData() {
@@ -178,6 +174,7 @@ async function fetchData() {
   view.getDataSource().setRows(planners.map((v) => ({ ...v, mngtYm: searchParams.value.mngtYm })));
   view.resetCurrent();
 
+  // M조직정보 체크
   if (searchParams.value.mOgYn === 'Y') {
     view.columnByName('strtdt').visible = true;
     view.columnByName('fnlEnddt').visible = true;
@@ -238,18 +235,18 @@ async function onClickSave() {
   const createdCnt = await dataService.get(`${SMS_WELLS_URI}/partner/created-cnt`, { params: { ...searchParams.value } });
 
   if (createdCnt.data > 0) {
-    await alert(t('MSG_TXT_ALD_QUA_CREATED', [thisYear, thisMonth]));
+    await alert(t('MSG_TXT_ALD_QUA_CREATED', [thisYear, thisMonth])); // {0}년 {1}월 자격이 이미 생성되었습니다.
     return;
   }
 
-  if (!await confirm(t('MSG_TXT_QUA_CREATED', [thisYear, thisMonth]))) { return; }
+  if (!await confirm(t('MSG_TXT_QUA_CREATED', [thisYear, thisMonth]))) { return; } // {0}년 {1}월 자격생성을 진행하시겠습니까?
 
   await dataService.post(`${SMS_WELLS_URI}/partner`, { ...searchParams.value });
 
   await onClickSearch();
 }
 
-// 계약서 구분에 따른 visible
+// 자격생성버튼 제어
 watch(() => searchParams.value.mngtYm, async (newVal) => {
   if (newVal === thisYm) {
     isShow.value = false;
@@ -263,48 +260,49 @@ watch(() => searchParams.value.mngtYm, async (newVal) => {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '120', styleName: 'text-center' },
-    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' },
-    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center' },
-    { fieldName: 'qlfDvNm', header: t('MSG_TXT_THM_QLF'), width: '100', styleName: 'text-center' },
+    { fieldName: 'dgr1LevlOgNm', header: t('MSG_TXT_MANAGEMENT_DEPARTMENT'), width: '120', styleName: 'text-center' }, // 총괄단
+    { fieldName: 'dgr2LevlOgNm', header: t('MSG_TXT_RGNL_GRP'), width: '120', styleName: 'text-center' }, // 지역단
+    { fieldName: 'ogCd', header: t('MSG_TXT_BLG_CD'), width: '120', styleName: 'text-center' }, // 소속코드
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '120', styleName: 'text-center' }, // 성명
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '120', styleName: 'text-center' }, // 사번
+    { fieldName: 'qlfDvNm', header: t('MSG_TXT_THM_QLF'), width: '100', styleName: 'text-center' }, // 당월자격
     { fieldName: 'detail',
-      header: t('MSG_BTN_PLAR_MGT'),
+      header: t('MSG_BTN_PLAR_MGT'), // 자격조정
       width: '106',
       styleName: 'rg-button-default text-center',
       styleCallback(grid, dataCell) {
         const btnYn = grid.getValue(dataCell.item.dataRow, 'btnYn');
-        return { renderer: { type: 'button', hideWhenEmpty: btnYn !== 'Y' } };
+        const mngtYm = grid.getValue(dataCell.item.dataRow, 'mngtYm');
+        return { renderer: { type: 'button', hideWhenEmpty: mngtYm === dayjs().format('YYYYMM') ? btnYn !== 'Y' : false } };
       },
       displayCallback() {
         return t('MSG_BTN_PLAR_MGT');
       },
     },
-    { fieldName: 'rcmdrPrtnrNm', header: t('MSG_TXT_ENGM_FNM'), width: '150', styleName: 'text-center' },
-    { fieldName: 'rcmdrPrtnrNo', header: t('MSG_TXT_ENGM_NO'), width: '150', styleName: 'text-center' },
-    { fieldName: 'cntrDt', header: t('MSG_TXT_BIZ_RGST_MM'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'rcntrDt', header: t('MSG_TXT_REREG_MN'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'edu14', header: t('MSG_TXT_SRTUP_CPC_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'twoSum', header: t('MSG_TXT_JBF_MMS2_ACU_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'curSum', header: t('MSG_TXT_THM_PERF'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'mTotSum', header: t('MSG_TXT_M_OG_CVT_PERF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'curBs', header: t('MSG_TXT_MNGT_PD'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'totSum', header: t('MSG_TXT_ACU_PERF'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'prfmtDt', header: t('MSG_TXT_TOPMR_UPGR_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'dmtnDt', header: t('MSG_TXT_DMTN_DAY'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'dmtnCurBs', header: t('MSG_TXT_DMTN_AFT_MNGT_PD'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'dmtnTotSum', header: t('MSG_TXT_DMTN_AFT_ACU_PERF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'strtdt', header: t('MSG_TXT_BIZ_RGST_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'fnlEnddt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'cvDt', header: t('MSG_TXT_REREG_MN'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'enddt', header: t('MSG_TXT_CLTN_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' },
-    { fieldName: 'mQlfDvNm', header: t('MSG_TXT_CLTN_MM_QLF'), width: '120', styleName: 'text-center' },
-    { fieldName: 'mTotCnt', header: t('MSG_TXT_ACU_ACKMT_CT'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
-    { fieldName: 'btnYn', visible: false },
-    { fieldName: 'mngtYm', visible: false },
-    { fieldName: 'ogTpCd', visible: false },
+    { fieldName: 'rcmdrPrtnrNm', header: t('MSG_TXT_ENGM_FNM'), width: '150', styleName: 'text-center' }, // 채용자성명
+    { fieldName: 'rcmdrPrtnrNo', header: t('MSG_TXT_ENGM_NO'), width: '150', styleName: 'text-center' }, // 채용자번호
+    { fieldName: 'cntrDt', header: t('MSG_TXT_BIZ_RGST_MM'), width: '150', styleName: 'text-center', datetimeFormat: 'date' }, // 업무등록월
+    { fieldName: 'fnlCltnDt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 최종해약월
+    { fieldName: 'rcntrDt', header: t('MSG_TXT_REREG_MN'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 재등록월
+    { fieldName: 'edu14', header: t('MSG_TXT_SRTUP_CPC_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 스타트업수료월
+    { fieldName: 'twoSum', header: t('MSG_TXT_JBF_MMS2_ACU_PERF'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 직전2개월 누적실적
+    { fieldName: 'curSum', header: t('MSG_TXT_THM_PERF'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 당월실적
+    { fieldName: 'mTotSum', header: t('MSG_TXT_M_OG_CVT_PERF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // M조직환산실적
+    { fieldName: 'curBs', header: t('MSG_TXT_MNGT_PD'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 관리상품
+    { fieldName: 'totSum', header: t('MSG_TXT_ACU_PERF'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 누적실적
+    { fieldName: 'prfmtDt', header: t('MSG_TXT_TOPMR_UPGR_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 수석승급월
+    { fieldName: 'dmtnDt', header: t('MSG_TXT_DMTN_DAY'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 강등날짜
+    { fieldName: 'dmtnCurBs', header: t('MSG_TXT_DMTN_AFT_MNGT_PD'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 강등 후 관리상품
+    { fieldName: 'dmtnTotSum', header: t('MSG_TXT_DMTN_AFT_ACU_PERF'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 강등 후 누적실적
+    { fieldName: 'strtdt', header: t('MSG_TXT_BIZ_RGST_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 업무등록월
+    { fieldName: 'fnlEnddt', header: t('MSG_TXT_FNL_CLTN_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 최종해약월
+    { fieldName: 'cvDt', header: t('MSG_TXT_REREG_MN'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 재등록월
+    { fieldName: 'enddt', header: t('MSG_TXT_CLTN_MM'), width: '120', styleName: 'text-center', datetimeFormat: 'date' }, // 해약월
+    { fieldName: 'mQlfDvNm', header: t('MSG_TXT_CLTN_MM_QLF'), width: '120', styleName: 'text-center' }, // 해약월자격
+    { fieldName: 'mTotCnt', header: t('MSG_TXT_ACU_ACKMT_CT'), width: '120', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 누적인정건수
+    { fieldName: 'btnYn', visible: false }, // 자격생성여부 (자격조정 버튼의 유무 결정)
+    { fieldName: 'mngtYm', visible: false }, // 관리년월
+    { fieldName: 'ogTpCd', visible: false }, // 조직유형코드
   ];
   data.setFields(columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName })));
   view.setColumns(columns);
@@ -322,19 +320,20 @@ const initGrid = defineGrid((data, view) => {
     'qlfDvNm',
     'detail',
     {
-      header: t('MSG_TXT_P_ORG'),
+      header: t('MSG_TXT_P_ORG'), // P조직
       direction: 'horizontal',
       items: ['rcmdrPrtnrNm', 'rcmdrPrtnrNo', 'cntrDt', 'fnlCltnDt', 'rcntrDt', 'edu14', 'twoSum',
         'curSum', 'mTotSum', 'curBs', 'totSum', 'prfmtDt', 'dmtnDt', 'dmtnCurBs', 'dmtnTotSum'],
     },
     {
-      header: t('MSG_TIT_M_ORG'),
+      header: t('MSG_TIT_M_ORG'), // M조직
       direction: 'horizontal',
       items: ['strtdt', 'fnlEnddt', 'cvDt', 'enddt', 'mQlfDvNm', 'mTotCnt'],
     },
 
   ]);
 
+  // M조직 컬럼
   view.columnByName('strtdt').visible = false;
   view.columnByName('fnlEnddt').visible = false;
   view.columnByName('cvDt').visible = false;

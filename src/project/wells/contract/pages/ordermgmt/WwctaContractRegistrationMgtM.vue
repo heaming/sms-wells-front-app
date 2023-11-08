@@ -149,7 +149,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useGlobal } from 'kw-lib';
+import { useDataService, useGlobal } from 'kw-lib';
 import { warn } from 'vue';
 import WwctaContractRegistrationMgtMStep1 from './WwctaContractRegistrationMgtMStep1.vue';
 import WwctaContractRegistrationMgtMStep2 from './WwctaContractRegistrationMgtMStep2.vue';
@@ -162,12 +162,30 @@ const props = defineProps({
   cntrNo: { type: String, default: undefined },
   cntrSn: { type: String, default: undefined },
   cntrPrgsStatCd: { type: String, default: undefined },
+  pspcCstId: { type: String, default: undefined },
 });
 
 const { t } = useI18n();
 const { alert } = useGlobal();
-// const dataService = useDataService();
+const dataService = useDataService();
 const router = useRouter();
+
+async function validateProps() {
+  const { cntrNo, cntrPrgsStatCd, pspcCstId, resultDiv, cntrSn } = props;
+  if (pspcCstId && (cntrNo || cntrPrgsStatCd)) {
+    await alert('가망고객 대상 계약은 계약번호를 먼저 가질 수 없습니다.');
+    return false;
+  }
+  if (resultDiv === '2' && !cntrSn) {
+    await alert('재계약 대상 계약은 계약일련번호가 필요합니다.');
+    return false;
+  }
+  return true;
+}
+
+if (!await validateProps()) {
+  throw Error('비정상 접근입니다.');
+}
 
 const steps = [
   { name: 'step1', title: '계약자정보입력', done: ref(false), panel: WwctaContractRegistrationMgtMStep1, ref: ref() },
@@ -232,6 +250,9 @@ const updateSummary = () => {
   summary.value = smr;
   console.log('updateSummary', smr);
 };
+watch(currentStepName, updateSummary);
+watch(() => contract.value?.step2?.dtls?.length, updateSummary);
+
 function setupContract() {
   contract.value = {
     cntrNo: props.cntrNo ?? '', /* 기존 계약을 불러오는 경우 이를 바탕으로 갑니다. */
@@ -247,9 +268,6 @@ function setupContract() {
   updateSummary();
 }
 
-watch(currentStepName, updateSummary);
-watch(() => contract.value?.step2?.dtls?.length, updateSummary);
-
 setupContract();
 
 const isCnfmCntr = ref(false);
@@ -258,23 +276,25 @@ const isCnfmPds = ref(false); // step2 상품확정여부
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-/*
-  20230719_통합테스트2차_마감접수체크비활성화
-async function isClosingTime() {
-  const isClosing = await dataService.get('sms/wells/contract/business-hours/is-business-closed-hours');
-  return isClosing.data;
-}
- */
 
 function showStep(step) {
   [0, 1, 2].forEach((n) => {
     if (n < step - 1) {
       steps[n].done.value = true;
-    } else {
-      return false;
     }
   });
   currentStepName.value = `step${step}`;
+}
+
+async function fetchProspectContract() {
+  const { pspcCstId } = props;
+  const { data } = await dataService.get('sms/wells/contract/contracts/prospect-contract', { params: { pspcCstId } });
+  const { pspcCstBas, cntrt, prtnr } = data;
+  contract.value.step1.pspcCstBas = pspcCstBas;
+  contract.value.step1.bas.pspcCstId = pspcCstId;
+  if (cntrt) { contract.value.step1.cntrt = cntrt; }
+  contract.value.step1.prtnr = prtnr;
+  contract.value.step1.bas.sellInflwChnlDtlCd = prtnr?.sellInflwChnlDtlCd;
 }
 
 async function getExistedCntr() {
@@ -295,6 +315,7 @@ async function getExistedCntr() {
   }
   showStep(step);
   await currentStepRef.value?.initStep?.(true);
+
   updateSummary();
   isCnfmPds.value = false;
 }
@@ -385,24 +406,17 @@ watch(() => props.cntrNo, (newValue, oldValue) => {
   }
 });
 
-watch(currentStepName, (value) => {
-  console.log(value);
-});
-
 onMounted(() => {
-  /*
-  20230719_통합테스트2차_마감접수체크비활성화
-  if (!props.cntrNo && await isClosingTime()) {
-    await alert('계약작성시간 마감으로 계약이 불가합니다');
-    await router.close();
-  }
-   */
-  const { cntrNo, cntrPrgsStatCd } = props;
+  const { cntrNo, cntrPrgsStatCd, pspcCstId } = props;
   if (cntrNo && cntrPrgsStatCd) {
     getExistedCntr();
   } else {
     currentStepRef.value?.initStep?.();
-    updateSummary();
+    if (pspcCstId) {
+      fetchProspectContract().then(updateSummary);
+    } else {
+      updateSummary();
+    }
   }
 });
 </script>

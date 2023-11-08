@@ -207,6 +207,7 @@ const codes = await codeUtil.getMultiCodes(
   'RENTAL_DSC_DV_CD',
   'MSH_DSC_DV_CD',
   'SELL_TP_CD',
+  'SV_TP_CD',
   'MSH_PRC_BASE_DSC_TP_ACD',
   'RENTAL_CRP_DSC_APY_DTL_CD',
   'RENTAL_MCHD_DSC_APY_DTL_CD',

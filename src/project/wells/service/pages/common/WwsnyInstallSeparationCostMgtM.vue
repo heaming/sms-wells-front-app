@@ -142,6 +142,7 @@ import {
   useDataService,
   gridUtil,
   notify,
+  useGlobal,
 } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
@@ -150,6 +151,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { getPartMaster } = smsCommon();
+const { confirm } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -241,11 +243,6 @@ async function onClickSearch() {
   await fetchData();
 }
 
-function getBaseInfo() {
-  const view = grdMainRef.value.getView();
-  return view.getJsonRows()[0];
-}
-
 /* 행추가 버튼 */
 const now = dayjs();
 async function onClickAdd() {
@@ -262,7 +259,9 @@ async function onClickDelete() {
   const view = grdMainRef.value.getView();
   const deleteRows = await gridUtil.confirmDeleteCheckedRows(view);
 
-  if (deleteRows.length > 0) {
+  if (deleteRows.length <= 0) { return; }
+
+  if (await confirm(t('MSG_ALT_WANT_DEL'))) {
     await dataService.delete('/sms/wells/service/installation-separation-costs', { data: [...deleteRows] });
   }
   if (isEmpty(pageInfo)) {
@@ -287,10 +286,9 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   const realChkRows = gridUtil.getCheckedRowValues(view);
   const chkRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
+  const { apyStrtdt } = view.getJsonRows()[0];
 
-  const { wkCsAmt } = getBaseInfo();
-
-  if ((wkCsAmt < 0) === true) { notify(t('MSG_ALT_PSBL_INP_TRSF_DIGT')); return; }
+  if (Number(now.format('YYYYMMDD')) > Number(apyStrtdt)) { notify('최종건보다 큰 날짜를 선택하세요.'); return; }
 
   if (chkRows.length === 0 && realChkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
@@ -422,7 +420,7 @@ const initGrdMain = defineGrid((data, view) => {
         inputCharacters: '0-9',
       },
       styleName: 'text-right',
-      rules: 'required',
+      rules: 'required|min_value:0',
       numberFormat: '#,##0',
     }, // 단가(원)
     {

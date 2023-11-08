@@ -94,10 +94,12 @@
         >
           <kw-input
             v-model="searchParams.startItemCd"
+            upper-case
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.endItemCd"
+            upper-case
           />
         </kw-search-item>
       </kw-search-row>
