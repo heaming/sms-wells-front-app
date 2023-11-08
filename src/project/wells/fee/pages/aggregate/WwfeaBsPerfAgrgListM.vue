@@ -134,7 +134,7 @@ import { defineGrid, codeUtil, useGlobal, getComponentType, useDataService, grid
 import dayjs from 'dayjs';
 import { isEmpty, cloneDeep } from 'lodash-es';
 
-const { modal } = useGlobal();
+const { modal, confirm } = useGlobal();
 const dataService = useDataService();
 const { t } = useI18n();
 const { currentRoute } = useRouter();
@@ -186,7 +186,7 @@ async function onClickSearch() {
 
 // 엑셀다운로드
 async function onClickExcelDownload() {
-  const response = await dataService.get('/sms/wells/fee/bs-fees', { params: cachedParams });
+  const response = await dataService.get('/sms/wells/fee/bs-fees/list', { params: cachedParams });
   const view = grdMainRef.value.getView();
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
@@ -218,6 +218,19 @@ async function onClickSearchNo() {
 
 // BS실적 집계 버튼 클릭 이벤트
 async function onClickBsPerfAgrg() {
+  const statusParams = {
+    perfYm: searchParams.value.perfYm,
+    feeTcntDvCd: searchParams.value.feeTcntDvCd,
+    ogTpCd: searchParams.value.ogTpCd,
+    perfAgrgCrtDvCd: searchParams.value.ogTpCd === 'W02' ? '201' : '301',
+  };
+
+  const res = await dataService.get('/sms/wells/fee/bs-fees/check', { params: statusParams });
+
+  if (!isEmpty(res.data)) {
+    if (!await confirm(t('MSG_ALT_AGRG_PERF_ALREADY_DATA'))) { return; }
+  }
+
   const { result: isChanged } = await modal({
     component: 'WwfeaOgNetOrderBsPerfAgrgRegP',
     componentProps: {
