@@ -171,6 +171,7 @@
           secondary
           dense
           :label="$t('MSG_BTN_INSTL') + $t('MSG_BTN_PRINT_LABEL')"
+          @click="onClickLabelPrint"
         />
       </kw-action-top>
 
@@ -198,6 +199,7 @@ import { codeUtil, useDataService, useMeta, getComponentType, gridUtil, popupUti
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import { printElement } from '~common/utils/common';
+import { openReportPopup } from '~common/utils/cmPopupUtil';
 
 const dataService = useDataService();
 const { getConfig } = useMeta();
@@ -314,6 +316,27 @@ async function onClickExcelDownload() {
 const pageRef = ref();
 async function onClickPrintEl() {
   printElement(pageRef);
+}
+
+const ozParam = ref({
+  height: 1100,
+  width: 1200,
+});
+
+async function onClickLabelPrint() {
+  const { width, height } = ozParam.value;
+
+  await openReportPopup(
+    '/kyowon_as/asSaleLabel.ozr',
+    '/kyowon_as/asSaleLabel.odi',
+    JSON.stringify({
+      DEPT_ID: searchParams.value.ogId,
+      VST_SDT: searchParams.value.baseDateFrom,
+      VST_EDT: searchParams.value.baseDateTo,
+      CHAG_GB: '0',
+    }),
+    { width, height },
+  );
 }
 
 function getPhoneNo(locaraTno, exnoEncr, idvTno) {
