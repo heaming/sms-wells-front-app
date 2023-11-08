@@ -666,6 +666,7 @@ async function onClickBulkExcelDownload() {
 }
 
 watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
+  searchParams.value.sellTpDtlCd = '';
   dynamicChangeCodes.value.SELL_TP_DTL_CD = customCodes.value.SELL_TP_DTL_CD.filter(
     (obj) => (obj.userDfn02 === sellTpCd),
   );
