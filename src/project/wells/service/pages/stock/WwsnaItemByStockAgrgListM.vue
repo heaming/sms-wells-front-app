@@ -71,6 +71,7 @@
           <kw-select
             v-model="searchParams.wareDvCd"
             :options="filterCodes.wareDvCd"
+            :label="$t('MSG_TXT_WARE_DV')"
             rules="required"
           />
         </kw-search-item>
