@@ -362,6 +362,7 @@ import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import { openReportPopup, openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
 import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
+import { buildUrlForNoSession } from '~sms-common/contract/util';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -903,6 +904,7 @@ async function onClickCntrwMlFw() {
 // 알림톡 발송 버튼 클릭 이벤트
 async function onClickNotakfW() {
   let view;
+  // eslint-disable-next-line no-unused-vars
   let res;
   let arrCstKnm = '';
   let rowCnt = 0;
@@ -929,43 +931,55 @@ async function onClickNotakfW() {
     notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
   } else {
     const cntrs = gridUtil.getCheckedRowValues(view);
-    cntrs.forEach((row) => {
+    for (let i = 0; i < cntrs.length; i += 1) { // forEach((row) =>
       // 확정인 계약에 한해서만 가능, 계약진행상태코드 == 60 (확정)
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)
-        && row.cntrPrgsStatCd !== '60') {
+        && cntrs[i].cntrPrgsStatCd !== '60') {
         notify(t('MSG_ALT_CNTR_PRGS_STAT_CD_NOT_CNFM')); // 계약진행상태가 확정이 아닙니다.
         return;
       }
+      let paramUrl = '';
+      // eslint-disable-next-line no-await-in-loop
+      const promises = await buildUrlForNoSession( // 계약서 URL 생성
+        undefined,
+        'WwctaContractDocumentM',
+        { cntrNo: String(cntrs[i].cntrDtlNo).split('-')[0] },
+        false,
+        false,
+      );
+      paramUrl = promises;
 
       // 신규/변경일 경우
       if (['A', 'N', 'U'].includes(searchParams.value.cntrDv)) {
         saveData.push({
-          cntrNo: String(row.cntrDtlNo).split('-')[0],
-          cntrSn: String(row.cntrDtlNo).split('-')[1].substr(0, 1),
+          cntrNo: String(cntrs[i].cntrDtlNo).split('-')[0],
+          cntrSn: String(cntrs[i].cntrDtlNo).split('-')[1].substr(0, 1),
           cntrDv: searchParams.value.cntrDv,
+          cntrUrl: paramUrl,
         });
       } else if (searchParams.value.cntrDv === 'R') { // 재약정
         saveData.push({
-          cntrNo: row.cntrNo,
-          cntrSn: row.cntrSn,
+          cntrNo: cntrs[i].cntrNo,
+          cntrSn: cntrs[i].cntrSn,
           cntrDv: searchParams.value.cntrDv,
-          stplRcpDt: row.stplRcpDt,
-          stplPtrm: row.stplPtrm,
+          stplRcpDt: cntrs[i].stplRcpDt,
+          stplPtrm: cntrs[i].stplPtrm,
+          cntrUrl: paramUrl,
         });
       }
 
       // 알림톡 발송 대상 고객명을 조합
       if (rowCnt === 0) {
-        arrCstKnm = row.cstKnm;
+        arrCstKnm = cntrs[i].cstKnm;
       } else {
-        arrCstKnm += `,${row.cstKnm}`;
+        arrCstKnm += `,${cntrs[i].cstKnm}`;
       }
 
       // eslint-disable-next-line no-plusplus
       rowCnt++;
-    });
+    } // });
 
-    // console.log(saveData);
+    console.log(saveData);
     if (isEmpty(arrCstKnm)) return;
     if (await confirm(t('MSG_ALT_CNFM_NOTAK_FW', [`[${arrCstKnm}]`]))) {
       res = await dataService.put('/sms/wells/contract/contracts/managements/notification-talk-forwarding', saveData);
@@ -1044,86 +1058,6 @@ async function onClickOzReport(cntrNo) {
       },
     );
   }
-
-  /*  -------------------------------- 임시 -------------------------------------
-  // if (res.data.length > 1) { // 다건 처리
-  //   const children = []; // 자식트리의 리스트
-
-  //   for (let i = 1; i < res.data.length; i += 1) { // 부모가 될 단건을 제외한 나머지 다건을 children args로
-  //     const childParamOzrPath = `${res.data[i].ozrPath}`;
-  //     let childParamOdiPath = '';
-
-  //     if (!isEmpty(res.data[i].odiPath)) {
-  //       childParamOdiPath = `${res.data[i].odiPath}`;
-  //     }
-
-  //     const paramHistStrtDtm = isEmpty(res.data[i].args.histStrtDtm) ? '' : res.data[i].args.histStrtDtm;
-  //     console.log(paramHistStrtDtm);
-  //     const childParams = {
-  //       ozrPath: childParamOzrPath,
-  //       odiPath: childParamOdiPath,
-  //       args: JSON.stringify({
-  //         ctnrNo: res.data[i].args.cntrNo,
-  //         histStrtDtm: paramHistStrtDtm,
-  //       }),
-  //       displayName: res.data[i].displayName,
-  //     };
-
-  //     children.push(childParams);
-  //   }
-  //   console.log(children);
-
-  //   // 부모트리의 파라미터
-  //   const parantParamOzrPath = `/${res.data[0].ozrPath}.ozr`;
-  //   let parantParamOdiPath = '';
-  //   if (!isEmpty(res.data[0].odiPath)) {
-  //     parantParamOdiPath = `/${res.data[0].odiPath}.odi`;
-  //   }
-
-  //   const parantParamHistStrtDtm = isEmpty(res.data[0].args.histStrtDtm) ? '' : res.data[0].args.histStrtDtm;
-  //   const parantParamArgs = [{
-  //     cntrNo: res.data[0].args.cntrNo,
-  //     histStrtDtm: parantParamHistStrtDtm,
-  //   }];
-
-  //   await openReportPopupWithOptions(
-  //     parantParamOzrPath, // ozrPath
-  //     parantParamOdiPath, // odiPath
-  //     JSON.stringify(parantParamArgs), // args
-  //     { // options
-  //       treeViewTitle: '청약서목록',
-  //       displayName: res.data[0].displayName,
-  //       children,
-  //     },
-  //   );
-  */
-
-  // --------------- 임시 ---------------
-  /*
-      // switch (cntrwTpCd[0]) { // 단건의 계약유형코드에 따라 path
-      //     paramOzrPath = '/kstation-w/ord/ef/Ver1.0/contractL11.ozr';
-      //     break;
-      //   case '2': // 일시불(BH) {
-      //     paramOzrPath = '/kstation-w/ord/bh/Ver1.0/contractBH.ozr';
-      //     break;
-      //   case '3': // 렌탈
-      //     paramOzrPath = '/kstation-w/ord/er/Ver1.0/contractL23.ozr';
-      //     break;
-      //   case '4': // 멤버십
-      //     paramOzrPath = '/kstation-w/ord/mb/Ver1.0/contractL30.ozr';
-      //     break;
-      //   case '5': // 홈케어서비스
-      //     paramOzrPath = '/ksswells/ord/hcs/Ver1.0/hcsCndc.ozr';
-      //     break;
-      //   case '6': // 모종일시불
-      //     paramOzrPath = '/kstation-w/ord/plnt/Ver1.0/contractPLNT.ozr';
-      //     break;
-      //   case '7': // 정기배송
-      //     paramOzrPath = '/kstation-w/ord/ef/Ver1.0/contractL11.ozr';
-      //     break;
-      // }
-    */
-  //--------------------------------
 }
 onMounted(async () => {
 });
