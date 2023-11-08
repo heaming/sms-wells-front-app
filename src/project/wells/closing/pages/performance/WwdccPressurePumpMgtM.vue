@@ -519,13 +519,13 @@ const initGridSalesBase = defineGrid((data, view) => {
     { fieldName: 'mpyBsdt', header: t('MSG_TXT_FNT_DT'), width: '100', styleName: 'text-center' }, // 이체일자
     { fieldName: 'dpTpCd', header: t('MSG_TXT_FNT_DV'), width: '120', styleName: 'text-center' }, // 이체구분
     { fieldName: 'copnDvCd', header: t('MSG_TXT_INDI_CORP'), width: '80', styleName: 'text-center' }, // 개인/법인
-    { fieldName: 'alncmpCd', header: t('MSG_TXT_MUTU_ALNC'), width: '80', styleName: 'text-center' }, //
-    { fieldName: 'alncStatTpCd', header: t('MSG_TXT_ALNC_STAT'), width: '80', styleName: 'text-center' }, //
-    { fieldName: 'lcpgub', header: t('MSG_TXT_PRE_PAY'), width: '80', styleName: 'text-center' }, //
-    { fieldName: 'lcam36', header: t('MSG_TXT_ATAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, //
-    { fieldName: 'lcmon1', header: t('MSG_TXT_RENT_PRD_MN'), width: '100', styleName: 'text-right' }, //
-    { fieldName: 'lcamt1', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, //
-    { fieldName: 'lcram1', header: t('MSG_TXT_RENTAL_DSC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, //
+    { fieldName: 'alncmpCd', header: t('MSG_TXT_MUTU_ALNC'), width: '80', styleName: 'text-center' }, // 상조제휴
+    { fieldName: 'alncStatTpCd', header: t('MSG_TXT_ALNC_STAT'), width: '80', styleName: 'text-center' }, // 제휴상태
+    { fieldName: 'lcpgub', header: t('MSG_TXT_PRE_PAY'), width: '80', styleName: 'text-center' }, // 선납여부
+    { fieldName: 'lcam36', header: t('MSG_TXT_ATAM'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 선수금
+    { fieldName: 'lcmon1', header: t('MSG_TXT_RENT_PRD_MN'), width: '100', styleName: 'text-right' }, // 렌탈기간
+    { fieldName: 'lcamt1', header: t('MSG_TXT_RTLFE'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 렌탈료
+    { fieldName: 'lcram1', header: t('MSG_TXT_RENTAL_DSC'), width: '100', styleName: 'text-right', numberFormat: '#,##0' }, // 렌탈할인
 
   ];
 
