@@ -300,7 +300,7 @@ async function onClickSearch() {
   if (!isEmpty(searchParams.value.cntrDtlNo)
       || !isEmpty(searchParams.value.rcgvpKnm)
       || !isEmpty(searchParams.value.bcNo)
-      || !isEmpty(searchParams.value.cralLocaraTno + searchParams.value.mexnoEncr + searchParams.value.cralIdvTno)) {
+      || !isEmpty(searchParams.value.cralLocaraTno)) {
     const initParams = cloneDeep(searchParams.value);
     initParams.startDt = '';
     initParams.endDt = '';

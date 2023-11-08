@@ -132,6 +132,20 @@
           <wwsn-manager-og-search-item-group
             v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
             v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
+            v-model:dgr1-levl-og="searchParams.dgr1LevlOg"
+            v-model:dgr2-levl-og="searchParams.dgr2LevlOg"
+            use-og-level="2"
+            :use-partner="false"
+            dgr1-levl-og-first-option="all"
+            dgr2-levl-og-first-option="all"
+            dgr1-levl-og-label="ogCdNm"
+            dgr2-levl-og-label="ogCdNm"
+            dgr1-levl-og-readonly
+            auth-yn="N"
+          />
+          <!-- <wwsn-manager-og-search-item-group
+            v-model:dgr1-levl-og-id="searchParams.dgr1LevlOgId"
+            v-model:dgr2-levl-og-id="searchParams.dgr2LevlOgId"
             v-model:dgr3-levl-og-id="searchParams.dgr3LevlOgId"
             v-model:prtnr-no="searchParams.prtnrNo"
             use-og-level="2"
@@ -146,8 +160,19 @@
             partner-label="prtnrNoNm"
             dgr1-levl-og-readonly
             auth-yn="N"
-          />
+          /> -->
         </template>
+        <kw-search-item
+          v-if="isManagerSelected"
+          :label="$t('MSG_TXT_MANAGER')"
+          :colspan="1"
+        >
+          <kw-select
+            v-model="searchParams.prtnrNo"
+            :options="managerCd"
+            first-option="all"
+          />
+        </kw-search-item>
         <template v-if="isEngineerSelected">
           <wwsn-engineer-og-search-item-group
             v-model:dgr1-levl-og-id="searchParams.ogId"
@@ -307,6 +332,16 @@ const searchParams = ref({
   wkDvCds: [],
   ozWkDvCds: '',
 });
+
+/* 웰스 매니저 조회 */
+const managerCd = ref();
+watch(() => [searchParams.value.dgr2LevlOgId], async () => {
+  console.log(searchParams.value.dgr2LevlOgId);
+  const res = await dataService.get(`${baseUrl}/wells-manager`, { params: searchParams.value });
+  const resList = res.data;
+  console.log(resList);
+  managerCd.value = resList.map((v) => ({ codeId: v.prtnrNo, codeName: v.prtnrNoNm }));
+}, { immediate: true });
 
 wkDvCds.value = [ // 작업구분 - 서비스업무세분류코드(SV_BIZ_DCLSF_CD) 모름
   { codeId: '2210', codeName: t('점검') }, // 점검(정기점검)
