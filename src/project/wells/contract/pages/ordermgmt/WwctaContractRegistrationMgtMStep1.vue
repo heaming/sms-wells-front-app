@@ -807,6 +807,7 @@ async function selectContractor() {
   const { result, payload } = await openCustomerSelectPopup();
 
   if (!result) {
+    step1.value.cntrt = {};
     return;
   }
 
@@ -847,7 +848,7 @@ async function selectPartner() {
     }
   }
 
-  step1.value.prtnr = currentPartner;
+  step1.value.prtnr ??= currentPartner;
 
   if (currentPartner.pstnDvCd === '7') {
     // 지국장 정보 설정 후, 소속 파트너 선택
@@ -928,7 +929,6 @@ async function onClickSearch() {
     return;
   }
 
-  clearSelected();
   await selectContractor();
   await selectPartner();
 }
@@ -1140,7 +1140,7 @@ async function initStep(forced = false) {
 
   await getCntrInfo();
   if (!cntrNo.value) {
-    await getCounts();
+    getCounts();
   }
   loaded.value = true;
 }
@@ -1150,6 +1150,21 @@ exposed.isChangedStep = isChangedStep;
 exposed.isValidStep = isValidStep;
 exposed.initStep = initStep;
 exposed.saveStep = saveStep;
+
+// fixme 우선 기워 넣기 so sorry.
+const unwatch = watchEffect(() => {
+  if (step1.value.pspcCstBas) {
+    const { pspcCstKnm, cralLocaraTno, mexnoEncr, cralIdvTno } = step1.value.pspcCstBas;
+    setupSearchParams({
+      cstKnm: pspcCstKnm,
+      cntrtTno: `${cralLocaraTno}${mexnoEncr}${cralIdvTno}`,
+      cralLocaraTno,
+      mexnoEncr,
+      cralIdvTno,
+    });
+    unwatch();
+  }
+});
 
 onActivated(() => {
   initStep(true);
