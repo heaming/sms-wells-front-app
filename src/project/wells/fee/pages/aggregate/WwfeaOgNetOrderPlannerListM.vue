@@ -60,7 +60,6 @@
           </kw-search-item>
           <kw-search-item
             :label="$t('MSG_TXT_PDCT_TP')"
-            required
           >
             <kw-select
               v-model="searchParams.pdctTpCd"
@@ -521,7 +520,6 @@ async function onClickSearchNo() {
 }
 
 async function onClickPrtnrNoClear() {
-  searchParams.value.prtnrNo = '';
   searchParams.value.prtnrKnm = '';
 }
 

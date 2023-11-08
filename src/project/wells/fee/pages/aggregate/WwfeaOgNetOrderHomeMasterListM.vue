@@ -404,7 +404,6 @@ async function onClickSearchNo() {
 }
 
 async function onClickPrtnrNoClear() {
-  searchParams.value.prtnrNo = '';
   searchParams.value.prtnrKnm = '';
 }
 
