@@ -147,6 +147,7 @@ const codes = await codeUtil.getMultiCodes(
   'FEE_TCNT_DV_CD',
   'BFSVC_OG_TP_CD',
   'SV_FEE_PD_DV_CD',
+  'SELL_TP_CD',
 );
 
 // 조회조건
@@ -247,7 +248,7 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'feeCalcAmt', header: t('MSG_TXT_VST_FEE'), width: '100', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' },
     { fieldName: 'svBizDclsfCd', header: t('MSG_TXT_WORK_TYPE'), width: '100', styleName: 'text-center' },
     { fieldName: 'vstRglvlGdNm', header: t('MSG_TXT_VST_RGLVL'), width: '100', styleName: 'text-center' },
-    { fieldName: 'sellTpNm', header: t('MSG_TXT_SLS_CAT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_SLS_CAT'), width: '100', styleName: 'text-center', options: codes.SELL_TP_CD },
     { fieldName: 'uswyNm', header: t('MSG_TXT_USWY_DV'), width: '100', styleName: 'text-center' },
     { fieldName: 'prrVstYn', header: t('MSG_TXT_PRR_VST_YN'), width: '100', styleName: 'text-center' },
     { fieldName: 'vstDuedt', header: t('MSG_TXT_SCHD_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
