@@ -67,7 +67,7 @@
         <kw-search-item label="사용여부">
           <kw-select
             v-model="searchParams.useYn"
-            :options="codes.COD_YN"
+            :options="codes.USE_YN"
             first-option="all"
           />
         </kw-search-item>
@@ -140,7 +140,7 @@ const customCodes = {
 };
 
 const codes = await codeUtil.getMultiCodes(
-  'COD_YN',
+  'USE_YN',
 );
 
 const searchParams = ref({
