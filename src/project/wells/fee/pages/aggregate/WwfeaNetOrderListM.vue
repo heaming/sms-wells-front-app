@@ -770,14 +770,9 @@ onMounted(async () => {
 async function TEST1() {
   const param = {
     ogTpCd: 'W01',
-    ddtnYm: '202306',
+    ddtnYm: '202307',
     feeTcntDvCd: '02',
-    rsbDvCd: 'W0205',
-    // ogTpCd: 'E03',
-    // ddtnYm: '202306',
-    // feeTcntDvCd: '02',
-    // rsbDvCd: 'E0300',
-    // vdtcrPdCd: 'A',
+    rsbDvCd: 'W0105',
   };
   await modal({
     component: 'ZwfecFeeTaxDeductionRegP',
