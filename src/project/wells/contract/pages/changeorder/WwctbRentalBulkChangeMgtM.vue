@@ -97,9 +97,11 @@
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, useDataService, useGlobal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
+import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 
 const { t } = useI18n();
+const now = dayjs();
 const dataService = useDataService();
 const grdMainRefRental = ref(getComponentType('KwGrid'));
 const grdMainRentalView = computed(() => grdMainRefRental.value?.getView());
@@ -115,7 +117,7 @@ codes.CNTR_CH_TP_CD = codes.CNTR_CH_TP_CD.filter((v) => (v.codeId.indexOf('6') =
 const searchParams = ref({
   cntrChTpCd: '', // 처리구분
   srchDiv: '1', // 검색구분
-  srchDt: '', // 반영일자
+  srchDt: now.format('YYYYMM'), // 반영일자
   cntrNo: '', // 계약번호
   cntrSn: '', // 계약일련번호
 });
