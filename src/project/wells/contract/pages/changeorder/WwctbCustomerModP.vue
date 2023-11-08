@@ -107,6 +107,7 @@
               v-model:add2="fieldParams.cntrCstRdadr"
               :label="t('MSG_TXT_ADDR')"
               required
+              readonly
             />
           </kw-form-item>
         </kw-form-row>
@@ -187,6 +188,7 @@
               :label="t('MSG_TXT_ADDR')"
               :required="!hasIstDt ? true : false"
               :disable="hasIstDt"
+              readonly
             />
           </kw-form-item>
         </kw-form-row>
