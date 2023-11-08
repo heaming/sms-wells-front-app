@@ -478,7 +478,7 @@ async function onClickDeposit() {
     return false;
   }
 
-  if (!await confirm(t('MSG_ALT_CREATED') + t(' ') + t('MSG_ALT_CREATED'))) { // 입금전표 생성 하시겠습니까?
+  if (!await confirm(t('MSG_TXT_DP_SLIP') + t(' ') + t('MSG_ALT_CREATED'))) { // 입금전표 생성 하시겠습니까?
     return false;
   }
 
