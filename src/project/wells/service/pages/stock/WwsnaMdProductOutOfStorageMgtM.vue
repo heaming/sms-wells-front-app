@@ -536,7 +536,7 @@ const initGrdMain = defineGrid((data, view) => {
     'cntrNo',
     'cstSvAsnNo',
     {
-      header: t('택배정보'),
+      header: t('MSG_TXT_PCSV') + t('MSG_TXT_INF'),
       direction: 'horizontal',
       items: ['pcsvCompNm', 'sppIvcNo', 'sppBzsPdId'],
     },
