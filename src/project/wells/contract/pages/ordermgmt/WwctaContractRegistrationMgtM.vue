@@ -162,7 +162,7 @@ const props = defineProps({
   cntrNo: { type: String, default: undefined },
   cntrSn: { type: String, default: undefined },
   cntrPrgsStatCd: { type: String, default: undefined },
-  pspcCstId: { type: String, default: '000000000172186' },
+  pspcCstId: { type: String, default: undefined },
 });
 
 const { t } = useI18n();
