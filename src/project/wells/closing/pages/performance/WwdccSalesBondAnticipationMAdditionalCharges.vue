@@ -37,6 +37,7 @@
         <kw-select
           v-model="searchParams.sellTpDtlCd"
           :options="dynamicChangeCodes.SELL_TP_DTL_CD"
+          first-option="all"
         />
       </kw-search-item>
     </kw-search-row>
