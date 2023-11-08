@@ -201,7 +201,7 @@ let fieldsObj;
 const totalCount = ref(0);
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/filter-needs-state', { params: { ...cachedParams } });
+  const res = await dataService.get('/sms/wells/service/filter-needs-state', { params: { ...cachedParams }, timeout: 300000 });
   const item = res.data;
   totalCount.value = item.length;
 
@@ -233,7 +233,7 @@ async function onClickSearch() {
 // 엑셀 다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/filter-needs-state', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/filter-needs-state', { params: cachedParams, timeout: 300000 });
 
   gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
