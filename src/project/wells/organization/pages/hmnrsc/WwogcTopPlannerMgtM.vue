@@ -275,7 +275,8 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'rg-button-default text-center',
       styleCallback(grid, dataCell) {
         const btnYn = grid.getValue(dataCell.item.dataRow, 'btnYn');
-        return { renderer: { type: 'button', hideWhenEmpty: btnYn !== 'Y' } };
+        const mngtYm = grid.getValue(dataCell.item.dataRow, 'mngtYm');
+        return { renderer: { type: 'button', hideWhenEmpty: mngtYm === dayjs().format('YYYYMM') ? btnYn !== 'Y' : false } };
       },
       displayCallback() {
         return t('MSG_BTN_PLAR_MGT');
