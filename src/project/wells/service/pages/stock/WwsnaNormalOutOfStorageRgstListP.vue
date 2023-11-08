@@ -78,7 +78,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
-        <!-- 등록일자 -->
+        <!-- 출고일자 -->
         <kw-form-item
           :label="$t('MSG_TXT_OSTR_DT')"
           required
