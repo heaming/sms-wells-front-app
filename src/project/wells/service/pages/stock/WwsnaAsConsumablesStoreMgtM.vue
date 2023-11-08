@@ -401,12 +401,14 @@ const initGrdMain = defineGrid((data, view) => {
       },
       editor: {
         type: 'number',
+        positiveOnly: true,
       },
       numberFormat: '###,###,###,##0',
       width: '100',
       styleName: 'text-right',
       editable: true,
       rules: 'required',
+
     },
     // 입고사유
     {
@@ -419,6 +421,8 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-left',
       editable: true,
       rules: 'required',
+      editor: {
+        maxLength: 4000 },
     },
     { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_NO'), width: '170', styleName: 'text-left', visible: false },
     { fieldName: 'mngtUnitCd', header: t('MSG_TXT_MNGT_UNIT'), width: '170', styleName: 'text-left', visible: false },

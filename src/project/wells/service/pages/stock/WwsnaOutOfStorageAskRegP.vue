@@ -533,7 +533,7 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'sapCd' }, // SAP코드
     { fieldName: 'itmPdCd' }, // 품목코드
-    { fieldName: 'itmPdNm' }, // 품목상품명
+    { fieldName: 'itmPdNm1' }, // 품목상품명
     { fieldName: 'ostrAkNo' }, // 출고요청일련번호
     { fieldName: 'ostrAkSn' }, // 출고요청순번
     { fieldName: 'ostrAkTpCd' }, /* 출고요청유형코드 */
@@ -579,7 +579,7 @@ const initGrdMain = defineGrid((data, view) => {
       styleName: 'text-center',
     },
     {
-      fieldName: 'itmPdNm',
+      fieldName: 'itmPdNm1',
       header: t('MSG_TXT_ITM_NM'),
       width: '150',
       styleName: 'text-left',
@@ -702,7 +702,7 @@ const initGrdMain = defineGrid((data, view) => {
       column: 'sapCd', footerUserSpans: [{ colspan: 4 }],
     }, // SAP코드
     'itmPdCd', // 품목코드
-    'itmPdNm', // 품목명
+    'itmPdNm1', // 품목명
     'itmGdCd', // 등급
     'warehouseQty', // 재고
     'centerQty', // 센터
