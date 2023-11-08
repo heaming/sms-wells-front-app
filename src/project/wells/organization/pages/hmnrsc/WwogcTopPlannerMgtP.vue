@@ -21,20 +21,25 @@
       :cols="3"
     >
       <kw-form-row>
+        <!-- 관리년월 -->
         <kw-form-item :label="$t('MSG_TXT_MGT_YNM')">
           <p>{{ isEmpty(planner.mngtYm) ? '-' : stringUtil.getDateFormat(planner.mngtYm, 'YYYY-MM', 'YYYY-MM') }}</p>
         </kw-form-item>
+        <!-- 번호 -->
         <kw-form-item :label="$t('MSG_TXT_PARTNER_NO')">
           <p>{{ planner.prtnrNo ?? '-' }}</p>
         </kw-form-item>
+        <!-- 성명 -->
         <kw-form-item :label="$t('MSG_TXT_EMPL_NM')">
           <p>{{ planner.prtnrKnm ?? '-' }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 승급년월 -->
         <kw-form-item :label="$t('MSG_TXT_UPGR_YM')">
           <p>{{ isEmpty(planner.upgrYm) ? '-' : stringUtil.getDateFormat(planner.upgrYm, 'YYYY-MM', 'YYYY-MM') }}</p>
         </kw-form-item>
+        <!-- 강등년월 -->
         <kw-form-item
           :label="$t('MSG_TXT_DMTN_YM')"
           :colspan="'2'"
@@ -43,6 +48,7 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 등급 -->
         <kw-form-item
           :label="$t('MSG_TXT_GD')"
         >
@@ -51,6 +57,7 @@
             :options="pqlfDvCds"
           />
         </kw-form-item>
+        <!-- 반영년월 -->
         <kw-form-item
           :label="$t('MSG_TXT_RFLT_YM')"
           :colspan="'2'"
@@ -63,23 +70,29 @@
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 생성일자 -->
         <kw-form-item :label="$t('MSG_TXT_CRT_DT')">
           <p>{{ isEmpty(planner.rgstDt) ? '-' : stringUtil.getDateFormat(planner.rgstDt) }}</p>
         </kw-form-item>
+        <!-- 생성자번호 -->
         <kw-form-item :label="$t('MSG_TXT_CREATE_NO')">
           <p>{{ planner.rgrPrtnrNo ?? '-' }}</p>
         </kw-form-item>
+        <!-- 생성자성명 -->
         <kw-form-item :label="$t('MSG_TXT_CREATE_NM')">
           <p>{{ planner.rgstPrtnrKnm ?? '-' }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>
+        <!-- 수정일자 -->
         <kw-form-item :label="$t('MSG_TXT_MDFC_DATE')">
           <p>{{ isEmpty(planner.mdfcDt) ? '-' : stringUtil.getDateFormat(planner.mdfcDt) }}</p>
         </kw-form-item>
+        <!-- 수정자번호 -->
         <kw-form-item :label="$t('MSG_TXT_MDFC_USR_NO')">
           <p>{{ planner.udrPrtnrNo ?? '-' }}</p>
         </kw-form-item>
+        <!-- 수정자성명 -->
         <kw-form-item :label="$t('MSG_TXT_MDFC_USR_NM')">
           <p>{{ planner.mdfcPrtnrKnm ?? '-' }}</p>
         </kw-form-item>

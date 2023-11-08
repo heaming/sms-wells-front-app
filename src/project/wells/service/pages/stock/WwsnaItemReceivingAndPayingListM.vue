@@ -143,11 +143,7 @@
       <kw-action-top>
         <template #left>
           <kw-paging-info
-            v-model:page-index="pageInfo.pageIndex"
-            v-model:page-size="pageInfo.pageSize"
-            :total-count="pageInfo.totalCount"
-            :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
-            @change="fetchData"
+            :total-count="totalCount"
           />
           <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
@@ -158,22 +154,15 @@
           dense
           secondary
           :label="$t('MSG_TXT_EXCEL_DOWNLOAD')"
-          :disable="pageInfo.totalCount === 0"
+          :disable="totalCount === 0"
           @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
         ref="grdMainRef"
         name="grdMain"
-        :page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
+        :total-count="totalCount"
         @init="initGrdMain"
-      />
-      <kw-pagination
-        v-model:page-index="pageInfo.pageIndex"
-        v-model:page-size="pageInfo.pageSize"
-        :total-count="pageInfo.totalCount"
-        @change="fetchData"
       />
     </div>
   </kw-page>
@@ -184,29 +173,20 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, useMeta, codeUtil, useDataService, getComponentType, gridUtil } from 'kw-lib';
+import { defineGrid, codeUtil, useDataService, getComponentType, gridUtil } from 'kw-lib';
 import ZwcmWareHouseSearch from '~sms-common/service/components/ZwsnzWareHouseSearch.vue';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { currentRoute } = useRouter();
 const { t } = useI18n();
-const { getConfig } = useMeta();
 const dataService = useDataService();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdMainRef = ref(getComponentType('KwGrid'));
 
-const pageInfo = ref({
-  totalCount: 0,
-  pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
-  needTotalCount: true,
-});
-
 const codes = await codeUtil.getMultiCodes(
-  'COD_PAGE_SIZE_OPTIONS',
   'PD_GD_CD', // 상품등급
   'USE_YN', // 사용여부
   'ITM_KND_CD', // 품목구분코드
@@ -296,18 +276,17 @@ function onChangeEndSapCd() {
   }
 }
 
+const totalCount = ref(0);
 let cachedParams;
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/receipts-and-payments/paging', { params: { ...cachedParams, ...pageInfo.value } });
-  const { list: payments, pageInfo: pagingResult } = res.data;
+  const res = await dataService.get('/sms/wells/service/receipts-and-payments', { params: { ...cachedParams }, timeout: 300000 });
+  const payments = res.data;
+  totalCount.value = payments.length;
 
-  pagingResult.needTotalCount = false;
-  pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(payments);
   view.resetCurrent();
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 // 엑셀다운로드
@@ -328,8 +307,6 @@ async function onClickSearch() {
   const splitSapMatDpct = searchParams.value.sapMatDpct.split(',');
   searchParams.value.sapMatDpcts = splitSapMatDpct;
   cachedParams = cloneDeep(searchParams.value);
-  pageInfo.value.pageIndex = 1;
-  pageInfo.value.needTotalCount = true;
   await fetchData();
 }
 

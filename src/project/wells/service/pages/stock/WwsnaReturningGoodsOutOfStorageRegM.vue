@@ -373,7 +373,8 @@ function getRowData(rowData) {
     sapMatCd: rowData.sapCd,
     onQty: rowData.myCenterQty || 0,
     mngtUnitCd: rowData.delUntNm,
-    itmKndCd: rowData.itmKnd };
+    itmKndCd: rowData.itmKnd,
+    itmPdNm: rowData.itmPdAbbr1 };
 }
 
 // 품목기본정보 팝업 오픈
