@@ -212,6 +212,7 @@ async function onClickSave() {
 
   if (!validateIsApplyRowExists()) return;
 
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
 
   await dataService.post('/sms/wells/service/as-consumables-stores', checkedRows);
@@ -255,7 +256,6 @@ async function onClickAddRow() {
 const onClickExcelUpload = async () => {
   const apiUrl = '/sms/wells/service/as-consumables-stores/excel-upload';
   const templateId = 'FOM_AS_CSMB_UPLOAD';
-  console.log(cachedParams);
   const extraData = cachedParams;
   const { result, payload } = await modal({
     component: 'ZwcmzExcelUploadP',
@@ -315,6 +315,7 @@ const initGrdMain = defineGrid((data, view) => {
       editable: true,
       width: '200',
       styleName: 'text-center',
+      rules: 'required',
     },
     // 창고명
     {
@@ -326,6 +327,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-left',
       editable: true,
+      rules: 'required',
     },
     // 입고등록일자
     {
@@ -339,6 +341,7 @@ const initGrdMain = defineGrid((data, view) => {
       editor: { type: 'btdate' },
       datetimeFormat: 'date',
       editable: true,
+      rules: 'required',
     },
     // sap코드
     {
@@ -350,6 +353,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-center',
       editable: true,
+      rules: 'required',
     },
     // 품목코드
     {
@@ -361,6 +365,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '150',
       styleName: 'text-center',
       editable: true,
+      rules: 'required',
     },
     // 품목명
     {
@@ -372,6 +377,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '250',
       styleName: 'text-left',
       editable: true,
+      rules: 'required',
     },
     // 등급
     {
@@ -400,6 +406,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-right',
       editable: true,
+      rules: 'required',
     },
     // 입고사유
     {
@@ -411,6 +418,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '148',
       styleName: 'text-left',
       editable: true,
+      rules: 'required',
     },
     { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_NO'), width: '170', styleName: 'text-left', visible: false },
     { fieldName: 'mngtUnitCd', header: t('MSG_TXT_MNGT_UNIT'), width: '170', styleName: 'text-left', visible: false },
