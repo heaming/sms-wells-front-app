@@ -286,13 +286,9 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   const realChkRows = gridUtil.getCheckedRowValues(view);
   const chkRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
-
-  const { wkCsAmt, apyStrtdt } = view.getJsonRows()[0];
-  console.log(apyStrtdt);
+  const { apyStrtdt } = view.getJsonRows()[0];
 
   if (Number(now.format('YYYYMMDD')) > Number(apyStrtdt)) { notify('최종건보다 큰 날짜를 선택하세요.'); return; }
-
-  if ((wkCsAmt < 0) === true) { notify(t('MSG_ALT_PSBL_INP_TRSF_DIGT')); return; }
 
   if (chkRows.length === 0 && realChkRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
@@ -424,7 +420,7 @@ const initGrdMain = defineGrid((data, view) => {
         inputCharacters: '0-9',
       },
       styleName: 'text-right',
-      rules: 'required',
+      rules: 'required|min_value:0',
       numberFormat: '#,##0',
     }, // 단가(원)
     {
