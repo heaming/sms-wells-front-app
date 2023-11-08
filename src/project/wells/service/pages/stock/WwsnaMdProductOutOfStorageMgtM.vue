@@ -293,12 +293,12 @@ async function onClickSearch() {
   if (!isEmpty(searchParams.value.cntrDtlNo)
       || !isEmpty(searchParams.value.rcgvpKnm)
       || !isEmpty(searchParams.value.serialNo)
-      || !isEmpty(searchParams.value.cralLocaraTno + searchParams.value.mexnoEncr + searchParams.value.cralIdvTno)) {
+      || !isEmpty(searchParams.value.cralLocaraTno)) {
     const initParams = cloneDeep(searchParams.value);
     initParams.startDt = '';
     initParams.endDt = '';
     initParams.findGb = '';
-    initParams.firstSppGb = '';
+    initParams.firstSppGb = 'ALL';
     cachedParams = cloneDeep(initParams);
   } else {
     cachedParams = cloneDeep(searchParams.value);
@@ -536,7 +536,7 @@ const initGrdMain = defineGrid((data, view) => {
     'cntrNo',
     'cstSvAsnNo',
     {
-      header: t('택배정보'),
+      header: t('MSG_TXT_PCSV') + t('MSG_TXT_INF'),
       direction: 'horizontal',
       items: ['pcsvCompNm', 'sppIvcNo', 'sppBzsPdId'],
     },
