@@ -37,11 +37,12 @@
       >
         <kw-select
           v-model="searchParams.sellTpCd"
-          :options="codes.SELL_TP_CD"
+          :options="selectSellTpCd"
+          :label="$t('MSG_TXT_SEL_TYPE')"
         />
         <kw-select
           v-model="searchParams.sellTpDtlCd"
-          :options="codes.SELL_TP_DTL_CD.filter(v => v.userDfn02 === searchParams.sellTpCd)"
+          :options="selectSellTpDtlCd.filter(v => v.userDfn02 === searchParams.sellTpCd)"
           first-option="all"
           first-option-value="ALL"
         />
@@ -121,6 +122,7 @@
 import { codeUtil, gridUtil, defineGrid, getComponentType, useGlobal, useDataService } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
+import { getSellTpCd, getSellTpDtlCd } from '~/modules/sms-common/closing/utils/clUtil';
 
 const now = dayjs();
 const { t } = useI18n();
@@ -141,6 +143,8 @@ const dynamicChangeCodes = ref({ PRD_DV_CD: [] });
 const selectInqrDv = { // 조회구분
   options: [{ codeId: '1', codeName: '집계' }, { codeId: '2', codeName: '상품' }],
 };
+const selectSellTpCd = await getSellTpCd();
+const selectSellTpDtlCd = await getSellTpDtlCd();
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_TP_CD',
@@ -218,11 +222,11 @@ async function fetchSummaryData(apiParam) {
 }
 
 async function fetchData() {
-  const { sellTpCd, sellTpDtlCd } = searchParams.value;
+  const { sellTpCd } = searchParams.value;
 
   let apiParam;
 
-  if (sellTpDtlCd === '21' || sellTpDtlCd === '23') { // 렌탈
+  if (sellTpCd === '2') { // 렌탈
     apiParam = 'rental';
     gridControl.value.gubun = '2';
   } else if (sellTpCd === '3') { // 멤버십
@@ -263,9 +267,6 @@ async function onClickExportView() {
 watch(() => searchParams.value.sellTpCd, async (val) => {
   searchParams.value.inqrDv = '1';
   isInqrDv.value = val === '3';
-});
-
-watch(() => searchParams.value.sellTpCd, async () => {
   searchParams.value.sellTpDtlCd = 'ALL';
 });
 
@@ -416,17 +417,14 @@ const initGrdRental = defineGrid((data, view) => {
     { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false }, // SAP상품구분코드
     { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
 
-    { fieldName: 'rentalRgstCostCnt', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
     { fieldName: 'rentalRgstCost', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
     { fieldName: 'rentalRgstCostSpl', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
     { fieldName: 'rentalRgstCostVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
 
-    { fieldName: 'slQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
     { fieldName: 'nomSlAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
     { fieldName: 'splAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
     { fieldName: 'vat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
 
-    { fieldName: 'totQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
     { fieldName: 'totSlAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
     { fieldName: 'totSpl', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
     { fieldName: 'totVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
@@ -450,7 +448,6 @@ const initGrdRental = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'rentalRgstCostCnt',
             'rentalRgstCost',
             'rentalRgstCostSpl',
             'rentalRgstCostVat',
@@ -463,7 +460,6 @@ const initGrdRental = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'slQty',
             'nomSlAmt',
             'splAmt',
             'vat',
@@ -481,7 +477,6 @@ const initGrdRental = defineGrid((data, view) => {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'totQty',
         'totSlAmt',
         'totSpl',
         'totVat',
@@ -503,17 +498,14 @@ const initGrdMembership = defineGrid((data, view) => {
     { fieldName: 'sapPdDvCd', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center', visible: false }, // SAP상품구분코드
     { fieldName: 'sapPdDvNm', header: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: '130', styleName: 'text-center' }, // SAP상품구분코드명
 
-    { fieldName: 'sellQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
     { fieldName: 'sellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
     { fieldName: 'sellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
     { fieldName: 'sellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
 
-    { fieldName: 'filSellQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
     { fieldName: 'filSellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
     { fieldName: 'filSellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
     { fieldName: 'filSellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
 
-    { fieldName: 'totSelQty', header: t('MSG_TXT_ACC_QTY'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 계정수량
     { fieldName: 'totSellAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 매출금액
     { fieldName: 'totSellSplAmt', header: t('MSG_TXT_SUPPLY_AMOUNT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 공급가액
     { fieldName: 'totSellAmtVat', header: t('MSG_TXT_VAT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', dataType: 'number' }, // 부가세
@@ -536,7 +528,6 @@ const initGrdMembership = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'sellQty',
             'sellAmt',
             'sellSplAmt',
             'sellAmtVat',
@@ -549,7 +540,6 @@ const initGrdMembership = defineGrid((data, view) => {
           name: 'normalGroup',
           direction: 'horizontal',
           items: [
-            'filSellQty',
             'filSellAmt',
             'filSellSplAmt',
             'filSellAmtVat',
@@ -567,7 +557,6 @@ const initGrdMembership = defineGrid((data, view) => {
       name: 'normalGroup',
       direction: 'horizontal',
       items: [
-        'totSelQty',
         'totSellAmt',
         'totSellSplAmt',
         'totSellAmtVat',
