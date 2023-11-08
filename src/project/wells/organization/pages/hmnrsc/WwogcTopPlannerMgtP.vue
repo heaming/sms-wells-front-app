@@ -105,7 +105,6 @@
         @click="onClickCancel"
       />
       <kw-btn
-        v-if="isShow"
         v-permission:update
         :label="$t('MSG_BTN_SAVE')"
         primary
@@ -149,7 +148,6 @@ const props = defineProps({
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const pqlfDvCds = await codeUtil.getCodes('PQLF_DV_CD');
-const isShow = ref(false);
 const planner = ref({});
 
 function isBlank(val) {
@@ -165,12 +163,6 @@ async function fetchData() {
 
   planner.value = { ...res.data, originQlfDvCd: res.data?.qlfDvCd ?? '' };
   frmMainRef.value.init();
-  // 해당 월만 저장가능
-  if (res.data.mngtYm === thisYm) {
-    isShow.value = true;
-  } else {
-    isShow.value = false;
-  }
 }
 
 function setData() {
