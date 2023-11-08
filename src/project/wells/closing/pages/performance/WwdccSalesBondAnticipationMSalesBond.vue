@@ -528,15 +528,139 @@ async function onClickExcelDownload() {
     exportData: gridUtil.getAllRowValues(view),
   });
 }
+// 판매유형별 그리드 항목을 정의 bulkdownload 사용하기 위해 분리
+function getColumnsBySellTpCd(sellTpCd) {
+  if (sellTpCd === '1') { // 일시불
+    return [
+      { value: 'slClYm', text: t('MSG_TXT_PERF_YM'), width: 150, align: 'center' }, // 실적년월
+      { value: 'slClDt', text: t('MSG_TXT_PERF_DT'), width: 130, align: 'center' }, // 실적일자
+      { value: 'sellTpCdNm', text: t('MSG_TXT_SEL_TYPE'), width: 130, align: 'center' }, // 판매유형
+      { value: 'sellTpDtlCdNm', text: t('MSG_TXT_SELL_TP_DTL'), width: 130, align: 'center' }, // 판매유형상세
+      { value: 'sapPdAtcNm', text: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: 130, align: 'center' }, // SAP상품구분코드명
+      { value: 'cntrNo', text: t('MSG_TXT_CNTR_DTL_NO'), width: 130, align: 'center' }, // 계약상세번호
+      { value: 'cstKnm', text: t('MSG_TXT_CST_NM'), width: 130, align: 'center' }, // 고객명
+      { value: 'pdCd', text: t('MSG_TXT_PRDT_CODE'), width: 130, align: 'center' }, // 상품코드
+      { value: 'pdNm', text: t('MSG_TXT_PRDT_NM'), width: 130, align: 'center' }, // 상품명
+      { value: 'slRcogDt', text: t('MSG_TXT_SL_DT'), width: 150, align: 'center' }, // 매출일자
+      { value: 'preTotUcAmt', text: t('MSG_TXT_FTRM_CRDOVR'), width: 150, align: 'right' }, // 전기이월
+
+      { value: 'nomSlAmt', text: t('MSG_TXT_NOM_SL'), width: 150, align: 'right' }, // 매출 - 정상매출
+      { value: 'canSlAmt', text: t('MSG_TXT_CAN_SL'), width: 150, align: 'right' }, //  매출 - 취소매출
+      { value: 'feeSlAmt', text: t('MSG_TXT_FEE_SL'), width: 150, align: 'right' }, //  매출 - 수수료매출
+      { value: 'totSlAmt', text: t('MSG_TXT_SUM'), width: 150, align: 'right' }, //  매출 - 합계
+
+      { value: 'cntrDpAmt', text: t('MSG_TXT_CNTRAM'), width: 150, align: 'right' }, // 매출대사 - 계약금
+      { value: 'instDpAmt', text: t('MSG_TXT_INTAM'), width: 180, align: 'right' }, //  매출대사 - 할부금
+      { value: 'totDpAmt', text: t('MSG_TXT_SUM'), width: 150, align: 'right' }, //  매출대사 - 합계
+
+      { value: 'dfaProcsAmt', text: `${t('MSG_TXT_DFA')}(-)`, width: 180, align: 'right' }, // 대손
+      { value: 'totUcBlam', text: t('MSG_TXT_EOT_UC'), width: 150, align: 'right' }, // 기말미수
+      { value: 'crpUcAmt', text: t('MSG_TXT_CRP_UC'), width: 180, align: 'right' }, // 법인미수
+      { value: 'etcDpAmt', text: t('MSG_TXT_ETC_PRPD_RPLC'), width: 150, align: 'right' }, //  기타선수대체
+      { value: 'interContNomSlAmt', text: t('MSG_TXT_IND_TRD_NOM'), width: 150, align: 'right' }, // 사건거래정상
+      { value: 'interContCanSlAmt', text: t('MSG_TXT_IND_TRD_CAN'), width: 150, align: 'right' }, // 사건거래취소
+      { value: 'interContDpAmt', text: t('MSG_TXT_IND_TRD_DP'), width: 150, align: 'right' }, // 사건거래입금
+    ];
+  }
+  if (sellTpCd === '2') { // 렌탈
+    return [
+      { value: 'slClYm', text: t('MSG_TXT_PERF_YM'), width: 150, align: 'center' }, // 실적년월
+      { value: 'slClDt', text: t('MSG_TXT_PERF_DT'), width: 130, align: 'center' }, // 실적일자
+      { value: 'sellTpCdNm', text: t('MSG_TXT_SEL_TYPE'), width: 130, align: 'center' }, // 판매유형
+      { value: 'sellTpDtlCdNm', text: t('MSG_TXT_SELL_TP_DTL'), width: 130, align: 'center' }, // 판매유형상세
+      { value: 'sapPdAtcNm', text: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: 130, align: 'center' }, // SAP상품구분코드명
+      { value: 'cntrNo', text: t('MSG_TXT_CNTR_DTL_NO'), width: 130, align: 'center' }, // 계약상세번호
+      { value: 'cstKnm', text: t('MSG_TXT_CST_NM'), width: 130, align: 'center' }, // 고객명
+      { value: 'pdCd', text: t('MSG_TXT_PRDT_CODE'), width: 130, align: 'center' }, // 상품코드
+      { value: 'pdNm', text: t('MSG_TXT_PRDT_NM'), width: 130, align: 'center' }, // 상품명
+      { value: 'slRcogDt', text: t('MSG_TXT_SL_DT'), width: 150, align: 'center' }, // 매출일자
+      { value: 'preTotUcAmt', text: t('MSG_TXT_FTRM_CRDOVR'), width: 150, align: 'right' }, // 전기이월
+      { value: 'nomSlAmt', text: t('MSG_TXT_NOM_SL'), width: 130, align: 'right' }, // 매출 - 정상매출
+      { value: 'canSlAmt', text: t('MSG_TXT_CAN_SL'), width: 130, align: 'right' }, //  매출 - 취소매출
+      { value: 'totSlAmt', text: t('MSG_TXT_SUM'), width: 130, align: 'right' }, //  매출 - 합계
+      { value: 'totDpAmt', text: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: 180, align: 'right' }, // 매출대사(-)
+      { value: 'borRemAmt', text: `${t('MSG_TXT_BOR_RES')}(+)`, width: 150, align: 'right' }, // 위약잔여(+)
+      { value: 'borAdjAmt', text: `${t('MSG_TXT_BOR_CTR')}(-)`, width: 150, align: 'right' }, // 위약조정(-)
+      { value: 'dpCngAmt', text: `${t('MSG_TXT_PRPD_CV')}(+)`, width: 150, align: 'right' }, // 선수전환(+)
+      { value: 'dfaProcsAmt', text: `${t('MSG_TXT_DFA')}(-)`, width: 150, align: 'right' }, //  대손(-)
+      { value: 'totUcBlam', text: t('MSG_TXT_UC_AMT'), width: 180, align: 'right' }, // 미수금액
+    ];
+  }
+  if (sellTpCd === '3') { // 멤버십
+    return [
+      { value: 'slClYm', text: t('MSG_TXT_PERF_YM'), width: 150, align: 'center' }, // 실적년월
+      { value: 'slClDt', text: t('MSG_TXT_PERF_DT'), width: 130, align: 'center' }, // 실적일자
+      { value: 'sellTpCdNm', text: t('MSG_TXT_SEL_TYPE'), width: 130, align: 'center' }, // 판매유형
+      { value: 'sellTpDtlCdNm', text: t('MSG_TXT_SELL_TP_DTL'), width: 130, align: 'center' }, // 판매유형상세
+      { value: 'sapPdAtcNm', text: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: 130, align: 'center' }, // SAP상품구분코드명
+      { value: 'cntrNo', text: t('MSG_TXT_CNTR_DTL_NO'), width: 130, align: 'center' }, // 계약상세번호
+      { value: 'cstKnm', text: t('MSG_TXT_CST_NM'), width: 130, align: 'center' }, // 고객명
+      { value: 'pdCd', text: t('MSG_TXT_PRDT_CODE'), width: 130, align: 'center' }, // 상품코드
+      { value: 'pdNm', text: t('MSG_TXT_PRDT_NM'), width: 130, align: 'center' }, // 상품명
+      { value: 'slRcogDt', text: t('MSG_TXT_SL_DT'), width: 150, align: 'center' }, // 매출일자
+      { value: 'preTotUcAmt', text: t('MSG_TXT_FTRM_CRDOVR'), width: 150, align: 'right' }, // 전기이월
+      { value: 'nomSlAmt', text: t('MSG_TXT_NOM_SL'), width: 150, align: 'right' }, // 정상매출
+      { value: 'canSlAmt', text: t('MSG_TXT_CAN_SL'), width: 150, align: 'right' }, // 취소매출
+      { value: 'totSlAmt', text: t('MSG_TXT_SUM'), width: 150, align: 'right' }, // 합계
+      { value: 'totDpAmt', text: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: 150, align: 'right' }, // 매출대사
+      { value: 'dfaProcsAmt', text: `${t('MSG_TXT_DFA')}(-)`, width: 150, align: 'right' }, // 대손
+      { value: 'totUcBlam', text: t('MSG_TXT_UC_AMT'), width: 150, align: 'right' }, // 미수금액
+    ];
+  }
+  if (sellTpCd === '6') { // 정기배송
+    return [
+      { value: 'slClYm', text: t('MSG_TXT_PERF_YM'), width: 150, align: 'center' }, // 실적년월
+      { value: 'slClDt', text: t('MSG_TXT_PERF_DT'), width: 130, align: 'center' }, // 실적일자
+      { value: 'sellTpCdNm', text: t('MSG_TXT_SEL_TYPE'), width: 130, align: 'center' }, // 판매유형
+      { value: 'sellTpDtlCdNm', text: t('MSG_TXT_SELL_TP_DTL'), width: 130, align: 'center' }, // 판매유형상세
+      { value: 'sapPdAtcNm', text: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: 130, align: 'center' }, // SAP상품구분코드명
+      { value: 'cntrNo', text: t('MSG_TXT_CNTR_DTL_NO'), width: 130, align: 'center' }, // 계약상세번호
+      { value: 'cstKnm', text: t('MSG_TXT_CST_NM'), width: 130, align: 'center' }, // 고객명
+      { value: 'pdCd', text: t('MSG_TXT_PRDT_CODE'), width: 130, align: 'center' }, // 상품코드
+      { value: 'pdNm', text: t('MSG_TXT_PRDT_NM'), width: 130, align: 'center' }, // 상품명
+      { value: 'slRcogDt', text: t('MSG_TXT_SL_DT'), width: 150, align: 'center' }, // 매출일자
+      { value: 'preTotUcAmt', text: t('MSG_TXT_FTRM_CRDOVR'), width: 150, align: 'right' }, // 전기이월
+      { value: 'totSlAmt', text: `${t('MSG_TXT_SL')}(+)`, width: 130, align: 'right' }, // 매출
+      { value: 'totDpAmt', text: `${t('MSG_TXT_SL_CPRCNF')}(-)`, width: 130, align: 'right' }, // 매출대사
+      { value: 'dfaProcsAmt', text: `${t('MSG_TXT_DFA')}(-)`, width: 150, align: 'right' }, // 대손
+      { value: 'totUcBlam', text: t('MSG_TXT_UC_AMT'), width: 150, align: 'right' }, // 미수금액
+    ];
+  }
+  if (sellTpCd === '10') { // 리스/할부
+    return [
+      { value: 'slClYm', text: t('MSG_TXT_PERF_YM'), width: 150, align: 'center' }, // 실적년월
+      { value: 'slClDt', text: t('MSG_TXT_PERF_DT'), width: 130, align: 'center' }, // 실적일자
+      { value: 'sellTpCdNm', text: t('MSG_TXT_SEL_TYPE'), width: 130, align: 'center' }, // 판매유형
+      { value: 'sellTpDtlCdNm', text: t('MSG_TXT_SELL_TP_DTL'), width: 130, align: 'center' }, // 판매유형상세
+      { value: 'sapPdAtcNm', text: t('MSG_TXT_SAP_PD_DV_CD_NM'), width: 130, align: 'center' }, // SAP상품구분코드명
+      { value: 'cntrNo', text: t('MSG_TXT_CNTR_DTL_NO'), width: 130, align: 'center' }, // 계약상세번호
+      { value: 'cstKnm', text: t('MSG_TXT_CST_NM'), width: 130, align: 'center' }, // 고객명
+      { value: 'pdCd', text: t('MSG_TXT_PRDT_CODE'), width: 130, align: 'center' }, // 상품코드
+      { value: 'pdNm', text: t('MSG_TXT_PRDT_NM'), width: 130, align: 'center' }, // 상품명
+      { value: 'slRcogDt', text: t('MSG_TXT_SL_DT'), width: 150, align: 'center' }, // 매출일자
+      { value: 'preTotUcAmt', text: t('MSG_TXT_FTRM_CRDOVR'), width: 150, align: 'right' }, // 전기이월
+      { value: 'oriSlAmt', text: t('MSG_TXT_PCAM_SL'), width: 150, align: 'right' }, // 원금매출
+      { value: 'itrSlAmt', text: t('MSG_TXT_INT_SL'), width: 150, align: 'right' }, // 이자매출
+      { value: 'svcSlAmt', text: t('MSG_TXT_SV_SL'), width: 150, align: 'right' }, // 서비스매출
+      { value: 'totSlAmt', text: t('MSG_TXT_SUM'), width: 150, align: 'right' }, // 합계
+      { value: 'slAdjAmt', text: t('MSG_TXT_SL_CTR'), width: 150, align: 'right' }, // 매출조정
+      { value: 'totDpAmt', text: t('MSG_TXT_SL_CPRCNF'), width: 150, align: 'right' }, // 매출대사
+      { value: 'dfaProcsAmt', text: t('MSG_TXT_DFA'), width: 150, align: 'right' }, // 대손
+      { value: 'totUcBlam', text: t('MSG_TXT_UC_AMT'), width: 150, align: 'right' }, // 미수금액
+    ];
+  }
+}
 // 엑셀다운로드(주문별의 경우 서버 다운로드 사용)
 async function onClickBulkExcelDownload() {
-  cachedParams = cloneDeep(searchParams.value);
+  const bulkExcelCachedParams = cloneDeep(searchParams.value);
   const view = grdSalesBondRef.value.getView();
   // 주문별의 경우 대용량 엑셀 다운로드 형식 사용
+  console.log(getColumnsBySellTpCd(bulkExcelCachedParams.sellTpCd));
   gridUtil.exportBulkView(view, {
     url: '/sms/wells/closing/performance/sales-bond/bulk-excel-download',
+    columns: getColumnsBySellTpCd(bulkExcelCachedParams.sellTpCd),
     parameter: {
-      ...cachedParams,
+      ...bulkExcelCachedParams,
     },
   });
 }
