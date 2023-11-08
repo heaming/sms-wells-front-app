@@ -363,14 +363,14 @@ const initGrdMain = defineGrid((data, view) => {
       },
     },
     { fieldName: 'rdadr', visible: false },
-    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '140', styleName: 'text-center' }, /* 상품명 */
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '140', styleName: 'text-left' }, /* 상품명 */
     { fieldName: 'modelNm', header: t('MSG_TXT_MDL_NM'), width: '140', styleName: 'text-center' }, /* 모델명 */
     { fieldName: 'bcNo', header: t('MSG_TXT_MNFT_NO'), width: '180', styleName: 'text-center' }, /* 제조번호 */
-    { fieldName: 'cnslMoCn', header: t('MSG_TXT_RCP_IZ'), width: '250', styleName: 'text-left' }, /* 접수내역 */
+    { fieldName: 'cnslMoCn', header: t('MSG_TXT_RCP_IZ'), width: '300', styleName: 'text-left' }, /* 접수내역 */
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '140', styleName: 'text-center', datetimeFormat: 'date' }, /* 설치일자 */
     { fieldName: 'svBizHclsfNm', header: t('MSG_TXT_SV_TP'), width: '140', styleName: 'text-center' }, /* 서비스유형  */
     { fieldName: 'egerCnrNm', header: t('MSG_TXT_ICHR_CNR'), width: '140', styleName: 'text-center' }, /* 담당센터 */
-    { fieldName: 'prtnrNm', header: t('MSG_TXT_ICHR_EGER'), width: '170', styleName: 'text-center' }, /* 담당엔지니어 */
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_ICHR_EGER'), width: '120', styleName: 'text-center' }, /* 담당엔지니어 */
     { fieldName: 'vstCnfmDt', header: t('MSG_TXT_VST_CNFM_D'), width: '140', styleName: 'text-center', datetimeFormat: 'date' }, /* 방문확정일 */
     { fieldName: 'wkPrgsStatNm', header: t('MSG_TXT_WK_STS'), width: '140', styleName: 'text-center' }, /* 작업상태 */
     { fieldName: 'asLctNm', header: t('MSG_TXT_LCT'), width: '140', styleName: 'text-center' }, /* 위치 */
@@ -400,7 +400,7 @@ const initGrdMain = defineGrid((data, view) => {
     'istDt',
     'svBizHclsfNm',
     'egerCnrNm',
-    'prtnrNm',
+    'prtnrKnm',
     'vstCnfmDt',
     'wkPrgsStatNm',
     {

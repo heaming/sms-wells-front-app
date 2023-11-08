@@ -125,6 +125,7 @@
       </kw-item-section>
     </template>
     <template #default>
+      <!-- 가격결정요소 -->
       <kw-item
         class="scoped-item scoped-item mt12"
       >
@@ -303,6 +304,7 @@
           </kw-form>
         </kw-item-section>
       </kw-item>
+      <!-- 계약관계 -->
       <kw-item
         v-for="(cntrRel) in cntrRels"
         :key="cntrRel.cntrRelId"
@@ -318,9 +320,9 @@
             <div
               class="grow ellipsis pl8 hp-w1"
             >
-              {{ cntrRel.ojBasePdBas?.pdNm }}
+              {{ labelForCntrRel(cntrRel) }}
               <kw-tooltip show-when-ellipsised>
-                {{ cntrRel.ojBasePdBas?.pdNm }}
+                {{ labelForCntrRel(cntrRel) }}
               </kw-tooltip>
             </div>
           </kw-item-label>
@@ -345,6 +347,7 @@
           />
         </kw-item-section>
       </kw-item>
+      <!-- 기기변경 -->
       <kw-item
         v-if="mchnCh?.mchnChYn"
         class="scoped-item"
@@ -420,11 +423,12 @@ const props = defineProps({
   bas: { type: Object, default: undefined },
 });
 const emit = defineEmits([
-  'change:device',
+  'select:device',
+  'delete:device',
   'select:one-plus-one',
-  'packaging',
-  'change:package',
   'delete:one-plus-one',
+  'change:package',
+  'packaging',
   'price-changed',
   'promotion-changed',
   'delete',
@@ -877,7 +881,11 @@ function onChangeVariable() {
 }
 
 function onClickDeviceChange() {
-  emit('change:device', props.modelValue);
+  emit('select:device', props.modelValue);
+}
+
+function onClickDeleteDeviceChange() {
+  emit('delete:device', props.modelValue);
 }
 
 function onClickOnePlusOne() {
@@ -890,10 +898,6 @@ function onClickPackage(rentalDscTpCd) {
 
 function onClickDelete() {
   emit('delete');
-}
-
-function onClickDeleteDeviceChange() {
-  mchnCh.value = {};
 }
 
 function onDeleteOnePlusOne() {
@@ -921,6 +925,17 @@ function onChangeAlncCntr(selected) {
 
 function onClickChangeWellsFarmPackage() {
   emit('change:package', props.modelValue);
+}
+
+function labelForCntrRel(cntrRel) {
+  if (!cntrRel) {
+    return '';
+  }
+
+  const { ojBasePdBas, ojDtlCntrNo, ojDtlCntrSn } = cntrRel;
+  const { cstBasePdAbbrNm, pdNm } = ojBasePdBas ?? {};
+
+  return `${cstBasePdAbbrNm || pdNm || ''} ${ojDtlCntrSn ? `${ojDtlCntrNo}-${ojDtlCntrSn}` : ''}`;
 }
 
 </script>

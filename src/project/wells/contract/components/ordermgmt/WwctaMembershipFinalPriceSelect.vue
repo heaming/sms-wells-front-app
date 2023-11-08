@@ -80,6 +80,7 @@
       </kw-item-section>
     </template>
     <template #default>
+      <!-- 가격결정요소 -->
       <kw-item
         class="scoped-item scoped-item mt12"
       >
@@ -144,22 +145,37 @@
           </kw-form>
         </kw-item-section>
       </kw-item>
+      <!-- 계약관계 -->
       <kw-item
-        v-if="false"
-        class="scoped-item scoped-item mt12"
+        v-for="(cntrRel) in modelValue?.cntrRels"
+        :key="cntrRel.cntrRelId"
+        class="scoped-item"
       >
         <kw-item-section>
-          <kw-form
-            class="scoped-price-form"
-            :cols="0"
-            :label-size="150"
-          >
-            <kw-form-row>
-              <kw-form-item :label="'서비스(용도/방문주기)'">
-                {{ labelGenerator.svPdCd(selectedFinalPrice.svPdCd, selectedFinalPrice) }}
-              </kw-form-item>
-            </kw-form-row>
-          </kw-form>
+          <kw-item-label class="row no-wrap items-center">
+            <kw-chip
+              :label="getCodeName('CNTR_REL_DTL_CD', cntrRel.cntrRelDtlCd)"
+              outline
+              color="primary"
+            />
+            <div
+              class="grow ellipsis pl8 hp-w1"
+            >
+              {{ labelForCntrRel(cntrRel) }}
+              <kw-tooltip show-when-ellipsised>
+                {{ labelForCntrRel(cntrRel) }}
+              </kw-tooltip>
+            </div>
+          </kw-item-label>
+        </kw-item-section>
+        <kw-item-section side>
+          <kw-btn
+            v-if="cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE"
+            borderless
+            icon="close_24"
+            class="w24 kw-font-pt24"
+            @click="onDeleteCntrRel(cntrRel)"
+          />
         </kw-item-section>
       </kw-item>
       <promotion-select
@@ -177,7 +193,7 @@ import { alert, useDataService } from 'kw-lib';
 import PromotionSelect from '~sms-wells/contract/components/ordermgmt/WwctaPromotionSelect.vue';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 import { getNumberWithComma } from '~sms-common/contract/util';
-import { SELL_TP_DTL_CD } from '~sms-wells/contract/constants/ctConst';
+import { CNTR_REL_DTL_CD, SELL_TP_DTL_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
@@ -320,7 +336,7 @@ const labelForSellTpCd = computed(() => {
 
 function initPriceDefineVariables() {
   initializePriceDefineVariable();
-  setVariablesIfUniqueSelectable(['rentalDscTpCd']);
+  setVariablesIfUniqueSelectable();
   if (!pdPrcFnlDtlId.value) {
     return;
   }
@@ -452,6 +468,17 @@ function onChangeVariable() {
   // if (finalPriceOptions.value.length === 1) {
   //   setVariablesIfUniqueSelectable();
   // }
+}
+
+function labelForCntrRel(cntrRel) {
+  if (!cntrRel) {
+    return '';
+  }
+
+  const { ojBasePdBas, ojDtlCntrNo, ojDtlCntrSn } = cntrRel;
+  const { cstBasePdAbbrNm, pdNm } = ojBasePdBas ?? {};
+
+  return `${cstBasePdAbbrNm || pdNm || ''} ${ojDtlCntrSn ? `${ojDtlCntrNo}-${ojDtlCntrSn}` : ''}`;
 }
 
 </script>

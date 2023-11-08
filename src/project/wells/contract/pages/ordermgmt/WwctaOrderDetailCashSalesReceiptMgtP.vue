@@ -561,7 +561,7 @@ const initGrid = defineGrid((data, view) => {
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
-
+  /*
   view.setCheckableCallback((dataSource, item) => {
     const index = item.dataRow;
     const afchCssrIsNo = gridUtil.getCellValue(view, index, 'afchCssrIsNo');
@@ -571,6 +571,7 @@ const initGrid = defineGrid((data, view) => {
     }
     return false;
   }, true);
+  */
 
   view.onItemChecked = () => {
     const checkCount = view.getCheckedRows().length;

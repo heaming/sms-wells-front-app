@@ -95,6 +95,7 @@
             @click="onClickSelectCapsule"
           />
           <kw-btn
+            :primary="precontractRequired"
             label="연계상품"
             dense
             @click="onSelectPrecontract"
@@ -114,6 +115,7 @@
       </kw-item-section>
     </template>
     <template #default>
+      <!-- 가격결정요소 -->
       <kw-item
         class="scoped-item scoped-item mt12"
       >
@@ -144,6 +146,7 @@
           </kw-form>
         </kw-item-section>
       </kw-item>
+      <!-- 계약관계 -->
       <kw-item
         v-for="(cntrRel) in cntrRels"
         :key="cntrRel.cntrRelId"
@@ -159,9 +162,9 @@
             <div
               class="grow ellipsis pl8 hp-w1"
             >
-              {{ cntrRel.ojBasePdBas?.pdNm }}
+              {{ labelForCntrRel(cntrRel) }}
               <kw-tooltip show-when-ellipsised>
-                {{ cntrRel.ojBasePdBas?.pdNm }}
+                {{ labelForCntrRel(cntrRel) }}
               </kw-tooltip>
             </div>
           </kw-item-label>
@@ -176,6 +179,7 @@
           />
         </kw-item-section>
       </kw-item>
+      <!-- 모종캡슐 -->
       <kw-item
         v-for="(item, idx) in sdingCapsls"
         :key="`sdingCapsl-${idx}`"
@@ -241,6 +245,8 @@ let finalPriceOptions;
 let promotions;
 let appliedPromotions;
 let sdingCapsls;
+
+const precontractRequired = computed(() => dtl.value?.pdSellLimit?.pcntrMndtYn === 'Y');
 
 function onSelectMachineCntrDtl() {
   emit('select:machine', props.modelValue);
@@ -450,6 +456,17 @@ function onChangeVariable() {
   // if (finalPriceOptions.value.length === 1) {
   //   setVariablesIfUniqueSelectable();
   // }
+}
+
+function labelForCntrRel(cntrRel) {
+  if (!cntrRel) {
+    return '';
+  }
+
+  const { ojBasePdBas, ojDtlCntrNo, ojDtlCntrSn } = cntrRel;
+  const { cstBasePdAbbrNm, pdNm } = ojBasePdBas ?? {};
+
+  return `${cstBasePdAbbrNm || pdNm || ''} ${ojDtlCntrSn ? `${ojDtlCntrNo}-${ojDtlCntrSn}` : ''}`;
 }
 
 </script>
