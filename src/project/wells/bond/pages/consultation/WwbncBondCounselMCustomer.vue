@@ -200,7 +200,7 @@
         primary
         dense
         :disable="totalCount === 0"
-        @click="onClickIstMessageSend"
+        @click="onClickMessageSend('i')"
       />
       <kw-btn
         v-permission:create
@@ -208,7 +208,7 @@
         primary
         dense
         :disable="totalCount === 0"
-        @click="onClickCntrMessageSend"
+        @click="onClickMessageSend('C')"
       />
     </kw-action-top>
 
@@ -379,6 +379,25 @@ async function onClickSelectCustomer() {
   }
 }
 
+// TODO: 문자발송
+const onClickMessageSend = async (type) => {
+  const view = grdMainRef.value.getView();
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (checkedRows.length === 0) {
+    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    return;
+  }
+
+  await modal({
+    component: 'ZwbncMessageSendP',
+    componentProps: {
+      listType: 'customer',
+      dataList: checkedRows,
+      cntrType: type,
+    },
+  });
+};
+
 // TODO: 집금담당자 검색 팝업 호출
 const onClickClctamPsic = async () => {
   const { result, payload } = await modal({
@@ -391,44 +410,6 @@ const onClickClctamPsic = async () => {
     searchParams.value.schClctamPsic = payload.prtnrKnm;
     searchParams.value.schClctamNo = payload.prtnrNo;
   }
-};
-
-// TODO: 설치문자발송
-const onClickIstMessageSend = async () => {
-  const view = grdMainRef.value.getView();
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-  if (checkedRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
-    return;
-  }
-
-  await modal({
-    component: 'ZwbncMessageSendP',
-    componentProps: {
-      listType: 'customer',
-      dataList: checkedRows,
-      cntrType: 'i',
-    },
-  });
-};
-
-// TODO: 계약문자발송
-const onClickCntrMessageSend = async () => {
-  const view = grdMainRef.value.getView();
-  const checkedRows = gridUtil.getCheckedRowValues(view);
-  if (checkedRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
-    return;
-  }
-
-  await modal({
-    component: 'ZwbncMessageSendP',
-    componentProps: {
-      listType: 'customer',
-      dataList: checkedRows,
-      cntrType: 'c',
-    },
-  });
 };
 
 async function onClickSearch() {
