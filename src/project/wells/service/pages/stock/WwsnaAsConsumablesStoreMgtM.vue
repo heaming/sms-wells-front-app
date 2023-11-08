@@ -215,6 +215,14 @@ async function onClickSave() {
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
 
+  for (let dataRow = 0; dataRow < checkedRows.length; dataRow += 1) {
+    if (gridUtil.isReadRow(view, dataRow)) {
+      // 변경된 내용이 없습니다.
+      notify(t('MSG_ALT_NO_CHG_CNTN'));
+      return;
+    }
+  }
+
   await dataService.post('/sms/wells/service/as-consumables-stores', checkedRows);
 
   notify(t('MSG_ALT_SAVE_DATA'));
