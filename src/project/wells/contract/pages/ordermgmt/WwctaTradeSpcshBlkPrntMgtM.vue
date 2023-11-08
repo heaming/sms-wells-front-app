@@ -330,7 +330,7 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'spectxGrpNo', header: `${t('MSG_TXT_SAP_GRP')}${t('MSG_TXT_SEQUENCE_NUMBER')}`, width: '100', styleName: 'text-center', editable: false, rules: 'required' }, // 그룹번호
+    { fieldName: 'spectxGrpNo', header: `${t('MSG_TXT_SAP_GRP')}${t('MSG_TXT_SEQUENCE_NUMBER')}`, width: '100', styleName: 'text-center', editable: true, rules: 'required', editor: { maxLength: 5 } }, // 그룹번호
     {
       fieldName: 'sellTpCd',
       header: t('MSG_TXT_CNTR_DV'),
