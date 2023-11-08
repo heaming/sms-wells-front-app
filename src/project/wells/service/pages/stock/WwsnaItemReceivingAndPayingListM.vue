@@ -115,12 +115,14 @@
           <kw-input
             v-model="searchParams.sapMatCdFrom"
             rules="numeric|max:18"
+            :label="$t('MSG_TXT_STRT_SAP_CD')"
             @change="onChangeStrtSapCd"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.sapMatCdTo"
             rules="numeric|max:18"
+            :label="$t('MSG_TXT_END_SAP_CD')"
             @change="onChangeEndSapCd"
           />
         </kw-search-item>

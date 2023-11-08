@@ -68,6 +68,7 @@
         >
           <kw-date-picker
             v-model="searchParams.asnOjYm"
+            :label="`BS${t('MSG_TXT_YM')}`"
             type="month"
             rules="required"
           />
