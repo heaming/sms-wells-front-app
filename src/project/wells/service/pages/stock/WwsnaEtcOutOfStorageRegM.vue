@@ -318,6 +318,14 @@ function validateSaveRowData() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
 
+  const selectDay = searchParams.value.ostrDt;
+
+  if (selectDay > dayjs().format('YYYYMMDD')) {
+    // {출고일자}는 오늘이거나 이전 일자만 선택이 가능합니다.
+    notify(t('MSG_ALT_TOD_BF_DT_CHO_PSB', [t('MSG_TXT_OSTR_DT')]));
+    return;
+  }
+
   for (let i = 0; i < chkRows.length; i += 1) {
     if (chkRows[i].ostrQty === '0') {
       alert(t('MSG_ALT_OSTR_QTY_ZERO_BE_BIG'));
