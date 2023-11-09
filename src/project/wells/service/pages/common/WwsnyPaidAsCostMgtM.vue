@@ -321,7 +321,7 @@ async function onClickSave() {
     return;
   }
 
-  await gridUtil.validate(view, { isCheckedOnly: true });
+  if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
