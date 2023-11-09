@@ -252,7 +252,6 @@ async function onClickExcelDownload() {
 // 지급명세서 출력
 function onClickOzReport(div) {
   let _ozrPath = '';
-  const _odiPath = '';
 
   if (searchParams.value.rsbDvCd === 'W0105') { // P추진단 - 플래너
     if (div === 'tot') { // 본사 -- 총계
@@ -260,7 +259,7 @@ function onClickOzReport(div) {
     } else {
       // _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202204_02.ozr';
       // _odiPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202204_02.odi';
-      _ozrPath = '/ksos/cmms/patSpec/V7.0/eduEp01PatSpec30_T.ozr';
+      _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
     }
   } else if (searchParams.value.rsbDvCd === 'W0104') { // P 추진단 - 지점장
     if (div === 'tot') { // 본사 -- 총계
@@ -294,32 +293,12 @@ function onClickOzReport(div) {
     }
   }
 
-  const ozParam = {
-    ozrPath: _ozrPath,
-    odiPath: _odiPath,
-    args:
-      {
-        userDiv: '0',
-        basYear: searchParams.value.perfDt.substring(0, 4),
-        basMonth: searchParams.value.perfDt.substring(4, 6),
-        userId: searchParams.value.prtnrNo ?? 0,
-        perfYm: searchParams.value.perfDt,
-        rsbDvCd: searchParams.value.rsbDvCd,
-        ogId: searchParams.value.ogId,
-        rsbCd: sessionUserInfo.rsbCd ?? '0',
-        pstn: '0',
-        deptCd: '0',
-        basYrmn: searchParams.value.perfDt,
-      },
-    height: 1100,
-    width: 1200,
-  };
+  const args = { searchApiUrl: '/api/v1/sms/wells/fee/fee-specifications', ...cachedParams };
 
   openReportPopup(
-    ozParam.ozrPath,
-    ozParam.odiPath,
-    JSON.stringify(ozParam.args),
-    { width: 1100, height: 1200 },
+    _ozrPath,
+    '',
+    JSON.stringify(args),
   );
 }
 
