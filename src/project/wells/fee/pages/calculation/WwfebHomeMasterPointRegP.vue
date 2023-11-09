@@ -52,7 +52,7 @@
         dense
         secondary
         :label="$t('MSG_BTN_EXCEL_DOWN')"
-        :disable="totalCount.value === 0"
+        :disable="totalCount === 0"
         @click="onClickExcelDownload"
       />
       <kw-separator
@@ -224,36 +224,22 @@ onMounted(async () => {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'emplNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'mngtYm' },
-    { fieldName: 'sellPVal' },
-    { fieldName: 'svPVal' },
-    { fieldName: 'educPVal' },
-    { fieldName: 'etcPVal1' },
-    { fieldName: 'etcPVal2' },
-    { fieldName: 'etcPVal3' },
-    { fieldName: 'totSum' },
-    { fieldName: 'clDvCd' },
-    { fieldName: 'newYn' },
-  ];
-
   const columns = [
     { fieldName: 'emplNm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center', editable: false },
     { fieldName: 'mngtYm', header: t('MSG_TXT_MON'), width: '106', styleName: 'text-center', dataType: 'datetime', datetimeFormat: 'yyyy-MM', editor: { type: 'number', textAlignment: 'far', maxIntegerLength: 6 } },
-    { fieldName: 'sellPVal', header: t('MSG_TXT_SELL'), width: '92', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
-    { fieldName: 'svPVal', header: t('MSG_TXT_SERVICE'), width: '92', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
-    { fieldName: 'educPVal', header: t('MSG_TXT_EDUC'), width: '92', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
-    { fieldName: 'etcPVal1', header: t('MSG_TXT_PERSONS') + t('MSG_TXT_ACQS'), width: '92', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
-    { fieldName: 'etcPVal2', header: 'VOC', width: '92', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
-    { fieldName: 'etcPVal3', header: t('MSG_TXT_SFT') + t('MSG_TXT_ACDN'), width: '92', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
+    { fieldName: 'sellPVal', header: t('MSG_TXT_SELL'), width: '92', styleName: 'text-right', dataType: 'number', positiveOnly: true, editor: { type: 'number', positiveOnly: true, dataType: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
+    { fieldName: 'svPVal', header: t('MSG_TXT_SERVICE'), width: '92', styleName: 'text-right', dataType: 'number', positiveOnly: true, editor: { type: 'number', positiveOnly: true, dataType: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
+    { fieldName: 'educPVal', header: t('MSG_TXT_EDUC'), width: '92', styleName: 'text-right', dataType: 'number', positiveOnly: true, editor: { type: 'number', positiveOnly: true, dataType: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
+    { fieldName: 'etcPVal1', header: t('MSG_TXT_PERSONS') + t('MSG_TXT_ACQS'), width: '92', styleName: 'text-right', dataType: 'number', positiveOnly: true, editor: { type: 'number', positiveOnly: true, dataType: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
+    { fieldName: 'etcPVal2', header: 'VOC', width: '92', styleName: 'text-right', dataType: 'number', positiveOnly: true, editor: { type: 'number', positiveOnly: true, dataType: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
+    { fieldName: 'etcPVal3', header: t('MSG_TXT_SFT') + t('MSG_TXT_ACDN'), width: '92', styleName: 'text-right', dataType: 'number', positiveOnly: true, editor: { type: 'number', positiveOnly: true, dataType: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
     { fieldName: 'totSum', header: t('MSG_TXT_SUM'), width: '92', styleName: 'text-right', editable: false },
     { fieldName: 'clDvCd', header: t('MSG_TXT_GD'), width: '92', styleName: 'text-right', editable: false },
     { fieldName: 'newYn', header: 'NEW_YN', width: '50', styleName: 'text-center' },
-
   ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 
   data.setFields(fields);
   view.setColumns(columns);
