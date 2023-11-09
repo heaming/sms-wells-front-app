@@ -247,39 +247,7 @@ async function onChangeCompStatus() {
 }
 async function fetchData() {
   const res = await dataService.get(`${baseUrl}`, { params: cachedParams });
-  let list = res.data;
-  // 임시 테스트 데이터 S
-  list = [];
-  list.push({
-    cntrRcpFshDtm: '20230702',
-    svBizDclsfCd: '1112',
-    svBizDclsfNm: '제품배송',
-    wkPrgsStatNm: '작업완료',
-    cntrNo: 'W20226010893',
-    cntrSn: '1',
-    rcgvpKnm: '테스트이름',
-    cralIdvTno: '010-1234-5678',
-    idvTno: '02-777-2222',
-    newAdrZip: '12345',
-    rnadr: '기본주소',
-    rdadr: '상세주소',
-    ostrCnfmDt: '20230702',
-    partCnt: 1,
-    partCd1: '상품1',
-    partNm1: '상품1',
-    partQty1: '상품1',
-    reqdDt: '20230702',
-    rsgFshDt: '20230702',
-    cstSvAsnNo: '2202204000000000000',
-    cntrDtlNo: 'W20226010893-1',
-    sellTpNm: '정기배송',
-    pcsvCompDv: '2',
-    pcsvCompNm: '대한통운',
-    prtnrBzsNm: '롯데푸드',
-    sppIvcNo: '888888888',
-    sppBzsPdId: 'WFBKB0022',
-  });
-  // 임시 테스트 데이터 E
+  const list = res.data;
   totalCount.value = list.length;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
