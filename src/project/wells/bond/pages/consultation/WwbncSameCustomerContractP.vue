@@ -57,12 +57,11 @@
     <kw-tab-panels v-model="selectedTab">
       <kw-tab-panel name="deposit">
         <kw-action-top
-          v-show="lental"
           class="mt20"
         >
           <template #left>
             <kw-paging-info
-              :total-count="totalLentalCount"
+              :total-count="totalCount"
             />
           </template>
           <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
@@ -74,14 +73,19 @@
           :visible-rows="5"
           @init="initLentalGrid"
         />
+        <kw-grid
+          v-show="membership"
+          ref="grdMembershipRef"
+          name="grdMembership"
+          :visible-rows="5"
+          @init="initMembershipGrid"
+        />
         <kw-action-top
-          v-show="lental"
           class="mt20"
         >
           <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </kw-action-top>
         <kw-form
-          v-show="lental"
           :cols="4"
           dense
           class="kw-form--small"
@@ -170,125 +174,6 @@
             </kw-form-item>
           </kw-form-row>
         </kw-form>
-
-        <kw-action-top
-          v-show="membership"
-          class="mt20"
-        >
-          <template #left>
-            <kw-paging-info
-              :total-count="totalMembershipCount"
-            />
-          </template>
-          <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
-        </kw-action-top>
-        <kw-grid
-          v-show="membership"
-          ref="grdMembershipRef"
-          name="grdMembership"
-          :visible-rows="5"
-          @init="initMembershipGrid"
-        />
-        <kw-action-top
-          v-show="membership"
-          class="mt20"
-        >
-          <span class="kw-fc--black3 text-weight-regular">{{ t('MSG_TXT_UNIT_WON') }}</span>
-        </kw-action-top>
-        <kw-form
-          v-show="membership"
-          :cols="4"
-          dense
-          class="kw-form--small"
-        >
-          <kw-form-row>
-            <kw-form-item :label="$t('MSG_TXT_OJ_AMT')">
-              <p>{{ deposit.ojAmt }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_CCAM')">
-              <p>{{ deposit.rsgBorAmt }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DLQ_AMT')">
-              <p>{{ deposit.dlqAmt }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_SL_AGG')">
-              <p>{{ deposit.slAggAmt }}</p>
-            </kw-form-item>
-          </kw-form-row>
-
-          <kw-form-row>
-            <kw-form-item :label="$t('MSG_TXT_OJ_DP')">
-              <p>{{ deposit.ojDpAmt }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_LSFE')">
-              <p>{{ deposit.lsRntf }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DLQ_DP')">
-              <p>{{ deposit.dlqDpAmt }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DP_AGG')">
-              <p>{{ deposit.dpAggAmt }}</p>
-            </kw-form-item>
-          </kw-form-row>
-
-          <kw-form-row>
-            <kw-form-item :label="$t('MSG_TXT_OJ_BLAM')">
-              <p>{{ deposit.ojBlam }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DLQ_MCNT')">
-              <p>{{ deposit.dlqMcn }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DLQ_BLAM')">
-              <p>{{ deposit.dlqBlam }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DSC_AGG')">
-              <p>{{ deposit.dscAggAmt }}</p>
-            </kw-form-item>
-          </kw-form-row>
-
-          <kw-form-row>
-            <kw-form-item :label="$t('MSG_TXT_UC_AMT')">
-              <p>{{ deposit.ucAmt }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_MM_CHRAM_AMT')">
-              <p>{{ deposit.thmChramAmt }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DLQ_ADD_AMT')">
-              <p>{{ deposit.dlqAddAmt }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_CTR_AGG')">
-              <p>{{ deposit.ctrAggAmt }}</p>
-            </kw-form-item>
-          </kw-form-row>
-
-          <kw-form-row>
-            <kw-form-item :label="$t('MSG_TXT_UC_DP')">
-              <p>
-                {{ deposit.ucDpAmt }}
-              </p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_MM_CHRAM_DP')">
-              <p>{{ deposit.mmChramDpAmt }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DLQ_ADD_DP')">
-              <p>{{ deposit.dlqAddDpAmt }}</p>
-            </kw-form-item>
-          </kw-form-row>
-
-          <kw-form-row>
-            <kw-form-item :label="$t('MSG_TXT_UC_BLAM')">
-              <p>
-                {{ deposit.ucBlam }}
-              </p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_MM_CHRAM_BLAM')">
-              <p>{{ deposit.mmChramBlam }}</p>
-            </kw-form-item>
-            <kw-form-item :label="$t('MSG_TXT_DLQ_ADD_BLAM')">
-              <p>{{ deposit.dlqAddBlam }}</p>
-            </kw-form-item>
-          </kw-form-row>
-        </kw-form>
       </kw-tab-panel>
       <kw-tab-panel name="sales">
         <wwbnc-same-customer-contract-p-sales
@@ -315,7 +200,6 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, getComponentType, defineGrid, stringUtil } from 'kw-lib';
-import dayjs from 'dayjs';
 import WwbncSameCustomerContractPBreachOfPromise from './WwbncSameCustomerContractPBreachOfPromise.vue';
 import WwbncSameCustomerContractPSales from './WwbncSameCustomerContractPSales.vue';
 import WwbncSameCustomerContractPDeposit from './WwbncSameCustomerContractPDeposit.vue';
@@ -354,8 +238,7 @@ const selectedGridRow = ref(null);
 const membership = ref(false);
 const lental = ref(false);
 const totalMainCount = ref(0);
-const totalLentalCount = ref(0);
-const totalMembershipCount = ref(0);
+const totalCount = ref(0);
 const depositRef = ref();
 const deposit = ref({});
 
@@ -372,30 +255,25 @@ watch(() => selectedTab.value, () => {
   depositRef.value.refresh();
 });
 
+let grdView;
 function setBndBizDvCd(bndBizDvCd) {
-  if (bndBizDvCd === 'L20') {
-    lental.value = true;
-    membership.value = false;
-  } else {
+  if (['L30', 'L31', 'L32'].includes(bndBizDvCd)) {
     lental.value = false;
     membership.value = true;
+    grdView = grdMembershipRef.value.getView();
+  } else {
+    lental.value = true;
+    membership.value = false;
+    grdView = grdLentalRef.value.getView();
   }
 }
 
 // 동일고객 계약 입금정보 조회
 async function fetchDeposits() {
-  const { bndBizDvCd } = selectedGridRow.value;
   const res = await dataService.get('/sms/wells/bond/same-customer-contracts/deposits', { params: selectedGridRow.value });
   const deposits = res.data;
-  let view;
-  if (bndBizDvCd === 'L20') {
-    view = grdLentalRef.value.getView();
-    totalLentalCount.value = deposits.length;
-  } else {
-    view = grdMembershipRef.value.getView();
-    totalMembershipCount.value = deposits.length;
-  }
-  view.getDataSource().setRows(deposits);
+  totalCount.value = deposits.length;
+  grdView.getDataSource().setRows(deposits);
 }
 
 // 동일고객 계약 입금정보 상세조회
@@ -513,12 +391,12 @@ const initMainGrid = defineGrid((data, view) => {
 
 const initLentalGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'perfDt', header: t('MSG_TXT_PERF_MM'), width: '240', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적월
-    { fieldName: 'bilTn', header: t('MSG_TXT_NMN'), width: '240', styleName: 'text-center' }, // 차월
-    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_SL_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출금액
+    { fieldName: 'perfYm', header: t('MSG_TXT_PERF_MM'), width: '160', styleName: 'text-center', datetimeFormat: 'yyyy-MM' }, // 실적월
+    { fieldName: 'rentalTn', header: t('MSG_TXT_NMN'), width: '130', styleName: 'text-center' }, // 차월
+    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출금액
     { fieldName: 'dpAmt', header: t('MSG_TXT_DP_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
     { fieldName: 'atamCvAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '240', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 영업선수금액
-    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체금액
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '242', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체금액
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -534,28 +412,16 @@ const initLentalGrid = defineGrid((data, view) => {
 
 const initMembershipGrid = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'perfDt', header: t('MSG_TXT_NMN'), width: '144', styleName: 'text-center', datetimeFormat: 'yyyy-MM', visible: false }, // 실적월
-    { fieldName: 'bilTn', header: t('MSG_TXT_NMN'), width: '144', styleName: 'text-center', visible: false }, // 차월
-    {
-      fieldName: 'nmn', // 차월
-      header: t('MSG_TXT_NMN'),
-      styleName: 'text-center',
-      width: '144',
-
-      displayCallback(grid, index) {
-        const { perfDt, bilTn } = grid.getValues(index.itemIndex);
-        return `${bilTn} (${dayjs(perfDt).format('YYYY-MM')})`;
-      },
-    },
-    { fieldName: 'slBndAlrpyAmt', header: t('MSG_TXT_SL_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출금액
-    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
-    { fieldName: 'atamCvAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 영업선수금액
-    { fieldName: 'eotDlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체금액
-    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '144', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, // 연체개월
-    { fieldName: 'eotDlqAddAmt', header: t('MSG_BTN_DLQ_ADAMT'), width: '144', styleName: 'text-right' }, // 연체가산금
-    { fieldName: 'thmDlqAddDpSumAmt', header: t('MSG_TXT_DLQ_ADD_DP'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체가산입금
-    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체가산잔액
-    { fieldName: 'ucAmt', header: t('MSG_TXT_UCAM'), width: '144', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금
+    { fieldName: 'rentalTn', header: t('MSG_TXT_NMN'), width: '110', styleName: 'text-center' }, // 차월
+    { fieldName: 'thmSlSumAmt', header: t('MSG_TXT_SL_AMT'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 매출금액
+    { fieldName: 'dpAmt', header: t('MSG_TXT_DP_AMT'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금금액
+    { fieldName: 'atamCvAmt', header: t('MSG_TXT_BZNS_PRPD_AMT'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 영업선수금액
+    { fieldName: 'dlqAmt', header: t('MSG_TXT_DLQ_AMT'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체금액
+    { fieldName: 'dlqMcn', header: t('MSG_TXT_DLQ_MCNT'), width: '130', styleName: 'text-center', dataType: 'number', numberFormat: '#,##0' }, // 연체개월
+    { fieldName: 'dlqAddAmt', header: t('MSG_BTN_DLQ_ADAMT'), width: '130', styleName: 'text-right' }, // 연체가산금
+    { fieldName: 'dlqAddDpAmt', header: t('MSG_TXT_DLQ_ADD_DP'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체가산입금
+    { fieldName: 'dlqAddBlam', header: t('MSG_TXT_DLQ_ADD_BLAM'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 연체가산잔액
+    { fieldName: 'ucAmt', header: t('MSG_TXT_UCAM'), width: '130', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 미수금
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
