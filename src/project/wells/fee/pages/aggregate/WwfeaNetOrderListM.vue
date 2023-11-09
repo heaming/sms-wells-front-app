@@ -633,7 +633,7 @@ async function onClickSearchNo() {
     componentProps: {
       baseYm: searchParams.value.baseYm,
       prtnrNo: searchParams.value.prtnrNo,
-      ogTpCd: searchParams.value.ogDvCd,
+      ogTpCd: searchParams.value.ogTpCd,
     },
   });
 
