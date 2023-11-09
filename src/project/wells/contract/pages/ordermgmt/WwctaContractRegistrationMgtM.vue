@@ -92,25 +92,34 @@
           </template>
           <template v-if="currentStepIndex === 1">
             <kw-btn
-              v-if="currentStepIndex === 1 && contract?.cntrTpCd !== '09'"
+              v-if="summary?.cntrBas?.cntrTpCd !== CNTR_TP_CD.QUOTE"
               :label="$t('MSG_BTN_TEMP_SAVE')"
               class="ml8"
               @click="onClickTempSave"
             />
             <kw-btn
-              v-if="currentStepIndex === 1 && !isCnfmPds"
+              v-if="!isCnfmPds"
               :label="$t('MSG_BTN_PD_CNFM')"
               class="ml8"
               primary
               @click="onClickPdCnfm"
             />
-            <kw-btn
-              v-if="currentStepIndex === 1 && isCnfmPds"
-              :label="contract?.cntrTpCd !== '09' ? $t('MSG_BTN_NEXT') : $t('MSG_BTN_QUOT_CMPL')"
-              class="ml8"
-              primary
-              @click="onClickNext"
-            />
+            <template v-else>
+              <kw-btn
+                v-if="summary?.cntrBas?.cntrTpCd === CNTR_TP_CD.QUOTE"
+                :label="$t('MSG_BTN_QUOT_CMPL')"
+                class="ml8"
+                primary
+                @click="onClickConfirmQuote"
+              />
+              <kw-btn
+                v-else
+                :label="$t('MSG_BTN_NEXT')"
+                class="ml8"
+                primary
+                @click="onClickNext"
+              />
+            </template>
           </template>
           <template v-if="currentStepIndex === 2">
             <kw-btn
@@ -151,6 +160,7 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useGlobal } from 'kw-lib';
 import { warn } from 'vue';
+import { CNTR_TP_CD } from '~sms-wells/contract/constants/ctConst';
 import WwctaContractRegistrationMgtMStep1 from './WwctaContractRegistrationMgtMStep1.vue';
 import WwctaContractRegistrationMgtMStep2 from './WwctaContractRegistrationMgtMStep2.vue';
 import WwctaContractRegistrationMgtMStep3 from './WwctaContractRegistrationMgtMStep3.vue';
@@ -365,6 +375,21 @@ async function onClickPdCnfm() {
   }
 }
 
+async function onClickConfirmQuote() {
+  if (currentStepName.value !== 'step2' || summary.value?.cntrBas?.cntrTpCd !== CNTR_TP_CD.QUOTE) {
+    warn('견적서 확인 버튼 등장 조건을 확인하세요.');
+    return;
+  }
+
+  if (currentStepRef.value.isValidStep && !await currentStepRef.value.isValidStep()) {
+    return;
+  }
+  await currentStepRef.value.saveStep();
+
+  await router.close(0, true);
+  await router.push({ path: '/contract/wwcta-estimate-order-write-list' });
+}
+
 async function onClickNext() {
   if (currentStepRef.value.isValidStep && !await currentStepRef.value.isValidStep()) {
     return;
@@ -374,12 +399,6 @@ async function onClickNext() {
     // step4에서 '다음'은 계약 현황 목록으로 화면 이동
     await router.close(0, true);
     await router.push({ path: '/contract/wwcta-contract-status-list' });
-    return;
-  }
-  if (currentStepName.value === 'step2' && contract.value.cntrTpCd === '09') {
-    // 견적서 작성완료 시, 견적서 작성 목록 조회 화면으로 이동
-    await router.close(0, true);
-    await router.push({ path: '/contract/wwcta-estimate-order-write-list' });
     return;
   }
   if (contract.value.cntrTpCd === '08') {
