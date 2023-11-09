@@ -35,11 +35,17 @@
         <kw-search-item :label="$t('MSG_TXT_EPNO')">
           <kw-input
             v-model="searchParams.egerPrtnrNo"
+            :label="$t('MSG_TXT_EPNO')"
+            rules="numeric|max:10"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_EMPL_NM')">
           <kw-input
             v-model="searchParams.prtnrKnm"
+            :rules="{regex:/^[ㄱ-ㅎ|가-힣]/}"
+            :custom-messages="{
+              'regex': $t('성명 항목에는 한글만 사용할 수 있습니다.'),
+            }"
           />
         </kw-search-item>
       </kw-search-row>
@@ -50,10 +56,16 @@
         >
           <kw-input
             v-model="searchParams.toolPdCdStrt"
+            upper-case
+            rules="alpha_num|max:10"
+            :label="$t('MSG_TXT_ITM_CD')"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.toolPdCdEnd"
+            upper-case
+            rules="alpha_num|max:10"
+            :label="$t('MSG_TXT_ITM_CD')"
           />
         </kw-search-item>
         <kw-search-item
@@ -62,10 +74,12 @@
         >
           <kw-input
             v-model="searchParams.sapMatCdStrt"
+            :label="$t('MSG_TXT_SAP_CD')"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.sapMatCdEnd"
+            :label="$t('MSG_TXT_SAP_CD')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -188,7 +202,7 @@ let cachedParams;
 // const centersByOgLevlDvCd = centers.filter((v) => v.ogTpCd === 'W06' && v.ogLevlDvCd === '2');
 // const svcCenters = centersByOgLevlDvCd.map((v) => ({ codeName: v.ogNm, codeId: v.ogId }));
 
-function setPymdtColumns(toolHist) {
+async function setPymdtColumns(toolHist) {
   const view = grdMainRef.value.getView();
   const data = grdMainRef.value.getData();
 
@@ -230,7 +244,7 @@ function setPymdtColumns(toolHist) {
   view.removeColumn('pymdts');
 }
 
-function initGrid() {
+async function initGrid() {
   const view = grdMainRef.value.getView();
   const data = grdMainRef.value.getData();
 
@@ -264,17 +278,17 @@ function initGrid() {
       view.removeColumn(fldName);
     }
 
-    view.addColumn({
-      fieldName: 'pymdts',
-      header: t('MSG_TXT_DSB_D'),
-      width: '100',
-      styleName: 'text-center',
-    });
+    // view.addColumn({
+    //   fieldName: 'pymdts',
+    //   header: t('MSG_TXT_DSB_D'),
+    //   width: '100',
+    //   styleName: 'text-center',
+    // });
   }
 }
 
 async function fetchData() {
-  initGrid();
+  await initGrid();
 
   const res = await dataService.get('/sms/wells/service/engineer-tools/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: engineerToolDsbHist, pageInfo: pagingResult } = res.data;
@@ -285,7 +299,7 @@ async function fetchData() {
   view.getDataSource().setRows(engineerToolDsbHist);
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 
-  setPymdtColumns(engineerToolDsbHist);
+  await setPymdtColumns(engineerToolDsbHist);
 }
 
 async function onClickSearch() {
@@ -297,13 +311,12 @@ async function onClickSearch() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-
-  const res = await dataService.get('/sms/wells/service/engineer-tools', { params: cachedParams });
-
+  debugger;
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: res.data,
+    exportData: gridUtil.getAllRowValues(view),
+    checkBar: 'hidden',
   });
 }
 
@@ -363,7 +376,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'toolPdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_ITM_NM'), width: '350' },
     { fieldName: 'toolQty', header: t('MSG_TXT_DSB_QTY'), width: '100', styleName: 'text-center' },
-    { fieldName: 'pymdts', header: t('MSG_TXT_DSB_D'), width: '100', styleName: 'text-center' },
+    // { fieldName: 'pymdts', header: t('MSG_TXT_DSB_D'), width: '100', styleName: 'text-center' },
   ];
 
   data.setFields(fields);
