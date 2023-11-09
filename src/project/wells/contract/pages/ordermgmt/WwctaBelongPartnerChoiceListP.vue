@@ -143,6 +143,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'dgr3LevlOgNm' },
     { fieldName: 'prtnrKnm' },
     { fieldName: 'prtnrNo' },
+    { fieldName: 'ogTpCd' },
   ];
 
   const columns = [
