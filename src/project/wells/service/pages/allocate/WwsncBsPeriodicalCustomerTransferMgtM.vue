@@ -274,7 +274,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, getComponentType, codeUtil, gridUtil, useGlobal } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import { RowState } from 'realgrid';
 
@@ -329,15 +329,6 @@ async function fetchData() {
   const { data: { list, pageInfo: pagingResult } } = await dataService.get('/sms/wells/service/before-service-period-customer/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
   pageInfo.value = pagingResult;
-
-  list.forEach((row) => { // 전화번호, 휴대전화번호 조합
-    const { locaraTno, exnoEncr, idvTno } = row;
-    row.tno = locaraTno ? `${locaraTno}-${exnoEncr}-${idvTno}` : ''; // 전화번호
-
-    const { cralLocaraTno, mexnoEncr, cralIdvTno, cntrNo, cntrSn } = row;
-    row.cntr = `${cntrNo}-${cntrSn}`;
-    row.mobileTno = cralLocaraTno ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : ''; // 휴대전화번호
-  });
 
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(list);
@@ -670,15 +661,6 @@ async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const { data } = await dataService.get('/sms/wells/service/before-service-period-customer/excel-download', { params: cachedParams });
 
-  data.forEach((row) => { // 전화번호, 휴대전화번호 조합
-    const { locaraTno, exnoEncr, idvTno } = row;
-    row.tno = locaraTno ? `${locaraTno}-${exnoEncr}-${idvTno}` : ''; // 전화번호
-
-    const { cralLocaraTno, mexnoEncr, cralIdvTno, cntrNo, cntrSn } = row;
-    row.cntr = `${cntrNo}-${cntrSn}`;
-    row.mobileTno = cralLocaraTno ? `${cralLocaraTno}-${mexnoEncr}-${cralIdvTno}` : ''; // 휴대전화번호
-  });
-
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -776,7 +758,19 @@ function initGrdMain(data, view) {
 
   const columns = [
     { fieldName: 'tfStatCd', header: t('MSG_TXT_TF_STAT'), width: '100', styleName: 'text-center', options: transferStatusCodes.value }, // 이관상태
-    { fieldName: 'cntr', header: t('계약상세번호'), width: '150', styleName: 'rg-button-link text-center', renderer: { type: 'button' }, preventCellItemFocus: true }, // 계약상세번호
+    { fieldName: 'cntrNo',
+      header: t('계약상세번호'),
+      width: '150',
+      styleName: 'rg-button-link text-center',
+      renderer: { type: 'button' },
+      preventCellItemFocus: true,
+      displayCallback(grid, index, value) {
+        const cntrNo = value ?? '';
+        const cntrSn = grid.getValue(index.itemIndex, 'cntrSn') ?? '';
+        const div1 = (!isEmpty(cntrNo) && !isEmpty(cntrSn)) ? '-' : '';
+        return `${cntrNo}${div1}${cntrSn}`;
+      },
+    }, // 계약상세번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, // 고객명
     { fieldName: 'assign', header: t('MSG_TXT_CPSN_FXN'), width: '100', styleName: 'text-center' }, // 강제/고정
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAP_CD'), width: '150', styleName: 'text-center' }, // SAP코드
@@ -790,8 +784,34 @@ function initGrdMain(data, view) {
     { fieldName: 'ctctyNm', header: t('MSG_TXT_CTCTY_NM'), width: '104' }, // 시군구명
     { fieldName: 'emdNm', header: t('MSG_TXT_AMTD_NM'), width: '104' }, // 행정동명
     { fieldName: 'istNmnN', header: t('MSG_TXT_INST_OVER'), width: '104', styleName: 'text-right', dataType: 'number' }, // 설치차월수
-    { fieldName: 'tno', header: t('MSG_TXT_TEL_NO'), width: '120', styleName: 'text-center' }, // 전화번호
-    { fieldName: 'mobileTno', header: t('MSG_TXT_MPNO'), width: '120', styleName: 'text-center' }, // 휴대전화번호
+    { fieldName: 'locaraTno',
+      header: t('MSG_TXT_TEL_NO'),
+      width: '120',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        const locaraTno = value ?? '';
+        const exnoEncr = grid.getValue(index.itemIndex, 'exnoEncr') ?? '';
+        const idvTno = grid.getValue(index.itemIndex, 'idvTno') ?? '';
+
+        const div1 = (!isEmpty(locaraTno) && !isEmpty(exnoEncr)) ? '-' : '';
+        const div2 = ((!isEmpty(locaraTno) || !isEmpty(exnoEncr)) && !isEmpty(idvTno)) ? '-' : '';
+        return `${locaraTno}${div1}${exnoEncr}${div2}${idvTno}`;
+      },
+    }, // 전화번호
+    { fieldName: 'cralLocaraTno',
+      header: t('MSG_TXT_MPNO'),
+      width: '120',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        const cralLocaraTno = value ?? '';
+        const mexnoEncr = grid.getValue(index.itemIndex, 'mexnoEncr') ?? '';
+        const cralIdvTno = grid.getValue(index.itemIndex, 'cralIdvTno') ?? '';
+
+        const div1 = (!isEmpty(cralLocaraTno) && !isEmpty(mexnoEncr)) ? '-' : '';
+        const div2 = ((!isEmpty(cralLocaraTno) || !isEmpty(mexnoEncr)) && !isEmpty(cralIdvTno)) ? '-' : '';
+        return `${cralLocaraTno}${div1}${mexnoEncr}${div2}${cralIdvTno}`;
+      },
+    }, // 휴대전화번호
     { fieldName: 'newAdrZip', header: t('MSG_TXT_ZIP'), width: '100', styleName: 'text-center' }, // 우편번호
     { fieldName: 'rnadr', header: t('MSG_TXT_ADDR'), width: '350' }, // 주소
     { fieldName: 'vstCnfmdt', header: t('MSG_TXT_VST_DT'), width: '104', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center' }, // 방문일자
@@ -846,7 +866,7 @@ function initGrdMain(data, view) {
 
   view.setColumnLayout([
     'tfStatCd',
-    'cntr',
+    'cntrNo',
     'rcgvpKnm',
     'assign',
     'svpdSapCd',
@@ -860,8 +880,8 @@ function initGrdMain(data, view) {
     'ctctyNm',
     'emdNm',
     'istNmnN',
-    'tno',
-    'mobileTno',
+    'locaraTno',
+    'cralLocaraTno',
     'newAdrZip',
     'rnadr',
     'vstCnfmdt',
@@ -890,7 +910,7 @@ function initGrdMain(data, view) {
   ]);
 
   view.onCellItemClicked = async (g, { column, itemIndex }) => {
-    if (column === 'cntr') {
+    if (column === 'cntrNo') {
       // const cntrNo = g.getValue(itemIndex, 'cntrNo');
       // console.log(cntrNo);
       // console.log('개인별 서비스 현황 화면(W-SV-U-0072M01) 탭으로 호출');
