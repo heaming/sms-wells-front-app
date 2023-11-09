@@ -210,11 +210,11 @@ const totalSpayAmt = computed(() => {
     return 0;
   }
   return cntrDtls.reduce((sum, cntrDtl) => {
-    const { finalPrice, rglrSppPrmMcn, appliedPromotions } = cntrDtl;
+    const { finalPrice, rglrSppPrmMcn, appliedPromotions, sellDscCtrAmt } = cntrDtl;
     let added;
     if (finalPrice) {
       const pdBas = { rglrSppPrmMcn };
-      added = getSpayAmt(pdBas, finalPrice, appliedPromotions);
+      added = getSpayAmt(pdBas, finalPrice, appliedPromotions, sellDscCtrAmt);
     } else {
       added = getSpayAmtByCntrDtl(cntrDtl);
     }
@@ -228,10 +228,10 @@ const totalAftnAmt = computed(() => {
     return 0;
   }
   return cntrDtls.reduce((sum, cntrDtl) => {
-    const { finalPrice, appliedPromotions } = cntrDtl;
+    const { finalPrice, appliedPromotions, sellDscCtrAmt } = cntrDtl;
     let added;
     if (finalPrice) {
-      added = getAftnAmt(finalPrice, appliedPromotions);
+      added = getAftnAmt(finalPrice, appliedPromotions, sellDscCtrAmt);
     } else {
       added = getAftnAmtByCntrDtl(cntrDtl);
     }

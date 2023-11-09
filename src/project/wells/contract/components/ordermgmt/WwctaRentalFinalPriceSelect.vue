@@ -137,7 +137,7 @@
           >
             <kw-form-row>
               <kw-form-item
-                v-if="bcMngtPdYn !== 'Y'"
+                v-if="multiplePossible"
                 :label="'수량변경'"
               >
                 <zwcm-counter
@@ -412,15 +412,16 @@ import { getNumberWithComma } from '~sms-common/contract/util';
 import usePriceSelect, { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 import { getDisplayedPrice, getPromotionAppliedPrice } from '~sms-wells/contract/utils/CtPriceUtil';
 import {
-  RENTAL_DSC_TP_CD,
   CNTR_REL_DTL_CD,
   CNTR_TP_CD,
   RENTAL_DSC_DV_CD,
+  RENTAL_DSC_TP_CD,
 } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   modelValue: { type: Object, default: undefined },
   bas: { type: Object, default: undefined },
+  modify: Boolean,
 });
 const emit = defineEmits([
   'select:device',
@@ -527,6 +528,8 @@ function connectReactivities() {
   wellsDtl.value ??= {};
   console.log('verSn', verSn.value);
 }
+
+const multiplePossible = computed(() => (bcMngtPdYn.value === 'Y' && !props.modify));
 
 connectReactivities();
 
@@ -783,11 +786,11 @@ const showChangeWellsFarmPackageBtn = computed(() => {
 
 // region [가격표기]
 const displayedFinalPrice = computed(() => (
-  getDisplayedPrice(selectedFinalPrice.value)
+  getDisplayedPrice(selectedFinalPrice.value, props.modelValue?.sellDscCtrAmt || 0)
 ));
 
 const promotionAppliedPrice = computed(() => (
-  getPromotionAppliedPrice(selectedFinalPrice.value, appliedPromotions.value)
+  getPromotionAppliedPrice(selectedFinalPrice.value, appliedPromotions.value, props.modelValue?.sellDscCtrAmt || 0)
 ));
 // endregion [가격표기]
 
