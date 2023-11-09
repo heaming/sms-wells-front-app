@@ -100,7 +100,7 @@ import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 
 const dataService = useDataService();
-const { notify, modal } = useGlobal();
+const { notify, modal, alert } = useGlobal();
 const { t } = useI18n();
 const grdExcludeRef = ref(getComponentType('kw-grid'));
 const totalCount = ref(0);
@@ -182,6 +182,16 @@ const initGridExclude = defineGrid((data, view) => {
   fields.push({ fieldName: 'bndCntcExcdOjId' });
   data.setFields(fields);
   view.setColumns(columns);
+
+  // 적용시작일 < 적용종료일
+  view.onEditRowChanged = async (grid, itemIndex, dataRow, field, oldValue, newValue) => {
+    const { apyStrtdt, apyEnddt } = grid.getValues(itemIndex, field);
+    if (apyStrtdt > apyEnddt) {
+      await alert(t('MSG_ALT_STRT_YM_END_YM_CONF'));
+      grid.setValue(itemIndex, field, '');
+    }
+    console.log(`onEditRowChanged, ${field}: ${oldValue} => ${newValue}`);
+  };
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
