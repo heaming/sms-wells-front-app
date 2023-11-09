@@ -228,8 +228,6 @@ async function initData() {
   // view.clearRows();
   totalCount.value = 0;
   stepNaviRef.value.initProps();
-
-  console.log('@@@@@@@@@@@@@@@@@initData');
 }
 
 // 그리드 컬럼 세팅
@@ -2241,9 +2239,6 @@ function getGridColumns() {
     );
   }
 
-  console.log('@@@@@@ getGridColumns @@@@@@');
-  console.log(columns);
-
   return columns;
 }
 
@@ -2676,8 +2671,6 @@ function setGridColumnLayout(view) {
       ]);
     }
   }
-
-  console.log('@@@@@@ getGridlayout @@@@@@');
 }
 
 // 그리드 헤더
@@ -2734,15 +2727,6 @@ async function fetchDataHeader() {
 
   // 그리드 컬럼 레이아웃 세팅
   setGridColumnLayout(view);
-
-  console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@fetchDataHeader 시작');
-  console.log(feeHeaderIndvList);
-  console.log(feeHeaderOgList);
-  console.log(feeHeaderEtcList);
-  console.log(feeHeaderIndvList);
-  console.log(feeHeaderIndvColumnList);
-  console.log(feeHeaderOgColumnList);
-  console.log(feeHeaderEtcColumnList);
 }
 
 /*

@@ -318,7 +318,7 @@ async function openPerformancePopup() {
   if (info.value.prtnrNo !== '' && info.value.prtnrNo !== undefined) {
     const param = {
       perfYm,
-      no,
+      prtnrNo: no,
       ogTpCd: 'W01',
     };
     await modal({
