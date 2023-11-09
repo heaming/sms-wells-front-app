@@ -48,11 +48,6 @@
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
           />
-          <kw-input
-            v-model="searchParams.prtnrKnm"
-            :placeholder="$t('MSG_TXT_EMPL_NM')"
-            readonly
-          />
         </kw-search-item>
       </kw-search-row>
     </kw-search>
@@ -235,7 +230,6 @@ async function onClickSearchNo() {
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
 }
@@ -244,18 +238,6 @@ async function onClickSearchNo() {
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
-  const fields = [
-    { fieldName: 'mngtYm' },
-    { fieldName: 'belong' },
-    { fieldName: 'emplNm' },
-    { fieldName: 'prtnrNo' },
-    { fieldName: 'rgstYm' },
-    { fieldName: 'brmgrEmplNm' },
-    { fieldName: 'brmgrPrtnrNo' },
-    { fieldName: 'clDvCd' },
-    { fieldName: 'pointHistory' },
-  ];
-
   const columns = [
     { fieldName: 'mngtYm', header: t('MSG_TXT_MGT_YNM'), width: '106', styleName: 'text-center', editable: false, dataType: 'datetime', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'belong', header: t('MSG_TXT_BLG'), width: '110', styleName: 'text-left', editable: false },
@@ -264,10 +246,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rgstYm', header: t('MSG_TXT_RGST_YM'), width: '106', styleName: 'text-center', editable: false, dataType: 'datetime', datetimeFormat: 'yyyy-MM' },
     { fieldName: 'brmgrEmplNm', header: t('MSG_TXT_EMPL_NM'), width: '92', styleName: 'text-center', editable: false },
     { fieldName: 'brmgrPrtnrNo', header: t('MSG_TXT_SEQUENCE_NUMBER'), width: '110', styleName: 'text-center', editable: false },
-    { fieldName: 'clDvCd', header: t('MSG_TXT_GD'), width: '78', styleName: 'text-right', editor: { type: 'number', textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
+    { fieldName: 'clDvCd', header: t('MSG_TXT_GD'), width: '78', styleName: 'text-right', dataType: 'number', positiveOnly: true, editor: { type: 'number', dataType: 'number', positiveOnly: true, textAlignment: 'far', editFormat: '#,##0.##', maxIntegerLength: 2 } },
     { fieldName: 'pointHistory', header: t('MSG_TXT_P') + t('MSG_TXT_HIS'), width: '112', styleName: 'text-center', renderer: { type: 'button' }, editable: false },
 
   ];
+
+  const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
+
   data.setFields(fields);
   view.setColumns(columns);
 

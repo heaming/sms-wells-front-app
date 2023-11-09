@@ -227,17 +227,6 @@ import { cloneDeep, isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const dataService = useDataService();
 
-const props = defineProps({
-  perfYm: {
-    type: String,
-    required: true,
-  },
-  partnerNo: {
-    type: String,
-    required: true,
-  },
-});
-
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -247,15 +236,12 @@ const grd1MainRef = ref(getComponentType('KwGrid'));
 const grd2MainRef = ref(getComponentType('KwGrid'));
 const grd3MainRef = ref(getComponentType('KwGrid'));
 const grd4MainRef = ref(getComponentType('KwGrid'));
+const route = useRoute();
 const totalCount = ref(0);
 const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   prtnrNo: '',
-  prtnrKnm: '',
-  prPerfYm: props.perfYm,
-  prpartnerNo: props.partnerNo,
-
 });
 
 const info = ref({
@@ -272,9 +258,6 @@ const info = ref({
   pstnDvCd: '',
 });
 
-const { prPerfYm } = searchParams.value;
-const { prpartnerNo } = searchParams.value;
-
 let cachedParams;
 
 /*
@@ -287,7 +270,6 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W03',
-      prtnrKnm: undefined,
     },
   });
 
@@ -451,11 +433,38 @@ async function onClickSearch() {
   await fetchData('pnpyam');
 }
 
-if (!isEmpty(prPerfYm) && !isEmpty(prpartnerNo)) {
-  searchParams.value.perfYm = prPerfYm;
-  searchParams.value.prtnrNo = prpartnerNo;
-  onClickSearch();
+function setParams() {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+
+    onClickSearch();
+  }
 }
+
+onBeforeMount(() => {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+  }
+});
+
+onMounted(() => {
+  nextTick(() => {
+    setParams();
+  });
+});
+
+onActivated(() => {
+  if (!isEmpty(route.params)) {
+    searchParams.value.perfYm = route.params.perfYm;
+    searchParams.value.prtnrNo = route.params.prtnrNo;
+
+    nextTick(() => {
+      setParams();
+    });
+  }
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
