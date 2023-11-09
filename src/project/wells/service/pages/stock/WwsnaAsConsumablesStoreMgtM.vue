@@ -209,11 +209,16 @@ function validateIsApplyRowExists() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
+  const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
 
   if (!validateIsApplyRowExists()) return;
 
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
+
+  if (checkedModifyRows.length === 0 || (checkedRows.length > checkedModifyRows.length)) {
+    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
+    return;
+  }
 
   await dataService.post('/sms/wells/service/as-consumables-stores', checkedRows);
 
