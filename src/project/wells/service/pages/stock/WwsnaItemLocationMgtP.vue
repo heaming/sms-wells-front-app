@@ -312,17 +312,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.editOptions.editable = true;
   const editFields = ['itmLctAngleVal', 'itmLctCofVal', 'itmLctFlorNoVal', 'itmLctMatGrpCd'];
 
-  view.onCellEditable = (grid, clickData) => {
-    if (!editFields.includes(clickData.column)) {
-      return false;
-    }
-  };
-  view.onCellClicked = (grid, clickData) => {
-    if (editFields.includes(clickData.column)) {
-      view.editOptions.editable = true;
-    } else {
-      view.editOptions.editable = false;
-    }
-  };
+  view.onCellEditable = (grid, clickData) => editFields.includes(clickData.column);
 });
 </script>
