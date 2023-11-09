@@ -977,9 +977,11 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
   //   }
   // }
   const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
-  if (!isEmpty(res)) {
+  if (isEqual(res.data, 'Y')) {
     notify(t('MSG_ALT_WAS_CNCL'));
     fetchData();
+  } else {
+    alert(t('MSG_ALT_FAILED_CANC'));
   }
 }
 

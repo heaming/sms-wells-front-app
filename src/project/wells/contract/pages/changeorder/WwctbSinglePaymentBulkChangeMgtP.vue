@@ -26,10 +26,9 @@
           <kw-select
             v-model="saveParams.procsDv"
             :label="$t('MSG_TXT_PROCS_DV')"
-            :options="codes.CNTR_CH_TP_CD.filter((v) => v.codeId === '701' || v.codeId === '702'
-              || v.codeId === '703' || v.codeId === '704' || v.codeId === '705'
-              || v.codeId === '706'|| v.codeId === '707'|| v.codeId === '708'
-              || v.codeId === '709'|| v.codeId === '710'|| v.codeId === '711')"
+            :options="codes.CNTR_CH_TP_CD.filter((v) => ['701','702', '703','704'
+                                                         ,'705', '706', '707', '708'
+                                                         , '709', '710', '711'].includes(v.codeId))"
             rules="required"
             @change="onProcsDvChange"
           />
@@ -392,9 +391,9 @@ async function onClickSave() {
         alert(t('MSG_ALT_NCELL_REQUIRED_ITEM', [t('MSG_TXT_COMP_D')]));
         return;
       }
-      if (saveParams.value.procsDv === changedRows[i].reqdDt) {
+      if (saveParams.value.compD !== changedRows[i].reqdDt) {
         // kiwi철거일자와 다르면 오류
-        alert('MSG_ALT_KIWI_DEM_DT_CHK', [changedRows[i].cntrDtlNo]);
+        alert(t('MSG_ALT_KIWI_DEM_DT_CHK', [changedRows[i].cntrDtlNo]));
         return;
       }
     } else if (saveParams.value.procsDv === '702') { // 취소일자변경
