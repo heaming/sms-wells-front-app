@@ -16,7 +16,10 @@
   <kw-popup
     size="md"
   >
-    <kw-form :cols="1">
+    <kw-form
+      ref="frmRef"
+      :cols="1"
+    >
       <kw-form-row>
         <kw-form-item :label="$t('일자')">
           <p>{{ toInteger(calendarInfo.baseD) }}</p>
@@ -84,6 +87,8 @@ import { toInteger, isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const { ok, cancel: onClickCancel } = useModal();
 const dataService = useDataService();
+
+const frmRef = ref();
 
 /*
  *  Parent Parameter를 가져오기 위한 변수 선언.
@@ -177,6 +182,8 @@ async function getServiceCenterEngineer() {
   calendarInfo.value.bndtWrkPsicNo = customCodes.SERVICE_CENTER_ENGINEER
     // .find((element) => (element.prtnrNo === props.bndtWrkPsicNo));
     .find((element) => (element.prtnrNo === props.bndtWrkPsicNo && element.ogTpCd === props.ogTpCd));
+
+  frmRef.value.init();
 }
 // await getServiceCenterEngineer();
 
@@ -197,8 +204,6 @@ async function getCalendarDay() {
  *  Event - 저장 버튼 클릭
  */
 async function onClickSave() {
-  console.log('cherro ::: test');
-
   if (isEmpty(calendarInfo.value.bndtWrkPsicNo) || isEmpty(calendarInfo.value.bndtWrkPsicNo.prtnrNo)) {
     calendarInfo.value.bndtWrkPsicNoPrtnrNo = '';
     calendarInfo.value.bndtWrkPsicNoOgTpCd = '';
