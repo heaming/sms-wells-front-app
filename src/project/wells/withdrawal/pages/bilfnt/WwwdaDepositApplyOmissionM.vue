@@ -99,6 +99,7 @@ const props = defineProps({
 
 const codes = await codeUtil.getMultiCodes(
   'COD_PAGE_SIZE_OPTIONS',
+  'DP_MES_CD',
 );
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -175,7 +176,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'thmIntamDpAmt', header: t('MSG_TXT_PRPD_DP'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'thmIstmRfndAmt', header: t('MSG_TXT_PRPD_RFND'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
     { fieldName: 'rveAmt', header: t('MSG_TXT_AMT'), width: '150', styleName: 'text-right', numberFormat: '#,##0' },
-    { fieldName: 'dpMesCd', header: t('MSG_TXT_STLM_INF'), width: '117', styleName: 'text-center' },
+    { fieldName: 'dpMesCd', header: t('MSG_TXT_STLM_INF'), width: '117', styleName: 'text-center', options: codes.DP_MES_CD },
   ];
 
   data.setFields(fields);
