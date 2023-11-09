@@ -963,15 +963,19 @@ async function cancelKiwiTimeAssign(dataList, prdDivParam) {
     svBizHclsfCd: dataList.svBizHclsfCd, // 서비스세분류코드
     mtrStatCd: prdDivParam, // 배정구분코드
   });
-
   if (isEqual(dataList.kaetc1, '8')) {
     if (isEqual(dataList.sellTpCd, '1')) {
       saveParams.value.wkGb = '4';
-      saveParams.value.svBizDclsfCd = '4110';
-    } else {
-      saveParams.value.svBizDclsfCd = '4130';
     }
   }
+  // if (isEqual(dataList.kaetc1, '8')) {
+  //   if (isEqual(dataList.sellTpCd, '1')) {
+  //     saveParams.value.wkGb = '4';
+  //     saveParams.value.svBizDclsfCd = '4110';
+  //   } else {
+  //     saveParams.value.svBizDclsfCd = '4130';
+  //   }
+  // }
   const res = await dataService.post('/sms/wells/contract/contracts/installation-shippings', saveParams.value); // 체크
   if (!isEmpty(res)) {
     notify(t('MSG_ALT_WAS_CNCL'));
