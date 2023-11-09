@@ -133,8 +133,9 @@
           secondary
           dense
           :disable="pageInfo.totalCount === 0"
-          @click="onClickModalPopup('WwwdbRefundApplicationRegP')"
+          @click="onClickRefundRegP"
         />
+        <!-- @click="onClickModalPopup('WwwdbServiceRefundRegP')" -->
         <!-- label="환불신청" -->
         <kw-btn
           v-permission:read
@@ -183,7 +184,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, codeUtil, useMeta, useDataService, modal, alert, getComponentType, gridUtil } from 'kw-lib';
+import { defineGrid, codeUtil, useMeta, useDataService, modal, getComponentType, gridUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 // import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
@@ -285,30 +286,47 @@ async function onClickSearch() {
   await fetchData();
 }
 
-// 팝업창 열기
-async function onClickModalPopup(component) {
+// // 팝업창 열기
+// async function onClickModalPopup(component) {
+//   const view = grdMainRef.value.getView();
+
+//   let componentProps;
+
+//   const changedRows = gridUtil.getCheckedRowValues(view); // 선택로우 가져오기
+
+//   if (changedRows.length === 0) {
+//     await alert(t('MSG_ALT_NO_CHECK_DATA')); // 선택된 데이터가 없습니다.
+//     return;
+//   }
+
+//   if (component === 'WwwdbServiceRefundRegP') {
+//     componentProps = changedRows;
+//     // {
+//     //   cntrNo: changedRows[0].cntrNo,
+//     //   cntrSn: changedRows[0].cntrSn,
+//     //   stlmDvCd: changedRows[0].stlmDvCd,
+//     // };
+//   }
+
+//   await modal({
+//     component,
+//     componentProps,
+//   });
+// }
+
+async function onClickRefundRegP() {
   const view = grdMainRef.value.getView();
 
-  let componentProps;
-
-  const changedRows = gridUtil.getCheckedRowValues(view); // 선택로우 가져오기
-
-  if (changedRows.length === 0) {
-    await alert(t('MSG_ALT_NO_CHECK_DATA')); // 선택된 데이터가 없습니다.
-    return;
-  }
-
-  if (component === 'WwwdbRefundApplicationRegP') {
-    componentProps = {
-      cntrNo: changedRows[0].cntrNo,
-      cntrSn: changedRows[0].cntrSn,
-    };
-  }
-
-  await modal({
-    component,
-    componentProps,
+  const checkItem = gridUtil.getCheckedRowValues(view);
+  console.log('checkItem', checkItem);
+  const { result } = await modal({
+    component: 'WwwdbServiceRefundRegP',
+    componentProps: { checkItem },
   });
+
+  if (result) {
+    console.log('checkItem', checkItem);
+  }
 }
 
 // 화면 이동
@@ -373,6 +391,15 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'iscmpCd' }, /* 결제처 */
     { fieldName: 'cardAprno' }, /* 승인번호 */
     { fieldName: 'taxBll' }, /* 세금계산서 */
+
+    // 팝업전달용
+    { fieldName: 'crcdonrNm' }, /* 카드주 */
+    { fieldName: 'crcdnoEncr' }, /* 카드번호 */
+    { fieldName: 'crdcdExpdtYm' },
+    { fieldName: 'istmMcn' },
+    { fieldName: 'vacNo' },
+    { fieldName: 'vacBnkCd' },
+    { fieldName: 'itgDpNo' },
   ];
 
   const columns = [

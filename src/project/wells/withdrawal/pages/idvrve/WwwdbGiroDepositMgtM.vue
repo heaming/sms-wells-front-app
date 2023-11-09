@@ -270,10 +270,8 @@ async function addRow() {
   const dataSource = view.getDataSource();
 
   // paramData = fileData;
-
+  //
   paramData = fileData.filter((p1) => ['22'].includes(p1.giroDpMtrDvCd));
-
-  console.log(paramData);
 
   // const dupArr = paramData.map((p1) => p1.rveDt);
 
@@ -282,7 +280,6 @@ async function addRow() {
   const res = await dataService.post('/sms/wells/withdrawal/idvrve/giro-deposits/date-chk', paramData);
 
   paramData = res.data;
-  console.log(res.data);
 
   let sum1 = 0;
   let sum2 = 0;
