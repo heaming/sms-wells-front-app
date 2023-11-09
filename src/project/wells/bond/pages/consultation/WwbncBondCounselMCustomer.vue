@@ -493,7 +493,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'fnt' },
     { fieldName: 'cstNo' },
     { fieldName: 'cstNm' },
-    { fieldName: 'dlqMcnt' },
+    { fieldName: 'dlqMcnt', dataType: 'number' },
     { fieldName: 'fnlCnslD' },
     { fieldName: 'ojAmt', dataType: 'number' },
     { fieldName: 'ojDp', dataType: 'number' },
