@@ -17,6 +17,7 @@
   <kw-popup size="xl">
     <kw-search
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 품목코드 -->
@@ -259,6 +260,11 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 초기화 버튼 클릭이벤트
+async function onClickReset() {
+  await onChangeWareClsFCd();
+}
+
 function isProps() {
   return !isEmpty(props.itmPdCd) && !isEmpty(props.itmPdNm);
 }
@@ -277,7 +283,7 @@ const initGrdMain = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'wareNm' }, // 창고명
     { fieldName: 'wareNo' }, // 창고번호
-    { fieldName: 'qty' }, // 수량
+    { fieldName: 'qty', dataType: 'number' }, // 수량
 
   ];
 
@@ -299,7 +305,7 @@ const initGrdMain2 = defineGrid((data, view) => {
   const fields = [
     { fieldName: 'wareNm' },
     { fieldName: 'wareMngtPrtnrNo' },
-    { fieldName: 'qty' },
+    { fieldName: 'qty', dataType: 'number' },
 
   ];
 

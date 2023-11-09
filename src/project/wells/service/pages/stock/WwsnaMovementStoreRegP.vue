@@ -41,6 +41,14 @@
             v-model="propsParams.strWareNm"
             :disable="true"
           />
+          <!-- 표준 미적용 -->
+          <kw-checkbox
+            v-model="searchParams.stckNoStdGb"
+            class="ml20"
+            :label="$t('MSG_TXT_STD_NO_APY')"
+            @update:model-value="onCheckedStckNoStdGb"
+          />
+          <!-- //표준 미적용 -->
         </kw-form-item>
         <!-- //입고창고 -->
       </kw-form-row>
@@ -86,14 +94,6 @@
             :disable="true"
           />
           <!-- //출고창고 -->
-          <!-- 표준 미적용 -->
-          <kw-checkbox
-            v-model="searchParams.stckNoStdGb"
-            class="ml20"
-            :label="$t('MSG_TXT_STD_NO_APY')"
-            @update:model-value="onCheckedStckNoStdGb"
-          />
-          <!-- //표준 미적용 -->
         </kw-form-item>
       </kw-form-row>
     </kw-form>
