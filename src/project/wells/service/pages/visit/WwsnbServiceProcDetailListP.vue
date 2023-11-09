@@ -254,6 +254,13 @@ const props = defineProps({
     required: true,
     default: '',
   },
+  // 구분(gubun) 코드 설명
+  // TB_SVPD_CST_SV_WK_RS_IZ - WK_PRGS_STAT_CD(작업진행상태) 코드에 따라
+  // * A/S 작업완료(코드값 : 20) 건 : AD
+  // * B/S 작업완료(코드값 : 20) 건 : BD
+  // * A/S 작업미완료(그 외) 건 : AY
+  // * B/S 작업미완료(그 외) 건 : BY
+  // A/S, B/S 구분 불가 시, BD 또는 BY로 호출 가능
   gubun: {
     type: String,
     required: true,
