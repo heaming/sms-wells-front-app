@@ -243,7 +243,7 @@ async function onClickCreate() {
 
   cachedParams = cloneDeep(searchParams.value);
 
-  await dataService.post('/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/create', cachedParams);
+  await dataService.post('/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/create', cachedParams, { timeout: 1800000 });
 
   ok();
 }
