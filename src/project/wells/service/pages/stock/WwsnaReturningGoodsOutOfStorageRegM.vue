@@ -572,6 +572,14 @@ async function onClickSave() {
   }
   if (!(await gridUtil.validate(view, { isCheckedOnly: true }))) { return; }
 
+  const selectedDay = searchParams.value.ostrDt;
+
+  if (selectedDay > dayjs().format('YYYYMMDD')) {
+    // {출고일자}는 오늘이거나 이전 일자만 선택이 가능합니다.
+    notify(t('MSG_ALT_TOD_BF_DT_CHO_PSB', [t('MSG_TXT_OSTR_DT')]));
+    return;
+  }
+
   const rowCount = view.getItemCount();
 
   for (let dataRow = 0; dataRow < rowCount; dataRow += 1) {
