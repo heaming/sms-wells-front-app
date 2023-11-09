@@ -15,6 +15,7 @@
 <template>
   <kw-page>
     <kw-search
+      ref="searchRef"
       :cols="3"
       @search="onClickSearch"
     >
@@ -305,6 +306,7 @@ const grdMainRef = ref(getComponentType('KwGrid'));
 const grdDetailRef = ref(getComponentType('KwGrid'));
 const productSelRef = ref(null);
 const paramDetailKey = ref('');
+const searchRef = ref();
 
 const codes = await codeUtil.getMultiCodes(
   'MAT_MNGT_DV_CD',
@@ -347,6 +349,8 @@ const totalCount = ref({
   asParts: 0,
   products: 0,
 });
+
+const isSearchInit = ref(false);
 
 // 자재코드 조회팝업(sapMatCd)
 async function onClickSapMaterial() {
@@ -512,6 +516,10 @@ function setPrdtCate(type) {
       searchParams.value.prdtCateHigh = '';
       if (searchParams.value.type === '1') {
         searchParams.value.prdtCateHigh = pdConst.ASPART_COMMON_USE_PD_CATE_HIGH; // 대분류 default : 고객지원
+        if (!isSearchInit.value) {
+          searchRef.value.init();
+          isSearchInit.value = true;
+        }
       }
     }, 100);
   }
@@ -529,7 +537,7 @@ function replaceHtmlExceptChar(oldChar) {
 }
 
 onMounted(async () => {
-  setPrdtCate('default'); // 대분류 default 설정
+  await setPrdtCate('default'); // 대분류 default 설정
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
@@ -558,7 +566,7 @@ const initGridMain = defineGrid((data, view) => {
     { fieldName: 'asMatMngTpCd', header: t('MSG_TXT_MGT_TYP'), width: '100', styleName: 'text-center', options: codes.MAT_MNGT_DV_CD, visible: false }, /* 관리유형 */
     { fieldName: 'partPdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center' }, /* 제품코드 */
     { fieldName: 'partPdNm', header: t('TXT_MSG_MAT_PD_NM'), width: '300' }, /* 제품명 */
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '120', styleName: 'text-center' }, /* 자재코드 */
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '170', styleName: 'text-center' }, /* 자재코드 */
     { fieldName: 'asItemCd', header: t('TXT_MSG_AS_ITM_CD'), width: '130', styleName: 'text-center' }, /* 품목코드 */
     { fieldName: 'asMatItmKndCd', header: t('MSG_TXT_ITM_KND'), width: '90', styleName: 'text-center', options: codes.ITM_KND_CD }, /* 품목종류 */
     { fieldName: 'asMatItmGrpCd', header: t('MSG_TXT_ITM_GRP'), width: '130', styleName: 'text-center', options: codes.PD_GRP_CD }, /* 품목그룹 */
@@ -602,9 +610,9 @@ const initGridDetail = defineGrid((data, view) => {
     { fieldName: 'asMatItmGrpNm' }, /* 품목그룹명 */
   ];
   const columns = [
-    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '90', styleName: 'text-center' }, /* 제품코드 */
+    { fieldName: 'pdCd', header: t('MSG_TXT_PROD_CD'), width: '120', styleName: 'text-center' }, /* 제품코드 */
     { fieldName: 'pdNm', header: t('TXT_MSG_MAT_PD_NM'), width: '200' }, /* 제품명 */
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '90', styleName: 'text-center' }, /* 자재코드 */
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_MATI_CD'), width: '170', styleName: 'text-center' }, /* 자재코드 */
     { fieldName: 'asItemCd', header: t('TXT_MSG_AS_ITM_CD'), width: '130', styleName: 'text-center' }, /* 품목코드 */
     { fieldName: 'asMatItmKndCd', header: t('MSG_TXT_ITM_KND'), width: '90', styleName: 'text-center', options: codes.ITM_KND_CD }, /* 품목종류 */
     { fieldName: 'asMatItmGrpCd', header: t('MSG_TXT_ITM_GRP'), width: '130', styleName: 'text-center', options: codes.PD_GRP_CD }, /* 품목그룹 */
