@@ -227,7 +227,7 @@
           vertical
           inset
         />
-        <!-- 이관 데이터 다운 -->
+        <!-- 이관 대상 데이터 다운 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -659,7 +659,7 @@ async function onClickSave() {
   }
 }
 
-// 이관 데이터 다운
+// 이관 대상 데이터 다운
 async function onClickTfDataDown() {
   const { apyYm, asnOjYm, cnt, ostrWareNo } = searchParams.value;
 
