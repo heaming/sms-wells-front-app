@@ -122,7 +122,7 @@ import { codeUtil, useDataService, getComponentType, gridUtil, defineGrid, useMo
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { getConfig } = useMeta();
-const { confirm, notify } = useGlobal();
+const { notify } = useGlobal();
 const { t } = useI18n();
 const { ok } = useModal();
 
@@ -224,41 +224,17 @@ async function onCheckedStckNoStdGb() {
 
 // 저장
 async function onClickSave() {
-  const dataParams = grdMainRef.value.getView();
-  const rows = dataParams.getCheckedItems();
+  const view = grdMainRef.value.getView();
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+  if (!await gridUtil.validate(view)) { return; }
+  const modifedData = gridUtil.getChangedRowValues(view);
 
-  const confirmData = ref([]);
-  confirmData.value = rows.map((v) => {
-    const {
-      wareNo,
-      itmPdCd,
-      itmLctAngleVal,
-      itmLctCofVal,
-      itmLctFlorNoVal,
-      itmLctMatGrpCd,
-      itmKndCd,
-    } = dataParams.getValues(v);
-
-    return {
-      wareNo,
-      itmPdCd,
-      itmLctAngleVal,
-      itmLctCofVal,
-      itmLctFlorNoVal,
-      itmLctMatGrpCd,
-      itmKndCd,
-    };
-  });
-
-  // 등록하시겠습니까?
-  if (await confirm(t('MSG_ALT_RGST'))) {
-    const res = await dataService.put(baseURI, confirmData.value);
-    if (res.data.processCount > 0) {
-      ok();
-      notify(t('MSG_ALT_SAVE_DTA'));
-    } else {
-      notify(t('MSG_ALT_SVE_ERR'));
-    }
+  const res = await dataService.put(baseURI, modifedData);
+  if (res.data.processCount > 0) {
+    notify(t('MSG_ALT_SAVE_DTA'));
+    ok();
+  } else {
+    notify(t('MSG_ALT_SVE_ERR'));
   }
 }
 
@@ -266,7 +242,7 @@ async function onClickSave() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const response = await dataService.get(baseURI, { params: cachedParams });
+  const response = await dataService.get(`${baseURI}/excel-download`, { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: popupRef.value.pageCtxTitle,
     timePostfix: true,
@@ -284,10 +260,10 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center' }, // SAP 코드
-    { fieldName: 'itmPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '146', styleName: 'text-center' }, // 품목코드
-    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '320' }, // 품목명
-    { fieldName: 'pitmStocAGdQty', header: `${t('MSG_TXT_STOC')}(EA)`, width: '80', styleName: 'text-center' }, // 재고
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '120', styleName: 'text-center', dataType: 'text' }, // SAP 코드
+    { fieldName: 'itmPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '146', styleName: 'text-center', dataType: 'text' }, // 품목코드
+    { fieldName: 'pdAbbrNm', header: t('MSG_TXT_ITM_NM'), width: '320', dataType: 'text' }, // 품목명
+    { fieldName: 'pitmStocAGdQty', header: `${t('MSG_TXT_STOC')}(EA)`, width: '80', styleName: 'text-right', dataType: 'number' }, // 재고
     { fieldName: 'itmLctAngleVal', // 앵글
       header: t('MSG_TXT_ANGLE'),
       width: '80',
@@ -323,7 +299,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'itmLctNm', header: t('MSG_TXT_LCT_NM'), width: '283' }, // 위치명
   ];
-  const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
+  const gridField = columns.map((v) => ({ fieldName: v.fieldName, dataType: v.dataType }));
   const fields = [...gridField,
     { fieldName: 'wareNo' },
     { fieldName: 'itmKndCd' },
@@ -331,7 +307,7 @@ const initGrdMain = defineGrid((data, view) => {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.checkBar.visible = true;
+  view.checkBar.visible = false;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
   const editFields = ['itmLctAngleVal', 'itmLctCofVal', 'itmLctFlorNoVal', 'itmLctMatGrpCd'];
