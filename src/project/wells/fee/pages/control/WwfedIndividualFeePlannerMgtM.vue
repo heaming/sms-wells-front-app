@@ -45,12 +45,6 @@
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
             rules="required"
-            @update:model-value="onClickPrtnrNoClear()"
-          />
-          <kw-input
-            v-model="searchParams.prtnrKnm"
-            :placeholder="$t('MSG_TXT_EMPL_NM')"
-            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -276,8 +270,6 @@ const searchParams = ref({
 
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   no: '',
-  prtnrKnm: '',
-
 });
 
 const info1 = ref({
@@ -336,20 +328,14 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.no,
       ogTpCd: 'W01',
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.no = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
-}
-
-async function onClickPrtnrNoClear() {
-  searchParams.value.prtnrKnm = '';
 }
 
 /*
@@ -376,7 +362,6 @@ async function fetchData(type) {
       isBtnClick.value = true;
     } else {
       isBtnClick.value = false;
-      searchParams.value.prtnrKnm = '';
     }
   } else if (type === 'basic') {
     basePerf.value = resData;
