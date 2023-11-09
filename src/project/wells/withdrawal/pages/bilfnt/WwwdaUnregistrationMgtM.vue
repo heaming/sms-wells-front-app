@@ -276,7 +276,7 @@ async function fetchData1() {
 }
 
 async function fetchData2() {
-  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist', { params: { ...cachedParams, ...pageInfo2.value } });
+  const res = await dataService.get('/sms/wells/withdrawal/bilfnt/bundle-withdrawal-hist', { params: { ...cachedParams, ...pageInfo2.value, timeout: 300000 } });
   const { list: lists, pageInfo: pageResult } = res.data;
   pageInfo2.value = pageResult;
 
