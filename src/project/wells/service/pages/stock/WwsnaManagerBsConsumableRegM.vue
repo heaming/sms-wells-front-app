@@ -288,12 +288,14 @@ async function reAryGrid() {
   let j = 1;
   for (let i = 0; i < fxnItems.length; i += 1) {
     // 고정품목 갯수만큼 field, column 추가
-    fields.push({ fieldName: `fxnQty${j}` });
+    fields.push({ fieldName: `fxnQty${j}`, dataType: 'number' });
     columns.push({
       fieldName: `fxnQty${j}`,
       header: fxnItems[i].fxnSapMatCd,
       width: '180',
       styleName: 'text-center',
+      dataType: 'number',
+      rules: 'min_value:0',
       editable: isBusinessSupportTeam.value,
     });
 
@@ -319,12 +321,14 @@ async function reAryGrid() {
   let k = 1;
   for (let i = 0; i < aplcItems.length; i += 1) {
     // 신청품목 갯수만큼 field, column 추가
-    fields.push({ fieldName: `aplcQty${k}` });
+    fields.push({ fieldName: `aplcQty${k}`, dataType: 'number' });
     columns.push({
       fieldName: `aplcQty${k}`,
       header: aplcItems[i].aplcSapMatCd,
       width: '180',
       styleName: 'text-center',
+      dataType: 'number',
+      rules: 'min_value:0',
       editable: true,
     });
 
@@ -519,6 +523,7 @@ async function onClickSave() {
     return;
   }
 
+  if (!await gridUtil.validate(view)) { return; }
   // if (await gridUtil.alertIfIsNotModified(view)) { return; }
   let isError = false;
   checkedRows.forEach((checkedRow) => {
@@ -589,18 +594,17 @@ async function onClickOstrAk() {
 
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
-  console.log(checkedRows);
+  // const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
 
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
 
-  if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
-    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
-    return;
-  }
+  // if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
+  //   notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
+  //   return;
+  // }
 
   let errorYn = false;
 
