@@ -429,7 +429,7 @@ function initGrid3(data, view) {
   const columns = [
     { fieldName: 'ogCd', header: t('MSG_TXT_BLG'), width: '85', styleName: 'text-center' },
     { fieldName: 'prtnrNm', header: t('MSG_TXT_EMPL_NM'), width: '80', styleName: 'text-center' },
-    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center', dataType: 'number' },
+    { fieldName: 'prtnrNo', header: t('MSG_TXT_PRTNR_NO'), width: '100', styleName: 'text-center', dataType: 'number', numberFormat: '#' },
     { fieldName: 'pstnDvCd', header: t('MSG_TXT_CRLV'), width: '70', styleName: 'text-center' },
     { fieldName: 'cntrNo', header: t('MSG_TXT_CST_CD'), width: '125', styleName: 'text-center' },
     { fieldName: 'cntrCstNm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' },
