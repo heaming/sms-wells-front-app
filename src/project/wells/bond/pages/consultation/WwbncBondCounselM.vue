@@ -298,7 +298,6 @@
 // -------------------------------------------------------------------------------------------------
 import { modal, useDataService, cti, alert } from 'kw-lib';
 import dayjs from 'dayjs';
-import { isEmpty } from 'lodash-es';
 
 import ZwbncBondCounselMPromiseCustomer from '~sms-common/bond/pages/consultation/ZwbncBondCounselMPromiseCustomer.vue';
 import WwbncBondCounselMCustomerSearch from './WwbncBondCounselMCustomerSearch.vue';
@@ -472,9 +471,7 @@ function onClickPhoneYn(type) {
 }
 
 async function onUpdateMgtValue(tNo) {
-  if (!isEmpty(tNo)) {
-    searchParams.value.tno = tNo.replaceAll('-', '');
-  }
+  searchParams.value.tno = tNo;
   onClickPhoneYn('Y');
 }
 
