@@ -44,12 +44,6 @@
             rules="required"
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            @update:model-value="onClickPrtnrNoClear()"
-          />
-          <kw-input
-            v-model="searchParams.prtnrKnm"
-            :placeholder="$t('MSG_TXT_EMPL_NM')"
-            readonly
           />
         </kw-search-item>
       </kw-search-row>
@@ -339,7 +333,6 @@ const route = useRoute();
 const searchParams = ref({
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   prtnrNo: '',
-  prtnrKnm: '',
 });
 
 const basicInfo = ref({
@@ -376,20 +369,14 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W02',
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
-}
-
-async function onClickPrtnrNoClear() {
-  searchParams.value.prtnrKnm = '';
 }
 
 /*

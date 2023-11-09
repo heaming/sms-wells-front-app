@@ -131,12 +131,6 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-              @update:model-value="onClickPrtnrNoClear()"
-            />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -202,12 +196,6 @@
               clearable
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-              @update:model-value="onClickPrtnrNoClear()"
-            />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
             />
           </kw-search-item>
           <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
@@ -361,7 +349,6 @@ const searchParams = ref({
   prtnrNo: '',
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   rsbDvCd: '00',
-  prtnrKnm: '',
   ogTpCd: 'W03',
   pdCd: '',
 });
@@ -391,20 +378,14 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W03',
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
-}
-
-async function onClickPrtnrNoClear() {
-  searchParams.value.prtnrKnm = '';
 }
 
 /*

@@ -156,12 +156,6 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-              @update:model-value="onClickPrtnrNoClear()"
-            />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -239,12 +233,6 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-              @update:model-value="onClickPrtnrNoClear()"
-            />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -320,12 +308,6 @@
               :maxlength="10"
               :on-click-icon="onClickSearchNo"
               :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-              @update:model-value="onClickPrtnrNoClear()"
-            />
-            <kw-input
-              v-model="searchParams.prtnrKnm"
-              :placeholder="$t('MSG_TXT_EMPL_NM')"
-              readonly
             />
           </kw-search-item>
         </kw-search-row>
@@ -479,7 +461,6 @@ const searchParams = ref({
   prtnrNo: '',
   perfYm: now.add(-1, 'month').format('YYYYMM'),
   rsbDvCd: '00',
-  prtnrKnm: '',
   ogTpCd: 'W01',
   pdCd: '',
   feeBatWkId: 'WSM_FE_OA0003', /* 수수료배치작업ID= 조직별실적집계 */
@@ -507,20 +488,14 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: 'W01',
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
-}
-
-async function onClickPrtnrNoClear() {
-  searchParams.value.prtnrKnm = '';
 }
 
 /*

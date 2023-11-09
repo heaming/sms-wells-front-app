@@ -76,12 +76,6 @@
             :maxlength="10"
             :on-click-icon="onClickSearchNo"
             :placeholder="$t('MSG_TXT_SEQUENCE_NUMBER')"
-            @update:model-value="onClickPrtnrNoClear()"
-          />
-          <kw-input
-            v-model="searchParams.prtnrKnm"
-            :placeholder="$t('MSG_TXT_EMPL_NM')"
-            readonly
           />
         </kw-search-item>
         <kw-search-item :label="t('MSG_TXT_OG_LEVL')">
@@ -206,7 +200,6 @@ const searchParams = ref({
   ogLevl2: '',
   ogLevl3: '',
   prtnrNo: '',
-  prtnrKnm: '',
   feeDsbYn: '',
 });
 
@@ -333,20 +326,14 @@ async function onClickSearchNo() {
       baseYm: searchParams.value.perfYm,
       prtnrNo: searchParams.value.prtnrNo,
       ogTpCd: searchParams.value.ogTpCd,
-      prtnrKnm: undefined,
     },
   });
 
   if (result) {
     if (!isEmpty(payload)) {
       searchParams.value.prtnrNo = payload.prtnrNo;
-      searchParams.value.prtnrKnm = payload.prtnrKnm;
     }
   }
-}
-
-async function onClickPrtnrNoClear() {
-  searchParams.value.prtnrKnm = '';
 }
 
 /*
