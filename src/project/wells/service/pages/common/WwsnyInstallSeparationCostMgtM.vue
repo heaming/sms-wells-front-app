@@ -288,6 +288,8 @@ async function onClickSave() {
   const chkRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
   const { apyStrtdt } = view.getJsonRows()[0];
 
+  if (await gridUtil.alertIfIsNotModified(view)) { return; }
+
   if (Number(now.format('YYYYMMDD')) > Number(apyStrtdt)) { notify('최종건보다 큰 날짜를 선택하세요.'); return; }
 
   if (chkRows.length === 0 && realChkRows.length === 0) {
@@ -300,7 +302,6 @@ async function onClickSave() {
     return;
   }
 
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
 
   await dataService.post('sms/wells/service/installation-separation-costs', chkRows);
