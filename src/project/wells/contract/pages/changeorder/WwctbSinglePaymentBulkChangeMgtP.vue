@@ -44,7 +44,7 @@
             :label="$t('MSG_TXT_CH_RSON')"
             :readonly="saveParams.procsDv===''"
             rules="required"
-            maxlength="1000"
+            maxlength="100"
           />
         </kw-form-item>
       </kw-form-row>
@@ -149,7 +149,7 @@
           <kw-input
             v-model="saveParams.pdAccCnt"
             :label="$t('MSG_TXT_PD_ACC_CNT')"
-            maxlength="10"
+            maxlength="8"
             :regex="/^[\d]*\.?[\d]{0,2}$/"
           />
         </kw-form-item>
@@ -220,7 +220,7 @@
           <kw-input
             v-model="saveParams.recogRt"
             :label="$t('MSG_TXT_RECOG_RT')+'(%)'"
-            maxlength="15"
+            maxlength="13"
             :regex="/^[\d]*\.?[\d]{0,4}$/"
           />
         </kw-form-item>
