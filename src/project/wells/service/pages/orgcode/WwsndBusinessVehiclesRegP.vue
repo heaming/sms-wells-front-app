@@ -78,6 +78,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_DSB_STRT_D')"
           :colspan="1"
+          required
         >
           <kw-date-picker
             v-model="dataParams.vhcPymdt"
@@ -91,6 +92,7 @@
         <kw-form-item
           :label="$t('MSG_TXT_DSB_END_D')"
           :colspan="1"
+          required
         >
           <kw-date-picker
             v-model="dataParams.dsbEnddt"
