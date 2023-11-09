@@ -594,7 +594,7 @@ const istEnvRequest = ref({
 
 const isLinked = ref(false); // 다른 화면에서 넘어왔나(계약번호를 받아왔나)
 const isFetched = ref(false); // 조회되었나
-const isInit = ref(true); // 첫 조회 초기화인가
+const isInit = ref(true); // 조회후 초기화인가
 const isCnfmPd = ref(false); // 상품확정 유무
 
 // 설치환경 및 요청사항 초기화
@@ -750,6 +750,7 @@ async function fetchData() {
   obsRef.value.init();
 }
 
+// 상품 가격이 바꼈을 때, 이벤트
 function onPriceChanged(item, price) {
   console.log('onPriceChanged');
   item.finalPrice = price;
@@ -810,7 +811,7 @@ async function onClickSelectProduct() {
 
     if (!isEmpty(payload[0].channelId)) {
       if (payload[0].channelId.indexOf(fieldData.value.sellInflwChnlDtlCd) === -1) {
-        await alert('선택 가능한 상품이 아닙니다. 판매채널을 확인해주세요.');
+        await alert(`선택 가능한 상품이 아닙니다. 판매채널[${fieldData.value.sellInflwChnlDtlCd}]을 확인해주세요.`);
         return;
       }
     } else {
