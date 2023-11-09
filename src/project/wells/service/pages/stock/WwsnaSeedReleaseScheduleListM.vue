@@ -351,6 +351,7 @@ async function onClickSearch() {
 // 초기화버튼 클릭
 function onClickReset() {
   searchParams.value.strtDt = now.format('YYYYMMDD');
+  searchParams.value.endDt = now.format('YYYYMMDD');
 }
 
 // 저장
