@@ -97,7 +97,7 @@ function initGrid(data, view) {
       width: '70',
       styleName: 'text-center',
       displayCallback(g, index, val) {
-        return `${val}${t('MSG_TXT_MCNT')}`; // 개월
+        return val ? `${val}${t('MSG_TXT_MCNT')}` : ''; // 개월
       } }, // BS주기
     { fieldName: 'stplPtrm',
       header: t('MSG_TXT_DUTY_STPL'),
