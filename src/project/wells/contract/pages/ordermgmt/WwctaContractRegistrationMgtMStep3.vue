@@ -37,12 +37,9 @@
             </h3>
           </div>
           <div class="row items-center">
-            <p
-              class="kw-fc--primary kw-font-subtitle"
-            >
-              {{ getDisplayedFinalPrice(item) }}
+            <p class="kw-fc--primary kw-font-subtitle">
+              {{ getDisplayPriceByCntrDtl(item) }}
             </p>
-
             <div class="row items-center ml20">
               <kw-btn
                 icon="arrow_left_24"
@@ -90,66 +87,29 @@
                 label="주소 선택"
                 :colspan="2"
               >
-                <div class="row items-start justify-between full-width ">
+                <div class="fit">
                   <div
-                    class="row items-start radio-multiline"
-                    style=" width: calc(100% - 90px); gap: 0 20px;"
+                    class="inline-flex grow items-start radio-multiline relative"
+                    style="max-width: calc(100% - 80px); gap: 0 20px;"
                   >
-                    <kw-field
-                      name="radio"
+                    <kw-radio
+                      v-for="(adr, i) in adrs"
+                      v-show="i < showAdrCount"
+                      :key="`adr${i}`"
+                      v-model="adrsVal"
+                      class="radio-close-button"
+                      :val="adr"
+                      @update:model-value="onClickRectRgstAdr(item, adr)"
                     >
-                      <template #default="{ field }">
-                        <kw-radio
-                          v-for="(adr, i) in adrs"
-                          v-show="i < 5"
-                          v-bind="field"
-                          :key="i"
-                          v-model="adrsVal"
-                          class="radio-close-button"
-                          :val="i"
-                          @update:model-value="onClickRectRgstAdr(item, adr)"
-                        >
-                          {{ adr.rcgvpKnm }}
-                          <kw-btn
-                            icon="close"
-                            borderless
-                            dense
-                            class="kw-fc--placeholder"
-                            @click="onClickDeleteRectRgstAdr(adr)"
-                          />
-                        </kw-radio>
-                      </template>
-                    </kw-field>
-                    <div
-                      v-if="showAllAdrs"
-                      class="second-line"
-                    >
-                      <kw-field
-                        name="radio"
-                      >
-                        <template #default="{ field }">
-                          <kw-radio
-                            v-for="(adr, i) in adrs"
-                            v-show="i >= 5"
-                            v-bind="field"
-                            :key="i"
-                            v-model="adrsVal"
-                            class="radio-close-button"
-                            :val="i"
-                            @update:model-value="onClickRectRgstAdr(item, adr)"
-                          >
-                            {{ adr.rcgvpKnm }}
-                            <kw-btn
-                              icon="close"
-                              borderless
-                              dense
-                              class="kw-fc--placeholder"
-                              @click="onClickDeleteRectRgstAdr(adr)"
-                            />
-                          </kw-radio>
-                        </template>
-                      </kw-field>
-                    </div>
+                      {{ adr.rcgvpKnm }}
+                      <kw-btn
+                        icon="close"
+                        borderless
+                        dense
+                        class="kw-fc--placeholder"
+                        @click="onClickDeleteRectRgstAdr(adr)"
+                      />
+                    </kw-radio>
                   </div>
                   <kw-btn
                     v-if="adrs?.length > 5"
@@ -157,13 +117,13 @@
                     dense
                     borderless
                     label="더보기"
-                    class="kw-fc--black3 kw-font-pt14 self-start mt9"
-                    @click="showAllAdrs = !showAllAdrs"
+                    class="absolute kw-fc--black3 kw-font-pt14 self-start mt9"
+                    style="top: 0; right: 0;"
+                    @click="onToggleMore"
                   />
                 </div>
               </kw-form-item>
             </kw-form-row>
-
             <kw-form-row>
               <kw-form-item
                 :label="$t('MSG_TXT_RECIPIENT')"
@@ -315,8 +275,9 @@
           :cols="2"
           class="mt20"
         >
+          <!-- 총판계약유형 -->
           <kw-form-row
-            v-if="ogTpCd === 'W05'"
+            v-if="isSodbt"
           >
             <kw-form-item label=" 총판계약유형">
               <kw-field
@@ -327,6 +288,7 @@
                 <kw-checkbox
                   v-bind="field"
                   label="총판 비대면 계약여부"
+                  :disable="isCcs"
                   :false-value="'N'"
                   :true-value="'Y'"
                 />
@@ -334,7 +296,7 @@
             </kw-form-item>
           </kw-form-row>
           <template
-            v-if="item.sodbtNftfCntrYn !== 'Y'"
+            v-if="item.sodbtNftfCntrYn !== 'Y' || isCcs"
           >
             <!-- 법인계약시 세금계산서 발행 선택 가능-->
             <kw-form-row
@@ -497,10 +459,11 @@
 // -------------------------------------------------------------------------------------------------
 import ZwcmTelephoneNumber from '~common/components/ZwcmTelephoneNumber.vue';
 import ZwcmPostCode from '~common/components/ZwcmPostCode.vue';
-import { codeUtil, useDataService, useGlobal } from 'kw-lib';
-import { cloneDeep, isEmpty } from 'lodash-es';
+import { alert, codeUtil, notify, useDataService } from 'kw-lib';
+import { cloneDeep } from 'lodash-es';
 import { getNumberWithComma } from '~sms-common/contract/util';
 import { SELL_TP_CD } from '~sms-wells/contract/constants/ctConst';
+import { getDisplayPriceByCntrDtl } from '~sms-wells/contract/utils/CtPriceUtil';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -509,13 +472,13 @@ const emit = defineEmits([
   'activated',
 ]);
 const exposed = {};
+
 defineExpose(exposed);
 
 const { getters } = useStore();
-const { ogTpCd } = getters['meta/getUserInfo'];
+const { baseRleCd } = getters['meta/getUserInfo'];
+
 const dataService = useDataService();
-const { notify, alert } = useGlobal();
-const router = useRouter();
 const codes = await codeUtil.getMultiCodes(
   'CNTRT_REL_CD',
   'IST_PLC_TP_CD',
@@ -535,7 +498,6 @@ codes.FMMB_N = [
 
 const cntrNo = computed(() => props.contract.cntrNo);
 const step3 = toRef(props.contract, 'step3');
-
 const ogStep3 = ref({});
 const { t } = useI18n();
 
@@ -552,39 +514,23 @@ codes.DP_TP_CD_AFTN_CRP = [
   { codeId: '0102', codeName: '계좌이체' },
   { codeId: '0104', codeName: '법인계좌' },
 ];
+
 const adrs = ref([]);
 const adrsVal = ref('');
 const obsAdrRef = ref();
 const dtlSn = ref(1);
 const showAllAdrs = ref(false);
+const showAdrCount = computed(() => (showAllAdrs.value ? 10 : 5));
 const isPsbBlkApy = ref(true);
+const isSodbt = computed(() => (step3.value?.bas.sellOgTpCd === 'W05'));
+const isCcs = computed(() => baseRleCd === 'W8010');
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 
-function getDisplayedFinalPrice(cntrDtl) {
-  if (!cntrDtl) {
-    return '';
-  }
-  const { fnlAmt, svPrd, sellTpCd, stplPtrm } = cntrDtl;
-
-  if (sellTpCd === '1') {
-    return `${getNumberWithComma(fnlAmt)}원`;
-  }
-  if (sellTpCd === '2') {
-    return `${getNumberWithComma(fnlAmt)}원${stplPtrm ? ` (${stplPtrm}개월)` : ''}`;
-  }
-  if (sellTpCd === '6') {
-    return `${getNumberWithComma(fnlAmt)}원 (월 ${getNumberWithComma(fnlAmt
-        / svPrd)}원)`;
-  }
-  return `월 ${getNumberWithComma(fnlAmt)}원`;
-}
-
 async function getCntrInfo() {
   if (!cntrNo.value) {
     await alert('잘못된 접근입니다.');
-    router.go(-1);
     return;
   }
   const { data } = await dataService.get('sms/wells/contract/contracts/cntr-info', {
@@ -594,7 +540,20 @@ async function getCntrInfo() {
     },
   });
   step3.value = data.step3;
-  adrs.value[0] = step3.value.basAdrpc;
+  adrs.value = [step3.value.basAdrpc];
+
+  data.step3.dtls.forEach((dtl) => {
+    if (dtl.sellTpCd === SELL_TP_CD.SPAY) {
+      if (!dtl.cntrAmtCrd && !dtl.cntrAmtVac && !dtl.crpUcAmt) {
+        dtl.cntrAmtCrd = Number(dtl.fnlAmt || 0);
+        dtl.cntrAmtVac = 0;
+        dtl.crpUcAmt = 0;
+      }
+    } else {
+      dtl.dpTpCdAftn ??= '0203';
+      dtl.dpTpCdIdrv ??= '0201';
+    }
+  });
 
   // 일괄적용 여부(렌탈이면서 유상멤버십기간, 판매유형코드, 판매유형상세코드 등이 일치해야 함)
   const baseDtl = step3.value.dtls[0];
@@ -618,8 +577,20 @@ function isChangedStep() {
 }
 
 async function isValidStep() {
-  if (step3.value.dtls.find((dtl) => (dtl.sellTpCd === '1' && (Number.isNaN(dtl.cntrAmt) || dtl.cntrAmt <= 0)))) {
-    alert('일시불 계약금을 확인해주세요.');
+  const validateDtl = (dtl) => {
+    const { sellTpCd, cntrAmt, fnlAmt, cntrAmtCrd, cntrAmtVac, crpUcAmt, dpTpCdAftn, dpTpCdIdrv } = dtl;
+    console.log(dtl);
+    if (sellTpCd === SELL_TP_CD.SPAY) {
+      return Number(fnlAmt || 0) === Number(cntrAmtCrd || 0) + Number(cntrAmtVac || 0) + Number(crpUcAmt || 0);
+    }
+    if (cntrAmt && !dpTpCdIdrv) {
+      return false;
+    }
+    return !(fnlAmt && !dpTpCdAftn);
+  };
+
+  if (step3.value.dtls.find((dtl) => !validateDtl(dtl))) {
+    await alert('계약금을 확인해주세요.');
     return false;
   }
   return true;
@@ -632,46 +603,48 @@ async function saveStep() {
   return savedCntr?.data?.key;
 }
 
+function onToggleMore() {
+  showAllAdrs.value = !showAllAdrs.value;
+}
+
+function equalsAdr(adr1, adr2) {
+  return adr1.rcgvpKnm === adr2.rcgvpKnm
+      && adr1.cralLocaraTno === adr2.cralLocaraTno
+      && adr1.mexnoEncr === adr2.mexnoEncr
+      && adr1.cralIdvTno === adr2.cralIdvTno
+      && adr1.locaraTno === adr2.locaraTno
+      && adr1.exnoEncr === adr2.exnoEncr
+      && adr1.idvTno === adr2.idvTno
+      && adr1.adrId === adr2.adrId;
+}
+
 async function onClickAddRectRgstAdr(dtl) {
   if (adrs.value.length === 10) {
-    alert('주소는 10개까지만 등록 가능합니다.');
+    await alert('주소는 10개까지만 등록 가능합니다.');
     return;
   }
-  const newAdr = cloneDeep(dtl.adrpc);
-  if (!await obsAdrRef.value[0].validate()) return;
-  if (isEmpty(newAdr.adrId)) {
-    alert('올바른 주소를 입력해주세요.');
+  const { adrpc } = dtl;
+  const newAdr = { ...adrpc };
+  if (!await obsAdrRef.value[0].validate()) { return; }
+  if (!newAdr.adrId) {
+    await alert('올바른 주소를 입력해주세요.');
     return;
   }
-  if (!isEmpty(adrs.value.find((adr) => adr.rcgvpKnm === newAdr.rcgvpKnm
-      && adr.cralLocaraTno === newAdr.cralLocaraTno
-      && adr.mexnoEncr === newAdr.mexnoEncr
-      && adr.cralIdvTno === newAdr.cralIdvTno
-      && adr.locaraTno === newAdr.locaraTno
-      && adr.exnoEncr === newAdr.exnoEncr
-      && adr.idvTno === newAdr.idvTno
-      && adr.adrId === newAdr.adrId))) {
+  if (adrs.value.find((adr) => equalsAdr(adr, newAdr))) {
     alert('이미 등록된 주소입니다.');
-  } else {
-    adrs.value.push(newAdr);
+    return;
   }
+  adrs.value.push(newAdr);
   // radio 초기화
   adrsVal.value = '';
 }
 
 function onClickRectRgstAdr(dtl, adr) {
-  dtl.adrpc = cloneDeep(adr);
+  dtl.adrpc = { ...adr };
 }
 
 function onClickDeleteRectRgstAdr(delAdr) {
-  adrs.value = adrs.value.filter((adr) => adr.rcgvpKnm !== delAdr.rcgvpKnm
-      || adr.cralLocaraTno !== delAdr.cralLocaraTno
-      || adr.mexnoEncr !== delAdr.mexnoEncr
-      || adr.cralIdvTno !== delAdr.cralIdvTno
-      || adr.locaraTno !== delAdr.locaraTno
-      || adr.exnoEncr !== delAdr.exnoEncr
-      || adr.idvTno !== delAdr.idvTno
-      || adr.adrId !== delAdr.adrId);
+  adrs.value = adrs.value.filter((adr) => !equalsAdr(adr, delAdr));
 }
 
 function onClickPrevDtlSn() {
