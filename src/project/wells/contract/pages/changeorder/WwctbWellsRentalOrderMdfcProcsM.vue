@@ -14,9 +14,7 @@
 --->
 
 <template>
-  <kw-page
-    ref="obsRef"
-  >
+  <kw-page>
     <kw-search
       one-row
       @search="onClickSearch"
@@ -37,7 +35,9 @@
       </kw-search-row>
     </kw-search>
 
-    <kw-form>
+    <kw-form
+      ref="obsRef"
+    >
       <div class="result-area">
         <h3 class="text-bold kw-font-pt18">
           {{ $t('MSG_TXT_CNTR_INF') }} <!-- 계약정보 -->
@@ -213,11 +213,18 @@
               </kw-form-row>
             </kw-form>
           </kw-expansion-item>
+
           <kw-expansion-item
             padding-target="header"
             expansion-icon-align="center"
             expand-icon-class="kw-font-pt24"
           >
+            <!-- orderProduct가 바뀐걸 옵저버가 인지하지 못해서 컴포넌트 추가함. -->
+            <kw-field
+              v-show="false"
+              v-model="orderProduct"
+            />
+
             <template #header>
               <kw-item-section>
                 <kw-item-label>
@@ -228,349 +235,136 @@
                 </kw-item-label>
               </kw-item-section>
             </template>
-            <kw-form
-              :cols="1"
-              class="pb20"
-            >
-              <kw-form-row>
-                <!-- 상품검색 -->
-                <kw-form-item :label="$t('MSG_TXT_PRDT') + $t('MSG_TXT_SEARCH')">
-                  <div class="column col">
-                    <div
-                      class="row"
-                      style="max-width: 55%;"
-                    >
-                      <kw-input
-                        v-model="searchParams.pdNm"
-                        icon="search"
-                        maxlength="100"
-                        grow
-                        :disable="!isFetched || fieldData.slClYn==='Y'"
-                        @click-icon="onClickSelectProduct"
-                      />
-                      <kw-select
-                        v-model="orderProduct.sellEvCd"
-                        class="w220 ml8"
-                        :options="codes.SELL_EV_CD.filter((v) =>
-                          ['2','4','5','8','9','C','F','H','7','D','E','I'].includes(v.codeId))"
-                        first-option="select"
-                        first-option-label="선택없음"
-                        :disable="fieldData.slClYn==='Y'"
-                      />
-                    </div>
-                    <div class="border-box mt12">
-                      <kw-form
-                        cols="2"
-                      >
-                        <kw-form-row>
-                          <!-- 주문상품 -->
-                          <kw-form-item label="주문상품">
-                            <p>{{ orderProduct.pdNm }}</p>
-                          </kw-form-item>
-                          <div class="row justify-end grow">
-                            <!-- 기기변경 -->
-                            <kw-btn
-                              v-permission:update
-                              :label="$t('MSG_TXT_MCHN_CH')"
-                              :disable="!isEmpty(orderProduct.plusCntrNo) || !isFetched || fieldData.slClYn==='Y'"
-                              padding="12px"
-                              @click="onClickDeviceChange"
-                            />
-                          </div>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item label="유형선택">
-                            <kw-select
-                              v-model="orderProduct.sellDscDvCd"
-                              :options="rentalDscDvCds"
-                              first-option="select"
-                              first-option-value=""
-                              :first-option-label="$t('TXT_MSG_RENTAL_DSC_DV_CD') + ' ' + $t('MSG_TXT_SELT')"
-                              :disable="fieldData.slClYn==='Y'"
-                              @change="selectRentalPriceChanges"
-                            />
-                            <kw-select
-                              v-if="rentalDscrCds && orderProduct.sellDscDvCd === '5'"
-                              v-model="orderProduct.sellDscrCd"
-                              :options="rentalDscrCds"
-                              placeholder="렌탈법인할인율"
-                              :disable="fieldData.slClYn==='Y'"
-                            />
-                          </kw-form-item>
-                          <kw-form-item label="주기/용도 선택">
-                            <kw-select
-                              v-model="orderProduct.svPdCd"
-                              :colspan="1"
-                              :options="svPdCds"
-                              grow
-                              first-option="select"
-                              first-option-value=""
-                              :first-option-label="
-                                $t('MSG_TXT_SERVICE')+
-                                  '('+$t('MSG_TXT_USWY')+'/'+$t('MSG_TXT_VST_PRD')+') '+
-                                  $t('MSG_TXT_SELT')"
-                              :disable="fieldData.slClYn==='Y'"
-                              @change="selectRentalPriceChanges"
-                            />
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item label="약정개월/소유권이전">
-                            <kw-input
-                              v-model="orderProduct.stplPtrm"
-                              readonly
-                              :disable="fieldData.slClYn==='Y'"
-                              @change="selectRentalPriceChanges"
-                            />
-                            <!-- 계약기간 선택 -->
-                            <kw-select
-                              v-model="orderProduct.cntrPtrm"
-                              :options="cntrPtrms"
-                              first-option="select"
-                              first-option-value=""
-                              :first-option-label="$t('MSG_TXT_CNTR_PTRM') + ' ' + $t('MSG_TXT_SELT')"
-                              :disable="fieldData.slClYn==='Y'"
-                              @change="selectRentalPriceChanges"
-                            />
-                          </kw-form-item>
-                          <kw-form-item label="무상AS/등록비(원)">
-                            <kw-select
-                              v-model="orderProduct.frisuAsPtrmN"
-                              first-option="select"
-                              :disable="fieldData.slClYn==='Y'"
-                            />
-                            <kw-select
-                              v-model="orderProduct.cntrAmt"
-                              :options="rgstFees"
-                              first-option="select"
-                              first-option-value="0"
-                              :first-option-label="$t('MSG_TXT_RGST_FEE') + ' ' + $t('MSG_TXT_SELT')"
-                              :disable="fieldData.slClYn==='Y'"
-                              @change="selectRentalPriceChanges"
-                            />
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item label="제휴상품">
-                            <kw-select
-                              v-model="orderProduct.alncmpCd"
-                              :options="codes.ALNC_CO_ACD"
-                              first-option="select"
-                              :disable="fieldData.slClYn==='Y'"
-                            />
-                          </kw-form-item>
-                          <kw-form-item label="프로모션 코드">
-                            <kw-select
-                              v-model="orderProduct.sellDscTpCd"
-                              :options="rentalDscTpCds"
-                              first-option="select"
-                              :disable="fieldData.slClYn==='Y'"
-                              @change="selectRentalPriceChanges"
-                            />
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <!-- <kw-form-item label="문의고객코드">
-                            <kw-input />
-                          </kw-form-item> -->
-                          <kw-form-item label="등록비(원)">
-                            <p>
-                              {{ stringUtil.getNumberWithComma(orderProduct.cntrAmt || 0) }}
-                            </p>
-                          </kw-form-item>
-                          <kw-form-item label="렌탈가(원)">
-                            <p>
-                              {{ stringUtil.getNumberWithComma(orderProduct.sellAmt || 0) }}
-                            </p>
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item label="(법인)추가할인">
-                            <kw-input
-                              v-model="orderProduct.sellDscCtrAmt"
-                              maxlength="10"
-                              type="number"
-                              :readonly="fieldData.copnDvCd !== '2'"
-                              :disable="fieldData.slClYn==='Y'"
-                            />
-                          </kw-form-item>
-                          <kw-form-item label="할인렌탈가(원)">
-                            <span style="color: red;">
-                              {{ orderProduct.sellDscCtrAmt > 0 ? '(' : '' }}
-                              <span style="text-decoration: line-through;">
-                                {{
-                                  orderProduct.sellDscCtrAmt > 0 ?
-                                    stringUtil.getNumberWithComma(orderProduct.sellAmt||0) : ''
-                                }}
-                              </span>
-                              {{ orderProduct.sellDscCtrAmt > 0 ? ')' : '' }}
-                              {{ stringUtil.getNumberWithComma(orderProduct.fnlAmt||0) }}
-                            </span>
-                          </kw-form-item>
-                        </kw-form-row>
-                        <!-- <kw-form-row>
-                          <kw-form-item
-                            label="무료개월"
-                          >
-                            <kw-input style="max-width: calc(50% - 110px);" />
-                            <kw-option-group
-                              :model-value="[]"
-                              type="checkbox"
-                              :options="['설치월면제', '매년1차월무료(5년간)']"
-                              class="ml20"
-                            />
-                          </kw-form-item>
-                          <kw-form-item
-                            label="할인개월/할인금액(원)"
-                          >
-                            <kw-input
-                              placeholder="할인 개월 입력"
-                              readonly
-                            />
-                            <kw-input
-                              placeholder="할인 금액 입력"
-                              readonly
-                            />
-                          </kw-form-item>
-                        </kw-form-row> -->
-                        <kw-form-row>
-                          <kw-form-item
-                            label="변경사유"
-                            :colspan="2"
-                          >
-                            <kw-input
-                              v-model="orderProduct.cntrChAkCn"
-                              type="textarea"
-                              maxlength="1000"
-                              :rows="3"
-                              :disable="fieldData.slClYn==='Y'"
-                            />
-                          </kw-form-item>
-                        </kw-form-row>
-                        <kw-form-row>
-                          <kw-form-item
-                            label="인정실적"
-                          >
-                            <!-- 인정실적금액 -->
-                            <kw-input
-                              v-model="orderProduct.ackmtPerfAmt"
-                              mask="number"
-                              readonly
-                              align="right"
-                            /><p>&nbsp;원</p>
-                            <!-- 인정실적율 -->
-                            <kw-input
-                              v-model="orderProduct.ackmtPerfRt"
-                              mask="number"
-                              class="ml10"
-                              readonly
-                              align="right"
-                            /><p>&nbsp;%</p>
-                          </kw-form-item>
-                          <kw-form-item
-                            label="수수료 기준금액"
-                          >
-                            <kw-input
-                              v-model="orderProduct.feeAckmtBaseAmt"
-                              mask="number"
-                              readonly
-                              align="right"
-                            />
-                          </kw-form-item>
-                        </kw-form-row>
-                      </kw-form>
-                      <kw-separator spaced="20px" />
 
-                      <!-- 기기변경 내역 -->
-                      <div class="product">
-                        <kw-form
-                          v-show="false"
-                        >
-                          <kw-form-row>
-                            <kw-input
-                              v-model="orderProduct.mchChCntrNo"
-                            />
-                          </kw-form-row>
-                        </kw-form>
-                        <div
-                          v-if="orderProduct.mchChCntrNo && orderProduct.mchChCntrSn"
-                          class="product-right-area"
-                        >
-                          <div class="row items-center justify-between">
-                            <div
-                              class="row"
-                              style="width: calc(100% - 45px);"
-                            >
-                              <!-- 기기변경 -->
-                              <kw-chip
-                                :label="$t('MSG_TXT_MCHN_CH')"
-                                color="primary"
-                                outline
-                                class="ma2"
-                              />
+            <kw-form-row>
+              <kw-form-item
+                :label="$t('MSG_TXT_PRDT') + $t('MSG_TXT_SEARCH')"
+                :colspan="3"
+              >
+                <kw-input
+                  v-model="searchParams.pdNm"
+                  icon="search"
+                  maxlength="100"
+                  grow
+                  :disable="!isFetched || fieldData.slClYn==='Y'"
+                  @click-icon="onClickSelectProduct"
+                />
+              </kw-form-item>
+            </kw-form-row>
 
-                              <ul
-                                class="product-price-list kw-grow"
-                                style="max-width: calc(100% - 45px);"
-                              >
-                                <li
-                                  class="product-price-item kw-grow"
-                                  style="max-width: calc(100% - 355px);"
-                                >
-                                  <span
-                                    class="kw-fc--black1 ml8 "
-                                    style="overflow: hidden;
-                                      text-overflow: ellipsis;
-                                      white-space: nowrap;"
-                                  >
-                                    {{ orderProduct.mchChPdNm }}
-                                  </span>
-                                </li>
+            <div>
+              <rental-price-select
+                v-if="isFetched"
+                :key="`rps-${compKey}`"
+                :model-value="orderProduct"
+                :bas="fieldData"
+                @select:one-plus-one="onClickOnePlusOne"
+                @delete:one-plus-one="onDeleteOnePlusOne"
+                @change:device="onClickDeviceChange"
+                @packaging="onPackaging"
+                @price-changed="onPriceChanged(orderProduct, $event)"
+                @delete="onClickDelete(orderProduct)"
+              />
+            </div>
 
-                                <li class="product-price-item">
-                                  <p class="kw-font-pt14 kw-fc--black3">
-                                    {{ $t('MSG_TXT_CNTR_NO') }}<!-- 계약번호 -->
-                                  </p>
-                                  <span class="kw-fc--black1 ml8">
-                                    {{ orderProduct.mchChCntrNo + '-' + orderProduct.mchChCntrSn }}
-                                  </span>
-                                </li>
-                              </ul>
-                            </div>
-                            <kw-btn
-                              v-permission:delete
-                              borderless
-                              icon="close_24"
-                              style="font-size: 24px;"
-                              class="w24"
-                              :disable="fieldData.slClYn==='Y'"
-                              @click="onClickDeleteDeviceChange"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+            <div>
+              <kw-form
+                :cols="2"
+              >
+                <kw-form-row>
+                  <kw-form-item
+                    label="제휴상품"
+                  >
+                    <kw-select
+                      v-model="productExtra.alncmpCd"
+                      :options="codes.ALNCMP_CD"
+                      first-option="select"
+                      :disable="fieldData.slClYn==='Y'"
+                    />
+                  </kw-form-item>
 
-                    <div class="row justify-end mt20">
-                      <!-- <kw-btn
-                        padding="12px"
-                        label="확정"
-                      /> -->
-                      <kw-btn
-                        v-permission:update
-                        class="ml10"
-                        padding="12px"
-                        label="저장"
-                        :disable="!isFetched || fieldData.slClYn==='Y'"
-                        @click="onClickProductChangeSave"
-                      />
-                    </div>
-                  </div>
-                </kw-form-item>
-                <kw-form-item />
-              </kw-form-row>
-            </kw-form>
+                  <kw-form-item
+                    label="법인추가할인"
+                  >
+                    <kw-input
+                      v-model="productExtra.sellDscCtrAmt"
+                      maxlength="10"
+                      type="number"
+                      :readonly="fieldData.copnDvCd !== '2'"
+                      :disable="fieldData.slClYn==='Y'"
+                    />
+                  </kw-form-item>
+                </kw-form-row>
+
+                <kw-form-row>
+                  <kw-form-item
+                    label="변경사유"
+                    :colspan="2"
+                  >
+                    <kw-input
+                      v-model="productExtra.cntrChAkCn"
+                      type="textarea"
+                      maxlength="1000"
+                      :rows="3"
+                      :disable="fieldData.slClYn==='Y'"
+                    />
+                  </kw-form-item>
+                </kw-form-row>
+
+                <kw-form-row>
+                  <kw-form-item
+                    label="인정실적"
+                  >
+                    <!-- 인정실적금액 -->
+                    <kw-input
+                      v-model="productExtra.ackmtAmt"
+                      mask="number"
+                      readonly
+                      align="right"
+                    /><p>&nbsp;원</p>
+                    <!-- 인정실적율 -->
+                    <kw-input
+                      v-model="productExtra.ackmtRt"
+                      mask="number"
+                      class="ml10"
+                      readonly
+                      align="right"
+                    /><p>&nbsp;%</p>
+                  </kw-form-item>
+                  <kw-form-item
+                    label="수수료 기준금액"
+                  >
+                    <kw-input
+                      v-model="productExtra.feeAckmtBaseAmt"
+                      mask="number"
+                      readonly
+                      align="right"
+                    />
+                  </kw-form-item>
+                </kw-form-row>
+              </kw-form>
+            </div>
+
+            <div class="row justify-end my20">
+              <!-- 상품확정 -->
+              <kw-btn
+                primary
+                label="상품확정"
+                :disable="isCnfmPd"
+                @click="onClickConfirm"
+              />
+              <!-- 저장 -->
+              <kw-btn
+                v-permission:update
+                class="ml10"
+                padding="12px"
+                label="저장"
+                :disable="!isFetched || fieldData.slClYn==='Y' || !isCnfmPd"
+                @click="onClickProductChangeSave"
+              />
+            </div>
           </kw-expansion-item>
+
           <kw-expansion-item
             padding-target="header"
             expansion-icon-align="center"
@@ -927,6 +721,11 @@
             expansion-icon-align="center"
             expand-icon-class="kw-font-pt24"
           >
+            <kw-field
+              v-show="false"
+              v-model="istEnvRequest"
+            />
+
             <template #header>
               <kw-item-section>
                 <kw-item-label>
@@ -1111,9 +910,17 @@
 // -------------------------------------------------------------------------------------------------
 import { useDataService, stringUtil, codeUtil, useGlobal, getComponentType } from 'kw-lib';
 import { isEmpty, toNumber } from 'lodash-es';
+import dayjs from 'dayjs';
 import pdConst from '~sms-common/product/constants/pdConst';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
-import dayjs from 'dayjs';
+import RentalPriceSelect
+  from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
+import { warn } from 'vue';
+import {
+  CNTR_REL_DTL_CD,
+  RENTAL_DSC_DV_CD,
+  RENTAL_DSC_TP_CD,
+} from '~sms-wells/contract/constants/ctConst';
 
 const now = dayjs();
 const dataService = useDataService();
@@ -1123,9 +930,10 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-const obsRef = ref(getComponentType('KwPage'));
+const obsRef = ref(getComponentType('KwForm'));
 const grdPrepayRef = ref(getComponentType('KwGrid'));
-const saveGbn = ref({ prod: 'prod', prePay: 'prePay', pmot: 'pmot', istEnv: 'istEnv' });
+const saveGbn = ref({ prod: 'prod', istEnv: 'istEnv' });
+const compKey = ref(0); // 렌탈가격설정 컴포넌트 생성키
 
 const codes = await codeUtil.getMultiCodes(
   'SELL_EV_CD', // 판매행사코드. 팝업스토어관련(2), 무진행사(4),...
@@ -1134,7 +942,7 @@ const codes = await codeUtil.getMultiCodes(
   'WPRS_ITST_TP_CD', // 수압강도유형코드. 강(1), 약(2)
   'SRCWT_TP_CD', // 상수원유형코드. 상수도(1), 지하수(2), 간이상수원(3)
   'IST_PLC_TP_CD', // 설치장소유형코드. 자택(1), 사무실(2), 업소(3), 학교(4), 기타(5)
-  'ALNC_CO_ACD', // 제휴 회사 앱코드
+  'ALNCMP_CD', // 제휴사코드
 );
 
 const searchParams = ref({
@@ -1232,51 +1040,17 @@ const fieldData = ref({
   vstSchDt: '', // 설치예정일자
 });
 
-// 주문상품 정보
-const orderProduct = ref({
-  pdMclsfNm: '', // 상품중분류명
-  pdCd: '', // 상품코드
-  pdNm: '', // 상품명
-  sellEvCd: '', /* 판매행사코드 */
-  frisuAsPtrmN: '', /* 무상AS기간수 */
-  cntrAmt: '0', // 등록비(계약금액)
-  cntramDscAmt: '0', /* 계약금할인금액 */
-  pdBaseAmt: '0', /* 상품기준금액 */
-  sellAmt: '0', /* 판매금액 */
-  dscAmt: '0', /* 할인금액 */
-  fnlAmt: '0', // 월렌탈료(최종금액)
-  sellInflwChnlDtlCd: '', // 판매유입채널상세코드
-  stplPtrm: '', // 약정기간
-  cntrPtrm: '', // 계약기간
-  sellDscDvCd: '1', // [유형코드] 할인유형코드. 법인(1),중고보상(3),법인단체(5),...
-  sellDscrCd: '', // 판매할인율코드 (법인일때 사용)
-  sellDscTpCd: '', // [주문상품선택-렌탈할인유형코드] 전체(a),재렌탈(02),1+1(03),...
-  svPdCd: '', // [주문상품선택-서비스] 대상상품코드
-  evtCd: '', // 행사코드
-  copnDvCd: '', // 개인법인구분
-  plusCntrNo: '', // [주문상품선택-1+1계약번호] 대상상세계약번호
-  plusCntrSn: '', // [주문상품선택-1+1계약일련번호] 대상상세계약일련번호
-  plusPdCd: '', // 1+1 상품코드
-  plusSellTpCd: '', // 1+1 판매유형코드
-  plusPdNm: '', // [주문상품선택-1+1상품명]
-  mchChCntrNo: '', // [주문상품선택-기기변경 계약번호] 대상계약번호
-  mchChCntrSn: '', // [주문상품선택-기기변경 계약일련번호] 대상계약일련번호
-  mchChPdCd: '', // 기기변경 기준상품코드
-  mchChPdNm: '', // [주문상품선택-기기변경 상품명]
-  mchChSellTpCd: '', // 기기변경 판매유형코드
-  mchChTpCd: '', // 기기변경 유형코드
-  mchChPasgMcn: '', // 기기변경 경과개월수
-  mchChCpsApyr: '', // 기기변경 보상적용율
-  mchChClnOjYn: '', // 기기변경 회수대상여부
-  mchChOjCntrMmBaseDvCd: '', // 기기변경 대상계약월기준구분코드
-  cntrChAkCn: '', // [주문상품선택-변경사유] 계약변경요청내용
-  ackmtPerfAmt: '', /* [인정실적] 인정실적금액 */
-  ackmtPerfRt: '', /* [인정실적] 인정실적율 */
-  feeAckmtBaseAmt: '', /* [수수료 기준금액] 수수료인정기준금액 */
-  exMchChCntrNo: '', // 기존의 기기변경 계약번호
-  exMchChCntrSn: '', // 기존의 기기변경 계약이련번호
-  exPlusCntrNo: '', // 기존의 1+1 계약번호
-  exPlusCntrSn: '', // 기존의 1+1 계약일련번호
+const orderProduct = ref({});
+const promotions = ref([]); // 적용가능한 프로모션
+
+// ADMIN용 추가 데이터
+const productExtra = ref({
+  alncmpCd: '', // 제휴상품
+  sellDscCtrAmt: 0, // 법인추가할인
+  cntrChAkCn: '', // 변경사유
+  ackmtAmt: 0, // 인정실적
+  ackmtRt: 0, // 인정실적율
+  feeAckmtBaseAmt: 0, // 수수료기준금액
 });
 
 // 설치환경 및 요청사항
@@ -1289,58 +1063,6 @@ const istEnvRequest = ref({
   sconCn: '', // [설치환경및요청사항-참고사항] 특약내용
 });
 
-const productInfo = ref({}); // 상품정보
-const stplPtrms = ref([]); // 약정기간목록
-const cntrPtrms = ref([]); // 계약기간목록
-const rgstFees = ref([]); // 등록비목록
-const rentalDscDvCds = ref([]); // 렌탈할인구분목록
-const rentalDscrCds = ref([]); // 렌탈법인할인율목록
-const rentalDscTpCds = ref([]); // 렌탈할인유형목록
-const svPdCds = ref([]); // 서비스상품목록
-const evtCds = ref([]); // 행사코드목록
-
-// 주문상품 정보 초기화
-async function initProduct(gubun) {
-  orderProduct.value.copnDvCd = fieldData.value.copnDvCd; // 개인/법인구분
-  orderProduct.value.pdMclsfNm = (gubun === 'init') ? fieldData.value.pdMclsfNm : productInfo.value.pdMclsfNm;
-  orderProduct.value.pdCd = (gubun === 'init') ? fieldData.value.basePdCd : productInfo.value.pdCd;
-  orderProduct.value.pdNm = (gubun === 'init') ? fieldData.value.pdNm : productInfo.value.pdNm;
-  orderProduct.value.sellEvCd = (gubun === 'init') ? fieldData.value.sellEvCd : '';
-  orderProduct.value.frisuAsPtrmN = (gubun === 'init') ? fieldData.value.frisuAsPtrmN : '';
-  orderProduct.value.alncmpCd = (gubun === 'init') ? fieldData.value.alncmpCd : '';
-  orderProduct.value.sellInflwChnlDtlCd = (gubun === 'init') ? fieldData.value.sellInflwChnlDtlCd : productInfo.value.sellInflwChnlDtlCd;
-  orderProduct.value.cntrAmt = (gubun === 'init') ? fieldData.value.cntrAmt || '0' : '0';
-  orderProduct.value.cntramDscAmt = (gubun === 'init') ? fieldData.value.cntramDscAmt || '0' : '0';
-  orderProduct.value.pdBaseAmt = (gubun === 'init') ? fieldData.value.pdBaseAmt || '0' : '0';
-  orderProduct.value.sellAmt = (gubun === 'init') ? fieldData.value.sellAmt || '0' : '0';
-  orderProduct.value.dscAmt = (gubun === 'init') ? fieldData.value.dscAmt || '0' : '0';
-  orderProduct.value.fnlAmt = (gubun === 'init') ? fieldData.value.fnlAmt || '0' : '0';
-  orderProduct.value.sellDscCtrAmt = (gubun === 'init') ? fieldData.value.sellDscCtrAmt : '0';
-  orderProduct.value.stplPtrm = (gubun === 'init') ? fieldData.value.stplPtrm : '';
-  orderProduct.value.cntrPtrm = (gubun === 'init') ? fieldData.value.cntrPtrm : '';
-  orderProduct.value.sellDscDvCd = (gubun === 'init') ? fieldData.value.sellDscDvCd : '';
-  orderProduct.value.sellDscrCd = (gubun === 'init') ? fieldData.value.sellDscrCd : '';
-  orderProduct.value.sellDscTpCd = (gubun === 'init') ? fieldData.value.sellDscTpCd : '';
-  orderProduct.value.svPdCd = (gubun === 'init') ? fieldData.value.svPdCd : '';
-  orderProduct.value.svVstPrdCd = '';
-  orderProduct.value.evtCd = (gubun === 'init') ? fieldData.value.evtCd : '';
-  orderProduct.value.sellDscrCd = (gubun === 'init') ? fieldData.value.sellDscrCd : '';
-  orderProduct.value.plusCntrNo = (gubun === 'init') ? fieldData.value.plusCntrNo : ''; // [주문상품선택-1+1계약번호] 대상상세계약번호
-  orderProduct.value.plusCntrSn = (gubun === 'init') ? fieldData.value.plusCntrSn : ''; // [주문상품선택-1+1계약일련번호] 대상상세계약일련번호
-  orderProduct.value.plusPdCd = (gubun === 'init') ? fieldData.value.plusPdCd : ''; // 1+1 상품코드
-  orderProduct.value.plusSellTpCd = (gubun === 'init') ? fieldData.value.plusSellTpCd : ''; // 1+1 판매유형코드
-  orderProduct.value.plusPdNm = (gubun === 'init') ? fieldData.value.plusPdNm : ''; // [주문상품선택-1+1상품명]
-  orderProduct.value.mchChCntrNo = (gubun === 'init') ? fieldData.value.mchChCntrNo : ''; // [주문상품선택-기기변경 계약번호] 대상계약번호
-  orderProduct.value.mchChCntrSn = (gubun === 'init') ? fieldData.value.mchChCntrSn : ''; // [주문상품선택-기기변경 계약일련번호] 대상계약일련번호
-  orderProduct.value.mchChPdCd = (gubun === 'init') ? fieldData.value.mchChPdCd : ''; // 기기변경 기준상품코드
-  orderProduct.value.mchChPdNm = (gubun === 'init') ? fieldData.value.mchChPdNm : ''; // [주문상품선택-기기변경 상품명]
-  orderProduct.value.mchChSellTpCd = (gubun === 'init') ? fieldData.value.mchChSellTpCd : ''; // 기기변경 판매유형코드
-  orderProduct.value.cntrChAkCn = (gubun === 'init') ? fieldData.value.cntrChAkCn : ''; // [변경사유] 계약변경요청내용
-  orderProduct.value.ackmtPerfAmt = (gubun === 'init') ? fieldData.value.ackmtPerfAmt : ''; // [인정실적] 인정실적금액
-  orderProduct.value.ackmtPerfRt = (gubun === 'init') ? fieldData.value.ackmtPerfRt : ''; // [인정실적] 인정실적율
-  orderProduct.value.feeAckmtBaseAmt = (gubun === 'init') ? fieldData.value.feeAckmtBaseAmt : ''; // [수수료 기준금액] 수수료인정기준금액
-}
-
 // 설치환경 및 요청사항 초기화
 async function initIstEnvRequest() {
   istEnvRequest.value.useElectTpCd = fieldData.value.useElectTpCd;
@@ -1349,32 +1071,6 @@ async function initIstEnvRequest() {
   istEnvRequest.value.istPlcTpCd = fieldData.value.istPlcTpCd;
   istEnvRequest.value.istAkArtcMoCn = fieldData.value.istAkArtcMoCn;
   istEnvRequest.value.sconCn = fieldData.value.sconCn;
-}
-
-// 선택가능한 약정기간, 계약기간, 등록비, 렌탈할인구분, 렌탈할인유형, 서비스상품, 행사코드 조회
-async function fetchProductAdditionalInfoData() {
-  productInfo.value = {};
-  stplPtrms.value = [];
-  cntrPtrms.value = [];
-  rgstFees.value = [];
-  rentalDscDvCds.value = [];
-  rentalDscrCds.value = [];
-  rentalDscTpCds.value = [];
-  svPdCds.value = [];
-  evtCds.value = [];
-
-  const res = await dataService.get('/sms/wells/contract/changeorder/rental-change-extras', { params: searchParams.value });
-  Object.assign(productInfo.value, res.data.productInfo);
-  Object.assign(stplPtrms.value, res.data.stplPtrms);
-  Object.assign(cntrPtrms.value, res.data.cntrPtrms);
-  Object.assign(rgstFees.value, res.data.rgstFees);
-  Object.assign(rentalDscDvCds.value, res.data.rentalDscDvCds);
-  Object.assign(rentalDscrCds.value, res.data.rentalDscrCds);
-  Object.assign(rentalDscTpCds.value, res.data.rentalDscTpCds);
-  Object.assign(svPdCds.value, res.data.svPdCds);
-
-  // 주문상품을 바꾼 경우, 선택 옵션 초기화
-  await initProduct();
 }
 
 const totalCount = ref(0);
@@ -1407,17 +1103,34 @@ async function fetchPrepayments() {
   view.resetCurrent();
 }
 
-const isFetched = ref(false);
-const rgstMode = ref(false); // 등록 모드 플래그
+const isFetched = ref(false); // 조회되었나
+const isInit = ref(true); // 조회후 초기화인가
+const rgstMode = ref(false); // 선납 등록 모드 플래그
+const isCnfmPd = ref(false); // 상품확정 유무
+
+// 프로모션정보 조회
+async function fetchPromotionData(cntrNo, pdPrcFnlDtlId, sellEvCd, mchnCh) {
+  // 적용가능한 프로모션 정보 조회
+  const res = await dataService.post(
+    '/sms/wells/contract/contracts/promotions',
+    { cntrNo, pdPrcFnlDtlId, sellEvCd, mchnCh, ojCntrRels: null },
+  );
+
+  promotions.value = res.data;
+  isCnfmPd.value = true;
+}
 
 // 기본정보 조회
 async function fetchData() {
   isFetched.value = false;
+  isInit.value = true;
   rgstMode.value = false;
 
   // 조회 전 기존 데이터 초기화
   fieldData.value = {};
   orderProduct.value = {};
+  prepayBas.value = {};
+  istEnvRequest.value = {};
 
   const res = await dataService.get(
     '/sms/wells/contract/changeorder/rental-change-infos',
@@ -1429,34 +1142,137 @@ async function fetchData() {
     },
   );
   Object.assign(fieldData.value, res.data);
-  fieldData.value.pdCd = fieldData.value.basePdCd;
-
-  isFetched.value = true;
-
-  if (!isEmpty(fieldData.value.vstSchDt)) {
-    isFetched.value = false;
-    alert(t('MSG_ALT_ALRDY_HAVE_IST_EXP_DT')); // 이미 설치 예약된 계약건 입니다.
-  }
-
-  // 주문상품선택 추가정보를 가져오기 위한 파라미터 세팅
-  searchParams.value.pdCd = fieldData.value.basePdCd;
-  searchParams.value.pdNm = fieldData.value.pdNm;
-  searchParams.value.sellInflwChnlDtlCd = fieldData.value.sellInflwChnlDtlCd;
-  searchParams.value.copnDvCd = fieldData.value.copnDvCd;
-
-  // 선택가능한 약정기간, 계약기간, 등록비, 렌탈할인구분, 렌탈할인유형, 서비스상품, 행사코드 조회
-  await fetchProductAdditionalInfoData();
-
-  // 주문상품 정보 초기화
-  await initProduct('init');
-
-  // 설치환경 및 요청사항 초기화
-  await initIstEnvRequest();
 
   // 선납 정보 조회
   await fetchPrepayments();
 
+  // 주문상품 검색창에 상품명 세팅
+  searchParams.value.pdNm = fieldData.value.pdNm;
+
+  // 적용가능한 프로모션정보 조회
+  await fetchPromotionData(
+    fieldData.value.cntrNo,
+    fieldData.value.pdPrcFnlDtlId,
+    fieldData.value.sellEvCd,
+    isEmpty(fieldData.value.mchChCntrNo) ? null
+      : {
+        ojCntrNo: fieldData.value.mchChCntrNo,
+        ojCntrSn: fieldData.value.mchChCntrSn,
+        mchnChTpCd: fieldData.value.mchnChTpCd,
+      },
+  );
+
+  // 설치환경 및 요청사항 초기화
+  await initIstEnvRequest();
+
+  // 주문상품선택 세팅
+  // console.log('orderProduct 세팅');
+  const product = {
+    pdPrcFnlDtlId: fieldData.value.pdPrcFnlDtlId,
+    pdQty: fieldData.value.pdQty,
+    promotions: promotions.value,
+    appliedPromotions: fieldData.value.promts,
+    cstBasePdAbbrNm: fieldData.value.pdNm,
+    pdCd: fieldData.value.pdCd,
+    cntrNo: fieldData.value.cntrNo,
+    pdClsfNm: fieldData.value.pdMclsfNm,
+  };
+
+  // 적용되있는 기기변경 세팅
+  if (!isEmpty(fieldData.value.mchChCntrNo)) {
+    product.mchnCh = {
+      mchnChYn: true,
+      ojCntrNo: fieldData.value.mchChCntrNo,
+      ojCntrSn: fieldData.value.mchChCntrSn,
+      pdNm: fieldData.value.mchChPdNm,
+      mchnChTpCd: fieldData.value.mchnChTpCd,
+      pasgMcn: '', // TODO: 가져와야됨
+      mchnCpsApyr: '', // TODO: 가져와야됨
+      mchnClnOjYn: '', // TODO: 가져와야됨
+      ojCntrMmBaseDvCd: '', // TODO: 가져와야됨
+    };
+    if (fieldData.value.mchnChTpCd === '19') {
+      product.priceOptionFilter = {
+        ...product.priceOptionFilter,
+        rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+        rentalDscTpCd: RENTAL_DSC_TP_CD.STPL_5_YEAR_RE_RENTAL,
+      };
+    } else {
+      orderProduct.value.priceOptionFilter = {
+        ...orderProduct.value.priceOptionFilter,
+        rentalDscDvCd: '8',
+        rentalDscTpCd: RENTAL_DSC_TP_CD.RE_RENTAL,
+      };
+    }
+  }
+
+  // 적용되있는 1+1 세팅
+  if (!isEmpty(fieldData.value.plusCntrNo)) {
+    product.cntrRels ??= [];
+    product.cntrRels.push({
+      cntrRelId: undefined,
+      cntrRelDtlCd: CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE,
+      baseDtlCntrNo: fieldData.value.cntrNo,
+      baseDtlCntrSn: fieldData.value.cntrSn,
+      ojDtlCntrNo: fieldData.value.plusCntrNo,
+      ojDtlCntrSn: fieldData.value.plusCntrSn,
+      basePdBas: {
+        pdCd: fieldData.value.pdCd,
+        pdNm: fieldData.value.pdNm,
+      },
+    });
+
+    product.priceOptionFilter = {
+      ...product.priceOptionFilter,
+      rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+      rentalDscTpCd: RENTAL_DSC_TP_CD.ONE_PLUS_ONE,
+    };
+  }
+
+  compKey.value += 1;
+  orderProduct.value = product;
+
+  if (!isEmpty(fieldData.value.vstSchDt)) {
+    isFetched.value = false;
+    alert(t('MSG_ALT_ALRDY_HAVE_IST_EXP_DT')); // 이미 설치 예약된 계약건 입니다.
+  } else {
+    isFetched.value = true;
+  }
+  isCnfmPd.value = true;
   obsRef.value.init();
+}
+
+// 상품 가격이 바꼈을 때, 이벤트
+function onPriceChanged(item, price) {
+  // console.log('onPriceChanged');
+  item.finalPrice = price;
+
+  orderProduct.value = item;
+
+  // 최초 세팅시
+  if (isInit.value) {
+    // console.log('promotions 세팅 : ', promotions.value);
+    isInit.value = false;
+
+    // 적용되있는 프로모션 세팅
+    if (!isEmpty(promotions.value)) {
+      orderProduct.value.promotions = promotions.value;
+    } else {
+      fieldData.value.promts?.forEach((i) => { i.pmotApyGrpCd = null; i.pmotApyOptCd = null; });
+      orderProduct.value.promotions = fieldData.value.promts;
+    }
+    orderProduct.value.appliedPromotions = fieldData.value.promts;
+
+    // 적용되있는 제휴사코드, 판매할인조정금액(법인추가할인) 세팅
+    productExtra.value.alncmpCd = fieldData.value.alncmpCd;
+    productExtra.value.sellDscCtrAmt = fieldData.value.sellDscCtrAmt;
+
+    isCnfmPd.value = true;
+    obsRef.value.init();
+  } else {
+    promotions.value = [];
+    isCnfmPd.value = false;
+  }
 }
 
 onMounted(async () => {
@@ -1480,7 +1296,12 @@ async function onClickSelectProduct() {
       return;
     }
 
-    if (payload[0].channelId.indexOf(fieldData.value.sellInflwChnlDtlCd) === -1) {
+    if (!isEmpty(payload[0].channelId)) {
+      if (payload[0].channelId.indexOf(fieldData.value.sellInflwChnlDtlCd) === -1) {
+        await alert(`선택 가능한 상품이 아닙니다. 판매채널[${fieldData.value.sellInflwChnlDtlCd}]을 확인해주세요.`);
+        return;
+      }
+    } else {
       await alert('선택 가능한 상품이 아닙니다. 판매채널을 확인해주세요.');
       return;
     }
@@ -1489,105 +1310,189 @@ async function onClickSelectProduct() {
     searchParams.value.pdNm = payload[0].pdNm;
     searchParams.value.sellInflwChnlDtlCd = fieldData.value.sellInflwChnlDtlCd;
 
-    await fetchProductAdditionalInfoData();
+    isFetched.value = false;
+
+    compKey.value += 1;
+
+    // 주문상품선택 세팅
+    orderProduct.value = {
+      pdPrcFnlDtlId: '',
+      verSn: '',
+      fnlAmt: 0,
+      pdQty: 1,
+      cstBasePdAbbrNm: payload[0].pdNm,
+      pdCd: payload[0].pdCd,
+      cntrNo: fieldData.value.cntrNo,
+      pdClsfNm: '',
+    };
+    promotions.value = [];
+
+    isFetched.value = true;
+    isCnfmPd.value = false;
   }
 }
 
-// 약정개월, 소유권이전개월(=계약기간), 등록비, 유형선택(=렌탈할인구분),
-// 프로모션코드(=렌탈할인유형), 주기/용도(=서비스상품) 변경 시, 변경되는 가격 조회
-const rentalPrice = ref({});
-async function selectRentalPriceChanges() {
-  // 법인단체(5) 외 다른 유형 선택시,
-  if (orderProduct.sellDscDvCd !== '5') { orderProduct.sellDscrCd = ''; } // 렌탈법인할인율코드 초기화
-
-  rentalPrice.value = {};
-
-  const res = await dataService.get(
-    '/sms/wells/contract/changeorder/rental-price-changes',
-    { params: orderProduct.value },
-  );
-  Object.assign(rentalPrice.value, res.data[0]);
-  orderProduct.value.pdBaseAmt = rentalPrice.value.basVal; // 기본값
-  // 할인금액 = 기본값(상품기준금액) - 최종값(판매금액)
-  orderProduct.value.dscAmt = rentalPrice.value.basVal - rentalPrice.value.fnlVal;
-  orderProduct.value.sellAmt = rentalPrice.value.fnlVal; // 판매금액(=렌탈가)
-  // 최종금액(=할인렌탈가) = 판매금액 - 판매할인조정금액
-  orderProduct.value.fnlAmt = rentalPrice.value.fnlVal - orderProduct.value.sellDscCtrAmt;
-  orderProduct.value.ackmtPerfAmt = rentalPrice.value.ackmtPerfAmt; // 인정실적금액
-  orderProduct.value.ackmtPerfRt = rentalPrice.value.ackmtPerfRt; // 인정실적율
-  orderProduct.value.feeAckmtBaseAmt = rentalPrice.value.feeAckmtBaseAmt; // 수수료인정기준금액
+// 다건할인(패키징) 선택 클릭
+async function onPackaging() {
+  alert('다건할인은 변경할 수 없습니다.');
 }
 
 // 기기변경 버튼 클릭
-async function onClickDeviceChange() {
-  const res = await modal({
+async function onClickDeviceChange(odrPrdct) {
+  const { result, payload } = await modal({
     component: 'WwctaMachineChangeCustomerDtlP',
     componentProps: {
       baseCntrNo: fieldData.value.cntrNo,
       baseCntrSn: fieldData.value.cntrSn,
-      cstNo: fieldData.value.cntrCstNo,
-      indvCrpDv: fieldData.value.copnDvCd,
-      pdCd: orderProduct.value.pdCd,
-      dscDv: orderProduct.value.sellDscDvCd,
-      dscTp: orderProduct.value.sellDscTpCd,
+      cstNo: fieldData.value?.cntrCstNo,
+      indvCrpDv: fieldData.value?.copnDvCd,
+      pdCd: odrPrdct.pdCd,
+      dscDv: odrPrdct.finalPrice?.rentalDscDvCd,
+      dscTp: odrPrdct.sellDscTpCd,
       sellTpCd: '2',
-      alncmpCd: fieldData.value.alncmpCntrDrmVal,
+      alncmpCd: odrPrdct.alncmpCntrDrmVal,
       rgstMdfcDv: '1', // FIXME: 등록, 수정 구분 필요
     },
   });
 
-  if (res.result && res.payload) {
-    // console.log(res.payload);
-    orderProduct.value.mchChCntrNo = res.payload.cntrNo;
-    orderProduct.value.mchChCntrSn = res.payload.cntrSn;
-    // orderProduct.value.mchChPdCd = '';
-    orderProduct.value.mchChPdNm = res.payload.pdNm;
-    // orderProduct.value.mchChSellTpCd = '';
-    orderProduct.value.mchChTpCd = res.payload.workFlag; // 기기변경 유형코드
-    orderProduct.value.mchChPasgMcn = res.payload.rentalNmnN; // 기기변경 경과개월수
-    orderProduct.value.mchChCpsApyr = res.payload.finalPerfRt; // 기기변경 보상적용율
-    orderProduct.value.mchChClnOjYn = res.payload.clnYn; // 기기변경 회수대상여부
-    orderProduct.value.mchChOjCntrMmBaseDvCd = res.payload.resultDvCheck; // 기기변경 대상계약월기준구분코드
+  if (!result) {
+    return;
+  }
+
+  odrPrdct.mchnCh = {
+    mchnChYn: result,
+    ojCntrNo: payload.cntrNo,
+    ojCntrSn: payload.cntrSn,
+    pdNm: payload.pdNm,
+    mchnChTpCd: payload.workFlag,
+    pasgMcn: payload.rentalNmnN,
+    mchnCpsApyr: payload.finalPerfRt,
+    mchnClnOjYn: payload.clnYn,
+    ojCntrMmBaseDvCd: payload.resultDvCheck,
+  };
+
+  if (payload.workFlag === '19') {
+    odrPrdct.priceOptionFilter = {
+      ...odrPrdct.priceOptionFilter,
+      rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+      rentalDscTpCd: RENTAL_DSC_TP_CD.STPL_5_YEAR_RE_RENTAL,
+    };
+  } else {
+    odrPrdct.priceOptionFilter = {
+      ...odrPrdct.priceOptionFilter,
+      rentalDscDvCd: '8',
+      rentalDscTpCd: RENTAL_DSC_TP_CD.RE_RENTAL,
+    };
   }
 }
 
-// 기기변경 삭제버튼 클릭
-function onClickDeleteDeviceChange() {
-  orderProduct.value.mchChCntrNo = '';
-  orderProduct.value.mchChCntrSn = '';
-  orderProduct.value.mchChPdCd = '';
-  orderProduct.value.mchChPdNm = '';
-  orderProduct.value.mchChSellTpCd = '';
-  orderProduct.value.mchChTpCd = '';
-  orderProduct.value.mchChPasgMcn = '';
-  orderProduct.value.mchChCpsApyr = '';
-  orderProduct.value.mchChClnOjYn = '';
-  orderProduct.value.mchChOjCntrMmBaseDvCd = '';
+function onClickDelete() {
+  alert('계약변경에서는 상품변경만 가능합니다.');
+}
+
+// 1+1 버튼 클릭
+async function onClickOnePlusOne(odrPrdct) {
+  const { pdCd, basePdCd /* 안전장치 */ } = odrPrdct;
+
+  const { result, payload } = await modal({
+    component: 'WwctaOnePlusOneContractListP',
+    componentProps: {
+      cntrNo: fieldData.value.cntrNo,
+      pdCd: pdCd || basePdCd,
+    },
+  });
+
+  if (!result) {
+    return;
+  }
+
+  odrPrdct.cntrRels ??= [];
+  odrPrdct.cntrRels.push({
+    cntrRelId: undefined,
+    cntrRelDtlCd: CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE,
+    baseDtlCntrNo: fieldData.value.cntrNo,
+    baseDtlCntrSn: fieldData.value.cntrSn,
+    ojDtlCntrNo: payload.cntrNo,
+    ojDtlCntrSn: payload.cntrSn,
+    basePdBas: {
+      pdCd: odrPrdct.pdCd,
+      pdNm: odrPrdct.pdNm,
+    },
+    ojBasePdBas: { ...payload }, /* 기기 선택 해야함. */
+  });
+
+  odrPrdct.priceOptionFilter = {
+    ...odrPrdct.priceOptionFilter,
+    rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+    rentalDscTpCd: RENTAL_DSC_TP_CD.ONE_PLUS_ONE,
+  };
+}
+
+// 1+1상품 삭제 버튼 클릭
+async function onDeleteOnePlusOne(odrPrdct) {
+  const { cntrRels } = odrPrdct;
+  if (!cntrRels?.length) {
+    warn('계약관계가 상이합니다.');
+  }
+  const onePlusOneRelIndex = cntrRels.findIndex((cntrRel) => cntrRel.cntrRelDtlCd === CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE);
+  if (onePlusOneRelIndex < 0) {
+    warn('1+1 관계가 없습니다.');
+  }
+  cntrRels.splice(onePlusOneRelIndex, 1);
+
+  if (odrPrdct.priceOptionFilter?.rentalDscTpCd) {
+    odrPrdct.priceOptionFilter.rentalDscTpCd = undefined;
+  }
+  if (odrPrdct.priceOptionFilter.rentalDscDvCd) {
+    odrPrdct.priceOptionFilter.rentalDscDvCd = undefined;
+  }
+}
+
+// 상품확정 버튼 클릭
+async function onClickConfirm() {
+  // 적용가능한 프로모션 조회
+  promotions.value = [];
+  orderProduct.value.appliedPromotions = [];
+
+  if (!orderProduct.value.pdPrcFnlDtlId) {
+    notify('상품 가격을 확인해주세요');
+    return;
+  }
+
+  await fetchPromotionData(
+    orderProduct.value.cntrNo,
+    orderProduct.value.pdPrcFnlDtlId,
+    orderProduct.value.sellEvCd,
+    orderProduct.value.mchnCh,
+  );
+
+  orderProduct.value.promotions = promotions.value;
 }
 
 // 상품 변경 저장 버튼 클릭
 async function onClickProductChangeSave() {
+  if (!obsRef.value.isModified()) {
+    await alert(t('MSG_ALT_NO_CHG_CNTN')); // 변경된 내용이 없습니다.
+    return;
+  }
+
+  if (!isCnfmPd.value) {
+    await alert('먼저 상품확정을 해주세요.');
+    return;
+  }
+
   if (!await confirm('상품 정보를 변경하시겠습니까?')) return;
 
-  orderProduct.value.cntrNo = fieldData.value.cntrNo;
-  orderProduct.value.cntrSn = fieldData.value.cntrSn;
-  orderProduct.value.exMchChYn = isEmpty(fieldData.value.mchChCntrNo) ? 'N' : 'Y'; // 1+1 계약 여부
-  orderProduct.value.exOpoYn = isEmpty(fieldData.value.plusCntrNo) ? 'N' : 'Y'; // 기기변경 계약 여부
-  orderProduct.value.exMchChCntrNo = fieldData.value.mchChCntrNo;
-  orderProduct.value.exMchChCntrSn = fieldData.value.mchChCntrSn;
-  orderProduct.value.exPlusCntrNo = fieldData.value.plusCntrNo;
-  orderProduct.value.exPlusCntrSn = fieldData.value.plusCntrSn;
+  // 선택한 제휴사코드 세팅
+  orderProduct.value.alncmpCd = productExtra.value.alncmpCd;
 
-  // 현재 선택된 서비스 방문주기 세팅
-  const selectedSv = svPdCds.value.filter((item) => item.codeId === orderProduct.value.svPdCd);
-  orderProduct.value.svVstPrdCd = isEmpty(selectedSv[0]) ? '' : selectedSv[0].svVstPrdCd;
+  // 변경사유 세팅
+  orderProduct.value.cntrChAkCn = productExtra.value.cntrChAkCn;
 
   await dataService.post('/sms/wells/contract/changeorder/rental-change-infos/admin', {
     saveGbn: saveGbn.value.prod, // 저장구분: 상품변경
     baseInfo: fieldData.value, // 기본정보
     product: orderProduct.value, // 상품정보
-    rentalPrice: rentalPrice.value, // 상품(가격)정보
-    prepayment: {}, // 선납정보
     istEnv: {}, // 설치환경정보
   });
 
@@ -1679,8 +1584,6 @@ async function onClickInstallmentEnvironmentSave() {
     saveGbn: saveGbn.value.istEnv, // 저장구분: 설치환경
     baseInfo: fieldData.value, // 기본정보
     product: {}, // 상품정보
-    rentalPrice: {}, // 상품(가격)정보
-    prepayment: {}, // 선납정보
     istEnv: istEnvRequest.value, // 설치환경정보
   });
 
@@ -1716,16 +1619,24 @@ async function onClickCntrDelete() {
   }
 }
 
-watch(() => orderProduct.value.sellDscCtrAmt, async () => {
-  // console.log(toNumber(orderProduct.value.sellDscCtrAmt || 0));
-  // console.log(toNumber(orderProduct.value.sellAmt || 0));
+watch(() => orderProduct.value.finalPrice?.ackmtAmt, async () => {
+  productExtra.value.ackmtAmt = orderProduct.value?.finalPrice?.ackmtAmt;
+});
 
-  if (toNumber(orderProduct.value.sellDscCtrAmt || 0) > toNumber(orderProduct.value.sellAmt || 0)) {
+watch(() => orderProduct.value.finalPrice?.ackmtRt, async () => {
+  productExtra.value.ackmtRt = orderProduct.value?.finalPrice?.ackmtRt;
+});
+
+watch(() => orderProduct.value.finalPrice?.feeAckmtBaseAmt, async () => {
+  productExtra.value.feeAckmtBaseAmt = orderProduct.value?.finalPrice?.feeAckmtBaseAmt;
+});
+
+watch(() => productExtra.value.sellDscCtrAmt, async () => {
+  if (toNumber(productExtra.value.sellDscCtrAmt || 0) > toNumber(orderProduct.value.fnlAmt || 0)) {
+    productExtra.value.sellDscCtrAmt = 0;
     alert('할인금액이 렌탈금액보다 높을 수 없습니다.');
-    orderProduct.value.sellDscCtrAmt = 0;
   }
-  orderProduct.value.fnlAmt = toNumber(orderProduct.value.sellAmt || 0)
-  - toNumber(orderProduct.value.sellDscCtrAmt || 0);
+  orderProduct.value.sellDscCtrAmt = productExtra.value.sellDscCtrAmt;
 });
 
 // -------------------------------------------------------------------------------------------------
