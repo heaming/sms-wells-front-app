@@ -45,7 +45,7 @@
             :label="$t('MSG_TXT_CH_RSON')"
             :readonly="saveParams.procsDv===''"
             rules="required"
-            maxlength="1000"
+            maxlength="100"
           />
         </kw-form-item>
       </kw-form-row>
