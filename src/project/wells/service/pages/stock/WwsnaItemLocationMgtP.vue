@@ -229,6 +229,11 @@ async function onClickSave() {
   if (!await gridUtil.validate(view)) { return; }
   const modifedData = gridUtil.getChangedRowValues(view);
 
+  const { stdWareUseYn } = propParams.value;
+  if (stdWareUseYn === 'N') {
+    modifedData[0].wareNo = '200012';
+  }
+
   const res = await dataService.put(baseURI, modifedData);
   if (res.data.processCount > 0) {
     notify(t('MSG_ALT_SAVE_DTA'));
