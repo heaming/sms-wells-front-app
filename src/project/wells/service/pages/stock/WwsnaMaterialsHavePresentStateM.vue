@@ -196,8 +196,8 @@ const { getMonthWarehouse } = useSnCode();
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const searchParams = ref({
-  stFromYmd: '',
-  edToYmd: '',
+  stFromYmd: dayjs().subtract(0, 'month').startOf('month').format('YYYYMMDD'),
+  edToYmd: dayjs().subtract(0, 'month').endOf('day').format('YYYYMMDD'),
   wareNo: '',
   wareDtlDvCd: '',
   itmGdCd: '',
