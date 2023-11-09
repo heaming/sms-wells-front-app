@@ -398,6 +398,8 @@ async function onClickExcelDownload() {
     timePostfix: true,
     checkBar: 'hidden',
     exportData: res.data,
+    allColumns: false,
+    hideColumns: ['imgUrl'],
   });
 }
 
