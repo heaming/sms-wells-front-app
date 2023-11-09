@@ -1091,7 +1091,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, codeUtil, getComponentType, useDataService, gridUtil, useGlobal, confirm, popupUtil, stringUtil } from 'kw-lib';
+import { defineGrid, codeUtil, getComponentType, useDataService, gridUtil, useGlobal, confirm, popupUtil, stringUtil, alert } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 import ZwbncCustomerDtlPSms from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPSms.vue';
@@ -1482,21 +1482,29 @@ async function onClickPetitionCreate() {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
-  checkedRows.forEach((obj) => {
+
+  checkedRows.forEach(async (obj, index) => {
     const cntrDtlNo = `${obj.cntrNo}-${obj.cntrSn}`;
-    dataParams.push({
-      baseYm: obj.baseYm,
-      cntrDtlNo,
-    });
-  });
-
-  const userObjects = ref(dataParams);
-
-  await modal({
-    component: 'ZwbncPetitionCreateP',
-    componentProps: {
-      userObjects: userObjects.value,
-    },
+    const response = await dataService.get('/sms/wells/bond/bond-counsel/petition-create-check', { params: { cntrDtlNo } });
+    if (response.data > 0) {
+      dataParams.push({
+        baseYm: obj.baseYm,
+        cntrDtlNo,
+      });
+    }
+    if (checkedRows.length === index + 1) {
+      if (dataParams.length > 0) {
+        const userObjects = ref(dataParams);
+        await modal({
+          component: 'ZwbncPetitionCreateP',
+          componentProps: {
+            userObjects: userObjects.value,
+          },
+        });
+      } else {
+        alert(t('MSG_ALT_PTTN_CRT'));
+      }
+    }
   });
 }
 
