@@ -79,10 +79,7 @@
       <kw-form-row>
         <kw-form-item :label="$t('MSG_TXT_MM_RTLFE1_MCNT_WON')">
           <p v-if="Number(rentalSalesDetail.rentalAmt) > 0">
-            {{ `${rentalSalesDetail.rentalPtrm}${$t('MSG_TXT_MCNT')}${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalAmt))}(DC ${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalDscAmt))})` }}
-          </p>
-          <p v-if="Number(rentalSalesDetail.stplDscAmt) > 0">
-            {{ stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.stplDscAmt)) }}
+            {{ `${rentalSalesDetail.rentalPtrm}${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalAmt))}(DC ${stringUtil.getNumberWithComma(toInteger(rentalSalesDetail.rentalDscAmt))})` }}
           </p>
         </kw-form-item>
         <kw-form-item :label="$t('MSG_TXT_MM_RTLFE2')">
