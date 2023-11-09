@@ -258,9 +258,11 @@
                 :key="`rps-${compKey}`"
                 :model-value="orderProduct"
                 :bas="fieldData"
+                modify
                 @select:one-plus-one="onClickOnePlusOne"
                 @delete:one-plus-one="onDeleteOnePlusOne"
-                @change:device="onClickDeviceChange"
+                @select:device="onClickDeviceChange"
+                @delete:device="onDeleteDeviceChange"
                 @packaging="onPackaging"
                 @price-changed="onPriceChanged(orderProduct, $event)"
                 @delete="onClickDelete(orderProduct)"
@@ -290,7 +292,7 @@
                       v-model="productExtra.sellDscCtrAmt"
                       maxlength="10"
                       type="number"
-                      :readonly="fieldData.copnDvCd !== '2'"
+                      :readonly="fieldData.copnDvCd !== '1'"
                       :disable="fieldData.slClYn==='Y'"
                     />
                   </kw-form-item>
@@ -1176,6 +1178,10 @@ async function fetchData() {
     pdCd: fieldData.value.pdCd,
     cntrNo: fieldData.value.cntrNo,
     pdClsfNm: fieldData.value.pdMclsfNm,
+    sellDscCtrAmt: fieldData.value.sellDscCtrAmt,
+    wellsDtl: {
+      sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
+    },
   };
 
   // 적용되있는 기기변경 세팅
@@ -1446,6 +1452,15 @@ async function onDeleteOnePlusOne(odrPrdct) {
   if (odrPrdct.priceOptionFilter.rentalDscDvCd) {
     odrPrdct.priceOptionFilter.rentalDscDvCd = undefined;
   }
+}
+
+// 기기변경 삭제 버튼 클릭
+async function onDeleteDeviceChange(odrPrdct) {
+  odrPrdct.mchnCh = {};
+
+  console.log(odrPrdct);
+
+  // TODO: 할인구분코드, 할인유형코드 없애기
 }
 
 // 상품확정 버튼 클릭

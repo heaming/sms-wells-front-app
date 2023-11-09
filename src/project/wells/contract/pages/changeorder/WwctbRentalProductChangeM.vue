@@ -262,9 +262,11 @@
                 :key="`rps-${compKey}`"
                 :model-value="orderProduct"
                 :bas="fieldData"
+                modify
                 @select:one-plus-one="onClickOnePlusOne"
                 @delete:one-plus-one="onDeleteOnePlusOne"
-                @change:device="onClickDeviceChange"
+                @select:device="onClickDeviceChange"
+                @delete:device="onDeleteDeviceChange"
                 @packaging="onPackaging"
                 @price-changed="onPriceChanged(orderProduct, $event)"
                 @delete="onClickDelete(orderProduct)"
@@ -675,7 +677,7 @@ async function fetchData() {
   await initIstEnvRequest();
 
   // 주문상품선택 세팅
-  console.log('orderProduct 세팅');
+  // console.log('orderProduct 세팅');
   const product = {
     pdPrcFnlDtlId: fieldData.value.pdPrcFnlDtlId,
     pdQty: fieldData.value.pdQty,
@@ -685,6 +687,9 @@ async function fetchData() {
     pdCd: fieldData.value.pdCd,
     cntrNo: fieldData.value.cntrNo,
     pdClsfNm: fieldData.value.pdMclsfNm,
+    wellsDtl: {
+      sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
+    },
   };
 
   // 적용되있는 기기변경 세팅
@@ -752,14 +757,14 @@ async function fetchData() {
 
 // 상품 가격이 바꼈을 때, 이벤트
 function onPriceChanged(item, price) {
-  console.log('onPriceChanged');
+  // console.log('onPriceChanged');
   item.finalPrice = price;
 
   orderProduct.value = item;
 
   // 최초 세팅시
   if (isInit.value) {
-    console.log('promotions 세팅 : ', promotions.value);
+    // console.log('promotions 세팅 : ', promotions.value);
     isInit.value = false;
 
     // 적용되있는 프로모션 세팅
@@ -807,7 +812,7 @@ async function onClickSelectProduct() {
       return;
     }
 
-    console.log('payload : ', payload[0]);
+    // console.log('payload : ', payload[0]);
 
     if (!isEmpty(payload[0].channelId)) {
       if (payload[0].channelId.indexOf(fieldData.value.sellInflwChnlDtlCd) === -1) {
@@ -823,7 +828,7 @@ async function onClickSelectProduct() {
     searchParams.value.pdNm = payload[0].pdNm;
     searchParams.value.sellInflwChnlDtlCd = fieldData.value.sellInflwChnlDtlCd;
 
-    console.log(payload[0]);
+    // console.log(payload[0]);
 
     isFetched.value = false;
 
@@ -854,6 +859,7 @@ async function onPackaging() {
 
 // 기기변경 버튼 클릭
 async function onClickDeviceChange(odrPrdct) {
+  console.log('저교?');
   const { result, payload } = await modal({
     component: 'WwctaMachineChangeCustomerDtlP',
     componentProps: {
@@ -961,6 +967,15 @@ async function onDeleteOnePlusOne(odrPrdct) {
   if (odrPrdct.priceOptionFilter.rentalDscDvCd) {
     odrPrdct.priceOptionFilter.rentalDscDvCd = undefined;
   }
+}
+
+// 기기변경 삭제 버튼 클릭
+async function onDeleteDeviceChange(odrPrdct) {
+  odrPrdct.mchnCh = {};
+
+  console.log(odrPrdct);
+
+  // TODO: 할인구분코드, 할인유형코드 없애기
 }
 
 // 저장 버튼 클릭
