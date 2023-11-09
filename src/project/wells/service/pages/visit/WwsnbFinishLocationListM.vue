@@ -88,6 +88,7 @@
         </template>
 
         <kw-btn
+          v-if="false"
           icon="print"
           secondary
           dense
@@ -124,7 +125,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { useDataService, useMeta, codeUtil, gridUtil } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 import WwsnManagerOgSearchItemGroup from '~sms-wells/service/components/WwsnManagerOgSearchItemGroup.vue';
@@ -168,10 +169,6 @@ const pageInfo = ref({
 async function fetchData() {
   const { data: { list, pageInfo: pageInfoObj } } = await dataService.get('/sms/wells/service/finish-location/paging', { params: { ...cachedParams, ...pageInfo.value } });
 
-  list.forEach((row) => {
-    if (row.cralLocaraTno && row.mexnoEncr && row.cralIdvTno) { row.mobileTno = `${row.cralLocaraTno}-${row.mexnoEncr}-${row.cralIdvTno}`; }
-  });
-
   pageInfo.value = pageInfoObj;
 
   const view = grdMainRef.value.getView();
@@ -200,6 +197,7 @@ function onChangeMngtDvCd() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const { data } = await dataService.get('/sms/wells/service/finish-location/excel-download', { params: cachedParams });
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
@@ -240,7 +238,20 @@ async function initGrdMain(data, view) {
       renderer: { type: 'button' },
     }, // 계약상세번호
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '90', styleName: 'text-left' }, // 고객명
-    { fieldName: 'mobileTno', header: t('MSG_TXT_CONTACT'), width: '120', styleName: 'text-center' }, // 연락처
+    { fieldName: 'cralLocaraTno',
+      header: t('MSG_TXT_CONTACT'),
+      width: '120',
+      styleName: 'text-center',
+      displayCallback(grid, index, value) {
+        const cralLocaraTno = value ?? '';
+        const mexnoEncr = grid.getValue(index.itemIndex, 'mexnoEncr') ?? '';
+        const cralIdvTno = grid.getValue(index.itemIndex, 'cralIdvTno') ?? '';
+
+        const div1 = (!isEmpty(cralLocaraTno) && !isEmpty(mexnoEncr)) ? '-' : '';
+        const div2 = ((!isEmpty(cralLocaraTno) || !isEmpty(mexnoEncr)) && !isEmpty(cralIdvTno)) ? '-' : '';
+        return `${cralLocaraTno}${div1}${mexnoEncr}${div2}${cralIdvTno}`;
+      },
+    }, // 연락처
     { fieldName: 'svpdSapCd', header: t('MSG_TXT_SAPCD'), width: '200', styleName: 'text-center' }, // SAP코드
     { fieldName: 'pdctPdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center' }, // 품목코드
     { fieldName: 'svpdNmAbbr1', header: t('MSG_TXT_ITM_NM'), width: '120', styleName: 'text-left' }, // 품목명
