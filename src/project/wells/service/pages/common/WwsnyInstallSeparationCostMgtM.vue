@@ -142,7 +142,7 @@ import {
   useDataService,
   gridUtil,
   notify,
-  useGlobal,
+  // useGlobal,
 } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 import smsCommon from '~sms-wells/service/composables/useSnCode';
@@ -151,7 +151,7 @@ const { t } = useI18n();
 const { getConfig } = useMeta();
 const dataService = useDataService();
 const { getPartMaster } = smsCommon();
-const { confirm } = useGlobal();
+// const { confirm } = useGlobal();
 
 // -------------------------------------------------------------------------------------------------
 // Function & Event
@@ -261,9 +261,9 @@ async function onClickDelete() {
 
   if (deleteRows.length <= 0) { return; }
 
-  if (await confirm(t('MSG_ALT_WANT_DEL'))) {
-    await dataService.delete('/sms/wells/service/installation-separation-costs', { data: [...deleteRows] });
-  }
+  // if (await confirm(t('MSG_ALT_WANT_DEL'))) {
+  await dataService.delete('/sms/wells/service/installation-separation-costs', { data: [...deleteRows] });
+  // }
   if (isEmpty(pageInfo)) {
     await fetchData();
   }
