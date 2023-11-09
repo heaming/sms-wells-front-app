@@ -292,7 +292,7 @@
                       v-model="productExtra.sellDscCtrAmt"
                       maxlength="10"
                       type="number"
-                      :readonly="fieldData.copnDvCd !== '1'"
+                      :readonly="fieldData.copnDvCd !== '2'"
                       :disable="fieldData.slClYn==='Y'"
                     />
                   </kw-form-item>
