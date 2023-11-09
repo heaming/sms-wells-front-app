@@ -39,7 +39,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { useDataService, defineGrid, getComponentType } from 'kw-lib';
+import { useDataService, defineGrid, getComponentType, gridUtil, modal } from 'kw-lib';
 
 const { t } = useI18n();
 const dataService = useDataService();
@@ -84,6 +84,8 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'bilOjAmt', header: t('MSG_TXT_SV_CS'), width: '160', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 서비스비용
     { fieldName: 'dpSumAmt', header: t('MSG_TXT_DP'), width: '160', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0' }, // 입금
     { fieldName: 'blam', header: t('MSG_TXT_BLAM'), width: '160', styleName: 'rg-button-link text-right', dataType: 'number', numberFormat: '#,##0', renderer: { type: 'button' }, preventCellItemFocus: true }, // 잔액
+    { fieldName: 'cstSvAsnNo', visible: false }, // 배정번호
+    { fieldName: 'gubun', visible: false }, // 작업상태구분
   ];
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
@@ -95,6 +97,23 @@ const initGrid = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.header.minRowHeight = 30;
   view.displayOptions.minTableRowHeight = 34;
+
+  view.onCellItemClicked = async (g, { column, dataRow }) => {
+    if (column === 'blam') {
+      const { cstSvAsnNo, gubun } = gridUtil.getRowValue(g, dataRow);
+      if (cstSvAsnNo) {
+        await modal({
+          component: 'WwsnbServiceProcDetailListP',
+          componentProps: {
+            cntrNo: props.cntrNo,
+            cntrSn: props.cntrSn,
+            cstSvAsnNo,
+            gubun,
+          },
+        });
+      }
+    }
+  };
 });
 
 </script>
