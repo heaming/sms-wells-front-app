@@ -119,7 +119,7 @@ async function onSlipCreate() {
   cachedParams = cloneDeep(saveParams.value);
   console.log('cachedParams:', cachedParams);
   const response = await dataService.post('/sms/wells/closing/business-atam-adjusts', cachedParams);
-  if (response.data === 'S') await alert(t('MSG_ALT_ALRPY_SLIP_CRT_PBL_CONF')); // 반제전표 생성이 시작되었습니다. 전표발행 현황에서 확인해 주세요.
+  if (response.data === 'S') await alert(t('반제전표 생성이 시작되었습니다. \n전표발행 현황에서 확인해 주세요.')); // MSG_ALT_ALRPY_SLIP_CRT_PBL_CONF
 }
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
