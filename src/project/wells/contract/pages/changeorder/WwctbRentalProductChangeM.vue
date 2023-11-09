@@ -859,7 +859,6 @@ async function onPackaging() {
 
 // 기기변경 버튼 클릭
 async function onClickDeviceChange(odrPrdct) {
-  console.log('저교?');
   const { result, payload } = await modal({
     component: 'WwctaMachineChangeCustomerDtlP',
     componentProps: {
