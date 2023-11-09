@@ -732,6 +732,10 @@
                 name="tab7"
                 :label="$t('MSG_TXT_CST_CNR_CNSL_HIST')"
               />
+              <kw-tab
+                name="tab8"
+                :label="$t('MSG_TXT_OLD_CHAR_HIST')"
+              />
             </kw-tabs>
             <kw-observer
               ref="obsTabRef"
@@ -789,6 +793,14 @@
                 <kw-tab-panel name="tab7">
                   <zwbnc-customer-dtl-p-customer-center
                     ref="centerRef"
+                    v-model:cst-no="customer.cstNo"
+                    v-model:cntr-no="customer.cntrNo"
+                    v-model:cntr-sn="customer.cntrSn"
+                  />
+                </kw-tab-panel>
+                <kw-tab-panel name="tab8">
+                  <zwbnc-customer-dtl-p-old-character-hist
+                    ref="oldCharacterHistRef"
                     v-model:cst-no="customer.cstNo"
                     v-model:cntr-no="customer.cntrNo"
                     v-model:cntr-sn="customer.cntrSn"
@@ -1088,6 +1100,7 @@ import ZwbncCustomerDtlPPromise from '~sms-common/bond/pages/consultation/ZwbncC
 import ZwbncCustomerDtlPCustomerCenter from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPCustomerCenter.vue';
 import ZwbncCustomerDtlPVisit from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPVisit.vue';
 import ZwbncCustomerDtlPFosterCounsel from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPFosterCounsel.vue';
+import ZwbncCustomerDtlPOldCharacterHist from '~sms-common/bond/pages/consultation/ZwbncCustomerDtlPOldCharacterHist.vue'; // 구문자이력
 import WwbncCustomerDtlPCounselHistory from './WwbncCustomerDtlPCounselHistory.vue';
 
 const { t } = useI18n();
@@ -1138,6 +1151,7 @@ const counselRef = ref();
 const centerRef = ref();
 const isFlag = ref();
 const isFlag2 = ref('N');
+const oldCharacterHistRef = ref();
 
 popupUtil.registerCloseEvent();
 
@@ -1169,6 +1183,9 @@ watch(selectedTab, (newTab) => {
   }
   if (newTab === 'tab7') {
     centerRef.value.fetchData();
+  }
+  if (newTab === 'tab8') {
+    oldCharacterHistRef.value.fetchData();
   }
 });
 
