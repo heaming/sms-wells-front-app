@@ -275,7 +275,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '126',
       styleName: 'text-center',
       datetimeFormat: 'date',
-      footer: { text: t('MSG_TXT_SUM') } },
+      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center text-blue' } },
     { fieldName: 'ostrQty',
       header: t('MSG_TXT_QTY'),
       width: '126',
@@ -300,9 +300,9 @@ const initGrdMain = defineGrid((data, view) => {
         expression: 'sum',
         numberFormat: '#,##0',
       } },
-    { fieldName: 'deptNm', header: t('MSG_TXT_BIL_DEPARTMENT'), width: '140' },
-    { fieldName: 'ostrRsonCd', header: t('MSG_TXT_BIL_RSON'), width: '140' },
-    { fieldName: 'wareNm', header: t('MSG_TXT_SV_CNR_BZNS_CNR'), width: '160' },
+    { fieldName: 'deptNm', header: t('MSG_TXT_BIL_DEPARTMENT'), width: '140', styleName: 'text-center' },
+    { fieldName: 'ostrRsonCd', header: t('MSG_TXT_BIL_RSON'), width: '140', styleName: 'text-center' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_SV_CNR_BZNS_CNR'), width: '160', styleName: 'text-center' },
     { fieldName: 'rmkCn', header: t('MSG_TXT_NOTE'), width: '140' },
   ];
 

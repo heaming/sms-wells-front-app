@@ -234,7 +234,7 @@ const initGrdMain = defineGrid((data, view) => {
         const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
         return v.replace(regExp, '$1-$2-$3');
       } }, // 품목입고번호
-    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-left' }, // 창고번호
+    { fieldName: 'wareNm', header: t('MSG_TXT_STR_WARE'), width: '150', styleName: 'text-center' }, // 창고번호
     { fieldName: 'itmPdNm', header: t('MSG_TXT_STR_ITM'), width: '250', styleName: 'text-left' }, // 품목상품명
     { fieldName: 'strSn',
       header: t('MSG_TXT_NOTE'),
