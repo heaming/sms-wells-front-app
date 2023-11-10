@@ -253,6 +253,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmPdNo' }, // 품목상품번호
     { fieldName: 'ostrWareNo' }, // 출고창고번호
     { fieldName: 'ostrWareNm' }, // 출고창고명
+    { fieldName: 'wareDtlDvCd' }, // 입고창고상세구분
   ];
 
   data.setFields(fields);
@@ -260,7 +261,7 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.onCellItemClicked = async (g, { column, dataRow }) => {
+  view.onCellItemClicked = async (g, { dataRow }) => {
     const {
       strRgstDt,
       strTpCd,
@@ -274,8 +275,8 @@ const initGrdMain = defineGrid((data, view) => {
       ostrSn,
       strSn,
       strHopDt,
+      wareDtlDvCd,
     } = gridUtil.getRowValue(g, dataRow);
-    console.log(g, column, dataRow);
 
     const { result: isChanged } = await modal({
       component: 'WwsnaMovementStoreRegP',
@@ -294,6 +295,7 @@ const initGrdMain = defineGrid((data, view) => {
         itmPdNm,
         strHopDt,
         flagChk: 0,
+        strWareDtlDvCd: wareDtlDvCd,
       },
     });
 

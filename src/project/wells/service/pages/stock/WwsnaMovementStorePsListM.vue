@@ -232,6 +232,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'itmOstrNo' }, // 품목출고번호
     { fieldName: 'ostrSn' }, // 출고순번
     { fieldName: 'strDelButn' }, // 비고
+    { fieldName: 'wareDtlDvCd' }, // 입고창고상세구분
   ];
 
   const columns = [
@@ -266,6 +267,7 @@ const initGrdMain = defineGrid((data, view) => {
       ostrWareNm,
       ostrSn,
       strHopDt,
+      wareDtlDvCd,
     } = gridUtil.getRowValue(g, dataRow);
 
     const { result: isChanged } = await modal({
@@ -282,6 +284,7 @@ const initGrdMain = defineGrid((data, view) => {
         ostrSn,
         strHopDt,
         flagChk: 1,
+        strWareDtlDvCd: wareDtlDvCd,
       },
     });
 
@@ -292,5 +295,3 @@ const initGrdMain = defineGrid((data, view) => {
   };
 });
 </script>
-<style scoped>
-</style>

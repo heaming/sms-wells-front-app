@@ -372,6 +372,13 @@ const initGrdMain = defineGrid((data, view) => {
       if (ostrTpCd === '217') {
         await popupUtil.open(`/popup#/service/wwsna-etc-out-of-storage-reg?ostrTpCd=${ostrTpCd}&ostrWareNo=${ostrWareNo}&bilDept=${strWareNo}&ostrDt=${ostrDt}&itmOstrNo=${itmOstrNo}`, { width: 1800, height: 1000 }, false);
         return;
+        // 물량배정
+      } if (ostrTpCd === '222') {
+        await modal({
+          component: 'WwsnaQomAsnItemListP',
+          componentProps: { itmOstrNo },
+        });
+        return;
       } if (['221', '223'].includes(ostrTpCd)) {
         const { result } = await modal({
           component: 'WwsnaNormalOutOfStorageRgstListP',
