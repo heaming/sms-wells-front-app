@@ -156,6 +156,7 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(items);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -242,10 +243,9 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false; // create number indicator column
   view.editOptions.editable = false; // Grid Editable On
   view.rowIndicator.visible = true;
-  view.displayOptions.selectionStyle = 'singleRow';
+  // view.displayOptions.selectionStyle = 'singleRow';
 });
 onMounted(async () => {
   if (window.location.href.includes('localhost')) {
