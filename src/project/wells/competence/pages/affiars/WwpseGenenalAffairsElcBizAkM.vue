@@ -488,8 +488,7 @@ function initGrid(data, view) {
     { fieldName: 'rcstPhoneNo', header: t('MSG_TXT_CONTACT'), width: '120', styleName: 'text-left' },
     { fieldName: 'prtnrNo', header: t('MSG_TXT_EPNO'), width: '100', styleName: 'text-center' },
     { fieldName: 'prtnrKnm', header: t('MSG_TXT_EMPL_NM'), width: '100', styleName: 'text-center' },
-    { fieldName: 'rntAplcTpNm', header: t('MSG_TXT_RNT') + t('MSG_TXT_TYPE'), width: '100', styleName: 'text-left' },
-    { fieldName: 'rpotBizTpNm', header: t('MSG_TXT_TASK_TYPE'), width: '120', styleName: 'text-left' },
+    { fieldName: 'rpotBizTpNm', header: t('MSG_TXT_TASK_TYPE'), width: '150', styleName: 'text-left' },
     { fieldName: 'bizAkCn', header: t('MSG_TXT_CNTN'), width: '250', styleName: 'text-left' },
     { fieldName: 'fnlMdfcDtm',
       header: `${t('MSG_TXT_COMPLETE')}(${t('MSG_TXT_SB')})${t('MSG_TXT_DT')}`,
@@ -528,7 +527,7 @@ function initGrid(data, view) {
       direction: 'horizontal', // merge type
       items: ['prtnrNo', 'prtnrKnm'],
     },
-    'bizAkCn', 'fnlMdfcDtm',
+    'rpotBizTpNm', 'bizAkCn', 'fnlMdfcDtm',
     {
       header: t('MSG_TXT_FSH_SB_EMPLOYEE'), // colspan title
       direction: 'horizontal', // merge type
