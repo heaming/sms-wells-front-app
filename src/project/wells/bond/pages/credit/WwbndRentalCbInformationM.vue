@@ -20,20 +20,6 @@
     >
       <kw-search-row>
         <kw-search-item
-          :label="$t('MSG_TXT_SFK')"
-          required
-        >
-          <kw-input
-            v-model="searchParams.rsdnNo"
-            :label="$t('MSG_TXT_SFK')"
-            icon="search"
-            clearable
-            rules="required"
-            @click-icon="onClickSelectCustomer"
-            @change="onChangeCstNo"
-          />
-        </kw-search-item>
-        <kw-search-item
           :label="$t('MSG_TXT_CST_NM')"
         >
           <kw-input
@@ -57,8 +43,21 @@
             v-model:tel-no1="searchParams.insHpNo2"
             v-model:tel-no2="searchParams.insHpNo3"
             mask="telephone"
-            :placeholder="$t('MSG_TXT_REPSN_DGT4_WO_NO_IN')"
             :disable="true"
+          />
+        </kw-search-item>
+        <kw-search-item
+          :label="$t('MSG_TXT_SFK')"
+          required
+        >
+          <kw-input
+            v-model="searchParams.rsdnNo"
+            :label="$t('MSG_TXT_SFK')"
+            icon="search"
+            clearable
+            rules="required"
+            @click-icon="onClickSelectCustomer"
+            @change="onChangeCstNo"
           />
         </kw-search-item>
       </kw-search-row>
