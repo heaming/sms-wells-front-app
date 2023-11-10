@@ -184,8 +184,8 @@
           <kw-date-picker
             v-model="safetyAccident.rcpdt"
             :label="$t('MSG_TXT_AS_RCP_DT')"
-            rules="required"
             class="w330"
+            rules="required"
           />
         </kw-form-item>
         <!-- 사고일시 -->
@@ -646,6 +646,18 @@ async function onClickAgreementFoward() {
 //   await frmMainRef5.value.init();
 // }
 
+// 안전사고일자 < a/s접수일자 체크
+function acdnDateValidate() {
+  const { acdnDt, rcpdt } = safetyAccident.value;
+  if (isEmpty(acdnDt) || isEmpty(rcpdt)) {
+    return false;
+  }
+  if (acdnDt > rcpdt) {
+    notify(t('MSG_ALT_ACND_DT_CHECK')); // 안전사고 발생일은 a/s 접수일보다 클 수 없습니다.
+    return true;
+  }
+}
+
 // 저장버튼 클릭
 async function onClickSave() {
   if (!await frmMainRef1.value.validate() || !await frmMainRef2.value.validate()
@@ -655,7 +667,9 @@ async function onClickSave() {
     notify(t('MSG_ALT_CHK_REQ_VAL')); // "필수 입력값이 입력되지 않았습니다.필수입력값을 확인하시길 바랍니다."
     return;
   }
-
+  if (acdnDateValidate()) {
+    return;
+  }
   // 저장할 값 세팅.
   const svCnrNm = (svcCode.filter((v) => v.ogId === safetyAccident.value.svCnrOgId))[0].ogNm;
   safetyAccident.value.krnTotCpsAmtMrkNm = convertToKoreanNumber(safetyAccident.value.totCpsAmt);
@@ -704,6 +718,24 @@ async function onChangeSvCnrOgId() {
   const cnrldNm = (await dataService.get(`/sms/wells/service/safety-accidents/cnrldNm/${ogId}`)).data;
   safetyAccident.value.cnrldNm = cnrldNm;
 }
+
+// 안전사고일 변경시
+// watch(() => safetyAccident.value.acdnDt, async () => {
+//   if (safetyAccident.value.acdnDt < safetyAccident.value.rcpdt) {
+//     notify('a/s 접수일은 안전사고 발생일보다 클 수 없습니다.');
+//     safetyAccident.value.acdnDt = null;
+//     safetyAccident.value.acdnTm = null;
+//   }
+// });
+
+// watch(() => safetyAccident.value.rcpdt, async () => {
+//   if (safetyAccident.value.acdnDt < safetyAccident.value.rcpdt) {
+//     notify('a/s 접수일은 안전사고 발생일보다 클 수 없습니다.');
+//     safetyAccident.value.acdnDt = null;
+//     safetyAccident.value.acdnTm = null;
+//   }
+// });
+
 // 사고접수번호 존재하면 조회
 onMounted(async () => {
   if (props.acdnRcpId !== '') {

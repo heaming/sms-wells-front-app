@@ -42,6 +42,7 @@
             option-value="prtnrNo"
           />
         </kw-search-item>
+        <!-- 배정일자 -->
         <kw-search-item
           :label="$t('MSG_TXT_ASN_DT')"
         >
@@ -52,12 +53,14 @@
         </kw-search-item>
       </kw-search-row>
       <kw-search-row>
+        <!-- 방문확정일 -->
         <kw-search-item
           :label="$t('MSG_TXT_VST_CNFM_D')"
           :colspan="2"
         >
           <kw-date-picker
             v-model="searchVal.vstCnfmdt"
+            class="w250"
           />
           <kw-field
             v-model="searchVal.vstCnfmdtYn"
