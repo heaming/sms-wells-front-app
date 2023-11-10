@@ -1183,8 +1183,8 @@ async function fetchData() {
       sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
     },
     priceOptionFilter: {
-      rentalDscDvCd: fieldData.value.sellDscDvCd,
-      rentalDscTpCd: fieldData.value.sellDscTpCd,
+      rentalDscDvCd: fieldData.value.sellDscDvCd || '',
+      rentalDscTpCd: fieldData.value.sellDscTpCd || '',
     },
   };
 
@@ -1201,19 +1201,6 @@ async function fetchData() {
       mchnClnOjYn: '', // TODO: 가져와야됨
       ojCntrMmBaseDvCd: '', // TODO: 가져와야됨
     };
-    if (fieldData.value.mchnChTpCd === '19') {
-      product.priceOptionFilter = {
-        ...product.priceOptionFilter,
-        rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
-        rentalDscTpCd: RENTAL_DSC_TP_CD.STPL_5_YEAR_RE_RENTAL,
-      };
-    } else {
-      orderProduct.value.priceOptionFilter = {
-        ...orderProduct.value.priceOptionFilter,
-        rentalDscDvCd: '8',
-        rentalDscTpCd: RENTAL_DSC_TP_CD.RE_RENTAL,
-      };
-    }
   }
 
   // 적용되있는 1+1 세팅
@@ -1231,12 +1218,6 @@ async function fetchData() {
         pdNm: fieldData.value.pdNm,
       },
     });
-
-    product.priceOptionFilter = {
-      ...product.priceOptionFilter,
-      rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
-      rentalDscTpCd: RENTAL_DSC_TP_CD.ONE_PLUS_ONE,
-    };
   }
 
   compKey.value += 1;
@@ -1451,22 +1432,22 @@ async function onDeleteOnePlusOne(odrPrdct) {
   cntrRels.splice(onePlusOneRelIndex, 1);
 
   if (odrPrdct.priceOptionFilter?.rentalDscTpCd) {
-    odrPrdct.priceOptionFilter.rentalDscTpCd = undefined;
+    odrPrdct.priceOptionFilter.rentalDscTpCd = '';
   }
   if (odrPrdct.priceOptionFilter.rentalDscDvCd) {
-    odrPrdct.priceOptionFilter.rentalDscDvCd = undefined;
+    odrPrdct.priceOptionFilter.rentalDscDvCd = '';
   }
 }
 
 // 기기변경 삭제 버튼 클릭
 async function onDeleteDeviceChange(odrPrdct) {
-  odrPrdct.mchnCh = {};
+  odrPrdct.mchnCh = null;
 
   if (odrPrdct.priceOptionFilter?.rentalDscTpCd) {
-    odrPrdct.priceOptionFilter.rentalDscTpCd = undefined;
+    odrPrdct.priceOptionFilter.rentalDscTpCd = '';
   }
   if (odrPrdct.priceOptionFilter?.rentalDscDvCd) {
-    odrPrdct.priceOptionFilter.rentalDscDvCd = undefined;
+    odrPrdct.priceOptionFilter.rentalDscDvCd = '';
   }
 }
 
