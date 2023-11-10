@@ -267,9 +267,13 @@ function getMoveTime(view, row, rglvlGdCd, value) {
   if (rglvlGdCd !== 25) {
     view.setValue(view.getItemIndex(row), 'mmtDstn', value);
 
-    const mmtDstn = isBlank(value) ? 0 : Number(value);
-    const averageSpeed = Number(movementAverageSpeed);
-    mmtLdtm = (mmtDstn * 60) / averageSpeed;
+    if (!isBlank(movementAverageSpeed) && Number(movementAverageSpeed) !== 0) {
+      const mmtDstn = isBlank(value) ? 0 : Number(value);
+      const averageSpeed = Number(movementAverageSpeed);
+      mmtLdtm = (mmtDstn * 60) / averageSpeed;
+    } else {
+      mmtLdtm = 0;
+    }
 
     view.setValue(view.getItemIndex(row), 'mmtLdtm', mmtLdtm);
   }
@@ -280,6 +284,11 @@ function getMoveTime(view, row, rglvlGdCd, value) {
 // 수당 셋팅
 function setAllowance(view, row, mmtLdtm) {
   const { movementManHour, movementFieldWeight } = getBaseInfo('movement');
+  if (isBlank(movementManHour) || isBlank(movementFieldWeight)) {
+    view.setValue(view.getItemIndex(row), 'rglvlAwAmt', 0);
+    return;
+  }
+
   const manHour = Number(movementManHour);
   const fieldWeight = Number(movementFieldWeight);
   const rglvlAwAmt = Math.round((mmtLdtm * manHour * (fieldWeight / 100)) / 100) * 100;
