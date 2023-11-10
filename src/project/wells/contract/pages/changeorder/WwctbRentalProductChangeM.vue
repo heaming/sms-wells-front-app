@@ -691,8 +691,8 @@ async function fetchData() {
       sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
     },
     priceOptionFilter: {
-      rentalDscDvCd: fieldData.value.sellDscDvCd,
-      rentalDscTpCd: fieldData.value.sellDscTpCd,
+      rentalDscDvCd: fieldData.value.sellDscDvCd || '',
+      rentalDscTpCd: fieldData.value.sellDscTpCd || '',
     },
   };
 
@@ -965,22 +965,22 @@ async function onDeleteOnePlusOne(odrPrdct) {
   cntrRels.splice(onePlusOneRelIndex, 1);
 
   if (odrPrdct.priceOptionFilter?.rentalDscTpCd) {
-    odrPrdct.priceOptionFilter.rentalDscTpCd = undefined;
+    odrPrdct.priceOptionFilter.rentalDscTpCd = '';
   }
   if (odrPrdct.priceOptionFilter.rentalDscDvCd) {
-    odrPrdct.priceOptionFilter.rentalDscDvCd = undefined;
+    odrPrdct.priceOptionFilter.rentalDscDvCd = '';
   }
 }
 
 // 기기변경 삭제 버튼 클릭
 async function onDeleteDeviceChange(odrPrdct) {
-  odrPrdct.mchnCh = {};
+  odrPrdct.mchnCh = null;
 
   if (odrPrdct.priceOptionFilter?.rentalDscTpCd) {
-    odrPrdct.priceOptionFilter.rentalDscTpCd = undefined;
+    odrPrdct.priceOptionFilter.rentalDscTpCd = '';
   }
   if (odrPrdct.priceOptionFilter?.rentalDscDvCd) {
-    odrPrdct.priceOptionFilter.rentalDscDvCd = undefined;
+    odrPrdct.priceOptionFilter.rentalDscDvCd = '';
   }
 }
 
