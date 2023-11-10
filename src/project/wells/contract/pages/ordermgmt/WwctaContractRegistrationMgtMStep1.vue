@@ -848,7 +848,8 @@ async function selectPartner() {
     }
   }
 
-  step1.value.prtnr ??= currentPartner;
+  // step1.value.prtnr ??= currentPartner; // {} => Nullish coalescing assignment (??=) 처리안됨
+  step1.value.prtnr = isEmpty(step1.value.prtnr) ? currentPartner : step1.value.prtnr;
 
   if (currentPartner.pstnDvCd === '7') {
     // 지국장 정보 설정 후, 소속 파트너 선택
@@ -1104,13 +1105,14 @@ async function saveStep() {
     step1.value.bas ??= {};
     step1.value.bas.cntrCstNm = searchParams.value.cstKnm;
   }
-  if (cntrTpCd.value === reStipulationCntrTpCd) {
-    return rstlCntrNo.value;
-  }
 
   // 최초 계약시 설정해야 summary 에서 계약유형 등 표시 가능
   step1.value.bas.cntrTpCd = searchParams.value.cntrTpCd;
   step1.value.bas.copnDvCd = searchParams.value.copnDvCd;
+
+  if (cntrTpCd.value === reStipulationCntrTpCd) {
+    return rstlCntrNo.value;
+  }
 
   // console.log(JSON.stringify(step1.value, null, '\t'));
   const { data } = await dataService.post('sms/wells/contract/contracts/save-cntr-step1', step1.value);

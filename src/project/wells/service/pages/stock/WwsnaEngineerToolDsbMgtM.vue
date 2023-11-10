@@ -42,10 +42,6 @@
         <kw-search-item :label="$t('MSG_TXT_EMPL_NM')">
           <kw-input
             v-model="searchParams.prtnrKnm"
-            :rules="{regex:/^[ㄱ-ㅎ|가-힣]/}"
-            :custom-messages="{
-              'regex': $t('성명 항목에는 한글만 사용할 수 있습니다.'),
-            }"
           />
         </kw-search-item>
       </kw-search-row>
@@ -74,11 +70,13 @@
         >
           <kw-input
             v-model="searchParams.sapMatCdStrt"
+            rules="numeric|max:18"
             :label="$t('MSG_TXT_SAP_CD')"
           />
           <span>~</span>
           <kw-input
             v-model="searchParams.sapMatCdEnd"
+            rules="numeric|max:18"
             :label="$t('MSG_TXT_SAP_CD')"
           />
         </kw-search-item>
