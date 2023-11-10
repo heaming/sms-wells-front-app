@@ -256,7 +256,7 @@ async function onClickSearchPopup(item) {
   console.log(item);
 
   // 일자에 해당하는 리포트의 버전을 받아온다.
-  const paramDtm = item.cntrTempSaveDt.replaceAll('-', ''); // 견적주문일자를 기간으로 받는다.
+  const paramDtm = !isEmpty(item.cntrTempSaveDt) ? item.cntrTempSaveDt.replaceAll('-', '') : ''; // 견적주문일자를 기간으로 받는다.
   console.log(paramDtm);
 
   const res = await dataService.get(
