@@ -172,6 +172,7 @@ const propParams = ref({
 const searchParams = ref({
   itmPdCd: props.itmPdCd,
   wareNo: props.wareNo,
+  apyYm: props.apyYm,
 });
 
 let cachedParams;
@@ -184,8 +185,7 @@ const pageInfo = ref({
 
 // 표준미적용 조회
 async function stckStdGbFetchData() {
-  const apyYm = propParams.value.apyYm.substring(0, 6);
-  const { wareNo } = propParams.value;
+  const { apyYm, wareNo } = propParams.value;
   const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
   const { stckStdGb } = res.data;
   propParams.value.stdWareUseYn = stckStdGb === 'Y' ? 'N' : 'Y';

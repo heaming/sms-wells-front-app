@@ -283,7 +283,7 @@ const propsParams = ref({
 
 const searchParams = ref({
   baseYm: dayjs().format('YYYYMM'),
-  strRgstDt: today,
+  strRgstDt: isEmpty(props.strRgstDt) ? today : props.strRgstDt,
   strTpCd: props.strTpCd,
   itmStrNo: props.itmStrNo,
   strWareNo: props.strWareNo,
@@ -306,7 +306,7 @@ const pageInfo = ref({
 // 표준창고등록 조회
 async function stckStdGbFetchData() {
   const apyYm = searchParams.value.strRgstDt.substring(0, 6);
-  const wareNo = searchParams.value.ostrWareNo;
+  const wareNo = searchParams.value.strWareNo;
   const res = await dataService.get(stdWareUri, { params: { apyYm, wareNo } });
   const { stckStdGb } = res.data;
   searchParams.value.stckNoStdGb = stckStdGb === 'Y' ? 'N' : 'Y';
@@ -644,7 +644,7 @@ const initGrdMain = defineGrid((data, view) => {
         notify(t('MSG_ALT_NOT_ITM_LOC_MNGT_WARE'));
         return;
       }
-      const { result } = await modal({
+      await modal({
         component: 'WwsnaItemLocationMgtP',
         componentProps: {
           wareNo: searchParams.value.strWareNo,
@@ -653,10 +653,8 @@ const initGrdMain = defineGrid((data, view) => {
         },
       });
 
-      if (result) {
-        await stckStdGbFetchData();
-        await fetchData();
-      }
+      await stckStdGbFetchData();
+      await fetchData();
     }
   };
 
