@@ -288,7 +288,7 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '30', styleName: 'text-left' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '30', styleName: 'text-center' },
     { fieldName: 'wareNo', header: t('MSG_TXT_WARE_CD'), width: '30', styleName: 'text-center' },
     { fieldName: 'qty', header: t('MSG_TXT_STOC'), width: '20', styleName: 'text-right' },
 
@@ -310,7 +310,7 @@ const initGrdMain2 = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '30', styleName: 'text-left' },
+    { fieldName: 'wareNm', header: t('MSG_TXT_WARE_NM'), width: '30', styleName: 'text-center' },
     { fieldName: 'wareMngtPrtnrNo', header: t('MSG_TXT_EPNO'), width: '30', styleName: 'text-center' },
     { fieldName: 'qty', header: t('MSG_TXT_STOC'), width: '20', styleName: 'text-right' },
 

@@ -238,7 +238,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '126', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'strTpCd', header: t('MSG_TXT_STR_TP'), width: '126', styleName: 'text-center', options: codes.STR_TP_CD },
     { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '240', styleName: 'text-center' },
-    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '182', styleName: 'text-left' },
+    { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '182', styleName: 'text-center' },
     { fieldName: 'itmOstrNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '240', styleName: 'text-center' },
     { fieldName: 'strDelButn',
       header: t('MSG_TXT_NOTE'),
