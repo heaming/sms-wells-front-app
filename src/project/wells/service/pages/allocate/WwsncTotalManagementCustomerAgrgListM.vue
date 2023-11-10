@@ -19,7 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
-        <kw-search-item :label="$t('MSG_TXT_BASE_YM')">
+        <kw-search-item :label="$t('MSG_TXT_BASE_YEAR')">
           <kw-field-wrap>
             <kw-date-picker
               v-model="searchParams.year"

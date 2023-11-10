@@ -90,7 +90,6 @@
       </kw-search-row>
     </kw-search>
     <div class="result-area">
-      <h3>{{ $t('MSG_TXT_SRCH_RSLT') }}</h3>
       <kw-action-top>
         <template #left>
           <kw-paging-info
@@ -101,12 +100,6 @@
             @change="fetchData"
           />
         </template>
-        <!--        <kw-btn
-          :label="$t('MSG_BTN_PRTG')"
-          dense
-          icon="print"
-          secondary
-        />-->
         <kw-btn
           :label="$t('MSG_BTN_EXCEL_UP')"
           dense
@@ -130,7 +123,6 @@
         name="grdMain"
         @init="initGrdMain"
       />
-      <kw-action-bottom />
       <kw-pagination
         v-model:page-index="pageInfo.pageIndex"
         v-model:page-size="pageInfo.pageSize"
@@ -194,6 +186,8 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(products);
   view.resetCurrent();
+
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
@@ -269,18 +263,18 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'svTpNm', header: t('MSG_TXT_SV_TP'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdGrpNm', header: t('MSG_TXT_PD_GRP'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('TXT_MSG_MAT_PD_CD'), width: '115', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '220', styleName: 'text-left' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '220', styleName: 'text-center' },
     { fieldName: 'asLctCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
-    { fieldName: 'asLctNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.AS_LCT_CD },
+    { fieldName: 'asLctNm', header: t('MSG_TXT_ALTN'), width: '150', styleName: 'text-center', options: codes.AS_LCT_CD },
     { fieldName: 'asPhnCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
-    { fieldName: 'asPhnNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.AS_PHN_CD },
+    { fieldName: 'asPhnNm', header: t('MSG_TXT_ALTN'), width: '150', styleName: 'text-center', options: codes.AS_PHN_CD },
     { fieldName: 'asCausCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
-    { fieldName: 'asCausNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.AS_CAUS_CD },
+    { fieldName: 'asCausNm', header: t('MSG_TXT_ALTN'), width: '150', styleName: 'text-center', options: codes.AS_CAUS_CD },
     { fieldName: 'siteAwAtcCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
-    { fieldName: 'siteAwAtcNm', header: t('MSG_TXT_ALTN'), width: '150', options: codes.SITE_AW_ATC_CD },
+    { fieldName: 'siteAwAtcNm', header: t('MSG_TXT_ALTN'), width: '150', styleName: 'text-center', options: codes.SITE_AW_ATC_CD },
     { fieldName: 'fuleyAwAmt', header: t('MSG_TXT_AMT_WON'), width: '100' },
     { fieldName: 'svAnaHclsfCd', header: t('MSG_TXT_CODE'), width: '60', styleName: 'text-center' },
-    { fieldName: 'svAnaHclsfNm', header: t('MSG_TXT_ALTN'), width: '100', options: codes.SV_BIZ_DCLSF_CD },
+    { fieldName: 'svAnaHclsfNm', header: t('MSG_TXT_ALTN'), width: '100', styleName: 'text-center', options: codes.SV_BIZ_DCLSF_CD },
     { fieldName: 'apyStrtdt', header: t('MSG_TXT_APY_STRTDT'), width: '100' },
     { fieldName: 'apyEnddt', header: t('MSG_TXT_APY_ENDDT'), width: '100' },
   ];
@@ -309,8 +303,8 @@ const initGrdMain = defineGrid((data, view) => {
 
   view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false;
+  view.rowIndicator.visible = true;
   view.editOptions.editable = false; // Grid Editable On
-  view.displayOptions.selectionStyle = 'singleRow';
+  // view.displayOptions.selectionStyle = 'singleRow';
 });
 </script>

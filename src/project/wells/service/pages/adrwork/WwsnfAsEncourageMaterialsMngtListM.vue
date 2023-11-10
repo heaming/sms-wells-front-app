@@ -46,7 +46,7 @@
       </kw-search-row>
       <kw-search-row>
         <kw-search-item
-          label="접수증상"
+          :label="$t('MSG_TXT_RCP_SYMPT')"
           :colspan="2"
         >
           <kw-select
@@ -82,16 +82,13 @@
           />
         </template>
         <kw-btn
-          dense
-          icon="print"
-          label="인쇄"
-          secondary
-        />
-        <kw-btn
-          dense
+          v-permission:download
           icon="download_on"
-          label="엑셀 다운로드"
+          dense
           secondary
+          :disable="pageInfo.totalCount==0"
+          :label="$t('MSG_BTN_EXCEL_DOWN')"
+          @click="onClickExcelDownload"
         />
       </kw-action-top>
       <kw-grid
@@ -115,7 +112,7 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, defineGrid, getComponentType, useDataService, useMeta } from 'kw-lib';
+import { codeUtil, defineGrid, getComponentType, useDataService, useMeta, gridUtil } from 'kw-lib';
 import { cloneDeep } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
@@ -123,6 +120,7 @@ const { /* getServiceCenterOrgs, */ /* getServiceCenterPrtnr, */
   getPartMaster, getSearchCustomerCenterClass } = useSnCode();
 const dataService = useDataService();
 const { t } = useI18n();
+const { currentRoute } = useRouter();
 // eslint-disable-next-line no-unused-vars
 const { getConfig } = useMeta();
 
@@ -158,12 +156,24 @@ async function fetchData() {
   pageInfo.value = pagingResult;
   const view = grdMainRef.value.getView();
   view.getDataSource().setRows(items);
+  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
+}
+
+// 엑셀다운로드
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/service/as-encourage-materials-mngt/excel-download', { params: searchParams.value });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 async function searchCustomerCenterClassA() {
@@ -218,25 +228,24 @@ const initGrdMain = defineGrid((data, view) => {
   ];
 
   const columns = [
-    { fieldName: 'sapMatCd', header: 'SAP코드', width: '170', styleName: 'text-center' },
-    { fieldName: 'pdCd', header: '품목코드', width: '150', styleName: 'text-center' },
-    { fieldName: 'pdNm', header: '상품명', width: '200', styleName: 'text-left' },
-    { fieldName: 'itmPdCd', header: '추천자재코드', width: '150', styleName: 'text-center' },
-    { fieldName: 'itmPdNm', header: '추천자재', width: '300', styleName: 'text-left' },
-    { fieldName: 'cnslTpLcsfCdNm', header: '접수증상', width: '120', styleName: 'text-left' },
-    { fieldName: 'cnslCn', header: '접수증상상세', width: '400', styleName: 'text-left' },
-    { fieldName: 'itmRcmdRnk', header: '추천순위', width: '100', styleName: 'text-center', dataType: 'number' },
-    { fieldName: 'itmRcmdQty', header: '수량', width: '100', styleName: 'text-right' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '170', styleName: 'text-center' },
+    { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'pdNm', header: t('MSG_TXT_PRDT_NM'), width: '200', styleName: 'text-left' },
+    { fieldName: 'itmPdCd', header: t('MSG_TXT_RCMD_MAT_CD'), width: '150', styleName: 'text-center' },
+    { fieldName: 'itmPdNm', header: t('MSG_TXT_RCMD_MAT'), width: '300', styleName: 'text-left' },
+    { fieldName: 'cnslTpLcsfCdNm', header: t('MSG_TXT_RCP_SYMPT'), width: '120', styleName: 'text-left' },
+    { fieldName: 'cnslCn', header: t('MSG_TXT_RCP_SYMPT_DTL'), width: '400', styleName: 'text-left' },
+    { fieldName: 'itmRcmdRnk', header: t('MSG_TXT_RCMD_RNK'), width: '100', styleName: 'text-center', dataType: 'number' },
+    { fieldName: 'itmRcmdQty', header: t('MSG_TXT_QTY'), width: '100', styleName: 'text-right' },
   ];
   data.setFields(fields);
   view.setColumns(columns);
 
   view.displayOptions.emptyMessage = t('MSG_ALT_NO_INFO_SRCH');
   view.checkBar.visible = false;
-  view.rowIndicator.visible = false; // create number indicator column
   view.editOptions.editable = false; // Grid Editable On
   view.rowIndicator.visible = true;
-  view.displayOptions.selectionStyle = 'singleRow';
+  // view.displayOptions.selectionStyle = 'singleRow';
 });
 onMounted(async () => {
   if (window.location.href.includes('localhost')) {
