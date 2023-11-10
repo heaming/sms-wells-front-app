@@ -173,6 +173,18 @@
         />
       </kw-search-item>
     </kw-search-row>
+    <kw-search-row :cols="1">
+      <kw-search-item
+        :label="$t('MSG_TXT_DIV')"
+      >
+        <kw-option-group
+          v-model="dvCheckYn"
+          :options="dvCheckbox"
+          :label="$t('MSG_TXT_DYWK')"
+          type="checkbox"
+        />
+      </kw-search-item>
+    </kw-search-row>
   </kw-search>
   <div class="result-area">
     <kw-action-top>
@@ -211,28 +223,6 @@
         @click="onClickMessageSend('C')"
       />
     </kw-action-top>
-
-    <ul class="filter-box mb12">
-      <li class="filter-box__item">
-        <p class="filter-box__item-label">
-          {{ $t('MSG_TXT_DIV') }}
-        </p>
-        <kw-option-group
-          v-model="searchParams.schDv"
-          dense
-          type="radio"
-          :options="[
-            { codeId: '99', codeName:t('MSG_TXT_ALL') },
-            { codeId: '01', codeName:t('MSG_TXT_DLQ_BLAM_EXCD') , disable:isRadioDisable },
-            { codeId: '02', codeName:t('MSG_TXT_TOT_DP_AMT_EXCD') , disable:isRadioDisable },
-            { codeId: '03', codeName:t('MSG_TXT_OJ_BLAM_EXCD'), disable:isRadioDisable },
-            { codeId: '04', codeName:t('MSG_TXT_DLQ_MCNT_EXCD') , disable:isRadioDisable }
-          ]"
-          @change="onChangeDv"
-        />
-      </li>
-    </ul>
-
     <kw-grid
       ref="grdMainRef"
       name="grdMain1"
@@ -263,6 +253,14 @@ const { employeeIDNumber } = getters['meta/getUserInfo'];
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
+const dvCheckYn = ref([]);
+const dvCheckbox = ref([
+  { codeId: '1', codeName: t('MSG_TXT_DLQ_BLAM_EXCD') },
+  { codeId: '2', codeName: t('MSG_TXT_TOT_DP_AMT_EXCD') },
+  { codeId: '3', codeName: t('MSG_TXT_OJ_BLAM_EXCD') },
+  { codeId: '4', codeName: t('MSG_TXT_DLQ_MCNT_EXCD') },
+]);
+
 const props = defineProps({
   refId: {
     type: String,
@@ -310,10 +308,11 @@ const searchParams = ref({
   schOjBlamEnd: '',
   schCstDv: '',
   schCpsnRsgYn: '',
-  schDv: '99',
   schCstNoYn: 'N',
-  dv1: '',
-  dv2: '',
+  schDv1: '',
+  schDv2: '',
+  schDv3: '',
+  schDv4: '',
   schSfKYn: 'N',
   refId: props.refId,
 });
@@ -413,6 +412,22 @@ const onClickClctamPsic = async () => {
 };
 
 async function onClickSearch() {
+  searchParams.value.schDv1 = '';
+  searchParams.value.schDv2 = '';
+  searchParams.value.schDv3 = '';
+  searchParams.value.schDv4 = '';
+  dvCheckYn.value.forEach((value) => {
+    if (value === '1') {
+      searchParams.value.schDv1 = 'Y';
+    } else if (value === '2') {
+      searchParams.value.schDv2 = 'Y';
+    } else if (value === '3') {
+      searchParams.value.schDv3 = 'Y';
+    } else if (value === '4') {
+      searchParams.value.schDv4 = 'Y';
+    }
+  });
+
   const cstNo = searchParams.value.schCstNo;
   const cstNm = searchParams.value.schCstNm;
   const sfk = searchParams.value.schSfK;
@@ -456,23 +471,6 @@ async function onClickSearch() {
 
   cachedParams = cloneDeep(searchParams.value);
   await fetchCustomers();
-}
-
-// TODO: 구분 라디오 선택
-async function onChangeDv() {
-  if (searchParams.value.schClctamNo === '') {
-    searchParams.value.dv1 = searchParams.value.schDv;
-    if (searchParams.value.dv1 !== searchParams.value.dv2) {
-      if (!await frmMainRef.value.validate()) {
-        searchParams.value.schDv = '99';
-        searchParams.value.dv2 = '99';
-      } else {
-        await onClickSearch();
-      }
-    }
-  } else {
-    await onClickSearch();
-  }
 }
 
 async function fetchBaseYmData() {
