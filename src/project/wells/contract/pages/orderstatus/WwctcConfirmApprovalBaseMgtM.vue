@@ -274,6 +274,7 @@ async function onClickSave() {
         return checkVaild.value;
       }
     }
+    v.cntrAprAkDvCdNm = aprAkDvcodeOptions.value.filter((val) => v.cntrAprAkDvCd === val.codeId)[0].codeName;
   });
 
   if (!checkVaild.value) {
