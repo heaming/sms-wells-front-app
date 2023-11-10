@@ -243,8 +243,9 @@ async function onClickCreate() {
 
   cachedParams = cloneDeep(searchParams.value);
 
-  await dataService.post('/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/create', cachedParams, { timeout: 1800000 });
+  await dataService.post('/sms/wells/withdrawal/idvrve/mutual-alliance-bulk-deposit/create', cachedParams, { timeout: 18000000 });
 
+  await alert('생성되었습니다. 수납처리까지 10분 가량 소요 됩니다.');
   ok();
 }
 
