@@ -311,6 +311,12 @@
                 padding="10px"
                 @click="onClickConfirm(item)"
               />
+              <kw-btn
+                v-if="sessionUserInfo.baseRleCd === 'W8010'"
+                :label="$t('MSG_BTN_F2F_PYMNT')"
+                padding="10px"
+                @click="onClickF2fPayment(item)"
+              />
             </template>
             <!--<template v-else>-->
             <!--재약정 아닐때, 노출-->
