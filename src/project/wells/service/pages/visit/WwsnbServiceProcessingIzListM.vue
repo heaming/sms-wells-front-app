@@ -368,7 +368,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '150',
       styleName: 'text-center rg-button-link',
-      footer: { text: t('MSG_TXT_SUM') },
+      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
       renderer: { type: 'button' },
       // preventCellItemFocus: true,
     },
