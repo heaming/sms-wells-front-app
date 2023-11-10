@@ -333,6 +333,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     { fieldName: 'cntrSn', visible: false },
     { fieldName: 'rcgvpKnm', header: t('MSG_TXT_CST_NM'), width: '100', styleName: 'text-center' }, /* 고객명 */
+    { fieldName: 'sellTpNm', header: t('MSG_TXT_CST_TYPE'), width: '100', styleName: 'text-center' }, /* 고객유형 */
     { fieldName: 'cntrRcpFshDtm', header: t('MSG_TXT_CNTR_DATE'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, /* 계약일자 */
     { fieldName: 'locaraTno', visible: false }, // [전화번호1]
     { fieldName: 'exnoEncr', visible: false }, // [전화번호2]
@@ -389,6 +390,7 @@ const initGrdMain = defineGrid((data, view) => {
     'refriDvNm',
     'cntrNo',
     'rcgvpKnm',
+    'sellTpNm',
     'cntrRcpFshDtm',
     'idvTno',
     'newAdrZip',
