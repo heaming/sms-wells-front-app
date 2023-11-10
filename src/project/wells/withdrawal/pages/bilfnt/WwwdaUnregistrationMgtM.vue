@@ -317,6 +317,7 @@ async function onClickBundleWithdrawalRgst() {
     cntrSn: v.dgCntrSn,
     cntrPdStrtdt: searchParams.value.cntrPdStrtdt,
     cntrPdEnddt: searchParams.value.cntrPdEnddt,
+    unrgRsCd: searchParams.value.unrgRsCd,
   }));
 
   await dataService.post('/sms/wells/withdrawal/bilfnt/bundle-registration', data);
