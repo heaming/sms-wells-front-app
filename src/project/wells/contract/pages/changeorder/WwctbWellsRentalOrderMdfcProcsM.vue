@@ -1182,6 +1182,10 @@ async function fetchData() {
     wellsDtl: {
       sellEvCd: isEmpty(fieldData.value.sellEvCd) ? '' : fieldData.value.sellEvCd,
     },
+    priceOptionFilter: {
+      rentalDscDvCd: fieldData.value.sellDscDvCd,
+      rentalDscTpCd: fieldData.value.sellDscTpCd,
+    },
   };
 
   // 적용되있는 기기변경 세팅
@@ -1458,9 +1462,12 @@ async function onDeleteOnePlusOne(odrPrdct) {
 async function onDeleteDeviceChange(odrPrdct) {
   odrPrdct.mchnCh = {};
 
-  console.log(odrPrdct);
-
-  // TODO: 할인구분코드, 할인유형코드 없애기
+  if (odrPrdct.priceOptionFilter?.rentalDscTpCd) {
+    odrPrdct.priceOptionFilter.rentalDscTpCd = undefined;
+  }
+  if (odrPrdct.priceOptionFilter?.rentalDscDvCd) {
+    odrPrdct.priceOptionFilter.rentalDscDvCd = undefined;
+  }
 }
 
 // 상품확정 버튼 클릭

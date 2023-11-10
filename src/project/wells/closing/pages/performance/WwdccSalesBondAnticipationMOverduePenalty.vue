@@ -360,6 +360,7 @@ async function fetchData() {
 
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
+  console.log(searchParams.value);
   await fetchData();
 }
 
@@ -425,10 +426,10 @@ async function onClickWholeExcelDownload() {
 
 async function onChangeAgrgDv() {
   const { agrgDv } = searchParams.value;
-  if (agrgDv === '3') {
-    isDisable.value = false;
-  } else {
+  if (agrgDv === '1') {
     isDisable.value = true;
+  } else {
+    isDisable.value = false;
   }
 }
 
@@ -442,6 +443,12 @@ async function onChangeSellTpCd() {
   searchParams.value.sellTpDtlCd = 'ALL';
 }
 
+watch(() => searchParams.value.agrgDv, async (agrgDv) => {
+  if (agrgDv === '1') {
+    searchParams.value.cntrNo = '';
+    searchParams.value.cntrSn = '';
+  }
+});
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
 // -------------------------------------------------------------------------------------------------

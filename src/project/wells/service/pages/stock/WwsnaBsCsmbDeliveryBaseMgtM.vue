@@ -25,6 +25,7 @@
         <kw-search-item :label="$t('MSG_TXT_GO_DV')">
           <kw-select
             v-model="searchParams.goDvCd"
+            first-option="all"
             :options="codes.GO_DV_CD"
           />
         </kw-search-item>
