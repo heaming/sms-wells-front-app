@@ -107,35 +107,13 @@
           inset
           spaced
         />
-        <!--
-        <kw-btn
-          v-permission:create
-          :label="t('MSG_BTN_VAC_IS')"
-          secondary
-          dense
-          :disable="pageInfo.totalCount === 0"
-          @click="onClickModalPopup('ZwwdbIndvVirtualAccountIssueMgtP')"
-        />
-         label="가상계좌발급"
-        <kw-btn
-          v-permission:create
-          :label="t('MSG_BTN_CRDCD_APR')"
-          secondary
-          dense
-          :disable="pageInfo.totalCount === 0"
-          @click="onClickModalPopup('ZwwdbCreditCardApprovalFaceToFaceP')"
-        />
-        label="신용카드승인"
-      -->
         <kw-btn
           v-permission:create
           :label="t('MSG_BTN_APLC_RFND')"
           secondary
           dense
-          :disable="pageInfo.totalCount === 0"
           @click="onClickRefundRegP"
         />
-        <!-- @click="onClickModalPopup('WwwdbServiceRefundRegP')" -->
         <!-- label="환불신청" -->
         <kw-btn
           v-permission:read
@@ -184,12 +162,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { defineGrid, codeUtil, useMeta, useDataService, modal, getComponentType, gridUtil } from 'kw-lib';
+import { defineGrid, codeUtil, useMeta, useDataService, getComponentType, gridUtil, useGlobal } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep } from 'lodash-es';
 // import WwsnEngineerOgSearchItemGroup from '~sms-wells/service/components/WwsnEngineerOgSearchItemGroup.vue';
 
 const router = useRouter();
+const { modal, notify } = useGlobal();
 const { getConfig } = useMeta();
 const now = dayjs();
 const { t } = useI18n();
@@ -286,39 +265,11 @@ async function onClickSearch() {
   await fetchData();
 }
 
-// // 팝업창 열기
-// async function onClickModalPopup(component) {
-//   const view = grdMainRef.value.getView();
-
-//   let componentProps;
-
-//   const changedRows = gridUtil.getCheckedRowValues(view); // 선택로우 가져오기
-
-//   if (changedRows.length === 0) {
-//     await alert(t('MSG_ALT_NO_CHECK_DATA')); // 선택된 데이터가 없습니다.
-//     return;
-//   }
-
-//   if (component === 'WwwdbServiceRefundRegP') {
-//     componentProps = changedRows;
-//     // {
-//     //   cntrNo: changedRows[0].cntrNo,
-//     //   cntrSn: changedRows[0].cntrSn,
-//     //   stlmDvCd: changedRows[0].stlmDvCd,
-//     // };
-//   }
-
-//   await modal({
-//     component,
-//     componentProps,
-//   });
-// }
-
 async function onClickRefundRegP() {
   const view = grdMainRef.value.getView();
 
   const checkItem = gridUtil.getCheckedRowValues(view);
-  console.log('checkItem', checkItem);
+  if (checkItem.length === 0) return notify(t('MSG_ALT_NO_CHECK_DATA')); // 선택된 데이터가 없습니다.
   const { result } = await modal({
     component: 'WwwdbServiceRefundRegP',
     componentProps: { checkItem },
