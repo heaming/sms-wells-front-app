@@ -273,7 +273,6 @@ async function onClickSave() {
         checkVaild.value = false;
         return checkVaild.value;
       }
-      v.cntrAprAkDvCdNm = aprAkDvcodeOptions.value.filter((val) => v.cntrAprAkDvCd === val.codeId)[0].codeName;
     }
     v.cntrAprAkDvCdNm = aprAkDvcodeOptions.value.filter((val) => v.cntrAprAkDvCd === val.codeId)[0].codeName;
   });
