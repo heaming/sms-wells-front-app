@@ -1017,7 +1017,7 @@ async function onClickOzReportHello(cntrNo) {
   return openOzReport(...reports);
 } /* 231106 공통유틸 확인완료 */
 
-async function onClickOzReport(cntrNo) {
+async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
   const res = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
 
   if (res.data.length < 2) { // 단건 처리
@@ -1058,6 +1058,34 @@ async function onClickOzReport(cntrNo) {
       },
     );
   }
+}
+
+async function onClickOzReportRstl(cntrNo, cntrSn, dtm) { // oz리포트 재약정 계약
+  console.log(cntrNo, cntrSn, dtm);
+
+  let paramDtm = ''; // 빈값이라도 던져줘야 리포트 버전을 받을 수 있다
+  console.log(paramDtm);
+  if (!isEmpty(dtm) && dtm !== 'null') { // 비어있거나 null이 아니면 반영
+    paramDtm = dtm;
+  }
+
+  const res = await dataService.get(
+    '/sms/wells/contract/report/search-path',
+    { params: { rdId: 'RP002', dtm: paramDtm } }, // reportID - 재약정 : RP002
+  );
+  const paramOzrPath = res.data;
+
+  console.log(paramOzrPath);
+  await openReportPopup(
+    paramOzrPath,
+    null,
+    JSON.stringify(
+      {
+        cntrNo,
+        cntrSn,
+      },
+    ),
+  );
 }
 onMounted(async () => {
 });
@@ -1503,22 +1531,14 @@ const initGrdMstRstlList = defineGrid((data, view) => {
     const paramCntrDtlNo = `${gridUtil.getCellValue(g, dataRow, 'cntrNo')}-${gridUtil.getCellValue(g, dataRow, 'cntrSn')}`;
     const paramCntrNo = `${gridUtil.getCellValue(g, dataRow, 'cntrNo')}`;
     const paramCntrSn = `${gridUtil.getCellValue(g, dataRow, 'cntrSn')}`;
+    const paramDtm = `${gridUtil.getCellValue(g, dataRow, 'stplCnfmDt')}`; // 재약정확정일시
 
     if (['notakFwIz'].includes(column)) { // 알림톡 발송 내역 버튼 클릭
       await modal({ component: 'WwKakaotalkSendListP', componentProps: { cntrDtlNo: paramCntrDtlNo, concDiv: searchParams.cntrDv } }); // 카카오톡 발송 내역 조회
     }
 
     if (['cntrwBrws'].includes(column)) { // 리포트 보기 버튼 클릭
-      await openReportPopup(
-        '/kstation-w/ord/rp/V1.0/contractRPView.ozr',
-        null,
-        JSON.stringify(
-          {
-            cntrNo: paramCntrNo,
-            cntrSn: paramCntrSn,
-          },
-        ),
-      );
+      onClickOzReportRstl(paramCntrNo, paramCntrSn, paramDtm);
     }
   };
 
