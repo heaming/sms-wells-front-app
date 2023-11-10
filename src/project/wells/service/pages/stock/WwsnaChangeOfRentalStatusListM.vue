@@ -193,7 +193,7 @@ await Promise.all([
 
 // 조회
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/change-rental-status/paging', { params: { ...cachedParams, ...pageInfo.value } });
+  const res = await dataService.get('/sms/wells/service/change-rental-status/paging', { params: { ...cachedParams, ...pageInfo.value }, timeout: 300000 });
   const { list: rentalItem, pageInfo: pagingResult } = res.data;
 
   pageInfo.value = pagingResult;
@@ -215,7 +215,7 @@ async function onClickSearch() {
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
-  const res = await dataService.get('/sms/wells/service/change-rental-status/excel-download', { params: cachedParams });
+  const res = await dataService.get('/sms/wells/service/change-rental-status/excel-download', { params: cachedParams, timeout: 300000 });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
