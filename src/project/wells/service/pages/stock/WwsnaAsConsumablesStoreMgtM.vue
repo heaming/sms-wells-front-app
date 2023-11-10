@@ -162,6 +162,9 @@ const searchParams = ref({
 
 });
 
+// 등급코드값 필터링
+const pdGdCds = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R'].includes(v.codeId));
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -394,7 +397,7 @@ const initGrdMain = defineGrid((data, view) => {
       width: '100',
       styleName: 'text-center',
       editor: { type: 'list' },
-      options: codes.PD_GD_CD,
+      options: pdGdCds,
       editable: true,
     },
     // 입고수량

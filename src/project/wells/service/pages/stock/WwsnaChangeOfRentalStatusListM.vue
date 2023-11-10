@@ -246,6 +246,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'rmkCn' }, // 특이사항
     { fieldName: 'rentalAssetStat' }, // 렌탈관련상태
     { fieldName: 'cntrNo' }, // 고객번호
+    { fieldName: 'cntrSn' }, // 고객순번
     { fieldName: 'rtngdRvpyProcsYn' }, // 반품수불처리여부
     { fieldName: 'hgrWareNo' }, // 상위창고번호
     { fieldName: 'factoryDisposalGb' }, // 물류폐기, 공장폐기 임시구분
