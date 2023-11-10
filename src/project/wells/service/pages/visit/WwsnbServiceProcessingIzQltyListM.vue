@@ -141,6 +141,12 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <kw-separator
+            vertical
+            inset
+            spaced
+          />
+          <span>(단위:원)</span>
         </template>
 
         <kw-btn
@@ -329,7 +335,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_CNTR_DTL_NO'),
       width: '150',
       styleName: 'text-center rg-button-link',
-      footer: { text: t('MSG_TXT_SUM') },
+      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-center' },
       renderer: { type: 'button' },
       // preventCellItemFocus: true,
     },

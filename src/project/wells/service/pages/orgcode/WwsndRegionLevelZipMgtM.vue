@@ -59,13 +59,11 @@
         <!-- 작업그룹 -->
         <kw-search-item
           :label="$t('MSG_TXT_WK_GRP')"
-          required
         >
           <kw-select
             v-model="searchParams.wkGrpCd"
             :options="codes.WK_GRP_CD"
             :label="$t('MSG_TXT_WK_GRP')"
-            rules="required"
           />
         </kw-search-item>
         <!-- 서비스센터 -->

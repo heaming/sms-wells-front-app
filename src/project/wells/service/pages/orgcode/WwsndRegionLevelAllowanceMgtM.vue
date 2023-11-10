@@ -582,7 +582,7 @@ const initGrdMovementLevel = defineGrid((data, view) => {
       styleName: 'text-center',
       datetimeFormat: 'date' },
     { fieldName: 'chEmpno', header: t('MSG_TXT_CH_EMPNO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'chNm', header: t('MSG_TXT_CH_FNM'), width: '100' },
+    { fieldName: 'chNm', header: t('MSG_TXT_CH_FNM'), width: '100', styleName: 'text-center' },
     { fieldName: 'minPerManho' },
     { fieldName: 'rglvlWeit' },
     { fieldName: 'avVe' },
@@ -663,7 +663,7 @@ const initGrdBizLevel = defineGrid((data, view) => {
       styleName: 'text-center',
       datetimeFormat: 'date' },
     { fieldName: 'chEmpno', header: t('MSG_TXT_CH_EMPNO'), width: '100', styleName: 'text-center' },
-    { fieldName: 'chNm', header: t('MSG_TXT_CH_FNM'), width: '100' },
+    { fieldName: 'chNm', header: t('MSG_TXT_CH_FNM'), width: '100', styleName: 'text-center' },
     { fieldName: 'minPerManho' },
     { fieldName: 'rglvlWeit' },
     { fieldName: 'maxApyStrtdt' },
@@ -701,7 +701,7 @@ function initGrdMovementBase(data, view) {
     { fieldName: 'movementManHour',
       header: t('MSG_TXT_AIRLIFT_PER_MIN'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: true,
       editor: {
         type: 'number',
@@ -711,7 +711,7 @@ function initGrdMovementBase(data, view) {
     { fieldName: 'movementFieldWeight',
       header: t('MSG_TXT_RGLVL_WEIT'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: true,
       editor: {
         type: 'number',
@@ -721,7 +721,7 @@ function initGrdMovementBase(data, view) {
     { fieldName: 'movementAverageSpeed',
       header: t('MSG_TXT_AV_HH_VE'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: true,
       editor: {
         type: 'number',
@@ -748,7 +748,7 @@ function initGrdBizBase(data, view) {
     { fieldName: 'bizManHour',
       header: t('MSG_TXT_AIRLIFT_PER_MIN'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: true,
       editor: {
         type: 'number',
@@ -759,14 +759,14 @@ function initGrdBizBase(data, view) {
     { fieldName: 'bizFieldWeight',
       header: t('MSG_TXT_RGLVL_WEIT'),
       width: '100',
-      styleName: 'text-center',
+      styleName: 'text-right',
       editable: true,
       editor: {
         type: 'number',
         maxLength: 3,
         editFormat: '##0',
       } },
-    { fieldName: 'bizFieldAirlift', header: t('MSG_TXT_RGLVL_AIRLIFT'), width: '100', styleName: 'text-center' },
+    { fieldName: 'bizFieldAirlift', header: t('MSG_TXT_RGLVL_AIRLIFT'), width: '100', styleName: 'text-right' },
   ];
 
   data.setFields(fields);
