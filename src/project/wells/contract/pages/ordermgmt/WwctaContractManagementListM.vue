@@ -360,6 +360,7 @@ import { codeUtil, defineGrid, getComponentType, useDataService, gridUtil, fileU
 import { cloneDeep, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
+// eslint-disable-next-line no-unused-vars
 import { openReportPopup, openReportPopupWithOptions } from '~common/utils/cmPopupUtil';
 import { openOzReport } from '~sms-common/contract/util/CtPopupUtil';
 import { buildUrlForNoSession } from '~sms-common/contract/util';
@@ -1010,7 +1011,7 @@ async function onClickSearchCntrCst() {
   }
 }
 
-// oz리포트 이벤트(공통유틸) - 현재 미사용중이나, 공통사용에 참고
+// oz리포트 이벤트(공통유틸) - unused
 // eslint-disable-next-line no-unused-vars
 async function onClickOzReportHello(cntrNo) {
   const { data: reports } = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
@@ -1018,10 +1019,17 @@ async function onClickOzReportHello(cntrNo) {
 } /* 231106 공통유틸 확인완료 */
 
 async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
+  // TODO: 현재 파라미터 방식에서 url전송 방식으로 변경중
+
+  notify('현재 수정 중입니다.');
+  const res2 = await dataService.get('/sms/wells/contract/managements/search-api-url', { params: { cntrNo } });
+  console.log(res2);
+
+  // FIX: 기존완성여부 확인용으로 살려둠
   const res = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
 
   if (res.data.length < 2) { // 단건 처리
-    console.log(res.data[0]);
+    // console.log(res.data[0]);
 
     await openReportPopup(
       res.data[0].ozrPath,
@@ -1043,8 +1051,8 @@ async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
 
       children.push(childParams);
     }
-    console.log(children); // 자식리스트
-    console.log(res.data[0]);
+    // console.log(children); // 자식리스트
+    // console.log(res.data[0]);
 
     // 부모트리의 파라미터
     await openReportPopupWithOptions(
