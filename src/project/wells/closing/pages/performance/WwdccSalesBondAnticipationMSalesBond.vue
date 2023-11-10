@@ -57,7 +57,7 @@
         <zctz-contract-detail-number
           v-model:cntr-no="searchParams.cntrNo"
           v-model:cntr-sn="searchParams.cntrSn"
-          :disable="searchParams.agrgDv !== '3'"
+          :disable="searchParams.agrgDv === '1'"
           :name="$t('MSG_TXT_CNTR_DTL_NO')"
         />
       </kw-search-item>
@@ -670,6 +670,12 @@ watch(() => searchParams.value.sellTpCd, async (sellTpCd) => {
   dynamicChangeCodes.value.SELL_TP_DTL_CD = customCodes.value.SELL_TP_DTL_CD.filter(
     (obj) => (obj.userDfn02 === sellTpCd),
   );
+});
+watch(() => searchParams.value.agrgDv, async (agrgDv) => {
+  if (agrgDv === '1') {
+    searchParams.value.cntrNo = '';
+    searchParams.value.cntrSn = '';
+  }
 });
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
