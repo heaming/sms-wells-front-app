@@ -361,12 +361,18 @@ async function initProps() {
   dtlIzParam.value.gubun = gubun;
   if (!isEmpty(dtlIzParam.value.cntrNo) && !isEmpty(dtlIzParam.value.cntrSn)
   && !isEmpty(dtlIzParam.value.cstSvAsnNo) && !isEmpty(dtlIzParam.value.gubun)) {
-    await Promise.all([
-      await fetchData(),
-      await fetchData1(),
-      await fetchData2(),
-      await fetchData3(),
-    ]);
+    if (dtlIzParam.value.gubun === 'AD' || dtlIzParam.value.gubun === 'BD') {
+      await Promise.all([
+        await fetchData(),
+        await fetchData1(),
+        await fetchData2(),
+        await fetchData3(),
+      ]);
+    } else {
+      await Promise.all([
+        await fetchData(),
+      ]);
+    }
   }
 }
 
