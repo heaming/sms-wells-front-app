@@ -79,6 +79,7 @@
             v-model:to="searchParams.cancelEndYm"
             type="month"
             :label="t('MSG_TXT_CANCEL_YM')"
+            :rules="searchParams.cancelStrtYm || searchParams.cancelEndYm ? 'date_range_required' : ''"
           />
         </kw-search-item>
       </kw-search-row>
