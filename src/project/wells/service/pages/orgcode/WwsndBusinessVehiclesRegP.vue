@@ -305,9 +305,9 @@ async function onChangeEngineer() {
   const engineerByPrtnrNo = engs.filter((v) => v.prtnrNo === dataParams.value.vhcMngtPrtnrNo);
 
   engineerByPrtnrNo.forEach((e) => {
-    dataParams.value.entcoDt = e.entcoDt;
-    dataParams.value.rsgnDt = e.rsgnDt;
     dataParams.value.vhcMngtOgTpCd = e.ogTpCd;
+    dataParams.value.entcoDt = e.cntrDt;
+    dataParams.value.rsgnDt = e.cntlDt;
 
     if (isModify.value && (dataParams.value.vhcMngtPrtnrNo !== dataParams.value.bfPrtnrNo)) {
       dataParams.value.prtnrChYn = '1';
@@ -383,7 +383,6 @@ async function onClickSaveBtn() {
   if (!await frmMainRef.value.validate()) { return; }
   if (await frmMainRef.value.alertIfIsNotModified()) { return; }
 
-  // TODO: 엔지니어 테이블 작업 완료 후 WsndVehiclesDsbRgstService.java 주석 해제
   if (isModify.value) {
     await dataService.put('/sms/wells/service/business-vehicles', dataParams.value);
   } else {
