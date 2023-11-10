@@ -41,6 +41,7 @@
             dense
             type="radio"
             :options="props.checkItem[0].stlmDvCd ==='02'? stlmDvCdOption1:stlmDvCdOption2"
+            @change="onChangeStlmDvCd"
           />
           <!-- @change="onChangeDv" -->
         </kw-form-item>
@@ -81,121 +82,152 @@
             <kw-input
               v-model="infomation.bilAmt"
               disable
-              type="number"
+              align="right"
+              mask="number"
             />
           </kw-form-item>
           <!-- 지급구분 -->
           <kw-form-item :label="$t('MSG_TXT_DSB_DV')">
             <kw-select
+              v-model="infomation.rfndDsbDvCd"
               :options="cashCardRefund"
+              @update:model-value="onChnageRfndDsbDvCd"
             />
-          <!-- v-model="infomation.rfndDsbDvCd" -->
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 공제금액 -->
           <kw-form-item :label="$t('MSG_TXT_DDCTAM')">
             <kw-input
-              type="number"
+              v-model="infomation.rfndDdtnAmt"
+              mask="number"
+              maxlength="10"
+              align="right"
             />
-          <!-- v-model="infomation.rfndDdtnAmt" -->
           </kw-form-item>
           <!-- 실지급액 -->
           <kw-form-item :label="$t('MSG_TXT_ACL_DSB_AMT')">
             <kw-input
-              type="number"
+              v-model="infomation.rfndAkAmt"
+              mask="number"
+              maxlength="10"
+              align="right"
             />
-          <!-- v-model="infomation.rfndAkAmt" -->
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 카드번호 -->
           <kw-form-item :label="$t('MSG_TXT_CARD_NO')">
             <kw-input
+              v-model="infomation.cardRfndCrcdnoEncr1"
+              disable
               type="number"
               maxlength="4"
             />
-            <!-- v-model="cardInfo.cardRfndCrcdnoEncr1" -->
             <span>-</span>
             <kw-input
+              v-model="infomation.cardRfndCrcdnoEncr2"
+              disable
               type="number"
               maxlength="4"
             />
-            <!-- v-model="cardInfo.cardRfndCrcdnoEncr2" -->
             <span>-</span>
             <kw-input
+              v-model="infomation.cardRfndCrcdnoEncr3"
+              disable
               type="number"
               maxlength="4"
             />
-            <!-- v-model="cardInfo.cardRfndCrcdnoEncr3" -->
             <span>-</span>
             <kw-input
+              v-model="infomation.cardRfndCrcdnoEncr4"
+              disable
               type="number"
               maxlength="4"
             />
-          <!-- v-model="cardInfo.cardRfndCrcdnoEncr4" -->
           </kw-form-item>
           <!-- 카드구분 -->
           <kw-form-item :label="$t('MSG_TXT_CARD_DV')">
             <kw-select
-              :options="cardLists"
-              option-label="fnitNm"
-              option-value="fnitCd"
+              ref="financeCdRef"
+              v-model="infomation.cardRfndFnitCd"
+              :options="codeList.financeCode"
+              disable
+              :label="$t('MSG_TXT_CARD_DV')"
             />
-          <!-- v-model="infomation.cardRfndFnitCd" -->
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 승인번호 -->
           <kw-form-item :label="$t('MSG_TXT_APR_NO')">
             <kw-input
+              v-model="infomation.cardRfndFnitCd"
+              disable
               type="number"
             />
-          <!-- v-model="infomation.cardRfndCrdcdAprno" -->
           </kw-form-item>
           <!-- 수수료액 -->
           <kw-form-item :label="$t('MSG_TXT_FEE_AMT')">
             <kw-input
-              type="number"
+              v-model="infomation.cardRfndFee"
+              mask="number"
+              maxlength="10"
+              align="right"
+              :disable="infomation.rfndDsbDvCd === '01'"
             />
-          <!-- v-model="infomation.cardRfndFee" -->
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 지급은행 -->
           <kw-form-item :label="$t('MSG_TXT_DSB_BNK')">
             <kw-select
-              :options="bankLists"
-              option-label="fnitNm"
-              option-value="fnitCd"
+              v-model="infomation.cshRfndFnitCd"
+              :options="codes.CSH_RFND_FNIT_CD"
+              :disable="infomation.rfndDsbDvCd !== '01'"
             />
-          <!-- v-model="infomation.cshRfndFnitCd" -->
           </kw-form-item>
           <!-- 계좌번호 -->
           <kw-form-item :label="$t('MSG_TXT_AC_NO')">
             <kw-input
-              maxlength="16"
-              type="number"
+              v-model.trim="infomation.cshRfndAcnoEncr"
+              regex="num"
+              :maxlength="30"
+              :disable="infomation.rfndDsbDvCd !== '01'"
             />
-          <!-- v-model="infomation.cshRfndAcnoEncr" -->
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 환불사유 -->
           <kw-form-item :label="$t('MSG_TXT_RFND_RSON')">
-            <kw-input />
-          <!-- v-model="infomation.rfndRsonCn" -->
+            <kw-select
+              v-model="infomation.rfndRsonCd"
+              :options="codes.RFND_RSON_CD"
+              @update:model-value="onChagneFrndRsondCd"
+            />
           </kw-form-item>
+          <!-- 환불사유내용(기타일경우 입력) -->
+          <kw-form-item :label="$t('MSG_TXT_RFND_CN')">
+            <kw-input
+              v-model.trim="infomation.rfndRsonCn"
+              :disable="infomation.rfndRsonCd != '56'"
+              :maxlength="130"
+            />
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
           <!-- 예금주 -->
           <kw-form-item :label="$t('MSG_TXT_ACHLDR')">
-            <kw-input />
+            <kw-input
+              v-model.trim="infomation.cstNm"
+              disable
+            />
             <kw-btn
               :label="$t('MSG_BTN_VALID_CHK')"
-              @click="onClickValidate"
+              :disable="infomation.rfndDsbDvCd !== '01'"
+              @click="onClickCheckAccountHolder"
             />
             <!-- 유효성 체크 -->
           </kw-form-item>
-        <!-- v-model="infomation.rfndRsonCn" -->
         </kw-form-row>
       </div>
 
@@ -224,69 +256,88 @@
             <kw-input
               v-model="infomation.bilAmt"
               disable
+              align="right"
               type="number"
             />
           </kw-form-item>
           <!-- 지급구분 -->
           <kw-form-item :label="$t('MSG_TXT_DSB_DV')">
             <kw-select
+              v-model="infomation.rfndDsbDvCd"
               :options="cashRefund"
+              @update:model-value="onChnageRfndDsbDvCd"
             />
-          <!-- v-model="infomation.rfndDsbDvCd" -->
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 공제금액 -->
           <kw-form-item :label="$t('MSG_TXT_DDCTAM')">
             <kw-input
-              type="number"
+              v-model="infomation.rfndDdtnAmt"
+              mask="number"
+              maxlength="10"
+              align="right"
             />
-          <!-- v-model="infomation.rfndDdtnAmt" -->
           </kw-form-item>
           <!-- 실지급액 -->
           <kw-form-item :label="$t('MSG_TXT_ACL_DSB_AMT')">
             <kw-input
-              type="number"
+              v-model="infomation.rfndAkAmt"
+              mask="number"
+              maxlength="10"
+              align="right"
             />
-          <!-- v-model="infomation.rfndAkAmt" -->
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 지급은행 -->
           <kw-form-item :label="$t('MSG_TXT_DSB_BNK')">
-            <!-- :model-value="[]"
-          :options="['A', 'B', 'C', 'D']" -->
             <kw-select
-              :options="bankLists"
-              option-label="fnitNm"
-              option-value="fnitCd"
+              v-model="infomation.cshRfndFnitCd"
+              :options="codes.CSH_RFND_FNIT_CD"
             />
-          <!-- v-model="infomation.cshRfndFnitCd" -->
           </kw-form-item>
           <!-- 계좌번호 -->
           <kw-form-item :label="$t('MSG_TXT_AC_NO')">
             <kw-input
-              maxlength="16"
-              type="number"
+              v-model.trim="infomation.cshRfndAcnoEncr"
+              regex="num"
+              :maxlength="30"
             />
-          <!-- v-model="infomation.cshRfndAcnoEncr" -->
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 환불사유 -->
           <kw-form-item :label="$t('MSG_TXT_RFND_RSON')">
-            <kw-input />
-          <!-- v-model="infomation.rfndRsonCn" -->
-          </kw-form-item>
-          <!-- 예금주 -->
-          <kw-form-item :label="$t('MSG_TXT_ACHLDR')">
-            <kw-input />
-            <kw-btn
-              :label="$t('MSG_BTN_VALID_CHK')"
-              @click="onClickValidate"
+            <kw-select
+              v-model="infomation.rfndRsonCd"
+              :options="codes.RFND_RSON_CD"
+              @update:model-value="onChagneFrndRsondCd"
             />
           </kw-form-item>
-        <!-- v-model="infomation.rfndRsonCn" -->
+          <!-- 환불사유내용(기타일경우 입력) -->
+          <kw-form-item :label="$t('MSG_TXT_RFND_CN')">
+            <kw-input
+              v-model.trim="infomation.rfndRsonCn"
+              :disable="infomation.rfndRsonCd != '56'"
+              :maxlength="130"
+            />
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <!-- 예금주 -->
+          <kw-form-item :label="$t('MSG_TXT_ACHLDR')">
+            <kw-input
+              v-model.trim="infomation.cstNm"
+              disable
+            />
+            <kw-btn
+              :label="$t('MSG_BTN_VALID_CHK')"
+              :disable="infomation.rfndDsbDvCd !== '01'"
+              @click="onClickCheckAccountHolder"
+            />
+            <!-- 유효성 체크 -->
+          </kw-form-item>
         </kw-form-row>
       </div>
 
@@ -315,31 +366,37 @@
             <kw-input
               v-model="infomation.bilAmt"
               disable
-              type="number"
+              align="right"
+              mask="number"
             />
           </kw-form-item>
           <!-- 지급구분 -->
           <kw-form-item :label="$t('MSG_TXT_DSB_DV')">
             <kw-select
+              v-model="infomation.rfndDsbDvCd"
               :options="cardRefund"
+              @update:model-value="onChnageRfndDsbDvCd"
             />
-          <!-- v-model="infomation.rfndDsbDvCd" -->
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 공제금액 -->
           <kw-form-item :label="$t('MSG_TXT_DDCTAM')">
             <kw-input
-              type="number"
+              v-model="infomation.rfndDdtnAmt"
+              mask="number"
+              maxlength="10"
+              align="right"
             />
-          <!-- v-model="infomation.rfndDdtnAmt" -->
           </kw-form-item>
           <!-- 실지급액 -->
           <kw-form-item :label="$t('MSG_TXT_ACL_DSB_AMT')">
             <kw-input
-              type="number"
+              v-model="infomation.rfndAkAmt"
+              mask="number"
+              maxlength="10"
+              align="right"
             />
-          <!-- v-model="infomation.rfndAkAmt" -->
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
@@ -347,24 +404,28 @@
           <kw-form-item :label="$t('MSG_TXT_CARD_NO')">
             <kw-input
               v-model="infomation.cardRfndCrcdnoEncr1"
+              disable
               type="number"
               maxlength="4"
             />
             <span>-</span>
             <kw-input
               v-model="infomation.cardRfndCrcdnoEncr2"
+              disable
               type="number"
               maxlength="4"
             />
             <span>-</span>
             <kw-input
               v-model="infomation.cardRfndCrcdnoEncr3"
+              disable
               type="number"
               maxlength="4"
             />
             <span>-</span>
             <kw-input
               v-model="infomation.cardRfndCrcdnoEncr4"
+              disable
               type="number"
               maxlength="4"
             />
@@ -372,27 +433,40 @@
           <!-- 카드구분 -->
           <kw-form-item :label="$t('MSG_TXT_CARD_DV')">
             <kw-select
-              :options="cardLists"
-              option-label="fnitNm"
-              option-value="fnitCd"
+              ref="financeCdRef"
+              v-model="infomation.cardRfndFnitCd"
+              :options="codeList.financeCode"
+              disable
+              :label="$t('MSG_TXT_CARD_DV')"
             />
-          <!-- v-model="infomation.cardRfndFnitCd" -->
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 승인번호 -->
           <kw-form-item :label="$t('MSG_TXT_APR_NO')">
             <kw-input
+              v-model="infomation.cardRfndFnitCd"
+              disable
               type="number"
             />
-          <!-- v-model="infomation.cardRfndCrdcdAprno" -->
           </kw-form-item>
-          <!-- 수수료액 -->
-          <kw-form-item :label="$t('MSG_TXT_FEE_AMT')">
-            <kw-input
-              type="number"
+          <!-- 환불사유 -->
+          <kw-form-item :label="$t('MSG_TXT_RFND_RSON')">
+            <kw-select
+              v-model="infomation.rfndRsonCd"
+              :options="codes.RFND_RSON_CD"
+              @update:model-value="onChagneFrndRsondCd"
             />
-          <!-- v-model="infomation.cardRfndFee" -->
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <!-- 환불사유내용(기타일경우 입력) -->
+          <kw-form-item :label="$t('MSG_TXT_RFND_CN')">
+            <kw-input
+              v-model.trim="infomation.rfndRsonCn"
+              :disable="infomation.rfndRsonCd != '56'"
+              :maxlength="130"
+            />
           </kw-form-item>
         </kw-form-row>
       </div>
@@ -413,14 +487,14 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 // eslint-disable-next-line no-unused-vars
-import { defineGrid, codeUtil, gridUtil, getComponentType, useGlobal } from 'kw-lib';
+import { defineGrid, codeUtil, gridUtil, getComponentType, useGlobal, useDataService } from 'kw-lib';
 import dayjs from 'dayjs';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const now = dayjs();
 const { notify } = useGlobal();
 const { t } = useI18n();
-// const dataService = useDataService();
+const dataService = useDataService();
 
 // 테스트 데이터 W20226001983-1
 const props = defineProps({
@@ -434,6 +508,8 @@ const codes = await codeUtil.getMultiCodes(
   'RFND_DSB_DV_CD', // 환불지급구분코드 01.현금환불, 02.카드환불, 03.전금
   'STLM_DV_CD', // 결제구분코드
   'SV_BIZ_DCLSF_CD', // 서비스유형
+  'RFND_RSON_CD', /* 환불사유코드 */
+  'CSH_RFND_FNIT_CD', // 지급은행
 );
 
 const grdMainRef = ref(getComponentType('KwGrid'));
@@ -451,7 +527,9 @@ const stlmDvCdCheck = [
   },
 ];
 
-const stlmDvCdOption1 = stlmDvCdCheck.filter((p1) => ['01', '03'].includes(p1.codeId));
+// 결제구분이 신용카드인 경우
+const stlmDvCdOption1 = stlmDvCdCheck.filter((p1) => ['01', '03', '02'].includes(p1.codeId));
+// 결제구분이 신용카드 그외 일경우
 const stlmDvCdOption2 = stlmDvCdCheck.filter((p1) => ['02'].includes(p1.codeId));
 
 const searchParams = ref({
@@ -462,35 +540,120 @@ const cashRefund = codes.RFND_DSB_DV_CD.filter((v) => v.codeId === '01'); // 현
 const cardRefund = codes.RFND_DSB_DV_CD.filter((v) => v.codeId === '02'); // 카드 환불
 const cashCardRefund = codes.RFND_DSB_DV_CD.filter((v) => v.codeId === '01' || v.codeId === '02'); // 현금 환불 (카드)
 
-// 카드, 은행 구분 목록
-const cardLists = ref([]);
-const bankLists = ref([]);
+// 카드 목록
+const codeList = ref({
+  financeCode: [],
+});
 
 const infomation = ref({
   rfndRqdt: now.format('YYYYMMDD'), // 환불일자
   rfndDsbDt: now.format('YYYYMMDD'), // 지급일
-  bilAmt: props.checkItem[0].bilAmt, // 결제금액
+  bilAmt: props.checkItem[0]?.bilAmt, // 결제금액
   rfndDsbDvCd: '', // 지급구분 RFND_DSB_DV_CD
   rfndDdtnAmt: 0, // 공제금액
-  rfndAkAmt: '', // 실지급액
+  rfndAkAmt: 0, // 실지급액
   cardRfndCrcdnoEncr: '', // 카드번호
-  cardRfndFnitCd: [], // 카드구분
-  cardRfndCrdcdAprno: '', // 승인번호
-  cardRfndFee: '', // 수수료액
-  cshRfndFnitCd: [], // 지급은행
+  cardRfndFnitCd: props.checkItem[0]?.iscmpCd, // 카드구분
+  cardRfndFee: 0, // 수수료액
+  cshRfndFnitCd: '', // 지급은행
   cshRfndAcnoEncr: '', // 계좌번호
-  rfndRsonCn: '', // 환불사유
+  rfndRsonCd: '', // 환불사유코드
+  rfndRsonCn: '', // 환불사유내영(기타일경우 입력)
+  cardAprno: props.checkItem[0]?.cardAprno, // 승인번호
+  cstNm: '', // 예금주
 
-  crcdnoEncr: '', // 카드번호
-  cardAprno: '', // 승인번호
-
-  cardRfndCrcdnoEncr1: props.checkItem[0].crcdnoEncr.substring(0, 4), // 카드번호1
-  cardRfndCrcdnoEncr2: props.checkItem[0].crcdnoEncr.substring(4, 8), // 카드번호2
-  cardRfndCrcdnoEncr3: props.checkItem[0].crcdnoEncr.substring(8, 12), // 카드번호3
-  cardRfndCrcdnoEncr4: props.checkItem[0].crcdnoEncr.substring(12, 16), // 카드번호4
+  cardRfndCrcdnoEncr1: props.checkItem[0].crcdnoEncr?.substring(0, 4), // 카드번호1
+  cardRfndCrcdnoEncr2: props.checkItem[0].crcdnoEncr?.substring(4, 8), // 카드번호2
+  cardRfndCrcdnoEncr3: props.checkItem[0].crcdnoEncr?.substring(8, 12), // 카드번호3
+  cardRfndCrcdnoEncr4: props.checkItem[0].crcdnoEncr?.substring(12, 16), // 카드번호4
 });
 
+// 지급 구분 변경 이벤트
+async function onChnageRfndDsbDvCd(val) {
+  if (val !== '01') {
+    infomation.value.cshRfndFnitCd = '';
+    infomation.value.cshRfndAcnoEncr = '';
+    infomation.value.cstNm = '';
+  }
+  if (val === '01') {
+    infomation.value.cardRfndFee = 0;
+  }
+}
+
+// 환불사유 수정 이벤트
+async function onChagneFrndRsondCd(val) {
+  if (val !== '56') infomation.value.rfndRsonCn = '';
+}
+
+// 환불구분코드 변경 이벤트
+async function onChangeStlmDvCd(val) {
+  // 현금환불(카드)
+  if (val === '01') {
+    infomation.value.rfndDsbDvCd = '';
+  }
+  // 현금환불(합산청구, 가상계좌)
+  if (val === '02') {
+    infomation.value.cardRfndFee = 0; // 수수료액
+    infomation.value.rfndDsbDvCd = '01'; // 지급구분(현금환불)
+  }
+  // 카드취소
+  if (val === '03') {
+    infomation.value.cardRfndFee = 0; // 수수료액
+    infomation.value.cshRfndFnitCd = ''; // 지급은행
+    infomation.value.cshRfndAcnoEncr = ''; // 계좌번호
+    infomation.value.cstNm = ''; // 예금주
+    infomation.value.rfndDsbDvCd = '02'; // 지급구분(현금환불)
+  }
+}
+
+// 계좌 유효성 체크 버튼
+async function onClickCheckAccountHolder() {
+  if (isEmpty(infomation.value.cshRfndFnitCd)) {
+    // 은행코드를 확인하십시오
+    notify(`환불정보의 ${t('MSG_ALT_BNK_CD_CHECK')}`);
+    return false;
+  }
+
+  if (isEmpty(infomation.value.cshRfndAcnoEncr)) {
+    // 계좌번호를 확인하십시오！
+    notify(`환불정보의 ${t('MSG_ALT_AC_NO_CHECK')}`);
+    return false;
+  }
+
+  const sendData = {
+    cntrNo: props.checkItem[0].cntrNo,
+    cntrSn: props.checkItem[0].cntrSn,
+    bnkCd: infomation.value.cshRfndFnitCd,
+    acno: infomation.value.cshRfndAcnoEncr,
+    copnDvDrmVal: '000101',
+    achldrNm: '예금주',
+    copnDvCd: '1',
+    sysDvCd: 'W',
+    psicId: '',
+    deptId: '',
+  };
+
+  // eslint-disable-next-line max-len
+  const acnoData = await dataService.get('/sms/wells/withdrawal/idvrve/refund-applications/bank-effective', { params: sendData }).catch(() => {
+    infomation.value.cstNm = '테스트예금주';
+  });
+  if (!isEmpty(acnoData.data)) {
+    if (isEmpty(acnoData.data.ACHLDR_NM.trim())) {
+      notify(acnoData.data.ERR_CN);
+      infomation.value.cstNm = '테스트예금주';
+    } else {
+      infomation.value.cstNm = acnoData.data.ACHLDR_NM;
+    }
+  }
+}
+
+// 팝업 오픈시 초기 설정
 async function initProps() {
+  const searchBankParams = {
+    fnitFeeTpCd: '2',
+  };
+  const res = await dataService.get('/sms/common/common/codes/finance-code/bureau-codes', { params: searchBankParams });
+  codeList.value.financeCode = res.data;
   const view = grdMainRef.value.getView();
   const data = view.getDataSource();
   data.checkRowStates(false);
@@ -501,14 +664,9 @@ async function initProps() {
   data.checkRowStates(true);
 }
 
-// 유효성 체크 버튼
-async function onClickValidate() {
-  notify('개발중입니다.');
-}
-
 onMounted(async () => {
   await initProps();
-  console.log(props.checkItem[0].crcdnoEncr);
+  console.log(props.checkItem[0]);
   // await fetchData();
 });
 
