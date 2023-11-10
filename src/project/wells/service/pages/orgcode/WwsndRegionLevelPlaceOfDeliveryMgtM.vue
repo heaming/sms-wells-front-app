@@ -77,6 +77,7 @@
             @change="fetchData"
           />
         </template>
+        <!-- 삭제 버튼 -->
         <kw-btn
           v-permission:delete
           dense
@@ -89,13 +90,7 @@
           vertical
           inset
         />
-        <kw-btn
-          v-permission:update
-          dense
-          grid-action
-          :label="$t('MSG_BTN_SAVE')"
-          @click="onClickSave"
-        />
+        <!-- 행추가 버튼 -->
         <kw-btn
           v-permission:create
           dense
@@ -103,11 +98,20 @@
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
+        <!-- 저장 버튼 -->
+        <kw-btn
+          v-permission:update
+          dense
+          grid-action
+          :label="$t('MSG_BTN_SAVE')"
+          @click="onClickSave"
+        />
         <kw-separator
           spaced
           vertical
           inset
         />
+        <!-- 엑셀다운로드 버튼 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -133,6 +137,7 @@
           dense
           class="w150"
         />
+        <!-- 적용일자 일괄변경 -->
         <kw-btn
           secondary
           dense
@@ -165,7 +170,7 @@ import {
   defineGrid,
   getComponentType,
   useDataService,
-  useMeta,
+  // useMeta,
   gridUtil,
   useGlobal,
 } from 'kw-lib';
@@ -173,7 +178,7 @@ import { cloneDeep, replace, isEmpty } from 'lodash-es';
 import dayjs from 'dayjs';
 
 const { t } = useI18n();
-const { getConfig } = useMeta();
+// const { getConfig } = useMeta();
 const grdMainRef = ref(getComponentType('KwGrid'));
 const dataService = useDataService();
 const { currentRoute } = useRouter();
@@ -200,7 +205,8 @@ const svcCode = (await dataService.get('/sms/wells/service/organizations/service
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
-  pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
+  pageSize: 10,
+  // pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
 
 let cachedParams;
@@ -219,7 +225,7 @@ const searchParams = ref({
 });
 
 const isReadonly = ref(false);
-
+// 엑셀다운로드
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -232,6 +238,7 @@ async function onClickExcelDownload() {
     checkBar: 'hidden',
   });
 }
+// 그리드 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/region-levels/place-of-deliverys/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: places, pageInfo: pagingResult } = res.data;
@@ -243,42 +250,37 @@ async function fetchData() {
   view.clearCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
-
+// 조회 버튼 클릭
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
+// 행추가 버튼 클릭
 function onClickAddRow() {
-  if (searchParams.value.pdlvDvCd === '') {
-    notify(t('MSG_ALT_CHK_PDLV_DV'));
-  } else {
-    const view = grdMainRef.value.getView();
-    gridUtil.insertRowAndFocus(view, 0, { pdlvDvCd: searchParams.value.pdlvDvCd, apyStrtdt: searchParams.value.applyDate, apyEnddt: '99991231' });
-    view.checkItem(0, true);
-  }
+  const view = grdMainRef.value.getView();
+  gridUtil.insertRowAndFocus(view, 0, { apyStrtdt: searchParams.value.applyDate, apyEnddt: '99991231' });
+  view.checkItem(0, true);
 }
-
+// 저장 버튼 클릭
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
   if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
     const response = await dataService.post('/sms/wells/service/region-levels/place-of-deliverys', chkRows);
     if (response.data.processCount === -1) {
-      notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT'));
+      notify(t('MSG_ALT_APY_STRT_D_CONF_BF_DT')); // 이전일자보다 작거나 같습니다. 적용시작일을 확인하시기 바랍니다.
     } else {
-      notify(t('MSG_ALT_SAVE_DATA'));
+      notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
       await fetchData();
     }
   }
 }
-
+// 삭제 버튼 클릭
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
-  if (!await gridUtil.confirmIfIsModified(view)) { return; }
 
   const deletedRows = await gridUtil.confirmDeleteCheckedRows(view);
   const pdlvNos = deletedRows.map(({ pdlvNo }) => pdlvNo);
@@ -289,28 +291,28 @@ async function onClickDelete() {
     await fetchData();
   }
 }
-
+// 출고지 구분 선택 이벤트
 function changePdlvDv() {
-  if (searchParams.value.pdlvDvCd === 'E') {
-    searchParams.value.applyDate = now.add(1, 'days').format('YYYYMMDD');
+  if (searchParams.value.pdlvDvCd === 'E') { // 엔지니어 지점
+    searchParams.value.applyDate = now.add(1, 'days').format('YYYYMMDD'); // 다음날짜
     isReadonly.value = false;
-  } else if (searchParams.value.pdlvDvCd === 'Z') {
-    searchParams.value.applyDate = now.format('YYYYMMDD');
+  } else if (searchParams.value.pdlvDvCd === 'Z') { //
+    searchParams.value.applyDate = now.format('YYYYMMDD'); // 당일
     isReadonly.value = true;
-  } else {
-    searchParams.value.applyDate = now.format('YYYYMMDD');
+  } else { // 전체
+    searchParams.value.applyDate = now.format('YYYYMMDD'); // 당일
     isReadonly.value = false;
   }
 }
-
+// 적용일자 일괄변경 버튼 클릭
 async function onClickApplyDateBulkChange() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
   const data = grdMainRef.value.getData();
   if (chkRows.length === 0) {
-    notify(t('MSG_ALT_CHG_HLDY_DATA'));
+    notify(t('MSG_ALT_CHG_HLDY_DATA')); // 일괄변경할 데이터를 선택하세요.
   } else if (!chgApyDt.value.apyStrtdt) {
-    notify(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_APY_STRTDT')]));
+    notify(t('MSG_ALT_CHK_NCSR', [t('MSG_TXT_APY_STRTDT')])); // 적용시작일자을(를) 입력해주세요.
   } else {
     for (let i = 0; i < chkRows.length; i += 1) {
       data.setValue(view.getItemIndex(chkRows[i].dataRow), 'apyStrtdt', chgApyDt.value.apyStrtdt);
@@ -324,17 +326,17 @@ async function onClickApplyDateBulkChange() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'pdlvNo' },
-    { fieldName: 'pdlvDvCd' },
-    { fieldName: 'pdlvNm' },
-    { fieldName: 'zip' },
-    { fieldName: 'pdlvAdr' },
-    { fieldName: 'pdlvDtlAdr' },
-    { fieldName: 'pdlvAdrTot' },
-    { fieldName: 'apyStrtdtMax' },
-    { fieldName: 'apyStrtdt' },
-    { fieldName: 'apyEnddt' },
-    { fieldName: 'cnrOgId' },
+    { fieldName: 'pdlvNo' }, // 출고지번호
+    { fieldName: 'pdlvDvCd' }, // 출고지구분
+    { fieldName: 'pdlvNm' }, // 출고지명
+    { fieldName: 'zip' }, // 우편번호
+    { fieldName: 'pdlvAdr' }, // 출고지주소
+    { fieldName: 'pdlvDtlAdr' }, // 출고지상세주소
+    { fieldName: 'pdlvAdrTot' }, // 출고지주소tot
+    { fieldName: 'apyStrtdtMax' }, // 적용시작일자 max
+    { fieldName: 'apyStrtdt' }, // 적용시작일자
+    { fieldName: 'apyEnddt' }, // 적용종료일자
+    { fieldName: 'cnrOgId' }, // 서비스센터
   ];
 
   const columns = [
@@ -402,20 +404,8 @@ const initGrdMain = defineGrid((data, view) => {
       options: svcCode,
       optionValue: 'ogId',
       optionLabel: 'ogNm',
-      styleCallback(grid, dataCell) {
-        const pdlvDvCd = grid.getValue(dataCell.item.index, 'pdlvDvCd');
-        if (pdlvDvCd === 'E') {
-          return {
-            editable: true,
-            editor: {
-              type: 'dropdown',
-            },
-          };
-        }
-        return {
-          editable: false,
-        };
-      },
+      editable: true,
+      editor: { type: 'dropdown' },
     },
   ];
 
@@ -478,10 +468,10 @@ const initGrdMain = defineGrid((data, view) => {
   view.onValidate = async (grid, index) => {
     const { apyStrtdtMax, apyStrtdt, apyEnddt } = grid.getValues(index.dataRow);
     if (apyEnddt !== '99991231') {
-      return t('MSG_ALT_NOT_FINAL_APY_STRTDT');
+      return t('MSG_ALT_NOT_FINAL_APY_STRTDT'); // 최종 적용시작일이 아닌 건이 있습니다.
     }
     if (!isEmpty(apyStrtdtMax) && apyStrtdtMax >= apyStrtdt) {
-      return t('MSG_ALT_APY_STRT_D_CONF_MAX_DT', [apyStrtdtMax]);
+      return t('MSG_ALT_APY_STRT_D_CONF_MAX_DT', [apyStrtdtMax]); // 최대 적용시작일({0})보다 작거나 같습니다. 적용시작일을 확인하시기 바랍니다.
     }
   };
 });

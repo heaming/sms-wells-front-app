@@ -402,7 +402,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'acdnDtm' }, // 사고일시
     { fieldName: 'cnrldNo' }, // 센터장사번(등록자사번)
     { fieldName: 'cnrldNm' }, // 센터장(등록자)
-    { fieldName: 'fstRgstDtm' }, // 등록일시
+    { fieldName: 'fstRgstDtm' }, // 등록일자
     { fieldName: 'rcpMoCn' }, // 접수내용
     { fieldName: 'acdnCausCn' }, // 사고원인
     { fieldName: 'cstDmdCn' }, // 고객요구사항
@@ -412,7 +412,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ichrPrtnrOgTpCd' }, // 담당파트너조직유형코드(센터장사번)
     { fieldName: 'psicNm' }, // 담당자명(AS)
     { fieldName: 'svCnrNm' }, // 서비스센터명
-    { fieldName: 'imptaRsonNm' }, // 귀책여부
+    { fieldName: 'imptaRsonNm' }, // 귀책구분
     { fieldName: 'cpsPrgsNm' }, // 보상진행
     { fieldName: 'totCpsAmt', dataType: 'number' }, // 총보상액
     { fieldName: 'kwCpsAmt', dataType: 'number' }, // 교원부담
@@ -528,7 +528,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'fstRgstDtm',
-      header: t('MSG_TXT_RGST_DTM'),
+      header: t('MSG_TXT_FST_RGST_DT'),
       width: '120',
       datetimeFormat: 'date',
       styleName: 'text-right',
@@ -585,7 +585,7 @@ const initGrdMain = defineGrid((data, view) => {
     },
     {
       fieldName: 'imptaRsonNm',
-      header: t('MSG_TXT_IMPTA_YN'),
+      header: t('MSG_TXT_IMPTA_DV'),
       width: '100',
     },
     {
