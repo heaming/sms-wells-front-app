@@ -338,7 +338,7 @@ function validateIsApplyRowExists() {
 async function fetchPitmStoc(rows, itmGdCd, index) {
   const view = grdMainRef.value.getView();
   const itmPdCds = rows.map((v) => v.itmPdCd);
-  const res = await dataService.get(`/sms/wells/service/returning-goods-out-of-storages/${searchParams.value.ostrWareNo}`, { params: { itmPdCds, itmGdCd } });
+  const res = await dataService.post(`/sms/wells/service/returning-goods-out-of-storages/${searchParams.value.ostrWareNo}`, { itmPdCds, itmGdCd });
   for (let i = 0; i < rows.length; i += 1) {
     if (res.data[i].itmPdCd === rows[i].itmPdCd) {
       if (isIndexEmpty(index)) {
@@ -371,7 +371,7 @@ function onClickGridBulkChange(val, type) {
 function getRowData(rowData) {
   return { ...rowData,
     sapMatCd: rowData.sapCd,
-    onQty: rowData.myCenterQty || 0,
+    onQty: 0,
     mngtUnitCd: rowData.delUntNm,
     itmKndCd: rowData.itmKnd,
     itmPdNm: rowData.itmPdAbbr1 };
