@@ -2826,7 +2826,7 @@ async function onClickW201P(feeSchdId, feeSchdLvCd, feeSchdLvStatCd) {
       perfYmTxt: `${perfYm.substring(0, 4)}-${perfYm.substring(4, 6)}`,
       feeTcntDvCd,
       feeTcntDvCdTxt: codeName,
-      rsbDvCd,
+      rsbTpCd: rsbDvCd,
     };
     const { result: isChanged } = await modal({
       component: 'WwfeaFeeMeetingAttendanceRegP',
