@@ -142,7 +142,6 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const columns = [
-    { fieldName: 'asMatItmGrpNm', header: t('MSG_TXT_PRDT_GUBUN'), width: '120', styleName: 'text-center' },
     { fieldName: 'sapMatCd', header: t('MSG_TXT_SAPCD'), width: '170', styleName: 'text-center' },
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_FLTR_NM'), width: '280', styleName: 'text-left' },
@@ -173,7 +172,6 @@ const initGrdMain = defineGrid((data, view) => {
 
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
   const columnLayout = [
-    'asMatItmGrpNm',
     {
       header: t('MSG_TXT_DIV'),
       direction: 'horizontal',
@@ -328,8 +326,6 @@ const initGrdMain = defineGrid((data, view) => {
   view.checkBar.visible = false;
   view.rowIndicator.visible = true;
 
-  view.groupBy(['asMatItmGrpNm']);
-  view.setRowGroup({ mergeMode: true });
   view.layoutByColumn('sapMatCd').groupFooterUserSpans = [{ colspan: 4 }];
   view.columnByName('sapMatCd').setGroupFooters({ text: t('MSG_TXT_SBSUM'), styleName: 'text-center' });
 });
