@@ -756,7 +756,7 @@ async function onClickEftnCheck() {
     saveParams.value.cstNm = '테스트예금주';
   });
   if (!isEmpty(acnoData.data)) {
-    if (isEmpty(acnoData.data.ACHLDR_NM.trim())) {
+    if (isEmpty(acnoData.data.ACHLDR_NM) && isEmpty(acnoData.data.ACHLDR_NM?.trim())) {
       notify(acnoData.data.ERR_CN);
       saveParams.value.cstNm = '테스트예금주';
     } else {

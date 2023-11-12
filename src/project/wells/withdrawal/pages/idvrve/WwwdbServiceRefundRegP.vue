@@ -54,6 +54,7 @@
       {{ $t('MSG_TXT_RFND_INF') }}
     </h3>
     <kw-form
+      ref="frmMainRef"
       :cols="2"
     >
       <!-- 현금환불(카드) -->
@@ -70,9 +71,14 @@
             />
           </kw-form-item>
           <!-- 지급일 -->
-          <kw-form-item :label="$t('MSG_TXT_DSB_D')">
+          <kw-form-item
+            :label="$t('MSG_TXT_DSB_D')"
+            required
+          >
             <kw-date-picker
               v-model="infomation.rfndDsbDt"
+              rules="required"
+              :label="$t('MSG_TXT_DSB_D')"
             />
           </kw-form-item>
         </kw-form-row>
@@ -87,10 +93,15 @@
             />
           </kw-form-item>
           <!-- 지급구분 -->
-          <kw-form-item :label="$t('MSG_TXT_DSB_DV')">
+          <kw-form-item
+            :label="$t('MSG_TXT_DSB_DV')"
+            required
+          >
             <kw-select
               v-model="infomation.rfndDsbDvCd"
               :options="cashCardRefund"
+              rules="required"
+              :label="$t('MSG_TXT_DSB_DV')"
               @update:model-value="onChnageRfndDsbDvCd"
             />
           </kw-form-item>
@@ -103,15 +114,24 @@
               mask="number"
               maxlength="10"
               align="right"
+              :label="$t('MSG_TXT_DDCTAM')"
+              :rules="{min_value: 0 , max_value:infomation.bilAmt}"
+              @update:model-value="onChnageRfndDtnAmt"
             />
           </kw-form-item>
           <!-- 실지급액 -->
-          <kw-form-item :label="$t('MSG_TXT_ACL_DSB_AMT')">
+          <kw-form-item
+            :label="$t('MSG_TXT_ACL_DSB_AMT')"
+            required
+          >
             <kw-input
               v-model="infomation.rfndAkAmt"
               mask="number"
               maxlength="10"
               align="right"
+              disable
+              :label="$t('MSG_TXT_ACL_DSB_AMT')"
+              :rules="{min_value: 1 , max_value:infomation.bilAmt}"
             />
           </kw-form-item>
         </kw-form-row>
@@ -173,53 +193,50 @@
               mask="number"
               maxlength="10"
               align="right"
-              :disable="infomation.rfndDsbDvCd === '01'"
+              disable
             />
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 지급은행 -->
-          <kw-form-item :label="$t('MSG_TXT_DSB_BNK')">
+          <kw-form-item
+            :label="$t('MSG_TXT_DSB_BNK')"
+            required
+          >
             <kw-select
               v-model="infomation.cshRfndFnitCd"
               :options="codes.CSH_RFND_FNIT_CD"
               :disable="infomation.rfndDsbDvCd !== '01'"
+              :rules="{required : infomation.rfndDsbDvCd === '01'}"
+              :label="$t('MSG_TXT_DSB_BNK')"
             />
           </kw-form-item>
           <!-- 계좌번호 -->
-          <kw-form-item :label="$t('MSG_TXT_AC_NO')">
+          <kw-form-item
+            :label="$t('MSG_TXT_AC_NO')"
+            required
+          >
             <kw-input
               v-model.trim="infomation.cshRfndAcnoEncr"
               regex="num"
               :maxlength="30"
               :disable="infomation.rfndDsbDvCd !== '01'"
-            />
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <!-- 환불사유 -->
-          <kw-form-item :label="$t('MSG_TXT_RFND_RSON')">
-            <kw-select
-              v-model="infomation.rfndRsonCd"
-              :options="codes.RFND_RSON_CD"
-              @update:model-value="onChagneFrndRsondCd"
-            />
-          </kw-form-item>
-          <!-- 환불사유내용(기타일경우 입력) -->
-          <kw-form-item :label="$t('MSG_TXT_RFND_CN')">
-            <kw-input
-              v-model.trim="infomation.rfndRsonCn"
-              :disable="infomation.rfndRsonCd != '56'"
-              :maxlength="130"
+              :rules="{required : infomation.rfndDsbDvCd === '01'}"
+              :label="$t('MSG_TXT_AC_NO')"
             />
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 예금주 -->
-          <kw-form-item :label="$t('MSG_TXT_ACHLDR')">
+          <kw-form-item
+            :label="$t('MSG_TXT_ACHLDR')"
+            required
+          >
             <kw-input
               v-model.trim="infomation.cstNm"
               disable
+              :label="$t('MSG_TXT_ACHLDR')"
+              :rules="{required : infomation.rfndDsbDvCd === '01'}"
             />
             <kw-btn
               :label="$t('MSG_BTN_VALID_CHK')"
@@ -227,6 +244,34 @@
               @click="onClickCheckAccountHolder"
             />
             <!-- 유효성 체크 -->
+          </kw-form-item>
+          <!-- 환불사유 -->
+          <kw-form-item
+            :label="$t('MSG_TXT_RFND_RSON')"
+            required
+          >
+            <kw-select
+              v-model="infomation.rfndRsonCd"
+              :options="codes.RFND_RSON_CD"
+              rules="required"
+              :label="$t('MSG_TXT_RFND_RSON')"
+              @update:model-value="onChagneFrndRsondCd"
+            />
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <!-- 환불사유내용(기타일경우 입력) -->
+          <kw-form-item
+            :label="$t('MSG_TXT_RFND_CN')"
+            required
+          >
+            <kw-input
+              v-model.trim="infomation.rfndRsonCn"
+              :disable="infomation.rfndRsonCd != '56'"
+              :maxlength="130"
+              :rules="{required : infomation.rfndRsonCd === '56'}"
+              :label="$t('MSG_TXT_RFND_CN')"
+            />
           </kw-form-item>
         </kw-form-row>
       </div>
@@ -244,9 +289,14 @@
             />
           </kw-form-item>
           <!-- 지급일 -->
-          <kw-form-item :label="$t('MSG_TXT_DSB_D')">
+          <kw-form-item
+            :label="$t('MSG_TXT_DSB_D')"
+            required
+          >
             <kw-date-picker
               v-model="infomation.rfndDsbDt"
+              rules="required"
+              :label="$t('MSG_TXT_DSB_D')"
             />
           </kw-form-item>
         </kw-form-row>
@@ -261,10 +311,15 @@
             />
           </kw-form-item>
           <!-- 지급구분 -->
-          <kw-form-item :label="$t('MSG_TXT_DSB_DV')">
+          <kw-form-item
+            :label="$t('MSG_TXT_DSB_DV')"
+            required
+          >
             <kw-select
               v-model="infomation.rfndDsbDvCd"
               :options="cashRefund"
+              rules="required"
+              :label="$t('MSG_TXT_DSB_DV')"
               @update:model-value="onChnageRfndDsbDvCd"
             />
           </kw-form-item>
@@ -277,59 +332,65 @@
               mask="number"
               maxlength="10"
               align="right"
+              :label="$t('MSG_TXT_DDCTAM')"
+              :rules="{min_value: 0 , max_value:infomation.bilAmt}"
+              @update:model-value="onChnageRfndDtnAmt"
             />
           </kw-form-item>
           <!-- 실지급액 -->
-          <kw-form-item :label="$t('MSG_TXT_ACL_DSB_AMT')">
+          <kw-form-item
+            :label="$t('MSG_TXT_ACL_DSB_AMT')"
+            required
+          >
             <kw-input
               v-model="infomation.rfndAkAmt"
               mask="number"
               maxlength="10"
               align="right"
+              disable
+              :label="$t('MSG_TXT_ACL_DSB_AMT')"
+              :rules="{min_value: 1 , max_value:infomation.bilAmt}"
             />
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 지급은행 -->
-          <kw-form-item :label="$t('MSG_TXT_DSB_BNK')">
+          <kw-form-item
+            :label="$t('MSG_TXT_DSB_BNK')"
+            required
+          >
             <kw-select
               v-model="infomation.cshRfndFnitCd"
               :options="codes.CSH_RFND_FNIT_CD"
+              rules="required"
+              :label="$t('MSG_TXT_DSB_BNK')"
             />
           </kw-form-item>
           <!-- 계좌번호 -->
-          <kw-form-item :label="$t('MSG_TXT_AC_NO')">
+          <kw-form-item
+            :label="$t('MSG_TXT_AC_NO')"
+            required
+          >
             <kw-input
               v-model.trim="infomation.cshRfndAcnoEncr"
               regex="num"
               :maxlength="30"
-            />
-          </kw-form-item>
-        </kw-form-row>
-        <kw-form-row>
-          <!-- 환불사유 -->
-          <kw-form-item :label="$t('MSG_TXT_RFND_RSON')">
-            <kw-select
-              v-model="infomation.rfndRsonCd"
-              :options="codes.RFND_RSON_CD"
-              @update:model-value="onChagneFrndRsondCd"
-            />
-          </kw-form-item>
-          <!-- 환불사유내용(기타일경우 입력) -->
-          <kw-form-item :label="$t('MSG_TXT_RFND_CN')">
-            <kw-input
-              v-model.trim="infomation.rfndRsonCn"
-              :disable="infomation.rfndRsonCd != '56'"
-              :maxlength="130"
+              rules="required"
+              :label="$t('MSG_TXT_AC_NO')"
             />
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 예금주 -->
-          <kw-form-item :label="$t('MSG_TXT_ACHLDR')">
+          <kw-form-item
+            :label="$t('MSG_TXT_ACHLDR')"
+            required
+          >
             <kw-input
               v-model.trim="infomation.cstNm"
               disable
+              :label="$t('MSG_TXT_ACHLDR')"
+              rules="required"
             />
             <kw-btn
               :label="$t('MSG_BTN_VALID_CHK')"
@@ -337,6 +398,34 @@
               @click="onClickCheckAccountHolder"
             />
             <!-- 유효성 체크 -->
+          </kw-form-item>
+          <!-- 환불사유 -->
+          <kw-form-item
+            :label="$t('MSG_TXT_RFND_RSON')"
+            required
+          >
+            <kw-select
+              v-model="infomation.rfndRsonCd"
+              :options="codes.RFND_RSON_CD"
+              rules="required"
+              :label="$t('MSG_TXT_RFND_RSON')"
+              @update:model-value="onChagneFrndRsondCd"
+            />
+          </kw-form-item>
+        </kw-form-row>
+        <kw-form-row>
+          <!-- 환불사유내용(기타일경우 입력) -->
+          <kw-form-item
+            :label="$t('MSG_TXT_RFND_CN')"
+            required
+          >
+            <kw-input
+              v-model.trim="infomation.rfndRsonCn"
+              :disable="infomation.rfndRsonCd != '56'"
+              :maxlength="130"
+              :label="$t('MSG_TXT_RFND_CN')"
+              :rules="{required : infomation.rfndRsonCd === '56'}"
+            />
           </kw-form-item>
         </kw-form-row>
       </div>
@@ -354,9 +443,14 @@
             />
           </kw-form-item>
           <!-- 지급일 -->
-          <kw-form-item :label="$t('MSG_TXT_DSB_D')">
+          <kw-form-item
+            :label="$t('MSG_TXT_DSB_D')"
+            required
+          >
             <kw-date-picker
               v-model="infomation.rfndDsbDt"
+              rules="required"
+              :label="$t('MSG_TXT_DSB_D')"
             />
           </kw-form-item>
         </kw-form-row>
@@ -371,10 +465,15 @@
             />
           </kw-form-item>
           <!-- 지급구분 -->
-          <kw-form-item :label="$t('MSG_TXT_DSB_DV')">
+          <kw-form-item
+            :label="$t('MSG_TXT_DSB_DV')"
+            required
+          >
             <kw-select
               v-model="infomation.rfndDsbDvCd"
               :options="cardRefund"
+              rules="required"
+              :label="$t('MSG_TXT_DSB_DV')"
               @update:model-value="onChnageRfndDsbDvCd"
             />
           </kw-form-item>
@@ -387,15 +486,24 @@
               mask="number"
               maxlength="10"
               align="right"
+              :label="$t('MSG_TXT_DDCTAM')"
+              :rules="{min_value: 0 , max_value:infomation.bilAmt}"
+              @update:model-value="onChnageRfndDtnAmt"
             />
           </kw-form-item>
           <!-- 실지급액 -->
-          <kw-form-item :label="$t('MSG_TXT_ACL_DSB_AMT')">
+          <kw-form-item
+            :label="$t('MSG_TXT_ACL_DSB_AMT')"
+            required
+          >
             <kw-input
               v-model="infomation.rfndAkAmt"
               mask="number"
               maxlength="10"
               align="right"
+              disable
+              :label="$t('MSG_TXT_ACL_DSB_AMT')"
+              :rules="{min_value: 1 , max_value:infomation.bilAmt}"
             />
           </kw-form-item>
         </kw-form-row>
@@ -451,21 +559,31 @@
             />
           </kw-form-item>
           <!-- 환불사유 -->
-          <kw-form-item :label="$t('MSG_TXT_RFND_RSON')">
+          <kw-form-item
+            :label="$t('MSG_TXT_RFND_RSON')"
+            required
+          >
             <kw-select
               v-model="infomation.rfndRsonCd"
               :options="codes.RFND_RSON_CD"
+              rules="required"
+              :label="$t('MSG_TXT_RFND_RSON')"
               @update:model-value="onChagneFrndRsondCd"
             />
           </kw-form-item>
         </kw-form-row>
         <kw-form-row>
           <!-- 환불사유내용(기타일경우 입력) -->
-          <kw-form-item :label="$t('MSG_TXT_RFND_CN')">
+          <kw-form-item
+            :label="$t('MSG_TXT_RFND_CN')"
+            required
+          >
             <kw-input
               v-model.trim="infomation.rfndRsonCn"
               :disable="infomation.rfndRsonCd != '56'"
               :maxlength="130"
+              :label="$t('MSG_TXT_RFND_CN')"
+              :rules="{required : infomation.rfndRsonCd === '56'}"
             />
           </kw-form-item>
         </kw-form-row>
@@ -487,12 +605,12 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 // eslint-disable-next-line no-unused-vars
-import { defineGrid, codeUtil, gridUtil, getComponentType, useGlobal, useDataService } from 'kw-lib';
+import { defineGrid, codeUtil, gridUtil, getComponentType, useGlobal, useDataService, stringUtil } from 'kw-lib';
 import dayjs from 'dayjs';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const now = dayjs();
-const { notify } = useGlobal();
+const { notify, confirm } = useGlobal();
 const { t } = useI18n();
 const dataService = useDataService();
 
@@ -513,6 +631,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const grdMainRef = ref(getComponentType('KwGrid'));
+const frmMainRef = ref(getComponentType('KwForm'));
 const grdParam = ref();
 
 const stlmDvCdCheck = [
@@ -552,7 +671,7 @@ const infomation = ref({
   rfndDsbDvCd: '', // 지급구분 RFND_DSB_DV_CD
   rfndDdtnAmt: 0, // 공제금액
   rfndAkAmt: 0, // 실지급액
-  cardRfndCrcdnoEncr: '', // 카드번호
+  cardRfndCrcdnoEncr: props.checkItem[0].crcdnoEncr, // 카드번호
   cardRfndFnitCd: props.checkItem[0]?.iscmpCd, // 카드구분
   cardRfndFee: 0, // 수수료액
   cshRfndFnitCd: '', // 지급은행
@@ -567,18 +686,6 @@ const infomation = ref({
   cardRfndCrcdnoEncr3: props.checkItem[0].crcdnoEncr?.substring(8, 12), // 카드번호3
   cardRfndCrcdnoEncr4: props.checkItem[0].crcdnoEncr?.substring(12, 16), // 카드번호4
 });
-
-// 지급 구분 변경 이벤트
-async function onChnageRfndDsbDvCd(val) {
-  if (val !== '01') {
-    infomation.value.cshRfndFnitCd = '';
-    infomation.value.cshRfndAcnoEncr = '';
-    infomation.value.cstNm = '';
-  }
-  if (val === '01') {
-    infomation.value.cardRfndFee = 0;
-  }
-}
 
 // 환불사유 수정 이벤트
 async function onChagneFrndRsondCd(val) {
@@ -603,6 +710,35 @@ async function onChangeStlmDvCd(val) {
     infomation.value.cshRfndAcnoEncr = ''; // 계좌번호
     infomation.value.cstNm = ''; // 예금주
     infomation.value.rfndDsbDvCd = '02'; // 지급구분(현금환불)
+  }
+}
+
+// 공제급액 수정시 실지금액 계산
+async function onChnageRfndDtnAmt(val) {
+  if (val > infomation.value.bilAmt) {
+    infomation.value.rfndAkAmt = 0;
+    return;
+  }
+  const bilAmt = infomation.value.bilAmt - val;
+  let feeAmt = 0;
+  if (searchParams.value.stlmDvCd === '01') {
+    const fee = 2.5;
+    feeAmt = Math.floor(Number(bilAmt) * (Number(fee) / 100));
+  }
+  infomation.value.cardRfndFee = feeAmt;
+  infomation.value.rfndAkAmt = bilAmt - feeAmt;
+}
+
+// 지급 구분 변경 이벤트
+async function onChnageRfndDsbDvCd(val) {
+  if (val !== '01') {
+    infomation.value.cshRfndFnitCd = '';
+    infomation.value.cshRfndAcnoEncr = '';
+    infomation.value.cstNm = '';
+    infomation.value.cardRfndFee = 0;
+  }
+  if (val === '01') {
+    onChnageRfndDtnAmt(infomation.value.rfndDdtnAmt);
   }
 }
 
@@ -638,13 +774,52 @@ async function onClickCheckAccountHolder() {
     infomation.value.cstNm = '테스트예금주';
   });
   if (!isEmpty(acnoData.data)) {
-    if (isEmpty(acnoData.data.ACHLDR_NM.trim())) {
+    if (isEmpty(acnoData.data.ACHLDR_NM) && isEmpty(acnoData.data.ACHLDR_NM?.trim())) {
       notify(acnoData.data.ERR_CN);
       infomation.value.cstNm = '테스트예금주';
     } else {
       infomation.value.cstNm = acnoData.data.ACHLDR_NM;
     }
   }
+}
+
+// 저장 버튼 클릭 이벤트
+async function onClickSave() {
+  if (!await frmMainRef.value.validate()) { return; }
+  if (!await confirm(t('MSG_ALT_WANT_SAVE'))) { return; }
+
+  const params = {
+    // 환불 서비스 정보
+    saveServiceReq: {
+      csBilNo: '', // 비용청구번호
+      cstSvAsnNo: '', // 고객서비스배정번호
+      cntrNo: '', // 계약번호
+      cntrSn: '', // 계약일련번호
+      cstNo: '', // 계약일련번호
+    },
+    // 서비스 환불 정보
+    saveServiceRefundReq: {
+      rfndRqdt: infomation.value.rfndRqdt, /* 환불일자 */
+      rfndDsbDt: infomation.value.rfndDsbDt, /* 지급일자 */
+      rfndDsbDvCd: infomation.value.rfndDsbDvCd, /* 지급구분 */
+      rfndDdtnAmt: infomation.value.rfndDdtnAmt, /* 공제금액 */
+      rfndAkAmt: infomation.value.rfndAkAmt, /* 실지급액 */
+      cardRfndCrcdnoEncr: infomation.value.cardRfndCrcdnoEncr, /* 카드번호 */
+      cardRfndFnitCd: infomation.value.cardRfndFnitCd, /* 카드구분 */
+      rfndCshAkSumAmt: infomation.value.rfndDsbDvCd === '01' ? infomation.value.rfndAkAmt : 0, /* 현금환불금액 */
+      rfndCardAkSumAmt: infomation.value.rfndDsbDvCd === '02' ? infomation.value.rfndAkAmt : 0, /* 카드환불금액 */
+      rfndBltfAkSumAmt: infomation.value.rfndDsbDvCd === '03' ? infomation.value.rfndAkAmt : 0, /* 전금환불금액 */
+      crdcdFeeSumAmt: infomation.value.cardRfndFnitCd, /* 수수료액 */
+      cshRfndFnitCd: infomation.value.cshRfndFnitCd, /* 지급은행 */
+      cshRfndAcnoEncr: infomation.value.cshRfndAcnoEncr, /* 계좌번호 */
+      rfndRsonCd: infomation.value.rfndRsonCd, /* 환불사유코드 */
+      rfndRsonCn: infomation.value.rfndRsonCn, /* 환불사유내영(기타일경우 입력) */
+      cstNm: infomation.value.cstNm, /* 예금주 */
+    },
+  };
+
+  const res = await dataService.post('/sms/wells/withdrawal/idvrve/service-refund', params);
+  console.log(res);
 }
 
 // 팝업 오픈시 초기 설정
@@ -667,7 +842,6 @@ async function initProps() {
 onMounted(async () => {
   await initProps();
   console.log(props.checkItem[0]);
-  // await fetchData();
 });
 
 // -------------------------------------------------------------------------------------------------
@@ -675,8 +849,11 @@ onMounted(async () => {
 // -------------------------------------------------------------------------------------------------
 const initGrid = defineGrid((data, view) => {
   const fields = [
+    { fieldName: 'csBilNo' }, /* 비용청구번호 */
+    { fieldName: 'cstSvAsnNo' }, /* 고객서비스배정번호 */
     { fieldName: 'cntrNo' }, /* 계약번호 */
     { fieldName: 'cntrSn' }, /* 계약일련번호 */
+    { fieldName: 'cntrCstNo' }, /* 고객명 */
     { fieldName: 'cstKnm' }, /* 고객명 */
     { fieldName: 'cralLocaraTno' }, /* 휴대폰 앞자리 */
     // { fieldName: 'mexnoEncr' }, /* 휴대폰 중간자리 */
@@ -711,12 +888,6 @@ const initGrid = defineGrid((data, view) => {
       header: t('MSG_TXT_MPNO'), // 휴대전화번호
       width: '100',
       styleName: 'text-center',
-      // displayCallback(grid, index) {
-      //   const { cralLocaraTno: no1, mexnoEncr: no2, cralIdvTno: no3 } = grid.getValues(index.itemIndex);
-      //   if (no1 != null) {
-      //     return `${no1}-${no2}-${no3}`;
-      //   }
-      // },
     },
     { fieldName: 'ogNm',
       header: t('MSG_TXT_CENTER_DIVISION') + t('MSG_TXT_INF'), // 센터정보
