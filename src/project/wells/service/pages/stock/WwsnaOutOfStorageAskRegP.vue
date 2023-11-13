@@ -572,7 +572,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_SAP_CD'),
       width: '100',
       styleName: 'text-center',
-      footer: { text: t('MSG_TXT_SUM') },
+      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-cnter text-blue' },
     },
     {
       fieldName: 'itmPdCd',
