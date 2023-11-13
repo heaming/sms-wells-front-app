@@ -186,6 +186,8 @@
                 {{ singlePaymentDetail.rentalPtrm }}{{ t('MSG_TXT_MCNT') }}/
                 {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.rentalAmt)) }}{{ t('MSG_TXT_CUR_WON') }}
                 ({{ singlePaymentDetail.rentalDscAmt }})
+                <br v-if="Number(singlePaymentDetail.stplDscAmt) > 0">
+                {{ stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.stplDscAmtView)) }}
               </p>
             </kw-form-item>
           </kw-form-row>
@@ -677,8 +679,11 @@ async function fetchDetailData(slClYm, sellTpCd) {
   } else {
     singlePaymentDetail.value.rentalDscAmt = '';
   }
-  if (!isEmpty(singlePaymentDetail.value.stplDscAmt)) {
-    singlePaymentDetail.value.stplDscAmt += t('MSG_TXT_WON_DSC');
+
+  if (isEmpty(singlePaymentDetail.value.stplDscAmt) || singlePaymentDetail.value.stplDscAmt === 0) {
+    singlePaymentDetail.value.stplDscAmtView = '';
+  } else {
+    singlePaymentDetail.value.stplDscAmtView = singlePaymentDetail.value.stplDscAmt;
   }
   if (!isEmpty(singlePaymentDetail.value.pkgCd)) {
     singlePaymentDetail.value.pkgCd = `(${singlePaymentDetail.value.pkgCd})`;
