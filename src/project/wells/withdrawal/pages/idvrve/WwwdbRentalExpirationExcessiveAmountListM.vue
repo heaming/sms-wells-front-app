@@ -159,7 +159,7 @@ async function fetchData() {
   dataSource.checkRowStates(true);
 }
 
-// /api/v1/sms/wells/withdrawal/idvrve/rental-exn-examt-inqr/excel-download
+// 엑셀 다운로드 버튼
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -171,6 +171,8 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
+// 조회 버튼
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
@@ -199,41 +201,50 @@ const initGrid = defineGrid((data, view) => {
   ];
 
   const columns = [
-    // 계약번호
-    { fieldName: 'cntrNo', header: t('MSG_TXT_CNTR_NO'), width: '130', styleName: 'text-right', headerSummaries: { text: t('MSG_TXT_TOT_SUMMARY'), styleName: 'text-center' } },
-    // 고객명
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '99', styleName: 'text-center' },
-    // 제품명
-    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '150', styleName: 'text-left' },
-    // 선수금(원)
+    { fieldName: 'cntrNo',
+      header: t('MSG_TXT_CNTR_NO'), // 계약번호
+      width: '130',
+      styleName: 'text-right',
+      headerSummaries: { text: t('MSG_TXT_TOT_SUMMARY'), styleName: 'text-center' }, // 총 합계
+    },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '99', styleName: 'text-center' }, // 고객명
+    { fieldName: 'pdNm', header: t('MSG_TXT_GOODS_NM'), width: '150', styleName: 'text-left' }, // 제품명
     { fieldName: 'dpAmt',
-      header: t('MSG_TXT_ATAM_WON'),
+      header: t('MSG_TXT_ATAM_WON'), // 선수금(원)
       width: '120',
       styleName: 'text-right',
       dataType: 'number',
-      headerSummaries: { expression: 'sum', numberFormat: '#,###' } },
-    // 은행명
-    { fieldName: 'fnitCd', header: t('MSG_TXT_BNK_NM'), width: '120', styleName: 'text-left', options: codes.BNK_CD },
-    // 계좌번호
-    { fieldName: 'acnoEncr', header: t('MSG_TXT_AC_NO'), width: '246', styleName: 'text-left' },
-    // 예금주
-    { fieldName: 'dprNm', header: t('MSG_TXT_ACHLDR'), width: '120', styleName: 'text-center' },
-    // 계약구분
-    { fieldName: 'copnDvCd', header: t('MSG_TXT_CNTR_DV'), width: '120', styleName: 'text-center', options: codes.INDV_CRP_CNTR_DV_CD },
-    // 차월
-    { fieldName: 'nmn', header: t('MSG_TXT_NMN'), width: '120', styleName: 'text-right' },
-    // 만료/취소년월
+      headerSummaries: { expression: 'sum', numberFormat: '#,###' },
+    },
+    { fieldName: 'fnitCd',
+      header: t('MSG_TXT_BNK_NM'), // 은행명
+      width: '120',
+      styleName: 'text-left',
+      options: codes.BNK_CD,
+    },
+    { fieldName: 'acnoEncr', header: t('MSG_TXT_AC_NO'), width: '246', styleName: 'text-left' }, // 계좌번호
+    { fieldName: 'dprNm', header: t('MSG_TXT_ACHLDR'), width: '120', styleName: 'text-center' }, // 예금주
+    { fieldName: 'copnDvCd',
+      header: t('MSG_TXT_CNTR_DV'), // 계약구분
+      width: '120',
+      styleName: 'text-center',
+      options: codes.INDV_CRP_CNTR_DV_CD,
+    },
+    { fieldName: 'nmn', header: t('MSG_TXT_NMN'), width: '120', styleName: 'text-right' }, // 차월
     { fieldName: 'cntrPdEnddt',
-      header: t('MSG_TXT_EXP_CANC_YM'),
+      header: t('MSG_TXT_EXP_CANC_YM'), // 만료/취소년월
       width: '150',
       styleName: 'text-center',
       displayCallback(grid, index, value) {
         return !isEmpty(value) ? `${value.substring(0, 4)}-${value.substring(4, 6)}` : value;
       },
     },
-
-    { fieldName: 'cntrDtlStatCd', header: t('MSG_TXT_END_DV'), width: '120', styleName: 'text-center', options: codes.CNTR_DTL_STAT_CD },
-
+    { fieldName: 'cntrDtlStatCd',
+      header: t('MSG_TXT_END_DV'), // 종료구분
+      width: '120',
+      styleName: 'text-center',
+      options: codes.CNTR_DTL_STAT_CD,
+    },
   ];
 
   data.setFields(fields);

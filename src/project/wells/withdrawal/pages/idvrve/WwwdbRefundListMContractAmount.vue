@@ -331,8 +331,8 @@ const now = dayjs();
 const apiUrl = '/sms/wells/withdrawal/idvrve/contract-refunds';
 
 const optionsSort = [
-  { codeId: '1', codeName: '웰스' },
-  { codeId: '2', codeName: '홈케어' },
+  { codeId: '1', codeName: t('MSG_TXT_WELS') }, // 웰스
+  { codeId: '2', codeName: t('MSG_TXT_HOME_CARE') }, // 홈케어
 ];
 
 const aggregationStatus = ref({
@@ -410,6 +410,7 @@ async function fetchData() {
   dataSource.addRows(refundCases);
   dataSource.checkRowStates(true);
 }
+
 async function fetchData2() {
   // aggregationStatus.value = []; // 집계 현황 초기화
   const response = await dataService.get(`${apiUrl}/aggregate`, { params: searchParams.value });
@@ -440,6 +441,7 @@ async function fetchData2() {
   // /* 확인 필요:환불 총계 */
 }
 
+// 조회 버튼
 async function onClickSearch() {
   grdMainRef2.value.getData().clearRows();
   pageInfo.value.pageIndex = 1;
@@ -449,12 +451,14 @@ async function onClickSearch() {
   await fetchData2();
 }
 
+// 리포트 보기 버튼
 async function onClickReportView() {
   // TODO: OZ REPORT 개발중..
   await notify(t('MSG_ALT_DEVELOPING'));
   // await openReportPopup('/eformsample.ozr', '/eformsample.odi', JSON.stringify({ param1: 'test1', param2: 'test2'}));
 }
 
+// 엑셀 다운로드 버튼
 async function onClickExcelDownload() {
   const response = await dataService.get(`${apiUrl}/excel-download`, { params: cachedParams });
   const view = grdMainRef2.value.getView();
@@ -471,8 +475,8 @@ async function onClickExcelDownload() {
 
 const initGrdMain2 = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약일련번호
     { fieldName: 'cntrDtlNo' }, // 계약상세번호
     { fieldName: 'cstKnm' }, // 고객명
     { fieldName: 'rfndRveDt', dataType: 'date' }, // 처리일자
@@ -493,16 +497,16 @@ const initGrdMain2 = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntrDtlNo',
-      header: t('MSG_TXT_CNTR_DTL_NO'),
+      header: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
       width: '130',
       styleName: 'text-center',
       headerSummary: {
         text: t('MSG_TXT_SUM'),
         styleName: 'text-center',
       },
-    }, // 계약상세번호
+    },
     { fieldName: 'cstKnm',
-      header: t('MSG_TXT_CST_NM'),
+      header: t('MSG_TXT_CST_NM'), // 고객명
       width: '80',
       styleName: 'text-center',
       headerSummary: {
@@ -512,13 +516,13 @@ const initGrdMain2 = defineGrid((data, view) => {
           return `총 ${Number(summaryParams.cntCstKnm)}건`;
         },
       },
-    }, // 고객명
+    },
     { fieldName: 'rfndRveDt', header: t('MSG_TXT_PRCSDT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 처리일자
     { fieldName: 'rfndPerfDt', header: t('MSG_TXT_PERF_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' }, // 실적일자
     { fieldName: 'cntrwTpCd', header: t('MSG_TXT_TASK_DIV'), width: '100', styleName: 'text-center', options: codes.CNTRW_TP_CD }, // 업무구분
     { fieldName: 'tmp1', header: t('MSG_TXT_PRNT_DV'), width: '100', styleName: 'text-center', options: codes.CNTRW_TP_CD }, // 확인필요.출력구분
     { fieldName: 'sellAmt',
-      header: t('MSG_TXT_SALE_PRICE'),
+      header: t('MSG_TXT_SALE_PRICE'), // 판매금액
       width: '100',
       styleName: 'text-right',
       headerSummary: {
@@ -528,9 +532,9 @@ const initGrdMain2 = defineGrid((data, view) => {
           return Number(summaryParams.totSellAmt);
         },
       },
-    }, // 판매금액
+    },
     { fieldName: 'dsbAmt',
-      header: t('MSG_TXT_DSB_AMT'),
+      header: t('MSG_TXT_DSB_AMT'), // 지급금액
       width: '100',
       styleName: 'text-right',
       headerSummary: {
@@ -540,9 +544,9 @@ const initGrdMain2 = defineGrid((data, view) => {
           return Number(summaryParams.totDsbAmt);
         },
       },
-    }, // 지급금액
+    },
     { fieldName: 'rfndDsbAmt',
-      header: t('MSG_TXT_RFND_AMT'),
+      header: t('MSG_TXT_RFND_AMT'), // 환불금액
       width: '100',
       styleName: 'text-right',
       headerSummary: {
@@ -551,9 +555,9 @@ const initGrdMain2 = defineGrid((data, view) => {
         valueCallback() {
           return Number(summaryParams.totRfndDsbAmt);
         },
-      } }, // 환불금액
+      } },
     { fieldName: 'rfndDsbPspInt',
-      header: t('MSG_TXT_PSP_INT'),
+      header: t('MSG_TXT_PSP_INT'), // 지연이자
       width: '100',
       styleName: 'text-right',
       headerSummary: {
@@ -563,9 +567,9 @@ const initGrdMain2 = defineGrid((data, view) => {
           return Number(summaryParams.totRfndDsbPspInt);
         },
       },
-    }, // 지연이자
+    },
     { fieldName: 'cardRfndFee',
-      header: t('MSG_TXT_CARD_FEE'),
+      header: t('MSG_TXT_CARD_FEE'), // 카드수수료
       width: '100',
       styleName: 'text-right',
       headerSummary: {
@@ -575,7 +579,7 @@ const initGrdMain2 = defineGrid((data, view) => {
           return Number(summaryParams.totCardRfndFee);
         },
       },
-    }, // 카드수수료
+    },
     { fieldName: 'cshCardRfndFnitCd', header: t('MSG_TXT_BNK_CDCO'), width: '104', styleName: 'text-center' }, // 은행/카드사
     { fieldName: 'cshCardRfndAcnoCrcdnoEncr', header: t('MSG_TXT_AC_CDNO'), width: '180', styleName: 'text-left' }, // 계좌/카드번호
     { fieldName: 'cshRfndAcownNm', header: t('MSG_TXT_ACHLDR'), width: '100', styleName: 'text-center' }, // 예금주
@@ -621,22 +625,5 @@ const initGrdMain2 = defineGrid((data, view) => {
       items: ['dsbAmt', 'rfndDsbAmt', 'rfndDsbPspInt', 'cardRfndFee', 'cshCardRfndFnitCd', 'cshCardRfndAcnoCrcdnoEncr', 'cshRfndAcownNm', 'istmMcn', 'cardRfndCrdcdAprno'],
     },
   ]);
-
-  // data.setRows([
-  // eslint-disable-next-line max-len
-  //   { cntrNoSn: '20226008136', cstKnm: '정영순', fnlMdfcDtm: '20220830', perfDt: '20220830', cntrwTpCd: '웰스', tmp1: '센터', sellAmt: '547000', tmp2: '547000', rfndDsbAmt: '547000', rfndDsbPspInt: '0', cardRfndFee: '0', cshCardRfndFnitCd: '신한은행', cshCardRfndAcnoCrcdnoEncr: '111111111111', cshRfndAcownNm: '김온달', istmMcn: '12', cardRfndCrdcdAprno: '1111111' },
-  // eslint-disable-next-line max-len
-  //   { cntrNoSn: '20226008136', cstKnm: '정영순', fnlMdfcDtm: '20220830', perfDt: '20220830', cntrwTpCd: '웰스', tmp1: '센터', sellAmt: '547000', tmp2: '547000', rfndDsbAmt: '547000', rfndDsbPspInt: '0', cardRfndFee: '0', cshCardRfndFnitCd: '신한은행', cshCardRfndAcnoCrcdnoEncr: '111111111111', cshRfndAcownNm: '김온달', istmMcn: '12', cardRfndCrdcdAprno: '1111111' },
-  // eslint-disable-next-line max-len
-  //   { cntrNoSn: '20226008136', cstKnm: '정영순', fnlMdfcDtm: '20220830', perfDt: '20220830', cntrwTpCd: '웰스', tmp1: '센터', sellAmt: '547000', tmp2: '547000', rfndDsbAmt: '547000', rfndDsbPspInt: '0', cardRfndFee: '0', cshCardRfndFnitCd: '신한은행', cshCardRfndAcnoCrcdnoEncr: '111111111111', cshRfndAcownNm: '김온달', istmMcn: '12', cardRfndCrdcdAprno: '1111111' },
-  // eslint-disable-next-line max-len
-  //   { cntrNoSn: '20226008136', cstKnm: '정영순', fnlMdfcDtm: '20220830', perfDt: '20220830', cntrwTpCd: '웰스', tmp1: '센터', sellAmt: '547000', tmp2: '547000', rfndDsbAmt: '547000', rfndDsbPspInt: '0', cardRfndFee: '0', cshCardRfndFnitCd: '신한은행', cshCardRfndAcnoCrcdnoEncr: '111111111111', cshRfndAcownNm: '김온달', istmMcn: '12', cardRfndCrdcdAprno: '1111111' },
-  // eslint-disable-next-line max-len
-  //   { cntrNoSn: '20226008136', cstKnm: '정영순', fnlMdfcDtm: '20220830', perfDt: '20220830', cntrwTpCd: '웰스', tmp1: '센터', sellAmt: '547000', tmp2: '547000', rfndDsbAmt: '547000', rfndDsbPspInt: '0', cardRfndFee: '0', cshCardRfndFnitCd: '신한은행', cshCardRfndAcnoCrcdnoEncr: '111111111111', cshRfndAcownNm: '김온달', istmMcn: '12', cardRfndCrdcdAprno: '1111111' },
-  // eslint-disable-next-line max-len
-  //   { cntrNoSn: '20226008136', cstKnm: '정영순', fnlMdfcDtm: '20220830', perfDt: '20220830', cntrwTpCd: '웰스', tmp1: '센터', sellAmt: '547000', tmp2: '547000', rfndDsbAmt: '547000', rfndDsbPspInt: '0', cardRfndFee: '0', cshCardRfndFnitCd: '신한은행', cshCardRfndAcnoCrcdnoEncr: '111111111111', cshRfndAcownNm: '김온달', istmMcn: '12', cardRfndCrdcdAprno: '1111111' },
-  // eslint-disable-next-line max-len
-  //   { cntrNoSn: '20226008136', cstKnm: '정영순', fnlMdfcDtm: '20220830', perfDt: '20220830', cntrwTpCd: '웰스', tmp1: '센터', sellAmt: '547000', tmp2: '547000', rfndDsbAmt: '547000', rfndDsbPspInt: '0', cardRfndFee: '0', cshCardRfndFnitCd: '신한은행', cshCardRfndAcnoCrcdnoEncr: '111111111111', cshRfndAcownNm: '김온달', istmMcn: '12', cardRfndCrdcdAprno: '1111111' },
-//  ]);
 });
 </script>
