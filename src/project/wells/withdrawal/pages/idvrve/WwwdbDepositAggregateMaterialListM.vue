@@ -164,6 +164,7 @@ async function fetchData() {
   data.checkRowStates(true);
 }
 
+// 조회 버튼
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
 
@@ -172,6 +173,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 엑셀 다운로드 버튼
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const res = await dataService.get(`${apiUrl}/excel-download`, { params: cachedParams });
@@ -198,19 +200,19 @@ async function onClickExcelDownload() {
 
 const initGrid = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'dvNm' },
-    { fieldName: 'dpTpCd' },
-    { fieldName: 'sellTpCd' },
+    { fieldName: 'dvNm' }, // 구분(공통,렌탈)
+    { fieldName: 'dpTpCd' }, // 입금유형
+    { fieldName: 'sellTpCd' }, //  판매유형
     { fieldName: 'totRowNum' },
-    { fieldName: 'spayAmt', dataType: 'number' },
-    { fieldName: 'rtlsAmt', dataType: 'number' },
-    { fieldName: 'mbmsAmt', dataType: 'number' },
-    { fieldName: 'coIstAmt', dataType: 'number' },
-    { fieldName: 'mngtAmt', dataType: 'number' },
-    { fieldName: 'rglrAmt', dataType: 'number' },
-    { fieldName: 'filtAmt', dataType: 'number' },
-    { fieldName: 'totAmt', dataType: 'number' },
-    { fieldName: 'totRat' },
+    { fieldName: 'spayAmt', dataType: 'number' }, // 일시불
+    { fieldName: 'rtlsAmt', dataType: 'number' }, // 렌탈/리스
+    { fieldName: 'mbmsAmt', dataType: 'number' }, // 멤버십
+    { fieldName: 'coIstAmt', dataType: 'number' }, // 회사설치
+    { fieldName: 'mngtAmt', dataType: 'number' }, // 유지관리
+    { fieldName: 'rglrAmt', dataType: 'number' }, // 정기배송
+    { fieldName: 'filtAmt', dataType: 'number' }, // 필터
+    { fieldName: 'totAmt', dataType: 'number' }, // 금액(합계)
+    { fieldName: 'totRat' }, // 계(%)
   ];
 
   const columns = [
@@ -220,10 +222,10 @@ const initGrid = defineGrid((data, view) => {
       styleName: 'text-center',
       headerSummary: [{
         styleName: 'text-center',
-        text: t('MSG_TXT_SUM'),
+        text: t('MSG_TXT_SUM'), // 합계
       }, {
         styleName: 'text-center',
-        text: t('MSG_TXT_RAT'),
+        text: t('MSG_TXT_RAT'), // 비율
       }],
     },
     { fieldName: 'dpTpCd', header: t('MSG_TXT_DP_TP'), width: '153', options: codes.DP_TP_CD }, // 입금유형
@@ -406,8 +408,8 @@ const initGrid = defineGrid((data, view) => {
 
 onMounted(async () => {
   dvCode.value = [
-    { codeId: '1', codeName: t('MSG_TXT_DP') },
-    { codeId: '2', codeName: t('MSG_TXT_PERF') },
+    { codeId: '1', codeName: t('MSG_TXT_DP') }, // 입금
+    { codeId: '2', codeName: t('MSG_TXT_PERF') }, // 실적
   ];
 });
 </script>

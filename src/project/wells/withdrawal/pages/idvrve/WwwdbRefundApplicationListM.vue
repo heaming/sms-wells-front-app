@@ -231,6 +231,7 @@ async function fetchData() {
   view.getDataSource().setRows(pages);
 }
 
+// 조회 버튼
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
@@ -261,6 +262,7 @@ async function onClickExcelDownload() {
   });
 }
 
+// 환불신청 버튼
 async function onClickApplicationRefund() {
   await modal({
     component: 'WwwdbRefundApplicationRegP',
@@ -443,7 +445,7 @@ const initGrid = defineGrid((data, view) => {
         //   return `${no1}-${no2}-${no3}`;
         // }
         // 화면상에는 id값이 아닌 글자만 보여줘야함.
-        return t('MSG_BTN_DLOAD');
+        return t('MSG_BTN_DLOAD'); // 다운로드
       },
     },
   ];

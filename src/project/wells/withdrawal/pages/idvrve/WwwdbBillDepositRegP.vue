@@ -402,9 +402,6 @@ async function onClickExcelUpload() {
     for (let i = 0; i < resData.length; i += 1) {
       resData[i].bzrno = searchParams.value.bzrno;
       resData[i].dlpnrNm = searchParams.value.dlpnrNm;
-      resData[i].cntrNo = resData[i].cntr.substring(0, 12);
-      resData[i].cntrSn = resData[i].cntr.substring(12);
-
       for (let j = 0; j < resData.length; j += 1) {
         if (i !== j) {
           if (resData[i].cntr === resData[j].cntr) {
@@ -688,10 +685,10 @@ const initGrid1 = defineGrid((data, view) => {
       displayCallback(g, index) {
         const param = g.getValues(index.itemIndex);
 
-        if (isEmpty(param.cntrSn)) {
-          return `${param.cntrNo}-`;
+        if (!isEmpty(param.cntrNo) && !isEmpty(param.cntrSn)) {
+          return `${param.cntrNo}-${param.cntrSn}`;
         }
-        return `${param.cntrNo}-${param.cntrSn}`;
+        return '';
       },
       styleCallback: (grid, dataCell) => {
         const ret = {};
