@@ -469,7 +469,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_BTN_CST_SIGN'),
       width: '100',
       styleName: 'text-center',
-      renderer: { type: 'button', hideWhenEmpty: false },
+      renderer: { type: 'button', hideWhenEmpty: true },
       displayCallback: () => t('MSG_BTN_CST_SIGN'),
     },
   ];

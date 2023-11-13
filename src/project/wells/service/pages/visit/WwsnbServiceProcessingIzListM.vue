@@ -513,7 +513,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'istEnvrPhoPhFileUid' }, // 설치환경사진
     { fieldName: 'istKitPhoPhFileUid' }, // 설치키트사진
     { fieldName: 'istCelngPhoPhFileUid' }, // 설치천장사진
-    { fieldName: 'istImg', header: t('MSG_TXT_PHO'), width: '110', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: false }, displayCallback: () => t('MSG_TXT_IMG_BRWS') }, // 설치사진
+    { fieldName: 'istImg', header: t('MSG_TXT_PHO'), width: '110', styleName: 'text-center', renderer: { type: 'button', hideWhenEmpty: true }, displayCallback: () => t('MSG_TXT_IMG_BRWS') }, // 설치사진
     { fieldName: 'acpnPrtnrKnm', header: t('MSG_TXT_CMPA_NM'), width: '145', styleName: 'text-center' }, // 동행작업자(동행자명)
     { fieldName: 'acpnPrtnrGdNm', header: t('MSG_TXT_PSTN_DV'), width: '145', styleName: 'text-center' }, // 동행작업자(직급구분)
   ];
