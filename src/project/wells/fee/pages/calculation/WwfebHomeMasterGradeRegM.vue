@@ -99,7 +99,7 @@
 // -------------------------------------------------------------------------------------------------
 import dayjs from 'dayjs';
 
-import { useDataService, getComponentType, gridUtil, defineGrid, modal, notify, alert } from 'kw-lib';
+import { useDataService, getComponentType, gridUtil, defineGrid, modal, notify, confirm } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash-es';
 
 const { t } = useI18n();
@@ -172,15 +172,21 @@ async function onClickExcelDownload() {
  */
 
 async function onClickHmstGradeTransfer() {
-  const { mngtYm } = searchParams.value;
-  const bfMonth = now.add(-1, 'month').format('YYYYMM');
-  if (bfMonth !== mngtYm) {
-    await alert(t('MSG_ALT_LSTMM_PSB'));
-    return;
+  // const { mngtYm } = searchParams.value;
+  // const bfMonth = now.add(-1, 'month').format('YYYYMM');
+
+  /* TEST를 위해 임시로 막습니다. */
+  // if (bfMonth !== mngtYm) {
+  //   await alert(t('MSG_ALT_LSTMM_PSB')); // 전월만 실행 가능합니다.
+  //   return;
+  // }
+
+  // 임시 메시지
+  if (await confirm('실행 하시겠습니까?')) {
+    await dataService.post('/sms/wells/fee/home-master-grades/grade-transfers', searchParams.value);
+    notify(t('MSG_ALT_TRNS_FIN'));
+    await fetchData();
   }
-  await dataService.post('/sms/wells/fee/home-master-grades/grade-transfers', searchParams.value);
-  notify(t('MSG_ALT_TRNS_FIN'));
-  await fetchData();
 }
 
 /*
