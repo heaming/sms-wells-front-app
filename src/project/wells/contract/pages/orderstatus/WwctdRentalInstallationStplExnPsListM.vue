@@ -109,7 +109,7 @@
 // -------------------------------------------------------------------------------------------------
 import { defineGrid, getComponentType, gridUtil, useDataService, useMeta } from 'kw-lib';
 import dayjs from 'dayjs';
-import { isEmpty } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 
 const dataService = useDataService();
 const { t } = useI18n();
@@ -135,15 +135,9 @@ const searchParams = ref({
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
-async function onClickExcelDownload() {
-  const view = grdMainRef.value.getView();
-  await gridUtil.exportView(view, {
-    fileName: currentRoute.value.meta.menuName,
-    timePostfix: true,
-  });
-}
-
+let cachedParams;
 async function fetchData() {
+  cachedParams = cloneDeep(searchParams.value);
   const res = await dataService.get('/sms/wells/contract/expired-retention-contracts', { params: searchParams.value });
   const rentals = res.data;
   totalCount.value = rentals.length;
@@ -155,6 +149,16 @@ async function fetchData() {
   });
   view.getDataSource().setRows(rentals);
   view.resetCurrent();
+}
+
+async function onClickExcelDownload() {
+  const view = grdMainRef.value.getView();
+  const res = await dataService.get('/sms/wells/contract/expired-retention-contracts', { params: cachedParams });
+  await gridUtil.exportView(view, {
+    fileName: currentRoute.value.meta.menuName,
+    timePostfix: true,
+    exportData: res.data,
+  });
 }
 
 async function onClickSearch() {
