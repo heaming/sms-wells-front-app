@@ -181,9 +181,8 @@
           <!-- 승인번호 -->
           <kw-form-item :label="$t('MSG_TXT_APR_NO')">
             <kw-input
-              v-model="infomation.cardRfndFnitCd"
+              v-model="infomation.cardAprno"
               disable
-              type="number"
             />
           </kw-form-item>
           <!-- 수수료액 -->
@@ -307,7 +306,7 @@
               v-model="infomation.bilAmt"
               disable
               align="right"
-              type="number"
+              mask="number"
             />
           </kw-form-item>
           <!-- 지급구분 -->
@@ -553,9 +552,8 @@
           <!-- 승인번호 -->
           <kw-form-item :label="$t('MSG_TXT_APR_NO')">
             <kw-input
-              v-model="infomation.cardRfndFnitCd"
+              v-model="infomation.cardAprno"
               disable
-              type="number"
             />
           </kw-form-item>
           <!-- 환불사유 -->
@@ -594,6 +592,7 @@
       <kw-btn
         primary
         :label="$t('MSG_BTN_SAVE')"
+        :disable="btnDisable"
         @click="onClickSave"
       />
     </template>
@@ -633,7 +632,7 @@ const codes = await codeUtil.getMultiCodes(
 const grdMainRef = ref(getComponentType('KwGrid'));
 const frmMainRef = ref(getComponentType('KwForm'));
 const grdParam = ref();
-
+const btnDisable = ref(false);
 const stlmDvCdCheck = [
   { codeId: '01',
     codeName: `${t('MSG_TXT_CASH_REFND')}(${t('MSG_TXT_CARD')})`, // 현금환불(카드)
@@ -647,7 +646,7 @@ const stlmDvCdCheck = [
 ];
 
 // 결제구분이 신용카드인 경우
-const stlmDvCdOption1 = stlmDvCdCheck.filter((p1) => ['01', '03', '02'].includes(p1.codeId));
+const stlmDvCdOption1 = props.checkItem[0].adpBilOjYn === 'Y' ? stlmDvCdCheck.filter((p1) => ['02', '03'].includes(p1.codeId)) : stlmDvCdCheck.filter((p1) => ['01', '03'].includes(p1.codeId));
 // 결제구분이 신용카드 그외 일경우
 const stlmDvCdOption2 = stlmDvCdCheck.filter((p1) => ['02'].includes(p1.codeId));
 
@@ -657,7 +656,7 @@ const searchParams = ref({
 
 const cashRefund = codes.RFND_DSB_DV_CD.filter((v) => v.codeId === '01'); // 현금 환불(합산청구, 가상계좌)
 const cardRefund = codes.RFND_DSB_DV_CD.filter((v) => v.codeId === '02'); // 카드 환불
-const cashCardRefund = codes.RFND_DSB_DV_CD.filter((v) => v.codeId === '01' || v.codeId === '02'); // 현금 환불 (카드)
+const cashCardRefund = codes.RFND_DSB_DV_CD.filter((v) => v.codeId === '01'); // 현금 환불 (카드)
 
 // 카드 목록
 const codeList = ref({
@@ -668,7 +667,7 @@ const infomation = ref({
   rfndRqdt: now.format('YYYYMMDD'), // 환불일자
   rfndDsbDt: now.format('YYYYMMDD'), // 지급일
   bilAmt: props.checkItem[0]?.bilAmt, // 결제금액
-  rfndDsbDvCd: '', // 지급구분 RFND_DSB_DV_CD
+  rfndDsbDvCd: searchParams.stlmDvCd === '03' ? '02' : '01', // 지급구분 RFND_DSB_DV_CD
   rfndDdtnAmt: 0, // 공제금액
   rfndAkAmt: 0, // 실지급액
   cardRfndCrcdnoEncr: props.checkItem[0].crcdnoEncr, // 카드번호
@@ -696,7 +695,7 @@ async function onChagneFrndRsondCd(val) {
 async function onChangeStlmDvCd(val) {
   // 현금환불(카드)
   if (val === '01') {
-    infomation.value.rfndDsbDvCd = '';
+    infomation.value.rfndDsbDvCd = '01'; // 지급구분(현금환불)
   }
   // 현금환불(합산청구, 가상계좌)
   if (val === '02') {
@@ -790,15 +789,20 @@ async function onClickSave() {
 
   const params = {
     // 환불 서비스 정보
-    saveServiceReq: {
-      csBilNo: '', // 비용청구번호
-      cstSvAsnNo: '', // 고객서비스배정번호
-      cntrNo: '', // 계약번호
-      cntrSn: '', // 계약일련번호
-      cstNo: '', // 계약일련번호
+    serviceInfo: {
+      csBilNo: props.checkItem[0].csBilNo, // 비용청구번호
+      cstSvAsnNo: props.checkItem[0].cstSvAsnNo, // 고객서비스배정번호
+      cntrNo: props.checkItem[0].cntrNo, // 계약번호
+      cntrSn: props.checkItem[0].cntrSn, // 계약일련번호
+      cstNo: props.checkItem[0].cstNo, // 계약일련번호
+      dpDtm: props.checkItem[0].dpDtm, // 결제일
+      itgDpNo: props.checkItem[0].itgDpNo, // 통합입금번호
+      cardAprno: props.checkItem[0].cardAprno, // 승인번호
     },
     // 서비스 환불 정보
-    saveServiceRefundReq: {
+    serviceRefundInfo: {
+      cshRfndDvCd: searchParams.stlmDvCd === '01' ? '03' : '02', /* 현금환불구분코드 */
+      bilAmt: infomation.value.bilAmt, /* 청구금액 */
       rfndRqdt: infomation.value.rfndRqdt, /* 환불일자 */
       rfndDsbDt: infomation.value.rfndDsbDt, /* 지급일자 */
       rfndDsbDvCd: infomation.value.rfndDsbDvCd, /* 지급구분 */
@@ -809,17 +813,24 @@ async function onClickSave() {
       rfndCshAkSumAmt: infomation.value.rfndDsbDvCd === '01' ? infomation.value.rfndAkAmt : 0, /* 현금환불금액 */
       rfndCardAkSumAmt: infomation.value.rfndDsbDvCd === '02' ? infomation.value.rfndAkAmt : 0, /* 카드환불금액 */
       rfndBltfAkSumAmt: infomation.value.rfndDsbDvCd === '03' ? infomation.value.rfndAkAmt : 0, /* 전금환불금액 */
-      crdcdFeeSumAmt: infomation.value.cardRfndFnitCd, /* 수수료액 */
+      crdcdFeeSumAmt: infomation.value.cardRfndFee, /* 수수료액 */
+      crdcdFeeFer: '2.5', /* 수수료율 */
       cshRfndFnitCd: infomation.value.cshRfndFnitCd, /* 지급은행 */
       cshRfndAcnoEncr: infomation.value.cshRfndAcnoEncr, /* 계좌번호 */
       rfndRsonCd: infomation.value.rfndRsonCd, /* 환불사유코드 */
       rfndRsonCn: infomation.value.rfndRsonCn, /* 환불사유내영(기타일경우 입력) */
       cstNm: infomation.value.cstNm, /* 예금주 */
+      crdcdExpdtYm: props.checkItem[0].crdcdExpdtYm, /* 신용카드유효기간 */
+      istmMcn: props.checkItem[0].istmMcn, /* 할부기간 */
+      crcdonrNm: props.checkItem[0].crcdonrNm, /* 카드주명 */
     },
   };
 
   const res = await dataService.post('/sms/wells/withdrawal/idvrve/service-refund', params);
-  console.log(res);
+  if (!isEmpty(res.data.data) && !isEmpty(res.data.data.rfndRcpNo)) {
+    notify(t('MSG_ALT_EXCUTE_IT', [t('MSG_BTN_APLC_RFND')]));
+    btnDisable.value = true;
+  }
 }
 
 // 팝업 오픈시 초기 설정
