@@ -20,7 +20,6 @@
           <kw-date-picker
             v-model="searchParams.mngtYm"
             type="month"
-            @change="getBldCode"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_BLD_NM')">
@@ -563,20 +562,14 @@ async function onClickSearch() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
 
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
 
-  if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
-    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
-    return;
-  }
-
   if (!await gridUtil.validate(view)) { return; }
-  // if (await gridUtil.alertIfIsNotModified(view)) { return; }
+
   let isError = false;
   checkedRows.forEach((checkedRow) => {
     let f = 1;
@@ -919,6 +912,7 @@ const initGrdMain = defineGrid(async (data, view) => {
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
+  view.sortingOptions.enabled = false;
 });
 </script>
 <style scoped>
