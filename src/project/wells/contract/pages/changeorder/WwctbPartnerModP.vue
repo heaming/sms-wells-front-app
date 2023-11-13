@@ -26,13 +26,12 @@
           <kw-input
             v-model="fieldParams.prtnrKnm"
             icon="search"
+            maxlength="10"
             @click-icon="onClickSearchPartner"
           />
         </kw-form-item>
         <!-- 사번 -->
-        <kw-form-item
-          :label="$t('MSG_TXT_EPNO')"
-        >
+        <kw-form-item :label="$t('MSG_TXT_EPNO')">
           <p>{{ fieldParams.sellPrtnrNo }}</p>
         </kw-form-item>
       </kw-form-row>
