@@ -427,11 +427,15 @@ async function callSave(saveRows, msgId) {
 // 저장버튼 클릭
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!await gridUtil.validate(view)) { return; }
-  const modifedData = gridUtil.getChangedRowValues(view);
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkedRows)) {
+    // 선택된 데이터가 없습니다.
+    notify(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
+  }
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) { return; }
 
-  await callSave(modifedData, 'MSG_ALT_SAVE_DATA');
+  await callSave(checkedRows, 'MSG_ALT_SAVE_DATA');
 }
 
 // 반납여부 일괄변경
@@ -448,17 +452,17 @@ async function onClickBulkGbYn() {
   const { gbYn } = bulkParams.value;
 
   if (isEmpty(gbYn)) {
-  // {0}(을)를 선택해주세요.
+    // {0}(을)를 선택해주세요.
     await alert(`${t('MSG_TXT_GB')}${t('MSG_TXT_YN')}${t('MSG_TXT_BEFORE_SELECT_IT')}`);
     return;
   }
 
-  checkedRows.forEach((item) => {
-    item.stkrPrntYn = gbYn;
-  });
+  for (let i = 0; i < checkedRows.length; i += 1) {
+    view.setValue(checkedRows[i].dataRow, 'stkrPrntYn', gbYn);
+  }
 
   // 항목이 일괄변경 되었습니다.
-  await callSave(checkedRows, 'MSG_ALT_ATC_BLK_CH_FSH');
+  notify(t('MSG_ALT_ATC_BLK_CH_FSH'));
 }
 
 // 수거일자 일괄변경
@@ -474,12 +478,12 @@ async function onClickBulkOstrConfDt() {
   // 수거일자
   const { ostrConfDt } = bulkParams.value;
 
-  checkedRows.forEach((item) => {
-    item.ostrConfDt = ostrConfDt;
-  });
+  for (let i = 0; i < checkedRows.length; i += 1) {
+    view.setValue(checkedRows[i].dataRow, 'ostrConfDt', ostrConfDt);
+  }
 
   // 항목이 일괄변경 되었습니다.
-  await callSave(checkedRows, 'MSG_ALT_ATC_BLK_CH_FSH');
+  notify(t('MSG_ALT_ATC_BLK_CH_FSH'));
 }
 
 const ozParam = ref({
