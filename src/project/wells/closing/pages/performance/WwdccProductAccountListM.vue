@@ -240,7 +240,7 @@ async function onClickExportView() {
 // 상세내역 다운로드
 async function onClickDetailExportView() {
   const view = grdExcelRef.value.getView();
-  const response = await dataService.get('/sms/wells/closing/product-account/excel-download', { params: cachedParams, timeout: 200000 });
+  const response = await dataService.get('/sms/wells/closing/product-account/excel-download', { params: cachedParams, timeout: 450000 });
   const dataSource = view.getDataSource();
   dataSource.addRows(response.data);
 
