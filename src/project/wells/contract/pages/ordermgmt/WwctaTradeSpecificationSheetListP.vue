@@ -568,28 +568,29 @@ async function onClickPblPrnt() {
 
   switch (searchParams.value.cntrDvCd) { // 계약/고객번호 구분
     case '1': // 계약상세번호
+      cntrDtlNoList = [];
+      console.log(`ozParamsList : ${ozParamsList.value[0]}`);
       if (searchParams.value.docDvCd === '1') { // 입금내역서
-        console.log(`ozParamsList : ${ozParamsList.value}`);
         // 계약상세번호 체크
-        if (isEmpty(ozParamsList.value.cntrDtlNo)) {
+        if (isEmpty(ozParamsList.value[0].cntrDtlNo)) {
           outputDataYN = false;
           return;
         }
 
         // 수납일 체크
-        if (isEmpty(ozParamsList.value.rveDt)) {
+        if (isEmpty(ozParamsList.value[0].rveDt)) {
           outputDataYN = false;
           return;
         }
 
         // 수납일자가 시작일자가 종료일자 사이에 있는거로 Filter
-        if (ozParamsList.value.rveDt >= searchParams.value.cntrCnfmStrtDt
-        && ozParamsList.value.rveDt <= searchParams.value.cntrCnfmEndDt) {
+        if (ozParamsList.value[0].rveDt >= searchParams.value.cntrCnfmStrtDt
+        && ozParamsList.value[0].rveDt <= searchParams.value.cntrCnfmEndDt) {
           // 수납일자가 발행일자가 이전인것만 Filter
-          if (ozParamsList.value.rveDt <= cachedParams.pblcSearchSttDt) {
+          if (ozParamsList.value[0].rveDt <= cachedParams.pblcSearchSttDt) {
             // 계약상세번호와 수납일자가 있는것만 Filter
-            if (!isEmpty(ozParamsList.value.cntrDtlNo)
-            && !isEmpty(ozParamsList.value.rveDt)) {
+            if (!isEmpty(ozParamsList.value[0].cntrDtlNo)
+            && !isEmpty(ozParamsList.value[0].rveDt)) {
               outputDataYN = true;
             } else {
               outputDataYN = false;
@@ -598,14 +599,15 @@ async function onClickPblPrnt() {
         }
       } else if (searchParams.value.docDvCd === '2') { // 거래명세서
         // 판매유형코드(일시불) && 판매할인율코드(6:패키지)일 경우
-        if (ozParamsList.value.sellTpCd === '1'
-        && ozParamsList.value.sellDscrCd === '6') {
+        if (ozParamsList.value[0].sellTpCd === '1'
+        && ozParamsList.value[0].sellDscrCd === '6') {
           outputDataYN = true;
           rfndYn = true;
         }
       } else { // 카드매출전표/계약사항
         outputDataYN = true;
       }
+      cntrDtlNoList.push(ozParamsList.value[0].cntrDtlNo);
       break;
     case '2': // 고객번호
       // eslint-disable-next-line no-case-declarations
@@ -655,8 +657,8 @@ async function onClickPblPrnt() {
     cachedParams = cloneDeep(searchParams.value);
     cachedParams.pblcSearchSttDt = pblcSearchSttDt; // 발행년월시(현재일자)
     cachedParams.custNm = custNm; // 고객명
-    // console.log(cachedParams);
-    // console.log(cntrDtlNoList);
+    console.log(cachedParams);
+    console.log(cntrDtlNoList);
 
     switch (searchParams.value.docDvCd) { // 증빙서류종류
       case '1': // 입금내역서
