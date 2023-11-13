@@ -209,7 +209,7 @@ const searchParams = ref({
   wareNo: '',
   wareDtlDvCd: '',
   itmGdCd: '',
-  useYn: 'Y',
+  useYn: '',
   itmKndCd: '',
   itmPdCds: [],
   itmPdCd: '',
