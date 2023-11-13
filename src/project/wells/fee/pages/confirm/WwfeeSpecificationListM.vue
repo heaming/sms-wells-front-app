@@ -164,6 +164,7 @@ const searchParams = ref({
   ogLevel1: '',
   ogLevel2: '',
   ogLevel3: '',
+  isSum: '', // 합계 표시 여부 (리포트)
 });
 
 const codes = await codeUtil.getMultiCodes('OG_TP_CD', 'RSB_DV_CD');
@@ -253,47 +254,23 @@ async function onClickExcelDownload() {
 function onClickOzReport(div) {
   let _ozrPath = '';
 
+  cachedParams.isSum = (div === 'tot') ? 'Y' : '';
+
   if (searchParams.value.rsbDvCd === 'W0105') { // P추진단 - 플래너
-    if (div === 'tot') { // 본사 -- 총계
-      _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
-    } else {
-      // _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202204_02.ozr';
-      // _odiPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202204_02.odi';
-      _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
-    }
+    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
   } else if (searchParams.value.rsbDvCd === 'W0104') { // P 추진단 - 지점장
-    if (div === 'tot') { // 본사 -- 총계
-      _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202204_03_03.ozr';
-    } else {
-      _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202204_04.ozr';
-    }
+    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
   } else if (searchParams.value.rsbDvCd === 'W0205') { // M추진단 - 플래너
-    if (div === 'tot') { // 본사 -- 총계
-      _ozrPath = '/ksswells/cmms/patSpec/V4.0/cmmsPatSpec202310_01.ozr';
-    } else {
-      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_02.ozr';
-    }
+    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
   } else if (searchParams.value.rsbDvCd === 'W0204') { // M 추진단 - 지점장
-    if (div === 'tot') { // 본사 -- 총계
-      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_03.odi';
-    } else {
-      _ozrPath = '/ksswells/cmms/patSpec/V3.0/cmmsPatSpec202304_04.odi';
-    }
+    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
   } else if (searchParams.value.rsbDvCd === 'W0302') { // 홈마스터
-    if (div === 'tot') {
-      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1_sum.ozr';
-    } else {
-      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec1.ozr';
-    }
+    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
   } else if (searchParams.value.rsbDvCd === 'W0301') { // 홈마스터 - 지점장
-    if (div === 'tot') {
-      _ozrPath = '/ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2_sum.ozr';
-    } else {
-      _ozrPath = 'ksswells/hmCmms/patSpec/V2.0/cmmsHmPatSpec2.ozr';
-    }
+    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
   }
 
-  const args = { searchApiUrl: '/api/v1/sms/wells/fee/fee-specifications', ...cachedParams };
+  const args = { searchApiUrl: '/api/v1/sms/wells/fee/fee-specifications/report', ...cachedParams };
 
   openReportPopup(
     _ozrPath,
