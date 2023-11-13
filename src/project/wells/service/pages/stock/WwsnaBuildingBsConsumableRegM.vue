@@ -558,35 +558,11 @@ async function onClickSave() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/building-bsconsumables', { params: { ...cachedParams } });
-  const bldCsmbDeliveries = res.data;
-
-  if (bldCsmbDeliveries.length !== 0) {
-    bldCsmbDeliveries.forEach((bldCsmbDelivery) => {
-      // 리스트 내 고정수량 array 재조합
-      for (let i = 0; i < bldCsmbDelivery.fxnQtys.length; i += 1) {
-        const j = i + 1;
-        const fxnKeyNm = {};
-        fxnKeyNm[`fxnQty${j}`] = bldCsmbDelivery.fxnQtys[i];
-        Object.assign(bldCsmbDelivery, fxnKeyNm);
-      }
-
-      // 리스트 내 신청수량 array 재조합
-      for (let i = 0; i < bldCsmbDelivery.aplcQtys.length; i += 1) {
-        const j = i + 1;
-        const aplcKeyNm = {};
-        aplcKeyNm[`aplcQty${j}`] = bldCsmbDelivery.aplcQtys[i];
-        Object.assign(bldCsmbDelivery, aplcKeyNm);
-      }
-    });
-  }
-
-  view.getDataSource().setRows(bldCsmbDeliveries);
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: bldCsmbDeliveries,
+    exportData: gridUtil.getAllRowValues(view),
     checkBar: 'hidden',
   });
 }
