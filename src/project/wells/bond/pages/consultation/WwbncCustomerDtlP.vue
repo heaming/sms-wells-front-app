@@ -1485,7 +1485,7 @@ async function onClickPetitionCreate() {
 
   checkedRows.forEach(async (obj, index) => {
     const cntrDtlNo = `${obj.cntrNo}-${obj.cntrSn}`;
-    const response = await dataService.get('/sms/wells/bond/bond-counsel/petition-create-check', { params: { cntrDtlNo } });
+    const response = await dataService.get('/sms/wells/bond/bond-counsel/petition-create-check', { params: { cntrDtlNo, baseYm: obj.baseYm } });
     if (response.data > 0) {
       dataParams.push({
         baseYm: obj.baseYm,
