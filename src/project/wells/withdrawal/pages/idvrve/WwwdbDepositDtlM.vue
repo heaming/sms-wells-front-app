@@ -140,7 +140,6 @@
         </kw-search-item>
         <!-- label="수납코드" -->
         <kw-search-item
-          v-if="false"
           :label="t('MSG_TXT_RVE_CD')"
         >
           <kw-input
