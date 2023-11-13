@@ -36,7 +36,7 @@
   "dependencies": {
     "axios": "0.27.2",
     "dayjs": "1.11.5",
-    "kw-lib": "2.0.0",
+    "kw-lib": "2.0.1",
     "lodash-es": "4.17.21",
     "realgrid": "2.6.1",
     "vue": "3.2.47",
