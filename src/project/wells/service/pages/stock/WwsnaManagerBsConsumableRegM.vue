@@ -354,13 +354,13 @@ async function reAryGrid() {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setFixedOptions({ colCount: 1 });
+  // view.setFixedOptions({ colCount: 1 });
 
-  view.onCellClicked = (grd, cData) => {
-    if (cData.cellType !== 'check') { return false; }
-  };
+  // view.onCellClicked = (grd, cData) => {
+  //   if (cData.cellType !== 'check') { return false; }
+  // };
 
-  view.setColumnLayout([
+  const columnLayout = [
     {
       header: '소속',
       direction: 'horizontal',
@@ -397,12 +397,63 @@ async function reAryGrid() {
       direction: 'horizontal',
       items: items1,
     },
-    {
-      header: t('MSG_TXT_APLC'),
-      direction: 'horizontal',
-      items: items2,
-    },
-  ]);
+  ];
+
+  if (items2.length > 0) { // 엑셀다운로드 오류로 인한 수정
+    columnLayout.push(
+      {
+        header: t('MSG_TXT_APLC'),
+        direction: 'horizontal',
+        items: items2,
+      },
+    );
+  }
+
+  view.setColumnLayout(columnLayout);
+
+  // view.setColumnLayout([
+  //   {
+  //     header: '소속',
+  //     direction: 'horizontal',
+  //     items: [
+  //       'reqYn',
+  //       'bldNm',
+  //       'bldCd',
+  //       'prtnrNo',
+  //       'ogCd',
+  //       'prtnrKnm',
+  //       'vstCstN',
+  //     ],
+  //   },
+  //   {
+  //     header: '상품별 방문계정',
+  //     direction: 'horizontal',
+  //     items: [
+  //       'wrfr',
+  //       'bdtIndv',
+  //       'bdtCrp',
+  //       'arcleIndv',
+  //       'arcleCrp',
+  //       'wtrSftnr',
+  //       'cffMchn',
+  //       'msgcr',
+  //       'dryr',
+  //       'wash',
+  //       'ardrssr',
+  //       'sscling',
+  //     ],
+  //   },
+  //   {
+  //     header: t('MSG_TXT_FXN'),
+  //     direction: 'horizontal',
+  //     items: items1,
+  //   },
+  //   {
+  //     header: t('MSG_TXT_APLC'),
+  //     direction: 'horizontal',
+  //     items: items2,
+  //   },
+  // ]);
 }
 
 async function fetchData() {
@@ -770,7 +821,7 @@ const initGrdMain = defineGrid(async (data, view) => {
     if (cData.cellType !== 'check') { return false; }
   };
 
-  view.setColumnLayout([
+  const columnLayout = [
     {
       header: '소속',
       direction: 'horizontal',
@@ -807,12 +858,63 @@ const initGrdMain = defineGrid(async (data, view) => {
       direction: 'horizontal',
       items: items1,
     },
-    {
-      header: t('MSG_TXT_APLC'),
-      direction: 'horizontal',
-      items: items2,
-    },
-  ]);
+  ];
+
+  if (items2) {
+    columnLayout.push(
+      {
+        header: t('MSG_TXT_APLC'),
+        direction: 'horizontal',
+        items: items2,
+      },
+    );
+  }
+
+  view.setColumnLayout(columnLayout);
+
+  // view.setColumnLayout([
+  //   {
+  //     header: '소속',
+  //     direction: 'horizontal',
+  //     items: [
+  //       'reqYn',
+  //       'bldNm',
+  //       'bldCd',
+  //       'prtnrNo',
+  //       'ogCd',
+  //       'prtnrKnm',
+  //       'vstCstN',
+  //     ],
+  //   },
+  //   {
+  //     header: '상품별 방문계정',
+  //     direction: 'horizontal',
+  //     items: [
+  //       'wrfr',
+  //       'bdtIndv',
+  //       'bdtCrp',
+  //       'arcleIndv',
+  //       'arcleCrp',
+  //       'wtrSftnr',
+  //       'cffMchn',
+  //       'msgcr',
+  //       'dryr',
+  //       'wash',
+  //       'ardrssr',
+  //       'sscling',
+  //     ],
+  //   },
+  //   {
+  //     header: t('MSG_TXT_FXN'),
+  //     direction: 'horizontal',
+  //     items: items1,
+  //   },
+  //   {
+  //     header: t('MSG_TXT_APLC'),
+  //     direction: 'horizontal',
+  //     items: items2,
+  //   },
+  // ]);
 
   view.checkBar.visible = true;
   view.rowIndicator.visible = true;
