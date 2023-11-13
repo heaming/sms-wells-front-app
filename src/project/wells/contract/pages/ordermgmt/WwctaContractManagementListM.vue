@@ -1021,51 +1021,80 @@ async function onClickOzReportHello(cntrNo) {
 async function onClickOzReport(cntrNo) { // oz리포트 신규/변경 계약
   // TODO: 현재 파라미터 방식에서 url전송 방식으로 변경중
 
-  notify('현재 수정 중입니다.');
-  const res2 = await dataService.get('/sms/wells/contract/managements/search-api-url', { params: { cntrNo } });
-  console.log(res2);
+  // ****************** local test 주의사항 ************************
+  // 리포트서비스(공통)을 이용해, ozrPath, odiPath는 받아서 파라미터로 사용해야하므로 서비스를 한번은 부른다.
+  // local에서 테스트 할때에는 매핑에 /annoymous를 추가해서 searchapiurl을 파라미터로 써도 로컬에서 확인가능
+  // ex) const args
+  // = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/anonymous/search-api-url'
+  // , cntrNo };
 
-  // FIX: 기존완성여부 확인용으로 살려둠
-  const res = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
+  const res = await dataService.get('/sms/wells/contract/contracts/managements/search-api-url', { params: { cntrNo } });
+  console.log(res);
 
-  if (res.data.length < 2) { // 단건 처리
-    // console.log(res.data[0]);
+  const args = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/managements/search-api-url', cntrNo };
 
+  if (isEmpty(res.data.options)) { // 단건
     await openReportPopup(
-      res.data[0].ozrPath,
-      res.data[0].odiPath,
-      JSON.stringify(res.data[0].args),
+      res.data.ozrPath,
+      res.data.odiPath,
+      JSON.stringify(args),
     );
   }
 
-  if (res.data.length > 1) { // 다건 처리
-    const children = []; // 자식트리의 리스트
-
-    for (let i = 1; i < res.data.length; i += 1) { // 부모가 될 단건을 제외한 나머지 다건을 children args로
-      const childParams = {
-        ozrPath: res.data[i].ozrPath, // childParamOzrPath,
-        odiPath: res.data[i].odiPath, // childParamOdiPath,
-        args: JSON.stringify(res.data[i].args), // { ctnrNo: childParamCntrNo, histStrtDtm: childParamHistStrtDtm }
-        displayName: res.data[i].displayName,
-      };
-
-      children.push(childParams);
-    }
-    // console.log(children); // 자식리스트
-    // console.log(res.data[0]);
-
-    // 부모트리의 파라미터
+  if (!isEmpty(res.data.options)) { // 다건
     await openReportPopupWithOptions(
-      res.data[0].ozrPath, // ozrPath
-      res.data[0].odiPath, // odiPath
-      JSON.stringify(res.data[0].args), /* parantParamArgs), // args */
+      res.data.ozrPath,
+      res.data.odiPath,
+      JSON.stringify(args),
       { // options
-        treeViewTitle: '청약서목록',
-        displayName: res.data[0].displayName,
-        children,
+        treeViewTitle: res.data.options.treeViewTitle,
+        displayName: res.data.options.displayName,
+        children: res.data.options.children,
       },
     );
   }
+
+  // // FIX: 기존완성여부 확인용으로 살려둠
+  // const res2 = await dataService.get('sms/wells/contract/report/contract', { params: { cntrNo } });
+
+  // if (res2.data.length < 2) { // 단건 처리
+  //   // console.log(res.data[0]);
+
+  //   await openReportPopup(
+  //     res2.data[0].ozrPath,
+  //     res2.data[0].odiPath,
+  //     JSON.stringify(res2.data[0].args),
+  //   );
+  // }
+
+  // if (res2.data.length > 1) { // 다건 처리
+  //   const children = []; // 자식트리의 리스트
+
+  //   for (let i = 1; i < res2.data.length; i += 1) { // 부모가 될 단건을 제외한 나머지 다건을 children args로
+  //     const childParams = {
+  //       ozrPath: res2.data[i].ozrPath, // childParamOzrPath,
+  //       odiPath: res2.data[i].odiPath, // childParamOdiPath,
+  //       args: JSON.stringify(res2.data[i].args), // { ctnrNo: childParamCntrNo, histStrtDtm: childParamHistStrtDtm }
+  //       displayName: res2.data[i].displayName,
+  //     };
+
+  //     children.push(childParams);
+  //   }
+  //   // console.log(children); // 자식리스트
+  //   // console.log(res.data[0]);
+
+  //   // 부모트리의 파라미터
+  //   await openReportPopupWithOptions(
+  //     res2.data[0].ozrPath, // ozrPath
+  //     res2.data[0].odiPath, // odiPath
+  //     JSON.stringify(res2.data[0].args), /* parantParamArgs), // args */
+  //     { // options
+  //       treeViewTitle: '청약서목록',
+  //       displayName: res2.data[0].displayName,
+  //       children,
+  //     },
+  //   );
+  // }
 }
 
 async function onClickOzReportRstl(cntrNo, cntrSn, dtm) { // oz리포트 재약정 계약
