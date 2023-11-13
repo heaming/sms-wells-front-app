@@ -675,7 +675,7 @@ async function fetchDetailData(slClYm, sellTpCd) {
     singlePaymentDetail.value.mpyBsdt += t('MSG_TXT_D');
   }
   if (!isEmpty(singlePaymentDetail.value.rentalDscAmt) && singlePaymentDetail.value.rentalDscAmt > 0) {
-    singlePaymentDetail.value.rentalDscAmt += t('MSG_TXT_WON_DSC');
+    singlePaymentDetail.value.rentalDscAmt = stringUtil.getNumberWithComma(toInteger(singlePaymentDetail.value.rentalDscAmt)) + t('MSG_TXT_WON_DSC');
   } else {
     singlePaymentDetail.value.rentalDscAmt = '';
   }
