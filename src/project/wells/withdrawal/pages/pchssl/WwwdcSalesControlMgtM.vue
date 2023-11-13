@@ -526,7 +526,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'slCtrWoExmpAmt', dataType: 'number' }, /* 전액면제금액 */
     { fieldName: 'slCtrPtrmExmpAmt', dataType: 'number' }, /* 조회기간면제금액 */
     { fieldName: 'slCtrRmkCn' }, /* 조정사유 */
-    { fieldName: 'slCtrPrcsdt' }, /* 등록일자 */
+    { fieldName: 'fstRgstDtm' }, /* 등록일자 */
     { fieldName: 'usrNm' }, /* 등록자 */
     { fieldName: 'fnlMdfcUsrId' }, /* 번호 */
   ];
@@ -817,6 +817,7 @@ const initGrid1 = defineGrid((data, view) => {
         { codeId: 'N', codeName: 'N' }],
     },
     { fieldName: 'slCtrAmt',
+      rules: 'required',
       header: t('MSG_TXT_CTR_AMT'), // 조정금액
       width: '100',
       styleName: 'text-right',
@@ -846,7 +847,7 @@ const initGrid1 = defineGrid((data, view) => {
       rules: 'required',
       width: '208',
     },
-    { fieldName: 'slCtrPrcsdt',
+    { fieldName: 'fstRgstDtm',
       header: t('MSG_TXT_FST_RGST_DT'), // 등록일자
       width: '100',
       styleName: 'text-center',
