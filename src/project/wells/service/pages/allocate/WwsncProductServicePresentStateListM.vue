@@ -200,7 +200,7 @@ async function fetchData() {
   const view = grdMainRef.value.getView();
 
   const totalCustomers = calcData(res.data);
-  console.log(totalCustomers);
+
   pageInfo.value.totalCount = totalCustomers.length;
   pageInfo.value.pageSize = totalCustomers.length;
 
@@ -258,7 +258,7 @@ const initGrdMain = defineGrid((data, view) => {
       header: t('MSG_TXT_PD_GRP'),
       width: '100',
       styleName: 'text-left',
-      footer: { text: t('MSG_TXT_SUM') } },
+      footer: { text: t('MSG_TXT_SUM'), styleName: 'text-left' } },
 
     { fieldName: 'totalCount',
       header: t('MSG_TXT_SUM'),
