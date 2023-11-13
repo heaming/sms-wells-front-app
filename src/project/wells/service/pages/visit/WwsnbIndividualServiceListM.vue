@@ -34,6 +34,7 @@
             <template #append>
               <kw-icon
                 name="search"
+                clickable="true"
                 @click="onClickCstSearch"
               />
             </template>
