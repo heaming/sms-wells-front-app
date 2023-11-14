@@ -34,7 +34,6 @@
             type="month"
             :label="$t('MSG_TXT_MGT_YNM')"
             rules="required"
-            :disable="isInqrYm"
           />
         </kw-search-item>
         <!-- 품목구분 -->
@@ -230,13 +229,9 @@ function itmKndCdFilter() {
 
 const optionsItmPdCd = ref();
 const optionsAllItmPdCd = ref();
-const isInqrYm = ref(true);
 
 // 팝업 오픈 시 기본데이터 셋팅
 async function initData() {
-  if (isEmpty(props.inqrYm)) {
-    isInqrYm.value = false;
-  }
   if (!isEmpty(props.products)) {
     optionsAllItmPdCd.value = props.products;
     optionsItmPdCd.value = optionsAllItmPdCd.value;
