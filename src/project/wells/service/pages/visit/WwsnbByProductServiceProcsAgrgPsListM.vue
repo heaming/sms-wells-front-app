@@ -201,11 +201,16 @@ async function onClickExcelDownload() {
 
   const res = await dataService.get('/sms/wells/service/as-visit-state/product-services/excel-download', { params: cachedParams });
 
+  view.autoFiltersRefresh('svpdItemGr', false);
+  view.setColumnFilters('svpdItemGr', filters, true);
+
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: res.data,
   });
+
+  view.activateColumnFilters('svpdItemGr', [searchParams.value.pdGrpCd], true);
 }
 
 // -------------------------------------------------------------------------------------------------
