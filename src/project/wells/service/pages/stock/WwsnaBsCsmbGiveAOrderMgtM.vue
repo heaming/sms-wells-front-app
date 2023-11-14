@@ -238,15 +238,15 @@ async function onChangeMngtYm() {
     { fieldName: 'mms2bDdlvQty', header: `${ddlvYmNms.value.mms2bDdlvNm}`, width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'mms1bDdlvQty', header: `${ddlvYmNms.value.mms1bDdlvNm}`, width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'mmAvDdlvQty', header: t('MSG_TXT_MM_AV_DDLV'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
-    { fieldName: 'strStnbQty', header: t('MSG_TXT_STR_STNB'), width: '130', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
+    { fieldName: 'strStnbQty', header: t('MSG_TXT_STR_STNB'), width: '130', rules: 'required|min_value:0', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'pajuLgstCnrStocQty', header: t('MSG_TXT_PAJU_STOC'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'sgsuLgstCnrStocQty', header: t('MSG_TXT_SGSU_STOC'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'woStocQty', header: t('MSG_TXT_FNL_STOC'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'stocPersMmN', header: t('MSG_TXT_STOC_CTN_MM'), width: '130', styleName: 'text-right', editable: false },
-    { fieldName: 'etExsDt', header: t('MSG_TXT_ET_EXS_DT'), width: '130', styleName: 'text-center', editable: false },
+    { fieldName: 'etExsDt', header: t('MSG_TXT_ET_EXS_DT'), width: '130', datetimeFormat: 'yyyy-MM-dd', styleName: 'text-center', editable: false },
     { fieldName: 'goUprc', header: t('MSG_TXT_UPRC'), width: '130', styleName: 'text-right', editable: false },
     { fieldName: 'ncstQty', header: t('MSG_TXT_NCST_QT'), width: '130', styleName: 'text-right', editable: false },
-    { fieldName: 'goQty', header: t('MSG_TXT_GO_QTY'), width: '130', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
+    { fieldName: 'goQty', header: t('MSG_TXT_GO_QTY'), width: '130', rules: 'required|min_value:0', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'goAmt', header: t('MSG_TXT_GO_AMT'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'minOrdQty', header: t('MSG_TXT_MOQ'), width: '130', styleName: 'text-right', editable: false },
     { fieldName: 'pypdDc', header: t('MSG_TXT_LEAD_TIME_SHORT'), width: '130', styleName: 'text-right', editable: false },
@@ -311,6 +311,8 @@ async function onClickSave() {
   const view = grdMainRef.value.getView();
   const rowValues = gridUtil.getAllRowValues(view);
 
+  if (!await gridUtil.validate(view)) { return; }
+
   await dataService.post('/sms/wells/service/bs-consumables', rowValues);
 
   notify(t('MSG_ALT_SAVE_DATA'));
@@ -374,7 +376,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'mms2bDdlvQty', header: `${ddlvYmNms.value.mms2bDdlvNm}`, width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'mms1bDdlvQty', header: `${ddlvYmNms.value.mms1bDdlvNm}`, width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'mmAvDdlvQty', header: t('MSG_TXT_MM_AV_DDLV'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
-    { fieldName: 'strStnbQty', header: t('MSG_TXT_STR_STNB'), width: '130', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
+    { fieldName: 'strStnbQty', header: t('MSG_TXT_STR_STNB'), width: '130', rules: 'required|min_value:0', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'pajuLgstCnrStocQty', header: t('MSG_TXT_PAJU_STOC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'sgsuLgstCnrStocQty', header: t('MSG_TXT_SGSU_STOC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'woStocQty', header: t('MSG_TXT_FNL_STOC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
@@ -382,7 +384,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'etExsDt', header: t('MSG_TXT_ET_EXS_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
     { fieldName: 'goUprc', header: t('MSG_TXT_UPRC'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false },
     { fieldName: 'ncstQty', header: t('MSG_TXT_NCST_QT'), width: '130', styleName: 'text-right', numberFormat: '#,##0', editable: false },
-    { fieldName: 'goQty', header: t('MSG_TXT_GO_QTY'), width: '130', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
+    { fieldName: 'goQty', header: t('MSG_TXT_GO_QTY'), width: '130', rules: 'required|min_value:0', styleName: 'text-right', footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'goAmt', header: t('MSG_TXT_GO_AMT'), width: '130', styleName: 'text-right', editable: false, footer: { expression: 'sum', numberFormat: '#,##0', styleName: 'text-center' } },
     { fieldName: 'minOrdQty', header: t('MSG_TXT_MOQ'), width: '130', styleName: 'text-right', editable: false },
     { fieldName: 'pypdDc', header: t('MSG_TXT_LEAD_TIME_SHORT'), width: '130', styleName: 'text-right', editable: false },
@@ -433,7 +435,11 @@ const initGrdMain = defineGrid((data, view) => {
 
       const woStocQty = Number(grid.getValue(itemIndex, 'woStocQty'));
       const mmAvDdlvQty = Number(grid.getValue(itemIndex, 'mmAvDdlvQty'));
-      const stocPersMmN = roundExcel(woStocQty / mmAvDdlvQty, 1);
+
+      let stocPersMmN = 0.0;
+      if (mmAvDdlvQty > 0) {
+        stocPersMmN = roundExcel(woStocQty / mmAvDdlvQty, 1);
+      }
 
       grid.setValue(itemIndex, 'stocPersMmN', stocPersMmN);
 
