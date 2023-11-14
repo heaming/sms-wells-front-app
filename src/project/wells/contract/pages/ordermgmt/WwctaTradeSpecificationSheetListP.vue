@@ -179,7 +179,7 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { alert, modal, notify } = useGlobal();
+const { modal, notify } = useGlobal();
 const ozParamsList = ref({});
 const props = defineProps({
   cntrNo: { type: String, required: false, default: '' },
@@ -295,6 +295,8 @@ async function onChangeDocDvCd() {
     pageInfo.value.totalCount2 = 0;
 
     grdContracts.value.getData().clearRows();
+    if (grdContracts.value?.getView()) gridUtil.reset(grdContracts.value.getView());
+
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
     pageInfoContracts.value.pageIndex = 1;
@@ -306,7 +308,6 @@ async function onChangeDocDvCd() {
 }
 
 async function onChangeCntrDvCd() {
-  // console.log(`cntrDvCd : ${searchParams.value.cntrDvCd}`);
   if (searchParams.value.cntrDvCd === '1') { // 계약번호
     isGrdContractsVisible.value = false;
     isSearchDivVisible.value = false;
@@ -343,16 +344,14 @@ async function fetchCtnrLstData(bOnly) {
   searchParams.value.cntrCstNo = props.cntrCstNo;
 
   cachedParams = cloneDeep(searchParams.value);
-  console.log(cachedParams);
-  console.log(pageInfoContracts.value);
+  // console.log(cachedParams);
+  // console.log(pageInfoContracts.value);
 
   res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/contracts', { params: { ...cachedParams, ...pageInfoContracts.value } });
   if (res.data.length === 0) {
     await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     return;
   }
-
-  console.log(res.data);
 
   const { list: pages, pageInfo: pagingResult } = res.data;
   pageInfoContracts.value = pagingResult;
@@ -364,7 +363,7 @@ async function fetchCtnrLstData(bOnly) {
   dataSource.addRows(pages);
   dataSource.checkRowStates(true);
 
-  console.log(pageInfo.value.totalCount);
+  // console.log(pageInfo.value.totalCount);
   pageInfo.value.totalCount1 = pageInfoContracts.value.totalCount;
   view.resetCurrent();
 
@@ -396,8 +395,8 @@ async function fetchTrdSpcData() {
   cachedParams.cntrCnfmStrtDt = '';
   cachedParams.cntrCnfmEndDt = '';
 
-  console.log(cachedParams);
-  console.log(pageInfo.value);
+  // console.log(cachedParams);
+  // console.log(pageInfo.value);
 
   if (searchParams.value.docDvCd === '1') { // 입금내역서
     res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/deposit-itemizations', { params: { ...cachedParams, ...pageInfo.value } });
@@ -409,7 +408,6 @@ async function fetchTrdSpcData() {
     res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/contract-articles', { params: { ...cachedParams, ...pageInfo.value } });
   }
 
-  console.log(res.data);
   if (res.data.length === 0) {
     await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     return;
@@ -420,6 +418,7 @@ async function fetchTrdSpcData() {
   ozParamsList.value = pages;
   pageInfo.value = pagingResult;
   const dataSource = view.getDataSource();
+
   // Row 변경상태감지를 풀고 데이터 교체후, 다시 변경감지 On
   dataSource.checkRowStates(false);
   dataSource.addRows(pages);
@@ -456,6 +455,8 @@ async function onClickSearch() {
   } else if (searchParams.value.cntrDvCd === '2') {
     grdRef.value.getData().clearRows();
     grdContracts.value.getData().clearRows();
+    if (grdContracts.value?.getView()) gridUtil.reset(grdContracts.value.getView());
+
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
     pageInfoContracts.value.pageIndex = 1;
@@ -507,7 +508,7 @@ async function onClickPblPrnt() {
   let outputDataYN;
   let pblcSearchSttDt; // 발행년월시
   let custNm; // 고객명
-  let rfndYn = false; // 거래명세서(일시불패키지 상품)
+  // let rfndYn = false; // 거래명세서(일시불패키지 상품)
 
   if (searchParams.value.cntrDvCd === '1') {
     if (searchParams.value.docDvCd === '1') {
@@ -523,20 +524,24 @@ async function onClickPblPrnt() {
     view = grdContracts.value.getView();
   }
 
+  const count = view.getItemCount(view);
   const checkedItems = view.getCheckedItems();
   const cntrList = [];
 
-  // 조회된 내역이 없으면 return
-  if (isEmpty(ozParamsList.value)) {
-    alert(t('MSG_ALT_NO_PRINT_LIST')); // 출력 내역이 없습니다.
-    outputDataYN = false;
+  if (searchParams.value.cntrDvCd === '2' && count === 0) {
+    notify(t('MSG_ALT_NO_PRINT_LIST')); // 출력 내역이 없습니다.
     return;
   }
 
-  if (searchParams.value.cntrDvCd === '2'
-   && checkedItems.length === 0) {
-    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')]));
+  if (searchParams.value.cntrDvCd === '2' && checkedItems.length === 0) {
+    notify(t('MSG_ALT_BEFORE_SELECT_IT', [t('MSG_TXT_ITEM')])); // 항목 (을)를 선택해주세요
   } else {
+    // 조회된 내역이 없으면 return
+    if (isEmpty(ozParamsList.value)) {
+      notify(t('MSG_ALT_NO_DATA_PRTN')); // 출력할 데이터가 없습니다.
+      outputDataYN = false;
+      return;
+    }
     const cntrs = gridUtil.getCheckedRowValues(view);
     cntrs.forEach((row) => {
       cntrList.push({
@@ -566,85 +571,18 @@ async function onClickPblPrnt() {
     }
   }
 
+  cntrDtlNoList = [];
   switch (searchParams.value.cntrDvCd) { // 계약/고객번호 구분
     case '1': // 계약상세번호
-      cntrDtlNoList = [];
-      console.log(`ozParamsList : ${ozParamsList.value[0]}`);
-      if (searchParams.value.docDvCd === '1') { // 입금내역서
-        // 계약상세번호 체크
-        if (isEmpty(ozParamsList.value[0].cntrDtlNo)) {
-          outputDataYN = false;
-          return;
-        }
-
-        // 수납일 체크
-        if (isEmpty(ozParamsList.value[0].rveDt)) {
-          outputDataYN = false;
-          return;
-        }
-
-        // 수납일자가 시작일자가 종료일자 사이에 있는거로 Filter
-        if (ozParamsList.value[0].rveDt >= searchParams.value.cntrCnfmStrtDt
-        && ozParamsList.value[0].rveDt <= searchParams.value.cntrCnfmEndDt) {
-          // 수납일자가 발행일자가 이전인것만 Filter
-          if (ozParamsList.value[0].rveDt <= cachedParams.pblcSearchSttDt) {
-            // 계약상세번호와 수납일자가 있는것만 Filter
-            if (!isEmpty(ozParamsList.value[0].cntrDtlNo)
-            && !isEmpty(ozParamsList.value[0].rveDt)) {
-              outputDataYN = true;
-            } else {
-              outputDataYN = false;
-            }
-          }
-        }
-      } else if (searchParams.value.docDvCd === '2') { // 거래명세서
-        // 판매유형코드(일시불) && 판매할인율코드(6:패키지)일 경우
-        if (ozParamsList.value[0].sellTpCd === '1'
-        && ozParamsList.value[0].sellDscrCd === '6') {
-          outputDataYN = true;
-          rfndYn = true;
-        }
-      } else { // 카드매출전표/계약사항
-        outputDataYN = true;
-      }
+      outputDataYN = true;
       cntrDtlNoList.push(ozParamsList.value[0].cntrDtlNo);
       break;
     case '2': // 고객번호
       // eslint-disable-next-line no-case-declarations
       const cntrs = gridUtil.getCheckedRowValues(view);
-      cntrDtlNoList = [];
       cntrs.forEach((row) => {
-        if (searchParams.value.docDvCd === '1') { // 입금내역서
-          // console.log(`ozParamsList : ${ozParamsList.value}`);
-          ozParamsList.value.forEach((item) => {
-            // console.log(`cntrDtlNo : ${item.cntrDtlNo}`);
-            // console.log(`rveDt : ${item.rveDt}`);
-            // 수납일자가 시작일자가 종료일자 사이에 있는거로 filter
-            if (item.rveDt >= searchParams.value.cntrCnfmStrtDt
-              && item.rveDt <= searchParams.value.cntrCnfmEndDt) {
-              // 수납일자가 발행일자가 이전인것만 filter
-              if (item.rveDt <= cachedParams.pblcSearchSttDt) {
-                // 계약상세번호와 수납일자가 있는것만 filter
-                if (!isEmpty(item.cntrDtlNo) && !isEmpty(item.rveDt)) {
-                  outputDataYN = true;
-                  cntrDtlNoList.push(row.cntrDtlNo);
-                }
-              }
-            }
-          });
-        } else if (searchParams.value.docDvCd === '2') { // 거래명세서
-          // 판매유형코드(일시불) && 판매할인율코드(6:패키지)일 경우
-          if (row.sellTpCd === '1' && row.dscApyDtlCd === '6') {
-            outputDataYN = true;
-            rfndYn = true;
-          } else {
-            outputDataYN = true;
-            cntrDtlNoList.push(row.cntrDtlNo);
-          }
-        } else { // 입금내역서/거래명세서 이외
-          outputDataYN = true;
-          cntrDtlNoList.push(row.cntrDtlNo);
-        }
+        outputDataYN = true;
+        cntrDtlNoList.push(row.cntrDtlNo);
       });
       break;
     default:
@@ -657,8 +595,8 @@ async function onClickPblPrnt() {
     cachedParams = cloneDeep(searchParams.value);
     cachedParams.pblcSearchSttDt = pblcSearchSttDt; // 발행년월시(현재일자)
     cachedParams.custNm = custNm; // 고객명
-    console.log(cachedParams);
-    console.log(cntrDtlNoList);
+    // console.log(cachedParams);
+    // console.log(cntrDtlNoList);
 
     switch (searchParams.value.docDvCd) { // 증빙서류종류
       case '1': // 입금내역서
@@ -678,10 +616,6 @@ async function onClickPblPrnt() {
         );
         break;
       case '2': // 거래명세서
-        if (rfndYn) {
-          alert('일시불 패키지 상품이 포함되어  출력하실 수 없습니다. [문의 : Wells마케팅전략팀 고의엽매니저(02-397-9312)]');
-          return;
-        }
         // OZ 리포트 팝업 파라미터 설정
         cachedParams.reportHeaderTitle = '거래명세서 조회'; // 레포트 제목
 
@@ -732,8 +666,6 @@ async function onClickPblPrnt() {
       default:
         break;
     }
-  } else {
-    alert(t('MSG_ALT_NO_DATA_PRTN')); // 출력할 데이터가 없습니다.
   }
 }
 
@@ -789,7 +721,6 @@ const initGrdContracts = defineGrid((data, view) => {
     if (pageInfoContracts.value.pageIndex * pageInfoContracts.value.pageSize <= g.getItemCount()) {
       pageInfoContracts.value.pageIndex += 1;
       isOnly = true;
-      console.log(`isOnly : ${isOnly}`);
       await fetchCtnrLstData(isOnly);
     }
   };
