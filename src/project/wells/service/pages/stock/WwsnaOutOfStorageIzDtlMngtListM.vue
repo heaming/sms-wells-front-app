@@ -17,6 +17,7 @@
     <kw-search
       :cols="9"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고기간-->
@@ -427,6 +428,11 @@ function defaultSet() {
 
   // 등급 필터링
   codes.PD_GD_CD = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
+}
+
+// 초기화버튼 클릭
+function onClickReset() {
+  defaultSet();
 }
 
 onMounted(async () => {
