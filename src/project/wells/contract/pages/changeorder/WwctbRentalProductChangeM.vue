@@ -241,6 +241,7 @@
             </template>
 
             <kw-form-row>
+              <!-- 상품검색 -->
               <kw-form-item
                 :label="$t('MSG_TXT_PRDT') + $t('MSG_TXT_SEARCH')"
                 :colspan="3"
@@ -250,7 +251,7 @@
                   icon="search"
                   maxlength="100"
                   grow
-                  :disable="fieldData.slClYn==='Y'"
+                  :disable="fieldData.slClYn==='Y' || !isEmpty(fieldData.vstSchDt)"
                   @click-icon="onClickSelectProduct"
                 />
               </kw-form-item>
@@ -433,16 +434,30 @@
             </kw-form>
           </kw-expansion-item>
         </kw-list>
+
+        <div align="center">
+          <div class="w360">
+            <wwcta-contract-settlement-sign-item
+              :description="'계약 확정 서명을 해주세요.'"
+              empty-alert
+              confirm-label="계약 변경 내용을 숙지했으며, 이에 동의합니다."
+              @confirm="onSignSettlementConfirmed"
+            />
+          </div>
+        </div>
+
+        <!--
         <kw-action-bottom>
-          <!-- 저장 -->
+          <!- 저장 ->
           <kw-btn
             v-permission:update
             primary
             :label="$t('MSG_BTN_SAVE')"
-            :disable="!isFetched"
+            :disable="!isFetched || !isCnfmPd || !isCnfmSign || isEmpty(confirmSign)"
             @click="onClickSave"
           />
         </kw-action-bottom>
+        -->
       </div>
     </kw-form>
   </kw-page>
@@ -458,6 +473,8 @@ import pdConst from '~sms-common/product/constants/pdConst';
 import ZctzContractDetailNumber from '~sms-common/contract/components/ZctzContractDetailNumber.vue';
 import RentalPriceSelect
   from '~sms-wells/contract/components/ordermgmt/WwctaRentalFinalPriceSelect.vue';
+import WwctaContractSettlementSignItem
+  from '~sms-wells/contract/components/ordermgmt/WwctaContractSettlementSignItem.vue';
 import { warn } from 'vue';
 import {
   CNTR_REL_DTL_CD,
@@ -583,6 +600,7 @@ const fieldData = ref({
 
 const orderProduct = ref({});
 const promotions = ref([]); // 적용가능한 프로모션
+const confirmSign = ref(''); // 계약 확정 사인
 
 // 설치환경 및 요청사항
 const istEnvRequest = ref({
@@ -863,6 +881,11 @@ async function onPackaging() {
 
 // 기기변경 버튼 클릭
 async function onClickDeviceChange(odrPrdct) {
+  if (!isEmpty(fieldData.value.vstSchDt)) {
+    alert('설치 배정된 계약건은 기기변경 할 수 없습니다.');
+    return;
+  }
+
   const { result, payload } = await modal({
     component: 'WwctaMachineChangeCustomerDtlP',
     componentProps: {
@@ -984,8 +1007,8 @@ async function onDeleteDeviceChange(odrPrdct) {
   }
 }
 
-// 저장 버튼 클릭
-async function onClickSave() {
+// 계약 변경 저장
+async function saveCntrChanges() {
   // console.log(orderProduct.value);
   // console.log(istEnvRequest.value);
 
@@ -1018,10 +1041,20 @@ async function onClickSave() {
     baseInfo: fieldData.value,
     product: orderProduct.value,
     istEnv: istEnvRequest.value,
+    sign: confirmSign.value,
   });
 
   notify(t('MSG_ALT_SAVE_DATA'));
   await fetchData();
+}
+
+// 사인 확정 버튼 클릭
+async function onSignSettlementConfirmed(sign) {
+  if (!isEmpty(sign)) {
+    confirmSign.value = sign; // 계약확정사인
+  }
+
+  await saveCntrChanges();
 }
 
 // 조회 버튼 클릭
