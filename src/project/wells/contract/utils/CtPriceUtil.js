@@ -20,6 +20,7 @@ function getFnlAmt(fnlVal, appliedPromotions = [], sellDscCtrAmt = 0) {
 }
 
 export function getSpayAmt(pdBas, finalPrice, appliedPromotions = [], sellDscCtrAmt = 0) {
+  if (!finalPrice || !pdBas) { return; }
   const { rglrSppPrmMcn } = pdBas;
   const { fnlVal, cntrAmt, svVstPrdCd, pcsvPrdCd, sellTpCd, cntrAmtDscYn } = finalPrice;
   const fnlAmt = getFnlAmt(fnlVal, appliedPromotions, sellDscCtrAmt);
@@ -49,6 +50,7 @@ export function getSpayAmt(pdBas, finalPrice, appliedPromotions = [], sellDscCtr
 }
 
 export function getSpayAmtByCntrDtl(cntrDtl) {
+  if (!cntrDtl) { return undefined; }
   const { fnlAmt, cntrAmt, sellTpCd } = cntrDtl;
   if (sellTpCd === '1') {
     return Number(fnlAmt) || 0;
@@ -65,6 +67,7 @@ export function getSpayAmtByCntrDtl(cntrDtl) {
 }
 
 export function getAftnAmt(finalPrice, appliedPromotions = [], sellDscCtrAmt = 0) {
+  if (!finalPrice) { return; }
   const { fnlVal, svVstPrdCd, pcsvPrdCd, sellTpCd } = finalPrice;
   const fnlAmt = getFnlAmt(fnlVal, appliedPromotions, sellDscCtrAmt);
   if (sellTpCd === '1') {
@@ -87,6 +90,7 @@ export function getAftnAmt(finalPrice, appliedPromotions = [], sellDscCtrAmt = 0
 }
 
 export function getAftnAmtByCntrDtl(cntrDtl) {
+  if (!cntrDtl) { return undefined; }
   const { fnlAmt, svPrd, sellTpCd } = cntrDtl;
   if (sellTpCd === '1') {
     return 0;
@@ -148,6 +152,7 @@ export function getPromotionAppliedPrice(finalPrice, appliedPromotions, sellDscC
 }
 
 export function getDisplayPriceByCntrDtl(cntrDtl) {
+  if (!cntrDtl) { return undefined; }
   const { fnlAmt, svPrd, sellTpCd, stplPtrm } = cntrDtl;
   if (sellTpCd === '1') {
     return `${getNumberWithComma(fnlAmt)}원`;
