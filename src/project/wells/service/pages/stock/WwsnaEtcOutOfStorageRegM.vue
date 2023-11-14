@@ -234,7 +234,7 @@ const codes = await codeUtil.getMultiCodes(
 const searchParams = ref({
   ostrDt: '',
   ostrWareNo: '',
-  bilDept: '',
+  bilDept: store.getters['meta/getUserInfo'].departmentId,
   itmOstrNo: '',
   wareDvCd: '',
 });
