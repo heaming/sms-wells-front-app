@@ -134,6 +134,21 @@ const { ok } = useModal();
 const { currentRoute } = useRouter();
 const dataService = useDataService();
 
+const props = defineProps({
+  cntrDtlNo: {
+    type: String,
+    default: '',
+  },
+  cntrNo: {
+    type: String,
+    default: '',
+  },
+  cntrSn: {
+    type: String,
+    default: '',
+  },
+});
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -152,7 +167,7 @@ const codes = await codeUtil.getMultiCodes(
 
 const searchParams = ref({
   cstNm: '',
-  cntrDtlNo: '',
+  cntrDtlNo: props.cntrDtlNo,
   cntrNo: '',
   cntrSn: '',
   locaraTno: '',
@@ -299,6 +314,12 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
+onMounted(async () => {
+  if (props.cntrNo) {
+    searchParams.value.cntrDtlNo = `${props.cntrNo}${props.cntrSn}`;
+  }
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
