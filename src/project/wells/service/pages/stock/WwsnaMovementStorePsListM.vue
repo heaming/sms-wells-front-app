@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 입고창고 -->
@@ -41,16 +42,16 @@
             first-option="all"
           />
         </kw-search-item>
-        <!-- 입고일자 -->
+        <!-- 입고기간 -->
         <kw-search-item
-          :label="$t('MSG_TXT_STR_DT')"
+          :label="$t('MSG_TXT_STR_PTRM')"
           required
         >
           <kw-date-range-picker
             v-model:from="searchParams.stStrDt"
             v-model:to="searchParams.edStrDt"
             rules="required|date_range_months:1"
-            :label="$t('MSG_TXT_STR_DT')"
+            :label="$t('MSG_TXT_STR_PTRM')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -207,6 +208,13 @@ async function fetchDefaultData() {
   }
 }
 
+// 초기화 버튼 클릭
+function onClickReset() {
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  }
+}
+
 onMounted(async () => {
   await fetchDefaultData();
 });
@@ -238,9 +246,29 @@ const initGrdMain = defineGrid((data, view) => {
   const columns = [
     { fieldName: 'strRgstDt', header: t('MSG_TXT_STR_DT'), width: '126', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'strTpCd', header: t('MSG_TXT_STR_TP'), width: '126', styleName: 'text-center', options: codes.STR_TP_CD },
-    { fieldName: 'itmStrNo', header: t('MSG_TXT_STR_MNGT_NO'), width: '240', styleName: 'text-center' },
+    { fieldName: 'itmStrNo',
+      header: t('MSG_TXT_STR_MNGT_NO'),
+      width: '240',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        if (isEmpty(v)) {
+          return v;
+        }
+        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+        return v.replace(regExp, '$1-$2-$3');
+      } },
     { fieldName: 'ostrWareNm', header: t('MSG_TXT_OSTR_WARE'), width: '182', styleName: 'text-center' },
-    { fieldName: 'itmOstrNo', header: t('MSG_TXT_OSTR_MNGT_NO'), width: '240', styleName: 'text-center' },
+    { fieldName: 'itmOstrNo',
+      header: t('MSG_TXT_OSTR_MNGT_NO'),
+      width: '240',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        if (isEmpty(v)) {
+          return v;
+        }
+        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+        return v.replace(regExp, '$1-$2-$3');
+      } },
     { fieldName: 'strDelButn',
       header: t('MSG_TXT_NOTE'),
       width: '126',
