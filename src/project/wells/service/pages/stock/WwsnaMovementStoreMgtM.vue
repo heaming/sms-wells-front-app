@@ -17,6 +17,7 @@
     <kw-search
       :cols="4"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 입고창고 -->
@@ -214,6 +215,13 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
+}
+
+// 초기화 버튼 클릭
+function onClickReset() {
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  }
 }
 
 onMounted(async () => {

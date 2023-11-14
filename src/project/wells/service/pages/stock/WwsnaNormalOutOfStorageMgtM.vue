@@ -17,6 +17,7 @@
     <kw-search
       :cols="5"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고요청접수 -->
@@ -239,6 +240,13 @@ async function fetchDefaultData() {
   if (!isEmpty(res.data)) {
     codes.value.WARE_HOUSE = res.data;
     searchParams.value.ostrOjWareNo = res.data[0].wareNo;
+  }
+}
+
+// 초기화 버튼 클릭
+function onClickReset() {
+  if (!isEmpty(codes.value.WARE_HOUSE)) {
+    searchParams.value.ostrOjWareNo = codes.value.WARE_HOUSE[0].wareNo;
   }
 }
 
