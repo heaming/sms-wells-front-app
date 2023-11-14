@@ -121,12 +121,7 @@
         <!-- (입력담당자, 사용자) / 등록자 선택 -->
         <kw-search-item :label="t('MSG_TXT_RGST_USR')">
           <kw-input
-            v-model="searchParams.userName"
-            icon="search"
-            clearable
-            @click-icon="onClickSelectUser"
-            @clear="onClearSelectUser"
-            @keydown="onKeydownSelectUser"
+            v-model="searchParams.prtnrNo"
           />
           <!-- :readonly="true" -->
         </kw-search-item>
@@ -341,7 +336,7 @@ async function onClickSearch() {
 }
 
 const optionsCodes = ref(codes.SELL_TP_DTL_CD.filter((p1) => ['21', '22', '24', '25', '26'].includes(p1.codeId)));
-
+/*
 // 사용자 조회 팝업 -> 파트너 조회
 async function onClickSelectUser() {
   const { result, payload } = await modal({
@@ -370,6 +365,7 @@ async function onKeydownSelectUser() {
   // searchParams.value.userName = '';
   searchParams.value.ogTpCd = '';
 }
+*/
 
 // 행 추가 버튼
 async function onClickAdd() {
