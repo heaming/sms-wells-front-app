@@ -29,7 +29,7 @@
             :options="[
               { codeId: 'vstCnfmDt', codeName: t('MSG_TXT_VST_CNFM_D' /*방문확정일*/) },
               { codeId: 'wrteDt', codeName: t('MSG_TXT_WRTE_DT' /*작성일자*/) },
-              { codeId: 'schdDt', codeName: t('MSG_TXT_SCHD_DT' /*예정일자*/) },
+              { codeId: 'schdDt', codeName: t('MSG_TXT_PDCT_CHNG_EXP_DT' /*제품교체예정일자*/) },
               { codeId: 'prcsDt', codeName: t('MSG_TXT_PRCSDT' /*처리일자*/) },
             ]"
             rules="required"
@@ -343,10 +343,10 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'pdCd', header: t('MSG_TXT_ITM_CD'), width: '120', styleName: 'text-center', editable: false },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '180', styleName: 'text-center', editable: false },
     { fieldName: 'istDt', header: t('MSG_TXT_IST_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
-    { fieldName: 'changeRqstDt', header: t('MSG_TXT_CHANGE_AK_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false }, // 교체요청일자
+    { fieldName: 'changeRqstDt', header: t('MSG_TXT_PDCT_CHNG_EXP_DT'), width: '120', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false }, // 제품교체예정일자
     { fieldName: 'useDt', header: t('MSG_TXT_USE_DAY'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'pdctChngAkRsonCd', header: t('MSG_TXT_CHANGE_AK_RSN'), width: '160', styleName: 'text-center', options: codes.PDCT_CHNG_AK_RSON_CD, editable: false }, // 교체요청사유
-    { fieldName: 'schdDt', header: t('MSG_TXT_SCHD_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false },
+    { fieldName: 'schdDt', header: t('MSG_TXT_VST_REQD_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'yyyy-MM-dd', editable: false }, // 방문요청일자
     { fieldName: 'recapOrFreeYn', header: t('MSG_TXT_RECAP_OR_FREE'), width: '60', styleName: 'text-center', options: tempOptions.recapOrFreeYnCd, editable: false }, // 유무상
     { fieldName: 'loc', header: t('MSG_TXT_LCT'), width: '100', styleName: 'text-center', editable: false },
     { fieldName: 'phn', header: t('MSG_TXT_PHN'), width: '100', styleName: 'text-center', editable: false },
