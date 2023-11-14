@@ -366,7 +366,7 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'ogCd' }, // 조직코드
     { fieldName: 'bldNm' }, // 빌딩명
     { fieldName: 'apyYm' }, // 적용년월
-    { fieldName: 'sortDvVal' }, // 정렬구분
+    { fieldName: 'sortDvVal', dataType: 'number' }, // 정렬구분
   ];
 
   const columns = [
