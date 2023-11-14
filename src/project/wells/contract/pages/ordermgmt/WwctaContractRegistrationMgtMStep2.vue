@@ -202,7 +202,7 @@ async function validatePreconditions(product) {
   return validatePdSellLimit(product.pdSellLimit);
 }
 
-async function onSelectProduct(product) {
+async function onSelectProduct(product, wellsFarmMachineCntrDtl) {
   const newProduct = { ...product };
   const newProducts = [];
 
@@ -213,12 +213,31 @@ async function onSelectProduct(product) {
     return;
   }
 
+  // 웰스팜 기기 선택 시
   const isWellsFarmProduct = newProduct.pdLclsfId === 'PDC000000000120';
-
   newProduct.lkSdingOjCntrRelRequired = isWellsFarmProduct;
 
+  // 웰스팜 기계약 기기 선택 후, 모종 일시불 선택 시,
+  if (wellsFarmMachineCntrDtl) {
+    newProduct.cntrRels = [{
+      cntrRelId: undefined,
+      cntrRelDtlCd: CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE, /* 모종결합 */
+      baseDtlCntrNo: cntrNo.value,
+      baseDtlCntrSn: undefined,
+      ojDtlCntrNo: wellsFarmMachineCntrDtl.cntrNo,
+      ojDtlCntrSn: wellsFarmMachineCntrDtl.cntrSn,
+      basePdBas: {
+        pdCd: newProduct.pdCd,
+        pdNm: newProduct.pdNm,
+      },
+      ojBasePdBas: { ...wellsFarmMachineCntrDtl }, /* 기기 선택 해야함. */
+    }];
+  }
+
+  // 복합상품
   const isComposition = newProduct.pdTpCd === PD_TP_CD.COMPOSITION;
 
+  // 복합상품의 경우 해당 복함상품이 아닌 복합상품의 구성 기준상품 목록을 추가한다.
   if (isComposition) {
     const alreadyExistComposition = !!step2.value.dtls.find((existed) => existed.hgrPdCd === product.pdCd);
 
