@@ -245,6 +245,7 @@ const isOstrOk = ref();
 const isStrOk = ref();
 
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'STR_TP_CD',
   'WARE_DV_CD',
   'PD_GD_CD',
