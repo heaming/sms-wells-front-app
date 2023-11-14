@@ -136,7 +136,7 @@ export function getPromotionAppliedPrice(finalPrice, appliedPromotions, sellDscC
   if (!appliedPromotions?.length) {
     return;
   }
-  const fnlVal = finalPrice?.fnlVal;
+  const { fnlVal } = { ...finalPrice };
   if (!fnlVal) {
     return;
   }

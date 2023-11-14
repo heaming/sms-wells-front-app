@@ -494,6 +494,7 @@ const dtl = ref(props.modelValue);
 
 /* 직간접적으로 업데이트 할 값들 */
 let pdPrcFnlDtlId;
+// eslint-disable-next-line no-unused-vars
 let verSn;
 let fnlAmt;
 let pdQty;
@@ -526,10 +527,12 @@ function connectReactivities() {
   packageRentalDscTpCds = toRef(props.modelValue, 'packageRentalDscTpCds', {});
   wellsDtl = toRef(props.modelValue, 'wellsDtl');
   wellsDtl.value ??= {};
-  console.log('verSn', verSn.value);
 }
 
-const multiplePossible = computed(() => (bcMngtPdYn.value === 'Y' && !props.modify));
+const multiplePossible = computed(() => (bcMngtPdYn.value === 'Y'
+    && !cntrRels.value?.length
+    && !ojCntrRels.value?.length
+    && !props.modify));
 
 connectReactivities();
 
@@ -832,7 +835,6 @@ function initPriceDefineVariables() {
 function clearPromotions() {
   promotions.value = [];
   appliedPromotions.value = [];
-  promotionAppliedPrice.value = undefined;
 }
 
 function getPackageRentalDscTpCds() {
