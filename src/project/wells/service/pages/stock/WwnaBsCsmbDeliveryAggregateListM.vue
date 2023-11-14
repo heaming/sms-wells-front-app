@@ -23,6 +23,7 @@
             v-model:from="searchParams.mngtYmFrom"
             v-model:to="searchParams.mngtYmTo"
             type="month"
+            rules="date_range_months:6"
             @change="onChangeMngtYm"
           />
         </kw-search-item>
@@ -140,7 +141,7 @@ const codes = await codeUtil.getMultiCodes(
 );
 
 const searchParams = ref({
-  mngtYmFrom: dayjs().add(-12, 'month').format('YYYYMM'),
+  mngtYmFrom: dayjs().add(-5, 'month').format('YYYYMM'),
   mngtYmTo: dayjs().format('YYYYMM'),
   bldCds: [],
   itmCds: [],
@@ -298,7 +299,7 @@ async function onChangeMngtYm() {
   const columns = [
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '100', styleName: 'text-left' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' },
     { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '150', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
     { fieldName: 'nwcmr', header: t('MSG_TXT_NWCMR'), width: '80', styleName: 'text-center' },
@@ -309,8 +310,8 @@ async function onChangeMngtYm() {
     { fieldName: 'wrfr', header: t('MSG_TXT_WRFR'), width: '80', styleName: 'text-right' },
     { fieldName: 'bdtIndv', header: t('MSG_TXT_BDT_INDV'), width: '80', styleName: 'text-right' },
     { fieldName: 'bdtCrp', header: t('MSG_TXT_BDT_CRP'), width: '80', styleName: 'text-right' },
-    { fieldName: 'arcleIndv', header: t('MSG_TXT_ARCLE_INDV'), width: '80', styleName: 'text-right' },
-    { fieldName: 'arcleCrp', header: t('MSG_TXT_ARCLE_CRP'), width: '80', styleName: 'text-right' },
+    { fieldName: 'arcleIndv', header: t('MSG_TXT_ARCLE_INDV'), width: '120', styleName: 'text-right' },
+    { fieldName: 'arcleCrp', header: t('MSG_TXT_ARCLE_CRP'), width: '120', styleName: 'text-right' },
     { fieldName: 'wtrSftnr', header: t('MSG_TXT_WTST'), width: '80', styleName: 'text-right' },
     { fieldName: 'cffMchn', header: t('MSG_TXT_CFF_MCHN'), width: '80', styleName: 'text-right' },
     { fieldName: 'msgcr', header: t('MSG_TXT_MSGCR'), width: '80', styleName: 'text-right' },
@@ -422,7 +423,7 @@ const initGrdMain = defineGrid(async (data, view) => {
   const columns = [
     { fieldName: 'bldCd', header: t('MSG_TXT_BLD_CD'), width: '100', styleName: 'text-left' },
     { fieldName: 'bldNm', header: t('MSG_TXT_BLD_NM'), width: '100', styleName: 'text-left' },
-    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'sapMatCd', header: t('MSG_TXT_SAP_CD'), width: '180', styleName: 'text-center' },
     { fieldName: 'csmbPdCd', header: t('TXT_MSG_AS_ITM_CD'), width: '100', styleName: 'text-center' },
     { fieldName: 'pdNm', header: t('MSG_TXT_ITM_NM'), width: '150', styleName: 'text-left' },
     { fieldName: 'nwcmr', header: t('MSG_TXT_NWCMR'), width: '80', styleName: 'text-center' },

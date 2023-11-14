@@ -71,6 +71,8 @@
             v-model="basData.boxUnitQty"
             type="number"
             maxlength="10"
+            rules="min_value:0"
+            :label="$t('MSG_TXT_BOX_UNIT_QTY')"
             :disable="isDisable"
           />
         </kw-form-item>
@@ -86,6 +88,7 @@
             v-model="basData.goUprc"
             type="number"
             maxlength="10"
+            rules="min_value:0"
             :disable="isDisable"
           />
         </kw-form-item>
@@ -195,8 +198,10 @@
         <kw-form-item :label="$t('MSG_TXT_SORT_ORDER')">
           <kw-input
             v-model="ddlvOjCd1Data.sortOdr"
+            :label="$t('MSG_TXT_SORT_ORDER')"
             type="number"
             maxlength="10"
+            rules="min_value:0"
             :disable="isDisableYn1 || isDisable"
           />
         </kw-form-item>
@@ -296,6 +301,7 @@
             :label="$t('MSG_TXT_SORT_ORDER')"
             type="number"
             maxlength="10"
+            rules="min_value:0"
             :disable="isDisableYn2 || isDisable"
           />
         </kw-form-item>
@@ -392,8 +398,10 @@
         <kw-form-item :label="$t('MSG_TXT_SORT_ORDER')">
           <kw-input
             v-model="ddlvOjCd3Data.sortOdr"
+            :label="$t('MSG_TXT_SORT_ORDER')"
             type="number"
             maxlength="10"
+            rules="min_value:0"
             :disable="isDisableYn3 || isDisable"
           />
         </kw-form-item>
@@ -617,7 +625,7 @@ const isRequiredUnitQty1 = async (val, options) => {
 
   if (ddlvOjCd1Data.value.bfsvcCsmbDdlvTpCd === '1') {
     errors.push(
-      ...(await validate(val, 'required', options)).errors,
+      ...(await validate(val, 'required|min_value:0', options)).errors,
     );
   }
 
@@ -629,7 +637,7 @@ const isRequiredLmQty1 = async (val, options) => {
 
   if (ddlvOjCd1Data.value.bfsvcCsmbDdlvTpCd === '2') {
     errors.push(
-      ...(await validate(val, 'required', options)).errors,
+      ...(await validate(val, 'required|min_value:0', options)).errors,
     );
   }
 
@@ -641,7 +649,7 @@ const isRequiredAccPrpnYn1 = async (val, options) => {
 
   if (ddlvOjCd1Data.value.bfsvcCsmbDdlvCmptBaseCd === '1') {
     errors.push(
-      ...(await validate(val, 'required', options)).errors,
+      ...(await validate(val, 'required|min_value:0', options)).errors,
     );
   }
 
@@ -677,7 +685,7 @@ const isRequiredUnitQty2 = async (val, options) => {
 
   if (ddlvOjCd2Data.value.bfsvcCsmbDdlvTpCd === '1') {
     errors.push(
-      ...(await validate(val, 'required', options)).errors,
+      ...(await validate(val, 'required|min_value:0', options)).errors,
     );
   }
 
@@ -689,7 +697,7 @@ const isRequiredLmQty2 = async (val, options) => {
 
   if (ddlvOjCd2Data.value.bfsvcCsmbDdlvTpCd === '2') {
     errors.push(
-      ...(await validate(val, 'required', options)).errors,
+      ...(await validate(val, 'required|min_value:0', options)).errors,
     );
   }
 
@@ -701,7 +709,7 @@ const isRequiredAccPrpnYn2 = async (val, options) => {
 
   if (ddlvOjCd2Data.value.bfsvcCsmbDdlvCmptBaseCd === '1') {
     errors.push(
-      ...(await validate(val, 'required', options)).errors,
+      ...(await validate(val, 'required|min_value:0', options)).errors,
     );
   }
 
@@ -737,7 +745,7 @@ const isRequiredUnitQty3 = async (val, options) => {
 
   if (ddlvOjCd3Data.value.bfsvcCsmbDdlvTpCd === '1') {
     errors.push(
-      ...(await validate(val, 'required', options)).errors,
+      ...(await validate(val, 'required|min_value:0', options)).errors,
     );
   }
 
@@ -749,7 +757,7 @@ const isRequiredLmQty3 = async (val, options) => {
 
   if (ddlvOjCd3Data.value.bfsvcCsmbDdlvTpCd === '2') {
     errors.push(
-      ...(await validate(val, 'required', options)).errors,
+      ...(await validate(val, 'required|min_value:0', options)).errors,
     );
   }
 
