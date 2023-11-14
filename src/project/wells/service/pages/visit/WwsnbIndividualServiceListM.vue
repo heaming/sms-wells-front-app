@@ -806,8 +806,8 @@ async function onClickSearch() {
 /* 처리내역 엑셀다운로드 */
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
+  const res = await dataService.get('sms/wells/service/individual-service-ps/process-state/excel-download', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
   const view = grdIndividualStateRef.value.getView();
-  const res = dataService.get('sms/wells/service/individual-service-ps/process-state/excel-download', { params: { cntrNo: searchParams.value.cntrNo, cntrSn: searchParams.value.cntrSn } });
 
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
