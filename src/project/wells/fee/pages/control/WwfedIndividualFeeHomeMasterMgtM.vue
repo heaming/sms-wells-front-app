@@ -226,6 +226,7 @@
           <h3>{{ t('MSG_TXT_DDTN_IZ') }}</h3>
           <span class="kw-fc--black3 text-weight-regular">{{ $t('MSG_TXT_UNIT_WON') }}</span>
         </template>
+        <!-- 부담공제조정 버튼 미사용 처리
         <kw-btn
           dense
           secondary
@@ -238,6 +239,7 @@
           vertical
           inset
         />
+        -->
         <kw-btn
           dense
           secondary
@@ -459,21 +461,22 @@ async function onClickSearch() {
 }
 
 /*
- *  Event - 부담공제조정 버튼 클릭
+ * Event - 부담공제조정 버튼 클릭
+ * 프로세스 변경으로 미사용 처리
  */
-async function openZwfedFeeBurdenDeductionRegP() {
-  const { perfYm, no } = searchParams.value;
-  const param = {
-    ddtnYm: perfYm,
-    coCd: '2000',
-    ogTpCd: 'W03',
-    prtnrNo: no,
-  };
-  await modal({
-    component: 'ZwfedFeeBurdenDeductionRegP',
-    componentProps: param,
-  });
-}
+// async function openZwfedFeeBurdenDeductionRegP() {
+//   const { perfYm, no } = searchParams.value;
+//   const param = {
+//     ddtnYm: perfYm,
+//     coCd: '2000',
+//     ogTpCd: 'W03',
+//     prtnrNo: no,
+//   };
+//   await modal({
+//     component: 'ZwfedFeeBurdenDeductionRegP',
+//     componentProps: param,
+//   });
+// }
 
 /*
  *  Event - 가지급금조정 버튼 클릭
