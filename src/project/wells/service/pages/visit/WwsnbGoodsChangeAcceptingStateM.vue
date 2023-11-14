@@ -158,7 +158,7 @@ import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 
-const { getServiceCenterOrgs, getServiceCenterPrtnr } = useSnCode();
+const { getServiceCenterPrtnr } = useSnCode();
 
 const { getConfig } = useMeta();
 
@@ -223,8 +223,7 @@ let cachedParams;
 searchParams.value.startDt = dayjs().set('date', 1).format('YYYYMMDD');
 const prtNrs = ref();
 
-const servierCenterOrg = await getServiceCenterOrgs();
-
+const { data: servierCenterOrg } = await dataService.get('/sms/wells/service/organizations/service-center', { params: { authYn: 'N' } });
 watch(() => [searchParams.value.ogId], async () => {
   prtNrs.value = await getServiceCenterPrtnr(searchParams.value.ogId);
   searchParams.value.prtnrNo = '';
