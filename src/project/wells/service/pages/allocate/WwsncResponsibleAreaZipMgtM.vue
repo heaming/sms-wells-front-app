@@ -127,7 +127,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, defineGrid, getComponentType, gridUtil, useDataService, useGlobal, useMeta } from 'kw-lib';
-import { cloneDeep } from 'lodash-es';
+import { cloneDeep, isEmpty } from 'lodash-es';
 import useSnCode from '~sms-wells/service/composables/useSnCode';
 import dayjs from 'dayjs';
 
@@ -170,8 +170,22 @@ const ctpvs = ref([]);
 const ctctys = ref([]);
 ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
 
+// 우편번호 범위 체크
+function isValidZip() {
+  if (isEmpty(searchParams.value.zipFrom) || isEmpty(searchParams.value.zipTo)) {
+    return true;
+  }
+
+  if (searchParams.value.zipFrom > searchParams.value.zipTo) {
+    notify(t('MSG_ALT_ZIP_RNG_VALIDATE')); // 올바른 우편번호 범위를 입력해주세요.
+    return false;
+  }
+  return true;
+}
+
 // 조회
 async function fetchData() {
+  if (!isValidZip()) return;
   const res = await dataService.get('/sms/wells/service/responsible-area-zips', { params: { ...cachedParams } });
   const zips = res.data;
   pageInfo.value.totalCount = zips.length;
