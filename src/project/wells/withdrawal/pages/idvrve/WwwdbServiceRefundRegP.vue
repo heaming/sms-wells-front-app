@@ -725,7 +725,7 @@ async function onChnageRfndDtnAmt(val) {
     feeAmt = Math.floor(Number(bilAmt) * (Number(fee) / 100));
   }
   infomation.value.cardRfndFee = feeAmt;
-  infomation.value.rfndAkAmt = bilAmt - feeAmt;
+  infomation.value.rfndAkAmt = bilAmt;
 }
 
 // 지급 구분 변경 이벤트
