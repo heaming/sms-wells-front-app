@@ -517,18 +517,29 @@ async function onPackaging(dtl, rentalDscTpCd) {
   }); */
 
   const packagables = step2.value.dtls.filter((rentalDtl) => {
-    const { packageRentalDscTpCds } = rentalDtl;
-    if (!packageRentalDscTpCds?.length) {
-      return false;
-    }
-    return packageRentalDscTpCds.includes(rentalDscTpCd);
+    if (rentalDtl === dtl) { return false; }
+    const { sellTpCd } = rentalDtl;
+    return sellTpCd === SELL_TP_CD.RENTAL;
   });
+
+  // eslint-disable no-nested-ternary
+  if (rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_2 && packagables.length < 1) {
+    alert('렌탈 상품을 적어도 두 건이상 선택해주세요.');
+    return;
+  } if (rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_3 && packagables.length < 2) {
+    alert('렌탈 상품을 적어도 세 건이상 선택해주세요.');
+    return;
+  } if (rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_OVER_4 && packagables.length < 3) {
+    alert('렌탈 상품을 적어도 네 건이상 선택해주세요.');
+    return;
+  }
 
   // 모바일과는 다르다!! 우선 냅다 선택하고, 패키징을 한다.
   const { result, payload } = await modal({
     component: 'WwctaRentalMultiCasePrchsDscChoP',
     componentProps: {
       rentalDscTpCd,
+      discounted: dtl,
       cntrDtls: packagables,
     },
   });
@@ -537,41 +548,39 @@ async function onPackaging(dtl, rentalDscTpCd) {
     return;
   }
 
-  const { selectedCntrDtls, discountedCntrDtl } = payload;
+  const { selectedCntrDtls } = payload;
 
   const ojCntrRels = [];
 
   selectedCntrDtls.forEach((cntrDtl) => {
-    if (cntrDtl !== discountedCntrDtl) {
-      cntrDtl.priceOptionFilter = {
-        rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
-        rentalDscTpCd: EMPTY_ID,
-      };
-      const cntrRel = {
-        cntrRelId: undefined,
-        cntrRelDtlCd: CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
-        baseDtlCntrNo: cntrNo.value,
-        baseDtlCntrSn: undefined,
-        ojDtlCntrNo: cntrNo.value,
-        ojDtlCntrSn: undefined,
-        baseTempKey: cntrDtl.tempKey,
-        basePdBas: {
-          pdCd: cntrDtl.pdCd,
-          pdNm: cntrDtl.pdNm,
-        },
-        ojTempKey: discountedCntrDtl.tempKey,
-        ojBasePdBas: { ...discountedCntrDtl },
-      };
-      cntrDtl.cntrRels = [cntrRel];
-      ojCntrRels.push({ ...cntrRel });
-    }
+    cntrDtl.priceOptionFilter = {
+      rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+      rentalDscTpCd: EMPTY_ID,
+    };
+    const cntrRel = {
+      cntrRelId: undefined,
+      cntrRelDtlCd: CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
+      baseDtlCntrNo: cntrNo.value,
+      baseDtlCntrSn: undefined,
+      ojDtlCntrNo: cntrNo.value,
+      ojDtlCntrSn: undefined,
+      baseTempKey: cntrDtl.tempKey,
+      basePdBas: {
+        pdCd: cntrDtl.pdCd,
+        pdNm: cntrDtl.pdNm,
+      },
+      ojTempKey: dtl.tempKey,
+      ojBasePdBas: { ...dtl },
+    };
+    cntrDtl.cntrRels = [cntrRel];
+    ojCntrRels.push({ ...cntrRel });
   });
 
-  discountedCntrDtl.priceOptionFilter = {
+  dtl.priceOptionFilter = {
     rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
     rentalDscTpCd,
   };
-  discountedCntrDtl.ojCntrRels = ojCntrRels;
+  dtl.ojCntrRels = ojCntrRels;
 }
 
 function onDeleteSelectMachine(dtl) {
