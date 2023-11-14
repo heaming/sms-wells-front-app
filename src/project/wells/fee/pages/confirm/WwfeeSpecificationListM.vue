@@ -256,17 +256,21 @@ function onClickOzReport(div) {
 
   cachedParams.isSum = (div === 'tot') ? 'Y' : '';
 
-  if (searchParams.value.rsbDvCd === 'W0105') { // P추진단 - 플래너
-    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
-  } else if (searchParams.value.rsbDvCd === 'W0104') { // P 추진단 - 지점장
-    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
-  } else if (searchParams.value.rsbDvCd === 'W0205') { // M추진단 - 플래너
-    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
-  } else if (searchParams.value.rsbDvCd === 'W0204') { // M 추진단 - 지점장
-    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
-  } else if (searchParams.value.rsbDvCd === 'W0302') { // 홈마스터
-    _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
-  } else if (searchParams.value.rsbDvCd === 'W0301') { // 홈마스터 - 지점장
+  if ('W0301,W0302'.indexOf(searchParams.value.rsbDvCd) > -1) { // 홈마스터
+    if (searchParams.value.rsbDvCd === 'W0302') { // 홈마스터
+      if (cachedParams.isSum === 'Y') {
+        _ozrPath = '/ksswells/hmCmms/patSpec/V4.1/cmmsHmPatSpec1_sum.ozr'; // 합계
+      } else {
+        _ozrPath = '/ksswells/hmCmms/patSpec/V4.1/cmmsHmPatSpec1.ozr';
+      }
+    } else if (searchParams.value.rsbDvCd === 'W0301') { // 홈마스터 - 지점장
+      if (cachedParams.isSum === 'Y') {
+        _ozrPath = '/ksswells/hmCmms/patSpec/V4.1/cmmsHmPatSpec3_sum.ozr'; // 합계
+      } else {
+        _ozrPath = '/ksswells/hmCmms/patSpec/V4.1/cmmsHmPatSpec3.ozr';
+      }
+    }
+  } else {
     _ozrPath = '/ksswells/cmms/svPatSpec/V2.0/cmmsSvPatSpec202310_01.ozr';
   }
 
