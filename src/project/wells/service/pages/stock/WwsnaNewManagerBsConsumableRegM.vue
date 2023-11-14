@@ -493,20 +493,14 @@ async function onClickSearch() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
 
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
 
-  if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
-    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
-    return;
-  }
-
   if (!await gridUtil.validate(view)) { return; }
-  // if (await gridUtil.alertIfIsNotModified(view)) { return; }
+
   let errorYn = false;
   checkedRows.forEach((checkedRow) => {
     let f = 1;
@@ -767,6 +761,7 @@ const initGrdMain = defineGrid(async (data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.editable = true;
   view.setFixedOptions({ colCount: 1 });
+  view.sortingOptions.enabled = false;
 });
 
 </script>
