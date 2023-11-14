@@ -230,8 +230,36 @@ const ctpvs = ref([]);
 const ctctys = ref([]);
 ctpvs.value = (await getDistricts('sido')).map((v) => ({ ctpv: v.ctpvNm, ctpvNm: v.ctpvNm, ctpvCd: v.fr2pLgldCd }));
 
+// 우편번호 범위 체크
+function isValidZip() {
+  if (isEmpty(searchParams.value.zipFrom) || isEmpty(searchParams.value.zipTo)) {
+    return true;
+  }
+
+  if (searchParams.value.zipFrom > searchParams.value.zipTo) {
+    notify(t('MSG_ALT_ZIP_RNG_VALIDATE')); // 올바른 우편번호 범위를 입력해주세요.
+    return false;
+  }
+  return true;
+}
+
+// 지역코드 범위 체크
+function isValidRpbLocaraCd() {
+  if (isEmpty(searchParams.value.rpbLocaraCdFrom) || isEmpty(searchParams.value.rpbLocaraCdTo)) {
+    return true;
+  }
+
+  if (searchParams.value.rpbLocaraCdFrom > searchParams.value.rpbLocaraCdTo) {
+    notify(t('MSG_ALT_RPB_RNG_VALIDATE')); // 올바른 지역코드 범위를 입력해주세요.
+    return false;
+  }
+  return true;
+}
+
 // 조회
 async function fetchData() {
+  if (!isValidRpbLocaraCd()) return;
+  if (!isValidZip()) return;
   const res = await dataService.get('/sms/wells/service/responsible-area-charges', { params: { ...cachedParams } });
   const personInCharges = res.data;
   pageInfo.value.totalCount = personInCharges.length;
