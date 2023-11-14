@@ -1026,7 +1026,6 @@ async function onClickRfndDelete() {
   const bltfData = gridUtil.getAllRowValues(view);
   pageInfo3.value.totalCount = bltfData.length;
 
-  console.log('bltfData', bltfData);
   bltfData.forEach((obj) => {
     onEditRfnd(obj.cntrNo, obj.rveNo, obj.rveSn);
   });
