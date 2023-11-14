@@ -450,6 +450,13 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'reqdDt', header: t('MSG_TXT_DEM_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'rsgFshDt', header: t('MSG_TXT_CANC_DT'), width: '130', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'cstSvAsnNo', header: t('MSG_TXT_ASGN_NO'), width: '180', styleName: 'text-center' },
+    { fieldName: 'svBizHclsfCd', visible: false },
+    { fieldName: 'prtnrNo', visible: false },
+    { fieldName: 'ogTpCd', visible: false },
+    { fieldName: 'ogId', visible: false },
+    { fieldName: 'pdctPdCd', visible: false },
+    { fieldName: 'wkWareNo', visible: false },
+    { fieldName: 'partCnt', visible: false },
   ];
   // 상품 동적 필드
   const pdColums = [
