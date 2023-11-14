@@ -19,6 +19,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 소속 -->
         <kw-search-item
           :label="$t('MSG_TXT_BLG')"
         >
@@ -31,6 +32,7 @@
             @update:model-value="onUpdateSvcCode1"
           />
         </kw-search-item>
+        <!-- 담당자 성명 -->
         <kw-search-item
           :label="$t('MSG_TXT_EMPL_NM')"
         >
@@ -66,6 +68,7 @@
             v-model="searchVal.vstCnfmdtYn"
             class="ml8"
           >
+            <!-- 방문확정일자로만조회 -->
             <template #default="{ field }">
               <kw-checkbox
                 v-bind="field"
@@ -74,6 +77,7 @@
             </template>
           </kw-field>
         </kw-search-item>
+        <!-- 작업구분 -->
         <kw-search-item
           :label="$t('MSG_TXT_WK_CLS')"
         >
@@ -104,6 +108,7 @@
           dense
           :label="$t('MSG_BTN_PRTG')"
         /> -->
+        <!-- 엑셀다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -118,41 +123,14 @@
           inset
           spaced
         />
+        <!-- 이관이력조회 -->
         <kw-btn
           secondary
           dense
           :label="$t('MSG_BTN_TF_HIST_INQR')"
           @click="onClickTransfetHistoryInquiry"
         />
-        <!-- <kw-select
-          v-model="updateParams.svCnrOgId"
-          dense
-          :placeholder="$t('MSG_TXT_ANY_SELT',[$t('MSG_TXT_BLG')])"
-          :options="svcCode"
-          option-label="ogNm"
-          option-value="ogId"
-          @update:model-value="onUpdateSvcCode2"
-        />
-        <kw-select
-          v-model="updateParams.ichrPrtnrNo"
-          dense
-          :placeholder="$t('MSG_TXT_ANY_SELT',[$t('MSG_TXT_EMPL_NM')])"
-          :options="engineers2"
-          option-label="prtnrNm"
-          option-value="prtnrNo"
-          @update:model-value="onUpdateEngineers2"
-        /> -->
-        <!-- <kw-input
-          ref="tfPrtnrKnmRef"
-          v-model="updateParams.afchFnm"
-          readonly
-          class="w110"
-          icon="search_24"
-          rules="required"
-          :label="$t('MSG_TXT_BLG')"
-          :placeholder="$t('MSG_TXT_BLG_SLCT')"
-          @click-icon="onClickIconPrtnrNoSearchPopup"
-        /> -->
+        <!-- 담당자입력 -->
         <kw-input
           ref="tfPrtnrKnmRef"
           v-model="updateParams.afchFnm"
@@ -161,7 +139,7 @@
           readonly
           rules="required"
           :label="$t('MSG_TXT_BLG')"
-          :placeholder="$t('담당자 입력')"
+          :placeholder="$t('MSG_TXT_PSIC_IN')"
         />
         <kw-btn
           dense
@@ -169,10 +147,11 @@
           icon="search"
           @click="onClickIconPrtnrNoSearchPopup"
         />
+        <!-- 담당자일괄변경 버튼 -->
         <kw-btn
           dense
           secondary
-          :label="$t('담당자 일괄변경')"
+          :label="$t('MSG_BTN_PSIC_BLK_CH')"
           @click="onClickBulkUpdate"
         />
         <kw-separator
@@ -180,6 +159,7 @@
           inset
           spaced
         />
+        <!-- 담당자이관 버튼 -->
         <kw-btn
           v-permission:update
           primary
@@ -284,6 +264,7 @@ const codes = await codeUtil.getMultiCodes(
 
 let cachedParams;
 
+// 엑셀다운로드 버튼 클릭
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
   const response = await dataService.get('/sms/wells/service/as-transfers/excel-download', { params: cachedParams });
@@ -337,17 +318,17 @@ async function onClickExcelDownload() {
     exportLayout,
   });
 }
-
+// 이관이력조회 버튼 클릭
 function onClickTransfetHistoryInquiry() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
 
   if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
   if (chkRows.length > 1) {
-    notify(t('MSG_ALT_MDFC_SEL'));
+    notify(t('MSG_ALT_MDFC_SEL')); // 하나의 항목을 선택하십시오
     return;
   }
   modal({
@@ -355,7 +336,7 @@ function onClickTransfetHistoryInquiry() {
     componentProps: { cstSvAsnNo: chkRows[0].cstSvAsnNo },
   });
 }
-
+// 엔지니어 조회
 async function fetchEngineers(params) {
   return await dataService.get('/sms/wells/service/organizations/engineer', params);
 }
@@ -374,7 +355,7 @@ async function onUpdateSvcCode1() {
   searchVal.value.ichrPrtnrNo = '';
   setEngineers1();
 }
-
+// 그리드 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/as-transfers/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: asInfos, pageInfo: pagingResult } = res.data;
@@ -384,10 +365,11 @@ async function fetchData() {
   // view.resetCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
+// 조회버튼 클릭
 async function onClickSearch() {
-  if (searchVal.value.vstCnfmdtYn === 'Y') {
+  if (searchVal.value.vstCnfmdtYn === 'Y') { // 방문확정일자로만 조회 체크박스 체크시
     if (!searchVal.value.vstCnfmdt) {
-      notify(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_VST_CNFM_D')]));
+      notify(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_VST_CNFM_D')])); // 방문확정일 은(는) 필수값 입니다.
       return;
     }
     searchParams.value = {
@@ -400,7 +382,7 @@ async function onClickSearch() {
     };
   } else {
     if (!searchVal.value.assignDateFrom || !searchVal.value.assignDateTo) {
-      notify(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_ASN_DT')]));
+      notify(t('MSG_ALT_NCELL_REQUIRED_VAL', [t('MSG_TXT_ASN_DT')])); // 배정일자 은(는) 필수값 입니다.
       return;
     }
     searchParams.value = {
@@ -416,26 +398,26 @@ async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
+// 담당자이관버튼 클릭
 async function onClickPsicTransfer() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
 
   if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
-
-  if (chkRows.some(({ rowState }) => rowState !== RowState.UPDATED)) {
+  if (chkRows.some(({ rowState }) => rowState !== RowState.UPDATED)
+  || chkRows.some(({ afchBlgCd, afchFnm }) => !afchBlgCd || !afchFnm)) {
     notify(t('MSG_ALT_NOT_EXST_TF_REQ_PSIC')); // 이관요청담당자가 없는 행이 존재합니다.
     return;
   }
 
   await dataService.post('/sms/wells/service/as-transfers', chkRows);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
   await fetchData();
 }
-
+// 이관 후 담당자 정보 세팅
 function setAfchEmpno(grid, row, field) {
   const itemIndex = grid.getItemIndex(row);
 
@@ -447,14 +429,14 @@ function setAfchEmpno(grid, row, field) {
     // 이름 바뀌면, 그 앞 필드 번호 부분 매핑. optionValue 가져와서 넣어줌?
     grid.setValue(itemIndex, 'afchEmpno', afchFnm);
   }
-  if (changedFieldName === 'afchBlgCd') {
+  if (changedFieldName === 'afchBlgCd') { // 이관 소속 변경 시
     const center = svcCode.filter((v) => v.ogId === afchBlgCd);
     grid.setValue(itemIndex, 'afchOgTpCd', center[0].ogTpCd);
     grid.setValue(itemIndex, 'afchFnm', '');
     grid.setValue(itemIndex, 'afchEmpno', '');
   }
 }
-
+// 담당자 입력(돋보기) 버튼 클릭 시
 async function onClickIconPrtnrNoSearchPopup() {
   const { result, payload } = await modal({
     component: 'WwsndHumanResourcesListP',
@@ -471,7 +453,7 @@ async function onClickIconPrtnrNoSearchPopup() {
     updateParams.value.afchFnm = payload[0].prtnrKnm;
   }
 }
-
+// 담당자 일괄변경 버튼 클릭
 async function onClickBulkUpdate() {
   if (!await tfPrtnrKnmRef.value.validate()) {
     return;
@@ -480,9 +462,11 @@ async function onClickBulkUpdate() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
   if (checkedRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
+
+  if (!await gridUtil.validate(checkedRows.value)) { return; }
   const data = view.getDataSource();
 
   const { afchBlgCd, afchOgTpCd, afchEmpno, afchFnm } = updateParams.value;
@@ -522,46 +506,46 @@ const initGrdMain = defineGrid((data, view) => {
   view.addLookupSource(lookupTreeSubCodes);
 
   const fields = [
-    { fieldName: 'cstSvAsnNo' },
-    { fieldName: 'cntrNo' },
-    { fieldName: 'cntrSn' },
-    { fieldName: 'rcgvpKnm' },
-    { fieldName: 'sellTpNm' },
-    { fieldName: 'sapMatCd' },
-    { fieldName: 'basePdCd' },
-    { fieldName: 'pdAbbrNm' },
-    { fieldName: 'pdGrpCd' },
-    { fieldName: 'wkDvNm' },
-    { fieldName: 'ctpvNm' },
-    { fieldName: 'ctctyNm' },
-    { fieldName: 'amtdNm' },
-    { fieldName: 'ctpvCtctyNm' },
-    { fieldName: 'cnslMoCn' },
-    { fieldName: 'newAdrZip' },
-    { fieldName: 'adr' },
-    { fieldName: 'alncDvNm' },
-    { fieldName: 'dtmChCausNm' },
-    { fieldName: 'dtmChRsonNm' },
-    { fieldName: 'dtmChRsonDtlCn' },
-    { fieldName: 'tno' },
-    { fieldName: 'mpno' },
-    { fieldName: 'wkPrgsDvNm' },
-    { fieldName: 'vstCnfmDtm' },
-    { fieldName: 'asnDtm' },
-    { fieldName: 'rcst' },
-    { fieldName: 'bfchBlgCd' },
-    { fieldName: 'bfchBlgOgTpCd' },
-    { fieldName: 'bfchBlgNm' },
-    { fieldName: 'bfchEmpno' },
-    { fieldName: 'bfchFnm' },
-    { fieldName: 'afchBlgCd' },
-    { fieldName: 'afchOgTpCd' },
-    { fieldName: 'afchEmpno' },
-    { fieldName: 'afchFnm' },
-    { fieldName: 'tfDt' },
-    { fieldName: 'tfRsonNm' },
-    { fieldName: 'tfBlgNm' },
-    { fieldName: 'tfFnm' },
+    { fieldName: 'cstSvAsnNo' }, // 설치배정번호
+    { fieldName: 'cntrNo' }, // 계약번호
+    { fieldName: 'cntrSn' }, // 계약상세번호
+    { fieldName: 'rcgvpKnm' }, // 고객명
+    { fieldName: 'sellTpNm' }, // 판매유형
+    { fieldName: 'sapMatCd' }, // SAP코드
+    { fieldName: 'basePdCd' }, // 품목코드
+    { fieldName: 'pdAbbrNm' }, // 상품명
+    { fieldName: 'pdGrpCd' }, // 상품그룹코드
+    { fieldName: 'wkDvNm' }, // 작업구분
+    { fieldName: 'ctpvNm' }, // 시도명
+    { fieldName: 'ctctyNm' }, // 시군구명
+    { fieldName: 'amtdNm' }, // 행정동명
+    { fieldName: 'ctpvCtctyNm' }, // 시도군구명
+    { fieldName: 'cnslMoCn' }, // 접수내역
+    { fieldName: 'newAdrZip' }, // 우편번호
+    { fieldName: 'adr' }, // 주소
+    { fieldName: 'alncDvNm' }, // 제휴
+    { fieldName: 'dtmChCausNm' }, // 변경원인
+    { fieldName: 'dtmChRsonNm' }, // 변경사유
+    { fieldName: 'dtmChRsonDtlCn' }, // 변경사유상세
+    { fieldName: 'tno' }, // 전화번호
+    { fieldName: 'mpno' }, // 휴대전화번호
+    { fieldName: 'wkPrgsDvNm' }, // 진행구분
+    { fieldName: 'vstCnfmDtm' }, // 방문확정일자
+    { fieldName: 'asnDtm' }, // 배정일자
+    { fieldName: 'rcst' }, // 접수자
+    { fieldName: 'bfchBlgCd' }, // 소속조직ID(이관전)
+    { fieldName: 'bfchBlgOgTpCd' }, // 소속조직유형코드(이관전)
+    { fieldName: 'bfchBlgNm' }, // 소속조직명(이관전)
+    { fieldName: 'bfchEmpno' }, // 사번(이관전)
+    { fieldName: 'bfchFnm' }, // 성명(이관전)
+    { fieldName: 'afchBlgCd' }, // 소속조직ID(이관후)
+    { fieldName: 'afchOgTpCd' }, // 소속조직유형코드(이관후)
+    { fieldName: 'afchEmpno' }, // 사번(이관후)
+    { fieldName: 'afchFnm' }, // 성명(이관후)
+    { fieldName: 'tfDt' }, // 이관일자
+    { fieldName: 'tfRsonNm' }, // 이관사유
+    { fieldName: 'tfBlgNm' }, // 소속(이관요청정보)
+    { fieldName: 'tfFnm' }, // 성명(이관요청정보)
   ];
 
   const columns = [

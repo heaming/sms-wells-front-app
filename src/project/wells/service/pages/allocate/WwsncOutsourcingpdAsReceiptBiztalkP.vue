@@ -114,6 +114,6 @@ async function onClicBiztalkSend() {
   await dataService.post('/sms/wells/service/outsourcedpd-as-receipts/biztalk', biztalkParams.value);
 
   ok();
-  notify(t('MSG_ALT_SEND_SUCCESS'));
+  notify(t('MSG_ALT_SEND_SUCCESS')); // 발송되었습니다.
 }
 </script>
