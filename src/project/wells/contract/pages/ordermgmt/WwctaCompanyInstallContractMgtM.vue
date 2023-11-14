@@ -581,6 +581,7 @@ const initGrid = defineGrid((data, view) => {
     { fieldName: 'pkgCntrPtrm', visible: false },
     { fieldName: 'pkgCntrSn', visible: false },
     { fieldName: 'packageFrisuPtrm', visible: false },
+    { fieldName: 'ogNm', visible: false },
   ];
   const fields = columns.map(({ fieldName, dataType }) => (dataType ? { fieldName, dataType } : { fieldName }));
 

@@ -477,14 +477,13 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { codeUtil, getComponentType, useDataService, useGlobal, useMeta, useModal } from 'kw-lib';
+import { codeUtil, getComponentType, useDataService, useGlobal, useModal } from 'kw-lib';
 import { cloneDeep, isEmpty } from 'lodash';
 
 const { notify } = useGlobal();
 const { ok, cancel: onClickCancel } = useModal();
 const { t } = useI18n();
 const dataService = useDataService();
-const sessionUserInfo = useMeta().getUserInfo();
 const frmMainRef = ref(getComponentType('KwForm'));
 
 const services = ref();
@@ -538,6 +537,8 @@ const props = defineProps({
   pkgPdCd: { type: String, default: '' },
   pkgCntrPtrm: { type: String, default: '' },
   packageFrisuPtrm: { type: String, default: '' },
+  ogCd: { type: String, default: '' },
+  ogNm: { type: String, default: '' },
 });
 
 const installDetail = ref({});
@@ -553,8 +554,6 @@ const isRelChg = ref(false);
 // 팝업 초기화
 async function initPage() {
   installDetail.value = cloneDeep(props);
-  installDetail.value.ogCd = sessionUserInfo.ogCd;
-  installDetail.value.ogNm = sessionUserInfo.ogCdNm;
   installDetail.value.cntrNoSn = `${installDetail.value.cntrNo}-${installDetail.value.cntrSn}`;
 
   // 모종 패키지 관련 설정
