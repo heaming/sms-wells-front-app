@@ -310,6 +310,7 @@ watch(() => searchParams.value.ostrWareDvCd, (val) => {
 function onChangeOstrDvCd() {
   searchParams.value.ostrHgrWareNo = '';
   searchParams.value.ostrWareNo = '';
+  searchParams.value.ostrWareDtlDvCd = '';
 }
 
 // 출고상위창고 변경 시
@@ -341,6 +342,7 @@ function onChangeOstrWareDtlDvCd() {
 function onChangeStrDvCd() {
   searchParams.value.strHgrWareNo = '';
   searchParams.value.strWareNo = '';
+  searchParams.value.strWareDtlDvCd = '';
 }
 
 // 입고상위창고 변경 시
