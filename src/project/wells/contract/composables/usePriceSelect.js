@@ -108,9 +108,9 @@ export default (
       if (typeof filterValue !== 'object') {
         return {
           value: filterValue, // EMPTY_ID를 넣으면, falsy 한 값으로 강제합니다. 진짜 falsy 한 값을 하면 해당 필터를 무시합니다.
-          fallback: undefined, // 해당 값으로 선택 가능한 가격이 없으면, 대신 적용할 제한 옵션입니다. 역시나 없으면 falsy 하면 무시합니다.
+          setup: filterValue === EMPTY_ID || !!filterValue, // 필터링하는 값으로 가격 옵션을 세팅할 지 여부
+          fallback: undefined, // 해당 값으로 선택 가능한 가격이 없으면, 대신 적용할 제한 옵션입니다. 역시나 없으면 falsy 하면 무시합니다. 거진 안 쓰는듯..?
           ignoreIfNotExist: false, // 선택 가능한 가격이 없으면, 해당 필터를 무시할지 여부입니다.
-          // whiteList: undefined,
           // blackList: undefined,
         };
       }
@@ -193,8 +193,6 @@ export default (
    * 가지는 객체의 계산값
    *
    * EMPTY_SYM -> EMPTY_ID 로 치환된다.
-   *
-   * @type {ComputedRef<*>}
    */
   const priceDefineVariableOptions = computed(() => variableNames.value
     .reduce((varNameToOptionsMap, variableName) => {
@@ -244,6 +242,7 @@ export default (
 
   const setIfUniqueSelectable = (variableName) => {
     const selectable = getSelectable(variableName);
+    // console.log('selectable', selectable, variableName, priceDefineVariableOptions.value);
     const selectedValue = priceDefineVariables.value[variableName];
     if (!selectable.includes(selectedValue)) {
       if (selectable.length === 1 && selectedValue === undefined) {
@@ -313,6 +312,13 @@ export default (
             if (!filterVar) { return false; }
             return optionsVar !== filterVar;
           }));
+
+      filteredVariableNames.forEach((filteredVarName) => {
+        const { value, setup } = normalizedOptionFilter.value[filteredVarName];
+        if (setup && value) {
+          priceDefineVariables.value[filteredVarName] = value;
+        }
+      });
     }
 
     filteredFinalPriceOptions.value = filtered;
@@ -320,21 +326,20 @@ export default (
     if (!filteredFinalPriceOptions.value.length) {
       alert('필터에 해당하는 가격 조건이 없습니다.');
     }
-
-    setVariablesIfUniqueSelectable();
   };
 
   filteringFinalPriceOptions();
 
   const onChangePriceOptionFilter = (value, oldValue) => {
-    filteringFinalPriceOptions();
-
     const oldFilteredVariableNames = Object.getOwnPropertyNames(oldValue ?? {}); // 제한이 해제됨.
-    const filteredVariableNames = Object.getOwnPropertyNames(value ?? {}); // 새로 제한이 걸림
-
     oldFilteredVariableNames.forEach((variableName) => {
       priceDefineVariables.value[variableName] = undefined;
     });
+
+    filteringFinalPriceOptions();
+
+    const filteredVariableNames = Object.getOwnPropertyNames(value ?? {}); // 새로 제한이 걸림
+
     filteredVariableNames.forEach(setIfUniqueSelectable);
   };
 

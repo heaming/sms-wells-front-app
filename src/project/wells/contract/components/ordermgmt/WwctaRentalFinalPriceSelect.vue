@@ -214,7 +214,8 @@
                   <template #append>
                     <kw-btn
                       v-if="notNullRentalDscTpCdSelected
-                        && RENTAL_DSC_TP_CD_USER_SELECTABLE.includes(priceDefineVariables.rentalDscTpCd)"
+                        && RENTAL_DSC_TP_CD_USER_SELECTABLE.includes(priceDefineVariables.rentalDscTpCd)
+                        && !cntrRels.length"
                       borderless
                       icon="clear"
                       @click="onClickRemoveRentalDscTpCd"
@@ -494,6 +495,7 @@ const dtl = ref(props.modelValue);
 
 /* 직간접적으로 업데이트 할 값들 */
 let pdPrcFnlDtlId;
+// eslint-disable-next-line no-unused-vars
 let verSn;
 let fnlAmt;
 let pdQty;
@@ -506,7 +508,6 @@ let promotions;
 let alncCntrNms;
 let finalPriceOptions;
 let priceOptionFilter;
-let packageRentalDscTpCds;
 let wellsDtl;
 
 function connectReactivities() {
@@ -523,13 +524,14 @@ function connectReactivities() {
   alncCntrNms = toRef(props.modelValue, 'alncCntrNms');
   finalPriceOptions = toRef(props.modelValue, 'finalPriceOptions', []);
   priceOptionFilter = toRef(props.modelValue, 'priceOptionFilter', {});
-  packageRentalDscTpCds = toRef(props.modelValue, 'packageRentalDscTpCds', {});
   wellsDtl = toRef(props.modelValue, 'wellsDtl');
   wellsDtl.value ??= {};
-  console.log('verSn', verSn.value);
 }
 
-const multiplePossible = computed(() => (bcMngtPdYn.value === 'Y' && !props.modify));
+const multiplePossible = computed(() => (bcMngtPdYn.value === 'Y'
+    && !cntrRels.value?.length
+    && !ojCntrRels.value?.length
+    && !props.modify));
 
 connectReactivities();
 
@@ -643,7 +645,7 @@ const labelForSellTpCd = computed(() => {
 const alncCntrs = ref([]);
 const filteredAlncCntrPriceCodes = computed(() => alncCntrs.value
   .filter((alncCntr) => alncCntr.svPdCd === priceDefineVariables.value.svPdCd
-    && alncCntr.stplPrdCd === priceDefineVariables.value.stplPrdCd)
+        && alncCntr.stplPrdCd === priceDefineVariables.value.stplPrdCd)
   .map((v) => ({
     codeId: `${v.klyear}-${v.klcode}-${v.klpont}-${v.alncmpCd}`,
     codeName: `${v.klyear}-${v.klcode} ${v.alncmpNm} ${getNumberWithComma(v.klpont || 0)}원`,
@@ -679,7 +681,7 @@ async function fetchAllianceContracts() {
 
 // region [패키지 다건 할인 유형 적용]
 const notNullRentalDscTpCdSelected = computed(() => priceDefineVariables.value.rentalDscTpCd === EMPTY_ID
-  || !!priceDefineVariables.value.rentalDscTpCd);
+    || !!priceDefineVariables.value.rentalDscTpCd);
 
 const rentalCrpDscrCdSelectable = computed(() => priceDefineVariables.value.rentalDscDvCd === '5');
 
@@ -759,15 +761,15 @@ const disablePackage = computed(() => {
     .map((code) => code.codeId)
     .some((codeId) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(codeId));
   return machineChanged
-    || priceIsNotSelectable
-    || (priceDefineVariables.value.rentalDscTpCd !== EMPTY_ID
-      && !!priceDefineVariables.value.rentalDscTpCd)
-    // eslint-disable-next-line no-use-before-define
-    || !selectedFinalPrice.value
-    || cntrRels.value?.some((cntrRel) => [
-      CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE,
-      CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
-    ].includes(cntrRel.cntrRelDtlCd));
+      || priceIsNotSelectable
+      || (priceDefineVariables.value.rentalDscTpCd !== EMPTY_ID
+          && !!priceDefineVariables.value.rentalDscTpCd)
+      // eslint-disable-next-line no-use-before-define
+      // || !selectedFinalPrice.value
+      || cntrRels.value?.some((cntrRel) => [
+        CNTR_REL_DTL_CD.LK_ONE_PLUS_ONE,
+        CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
+      ].includes(cntrRel.cntrRelDtlCd));
 });
 
 const lkSdingCntrRel = computed(() => (
@@ -832,14 +834,11 @@ function initPriceDefineVariables() {
 function clearPromotions() {
   promotions.value = [];
   appliedPromotions.value = [];
-  promotionAppliedPrice.value = undefined;
 }
 
-function getPackageRentalDscTpCds() {
-  packageRentalDscTpCds.value = (priceDefineVariableOptions.value.rentalDscTpCd || [])
-    .map((code) => code.codeId)
-    .filter((codeId) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(codeId));
-}
+const packageRentalDscTpCds = computed(() => (priceDefineVariableOptions.value.rentalDscTpCd || [])
+  .map((code) => code.codeId)
+  .filter((codeId) => RENTAL_DSC_TP_CD_PACKAGE_CODES.includes(codeId)));
 
 async function onChangeModelValue(newDtl) {
   if (dtl.value !== newDtl) {
@@ -871,8 +870,6 @@ function onChangeSelectedFinalPrice(newPrice) {
 
   clearPromotions();
   emit('price-changed', newPrice);
-
-  getPackageRentalDscTpCds();
 }
 
 watch(selectedFinalPrice, onChangeSelectedFinalPrice);

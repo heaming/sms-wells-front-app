@@ -11,6 +11,7 @@
 ****************************************************************************************************
 - props 로 계약 고객 번호와 모종기기 종류 코드를 받아서 계약자가 모종기기 결합 관계가 형성되지 않은 모종기기 계약 상세
 목록을 조회하고, 단건을 선택하여 반환할 수 있다.
+- deprecated: 상품선택시 먼저 기기 선택하도록 수정 됨.
 ****************************************************************************************************
 --->
 <template>
@@ -44,15 +45,18 @@
 
 import { alert, useDataService, useModal } from 'kw-lib';
 import dayjs from 'dayjs';
+import { useCtCode } from '~sms-common/contract/composable';
 
 const props = defineProps({
-  cntrCstNo: { type: String, required: true },
-  rglrSppMchnTpCd: { type: String, required: true },
+  cntrNo: { type: String, default: undefined },
+  cntrCstNo: { type: String, default: undefined },
+  rglrSppMchnTpCd: { type: String, default: undefined },
 });
 
 const { ok, cancel } = useModal();
 const dataService = useDataService();
 const { t } = useI18n();
+const { getCodeName } = await useCtCode('RGLR_SPP_MCHN_TP_CD');
 
 const machinery = ref([]);
 const machineOptions = computed(() => {
@@ -64,7 +68,7 @@ const machineOptions = computed(() => {
     } / ${
       machine.cntrNo}-${machine.cntrSn
     } / ${t('설치일')}:${dayjs(machine.istDt)
-      .format('YYYY-MM-DD')} / ${machine.posQty}`,
+      .format('YYYY-MM-DD')} / ${getCodeName('RGLR_SPP_MCHN_TP_CD', machine.rglrSppMchnTpCd)}`,
   }));
 });
 const selected = ref(undefined);
@@ -73,7 +77,7 @@ const selected = ref(undefined);
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 async function validateProps() {
-  if (!props.cntrCstNo) {
+  if (!props.cntrNo && !props.cntrCstNo) {
     await alert('기존 계약을 조회하기 위해 고객 정보가 필요합니다.');
     cancel();
   }
@@ -83,6 +87,7 @@ await validateProps();
 
 async function fetchMachines() {
   const params = {
+    cntrNo: props.cntrNo,
     cntrCstNo: props.cntrCstNo,
     rglrSppMchnTpCd: props.rglrSppMchnTpCd,
   };
