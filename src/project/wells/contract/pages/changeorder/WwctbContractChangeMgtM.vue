@@ -513,8 +513,8 @@ async function onClickCntrTpChange(item) {
 
   // 설치예정일자 존재여부 확인
   if (!isEmpty(vstSchDt)) {
-    alert(t('MSG_ALT_ALRDY_HAVE_IST_EXP_DT'));
-    return;
+    // alert(t('MSG_ALT_ALRDY_HAVE_IST_EXP_DT'));
+    // return;
   }
 
   // 렌탈 주문 수정_상품변경 Variation (PC화면) W-SS-U-0114M02 호출
