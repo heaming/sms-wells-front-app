@@ -485,6 +485,7 @@ import { CNTR_TP_CD, COPN_DV_CD } from '~sms-wells/contract/constants/ctConst';
 
 const props = defineProps({
   contract: { type: Object, default: undefined },
+  cntrCstNo: { type: String, default: undefined },
 });
 const emit = defineEmits([
   'activated',
@@ -499,6 +500,7 @@ const userInfo = getters['meta/getUserInfo'];
 const currentPartner = {
   prtnrNo: userInfo.employeeIDNumber,
   ogTpCd: userInfo.ogTpCd,
+  baseRleCd: userInfo.baseRleCd,
   pstnDvCd: userInfo.careerLevelCode,
   prtnrKnm: userInfo.userName,
 };
@@ -561,10 +563,14 @@ const searchParams = ref({
 
 async function setupAvailableCntrTpCd() {
   await addCode('CNTR_TP_CD', (code) => {
-    if (currentPartner.ogTpCd === 'HR1') {
+    const isCustomerCenterService = currentPartner.baseRleCd === 'W8010';
+    const isBusinessDepartment = currentPartner.ogTpCd === 'HR1';
+    const isBranchManager = currentPartner.pstnDvCd === '7';
+
+    if (isBusinessDepartment && !isCustomerCenterService) {
       return code.codeId === CNTR_TP_CD.EMPLOYEE && code;
     }
-    if (currentPartner.pstnDvCd === '7') {
+    if (isBranchManager) {
       return [
         CNTR_TP_CD.INDIVIDUAL,
         CNTR_TP_CD.COOPERATION,
@@ -1126,8 +1132,10 @@ async function getCounts() {
   if (await isPartnerStpa()) {
     await alert('휴업중인 파트너로 계약이 불가합니다');
   } else {
-    const res = await dataService.get('/sms/wells/contract/re-stipulation/customers/counts', { params: { copnDvCd: '1' } });
-    const res2 = await dataService.get('/sms/wells/contract/membership/customers/counts', { params: { copnDvCd: '1' } });
+    const [res, res2] = await Promise.all([
+      dataService.get('/sms/wells/contract/re-stipulation/customers/counts', { params: { copnDvCd: '1', cntrCstNo: props.cntrCstNo } }),
+      dataService.get('/sms/wells/contract/membership/customers/counts', { params: { copnDvCd: '1', cntrCstNo: props.cntrCstNo } }),
+    ]);
     dashboardCounts.value.restipulationCnt = res.data;
     dashboardCounts.value.membershipCnt = res2.data;
   }
