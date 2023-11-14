@@ -295,6 +295,8 @@ async function onChangeDocDvCd() {
     pageInfo.value.totalCount2 = 0;
 
     grdContracts.value.getData().clearRows();
+    if (grdContracts.value?.getView()) gridUtil.reset(grdContracts.value.getView());
+
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
     pageInfoContracts.value.pageIndex = 1;
@@ -306,7 +308,6 @@ async function onChangeDocDvCd() {
 }
 
 async function onChangeCntrDvCd() {
-  // console.log(`cntrDvCd : ${searchParams.value.cntrDvCd}`);
   if (searchParams.value.cntrDvCd === '1') { // 계약번호
     isGrdContractsVisible.value = false;
     isSearchDivVisible.value = false;
@@ -343,16 +344,14 @@ async function fetchCtnrLstData(bOnly) {
   searchParams.value.cntrCstNo = props.cntrCstNo;
 
   cachedParams = cloneDeep(searchParams.value);
-  console.log(cachedParams);
-  console.log(pageInfoContracts.value);
+  // console.log(cachedParams);
+  // console.log(pageInfoContracts.value);
 
   res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/contracts', { params: { ...cachedParams, ...pageInfoContracts.value } });
   if (res.data.length === 0) {
     await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     return;
   }
-
-  console.log(res.data);
 
   const { list: pages, pageInfo: pagingResult } = res.data;
   pageInfoContracts.value = pagingResult;
@@ -364,7 +363,7 @@ async function fetchCtnrLstData(bOnly) {
   dataSource.addRows(pages);
   dataSource.checkRowStates(true);
 
-  console.log(pageInfo.value.totalCount);
+  // console.log(pageInfo.value.totalCount);
   pageInfo.value.totalCount1 = pageInfoContracts.value.totalCount;
   view.resetCurrent();
 
@@ -396,8 +395,8 @@ async function fetchTrdSpcData() {
   cachedParams.cntrCnfmStrtDt = '';
   cachedParams.cntrCnfmEndDt = '';
 
-  console.log(cachedParams);
-  console.log(pageInfo.value);
+  // console.log(cachedParams);
+  // console.log(pageInfo.value);
 
   if (searchParams.value.docDvCd === '1') { // 입금내역서
     res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/deposit-itemizations', { params: { ...cachedParams, ...pageInfo.value } });
@@ -409,7 +408,6 @@ async function fetchTrdSpcData() {
     res = await dataService.get('/sms/wells/contract/contracts/order-details/specification/contract-articles', { params: { ...cachedParams, ...pageInfo.value } });
   }
 
-  console.log(res.data);
   if (res.data.length === 0) {
     await notify(t('MSG_ALT_NO_DATA')); // 데이터가 존재하지 않습니다.
     return;
@@ -420,6 +418,7 @@ async function fetchTrdSpcData() {
   ozParamsList.value = pages;
   pageInfo.value = pagingResult;
   const dataSource = view.getDataSource();
+
   // Row 변경상태감지를 풀고 데이터 교체후, 다시 변경감지 On
   dataSource.checkRowStates(false);
   dataSource.addRows(pages);
@@ -456,6 +455,8 @@ async function onClickSearch() {
   } else if (searchParams.value.cntrDvCd === '2') {
     grdRef.value.getData().clearRows();
     grdContracts.value.getData().clearRows();
+    if (grdContracts.value?.getView()) gridUtil.reset(grdContracts.value.getView());
+
     pageInfo.value.pageIndex = 1;
     pageInfo.value.totalCount = 0;
     pageInfoContracts.value.pageIndex = 1;
@@ -594,8 +595,8 @@ async function onClickPblPrnt() {
     cachedParams = cloneDeep(searchParams.value);
     cachedParams.pblcSearchSttDt = pblcSearchSttDt; // 발행년월시(현재일자)
     cachedParams.custNm = custNm; // 고객명
-    console.log(cachedParams);
-    console.log(cntrDtlNoList);
+    // console.log(cachedParams);
+    // console.log(cntrDtlNoList);
 
     switch (searchParams.value.docDvCd) { // 증빙서류종류
       case '1': // 입금내역서
@@ -720,7 +721,6 @@ const initGrdContracts = defineGrid((data, view) => {
     if (pageInfoContracts.value.pageIndex * pageInfoContracts.value.pageSize <= g.getItemCount()) {
       pageInfoContracts.value.pageIndex += 1;
       isOnly = true;
-      console.log(`isOnly : ${isOnly}`);
       await fetchCtnrLstData(isOnly);
     }
   };
