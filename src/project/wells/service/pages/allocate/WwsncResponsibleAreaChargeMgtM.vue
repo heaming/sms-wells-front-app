@@ -361,6 +361,21 @@ function validateGridApplyDate() {
 
 // 그리드 담당사번 입력 시 담당자 정보 셋팅
 function setPersonInChargeCellData(view, row, value, column) {
+  // eslint-disable-next-line max-len
+  const { ichrPrtnrNo, pprnIchrPrtnrNo1, pprnIchrPrtnrNo2, pprnIchrPrtnrNo3, pprnIchrPrtnrNo4, pprnIchrPrtnrNo5 } = view.getValues(row);
+
+  // eslint-disable-next-line max-len
+  const dupVals = [ichrPrtnrNo, pprnIchrPrtnrNo1, pprnIchrPrtnrNo2, pprnIchrPrtnrNo3, pprnIchrPrtnrNo4, pprnIchrPrtnrNo5].filter((v) => v === value);
+
+  if (dupVals.length > 1) {
+    view.setValue(row, `${column[0]}`, '');
+    view.setValue(row, `${column[1]}`, '');
+    view.setValue(row, `${column[2]}`, '');
+    view.setValue(row, `${column[3]}`, '');
+    notify(t('MSG_ALT_SMD_PSIC_DSN'));
+    return;
+  }
+
   const matchedEngineer = engineers.find((v) => v.prtnrNo === value);
   if (matchedEngineer) {
     const { ogTpCd, prtnrNm, ogNm } = matchedEngineer;
@@ -575,24 +590,27 @@ const initGrdMain = defineGrid((data, view) => {
   view.rowIndicator.visible = true;
   view.editOptions.columnEditableFirst = true;
 
-  view.onGetEditValue = async (grid, index, editResult) => {
-    grid.checkItem(index.itemIndex, true);
+  view.onCellEdited = async (grid, itemIndex, row, fieldIndex) => {
+    view.commit();
+    grid.checkItem(itemIndex, true);
+    const changedFieldName = grid.getDataSource().getOrgFieldName(fieldIndex);
+    const changedValue = grid.getValue(itemIndex, changedFieldName);
 
-    if (index.column === 'apyStrtdt') {
-      if (!validateToday(editResult.value)) return;
+    if (changedFieldName === 'apyStrtdt') {
+      if (!validateToday(changedValue)) return;
     }
 
-    if (index.column.includes('PrtnrNo')) {
+    if (changedFieldName.includes('PrtnrNo')) {
       const regExp = /ichrPrtnrNo/gi;
-      const matchedIndex = index.column.search(regExp);
+      const matchedIndex = changedFieldName.search(regExp);
 
       if (matchedIndex === 0) { // 책임담당사번
-        setPersonInChargeCellData(grid, index.itemIndex, editResult.value, ['ogTpCd', 'ogNm', 'ichrPrtnrNo', 'prtnrKnm']);
+        setPersonInChargeCellData(grid, itemIndex, changedValue, ['ogTpCd', 'ogNm', 'ichrPrtnrNo', 'prtnrKnm']);
       } else if (matchedIndex > 0) { // 예비담당사번
-        const columnSlices = index.column.split(regExp);
+        const columnSlices = changedFieldName.split(regExp);
         const column = ['pprnIchrPrtnrOgTpCd', `ogNm${columnSlices[1]}`, `pprnIchrPrtnrNo4${columnSlices[1]}`, `pprnIchrPrtnrKnm${columnSlices[1]}`];
 
-        setPersonInChargeCellData(grid, index.itemIndex, editResult.value, column);
+        setPersonInChargeCellData(grid, itemIndex, changedValue, column);
       }
     }
   };
