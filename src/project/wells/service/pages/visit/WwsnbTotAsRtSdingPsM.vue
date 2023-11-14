@@ -54,8 +54,11 @@
         <kw-search-item :label="$t('MSG_TXT_PKG')">
           <kw-select
             v-model="searchParams.sdingPkgGrpCd"
-            :options="sdingPkgGrpList"
+            :options="sdingPackageList"
+            option-value="pkgCode"
+            option-label="pkgCodeName"
             first-option="all"
+            @change="onChangeSdingPkgGrpCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -64,6 +67,9 @@
         <kw-search-item :label="$t('MSG_TXT_SDING')">
           <kw-select
             v-model="searchParams.sdingCausNm"
+            :options="sdingDtlList"
+            option-value="code"
+            option-label="codeName"
             first-option="all"
           />
         </kw-search-item>
@@ -108,7 +114,7 @@
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
 import { codeUtil, useDataService, gridUtil } from 'kw-lib';
-// import { cloneDeep } from 'lodash-es';
+import { cloneDeep } from 'lodash-es';
 import dayjs from 'dayjs';
 import { printElement } from '~common/utils/common';
 
@@ -119,20 +125,23 @@ const dataService = useDataService();
 
 const codes = await codeUtil.getMultiCodes(
   'BAD_DV_CD', // 불량구분
+  'AS_CAUS_CD',
 );
+console.log('codes.AS_CAUS_CD >>>', codes.AS_CAUS_CD);
 
 // 패키지 리스트 setting
-const sdingPkgGrpList = [
-  { codeId: 'S1', codeName: t('선택모종') },
-  { codeId: 'B1', codeName: t('BASIC W, S') },
-  { codeId: 'H1', codeName: t('HEALTH W, S') },
-  { codeId: 'P1', codeName: t('PREMIUM W, S') },
-  { codeId: 'S2', codeName: t('SPECIAL W') },
-  { codeId: 'M1', codeName: t('미소채 W, S') },
-  { codeId: 'I1', codeName: t('아이쑥쑥 W, S') },
-  { codeId: 'W1', codeName: t('활력채 W, S') },
-  { codeId: 'H2', codeName: t('항암쌈채 W, S') },
-];
+// TODO 모종 패키지 기존
+// const sdingPkgGrpList = [
+//   { codeId: 'S1', codeName: t('MSG_TXT_CHO_SDING') }, // 선택모종
+//   { codeId: 'B1', codeName: t('BASIC W, S') },
+//   { codeId: 'H1', codeName: t('HEALTH W, S') },
+//   { codeId: 'P1', codeName: t('PREMIUM W, S') },
+//   { codeId: 'S2', codeName: t('SPECIAL W') },
+//   { codeId: 'M1', codeName: t('미소채 W, S') },
+//   { codeId: 'I1', codeName: t('아이쑥쑥 W, S') },
+//   { codeId: 'W1', codeName: t('활력채 W, S') },
+//   { codeId: 'H2', codeName: t('항암쌈채 W, S') },
+// ];
 
 // 모종 리스트
 // const pdCdList = ref([]);
@@ -198,17 +207,25 @@ const sdingPkgGrpList = [
 // await getPdCdList();
 // console.log('pdCdList.value ????', pdCdList.value);
 
+// 모종 패키지
+const sdingPackageList = ref((await dataService.get('/sms/wells/service/tot-as-rt-sding-ps/sdingPackage')).data);
+console.log('sdingPackageList.value >>>', sdingPackageList.value);
+// 모종
+const sdingDtlList = ref([]);
+
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
 const grdRef = ref();
 
+let cachedParams;
 const searchParams = ref({
   baseY: dayjs().format('YYYY'), // 기준년도
   svType: '', // 서비스유형
   badDivide: '', // 불량구분
   sdingPkgGrpCd: '', // 모종패키지
   sdingCausNm: '', // 모종
+  sdingPkgCd: '', // 모종..이상한 코드..ex)917L 등등
 });
 
 // 서비스 유형
@@ -224,7 +241,7 @@ const badDvCdList = codes.BAD_DV_CD.filter((v) => badCdValue.includes(v.codeId))
 const totalCount = ref(0);
 
 async function fetchData() {
-  const res = await dataService.get('/sms/wells/service/tot-as-rt-sding-ps/search', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/tot-as-rt-sding-ps/search', { params: cachedParams });
   totalCount.value = res.data.length;
 
   const view = grdRef.value.getView();
@@ -234,6 +251,10 @@ async function fetchData() {
 
 async function onClickSearch() {
   console.log('onClickSearch START =================');
+  const sdingCode = sdingDtlList.value.filter((v) => v.code === searchParams.value.sdingCausNm)[0].codeName;
+  searchParams.value.sdingPkgCd = codes.AS_CAUS_CD.filter((v) => v.codeName === sdingCode)[0].codeId;
+  console.log('onClickSearch searchParams.value =================', searchParams.value);
+  cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
 
@@ -250,6 +271,18 @@ async function onClickExcelDownload() {
     timePostfix: true,
   });
 }
+
+// 모종 조회
+async function onChangeSdingPkgGrpCd() {
+  searchParams.value.sdingCausNm = '';
+  sdingDtlList.value = [];
+  sdingDtlList.value = (await dataService.get('/sms/wells/service/tot-as-rt-sding-ps/sdingDtlInfo', { params: { pkgCode: searchParams.value.sdingPkgGrpCd } })).data;
+  console.log('sdingDtlList.value >>', sdingDtlList.value);
+}
+
+onMounted(async () => {
+  await onChangeSdingPkgGrpCd();
+});
 
 // -------------------------------------------------------------------------------------------------
 // Initialize Grid
