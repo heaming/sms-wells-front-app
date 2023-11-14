@@ -110,6 +110,7 @@ import {
   SELL_TP_DTL_CD,
 } from '~sms-wells/contract/constants/ctConst';
 import dayjs from 'dayjs';
+import { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -544,7 +545,7 @@ async function onPackaging(dtl, rentalDscTpCd) {
     if (cntrDtl !== discountedCntrDtl) {
       cntrDtl.priceOptionFilter = {
         rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
-        rentalDscTpCd: undefined,
+        rentalDscTpCd: EMPTY_ID,
       };
       const cntrRel = {
         cntrRelId: undefined,
