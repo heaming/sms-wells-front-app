@@ -210,6 +210,7 @@ async function fetchData() {
     const res = await dataService.get('/sms/wells/service/bs-regular-shipping/paging', { params: { ...cachedParams, ...pageInfo.value } });
     const { list: items, pageInfo: pagingResult } = res.data;
     pageInfo.value = pagingResult;
+    totalCount.value = pageInfo.value.totalCount;
     list = items;
   }
   // 작업 대기값 조회시 paging 하지않음.
