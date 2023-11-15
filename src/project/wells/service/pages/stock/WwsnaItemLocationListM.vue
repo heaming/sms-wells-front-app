@@ -17,6 +17,7 @@
   <kw-page>
     <kw-search
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 관리창고 -->
@@ -398,6 +399,13 @@ async function onCheckedStckNoStdGb() {
 // 창고변경 이벤트
 async function onChangeWareNo() {
   await stckStdGbFetchData();
+}
+
+// 초기화 버튼 클릭
+function onClickReset() {
+  if (!isEmpty(loginWare.value)) {
+    searchParams.value.wareNo = loginWare.value[0].hgrWareNo;
+  }
 }
 
 onMounted(async () => {

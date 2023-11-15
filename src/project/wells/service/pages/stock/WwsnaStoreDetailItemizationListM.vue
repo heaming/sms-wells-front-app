@@ -218,8 +218,8 @@ const { t } = useI18n();
 // -------------------------------------------------------------------------------------------------
 
 const searchParams = ref({
-  stStrDt: '',
-  edStrDt: '',
+  stStrDt: dayjs().set('date', 1).format('YYYYMMDD'),
+  edStrDt: dayjs().format('YYYYMMDD'),
   strTpCd: '',
   strWareDvCd: '2',
   strWareNoD: '',
@@ -266,9 +266,6 @@ const strWareDvCd = { WARE_DV_CD: [
   { codeId: '2', codeName: t('MSG_TXT_SV_CNR') },
   { codeId: '3', codeName: t('MSG_TXT_BSNS_CNTR') },
 ] };
-
-searchParams.value.stStrDt = dayjs().set('date', 1).format('YYYYMMDD');
-searchParams.value.edStrDt = dayjs().format('YYYYMMDD');
 
 // 등급 필터링
 codes.PD_GD_CD = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
@@ -420,6 +417,8 @@ async function onClickExcelDownload() {
 }
 
 async function onClickSearch() {
+  pageInfo.value.needTotalCount = true;
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
