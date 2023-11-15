@@ -192,13 +192,11 @@ const aplcCloseData = ref({
 });
 
 const isDisableSave = computed(() => {
-  if (!isBusinessSupportTeam.value) { return true; }
-
   const nowDateTime = Number(dayjs().format('YYYYMMDDHHmm'));
-  const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh.substring(0, 4));
-  const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh.substring(0, 4));
+  const strtDtHh = `${aplcCloseData.value.bizStrtdt}${aplcCloseData.value.bizStrtHh ?? ''}`;
+  const endDtHh = `${aplcCloseData.value.bizEnddt}${aplcCloseData.value.bizEndHh ?? ''}`;
 
-  if (!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) {
+  if (!isBusinessSupportTeam.value && !(nowDateTime >= Number(strtDtHh) && nowDateTime <= Number(endDtHh))) {
     return true;
   }
 
@@ -486,7 +484,6 @@ async function fetchData() {
   }
 
   view.getDataSource().setRows(res.data);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
 
 function validateRegPeriod() {
