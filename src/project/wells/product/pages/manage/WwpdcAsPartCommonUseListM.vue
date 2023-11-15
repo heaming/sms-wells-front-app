@@ -382,6 +382,7 @@ async function onClickProduct() {
   if (result) searchParams.value.pdCd = payload.pdCd || payload.checkedRows[0]?.pdCd;
 }
 
+// AS부품 관련 제품 목록 조회
 async function fetchProductDataByPart(partPdCd, partPdNm) {
   paramDetailKey.value = partPdCd;
   const res = await dataService.get(`/sms/wells/product/as-common-uses/product/${partPdCd}`);
@@ -395,6 +396,7 @@ async function fetchProductDataByPart(partPdCd, partPdNm) {
   view.__searchConditionText__ = `[${t('MSG_TXT_SEARCH_COND')}]\n${t('MSG_TXT_PART_CD')} : ${partPdCd}\n${t('MSG_TXT_PART_NM')} : ${partPdNm}\n`;
 }
 
+// AS부품 목록 조회
 async function fetchAsPartData() {
   const res = await dataService.get('/sms/wells/product/as-common-uses/parts', { params: cachedParams });
   const result = res.data;
@@ -410,6 +412,7 @@ async function fetchAsPartData() {
   }
 }
 
+// 제품 관련 AS부품 목록 조회
 async function fetchAsPartDataByProduct(pdCd, pdNm) {
   paramDetailKey.value = pdCd;
   const res = await dataService.get(`/sms/wells/product/as-common-uses/part/${pdCd}`);
@@ -423,6 +426,7 @@ async function fetchAsPartDataByProduct(pdCd, pdNm) {
   view.__searchConditionText__ = `[${t('MSG_TXT_SEARCH_COND')}]\n${t('MSG_TXT_PROD_CD')} : ${pdCd}\n${t('MSG_TXT_GOODS_NM')} : ${pdNm}\n`;
 }
 
+// 제품 목록 조회
 async function fetchProductData() {
   const res = await dataService.get('/sms/wells/product/as-common-uses/products', { params: cachedParams });
   const result = res.data;
@@ -438,6 +442,7 @@ async function fetchProductData() {
   }
 }
 
+// 조회 버튼 이벤트
 async function onClickSearch() {
   cachedParams = cloneDeep(searchParams.value);
   grdMainRef.value.getView().getDataSource().clearRows();
@@ -449,6 +454,7 @@ async function onClickSearch() {
   }
 }
 
+// AS부품 목록 엑셀 다운로드
 async function onClickExcelDownloadForAsParts() {
   const view = grdMainRef.value.getView();
   const res = ref({});
@@ -465,6 +471,7 @@ async function onClickExcelDownloadForAsParts() {
   });
 }
 
+// 제품 목록 엑셀 다운로드
 async function onClickExcelDownloadForProducts() {
   const view = grdDetailRef.value.getView();
   const res = ref({});
@@ -481,6 +488,7 @@ async function onClickExcelDownloadForProducts() {
   });
 }
 
+// 자재코드(시작) Validation
 const sapItemCdFromValidation = async (val) => {
   const errors = [];
   if (!(isEmpty(val) || val.length === 11)) {
@@ -492,6 +500,7 @@ const sapItemCdFromValidation = async (val) => {
   return errors[0] || true;
 };
 
+// 자재코드(종료) Validation
 const sapItemCdToValidation = async (val) => {
   const errors = [];
   if (!(isEmpty(val) || val.length === 11)) {
@@ -526,6 +535,7 @@ function setPrdtCate(type) {
   }
 }
 
+// 그리드 초기화
 function initGridData() {
   grdMainRef.value.getView().getDataSource().clearRows();
   grdDetailRef.value.getView().getDataSource().clearRows();
@@ -533,6 +543,7 @@ function initGridData() {
   totalCount.value.products = 0;
 }
 
+// Html 예외문자 대체
 function replaceHtmlExceptChar(oldChar) {
   return String(oldChar)?.replaceAll('<', '&lt;').replace('>', '&gt;');
 }
