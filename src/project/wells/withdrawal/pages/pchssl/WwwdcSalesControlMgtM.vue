@@ -302,6 +302,7 @@ const pageInfo = ref({
 });
 
 let cachedParams;
+let cachedParams2;
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -394,7 +395,7 @@ async function onClickRemove() {
   const view = grdMainRef.value.getView();
 
   if (!gridUtil.getCheckedRowValues(view).length > 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // 데이터를 선택해주세요.
     return;
   }
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -423,9 +424,9 @@ async function onClickExcelDownload() {
 // 엑셀업로드
 async function onClickExcelUpload() {
   const apiUrl = `${apiUri}/${searchParams.value.exmpYn}/excel-upload`;
-  // const templateId = 'FOM_WDC_0001';
   const templateId = 'FOM_WDC_0001';
 
+  // const templateId = 'FOM_WDC_0001';
   // if (searchParams.value.exmpYn === 'N') {
   //   templateId = 'FOM_WDC_0001';
   // } else {
@@ -440,7 +441,7 @@ async function onClickExcelUpload() {
   });
 
   if (payload.status === 'S') {
-    notify(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
     await fetchData();
   }
 
@@ -485,7 +486,7 @@ async function onClickSave() {
 
   if (!await gridUtil.validate(view)) { return false; }
   await dataService.post(`${apiUri}/save`, changedRows);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
   await fetchData();
 }
 
@@ -519,6 +520,7 @@ const initGrid1 = defineGrid((data, view) => {
 
     { fieldName: 'canAfOjYn' }, /* 취소후적용 */
     { fieldName: 'slCtrAmt', dataType: 'number' }, /* 조정금액 */
+    { fieldName: 'dummySlCtrAmt', dataType: 'number' }, /* 조정금액 */
     { fieldName: 'slCtrWoExmpAmt', dataType: 'number' }, /* 전액면제금액 */
     { fieldName: 'slCtrPtrmExmpAmt', dataType: 'number' }, /* 조회기간면제금액 */
     { fieldName: 'slCtrRmkCn' }, /* 조정사유 */
@@ -578,7 +580,6 @@ const initGrid1 = defineGrid((data, view) => {
       header: {
         text: t('MSG_TXT_MTR_DV'), // 자료구분
         styleName: 'essential',
-        // 자료구분
       },
       width: '100',
       rules: 'required',
@@ -819,6 +820,17 @@ const initGrid1 = defineGrid((data, view) => {
       styleName: 'text-right',
       numberFormat: '#,##0',
       editable: true,
+      styleCallback: (grid, dataCell) => {
+        const ret = {};
+        const { slCtrTpCd, dummySlCtrAmt } = grid.getValues(dataCell.index.itemIndex);
+        if (slCtrTpCd !== '2') {
+          view.setValue(dataCell.index.itemIndex, 'slCtrAmt', 0);
+        } else {
+          ret.editable = false;
+          view.setValue(dataCell.index.itemIndex, 'slCtrAmt', dummySlCtrAmt);
+        }
+        return ret;
+      },
     },
     { fieldName: 'slCtrWoExmpAmt',
       header: t('MSG_TXT_FULL_EXMP_AMT'), // 전액면제금액
@@ -903,6 +915,15 @@ const initGrid1 = defineGrid((data, view) => {
         view.setValue(itemIndex, 'cstKnm', cntrCstKnm);
         view.setValue(itemIndex, 'pdNm', pdNm);
         view.setValue(itemIndex, 'pdCd', pdCd);
+
+        const searchDtl = ref({
+          cntrNo: payload.cntrNo, // 판매유형
+          cntrSn: payload.cntrSn, // 계약일련번호(Int)
+        });
+        cachedParams2 = cloneDeep(searchDtl.value);
+        const res = await dataService.get('/sms/common/common/codes/contract/detail/paging', { params: cachedParams2 });
+        view.setValue(itemIndex, 'slCtrAmt', res.data.list[0].thmSlSumAmt);
+        view.setValue(itemIndex, 'dummySlCtrAmt', res.data.list[0].thmSlSumAmt);
       }
     }
   };

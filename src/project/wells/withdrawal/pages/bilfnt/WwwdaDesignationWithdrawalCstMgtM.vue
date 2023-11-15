@@ -20,6 +20,7 @@
       @search="onClickSearch"
     >
       <kw-search-row>
+        <!-- 기준년월 -->
         <kw-search-item
           :label="$t('MSG_TXT_BASE_YM')"
           required
@@ -31,6 +32,7 @@
             :name="$t('MSG_TXT_BASE_YM')"
           />
         </kw-search-item>
+        <!-- 업무유형 -->
         <kw-search-item
           :label="$t('MSG_TXT_TASK_TYPE')"
         >
@@ -41,6 +43,7 @@
             first-option-value="ALL"
           />
         </kw-search-item>
+        <!-- 계약상세번호 -->
         <kw-search-item
           :label="$t('MSG_TXT_CNTR_DTL_NO')"
         >
@@ -62,9 +65,11 @@
             :total-count="pageInfo.totalCount"
             @change="fetchData"
           />
+          <!-- (단위 : 원) -->
           <span class="ml8">{{ t('MSG_TXT_UNIT_WON') }}</span>
         </template>
 
+        <!-- 삭제 -->
         <kw-btn
           v-permission:delete
           grid-action
@@ -76,12 +81,14 @@
           inset
           spaced
         />
+        <!-- 행추가 -->
         <kw-btn
           v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
+        <!-- 저장 -->
         <kw-btn
           v-permission:create
           grid-action
@@ -93,6 +100,7 @@
           inset
           spaced
         />
+        <!-- 엑셀 다운로드 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -168,6 +176,7 @@ const searchParams = ref({
 
 // const possibleDay = codes.AUTO_FNT_FTD_ACD.map((v) => v.codeId).join(','); // 가능한 이체일 추후에 수정
 
+// 행추가 버튼
 async function onClickAddRow() {
   const view = grdMainRef.value.getView();
   const dataRows = gridUtil.getChangedRowValues(view);
@@ -207,6 +216,7 @@ async function fetchData() {
   dataSource.checkRowStates(true);
 }
 
+// 조회 버튼
 async function onClickSearch() {
   // if (isEmpty(searchParams.value.cntr)) return;
   grdMainRef.value.getData().clearRows();
@@ -216,6 +226,7 @@ async function onClickSearch() {
   await fetchData();
 }
 
+// 행 삭제 버튼
 async function onClickRemove() {
   const view = grdMainRef.value.getView();
   // const checkedRows = gridUtil.getCheckedRowValues(view);
@@ -240,10 +251,11 @@ async function onClickRemove() {
     return;
   }
   await dataService.delete('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', { data });
-  notify(t('MSG_ALT_DELETED'));
+  notify(t('MSG_ALT_DELETED')); // 삭제 되었습니다.
   await onClickSearch();
 }
 
+// 저장 버튼
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
@@ -256,10 +268,11 @@ async function onClickSave() {
 
   const data = getSaveParams();
   await dataService.post('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts', data);
-  notify(t('MSG_ALT_SAVE_DATA'));
+  notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
   await onClickSearch();
 }
 
+// 엑셀 다운로드 버튼
 async function onClickExcelDownload() {
   const res = await dataService.get('/sms/wells/withdrawal/bilfnt/designation-wdrw-csts/excel-download', { params: cachedParams });
   const view = grdMainRef.value.getView();
@@ -296,7 +309,7 @@ const initGrid = defineGrid((data, view) => {
 
   const columns = [
     { fieldName: 'cntr',
-      header: t('MSG_TXT_CNTR_DTL_NO'),
+      header: t('MSG_TXT_CNTR_DTL_NO'), // 계약상세번호
       width: '120',
       button: 'action',
       styleName: 'text-center rg-button-icon--search',
@@ -325,10 +338,10 @@ const initGrid = defineGrid((data, view) => {
       //   return `${cntrNo}-${cntrSn}`;
       // },
     },
-    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center', editable: false },
-    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_TYPE'), width: '80', styleName: 'text-center', editable: false, options: codes.BND_CLCTN_SELL_TP_CD },
+    { fieldName: 'cstKnm', header: t('MSG_TXT_CST_NM'), width: '80', styleName: 'text-center', editable: false }, // 고객명
+    { fieldName: 'sellTpCd', header: t('MSG_TXT_TASK_TYPE'), width: '80', styleName: 'text-center', editable: false, options: codes.BND_CLCTN_SELL_TP_CD }, // 업무유형
     { fieldName: 'dsnWdrwAmt',
-      header: t('MSG_TXT_DSN_AMT'),
+      header: t('MSG_TXT_DSN_AMT'), // 지정금액
       width: '120',
       styleName: 'text-right',
       editor: {
@@ -339,7 +352,7 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required',
     },
     { fieldName: 'fntYm',
-      header: t('MSG_TXT_FNT_YM'),
+      header: t('MSG_TXT_FNT_YM'), // 이체년월
       width: '120',
       styleName: 'text-center',
       datetimeFormat: 'yyyy-MM',
@@ -356,7 +369,7 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required',
     },
     { fieldName: 'dsnWdrwFntD',
-      header: t('MSG_TXT_FTD'),
+      header: t('MSG_TXT_FTD'), // 이체일
       options: codes.AUTO_FNT_FTD_ACD,
       width: '120',
       styleName: 'text-center',
@@ -368,7 +381,7 @@ const initGrid = defineGrid((data, view) => {
       rules: 'required',
     },
     { fieldName: 'fntYn',
-      header: t('MSG_TXT_FNT_DV'),
+      header: t('MSG_TXT_FNT_DV'), // 이체구분
       width: '80',
       styleName: 'text-center',
       editor: { type: 'list' },
@@ -390,7 +403,7 @@ const initGrid = defineGrid((data, view) => {
     // 잔액
     { fieldName: 'ucAmt',
       label: t('MSG_TXT_BLAM'),
-      header: t('MSG_TXT_BLAM'),
+      header: t('MSG_TXT_BLAM'), // 잔액
       width: '120',
       styleName: 'text-right',
       editable: false,
@@ -414,9 +427,9 @@ const initGrid = defineGrid((data, view) => {
     //   rules: 'required',
     // },
 
-    { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_PSIC'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_NO'), width: '100', styleName: 'text-center', editable: false },
-    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '155', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' },
+    { fieldName: 'prtnrKnm', header: t('MSG_TXT_RGST_PSIC'), width: '100', styleName: 'text-center', editable: false }, // 등록담당자
+    { fieldName: 'fstRgstUsrId', header: t('MSG_TXT_RGST_NO'), width: '100', styleName: 'text-center', editable: false }, // 등록자번호
+    { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DTM'), width: '155', styleName: 'text-center', editable: false, datetimeFormat: 'datetime' }, // 등록일시
 
   ];
 
