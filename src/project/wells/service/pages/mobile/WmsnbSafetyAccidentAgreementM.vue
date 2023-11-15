@@ -146,12 +146,6 @@
     <template #action>
       <kw-btn
         filled
-        negative
-        :label="$t('MSG_BTN_CANCEL')"
-        @click="onClickCancel"
-      />
-      <kw-btn
-        filled
         primary
         :label="$t('MSG_BTN_SAVE')"
         :disable="!isEmpty(data.cstSignCn)"
@@ -168,7 +162,6 @@
 import {
   useDataService,
   useGlobal,
-  useModal,
   stringUtil,
 } from 'kw-lib';
 import { isEmpty } from 'lodash-es';
@@ -176,7 +169,6 @@ import { isEmpty } from 'lodash-es';
 const { t } = useI18n();
 const { notify } = useGlobal();
 const dataService = useDataService();
-const { cancel: onClickCancel } = useModal();
 // -------------------------------------------------------------------------------------------------
 // Function & Event
 // -------------------------------------------------------------------------------------------------
@@ -184,7 +176,6 @@ const signMainRef = ref(null);
 const props = defineProps({
   acdnRcpId: {
     type: String,
-    default: '20230614061',
     required: true,
   },
 });
