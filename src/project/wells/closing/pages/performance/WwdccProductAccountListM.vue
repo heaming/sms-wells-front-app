@@ -239,8 +239,11 @@ async function onClickExportView() {
 
 // 상세내역 다운로드
 async function onClickDetailExportView() {
+  const params = {
+    ...cachedParams,
+  };
   const view = grdExcelRef.value.getView();
-  const response = await dataService.post('/sms/wells/closing/product-account/excel-download', cachedParams);
+  const response = await dataService.post('/sms/wells/closing/product-account/excel-download', params, { timeout: 1000000 });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
