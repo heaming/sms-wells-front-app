@@ -514,19 +514,19 @@ async function initGrid(data, view) {
     await setGridDateFromTo(view, grid, itemIndex, fieldIndex, 'vlStrtDtm', 'vlEndDtm');
   };
 
-  view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
+  view.onCellButtonClicked = async (grid, { column, dataRow }) => {
     if (column === 'priceSchBtn') {
-      const pdCd = grid.getValue(itemIndex, 'basePdCd');
-      await onClickStandardSchPopup(pdCd, itemIndex);
+      const { basePdCd } = gridUtil.getRowValue(grid, dataRow);
+      await onClickStandardSchPopup(basePdCd, dataRow);
     }
   };
 
-  view.onCellItemClicked = async (grid, { column, itemIndex }) => {
-    if (column === 'sellChnlCd') {
-      const sellChnlCd = grid.getValue(itemIndex, 'sellChnlCd');
+  view.onCellItemClicked = async (grid, gridInfo) => {
+    if (gridInfo.column === 'sellChnlCd') {
+      const sellChnlCd = grid.getValue(gridInfo.dataRow, 'sellChnlCd');
       grid.checkRows(gridUtil.getAllRowValues(view)
         ?.filter((item) => item.sellChnlCd === sellChnlCd)
-        ?.map(({ dataRow }) => (dataRow)), !grid.isCheckedRow(itemIndex), false, false);
+        ?.map(({ dataRow }) => (dataRow)), !grid.isCheckedRow(gridInfo.dataRow), false, false);
     }
   };
 

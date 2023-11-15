@@ -552,9 +552,9 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
-  view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
+  view.onCellButtonClicked = async (grid, { column, dataRow }) => {
     if (column === 'pdctPdNm') {
-      const pdctPdNm = grid.getValue(itemIndex, 'pdctPdNm');
+      const pdctPdNm = grid.getValue(dataRow, 'pdctPdNm');
       const { payload } = await modal({
         component: 'ZwpdcMaterialsSelectListP',
         componentProps: { searchType: pdConst.PD_SEARCH_NAME,
@@ -565,14 +565,14 @@ const initGrdMain = defineGrid((data, view) => {
 
       if (payload) {
         const row = Array.isArray(payload?.checkedRows) ? payload.checkedRows[0] : payload;
-        data.setValue(itemIndex, 'pdctPdNm', row.pdNm);
-        data.setValue(itemIndex, 'pdctPdCd', row.pdCd);
-        data.setValue(itemIndex, 'pdClsfNm', row.pdClsfNm);
-        data.setValue(itemIndex, 'pdTpDtlCd', row.pdTpDtlCd);
+        data.setValue(dataRow, 'pdctPdNm', row.pdNm);
+        data.setValue(dataRow, 'pdctPdCd', row.pdCd);
+        data.setValue(dataRow, 'pdClsfNm', row.pdClsfNm);
+        data.setValue(dataRow, 'pdTpDtlCd', row.pdTpDtlCd);
       }
     }
     if (column === 'basePdNm') {
-      const pdNm = grid.getValue(itemIndex, 'basePdNm');
+      const pdNm = grid.getValue(dataRow, 'basePdNm');
       const { payload } = await modal({
         component: 'ZwpdcStandardListP',
         componentProps: { searchType: pdConst.PD_SEARCH_NAME,
@@ -582,8 +582,8 @@ const initGrdMain = defineGrid((data, view) => {
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
-        data.setValue(itemIndex, 'basePdNm', row.pdNm);
-        data.setValue(itemIndex, 'basePdCd', row.pdCd);
+        data.setValue(dataRow, 'basePdNm', row.pdNm);
+        data.setValue(dataRow, 'basePdCd', row.pdCd);
       }
     }
   };

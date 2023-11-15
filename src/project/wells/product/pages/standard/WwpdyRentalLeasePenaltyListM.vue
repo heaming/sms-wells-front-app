@@ -400,9 +400,9 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
-  view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
+  view.onCellButtonClicked = async (grid, { column, dataRow }) => {
     if (column === 'pdNm') {
-      const svPdNm = grid.getValue(itemIndex, 'pdNm');
+      const svPdNm = grid.getValue(dataRow, 'pdNm');
       const { payload } = await modal({
         component: 'ZwpdcStandardListP',
         componentProps: { searchType: pdConst.PD_SEARCH_NAME,
@@ -417,8 +417,8 @@ const initGrdMain = defineGrid((data, view) => {
           notify(t('MSG_ALT_ALREADY_RGST', [t('MSG_TXT_PRDT')]));
           return;
         }
-        data.setValue(itemIndex, 'pdNm', row.pdNm);
-        data.setValue(itemIndex, 'pdCd', row.pdCd);
+        data.setValue(dataRow, 'pdNm', row.pdNm);
+        data.setValue(dataRow, 'pdCd', row.pdCd);
       }
     }
   };
