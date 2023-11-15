@@ -176,6 +176,9 @@ const searchGbns = ref([
   { codeId: 100, codeName: '100' },
 ]);
 
+const isEmailCorrect = ref(true);
+const isFaxCorrect = ref(true);
+
 const pageInfo = ref({
   totalCount: 0,
   pageIndex: 1,
@@ -231,11 +234,29 @@ async function onClickExcelDownload() {
     exportData: res.data,
   });
 }
+
 function validateEmail(strEmail) {
   const re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
   return re.test(strEmail);
 }
+
+// 전화번호 형식 체크
+function validatePhone(strPhone) {
+  const phone = /^(01[016789]{1}|02|0[3-9]{1}[0-9]{1})-?[0-9]{3,4}-?[0-9]{4}$/;
+  return phone.test(strPhone);
+}
+
 async function onClickSave() {
+  if (!isEmailCorrect.value) {
+    notify('잘못된 이메일 형식입니다.');
+    return;
+  }
+
+  if (!isFaxCorrect.value) {
+    notify('잘못된 팩스번호입니다.');
+    return;
+  }
+
   const view = grdTradeSpcshBlkPrntList.value.getView();
   if (await gridUtil.alertIfIsNotModified(view)) { return; }
   if (!await gridUtil.validate(view)) { return; }
@@ -388,7 +409,10 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       header: t('MSG_TXT_FAX_TNO'),
       width: '150',
       styleName: 'text-center',
-      editor: { type: 'telephone' },
+      editor: {
+        type: 'string',
+        maxLength: 13,
+      },
     },
     { fieldName: 'faxLocaraTno', header: t('MSG_TXT_FAX_LOCARA_TNO'), width: '220', visible: false }, // 팩스지역전화번호
     { fieldName: 'faxExno', header: t('MSG_TXT_FAX_MEXNO'), width: '220', visible: false }, // 팩스전화국번호
@@ -403,7 +427,6 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
   view.checkBar.visible = true; // create checkbox column
   view.rowIndicator.visible = true; // create number indicator column
   view.editOptions.editable = true;
-
   view.onCellEdited = async function CellEdited(grid, index, dataRow, field) {
     if (field === 2) {
       const cntrDtlNo = grid.getValue(index, 2);
@@ -454,10 +477,21 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       }
       notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_EMAIL')])); // {이메일} 항목이 일괄변경 되었습니다.
     }
+
+    // 이메일
     if (field === 9) {
       const spectxGrpNo = grid.getValue(index, 0);
       const emadr = grid.getValue(index, 9);
       view.commit();
+
+      if (!validateEmail(emadr)) {
+        isEmailCorrect.value = false;
+        notify('잘못된 이메일 형식입니다.');
+        // grid.setValue(index, 'emadr', '');
+        return;
+      }
+      isEmailCorrect.value = true;
+
       data.setValue(index, 'emadr', emadr);
       const rows = gridUtil.filter(view, (e) => e.spectxGrpNo === spectxGrpNo); // 같은 그룹번호 로우 찾기
       for (let i = 0; i < rows.length - 1; i += 1) {
@@ -469,9 +503,23 @@ const initGridTradeSpcshBlkPrntList = defineGrid((data, view) => {
       }
       notify(t('MSG_ALT_BULK_APPLY_SUCCESS', [t('MSG_TXT_EMAIL')])); // {이메일} 항목이 일괄변경 되었습니다.
     }
+
+    // 팩스번호
     if (field === 10) {
       const spectxGrpNo = grid.getValue(index, 0);
       const faxTelNo = grid.getValue(index, 10);
+
+      console.log('spectxGrpNo', spectxGrpNo);
+      console.log('faxTelNo', faxTelNo);
+
+      if (!isEmpty(faxTelNo) && !validatePhone(faxTelNo)) {
+        isFaxCorrect.value = false;
+        notify('잘못된 팩스번호입니다.');
+        // grid.setValue(index, 'faxTelNo', '');
+        return;
+      }
+      isFaxCorrect.value = true;
+
       const rows = gridUtil.filter(view, (e) => e.spectxGrpNo === spectxGrpNo); // 같은 그룹번호 로우 찾기
       for (let i = 0; i < rows.length - 1; i += 1) {
         grid.commit();
