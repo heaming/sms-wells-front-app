@@ -17,6 +17,7 @@
     <kw-search
       :cols="9"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 출고기간-->
@@ -309,6 +310,7 @@ watch(() => searchParams.value.ostrWareDvCd, (val) => {
 function onChangeOstrDvCd() {
   searchParams.value.ostrHgrWareNo = '';
   searchParams.value.ostrWareNo = '';
+  searchParams.value.ostrWareDtlDvCd = '';
 }
 
 // 출고상위창고 변경 시
@@ -340,6 +342,7 @@ function onChangeOstrWareDtlDvCd() {
 function onChangeStrDvCd() {
   searchParams.value.strHgrWareNo = '';
   searchParams.value.strWareNo = '';
+  searchParams.value.strWareDtlDvCd = '';
 }
 
 // 입고상위창고 변경 시
@@ -427,6 +430,11 @@ function defaultSet() {
 
   // 등급 필터링
   codes.PD_GD_CD = codes.PD_GD_CD.filter((v) => ['A', 'B', 'E', 'R', 'X'].includes(v.codeId));
+}
+
+// 초기화버튼 클릭
+function onClickReset() {
+  defaultSet();
 }
 
 onMounted(async () => {

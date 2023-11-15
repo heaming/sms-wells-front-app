@@ -26,6 +26,7 @@
                 v-if="step.name === 'step1'"
                 :ref="(el) => step.ref.value = el"
                 :contract="contract"
+                :cntr-cst-no="cntrCstNo"
                 @activated="onChildActivated"
               />
               <wwcta-contract-registration-mgt-m-step2
@@ -173,6 +174,7 @@ const props = defineProps({
   cntrSn: { type: String, default: undefined },
   cntrPrgsStatCd: { type: String, default: undefined },
   pspcCstId: { type: String, default: undefined },
+  cntrCstNo: { type: String, default: undefined },
 });
 
 const { t } = useI18n();

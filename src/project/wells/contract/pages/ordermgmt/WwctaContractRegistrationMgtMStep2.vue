@@ -110,6 +110,7 @@ import {
   SELL_TP_DTL_CD,
 } from '~sms-wells/contract/constants/ctConst';
 import dayjs from 'dayjs';
+import { EMPTY_ID } from '~sms-wells/contract/composables/usePriceSelect';
 
 const props = defineProps({
   contract: { type: Object, required: true },
@@ -202,7 +203,7 @@ async function validatePreconditions(product) {
   return validatePdSellLimit(product.pdSellLimit);
 }
 
-async function onSelectProduct(product) {
+async function onSelectProduct(product, wellsFarmMachineCntrDtl) {
   const newProduct = { ...product };
   const newProducts = [];
 
@@ -213,12 +214,31 @@ async function onSelectProduct(product) {
     return;
   }
 
+  // 웰스팜 기기 선택 시
   const isWellsFarmProduct = newProduct.pdLclsfId === 'PDC000000000120';
-
   newProduct.lkSdingOjCntrRelRequired = isWellsFarmProduct;
 
+  // 웰스팜 기계약 기기 선택 후, 모종 일시불 선택 시,
+  if (wellsFarmMachineCntrDtl) {
+    newProduct.cntrRels = [{
+      cntrRelId: undefined,
+      cntrRelDtlCd: CNTR_REL_DTL_CD.LK_RGLR_SHP_BASE, /* 모종결합 */
+      baseDtlCntrNo: cntrNo.value,
+      baseDtlCntrSn: undefined,
+      ojDtlCntrNo: wellsFarmMachineCntrDtl.cntrNo,
+      ojDtlCntrSn: wellsFarmMachineCntrDtl.cntrSn,
+      basePdBas: {
+        pdCd: newProduct.pdCd,
+        pdNm: newProduct.pdNm,
+      },
+      ojBasePdBas: { ...wellsFarmMachineCntrDtl }, /* 기기 선택 해야함. */
+    }];
+  }
+
+  // 복합상품
   const isComposition = newProduct.pdTpCd === PD_TP_CD.COMPOSITION;
 
+  // 복합상품의 경우 해당 복함상품이 아닌 복합상품의 구성 기준상품 목록을 추가한다.
   if (isComposition) {
     const alreadyExistComposition = !!step2.value.dtls.find((existed) => existed.hgrPdCd === product.pdCd);
 
@@ -497,18 +517,29 @@ async function onPackaging(dtl, rentalDscTpCd) {
   }); */
 
   const packagables = step2.value.dtls.filter((rentalDtl) => {
-    const { packageRentalDscTpCds } = rentalDtl;
-    if (!packageRentalDscTpCds?.length) {
-      return false;
-    }
-    return packageRentalDscTpCds.includes(rentalDscTpCd);
+    if (rentalDtl === dtl) { return false; }
+    const { sellTpCd } = rentalDtl;
+    return sellTpCd === SELL_TP_CD.RENTAL;
   });
+
+  // eslint-disable no-nested-ternary
+  if (rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_2 && packagables.length < 1) {
+    alert('렌탈 상품을 적어도 두 건이상 선택해주세요.');
+    return;
+  } if (rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_3 && packagables.length < 2) {
+    alert('렌탈 상품을 적어도 세 건이상 선택해주세요.');
+    return;
+  } if (rentalDscTpCd === RENTAL_DSC_TP_CD.PACKAGE_OVER_4 && packagables.length < 3) {
+    alert('렌탈 상품을 적어도 네 건이상 선택해주세요.');
+    return;
+  }
 
   // 모바일과는 다르다!! 우선 냅다 선택하고, 패키징을 한다.
   const { result, payload } = await modal({
     component: 'WwctaRentalMultiCasePrchsDscChoP',
     componentProps: {
       rentalDscTpCd,
+      discounted: dtl,
       cntrDtls: packagables,
     },
   });
@@ -517,41 +548,39 @@ async function onPackaging(dtl, rentalDscTpCd) {
     return;
   }
 
-  const { selectedCntrDtls, discountedCntrDtl } = payload;
+  const { selectedCntrDtls } = payload;
 
   const ojCntrRels = [];
 
   selectedCntrDtls.forEach((cntrDtl) => {
-    if (cntrDtl !== discountedCntrDtl) {
-      cntrDtl.priceOptionFilter = {
-        rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
-        rentalDscTpCd: undefined,
-      };
-      const cntrRel = {
-        cntrRelId: undefined,
-        cntrRelDtlCd: CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
-        baseDtlCntrNo: cntrNo.value,
-        baseDtlCntrSn: undefined,
-        ojDtlCntrNo: cntrNo.value,
-        ojDtlCntrSn: undefined,
-        baseTempKey: cntrDtl.tempKey,
-        basePdBas: {
-          pdCd: cntrDtl.pdCd,
-          pdNm: cntrDtl.pdNm,
-        },
-        ojTempKey: discountedCntrDtl.tempKey,
-        ojBasePdBas: { ...discountedCntrDtl },
-      };
-      cntrDtl.cntrRels = [cntrRel];
-      ojCntrRels.push({ ...cntrRel });
-    }
+    cntrDtl.priceOptionFilter = {
+      rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
+      rentalDscTpCd: EMPTY_ID,
+    };
+    const cntrRel = {
+      cntrRelId: undefined,
+      cntrRelDtlCd: CNTR_REL_DTL_CD.LK_MLTCS_PRCHS,
+      baseDtlCntrNo: cntrNo.value,
+      baseDtlCntrSn: undefined,
+      ojDtlCntrNo: cntrNo.value,
+      ojDtlCntrSn: undefined,
+      baseTempKey: cntrDtl.tempKey,
+      basePdBas: {
+        pdCd: cntrDtl.pdCd,
+        pdNm: cntrDtl.pdNm,
+      },
+      ojTempKey: dtl.tempKey,
+      ojBasePdBas: { ...dtl },
+    };
+    cntrDtl.cntrRels = [cntrRel];
+    ojCntrRels.push({ ...cntrRel });
   });
 
-  discountedCntrDtl.priceOptionFilter = {
+  dtl.priceOptionFilter = {
     rentalDscDvCd: RENTAL_DSC_DV_CD.GENERAL,
     rentalDscTpCd,
   };
-  discountedCntrDtl.ojCntrRels = ojCntrRels;
+  dtl.ojCntrRels = ojCntrRels;
 }
 
 function onDeleteSelectMachine(dtl) {

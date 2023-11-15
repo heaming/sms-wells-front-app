@@ -67,7 +67,7 @@ const title = computed(() => (required.value ? '연계 계약 선택 - 필수' :
 async function fetchData() {
   const { cntrNo, pdCd } = props;
   if (!cntrNo || !pdCd) {
-    await alert('기계약 조회에 필요한 요소가 빈값입니다.');
+    alert('기계약 조회에 필요한 요소가 빈값입니다.');
     cancel();
   }
   const { data } = await dataService.get('/sms/wells/contract/contracts/precontracts', { params: {
@@ -78,11 +78,11 @@ async function fetchData() {
 
   if (!pcntrDtls?.length) {
     if (_req) {
-      await alert('상품 선택 전에 막혀야 합니다.');
+      alert('상품 선택 전에 막혀야 합니다.');
       throw Error('상품 선택 전에 막혀야 합니다.');
     }
 
-    await alert('선택가능한 연계 계약이 없습니다.');
+    alert('선택가능한 연계 계약이 없습니다.');
     cancel();
   }
 

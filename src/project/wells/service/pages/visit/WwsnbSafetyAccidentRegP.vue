@@ -741,7 +741,7 @@ onMounted(async () => {
   if (props.acdnRcpId !== '') {
     const res = await dataService.get(`/sms/wells/service/safety-accidents/${props.acdnRcpId}`);
     Object.assign(safetyAccident.value, res.data);
-    isDisable.value = (res.data.cpsDvCd === '5' && res.data.agrDocFwYn === 'N'); // 보상완료 && 합의서발송여부 'N'
+    isDisable.value = (res.data.cpsDvCd === '5'); // 보상완료면 알림톡버튼 on
   }
   await frmMainRef1.value.init();
   await frmMainRef2.value.init();

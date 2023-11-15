@@ -19,14 +19,17 @@
         name="1"
         :label="$t('MSG_TXT_RFND_PS')"
       />
+      <!-- 환불현황 -->
       <kw-tab
         name="2"
         :label="$t('MSG_TXT_CNTRAM_RFND_PS')"
       />
+      <!-- 계약금 환불현황 -->
       <kw-tab
         name="3"
         :label="$t('MSG_TXT_ETC_ATAM_RFND_PS')"
       />
+      <!-- 기타선수금 환불현황 -->
     </kw-tabs>
     <kw-tab-panels v-model="selectedTab">
       <kw-tab-panel name="1">

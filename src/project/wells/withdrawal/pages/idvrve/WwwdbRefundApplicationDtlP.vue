@@ -730,8 +730,8 @@ onMounted(async () => {
   await fetchData();
   onClickArfndYn();
 });
-/** ****************환불상세 function *********************** */
 
+/** ****************환불상세 function *********************** */
 // 단일행추가
 async function insertMainData(cntrNo, cntrSn) {
   let dataParams = {

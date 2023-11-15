@@ -404,8 +404,20 @@ const initGrdMain = defineGrid((data, view) => {
       options: svcCode,
       optionValue: 'ogId',
       optionLabel: 'ogNm',
-      editable: true,
-      editor: { type: 'dropdown' },
+      styleCallback(grid, dataCell) {
+        const pdlvDvCd = grid.getValue(dataCell.item.index, 'pdlvDvCd');
+        if (pdlvDvCd !== 'Z') {
+          return {
+            editable: true,
+            editor: {
+              type: 'dropdown',
+            },
+          };
+        }
+        return {
+          editable: false,
+        };
+      },
     },
   ];
 

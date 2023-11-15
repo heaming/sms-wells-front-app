@@ -3,7 +3,7 @@
  * 프로그램 개요
  ****************************************************************************************************
  1. 모듈 : SNA (재고관리)
- 2. 프로그램 ID : WsnaMonthClassifiedByStockActualMgtM(W-SV-U-0139M01) - 월별 재고실사 등록 관리
+ 2. 프로그램 ID : WwsnaMonthClassifiedByStockActualMgtM(W-SV-U-0139M01) - 월별 재고실사 등록 관리
  3. 작성자 : songTaeSung
  4. 작성일 : 2023.06.11
  ****************************************************************************************************
@@ -81,6 +81,7 @@
             :page-size-options="codes.COD_PAGE_SIZE_OPTIONS"
             @change="fetchData"
           />
+          <span class="ml8">({{ $t('MSG_TXT_UNIT') }} : EA)</span>
         </template>
         <!-- 저장버튼 -->
         <kw-btn

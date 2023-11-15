@@ -49,6 +49,7 @@
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeStrDvCd"
           @update:ware-no-m="onChagneStrWareHgrNo"
+          @update:ware-no-d="onChagneStrWareNo"
         />
         <!-- 입고창고상세구분 -->
         <kw-search-item
@@ -60,6 +61,7 @@
             :options="filterCodes.filterStrWareDtlDvCd"
             first-option="all"
             :disable="isStrOk"
+            @change="onChangeStrWareDtlDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -90,6 +92,7 @@
           :label4="$t('MSG_TXT_WARE')"
           @update:ware-dv-cd="onChangeOstrDvCd"
           @update:ware-no-m="onChagneOstrWareHgrNo"
+          @update:ware-no-d="onChagneOstrWareNo"
         />
         <!-- 출고창고상세구분 -->
         <kw-search-item
@@ -101,6 +104,7 @@
             :options="filterCodes.filterOstrWareDtlDvCd"
             first-option="all"
             :disable="isOstrOk"
+            @change="onChangeOstrWareDtlDvCd"
           />
         </kw-search-item>
       </kw-search-row>
@@ -241,6 +245,7 @@ const isOstrOk = ref();
 const isStrOk = ref();
 
 const codes = await codeUtil.getMultiCodes(
+  'COD_PAGE_SIZE_OPTIONS',
   'STR_TP_CD',
   'WARE_DV_CD',
   'PD_GD_CD',
@@ -292,26 +297,66 @@ function onChangeItmKndCd() {
   optionsItmPdCd.value = optionsAllItmPdCd.value.filter((v) => itmKndCd === v.itmKndCd);
 }
 
+// 출고창고구분 변경 시
 function onChangeOstrDvCd() {
   searchParams.value.ostrWareNoM = '';
   searchParams.value.ostrWareNoD = '';
-  searchParams.value.ostrWareDtlDvCd = '';
 }
 
+// 출고상위창고 변경 시
 function onChagneOstrWareHgrNo() {
   searchParams.value.ostrWareNoD = '';
-  searchParams.value.ostrWareDtlDvCd = '';
 }
 
+// 출고창고 변경 시
+function onChagneOstrWareNo() {
+  const { ostrWareDtlDvCd, ostrWareNoD } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(ostrWareNoD) && (ostrWareDtlDvCd === '20' || ostrWareDtlDvCd === '30')) {
+    searchParams.value.ostrWareDtlDvCd = '';
+  }
+}
+
+// 출고창고상세구분 변경 시
+function onChangeOstrWareDtlDvCd() {
+  const { ostrWareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (ostrWareDtlDvCd === '20' || ostrWareDtlDvCd === '30') {
+    searchParams.value.ostrWareNoD = '';
+  }
+}
+
+// 입고창고구분 변경 시
 function onChangeStrDvCd() {
   searchParams.value.strWareNoM = '';
   searchParams.value.strWareNoD = '';
-  searchParams.value.strWareDtlDvCd = '';
 }
 
+// 입고상위창고 변경 시
 function onChagneStrWareHgrNo() {
   searchParams.value.strWareNoD = '';
-  searchParams.value.strWareDtlDvCd = '';
+}
+
+// 입고창고 변경 시
+function onChagneStrWareNo() {
+  const { strWareDtlDvCd, strWareNoD } = searchParams.value;
+
+  // 창고번호가 있고, 창고상세구분이 조직창고인 경우 창고상세구분 클리어
+  if (!isEmpty(strWareNoD) && (strWareDtlDvCd === '20' || strWareDtlDvCd === '30')) {
+    searchParams.value.strWareDtlDvCd = '';
+  }
+}
+
+// 입고창고상세구분 변경시
+function onChangeStrWareDtlDvCd() {
+  const { strWareDtlDvCd } = searchParams.value;
+
+  // 창고상세구분이 조직창고인 경우 개인창고번호 클리어
+  if (strWareDtlDvCd === '20' || strWareDtlDvCd === '30') {
+    searchParams.value.strWareNoD = '';
+  }
 }
 
 // 입고창고구분이 변경되었을때
@@ -350,40 +395,6 @@ watch(() => searchParams.value.ostrWareDvCd, (val) => {
     searchParams.value.ostrWareDvCd = val;
   }
   onChangeOstrWareDvCd();
-});
-
-const onDisableStrChk = async () => {
-  const chkStrWareNoD = searchParams.value.strWareNoD;
-  if (isEmpty(chkStrWareNoD)) {
-    isStrOk.value = false;
-    return;
-  }
-  isStrOk.value = true;
-  searchParams.value.strWareDtlDvCd = '';
-};
-
-const onDisableOstrChk = async () => {
-  const chkOstrWareNoD = searchParams.value.ostrWareNoD;
-  if (isEmpty(chkOstrWareNoD)) {
-    isOstrOk.value = false;
-    return;
-  }
-  isOstrOk.value = true;
-  searchParams.value.ostrWareDtlDvCd = '';
-};
-
-watch(() => searchParams.value.strWareNoD, (val) => {
-  if (searchParams.value.strWareNoD !== val) {
-    searchParams.value.strWareNoD = val;
-  }
-  onDisableStrChk();
-});
-
-watch(() => searchParams.value.ostrWareNoD, (val) => {
-  if (searchParams.value.ostrWareNoD !== val) {
-    searchParams.value.ostrWareNoD = val;
-  }
-  onDisableOstrChk();
 });
 
 let cachedParams;

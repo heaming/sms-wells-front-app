@@ -20,7 +20,6 @@
           <kw-date-picker
             v-model="searchParams.mngtYm"
             type="month"
-            @change="getBldCode"
           />
         </kw-search-item>
         <kw-search-item :label="$t('MSG_TXT_BLD_NM')">
@@ -168,7 +167,7 @@ const isBusinessSupportTeam = computed(() => hasRoleNickName('ROL_W1580'));
 const bldCode = ref();
 let items1 = [];
 let items2 = [];
-let saveData = [];
+const saveData = [];
 let requestData = [];
 
 const itemsData = ref({
@@ -193,13 +192,11 @@ const aplcCloseData = ref({
 });
 
 const isDisableSave = computed(() => {
-  if (!isBusinessSupportTeam.value) { return true; }
-
   const nowDateTime = Number(dayjs().format('YYYYMMDDHHmm'));
-  const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh.substring(0, 4));
-  const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh.substring(0, 4));
+  const strtDtHh = `${aplcCloseData.value.bizStrtdt}${aplcCloseData.value.bizStrtHh ?? ''}`;
+  const endDtHh = `${aplcCloseData.value.bizEnddt}${aplcCloseData.value.bizEndHh ?? ''}`;
 
-  if (!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) {
+  if (!isBusinessSupportTeam.value && !(nowDateTime >= Number(strtDtHh) && nowDateTime <= Number(endDtHh))) {
     return true;
   }
 
@@ -354,13 +351,13 @@ async function reAryGrid() {
 
   data.setFields(fields);
   view.setColumns(columns);
-  view.setFixedOptions({ colCount: 1 });
+  // view.setFixedOptions({ colCount: 1 });
 
-  view.onCellClicked = (grd, cData) => {
-    if (cData.cellType !== 'check') { return false; }
-  };
+  // view.onCellClicked = (grd, cData) => {
+  //   if (cData.cellType !== 'check') { return false; }
+  // };
 
-  view.setColumnLayout([
+  const columnLayout = [
     {
       header: '소속',
       direction: 'horizontal',
@@ -397,12 +394,63 @@ async function reAryGrid() {
       direction: 'horizontal',
       items: items1,
     },
-    {
-      header: t('MSG_TXT_APLC'),
-      direction: 'horizontal',
-      items: items2,
-    },
-  ]);
+  ];
+
+  if (items2.length > 0) { // 엑셀다운로드 오류로 인한 수정
+    columnLayout.push(
+      {
+        header: t('MSG_TXT_APLC'),
+        direction: 'horizontal',
+        items: items2,
+      },
+    );
+  }
+
+  view.setColumnLayout(columnLayout);
+
+  // view.setColumnLayout([
+  //   {
+  //     header: '소속',
+  //     direction: 'horizontal',
+  //     items: [
+  //       'reqYn',
+  //       'bldNm',
+  //       'bldCd',
+  //       'prtnrNo',
+  //       'ogCd',
+  //       'prtnrKnm',
+  //       'vstCstN',
+  //     ],
+  //   },
+  //   {
+  //     header: '상품별 방문계정',
+  //     direction: 'horizontal',
+  //     items: [
+  //       'wrfr',
+  //       'bdtIndv',
+  //       'bdtCrp',
+  //       'arcleIndv',
+  //       'arcleCrp',
+  //       'wtrSftnr',
+  //       'cffMchn',
+  //       'msgcr',
+  //       'dryr',
+  //       'wash',
+  //       'ardrssr',
+  //       'sscling',
+  //     ],
+  //   },
+  //   {
+  //     header: t('MSG_TXT_FXN'),
+  //     direction: 'horizontal',
+  //     items: items1,
+  //   },
+  //   {
+  //     header: t('MSG_TXT_APLC'),
+  //     direction: 'horizontal',
+  //     items: items2,
+  //   },
+  // ]);
 }
 
 async function fetchData() {
@@ -435,41 +483,7 @@ async function fetchData() {
     });
   }
 
-  // TODO: editable 조건에 권한별 수정 가능여부 추가해야함(빌딩 업무담당은 본인 빌딩에 대한 수량만 수정 가능)
-  const editFields = [];
-
-  for (let i = 0; i < items2.length; i += 1) {
-    let l = i + 1;
-    editFields.push(`aplcQty${l}`);
-    l += 1;
-  }
-
-  view.onCellEditable = (grid, itemIndex) => {
-    const nowDateTime = Number(dayjs().format('YYYYMMDDHHmmss'));
-    const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh);
-    const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh);
-
-    // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
-    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || res.data[itemIndex.itemIndex].bfsvcCsmbDdlvStatCd === '30') {
-      return false;
-    }
-  };
-
-  view.onCellEdited = (grid, itemIndex) => {
-    grid.checkItem(itemIndex, true);
-  };
-
   view.getDataSource().setRows(res.data);
-  view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
-
-  view.setCheckableCallback((dataSource, item) => {
-    const { bfsvcCsmbDdlvStatCd } = gridUtil.getRowValue(view, item.dataRow);
-
-    if (bfsvcCsmbDdlvStatCd === '30') {
-      return false;
-    }
-    return true;
-  }, true);
 }
 
 function validateRegPeriod() {
@@ -512,36 +526,31 @@ async function onClickSearch() {
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
 
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
 
-  if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
-    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
-    return;
-  }
-
   if (!await gridUtil.validate(view)) { return; }
-  // if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  let isError = false;
+
+  const isError = false;
   checkedRows.forEach((checkedRow) => {
     let f = 1;
     let a = 1;
     for (let i = 0; i < itemsData.value.length; i += 1) {
       if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '1') {
-        if (Number(itemsData.value[i].fxnPckngUnit.replace(/[^0-9]/g, '')) < Number(checkedRow[`fxnQty${f}`])) {
-          // alert(t('MSG_ALT_PSBL_MAX_CNT_DATA'), [itemsData.value[i].aplcPdNm],
-          //  [itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')]);
+        // if (Number(itemsData.value[i].fxnPckngUnit.replace(/[^0-9]/g, '')) < Number(checkedRow[`fxnQty${f}`])) {
+        //   // alert(t('MSG_ALT_PSBL_MAX_CNT_DATA'), [itemsData.value[i].aplcPdNm],
+        //   //  [itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')]);
 
-          // i18n 다국어모듈 사용으로 처리하면 파라미터 값 표시 안됨. 확인 필요
-          alert(`${itemsData.value[i].fxnPdNm}은(는) ${itemsData.value[i].fxnPckngUnit.replace(/[^0-9]/g, '')}개까지 가능합니다.`);
-          isError = true;
-          saveData = [];
-          return;
-        }
+        //   // i18n 다국어모듈 사용으로 처리하면 파라미터 값 표시 안됨. 확인 필요
+        //   alert(`${itemsData.value[i].fxnPdNm}은(는)
+        // ${itemsData.value[i].fxnPckngUnit.replace(/[^0-9]/g, '')}개까지 가능합니다.`);
+        //   isError = true;
+        //   saveData = [];
+        //   return;
+        // }
 
         saveData.push({
           mngtYm: searchParams.value.mngtYm,
@@ -555,16 +564,17 @@ async function onClickSave() {
 
         f += 1;
       } else if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '2') {
-        if (Number(itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')) < Number(checkedRow[`aplcQty${a}`])) {
-          // alert(t('MSG_ALT_PSBL_MAX_CNT_DATA'), [itemsData.value[i].aplcPdNm],
-          //  [itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')]);
+        // if (Number(itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')) < Number(checkedRow[`aplcQty${a}`])) {
+        //   // alert(t('MSG_ALT_PSBL_MAX_CNT_DATA'), [itemsData.value[i].aplcPdNm],
+        //   //  [itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')]);
 
-          // i18n 다국어모듈 사용으로 처리하면 파라미터 값 표시 안됨. 확인 필요
-          alert(`${itemsData.value[i].aplcPdNm}은(는) ${itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')}개까지 가능합니다.`);
-          isError = true;
-          saveData = [];
-          return;
-        }
+        //   // i18n 다국어모듈 사용으로 처리하면 파라미터 값 표시 안됨. 확인 필요
+        //   alert(`${itemsData.value[i].aplcPdNm}은(는)
+        // ${itemsData.value[i].aplcPckngUnit.replace(/[^0-9]/g, '')}개까지 가능합니다.`);
+        //   isError = true;
+        //   saveData = [];
+        //   return;
+        // }
 
         saveData.push({
           mngtYm: searchParams.value.mngtYm,
@@ -590,35 +600,11 @@ async function onClickSave() {
 
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/manager-bsconsumables', { params: { ...cachedParams } });
-  const bldCsmbDeliveries = res.data;
 
-  if (bldCsmbDeliveries.length !== 0) {
-    bldCsmbDeliveries.forEach((bldCsmbDelivery) => {
-      // 리스트 내 고정수량 array 재조합
-      for (let i = 0; i < bldCsmbDelivery.fxnQtys.length; i += 1) {
-        const j = i + 1;
-        const fxnKeyNm = {};
-        fxnKeyNm[`fxnQty${j}`] = bldCsmbDelivery.fxnQtys[i];
-        Object.assign(bldCsmbDelivery, fxnKeyNm);
-      }
-
-      // 리스트 내 신청수량 array 재조합
-      for (let i = 0; i < bldCsmbDelivery.aplcQtys.length; i += 1) {
-        const j = i + 1;
-        const aplcKeyNm = {};
-        aplcKeyNm[`aplcQty${j}`] = bldCsmbDelivery.aplcQtys[i];
-        Object.assign(bldCsmbDelivery, aplcKeyNm);
-      }
-    });
-  }
-
-  view.getDataSource().setRows(bldCsmbDeliveries);
-  debugger;
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
-    exportData: bldCsmbDeliveries,
+    exportData: gridUtil.getAllRowValues(view),
     checkBar: 'hidden',
   });
 }
@@ -789,12 +775,15 @@ const initGrdMain = defineGrid(async (data, view) => {
   data.setFields(fields);
   view.setColumns(columns);
   view.setFixedOptions({ colCount: 1 });
+  view.checkBar.visible = true;
+  view.rowIndicator.visible = true;
+  view.editOptions.editable = true;
 
   view.onCellClicked = (grd, cData) => {
     if (cData.cellType !== 'check') { return false; }
   };
 
-  view.setColumnLayout([
+  const columnLayout = [
     {
       header: '소속',
       direction: 'horizontal',
@@ -831,16 +820,44 @@ const initGrdMain = defineGrid(async (data, view) => {
       direction: 'horizontal',
       items: items1,
     },
-    {
-      header: t('MSG_TXT_APLC'),
-      direction: 'horizontal',
-      items: items2,
-    },
-  ]);
+  ];
 
-  view.checkBar.visible = true;
-  view.rowIndicator.visible = true;
-  view.editOptions.editable = true;
+  if (items2) {
+    columnLayout.push(
+      {
+        header: t('MSG_TXT_APLC'),
+        direction: 'horizontal',
+        items: items2,
+      },
+    );
+  }
+
+  view.setColumnLayout(columnLayout);
+
+  view.onCellEditable = (grid, itemIndex) => {
+    const nowDateTime = Number(dayjs().format('YYYYMMDDHHmmss'));
+    const strtDtHh = Number(aplcCloseData.value.bizStrtdt + aplcCloseData.value.bizStrtHh);
+    const endDtHh = Number(aplcCloseData.value.bizEnddt + aplcCloseData.value.bizEndHh);
+    const { bfsvcCsmbDdlvStatCd } = grid.getValues(itemIndex.itemIndex);
+
+    // TODO: 권한조회 후 빌딩 업무담당일 경우 본인 소속 빌딩 외 수정불가 로직 추가해야함
+    if ((!isBusinessSupportTeam.value && !(nowDateTime >= strtDtHh && nowDateTime <= endDtHh)) || bfsvcCsmbDdlvStatCd === '30') {
+      return false;
+    }
+  };
+
+  view.onCellEdited = (grid, itemIndex) => {
+    grid.checkItem(itemIndex, true);
+  };
+
+  view.setCheckableCallback((dataSource, item) => {
+    const { bfsvcCsmbDdlvStatCd } = gridUtil.getRowValue(view, item.dataRow);
+
+    if (bfsvcCsmbDdlvStatCd === '30') {
+      return false;
+    }
+    return true;
+  }, true);
 });
 </script>
 <style scoped>

@@ -240,14 +240,12 @@ async function onClickExportView() {
 // 상세내역 다운로드
 async function onClickDetailExportView() {
   const view = grdExcelRef.value.getView();
-  const response = await dataService.get('/sms/wells/closing/product-account/excel-download', { params: cachedParams, timeout: 200000 });
-  const dataSource = view.getDataSource();
-  dataSource.addRows(response.data);
-
+  const response = await dataService.post('/sms/wells/closing/product-account/excel-download', cachedParams);
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
     exportData: response.data,
+    exportType: 'csv',
   });
 }
 

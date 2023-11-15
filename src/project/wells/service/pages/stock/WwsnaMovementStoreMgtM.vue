@@ -17,6 +17,7 @@
     <kw-search
       :cols="4"
       @search="onClickSearch"
+      @reset="onClickReset"
     >
       <kw-search-row>
         <!-- 입고창고 -->
@@ -32,9 +33,9 @@
           />
         </kw-search-item>
 
-        <!-- 접수유형 -->
+        <!-- 입고유형 -->
         <kw-search-item
-          :label="$t('MSG_TXT_RCP_TP')"
+          :label="$t('MSG_TXT_STR_TP')"
         >
           <kw-select
             v-model="searchParams.strTpCd"
@@ -43,9 +44,9 @@
           />
         </kw-search-item>
 
-        <!-- 출고기간 -->
+        <!-- 입고기간 -->
         <kw-search-item
-          :label="$t('MSG_TXT_OSTR_PTRM')"
+          :label="$t('MSG_TXT_STR_PTRM')"
           :colspan="2"
           required
         >
@@ -53,7 +54,7 @@
             v-model:from="searchParams.stStrDt"
             v-model:to="searchParams.edStrDt"
             rules="required|date_range_months:1"
-            :label="$t('MSG_TXT_OSTR_PTRM')"
+            :label="$t('MSG_TXT_STR_PTRM')"
           />
         </kw-search-item>
       </kw-search-row>
@@ -214,6 +215,13 @@ async function onClickExcelDownload() {
     timePostfix: true,
     exportData: res.data,
   });
+}
+
+// 초기화 버튼 클릭
+function onClickReset() {
+  if (!isEmpty(warehouses.value)) {
+    searchParams.value.strOjWareNo = warehouses.value[0].codeId;
+  }
 }
 
 onMounted(async () => {

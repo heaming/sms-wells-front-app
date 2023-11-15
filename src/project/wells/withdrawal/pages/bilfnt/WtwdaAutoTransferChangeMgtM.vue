@@ -151,6 +151,7 @@ async function onClickAlarmSend() {
   // chRqrDvCd 방문 : '2' (교원) / 원거리 : '1' (고객)
   if (!await formRef.value.validate()) { return; }
   inputParams.value = { ...inputParams.value,
+    strDomain,
     nsUrl,
     nsFullUrl,
     chr3ChYn: 'N',
@@ -161,15 +162,6 @@ async function onClickAlarmSend() {
 }
 
 onMounted(async () => {
-  // if (!window.opener) {
-  //   const path = '/tablet/#/withdrawal/wtwda-auto-transfer-change-mgt';
-  //   const size = {
-  //     width: 1138,
-  //     height: 712,
-  //   };
-  //   await router.close(0, true);
-  //   await popupUtil.open(`${path}`, size, false);
-  // }
   formRef.value.reset();
 });
 

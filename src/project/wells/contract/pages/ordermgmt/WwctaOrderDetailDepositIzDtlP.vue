@@ -55,14 +55,14 @@
         >
           <p>
             {{ frmMainData.rentalMsh1Cost+$t('MSG_TXT_CUR_WON')
-              +'('+frmMainData.rental1Ptrm+$t('MSG_TXT_MCNT')+')' }}
+              +'('+frmMainData.rental1Ptrm+')' }}
           </p>
         </kw-form-item>
         <!-- 렌탈, 멤버십료2 -->
         <kw-form-item
           :label="$t('MSG_TXT_RNTL_MSH_CHRAM_2')"
         >
-          <p>{{ frmMainData.rentalMsh2Cost+$t('MSG_TXT_MON')+'('+frmMainData.rental2Ptrm+$t('MSG_TXT_MCNT')+')' }}</p>
+          <p>{{ frmMainData.rentalMsh2Cost+$t('MSG_TXT_MON')+'('+frmMainData.rental2Ptrm+')' }}</p>
         </kw-form-item>
       </kw-form-row>
       <kw-form-row>

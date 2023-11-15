@@ -20,6 +20,7 @@
       :modified-targets="['grdMain']"
       @search="onClickSearch"
     >
+      <!-- 제품명 -->
       <kw-search-row>
         <kw-search-item
           :label="$t('MSG_TXT_GOODS_NM')"
@@ -30,6 +31,7 @@
             :maxlength="50"
           />
         </kw-search-item>
+        <!-- A/S 접수업체 -->
         <kw-search-item
           :label="$t('MSG_TXT_AS_RCP_BZS')"
         >
@@ -52,6 +54,7 @@
             @change="fetchData"
           />
         </template>
+        <!-- 삭제 버튼 -->
         <kw-btn
           v-permission:delete
           :label="$t('MSG_BTN_DEL')"
@@ -63,12 +66,14 @@
           inset
           spaced
         />
+        <!-- 행추가 버튼 -->
         <kw-btn
           v-permission:create
           grid-action
           :label="$t('MSG_BTN_ROW_ADD')"
           @click="onClickAddRow"
         />
+        <!-- 저장 버튼 -->
         <kw-btn
           v-permission:update
           grid-action
@@ -86,6 +91,7 @@
           secondary
           :label="$t('MSG_BTN_PRTG')"
         /> -->
+        <!-- 엑셀다운로드 버튼 -->
         <kw-btn
           v-permission:download
           icon="download_on"
@@ -100,6 +106,7 @@
           vertical
           inset
         />
+        <!-- 알림톡발송 버튼 -->
         <kw-btn
           v-permission:update
           dense
@@ -170,7 +177,7 @@ const pageInfo = ref({
   pageIndex: 1,
   pageSize: Number(getConfig('CFG_CMZ_DEFAULT_PAGE_SIZE')),
 });
-
+// 그리드 조회
 async function fetchData() {
   const res = await dataService.get('/sms/wells/service/outsourcedpd-as-receipts/itemization/paging', { params: { ...cachedParams, ...pageInfo.value } });
   const { list: receipts, pageInfo: pagingResult } = res.data;
@@ -182,19 +189,19 @@ async function fetchData() {
   view.clearCurrent();
   view.rowIndicator.indexOffset = gridUtil.getPageIndexOffset(pageInfo);
 }
-
+// 조회 버튼
 async function onClickSearch() {
   pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
-
+// 행추가 버튼
 function onClickAddRow() {
   const view = grdMainRef.value.getView();
   gridUtil.insertRowAndFocus(view, 0, {});
   view.checkItem(0, true);
 }
-
+// 삭제 버튼
 async function onClickDelete() {
   const view = grdMainRef.value.getView();
   if (!await gridUtil.confirmIfIsModified(view)) { return; }
@@ -204,11 +211,11 @@ async function onClickDelete() {
     // 삭제 controller
     await dataService.delete('/sms/wells/service/outsourcedpd-as-receipts/itemization', { data: [...deletedRows] });
 
-    notify(t('MSG_ALT_DELETED'));
+    notify(t('MSG_ALT_DELETED')); // 삭제 되었습니다.
     await fetchData();
   }
 }
-
+// 엑셀다운로드 버튼
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
 
@@ -221,30 +228,30 @@ async function onClickExcelDownload() {
     checkBar: 'hidden',
   });
 }
-
+// 저장 버튼
 async function onClickSave() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
 
   if (chkRows.length === 0) {
-    notify(t('MSG_ALT_NOT_SEL_ITEM'));
+    notify(t('MSG_ALT_NOT_SEL_ITEM')); // MSG_ALT_NOT_SEL_ITEM
   } else if (await gridUtil.validate(view, { isCheckedOnly: true })) {
     await dataService.post('/sms/wells/service/outsourcedpd-as-receipts/itemization', chkRows);
-    notify(t('MSG_ALT_SAVE_DATA'));
+    notify(t('MSG_ALT_SAVE_DATA')); // 저장되었습니다.
     await fetchData();
   }
 }
-
+// 알림톡발송 버튼
 async function onClicBiztalkSend() {
   const view = grdMainRef.value.getView();
   const chkRows = gridUtil.getCheckedRowValues(view);
 
   if (chkRows.length > 1) {
-    notify(t('MSG_ALT_MDFC_SEL'));
+    notify(t('MSG_ALT_MDFC_SEL')); // 하나의 항목을 선택하십시오
     return;
   }
   if (chkRows[0].rowState !== 'none') {
-    notify(t('MSG_ALT_CHG_CNTN_AFTER_SAVE'));
+    notify(t('MSG_ALT_CHG_CNTN_AFTER_SAVE')); // 변경된 내용이 있습니다. 저장 후 진행 해 주세요.
     return;
   }
 
@@ -263,19 +270,19 @@ async function onClicBiztalkSend() {
 // -------------------------------------------------------------------------------------------------
 const initGrdMain = defineGrid((data, view) => {
   const fields = [
-    { fieldName: 'rcpSn' },
-    { fieldName: 'entrpDvCd' },
-    { fieldName: 'svCnrSn' },
-    { fieldName: 'pdNm' },
-    { fieldName: 'svCnrNm' },
-    { fieldName: 'svCnrLocaraTno' },
-    { fieldName: 'svCnrExnoEncr' },
-    { fieldName: 'svCnrIdvTno' },
-    { fieldName: 'svCnrTno' },
-    { fieldName: 'svCnrAdr' },
-    { fieldName: 'svCnrDtlAdr' },
-    { fieldName: 'cnrAddr' },
-    { fieldName: 'svCnrIchrPrtnrNm' },
+    { fieldName: 'rcpSn' }, // 접수일련번호
+    { fieldName: 'entrpDvCd' }, // 사업자구분코드
+    { fieldName: 'svCnrSn' }, // 서비스센터일련번호
+    { fieldName: 'pdNm' }, // 제품명
+    { fieldName: 'svCnrNm' }, // AS접수업체명
+    { fieldName: 'svCnrLocaraTno' }, // 서비스센터지역전화번호
+    { fieldName: 'svCnrExnoEncr' }, // 서비스센터전화국번호암호화
+    { fieldName: 'svCnrIdvTno' }, // 서비스센터개별전화번호
+    { fieldName: 'svCnrTno' }, // 서비스센터전화번호TOT
+    { fieldName: 'svCnrAdr' }, // 서비스센터주소
+    { fieldName: 'svCnrDtlAdr' }, // 서비스센터상세주소
+    { fieldName: 'cnrAddr' }, // 서비스센터주소TOT
+    { fieldName: 'svCnrIchrPrtnrNm' }, // 서비스센터담당파트너번호
   ];
 
   const columns = [
