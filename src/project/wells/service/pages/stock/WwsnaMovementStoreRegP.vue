@@ -60,7 +60,8 @@
           <kw-input
             v-model="propsParams.strHopDt"
             :readonly="true"
-            datetime-format="date"
+            mask="####-##-##"
+            placeholder=""
           />
         </kw-form-item>
         <!-- //입고희망일자 -->
@@ -603,11 +604,11 @@ const initGrdMain = defineGrid((data, view) => {
     // 출고요청수량
     { fieldName: 'ostrAkQty', header: t('MSG_TXT_OSTR_AK_QTY'), width: '100', styleName: 'text-right' },
     // 품목등급코드
-    { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '100', styleName: 'text-center' },
+    { fieldName: 'itmGdCd', header: t('MSG_TXT_GD'), width: '60', styleName: 'text-center' },
     // 출고수량
     { fieldName: 'ostrQty', header: t('MSG_TXT_OSTR_QTY'), width: '100', styleName: 'text-right' },
     // 최근입고일자
-    { fieldName: 'strRgstDt', header: t('MSG_TXT_RECT_STR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
+    { fieldName: 'strConfDt', header: t('MSG_TXT_RECT_STR_DT'), width: '100', styleName: 'text-center', datetimeFormat: 'date' },
     // 입고누계수량
     { fieldName: 'inSum', header: t('MSG_TXT_STR_AGG_QTY'), width: '100', styleName: 'text-right' },
     // 입고(대상) 수량
@@ -621,7 +622,7 @@ const initGrdMain = defineGrid((data, view) => {
   const gridField = columns.map((v) => ({ fieldName: v.fieldName }));
   const fields = [...gridField,
     { fieldName: 'strSn' },
-    { fieldName: 'strConfDt' },
+    { fieldName: 'strRgstDt' },
     { fieldName: 'baseGb' },
     { fieldName: 'baseColorGb' },
     { fieldName: 'strWareNo' },
