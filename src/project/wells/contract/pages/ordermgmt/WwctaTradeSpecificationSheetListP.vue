@@ -179,7 +179,7 @@ import dayjs from 'dayjs';
 const dataService = useDataService();
 const { t } = useI18n();
 const { getConfig } = useMeta();
-const { modal, notify } = useGlobal();
+const { alert, modal, notify } = useGlobal();
 const ozParamsList = ref({});
 const props = defineProps({
   cntrNo: { type: String, required: false, default: '' },
@@ -508,7 +508,7 @@ async function onClickPblPrnt() {
   let outputDataYN;
   let pblcSearchSttDt; // 발행년월시
   let custNm; // 고객명
-  // let rfndYn = false; // 거래명세서(일시불패키지 상품)
+  let rfndYn = false; // 거래명세서(일시불패키지 상품)
 
   if (searchParams.value.cntrDvCd === '1') {
     if (searchParams.value.docDvCd === '1') {
@@ -581,6 +581,11 @@ async function onClickPblPrnt() {
       // eslint-disable-next-line no-case-declarations
       const cntrs = gridUtil.getCheckedRowValues(view);
       cntrs.forEach((row) => {
+        // 거래명새서 판매할인율코드(6:패키지)일 경우
+        if (searchParams.value.docDvCd === '2'
+         && row.dscApyDtlCd === '6') {
+          rfndYn = true;
+        }
         outputDataYN = true;
         cntrDtlNoList.push(row.cntrDtlNo);
       });
@@ -605,7 +610,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args1 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/oz', ...cachedParams, cntrDtlNoList };
+        const args1 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/deposit-itemizations/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args1);
 
         // OZ 레포트 팝업호출
@@ -616,12 +621,17 @@ async function onClickPblPrnt() {
         );
         break;
       case '2': // 거래명세서
+        if (rfndYn) {
+          // 일시불 패키지 상품이 포함되어  출력하실 수 없습니다. [문의 : Wells마케팅전략팀 고의엽매니저(02-397-9312)]
+          await alert(t('MSG_ALT_SPAY_PKG_PRDT_INC_PRNT_IMP'));
+          return;
+        }
         // OZ 리포트 팝업 파라미터 설정
         cachedParams.reportHeaderTitle = '거래명세서 조회'; // 레포트 제목
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/oz', ...cachedParams, cntrDtlNoList };
+        const args2 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/trade-specification/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args2);
 
         // OZ 레포트 팝업호출
@@ -637,7 +647,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args3 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/oz', ...cachedParams, cntrDtlNoList };
+        const args3 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/card-sales-slips/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args3);
 
         // OZ 레포트 팝업호출
@@ -653,7 +663,7 @@ async function onClickPblPrnt() {
 
         // OZ 리포트 호출 Api 설정
         // eslint-disable-next-line no-case-declarations
-        const args4 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/oz', ...cachedParams, cntrDtlNoList };
+        const args4 = { searchApiUrl: '/api/v1/sms/wells/contract/contracts/order-details/specification/contract-articles/anonymous/oz', ...cachedParams, cntrDtlNoList };
         // console.log(args4);
 
         // OZ 레포트 팝업호출
