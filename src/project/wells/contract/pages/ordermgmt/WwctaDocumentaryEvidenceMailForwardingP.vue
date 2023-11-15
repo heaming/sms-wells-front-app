@@ -84,11 +84,22 @@
         :label="t('MSG_BTN_CANCEL')"
         @click="cancel"
       />
-      <kw-btn
-        primary
-        :label="t('MSG_BTN_SEND')"
-        @click="onClickSendEmail"
-      />
+      <!-- 발송 -->
+      <slot v-if="props.isPrntYn === 'N'">
+        <kw-btn
+          primary
+          :label="t('MSG_BTN_SEND')"
+          @click="onClickSendEmail"
+        />
+      </slot>
+      <!-- 발행(출력) -->
+      <slot v-else-if="props.isPrntYn === 'Y'">
+        <kw-btn
+          primary
+          :label="t('MSG_BTN_PBL_PRNT')"
+          @click="onClickSendEmail"
+        />
+      </slot>
     </template>
   </kw-popup>
 </template>
@@ -158,13 +169,7 @@ async function fetchCstNm() {
     });
   });
 
-  const cntrNoParam = fieldParams.value.cstList[0].cntrNo;
-  const cntrSnParam = fieldParams.value.cstList[0].cntrSn;
-
-  const res = await dataService.get('/sms/wells/contract/contracts/order-details/documentary-evidence-mails', { params: { cntrNo: cntrNoParam, cntrSn: cntrSnParam } });
-  if (!isEmpty(res.data)) {
-    fieldParams.value.cstKnm = res.data;
-  }
+  fieldParams.value.cstKnm = props.cntrCstKnm;
   obsMainRef.value.init();
 }
 
@@ -201,11 +206,6 @@ async function onClickSendEmail() {
 }
 
 onMounted(async () => {
-  if (!isEmpty(props.cntrCstKnm)) {
-    fieldParams.value.cstKnm = props.cntrCstKnm;
-    obsMainRef.value.init();
-  } else {
-    fetchCstNm();
-  }
+  fetchCstNm();
 });
 </script>
