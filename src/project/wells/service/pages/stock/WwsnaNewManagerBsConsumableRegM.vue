@@ -533,19 +533,27 @@ async function onClickExcelDownload() {
 async function onClickOstrAk() {
   const view = grdMainRef.value.getView();
   const checkedRows = gridUtil.getCheckedRowValues(view);
-  const checkedModifyRows = gridUtil.getCheckedRowValues(view, { isChangedOnly: true });
 
   if (checkedRows.length === 0) {
     notify(t('MSG_ALT_NOT_SEL_ITEM'));
     return;
   }
 
-  if (checkedModifyRows.length !== 0 && (checkedRows.length > checkedModifyRows.length)) {
-    notify(t('MSG_ALT_NO_CHG_ROW_SELECT'));
-    return;
-  }
-
   let errorYn = false;
+
+  // checkedRows.forEach((checkedRow) => {
+  //   if (checkedRow.bfsvcCsmbDdlvStatCd !== '20') {
+  //     alert(`${checkedRow.prtnrNmNo}님의 신청 상태를 확인해주세요`);
+  //     errorYn = true;
+  //     return;
+  //   }
+
+  //   requestData.push({
+  //     mngtYm: searchParams.value.mngtYm,
+  //     bfsvcCsmbDdlvOjCd: '1',
+  //     strWareNo: checkedRow.prtnrNo,
+  //   });
+  // });
 
   checkedRows.forEach((checkedRow) => {
     if (checkedRow.bfsvcCsmbDdlvStatCd !== '20') {
@@ -554,11 +562,35 @@ async function onClickOstrAk() {
       return;
     }
 
-    requestData.push({
-      mngtYm: searchParams.value.mngtYm,
-      bfsvcCsmbDdlvOjCd: '1',
-      strWareNo: checkedRow.prtnrNo,
-    });
+    let f = 1;
+    let a = 1;
+    for (let i = 0; i < itemsData.value.length; i += 1) {
+      if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '1') {
+        requestData.push({
+          mngtYm: searchParams.value.mngtYm,
+          bfsvcCsmbDdlvOjCd: '1',
+          strWareNo: checkedRow.prtnrNo,
+          csmbPdCd: itemsData.value[i].fxnPdCd,
+          sapMatCd: itemsData.value[i].fxnSapMatCd,
+          bfsvcCsmbDdlvQty: checkedRow[`fxnQty${f}`] === undefined ? '0' : checkedRow[`fxnQty${f}`],
+          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
+        });
+
+        f += 1;
+      } else if (itemsData.value[i].bfsvcCsmbDdlvTpCd === '2') {
+        requestData.push({
+          mngtYm: searchParams.value.mngtYm,
+          bfsvcCsmbDdlvOjCd: '1',
+          strWareNo: checkedRow.prtnrNo,
+          csmbPdCd: itemsData.value[i].aplcPdCd,
+          sapMatCd: itemsData.value[i].aplcSapMatCd,
+          bfsvcCsmbDdlvQty: checkedRow[`aplcQty${a}`] === undefined ? '0' : checkedRow[`aplcQty${a}`],
+          bfsvcCsmbDdlvStatCd: isBusinessSupportTeam.value ? '20' : '10',
+        });
+
+        a += 1;
+      }
+    }
   });
 
   if (!errorYn) {
