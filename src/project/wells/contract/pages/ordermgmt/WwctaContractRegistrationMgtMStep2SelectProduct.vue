@@ -131,11 +131,10 @@
 // -------------------------------------------------------------------------------------------------
 // Import & Declaration
 // -------------------------------------------------------------------------------------------------
-import { alert, useDataService } from 'kw-lib';
+import { alert, useDataService, stringUtil } from 'kw-lib';
 import { useCtCode } from '~sms-common/contract/composable';
 import { vScrollbar } from '~sms-common/contract/util';
 import { PD_TP_CD, SELL_TP_CD } from '~sms-wells/contract/constants/ctConst';
-import dayjs from 'dayjs';
 
 const props = defineProps({
   cntrNo: { type: String, required: true },
@@ -153,6 +152,7 @@ const dataService = useDataService();
 const { codes, addCode, getCodeName } = await useCtCode(
   'SELL_TP_DTL_CD',
   'PD_TP_CD',
+  'RGLR_SPP_MCHN_TP_CD',
 );
 await addCode('SELL_TP_CD', (code) => ([
   SELL_TP_CD.SPAY,
@@ -335,7 +335,7 @@ async function fetchMachines() {
       codeId: `${cntrDtl.cntrNo}-${cntrDtl.cntrSn}`,
       codeName: `${cntrDtl.pdNm
       } / ${cntrDtl.cntrNo}-${cntrDtl.cntrSn
-      } / ${t('설치일')}:${dayjs(cntrDtl.istDt).format('YYYY-MM-DD')
+      } / ${t('설치일')}:${stringUtil.getDateFormat(cntrDtl.istDt)
       } / ${getCodeName('RGLR_SPP_MCHN_TP_CD', cntrDtl.rglrSppMchnTpCd)}`,
       cntrDtl,
     }));
