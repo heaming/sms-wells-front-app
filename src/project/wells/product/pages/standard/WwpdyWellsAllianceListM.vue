@@ -520,9 +520,9 @@ const initGrdMain = defineGrid((data, view) => {
     }
   };
 
-  view.onCellButtonClicked = async (grid, { column, itemIndex }) => {
+  view.onCellButtonClicked = async (grid, { column, dataRow }) => {
     if (column === 'pdNm') {
-      const pdNm = grid.getValue(itemIndex, 'pdNm');
+      const pdNm = grid.getValue(dataRow, 'pdNm');
       const { payload } = await modal({
         component: 'ZwpdcStandardListP',
         componentProps: { searchType: pdConst.PD_SEARCH_NAME,
@@ -531,12 +531,12 @@ const initGrdMain = defineGrid((data, view) => {
       });
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
-        data.setValue(itemIndex, 'pdNm', row.pdNm);
-        data.setValue(itemIndex, 'pdCd', row.pdCd);
+        data.setValue(dataRow, 'pdNm', row.pdNm);
+        data.setValue(dataRow, 'pdCd', row.pdCd);
       }
     }
     if (column === 'svPdNm') {
-      const svPdNm = grid.getValue(itemIndex, 'svPdNm');
+      const svPdNm = grid.getValue(dataRow, 'svPdNm');
       const { payload } = await modal({
         component: 'ZwpdcServiceListP',
         componentProps: { searchType: pdConst.PD_SEARCH_NAME,
@@ -546,8 +546,8 @@ const initGrdMain = defineGrid((data, view) => {
       if (payload) {
         const row = Array.isArray(payload) ? payload[0] : payload;
         console.log('row : ', row);
-        data.setValue(itemIndex, 'svPdNm', row.pdNm);
-        data.setValue(itemIndex, 'svPdCd', row.pdCd);
+        data.setValue(dataRow, 'svPdNm', row.pdNm);
+        data.setValue(dataRow, 'svPdCd', row.pdCd);
       }
     }
   };
