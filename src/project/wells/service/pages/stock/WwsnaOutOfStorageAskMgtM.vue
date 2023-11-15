@@ -229,7 +229,7 @@ async function onClickRegistration() {
 
   if (isChanged) {
     notify(t('MSG_ALT_REGISTERED'));
-    await fetchData();
+    await onClickSearch();
   }
 }
 
@@ -285,8 +285,23 @@ function initGrdMain(data, view) {
   const columns = [
     { fieldName: 'strHopDt', header: t('MSG_TXT_STR_HOP_D'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'ostrAkTpNm', header: t('MSG_TXT_OSTR_AK_TP'), width: '150', styleName: 'text-center' },
-    { fieldName: 'ostrAkNo', header: t('MSG_TXT_OSTR_AK_NO'), width: '250', styleName: 'text-center' },
-    { fieldName: 'lgstOstrAkNo', header: t('MSG_TXT_LGST_OSTR_AK_NO'), width: '250', styleName: 'text-center' },
+    { fieldName: 'ostrAkNo',
+      header: t('MSG_TXT_OSTR_AK_NO'),
+      width: '250',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
+        return v.replace(regExp, '$1-$2-$3');
+      },
+    },
+    { fieldName: 'lgstOstrAkNo',
+      header: t('MSG_TXT_LGST_OSTR_AK_NO'),
+      width: '250',
+      styleName: 'text-center',
+      displayCallback: (g, i, v) => {
+        const regExp = /^(\w{4})(\d{8})(\d{4}).*/;
+        return v.replace(regExp, '$1-$2-$3');
+      } },
     { fieldName: 'wareNm', header: t('MSG_TXT_OSTR_AK_RCP_WARE'), width: '150', styleName: 'text-center' },
     { fieldName: 'rectOstrDt', header: t('MSG_TXT_RECT_STR_DT'), width: '150', styleName: 'text-center', datetimeFormat: 'date' },
     { fieldName: 'itmNm',
