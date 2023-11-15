@@ -527,6 +527,7 @@ const initGrid1 = defineGrid((data, view) => {
     { fieldName: 'fstRgstDtm' }, /* 등록일자 */
     { fieldName: 'usrNm' }, /* 등록자 */
     { fieldName: 'fnlMdfcUsrId' }, /* 번호 */
+    { fieldName: 'mdfyYn' }, /* 번호 */
   ];
 
   const columns = [
@@ -585,6 +586,18 @@ const initGrid1 = defineGrid((data, view) => {
       rules: 'required',
       editor: { type: 'dropdown' },
       options: codes.SL_CTR_MTR_DV_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     {
       fieldName: 'slCtrSellTpCd',
@@ -770,6 +783,18 @@ const initGrid1 = defineGrid((data, view) => {
       rules: 'required',
       editor: { type: 'dropdown' },
       options: codes.SL_CTR_DV_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     {
       fieldName: 'slCtrMtrTpCd',
@@ -781,6 +806,18 @@ const initGrid1 = defineGrid((data, view) => {
       rules: 'required',
       editor: { type: 'dropdown' },
       options: codes.SL_CTR_MTR_TP_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     {
       fieldName: 'slCtrTpCd',
@@ -793,6 +830,18 @@ const initGrid1 = defineGrid((data, view) => {
       editor: { type: 'dropdown' },
       editable: true,
       options: codes.SL_CTR_TP_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     {
       fieldName: 'slCtrDscTpCd',
@@ -804,14 +853,39 @@ const initGrid1 = defineGrid((data, view) => {
       rules: 'required',
       editor: { type: 'dropdown' },
       options: codes.SL_CTR_DSC_TP_CD,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     { fieldName: 'canAfOjYn',
       header: t('MSG_TXT_CAN_AFT_APY'), // 취소 후 적용
       width: '100',
       editor: { type: 'dropdown' },
       editable: true,
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
       options: [{ codeId: 'Y', codeName: 'Y' },
         { codeId: 'N', codeName: 'N' }],
+
     },
     { fieldName: 'slCtrAmt',
       rules: 'required',
@@ -823,13 +897,15 @@ const initGrid1 = defineGrid((data, view) => {
       styleCallback: (grid, dataCell) => {
         const ret = {};
         const { slCtrTpCd, dummySlCtrAmt } = grid.getValues(dataCell.index.itemIndex);
-        if (slCtrTpCd !== '2') {
-          view.setValue(dataCell.index.itemIndex, 'slCtrAmt', 0);
-        } else {
-          ret.editable = false;
-          view.setValue(dataCell.index.itemIndex, 'slCtrAmt', dummySlCtrAmt);
+        if (dataCell.item.rowState === 'created') {
+          if (slCtrTpCd !== '2') {
+            view.setValue(dataCell.index.itemIndex, 'slCtrAmt', 0);
+          } else {
+            ret.editable = false;
+            view.setValue(dataCell.index.itemIndex, 'slCtrAmt', dummySlCtrAmt);
+          }
+          return ret;
         }
-        return ret;
       },
     },
     { fieldName: 'slCtrWoExmpAmt',
@@ -854,6 +930,18 @@ const initGrid1 = defineGrid((data, view) => {
       },
       rules: 'required',
       width: '208',
+      styleCallback(grid, dataCell) {
+        const mdfyYn = grid.getValue(dataCell.index.itemIndex, 'mdfyYn');
+        let ret = {};
+        if (mdfyYn === 'N') {
+          ret.editable = false;
+        } else {
+          ret = {
+            editor: { type: 'dropdown' },
+          };
+        }
+        return ret;
+      },
     },
     { fieldName: 'fstRgstDtm',
       header: t('MSG_TXT_FST_RGST_DT'), // 등록일자
