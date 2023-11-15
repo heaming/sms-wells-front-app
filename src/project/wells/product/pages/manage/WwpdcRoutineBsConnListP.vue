@@ -336,14 +336,26 @@ async function onClickSave() {
   }
 
   const bases = gridUtil.getAllRowValues(view);
-  if (!bases.length) {
-    // 추가된 필터/부품이 없습니다
-    notify(t('MSG_ALT_PD_NO_ADD_FILT_PART'));
+
+  let flag = true;
+  bases.forEach((base) => {
+    if (flag && base.istMm && (isEmpty(base.strtWkYVal?.toString()) || Number.isNaN(base.strtWkYVal))) {
+      flag = false;
+      // 설치월 입력시, 작업연도를 입력하세요!
+      notify(t('MSG_ALT_PD_BS_INS_WORKYEAR'));
+      gridUtil.focusCellInput(view, base.dataRow, 'strtWkYVal');
+    }
+  });
+
+  if (!flag) {
     return;
   }
 
+  // 정기B/S투입정보를 생성하시겠습니까? / 삭제하시겠습니까?
+  const confirmMsg = bases.length ? t('MSG_ALT_PD_DO_REG_BS_INFO') : t('MSG_ALT_PD_DO_DEL_BS_INFO');
+
   // 정기B/S투입정보를 생성하시겠습니까?
-  if (!await confirm(t('MSG_ALT_PD_DO_REG_BS_INFO'))) { return; }
+  if (!await confirm(confirmMsg)) { return; }
 
   const details = [];
   if (bases.length) {
@@ -396,8 +408,9 @@ async function onClickSave() {
   // console.log('WwpdcRoutineBsConnListP - onClickSave - subList : ', subList);
   await dataService.put('/sms/wells/product/bs-works', subList);
 
-  // 저장 되었습니다.
-  notify(t('MSG_ALT_SAVE_DATA'));
+  // 저장 되었습니다. / 삭제 되었습니다.
+  const doneMessage = bases.length ? t('MSG_ALT_SAVE_DATA') : t('MSG_ALT_DELETED');
+  notify(doneMessage);
   await fetchData();
 }
 

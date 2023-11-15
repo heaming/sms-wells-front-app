@@ -185,8 +185,8 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
     { fieldName: 'instDpAmt', header: t('MSG_TXT_INTAM'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출대사 - 할부금
     { fieldName: 'totDpAmt', header: t('MSG_TXT_SUM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  매출대사 - 합계
 
-    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 대손
     { fieldName: 'totUcBlam', header: t('MSG_TXT_EOT_UC'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 기말미수
+    { fieldName: 'dfaProcsAmt', header: `${t('MSG_TXT_DFA')}`, width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 대손
     { fieldName: 'crpUcAmt', header: t('MSG_TXT_CRP_UC'), width: '180', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 법인미수
     { fieldName: 'etcDpAmt', header: t('MSG_TXT_ETC_PRPD_RPLC'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, //  기타선수대체
     { fieldName: 'interContNomSlAmt', header: t('MSG_TXT_IND_TRD_NOM'), width: '150', styleName: 'text-right', dataType: 'number', numberFormat: '#,##0', headerSummary: { expression: 'sum', numberFormat: '#,##0' } }, // 사건거래정상
@@ -219,8 +219,8 @@ async function setGridColumnLayoutType1(data, view) { // 일시불
       direction: 'horizontal',
       items: ['cntrDpAmt', 'instDpAmt', 'totDpAmt'],
     },
-    'dfaProcsAmt',
     'totUcBlam',
+    'dfaProcsAmt',
     'crpUcAmt',
     'etcDpAmt',
     'interContNomSlAmt',
@@ -553,8 +553,8 @@ function getColumnsBySellTpCd(sellTpCd) {
       { value: 'instDpAmt', text: t('MSG_TXT_INTAM'), width: 180, align: 'right' }, //  매출대사 - 할부금
       { value: 'totDpAmt', text: t('MSG_TXT_SUM'), width: 150, align: 'right' }, //  매출대사 - 합계
 
-      { value: 'dfaProcsAmt', text: `${t('MSG_TXT_DFA')}`, width: 180, align: 'right' }, // 대손
       { value: 'totUcBlam', text: t('MSG_TXT_EOT_UC'), width: 150, align: 'right' }, // 기말미수
+      { value: 'dfaProcsAmt', text: `${t('MSG_TXT_DFA')}`, width: 180, align: 'right' }, // 대손
       { value: 'crpUcAmt', text: t('MSG_TXT_CRP_UC'), width: 180, align: 'right' }, // 법인미수
       { value: 'etcDpAmt', text: t('MSG_TXT_ETC_PRPD_RPLC'), width: 150, align: 'right' }, //  기타선수대체
       { value: 'interContNomSlAmt', text: t('MSG_TXT_IND_TRD_NOM'), width: 150, align: 'right' }, // 사건거래정상

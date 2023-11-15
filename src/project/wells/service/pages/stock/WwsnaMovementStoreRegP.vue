@@ -28,7 +28,7 @@
         >
           <kw-input
             v-model="propsParams.itmStrNo"
-            :disable="true"
+            :readonly="true"
             mask="###-########-#######"
           />
         </kw-form-item>
@@ -39,7 +39,7 @@
         >
           <kw-input
             v-model="propsParams.strWareNm"
-            :disable="true"
+            :readonly="true"
           />
           <!-- 표준 미적용 -->
           <kw-checkbox
@@ -59,7 +59,7 @@
         >
           <kw-input
             v-model="propsParams.strHopDt"
-            :disable="true"
+            :readonly="true"
             datetime-format="date"
           />
         </kw-form-item>
@@ -70,7 +70,7 @@
         >
           <kw-input
             v-model="propsParams.strTpNm"
-            :disable="true"
+            :readonly="true"
           />
         </kw-form-item>
         <!-- //입고유형 -->
@@ -82,6 +82,7 @@
         >
           <kw-date-picker
             v-model="searchParams.strRgstDt"
+            :readonly="propsParams.flagChk === 1"
           />
         </kw-form-item>
         <!-- //입고일자 -->
@@ -91,7 +92,7 @@
           <!-- 출고창고 -->
           <kw-input
             v-model="propsParams.ostrWareNm"
-            :disable="true"
+            :readonly="true"
           />
           <!-- //출고창고 -->
         </kw-form-item>

@@ -378,7 +378,8 @@ async function onClickProduct() {
     },
   });
 
-  if (result) searchParams.value.pdCd = payload.checkedRows[0]?.pdCd;
+  // if (result) searchParams.value.pdCd = payload.checkedRows[0]?.pdCd;
+  if (result) searchParams.value.pdCd = payload.pdCd || payload.checkedRows[0]?.pdCd;
 }
 
 async function fetchProductDataByPart(partPdCd, partPdNm) {

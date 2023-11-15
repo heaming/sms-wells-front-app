@@ -148,8 +148,13 @@ async function onClickSearch() {
 // 저장
 async function onClickSave() {
   const view = grdMainRef.value.getView();
-  if (await gridUtil.alertIfIsNotModified(view)) { return; }
-  if (!await gridUtil.validate(view)) { return; }
+  const checkedRows = gridUtil.getCheckedRowValues(view);
+  if (isEmpty(checkedRows)) {
+    // 선택된 데이터가 없습니다.
+    notify(t('MSG_ALT_NO_CHECK_DATA'));
+    return;
+  }
+  if (!await gridUtil.validate(view, { isCheckedOnly: true })) { return; }
 
   // 출고당일 오전 7시 30분 이후 수량 조정 불가
   const curTime = dayjs().format('YYYYMMDDHHmmss');
@@ -160,13 +165,26 @@ async function onClickSave() {
     return;
   }
 
-  const changedData = gridUtil.getChangedRowValues(view);
-  changedData.forEach((item) => {
+  let validPdNm = '';
+  checkedRows.forEach((item) => {
+    const { ostrQty, excdQty, spmtQty, sdingPkgNm } = item;
+    // 출고 + 추가수량 < 제외수량
+    if (ostrQty + spmtQty < excdQty) {
+      validPdNm = sdingPkgNm;
+      return false;
+    }
+
     item.ostrDuedt = cachedParams.ostrDt;
     item.dgGgLctCd = cachedParams.dgGgLctCd;
   });
 
-  const res = await dataService.post('/sms/wells/service/seeding-package-ctr-qtys-reg', changedData);
+  if (!isEmpty(validPdNm)) {
+    // 품목의 제외수량은 출고+추가수량을 초과할 수 없습니다.
+    await alert(`${validPdNm} ${t('MSG_ALT_NOT_OVR_EXCD_QTY_OSTR_QTY')}`);
+    return;
+  }
+
+  const res = await dataService.post('/sms/wells/service/seeding-package-ctr-qtys-reg', checkedRows);
   const { processCount } = res.data;
   if (processCount > 0) {
     notify(t('MSG_ALT_SAVE_DATA'));
