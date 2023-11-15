@@ -274,7 +274,7 @@ async function onClickDelete() {
 const { currentRoute } = useRouter();
 async function onClickExcelDownload() {
   const view = grdMainRef.value.getView();
-  const res = await dataService.get('/sms/wells/service/installation-separation-costs/excel-download', { params: searchParams.value });
+  const res = await dataService.get('/sms/wells/service/installation-separation-costs/excel-download', { params: cachedParams });
   await gridUtil.exportView(view, {
     fileName: currentRoute.value.meta.menuName,
     timePostfix: true,
