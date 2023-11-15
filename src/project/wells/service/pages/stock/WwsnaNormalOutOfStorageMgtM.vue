@@ -309,6 +309,9 @@ const initGrdMain = defineGrid((data, view) => {
       width: '200',
       styleName: 'text-center',
       displayCallback: (g, i, v) => {
+        if (isEmpty(v)) {
+          return v;
+        }
         const regExp = /^(\d{3})(\d{8})(\d{7}).*/;
         return v.replace(regExp, '$1-$2-$3');
       },
