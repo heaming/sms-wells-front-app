@@ -256,6 +256,7 @@ async function onChangeWareClsFCd() {
  *  Event - 조회 버튼 클릭
  */
 async function onClickSearch() {
+  pageInfo.value.pageIndex = 1;
   cachedParams = cloneDeep(searchParams.value);
   await fetchData();
 }
