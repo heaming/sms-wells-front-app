@@ -234,6 +234,20 @@ async function checkDuplicationByPk() {
 
   if (insUpdRows.length === 0) return await false;
 
+  const result = insUpdRows.filter(
+    (item1, idx1) => insUpdRows.findIndex((item2) => item1.pdCd === item2.pdCd
+          && item1.rstlBaseTpCd === item2.rstlBaseTpCd
+          && item1.rstlMcn === item2.rstlMcn
+          && item1.stplTn === item2.stplTn
+          && item1.rstlSellChnlDvCd === item2.rstlSellChnlDvCd) === idx1,
+  );
+
+  if (insUpdRows.length !== result.length) {
+    // 동일데이터의 경우  동시수정이 불가합니다.  한건씩 순차적으로 저장하세요
+    notify(t('MSG_ALT_NOT_ALLOW_INSERT_CASE1'));
+    return await true;
+  }
+
   for (let i = 0; i < insUpdRows.length; i += 1) {
     const baseRow = insUpdRows[i];
     for (let j = 1; j < insUpdRows.length; j += 1) {
@@ -271,7 +285,7 @@ async function checkDuplicationByPk() {
 
   // console.log('isInvailVal', isInvailVal);
   if (isInvailVal) {
-    notify(t('EXIST_DUP_RANGE_PD', [dupPdNm]));
+    notify(t('MSG_ALT_EXIST_DUP_RANGE_PD', [dupPdNm]));
     return await true;
   }
 
@@ -426,6 +440,8 @@ const initGrdMain = defineGrid((data, view) => {
     { fieldName: 'feeAckmtBaseAmt', header: t('MSG_TXT_PD_STD_FEE', null, '기준수수료'), width: '100', styleName: 'text-right', editor: numberEditor20, dataType: 'number', numberFormat: numberForamt },
     { fieldName: 'feeFxamYn', header: t('MSG_TXT_FXAM_YN', null, '정액여부'), width: '90', options: codes.COD_YN, editor: { type: 'dropdown' }, styleName: 'text-center' },
     { fieldName: 'rid', header: 'row식별값', visible: false },
+    { fieldName: 'ognRstlMcn', header: 'ognRstlMcn', visible: false },
+    { fieldName: 'ognApyEnddt', header: 'ognApyEnddt', visible: false },
 
     // 등록/수정일
     { fieldName: 'fstRgstDtm', header: t('MSG_TXT_RGST_DT'), width: '110', styleName: 'text-center', datetimeFormat: 'date', editable: false },
