@@ -64,6 +64,7 @@
           <kw-date-picker
             v-model="searchParams.strHopDt"
             :readonly="true"
+            placeholder=""
           />
         </kw-form-item>
         <!-- 출고요청번호 -->
